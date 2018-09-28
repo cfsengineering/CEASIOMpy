@@ -1,12 +1,12 @@
 #===============================================================================
 """
-    CEASIOMpy                                                                 
-    Conceptual Aircraft Design Software                                       
-                                                                              
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland                 
-                                                                              
-    Logging method use by other CEASIOMpy modules                             
-    
+    CEASIOMpy
+    Conceptual Aircraft Design Software
+
+    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+    Logging method use by other CEASIOMpy modules
+
     Works with Python 2.7/3.4
     Author : Aidan Jungo
     Creation: 2018-09-26
@@ -28,23 +28,23 @@ from logging.handlers import RotatingFileHandler
 #===============================================================================
 
 def get_logger(name):
-    """ Function to create a logger                                        
-     
-    Function 'get_logger' create a logger, it sets the format and the level of 
+    """ Function to create a logger
+
+    Function 'get_logger' create a logger, it sets the format and the level of
     the logfile and console log.
-    
+
     Source : -
-     
-    ARGUMENTS                                                                                  
-    (str)           name            -- Logger name    
-                 
-    RETURNS                                                                    
-    (logger)        logger          -- Logger                                                                                                 
+
+    ARGUMENTS
+    (str)           name            -- Logger name
+
+    RETURNS
+    (logger)        logger          -- Logger
     """
-    
+
     # Set logger
     logger = logging.getLogger(name)
-    logger.setLevel(logging.DEBUG)  
+    logger.setLevel(logging.DEBUG)
 
     # Write logfile
     file_formatter = logging.Formatter('%(asctime)s - %(name)20s - %(levelname)s - %(message)s')
@@ -52,7 +52,7 @@ def get_logger(name):
     file_handler.setLevel(logging.DEBUG)     # Level for the logfile
     file_handler.setFormatter(file_formatter)
     logger.addHandler(file_handler)
- 
+
     # Write log messages on the console
     console_formatter = logging.Formatter('%(levelname)s - %(message)s')
     console_handler = logging.StreamHandler()
@@ -61,5 +61,3 @@ def get_logger(name):
     logger.addHandler(console_handler)
 
     return logger
-
-

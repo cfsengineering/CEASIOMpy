@@ -1,10 +1,8 @@
 # CEASIOMpy
 
-
 CEASIOMpy is a Conceptual Aircraft Design Software.
 
-Test1
-__________
+
 
 ## Guidelines
 
@@ -30,7 +28,8 @@ __________
         - controlsurf_deflection_angle <br />
 
 These Guidelines have been adapted from: https://gist.github.com/sloria/7001839
-__________
+
+
 
 ## Folder Structure
 
@@ -54,15 +53,14 @@ CEASIOMpy <br />
 ├── README.md <br />
 └── ... <br />
 
-__________
+
 
 ## Structure of CEASIOMpy Python script
 
-All CEASIOMpy modules should follow (if possible) the same structure for
-clarity. A template of this structure can be find here:
+All CEASIOMpy modules should follow (if possible) the same structure for clarity. A template of this structure can be find here:
 https://github.com/cfsengineering/CEASIOMpy/blob/master/lib/ModuleTemplate/mymodule.py
 
-__________
+
 
 ## Logging method
 
@@ -84,18 +82,16 @@ log.error('This is for Error messages')
 log.critical('This is for Critical error messages')
 ```
 
-They will be saved in log file with the same name as you module (.log) and in
-the console.
+They will be saved in log file with the same name as you module (.log) and in the console.
 
-__________
+
 
 ## Tests
 
 
+Structure of testing procedure
 
 
-
-__________
 
 ## Documentation
 
@@ -109,13 +105,20 @@ can use:
 
 It will generate ...
 
-__________
+
+
+## CPACS
+
+The Common Parametric Aircraft Configuration Schema (CPACS) is a data definition for the air transportation system. CPACS enables engineers to exchange information between their tools. It is therefore a driver for multi-disciplinary and multi-fidelity design in distributed environments. CPACS describes the characteristics of aircraft, rotorcraft, engines, climate impact, fleets and mission in a structured, hierarchical manner. Not only product but also process information is stored in CPACS. The process information helps in setting up workflows for analysis modules. Due to the fact that CPACS follows a central model approach, the number of interfaces is reduced to a minimum.
+
+CPACS Github : https://github.com/DLR-LY/CPACS
+
+
 
 ## RCE Integration
 
-RCE is
-It should be possible to integrate every CEASIOMpy script as a RCE module which
-could be connected to other RCE modules. Thess module should exchange
-(if possible) only CPACS file.
+RCE is a distributed, workflow-driven integration environment developed by DLR. It is used by engineers and scientists to analyze, optimize, and design complex systems (e.g., aircraft, ships, or satellites) by using and integrating their own design and simulation tools.
 
-__________
+RCE website: http://rcenvironment.de
+
+It should be possible to integrate every CEASIOMpy module as a RCE module. Then, they could be connected to each other and exchange only CPACS files.

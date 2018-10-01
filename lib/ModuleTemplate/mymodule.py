@@ -22,8 +22,6 @@
 import os
 import sys
 
-
-sys.path.append('../')
 from utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])

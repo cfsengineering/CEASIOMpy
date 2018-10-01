@@ -3,6 +3,27 @@
 CEASIOMpy is a Conceptual Aircraft Design Software.
 
 
+## Installation
+
+To use CEASIOMpy you must just download or clone this repository in the Install directory of your choice. Then, you have to add it to your PYTHONPATH.
+
+If use Windows, you have to add the following line, in your autoexec.bat file.
+```
+set PYTHONPATH=%PYTHONPATH%;\InstalDir\CEASIOMpy
+```
+ Alternatively, if you edit the system variable through the System Properties (My Computer > Properties > Advanced System Settings > Environment Variables) it should also worked.
+
+If you use Linux in BASH you have to add the following line, in your .bashrc file
+```
+export PYTHONPATH="$PYTHONPATH: /InstalDir/CEASIOMpy/"
+```
+
+If you use Linux in TCSH you have to add the following line, in your .tcshrc file
+```
+setenv PYTHONPATH ${PYTHONPATH}: /InstalDir/CEASIOMpy/
+
+```
+
 
 ## Guidelines
 
@@ -67,10 +88,11 @@ https://github.com/cfsengineering/CEASIOMpy/blob/master/lib/ModuleTemplate/mymod
 The CEASIOMpy logger can be imported and used as following:
 
 ```python
-sys.path.append('../')
 from utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 ```
+
+Be careful, if you did not add your CEASIOMpy folder in your 'PYTHONPATH' the logger will the be found.
 
 Then, you can use the following log in the code:
 

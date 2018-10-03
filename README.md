@@ -5,7 +5,7 @@ CEASIOMpy is a Conceptual Aircraft Design Software.
 
 ## Installation
 
-To use CEASIOMpy you must just download or clone this repository in the Install directory of your choice. Then, you have to add it to your PYTHONPATH.
+To use CEASIOMpy you just have to download or clone this repository in the Install directory of your choice. Then, you have to add it to your PYTHONPATH.
 
 If use Windows, you have to add the following line, in your autoexec.bat file.
 ```
@@ -21,7 +21,6 @@ export PYTHONPATH="$PYTHONPATH: /InstalDir/CEASIOMpy/"
 If you use Linux in TCSH you have to add the following line, in your .tcshrc file
 ```
 setenv PYTHONPATH ${PYTHONPATH}: /InstalDir/CEASIOMpy/
-
 ```
 
 

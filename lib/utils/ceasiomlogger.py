@@ -11,7 +11,7 @@
     Creation: 2018-09-26
     Last modifiction: 2018-09-27
     TODO: -Create at test file
-                                                                              
+
 """
 
 #===============================================================================
@@ -52,7 +52,7 @@ def get_logger(name):
     logger.addHandler(file_handler)
 
     # Write log messages on the console
-    console_formatter = logging.Formatter('%(levelname)s - %(message)s')
+    console_formatter = logging.Formatter('%(levelname)-8s - %(message)s')
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.DEBUG)   # Level for the console log
     console_handler.setFormatter(console_formatter)

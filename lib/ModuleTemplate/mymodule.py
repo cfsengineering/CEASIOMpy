@@ -22,7 +22,7 @@
 import os
 import sys
 
-from utils.ceasiomlogger import get_logger
+from lib.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 

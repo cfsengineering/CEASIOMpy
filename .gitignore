@@ -4,5 +4,8 @@
 # Ignore all .pyc files
 *.pyc
 
+# Ignore all pycache files
+__pycache__/
+
  # Ignore temp folder
 /temp

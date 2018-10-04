@@ -48,6 +48,7 @@ setenv PYTHONPATH ${PYTHONPATH}: /InstalDir/CEASIOMpy/
         - controlsurf_deflection_angle <br />
 
 These Guidelines have been adapted from: https://gist.github.com/sloria/7001839
+and https://www.python.org/dev/peps/pep-0008/
 
 
 
@@ -87,20 +88,20 @@ https://github.com/cfsengineering/CEASIOMpy/blob/master/lib/ModuleTemplate/mymod
 The CEASIOMpy logger can be imported and used as following:
 
 ```python
-from utils.ceasiomlogger import get_logger
+from lib.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 ```
 
-Be careful, if you did not add your CEASIOMpy folder in your 'PYTHONPATH' the logger will the be found.
+Be careful, if you did not add your CEASIOMpy folder in your 'PYTHONPATH' the logger will not be found.
 
 Then, you can use the following log in the code:
 
 ```python
-log.debug('This is for debugging')
-log.info('This is for debugging')
-log.warning('This is Warnings')
-log.error('This is for Error messages')
-log.critical('This is for Critical error messages')
+log.debug('This is for debugging messages')
+log.info('This is for information messages')
+log.warning('This is for warning messages')
+log.error('This is for error messages')
+log.critical('This is for critical error messages')
 ```
 
 They will be saved in log file with the same name as you module (.log) and in the console.

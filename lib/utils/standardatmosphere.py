@@ -8,7 +8,7 @@
     Works with Python 2.7
     Author : Aidan Jungo
     Creation: 2018-10-04
-    Last modifiction: 2018-10-05
+    Last modifiction: 2018-10-08
 
     TODO:  - move 'Example of use' in an exteranl document
            - Try compatibility with Python 3.4
@@ -21,9 +21,9 @@
 
 import os
 import sys
+
 import math
 import numpy
-
 import matplotlib.pyplot as plt
 
 from lib.utils.ceasiomlogger import get_logger
@@ -78,7 +78,7 @@ def get_atmosphere(alt):
     Calculate also Temperature, Pressure, Density, Viscosity, Speed of Sound at
     this altitude
 
-    Source : 1976 Standard Atmosphere, coded from the source of
+    Source : 1976 Standard Atmosphere, coded from:
              http://www.digitaldutch.com/atmoscalc/graphs.htm
              and https://en.wikipedia.org/wiki/Gravity_of_Earth
 
@@ -117,7 +117,7 @@ def get_atmosphere(alt):
     grav_ref = atm.grav
 
     # Check if Altitude is valid and find to which layer it corresponds
-    if alt >= 0 and alt < 84000:
+    if alt >= 0 and alt < 84852:
         i=0
         while alt > height[i+1]:
             i = i + 1;

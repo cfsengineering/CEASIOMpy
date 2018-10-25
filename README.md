@@ -23,6 +23,10 @@ If you use Linux in TCSH you have to add the following line, in your .tcshrc fil
 setenv PYTHONPATH ${PYTHONPATH}: /InstalDir/CEASIOMpy/
 ```
 
+### TIXI and TIGL Installation
+
+From source or via Conda ...
+
 
 ## Guidelines
 
@@ -33,7 +37,8 @@ setenv PYTHONPATH ${PYTHONPATH}: /InstalDir/CEASIOMpy/
   - Classes and Exceptions :    CapWords
   - Package and module :        short, all-lowercase names, no underscore
   - Constants :                 CAPITAL_LETTER_WITH_UNDERSCORE
-  - Index in loops:             i,j,k  or lowercase (e.g. alpha, beta,...)
+  - Index in loops:             i,j,k  or lowercase (e.g. alpha, beta,...) <br />
+                                or more explicit (i_fus, i_wing, i_eng)
 
 ### Quotes
   - '  '    simple quote are used for string, e.g. print('Test1')
@@ -92,7 +97,7 @@ from lib.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 ```
 
-Be careful, if you did not add your CEASIOMpy folder in your 'PYTHONPATH' the logger will not be found.
+Be careful, if you did not add the paht to the CEASIOMpy folder in your 'PYTHONPATH' the logger will not be found.
 
 Then, you can use the following log in the code:
 
@@ -104,14 +109,16 @@ log.error('This is for error messages')
 log.critical('This is for critical error messages')
 ```
 
-They will be saved in log file with the same name as you module (.log) and in the console.
+They will be saved in log file with the same name as your module (.log) and in the console.
 
 
 
 ## Tests
 
+Each new module added should have corresponding test module, which allow to verify
+all the main functionality of this module.
 
-Structure of testing procedure
+Structure of testing procedure ...
 
 
 

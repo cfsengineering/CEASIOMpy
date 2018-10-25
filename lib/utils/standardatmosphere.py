@@ -93,22 +93,22 @@ def get_atmosphere(alt):
     atm = Atmosphere()
 
     # Air Constants
-    MOL_WEIGHT = 28.9644 # [Mol]
+    MOL_WEIGHT = 28.9644  # [Mol]
     GAS_CONST = 8.31432  # Gas constant [kg/Mol/K]
     GMR = atm.grav * MOL_WEIGHT / GAS_CONST
-    GAMMA = 1.4 # [-]
+    GAMMA = 1.4  # [-]
     R = 287.053  # [J/Kg/K]
 
     # Layers definition
-    height = [0.0 , 11000.0, 20000.0, 32000.0, 47000.0,
-              51000.0, 71000.0, 84852.0] # [m]
+    height = [0.0, 11000.0, 20000.0, 32000.0, 47000.0,
+              51000.0, 71000.0, 84852.0]  # [m]
     temp_point = [288.15, 216.65, 216.65, 228.65, 270.65,
-                   270.65, 214.65, 186.946] # [K]
-    temp_grad = [-6.5, 0.0, 1.0, 2.8, 0.0, -2.8, -2.0] #[K/m]
+                  270.65, 214.65, 186.946]  # [K]
+    temp_grad = [-6.5, 0.0, 1.0, 2.8, 0.0, -2.8, -2.0]  # [K/m]
     rel_pressure = [1.0, 2.23361105092158e-1, 5.403295010784876e-2,
                     8.566678359291667e-3, 1.0945601337771144e-3,
                     6.606353132858367e-4, 3.904683373343926e-5,
-                    3.6850095235747942e-6] # [-]
+                    3.6850095235747942e-6]  # [-]
 
     # Reference values
     temp_ref = atm.temp
@@ -118,9 +118,9 @@ def get_atmosphere(alt):
 
     # Check if Altitude is valid and find to which layer it corresponds
     if alt >= 0 and alt < 84852:
-        i=0
+        i = 0
         while alt > height[i+1]:
-            i = i + 1;
+            i = i + 1
     else:
         log.warning('Altitude must be between 0 and 84000m!')
         raise ValueError('Altitude must be between 0 and 84000m!')
@@ -135,11 +135,11 @@ def get_atmosphere(alt):
 
     # Calculate pressure at altitude
     if abs(temp_grad[i]) < 0.1:
-        atm.pres = pres_ref * rel_pressure[i] * math.exp(-GMR * \
-                   (alt-height[i])/ 1000.0 / (temp_point[i]));
+        atm.pres = pres_ref * rel_pressure[i] * math.exp(-GMR \
+                   * (alt-height[i]) / 1000.0 / (temp_point[i]))
     else:
         atm.pres = pres_ref * rel_pressure[i] * (temp_point[i]/atm.temp) \
-                   **(GMR/(temp_grad[i]/1000.0)/1000.0)
+                   ** (GMR/(temp_grad[i]/1000.0)/1000.0)
 
     # Calculate density at altitude
     atm.dens = dens_ref * atm.pres/pres_ref * temp_ref/atm.temp

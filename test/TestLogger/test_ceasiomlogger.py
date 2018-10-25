@@ -38,6 +38,7 @@ logger_file_name = logger_name + '.log'
 #   CLASSES
 #==============================================================================
 
+
 class LoggerTest(unittest.TestCase):
     """
     Description of the class

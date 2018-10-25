@@ -32,6 +32,7 @@ log = get_logger(__file__.split('.')[0])
 #   CLASSES
 #==============================================================================
 
+
 class SimpleNamespace(object):
     """ Rudimentary SimpleNamespace clone.
 
@@ -75,34 +76,33 @@ class MathFunctions(unittest.TestCase):
         euler_angle.y = 0
         euler_angle.z = 0
         fix_angle = euler2fix(euler_angle)
-        self.assertEqual(fix_angle.x,0.0)
-        self.assertEqual(fix_angle.y,0.0)
-        self.assertEqual(fix_angle.z,0.0)
+        self.assertEqual(fix_angle.x, 0.0)
+        self.assertEqual(fix_angle.y, 0.0)
+        self.assertEqual(fix_angle.z, 0.0)
 
         euler_angle.x = 50
         euler_angle.y = 32
         euler_angle.z = 65
         fix_angle = euler2fix(euler_angle)
-        self.assertEqual(fix_angle.x,49.24)
-        self.assertEqual(fix_angle.y,-33.39)
-        self.assertEqual(fix_angle.z,64.58)
+        self.assertEqual(fix_angle.x, 49.24)
+        self.assertEqual(fix_angle.y, -33.39)
+        self.assertEqual(fix_angle.z, 64.58)
 
         euler_angle.x = -12.5
         euler_angle.y = 27
         euler_angle.z = 93
         fix_angle = euler2fix(euler_angle)
-        self.assertEqual(fix_angle.x,27.56)
-        self.assertEqual(fix_angle.y,11.12)
-        self.assertEqual(fix_angle.z,92.72)
+        self.assertEqual(fix_angle.x, 27.56)
+        self.assertEqual(fix_angle.y, 11.12)
+        self.assertEqual(fix_angle.z, 92.72)
 
         euler_angle.x = 90
         euler_angle.y = 90
         euler_angle.z = 90
         fix_angle = euler2fix(euler_angle)
-        self.assertEqual(fix_angle.x,90.0)
-        self.assertEqual(fix_angle.y,-90.0)
-        self.assertEqual(fix_angle.z,90.0)
-
+        self.assertEqual(fix_angle.x, 90.0)
+        self.assertEqual(fix_angle.y, -90.0)
+        self.assertEqual(fix_angle.z, 90.0)
 
     def test_fix2euler(self):
         """Test convertion from fix angles to Euler angles"""
@@ -113,17 +113,17 @@ class MathFunctions(unittest.TestCase):
         fix_angle.y = 0
         fix_angle.z = 0
         euler_angle = euler2fix(fix_angle)
-        self.assertEqual(euler_angle.x,0.0)
-        self.assertEqual(euler_angle.y,0.0)
-        self.assertEqual(euler_angle.z,0.0)
+        self.assertEqual(euler_angle.x, 0.0)
+        self.assertEqual(euler_angle.y, 0.0)
+        self.assertEqual(euler_angle.z, 0.0)
 
         fix_angle.x = 90
         fix_angle.y = 90
         fix_angle.z = 90
         euler_angle = euler2fix(fix_angle)
-        self.assertEqual(euler_angle.x,90.0)
-        self.assertEqual(euler_angle.y,-90.0)
-        self.assertEqual(euler_angle.z,90.0)
+        self.assertEqual(euler_angle.x, 90.0)
+        self.assertEqual(euler_angle.y, -90.0)
+        self.assertEqual(euler_angle.z, 90.0)
 
         # Test by doing both transformation
         fix_angle.x = 30.23
@@ -131,13 +131,12 @@ class MathFunctions(unittest.TestCase):
         fix_angle.z = -10.98
         euler_angle = fix2euler(fix_angle)
         fix_angle2 = euler2fix(euler_angle)
-        self.assertEqual(fix_angle,fix_angle2)
+        self.assertEqual(fix_angle, fix_angle2)
 
 
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
-
 
 
 #==============================================================================

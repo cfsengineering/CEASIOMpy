@@ -14,16 +14,17 @@
 
 """
 
-#===============================================================================
+#==============================================================================
 #   IMPORTS
-#===============================================================================
+#==============================================================================
 
 import logging.config
 from logging.handlers import RotatingFileHandler
 
-#===============================================================================
+#==============================================================================
 #   FUNCTIONS
-#===============================================================================
+#==============================================================================
+
 
 def get_logger(name):
     """ Function to create a logger
@@ -45,7 +46,8 @@ def get_logger(name):
     logger.setLevel(logging.DEBUG)
 
     # Write logfile
-    file_formatter = logging.Formatter('%(asctime)s - %(name)20s - %(levelname)s - %(message)s')
+    file_formatter = logging.Formatter('%(asctime)s - %(name)20s \
+    - %(levelname)s - %(message)s')
     file_handler = RotatingFileHandler(name+'.log', 'a', 1000000, 1)
     file_handler.setLevel(logging.DEBUG)     # Level for the logfile
     file_handler.setFormatter(file_formatter)

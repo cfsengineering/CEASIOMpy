@@ -22,15 +22,18 @@
 
 import os
 import sys
-print(sys.version_info[0])
+
+from lib.utils.ceasiomlogger import get_logger
+
+log = get_logger(__file__.split('.')[0])
 
 # Should maybe be change depending how/where Tixi and Tigl are installed
-if sys.version_info[0] = 2:
+if sys.version_info[0] == 2:
     import tixi3wrapper
     import tigl3wrapper
     from tixi3wrapper import Tixi3Exception
     from tigl3wrapper import Tigl3Exception
-elif sys.version_info[0] = 3:
+elif sys.version_info[0] == 3:
     import tixi3.tixi3wrapper as tixi3wrapper
     import tigl3.tigl3wrapper as tigl3wrapper
     from tixi3.tixi3wrapper import Tixi3Exception
@@ -38,19 +41,15 @@ elif sys.version_info[0] = 3:
 else:
     log.error('Your Python version is not compatible with CEASIOMpy!')
 
-from lib.utils.ceasiomlogger import get_logger
-
-log = get_logger(__file__.split('.')[0])
-
 #==============================================================================
 #   CLASSES
 #==============================================================================
 
 
-
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
+
 
 def open_tixi(cpacs_path):
     """ Create TIXI handles for a CPACS file and return this handle.
@@ -104,7 +103,7 @@ def open_tigl(tixi_handle):
     return tigl_handle
 
 
-def close_tixi(tixi_handle,cpacs_out_path):
+def close_tixi(tixi_handle, cpacs_out_path):
     """ Close TIXI handle and save the CPACS file.
 
     Function 'close_tixi' close the TIXI Handle and save the CPACS file at the
@@ -129,7 +128,7 @@ def close_tixi(tixi_handle,cpacs_out_path):
     log.info("TIXI Handle has been closed.")
 
 
-def create_branch(tixi, xpath, add_child = False):
+def create_branch(tixi, xpath, add_child=False):
     """ Function to create a CPACS branch.
 
     Function 'create_branch' create a branch in the tixi handle and also all
@@ -160,21 +159,21 @@ def create_branch(tixi, xpath, add_child = False):
 
     for i in range(xpath_count-1):
         xpath_index = i + 2
-        xpath_partial ='/'.join(str(m) for m in xpath_split[0:xpath_index])
-        xpath_parent ='/'.join(str(m) for m in xpath_split[0:xpath_index-1])
+        xpath_partial = '/'.join(str(m) for m in xpath_split[0:xpath_index])
+        xpath_parent = '/'.join(str(m) for m in xpath_split[0:xpath_index-1])
         child = xpath_split[(xpath_index-1)]
 
         if tixi.checkElement(xpath_partial):
             log.info('Branch "' + xpath_partial + '" already exist')
 
             if child == xpath_split[-1] and add_child:
-                namedchild_nb = tixi.getNamedChildrenCount(xpath_parent,child)
+                namedchild_nb = tixi.getNamedChildrenCount(xpath_parent, child)
                 tixi.createElementAtIndex (xpath_parent,child,namedchild_nb+1)
                 log.info('Named child "' + child
                          + '" has been added to branch "'
                          + xpath_parent + '"')
         else:
-            tixi.createElement(xpath_parent,child)
+            tixi.createElement(xpath_parent, child)
             log.info('Child "' + child + '" has been added to branch "'
                      + xpath_parent + '"')
 
@@ -209,16 +208,16 @@ def copy_branch(tixi, xpath_from, xpath_to):
 
     if child_nb:
         xpath_to_split = xpath_to.split("/")
-        xpath_to_parent ='/'.join(str(m) for m in xpath_to_split[:-1])
+        xpath_to_parent = '/'.join(str(m) for m in xpath_to_split[:-1])
 
         child_list = []
         for i in range(child_nb):
-            child_list.append(tixi.getChildNodeName(xpath_from,i+1))
+            child_list.append(tixi.getChildNodeName(xpath_from, i+1))
 
         # If it is a text Element --> no child
         if "#" in child_list[0]:
-            elem_to_copy= tixi.getTextElement(xpath_from)
-            tixi.updateTextElement(xpath_to,elem_to_copy)
+            elem_to_copy = tixi.getTextElement(xpath_from)
+            tixi.updateTextElement(xpath_to, elem_to_copy)
 
         else:
             # If child are named child (e.g. wings/wing)
@@ -229,12 +228,12 @@ def copy_branch(tixi, xpath_from, xpath_to):
                 for i in range(namedchild_nb):
                     new_xpath_from = xpath_from + "/" + child_list[0] \
                                      + '[' + str(i+1) + ']'
-                    new_xpath_to = xpath_to + "/" +  child_list[0] \
+                    new_xpath_to = xpath_to + "/" + child_list[0] \
                                    + '[' + str(i+1) + ']'
-                    tixi.createElement(xpath_to,child_list[0])
+                    tixi.createElement(xpath_to, child_list[0])
 
                     # Call the function itself for recursion
-                    copy_branch(tixi,new_xpath_from,new_xpath_to)
+                    copy_branch(tixi, new_xpath_from, new_xpath_to)
 
             else:
                 for child in child_list:
@@ -242,19 +241,19 @@ def copy_branch(tixi, xpath_from, xpath_to):
                     new_xpath_to = xpath_to + "/" + child
 
                     # Create child
-                    tixi.createElement(xpath_to,child)
+                    tixi.createElement(xpath_to, child)
 
                     # Call the function itself for recursion
-                    copy_branch(tixi,new_xpath_from,new_xpath_to)
+                    copy_branch(tixi, new_xpath_from, new_xpath_to)
 
         # Copy attribute(s) if exists
         last_attrib = 0
-        attrib_index=1
+        attrib_index = 1
         while not last_attrib:
             try:
-                attrib_name = tixi.getAttributeName(xpath_from,attrib_index)
-                attrib_text = tixi.getTextAttribute(xpath_from,attrib_name)
-                tixi.addTextAttribute(xpath_to,attrib_name,attrib_text)
+                attrib_name = tixi.getAttributeName(xpath_from, attrib_index)
+                attrib_text = tixi.getTextAttribute(xpath_from, attrib_name)
+                tixi.addTextAttribute(xpath_to, attrib_name, attrib_text)
                 attrib_index = attrib_index + 1
             except:
                 last_attrib = 1

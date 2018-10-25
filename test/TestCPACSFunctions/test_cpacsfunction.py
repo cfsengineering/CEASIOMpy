@@ -33,6 +33,7 @@ log = get_logger(__file__.split('.')[0])
 #   CLASSES
 #==============================================================================
 
+
 class TixiFunction(unittest.TestCase):
     """
     Unit test of Tixi Function from the module 'cpacsfunctions.py'
@@ -60,24 +61,21 @@ class TixiFunction(unittest.TestCase):
         tixi_handle = open_tixi(self.CPACS_IN_PATH)
         self.assertIsNotNone(tixi_handle)
 
-
     def test_wing_nb(self):
         '''Test if the number of wing is equal to 1'''
 
         tixi_handle = open_tixi(self.CPACS_IN_PATH)
         wing_nb = tixi_handle.getNamedChildrenCount('/cpacs/vehicles/aircraft\
-                  /model/wings','wing')
-        self.assertEqual(wing_nb,1)
-
+                  /model/wings', 'wing')
+        self.assertEqual(wing_nb, 1)
 
     def test_fuse_nb(self):
         '''Test if the number of fuselage is equal to 1'''
 
         tixi_handle = open_tixi(self.CPACS_IN_PATH)
         fuse_nb = tixi_handle.getNamedChildrenCount('/cpacs/vehicles/aircraft\
-                  /model/fuselages','fuselage')
-        self.assertEqual(fuse_nb,1)
-
+                  /model/fuselages', 'fuselage')
+        self.assertEqual(fuse_nb, 1)
 
     def test_close_tixi(self):
         """Test the function 'close_tixi'"""
@@ -85,7 +83,7 @@ class TixiFunction(unittest.TestCase):
         tixi_handle = open_tixi(self.CPACS_IN_PATH)
 
         # Save unmodified tixi in the output CPACS file
-        close_tixi(tixi_handle,self.CPACS_OUT_PATH)
+        close_tixi(tixi_handle, self.CPACS_OUT_PATH)
 
         # Read Input and Ouput CPACS file as text, to compare them
         with open(self.CPACS_IN_PATH) as file_in:
@@ -93,8 +91,7 @@ class TixiFunction(unittest.TestCase):
         with open(self.CPACS_OUT_PATH) as file_out:
             lines_cpacs_out = file_out.readlines()
 
-        self.assertEqual(lines_cpacs_in,lines_cpacs_out)
-
+        self.assertEqual(lines_cpacs_in, lines_cpacs_out)
 
     def test_create_branch(self):
         """Test the function 'create_branch'"""
@@ -104,12 +101,15 @@ class TixiFunction(unittest.TestCase):
         update_branch = '/cpacs/header/updates/update'
         new_branch = '/cpacs/header/updates/update[3]/test/test1/test2'
 
-        tixi = create_branch(tixi_handle,update_branch,True) # Should be added
-        tixi = create_branch(tixi,update_branch,False) # Should not be added
-        tixi = create_branch(tixi,new_branch) # 'new_branch' should be added
+        # This branch should be added
+        tixi = create_branch(tixi_handle, update_branch, True)
+        # This branch should not be added
+        tixi = create_branch(tixi, update_branch, False)
+        # 'new_branch' should be added
+        tixi = create_branch(tixi, new_branch)
 
         # Save modified tixi in the output CPACS file
-        close_tixi(tixi,self.CPACS_OUT_PATH)
+        close_tixi(tixi, self.CPACS_OUT_PATH)
 
         # Reopen the output CPACS file to check if branches have been added
         tixi_out = open_tixi(self.CPACS_OUT_PATH)
@@ -117,12 +117,11 @@ class TixiFunction(unittest.TestCase):
         # Check if the number of "update" child is equal to 3
         namedchild_nb = tixi_out.getNamedChildrenCount('/cpacs/header/updates',
                                                        'update')
-        self.assertEqual(namedchild_nb,3)
+        self.assertEqual(namedchild_nb, 3)
 
         # Check if 'new_branch' has been added
         branch_check = tixi_out.checkElement(new_branch)
-        self.assertEqual(branch_check,True)
-
+        self.assertEqual(branch_check, True)
 
     def test_copy_branch(self):
         """Test the function 'copy_branch'"""
@@ -133,7 +132,7 @@ class TixiFunction(unittest.TestCase):
         xpath_new = '/cpacs/header'
         xpath_from = '/cpacs/header[1]'
         xpath_to = '/cpacs/header[2]'
-        tixi= create_branch(tixi_handle,xpath_new,True)
+        tixi = create_branch(tixi_handle, xpath_new, True)
         tixi = copy_branch(tixi, xpath_from, xpath_to)
 
         # Check if a specific element has been copied
@@ -141,12 +140,12 @@ class TixiFunction(unittest.TestCase):
         xpath_elem_to = '/cpacs/header[2]/updates/update[1]/timestamp'
         elem_from = tixi_handle.getTextElement(xpath_elem_from)
         elem_to = tixi.getTextElement(xpath_elem_to)
-        self.assertEqual(elem_from,elem_to)
+        self.assertEqual(elem_from, elem_to)
 
         # Check if a specific attribute has been copied
-        attrib_text_from = tixi_handle.getTextAttribute(xpath_elem_from,'uID')
-        attrib_text_to = tixi.getTextAttribute(xpath_elem_to,'uID')
-        self.assertEqual(attrib_text_from,attrib_text_to)
+        attrib_text_from = tixi_handle.getTextAttribute(xpath_elem_from, 'uID')
+        attrib_text_to = tixi.getTextAttribute(xpath_elem_to, 'uID')
+        self.assertEqual(attrib_text_from, attrib_text_to)
 
 
 class TiglFunction(unittest.TestCase):
@@ -177,7 +176,6 @@ class TiglFunction(unittest.TestCase):
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
-
 
 
 #==============================================================================

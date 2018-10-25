@@ -22,11 +22,21 @@
 
 import os
 import sys
+print(sys.version_info[0])
 
-import tixi3wrapper
-from tixi3wrapper import Tixi3Exception
-import tigl3wrapper
-from tigl3wrapper import Tigl3Exception
+# Should maybe be change depending how/where Tixi and Tigl are installed
+if sys.version_info[0] = 2:
+    import tixi3wrapper
+    import tigl3wrapper
+    from tixi3wrapper import Tixi3Exception
+    from tigl3wrapper import Tigl3Exception
+elif sys.version_info[0] = 3:
+    import tixi3.tixi3wrapper as tixi3wrapper
+    import tigl3.tigl3wrapper as tigl3wrapper
+    from tixi3.tixi3wrapper import Tixi3Exception
+    from tigl3.tigl3wrapper import Tigl3Exception
+else:
+    log.error('Your Python version is not compatible with CEASIOMpy!')
 
 from lib.utils.ceasiomlogger import get_logger
 

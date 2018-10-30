@@ -1,0 +1,29 @@
+ 
+sumo --help
+
+Surface modeling tool and mesh generator for aircraft configurations.
+Usage: dwfsumo -batch [options] aircraft.smx
+
+Options:
+-output=iges,dwfs,edge,cgns,tau,su2 
+        Generate output files for the 
+        named formats. Will not start mesh generation unless at least
+        one mesh format (dwfs,edge,tau,cgns,su2) is named.
+        Default is -output=iges,dwfs,edge
+Note: This version of sumo was compiled *without* support for NetCDF;
+therefore, the TAU mesh format is *not* supported.
+-tetgen-options=flags 
+        Call tetgen as in 'tetgen -flags model.smesh' when generating 
+        a volume mesh.The default is -tetgen-options=pq1.4V
+
+Examples:
+dwfsumo -batch -output=iges aircraft.smx
+        Convert geometry of aircraft.smx to IGES and exit. Will not 
+        generate any mesh.
+dwfsumo -batch -output=cgns,edge -tetgen-options=pq1.16VY aircraft.smx
+        First, generate a surface mesh (not written) for aircraft.smx,
+        then produce a volume mesh by calling
+        tetgen -pq1.16VY aircraft.smesh
+        on it, then convert the tetgen output to CGNS and EDGE files.
+        
+On linux the command could be "sumo" instead of "dwfsumo"

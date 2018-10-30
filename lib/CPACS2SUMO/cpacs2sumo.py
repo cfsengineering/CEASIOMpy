@@ -1,7 +1,7 @@
 """
     CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+    Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
     Script to convert CPACS file geometry into SUMO geometry
 
@@ -151,7 +151,8 @@ def convert_cpacs_to_sumo(cpacs_path):
     (str)           cpacs_path      -- Path to the CPACS file
 
     RETURNS
-    ()              -               --
+    (str)           OUTPUT_SMX      -- Path to the SUMO file
+                                       (./ToolOutput/Toolouput.smx)
     """
 
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -779,6 +780,8 @@ def convert_cpacs_to_sumo(cpacs_path):
     # Save the SMX file
     close_tixi(sumo, OUTPUT_SMX)
 
+    return OUTPUT_SMX
+
 #==============================================================================
 #    MAIN
 #==============================================================================
@@ -788,7 +791,8 @@ if __name__ == '__main__':
 
     log.info('Running Converter CPACS2SUMO')
 
-    convert_cpacs_to_sumo('./ToolInput/simpletest_cpacs2sumo.xml')
+    convert_cpacs_to_sumo('./ToolInput/ToolInput.xml')
+    # convert_cpacs_to_sumo('./ToolInput/simpletest_cpacs2sumo_test.xml')
 
     # inputfile1 = '/test/CPACSfiles/AGILE_DC1.xml'
     # inputfile2 = '/test/CPACSfiles/D150_AGILE_Hangar.xml'

@@ -1,7 +1,7 @@
 """
     CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+    Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
     Test all the function from 'lib/utils/cpacsfunctions.py'
 

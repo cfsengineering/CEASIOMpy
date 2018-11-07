@@ -2,8 +2,6 @@
 
 CEASIOMpy is a Conceptual Aircraft Design Software.
 
-TEST1
-
 ## Installation
 
 To use CEASIOMpy you just have to download or clone this repository in the Install directory of your choice. Then, you have to add it to your PYTHONPATH.

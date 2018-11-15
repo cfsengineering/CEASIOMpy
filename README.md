@@ -151,5 +151,3 @@ RCE is a distributed, workflow-driven integration environment developed by DLR. 
 RCE website: http://rcenvironment.de
 
 It should be possible to integrate every CEASIOMpy module as a RCE module. Then, they could be connected to each other and exchange only CPACS files (if possible).
-
-Test

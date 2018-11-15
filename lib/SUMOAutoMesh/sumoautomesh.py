@@ -13,6 +13,7 @@
     TODO:  - Add options for SUMO
            - Check and write the script to be compatible with other OS
              (only tested with Centos 7 for now)
+           - Allow multi-pass mesh
 
 """
 

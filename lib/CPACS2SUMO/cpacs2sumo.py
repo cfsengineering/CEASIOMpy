@@ -8,10 +8,12 @@
     Works with Python 2.7/3.4
     Author : Aidan Jungo
     Creation: 2017-03-03
-    Last modifiction: 2018-10-25
+    Last modifiction: 2018-11-14
 
     TODO:  - Write some documentation and tutorial
-           - Write coresponding tests
+           - Improve testing script
+           - Use <segements> both for wing and fuselage, as they define which
+             part of the fuselage/wing should be built
 
 """
 
@@ -22,12 +24,13 @@
 import os
 import sys
 import math
+import numpy
 
 import matplotlib.pyplot as plt
 
 from lib.utils.ceasiomlogger import get_logger
 from lib.utils.cpacsfunctions import open_tixi, close_tixi
-from lib.utils.mathfunctions import euler2fix
+from lib.utils.mathfunctions import euler2fix, fix2euler
 
 log = get_logger(__file__.split('.')[0])
 
@@ -36,7 +39,7 @@ log = get_logger(__file__.split('.')[0])
 #   CLASSES
 #==============================================================================
 
-# TODO Move this calss in a global moudule callable from every where???
+# TODO Move this class in a global moudule callable from every where???
 class SimpleNamespace(object):
     """ Rudimentary SimpleNamespace clone.
 
@@ -206,10 +209,7 @@ def convert_cpacs_to_sumo(cpacs_path):
         sumo.addTextAttribute(body_path, 'origin', body_ori_str)
 
         # Positionings
-        if not tixi.checkElement(fus_path + '/positionings'):
-            log.warning('No "/positionings" have been found!')
-            pos_cnt = 0
-        else:
+        if tixi.checkElement(fus_path + '/positionings'):
             pos_cnt = tixi.getNamedChildrenCount(fus_path + '/positionings',
                                                  'positioning')
 
@@ -233,8 +233,8 @@ def convert_cpacs_to_sumo(cpacs_path):
 
                 # Get the corresponding translation of each positionning
                 pos_x_list.append(length * math.sin(sweep))
-                pos_y_list.append(length * math.cos(dihedral)*math.cos(sweep))
-                pos_z_list.append(length * math.sin(dihedral)*math.cos(sweep))
+                pos_y_list.append(length * math.cos(dihedral) * math.cos(sweep))
+                pos_z_list.append(length * math.sin(dihedral) * math.cos(sweep))
 
                 # Get which section are connected by the positionning
                 if tixi.checkElement(pos_path + '/fromSectionUID'):
@@ -255,10 +255,12 @@ def convert_cpacs_to_sumo(cpacs_path):
                     prev_pos_x = 0
                     prev_pos_y = 0
                     prev_pos_z = 0
+
                 elif from_sec_list[j_pos] == to_sec_list[j_pos-1]:
                     prev_pos_x = pos_x_list[j_pos-1]
                     prev_pos_y = pos_y_list[j_pos-1]
                     prev_pos_z = pos_z_list[j_pos-1]
+
                 else:
                     index_prev = to_sec_list.index(from_sec_list[j_pos])
                     prev_pos_x = pos_x_list[index_prev]
@@ -268,10 +270,18 @@ def convert_cpacs_to_sumo(cpacs_path):
                 pos_x_list[j_pos] += prev_pos_x
                 pos_y_list[j_pos] += prev_pos_y
                 pos_z_list[j_pos] += prev_pos_z
+        else:
+            log.warning('No "positionings" have been found!')
+            pos_cnt = 0
 
         #Sections
         sec_cnt = tixi.getNamedChildrenCount(fus_path + '/sections', 'section')
         log.info("    -" + str(sec_cnt) + ' fuselage sections have been found')
+
+        if pos_cnt == 0:
+            pos_x_list = [0.0] * sec_cnt
+            pos_y_list = [0.0] * sec_cnt
+            pos_z_list = [0.0] * sec_cnt
 
         for i_sec in range(sec_cnt):
             sec_path = fus_path + '/sections/section[' + str(i_sec+1) + ']'
@@ -347,51 +357,33 @@ def convert_cpacs_to_sumo(cpacs_path):
                 prof_vect_y[:] = [y - 1 - prof_min_y for y in prof_vect_y]
                 prof_vect_z[:] = [z - 1 - prof_min_z for z in prof_vect_z]
 
-                if (len(pos_y_list) <= i_sec or len(pos_y_list) == 0):
-                    pos_x_list.append(0.0)
-                    pos_y_list.append(0.0)
-                    pos_z_list.append(0.0)
-                else:
-                    pos_y_list[i_sec] += (1 + prof_min_y) * prof_size_y
-                    pos_z_list[i_sec] += (1 + prof_min_z) * prof_size_z
+                # Could be a problem if they are less positionings than secions
+                # TODO: solve that!
+                pos_y_list[i_sec] += (1 + prof_min_y) * prof_size_y
+                pos_z_list[i_sec] += (1 + prof_min_z) * prof_size_z
 
                 #To Plot a particular section
                 # if i_sec==30:
-                #
                 #     plt.plot(prof_vect_z, prof_vect_y,'x')
-                #
                 #     plt.xlabel('y')
                 #     plt.ylabel('z')
                 #     plt.grid(True)
                 #     plt.show()
 
                 # Put value in SUMO format
-                if pos_cnt:
-                    body_frm_center_x = (pos_x_list[i_sec] \
-                                        + elem_transf.translation.x \
-                                        + sec_transf.translation.x) \
+                body_frm_center_x = ( elem_transf.translation.x \
+                                        + sec_transf.translation.x \
+                                        + pos_x_list[i_sec]) \
                                         * fus_transf.scale.x
-                    body_frm_center_y = ((pos_y_list[i_sec] \
-                                        * elem_transf.scale.y \
-                                        + elem_transf.translation.y) \
+                body_frm_center_y = ( elem_transf.translation.y \
                                         * sec_transf.scale.y \
-                                        + sec_transf.translation.y ) \
+                                        + sec_transf.translation.y \
+                                        + pos_y_list[i_sec]) \
                                         * fus_transf.scale.y
-                    body_frm_center_z = ((pos_z_list[i_sec] \
-                                        * elem_transf.scale.z \
-                                        + elem_transf.translation.z) \
+                body_frm_center_z = ( elem_transf.translation.z \
                                         * sec_transf.scale.z \
-                                        + sec_transf.translation.z) \
-                                        * fus_transf.scale.z
-                else:
-                    body_frm_center_x = (elem_transf.translation.x \
-                                        + sec_transf.translation.x) \
-                                        * fus_transf.scale.x
-                    body_frm_center_y = (elem_transf.translation.y \
-                                        + sec_transf.translation.y) \
-                                        * fus_transf.scale.y
-                    body_frm_center_z = (elem_transf.translation.z \
-                                        + sec_transf.translation.z) \
+                                        + sec_transf.translation.z \
+                                        + pos_z_list[i_sec]) \
                                         * fus_transf.scale.z
 
                 body_frm_height = prof_size_z * 2 * elem_transf.scale.z \
@@ -529,10 +521,7 @@ def convert_cpacs_to_sumo(cpacs_path):
                 sumo.addTextAttribute(wg_sk_path, 'flags', 'detectwinglet')
 
         # Positionings
-        if not tixi.checkElement(wing_path + '/positionings'):
-            log.warning('No "positionings" have been found!')
-            pos_cnt = 0
-        else:
+        if tixi.checkElement(wing_path + '/positionings'):
             pos_cnt = tixi.getNamedChildrenCount(wing_path + '/positionings',
                                                  'positioning')
             log.info(str(wing_cnt) + ' "positionning" has been found : ')
@@ -591,10 +580,19 @@ def convert_cpacs_to_sumo(cpacs_path):
                 pos_y_list[j_pos] += prev_pos_y
                 pos_z_list[j_pos] += prev_pos_z
 
+        else:
+            log.warning('No "positionings" have been found!')
+            pos_cnt = 0
+
         #Sections
         sec_cnt = tixi.getNamedChildrenCount(wing_path + '/sections','section')
         log.info("    -" + str(sec_cnt) + ' wing sections have been found')
         wing_sec_index = 1
+
+        if pos_cnt == 0:
+            pos_x_list = [0.0] * sec_cnt
+            pos_y_list = [0.0] * sec_cnt
+            pos_z_list = [0.0] * sec_cnt
 
         for i_sec in reversed(range(sec_cnt)):
             sec_path = wing_path + '/sections/section[' + str(i_sec+1) + ']'
@@ -673,12 +671,12 @@ def convert_cpacs_to_sumo(cpacs_path):
                     prof_vect_z[i] = item * elem_transf.scale.z \
                                      * sec_transf.scale.z * wing_transf.scale.z
 
-                # if j==34:
-                    # plt.plot(prof_vect_x, prof_vect_z,'x')
-                    # plt.xlabel('x')
-                    # plt.ylabel('z')
-                    # plt.grid(True)
-                    # plt.show()
+                # if (i_sec>8 and i_sec<=10):
+                #     plt.plot(prof_vect_x, prof_vect_z,'x')
+                #     plt.xlabel('x')
+                #     plt.ylabel('z')
+                #     plt.grid(True)
+                #     plt.show()
 
                 prof_size_x = (max(prof_vect_x) - min(prof_vect_x))
                 prof_size_y = (max(prof_vect_y) - min(prof_vect_y))
@@ -694,30 +692,20 @@ def convert_cpacs_to_sumo(cpacs_path):
                     log.error("An airfoil profile is not define correctly")
 
                 # SUMO variable for WingSection
-                if tixi.checkElement(wing_path + '/positionings') \
-                                     and pos_cnt != 0:
-                    wg_sec_center_x = (pos_x_list[i_sec] \
-                                      + elem_transf.translation.x \
-                                      + sec_transf.translation.x) \
-                                      * wing_transf.scale.x
-                    wg_sec_center_y = (pos_y_list[i_sec] \
-                                      + elem_transf.translation.y \
-                                      + sec_transf.translation.y) \
-                                      * wing_transf.scale.y
-                    wg_sec_center_z = (pos_z_list[i_sec] \
-                                       + elem_transf.translation.z \
-                                       + sec_transf.translation.z) \
-                                       * wing_transf.scale.z
-                else:
-                    wg_sec_center_x = (elem_transf.translation.x \
-                                      + sec_transf.translation.x) \
-                                      * wing_transf.scale.x
-                    wg_sec_center_y = (elem_transf.translation.y \
-                                      + sec_transf.translation.y) \
-                                      * wing_transf.scale.y
-                    wg_sec_center_z = (elem_transf.translation.z \
-                                      + sec_transf.translation.z) \
-                                      * wing_transf.scale.z
+                wg_sec_center_x = ( elem_transf.translation.x \
+                                  + sec_transf.translation.x \
+                                  + pos_x_list[i_sec]) \
+                                  * wing_transf.scale.x
+                wg_sec_center_y = ( elem_transf.translation.y \
+                                  * sec_transf.scale.y \
+                                  + sec_transf.translation.y \
+                                  + pos_y_list[i_sec]) \
+                                  * wing_transf.scale.y
+                wg_sec_center_z = ( elem_transf.translation.z \
+                                  * sec_transf.scale.z \
+                                  + sec_transf.translation.z \
+                                  + pos_z_list[i_sec]) \
+                                  * wing_transf.scale.z
 
                 # Add roation from element and sections
                 # Adding the two angles: Maybe not work in every case!!!
@@ -740,8 +728,9 @@ def convert_cpacs_to_sumo(cpacs_path):
 
                 # to avoid double zero, not accepted by SUMO
                 for i, item in (enumerate(prof_vect_x)):
-                    if not (prof_vect_x[i] == prof_vect_x[i-1] \
-                            and prof_vect_z[i] == prof_vect_z[i-1]):
+                    # if not (prof_vect_x[i] == prof_vect_x[i-1] or \
+                    #         round(prof_vect_z[i],4) == round(prof_vect_z[i-1],4)):
+                    if round(prof_vect_z[i],4) != round(prof_vect_z[i-1],4):
                         prof_str += str(round(prof_vect_x[i], 4)) + ' ' \
                                     + str(round(prof_vect_z[i], 4)) + ' '
 
@@ -792,17 +781,16 @@ if __name__ == '__main__':
     log.info('Running Converter CPACS2SUMO')
 
     convert_cpacs_to_sumo('./ToolInput/ToolInput.xml')
-    # convert_cpacs_to_sumo('./ToolInput/simpletest_cpacs2sumo_test.xml')
 
     # inputfile1 = '/test/CPACSfiles/AGILE_DC1.xml'
     # inputfile2 = '/test/CPACSfiles/D150_AGILE_Hangar.xml'
-    # inputfile3 = '/test/CPACSfiles/B7772VSP.xml'
+    # inputfile3 = '/test/CPACSfiles/B7772VSP_v3.xml'
     # inputfile4 = '/test/CPACSfiles/NASA_CRM_AGILE_Hangar.xml'
     # inputfile5 = '/test/CPACSfiles/Strut_braced_DLR_Aidan.xml'
     # inputfile6 = '/test/CPACSfiles/TP_AGILE_Hangar.xml'
     # inputfile7 = '/test/CPACSfiles/Boxwing_AGILE_Hangar.xml'
     # inputfile8 = '/test/CPACSfiles/cpacs_DC2_Reference.xml'
     # inputfile9 = '/test/CPACSfiles/D150_AGILE_HangarTest.xml'
-    # convert_cpacs_to_sumo(inputfile9)
+    # convert_cpacs_to_sumo(inputfile3)
 
     log.info('End of Converter CPACS2SUMO')

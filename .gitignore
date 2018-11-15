@@ -9,3 +9,9 @@ __pycache__/
 
  # Ignore temp folder
 /temp
+
+# Ignore Weight and Balance module for now
+/lib/WeightAndBalance
+
+# Ignore CPACS file
+/test/CPACSfiles

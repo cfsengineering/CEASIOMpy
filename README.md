@@ -141,6 +141,7 @@ The Common Parametric Aircraft Configuration Schema (CPACS) is a data definition
 
 CPACS Github : https://github.com/DLR-LY/CPACS
 
+CPACS files should be use in version 3, if your file are still in version 2.x you could use the converter available at: https://github.com/DLR-SC/cpacs2to3
 
 
 ## RCE Integration

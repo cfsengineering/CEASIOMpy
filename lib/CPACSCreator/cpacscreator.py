@@ -8,11 +8,12 @@
     Works with Python 2.7/3.4
     Author : Aidan Jungo
     Creation: 2018-10-29
-    Last modifiction: 2018-10-30
+    Last modifiction: 2018-11-15
 
     TODO:  - Check and write the script to be compatible with other OS
              (only tested with Centos 7 for now)
-           - Adapt the script if a new version of Tigl is installed
+           -
+
 """
 
 #==============================================================================
@@ -59,7 +60,7 @@ def launch_cpacscreator(cpacs_path):
     CPACS_OUTPUT = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 
     #Check if CPACSCreator (named tiglviewer-3 for now) is installed
-    check_cpacscr = os.system('which tiglviewer-3')  # give 0 if it works
+    check_cpacscr = os.system('which cpacscreator')  # give 0 if it works
     if check_cpacscr:
         log.error('CPACSCreator does not seem to be installed on \
                    your computer!')
@@ -83,12 +84,12 @@ def launch_cpacscreator(cpacs_path):
     else:
         log.error('The ToolInput (.xml file) cannot be found!')
 
-    # Run TIGLViewer-3 with CPACS input
-    os.system('tiglviewer-3 ' + cpacs_tmp_input)
+    # Run 'cpacscreator' with CPACS input
+    os.system('cpacscreator ' + cpacs_tmp_input)
 
-    # # Run TIGLViewer-3 with a script to save a screenshot
+    # # Run cpacscreator with a script to save a screenshot
     # # Problem: TIGLViewer in not close after the script in the shell
-    # os.system('tiglviewer-3 ' + cpacs_tmp_input + ' --script test_script.js')
+    # os.system('cpacscreator ' + cpacs_tmp_input + ' --script test_script.js')
 
     # Copy CPACS temp file (.xml) from the temp directory to /ToolOutput
     if os.path.isfile(cpacs_tmp_input):

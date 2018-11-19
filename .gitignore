@@ -4,14 +4,26 @@
 # Ignore all .pyc files
 *.pyc
 
+# Ignore all SU2 meshes (.su2)
+*.su2
+
 # Ignore all pycache files
 __pycache__/
 
  # Ignore temp folder
 /temp
 
-# Ignore Weight and Balance module for now
-/lib/WeightAndBalance
-
 # Ignore CPACS file
 /test/CPACSfiles
+
+# Ignore Module which are not ready
+/lib/ToDevelopModules
+
+# Ignore ToolInput and ToolOutput
+ToolInput.xml
+ToolInput.smx
+ToolInput.cfg
+
+ToolOutput.xml
+ToolOutput.smx
+ToolOutput.cfg

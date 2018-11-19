@@ -12,7 +12,7 @@
     Last modifiction: 2018-10-04
 
     TODO:  - 'copy_branch': change all uID of the copied branch? how?
-           -
+           - 'get_value' to improve, add checks
 
 """
 
@@ -259,6 +259,36 @@ def copy_branch(tixi, xpath_from, xpath_to):
                 last_attrib = 1
 
     return tixi
+
+
+def get_value(tixi, xpath):
+    """ Function to get value from a CPACS branch if this branch exist.
+
+    Function 'get_value' check first if the the xpath exit and a value is store
+    at this place. Then, it gets and return this value.
+
+    Source : -
+
+    ARGUMENTS
+    (TIXI Handle)   tixi            -- TIXI Handle of the CPACS file
+    (str)           xpath           -- xpath to the value
+
+    RETURNS
+    (float)         value           -- Value find at xpath
+    """
+
+    # TODO: add more check of the branch the value (also format?)
+    if tixi.checkElement(xpath):
+        try:
+            value = tixi.getDoubleElement(xpath)
+
+            return value
+        except Tigl3Exception:
+            # log.error('No value has been fournd at ' + xpath)
+            return None
+    else:
+        log.error(xpath + ' cannot be found in the CPACS file')
+        return None
 
 
 #==============================================================================

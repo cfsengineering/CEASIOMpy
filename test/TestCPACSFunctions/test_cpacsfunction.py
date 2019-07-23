@@ -3,12 +3,12 @@
 
     Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Test all the function from 'lib/utils/cpacsfunctions.py'
+    Test all the function for 'lib/utils/cpacsfunctions.py'
 
     Works with Python 2.7/3.4
     Author : Aidan Jungo
     Creation: 2018-10-02
-    Last modifiction: 2018-10-04
+    Last modifiction: 2019-07-17
 
     TODO:  -
            -
@@ -24,8 +24,9 @@ import sys
 import unittest
 
 from lib.utils.ceasiomlogger import get_logger
-from lib.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi
-from lib.utils.cpacsfunctions import create_branch, copy_branch
+from lib.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, \
+                                     get_value, get_value_or_default,  \
+                                     create_branch, copy_branch
 
 log = get_logger(__file__.split('.')[0])
 
@@ -146,6 +147,67 @@ class TixiFunction(unittest.TestCase):
         attrib_text_from = tixi_handle.getTextAttribute(xpath_elem_from, 'uID')
         attrib_text_to = tixi.getTextAttribute(xpath_elem_to, 'uID')
         self.assertEqual(attrib_text_from, attrib_text_to)
+
+    def test_get_value(self):
+        """Test the function 'get_value'"""
+
+        tixi = open_tixi(self.CPACS_IN_PATH)
+
+        # Check if the correct value (float) is return from an xpath
+        xpath = '/cpacs/vehicles/aircraft/model/reference/area'
+        value = get_value(tixi,xpath)
+        self.assertEqual(value,1.0)
+
+        # Check if the correct value (text) is return from an xpath
+        xpath = '/cpacs/vehicles/aircraft/model/name'
+        value = get_value(tixi,xpath)
+        self.assertEqual(value,'Cpacs2Test')
+
+        # Check if a false xpath raises ValueError
+        xpath = '/cpacs/vehicles/aircraft/model/reference/aarreeaa'
+        with self.assertRaises(ValueError):
+            value_error = get_value(tixi,xpath)
+
+        # Check if no value in the field raises ValueError
+        xpath = '/cpacs/vehicles/aircraft/model'
+        with self.assertRaises(ValueError):
+            value_text = get_value(tixi,xpath)
+
+    def test_get_value_or_default(self):
+        """Test the function 'get_value_or_default'"""
+
+        tixi = open_tixi(self.CPACS_IN_PATH)
+
+        # Check if the correct value (float) is return from an xpath
+        xpath = '/cpacs/vehicles/aircraft/model/reference/area'
+        tixi, value = get_value_or_default(tixi,xpath,2.0)
+        self.assertEqual(value,1.0)
+
+        # Check if the correct value (text) is return from an xpath
+        xpath = '/cpacs/vehicles/aircraft/model/name'
+        tixi, value = get_value_or_default(tixi,xpath,'name')
+        self.assertEqual(value,'Cpacs2Test')
+
+        # Check if a non exitant xpath leads to its creation (integer)
+        xpath = '/cpacs/vehicles/aircraft/model/reference/newSpan'
+        tixi, value = get_value_or_default(tixi,xpath,100)
+        self.assertEqual(value,100)
+        new_elem = tixi.getDoubleElement(xpath)
+        self.assertEqual(new_elem,100)
+
+        # Check if a non exitant xpath leads to its creation (float)
+        xpath = '/cpacs/vehicles/aircraft/model/reference/newArea'
+        tixi, value = get_value_or_default(tixi,xpath,1000.0)
+        self.assertEqual(value,1000.0)
+        new_elem = tixi.getDoubleElement(xpath)
+        self.assertEqual(new_elem,1000.0)
+
+        # Check if a non exitant xpath leads to its creation (text)
+        xpath = '/cpacs/vehicles/aircraft/model/reference/newRef'
+        tixi, value = get_value_or_default(tixi,xpath,'test')
+        self.assertEqual(value,'test')
+        new_elem = tixi.getTextElement(xpath)
+        self.assertEqual(new_elem,'test')
 
 
 class TiglFunction(unittest.TestCase):

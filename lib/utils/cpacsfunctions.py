@@ -7,9 +7,11 @@
     and add some simplified or complementary functions.
 
     Works with Python 2.7/3.4
+    Test: /test/TestCPACSFunctions/test_cpacsfunction.py
     Author : Aidan Jungo
     Creation: 2018-10-02
-    Last modifiction: 2018-10-04
+    Last modifiction: 2019-07-17
+
 
     TODO:  - 'copy_branch': change all uID of the copied branch? how?
            - 'get_value' to improve, add checks
@@ -28,18 +30,18 @@ from lib.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
 # Should maybe be change depending how/where Tixi and Tigl are installed
-if sys.version_info[0] == 2:
-    import tixi3wrapper
-    import tigl3wrapper
-    from tixi3wrapper import Tixi3Exception
-    from tigl3wrapper import Tigl3Exception
-elif sys.version_info[0] == 3:
-    import tixi3.tixi3wrapper as tixi3wrapper
-    import tigl3.tigl3wrapper as tigl3wrapper
-    from tixi3.tixi3wrapper import Tixi3Exception
-    from tigl3.tigl3wrapper import Tigl3Exception
-else:
-    log.error('Your Python version is not compatible with CEASIOMpy!')
+# if sys.version_info[0] == 2:
+#     import tixi3wrapper
+#     import tigl3wrapper
+#     from tixi3wrapper import Tixi3Exception
+#     from tigl3wrapper import Tigl3Exception
+# elif sys.version_info[0] == 3:
+import tixi3.tixi3wrapper as tixi3wrapper
+import tigl3.tigl3wrapper as tigl3wrapper
+from tixi3.tixi3wrapper import Tixi3Exception
+from tigl3.tigl3wrapper import Tigl3Exception
+# else:
+#     log.error('Your Python version is not compatible with CEASIOMpy!')
 
 #==============================================================================
 #   CLASSES
@@ -128,6 +130,37 @@ def close_tixi(tixi_handle, cpacs_out_path):
     log.info("TIXI Handle has been closed.")
 
 
+
+def add_uid(tixi, xpath, UID):
+    """ Function that checks and add UID to a specific path,
+        the function will automatically update the chosen UID if
+        it is already existing.
+
+    Source : All TIXI functions: http://tixi.sourceforge.net/Doc/index.html
+
+    ARGUMENTS
+    (TIXI Handle)   tixi            -- TIXI Handle of the CPACS file
+    (str)           xpath           -- xpath of the branch to create
+
+    RETURNS
+    (TIGL Handle)   tigl_handle     -- TIGL Handle
+    """
+
+    exist = True
+    UID_N=UID
+    i = 0
+    while exist is True:
+        if not tixi.uIDCheckExists(UID_N):
+            tixi.uIDSetToXPath(xpath, UID_N)
+            exist = False
+        else:
+            i = i + 1
+            UID_N = UID + str(i)
+            log.warning('UID already existing changed to: ' + UID_N)
+
+    return(tixi)
+
+
 def create_branch(tixi, xpath, add_child=False):
     """ Function to create a CPACS branch.
 
@@ -162,7 +195,6 @@ def create_branch(tixi, xpath, add_child=False):
         xpath_partial = '/'.join(str(m) for m in xpath_split[0:xpath_index])
         xpath_parent = '/'.join(str(m) for m in xpath_split[0:xpath_index-1])
         child = xpath_split[(xpath_index-1)]
-
         if tixi.checkElement(xpath_partial):
             log.info('Branch "' + xpath_partial + '" already exist')
 
@@ -173,6 +205,7 @@ def create_branch(tixi, xpath, add_child=False):
                          + '" has been added to branch "'
                          + xpath_parent + '"')
         else:
+            print(xpath_parent)
             tixi.createElement(xpath_parent, child)
             log.info('Child "' + child + '" has been added to branch "'
                      + xpath_parent + '"')
@@ -265,7 +298,8 @@ def get_value(tixi, xpath):
     """ Function to get value from a CPACS branch if this branch exist.
 
     Function 'get_value' check first if the the xpath exit and a value is store
-    at this place. Then, it gets and return this value.
+    at this place. Then, it gets and returns this value. If the value or the
+    xpath does not exit it raise an error and return 'None'.
 
     Source : -
 
@@ -277,18 +311,82 @@ def get_value(tixi, xpath):
     (float)         value           -- Value find at xpath
     """
 
-    # TODO: add more check of the branch the value (also format?)
-    if tixi.checkElement(xpath):
-        try:
-            value = tixi.getDoubleElement(xpath)
+    # Try to get the a value at xpath
+    try:
+        value = tixi.getTextElement(xpath)
+    except:
+        value = None
 
-            return value
-        except Tigl3Exception:
-            # log.error('No value has been fournd at ' + xpath)
-            return None
+    if value:
+        try: # check if it is a 'float'
+            is_float = isinstance(float(value), float)
+            value = float(value)
+        except:
+            pass
     else:
-        log.error(xpath + ' cannot be found in the CPACS file')
-        return None
+        # check if the path exist
+        if tixi.checkElement(xpath):
+            log.error('No value has been fournd at ' + xpath)
+            raise ValueError('No value has been fournd at ' + xpath)
+        else:
+            log.error(xpath + ' cannot be found in the CPACS file')
+            raise ValueError(xpath + ' cannot be found in the CPACS file')
+
+    return value
+
+
+def get_value_or_default(tixi,xpath,default_value):
+    """ Function to get value from a CPACS branch if this branch exist, it not
+        it returns the default value.
+
+    Function 'get_value_or_default' do the same than the function 'get_value'
+    but if no value is found at this place it returns the default value and add
+    it at the xpath. If the xpath does not exit, it is created.
+
+    Source : -
+
+    ARGUMENTS
+    (TIXI Handle)   tixi            -- TIXI Handle of the CPACS file
+    (str)           xpath           -- xpath to the value
+    (float)         default_value   -- Default value
+
+    RETURNS
+    (TIXI Handle)   tixi            -- Modified TIXI Handle
+    (float)         value           -- Value find at xpath or default
+    """
+
+    value = None
+    try:
+        value = get_value(tixi, xpath)
+    except:
+        pass
+
+    if value is None:
+        log.info('Default value will be used instead')
+        value = default_value
+
+        xpath_parent = '/'.join(str(m) for m in xpath.split("/")[:-1])
+        value_name = xpath.split("/")[-1]
+        tixi = create_branch(tixi,xpath_parent,False)
+
+        is_int = False
+        is_float = False
+        try: # check if it is an 'int' or 'float'
+            is_int = isinstance(float(default_value), int)
+            is_float = isinstance(float(default_value), float)
+            value = float(default_value)
+        except:
+            pass
+
+        if is_float or is_int:
+           tixi.addDoubleElement(xpath_parent,value_name,value,'%g')
+        else:
+           tixi.addTextElement(xpath_parent,value_name,value)
+        log.info('Default value has been add to the cpacs file at: ' + xpath)
+    else:
+        log.info('Value found at ' + xpath + ' will be used.')
+
+    return tixi, value
 
 
 #==============================================================================

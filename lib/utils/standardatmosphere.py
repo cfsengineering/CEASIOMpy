@@ -6,6 +6,7 @@
     Give atmosphere parameters at any altitudes from 0 to 84000m
 
     Works with Python 2.7
+    Test: /test/TestStandardAtmosphere/test_standardatmosphere.py
     Author : Aidan Jungo
     Creation: 2018-10-04
     Last modifiction: 2018-10-08
@@ -217,3 +218,6 @@ if __name__ == '__main__':
 #print(AtmAt1000m.ReLMa)
 
 #plot_atm_value()
+
+# or to plot the graphs
+#>>python standardatmosphere.py

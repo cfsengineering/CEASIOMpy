@@ -32,6 +32,10 @@ from lib.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, \
                                      create_branch
 from lib.utils.standardatmosphere import get_atmosphere
 
+from lib.utils.moduleinterfaces import check_cpacs_input_requirements
+from lib.SkinFriction.__specs__ import cpacs_inout
+
+
 log = get_logger(__file__.split('.')[0])
 
 
@@ -202,13 +206,13 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
 #==============================================================================
 
 if __name__ == '__main__':
-
     log.info('Running SkinFriction')
 
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
     cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
     cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 
+    check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
     add_skin_friction(cpacs_path,cpacs_out_path)
 
     log.info('End SkinFriction')

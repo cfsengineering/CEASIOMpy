@@ -76,6 +76,8 @@ def check_cpacs_input_requirements(cpacs_file, cpacs_inout, module_file_name):
 
     missing_nodes = []
     for entry in required_inputs:
+        if entry.default_value is not None:
+            continue
         if tixi.checkElement(entry.cpacs_path) is False:
             missing_nodes.append(entry.cpacs_path)
 

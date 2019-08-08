@@ -121,7 +121,7 @@ def create_config(cpacs_path, su2_path, config_file):
 
     # General parmeters
     config_dict_modif['MESH_FILENAME'] = su2_path
-    config_dict_modif['EXT_ITER'] = 300
+    config_dict_modif['EXT_ITER'] = 10
 
     # Get reference value
     ref_len = get_value(tixi,'/cpacs/vehicles/aircraft/model/reference/length')

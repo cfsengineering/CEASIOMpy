@@ -5,13 +5,14 @@
 
     Create configuration file for SU2 calculation
 
-    Works with Python 2.7/3.4
+    Works with Python 2.7/3.6
     Author : Aidan Jungo
     Creation: 2018-11-05
-    Last modifiction: 2018-11-19
+    Last modifiction: 2019-08-08
 
     TODO:  - Add other options
            - Get some values from CPACS, which ones and where in cpacs?
+           - Use New AeroPerformanceMap from CPACS 3.1
 
 """
 

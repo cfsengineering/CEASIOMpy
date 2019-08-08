@@ -5,13 +5,14 @@
 
     Module to run SU2 Calculation in CEASIOMpy
 
-    Works with Python 2.7/3.4
+    Works with Python 2.7/3.6
     Author : Aidan Jungo
     Creation: 2018-11-06
-    Last modifiction: 2018-11-19
+    Last modifiction: 2019-08-08
 
     TODO:  - Add check MPI installation
            - Add possibility of using SSH
+           - Save coefficient in the new AeroPerformanceMap from CPACS 3.1
 
 """
 

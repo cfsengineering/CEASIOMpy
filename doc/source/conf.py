@@ -12,7 +12,7 @@ from ceasiompy.__version__ import __version__
 
 NAME = 'CEASIOMpy'
 
-sys.path.insert(0, os.path.abspath('../../lib/'))
+sys.path.insert(0, os.path.abspath('../../ceasiompy'))
 sys.setrecursionlimit(1500)
 
 # -- Project information -----------------------------------------------------

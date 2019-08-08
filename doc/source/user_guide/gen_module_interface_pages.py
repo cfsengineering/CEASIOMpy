@@ -28,7 +28,7 @@ def get_module_list():
     dirnames = glob('*/')
     module_list = []
     for dirname in dirnames:
-        module_name = 'lib.' + os.path.dirname(dirname)
+        module_name = 'ceasiompy.' + os.path.dirname(dirname)
         module_list.append(module_name)
 
     return module_list
@@ -68,7 +68,7 @@ bold = get_rst_bold
 
 
 def main():
-    os.chdir(os.path.join(SCRIPT_DIR, '../../../lib/'))
+    os.chdir(os.path.join(SCRIPT_DIR, '../../../ceasiompy/'))
     module_list = get_module_list()
     os.chdir(os.path.join(SCRIPT_DIR, 'module_interfaces/'))
 
@@ -85,7 +85,7 @@ def main():
         print(f"FOUND: {specs_module}")
 
         with open(f'{module_name}.rst', 'w') as fp:
-            fp.write(get_rst_header("lib.SkinFriction", level=1))
+            fp.write(get_rst_header(f"{module_name}", level=1))
 
             fp.write(get_rst_header("Required CPACS input paths", level=2))
             for entry in specs.cpacs_inout.inputs:

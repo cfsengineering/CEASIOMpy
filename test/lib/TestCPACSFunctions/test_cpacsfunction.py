@@ -24,8 +24,8 @@ import sys
 
 import pytest
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, \
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, \
                                      get_value, get_value_or_default,  \
                                      create_branch, copy_branch, aircraft_name
 

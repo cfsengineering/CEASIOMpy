@@ -25,9 +25,9 @@ import sys
 import pytest
 from pytest import approx
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, get_value
-from lib.CLCalculator.clcalculator import calculate_cl, get_cl
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, get_value
+from ceasiompy.CLCalculator.clcalculator import calculate_cl, get_cl
 
 log = get_logger(__file__.split('.')[0])
 

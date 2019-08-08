@@ -19,9 +19,9 @@
 #=============================================================================
 
 # Classes
-from lib.utils.InputClasses.Unconventional.aircraftgeometryclass\
+from ceasiompy.utils.InputClasses.Unconventional.aircraftgeometryclass\
     import AircraftWingGeometry
-from lib.utils.InputClasses.Unconventional.aircraftgeometryclass\
+from ceasiompy.utils.InputClasses.Unconventional.aircraftgeometryclass\
     import AircraftFuseGeometry
 
 # Geometry without fuselage
@@ -34,8 +34,8 @@ from .WithFuseGeom.Wings.wingsgeom import wing_geom_eval
 from .WithFuseGeom.Fuselages.fusegeom import fuse_geom_eval
 from .Output.outputgeom import produce_geom_output_txt
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils import cpacsfunctions as cpf
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils import cpacsfunctions as cpf
 
 log = get_logger(__file__.split('.')[0])
 

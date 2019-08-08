@@ -3,7 +3,7 @@
 
     Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Functions to manipulate CPACS file, it uses TIXI and TIGL libraries,
+    Functions to manipulate CPACS file, it uses TIXI and TIGL ceasiompy.aries,
     and add some simplified or complementary functions.
 
     Works with Python 2.7/3.6
@@ -25,7 +25,7 @@
 import os
 import sys
 
-from lib.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 

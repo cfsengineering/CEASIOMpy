@@ -8,7 +8,7 @@
 import os
 import sys
 
-from lib.__version__ import __version__
+from ceasiompy.__version__ import __version__
 
 NAME = 'CEASIOMpy'
 

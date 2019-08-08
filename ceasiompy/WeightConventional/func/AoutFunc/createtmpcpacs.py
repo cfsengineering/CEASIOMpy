@@ -23,8 +23,8 @@ import xml.etree.cElementTree as ET
 #import tixi3wrapper
 #from tixi3wrapper import Tixi3Exception
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils import cpacsfunctions as cpf
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils import cpacsfunctions as cpf
 
 log = get_logger(__file__.split('.')[0])
 

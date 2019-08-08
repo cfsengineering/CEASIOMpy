@@ -25,8 +25,8 @@ import sys
 import math
 import shutil
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils.cpacsfunctions import open_tixi, close_tixi
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi
 
 log = get_logger(__file__.split('.')[0])
 

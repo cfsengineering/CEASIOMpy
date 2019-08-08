@@ -34,9 +34,9 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 
-from lib.utils.InputClasses.Unconventional import balanceuncclass
-from lib.utils.InputClasses.Unconventional import weightuncclass
-from lib.utils.InputClasses.Unconventional import engineclass
+from ceasiompy.utils.InputClasses.Unconventional import balanceuncclass
+from ceasiompy.utils.InputClasses.Unconventional import weightuncclass
+from ceasiompy.utils.InputClasses.Unconventional import engineclass
 
 from func.Cog.unccog import unc_center_of_gravity
 from func.Cog.unccog import bwb_center_of_gravity
@@ -46,10 +46,10 @@ from func.AoutFunc import outputbalancegen
 from func.AoutFunc import cpacsbalanceupdate
 from func.AinFunc import getdatafromcpacs
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils import copyxmlfile
-from lib.utils.cpacsfunctions import aircraft_name
-from lib.utils.WB.UncGeometry import uncgeomanalysis
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils import copyxmlfile
+from ceasiompy.utils.cpacsfunctions import aircraft_name
+from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
 
 log = get_logger(__file__.split('.')[0])
 

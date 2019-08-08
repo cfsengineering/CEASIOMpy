@@ -22,15 +22,15 @@
 import os
 import math
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils.standardatmosphere import get_atmosphere
-from lib.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, \
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.standardatmosphere import get_atmosphere
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, \
                                      get_value, get_value_or_default,  \
                                      create_branch
 
 
-from lib.utils.moduleinterfaces import check_cpacs_input_requirements
-from lib.SkinFriction.__specs__ import cpacs_inout
+from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
+from ceasiompy.SkinFriction.__specs__ import cpacs_inout
 
 
 log = get_logger(__file__.split('.')[0])

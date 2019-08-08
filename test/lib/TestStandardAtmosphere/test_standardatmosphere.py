@@ -25,8 +25,8 @@ import sys
 import pytest
 from pytest import approx
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils.standardatmosphere import get_atmosphere, plot_atmosphere
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
 
 log = get_logger(__file__.split('.')[0])
 

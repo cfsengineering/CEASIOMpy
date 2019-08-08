@@ -5,8 +5,8 @@
 Tools to describe module interfaces
 """
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi
 
 
 class CPACSRequirementError(Exception):

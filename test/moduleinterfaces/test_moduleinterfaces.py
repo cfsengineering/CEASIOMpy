@@ -1,4 +1,4 @@
-from lib.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 
 def test_basic():

@@ -24,7 +24,7 @@ import sys
 
 import pytest
 
-from lib.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 # Delete the log file if exist, to simplify the test
 if os.path.exists('testlogger.log'):

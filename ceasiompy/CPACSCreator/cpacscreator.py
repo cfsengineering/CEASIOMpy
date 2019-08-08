@@ -24,7 +24,7 @@ import os
 import sys
 import shutil
 
-from lib.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 

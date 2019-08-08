@@ -27,9 +27,9 @@ import math
 import numpy
 import matplotlib.pyplot as plt
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils.cpacsfunctions import open_tixi, close_tixi
-from lib.utils.mathfunctions import euler2fix, fix2euler
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi
+from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 
 log = get_logger(__file__.split('.')[0])
 

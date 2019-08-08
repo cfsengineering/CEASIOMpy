@@ -25,9 +25,9 @@ import sys
 import math
 import shutil
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils.cpacsfunctions import open_tixi, close_tixi, get_value
-from lib.utils.standardatmosphere import get_atmosphere
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi, get_value
+from ceasiompy.utils.standardatmosphere import get_atmosphere
 
 log = get_logger(__file__.split('.')[0])
 

@@ -12,6 +12,7 @@
 
     TODO:  - Add check MPI installation
            - Add possibility of using SSH
+           - Save a CPACS output file
            - Save coefficient in the new AeroPerformanceMap from CPACS 3.1
 
 """
@@ -97,12 +98,16 @@ def run_SU2(mesh_path, config_path):
     else:
         log.info('SU2 has been found on your computer!')
 
-    # Empty tmp directory
-    tmp_file_list = os.listdir(TMP_DIR)
-    for tmp_file in tmp_file_list:
-        tmp_file_path = TMP_DIR + '/' + tmp_file
-        os.remove(tmp_file_path)
-    log.info('The /tmp directory has been cleared.')
+    # Check if /tmp directory exists, crete it or empty it
+    if not os.path.exists(TMP_DIR):
+        os.makedirs(TMP_DIR)
+        log.info('The /tmp directory has been created.')
+    else:
+        tmp_file_list = os.listdir(TMP_DIR)
+        for tmp_file in tmp_file_list:
+            tmp_file_path = TMP_DIR + '/' + tmp_file
+            os.remove(tmp_file_path)
+        log.info('The /tmp directory has been cleared.')
 
     # Copy SU2 config file (.cfg) in the temp directory
     if os.path.isfile(config_path):
@@ -148,7 +153,7 @@ if __name__ == '__main__':
     run_SU2(mesh_path, config_path)
 
     force_path = MODULE_DIR + '/ToolOutput/forces_breakdown.dat'
-    print('Your aircraft achieve a CL/CD of :')
-    print(get_efficiency(force_path))
+    log.info('Your aircraft achieve a CL/CD of : ' \
+              + str(get_efficiency(force_path)))
 
     log.info('End of RunSU2 module')

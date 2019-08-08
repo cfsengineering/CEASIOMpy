@@ -28,7 +28,7 @@
      - The code saves a ToolOutput.xml file in the ToolOutput folder.
      - The code saves a copy of the ToolOutput.xml file inside the
        ToolInput folder of the range and balance analysis.
-     - The system creates a folder with the aircraft NAME, and saves inside it
+     - The system creates a folder with the aircraft name, and saves inside it
        two txt file and one figure:
        - NAME_Aircraft_Geometry.out: that contains all the information
          regarding the aircraft geometry (only with case B)
@@ -40,10 +40,10 @@
     WARNING: The code deletes the ToolOutput folder and recreates
               it at the start of each run.
 
-    Works with Python 2.7
+    Works with Python 2.7/3.6
     Author : Stefano Piccini
     Date of creation: 2018-12-07
-    Last modifiction: 2019-02-20
+    Last modifiction: 2019-08-08 (AJ)
 """
 
 
@@ -78,8 +78,8 @@ from func.Fuel.fuelmass import estimate_wing_fuel_mass
 
 
 from lib.utils.ceasiomlogger import get_logger
-from lib.utils import aircraftname
 from lib.utils import copyxmlfile
+from lib.utils.cpacsfunctions import aircraft_name
 from lib.utils.WB.UncGeometry import uncgeomanalysis
 
 log = get_logger(__file__.split('.')[0])
@@ -126,10 +126,10 @@ if __name__ == '__main__':
     if not os.path.exists(cpacs_in):
         raise Exception ('Error, no ToolInput.xml'\
                          + ' file in the ToolInput folder.')
-    NAME = aircraftname.get_name(cpacs_in)
+    name = aircraft_name(cpacs_in)
 
     out_xml = copyxmlfile.copy_xml(cpacs_in, 'ToolOutput.xml')
-    newpath = 'ToolOutput/' + NAME
+    newpath = 'ToolOutput/' + name
     if not os.path.exists(newpath):
         os.makedirs(newpath)
 
@@ -158,7 +158,7 @@ if __name__ == '__main__':
     elif not f_nb:
         (awg, wing_nodes) =\
             uncgeomanalysis.no_fuse_geom_analysis(ui.FLOORS_NB, w_nb,\
-                h_min, ui.FUEL_ON_CABIN, out_xml, NAME, ed.TURBOPROP)
+                h_min, ui.FUEL_ON_CABIN, out_xml, name, ed.TURBOPROP)
     else:
         log.info('Fuselage detected')
         log.info('Number of fuselage: ' + str(int(f_nb)))
@@ -166,7 +166,7 @@ if __name__ == '__main__':
         (afg, awg) =\
             uncgeomanalysis.with_fuse_geom_analysis(f_nb, w_nb, h_min, adui,\
                                                     ed.TURBOPROP, ui.F_FUEL,\
-                                                    out_xml, NAME)
+                                                    out_xml, name)
 
     ui = getinput.get_user_fuel(f_nb, ui, out_xml)
 
@@ -325,10 +325,10 @@ if __name__ == '__main__':
 
     if not f_nb:
         outputweightgen.output_bwb_txt(ui.FLOORS_NB, ed, out,\
-                                       mw, adui, awg, NAME)
+                                       mw, adui, awg, name)
     else:
         outputweightgen.output_fuse_txt(f_nb, ui.FLOORS_NB, ed,\
-                                        out, mw, adui, awg, afg, NAME)
+                                        out, mw, adui, awg, afg, name)
 
 
 #=============================================================================
@@ -338,24 +338,24 @@ if __name__ == '__main__':
 # Copying ToolOutput.xml as ToolInput.xml in the ToolInput folder in
 # 2RangeModule and 6BalanceUncModule.
 
-    PATH = 'ToolOutput/ToolOutput.xml'
-    PATH_RANGE_OUT = '../Range/ToolInput/toolinput.xml'
-    PATH_BALANCE_OUT = '../BalanceUnconventional/ToolInput/ToolInput.xml'
-    TEMP = '/unconv.temp'
-    TEXT = 'Unconventional Aircraft'
-
-    if os.path.exists('../Range/ToolInput'):
-        shutil.rmtree('../Range/ToolInput')
-        os.makedirs('../Range/ToolInput')
-    shutil.copyfile(PATH, PATH_RANGE_OUT)
-    OutputTextFile = open('../Range/ToolInput' + TEMP, 'w')
-    OutputTextFile.write(TEXT)
-    OutputTextFile.close()
-
-    if os.path.exists('../BalanceUnconventional/ToolInput'):
-        shutil.rmtree('../BalanceUnconventional/ToolInput')
-        os.makedirs('../BalanceUnconventional/ToolInput')
-    shutil.copyfile(PATH, PATH_BALANCE_OUT)
+    # PATH = 'ToolOutput/ToolOutput.xml'
+    # PATH_RANGE_OUT = '../Range/ToolInput/toolinput.xml'
+    # PATH_BALANCE_OUT = '../BalanceUnconventional/ToolInput/ToolInput.xml'
+    # TEMP = '/unconv.temp'
+    # TEXT = 'Unconventional Aircraft'
+    #
+    # if os.path.exists('../Range/ToolInput'):
+    #     shutil.rmtree('../Range/ToolInput')
+    #     os.makedirs('../Range/ToolInput')
+    # shutil.copyfile(PATH, PATH_RANGE_OUT)
+    # OutputTextFile = open('../Range/ToolInput' + TEMP, 'w')
+    # OutputTextFile.write(TEXT)
+    # OutputTextFile.close()
+    #
+    # if os.path.exists('../BalanceUnconventional/ToolInput'):
+    #     shutil.rmtree('../BalanceUnconventional/ToolInput')
+    #     os.makedirs('../BalanceUnconventional/ToolInput')
+    # shutil.copyfile(PATH, PATH_BALANCE_OUT)
 
 
 #=============================================================================

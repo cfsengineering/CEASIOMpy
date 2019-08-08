@@ -14,10 +14,10 @@
              folder after copying it into the ToolOutput folder
              as ToolOutput.xml
 
-    Works with Python 2.7
+    Works with Python 2.7/3.6
     Author : Stefano Piccini
     Date of creation: 2018-09-27
-    Last modifiction: 2019-02-20
+    Last modifiction: 2019-08-08 (AJ)
 """
 
 #=============================================================================
@@ -41,7 +41,7 @@ from func.AinFunc import getdatafromcpacs
 
 from lib.utils.ceasiomlogger import get_logger
 from lib.utils import copyxmlfile
-from lib.utils import aircraftname
+from lib.utils.cpacsfunctions import aircraft_name
 from lib.utils.WB.ConvGeometry import geometry
 
 log = get_logger(__file__.split('.')[0])
@@ -119,9 +119,9 @@ if __name__ == '__main__':
         raise Exception ('Error no ToolInput.xml  or user_toolinput file'\
                          + ' in the ToolInput folder ')
 
-    NAME = aircraftname.get_name(out_xml)
+    name = aircraft_name(out_xml)
 
-    newpath = 'ToolOutput/' + NAME
+    newpath = 'ToolOutput/' + name
     if not os.path.exists(newpath):
         os.makedirs(newpath)
 
@@ -134,10 +134,10 @@ if __name__ == '__main__':
 ##============================== BALANCE ANALYSIS ==========================##
 
     log.info('------- Starting the balance analysis -------')
-    log.info('---------- Aircraft: ' + NAME + ' -----------')
+    log.info('---------- Aircraft: ' + name + ' -----------')
     F_PERC_MAXPASS = (mw.mass_fuel_maxpass/mw.mass_fuel_max) * 100
 ### CENTER OF GRAVITY---------------------------------------------------------
-    ag = geometry.geometry_eval(out_xml, NAME)
+    ag = geometry.geometry_eval(out_xml, name)
 
     log.info('------- Center of Gravity coordinates -------')
     log.info('--------- Max Payload configuration ---------')
@@ -267,7 +267,7 @@ if __name__ == '__main__':
 #=============================================================================
 
     log.info('-------- Generating output text file --------')
-    outputbalancegen.output_txt(out, mw, bi, NAME)
+    outputbalancegen.output_txt(out, mw, bi, name)
 
 #=============================================================================
 #    CPACS WRITING
@@ -279,12 +279,12 @@ if __name__ == '__main__':
 #=============================================================================
 ### Aircraft Cog Plot ---------------------------------------------------------
     log.info('--- Generating aircraft center of gravity plot (.png) ---')
-    outputbalancegen.aircraft_cog_plot(out.center_of_gravity, ag, NAME)
+    outputbalancegen.aircraft_cog_plot(out.center_of_gravity, ag, name)
 
 ### Aircraft Nodes -----------------------------------------------------------
     # Uncomment to plot aircraft nodes.
     #log.info('--- Generating aircraft nodes plot (.png) ---')
-    #outputbalancegen.aircraft_nodes_plot(fx, fy, fz, wx, wy, wz, NAME)
+    #outputbalancegen.aircraft_nodes_plot(fx, fy, fz, wx, wy, wz, name)
 
 ### Show plots
     plt.show()

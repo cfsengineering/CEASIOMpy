@@ -5,7 +5,7 @@
 
     Script to convert CPACS file geometry into SUMO geometry
 
-    Works with Python 2.7/3.4
+    Works with Python 2.7/3.6
     Author : Aidan Jungo
     Creation: 2017-03-03
     Last modifiction: 2018-11-14
@@ -25,7 +25,6 @@ import os
 import sys
 import math
 import numpy
-
 import matplotlib.pyplot as plt
 
 from lib.utils.ceasiomlogger import get_logger

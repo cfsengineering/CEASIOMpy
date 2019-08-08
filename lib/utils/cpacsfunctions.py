@@ -6,11 +6,11 @@
     Functions to manipulate CPACS file, it uses TIXI and TIGL libraries,
     and add some simplified or complementary functions.
 
-    Works with Python 2.7/3.4
+    Works with Python 2.7/3.6
     Test: /test/TestCPACSFunctions/test_cpacsfunction.py
     Author : Aidan Jungo
     Creation: 2018-10-02
-    Last modifiction: 2019-07-17
+    Last modifiction: 2019-08-08
 
 
     TODO:  - 'copy_branch': change all uID of the copied branch? how?
@@ -128,7 +128,6 @@ def close_tixi(tixi_handle, cpacs_out_path):
     # Close TIXI handle
     tixi_handle.close()
     log.info("TIXI Handle has been closed.")
-
 
 
 def add_uid(tixi, xpath, UID):
@@ -388,6 +387,27 @@ def get_value_or_default(tixi,xpath,default_value):
 
     return tixi, value
 
+
+def aircraft_name(cpacs_path):
+    """ The function gat the name of the aircraft from the cpacs file or add a
+        default one if non-existant.
+
+    ARGUMENTS
+    (str)           cpacs_path      -- Path to the CPACS file
+
+    OUTPUT
+    (str)           name            -- Name of the aircraft.
+    """
+
+    tixi = open_tixi(cpacs_path)
+
+    aircraft_name_xpath = '/cpacs/header/name'
+    tixi, name = get_value_or_default(tixi,aircraft_name_xpath,'Aircraft')
+    log.info('The name of the aircraft is : ' + name)
+
+    close_tixi(tixi, cpacs_path)
+    
+    return(name)
 
 #==============================================================================
 #    MAIN

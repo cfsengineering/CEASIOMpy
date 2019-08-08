@@ -14,10 +14,10 @@
              folder after copying it into the ToolOutput folder
              as ToolOutput.xml
 
-    Works with Python 2.7
+    Works with Python 2.7/3.6
     Author : Stefano Piccini
     Date of creation: 2018-09-27
-    Last modifiction: 2019-02-20
+    Last modifiction: 2019-08-08 (AJ)
 
 """
 
@@ -47,8 +47,8 @@ from func.AoutFunc import cpacsbalanceupdate
 from func.AinFunc import getdatafromcpacs
 
 from lib.utils.ceasiomlogger import get_logger
-from lib.utils import aircraftname
 from lib.utils import copyxmlfile
+from lib.utils.cpacsfunctions import aircraft_name
 from lib.utils.WB.UncGeometry import uncgeomanalysis
 
 log = get_logger(__file__.split('.')[0])
@@ -100,9 +100,9 @@ if __name__ == '__main__':
         raise Exception ('Error no ToolInput.xml '\
                           + 'file in the ToolInput folder ')
 
-    NAME = aircraftname.get_name(out_xml)
+    name = aircraft_name(out_xml)
 
-    newpath = 'ToolOutput/' + NAME
+    newpath = 'ToolOutput/' + name
     if not os.path.exists(newpath):
         os.makedirs(newpath)
 
@@ -131,7 +131,7 @@ if __name__ == '__main__':
         (awg, wing_nodes) =\
             uncgeomanalysis.no_fuse_geom_analysis(\
                 ui.FLOORS_NB, w_nb, ui.H_LIM_CABIN,\
-                ui.FUEL_ON_CABIN, PATH, NAME, ed.TURBOPROP)
+                ui.FUEL_ON_CABIN, PATH, name, ed.TURBOPROP)
     else:
         log.info('Fuselage detected')
         log.info('Number of fuselage: ' + str(int(f_nb)))
@@ -139,14 +139,14 @@ if __name__ == '__main__':
         h_min = ui.FLOORS_NB * ui.H_LIM_CABIN
         (afg, awg) = uncgeomanalysis.with_fuse_geom_analysis(\
                          f_nb, w_nb, h_min, adui, ed.TURBOPROP, ui.F_FUEL,\
-                         PATH, NAME)
+                         PATH, name)
 
     ui = getdatafromcpacs.get_user_fuel(f_nb, ui, out_xml)
 ##============================== BALANCE ANALYSIS ==========================##
 
     log.info('----- Generating output text file -----')
     log.info('---- Starting the balance analysis ----')
-    log.info('---- Aircraft: ' + NAME)
+    log.info('---- Aircraft: ' + name)
 
 ### CENTER OF GRAVITY---------------------------------------------------------
 
@@ -171,7 +171,7 @@ if __name__ == '__main__':
 ###=============================================================================
 
     log.info('----- Generating output text file -----')
-    outputbalancegen.output_txt(bout, mw, bi, ed, NAME)
+    outputbalancegen.output_txt(bout, mw, bi, ed, name)
 
 
 ###=============================================================================
@@ -189,17 +189,17 @@ if __name__ == '__main__':
     log.info('--- Generating aircraft center of gravity plot (.png) ---')
     if not f_nb:
       outputbalancegen.aircraft_cog_bwb_plot(bout.center_of_gravity,\
-                                             bi, ed, awg, NAME)
+                                             bi, ed, awg, name)
     else:
       outputbalancegen.aircraft_cog_unc_plot(bout.center_of_gravity,\
-                                             bi, ed, afg, awg, NAME)
+                                             bi, ed, afg, awg, name)
 
 ### Aircraft Nodes -----------------------------------------------------------
     #log.info('--- Generating aircraft nodes plot (.png) ---')
     #if not f_nb:
-        #outputbalancegen.aircraft_nodes_bwb_plot(wx, wy, wz, NAME)
+        #outputbalancegen.aircraft_nodes_bwb_plot(wx, wy, wz, name)
     #else:
-        #outputbalancegen.aircraft_nodes_unc_plot(fx, fy, fz, wx, wy, wz, NAME)
+        #outputbalancegen.aircraft_nodes_unc_plot(fx, fy, fz, wx, wy, wz, name)
 
 ### Show plots
     plt.show()

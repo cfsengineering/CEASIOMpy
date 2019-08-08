@@ -27,3 +27,9 @@ ToolInput.cfg
 ToolOutput.xml
 ToolOutput.smx
 ToolOutput.cfg
+
+# Vim temporary files
+*.swp
+
+# Sphinx
+build/

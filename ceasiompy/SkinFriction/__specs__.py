@@ -41,7 +41,7 @@ cpacs_inout.add_output(
         cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/cd0',
         )
 
-cpacs_inout.add_input(
+cpacs_inout.add_output(
         var_name='wing_area',
         default_value=None,
         unit='m^2',
@@ -49,7 +49,7 @@ cpacs_inout.add_input(
         cpacs_path=CEASIOM_XPATH + '/geometry/analysis/wingArea',
         )
 
-cpacs_inout.add_input(
+cpacs_inout.add_output(
         var_name='wing_span',
         default_value=None,
         unit='m',

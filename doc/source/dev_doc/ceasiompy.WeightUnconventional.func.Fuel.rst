@@ -8,15 +8,15 @@ ceasiompy.WeightUnconventional.func.Fuel.fuelmass module
 --------------------------------------------------------
 
 .. automodule:: ceasiompy.WeightUnconventional.func.Fuel.fuelmass
-   :members:
-   :undoc-members:
-   :show-inheritance:
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 
 Module contents
 ---------------
 
 .. automodule:: ceasiompy.WeightUnconventional.func.Fuel
-   :members:
-   :undoc-members:
-   :show-inheritance:
+    :members:
+    :undoc-members:
+    :show-inheritance:

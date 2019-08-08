@@ -1,5 +1,5 @@
-lib.SkinFriction
-================
+ceasiompy.SkinFriction
+======================
 
 Required CPACS input paths
 --------------------------
@@ -39,3 +39,19 @@ Skin friction drag coefficient
 * **Default value** None
 * **Unit** 1
 * **Variable name** cd0
+
+Wing area of the main (largest) wing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **CPACS path** /cpacs/toolspecific/CEASIOMpy/geometry/analysis/wingArea
+* **Default value** None
+* **Unit** m^2
+* **Variable name** wing_area
+
+Wing span of the main (largest) wing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **CPACS path** /cpacs/toolspecific/CEASIOMpy/geometry/analysis/wingSpan
+* **Default value** None
+* **Unit** m
+* **Variable name** wing_span

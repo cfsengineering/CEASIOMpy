@@ -12,6 +12,7 @@
 
 * Add `__specs__.py` files for each modules
 * Add output for `ceasiompy.CLCalculator.__specs__`
+* Add General File in/out Class
 
 ## Documentation
 
@@ -22,3 +23,21 @@
 * Make a page for contributors
     * Guidelines, etc.
     * Example for how to structure and add a new module
+
+
+## New module
+
+* To adapt and integrate
+    * Template Module
+    * PyTornado
+    * SUMO2CPACS
+    * CoefCPACS2CSV
+    * PlotTool
+
+
+* To develop
+    * StaticStablility
+    * DynamicStability
+    * FlightModel
+    * LaTeXReport
+    * TestSU2Convergence

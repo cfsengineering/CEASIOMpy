@@ -27,6 +27,15 @@ ToolInput.cfg
 ToolOutput.xml
 ToolOutput.smx
 ToolOutput.cfg
+forces_breakdown.dat
+*.out
+*mtomPrediction.png
+*_Cog.png
+
+
+# Ignore temp file
+/ceasiompy/SU2Run/tmp/*
+/ceasiompy/SUMOAutoMesh/tmp/*
 
 # Vim temporary files
 *.swp

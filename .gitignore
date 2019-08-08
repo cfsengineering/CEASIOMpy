@@ -33,3 +33,6 @@ ToolOutput.cfg
 
 # Sphinx
 build/
+
+# Dolphin file manager
+.directory

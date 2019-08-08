@@ -5,8 +5,15 @@
 Tools to describe module interfaces
 """
 
+# Author: Aaron Dettmann
+
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi
+
+
+# Tool specific path for CEASIOMpy
+CEASIOM_XPATH = '/cpacs/toolspecific/CEASIOMpy'
+AIRCRAFT_XPATH = '/cpacs/vehicles/aircraft'
 
 
 class CPACSRequirementError(Exception):
@@ -15,23 +22,24 @@ class CPACSRequirementError(Exception):
 
 class _Entry:
 
-    def __init__(self, *, descr, cpacs_path, default_value, unit, var_name=None):
+    def __init__(self, *, var_name='', default_value=None, unit='1',
+                 descr='', cpacs_path=''):
         """
         Template for an entry which describes a module input or output
 
         Args:
-            :descr: Description of the input or output data
-            :cpacs_path: CPACS node path
+            :var_name: Variable name as used in the module code
             :default_value: default_value
             :unit: Unit of the required value, e.g. '[m/s]'
-            :var_name: Variable name as used in the module code
+            :descr: Description of the input or output data
+            :cpacs_path: CPACS node path
         """
 
-        self.descr = descr
-        self.cpacs_path = cpacs_path
+        self.var_name = var_name
         self.default_value = default_value
         self.unit = unit
-        self.var_name = var_name
+        self.descr = descr
+        self.cpacs_path = cpacs_path
 
 
 class CPACSInOut:
@@ -79,3 +87,5 @@ def check_cpacs_input_requirements(cpacs_file, cpacs_inout, module_file_name):
         msg = f"CPACS path required but does not exist\n{missing_str}"
         log.error(msg)
         raise CPACSRequirementError(msg)
+
+    # TODO: close tixi handle?

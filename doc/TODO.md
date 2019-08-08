@@ -11,6 +11,7 @@
 ## Module dependencies
 
 * Add `__specs__.py` files for each modules
+* Add output for `ceasiompy.CLCalculator.__specs__`
 * Add General File in/out Class
 
 ## Documentation

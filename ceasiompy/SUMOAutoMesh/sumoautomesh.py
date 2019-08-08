@@ -73,12 +73,16 @@ def create_SU2_mesh(smx_file_path):
     else:
         log.info('SUMO has been found on your computer!')
 
-    # Empty tmp directory
-    tmp_file_list = os.listdir(TMP_DIR)
-    for tmp_file in tmp_file_list:
-        tmp_file_path = TMP_DIR + '/' + tmp_file
-        os.remove(tmp_file_path)
-    log.info('The /tmp directory has been cleared.')
+    # Check if /tmp directory exists, crete it or empty it
+    if not os.path.exists(TMP_DIR):
+        os.makedirs(TMP_DIR)
+        log.info('The /tmp directory has been created.')
+    else:
+        tmp_file_list = os.listdir(TMP_DIR)
+        for tmp_file in tmp_file_list:
+            tmp_file_path = TMP_DIR + '/' + tmp_file
+            os.remove(tmp_file_path)
+        log.info('The /tmp directory has been cleared.')
 
     # Copy SUMO input file (.smx) in the temp directory
     if os.path.isfile(smx_input):

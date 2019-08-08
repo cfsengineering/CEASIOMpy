@@ -66,7 +66,7 @@ def test_get_cl():
     cl_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges/cruiseCL'
 
     cl_to_check = tixi.getDoubleElement(cl_xpath)
-    assert cl_to_check == approx(0.679965)
+    assert cl_to_check == approx(0.569052)
 
 
 #==============================================================================

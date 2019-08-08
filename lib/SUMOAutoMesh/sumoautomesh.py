@@ -5,10 +5,10 @@
 
     Module to create a simple SU2 mesh from SUMO file (.smx)
 
-    Works with Python 2.7/3.4
+    Works with Python 2.7/3.6
     Author : Aidan Jungo
     Creation: 2018-10-29
-    Last modifiction: 2018-10-30
+    Last modifiction: 2019-08-08
 
     TODO:  - Add options for SUMO
            - Check and write the script to be compatible with other OS
@@ -65,6 +65,7 @@ def create_SU2_mesh(smx_file_path):
     su2_ouput_path = MODULE_DIR + '/ToolOutput/ToolOutput.su2'
 
     #Check if SUMO is installed
+    # with python3 could be replace by shutil.which("sumo")
     check_sumo = os.system('which sumo')  # give 0 if it works
     if check_sumo:
         log.error('SUMO does not seem to be installed on your computer!')
@@ -105,10 +106,10 @@ def create_SU2_mesh(smx_file_path):
 
     return su2_ouput_path
 
+
 #==============================================================================
 #    MAIN
 #==============================================================================
-
 
 if __name__ == '__main__':
 

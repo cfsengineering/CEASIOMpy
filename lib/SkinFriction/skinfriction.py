@@ -8,7 +8,7 @@
     Works with Python 2.7/3.6
     Author : Aidan Jungo
     Creation: 2019-06-13
-    Last modifiction: 2019-07-02
+    Last modifiction: 2019-08-08
 
     TODO:  -
            -
@@ -22,9 +22,6 @@
 import os
 import sys
 import math
-
-import numpy
-import matplotlib
 
 from lib.utils.ceasiomlogger import get_logger
 from lib.utils.standardatmosphere import get_atmosphere

@@ -47,3 +47,5 @@ Reference area
 CPACS output paths
 ------------------
 
+
+**ceasiompy.CLCalculator does not write anything back to CPACS** 

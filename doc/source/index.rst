@@ -11,7 +11,9 @@ Introduction
    :caption: User guide
 
    user_guide/installation
+   user_guide/getting_started
    user_guide/detailed_user_guide
+   user_guide/module_interfaces
 
 .. toctree::
    :maxdepth: 1

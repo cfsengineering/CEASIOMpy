@@ -25,9 +25,9 @@ import sys
 import pytest
 from pytest import approx
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, get_value
-from lib.SkinFriction.skinfriction import get_largest_wing_dim, \
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, get_value
+from ceasiompy.SkinFriction.skinfriction import get_largest_wing_dim, \
                                           estimate_skin_friction_coef, \
                                           add_skin_friction
 

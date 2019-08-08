@@ -31,7 +31,7 @@ import numpy as np
 import time
 import matplotlib.pyplot as plt
 
-from lib.utils.InputClasses.Conventional import balanceconvclass
+from ceasiompy.utils.InputClasses.Conventional import balanceconvclass
 
 from func.Cog.centerofgravity import center_of_gravity_evaluation
 from func.Inertia import lumpedmassesinertia
@@ -39,10 +39,10 @@ from func.AoutFunc import outputbalancegen
 from func.AoutFunc import cpacsbalanceupdate
 from func.AinFunc import getdatafromcpacs
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils import copyxmlfile
-from lib.utils.cpacsfunctions import aircraft_name
-from lib.utils.WB.ConvGeometry import geometry
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils import copyxmlfile
+from ceasiompy.utils.cpacsfunctions import aircraft_name
+from ceasiompy.utils.WB.ConvGeometry import geometry
 
 log = get_logger(__file__.split('.')[0])
 

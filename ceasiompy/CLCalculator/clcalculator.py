@@ -26,11 +26,11 @@ import math
 import numpy
 import matplotlib
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils.cpacsfunctions import open_tixi, close_tixi, \
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi, \
                                      get_value, get_value_or_default, \
                                      create_branch
-from lib.utils.standardatmosphere import get_atmosphere
+from ceasiompy.utils.standardatmosphere import get_atmosphere
 
 log = get_logger(__file__.split('.')[0])
 

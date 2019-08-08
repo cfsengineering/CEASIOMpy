@@ -16,12 +16,12 @@
 #   IMPORTS
 #=============================================================================
 
-from lib.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiomlogger import get_logger
 from .Fuselage.fusegeom import fuse_geom_eval
 from .Wings.winggeom import wing_geom_eval
 from .Output.outputgeom import produce_output_txt
 
-from lib.utils.InputClasses.Conventional.aircraftgeometryclass\
+from ceasiompy.utils.InputClasses.Conventional.aircraftgeometryclass\
     import AircraftGeometry
 
 log = get_logger(__file__.split('.')[0])

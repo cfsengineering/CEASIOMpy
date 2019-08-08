@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from lib.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 cpacs_inout = CPACSInOut()
 

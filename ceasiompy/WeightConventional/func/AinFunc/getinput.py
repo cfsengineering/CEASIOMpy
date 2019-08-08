@@ -5,7 +5,7 @@
 
     The script saves the input value required for the weight analysis,
     obtaining them from the CPACS file or from user input in the
-    lib/Input_class/conventional/weight_user_input.py script.
+    ceasiompy.Input_class/conventional/weight_user_input.py script.
 
     Works with Python 2.7
     Author : Stefano Piccini
@@ -18,8 +18,8 @@
 #   IMPORTS
 #=============================================================================
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils import cpacsfunctions as cpf
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils import cpacsfunctions as cpf
 
 log = get_logger(__file__.split('.')[0])
 

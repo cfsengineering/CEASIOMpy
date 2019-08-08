@@ -57,11 +57,11 @@ import numpy as np
 import time
 
 # Classes
-from lib.utils.InputClasses.Unconventional.weightuncclass import UserInputs
-from lib.utils.InputClasses.Unconventional.weightuncclass import AdvancedInputs
-from lib.utils.InputClasses.Unconventional.engineclass import EngineData
-from lib.utils.InputClasses.Unconventional.weightuncclass import MassesWeights
-from lib.utils.InputClasses.Unconventional.weightuncclass import WeightOutput
+from ceasiompy.utils.InputClasses.Unconventional.weightuncclass import UserInputs
+from ceasiompy.utils.InputClasses.Unconventional.weightuncclass import AdvancedInputs
+from ceasiompy.utils.InputClasses.Unconventional.engineclass import EngineData
+from ceasiompy.utils.InputClasses.Unconventional.weightuncclass import MassesWeights
+from ceasiompy.utils.InputClasses.Unconventional.weightuncclass import WeightOutput
 
 # Functions
 from func.AinFunc import getinput
@@ -77,10 +77,10 @@ from func.Fuel.fuelmass import estimate_fuse_fuel_mass
 from func.Fuel.fuelmass import estimate_wing_fuel_mass
 
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils import copyxmlfile
-from lib.utils.cpacsfunctions import aircraft_name
-from lib.utils.WB.UncGeometry import uncgeomanalysis
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils import copyxmlfile
+from ceasiompy.utils.cpacsfunctions import aircraft_name
+from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
 
 log = get_logger(__file__.split('.')[0])
 
@@ -136,7 +136,7 @@ if __name__ == '__main__':
 
 ##================================ USER INPUTS =============================##
     # All the input data must be defined into the unc_weight_user_input.py
-    # file inside the lib/InputClasses/Unconventioanl folder.
+    # file inside the ceasiompy.InputClasses/Unconventioanl folder.
 
     adui = AdvancedInputs()
     ui = UserInputs()

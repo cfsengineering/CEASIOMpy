@@ -26,10 +26,10 @@ import math
 import numpy
 import matplotlib
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils.cpacsfunctions import open_tixi, close_tixi
-from lib.utils.mathfunctions import euler2fix, fix2euler
-from lib.utils.standardatmosphere import get_atmosphere, plot_atmosphere
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi
+from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
+from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
 
 log = get_logger(__file__.split('.')[0])
 

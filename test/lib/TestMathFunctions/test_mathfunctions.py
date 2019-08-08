@@ -25,8 +25,8 @@ import sys
 import pytest
 from pytest import approx
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils.mathfunctions import euler2fix, fix2euler
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 
 log = get_logger(__file__.split('.')[0])
 

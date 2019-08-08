@@ -55,7 +55,7 @@ import shutil
 import numpy as np
 import time
 
-from lib.utils.InputClasses.Conventional import weightconvclass
+from ceasiompy.utils.InputClasses.Conventional import weightconvclass
 
 from func.Passengers.passengers import estimate_passengers
 from func.Passengers.seatsconfig import seat_config
@@ -67,10 +67,10 @@ from func.AoutFunc import cpacsweightupdate
 from func.AoutFunc import createtmpcpacs
 from func.AinFunc import getinput
 
-from lib.utils.ceasiomlogger import get_logger
-from lib.utils import copyxmlfile
-from lib.utils.cpacsfunctions import aircraft_name
-from lib.utils.WB.ConvGeometry import geometry
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils import copyxmlfile
+from ceasiompy.utils.cpacsfunctions import aircraft_name
+from ceasiompy.utils.WB.ConvGeometry import geometry
 
 log = get_logger(__file__.split('.')[0])
 
@@ -111,7 +111,7 @@ if __name__ == '__main__':
     else:
         os.makedirs('ToolOutput')
 
-    # Class Definition from the lib/Input_classes/Conventional folder
+    # Class Definition from the ceasiompy.Input_classes/Conventional folder
     ui = weightconvclass.UserInputs()
 
     # Class Definition from the classes folder

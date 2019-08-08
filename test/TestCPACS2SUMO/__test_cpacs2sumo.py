@@ -25,8 +25,8 @@ import unittest
 
 import pytest
 
-from lib.CPACS2SUMO.cpacs2sumo import convert_cpacs_to_sumo
-from lib.utils.ceasiomlogger import get_logger
+from ceasiompy.CPACS2SUMO.cpacs2sumo import convert_cpacs_to_sumo
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 

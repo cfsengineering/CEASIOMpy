@@ -20,17 +20,15 @@
 #==============================================================================
 
 import os
-import sys
-import math
-
-import numpy
-import matplotlib
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi, \
                                      get_value, get_value_or_default, \
                                      create_branch
 from ceasiompy.utils.standardatmosphere import get_atmosphere
+
+from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
+from ceasiompy.CLCalculator.__specs__ import cpacs_inout
 
 log = get_logger(__file__.split('.')[0])
 
@@ -122,7 +120,6 @@ def get_cl(cpacs_path,cpacs_out_path):
     tixi.addDoubleElement(range_xpath,'cruiseCL',cl,'%g')
     log.info('CL has been saved in the CPACS file')
 
-
     su2_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
     tixi = create_branch(tixi, su2_xpath)
     tixi.addDoubleElement(su2_xpath,'targetCL',cl,'%g')
@@ -148,6 +145,7 @@ if __name__ == '__main__':
     cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
     cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 
+    check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
     get_cl(cpacs_path,cpacs_out_path)
 
     log.info('End CLCalculator')

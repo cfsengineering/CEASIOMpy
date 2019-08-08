@@ -8,15 +8,15 @@ ceasiompy.WeightUnconventional.func.AinFunc.getinput module
 -----------------------------------------------------------
 
 .. automodule:: ceasiompy.WeightUnconventional.func.AinFunc.getinput
-   :members:
-   :undoc-members:
-   :show-inheritance:
+    :members:
+    :undoc-members:
+    :show-inheritance:
 
 
 Module contents
 ---------------
 
 .. automodule:: ceasiompy.WeightUnconventional.func.AinFunc
-   :members:
-   :undoc-members:
-   :show-inheritance:
+    :members:
+    :undoc-members:
+    :show-inheritance:

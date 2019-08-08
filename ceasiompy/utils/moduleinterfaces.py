@@ -13,6 +13,7 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi
 
 # Tool specific path for CEASIOMpy
 CEASIOM_XPATH = '/cpacs/toolspecific/CEASIOMpy'
+AIRCRAFT_XPATH = '/cpacs/vehicles/aircraft'
 
 
 class CPACSRequirementError(Exception):

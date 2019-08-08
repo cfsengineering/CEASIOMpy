@@ -5,7 +5,7 @@
 
     Math functions which are used in different modules of CEASIOMpy
 
-    Works with Python 2.7/3.4
+    Works with Python 2.7/3.6
     Author : Aidan Jungo
     Creation: 2018-10-19
     Last modifiction: 2018-10-19

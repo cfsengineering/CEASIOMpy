@@ -16,10 +16,10 @@
              ToolInput folder after copying it into the ToolOutput
              folder as ToolOutput.xml
 
-    Works with Python 2.7
+    Works with Python 2.7/3.6
     Author : Stefano Piccini
     Date of creation: 2018-09-27
-    Last modifiction: 2019-01-25
+    Last modifiction: 2019-08-08 (AJ)
 
 """
 
@@ -45,7 +45,7 @@ from func.AinFunc import getdatafromcpacs
 from lib.utils import copyxmlfile
 
 from lib.utils.ceasiomlogger import get_logger
-from lib.utils import aircraftname
+from lib.utils.cpacsfunctions import aircraft_name
 
 log = get_logger(__file__.split('.')[0])
 
@@ -100,9 +100,9 @@ if __name__ == '__main__':
         raise Exception ('Error no ToolInput.xml  or user_toolinput file'\
                          + ' in the ToolInput folder ')
 
-    NAME = aircraftname.get_name(out_xml)
+    name = aircraft_name(out_xml)
 
-    newpath = 'ToolOutput/' + NAME
+    newpath = 'ToolOutput/' + name
     if not os.path.exists(newpath):
         os.makedirs(newpath)
 
@@ -132,7 +132,7 @@ if __name__ == '__main__':
 ##============================= RANGE ANALYSIS =============================##
 
     log.info('-------- Starting the range analysis --------')
-    log.info('---------- Aircraft: ' + NAME + ' -----------')
+    log.info('---------- Aircraft: ' + name + ' -----------')
 
 ### RANGE AND FUEL CONSUMPTION -----------------------------------------------
     mw = fuel_consumption(LDloi, mw, ri, ri.RES_FUEL_PERC/100.0)
@@ -158,7 +158,7 @@ if __name__ == '__main__':
 #=============================================================================
 
     log.info('-------- Generating output text file --------')
-    outputrangegen.output_txt(LDloi, LDcru, mw, ri, out, NAME)
+    outputrangegen.output_txt(LDloi, LDcru, mw, ri, out, name)
 
 
 #=============================================================================
@@ -192,7 +192,7 @@ if __name__ == '__main__':
 ### Payload vs Range ---------------------------------------------------------
     log.info('---- Generating payload versus range plot ---')
     outputrangegen.payload_range_plot(out.ranges, out.ranges_cru,\
-                                      out.payloads, mw, NAME)
+                                      out.payloads, mw, name)
 
 ### Show plots
     #plt.show()

@@ -27,7 +27,7 @@ import pytest
 from lib.utils.ceasiomlogger import get_logger
 from lib.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, \
                                      get_value, get_value_or_default,  \
-                                     create_branch, copy_branch
+                                     create_branch, copy_branch, aircraft_name
 
 log = get_logger(__file__.split('.')[0])
 
@@ -216,6 +216,14 @@ def test_get_value_or_default():
     assert value == 'test'
     new_elem = tixi.getTextElement(xpath)
     assert new_elem =='test'
+
+
+def test_aircraft_name():
+    """Test the function 'aircraft_name'"""
+
+    name = aircraft_name(CPACS_IN_PATH)
+    assert name == 'Cpacs2Test'
+
 
 
 #==============================================================================

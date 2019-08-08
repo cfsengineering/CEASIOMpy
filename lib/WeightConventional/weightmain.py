@@ -28,7 +28,7 @@
        and  tooloutput.xml file if case B in the ToolOutput folder.
      - The code saves a copy of the tooloutput.xml file inside the
        ToolInput folder of the range and balance analysis.
-     - The system creates a folder with the aircraft NAME, and it saves inside
+     - The system creates a folder with the aircraft name, and it saves inside
        three txt file and one figure:
        - NAME_Aircraft_Geometry.out: that contains all the information
          regarding the aircraft geometry (only with case B)
@@ -40,10 +40,10 @@
     WARNING: The code deletes the ToolOutput folder and recreates
               it at the start of each run.
 
-    Works with Python 2.7
+    Works with Python 2.7/3.6
     Author : Stefano Piccini
     Date of creation: 2018-09-27
-    Last modifiction: 2019-01-25
+    Last modifiction: 2019-08-08 (AJ)
 """
 
 #=============================================================================
@@ -68,8 +68,8 @@ from func.AoutFunc import createtmpcpacs
 from func.AinFunc import getinput
 
 from lib.utils.ceasiomlogger import get_logger
-from lib.utils import aircraftname
 from lib.utils import copyxmlfile
+from lib.utils.cpacsfunctions import aircraft_name
 from lib.utils.WB.ConvGeometry import geometry
 
 log = get_logger(__file__.split('.')[0])
@@ -123,7 +123,7 @@ if __name__ == '__main__':
 
     if not cpacs:
     ### Option 1: GEOMETRY FROM INPUT
-        NAME = str(input('Name of the aircraft: '))
+        name = str(input('Name of the aircraft: '))
         wing_area = float(input('Wing plantform area [m^2]: '))
         wing_span = float(input('Wing span [m]: '))
         fuse_length = float(input('Fuselage length [m]: '))
@@ -133,8 +133,8 @@ if __name__ == '__main__':
         ind = weightconvclass.InsideDimensions(fuse_length,\
                                                  fuse_width, cpacs)
         cpacs_out = 'ToolOutput/user_tooloutput.xml'
-        out_xml = createtmpcpacs.create_xml(cpacs_out, NAME)
-        newpath = 'ToolOutput/' + NAME
+        out_xml = createtmpcpacs.create_xml(cpacs_out, name)
+        newpath = 'ToolOutput/' + name
         if not os.path.exists(newpath):
             os.makedirs(newpath)
     else:
@@ -145,13 +145,13 @@ if __name__ == '__main__':
             raise Exception ('Error, no ToolInput.xml'\
                              + ' file in the ToolInput folder.')
 
-        NAME = aircraftname.get_name(cpacs_in)
+        name = aircraft_name(cpacs_in)
 
         out_xml = copyxmlfile.copy_xml(cpacs_in, 'ToolOutput.xml')
-        newpath = 'ToolOutput/' + NAME
+        newpath = 'ToolOutput/' + name
         if not os.path.exists(newpath):
             os.makedirs(newpath)
-        ag = geometry.geometry_eval(cpacs_in, NAME)
+        ag = geometry.geometry_eval(cpacs_in, name)
         fuse_length = round(ag.fuse_length[0],3)
         fuse_width = round(np.amax(ag.fuse_sec_width[:,0]),3)
         ind = weightconvclass.InsideDimensions(fuse_length, fuse_width, cpacs)
@@ -200,12 +200,12 @@ if __name__ == '__main__':
 ##============================= WEIGHT ANALYSIS ============================##
 
     log.info('------- Starting the weight analysis --------')
-    log.info('---------- Aircraft: ' + NAME + ' -----------')
+    log.info('---------- Aircraft: ' + name + ' -----------')
 
 ### MAXIMUM TAKE OFF MASS EVALUATION -----------------------------------------
     mw.maximum_take_off_mass = mtomestimation.estimate_mtom(\
                              fuse_length, fuse_width,\
-                             wing_area, wing_span, NAME)
+                             wing_area, wing_span, name)
     if mw.maximum_take_off_mass <= 0:
         raise Exception('Wrong mass estimation, unconventional aircraft '\
                         + 'studied using the conventional aircraft database.')
@@ -228,7 +228,7 @@ if __name__ == '__main__':
                                                 ind)
         seat_config(out.pass_nb, out.row_nb, out.abreast_nb,\
                     out.aisle_nb, ui.IS_DOUBLE_FLOOR, out.toilet_nb,\
-                    ui.PASS_PER_TOILET, fuse_length, ind, NAME)
+                    ui.PASS_PER_TOILET, fuse_length, ind, name)
     else:
         out.pass_nb = 0
         raise Exception('The aircraft can not transport passengers, increase'\
@@ -319,7 +319,7 @@ if __name__ == '__main__':
 
     log.info('-------- Generating output text file --------')
 
-    outputweightgen.output_txt(ui.IS_DOUBLE_FLOOR, out, mw, ind, ui, NAME)
+    outputweightgen.output_txt(ui.IS_DOUBLE_FLOOR, out, mw, ind, ui, name)
 
 
 #=============================================================================
@@ -331,33 +331,33 @@ if __name__ == '__main__':
 
 # Copying tooloutput.xml as toolinput.xml in the ToolInput folder in
 # Range and BalanceConventional modules.
-    if not cpacs:
-        PATH_IN = '/user_tooloutput.xml'
-        PATH_OUT = '/user_toolinput.xml'
-        TEMP = '/nocpacs.temp'
-        TEXT = 'Conventional Aircraft from user_toolinput'
-    else:
-        PATH_IN = '/ToolOutput.xml'
-        PATH_OUT = '/ToolInput.xml'
-        TEMP = '/conv.temp'
-        TEXT = 'Conventional Aircraft'
-
-    PATH = 'ToolOutput' + PATH_IN
-    PATH_RANGE_OUT = '../Range/ToolInput' + PATH_OUT
-    PATH_BALANCE_OUT = '../BalanceConventional/ToolInput' + PATH_OUT
-
-    if os.path.exists('../Range/ToolInput'):
-        shutil.rmtree('../Range/ToolInput')
-        os.makedirs('../Range/ToolInput')
-    shutil.copyfile(PATH, PATH_RANGE_OUT)
-    OutputTextFile = open('../Range/ToolInput' + TEMP, 'w')
-    OutputTextFile.write(TEXT)
-    OutputTextFile.close()
-
-    if os.path.exists('../BalanceConventional/ToolInput'):
-        shutil.rmtree('../BalanceConventional/ToolInput')
-        os.makedirs('../BalanceConventional/ToolInput')
-    shutil.copyfile(PATH, PATH_BALANCE_OUT)
+    # if not cpacs:
+    #     PATH_IN = '/user_tooloutput.xml'
+    #     PATH_OUT = '/user_toolinput.xml'
+    #     TEMP = '/nocpacs.temp'
+    #     TEXT = 'Conventional Aircraft from user_toolinput'
+    # else:
+    #     PATH_IN = '/ToolOutput.xml'
+    #     PATH_OUT = '/ToolInput.xml'
+    #     TEMP = '/conv.temp'
+    #     TEXT = 'Conventional Aircraft'
+    #
+    # PATH = 'ToolOutput' + PATH_IN
+    # PATH_RANGE_OUT = '../Range/ToolInput' + PATH_OUT
+    # PATH_BALANCE_OUT = '../BalanceConventional/ToolInput' + PATH_OUT
+    #
+    # if os.path.exists('../Range/ToolInput'):
+    #     shutil.rmtree('../Range/ToolInput')
+    #     os.makedirs('../Range/ToolInput')
+    # shutil.copyfile(PATH, PATH_RANGE_OUT)
+    # OutputTextFile = open('../Range/ToolInput' + TEMP, 'w')
+    # OutputTextFile.write(TEXT)
+    # OutputTextFile.close()
+    #
+    # if os.path.exists('../BalanceConventional/ToolInput'):
+    #     shutil.rmtree('../BalanceConventional/ToolInput')
+    #     os.makedirs('../BalanceConventional/ToolInput')
+    # shutil.copyfile(PATH, PATH_BALANCE_OUT)
 
 
 #=============================================================================

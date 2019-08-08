@@ -30,3 +30,6 @@ ToolOutput.cfg
 
 # Vim temporary files
 *.swp
+
+# Sphinx
+build/

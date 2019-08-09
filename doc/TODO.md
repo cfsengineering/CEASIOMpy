@@ -5,6 +5,8 @@
 * Add a recognizable logo
 * Make installation easier (Tixi, Tigl, TIGLCreator, sumo, SU2, pyTornado, RCE, conda?)
     * Connecting CEASIOMpy with RCE?
+* File structure
+    * Separate code from user working directory
 
 ## Module dependencies
 

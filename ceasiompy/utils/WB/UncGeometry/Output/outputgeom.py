@@ -1,16 +1,15 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    The script generates the output txt file from the geometry analysis
-    of an unconventional aircraft.
+The script generates the output txt file from the geometry analysis
+of an unconventional aircraft.
 
-    Works with Python 2.7/3.4
-    Author : Stefano Piccini
-    Date of creation: 2018-09-27
-    Last modifiction: 2018-02-20
- 
+| Works with Python 2.7/3.4
+| Author : Stefano Piccini
+| Date of creation: 2018-09-27
+| Last modifiction: 2018-02-20
 """
 
 
@@ -25,37 +24,37 @@
 #   CLASSES
 #=============================================================================
 
-"""All classes are defined inside the classes and into 
+"""All classes are defined inside the classes and into
    the InputClasses/Unconventional folder."""
-   
-   
+
+
 #=============================================================================
 #   FUNCTIONS
-#============================================================================= 
+#=============================================================================
 
 def produce_wing_output_txt(awg, NAME):
     """ Function to generate the output file with all the geometry data
         evaluated for the aircraft built without fuselage.
-        
+
     ARGUMENTS
-    (class) awg         --Arg.: AircraftWingGeometry class look at 
+    (class) awg         --Arg.: AircraftWingGeometry class look at
                                 aircraft_geometry_class.py in the
-                                classes folder for explanation. 
-    (class) afg         --Arg.: AircraftFuseGeometry class look at 
+                                classes folder for explanation.
+    (class) afg         --Arg.: AircraftFuseGeometry class look at
                                 aircraft_geometry_class.py in the
-                                classes folder for explanation. 
+                                classes folder for explanation.
     (char) NAME         --Arg.: Name of the aircraft.
     RETURN
     (file) OutputTextFile --Out.: Output txt file
-    """    
-    
+    """
+
     out_name = 'ToolOutput/' + NAME + '/' + NAME + '_Aircraft_Geometry.out'
     OutputTextFile = open(out_name,'w')
-    
-    OutputTextFile.write('\n#################################################')  
+
+    OutputTextFile.write('\n#################################################')
     OutputTextFile.write('\n######  UNCONVENTIONAL AIRCRAFT GEOMETRY   ######')
     OutputTextFile.write('\n######      ESTIMATION MODULE OUTPUTS      ######')
-    OutputTextFile.write('\n#################################################')  
+    OutputTextFile.write('\n#################################################')
     OutputTextFile.write('\n-------------------------------------------------')
     OutputTextFile.write('\nAircraft: ' + NAME)
     OutputTextFile.write('\n-------------------------------------------------')
@@ -107,7 +106,7 @@ def produce_wing_output_txt(awg, NAME):
     OutputTextFile.write('\nVolume of each wing [m^3]: '\
                          + str(awg.wing_vol))
     OutputTextFile.write('\nTotal wing volume [m^3]: '\
-                         + str(awg.wing_tot_vol))  
+                         + str(awg.wing_tot_vol))
     OutputTextFile.write('\n-------------------------------------------------')
     OutputTextFile.write('\nWINGS VOLUMES -----------------------------------')
     OutputTextFile.write('\nCabin volume [m^3]: ' + str(awg.cabin_vol))
@@ -119,37 +118,37 @@ def produce_wing_output_txt(awg, NAME):
                          + str(awg.fuse_fuel_vol))
     OutputTextFile.write('\nFuel volume in the wing [m^3]: '\
                          + str(awg.wing_fuel_vol))
-    OutputTextFile.write('\nTotal fuel Volume [m^3]: ' + str(awg.fuel_vol_tot))  
+    OutputTextFile.write('\nTotal fuel Volume [m^3]: ' + str(awg.fuel_vol_tot))
     OutputTextFile.write('\n-------------------------------------------------')
     OutputTextFile.write('\n-------------------------------------------------')
-    
+
     ###Close Text File
     OutputTextFile.close()
-    
+
     return()
-    
-    
-#============================================================================= 
+
+
+#=============================================================================
 
 def produce_geom_output_txt(afg, awg, NAME):
     """ Function to generate the output file with all the geometry data
         evaluated  for the aircraft built with 1 or more fuselage.
-        
+
     ARGUMENTS
     (class) afg            --Arg.: Aircraft_geometry class
                                   or 0 otherwise.
     (char) NAME           --Arg.: Name of the aircraft.
     RETURN
     (file) OutputTextFile --Out.: Output txt file
-    """    
-    
+    """
+
     out_name = 'ToolOutput/' + NAME + '/' + NAME + '_Aircraft_Geometry.out'
     OutputTextFile = open(out_name,'w')
-    
-    OutputTextFile.write('#################################################')  
+
+    OutputTextFile.write('#################################################')
     OutputTextFile.write('\n######  UNCONVENTIONAL AIRCRAFT GEOMETRY   ######')
     OutputTextFile.write('\n######      ESTIMATION MODULE OUTPUTS      ######')
-    OutputTextFile.write('\n#################################################')   
+    OutputTextFile.write('\n#################################################')
     OutputTextFile.write('\n-------------------------------------------------')
     OutputTextFile.write('\nAircraft: ' + NAME)
     OutputTextFile.write('\n-------------------------------------------------')
@@ -166,13 +165,13 @@ def produce_geom_output_txt(afg, awg, NAME):
     OutputTextFile.write('\nRESULTS -----------------------------------------')
     OutputTextFile.write('\n-------------------------------------------------')
     OutputTextFile.write('\nFUSELAGES ---------------------------------------')
-    OutputTextFile.write('\n-------------------------------------------------')    
-    OutputTextFile.write('\nNumber of fuselages [-]: ' + str(afg.fuse_nb))   
+    OutputTextFile.write('\n-------------------------------------------------')
+    OutputTextFile.write('\nNumber of fuselages [-]: ' + str(afg.fuse_nb))
     OutputTextFile.write('\nNumber of fuselage sections [-]: '\
                          + str(afg.fuse_sec_nb))
     OutputTextFile.write('\nNumber of fuselage segments [-]: '\
-                         + str(afg.fuse_seg_nb)) 
-    OutputTextFile.write('\nCabin segments array [-]:\n' + str(afg.cabin_seg)) 
+                         + str(afg.fuse_seg_nb))
+    OutputTextFile.write('\nCabin segments array [-]:\n' + str(afg.cabin_seg))
     OutputTextFile.write('\nFuse Length [m]: ' + str(afg.fuse_length))
     OutputTextFile.write('\nFuse nose Length [m]: '\
                          + str(afg.fuse_nose_length))
@@ -196,7 +195,7 @@ def produce_geom_output_txt(afg, awg, NAME):
                          + str(afg.fuse_sec_height))
     OutputTextFile.write('\nCabin area [m^2]: ' + str(afg.cabin_area))
     OutputTextFile.write('\nFuselages wetted surface [m^2]: '\
-                         + str(afg.fuse_surface)) 
+                         + str(afg.fuse_surface))
     OutputTextFile.write('\nVolume of all the segmetns of each fuselage '\
                          + '[m^3]: \n' + str(afg.fuse_seg_vol))
     OutputTextFile.write('\nVolume of each cabin [m^3]: '\
@@ -236,29 +235,29 @@ def produce_geom_output_txt(afg, awg, NAME):
                          + str(awg.tail_wings_surface))
     OutputTextFile.write('\nMain wing planform area [m^2]: '\
                          + str(awg.wing_plt_area_main))
-    OutputTextFile.write('\n-------------------------------------------------') 
+    OutputTextFile.write('\n-------------------------------------------------')
     OutputTextFile.write('\nWINGS VOLUMES -----------------------------------')
     OutputTextFile.write('\nVolume of each wing [m^3]: '\
                          + str(awg.wing_vol))
     OutputTextFile.write('\nTotal wing volume [m^3]: '\
-                         + str(awg.wing_tot_vol))  
+                         + str(awg.wing_tot_vol))
     OutputTextFile.write('\nWing volume for fuel storage [m^3]: '\
                          + str(awg.wing_fuel_vol))
     OutputTextFile.write('\n-------------------------------------------------')
     OutputTextFile.write('\n-------------------------------------------------')
-    
+
     ###Close Text File
     OutputTextFile.close()
-    return()    
-    
-    
+    return()
+
+
 ##=============================================================================
 #   MAIN
 #==============================================================================
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
     log.warning('#######################################################')
     log.warning('#ERROR NOT A STANDALONE PROGRAM, RUN balanceuncmain.py#')
     log.warning('#######################################################')
-    
-    
+
+

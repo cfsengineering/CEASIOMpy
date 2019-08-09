@@ -1,17 +1,19 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Test the module CPACS2SUMO (lib/CPACS2SUMO/cpacs2sumo.py')
+Test the module CPACS2SUMO (lib/CPACS2SUMO/cpacs2sumo.py')
 
-    Works with Python 2.7/3.6
-    Author : Aidan Jungo
-    Creation: 2018-10-26
-    Last modifiction: 2019-08-07
+| Works with Python 2.7/3.6
+| Author : Aidan Jungo
+| Creation: 2018-10-26
+| Last modifiction: 2019-08-07
 
-    TODO:  - Finish this test module
-           - Explaine the test procedure with "Load overlay geometry"
+TODO:
+
+* Finish this test module
+* Explaine the test procedure with "Load overlay geometry"
 
 """
 

@@ -1,17 +1,19 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Math functions which are used in different modules of CEASIOMpy
+Math functions which are used in different modules of CEASIOMpy
 
-    Works with Python 2.7/3.6
-    Author : Aidan Jungo
-    Creation: 2018-10-19
-    Last modifiction: 2018-10-19
+| Works with Python 2.7/3.6
+| Author : Aidan Jungo
+| Creation: 2018-10-19
+| Last modifiction: 2018-10-19
 
-    TODO:  - Angle naming could be imporve to respect coding guidelines
-           - Add Source and documentation
+TODO:
+
+* Angle naming could be imporve to respect coding guidelines
+* Add Source and documentation
 
 """
 

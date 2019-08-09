@@ -1,16 +1,14 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Evaluation of the number of passengers expected for
-    an unconventional aircraft.
+Evaluation of the number of passengers expected for an unconventional aircraft.
 
-    Works with Python 2.7
-    Author : Stefano Piccini
-    Date of creation: 2018-12-19
-    Last modifiction: 2019-02-20
-
+| Works with Python 2.7
+| Author : Stefano Piccini
+| Date of creation: 2018-12-19
+| Last modifiction: 2019-02-20
 """
 
 

@@ -1,20 +1,21 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Functions to manipulate CPACS file, it uses TIXI and TIGL ceasiompy.aries,
-    and add some simplified or complementary functions.
+Functions to manipulate CPACS file, it uses TIXI and TIGL ceasiompy.aries,
+and add some simplified or complementary functions.
 
-    Works with Python 2.7/3.6
-    Test: /test/TestCPACSFunctions/test_cpacsfunction.py
-    Author : Aidan Jungo
-    Creation: 2018-10-02
-    Last modifiction: 2019-08-08
+| Works with Python 2.7/3.6
+| Test: /test/TestCPACSFunctions/test_cpacsfunction.py
+| Author : Aidan Jungo
+| Creation: 2018-10-02
+| Last modifiction: 2019-08-08
 
+TODO:
 
-    TODO:  - 'copy_branch': change all uID of the copied branch? how?
-           - 'get_value' to improve, add checks
+* 'copy_branch': change all uID of the copied branch? how?
+* 'get_value' to improve, add checks
 
 """
 
@@ -406,7 +407,7 @@ def aircraft_name(cpacs_path):
     log.info('The name of the aircraft is : ' + name)
 
     close_tixi(tixi, cpacs_path)
-    
+
     return(name)
 
 #==============================================================================

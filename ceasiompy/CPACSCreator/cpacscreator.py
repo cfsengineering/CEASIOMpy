@@ -1,18 +1,19 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    CPACS Creator python launcher
+CPACS Creator python launcher
 
-    Works with Python 2.7/3.4
-    Author : Aidan Jungo
-    Creation: 2018-10-29
-    Last modifiction: 2018-11-15
+| Works with Python 2.7/3.4
+| Author : Aidan Jungo
+| Creation: 2018-10-29
+| Last modifiction: 2018-11-15
 
-    TODO:  - Check and write the script to be compatible with other OS
-             (only tested with Centos 7 for now)
-           -
+TODO:
+
+* Check and write the script to be compatible with other OS
+  (only tested with Centos 7 for now)
 
 """
 

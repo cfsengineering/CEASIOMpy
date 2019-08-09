@@ -1,15 +1,15 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    The script obtain all the informations reuired for the Unconventional
-    weight analysis from the CPACS file
+The script obtain all the informations reuired for the Unconventional
+weight analysis from the CPACS file
 
-    Works with Python 2.7
-    Author : Stefano Piccini
-    Date of creation: 2018-11-21
-    Last modifiction: 2019-02-20
+| Works with Python 2.7
+| Author : Stefano Piccini
+| Date of creation: 2018-11-21
+| Last modifiction: 2019-02-20
 """
 
 

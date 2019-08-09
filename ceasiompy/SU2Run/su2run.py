@@ -1,19 +1,21 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Module to run SU2 Calculation in CEASIOMpy
+Module to run SU2 Calculation in CEASIOMpy
 
-    Works with Python 2.7/3.6
-    Author : Aidan Jungo
-    Creation: 2018-11-06
-    Last modifiction: 2019-08-08
+| Works with Python 2.7/3.6
+| Author : Aidan Jungo
+| Creation: 2018-11-06
+| Last modifiction: 2019-08-08
 
-    TODO:  - Add check MPI installation
-           - Add possibility of using SSH
-           - Save a CPACS output file
-           - Save coefficient in the new AeroPerformanceMap from CPACS 3.1
+TODO:
+
+* Add check MPI installation
+* Add possibility of using SSH
+* Save a CPACS output file
+* Save coefficient in the new AeroPerformanceMap from CPACS 3.1
 
 """
 

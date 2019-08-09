@@ -1,17 +1,18 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Calculate lift coefficient to flight with some parameters
+Calculate lift coefficient to flight with some parameters
 
-    Works with Python 2.7/3.6
-    Author : Aidan Jungo
-    Creation: 2018-11-28
-    Last modifiction: 2019-08-08
+| Works with Python 2.7/3.6
+| Author: Aidan Jungo
+| Creation: 2018-11-28
+| Last modifiction: 2019-08-08
 
-    TODO:  - Replace cruise_speed by cruise_mach? also in CPACS
-           -
+TODO:
+
+* Replace cruise_speed by cruise_mach? also in CPACS
 
 """
 

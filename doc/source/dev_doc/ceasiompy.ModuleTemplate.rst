@@ -4,10 +4,10 @@ ceasiompy.ModuleTemplate package
 Submodules
 ----------
 
-ceasiompy.ModuleTemplate.mymodule module
-----------------------------------------
+ceasiompy.ModuleTemplate.moduletemplate module
+----------------------------------------------
 
-.. automodule:: ceasiompy.ModuleTemplate.mymodule
+.. automodule:: ceasiompy.ModuleTemplate.moduletemplate
    :members:
    :undoc-members:
    :show-inheritance:

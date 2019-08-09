@@ -1,15 +1,15 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    The script evaluates the maximum number of passengers (maximum
-    number of people in economy class that can leave the aircraft in 90 sec).
+The script evaluates the maximum number of passengers (maximum
+number of people in economy class that can leave the aircraft in 90 sec).
 
-    Works with Python 2.7
-    Author : Stefano Piccini
-    Date of creation: 2018-09-27
-    Last modifiction: 2019-02-20
+| Works with Python 2.7
+| Author : Stefano Piccini
+| Date of creation: 2018-09-27
+| Last modifiction: 2019-02-20
 """
 
 

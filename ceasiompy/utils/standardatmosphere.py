@@ -1,18 +1,20 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Give atmosphere parameters at any altitudes from 0 to 84000m
+Give atmosphere parameters at any altitudes from 0 to 84000m
 
-    Works with Python 2.7
-    Test: /test/TestStandardAtmosphere/test_standardatmosphere.py
-    Author : Aidan Jungo
-    Creation: 2018-10-04
-    Last modifiction: 2018-10-08
+| Works with Python 2.7
+| Test: /test/TestStandardAtmosphere/test_standardatmosphere.py
+| Author : Aidan Jungo
+| Creation: 2018-10-04
+| Last modifiction: 2018-10-08
 
-    TODO:  - move 'Example of use' in an exteranl document
-           - Try compatibility with Python 3.4
+TODO:
+
+    * move 'Example of use' in an exteranl document
+    * Try compatibility with Python 3.4
 
 """
 

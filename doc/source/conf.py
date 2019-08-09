@@ -46,6 +46,9 @@ extensions = [
     'sphinx.ext.autosummary',
 ]
 
+# See: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
+autodoc_mock_imports = ['tigl3', 'tixi3', 'matplotlib', 'pandas', 'numpy']
+
 # Paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
 

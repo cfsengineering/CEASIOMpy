@@ -3,10 +3,8 @@
 ## CEASIOMpy project
 
 * Add a recognizable logo
+* Make installation easier (Tixi,Tigl,TIGLCreator,sumo,SU2,pyTornado,RCE,conda?)
 
-## Naming conventions
-    * Use lowe-case for package names?
-        * See PEP8: https://www.python.org/dev/peps/pep-0008/#package-and-module-names
 
 ## Module dependencies
 
@@ -20,10 +18,17 @@
 * Fix docstring translation/formatting
     * https://www.python.org/dev/peps/pep-0257/
     * http://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
+* Make a page for users
+        * How to install
+        * Possible workflow, module order/compatibility
 * Make a page for contributors
     * Guidelines, etc.
     * Example for how to structure and add a new module
 
+## Aerodynamic modules
+* How to store inputs data in CPACS (alpha,beta, mach, alt)
+* How to store results in CPACS (AeroPerformanceMap, damping derivatives, ...)
+* Folder structure for the results
 
 ## New module
 
@@ -34,10 +39,15 @@
     * CoefCPACS2CSV
     * PlotTool
 
-
 * To develop
     * StaticStablility
     * DynamicStability
     * FlightModel
+    * EngineTool
     * LaTeXReport
     * TestSU2Convergence
+
+## RCE Integration
+    * Upuload .json file
+    * Add a script to automatically set the ToolDirectory path of each module
+    * Small logo for each module

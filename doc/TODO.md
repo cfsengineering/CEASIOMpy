@@ -3,8 +3,8 @@
 ## CEASIOMpy project
 
 * Add a recognizable logo
-* Make installation easier (Tixi,Tigl,TIGLCreator,sumo,SU2,pyTornado,RCE,conda?)
-
+* Make installation easier (Tixi, Tigl, TIGLCreator, sumo, SU2, pyTornado, RCE, conda?)
+    * Connecting CEASIOMpy with RCE?
 
 ## Module dependencies
 

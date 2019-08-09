@@ -8,15 +8,15 @@ ceasiompy.WeightUnconventional.func.Systems.systemsmass module
 --------------------------------------------------------------
 
 .. automodule:: ceasiompy.WeightUnconventional.func.Systems.systemsmass
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 
 Module contents
 ---------------
 
 .. automodule:: ceasiompy.WeightUnconventional.func.Systems
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

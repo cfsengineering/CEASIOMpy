@@ -6,7 +6,7 @@ Subpackages
 
 .. toctree::
 
-    ceasiompy.WeightConventional.func
+   ceasiompy.WeightConventional.func
 
 Submodules
 ----------
@@ -15,15 +15,15 @@ ceasiompy.WeightConventional.weightmain module
 ----------------------------------------------
 
 .. automodule:: ceasiompy.WeightConventional.weightmain
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:
 
 
 Module contents
 ---------------
 
 .. automodule:: ceasiompy.WeightConventional
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

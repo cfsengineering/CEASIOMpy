@@ -8,12 +8,12 @@
 import os
 import sys
 
+sys.path.insert(0, os.path.abspath('../../ceasiompy'))
+sys.setrecursionlimit(1500)
+
 from ceasiompy.__version__ import __version__
 
 NAME = 'CEASIOMpy'
-
-sys.path.insert(0, os.path.abspath('../../ceasiompy'))
-sys.setrecursionlimit(1500)
 
 # -- Project information -----------------------------------------------------
 project = NAME
@@ -75,7 +75,14 @@ rst_prolog = f"""
 .. |name_bold| replace:: **{NAME}**
 .. |author1| replace:: {author}
 .. |license| replace:: *Apache-2.0*
+.. |dlr_full| replace:: German Aerospace Center
 .. _Github: https://github.com/cfsengineering/CEASIOMpy
+.. _Github_BugReport: https://github.com/cfsengineering/CEASIOMpy/issues
+.. _CPACS: https://www.cpacs.de/
+.. _Tixi: https://github.com/DLR-SC/tixi
+.. _Tigl: https://github.com/DLR-SC/tigl
+.. _RCE: https://rcenvironment.de/
+.. _DLR: https://www.dlr.de/
 .. _pip: https://pypi.org/project/pip/
 """
 

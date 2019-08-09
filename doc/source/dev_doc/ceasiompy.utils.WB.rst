@@ -6,13 +6,13 @@ Subpackages
 
 .. toctree::
 
-    ceasiompy.utils.WB.ConvGeometry
-    ceasiompy.utils.WB.UncGeometry
+   ceasiompy.utils.WB.ConvGeometry
+   ceasiompy.utils.WB.UncGeometry
 
 Module contents
 ---------------
 
 .. automodule:: ceasiompy.utils.WB
-    :members:
-    :undoc-members:
-    :show-inheritance:
+   :members:
+   :undoc-members:
+   :show-inheritance:

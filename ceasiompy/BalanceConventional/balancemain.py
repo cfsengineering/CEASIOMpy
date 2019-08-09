@@ -1,23 +1,24 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Balance main module for preliminary design on conventional
-    aircraft, it evaluates:
-     - the centre of gravity;
-     - the Ixx, Iyy, Izz moments of inertia.
+Balance main module for preliminary design on conventional
+aircraft, it evaluates:
 
-    WARNING: The code deletes the ToolOutput folder and recreates
-             it at the start of each run.
-             The code also removes the toolinput file from the ToolInput
-             folder after copying it into the ToolOutput folder
-             as ToolOutput.xml
+ * The centre of gravity;
+ * The Ixx, Iyy, Izz moments of inertia.
 
-    Works with Python 2.7/3.6
-    Author : Stefano Piccini
-    Date of creation: 2018-09-27
-    Last modifiction: 2019-08-08 (AJ)
+WARNING: The code deletes the ToolOutput folder and recreates
+         it at the start of each run.
+         The code also removes the toolinput file from the ToolInput
+         folder after copying it into the ToolOutput folder
+         as ToolOutput.xml
+
+| Works with Python 2.7/3.6
+| Author : Stefano Piccini
+| Date of creation: 2018-09-27
+| Last modifiction: 2019-08-08 (AJ)
 """
 
 #=============================================================================

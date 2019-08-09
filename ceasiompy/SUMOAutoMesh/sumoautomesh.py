@@ -1,19 +1,21 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Module to create a simple SU2 mesh from SUMO file (.smx)
+Module to create a simple SU2 mesh from SUMO file (.smx)
 
-    Works with Python 2.7/3.6
-    Author : Aidan Jungo
-    Creation: 2018-10-29
-    Last modifiction: 2019-08-08
+| Works with Python 2.7/3.6
+| Author : Aidan Jungo
+| Creation: 2018-10-29
+| Last modifiction: 2019-08-08
 
-    TODO:  - Add options for SUMO
-           - Check and write the script to be compatible with other OS
-             (only tested with Centos 7 for now)
-           - Allow multi-pass mesh
+TODO:
+
+* Add options for SUMO
+* Check and write the script to be compatible with other OS
+  (only tested with Centos 7 for now)
+* Allow multi-pass mesh
 
 """
 

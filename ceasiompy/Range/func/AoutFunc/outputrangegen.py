@@ -1,14 +1,14 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Output text and plot generation functions.
-     
-    Works with Python 2.7
-    Author : Stefano Piccini
-    Date of creation: 2018-11-21
-    Last modifiction: 2019-02-20
+Output text and plot generation functions.
+
+| Works with Python 2.7
+| Author : Stefano Piccini
+| Date of creation: 2018-11-21
+| Last modifiction: 2019-02-20
 """
 
 
@@ -30,26 +30,26 @@ from matplotlib.ticker import MultipleLocator
 
 """All classes are defined inside the InputClasses folder in the
    rangeclass script."""
-   
-   
+
+
 #=============================================================================
 #   FUNCTIONS
 #=============================================================================
 
-def output_txt(LDloi, LDcru, mw, ri, out, NAME): 
+def output_txt(LDloi, LDcru, mw, ri, out, NAME):
     """ The function that generats the output text file for the range analysis.
-        
+
         INPUT
         (float) LDloi         --Att.: Lift over drag during loiter [-].
         (float) LDcru         --Att.: Lift over drag duing cruise [-].
-        (class) mw            --Arg.: MassesWeights class.  
+        (class) mw            --Arg.: MassesWeights class.
         (class) ri            --Arg.: RangeInputs class.
         ##======= Classes are defined in the InputClasses folder =======##
-        
+
         (class) out               --Arg.: RangeOutput class.
         ##========= Class is defined in the InputClasses folder ========##
         (char) NAME               --Arg.: Name of the aircraft
-        
+
         OUTPUT
         (file) Range_module.out --Out.: Text file containing all the
                                               informations estimated from the
@@ -58,10 +58,10 @@ def output_txt(LDloi, LDcru, mw, ri, out, NAME):
     OUT_NAME = 'ToolOutput/' + NAME + '/' + NAME\
                + '_Range_module.out'
     OutputTextFile = open(OUT_NAME, 'w+')
-    OutputTextFile.write('\n###############################################')  
+    OutputTextFile.write('\n###############################################')
     OutputTextFile.write('\n####### AIRCRAFT RANGE ESTIMATION MODULE ######')
     OutputTextFile.write('\n#####               OUTPUTS               #####')
-    OutputTextFile.write('\n###############################################')  
+    OutputTextFile.write('\n###############################################')
     OutputTextFile.write('\n-----------------------------------------------')
     OutputTextFile.write('\nAircraft: ' + NAME)
     OutputTextFile.write('\n-----------------------------------------------')
@@ -70,9 +70,9 @@ def output_txt(LDloi, LDcru, mw, ri, out, NAME):
     if ri.WINGLET:
         OutputTextFile.write('\nWinglet type:' + str(ri.WINGLET))
     else:
-        OutputTextFile.write('\nWinglet: no') 
+        OutputTextFile.write('\nWinglet: no')
     OutputTextFile.write('\n-----------------------------------------------')
-    OutputTextFile.write('\nEngine Inputs ---------------------------------') 
+    OutputTextFile.write('\nEngine Inputs ---------------------------------')
     OutputTextFile.write('\n-----------------------------------------------')
     OutputTextFile.write('\nCruise Speed [m/s]: ' + str(ri.CRUISE_SPEED))
     OutputTextFile.write('\nCL/CD during cruise [-]: ' + str(LDcru))
@@ -80,7 +80,7 @@ def output_txt(LDloi, LDcru, mw, ri, out, NAME):
     OutputTextFile.write('\nCruise TSFC [1/hr]: ' + str(ri.TSFC_CRUISE))
     OutputTextFile.write('\nLoiter TSFC [1/hr]: ' + str(ri.TSFC_LOITER))
     OutputTextFile.write('\n-----------------------------------------------')
-    OutputTextFile.write('\nResults ---------------------------------------') 
+    OutputTextFile.write('\nResults ---------------------------------------')
     OutputTextFile.write('\n-----------------------------------------------')
     if ri.cabin_crew_nb:
         OutputTextFile.write('\nCrew suggested ----------------------------'\
@@ -88,7 +88,7 @@ def output_txt(LDloi, LDcru, mw, ri, out, NAME):
         OutputTextFile.write('\nTotal crew members: ' + str(out.crew_nb))
         OutputTextFile.write('\nNumber of cabin crew members: '
                              + str(out.cabin_crew_nb))
-        OutputTextFile.write('\nNumber of pilots: ' + str(out.pilot_nb))  
+        OutputTextFile.write('\nNumber of pilots: ' + str(out.pilot_nb))
         OutputTextFile.write('\nTotal crew mass [kg]: '\
                              + str(int(round(out.mass_crew))))
         OutputTextFile.write('\nFlight time [min]: '\
@@ -142,42 +142,42 @@ def output_txt(LDloi, LDcru, mw, ri, out, NAME):
                          + str(int(round(out.ranges_cru[-1]))))
     ### Closing Text File
     OutputTextFile.close()
-    
+
     return()
-    
+
 #=============================================================================
 #   PLOTS
 #=============================================================================
 
 def payload_range_plot(ranges, ranges_cru, payloads, mw, NAME):
     """ The function that generate the plot of the payload vs range.
-        
+
         INPUT
         (float_array) ranges      --Arg.: Array containing the ranges [km]
                                          evaluated in the
                                          breguet_cruise_range.py script.
-        (float_array) ranges_cru  --Arg.: Array containing the cruise 
+        (float_array) ranges_cru  --Arg.: Array containing the cruise
                                           ranges [km] evaluated in the
                                           breguet_cruise_range.py script.
         (float_array) payloads    --Arg.: Array containing the payload [kg]
                                          corresponfing to the ranges in the
                                          ranges array.
         (class) mw                --Arg.: Mass and weight class.
-        (char) NAME               --Arg.: Name of the aircraft. 
+        (char) NAME               --Arg.: Name of the aircraft.
         ##====== Class is defined in the InputClasses folder =======##
-        
+
         OUTPUT
         (file)Payload_vs_Range.png --Out.: Png file containing all the
                                           range versus payload plot.
-    """ 
-    ### ---------------------------------------------------------------------- 
+    """
+    ### ----------------------------------------------------------------------
     fig,(ax) = plt.subplots(1, 1, sharey = True, figsize = (9,9))
     fig.patch.set_facecolor('w')
-    mpl.rcParams.update({'font.size': 14}) 
+    mpl.rcParams.update({'font.size': 14})
     ax.plot(ranges[1], payloads[1],'ob', label = 'Range with max payload',\
             markersize = 10)
     ax.plot(ranges_cru[1], payloads[1],'ob', markersize = 10)
-    if mw.m_pass_middle:  
+    if mw.m_pass_middle:
         ax.plot(ranges[2], payloads[2], 'sr',\
                 label = 'Range with max fuel and some payload', markersize = 10)
         ax.plot(ranges_cru[2], payloads[2], 'sr', markersize = 10)
@@ -190,11 +190,11 @@ def payload_range_plot(ranges, ranges_cru, payloads, mw, NAME):
     ax.set(xlabel = 'Range [km]')
     ax.set(ylabel = 'Payload [kg]')
     ax.grid()
-    
+
     n = -3
     ctr = False
     while not ctr:
-        maxp_ax = round(np.amax(payloads)/10.0,n)       
+        maxp_ax = round(np.amax(payloads)/10.0,n)
         minp_ax = maxp_ax/2.0
         maxr_ax = round(np.amax(ranges)/8.0,n)
         minr_ax = maxr_ax/2.0
@@ -202,15 +202,15 @@ def payload_range_plot(ranges, ranges_cru, payloads, mw, NAME):
             n += 1
         else:
             ctr = True
-            
+
     major_ticks_x = np.arange(0, (round(np.amax(ranges),0)\
                                   + round(np.amax(ranges),0)/4.0), maxr_ax)
     minor_ticks_x = np.arange(0, (round(np.amax(ranges),0)\
-                                  + round(np.amax(ranges),0)/4.0), minr_ax)    
+                                  + round(np.amax(ranges),0)/4.0), minr_ax)
     major_ticks_y = np.arange(0, (round(mw.mass_payload,0)\
                                   + round(mw.mass_payload,0)/4.0), maxp_ax)
     minor_ticks_y = np.arange(0, (round(mw.mass_payload,0)\
-                                  + round(mw.mass_payload,0)/4.0), minp_ax) 
+                                  + round(mw.mass_payload,0)/4.0), minp_ax)
     ax.set_axisbelow(True)
     ax.set_xticks(major_ticks_x)
     ax.set_xticks(minor_ticks_x, minor = True)
@@ -226,15 +226,15 @@ def payload_range_plot(ranges, ranges_cru, payloads, mw, NAME):
     fig.savefig(FIG_NAME, dpi = 300)
 
     return()
-    
-    
+
+
 #=============================================================================
 #    MAIN
 #=============================================================================
 
-if __name__ == '__main__':   
+if __name__ == '__main__':
     log.warning('##########################################################')
     log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN rangemain.py ####')
     log.warning('##########################################################')
-    
-    
+
+

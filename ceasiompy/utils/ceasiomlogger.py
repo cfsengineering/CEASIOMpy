@@ -1,16 +1,19 @@
 """
-    CEASIOMpy
-    Conceptual Aircraft Design Software
+CEASIOMpy
+Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Logging method use by other CEASIOMpy modules
+Logging method use by other CEASIOMpy modules
 
-    Works with Python 2.7/3.6
-    Author : Aidan Jungo
-    Creation: 2018-09-26
-    Last modifiction: 2018-09-27
-    TODO: -Create at test file
+| Works with Python 2.7/3.6
+| Author : Aidan Jungo
+| Creation: 2018-09-26
+| Last modifiction: 2018-09-27
+
+TODO:
+
+* Create at test file
 
 """
 

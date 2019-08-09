@@ -1,15 +1,15 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Temporary xml file generator to store data in case of 
-    the aircraft is defined with user inputs.
-     
-    Works with Python 2.7
-    Author : Stefano Piccini
-    Date of creation: 2018-11-21
-    Last modifiction: 2019-02-20
+Temporary xml file generator to store data in case of
+the aircraft is defined with user inputs.
+
+| Works with Python 2.7
+| Author : Stefano Piccini
+| Date of creation: 2018-11-21
+| Last modifiction: 2019-02-20
 """
 
 
@@ -41,16 +41,16 @@ log = get_logger(__file__.split('.')[0])
 #=============================================================================
 
 def create_xml(cpacs_out, NAME):
-    """ Function that creates a copy of the cpacs file, inside the ToolInput 
-        folder, into the ToolOutput folder 
-        
+    """ Function that creates a copy of the cpacs file, inside the ToolInput
+        folder, into the ToolOutput folder
+
         INPUT
-        (char) cpacs_out --Arg.: Relative location of the xml file in the 
-                                 ToolOutput folder.        
+        (char) cpacs_out --Arg.: Relative location of the xml file in the
+                                 ToolOutput folder.
         (char) NAME      --Arg.: Aircraft Name.
-        
+
         OUTPUT
-        (char) out_xml    --Out.: Relative location of the xml file in the 
+        (char) out_xml    --Out.: Relative location of the xml file in the
                                   ToolOutut folder.
     """
 
@@ -68,19 +68,19 @@ def create_xml(cpacs_out, NAME):
     tree = ET.ElementTree(root)
     tree.write(cpacs_out)
     tixi = cpf.open_tixi(cpacs_out)
-    tixi.saveDocument(cpacs_out)	
+    tixi.saveDocument(cpacs_out)
     cpf.close_tixi(tixi, cpacs_out)
 
-    return(cpacs_out)   
-    
-    
+    return(cpacs_out)
+
+
 #=============================================================================
 #   MAIN
 #=============================================================================
 
-if __name__ == '__main__':   
+if __name__ == '__main__':
     log.warning('###########################################################')
     log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ####')
     log.warning('###########################################################')
-    
-    
+
+

@@ -1,15 +1,15 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    The scrpt will analyse the fuselage geometry from cpacs file for an
-    unconventional aircraft.
+The scrpt will analyse the fuselage geometry from cpacs file for an
+unconventional aircraft.
 
-    Works with Python 2.7
-    Author : Stefano Piccini
-    Date of creation: 2018-09-27
-    Last modifiction: 2019-02-20
+| Works with Python 2.7
+| Author : Stefano Piccini
+| Date of creation: 2018-09-27
+| Last modifiction: 2019-02-20
 """
 
 

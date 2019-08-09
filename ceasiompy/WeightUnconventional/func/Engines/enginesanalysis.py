@@ -1,15 +1,14 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Evaluation of the mass of the aircraft engines.
+Evaluation of the mass of the aircraft engines.
 
-    Works with Python 2.7
-    Author : Stefano Piccini
-    Date of creation: 2018-12-19
-    Last modifiction: 2019-02-20
-    
+| Works with Python 2.7
+| Author : Stefano Piccini
+| Date of creation: 2018-12-19
+| Last modifiction: 2019-02-20
 """
 
 
@@ -28,10 +27,10 @@ log = get_logger(__file__.split('.')[0])
 #   CLASSES
 #=============================================================================
 
-"""All classes are defined inside the classes folder and in the 
+"""All classes are defined inside the classes folder and in the
    InputClasses/Unconventional folder."""
-   
-   
+
+
 #=============================================================================
 #   FUNCTIONS
 #=============================================================================
@@ -44,17 +43,17 @@ def engine_definition(mw, ui, ed):
     - WING_MOUNTED True  or False;
     - EN_PLACEMENT;
     - NE.
-   
+
     ARGUMENTS
     (class) mw --Arg.: MassesWeights class.
     (class) ui --Arg.: UserInputs class.
-    (class) ed     --Arg.: EngineData class.    
+    (class) ed     --Arg.: EngineData class.
     ##=========== Class are defined in the InputClasses folder ============##
-    
+
     OUTPUT
     (class) ed --Out.: Updated EngineData class.
-    """  
-    
+    """
+
     if not ed.TURBOPROP :
         LD_CRU = 0.866*ui.LD
         # [kN] Cruise Thrust for 1 engine
@@ -68,11 +67,11 @@ def engine_definition(mw, ui, ed):
         thrust = ((mw.maximum_take_off_mass*9.81)/LD_CRU)/(1000.0*ed.NE)
         # [kW] Max Take off Power for 1 engine
         ed.max_thrust= thrust/0.5
-        power = ed.max_thrust * ui.CRUISE_SPEED / 0.85 
+        power = ed.max_thrust * ui.CRUISE_SPEED / 0.85
         en_mass = round((0.221*power + 80.986),0)
 
     ed.en_mass = en_mass
-    
+
     return(round(en_mass*ed.NE,0), ed)
 
 
@@ -80,38 +79,38 @@ def engine_definition(mw, ui, ed):
 
 def check_ed(ed):
     """
-    The function checks if all the engine data are defined correctly in 
+    The function checks if all the engine data are defined correctly in
     case they are defined directly by the user.
-   
+
     ARGUMENTS
     (class) ed --Arg.: EngineData class.
     ##=========== Class is defined in the InputClasses folder =========##
-    
+
     OUTPUT
     -none-
     """
     s =np.shape(ed.EN_PLACEMENT)
     if not ed.NE:
         raise Exception('No engine defined for the aircraft')
-    elif not ed.en_mass:      
+    elif not ed.en_mass:
         raise Exception('Engine weight equal to zero')
-    elif not ed.max_thrust:      
+    elif not ed.max_thrust:
         raise Exception('Engine max thrust equal to zero')
     elif s[0] < ed.NE or s[1] < 3:
         raise Exception('Incorrect engine placement')
     else:
         log.info('EngineData class defined correctly.')
-        
+
     return()
-    
-    
+
+
 #=============================================================================
 #    MAIN
-#============================================================================= 
+#=============================================================================
 
 if __name__ == '__main__':
     log.warning('########################################################')
     log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #')
     log.warning('########################################################')
-    
-    
+
+

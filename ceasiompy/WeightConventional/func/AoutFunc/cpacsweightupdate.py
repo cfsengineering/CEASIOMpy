@@ -1,14 +1,14 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    The code updates the cpacs file after the weight analysis.
+The code updates the cpacs file after the weight analysis.
 
-    Works with Python 2.7
-    Author : Stefano Piccini
-    Date of creation: 2018-11-21
-    Last modifiction: 2019-02-20
+| Works with Python 2.7
+| Author : Stefano Piccini
+| Date of creation: 2018-11-21
+| Last modifiction: 2019-02-20
 """
 
 
@@ -77,7 +77,7 @@ def toolspecific_update(mw, out, out_xml):
     tixi.updateIntegerElement(PASS_PATH + '/aisleNb', out.aisle_nb, '%i')
     if not tixi.checkElement(PASS_PATH + '/toiletNb'):
         tixi.createElement(PASS_PATH, 'toiletNb')
-    tixi.updateIntegerElement(PASS_PATH + '/toiletNb', out.toilet_nb, '%i') 
+    tixi.updateIntegerElement(PASS_PATH + '/toiletNb', out.toilet_nb, '%i')
     if not tixi.checkElement(PASS_PATH + '/abreastNb'):
         tixi.createElement(PASS_PATH, 'abreastNb')
     tixi.updateIntegerElement(PASS_PATH + '/abreastNb', out.abreast_nb, '%i')

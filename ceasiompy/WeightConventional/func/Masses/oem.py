@@ -1,15 +1,14 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Function to evaluate the Oprating Empty Mass (OEM) from
-    the maximum take of mass.
+Function to evaluate the Oprating Empty Mass (OEM) from the maximum take of mass.
 
-    Works with Python 2.7
-    Author : Stefano Piccini
-    Date of creation: 2018-09-27
-    Last modifiction: 2019-02-20
+| Works with Python 2.7
+| Author : Stefano Piccini
+| Date of creation: 2018-09-27
+| Last modifiction: 2019-02-20
 """
 
 
@@ -37,18 +36,18 @@ log = get_logger(__file__.split('.')[0])
 #=============================================================================
 
 def operating_empty_mass_estimation(mtom, fuse_length, fuse_width, wing_area,\
-                                    wing_span, TURBOPROP): 
+                                    wing_span, TURBOPROP):
     """ The function estimates the operating empty mass (OEM)
-   
-    Source: Raymer, D.P. "Aircraft design: a conceptual approach" 
+
+    Source: Raymer, D.P. "Aircraft design: a conceptual approach"
             AIAA educational Series, Fourth edition (2006).
-   
+
     INPUT
     (float)     mtom            --Arg.: Maximum take off mass [kg].
-    (float)     fuse_length     --Arg.: Fuselage length [m]. 
-    (float)     fuse_width      --Arg.: Fuselage width [m]. 
-    (float)     wing_area       --Arg.: Wing area [m^2]. 
-    (float)     wing_span       --Arg.: Wing span [m]. 
+    (float)     fuse_length     --Arg.: Fuselage length [m].
+    (float)     fuse_width      --Arg.: Fuselage width [m].
+    (float)     wing_area       --Arg.: Wing area [m^2].
+    (float)     wing_span       --Arg.: Wing span [m].
     (boolean)   TURBOPROP       --Arg.: True if the the engines are turboprop
                                         False otherwise.
     OUTPUT
@@ -70,7 +69,7 @@ def operating_empty_mass_estimation(mtom, fuse_length, fuse_width, wing_area,\
             A = 1.45
         elif fuse_length < 35.00:
                 A = 1.63
-        elif fuse_length < 60.00: 
+        elif fuse_length < 60.00:
             if wing_span > 61:
                 A = 1.63
             else:
@@ -85,8 +84,8 @@ def operating_empty_mass_estimation(mtom, fuse_length, fuse_width, wing_area,\
 #   MAIN
 #==============================================================================
 
-if __name__ == '__main__':   
+if __name__ == '__main__':
     log.warning('###########################################################')
     log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ####')
     log.warning('###########################################################')
-    
+

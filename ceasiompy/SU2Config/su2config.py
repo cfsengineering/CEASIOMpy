@@ -13,6 +13,8 @@
     TODO:  - Add other options
            - Get some values from CPACS, which ones and where in cpacs?
            - Use New AeroPerformanceMap from CPACS 3.1
+           - Create multiple config for aerodatabase
+           - Simplify/clean "DefaultConfig_v6" file
 
 """
 

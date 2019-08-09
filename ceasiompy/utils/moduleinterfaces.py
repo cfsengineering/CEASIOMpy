@@ -69,7 +69,7 @@ def check_cpacs_input_requirements(cpacs_file, cpacs_inout, module_file_name):
     Check if the input CPACS file contains the required nodes
     """
 
-    log = get_logger(module_file_name.split('.')[0])
+    # log = get_logger(module_file_name.split('.')[0])
 
     required_inputs = cpacs_inout.inputs
     tixi = open_tixi(cpacs_file)
@@ -87,7 +87,7 @@ def check_cpacs_input_requirements(cpacs_file, cpacs_inout, module_file_name):
             missing_str += '==> ' + missing + '\n'
 
         msg = f"CPACS path required but does not exist\n{missing_str}"
-        log.error(msg)
+        # log.error(msg)
         raise CPACSRequirementError(msg)
 
     # TODO: close tixi handle?

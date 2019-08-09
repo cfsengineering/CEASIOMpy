@@ -13,8 +13,6 @@
 # Ignore CPACS file
 /test/CPACSfiles
 
-# Ignore Module which are not ready
-/lib/ToDevelopModules
 
 # Ignore ToolInput and ToolOutput
 ToolInput.xml
@@ -32,6 +30,9 @@ forces_breakdown.dat
 # Ignore temp file
 /ceasiompy/SU2Run/tmp/*
 /ceasiompy/SUMOAutoMesh/tmp/*
+
+# Exceptions
+!/ceasiompy/ModuleTemplate/ToolInput/ToolInput.xml
 
 # Vim temporary files
 *.swp
@@ -172,4 +173,3 @@ dmypy.json
 .pyre/
 
 # End of https://www.gitignore.io/api/python
-

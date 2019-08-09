@@ -3,7 +3,197 @@
   <toolspecific>
     <CEASIOMpy>
         
-      <activeAeroDataSets>DataSet1_Datcom</activeAeroDataSets> 
+      <geometry>
+        <description>User geometry input</description>
+        <isDoubleFloor>0</isDoubleFloor>
+        <seatWidth>0.525</seatWidth>
+        <seatLength>0.74</seatLength>
+        <aisleWidth>0.42</aisleWidth>
+        <fuseThick>0.063</fuseThick>
+        <tltLength>1.9</tltLength>
+        <winglet>0</winglet>
+        
+        <floorsNb>1</floorsNb>
+        <fuseThick>0.003</fuseThick>
+        <fuseDensity>2700</fuseDensity>
+        <cabinHeight>2</cabinHeight>
+        <wingThick>0.006</wingThick>
+        <wingDensity>2700</wingDensity>
+        
+        <virtualThick>0.00014263</virtualThick>
+        <virtualDensity>2700</virtualDensity>
+        
+        <analysis>
+            <wingArea></wingArea>
+            <wingSpan>???</wingSpan>
+            <fuseLength></fuseLength>
+            <wettedArea></wettedArea>
+        </analysis>
+        
+      </geometry>
+      
+      <fuels>
+        <resFuelPerc>0.06</resFuelPerc>
+        <fuelOnFuse>0</fuelOnFuse>
+      </fuels>
+      
+      <weight>
+        <crew>
+          <pilots>
+            <pilotNb>2</pilotNb>
+            <pilotMass>102</pilotMass>
+          </pilots>
+          <cabinCrewMembers>
+            <cabinCrewMemberMass>68</cabinCrewMemberMass>
+            <cabinCrewMemberNb>4</cabinCrewMemberNb>
+          </cabinCrewMembers>
+        </crew>
+        <passengers>
+          <passMass>105</passMass>
+          <passPerToilet>50</passPerToilet>
+          <passNb>168</passNb>
+          <rowNb>28</rowNb>
+          <aisleNb>1</aisleNb>
+          <tltNb>3</tltNb>
+          <abreastNb>6</abreastNb>
+          <fuelMassMaxpass>
+            <description>Maximum amount of fuel with maximum payload [kg]</description>
+            <mass>16492.8</mass>
+          </fuelMassMaxpass>
+          <businesSeatsOnly>False</businesSeatsOnly>
+          <mass>46410</mass>
+          <lavatoryNb>8</lavatoryNb>
+          <passDensity>1.68</passDensity>
+        </passengers>
+        <massLimits>
+          <description>Desired max fuel volume [m^3] and payload mass [kg]</description>
+          <maxPayload>0</maxPayload>
+          <maxFuelVol>0</maxFuelVol>
+        </massLimits>
+      </weight>
+      
+      <propulsion>
+        <turboprop>False</turboprop>
+        <tSFC>
+          <tsfcCruise>0.5</tsfcCruise>
+          <tsfcLoiter>0.4</tsfcLoiter>
+        </tSFC>
+        <userEngineOption>True</userEngineOption>
+        <singleHydraulics>False</singleHydraulics>
+        <turboprop>False</turboprop>
+        <auxiliaryPowerUnit>True</auxiliaryPowerUnit>
+        <engineNumber>2</engineNumber>
+        <wingMountedEngine>True</wingMountedEngine>
+        <userEnginePlacement>True</userEnginePlacement>
+      </propulsion>
+      
+      <ranges>
+        <lDRatio>19</lDRatio>
+        <cruiseSpeed>272</cruiseSpeed> <!-- TODO: replace by cruiseMach -->
+        <loiterTime>30</loiterTime>  <!-- TODO: replace by time in seconde? + unit in uiD? -->
+        <rangeMaxP>
+          <rangeDescription uID="Maximum_range_[km]_with_maximum_payload_[kg]">
+            <range>7307.48</range>
+            <payload>17640</payload>
+          </rangeDescription>
+        </rangeMaxP>
+        <rangeMaxF>
+          <rangeDescription uID="Range_[km]_with_maximum_fuel_and_some_payload_[kg]">
+            <range>9195.52</range>
+            <payload>14025</payload>
+          </rangeDescription>
+        </rangeMaxF>
+        <rangeMaximum>
+          <rangeDescription uID="Maximum_range_[km]_with_max_fuel_and_no_payload_[kg]">
+            <range>11681.6</range>
+            <payload>0</payload>
+          </rangeDescription>
+        </rangeMaximum>
+      </ranges>
+       
+      <fuelConsumption> <!-- TODO: merges with <fuels>? -->
+        <description uID="Fuel required for each flight phase [kg], with maximum payload."/>
+        <fuelForTakeOff>1146.12</fuelForTakeOff>
+        <fuelForClimb>1881.55</fuelForClimb>
+        <fuelForCruise>11521.8</fuelForCruise>
+        <fuelForLoiter>647.731</fuelForLoiter>
+        <fuelForLanding>306.056</fuelForLanding>
+        <fuelRemained>989.568</fuelRemained>
+      </fuelConsumption>
+        
+      <balance>
+        <mZPM uID="MZPM">
+          <name>Maximum zero payload mass</name>
+          <description>Maximum zero payload mass [kg], CoG coordinate [m] and moment of inertia.</description>
+          <mass>286079</mass>
+          <location uID="MZPMloc">
+            <x>29.988</x>
+            <y>0</y>
+            <z>-0.469</z>
+          </location>
+          <massInertia>
+            <Jxx>1.41602e+07</Jxx>
+            <Jyy>3.55858e+07</Jyy>
+            <Jzz>4.85893e+07</Jzz>
+            <Jxy>-32</Jxy>
+            <Jyz>-9</Jyz>
+            <Jxz>1.1996e+06</Jxz>
+          </massInertia>
+        </mZPM>
+        <userBalance>
+          <userCase>True</userCase>
+          <fuelPercentage>30</fuelPercentage>
+          <payloadPercentage>45</payloadPercentage>
+          <location uID="USERloc">
+            <x>34.231</x>
+            <y>0</y>
+            <z>0.568</z>
+          </location>
+          <massInertia>
+            <Jxx>5.11489e+06</Jxx>
+            <Jyy>3.709e+07</Jyy>
+            <Jzz>4.16114e+07</Jzz>
+            <Jxy>-75</Jxy>
+            <Jyz>-20</Jyz>
+            <Jxz>475244</Jxz>
+          </massInertia>
+        </userBalance>
+      </balance> 
+      
+      <aerodynamics>
+
+        <su2>
+            <targetCL>0.698668</targetCL>
+            <fixedCL>YES</fixedCL>
+            <maxIteration>300</maxIteration>
+            <cflNumber>1</cflNumber>
+            <mgLevel>3</mgLevel>
+            <boundaryCondition>
+                <wall></wall>
+                <symmetry></symmetry>
+                <farfield></farfield>
+            </boundaryCondition>
+            <nbProc></nbProc>
+            <meshPath>MeshFromCeasiom.su2</meshPath>
+            <configPath>ConfigFile.cfg</configPath>
+            <su2InstallPath></su2InstallPath>
+            <mpiInstallPath></mpiInstallPath>
+            <linkedAeroMapUID></linkedAeroMapUID>
+            <calculateDampingDerivative>0</calculateDampingDerivative>
+          
+        </su2>
+      </aerodynamics>
+        
+              
+    </CEASIOMpy>
+  </toolspecific>
+</cpacs>
+
+
+
+
+
+ <activeAeroDataSets>DataSet1_Datcom</activeAeroDataSets> 
       
       <aeroDataSets>
         <aeroDataSet uID="DataSet1_Datcom">
@@ -93,7 +283,3 @@
                 </plot>
             </plots>
         <plotResults>
-              
-    </CEASIOMpy>
-  </toolspecific>
-</cpacs>

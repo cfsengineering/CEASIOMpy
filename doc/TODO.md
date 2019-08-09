@@ -37,6 +37,7 @@
 * To adapt and integrate
     * Template Module
     * PyTornado
+    * GUI Edit AeroPerformanceMap
     * SUMO2CPACS
     * CoefCPACS2CSV
     * PlotTool

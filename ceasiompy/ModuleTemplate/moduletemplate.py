@@ -5,7 +5,7 @@
 
     Small description of the script
 
-    Works with Python 2.7/3.4
+    Works with Python 2.7/3.6
     Author : Name
     Creation: YEAR-MONTH-DAY
     Last modifiction: YEAR-MONTH-DAY
@@ -27,9 +27,15 @@ import numpy
 import matplotlib
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
+                                           add_uid, create_branch, copy_branch,\
+                                           get_value, get_value_or_default,    \
+                                           aircraft_name
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
+
+from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
+from ceasiompy.ModuleTemplate.__specs__ import cpacs_inout
 
 log = get_logger(__file__.split('.')[0])
 
@@ -76,12 +82,57 @@ def sum_funcion(arg1, arg2):
     (float)         arg2            -- Argument 2 [unit]
 
     RETURNS
-    (float)         total          -- output1 [unit]
+    (float)         total           -- Output1 [unit]
     """
 
     total = float(arg1) + arg2
 
     return total
+
+
+def get_fuselage_scaling(cpacs_path,cpacs_out_path):
+    """ Function to get fuselage scaling along x,y,z axis.
+
+    Function 'get_fuselage_scaling' return the value of the scaling for the
+    fuselage. (This is an example function just to show usaga of CPACS and tixi)
+
+    Source : Reference paper or book, with author and date
+
+    ARGUMENTS
+    (str)           cpacs_path      -- Path to CPACS file
+    (str)           cpacs_out_path  -- Path to CPACS output file
+
+    RETURNS
+    (float)         x               -- Scaling on x [-]
+    (float)         y               -- Scaling on y [-]
+    (float)         z               -- Scaling on z [-]
+    """
+
+    # Open TIXI handle
+    tixi = open_tixi(cpacs_path)
+
+    # Create xpaths
+    FUSELAGE_XPATH = '/cpacs/vehicles/aircraft/model/fuselages/fuselage'
+    SCALING_XPATH = '/transformation/scaling'
+
+    x_fus_scaling_xpath = FUSELAGE_XPATH + SCALING_XPATH + '/x'
+    y_fus_scaling_xpath = FUSELAGE_XPATH + SCALING_XPATH + '/y'
+    z_fus_scaling_xpath = FUSELAGE_XPATH + SCALING_XPATH + '/z'
+
+    # Get values
+    x = get_value(tixi, x_fus_scaling_xpath)
+    y = get_value(tixi, y_fus_scaling_xpath)
+    z = get_value(tixi, z_fus_scaling_xpath)
+
+    # Log
+    log.info('Fuselage x scaling is : ' + str(x))
+    log.info('Fuselage y scaling is : ' + str(y))
+    log.info('Fuselage z scaling is : ' + str(z))
+
+    # Close TIXI handle and save the CPACS file
+    close_tixi(tixi,cpacs_out_path)
+
+    return x, y, z
 
 #==============================================================================
 #    MAIN
@@ -92,10 +143,20 @@ if __name__ == '__main__':
 
     log.info('Running Mymodule')
 
+    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+    cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
+    cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
+
+    check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
+
     my_value1 = 6
     my_value2 = 5.5
 
+    # Call a simple function
     my_total = sum_funcion(my_value1, my_value2)
     log.info('My total is equal to: ' + str(my_total))
+
+    # Call a function which use CPACS inputs
+    get_fuselage_scaling(cpacs_path,cpacs_out_path)
 
     log.info('Value as been calculated')

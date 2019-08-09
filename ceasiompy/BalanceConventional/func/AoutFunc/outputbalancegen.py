@@ -1,14 +1,14 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Output text and plot generation function.
-     
-    Works with Python 2.7
-    Author : Stefano Piccini
-    Date of creation: 2018-11-21
-    Last modifiction: 2019-02-20
+Output text and plot generation function.
+
+| Works with Python 2.7
+| Author : Stefano Piccini
+| Date of creation: 2018-11-21
+| Last modifiction: 2019-02-20
 """
 
 #=============================================================================
@@ -33,18 +33,18 @@ import matplotlib.pyplot as plt
 #   FUNCTIONS
 #=============================================================================
 
-def output_txt(out, mw, bi, NAME): 
+def output_txt(out, mw, bi, NAME):
     """ Function that generate the output text file for the Weight_and_Balance
         program.
-        
+
         INPUT
         (class) out     --Arg.: BalanceOutput class.
-        (class) mw      --Arg.: MassesWeights class. 
+        (class) mw      --Arg.: MassesWeights class.
         (class) bi      --Arg.: BalanceInputs class.
         ##======= Classes are defined in the Input_classes folder =======##
-        (char) NAME     --Arg.: Name of the Aircraft  
-        
-        
+        (char) NAME     --Arg.: Name of the Aircraft
+
+
         OUTPUT
         (file) Balance_module.out --Out.: Text file containing all the
                                           informations estimated from the
@@ -52,12 +52,12 @@ def output_txt(out, mw, bi, NAME):
     """
     out_name = 'ToolOutput/' + NAME + '/' + NAME\
                + '_Balance_module.out'
-    
+
     OutputTextFile = open(out_name, 'w')
-    OutputTextFile.write('###############################################')  
+    OutputTextFile.write('###############################################')
     OutputTextFile.write('\n###### AIRCRAFT BALANCE ESTIMATION MODULE #####')
     OutputTextFile.write('\n#####               OUTPUTS               #####')
-    OutputTextFile.write('\n###############################################')  
+    OutputTextFile.write('\n###############################################')
     OutputTextFile.write('\n-----------------------------------------------')
     OutputTextFile.write('\nInput data used -------------------------------')
     OutputTextFile.write('\n-----------------------------------------------')
@@ -84,8 +84,8 @@ def output_txt(out, mw, bi, NAME):
                          + str(int(round(mw.mass_fuel_maxpass))))
     OutputTextFile.write('\n')
     OutputTextFile.write('\n-----------------------------------------------')
-    OutputTextFile.write('\nResults ---------------------------------------') 
-    OutputTextFile.write('\n-----------------------------------------------') 
+    OutputTextFile.write('\nResults ---------------------------------------')
+    OutputTextFile.write('\n-----------------------------------------------')
     OutputTextFile.write('\n')
     OutputTextFile.write('\n-------------------------------------------'\
                          + '----')
@@ -119,7 +119,7 @@ def output_txt(out, mw, bi, NAME):
                              + '--------')
     OutputTextFile.write('\n')
     OutputTextFile.write('\nMoment of Inertia ---------------------------'\
-                         + '----') 
+                         + '----')
     OutputTextFile.write('\nLumped mass Inertia -----------------------'\
                          + '----')
     OutputTextFile.write('\nMax Payload configuration -----------------'\
@@ -161,7 +161,7 @@ def output_txt(out, mw, bi, NAME):
     OutputTextFile.write('\nPitch moment, Iyy [kgm^2]: '\
                          + str(int(round(out.Iyy_lump_zpm))))
     OutputTextFile.write('\nYaw moment, Izz [kgm^2]: '\
-                         + str(int(round(out.Izz_lump_zpm))))    
+                         + str(int(round(out.Izz_lump_zpm))))
     OutputTextFile.write('\nIxy moment [kgm^2]: '\
                          + str(int(round(out.Ixy_lump_zpm))))
     OutputTextFile.write('\nIyz moment [kgm^2]: '\
@@ -177,7 +177,7 @@ def output_txt(out, mw, bi, NAME):
     OutputTextFile.write('\nPitch moment, Iyy [kgm^2]: '\
                          + str(int(round(out.Iyy_lump_oem))))
     OutputTextFile.write('\nYaw moment, Izz [kgm^2]: '\
-                         + str(int(round(out.Izz_lump_oem)))) 
+                         + str(int(round(out.Izz_lump_oem))))
     OutputTextFile.write('\nIxy moment [kgm^2]: '\
                          + str(int(round(out.Ixy_lump_oem))))
     OutputTextFile.write('\nIyz moment [kgm^2]: '\
@@ -194,7 +194,7 @@ def output_txt(out, mw, bi, NAME):
         OutputTextFile.write('\nPitch moment, Iyy [kgm^2]: '\
                              + str(int(round(out.Iyy_lump_user))))
         OutputTextFile.write('\nYaw moment, Izz [kgm^2]: '\
-                             + str(int(round(out.Izz_lump_user))))  
+                             + str(int(round(out.Izz_lump_user))))
         OutputTextFile.write('\nIxy moment [kgm^2]: '\
                              + str(int(round(out.Ixy_lump_user))))
         OutputTextFile.write('\nIyz moment [kgm^2]: '\
@@ -205,14 +205,14 @@ def output_txt(out, mw, bi, NAME):
                              + '--------')
     ### Closing Text File
     OutputTextFile.close()
-    return() 
-    
-    
+    return()
+
+
 #=============================================================================
 #   PLOTS
 #=============================================================================
- 
-def aircraft_nodes_plot(fx, fy, fz, wx, wy, wz, NAME):  
+
+def aircraft_nodes_plot(fx, fy, fz, wx, wy, wz, NAME):
     """The function unction generates the plot of the aircraft nodes.
        INPUT
        (float_array) fx      --Arg.: Array containing the x-coordinates
@@ -227,23 +227,23 @@ def aircraft_nodes_plot(fx, fy, fz, wx, wy, wz, NAME):
                                      of the wing nodes.
        (float_array) wz      --Arg.: Array containing the z-coordinates
                                      of the wing nodes.
-       (char) NAME           --Arg.: Aircraft name.                              
+       (char) NAME           --Arg.: Aircraft name.
        OUTPUT
        (file)NAME_Aircraft_Nodes.png --Out.: Png file containing all the
                                              aircraft nodes plot.
-    """   
+    """
     fig = plt.figure()
-    mpl.rcParams.update({'font.size': 20}) 
+    mpl.rcParams.update({'font.size': 20})
     ax = fig.add_subplot(111, projection = '3d')
     ax.plot([fx[0]], [fy[0]], [fz[0]], c = 'g', marker = 'o',\
-            label = 'Fuselage nodes', markersize=10)  
+            label = 'Fuselage nodes', markersize=10)
     ax.plot([wx[0]], [wy[0]], [wz[0]], c = 'b', marker = 'o',\
-            label = 'Wing nodes', markersize=10)  
+            label = 'Wing nodes', markersize=10)
     s1 = ax.scatter(fx, fy, fz, c = 'g', marker = 'o',\
-                    s = 100*np.ones((np.max(np.shape(fx)))))  
+                    s = 100*np.ones((np.max(np.shape(fx)))))
     s2 = ax.scatter(wx, wy, wz, c = 'b', marker = 'o',\
                     s = 100*np.ones((np.max(np.shape(wx)))))
-    ax.set_ylim3d(np.min(wy)-5, np.max(wy)+5) 
+    ax.set_ylim3d(np.min(wy)-5, np.max(wy)+5)
     ax.set_xlim3d(np.min(fx)-10, np.max(fx)+10)
     ax.set_zlim3d(np.min(wz)-5, np.max(wz)+5)
     ax.set_xlabel('X Label')
@@ -252,31 +252,31 @@ def aircraft_nodes_plot(fx, fy, fz, wx, wy, wz, NAME):
     ax.legend(numpoints = 1, loc = 'upper right')
     FIG_NAME = 'ToolOutput/' + NAME + '/' + NAME + '_Aircraft_Nodes.png'
     fig.savefig(FIG_NAME, dpi = 300)
-    
+
     return()
 
-  
-### AIRCRAFT CoG PLOT -------------------------------------------------------- 
 
-def aircraft_cog_plot(cg, ag, NAME):  
+### AIRCRAFT CoG PLOT --------------------------------------------------------
+
+def aircraft_cog_plot(cg, ag, NAME):
     """ The function generates the plot of the aircraf center of gravity and
-        the nodes used to evaluate it.      
-     
+        the nodes used to evaluate it.
+
         INPUT
         (float_array) cg --Arg.: Center of gravity global coordinates [m].
         (class) ag       --Arg.: Aircraft geometry class.
         (char) NAME      --Arg.: Aircraft name.
-        
+
         ##======= Class are defined in the InputClasses folder =======##
-        
+
         OUTPUT
         (file)NAME_Aircraft_Cog.png --Out.: Png file containing the center
                                             of gravity and the nodes used
                                             to evaluate it.
-    """                                  
+    """
     fig = plt.figure()
     fig.patch.set_facecolor('w')
-    mpl.rcParams.update({'font.size': 16}) 
+    mpl.rcParams.update({'font.size': 16})
     cx = cg[0]
     cy = cg[1]
     cz = cg[2]
@@ -292,10 +292,10 @@ def aircraft_cog_plot(cg, ag, NAME):
             if ag.wing_center_seg_point[j-1,i-1,0] != 0.0:
                 wx.append(ag.wing_center_seg_point[j-1,i-1,0])
                 wy.append(ag.wing_center_seg_point[j-1,i-1,1])
-                wz.append(ag.wing_center_seg_point[j-1,i-1,2]) 
+                wz.append(ag.wing_center_seg_point[j-1,i-1,2])
     wplot1 = wx[0]
     wplot2 = wy[0]
-    wplot3 = wz[0]	    
+    wplot3 = wz[0]
     ax.plot([ag.fuse_center_seg_point[0,0,0]],\
             [ag.fuse_center_seg_point[0,0,1]],\
             [ag.fuse_center_seg_point[0,0,2]],'og',\
@@ -305,11 +305,11 @@ def aircraft_cog_plot(cg, ag, NAME):
     ax.plot([cx], [cy], [cz], 'xr', label = 'Center of Gravity',\
             markersize = 10)
     s1=ax.scatter([fx], [fy], [fz], c = 'g' , marker = 'o',\
-                  s = 100*np.ones((np.max(np.shape(fx)))))  
+                  s = 100*np.ones((np.max(np.shape(fx)))))
     ax.scatter([wx], [wy], [wz], c = 'b', marker = 'o',\
-               s = 100*np.ones((np.max(np.shape(wx)))))  
+               s = 100*np.ones((np.max(np.shape(wx)))))
     ax.scatter([cx], [cy], [cz], c = 'r', marker = 'x', s = 100)
-    ax.set_ylim3d(np.min(wy)-5, np.max(wy)+5) 
+    ax.set_ylim3d(np.min(wy)-5, np.max(wy)+5)
     ax.set_xlim3d(np.min(fx)-10, np.max(fx)+10)
     ax.set_zlim3d(np.min(wz)-5, np.max(wz)+5)
     ax.set_xlabel('X Label')
@@ -319,17 +319,17 @@ def aircraft_cog_plot(cg, ag, NAME):
               fancybox = True, shadow = True, ncol = 1, numpoints = 1)
     FIG_NAME = 'ToolOutput/' + NAME + '/' + NAME + '_Aircraft_Cog.png'
     fig.savefig(FIG_NAME, dpi=500)
-    
+
     return()
-      
-      
+
+
 #=============================================================================
 #    MAIN
 #=============================================================================
 
-if __name__ == '__main__':   
+if __name__ == '__main__':
     log.warning('##########################################################')
     log.warning('### ERROR NOT A STANDALONE PROGRAM, RUN balancemain.py ###')
     log.warning('##########################################################')
-    
-    
+
+

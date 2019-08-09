@@ -1,15 +1,14 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
-    
-    This file will generate the output.txt for the geometry analysis.
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Works with Python 2.7
-    Author : Stefano Piccini
-    Date of creation: 2018-09-27
-    Last modifiction: 2019-02-20
+This file will generate the output.txt for the geometry analysis.
 
+| Works with Python 2.7
+| Author : Stefano Piccini
+| Date of creation: 2018-09-27
+| Last modifiction: 2019-02-20
 """
 
 
@@ -29,27 +28,27 @@ import numpy as np
 
 #=============================================================================
 #   FUNCTIONS
-#=============================================================================   
+#=============================================================================
 
 def produce_output_txt(ag, NAME):
     """ Function to generate the output file with all the geometry data
         evaluated.
-        
+
     ARGUMENTS
     (class) ag            --Arg.: AircraftGeometry class.
-    ##======= Class is defined in the InputClasses folder =======##       
+    ##======= Class is defined in the InputClasses folder =======##
     (char) NAME           --Arg.: Name of the aircraft.
     RETURN
     (file) OutputTextFile --Out.: Output txt file
-    """    
-    
+    """
+
     out_name = 'ToolOutput/' + NAME + '/' + NAME + '_Aircraft_Geometry.out'
     OutputTextFile = open(out_name,'w')
-    
-    OutputTextFile.write('\n#################################################')  
+
+    OutputTextFile.write('\n#################################################')
     OutputTextFile.write('\n###### AIRCRAFT GEOMETRY EVALUATION MODULE ######')
     OutputTextFile.write('\n######               OUTPUTS               ######')
-    OutputTextFile.write('\n#################################################')  
+    OutputTextFile.write('\n#################################################')
     OutputTextFile.write('\n-------------------------------------------------')
     OutputTextFile.write('\nAircraft: ' + NAME)
     OutputTextFile.write('\n-------------------------------------------------')
@@ -67,12 +66,12 @@ def produce_output_txt(ag, NAME):
     OutputTextFile.write('\nRESULTS -----------------------------------------')
     OutputTextFile.write('\n-------------------------------------------------')
     OutputTextFile.write('\nFUSELAGE ----------------------------------------')
-    OutputTextFile.write('\n-------------------------------------------------')    
+    OutputTextFile.write('\n-------------------------------------------------')
     OutputTextFile.write('\nNumber of fuselage sections [-]: '\
                          + str(ag.fuse_sec_nb))
     OutputTextFile.write('\nNumber of fuselage segments [-]: '\
-                         + str(ag.fuse_seg_nb)) 
-    OutputTextFile.write('\nCabin segments array [-]: ' + str(ag.cabin_seg)) 
+                         + str(ag.fuse_seg_nb))
+    OutputTextFile.write('\nCabin segments array [-]: ' + str(ag.cabin_seg))
     OutputTextFile.write('\nFuse Length [m]: '\
                          + str(np.around(ag.fuse_length,5)))
     OutputTextFile.write('\nFuse nose Length [m]: '\
@@ -133,23 +132,23 @@ def produce_output_txt(ag, NAME):
     OutputTextFile.write('\nVolume of each wing [m^3]: \n'\
                          + str(np.around(ag.wing_vol,5)))
     OutputTextFile.write('\nTotal wing volume [m^3]: '\
-                         + str(np.around(ag.wing_tot_vol,5)))  
+                         + str(np.around(ag.wing_tot_vol,5)))
     OutputTextFile.write('\nWing volume for fuel storage [m^3]: '\
                          + str(ag.wing_fuel_vol))
 
     ###Close Text File
     OutputTextFile.close()
-    
+
     return()
-    
-    
+
+
 ##=============================================================================
 #   MAIN
 #==============================================================================
 
-if __name__ == '__main__': 
+if __name__ == '__main__':
     log.warning('##########################################################')
     log.warning('############# ERROR NOT A STANDALONE PROGRAM #############')
-    log.warning('##########################################################') 
-    
-    
+    log.warning('##########################################################')
+
+

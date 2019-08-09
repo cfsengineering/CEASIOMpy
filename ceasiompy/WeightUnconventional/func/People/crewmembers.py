@@ -1,16 +1,14 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Evaluation of the number of crew members
-    expected for an unconventional aircraft.
+Evaluation of the number of crew members expected for an unconventional aircraft.
 
-    Works with Python 2.7
-    Author : Stefano Piccini
-    Date of creation: 2018-12-19
-    Last modifiction: 2018-02-20
-    
+| Works with Python 2.7
+| Author : Stefano Piccini
+| Date of creation: 2018-12-19
+| Last modifiction: 2018-02-20
 """
 
 
@@ -27,10 +25,10 @@ log = get_logger(__file__.split('.')[0])
 #   CLASSES
 #=============================================================================
 
-"""All classes are defined inside the classes folder and in the 
+"""All classes are defined inside the classes folder and in the
    InputClasses/Unconventional folder."""
-   
-   
+
+
 #=============================================================================
 #   FUNCTIONS
 #=============================================================================
@@ -46,13 +44,13 @@ def estimate_crew(pass_nb, MASS_PILOT, MASS_CABIN_CREW, mtom, PILOT_NB=2):
     (float) mass_pilot          --Arg.: Mass of single pilot pilots [kg].
     (float) mass_cabin_crew     --Arg.: Mass of a cabin crew member [kg].
     (float) mtom                --Arg.: Maximum take-off mass [kg].
-    
+
     RETURNS
     (integer) crew_nb           --Out.: Number of total crew members [-].
     (integer) cabin_crew_nb     --Out.: Number of cabin crew members [-].
     (float) mass_crew           --Out.: Total mass of crew members [kg].
     """
-    
+
     if pass_nb >= 101:
         cabin_crew_nb = int(pass_nb/50) + 1
     elif pass_nb >= 51:
@@ -63,26 +61,26 @@ def estimate_crew(pass_nb, MASS_PILOT, MASS_CABIN_CREW, mtom, PILOT_NB=2):
         cabin_crew_nb = 1
     else:
         cabin_crew_nb = 0
-     
-     
+
+
     crew_nb = PILOT_NB + cabin_crew_nb
     log.info(' Crew members: ' + str(crew_nb))
     log.info(str(PILOT_NB) + ' pilots, and ' + str(cabin_crew_nb)\
-             + ' cabin crew members') 
-    
+             + ' cabin crew members')
+
     mass_crew = round((PILOT_NB*MASS_PILOT\
-                       + cabin_crew_nb*MASS_CABIN_CREW),3) 
- 
+                       + cabin_crew_nb*MASS_CABIN_CREW),3)
+
     return(crew_nb, cabin_crew_nb, mass_crew)
-    
-    
+
+
 ##=============================================================================
 #   MAIN
 #==============================================================================
 
-if __name__ == '__main__':   
+if __name__ == '__main__':
     log.warning('########################################################')
     log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #')
     log.warning('########################################################')
-    
-    
+
+

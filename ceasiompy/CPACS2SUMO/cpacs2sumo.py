@@ -1,19 +1,21 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Script to convert CPACS file geometry into SUMO geometry
+Script to convert CPACS file geometry into SUMO geometry
 
-    Works with Python 2.7/3.6
-    Author : Aidan Jungo
-    Creation: 2017-03-03
-    Last modifiction: 2018-11-14
+| Works with Python 2.7/3.6
+| Author : Aidan Jungo
+| Creation: 2017-03-03
+| Last modifiction: 2018-11-14
 
-    TODO:  - Write some documentation and tutorial
-           - Improve testing script
-           - Use <segements> both for wing and fuselage, as they define which
-             part of the fuselage/wing should be built
+TODO:
+
+* Write some documentation and tutorial
+* Improve testing script
+* Use <segements> both for wing and fuselage, as they define which
+  part of the fuselage/wing should be built
 
 """
 

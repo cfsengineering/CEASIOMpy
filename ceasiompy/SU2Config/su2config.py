@@ -1,20 +1,22 @@
 """
-    CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software
 
-    Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-    Create configuration file for SU2 calculation
+Create configuration file for SU2 calculation
 
-    Works with Python 2.7/3.6
-    Author : Aidan Jungo
-    Creation: 2018-11-05
-    Last modifiction: 2019-08-08
+| Works with Python 2.7/3.6
+| Author : Aidan Jungo
+| Creation: 2018-11-05
+| Last modifiction: 2019-08-08
 
-    TODO:  - Add other options
-           - Get some values from CPACS, which ones and where in cpacs?
-           - Use New AeroPerformanceMap from CPACS 3.1
-           - Create multiple config for aerodatabase
-           - Simplify/clean "DefaultConfig_v6" file
+TODO:
+
+* Add other options
+* Get some values from CPACS, which ones and where in cpacs?
+* Use New AeroPerformanceMap from CPACS 3.1
+* Create multiple config for aerodatabase
+* Simplify/clean "DefaultConfig_v6" file
 
 """
 

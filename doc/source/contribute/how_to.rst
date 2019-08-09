@@ -14,3 +14,9 @@ Writing a new module
 * See module template
 
 * See code guidelines
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Guidelines
+
+   guidelines

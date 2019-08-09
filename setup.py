@@ -17,7 +17,7 @@ DESCRIPTION = 'A conceptual aircraft design environment'
 URL = 'https://github.com/cfsengineering/CEASIOMpy'
 REQUIRES_PYTHON = '>=3.6.0'
 REQUIRED = ['numpy']
-README = 'README.md'
+README = 'README.rst'
 PACKAGE_DIR = './'
 LICENSE = 'LICENSE'
 

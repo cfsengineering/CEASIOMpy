@@ -70,17 +70,17 @@ from ceasiompy.utils.InputClasses.Unconventional.weightuncclass import MassesWei
 from ceasiompy.utils.InputClasses.Unconventional.weightuncclass import WeightOutput
 
 # Functions
-from func.AinFunc import getinput
-from func.AoutFunc import outputweightgen
-from func.AoutFunc import cpacsweightupdate
-from func.People.passengers import estimate_fuse_passengers
-from func.People.passengers import estimate_wing_passengers
-from func.People.crewmembers import estimate_crew
-from func.Systems.systemsmass import estimate_system_mass
-from func.Engines.enginesanalysis import check_ed
-from func.Engines.enginesanalysis import engine_definition
-from func.Fuel.fuelmass import estimate_fuse_fuel_mass
-from func.Fuel.fuelmass import estimate_wing_fuel_mass
+from ceasiompy.WeightUnconventional.func.AinFunc import getinput
+from ceasiompy.WeightUnconventional.func.AoutFunc import outputweightgen
+from ceasiompy.WeightUnconventional.func.AoutFunc import cpacsweightupdate
+from ceasiompy.WeightUnconventional.func.People.passengers import estimate_fuse_passengers
+from ceasiompy.WeightUnconventional.func.People.passengers import estimate_wing_passengers
+from ceasiompy.WeightUnconventional.func.People.crewmembers import estimate_crew
+from ceasiompy.WeightUnconventional.func.Systems.systemsmass import estimate_system_mass
+from ceasiompy.WeightUnconventional.func.Engines.enginesanalysis import check_ed
+from ceasiompy.WeightUnconventional.func.Engines.enginesanalysis import engine_definition
+from ceasiompy.WeightUnconventional.func.Fuel.fuelmass import estimate_fuse_fuel_mass
+from ceasiompy.WeightUnconventional.func.Fuel.fuelmass import estimate_wing_fuel_mass
 
 
 from ceasiompy.utils.ceasiomlogger import get_logger

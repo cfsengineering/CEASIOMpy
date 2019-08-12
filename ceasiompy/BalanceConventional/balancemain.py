@@ -34,11 +34,11 @@ import matplotlib.pyplot as plt
 
 from ceasiompy.utils.InputClasses.Conventional import balanceconvclass
 
-from func.Cog.centerofgravity import center_of_gravity_evaluation
-from func.Inertia import lumpedmassesinertia
-from func.AoutFunc import outputbalancegen
-from func.AoutFunc import cpacsbalanceupdate
-from func.AinFunc import getdatafromcpacs
+from ceasiompy.BalanceConventional.func.Cog.centerofgravity import center_of_gravity_evaluation
+from ceasiompy.BalanceConventional.func.Inertia import lumpedmassesinertia
+from ceasiompy.BalanceConventional.func.AoutFunc import outputbalancegen
+from ceasiompy.BalanceConventional.func.AoutFunc import cpacsbalanceupdate
+from ceasiompy.BalanceConventional.func.AinFunc import getdatafromcpacs
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils import copyxmlfile

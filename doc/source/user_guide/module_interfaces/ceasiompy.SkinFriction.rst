@@ -28,6 +28,7 @@ Aircraft cruise altitude
 * **Default value** 12000
 * **Unit** m
 * **Variable name** cruise_alt
+
 CPACS output paths
 ------------------
 

@@ -32,17 +32,15 @@ Range main module for preliminary design on conventional aircraft, it evaluates:
 import os
 import shutil
 import time
-import matplotlib
-import matplotlib.pyplot as plt
 
 from ceasiompy.utils.InputClasses import rangeclass
 
-from func.Crew.crewmembers import crew_check
-from func.Fuel.fuelconsumption import fuel_consumption
-from func.RangeEstimation.breguetrange import breguet_cruise_range
-from func.AoutFunc import outputrangegen
-from func.AoutFunc import cpacsrangeupdate
-from func.AinFunc import getdatafromcpacs
+from ceasiompy.Range.func.Crew.crewmembers import crew_check
+from ceasiompy.Range.func.Fuel.fuelconsumption import fuel_consumption
+from ceasiompy.Range.func.RangeEstimation.breguetrange import breguet_cruise_range
+from ceasiompy.Range.func.AoutFunc import outputrangegen
+from ceasiompy.Range.func.AoutFunc import cpacsrangeupdate
+from ceasiompy.Range.func.AinFunc import getdatafromcpacs
 from ceasiompy.utils import copyxmlfile
 
 from ceasiompy.utils.ceasiomlogger import get_logger

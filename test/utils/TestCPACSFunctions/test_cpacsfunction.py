@@ -17,6 +17,7 @@ Test all the function for 'lib/utils/cpacsfunctions.py'
 
 import os
 import sys
+import shutil
 
 import pytest
 
@@ -81,8 +82,16 @@ def test_close_tixi():
 
     tixi_handle = open_tixi(CPACS_IN_PATH)
 
+    # Remove /ToolOutput directory
+    tooloutput_dir = MODULE_DIR + '/ToolOutput'
+    shutil.rmtree(tooloutput_dir)
+    log.info(str(tooloutput_dir) + ' has been remove for a test.')
+
     # Save unmodified tixi in the output CPACS file
     close_tixi(tixi_handle, CPACS_OUT_PATH)
+
+    # Check if /ToolOutput directory has been created
+    assert os.path.exists(tooloutput_dir)
 
     # Read Input and Ouput CPACS file as text, to compare them
     with open(CPACS_IN_PATH) as file_in:

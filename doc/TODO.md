@@ -13,7 +13,8 @@
 * Add `__specs__.py` files for each modules
 * Add output for `ceasiompy.CLCalculator.__specs__`
 * Add General File in/out Class
-* Maybe create a function to check consistency (does same variable name are stored a the same xpath, ...)
+* Create a function to check consistency (does same variable name are stored a the same xpath, ...)
+* Create a function to find in which Module a variable  or xpath is used
 * Add kind of a GUI to enter missing input requirements...?
 
 ## Documentation
@@ -54,6 +55,13 @@
     * TestSU2Convergence
 
 ## RCE Integration
-    * Upuload .json file
+    * Upuload .json file on Github + create 'how to install'
     * Add a script to automatically set the ToolDirectory path of each module
     * Small logo for each module
+
+## Things to do for each module conversion/updating
+* Remove Python 2.7
+* Change 'Docstring fromat'
+* Add __specs__ file
+* Check if the documentation is correctly auto generated
+* Replace Speed by Mach number if possible

@@ -1,5 +1,6 @@
 # Ignore all logfiles
 *.log
+*.log.*
 
 # Ignore all .pyc files
 *.pyc

@@ -12,7 +12,7 @@ Calculate lift coefficient to flight with some parameters
 
 TODO:
 
-* Replace cruise_speed by cruise_mach? also in CPACS
+* ...
 
 """
 
@@ -109,11 +109,10 @@ def get_cl(cpacs_path,cpacs_out_path):
     load_fact_xpath = range_xpath + '/loadFactor'
     tixi, load_fact = get_value_or_default(tixi,load_fact_xpath,1.05)
 
-    cruise_speed_xpath = range_xpath + '/cruiseSpeed'
-    tixi, cruise_speed = get_value_or_default(tixi,cruise_speed_xpath,272.0)
+    cruise_mach_xpath = range_xpath + '/cruiseMach'
+    tixi, cruise_mach = get_value_or_default(tixi,cruise_mach_xpath,0.78)
 
     # CL calculation
-    cruise_mach = cruise_speed / Atm.sos
     cl = calculate_cl(ref_area, cruise_alt, cruise_mach, mtom, load_fact)
 
     # Keep it in range?

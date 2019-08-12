@@ -33,7 +33,7 @@ version = __version__
 os.system('bash ./dev_doc/gen_auto_doc.sh')
 
 # Update the module-dependecy pages
-os.system('python3 user_guide/gen_module_interface_pages.py')
+#os.system('python3 user_guide/gen_module_interface_pages.py')
 
 # -- General configuration ---------------------------------------------------
 extensions = [
@@ -47,7 +47,7 @@ extensions = [
 ]
 
 # See: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
-autodoc_mock_imports = ['tigl3', 'tixi3', 'matplotlib', 'pandas', 'numpy']
+#autodoc_mock_imports = ['tigl3', 'tixi3', 'matplotlib', 'pandas', 'numpy']
 
 # Paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -92,8 +92,8 @@ rst_prolog = f"""
 
 # -- Options for HTML output -------------------------------------------------
 
-# html_theme = 'classic'
-# html_theme = 'alabaster'
+#html_theme = 'classic'
+#html_theme = 'alabaster'
 html_theme = 'sphinx_rtd_theme'
 
 html_theme_options = {

@@ -110,7 +110,8 @@ def close_tixi(tixi_handle, cpacs_out_path):
     """ Close TIXI handle and save the CPACS file.
 
     Function 'close_tixi' close the TIXI Handle and save the CPACS file at the
-    location given by 'cpacs_out_path'
+    location given by 'cpacs_out_path' after checking if the directory path
+    exists
 
     Source : All TIXI functions: http://tixi.sourceforge.net/Doc/index.html
 
@@ -121,6 +122,13 @@ def close_tixi(tixi_handle, cpacs_out_path):
     RETURNS
     -
     """
+
+    # Check if the directory of 'cpacs_out_path' exist, if not, create it
+    path_split = cpacs_out_path.split('/')[:-1]
+    dir_path = '/'.join(str(m) for m in path_split)
+    if not os.path.exists(dir_path):
+        os.makedirs(dir_path)
+        log.info(str(dir_path) + ' directory has been created.')
 
     # Save CPACS file
     tixi_handle.save(cpacs_out_path)

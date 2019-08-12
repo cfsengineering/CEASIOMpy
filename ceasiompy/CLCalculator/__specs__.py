@@ -16,11 +16,11 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name='cruise_speed',
-    default_value=272,
-    unit='m/s',
-    descr='Cruise speed',
-    cpacs_path=CEASIOM_XPATH + '/ranges/cruiseSpeed',
+    var_name='cruise_mach',
+    default_value=0.78,
+    unit='-',
+    descr='Aircraft cruise Mach number',
+    cpacs_path=CEASIOM_XPATH + '/ranges/cruiseMach',
 )
 
 cpacs_inout.add_input(

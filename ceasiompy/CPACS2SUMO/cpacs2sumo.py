@@ -16,7 +16,7 @@ TODO:
 * Improve testing script
 * Use <segements> both for wing and fuselage, as they define which
   part of the fuselage/wing should be built
-
+* Add "fuselage cap" to improve mesh generation
 """
 
 #==============================================================================

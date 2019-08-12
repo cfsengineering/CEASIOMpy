@@ -8,7 +8,8 @@
 import os
 import sys
 
-sys.path.insert(0, os.path.abspath('../../ceasiompy'))
+os.chdir(os.path.dirname(__file__))
+sys.path.insert(0, os.path.abspath('../../'))
 sys.setrecursionlimit(1500)
 
 from ceasiompy.__version__ import __version__
@@ -47,7 +48,14 @@ extensions = [
 ]
 
 # See: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
-#autodoc_mock_imports = ['tigl3', 'tixi3', 'matplotlib', 'pandas', 'numpy']
+autodoc_mock_imports = [
+    'tigl3',
+    'tixi3',
+    'matplotlib',
+    'pandas',
+    'numpy',
+    'sklearn',
+]
 
 # Paths that contain templates here, relative to this directory.
 templates_path = ['_templates']

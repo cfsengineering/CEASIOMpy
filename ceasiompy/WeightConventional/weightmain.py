@@ -65,15 +65,15 @@ import time
 
 from ceasiompy.utils.InputClasses.Conventional import weightconvclass
 
-from func.Passengers.passengers import estimate_passengers
-from func.Passengers.seatsconfig import seat_config
-from func.Crew.crewmembers import estimate_crew
-from func.Masses.oem import operating_empty_mass_estimation
-from func.Masses import mtomestimation
-from func.AoutFunc import outputweightgen
-from func.AoutFunc import cpacsweightupdate
-from func.AoutFunc import createtmpcpacs
-from func.AinFunc import getinput
+from ceasiompy.WeightConventional.func.Passengers.passengers import estimate_passengers
+from ceasiompy.WeightConventional.func.Passengers.seatsconfig import seat_config
+from ceasiompy.WeightConventional.func.Crew.crewmembers import estimate_crew
+from ceasiompy.WeightConventional.func.Masses.oem import operating_empty_mass_estimation
+from ceasiompy.WeightConventional.func.Masses import mtomestimation
+from ceasiompy.WeightConventional.func.AoutFunc import outputweightgen
+from ceasiompy.WeightConventional.func.AoutFunc import cpacsweightupdate
+from ceasiompy.WeightConventional.func.AoutFunc import createtmpcpacs
+from ceasiompy.WeightConventional.func.AinFunc import getinput
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils import copyxmlfile

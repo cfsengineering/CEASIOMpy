@@ -63,12 +63,12 @@ def test_estimate_skin_friction_coef():
     wetted_area = 1
     wing_area = 1
     wing_span = 1
-    speed = 1
+    mach = 1
     alt = 1
 
     cd0 = estimate_skin_friction_coef(wetted_area,wing_area,wing_span, \
-                                      speed,alt)
-    assert cd0 == approx(0.006545561619853559,4)
+                                      mach,alt)
+    assert cd0 == approx(0.005320707210958961)
 
     # Test 2, with "real values"
     tixi = open_tixi(CPACS_IN_PATH)
@@ -76,12 +76,12 @@ def test_estimate_skin_friction_coef():
     analysis_xpath = '/cpacs/toolspecific/CEASIOMpy/geometry/analysis'
     wetted_area = get_value(tixi,analysis_xpath + '/wettedArea')
     wing_area, wing_span = get_largest_wing_dim(tixi,tigl)
-    speed = 272
+    mach = 0.78
     alt = 12000
 
     cd0 = estimate_skin_friction_coef(wetted_area,wing_area,wing_span, \
-                                      speed,alt)
-    assert cd0 == approx(0.01897576059542221,4)
+                                      mach,alt)
+    assert cd0 == approx(0.01998328842386761)
 
 
 def test_add_skin_friction():
@@ -92,7 +92,7 @@ def test_add_skin_friction():
     tixi = open_tixi(CPACS_OUT_PATH)
     cd0_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/cd0'
     cd0_to_check = tixi.getDoubleElement(cd0_xpath)
-    assert cd0_to_check == approx(0.0189758,4)
+    assert cd0_to_check == approx(0.01998328842386761)
 
 #==============================================================================
 #    MAIN

@@ -5,7 +5,8 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Calculate skin friction drag coefficent
 
-| Works with Python 2.7/3.6
+Python version: >=3.6
+
 | Author : Aidan Jungo
 | Creation: 2019-06-13
 | Last modifiction: 2019-08-08
@@ -47,15 +48,17 @@ def get_largest_wing_dim(tixi,tigl):
     Function 'get_largest_wing_dim' look at all wings in the CPACS file and
     return the wing area and the wing span of the largest.
 
-    Source : -
+    Source:
+        * TIXI functions : http://tixi.sourceforge.net/Doc/
+        * TIGL functions : http://tigl.sourceforge.net/Doc/
 
-    INPUT
-    (Handel)    Tixi            -- TIXI Handle
-    (Handel)    Tigl            -- TIGL Handle
+    Args:
+        tixi (handles):  TIXI Handle
+        tigl (handles): TIGL Handle
 
-    OUTPUT
-    (float)     wing_area_max   -- Max Wing Area [m^2]
-    (float)     wing_span_max   -- Max Wing Span [m]
+    Returns:
+        wing_area_max (float): Max Wing Area [m^2]
+        wing_span_max (float): Max Wing Span [m]
     """
 
     wings_xpath = '/cpacs/vehicles/aircraft/model/wings'
@@ -90,31 +93,36 @@ def get_largest_wing_dim(tixi,tigl):
     return wing_area_max, wing_span_max
 
 
-def estimate_skin_friction_coef(wetted_area,wing_area,wing_span,speed,alt):
+
+def estimate_skin_friction_coef(wetted_area,wing_area,wing_span,mach,alt):
     """ Return an estimation of skin friction drag coefficient.
 
     Function 'estimate_skin_friction_coef' gives an estimation of the skin
     friction drag coefficient, based on an empirical formala (see source).
 
-    Source : Gerard W. H. van Es.  "Rapid Estimation of the Zero-Lift Drag
-             Coefficient of Transport Aircraft", Journal of Aircraft, Vol. 39,
-             No. 4 (2002), pp. 597-599. https://doi.org/10.2514/2.2997
+    Source:
+        * Gerard W. H. van Es.  "Rapid Estimation of the Zero-Lift Drag
+        Coefficient of Transport Aircraft", Journal of Aircraft, Vol. 39,
+        No. 4 (2002), pp. 597-599. https://doi.org/10.2514/2.2997
 
-    INPUT
-    (float)     wetted_area -- Wetted Area of the entire aircraft [m^2]
-    (float)     wing_area   -- Main wing area [m^2]
-    (float)     wing_span   -- Main wing span [m]
-    (float)     speed       -- Cruise speed [m/s]
-    (float)     alt         -- Aircraft altitude [m]
+    Args:
+        wetted_area (float):  Wetted Area of the entire aircraft [m^2]
+        wing_area (float):  Main wing area [m^2]
+        wing_span (float):  Main wing span [m]
+        mach (float):  Cruise Mach number [-]
+        alt (float):  Aircraft altitude [m]
 
-    OUTPUT
-    (float)     cd0         -- Drag coefficient due to skin friction [-]
+    Returns:
+        cd0 (float): Drag coefficient due to skin friction [-]
     """
-
+    log.error(alt)
     # Get atmosphere values at this altitude
     Atm = get_atmosphere(alt)
 
     kinetic_visc = Atm.visc/Atm.dens
+
+    # Get speed from Mach Number
+    speed = mach * Atm.sos
 
     # Reynolds number based on the ratio Wetted Area / Wing Span
     reynolds_number = (wetted_area/wing_span) * speed / kinetic_visc
@@ -139,12 +147,9 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
     file, then it could be added to the drag coeffienct obtain with Euler
     calcualtions or other methods
 
-    ARGUMENTS
-    (str)           cpacs_path      -- Path to CPACS file
-    (str)           cpacs_out_path  -- Path to CPACS output file
-
-    RETURNS
-    -
+    Args:
+        cpacs_path (str):  Path to CPACS file
+        cpacs_out_path (str): Path to CPACS output file
     """
 
     tixi = open_tixi(cpacs_path)
@@ -177,12 +182,12 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
     cruise_alt_xpath = range_xpath + '/cruiseAltitude'
     tixi, cruise_alt = get_value_or_default(tixi,cruise_alt_xpath,12000)
 
-    cruise_speed_xpath = range_xpath + '/cruiseSpeed'
-    tixi, cruise_speed = get_value_or_default(tixi,cruise_speed_xpath,272)
+    cruise_mach_xpath = range_xpath + '/cruiseMach'
+    tixi, cruise_mach = get_value_or_default(tixi,cruise_mach_xpath,0.78)
 
     # Calculate Cd0
     cd0 = estimate_skin_friction_coef(wetted_area,wing_area,wing_span, \
-                                      cruise_speed,cruise_alt)
+                                      cruise_mach,cruise_alt)
 
     # Save Cd0 in the CPACS file
     cd0_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/cd0'

@@ -24,8 +24,7 @@ class _Entry:
 
     def __init__(self, *, var_name='', default_value=None, unit='1',
                  descr='', cpacs_path=''):
-        """
-        Template for an entry which describes a module input or output
+        """Template for an entry which describes a module input or output
 
         Args:
             :var_name: Variable name as used in the module code

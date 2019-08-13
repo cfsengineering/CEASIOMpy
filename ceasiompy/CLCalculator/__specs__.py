@@ -47,12 +47,21 @@ cpacs_inout.add_input(
     cpacs_path=AIRCRAFT_XPATH + '/model/reference/area',
 )
 
-# ===== Output =====
+#===== Output =====
 
-# cpacs_inout.add_output(
-#         var_name='TODO',
-#         default_value='TODO',
-#         unit='TODO',
-#         descr='TODO',
-#         cpacs_path='TODO',
-#         )
+cpacs_inout.add_output(
+    var_name='target_cl',
+    default_value=None,
+    unit='1',
+    descr='Value of CL to achieve to have a level flight with the given conditions',
+    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/targetCL',
+)
+
+cpacs_inout.add_output(
+    var_name='fixed_cl',
+    default_value=None,
+    unit='-',
+    descr='FIXED_CL_MODE parameter for SU2',
+    cpacs_path='/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/fixedCL',
+
+)

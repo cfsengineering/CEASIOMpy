@@ -40,6 +40,7 @@ forces_breakdown.dat
 
 # Sphinx
 build/
+doc/source/dev_doc/ceasiompy.*
 
 # Dolphin file manager
 .directory

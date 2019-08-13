@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2019-06-13
-| Last modifiction: 2019-08-08
+| Last modifiction: 2019-08-12
 """
 
 #==============================================================================
@@ -102,8 +102,8 @@ def estimate_skin_friction_coef(wetted_area,wing_area,wing_span,mach,alt):
 
     Source:
         * Gerard W. H. van Es.  "Rapid Estimation of the Zero-Lift Drag
-        Coefficient of Transport Aircraft", Journal of Aircraft, Vol. 39,
-        No. 4 (2002), pp. 597-599. https://doi.org/10.2514/2.2997
+          Coefficient of Transport Aircraft", Journal of Aircraft, Vol. 39,
+          No. 4 (2002), pp. 597-599. https://doi.org/10.2514/2.2997
 
     Args:
         wetted_area (float):  Wetted Area of the entire aircraft [m^2]

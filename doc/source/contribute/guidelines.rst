@@ -73,4 +73,8 @@ Tests
 Each new module added should have corresponding test module, which allow
 to verify all the main functionality of this module.
 
+We use the 'Pytest' library to test all our modules.
+
+If you never create a test with this library you could check out the TestModuleTemplate (to add)
+
 Structure of testing procedure ...

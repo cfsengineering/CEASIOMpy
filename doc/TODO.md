@@ -20,19 +20,16 @@
 
 ## Documentation
 
-* Host the documentation on ReadTheDocs (https://readthedocs.org/)?
 * Automatic syncronisation of CPACS input/output
 * Fix docstring translation/formatting
     * https://www.python.org/dev/peps/pep-0257/
     * http://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
 * Make a page for users
-        * How to install
-            * SUMO: https://www.larosterna.com/products/open-source
-            * SU2: https://su2code.github.io/download.html
-        * Possible workflow, module order/compatibility
-* Make a page for contributors
-    * Guidelines, etc.
-    * Example for how to structure and add a new module
+* Finish "installation" and "getting_started" pages
+* Possible workflow, module order/compatibility
+* Create Test Cases and maybe module compatibility
+* Continue "How to contribute to CEASIOMpy"
+* Example for how to create and add a new module
 
 ## Logging
 
@@ -47,7 +44,6 @@
 ## Modules
 
 * To adapt and integrate
-    * Template Module
     * PyTornado
     * GUI Edit AeroPerformanceMap
     * SUMO2CPACS
@@ -62,10 +58,12 @@
     * LaTeXReport
     * TestSU2Convergence
 
+
 ## RCE Integration
-    * Upuload .json file on Github + create 'how to install'
+    * Upload .json file on Github + create 'how to install'
     * Add a script to automatically set the ToolDirectory path of each module
     * Small logo for each module
+
 
 ## Things to do for each module conversion/updating
 * Remove Python 2.7

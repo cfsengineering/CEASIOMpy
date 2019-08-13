@@ -31,6 +31,11 @@
     * Guidelines, etc.
     * Example for how to structure and add a new module
 
+## Logging
+
+* Fix file permission workaround in `ceasiomlogger.get_logger()` (don't use try-except)
+* Do we want one big log file (global) or many small (local for each module)?
+
 ## Aerodynamic modules
 * How to store inputs data in CPACS (alpha,beta, mach, alt)
 * How to store results in CPACS (AeroPerformanceMap, damping derivatives, ...)

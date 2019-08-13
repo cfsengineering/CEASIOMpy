@@ -14,7 +14,8 @@
 * Add output for `ceasiompy.CLCalculator.__specs__`
 * Add General File in/out Class
 * Create a function to check consistency (does same variable name are stored a the same xpath, ...)
-* Create a function to find in which Module a variable  or xpath is used
+* Create a function to find in which Module a variable or xpath is used
+* Creste a function to generate a default /toolspecific field ...
 * Add kind of a GUI to enter missing input requirements...?
 
 ## Documentation
@@ -26,6 +27,8 @@
     * http://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
 * Make a page for users
         * How to install
+            * SUMO: https://www.larosterna.com/products/open-source
+            * SU2: https://su2code.github.io/download.html
         * Possible workflow, module order/compatibility
 * Make a page for contributors
     * Guidelines, etc.

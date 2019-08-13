@@ -62,6 +62,6 @@ cpacs_inout.add_output(
     default_value=None,
     unit='-',
     descr='FIXED_CL_MODE parameter for SU2',
-    cpacs_path='/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/fixedCL',
+    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/fixedCL',
 
 )

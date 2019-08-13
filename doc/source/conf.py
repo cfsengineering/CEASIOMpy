@@ -34,7 +34,7 @@ version = __version__
 os.system('bash ./dev_doc/gen_auto_doc.sh')
 
 # Update the module-dependecy pages
-#os.system('python3 user_guide/gen_module_interface_pages.py')
+os.system('python3 user_guide/gen_module_interface_pages.py')
 
 # -- General configuration ---------------------------------------------------
 extensions = [

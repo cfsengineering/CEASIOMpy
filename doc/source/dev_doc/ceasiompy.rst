@@ -16,6 +16,7 @@ Subpackages
     ceasiompy.SU2Config
     ceasiompy.SU2Run
     ceasiompy.SUMOAutoMesh
+    ceasiompy.SkinFriction
     ceasiompy.WeightConventional
     ceasiompy.WeightUnconventional
     ceasiompy.utils

@@ -1,0 +1,35 @@
+{
+    "inputs": {
+        "aircraft": "test_wing.json",
+        "state": "example",
+        "deformation": false,
+        "horseshoe_type": 2,
+        "epsilon": 1e-06
+    },
+    "outputs": {
+        "vlm_autopanels_c": 5,
+        "vlm_autopanels_s": 20,
+        "vlm_lattice": true,
+        "vlm_compute": true,
+        "save_results": [
+            "NO_global",
+            "NO_panelwise",
+            "NO_loads_with_undeformed_mesh",
+            "NO_loads_with_deformed_mesh"
+        ]
+    },
+    "plot": {
+        "geometry_aircraft": true,
+        "geometry_wing": null,
+        "geometry_segment": null,
+        "geometry_property": null,
+        "lattice_aircraft": false,
+        "lattice_aircraft_optional": [],
+        "lattice_wing": null,
+        "lattice_segment": null,
+        "results_downwash": false,
+        "results_panelwise": ["cp"],
+        "show": true,
+        "save": false
+    }
+}

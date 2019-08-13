@@ -106,7 +106,8 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
     Function 'get_fuselage_scaling' return the value of the scaling for the
     fuselage. (This is an example function just to show usaga of CPACS and tixi)
 
-    Source: Reference paper or book, with author and date
+    Source:
+        * Reference paper or book, with author and date
 
     Args:
         cpacs_path (str): Path to CPACS file

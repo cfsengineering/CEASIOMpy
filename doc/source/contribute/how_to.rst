@@ -8,6 +8,7 @@ Reporting bugs
 
 * See `Github_BugReport`_
 
+
 Writing a new module
 --------------------
 

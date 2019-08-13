@@ -46,6 +46,13 @@ if __name__ == '__main__':
     check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
 
     # ========== PyTornado main analysis ==========
-    pass
+
+    ##### TEST ##### TEST ##### TEST
+    this_dir = os.path.dirname(os.path.abspath(__file__))
+    os.chdir(os.path.join(this_dir, "wkdir/"))
+    args = pyt.StdRunArgs()
+    args.run = 'test_wing'
+    pyt.standard_run(args)
+    ##### TEST ##### TEST ##### TEST
 
     log.info("PyTornado analysis completed")

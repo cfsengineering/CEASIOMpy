@@ -22,7 +22,6 @@ TODO:
 #==============================================================================
 
 import logging
-# from logging.handlers import RotatingFileHandler
 
 #==============================================================================
 #   FUNCTIONS
@@ -57,12 +56,15 @@ def get_logger(name):
     # Write logfile
     file_formatter = logging.Formatter('%(asctime)s - %(name)20s \
     - %(levelname)s - %(message)s')
-    # file_handler = RotatingFileHandler(name+'.log', 'a', 1000000, 1)
-    log_filename = name + '.log'
-    file_handler = logging.FileHandler(filename=log_filename, mode='w')
-    file_handler.setLevel(logging.DEBUG)     # Level for the logfile
-    file_handler.setFormatter(file_formatter)
-    logger.addHandler(file_handler)
+
+    # Workaround for ReadTheDocs: do not raise an error if we cannot create a log file
+    try:
+        file_handler = logging.FileHandler(filename=name+'.log', mode='w')
+        file_handler.setLevel(logging.DEBUG)     # Level for the logfile
+        file_handler.setFormatter(file_formatter)
+        logger.addHandler(file_handler)
+    except PermissionError:
+        pass
 
     # Write log messages on the console
     console_formatter = logging.Formatter('%(levelname)-8s - %(message)s')

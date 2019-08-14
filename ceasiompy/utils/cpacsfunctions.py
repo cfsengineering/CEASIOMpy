@@ -67,13 +67,13 @@ def open_tixi(cpacs_path):
         tixi_handle (handles): TIXI Handle of the CPACS file
     """
 
-    try:
-        tixi_handle = tixi3wrapper.Tixi3()
-        tixi_handle.open(cpacs_path)
-    except Tixi3Exception:
-        return None
+
+    tixi_handle = tixi3wrapper.Tixi3()
+    tixi_handle.open(cpacs_path)
+
 
     log.info('TIXI handle has been created.')
+
     return tixi_handle
 
 
@@ -93,11 +93,8 @@ def open_tigl(tixi_handle):
         tigl_handle (handles): TIGL Handle of the CPACS file
     """
 
-    try:
-        tigl_handle = tigl3wrapper.Tigl3()
-        tigl_handle.open(tixi_handle, '')
-    except Tigl3Exception:
-        return None
+    tigl_handle = tigl3wrapper.Tigl3()
+    tigl_handle.open(tixi_handle, '')
 
     tigl_handle.logSetVerbosity(1)  # 1 - only error, 2 - error and warnings
 

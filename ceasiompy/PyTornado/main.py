@@ -25,6 +25,8 @@ PYTORNADO_FOUND = True
 try:
     import pytornado.stdfun as pyt
 except ModuleNotFoundError:
+    # ModuleNotFoundError is new in Python 3.6
+    # See https://docs.python.org/3/library/exceptions.html
     PYTORNADO_FOUND = False
     log.warning("PyTornado was not found")
 
@@ -39,11 +41,11 @@ if __name__ == '__main__':
         raise ModuleNotFoundError(err_msg)
 
     # CEASIOMpy paths
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
-    cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
+    # MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+    # cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
+    # cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 
-    check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
+    # check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
 
     # ========== PyTornado main analysis ==========
 

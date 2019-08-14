@@ -5,7 +5,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Small description of the script
 
-Works with Python 2.7/3.6
+Python version: >=3.6
 
 | Author: Name
 | Creation: YEAR-MONTH-DAY
@@ -13,9 +13,8 @@ Works with Python 2.7/3.6
 
 TODO:
 
-    * ...
-    * ...
-
+    * Things to improve ...
+    * Things to add ...
 """
 
 #==============================================================================
@@ -25,7 +24,6 @@ TODO:
 import os
 import sys
 import math
-
 import numpy
 import matplotlib
 
@@ -36,7 +34,6 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
                                            aircraft_name
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
-
 from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
 from ceasiompy.ModuleTemplate.__specs__ import cpacs_inout
 
@@ -59,12 +56,9 @@ class MyClass:
 
         See some other source
 
-    .. warning::
-
-        Example warning
     """
 
-    def __init__(self, a=0.0, b=0.0):
+    def __init__(self, a=1.1, b=2.2):
         self.var_a = a
         self.var_b = b
         self.var_c = 0.0
@@ -94,7 +88,14 @@ def sum_funcion(arg1, arg2):
 
     Returns:
         total (float): Output1 [unit]
+
+    .. warning::
+
+        Example of warning
     """
+
+    if not isinstance(arg1, int):
+        raise ValueError('arg1 is not an integer')
 
     total = float(arg1) + arg2
 
@@ -107,7 +108,8 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
     Function 'get_fuselage_scaling' return the value of the scaling for the
     fuselage. (This is an example function just to show usaga of CPACS and tixi)
 
-    Source: Reference paper or book, with author and date
+    Source:
+        * Reference paper or book, with author and date
 
     Args:
         cpacs_path (str): Path to CPACS file
@@ -154,22 +156,28 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
 
 if __name__ == '__main__':
 
-    log.info('Running Mymodule')
+    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
     cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
     cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 
+    # Call the function which check if imputs are well define
     check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
 
+    # Define other inputs value
     my_value1 = 6
     my_value2 = 5.5
 
-    # Call a simple function
+    # Call 'sum_function'
     my_total = sum_funcion(my_value1, my_value2)
     log.info('My total is equal to: ' + str(my_total))
 
     # Call a function which use CPACS inputs
-    get_fuselage_scaling(cpacs_path, cpacs_out_path)
+    x,y,z = get_fuselage_scaling(cpacs_path, cpacs_out_path)
+    log.info('Value x,y,z as been calculated')
+    log.info('x = ' + str(x))
+    log.info('y = ' + str(y))
+    log.info('z = ' + str(z))
 
-    log.info('Value as been calculated')
+    log.info('----- End of ' + os.path.basename(__file__) + ' -----')

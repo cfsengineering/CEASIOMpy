@@ -5,17 +5,18 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module to create a simple SU2 mesh from SUMO file (.smx)
 
-| Works with Python 2.7/3.6
+Python version: >=3.6
+
 | Author : Aidan Jungo
 | Creation: 2018-10-29
-| Last modifiction: 2019-08-08
+| Last modifiction: 2019-08-14
 
 TODO:
 
-* Add options for SUMO
-* Check and write the script to be compatible with other OS
-  (only tested with Centos 7 for now)
-* Allow multi-pass mesh
+    * Add options for SUMO
+    * Check and write the script to be compatible with other OS
+      (only tested with Centos 7 for now)
+    * Allow multi-pass mesh
 
 """
 
@@ -31,6 +32,8 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 #==============================================================================
 #   CLASSES
@@ -41,7 +44,7 @@ log = get_logger(__file__.split('.')[0])
 #   FUNCTIONS
 #==============================================================================
 
-def create_SU2_mesh(smx_file_path):
+def create_SU2_mesh(smx_input_path,su2_ouput_path):
     """ Function to create a simple SU2 mesh form an SUMO file (.smx)
 
     Function 'create_mesh' is used to generate an unstructured mesh with  SUMO
@@ -49,24 +52,21 @@ def create_SU2_mesh(smx_file_path):
     file as input.
     Meshing option could be change manually (only in the script for now)
 
-    Source : sumo help, tetgen help (in the folder /doc)
+    Source :
+        * sumo help, tetgen help (in the folder /doc)
 
-    ARGUMENTS
-    (str)           smx_file_path       -- Path to the SUMO file
+    Args:
+        smx_input_path (str): Path to the SUMO file
+        su2_ouput_path (str): Path to SU2 output file
 
-    RETURNS
-    (str)           su2_ouput_path      -- Path to SU2 output file
     """
 
     # Define paths
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    smx_input = MODULE_DIR + smx_file_path
     TMP_DIR = MODULE_DIR + '/tmp'
     smx_tmp_input = TMP_DIR + '/ToolInput.smx'
     su2_tmp_path = TMP_DIR + '/ToolInput.su2'
-    su2_ouput_path = MODULE_DIR + '/ToolOutput/ToolOutput.su2'
 
-    #Check if SUMO is installed
+    # Check if SUMO is installed
     # with python3 could be replace by shutil.which("sumo")
     check_sumo = os.system('which sumo')  # give 0 if it works
     if check_sumo:
@@ -87,8 +87,8 @@ def create_SU2_mesh(smx_file_path):
         log.info('The /tmp directory has been cleared.')
 
     # Copy SUMO input file (.smx) in the temp directory
-    if os.path.isfile(smx_input):
-        shutil.copy(smx_input, smx_tmp_input)
+    if os.path.isfile(smx_input_path):
+        shutil.copy(smx_input_path, smx_tmp_input)
         log.info('The input SUMO file has been copied in /tmp ')
     else:
         log.error('The ToolInput (.smx file) cannot be found!')
@@ -111,8 +111,6 @@ def create_SU2_mesh(smx_file_path):
     else:
         log.error('The Output SU2 mesh cannot be found!')
 
-    return su2_ouput_path
-
 
 #==============================================================================
 #    MAIN
@@ -120,9 +118,11 @@ def create_SU2_mesh(smx_file_path):
 
 if __name__ == '__main__':
 
-    log.info('Running SUMOAutoMesh')
+    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
-    smx_file_path = '/ToolInput/ToolInput.smx'
-    create_SU2_mesh(smx_file_path)
+    smx_input_path =  MODULE_DIR + '/ToolInput/ToolInput.smx'
+    su2_ouput_path = MODULE_DIR + '/ToolOutput/ToolOutput.su2'
 
-    log.info('End of module SUMOAutoMesh')
+    create_SU2_mesh(smx_input_path,su2_ouput_path)
+
+    log.info('----- End of ' + os.path.basename(__file__) + ' -----')

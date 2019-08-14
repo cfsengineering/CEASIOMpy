@@ -1,5 +1,6 @@
 # Ignore all logfiles
 *.log
+*.log.*
 
 # Ignore all .pyc files
 *.pyc
@@ -33,12 +34,15 @@ forces_breakdown.dat
 
 # Exceptions
 !/ceasiompy/ModuleTemplate/ToolInput/ToolInput.xml
+!/test/TestSU2Config/ToolInput/NoMarkerMesh.su2
+!/test/TestSU2Config/ToolInput/SimpleMesh.su2
 
 # Vim temporary files
 *.swp
 
 # Sphinx
 build/
+doc/source/dev_doc/ceasiompy.*
 
 # Dolphin file manager
 .directory

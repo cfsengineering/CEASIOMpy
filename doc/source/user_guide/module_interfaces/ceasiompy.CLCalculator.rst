@@ -13,13 +13,13 @@ MTOM (maybe another mass shoud be used, more representative for cruise mass?)
 * **Unit** kg
 * **Variable name** mtom
 
-Cruise speed
-~~~~~~~~~~~~
+Aircraft cruise Mach number
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* **CPACS path** /cpacs/toolspecific/CEASIOMpy/ranges/cruiseSpeed
-* **Default value** 272
-* **Unit** m/s
-* **Variable name** cruise_speed
+* **CPACS path** /cpacs/toolspecific/CEASIOMpy/ranges/cruiseMach
+* **Default value** 0.78
+* **Unit** -
+* **Variable name** cruise_mach
 
 Aircraft cruise altitude
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -44,8 +44,23 @@ Reference area
 * **Default value** None
 * **Unit** m^2
 * **Variable name** ref_area
+
 CPACS output paths
 ------------------
 
 
-**ceasiompy.CLCalculator does not write anything back to CPACS** 
+Value of CL to achieve to have a level flight with the given conditions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **CPACS path** /cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/targetCL
+* **Default value** None
+* **Unit** 1
+* **Variable name** target_cl
+
+FIXED_CL_MODE parameter for SU2
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+* **CPACS path** /cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/fixedCL
+* **Default value** None
+* **Unit** -
+* **Variable name** fixed_cl

@@ -8,51 +8,60 @@ cpacs_inout = CPACSInOut()
 # ===== Input =====
 
 cpacs_inout.add_input(
-        var_name='mtom',
-        default_value=None,
-        unit='kg',
-        descr='MTOM (maybe another mass shoud be used, more representative for cruise mass?)',
-        cpacs_path=AIRCRAFT_XPATH + '/model/analyses/massBreakdown/designMasses/mTOM/mass',
-        )
+    var_name='mtom',
+    default_value=None,
+    unit='kg',
+    descr='MTOM (maybe another mass shoud be used, more representative for cruise mass?)',
+    cpacs_path=AIRCRAFT_XPATH + '/model/analyses/massBreakdown/designMasses/mTOM/mass',
+)
 
 cpacs_inout.add_input(
-        var_name='cruise_speed',
-        default_value=272,
-        unit='m/s',
-        descr='Cruise speed',
-        cpacs_path=CEASIOM_XPATH + '/ranges/cruiseSpeed',
-        )
+    var_name='cruise_mach',
+    default_value=0.78,
+    unit='-',
+    descr='Aircraft cruise Mach number',
+    cpacs_path=CEASIOM_XPATH + '/ranges/cruiseMach',
+)
 
 cpacs_inout.add_input(
-        var_name='cruise_alt',
-        default_value=12000,
-        unit='m',
-        descr='Aircraft cruise altitude',
-        cpacs_path=CEASIOM_XPATH + '/ranges/cruiseAltitude',
-        )
+    var_name='cruise_alt',
+    default_value=12000,
+    unit='m',
+    descr='Aircraft cruise altitude',
+    cpacs_path=CEASIOM_XPATH + '/ranges/cruiseAltitude',
+)
 
 cpacs_inout.add_input(
-        var_name='load_fact',
-        default_value=1.05,
-        unit='1',
-        descr='Load Factor',
-        cpacs_path=CEASIOM_XPATH + '/ranges/loadFactor',
-        )
+    var_name='load_fact',
+    default_value=1.05,
+    unit='1',
+    descr='Load Factor',
+    cpacs_path=CEASIOM_XPATH + '/ranges/loadFactor',
+)
 
 cpacs_inout.add_input(
-        var_name='ref_area',
-        default_value=None,
-        unit='m^2',
-        descr='Reference area',
-        cpacs_path=AIRCRAFT_XPATH + '/model/reference/area',
-        )
+    var_name='ref_area',
+    default_value=None,
+    unit='m^2',
+    descr='Reference area',
+    cpacs_path=AIRCRAFT_XPATH + '/model/reference/area',
+)
 
-# ===== Output =====
+#===== Output =====
 
-# cpacs_inout.add_output(
-#         var_name='TODO',
-#         default_value='TODO',
-#         unit='TODO',
-#         descr='TODO',
-#         cpacs_path='TODO',
-#         )
+cpacs_inout.add_output(
+    var_name='target_cl',
+    default_value=None,
+    unit='1',
+    descr='Value of CL to achieve to have a level flight with the given conditions',
+    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/targetCL',
+)
+
+cpacs_inout.add_output(
+    var_name='fixed_cl',
+    default_value=None,
+    unit='-',
+    descr='FIXED_CL_MODE parameter for SU2',
+    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/fixedCL',
+
+)

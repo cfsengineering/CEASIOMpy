@@ -13,13 +13,13 @@ Wetted area of the aircraft (calculated by SU2)
 * **Unit** m^2
 * **Variable name** wetted_area
 
-Aircraft cruise speed
-~~~~~~~~~~~~~~~~~~~~~
+Aircraft cruise Mach number
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-* **CPACS path** /cpacs/toolspecific/CEASIOMpy/ranges/cruiseSpeed
-* **Default value** 272
-* **Unit** m/s
-* **Variable name** cruise_speed
+* **CPACS path** /cpacs/toolspecific/CEASIOMpy/ranges/cruiseMach
+* **Default value** 0.78
+* **Unit** -
+* **Variable name** cruise_mach
 
 Aircraft cruise altitude
 ~~~~~~~~~~~~~~~~~~~~~~~~
@@ -28,6 +28,7 @@ Aircraft cruise altitude
 * **Default value** 12000
 * **Unit** m
 * **Variable name** cruise_alt
+
 CPACS output paths
 ------------------
 

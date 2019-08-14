@@ -5,17 +5,20 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module to run SU2 Calculation in CEASIOMpy
 
-| Works with Python 2.7/3.6
+Python version: >=3.6
+
 | Author : Aidan Jungo
 | Creation: 2018-11-06
-| Last modifiction: 2019-08-08
+| Last modifiction: 2019-08-14
 
 TODO:
 
-* Add check MPI installation
-* Add possibility of using SSH
-* Save a CPACS output file
-* Save coefficient in the new AeroPerformanceMap from CPACS 3.1
+    * Add check MPI installation
+    * Add possibility of using SSH
+    * Save a CPACS output file
+    * Save coefficient in the new AeroPerformanceMap from CPACS 3.1
+    * Add checks on the code
+    * Create test functions
 
 """
 
@@ -33,6 +36,7 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi
 
 log = get_logger(__file__.split('.')[0])
 
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 #==============================================================================
 #   CLASSES
@@ -49,13 +53,11 @@ def get_efficiency(force_path):
     Function 'get_efficiency' the CL/CD ratio in the results file
     (forces_breakdown.dat)
 
-    Source : -
+    Args:
+        force_path (str): Path to the Force Breakdown result file
 
-    ARGUMENTS
-    (str)           force_path      -- Path to the Force Breakdown result file
-
-    RETURNS
-    (float)         cl_cd           -- CL/CD [-]
+    Returns:
+        cl_cd (float): CL/CD ratio [-]
 
     """
 
@@ -74,17 +76,16 @@ def run_SU2(mesh_path, config_path):
     Function 'run_SU2' runs a SU2 calculation with an SU2 Mesh (.su2) and an
     SU2 configuration file (.cfg)
 
-    Source : -
+    Source :
+        * SU2 Turorials : https://su2code.github.io/tutorials/home/
 
-    ARGUMENTS
-    (str)           mesh_path            -- Path to the mesh file
-    (str)           config_path          -- Path to the config file
+    Args:
+        mesh_path (str): Path to the mesh file
+        config_path (str): Path to the config file
 
-    RETURNS
     """
 
     # Define paths
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
     TMP_DIR = MODULE_DIR + '/tmp'
     config_tmp_path = TMP_DIR + '/configSU2.cfg'
     force_tmp_path = TMP_DIR + '/forces_breakdown.dat'
@@ -145,17 +146,16 @@ def run_SU2(mesh_path, config_path):
 
 if __name__ == '__main__':
 
-    log.info('Running RunSU2 module')
+    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
     cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
     mesh_path = MODULE_DIR + '/ToolInput/ToolInput.su2'
     config_path = MODULE_DIR + '/ToolInput/ToolInput.cfg'
+    force_path = MODULE_DIR + '/ToolOutput/forces_breakdown.dat'
 
     run_SU2(mesh_path, config_path)
 
-    force_path = MODULE_DIR + '/ToolOutput/forces_breakdown.dat'
     log.info('Your aircraft achieve a CL/CD of : ' \
               + str(get_efficiency(force_path)))
 
-    log.info('End of RunSU2 module')
+    log.info('----- End of ' + os.path.basename(__file__) + ' -----')

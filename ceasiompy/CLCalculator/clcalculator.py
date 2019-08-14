@@ -5,14 +5,16 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Calculate lift coefficient to flight with some parameters
 
-| Works with Python 2.7/3.6
+Python version: >=3.6
+
 | Author: Aidan Jungo
 | Creation: 2018-11-28
-| Last modifiction: 2019-08-08
+| Last modifiction: 2019-08-13
 
 TODO:
 
-* Replace cruise_speed by cruise_mach? also in CPACS
+    * Use another mass than MTOM?
+    * Save CruiseCL somewhere
 
 """
 
@@ -47,88 +49,84 @@ def calculate_cl(ref_area, alt, mach, mass, load_fact = 1.05):
     """ Function to clacluate the lif coefficient (cl)
 
     Function 'calculate_cl' return the lift coefficent value for the given
-    input ( Reference Area, Altitude, Mach Number, Mass and Load Factor)
+    input (Reference Area, Altitude, Mach Number, Mass and Load Factor)
 
-    Source : Small math demonstration can be found in:
-             /CEASIOMpy/lib/CLCalculator/doc/Calculate_CL.pdf
+    Source:
+       * Demonstration can be found in:
+         /CEASIOMpy/lib/CLCalculator/doc/Calculate_CL.pdf
 
-    ARGUMENTS
-    (float)         ref_area       -- Reference area [m^2]
-    (float)         alt            -- Altitude [m]
-    (float)         mach           -- Mach number [-]
-    (float)         mass           -- Aircraft mass [kg]
-    (float)         load_fact      -- Load Factor [-] (1.05 by default)
+    Args:
+        ref_area (float):  Reference area [m^2]
+        alt (float): Altitude [m]
+        mach (float): Mach number [-]
+        mass (float): Aircraft mass [kg]
+        load_fact (float): Load Factor [-] (1.05 by default)
 
-    RETURNS
-    (float)         cl             -- Lift coefficent [unit]
+    Returns:
+        target_cl (float): Lift coefficent [unit]
     """
 
     # Get atmosphere values at this altitude
     Atm = get_atmosphere(alt)
-    GAMMA = 1.401  # Air heat capacity ratio [-]
+    # Air heat capacity ratio [-]
+    GAMMA = 1.401
 
     # Calculate lift coeffienct
     weight = mass * Atm.grav
     dyn_pres = 0.5 * GAMMA * Atm.pres * mach**2
-    cl = weight * load_fact / (dyn_pres * ref_area)
-    log.info('A lift coefficent (CL) of ' + str(cl) + ' has been calculated')
+    target_cl = weight * load_fact / (dyn_pres * ref_area)
+    log.info('A lift coefficent (CL) of ' + str(target_cl) +
+             ' has been calculated')
 
-    return cl
+    return target_cl
 
 
 def get_cl(cpacs_path,cpacs_out_path):
     """ Function to calculate CL requiered as a function of the parameter found
-        in the CPACS file.
+    in the CPACS file.
 
     Function 'get_cl' find input value in the CPACS file, calculate the
-    requiered CL (with calculate_cl) and  save the CL value in the /toolspecific
+    requiered CL (with calculate_cl) and  save the CL value in
+    /cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/targetCL
 
-    ARGUMENTS
-    (str)           cpacs_path      -- Path to CPACS file
-    (str)           cpacs_out_path  -- Path to CPACS output file
+    Args:
+        cpacs_path (str):  Path to CPACS file
+        cpacs_out_path (str): Path to CPACS output file
 
-    RETURNS
-    -
     """
 
     tixi = open_tixi(cpacs_path)
 
+    # XPath definition
+    model_xpath = '/cpacs/vehicles/aircraft/model'
+    ref_area_xpath = model_xpath + '/reference/area'
+    mtom_xpath = model_xpath + '/analyses/massBreakdown/designMasses/mTOM/mass'
     range_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges'
+    cruise_alt_xpath = range_xpath + '/cruiseAltitude'
+    cruise_mach_xpath = range_xpath + '/cruiseMach'
+    load_fact_xpath = range_xpath + '/loadFactor'
+    su2_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
     # Requiered input data from CPACS
-    ref_area = get_value(tixi,'/cpacs/vehicles/aircraft/model/reference/area')
-    mtom = get_value(tixi,'/cpacs/vehicles/aircraft/model/analyses/ \
-                           massBreakdown/designMasses/mTOM/mass')
+    ref_area = get_value(tixi,ref_area_xpath)
+    mtom = get_value(tixi,mtom_xpath)
 
-    # Not requiered input data (a default value will be used if no
-    # value has been found in the CPACS file)
-    cruise_alt_xpath = range_xpath + '/cruiseAltitude'
+    # Requiered input data that could be replace by a default value if missing
     tixi, cruise_alt = get_value_or_default(tixi,cruise_alt_xpath,12000.0)
-    Atm = get_atmosphere(cruise_alt)
-
-    load_fact_xpath = range_xpath + '/loadFactor'
+    tixi, cruise_mach = get_value_or_default(tixi,cruise_mach_xpath,0.78)
     tixi, load_fact = get_value_or_default(tixi,load_fact_xpath,1.05)
 
-    cruise_speed_xpath = range_xpath + '/cruiseSpeed'
-    tixi, cruise_speed = get_value_or_default(tixi,cruise_speed_xpath,272.0)
+    # Get atmosphere from cruise altitude
+    Atm = get_atmosphere(cruise_alt)
 
     # CL calculation
-    cruise_mach = cruise_speed / Atm.sos
-    cl = calculate_cl(ref_area, cruise_alt, cruise_mach, mtom, load_fact)
+    target_cl = calculate_cl(ref_area, cruise_alt, cruise_mach, mtom, load_fact)
 
-    # Keep it in range?
-    tixi = create_branch(tixi, range_xpath)
-    tixi.addDoubleElement(range_xpath,'cruiseCL',cl,'%g')
-    log.info('CL has been saved in the CPACS file')
-
-    su2_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
+    # Save TargetCL
     tixi = create_branch(tixi, su2_xpath)
-    tixi.addDoubleElement(su2_xpath,'targetCL',cl,'%g')
-    log.info('CL has been saved in the CPACS file')
-
-    su2_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
-    tixi = create_branch(tixi, su2_xpath)
+    tixi.addDoubleElement(su2_xpath,'targetCL',target_cl,'%g')
     tixi.addTextElement(su2_xpath,'fixedCL','YES')
+    log.info('Target CL has been saved in the CPACS file')
 
     close_tixi(tixi,cpacs_out_path)
 
@@ -140,7 +138,7 @@ def get_cl(cpacs_path,cpacs_out_path):
 
 if __name__ == '__main__':
 
-    log.info('Running CLCalculator')
+    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
     cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
@@ -149,4 +147,4 @@ if __name__ == '__main__':
     check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
     get_cl(cpacs_path,cpacs_out_path)
 
-    log.info('End CLCalculator')
+    log.info('----- End of ' + os.path.basename(__file__) + ' -----')

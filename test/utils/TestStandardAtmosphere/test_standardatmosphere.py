@@ -5,7 +5,8 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test the function 'lib/utils/standardatmosphere.py'
 
-| Works with Python 2.7/3.4
+Python version: >=3.6
+
 | Author : Aidan Jungo
 | Creation: 2018-10-05
 | Last modifiction: 2019-08-07
@@ -44,6 +45,7 @@ def test_get_atmosphere_error():
 
     with pytest.raises(ValueError):
         get_atmosphere(85000)
+
 
 def test_get_atmosphere_0m():
     """Test atmosphere values at 0m (sea level)"""
@@ -85,6 +87,7 @@ def test_get_atmosphere_84000m():
     assert atm.sos == approx(275.34263714506693)
     assert atm.re_len_ma == approx(174.6383812958875)
     assert atm.grav == approx(9.553079513419783)
+
 
 #==============================================================================
 #    MAIN

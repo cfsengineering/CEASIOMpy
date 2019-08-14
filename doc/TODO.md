@@ -12,21 +12,27 @@
 * `_specs.py` better than `__specs__`?
 * Add output for `ceasiompy.CLCalculator.__specs__`
 * Add General File in/out Class
-* Maybe create a function to check consistency (does same variable name are stored a the same xpath, ...)
+* Create a function to check consistency (does same variable name are stored a the same xpath, ...)
+* Create a function to find in which Module a variable or xpath is used
+* Creste a function to generate a default /toolspecific field ...
 * Add kind of a GUI to enter missing input requirements...?
 
 ## Documentation
-* Host the documentation on ReadTheDocs (https://readthedocs.org/)?
 * Automatic syncronisation of CPACS input/output
 * Fix docstring translation/formatting
     * https://www.python.org/dev/peps/pep-0257/
     * http://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
 * Make a page for users
-        * How to install
-        * Possible workflow, module order/compatibility
-* Make a page for contributors
-    * Guidelines, etc.
-    * Example for how to structure and add a new module
+* Finish "installation" and "getting_started" pages
+* Possible workflow, module order/compatibility
+* Create Test Cases and maybe module compatibility
+* Continue "How to contribute to CEASIOMpy"
+* Example for how to create and add a new module
+
+## Logging
+
+* Fix file permission workaround in `ceasiomlogger.get_logger()` (don't use try-except)
+* Do we want one big log file (global) or many small (local for each module)?
 
 ## Aerodynamic modules
 * How to store inputs data in CPACS (alpha,beta, mach, alt)
@@ -35,7 +41,6 @@
 
 ## Modules
 * To adapt and integrate
-    * Template Module
     * PyTornado
     * GUI Edit AeroPerformanceMap
     * SUMO2CPACS
@@ -50,8 +55,11 @@
     * LaTeXReport
     * TestSU2Convergence
 
+* Improve and check all Weight and Balance modules
+
+
 ## RCE Integration
-    * Upuload .json file
+    * Upload .json file on Github + create 'how to install'
     * Add a script to automatically set the ToolDirectory path of each module
     * Small logo for each module
 
@@ -59,3 +67,7 @@
 Update `specs` file
     * Airfoil
     * Aeroperformance map
+
+## Things to do for each module conversion/updating
+    * Add __specs__ file
+    * Check if the documentation is correctly auto generated

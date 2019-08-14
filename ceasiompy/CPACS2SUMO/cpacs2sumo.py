@@ -5,18 +5,19 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Script to convert CPACS file geometry into SUMO geometry
 
-| Works with Python 2.7/3.6
+Python version: >=3.6
+
 | Author : Aidan Jungo
 | Creation: 2017-03-03
-| Last modifiction: 2018-11-14
+| Last modifiction: 2019-08-14
 
 TODO:
 
-* Write some documentation and tutorial
-* Improve testing script
-* Use <segements> both for wing and fuselage, as they define which
-  part of the fuselage/wing should be built
-
+    * Write some documentation and tutorial
+    * Improve testing script
+    * Use <segements> both for wing and fuselage, as they define which
+      part of the fuselage/wing should be built
+    * Add "fuselage cap" to improve mesh generation
 """
 
 #==============================================================================
@@ -35,6 +36,7 @@ from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 
 log = get_logger(__file__.split('.')[0])
 
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 #==============================================================================
 #   CLASSES
@@ -42,12 +44,13 @@ log = get_logger(__file__.split('.')[0])
 
 # TODO Move this class in a global moudule callable from every where???
 class SimpleNamespace(object):
-    """ Rudimentary SimpleNamespace clone.
+    """
+    Rudimentary SimpleNamespace clone. Works as a record-type object, or
+    'struct'. Attributes can be added on-the-fly by assignment. Attributes
+    are accesed using point-notation.
 
-    Works as a record-type object, or 'struct'. Attributes can be added
-    on-the-fly by assignment. Attributes are accesed using point-notation.
-
-    https://docs.python.org/3.5/library/types.html
+    Source:
+        * https://docs.python.org/3.5/library/types.html
     """
 
     def __init__(self, **kwargs):
@@ -67,30 +70,25 @@ class Point:
     The Class "Point" store x,y,z value for scaling, rotation and tanlsation,
     because of that unit can differ depending its use.
 
-    ATTRIBUTES
-    (float)         x           -- Value in x [depends]
-    (float)         y           -- Value in y [depends]
-    (float)         z           -- Value in z [depends]
-
-    METHODS
-    get_cpacs_points    Get x,y,z point from a given path in the CPACS file
+    Attributes:
+        x (float): Value in x [depends]
+        y (float): Value in y [depends]
+        z (float): Value in z [depends]
 
     """
 
     def __init__(self, x=0.0, y=0.0, z=0.0):
-        """ Initialize x,y,z value """
 
         self.x = x
         self.y = y
         self.z = z
 
     def get_cpacs_points(self, tixi, point_xpath):
-        """
-        Get x,y,z point from a given path in the CPACS file
+        """ Get x,y,z point from a given path in the CPACS file
 
-        ARGUMENTS
-        (TIXI Handle)   tixi        -- TIXI Handle of the CPACS file
-        (str)           point_xpath  -- xpath to x,y,z value
+        Args:
+            tixi (handles): TIXI Handle of the CPACS file
+            point_xpath (str): xpath to x,y,z value
         """
 
         self.x = tixi.getDoubleElement(point_xpath + '/x')
@@ -103,31 +101,26 @@ class Transformation:
     The Class "Transformation" store scaling, rotation and tanlsation by
     calling the clas "Point"
 
-    ATTRIBUTES
-    (object)            scale           -- Scale object
-    (object)            rotation        -- Rotation object
-    (object)            translation     -- Translation object
-
-    METHODS
-    get_cpacs_transf    Get transformation from a CPACS file
+    Attributes:
+        scale (object): Scale object
+        rotation (object): Rotation object
+        translation (object): Translation object
 
     """
 
     def __init__(self):
-        """ Initialize x,y,z value for scale, rotation and translation"""
 
         self.scale = Point(1.0, 1.0, 1.0)
         self.rotation = Point()
         self.translation = Point()
 
     def get_cpacs_transf(self, tixi, transf_xpath):
-        """
-        Get scale, rotation and translation from a given path in the
-        CPACS file
+        """ Get scale, rotation and translation from a given path in the
+            CPACS file
 
-        ARGUMENTS
-        (TIXI Handle)   tixi        -- TIXI Handle of the CPACS file
-        (str)           point_xpath  -- xpath to the tansformations
+        Args:
+            tixi (handles): TIXI Handle of the CPACS file
+            point_xpath (str): xpath to the tansformations
         """
 
         self.scale.get_cpacs_points(tixi, transf_xpath + '/scaling')
@@ -139,8 +132,8 @@ class Transformation:
 #   FUNCTIONS
 #==============================================================================
 
-def convert_cpacs_to_sumo(cpacs_path):
-    """ Function to convert a CPACS file geometry into a SUMO file geometry
+def convert_cpacs_to_sumo(cpacs_path, sumo_output_path):
+    """ Function to convert a CPACS file geometry into a SUMO file geometry.
 
     Function 'convert_cpacs_to_sumo' open an input cpacs file with TIXI handle
     and via two main loop, one for fuselage(s), one for wing(s) it convert
@@ -149,19 +142,18 @@ def convert_cpacs_to_sumo(cpacs_path):
     definition could lead to issues. The output sumo file is saved in the
     folder /ToolOutput
 
-    Source : CPACS documentation
+    Source:
+        * CPACS documentation: https://www.cpacs.de/pages/documentation.html
 
-    ARGUMENTS
-    (str)           cpacs_path      -- Path to the CPACS file
+    Args:
+        cpacs_path (str): Path to the CPACS file
 
-    RETURNS
-    (str)           OUTPUT_SMX      -- Path to the SUMO file
-                                       (./ToolOutput/Toolouput.smx)
+    Returns:
+        sumo_output_path (str): Path to the SUMO file
+
     """
 
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
     EMPTY_SMX = MODULE_DIR + '/files/sumo_empty.smx'
-    OUTPUT_SMX = MODULE_DIR + '/ToolOutput/ToolOutput.smx'
 
     tixi = open_tixi(cpacs_path)
     sumo = open_tixi(EMPTY_SMX)
@@ -472,6 +464,7 @@ def convert_cpacs_to_sumo(cpacs_path):
     else:
         sumo.removeElement('/Assembly/BodySkeleton[' + str(fus_cnt+1) + ']')
 
+
     # Wing(s) -----
     WINGS_XPATH = '/cpacs/vehicles/aircraft/model/wings'
 
@@ -768,9 +761,8 @@ def convert_cpacs_to_sumo(cpacs_path):
         sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'side', 'north')
 
     # Save the SMX file
-    close_tixi(sumo, OUTPUT_SMX)
+    close_tixi(sumo, sumo_output_path)
 
-    return OUTPUT_SMX
 
 #==============================================================================
 #    MAIN
@@ -779,9 +771,12 @@ def convert_cpacs_to_sumo(cpacs_path):
 
 if __name__ == '__main__':
 
-    log.info('Running Converter CPACS2SUMO')
+    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
-    convert_cpacs_to_sumo('./ToolInput/ToolInput.xml')
+    cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
+    sumo_output_path = MODULE_DIR + '/ToolOutput/ToolOutput.smx'
+
+    convert_cpacs_to_sumo(cpacs_path, sumo_output_path)
 
     # inputfile1 = '/test/CPACSfiles/AGILE_DC1.xml'
     # inputfile2 = '/test/CPACSfiles/D150_AGILE_Hangar.xml'
@@ -794,4 +789,4 @@ if __name__ == '__main__':
     # inputfile9 = '/test/CPACSfiles/D150_AGILE_HangarTest.xml'
     # convert_cpacs_to_sumo(inputfile3)
 
-    log.info('End of Converter CPACS2SUMO')
+    log.info('----- End of ' + os.path.basename(__file__) + ' -----')

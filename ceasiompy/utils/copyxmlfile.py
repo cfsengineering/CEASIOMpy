@@ -5,10 +5,15 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 This script updates the cpacs file and copy it on the ToolOutput folder.
 
-| Works with Python 2.7
+Python version: >=3.6
+
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
 | Last modifiction: 2019-01-25
+
+TODO:
+
+    * Remove this function or put somewere else
 """
 
 #=============================================================================
@@ -62,5 +67,3 @@ if __name__ == '__main__':
     log.warning('##########################################################')
     log.warning('############# ERROR NOT A STANDALONE PROGRAM #############')
     log.warning('##########################################################')
-
-

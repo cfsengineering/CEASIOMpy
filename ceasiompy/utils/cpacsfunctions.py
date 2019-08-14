@@ -6,16 +6,16 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 Functions to manipulate CPACS file, it uses TIXI and TIGL ceasiompy.aries,
 and add some simplified or complementary functions.
 
-| Works with Python 2.7/3.6
-| Test: /test/TestCPACSFunctions/test_cpacsfunction.py
+Python version: >=3.6
+
 | Author : Aidan Jungo
 | Creation: 2018-10-02
 | Last modifiction: 2019-08-08
 
 TODO:
 
-* 'copy_branch': change all uID of the copied branch? how?
-* 'get_value' to improve, add checks
+    * 'copy_branch': change all uID of the copied branch? how?
+    * 'get_value' to improve, add checks
 
 """
 
@@ -31,18 +31,16 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
 # Should maybe be change depending how/where Tixi and Tigl are installed
-# if sys.version_info[0] == 2:
 #     import tixi3wrapper
 #     import tigl3wrapper
 #     from tixi3wrapper import Tixi3Exception
 #     from tigl3wrapper import Tigl3Exception
-# elif sys.version_info[0] == 3:
+
 import tixi3.tixi3wrapper as tixi3wrapper
 import tigl3.tigl3wrapper as tigl3wrapper
 from tixi3.tixi3wrapper import Tixi3Exception
 from tigl3.tigl3wrapper import Tigl3Exception
-# else:
-#     log.error('Your Python version is not compatible with CEASIOMpy!')
+
 
 #==============================================================================
 #   CLASSES
@@ -53,20 +51,20 @@ from tigl3.tigl3wrapper import Tigl3Exception
 #   FUNCTIONS
 #==============================================================================
 
-
 def open_tixi(cpacs_path):
     """ Create TIXI handles for a CPACS file and return this handle.
 
     Function 'open_tixi' return the TIXI Handle of a CPACS file given as input
     by its path. If this operation is not possible, it returns 'None'
 
-    Source : All TIXI functions: http://tixi.sourceforge.net/Doc/index.html
+    Source :
+        * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
 
-    ARGUMENTS
-    (str)           cpacs_path      -- Path to the CPACS file
+    Args:
+        cpacs_path (str): Path to the CPACS file
 
-    RETURNS
-    (TIXI Handle)   tixi_handle     -- TIXI Handle of the CPACS file
+    Returns::
+        tixi_handle (handles): TIXI Handle of the CPACS file
     """
 
     try:
@@ -85,13 +83,14 @@ def open_tigl(tixi_handle):
     Function 'open_tigl' return the TIGL Handle from its TIXI Handle.
     If this operation is not possible, it returns 'None'
 
-    Source : All TIGL functions http://tigl.sourceforge.net/Doc/index.html
+    Source :
+        * TIGL functions http://tigl.sourceforge.net/Doc/index.html
 
-    ARGUMENTS
-    (TIXI Handle)   tixi_handle     -- TIXI Handle of the CPACS file
+    Args:
+        tixi_handle (handles): TIXI Handle of the CPACS file
 
-    RETURNS
-    (TIGL Handle)   tigl_handle     -- TIGL Handle
+    Returns:
+        tigl_handle (handles): TIGL Handle of the CPACS file
     """
 
     try:
@@ -113,14 +112,13 @@ def close_tixi(tixi_handle, cpacs_out_path):
     location given by 'cpacs_out_path' after checking if the directory path
     exists
 
-    Source : All TIXI functions: http://tixi.sourceforge.net/Doc/index.html
+    Source :
+        * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
 
-    ARGUMENTS
-    (TIXI Handle)   tixi_handle     -- TIXI Handle of the CPACS file
-    (str)           cpacs_out_path  -- Path to the CPACS output file
+    Args:
+        tixi_handle (handles): TIXI Handle of the CPACS file
+        cpacs_out_path (str): Path to the CPACS output file
 
-    RETURNS
-    -
     """
 
     # Check if the directory of 'cpacs_out_path' exist, if not, create it
@@ -139,32 +137,34 @@ def close_tixi(tixi_handle, cpacs_out_path):
     log.info("TIXI Handle has been closed.")
 
 
-def add_uid(tixi, xpath, UID):
+def add_uid(tixi, xpath, uid):
     """ Function that checks and add UID to a specific path,
         the function will automatically update the chosen UID if
         it is already existing.
 
-    Source : All TIXI functions: http://tixi.sourceforge.net/Doc/index.html
+    Source :
+        * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
 
-    ARGUMENTS
-    (TIXI Handle)   tixi            -- TIXI Handle of the CPACS file
-    (str)           xpath           -- xpath of the branch to create
+    Args:
+        tixi (handles): TIXI Handle of the CPACS file
+        xpath (str): xpath of the branch to add the uid
+        uid (str): uid to add at xpath
 
-    RETURNS
-    (TIGL Handle)   tigl_handle     -- TIGL Handle
+    Returns:
+        tixi (handles): Modified TIXI Handle (with new uid)
     """
 
     exist = True
-    UID_N=UID
+    uid_new = uid
     i = 0
     while exist is True:
-        if not tixi.uIDCheckExists(UID_N):
-            tixi.uIDSetToXPath(xpath, UID_N)
+        if not tixi.uIDCheckExists(uid_new):
+            tixi.uIDSetToXPath(xpath, uid_new)
             exist = False
         else:
             i = i + 1
-            UID_N = UID + str(i)
-            log.warning('UID already existing changed to: ' + UID_N)
+            uid_new = uid + str(i)
+            log.warning('UID already existing changed to: ' + uid_new)
 
     return(tixi)
 
@@ -176,23 +176,23 @@ def create_branch(tixi, xpath, add_child=False):
     the missing parent nodes. Be careful, the xpath must be unique until the
     last element, it means, if several element exit, its index must be precised
     (index start at 1).
-    e.g.: '/cpacs/vehicles/aircraft/model/wings/wing[2]/name
+    e.g.: '/cpacs/vehicles/aircraft/model/wings/wing[2]/name'
 
     If the entire xpath already exist, the option 'add_child' (True/False) let
     the user decide if a named child should be added next to the existing
     one(s). This only valid for the last element of the xpath.
 
-    Source : -
+    Source :
+        * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
 
-    ARGUMENTS
-    (TIXI Handle)   tixi            -- TIXI Handle of the CPACS file
-    (str)           xpath           -- xpath of the branch to create
-    (boolean)       add_child       -- Choice of adding a name child if the
-                                       last element of the xpath if one already
-                                       exits
+    Args:
+        tixi (handles): TIXI Handle of the CPACS file
+        xpath (str): xpath of the branch to create
+        add_child (boolean): Choice of adding a name child if the last element
+                             of the xpath if one already exits
 
-    RETURNS
-    (TIXI Handle)   tixi            -- Modified TIXI Handle (with new branch)
+    Returns:
+        tixi (handles): Modified TIXI Handle (with new branch)
     """
 
     xpath_split = xpath.split("/")
@@ -229,15 +229,16 @@ def copy_branch(tixi, xpath_from, xpath_to):
     be identical (uiD, attribute, etc). There is no log in this function
     because of its recursivity.
 
-    Source : -
+    Source :
+        * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
 
-    ARGUMENTS
-    (TIXI Handle)   tixi            -- TIXI Handle of the CPACS file
-    (str)           xpath_from      -- xpath of the branch to copy
-    (str)           xpath_to        -- Destination xpath
+    Args:
+        tixi_handle (handles): TIXI Handle of the CPACS file
+        xpath_from (str): xpath of the branch to copy
+        xpath_to (str): Destination xpath
 
-    RETURNS
-    (TIXI Handle)   tixi            -- Modified TIXI Handle(with copied branch)
+    Returns:
+        tixi (handles): Modified TIXI Handle (with copied branch)
     """
 
     if not tixi.checkElement(xpath_from):
@@ -309,14 +310,15 @@ def get_value(tixi, xpath):
     at this place. Then, it gets and returns this value. If the value or the
     xpath does not exit it raise an error and return 'None'.
 
-    Source : -
+    Source :
+        * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
 
-    ARGUMENTS
-    (TIXI Handle)   tixi            -- TIXI Handle of the CPACS file
-    (str)           xpath           -- xpath to the value
+    Args:
+        tixi_handle (handles): TIXI Handle of the CPACS file
+        xpath (str): xpath of the value to get
 
-    RETURNS
-    (float)         value           -- Value find at xpath
+    Returns:
+         value (float or str): Value found at xpath
     """
 
     # Try to get the a value at xpath
@@ -351,16 +353,17 @@ def get_value_or_default(tixi,xpath,default_value):
     but if no value is found at this place it returns the default value and add
     it at the xpath. If the xpath does not exit, it is created.
 
-    Source : -
+    Source :
+        * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
 
-    ARGUMENTS
-    (TIXI Handle)   tixi            -- TIXI Handle of the CPACS file
-    (str)           xpath           -- xpath to the value
-    (float)         default_value   -- Default value
+    Args:
+        tixi_handle (handles): TIXI Handle of the CPACS file
+        xpath (str): xpath of the value to get
+        default_value (str, float or int): Default value
 
-    RETURNS
-    (TIXI Handle)   tixi            -- Modified TIXI Handle
-    (float)         value           -- Value find at xpath or default
+    Returns:
+        tixi (handles): Modified TIXI Handle (with added default value)
+        value (str, float or int): Value found at xpath
     """
 
     value = None
@@ -401,11 +404,11 @@ def aircraft_name(cpacs_path):
     """ The function gat the name of the aircraft from the cpacs file or add a
         default one if non-existant.
 
-    ARGUMENTS
-    (str)           cpacs_path      -- Path to the CPACS file
+    Args:
+        cpacs_path (str): Path to the CPACS file
 
-    OUTPUT
-    (str)           name            -- Name of the aircraft.
+    Returns:
+        name (str): Name of the aircraft.
     """
 
     tixi = open_tixi(cpacs_path)

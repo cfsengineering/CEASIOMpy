@@ -34,6 +34,9 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi,              \
                                            get_value, get_value_or_default
 from ceasiompy.utils.standardatmosphere import get_atmosphere
 
+from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
+from ceasiompy.SU2Config.__specs__ import cpacs_inout
+
 log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -209,13 +212,15 @@ def create_config(cpacs_path, cpacs_out_path, su2_mesh_path,config_output_path):
 
 if __name__ == '__main__':
 
-    log.info('Running SU2Config')
+    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
     cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
     cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
     su2_mesh_path = MODULE_DIR + '/ToolInput/ToolInput.su2'
     config_output_path = MODULE_DIR + '/ToolOutput/ToolOutput.cfg'
 
+    check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
+
     create_config(cpacs_path,cpacs_out_path,su2_mesh_path,config_output_path)
 
-    log.info('End of SU2Config')
+    log.info('----- End of ' + os.path.basename(__file__) + ' -----')

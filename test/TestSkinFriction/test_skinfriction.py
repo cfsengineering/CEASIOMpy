@@ -52,8 +52,8 @@ def test_get_largest_wing_dim():
 
     wing_area_max, wing_span_max = get_largest_wing_dim(tixi,tigl)
 
-    assert wing_area_max == approx(122.32551815387066,4)
-    assert wing_span_max == approx(33.91371055721875,4)
+    assert wing_area_max == approx(122.32551815387066)
+    assert wing_span_max == approx(33.915185246594945)
 
 
 def test_estimate_skin_friction_coef():
@@ -66,8 +66,8 @@ def test_estimate_skin_friction_coef():
     mach = 1
     alt = 1
 
-    cd0 = estimate_skin_friction_coef(wetted_area,wing_area,wing_span, \
-                                      mach,alt)
+    cd0 = estimate_skin_friction_coef(wetted_area,wing_area,wing_span,mach,alt)
+
     assert cd0 == approx(0.005320707210958961)
 
     # Test 2, with "real values"
@@ -79,8 +79,8 @@ def test_estimate_skin_friction_coef():
     mach = 0.78
     alt = 12000
 
-    cd0 = estimate_skin_friction_coef(wetted_area,wing_area,wing_span, \
-                                      mach,alt)
+    cd0 = estimate_skin_friction_coef(wetted_area,wing_area,wing_span,mach,alt)
+
     assert cd0 == approx(0.01998328842386761)
 
 
@@ -92,6 +92,7 @@ def test_add_skin_friction():
     tixi = open_tixi(CPACS_OUT_PATH)
     cd0_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/cd0'
     cd0_to_check = tixi.getDoubleElement(cd0_xpath)
+
     assert cd0_to_check == approx(0.01998328842386761)
 
 #==============================================================================
@@ -100,6 +101,6 @@ def test_add_skin_friction():
 
 if __name__ == '__main__':
 
-    log.info('Running Test Math Functions')
+    log.info('Test SkinFriction')
     log.info('To run test use the following command:')
     log.info('>> pytest -v')

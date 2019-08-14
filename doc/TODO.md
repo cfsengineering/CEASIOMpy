@@ -58,6 +58,8 @@
     * LaTeXReport
     * TestSU2Convergence
 
+* Improve and check all Weight and Balance modules
+
 
 ## RCE Integration
     * Upload .json file on Github + create 'how to install'
@@ -66,8 +68,5 @@
 
 
 ## Things to do for each module conversion/updating
-* Remove Python 2.7
-* Change 'Docstring fromat'
-* Add __specs__ file
-* Check if the documentation is correctly auto generated
-* Replace Speed by Mach number if possible
+    * Add __specs__ file
+    * Check if the documentation is correctly auto generated

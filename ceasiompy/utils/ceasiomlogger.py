@@ -6,14 +6,15 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Logging method use by other CEASIOMpy modules
 
-| Works with Python 2.7/3.6
+Python version: >=3.6
+
 | Author : Aidan Jungo
 | Creation: 2018-09-26
 | Last modifiction: 2018-09-27
 
 TODO:
 
-* Create at test file
+    * Do we want one big logfile (global) or many small (local for each module)?
 
 """
 
@@ -34,13 +35,11 @@ def get_logger(name):
     Function 'get_logger' create a logger, it sets the format and the level of
     the logfile and console log.
 
-    Source : -
+    Args:
+        name (str): Logger name
 
-    ARGUMENTS
-    (str)           name            -- Logger name
-
-    RETURNS
-    (logger)        logger          -- Logger
+    Returns:
+        logger (logger): Logger
     """
 
     logger = logging.getLogger(name)

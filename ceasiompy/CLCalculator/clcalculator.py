@@ -5,7 +5,8 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Calculate lift coefficient to flight with some parameters
 
-| Works with Python 3.6
+Python version: >=3.6
+
 | Author: Aidan Jungo
 | Creation: 2018-11-28
 | Last modifiction: 2019-08-13
@@ -82,7 +83,7 @@ def calculate_cl(ref_area, alt, mach, mass, load_fact = 1.05):
 
 def get_cl(cpacs_path,cpacs_out_path):
     """ Function to calculate CL requiered as a function of the parameter found
-        in the CPACS file.
+    in the CPACS file.
 
     Function 'get_cl' find input value in the CPACS file, calculate the
     requiered CL (with calculate_cl) and  save the CL value in
@@ -137,7 +138,7 @@ def get_cl(cpacs_path,cpacs_out_path):
 
 if __name__ == '__main__':
 
-    log.info('Running CLCalculator')
+    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
     cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
@@ -146,4 +147,4 @@ if __name__ == '__main__':
     check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
     get_cl(cpacs_path,cpacs_out_path)
 
-    log.info('End CLCalculator')
+    log.info('----- End of ' + os.path.basename(__file__) + ' -----')

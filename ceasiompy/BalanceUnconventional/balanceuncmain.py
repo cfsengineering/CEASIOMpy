@@ -38,13 +38,13 @@ from ceasiompy.utils.InputClasses.Unconventional import balanceuncclass
 from ceasiompy.utils.InputClasses.Unconventional import weightuncclass
 from ceasiompy.utils.InputClasses.Unconventional import engineclass
 
-from func.Cog.unccog import unc_center_of_gravity
-from func.Cog.unccog import bwb_center_of_gravity
+from ceasiompy.BalanceUnconventional.func.Cog.unccog import unc_center_of_gravity
+from ceasiompy.BalanceUnconventional.func.Cog.unccog import bwb_center_of_gravity
 
-from func.Inertia import uncinertia
-from func.AoutFunc import outputbalancegen
-from func.AoutFunc import cpacsbalanceupdate
-from func.AinFunc import getdatafromcpacs
+from ceasiompy.BalanceUnconventional.func.Inertia import uncinertia
+from ceasiompy.BalanceUnconventional.func.AoutFunc import outputbalancegen
+from ceasiompy.BalanceUnconventional.func.AoutFunc import cpacsbalanceupdate
+from ceasiompy.BalanceUnconventional.func.AinFunc import getdatafromcpacs
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils import copyxmlfile

@@ -5,15 +5,16 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Math functions which are used in different modules of CEASIOMpy
 
-| Works with Python 2.7/3.6
+Python version: >=3.6
+
 | Author : Aidan Jungo
 | Creation: 2018-10-19
 | Last modifiction: 2018-10-19
 
 TODO:
 
-* Angle naming could be imporve to respect coding guidelines
-* Add Source and documentation
+    * Angle naming could be imporve to respect coding guidelines
+    * Add Source and documentation
 
 """
 
@@ -46,22 +47,20 @@ def euler2fix(rotation_euler):
     """ Function to convert Euler angles into fix angles.
 
     Function to convert an Euler angle roation into a fix angle rotation
-
     Euler angle (CPACS): First rotation around Ox, then rotation around
-    already rotated Oy and finally rotation around already rotated Oz
-    (x,y',z")
-    Fix angle (for SUMO): Rotation around the tree axe are done independently
-    (x,y,x)
+    already rotated Oy and finally rotation around already rotated Oz (x,y',z")
+    Fix angle (SUMO): Rotation around the axis are done independently (x,y,x)
 
-    Source : TODO
+    Source :
+        * TODO: add math documentation
 
-    ARGUMENTS
-    (object)        rotation_euler  -- Object containing Euler rotation
-                                       in x,y,z [degree]
+    Args:
+        rotation_euler (object): Object containing Euler rotation in x,y,z [deg]
 
-    RETURNS
-    (object)        rotation_fix    -- Object containing Fixed angle rotation
-                                       in x,y,z [degree]
+    Returns:
+        rotation_fix (object): Object containing Fixed angle rotation
+                               in x,y,z [degree]
+
     """
 
     # Angle of rotation (Euler angle)
@@ -131,22 +130,23 @@ def fix2euler(rotation_fix):
     """ Function to convert fix angles into Euler angles.
 
     Function to convert a fix angle rotation into an Euler angle roation
-
     Fix angle (for SUMO): Rotation around the tree axe are done independently
     (x,y,x)
     Euler angle (CPACS): First rotation around Ox, then rotation around
     already rotated Oy and finally rotation around already rotated Oz
     (x,y',z")
 
-    Source : TODO
+    Source :
+        * TODO: add math documentation
 
-    ARGUMENTS
-    (object)        rotation_fix    -- Object containing Fixed angle rotation
-                                       in x,y,z [degree]
+    Args:
+        rotation_fix (object): Object containing Fixed angle rotation
+                               in x,y,z [degree]
 
-    RETURNS
-    (object)        rotation_euler  -- Object containing Euler rotation
-                                       in x,y,z [degree]
+    Returns:
+        rotation_euler (object): Object containing Euler rotation in x,y,z [deg]
+
+
     """
 
     # Angle of rotation (Fix frame angle)

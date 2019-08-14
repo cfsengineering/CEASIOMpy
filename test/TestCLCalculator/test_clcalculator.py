@@ -59,10 +59,10 @@ def test_get_cl():
     get_cl(CPACS_IN_PATH,CPACS_OUT_PATH)
 
     tixi = open_tixi(CPACS_OUT_PATH)
-    cl_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges/cruiseCL'
+    cl_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/targetCL'
 
     cl_to_check = tixi.getDoubleElement(cl_xpath)
-    assert cl_to_check == approx(0.569052)
+    assert cl_to_check == approx(0.794788)
 
 
 #==============================================================================

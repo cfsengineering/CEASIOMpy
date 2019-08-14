@@ -101,6 +101,7 @@ def main():
                 fp.write(bold(f"{module_name} has no strict input requirements"))
                 fp.write('\n'*2)
 
+            fp.write('\n')
             fp.write(get_rst_header("CPACS output paths", level=2))
             for entry in specs.cpacs_inout.outputs:
                 fp.write('\n')

@@ -12,8 +12,8 @@ Test the module CPACS2SUMO (lib/CPACS2SUMO/cpacs2sumo.py')
 
 TODO:
 
-* Finish this test module
-* Explaine the test procedure with "Load overlay geometry"
+    * Finish this test module
+    * Explaine the test procedure with "Load overlay geometry"
 
 """
 
@@ -68,9 +68,6 @@ def test_cpacs2sumo():
         # TODO: Export step file from cpacs and explain the procedure
         answer = input("Is this file seems OK? ")
         assert answer in yes_list
-
-
-
 
 
 #==============================================================================

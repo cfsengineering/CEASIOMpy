@@ -13,6 +13,7 @@ Python version: >=3.6
 """
 
 import os
+import shutil
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
@@ -41,20 +42,31 @@ if __name__ == '__main__':
         raise ModuleNotFoundError(err_msg)
 
     # CEASIOMpy paths
-    # MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    # cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
-    # cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
+    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+    cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
+    cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 
     # check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
 
     # ========== PyTornado main analysis ==========
-
-    ##### TEST ##### TEST ##### TEST
     this_dir = os.path.dirname(os.path.abspath(__file__))
-    os.chdir(os.path.join(this_dir, "wkdir/"))
+    pyt_wkdir = 'wkdir'
+    pyt_aircraft_dir = os.path.join(pyt_wkdir, 'aircraft')
+
+    # Create a working directory
+    if not os.path.exists(pyt_wkdir):
+        os.makedirs(pyt_wkdir)
+
+    # TODO: initialise PyTornado directory
+
+    # Move CPACS INPUT into working directory
+    shutil.copy(src=cpacs_path, dst=pyt_aircraft_dir)
+
+    # Run Pytornado in working directory
+    os.chdir(os.path.join(this_dir, pyt_wkdir))
+
     args = pyt.StdRunArgs()
-    args.run = 'test_wing'
+    args.run = 'std_run'
     pyt.standard_run(args)
-    ##### TEST ##### TEST ##### TEST
 
     log.info("PyTornado analysis completed")

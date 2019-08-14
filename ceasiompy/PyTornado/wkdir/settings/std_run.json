@@ -1,6 +1,6 @@
 {
     "inputs": {
-        "aircraft": "test_wing.json",
+        "aircraft": "ToolInput.xml",
         "state": "example",
         "deformation": false,
         "horseshoe_type": 2,

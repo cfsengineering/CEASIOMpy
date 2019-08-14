@@ -3,10 +3,10 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Give atmosphere parameters at any altitudes from 0 to 84000m
+Give value for 1976 Standard Atmosphere at any altitudes from 0 to 84000m
 
-| Works with Python 2.7
-| Test: /test/TestStandardAtmosphere/test_standardatmosphere.py
+Python version: >=3.6
+
 | Author : Aidan Jungo
 | Creation: 2018-10-04
 | Last modifiction: 2018-10-08
@@ -14,7 +14,6 @@ Give atmosphere parameters at any altitudes from 0 to 84000m
 TODO:
 
     * move 'Example of use' in an exteranl document
-    * Try compatibility with Python 3.4
 
 """
 
@@ -42,23 +41,20 @@ class Atmosphere:
     """
     Description of the class
 
-    ATTRIBUTES
-    (float)         temp            -- Temperature [K]
-    (float)         pres            -- Pressure [Pa]
-    (float)         dens            -- Density [kg/m^3]
-    (float)         visc            -- Dynamic viscosity [Pa*s]
-    (float)         sos             -- Speed of sound [m/s]
-    (float)         re_len_ma       -- Reynolds number per length per Mach
-    (float)         grav            -- Gravity [m/s^2] (not depend on
-                                       atmosphere composition but vary with
-                                       altitude)
+    Attributes:
+        temp (float): Temperature [K]
+        pres (float): Pressure [Pa]
+        dens (float): Density [kg/m^3]
+        visc (float): Dynamic viscosity [Pa*s]
+        sos  (float): Speed of sound [m/s]
+        re_len_ma (float): Reynolds number per length per Mach
+        grav (float): gravitational acceleration [m/s^2] (not depend on
+                      atmosphere composition but vary with altitude)
 
-    METHODS
-    Name            Description
     """
 
     def __init__(self):
-        """On earth surface, at altitude of 0m  (reference values or 0)"""
+        """On earth surface, at sea lever (0m)  (reference values or 0)"""
 
         self.temp = 288.15
         self.pres = 101325.0
@@ -81,15 +77,17 @@ def get_atmosphere(alt):
     Calculate also Temperature, Pressure, Density, Viscosity, Speed of Sound at
     this altitude
 
-    Source : 1976 Standard Atmosphere, coded from:
-             http://www.digitaldutch.com/atmoscalc/graphs.htm
-             and https://en.wikipedia.org/wiki/Gravity_of_Earth
+    Source :
+        * 1976 Standard Atmosphere:
+          http://www.digitaldutch.com/atmoscalc/graphs.htm
+        * Gravitational acceleration:
+          https://en.wikipedia.org/wiki/Gravity_of_Earth
 
-    ARGUMENTS
-    (float)     alt       -- Atmosphere altitude from earth surface [m]
+    Args:
+        alt (float): Altitude from earth surface [m]
 
-    RETURNS
-    (Object)    atm       -- Object Atmosphere (see example of use at the end)
+    Returns:
+        atm (object): Object Atmosphere (see example of use at the end)
     """
 
     # Create an object 'Atmosphere'
@@ -125,7 +123,6 @@ def get_atmosphere(alt):
         while alt > height[i+1]:
             i = i + 1
     else:
-        log.warning('Altitude must be between 0 and 84000m!')
         raise ValueError('Altitude must be between 0 and 84000m!')
         return 0
 
@@ -160,14 +157,9 @@ def get_atmosphere(alt):
 
 
 def plot_atmosphere():
-    """ Plot Temperature (or other parameters) vs altitude.
+    """ Plot Temperature vs altitude.
 
-    Source : -
-
-    ARGUMENTS
-
-    RETURNS
-    (graph)      graph     -- Parameter vs altitude (0 to 84000m)
+    Function 'plot_atmosphere' just plot a graph of temperature vs altitude
     """
 
     # Create 500 points between 0 and 84000m
@@ -204,22 +196,22 @@ def plot_atmosphere():
 
 if __name__ == '__main__':
 
-    log.info('Plot Standart atmosphere')
+    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
     plot_atmosphere()
 
+    log.info('----- End of ' + os.path.basename(__file__) + ' -----')
 
 # Example of use
 #AtmAt1000m = atmosphere(1000)
-#print(AtmAt1000m.Temp)
-#print(AtmAt1000m.Pres)
-#print(AtmAt1000m.Dens)
-#print(AtmAt1000m.Visc)
-#print(AtmAt1000m.SoS)
-#print(AtmAt1000m.Gravity)
-#print(AtmAt1000m.ReLMa)
+#print(AtmAt1000m.temp)
+#print(AtmAt1000m.pres)
+#print(AtmAt1000m.dens)
+#print(AtmAt1000m.visc)
+#print(AtmAt1000m.sos)
+#print(AtmAt1000m.grav)
+#print(AtmAt1000m.re_len_ma)
 
-#plot_atm_value()
 
-# or to plot the graphs
+# to plot the graphs
 #>>python standardatmosphere.py

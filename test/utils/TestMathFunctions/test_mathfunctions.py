@@ -5,7 +5,8 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions from 'lib/utils/mathfunctions.py'
 
-| Works with Python 2.7/3.6
+Python version: >=3.6
+
 | Author : Aidan Jungo
 | Creation: 2018-10-19
 | Last modifiction: 2019-08-07
@@ -30,14 +31,14 @@ log = get_logger(__file__.split('.')[0])
 #   CLASSES
 #==============================================================================
 
-
 class SimpleNamespace(object):
     """ Rudimentary SimpleNamespace clone.
 
     Works as a record-type object, or 'struct'. Attributes can be added
     on-the-fly by assignment. Attributes are accesed using point-notation.
 
-    https://docs.python.org/3.5/library/types.html
+    Source:
+        * https://docs.python.org/3.5/library/types.html
     """
 
     def __init__(self, **kwargs):

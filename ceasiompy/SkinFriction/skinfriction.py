@@ -204,13 +204,15 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
 #==============================================================================
 
 if __name__ == '__main__':
-    log.info('Running SkinFriction')
+
+    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
     cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
     cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 
     check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
+
     add_skin_friction(cpacs_path,cpacs_out_path)
 
-    log.info('End SkinFriction')
+    log.info('----- End of ' + os.path.basename(__file__) + ' -----')

@@ -1,20 +1,36 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
 """
-Tools to describe module interfaces
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+Module interfaces functions to deal with CPACS input and output
+
+Python version: >=3.6
+
+| Author : Aaron Dettmann
+| Creation: 2019-08-06
+| Last modifiction: 2019-08-14
+
+TODO:
+
+    * Add somefunction for input/output files
 """
 
-# Author: Aaron Dettmann
+#==============================================================================
+#   IMPORTS
+#==============================================================================
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi
 
-
-# Tool specific path for CEASIOMpy
+# Shortcut for XPath definition
 CEASIOM_XPATH = '/cpacs/toolspecific/CEASIOMpy'
 AIRCRAFT_XPATH = '/cpacs/vehicles/aircraft'
 
+
+#==============================================================================
+#   CLASSES
+#==============================================================================
 
 class CPACSRequirementError(Exception):
     pass
@@ -63,6 +79,10 @@ class CPACSInOut:
         self.outputs.append(entry)
 
 
+#==============================================================================
+#   FUNCTIONS
+#==============================================================================
+
 def check_cpacs_input_requirements(cpacs_file, cpacs_inout, module_file_name):
     """
     Check if the input CPACS file contains the required nodes
@@ -90,3 +110,14 @@ def check_cpacs_input_requirements(cpacs_file, cpacs_inout, module_file_name):
         raise CPACSRequirementError(msg)
 
     # TODO: close tixi handle?
+
+
+#==============================================================================
+#    MAIN
+#==============================================================================
+
+if __name__ == '__main__':
+
+    log.info('Nothing to execute')
+
+    # TODO: maybe add function to mange input/ouput, check double, write default /toolspecific ...

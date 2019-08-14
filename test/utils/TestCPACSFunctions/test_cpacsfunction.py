@@ -21,6 +21,10 @@ import sys
 import shutil
 
 import pytest
+from pytest import raises
+
+from tixi3.tixi3wrapper import Tixi3Exception
+from tigl3.tigl3wrapper import Tigl3Exception
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, \
@@ -47,17 +51,28 @@ CPACS_OUT_PATH = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 def test_open_tixi():
     """Test the function 'open_tixi'"""
 
+    # Create TIXI handles for a valid CPACS file
     tixi_handle = open_tixi(CPACS_IN_PATH)
-    assert tixi_handle is not None
+
+    assert tixi_handle
+
+    # Raise error for an invalid CPACS path
+    with pytest.raises(Tixi3Exception):
+        tixi_handle = open_tixi('invalid/CPACS/path')
 
 
 def test_open_tigl():
     """Test the function 'open_tigl'"""
 
+    # Create TIGL handle for a valid TIXI handles
     tixi_handle = open_tixi(CPACS_IN_PATH)
     tigl_handle = open_tigl(tixi_handle)
 
-    assert tigl_handle is not None
+    assert tigl_handle
+
+    # Raise error for an invalid TIXI handles
+    with pytest.raises(AttributeError):
+        tixi_handle = open_tigl('invalid_TIGL_handle')
 
 
 def test_wing_nb():

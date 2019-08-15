@@ -13,25 +13,14 @@ import os
 import importlib
 from glob import glob
 
-
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
+CEASIOMPY_LIB_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '../../../'))
 
+# Make CEASIOMpy importable
+import sys
+sys.path.append(CEASIOMPY_LIB_DIR)
 
-def get_module_list():
-    """
-    Get a list of CEASIOMpy modules
-
-    Returns:
-        :module_list: a list of module names (as strings)
-    """
-
-    dirnames = glob('*/')
-    module_list = []
-    for dirname in dirnames:
-        module_name = 'ceasiompy.' + os.path.dirname(dirname)
-        module_list.append(module_name)
-
-    return module_list
+from ceasiompy.utils.moduleinterfaces import get_module_list
 
 
 def get_rst_header(text, level=1):
@@ -68,7 +57,6 @@ bold = get_rst_bold
 
 
 def main():
-    os.chdir(os.path.join(SCRIPT_DIR, '../../../ceasiompy/'))
     module_list = get_module_list()
     os.chdir(os.path.join(SCRIPT_DIR, 'module_interfaces/'))
 

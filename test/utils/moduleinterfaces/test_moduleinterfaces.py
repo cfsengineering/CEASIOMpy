@@ -1,3 +1,7 @@
+import os
+
+import pytest
+
 import ceasiompy.utils.moduleinterfaces as m
 
 
@@ -34,6 +38,15 @@ def test_cpacs_inout():
         var_name=None
     )
 
+    with pytest.raises(ValueError):
+        cpacs_inout.add_output(
+            descr='Test description',
+            cpacs_path='/cpacs/testpath',
+            default_value='THIS STRING SHOULE CAUSE AN ERROR',
+            unit='m/s',
+            var_name=None
+        )
+
     # Make sure entries have been added properly
     assert len(cpacs_inout.inputs) == 1
     assert len(cpacs_inout.outputs) == 2
@@ -61,5 +74,28 @@ def test_check_cpacs_input_requirements():
     Test "check_cpacs_input_requirements()" function
     """
 
-    # TODO
-    pass
+    os.chdir(os.path.dirname(__file__))
+
+    cpacs_inout = m.CPACSInOut()
+    cpacs_file = 'ToolInput/D150_AGILE_Hangar_v3.xml'
+
+    cpacs_inout.add_input(
+        var_name='cruise_alt',
+        default_value=12000,
+        unit='m',
+        descr='Aircraft cruise altitude',
+        cpacs_path=m.CEASIOM_XPATH + '/ranges/cruiseAltitude',
+    )
+
+    assert m.check_cpacs_input_requirements(cpacs_file, cpacs_inout, __file__) is None
+
+    cpacs_inout.add_input(
+        var_name='something',
+        default_value=None,
+        unit='m',
+        descr='Some description',
+        cpacs_path='/a/non-existent/path',
+    )
+
+    with pytest.raises(m.CPACSRequirementError):
+        m.check_cpacs_input_requirements(cpacs_file, cpacs_inout, __file__)

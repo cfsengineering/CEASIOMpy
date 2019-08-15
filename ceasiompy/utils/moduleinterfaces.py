@@ -75,7 +75,7 @@ class CPACSInOut:
         self.inputs.append(entry)
 
     def add_output(self, **kwargs):
-        if kwargs['default_value'] is not None:
+        if kwargs.get('default_value', None) is not None:
             raise ValueError("Output 'default_value' must be None")
 
         entry = _Entry(**kwargs)

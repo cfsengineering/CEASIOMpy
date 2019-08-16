@@ -15,7 +15,7 @@
 * Add General File in/out Class
 * Create a function to check consistency (does same variable name are stored a the same xpath, ...)
 * Create a function to find in which Module a variable or xpath is used
-* Creste a function to generate a default /toolspecific field ...
+* Create a function to generate a default /toolspecific field ...
 * Add kind of a GUI to enter missing input requirements...?
 
 ## Documentation
@@ -49,6 +49,7 @@
     * SUMO2CPACS
     * CoefCPACS2CSV
     * PlotTool
+    * SU2CheckConvergence
 
 * To develop
     * StaticStablility
@@ -56,7 +57,6 @@
     * FlightModel
     * EngineTool
     * LaTeXReport
-    * TestSU2Convergence
 
 * Improve and check all Weight and Balance modules
 

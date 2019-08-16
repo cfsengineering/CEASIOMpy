@@ -38,7 +38,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='1',
     descr='Skin friction drag coefficient',
-    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/cd0',
+    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/skinFriction/cd0',
 )
 
 cpacs_inout.add_output(

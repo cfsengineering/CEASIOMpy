@@ -20,6 +20,9 @@ TODO:
 #   IMPORTS
 #==============================================================================
 
+import os
+from glob import glob
+
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi
 
@@ -72,7 +75,7 @@ class CPACSInOut:
         self.inputs.append(entry)
 
     def add_output(self, **kwargs):
-        if kwargs['default_value'] is not None:
+        if kwargs.get('default_value', None) is not None:
             raise ValueError("Output 'default_value' must be None")
 
         entry = _Entry(**kwargs)
@@ -110,6 +113,37 @@ def check_cpacs_input_requirements(cpacs_file, cpacs_inout, module_file_name):
         raise CPACSRequirementError(msg)
 
     # TODO: close tixi handle?
+
+
+def get_module_list():
+    """
+    Return a list of submodule in the CEASIOMpy module
+
+    Returns:
+        A list of module names (as strings)
+    """
+
+    import ceasiompy.__init__
+
+    ignore_submods = [
+            '__init__.py',
+            '__version__.py',
+            '__pycache__',
+    ]
+
+    # Path for main CEASIOMpy library
+    lib_dir = os.path.dirname(ceasiompy.__init__.__file__)
+
+    dirnames = glob(os.path.join(lib_dir, '*'))
+    module_list = []
+    for dirname in dirnames:
+        submod_name = os.path.basename(dirname)
+        if submod_name in ignore_submods:
+            continue
+        module_name = 'ceasiompy.' + submod_name
+        module_list.append(module_name)
+
+    return module_list
 
 
 #==============================================================================

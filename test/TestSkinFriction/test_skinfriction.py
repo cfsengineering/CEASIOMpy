@@ -90,7 +90,7 @@ def test_add_skin_friction():
     add_skin_friction(CPACS_IN_PATH, CPACS_OUT_PATH)
 
     tixi = open_tixi(CPACS_OUT_PATH)
-    cd0_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/cd0'
+    cd0_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction/cd0'
     cd0_to_check = tixi.getDoubleElement(cd0_xpath)
 
     assert cd0_to_check == approx(0.01998328842386761)

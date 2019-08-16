@@ -14,7 +14,7 @@
 * Add General File in/out Class
 * Create a function to check consistency (does same variable name are stored a the same xpath, ...)
 * Create a function to find in which Module a variable or xpath is used
-* Creste a function to generate a default /toolspecific field ...
+* Create a function to generate a default /toolspecific field ...
 * Add kind of a GUI to enter missing input requirements...?
 
 ## Documentation
@@ -35,9 +35,8 @@
 * Do we want one big log file (global) or many small (local for each module)?
 
 ## Aerodynamic modules
-* How to store inputs data in CPACS (alpha,beta, mach, alt)
 * How to store results in CPACS (AeroPerformanceMap, damping derivatives, ...)
-* Folder structure for the results
+* Folder structure for the calculation and results
 
 ## Modules
 * To adapt and integrate
@@ -46,6 +45,7 @@
     * SUMO2CPACS
     * CoefCPACS2CSV
     * PlotTool
+    * SU2CheckConvergence
 
 * To develop
     * StaticStablility
@@ -53,7 +53,6 @@
     * FlightModel
     * EngineTool
     * LaTeXReport
-    * TestSU2Convergence
 
 * Improve and check all Weight and Balance modules
 

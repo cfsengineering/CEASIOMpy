@@ -13,6 +13,7 @@ Python version: >=3.6
 
 TODO:
 
+    * Refactor this tests for the new /toolspecific structure
     * This test procedure could be imporve
 
 """

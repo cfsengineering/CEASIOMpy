@@ -49,7 +49,7 @@ cpacs_inout.add_input(
 
 cpacs_inout.add_input(
     var_name='fixed_cl',
-    default_value='YES',
+    default_value='NO',
     unit='-',
     descr='FIXED_CL_MODE parameter for SU2',
     cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/fixedCL',
@@ -60,7 +60,7 @@ cpacs_inout.add_input(
     default_value='10',
     unit='-',
     descr='Maximum number of iterations performed by SU2',
-    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/maxIter',
+    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/settings/maxIter',
 )
 
 

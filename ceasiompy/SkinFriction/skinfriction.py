@@ -190,7 +190,7 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
                                       cruise_mach,cruise_alt)
 
     # Save Cd0 in the CPACS file
-    cd0_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/cd0'
+    cd0_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction/cd0'
     tixi = create_branch(tixi, cd0_xpath)
     tixi.updateDoubleElement(cd0_xpath,cd0,'%g')
     log.info('Skin friction drag coeffienct (cd0) has been saved in the \

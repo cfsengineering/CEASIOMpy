@@ -37,9 +37,8 @@
 * Do we want one big log file (global) or many small (local for each module)?
 
 ## Aerodynamic modules
-* How to store inputs data in CPACS (alpha,beta, mach, alt)
 * How to store results in CPACS (AeroPerformanceMap, damping derivatives, ...)
-* Folder structure for the results
+* Folder structure for the calculation and results
 
 ## Modules
 

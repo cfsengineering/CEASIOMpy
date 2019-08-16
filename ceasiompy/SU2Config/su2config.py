@@ -9,14 +9,17 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-11-05
-| Last modifiction: 2019-08-13
+| Last modifiction: 2019-08-16
 
 TODO:
 
-    * Add other options
-    * Use New AeroPerformanceMap from CPACS 3.1
+    * This script work but a lot of thing have to be modified:
+    * Redo the test functions
+    * Add other options for su2?
+    * Finish to integrate new AeroPerformanceMap from CPACS 3.1
     * Create multiple config for aerodatabase
     * Simplify/clean "DefaultConfig_v6" file
+    * chech input and output in __specs__
 
 """
 
@@ -31,7 +34,8 @@ import shutil
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi,              \
-                                           get_value, get_value_or_default
+                                           get_value, get_value_or_default,     \
+                                           create_branch
 from ceasiompy.utils.standardatmosphere import get_atmosphere
 
 from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
@@ -103,34 +107,67 @@ def create_config(cpacs_path, cpacs_out_path, su2_mesh_path,config_output_path):
     # Get value from CPACS
     tixi = open_tixi(cpacs_path)
 
-    ref_xpath = '/cpacs/vehicles/aircraft/model/reference'
-    range_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges'
     su2_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
-    cruise_alt_xpath= range_xpath + '/cruiseAltitude'
-    cruise_mach_xpath= range_xpath + '/cruiseMach'
-    max_iter_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/maxIter'
 
     # Reference values
+    ref_xpath = '/cpacs/vehicles/aircraft/model/reference'
     ref_len = get_value(tixi,ref_xpath + '/length')
     ref_area = get_value(tixi,ref_xpath + '/area')
-
-    # Flow conditions (TODO: get from CPACS (AeroMap))
-    aoa = 2.0
-    aos = 0.0
-    tixi, cruise_mach = get_value_or_default(tixi,cruise_mach_xpath,0.78)
-    tixi, cruise_alt = get_value_or_default(tixi,cruise_alt_xpath,12000)
-
-    Atm = get_atmosphere(cruise_alt)
-    pressure = Atm.pres
-    temp = Atm.temp
 
     # Fixed CL parameters
     fixed_cl_xpath = su2_xpath + '/fixedCL'
     target_cl_xpath = su2_xpath + '/targetCL'
-    tixi, fixed_cl = get_value_or_default(tixi, fixed_cl_xpath,'YES')
+    tixi, fixed_cl = get_value_or_default(tixi, fixed_cl_xpath,'NO')
     tixi, target_cl = get_value_or_default(tixi, target_cl_xpath,1.0)
 
-    tixi, max_iter = get_value_or_default(tixi, max_iter_xpath,10)
+    if fixed_cl == 'NO':
+        # Get value from the aeroMap (1 point)
+        active_aeroMap_xpath = su2_xpath + '/aeroMapUID'
+        aeroMap_uid = get_value(tixi,active_aeroMap_xpath)
+        aeroMap_path = tixi.uIDGetXPath(aeroMap_uid)
+        apm_path = aeroMap_path + '/aeroPerformanceMap'
+
+        #State = get_states(tixi,apm_path)
+
+        #alt = State.alt_list
+        alt = get_value(tixi,apm_path+'/altitude')
+        mach = get_value(tixi,apm_path+'/machNumber')
+        aoa = get_value(tixi,apm_path+'/angleOfAttack')
+        aos = get_value(tixi,apm_path+'/angleOfSideslip')
+
+    else:
+        range_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges'
+        cruise_alt_xpath= range_xpath + '/cruiseAltitude'
+        cruise_mach_xpath= range_xpath + '/cruiseMach'
+
+        # value corresponding to fix CL calulation
+        aoa = 0.0 # Will not be used
+        aos = 0.0
+        tixi, mach = get_value_or_default(tixi,cruise_mach_xpath,0.78)
+        tixi, alt = get_value_or_default(tixi,cruise_alt_xpath,12000)
+
+    Atm = get_atmosphere(alt)
+    pressure = Atm.pres
+    temp = Atm.temp
+
+    # Settings
+    settings_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/settings'
+    max_iter_xpath = settings_xpath + '/maxIter'
+    cfl_nb_xpath = settings_xpath + '/cflNumber'
+    mg_level_xpath =  settings_xpath + '/multigridLevel'
+
+    tixi, max_iter = get_value_or_default(tixi, max_iter_xpath,200)
+    tixi, cfl_nb = get_value_or_default(tixi, cfl_nb_xpath,1.0)
+    tixi, mg_level = get_value_or_default(tixi, mg_level_xpath,3)
+
+    # Mesh Marker
+    bc_wall_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/boundaryConditions/wall'
+
+    bc_wall_list = get_mesh_marker(su2_mesh_path)
+    tixi = create_branch(tixi, bc_wall_xpath)
+    bc_wall_str = ';'.join(bc_wall_list)
+    tixi.updateTextElement(bc_wall_xpath,bc_wall_str)
+
 
     close_tixi(tixi,cpacs_out_path)
 
@@ -156,13 +193,18 @@ def create_config(cpacs_path, cpacs_out_path, su2_mesh_path,config_output_path):
 
     # General parmeters
     config_dict_modif['MESH_FILENAME'] = su2_mesh_path
-    config_dict_modif['EXT_ITER'] = int(max_iter)
+
     config_dict_modif['REF_LENGTH'] = ref_len
     config_dict_modif['REF_AREA'] = ref_area
 
+    # Settings
+    config_dict_modif['EXT_ITER'] = int(max_iter)
+    config_dict_modif['CFL_NUMBER'] = cfl_nb
+    config_dict_modif['MGLEVEL'] = int(mg_level)
+
     config_dict_modif['AOA'] = aoa
     config_dict_modif['SIDESLIP_ANGLE'] = aos
-    config_dict_modif['MACH_NUMBER'] = cruise_mach
+    config_dict_modif['MACH_NUMBER'] = mach
     config_dict_modif['FREESTREAM_PRESSURE'] = pressure
     config_dict_modif['FREESTREAM_TEMPERATURE'] = temp
 
@@ -174,14 +216,13 @@ def create_config(cpacs_path, cpacs_out_path, su2_mesh_path,config_output_path):
     config_dict_modif['ITER_DCL_DALPHA'] = '80'
 
     # Mesh Marker
-    marker_list = get_mesh_marker(su2_mesh_path)
-    walls_bc = '(' + ','.join(marker_list) + ')'
-    config_dict_modif['MARKER_EULER'] = walls_bc
+    bc_wall_str = '(' + ','.join(bc_wall_list) + ')'
+    config_dict_modif['MARKER_EULER'] = bc_wall_str
     config_dict_modif['MARKER_FAR'] = ' (Farfield)'
     config_dict_modif['MARKER_SYM'] = ' (0)'
-    config_dict_modif['MARKER_PLOTTING'] = walls_bc
-    config_dict_modif['MARKER_MONITORING'] = walls_bc
-    config_dict_modif['MARKER_MOVING'] = walls_bc
+    config_dict_modif['MARKER_PLOTTING'] = bc_wall_str
+    config_dict_modif['MARKER_MONITORING'] = bc_wall_str
+    config_dict_modif['MARKER_MOVING'] = bc_wall_str
 
     # Change value if needed or add new parameters in the config file
     for key, value in config_dict_modif.items():

@@ -283,10 +283,14 @@ def get_su2_results(cpacs_path,cpacs_out_path):
 
 
     # Save aeroPerformanceMap
-    active_aeroMap_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID'
-    aeroMap_uid = get_value(tixi,active_aeroMap_xpath)
-    aeroMap_path = tixi.uIDGetXPath(aeroMap_uid)
-    apm_xpath = aeroMap_path + '/aeroPerformanceMap'
+    # active_aeroMap_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID'
+    # aeroMap_uid = get_value(tixi,active_aeroMap_xpath)
+    # aeroMap_path = tixi.uIDGetXPath(aeroMap_uid)
+    # apm_xpath = aeroMap_path + '/aeroPerformanceMap'
+
+    active_aeroMap_xpath = su2_xpath + '/aeroMapUID'
+
+    apm_xpath = get_apm_xpath(tixi,active_aeroMap_xpath)
 
     Coef = AeroCoefficient()
 
@@ -328,10 +332,9 @@ if __name__ == '__main__':
     force_path = MODULE_DIR + '/ToolOutput/forces_breakdown.dat'
     cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 
-    #run_SU2(mesh_path, config_path)
+    run_SU2(mesh_path, config_path)
 
     get_su2_results(cpacs_path,cpacs_out_path)
-
 
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

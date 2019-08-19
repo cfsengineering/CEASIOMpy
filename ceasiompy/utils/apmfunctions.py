@@ -10,11 +10,11 @@ CPACS version: 3.1
 
 | Author : Aidan Jungo
 | Creation: 2019-08-15
-| Last modifiction: 2019-08-16
+| Last modifiction: 2019-08-19
 
 TODO:
 
-    * Almost erverything! :)
+    * Crete test function
     * ...
 
 """
@@ -31,7 +31,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
                                            add_uid, create_branch, copy_branch,\
                                            get_value, get_value_or_default,    \
-                                           aircraft_name
+                                           get_list_values, aircraft_name
 
 log = get_logger(__file__.split('.')[0])
 
@@ -45,42 +45,110 @@ log = get_logger(__file__.split('.')[0])
 class AeroCoefficient():
 
     def __init__(self):
-        self.cl = None
-        self.cd = None
-        self.cs = None
-        self.cml = None
-        self.cmd = None
-        self.cms = None
+
+        # Parameters
+        self.alt = []
+        self.mach = []
+        self.aos = []
+        self.aoa = []
+
+        # Coefficients
+        self.cl = []
+        self.cd = []
+        self.cs = []
+        self.cml = []
+        self.cmd = []
+        self.cms = []
 
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
 
-def check_aeroPerfomanceMap(tixi, aeromap_uid):
-    """ Check existance and validity of an aeroPerformanceMap
+# def check_aeroPerfomanceMap(tixi, aeromap_uid):
+#     """ Check existance and validity of an aeroPerformanceMap
+#
+#     Function 'check_aeroPerfomanceMap' ....
+#
+#     Source :
+#         * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
+#         * CPACS documentation: https://www.cpacs.de/pages/documentation.html
+#
+#     Args:
+#         tixi (handles): TIXI Handle of the CPACS file
+#         aeromap_uid (str): UID of the aeroMap to check
+#     Returns::
+#         check_ok (boolean): ... # useful?
+#     """
+#
+#     check_ok = True
+#
+#     log.info('TODO')
+#
+#     return check_ok
 
-    Function 'check_aeroPerfomanceMap' ....
+
+def get_apm_xpath(tixi,active_aeroMap_xpath):
+    """ Get aeroPerformanceMap XPath
+
+    Function 'get_apm_xpath' will retrun the aeroPerformanceMap XPath from the
+    XPath which contain its name. More details...
 
     Source :
-        * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
-        * CPACS documentation: https://www.cpacs.de/pages/documentation.html
+        * ...CPACS Documentation?
 
     Args:
         tixi (handles): TIXI Handle of the CPACS file
-        aeromap_uid (str): UID of the aeroMap to check
-    Returns::
-        check_ok (boolean): ... # useful?
+        active_aeroMap_xpath (str): XPath to the active aeroMap UID
+
     """
 
-    check_ok = True
+    # will it raise an error if probleme?
+    if not tixi.checkElement(active_aeroMap_xpath):
+        raise ValueError('Nothing has been found at: ' + active_aeroMap_xpath)
 
-    log.info('TODO')
+    aeroMap_uid = get_value(tixi,active_aeroMap_xpath)
+    aeroMap_path = tixi.uIDGetXPath(aeroMap_uid)
+    apm_xpath = aeroMap_path + '/aeroPerformanceMap'
 
-    return check_ok
+    return apm_xpath
 
+
+def get_aero_coef(tixi,apm_xpath):
+    """ Get aerodynamic coefficients from an aeroMap
+
+    Function 'get_su2_aero_coef' ....TODO
+
+    Source :
+        * ...CPACS Documentation?
+
+    Args:
+        tixi (handles): TIXI Handle of the CPACS file
+        apm_xpath (str): XPath to the aeroMap to fill
+        Coef (object): Object containing aerodynamic coefficients
+
+    Returns::
+        tixi (handles): Modified Handle of the CPACS file
+    """
+
+    Coef = AeroCoefficient()
+
+    Coef.alt = get_list_values(tixi,apm_xpath +'/altitude')
+    Coef.mach  = get_list_values(tixi,apm_xpath +'/machNumber')
+    Coef.aoa = get_list_values(tixi,apm_xpath +'/angleOfSideslip')
+    Coef.aos = get_list_values(tixi,apm_xpath +'/angleOfAttack')
+
+    Coef.cl = get_list_values(tixi,apm_xpath +'/cl')
+    Coef.cd = get_list_values(tixi,apm_xpath +'/cd')
+    Coef.cs = get_list_values(tixi,apm_xpath +'/cs')
+
+    Coef.cml = get_list_values(tixi,apm_xpath +'/cml')
+    Coef.cmd = get_list_values(tixi,apm_xpath +'/cmd')
+    Coef.cms = get_list_values(tixi,apm_xpath +'/cms')
+
+    return Coef
 
 def save_aero_coef(tixi,apm_xpath,Coef):
-    """ Get aerodynamic coefficients from SU2 resutls
+    """ Save aerodynamic coefficients in an aeroMap
 
     Function 'get_su2_aero_coef' ....TODO
 

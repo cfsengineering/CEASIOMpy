@@ -44,10 +44,10 @@
 
 * To adapt and integrate
     * PyTornado
+    * PlotAeroCoefficients
     * GUI Edit AeroPerformanceMap
     * SUMO2CPACS
     * CoefCPACS2CSV
-    * PlotTool
     * SU2CheckConvergence
 
 * To develop

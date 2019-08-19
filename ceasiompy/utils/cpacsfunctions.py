@@ -16,6 +16,7 @@ TODO:
 
     * 'copy_branch': change all uID of the copied branch? how?
     * 'get_value' to improve, add checks
+    * add test function for 'get_list_values'
 
 """
 
@@ -395,6 +396,52 @@ def get_value_or_default(tixi,xpath,default_value):
         log.info('Value found at ' + xpath + ' will be used.')
 
     return tixi, value
+
+
+def get_list_values(tixi, xpath):
+    """ Function to get a list of float from an xpath.
+
+    Function 'get_list_values' returns a list of float ...
+
+    Source :
+        * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
+
+    Args:
+        tixi_handle (handles): TIXI Handle of the CPACS file
+        xpath (str): xpath of the value to get
+
+    Returns:
+         value (float or str): Value found at xpath
+    """
+
+    # Try to get the a value at xpath
+    try:
+        list_values_str = tixi.getTextElement(xpath)
+    except:
+        list_values_str = None
+
+    if list_values_str is not None:
+        list_values = list_values_str.split(';')
+        if list_values[-1] == '':
+            list_values.pop()
+        list_values = [float(elem) for elem in list_values]
+
+
+    else:
+        # check if the path exist
+        if tixi.checkElement(xpath):
+            log.warning('No value has been fournd at ' + xpath)
+            log.warning('An empty list will be return')
+            list_values = []
+        else:
+            log.warning(xpath + ' cannot be found in the CPACS file')
+            log.warning('An empty list will be return')
+            list_values = []
+
+    return list_values
+
+
+
 
 
 def aircraft_name(cpacs_path):

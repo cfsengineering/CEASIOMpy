@@ -69,3 +69,6 @@
 ## Things to do for each module conversion/updating
     * Add __specs__ file
     * Check if the documentation is correctly auto generated
+
+## Platform compatibility
+    * find a solution for '/' in all path  

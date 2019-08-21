@@ -9,14 +9,13 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-11-06
-| Last modifiction: 2019-08-16
+| Last modifiction: 2019-08-21
 
 TODO:
 
-    * This script work but a lot of thing have to be modified:
     * Add possibility of using SSH
     * Save all results in CPACS output file (AeroMap)
-    * Save coefficient in the new AeroPerformanceMap from CPACS 3.1
+    * Change su2 log file (for each case and wetted_area)
     * Add checks on the code
     * Create test functions
     * chech input and output in __specs__
@@ -31,15 +30,19 @@ import os
 import sys
 import math
 import shutil
+from shutil import ignore_patterns
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi, \
                                            create_branch, get_value
-from ceasiompy.utils.apmfunctions import save_aero_coef, AeroCoefficient
+from ceasiompy.utils.apmfunctions import save_aero_coef, get_apm_xpath, AeroCoefficient
 
 log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+TMP_DIR = MODULE_DIR + '/tmp'
+
+SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 SU2_LOGFILE_PATH = MODULE_DIR + '/tmp/logSU2calculation.log'
 
 #==============================================================================
@@ -74,9 +77,9 @@ def save_timestamp(tixi, xpath):
 
     with open(logfile_name) as f:
         for line in f.readlines():
-            if '>>> SU2 End Time' in line:
-                start_time = line.split(' - ')[0]
             if '>>> SU2 Start Time' in line:
+                start_time = line.split(' - ')[0]
+            if '>>> SU2 End Time' in line:
                 end_time = line.split(' - ')[0]
 
     if start_time == None:
@@ -165,87 +168,77 @@ def run_SU2(mesh_path, config_path):
     """
 
     # Define paths
-    TMP_DIR = MODULE_DIR + '/tmp'
-    config_tmp_path = TMP_DIR + '/configSU2.cfg'
-    force_tmp_path = TMP_DIR + '/forces_breakdown.dat'
+
+    config_name = 'ToolOutput.cfg'
     force_path = MODULE_DIR + '/ToolOutput/forces_breakdown.dat'
 
-    #Check if SU2 is installed
-    # with python3 could be maybe replace by "shutil.which("SU2_CFD")"
-    # TODO: add check MPI
-    check_SU2 = os.system('which SU2_CFD')  # give 0 if it works
-    if check_SU2:
-        log.error('SU2 does not seem to be installed on your computer!')
-        return None
-    else:
-        log.info('SU2 has been found on your computer!')
+    # Remove /tmp directory
+    if os.path.exists(TMP_DIR):
+        shutil.rmtree(TMP_DIR)
+        log.info('The /tmp directory has been removed.')
 
-    # Check if /tmp directory exists, crete it or empty it
-    if not os.path.exists(TMP_DIR):
-        os.makedirs(TMP_DIR)
-        log.info('The /tmp directory has been created.')
-    else:
-        tmp_file_list = os.listdir(TMP_DIR)
-        for tmp_file in tmp_file_list:
-            tmp_file_path = TMP_DIR + '/' + tmp_file
-            os.remove(tmp_file_path)
-        log.info('The /tmp directory has been cleared.')
-
-    # Copy SU2 config file (.cfg) in the temp directory
-    if os.path.isfile(config_path):
-        shutil.copy(config_path, config_tmp_path)
+    # Copy SU2 config files (.cfg) in the temp directory
+    shutil.copytree(config_path, TMP_DIR, ignore=ignore_patterns('*.xml'))
+    if os.path.isdir(TMP_DIR):
         log.info('The input SU2 config file has been copied in /tmp ')
     else:
-        log.error('The input SU2 config file cannot be found!')
-        return None
+        raise OSError('No config directory has been copied in /temp')
 
-
-
-    proc_nb = 4
-    su2_run_install_path = shutil.which("SU2_CFD")  # Should be '/soft/SU2/bin/SU2_CFD' for me
-    su2_sol_install_path = shutil.which("SU2_SOL")  # Should be '/soft/SU2/bin/SU2_CFD' for me
+    # Check intallation of SU2 and MPI
+    su2_run_install_path = shutil.which("SU2_CFD")
+    su2_sol_install_path = shutil.which("SU2_SOL")
     mpi_install_path = shutil.which('mpirun')
 
     if  su2_run_install_path:
-        log.info('SU2_CFD is intall on your computeur at: ' + su2_run_install_path)
+        log.info('"SU2_CFD" is intall in: ' + su2_run_install_path)
     else:
-        raise RuntimeError('SU2_CFD is not install on your computer_')
+        raise RuntimeError('"SU2_CFD" is not install on your computer')
 
-    if  su2_sol_install_path:
-        log.info('SU2_SOL is intall on your computeur at: ' + su2_sol_install_path)
+    if su2_sol_install_path:
+        log.info('"SU2_SOL" is intall in: ' + su2_sol_install_path)
     else:
-        raise RuntimeError('SU2_SOL is not install on your computer_')
+        raise RuntimeError('"SU2_SOL" is not install on your computer_')
 
     if mpi_install_path:
-        log.info('mpirun is intall on your computeur at: ' + mpi_install_path)
+        log.info('"mpirun" is intall in: ' + mpi_install_path)
+
+        proc_nb = os.cpu_count()
+        log.info('Number of proc on your computer: ' + str(proc_nb))
+
         su2_command = 'mpirun -np ' + str(proc_nb) + ' ' + su2_run_install_path + ' '
     else:
-        log.warning('mpirun is not install on your computeur!')
+        log.warning('"mpirun" is not install on your computeur!')
         log.info('SU2 will be executed only on 1 proc')
 
         su2_command = su2_run_install_path + ' '
-    # Run SU2 on several proc
 
     logfile = ' > ' + SU2_LOGFILE_PATH
-
-    command_line = [su2_command, config_tmp_path, logfile]
+    command_line = [su2_command, config_name, logfile]
 
     # Run the command from the /tmp directory
     os.chdir(TMP_DIR)
     log.info('>>> SU2 Start Time')
-    os.system(''.join(command_line))
-    # Run SU2 Solution
-    os.system('/soft/SU2/bin/SU2_SOL ' + config_tmp_path)
+    config_dir_list = os.listdir(TMP_DIR)
+    for config_dir in config_dir_list:
+        os.chdir(config_dir)
+        os.system(''.join(command_line))
+        os.system('/soft/SU2/bin/SU2_SOL ' + config_name)
+
+        # force_file_name = 'forces_breakdown.dat'
+        # if os.path.isfile(force_file_name):
+        #     shutil.copy(force_tmp_path, force_path)
+        #     log.info('The Force Breakdown file has been copied in /ToolOutput ')
+        # else:
+        #     log.error('The Force Breakdown file cannot be found!')
+        #     return None
+        # TODO: don't need to copy, get results with take care of that
+
+        os.chdir(TMP_DIR)
+
     log.info('>>> SU2 End Time')
+
     os.chdir(MODULE_DIR)
 
-    # Copy Force Breakdown (.dat) in ToolOutput directory
-    if os.path.isfile(force_tmp_path):
-        shutil.copy(force_tmp_path, force_path)
-        log.info('The Force Breakdown file has been copied in /ToolOutput ')
-    else:
-        log.error('The Force Breakdown file cannot be found!')
-        return None
 
 
 def get_su2_results(cpacs_path,cpacs_out_path):
@@ -263,9 +256,10 @@ def get_su2_results(cpacs_path,cpacs_out_path):
     """
 
     tixi = open_tixi(cpacs_path)
+    print('=======')
+    print(cpacs_path)
 
-    su2_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
-    tixi = save_timestamp(tixi,su2_xpath)
+    tixi = save_timestamp(tixi,SU2_XPATH)
 
     # Get and save Wetted area
     wetted_area = get_wetted_area()
@@ -274,46 +268,57 @@ def get_su2_results(cpacs_path,cpacs_out_path):
     tixi.updateDoubleElement(wetted_area_xpath,wetted_area,'%g')
 
     # Get and save CL/CD ratio
-    force_path = MODULE_DIR + '/ToolOutput/forces_breakdown.dat' # TODO: global ?
-    cl_cd = get_efficiency(force_path)
-    lDRatio_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges/lDRatio' # TODO: probalby change xpath and name
-
-    tixi = create_branch(tixi, lDRatio_xpath)
-    tixi.updateDoubleElement(lDRatio_xpath,cl_cd,'%g')
-
+    # TODO: only if fixed CL mode
+    # force_path = MODULE_DIR + '/ToolOutput/forces_breakdown.dat' # TODO: global ?
+    # cl_cd = get_efficiency(force_path)
+    # lDRatio_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges/lDRatio' # TODO: probalby change xpath and name
+    # tixi = create_branch(tixi, lDRatio_xpath)
+    # tixi.updateDoubleElement(lDRatio_xpath,cl_cd,'%g')
 
     # Save aeroPerformanceMap
-    # active_aeroMap_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID'
-    # aeroMap_uid = get_value(tixi,active_aeroMap_xpath)
-    # aeroMap_path = tixi.uIDGetXPath(aeroMap_uid)
-    # apm_xpath = aeroMap_path + '/aeroPerformanceMap'
-
-    active_aeroMap_xpath = su2_xpath + '/aeroMapUID'
-
+    active_aeroMap_xpath = SU2_XPATH + '/aeroMapUID'
     apm_xpath = get_apm_xpath(tixi,active_aeroMap_xpath)
 
+    # Create an oject to store the aerodynamic coefficients
     Coef = AeroCoefficient()
 
-    with open(force_path) as f:
-        for line in f.readlines():
-            if 'Total CL:' in line:
-                Coef.cl = float(line.split(':')[1].split('|')[0])
-            if 'Total CD:' in line:
-                Coef.cd = float(line.split(':')[1].split('|')[0])
-            if 'Total CSF:' in line:
-                Coef.cs = float(line.split(':')[1].split('|')[0])
-            # TODO: Check which axis name corespond to waht: cml, cmd, cms
-            if 'Total CMx:' in line:
-                Coef.cml = float(line.split(':')[1].split('|')[0])
-            if 'Total CMy:' in line:
-                Coef.cmd = float(line.split(':')[1].split('|')[0])
-            if 'Total CMz:' in line:
-                Coef.cms = float(line.split(':')[1].split('|')[0])
+    os.chdir(TMP_DIR)
+    config_dir_list = os.listdir(TMP_DIR)
+    for config_dir in config_dir_list:
+        if os.path.isdir(config_dir):
+            os.chdir(config_dir)
+            force_file_name = 'forces_breakdown.dat'
+            if not os.path.isfile(force_file_name):
+                raise OSError('No result force file have been found!')
 
+            # Read result file
+            with open(force_file_name) as f:
+                for line in f.readlines():
+                    if 'Total CL:' in line:
+                        cl = float(line.split(':')[1].split('|')[0])
+                    if 'Total CD:' in line:
+                        cd = float(line.split(':')[1].split('|')[0])
+                    if 'Total CSF:' in line:
+                        cs = float(line.split(':')[1].split('|')[0])
+                    # TODO: Check which axis name corespond to waht: cml, cmd, cms
+                    if 'Total CMx:' in line:
+                        cml = float(line.split(':')[1].split('|')[0])
+                    if 'Total CMy:' in line:
+                        cmd = float(line.split(':')[1].split('|')[0])
+                    if 'Total CMz:' in line:
+                        cms = float(line.split(':')[1].split('|')[0])
+
+            # Add new coefficients into the object Coef
+            Coef.add_coefficients(cl,cd,cs,cml,cmd,cms)
+
+            os.chdir(TMP_DIR)
+
+
+    # Save object Coef in the CPACS file
     tixi = save_aero_coef(tixi,apm_xpath,Coef)
 
-    # Not finished yet
-
+    print('=======')
+    print(cpacs_out_path)
     close_tixi(tixi,cpacs_out_path)
 
 
@@ -328,9 +333,14 @@ if __name__ == '__main__':
 
     cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
     mesh_path = MODULE_DIR + '/ToolInput/ToolInput.su2'
-    config_path = MODULE_DIR + '/ToolInput/ToolInput.cfg'
+
     force_path = MODULE_DIR + '/ToolOutput/forces_breakdown.dat'
     cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
+
+    # config_path = MODULE_DIR + '/ToolInput/ToolInput.cfg'
+    tixi = open_tixi(cpacs_path)
+    config_path_xpath = SU2_XPATH + '/configPath'
+    config_path = get_value(tixi,config_path_xpath)
 
     run_SU2(mesh_path, config_path)
 

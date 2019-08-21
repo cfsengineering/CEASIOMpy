@@ -10,22 +10,24 @@
 
  # Ignore temp folder
 /temp
+/tmp
 
 # Ignore CPACS file
 /test/CPACSfiles
-
 
 # Ignore ToolInput and ToolOutput
 ToolInput.xml
 ToolInput.smx
 ToolInput.cfg
 
+/ToolOutput
 ToolOutput.xml
 ToolOutput.smx
 ToolOutput.cfg
 forces_breakdown.dat
 *.out
 *mtomPrediction.png
+*Payload_vs_Range.png
 *_Cog.png
 
 # Ignore temp file

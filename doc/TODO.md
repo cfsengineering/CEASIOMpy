@@ -41,10 +41,10 @@
 ## Modules
 * To adapt and integrate
     * PyTornado
+    * PlotAeroCoefficients
     * GUI Edit AeroPerformanceMap
     * SUMO2CPACS
     * CoefCPACS2CSV
-    * PlotTool
     * SU2CheckConvergence
 
 * To develop
@@ -70,3 +70,6 @@ Update `specs` file
 ## Things to do for each module conversion/updating
     * Add __specs__ file
     * Check if the documentation is correctly auto generated
+
+## Platform compatibility
+    * find a solution for '/' in all path  

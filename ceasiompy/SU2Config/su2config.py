@@ -9,15 +9,11 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-11-05
-| Last modifiction: 2019-08-16
+| Last modifiction: 2019-08-21
 
 TODO:
 
-    * This script work but a lot of thing have to be modified:
     * Redo the test functions
-    * Add other options for su2?
-    * Finish to integrate new AeroPerformanceMap from CPACS 3.1
-    * Create multiple config for aerodatabase
     * Simplify/clean "DefaultConfig_v6" file
     * chech input and output in __specs__
 
@@ -34,16 +30,17 @@ import shutil
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi,              \
-                                           get_value, get_value_or_default,     \
+                                           get_value, get_value_or_default,    \
                                            create_branch
+from ceasiompy.utils.apmfunctions import get_apm_xpath, get_apm, AeroCoefficient
 from ceasiompy.utils.standardatmosphere import get_atmosphere
-
 from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
 from ceasiompy.SU2Config.__specs__ import cpacs_inout
 
 log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+DEFAULT_CONFIG_PATH = MODULE_DIR + '/files/DefaultConfig_v6.cfg'
 
 #==============================================================================
 #   CLASSES
@@ -59,7 +56,6 @@ def get_mesh_marker(su2_mesh_path):
 
     Function 'get_mesh_marker' return all the SU2 mesh marker (except Farfield)
     found in the SU2 mesh file.
-
 
     Args:
         su2_mesh_path (interger):  Path to the SU2 mesh
@@ -81,95 +77,21 @@ def get_mesh_marker(su2_mesh_path):
     return marker_list
 
 
-def create_config(cpacs_path, cpacs_out_path, su2_mesh_path,config_output_path):
-    """ Function to create configuration file for SU2 calculation
+def create_config_dictionnary():
+    """Function to create a dictionary from a default config file.
 
-    Function 'create_config' create an SU2 configuration file from SU2 mesh data
-    (marker) and CPACS file specific related parameter (/toolSpecific).
-    For all other infomation the value from the default SU2 configuration file
-    are used. A new configuration file will be saved in
-    /ToolOutput/ToolOutput.cfg
-
-    Source:
-       * SU2 configuration file  template
-         https://github.com/su2code/SU2/blob/master/config_template.cfg
+    Function 'create_config_dictionnary' return a dictionary containing key and
+    value of a default configuration file. It also return the config file as a
+    list of line.
 
     Args:
-        cpacs_path (str):  Path to CPACS file
-        cpacs_out_path (str): Path to CPACS output file
-        su2_mesh_path (str): Path to SU2 mesh
-        config_output_path (str): Path to the output configuration file
+        No args
+
+    Returns:
+        config_dict (dict):  Dictionary of the default config file
+        config_file_lines (list): List of line of the default config file
 
     """
-
-    DEFAULT_CONFIG_PATH = MODULE_DIR + '/files/DefaultConfig_v6.cfg'
-
-    # Get value from CPACS
-    tixi = open_tixi(cpacs_path)
-
-    su2_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
-
-    # Reference values
-    ref_xpath = '/cpacs/vehicles/aircraft/model/reference'
-    ref_len = get_value(tixi,ref_xpath + '/length')
-    ref_area = get_value(tixi,ref_xpath + '/area')
-
-    # Fixed CL parameters
-    fixed_cl_xpath = su2_xpath + '/fixedCL'
-    target_cl_xpath = su2_xpath + '/targetCL'
-    tixi, fixed_cl = get_value_or_default(tixi, fixed_cl_xpath,'NO')
-    tixi, target_cl = get_value_or_default(tixi, target_cl_xpath,1.0)
-
-    if fixed_cl == 'NO':
-        # Get value from the aeroMap (1 point)
-        active_aeroMap_xpath = su2_xpath + '/aeroMapUID'
-        aeroMap_uid = get_value(tixi,active_aeroMap_xpath)
-        aeroMap_path = tixi.uIDGetXPath(aeroMap_uid)
-        apm_path = aeroMap_path + '/aeroPerformanceMap'
-
-        #State = get_states(tixi,apm_path)
-
-        #alt = State.alt_list
-        alt = get_value(tixi,apm_path+'/altitude')
-        mach = get_value(tixi,apm_path+'/machNumber')
-        aoa = get_value(tixi,apm_path+'/angleOfAttack')
-        aos = get_value(tixi,apm_path+'/angleOfSideslip')
-
-    else:
-        range_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges'
-        cruise_alt_xpath= range_xpath + '/cruiseAltitude'
-        cruise_mach_xpath= range_xpath + '/cruiseMach'
-
-        # value corresponding to fix CL calulation
-        aoa = 0.0 # Will not be used
-        aos = 0.0
-        tixi, mach = get_value_or_default(tixi,cruise_mach_xpath,0.78)
-        tixi, alt = get_value_or_default(tixi,cruise_alt_xpath,12000)
-
-    Atm = get_atmosphere(alt)
-    pressure = Atm.pres
-    temp = Atm.temp
-
-    # Settings
-    settings_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/settings'
-    max_iter_xpath = settings_xpath + '/maxIter'
-    cfl_nb_xpath = settings_xpath + '/cflNumber'
-    mg_level_xpath =  settings_xpath + '/multigridLevel'
-
-    tixi, max_iter = get_value_or_default(tixi, max_iter_xpath,200)
-    tixi, cfl_nb = get_value_or_default(tixi, cfl_nb_xpath,1.0)
-    tixi, mg_level = get_value_or_default(tixi, mg_level_xpath,3)
-
-    # Mesh Marker
-    bc_wall_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/boundaryConditions/wall'
-
-    bc_wall_list = get_mesh_marker(su2_mesh_path)
-    tixi = create_branch(tixi, bc_wall_xpath)
-    bc_wall_str = ';'.join(bc_wall_list)
-    tixi.updateTextElement(bc_wall_xpath,bc_wall_str)
-
-
-    close_tixi(tixi,cpacs_out_path)
 
     # Open default configuration file
     try:
@@ -189,43 +111,181 @@ def create_config(cpacs_path, cpacs_out_path, su2_mesh_path,config_output_path):
                 val = val[:-1]
             config_dict[key] = val
 
-    config_dict_modif = config_dict
+    return config_dict, config_file_lines
 
-    # General parmeters
-    config_dict_modif['MESH_FILENAME'] = su2_mesh_path
 
-    config_dict_modif['REF_LENGTH'] = ref_len
-    config_dict_modif['REF_AREA'] = ref_area
+def generate_config_case(cpacs_path, cpacs_out_path, su2_mesh_path):
+    """Function to prepare the creation of different confi file.
+
+    Function 'generate_config_case' reads data in the cpacs file and prepare a
+    dictionary with corresponding value. The new dictionary is send to the
+    function 'write_config_file' for each set of parameters (alt,mach,aoa,aos)
+
+    Source:
+        * SU2 config template: https://github.com/su2code/SU2/blob/master/config_template.cfg
+
+    Args:
+        cpacs_path (str): Path to CPACS file
+        cpacs_out_path (str):Path to CPACS output file
+        su2_mesh_path (str): Path to the SU2 mesh
+
+    """
+
+    # Get value from CPACS
+    tixi = open_tixi(cpacs_path)
+
+    su2_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
+
+    # Remove /ToolOutput directory
+    tooloutput_dir = MODULE_DIR + '/ToolOutput'
+    if os.path.exists(tooloutput_dir):
+        shutil.rmtree(tooloutput_dir)
+        log.info('The /ToolOutput directory has been removed.')
+
+    # Reference values
+    ref_xpath = '/cpacs/vehicles/aircraft/model/reference'
+    ref_len = get_value(tixi,ref_xpath + '/length')
+    ref_area = get_value(tixi,ref_xpath + '/area')
 
     # Settings
-    config_dict_modif['EXT_ITER'] = int(max_iter)
-    config_dict_modif['CFL_NUMBER'] = cfl_nb
-    config_dict_modif['MGLEVEL'] = int(mg_level)
+    settings_xpath = su2_xpath + '/settings'
+    max_iter_xpath = settings_xpath + '/maxIter'
+    tixi, max_iter = get_value_or_default(tixi, max_iter_xpath,200)
+    cfl_nb_xpath = settings_xpath + '/cflNumber'
+    tixi, cfl_nb = get_value_or_default(tixi, cfl_nb_xpath,1.0)
+    mg_level_xpath =  settings_xpath + '/multigridLevel'
+    tixi, mg_level = get_value_or_default(tixi, mg_level_xpath,3)
 
-    config_dict_modif['AOA'] = aoa
-    config_dict_modif['SIDESLIP_ANGLE'] = aos
-    config_dict_modif['MACH_NUMBER'] = mach
-    config_dict_modif['FREESTREAM_PRESSURE'] = pressure
-    config_dict_modif['FREESTREAM_TEMPERATURE'] = temp
+    # Mesh Marker
+    bc_wall_xpath = su2_xpath + '/boundaryConditions/wall'
+    bc_wall_list = get_mesh_marker(su2_mesh_path)
+    tixi = create_branch(tixi, bc_wall_xpath)
+    bc_wall_str = ';'.join(bc_wall_list)
+    tixi.updateTextElement(bc_wall_xpath,bc_wall_str)
 
-    # If calculation at CL fix (AOA will not be taken into account)
-    config_dict_modif['FIXED_CL_MODE'] = fixed_cl
-    config_dict_modif['TARGET_CL'] = target_cl
-    config_dict_modif['DCL_DALPHA'] = '0.1'
-    config_dict_modif['UPDATE_ALPHA'] = '8'
-    config_dict_modif['ITER_DCL_DALPHA'] = '80'
+    # Fixed CL parameters
+    fixed_cl_xpath = su2_xpath + '/fixedCL'
+    tixi, fixed_cl = get_value_or_default(tixi, fixed_cl_xpath,'NO')
+    target_cl_xpath = su2_xpath + '/targetCL'
+    tixi, target_cl = get_value_or_default(tixi, target_cl_xpath,1.0)
+
+    if fixed_cl == 'NO':
+        active_aeroMap_xpath = su2_xpath + '/aeroMapUID'
+        apm_xpath = get_apm_xpath(tixi,active_aeroMap_xpath)
+
+        # Get parameters of the aeroMap (alt,ma,aoa,aos)
+        Param = get_apm(tixi,apm_xpath)
+        param_count = Param.get_count()
+
+        if param_count >= 1:
+            alt_list = Param.alt
+            mach_list =  Param.mach
+            aoa_list = Param.aoa
+            aos_list = Param.aos
+        else:
+            raise ValueError('No parametre have been found in the aeroMap!')
+
+    else: # if fixed_cl == 'YES':
+        range_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges'
+
+        # Parameters fixed CL calulation
+        param_count = 1
+        aoa_list = [0.0] # Will not be used
+        aos_list = [0.0]
+
+        cruise_mach_xpath= range_xpath + '/cruiseMach'
+        tixi, mach = get_value_or_default(tixi,cruise_mach_xpath,0.78)
+        mach_list = [mach]
+        cruise_alt_xpath= range_xpath + '/cruiseAltitude'
+        tixi, alt = get_value_or_default(tixi,cruise_alt_xpath,12000)
+        alt_list = [alt]
+
+    # Save the location of the config files in the CPACS file
+    config_path = MODULE_DIR + '/ToolOutput'
+    config_path_xpath = su2_xpath + '/configPath'
+    tixi = create_branch(tixi,config_path_xpath)
+    tixi.updateTextElement(config_path_xpath,config_path)
+
+    close_tixi(tixi,cpacs_out_path)
+
+    # Get dictionary of the default config file
+    config_dict, _ = create_config_dictionnary()
+
+    # Modify values of the default config file
+
+    # General parmeters
+    config_dict['MESH_FILENAME'] = su2_mesh_path
+    config_dict['REF_LENGTH'] = ref_len
+    config_dict['REF_AREA'] = ref_area
+
+    # Settings
+    config_dict['EXT_ITER'] = int(max_iter)
+    config_dict['CFL_NUMBER'] = cfl_nb
+    config_dict['MGLEVEL'] = int(mg_level)
+
+    # Fixed CL mode (AOA will not be taken into account)
+    config_dict['FIXED_CL_MODE'] = fixed_cl
+    config_dict['TARGET_CL'] = target_cl
+    config_dict['DCL_DALPHA'] = '0.1'
+    config_dict['UPDATE_ALPHA'] = '8'
+    config_dict['ITER_DCL_DALPHA'] = '80'
 
     # Mesh Marker
     bc_wall_str = '(' + ','.join(bc_wall_list) + ')'
-    config_dict_modif['MARKER_EULER'] = bc_wall_str
-    config_dict_modif['MARKER_FAR'] = ' (Farfield)'
-    config_dict_modif['MARKER_SYM'] = ' (0)'
-    config_dict_modif['MARKER_PLOTTING'] = bc_wall_str
-    config_dict_modif['MARKER_MONITORING'] = bc_wall_str
-    config_dict_modif['MARKER_MOVING'] = bc_wall_str
+    config_dict['MARKER_EULER'] = bc_wall_str
+    config_dict['MARKER_FAR'] = ' (Farfield)' # TODO: maybe make that a variable
+    config_dict['MARKER_SYM'] = ' (0)'       # TODO: maybe make that a variable?
+    config_dict['MARKER_PLOTTING'] = bc_wall_str
+    config_dict['MARKER_MONITORING'] = bc_wall_str
+    config_dict['MARKER_MOVING'] = bc_wall_str
+
+    # Parameters, itaration through all cases (alt,mach,aoa,aos)
+    for case_nb in range(param_count):
+
+        alt = alt_list[case_nb]
+        mach = mach_list[case_nb]
+        aoa = aoa_list[case_nb]
+        aos = aos_list[case_nb]
+
+        Atm = get_atmosphere(alt)
+        pressure = Atm.pres
+        temp = Atm.temp
+
+        config_dict['MACH_NUMBER'] = mach
+        config_dict['AOA'] = aoa
+        config_dict['SIDESLIP_ANGLE'] = aos
+        config_dict['FREESTREAM_PRESSURE'] = pressure
+        config_dict['FREESTREAM_TEMPERATURE'] = temp
+
+        config_file_name = 'ToolOutput.cfg'
+        folder_name = 'Case'+ str(case_nb) +            \
+                      '_alt' + str(int(alt)) +   \
+                      '_mach' + str(round(mach,2)) + \
+                      '_aoa' + str(round(aoa,1)) +   \
+                      '_aos' + str(round(aos,1))
+        folder_path = MODULE_DIR + '/ToolOutput/' + folder_name
+        os.mkdir(folder_path)
+        config_output_path = folder_path + '/' + config_file_name
+
+        write_config_file(config_dict,config_output_path)
+
+
+def write_config_file(config_dict_new, config_output_path):
+    """ Function to create configuration file for SU2 calculation.
+
+    Function 'write_config_file' write a configuration at path given by
+    config_output_path with the value given in the config_dict_new.
+
+    Args:
+        config_dict_new (dict): Dictionary containtng config file keys and values
+        config_output_path (str): Path to the output configuration file
+
+    """
+
+    _, config_file_lines = create_config_dictionnary()
 
     # Change value if needed or add new parameters in the config file
-    for key, value in config_dict_modif.items():
+    for key, value in config_dict_new.items():
         line_nb = 0
         # Double loop! There is probably a possibility to do something better.
         for i, line in enumerate(config_file_lines):
@@ -237,14 +297,14 @@ def create_config(cpacs_path, cpacs_out_path, su2_mesh_path,config_output_path):
         if not line_nb:
             config_file_lines.append(str(key) + ' = ' + str(value) + '\n')
         else:
-            if val_def != config_dict_modif[key]:
+            if val_def != config_dict_new[key]:
                 config_file_lines[line_nb] = str(key) + ' = ' \
-                                           + str(config_dict_modif[key]) + '\n'
+                                           + str(config_dict_new[key]) + '\n'
 
     config_file_new = open(config_output_path, 'w')
     config_file_new.writelines(config_file_lines)
     config_file_new.close()
-    log.info('ToolOutput.cfg has been written in /ToolOutput.')
+    log.info('Config file has been creteted at: ' + config_output_path)
 
 
 #==============================================================================
@@ -258,10 +318,9 @@ if __name__ == '__main__':
     cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
     cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
     su2_mesh_path = MODULE_DIR + '/ToolInput/ToolInput.su2'
-    config_output_path = MODULE_DIR + '/ToolOutput/ToolOutput.cfg'
 
     check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
 
-    create_config(cpacs_path,cpacs_out_path,su2_mesh_path,config_output_path)
+    generate_config_case(cpacs_path,cpacs_out_path,su2_mesh_path)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

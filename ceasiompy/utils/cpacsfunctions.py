@@ -10,12 +10,13 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-10-02
-| Last modifiction: 2019-08-08
+| Last modifiction: 2019-08-21
 
 TODO:
 
     * 'copy_branch': change all uID of the copied branch? how?
     * 'get_value' to improve, add checks
+    * add test function for 'get_list_values'
 
 """
 
@@ -66,7 +67,6 @@ def open_tixi(cpacs_path):
     Returns::
         tixi_handle (handles): TIXI Handle of the CPACS file
     """
-
 
     tixi_handle = tixi3wrapper.Tixi3()
     tixi_handle.open(cpacs_path)
@@ -397,6 +397,49 @@ def get_value_or_default(tixi,xpath,default_value):
     return tixi, value
 
 
+def get_list_values(tixi, xpath):
+    """ Function to get a list of float from an xpath.
+
+    Function 'get_list_values' returns a list of float. Retruns empty list if
+    nothing is found at the xpath.
+
+    Source :
+        * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
+
+    Args:
+        tixi_handle (handles): TIXI Handle of the CPACS file
+        xpath (str): xpath of the value to get
+
+    Returns:
+         list_values (list): List of float fround at xpath
+    """
+
+    # Try to get the a value at xpath
+    try:
+        list_values_str = tixi.getTextElement(xpath)
+    except:
+        list_values_str = None
+
+    if list_values_str is not None:
+        list_values = list_values_str.split(';')
+        if list_values[-1] == '':
+            list_values.pop()
+        list_values = [float(elem) for elem in list_values]
+
+    else:
+        # Check if the path exist
+        if tixi.checkElement(xpath):
+            log.warning('No value has been fournd at ' + xpath)
+            log.warning('An empty list will be return')
+            list_values = []
+        else:
+            log.warning(xpath + ' cannot be found in the CPACS file')
+            log.warning('An empty list will be return')
+            list_values = []
+
+    return list_values
+
+
 def aircraft_name(cpacs_path):
     """ The function gat the name of the aircraft from the cpacs file or add a
         default one if non-existant.
@@ -417,6 +460,7 @@ def aircraft_name(cpacs_path):
     close_tixi(tixi, cpacs_path)
 
     return(name)
+
 
 #==============================================================================
 #    MAIN

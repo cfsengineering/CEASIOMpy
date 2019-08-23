@@ -87,6 +87,8 @@ def test_estimate_skin_friction_coef():
 def test_add_skin_friction():
     """Test function 'add_skin_friction' """
 
+    # TODO: improve this function to test everything
+
     add_skin_friction(CPACS_IN_PATH, CPACS_OUT_PATH)
 
     tixi = open_tixi(CPACS_OUT_PATH)

@@ -10,13 +10,13 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-10-02
-| Last modifiction: 2019-08-21
+| Last modifiction: 2019-08-23
 
 TODO:
 
     * 'copy_branch': change all uID of the copied branch? how?
     * 'get_value' to improve, add checks
-    * add test function for 'get_list_values'
+    * add test function for 'get_list_values' and 'add_vector'
     * Remove all 'return tixi'
 
 """
@@ -397,7 +397,7 @@ def get_value_or_default(tixi,xpath,default_value):
 
     return tixi, value
 
-
+# TODO: change name by 'get_vector'  ?
 def get_list_values(tixi, xpath):
     """ Function to get a list of float from an xpath.
 
@@ -441,6 +441,34 @@ def get_list_values(tixi, xpath):
     return list_values
 
 
+def add_vector(tixi, xpath, vector):
+    """ Add a vector at given CPACS xpath
+
+    Function 'add_vector' will add a vector at the given XPath, if the node
+    does not exit, it will be created. Values will be overwritten if paths
+    exists.
+
+    Args:
+        tixi (handle): Tixi handle
+        xpath (str): XPath of the vector to add
+        vector (list, tuple): Vector to add
+    """
+
+    # Strip trailing '/' (has no meaning here)
+    if xpath.endswith("/"):
+        xpath = xpath[:-1]
+
+    # Get the field name and the parent CPACS path
+    xpath_child_name = xpath.split("/")[-1]
+    xpath_parent = xpath[:-(len(xpath_child_name)+1)]
+
+    if tixi.checkElement(xpath):
+        tixi.updateFloatVector(xpath, vector, len(vector), format='%g')
+    else:
+        tixi.addFloatVector(xpath_parent, xpath_child_name, vector, \
+                            len(vector), format='%g')
+
+
 def aircraft_name(cpacs_path):
     """ The function gat the name of the aircraft from the cpacs file or add a
         default one if non-existant.
@@ -463,31 +491,6 @@ def aircraft_name(cpacs_path):
     return(name)
 
 
-def add_vector(tixi, xpath, vector):
-    """
-    Add a vector at given CPACS path
-
-    Note:
-        * Values will be overwritten if paths exists
-
-    Args:
-        tixi: (handle) Tixi handle
-        xpath: (str) CPACS path
-        vector: (list, tuple) Vector to add
-    """
-
-    # Strip trailing '/' (has no meaning here)
-    if xpath.endswith("/"):
-        xpath = xpath[:-1]
-
-    # Get the field name and the parent CPACS path
-    xpath_child_name = xpath.split("/")[-1]
-    xpath_parent = xpath[:-(len(xpath_child_name)+1)]
-
-    if tixi.checkElement(xpath):
-        tixi.updateFloatVector(xpath, vector, len(vector), format='%g')
-    else:
-        tixi.addFloatVector(xpath_parent, xpath_child_name, vector, len(vector), format='%g')
 
 
 #==============================================================================
@@ -503,4 +506,4 @@ if __name__ == '__main__':
 # from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
 #                                            add_uid, create_branch, copy_branch,\
 #                                            get_value, get_value_or_default,    \
-#                                            get_list_values, aircraft_name
+#                                            get_list_values, add_vector, aircraft_name

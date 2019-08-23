@@ -256,8 +256,6 @@ def get_su2_results(cpacs_path,cpacs_out_path):
     """
 
     tixi = open_tixi(cpacs_path)
-    print('=======')
-    print(cpacs_path)
 
     tixi = save_timestamp(tixi,SU2_XPATH)
 
@@ -302,11 +300,11 @@ def get_su2_results(cpacs_path,cpacs_out_path):
                         cs = float(line.split(':')[1].split('|')[0])
                     # TODO: Check which axis name corespond to waht: cml, cmd, cms
                     if 'Total CMx:' in line:
-                        cml = float(line.split(':')[1].split('|')[0])
-                    if 'Total CMy:' in line:
                         cmd = float(line.split(':')[1].split('|')[0])
-                    if 'Total CMz:' in line:
+                    if 'Total CMy:' in line:
                         cms = float(line.split(':')[1].split('|')[0])
+                    if 'Total CMz:' in line:
+                        cml = float(line.split(':')[1].split('|')[0])
 
             # Add new coefficients into the object Coef
             Coef.add_coefficients(cl,cd,cs,cml,cmd,cms)
@@ -317,8 +315,6 @@ def get_su2_results(cpacs_path,cpacs_out_path):
     # Save object Coef in the CPACS file
     tixi = save_aero_coef(tixi,apm_xpath,Coef)
 
-    print('=======')
-    print(cpacs_out_path)
     close_tixi(tixi,cpacs_out_path)
 
 

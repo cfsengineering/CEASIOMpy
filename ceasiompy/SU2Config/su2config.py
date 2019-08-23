@@ -200,6 +200,9 @@ def generate_config_case(cpacs_path, cpacs_out_path, su2_mesh_path):
         tixi, alt = get_value_or_default(tixi,cruise_alt_xpath,12000)
         alt_list = [alt]
 
+        # Create an aeroMap to store param and results coefficient
+
+
     # Save the location of the config files in the CPACS file
     config_path = MODULE_DIR + '/ToolOutput'
     config_path_xpath = su2_xpath + '/configPath'

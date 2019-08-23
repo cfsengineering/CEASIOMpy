@@ -3,17 +3,31 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Small description of the script
+This is a wrapper module for PyTornado. PyTornado allows to perform aerodynamic
+analyses using the vortex-lattice method (VLM). Note that PyTornado is being
+developed in a separate repository on Github. For installation guides and
+general documentation refer to:
+
+* https://github.com/airinnova/pytornado
+
+Please report any issues with PyTornado or this wrapper here:
+
+* https://github.com/airinnova/pytornado/issues
+
+PyTornado support:
+
+* AeroperformanceMap analyses
 
 Python version: >=3.6
 
 | Author: Aaron Dettmann
 | Creation: 2019-08-12
-| Last modifiction: 2019-08-12
+| Last modifiction: 2019-08-23
 """
 
 import os
 import shutil
+from importlib import import_module
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
@@ -21,52 +35,40 @@ from ceasiompy.ModuleTemplate.__specs__ import cpacs_inout
 
 log = get_logger(__file__.split('.')[0])
 
-# PyTornado is an external dependency. Assuming PyTornado is not installed.
-PYTORNADO_FOUND = True
-try:
-    import pytornado.stdfun as pyt
-except ModuleNotFoundError:
-    # ModuleNotFoundError is new in Python 3.6
-    # See https://docs.python.org/3/library/exceptions.html
-    PYTORNADO_FOUND = False
-    log.warning("PyTornado was not found")
-
+# ===== Paths =====
+DIR_MODULE = os.path.dirname(os.path.abspath(__file__))
+DIR_PYT_WKDIR = os.path.join(DIR_MODULE, 'wkdir')
+DIR_PYT_AIRCRAFT = os.path.join(DIR_PYT_WKDIR, 'aircraft')
+DIR_PYT_SETTINGS = os.path.join(DIR_PYT_WKDIR, 'settings')
+FILE_PYT_AIRCRAFT = os.path.join(DIR_PYT_AIRCRAFT, 'ToolInput.xml')
+FILE_PYT_SETTINGS = os.path.join(DIR_PYT_SETTINGS, 'cpacs_run.json')
 
 if __name__ == '__main__':
     log.info("Running PyTornado...")
 
-    # Abort if PyTornado is not properly installed
-    if not PYTORNADO_FOUND:
-        err_msg = "PyTornado was not found. Cannot run an analysis."
+    try:
+        p = import_module('pytornado.stdfun.run')
+    except ModuleNotFoundError:
+        err_msg = """\n
+        | PyTornado was not found. CEASIOMpy cannot run an analysis.
+        | Make sure that PyTornado is correctly installed. Please refer to:
+        |
+        | * https://github.com/airinnova/pytornado
+        """
         log.error(err_msg)
         raise ModuleNotFoundError(err_msg)
 
-    # CEASIOMpy paths
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
-    cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
-
+    # ===== Setup =====
     # check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
+    cpacs_in_path = DIR_MODULE + '/ToolInput/ToolInput.xml'
+    cpacs_out_path = DIR_MODULE + '/ToolOutput/ToolOutput.xml'
+    shutil.copy(src=cpacs_in_path, dst=FILE_PYT_AIRCRAFT)
 
-    # ========== PyTornado main analysis ==========
-    this_dir = os.path.dirname(os.path.abspath(__file__))
-    pyt_wkdir = 'wkdir'
-    pyt_aircraft_dir = os.path.join(pyt_wkdir, 'aircraft')
+    # ===== PyTornado analysis =====
+    args = p.StdRunArgs()
+    args.run = FILE_PYT_SETTINGS
+    p.standard_run(args)
 
-    # Create a working directory
-    if not os.path.exists(pyt_wkdir):
-        os.makedirs(pyt_wkdir)
-
-    # TODO: initialise PyTornado directory
-
-    # Move CPACS INPUT into working directory
-    shutil.copy(src=cpacs_path, dst=pyt_aircraft_dir)
-
-    # Run Pytornado in working directory
-    os.chdir(os.path.join(this_dir, pyt_wkdir))
-
-    args = pyt.StdRunArgs()
-    args.run = 'std_run'
-    pyt.standard_run(args)
-
+    # ===== Clean up =====
+    shutil.copy(src=FILE_PYT_AIRCRAFT, dst=cpacs_out_path)
     log.info("PyTornado analysis completed")

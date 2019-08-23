@@ -462,6 +462,33 @@ def aircraft_name(cpacs_path):
     return(name)
 
 
+def add_vector(tixi, xpath, vector):
+    """
+    Add a vector at given CPACS path
+
+    Note:
+        * Values will be overwritten if paths exists
+
+    Args:
+        tixi: (handle) Tixi handle
+        xpath: (str) CPACS path
+        vector: (list, tuple) Vector to add
+    """
+
+    # Strip trailing '/' (has no meaning here)
+    if xpath.endswith("/"):
+        xpath = xpath[:-1]
+
+    # Get the field name and the parent CPACS path
+    xpath_child_name = xpath.split("/")[-1]
+    xpath_parent = xpath[:-(len(xpath_child_name)+1)]
+
+    if tixi.checkElement(xpath):
+        tixi.updateFloatVector(xpath, vector, len(vector), format='%g')
+    else:
+        tixi.addFloatVector(xpath_parent, xpath_child_name, vector, len(vector), format='%g')
+
+
 #==============================================================================
 #    MAIN
 #==============================================================================

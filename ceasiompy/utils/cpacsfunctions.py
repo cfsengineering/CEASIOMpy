@@ -17,6 +17,7 @@ TODO:
     * 'copy_branch': change all uID of the copied branch? how?
     * 'get_value' to improve, add checks
     * add test function for 'get_list_values'
+    * Remove all 'return tixi'
 
 """
 
@@ -392,7 +393,7 @@ def get_value_or_default(tixi,xpath,default_value):
            tixi.addTextElement(xpath_parent,value_name,value)
         log.info('Default value has been add to the cpacs file at: ' + xpath)
     else:
-        log.info('Value found at ' + xpath + ' will be used.')
+        log.info('Value found at ' + xpath + ', default value will not be used')
 
     return tixi, value
 
@@ -469,3 +470,10 @@ def aircraft_name(cpacs_path):
 if __name__ == '__main__':
 
     log.info('Nothing to execute!')
+
+
+# All available Functions
+# from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
+#                                            add_uid, create_branch, copy_branch,\
+#                                            get_value, get_value_or_default,    \
+#                                            get_list_values, aircraft_name

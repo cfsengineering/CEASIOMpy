@@ -1,0 +1,25 @@
+{
+    "aircraft": "ToolInput.xml",
+    "state": "__CPACS",
+    "deformation": null,
+    "vlm_autopanels_c": 5,
+    "vlm_autopanels_s": 20,
+    "save_results": [],
+    "plot": {
+        "geometry_aircraft": false,
+        "geometry_wing": [],
+        "geometry_segment": [],
+        "geometry_property": [],
+        "lattice_aircraft": false,
+        "lattice_aircraft_optional": [],
+        "lattice_wing": [],
+        "lattice_segment": [],
+        "results_downwash": false,
+        "results_panelwise": [
+            "cp"
+        ],
+        "show": false,
+        "save": false,
+        "plot_show": true
+    }
+}

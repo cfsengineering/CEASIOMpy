@@ -173,10 +173,10 @@ def get_apm_xpath(tixi,active_aeroMap_xpath):
     return apm_xpath
 
 
-def get_aeromap_uid_list(tixi):
-    """ Get a list of all aeroMap UID.
+def create_aeromap_uid_list(tixi):
+    """ Create a list of all aeroMap UID.
 
-    Function 'get_aeromap_uid_list' ....TODO
+    Function 'create_aeromap_uid_list' ....TODO
 
     Source :
         * ...CPACS Documentation

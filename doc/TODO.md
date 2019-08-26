@@ -9,7 +9,6 @@
 
 ## Module dependencies
 * Add `__specs__.py` files for each modules
-* `_specs.py` better than `__specs__`?
 * Add output for `ceasiompy.CLCalculator.__specs__`
 * Add General File in/out Class
 * Create a function to check consistency (does same variable name are stored a the same xpath, ...)
@@ -34,14 +33,8 @@
 * Fix file permission workaround in `ceasiomlogger.get_logger()` (don't use try-except)
 * Do we want one big log file (global) or many small (local for each module)?
 
-## Aerodynamic modules
-* How to store results in CPACS (AeroPerformanceMap, damping derivatives, ...)
-* Folder structure for the calculation and results
-
 ## Modules
 * To adapt and integrate
-    * PyTornado
-    * PlotAeroCoefficients
     * GUI Edit AeroPerformanceMap
     * SUMO2CPACS
     * CoefCPACS2CSV
@@ -58,8 +51,7 @@
 
 
 ## RCE Integration
-    * Upload .json file on Github + create 'how to install'
-    * Add a script to automatically set the ToolDirectory path of each module
+    * Create 'how to install' CEASIOMpy into RCE
     * Small logo for each module
 
 ## PyTornado module

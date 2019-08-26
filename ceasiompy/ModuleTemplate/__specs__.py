@@ -43,3 +43,13 @@ cpacs_inout.add_input(
 #         descr='Description of the output',
 #         cpacs_path=CEASIOM_XPATH + '/...',
 #         )
+
+# ===== RCE integration =====
+
+RCE = {
+    "name": "ModuleTemplate",
+    "description": "This is a template module",
+    "exec": "pwd\npython moduletemplate.py",
+    "author": "Neil Armstrong",
+    "email": "neil@nasa.gov",
+}

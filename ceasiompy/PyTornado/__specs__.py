@@ -67,3 +67,11 @@ cpacs_inout.add_input(
 #     descr='Description of the output',
 #     cpacs_path=CEASIOM_XPATH + '/...',
 # )
+
+RCE = {
+    "name": "PyTornado",
+    "description": "Wrapper module for PyTornado",
+    "exec": "pwd\npython main.py",
+    "author": "Aaron Dettmann",
+    "email": "dettmann@kth.se",
+}

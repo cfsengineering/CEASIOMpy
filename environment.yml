@@ -1,0 +1,42 @@
+# This file lists external packages required to run and develop CEASIOMpy.
+#
+# * Only top-level requirements are listed here.
+# * You can use this file to set up a Conda environment:
+#
+#       conda env create -f environment.yml
+#
+# See also: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+
+name: ceasiompy
+
+channels:
+  - dlr-sc  # See: https://anaconda.org/DLR-SC/repo
+  - conda-forge
+  - defaults
+
+dependencies:
+  # Required
+  - numpy>=1.15
+  - python=3
+  - tigl3>=3.0.0rc
+  - tixi3>=3.0.3
+  - matplotlib==3.0.2
+  - scipy>=1.1
+  - pandas>=0.25.0
+
+  # Testing
+  - flake8
+  - pytest>=5.0.1
+  - pytest-cov
+  - codecov==2.0.15
+
+  # Documentation
+  - sphinx=1.8.5
+
+  # Misc
+  - pip
+
+  - pip:
+    - sphinx-rtd-theme==0.4.3
+    - tox>=3.13.2
+

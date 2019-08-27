@@ -174,7 +174,7 @@ if __name__ == '__main__':
     log.info('My total is equal to: ' + str(my_total))
 
     # Call a function which use CPACS inputs
-    x,y,z = get_fuselage_scaling(cpacs_path, cpacs_out_path)
+    x, y, z = get_fuselage_scaling(cpacs_path, cpacs_out_path)
     log.info('Value x,y,z as been calculated')
     log.info('x = ' + str(x))
     log.info('y = ' + str(y))

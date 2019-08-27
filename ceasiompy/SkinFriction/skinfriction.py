@@ -33,7 +33,7 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, \
                                      get_value, get_value_or_default,  \
                                      create_branch
 
-from ceasiompy.utils.apmfunctions import get_apm_xpath, get_apm,create_empty_apm, save_aero_coef, save_param,AeroCoefficient
+from ceasiompy.utils.apmfunctions import get_apm,create_empty_apm, save_aero_coef, save_param,AeroCoefficient
 
 from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
 from ceasiompy.SkinFriction.__specs__ import cpacs_inout
@@ -179,7 +179,8 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
 
     # Get aeroPerformanceMap XPath
     active_aeroMap_xpath = SU2_XPATH + '/aeroMapUID'
-    apm_xpath = get_apm_xpath(tixi,active_aeroMap_xpath)
+    aeroMap_uid = get_value(tixi,active_aeroMap_xpath)
+    apm_xpath = tixi.uIDGetXPath(aeroMap_uid) + '/aeroPerformanceMap'
 
     # Get orignial aeroPerformanceMap
     AeroCoef = get_apm(tixi,apm_xpath)

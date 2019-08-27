@@ -3,18 +3,18 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Functions to AeroPerformanceMap from CPACS file, it uses TIXI library
+Functions to handle AeroPerformanceMap from CPACS file, it uses TIXI library
 
 Python version: >=3.6
 CPACS version: 3.1
 
 | Author : Aidan Jungo
 | Creation: 2019-08-15
-| Last modifiction: 2019-08-23
+| Last modifiction: 2019-08-27
 
 TODO:
 
-    * Crete test function
+    * Create test functions
     * Developp other functions
     * This script is still in developpment, function are not completly working
 
@@ -32,7 +32,8 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
                                            add_uid, create_branch, copy_branch,\
                                            get_value, get_value_or_default,    \
-                                           get_list_values, aircraft_name
+                                           add_float_vector, get_float_vector, \
+                                           add_string_vector, get_string_vector
 
 log = get_logger(__file__.split('.')[0])
 
@@ -60,14 +61,12 @@ class AeroCoefficient():
         self.cmd = []
         self.cms = []
 
-
     def add_param_point(alt,mach,aoa,aos):
 
         self.alt.append(alt)
         self.mach.append(mach)
         self.aoa.append(aoa)
         self.aos.append(aos)
-
 
     def add_coefficients(self,cl,cd,cs,cml,cmd, cms):
 
@@ -114,7 +113,6 @@ class AeroCoefficient():
 
         return alt_len
 
-
     def print_coef_list(self):
 
         case_count = self.get_count()
@@ -139,6 +137,8 @@ class AeroCoefficient():
                   cml + '\t' + cmd + '\t' + cms)
         print('=====================================================================================')
 
+    # def complete_apm():  ???
+    #    """ fill the aeroPerformanceMap with None value to have same lenght for all coefficients
 
     # def_get_number_of_unique_value
     #     #Could be useful
@@ -147,62 +147,9 @@ class AeroCoefficient():
 #   FUNCTIONS
 #==============================================================================
 
-def get_apm_xpath(tixi,active_aeroMap_xpath):
-    """ Get aeroPerformanceMap XPath
-
-    Function 'get_apm_xpath' will retrun the aeroPerformanceMap XPath from the
-    XPath which contain its name. More details...
-
-    Source :
-        * ...CPACS Documentation?
-
-    Args:
-        tixi (handles): TIXI Handle of the CPACS file
-        active_aeroMap_xpath (str): XPath to the active aeroMap UID
-
-    """
-
-    # will it raise an error if probleme?
-    if not tixi.checkElement(active_aeroMap_xpath):
-        raise ValueError('Nothing has been found at: ' + active_aeroMap_xpath)
-
-    aeroMap_uid = get_value(tixi,active_aeroMap_xpath)
-    aeroMap_path = tixi.uIDGetXPath(aeroMap_uid)
-    apm_xpath = aeroMap_path + '/aeroPerformanceMap'
-
-    return apm_xpath
-
-
-def create_aeromap_uid_list(tixi):
-    """ Create a list of all aeroMap UID.
-
-    Function 'create_aeromap_uid_list' ....TODO
-
-    Source :
-        * ...CPACS Documentation
-
-    Args:
-        tixi (handles): TIXI Handle of the CPACS file
-
-    Returns::
-        aeromap_list (list): List of string of all aeroMap
-    """
-    aeromap_list = []
-
-    aeromap_count = tixi.getNamedChildrenCount(AEROPERFORMANCE_XPATH, 'aeroMap')
-    if aeromap_count:
-        log.info('There are : ' + str(aeromap_count) + ' in the CPACS file')
-
-        for i in range(aeromap_count):
-            aeromap_xpath = AEROPERFORMANCE_XPATH + '/aeroMap[' + str(i+1) + ']'
-            aeromap_uid = tixi.getTextAttribute(aeromap_xpath, 'uID')
-            aeromap_list.append(aeromap_uid)
-            log.info(aeromap_uid)
-    else:
-        log.warning('No "aeroMap" has been found in the CPACS file')
-
-    return aeromap_list
-
+### get_apm_xpath(tixi,active_aeroMap_xpath):   has been replace by:
+    # aeroMap_uid = get_value(tixi,active_aeroMap_xpath)
+    # apm_xpath = tixi.uIDGetXPath(aeroMap_uid) + '/aeroPerformanceMap'
 
 def create_empty_apm(tixi, apm_uid, description = ''):
     """ TODO """
@@ -221,6 +168,39 @@ def create_empty_apm(tixi, apm_uid, description = ''):
     tixi.addTextElement(aeroMap_xpath+'/boundaryConditions','atmosphericModel','ISA')
 
     create_branch(tixi,aeroMap_xpath + '/aeroPerformanceMap')
+
+
+def get_aeromap_uid_list(tixi):
+    """ Get the list of all aeroMap UID.
+
+    Function 'get_aeromap_uid_list' looks for all aerMap in the CPACS file and
+    create a list of their UID which is returned.
+
+    Args:
+        tixi (handles): TIXI Handle of the CPACS file
+
+    Returns::
+        aeromap_list (list): List (of string) of all aeroMap
+    """
+
+    aeromap_list = []
+
+    aeromap_count = tixi.getNamedChildrenCount(AEROPERFORMANCE_XPATH, 'aeroMap')
+    if aeromap_count:
+        log.info('There are : ' + str(aeromap_count) + ' in the CPACS file: ')
+        for i in range(aeromap_count):
+            aeromap_xpath = AEROPERFORMANCE_XPATH + '/aeroMap[' + str(i+1) + ']'
+            aeromap_uid = tixi.getTextAttribute(aeromap_xpath, 'uID')
+            aeromap_list.append(aeromap_uid)
+            log.info('- ' + aeromap_uid)
+    else:
+        log.warning('No "aeroMap" has been found in the CPACS file')
+        log.warning('An empty list will be returned!')
+
+    return aeromap_list
+
+
+
 
 
 def get_apm(tixi,apm_xpath):
@@ -242,18 +222,26 @@ def get_apm(tixi,apm_xpath):
 
     Coef = AeroCoefficient()
 
-    Coef.alt = get_list_values(tixi,apm_xpath +'/altitude')
-    Coef.mach  = get_list_values(tixi,apm_xpath +'/machNumber')
-    Coef.aoa = get_list_values(tixi,apm_xpath +'/angleOfAttack')
-    Coef.aos = get_list_values(tixi,apm_xpath +'/angleOfSideslip')
-
-    Coef.cl = get_list_values(tixi,apm_xpath +'/cl')
-    Coef.cd = get_list_values(tixi,apm_xpath +'/cd')
-    Coef.cs = get_list_values(tixi,apm_xpath +'/cs')
-
-    Coef.cml = get_list_values(tixi,apm_xpath +'/cml')
-    Coef.cmd = get_list_values(tixi,apm_xpath +'/cmd')
-    Coef.cms = get_list_values(tixi,apm_xpath +'/cms')
+    if tixi.checkElement(apm_xpath +'/altitude'):
+        Coef.alt = get_float_vector(tixi,apm_xpath +'/altitude')
+    if tixi.checkElement(apm_xpath +'/machNumber'):
+        Coef.mach  = get_float_vector(tixi,apm_xpath +'/machNumber')
+    if tixi.checkElement(apm_xpath +'/angleOfAttack'):
+        Coef.aoa = get_float_vector(tixi,apm_xpath +'/angleOfAttack')
+    if tixi.checkElement(apm_xpath +'/angleOfSideslip'):
+        Coef.aos = get_float_vector(tixi,apm_xpath +'/angleOfSideslip')
+    if tixi.checkElement(apm_xpath +'/cl'):
+        Coef.cl = get_float_vector(tixi,apm_xpath +'/cl')
+    if tixi.checkElement(apm_xpath +'/cd'):
+        Coef.cd = get_float_vector(tixi,apm_xpath +'/cd')
+    if tixi.checkElement(apm_xpath +'/cs'):
+        Coef.cs = get_float_vector(tixi,apm_xpath +'/cs')
+    if tixi.checkElement(apm_xpath +'/cml'):
+        Coef.cml = get_float_vector(tixi,apm_xpath +'/cml')
+    if tixi.checkElement(apm_xpath +'/cmd'):
+        Coef.cmd = get_float_vector(tixi,apm_xpath +'/cmd')
+    if tixi.checkElement(apm_xpath +'/cms'):
+        Coef.cms = get_float_vector(tixi,apm_xpath +'/cms')
 
     return Coef
 

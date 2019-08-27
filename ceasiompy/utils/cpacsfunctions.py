@@ -164,8 +164,6 @@ def add_uid(tixi, xpath, uid):
             uid_new = uid + str(i)
             log.warning('UID already existing changed to: ' + uid_new)
 
-    return(tixi)
-
 
 def create_branch(tixi, xpath, add_child=False):
     """ Function to create a CPACS branch.
@@ -215,8 +213,6 @@ def create_branch(tixi, xpath, add_child=False):
             tixi.createElement(xpath_parent, child)
             log.info('Child "' + child + '" has been added to branch "'
                      + xpath_parent + '"')
-
-    return tixi
 
 
 def copy_branch(tixi, xpath_from, xpath_to):
@@ -298,8 +294,6 @@ def copy_branch(tixi, xpath_from, xpath_to):
             except:
                 last_attrib = 1
 
-    return tixi
-
 
 def get_value(tixi, xpath):
     """ Function to get value from a CPACS branch if this branch exist.
@@ -376,7 +370,7 @@ def get_value_or_default(tixi,xpath,default_value):
 
         xpath_parent = '/'.join(str(m) for m in xpath.split("/")[:-1])
         value_name = xpath.split("/")[-1]
-        tixi = create_branch(tixi,xpath_parent,False)
+        create_branch(tixi,xpath_parent,False)
 
         is_int = False
         is_float = False
@@ -395,7 +389,7 @@ def get_value_or_default(tixi,xpath,default_value):
     else:
         log.info('Value found at ' + xpath + ', default value will not be used')
 
-    return tixi, value
+    return value
 
 # TODO: change name by 'get_vector'  ?
 def get_list_values(tixi, xpath):
@@ -483,14 +477,12 @@ def aircraft_name(cpacs_path):
     tixi = open_tixi(cpacs_path)
 
     aircraft_name_xpath = '/cpacs/header/name'
-    tixi, name = get_value_or_default(tixi,aircraft_name_xpath,'Aircraft')
+    name = get_value_or_default(tixi,aircraft_name_xpath,'Aircraft')
     log.info('The name of the aircraft is : ' + name)
 
     close_tixi(tixi, cpacs_path)
 
     return(name)
-
-
 
 
 #==============================================================================

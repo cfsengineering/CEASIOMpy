@@ -112,9 +112,9 @@ def get_cl(cpacs_path,cpacs_out_path):
     mtom = get_value(tixi,mtom_xpath)
 
     # Requiered input data that could be replace by a default value if missing
-    tixi, cruise_alt = get_value_or_default(tixi,cruise_alt_xpath,12000.0)
-    tixi, cruise_mach = get_value_or_default(tixi,cruise_mach_xpath,0.78)
-    tixi, load_fact = get_value_or_default(tixi,load_fact_xpath,1.05)
+    cruise_alt = get_value_or_default(tixi,cruise_alt_xpath,12000.0)
+    cruise_mach = get_value_or_default(tixi,cruise_mach_xpath,0.78)
+    load_fact = get_value_or_default(tixi,load_fact_xpath,1.05)
 
     # Get atmosphere from cruise altitude
     Atm = get_atmosphere(cruise_alt)
@@ -123,7 +123,7 @@ def get_cl(cpacs_path,cpacs_out_path):
     target_cl = calculate_cl(ref_area, cruise_alt, cruise_mach, mtom, load_fact)
 
     # Save TargetCL
-    tixi = create_branch(tixi, su2_xpath)
+    create_branch(tixi, su2_xpath)
     tixi.addDoubleElement(su2_xpath,'targetCL',target_cl,'%g')
     tixi.addTextElement(su2_xpath,'fixedCL','YES')
     log.info('Target CL has been saved in the CPACS file')

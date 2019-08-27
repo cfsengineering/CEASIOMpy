@@ -87,9 +87,9 @@ def save_timestamp(tixi, xpath):
     if end_time == None:
         log.warning("SU2 End time has not been found in the logfile!")
 
-    tixi = create_branch(tixi,xpath+'/startTime')
+    create_branch(tixi,xpath+'/startTime')
     tixi.updateTextElement(xpath+'/startTime',start_time)
-    tixit = create_branch(tixi,xpath+'/endTime')
+    create_branch(tixi,xpath+'/endTime')
     tixi.updateTextElement(xpath+'/endTime',end_time)
 
     return tixi
@@ -257,12 +257,12 @@ def get_su2_results(cpacs_path,cpacs_out_path):
 
     tixi = open_tixi(cpacs_path)
 
-    tixi = save_timestamp(tixi,SU2_XPATH)
+    save_timestamp(tixi,SU2_XPATH)
 
     # Get and save Wetted area
     wetted_area = get_wetted_area()
     wetted_area_xpath = '/cpacs/toolspecific/CEASIOMpy/geometry/analysis/wettedArea'
-    tixi = create_branch(tixi, wetted_area_xpath)
+    create_branch(tixi, wetted_area_xpath)
     tixi.updateDoubleElement(wetted_area_xpath,wetted_area,'%g')
 
     # Get and save CL/CD ratio
@@ -270,7 +270,7 @@ def get_su2_results(cpacs_path,cpacs_out_path):
     # force_path = MODULE_DIR + '/ToolOutput/forces_breakdown.dat' # TODO: global ?
     # cl_cd = get_efficiency(force_path)
     # lDRatio_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges/lDRatio' # TODO: probalby change xpath and name
-    # tixi = create_branch(tixi, lDRatio_xpath)
+    # create_branch(tixi, lDRatio_xpath)
     # tixi.updateDoubleElement(lDRatio_xpath,cl_cd,'%g')
 
     # Save aeroPerformanceMap
@@ -313,7 +313,7 @@ def get_su2_results(cpacs_path,cpacs_out_path):
 
 
     # Save object Coef in the CPACS file
-    tixi = save_aero_coef(tixi,apm_xpath,Coef)
+    save_aero_coef(tixi,apm_xpath,Coef)
 
     close_tixi(tixi,cpacs_out_path)
 

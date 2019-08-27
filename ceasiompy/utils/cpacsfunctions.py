@@ -10,14 +10,11 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-10-02
-| Last modifiction: 2019-08-23
+| Last modifiction: 2019-08-27
 
 TODO:
 
     * 'copy_branch': change all uID of the copied branch? how?
-    * 'get_value' to improve, add checks
-    * add test function for 'get_list_values' and 'add_vector'
-    * Remove all 'return tixi'
 
 """
 
@@ -71,7 +68,6 @@ def open_tixi(cpacs_path):
 
     tixi_handle = tixi3wrapper.Tixi3()
     tixi_handle.open(cpacs_path)
-
 
     log.info('TIXI handle has been created.')
 
@@ -133,36 +129,6 @@ def close_tixi(tixi_handle, cpacs_out_path):
     # Close TIXI handle
     tixi_handle.close()
     log.info("TIXI Handle has been closed.")
-
-
-def add_uid(tixi, xpath, uid):
-    """ Function that checks and add UID to a specific path,
-        the function will automatically update the chosen UID if
-        it is already existing.
-
-    Source :
-        * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
-
-    Args:
-        tixi (handles): TIXI Handle of the CPACS file
-        xpath (str): xpath of the branch to add the uid
-        uid (str): uid to add at xpath
-
-    Returns:
-        tixi (handles): Modified TIXI Handle (with new uid)
-    """
-
-    exist = True
-    uid_new = uid
-    i = 0
-    while exist is True:
-        if not tixi.uIDCheckExists(uid_new):
-            tixi.uIDSetToXPath(xpath, uid_new)
-            exist = False
-        else:
-            i = i + 1
-            uid_new = uid + str(i)
-            log.warning('UID already existing changed to: ' + uid_new)
 
 
 def create_branch(tixi, xpath, add_child=False):
@@ -236,9 +202,9 @@ def copy_branch(tixi, xpath_from, xpath_to):
     """
 
     if not tixi.checkElement(xpath_from):
-        raise ValueError(xpath_from + ' this path does not exit!')
+        raise ValueError(xpath_from + ' XPath does not exit!')
     if not tixi.checkElement(xpath_to):
-        raise ValueError(xpath_to + ' this path does not exit!')
+        raise ValueError(xpath_to + ' XPath does not exit!')
 
     child_nb = tixi.getNumberOfChilds(xpath_from)
 
@@ -293,6 +259,37 @@ def copy_branch(tixi, xpath_from, xpath_to):
                 attrib_index = attrib_index + 1
             except:
                 last_attrib = 1
+
+
+def add_uid(tixi, xpath, uid):
+    """ Function to add UID at a specific XPath.
+
+    Function 'add_uid' checks and add UID to a specific path, the function will
+    automatically update the chosen UID if it exists already.
+
+    Source :
+        * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
+
+    Args:
+        tixi (handles): TIXI Handle of the CPACS file
+        xpath (str): xpath of the branch to add the uid
+        uid (str): uid to add at xpath
+
+    Returns:
+        tixi (handles): Modified TIXI Handle (with new uid)
+    """
+
+    exist = True
+    uid_new = uid
+    i = 0
+    while exist is True:
+        if not tixi.uIDCheckExists(uid_new):
+            tixi.uIDSetToXPath(xpath, uid_new)
+            exist = False
+        else:
+            i = i + 1
+            uid_new = uid + str(i)
+            log.warning('UID already existing changed to: ' + uid_new)
 
 
 def get_value(tixi, xpath):
@@ -391,76 +388,122 @@ def get_value_or_default(tixi,xpath,default_value):
 
     return value
 
-# TODO: change name by 'get_vector'  ?
-def get_list_values(tixi, xpath):
-    """ Function to get a list of float from an xpath.
 
-    Function 'get_list_values' returns a list of float. Retruns empty list if
-    nothing is found at the xpath.
+def add_float_vector(tixi, xpath, vector):
+    """ Add a vector (of float) at given CPACS xpath
 
-    Source :
-        * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
-
-    Args:
-        tixi_handle (handles): TIXI Handle of the CPACS file
-        xpath (str): xpath of the value to get
-
-    Returns:
-         list_values (list): List of float fround at xpath
-    """
-
-    # Try to get the a value at xpath
-    try:
-        list_values_str = tixi.getTextElement(xpath)
-    except:
-        list_values_str = None
-
-    if list_values_str is not None:
-        list_values = list_values_str.split(';')
-        if list_values[-1] == '':
-            list_values.pop()
-        list_values = [float(elem) for elem in list_values]
-
-    else:
-        # Check if the path exist
-        if tixi.checkElement(xpath):
-            log.warning('No value has been fournd at ' + xpath)
-            log.warning('An empty list will be return')
-            list_values = []
-        else:
-            log.warning(xpath + ' cannot be found in the CPACS file')
-            log.warning('An empty list will be return')
-            list_values = []
-
-    return list_values
-
-
-def add_vector(tixi, xpath, vector):
-    """ Add a vector at given CPACS xpath
-
-    Function 'add_vector' will add a vector at the given XPath, if the node
-    does not exit, it will be created. Values will be overwritten if paths
-    exists.
+    Function 'add_float_vector' will add a vector (composed by float) at the
+    given XPath, if the node does not exit, it will be created. Values will be
+    overwritten if paths exists.
 
     Args:
         tixi (handle): Tixi handle
         xpath (str): XPath of the vector to add
-        vector (list, tuple): Vector to add
+        vector (list, tuple): Vector of floats to add
     """
 
     # Strip trailing '/' (has no meaning here)
-    if xpath.endswith("/"):
+    if xpath.endswith('/'):
         xpath = xpath[:-1]
 
     # Get the field name and the parent CPACS path
     xpath_child_name = xpath.split("/")[-1]
     xpath_parent = xpath[:-(len(xpath_child_name)+1)]
 
+    if not tixi.checkElement(xpath_parent):
+        create_branch(tixi,xpath_parent)
+
     if tixi.checkElement(xpath):
         tixi.updateFloatVector(xpath, vector, len(vector), format='%g')
     else:
         tixi.addFloatVector(xpath_parent, xpath_child_name, vector, \
                             len(vector), format='%g')
+
+
+def get_float_vector(tixi, xpath):
+    """ Get a vector (of float) at given CPACS xpath
+
+    Function 'get_float_vector' will get a vector (composed by float) at the
+    given XPath, if the node does not exit, an error will be raised.
+
+    Args:
+        tixi (handle): Tixi handle
+        xpath (str): XPath of the vector to get
+    """
+
+    if not tixi.checkElement(xpath):
+        raise ValueError(xpath + ' path does not exit!')
+
+    float_vector_str = tixi.getTextElement(xpath)
+
+    if float_vector_str == '':
+        raise ValueError('No value has been fournd at ' + xpath)
+
+    if float_vector_str.endswith(';'):
+        float_vector_str = float_vector_str[:-1]
+    float_vector_list = float_vector_str.split(';')
+    float_vector = [float(elem) for elem in float_vector_list]
+
+    return float_vector
+
+
+def add_string_vector(tixi, xpath, vector):
+    """ Add a vector (of string) at given CPACS xpath
+
+    Function 'add_string_vector' will add a vector (composed by stings) at the
+    given XPath, if the node does not exit, it will be created. Values will be
+    overwritten if paths exists.
+
+    Args:
+        tixi (handle): Tixi handle
+        xpath (str): XPath of the vector to add
+        vector (list): Vector of string to add
+    """
+
+    # Strip trailing '/' (has no meaning here)
+    if xpath.endswith('/'):
+        xpath = xpath[:-1]
+
+    # Get the field name and the parent CPACS path
+    xpath_child_name = xpath.split("/")[-1]
+    xpath_parent = xpath[:-(len(xpath_child_name)+1)]
+
+    vector_str = ";".join([str(elem) for elem in vector])
+
+    if not tixi.checkElement(xpath_parent):
+        create_branch(tixi,xpath_parent)
+
+    if tixi.checkElement(xpath):
+        tixi.updateTextElement(xpath, vector_str)
+    else:
+        tixi.addTextElement(xpath_parent,xpath_child_name,vector_str)
+
+
+def get_string_vector(tixi, xpath):
+    """ Get a vector (of string) at given CPACS xpath
+
+    Function 'get_string_vector' will get a vector (composed by string) at the
+    given XPath, if the node does not exit, an error will be raised.
+
+    Args:
+        tixi (handle): Tixi handle
+        xpath (str): XPath of the vector to get
+    """
+
+    if not tixi.checkElement(xpath):
+        raise ValueError(xpath + ' path does not exit!')
+
+    string_vector_str = tixi.getTextElement(xpath)
+
+    if string_vector_str == '':
+        raise ValueError('No value has been fournd at ' + xpath)
+
+    if string_vector_str.endswith(';'):
+        string_vector_str = string_vector_str[:-1]
+    string_vector_list = string_vector_str.split(';')
+    string_vector = [str(elem) for elem in string_vector_list]
+
+    return string_vector
 
 
 def aircraft_name(cpacs_path):

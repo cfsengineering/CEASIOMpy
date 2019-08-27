@@ -14,7 +14,9 @@ Python version: >=3.6
 TODO:
 
     * update __specs__ file
-    * Check if projected value are realistic for different cases
+    * Redo test functions
+    * (Check if projected value are realistic for different cases)
+
 
 """
 
@@ -171,9 +173,9 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
 
     # Wing area/span, default values will be calated if no value found in the CPACS file
     wing_area_xpath = analysis_xpath + '/wingArea'
-    tixi, wing_area = get_value_or_default(tixi,wing_area_xpath, wing_area_max)
+    wing_area = get_value_or_default(tixi,wing_area_xpath, wing_area_max)
     wing_span_xpath = analysis_xpath + '/wingSpan'
-    tixi, wing_span = get_value_or_default(tixi,wing_span_xpath, wing_span_max)
+    wing_span = get_value_or_default(tixi,wing_span_xpath, wing_span_max)
 
     # Get aeroPerformanceMap XPath
     active_aeroMap_xpath = SU2_XPATH + '/aeroMapUID'

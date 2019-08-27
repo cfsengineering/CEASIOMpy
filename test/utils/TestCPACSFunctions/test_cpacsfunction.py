@@ -121,17 +121,17 @@ def test_close_tixi():
 def test_create_branch():
     """Test the function 'create_branch'"""
 
-    tixi_handle = open_tixi(CPACS_IN_PATH)
+    tixi = open_tixi(CPACS_IN_PATH)
 
     update_branch = '/cpacs/header/updates/update'
     new_branch = '/cpacs/header/updates/update[3]/test/test1/test2'
 
     # This branch should be added
-    tixi = create_branch(tixi_handle, update_branch, True)
+    create_branch(tixi, update_branch, True)
     # This branch should not be added
-    tixi = create_branch(tixi, update_branch, False)
+    create_branch(tixi, update_branch, False)
     # 'new_branch' should be added
-    tixi = create_branch(tixi, new_branch)
+    create_branch(tixi, new_branch)
 
     # Save modified tixi in the output CPACS file
     close_tixi(tixi, CPACS_OUT_PATH)
@@ -152,25 +152,25 @@ def test_create_branch():
 def test_copy_branch():
     """Test the function 'copy_branch'"""
 
-    tixi_handle = open_tixi(CPACS_IN_PATH)
+    tixi = open_tixi(CPACS_IN_PATH)
 
     # Create a new 'header' branch and copy the original 'header' into it
     xpath_new = '/cpacs/header'
     xpath_from = '/cpacs/header[1]'
     xpath_to = '/cpacs/header[2]'
-    tixi = create_branch(tixi_handle, xpath_new, True)
-    tixi = copy_branch(tixi, xpath_from, xpath_to)
+    create_branch(tixi, xpath_new, True)
+    copy_branch(tixi, xpath_from, xpath_to)
 
     # Check if a specific element has been copied
     xpath_elem_from = '/cpacs/header[1]/updates/update[1]/timestamp'
     xpath_elem_to = '/cpacs/header[2]/updates/update[1]/timestamp'
-    elem_from = tixi_handle.getTextElement(xpath_elem_from)
+    elem_from = tixi.getTextElement(xpath_elem_from)
     elem_to = tixi.getTextElement(xpath_elem_to)
 
     assert elem_from == elem_to
 
     # Check if a specific attribute has been copied
-    attrib_text_from = tixi_handle.getTextAttribute(xpath_elem_from, 'uID')
+    attrib_text_from = tixi.getTextAttribute(xpath_elem_from, 'uID')
     attrib_text_to = tixi.getTextAttribute(xpath_elem_to, 'uID')
 
     assert attrib_text_from == attrib_text_to
@@ -209,31 +209,31 @@ def test_get_value_or_default():
 
     # Check if the correct value (float) is return from an xpath
     xpath = '/cpacs/vehicles/aircraft/model/reference/area'
-    tixi, value = get_value_or_default(tixi,xpath,2.0)
+    value = get_value_or_default(tixi,xpath,2.0)
     assert value == 1.0
 
     # Check if the correct value (text) is return from an xpath
     xpath = '/cpacs/vehicles/aircraft/model/name'
-    tixi, value = get_value_or_default(tixi,xpath,'name')
+    value = get_value_or_default(tixi,xpath,'name')
     assert value == 'Cpacs2Test'
 
     # Check if a non exitant xpath leads to its creation (integer)
     xpath = '/cpacs/vehicles/aircraft/model/reference/newSpan'
-    tixi, value = get_value_or_default(tixi,xpath,100)
+    value = get_value_or_default(tixi,xpath,100)
     assert value == 100
     new_elem = tixi.getDoubleElement(xpath)
     assert new_elem == 100
 
     # Check if a non exitant xpath leads to its creation (float)
     xpath = '/cpacs/vehicles/aircraft/model/reference/newArea'
-    tixi, value = get_value_or_default(tixi,xpath,1000.0)
+    value = get_value_or_default(tixi,xpath,1000.0)
     assert value == 1000.0
     new_elem = tixi.getDoubleElement(xpath)
     assert new_elem == 1000.0
 
     # Check if a non exitant xpath leads to its creation (text)
     xpath = '/cpacs/vehicles/aircraft/model/reference/newRef'
-    tixi, value = get_value_or_default(tixi,xpath,'test')
+    value = get_value_or_default(tixi,xpath,'test')
     assert value == 'test'
     new_elem = tixi.getTextElement(xpath)
     assert new_elem =='test'

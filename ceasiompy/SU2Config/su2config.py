@@ -150,24 +150,24 @@ def generate_config_case(cpacs_path, cpacs_out_path, su2_mesh_path):
     # Settings
     settings_xpath = su2_xpath + '/settings'
     max_iter_xpath = settings_xpath + '/maxIter'
-    tixi, max_iter = get_value_or_default(tixi, max_iter_xpath,200)
+    max_iter = get_value_or_default(tixi, max_iter_xpath,200)
     cfl_nb_xpath = settings_xpath + '/cflNumber'
-    tixi, cfl_nb = get_value_or_default(tixi, cfl_nb_xpath,1.0)
+    cfl_nb = get_value_or_default(tixi, cfl_nb_xpath,1.0)
     mg_level_xpath =  settings_xpath + '/multigridLevel'
-    tixi, mg_level = get_value_or_default(tixi, mg_level_xpath,3)
+    mg_level = get_value_or_default(tixi, mg_level_xpath,3)
 
     # Mesh Marker
     bc_wall_xpath = su2_xpath + '/boundaryConditions/wall'
     bc_wall_list = get_mesh_marker(su2_mesh_path)
-    tixi = create_branch(tixi, bc_wall_xpath)
+    create_branch(tixi, bc_wall_xpath)
     bc_wall_str = ';'.join(bc_wall_list)
     tixi.updateTextElement(bc_wall_xpath,bc_wall_str)
 
     # Fixed CL parameters
     fixed_cl_xpath = su2_xpath + '/fixedCL'
-    tixi, fixed_cl = get_value_or_default(tixi, fixed_cl_xpath,'NO')
+    fixed_cl = get_value_or_default(tixi, fixed_cl_xpath,'NO')
     target_cl_xpath = su2_xpath + '/targetCL'
-    tixi, target_cl = get_value_or_default(tixi, target_cl_xpath,1.0)
+    target_cl = get_value_or_default(tixi, target_cl_xpath,1.0)
 
     if fixed_cl == 'NO':
         active_aeroMap_xpath = su2_xpath + '/aeroMapUID'
@@ -194,10 +194,10 @@ def generate_config_case(cpacs_path, cpacs_out_path, su2_mesh_path):
         aos_list = [0.0]
 
         cruise_mach_xpath= range_xpath + '/cruiseMach'
-        tixi, mach = get_value_or_default(tixi,cruise_mach_xpath,0.78)
+        mach = get_value_or_default(tixi,cruise_mach_xpath,0.78)
         mach_list = [mach]
         cruise_alt_xpath= range_xpath + '/cruiseAltitude'
-        tixi, alt = get_value_or_default(tixi,cruise_alt_xpath,12000)
+        alt = get_value_or_default(tixi,cruise_alt_xpath,12000)
         alt_list = [alt]
 
         # Create an aeroMap to store param and results coefficient
@@ -206,7 +206,7 @@ def generate_config_case(cpacs_path, cpacs_out_path, su2_mesh_path):
     # Save the location of the config files in the CPACS file
     config_path = MODULE_DIR + '/ToolOutput'
     config_path_xpath = su2_xpath + '/configPath'
-    tixi = create_branch(tixi,config_path_xpath)
+    create_branch(tixi,config_path_xpath)
     tixi.updateTextElement(config_path_xpath,config_path)
 
     close_tixi(tixi,cpacs_out_path)

@@ -3,17 +3,18 @@
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH
 
+# ===== CPACS inputs and outputs =====
+
 cpacs_inout = CPACSInOut()
 
-#===== Input =====
+# ----- Input -----
 
 cpacs_inout.add_input(
     var_name='x',
     default_value=None,
     unit='1',
     descr='Fuselage scalingo on x axis',
-    cpacs_path=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation   \
-                                /scaling/x',
+    cpacs_path=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation/scaling/x',
 )
 
 cpacs_inout.add_input(
@@ -21,8 +22,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='1',
     descr='Fuselage scalingo on x axis',
-    cpacs_path=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation   \
-                                /scaling/y',
+    cpacs_path=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation/scaling/y',
 )
 
 cpacs_inout.add_input(
@@ -30,19 +30,18 @@ cpacs_inout.add_input(
     default_value=None,
     unit='1',
     descr='Fuselage scalingo on x axis',
-    cpacs_path=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation   \
-                                /scaling/z',
+    cpacs_path=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation/scaling/z',
 )
 
-# ===== Output =====
+# ----- Output -----
 
 # cpacs_inout.add_output(
-#         var_name='output',
-#         default_value=None,
-#         unit='1',
-#         descr='Description of the output',
-#         cpacs_path=CEASIOM_XPATH + '/...',
-#         )
+#     var_name='output',
+#     default_value=None,
+#     unit='1',
+#     descr='Description of the output',
+#     cpacs_path=CEASIOM_XPATH + '/...',
+# )
 
 # ===== RCE integration =====
 

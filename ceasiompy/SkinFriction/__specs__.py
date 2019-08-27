@@ -56,3 +56,13 @@ cpacs_inout.add_output(
     descr='Wing span of the main (largest) wing',
     cpacs_path=CEASIOM_XPATH + '/geometry/analysis/wingSpan',
 )
+
+# ===== RCE =====
+
+RCE = {
+    "name": "SkinFriction",
+    "description": "Calculate skin friction drag coefficent",
+    "exec": "pwd\npython skinfriction.py",
+    "author": "Aidan Jungo",
+    "email": "aidan.jungo@cfse.ch",
+}

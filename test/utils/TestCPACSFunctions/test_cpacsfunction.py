@@ -312,6 +312,7 @@ def test_get_float_vector():
     with pytest.raises(ValueError):
         vector = get_float_vector(tixi,wrong_xpath)
 
+    # Raise an error when no value at XPath
     no_value_xpath = '/cpacs/toolspecific/CEASIOMpy'
     with pytest.raises(ValueError):
         vector = get_float_vector(tixi,no_value_xpath)
@@ -362,6 +363,7 @@ def test_get_string_vector():
     with pytest.raises(ValueError):
         vector = get_string_vector(tixi,wrong_xpath)
 
+    # Raise an error when no value at XPath
     no_value_xpath = '/cpacs/toolspecific/CEASIOMpy'
     with pytest.raises(ValueError):
         vector = get_string_vector(tixi,no_value_xpath)

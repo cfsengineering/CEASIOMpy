@@ -35,7 +35,7 @@ from shutil import ignore_patterns
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi, \
                                            create_branch, get_value
-from ceasiompy.utils.apmfunctions import save_aero_coef, get_apm_xpath, AeroCoefficient
+from ceasiompy.utils.apmfunctions import save_aero_coef, AeroCoefficient
 
 log = get_logger(__file__.split('.')[0])
 
@@ -275,7 +275,8 @@ def get_su2_results(cpacs_path,cpacs_out_path):
 
     # Save aeroPerformanceMap
     active_aeroMap_xpath = SU2_XPATH + '/aeroMapUID'
-    apm_xpath = get_apm_xpath(tixi,active_aeroMap_xpath)
+    aeroMap_uid = get_value(tixi,active_aeroMap_xpath)
+    apm_xpath = tixi.uIDGetXPath(aeroMap_uid) + '/aeroPerformanceMap'
 
     # Create an oject to store the aerodynamic coefficients
     Coef = AeroCoefficient()

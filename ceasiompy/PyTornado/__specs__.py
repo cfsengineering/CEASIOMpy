@@ -71,7 +71,7 @@ cpacs_inout.add_input(
 RCE = {
     "name": "PyTornado",
     "description": "Wrapper module for PyTornado",
-    "exec": "pwd\npython main.py",
+    "exec": "pwd\npython runpytornado.py",
     "author": "Aaron Dettmann",
     "email": "dettmann@kth.se",
 }

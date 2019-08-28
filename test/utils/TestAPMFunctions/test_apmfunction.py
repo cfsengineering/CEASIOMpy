@@ -52,14 +52,22 @@ CPACS_OUT_PATH = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 #   FUNCTIONS
 #==============================================================================
 
-def test_get_aeromap_uid_list():
-    """Test the function 'get_aeromap_uid_list'"""
+def test_create_empty_apm():
+    """Test the function 'create_empty_apm'"""
 
     # Create TIXI handles for a valid CPACS file
     tixi_handle = open_tixi(CPACS_IN_PATH)
 
-    assert 1 == 1
+    
 
+def test_get_aeromap_uid_list():
+        """Test the function 'get_aeromap_uid_list'"""
+
+    # Create TIXI handles for a valid CPACS file
+    tixi_handle = open_tixi(CPACS_IN_PATH)
+
+    # Test
+    assert 1 == 1
     # Raise error for an invalid CPACS path
     with pytest.raises(ValueError):
         get_aeromap_uid_list(tixi, xpath)

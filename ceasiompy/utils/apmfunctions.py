@@ -10,7 +10,7 @@ CPACS version: 3.1
 
 | Author : Aidan Jungo
 | Creation: 2019-08-15
-| Last modifiction: 2019-08-27
+| Last modifiction: 2019-08-28
 
 TODO:
 
@@ -26,6 +26,7 @@ TODO:
 
 import os
 import sys
+import time
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -45,6 +46,7 @@ AEROPERFORMANCE_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance
 
 class AeroCoefficient():
 
+#TODO: add name and description ????
     def __init__(self):
 
         # Parameters
@@ -78,6 +80,7 @@ class AeroCoefficient():
         self.cms.append(cms)
 
     def get_count(self):
+        # TODO: this function could be improved
 
         alt_len = len(self.alt)
         mach_len = len(self.mach)
@@ -93,8 +96,9 @@ class AeroCoefficient():
         cd_len = len(self.cd)
         cs_len = len(self.cs)
 
-        if  not (cl_len == cd_len == cs_len):
-            raise ValueError('Proebleme with the lenght of the coefficient list')
+        if not (cl_len == cd_len == cs_len):
+            # raise ValueError('Proebleme with the lenght of the coefficient list')
+            log.warning('Proeblem with the lenght of the coefficient list')
         elif cl_len != alt_len:
             log.warning('Not the same number of parameter and coerfficients')
         else:
@@ -105,7 +109,8 @@ class AeroCoefficient():
         cms_len = len(self.cms)
 
         if  not (cml_len == cmd_len == cms_len):
-            raise ValueError('Proebleme with the lenght of the moment coefficient list')
+            # raise ValueError('Proebleme with the lenght of the moment coefficient list')
+            log.warning('Proebleme with the lenght of the moment coefficient list')
         elif cml_len != alt_len:
             log.warning('Not the same number of parameter and moment coerfficients')
         else:
@@ -117,7 +122,7 @@ class AeroCoefficient():
 
         case_count = self.get_count()
 
-        print('=====================================================================================')
+        print('======================================================================================')
         print('#\talt\tmach\taoa\taos\tcl\tcd\tcs\tcml\tcmd\tcms')
 
         for i in range(case_count):
@@ -135,7 +140,7 @@ class AeroCoefficient():
             print(str(i) +'\t'+ alt +'\t'+ mach +'\t'+ aoa +'\t'+ aos +'\t'+  \
                   cl + '\t' + cd + '\t' + cs + '\t' +
                   cml + '\t' + cmd + '\t' + cms)
-        print('=====================================================================================')
+        print('======================================================================================')
 
     # def complete_apm():  ???
     #    """ fill the aeroPerformanceMap with None value to have same lenght for all coefficients
@@ -146,29 +151,6 @@ class AeroCoefficient():
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
-
-### get_apm_xpath(tixi,active_aeroMap_xpath):   has been replace by:
-    # aeroMap_uid = get_value(tixi,active_aeroMap_xpath)
-    # apm_xpath = tixi.uIDGetXPath(aeroMap_uid) + '/aeroPerformanceMap'
-
-def create_empty_apm(tixi, apm_uid, description = ''):
-    """ TODO """
-
-    if tixi.uIDCheckExists(apm_uid):
-        log.info('New UID does not exit yet')
-
-    create_branch(tixi,AEROPERFORMANCE_XPATH + '/aeroMap',True)
-    am_count = tixi.getNamedChildrenCount(AEROPERFORMANCE_XPATH, 'aeroMap')
-
-    aeroMap_xpath = AEROPERFORMANCE_XPATH + '/aeroMap[' + str(am_count) + ']'
-    add_uid(tixi, aeroMap_xpath, apm_uid)
-    tixi.addTextElement(aeroMap_xpath, 'name', apm_uid)
-    tixi.addTextElement(aeroMap_xpath, 'description', description)
-    create_branch(tixi,aeroMap_xpath + '/boundaryConditions')
-    tixi.addTextElement(aeroMap_xpath+'/boundaryConditions','atmosphericModel','ISA')
-
-    create_branch(tixi,aeroMap_xpath + '/aeroPerformanceMap')
-
 
 def get_aeromap_uid_list(tixi):
     """ Get the list of all aeroMap UID.
@@ -187,7 +169,7 @@ def get_aeromap_uid_list(tixi):
 
     aeromap_count = tixi.getNamedChildrenCount(AEROPERFORMANCE_XPATH, 'aeroMap')
     if aeromap_count:
-        log.info('There are : ' + str(aeromap_count) + ' in the CPACS file: ')
+        log.info('There are : ' + str(aeromap_count) + ' aeroMap in this CPACS file: ')
         for i in range(aeromap_count):
             aeromap_xpath = AEROPERFORMANCE_XPATH + '/aeroMap[' + str(i+1) + ']'
             aeromap_uid = tixi.getTextAttribute(aeromap_xpath, 'uID')
@@ -200,36 +182,241 @@ def get_aeromap_uid_list(tixi):
     return aeromap_list
 
 
+def create_empty_aeromap(tixi, aeromap_uid, description = ''):
+    """ Create an empty aeroPerformanceMap
+
+    Function 'create_empty_apm' will add all the required nodes for a new
+    aeroPerformanceMap, no value will be sored but function like '????' and
+    '???' could be used to fill it then.
+
+    Args:
+        tixi (handles): TIXI Handle of the CPACS file
+        aeromap_uid (str): UID of the aeroPerformanceMap to create
+        description (str): description of the aeroPerformanceMap to create
+
+    """
+
+    if tixi.uIDCheckExists(aeromap_uid):
+        log.warning('This UID already exits!')
+        aeromap_uid = aeromap_uid + '_bis'
+        log.warning(' The following UID will be used instead: ' + aeromap_uid )
+    else:
+        log.info('This UID does not exit yet.')
+
+    # Add the /aeroMap node, or a new child is already exists
+    create_branch(tixi,AEROPERFORMANCE_XPATH + '/aeroMap',True)
+    am_count = tixi.getNamedChildrenCount(AEROPERFORMANCE_XPATH, 'aeroMap')
+    aeromap_xpath = AEROPERFORMANCE_XPATH + '/aeroMap[' + str(am_count) + ']'
+
+    # Add UID and sub nodes
+    add_uid(tixi, aeromap_xpath, aeromap_uid)
+    tixi.addTextElement(aeromap_xpath, 'name', aeromap_uid)
+    tixi.addTextElement(aeromap_xpath, 'description', description)
+    apm_bc_xpath = aeromap_xpath + '/boundaryConditions'
+    create_branch(tixi, apm_bc_xpath)
+    tixi.addTextElement(apm_bc_xpath,'atmosphericModel','ISA')
+
+    # Add /AeroPerformanceMap and sub nodes
+    apm_xpath = aeromap_xpath + '/aeroPerformanceMap'
+    create_branch(tixi,apm_xpath)
+    create_branch(tixi,apm_xpath+'/altitude')
+    create_branch(tixi,apm_xpath+'/machNumber')
+    create_branch(tixi,apm_xpath+'/angleOfAttack')
+    create_branch(tixi,apm_xpath+'/angleOfSideslip')
+    create_branch(tixi,apm_xpath+'/cl')
+    create_branch(tixi,apm_xpath+'/cd')
+    create_branch(tixi,apm_xpath+'/cs')
+    create_branch(tixi,apm_xpath+'/cml')
+    create_branch(tixi,apm_xpath+'/cmd')
+    create_branch(tixi,apm_xpath+'/cms')
 
 
+def check_apm(tixi, aeromap_uid):
+    """ Check an aeroMap and add missing nodes
 
-def get_apm(tixi,apm_xpath):
-    """ Get aerodynamic parameters and coefficients from an aeroMap
+    Function 'check_apm' is similar to 'create_empty_aeromap' but for existing
+    aeroMap. It will that all node exist and create the missing ones.
 
-    Function 'get_su2_aero_coef' ....TODO
+    Args:
+        tixi (handles): TIXI Handle of the CPACS file
+        aeromap_uid (str): UID of the aeroPerformanceMap to create
+
+    """
+
+    seconds = time.time()
+    local_time = time.ctime(seconds)
+
+    # If this aeroMap UID did not exist a new one will be create
+    if not tixi.uIDCheckExists(aeromap_uid):
+        log.warning(aeromap_uid + ' aeroMap has not been found!')
+        log.warning('An empty one will be created')
+        description = 'AeroMap created by CEASIOMpy ' + str(local_time)
+        create_empty_aeromap(tixi, aeromap_uid,description)
+    else:
+        aeromap_xpath = tixi.uIDGetXPath(aeromap_uid)
+        log.info('The aeroMap to check as been found')
+
+        # Check name, description and boundary conditions
+        get_value_or_default(tixi,aeromap_xpath+'/name', aeromap_uid)
+        description = 'AeroMap checked and utdated by CEASIOMpy ' + str(local_time)
+        get_value_or_default(tixi,aeromap_xpath+'/description', description)
+        aeromap_bc_xpath = aeromap_xpath + '/boundaryConditions'
+        create_branch(tixi,aeromap_bc_xpath)
+        get_value_or_default(tixi,aeromap_bc_xpath+'/atmosphericModel', 'ISA')
+
+        # Check AeroPerformanceMap, parameters and coefficients nodes
+        apm_xpath = aeromap_xpath + '/aeroPerformanceMap'
+        create_branch(tixi,apm_xpath)
+        create_branch(tixi,apm_xpath+'/altitude')
+        create_branch(tixi,apm_xpath+'/machNumber')
+        create_branch(tixi,apm_xpath+'/angleOfAttack')
+        create_branch(tixi,apm_xpath+'/angleOfSideslip')
+        create_branch(tixi,apm_xpath+'/cl')
+        create_branch(tixi,apm_xpath+'/cd')
+        create_branch(tixi,apm_xpath+'/cs')
+        create_branch(tixi,apm_xpath+'/cml')
+        create_branch(tixi,apm_xpath+'/cmd')
+        create_branch(tixi,apm_xpath+'/cms')
+
+
+# TODO: from here, function to re-write  or improve >>>>>>>>>>>>>>>>>>>>>
+# Could be improved
+def save_parameters(tixi,aeromap_uid,Param):
+    """ Save aerodynamic parameter in an aeroMap
+
+    Function 'save_parameters' will save parameters (alt,mach,aoa,aos) into an
+    aeroMap ...
+    TODO: create it if not exist ???
 
     Source :
         * ...CPACS Documentation?
 
     Args:
         tixi (handles): TIXI Handle of the CPACS file
-        apm_xpath (str): XPath to the aeroMap to fill
+        aeromap_uid (str): UID of the aeroMap used to save parameters
+        Param (object): Object containing aerodynamic parameters (alt,mach,aoa,aos)
+
+    """
+
+    apm_xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap'
+
+    # Check if the number of parameters in Param is OK
+    Param.get_count()
+
+    # Add parameters to the aeroPerformanceMap
+    add_float_vector(tixi,apm_xpath+'/altitude',Param.alt)
+    add_float_vector(tixi,apm_xpath+'/machNumber',Param.mach)
+    add_float_vector(tixi,apm_xpath+'/angleOfAttack',Param.aoa)
+    add_float_vector(tixi,apm_xpath+'/angleOfSideslip',Param.aos)
+
+# Could be improved
+def save_coefficients(tixi,aeromap_uid,Coef):
+    """ Save aerodynamic coefficients in an aeroMap
+
+    Function 'save_coefficients' will save aerodynamic coefficients into an
+    aeroMap ...
+    TODO: create it if not exist ???
+
+    Source :
+        * ...CPACS Documentation?
+
+    Args:
+        tixi (handles): TIXI Handle of the CPACS file
+        aeromap_uid (str): UID of the aeroMap used to save coefficients
         Coef (object): Object containing aerodynamic coefficients
 
-    Returns::
-        tixi (handles): Modified Handle of the CPACS file
     """
+
+    apm_xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap'
+
+    param_count = Coef.get_count()
+
+    # CL coefficients
+    if len(Coef.cl) == 0:
+        log.warning('No "cl" value have been found, this node will stay empty')
+    elif len(Coef.cl) == param_count:
+        add_float_vector(tixi,apm_xpath+'/cl',Coef.cl)
+        log.info('"cl" values have been added to the corresponding node')
+    else:
+        raise ValueError('The number of "cl" values is incorrect, it must \
+        either equal to the number of parameters or 0')
+
+    # CD coefficients
+    if len(Coef.cd) == 0:
+        log.warning('No "cd" value have been found, this node will stay empty')
+    elif len(Coef.cd) == param_count:
+        add_float_vector(tixi,apm_xpath+'/cd',Coef.cd)
+        log.info('"cd" values have been added to the corresponding node')
+    else:
+        raise ValueError('The number of "cd" values is incorrect, it must \
+        either equal to the number of parameters or 0')
+
+    # CS coefficients
+    if len(Coef.cs) == 0:
+        log.warning('No "cs" value have been found, this node will stay empty')
+    elif len(Coef.cs) == param_count:
+        add_float_vector(tixi,apm_xpath+'/cs',Coef.cs)
+        log.info('"cs" values have been added to the corresponding node')
+    else:
+        raise ValueError('The number of "cs" values is incorrect, it must \
+        either equal to the number of parameters or 0')
+
+    # Cml coefficients
+    if len(Coef.cml) == 0:
+        log.warning('No "cml" value have been found, this node will stay empty')
+    elif len(Coef.cml) == param_count:
+        add_float_vector(tixi,apm_xpath+'/cml',Coef.cml)
+        log.info('"cml" values have been added to the corresponding node')
+    else:
+        raise ValueError('The number of "cml" values is incorrect, it must \
+        either equal to the number of parameters or 0')
+
+    # CD coefficients
+    if len(Coef.cmd) == 0:
+        log.warning('No "cmd" value have been found, this node will stay empty')
+    elif len(Coef.cmd) == param_count:
+        add_float_vector(tixi,apm_xpath+'/cmd',Coef.cmd)
+        log.info('"cmd" values have been added to the corresponding node')
+    else:
+        raise ValueError('The number of "cmd" values is incorrect, it must \
+        either equal to the number of parameters or 0')
+
+    # CS coefficients
+    if len(Coef.cms) == 0:
+        log.warning('No "cms" value have been found, this node will stay empty')
+    elif len(Coef.cms) == param_count:
+        add_float_vector(tixi,apm_xpath+'/cms',Coef.cs)
+        log.info('"cms" values have been added to the corresponding node')
+    else:
+        raise ValueError('The number of "cms" values is incorrect, it must \
+        either equal to the number of parameters or 0')
+
+
+def get_aeromap(tixi,aeromap_uid):
+    """ Get aerodynamic parameters and coefficients from an aeroMap
+
+    Function 'get_aeromap' return an object 'AeroCoefficient' fill with the
+    values found in the given aeroMap. Parameters are required but if a
+    coefficients is not found, an empty list will be return in the corresponding
+    node.
+
+    Args:
+        tixi (handles): TIXI Handle of the CPACS file
+        aeromap_uid (str): UID of the aeroMap to get
+
+    Returns::
+        Coef (object): Object containing parameters and aerodynamic coefficients from the aeroMap
+    """
+
+    apm_xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap'
 
     Coef = AeroCoefficient()
 
-    if tixi.checkElement(apm_xpath +'/altitude'):
-        Coef.alt = get_float_vector(tixi,apm_xpath +'/altitude')
-    if tixi.checkElement(apm_xpath +'/machNumber'):
-        Coef.mach  = get_float_vector(tixi,apm_xpath +'/machNumber')
-    if tixi.checkElement(apm_xpath +'/angleOfAttack'):
-        Coef.aoa = get_float_vector(tixi,apm_xpath +'/angleOfAttack')
-    if tixi.checkElement(apm_xpath +'/angleOfSideslip'):
-        Coef.aos = get_float_vector(tixi,apm_xpath +'/angleOfSideslip')
+    Coef.alt = get_float_vector(tixi,apm_xpath +'/altitude')
+    Coef.mach  = get_float_vector(tixi,apm_xpath +'/machNumber')
+    Coef.aoa = get_float_vector(tixi,apm_xpath +'/angleOfAttack')
+    Coef.aos = get_float_vector(tixi,apm_xpath +'/angleOfSideslip')
+
     if tixi.checkElement(apm_xpath +'/cl'):
         Coef.cl = get_float_vector(tixi,apm_xpath +'/cl')
     if tixi.checkElement(apm_xpath +'/cd'):
@@ -246,89 +433,30 @@ def get_apm(tixi,apm_xpath):
     return Coef
 
 
-# Maybe combine this function with the next one
-def save_param(tixi,apm_xpath,Param):
-    """ Save aerodynamic parameter in an aeroMap
-
-    Function 'save_param' ....TODO
-
-    Source :
-        * ...CPACS Documentation?
-
-    Args:
-        tixi (handles): TIXI Handle of the CPACS file
-        apm_xpath (str): XPath to the aeroMap to fill
-        Coef (object): Object containing aerodynamic coefficients
-
-    Returns::
-        tixi (handles): Modified Handle of the CPACS file
-    """
-
-    create_branch(tixi,apm_xpath+'/altitude')
-    alt_list_str = ";".join([str(c) for c in Param.alt])
-    tixi.updateTextElement(apm_xpath+'/altitude',alt_list_str)
-
-    create_branch(tixi,apm_xpath+'/machNumber')
-    mach_list_str = ";".join([str(c) for c in Param.mach])
-    tixi.updateTextElement(apm_xpath+'/machNumber',mach_list_str)
-
-    create_branch(tixi,apm_xpath+'/angleOfAttack')
-    aoa_list_str = ";".join([str(c) for c in Param.aoa])
-    tixi.updateTextElement(apm_xpath+'/angleOfAttack',aoa_list_str)
-
-    create_branch(tixi,apm_xpath+'/angleOfSideslip')
-    aos_list_str = ";".join([str(c) for c in Param.aos])
-    tixi.updateTextElement(apm_xpath+'/angleOfSideslip',aos_list_str)
-
-    #tixi.addFloatVector(apm_xpath,angleOfSideslip)
 
 
-def save_aero_coef(tixi,apm_xpath,Coef):
-    """ Save aerodynamic coefficients in an aeroMap
 
-    Function 'save_aero_coef' ....TODO
+def merge_aeroPerfomanceMap(aeromap_uid_1,aeromap_uid_2,aeromap_uid_merge, delete = False):
+    """ Merge two existing aeroPerformanceMap into a new one
 
-    Source :
-        * ...CPACS Documentation?
+    Function 'merge_aeroPerfomanceMap' merge two aeroMap into one, an option
+    allow to keep or not the orignal ones.
 
     Args:
         tixi (handles): TIXI Handle of the CPACS file
-        apm_xpath (str): XPath to the aeroMap to fill
-        Coef (object): Object containing aerodynamic coefficients
+        aeromap_uid_1 (str): UID of the first aeroMap to merge
+        aeromap_uid_2 (str): UID of the second aeroMap to merge
+        aeromap_uid_merge (str): UID of the merged aeroMap
+        delete (boolean): Delete orignal aeroMap
 
-    Returns::
-        tixi (handles): Modified Handle of the CPACS file
     """
+    pass
 
-    create_branch(tixi,apm_xpath+'/cl')
-    cl_list_str = ";".join([str(round(c,6)) for c in Coef.cl])
-    tixi.updateTextElement(apm_xpath+'/cl',cl_list_str)
+    #TODO
 
-    create_branch(tixi,apm_xpath+'/cd')
-    cd_list_str = ";".join([str(round(c,6)) for c in Coef.cd])
-    tixi.updateTextElement(apm_xpath+'/cd',cd_list_str)
+def convert_coefficients():
+    """ Convert aerodynamic coefficients from fix frame to aircraft frame """
 
-    create_branch(tixi,apm_xpath+'/cs')
-    cs_list_str = ";".join([str(round(c,6)) for c in Coef.cs])
-    tixi.updateTextElement(apm_xpath+'/cs',cs_list_str)
-
-    create_branch(tixi,apm_xpath+'/cml')
-    cml_list_str = ";".join([str(round(c,6)) for c in Coef.cml])
-    tixi.updateTextElement(apm_xpath+'/cml',cml_list_str)
-
-    create_branch(tixi,apm_xpath+'/cmd')
-    cmd_list_str = ";".join([str(round(c,6)) for c in Coef.cmd])
-    tixi.updateTextElement(apm_xpath+'/cmd',cmd_list_str)
-
-    create_branch(tixi,apm_xpath+'/cms')
-    cms_list_str = ";".join([str(round(c,6)) for c in Coef.cms])
-    tixi.updateTextElement(apm_xpath+'/cms',cms_list_str)
-
-
-# def create_apm_from_csv(tixi, csv_path):
-
-# def merge_aeroPerfomanceMap(aeromap1_uid,aeromap2_uid,aeromap_new_uid):
-    """ Merge two existing aeroPerformanceMap into a new one """
 
 # def add_points(alt_list,mach_list,aoa_list,aos_list)
     """ Add a calculation point to an existing aeroPerformanceMap """
@@ -336,6 +464,12 @@ def save_aero_coef(tixi,apm_xpath,Coef):
 # def "print_param_list" something like a csv file...?
     #  altitude     machNumber      angleOfAttack   angleOfSideslip
     #  1200         0.78            2.0             0.0
+
+# def export_apm_to_csv(tixi, aeromap_uid, csv_path):
+
+
+# def create_apm_from_csv(tixi, csv_path):
+
 
 # def "print_coef_list" something like a csv file...? same with coef
     #  altitude     machNumber      angleOfAttack   angleOfSideslip     CL  CD ...

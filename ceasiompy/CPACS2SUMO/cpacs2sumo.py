@@ -18,6 +18,7 @@ TODO:
     * Use <segements> both for wing and fuselage, as they define which
       part of the fuselage/wing should be built
     * Add "fuselage cap" to improve mesh generation
+    * Try to add engine conversion (should be possible with CPACS3.1/TIGL3)
 """
 
 #==============================================================================

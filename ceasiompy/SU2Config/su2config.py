@@ -32,7 +32,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi,              \
                                            get_value, get_value_or_default,    \
                                            create_branch
-from ceasiompy.utils.apmfunctions import get_apm, AeroCoefficient
+from ceasiompy.utils.apmfunctions import get_aeromap, AeroCoefficient
 from ceasiompy.utils.standardatmosphere import get_atmosphere
 from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
 from ceasiompy.SU2Config.__specs__ import cpacs_inout
@@ -171,11 +171,11 @@ def generate_config_case(cpacs_path, cpacs_out_path, su2_mesh_path):
 
     if fixed_cl == 'NO':
         active_aeroMap_xpath = su2_xpath + '/aeroMapUID'
-        aeroMap_uid = get_value(tixi,active_aeroMap_xpath)
-        apm_xpath = tixi.uIDGetXPath(aeroMap_uid) + '/aeroPerformanceMap'
+        aeromap_uid = get_value(tixi,active_aeroMap_xpath)
 
+#
         # Get parameters of the aeroMap (alt,ma,aoa,aos)
-        Param = get_apm(tixi,apm_xpath)
+        Param = get_aeromap(tixi,aeromap_uid)
         param_count = Param.get_count()
 
         if param_count >= 1:

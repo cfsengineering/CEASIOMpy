@@ -49,6 +49,11 @@
 
 * Improve and check all Weight and Balance modules
 
+## Aerodynamics
+    * What to do when there is no moment coefficients
+    * Calculate and save damping derivatives
+    * Calculate and save Controls surface deflections
+
 
 ## RCE Integration
     * Create 'how to install' CEASIOMpy into RCE

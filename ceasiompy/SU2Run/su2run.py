@@ -35,7 +35,7 @@ from shutil import ignore_patterns
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi, \
                                            create_branch, get_value
-from ceasiompy.utils.apmfunctions import save_aero_coef, AeroCoefficient
+from ceasiompy.utils.apmfunctions import save_coefficients, get_aeromap, AeroCoefficient
 
 log = get_logger(__file__.split('.')[0])
 
@@ -279,7 +279,8 @@ def get_su2_results(cpacs_path,cpacs_out_path):
     apm_xpath = tixi.uIDGetXPath(aeroMap_uid) + '/aeroPerformanceMap'
 
     # Create an oject to store the aerodynamic coefficients
-    Coef = AeroCoefficient()
+    # Coef = AeroCoefficient()
+    Coef = get_aeromap(tixi, aeroMap_uid)
 
     os.chdir(TMP_DIR)
     config_dir_list = os.listdir(TMP_DIR)
@@ -312,9 +313,8 @@ def get_su2_results(cpacs_path,cpacs_out_path):
 
             os.chdir(TMP_DIR)
 
-
     # Save object Coef in the CPACS file
-    save_aero_coef(tixi,apm_xpath,Coef)
+    save_coefficients(tixi,aeroMap_uid,Coef)
 
     close_tixi(tixi,cpacs_out_path)
 
@@ -339,9 +339,17 @@ if __name__ == '__main__':
     config_path_xpath = SU2_XPATH + '/configPath'
     config_path = get_value(tixi,config_path_xpath)
 
-    run_SU2(mesh_path, config_path)
+    # use -r argument to skip run_SU2
+    skip_su2 = False
+    if len(sys.argv)>1:
+       if sys.argv[1] == '-r':
+           skip_su2 = True
+
+    if not skip_su2:
+        run_SU2(mesh_path, config_path)
 
     get_su2_results(cpacs_path,cpacs_out_path)
+
 
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

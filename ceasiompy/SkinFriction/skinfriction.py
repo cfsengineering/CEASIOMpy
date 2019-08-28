@@ -33,7 +33,7 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, \
                                      get_value, get_value_or_default,  \
                                      create_branch
 
-from ceasiompy.utils.apmfunctions import get_apm,create_empty_apm, save_aero_coef, save_param,AeroCoefficient
+from ceasiompy.utils.apmfunctions import get_aeromap,create_empty_aeromap, save_coefficients, save_parameters,AeroCoefficient
 
 from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
 from ceasiompy.SkinFriction.__specs__ import cpacs_inout
@@ -178,12 +178,12 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
     wing_span = get_value_or_default(tixi,wing_span_xpath, wing_span_max)
 
     # Get aeroPerformanceMap XPath
+    #TODO: change that by list of aeromap to add skinfriction
     active_aeroMap_xpath = SU2_XPATH + '/aeroMapUID'
     aeroMap_uid = get_value(tixi,active_aeroMap_xpath)
-    apm_xpath = tixi.uIDGetXPath(aeroMap_uid) + '/aeroPerformanceMap'
 
     # Get orignial aeroPerformanceMap
-    AeroCoef = get_apm(tixi,apm_xpath)
+    AeroCoef = get_aeromap(tixi,aeroMap_uid)
 
     # Create new aeroCoefficient object to store coef with added skin friction
     AeroCoefSF = AeroCoefficient()
@@ -219,9 +219,19 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
         cs = AeroCoef.cs[case] + cd0_cs
 
         # Shoud we change something? e.i. if a force is not apply at aero center...?
-        cml = AeroCoef.cml[case]
-        cmd = AeroCoef.cmd[case]
-        cms = AeroCoef.cms[case]
+        if len(AeroCoef.cml):
+            cml = AeroCoef.cml[case]
+        else:
+            cml = 0.0  # Shoud be change, just to test pyTornado
+        if len(AeroCoef.cmd):
+            cmd = AeroCoef.cmd[case]
+        else:
+            cmd = 0.0
+        if len(AeroCoef.cms):
+            cms = AeroCoef.cms[case]
+        else:
+            cms = 0.0
+
 
         # Add new coefficients into the aeroCoefficient object
         AeroCoefSF.add_coefficients(cl,cd,cs,cml,cmd,cms)
@@ -233,13 +243,11 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
     # Create new description
     description_xpath = tixi.uIDGetXPath(aeroMap_uid) + '/description'
     new_description = get_value(tixi,description_xpath) +  ' Skin friction has been add to this AeroMap.'
-    create_empty_apm(tixi,new_aeroMap_uid, new_description)
+    create_empty_aeromap(tixi,new_aeroMap_uid, new_description)
 
     # Save aeroCoefficient object Coef in the CPACS file
-    new_apm_xpath = tixi.uIDGetXPath(new_aeroMap_uid) + '/aeroPerformanceMap'
-    save_param(tixi,new_apm_xpath,AeroCoefSF)
-    save_aero_coef(tixi,new_apm_xpath,AeroCoefSF)
-
+    save_parameters(tixi,new_aeroMap_uid,AeroCoefSF)
+    save_coefficients(tixi,new_aeroMap_uid,AeroCoefSF)
 
 
     log.info('AeroMap "' + aeroMap_uid + '" has been added to the CPACS file')

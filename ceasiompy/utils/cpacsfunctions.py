@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-10-02
-| Last modifiction: 2019-08-27
+| Last modifiction: 2019-08-28
 
 TODO:
 
@@ -415,6 +415,7 @@ def add_float_vector(tixi, xpath, vector):
 
     if tixi.checkElement(xpath):
         tixi.updateFloatVector(xpath, vector, len(vector), format='%g')
+        tixi.addTextAttribute(xpath, 'mapType', 'vector')
     else:
         tixi.addFloatVector(xpath_parent, xpath_child_name, vector, \
                             len(vector), format='%g')

@@ -102,7 +102,7 @@ def test_close_tixi():
 
     # Remove /ToolOutput directory
     tooloutput_dir = MODULE_DIR + '/ToolOutput'
-    shutil.rmtree(tooloutput_dir)
+    shutil.rmtree(tooloutput_dir,ignore_errors=True)
     log.info(str(tooloutput_dir) + ' has been remove for a test.')
 
     # Save unmodified tixi in the output CPACS file

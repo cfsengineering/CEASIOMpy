@@ -6,6 +6,9 @@
     :target: https://github.com/cfsengineering/CEASIOMpy/blob/master/LICENSE
     :alt: License
 
+.. image:: https://travis-ci.org/cfsengineering/CEASIOMpy.svg?branch=master
+    :target: https://travis-ci.org/cfsengineering/CEASIOMpy
+
 CEASIOMpy
 =========
 

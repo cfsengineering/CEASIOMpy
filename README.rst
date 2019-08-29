@@ -2,12 +2,13 @@
     :target: https://ceasiompy.readthedocs.io/en/latest/
     :alt: Documentation Status
 
+.. image:: https://travis-ci.org/cfsengineering/CEASIOMpy.svg?branch=master
+    :target: https://travis-ci.org/cfsengineering/CEASIOMpy
+
 .. image:: https://img.shields.io/badge/license-Apache%202-blue.svg
     :target: https://github.com/cfsengineering/CEASIOMpy/blob/master/LICENSE
     :alt: License
 
-.. image:: https://travis-ci.org/cfsengineering/CEASIOMpy.svg?branch=master
-    :target: https://travis-ci.org/cfsengineering/CEASIOMpy
 
 CEASIOMpy
 =========

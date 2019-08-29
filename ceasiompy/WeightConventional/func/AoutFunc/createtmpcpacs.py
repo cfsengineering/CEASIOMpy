@@ -9,7 +9,7 @@ the aircraft is defined with user inputs.
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-08-29 (AJ)
 """
 
 
@@ -24,7 +24,7 @@ import xml.etree.cElementTree as ET
 #from tixi3wrapper import Tixi3Exception
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import cpacsfunctions as cpf
+from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi
 
 log = get_logger(__file__.split('.')[0])
 
@@ -67,9 +67,9 @@ def create_xml(cpacs_out, NAME):
 
     tree = ET.ElementTree(root)
     tree.write(cpacs_out)
-    tixi = cpf.open_tixi(cpacs_out)
+    tixi = open_tixi(cpacs_out)
     tixi.saveDocument(cpacs_out)
-    cpf.close_tixi(tixi, cpacs_out)
+    close_tixi(tixi, cpacs_out)
 
     return(cpacs_out)
 
@@ -82,5 +82,3 @@ if __name__ == '__main__':
     log.warning('###########################################################')
     log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ####')
     log.warning('###########################################################')
-
-

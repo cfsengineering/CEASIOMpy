@@ -36,7 +36,7 @@ The cpacs file should also contain:
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-08-29 (AJ)
 """
 
 
@@ -46,6 +46,8 @@ The cpacs file should also contain:
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils import cpacsfunctions as cpf
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
+                                           add_uid, create_branch
 
 log = get_logger(__file__.split('.')[0])
 
@@ -87,7 +89,7 @@ def get_data(mw, ri, cpacs_in):
 
     # path definition ========================================================
     # Opening CPACS file
-    tixi = cpf.open_tixi(cpacs_in)
+    tixi = open_tixi(cpacs_in)
 
     TSPEC_PATH = '/cpacs/toolspecific/CEASIOMpy'
     W_PATH = TSPEC_PATH + '/weight'
@@ -110,12 +112,12 @@ def get_data(mw, ri, cpacs_in):
     F2_PATH = TSPEC_PATH + '/fuels'
 
     TSFC_PATH = PROP_PATH + '/tSFC'
-    tixi = cpf.create_branch(tixi, TSFC_PATH, False)
-    tixi = cpf.create_branch(tixi, RANGE_PATH, False)
-    tixi = cpf.create_branch(tixi, P_PATH, False)
-    tixi = cpf.create_branch(tixi, F1_PATH, False)
-    tixi = cpf.create_branch(tixi, F2_PATH, False)
-    tixi = cpf.add_uid(tixi, F1_PATH, 'kerosene')
+    create_branch(tixi, TSFC_PATH, False)
+    create_branch(tixi, RANGE_PATH, False)
+    create_branch(tixi, P_PATH, False)
+    create_branch(tixi, F1_PATH, False)
+    create_branch(tixi, F2_PATH, False)
+    add_uid(tixi, F1_PATH, 'kerosene')
 
     # Compulsory path checks =================================================
 
@@ -233,7 +235,7 @@ def get_data(mw, ri, cpacs_in):
     # Propulsion and Fuel
 
     if not tixi.checkElement(PROP_PATH + '/turboprop'):
-        tixi = cpf.create_branch(tixi, PROP_PATH, False)
+        create_branch(tixi, PROP_PATH, False)
         tixi.createElement(PROP_PATH, 'turboprop')
         if ri.TURBOPROP:
             tixi.updateTextElement(PROP_PATH + '/turboprop', 'True')
@@ -289,13 +291,13 @@ def get_data(mw, ri, cpacs_in):
     log.info('Data from CPACS file succesfully extracted')
     # Saving and closing the cpacs file ======================================
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     # Openign and closing again the cpacs file ===============================
-    tixi = cpf.open_tixi(cpacs_in)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_in)
+    tigl = open_tigl(tixi)
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     return(mw, ri)
 
@@ -308,5 +310,3 @@ if __name__ == '__main__':
     log.warning('##########################################################')
     log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN rangemain.py ####')
     log.warning('##########################################################')
-
-

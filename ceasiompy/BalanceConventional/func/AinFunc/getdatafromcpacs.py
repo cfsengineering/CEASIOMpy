@@ -23,7 +23,7 @@ The cpacs file Should also contain:
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-12-5
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-08-29 (AJ)
 """
 
 
@@ -32,7 +32,9 @@ The cpacs file Should also contain:
 #=============================================================================
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import cpacsfunctions as cpf
+
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
+                                           create_branch
 
 log = get_logger(__file__.split('.')[0])
 
@@ -71,14 +73,14 @@ def get_data(mw, bi, cpacs_in):
 
     # path definition ========================================================
     # Opening CPACS file
-    tixi = cpf.open_tixi(cpacs_in)
+    tixi = open_tixi(cpacs_in)
 
     TSPEC_PATH = '/cpacs/toolspecific/CEASIOMpy'
     FMP_PATH = TSPEC_PATH + '/weight/passengers/fuelMassMaxpass/mass'
     PROP_PATH = TSPEC_PATH + '/propulsion'
 
     BC_PATH = TSPEC_PATH + '/balance/userBalance'
-    tixi = cpf.create_branch(tixi, BC_PATH, False)
+    create_branch(tixi, BC_PATH, False)
     MASS_PATH = '/cpacs/vehicles/aircraft/model/analyses/massBreakdown'
     MTOM_PATH = MASS_PATH + '/designMasses/mTOM/mass'
     F_PATH = MASS_PATH + '/fuel/massDescription/mass'
@@ -119,7 +121,7 @@ def get_data(mw, bi, cpacs_in):
     # Gathering data =========================================================
     ## TOOLSPECIFIC ----------------------------------------------------------
     if not tixi.checkElement(PROP_PATH + '/wingMountedEngine'):
-        tixi = cpf.create_branch(tixi, PROP_PATH, False)
+        create_branch(tixi, PROP_PATH, False)
         tixi.createElement(PROP_PATH, 'wingMountedEngine')
         if bi.WING_MOUNTED:
             tixi.updateTextElement(PROP_PATH + '/wingMountedEngine', 'True')
@@ -184,13 +186,13 @@ def get_data(mw, bi, cpacs_in):
     log.info('Data from CPACS file succesfully extracted')
     # Saving and closing the cpacs file ======================================
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     # Openign and closing again the cpacs file ===============================
-    tixi = cpf.open_tixi(cpacs_in)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_in)
+    tigl = open_tigl(tixi)
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     return(mw, bi)
 
@@ -202,4 +204,3 @@ if __name__ == '__main__':
     log.warning('##########################################################')
     log.warning('### ERROR NOT A STANDALONE PROGRAM, RUN balancemain.py ###')
     log.warning('##########################################################')
-

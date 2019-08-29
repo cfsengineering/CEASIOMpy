@@ -8,7 +8,7 @@ The script evaluates the Moments of Inertia of the aircraft.
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-08-29 (AJ)
 """
 
 
@@ -20,7 +20,7 @@ import numpy as np
 import math
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import cpacsfunctions as cpf
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi
 
 log = get_logger(__file__.split('.')[0])
 
@@ -59,8 +59,8 @@ def fuselage_inertia(SPACING, center_of_gravity, mass_seg_i, ag, cpacs_in):
        (float) Izz --Out.: Moment of inertia respect to the z-axis [kgm^2].
     '''
 
-    tixi = cpf.open_tixi(cpacs_in)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_in)
+    tigl = open_tigl(tixi)
 
     sfx = []
     sfy = []
@@ -199,8 +199,8 @@ def wing_inertia(subd_c, SPACING, center_of_gravity,\
 
     '''
 
-    tixi = cpf.open_tixi(cpacs_in)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_in)
+    tigl = open_tigl(tixi)
 
     log.info('-------------------------------------------------------------')
     log.info('------ Evaluating wing nodes for lumped masses inertia ------')
@@ -315,4 +315,3 @@ if __name__ == '__main__':
     log.warning('##########################################################')
     log.warning('### ERROR NOT A STANDALONE PROGRAM, RUN balancemain.py ###')
     log.warning('##########################################################')
-

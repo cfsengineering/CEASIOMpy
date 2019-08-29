@@ -9,7 +9,7 @@ geometry analysis for unconventional aircraft.
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-08-29 (AJ)
 """
 
 
@@ -34,7 +34,8 @@ from .WithFuseGeom.Fuselages.fusegeom import fuse_geom_eval
 from .Output.outputgeom import produce_geom_output_txt
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import cpacsfunctions as cpf
+
+from ceasiompy.utils.cpacsfunctions import open_tixi,open_tigl, close_tixi
 
 log = get_logger(__file__.split('.')[0])
 
@@ -63,7 +64,7 @@ def get_number_of_parts(cpacs_in):
 
     """
     # Opening tixi and tigl
-    tixi = cpf.open_tixi(cpacs_in)
+    tixi = open_tixi(cpacs_in)
 
     if not tixi.checkElement('/cpacs/vehicles/aircraft\
                              /model/fuselages'):
@@ -77,7 +78,7 @@ def get_number_of_parts(cpacs_in):
     else:
         w_nb = tixi.getNamedChildrenCount('/cpacs/vehicles/aircraft\
                                           /model/wings', 'wing')
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     return(f_nb, w_nb)
 
@@ -161,5 +162,3 @@ if __name__ == '__main__':
     log.warning('#########################################################')
     log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN balanceuncmain.py #')
     log.warning('#########################################################')
-
-

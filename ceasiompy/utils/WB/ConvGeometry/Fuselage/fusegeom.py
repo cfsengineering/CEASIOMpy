@@ -8,7 +8,7 @@ This file will analyse the fuselage geometry from cpacs file.
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-08-29 (AJ)
 """
 
 
@@ -20,7 +20,8 @@ import numpy as np
 import math
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import cpacsfunctions as cpf
+
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi
 
 log = get_logger(__file__.split('.')[0])
 
@@ -182,8 +183,8 @@ def fuse_geom_eval(ag, cpacs_in):
     log.info('---------------------------------------------')
 
     # Opening tixi and tigl
-    tixi = cpf.open_tixi(cpacs_in)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_in)
+    tigl = open_tigl(tixi)
 
 ## ----------------------------------------------------------------------------
 ## COUNTING 1 -----------------------------------------------------------------
@@ -395,7 +396,7 @@ def fuse_geom_eval(ag, cpacs_in):
     ag.cabin_seg = cabin_seg
     ag.fuse_mean_width = ag.fuse_mean_width[0]
 
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
 # log info display ------------------------------------------------------------
 
@@ -447,5 +448,3 @@ if __name__ == '__main__':
     log.warning('##########################################################')
     log.warning('############# ERROR NOT A STANDALONE PROGRAM #############')
     log.warning('##########################################################')
-
-

@@ -9,7 +9,7 @@ weight analysis from the CPACS file
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-08-29 (AJ)
 """
 
 
@@ -18,7 +18,9 @@ weight analysis from the CPACS file
 #=============================================================================
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import cpacsfunctions as cpf
+
+from ceasiompy.utils.cpacsfunctions import open_tixi,open_tigl, close_tixi,    \
+                                           add_uid, create_branch
 
 log = get_logger(__file__.split('.')[0])
 
@@ -56,9 +58,9 @@ def get_user_fuel(f_nb, ui, cpacs_in):
     log.info('Starting data extraction from CPACS file')
 
     # Path creation ==========================================================
-    tixi = cpf.open_tixi(cpacs_in)
+    tixi = open_tixi(cpacs_in)
     FUEL_PATH = '/cpacs/toolspecific/CEASIOMpy/fuels'
-    tixi = cpf.create_branch(tixi, FUEL_PATH, False)
+    create_branch(tixi, FUEL_PATH, False)
 
     if f_nb:
         for i in range(0, f_nb):
@@ -87,13 +89,13 @@ def get_user_fuel(f_nb, ui, cpacs_in):
     log.info('Data from CPACS file succesfully extracted')
     # Saving and closing the cpacs file --------------------------------------
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     # Openign and closing again the cpacs file -------------------------------
-    tixi = cpf.open_tixi(cpacs_in)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_in)
+    tigl = open_tigl(tixi)
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     return(ui)
 
@@ -123,7 +125,7 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
 
     log.info('Starting data extraction from CPACS file')
     # Path creation ==========================================================
-    tixi = cpf.open_tixi(cpacs_in)
+    tixi = open_tixi(cpacs_in)
     # toolspecific
     CEASIOM_PATH = '/cpacs/toolspecific/CEASIOMpy'
     GEOM_PATH = CEASIOM_PATH + '/geometry'
@@ -137,23 +139,23 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
     PROP_PATH = CEASIOM_PATH + '/propulsion'
     FUEL_PATH = '/cpacs/toolspecific/CEASIOMpy/fuels'
 
-    tixi = cpf.create_branch(tixi, FUEL_PATH, False)
-    tixi = cpf.create_branch(tixi, GEOM_PATH, False)
-    tixi = cpf.create_branch(tixi, RANGE_PATH, False)
-    tixi = cpf.create_branch(tixi, PILOTS_PATH, False)
-    tixi = cpf.create_branch(tixi, CC_PATH, False)
-    tixi = cpf.create_branch(tixi, PASS_PATH, False)
-    tixi = cpf.create_branch(tixi, ML_PATH, False)
-    tixi = cpf.create_branch(tixi, PROP_PATH, False)
+    create_branch(tixi, FUEL_PATH, False)
+    create_branch(tixi, GEOM_PATH, False)
+    create_branch(tixi, RANGE_PATH, False)
+    create_branch(tixi, PILOTS_PATH, False)
+    create_branch(tixi, CC_PATH, False)
+    create_branch(tixi, PASS_PATH, False)
+    create_branch(tixi, ML_PATH, False)
+    create_branch(tixi, PROP_PATH, False)
 
     # cpacs/vehicles
     MC_PATH = '/cpacs/vehicles/aircraft/model/analyses/massBreakdown/'\
               + 'payload/mCargo/massDescription'
     F_PATH = '/cpacs/vehicles/fuels/fuel'
 
-    tixi = cpf.create_branch(tixi, MC_PATH, False)
-    tixi = cpf.create_branch(tixi, F_PATH, False)
-    tixi = cpf.add_uid(tixi, F_PATH, 'kerosene')
+    create_branch(tixi, MC_PATH, False)
+    create_branch(tixi, F_PATH, False)
+    add_uid(tixi, F_PATH, 'kerosene')
     # Gathering data =========================================================
     # Geometry ===============================================================
     if not tixi.checkElement(GEOM_PATH + '/description'):
@@ -331,7 +333,7 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
             ui.CRUISE_SPEED = temp
 
     TSFC_PATH = PROP_PATH + '/tSFC'
-    tixi = cpf.create_branch(tixi, TSFC_PATH, False)
+    create_branch(tixi, TSFC_PATH, False)
     if not tixi.checkElement(TSFC_PATH + '/tsfcCruise'):
         tixi.createElement(TSFC_PATH, 'tsfcCruise')
         tixi.updateDoubleElement(TSFC_PATH + '/tsfcCruise',\
@@ -371,13 +373,13 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
 
     # Saving and closing the cpacs file --------------------------------------
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     # Openign and closing again the cpacs file -------------------------------
-    tixi = cpf.open_tixi(cpacs_in)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_in)
+    tigl = open_tigl(tixi)
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     return(ed, ui, adui)
 
@@ -404,14 +406,14 @@ def get_engine_inputs(ui, ed, cpacs_in):
     log.info('Starting engine data extraction from CPACS file')
 
     # Path creation ==========================================================
-    tixi = cpf.open_tixi(cpacs_in)
+    tixi = open_tixi(cpacs_in)
     CEASIOM_PATH = '/cpacs/toolspecific/CEASIOMpy'
 
     PROP_PATH = CEASIOM_PATH + '/propulsion'
-    tixi = cpf.create_branch(tixi, PROP_PATH, False)
+    create_branch(tixi, PROP_PATH, False)
     # Propulsion =============================================================
     if not tixi.checkElement(PROP_PATH + '/turboprop'):
-        tixi = cpf.create_branch(tixi, PROP_PATH, False)
+        create_branch(tixi, PROP_PATH, False)
         tixi.createElement(PROP_PATH, 'turboprop')
         if ed.TURBOPROP:
             tixi.updateTextElement(PROP_PATH + '/turboprop', 'True')
@@ -493,13 +495,13 @@ def get_engine_inputs(ui, ed, cpacs_in):
 
     # Saving and closing the cpacs file --------------------------------------
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     # Openign and closing again the cpacs file -------------------------------
-    tixi = cpf.open_tixi(cpacs_in)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_in)
+    tigl = open_tigl(tixi)
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     return(ed)
 

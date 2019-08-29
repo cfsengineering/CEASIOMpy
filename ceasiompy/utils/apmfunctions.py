@@ -70,7 +70,7 @@ class AeroCoefficient():
         self.aoa.append(aoa)
         self.aos.append(aos)
 
-    def add_coefficients(self,cl,cd,cs,cml,cmd, cms):
+    def add_coefficients(self,cl,cd,cs,cml,cmd,cms):
 
         self.cl.append(cl)
         self.cd.append(cd)
@@ -130,12 +130,12 @@ class AeroCoefficient():
             mach = str(self.mach[i])
             aoa = str(self.aoa[i])
             aos =  str(self.aos[i])
-            cl = str(round(self.cl[i],3))
-            cd = str(round(self.cd[i],3))
-            cs = str(round(self.cs[i],3))
-            cml = str(round(self.cl[i],3))
-            cmd = str(round(self.cd[i],3))
-            cms = str(round(self.cs[i],3))
+            cl = str(round(self.cl[i],5))
+            cd = str(round(self.cd[i],5))
+            cs = str(round(self.cs[i],5))
+            cml = str(round(self.cml[i],5))
+            cmd = str(round(self.cmd[i],5))
+            cms = str(round(self.cms[i],5))
 
             print(str(i) +'\t'+ alt +'\t'+ mach +'\t'+ aoa +'\t'+ aos +'\t'+  \
                   cl + '\t' + cd + '\t' + cs + '\t' +
@@ -330,7 +330,6 @@ def save_coefficients(tixi,aeromap_uid,Coef):
     apm_xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap'
 
     param_count = Coef.get_count()
-
     # CL coefficients
     if len(Coef.cl) == 0:
         log.warning('No "cl" value have been found, this node will stay empty')
@@ -385,7 +384,7 @@ def save_coefficients(tixi,aeromap_uid,Coef):
     if len(Coef.cms) == 0:
         log.warning('No "cms" value have been found, this node will stay empty')
     elif len(Coef.cms) == param_count:
-        add_float_vector(tixi,apm_xpath+'/cms',Coef.cs)
+        add_float_vector(tixi,apm_xpath+'/cms',Coef.cms)
         log.info('"cms" values have been added to the corresponding node')
     else:
         raise ValueError('The number of "cms" values is incorrect, it must \

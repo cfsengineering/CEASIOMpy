@@ -38,5 +38,3 @@ dependencies:
 
   - pip:
     - sphinx-rtd-theme==0.4.3
-    - tox>=3.13.2
-

@@ -9,7 +9,7 @@ aircraft with fuselage.
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-08-29 (AJ)
 """
 
 
@@ -18,7 +18,9 @@ aircraft with fuselage.
 #=============================================================================
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import cpacsfunctions as cpf
+
+from ceasiompy.utils.cpacsfunctions import open_tixi,open_tigl, close_tixi,   \
+                                           add_uid, create_branch
 
 log = get_logger(__file__.split('.')[0])
 
@@ -52,17 +54,17 @@ def toolspecific_update(f_nb, awg, mw, out, out_xml):
         (file) cpacs.xml     --Out.: Updated cpacs file.
     """
 
-    tixi = cpf.open_tixi(out_xml)
+    tixi = open_tixi(out_xml)
 
     # Path creation ==========================================================
     CEASIOM_PATH = '/cpacs/toolspecific/CEASIOMpy'
 
     W_PATH = CEASIOM_PATH + '/weight'
     C_PATH = W_PATH + '/crew'
-    tixi = cpf.create_branch(tixi, C_PATH + '/cabinCrewMembers', False)
+    create_branch(tixi, C_PATH + '/cabinCrewMembers', False)
 
     PASS_PATH = W_PATH + '/passengers'
-    tixi = cpf.create_branch(tixi, PASS_PATH, False)
+    create_branch(tixi, PASS_PATH, False)
 
     # Path update ============================================================
     if not tixi.checkElement(C_PATH + '/cabinCrewMembers/cabinCrewMemberNb'):
@@ -93,13 +95,13 @@ def toolspecific_update(f_nb, awg, mw, out, out_xml):
 
     # Saving and closing the new cpacs file inside the ToolOutput folder -----
     tixi.saveDocument(out_xml)
-    cpf.close_tixi(tixi, out_xml)
+    close_tixi(tixi, out_xml)
 
     # Openign and closing again the cpacs file, formatting purpose -----------
-    tixi = cpf.open_tixi(out_xml)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(out_xml)
+    tigl = open_tigl(tixi)
     tixi.saveDocument(out_xml)
-    cpf.close_tixi(tixi, out_xml)
+    close_tixi(tixi, out_xml)
 
     return()
 
@@ -122,8 +124,8 @@ def cpacs_weight_update(out, mw, ui, out_xml):
         OUTPUT
         (file) cpacs.xml --Out.: Updated cpacs file.
     """
-    tixi = cpf.open_tixi(out_xml)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(out_xml)
+    tigl = open_tigl(tixi)
 
     # Path creation ==========================================================
     MB_PATH = '/cpacs/vehicles/aircraft/model/analyses/massBreakdown'
@@ -146,20 +148,20 @@ def cpacs_weight_update(out, mw, ui, out_xml):
     MSTR_PATH = EM_PATH + '/mStructure/massDescription/mass'
     MEN_PATH = EM_PATH + '/mPowerUnits/massDescription/mass'
 
-    tixi = cpf.create_branch(tixi, MTOM_PATH + '/mass', False)
-    tixi = cpf.create_branch(tixi, MZFM_PATH + '/mass', False)
-    tixi = cpf.create_branch(tixi, MF_PATH + '/mass', False)
-    tixi = cpf.create_branch(tixi, OEM_PATH + '/mass', False)
-    tixi = cpf.create_branch(tixi, PAY_PATH + '/mass', False)
-    tixi = cpf.create_branch(tixi, MC_PATH, False)
-    tixi = cpf.create_branch(tixi, OIM_PATH + '/mass', False)
-    tixi = cpf.create_branch(tixi, EM_PATH, False)
-    tixi = cpf.create_branch(tixi, MSYS_PATH, False)
-    tixi = cpf.create_branch(tixi, MSTR_PATH, False)
-    tixi = cpf.create_branch(tixi, MEN_PATH, False)
+    create_branch(tixi, MTOM_PATH + '/mass', False)
+    create_branch(tixi, MZFM_PATH + '/mass', False)
+    create_branch(tixi, MF_PATH + '/mass', False)
+    create_branch(tixi, OEM_PATH + '/mass', False)
+    create_branch(tixi, PAY_PATH + '/mass', False)
+    create_branch(tixi, MC_PATH, False)
+    create_branch(tixi, OIM_PATH + '/mass', False)
+    create_branch(tixi, EM_PATH, False)
+    create_branch(tixi, MSYS_PATH, False)
+    create_branch(tixi, MSTR_PATH, False)
+    create_branch(tixi, MEN_PATH, False)
 
     # DESIGN MASSES ==========================================================
-    tixi = cpf.add_uid(tixi, MTOM_PATH, 'MTOM')
+    add_uid(tixi, MTOM_PATH, 'MTOM')
     tixi.createElement(MTOM_PATH, 'name')
     tixi.updateTextElement(MTOM_PATH + '/name', 'Maximum take-off mass')
     tixi.createElement(MTOM_PATH, 'description')
@@ -170,7 +172,7 @@ def cpacs_weight_update(out, mw, ui, out_xml):
                              mw.maximum_take_off_mass, '%g')
 
     # MZFM -------------------------------------------------------------------
-    tixi = cpf.add_uid(tixi, MZFM_PATH, 'MZFM')
+    add_uid(tixi, MZFM_PATH, 'MZFM')
     tixi.createElement(MZFM_PATH, 'name')
     tixi.updateTextElement(MZFM_PATH + '/name', 'Maximum zero fuel mass')
     tixi.createElement(MZFM_PATH, 'description')
@@ -181,7 +183,7 @@ def cpacs_weight_update(out, mw, ui, out_xml):
 
 
     # FUEL MASS ==============================================================
-    tixi = cpf.add_uid(tixi, MF_PATH, 'MFM')
+    add_uid(tixi, MF_PATH, 'MFM')
     tixi.createElement(MF_PATH, 'name')
     tixi.updateTextElement(MF_PATH + '/name', 'Max fuel mass')
     tixi.createElement(MF_PATH, 'description')
@@ -190,7 +192,7 @@ def cpacs_weight_update(out, mw, ui, out_xml):
     tixi.updateDoubleElement(MF_PATH + '/mass', mw.mass_fuel_max, '%g')
 
     # OEM ====================================================================
-    tixi = cpf.add_uid(tixi, OEM_PATH, 'OEM')
+    add_uid(tixi, OEM_PATH, 'OEM')
     tixi.createElement(OEM_PATH, 'name')
     tixi.updateTextElement(OEM_PATH + '/name', 'Operating empty mass')
     tixi.createElement(OEM_PATH, 'description')
@@ -199,19 +201,19 @@ def cpacs_weight_update(out, mw, ui, out_xml):
     tixi.updateDoubleElement(OEM_PATH + '/mass', mw.operating_empty_mass, '%g')
 
     tixi.updateDoubleElement(OIM_PATH + '/mass', mw.mass_crew, '%g')
-    tixi = cpf.add_uid(tixi, OIM_PATH, 'massCrew')
+    add_uid(tixi, OIM_PATH, 'massCrew')
     tixi.updateDoubleElement(MSYS_PATH, mw.mass_systems, '%g')
-    tixi = cpf.add_uid(tixi, EM_PATH\
+    add_uid(tixi, EM_PATH\
                        + '/mSystems/massDescription', 'mSys')
     tixi.updateDoubleElement(MSTR_PATH, mw.mass_structure, '%g')
-    tixi = cpf.add_uid(tixi, EM_PATH\
+    add_uid(tixi, EM_PATH\
                        + '/mStructure/massDescription', 'mStrt')
     tixi.updateDoubleElement(MEN_PATH, mw.mass_engines, '%g')
-    tixi = cpf.add_uid(tixi, EM_PATH\
+    add_uid(tixi, EM_PATH\
                        +'/mPowerUnits/massDescription', 'mEng')
 
     # PAYLOAD MASS AND FUEL CARGO MASS =======================================
-    tixi = cpf.add_uid(tixi, PAY_PATH, 'MPM')
+    add_uid(tixi, PAY_PATH, 'MPM')
     tixi.createElement(PAY_PATH, 'name')
     tixi.updateTextElement(PAY_PATH + '/name', 'Max payload mass')
     tixi.createElement(PAY_PATH, 'description')
@@ -224,13 +226,13 @@ def cpacs_weight_update(out, mw, ui, out_xml):
 
     # Saving and closing the new cpacs file inside the ToolOutput folder -----
     tixi.saveDocument(out_xml)
-    cpf.close_tixi(tixi, out_xml)
+    close_tixi(tixi, out_xml)
 
     # Openign and closing again the cpacs file, formatting purpose -----------
-    tixi = cpf.open_tixi(out_xml)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(out_xml)
+    tigl = open_tigl(tixi)
     tixi.saveDocument(out_xml)
-    cpf.close_tixi(tixi, out_xml)
+    close_tixi(tixi, out_xml)
 
     return()
 
@@ -253,8 +255,8 @@ def cpacs_engine_update(ui, ed, mw, out_xml):
         OUTPUT
         (file) cpacs.xml --Out.: Updated cpacs file.
     """
-    tixi = cpf.open_tixi(out_xml)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(out_xml)
+    tigl = open_tigl(tixi)
 
     # Path creation ==========================================================
     EN_PATH = '/cpacs/vehicles/engines'
@@ -262,9 +264,9 @@ def cpacs_engine_update(ui, ed, mw, out_xml):
         tixi.removeElement(EN_PATH)
     for e in range(0,ed.NE):
         EN_PATH = '/cpacs/vehicles/engines/engine' + str(e+1)
-        tixi = cpf.create_branch(tixi, EN_PATH, True)
+        create_branch(tixi, EN_PATH, True)
         EN_UID = 'EngineuID_' + str(e+1)
-        tixi = cpf.add_uid(tixi, EN_PATH, EN_UID)
+        add_uid(tixi, EN_PATH, EN_UID)
         tixi.createElement(EN_PATH, 'name')
         if not ed.EN_NAME[e]:
             EN_NAME = 'Engine_' + str(e+1)
@@ -272,8 +274,8 @@ def cpacs_engine_update(ui, ed, mw, out_xml):
         else:
             tixi.updateTextElement(EN_PATH + '/name', ed.EN_NAME[e])
         ENA_PATH = EN_PATH + '/analysis/mass'
-        tixi = cpf.create_branch(tixi, ENA_PATH, False)
-        tixi = cpf.add_uid(tixi, EN_PATH, EN_UID+'_mass')
+        create_branch(tixi, ENA_PATH, False)
+        add_uid(tixi, EN_PATH, EN_UID+'_mass')
         tixi.createElement(ENA_PATH, 'mass')
         tixi.updateDoubleElement(ENA_PATH + '/mass', ed.en_mass, '%g')
         ENT_PATH = EN_PATH + '/analysis'
@@ -281,13 +283,13 @@ def cpacs_engine_update(ui, ed, mw, out_xml):
         tixi.updateDoubleElement(ENT_PATH + '/thrust00', ed.max_thrust, '%g')
     # Saving and closing the new cpacs file inside the ToolOutput folder -----
     tixi.saveDocument(out_xml)
-    cpf.close_tixi(tixi, out_xml)
+    close_tixi(tixi, out_xml)
 
     # Openign and closing again the cpacs file, formatting purpose -----------
-    tixi = cpf.open_tixi(out_xml)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(out_xml)
+    tigl = open_tigl(tixi)
     tixi.saveDocument(out_xml)
-    cpf.close_tixi(tixi, out_xml)
+    close_tixi(tixi, out_xml)
 
     return()
 

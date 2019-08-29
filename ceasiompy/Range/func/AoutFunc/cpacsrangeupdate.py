@@ -8,7 +8,7 @@ This script updates the cpacs file and copy it on the ToolOutput folder.
 | Works with Python 2.7
 | Author: Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-08-29 (AJ)
 """
 
 #=============================================================================
@@ -16,7 +16,9 @@ This script updates the cpacs file and copy it on the ToolOutput folder.
 #=============================================================================
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import cpacsfunctions as cpf
+
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
+                                           add_uid, create_branch, copy_branch
 
 log = get_logger(__file__.split('.')[0])
 
@@ -50,8 +52,8 @@ def cpacs_update(mass_pass, out, mw,  out_xml):
         OUTPUT
         (file) cpacs.xml --Out.: Updated cpacs file.
     """
-    tixi = cpf.open_tixi(out_xml)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(out_xml)
+    tigl = open_tigl(tixi)
 
     ### PATH CHECKS ==========================================================
 
@@ -65,12 +67,12 @@ def cpacs_update(mass_pass, out, mw,  out_xml):
     RANGE_MAXIMUM_PATH = RANGE_PATH + '/rangeMaximum'
     R_DES_MAXIMUM_PATH = RANGE_PATH + '/rangeMaximum/rangeDescription'
 
-    tixi = cpf.create_branch(tixi, R_DES_MAXP_PATH + '/range', False)
-    tixi = cpf.create_branch(tixi, R_DES_MAXP_PATH + '/payload', False)
-    tixi = cpf.create_branch(tixi, R_DES_MAXF_PATH + '/range', False)
-    tixi = cpf.create_branch(tixi, R_DES_MAXF_PATH + '/payload', False)
-    tixi = cpf.create_branch(tixi, R_DES_MAXIMUM_PATH + '/range', False)
-    tixi = cpf.create_branch(tixi, R_DES_MAXIMUM_PATH + '/payload', False)
+    create_branch(tixi, R_DES_MAXP_PATH + '/range', False)
+    create_branch(tixi, R_DES_MAXP_PATH + '/payload', False)
+    create_branch(tixi, R_DES_MAXF_PATH + '/range', False)
+    create_branch(tixi, R_DES_MAXF_PATH + '/payload', False)
+    create_branch(tixi, R_DES_MAXIMUM_PATH + '/range', False)
+    create_branch(tixi, R_DES_MAXIMUM_PATH + '/payload', False)
 
     # Fuel consumption
     FCONS_PATH =  '/cpacs/toolspecific/CEASIOMpy/fuelConsumption'
@@ -82,31 +84,31 @@ def cpacs_update(mass_pass, out, mw,  out_xml):
     FLD_PATH = FCONS_PATH + '/fuelForLanding'
     FAL_PATH = FCONS_PATH + '/fuelRemained'
 
-    tixi = cpf.create_branch(tixi, FDES_PATH, False)
-    tixi = cpf.create_branch(tixi, FTO_PATH, False)
-    tixi = cpf.create_branch(tixi, FC_PATH, False)
-    tixi = cpf.create_branch(tixi, FCR_PATH, False)
-    tixi = cpf.create_branch(tixi, FL_PATH, False)
-    tixi = cpf.create_branch(tixi, FLD_PATH, False)
-    tixi = cpf.create_branch(tixi, FAL_PATH, False)
+    create_branch(tixi, FDES_PATH, False)
+    create_branch(tixi, FTO_PATH, False)
+    create_branch(tixi, FC_PATH, False)
+    create_branch(tixi, FCR_PATH, False)
+    create_branch(tixi, FL_PATH, False)
+    create_branch(tixi, FLD_PATH, False)
+    create_branch(tixi, FAL_PATH, False)
 
     ### RANGES ===============================================================
     ### Max payload max range ------------------------------------------------
-    tixi = cpf.add_uid(tixi, R_DES_MAXP_PATH, 'Maximum_range_[km]'\
+    add_uid(tixi, R_DES_MAXP_PATH, 'Maximum_range_[km]'\
                        + '_with_maximum_payload_[kg]')
     tixi.updateDoubleElement(R_DES_MAXP_PATH + '/range', out.ranges[1], '%g')
     tixi.updateDoubleElement(R_DES_MAXP_PATH + '/payload',\
                              out.payloads[1], '%g')
 
     ### Max fuel range with some payload -------------------------------------
-    tixi = cpf.add_uid(tixi, R_DES_MAXF_PATH, 'Range_[km]_with_'\
+    add_uid(tixi, R_DES_MAXF_PATH, 'Range_[km]_with_'\
                        + 'maximum_fuel_and_some_payload_[kg]')
     tixi.updateDoubleElement(R_DES_MAXF_PATH + '/range', out.ranges[2], '%g')
     tixi.updateDoubleElement(R_DES_MAXF_PATH + '/payload',\
                              out.payloads[2], '%g')
 
     ### Maximum range, no payload and max fuel -------------------------------
-    tixi = cpf.add_uid(tixi, R_DES_MAXIMUM_PATH, 'Maximum_range_[km]_with_'\
+    add_uid(tixi, R_DES_MAXIMUM_PATH, 'Maximum_range_[km]_with_'\
                        + 'max_fuel_and_no_payload_[kg]')
     tixi.updateDoubleElement(R_DES_MAXIMUM_PATH + '/range',\
                              out.ranges[3], '%g')
@@ -115,7 +117,7 @@ def cpacs_update(mass_pass, out, mw,  out_xml):
 
 
     ### FUEL CONSUMPTION =====================================================
-    tixi = cpf.add_uid(tixi, FDES_PATH, 'Fuel required for each flight phase '\
+    add_uid(tixi, FDES_PATH, 'Fuel required for each flight phase '\
                        + '[kg], with maximum payload.')
 
     tixi.updateDoubleElement(FTO_PATH, mw.mf_for_to, '%g')
@@ -127,13 +129,13 @@ def cpacs_update(mass_pass, out, mw,  out_xml):
 
     ### Saving and closing the new cpacs file inside the ToolOutput folder ---
     tixi.saveDocument(out_xml)
-    cpf.close_tixi(tixi, out_xml)
+    close_tixi(tixi, out_xml)
 
     ### Openign and closing again the cpacs file, formatting purpose ---------
-    tixi = cpf.open_tixi(out_xml)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(out_xml)
+    tigl = open_tigl(tixi)
     tixi.saveDocument(out_xml)
-    cpf.close_tixi(tixi, out_xml)
+    close_tixi(tixi, out_xml)
 
     return(out_xml)
 
@@ -146,5 +148,3 @@ if __name__ == '__main__':
     log.warning('##########################################################')
     log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN rangemain.py ####')
     log.warning('##########################################################')
-
-

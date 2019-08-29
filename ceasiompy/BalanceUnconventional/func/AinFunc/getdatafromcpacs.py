@@ -22,7 +22,7 @@ The cpacs file Should also contain:
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-12-05
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-08-29 (AJ)
 """
 
 
@@ -33,7 +33,8 @@ The cpacs file Should also contain:
 import numpy as np
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import cpacsfunctions as cpf
+from ceasiompy.utils.cpacsfunctions import open_tixi,open_tigl, close_tixi,    \
+                                           create_branch
 
 log = get_logger(__file__.split('.')[0])
 
@@ -71,9 +72,9 @@ def get_user_fuel(f_nb, ui, cpacs_in):
     log.info('Starting data extraction from CPACS file')
 
     # Path creation ==========================================================
-    tixi = cpf.open_tixi(cpacs_in)
+    tixi = open_tixi(cpacs_in)
     FUEL_PATH = '/cpacs/toolspecific/CEASIOMpy/fuels'
-    tixi = cpf.create_branch(tixi, FUEL_PATH, False)
+    create_branch(tixi, FUEL_PATH, False)
 
     if f_nb:
         for i in range(0, f_nb):
@@ -102,13 +103,13 @@ def get_user_fuel(f_nb, ui, cpacs_in):
     log.info('Data from CPACS file succesfully extracted')
     # Saving and closing the cpacs file --------------------------------------
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     # Openign and closing again the cpacs file -------------------------------
-    tixi = cpf.open_tixi(cpacs_in)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_in)
+    tigl = open_tigl(tixi)
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     return(ui)
 
@@ -137,7 +138,7 @@ def get_data(ui, bi, mw, ed, cpacs_in):
 
     # path definition ========================================================
     # Opening CPACS file
-    tixi = cpf.open_tixi(cpacs_in)
+    tixi = open_tixi(cpacs_in)
 
 
     TSPEC_PATH = '/cpacs/toolspecific/CEASIOMpy'
@@ -155,7 +156,7 @@ def get_data(ui, bi, mw, ed, cpacs_in):
     EN_PATH = '/cpacs/vehicles/engines/engine1/analysis/mass/mass'
 
     BC_PATH = TSPEC_PATH + '/balance/userBalance'
-    tixi = cpf.create_branch(tixi, BC_PATH, False)
+    create_branch(tixi, BC_PATH, False)
     # Compulsory path checks =================================================
 
     if not tixi.checkElement(TSPEC_PATH):
@@ -254,7 +255,7 @@ def get_data(ui, bi, mw, ed, cpacs_in):
     ed.en_mass = tixi.getDoubleElement(EN_PATH)
 
     if not tixi.checkElement(PROP_PATH + '/wingMountedEngine'):
-        tixi = cpf.create_branch(tixi, PROP_PATH, False)
+        create_branch(tixi, PROP_PATH, False)
         tixi.createElement(PROP_PATH, 'wingMountedEngine')
         if ed.WING_MOUNTED:
             tixi.updateTextElement(PROP_PATH + '/wingMountedEngine', 'True')
@@ -281,7 +282,7 @@ def get_data(ui, bi, mw, ed, cpacs_in):
             bi.USER_EN_PLACEMENT = True
 
     if not tixi.checkElement(PROP_PATH + '/engineNumber'):
-        tixi = cpf.create_branch(tixi, PROP_PATH, False)
+        create_branch(tixi, PROP_PATH, False)
         tixi.createElement(PROP_PATH, 'engineNumber')
         tixi.updateIntegerElement(PROP_PATH + '/engineNumber', ed.NE, '%i')
     else:
@@ -343,7 +344,7 @@ def get_data(ui, bi, mw, ed, cpacs_in):
                                 + ' True but no engine placement data in the'\
                                 + ' CPACS file.')
             if not tixi.checkElement(ENLOC_PATH) and not warn:
-                tixi = cpf.create_branch(tixi, ENLOC_PATH, False)
+                create_branch(tixi, ENLOC_PATH, False)
                 tixi.createElement(ENLOC_PATH, 'x')
                 tixi.createElement(ENLOC_PATH, 'y')
                 tixi.createElement(ENLOC_PATH, 'z')
@@ -373,13 +374,13 @@ def get_data(ui, bi, mw, ed, cpacs_in):
 
     # Saving and closing the cpacs file ======================================
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     # Openign and closing again the cpacs file ===============================
-    tixi = cpf.open_tixi(cpacs_in)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_in)
+    tigl = open_tigl(tixi)
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     return(mw, ed)
 
@@ -392,5 +393,3 @@ if __name__ == '__main__':
     log.warning('#########################################################')
     log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN balanceuncmain.py #')
     log.warning('#########################################################')
-
-

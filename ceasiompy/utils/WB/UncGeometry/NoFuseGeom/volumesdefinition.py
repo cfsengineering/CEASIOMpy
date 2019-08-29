@@ -8,7 +8,7 @@ The script evaluates the unconventional aircraft wings geometry .
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-08-29 (AJ)
 """
 
 
@@ -20,7 +20,8 @@ import numpy as np
 import math
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import cpacsfunctions as cpf
+
+from ceasiompy.utils.cpacsfunctions import open_tixi,open_tigl, close_tixi
 
 log = get_logger(__file__.split('.')[0])
 
@@ -65,8 +66,8 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
     log.info('----------- Evaluating fuselage and wing volume -----------')
     log.info('-----------------------------------------------------------')
 
-    tixi = cpf.open_tixi(cpacs_in)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_in)
+    tigl = open_tigl(tixi)
 
     SPACING = 0.1
     subd_c = 30  # Number of subdivisions along the perimeter
@@ -253,5 +254,3 @@ if __name__ == '__main__':
     log.warning('#########################################################')
     log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN balanceuncmain.py #')
     log.warning('#########################################################')
-
-

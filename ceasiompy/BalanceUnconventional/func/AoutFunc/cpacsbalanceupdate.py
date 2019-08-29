@@ -8,7 +8,7 @@ Functions to update the CPACS fiel and copy it on the ToolOutput folder.
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-08-29 (AJ)
 """
 
 
@@ -17,7 +17,8 @@ Functions to update the CPACS fiel and copy it on the ToolOutput folder.
 #=============================================================================
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import cpacsfunctions as cpf
+from ceasiompy.utils.cpacsfunctions import open_tixi,open_tigl, close_tixi,  \
+                                           add_uid, create_branch
 
 log = get_logger(__file__.split('.')[0])
 
@@ -51,8 +52,8 @@ def cpacs_mbd_update(out, mw, bi, ms_zpm, out_xml):
         OUTPUT
         (file) cpacs.xml --Out.: Updated cpacs file.
     """
-    tixi = cpf.open_tixi(out_xml)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(out_xml)
+    tigl = open_tigl(tixi)
 
     # CREATING PATH ==========================================================
     MB_PATH = '/cpacs/vehicles/aircraft/'\
@@ -67,35 +68,35 @@ def cpacs_mbd_update(out, mw, bi, ms_zpm, out_xml):
     J_PATH = OEM_PATH + '/massInertia/J'
     CG_PATH = OEM_PATH + '/location/'
 
-    tixi = cpf.create_branch(tixi, MTOM_PATH + '/location/x', False)
-    tixi = cpf.create_branch(tixi, MTOM_PATH + '/location/y', False)
-    tixi = cpf.create_branch(tixi, MTOM_PATH + '/location/z', False)
-    tixi = cpf.create_branch(tixi, MTOM_PATH + '/massInertia/Jxx', False)
-    tixi = cpf.create_branch(tixi, MTOM_PATH + '/massInertia/Jyy', False)
-    tixi = cpf.create_branch(tixi, MTOM_PATH + '/massInertia/Jzz', False)
-    tixi = cpf.create_branch(tixi, MTOM_PATH + '/massInertia/Jxy', False)
-    tixi = cpf.create_branch(tixi, MTOM_PATH + '/massInertia/Jyz', False)
-    tixi = cpf.create_branch(tixi, MTOM_PATH + '/massInertia/Jxz', False)
+    create_branch(tixi, MTOM_PATH + '/location/x', False)
+    create_branch(tixi, MTOM_PATH + '/location/y', False)
+    create_branch(tixi, MTOM_PATH + '/location/z', False)
+    create_branch(tixi, MTOM_PATH + '/massInertia/Jxx', False)
+    create_branch(tixi, MTOM_PATH + '/massInertia/Jyy', False)
+    create_branch(tixi, MTOM_PATH + '/massInertia/Jzz', False)
+    create_branch(tixi, MTOM_PATH + '/massInertia/Jxy', False)
+    create_branch(tixi, MTOM_PATH + '/massInertia/Jyz', False)
+    create_branch(tixi, MTOM_PATH + '/massInertia/Jxz', False)
 
-    tixi = cpf.create_branch(tixi, MZFM_PATH + '/location/x', False)
-    tixi = cpf.create_branch(tixi, MZFM_PATH + '/location/y', False)
-    tixi = cpf.create_branch(tixi, MZFM_PATH + '/location/z', False)
-    tixi = cpf.create_branch(tixi, MZFM_PATH + '/massInertia/Jxx', False)
-    tixi = cpf.create_branch(tixi, MZFM_PATH + '/massInertia/Jyy', False)
-    tixi = cpf.create_branch(tixi, MZFM_PATH + '/massInertia/Jzz', False)
-    tixi = cpf.create_branch(tixi, MZFM_PATH + '/massInertia/Jxy', False)
-    tixi = cpf.create_branch(tixi, MZFM_PATH + '/massInertia/Jyz', False)
-    tixi = cpf.create_branch(tixi, MZFM_PATH + '/massInertia/Jxz', False)
+    create_branch(tixi, MZFM_PATH + '/location/x', False)
+    create_branch(tixi, MZFM_PATH + '/location/y', False)
+    create_branch(tixi, MZFM_PATH + '/location/z', False)
+    create_branch(tixi, MZFM_PATH + '/massInertia/Jxx', False)
+    create_branch(tixi, MZFM_PATH + '/massInertia/Jyy', False)
+    create_branch(tixi, MZFM_PATH + '/massInertia/Jzz', False)
+    create_branch(tixi, MZFM_PATH + '/massInertia/Jxy', False)
+    create_branch(tixi, MZFM_PATH + '/massInertia/Jyz', False)
+    create_branch(tixi, MZFM_PATH + '/massInertia/Jxz', False)
 
-    tixi = cpf.create_branch(tixi, OEM_PATH + '/location/x', False)
-    tixi = cpf.create_branch(tixi, OEM_PATH + '/location/y', False)
-    tixi = cpf.create_branch(tixi, OEM_PATH + '/location/z', False)
-    tixi = cpf.create_branch(tixi, OEM_PATH + '/massInertia/Jxx', False)
-    tixi = cpf.create_branch(tixi, OEM_PATH + '/massInertia/Jyy', False)
-    tixi = cpf.create_branch(tixi, OEM_PATH + '/massInertia/Jzz', False)
-    tixi = cpf.create_branch(tixi, OEM_PATH + '/massInertia/Jxy', False)
-    tixi = cpf.create_branch(tixi, OEM_PATH + '/massInertia/Jyz', False)
-    tixi = cpf.create_branch(tixi, OEM_PATH + '/massInertia/Jxz', False)
+    create_branch(tixi, OEM_PATH + '/location/x', False)
+    create_branch(tixi, OEM_PATH + '/location/y', False)
+    create_branch(tixi, OEM_PATH + '/location/z', False)
+    create_branch(tixi, OEM_PATH + '/massInertia/Jxx', False)
+    create_branch(tixi, OEM_PATH + '/massInertia/Jyy', False)
+    create_branch(tixi, OEM_PATH + '/massInertia/Jzz', False)
+    create_branch(tixi, OEM_PATH + '/massInertia/Jxy', False)
+    create_branch(tixi, OEM_PATH + '/massInertia/Jyz', False)
+    create_branch(tixi, OEM_PATH + '/massInertia/Jxz', False)
 
     # DESIGN MASSES ==========================================================
     # MTOM -------------------------------------------------------------------
@@ -122,7 +123,7 @@ def cpacs_mbd_update(out, mw, bi, ms_zpm, out_xml):
                              out.Ixz_lump, '%g')
 
     # MZFM -------------------------------------------------------------------
-    tixi = cpf.add_uid(tixi, MZFM_PATH + '/location', 'MZFMloc')
+    add_uid(tixi, MZFM_PATH + '/location', 'MZFMloc')
 
     # updating path
     tixi.updateDoubleElement(MZFM_PATH + '/location' + '/x',\
@@ -146,7 +147,7 @@ def cpacs_mbd_update(out, mw, bi, ms_zpm, out_xml):
                              + '/Jxz', out.Ixz_lump_zfm, '%g')
 
     # OEM ====================================================================
-    tixi = cpf.add_uid(tixi, OEM_PATH + '/location', 'OEMloc')
+    add_uid(tixi, OEM_PATH + '/location', 'OEMloc')
 
     tixi.updateDoubleElement((CG_PATH + 'x'), out.cg_oem[0], '%g')
     tixi.updateDoubleElement((CG_PATH + 'y'), out.cg_oem[1], '%g')
@@ -161,31 +162,31 @@ def cpacs_mbd_update(out, mw, bi, ms_zpm, out_xml):
     # ZPM INERTIA ============================================================
     B_PATH = '/cpacs/toolspecific/CEASIOMpy/balance'
     ZPM_PATH = B_PATH + '/mZPM'
-    tixi = cpf.create_branch(tixi, ZPM_PATH + '/name', False)
+    create_branch(tixi, ZPM_PATH + '/name', False)
     tixi.updateTextElement(ZPM_PATH + '/name', 'Maximum zero payload mass')
-    tixi = cpf.create_branch(tixi, ZPM_PATH + '/description', False)
+    create_branch(tixi, ZPM_PATH + '/description', False)
     tixi.updateTextElement(ZPM_PATH + '/description', 'Maximum '\
                            + 'zero payload mass [kg], CoG coordinate [m] and '\
                            + 'moment of inertia.')
-    tixi = cpf.create_branch(tixi, ZPM_PATH + '/mass', False)
+    create_branch(tixi, ZPM_PATH + '/mass', False)
     tixi.updateDoubleElement(ZPM_PATH + '/mass',\
                              ms_zpm, '%g')
 
-    tixi = cpf.create_branch(tixi, ZPM_PATH + '/location/x', False)
-    tixi = cpf.create_branch(tixi, ZPM_PATH + '/location/y', False)
-    tixi = cpf.create_branch(tixi, ZPM_PATH + '/location/z', False)
-    tixi = cpf.create_branch(tixi, ZPM_PATH + '/massInertia/Jxx', False)
-    tixi = cpf.create_branch(tixi, ZPM_PATH + '/massInertia/Jyy', False)
-    tixi = cpf.create_branch(tixi, ZPM_PATH + '/massInertia/Jzz', False)
-    tixi = cpf.create_branch(tixi, ZPM_PATH + '/massInertia/Jxy', False)
-    tixi = cpf.create_branch(tixi, ZPM_PATH + '/massInertia/Jyz', False)
-    tixi = cpf.create_branch(tixi, ZPM_PATH + '/massInertia/Jxz', False)
+    create_branch(tixi, ZPM_PATH + '/location/x', False)
+    create_branch(tixi, ZPM_PATH + '/location/y', False)
+    create_branch(tixi, ZPM_PATH + '/location/z', False)
+    create_branch(tixi, ZPM_PATH + '/massInertia/Jxx', False)
+    create_branch(tixi, ZPM_PATH + '/massInertia/Jyy', False)
+    create_branch(tixi, ZPM_PATH + '/massInertia/Jzz', False)
+    create_branch(tixi, ZPM_PATH + '/massInertia/Jxy', False)
+    create_branch(tixi, ZPM_PATH + '/massInertia/Jyz', False)
+    create_branch(tixi, ZPM_PATH + '/massInertia/Jxz', False)
 
     LOC_PATH = ZPM_PATH + '/location'
     MOI_PATH = ZPM_PATH + '/massInertia'
 
-    tixi = cpf.add_uid(tixi, ZPM_PATH, 'MZPM')
-    tixi = cpf.add_uid(tixi, LOC_PATH, 'MZPMloc')
+    add_uid(tixi, ZPM_PATH, 'MZPM')
+    add_uid(tixi, LOC_PATH, 'MZPMloc')
     tixi.updateDoubleElement((LOC_PATH + '/x'), out.cg_zpm[0], '%g')
     tixi.updateDoubleElement((LOC_PATH + '/y'), out.cg_zpm[1], '%g')
     tixi.updateDoubleElement((LOC_PATH + '/z'), out.cg_zpm[2], '%g')
@@ -202,17 +203,17 @@ def cpacs_mbd_update(out, mw, bi, ms_zpm, out_xml):
         LOC_PATH = UC_PATH + '/location'
         MOI_PATH = UC_PATH + '/massInertia'
 
-        tixi = cpf.create_branch(tixi, LOC_PATH + '/x', False)
-        tixi = cpf.create_branch(tixi, LOC_PATH + '/y', False)
-        tixi = cpf.create_branch(tixi, LOC_PATH + '/z', False)
-        tixi = cpf.create_branch(tixi, MOI_PATH + '/Jxx', False)
-        tixi = cpf.create_branch(tixi, MOI_PATH + '/Jyy', False)
-        tixi = cpf.create_branch(tixi, MOI_PATH + '/Jzz', False)
-        tixi = cpf.create_branch(tixi, MOI_PATH + '/Jxy', False)
-        tixi = cpf.create_branch(tixi, MOI_PATH + '/Jyz', False)
-        tixi = cpf.create_branch(tixi, MOI_PATH + '/Jxz', False)
+        create_branch(tixi, LOC_PATH + '/x', False)
+        create_branch(tixi, LOC_PATH + '/y', False)
+        create_branch(tixi, LOC_PATH + '/z', False)
+        create_branch(tixi, MOI_PATH + '/Jxx', False)
+        create_branch(tixi, MOI_PATH + '/Jyy', False)
+        create_branch(tixi, MOI_PATH + '/Jzz', False)
+        create_branch(tixi, MOI_PATH + '/Jxy', False)
+        create_branch(tixi, MOI_PATH + '/Jyz', False)
+        create_branch(tixi, MOI_PATH + '/Jxz', False)
 
-        tixi = cpf.add_uid(tixi, LOC_PATH, 'USERloc')
+        add_uid(tixi, LOC_PATH, 'USERloc')
         tixi.updateDoubleElement((LOC_PATH + '/x'), out.cg_user[0], '%g')
         tixi.updateDoubleElement((LOC_PATH + '/y'), out.cg_user[1], '%g')
         tixi.updateDoubleElement((LOC_PATH + '/z'), out.cg_user[2], '%g')
@@ -225,13 +226,13 @@ def cpacs_mbd_update(out, mw, bi, ms_zpm, out_xml):
 
     # Saving and closing the new cpacs file inside the ToolOutput folder -----
     tixi.saveDocument(out_xml)
-    cpf.close_tixi(tixi, out_xml)
+    close_tixi(tixi, out_xml)
 
     # Openign and closing again the cpacs file, formatting purpose -----------
-    tixi = cpf.open_tixi(out_xml)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(out_xml)
+    tigl = open_tigl(tixi)
     tixi.saveDocument(out_xml)
-    cpf.close_tixi(tixi, out_xml)
+    close_tixi(tixi, out_xml)
 
     return()
 
@@ -244,5 +245,3 @@ if __name__ == '__main__':
     log.warning('#########################################################')
     log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN balanceuncmain.py #')
     log.warning('#########################################################')
-
-

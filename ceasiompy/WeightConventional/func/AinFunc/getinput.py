@@ -10,7 +10,7 @@ ceasiompy.Input_class/conventional/weight_user_input.py script.
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-08-29 (AJ)
 """
 
 
@@ -20,6 +20,8 @@ ceasiompy.Input_class/conventional/weight_user_input.py script.
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils import cpacsfunctions as cpf
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
+                                           add_uid, create_branch
 
 log = get_logger(__file__.split('.')[0])
 
@@ -67,7 +69,7 @@ def get_user_inputs(ind, ui, ag, cpacs_in, cpacs):
     log.info('Starting data extraction from CPACS file')
 
     # Path creation ==========================================================
-    tixi = cpf.open_tixi(cpacs_in)
+    tixi = open_tixi(cpacs_in)
     CESAIOM_PATH = '/cpacs/toolspecific/CEASIOMpy'
     GEOM_PATH = CESAIOM_PATH + '/geometry'
     FUEL_PATH = CESAIOM_PATH + '/fuels'
@@ -82,17 +84,17 @@ def get_user_inputs(ind, ui, ag, cpacs_in, cpacs):
     MC_PATH = '/cpacs/vehicles/aircraft/model/analyses/massBreakdown/'\
               + 'payload/mCargo/massDescription'
 
-    tixi = cpf.create_branch(tixi, MC_PATH, False)
-    tixi = cpf.create_branch(tixi, FUEL_PATH, False)
-    tixi = cpf.create_branch(tixi, GEOM_PATH, False)
-    tixi = cpf.create_branch(tixi, pilots_path, False)
-    tixi = cpf.create_branch(tixi, CC_PATH, False)
-    tixi = cpf.create_branch(tixi, PASS_PATH, False)
-    tixi = cpf.create_branch(tixi, ML_PATH, False)
-    tixi = cpf.create_branch(tixi, PROP_PATH, False)
-    tixi = cpf.create_branch(tixi, F_PATH, False)
+    create_branch(tixi, MC_PATH, False)
+    create_branch(tixi, FUEL_PATH, False)
+    create_branch(tixi, GEOM_PATH, False)
+    create_branch(tixi, pilots_path, False)
+    create_branch(tixi, CC_PATH, False)
+    create_branch(tixi, PASS_PATH, False)
+    create_branch(tixi, ML_PATH, False)
+    create_branch(tixi, PROP_PATH, False)
+    create_branch(tixi, F_PATH, False)
 
-    tixi = cpf.add_uid(tixi, F_PATH, 'kerosene')
+    add_uid(tixi, F_PATH, 'kerosene')
     ### Geometry =============================================================
     if not tixi.checkElement(GEOM_PATH + '/description'):
         tixi.createElement(GEOM_PATH, 'description')
@@ -241,7 +243,7 @@ def get_user_inputs(ind, ui, ag, cpacs_in, cpacs):
 
     # Propulsion =============================================================
     if not tixi.checkElement(PROP_PATH + '/turboprop'):
-        tixi = cpf.create_branch(tixi, PROP_PATH, False)
+        create_branch(tixi, PROP_PATH, False)
         tixi.createElement(PROP_PATH, 'turboprop')
         if ui.TURBOPROP:
             tixi.updateTextElement(PROP_PATH + '/turboprop', 'True')
@@ -267,13 +269,13 @@ def get_user_inputs(ind, ui, ag, cpacs_in, cpacs):
 
     # Saving and closing the cpacs file --------------------------------------
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     # Openign and closing again the cpacs file -------------------------------
-    tixi = cpf.open_tixi(cpacs_in)
-    tigl = cpf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_in)
+    tigl = open_tigl(tixi)
     tixi.saveDocument(cpacs_in)
-    cpf.close_tixi(tixi, cpacs_in)
+    close_tixi(tixi, cpacs_in)
 
     return(ind, ui)
 

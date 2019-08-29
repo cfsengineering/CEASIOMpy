@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2019-01-25
+| Last modifiction: 2019-08-29 (AJ)
 
 TODO:
 
@@ -21,7 +21,7 @@ TODO:
 #=============================================================================
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import cpacsfunctions as cpf
+from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi
 
 log = get_logger(__file__.split('.')[0])
 
@@ -51,10 +51,10 @@ def copy_xml(cpacs_in, NAME):
                                  ToolOutut folder.
     """
 
-    tixi = cpf.open_tixi(cpacs_in)
+    tixi = open_tixi(cpacs_in)
     out_xml = 'ToolOutput/' + NAME
     tixi.saveDocument(out_xml)
-    cpf.close_tixi(tixi, out_xml)
+    close_tixi(tixi, out_xml)
 
     return(out_xml)
 

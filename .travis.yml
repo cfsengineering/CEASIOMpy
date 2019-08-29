@@ -4,6 +4,9 @@ language: python
 python:
   # Might not have any effect as Python version defined by Conda environment
   - "3.6"
+branches:
+  only:
+  - master
 install:
   # ----- Install and set up Miniconda -----
   - wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh -O miniconda.sh;

@@ -124,8 +124,10 @@ def get_cl(cpacs_path,cpacs_out_path):
 
     # Save TargetCL
     create_branch(tixi, su2_xpath)
-    tixi.addDoubleElement(su2_xpath,'targetCL',target_cl,'%g')
-    tixi.addTextElement(su2_xpath,'fixedCL','YES')
+    create_branch(tixi, su2_xpath+'/targetCL')
+    create_branch(tixi, su2_xpath+'/fixedCL')
+    tixi.updateDoubleElement(su2_xpath+'/targetCL',target_cl,'%g')
+    tixi.updateTextElement(su2_xpath+'/fixedCL','YES')
     log.info('Target CL has been saved in the CPACS file')
 
     close_tixi(tixi,cpacs_out_path)

@@ -58,13 +58,12 @@ def launch_cpacscreator(cpacs_path,cpacs_out_path):
     """
 
     #Check if CPACSCreator (named tiglviewer-3 for now) is installed
-    check_cpacscr = os.system('which cpacscreator')  # give 0 if it works
-    if check_cpacscr:
-        log.error('CPACSCreator does not seem to be installed on \
-                   your computer!')
-        return None
+    # check_cpacscr = os.system('which cpacscreator')  # give 0 if it works
+    tiglcreator_install_path = shutil.which("tiglviewer-3")
+    if  tiglcreator_install_path:
+        log.info('"TIGLCreator" is intall in: ' + tiglcreator_install_path)
     else:
-        log.info('CPACSCreator has been found on your computer!')
+        raise RuntimeError('"TIGLCreator" is not install on your computer')
 
     # Empty /tmp directory
     TMP_DIR = MODULE_DIR + '/tmp/'
@@ -83,7 +82,7 @@ def launch_cpacscreator(cpacs_path,cpacs_out_path):
         log.error('The ToolInput (.xml file) cannot be found!')
 
     # Run 'cpacscreator' with CPACS input
-    os.system('cpacscreator ' + cpacs_tmp_input)
+    os.system('tiglviewer-3 ' + cpacs_tmp_input)
 
     # # Run cpacscreator with a script to save a screenshot
     # # Problem: TIGLViewer in not close after the script in the shell

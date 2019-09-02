@@ -200,8 +200,11 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
     # Add skin friction to all listed aeroMap
     for aeromap_uid in aeromap_uid_list:
 
+        log.info('adding skin friction coefficients to: ' + aeromap_uid)
+
         # Get orignial aeroPerformanceMap
         AeroCoef = get_aeromap(tixi,aeromap_uid)
+        AeroCoef.complete_with_zeros()
 
         # Create new aeroCoefficient object to store coef with added skin friction
         AeroCoefSF = AeroCoefficient()

@@ -118,6 +118,31 @@ class AeroCoefficient():
 
         return alt_len
 
+    def complete_with_zeros(self):
+        """ fill resuts vecotor (coefficient) with zero to avoid error when plot"""
+
+        case_count = self.get_count()
+
+        if self.cl == []:
+            self.cl = [0]*case_count
+            log.warning('No "cl" values have been found, a list of zeros will be used instead')
+        if self.cd == []:
+            self.cd = [0]*case_count
+            log.warning('No "cd" values have been found, a list of zeros will be used instead')
+        if self.cs == []:
+            self.cs = [0]*case_count
+            log.warning('No "cs" values have been found, a list of zeros will be used instead')
+        if self.cml == []:
+            self.cml = [0]*case_count
+            log.warning('No "cml" values have been found, a list of zeros will be used instead')
+        if self.cmd == []:
+            self.cmd = [0]*case_count
+            log.warning('No "cmd" values have been found, a list of zeros will be used instead')
+        if self.cms == []:
+            self.cms = [0]*case_count
+            log.warning('No "cms" values have been found, a list of zeros will be used instead')
+
+
     def print_coef_list(self):
 
         case_count = self.get_count()
@@ -231,10 +256,10 @@ def create_empty_aeromap(tixi, aeromap_uid, description = ''):
     create_branch(tixi,apm_xpath+'/cms')
 
 
-def check_apm(tixi, aeromap_uid):
+def check_aeromap(tixi, aeromap_uid):
     """ Check an aeroMap and add missing nodes
 
-    Function 'check_apm' is similar to 'create_empty_aeromap' but for existing
+    Function 'check_aeromap' is similar to 'create_empty_aeromap' but for existing
     aeroMap. It will that all node exist and create the missing ones.
 
     Args:
@@ -416,23 +441,69 @@ def get_aeromap(tixi,aeromap_uid):
     Coef.aoa = get_float_vector(tixi,apm_xpath +'/angleOfAttack')
     Coef.aos = get_float_vector(tixi,apm_xpath +'/angleOfSideslip')
 
-    if tixi.checkElement(apm_xpath +'/cl'):
-        Coef.cl = get_float_vector(tixi,apm_xpath +'/cl')
-    if tixi.checkElement(apm_xpath +'/cd'):
-        Coef.cd = get_float_vector(tixi,apm_xpath +'/cd')
-    if tixi.checkElement(apm_xpath +'/cs'):
-        Coef.cs = get_float_vector(tixi,apm_xpath +'/cs')
-    if tixi.checkElement(apm_xpath +'/cml'):
-        Coef.cml = get_float_vector(tixi,apm_xpath +'/cml')
-    if tixi.checkElement(apm_xpath +'/cmd'):
-        Coef.cmd = get_float_vector(tixi,apm_xpath +'/cmd')
-    if tixi.checkElement(apm_xpath +'/cms'):
-        Coef.cms = get_float_vector(tixi,apm_xpath +'/cms')
+
+
+    cl_xpath = apm_xpath +'/cl'
+    if tixi.checkElement(cl_xpath):
+        check_str = tixi.getTextElement(cl_xpath)
+        if check_str == '':
+            log.warning('No /cl values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.cl = []
+        else:
+            Coef.cl = get_float_vector(tixi,cl_xpath)
+
+    cd_xpath = apm_xpath +'/cd'
+    if tixi.checkElement(cd_xpath):
+        check_str = tixi.getTextElement(cd_xpath)
+        if check_str == '':
+            log.warning('No /cd values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.cd = []
+        else:
+            Coef.cd = get_float_vector(tixi,cd_xpath)
+
+    cs_xpath = apm_xpath +'/cs'
+    if tixi.checkElement(cs_xpath):
+        check_str = tixi.getTextElement(cs_xpath)
+        if check_str == '':
+            log.warning('No /cs values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.cs = []
+        else:
+            Coef.cs = get_float_vector(tixi,cs_xpath)
+
+    cml_xpath = apm_xpath +'/cml'
+    if tixi.checkElement(cml_xpath):
+        check_str = tixi.getTextElement(cml_xpath)
+        if check_str == '':
+            log.warning('No /cml values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.cml = []
+        else:
+            Coef.cml = get_float_vector(tixi,cml_xpath)
+
+    cmd_xpath = apm_xpath +'/cmd'
+    if tixi.checkElement(cmd_xpath):
+        check_str = tixi.getTextElement(cmd_xpath)
+        if check_str == '':
+            log.warning('No /cmd values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.cmd = []
+        else:
+            Coef.cmd = get_float_vector(tixi,cmd_xpath)
+
+    cms_xpath = apm_xpath +'/cms'
+    if tixi.checkElement(cms_xpath):
+        check_str = tixi.getTextElement(cms_xpath)
+        if check_str == '':
+            log.warning('No /cms values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.cms = []
+        else:
+            Coef.cms = get_float_vector(tixi,cms_xpath)
 
     return Coef
-
-
-
 
 
 def merge_aeroPerfomanceMap(aeromap_uid_1,aeromap_uid_2,aeromap_uid_merge, delete = False):

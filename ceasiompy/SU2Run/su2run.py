@@ -14,7 +14,6 @@ Python version: >=3.6
 TODO:
 
     * Add possibility of using SSH
-    * Save all results in CPACS output file (AeroMap)
     * Change su2 log file (for each case and wetted_area)
     * Add checks on the code
     * Create test functions
@@ -35,7 +34,7 @@ from shutil import ignore_patterns
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi, \
                                            create_branch, get_value
-from ceasiompy.utils.apmfunctions import save_coefficients, get_aeromap, AeroCoefficient
+from ceasiompy.utils.apmfunctions import save_coefficients, get_aeromap, AeroCoefficient, check_aeromap
 
 log = get_logger(__file__.split('.')[0])
 
@@ -240,7 +239,6 @@ def run_SU2(mesh_path, config_path):
     os.chdir(MODULE_DIR)
 
 
-
 def get_su2_results(cpacs_path,cpacs_out_path):
     """ Function to write SU2 results in a CPACS file.
 
@@ -274,13 +272,13 @@ def get_su2_results(cpacs_path,cpacs_out_path):
     # tixi.updateDoubleElement(lDRatio_xpath,cl_cd,'%g')
 
     # Save aeroPerformanceMap
-    active_aeroMap_xpath = SU2_XPATH + '/aeroMapUID'
-    aeroMap_uid = get_value(tixi,active_aeroMap_xpath)
-    apm_xpath = tixi.uIDGetXPath(aeroMap_uid) + '/aeroPerformanceMap'
+    su2_aeromap_xpath = SU2_XPATH + '/aeroMapUID'
+    aeromap_uid = get_value(tixi,su2_aeromap_xpath)
 
     # Create an oject to store the aerodynamic coefficients
     # Coef = AeroCoefficient()
-    Coef = get_aeromap(tixi, aeroMap_uid)
+    check_aeromap(tixi,aeromap_uid)
+    Coef = get_aeromap(tixi, aeromap_uid)
 
     os.chdir(TMP_DIR)
     config_dir_list = os.listdir(TMP_DIR)
@@ -314,7 +312,7 @@ def get_su2_results(cpacs_path,cpacs_out_path):
             os.chdir(TMP_DIR)
 
     # Save object Coef in the CPACS file
-    save_coefficients(tixi,aeroMap_uid,Coef)
+    save_coefficients(tixi,aeromap_uid,Coef)
 
     close_tixi(tixi,cpacs_out_path)
 

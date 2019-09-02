@@ -439,7 +439,7 @@ def get_float_vector(tixi, xpath):
 
     if float_vector_str == '':
         raise ValueError('No value has been fournd at ' + xpath)
-
+    
     if float_vector_str.endswith(';'):
         float_vector_str = float_vector_str[:-1]
     float_vector_list = float_vector_str.split(';')

@@ -39,7 +39,7 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
                                      add_string_vector, get_string_vector
 
 from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
-                                         check_apm, get_aeromap,               \
+                                         check_aeromap, get_aeromap,           \
                                          create_empty_aeromap,                 \
                                          save_parameters, save_coefficients
 
@@ -82,8 +82,8 @@ def test_get_aeromap_uid_list():
         get_aeromap_uid_list(tixi, xpath)
 
 
-# def test_check_apm():
-""" Test the function 'check_apm'"""
+# def test_check_aeromap():
+""" Test the function 'check_aeromap'"""
 
 
 # def test_get_aeromap ():

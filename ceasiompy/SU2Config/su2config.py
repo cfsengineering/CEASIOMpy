@@ -34,7 +34,7 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi,              \
                                            create_branch
 
 from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
-                                         check_apm, get_aeromap,               \
+                                         check_aeromap, get_aeromap,               \
                                          create_empty_aeromap,                 \
                                          save_parameters, save_coefficients
 
@@ -210,7 +210,7 @@ def generate_config_case(cpacs_path, cpacs_out_path, su2_mesh_path):
         alt_list = [alt]
 
         aeromap_uid = 'aeroMap_fixedCL_SU2'
-        description = 'AeroMap created for SU2 fixed CL calculations'
+        description = 'AeroMap created for SU2 fixed CL value of: ' + str(target_cl)
         create_empty_aeromap(tixi, aeromap_uid, description)
         Parameters = AeroCoefficient()
         Parameters.alt = alt_list

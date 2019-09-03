@@ -166,7 +166,7 @@ def create_branch(tixi, xpath, add_child=False):
         xpath_parent = '/'.join(str(m) for m in xpath_split[0:xpath_index-1])
         child = xpath_split[(xpath_index-1)]
         if tixi.checkElement(xpath_partial):
-            log.info('Branch "' + xpath_partial + '" already exist')
+            # log.info('Branch "' + xpath_partial + '" already exist')
 
             if child == xpath_split[-1] and add_child:
                 namedchild_nb = tixi.getNamedChildrenCount(xpath_parent, child)
@@ -439,7 +439,7 @@ def get_float_vector(tixi, xpath):
 
     if float_vector_str == '':
         raise ValueError('No value has been fournd at ' + xpath)
-    
+
     if float_vector_str.endswith(';'):
         float_vector_str = float_vector_str[:-1]
     float_vector_list = float_vector_str.split(';')

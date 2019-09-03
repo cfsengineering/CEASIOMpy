@@ -199,7 +199,7 @@ def get_aeromap_uid_list(tixi):
             aeromap_xpath = AEROPERFORMANCE_XPATH + '/aeroMap[' + str(i+1) + ']'
             aeromap_uid = tixi.getTextAttribute(aeromap_xpath, 'uID')
             aeromap_list.append(aeromap_uid)
-            log.info('- ' + aeromap_uid)
+            log.info(aeromap_uid)
     else:
         log.warning('No "aeroMap" has been found in the CPACS file')
         log.warning('An empty list will be returned!')

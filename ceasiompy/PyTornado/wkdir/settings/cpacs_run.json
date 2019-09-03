@@ -16,6 +16,6 @@
         "matrix_downwash": false,
         "results": false,
         "show": false,
-        "save": false
+        "save": true
     }
 }

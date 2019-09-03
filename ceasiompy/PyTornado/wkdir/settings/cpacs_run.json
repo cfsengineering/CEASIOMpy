@@ -4,22 +4,18 @@
     "deformation": null,
     "vlm_autopanels_c": 5,
     "vlm_autopanels_s": 20,
-    "save_results": [],
+    "save_results": [
+        "NO_global",
+        "NO_panelwise",
+        "NO_loads_with_undeformed_mesh",
+        "NO_loads_with_deformed_mesh"
+    ],
     "plot": {
-        "geometry_aircraft": false,
-        "geometry_wing": [],
-        "geometry_segment": [],
-        "geometry_property": [],
-        "lattice_aircraft": false,
-        "lattice_aircraft_optional": [],
-        "lattice_wing": [],
-        "lattice_segment": [],
-        "results_downwash": false,
-        "results_panelwise": [
-            "cp"
-        ],
+        "geometry": false,
+        "lattice": false,
+        "matrix_downwash": false,
+        "results": false,
         "show": false,
-        "save": false,
-        "plot_show": true
+        "save": false
     }
 }

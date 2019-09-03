@@ -65,9 +65,7 @@ if __name__ == '__main__':
     shutil.copy(src=cpacs_in_path, dst=FILE_PYT_AIRCRAFT)
 
     # ===== PyTornado analysis =====
-    args = pytornado.StdRunArgs()
-    args.run = FILE_PYT_SETTINGS
-    pytornado.standard_run(args)
+    pytornado.standard_run(args=pytornado.StdRunArgs(run=FILE_PYT_SETTINGS))
 
     # ===== Clean up =====
     shutil.copy(src=FILE_PYT_AIRCRAFT, dst=cpacs_out_path)

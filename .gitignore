@@ -12,6 +12,9 @@
 /temp
 /tmp
 
+# Ignore ModuleTest
+/ceasiompy/ModuleTest/
+
 # Ignore CPACS file
 /test/CPACSfiles
 

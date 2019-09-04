@@ -41,7 +41,6 @@ from ceasiompy.BalanceConventional.func.AoutFunc import cpacsbalanceupdate
 from ceasiompy.BalanceConventional.func.AinFunc import getdatafromcpacs
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import copyxmlfile
 from ceasiompy.utils.cpacsfunctions import aircraft_name
 from ceasiompy.utils.WB.ConvGeometry import geometry
 
@@ -114,7 +113,8 @@ if __name__ == '__main__':
         log.warning('with cpacs file as input')
         raise Exception('Program ended')
     elif os.path.exists(PATH2):
-        out_xml = copyxmlfile.copy_xml(PATH2, 'ToolOutput.xml')
+        out_xml = 'ToolOutput/ToolOutput.xml'
+        shutil.copyfile(PATH2, './' + out_xml)
         #os.remove(PATH2)
     else:
         raise Exception ('Error no ToolInput.xml  or user_toolinput file'\

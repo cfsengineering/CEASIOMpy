@@ -175,7 +175,6 @@ def create_branch(tixi, xpath, add_child=False):
                          + '" has been added to branch "'
                          + xpath_parent + '"')
         else:
-            print(xpath_parent)
             tixi.createElement(xpath_parent, child)
             log.info('Child "' + child + '" has been added to branch "'
                      + xpath_parent + '"')

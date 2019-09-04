@@ -47,7 +47,6 @@ from ceasiompy.BalanceUnconventional.func.AoutFunc import cpacsbalanceupdate
 from ceasiompy.BalanceUnconventional.func.AinFunc import getdatafromcpacs
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import copyxmlfile
 from ceasiompy.utils.cpacsfunctions import aircraft_name
 from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
 
@@ -93,7 +92,8 @@ if __name__ == '__main__':
         os.makedirs('ToolOutput')
 
     if os.path.exists(PATH):
-        out_xml = copyxmlfile.copy_xml(PATH, 'ToolOutput.xml')
+        out_xml = 'ToolOutput/ToolOutput.xml'
+        shutil.copyfile(PATH, './' + out_xml)
         #os.remove(PATH)
         PATH = 'ToolOutput/ToolOutput.xml'
     else:

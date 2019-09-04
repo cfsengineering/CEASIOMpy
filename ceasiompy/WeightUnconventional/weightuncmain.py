@@ -84,7 +84,6 @@ from ceasiompy.WeightUnconventional.func.Fuel.fuelmass import estimate_wing_fuel
 
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import copyxmlfile
 from ceasiompy.utils.cpacsfunctions import aircraft_name
 from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
 
@@ -134,7 +133,8 @@ if __name__ == '__main__':
                          + ' file in the ToolInput folder.')
     name = aircraft_name(cpacs_in)
 
-    out_xml = copyxmlfile.copy_xml(cpacs_in, 'ToolOutput.xml')
+    out_xml = 'ToolOutput/ToolOutput.xml'
+    shutil.copyfile(cpacs_in, './' + out_xml)
     newpath = 'ToolOutput/' + name
     if not os.path.exists(newpath):
         os.makedirs(newpath)

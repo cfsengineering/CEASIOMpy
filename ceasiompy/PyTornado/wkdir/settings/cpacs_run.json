@@ -11,11 +11,25 @@
         "NO_loads_with_deformed_mesh"
     ],
     "plot": {
-        "geometry": false,
-        "lattice": false,
-        "matrix_downwash": false,
-        "results": false,
-        "show": false,
-        "save": true
+        "geometry": {
+            "opt": [],
+            "show": false,
+            "save": true
+        },
+        "lattice": {
+            "opt": [],
+            "show": false,
+            "save": false
+        },
+        "matrix_downwash": {
+            "opt": [],
+            "show": false,
+            "save": false
+        },
+        "results": {
+            "opt": ["cp"],
+            "show": false,
+            "save": false
+        }
     }
 }

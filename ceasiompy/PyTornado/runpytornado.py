@@ -47,41 +47,12 @@ DIR_PYT_SETTINGS = os.path.join(DIR_PYT_WKDIR, 'settings')
 FILE_PYT_AIRCRAFT = os.path.join(DIR_PYT_AIRCRAFT, 'ToolInput.xml')
 FILE_PYT_SETTINGS = os.path.join(DIR_PYT_SETTINGS, 'cpacs_run.json')
 
-# ===== DEFAULT SETTINGS =====
-DEFAULT_SETTINGS = {
-    "aircraft": "ToolInput.xml",
-    "state": "__CPACS",
-    "deformation": None,
-    "vlm_autopanels_c": 5,
-    "vlm_autopanels_s": 20,
-    "save_results": {
-        "global": True,
-        "panelwise": True,
-        "aeroperformance": True
-    },
-    "plot": {
-        "geometry": {
-            "opt": [],
-            "show": False,
-            "save": True
-        },
-        "lattice": {
-            "opt": [],
-            "show": False,
-            "save": False
-        },
-        "matrix_downwash": {
-            "opt": [],
-            "show": False,
-            "save": False
-        },
-        "results": {
-            "opt": ["cp"],
-            "show": False,
-            "save": False
-        }
-    }
-}
+
+# ===== CPACS paths (specific for CEASIOMpy) =====
+class XPATHS:
+    TOOLSPEC = '/cpacs/toolspecific/pytornado'
+
+    # TODO
 
 
 def fetch_settings_from_CPACS(cpacs_in_path):
@@ -96,14 +67,39 @@ def fetch_settings_from_CPACS(cpacs_in_path):
     """
 
     # TODO
+
     return None
 
 
-def main():
-    log.info("Running PyTornado...")
+def get_pytornado_default_settings():
+    """
+    TODO
+    """
+
+    ps = import_pytornado('pytornado.objects.settings')
+    default_dict = ps.get_default_dict(ps.DEFAULT_SETTINGS)
+
+    default_dict["aircraft"] = "ToolInput.xml"
+    default_dict["state"] = "__CPACS"
+    default_dict['plot']['results']['show'] = False
+    default_dict['plot']['geometry']['save'] = True
+
+    return default_dict
+
+
+def import_pytornado(module_name):
+    """
+    Try to import PyTornado and return module if succesful
+
+    Args:
+        module: Name of the module
+
+    Raises:
+        ModuleNotFoundError: If PyTornado not found
+    """
 
     try:
-        pytornado = import_module('pytornado.stdfun.run')
+        module_name = import_module(module_name)
     except ModuleNotFoundError:
         err_msg = """\n
         | PyTornado was not found. CEASIOMpy cannot run an analysis.
@@ -114,7 +110,16 @@ def main():
         log.error(err_msg)
         raise ModuleNotFoundError(err_msg)
 
-    # ===== Make dirs =====
+    return module_name
+
+
+def main():
+    log.info("Running PyTornado...")
+
+    # ===== Import PyTornado =====
+    pytornado = import_pytornado('pytornado.stdfun.run')
+
+    # ===== Make directories =====
     Path(DIR_PYT_WKDIR).mkdir(parents=True, exist_ok=True)
     Path(DIR_PYT_AIRCRAFT).mkdir(parents=True, exist_ok=True)
     Path(DIR_PYT_SETTINGS).mkdir(parents=True, exist_ok=True)
@@ -133,7 +138,8 @@ def main():
 
     if not os.path.exists(FILE_PYT_SETTINGS):
         with open(FILE_PYT_SETTINGS, "w") as fp:
-            dump_pretty_json(DEFAULT_SETTINGS, fp)
+            cpacs_settings = get_pytornado_default_settings()
+            dump_pretty_json(cpacs_settings, fp)
 
     # ===== PyTornado analysis =====
     pytornado.standard_run(args=pytornado.StdRunArgs(run=FILE_PYT_SETTINGS,verbose=True))

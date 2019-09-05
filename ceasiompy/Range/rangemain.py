@@ -18,10 +18,11 @@ Range main module for preliminary design on conventional aircraft, it evaluates:
     ToolInput folder after copying it into the ToolOutput
     folder as ToolOutput.xml
 
-| Works with Python 2.7/3.6
+Python version: >=3.6
+
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-08-08 (AJ)
+| Last modifiction: 2019-09-04 (AJ)
 """
 
 

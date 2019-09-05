@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-10-02
-| Last modifiction: 2019-08-28
+| Last modifiction: 2019-09-05
 
 TODO:
 
@@ -537,8 +537,11 @@ if __name__ == '__main__':
     log.info('Nothing to execute!')
 
 
-# All available Functions
+### HOW TO IMPORT THESE MODULE
+
 # from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
-#                                            add_uid, create_branch, copy_branch,\
+#                                            create_branch, copy_branch, add_uid,\
 #                                            get_value, get_value_or_default,    \
-#                                            get_list_values, add_vector, aircraft_name
+#                                            add_float_vector, get_float_vector, \
+#                                            add_string_vector,get_string_vector,\
+#                                            aircraft_name

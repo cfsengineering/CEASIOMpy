@@ -46,7 +46,9 @@ Output:
     The code deletes the ToolOutput folder and recreates
     it at the start of each run.
 
-| Works with Python 2.7/3.6
+Python version: >=3.6
+
+
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07
 | Last modifiction: 2019-08-08 (AJ)

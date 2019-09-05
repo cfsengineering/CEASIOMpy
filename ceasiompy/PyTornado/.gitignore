@@ -1,8 +1,4 @@
-# Ignore unnecessary PyTornado files
-wkdir/_plots/
-wkdir/_results/
-wkdir/aircraft/*.{xml,json}
-wkdir/airfoils/*
-wkdir/state
+# Ignore PyTornado working dir
+wkdir
 
 log*

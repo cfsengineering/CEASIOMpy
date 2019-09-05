@@ -43,4 +43,4 @@ dependencies:
 
 # Other packages
 #
-# - pytornado>=0.4.1  # PyTornado (automated installation from PyPi or Conda is not yet available)
+# - pytornado>=0.4.2  # PyTornado (automated installation from PyPi or Conda is not yet available)

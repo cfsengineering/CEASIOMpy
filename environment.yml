@@ -40,6 +40,10 @@ dependencies:
 
   - pip:
     - sphinx-rtd-theme==0.4.3
+    # xmltodict
+    # - See https://pypi.org/project/xmltodict/
+    # - Used by the PyTornado module
+    - xmltodict
 
 # Other packages
 #

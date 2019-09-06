@@ -14,7 +14,7 @@ Please report any issues with PyTornado or this wrapper here:
 
 * https://github.com/airinnova/pytornado/issues
 
-PyTornado support:
+PyTornado supports:
 
 * AeroperformanceMap analyses
 
@@ -22,8 +22,12 @@ Python version: >=3.6
 
 | Author: Aaron Dettmann
 | Creation: 2019-08-12
-| Last modifiction: 2019-08-23
+| Last modifiction: 2019-09-06
 """
+
+# TODO
+# -- Good to always remove wkdir?
+# -- Dict parser --> Cast list/tuple
 
 from functools import partial
 from importlib import import_module
@@ -45,7 +49,6 @@ dump_pretty_json = partial(json.dump, indent=4, separators=(',', ': '))
 REGEX_INT = re.compile(r'^[-+]?[0-9]+$')
 REGEX_FLOAT = re.compile(r'^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$')
 
-
 # ===== Paths =====
 DIR_MODULE = os.path.dirname(os.path.abspath(__file__))
 DIR_PYT_WKDIR = os.path.join(DIR_MODULE, 'wkdir')
@@ -65,7 +68,7 @@ def import_pytornado(module_name):
         module: Loaded module
 
     Raises:
-        ModuleNotFoundError: If PyTornado not found
+        ModuleNotFoundError: If PyTornado is not found
     """
 
     try:
@@ -146,18 +149,20 @@ def get_pytornado_settings(cpacs_in_path):
 def parse_pytornado_settings_dict(dictionary):
     """ Parse the PyTornado settings dict
 
-    Args:
-        dictionary (dict): Dictionary to parse
-
     Note:
         * Parses dictionary recursively
         * Replaces strings 'True' or 'true' with boolean True
         * Replaces strings 'False' or 'false' with boolean False
+        * Converts float-like strings to float numbers
+        * Converts int-like strings to integer numbers
+
+    Args:
+        dictionary (dict): Dictionary to parse
     """
 
     for k, v in dictionary.items():
 
-        # Recursion
+        # Parse dictionary recursively
         if isinstance(v, dict):
             parse_pytornado_settings_dict(v)
 
@@ -167,10 +172,11 @@ def parse_pytornado_settings_dict(dictionary):
                 v = True
             elif v.lower() == 'false':
                 v = False
-            elif REGEX_FLOAT.fullmatch(v):
-                v = float(v)
+            # First check integer, then float!
             elif REGEX_INT.fullmatch(v):
                 v = int(v)
+            elif REGEX_FLOAT.fullmatch(v):
+                v = float(v)
 
             # TODO: list/tuple
 
@@ -190,6 +196,9 @@ def main():
     # ===== Import PyTornado =====
     pytornado = import_pytornado('pytornado.stdfun.run')
 
+    # ===== Clean up from previous analyses =====
+    shutil.rmtree(DIR_PYT_WKDIR, ignore_errors=True)
+
     # ===== Make directories =====
     Path(DIR_PYT_WKDIR).mkdir(parents=True, exist_ok=True)
     Path(DIR_PYT_AIRCRAFT).mkdir(parents=True, exist_ok=True)
@@ -207,7 +216,7 @@ def main():
         dump_pretty_json(cpacs_settings, fp)
 
     # ===== PyTornado analysis =====
-    pytornado.standard_run(args=pytornado.StdRunArgs(run=FILE_PYT_SETTINGS,verbose=True))
+    pytornado.standard_run(args=pytornado.StdRunArgs(run=FILE_PYT_SETTINGS, verbose=True))
 
     # ===== Clean up =====
     shutil.copy(src=FILE_PYT_AIRCRAFT, dst=cpacs_out_path)

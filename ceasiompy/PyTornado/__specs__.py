@@ -75,3 +75,13 @@ RCE = {
     "author": "Aaron Dettmann",
     "email": "dettmann@kth.se",
 }
+
+XPATH_PYTORNADO = '/cpacs/toolspecific/pytornado'
+
+GUI_SETTINGS = {
+    'Aero map name': ['', str, None, XPATH_PYTORNADO + '/aeroMapUID', 'Name of the aero map to evaluate'],
+    'Chordwise panels': [10, int, '1', XPATH_PYTORNADO + '/vlm_autopanels_c', 'Number of chordwise panels'],
+    'Spanwise panels': [5, int, '1', XPATH_PYTORNADO + '/vlm_autopanels_s', 'Number of spanwise panels'],
+    'Show plot lattice': [False, bool, None, XPATH_PYTORNADO + '/plot/lattice/show', 'Show lattice plot?'],
+    'Save plot lattice': [False, bool, None, XPATH_PYTORNADO + '/plot/lattice/save', 'Save lattice plot?'],
+}

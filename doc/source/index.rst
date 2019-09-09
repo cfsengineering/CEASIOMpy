@@ -25,6 +25,7 @@ Introduction
    user_guide/installation
    user_guide/getting_started
    user_guide/detailed_user_guide
+   user_guide/modules
    user_guide/module_interfaces
 
 .. toctree::

@@ -87,7 +87,12 @@ rst_prolog = f"""
 .. |name_bold| replace:: **{NAME}**
 .. |author1| replace:: {author}
 .. |license| replace:: *Apache-2.0*
+.. |Apm| replace:: Aero-performance map
+.. |Apms| replace:: Aero-performance maps
+.. |apm| replace:: aero-performance map
+.. |apms| replace:: aero-performance maps
 .. |dlr_full| replace:: German Aerospace Center
+.. _CFD: https://en.wikipedia.org/wiki/Computational_fluid_dynamics
 .. _Github: https://github.com/cfsengineering/CEASIOMpy
 .. _Github_BugReport: https://github.com/cfsengineering/CEASIOMpy/issues
 .. _CPACS: https://www.cpacs.de/

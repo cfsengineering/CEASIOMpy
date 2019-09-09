@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Functions to handle AeroPerformanceMap from CPACS file, it uses TIXI library
+Functions to handle aeroMaps from CPACS file, it uses TIXI library
 
 Python version: >=3.6
 CPACS version: 3.1
@@ -17,7 +17,6 @@ TODO:
     * Create test functions
     * Developp other functions
     * Use DataFrame instead of AeroCoefficient object? is it possible?
-
 """
 
 #==============================================================================
@@ -546,11 +545,11 @@ def get_aeromap(tixi,aeromap_uid):
     return Coef
 
 
-def merge_aeroPerfomanceMap(tixi, aeromap_uid_1,aeromap_uid_2,aeromap_uid_merge,
+def merge_aeroMap(tixi, aeromap_uid_1,aeromap_uid_2,aeromap_uid_merge,
                             keep_originals = True):
     """ Merge two existing aeroPerformanceMap into a new one
 
-    Function 'merge_aeroPerfomanceMap' merge two aeroMap into one, an option
+    Function 'merge_aeroMap' merge two aeroMap into one, an option
     allow to keep or not the orignal ones.
 
     Args:
@@ -755,6 +754,6 @@ if __name__ == '__main__':
 # from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
 #                                          create_empty_aeromap, check_aeromap,  \
 #                                          save_parameters, save_coefficients,   \
-#                                          get_aeromap, merge_aeroPerfomanceMap, \
+#                                          get_aeromap, merge_aeroMap,           \
 #                                          aeromap_from_csv, aeromap_to_csv,     \
 #                                          delete_aeromap

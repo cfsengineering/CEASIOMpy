@@ -136,7 +136,7 @@ def create_branch(tixi, xpath, add_child=False):
 
     Function 'create_branch' create a branch in the tixi handle and also all
     the missing parent nodes. Be careful, the xpath must be unique until the
-    last element, it means, if several element exit, its index must be precised
+    last element, it means, if several element exist, its index must be precised
     (index start at 1).
     e.g.: '/cpacs/vehicles/aircraft/model/wings/wing[2]/name'
 
@@ -151,7 +151,7 @@ def create_branch(tixi, xpath, add_child=False):
         tixi (handles): TIXI Handle of the CPACS file
         xpath (str): xpath of the branch to create
         add_child (boolean): Choice of adding a name child if the last element
-                             of the xpath if one already exits
+                             of the xpath if one already exists
 
     Returns:
         tixi (handles): Modified TIXI Handle (with new branch)
@@ -201,9 +201,9 @@ def copy_branch(tixi, xpath_from, xpath_to):
     """
 
     if not tixi.checkElement(xpath_from):
-        raise ValueError(xpath_from + ' XPath does not exit!')
+        raise ValueError(xpath_from + ' XPath does not exist!')
     if not tixi.checkElement(xpath_to):
-        raise ValueError(xpath_to + ' XPath does not exit!')
+        raise ValueError(xpath_to + ' XPath does not exist!')
 
     child_nb = tixi.getNumberOfChilds(xpath_from)
 
@@ -294,9 +294,9 @@ def add_uid(tixi, xpath, uid):
 def get_value(tixi, xpath):
     """ Function to get value from a CPACS branch if this branch exist.
 
-    Function 'get_value' check first if the the xpath exit and a value is store
+    Function 'get_value' check first if the the xpath exist and a value is store
     at this place. Then, it gets and returns this value. If the value or the
-    xpath does not exit it raise an error and return 'None'.
+    xpath does not exist it raise an error and return 'None'.
 
     Source :
         * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
@@ -339,7 +339,7 @@ def get_value_or_default(tixi,xpath,default_value):
 
     Function 'get_value_or_default' do the same than the function 'get_value'
     but if no value is found at this place it returns the default value and add
-    it at the xpath. If the xpath does not exit, it is created.
+    it at the xpath. If the xpath does not exist, it is created.
 
     Source :
         * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
@@ -392,7 +392,7 @@ def add_float_vector(tixi, xpath, vector):
     """ Add a vector (of float) at given CPACS xpath
 
     Function 'add_float_vector' will add a vector (composed by float) at the
-    given XPath, if the node does not exit, it will be created. Values will be
+    given XPath, if the node does not exist, it will be created. Values will be
     overwritten if paths exists.
 
     Args:
@@ -424,7 +424,7 @@ def get_float_vector(tixi, xpath):
     """ Get a vector (of float) at given CPACS xpath
 
     Function 'get_float_vector' will get a vector (composed by float) at the
-    given XPath, if the node does not exit, an error will be raised.
+    given XPath, if the node does not exist, an error will be raised.
 
     Args:
         tixi (handle): Tixi handle
@@ -432,7 +432,7 @@ def get_float_vector(tixi, xpath):
     """
 
     if not tixi.checkElement(xpath):
-        raise ValueError(xpath + ' path does not exit!')
+        raise ValueError(xpath + ' path does not exist!')
 
     float_vector_str = tixi.getTextElement(xpath)
 
@@ -451,7 +451,7 @@ def add_string_vector(tixi, xpath, vector):
     """ Add a vector (of string) at given CPACS xpath
 
     Function 'add_string_vector' will add a vector (composed by stings) at the
-    given XPath, if the node does not exit, it will be created. Values will be
+    given XPath, if the node does not exist, it will be created. Values will be
     overwritten if paths exists.
 
     Args:
@@ -483,7 +483,7 @@ def get_string_vector(tixi, xpath):
     """ Get a vector (of string) at given CPACS xpath
 
     Function 'get_string_vector' will get a vector (composed by string) at the
-    given XPath, if the node does not exit, an error will be raised.
+    given XPath, if the node does not exist, an error will be raised.
 
     Args:
         tixi (handle): Tixi handle
@@ -491,7 +491,7 @@ def get_string_vector(tixi, xpath):
     """
 
     if not tixi.checkElement(xpath):
-        raise ValueError(xpath + ' path does not exit!')
+        raise ValueError(xpath + ' path does not exist!')
 
     string_vector_str = tixi.getTextElement(xpath)
 

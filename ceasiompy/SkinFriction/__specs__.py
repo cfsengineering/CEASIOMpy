@@ -3,6 +3,18 @@
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut, CEASIOM_XPATH
 
+
+# ===== RCE =====
+
+RCE = {
+    "name": "SkinFriction",
+    "description": "Calculate skin friction drag coefficent",
+    "exec": "pwd\npython skinfriction.py",
+    "author": "Aidan Jungo",
+    "email": "aidan.jungo@cfse.ch",
+}
+
+
 cpacs_inout = CPACSInOut()
 
 # ===== Input =====
@@ -57,12 +69,13 @@ cpacs_inout.add_output(
     cpacs_path=CEASIOM_XPATH + '/geometry/analysis/wingSpan',
 )
 
-# ===== RCE =====
 
-RCE = {
-    "name": "SkinFriction",
-    "description": "Calculate skin friction drag coefficent",
-    "exec": "pwd\npython skinfriction.py",
-    "author": "Aidan Jungo",
-    "email": "aidan.jungo@cfse.ch",
+# ===== GUI =====
+
+SKINFRICTION_PATH = CEASIOM_XPATH + '/aerodynamics/skinFriction'
+
+GUI_SETTINGS = {
+    'AeroMap name': ['', list, None, SKINFRICTION_PATH + '/aeroMapToCalculate', 'To which aeroMap the skin priction coef shoud be added.'],
+    'Delete Orignal': [False, bool, None, SKINFRICTION_PATH + '/deleteOriginal', 'Delete orignal aeroMap once skin friction coefficient has been added.'],
+    'Wetted Area': [None, float, 'm^2', CEASIOM_XPATH + '/geometry/analysis/wettedArea', 'Aircraft total wetted area']
 }

@@ -21,18 +21,6 @@ cpacs_inout = CPACSInOut()
 # ===== Input =====
 
 cpacs_inout.add_input(
-    var_name='wetted_area',
-    var_type=float,
-    default_value=None,
-    unit='m^2',
-    descr='Wetted area of the aircraft (calculated by SU2)',
-    cpacs_path=CEASIOM_XPATH + '/geometry/analysis/wettedArea',
-    gui=True,
-    gui_name='Wetter Area',
-    gui_group=None,
-)
-
-cpacs_inout.add_input(
     var_name='',
     var_type=list,
     default_value=None,
@@ -41,6 +29,18 @@ cpacs_inout.add_input(
     cpacs_path=SKINFRICTION_PATH + '/aeroMapToCalculate',
     gui=True,
     gui_name='AeroMap name',
+    gui_group=None,
+)
+
+cpacs_inout.add_input(
+    var_name='wetted_area',
+    var_type=float,
+    default_value=None,
+    unit='m^2',
+    descr='Wetted area of the aircraft (calculated by SU2)',
+    cpacs_path=CEASIOM_XPATH + '/geometry/analysis/wettedArea',
+    gui=True,
+    gui_name='Wetter Area',
     gui_group=None,
 )
 

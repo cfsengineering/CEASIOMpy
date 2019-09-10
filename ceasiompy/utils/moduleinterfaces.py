@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aaron Dettmann
 | Creation: 2019-08-06
-| Last modifiction: 2019-08-14
+| Last modifiction: 2019-09-10
 
 TODO:
 
@@ -41,23 +41,46 @@ class CPACSRequirementError(Exception):
 
 class _Entry:
 
-    def __init__(self, *, var_name='', default_value=None, unit='1',
-                 descr='', cpacs_path=''):
+    # TODO: Use a dict instead of class?
+
+    def __init__(
+        self, *,
+        var_name='',
+        var_type=None,
+        default_value=None,
+        unit='1',
+        descr='',
+        cpacs_path='',
+        gui=False,
+        gui_name='',
+        gui_group=None
+    ):
         """Template for an entry which describes a module input or output
 
         Args:
-            :var_name: Variable name as used in the module code
-            :default_value: default_value
-            :unit: Unit of the required value, e.g. '[m/s]'
-            :descr: Description of the input or output data
-            :cpacs_path: CPACS node path
+            var_name (str): Variable name as used in the module code
+            var_type (type): Type of the expected input or output variable
+            default_value (any): Default input value
+            unit (str): Unit of the required value, e.g. 'm/s'
+            descr (str): Description of the input or output data
+            cpacs_path (str): CPACS node path
+            gui (bool): 'True' if entry should appear in GUI
+            gui_name (str): GUI name
+            gui_group (str): Group name for GUI generation
         """
 
+        # ----- General information -----
         self.var_name = var_name
+        self.var_type = var_type
         self.default_value = default_value
         self.unit = unit
         self.descr = descr
         self.cpacs_path = cpacs_path
+
+        # ----- GUI specific -----
+        self.gui = gui
+        self.gui_name = gui_name
+        self.gui_group = gui_group
 
 
 class CPACSInOut:
@@ -65,21 +88,52 @@ class CPACSInOut:
     def __init__(self):
         """
         Class summarising the input and output data
+
+        Attributes:
+            inputs (list): List of CPACS inputs
+            outputs (list): List of CPACS output
         """
 
         self.inputs = []
         self.outputs = []
 
     def add_input(self, **kwargs):
+        """Add a new entry to the inputs list"""
+
         entry = _Entry(**kwargs)
         self.inputs.append(entry)
 
     def add_output(self, **kwargs):
+        """Add a new entry to the outputs list"""
+
         if kwargs.get('default_value', None) is not None:
             raise ValueError("Output 'default_value' must be None")
 
+        # TODO: some GUI parameters don't make sense as 'output'
+
         entry = _Entry(**kwargs)
         self.outputs.append(entry)
+
+    def get_gui_dict(self):
+        """Return a dictionary which can be processed by the GUI engine"""
+
+        # TODO: process groups
+
+        gui_settings_dict = {}
+        for entry in self.inputs:
+            if not entry.gui:
+                continue
+
+            gui_settings_dict[entry.gui_name] = (
+                entry.default_value,
+                entry.var_type,
+                entry.unit,
+                entry.cpacs_path,
+                entry.descr,
+                entry.gui_group,
+            )
+
+        return gui_settings_dict
 
 
 #==============================================================================
@@ -126,9 +180,9 @@ def get_module_list():
     import ceasiompy.__init__
 
     ignore_submods = [
-            '__init__.py',
-            '__version__.py',
-            '__pycache__',
+        '__init__.py',
+        '__version__.py',
+        '__pycache__',
     ]
 
     # Path for main CEASIOMpy library

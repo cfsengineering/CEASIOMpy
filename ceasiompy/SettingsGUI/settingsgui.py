@@ -9,12 +9,13 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-09-05
-| Last modifiction: 2019-09-09
+| Last modifiction: 2019-09-10
 
 TODO:
 
-    * In developement module !!!!
-    *  ...
+    * Add "mouse over" for description
+    * Add 'AeroMap Edit'
+    * Fix  'get_value' for boolean
 """
 
 #==============================================================================
@@ -54,11 +55,13 @@ from ceasiompy.ModuleTemplate.__specs__ import cpacs_inout
 
 log = get_logger(__file__.split('.')[0])
 
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 #==============================================================================
 #   CLASSES
 #==============================================================================
 
+# Not use for now, but could be useful
 class ListBoxChoice(object):
     def __init__(self, tab, tixi, list=[]):
 
@@ -69,7 +72,7 @@ class ListBoxChoice(object):
         self.list = list[:]
 
         self.listBox = tk.Listbox(self.tab, selectmode=tk.SINGLE)
-        self.listBox.grid(column=1, row=10)
+        self.listBox.grid(column=2, row=10)
         self.list.sort()
         for item in self.list:
             self.listBox.insert(tk.END, item)
@@ -98,122 +101,125 @@ class ListBoxChoice(object):
 
 
 class AutoTab:
-    """ Class to crate automatically tabs from the infomation in the __specs__
+    """ Class to create automatically tabs from the infomation in the __specs__
         file of each module. """
 
     def __init__(self, tabs, tixi, module_name):
 
         self.tabs = tabs
         self.tixi = tixi
-        self.tab = tk.Frame(tabs)
+        self.tab = tk.Frame(tabs,borderwidth=1)
         tabs.add(self.tab, text=module_name)
 
-        module_name_label = tk.Label(self.tab, text= module_name + ' Settings', font='Helvetica 12 bold')
-        module_name_label.grid(column=0, row=0, columnspan=2, sticky= tk.W)
+        space_label = tk.Label(self.tab, text= ' ')
+        space_label.grid(column=0, row=0)
 
         # Get dict from the __specs__ file
         try:
             specs = importlib.import_module('ceasiompy.' + module_name + '.__specs__')
-            gui_settings_dict = specs.GUI_SETTINGS
+            self.gui_settings_dict = specs.cpacs_inout.get_gui_dict()
         except:
             raise ValueError(f"--> GUI_SETTINGS NOT found for '{module_name}'")
 
-        # Crate a dummy dictionary
-        # gui_settings_dict = {
-        # 'test1':[1,int,'m/s',xpath,'description'],
-        # 'test2':[2.3,float,'deg',xpath,'description'],
-        # 'test3':['aaa',str,None,xpath,'description'],
-        # 'test4':[True,bool,None,xpath,'description']
+        # Imported dictionary must have this form
+        # xpath = '/cpacs/vehicles/aircraft/model'
+        # self.gui_settings_dict = {
+        # 'test1':[1,int,'m/s',xpath,'description','groupe'],
+        # 'test2':[2.3,float,'deg',xpath,'description','groupe'],
+        # 'test3':['aaa',str,None,xpath,'description',None],
+        # 'test4':[True,bool,None,xpath,'description',None]
         # }
 
-        var_list = []
-        row_pos = 2
+        self.var_dict = {}
+        self.group_dict = {}
+        row_pos = 1
 
-        for key, [def_value,dtype,unit,xpath,description] in gui_settings_dict.items():
+        for key, [def_value,dtype,unit,xpath,description,group] in self.gui_settings_dict.items():
 
-            # Name
-            name_label = tk.Label(self.tab, text= key)
-            name_label.grid(column=0, row=row_pos)
+            # Create a LabelFrame for new groupe
+            if group:
+                if not group in self.group_dict:
+                    self.labelframe = tk.LabelFrame(self.tab, text=group)
+                    self.labelframe.grid(column=0, row=row_pos, columnspan=3,sticky= tk.W, padx=5, pady=5)
+                    self.group_dict[group] = self.labelframe
+                parent = self.group_dict[group]
+            else: # if not a group, use tab as parent
+                parent = self.tab
+
+            # Name label for variable
+            name_label = tk.Label(parent, text= key)
+            name_label.grid(column=0, row=row_pos, sticky= tk.W, padx=5, pady=5)
 
             # Type and Value
             if dtype is bool:
+                self.var_dict[key] = tk.BooleanVar()
+                # TODO: NOT working because get_value not recognize Boolean type
                 # value = get_value_or_default(self.tixi,xpath,def_value)
-                # how to deal with boolean
                 value = def_value
-                var_list.append(tk.BooleanVar())
-                var_list[-1].set(value)
-                bool_entry = tk.Checkbutton(self.tab, text='', variable=var_list[-1])
-                bool_entry.grid(column=1, row=row_pos)
+                self.var_dict[key].set(value)
+                bool_entry = tk.Checkbutton(parent, text='', variable=self.var_dict[key])
+                bool_entry.grid(column=1, row=row_pos,padx=5, pady=5)
 
             elif dtype is int:
                 value = get_value_or_default(self.tixi,xpath,def_value)
-                var_list.append(tk.IntVar())
-                var_list[-1].set(value)
-                value_entry = tk.Entry(self.tab, bd =2, textvariable=var_list[-1])
-                value_entry.grid(column=1, row=row_pos)
+                self.var_dict[key] = tk.IntVar()
+                self.var_dict[key].set(int(value))
+                value_entry = tk.Entry(parent, bd =2, textvariable=self.var_dict[key])
+                value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
             elif dtype is float:
                 value = get_value_or_default(self.tixi,xpath,def_value)
-                var_list.append(tk.DoubleVar())
-                var_list[-1].set(value)
-                value_entry = tk.Entry(self.tab, bd =2, textvariable=var_list[-1])
-                value_entry.grid(column=1, row=row_pos)
+                self.var_dict[key] = tk.DoubleVar()
+                self.var_dict[key].set(value)
+                value_entry = tk.Entry(parent, bd =2, textvariable=self.var_dict[key])
+                value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
             elif dtype is list:
+                pass
                 if 'AeroMap' in key :
+                    self.var_dict[key] = 'AeroMapListType'
                     aeromap_uid_list = get_aeromap_uid_list(self.tixi)
-                    labelframe = tk.LabelFrame(self.tab, text="AeroMap to calculate")
-                    labelframe.grid(column=0, row=row_pos, columnspan=2)
-                    aeromap_var_list = []
+                    self.labelframe = tk.LabelFrame(parent, text="AeroMap to calculate")
+                    self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky= tk.W, padx=5, pady=5)
+                    self.aeromap_var_dict = {}
+
+                    # Pre selected aeromap from the coresponding CPACS node
+                    try:
+                        selected_aeromap = get_string_vector(self.tixi,xpath)
+                    except:
+                        selected_aeromap = ''
+
                     for aeromap in aeromap_uid_list:
-                        aeromap_var_list.append(tk.BooleanVar())
-                        if def_value == aeromap:
-                            var_list[-1].set(True)
-                        bool_entry = tk.Checkbutton(labelframe, text=aeromap, variable=aeromap_var_list[-1])
-                        bool_entry.pack(side= tk.TOP, anchor='w')
+                        self.aeromap_var_dict[aeromap] = tk.BooleanVar()
 
-
-                        #Selected ones
-                        # value = get_string_vector(self.tixi,xpath)
-
-                # var_list.append(tk.StringVar())
-                # var_list[-1].set(value)
-                # value_entry = tk.Entry(self.tab, bd =2, textvariable=var_list[-1])
-                # value_entry.grid(column=1, row=row_pos)
-
+                        if aeromap in selected_aeromap:
+                            self.aeromap_var_dict[aeromap].set(True)
+                        aeromap_entry = tk.Checkbutton(self.labelframe, text=aeromap, variable=self.aeromap_var_dict[aeromap])
+                        aeromap_entry.pack(side= tk.TOP, anchor='w')
+                else: # if it's a list of someting else than aeromap
+                    log.warning('This function is not implemented yet!')
+                    # TODO: see what to do in this case...
 
             else:
                 value = get_value_or_default(self.tixi,xpath,def_value)
-                var_list.append(tk.StringVar())
-                var_list[-1].set(value)
-                value_entry = tk.Entry(self.tab, bd =2, textvariable=var_list[-1])
-                value_entry.grid(column=1, row=row_pos)
+                self.var_dict[key] = tk.StringVar()
+                self.var_dict[key].set(value)
+                value_entry = tk.Entry(parent, textvariable=self.var_dict[key])
+                value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
             # Units
             if unit and unit != '1' :
-                name_label = tk.Label(self.tab, text= unit)
-                name_label.grid(column=2, row=row_pos)
+                unit_label = tk.Label(parent, text= unit)
+                unit_label.grid(column=2, row=row_pos, padx=5, pady=5)
 
             row_pos += 1
 
-        self.var_list = var_list
-
-        self.greet_button = tk.Button(self.tab, text="Print", command=self.print_values)
-        self.greet_button.grid(column=1, row=row_pos)
-
-        # call listbox
+        # call listbox , Not used for now, could be useful...
         # aeromap_uid_list = get_aeromap_uid_list(self.tixi)
         # self.listbox1 = ListBoxChoice(self.tab,self.tixi,aeromap_uid_list) #.returnValue()
 
-    def print_values(self):
-        print("Print!  ------")
-        for var in self.var_list:
-            print(var.get())
-        print("------------")
-
-
 class CEASIOMpyGUI:
-    def __init__(self, master):
+    def __init__(self, master, cpacs_path, cpacs_out_path):
 
         # GUI =============
         self.master = master
@@ -224,39 +230,49 @@ class CEASIOMpyGUI:
         self.tabs.pack(side=tk.TOP,fill='both')
         self.tabs.pack(expand=1, fill='both')
 
-
         # CPACS =============
-
-        MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-        cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
-
-
         self.tixi = open_tixi(cpacs_path)
 
-
         # Generate Tab =============
-        module_name = 'PyTornado'
-        tab1 = AutoTab(self.tabs,self.tixi, module_name)
+        # TODO: @Aaron : add your function, get_submodule (in comment for now)
+        self.module_name_list = ['PyTornado', 'SkinFriction','ModuleTemplate']
+        self.tab_list = []
 
-        module_name = 'SkinFriction'
-        tab2 = AutoTab(self.tabs,self.tixi, module_name)
-
+        for module_name in self.module_name_list:
+            self.tab_list.append(AutoTab(self.tabs,self.tixi, module_name))
 
         # General button =============
-        self.greet_button = tk.Button(self.master, text="Do things", command=self.greet)
-        self.greet_button.pack(side= tk.LEFT)
-
         self.close_button = tk.Button(self.master, text="Close", command=self.save_quit)
         self.close_button.pack(side=tk.RIGHT)
 
-    def greet(self):
-        print("Things have been done!")
+    # Do we need a button for someting else ...?
+    #     self.greet_button = tk.Button(self.master, text="Do things", command=self.greet)
+    #     self.greet_button.pack(side= tk.LEFT)
+    #
+    # def greet(self):
+    #     print("Things have been done!")
 
     def save_quit(self):
-        cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
+
+        # Iterate over all existing tabs
+        for tab in self.tab_list:
+            # Iterate in Variable dictionary of each tab
+            for key, var in tab.var_dict.items():
+                # Get the XPath from the GUI setting dictionary and crate a branch
+                xpath = tab.gui_settings_dict[key][3]
+                create_branch(self.tixi,xpath)
+
+                if var == 'AeroMapListType':
+                    aeromap_uid_list_str = ''
+                    for aeromap_uid, aeromap_bool in tab.aeromap_var_dict.items():
+                        if aeromap_bool.get():
+                            aeromap_uid_list_str += aeromap_uid + ';'
+                    self.tixi.updateTextElement(xpath,aeromap_uid_list_str)
+                else:
+                    self.tixi.updateTextElement(xpath,str(var.get()))
+
         close_tixi(self.tixi,cpacs_out_path)
         self.master.quit()
-
 
 
 #==============================================================================
@@ -273,19 +289,35 @@ if __name__ == '__main__':
 
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
     cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
     cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 
     # Call the function which check if imputs are well define
     check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
 
-
     # Call Tkinter Class
     root = tk.Tk()
-    my_gui = CEASIOMpyGUI(root)
+    my_gui = CEASIOMpyGUI(root,cpacs_path,cpacs_out_path)
     root.mainloop()
 
-# Inspierd from https://python-textbok.readthedocs.io/en/1.0/Introduction_to_GUI_Programming.html
-
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
+
+
+
+### OLD function, to delete soon
+    # def save_in_cpacs(self):
+    #     for key, var in self.var_dict.items():
+    #
+    #         # Get the XPath from the GUI setting dictionary
+    #         xpath = self.gui_settings_dict[key][3]
+    #
+    #         create_branch(self.tixi,xpath)
+    #
+    #         if var == 'AeroMapListType':
+    #             aeromap_uid_list_str = ''
+    #             for aeromap_uid, aeromap_bool in self.aeromap_var_dict.items():
+    #                 if aeromap_bool.get():
+    #                     aeromap_uid_list_str += aeromap_uid + ';'
+    #             self.tixi.updateTextElement(xpath,aeromap_uid_list_str)
+    #         else:
+    #             self.tixi.updateTextElement(xpath,str(var.get()))

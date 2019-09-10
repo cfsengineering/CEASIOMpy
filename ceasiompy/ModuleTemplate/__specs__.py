@@ -28,7 +28,7 @@ for direction in ['x', 'y', 'z']:
         descr=f"Fuselage scaling on {direction} axis",
         cpacs_path=AIRCRAFT_XPATH + f'/model/fuselages/fuselage/transformation/scaling/{direction}',
         gui=True,
-        gui_name='{direction.capitalize()} scaling',
+        gui_name=f'{direction.capitalize()} scaling',
         gui_group='Fuselage scaling',
     )
 

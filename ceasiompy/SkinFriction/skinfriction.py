@@ -65,7 +65,7 @@ def get_largest_wing_dim(tixi,tigl):
         * TIGL functions : http://tigl.sourceforge.net/Doc/
 
     Args:
-        tixi (handles):  TIXI Handle
+        tixi (handles): TIXI Handle
         tigl (handles): TIGL Handle
 
     Returns:

@@ -22,22 +22,18 @@ TODO:
 #   IMPORTS
 #==============================================================================
 
+import re
 import os
-import sys
-import math
-import numpy
-import matplotlib
-import importlib
 
 import tkinter as tk
 from tkinter import ttk
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl,close_tixi,    \
-                                           create_branch, copy_branch, add_uid,\
-                                           get_value, get_value_or_default,    \
-                                           add_float_vector, get_float_vector, \
-                                           add_string_vector,get_string_vector,\
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,    \
+                                           create_branch, copy_branch, add_uid, \
+                                           get_value, get_value_or_default,     \
+                                           add_float_vector, get_float_vector,  \
+                                           add_string_vector, get_string_vector,\
                                            aircraft_name
 
 from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
@@ -47,10 +43,7 @@ from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
                                          aeromap_from_csv, aeromap_to_csv,     \
                                          delete_aeromap
 
-
-
-from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
-from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
+import ceasiompy.utils.moduleinterfaces as mif
 from ceasiompy.ModuleTemplate.__specs__ import cpacs_inout
 
 log = get_logger(__file__.split('.')[0])
@@ -105,37 +98,40 @@ class AutoTab:
         file of each module. """
 
     def __init__(self, tabs, tixi, module_name):
+        """Tab class
 
-        self.tabs = tabs
-        self.tixi = tixi
-        self.tab = tk.Frame(tabs,borderwidth=1)
-        tabs.add(self.tab, text=module_name)
+        Note:
+            A tab will only be created if the module actually has
+            any settings which are to be shown
 
-        space_label = tk.Label(self.tab, text= ' ')
-        space_label.grid(column=0, row=0)
-
-        # Get dict from the __specs__ file
-        try:
-            specs = importlib.import_module('ceasiompy.' + module_name + '.__specs__')
-            self.gui_settings_dict = specs.cpacs_inout.get_gui_dict()
-        except:
-            raise ValueError(f"--> GUI_SETTINGS NOT found for '{module_name}'")
-
-        # Imported dictionary must have this form
-        # xpath = '/cpacs/vehicles/aircraft/model'
-        # self.gui_settings_dict = {
-        # 'test1':[1,int,'m/s',xpath,'description','groupe'],
-        # 'test2':[2.3,float,'deg',xpath,'description','groupe'],
-        # 'test3':['aaa',str,None,xpath,'description',None],
-        # 'test4':[True,bool,None,xpath,'description',None]
-        # }
+        Args:
+            tabs (TODO): TODO
+            tixi (handle): Tixi handle
+            module_name (str): String of the module name for which a tab is to be created
+        """
 
         self.var_dict = {}
         self.group_dict = {}
+
+        # ----- Safely try to get the specs module -----
+        specs = mif.get_specs_for_module(module_name)
+        if specs is None:  # Specs does not exist
+            return
+        self.gui_dict = specs.cpacs_inout.get_gui_dict()
+        if not self.gui_dict:  # Empty dict --> nothing to do
+            return
+
+        self.tabs = tabs
+        self.tixi = tixi
+        self.tab = tk.Frame(tabs, borderwidth=1)
+        tabs.add(self.tab, text=module_name)
+
+        space_label = tk.Label(self.tab, text=' ')
+        space_label.grid(column=0, row=0)
+
         row_pos = 1
 
-        for key, [def_value,dtype,unit,xpath,description,group] in self.gui_settings_dict.items():
-
+        for key, (def_value, dtype, unit, xpath, description, group) in self.gui_dict.items():
             # Create a LabelFrame for new groupe
             if group:
                 if not group in self.group_dict:
@@ -143,7 +139,7 @@ class AutoTab:
                     self.labelframe.grid(column=0, row=row_pos, columnspan=3,sticky= tk.W, padx=5, pady=5)
                     self.group_dict[group] = self.labelframe
                 parent = self.group_dict[group]
-            else: # if not a group, use tab as parent
+            else:  # if not a group, use tab as parent
                 parent = self.tab
 
             # Name label for variable
@@ -158,29 +154,28 @@ class AutoTab:
                 value = def_value
                 self.var_dict[key].set(value)
                 bool_entry = tk.Checkbutton(parent, text='', variable=self.var_dict[key])
-                bool_entry.grid(column=1, row=row_pos,padx=5, pady=5)
+                bool_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
             elif dtype is int:
-                value = get_value_or_default(self.tixi,xpath,def_value)
+                value = get_value_or_default(self.tixi, xpath, def_value)
                 self.var_dict[key] = tk.IntVar()
                 self.var_dict[key].set(int(value))
-                value_entry = tk.Entry(parent, bd =2, textvariable=self.var_dict[key])
+                value_entry = tk.Entry(parent, bd=2, textvariable=self.var_dict[key])
                 value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
             elif dtype is float:
-                value = get_value_or_default(self.tixi,xpath,def_value)
+                value = get_value_or_default(self.tixi, xpath, def_value)
                 self.var_dict[key] = tk.DoubleVar()
                 self.var_dict[key].set(value)
-                value_entry = tk.Entry(parent, bd =2, textvariable=self.var_dict[key])
+                value_entry = tk.Entry(parent, bd=2, textvariable=self.var_dict[key])
                 value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
             elif dtype is list:
-                pass
-                if 'AeroMap' in key :
+                if 'AeroMap' in key:
                     self.var_dict[key] = 'AeroMapListType'
                     aeromap_uid_list = get_aeromap_uid_list(self.tixi)
                     self.labelframe = tk.LabelFrame(parent, text="AeroMap to calculate")
-                    self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky= tk.W, padx=5, pady=5)
+                    self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=5, pady=5)
                     self.aeromap_var_dict = {}
 
                     # Pre selected aeromap from the coresponding CPACS node
@@ -194,8 +189,8 @@ class AutoTab:
 
                         if aeromap in selected_aeromap:
                             self.aeromap_var_dict[aeromap].set(True)
-                        aeromap_entry = tk.Checkbutton(self.labelframe, text=aeromap, variable=self.aeromap_var_dict[aeromap])
-                        aeromap_entry.pack(side= tk.TOP, anchor='w')
+                        aeromap_entry = tk.Checkbutton(self.labelframe,text=aeromap,variable=self.aeromap_var_dict[aeromap])
+                        aeromap_entry.pack(side=tk.TOP, anchor='w')
                 else: # if it's a list of someting else than aeromap
                     log.warning('This function is not implemented yet!')
                     # TODO: see what to do in this case...
@@ -208,8 +203,8 @@ class AutoTab:
                 value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
             # Units
-            if unit and unit != '1' :
-                unit_label = tk.Label(parent, text= unit)
+            if unit and unit != '1':
+                unit_label = tk.Label(parent, text=pretty_unit(unit))
                 unit_label.grid(column=2, row=row_pos, padx=5, pady=5)
 
             row_pos += 1
@@ -227,19 +222,18 @@ class CEASIOMpyGUI:
         self.master.geometry("600x600+500+300")
 
         self.tabs = ttk.Notebook(self.master)
-        self.tabs.pack(side=tk.TOP,fill='both')
+        self.tabs.pack(side=tk.TOP, fill='both')
         self.tabs.pack(expand=1, fill='both')
 
         # CPACS =============
         self.tixi = open_tixi(cpacs_path)
 
         # Generate Tab =============
-        # TODO: @Aaron : add your function, get_submodule (in comment for now)
-        self.module_name_list = ['PyTornado', 'SkinFriction','ModuleTemplate']
+        # Get a list of ALL CESAIOMpy submodules
         self.tab_list = []
-
-        for module_name in self.module_name_list:
-            self.tab_list.append(AutoTab(self.tabs,self.tixi, module_name))
+        for module_name in mif.get_submodule_list():
+            tab = AutoTab(self.tabs, self.tixi, module_name)
+            self.tab_list.append(tab)
 
         # General button =============
         self.close_button = tk.Button(self.master, text="Close", command=self.save_quit)
@@ -259,7 +253,7 @@ class CEASIOMpyGUI:
             # Iterate in Variable dictionary of each tab
             for key, var in tab.var_dict.items():
                 # Get the XPath from the GUI setting dictionary and crate a branch
-                xpath = tab.gui_settings_dict[key][3]
+                xpath = tab.gui_dict[key][3]
                 create_branch(self.tixi,xpath)
 
                 if var == 'AeroMapListType':
@@ -267,17 +261,88 @@ class CEASIOMpyGUI:
                     for aeromap_uid, aeromap_bool in tab.aeromap_var_dict.items():
                         if aeromap_bool.get():
                             aeromap_uid_list_str += aeromap_uid + ';'
-                    self.tixi.updateTextElement(xpath,aeromap_uid_list_str)
+                    self.tixi.updateTextElement(xpath, aeromap_uid_list_str)
                 else:
-                    self.tixi.updateTextElement(xpath,str(var.get()))
+                    self.tixi.updateTextElement(xpath, str(var.get()))
 
-        close_tixi(self.tixi,cpacs_out_path)
+        close_tixi(self.tixi, cpacs_out_path)
         self.master.quit()
 
 
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
+
+def pretty_unit(unit_string):
+    """Prettify a unit string
+
+    Args:
+        unit_string (str): Unit string
+
+    Returns:
+        pretty_unit (str): Prettified unit string
+    """
+
+    unit_string = pretty_exponent(unit_string)
+    unit_string = wrap_in_brackets(unit_string, space=1)
+    return unit_string
+
+
+def pretty_exponent(string):
+    """Prettify a numeric exponent in a string
+
+    Args:
+        string (str): String to prettify
+
+    returns:
+        pretty_string (str): Prettified string
+    """
+
+    # TODO: to be improved...
+
+    def make_exp(string):
+        # There must be a better way...
+        replace_table = ('0⁰', '1¹', '2²', '3³', '4⁴', '5⁵', '6⁶', '7⁷', '8⁸', '9⁹')
+        for sub in replace_table:
+            string = string.replace(sub[0], sub[1])
+        return string
+
+    number_exp = re.compile('\^[0-9]*')
+    matches = number_exp.findall(string)
+
+    for match in matches:
+        string = string.replace(match, make_exp(match[1:]))
+
+    return string
+
+
+def wrap_in_brackets(string, brackets='[]', space=0):
+    """Add enclosing square brackets to a string if not yet existing
+
+    Examples:
+
+    >>> wrap_in_brackets("test")
+    '[test]'
+    >>> wrap_in_brackets("[m/s]")
+    '[m/s]'
+    >>> wrap_in_brackets("[m/s")
+    '[m/s]'
+    >>> wrap_in_brackets("m/s")
+    '[m/s]'
+
+    Args:
+        string (str): String to wrap
+        brackets (str): String of length 2 with opening/closing bracket
+        space (int): Number of spaces between bracket and string
+    """
+
+    # Cut leading/trailing brackets
+    while string.startswith(brackets[0]):
+        string = string[1:]
+    while string.endswith(brackets[1]):
+        string = string[:-1]
+
+    return f"[{' '*space}{string}{' '*space}]"
 
 
 #==============================================================================
@@ -293,23 +358,21 @@ if __name__ == '__main__':
     cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 
     # Call the function which check if imputs are well define
-    check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
+    mif.check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
 
     # Call Tkinter Class
     root = tk.Tk()
-    my_gui = CEASIOMpyGUI(root,cpacs_path,cpacs_out_path)
+    my_gui = CEASIOMpyGUI(root, cpacs_path, cpacs_out_path)
     root.mainloop()
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
-
-
 
 ### OLD function, to delete soon
     # def save_in_cpacs(self):
     #     for key, var in self.var_dict.items():
     #
     #         # Get the XPath from the GUI setting dictionary
-    #         xpath = self.gui_settings_dict[key][3]
+    #         xpath = self.gui_dict[key][3]
     #
     #         create_branch(self.tixi,xpath)
     #

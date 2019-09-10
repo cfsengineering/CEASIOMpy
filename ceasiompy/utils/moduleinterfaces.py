@@ -43,6 +43,13 @@ class _Entry:
 
     # TODO: Use a dict instead of class?
 
+    ONLY_INPUT = [
+        'default_value',
+        'gui',
+        'gui_group',
+        'gui_name',
+    ]
+
     def __init__(
         self, *,
         var_name='',
@@ -106,10 +113,9 @@ class CPACSInOut:
     def add_output(self, **kwargs):
         """Add a new entry to the outputs list"""
 
-        if kwargs.get('default_value', None) is not None:
-            raise ValueError("Output 'default_value' must be None")
-
-        # TODO: some GUI parameters don't make sense as 'output'
+        for entry_name in _Entry.ONLY_INPUT:
+            if kwargs.get(entry_name, None) is not None:
+                raise ValueError(f"Output '{entry_name}' must be None")
 
         entry = _Entry(**kwargs)
         self.outputs.append(entry)

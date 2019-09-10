@@ -3,46 +3,6 @@
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH
 
-# ===== CPACS inputs and outputs =====
-
-cpacs_inout = CPACSInOut()
-
-# ----- Input -----
-
-cpacs_inout.add_input(
-    var_name='x',
-    default_value=None,
-    unit='1',
-    descr='Fuselage scalingo on x axis',
-    cpacs_path=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation/scaling/x',
-)
-
-cpacs_inout.add_input(
-    var_name='y',
-    default_value=None,
-    unit='1',
-    descr='Fuselage scalingo on x axis',
-    cpacs_path=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation/scaling/y',
-)
-
-cpacs_inout.add_input(
-    var_name='z',
-    default_value=None,
-    unit='1',
-    descr='Fuselage scalingo on x axis',
-    cpacs_path=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation/scaling/z',
-)
-
-# ----- Output -----
-
-# cpacs_inout.add_output(
-#     var_name='output',
-#     default_value=None,
-#     unit='1',
-#     descr='Description of the output',
-#     cpacs_path=CEASIOM_XPATH + '/...',
-# )
-
 # ===== RCE integration =====
 
 RCE = {
@@ -52,3 +12,32 @@ RCE = {
     "author": "Neil Armstrong",
     "email": "neil@nasa.gov",
 }
+
+# ===== CPACS inputs and outputs =====
+
+cpacs_inout = CPACSInOut()
+
+# ----- Input -----
+
+for direction in ['x', 'y', 'z']:
+    cpacs_inout.add_input(
+        var_name=direction,
+        var_type=float,
+        default_value=None,
+        unit='1',
+        descr=f"Fuselage scaling on {direction} axis",
+        cpacs_path=AIRCRAFT_XPATH + f'/model/fuselages/fuselage/transformation/scaling/{direction}',
+        gui=True,
+        gui_name='{direction.capitalize()} scaling',
+        gui_group='Fuselage scaling',
+    )
+
+# ----- Output -----
+
+cpacs_inout.add_output(
+    var_name='output',
+    default_value=None,
+    unit='1',
+    descr='Description of the output',
+    cpacs_path='/...',
+)

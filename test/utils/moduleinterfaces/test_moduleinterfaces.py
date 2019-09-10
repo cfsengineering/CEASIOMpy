@@ -66,9 +66,20 @@ def test_module_name_list():
     # There should be entries, otherwise something went wrong
     assert len(module_list) > 0
 
-    # for module_name in module_list:
-    #     assert module_name.startswith('ceasiompy.')
-    #     assert len(module_name.split('.')) == 2
+    # Modules should have the form 'ceasiompy.SubModule'
+    for module_name in module_list:
+        assert module_name.startswith('ceasiompy.')
+        assert len(module_name.split('.')) == 2
+
+
+def test_get_submodule_list():
+    """
+    Test 'get_submodule_list()' function
+    """
+
+    submodule_list = m.get_submodule_list()
+    for submod_name in submodule_list:
+        assert len(submod_name.split('.')) == 1
 
 
 def test_check_cpacs_input_requirements():
@@ -101,3 +112,35 @@ def test_check_cpacs_input_requirements():
 
     with pytest.raises(m.CPACSRequirementError):
         m.check_cpacs_input_requirements(cpacs_file, cpacs_inout, __file__)
+
+
+def test_get_specs_for_module():
+    """
+    Test that 'get_specs_for_module()' works
+    """
+
+    # Return None for non-existent modules...
+    specs = m.get_specs_for_module(module_name='SomeModuleThatDoesNotExist')
+    assert specs is None
+
+    # ... but raise an error if explicitly told to do so
+    with pytest.raises(ImportError):
+        m.get_specs_for_module(module_name='SomeModuleThatDoesNotExist', raise_error=True)
+
+
+def test_get_all_module_specs():
+    """
+    Test that 'get_all_module_specs()' runs
+    """
+
+    all_specs = m.get_all_module_specs()
+    assert isinstance(all_specs, dict)
+
+
+def test_find_missing_specs():
+    """
+    Test that 'find_missing_specs()' runs
+    """
+
+    missing = m.find_missing_specs()
+    assert isinstance(missing, list)

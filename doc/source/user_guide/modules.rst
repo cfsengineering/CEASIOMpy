@@ -6,3 +6,4 @@ Modules
    :caption: Modules
 
    modules/PyTornado/index
+   modules/ModuleTemplate/index

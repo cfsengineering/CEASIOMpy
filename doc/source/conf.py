@@ -91,6 +91,7 @@ rst_prolog = f"""
 .. |Apms| replace:: Aero-performance maps
 .. |apm| replace:: aero-performance map
 .. |apms| replace:: aero-performance maps
+.. |apm_short_description| replace:: An |apm| is a table that lists *flight states* each of which is defined by an *angle of attack*, the *sideslip angle*, the *Mach number* and the *flight altitude*. The corresponding global force and moment coefficients will be computed and added to complete the table.
 .. |dlr_full| replace:: German Aerospace Center
 .. _CFD: https://en.wikipedia.org/wiki/Computational_fluid_dynamics
 .. _Github: https://github.com/cfsengineering/CEASIOMpy

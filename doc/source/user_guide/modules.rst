@@ -5,4 +5,4 @@ Modules
    :maxdepth: 1
    :caption: Modules
 
-   modules/pytornado
+   modules/PyTornado/index

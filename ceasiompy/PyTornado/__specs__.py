@@ -51,29 +51,18 @@ cpacs_inout.add_input(
 
 # ----- Plots -----
 for plot_name in ['lattice', 'geometry', 'results', 'matrix_downwash']:
-    cpacs_inout.add_input(
-        var_name='',
-        var_type=bool,
-        default_value=False,
-        unit=None,
-        descr=f"Show a {plot_name} plot (program will pause to show)",
-        cpacs_path=XPATH_PYTORNADO + f'/plot/{plot_name}/show',
-        gui=True,
-        gui_name='Show plot',
-        gui_group=f'{plot_name.capitalize()} plot',
-    )
-
-    cpacs_inout.add_input(
-        var_name='',
-        var_type=bool,
-        default_value=False,
-        unit=None,
-        descr=f"Show a {plot_name} plot",
-        cpacs_path=XPATH_PYTORNADO + f'/plot/{plot_name}/save',
-        gui=True,
-        gui_name='Save plot',
-        gui_group=f'{plot_name.capitalize()} plot',
-    )
+    for action in ['save', 'show']:
+        cpacs_inout.add_input(
+            var_name='',
+            var_type=bool,
+            default_value=False,
+            unit=None,
+            descr=f"{action.capitalize()} a {plot_name} plot (program will pause to show)",
+            cpacs_path=XPATH_PYTORNADO + f'/plot/{plot_name}/{action}',
+            gui=True,
+            gui_name=f'{action.capitalize()} plot',
+            gui_group=f'{plot_name.capitalize()} plot',
+        )
 
     # TODO: add optional settings
 

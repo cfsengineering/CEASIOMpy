@@ -19,6 +19,8 @@ cpacs_inout = CPACSInOut()
 
 # ----- Input -----
 
+# * In the following example we add three (!) new entries to 'cpacs_inout'
+# * Try to use (readable) loops instead of copy-pasting three almost same entries :)
 for direction in ['x', 'y', 'z']:
     cpacs_inout.add_input(
         var_name=direction,

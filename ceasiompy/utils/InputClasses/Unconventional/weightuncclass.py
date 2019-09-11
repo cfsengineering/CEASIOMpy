@@ -73,7 +73,7 @@ class AdvancedInputs:
 
         #Fuel
         self.FUEL_DENSITY = 800
-        self.RES_FUEL_PERC = 6.0
+        self.RES_FUEL_PERC = 0.06
         self.FPM = 80         #|80 all // 95 for the B777 or Concorde
         self.FPM_TP = 50
 

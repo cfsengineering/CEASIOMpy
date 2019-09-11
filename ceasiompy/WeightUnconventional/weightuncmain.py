@@ -259,7 +259,7 @@ if __name__ == '__main__':
         mw.mass_fuel_max = (ui.MAX_FUEL_VOL*adui.FUEL_DENSITY)/1000.0
 
     # Mass Reserve and Unusable Fuel
-    mw.mass_fuel_unusable = mw.mass_fuel_max * (adui.RES_FUEL_PERC/100.0)
+    mw.mass_fuel_unusable = mw.mass_fuel_max * (adui.RES_FUEL_PERC)
 
     # Mass Fuel Maxpass
     if not out.pass_nb:

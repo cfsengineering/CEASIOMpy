@@ -220,7 +220,7 @@ class CEASIOMpyGUI:
         # GUI =============
         self.master = master
         self.master.title("CESAIOMpy Settings GUI")
-        self.master.geometry("600x600+500+300")
+        self.master.geometry("500x750+500+200")
 
         self.tabs = ttk.Notebook(self.master)
         self.tabs.pack(side=tk.TOP, fill='both')

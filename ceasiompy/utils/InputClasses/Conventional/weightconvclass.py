@@ -64,7 +64,7 @@ class UserInputs:
         self.MAX_FUEL_VOL = 0
         self.PASS_PER_TOILET = 50
         self.FUEL_DENSITY = 800
-        self.RES_FUEL_PERC = 6.0
+        self.RES_FUEL_PERC = 0.06
         self.TURBOPROP = False
 
 

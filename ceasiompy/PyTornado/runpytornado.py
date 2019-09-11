@@ -189,8 +189,8 @@ def parse_pytornado_settings_dict(dictionary):
         # -----------
         # Optional settings
         # TODO: improve
-        if k == 'opt':
-            dictionary[k] = (v,)
+        # if k == 'opt':
+        #     dictionary[k] = (v,)
         # -----------
 
 

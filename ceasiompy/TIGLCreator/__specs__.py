@@ -1,16 +1,16 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH
 
 # ===== RCE integration =====
 
 RCE = {
-    "name": "CPACS2SUMO",
-    "description": "Convert CPACS .xml file into SUMO .smx file",
-    "exec": "pwd\npython cpacs2sumo.py",
-    "author": "Aidan Jungo",
-    "email": "aidan.jungo@cfse.ch",
+    "name": "TIGLCreator",
+    "description": "Lauch for TIGLCreator",
+    "exec": "pwd\npython tiglcreator.py",
+    "author": "Malo Drougard",
+    "email": "malo.drougard@cfse.ch",
 }
 
 # ===== CPACS inputs and outputs =====

@@ -20,8 +20,8 @@ cpacs_inout = CPACSInOut()
 
 # ----- Input -----
 
-# No Input
+# No inputs value for this modules
 
 # ----- Output -----
 
-# No Output
+# No outputs value for this modules

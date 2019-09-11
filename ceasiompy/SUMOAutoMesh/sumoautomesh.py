@@ -97,7 +97,7 @@ def create_SU2_mesh(smx_input_path,su2_ouput_path):
     # Run Sumo to create a create a mesh
     # sumo - batch -output=su2 -tetgen-options=pq1.16VY mesh.smx
     sumo_output = 'su2'  # For now, must be SU2
-    tetgen_options = 'pq1.16VY'  # See Tetgen help for more options
+    tetgen_options = 'pq1.16VY'  # See Tetgen help for more options, maybe transform that as an input
     command_line = ['sumo ', '-batch ',
                     ' -output=', sumo_output,
                     ' -tetgen-options=', tetgen_options,

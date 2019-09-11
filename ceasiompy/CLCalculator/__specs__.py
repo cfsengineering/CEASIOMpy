@@ -9,43 +9,64 @@ cpacs_inout = CPACSInOut()
 
 cpacs_inout.add_input(
     var_name='mtom',
+    var_type=float,
     default_value=None,
     unit='kg',
-    descr='MTOM (maybe another mass shoud be used, more representative for cruise mass?)',
+    descr='Maximum take off mass (MTOM)',
     cpacs_path=AIRCRAFT_XPATH + '/model/analyses/massBreakdown/designMasses/mTOM/mass',
+    gui=False,
+    gui_name=None,
+    gui_group=None,
 )
 
 cpacs_inout.add_input(
     var_name='cruise_mach',
+    var_type=float,
     default_value=0.78,
-    unit='-',
+    unit='1',
     descr='Aircraft cruise Mach number',
     cpacs_path=CEASIOM_XPATH + '/ranges/cruiseMach',
+    gui=True,
+    gui_name='Mach',
+    gui_group='Cruise',
 )
 
 cpacs_inout.add_input(
     var_name='cruise_alt',
-    default_value=12000,
+    var_type=float,
+    default_value=120000.0,
     unit='m',
     descr='Aircraft cruise altitude',
     cpacs_path=CEASIOM_XPATH + '/ranges/cruiseAltitude',
+    gui=True,
+    gui_name='Altitude',
+    gui_group='Cruise',
 )
 
 cpacs_inout.add_input(
     var_name='load_fact',
+    var_type=float,
     default_value=1.05,
     unit='1',
-    descr='Load Factor',
+    descr='Aircraft cruise altitude',
     cpacs_path=CEASIOM_XPATH + '/ranges/loadFactor',
+    gui=True,
+    gui_name='Load Factor',
+    gui_group='Cruise',
 )
 
 cpacs_inout.add_input(
     var_name='ref_area',
+    var_type=float,
     default_value=None,
     unit='m^2',
-    descr='Reference area',
+    descr='Aircraft reference area',
     cpacs_path=AIRCRAFT_XPATH + '/model/reference/area',
+    gui=False,
+    gui_name=None,
+    gui_group=None,
 )
+
 
 #===== Output =====
 

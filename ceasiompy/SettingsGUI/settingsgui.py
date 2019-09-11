@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-09-05
-| Last modifiction: 2019-09-10
+| Last modifiction: 2019-09-11
 
 TODO:
 
@@ -29,11 +29,11 @@ import tkinter as tk
 from tkinter import ttk
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,    \
-                                           create_branch, copy_branch, add_uid, \
-                                           get_value, get_value_or_default,     \
-                                           add_float_vector, get_float_vector,  \
-                                           add_string_vector, get_string_vector,\
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
+                                           create_branch, copy_branch, add_uid,\
+                                           get_value, get_value_or_default,    \
+                                           add_float_vector,get_float_vector,  \
+                                           add_string_vector,get_string_vector,\
                                            aircraft_name
 
 from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
@@ -237,7 +237,7 @@ class CEASIOMpyGUI:
             self.tab_list.append(tab)
 
         # General button =============
-        self.close_button = tk.Button(self.master, text="Close", command=self.save_quit)
+        self.close_button = tk.Button(self.master, text="Save & Quit", command=self.save_quit)
         self.close_button.pack(side=tk.RIGHT)
 
     # Do we need a button for someting else ...?
@@ -367,21 +367,3 @@ if __name__ == '__main__':
     root.mainloop()
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
-
-### OLD function, to delete soon
-    # def save_in_cpacs(self):
-    #     for key, var in self.var_dict.items():
-    #
-    #         # Get the XPath from the GUI setting dictionary
-    #         xpath = self.gui_dict[key][3]
-    #
-    #         create_branch(self.tixi,xpath)
-    #
-    #         if var == 'AeroMapListType':
-    #             aeromap_uid_list_str = ''
-    #             for aeromap_uid, aeromap_bool in self.aeromap_var_dict.items():
-    #                 if aeromap_bool.get():
-    #                     aeromap_uid_list_str += aeromap_uid + ';'
-    #             self.tixi.updateTextElement(xpath,aeromap_uid_list_str)
-    #         else:
-    #             self.tixi.updateTextElement(xpath,str(var.get()))

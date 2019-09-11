@@ -17,6 +17,8 @@ RCE = {
 
 cpacs_inout = CPACSInOut()
 
+include_gui = False
+
 # ----- Input -----
 
 # * In the following example we add three (!) new entries to 'cpacs_inout'
@@ -29,10 +31,22 @@ for direction in ['x', 'y', 'z']:
         unit='1',
         descr=f"Fuselage scaling on {direction} axis",
         cpacs_path=AIRCRAFT_XPATH + f'/model/fuselages/fuselage/transformation/scaling/{direction}',
-        gui=True,
+        gui=include_gui,
         gui_name=f'{direction.capitalize()} scaling',
         gui_group='Fuselage scaling',
     )
+
+cpacs_inout.add_input(
+    var_name='test',
+    var_type=str,
+    default_value='This is a test',
+    unit=None,
+    descr='This is a test of description',
+    cpacs_path='/cpacs/toolspecific/CEASIOMpy/test',
+    gui=include_gui,
+    gui_name='My test',
+    gui_group='Group Test',
+        )
 
 # ----- Output -----
 

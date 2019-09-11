@@ -20,6 +20,7 @@
 
 # Ignore ToolInput and ToolOutput
 ToolInput.xml
+ToolInput*.xml
 ToolInput.smx
 ToolInput.cfg
 

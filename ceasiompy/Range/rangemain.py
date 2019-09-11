@@ -136,10 +136,10 @@ if __name__ == '__main__':
     log.info('---------- Aircraft: ' + name + ' -----------')
 
 ### RANGE AND FUEL CONSUMPTION -----------------------------------------------
-    mw = fuel_consumption(LDloi, mw, ri, ri.RES_FUEL_PERC/100.0)
+    mw = fuel_consumption(LDloi, mw, ri, ri.RES_FUEL_PERC)
 
     (out.ranges, out.ranges_cru, mw.m_pass_middle)\
-        = breguet_cruise_range(LDcru, ri, mw, ri.RES_FUEL_PERC/100.0)
+        = breguet_cruise_range(LDcru, ri, mw, ri.RES_FUEL_PERC)
 
     if mw.m_pass_middle:
         out.payloads=[round(mw.mass_payload,0), round(mw.mass_payload,0),\

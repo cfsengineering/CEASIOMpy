@@ -47,7 +47,7 @@ def fuel_consumption(LDloi, mw, ri, RES_FUEL_PERC):
     (class) mw       --Arg.: MassesWeights class.
     ##======= Class is defined in the InputClasses folder =======##
 
-    (float) RES_FUEL_PERC  --Arg.:Unusable fuel percentage [-] (6% Default).
+    (float) RES_FUEL_PERC  --Arg.:Unusable fuel percentage [-] (0.06 Default).
 
     OUTPUT
     (class) mw  --Out.: Updated MassesWeights class.
@@ -106,5 +106,3 @@ if __name__ == '__main__':
     log.warning('##########################################################')
     log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN rangemain.py ####')
     log.warning('##########################################################')
-
-

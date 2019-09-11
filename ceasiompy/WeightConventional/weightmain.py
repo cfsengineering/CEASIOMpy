@@ -320,7 +320,7 @@ if __name__ == '__main__':
 
 ### ZERO FUEL MASS EVALUATION ------------------------------------------------
     mw.zero_fuel_mass = mw.maximum_take_off_mass - mw.mass_fuel_maxpass\
-                        + (ui.RES_FUEL_PERC/100)*mw.mass_fuel_max
+                        + (ui.RES_FUEL_PERC)*mw.mass_fuel_max
 
 #=============================================================================
 #    OUTPUT WRITING

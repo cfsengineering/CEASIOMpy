@@ -66,7 +66,7 @@ class RangeInputs:
                                   # TURBOPROP and TURBOFAN and CONCORDE
         self.TSFC_CRUISE = 0.5    #    0.6         0.5          0.8
         self.TSFC_LOITER = 0.4    #    0.7         0.4          0.9
-        self.RES_FUEL_PERC = 6.0
+        self.RES_FUEL_PERC = 0.06
 
     # Char
         self.TURBOPROP = False
@@ -170,5 +170,3 @@ if __name__ == '__main__':
     log.warning('###########################################################')
     log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN Range_main.py ####')
     log.warning('###########################################################')
-
-

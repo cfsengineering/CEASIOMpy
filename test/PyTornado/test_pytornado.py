@@ -5,6 +5,7 @@ import importlib
 
 PYTORNADO_MAIN_MODULE = 'ceasiompy.PyTornado.runpytornado'
 HERE = os.path.dirname(os.path.abspath(__file__))
+CPACS_TEST_FILE=os.path.join(HERE, 'cpacs_test_file.xml')
 
 
 @contextmanager
@@ -29,7 +30,7 @@ def run_module_test_locally(module_name, test_dir):
 def test_basic_run():
     """Make sure that the PyTornado run successfully"""
 
-    shutil.copy(src='cpacs_test_file.xml', dst=os.path.join(HERE, 'ToolInput', 'ToolInput.xml'))
+    shutil.copy(src=CPACS_TEST_FILE, dst=os.path.join(HERE, 'ToolInput', 'ToolInput.xml'))
 
     with run_module_test_locally(PYTORNADO_MAIN_MODULE, HERE) as main:
         os.system(f'python {main}')

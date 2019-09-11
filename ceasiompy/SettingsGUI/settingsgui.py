@@ -131,7 +131,7 @@ class AutoTab:
 
         row_pos = 1
 
-        for key, (def_value, dtype, unit, xpath, description, group) in self.gui_dict.items():
+        for key, (name, def_value, dtype, unit, xpath, description, group) in self.gui_dict.items():
             # Create a LabelFrame for new groupe
             if group:
                 if not group in self.group_dict:
@@ -143,8 +143,8 @@ class AutoTab:
                 parent = self.tab
 
             # Name label for variable
-            name_label = tk.Label(parent, text= key)
-            name_label.grid(column=0, row=row_pos, sticky= tk.W, padx=5, pady=5)
+            self.name_label = tk.Label(parent, text= name)
+            self.name_label.grid(column=0, row=row_pos, sticky= tk.W, padx=5, pady=5)
 
             # Type and Value
             if dtype is bool:
@@ -171,7 +171,7 @@ class AutoTab:
                 value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
             elif dtype is list:
-                if 'AeroMap' in key:
+                if 'AeroMap' in name:
                     self.var_dict[key] = 'AeroMapListType'
                     aeromap_uid_list = get_aeromap_uid_list(self.tixi)
                     self.labelframe = tk.LabelFrame(parent, text="AeroMap to calculate")
@@ -213,6 +213,7 @@ class AutoTab:
         # aeromap_uid_list = get_aeromap_uid_list(self.tixi)
         # self.listbox1 = ListBoxChoice(self.tab,self.tixi,aeromap_uid_list) #.returnValue()
 
+
 class CEASIOMpyGUI:
     def __init__(self, master, cpacs_path, cpacs_out_path):
 
@@ -253,7 +254,7 @@ class CEASIOMpyGUI:
             # Iterate in Variable dictionary of each tab
             for key, var in tab.var_dict.items():
                 # Get the XPath from the GUI setting dictionary and crate a branch
-                xpath = tab.gui_dict[key][3]
+                xpath = tab.gui_dict[key][4]
                 create_branch(self.tixi,xpath)
 
                 if var == 'AeroMapListType':

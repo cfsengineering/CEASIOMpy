@@ -20,9 +20,10 @@ TODO:
 #   IMPORTS
 #==============================================================================
 
-import os
 from glob import glob
 import importlib
+import os
+import uuid
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi
@@ -133,7 +134,9 @@ class CPACSInOut:
             if not entry.gui:
                 continue
 
-            gui_settings_dict[entry.gui_name] = (
+            # Every GUI element is identified by a random key
+            gui_settings_dict[str(uuid.uuid4())] = (
+                entry.gui_name,
                 entry.default_value,
                 entry.var_type,
                 entry.unit,

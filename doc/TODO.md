@@ -2,13 +2,10 @@
 
 ## CEASIOMpy project
 * Add a recognizable logo
-* Make installation easier (Tixi, Tigl, TIGLCreator, sumo, SU2, pyTornado, RCE, conda?)
-* Connecting CEASIOMpy with RCE?
-* File structure
+* Make installation easier (Tixi, Tigl, TIGLCreator, sumo, SU2, RCE, conda?)
 * Separate code from user working directory ???
 
 ## Module dependencies
-* Add `__specs__.py` files for each modules
 * Add General File in/out Class
 * Create a function to check consistency (does same variable name are stored a the same xpath, ...)
 * Create a function to find in which Module a variable or xpath is used
@@ -24,14 +21,18 @@
 * Create Test Cases
 * Continue "How to contribute to CEASIOMpy"
 * Example for how to create and add a new module
+* Create a page "How to use __specs__ file"
 
 ## Logging
 * Fix file permission workaround in `ceasiomlogger.get_logger()` (don't use try-except)
 * Do we want one big log file (global) or many small (local for each module)?
 
+## RCE Integration
+    * Create 'how to install' CEASIOMpy into RCE
+    * Small logo for each module
+
 ## Modules
 * To adapt and integrate
-    * GUI Edit AeroPerformanceMap
     * SUMO2CPACS
     * SU2CheckConvergence
 
@@ -39,30 +40,26 @@
     * StaticStablility
     * DynamicStability
     * FlightModel
-    * EngineTool
+    * Propulsion
     * LaTeXReport
-
-* Improve and check all Weight and Balance modules
 
 ## Aerodynamics
     * What to do when there is no moment coefficients
     * Calculate and save damping derivatives
     * Calculate and save Controls surface deflections
+    * Where and when update 'reference/area' and 'length'
 
-## Module to Editdata (GUI)
+## Module SettingsGUI
 * GUI to create/edit/delete aeroMap from CPACS file
-
-## RCE Integration
-    * Create 'how to install' CEASIOMpy into RCE
-    * Small logo for each module
 
 ## PyTornado module
     * Airfoil
     * Aeroperformance map
 
-## Things to do for each module conversion/updating
+## Weight and Balance modules
+    * Check input/output, try to simplify
+    * Modify the code to make it more CEASIOMpy style
     * Add __specs__ file
-    * Check if the documentation is correctly auto generated
 
 ## Platform compatibility
     * find a solution for '/' in all path  

@@ -122,28 +122,32 @@ def get_pytornado_settings(cpacs_in_path):
     # ----- Try to read PyTornado settings from CPACS -----
     with open(cpacs_in_path, "r") as fp:
         cpacs_as_dict = xml.parse(fp.read())
+
     # Try to get the PyTornado settings
     cpacs_settings = cpacs_as_dict.get('cpacs', {}).get('toolspecific', {}).get('pytornado', None)
     if cpacs_settings is not None:
-
-        def update_settings_from_cpacs(to_update, other_dict, key):
-            """Update PyTornado settings dict with CPACS settings"""
-            value = other_dict.get(key, None)
-            if value is not None:
-                if isinstance(value, dict):
-                    to_update = to_update[key].update(value)
-                else:
-                    to_update[key] = value
-
-        # Values that we read from CPACS
-        update_settings_from_cpacs(settings, cpacs_settings, 'plot')
-        update_settings_from_cpacs(settings, cpacs_settings, 'save_results')
-        update_settings_from_cpacs(settings, cpacs_settings, 'vlm_autopanels_c')
-        update_settings_from_cpacs(settings, cpacs_settings, 'vlm_autopanels_s')
-
+        update_dict(settings, cpacs_settings)
         parse_pytornado_settings_dict(settings)
 
     return settings
+
+
+def update_dict(to_update, other_dict):
+    """Update 'to_update' dict with 'other_dict' recursively
+
+    Note:
+        * Entries from 'other_dict' are only updated if they exist in 'to_update'
+
+    Args:
+        to_update (dict): Dictionary which is to be updated
+        other_dict (dict): Dictionary with new values
+    """
+
+    for key, value in other_dict.items():
+        if isinstance(value, dict):
+            update_dict(to_update.get(key, {}), value)
+        elif to_update.get(key, None) is not None:
+            to_update[key] = value
 
 
 def parse_pytornado_settings_dict(dictionary):

@@ -9,7 +9,6 @@
 
 ## Module dependencies
 * Add `__specs__.py` files for each modules
-* Add 'type' for input/output in '__specs__.py' ?
 * Add General File in/out Class
 * Create a function to check consistency (does same variable name are stored a the same xpath, ...)
 * Create a function to find in which Module a variable or xpath is used
@@ -52,14 +51,12 @@
 
 ## Module to Editdata (GUI)
 * GUI to create/edit/delete aeroMap from CPACS file
-* Add kind of a GUI to enter missing input requirements...?
 
 ## RCE Integration
     * Create 'how to install' CEASIOMpy into RCE
     * Small logo for each module
 
 ## PyTornado module
-Update `specs` file
     * Airfoil
     * Aeroperformance map
 

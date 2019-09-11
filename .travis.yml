@@ -22,6 +22,12 @@ install:
 
   # ----- Install CEASIOMpy -----
   - python setup.py install
+
+  # ----- Install PyTornado -----
+  - git clone git@github.com:airinnova/pytornado.git
+  - cd pytornado
+  - pip install .
+  - cd ..
 script:
   - bash run_pytest.sh
 after_success:

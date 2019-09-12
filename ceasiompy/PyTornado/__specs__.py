@@ -13,13 +13,13 @@ XPATH_PYTORNADO = '/cpacs/toolspecific/pytornado'
 
 cpacs_inout.add_input(
     var_name='',
-    var_type=str,
+    var_type=list,
     default_value=None,
     unit=None,
     descr="Name of the aero map to evaluate",
     cpacs_path=XPATH_PYTORNADO + '/aeroMapUID',
     gui=True,
-    gui_name='Aero map name',
+    gui_name='__AEROMAP_SELECTION',
     gui_group=None,
 )
 

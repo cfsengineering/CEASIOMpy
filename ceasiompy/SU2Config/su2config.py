@@ -175,7 +175,6 @@ def generate_config_case(cpacs_path, cpacs_out_path, su2_mesh_path):
     target_cl = get_value_or_default(tixi, target_cl_xpath,1.0)
 
     if fixed_cl == 'NO':
-        print('NO -----------------------')
         active_aeroMap_xpath = su2_xpath + '/aeroMapUID'
         aeromap_uid = get_value(tixi,active_aeroMap_xpath)
 
@@ -192,7 +191,6 @@ def generate_config_case(cpacs_path, cpacs_out_path, su2_mesh_path):
             raise ValueError('No parametre have been found in the aeroMap!')
 
     else: # if fixed_cl == 'YES':
-        print('YES -----------------------')
         range_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges'
 
         # Parameters fixed CL calulation

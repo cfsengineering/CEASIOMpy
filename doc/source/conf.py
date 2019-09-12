@@ -82,6 +82,7 @@ exclude_patterns = []
 # The name of the Pygments (syntax highlighting) style to use.
 pygments_style = None
 
+#TODO Replace |amp| by aeroMap which is the new name in CPACS 3.1
 rst_prolog = f"""
 .. |name| replace:: {NAME}
 .. |name_bold| replace:: **{NAME}**

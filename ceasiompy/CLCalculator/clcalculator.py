@@ -13,7 +13,7 @@ Python version: >=3.6
 
 TODO:
 
-    * Use another mass than MTOM?
+    * Use another mass than MTOM? Use % of total fuel (100% = MTOM, 0% = MTOM - MFM)  ...
     * Save CruiseCL somewhere
 
 """

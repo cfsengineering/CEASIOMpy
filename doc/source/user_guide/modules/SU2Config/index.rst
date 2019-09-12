@@ -14,7 +14,7 @@ SU2Config will be install automatically with the installation of CEASIOMpy, no f
 Analyses
 --------
 
-A `default configuration file <https://github.com/cfsengineering/CEASIOMpy/blob/installer/ceasiompy/SU2Config/files/DefaultConfig_v6.cfg>`_ is used and modify with the information found in the CPACS_ file.
+A `default configuration file <https://github.com/cfsengineering/CEASIOMpy/blob/installer/ceasiompy/SU2Config/files/DefaultConfig_v6.cfg>`_ is used and modified with the information found in the CPACS_ file.
 
 
 Output

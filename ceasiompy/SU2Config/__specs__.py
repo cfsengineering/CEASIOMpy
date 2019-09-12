@@ -18,6 +18,19 @@ RCE = {
 cpacs_inout = CPACSInOut()
 
 # ----- Input -----
+
+cpacs_inout.add_input(
+    var_name='aeromap_uid',
+    var_type=list,
+    default_value=None,
+    unit=None,
+    descr="Name of the aero map to calculate",
+    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/aeroMapUID',
+    gui=True,
+    gui_name='__AEROMAP_SELECTION',
+    gui_group=None,
+)
+
 cpacs_inout.add_input(
     var_name='ref_len',
     var_type=float,

@@ -9,12 +9,12 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-09-05
-| Last modifiction: 2019-09-11
+| Last modifiction: 2019-09-12
 
 TODO:
 
     * Add "mouse over" for description
-    * Add 'AeroMap Edit'
+    * Add 'AeroMap Edition'
     * Fix  'get_value' for boolean
 """
 
@@ -27,6 +27,7 @@ import os
 
 import tkinter as tk
 from tkinter import ttk
+from tkinter import messagebox
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
@@ -121,6 +122,7 @@ class AutoTab:
         if not self.gui_dict:  # Empty dict --> nothing to do
             return
 
+        self.module_name = module_name
         self.tabs = tabs
         self.tixi = tixi
         self.tab = tk.Frame(tabs, borderwidth=1)
@@ -171,29 +173,64 @@ class AutoTab:
                 value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
             elif dtype is list:
-                if 'AeroMap' in name:
-                    self.var_dict[key] = 'AeroMapListType'
+                if name == '__AEROMAP_SELECTION':
+                    # Get the list of all AeroMaps
                     aeromap_uid_list = get_aeromap_uid_list(self.tixi)
-                    self.labelframe = tk.LabelFrame(parent, text="AeroMap to calculate")
+
+                    # Try to get the pre-selected AeroMap from the xpath
+                    try:
+                        selected_aeromap = get_value(self.tixi,xpath)
+                        selected_aeromap_index = aeromap_uid_list.index(selected_aeromap)
+                    except:
+                        selected_aeromap = ''
+                        selected_aeromap_index = 0
+
+                    self.labelframe = tk.LabelFrame(parent, text="Choose an AeroMap")
+                    self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=5, pady=5)
+
+                    # The Combobox is directly use as the varaible
+                    self.var_dict[key] = ttk.Combobox(self.labelframe, values=aeromap_uid_list)
+                    self.var_dict[key].current(selected_aeromap_index)
+                    self.var_dict[key].grid(column=1, row=row_pos, padx=5, pady=5)
+
+                elif name == '__AEROMAP_CHECHBOX':
+                    # Get the list of all AeroMaps
+                    aeromap_uid_list = get_aeromap_uid_list(self.tixi)
+                    self.labelframe = tk.LabelFrame(parent, text="Selecte AeroMap(s)")
                     self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=5, pady=5)
                     self.aeromap_var_dict = {}
 
-                    # Pre selected aeromap from the coresponding CPACS node
+                    # Try to get pre-selected AeroMaps from the xpath
                     try:
                         selected_aeromap = get_string_vector(self.tixi,xpath)
                     except:
                         selected_aeromap = ''
 
+                    # Create one checkbox for each AeroMap
                     for aeromap in aeromap_uid_list:
                         self.aeromap_var_dict[aeromap] = tk.BooleanVar()
-
                         if aeromap in selected_aeromap:
                             self.aeromap_var_dict[aeromap].set(True)
                         aeromap_entry = tk.Checkbutton(self.labelframe,text=aeromap,variable=self.aeromap_var_dict[aeromap])
                         aeromap_entry.pack(side=tk.TOP, anchor='w')
-                else: # if it's a list of someting else than aeromap
-                    log.warning('This function is not implemented yet!')
-                    # TODO: see what to do in this case...
+
+                else: # Other kind of list (not aeroMap)
+
+                    # 'def_value' will be the list of possibilies in this case
+
+                    # Try to get the pre-selected AeroMap from the xpath
+                    try:
+                        selected_value = get_value(self.tixi,xpath)
+                        selected_value_index = aeromap_uid_list.index(selected_value)
+                    except:
+                        selected_value = ''
+                        selected_value_index = 0
+                    print(selected_value_index)
+
+                    # The Combobox is directly use as the varaible
+                    self.var_dict[key] = ttk.Combobox(parent, values=def_value)
+                    self.var_dict[key].current(selected_value_index)
+                    self.var_dict[key].grid(column=1, row=row_pos, padx=5, pady=5)
 
             else:
                 value = get_value_or_default(self.tixi,xpath,def_value)
@@ -240,12 +277,6 @@ class CEASIOMpyGUI:
         self.close_button = tk.Button(self.master, text="Save & Quit", command=self.save_quit)
         self.close_button.pack(side=tk.RIGHT)
 
-    # Do we need a button for someting else ...?
-    #     self.greet_button = tk.Button(self.master, text="Do things", command=self.greet)
-    #     self.greet_button.pack(side= tk.LEFT)
-    #
-    # def greet(self):
-    #     print("Things have been done!")
 
     def save_quit(self):
 
@@ -254,17 +285,34 @@ class CEASIOMpyGUI:
             # Iterate in Variable dictionary of each tab
             for key, var in tab.var_dict.items():
                 # Get the XPath from the GUI setting dictionary and crate a branch
+                name = tab.gui_dict[key][0]
                 xpath = tab.gui_dict[key][4]
                 create_branch(self.tixi,xpath)
 
-                if var == 'AeroMapListType':
+                if name == '__AEROMAP_CHECHBOX':
                     aeromap_uid_list_str = ''
                     for aeromap_uid, aeromap_bool in tab.aeromap_var_dict.items():
                         if aeromap_bool.get():
                             aeromap_uid_list_str += aeromap_uid + ';'
                     self.tixi.updateTextElement(xpath, aeromap_uid_list_str)
+
+                # '__AEROMAP_SELECTION' and list Type value will be saved as any other variable
                 else:
-                    self.tixi.updateTextElement(xpath, str(var.get()))
+                    if str(var.get()) == '':
+                        # Not working when it expect an 'int' or a 'float'
+                        messagebox.showerror('ValueError', 'In the Tab "' + \
+                                       tab.module_name + '", no value has been entered for "' + \
+                                       name + '" ')
+                        raise TypeError('No value has been entered for ' + name + ' !')
+
+                    try:
+                        self.tixi.updateTextElement(xpath, str(var.get()))
+                    except:
+
+                        messagebox.showerror('TypeError', 'In the Tab "' + \
+                                       tab.module_name + '", the value "' + \
+                                       name + '" has not the correct type!')
+                        raise TypeError(name + ' has not the correct type!')
 
         close_tixi(self.tixi, cpacs_out_path)
         self.master.quit()
@@ -367,3 +415,36 @@ if __name__ == '__main__':
     root.mainloop()
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
+
+
+
+# Old code to delete when everything Works
+
+# elif dtype is list:
+#     if 'AeroMap' in name:
+#         self.var_dict[key] = 'AeroMapListType'
+#         aeromap_uid_list = get_aeromap_uid_list(self.tixi)
+#         self.labelframe = tk.LabelFrame(parent, text="AeroMap to calculate")
+#         self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=5, pady=5)
+#         self.aeromap_var_dict = {}
+#
+#         # Pre selected aeromap from the coresponding CPACS node
+#         try:
+#             selected_aeromap = get_string_vector(self.tixi,xpath)
+#         except:
+#             selected_aeromap = ''
+#
+#         for aeromap in aeromap_uid_list:
+#             self.aeromap_var_dict[aeromap] = tk.BooleanVar()
+#
+#             if aeromap in selected_aeromap:
+#                 self.aeromap_var_dict[aeromap].set(True)
+#             aeromap_entry = tk.Checkbutton(self.labelframe,text=aeromap,variable=self.aeromap_var_dict[aeromap])
+#             aeromap_entry.pack(side=tk.TOP, anchor='w')
+#     else: # if it's a list of someting else than aeromap
+#         if def_value == '__all_aeromaps':
+#             value_list = get_aeromap_uid_list(self.tixi)
+#         else:
+#             value_list = def_value
+#         self.combobox = ttk.Combobox(parent, values=value_list)
+#         self.combobox.grid(column=1, row=row_pos, padx=5, pady=5)

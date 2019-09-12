@@ -13,8 +13,6 @@ RCE = {
     "email": "info@ceasiom.com",
 }
 
-
-
 CEASIOMPY_XPATH = '/cpacs/toolspecific/CEASIOMpy'
 WEIGHT_XPATH = '/cpacs/toolspecific/CEASIOMpy/weight'
 RANGE_XPATH = '/cpacs/toolspecific/CEASIOMpy/ranges'
@@ -165,13 +163,12 @@ cpacs_inout.add_input(
     gui_group='Options',
 )
 
-# TODO: check in the code
 cpacs_inout.add_input(
     var_name='WINGLET',
-    var_type=int,
-    default_value=0,
+    var_type=list,
+    default_value=[0,1,2],
     unit=None,
-    descr='Winglet type (0,1,2), Reduces the TSFC in relation with the winglet tipe used',
+    descr='Winglet option (0 = no winglets, 1 = normal winglets, 2 = high efficiency winglet for cruise',
     cpacs_path=CEASIOMPY_XPATH + '/geometry/winglet',
     gui=True,
     gui_name='Winglet type',
@@ -180,7 +177,6 @@ cpacs_inout.add_input(
 
 
 ### Cruise
-
 cpacs_inout.add_input(
     var_name='cruise_speed',
     var_type=float,
@@ -278,7 +274,6 @@ cpacs_inout.add_output(
     descr='Fuel used for climb',
     cpacs_path=FUEL_CONSUMPTION_XPATH + '/fuelForClimb',
 )
-
 
 cpacs_inout.add_output(
     var_name='mf_for_cruise',

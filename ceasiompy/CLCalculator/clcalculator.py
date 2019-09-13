@@ -31,7 +31,6 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi, \
 from ceasiompy.utils.standardatmosphere import get_atmosphere
 
 from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
-from ceasiompy.CLCalculator.__specs__ import cpacs_inout
 
 log = get_logger(__file__.split('.')[0])
 
@@ -146,7 +145,7 @@ if __name__ == '__main__':
     cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
     cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 
-    check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
+    check_cpacs_input_requirements(cpacs_path)
     get_cl(cpacs_path,cpacs_out_path)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

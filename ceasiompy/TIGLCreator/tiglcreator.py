@@ -23,7 +23,6 @@ TODO:
 #==============================================================================
 
 import os
-import sys
 import shutil
 
 from ceasiompy.utils.ceasiomlogger import get_logger

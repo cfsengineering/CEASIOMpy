@@ -100,7 +100,7 @@ def test_check_cpacs_input_requirements():
         cpacs_path=m.CEASIOM_XPATH + '/ranges/cruiseAltitude',
     )
 
-    assert m.check_cpacs_input_requirements(cpacs_file, cpacs_inout, __file__) is None
+    assert m.check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout) is None
 
     cpacs_inout.add_input(
         var_name='something',
@@ -111,7 +111,7 @@ def test_check_cpacs_input_requirements():
     )
 
     with pytest.raises(m.CPACSRequirementError):
-        m.check_cpacs_input_requirements(cpacs_file, cpacs_inout, __file__)
+        m.check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout)
 
 
 def test_get_specs_for_module():

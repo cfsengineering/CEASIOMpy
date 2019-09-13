@@ -81,6 +81,7 @@ class ListBoxChoice(object):
         cancelButton = Button(buttonFrame, text='Cancel', command=self._cancel)
         cancelButton.pack(side=RIGHT)
 
+
     def _select(self, event=None):
         try:
             firstIndex = self.listBox.curselection()[0]

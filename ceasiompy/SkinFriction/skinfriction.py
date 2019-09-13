@@ -37,7 +37,6 @@ from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
                                          save_parameters, save_coefficients
 
 from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
-from ceasiompy.SkinFriction.__specs__ import cpacs_inout
 
 
 log = get_logger(__file__.split('.')[0])
@@ -285,7 +284,7 @@ if __name__ == '__main__':
     cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
     cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 
-    check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
+    check_cpacs_input_requirements(cpacs_path)
 
     add_skin_friction(cpacs_path,cpacs_out_path)
 

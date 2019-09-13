@@ -22,9 +22,6 @@ TODO:
 #==============================================================================
 
 import os
-import sys
-import math
-import numpy
 
 from tkinter import *
 import matplotlib.pyplot as plt
@@ -224,7 +221,7 @@ if __name__ == '__main__':
     cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 
     # Call the function which check if imputs are well define
-    check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
+    check_cpacs_input_requirements(cpacs_path)
 
     # Plot aerodynamic coefficients
     plot_aero_coef(cpacs_path,cpacs_out_path)

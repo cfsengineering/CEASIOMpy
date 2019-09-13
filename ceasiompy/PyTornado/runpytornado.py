@@ -22,7 +22,7 @@ Python version: >=3.6
 
 | Author: Aaron Dettmann
 | Creation: 2019-08-12
-| Last modification: 2019-09-11
+| Last modification: 2019-09-13
 """
 
 # TODO
@@ -41,7 +41,6 @@ import xmltodict as xml
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
-from ceasiompy.ModuleTemplate.__specs__ import cpacs_inout
 
 log = get_logger(__file__.split('.')[0])
 dump_pretty_json = partial(json.dump, indent=4, separators=(',', ': '))
@@ -50,7 +49,8 @@ REGEX_INT = re.compile(r'^[-+]?[0-9]+$')
 REGEX_FLOAT = re.compile(r'^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$')
 
 # ===== Paths =====
-DIR_MODULE = os.path.dirname(os.path.abspath(__file__))
+FILE_MODULE = os.path.abspath(__file__)
+DIR_MODULE = os.path.dirname(FILE_MODULE)
 DIR_PYT_WKDIR = os.path.join(DIR_MODULE, 'wkdir')
 DIR_PYT_AIRCRAFT = os.path.join(DIR_PYT_WKDIR, 'aircraft')
 DIR_PYT_SETTINGS = os.path.join(DIR_PYT_WKDIR, 'settings')
@@ -209,10 +209,10 @@ def main():
     Path(DIR_PYT_SETTINGS).mkdir(parents=True, exist_ok=True)
 
     # ===== Setup =====
-    # check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
     cpacs_in_path = DIR_MODULE + '/ToolInput/ToolInput.xml'
     cpacs_out_path = DIR_MODULE + '/ToolOutput/ToolOutput.xml'
     shutil.copy(src=cpacs_in_path, dst=FILE_PYT_AIRCRAFT)
+    check_cpacs_input_requirements(cpacs_in_path)
 
     # ===== Get PyTornado settings =====
     cpacs_settings = get_pytornado_settings(cpacs_in_path)

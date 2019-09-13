@@ -24,6 +24,8 @@ from glob import glob
 import importlib
 import os
 import uuid
+from pathlib import Path
+import inspect
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi
@@ -152,18 +154,51 @@ class CPACSInOut:
 #   FUNCTIONS
 #==============================================================================
 
-def check_cpacs_input_requirements(cpacs_file, cpacs_inout, module_file_name):
-    """
-    Check if the input CPACS file contains the required nodes
+def check_cpacs_input_requirements(cpacs_file, *, submod_name=None, submodule_level=1, cpacs_inout=None):
+    """ Check if the input CPACS file contains the required nodes
+
+    Note:
+        * The __specs__ file will be located based on the calling module
+        * In most cases this function should be called simply as
+
+        ==> check_cpacs_input_requirements(cpacs_file)
+
+    Args:
+        cpacs_file (str): Path to the CPACS file to check
+        submod_name (str): Name of the submod_name (if None, determined from caller)
+        submodule_level (int): Levels up where the CEASIOMpy submodule is located
+        cpacs_inout (obj): CPACSInOut() instance
+
+    Raises:
+        CPACSRequirementError: If one or more paths are required by calling
+                               module but not available in CPACS file
     """
 
     # log = get_logger(module_file_name.split('.')[0])
 
-    required_inputs = cpacs_inout.inputs
-    tixi = open_tixi(cpacs_file)
+    if not isinstance(submodule_level, int) and submodule_level < 1:
+        ValueError("'submodule_level' must be a positive integer")
 
+    # If 'cpacs_inout' not provided by caller, we try to determine it
+    if cpacs_inout is None:
+        if submod_name is None:
+            # Get the path of the caller submodule
+            frm = inspect.stack()[1]
+            mod = inspect.getmodule(frm[0])
+            caller_module_path = os.path.dirname(os.path.abspath(mod.__file__))
+
+            # Get the CEASIOM_XPATH submodule name
+            _, submod_name = os.path.split(caller_module_path)
+            for _ in range(1, submodule_level):
+                _, submod_name = os.path.split(caller_module_path)
+
+        # Load the submodule specifications
+        specs_module = get_specs_for_module(submod_name, raise_error=True)
+        cpacs_inout = specs_module.cpacs_inout
+
+    tixi = open_tixi(cpacs_file)
     missing_nodes = []
-    for entry in required_inputs:
+    for entry in cpacs_inout.inputs:
         if entry.default_value is not None:
             continue
         if tixi.checkElement(entry.cpacs_path) is False:

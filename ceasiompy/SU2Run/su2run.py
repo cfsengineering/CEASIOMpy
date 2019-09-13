@@ -27,7 +27,6 @@ TODO:
 
 import os
 import sys
-import math
 import shutil
 from shutil import ignore_patterns
 

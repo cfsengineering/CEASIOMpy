@@ -35,7 +35,6 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
 from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
-from ceasiompy.ModuleTemplate.__specs__ import cpacs_inout
 
 log = get_logger(__file__.split('.')[0])
 
@@ -163,7 +162,7 @@ if __name__ == '__main__':
     cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 
     # Call the function which check if imputs are well define
-    check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
+    check_cpacs_input_requirements(cpacs_path)
 
     # Define other inputs value
     my_value1 = 6

@@ -16,6 +16,7 @@ TODO:
     * Add "mouse over" for description
     * Add 'AeroMap Edition'
     * Fix  'get_value' for boolean
+    * messagebox and error detection could be improved
 """
 
 #==============================================================================
@@ -45,7 +46,9 @@ from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
                                          delete_aeromap
 
 import ceasiompy.utils.moduleinterfaces as mif
-from ceasiompy.ModuleTemplate.__specs__ import cpacs_inout
+
+
+
 
 log = get_logger(__file__.split('.')[0])
 
@@ -81,7 +84,6 @@ class ListBoxChoice(object):
         try:
             firstIndex = self.listBox.curselection()[0]
             self.selected_item = [self.listBox.get(i) for i in self.listBox.curselection()]
-            print(self.selected_item)
         except IndexError:
             self.selected_item = None
 
@@ -174,6 +176,7 @@ class AutoTab:
 
             elif dtype is list:
                 if name == '__AEROMAP_SELECTION':
+
                     # Get the list of all AeroMaps
                     aeromap_uid_list = get_aeromap_uid_list(self.tixi)
 
@@ -194,11 +197,16 @@ class AutoTab:
                     self.var_dict[key].grid(column=1, row=row_pos, padx=5, pady=5)
 
                 elif name == '__AEROMAP_CHECHBOX':
+
+                    # Just to find back the name when data are saved
+                    self.var_dict[key] = None
+                    # __AEROMAP_CHECHBOX is a bit different, data are saved in their own dictionary
+                    self.aeromap_var_dict = {}
+
                     # Get the list of all AeroMaps
                     aeromap_uid_list = get_aeromap_uid_list(self.tixi)
                     self.labelframe = tk.LabelFrame(parent, text="Selecte AeroMap(s)")
                     self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=5, pady=5)
-                    self.aeromap_var_dict = {}
 
                     # Try to get pre-selected AeroMaps from the xpath
                     try:
@@ -225,7 +233,7 @@ class AutoTab:
                     except:
                         selected_value = ''
                         selected_value_index = 0
-                    print(selected_value_index)
+
 
                     # The Combobox is directly use as the varaible
                     self.var_dict[key] = ttk.Combobox(parent, values=def_value)
@@ -266,6 +274,12 @@ class CEASIOMpyGUI:
         # CPACS =============
         self.tixi = open_tixi(cpacs_path)
 
+        if len(get_aeromap_uid_list(self.tixi)) == 0 :
+            log.warning('No AeroMap in this CPACS file')
+            aeromap_uid = 'New_AeroMap'
+            description = 'AeroMap create by SettingGUI'
+            create_empty_aeromap(self.tixi, aeromap_uid, description)
+
         # Generate Tab =============
         # Get a list of ALL CESAIOMpy submodules
         self.tab_list = []
@@ -288,12 +302,17 @@ class CEASIOMpyGUI:
                 name = tab.gui_dict[key][0]
                 xpath = tab.gui_dict[key][4]
                 create_branch(self.tixi,xpath)
-
                 if name == '__AEROMAP_CHECHBOX':
                     aeromap_uid_list_str = ''
                     for aeromap_uid, aeromap_bool in tab.aeromap_var_dict.items():
+                        print('for loop')
                         if aeromap_bool.get():
                             aeromap_uid_list_str += aeromap_uid + ';'
+                    if aeromap_uid_list_str == '':
+                        messagebox.showerror('ValueError', 'In the Tab "' + \
+                                       tab.module_name + '", no value has been selected for "' + \
+                                       name + '" ')
+                        raise TypeError('No value has been selected for ' + name + ' !')
                     self.tixi.updateTextElement(xpath, aeromap_uid_list_str)
 
                 # '__AEROMAP_SELECTION' and list Type value will be saved as any other variable
@@ -407,7 +426,7 @@ if __name__ == '__main__':
     cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
 
     # Call the function which check if imputs are well define
-    mif.check_cpacs_input_requirements(cpacs_path, cpacs_inout, __file__)
+    mif.check_cpacs_input_requirements(cpacs_path)
 
     # Call Tkinter Class
     root = tk.Tk()

@@ -234,6 +234,9 @@ def get_aeromap_uid_list(tixi):
 
     aeromap_list = []
 
+    if not tixi.checkElement(AEROPERFORMANCE_XPATH):
+        return aeromap_list
+
     aeromap_count = tixi.getNamedChildrenCount(AEROPERFORMANCE_XPATH, 'aeroMap')
     if aeromap_count:
         log.info('There are : ' + str(aeromap_count) + ' aeroMap in this CPACS file: ')

@@ -1,4 +1,4 @@
 # Ignore PyTornado working dir
-wkdir
+wkdir*
 
 log*

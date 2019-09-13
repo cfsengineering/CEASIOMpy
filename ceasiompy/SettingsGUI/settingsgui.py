@@ -287,6 +287,11 @@ class CEASIOMpyGUI:
             tab = AutoTab(self.tabs, self.tixi, module_name)
             self.tab_list.append(tab)
 
+        # tab = AutoTab(self.tabs, self.tixi, 'PyTornado')
+        # self.tab_list.append(tab)
+        # tab = AutoTab(self.tabs, self.tixi, 'SkinFriction')
+        # self.tab_list.append(tab)
+
         # General button =============
         self.close_button = tk.Button(self.master, text="Save & Quit", command=self.save_quit)
         self.close_button.pack(side=tk.RIGHT)

@@ -62,7 +62,7 @@ cpacs_inout.add_input(
     unit='1',
     descr='Aircraft cruise Mach number',
     cpacs_path=CEASIOM_XPATH + '/ranges/cruiseMach',
-    gui=True,
+    gui=False,
     gui_name='Cruise Mach',
     gui_group='If fixed CL',
 )
@@ -74,7 +74,7 @@ cpacs_inout.add_input(
     unit='m',
     descr='Aircraft cruise altitude',
     cpacs_path=CEASIOM_XPATH + '/ranges/cruiseAltitude',
-    gui=True,
+    gui=False,
     gui_name='Cruise Altitude',
     gui_group='If fixed CL',
 )

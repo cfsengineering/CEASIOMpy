@@ -177,6 +177,8 @@ cpacs_inout.add_input(
 
 
 ### Cruise
+
+# This one should probalby be removed, at least use cruise_mach
 cpacs_inout.add_input(
     var_name='cruise_speed',
     var_type=float,

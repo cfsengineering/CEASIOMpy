@@ -43,6 +43,9 @@ forces_breakdown.dat
 !/test/TestSU2Config/ToolInput/NoMarkerMesh.su2
 !/test/TestSU2Config/ToolInput/SimpleMesh.su2
 
+# Mac files
+*.DS_Store
+
 # Vim temporary files
 *.swp
 

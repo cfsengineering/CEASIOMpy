@@ -8,12 +8,7 @@ ModuleTemplate
 
 CPACS2SUMO converts CPACS XML file into SUMO SMX file.
 
-#.. figure:: https://upload.wikimedia.org/wikipedia/commons/9/96/Spirit_of_St._Louis.jpg
-#    :width: 300 px
-#    :align: center
-#    :alt: Example
-
-TODO: add picture
+TODO: add figure
 
 Installation
 ------------
@@ -38,8 +33,8 @@ Inputs will be read automatically in the CPCAS file.
 Limitations
 -----------
 
-Some special geometry are possible with CPACS but not with SUMO. This is mainly due to the multible possible tranfomation on section (translation,scaling,rotation).
-Also the interpolation of surfaces between existing sections may differ. You sould always check the SUMO file when it is the first time you convert it.
+Some special geometries are possible with CPACS but not with SUMO. This is mainly due to the multible possible tranfomation on section (translation,scaling,rotation).
+Also the interpolation of surfaces between existing sections may differ. You should always check the SUMO file when it is the first time you convert it.
 
 More information
 ----------------

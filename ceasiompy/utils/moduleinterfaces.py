@@ -188,9 +188,9 @@ def check_cpacs_input_requirements(cpacs_file, *, submod_name=None, submodule_le
             caller_module_path = os.path.dirname(os.path.abspath(mod.__file__))
 
             # Get the CEASIOM_XPATH submodule name
-            _, submod_name = os.path.split(caller_module_path)
+            parent_path, submod_name = os.path.split(caller_module_path)
             for _ in range(1, submodule_level):
-                _, submod_name = os.path.split(caller_module_path)
+                parent_path, submod_name = os.path.split(parent_path)
 
         # Load the submodule specifications
         specs_module = get_specs_for_module(submod_name, raise_error=True)

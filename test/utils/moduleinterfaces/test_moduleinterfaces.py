@@ -4,6 +4,9 @@ import pytest
 
 import ceasiompy.utils.moduleinterfaces as m
 
+HERE = os.path.abspath(os.path.dirname(__file__))
+CPACS_TEST_FILE = os.path.join(HERE, 'cpacs_test_file.xml')
+
 
 def test_cpacs_inout():
     """
@@ -58,8 +61,6 @@ def test_module_name_list():
     """
 
     module_list = m.get_module_list()
-    print('=======')
-    print(module_list)
 
     assert isinstance(module_list, list)
 
@@ -144,3 +145,19 @@ def test_find_missing_specs():
 
     missing = m.find_missing_specs()
     assert isinstance(missing, list)
+
+
+def test_check_workflow():
+    """
+    Check function 'check_workflow'
+    """
+
+    workflow = ('NON_EXISTENT_MODULE',)
+
+    with pytest.raises(ValueError):
+        workflow = ('PyTornado', 'NON_EXISTENT_MODULE')
+        m.check_workflow(CPACS_TEST_FILE, workflow)
+
+    with pytest.raises(ValueError):
+        workflow = ('SU2Run', 'PyTornado', 'WeightUnconventional', 'BalanceUnconventional')
+        m.check_workflow(CPACS_TEST_FILE, workflow)

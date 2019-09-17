@@ -30,6 +30,8 @@ import inspect
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi
 
+log = get_logger(__file__.split('.')[0])
+
 # Shortcut for XPath definition
 CEASIOM_XPATH = '/cpacs/toolspecific/CEASIOMpy'
 AIRCRAFT_XPATH = '/cpacs/vehicles/aircraft'
@@ -319,6 +321,63 @@ def find_missing_specs():
         if specs is None:
             missing.append(modname)
     return missing
+
+
+def check_workflow(cpacs_path, submodule_list):
+    """Check if a linear workflow can be exectuted based on given CPACS file
+
+    Note:
+        * 'submodule_list' is a list of CEASIOMpy modules to run, example:
+
+        ('PyTornado', 'SkinFriction', 'SU2Run', 'SkinFriction')
+
+        * It is assumed that no XPaths will be deleted in between module, only
+          new ones will be created
+
+        * The full workflow will be checked from start to end. If multiple errors
+          accumulate all will be shown at the end
+
+    Args:
+        cpacs_path (str): CPACS node path
+        submodule_list (list): List of CEASIOMpy module names (order matters!)
+
+    Raises:
+        TypeError: If input data has invalid type
+        ValueError: If a workflow cannot be exectued from start to end
+    """
+
+    if not isinstance(cpacs_path, str):
+        raise TypeError("'cpacs_path' must be of type str")
+
+    if not isinstance(submodule_list, (list, tuple)):
+        raise TypeError("'submodule_list' must be of type list or tuple")
+
+    tixi = open_tixi(cpacs_path)
+    xpaths_from_workflow = set()
+    err_msg = ''
+    for i, submod_name in enumerate(submodule_list, start=1):
+        specs = get_specs_for_module(submod_name)
+        if specs is None or not specs.cpacs_inout:
+            log.warning(f"No specs found for {submod_name}")
+            continue
+        # ----- Required inputs -----
+        for entry in specs.cpacs_inout.inputs:
+            # The required xpath can either be in the original CPACS file
+            # OR in the xpaths produced during the workflow exectution
+            if not tixi.checkElement(entry.cpacs_path) and entry.cpacs_path not in xpaths_from_workflow:
+                err_msg += \
+                    f"==> XPath '{entry.cpacs_path}' required by " \
+                    + f"module '{submod_name}' ({i}/{len(submodule_list)}), " \
+                    "but not found\n"
+            xpaths_from_workflow.add(entry.cpacs_path)
+        # ----- Generated output -----
+        for entry in specs.cpacs_inout.outputs:
+            xpaths_from_workflow.add(entry.cpacs_path)
+
+    if err_msg:
+        log.error(err_msg)
+        raise ValueError(err_msg)
+
 
 #==============================================================================
 #    MAIN

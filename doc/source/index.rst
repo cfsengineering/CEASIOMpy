@@ -6,11 +6,12 @@ Introduction
 
 |name_bold| is an open source *conceptual aircraft design* environment. |name| can be used to set up complex design and optimization workflows, both for conventional and unconventional configurations. |name| provides tools for various disciplines in aircraft design, amongst others:
 
-* Aerodynamics
+* Geometry and meshes
 * Weight and balance
-* Flight mechanics
+* Aerodynamics
 * Structures
-* Aeroelasticity
+* Mission analysis
+* Stability analysis
 
 |name| uses the open-standard format `CPACS`_. Workflows can be set up with the open-source environment `RCE`_. Both `CPACS`_ and `RCE`_ are actively developed by the |dlr_full| `DLR`_. Follow the links below to learn how get started or how to contribute to the project.
 

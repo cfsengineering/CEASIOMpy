@@ -3,24 +3,15 @@ Modules
 
 |name| provides modules for different disciplines in aircraft design. Below you can find a list of available modules sorted by categories.
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Aerodynamics
-
-   modules/CLCalculator/index
-   modules/PlotAeroCoefficients/index
-   modules/PyTornado/index
-   modules/SU2Config/index
-   modules/SU2Run/index
-   modules/SkinFriction/index
 
 .. toctree::
    :maxdepth: 1
    :caption: Geometry and meshes
 
+   modules/TIGLCreator/index
    modules/CPACS2SUMO/index
    modules/SUMOAutoMesh/index
-   modules/TIGLCreator/index
+
 
 .. toctree::
    :maxdepth: 1
@@ -30,6 +21,17 @@ Modules
    modules/BalanceUnconventional/index
    modules/WeightConventional/index
    modules/WeightUnconventional/index
+
+.. toctree::
+   :maxdepth: 1
+   :caption: Aerodynamics
+
+   modules/CLCalculator/index
+   modules/PyTornado/index
+   modules/SU2Config/index
+   modules/SU2Run/index
+   modules/SkinFriction/index
+   modules/PlotAeroCoefficients/index
 
 .. toctree::
    :maxdepth: 1

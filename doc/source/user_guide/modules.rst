@@ -37,6 +37,7 @@ Modules
    :maxdepth: 1
    :caption: Structures
 
+   modules/AeroFrame/index
    modules/FramAT/index
 
 .. toctree::

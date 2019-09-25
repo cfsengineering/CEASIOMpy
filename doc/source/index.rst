@@ -30,6 +30,12 @@ Introduction
    user_guide/module_interfaces
 
 .. toctree::
+   :maxdepth: 1
+   :caption: References
+
+   references
+
+.. toctree::
    :maxdepth: 2
    :caption: Contributing
 

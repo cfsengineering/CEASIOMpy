@@ -1,0 +1,355 @@
+{
+    "beamlines": [
+        {
+            "uid": "Wing",
+            "nelem": 300,
+            "nodes": [
+                {
+                    "uid": "root",
+                    "coord": [
+                        -0.03,
+                        0.0,
+                        0
+                    ],
+                    "up": [
+                        0,
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "uid": "p1",
+                    "coord": [
+                        -0.03,
+                        0.02,
+                        0
+                    ],
+                    "up": [
+                        0,
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "uid": "p2",
+                    "coord": [
+                        -0.03,
+                        0.27,
+                        0
+                    ],
+                    "up": [
+                        0,
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "uid": "p3",
+                    "coord": [
+                        -0.03,
+                        0.53,
+                        0
+                    ],
+                    "up": [
+                        0,
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "uid": "p4",
+                    "coord": [
+                        -0.03,
+                        0.8,
+                        0
+                    ],
+                    "up": [
+                        0,
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "uid": "p5",
+                    "coord": [
+                        -0.03,
+                        1.06,
+                        0
+                    ],
+                    "up": [
+                        0,
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "uid": "p_mb1",
+                    "coord": [
+                        -0.03,
+                        1.1,
+                        0
+                    ],
+                    "up": [
+                        0,
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "uid": "p_mb2",
+                    "coord": [
+                        -0.03,
+                        1.3,
+                        0
+                    ],
+                    "up": [
+                        0,
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "uid": "p6",
+                    "coord": [
+                        -0.03,
+                        1.33,
+                        0
+                    ],
+                    "up": [
+                        0,
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "uid": "p7",
+                    "coord": [
+                        -0.03,
+                        1.58,
+                        0
+                    ],
+                    "up": [
+                        0,
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "uid": "p_mb3",
+                    "coord": [
+                        -0.03,
+                        1.55,
+                        0
+                    ],
+                    "up": [
+                        0,
+                        0,
+                        1
+                    ]
+                },
+                {
+                    "uid": "tip",
+                    "coord": [
+                        -0.03,
+                        1.6,
+                        0
+                    ],
+                    "up": [
+                        0,
+                        0,
+                        1
+                    ]
+                }
+            ],
+            "beamprops": [
+                {
+                    "from": "root",
+                    "to": "tip",
+                    "constant": {
+                        "material": "GFRP",
+                        "profil": "plate"
+                    }
+                },
+                {
+                    "at": "p1",
+                    "pointmass": 0.04672
+                },
+                {
+                    "at": "p2",
+                    "pointmass": 0.02414
+                },
+                {
+                    "at": "p3",
+                    "pointmass": 0.05156
+                },
+                {
+                    "at": "p4",
+                    "pointmass": 0.02414
+                },
+                {
+                    "at": "p5",
+                    "pointmass": 0.05156
+                },
+                {
+                    "at": "p6",
+                    "pointmass": 0.02414
+                },
+                {
+                    "at": "p7",
+                    "pointmass": 0.04672
+                },
+                {
+                    "from": "root",
+                    "to": "tip",
+                    "mass": 0.48216,
+                    "comment": "aileron mass"
+                },
+                {
+                    "from": "root",
+                    "to": "tip",
+                    "mass": 0.08676,
+                    "comment": "hinge axis mass"
+                },
+                {
+                    "at": "p_mb1",
+                    "pointmass": 0.0,
+                    "comment": "mass balancing mass"
+                },
+                {
+                    "at": "p_mb2",
+                    "pointmass": 0.2,
+                    "comment": "mass balancing mass"
+                },
+                {
+                    "at": "p_mb3",
+                    "pointmass": 0.3,
+                    "comment": "mass balancing mass"
+                }
+            ],
+            "loads": {
+                "concentrated": [
+                    {
+                        "node": "tip",
+                        "load": [
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                        ]
+                    }
+                ],
+                "distributed": [
+                    {
+                        "from": "root",
+                        "to": "tip",
+                        "constant": [
+                            0,
+                            0,
+                            0,
+                            0,
+                            0,
+                            0
+                        ]
+                    }
+                ],
+                "free_nodes": [
+                ]
+            }
+        }
+    ],
+    "materialdata": [
+        {
+            "uid": "GFRP",
+            "E": 32500000000.0,
+            "G": 5100000000.0,
+            "rho": 1960
+        }
+    ],
+    "profildata": [
+        {
+            "uid": "plate",
+            "A": 0.001189,
+            "Iy": 1.6656e-09,
+            "Iz": 8.3329e-06,
+            "J": 6.6624e-09
+        }
+    ],
+    "acceleration": {
+        "turn_on": true,
+        "direction": [
+            0,
+            9.81,
+            0
+        ]
+    },
+    "boundary_conditions": {
+        "fix": [
+            {
+                "node": "root",
+                "fix": [
+                    "all"
+                ]
+            }
+        ]
+    },
+    "analysis": {
+        "static": true
+    },
+    "postproc": {
+        "plots": [
+            {
+                "show": false,
+                "set_savefig": true,
+                "plot_undeformed": true,
+                "plot_deformed": true,
+                "plot_bc": true,
+                "plot_global_axes": false,
+                "plot_nodes": true,
+                "plot_loads": true,
+                "plot_inertia_loads": false,
+                "plot_free_nodes": true,
+                "plot_free_node_vectors": true,
+                "set_scale_conc_loads": 0.5,
+                "set_scale_dist_loads": 0.5
+            },
+            {
+                "show": false,
+                "plot_undeformed": true,
+                "plot_deformed": false,
+                "plot_global_axes": false,
+                "plot_nodes": true,
+                "plot_loads": false,
+                "plot_free_nodes": false,
+                "plot_named_nodes": true,
+                "set_scale_conc_loads": 0.5,
+                "set_scale_dist_loads": 0.5,
+                "set_savefig": false
+            },
+            {
+                "show": false,
+                "plot_undeformed": true,
+                "plot_local_axes": false,
+                "plot_local_N": true,
+                "plot_global_axes": false,
+                "set_savefig": false
+            },
+            {
+                "show": false,
+                "plot_local_axes": false,
+                "plot_deformed": true,
+                "plot_undeformed": true,
+                "plot_named_nodes": true,
+                "plot_bc": true,
+                "plot_loads": false,
+                "plot_global_axes": false,
+                "plot_nodes": false,
+                "set_savefig": false
+            }
+        ],
+        "save_results": {
+            "nodal_deformation": false
+        }
+    }
+}

@@ -44,7 +44,7 @@ To run |name|, a CPACS_ |apm| is required.
 
 .. hint::
 
-    |Apms| can be created and edited using the *GUI settings editor* (**TODO** link). PyTornado specific settings can also be edited using the settings editor.
+    |Apms| can be created and edited using the *GUI settings editor* (:ref:`sec_settings_gui`). PyTornado specific settings can also be edited using the settings editor.
 
 Limitations
 -----------

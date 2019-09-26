@@ -37,6 +37,7 @@ Modules
    :maxdepth: 1
    :caption: Structures
 
+   modules/AeroFrame/index
    modules/FramAT/index
 
 .. toctree::
@@ -49,6 +50,7 @@ Modules
    :maxdepth: 1
    :caption: Miscellaneous
 
+   modules/SettingsGUI/index
    modules/ModuleTemplate/index
 
 **Flight mechanics** Work in progress...

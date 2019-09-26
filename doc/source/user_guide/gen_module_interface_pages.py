@@ -12,9 +12,11 @@ Script to parse the __specs__ files for each of the CEASIOMpy modules
 import os
 import importlib
 from glob import glob
+from pathlib import Path
 
 SCRIPT_DIR = os.path.abspath(os.path.dirname(__file__))
 CEASIOMPY_LIB_DIR = os.path.abspath(os.path.join(SCRIPT_DIR, '../../../'))
+OUTPUT_DIR = Path(os.path.join(SCRIPT_DIR, 'module_interfaces/'))
 
 # Make CEASIOMpy importable
 import sys
@@ -58,7 +60,8 @@ bold = get_rst_bold
 
 def main():
     module_list = get_module_list()
-    os.chdir(os.path.join(SCRIPT_DIR, 'module_interfaces/'))
+    OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
+    os.chdir(OUTPUT_DIR)
 
     for module_name in module_list:
         specs_module = module_name + '.__specs__'

@@ -30,10 +30,14 @@ import sys
 import shutil
 from shutil import ignore_patterns
 
+from ceasiompy.SU2Run.func.extractloads import extract_loads
+
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi, \
                                            create_branch, get_value
 from ceasiompy.utils.apmfunctions import save_coefficients, get_aeromap, AeroCoefficient, check_aeromap
+
+
 
 log = get_logger(__file__.split('.')[0])
 
@@ -238,6 +242,12 @@ def run_SU2(mesh_path, config_path):
     os.chdir(MODULE_DIR)
 
 
+def run_SU2_fsi(mesh_path, config_path, calculation_dir):
+    # To do better integration with normal 'run_SU2' function
+
+    pass
+
+
 def get_su2_results(cpacs_path,cpacs_out_path):
     """ Function to write SU2 results in a CPACS file.
 
@@ -312,6 +322,19 @@ def get_su2_results(cpacs_path,cpacs_out_path):
 
     # Save object Coef in the CPACS file
     save_coefficients(tixi,aeromap_uid,Coef)
+
+    # Extract loads
+    # if check_extract_loads:
+    os.chdir(TMP_DIR)
+    config_dir_list = os.listdir(TMP_DIR)
+    for config_dir in config_dir_list:
+        if os.path.isdir(config_dir):
+            os.chdir(config_dir)
+            results_files_dir = TMP_DIR + '/' + config_dir
+
+            print(results_files_dir)
+
+            extract_loads(results_files_dir)
 
     close_tixi(tixi,cpacs_out_path)
 

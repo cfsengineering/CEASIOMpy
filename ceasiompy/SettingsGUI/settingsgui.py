@@ -54,46 +54,108 @@ log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+
+
 #==============================================================================
 #   CLASSES
 #==============================================================================
 
 # Not use for now, but could be useful
-class ListBoxChoice(object):
-    def __init__(self, tab, tixi, list=[]):
+# class ListBoxChoice(object):
+#     def __init__(self, tab, tixi, list=[]):
+#
+#         self.selected_item = None
+#
+#         self.tab = tab
+#         self.tixi = tixi
+#         self.list = list[:]
+#
+#         self.listBox = tk.Listbox(self.tab, selectmode=tk.SINGLE)
+#         self.listBox.grid(column=2, row=10)
+#         self.list.sort()
+#         for item in self.list:
+#             self.listBox.insert(tk.END, item)
+#
+#         self.chooseButton = tk.Button(self.tab, text='Select', command=self._select)
+#         self.chooseButton.grid(column=2, row=11)
+#
+#         self.cancelButton = tk.Button(self.tab, text='Cancel', command=self._cancel)
+#         self.cancelButton.grid(column=3, row=11)
+#
+#     def _select(self, event=None):
+#         try:
+#             firstIndex = self.listBox.curselection()[0]
+#             self.selected_item = [self.listBox.get(i) for i in self.listBox.curselection()]
+#         except IndexError:
+#             self.selected_item = None
+#
+#     def _cancel(self, event=None):
+#         self.listBox.selection_clear(0, tk.END)
+#
+#     # Do we need that?
+#     def returnValue(self):
+#         self.tab.wait_window()
+#         return self.selected_item
 
-        self.selected_item = None
 
-        self.tab = tab
+class AeroMapTab:
+    """ Class to create the AeroMap tab from the infomation in cpacs file. """
+
+    def __init__(self, tabs, tixi):
+        """AeroMapTab class
+
+        Args:
+            tabs (TODO): TODO
+            tixi (handle): Tixi handle
+        """
+
+        self.tabs = tabs
         self.tixi = tixi
-        self.list = list[:]
 
-        self.listBox = tk.Listbox(self.tab, selectmode=tk.SINGLE)
-        self.listBox.grid(column=2, row=10)
+        self.aerotab = tk.Frame(self.tabs, borderwidth=1)
+        tabs.add(self.aerotab, text='aeroMaps Edition')
+
+        aeromap_uid_list = get_aeromap_uid_list(tixi)
+
+
+        self.selected_list = []
+        self.list = aeromap_uid_list
+
+        self.aerotab.grab_set()
+        # self.aerotab.bind("<Return>", self._select)
+        # self.aerotab.bind("<Escape>", self._cancel)
+        tk.Label(self.aerotab, text='Existing AeroMaps').pack(padx=5, pady=5)
+
+        self.listBox = tk.Listbox(self.aerotab, selectmode=tk.SINGLE)
+        self.listBox.pack(fill=tk.BOTH)
         self.list.sort()
         for item in self.list:
             self.listBox.insert(tk.END, item)
 
-        self.chooseButton = tk.Button(self.tab, text='Select', command=self._select)
-        self.chooseButton.grid(column=2, row=11)
+        buttonFrame = tk.Frame(self.aerotab)
+        buttonFrame.pack(side=tk.BOTTOM)
 
-        self.cancelButton = tk.Button(self.tab, text='Cancel', command=self._cancel)
-        self.cancelButton.grid(column=3, row=11)
+        chooseButton = tk.Button(buttonFrame, text='Select', command=self._select)
+        chooseButton.pack()
+
+        cancelButton = tk.Button(buttonFrame, text='Cancel', command=self._cancel)
+        cancelButton.pack(side=tk.RIGHT)
 
     def _select(self, event=None):
         try:
             firstIndex = self.listBox.curselection()[0]
-            self.selected_item = [self.listBox.get(i) for i in self.listBox.curselection()]
+            self.selected_list = [self.listBox.get(i) for i in self.listBox.curselection()]
+            print(self.selected_list)
         except IndexError:
-            self.selected_item = None
+            self.selected_list = None
+
 
     def _cancel(self, event=None):
         self.listBox.selection_clear(0, tk.END)
 
-    # Do we need that?
     def returnValue(self):
-        self.tab.wait_window()
-        return self.selected_item
+        self.master.wait_window()
+        return self.selected_list
 
 
 class AutoTab:
@@ -280,7 +342,11 @@ class CEASIOMpyGUI:
             description = 'AeroMap create by SettingGUI'
             create_empty_aeromap(self.tixi, aeromap_uid, description)
 
-        # Generate Tab =============
+        # Generate AeroMaps tab
+        # aeromap_tap = AeroMapTab(self.tabs, self.tixi)
+
+
+        # Generate Auto Tab =============
         # Get a list of ALL CESAIOMpy submodules
         self.tab_list = []
         for module_name in mif.get_submodule_list():
@@ -439,36 +505,3 @@ if __name__ == '__main__':
     root.mainloop()
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
-
-
-
-# Old code to delete when everything Works
-
-# elif dtype is list:
-#     if 'AeroMap' in name:
-#         self.var_dict[key] = 'AeroMapListType'
-#         aeromap_uid_list = get_aeromap_uid_list(self.tixi)
-#         self.labelframe = tk.LabelFrame(parent, text="AeroMap to calculate")
-#         self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=5, pady=5)
-#         self.aeromap_var_dict = {}
-#
-#         # Pre selected aeromap from the coresponding CPACS node
-#         try:
-#             selected_aeromap = get_string_vector(self.tixi,xpath)
-#         except:
-#             selected_aeromap = ''
-#
-#         for aeromap in aeromap_uid_list:
-#             self.aeromap_var_dict[aeromap] = tk.BooleanVar()
-#
-#             if aeromap in selected_aeromap:
-#                 self.aeromap_var_dict[aeromap].set(True)
-#             aeromap_entry = tk.Checkbutton(self.labelframe,text=aeromap,variable=self.aeromap_var_dict[aeromap])
-#             aeromap_entry.pack(side=tk.TOP, anchor='w')
-#     else: # if it's a list of someting else than aeromap
-#         if def_value == '__all_aeromaps':
-#             value_list = get_aeromap_uid_list(self.tixi)
-#         else:
-#             value_list = def_value
-#         self.combobox = ttk.Combobox(parent, values=value_list)
-#         self.combobox.grid(column=1, row=row_pos, padx=5, pady=5)

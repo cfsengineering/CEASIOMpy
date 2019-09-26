@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-09-24
-| Last modifiction: 2019-09-25
+| Last modifiction: 2019-09-26
 
 TODO:
 
@@ -318,7 +318,7 @@ def extract_loads(results_files_dir):
     """
 
     # Path definitons
-    config_file_path = results_files_dir + '/ToolOutput.cfg'
+    config_file_path = results_files_dir + '/ConfigDEF.cfg'
     surface_flow_file_path = results_files_dir + '/surface_flow.vtk'
     surface_flow_force_file_path = results_files_dir + '/surface_flow_forces.vtk'
     force_file_path = results_files_dir + '/force.csv'

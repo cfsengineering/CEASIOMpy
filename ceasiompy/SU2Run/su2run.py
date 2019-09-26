@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-11-06
-| Last modifiction: 2019-08-21
+| Last modifiction: 2019-09-26
 
 TODO:
 
@@ -242,10 +242,58 @@ def run_SU2(mesh_path, config_path):
     os.chdir(MODULE_DIR)
 
 
-def run_SU2_fsi(mesh_path, config_path, calculation_dir):
-    # To do better integration with normal 'run_SU2' function
+def run_SU2_fsi(config_path, calculation_dir):
+    # To do better integration with normal 'run_SU2' function, maybe directly with python SU2 functions
 
-    pass
+    config_def_path = calculation_dir + '/ConfigDEF.cfg'
+    config_cfd_path = calculation_dir + '/ConfigCFD.cfg'
+
+    shutil.copy(config_path,config_def_path)
+
+
+    config_file_object = open(config_def_path, 'r')
+    config_file_lines = config_file_object.readlines()
+    config_file_object.close()
+
+    config_cfd_file_lines = config_file_lines
+
+    for i, line in enumerate(config_file_lines):
+        if 'MESH_FILENAME' in line:
+            config_cfd_file_lines[i] = 'MESH_FILENAME= mesh_out.su2 \n'
+
+    config_file_new = open(config_cfd_path, 'w')
+    config_file_new.writelines(config_cfd_file_lines)
+    config_file_new.close()
+
+    # Check intallation of SU2 and MPI
+    su2_def_install_path = shutil.which("SU2_DEF")
+    su2_cfd_install_path = shutil.which("SU2_CFD")
+    su2_sol_install_path = shutil.which("SU2_SOL")
+    mpi_install_path = shutil.which('mpirun')
+    proc_nb = os.cpu_count()
+
+    su2_def = mpi_install_path + ' -np ' + str(proc_nb) + ' ' + su2_def_install_path + ' '
+    su2_cfd = mpi_install_path + ' -np ' + str(proc_nb) + ' ' + su2_cfd_install_path + ' '
+    su2_sol = mpi_install_path + ' -np ' + str(proc_nb) + ' ' + su2_sol_install_path + ' '
+
+
+
+    current_dir = os.getcwd()
+    # Run the command from the calculation directory
+    os.chdir(calculation_dir)
+    log.info('>>> SU2 FSI Start Time')
+
+    # config_dir_list = os.listdir(TMP_DIR)
+
+    os.system(su2_def + config_def_path)
+    os.system(su2_cfd + config_cfd_path)
+    os.system(su2_sol + config_cfd_path)
+
+    extract_loads(calculation_dir)
+
+    os.chdir(current_dir)
+
+    log.info('>>> SU2 FSI End Time')
 
 
 def get_su2_results(cpacs_path,cpacs_out_path):
@@ -373,3 +421,16 @@ if __name__ == '__main__':
 
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
+
+
+# TO Run "run_SU2_fsi"
+
+        # from ceasiompy.SU2Run.su2run import run_SU2_fsi
+        #
+        # config_path = MODULE_DIR + '/ToolInput/ToolInput.cfg'
+        # calculation_dir = os.getcwd() + '/temp'
+        # input_disp_path = MODULE_DIR + '/ToolInput/disp.dat'
+        #
+        # shutil.copy(input_disp_path,calculation_dir+'/disp.dat')
+        #
+        # run_SU2_fsi(config_path, calculation_dir)

@@ -48,6 +48,7 @@
     * Calculate and save damping derivatives
     * Calculate and save Controls surface deflections
     * Where and when update 'reference/area' and 'length'
+    * When shoud we update/check reference value (area/length)
 
 ## Module SettingsGUI
 * GUI to create/edit/delete aeroMap from CPACS file

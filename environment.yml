@@ -45,6 +45,7 @@ dependencies:
     # - See https://pypi.org/project/xmltodict/
     # - Used by the PyTornado module
     - xmltodict  # Exist in Conda!!!
+    - aeroframe  # See: https://github.com/airinnova/aeroframe
 
 # Other packages
 #

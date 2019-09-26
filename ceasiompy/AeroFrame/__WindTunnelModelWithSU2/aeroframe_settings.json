@@ -11,7 +11,7 @@
         }
     },
     "structure_model": {
-        "wrapper": "aeroframe._wrappers.framat_wrapper",
+        "wrapper": "aeroframe._wrappers.structure.framat",
         "exec_settings": {
             "model_file": "structure/WindTunnelModel.json"
         }

@@ -301,7 +301,7 @@
         "plots": [
             {
                 "show": false,
-                "set_savefig": true,
+                "set_savefig": false,
                 "plot_undeformed": true,
                 "plot_deformed": true,
                 "plot_bc": true,

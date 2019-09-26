@@ -23,7 +23,8 @@ class Wrapper(AeroWrapper):
 
         # SU2 files
         self.own_files = {}
-        self.own_files['f_loads'] = join(self.root_path, 'cfd/forces_FlatPlate_2.csv')
+        # self.own_files['f_loads'] = join(self.root_path, 'cfd/forces_FlatPlate_2.csv')
+        self.own_files['f_loads'] = join(self.root_path, 'cfd/force.csv')
 
     def run_analysis(self, turn_off_deform=False):
         """

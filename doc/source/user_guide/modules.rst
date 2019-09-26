@@ -50,6 +50,7 @@ Modules
    :maxdepth: 1
    :caption: Miscellaneous
 
+   modules/SettingsGUI/index
    modules/ModuleTemplate/index
 
 **Flight mechanics** Work in progress...

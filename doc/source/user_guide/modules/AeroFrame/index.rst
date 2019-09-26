@@ -7,9 +7,9 @@
 AeroFrame
 =========
 
-:Categories: Aeroelasticity, Aerodynamics, CFD, Structures
+:Categories: FSI, Aeroelasticity, Aerodynamics, CFD, Structures
 
-*AeroFrame* is a modular framework for partitioned aeroelastic analyses. The framework couples separate solvers for structure and CFD. It coordinates the analysis and the exchange of loads and deformations. Currently, AeroFrame supports static aeroelastic analyses.
+*AeroFrame* is a modular framework for partitioned aeroelastic analyses. The framework couples separate solvers for structure and CFD. It coordinates the analysis and the exchange of loads and deformations. Currently, AeroFrame supports *static* aeroelastic analyses.
 
 .. figure:: main.png
     :width: 500 px
@@ -17,7 +17,7 @@ AeroFrame
     :target: https://aeroframe.readthedocs.io/
     :alt: AeroFrame example
 
-    Wing deformations in a pull-up maneuver. Aerodynamics computed with the vortex-lattice method (VLM) and the structural repsonse with a beam FEM model (image from [Dett19]_).
+    Wing deformations in a pull-up maneuver. In the shown case, aerodynamics were computed with the vortex-lattice method (VLM) and the structural repsonse with a beam FEM model (image from [Dett19]_).
 
 Installation
 ------------
@@ -31,22 +31,30 @@ The AeroFrame library is installed *automatically* as an external dependency of 
 Analyses
 --------
 
-TODO
+AeroFrame currently supports *static* aeroelastic analyses. Quasi-static wing deformations in quasi-steady flight manoeuvres can be computed. Such flight-states may be present during *steady climbs* and *descents*, *pull-up manoeuvres* or *steady turns*. AeroFrame has also been used to analyse static stability problems, namely *divergence* and *control reversal*. More details can be found in [Dett19]_ and in the AeroFrame documentation.
 
 Output
 ------
 
-TODO
+Not yet defined.
 
 Required CPACS input and settings
 ---------------------------------
 
-TODO
+Not yet defined.
 
 Limitations
 -----------
 
-TODO
+.. warning::
+
+    AeroFrame couples a CFD and a structure solver. However, the CFD model and the structure model have to be provided. Methods for automatic sizing of structure models based on beam FEM models are in planning.
+
+.. warning::
+
+    AeroFrame does currently only exchange data for *static* aeroelastic analyses. Extenstions for *dynamic* analyses which requires handling of *time*-related data are in planning.
+
+Contributions to the AeroFrame framework are highly welcomed.
 
 More information
 ----------------

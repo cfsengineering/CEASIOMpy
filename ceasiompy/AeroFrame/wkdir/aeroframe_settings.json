@@ -6,7 +6,7 @@
         }
     },
     "cfd_model": {
-        "wrapper": "ceasiompy.AeroFrame.wrappers.su2_wrapper",
+        "wrapper": "ceasiompy.AeroFrame.wrappers.cfd.su2",
         "exec_settings": {
         }
     },

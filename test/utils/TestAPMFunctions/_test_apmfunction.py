@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2019-08-27
-| Last modifiction: 2019-08-29
+| Last modifiction: 2019-09-27
 
 TODO:
 
@@ -47,9 +47,8 @@ log = get_logger(__file__.split('.')[0])
 
 # Default CPACS file to test
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CPACS_IN_PATH = MODULE_DIR + '/ToolInput/simpletest_cpacs.xml'
-CPACS_OUT_PATH = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
-
+CPACS_IN_PATH = os.path.join(MODULE_DIR,'ToolInput','simpletest_cpacs.xml')
+CPACS_OUT_PATH = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
 
 #==============================================================================
 #   CLASSES

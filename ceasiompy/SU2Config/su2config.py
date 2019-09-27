@@ -332,9 +332,9 @@ if __name__ == '__main__':
 
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
-    cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
-    cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
-    su2_mesh_path = MODULE_DIR + '/ToolInput/ToolInput.su2'
+    cpacs_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.xml')
+    cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
+    su2_mesh_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.su2')
 
     check_cpacs_input_requirements(cpacs_path)
 

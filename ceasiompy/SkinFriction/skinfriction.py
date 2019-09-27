@@ -281,8 +281,8 @@ if __name__ == '__main__':
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
-    cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
+    cpacs_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.xml')
+    cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
 
     check_cpacs_input_requirements(cpacs_path)
 

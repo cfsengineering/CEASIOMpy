@@ -9,21 +9,14 @@ AeroFrame wrapper for SU2
 
 from collections import defaultdict
 from os.path import join
+import os
+from pathlib import Path
 
 import numpy as np
 from aeroframe.templates.wrappers import AeroWrapper
-from aeroframe.fileio.serialise import dump_json_def_fields
+from aeroframe.interpol.translate import get_deformed_mesh
 
 from ceasiompy.SU2Run.su2run import run_SU2_fsi
-
-# config_path = MODULE_DIR + '/ToolInput/ToolInput.cfg'
-# calculation_dir = os.getcwd() + '/temp'
-# input_disp_path = MODULE_DIR + '/ToolInput/disp.dat'
-#
-# shutil.copy(input_disp_path,calculation_dir+'/disp.dat')
-#
-# run_SU2_fsi(config_path, calculation_dir)
-
 
 
 class Wrapper(AeroWrapper):
@@ -31,13 +24,90 @@ class Wrapper(AeroWrapper):
     def __init__(self, root_path, shared, settings):
         super().__init__(root_path, shared, settings)
 
-        # SU2 files
-        self.own_files = {}
-        # self.own_files['f_loads'] = join(self.root_path, 'cfd/forces_FlatPlate_2.csv')
-        self.own_files['f_loads'] = join(self.root_path, 'cfd/force.csv')
+        # SU2 specific files
+        self.paths = {}
+        self.paths['d_calc'] = join(self.root_path, '..', 'temp')
+        self.paths['f_config'] = join(self.paths['d_calc'], 'ToolInput.cfg')
+        self.paths['f_loads'] = join(self.paths['d_calc'], 'force.csv')
+        self.paths['f_mesh'] = join(self.paths['d_calc'], 'ToolInput.su2')
+        self.paths['f_disp'] = join(self.paths['d_calc'], 'disp.dat')
 
-        # TODO:
-        # - Inititalise attribute for the undeformed CFD
+        # Make the working directory if it does not exist
+        Path(self.paths['d_calc']).mkdir(parents=True, exist_ok=True)
+
+        self.first_iteration = True
+        self.undeformed_mesh = None
+
+    def _get_su2_load_array(self):
+        """Return the load files as a array"""
+
+        su2_load_array = np.genfromtxt(
+            self.paths['f_loads'],
+            delimiter=',',
+            dtype=None,
+            skip_header=1,
+            encoding='latin1'
+        )
+
+        return su2_load_array
+
+    def _get_load_fields(self, use_undeformed_POA=True):
+        """
+        Return AeroFrame load fields from SU2 results
+
+        Returns:
+            :load_fields: (dict) AeroFrame load fields
+            :use_undeformed_POA: (bool) If True, *undeformed* points of attack
+            will be used
+        """
+
+        su2_load_array = self._get_su2_load_array()
+
+        load_fields = defaultdict(list)
+        for row in su2_load_array:
+            row = tuple(row)
+            xyz_fxyz = np.concatenate((row[1:7], [0, 0, 0]))
+            load_fields[str(row[-1])].append(xyz_fxyz)
+
+        for component_uid, value in load_fields.items():
+            value = np.array(value, dtype=float)
+
+            # Replace the deformed POA
+            if not self.first_iteration and use_undeformed_POA:
+                value[:, 0:3] = self.undeformed_mesh[component_uid]
+
+            load_fields[component_uid] = value
+
+        return load_fields
+
+    def _write_su2_disp_file(self):
+        """Write the SU2 displacement file"""
+
+        # Fetch the FEM deformation fields
+        def_fields = self.shared.structure.def_fields
+
+        # TODO: make work for multiple wings
+        orig_mesh = self.undeformed_mesh['Wing']
+        def_field = self.shared.structure.def_fields['Wing']
+
+        def_mesh = get_deformed_mesh(orig_mesh, def_field)
+
+        # Indices and displacements at discrete mesh points
+        num_mesh_points = orig_mesh.shape[0]
+        idx = np.arange(start=0, stop=num_mesh_points, step=1).reshape((num_mesh_points, 1))
+        u_xyz = def_mesh - orig_mesh
+
+        # Write the displacement file
+        header = f'{num_mesh_points}\t2\t1\t0'
+        output_data = np.block([idx, orig_mesh+u_xyz])
+        fmt = ['%d'] + ['%.10e' for _ in range(3)]
+        np.savetxt(
+            self.paths['f_disp'],
+            output_data,
+            fmt=fmt,
+            delimiter='\t',
+            header=header
+        )
 
     def run_analysis(self, turn_off_deform=False):
         """
@@ -47,58 +117,33 @@ class Wrapper(AeroWrapper):
             :turn_off_deform: Flag which can be used to turn off all deformations
         """
 
+        # Hint: If there is no displacement file, no deformation will be
+        # taken into account
         if turn_off_deform:
-            ...
+            if os.path.exists(self.paths['f_disp']):
+                os.remove(self.paths['f_disp'])
         else:
-            ...
+            self._write_su2_disp_file()
 
         # ----- Run the SU2 analysis -----
-        ...
-        # =====
-        if self.shared.structure.def_fields is not None:
-            dump_json_def_fields("deformation_fields.json", self.shared.structure.def_fields)
-        # =====
+        run_SU2_fsi(
+            config_path=self.paths['f_config'],
+            calculation_dir=self.paths['d_calc'],
+        )
+
+        # Get the undeformed mesh in the first
+        if self.first_iteration:
+            load_fields = self._get_load_fields()
+            self.undeformed_mesh = {}
+            for component_uid, value in load_fields.items():
+                self.undeformed_mesh[component_uid] = value[:, 0:3]
 
         # ----- Share load data -----
-        load_fields = self._get_load_fields()
-        self.shared.cfd.load_fields = load_fields
+        self.shared.cfd.load_fields = self._get_load_fields()
+
+        self.first_iteration = False
 
     def clean(self):
-        """
-        Clean method
-        """
+        """Clean method"""
 
-        ...
-
-    def _get_load_fields(self):
-        """
-        Return AeroFrame load fields from SU2 results
-
-        Returns:
-            :load_fields: (dict) AeroFrame load fields
-        """
-
-        load_fields = _get_load_fields(self.own_files['f_loads'])
-        return load_fields
-
-
-def _get_load_fields(load_file):
-    """
-    Return AeroFrame load fields from SU2 results
-
-    Returns:
-        :load_fields: (dict) AeroFrame load fields
-    """
-
-    array = np.genfromtxt(load_file, delimiter=',', dtype=None, skip_header=1, encoding='latin1')
-
-    load_fields = defaultdict(list)
-    for row in array:
-        row = tuple(row)
-        xyz_fxyz = np.concatenate((row[1:7], [0, 0, 0]))
-        load_fields[str(row[-1])].append(xyz_fxyz)
-
-    for key, value in load_fields.items():
-        load_fields[key] = np.array(value, dtype=float)
-
-    return load_fields
+        pass

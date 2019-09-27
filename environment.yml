@@ -26,6 +26,7 @@ dependencies:
   - scikit-learn>=0.21.3
   - pandas>=0.25.0
   - vtk>=8.2.0
+  - xmltodict>=0.12.0
 
   # Testing
   - flake8
@@ -41,12 +42,24 @@ dependencies:
 
   - pip:
     - sphinx-rtd-theme==0.4.3
-    # xmltodict
-    # - See https://pypi.org/project/xmltodict/
-    # - Used by the PyTornado module
-    - xmltodict  # Exist in Conda!!!
     - aeroframe  # See: https://github.com/airinnova/aeroframe
+    - framat  # See: https://github.com/airinnova/framat
 
 # Other packages
+# ==============
 #
-# - pytornado>=0.4.2  # PyTornado (automated installation from PyPi or Conda is not yet available)
+# PyTornado (automated installation from PyPi or Conda is not yet available)
+# https://github.com/airinnova/pytornado
+#   - pytornado>=0.5.0
+#
+# ------------------------------
+#
+# SU2
+# https://github.com/su2code/SU2
+#
+# ------------------------------
+#
+# RCE
+# https://rcenvironment.de/
+#
+# ------------------------------

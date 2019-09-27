@@ -48,14 +48,11 @@
     * Calculate and save damping derivatives
     * Calculate and save Controls surface deflections
     * Where and when update 'reference/area' and 'length'
-    * When shoud we update/check reference value (area/length)
+    * When should we update/check reference value (area/length)
 
 ## Module SettingsGUI
-* GUI to create/edit/delete aeroMap from CPACS file
-
-## PyTornado module
-    * Airfoil
-    * Aeroperformance map
+    * GUI to create/edit/delete aeroMap from CPACS file
+    * Find a way to detect active modules
 
 ## Weight and Balance modules
     * Check input/output, try to simplify
@@ -63,4 +60,8 @@
     * Add __specs__ file
 
 ## Platform compatibility
-    * find a solution for '/' in all path  
+    * find a solution for '/' in all path  --> os.path.join()
+    * Try to install on different platform
+
+## Tests
+    * Create test function for every module

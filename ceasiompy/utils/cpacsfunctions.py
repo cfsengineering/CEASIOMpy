@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-10-02
-| Last modifiction: 2019-09-05
+| Last modifiction: 2019-09-27
 
 TODO:
 
@@ -506,6 +506,39 @@ def get_string_vector(tixi, xpath):
     return string_vector
 
 
+def get_path(tixi, xpath):
+    """ Get a path with your os system format
+
+    Function 'get_path' will get a get the path in the CPACS file and retrurn
+    a path with the format corresponding to your os ('/' for Linux and MacOS
+    and '\' for Windows). All paths to store in the CPACS file could be saved as
+    normal strings as long as this function is used to get them back.
+
+    Args:
+        tixi (handle): Tixi handle
+        xpath (str): XPath of the path to get
+
+    Returns:
+        correct_path
+
+    """
+
+    path_str = get_value(tixi,xpath)
+
+    if ('/' in path_str and '\\' in path_str):
+        raise ValueError('Request path format is unrecognized!')
+    elif '/' in path_str:
+        path_list = path_str.split('/')
+    elif '\\' in path_str:
+        path_list = path_str.split('\\')
+    else:
+        raise ValueError('No path has been recognized!')
+
+    correct_path = os.path.join('',*path_list)
+
+    return correct_path
+
+
 def aircraft_name(cpacs_path):
     """ The function gat the name of the aircraft from the cpacs file or add a
         default one if non-existant.
@@ -544,4 +577,4 @@ if __name__ == '__main__':
 #                                            get_value, get_value_or_default,    \
 #                                            add_float_vector, get_float_vector, \
 #                                            add_string_vector,get_string_vector,\
-#                                            aircraft_name
+#                                            get_path, aircraft_name

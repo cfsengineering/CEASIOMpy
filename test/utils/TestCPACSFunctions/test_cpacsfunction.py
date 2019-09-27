@@ -9,7 +9,12 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-10-02
-| Last modifiction: 2019-08-27
+| Last modifiction: 2019-09-27
+
+TODO:
+
+    * test_get_path function should be tested on a Windows machine
+
 """
 
 #==============================================================================
@@ -31,14 +36,15 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
                                      add_uid, get_value, get_value_or_default, \
                                      create_branch, copy_branch, aircraft_name,\
                                      add_float_vector, get_float_vector,       \
-                                     add_string_vector, get_string_vector
+                                     add_string_vector, get_string_vector, get_path
 
 log = get_logger(__file__.split('.')[0])
 
 # Default CPACS file to test
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CPACS_IN_PATH = MODULE_DIR + '/ToolInput/simpletest_cpacs.xml'
-CPACS_OUT_PATH = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
+CPACS_IN_PATH = os.path.join(MODULE_DIR,'ToolInput','simpletest_cpacs.xml')
+CPACS_OUT_PATH = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
+
 
 
 #==============================================================================
@@ -101,7 +107,7 @@ def test_close_tixi():
     tixi_handle = open_tixi(CPACS_IN_PATH)
 
     # Remove /ToolOutput directory
-    tooloutput_dir = MODULE_DIR + '/ToolOutput'
+    tooloutput_dir = os.path.join(MODULE_DIR,'ToolOutput')
     shutil.rmtree(tooloutput_dir,ignore_errors=True)
     log.info(str(tooloutput_dir) + ' has been remove for a test.')
 
@@ -272,7 +278,7 @@ def test_get_value_or_default():
 
 
 def test_add_float_vector():
-    """ Test the function 'test_add_float_vector'"""
+    """ Test the function 'add_float_vector'"""
 
     tixi = open_tixi(CPACS_IN_PATH)
     xpath = '/cpacs/toolspecific/CEASIOMpy/testVector/'
@@ -293,7 +299,7 @@ def test_add_float_vector():
 
 
 def test_get_float_vector():
-    """ Test the function 'test_get_float_vector'"""
+    """ Test the function 'get_float_vector'"""
 
     tixi = open_tixi(CPACS_IN_PATH)
     xpath = '/cpacs/toolspecific/CEASIOMpy/testVector'
@@ -319,7 +325,7 @@ def test_get_float_vector():
 
 
 def test_add_sting_vector():
-    """ Test the function 'test_add_sting_vector'"""
+    """ Test the function 'add_sting_vector'"""
 
     tixi = open_tixi(CPACS_IN_PATH)
     xpath = '/cpacs/toolspecific/CEASIOMpy/testVector/'
@@ -344,7 +350,7 @@ def test_add_sting_vector():
 
 
 def test_get_string_vector():
-    """ Test the function 'test_get_string_vector'"""
+    """ Test the function 'get_string_vector'"""
 
     tixi = open_tixi(CPACS_IN_PATH)
     xpath = '/cpacs/toolspecific/CEASIOMpy/testVector'
@@ -367,6 +373,31 @@ def test_get_string_vector():
     no_value_xpath = '/cpacs/toolspecific/CEASIOMpy'
     with pytest.raises(ValueError):
         vector = get_string_vector(tixi,no_value_xpath)
+
+
+def test_get_path():
+    """ Test the function 'get_path'"""
+
+    tixi = open_tixi(CPACS_IN_PATH)
+
+    linux_xpath = '/cpacs/toolspecific/testUtils/testCPACSFunctions/linuxPath'
+    windows_xpath = '/cpacs/toolspecific/testUtils/testCPACSFunctions/windowsPath'
+
+    linux_path = get_path(tixi,linux_xpath)
+    windows_path = get_path(tixi,windows_xpath)
+
+    path_to_test = os.path.join('usr','test1','test2','mypath')
+
+    assert path_to_test == linux_path
+    assert path_to_test == windows_path
+
+    with pytest.raises(ValueError):
+        error_xpath1 = '/cpacs/toolspecific/testUtils/testCPACSFunctions/errorPath1'
+        path = get_path(tixi,error_xpath1)
+
+    with pytest.raises(ValueError):
+        error_xpath2 = '/cpacs/toolspecific/testUtils/testCPACSFunctions/errorPath2'
+        path = get_path(tixi,error_xpath2)
 
 
 def test_aircraft_name():

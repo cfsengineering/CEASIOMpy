@@ -501,12 +501,13 @@
     </profiles>
   </vehicles>
   <toolspecific>
-    <cFD>
-      <farField>
-        <type>halfCube</type>
-        <referenceLength>10.0</referenceLength>
-        <multiplier>1.</multiplier>
-      </farField>
-    </cFD>
+    <testUtils>
+      <testCPACSFunctions>
+        <linuxPath>usr/test1/test2/mypath</linuxPath>
+        <windowsPath>usr\test1\test2\mypath</windowsPath>
+        <errorPath1>usr/test1\test2/mypath</errorPath1>
+        <errorPath2>mypath</errorPath2>
+      </testCPACSFunctions>
+    </testUtils>
   </toolspecific>
 </cpacs>

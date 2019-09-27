@@ -519,7 +519,7 @@ def get_path(tixi, xpath):
         xpath (str): XPath of the path to get
 
     Returns:
-        correct_path
+        correct_path (str): Path with the correct separators
 
     """
 

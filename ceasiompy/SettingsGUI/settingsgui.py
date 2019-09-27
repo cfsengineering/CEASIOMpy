@@ -47,13 +47,9 @@ from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
 
 import ceasiompy.utils.moduleinterfaces as mif
 
-
-
-
 log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 
 
 #==============================================================================
@@ -117,7 +113,6 @@ class AeroMapTab:
 
         aeromap_uid_list = get_aeromap_uid_list(tixi)
 
-
         self.selected_list = []
         self.list = aeromap_uid_list
 
@@ -148,7 +143,6 @@ class AeroMapTab:
             print(self.selected_list)
         except IndexError:
             self.selected_list = None
-
 
     def _cancel(self, event=None):
         self.listBox.selection_clear(0, tk.END)
@@ -326,7 +320,7 @@ class CEASIOMpyGUI:
 
         # GUI =============
         self.master = master
-        self.master.title("CESAIOMpy Settings GUI")
+        self.master.title("CEASIOMpy Settings GUI")
         self.master.geometry("500x750+500+200")
 
         self.tabs = ttk.Notebook(self.master)
@@ -345,9 +339,8 @@ class CEASIOMpyGUI:
         # Generate AeroMaps tab
         # aeromap_tap = AeroMapTab(self.tabs, self.tixi)
 
-
         # Generate Auto Tab =============
-        # Get a list of ALL CESAIOMpy submodules
+        # Get a list of ALL CEASIOMpy submodules
         self.tab_list = []
         for module_name in mif.get_submodule_list():
             tab = AutoTab(self.tabs, self.tixi, module_name)

@@ -774,8 +774,8 @@ if __name__ == '__main__':
 
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
-    cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
-    sumo_output_path = MODULE_DIR + '/ToolOutput/ToolOutput.smx'
+    cpacs_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.xml')
+    sumo_output_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.smx')
 
     convert_cpacs_to_sumo(cpacs_path, sumo_output_path)
 

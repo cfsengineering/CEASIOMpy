@@ -16,6 +16,8 @@ Writing a new module
 
 * See code guidelines
 
+* Writing ``__specs__.py`` file
+
 .. toctree::
    :maxdepth: 1
    :caption: Guidelines

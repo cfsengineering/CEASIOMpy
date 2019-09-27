@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2019-07-24
-| Last modifiction: 2019-08-07
+| Last modifiction: 2019-09-27
 """
 
 #==============================================================================
@@ -55,8 +55,8 @@ def test_get_cl():
     """Test function 'get_cl' """
 
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    CPACS_IN_PATH = MODULE_DIR + '/ToolInput/D150_AGILE_Hangar_v3.xml'
-    CPACS_OUT_PATH = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
+    CPACS_IN_PATH = os.path.join(MODULE_DIR,'ToolInput','D150_AGILE_Hangar_v3.xml')
+    CPACS_OUT_PATH = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
 
     get_cl(CPACS_IN_PATH,CPACS_OUT_PATH)
 

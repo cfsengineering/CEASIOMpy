@@ -120,8 +120,8 @@ if __name__ == '__main__':
 
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
-    smx_input_path =  MODULE_DIR + '/ToolInput/ToolInput.smx'
-    su2_ouput_path = MODULE_DIR + '/ToolOutput/ToolOutput.su2'
+    smx_input_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.smx')
+    su2_ouput_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.su2')
 
     create_SU2_mesh(smx_input_path,su2_ouput_path)
 

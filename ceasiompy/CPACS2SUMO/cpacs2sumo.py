@@ -32,7 +32,8 @@ import numpy
 import matplotlib.pyplot as plt
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi
+from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi, get_value_or_default, create_branch
+from ceasiompy.utils.ceasiompyfunctions import create_new_wkdir, get_wkdir_or_create_new
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 
 log = get_logger(__file__.split('.')[0])
@@ -133,7 +134,7 @@ class Transformation:
 #   FUNCTIONS
 #==============================================================================
 
-def convert_cpacs_to_sumo(cpacs_path, sumo_output_path):
+def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
     """ Function to convert a CPACS file geometry into a SUMO file geometry.
 
     Function 'convert_cpacs_to_sumo' open an input cpacs file with TIXI handle
@@ -762,7 +763,18 @@ def convert_cpacs_to_sumo(cpacs_path, sumo_output_path):
         sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'side', 'north')
 
     # Save the SMX file
-    close_tixi(sumo, sumo_output_path)
+
+    wkdir = get_wkdir_or_create_new(tixi)
+
+    sumo_file_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath'
+    sumo_dir = os.path.join(wkdir,'SUMO')
+    os.mkdir(sumo_dir)
+    sumo_file_path = os.path.join(sumo_dir,'ToolOutput.smx')
+    create_branch(tixi,sumo_file_xpath)
+    tixi.updateTextElement(sumo_file_xpath,sumo_file_path)
+
+    close_tixi(tixi, cpacs_out_path)
+    close_tixi(sumo, sumo_file_path)
 
 
 #==============================================================================
@@ -775,9 +787,9 @@ if __name__ == '__main__':
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
     cpacs_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.xml')
-    sumo_output_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.smx')
+    cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
 
-    convert_cpacs_to_sumo(cpacs_path, sumo_output_path)
+    convert_cpacs_to_sumo(cpacs_path, cpacs_out_path)
 
     # inputfile1 = '/test/CPACSfiles/AGILE_DC1.xml'
     # inputfile2 = '/test/CPACSfiles/D150_AGILE_Hangar.xml'

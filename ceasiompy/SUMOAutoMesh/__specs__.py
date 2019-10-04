@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH
+from ceasiompy.utils.moduleinterfaces import CPACSInOut, CEASIOM_XPATH
 
 # ===== RCE integration =====
 
@@ -20,19 +20,6 @@ cpacs_inout = CPACSInOut()
 include_gui = False
 
 # ----- Input -----
-
-
-cpacs_inout.add_input(
-    var_name='test',
-    var_type=str,
-    default_value='This is a test',
-    unit=None,
-    descr='This is a test of description',
-    cpacs_path='/cpacs/toolspecific/CEASIOMpy/test',
-    gui=include_gui,
-    gui_name='My test',
-    gui_group='Group Test',
-        )
 
 # ----- Output -----
 

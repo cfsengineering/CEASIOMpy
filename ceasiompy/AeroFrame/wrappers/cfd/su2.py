@@ -121,14 +121,15 @@ class Wrapper(AeroWrapper):
         # taken into account
         if turn_off_deform:
             if os.path.exists(self.paths['f_disp']):
-                os.remove(self.paths['f_disp'])
+                pass
+                # os.remove(self.paths['f_disp'])
         else:
             self._write_su2_disp_file()
 
         # ----- Run the SU2 analysis -----
         run_SU2_fsi(
             config_path=self.paths['f_config'],
-            calculation_dir=self.paths['d_calc'],
+            wkdir=self.paths['d_calc'],
         )
 
         # Get the undeformed mesh in the first

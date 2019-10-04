@@ -10,11 +10,11 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-09-24
-| Last modifiction: 2019-09-26
+| Last modifiction: 2019-10-04
 
 TODO:
 
-    * Temporary script to test FSI -> will probalby by modified and relocate
+    * Could be improved or merge with su2results ...
 
 """
 
@@ -28,15 +28,11 @@ import math
 import pandas
 import matplotlib
 
-#from orignal script
-# from __future__ import print_function
 import vtk
 import numpy as np
 from scipy.sparse import csr_matrix
-from collections import OrderedDict
 from six import iteritems
 from vtk.util.numpy_support import vtk_to_numpy, numpy_to_vtk
-###
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
@@ -46,6 +42,8 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
 from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
+
+from ceasiompy.utils.su2functions import read_config
 
 log = get_logger(__file__.split('.')[0])
 
@@ -58,30 +56,6 @@ log = get_logger(__file__.split('.')[0])
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
-
-def read_config(config_file_path):
-    """ Function read a SU2 configuration file
-
-    Function 'read_config' return a dictionary of the data found in the SU2
-    configuration file.
-
-    Args:
-        config_file_path (str):  SU2 configuration file path
-
-    Returns:
-        data_dict (dict): Dictionary of the data from the SU2 configuration file
-
-    """
-
-    data_dict = OrderedDict()
-    with open(config_file_path, 'r') as f:
-        for line in f:
-            if line.startswith('%') or '=' not in line:
-                continue
-            key, value = line.split('=')
-            data_dict[key.strip()] = value.strip()
-    return data_dict
-
 
 def compute_point_normals(coord, cells):
     """ Function the normal vectors
@@ -260,25 +234,14 @@ def get_mesh_markers_ids(su2_mesh_path):
     marker_dict = {}
     ids_list = []
     start_line_nb = 1e14
-    # coord_dict = {}
-    # coord_start = 1e12
-    # coord_end = 0
 
     with open(su2_mesh_path) as f:
         for line_nb, line in enumerate(f.readlines()):
 
-            # following lines could be used in a Separate module with su2 functions... TODO
-            # if 'NPOIN=' in line:
-            #     coord_count = int(line.split('NPOIN=')[1])
-            #     coord_start = line_nb + 1
-            #     coord_end = line_nb + coord_count
-            #
-            # if (line_nb >= coord_start and line_nb<= coord_end):
-            #     line_split = line.split('\n')[0].split(' ')
-            #     coord_id = line_split[3]
-            #     coord_dict[coord_id] = line_split[0:3]
+            if 'Farfield' in line:
+                start_line_nb = 1e14
 
-            if 'MARKER_TAG=Farfield' in line:
+            if 'NPERIODIC' in line:
                 start_line_nb = 1e14
 
             if ('MARKER_TAG' in line and 'Farfield' not in line):
@@ -288,8 +251,7 @@ def get_mesh_markers_ids(su2_mesh_path):
                 log.info('Mesh marker ' + new_marker + ' start at line: ' + str(start_line_nb))
 
             if line_nb > start_line_nb+1 :
-                line_ids = line.split('\n')[0].split(' ')
-
+                line_ids = line.split('\n')[0].split('\t')
                 marker_dict[new_marker].append(int(line_ids[1]))
                 marker_dict[new_marker].append(int(line_ids[2]))
                 marker_dict[new_marker].append(int(line_ids[3]))
@@ -318,7 +280,7 @@ def extract_loads(results_files_dir):
     """
 
     # Path definitons
-    config_file_path = results_files_dir + '/ConfigDEF.cfg'
+    config_file_path = results_files_dir + '/ConfigCFD.cfg'
     surface_flow_file_path = results_files_dir + '/surface_flow.vtk'
     surface_flow_force_file_path = results_files_dir + '/surface_flow_forces.vtk'
     force_file_path = results_files_dir + '/force.csv'
@@ -328,13 +290,12 @@ def extract_loads(results_files_dir):
     write_updated_mesh(updated_mesh, surface_flow_force_file_path)
 
 
-
 #==============================================================================
 #    MAIN
 #==============================================================================
 
-
 if __name__ == '__main__':
 
     log.info('Nothing to execute!')
-    # TODO adapt to be use as stand alone
+
+    # TODO: adapt to be use as stand alone

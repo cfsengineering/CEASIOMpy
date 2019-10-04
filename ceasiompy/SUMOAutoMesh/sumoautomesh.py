@@ -13,6 +13,7 @@ Python version: >=3.6
 
 TODO:
 
+    * use only CPACS file as Input and Output
     * Add options for SUMO
     * Check and write the script to be compatible with other OS
       (only tested with Centos 7 for now)

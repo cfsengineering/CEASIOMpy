@@ -19,6 +19,7 @@ dependencies:
 
   # Required
   - numpy>=1.15
+  - cpacscreator>=0.1
   - tigl3>=3.0.0rc
   - tixi3>=3.0.3
   - matplotlib==3.0.2

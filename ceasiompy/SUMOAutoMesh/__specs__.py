@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH
+from ceasiompy.utils.moduleinterfaces import CPACSInOut, CEASIOM_XPATH
 
 # ===== RCE integration =====
 
@@ -21,7 +21,6 @@ include_gui = False
 
 # ----- Input -----
 
-
 cpacs_inout.add_input(
     var_name='test',
     var_type=str,
@@ -32,13 +31,13 @@ cpacs_inout.add_input(
     gui=include_gui,
     gui_name='My test',
     gui_group='Group Test',
-        )
+)
 
 # ----- Output -----
 
 cpacs_inout.add_input(
     var_name='su2_mesh_path',
-    var_type=str, # TODO chage by "path" and add "path type" it SettingsGUI
+    var_type=str,  # TODO chage by "path" and add "path type" it SettingsGUI
     default_value='-',
     unit='-',
     descr='Absolute path of the SU2 mesh',

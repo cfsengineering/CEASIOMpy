@@ -34,6 +34,8 @@ from ceasiompy.SU2Run.func.su2results import get_wetted_area, get_efficiency
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
+from ceasiompy.utils.ceasiompyfunctions import create_new_wkdir, get_wkdir_or_create_new
+
 from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi,              \
                                            get_value, get_value_or_default,    \
                                            create_branch
@@ -44,6 +46,7 @@ from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
                                          save_parameters, save_coefficients
 
 from ceasiompy.utils.su2functions import read_config, write_config, get_mesh_marker
+
 
 from ceasiompy.utils.standardatmosphere import get_atmosphere
 
@@ -63,27 +66,6 @@ SOFT_CHECK_LIST = ['SU2_DEF','SU2_CFD','SU2_SOL','mpirun']
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
-
-def create_new_wkdir():
-    """ Function to create a woking directory
-
-    Function 'create_new_wkdir' creates a new working directory in the /tmp file
-    this directory is called 'SU2Run_data_hour'
-
-    Returns:
-        wkdir (str): working directory path
-
-    """
-
-    dir_name = 'SU2Run_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    tmp_dir = os.path.join(MODULE_DIR,'tmp')
-    if not os.path.exists(tmp_dir):
-        os.mkdir(tmp_dir)
-
-    wkdir = os.path.join(tmp_dir,dir_name)
-    os.mkdir(wkdir)
-
-    return wkdir
 
 
 # Maybe make that a general function
@@ -216,10 +198,9 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
     # Get value from CPACS
     tixi = open_tixi(cpacs_path)
 
-    su2_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
     # Get SU2 mesh path
-    su2_mesh_xpath = su2_xpath + '/meshPath'
+    su2_mesh_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh'
     su2_mesh_path = get_value(tixi,su2_mesh_xpath)
 
     # Get reference values
@@ -228,7 +209,7 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
     ref_area = get_value(tixi,ref_xpath + '/area')
 
     # Get SU2 settings
-    settings_xpath = su2_xpath + '/settings'
+    settings_xpath = SU2_XPATH + '/settings'
     max_iter_xpath = settings_xpath + '/maxIter'
     max_iter = get_value_or_default(tixi, max_iter_xpath,200)
     cfl_nb_xpath = settings_xpath + '/cflNumber'
@@ -237,20 +218,20 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
     mg_level = get_value_or_default(tixi, mg_level_xpath,3)
 
     # Mesh Marker
-    bc_wall_xpath = su2_xpath + '/boundaryConditions/wall'
+    bc_wall_xpath = SU2_XPATH + '/boundaryConditions/wall'
     bc_wall_list = get_mesh_marker(su2_mesh_path)
     create_branch(tixi, bc_wall_xpath)
     bc_wall_str = ';'.join(bc_wall_list)
     tixi.updateTextElement(bc_wall_xpath,bc_wall_str)
 
     # Fixed CL parameters
-    fixed_cl_xpath = su2_xpath + '/fixedCL'
+    fixed_cl_xpath = SU2_XPATH + '/fixedCL'
     fixed_cl = get_value_or_default(tixi, fixed_cl_xpath,'NO')
-    target_cl_xpath = su2_xpath + '/targetCL'
+    target_cl_xpath = SU2_XPATH + '/targetCL'
     target_cl = get_value_or_default(tixi, target_cl_xpath,1.0)
 
     if fixed_cl == 'NO':
-        active_aeroMap_xpath = su2_xpath + '/aeroMapUID'
+        active_aeroMap_xpath = SU2_XPATH + '/aeroMapUID'
         aeromap_uid = get_value(tixi,active_aeroMap_xpath)
 
         # Get parameters of the aeroMap (alt,ma,aoa,aos)
@@ -291,12 +272,12 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
         Parameters.aoa = aoa_list
         Parameters.aos = aos_list
         save_parameters(tixi,aeromap_uid,Parameters)
-        tixi.updateTextElement(su2_xpath+ '/aeroMapUID',aeromap_uid)
+        tixi.updateTextElement(SU2_XPATH+ '/aeroMapUID',aeromap_uid)
 
 
     # Save the location of the config files in the CPACS file
     config_path = MODULE_DIR + '/ToolOutput'
-    config_path_xpath = su2_xpath + '/configPath'
+    config_path_xpath = SU2_XPATH + '/configPath'
     create_branch(tixi,config_path_xpath)
     tixi.updateTextElement(config_path_xpath,config_path)
 
@@ -417,12 +398,14 @@ def run_SU2_multi(wkdir):
     if not os.path.exists(wkdir):
         raise OSError('The working directory : ' + wkdir + 'does not exit!')
 
-    config_dir_list = os.listdir(wkdir)
+    dir_list = os.listdir(wkdir)
 
-    if config_dir_list == []:
+    case_dir_list = [dir for dir in dir_list if 'Case' in dir]
+
+    if case_dir_list == []:
         raise OSError('No folder has been found in the working directory: ' + wkdir)
 
-    for dir in config_dir_list:
+    for dir in case_dir_list:
         config_dir = os.path.join(wkdir,dir)
         os.chdir(config_dir)
 
@@ -547,8 +530,12 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
     Coef = get_aeromap(tixi, aeromap_uid)
 
     os.chdir(wkdir)
-    config_dir_list = os.listdir(wkdir)
-    for config_dir in config_dir_list:
+    dir_list = os.listdir(wkdir)
+
+    case_dir_list = [dir for dir in dir_list if 'Case' in dir]
+
+
+    for config_dir in case_dir_list:
         if os.path.isdir(config_dir):
             os.chdir(config_dir)
             force_file_name = 'forces_breakdown.dat'
@@ -582,9 +569,9 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
 
     # Extract loads
     # TODO check_extract_loads (ceasiompy/su2/results/loads)
-    os.chdir(wkdir)
-    config_dir_list = os.listdir(wkdir)
-    for config_dir in config_dir_list:
+    # os.chdir(wkdir)
+    # config_dir_list = os.listdir(wkdir)
+    for config_dir in case_dir_list:
         if os.path.isdir(config_dir):
             os.chdir(config_dir)
             results_files_dir = os.path.join(wkdir,config_dir)
@@ -613,7 +600,7 @@ if __name__ == '__main__':
 
     if len(sys.argv)>1:
         if sys.argv[1] == '-c':
-            wkdir = create_new_wkdir()
+            wkdir = get_wkdir_or_create_new(tixi)
             generate_su2_config(cpacs_path,cpacs_out_path,wkdir)
         elif sys.argv[1] == '-s':
             wkdir = os.path.join(MODULE_DIR,sys.argv[2])
@@ -632,7 +619,7 @@ if __name__ == '__main__':
         else:
             print('This arugment is not a valid option!')
     else:
-        wkdir = create_new_wkdir()
+        wkdir = get_wkdir_or_create_new(tixi)
         generate_su2_config(cpacs_path,cpacs_out_path,wkdir)
         run_SU2_multi(wkdir)
         get_su2_results(cpacs_path,cpacs_out_path,wkdir)

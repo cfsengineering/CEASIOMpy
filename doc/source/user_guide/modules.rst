@@ -28,7 +28,6 @@ Modules
 
    modules/CLCalculator/index
    modules/PyTornado/index
-   modules/SU2Config/index
    modules/SU2Run/index
    modules/SkinFriction/index
    modules/PlotAeroCoefficients/index

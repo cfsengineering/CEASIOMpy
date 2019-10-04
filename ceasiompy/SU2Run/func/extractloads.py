@@ -251,7 +251,9 @@ def get_mesh_markers_ids(su2_mesh_path):
                 log.info('Mesh marker ' + new_marker + ' start at line: ' + str(start_line_nb))
 
             if line_nb > start_line_nb+1 :
-                line_ids = line.split('\n')[0].split('\t')
+                # print(line)
+                line_ids = line.split('\n')[0].split()
+                # print(line_ids)
                 marker_dict[new_marker].append(int(line_ids[1]))
                 marker_dict[new_marker].append(int(line_ids[2]))
                 marker_dict[new_marker].append(int(line_ids[3]))

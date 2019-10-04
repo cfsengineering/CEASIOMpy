@@ -336,6 +336,7 @@ class CEASIOMpyGUI:
             description = 'AeroMap create by SettingGUI'
             create_empty_aeromap(self.tixi, aeromap_uid, description)
 
+        # TODO
         # Generate AeroMaps tab
         # aeromap_tap = AeroMapTab(self.tabs, self.tixi)
 

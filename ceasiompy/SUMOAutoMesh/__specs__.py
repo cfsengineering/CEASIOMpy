@@ -36,11 +36,14 @@ cpacs_inout.add_input(
 
 # ----- Output -----
 
-cpacs_inout.add_output(
-    var_name='output',
-    var_type=str,
-    default_value=None,
-    unit='1',
-    descr='Description of the output',
-    cpacs_path='/...',
+cpacs_inout.add_input(
+    var_name='su2_mesh_path',
+    var_type=str, # TODO chage by "path" and add "path type" it SettingsGUI
+    default_value='-',
+    unit='-',
+    descr='Absolute path of the SU2 mesh',
+    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/meshPath',
+    gui=True,
+    gui_name='SU2 Mesh',
+    gui_group='Inputs',
 )

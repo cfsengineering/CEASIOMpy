@@ -11,6 +11,7 @@
  # Ignore temp folder
 /temp
 /tmp
+/ceasiompy/WKDIR/
 
 # Ignore ModuleTest
 /ceasiompy/ModuleTest/

@@ -107,6 +107,7 @@ class AeroMapTab:
 
         self.tabs = tabs
         self.tixi = tixi
+        row_pos = 0
 
         self.aerotab = tk.Frame(self.tabs, borderwidth=1)
         tabs.add(self.aerotab, text='aeroMaps Edition')
@@ -116,25 +117,38 @@ class AeroMapTab:
         self.selected_list = []
         self.list = aeromap_uid_list
 
-        self.aerotab.grab_set()
-        # self.aerotab.bind("<Return>", self._select)
-        # self.aerotab.bind("<Escape>", self._cancel)
-        tk.Label(self.aerotab, text='Existing AeroMaps').pack(padx=5, pady=5)
+        tk.Label(self.aerotab, text='Existing AeroMaps').grid(column=0, row=row_pos)
+        row_pos += 1
 
         self.listBox = tk.Listbox(self.aerotab, selectmode=tk.SINGLE)
-        self.listBox.pack(fill=tk.BOTH)
+        item_count = len(self.list)
+        self.listBox.grid(column=0, row=row_pos, columnspan=3,rowspan=item_count, sticky= tk.W, padx=5, pady=5)
         self.list.sort()
         for item in self.list:
             self.listBox.insert(tk.END, item)
+        row_pos += (item_count + 1)
+        print(row_pos)
 
-        buttonFrame = tk.Frame(self.aerotab)
-        buttonFrame.pack(side=tk.BOTTOM)
+        # buttonFrame = tk.Frame(self.aerotab)
+        # buttonFrame.grid(column=0, row=row_pos)
+        # row_pos += 1
 
-        chooseButton = tk.Button(buttonFrame, text='Select', command=self._select)
-        chooseButton.pack()
 
-        cancelButton = tk.Button(buttonFrame, text='Cancel', command=self._cancel)
-        cancelButton.pack(side=tk.RIGHT)
+        chooseButton = tk.Button(self.aerotab, text='Select', command=self._select)
+        chooseButton.grid(column=0, row=row_pos)
+        row_pos += 1
+
+        importButton = tk.Button(self.aerotab, text='Import CSV', command=self._import_csv)
+        importButton.grid(column=0, row=row_pos)
+        row_pos += 1
+
+        exportButton = tk.Button(self.aerotab, text='Export CSV', command=self._export_csv)
+        exportButton.grid(column=0, row=row_pos)
+        row_pos += 1
+
+        updateButton = tk.Button(self.aerotab, text='Update', command=self._update)
+        updateButton.grid(column=0, row=row_pos)
+        row_pos += 1
 
     def _select(self, event=None):
         try:
@@ -144,8 +158,32 @@ class AeroMapTab:
         except IndexError:
             self.selected_list = None
 
-    def _cancel(self, event=None):
+    def _import_csv(self, event=None):
         self.listBox.selection_clear(0, tk.END)
+
+        csv_path = self.filename = filedialog.askopenfilename(initialdir = MODULE_DIR, title = "Select a CSV file" )
+        new_aeromap_uid = os.path.splitext(os.path.basename(csv_path))[0]
+        aeromap_from_csv(self.tixi, new_aeromap_uid, csv_path)
+
+        self._update()
+
+    def _export_csv(self, event=None):
+        aeromap_uid_list = [self.listBox.get(i) for i in self.listBox.curselection()]
+        print(aeromap_uid_list[0])
+        csv_path = os.path.join(MODULE_DIR,'test.csv')
+        aeromap_to_csv(self.tixi, aeromap_uid_list[0], csv_path)
+
+    def _update(self, event=None):
+
+        self.list = get_aeromap_uid_list(self.tixi)
+        self.list.sort()
+
+        self.listBox.delete(0, tk.END)
+        for item in self.list:
+            self.listBox.insert(tk.END, item)
+
+    # def _modify_name(self, event = None):
+        #TODO
 
     def returnValue(self):
         self.master.wait_window()
@@ -342,7 +380,7 @@ class CEASIOMpyGUI:
         # GUI =============
         self.master = master
         self.master.title("CEASIOMpy Settings GUI")
-        self.master.geometry("500x750+500+200")
+        self.master.geometry("600x750+500+200")
 
         self.tabs = ttk.Notebook(self.master)
         self.tabs.pack(side=tk.TOP, fill='both')
@@ -359,7 +397,7 @@ class CEASIOMpyGUI:
 
         # TODO
         # Generate AeroMaps tab
-        # aeromap_tap = AeroMapTab(self.tabs, self.tixi)
+        aeromap_tap = AeroMapTab(self.tabs, self.tixi)
 
         # Generate Auto Tab =============
         # Get a list of ALL CEASIOMpy submodules

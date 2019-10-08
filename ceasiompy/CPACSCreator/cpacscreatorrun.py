@@ -15,6 +15,7 @@ TODO:
 
     * Check and write the script to be compatible with other OS
       (only tested with Centos 7 for now)
+    * Also work in wkdir
 
 """
 
@@ -26,6 +27,10 @@ import os
 import shutil
 
 from ceasiompy.utils.ceasiomlogger import get_logger
+
+from ceasiompy.utils.ceasiompyfunctions import get_wkdir_or_create_new
+
+from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi
 
 log = get_logger(__file__.split('.')[0])
 
@@ -71,29 +76,30 @@ def launch_cpacscreator(cpacs_path,cpacs_out_path):
         os.remove(tmp_file_path)
     log.info('The /tmp directory has been cleared.')
 
+
     # Copy CPACS input file (.xml) in /tmp directory
-    cpacs_tmp_input = MODULE_DIR + '/tmp/ToolInput.xml'
+    cpacs_tmp = os.path.join(MODULE_DIR,'tmp','cpacsTMP.xml')
     if os.path.isfile(cpacs_path):
-        shutil.copy(cpacs_path, cpacs_tmp_input)
+        shutil.copy(cpacs_path, cpacs_tmp)
         log.info('The input CPACS file has been copied in /tmp ')
     else:
         log.error('The ToolInput (.xml file) cannot be found!')
 
     # Run 'cpacscreator' with CPACS input
-    os.system('tiglviewer-3 ' + cpacs_tmp_input)
-
-    # # Run cpacscreator with a script to save a screenshot
-    # # Problem: TIGLViewer in not close after the script in the shell
-    # os.system('cpacscreator ' + cpacs_tmp_input + ' --script test_script.js')
+    os.system('cpacscreator ' + cpacs_tmp)
 
     # Copy CPACS temp file (.xml) from the temp directory to /ToolOutput
-    if os.path.isfile(cpacs_tmp_input):
-        shutil.copy(cpacs_tmp_input, cpacs_out_path)
-        log.info('The output CPACS file has been copied in /ToolOutput')
+    if os.path.isfile(cpacs_tmp):
+        shutil.copy(cpacs_tmp, cpacs_out_path)
+        # log.info('The output CPACS file has been copied in /ToolOutput')
     else:
         log.error('The Output CPACS file cannot be found!')
 
 
+# TODO: create a new function to export screenshots ...
+# # Run cpacscreator with a script to save a screenshot
+# # Problem: TIGLViewer in not close after the script in the shell
+# os.system('cpacscreator ' + cpacs_tmp + ' --script test_script.js')
 
 #==============================================================================
 #    MAIN

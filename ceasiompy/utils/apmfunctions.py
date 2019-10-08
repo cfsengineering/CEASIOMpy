@@ -687,6 +687,9 @@ def aeromap_to_csv(tixi, aeromap_uid, csv_path):
     # Create an AeroCoefficient object from an aeroMap UID
     AeroCoefficient = get_aeromap(tixi,aeromap_uid)
 
+    # Maybe shoud be remove
+    AeroCoefficient.complete_with_zeros()
+
     # Create a dictionary from the AeroCoefficient object
     dict = {'alt':AeroCoefficient.alt,
             'mach': AeroCoefficient.mach,

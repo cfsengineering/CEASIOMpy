@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-10-29
-| Last modifiction: 2019-08-14
+| Last modifiction: 2019-10-07
 
 TODO:
 
@@ -56,13 +56,12 @@ def launch_cpacscreator(cpacs_path,cpacs_out_path):
 
     """
 
-    #Check if CPACSCreator (named tiglviewer-3 for now) is installed
-    # check_cpacscr = os.system('which cpacscreator')  # give 0 if it works
-    tiglcreator_install_path = shutil.which("tiglviewer-3")
-    if  tiglcreator_install_path:
-        log.info('"TIGLCreator" is intall in: ' + tiglcreator_install_path)
+    #Check if CPACSCreator is installed
+    cpacscreator_install_path = shutil.which("cpacscreator")
+    if  cpacscreator_install_path:
+        log.info('"CPACSCreator" is intall at: ' + cpacscreator_install_path)
     else:
-        raise RuntimeError('"TIGLCreator" is not install on your computer')
+        raise RuntimeError('"CPACSCreator" is not install on your computer or you are not running this script from your Conda environment!')
 
     # Empty /tmp directory
     TMP_DIR = MODULE_DIR + '/tmp/'

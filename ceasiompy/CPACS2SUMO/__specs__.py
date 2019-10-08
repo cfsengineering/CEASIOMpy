@@ -19,16 +19,15 @@ cpacs_inout = CPACSInOut()
 
 # ----- Input -----
 
-cpacs_inout.add_input(
-    var_name='wkdir_path',
-    var_type=str, # TODO: replace by path type
-    default_value=None,
-    unit='-',
-    cpacs_path='/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath',
-    gui=False,
-    gui_name='Choice',
-    gui_group='My Selection'
-)
+# cpacs_inout.add_input(
+#     var_name='wkdir_path',
+#     var_type='pathtype',
+#     default_value=None,
+#     unit='1',
+#     cpacs_path='/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath',
+#     gui=True,
+#     gui_name='Workin directory',
+# )
 
 
 # ----- Output -----

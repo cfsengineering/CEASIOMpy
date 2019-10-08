@@ -16,8 +16,6 @@
 * Separate code from user working directory ???
 
 ## Module dependencies
-* File path handling
-    * Pass file paths to external files in CPACS (only pass on CPACS in between modules!)
 * Create a function to check consistency (does same variable name are stored a the same xpath, ...)
 * Create a function to generate a default /toolspecific node with all the possible XPath
     * See `check_workflow()` in `utils.moduleinterfaces`

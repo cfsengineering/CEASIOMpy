@@ -34,7 +34,7 @@ from ceasiompy.SU2Run.func.su2results import get_wetted_area, get_efficiency
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-from ceasiompy.utils.ceasiompyfunctions import create_new_wkdir, get_wkdir_or_create_new
+from ceasiompy.utils.ceasiompyfunctions import create_new_wkdir, get_wkdir_or_create_new, get_install_path
 
 from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi,              \
                                            get_value, get_value_or_default,    \
@@ -109,35 +109,36 @@ def save_timestamp(tixi, xpath):
     return tixi
 
 
-def get_install_path():
-    """Function to get installation paths of MPI and SU2
-
-    Function 'get_instal_path' check if MPI and SU2 are installed and return ....
-
-    Args:
-        soft_check_list (list): List of software to check installation path
-
-    Returns:
-        soft_dict (check): Dictionary of software with their installation path
-
-    """
-
-    soft_dict = {}
-
-    for soft in SOFT_CHECK_LIST:
-        install_path = shutil.which(soft)
-
-        if  install_path:
-            log.info(soft +' is intalled at: ' + install_path)
-            soft_dict[soft] = install_path
-        elif 'mpi' in soft:
-            log.warning(soft + ' is not install on your computer!')
-            log.warning('Calculations will be run only on 1 proc')
-            soft_dict[soft] = None
-        else:
-            raise RuntimeError(soft + ' is not install on your computer!')
-
-    return soft_dict
+#Now in utils/ceasiompyfunctions.py
+# def get_install_path():
+#     """Function to get installation paths of MPI and SU2
+#
+#     Function 'get_instal_path' check if MPI and SU2 are installed and return ....
+#
+#     Args:
+#         soft_check_list (list): List of software to check installation path
+#
+#     Returns:
+#         soft_dict (check): Dictionary of software with their installation path
+#
+#     """
+#
+#     soft_dict = {}
+#
+#     for soft in SOFT_CHECK_LIST:
+#         install_path = shutil.which(soft)
+#
+#         if  install_path:
+#             log.info(soft +' is intalled at: ' + install_path)
+#             soft_dict[soft] = install_path
+#         elif 'mpi' in soft:
+#             log.warning(soft + ' is not install on your computer!')
+#             log.warning('Calculations will be run only on 1 proc')
+#             soft_dict[soft] = None
+#         else:
+#             raise RuntimeError(soft + ' is not install on your computer!')
+#
+#     return soft_dict
 
 
 def run_soft(install_dict, soft, config_path, wkdir):
@@ -167,7 +168,7 @@ def run_soft(install_dict, soft, config_path, wkdir):
     else:
         command_line = [soft_install_path,config_path,'>',logfile_path]
 
-    orignal_dir = os.getcwd()
+    original_dir = os.getcwd()
     os.chdir(wkdir)
 
     log.info('>>> ' + soft + ' Start Time')
@@ -176,7 +177,7 @@ def run_soft(install_dict, soft, config_path, wkdir):
 
     log.info('>>> ' + soft + ' End Time')
 
-    os.chdir(orignal_dir)
+    os.chdir(original_dir)
 
 
 def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
@@ -360,11 +361,11 @@ def run_SU2_single(config_path, wkdir):
 
     """
 
-    orignal_dir = os.getcwd()
+    original_dir = os.getcwd()
     os.chdir(wkdir)
 
     # Get installation paths
-    soft_dict = get_install_path()
+    soft_dict = get_install_path(SOFT_CHECK_LIST)
 
     if not os.path.exists(wkdir):
         raise OSError('The working directory : ' + wkdir + 'does not exit!')
@@ -374,7 +375,7 @@ def run_SU2_single(config_path, wkdir):
     run_soft(soft_dict,'SU2_CFD',config_path,wkdir)
     run_soft(soft_dict,'SU2_SOL',config_path,wkdir)
 
-    os.chdir(orignal_dir)
+    os.chdir(original_dir)
 
 
 def run_SU2_multi(wkdir):
@@ -389,11 +390,11 @@ def run_SU2_multi(wkdir):
 
     """
 
-    orignal_dir = os.getcwd()
+    original_dir = os.getcwd()
     os.chdir(wkdir)
 
     # Get installation paths
-    soft_dict = get_install_path()
+    soft_dict = get_install_path(SOFT_CHECK_LIST)
 
     if not os.path.exists(wkdir):
         raise OSError('The working directory : ' + wkdir + 'does not exit!')
@@ -441,7 +442,7 @@ def run_SU2_fsi(config_path, wkdir):
 
         """
 
-    orignal_dir = os.getcwd()
+    original_dir = os.getcwd()
     os.chdir(wkdir)
 
     # Modify config file for SU2_DEf
@@ -467,7 +468,7 @@ def run_SU2_fsi(config_path, wkdir):
     write_config(config_cfd_path,cfg_cfd)
 
     # Get installation paths
-    soft_dict = get_install_path()
+    soft_dict = get_install_path(SOFT_CHECK_LIST)
 
     if not os.path.exists(wkdir):
         raise OSError('The working directory : ' + wkdir + 'does not exit!')
@@ -484,7 +485,7 @@ def run_SU2_fsi(config_path, wkdir):
 
     extract_loads(wkdir)
 
-    os.chdir(orignal_dir)
+    os.chdir(original_dir)
 
 
 def get_su2_results(cpacs_path,cpacs_out_path,wkdir):

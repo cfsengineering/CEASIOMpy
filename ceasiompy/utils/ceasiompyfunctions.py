@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2019-10-04
-| Last modifiction: 2019-10-04
+| Last modifiction: 2019-10-07
 
 TODO:
 
@@ -23,6 +23,7 @@ TODO:
 
 import os
 import sys
+import shutil
 import datetime
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -74,8 +75,12 @@ def get_wkdir_or_create_new(tixi):
     directory already exit for this run, if not, a new one is created and
     return.
 
-    Returns:
+    Args:
         tixi (handle): TIXI handle
+
+    Returns:
+        wkdir_path (str): Path to the active working directory
+
 
     """
 
@@ -85,8 +90,45 @@ def get_wkdir_or_create_new(tixi):
         wkdir_path = create_new_wkdir()
         create_branch(tixi,WKDIR_XPATH)
         tixi.updateTextElement(WKDIR_XPATH,wkdir_path)
+    else:
+        # Check if the directory really exists
+        if not os.path.isdir(wkdir_path):
+            wkdir_path = create_new_wkdir()
+            create_branch(tixi,WKDIR_XPATH)
+            tixi.updateTextElement(WKDIR_XPATH,wkdir_path)
 
     return wkdir_path
+
+def get_install_path(soft_check_list):
+    """Function to get installation paths a sorfware used in SU2
+
+    Function 'get_instal_path' check if the given list of software is installed,
+    it retruns a dictionnay of software with thier intallation paths.
+
+    Args:
+        soft_check_list (list): List of software to check installation path
+
+    Returns:
+        soft_dict (check): Dictionary of software with their installation path
+
+    """
+
+    soft_dict = {}
+
+    for soft in soft_check_list:
+        install_path = shutil.which(soft)
+
+        if  install_path:
+            log.info(soft +' is intalled at: ' + install_path)
+            soft_dict[soft] = install_path
+        elif 'mpi' in soft:
+            log.warning(soft + ' is not install on your computer!')
+            log.warning('Calculations will be run only on 1 proc')
+            soft_dict[soft] = None
+        else:
+            raise RuntimeError(soft + ' is not install on your computer!')
+
+    return soft_dict
 
 
 #==============================================================================
@@ -98,7 +140,6 @@ if __name__ == '__main__':
     log.info('Nothing to execute!')
 
 
-
 ### HOW TO IMPORT THESE MODULE
 
-# from ceasiompy.utils.ceasiompyfunctions import create_new_wkdir
+# from ceasiompy.utils.ceasiompyfunctions import create_new_wkdir, get_wkdir_or_create_new, get_install_path

@@ -143,9 +143,9 @@ cpacs_inout.add_input(
 
 cpacs_inout.add_input(
     var_name='su2_mesh_path',
-    var_type=str, # TODO chage by "path" and add "path type" it SettingsGUI
+    var_type='pathtype',
     default_value='-',
-    unit='-',
+    unit='1',
     descr='Absolute path of the SU2 mesh',
     cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/meshPath',
     gui=True,

@@ -37,7 +37,7 @@ cpacs_inout.add_input(
     unit='m^2',
     descr='Wetted area of the aircraft (calculated by SU2)',
     cpacs_path=CEASIOM_XPATH + '/geometry/analysis/wettedArea',
-    gui=True,
+    gui=False,
     gui_name='Wetted Area',
     gui_group=None,
 )

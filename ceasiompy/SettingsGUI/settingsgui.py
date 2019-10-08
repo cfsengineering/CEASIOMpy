@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-09-05
-| Last modifiction: 2019-09-12
+| Last modifiction: 2019-10-08
 
 TODO:
 
@@ -28,7 +28,7 @@ import os
 
 import tkinter as tk
 from tkinter import ttk
-from tkinter import messagebox
+from tkinter import messagebox, filedialog
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
@@ -230,6 +230,19 @@ class AutoTab:
                 value_entry = tk.Entry(parent, bd=2, textvariable=self.var_dict[key])
                 value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
+            elif dtype is 'pathtype':
+
+                value = get_value_or_default(self.tixi,xpath,def_value)
+                self.var_dict[key] = tk.StringVar()
+                self.var_dict[key].set(value)
+                value_entry = tk.Entry(parent, textvariable=self.var_dict[key])
+                value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
+
+                self.key = key
+                self.browse_button = tk.Button(parent, text="Browse", command=self.browse_file)
+                self.browse_button.grid(column=2, row=row_pos, padx=5, pady=5)
+
+
             elif dtype is list:
                 if name == '__AEROMAP_SELECTION':
 
@@ -273,8 +286,11 @@ class AutoTab:
                     # Create one checkbox for each AeroMap
                     for aeromap in aeromap_uid_list:
                         self.aeromap_var_dict[aeromap] = tk.BooleanVar()
-                        if aeromap in selected_aeromap:
-                            self.aeromap_var_dict[aeromap].set(True)
+
+                        #if aeromap in selected_aeromap:
+                        # For now, set all to True
+                        self.aeromap_var_dict[aeromap].set(True)
+
                         aeromap_entry = tk.Checkbutton(self.labelframe,text=aeromap,variable=self.aeromap_var_dict[aeromap])
                         aeromap_entry.pack(side=tk.TOP, anchor='w')
 
@@ -313,6 +329,11 @@ class AutoTab:
         # call listbox , Not used for now, could be useful...
         # aeromap_uid_list = get_aeromap_uid_list(self.tixi)
         # self.listbox1 = ListBoxChoice(self.tab,self.tixi,aeromap_uid_list) #.returnValue()
+
+    def browse_file(self):
+
+        self.filename = filedialog.askopenfilename(initialdir = MODULE_DIR, title = "Select A File" )
+        self.var_dict[self.key].set(self.filename)
 
 
 class CEASIOMpyGUI:

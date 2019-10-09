@@ -9,12 +9,12 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-09-05
-| Last modifiction: 2019-10-08
+| Last modifiction: 2019-10-09
 
 TODO:
 
     * Add "mouse over" for description
-    * Add 'AeroMap Edition'
+    * Add other function to 'AeroMap Edition'
     * Fix  'get_value' for boolean
     * messagebox and error detection could be improved
 """
@@ -127,12 +127,6 @@ class AeroMapTab:
         for item in self.list:
             self.listBox.insert(tk.END, item)
         row_pos += (item_count + 1)
-        print(row_pos)
-
-        # buttonFrame = tk.Frame(self.aerotab)
-        # buttonFrame.grid(column=0, row=row_pos)
-        # row_pos += 1
-
 
         chooseButton = tk.Button(self.aerotab, text='Select', command=self._select)
         chooseButton.grid(column=0, row=row_pos)
@@ -150,37 +144,46 @@ class AeroMapTab:
         updateButton.grid(column=0, row=row_pos)
         row_pos += 1
 
+        deleteButton = tk.Button(self.aerotab, text='Delete', command=self._delete)
+        deleteButton.grid(column=0, row=row_pos)
+        row_pos += 1
+
+
     def _select(self, event=None):
         try:
             firstIndex = self.listBox.curselection()[0]
             self.selected_list = [self.listBox.get(i) for i in self.listBox.curselection()]
-            print(self.selected_list)
+            log.info('Selected aeroMap',self.selected_list)
         except IndexError:
             self.selected_list = None
 
     def _import_csv(self, event=None):
-        self.listBox.selection_clear(0, tk.END)
-
         csv_path = self.filename = filedialog.askopenfilename(initialdir = MODULE_DIR, title = "Select a CSV file" )
         new_aeromap_uid = os.path.splitext(os.path.basename(csv_path))[0]
         aeromap_from_csv(self.tixi, new_aeromap_uid, csv_path)
+        self.listBox.selection_clear(0, tk.END)
 
         self._update()
 
     def _export_csv(self, event=None):
         aeromap_uid_list = [self.listBox.get(i) for i in self.listBox.curselection()]
-        print(aeromap_uid_list[0])
-        csv_path = os.path.join(MODULE_DIR,'test.csv')
+        csv_path = self.filename = filedialog.asksaveasfilename(initialdir = MODULE_DIR, title = "Save CSV file", defaultextension=".csv")
         aeromap_to_csv(self.tixi, aeromap_uid_list[0], csv_path)
+        self.listBox.selection_clear(0, tk.END)
 
     def _update(self, event=None):
-
         self.list = get_aeromap_uid_list(self.tixi)
         self.list.sort()
-
         self.listBox.delete(0, tk.END)
         for item in self.list:
             self.listBox.insert(tk.END, item)
+
+    def _delete(self, event=None):
+        firstIndex = self.listBox.curselection()[0]
+        self.selected_list = [self.listBox.get(i) for i in self.listBox.curselection()]
+        aeromap_uid = self.selected_list[0]
+        delete_aeromap(self.tixi,aeromap_uid)
+        self._update()
 
     # def _modify_name(self, event = None):
         #TODO
@@ -210,19 +213,15 @@ class AutoTab:
         self.var_dict = {}
         self.group_dict = {}
 
-        # ----- Safely try to get the specs module -----
-        specs = mif.get_specs_for_module(module_name)
-        if specs is None:  # Specs does not exist
-            return
-        self.gui_dict = specs.cpacs_inout.get_gui_dict()
-        if not self.gui_dict:  # Empty dict --> nothing to do
-            return
-
         self.module_name = module_name
         self.tabs = tabs
         self.tixi = tixi
         self.tab = tk.Frame(tabs, borderwidth=1)
         tabs.add(self.tab, text=module_name)
+
+        # Get GUI dict from specs
+        specs = mif.get_specs_for_module(module_name)
+        self.gui_dict = specs.cpacs_inout.get_gui_dict()
 
         space_label = tk.Label(self.tab, text=' ')
         space_label.grid(column=0, row=0)
@@ -277,7 +276,7 @@ class AutoTab:
                 value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
                 self.key = key
-                self.browse_button = tk.Button(parent, text="Browse", command=self.browse_file)
+                self.browse_button = tk.Button(parent, text="Browse", command=self._browse_file)
                 self.browse_button.grid(column=2, row=row_pos, padx=5, pady=5)
 
 
@@ -285,12 +284,12 @@ class AutoTab:
                 if name == '__AEROMAP_SELECTION':
 
                     # Get the list of all AeroMaps
-                    aeromap_uid_list = get_aeromap_uid_list(self.tixi)
+                    self.aeromap_uid_list = get_aeromap_uid_list(self.tixi)
 
                     # Try to get the pre-selected AeroMap from the xpath
                     try:
                         selected_aeromap = get_value(self.tixi,xpath)
-                        selected_aeromap_index = aeromap_uid_list.index(selected_aeromap)
+                        selected_aeromap_index = self.aeromap_uid_list.index(selected_aeromap)
                     except:
                         selected_aeromap = ''
                         selected_aeromap_index = 0
@@ -299,9 +298,10 @@ class AutoTab:
                     self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=5, pady=5)
 
                     # The Combobox is directly use as the varaible
-                    self.var_dict[key] = ttk.Combobox(self.labelframe, values=aeromap_uid_list)
+                    self.var_dict[key] = ttk.Combobox(self.labelframe, values=self.aeromap_uid_list)
                     self.var_dict[key].current(selected_aeromap_index)
                     self.var_dict[key].grid(column=1, row=row_pos, padx=5, pady=5)
+
 
                 elif name == '__AEROMAP_CHECHBOX':
 
@@ -311,7 +311,7 @@ class AutoTab:
                     self.aeromap_var_dict = {}
 
                     # Get the list of all AeroMaps
-                    aeromap_uid_list = get_aeromap_uid_list(self.tixi)
+                    self.aeromap_uid_list = get_aeromap_uid_list(self.tixi)
                     self.labelframe = tk.LabelFrame(parent, text="Selecte AeroMap(s)")
                     self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=5, pady=5)
 
@@ -322,7 +322,7 @@ class AutoTab:
                         selected_aeromap = ''
 
                     # Create one checkbox for each AeroMap
-                    for aeromap in aeromap_uid_list:
+                    for aeromap in self.aeromap_uid_list:
                         self.aeromap_var_dict[aeromap] = tk.BooleanVar()
 
                         #if aeromap in selected_aeromap:
@@ -337,9 +337,9 @@ class AutoTab:
                     # 'def_value' will be the list of possibilies in this case
 
                     # Try to get the pre-selected AeroMap from the xpath
-                    try:
+                    try: # TODO Should be retested...
                         selected_value = get_value(self.tixi,xpath)
-                        selected_value_index = aeromap_uid_list.index(selected_value)
+                        selected_value_index = def_value.index(selected_value)
                     except:
                         selected_value = ''
                         selected_value_index = 0
@@ -368,7 +368,7 @@ class AutoTab:
         # aeromap_uid_list = get_aeromap_uid_list(self.tixi)
         # self.listbox1 = ListBoxChoice(self.tab,self.tixi,aeromap_uid_list) #.returnValue()
 
-    def browse_file(self):
+    def _browse_file(self):
 
         self.filename = filedialog.askopenfilename(initialdir = MODULE_DIR, title = "Select A File" )
         self.var_dict[self.key].set(self.filename)
@@ -395,28 +395,43 @@ class CEASIOMpyGUI:
             description = 'AeroMap create by SettingGUI'
             create_empty_aeromap(self.tixi, aeromap_uid, description)
 
-        # TODO
-        # Generate AeroMaps tab
+        # Generate AeroMaps Edition tab
         aeromap_tap = AeroMapTab(self.tabs, self.tixi)
 
-        # Generate Auto Tab =============
-        # Get a list of ALL CEASIOMpy submodules
+        # # Generate Auto Tab =============
         self.tab_list = []
-        for module_name in mif.get_submodule_list():
+        self._update_all()
+
+        # General buttons =============
+        self.close_button = tk.Button(self.master, text="Save & Quit", command=self._save_quit)
+        self.close_button.pack(side=tk.RIGHT)
+        self.update_button = tk.Button(self.master, text="Update", command=self._update_all)
+        self.update_button.pack(side=tk.RIGHT)
+
+    def _update_all(self):
+
+        # Remove existing AutoTab
+        if len(self.tab_list) > 0 :
+            for i in range(len(self.tab_list)):
+                self.tabs.forget(1)
+            self.tab_list = []
+
+        # Generate new Auto Tab
+        # Get a list of ALL CEASIOMpy submodules (could be improve by chosing only active module)
+        for module_name in mif.get_submodule_list():\
+
+            specs = mif.get_specs_for_module(module_name)
+            if specs is None:  # Specs does not exist
+                continue
+            self.gui_dict = specs.cpacs_inout.get_gui_dict()
+            if not self.gui_dict:  # Empty dict --> nothing to do
+                continue
+
             tab = AutoTab(self.tabs, self.tixi, module_name)
             self.tab_list.append(tab)
 
-        # tab = AutoTab(self.tabs, self.tixi, 'PyTornado')
-        # self.tab_list.append(tab)
-        # tab = AutoTab(self.tabs, self.tixi, 'SkinFriction')
-        # self.tab_list.append(tab)
 
-        # General button =============
-        self.close_button = tk.Button(self.master, text="Save & Quit", command=self.save_quit)
-        self.close_button.pack(side=tk.RIGHT)
-
-
-    def save_quit(self):
+    def _save_quit(self):
 
         # Iterate over all existing tabs
         for tab in self.tab_list:
@@ -429,7 +444,6 @@ class CEASIOMpyGUI:
                 if name == '__AEROMAP_CHECHBOX':
                     aeromap_uid_list_str = ''
                     for aeromap_uid, aeromap_bool in tab.aeromap_var_dict.items():
-                        print('for loop')
                         if aeromap_bool.get():
                             aeromap_uid_list_str += aeromap_uid + ';'
                     if aeromap_uid_list_str == '':

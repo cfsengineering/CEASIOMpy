@@ -732,7 +732,7 @@ def delete_aeromap(tixi,aeromap_uid):
     log.info(aeromap_uid + ' has been removed from the CPACS file')
 
 
-# def modity_aeromap_uid(tixi,aeromap_uid, new aeromap_uid):
+# def modify_aeromap_uid(tixi,aeromap_uid, new aeromap_uid):
 # modify uid
 # modify name
 # fing in CPACS where this name is used... ?

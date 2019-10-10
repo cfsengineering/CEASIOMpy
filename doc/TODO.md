@@ -48,7 +48,6 @@
 ### Module SettingsGUI
 * GUI to create/edit/delete aeroMap from CPACS file
 * Find a way to detect active modules
-* Add new type for path selections
 
 ### Weight and Balance modules
 * Check input/output, try to simplify

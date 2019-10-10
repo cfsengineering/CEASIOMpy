@@ -17,6 +17,7 @@ TODO:
     * Create test functions
     * complete input/output in __specs__
     * Chck platform with-> sys.platform
+    * Add an input for option "extractloads"
 
 """
 
@@ -201,7 +202,7 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 
 
     # Get SU2 mesh path
-    su2_mesh_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh'
+    su2_mesh_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/meshPath'
     su2_mesh_path = get_value(tixi,su2_mesh_xpath)
 
     # Get reference values

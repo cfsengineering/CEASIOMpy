@@ -406,7 +406,7 @@ def save_coefficients(tixi,aeromap_uid,Coef):
         add_float_vector(tixi,apm_xpath+'/cl',Coef.cl)
         log.info('"cl" values have been added to the corresponding node')
     else:
-        raise ValueError('The number of "cl" values is incorrect, it must \
+        raise ValueError('The number of "cl" values is incorrect, it must be \
         either equal to the number of parameters or 0')
 
     # CD coefficients
@@ -416,7 +416,7 @@ def save_coefficients(tixi,aeromap_uid,Coef):
         add_float_vector(tixi,apm_xpath+'/cd',Coef.cd)
         log.info('"cd" values have been added to the corresponding node')
     else:
-        raise ValueError('The number of "cd" values is incorrect, it must \
+        raise ValueError('The number of "cd" values is incorrect, it must be \
         either equal to the number of parameters or 0')
 
     # CS coefficients

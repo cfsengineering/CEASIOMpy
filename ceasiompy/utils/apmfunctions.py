@@ -731,6 +731,9 @@ def delete_aeromap(tixi,aeromap_uid):
     tixi.removeElement(aeroMap_xpath)
     log.info(aeromap_uid + ' has been removed from the CPACS file')
 
+def my_test_func():
+    # this is just a github test
+    pass
 
 # def modify_aeromap_uid(tixi,aeromap_uid, new aeromap_uid):
 # modify uid

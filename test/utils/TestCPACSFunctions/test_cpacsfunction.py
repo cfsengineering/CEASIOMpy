@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-10-02
-| Last modifiction: 2019-09-27
+| Last modifiction: 2019-10-21
 
 TODO:
 
@@ -185,7 +185,7 @@ def test_copy_branch():
 
 
 def test_add_uid():
-    """Test the function 'get_value'"""
+    """Test the function 'add_uid'"""
 
     tixi = open_tixi(CPACS_IN_PATH)
 
@@ -229,6 +229,15 @@ def test_get_value():
     value = get_value(tixi,xpath)
     assert value == 'Cpacs2Test'
 
+    # Check if boolean are returned from an xpath or default value
+    xpath = '/cpacs/toolspecific/testUtils/testCPACSFunctions/testBoolTrue'
+    value = get_value(tixi,xpath)
+    assert value == True
+
+    xpath = '/cpacs/toolspecific/testUtils/testCPACSFunctions/testBoolFalse'
+    value = get_value(tixi,xpath)
+    assert value == False
+
     # Check if a false xpath raises ValueError
     xpath = '/cpacs/vehicles/aircraft/model/reference/aarreeaa'
     with pytest.raises(ValueError):
@@ -254,6 +263,23 @@ def test_get_value_or_default():
     xpath = '/cpacs/vehicles/aircraft/model/name'
     value = get_value_or_default(tixi,xpath,'name')
     assert value == 'Cpacs2Test'
+
+    # Check if boolean are returned from an xpath or default value
+    xpath = '/cpacs/toolspecific/testUtils/testCPACSFunctions/testBoolTrue'
+    value = get_value_or_default(tixi,xpath,False)
+    assert value == True
+
+    xpath = '/cpacs/toolspecific/testUtils/testCPACSFunctions/testBoolFalse'
+    value = get_value_or_default(tixi,xpath,True)
+    assert value == False
+
+    xpath = '/cpacs/toolspecific/testUtils/testCPACSFunctions/notExistTrue'
+    value = get_value_or_default(tixi,xpath,True)
+    assert value == True
+
+    xpath = '/cpacs/toolspecific/testUtils/testCPACSFunctions/notExistFalse'
+    value = get_value_or_default(tixi,xpath,False)
+    assert value == False
 
     # Check if a non exitant xpath leads to its creation (integer)
     xpath = '/cpacs/vehicles/aircraft/model/reference/newSpan'

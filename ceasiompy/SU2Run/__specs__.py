@@ -147,10 +147,22 @@ cpacs_inout.add_input(
     default_value='-',
     unit='1',
     descr='Absolute path of the SU2 mesh',
-    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/meshPath',
-    gui=True,
+    cpacs_path=CEASIOM_XPATH + '/filesPath/su2Mesh',
+    gui=False,
     gui_name='SU2 Mesh',
     gui_group='Inputs',
+)
+
+cpacs_inout.add_input(
+    var_name='check_extract_loads',
+    var_type=bool,
+    default_value=False,
+    unit='1',
+    descr='Option to extract loads from results',
+    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/results/extractLoads',
+    gui=True,
+    gui_name='Extract loads',
+    gui_group='Results',
 )
 
 

@@ -15,8 +15,8 @@ TODO:
 
     * Add "mouse over" for description
     * Add other function to 'AeroMap Edition'
-    * Fix  'get_value' for boolean
     * messagebox and error detection could be improved
+
 """
 
 #==============================================================================
@@ -240,15 +240,14 @@ class AutoTab:
                 parent = self.tab
 
             # Name label for variable
-            self.name_label = tk.Label(parent, text= name)
-            self.name_label.grid(column=0, row=row_pos, sticky= tk.W, padx=5, pady=5)
+            if (name is not '__AEROMAP_SELECTION' and name is not '__AEROMAP_CHECHBOX'):
+                self.name_label = tk.Label(parent, text= name)
+                self.name_label.grid(column=0, row=row_pos, sticky= tk.W, padx=5, pady=5)
 
             # Type and Value
             if dtype is bool:
                 self.var_dict[key] = tk.BooleanVar()
-                # TODO: NOT working because get_value not recognize Boolean type
-                # value = get_value_or_default(self.tixi,xpath,def_value)
-                value = def_value
+                value = get_value_or_default(self.tixi,xpath,def_value)
                 self.var_dict[key].set(value)
                 bool_entry = tk.Checkbutton(parent, text='', variable=self.var_dict[key])
                 bool_entry.grid(column=1, row=row_pos, padx=5, pady=5)
@@ -294,7 +293,7 @@ class AutoTab:
                         selected_aeromap = ''
                         selected_aeromap_index = 0
 
-                    self.labelframe = tk.LabelFrame(parent, text="Choose an AeroMap")
+                    self.labelframe = tk.LabelFrame(parent, text='Choose an AeroMap')
                     self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=5, pady=5)
 
                     # The Combobox is directly use as the varaible
@@ -312,7 +311,7 @@ class AutoTab:
 
                     # Get the list of all AeroMaps
                     self.aeromap_uid_list = get_aeromap_uid_list(self.tixi)
-                    self.labelframe = tk.LabelFrame(parent, text="Selecte AeroMap(s)")
+                    self.labelframe = tk.LabelFrame(parent, text='Selecte AeroMap(s)')
                     self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=5, pady=5)
 
                     # Try to get pre-selected AeroMaps from the xpath
@@ -379,8 +378,8 @@ class CEASIOMpyGUI:
 
         # GUI =============
         self.master = master
-        self.master.title("CEASIOMpy Settings GUI")
-        self.master.geometry("600x750+500+200")
+        self.master.title('CEASIOMpy Settings GUI')
+        self.master.geometry('600x750+500+200')
 
         self.tabs = ttk.Notebook(self.master)
         self.tabs.pack(side=tk.TOP, fill='both')
@@ -403,9 +402,9 @@ class CEASIOMpyGUI:
         self._update_all()
 
         # General buttons =============
-        self.close_button = tk.Button(self.master, text="Save & Quit", command=self._save_quit)
+        self.close_button = tk.Button(self.master, text='Save & Quit', command=self._save_quit)
         self.close_button.pack(side=tk.RIGHT)
-        self.update_button = tk.Button(self.master, text="Update", command=self._update_all)
+        self.update_button = tk.Button(self.master, text='Update', command=self._update_all)
         self.update_button.pack(side=tk.RIGHT)
 
     def _update_all(self):

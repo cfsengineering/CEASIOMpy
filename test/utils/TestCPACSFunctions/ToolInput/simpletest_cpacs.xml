@@ -507,6 +507,8 @@
         <windowsPath>usr\test1\test2\mypath</windowsPath>
         <errorPath1>usr/test1\test2/mypath</errorPath1>
         <errorPath2>mypath</errorPath2>
+        <testBoolTrue>True</testBoolTrue>
+        <testBoolFalse>False</testBoolFalse>
       </testCPACSFunctions>
     </testUtils>
   </toolspecific>

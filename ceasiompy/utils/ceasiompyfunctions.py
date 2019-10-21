@@ -99,6 +99,7 @@ def get_wkdir_or_create_new(tixi):
 
     return wkdir_path
 
+
 def get_install_path(soft_check_list):
     """Function to get installation paths a sorfware used in SU2
 

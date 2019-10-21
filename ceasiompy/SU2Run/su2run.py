@@ -35,7 +35,9 @@ from ceasiompy.SU2Run.func.su2results import get_wetted_area, get_efficiency
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-from ceasiompy.utils.ceasiompyfunctions import create_new_wkdir, get_wkdir_or_create_new, get_install_path
+from ceasiompy.utils.ceasiompyfunctions import create_new_wkdir,               \
+                                               get_wkdir_or_create_new,        \
+                                               get_install_path
 
 from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi,              \
                                            get_value, get_value_or_default,    \
@@ -46,11 +48,10 @@ from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
                                          create_empty_aeromap,                 \
                                          save_parameters, save_coefficients
 
-from ceasiompy.utils.su2functions import read_config, write_config, get_mesh_marker
-
+from ceasiompy.utils.su2functions import read_config, write_config,            \
+                                         get_mesh_marker
 
 from ceasiompy.utils.standardatmosphere import get_atmosphere
-
 
 
 log = get_logger(__file__.split('.')[0])
@@ -108,38 +109,6 @@ def save_timestamp(tixi, xpath):
     tixi.updateTextElement(xpath+'/endTime',end_time)
 
     return tixi
-
-
-#Now in utils/ceasiompyfunctions.py
-# def get_install_path():
-#     """Function to get installation paths of MPI and SU2
-#
-#     Function 'get_instal_path' check if MPI and SU2 are installed and return ....
-#
-#     Args:
-#         soft_check_list (list): List of software to check installation path
-#
-#     Returns:
-#         soft_dict (check): Dictionary of software with their installation path
-#
-#     """
-#
-#     soft_dict = {}
-#
-#     for soft in SOFT_CHECK_LIST:
-#         install_path = shutil.which(soft)
-#
-#         if  install_path:
-#             log.info(soft +' is intalled at: ' + install_path)
-#             soft_dict[soft] = install_path
-#         elif 'mpi' in soft:
-#             log.warning(soft + ' is not install on your computer!')
-#             log.warning('Calculations will be run only on 1 proc')
-#             soft_dict[soft] = None
-#         else:
-#             raise RuntimeError(soft + ' is not install on your computer!')
-#
-#     return soft_dict
 
 
 def run_soft(install_dict, soft, config_path, wkdir):
@@ -202,7 +171,7 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 
 
     # Get SU2 mesh path
-    su2_mesh_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/meshPath'
+    su2_mesh_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh'
     su2_mesh_path = get_value(tixi,su2_mesh_xpath)
 
     # Get reference values
@@ -536,7 +505,6 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
 
     case_dir_list = [dir for dir in dir_list if 'Case' in dir]
 
-
     for config_dir in case_dir_list:
         if os.path.isdir(config_dir):
             os.chdir(config_dir)
@@ -570,15 +538,18 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
     save_coefficients(tixi,aeromap_uid,Coef)
 
     # Extract loads
-    # TODO check_extract_loads (ceasiompy/su2/results/loads)
-    # os.chdir(wkdir)
-    # config_dir_list = os.listdir(wkdir)
-    for config_dir in case_dir_list:
-        if os.path.isdir(config_dir):
-            os.chdir(config_dir)
-            results_files_dir = os.path.join(wkdir,config_dir)
 
-            extract_loads(results_files_dir)
+    check_extract_loads_xpath = SU2_XPATH + '/results/extractLoads'
+    check_extract_loads = get_value_or_default(tixi, check_extract_loads_xpath,False)
+    print(check_extract_loads)
+    print(isinstance(check_extract_loads,bool))
+    if check_extract_loads:
+        for config_dir in case_dir_list:
+            if os.path.isdir(config_dir):
+                os.chdir(config_dir)
+                results_files_dir = os.path.join(wkdir,config_dir)
+
+                extract_loads(results_files_dir)
 
     close_tixi(tixi,cpacs_out_path)
 

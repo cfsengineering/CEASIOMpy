@@ -34,7 +34,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name='cruise_alt',
     var_type=float,
-    default_value=120000.0,
+    default_value=12000.0,
     unit='m',
     descr='Aircraft cruise altitude',
     cpacs_path=CEASIOM_XPATH + '/ranges/cruiseAltitude',

@@ -45,5 +45,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit='1',
     descr='Absolute path of the SU2 mesh',
-    cpacs_path=CEASIOM_XPATH + '/filesPath/sumoFilePath',
+    cpacs_path=CEASIOM_XPATH + '/filesPath/su2Mesh',
 )

@@ -10,11 +10,12 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-10-02
-| Last modifiction: 2019-09-27
+| Last modifiction: 2019-10-21
 
 TODO:
 
     * 'copy_branch': change all uID of the copied branch? how?
+    *
 
 """
 
@@ -330,6 +331,12 @@ def get_value(tixi, xpath):
             log.error(xpath + ' cannot be found in the CPACS file')
             raise ValueError(xpath + ' cannot be found in the CPACS file')
 
+    # Special return for boolean
+    if value == 'True':
+        return True
+    elif value == 'False':
+        return False
+
     return value
 
 
@@ -360,6 +367,7 @@ def get_value_or_default(tixi,xpath,default_value):
     except:
         pass
 
+
     if value is None:
         log.info('Default value will be used instead')
         value = default_value
@@ -370,9 +378,11 @@ def get_value_or_default(tixi,xpath,default_value):
 
         is_int = False
         is_float = False
+        is_bool = False
         try: # check if it is an 'int' or 'float'
             is_int = isinstance(float(default_value), int)
             is_float = isinstance(float(default_value), float)
+            is_bool = isinstance(default_value, bool)  #How to deal with bool
             value = float(default_value)
         except:
             pass
@@ -384,6 +394,12 @@ def get_value_or_default(tixi,xpath,default_value):
         log.info('Default value has been add to the cpacs file at: ' + xpath)
     else:
         log.info('Value found at ' + xpath + ', default value will not be used')
+
+    # Special return for boolean
+    if (value == True or value == 'True'):
+        return True
+    elif (value == False or value == 'False'):
+        return False
 
     return value
 

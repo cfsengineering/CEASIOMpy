@@ -367,7 +367,6 @@ def get_value_or_default(tixi,xpath,default_value):
     except:
         pass
 
-
     if value is None:
         log.info('Default value will be used instead')
         value = default_value
@@ -382,24 +381,28 @@ def get_value_or_default(tixi,xpath,default_value):
         try: # check if it is an 'int' or 'float'
             is_int = isinstance(float(default_value), int)
             is_float = isinstance(float(default_value), float)
-            is_bool = isinstance(default_value, bool)  #How to deal with bool
-            value = float(default_value)
+            is_bool = isinstance(default_value, bool)
         except:
             pass
 
-        if is_float or is_int:
-           tixi.addDoubleElement(xpath_parent,value_name,value,'%g')
+        if is_bool:
+           tixi.addTextElement(xpath_parent,value_name,str(value))
+        elif is_float or is_int:
+            value = float(default_value)
+            tixi.addDoubleElement(xpath_parent,value_name,value,'%g')
         else:
-           tixi.addTextElement(xpath_parent,value_name,value)
+            tixi.addTextElement(xpath_parent,value_name,value)
         log.info('Default value has been add to the cpacs file at: ' + xpath)
     else:
         log.info('Value found at ' + xpath + ', default value will not be used')
 
-    # Special return for boolean
-    if (value == True or value == 'True'):
-        return True
-    elif (value == False or value == 'False'):
-        return False
+        # Special return for boolean
+        if value == 'True':
+            return True
+        elif value == 'False':
+            return False
+        elif isinstance(value,bool):
+            return value
 
     return value
 

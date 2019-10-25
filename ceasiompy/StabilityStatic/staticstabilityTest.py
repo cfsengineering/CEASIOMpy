@@ -14,8 +14,9 @@ Python version: >=3.6
 TODO:
     * Determine the inputs
     * Remove the print once tests have been complteted
-    * how to save the results
-    *
+    * save the results
+        - The Log messages
+        - The Plots
 """
 
 #==============================================================================
@@ -263,7 +264,7 @@ def staticStabilityAnalysis(cpacs_path, aeromap_uid):
                         cml.append(cml_list[index])
                         aoa.append(aoa_list[index])
 
-                    curve_legend = 'aos = '+ str(aos) + '°'
+                    curve_legend = 'aos = ' + str(aos) + '°'
 
                     # Store  Cml values in cml_list
                     plot_cml.append(cml)
@@ -761,13 +762,24 @@ if __name__ == '__main__':
 
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
-    # Give the path this python file
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    # Give the path of the  xml file to analyse
-    cpacs_path = os.path.join(MODULE_DIR,'ToolInput','cpacs_test_file.xml')
+    # cpacs_path = os.path.join(MODULE_DIR,'ToolInput','cpacs_test_file.xml')
 
-    # Choose the aeromap to analyses
-    # aeromap_uid = ....
+#For tests:
+    cpacs_path = os.path.join(MODULE_DIR,'ToolInput','cpacs_test_file.xml')
+    cpacs_out_path = os.path.join(MODULE_DIR,'ToolInput', 'test', 'cpacs_test_file.xml')
+    csv_path = "/Users/Loic/github/CEASIOMpy/ceasiompy/StabilityStatic/ToolInput/test/csv_test.csv"
+    # Open tixi Handle
+    tixi = open_tixi(cpacs_path)
+    # Get Aeromap UID list
+    uid_list = get_aeromap_uid_list(tixi)
+    aeromap_uid = uid_list[0]
+    # Import aeromap from the CSV to the xml
+    aeromap_from_csv( tixi, aeromap_uid, csv_path)
+    # Save the xml file
+    close_tixi(tixi, cpacs_out_path)
+#End part for tests
+
 
     # Make the static stability analysis, on the modified xml file
     staticStabilityAnalysis(cpacs_path, aeromap_uid)

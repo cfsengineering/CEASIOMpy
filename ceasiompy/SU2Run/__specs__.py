@@ -106,6 +106,30 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
+    var_name='calculate_damping_der',
+    var_type=bool,
+    default_value=False,
+    unit='1',
+    descr='To check if damping derivatives should be calculated or not',
+    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/options/clalculateDampingDerivatives',
+    gui=True,
+    gui_name='Damping Derivatives',
+    gui_group='Aeromap Options',
+)
+
+cpacs_inout.add_input(
+    var_name='rotation_rate',
+    var_type=float,
+    default_value=1.0,
+    unit='rad/s',
+    descr='Rotation rate use to calculate damping derivatives',
+    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/options/rotationRate',
+    gui=True,
+    gui_name='Rotation Rate',
+    gui_group='Aeromap Options',
+)
+
+cpacs_inout.add_input(
     var_name='max_iter',
     var_type=int,
     default_value=200,
@@ -148,7 +172,7 @@ cpacs_inout.add_input(
     unit='1',
     descr='Absolute path of the SU2 mesh',
     cpacs_path=CEASIOM_XPATH + '/filesPath/su2Mesh',
-    gui=False,
+    gui=True,
     gui_name='SU2 Mesh',
     gui_group='Inputs',
 )
@@ -204,15 +228,5 @@ cpacs_inout.add_output(
     cpacs_path=CEASIOM_XPATH + 'su2/boundaryConditions/wall'
 )
 
-
-# TODO mayby remove
-cpacs_inout.add_output(
-    var_name='config_path',
-    var_type=str,
-    default_value=None,
-    unit='1',
-    descr='Location of the configuration path for SU2',
-    cpacs_path=CEASIOM_XPATH + 'su2/configPath'
-)
 
 #TODO : The aeroMap is filled by this module, how to say that in terms of output...

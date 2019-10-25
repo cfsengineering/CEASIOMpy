@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-11-06
-| Last modifiction: 2019-10-04
+| Last modifiction: 2019-10-25
 
 TODO:
 
@@ -17,7 +17,6 @@ TODO:
     * Create test functions
     * complete input/output in __specs__
     * Chck platform with-> sys.platform
-    * Add an input for option "extractloads"
 
 """
 
@@ -58,7 +57,10 @@ log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
-SOFT_CHECK_LIST = ['SU2_DEF','SU2_CFD','SU2_SOL','mpirun']
+
+# Get installation path for the following softwares
+SOFT_LIST = ['SU2_DEF','SU2_CFD','SU2_SOL','mpirun']
+SOFT_DICT = get_install_path(SOFT_LIST)
 
 #==============================================================================
 #   CLASSES
@@ -69,12 +71,11 @@ SOFT_CHECK_LIST = ['SU2_DEF','SU2_CFD','SU2_SOL','mpirun']
 #   FUNCTIONS
 #==============================================================================
 
-
 # Maybe make that a general function
 def save_timestamp(tixi, xpath):
     """Function to get start and end time of an SU2 calculation.
 
-    Function 'get_efficiency' the CL/CD ratio in the results file
+    Function 'save_timestamp' the CL/CD ratio in the results file
     (forces_breakdown.dat)
 
     Args:
@@ -246,20 +247,9 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
         tixi.updateTextElement(SU2_XPATH+ '/aeroMapUID',aeromap_uid)
 
 
-    # Save the location of the config files in the CPACS file
-    config_path = MODULE_DIR + '/ToolOutput'
-    config_path_xpath = SU2_XPATH + '/configPath'
-    create_branch(tixi,config_path_xpath)
-    tixi.updateTextElement(config_path_xpath,config_path)
-
-    # TODO save an temporary CPACS file...
-    close_tixi(tixi,cpacs_out_path)
-
-    # Get dictionary of the default config file
+    # Get and modify the default configuration file
     DEFAULT_CONFIG_PATH = MODULE_DIR + '/files/DefaultConfig_v6.cfg'
     cfg = read_config(DEFAULT_CONFIG_PATH)
-
-    # Modify values of the config file
 
     # General parmeters
     cfg['MESH_FILENAME'] = su2_mesh_path
@@ -288,7 +278,7 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
     cfg['MARKER_MOVING'] = bc_wall_str
     cfg['DV_MARKER'] = bc_wall_str
 
-    # Parameters, itaration through all cases (alt,mach,aoa,aos)
+    # Parameters which will vary for the different cases (alt,mach,aoa,aos)
     for case_nb in range(param_count):
 
         alt = alt_list[case_nb]
@@ -307,16 +297,52 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
         cfg['FREESTREAM_TEMPERATURE'] = temp
 
         config_file_name = 'ConfigCFD.cfg'
-        folder_name = 'Case'+ str(case_nb) +         \
-                      '_alt' + str(int(alt)) +       \
-                      '_mach' + str(round(mach,2)) + \
-                      '_aoa' + str(round(aoa,1)) +   \
-                      '_aos' + str(round(aos,1))
 
-        os.mkdir(os.path.join(wkdir,folder_name))
-        config_output_path = os.path.join(wkdir,folder_name,config_file_name)
+        case_dir_name = ''.join(['Case',str(case_nb),
+                                 '_alt',str(case_nb),
+                                 '_mach',str(round(mach,2)),
+                                 '_aoa',str(round(aoa,1)),
+                                 '_aos',str(round(aos,1))])
+
+        os.mkdir(os.path.join(wkdir,case_dir_name))
+        config_output_path = os.path.join(wkdir,case_dir_name,config_file_name)
 
         write_config(config_output_path,cfg)
+
+        # Damping derivatives
+        damping_der_xpath = SU2_XPATH + '/options/clalculateDampingDerivatives'
+        damping_der = get_value_or_default(tixi,damping_der_xpath,False)
+
+        rotation_rate_xpath = SU2_XPATH + '/options/rotationRate'
+        rotation_rate = get_value_or_default(tixi,rotation_rate_xpath,1.0)
+
+        if damping_der:
+
+            cfg['GRID_MOVEMENT'] = 'YES'
+            cfg['ROTATION_RATE_X'] = rotation_rate
+            cfg['ROTATION_RATE_Y'] = 0.0
+            cfg['ROTATION_RATE_Z'] = 0.0
+            os.mkdir(os.path.join(wkdir,case_dir_name+'_dp'))
+            config_output_path = os.path.join(wkdir,case_dir_name+'_dp',config_file_name)
+            write_config(config_output_path,cfg)
+
+            cfg['ROTATION_RATE_X'] = 0.0
+            cfg['ROTATION_RATE_Y'] = rotation_rate
+            cfg['ROTATION_RATE_Z'] = 0.0
+            os.mkdir(os.path.join(wkdir,case_dir_name+'_dq'))
+            config_output_path = os.path.join(wkdir,case_dir_name+'_dq',config_file_name)
+            write_config(config_output_path,cfg)
+
+            cfg['ROTATION_RATE_X'] = 0.0
+            cfg['ROTATION_RATE_Y'] = 0.0
+            cfg['ROTATION_RATE_Z'] = rotation_rate
+            os.mkdir(os.path.join(wkdir,case_dir_name+'_dr'))
+            config_output_path = os.path.join(wkdir,case_dir_name+'_dr',config_file_name)
+            write_config(config_output_path,cfg)
+
+            log.info('Damping derivatives cases directory has been created.')
+
+    close_tixi(tixi,cpacs_out_path)
 
 
 def run_SU2_single(config_path, wkdir):
@@ -331,19 +357,14 @@ def run_SU2_single(config_path, wkdir):
 
     """
 
-    original_dir = os.getcwd()
-    os.chdir(wkdir)
-
-    # Get installation paths
-    soft_dict = get_install_path(SOFT_CHECK_LIST)
-
     if not os.path.exists(wkdir):
         raise OSError('The working directory : ' + wkdir + 'does not exit!')
 
+    original_dir = os.getcwd()
     os.chdir(wkdir)
 
-    run_soft(soft_dict,'SU2_CFD',config_path,wkdir)
-    run_soft(soft_dict,'SU2_SOL',config_path,wkdir)
+    run_soft(SOFT_DICT,'SU2_CFD',config_path,wkdir)
+    run_soft(SOFT_DICT,'SU2_SOL',config_path,wkdir)
 
     os.chdir(original_dir)
 
@@ -360,19 +381,14 @@ def run_SU2_multi(wkdir):
 
     """
 
-    original_dir = os.getcwd()
-    os.chdir(wkdir)
-
-    # Get installation paths
-    soft_dict = get_install_path(SOFT_CHECK_LIST)
-
     if not os.path.exists(wkdir):
         raise OSError('The working directory : ' + wkdir + 'does not exit!')
 
-    dir_list = os.listdir(wkdir)
+    original_dir = os.getcwd()
+    os.chdir(wkdir)
 
-    case_dir_list = [dir for dir in dir_list if 'Case' in dir]
-
+    # Check if there is some case directory
+    case_dir_list = [dir for dir in os.listdir(wkdir) if 'Case' in dir]
     if case_dir_list == []:
         raise OSError('No folder has been found in the working directory: ' + wkdir)
 
@@ -382,18 +398,17 @@ def run_SU2_multi(wkdir):
 
         find_config = False
         for file in os.listdir(config_dir):
-            print(file)
             if file == 'ConfigCFD.cfg':
                 if find_config:
                     raise ValueError('More than one "ConfigCFD.cfg" file in this directory!')
                 config_file_path = os.path.join(config_dir,file)
-                print(config_file_path)
                 find_config = True
+
         if not find_config:
             raise ValueError('No "ConfigCFD.cfg" file has been found in this directory!')
 
-        run_soft(soft_dict,'SU2_CFD',config_file_path,config_dir)
-        run_soft(soft_dict,'SU2_SOL',config_file_path,config_dir)
+        run_soft(SOFT_DICT,'SU2_CFD',config_file_path,config_dir)
+        run_soft(SOFT_DICT,'SU2_SOL',config_file_path,config_dir)
 
         os.chdir(wkdir)
 
@@ -410,25 +425,24 @@ def run_SU2_fsi(config_path, wkdir):
         config_path (str): Path to the configuration file
         wkdir (str): Path to the working directory
 
-        """
+    """
+
+    if not os.path.exists(wkdir):
+        raise OSError('The working directory : ' + wkdir + 'does not exit!')
 
     original_dir = os.getcwd()
     os.chdir(wkdir)
 
-    # Modify config file for SU2_DEf
+    # Modify config file for SU2_DEF
     config_def_path = os.path.join(wkdir,'ConfigDEF.cfg')
     cfg_def = read_config(config_path)
 
-    disp_filename = 'disp.dat' # Constant or find in CPACS ?
-
     cfg_def['DV_KIND'] = 'SURFACE_FILE'
     cfg_def['DV_MARKER'] = 'Wing'
-    cfg_def['DV_FILENAME'] = disp_filename
-
-    # Do we need that?
+    cfg_def['DV_FILENAME'] = 'disp.dat' # TODO: Should be a constant or find in CPACS ?
+    # TODO: Do we need that? if yes, find 'WING' in CPACS
     cfg_def['DV_PARAM'] = ['WING', '0', '0', '1', '0.0', '0.0', '1.0']
     cfg_def['DV_VALUE'] = 0.01
-
     write_config(config_def_path,cfg_def)
 
     # Modify config file for SU2_CFD
@@ -437,21 +451,10 @@ def run_SU2_fsi(config_path, wkdir):
     cfg_cfd['MESH_FILENAME'] = 'mesh_out.su2'
     write_config(config_cfd_path,cfg_cfd)
 
-    # Get installation paths
-    soft_dict = get_install_path(SOFT_CHECK_LIST)
 
-    if not os.path.exists(wkdir):
-        raise OSError('The working directory : ' + wkdir + 'does not exit!')
-
-    os.chdir(wkdir)
-
-    log.info('>>> SU2 FSI Start Time')
-
-    run_soft(soft_dict,'SU2_DEF',config_def_path,wkdir) # does it work with mpi?
-    run_soft(soft_dict,'SU2_CFD',config_cfd_path,wkdir)
-    run_soft(soft_dict,'SU2_SOL',config_cfd_path,wkdir)
-
-    log.info('>>> SU2 FSI End Time')
+    run_soft(SOFT_DICT,'SU2_DEF',config_def_path,wkdir) # does it work with mpi?
+    run_soft(SOFT_DICT,'SU2_CFD',config_cfd_path,wkdir)
+    run_soft(SOFT_DICT,'SU2_SOL',config_cfd_path,wkdir)
 
     extract_loads(wkdir)
 
@@ -475,8 +478,14 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
 
     tixi = open_tixi(cpacs_path)
 
-    # Check and reactivate that
+    # TODO Check and reactivate that
     # save_timestamp(tixi,SU2_XPATH)
+
+    if not os.path.exists(wkdir):
+        raise OSError('The working directory : ' + wkdir + 'does not exit!')
+
+    os.chdir(wkdir)
+    dir_list = os.listdir(wkdir)
 
     # Get and save Wetted area
     wetted_area = get_wetted_area(wkdir)
@@ -485,23 +494,27 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
     tixi.updateDoubleElement(wetted_area_xpath,wetted_area,'%g')
 
     # Get and save CL/CD ratio
-    # TODO: only if fixed CL mode
-    # force_path = MODULE_DIR + '/ToolOutput/forces_breakdown.dat' # TODO: global ?
-    # cl_cd = get_efficiency(force_path)
-    # lDRatio_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges/lDRatio' # TODO: probalby change xpath and name
-    # create_branch(tixi, lDRatio_xpath)
-    # tixi.updateDoubleElement(lDRatio_xpath,cl_cd,'%g')
+    fixed_cl_xpath = SU2_XPATH + '/fixedCL'
+    fixed_cl = get_value_or_default(tixi, fixed_cl_xpath,'NO')
+    # TODO
+    # if fixed_cl == 'YES':
+        # find force_file_name = 'forces_breakdown.dat'
+        # cl_cd = get_efficiency(force_path)
+        # lDRatio_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges/lDRatio' # TODO: probalby change xpath and name
+        # create_branch(tixi, lDRatio_xpath)
+        # tixi.updateDoubleElement(lDRatio_xpath,cl_cd,'%g')
 
     # Save aeroPerformanceMap
     su2_aeromap_xpath = SU2_XPATH + '/aeroMapUID'
     aeromap_uid = get_value(tixi,su2_aeromap_xpath)
 
+    # Check if loads shoud be extracted
+    check_extract_loads_xpath = SU2_XPATH + '/results/extractLoads'
+    check_extract_loads = get_value_or_default(tixi, check_extract_loads_xpath,False)
+
     # Create an oject to store the aerodynamic coefficients
     check_aeromap(tixi,aeromap_uid)
     Coef = get_aeromap(tixi, aeromap_uid)
-
-    os.chdir(wkdir)
-    dir_list = os.listdir(wkdir)
 
     case_dir_list = [dir for dir in dir_list if 'Case' in dir]
 
@@ -528,28 +541,54 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
                         cms = float(line.split(':')[1].split('|')[0])
                     if 'Total CMz:' in line:
                         cml = float(line.split(':')[1].split('|')[0])
+                    if ('Free-stream velocity' in line and 'm/s' in line):
+                        velocity = float(line.split(' ')[7])
 
-            # Add new coefficients into the object Coef
-            Coef.add_coefficients(cl,cd,cs,cml,cmd,cms)
+            # Damping derivatives
+            rotation_rate_xpath = SU2_XPATH + '/options/rotationRate'
+            rotation_rate = get_value_or_default(tixi,rotation_rate_xpath,1.0)
+            ref_xpath = '/cpacs/vehicles/aircraft/model/reference'
+            ref_len = get_value(tixi,ref_xpath + '/length')
+            adim_rot_rate =  rotation_rate * ref_len / velocity
+
+            if '_dp' in config_dir:
+                dcl = (cl-Coef.cl[-1])/adim_rot_rate
+                dcd = (cd-Coef.cd[-1])/adim_rot_rate
+                dcs = (cs-Coef.cs[-1])/adim_rot_rate
+                dcml = (cml-Coef.cml[-1])/adim_rot_rate
+                dcmd = (cmd-Coef.cmd[-1])/adim_rot_rate
+                dcms = (cms-Coef.cms[-1])/adim_rot_rate
+                Coef.damping_derivatives.add_damping_der_coef(dcl,dcd,dcs,dcml,dcmd,dcms,'_dp')
+
+            elif '_dq' in config_dir:
+                dcl = (cl-Coef.cl[-1])/adim_rot_rate
+                dcd = (cd-Coef.cd[-1])/adim_rot_rate
+                dcs = (cs-Coef.cs[-1])/adim_rot_rate
+                dcml = (cml-Coef.cml[-1])/adim_rot_rate
+                dcmd = (cmd-Coef.cmd[-1])/adim_rot_rate
+                dcms = (cms-Coef.cms[-1])/adim_rot_rate
+                Coef.damping_derivatives.add_damping_der_coef(dcl,dcd,dcs,dcml,dcmd,dcms,'_dq')
+
+            elif '_dr' in config_dir:
+                dcl = (cl-Coef.cl[-1])/adim_rot_rate
+                dcd = (cd-Coef.cd[-1])/adim_rot_rate
+                dcs = (cs-Coef.cs[-1])/adim_rot_rate
+                dcml = (cml-Coef.cml[-1])/adim_rot_rate
+                dcmd = (cmd-Coef.cmd[-1])/adim_rot_rate
+                dcms = (cms-Coef.cms[-1])/adim_rot_rate
+                Coef.damping_derivatives.add_damping_der_coef(dcl,dcd,dcs,dcml,dcmd,dcms,'_dr')
+
+            else: # No damping derivative cases
+                Coef.add_coefficients(cl,cd,cs,cml,cmd,cms)
+
+            if check_extract_loads:
+                results_files_dir = os.path.join(wkdir,config_dir)
+                extract_loads(results_files_dir)
 
             os.chdir(wkdir)
 
     # Save object Coef in the CPACS file
     save_coefficients(tixi,aeromap_uid,Coef)
-
-    # Extract loads
-
-    check_extract_loads_xpath = SU2_XPATH + '/results/extractLoads'
-    check_extract_loads = get_value_or_default(tixi, check_extract_loads_xpath,False)
-    print(check_extract_loads)
-    print(isinstance(check_extract_loads,bool))
-    if check_extract_loads:
-        for config_dir in case_dir_list:
-            if os.path.isdir(config_dir):
-                os.chdir(config_dir)
-                results_files_dir = os.path.join(wkdir,config_dir)
-
-                extract_loads(results_files_dir)
 
     close_tixi(tixi,cpacs_out_path)
 
@@ -567,9 +606,6 @@ if __name__ == '__main__':
     cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
 
     tixi = open_tixi(cpacs_path)
-
-    # config_path_xpath = SU2_XPATH + '/configPath'
-    # config_path = get_value(tixi,config_path_xpath)
 
     if len(sys.argv)>1:
         if sys.argv[1] == '-c':
@@ -591,13 +627,16 @@ if __name__ == '__main__':
             get_su2_results(cpacs_path,cpacs_out_path,wkdir)
         else:
             print('This arugment is not a valid option!')
-    else:
+    else: # if no argument given
         wkdir = get_wkdir_or_create_new(tixi)
         generate_su2_config(cpacs_path,cpacs_out_path,wkdir)
         run_SU2_multi(wkdir)
         get_su2_results(cpacs_path,cpacs_out_path,wkdir)
 
+    # TODO: cpacs_out_path for 'create_config' should be a temp file, now it's erase by 'get_su2get_su2_results'
+
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
+
 
 
 

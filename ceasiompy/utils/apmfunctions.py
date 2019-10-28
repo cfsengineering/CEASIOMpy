@@ -47,9 +47,65 @@ AEROPERFORMANCE_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance
 #   CLASSES
 #==============================================================================
 
+
+class DampingDerivative():
+
+    def __init__(self):
+
+        # Damping derivatives Coefficients
+        self.dcldpstar = []
+        self.dcddpstar = []
+        self.dcsdpstar = []
+        self.dcmldpstar = []
+        self.dcmddpstar = []
+        self.dcmsdpstar = []
+
+        self.dcldqstar = []
+        self.dcddqstar = []
+        self.dcsdqstar = []
+        self.dcmldqstar = []
+        self.dcmddqstar = []
+        self.dcmsdqstar = []
+
+        self.dcldrstar = []
+        self.dcddrstar = []
+        self.dcsdrstar = []
+        self.dcmldrstar = []
+        self.dcmddrstar = []
+        self.dcmsdrstar = []
+
+    def add_damping_der_coef(self,dcl,dcd,dcs,dcml,dcmd,dcms,rot_axis):
+
+        # The damping derivatives are calculated using rotational rates
+        # [rad/s], normalized by: Rate*ReferenceLength/flow speed.
+        # The rotations are performed around the global axis directions with
+        # the aircraft model's global reference point as origin.
+
+        if rot_axis == '_dp':
+            self.dcldpstar.append(dcl)
+            self.dcddpstar.append(dcd)
+            self.dcsdpstar.append(dcs)
+            self.dcmldpstar.append(dcml)
+            self.dcmddpstar.append(dcmd)
+            self.dcmsdpstar.append(dcms)
+        if rot_axis == '_dq':
+            self.dcldqstar.append(dcl)
+            self.dcddqstar.append(dcd)
+            self.dcsdqstar.append(dcs)
+            self.dcmldqstar.append(dcml)
+            self.dcmddqstar.append(dcmd)
+            self.dcmsdqstar.append(dcms)
+        if rot_axis == '_dr':
+            self.dcldrstar.append(dcl)
+            self.dcddrstar.append(dcd)
+            self.dcsdrstar.append(dcs)
+            self.dcmldrstar.append(dcml)
+            self.dcmddrstar.append(dcmd)
+            self.dcmsdrstar.append(dcms)
+
+
 class AeroCoefficient():
 
-#TODO: add name and description ????
     def __init__(self):
 
         # Parameters
@@ -66,6 +122,8 @@ class AeroCoefficient():
         self.cmd = []
         self.cms = []
 
+        self.damping_derivatives = DampingDerivative()
+
     def add_param_point(alt,mach,aoa,aos):
 
         self.alt.append(alt)
@@ -81,6 +139,7 @@ class AeroCoefficient():
         self.cml.append(cml)
         self.cmd.append(cmd)
         self.cms.append(cms)
+
 
     def check_validity(self):
         # TODO: this function could  probalby be simplified
@@ -378,6 +437,7 @@ def save_parameters(tixi,aeromap_uid,Param):
     add_float_vector(tixi,apm_xpath+'/angleOfSideslip',Param.aos)
 
 
+
 # TODO: Could be improved
 def save_coefficients(tixi,aeromap_uid,Coef):
     """ Save aerodynamic coefficients in an aeroMap
@@ -458,6 +518,29 @@ def save_coefficients(tixi,aeromap_uid,Coef):
     else:
         raise ValueError('The number of "cms" values is incorrect, it must \
         either equal to the number of parameters or 0')
+
+    # DampingDerivative
+    if len(Coef.damping_derivatives.dcldpstar): # TODO: Improve this check
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcldpstar',Coef.damping_derivatives.dcldpstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcddpstar',Coef.damping_derivatives.dcddpstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcsdpstar',Coef.damping_derivatives.dcsdpstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmldpstar',Coef.damping_derivatives.dcmldpstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmddpstar',Coef.damping_derivatives.dcmddpstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmsdpstar',Coef.damping_derivatives.dcmsdpstar)
+
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcldqstar',Coef.damping_derivatives.dcldqstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcddqstar',Coef.damping_derivatives.dcddqstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcsdqstar',Coef.damping_derivatives.dcsdqstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmldqstar',Coef.damping_derivatives.dcmldqstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmddqstar',Coef.damping_derivatives.dcmddqstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmsdqstar',Coef.damping_derivatives.dcmsdqstar)
+
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcldrstar',Coef.damping_derivatives.dcldrstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcddrstar',Coef.damping_derivatives.dcddrstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcsdrstar',Coef.damping_derivatives.dcsdrstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmldrstar',Coef.damping_derivatives.dcmldrstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmddrstar',Coef.damping_derivatives.dcmddrstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmsdrstar',Coef.damping_derivatives.dcmsdrstar)
 
 
 def get_aeromap(tixi,aeromap_uid):

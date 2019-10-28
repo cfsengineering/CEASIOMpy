@@ -46,7 +46,6 @@
 * SU2CheckConvergence (maybe integrate with SU2Run)
 
 ### Module SettingsGUI
-* GUI to create/edit/delete aeroMap from CPACS file
 * Find a way to detect active modules
 
 ### Weight and Balance modules

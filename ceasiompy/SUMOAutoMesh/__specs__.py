@@ -32,7 +32,7 @@ cpacs_inout.add_input(
     descr='Absolute path to the SUMO file',
     cpacs_path=CEASIOM_XPATH + '/filesPath/sumoFilePath',
     gui=True,
-    gui_name='SU2 Mesh',
+    gui_name='SUMO File path',
     gui_group='Inputs',
 )
 

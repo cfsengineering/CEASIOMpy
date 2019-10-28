@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aaron Dettmann
 | Creation: 2019-08-06
-| Last modifiction: 2019-09-10
+| Last modifiction: 2019-10-28
 
 TODO:
 
@@ -28,7 +28,7 @@ from pathlib import Path
 import inspect
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, create_branch
 
 log = get_logger(__file__.split('.')[0])
 
@@ -65,7 +65,7 @@ class _Entry:
         default_value=None,
         unit='1',
         descr='',
-        cpacs_path='',
+        xpath='',
         gui=False,
         gui_name='',
         gui_group=None
@@ -78,7 +78,7 @@ class _Entry:
             default_value (any): Default input value
             unit (str): Unit of the required value, e.g. 'm/s'
             descr (str): Description of the input or output data
-            cpacs_path (str): CPACS node path
+            xpath (str): CPACS node path
             gui (bool): 'True' if entry should appear in GUI
             gui_name (str): GUI name
             gui_group (str): Group name for GUI generation
@@ -90,7 +90,7 @@ class _Entry:
         self.default_value = default_value
         self.unit = unit
         self.descr = descr
-        self.cpacs_path = cpacs_path
+        self.xpath = xpath
 
         # ----- GUI specific -----
         self.gui = gui
@@ -144,7 +144,7 @@ class CPACSInOut:
                 entry.default_value,
                 entry.var_type,
                 entry.unit,
-                entry.cpacs_path,
+                entry.xpath,
                 entry.descr,
                 entry.gui_group,
             )
@@ -203,8 +203,8 @@ def check_cpacs_input_requirements(cpacs_file, *, submod_name=None, submodule_le
     for entry in cpacs_inout.inputs:
         if entry.default_value is not None:
             continue
-        if tixi.checkElement(entry.cpacs_path) is False:
-            missing_nodes.append(entry.cpacs_path)
+        if tixi.checkElement(entry.xpath) is False:
+            missing_nodes.append(entry.xpath)
 
     if missing_nodes:
         missing_str = ''
@@ -317,10 +317,52 @@ def find_missing_specs():
     """
 
     missing = []
-    for modname, specs in get_all_module_specs().items():
+    for mod_name, specs in get_all_module_specs().items():
         if specs is None:
-            missing.append(modname)
+            missing.append(mod_name)
     return missing
+
+
+def create_default_toolspecific():
+    """Create a default XML /toolspecific based on all __spec__ xpath and
+       default values. Two CPACS file are created and saved in /utils/doc/
+
+    """
+
+    CPACS_PATH = './doc/empty_cpacs.xml'
+
+    tixi_in = open_tixi(CPACS_PATH)
+    tixi_out = open_tixi(CPACS_PATH)
+
+    for mod_name, specs in get_all_module_specs().items():
+        if specs is not None:
+            # Inputs
+            for entry in specs.cpacs_inout.inputs:
+
+                xpath = entry.xpath
+                if xpath.endswith('/'):
+                    xpath = xpath[:-1]
+
+                value_name = xpath.split("/")[-1]
+                xpath_parent = xpath[:-(len(value_name)+1)]
+
+                if not tixi_in.checkElement(xpath):
+                    create_branch(tixi_in,xpath_parent)
+                    if entry.default_value is not None:
+                        value = str(entry.default_value)
+                    else:
+                        value = 'No default value'
+                    tixi_in.addTextElement(xpath_parent,value_name,value)
+
+            # Outputs
+            for entry in specs.cpacs_inout.outputs:
+                xpath = entry.xpath
+                create_branch(tixi_out,xpath)
+
+    TOOLSPECIFIC_INPUT_PATH = './doc/input_toolspecifics.xml'
+    TOOLSPECIFIC_OUTPUT_PATH = './doc/output_toolspecifics.xml'
+    close_tixi(tixi_in,TOOLSPECIFIC_INPUT_PATH)
+    close_tixi(tixi_out,TOOLSPECIFIC_OUTPUT_PATH)
 
 
 def check_workflow(cpacs_path, submodule_list):
@@ -364,15 +406,15 @@ def check_workflow(cpacs_path, submodule_list):
         for entry in specs.cpacs_inout.inputs:
             # The required xpath can either be in the original CPACS file
             # OR in the xpaths produced during the workflow exectution
-            if not tixi.checkElement(entry.cpacs_path) and entry.cpacs_path not in xpaths_from_workflow:
+            if not tixi.checkElement(entry.xpath) and entry.xpath not in xpaths_from_workflow:
                 err_msg += \
-                    f"==> XPath '{entry.cpacs_path}' required by " \
+                    f"==> XPath '{entry.xpath}' required by " \
                     + f"module '{submod_name}' ({i}/{len(submodule_list)}), " \
                     "but not found\n"
-            xpaths_from_workflow.add(entry.cpacs_path)
+            xpaths_from_workflow.add(entry.xpath)
         # ----- Generated output -----
         for entry in specs.cpacs_inout.outputs:
-            xpaths_from_workflow.add(entry.cpacs_path)
+            xpaths_from_workflow.add(entry.xpath)
 
     if err_msg:
         log.error(err_msg)
@@ -387,4 +429,6 @@ if __name__ == '__main__':
 
     log.info('Nothing to execute')
 
-    # TODO: maybe add function to mange input/ouput, check double, write default /toolspecific ...
+    # TODO: maybe shoul be launch differently
+    # TODO: add function to mange input/ouput, check double
+    create_default_toolspecific()

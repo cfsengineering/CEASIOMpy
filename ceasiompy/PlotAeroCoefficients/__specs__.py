@@ -11,8 +11,8 @@ cpacs_inout.add_input(
     var_name='x',
     default_value=None,
     unit='1',
-    descr='Fuselage scalingo on x axis',
-    cpacs_path=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation   \
+    descr='Fuselage scaling on x axis',
+    xpath=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation   \
                                 /scaling/x',
 )
 
@@ -20,8 +20,8 @@ cpacs_inout.add_input(
     var_name='y',
     default_value=None,
     unit='1',
-    descr='Fuselage scalingo on x axis',
-    cpacs_path=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation   \
+    descr='Fuselage scaling on x axis',
+    xpath=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation   \
                                 /scaling/y',
 )
 
@@ -29,8 +29,8 @@ cpacs_inout.add_input(
     var_name='z',
     default_value=None,
     unit='1',
-    descr='Fuselage scalingo on x axis',
-    cpacs_path=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation   \
+    descr='Fuselage scaling on x axis',
+    xpath=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation   \
                                 /scaling/z',
 )
 
@@ -41,5 +41,5 @@ cpacs_inout.add_input(
 #         default_value=None,
 #         unit='1',
 #         descr='Description of the output',
-#         cpacs_path=CEASIOM_XPATH + '/...',
+#         xpath=CEASIOM_XPATH + '/...',
 #         )

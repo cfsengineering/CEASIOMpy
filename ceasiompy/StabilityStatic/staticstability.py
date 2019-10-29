@@ -79,8 +79,6 @@ def plot_torque_vs_angle(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel
     plt.ylabel(ylabel)
     plt.title(plot_title, fontdict=None, loc='center', pad=None)
 
-    y_max = ''
-
     for n in range(len(x_axis)):
         plt.plot(x_axis[n], y_axis[n], marker='o', markersize=4, linewidth=1)
         # Find x and y axis limits
@@ -123,7 +121,7 @@ def plot_torque_vs_angle(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel
 
     plt.show()
 
-def staticStabilityAnalysis(cpacs_path, aeromap_uid):
+def static_stability_analysis(cpacs_path, aeromap_uid):
     """Function to analyse a full Aeromap
 
     Longitudinal static staticStabilityAnalysis
@@ -252,8 +250,8 @@ def staticStabilityAnalysis(cpacs_path, aeromap_uid):
                 # If find_idx is empty an APM function would have corrected before
                 # If there there is only one value  in  find_idx for a given Alt, Mach, aos_list, no analyse can be performed
                 if len(find_idx) == 1:
-                    log.info('Only one data, one aoa_list(' +str(aoa_list[idx1])+ ' ), for Altitude =  '+ str(alt) +
-                             ' , Mach = ' + str(mach) + '  and aos_list = ' + str(aos) + '  no stability analyse performed' )
+                    log.info('Only one data, one aoa(' +str(aoa_list[idx1])+ '), for Altitude =  '+ str(alt) +
+                             ' , Mach = ' + str(mach) + '  and aos = ' + str(aos) + '  no stability analyse performed' )
                 # If there is at least 2 values in find_idx :
                 if len(find_idx) > 1:
                     # Find all cml_list values for index corresonding to an altitude, a mach, an aos_list=0, and different aoa_list
@@ -276,8 +274,8 @@ def staticStabilityAnalysis(cpacs_path, aeromap_uid):
                     aoa_good = True
                     for jj in range(len(aoa)-1) :
                         if  aoa[jj] == aoa[jj+1] and  aoa_good == True :
-                            aoa_good = False
-                            log.warning(' At least 2 aoa values are equal in aoa list: {} at Alt = {}, Mach= {}, aos = {}' .format(aoa, alt, mach, aos))
+                                aoa_good = False
+                                log.warning(' At least 2 aoa values are equal in aoa list: {} at Alt = {}, Mach= {}, aos = {}' .format(aoa, alt, mach, aos))
                     # retrieve the index in of element in cml just before crossing 0,
                     # np.argwher returns an array as [[idx]], that'a why there is [0][0] at the end
                     # If cml curve does not cross the 0
@@ -402,8 +400,8 @@ def staticStabilityAnalysis(cpacs_path, aeromap_uid):
                 # If find_idx is empty an APM function would have corrected before
                 # If there there is only one value  in  find_idx for a given Alt, Mach, aos_list, no analyse can be performed
                 if len(find_idx) == 1:
-                    log.info('Only one data, one aos_list(' +str(aos_list[idx1])+'), for Altitude = ' + str(alt) +
-                             ' , Mach = ' + str(mach) + ' and aoa_list = ' + str(aoa) + ' no stability analyse performed')
+                    log.info('Only one data, one aos (' +str(aos_list[idx1])+'), for Altitude = ' + str(alt) +
+                             ' , Mach = ' + str(mach) + ' and aoa = ' + str(aoa) + ' no stability analyse performed')
                 # If there is at list 2 values in find_idx :
                 if len(find_idx) > 1:
                     cms = []
@@ -428,7 +426,7 @@ def staticStabilityAnalysis(cpacs_path, aeromap_uid):
                     for jj in range(len(aos)-1) :
                         if  aos[jj] == aos[jj+1] and  aos_good == True :
                             aos_good = False
-                            log.warning('At least 2 values are equal in aos list: {} at Alt = {}, Mach= {}, aoa = {}'.format(aos, alt, mach, aoa))
+                            log.warning('At least 2 values are equal in aos list: {} at Alt = {}, Mach= {}, aoa = {}, dividing by zero while derivating, no stability analyse performed'.format(aos, alt, mach, aoa))
                     # If cml curve does not cross the 0
                     if len(np.argwhere(np.diff(np.sign(cms)))) == 0  :
                         dirrectionaly_stable = False
@@ -501,7 +499,7 @@ def staticStabilityAnalysis(cpacs_path, aeromap_uid):
                         cruise_aos = -fit[1]/fit[0]    # Cms = 0 for y = 0  hence cruise agngle = -b/a
                         side_moment_derivative = fit[0]
 
-                    if crossed== True and aos_good == True:
+                    if crossed == True and aos_good == True :
                         if side_moment_derivative > 0 :
                             log.info('Vehicle directionnaly staticaly stable.')
                         if side_moment_derivative == 0 :
@@ -765,11 +763,9 @@ if __name__ == '__main__':
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
     # Give the path of the  xml file to analyse
     cpacs_path = os.path.join(MODULE_DIR,'ToolInput','cpacs_test_file.xml')
-
-    # Choose the aeromap to analyses
-    # aeromap_uid = ....
-
-    # Make the static stability analysis, on the modified xml file
-    staticStabilityAnalysis(cpacs_path, aeromap_uid)
+    # Call the function which check if the imput file is well define
+    check_cpacs_input_requirements(cpacs_path)
+    # Run the static analysis
+    static_stability_analysis(cpacs_path, aeromap_uid)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

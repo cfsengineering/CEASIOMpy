@@ -1,88 +1,63 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH
+from ceasiompy.utils.moduleinterfaces import CPACSInOut, CEASIOM_XPATH
+
+AEROMAPS_PATH = CEASIOM_XPATH +  '/cpacs/vehicles/aircraft/model/analyses/aeroperormance/aeroMapUID'
 
 # ===== RCE integration =====
 
 RCE = {
-    "name": "ModuleTemplate",
-    "description": "This is a template module",
-    "exec": "pwd\npython moduletemplate.py",
-    "author": "Neil Armstrong",
-    "email": "neil@nasa.gov",
+    "name": "StabilityStatic",
+    "description": "Determine if a vehicle is statically stable or not  ",
+    "exec": "pwd\npython stabilitystatic.py",
+    "author": "Loïc Verdier",
+    "email": "loic.verdier@epfl.ch",
 }
 
 # ===== CPACS inputs and outputs =====
-
 cpacs_inout = CPACSInOut()
 
-include_gui = False
+include_gui = True
 
-# ----- Input -----
+# ===== Input =====
 
-# * In the following example we add three (!) new entries to 'cpacs_inout'
-# * Try to use (readable) loops instead of copy-pasting three almost same entries :)
-for direction in ['x', 'y', 'z']:
-    cpacs_inout.add_input(
-        var_name=direction,
-        var_type=float,
-        default_value=None,
-        unit='1',
-        descr=f"Fuselage scaling on {direction} axis",
-        cpacs_path=AIRCRAFT_XPATH + f'/model/fuselages/fuselage/transformation/scaling/{direction}',
-        gui=include_gui,
-        gui_name=f'{direction.capitalize()} scaling',
-        gui_group='Fuselage scaling',
-    )
-
+# Select the aeromap to analyse
 cpacs_inout.add_input(
-    var_name='test',
-    var_type=str,
-    default_value='This is a test',
+    var_name='',
+    var_type=list,
+    default_value=None,
     unit=None,
-    descr='This is a test of description',
-    cpacs_path='/cpacs/toolspecific/CEASIOMpy/test/myTest',
-    gui=include_gui,
-    gui_name='My test',
-    gui_group='Group Test',
-)
-
-cpacs_inout.add_input(
-    var_name='aeromap_uid',
-    var_type=list,
-    default_value=None,
-    cpacs_path='/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID',
-    gui=include_gui,
+    descr="Name of the aero map to evaluate",
+    cpacs_path=AEROMAPS_PATH,
+    gui=True,
     gui_name='__AEROMAP_SELECTION',
+    gui_group=None,
 )
 
-cpacs_inout.add_input(
-    var_name='aeromap_uid',
-    var_type=list,
-    default_value=None,
-    cpacs_path='/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction/aeroMapToCalculate',
-    gui=include_gui,
-    gui_name='__AEROMAP_CHECHBOX',
-)
 
-cpacs_inout.add_input(
-    var_name='other_var',
-    var_type=list,
-    default_value= [2,33,444],
-    unit='[unit]',
-    cpacs_path='/cpacs/toolspecific/CEASIOMpy/test/myList',
-    gui=include_gui,
-    gui_name='Choice',
-    gui_group='My Selection'
-)
+# ===== Output =====
 
-# ----- Output -----
-
-cpacs_inout.add_output(
-    var_name='output',
-    default_value=None,
-    unit='1',
-    descr='Description of the output',
-    cpacs_path='/...',
-)
+# cpacs_inout.add_output(
+#     var_name='cd0',
+#     default_value=None,
+#     unit='1',
+#     descr='Skin friction drag coefficient',
+#     cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/skinFriction/cd0',
+# )
+#
+# cpacs_inout.add_output(
+#     var_name='wing_area',
+#     default_value=None,
+#     unit='m^2',
+#     descr='Wing area of the main (largest) wing',
+#     cpacs_path=CEASIOM_XPATH + '/geometry/analysis/wingArea',
+# )
+#
+# cpacs_inout.add_output(
+#     var_name='wing_span',
+#     default_value=None,
+#     unit='m',
+#     descr='Wing span of the main (largest) wing',
+#     cpacs_path=CEASIOM_XPATH + '/geometry/analysis/wingSpan',
+# )

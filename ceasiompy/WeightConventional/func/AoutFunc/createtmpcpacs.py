@@ -1,3 +1,4 @@
+# TODO: could probalby be removed
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 

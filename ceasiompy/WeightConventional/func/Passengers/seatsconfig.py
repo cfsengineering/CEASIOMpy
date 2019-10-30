@@ -6,10 +6,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script defines a possible configuration for the seats
 inside the conventional aircraft.
 
-| Works with Python 2.7
+| Works with Python 3.6
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-10-30 (AJ)
 """
 
 
@@ -40,24 +40,22 @@ def seat_config(pass_nb, row_nb, abreast_nb, aisle_nb,\
                 IS_DOUBLE_FLOOR, toilet_nb, PASS_PER_TOILET,\
                 fuse_length, ind, NAME):
 
-    """ The function proposes a sit disposition.
+    """ The function to proposes a sit disposition.
 
-    ARGUMENTS
-    (integer) pass_nb           --Arg.: Number of passengers [-].
-    (integer) row_nb            --Arg.: Nmber of seat rows [-].
-    (integer) abreast_nb        --Arg.: Number of seat abreasts [-].
-    (integer) aisle_nb          --Arg.: Number of aisles [-].
-    (integer) toilet_nb            --Arg.: Number of toilets [-].
-    (integer) IS_DOUBLE_FLOOR   --Arg.: Double floor option [-].
-    (integer) PASS_PER_TOILET      --Arg.: Number of passengers per toilet [-].
-    (float) fuse_length         --Arg.: Fuselage_length [m].
-    (class) ind                 --Arg.: InsideDimensions class [-].
-    ##======= Class is defined in the Inputlasses folder =======##
+    Args:
+    pass_nb (integer): Number of passengers [-]
+    row_nb (integer): Nmber of seat rows [-]
+    abreast_nb (integer): Number of seat abreasts [-]
+    aisle_nb (integer): Number of aisles [-]
+    toilet_nb (integer): Number of toilets [-]
+    IS_DOUBLE_FLOOR (integer): Double floor option [-]
+    PASS_PER_TOILET (integer): Number of passengers per toilet [-]
+    fuse_length (float): Fuselage_length [m]
+    ind (class): InsideDimensions class [-]
+    NAME  (str): Name of the aircraft
 
-    (char) NAME                 --Arg.: Name of the aircraft.
-
-    RETURNS
-    (file) NAME_Seats_disposition.out  --Out.: Print of the possible sets
+    Returns:
+    NAME_Seats_disposition.out (file) : Print of the possible sets
                                                disposition per each rows.
     """
 

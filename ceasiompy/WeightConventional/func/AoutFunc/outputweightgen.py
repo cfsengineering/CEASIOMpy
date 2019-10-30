@@ -33,13 +33,10 @@ Output text and plot generation functions.
 #   FUNCTIONS
 #=============================================================================
 
-def output_txt(IS_DOUBLE_FLOOR, out, mw, ind, ui, NAME):
+def output_txt(out, mw, ind, ui, NAME):
     """ The function generates the output text file for the Weight analysis.
 
         INPUT
-        (integer) IS_DOUBLE_FLOOR --Arg.: Floor numbre indicator.
-        (float) mass_pass         --Arg.: Mass of a single passenger.
-
         (class) out               --Arg.: WeightOutput class.
         (class) mw                --Arg.: MassesWeights class.
         ##========== Classes are defined in the classes folder ==========##
@@ -79,9 +76,9 @@ def output_txt(IS_DOUBLE_FLOOR, out, mw, ind, ui, NAME):
                          + str(round(ind.cabin_width,3)))
     OutputTextFile.write('\nCabin Area [m^2]: '\
                          + str(round(ind.cabin_area,3)))
-    if IS_DOUBLE_FLOOR == 1:
+    if ui.IS_DOUBLE_FLOOR == 1:
         OutputTextFile.write('\nThe aircraft has a full 2nd floor')
-    elif IS_DOUBLE_FLOOR == 2:
+    elif ui.IS_DOUBLE_FLOOR == 2:
         OutputTextFile.write('\nThe aircraft has a small 2nd floor')
     else:
         OutputTextFile.write('\nThe aircraft has 1 floor')

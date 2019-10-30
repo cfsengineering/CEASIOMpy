@@ -5,10 +5,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Function to evaluate the Oprating Empty Mass (OEM) from the maximum take of mass.
 
-| Works with Python 2.7
+| Works with Python 3.6
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-10-30 (AJ)
 """
 
 
@@ -43,16 +43,17 @@ def operating_empty_mass_estimation(mtom, fuse_length, fuse_width, wing_area,\
             AIAA educational Series, Fourth edition (2006).
 
     INPUT
-    (float)     mtom            --Arg.: Maximum take off mass [kg].
-    (float)     fuse_length     --Arg.: Fuselage length [m].
-    (float)     fuse_width      --Arg.: Fuselage width [m].
-    (float)     wing_area       --Arg.: Wing area [m^2].
-    (float)     wing_span       --Arg.: Wing span [m].
-    (boolean)   TURBOPROP       --Arg.: True if the the engines are turboprop
-                                        False otherwise.
-    OUTPUT
-    (float)     oem             --Out.: Operating empty mass [kg].
+    mtom (float): Maximum take off mass [kg]
+    fuse_length (float): Fuselage length [m]
+    fuse_width (float): Fuselage width [m]
+    wing_area (float): Wing area [m^2]
+    wing_span (float): Wing span [m]
+    TURBOPROP (boolean): True if the the engines are turboprop False otherwise.
+
+    Returns:
+    oem (float): Operating empty mass [kg]
     """
+
     G = 9.81     # [m/s^2] Acceleration of gravity.
     KC = 1.04    # [-] Wing with variable sweep (1.0 otherwhise).
     if TURBOPROP:
@@ -88,4 +89,3 @@ if __name__ == '__main__':
     log.warning('###########################################################')
     log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ####')
     log.warning('###########################################################')
-

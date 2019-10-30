@@ -6,10 +6,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script evaluates the maximum number of passengers (maximum
 number of people in economy class that can leave the aircraft in 90 sec).
 
-| Works with Python 2.7
+| Works with Python 3.6
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-10-30 (AJ)
 """
 
 
@@ -39,27 +39,25 @@ log = get_logger(__file__.split('.')[0])
 #=============================================================================
 
 def estimate_passengers(PASS_PER_TOILET, cabin_length, fuse_width, ind):
-
     """ The function evaluates the maximum number of passengers that can sit in
     the airplane, taking into account also the necessity of common space for
     big airplanes and a number of toilets in relation with the number
     of passengers.
 
-    ARGUMENTS
-    (interger) PASS_PER_TOILET   --Arg.: Number of passengers per toilet [-].
-    (float)    cabin_length   --Arg.: Cabin length [m].
-    (float)    fuse_width     --Arg.: Fuselage width [m].
-    (class)    ind            --Arg.: InsideDimensions class [-].
-    ##======= Class is defined in the InputClasses folder =======##
+    Args:
+    PASS_PER_TOILET(interger): Number of passengers per toilet [-]
+    cabin_length (float): Cabin length [m]
+    fuse_width (float): Fuselage width [m]
+    ind (class): InsideDimensions class [-]
 
-    RETURNS
-    (integer) pass_nb     --Out.: Number of passengers [-].
-    (integer) row_nb      --Out.: Number of seat rows [-].
-    (integer) abreast_nb  --Out.: Number of seat abreasts [-].
-    (integer) aisle_nb    --Out.: Number of aisles [-].
-    (integer) toilet_nb      --Out.: Number of toilets [-].
-    (class) ind           --Out.: InsideDimensions class updated [-].
-    ##======= Class is defined in the InputClasses folder =======##
+    Returns:
+    pass_nb (integer): Number of passengers [-]
+    row_nb   (integer): Number of seat rows [-]
+    abreast_nb (integer): Number of seat abreasts [-]
+    aisle_nb (integer): Number of aisles [-]
+    toilet_nb (integer): Number of toilets [-]
+    ind (class): InsideDimensions class updated [-]
+
     """
     cabin_width = fuse_width * (1-(ind.fuse_thick/100))
 

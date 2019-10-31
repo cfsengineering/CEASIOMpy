@@ -76,13 +76,10 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     else:
         os.makedirs('ToolOutput')
 
-    # Class Definition from the ceasiompy.Input_classes/Conventional folder
+    # Classes
     ui = weightconvclass.UserInputs()
-
-    # Class Definition from the classes folder
     mw = weightconvclass.MassesWeights()
     out = weightconvclass.WeightOutput()
-
 
     if not os.path.exists(cpacs_path):
         raise ValueError ('No "ToolInput.xml" file in the ToolInput folder.')

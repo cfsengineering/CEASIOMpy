@@ -298,7 +298,7 @@ en_mass
 /cpacs/toolspecific/CEASIOMpy/propulsion/userEngineOption
 /cpacs/toolspecific/CEASIOMpy/propulsion/engineNumber
 cpacs/vehicles/engines/engine[..]/name
-cpacs/vehicles/engines/engine/analysis/mass/mass
+cpacs/vehicles/engines/engine/analyses/mass/mass
 
 True if the User define the Engines in the EngineData class 	Belongs to the UserInputs Class
 Number of Engines	Belongs to the EngineData class
@@ -319,7 +319,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='[kg]',
     descr='Maximum take of mass',
-    xpath=AIRCRAFT_XPATH+'/model/analysis/massBreakdown/designMasses/mTOM/mass',
+    xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/designMasses/mTOM/mass',
 )
 
 cpacs_inout.add_output(
@@ -327,7 +327,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='[kg]',
     descr='Zero fuel mass',
-    xpath=AIRCRAFT_XPATH+'/model/analysis/massBreakdown/designMasses/mZFM/mass',
+    xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/designMasses/mZFM/mass',
 )
 
 cpacs_inout.add_output(
@@ -335,7 +335,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='[kg]',
     descr='Maximum fuel mass',
-    xpath=AIRCRAFT_XPATH+'/model/analysis/massBreakdown/fuel/massDescription/mass',
+    xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/fuel/massDescription/mass',
 )
 
 cpacs_inout.add_output(
@@ -351,7 +351,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='[kg]',
     descr='Operating empty mass',
-    xpath=AIRCRAFT_XPATH+'/model/analysis/massBreakdown/mOEM/massDescription/mass',
+    xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/mOEM/massDescription/mass',
 )
 
 cpacs_inout.add_output(
@@ -359,7 +359,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='[kg]',
     descr='Maximum payload mass',
-    xpath=AIRCRAFT_XPATH+'model/analysis/massBreakdown/payload/massDescription/mass',
+    xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/payload/massDescription/mass',
 )
 
 cpacs_inout.add_output(
@@ -375,7 +375,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='[kg]',
     descr='xtra payload mass in case of max fuel and total mass less than MTOM',
-    xpath=AIRCRAFT_XPATH+'model/analysis/massBreakdown/mCargo/massDescription/massCargo',
+    xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/mCargo/massDescription/massCargo',
 )
 
 cpacs_inout.add_output(
@@ -399,7 +399,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='[m^2]',
     descr='Wing area',
-    xpath=CEASIOM_XPATH+'/geometry/analysis/wingArea',
+    xpath=CEASIOM_XPATH+'/geometry/analyses/wingArea',
 )
 
 cpacs_inout.add_output(
@@ -407,7 +407,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='[m]',
     descr='Fuselage length',
-    xpath=CEASIOM_XPATH+'/geometry/analysis/fuseLength',
+    xpath=CEASIOM_XPATH+'/geometry/analyses/fuseLength',
 )
 
 cpacs_inout.add_output(

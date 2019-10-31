@@ -166,15 +166,15 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
 
     wing_area_max, wing_span_max = get_largest_wing_dim(tixi,tigl)
 
-    analysis_xpath = '/cpacs/toolspecific/CEASIOMpy/geometry/analysis'
+    analyses_xpath = '/cpacs/toolspecific/CEASIOMpy/geometry/analyses'
 
     # Requiered input data from CPACS
-    wetted_area = get_value(tixi,analysis_xpath + '/wettedArea')
+    wetted_area = get_value(tixi,analyses_xpath + '/wettedArea')
 
     # Wing area/span, default values will be calated if no value found in the CPACS file
-    wing_area_xpath = analysis_xpath + '/wingArea'
+    wing_area_xpath = analyses_xpath + '/wingArea'
     wing_area = get_value_or_default(tixi,wing_area_xpath, wing_area_max)
-    wing_span_xpath = analysis_xpath + '/wingSpan'
+    wing_span_xpath = analyses_xpath + '/wingSpan'
     wing_span = get_value_or_default(tixi,wing_span_xpath, wing_span_max)
 
     aeromap_uid_list = []

@@ -82,7 +82,7 @@ def main():
             for entry in specs.cpacs_inout.inputs:
                 fp.write('\n')
                 fp.write(get_rst_header(str(entry.descr), level=3))
-                fp.write(item(bold('CPACS path') + str(entry.cpacs_path)))
+                fp.write(item(bold('CPACS path') + str(entry.xpath)))
                 fp.write(item(bold('Default value') + str(entry.default_value)))
                 fp.write(item(bold('Unit') + str(entry.unit)))
                 fp.write(item(bold('Variable name') + str(entry.var_name)))
@@ -97,7 +97,7 @@ def main():
             for entry in specs.cpacs_inout.outputs:
                 fp.write('\n')
                 fp.write(get_rst_header(str(entry.descr), level=3))
-                fp.write(item(bold('CPACS path') + str(entry.cpacs_path)))
+                fp.write(item(bold('CPACS path') + str(entry.xpath)))
                 fp.write(item(bold('Default value') + str(entry.default_value)))
                 fp.write(item(bold('Unit') + str(entry.unit)))
                 fp.write(item(bold('Variable name') + str(entry.var_name)))

@@ -13,7 +13,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='kg',
     descr='Maximum take off mass (MTOM)',
-    cpacs_path=AIRCRAFT_XPATH + '/model/analyses/massBreakdown/designMasses/mTOM/mass',
+    xpath=AIRCRAFT_XPATH + '/model/analyses/massBreakdown/designMasses/mTOM/mass',
     gui=False,
     gui_name=None,
     gui_group=None,
@@ -25,7 +25,7 @@ cpacs_inout.add_input(
     default_value=0.78,
     unit='1',
     descr='Aircraft cruise Mach number',
-    cpacs_path=CEASIOM_XPATH + '/ranges/cruiseMach',
+    xpath=CEASIOM_XPATH + '/ranges/cruiseMach',
     gui=True,
     gui_name='Mach',
     gui_group='Cruise',
@@ -37,7 +37,7 @@ cpacs_inout.add_input(
     default_value=12000.0,
     unit='m',
     descr='Aircraft cruise altitude',
-    cpacs_path=CEASIOM_XPATH + '/ranges/cruiseAltitude',
+    xpath=CEASIOM_XPATH + '/ranges/cruiseAltitude',
     gui=True,
     gui_name='Altitude',
     gui_group='Cruise',
@@ -49,7 +49,7 @@ cpacs_inout.add_input(
     default_value=1.05,
     unit='1',
     descr='Aircraft cruise altitude',
-    cpacs_path=CEASIOM_XPATH + '/ranges/loadFactor',
+    xpath=CEASIOM_XPATH + '/ranges/loadFactor',
     gui=True,
     gui_name='Load Factor',
     gui_group='Cruise',
@@ -61,7 +61,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m^2',
     descr='Aircraft reference area',
-    cpacs_path=AIRCRAFT_XPATH + '/model/reference/area',
+    xpath=AIRCRAFT_XPATH + '/model/reference/area',
     gui=False,
     gui_name=None,
     gui_group=None,
@@ -75,7 +75,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='1',
     descr='Value of CL to achieve to have a level flight with the given conditions',
-    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/targetCL',
+    xpath=CEASIOM_XPATH + '/aerodynamics/su2/targetCL',
 )
 
 cpacs_inout.add_output(
@@ -83,6 +83,6 @@ cpacs_inout.add_output(
     default_value=None,
     unit='-',
     descr='FIXED_CL_MODE parameter for SU2',
-    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/fixedCL',
+    xpath=CEASIOM_XPATH + '/aerodynamics/su2/fixedCL',
 
 )

@@ -25,7 +25,7 @@ cpacs_inout.add_input(
     var_type=list,
     default_value=None,
     descr='To which aeroMap the skin priction coef shoud be added',
-    cpacs_path=SKINFRICTION_PATH + '/aeroMapToCalculate',
+    xpath=SKINFRICTION_PATH + '/aeroMapToCalculate',
     gui=True,
     gui_name='__AEROMAP_CHECHBOX',
 )
@@ -36,7 +36,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m^2',
     descr='Wetted area of the aircraft (calculated by SU2)',
-    cpacs_path=CEASIOM_XPATH + '/geometry/analysis/wettedArea',
+    xpath=CEASIOM_XPATH + '/geometry/analysis/wettedArea',
     gui=False,
     gui_name='Wetted Area',
     gui_group=None,
@@ -48,7 +48,7 @@ cpacs_inout.add_input(
     default_value=False,
     unit=None,
     descr='Delete orignal aeroMap once skin friction coefficient has been added',
-    cpacs_path=SKINFRICTION_PATH + '/deleteOriginal',
+    xpath=SKINFRICTION_PATH + '/deleteOriginal',
     gui=True,
     gui_name='Delete Orignal',
     gui_group=None,
@@ -59,7 +59,7 @@ cpacs_inout.add_input(
     default_value=0.78,
     unit='-',
     descr='Aircraft cruise Mach number',
-    cpacs_path=CEASIOM_XPATH + '/ranges/cruiseMach',
+    xpath=CEASIOM_XPATH + '/ranges/cruiseMach',
 )
 
 cpacs_inout.add_input(
@@ -67,7 +67,7 @@ cpacs_inout.add_input(
     default_value=12000,
     unit='m',
     descr='Aircraft cruise altitude',
-    cpacs_path=CEASIOM_XPATH + '/ranges/cruiseAltitude',
+    xpath=CEASIOM_XPATH + '/ranges/cruiseAltitude',
 )
 
 # ===== Output =====
@@ -77,7 +77,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='1',
     descr='Skin friction drag coefficient',
-    cpacs_path=CEASIOM_XPATH + '/aerodynamics/su2/skinFriction/cd0',
+    xpath=CEASIOM_XPATH + '/aerodynamics/su2/skinFriction/cd0',
 )
 
 cpacs_inout.add_output(
@@ -85,7 +85,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='m^2',
     descr='Wing area of the main (largest) wing',
-    cpacs_path=CEASIOM_XPATH + '/geometry/analysis/wingArea',
+    xpath=CEASIOM_XPATH + '/geometry/analysis/wingArea',
 )
 
 cpacs_inout.add_output(
@@ -93,5 +93,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit='m',
     descr='Wing span of the main (largest) wing',
-    cpacs_path=CEASIOM_XPATH + '/geometry/analysis/wingSpan',
+    xpath=CEASIOM_XPATH + '/geometry/analysis/wingSpan',
 )

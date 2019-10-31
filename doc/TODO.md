@@ -17,8 +17,7 @@
 
 ## Module dependencies
 * Create a function to check consistency (does same variable name are stored a the same xpath, ...)
-* Create a function to generate a default /toolspecific node with all the possible XPath
-    * See `check_workflow()` in `utils.moduleinterfaces`
+
 
 ## Documentation
 * Fix `gen_module_interface_pages.py`: Script does not run on ReadTheDocs because Tigl/Tixi import fails
@@ -41,7 +40,6 @@
     * Beam model generator (automatic sizing)
 
 ### Aerodynamics
-* Calculate and save damping derivatives
 * Calculate and save controls surface deflections
 * SU2CheckConvergence (maybe integrate with SU2Run)
 

@@ -18,7 +18,7 @@ def test_cpacs_inout():
     # Adding input
     cpacs_inout.add_input(
         descr='Test description',
-        cpacs_path='/cpacs/testpath',
+        xpath='/cpacs/testpath',
         default_value=5,
         unit='m/s',
         var_name=None
@@ -27,7 +27,7 @@ def test_cpacs_inout():
     # Adding output
     cpacs_inout.add_output(
         descr='Test description',
-        cpacs_path='/cpacs/testpath',
+        xpath='/cpacs/testpath',
         default_value=None,
         unit='m/s',
         var_name=None
@@ -36,7 +36,7 @@ def test_cpacs_inout():
     # For the output we do not need to pass 'default_value'
     cpacs_inout.add_output(
         descr='Test description',
-        cpacs_path='/cpacs/testpath',
+        xpath='/cpacs/testpath',
         unit='m/s',
         var_name=None
     )
@@ -44,7 +44,7 @@ def test_cpacs_inout():
     with pytest.raises(ValueError):
         cpacs_inout.add_output(
             descr='Test description',
-            cpacs_path='/cpacs/testpath',
+            xpath='/cpacs/testpath',
             default_value='THIS STRING SHOULE CAUSE AN ERROR',
             unit='m/s',
             var_name=None
@@ -98,7 +98,7 @@ def test_check_cpacs_input_requirements():
         default_value=12000,
         unit='m',
         descr='Aircraft cruise altitude',
-        cpacs_path=m.CEASIOM_XPATH + '/ranges/cruiseAltitude',
+        xpath=m.CEASIOM_XPATH + '/ranges/cruiseAltitude',
     )
 
     assert m.check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout) is None
@@ -108,7 +108,7 @@ def test_check_cpacs_input_requirements():
         default_value=None,
         unit='m',
         descr='Some description',
-        cpacs_path='/a/non-existent/path',
+        xpath='/a/non-existent/path',
     )
 
     with pytest.raises(m.CPACSRequirementError):

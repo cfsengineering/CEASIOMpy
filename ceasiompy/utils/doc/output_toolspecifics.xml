@@ -17,6 +17,9 @@
           <fixedCL/>
           <startTime/>
           <endTime/>
+          <boundaryConditions>
+            <wall/>
+          </boundaryConditions>
           <skinFriction>
             <cd0/>
           </skinFriction>
@@ -60,20 +63,68 @@
           <cabinCrewMembers>
             <cabinCrewMemberNB/>
           </cabinCrewMembers>
+          <crewMass>
+            <mass/>
+            <cabinCrewMemberNB/>
+          </crewMass>
         </crew>
+        <passengers>
+          <fuelMassMaxpass>
+            <mass/>
+          </fuelMassMaxpass>
+          <passNb/>
+          <rowNb/>
+          <abreastNb/>
+          <aisleNb/>
+          <toiletNb/>
+        </passengers>
       </weight>
       <geometry>
-        <analysis>
+        <analyses>
           <wettedArea/>
           <wingArea/>
+          <fuseLength/>
           <wingSpan/>
-        </analysis>
+        </analyses>
       </geometry>
     </CEASIOMpy>
-    <CEASIOMpysu2>
-      <boundaryConditions>
-        <wall/>
-      </boundaryConditions>
-    </CEASIOMpysu2>
   </toolspecific>
+  <vehicles>
+    <aircraft>
+      <model>
+        <analyses>
+          <massBreakdown>
+            <designMasses>
+              <mTOM>
+                <mass/>
+              </mTOM>
+              <mZFM>
+                <mass/>
+              </mZFM>
+            </designMasses>
+            <fuel>
+              <massDescription>
+                <mass/>
+              </massDescription>
+            </fuel>
+            <mOEM>
+              <massDescription>
+                <mass/>
+              </massDescription>
+            </mOEM>
+            <payload>
+              <massDescription>
+                <mass/>
+              </massDescription>
+            </payload>
+            <mCargo>
+              <massDescription>
+                <massCargo/>
+              </massDescription>
+            </mCargo>
+          </massBreakdown>
+        </analyses>
+      </model>
+    </aircraft>
+  </vehicles>
 </cpacs>

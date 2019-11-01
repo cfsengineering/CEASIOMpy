@@ -36,7 +36,7 @@ log = get_logger(__file__.split('.')[0])
 #   FUNCTIONS
 #=============================================================================
 
-def seat_config(pass_nb, row_nb, abreast_nb, aisle_nb,\
+def get_seat_config(pass_nb, row_nb, abreast_nb, aisle_nb,\
                 IS_DOUBLE_FLOOR, toilet_nb, PASS_PER_TOILET,\
                 fuse_length, ind, NAME):
 

@@ -9,7 +9,7 @@ of conventional aircraft using the linear regression method.
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-10-30 (AJ)
+| Last modifiction: 2019-11-01 (AJ)
 
 """
 

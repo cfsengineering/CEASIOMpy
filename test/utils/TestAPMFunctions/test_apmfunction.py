@@ -85,7 +85,7 @@ def test_aeromap_from_csv():
     tixi = open_tixi(CPACS_IN_PATH)
 
     aeromap_uid = 'test_aeromap'
-    csv_path = 'ToolInput/Aeromap_test.csv'
+    csv_path = os.path.join(MODULE_DIR,'ToolInput','Aeromap_test.csv')
     aeromap_from_csv(tixi, aeromap_uid, csv_path)
 
     AeroCoef = get_aeromap(tixi, aeromap_uid)

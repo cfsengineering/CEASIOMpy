@@ -9,7 +9,11 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-10-30 (AJ)
+| Last modifiction: 2019-11-01 (AJ)
+
+TODO:
+    * Simplify classes, use only one or use subclasses
+    * Make tings compatible also with the oters W&B Modules
 
 """
 
@@ -22,18 +26,20 @@ import shutil
 import numpy as np
 import time
 
-from ceasiompy.utils.InputClasses.Conventional import weightconvclass
-
+# Should be kept
 from ceasiompy.WeightConventional.func.Passengers.passengers import estimate_passengers
-from ceasiompy.WeightConventional.func.Passengers.seatsconfig import seat_config
+from ceasiompy.WeightConventional.func.Passengers.seatsconfig import get_seat_config
 from ceasiompy.WeightConventional.func.Crew.crewmembers import estimate_crew
-from ceasiompy.WeightConventional.func.Masses.oem import operating_empty_mass_estimation
-from ceasiompy.WeightConventional.func.Masses import mtomestimation
-from ceasiompy.WeightConventional.func.AoutFunc import outputweightgen, cpacsweightupdate, createtmpcpacs
-
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.WeightConventional.func.Masses.oem import estimate_operating_empty_mass
+from ceasiompy.WeightConventional.func.Masses.mtom import estimate_limits, estimate_mtom
 from ceasiompy.utils.cpacsfunctions import aircraft_name
+from ceasiompy.utils.ceasiomlogger import get_logger
+
+# Should be changed or removed
+from ceasiompy.utils.InputClasses.Conventional import weightconvclass
+from ceasiompy.WeightConventional.func.AoutFunc import outputweightgen, cpacsweightupdate, createtmpcpacs
 from ceasiompy.utils.WB.ConvGeometry import geometry
+
 
 log = get_logger(__file__.split('.')[0])
 
@@ -77,6 +83,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
         os.makedirs('ToolOutput')
 
     # Classes
+    # TODO: Use only one class or subclasses
     ui = weightconvclass.UserInputs()
     mw = weightconvclass.MassesWeights()
     out = weightconvclass.WeightOutput()
@@ -134,17 +141,14 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     log.info('---------- Aircraft: ' + name + ' -----------')
 
     # Maximum Take Off Mass Evaluation
-    mw.maximum_take_off_mass = mtomestimation.estimate_mtom(fuse_length,
-                                                            fuse_width,
-                                                            wing_area,
-                                                            wing_span,
-                                                            name)
+    mw.maximum_take_off_mass = estimate_mtom(fuse_length,fuse_width,wing_area,
+                                             wing_span,name)
 
     # Wing loading
     out.wing_loading = mw.maximum_take_off_mass/wing_area_tot
 
     # Operating Empty Mass evaluation
-    mw.operating_empty_mass = operating_empty_mass_estimation(
+    mw.operating_empty_mass = estimate_operating_empty_mass(
                                  mw.maximum_take_off_mass, fuse_length,
                                  fuse_width, wing_area, wing_span,
                                  ui.TURBOPROP)
@@ -155,7 +159,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
          out.toilet_nb, ind) = estimate_passengers(ui.PASS_PER_TOILET,\
                                                 cabin_length2, fuse_width, ind)
 
-        seat_config(out.pass_nb, out.row_nb, out.abreast_nb,
+        get_seat_config(out.pass_nb, out.row_nb, out.abreast_nb,
                     out.aisle_nb, ui.IS_DOUBLE_FLOOR, out.toilet_nb,
                     ui.PASS_PER_TOILET, fuse_length, ind, name)
     else:
@@ -300,71 +304,3 @@ if __name__ == '__main__':
     get_weight_estimations(cpacs_path,cpacs_out_path)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
-
-
-
-## Thing remove by Aidan during code refactoring
-# Now only input via CPACS file
-
-##=============================== PREPROCESSING ============================##
-
-    # # Set True for option B or False for option A
-    # cpacs = True
-    #
-    # if not cpacs:
-    # ### Option 1: GEOMETRY FROM INPUT
-    #     name = str(input('Name of the aircraft: '))
-    #     wing_area = float(input('Wing plantform area [m^2]: '))
-    #     wing_span = float(input('Wing span [m]: '))
-    #     fuse_length = float(input('Fuselage length [m]: '))
-    #     fuse_width = float(input('Fuselage width [m]: '))
-    #     wing_area_tot = wing_area
-    #     start = time.time()
-    #     ind = weightconvclass.InsideDimensions(fuse_length,\
-    #                                              fuse_width, cpacs)
-    #     cpacs_out = 'ToolOutput/user_tooloutput.xml'
-    #     cpacs_out_path = createtmpcpacs.create_xml(cpacs_out, name)
-    #     newpath = 'ToolOutput/' + name
-    #     if not os.path.exists(newpath):
-    #         os.makedirs(newpath)
-    # else:
-    ### Option 2: GEOMETRY FROM CPACS
-##======================= DEFAULT OR ADVANCE USER INPUT ====================##
-    # if cpacs:
-    #
-    #    .....
-    #
-    # else:
-    #     (ind, ui) = getinput.get_user_inputs(ind, ui, 'nogeometry',\
-    #                                           cpacs_out_path, cpacs)
-#=============================================================================
-
-# Copying tooloutput.xml as toolinput.xml in the ToolInput folder in
-# Range and BalanceConventional modules.
-    # if not cpacs:
-    #     PATH_IN = '/user_tooloutput.xml'
-    #     PATH_OUT = '/user_toolinput.xml'
-    #     TEMP = '/nocpacs.temp'
-    #     TEXT = 'Conventional Aircraft from user_toolinput'
-    # else:
-    #     PATH_IN = '/ToolOutput.xml'
-    #     PATH_OUT = '/ToolInput.xml'
-    #     TEMP = '/conv.temp'
-    #     TEXT = 'Conventional Aircraft'
-    #
-    # PATH = 'ToolOutput' + PATH_IN
-    # PATH_RANGE_OUT = '../Range/ToolInput' + PATH_OUT
-    # PATH_BALANCE_OUT = '../BalanceConventional/ToolInput' + PATH_OUT
-    #
-    # if os.path.exists('../Range/ToolInput'):
-    #     shutil.rmtree('../Range/ToolInput')
-    #     os.makedirs('../Range/ToolInput')
-    # shutil.copyfile(PATH, PATH_RANGE_OUT)
-    # OutputTextFile = open('../Range/ToolInput' + TEMP, 'w')
-    # OutputTextFile.write(TEXT)
-    # OutputTextFile.close()
-    #
-    # if os.path.exists('../BalanceConventional/ToolInput'):
-    #     shutil.rmtree('../BalanceConventional/ToolInput')
-    #     os.makedirs('../BalanceConventional/ToolInput')
-    # shutil.copyfile(PATH, PATH_BALANCE_OUT)

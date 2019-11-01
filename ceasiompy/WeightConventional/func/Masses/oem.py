@@ -35,7 +35,7 @@ log = get_logger(__file__.split('.')[0])
 #   FUNCTIONS
 #=============================================================================
 
-def operating_empty_mass_estimation(mtom, fuse_length, fuse_width, wing_area,\
+def estimate_operating_empty_mass(mtom, fuse_length, fuse_width, wing_area,\
                                     wing_span, TURBOPROP):
     """ The function estimates the operating empty mass (OEM)
 

@@ -25,7 +25,7 @@ from pytest import approx
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.cpacsfunctions import open_tixi, get_value
-from ceasiompy.CLCalculator.clcalculator import calculate_cl, get_cl
+from ceasiompy.StabilityStatic.staticstability import get_unic, change_sign_once, unexpected_sign_change, static_stability_analysis
 
 log = get_logger(__file__.split('.')[0])
 
@@ -38,22 +38,12 @@ log = get_logger(__file__.split('.')[0])
 #   FUNCTIONS
 #==============================================================================
 
-
-# np.sign(cml)
-# len(find_idx)
-# list_legend.append(curve_legend)
-# cml.count(0)
 # idx_cml_0 = [i for i in range(len(cml)) if cml[i] == 0][0]
 
-def test_argwhere_diff_sign():
-    'find index of 0 or the one of element just befor sign change'
-    vect1= [-3,-2,-1,1,2,3]
-    vect2= [-3,-2,-1,0,1,2,3]
-    vect3= [-3,-2,-1,0,1,2,3]
-    vect4= [-3,-2,-1,0,0,1,3]
-    vect5= [-3,-2,-1,0,0,-1,-3]
-    assert np.argwhere(np.diff(np.sign(vect1))) == [[3]]
-    assert np.argwhere(np.diff(np.sign(vect2))) == [[2]]
+def test_get_unic(vector):
+    """ Test function 'get_unic' """
+    assert get_unic([1,1,1,1,1,1,1,2,2,2,2,2]) == [1, 2]
+
 
 def test_polyfit():
     """ Test function 'np.polyfit' """
@@ -64,89 +54,44 @@ def test_polyfit():
     assert intercept == 0
     assert slope == 2
 
-def test_get_aeromap():
-    """ Test function 'get_aeromap' """
 
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    cpacs_path = os.path.join(MODULE_DIR,'ToolInput','test_getaeromap.xml')
+def test_change_sign_once(angle , cm, crossed = False) :
+    """ Test function 'np.polyfit' which  find if  Coefficeint Moments, cm, crosse the 0 line only once and return the corresponding angle and the cm derivative at cm=0 """
+    [cruise_angle, moment_derivative, crossed] = change_sign_once([1,2,3] , [0,-1,-4], False)
+    assert [cruise_angle, moment_derivative, crossed] == [1,-1, True]
 
-    tixi = open_tixi(cpacs_path)
-    Coeffs = get_aeromap(tixi, "aeroMap_pyTornado")
+    [cruise_angle, moment_derivative, crossed] = change_sign_once([1,2,3] , [4,1,0], False)
+    assert [cruise_angle, moment_derivative, crossed] == [3,-1, True]
 
-    ALT = Coeffs.alt
-    MACH = Coeffs.mach
-    AOA = Coeffs.aoa
-    CML = Coeffs.cml
-    AOS = Coeffs.aos
-    CMS = Coeffs.cms
+    [cruise_angle, moment_derivative, crossed] = change_sign_once([1,2,3] , [1,0,-1], False)
+    assert [cruise_angle, moment_derivative, crossed] == [2,-1, True]
 
-    assert ALT == [1,2,3]
-    assert AOA == [1,2,3]
-    assert MACH == [1,2,3]
-    assert CML == [1,2,3]
-    assert AOS == [1,2,3]
-    assert CMS == [1,2,3]
+    [cruise_angle, moment_derivative, crossed] = change_sign_once([1,2,3] , [2,1,-1], False)
+    assert [cruise_angle, moment_derivative, crossed] == [2.5,-2, True]
 
 
-def test_plot_torque_vs_angle():
-    """ Test function 'plot_torque_vs_angle' """
-    plot_legend = ['Legend']
-    xlabel = 'xlabel'
-    ylabel = 'ylabel'
+def test_unexpected_sign_change(cm, stability = True) :
+    """Test function 'unexpected_sign_change' """
+    # to simplify understanfing of ARWHERE
+    'find index of 0 or the one of element just befor sign change'
+    vect1= [-3,-2,-1,1,2,3]
+    vect2= [-3,-2,-1,0,1,2,3]
+    vect3= [-3,-2,-1,0,0,-1,-3]
+    assert np.argwhere(np.diff(np.sign(vect1))) == [[3]]
+    assert np.argwhere(np.diff(np.sign(vect2))) == [[2],[3]]
+    assert np.argwhere(np.diff(np.sign(vect3))) == [[2],[3]]
 
-    # Vertical axis on the left and horizontal axis at the bottom : |_
-    plot_title = 'Vertical axis on the left and horizontal axis at the bottom : |_'
-    y_axis = [[1,2,3,4]]
-    x_axis = [[1,2,3,4]]
-    plot_torque_vs_angle(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel)
-
-    # Vertical axis on the middle  and horizontal axis at the bottom  : _|_
-    plot_title = 'Vertical axis on the middle  and horizontal axis at the bottom  : _|_'
-    y_axis = [[1,2,3,4]]
-    x_axis = [[-1,2,3,4]]
-    plot_torque_vs_angle(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel)
-
-    # Vertical axis on the right and horizontal axis at the bottom : _|
-    plot_title = 'Vertical axis on the right and horizontal axis at the bottom : _|'
-    y_axis = [[1,2,3,4]]
-    x_axis = [[-1,-2,-3,-4]]
-    plot_torque_vs_angle(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel)
-
-    # Vertical  on the left and horizontal axis at the middle : |--
-    plot_title = 'Vertical  on the left and horizontal axis at the middle : |--'
-    y_axis = [[-1,2,3,4]]
-    x_axis = [[1,2,3,4]]
-    plot_torque_vs_angle(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel)
-
-    # Vertical axis on the middle and horizontal axis at the middle : +
-    plot_title = 'Vertical axis on the middle and horizontal axis at the middle : +'
-    y_axis = [[-1,2,3,4]]
-    x_axis = [[-1,2,3,4]]
-    plot_torque_vs_angle(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel)
-
-    # Vertical axis on the right and horizontal axis at the middle : --|
-    plot_title = 'Vertical axis on the right and horizontal axis at the middle : --|'
-    y_axis = [[-1,2,3,4]]
-    x_axis = [[-1,-2,-3,-4]]
-    plot_torque_vs_angle(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel)
-
-    # Vertical axis on the left and horizontal axis at the top : |```
-    plot_title = 'Vertical axis on the left and horizontal axis at the top : |**'
-    y_axis = [[-1,-2,-3,-4]]
-    x_axis = [[1,2,3,4]]
-    plot_torque_vs_angle(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel)
-
-    # Vertical axis on the middle and horizontal axis at the top : '''|'''
-    plot_title = ' Vertical axis on the middle and horizontal axis at the top : **|**'
-    y_axis = [[-1,-2,-3,-4]]
-    x_axis = [[-1,2,3,4]]
-    plot_torque_vs_angle(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel)
-
-    # Vertical axis on the right and horizontal axis at the top : '''|
-    plot_title = 'Vertical axis on the right and horizontal axis at the top : **|'
-    y_axis = [[-1,-2,-3,-4]]
-    x_axis = [[-1,-2,-3,-4]]
-    plot_torque_vs_angle(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel)
+    # If all Cml values are 0:
+    assert unexpected_sign_change([0,0,0,0,0,0], stability = True) == False
+    # If cml curve does not cross the 0
+    assert unexpected_sign_change([1,2,3,4,5,6], stability = True) == False
+    assert unexpected_sign_change([-1,-2,-3,-4,-5,-6], stability = True) == False
+    # If cml Curve crosses the 0 line more than once no stability analysis can be performed
+    assert unexpected_sign_change([-1,-2,0,0,-1,-2], stability = True) == False
+    assert unexpected_sign_change([-1,-2,0,-1,2,3], stability = True) == False
+    # If cml Curve crosses the 0 line twice
+    assert unexpected_sign_change([-1,-2,1,2,-1,-2], stability = True) == False
+    assert unexpected_sign_change([-1,-2,0,-1,2,3], stability = True) == False
 
 
 def test_static_stability_analysis():
@@ -170,13 +115,31 @@ def test_static_stability_analysis():
     static_stability_analysis(cpacs_path, aeromap_uid)
 
     # Assert that all error messages are present
-    log_path =  'r"' + MODULE_DIR + '/test_StabilityStatic.log' + '"'
+    log_path = os.path.join(MODULE_DIR,'staticstability.log')
 
-    with open(log_path) as f:
-        for line in f:
-            reported_errors += 1
+    graph_cruising = False
+    error_type = [1200,1300, 1400, 1500,1600,1700,1800, 2200, 2300, 2400,2500,2600, 2700, 2800, 4000, 5000,  6000, 7000, 8000, 9000]
+    error_list =   [      2,     2 ,       1,       1,       1,     1,      1,       2,       2,       1,       1,      1,      1,       1,       1,        1,        1,      1,       1,       1]
+    occurence = np.zeros((len(error_type)), dtype=int)
 
-    assert reported_errors == 245
+    # Open  log file
+    with open(log_path, "r") as f :
+        # For each line in the log file
+        for line in f :
+            # if the info insureing that the graph of cruising aoa VS mach has been generated.
+            if 'graph : cruising aoa vs mach genrated' in line :
+                graph_cruising = True
+            # if 'warning' or 'error ' is in line
+            if  'ERROR' in line :
+                # check if error type (altitude) is in line
+                for index, error in enumerate(error_type, 0) :
+                    # if error type is in line, add +1 in occurence fitting to error type position
+                    if str(error) in line :
+                        occurence[index] += 1
+    # Compare if
+    # Assert that all error type happend only once.
+    assert graph_cruising == True
+    assert occurence == error_list
 
 
 #==============================================================================

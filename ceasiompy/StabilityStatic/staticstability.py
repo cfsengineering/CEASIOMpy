@@ -58,10 +58,99 @@ log = get_logger(__file__.split('.')[0])
 #   FUNCTIONS
 #==============================================================================
 
-def plot_torque_vs_angle(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel):
+def get_unic(vector):
+    """ Return a vector with the same element having only one occurence """
+    vector_unic = []
+    for element in vector:
+        if element not in vector_unic:
+            vector_unic.append(element)
+    return vector_unic
+
+def unexpected_sign_change(alt, cm, stability = True) :
+    """ Find if  Coefficeint Moments, cm, don't cross the 0 line or more than once """
+    # If cml curve does not cross the 0
+    if len(np.argwhere(np.diff(np.sign(cm)))) == 0  :
+        # If all Cml values are 0:
+        stability = False
+        if cm.count(0) == len(cm):
+            log.warning('Alt = '  + str(alt) + 'Cm list is composed of 0 only.' )
+        else:
+            log.error('Alt = '  + str(alt) + 'Cm does not cross the 0 line, aircraft not stable.' )
+    # If cml Curve crosses the 0 line more than once no stability analysis can be performed
+    elif len(np.argwhere(np.diff(np.sign(cm)))) > 2 or cm.count(0) > 1:
+        log.error('Alt = '  + str(alt) + 'The Cm curves crosses more than once the 0 line, no stability analysis performed')
+        stability  = False
+    # If cml Curve crosses the 0 line twice
+    elif 0 not in np.sign(cm) and len(np.argwhere(np.diff(np.sign(cm)))) == 2:
+        log.error('Alt = '  + str(alt) + 'The Cm curves crosses the 0 line twice, no stability analysis performed')
+        stability  = False
+
+    return stability
+
+def change_sign_once(angle , cm, crossed = False) :
+    """ Find if  Coefficeint Moments, cm, crosse the 0 line only once and return the corresponding angle and the cm derivative at cm=0 """
+    cruise_angle = ''
+    moment_derivative = ''
+    # If Cm = 0 is in Cm list
+    if 0 in np.sign(cm) and cm.count(0) == 1:
+        crossed = True
+        idx_cm_0 = [i for i in range(len(cm)) if cm[i] == 0][0]
+        # If Cml = 0 is the first element in cml list, take the derivative at right
+        if idx_cm_0 == 0:
+            # Angles and coeffs before and after crossing the 0 line
+            angle_before = angle[idx_cm_0]
+            angle_after = angle[idx_cm_0+1]
+            cm_before = cm[idx_cm_0]
+            cm_after = cm[idx_cm_0+1]
+
+            cruise_angle = angle_before
+            moment_derivative = (cm_after-cm_before)/(angle_after-angle_before)
+
+        # If cml = 0 is the last element of cml list, take the derivative at left
+        if idx_cm_0 == len(cm) - 1:
+            # Angles and coeffs before and after crossing the 0 line
+            angle_before = angle[idx_cm_0-1]
+            angle_after = angle[idx_cm_0]
+            cm_before = cm[idx_cm_0-1]
+            cm_after = cm[idx_cm_0]
+
+            cruise_angle = angle_after
+            moment_derivative = (cm_after-cm_before)/(angle_after-angle_before)
+
+        # If cml = 0 is nor the first nor the last element in cml list, take the centered derivative
+        if 0 < idx_cm_0 < len(cm)-1:
+            # Angles and coeffs before and after crossing the 0 line
+            angle_before = angle[idx_cm_0-1]
+            angle_after = angle[idx_cm_0+1]
+            cm_before = cm[idx_cm_0-1]
+            cm_after = cm[idx_cm_0+1]
+
+            cruise_angle = angle[idx_cm_0]
+            moment_derivative = (cm_after - cm_before)/(angle_after - angle_before)
+
+    # If Cms crosses the 0 line once and Cms=0 is not in cml list
+    if  len(np.argwhere(np.diff(np.sign(cm)))) == 1 and 0 not in np.sign(cm):
+        # Make the linear equation btween the 2 point before and after crossing the 0 ine y=ax+b
+        crossed = True
+        idx_cm_0 = np.argwhere(np.diff(np.sign(cm)))[0][0]
+
+        # Angles and coeffs before and after crossing the 0 line
+        angle_before = angle[idx_cm_0]
+        angle_after = angle[idx_cm_0+1]
+        cm_before = cm[idx_cm_0]
+        cm_after = cm[idx_cm_0+1]
+
+        fit = np.polyfit([angle_before, angle_after], [cm_before, cm_after], 1)  # returns [a,b] of y=ax+b
+        cruise_angle = -fit[1]/fit[0]    # Cms = 0 for y = 0  hence cruise agngle = -b/a
+        moment_derivative = fit[0]
+
+    return (cruise_angle, moment_derivative, crossed)
+
+
+def plot_multicurve(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel):
     """Function to plot graph with different curves for a varying parameter
 
-    Function 'plot_torque_vs_angle' can plot few curves
+    Function 'plot_multicurve' can plot few curves
 
     Args:
         x_axis : list of vector of each curve's X coordinates
@@ -121,7 +210,7 @@ def plot_torque_vs_angle(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel
 
     plt.show()
 
-def static_stability_analysis(cpacs_path, aeromap_uid):
+def static_stability_analysis(cpacs_path, cpacs_out_path):
     """Function to analyse a full Aeromap
 
     Longitudinal static staticStabilityAnalysis
@@ -143,7 +232,7 @@ def static_stability_analysis(cpacs_path, aeromap_uid):
                 -	plot cms VS aos for constant mach, AOA and different altitudes
         *  Plot one graph of  cruising angles of attack for different mach and altitudes
 
-    Make the following tests:
+    Make the following tests:            (To put in the documentation)
         *   Check the CPACS path
         *   For longitudinal static stability analysis:
                 -   If there is more than one angle of attack for a given altitude, mach, aos
@@ -155,10 +244,10 @@ def static_stability_analysis(cpacs_path, aeromap_uid):
                 -   If there one aos value which is repeated for a given altitude, mach, aoa
     """
 
-    # Call the function which check if imputs are well define
-    check_cpacs_input_requirements(cpacs_path)
     #Open tixi handles
     tixi = open_tixi(cpacs_path)
+    # get aeromap uid
+    aeromap_uid = get_value('/cpacs/toolspecific/CEASIOMpy/stability/static/aeroMapUid')
     # Coeffs lists
     Coeffs = get_aeromap(tixi, aeromap_uid)
 
@@ -172,26 +261,11 @@ def static_stability_analysis(cpacs_path, aeromap_uid):
     cms_list = Coeffs.cms
 
 
-    alt_unic = []
-    mach_unic = []
-    aos_unic = []
-    aoa_unic = []
-
-    for element in alt_list:
-        if element not in alt_unic :
-            alt_unic.append(element)
-
-    for element in mach_list :
-        if element not in mach_unic :
-            mach_unic.append(element)
-
-    for element in aos_list :
-        if element not in aos_unic :
-            aos_unic.append(element)
-
-    for element in aoa_list:
-        if element not in aoa_unic :
-            aoa_unic.append(element)
+    alt_unic = get_unic(alt_list)
+    mach_unic = get_unic(mach_list)
+    print(mach_unic)
+    aos_unic = get_unic(aos_list)
+    aoa_unic = get_unic(aoa_list)
 
     # Init Plot variables : trim Aoa for gien alt and different mach
     #                                  trim Aoa for gien Mach and different alt
@@ -201,6 +275,9 @@ def static_stability_analysis(cpacs_path, aeromap_uid):
     trim_legend_list = []
     longi_unstable_cases = []
     direc_unstable_cases = []
+
+    cpacs_stability_longi = True
+    cpacs_stability_direc = True
 
     # Aero analyses for all given Altitude, Mach and aos_list, over different
     for alt in alt_unic:
@@ -214,6 +291,7 @@ def static_stability_analysis(cpacs_path, aeromap_uid):
         trim_legend = []
 
         for mach in mach_unic:
+            log.info(str(mach))
             print("***mach_list : " + str(mach))
             # Find index of mach which have the same value
             idx_mach = [j for j in range(len(mach_list)) if mach_list[j] == mach]
@@ -233,6 +311,7 @@ def static_stability_analysis(cpacs_path, aeromap_uid):
             # Find index of slip angle which have the same value
 
             for aos in aos_unic:
+                log.info('AOS: ' +  str(aos))
                 # by default, don't  cross 0 line
                 crossed = False
                 print("**aos_list: " + str(count_aos))
@@ -273,102 +352,40 @@ def static_stability_analysis(cpacs_path, aeromap_uid):
                     # If all aoa values are the same while the calculating the derivative, a division by zero will be prevented.
                     aoa_good = True
                     for jj in range(len(aoa)-1) :
-                        if  aoa[jj] == aoa[jj+1] and  aoa_good == True :
-                                aoa_good = False
-                                log.warning(' At least 2 aoa values are equal in aoa list: {} at Alt = {}, Mach= {}, aos = {}' .format(aoa, alt, mach, aos))
-                    # retrieve the index in of element in cml just before crossing 0,
-                    # np.argwher returns an array as [[idx]], that'a why there is [0][0] at the end
-                    # If cml curve does not cross the 0
-                    if len(np.argwhere(np.diff(np.sign(cml)))) == 0  :
-                        # If all Cml values are 0:
-                        longitudinaly_stable = False
-                        longi_unstable_cases.append([alt,mach,aos])
-                        if cml.count(0) == len(cml):
-                            log.info('Cml list is composed of 0 only.' )
-                        else:
-                            log.info('The aircraft has a cruising aoa_list at which Cml is not 0.' )
-                    # If cml Curve crosses the 0 line more than once no stability analysis can be performed
-                    if len(np.argwhere(np.diff(np.sign(cml)))) > 2 or cml.count(0) > 1:
-                        log.info('The Cml curves crosses more than once the 0 line, no stability analysis performed')
-                        longitudinaly_stable = False
-                        longi_unstable_cases.append([alt,mach,aos])
-                    # If cml Curve crosses the 0 line twice
-                    if 0 not in np.sign(cml) and len(np.argwhere(np.diff(np.sign(cml)))) == 2:
-                        log.info('The Cml curves crosses the 0 line twice, no stability analysis performed')
-                        longitudinaly_stable = False
-                        longi_unstable_cases.append([alt,mach,aos])
-                    # If Cml = 0 is in Cml list  only once
-                    if 0 in np.sign(cml) and cml.count(0) == 1 and aoa_good == True:
-                        idx_cml_0 = [i for i in range(len(cml)) if cml[i] == 0][0]
+                        if  aoa[jj] == aoa[jj+1] and  aoa_good :
+                            aoa_good = False
+                            log.warning('Alt = {} , at least 2 aoa values are equal in aoa list: {} at Mach= {}, aos = {}' .format(alt, aoa, mach, aos))
 
-                        # If Cml = 0 is the first element in cml list, take the derivative at right
-                        if idx_cml_0 == 0:
-                            # Angles and coeffs before and after crossing the 0 line
-                            aoa_before = aoa_list[find_idx[idx_cml_0]]
-                            aoa_after = aoa_list[find_idx[idx_cml_0+1]]
-                            cml_before = cml_list[find_idx[idx_cml_0]]
-                            cml_after = cml_list[find_idx[idx_cml_0+1]]
+                    longitudinaly_stable = unexpected_sign_change(alt, cml, longitudinaly_stable )
 
-                            cruise_aoa = aoa_before
-                            pitch_moment_derivative = (cml_after-cml_before)/(aoa_after-aoa_before)
+                    if aoa_good and longitudinaly_stable :
+                        cruise_aoa, pitch_moment_derivative, crossed = change_sign_once(aoa , cml, crossed = False)
 
-                        # If cml = 0 is the last element of cml list, take the derivative at left
-                        if idx_cml_0 == len(cml)-1:
-                            # Angles and coeffs before and after crossing the 0 line
-                            aoa_before = aoa_list[find_idx[idx_cml_0-1]]
-                            aoa_after = aoa_list[find_idx[idx_cml_0]]
-                            cml_before = cml_list[find_idx[idx_cml_0-1]]
-                            cml_after = cml_list[find_idx[idx_cml_0]]
-
-                            cruise_aoa = aoa_after
-                            pitch_moment_derivative = (cml_after-cml_before)/(aoa_after-aoa_before)
-
-                        # If cml = 0 is nor the first nor the last element in cml list, take the centered derivative
-                        if 0 < idx_cml_0 < len(cml)-1:
-                            # Angles and coeffs before and after crossing the 0 line
-                            aoa_before = aoa_list[find_idx[idx_cml_0-1]]
-                            aoa_after = aoa_list[find_idx[idx_cml_0+1]]
-                            cml_before = cml_list[find_idx[idx_cml_0-1]]
-                            cml_after = cml_list[find_idx[idx_cml_0+1]]
-
-                            cruise_aoa = aoa_list[find_idx[idx_cml_0]]
-                            pitch_moment_derivative = (cml_after-cml_before)/(aoa_after-aoa_before)
-                    # If Cml crosses the 0 line once and Cml=0 is not in cml list
-                    if  len(np.argwhere(np.diff(np.sign(cml)))) == 1 and 0 not in np.sign(cml) and aoa_good == True:
-                        # Make the linear equation btween the 2 point before and after crossing lthe 0 ine y=ax+b
-                        crossed = True
-                        idx_cml_0 = np.argwhere(np.diff(np.sign(cml)))[0][0]
-
-                        # Angles and coeffs before and after crossing the 0 line
-                        aoa_before = aoa_list[find_idx[idx_cml_0]]
-                        aoa_after = aoa_list[find_idx[idx_cml_0+1]]
-
-                        cml_before = cml_list[find_idx[idx_cml_0]]
-                        cml_after = cml_list[find_idx[idx_cml_0+1]]
-
-                        fit = np.polyfit([aoa_before, aoa_after], [cml_before, cml_after], 1)  # returns [a,b] of y=ax+b
-                        cruise_aoa = -fit[1]/fit[0]    # Cml = 0 for y = 0  hence cruise agngle = -b/a
-                        pitch_moment_derivative = fit[0]
-
-                    if aos == 0 and crossed == True and aoa_good == True and pitch_moment_derivative < 0:
+                    if aos == 0 and crossed and aoa_good and pitch_moment_derivative < 0 and cruise_aoa != '' :
                         trim_mach.append(mach)
                         trim_aoa.append(cruise_aoa)
 
-                    if crossed== True and aoa_good == True:
+                    # Conclusion about stability, if the Cml curve has crossed the 0 line and there is not 2 repeated aoa for the same alt, mach and aos.
+                    if crossed and aoa_good :
                         if pitch_moment_derivative < 0 :
                             log.info('Vehicle longitudinaly staticaly stable.')
                         if pitch_moment_derivative == 0 :
                             longitudinaly_stable = False
-                            longi_unstable_cases.append([alt,mach,aos])
-                            log.info('Vehicle longitudinaly staticaly neutral stable.')
+                            log.error('Alt = '  + str(alt) + 'Vehicle longitudinaly staticaly neutral stable.')
                         if pitch_moment_derivative > 0 :
                             longitudinaly_stable = False
-                            longi_unstable_cases.append([alt,mach,aos])
-                            log.info('Vehicle *NOT* longitudinaly staticaly stable.')
+                            log.error('Alt = '  + str(alt) + 'Vehicle *NOT* longitudinaly staticaly stable.')
+
+                    # If not stable store the set [alt, mach, aos] at which the aircraft is unstable.
+                    if not longitudinaly_stable :
+                        longi_unstable_cases.append([alt,mach,aos])
+
             #print( LongitudinalyStable)
-            if  longitudinaly_stable == False :
+            if  not longitudinaly_stable :
                 # PLot Cml VS aoa for constant Alt, Mach and different aos
-                plot_torque_vs_angle( plot_cml, plot_aoa, plot_legend, plot_title, xlabel, ylabel)
+                # plot_multicurve( plot_cml, plot_aoa, plot_legend, plot_title, xlabel, ylabel)   !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                # To write in the output CPACS that the aircraft is not longitudinaly stable
+                cpacs_stability_longi = False
 
     # Dirrectional Stability analysis
             count_aoa = 0
@@ -383,6 +400,7 @@ def static_stability_analysis(cpacs_path, aeromap_uid):
             dirrectionaly_stable = True
             # Find INDEX
             for aoa in aoa_unic:
+                log.info('AOA : ' + str(aoa))
                 # by default, don't  cross 0 line
                 crossed = False
                 print('**aoa_list: ' + str(count_aoa))
@@ -421,99 +439,43 @@ def static_stability_analysis(cpacs_path, aeromap_uid):
                     # Store the legend in plot_legend
                     plot_legend.append(curve_legend)
 
-                    # If all aoa values are the same while the calculating the derivative, a division by zero will be prevented.
-                    aos_good = True
+                    aos_good  =  True
                     for jj in range(len(aos)-1) :
-                        if  aos[jj] == aos[jj+1] and  aos_good == True :
-                            aos_good = False
-                            log.warning('At least 2 values are equal in aos list: {} at Alt = {}, Mach= {}, aoa = {}, dividing by zero while derivating, no stability analyse performed'.format(aos, alt, mach, aoa))
-                    # If cml curve does not cross the 0
-                    if len(np.argwhere(np.diff(np.sign(cms)))) == 0  :
-                        dirrectionaly_stable = False
-                        direc_unstable_cases.append([alt, mach, aoa])
-                        # If all Cms values are 0:
-                        if cms.count(0) == len(cms):
-                            log.info('Cms list is composed of 0 only.')
-                        else:
-                            log.info('The aircraft has a cruising aos_list at which Cms is not 0.')
-                    # If cms Curve crosses the 0 line more than once no stability analysis can be performed
-                    if len(np.argwhere(np.diff(np.sign(cms)))) > 2 or cms.count(0) > 1:
-                        dirrectionaly_stable = False
-                        direc_unstable_cases.append([alt, mach, aoa])
-                        log.info('The Cms curves crosses more than once the 0 line, no stability analysis performed')
-                    # If cms Curve crosses the 0 line twice
-                    if 0 not in np.sign(cms) and len(np.argwhere(np.diff(np.sign(cms)))) == 2:
-                        dirrectionaly_stable = False
-                        direc_unstable_cases.append([alt, mach, aoa])
-                        log.info('The Cms curves crosses the 0 line twice, no stability analysis performed')
-                    # If Cms = 0 is in Cml list
-                    if 0 in np.sign(cms) and cms.count(0) == 1 and aos_good == True:
-                        crossed = True
-                        idx_cms_0 = [i for i in range(len(cms)) if cms[i] == 0][0]
-                        # If Cml = 0 is the first element in cml list, take the derivative at right
-                        if idx_cms_0 == 0:
-                            # Angles and coeffs before and after crossing the 0 line
-                            aos_before = aos_list[find_idx[idx_cms_0]]
-                            aos_after = aos_list[find_idx[idx_cms_0+1]]
-                            cms_before = cms_list[find_idx[idx_cms_0]]
-                            cms_after = cms_list[find_idx[idx_cms_0+1]]
+                        if  aos[jj] == aos[jj+1] and  aos_good :
+                                aoa_good = False
+                                log.warning('At alt ={}, at least 2 aos values are equal in aoa list: {} , Mach= {}, aos = {}' .format(alt, aoa, mach, aos))
 
-                            cruise_aos = aos_before
-                            side_moment_derivative = (cms_after-cms_before)/(aos_after-aos_before)
+                    dirrectionaly_stable = unexpected_sign_change(alt, cms, dirrectionaly_stable )
 
-                        # If cml = 0 is the last element of cml list, take the derivative at left
-                        if idx_cms_0 == len(cms) - 1:
-                            # Angles and coeffs before and after crossing the 0 line
-                            aos_before = aos_list[find_idx[idx_cms_0-1]]
-                            aos_after = aos_list[find_idx[idx_cms_0]]
-                            cms_before = cms_list[find_idx[idx_cms_0-1]]
-                            cms_after = cms_list[find_idx[idx_cms_0]]
+                    if aos_good and dirrectionaly_stable :
+                        [cruise_aos, side_moment_derivative, crossed] = change_sign_once(aos, cms, crossed = False)
 
-                            cruise_aos = aos_after
-                            side_moment_derivative = (cms_after-cms_before)/(aos_after-aos_before)
-
-                        # If cml = 0 is nor the first nor the last element in cml list, take the centered derivative
-                        if 0 < idx_cms_0 < len(cms)-1:
-                            # Angles and coeffs before and after crossing the 0 line
-                            aos_before = aos_list[find_idx[idx_cms_0-1]]
-                            aos_after = aos_list[find_idx[idx_cms_0+1]]
-                            cms_before = cms_list[find_idx[idx_cms_0-1]]
-                            cms_after = cms_list[find_idx[idx_cms_0+1]]
-
-                            cruise_aos = aos_list[find_idx[idx_cms_0]]
-                            side_moment_derivative = (cms_after - cms_before)/(aos_after - aos_before)
-                    # If Cms crosses the 0 line once and Cms=0 is not in cml list
-                    if  len(np.argwhere(np.diff(np.sign(cms)))) == 1 and 0 not in np.sign(cms) and aos_good == True:
-                        # Make the linear equation btween the 2 point before and after crossing the 0 ine y=ax+b
-                        crossed = True
-                        idx_cms_0 = np.argwhere(np.diff(np.sign(cms)))[0][0]
-
-                        # Angles and coeffs before and after crossing the 0 line
-                        aos_before = aos_list[find_idx[idx_cms_0]]
-                        aos_after = aos_list[find_idx[idx_cms_0+1]]
-
-                        cms_before = cms_list[find_idx[idx_cms_0]]
-                        cms_after = cms_list[find_idx[idx_cms_0+1]]
-
-                        fit = np.polyfit([aos_before, aos_after], [cms_before, cms_after], 1)  # returns [a,b] of y=ax+b
-                        cruise_aos = -fit[1]/fit[0]    # Cms = 0 for y = 0  hence cruise agngle = -b/a
-                        side_moment_derivative = fit[0]
-
-                    if crossed == True and aos_good == True :
+                    if crossed and aos_good :
                         if side_moment_derivative > 0 :
                             log.info('Vehicle directionnaly staticaly stable.')
                         if side_moment_derivative == 0 :
                             dirrectionaly_stable = False
-                            direc_unstable_cases.append([alt, mach, aoa])
-                            log.info('Vehicle directionnaly staticaly neutral stable.')
+                            log.error('At alt = ' + str(alt) + 'Vehicle directionnaly staticaly neutral stable.')
                         if side_moment_derivative < 0 :
                             dirrectionaly_stable = False
-                            direc_unstable_cases.append([alt, mach, aoa])
-                            log.info('Vehicle *NOT* directionnaly staticaly stable.')
+                            log.error('Alt = '  + str(alt) + 'Vehicle *NOT* directionnaly staticaly stable.')
 
-            if dirrectionaly_stable == False :
+                    # If not stable store the set [alt, mach, aos] at which the aircraft is unstable.
+                    if not dirrectionaly_stable :
+                        direc_unstable_cases.append([alt,mach,aoa])
+
+
+            if not dirrectionaly_stable :
                 # PLot Cms VS aos for constant Alt, Mach and different aoa
-                plot_torque_vs_angle(plot_cms, plot_aos, plot_legend, plot_title, xlabel, ylabel)
+                # plot_multicurve(plot_cms, plot_aos, plot_legend, plot_title, xlabel, ylabel) !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+                # To write in the output CPACS that the aircraft is not longitudinaly stable
+                cpacs_stability_direc = False
+
+        # Add trim conditions for the given altitude
+        if len(trim_aoa) > 0 :
+            trim_aoa_list.append(trim_aoa)
+            trim_mach_list.append(trim_mach)
+            trim_legend_list.append('Alt = ' + str(alt))
 
         # Plot cml vs aoa for const alt and aos and different mach
         for aos in aos_unic:
@@ -562,9 +524,9 @@ def static_stability_analysis(cpacs_path, aeromap_uid):
                     plot_aoa.append(aoa)
                     # Store the legend in plot_legend
                     plot_legend.append(curve_legend)
-            if longitudinaly_stable == False :
-                #PLot Cml VS aoa for constant Alt, aoa and different mach
-                plot_torque_vs_angle(plot_cml, plot_aoa, plot_legend, plot_title, xlabel, ylabel)
+            # if not longitudinaly_stable :                         !!!!!!!!!!!!!!!!!!!!!
+            #     #PLot Cml VS aoa for constant Alt, aoa and different mach
+            #     plot_multicurve(plot_cml, plot_aoa, plot_legend, plot_title, xlabel, ylabel)
 
         # Plot cms vs aos for const alt and aoa and different mach
         for aoa in aoa_unic:
@@ -615,20 +577,16 @@ def static_stability_analysis(cpacs_path, aeromap_uid):
                     # Store the legend in plot_legend
                     plot_legend.append(curve_legend)
 
-            if dirrectionaly_stable == False :
-                # Plot Cms VS aos for constant Alt, aoa and different mach
-                plot_torque_vs_angle(plot_cms, plot_aos, plot_legend, plot_title, xlabel, ylabel)
-
-        # Add trim conditions for the given altitude
-        if len(trim_aoa) > 0 :
-            trim_aoa_list.append(trim_aoa)
-            trim_mach_list.append(trim_mach)
-            trim_legend_list.append('Alt = ' + str(alt))
+            # if not dirrectionaly_stable:                  !!!!!!!!!!!!!!!!!!!!
+            #     # Plot Cms VS aos for constant Alt, aoa and different mach
+            #     plot_multicurve(plot_cms, plot_aos, plot_legend, plot_title, xlabel, ylabel)
 
     # Plot trim_aoa VS mach for different alt
     # If there is at least 1 element in list of trim conditions then, plot them
-    if len(trim_aoa_list) >= 1:
-        plot_torque_vs_angle(trim_aoa_list, trim_mach_list, trim_legend_list, 'trim_aoa VS mach', 'aoa','mach')
+
+    # if len(trim_aoa_list) >= 1:           !!!!!!!!!!!!!!!
+    #     plot_multicurve(trim_aoa_list, trim_mach_list, trim_legend_list, 'trim_aoa VS mach', 'mach', 'aoa')
+    #     log.info('graph : cruising aoa vs mach genrated')
 
     # plot Cml VS aoa for constant mach, aos_list and different altitudes:
     for aos in aos_unic:
@@ -686,9 +644,9 @@ def static_stability_analysis(cpacs_path, aeromap_uid):
                     # Store the legend in plot_legend
                     plot_legend.append(curve_legend)
 
-            if longitudinaly_stable == False :
-                # PLot Cml VS aoa for constant  Mach, aos and different Alt
-                plot_torque_vs_angle(plot_cml, plot_aoa, plot_legend, plot_title, xlabel, ylabel)
+            # if not longitudinaly_stable :             !!!!!!!!!!!!!!
+            #     # PLot Cml VS aoa for constant  Mach, aos and different Alt
+            #     plot_multicurve(plot_cml, plot_aoa, plot_legend, plot_title, xlabel, ylabel)
 
     # plot Cms VS aos for constant mach, aoa_list and different altitudes:
     for aoa in aoa_unic:
@@ -745,10 +703,36 @@ def static_stability_analysis(cpacs_path, aeromap_uid):
                     # Store the legend in plot_legend
                     plot_legend.append(curve_legend)
 
-            if dirrectionaly_stable == False :
-                # PLot Cms VS aos for constant  Mach, aoa and different alt
-                plot_torque_vs_angle(plot_cms, plot_aos, plot_legend, plot_title, xlabel, ylabel)
+            # if not dirrectionaly_stable :    !!!!!!!!!!!!!!!!!
+            #     # PLot Cms VS aos for constant  Mach, aoa and different alt
+            #     plot_multicurve(plot_cms, plot_aos, plot_legend, plot_title, xlabel, ylabel)
 
+
+    # Save in the CPACS file stability results:
+    # If all analysis were good: stability = True
+    # If one of the analysis was not good: stability =False
+    ANALYSES_XPATH = '/cpacs/vehicles/aircraft/model/analyses'
+    STABILITY_STATICS_XPATH = ANALYSES_XPATH + '/stability/statics'
+
+    UID_XPATH =   STABILITY_STATICS_XPATH + '/aeroMapUid'
+    LONGI_XPATH = STABILITY_STATICS_XPATH + '/results/longitudinalStaticStable'
+    DIREC_XPATH =  STABILITY_STATICS_XPATH + '/results/directionnalStaticStable'
+
+    # If branch does not exist
+    if not tixi.checkElement(UID_XPATH):
+        create_branch(tixi,UID_XPATH, add_child=False)
+        add_string_vector(tixi, UID_XPATH, [aeromap_uid])
+
+    if not tixi.checkElement(LONGI_XPATH) :
+        create_branch(tixi, LONGI_XPATH, add_child=False)
+    if not tixi.checkElement(DIREC_XPATH) :
+        create_branch(tixi, DIREC_XPATH, add_child=False)
+
+    # Store in the CPCS the stability results
+    add_string_vector(tixi, LONGI_XPATH, [cpacs_stability_longi])
+    add_string_vector(tixi, DIREC_XPATH, [cpacs_stability_direc])
+
+    close_tixi(tixi, cpacs_out_path)
 
 #==============================================================================
 #    MAIN
@@ -762,10 +746,13 @@ if __name__ == '__main__':
     # Give the path this python file
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
     # Give the path of the  xml file to analyse
-    cpacs_path = os.path.join(MODULE_DIR,'ToolInput','cpacs_test_file.xml')
-    # Call the function which check if the imput file is well define
+    cpacs_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.xml')
+    cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
+    # Call the function which check if imputs are well define
     check_cpacs_input_requirements(cpacs_path)
-    # Run the static analysis
-    static_stability_analysis(cpacs_path, aeromap_uid)
+
+
+
+    static_stability_analysis(cpacs_path, cpacs_out_path)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

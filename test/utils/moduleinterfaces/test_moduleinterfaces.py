@@ -1,3 +1,22 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+Test functions for 'lib/moduleinterfaces.py'
+
+Python version: >=3.6
+
+| Author : Aaron Dettmann
+| Creation: 2019-09-09
+| Last modifiction: 2019-11-08 (AJ)
+"""
+
+#==============================================================================
+#   IMPORTS
+#==============================================================================
+
+
 import os
 
 import pytest
@@ -5,7 +24,7 @@ import pytest
 import ceasiompy.utils.moduleinterfaces as m
 
 HERE = os.path.abspath(os.path.dirname(__file__))
-CPACS_TEST_FILE = os.path.join(HERE, 'cpacs_test_file.xml')
+CPACS_TEST_FILE = os.path.join(HERE, 'ToolInput', 'cpacs_test_file.xml')
 
 
 def test_cpacs_inout():
@@ -55,34 +74,6 @@ def test_cpacs_inout():
     assert len(cpacs_inout.outputs) == 2
 
 
-def test_module_name_list():
-    """
-    Test "get_module_list()" function
-    """
-
-    module_list = m.get_module_list()
-
-    assert isinstance(module_list, list)
-
-    # There should be entries, otherwise something went wrong
-    assert len(module_list) > 0
-
-    # Modules should have the form 'ceasiompy.SubModule'
-    for module_name in module_list:
-        assert module_name.startswith('ceasiompy.')
-        assert len(module_name.split('.')) == 2
-
-
-def test_get_submodule_list():
-    """
-    Test 'get_submodule_list()' function
-    """
-
-    submodule_list = m.get_submodule_list()
-    for submod_name in submodule_list:
-        assert len(submod_name.split('.')) == 1
-
-
 def test_check_cpacs_input_requirements():
     """
     Test "check_cpacs_input_requirements()" function
@@ -115,6 +106,64 @@ def test_check_cpacs_input_requirements():
         m.check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout)
 
 
+def test_get_submodule_list():
+    """
+    Test 'get_submodule_list()' function
+    """
+
+    submodule_list = m.get_submodule_list()
+    for submod_name in submodule_list:
+        assert len(submod_name.split('.')) == 1
+
+
+def test_get_module_list():
+    """
+    Test "get_module_list()" function
+    """
+
+    module_list = m.get_module_list()
+
+    assert isinstance(module_list, list)
+
+    # There should be entries, otherwise something went wrong
+    assert len(module_list) > 0
+
+    # Modules should have the form 'ceasiompy.SubModule'
+    for module_name in module_list:
+        assert module_name.startswith('ceasiompy.')
+        assert len(module_name.split('.')) == 2
+
+
+def test_get_toolinput_file_path():
+    """
+    Test that 'get_toolinput_file_path' works
+    """
+
+    module_name = 'ModuleTemplate'
+
+    toolinput_path = m.get_toolinput_file_path(module_name)
+
+    # Test that the end of the path is correct
+    assert toolinput_path.endswith(os.path.join('CEASIOMpy','ceasiompy',
+                                                'ModuleTemplate','ToolInput',
+                                                'ToolInput.xml'))
+
+
+def test_get_tooloutput_file_path():
+    """
+    Test that 'get_tooloutput_file_path' works
+    """
+
+    module_name = 'ModuleTemplate'
+
+    toolinput_path = m.get_tooloutput_file_path(module_name)
+
+    # Test that the end of the path is correct
+    assert toolinput_path.endswith(os.path.join('CEASIOMpy','ceasiompy',
+                                                'ModuleTemplate','ToolOutput',
+                                                'ToolOutput.xml'))
+
+
 def test_get_specs_for_module():
     """
     Test that 'get_specs_for_module()' works
@@ -145,6 +194,15 @@ def test_find_missing_specs():
 
     missing = m.find_missing_specs()
     assert isinstance(missing, list)
+
+
+def test_create_default_toolspecific():
+    """
+    Test that 'create_default_toolspecific' works
+    """
+
+    pass
+    # TODO: how to test that...
 
 
 def test_check_workflow():

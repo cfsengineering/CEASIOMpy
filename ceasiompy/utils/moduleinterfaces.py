@@ -32,6 +32,11 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, cre
 
 log = get_logger(__file__.split('.')[0])
 
+
+# Path for main CEASIOMpy library
+import ceasiompy.__init__
+LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
+
 # Shortcut for XPath definition
 CEASIOM_XPATH = '/cpacs/toolspecific/CEASIOMpy'
 AIRCRAFT_XPATH = '/cpacs/vehicles/aircraft'
@@ -227,12 +232,7 @@ def get_submodule_list():
         A list of submodule names (as strings)
     """
 
-    import ceasiompy.__init__
-
-    # Path for main CEASIOMpy library
-    lib_dir = os.path.dirname(ceasiompy.__init__.__file__)
-
-    dirnames = glob(os.path.join(lib_dir, '*'))
+    dirnames = glob(os.path.join(LIB_DIR, '*'))
     submodule_list = []
     for dirname in dirnames:
         submod_name = os.path.basename(dirname)
@@ -259,6 +259,38 @@ def get_module_list():
     for submod_name in get_submodule_list():
         module_list.append('.'.join((MODNAME_TOP, submod_name)))
     return module_list
+
+
+def get_toolinput_file_path(module_name):
+    """ Get the path to the ToolInput.xml CPACS file of a specific module
+
+    Args:
+        module_name (str): name of the module as a string
+
+    Retruns:
+        toolinput_path (str): Path to the ToolInput CPACS file
+
+    """
+
+    toolinput_path = os.path.join(LIB_DIR,module_name,'ToolInput','ToolInput.xml')
+
+    return toolinput_path
+
+
+def get_tooloutput_file_path(module_name):
+    """ Get the path to the ToolOutput.xml CPACS file of a specific module
+
+    Args:
+        module_name (str): name of the module as a string
+
+    Retruns:
+        tooloutput_path (str): Path to the ToolOutput CPACS file
+
+    """
+
+    toolinput_path = os.path.join(LIB_DIR,module_name,'ToolOutput','ToolOutput.xml')
+
+    return toolinput_path
 
 
 def get_specs_for_module(module_name, raise_error=False):

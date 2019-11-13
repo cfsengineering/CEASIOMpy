@@ -8,7 +8,7 @@ Modules
    :maxdepth: 1
    :caption: Geometry and meshes
 
-   modules/TIGLCreator/index
+   modules/CPACSCreator/index
    modules/CPACS2SUMO/index
    modules/SUMOAutoMesh/index
 

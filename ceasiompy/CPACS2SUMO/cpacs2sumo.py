@@ -768,10 +768,11 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
     sumo_file_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath'
     sumo_dir = os.path.join(wkdir,'SUMO')
-    os.mkdir(sumo_dir)
     sumo_file_path = os.path.join(sumo_dir,'ToolOutput.smx')
-    create_branch(tixi,sumo_file_xpath)
-    tixi.updateTextElement(sumo_file_xpath,sumo_file_path)
+    if not os.path.isdir(sumo_dir):
+        os.mkdir(sumo_dir)
+        create_branch(tixi,sumo_file_xpath)
+        tixi.updateTextElement(sumo_file_xpath,sumo_file_path)
 
     close_tixi(tixi, cpacs_out_path)
     close_tixi(sumo, sumo_file_path)

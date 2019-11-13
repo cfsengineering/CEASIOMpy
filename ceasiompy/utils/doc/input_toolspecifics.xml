@@ -1,0 +1,181 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://cpacs.googlecode.com/files/CPACS_21_Schema.xsd">
+  <header>
+    <name>Empty_CPACS</name>
+    <description>Empty CPACS file to genrate input and output /toolspecific</description>
+    <creator>Aidan Jungo</creator>
+    <timestamp>2019-10-28T11:12:47</timestamp>
+    <version>0.2</version>
+    <cpacsVersion>3.1</cpacsVersion>
+    <updates/>
+  </header>
+  <vehicles>
+    <aircraft>
+      <model>
+        <analyses>
+          <massBreakdown>
+            <designMasses>
+              <mTOM>
+                <mass>No default value</mass>
+              </mTOM>
+            </designMasses>
+          </massBreakdown>
+        </analyses>
+        <reference>
+          <area>No default value</area>
+          <length>No default value</length>
+          <point>
+            <x>No default value</x>
+          </point>
+        </reference>
+        <fuselages>
+          <fuselage>
+            <transformation>
+              <scaling>
+                <x>No default value</x>
+                <y>No default value</y>
+                <z>No default value</z>
+              </scaling>
+            </transformation>
+          </fuselage>
+        </fuselages>
+        <analysis>
+          <massBreakdown>
+            <designMasses>
+              <mTOM>
+                <mass>No default value</mass>
+              </mTOM>
+            </designMasses>
+            <fuel>
+              <massDescription>
+                <mass>No default value</mass>
+              </massDescription>
+            </fuel>
+            <mOEM>
+              <massDescription>
+                <mass>No default value</mass>
+              </massDescription>
+            </mOEM>
+            <payload>
+              <massDescription>
+                <mass>No default value</mass>
+              </massDescription>
+            </payload>
+          </massBreakdown>
+        </analysis>
+        <wings>No default value</wings>
+      </model>
+    </aircraft>
+    <fuels>
+      <fuel>
+        <density>0.8</density>
+      </fuel>
+    </fuels>
+  </vehicles>
+  <toolspecific>
+    <CEASIOMpy>
+      <ranges>
+        <cruiseMach>0.78</cruiseMach>
+        <cruiseAltitude>12000.0</cruiseAltitude>
+        <loadFactor>1.05</loadFactor>
+        <cruiseSpeed>272</cruiseSpeed>
+        <lDRatio>17.0</lDRatio>
+        <loiterTime>30.0</loiterTime>
+      </ranges>
+      <test>
+        <myTest>This is a test</myTest>
+        <myList>[2, 33, 444]</myList>
+      </test>
+      <aerodynamics>
+        <su2>
+          <aeroMapUID>No default value</aeroMapUID>
+          <targetCL>1.0</targetCL>
+          <fixedCL>NO</fixedCL>
+          <options>
+            <clalculateDampingDerivatives>False</clalculateDampingDerivatives>
+            <rotationRate>1.0</rotationRate>
+          </options>
+          <settings>
+            <maxIter>200</maxIter>
+            <cflNumber>1.0</cflNumber>
+            <multigridLevel>3</multigridLevel>
+          </settings>
+          <results>
+            <extractLoads>False</extractLoads>
+          </results>
+        </su2>
+        <skinFriction>
+          <aeroMapToCalculate>No default value</aeroMapToCalculate>
+          <deleteOriginal>False</deleteOriginal>
+        </skinFriction>
+      </aerodynamics>
+      <weight>
+        <passengers>
+          <fuelMassMaxpass>
+            <mass>No default value</mass>
+          </fuelMassMaxpass>
+          <passMass>105.0</passMass>
+        </passengers>
+        <crew>
+          <pilots>
+            <pilotNb>2</pilotNb>
+            <pilotMass>102.0</pilotMass>
+          </pilots>
+          <cabinCrewMembers>
+            <cabinCrewMemberNB>No default value</cabinCrewMemberNB>
+            <cabinCrewMemberMass>68.0</cabinCrewMemberMass>
+          </cabinCrewMembers>
+        </crew>
+      </weight>
+      <propulsion>
+        <turboprop>False</turboprop>
+        <tSFC>
+          <tsfcCruise>0.5</tsfcCruise>
+          <tsfcLoiter>0.4</tsfcLoiter>
+        </tSFC>
+      </propulsion>
+      <geometry>
+        <winglet>[0, 1, 2]</winglet>
+        <analysis>
+          <wettedArea>No default value</wettedArea>
+        </analysis>
+      </geometry>
+      <fuels>
+        <resFuelPerc>0.1</resFuelPerc>
+      </fuels>
+      <filesPath>
+        <su2Mesh>-</su2Mesh>
+        <sumoFilePath>-</sumoFilePath>
+      </filesPath>
+    </CEASIOMpy>
+    <pytornado>
+      <deleteOldWKDIRs>False</deleteOldWKDIRs>
+      <aeroMapUID>No default value</aeroMapUID>
+      <vlm_autopanels_c>20</vlm_autopanels_c>
+      <vlm_autopanels_s>5</vlm_autopanels_s>
+      <plot>
+        <lattice>
+          <save>False</save>
+          <show>False</show>
+        </lattice>
+        <geometry>
+          <save>False</save>
+          <show>False</show>
+        </geometry>
+        <results>
+          <save>False</save>
+          <show>False</show>
+        </results>
+        <matrix_downwash>
+          <save>False</save>
+          <show>False</show>
+        </matrix_downwash>
+      </plot>
+      <save_results>
+        <global>False</global>
+        <panelwise>False</panelwise>
+        <aeroperformance>False</aeroperformance>
+      </save_results>
+    </pytornado>
+  </toolspecific>
+</cpacs>

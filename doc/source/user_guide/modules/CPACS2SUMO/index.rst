@@ -1,9 +1,6 @@
 CPACS2SUMO
 ==========
 
-ModuleTemplate
-==============
-
 :Categories: Geometry, meshing
 
 CPACS2SUMO converts CPACS XML file into SUMO SMX file.

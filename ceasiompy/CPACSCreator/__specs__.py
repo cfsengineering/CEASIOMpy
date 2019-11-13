@@ -6,8 +6,8 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH
 # ===== RCE integration =====
 
 RCE = {
-    "name": "TIGLCreator",
-    "description": "Lauch for TIGLCreator",
+    "name": "CPACSCreator",
+    "description": "Lauch for CPACSCreator",
     "exec": "pwd\npython cpacscreatorrun.py",
     "author": "Malo Drougard",
     "email": "malo.drougard@cfse.ch",

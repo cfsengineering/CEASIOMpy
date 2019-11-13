@@ -81,7 +81,6 @@ def get_wkdir_or_create_new(tixi):
     Returns:
         wkdir_path (str): Path to the active working directory
 
-
     """
 
     WKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath'

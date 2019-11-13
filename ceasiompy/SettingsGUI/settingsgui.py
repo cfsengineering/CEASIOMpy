@@ -374,7 +374,10 @@ class AutoTab:
 
 
 class CEASIOMpyGUI:
-    def __init__(self, master, cpacs_path, cpacs_out_path):
+    def __init__(self, master, cpacs_path, cpacs_out_path, submodule_list):
+
+        self.submodule_list = submodule_list
+        self.cpacs_out_path = cpacs_out_path
 
         # GUI =============
         self.master = master
@@ -417,7 +420,7 @@ class CEASIOMpyGUI:
 
         # Generate new Auto Tab
         # Get a list of ALL CEASIOMpy submodules (could be improve by chosing only active module)
-        for module_name in mif.get_submodule_list():\
+        for module_name in self.submodule_list:
 
             specs = mif.get_specs_for_module(module_name)
             if specs is None:  # Specs does not exist
@@ -470,8 +473,9 @@ class CEASIOMpyGUI:
                                        name + '" has not the correct type!')
                         raise TypeError(name + ' has not the correct type!')
 
-        close_tixi(self.tixi, cpacs_out_path)
+        close_tixi(self.tixi, self.cpacs_out_path)
         self.master.quit()
+
 
 
 #==============================================================================
@@ -550,6 +554,22 @@ def wrap_in_brackets(string, brackets='[]', space=0):
     return f"[{' '*space}{string}{' '*space}]"
 
 
+def create_gui(cpacs_path, cpacs_out_path, submodule_list):
+    """ Create a GUI with Tkinter to fill CEASIOMpy settings
+
+    Args:
+        cpacs_path (str): Path to the CPACS file
+        cpacs_out_path (str): Path to the output CPACS file
+        module_list (list): List of module to inclue in the GUI
+
+    """
+    
+    # Call Tkinter Class
+    root = tk.Tk()
+    my_gui = CEASIOMpyGUI(root, cpacs_path, cpacs_out_path, submodule_list)
+    root.mainloop()
+
+
 #==============================================================================
 #    MAIN
 #==============================================================================
@@ -565,9 +585,9 @@ if __name__ == '__main__':
     # Call the function which check if imputs are well define
     mif.check_cpacs_input_requirements(cpacs_path)
 
-    # Call Tkinter Class
-    root = tk.Tk()
-    my_gui = CEASIOMpyGUI(root, cpacs_path, cpacs_out_path)
-    root.mainloop()
+    # Get the complete submodule
+    submodule_list = mif.get_submodule_list()
+
+    create_gui(cpacs_path, cpacs_out_path, submodule_list)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

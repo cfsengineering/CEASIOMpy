@@ -1,5 +1,5 @@
-TIGLCreator
-===========
+CPACSCreator
+============
 
 **TODO**
 

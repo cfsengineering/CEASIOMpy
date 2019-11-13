@@ -17,7 +17,7 @@ cpacs_inout.add_input(
     default_value=False,
     unit=None,
     descr="Delete old PyTornado working directories (if existent)",
-    cpacs_path=XPATH_PYTORNADO + '/deleteOldWKDIRs',
+    xpath=XPATH_PYTORNADO + '/deleteOldWKDIRs',
     gui=True,
     gui_name='Delete',
     gui_group='Delete old working directories',
@@ -29,7 +29,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit=None,
     descr="Name of the aero map to evaluate",
-    cpacs_path=XPATH_PYTORNADO + '/aeroMapUID',
+    xpath=XPATH_PYTORNADO + '/aeroMapUID',
     gui=True,
     gui_name='__AEROMAP_SELECTION',
     gui_group=None,
@@ -43,7 +43,7 @@ cpacs_inout.add_input(
     default_value=20,
     unit=None,
     descr="The number of chordwise VLM panels",
-    cpacs_path=XPATH_PYTORNADO + '/vlm_autopanels_c',
+    xpath=XPATH_PYTORNADO + '/vlm_autopanels_c',
     gui=True,
     gui_name='Number of chordwise panels',
     gui_group='Dicretisation',
@@ -55,7 +55,7 @@ cpacs_inout.add_input(
     default_value=5,
     unit=None,
     descr="The number of spanwise VLM panels",
-    cpacs_path=XPATH_PYTORNADO + '/vlm_autopanels_s',
+    xpath=XPATH_PYTORNADO + '/vlm_autopanels_s',
     gui=True,
     gui_name='Number of spanwise panels',
     gui_group='Dicretisation',
@@ -70,7 +70,7 @@ for plot_name in ['lattice', 'geometry', 'results', 'matrix_downwash']:
             default_value=False,
             unit=None,
             descr=f"{action.capitalize()} a {plot_name.replace('_', ' ')} plot (program will pause to show)",
-            cpacs_path=XPATH_PYTORNADO + f'/plot/{plot_name}/{action}',
+            xpath=XPATH_PYTORNADO + f'/plot/{plot_name}/{action}',
             gui=True,
             gui_name=f'{action.capitalize()} plot',
             gui_group=f"{plot_name.capitalize().replace('_', ' ')} plot",
@@ -86,7 +86,7 @@ for save_name in ['global', 'panelwise', 'aeroperformance']:
         default_value=False,
         unit=None,
         descr=f"Save PyTornado '{save_name}' results",
-        cpacs_path=XPATH_PYTORNADO + f'/save_results/{save_name}',
+        xpath=XPATH_PYTORNADO + f'/save_results/{save_name}',
         gui=True,
         gui_name=f'Save {save_name.capitalize()}',
         gui_group=f'Save CPACS external results',
@@ -97,7 +97,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m',
     descr='Centre of gravity (x-coordinate)',
-    cpacs_path=REFS_XPATH + '/point/x'
+    xpath=REFS_XPATH + '/point/x'
 )
 
 cpacs_inout.add_input(
@@ -105,7 +105,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m',
     descr='Centre of gravity (y-coordinate)',
-    cpacs_path=REFS_XPATH + '/point/x'
+    xpath=REFS_XPATH + '/point/x'
 )
 
 cpacs_inout.add_input(
@@ -113,7 +113,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m',
     descr='Centre of gravity (z-coordinate)',
-    cpacs_path=REFS_XPATH + '/point/x'
+    xpath=REFS_XPATH + '/point/x'
 )
 
 cpacs_inout.add_input(
@@ -121,7 +121,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m^2',
     descr='Reference area for force and moment coefficients',
-    cpacs_path=REFS_XPATH + '/area'
+    xpath=REFS_XPATH + '/area'
 )
 
 cpacs_inout.add_input(
@@ -129,7 +129,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m',
     descr='Reference length for force and moment coefficients',
-    cpacs_path=REFS_XPATH + '/length'
+    xpath=REFS_XPATH + '/length'
 )
 
 cpacs_inout.add_input(
@@ -137,7 +137,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='-',
     descr='Aircraft lifting surface',
-    cpacs_path=WING_XPATH,
+    xpath=WING_XPATH,
 )
 
 # ===== Output =====
@@ -147,7 +147,7 @@ cpacs_inout.add_input(
 #     default_value=None,
 #     unit='1',
 #     descr='Description of the output',
-#     cpacs_path=CEASIOM_XPATH + '/...',
+#     xpath=CEASIOM_XPATH + '/...',
 # )
 
 RCE = {

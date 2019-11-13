@@ -36,8 +36,7 @@ forces_breakdown.dat
 *_Cog.png
 
 # Ignore temp file
-/ceasiompy/SU2Run/tmp/*
-/ceasiompy/SUMOAutoMesh/tmp/*
+/ceasiompy/CPACSCreator/tmp/*
 
 # Exceptions
 !/ceasiompy/ModuleTemplate/ToolInput/ToolInput.xml

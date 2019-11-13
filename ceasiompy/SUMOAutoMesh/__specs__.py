@@ -30,9 +30,9 @@ cpacs_inout.add_input(
     default_value='-',
     unit='1',
     descr='Absolute path to the SUMO file',
-    cpacs_path=CEASIOM_XPATH + '/filesPath/sumoFilePath',
+    xpath=CEASIOM_XPATH + '/filesPath/sumoFilePath',
     gui=True,
-    gui_name='SU2 Mesh',
+    gui_name='SUMO File path',
     gui_group='Inputs',
 )
 
@@ -45,5 +45,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit='1',
     descr='Absolute path of the SU2 mesh',
-    cpacs_path=CEASIOM_XPATH + '/filesPath/su2Mesh',
+    xpath=CEASIOM_XPATH + '/filesPath/su2Mesh',
 )

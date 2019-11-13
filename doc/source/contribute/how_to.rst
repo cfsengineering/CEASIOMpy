@@ -12,11 +12,21 @@ Reporting bugs
 Writing a new module
 --------------------
 
-* See module template
+* First, you should check the code guidelines
 
-* See code guidelines
+* Fork the CEASIOMpy repository on you own Github account
 
-* Writing ``__specs__.py`` file
+* On your own fork you can now:
+
+* Copy the module named " ModuleTemplate"
+
+* Rename it as you want
+
+* Write all the function it needs to run
+
+* Write  its ``__specs__.py`` file, which describes is input/output and RCE integration
+
+* Write its test functions , as example you can check: test/TestModuleTemplate/
 
 .. toctree::
    :maxdepth: 1

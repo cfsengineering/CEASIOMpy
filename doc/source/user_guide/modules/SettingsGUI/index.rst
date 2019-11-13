@@ -1,5 +1,3 @@
-.. _sec_settings_gui:
-
 SettingsGUI
 ===========
 
@@ -19,16 +17,18 @@ Installation
 
 *SettingsGUI* is installed by default with the |name| installation.
 
-..
-    Analyses
-    --------
 
-    *SettingsGUI* does not perform any analyses.
+Analyses
+--------
+
+*SettingsGUI* does not perform any analyses. However, it will use information contain in all the __specs__ file to create one tab per module. The user can filled all the inputs and when the button "Save & Quit" is push, all the data will be save at the correct place in the CPACS file.
+It can also be used to manage the aeroMaps contained in the CPACS file.
 
 Output
 ------
 
 The input CPACS_ file will be updated according to the settings in the GUI.
+
 
 Required CPACS input and settings
 ---------------------------------

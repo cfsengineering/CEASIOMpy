@@ -22,17 +22,16 @@
     * https://www.python.org/dev/peps/pep-0257/
     * http://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html
 * Continue with documentation
-* Create 'how to install' CEASIOMpy into RCE
 
 ## Modules
 * To adapt and integrate
     * SUMO2CPACS
+    * StaticStability
 
 * To develop
-    * StaticStability
+    * Propulsion
     * DynamicStability
     * FlightModel
-    * Propulsion
     * LaTeXReport
     * Beam model generator (automatic sizing)
 
@@ -46,7 +45,7 @@
 ### Weight and Balance modules
 * Check input/output, try to simplify
 * Modify the code to make it more CEASIOMpy style
-* Add `__specs__` file
+* Add missing `__specs__` file
 
 ### AeroFrame
 * Get OptiMale test case to work (A/C with multiple wings) with SU2

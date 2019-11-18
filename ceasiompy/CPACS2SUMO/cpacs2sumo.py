@@ -771,8 +771,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
     sumo_file_path = os.path.join(sumo_dir,'ToolOutput.smx')
     if not os.path.isdir(sumo_dir):
         os.mkdir(sumo_dir)
-        create_branch(tixi,sumo_file_xpath)
-        tixi.updateTextElement(sumo_file_xpath,sumo_file_path)
+    create_branch(tixi,sumo_file_xpath)
+    tixi.updateTextElement(sumo_file_xpath,sumo_file_path)
 
     close_tixi(tixi, cpacs_out_path)
     close_tixi(sumo, sumo_file_path)

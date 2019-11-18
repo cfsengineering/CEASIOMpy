@@ -40,10 +40,15 @@ from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
                                          save_parameters, save_coefficients
 
 from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
-from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
+from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements,   \
+                                             get_toolinput_file_path,          \
+                                             get_tooloutput_file_path
 from ceasiompy.PlotAeroCoefficients.__specs__ import cpacs_inout
 
 log = get_logger(__file__.split('.')[0])
+
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_NAME = os.path.basename(os.getcwd())
 
 PLOT_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/plotAeroCoefficient'
 
@@ -210,6 +215,8 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
 
     plt.show()
 
+    # TODO: add option to save figures in ToolOutput...
+
 
 #==============================================================================
 #    MAIN
@@ -220,8 +227,8 @@ if __name__ == '__main__':
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    cpacs_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.xml')
-    cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     # Call the function which check if imputs are well define
     check_cpacs_input_requirements(cpacs_path)

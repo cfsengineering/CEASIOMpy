@@ -18,43 +18,15 @@ RCE = {
 
 cpacs_inout = CPACSInOut()
 
-# TODO
 
 #===== Input =====
 
-# cpacs_inout.add_input(
-#     var_name='x',
-#     default_value=None,
-#     unit='1',
-#     descr='Fuselage scaling on x axis',
-#     xpath=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation   \
-#                                 /scaling/x',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='y',
-#     default_value=None,
-#     unit='1',
-#     descr='Fuselage scaling on x axis',
-#     xpath=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation   \
-#                                 /scaling/y',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='z',
-#     default_value=None,
-#     unit='1',
-#     descr='Fuselage scaling on x axis',
-#     xpath=AIRCRAFT_XPATH + '/model/fuselages/fuselage/transformation   \
-#                                 /scaling/z',
-# )
-
-# ===== Output =====
-
-# cpacs_inout.add_output(
-#         var_name='output',
-#         default_value=None,
-#         unit='1',
-#         descr='Description of the output',
-#         xpath=CEASIOM_XPATH + '/...',
-#         )
+cpacs_inout.add_input(
+    var_name='',
+    var_type=list,
+    default_value=None,
+    descr='To which aeroMap the skin priction coef shoud be added',
+    xpath='/cpacs/toolspecific/CEASIOMpy/aerodynamics/plotAeroCoefficient/aeroMapToPlot',
+    gui=True,
+    gui_name='__AEROMAP_CHECHBOX',
+)

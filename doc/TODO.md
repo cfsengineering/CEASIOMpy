@@ -4,9 +4,6 @@
 * Add a recognizable logo
 * Make installation easier
     * External dependencies
-        * Tixi
-        * Tigl
-        * TIGLCreator
         * Sumo
         * SU2
         * RCE

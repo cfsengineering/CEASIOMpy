@@ -160,7 +160,7 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
 
 if __name__ == '__main__':
 
-    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
+    log.info('----- Start of ' + MODULE_NAME + ' -----')
 
     cpacs_path = get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
@@ -183,4 +183,4 @@ if __name__ == '__main__':
     log.info('y = ' + str(y))
     log.info('z = ' + str(z))
 
-    log.info('----- End of ' + os.path.basename(__file__) + ' -----')
+    log.info('----- End of ' + MODULE_NAME + ' -----')

@@ -3937,6 +3937,367 @@
                 <cms/>
               </aeroPerformanceMap>
             </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis24">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis25">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis26">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis27">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis28">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis29">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis30">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis31">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis32">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis33">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis34">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis35">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis36">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis37">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis38">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis39">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis40">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis41">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis42">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
           </aeroPerformance>
           <massBreakdown>
             <designMasses>
@@ -4645,6 +5006,8 @@
               <angleOfSideslip mapType="vector">0;0;0;0;0;0;0;0;0;0;0;0;0</angleOfSideslip>
             </directional>
           </trimconditions>
+          <showPlot>False</showPlot>
+          <savePlot>False</savePlot>
         </static>
       </stability>
       <fuels>

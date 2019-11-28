@@ -12,11 +12,6 @@ Python version: >=3.6
 | Last modifiction: 2019-11-21 (AJ)
 
 TODO:
-    * Complete "get_index" function description
-    * pitching moment should be cms
-    * yawing moment should be  cml
-    * Functions "unexpected_sign_change"  and "change_sign_once"  could be combine
-    * Coulb improve "if not longitudinaly_stable: " ....
     * Should we also save results as report (text file)
 """
 
@@ -51,7 +46,7 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
                                            create_branch, copy_branch, add_uid,\
                                            get_value, get_value_or_default,    \
                                            add_float_vector, get_float_vector, \
-                                           add_string_vector, get_string_vector
+                                           add_string_vector, get_string_vector\
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -102,19 +97,25 @@ def extract_subelements(vector):
 
     return extracted
 
-
-def unexpected_sign_change(alt, cm):
+def change_sign(alt, angles, cm):
     """Find if a moments coefficeint cm. cross the 0 line, once or more
+       Find if a moment coefficeint cm. crosse the 0 line only once and return
+        the corresponding angle and the cm derivative at cm=0
 
     Args:
         alt (float): Altitude [m]
         cm (list): Moment coefficient
+        angle (list): Angle of attack (or sideslip)
 
     Returns:
+        cruise_angle (float): Angle to get cm. = 0
+        moment_derivative (float): Moment derivative at cruise_angle
         cross (boolean): List of unique value
     """
 
     crossed = True
+    cruise_angle = ''
+    moment_derivative = ''
 
     if len(np.argwhere(np.diff(np.sign(cm)))) == 0  :
         # If all Cm. values are 0:
@@ -132,35 +133,14 @@ def unexpected_sign_change(alt, cm):
         log.error('Alt = '  + str(alt) + 'The Cm curves crosses the 0 line twice, no stability analysis performed')
         crossed = False
 
-    return crossed
-
-# TODO: Change funcion name and combine with the previous function
-def change_sign_once(angle, cm) :
-    """Find if a moment coefficeint cm. crosse the 0 line only once and return
-        the corresponding angle and the cm derivative at cm=0
-
-    Args:
-        angle (list): Angle of attack (or sideslip)
-        cm (list): Moment coefficient
-
-    Returns:
-        cruise_angle (float): Angle to get cm. = 0
-        moment_derivative (float): Moment derivative at cruise_angle
-        crossed (boolean): if cm value cross 0   TODO:is it useful to return that?
-    """
-
-    crossed = False
-    cruise_angle = ''
-    moment_derivative = ''
-    # If Cm = 0 is in Cm list
-    if 0 in np.sign(cm) and cm.count(0) == 1:
-        crossed = True
+    # If Cm = 0 is in Cm list, and cm crosses oly once the 0 line
+    elif 0 in np.sign(cm) and cm.count(0) == 1 and crossed:
         idx_cm_0 = [i for i in range(len(cm)) if cm[i] == 0][0]
-        # If cm. = 0 is the first element in cml list, take the derivative at right
+        # If cm. = 0 is the first element in cm. list, take the derivative at right
         if idx_cm_0 == 0:
             # Angles and coeffs before and after crossing the 0 line
-            angle_before = angle[idx_cm_0]
-            angle_after = angle[idx_cm_0+1]
+            angle_before = angles[idx_cm_0]
+            angle_after = angles[idx_cm_0+1]
             cm_before = cm[idx_cm_0]
             cm_after = cm[idx_cm_0+1]
 
@@ -168,10 +148,10 @@ def change_sign_once(angle, cm) :
             moment_derivative = (cm_after-cm_before)/(angle_after-angle_before)
 
         # If cm. = 0 is the last element of cm. list, take the derivative at left
-        if idx_cm_0 == len(cm) - 1:
+        elif idx_cm_0 == len(cm) - 1:
             # Angles and coeffs before and after crossing the 0 line
-            angle_before = angle[idx_cm_0-1]
-            angle_after = angle[idx_cm_0]
+            angle_before = angles[idx_cm_0-1]
+            angle_after = angles[idx_cm_0]
             cm_before = cm[idx_cm_0-1]
             cm_after = cm[idx_cm_0]
 
@@ -179,25 +159,24 @@ def change_sign_once(angle, cm) :
             moment_derivative = (cm_after-cm_before)/(angle_after-angle_before)
 
         # If cm. = 0 is nor the first nor the last element in cm. list, take the centered derivative
-        if 0 < idx_cm_0 < len(cm)-1:
+        elif 0 < idx_cm_0 < len(cm)-1:
             # Angles and coeffs before and after crossing the 0 line
-            angle_before = angle[idx_cm_0-1]
-            angle_after = angle[idx_cm_0+1]
+            angle_before = angles[idx_cm_0-1]
+            angle_after = angles[idx_cm_0+1]
             cm_before = cm[idx_cm_0-1]
             cm_after = cm[idx_cm_0+1]
 
-            cruise_angle = angle[idx_cm_0]
+            cruise_angle = angles[idx_cm_0]
             moment_derivative = (cm_after - cm_before)/(angle_after - angle_before)
 
     # If cm. crosses the 0 line once and Cm.= 0 is not in cm. list
-    if  len(np.argwhere(np.diff(np.sign(cm)))) == 1 and 0 not in np.sign(cm):
+    elif  len(np.argwhere(np.diff(np.sign(cm)))) == 1 and 0 not in np.sign(cm) and crossed:
         # Make the linear equation btween the 2 point before and after crossing the 0 ine y=ax+b
-        crossed = True
         idx_cm_0 = np.argwhere(np.diff(np.sign(cm)))[0][0]
 
         # Angles and coeffs before and after crossing the 0 line
-        angle_before = angle[idx_cm_0]
-        angle_after = angle[idx_cm_0+1]
+        angle_before = angles[idx_cm_0]
+        angle_after = angles[idx_cm_0+1]
         cm_before = cm[idx_cm_0]
         cm_after = cm[idx_cm_0+1]
 
@@ -331,13 +310,13 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     Returns:
         *   Adrvertisements certifying if the aircraft is stable or Not
         *   In case of longitudinal static UNstability or unvalid test on data:
-                -	Plot cml VS aoa for constant Alt, Mach and different aos
-                -	Plot cml VS aoa for const alt and aos and different mach
-                -	plot cml VS aoa for constant mach, AOS and different altitudes
+                -	Plot cms VS aoa for constant Alt, Mach and different aos
+                -	Plot cms VS aoa for const alt and aos and different mach
+                -	plot cms VS aoa for constant mach, AOS and different altitudes
         *  In case of directionnal static UNstability or unvalid test on data:
-                -	Pcot cms VS aos for constant Alt, Mach and different aoa
-                -	Plot cms VS aos for const alt and aoa and different mach
-                -	plot cms VS aos for constant mach, AOA and different altitudes
+                -	Pcot cml VS aos for constant Alt, Mach and different aoa
+                -	Plot cml VS aos for const alt and aoa and different mach
+                -	plot cml VS aos for constant mach, AOA and different altitudes
         *  Plot one graph of  cruising angles of attack for different mach and altitudes
 
     Make the following tests:            (To put in the documentation)
@@ -348,7 +327,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 -   If there one aoa value which is repeated for a given altitude, mach, aos
         *   For directionnal static stability analysis:
                 -   If there is more than one angle of sideslip for a given altitude, mach, aoa
-                -   If cml values are only zeros for a given altitude, mach, aoa
+                -   If cms values are only zeros for a given altitude, mach, aoa
                 -   If there one aos value which is repeated for a given altitude, mach, aoa
     """
 
@@ -426,10 +405,10 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             # Longitudinal stability
             # Analyse in function of the angle of attack for given, alt, mach and aos_list
             # Prepare variables for plots
-            plot_cml = []
+            plot_cms = []
             plot_aoa = []
             plot_legend = []
-            plot_title = 'Cml vs aoa @ atl = ' + str(alt) + ' m and Mach = ' + str(mach)
+            plot_title = 'cms vs aoa @ atl = ' + str(alt) + ' m and Mach = ' + str(mach)
             xlabel= 'Angle of attack [deg]'
             ylabel= 'Pitching moment coefficient [-]'
             # Init for determining if it's an unstable case
@@ -453,15 +432,15 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
                 elif len(find_idx) > 1: # if there is at least 2 values in find_idx :
 
-                    # Find all cml_list values for index corresonding to an altitude, a mach, an aos_list=0, and different aoa_list
-                    cml = []
+                    # Find all cms_list values for index corresonding to an altitude, a mach, an aos_list=0, and different aoa_list
+                    cms = []
                     aoa = []
                     for index in find_idx:
-                        cml.append(cml_list[index])
+                        cms.append(cms_list[index])
                         aoa.append(aoa_list[index])
 
                     # Save values which will be plot
-                    plot_cml.append(cml)
+                    plot_cms.append(cms)
                     plot_aoa.append(aoa)
                     curve_legend = 'aos = '+ str(aos) + '°'
                     plot_legend.append(curve_legend)
@@ -471,23 +450,21 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                     for jj in range(len(aoa)-1):
                         if  aoa[jj] == aoa[jj+1]:
                             aoa_good = False
-                            log.warning('Alt = {} , at least 2 aoa values are equal in aoa list: {} at Mach= {}, aos = {}' .format(alt, aoa, mach, aos))
+                            log.error('Alt = {} , at least 2 aoa values are equal in aoa list: {} at Mach= {}, aos = {}' .format(alt, aoa, mach, aos))
                             break
-                    longitudinaly_stable = unexpected_sign_change(alt, cml)
 
-                    if aoa_good and longitudinaly_stable :
-                        cruise_aoa, pitch_moment_derivative, crossed = change_sign_once(aoa, cml)
+                    if aoa_good :
+                        cruise_aoa, pitch_moment_derivative, crossed = change_sign(alt, aoa, cms)
 
-                    if aos == 0 and crossed and aoa_good and pitch_moment_derivative < 0 and cruise_aoa != '' :
-                        trim_alt_longi.append(alt)
-                        trim_mach_longi.append(mach)
-                        trim_aoa_longi.append(cruise_aoa)
-                        trim_aos_longi.append(aos)
-
-                    # Conclusion about stability, if the Cml curve has crossed the 0 line and there is not 2 repeated aoa for the same alt, mach and aos.
+                    # Conclusion about stability, if the cms curve has crossed the 0 line and there is not 2 repeated aoa for the same alt, mach and aos.
                     if crossed and aoa_good :
                         if pitch_moment_derivative < 0 :
                             log.info('Vehicle longitudinaly staticaly stable.')
+                            if aos == 0 :
+                                trim_alt_longi.append(alt)
+                                trim_mach_longi.append(mach)
+                                trim_aoa_longi.append(cruise_aoa)
+                                trim_aos_longi.append(aos)
                         elif pitch_moment_derivative == 0 :
                             longitudinaly_stable = False
                             log.error('Alt = '  + str(alt) + 'Vehicle longitudinaly staticaly neutral stable.')
@@ -503,20 +480,20 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
                 # To write in the output CPACS that the aircraft is not longitudinaly stable
 
-            # PLot Cml VS aoa for constant Alt, Mach and different aos
-            if not longitudinaly_stable:
-                plot_multicurve(plot_cml, plot_aoa, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
+            # PLot cms VS aoa for constant Alt, Mach and different aos
+            if longi_unstable_cases:
+                plot_multicurve(plot_cms, plot_aoa, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
 
 
             # Dirrectional Stability analysis-
             count_aoa = 0
 
-            plot_cms = []
+            plot_cml = []
             plot_aos = []
             plot_legend = []
-            plot_title = 'Cms vs aos @ atl = ' + str(alt) + ' m and Mach = ' + str(mach)
+            plot_title = 'cml vs aos @ atl = ' + str(alt) + ' m and Mach = ' + str(mach)
             xlabel= 'Angle of sideslip [deg]'
-            ylabel= 'Cms'
+            ylabel= 'cml'
             # Init for determinig if it is an unstability case
             dirrectionaly_stable = True
             # Find INDEX
@@ -538,43 +515,40 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                               + ' no stability analyse performed')
 
                 elif len(find_idx)> 1: #if there is at least 2 values in find_idx
-                    cms = []
+                    cml = []
                     aos = []
                     for index in find_idx:
-                        cms.append(cms_list[index])
+                        cml.append(cml_list[index])
                         aos.append(aos_list[index])
 
                     # retrieve the index in of element in cml just before crossing 0,
                     # np.argwher returns an array as [[idx]], that'a why there is [0][0] at the end
-                    #  If cms Curve crosses th 0 line more than once na stability analysis can be performed
+                    #  If cml Curve crosses th 0 line more than once na stability analysis can be performed
                     curve_legend = 'aoa = ' + str(aoa) + '°'
 
                     # Save values which will be plot
-                    plot_cms.append(cms)
+                    plot_cml.append(cml)
                     plot_aos.append(aos)
                     plot_legend.append(curve_legend)
 
                     aos_good = True
                     for jj in range(len(aos)-1):
                         if  aos[jj] == aos[jj+1]:
-                            aoa_good = False
-                            log.warning('At alt ={}, at least 2 aos values are equal in aoa list: {} , Mach= {}, aos = {}' .format(alt, aoa, mach, aos))
+                            aos_good = False
+                            log.error('Alt = {} , at least 2 aos values are equal in aos list: {} , Mach= {}, aos = {}' .format(alt, aoa, mach, aos))
                             break
 
-                    dirrectionaly_stable = unexpected_sign_change(alt, cms)
-
-                    if aos_good and dirrectionaly_stable :
-                        [cruise_aos, side_moment_derivative, crossed] = change_sign_once(aos, cms)
-
-                    if aoa == 0 and crossed and aos_good and side_moment_derivative > 0 and cruise_aos != '' :
-                        trim_alt_direc.append(alt)
-                        trim_mach_direc.append(mach)
-                        trim_aoa_direc.append(cruise_aos)
-                        trim_aos_direc.append(aoa)
+                    if aos_good :
+                        [cruise_aos, side_moment_derivative, crossed] = change_sign(alt, aos, cml)
 
                     if crossed and aos_good :
                         if side_moment_derivative > 0 :
                             log.info('Vehicle directionnaly staticaly stable.')
+                            if aoa == 0 :
+                                trim_alt_direc.append(alt)
+                                trim_mach_direc.append(mach)
+                                trim_aoa_direc.append(cruise_aos)
+                                trim_aos_direc.append(aoa)
                         if side_moment_derivative == 0 :
                             dirrectionaly_stable = False
                             log.error('At alt = ' + str(alt) + 'Vehicle directionnaly staticaly neutral stable.')
@@ -588,9 +562,9 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                         # To write in the output CPACS that the aircraft is not longitudinaly stable
                         cpacs_stability_direc = False
 
-            # PLot Cms VS aos for constant alt, mach and different aoa if not stable
-            if not dirrectionaly_stable:
-                plot_multicurve(plot_cms, plot_aos, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
+            # PLot cml VS aos for constant alt, mach and different aoa if not stable
+            if direc_unstable_cases:
+                plot_multicurve(plot_cml, plot_aos, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
 
         # Add trim conditions for the given altitude (longi analysis)
         if trim_aoa_longi:
@@ -608,15 +582,15 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             trim_alt_direc_list.append(trim_alt_direc)
             trim_aoa_direc_list.append(trim_aoa_direc)
 
-        # Plot cml vs aoa for const alt and aos and different mach
+        # Plot cms vs aoa for const alt and aos and different mach
         for aos in aos_unic:
             idx_aos = [k for k in range(len(aos_list)) if aos_list[k] == aos]
-            plot_cml = []
+            plot_cms = []
             plot_aoa = []
             plot_legend= []
-            plot_title = 'Cml vs aoa @ atl = ' + str(alt) + ' m and aos = ' + str(aos)
+            plot_title = 'cms vs aoa @ atl = ' + str(alt) + ' m and aos = ' + str(aos)
             xlabel= 'Angle of attack [deg]'
-            ylabel= 'Cml'
+            ylabel= 'cms'
             # Init for determinig if it is an unstability case
             longitudinaly_stable = True
 
@@ -633,32 +607,32 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
                 # If there is at list 2 values in find_idx :
                 if len(find_idx) > 1:
-                    # Find all cml_list values for index corresonding to an altitude, a mach, an aos_list=0, and different aoa_list
-                    cml = []
+                    # Find all cms_list values for index corresonding to an altitude, a mach, an aos_list=0, and different aoa_list
+                    cms = []
                     aoa = []
                     for index in find_idx:
-                        cml.append(cml_list[index])
+                        cms.append(cms_list[index])
                         aoa.append(aoa_list[index])
 
                     # Save values which will be plot
-                    plot_cml.append(cml)
+                    plot_cms.append(cms)
                     plot_aoa.append(aoa)
                     curve_legend = 'Mach = ' + str(mach)
                     plot_legend.append(curve_legend)
 
             if not longitudinaly_stable:
-                #PLot Cml VS aoa for constant Alt, aoa and different mach
-                plot_multicurve(plot_cml, plot_aoa, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
+                #PLot cms VS aoa for constant Alt, aoa and different mach
+                plot_multicurve(plot_cms, plot_aoa, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
 
-        # Plot cms vs aos for const alt and aoa and different mach
+        # Plot cml vs aos for const alt and aoa and different mach
         for aoa in aoa_unic:
             idx_aoa = [k for k in range(len(aoa_list)) if aoa_list[k] == aoa]
-            plot_cms = []
+            plot_cml = []
             plot_aos = []
             plot_legend = []
-            plot_title  = 'Cms vs aos @ atl = ' + str(alt) + ' m and aoa = ' + str(aoa)
+            plot_title  = 'cml vs aos @ atl = ' + str(alt) + ' m and aoa = ' + str(aoa)
             xlabel = 'Angle of sideslip [deg]'
-            ylabel = 'Cms'
+            ylabel = 'cml'
             # Init for determinig if it is an unstability case
             dirrectionaly_stable = True
 
@@ -677,21 +651,21 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 # If there is at list 2 values in find_idx :
                 if len(find_idx) > 1:
                     # Find all cml_list values for index corresonding to an altitude, a mach, an aos_list=0, and different aoa_list
-                    cms = []
+                    cml = []
                     aos = []
                     for index in find_idx:
-                        cms.append(cms_list[index])
+                        cml.append(cml_list[index])
                         aos.append(aos_list[index])
 
                     # Save values which will be plot
-                    plot_cms.append(cms)
+                    plot_cml.append(cml)
                     plot_aos.append(aos)
                     curve_legend = 'Mach = ' + str(mach)
                     plot_legend.append(curve_legend)
 
             if not dirrectionaly_stable:
-                # Plot Cms VS aos for constant Alt, aoa and different mach
-                plot_multicurve(plot_cms, plot_aos, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
+                # Plot cml VS aos for constant Alt, aoa and different mach
+                plot_multicurve(plot_cml, plot_aos, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
 
     # Plot trim_aoa VS mach for different alt
     # If there is at least 1 element in list of trim conditions then, plot them
@@ -700,7 +674,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
         log.info('graph : cruising aoa vs mach genrated')
         plot_multicurve(trim_aoa_longi_list, trim_mach_longi_list, trim_legend_longi_list, 'trim_aoa vs mach', 'mach', 'Angle of attack [deg]', show_plots, save_plots)
 
-    # plot Cml VS aoa for constant mach, aos_list and different altitudes:
+    # plot cms VS aoa for constant mach, aos_list and different altitudes:
     for aos in aos_unic:
         # Find index of altitude which have the same value
         idx_aos = [i for i in range(len(aos_list)) if aos_list[i] == aos]
@@ -708,12 +682,12 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             # Find index of mach which have the same value
             idx_mach = [j for j in range(len(mach_list)) if mach_list[j] == mach]
             # Prepare variables for plots
-            plot_cml = []
+            plot_cms = []
             plot_aoa = []
             plot_legend = []
-            plot_title = 'Cml vs aoa @ Mach = ' + str(mach) + ' and aos = '+ str(aos)
+            plot_title = 'cms vs aoa @ Mach = ' + str(mach) + ' and aos = '+ str(aos)
             xlabel = 'Angle of attack [deg]'
-            ylabel = 'Cml'
+            ylabel = 'cms'
 
             longitudinaly_stable = True
 
@@ -733,24 +707,24 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
                 # If there is at list 2 values in find_idx :
                 if len(find_idx) > 1:
-                    # Find all cml_list values for index corresonding to an altitude, a mach, an aos_list=0, and different aoa_list
-                    cml = []
+                    # Find all cms_list values for index corresonding to an altitude, a mach, an aos_list=0, and different aoa_list
+                    cms = []
                     aoa = []
                     for index in find_idx:
-                        cml.append(cml_list[index])
+                        cms.append(cms_list[index])
                         aoa.append(aoa_list[index])
 
                     # Save values which will be plot
-                    plot_cml.append(cml)
+                    plot_cms.append(cms)
                     plot_aoa.append(aoa)
                     curve_legend = 'Altitude = ' + str(alt)
                     plot_legend.append(curve_legend)
 
             if not longitudinaly_stable:
-                # PLot Cml VS aoa for constant  Mach, aos and different Alt
-                plot_multicurve(plot_cml, plot_aoa, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
+                # PLot cms VS aoa for constant  Mach, aos and different Alt
+                plot_multicurve(plot_cms, plot_aoa, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
 
-    # plot Cms VS aos for constant mach, aoa_list and different altitudes:
+    # plot cml VS aos for constant mach, aoa_list and different altitudes:
     for aoa in aoa_unic:
         # Find index of altitude which have the same value
         idx_aoa = [i for i in range(len(aoa_list)) if aoa_list[i] == aoa]
@@ -758,12 +732,12 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             # Find index of mach which have the same value
             idx_mach = [j for j in range(len(mach_list)) if mach_list[j] == mach]
             # Prepare variables for plots
-            plot_cms = []
+            plot_cml = []
             plot_aos = []
             plot_legend = []
-            plot_title = 'Cms vs aos @ Mach = ' + str(mach) + ' and aoa = ' + str(aoa)
+            plot_title = 'cml vs aos @ Mach = ' + str(mach) + ' and aoa = ' + str(aoa)
             xlabel= 'Angle of sideslip [deg]'
-            ylabel= 'Cms'
+            ylabel= 'cml'
 
             dirrectionaly_stable = True
 
@@ -784,21 +758,21 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 # If there is at list 2 values in find_idx :
                 if len(find_idx) > 1:
                     # Find all cml_list values for index corresonding to an altitude, a mach, an aos_list=0, and different aoa_list
-                    cms = []
+                    cml = []
                     aos = []
                     for index in find_idx:
-                        cms.append(cms_list[index])
+                        cml.append(cml_list[index])
                         aos.append(aos_list[index])
 
                     # Save values which will be plot
-                    plot_cms.append(cms)
+                    plot_cml.append(cml)
                     plot_aos.append(aos)
                     curve_legend = 'Altitude = ' + str(alt)
                     plot_legend.append(curve_legend)
 
             if not dirrectionaly_stable:
-            # PLot Cms VS aos for constant  Mach, aoa and different alt
-                plot_multicurve(plot_cms, plot_aos, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
+            # PLot cml VS aos for constant  Mach, aoa and different alt
+                plot_multicurve(plot_cml, plot_aos, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
 
     # Save in the CPACS file stability results:
     trim_alt_longi_list=extract_subelements(trim_alt_longi_list)
@@ -839,6 +813,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     create_branch(tixi,longi_trim_xpath,False)
     create_branch(tixi,direc_trim_xpath,False)
 
+    print(trim_alt_longi_list)
     add_float_vector(tixi,longi_trim_xpath+'/altitude',trim_alt_longi_list)
     add_float_vector(tixi,longi_trim_xpath+'/machNumber',trim_mach_longi_list)
     add_float_vector(tixi,longi_trim_xpath+'/angleOfAttack',trim_aoa_longi_list)

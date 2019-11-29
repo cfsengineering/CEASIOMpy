@@ -9,9 +9,12 @@ Python version: >=3.6
 
 | Author: Verdier Loïc
 | Creation: 2019-10-24
-| Last modifiction: 2019-11-21 (AJ)
+| Last modifiction: 2019-11-28 (AJ)
 
 TODO:
+    * Modify the code where there are "TODO"
+    * If only one aos angle -> dirrectionaly_stable  ???
+    * If only one aos angle -> longitudinaly_stable  ???
     * Should we also save results as report (text file)
 """
 
@@ -39,7 +42,7 @@ from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements, \
                                              get_toolinput_file_path,        \
                                              get_tooloutput_file_path
 from ceasiompy.utils.apmfunctions import aeromap_to_csv, get_aeromap_uid_list, \
-                                         aeromap_from_csv, get_aeromap
+                                         aeromap_from_csv, get_aeromap, check_aeromap
 
 
 from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
@@ -54,6 +57,7 @@ log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
+
 
 #==============================================================================
 #   FUNCTIONS
@@ -97,6 +101,7 @@ def extract_subelements(vector):
 
     return extracted
 
+
 def change_sign(alt, angles, cm):
     """Find if a moments coefficeint cm. cross the 0 line, once or more
        Find if a moment coefficeint cm. crosse the 0 line only once and return
@@ -121,16 +126,16 @@ def change_sign(alt, angles, cm):
         # If all Cm. values are 0:
         crossed = False
         if cm.count(0) == len(cm):
-            log.warning('Alt = '  + str(alt) + 'Cm list is composed of 0 only.' )
+            log.warning('Alt = '  + str(alt) + ' Cm list is composed of 0 only.' )
         else:
-            log.error('Alt = '  + str(alt) + 'Cm does not cross the 0 line, aircraft not stable.' )
+            log.error('Alt = '  + str(alt) + ' Cm does not cross the 0 line, aircraft not stable.' )
     # If cm. Curve crosses the 0 line more than once no stability analysis can be performed
     elif len(np.argwhere(np.diff(np.sign(cm)))) > 2 or cm.count(0) > 1:
-        log.error('Alt = '  + str(alt) + 'The Cm curves crosses more than once the 0 line, no stability analysis performed')
+        log.error('Alt = '  + str(alt) + ' The Cm curves crosses more than once the 0 line, no stability analysis performed')
         crossed  = False
     # If cm. Curve crosses the 0 line twice
     elif 0 not in np.sign(cm) and len(np.argwhere(np.diff(np.sign(cm)))) == 2:
-        log.error('Alt = '  + str(alt) + 'The Cm curves crosses the 0 line twice, no stability analysis performed')
+        log.error('Alt = '  + str(alt) + ' The Cm curves crosses the 0 line twice, no stability analysis performed')
         crossed = False
 
     # If Cm = 0 is in Cm list, and cm crosses oly once the 0 line
@@ -223,15 +228,14 @@ def plot_multicurve(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel, sho
             y_min = min(y_axis[0])
             x_max = max(x_axis[0])
             x_min = min(x_axis[0])
-        if n >0  and max(y_axis[n]) > y_max :
+        if n > 0  and max(y_axis[n]) > y_max :
             y_max = max(y_axis[n])
-        if n >0  and min(y_axis[n]) < y_min :
+        if n > 0  and min(y_axis[n]) < y_min :
             y_min  = min(y_axis[n])
-        if n >0  and max(x_axis[n]) > x_max :
+        if n > 0  and max(x_axis[n]) > x_max :
             x_max = max(x_axis[n])
-        if n >0  and min(x_axis[n]) < x_min :
+        if n > 0  and min(x_axis[n]) < x_min :
             x_min = min(x_axis[n])
-
     ax = plt.gca()
 
     # Remove Top and right axes
@@ -337,10 +341,11 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     aeromap_uid = get_value(tixi, '/cpacs/toolspecific/CEASIOMpy/stability/static/aeroMapUid')
     log.info('The following aeroMap will be analysed: ' + aeromap_uid)
 
-    show_plots = get_value_or_default(tixi,'/cpacs/toolspecific/CEASIOMpy/stability/static/showPlot',False)
-    save_plots = get_value_or_default(tixi,'/cpacs/toolspecific/CEASIOMpy/stability/static/savePlot',False)
+    show_plots = get_value_or_default(tixi,'/cpacs/toolspecific/CEASIOMpy/stability/static/showPlots',False)
+    save_plots = get_value_or_default(tixi,'/cpacs/toolspecific/CEASIOMpy/stability/static/savePlots',False)
 
     Coeffs = get_aeromap(tixi, aeromap_uid)
+    Coeffs.print_coef_list()
 
     alt_list = Coeffs.alt
     mach_list = Coeffs.mach
@@ -355,7 +360,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     aoa_unic = get_unic(aoa_list)
 
     # Init Plot variables : trim Aoa for given alt and different mach
-    #                                  trim Aoa for gien Mach and different alt
+    #                       trim Aoa for gien Mach and different alt
     # Gather trim aoa_list for different Alt & mach , for aos = 0
     trim_alt_longi_list = []
     trim_mach_longi_list = []
@@ -480,9 +485,11 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
                 # To write in the output CPACS that the aircraft is not longitudinaly stable
 
+
+# TODO: modif this condtion!!!
             # PLot cms VS aoa for constant Alt, Mach and different aos
-            if longi_unstable_cases:
-                plot_multicurve(plot_cms, plot_aoa, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
+            # if longi_unstable_cases:
+                # plot_multicurve(plot_cms, plot_aoa, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
 
 
             # Dirrectional Stability analysis-
@@ -562,9 +569,10 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                         # To write in the output CPACS that the aircraft is not longitudinaly stable
                         cpacs_stability_direc = False
 
-            # PLot cml VS aos for constant alt, mach and different aoa if not stable
-            if direc_unstable_cases:
-                plot_multicurve(plot_cml, plot_aos, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
+# TODO: modif this condtion!!!
+            # # PLot cml VS aos for constant alt, mach and different aoa if not stable
+            # if direc_unstable_cases:
+            #     plot_multicurve(plot_cml, plot_aos, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
 
         # Add trim conditions for the given altitude (longi analysis)
         if trim_aoa_longi:
@@ -633,6 +641,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             plot_title  = 'cml vs aos @ atl = ' + str(alt) + ' m and aoa = ' + str(aoa)
             xlabel = 'Angle of sideslip [deg]'
             ylabel = 'cml'
+
             # Init for determinig if it is an unstability case
             dirrectionaly_stable = True
 
@@ -785,46 +794,42 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     trim_aoa_direc_list=extract_subelements(trim_aoa_direc_list)
     trim_aos_direc_list=extract_subelements(trim_aos_direc_list)
 
-    # If all analysis were good: stability = True
-    # If one of the analysis was not good: stability =False
+    # xpath definition
     static_analysis_xpath = '/cpacs/toolspecific/CEASIOMpy/stability/static'
-
     aeromap_uid_xpath =   static_analysis_xpath + '/aeroMapUid'
     longi_xpath = static_analysis_xpath + '/results/longitudinalStaticStable'
     direc_xpath = static_analysis_xpath + '/results/directionnalStaticStable'
-
-    # If branch does not exist
-    if not tixi.checkElement(aeromap_uid_xpath):
-        create_branch(tixi,aeromap_uid_xpath, False)
-        add_string_vector(tixi, aeromap_uid_xpath, [aeromap_uid])
-
-    if not tixi.checkElement(longi_xpath) :
-        create_branch(tixi, longi_xpath,False)
-    if not tixi.checkElement(direc_xpath) :
-        create_branch(tixi, direc_xpath,False)
-
-    # Store in the CPCS the stability results
-    add_string_vector(tixi, longi_xpath, [cpacs_stability_longi])
-    add_string_vector(tixi, direc_xpath, [cpacs_stability_direc])
-
     longi_trim_xpath = static_analysis_xpath +'/trimconditions/longitudinal'
     direc_trim_xpath = static_analysis_xpath +'/trimconditions/directional'
 
-    create_branch(tixi,longi_trim_xpath,False)
-    create_branch(tixi,direc_trim_xpath,False)
+    create_branch(tixi,aeromap_uid_xpath)
+    tixi.updateTextElement(aeromap_uid_xpath, aeromap_uid)
 
-    print(trim_alt_longi_list)
-    add_float_vector(tixi,longi_trim_xpath+'/altitude',trim_alt_longi_list)
-    add_float_vector(tixi,longi_trim_xpath+'/machNumber',trim_mach_longi_list)
-    add_float_vector(tixi,longi_trim_xpath+'/angleOfAttack',trim_aoa_longi_list)
-    add_float_vector(tixi,longi_trim_xpath+'/angleOfSideslip',trim_aos_longi_list)
+    create_branch(tixi, longi_xpath)
+    create_branch(tixi, direc_xpath)
 
-    add_float_vector(tixi,direc_trim_xpath+'/altitude',trim_alt_longi_list)
-    add_float_vector(tixi,direc_trim_xpath+'/machNumber',trim_mach_longi_list)
-    add_float_vector(tixi,direc_trim_xpath+'/angleOfAttack',trim_aoa_longi_list)
-    add_float_vector(tixi,direc_trim_xpath+'/angleOfSideslip',trim_aos_longi_list)
+    # Store in the CPCS the stability results
+    tixi.updateTextElement(longi_xpath, str(cpacs_stability_longi))
+    tixi.updateTextElement(direc_xpath, str(cpacs_stability_direc))
+
+    create_branch(tixi,longi_trim_xpath)
+    create_branch(tixi,direc_trim_xpath)
+
+    # TODO: Normaly this "if" is not required, but the tixi function to add a vector does not support an empty vercor...
+    if trim_alt_longi_list:
+        add_float_vector(tixi,longi_trim_xpath+'/altitude',trim_alt_longi_list)
+        add_float_vector(tixi,longi_trim_xpath+'/machNumber',trim_mach_longi_list)
+        add_float_vector(tixi,longi_trim_xpath+'/angleOfAttack',trim_aoa_longi_list)
+        add_float_vector(tixi,longi_trim_xpath+'/angleOfSideslip',trim_aos_longi_list)
+
+    if trim_alt_direc_list:
+        add_float_vector(tixi,direc_trim_xpath+'/altitude',trim_alt_direc_list)
+        add_float_vector(tixi,direc_trim_xpath+'/machNumber',trim_mach_direc_list)
+        add_float_vector(tixi,direc_trim_xpath+'/angleOfAttack',trim_aoa_direc_list)
+        add_float_vector(tixi,direc_trim_xpath+'/angleOfSideslip',trim_aos_direc_list)
 
     close_tixi(tixi, cpacs_out_path)
+
 
 #==============================================================================
 #    MAIN

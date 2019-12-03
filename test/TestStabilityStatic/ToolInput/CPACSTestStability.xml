@@ -5324,6 +5324,25 @@
                 <cms/>
               </aeroPerformanceMap>
             </aeroMap>
+            <aeroMap uID="aeroMap_pyTornado_bis97">
+              <name>aeroMap_pyTornado_bis</name>
+              <description>AeroMap create from the CSV file: csvtest.csv</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude/>
+                <machNumber/>
+                <angleOfAttack/>
+                <angleOfSideslip/>
+                <cl/>
+                <cd/>
+                <cs/>
+                <cml/>
+                <cmd/>
+                <cms/>
+              </aeroPerformanceMap>
+            </aeroMap>
           </aeroPerformance>
           <massBreakdown>
             <designMasses>

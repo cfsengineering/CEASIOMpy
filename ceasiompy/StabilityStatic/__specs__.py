@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut, CEASIOM_XPATH
+
 STABILITY_STATIC_XPATH =  '/cpacs/toolspecific/CEASIOMpy/stability/static'
 
 
@@ -10,7 +11,7 @@ STABILITY_STATIC_XPATH =  '/cpacs/toolspecific/CEASIOMpy/stability/static'
 RCE = {
     "name": "StabilityStatic",
     "description": "Determine if a vehicle is statically stable or not  ",
-    "exec": "pwd\npython stabilitystatic.py",
+    "exec": "pwd\npython staticstability.py",
     "author": "Loïc Verdier",
     "email": "loic.verdier@epfl.ch",
 }

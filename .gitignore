@@ -8,23 +8,24 @@
 # Ignore all SU2 meshes (.su2)
 *.su2
 
- # Ignore temp folder
+ # Ignore temp folder and  and temp files
 /temp
 /tmp
+/ceasiompy/CPACSCreator/tmp/*
 /ceasiompy/WKDIR/
 
 # Ignore ModuleTest
 /ceasiompy/ModuleTest/
 
-# Ignore CPACS file
+# Ignore test files
 /test/CPACSfiles
+/test/AeroMaps
 
 # Ignore ToolInput and ToolOutput
 ToolInput.xml
 ToolInput*.xml
 ToolInput.smx
 ToolInput.cfg
-
 /ToolOutput
 ToolOutput.xml
 ToolOutput.smx
@@ -35,13 +36,12 @@ forces_breakdown.dat
 *Payload_vs_Range.png
 *_Cog.png
 
-# Ignore temp file
-/ceasiompy/CPACSCreator/tmp/*
-
 # Exceptions
 !/ceasiompy/ModuleTemplate/ToolInput/ToolInput.xml
 !/test/TestSU2Config/ToolInput/NoMarkerMesh.su2
 !/test/TestSU2Config/ToolInput/SimpleMesh.su2
+
+
 
 # Mac files
 *.DS_Store
@@ -56,6 +56,7 @@ doc/source/user_guide/module_interfaces/*
 
 # Dolphin file manager
 .directory
+
 
 # See https://www.gitignore.io/
 # =============================

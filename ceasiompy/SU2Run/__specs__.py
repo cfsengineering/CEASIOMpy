@@ -57,6 +57,21 @@ cpacs_inout.add_input(
     gui_group=None,
 )
 
+
+for direction in ['x', 'y', 'z']:
+    cpacs_inout.add_input(
+        var_name='ref_ori_moment_{direction}',
+        var_type=float,
+        default_value=0.0,
+        unit='m',
+        descr=f"Fuselage scaling on {direction} axis",
+        xpath=AIRCRAFT_XPATH + '/model/reference/point/{direction}',
+        gui=False,
+        gui_name=None,
+        gui_group=None,
+    )
+
+
 cpacs_inout.add_input(
     var_name='cruise_mach',
     var_type=float,

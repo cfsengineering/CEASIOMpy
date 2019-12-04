@@ -45,7 +45,7 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi,              \
 from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
                                          check_aeromap, get_aeromap,           \
                                          create_empty_aeromap,                 \
-                                         save_parameters, save_coefficients
+                                         save_parameters, save_coefficients, delete_aeromap
 
 from ceasiompy.utils.su2functions import read_config, write_config,            \
                                          get_mesh_marker
@@ -179,6 +179,9 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
     ref_xpath = '/cpacs/vehicles/aircraft/model/reference'
     ref_len = get_value(tixi,ref_xpath + '/length')
     ref_area = get_value(tixi,ref_xpath + '/area')
+    ref_ori_moment_x = get_value_or_default(tixi, ref_xpath+'/point/x', 0.0)
+    ref_ori_moment_y = get_value_or_default(tixi, ref_xpath+'/point/y', 0.0)
+    ref_ori_moment_z = get_value_or_default(tixi, ref_xpath+'/point/z', 0.0)
 
     # Get SU2 settings
     settings_xpath = SU2_XPATH + '/settings'
@@ -256,6 +259,11 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
     cfg['REF_LENGTH'] = ref_len
     cfg['REF_AREA'] = ref_area
 
+    cfg['REF_ORIGIN_MOMENT_X'] = ref_ori_moment_x
+    cfg['REF_ORIGIN_MOMENT_Y'] = ref_ori_moment_y
+    cfg['REF_ORIGIN_MOMENT_Z'] = ref_ori_moment_z
+
+
     # Settings
     cfg['EXT_ITER'] = int(max_iter)
     cfg['CFL_NUMBER'] = cfl_nb
@@ -295,6 +303,10 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
         cfg['SIDESLIP_ANGLE'] = aos
         cfg['FREESTREAM_PRESSURE'] = pressure
         cfg['FREESTREAM_TEMPERATURE'] = temp
+
+        cfg['ROTATION_RATE_X'] = 0.0
+        cfg['ROTATION_RATE_Y'] = 0.0
+        cfg['ROTATION_RATE_Z'] = 0.0
 
         config_file_name = 'ConfigCFD.cfg'
 
@@ -514,7 +526,14 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
 
     # Create an oject to store the aerodynamic coefficients
     check_aeromap(tixi,aeromap_uid)
-    Coef = get_aeromap(tixi, aeromap_uid)
+
+    # TODO: create a function to earase previous results...
+    Coef2 = get_aeromap(tixi, aeromap_uid)
+    Coef = AeroCoefficient()
+    Coef.alt = Coef2.alt
+    Coef.mach = Coef2.mach
+    Coef.aoa = Coef2.aoa
+    Coef.aos = Coef2.aos
 
     case_dir_list = [dir for dir in dir_list if 'Case' in dir]
 

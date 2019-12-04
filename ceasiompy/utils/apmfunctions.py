@@ -467,7 +467,7 @@ def save_coefficients(tixi,aeromap_uid,Coef):
         log.info('"cl" values have been added to the corresponding node')
     else:
         raise ValueError('The number of "cl" values is incorrect, it must be \
-        either equal to the number of parameters or 0')
+                          either equal to the number of parameters or 0')
 
     # CD coefficients
     if len(Coef.cd) == 0:
@@ -477,7 +477,7 @@ def save_coefficients(tixi,aeromap_uid,Coef):
         log.info('"cd" values have been added to the corresponding node')
     else:
         raise ValueError('The number of "cd" values is incorrect, it must be \
-        either equal to the number of parameters or 0')
+                          either equal to the number of parameters or 0')
 
     # CS coefficients
     if len(Coef.cs) == 0:

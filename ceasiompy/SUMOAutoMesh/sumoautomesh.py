@@ -93,11 +93,19 @@ def create_SU2_mesh(cpacs_path,cpacs_out_path):
     # print(' '.join(command_line))
     os.system(' '.join(command_line))
 
-    su2_mesh_path = os.path.join(sumo_dir,'ToolOutput.su2')
-    su2_mesh_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh'
 
-    create_branch(tixi,su2_mesh_xpath)
-    tixi.updateTextElement(su2_mesh_xpath,su2_mesh_path)
+
+    su2_mesh_path = os.path.join(sumo_dir,'ToolOutput.su2')
+
+    if os.path.isfile(su2_mesh_path):
+        log.info('An SU2 Mesh has been correctly generated.')
+        su2_mesh_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh'
+        create_branch(tixi,su2_mesh_xpath)
+        tixi.updateTextElement(su2_mesh_xpath,su2_mesh_path)
+    else:
+        raise ValueError('No SU2 Mesh file has been generated!')
+
+
 
     close_tixi(tixi, cpacs_out_path)
 

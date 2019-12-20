@@ -329,7 +329,7 @@ def create_empty_aeromap(tixi, aeromap_uid, description = ''):
         aeromap_uid = aeromap_uid + '_bis'
         log.warning(' The following UID will be used instead: ' + aeromap_uid )
     else:
-        log.info('This UID does not exit yet.')
+        log.info(aeromap_uid + ' aeroMap will be created.')
 
     # Add the /aeroMap node, or a new child is already exists
     create_branch(tixi,AEROPERFORMANCE_XPATH + '/aeroMap',True)

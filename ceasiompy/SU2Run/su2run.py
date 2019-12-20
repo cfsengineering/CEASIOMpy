@@ -45,7 +45,8 @@ from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi,              \
 from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
                                          check_aeromap, get_aeromap,           \
                                          create_empty_aeromap,                 \
-                                         save_parameters, save_coefficients, delete_aeromap
+                                         save_parameters, save_coefficients,   \
+                                         delete_aeromap
 
 from ceasiompy.utils.su2functions import read_config, write_config,            \
                                          get_mesh_marker
@@ -209,6 +210,8 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
         active_aeroMap_xpath = SU2_XPATH + '/aeroMapUID'
         aeromap_uid = get_value(tixi,active_aeroMap_xpath)
 
+        log.info('Configuration file for ""' + aeromap_uid + '"" calculation will be created.')
+
         # Get parameters of the aeroMap (alt,ma,aoa,aos)
         Param = get_aeromap(tixi,aeromap_uid)
         param_count = Param.get_count()
@@ -222,6 +225,8 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
             raise ValueError('No parametre have been found in the aeroMap!')
 
     else: # if fixed_cl == 'YES':
+        log.info('Configuration file for fixed CL calculation will be created.')
+
         range_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges'
 
         # Parameters fixed CL calulation
@@ -354,7 +359,9 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 
             log.info('Damping derivatives cases directory has been created.')
 
-    close_tixi(tixi,cpacs_out_path)
+    # TODO: change that, but it is save in tooloutput it will be erease by results
+    close_tixi(tixi,cpacs_path)
+    # close_tixi(tixi,cpacs_out_path)
 
 
 def run_SU2_single(config_path, wkdir):

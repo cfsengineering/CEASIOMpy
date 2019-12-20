@@ -437,6 +437,7 @@ def add_float_vector(tixi, xpath, vector):
     else:
         tixi.addFloatVector(xpath_parent, xpath_child_name, vector, \
                             len(vector), format='%g')
+        tixi.addTextAttribute(xpath, 'mapType', 'vector')
 
 
 def get_float_vector(tixi, xpath):

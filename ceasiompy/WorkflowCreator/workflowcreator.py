@@ -335,7 +335,7 @@ if __name__ == '__main__':
     # Mission analysis: 'Range'
 
     # Copy-Paste the module you want to execute, they will be run in order
-    module_pre = ['SettingsGUI','WeightConventional','PyTornado','PlotAeroCoefficients']
+    module_pre = ['SettingsGUI','CPACS2SUMO','SUMOAutoMesh','SU2Run','SkinFriction','PlotAeroCoefficients']
 
     module_optim = ['WeightConventional','PyTornado']
     module_post = []

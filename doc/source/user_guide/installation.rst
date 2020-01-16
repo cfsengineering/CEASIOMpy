@@ -25,7 +25,7 @@ The following software are not required to run all |name| workflows, it is still
 
 * PyTornado: https://github.com/airinnova/pytornado
 * SUMO: https://www.larosterna.com/products/open-source
-* SU2: https://su2code.github.io/download.html
+* SU2 v7: https://su2code.github.io/download.html
 
 
 Setting up your path variables

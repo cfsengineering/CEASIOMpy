@@ -284,8 +284,6 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     log.info('-------- Generating output text file --------')
     outputweightgen.output_txt(out, mw, ind, ui, name)
 
-    print('........',out.cabin_crew_nb)
-
     # CPACS writting
     cpacsweightupdate.cpacs_update(mw, out, cpacs_path, cpacs_out_path)
 

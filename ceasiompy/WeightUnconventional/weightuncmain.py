@@ -3,55 +3,18 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Main module for the unconvenentional aircraft class I design, it evaluates:
-
-* the structure mass;
-* the systems mass,
-* the engine mass;
-* the maximum take-off mass;
-* the operating empty mass;
-* the zero fuel mass;
-* the maximum amount of fuel;
-* the maximum number of passengers;
-* the maximum amount of fuel with max passengers;
-* the number of crew members needed;
-* the number of toilet.
-
-Starting point:
-
-* CPACS.xml file in the ToolInput folder.
-
-Aircraft types:
-
-* No Fuselage
-* Multiple fuselage (Es.: 2 for payload and 1 for fuel etc..)
-
-Output:
-
-* The code saves a ToolOutput.xml file in the ToolOutput folder.
-* The code saves a copy of the ToolOutput.xml file inside the
-  ToolInput folder of the range and balance analysis.
-* The system creates a folder with the aircraft name, and saves inside it
-  two txt file and one figure:
-
-    * NAME_Aircraft_Geometry.out: that contains all the information
-      regarding the aircraft geometry (only with case B)
-    * NAME_Weight_unc_module.out: with all information
-                                  evaluated with this code.
-    * NAME_mtomPrediction.png: contains the result of the linear regression
-      carried on for the maximum take-off mass evaluation.
-
-.. warning::
-
-    The code deletes the ToolOutput folder and recreates
-    it at the start of each run.
+Weight unconventional module for preliminary design of unconventional aircraft
 
 Python version: >=3.6
 
-
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07
-| Last modifiction: 2019-08-08 (AJ)
+| Last modifiction: 2020-01-16 (AJ)
+
+TODO:
+    * Simplify classes, use only one or use subclasses
+    * Make tings compatible also with the oters W&B Modules
+
 """
 
 
@@ -60,29 +23,29 @@ Python version: >=3.6
 #=============================================================================
 import os
 import shutil
-
 import numpy as np
 import time
 
+# Should be kept
+
+
+
+# Should be changed or removed
+
+
+
 # Classes
-from ceasiompy.utils.InputClasses.Unconventional.weightuncclass import UserInputs
-from ceasiompy.utils.InputClasses.Unconventional.weightuncclass import AdvancedInputs
+from ceasiompy.utils.InputClasses.Unconventional.weightuncclass import UserInputs, AdvancedInputs, MassesWeights, WeightOutput
 from ceasiompy.utils.InputClasses.Unconventional.engineclass import EngineData
-from ceasiompy.utils.InputClasses.Unconventional.weightuncclass import MassesWeights
-from ceasiompy.utils.InputClasses.Unconventional.weightuncclass import WeightOutput
 
 # Functions
 from ceasiompy.WeightUnconventional.func.AinFunc import getinput
-from ceasiompy.WeightUnconventional.func.AoutFunc import outputweightgen
-from ceasiompy.WeightUnconventional.func.AoutFunc import cpacsweightupdate
-from ceasiompy.WeightUnconventional.func.People.passengers import estimate_fuse_passengers
-from ceasiompy.WeightUnconventional.func.People.passengers import estimate_wing_passengers
+from ceasiompy.WeightUnconventional.func.AoutFunc import cpacs_out_path, cpacsweightupdate
+from ceasiompy.WeightUnconventional.func.People.passengers import estimate_fuse_passengers, estimate_wing_passengers
 from ceasiompy.WeightUnconventional.func.People.crewmembers import estimate_crew
 from ceasiompy.WeightUnconventional.func.Systems.systemsmass import estimate_system_mass
-from ceasiompy.WeightUnconventional.func.Engines.enginesanalysis import check_ed
-from ceasiompy.WeightUnconventional.func.Engines.enginesanalysis import engine_definition
-from ceasiompy.WeightUnconventional.func.Fuel.fuelmass import estimate_fuse_fuel_mass
-from ceasiompy.WeightUnconventional.func.Fuel.fuelmass import estimate_wing_fuel_mass
+from ceasiompy.WeightUnconventional.func.Engines.enginesanalysis import check_ed, engine_definition
+from ceasiompy.WeightUnconventional.func.Fuel.fuelmass import estimate_fuse_fuel_mass, estimate_wing_fuel_mass
 
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -90,6 +53,8 @@ from ceasiompy.utils.cpacsfunctions import aircraft_name
 from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
 
 log = get_logger(__file__.split('.')[0])
+
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 #=============================================================================
@@ -104,39 +69,36 @@ log = get_logger(__file__.split('.')[0])
 #   FUNCTIONS
 #=============================================================================
 
-"""
-    Each function are defined in a separate script inside the func folder.
-"""
+def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
+    """Function to estimate the all weights for a unconventional aircraft.
 
+    Function 'get_weight_unc_estimations' ...
 
-#=============================================================================
-#    MAIN
-#=============================================================================
+    Source:
+        * Reference paper or book, with author and date, see ...
 
-if __name__ == '__main__':
-    log.info('##########################################################')
-    log.info('#### UNCONVENTIONAL AIRCRAFT WEIGHT ESTIMATION MODULE ####')
-    log.info('##########################################################')
+    Args:
+        cpacs_path (str): Path to CPACS file
+        cpacs_out_path (str):Path to CPACS output file
 
-##=============================== PREPROCESSING ============================##
+    """
+
+    # TODO: replace that by a general function??? (same for all modules)
     start = time.time()
 
+    # Removing and recreating the ToolOutput folder.
     if os.path.exists('ToolOutput'):
         shutil.rmtree('ToolOutput')
         os.makedirs('ToolOutput')
     else:
         os.makedirs('ToolOutput')
 
-    cpacs_in = 'ToolInput/ToolInput.xml'
+    if not os.path.exists(cpacs_path):
+        raise ValueError ('No "ToolInput.xml" file in the ToolInput folder.')
 
+    name = aircraft_name(cpacs_path)
 
-    if not os.path.exists(cpacs_in):
-        raise Exception ('Error, no ToolInput.xml'\
-                         + ' file in the ToolInput folder.')
-    name = aircraft_name(cpacs_in)
-
-    out_xml = 'ToolOutput/ToolOutput.xml'
-    shutil.copyfile(cpacs_in, './' + out_xml)
+    shutil.copyfile(cpacs_path, cpacs_out_path) # TODO: shoud not be like that
     newpath = 'ToolOutput/' + name
     if not os.path.exists(newpath):
         os.makedirs(newpath)
@@ -151,13 +113,13 @@ if __name__ == '__main__':
     mw = MassesWeights()
     out = WeightOutput()
     ed = EngineData()
-    (ed, ui, adui) = getinput.get_user_inputs(ed, ui, adui, out_xml)
+    (ed, ui, adui) = getinput.get_user_inputs(ed, ui, adui, cpacs_out_path)
     if ui.USER_ENGINES:
-        (ed) = getinput.get_engine_inputs(ui, ed, out_xml)
+        (ed) = getinput.get_engine_inputs(ui, ed, cpacs_out_path)
 
 ##============================= GEOMETRY ANALYSIS ==========================##
 
-    (f_nb, w_nb) = uncgeomanalysis.get_number_of_parts(cpacs_in)
+    (f_nb, w_nb) = uncgeomanalysis.get_number_of_parts(cpacs_path)
     h_min = ui.FLOORS_NB * ui.H_LIM_CABIN
 
     if not w_nb:
@@ -166,7 +128,7 @@ if __name__ == '__main__':
     elif not f_nb:
         (awg, wing_nodes) =\
             uncgeomanalysis.no_fuse_geom_analysis(ui.FLOORS_NB, w_nb,\
-                h_min, ui.FUEL_ON_CABIN, out_xml, name, ed.TURBOPROP)
+                h_min, ui.FUEL_ON_CABIN, cpacs_out_path, name, ed.TURBOPROP)
     else:
         log.info('Fuselage detected')
         log.info('Number of fuselage: ' + str(int(f_nb)))
@@ -174,9 +136,9 @@ if __name__ == '__main__':
         (afg, awg) =\
             uncgeomanalysis.with_fuse_geom_analysis(f_nb, w_nb, h_min, adui,\
                                                     ed.TURBOPROP, ui.F_FUEL,\
-                                                    out_xml, name)
+                                                    cpacs_out_path, name)
 
-    ui = getinput.get_user_fuel(f_nb, ui, out_xml)
+    ui = getinput.get_user_fuel(f_nb, ui, cpacs_out_path)
 
 ##============================= WEIGHT ANALYSIS ============================##
     ## Engine evaluation
@@ -302,9 +264,8 @@ if __name__ == '__main__':
         mw.mass_people = round(mw.mass_crew + mw.mass_pass,0)
 
         ## System mass
-        mw.mass_systems\
-                = round(estimate_system_mass(out.pass_nb, awg.main_wing_surface,\
-                        awg.tail_wings_surface, adui.SINGLE_HYDRAULICS, mw, ed),0)
+        mw.mass_systems= round(estimate_system_mass(out.pass_nb, awg.main_wing_surface,\
+                               awg.tail_wings_surface, adui.SINGLE_HYDRAULICS, mw, ed),0)
 
         ## MTOM, OEM, ZFM re-evaluation
         mw.operating_empty_mass = round(mw.mass_systems + mw.mass_crew\
@@ -322,54 +283,7 @@ if __name__ == '__main__':
     out.wing_loading = new_mtom/wing_area
 
 
-#=============================================================================
-#    OUTPUT WRITING
-#=============================================================================
-
-    log.info('----- Generating output text file -----')
-    cpacsweightupdate.cpacs_weight_update(out, mw, ui, out_xml)
-    cpacsweightupdate.toolspecific_update(f_nb, awg, mw, out, out_xml)
-    cpacsweightupdate.cpacs_engine_update(ui, ed, mw, out_xml)
-
-    if not f_nb:
-        outputweightgen.output_bwb_txt(ui.FLOORS_NB, ed, out,\
-                                       mw, adui, awg, name)
-    else:
-        outputweightgen.output_fuse_txt(f_nb, ui.FLOORS_NB, ed,\
-                                        out, mw, adui, awg, afg, name)
-
-
-#=============================================================================
-#    CPACS WRITING
-#=============================================================================
-
-# Copying ToolOutput.xml as ToolInput.xml in the ToolInput folder in
-# 2RangeModule and 6BalanceUncModule.
-
-    # PATH = 'ToolOutput/ToolOutput.xml'
-    # PATH_RANGE_OUT = '../Range/ToolInput/toolinput.xml'
-    # PATH_BALANCE_OUT = '../BalanceUnconventional/ToolInput/ToolInput.xml'
-    # TEMP = '/unconv.temp'
-    # TEXT = 'Unconventional Aircraft'
-    #
-    # if os.path.exists('../Range/ToolInput'):
-    #     shutil.rmtree('../Range/ToolInput')
-    #     os.makedirs('../Range/ToolInput')
-    # shutil.copyfile(PATH, PATH_RANGE_OUT)
-    # OutputTextFile = open('../Range/ToolInput' + TEMP, 'w')
-    # OutputTextFile.write(TEXT)
-    # OutputTextFile.close()
-    #
-    # if os.path.exists('../BalanceUnconventional/ToolInput'):
-    #     shutil.rmtree('../BalanceUnconventional/ToolInput')
-    #     os.makedirs('../BalanceUnconventional/ToolInput')
-    # shutil.copyfile(PATH, PATH_BALANCE_OUT)
-
-
-#=============================================================================
-#    LOG WRITING
-#=============================================================================
-
+    # Log writting  (TODO: maybe create a separate function)
     log.info('--------- Masses evaluated: -----------')
     log.info('System mass [kg]: ' + str(int(round(mw.mass_systems))))
     log.info('People mass [kg]: ' + str(int(round(mw.mass_people))))
@@ -405,8 +319,31 @@ if __name__ == '__main__':
     log.info('Elapsed time [s]: ' + str(round((end-start),3)))
     log.info('Number of iterations: ' + str(it))
     log.info('---------------------------------------')
-
-
-    log.info('##########################################################')
     log.info('### Uconventional Weight analysis succesfuly completed ###')
-    log.info('##########################################################')
+
+    # Outptu writting
+    log.info('----- Generating output text file -----')
+    cpacsweightupdate.cpacs_weight_update(out, mw, ui, cpacs_out_path)
+    cpacsweightupdate.toolspecific_update(f_nb, awg, mw, out, cpacs_out_path)
+    cpacsweightupdate.cpacs_engine_update(ui, ed, mw, cpacs_out_path)
+
+    if not f_nb:
+        cpacs_out_path.output_bwb_txt(ui.FLOORS_NB, ed, out,mw, adui, awg, name)
+    else:
+        cpacs_out_path.output_fuse_txt(f_nb, ui.FLOORS_NB, ed,out, mw, adui, awg, afg, name)
+
+
+#=============================================================================
+#    MAIN
+#=============================================================================
+
+if __name__ == '__main__':
+
+    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
+
+    cpacs_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.xml')
+    cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
+
+    get_weight_unc_estimations(cpacs_path,cpacs_out_path)
+
+    log.info('----- End of ' + os.path.basename(__file__) + ' -----')

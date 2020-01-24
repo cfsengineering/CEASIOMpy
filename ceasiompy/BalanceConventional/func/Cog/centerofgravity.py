@@ -72,11 +72,11 @@ def center_of_gravity_evaluation(F_PERC, P_PERC, cabin_seg, ag, mw,\
     """
 
     max_seg_n = np.max([np.amax(ag.fuse_seg_nb), np.amax(ag.wing_seg_nb)])
-    t_nb = ag.f_nb + ag.w_nb      # Number of parts not counting symmetry
+    t_nb = ag.fus_nb + ag.w_nb      # Number of parts not counting symmetry
     tot_nb = ag.fuse_nb + ag.wing_nb  # Number of parts counting symmetry
     segments_nb = []
 
-    for i in range(1,ag.f_nb+1):
+    for i in range(1,ag.fus_nb+1):
         segments_nb.append(ag.fuse_seg_nb[i-1])
         if ag.fuse_sym[i-1] != 0:
             segments_nb.append(ag.fuse_seg_nb[i-1])
@@ -113,7 +113,7 @@ def center_of_gravity_evaluation(F_PERC, P_PERC, cabin_seg, ag, mw,\
     fs = []
     wg = []
     f = 0
-    i = ag.f_nb
+    i = ag.fus_nb
     for j in range(1,ag.fuse_seg_nb[i-1]+1):
         if cabin_seg[j-1][i-1+f] == 1:
             mass_seg_i[j-1][i-1+f] = (oem_par+mpass_par)\
@@ -121,27 +121,27 @@ def center_of_gravity_evaluation(F_PERC, P_PERC, cabin_seg, ag, mw,\
         else:
             mass_seg_i[j-1][i-1+f] = oem_par * ag.fuse_seg_vol[j-1][i-1]
     fs.append(i)
-    if ag.fuse_sym[i-1-ag.f_nb] != 0:
+    if ag.fuse_sym[i-1-ag.fus_nb] != 0:
         f += 1
         mass_seg_i[:,i-1+f] = mass_seg_i[:,i-2+f]
         fs.append(i)
 
     w = 0
-    for i in range(ag.f_nb+1,t_nb+1):
-        for j in range(1,ag.wing_seg_nb[i-1-ag.f_nb]+1):
+    for i in range(ag.fus_nb+1,t_nb+1):
+        for j in range(1,ag.wing_seg_nb[i-1-ag.fus_nb]+1):
             if i == ag.main_wing_index:
                 mass_seg_i[j-1][i-1+w] = oem_par\
-                    * (ag.wing_seg_vol[j-1][i-1-ag.f_nb]\
-                    - ag.wing_fuel_seg_vol[j-1][i-1-ag.f_nb])\
-                    + mfuel_par * (ag.wing_fuel_seg_vol[j-1][i-1-ag.f_nb])
+                    * (ag.wing_seg_vol[j-1][i-1-ag.fus_nb]\
+                    - ag.wing_fuel_seg_vol[j-1][i-1-ag.fus_nb])\
+                    + mfuel_par * (ag.wing_fuel_seg_vol[j-1][i-1-ag.fus_nb])
             else:
                 mass_seg_i[j-1][i-1+w] = oem_par\
-                                       * ag.wing_seg_vol[j-1][i-1-ag.f_nb]
-        wg.append(i-ag.f_nb)
-        if ag.wing_sym[i-1-ag.f_nb] != 0:
+                                       * ag.wing_seg_vol[j-1][i-1-ag.fus_nb]
+        wg.append(i-ag.fus_nb)
+        if ag.wing_sym[i-1-ag.fus_nb] != 0:
             w += 1
             mass_seg_i[:,i-1+w]=mass_seg_i[:,i-2+w]
-            wg.append(i-ag.f_nb)
+            wg.append(i-ag.fus_nb)
             if i+w+f == tot_nb:
                 break
 
@@ -197,5 +197,3 @@ if __name__ == '__main__':
     log.warning('##########################################################')
     log.warning('### ERROR NOT A STANDALONE PROGRAM, RUN balancemain.py ###')
     log.warning('##########################################################')
-
-

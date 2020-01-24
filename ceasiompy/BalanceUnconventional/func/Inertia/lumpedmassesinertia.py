@@ -76,7 +76,7 @@ def fuselage_inertia(SPACING, center_of_gravity, mass_seg_i, afg,\
     log.info('-------------------------------------------------------------')
     log.info('---- Evaluating fuselage nodes for lumped masses inertia ----')
     log.info('-------------------------------------------------------------')
-    for f in range(1,afg.f_nb+1):
+    for f in range(1,afg.fus_nb+1):
         for i in afg.f_seg_sec[:,f-1,2]:
             fx = []
             fy = []

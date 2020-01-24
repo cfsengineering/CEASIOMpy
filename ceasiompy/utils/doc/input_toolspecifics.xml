@@ -19,6 +19,26 @@
                 <mass>No default value</mass>
               </mTOM>
             </designMasses>
+            <fuel>
+              <massDescription>
+                <mass>No default value</mass>
+              </massDescription>
+            </fuel>
+            <mOEM>
+              <massDescription>
+                <mass>No default value</mass>
+              </massDescription>
+            </mOEM>
+            <payload>
+              <massDescription>
+                <mass>No default value</mass>
+              </massDescription>
+              <mCargo>
+                <massDescription>
+                  <mass>0</mass>
+                </massDescription>
+              </mCargo>
+            </payload>
           </massBreakdown>
         </analyses>
         <reference>
@@ -39,30 +59,6 @@
             </transformation>
           </fuselage>
         </fuselages>
-        <analysis>
-          <massBreakdown>
-            <designMasses>
-              <mTOM>
-                <mass>No default value</mass>
-              </mTOM>
-            </designMasses>
-            <fuel>
-              <massDescription>
-                <mass>No default value</mass>
-              </massDescription>
-            </fuel>
-            <mOEM>
-              <massDescription>
-                <mass>No default value</mass>
-              </massDescription>
-            </mOEM>
-            <payload>
-              <massDescription>
-                <mass>No default value</mass>
-              </massDescription>
-            </payload>
-          </massBreakdown>
-        </analysis>
         <wings>No default value</wings>
       </model>
     </aircraft>
@@ -115,6 +111,7 @@
             <mass>No default value</mass>
           </fuelMassMaxpass>
           <passMass>105.0</passMass>
+          <passPerToilet>50</passPerToilet>
         </passengers>
         <crew>
           <pilots>
@@ -126,6 +123,10 @@
             <cabinCrewMemberMass>68.0</cabinCrewMemberMass>
           </cabinCrewMembers>
         </crew>
+        <massLimits>
+          <maxPayload>0</maxPayload>
+          <maxFuelVol>0</maxFuelVol>
+        </massLimits>
       </weight>
       <propulsion>
         <turboprop>False</turboprop>
@@ -136,12 +137,20 @@
       </propulsion>
       <geometry>
         <winglet>[0, 1, 2]</winglet>
-        <analysis>
+        <isDoubleFloor>[0, 1, 2]</isDoubleFloor>
+        <seatLength>0.74</seatLength>
+        <seatWidth>0.525</seatWidth>
+        <aisleWidth>0.42</aisleWidth>
+        <fuseThick>6.63</fuseThick>
+        <aaaaa>0</aaaaa>
+        <toiletLength>1.9</toiletLength>
+        <analyses>
           <wettedArea>No default value</wettedArea>
-        </analysis>
+        </analyses>
       </geometry>
       <fuels>
         <resFuelPerc>0.1</resFuelPerc>
+        <density>800</density>
       </fuels>
       <filesPath>
         <su2Mesh>-</su2Mesh>

@@ -592,8 +592,10 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
 
     # Get and save Wetted area
     wetted_area = get_wetted_area(wkdir)
+
     wetted_area_xpath = '/cpacs/toolspecific/CEASIOMpy/geometry/analysis/wettedArea'
     cpsf.create_branch(tixi, wetted_area_xpath)
+
     tixi.updateDoubleElement(wetted_area_xpath,wetted_area,'%g')
 
     # Get and save CL/CD ratio

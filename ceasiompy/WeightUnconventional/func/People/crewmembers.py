@@ -5,10 +5,12 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Evaluation of the number of crew members expected for an unconventional aircraft.
 
-| Works with Python 2.7
+Python version: >=3.6
+
 | Author : Stefano Piccini
 | Date of creation: 2018-12-19
-| Last modifiction: 2018-02-20
+| Last modifiction: 2020-01-23 (AJ)
+
 """
 
 
@@ -38,17 +40,17 @@ def estimate_crew(pass_nb, MASS_PILOT, MASS_CABIN_CREW, mtom, PILOT_NB=2):
     Source : https://www.gpo.gov/fdsys/pkg/CFR-2011-title14-vol3/xml/CFR-2011
              -title14-vol3-sec121-391.xml
 
-    ARGUMENTS
-    (integer) pass_nb           --Arg.: Number of passengers [-].
-    (integer) pilot_nb          --Arg.: Number of pilot, default set to 2 [-].
-    (float) mass_pilot          --Arg.: Mass of single pilot pilots [kg].
-    (float) mass_cabin_crew     --Arg.: Mass of a cabin crew member [kg].
-    (float) mtom                --Arg.: Maximum take-off mass [kg].
+    Args:
+        pass_nb           (int): Number of passengers [-].
+        pilot_nb          (int): Number of pilot, default set to 2 [-].
+        mass_pilot      (float): Mass of single pilot pilots [kg].
+        mass_cabin_crew (float): Mass of a cabin crew member [kg].
+        mtom            (float): Maximum take-off mass [kg].
 
-    RETURNS
-    (integer) crew_nb           --Out.: Number of total crew members [-].
-    (integer) cabin_crew_nb     --Out.: Number of cabin crew members [-].
-    (float) mass_crew           --Out.: Total mass of crew members [kg].
+    Returns:
+        crew_nb      (int) : Number of total crew members [-].
+        cabin_crew_nb (int): Number of cabin crew members [-].
+        mass_crew   (float): Total mass of crew members [kg].
     """
 
     if pass_nb >= 101:
@@ -62,14 +64,12 @@ def estimate_crew(pass_nb, MASS_PILOT, MASS_CABIN_CREW, mtom, PILOT_NB=2):
     else:
         cabin_crew_nb = 0
 
-
     crew_nb = PILOT_NB + cabin_crew_nb
     log.info(' Crew members: ' + str(crew_nb))
-    log.info(str(PILOT_NB) + ' pilots, and ' + str(cabin_crew_nb)\
-             + ' cabin crew members')
+    log.info(str(PILOT_NB) + ' pilots')
+    log.info(str(cabin_crew_nb) + ' cabin crew members')
 
-    mass_crew = round((PILOT_NB*MASS_PILOT\
-                       + cabin_crew_nb*MASS_CABIN_CREW),3)
+    mass_crew = round((PILOT_NB*MASS_PILOT + cabin_crew_nb*MASS_CABIN_CREW),3)
 
     return(crew_nb, cabin_crew_nb, mass_crew)
 
@@ -79,8 +79,7 @@ def estimate_crew(pass_nb, MASS_PILOT, MASS_CABIN_CREW, mtom, PILOT_NB=2):
 #==============================================================================
 
 if __name__ == '__main__':
+
     log.warning('########################################################')
     log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #')
     log.warning('########################################################')
-
-

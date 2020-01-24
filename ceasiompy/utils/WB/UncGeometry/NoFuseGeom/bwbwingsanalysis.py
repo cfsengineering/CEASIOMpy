@@ -6,10 +6,11 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script evaluate the wings geometry for an unconventional
 aircraft without fuselage.
 
-| Works with Python 2.7
+Python version: >=3.6
+
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07
-| Last modifiction: 2019-08-29 (AJ)
+| Last modifiction: 2020-01-22 (AJ)
 """
 
 
@@ -20,9 +21,9 @@ aircraft without fuselage.
 import numpy as np
 import math
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+import ceasiompy.utils.cpacsfunctions as cpsf
 
-from ceasiompy.utils.cpacsfunctions import open_tixi,open_tigl, close_tixi
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
@@ -43,21 +44,20 @@ def check_segment_connection(wing_plt_area_xz, wing_plt_area_yz, awg, tigl):
     """ The function checks for each segment the start and end section index
         and to reorder them.
 
-    ARGUMENTS
-    (float) wing_plt_area_xz    --Arg.: Wing area on the xz plane.
-    (float) wing_plt_area_yz    --Arg.: Wing area on the yz plane.
-    (class) awg     --Arg.: AircraftWingGeometry class look at
-                            aircraft_wing_geometry_class.py in the
-                            classes folder for explanation.
-    (char) tigl    --Arg.: Tigl handle.
+    Args:
+        wing_plt_area_xz (float): Wing area on the xz plane.
+        wing_plt_area_yz (float): Wing area on the yz plane.
+        awg (class): AircraftWingGeometry class look at
+                     aircraft_wing_geometry_class.py in the
+                     classes folder for explanation.
+        tigl (handel): Tigl handle.
 
-    RETURN
-    (int) sec_nb            --Out.: Number of sections for each wing.
-    (int) start_index       --Out.: Start section index for each wing.
-    (float-array) seg_sec_reordered -- Out.: Reordered segments with
-                                             respective start and end section
-                                             for each wing.
-    (float_array) sec_index --Out.: List of section index reordered.
+    Returns:
+        sec_nb (int): Number of sections for each wing.
+        start_index (int): Start section index for each wing.
+        seg_sec_reordered (float-array): Reordered segments with respective
+                                         start and end section for each wing.
+        sec_index (float_array): List of section index reordered.
     """
 
     log.info('-----------------------------------------------------------')
@@ -79,10 +79,8 @@ def check_segment_connection(wing_plt_area_xz, wing_plt_area_yz, awg, tigl):
     # for horizontal wings, or z, for vertical wings position
     # The code works if a section is defined and not used and if the segments
     # are not define with a consequential order.
-    # WARNING The code does not work if a segment is defined
-    #         and then not used.
-    #         The aircraft should be designed along the x axis
-    #         and on the x-y plane
+    # WARNING The code does not work if a segment is defined and then not used.
+    #         The aircraft should be designed along the x axis and on the x-y plane
 
     for i in range(1,awg.w_nb+1):
         wing_sec_index = []
@@ -128,22 +126,20 @@ def check_segment_connection(wing_plt_area_xz, wing_plt_area_yz, awg, tigl):
     return(sec_nb, start_index, seg_sec_reordered, sec_index)
 
 
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
-
 def getwingsegmentlength(awg, wing_center_section_point):
     """ The function evaluates the length of each segment of each wing,
         also considering the ones defined using symmetry.
 
-    ARGUMENTS
-    (class) awg  --Arg.: AircraftWingGeometry class look at
-                         aircraft_geometry_class.py in the
-                         classes folder for explanation.
-    (float) wing_center_section_point    --Arg.: Central point of each segment
-                                                  defined at 1/4 of the chord.
+    Args:
+        awg (class): AircraftWingGeometry class look at
+                     aircraft_geometry_class.py in the
+                     classes folder for explanation.
+        wing_center_section_point (float): Central point of each segment
+                                           defined at 1/4 of the chord.
 
-    RETURN
-    (class) awg  --Out.: AircraftWingGeometry class updated.
+    Retruns:
+        awg (class): AircraftWingGeometry class updated.
+
     """
 
     log.info('-----------------------------------------------------------')
@@ -169,36 +165,28 @@ def getwingsegmentlength(awg, wing_center_section_point):
     return(awg)
 
 
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
-
 def geom_eval(w_nb, awg, cpacs_in):
     """ Main function to evaluate the wings geometry.
 
-    ARGUMENTS
-    (integer) w_nb     --Arg.: Number of wings [-].
-    (class) awg        --Arg.: AircraftWingGeometry class look at
-                               aircraft_geometry_class.py in the
-                               classes folder for explanation.
-    (char) cpacs_in    -- Arg.: Cpacs xml file location.
+    Args:
+        w_nb (integer): Number of wings [-].
+        awg (class): AircraftWingGeometry class look at aircraft_geometry_class.py
+                     in the classes folder for explanation.
+        cpacs_in (str): Path to the CPACS file
 
-    RETURN
-    (class) awg  --Out.: AircraftWingGeometry class updated.
+    Returns:
+        awg: AircraftWingGeometry class updated.
     """
 
-##===========================================================================##
     log.info('-----------------------------------------------------------')
     log.info('---------- Analysing wing geometry ------------------------')
     log.info('-----------------------------------------------------------')
 
     # Opening tixi and tigl
-    tixi = open_tixi(cpacs_in)
-    tigl = open_tigl(tixi)
+    tixi = cpsf.open_tixi(cpacs_in)
+    tigl = cpsf.open_tigl(tixi)
 
-## ----------------------------------------------------------------------------
-## INITIALIZATION 1 -----------------------------------------------------------
-## ----------------------------------------------------------------------------
-
+    # INITIALIZATION 1 ---------------------------------------------------------
     awg.w_nb = w_nb
     awg.wing_nb = w_nb
 
@@ -206,10 +194,7 @@ def geom_eval(w_nb, awg, cpacs_in):
     wing_plt_area_yz = []
     wingUID = []
 
-## ----------------------------------------------------------------------------
-## COUNTING 2 -----------------------------------------------------------------
-## Counting sections and segments----------------------------------------------
-## ----------------------------------------------------------------------------
+    # Counting sections and segments--------------------------------------------
 
     for i in range(1,awg.w_nb + 1):
         double = 1
@@ -238,14 +223,12 @@ def geom_eval(w_nb, awg, cpacs_in):
                 awg.is_horiz.append(False)
         awg.wing_tot_vol += awg.wing_vol[i-1]
 
-## Checking segment and section connection and reordering them
+    # Checking segment and section connection and reordering them
     (awg.wing_sec_nb, start_index, seg_sec, wing_sec_index)\
       = check_segment_connection(wing_plt_area_xz, wing_plt_area_yz,\
                                  awg, tigl)
 
-## ----------------------------------------------------------------------------
-## INITIALIZATION 2 -----------------------------------------------------------
-## ----------------------------------------------------------------------------
+    # INITIALIZATION 2 ---------------------------------------------------------
 
     max_wing_sec_nb = np.amax(awg.wing_sec_nb)
     max_wing_seg_nb = np.amax(awg.wing_seg_nb)
@@ -255,11 +238,9 @@ def geom_eval(w_nb, awg, cpacs_in):
     awg.wing_mac = np.zeros((4, awg.w_nb))
     awg.wing_sec_thicknes = np.zeros((max_wing_sec_nb, awg.w_nb))
 
-##===========================================================================##
-## ----------------------------------------------------------------------------
-## WING ANALYSIS --------------------------------------------------------------
-## ----------------------------------------------------------------------------
-## Wing: MAC,chords,thicknes,span,plantform area ------------------------------
+
+    # WING ANALYSIS ------------------------------------------------------------
+    # Wing: MAC,chords,thicknes,span,plantform area ----------------------------
 
     b = 0
     for i in range(1,awg.w_nb+1):
@@ -267,13 +248,10 @@ def geom_eval(w_nb, awg, cpacs_in):
         mac = tigl.wingGetMAC(wingUID[i-1])
         (wpx,wpy,wpz) = tigl.wingGetChordPoint(i,1,0.0,0.0)
         (wpx2,wpy2,wpz2) = tigl.wingGetChordPoint(i,1,0.0,1.0)
-        awg.wing_max_chord.append(np.sqrt((wpx2-wpx)**2 + (wpy2-wpy)**2\
-                                 + (wpz2-wpz)**2))
+        awg.wing_max_chord.append(np.sqrt((wpx2-wpx)**2 + (wpy2-wpy)**2 + (wpz2-wpz)**2))
         (wpx,wpy,wpz) = tigl.wingGetChordPoint(i,awg.wing_seg_nb[i-1],1.0,0.0)
-        (wpx2,wpy2,wpz2) = tigl.wingGetChordPoint(i,awg.wing_seg_nb[i-1],\
-                                                  1.0,1.0)
-        awg.wing_min_chord.append(np.sqrt((wpx2-wpx)**2 + (wpy2-wpy)**2\
-                                 + (wpz2-wpz)**2) )
+        (wpx2,wpy2,wpz2) = tigl.wingGetChordPoint(i,awg.wing_seg_nb[i-1],1.0,1.0)
+        awg.wing_min_chord.append(np.sqrt((wpx2-wpx)**2 + (wpy2-wpy)**2 + (wpz2-wpz)**2))
         for k in range(1,5):
             awg.wing_mac[k-1][i-1] = mac[k-1]
         for jj in range(1,awg.wing_seg_nb[i-1]+1):
@@ -295,13 +273,12 @@ def geom_eval(w_nb, awg, cpacs_in):
             wing_center_section_point[j-1][i-1][0] = (wplx+wpux) / 2
             wing_center_section_point[j-1][i-1][1] = (wply+wpuy) / 2
             wing_center_section_point[j-1][i-1][2] = (wplz+wpuz) / 2
-            awg.wing_sec_thicknes[j-1][i-1] = np.sqrt((wpux-wplx)**2\
-                + (wpuy-wply)**2 + (wpuz-wplz)**2)
+            awg.wing_sec_thicknes[j-1][i-1] = np.sqrt((wpux-wplx)**2  \
+                                                      +(wpuy-wply)**2 \
+                                                      +(wpuz-wplz)**2)
         j = int(seg_sec[awg.wing_seg_nb[i-1]-1,i-1,2])
-        (wplx, wply, wplz) = tigl.wingGetLowerPoint(\
-            i,awg.wing_seg_nb[i-1],1.0,L)
-        (wpux, wpuy, wpuz) = tigl.wingGetUpperPoint(\
-            i,awg.wing_seg_nb[i-1],1.0,U)
+        (wplx, wply, wplz) = tigl.wingGetLowerPoint(i,awg.wing_seg_nb[i-1],1.0,L)
+        (wpux, wpuy, wpuz) = tigl.wingGetUpperPoint(i,awg.wing_seg_nb[i-1],1.0,U)
         awg.wing_sec_thicknes[j][i-1] = np.sqrt((wpux-wplx)**2\
             + (wpuy-wply)**2 + (wpuz-wplz)**2)
         wing_center_section_point[awg.wing_seg_nb[i-1]][i-1][0] = (wplx+wpux)/2
@@ -367,44 +344,34 @@ def geom_eval(w_nb, awg, cpacs_in):
                 symy = 1
                 symx = -1
                 symz = 1
-            awg.wing_center_seg_point[:,i,0]\
-                = awg.wing_center_seg_point[:,i-1,0] * symx
-            awg.wing_center_seg_point[:,i,1]\
-                = awg.wing_center_seg_point[:,i-1,1] * symy
-            awg.wing_center_seg_point[:,i,2]\
-                = awg.wing_center_seg_point[:,i-1,2] * symz
+            awg.wing_center_seg_point[:,i,0] = awg.wing_center_seg_point[:,i-1,0]*symx
+            awg.wing_center_seg_point[:,i,1] = awg.wing_center_seg_point[:,i-1,1]*symy
+            awg.wing_center_seg_point[:,i,2] = awg.wing_center_seg_point[:,i-1,2]*symz
             c = True
             a += 1
 
-    close_tixi(tixi, cpacs_in)
+    cpsf.close_tixi(tixi, cpacs_in)
 
-# log info display ------------------------------------------------------------
+    # log info display ------------------------------------------------------------
     log.info('-----------------------------------------------------------')
     log.info('---------- Wing Results -----------------------------------')
     log.info('Number of Wings [-]: ' + str(awg.wing_nb))
     log.info('Wing symmetry plane [-]: ' + str(awg.wing_sym))
-    log.info('Number of wing sections (not counting symmetry) [-]: '\
-             + str(awg.wing_sec_nb))
-    log.info('Number of wing segments (not counting symmetry) [-]: '\
-            + str(awg.wing_seg_nb))
+    log.info('Number of wing sections (not counting symmetry) [-]: ' + str(awg.wing_sec_nb))
+    log.info('Number of wing segments (not counting symmetry) [-]: ' + str(awg.wing_seg_nb))
     log.info('Wing Span (counting symmetry)[m]: \n' + str(awg.wing_span))
     log.info('Wing MAC length [m]: ' + str(awg.wing_mac[0,]))
     log.info('Wing MAC x,y,z coordinate [m]: \n' + str(awg.wing_mac[1:4,]))
     log.info('Wings sections thicknes [m]: \n' + str(awg.wing_sec_thicknes))
-    log.info('Wings sections mean thicknes [m]: \n'\
-             + str(awg.wing_sec_mean_thick))
+    log.info('Wings sections mean thicknes [m]: \n' + str(awg.wing_sec_mean_thick))
     log.info('Wing segments length [m]: \n' + str(awg.wing_seg_length))
     log.info('Wing max chord length [m]: \n' + str(awg.wing_max_chord))
     log.info('Wing min chord length [m]: \n' + str(awg.wing_min_chord))
     log.info('Main wing plantform area [m^2]: ' + str(awg.wing_plt_area_main))
-    log.info('Main wing wetted surface [m^2]: '\
-             + str(awg.main_wing_surface))
-    log.info('Tail wings wetted surface [m^2]: \n'\
-             + str(awg.tail_wings_surface))
-    log.info('Total wings wetted surface [m^2]: \n'\
-             + str(awg.total_wings_surface))
-    log.info('Wings plantform area [m^2]: \n'\
-             + str(awg.wing_plt_area))
+    log.info('Main wing wetted surface [m^2]: ' + str(awg.main_wing_surface))
+    log.info('Tail wings wetted surface [m^2]: \n' + str(awg.tail_wings_surface))
+    log.info('Total wings wetted surface [m^2]: \n' + str(awg.total_wings_surface))
+    log.info('Wings plantform area [m^2]: \n' + str(awg.wing_plt_area))
     log.info('Volume of each wing [m^3]: ' + str(awg.wing_vol))
     log.info('Total wing volume [m^3]: ' + str(awg.wing_tot_vol))
     log.info('-----------------------------------------------------------')
@@ -417,6 +384,7 @@ def geom_eval(w_nb, awg, cpacs_in):
 #=============================================================================
 
 if __name__ == '__main__':
+
     log.warning('#########################################################')
     log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN balanceuncmain.py #')
     log.warning('#########################################################')

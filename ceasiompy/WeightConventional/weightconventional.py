@@ -37,7 +37,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 
 # Should be changed or removed
 from ceasiompy.utils.InputClasses.Conventional import weightconvclass
-from ceasiompy.WeightConventional.func.AoutFunc import outputweightgen, cpacsweightupdate, createtmpcpacs
+from ceasiompy.WeightConventional.func.AoutFunc import outputweightgen, cpacsweightupdate
 from ceasiompy.utils.WB.ConvGeometry import geometry
 
 

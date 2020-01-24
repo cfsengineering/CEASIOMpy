@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07
-| Last modifiction: 2020-01-16 (AJ)
+| Last modifiction: 2020-01-22 (AJ)
 
 TODO:
     * Simplify classes, use only one or use subclasses
@@ -17,21 +17,14 @@ TODO:
 
 """
 
-
 #=============================================================================
 #   IMPORTS
 #=============================================================================
+
 import os
 import shutil
 import numpy as np
 import time
-
-# Should be kept
-
-
-
-# Should be changed or removed
-
 
 
 # Classes
@@ -40,17 +33,18 @@ from ceasiompy.utils.InputClasses.Unconventional.engineclass import EngineData
 
 # Functions
 from ceasiompy.WeightUnconventional.func.AinFunc import getinput
-from ceasiompy.WeightUnconventional.func.AoutFunc import cpacs_out_path, cpacsweightupdate
+from ceasiompy.WeightUnconventional.func.AoutFunc import outputweightgen, cpacsweightupdate
 from ceasiompy.WeightUnconventional.func.People.passengers import estimate_fuse_passengers, estimate_wing_passengers
 from ceasiompy.WeightUnconventional.func.People.crewmembers import estimate_crew
 from ceasiompy.WeightUnconventional.func.Systems.systemsmass import estimate_system_mass
 from ceasiompy.WeightUnconventional.func.Engines.enginesanalysis import check_ed, engine_definition
 from ceasiompy.WeightUnconventional.func.Fuel.fuelmass import estimate_fuse_fuel_mass, estimate_wing_fuel_mass
 
+from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
+
+from ceasiompy.utils.cpacsfunctions import aircraft_name
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import aircraft_name
-from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
 
 log = get_logger(__file__.split('.')[0])
 
@@ -103,8 +97,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
     if not os.path.exists(newpath):
         os.makedirs(newpath)
 
-
-##================================ USER INPUTS =============================##
+    # USER INPUTS
     # All the input data must be defined into the unc_weight_user_input.py
     # file inside the ceasiompy.InputClasses/Unconventioanl folder.
 
@@ -117,39 +110,37 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
     if ui.USER_ENGINES:
         (ed) = getinput.get_engine_inputs(ui, ed, cpacs_out_path)
 
-##============================= GEOMETRY ANALYSIS ==========================##
+    # GEOMETRY ANALYSIS
 
-    (f_nb, w_nb) = uncgeomanalysis.get_number_of_parts(cpacs_path)
+    (fus_nb, wing_nb) = uncgeomanalysis.get_number_of_parts(cpacs_path)
     h_min = ui.FLOORS_NB * ui.H_LIM_CABIN
 
-    if not w_nb:
+    if not wing_nb:
         log.warning('Aircraft does not have wings')
         raise Exception('Aircraft does not have wings')
-    elif not f_nb:
-        (awg, wing_nodes) =\
-            uncgeomanalysis.no_fuse_geom_analysis(ui.FLOORS_NB, w_nb,\
-                h_min, ui.FUEL_ON_CABIN, cpacs_out_path, name, ed.TURBOPROP)
+    elif not fus_nb:
+        (awg, wing_nodes) = uncgeomanalysis.no_fuse_geom_analysis(cpacs_out_path, ui.FLOORS_NB, wing_nb,\
+                            h_min, ui.FUEL_ON_CABIN, name, ed.TURBOPROP)
     else:
         log.info('Fuselage detected')
-        log.info('Number of fuselage: ' + str(int(f_nb)))
+        log.info('Number of fuselage: ' + str(int(fus_nb)))
         # Minimum fuselage segment height to be a cabin segment.
         (afg, awg) =\
-            uncgeomanalysis.with_fuse_geom_analysis(f_nb, w_nb, h_min, adui,\
-                                                    ed.TURBOPROP, ui.F_FUEL,\
-                                                    cpacs_out_path, name)
+            uncgeomanalysis.with_fuse_geom_analysis(cpacs_out_path, fus_nb, wing_nb, h_min, adui,\
+                                                    ed.TURBOPROP, ui.F_FUEL, name)
 
-    ui = getinput.get_user_fuel(f_nb, ui, cpacs_out_path)
+    ui = getinput.get_user_fuel(fus_nb, ui, cpacs_out_path)
 
-##============================= WEIGHT ANALYSIS ============================##
+    # WEIGHT ANALYSIS
     ## Engine evaluation
     if ui.USER_ENGINES:
         check_ed(ed)
         mw.mass_engines = ed.en_mass * ed.NE
 
-    if f_nb:
+    if fus_nb:
         # Passengers mass
         (out.pass_nb, out.toilet_nb, mw.mass_pass)\
-                = estimate_fuse_passengers(f_nb, ui.FLOORS_NB,\
+                = estimate_fuse_passengers(fus_nb, ui.FLOORS_NB,\
                     adui.PASS_PER_TOILET, afg.cabin_area, adui.MASS_PASS,\
                     ui.PASS_BASE_DENSITY)
         cabin_area = np.sum(afg.cabin_area)
@@ -206,15 +197,12 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         log.warning('and the passenger density is: ' + str(pass_density))
 
     ## Fuel mass
-    if f_nb:
-        mw.mass_fuse_fuel = estimate_fuse_fuel_mass(afg.fuse_fuel_vol,\
-                                                    adui.FUEL_DENSITY)
-        mw.mass_wing_fuel = estimate_wing_fuel_mass(awg.wing_fuel_vol,\
-                                                    adui.FUEL_DENSITY)
+    if fus_nb:
+        mw.mass_fuse_fuel = estimate_fuse_fuel_mass(afg.fuse_fuel_vol, adui.FUEL_DENSITY)
+        mw.mass_wing_fuel = estimate_wing_fuel_mass(awg.wing_fuel_vol, adui.FUEL_DENSITY)
         mw.mass_fuel_max = mw.mass_wing_fuel + mw.mass_fuse_fuel
     else:
-        mw.mass_fuel_max = estimate_wing_fuel_mass(awg.fuel_vol_tot,\
-                                                   adui.FUEL_DENSITY)
+        mw.mass_fuel_max = estimate_wing_fuel_mass(awg.fuel_vol_tot, adui.FUEL_DENSITY)
 
     if ui.MAX_FUEL_VOL > 0\
         and (mw.mass_fuel_max/adui.FUEL_DENSITY)*1000.0 > ui.MAX_FUEL_VOL:
@@ -288,26 +276,19 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
     log.info('System mass [kg]: ' + str(int(round(mw.mass_systems))))
     log.info('People mass [kg]: ' + str(int(round(mw.mass_people))))
     log.info('Payload mass [kg]: ' + str(int(round(mw.mass_payload))))
-    log.info('Structure mass [kg]: '\
-             + str(int(round(mw.mass_structure))))
-    log.info('Total fuel mass [kg]: '\
-             + str(int(round(mw.mass_fuel_max))))
+    log.info('Structure mass [kg]: ' + str(int(round(mw.mass_structure))))
+    log.info('Total fuel mass [kg]: ' + str(int(round(mw.mass_fuel_max))))
     log.info('Total fuel volume [l]: '\
              + str(int(round(mw.mass_fuel_max/adui.FUEL_DENSITY*1000.0))))
-    log.info('Mass of fuel with maximum passengers [kg]: '\
-             + str(int(round(mw.mass_fuel_maxpass))))
+    log.info('Mass of fuel with max passengers [kg]: ' + str(int(round(mw.mass_fuel_maxpass))))
     log.info('Volume of fuel with maximum passengers [l]: '\
              + str(int(round(mw.mass_fuel_maxpass/adui.FUEL_DENSITY*1000.0))))
     log.info('Engines mass [kg]: ' + str(int(round(mw.mass_engines))))
     log.info('---------------------------------------')
-    log.info('Maximum Take Off Mass [kg]: '\
-             + str(int(round(mw.maximum_take_off_mass))))
-    log.info('Operating Empty Mass [kg]: '\
-             + str(int(round(mw.operating_empty_mass))))
-    log.info('Zero Fuel Mass [kg]: '\
-             + str(int(round(mw.zero_fuel_mass))))
-    log.info('Wing loading [kg/m^2]: '\
-             + str(int(round(out.wing_loading))))
+    log.info('Maximum Take Off Mass [kg]: ' + str(int(round(mw.maximum_take_off_mass))))
+    log.info('Operating Empty Mass [kg]: ' + str(int(round(mw.operating_empty_mass))))
+    log.info('Zero Fuel Mass [kg]: ' + str(int(round(mw.zero_fuel_mass))))
+    log.info('Wing loading [kg/m^2]: ' + str(int(round(out.wing_loading))))
     log.info('--------- Passegers evaluated: ---------')
     log.info('Passengers: ' + str(out.pass_nb))
     log.info('Toilet: ' + str(int(out.toilet_nb)))
@@ -324,18 +305,14 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
     # Outptu writting
     log.info('----- Generating output text file -----')
     cpacsweightupdate.cpacs_weight_update(out, mw, ui, cpacs_out_path)
-    cpacsweightupdate.toolspecific_update(f_nb, awg, mw, out, cpacs_out_path)
+    cpacsweightupdate.toolspecific_update(fus_nb, awg, mw, out, cpacs_out_path)
     cpacsweightupdate.cpacs_engine_update(ui, ed, mw, cpacs_out_path)
 
-    if not f_nb:
-        cpacs_out_path.output_bwb_txt(ui.FLOORS_NB, ed, out,mw, adui, awg, name)
+    if not fus_nb:
+        outputweightgen.output_bwb_txt(ui.FLOORS_NB, ed, out,mw, adui, awg, name)
     else:
-        cpacs_out_path.output_fuse_txt(f_nb, ui.FLOORS_NB, ed,out, mw, adui, awg, afg, name)
-
-
-#=============================================================================
-#    MAIN
-#=============================================================================
+        outputweightgen.output_fuse_txt(fus_nb, ui.FLOORS_NB, ed,out, mw, adui,
+                                        awg, afg, name)
 
 if __name__ == '__main__':
 

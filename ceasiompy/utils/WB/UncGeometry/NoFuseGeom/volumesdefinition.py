@@ -5,10 +5,12 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 The script evaluates the unconventional aircraft wings geometry .
 
-| Works with Python 2.7
+Python version: >=3.6
+
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07
-| Last modifiction: 2019-08-29 (AJ)
+| Last modifiction: 2020-01-21 (AJ)
+
 """
 
 
@@ -42,24 +44,19 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
     """ The fuction subdivides the main wing into nodes and defines
         the fuel and cabin volumes.
 
-        INPUT
-        (float) h_min    --Arg.: Minimum height for the fuselage [m].
-        (class) awg      --Arg.: AircraftWingGeometry class look at
-                                 aircraft_geometry_class.py in the
-                                 classes folder for explanation.
+    Args:
+        h_min (float): Minimum height for the fuselage [m].
+        awg (class): AircraftWingGeometry class look at
+                     aircraft_geometry_class.py in the classes folder for explanation.
+        cpacs_in (str): Path to the CPACS file.
+        TP (boolean): True if the aircraft is a turboprop.
+        FUEL_ON_CABIN (float): Percentage of the cabin volume used for fuel
+                           storaging instead for passengers. (default 0%)
 
-        (char) cpacs_in  --Arg.: Relative position of the xml file.
-        (boolean) TP            --Arg.: True if the aircraft is a turboprop.
-        (float) FUEL_ON_CABIN --Arg.: Percentage of the cabin volume
-                                      used for fuel storaging instead
-                                      for passengers. (default 0%)
-        OUTPUT
-        (float-array) wing_nodes    --Out.: 3D array containing the
-                                            nodes coordinates (x,y,z)
-                                            [m,m,m].
-        (class) awg      --Arg.: AircraftWingGeometry class look at
-                                 aircraft_geometry_class.py in the
-                                 classes folder for explanation.
+    Returns:
+        wing_nodes (float-array): 3D array containing the nodes coordinates (x,y,z) [m,m,m].
+        awg (class): AircraftWingGeometry class look at aircraft_geometry_class.py
+                     in the classes folder for explanation.
     """
 
     log.info('-----------------------------------------------------------')
@@ -70,9 +67,8 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
     tigl = open_tigl(tixi)
 
     SPACING = 0.1
-    subd_c = 30  # Number of subdivisions along the perimeter
-                   # on eachsurface, total number of points for each section
-                   # subd_c * 2
+    subd_c = 30  # Number of subdivisions along the perimeter on eachsurface,
+                 # total number of points for each section subd_c * 2
     DEN = 0.0
     w = awg.main_wing_index - 1
     wing_nodes  = 0
@@ -231,7 +227,7 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
     awg.wing_fuel_vol = t * (awg.wing_vol[w] - awg.fuse_vol)
     awg.fuel_vol_tot = awg.fuse_fuel_vol + awg.wing_fuel_vol
 
-# log info display ------------------------------------------------------------
+    # log info display ------------------------------------------------------------
     log.info('--------------------- Main wing Volumes -------------------')
     log.info('Wing volume [m^3]: ' + str(awg.wing_vol[w]))
     log.info('Cabin volume [m^3]: ' + str(awg.cabin_vol))
@@ -251,6 +247,7 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
 #=============================================================================
 
 if __name__ == '__main__':
+
     log.warning('#########################################################')
     log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN balanceuncmain.py #')
     log.warning('#########################################################')

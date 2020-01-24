@@ -5,12 +5,13 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Cabin crew members evaluation.
 
-| Works with Python 3.6
+Python version: >=3.6
+
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-10-30 (AJ)
-"""
+| Last modifiction: 2020-01-24 (AJ)
 
+"""
 
 #=============================================================================
 #   IMPORTS
@@ -32,16 +33,17 @@ def estimate_crew(pass_nb, mass_pilot, mass_cabin_crew, mtom, pilot_nb=2):
              -title14-vol3-sec121-391.xml
 
     Args:
-    pass_nb (integer) : Number of passengers [-]
-    pilot_nb (integer) : Number of pilot, default set to 2 [-]
-    mass_pilot (float): Mass of single pilot pilots [kg]
-    mass_cabin_crew (float): Mass of a cabin crew member [kg]
-    mtom (float): Maximum take-off mass [kg]
+        pass_nb (integer) : Number of passengers [-]
+        pilot_nb (integer) : Number of pilot, default set to 2 [-]
+        mass_pilot (float): Mass of single pilot pilots [kg]
+        mass_cabin_crew (float): Mass of a cabin crew member [kg]
+        mtom (float): Maximum take-off mass [kg]
 
     Retrurns:
-    crew_nb (integer) : Number of total crew members [-]
-    cabin_crew_nb (integer) : Number of cabin crew members [-]
-    mass_crew (float): Total mass of crew members [kg]
+        crew_nb (integer) : Number of total crew members [-]
+        cabin_crew_nb (integer) : Number of cabin crew members [-]
+        mass_crew (float): Total mass of crew members [kg]
+
     """
 
     if pass_nb >= 101:
@@ -57,8 +59,8 @@ def estimate_crew(pass_nb, mass_pilot, mass_cabin_crew, mtom, pilot_nb=2):
 
     crew_nb =  pilot_nb + cabin_crew_nb
     log.info(' Crew members: ' + str(crew_nb))
-    log.info(str(pilot_nb) + ' pilots, and ' + str(cabin_crew_nb)\
-             + ' cabin crew members')
+    log.info(str(pilot_nb) + ' pilots')
+    log.info(str(cabin_crew_nb) + ' cabin crew members')
 
     mass_crew = round((pilot_nb*mass_pilot + cabin_crew_nb*mass_cabin_crew),3)
 

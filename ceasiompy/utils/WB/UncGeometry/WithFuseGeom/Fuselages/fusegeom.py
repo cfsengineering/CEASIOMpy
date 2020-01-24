@@ -6,10 +6,12 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The scrpt will analyse the fuselage geometry from cpacs file for an
 unconventional aircraft.
 
-| Works with Python 2.7
+Python version: >=3.6
+
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-08-29 (AJ)
+| Last modifiction: 2020-01-21 (AJ)
+
 """
 
 
@@ -20,9 +22,9 @@ unconventional aircraft.
 import numpy as np
 import math
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+import ceasiompy.utils.cpacsfunctions as cpsf
 
-from ceasiompy.utils.cpacsfunctions import open_tixi,open_tigl, close_tixi
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
@@ -39,23 +41,23 @@ log = get_logger(__file__.split('.')[0])
 #   FUNCTIONS
 #==============================================================================
 
-def check_segment_connection(f_nb, fuse_seg_nb, fuse_sec_nb, tigl):
+def check_segment_connection(fus_nb, fuse_seg_nb, fuse_sec_nb, tigl):
     """ The function checks for each segment the start and end section index
         and to reorder them.
 
-    ARGUMENTS
-    (int) f_nb          -- Arg.: Number of fuselages.
-    (int) fuse_seg_nb   -- Arg.: Number of segments.
-    (int) fuse_sec_nb   -- Arg.: Number of sections.
-    (char) tigl         -- Arg.: Tigl handle.
+    Args:
+        fus_nb (int): Number of fuselages.
+        fuse_seg_nb (int): Number of segments.
+        fuse_sec_nb (int): Number of sections.
+        tigl (handel): Tigl handle.
 
-    RETURN
-    (int) sec_nb             --Out.: Number of sections for each fuselage.
-    (int) start_index        --Out.: Start section index for each fuselage.
-    (float-array) seg_sec_reordered --Out.: Reordered segments with
+    Returns:
+        sec_nb (int): Number of sections for each fuselage.
+        start_index (int): Start section index for each fuselage.
+        seg_sec_reordered (float-array): Reordered segments with
                                             respective start and end section
                                             for each fuselage.
-    (float_array) sec_index  --Out.: List of section index reordered.
+        sec_index (float_array) : List of section index reordered.
     """
 
     log.info('---------------------------------------------------------------')
@@ -64,9 +66,9 @@ def check_segment_connection(f_nb, fuse_seg_nb, fuse_sec_nb, tigl):
 
     # Initialising arrays
     nbmax = np.amax(fuse_seg_nb)
-    seg_sec = np.zeros((nbmax,f_nb,3))
+    seg_sec = np.zeros((nbmax,fus_nb,3))
     seg_sec_reordered = np.zeros(np.shape(seg_sec))
-    sec_index = np.zeros((nbmax,f_nb))
+    sec_index = np.zeros((nbmax,fus_nb))
     start_index = []
     sec_nb = []
 
@@ -82,7 +84,7 @@ def check_segment_connection(f_nb, fuse_seg_nb, fuse_sec_nb, tigl):
     #         The aircraft should be designed along the x axis
     #         and on the x-y plane
 
-    for i in range(1,f_nb+1):
+    for i in range(1,fus_nb+1):
         fuse_sec_index = []
         for j in range(1,fuse_seg_nb[i-1]+1):
             (seg_sec[j-1,i-1,0],e)\
@@ -112,41 +114,36 @@ def check_segment_connection(f_nb, fuse_seg_nb, fuse_sec_nb, tigl):
         nb = np.shape(fuse_sec_index)
         if nb[0] > nbmax:
             nbmax = nb[0]
-        sec_index.resize(nbmax,f_nb)
+        sec_index.resize(nbmax,fus_nb)
         sec_index[0:nb[0],i-1] = fuse_sec_index[0:nb[0]]
         sec_nb.append(nb[0])
 
     return(sec_nb, start_index, seg_sec_reordered, sec_index)
 
 
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
-
 def rel_dist(i, sec_nb, seg_nb, tigl, seg_sec, start_index):
     """ Function to evaluate the relative distance of each section
         used from the start section.
 
-    ARGUMENTS
-    (int) i             -- Arg.: Index of the current fuselage.
-    (int) sec_nb        -- Arg.: Number of sections of the current fuselage.
-    (int) seg_nb        -- Arg.: Number of segments of the current fuselage.
-    (char) tigl         -- Arg.: Tigl handle.
-    (float-array) seg_sec_reordered --Arg.: Reordered segments with
-                                            respective start and end section
-                                            for each fuselage.
-    (int) start_index   --Arg.: Start section index of the current fuselage.
+    Args:
+        i (int): Index of the current fuselage.
+        sec_nb (int): Number of sections of the current fuselage.
+        seg_nb (int): Number of segments of the current fuselage.
+        tigl (handel): Tigl handle.
+        seg_sec_reordered (float-array): Reordered segments with respective
+                                         start  and end section for each fuselage.
+        start_index (int): Start section index of the current fuselage.
 
-    RETURN
-    (float-array) rel_sec_dis[:,0]   --Out.: Relative distance of each section
-                                             from the start section of the
-                                             current fuselage [m].
-    (float-array) rel_sec_dis[:,1]   --Out.: Segment index relative to the
-                                             section of rel_sec_dis[:,0].
+    Returns:
+        rel_sec_dis[:,0] (float-array): Relative distance of each section from
+                                        the start section of the current fuselage [m].
+        rel_sec_dis[:,1] (float-array): Segment index relative to the section of
+                                        rel_sec_dis[:,0].
     """
+
     log.info('-----------------------------------------------------------')
     log.info('---------- Evaluating absolute section distance -----------')
     log.info('-----------------------------------------------------------')
-
 
     rel_sec_dis = np.zeros((sec_nb,2))
     rel_sec_dist_index = np.zeros((sec_nb,2))
@@ -166,93 +163,76 @@ def rel_dist(i, sec_nb, seg_nb, tigl, seg_sec, start_index):
     return(rel_sec_dis[:,0],rel_sec_dis[:,1])
 
 
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
-
-def fuse_geom_eval(f_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
+def fuse_geom_eval(fus_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
     """ Main function to evaluate the fuselage geometry
 
-    INPUT
-    (int) f_nb              --Arg.: Number of fuselages.
-    (float) h_min           --Arg.: Minimum height for the fuselage [m].
-    (float) fuse_thick      --Arg.: Thickness of the fuselage [mm].
-    (float-array) F_FUEL    --Arg.: Percentage of the total volume of
-                                    the fuel tank fuselage, used for
-                                    fuel straging (set False if fuselage
-                                    is ment for payload/passengers).
-    (class) afg    --Arg.: AircraftGeometry class look at
-                          aircraft_geometry_class.py in the
-                          classes folder for explanation.
-    (char) cpacs_in  -- Arg.: Cpacs xml file location
+    Args:
+        fus_nb (int): Number of fuselages.
+        h_min (float): Minimum height for the fuselage [m].
+        fuse_thick(float) : Thickness of the fuselage [mm].
+        F_FUEL (float-array): Percentage of the total volume of the fuel tank
+                              fuselage, used for fuel straging (set False if
+                              fuselage is ment for payload/passengers).
+        afg (class): AircraftGeometry class look at aircraft_geometry_class.py
+                     in the classes folder for explanation.
+        cpacs_in (str): Path to the CPACS file
 
-    OUTPUT
-    (class) afg      --Out.: Updated aircraft_geometry class
+    Returns:
+        afg (class): Updated aircraft_geometry class
     """
 
-##===========================================================================##
     log.info('-----------------------------------------------------------')
     log.info('---------- Analysing fuselage geometry --------------------')
     log.info('-----------------------------------------------------------')
 
     # Opening tixi and tigl
-    tixi = open_tixi(cpacs_in)
-    tigl = open_tigl(tixi)
+    tixi = cpsf.open_tixi(cpacs_in)
+    tigl = cpsf.open_tigl(tixi)
 
-## ----------------------------------------------------------------------------
-## INITIALIZATION 1 -----------------------------------------------------------
-## ----------------------------------------------------------------------------
+    #INITIALIZATION 1 ----------------------------------------------------------
+    afg.fus_nb = fus_nb
 
-    afg.f_nb = f_nb
+    # Counting sections and segments----------------------------------------------
 
-## ----------------------------------------------------------------------------
-## COUNTING  ------------------------------------------------------------------
-## Counting sections and segments----------------------------------------------
-## ----------------------------------------------------------------------------
-
-    for i in range(1,afg.f_nb + 1):
+    for i in range(1,afg.fus_nb + 1):
         afg.fuse_sec_nb.append(tigl.fuselageGetSectionCount(i))
         afg.fuse_seg_nb.append(tigl.fuselageGetSegmentCount(i))
         afg.fuse_vol.append(tigl.fuselageGetVolume(i))
         afg.fuse_surface.append(tigl.fuselageGetSurfaceArea(i))
 
-## Checking segment and section connection and reordering them
+     # Checking segment and section connection and reordering them
     (afg.fuse_sec_nb, start_index, seg_sec, fuse_sec_index)\
-      = check_segment_connection(afg.f_nb, afg.fuse_seg_nb,\
+      = check_segment_connection(afg.fus_nb, afg.fuse_seg_nb,\
                                  afg.fuse_sec_nb, tigl)
     afg.f_seg_sec = seg_sec
 
-## ----------------------------------------------------------------------------
-## INITIALIZATION 2 -----------------------------------------------------------
-## ----------------------------------------------------------------------------
+    # INITIALIZATION 2 -----------------------------------------------------------
 
     max_sec_nb = np.amax(afg.fuse_sec_nb)
     max_seg_nb = np.amax(afg.fuse_seg_nb)
-    afg.fuse_sec_per = np.zeros((max_sec_nb,afg.f_nb))
-    afg.fuse_sec_width = np.zeros((max_sec_nb,afg.f_nb))
-    afg.fuse_sec_height = np.zeros((max_sec_nb,afg.f_nb))
-    afg.fuse_sec_rel_dist = np.zeros((max_sec_nb,afg.f_nb))
-    afg.fuse_seg_index = np.zeros((max_sec_nb,afg.f_nb))
-    afg.fuse_seg_length = np.zeros((max_seg_nb,afg.f_nb))
-    afg.fuse_center_section_point = np.zeros((max_sec_nb,afg.f_nb,3))
-    afg.fuse_center_seg_point = np.zeros((max_sec_nb,afg.f_nb,3))
-    afg.fuse_seg_vol = np.zeros((max_seg_nb,afg.f_nb))
-    x1 = np.zeros((max_sec_nb,afg.f_nb))
-    y1 = np.zeros((max_sec_nb,afg.f_nb))
-    z1 = np.zeros((max_sec_nb,afg.f_nb))
-    x2 = np.zeros((max_sec_nb,afg.f_nb))
-    y2 = np.zeros((max_sec_nb,afg.f_nb))
-    z2 = np.zeros((max_sec_nb,afg.f_nb))
+    afg.fuse_sec_per = np.zeros((max_sec_nb,afg.fus_nb))
+    afg.fuse_sec_width = np.zeros((max_sec_nb,afg.fus_nb))
+    afg.fuse_sec_height = np.zeros((max_sec_nb,afg.fus_nb))
+    afg.fuse_sec_rel_dist = np.zeros((max_sec_nb,afg.fus_nb))
+    afg.fuse_seg_index = np.zeros((max_sec_nb,afg.fus_nb))
+    afg.fuse_seg_length = np.zeros((max_seg_nb,afg.fus_nb))
+    afg.fuse_center_section_point = np.zeros((max_sec_nb,afg.fus_nb,3))
+    afg.fuse_center_seg_point = np.zeros((max_sec_nb,afg.fus_nb,3))
+    afg.fuse_seg_vol = np.zeros((max_seg_nb,afg.fus_nb))
+    x1 = np.zeros((max_sec_nb,afg.fus_nb))
+    y1 = np.zeros((max_sec_nb,afg.fus_nb))
+    z1 = np.zeros((max_sec_nb,afg.fus_nb))
+    x2 = np.zeros((max_sec_nb,afg.fus_nb))
+    y2 = np.zeros((max_sec_nb,afg.fus_nb))
+    z2 = np.zeros((max_sec_nb,afg.fus_nb))
 
-##===========================================================================##
-## ----------------------------------------------------------------------------
-## FUSELAGE ANALYSIS ----------------------------------------------------------
-## ----------------------------------------------------------------------------
+    # FUSELAGE ANALYSIS ----------------------------------------------------------
 
-## Aircraft total length ------------------------------------------------------
+    # Aircraft total length ------------------------------------------------------
     afg.tot_length = tigl.configurationGetLength()
 
-## Evaluating fuselage: sections perimeter, segments volume and length ---
-    for i in range(1,afg.f_nb+1):
+    # Evaluating fuselage: sections perimeter, segments volume and length ---
+    for i in range(1,afg.fus_nb+1):
         (afg.fuse_sec_rel_dist[:,i-1],afg.fuse_seg_index[:,i-1])\
             = rel_dist(i, afg.fuse_sec_nb[i-1], afg.fuse_seg_nb[i-1],\
                        tigl, seg_sec[:,i-1,:], start_index[i-1])
@@ -341,7 +321,7 @@ def fuse_geom_eval(f_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
         afg.fuse_sec_height[0][i-1] = hh1 + hh2
         afg.fuse_mean_width.append(round(np.mean(afg.fuse_sec_width[:,i-1]),3))
 
-## Evaluating the point at the center of each segment.
+    # Evaluating the point at the center of each segment.
     for i in range(int(afg.fuse_nb)):
         for j in range(1, afg.fuse_seg_nb[i-1]+1):
             afg.fuse_center_seg_point[j-1][i-1][0]\
@@ -354,23 +334,23 @@ def fuse_geom_eval(f_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
                 = (afg.fuse_center_section_point[j-1][i-1][2]\
                    + afg.fuse_center_section_point[j][i-1][2])/2
 
-## Evaluating cabin length and volume, nose length and tail_length ------------
+    # Evaluating cabin length and volume, nose length and tail_length ------------
     log.info('-----------------------------------------------------------')
     log.info('----------- Analysing cabin dimensions --------------------')
     log.info('-----------------------------------------------------------')
-    corr = (1.3) + np.zeros((afg.f_nb))
+    corr = (1.3) + np.zeros((afg.fus_nb))
     c = False
-    afg.cabin_nb = np.zeros((afg.f_nb))
-    afg.cabin_area = np.zeros((afg.f_nb))
-    afg.fuse_cabin_length = np.zeros((afg.f_nb))
-    afg.cabin_seg = np.zeros((max_seg_nb,afg.f_nb))
-    afg.cabin_length = np.zeros((afg.f_nb))
-    afg.fuse_cabin_vol = np.zeros((afg.f_nb))
-    afg.fuse_nose_length = np.zeros((afg.f_nb))
-    afg.fuse_tail_length = np.zeros((afg.f_nb))
-    afg.fuse_fuel_vol = np.zeros((afg.f_nb))
+    afg.cabin_nb = np.zeros((afg.fus_nb))
+    afg.cabin_area = np.zeros((afg.fus_nb))
+    afg.fuse_cabin_length = np.zeros((afg.fus_nb))
+    afg.cabin_seg = np.zeros((max_seg_nb,afg.fus_nb))
+    afg.cabin_length = np.zeros((afg.fus_nb))
+    afg.fuse_cabin_vol = np.zeros((afg.fus_nb))
+    afg.fuse_nose_length = np.zeros((afg.fus_nb))
+    afg.fuse_tail_length = np.zeros((afg.fus_nb))
+    afg.fuse_fuel_vol = np.zeros((afg.fus_nb))
 
-    for i in range(1,afg.f_nb+1):
+    for i in range(1,afg.fus_nb+1):
         ex = False
         cabin_seg = np.zeros((max_seg_nb,1))
         cabin_nb = 0
@@ -450,9 +430,9 @@ def fuse_geom_eval(f_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
             afg.fuse_cabin_vol[i-1] = 0
             afg.cabin_area[i-1] = 0
 
-    close_tixi(tixi, cpacs_in)
+    cpsf.close_tixi(tixi, cpacs_in)
 
-# log info display ------------------------------------------------------------
+    # log info display ------------------------------------------------------------
     log.info('-----------------------------------------------------------')
     log.info('---------- Fuselage Geometry Evaluations ------------------')
     log.info('---------- USEFUL INFO ----------------------------------\n'\
@@ -461,11 +441,9 @@ def fuse_geom_eval(f_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
              + 'array ordered progressively')
     log.info('-----------------------------------------------------------')
     log.info('---------- Fuselage Results -------------------------------')
-    log.info('Number of fuselage [-]: ' + str(afg.f_nb))
-    log.info('Number of fuselage sections [-]: '\
-             + str(afg.fuse_sec_nb))
-    log.info('Number of fuselage segments [-]: '\
-             + str(afg.fuse_seg_nb))
+    log.info('Number of fuselage [-]: ' + str(afg.fus_nb))
+    log.info('Number of fuselage sections [-]: ' + str(afg.fuse_sec_nb))
+    log.info('Number of fuselage segments [-]: ' + str(afg.fuse_seg_nb))
     log.info('Cabin segments array [-]:\n' + str(cabin_seg))
     log.info('Fuse Length [m]:\n' + str(afg.fuse_length))
     log.info('Fuse nose Length [m]:\n' + str(afg.fuse_nose_length))
@@ -499,6 +477,7 @@ def fuse_geom_eval(f_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
 #==============================================================================
 
 if __name__ == '__main__':
+
     log.warning('#########################################################')
     log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN balanceuncmain.py #')
     log.warning('#########################################################')

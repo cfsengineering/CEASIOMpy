@@ -51,12 +51,12 @@ log = get_logger(__file__.split('.')[0])
 #   FUNCTIONS
 #=============================================================================
 
-def get_user_fuel(f_nb, ui, cpacs_in):
+def get_user_fuel(fus_nb, ui, cpacs_in):
     """ Function to extract from the xml file the required input data,
         the code will use the default value when they are missing.
 
         INPUT
-        (int) f_nb     --Arg.: Number of fuselage.
+        (int) fus_nb     --Arg.: Number of fuselage.
         (class) ui     --Arg.: UserInputs class.
         ##======= Classes are defined in the InputClasses folder =======##
 
@@ -76,9 +76,9 @@ def get_user_fuel(f_nb, ui, cpacs_in):
     FUEL_PATH = '/cpacs/toolspecific/CEASIOMpy/fuels'
     create_branch(tixi, FUEL_PATH, False)
 
-    if f_nb:
-        for i in range(0, f_nb):
-            if f_nb > 1:
+    if fus_nb:
+        for i in range(0, fus_nb):
+            if fus_nb > 1:
                 F = 'fuelOnCabin' + str(i+1)
             else:
                 F = 'fuelOnCabin'

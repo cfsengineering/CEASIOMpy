@@ -26,7 +26,6 @@
 ## Modules
 * To adapt and integrate
     * SUMO2CPACS
-    * StaticStability
 
 * To develop
     * Propulsion

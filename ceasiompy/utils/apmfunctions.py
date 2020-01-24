@@ -104,6 +104,31 @@ class DampingDerivative():
             self.dcmsdrstar.append(dcms)
 
 
+class IncrementMap():
+
+    def __init__(self):
+        self.cs_list = 0
+
+    def add_cs_coef(self,dcl,dcd,dcs,dcml,dcmd,dcms,cs_uid,control_parameter):
+        self.cs_list += 1
+
+        self.dcldrstar.append(dcl)
+        self.dcddrstar.append(dcd)
+        self.dcsdrstar.append(dcs)
+        self.dcmldrstar.append(dcml)
+        self.dcmddrstar.append(dcmd)
+        self.dcmsdrstar.append(dcms)
+
+        # TODO: how ?
+    # altitude mapType="vector">1000.; 2000.; 3000.</altitude>
+    # <incrementMaps>
+    #     <incrementMap uID="incMap_b3ac2">
+    #         <controlSurfaceUID>InnerWingFlap</controlSurfaceUID>
+    #         <controlParameters mapType="vector">-1;-0.5;0;1</controlParameters>
+    #             <dcl mapType="array">11.; 12.; 13.; 14.; 15.; 21.; 22.; 23.; 24.; 25.; 31.; 32.; 33.; 34.; 35.</dcl>
+
+
+
 class AeroCoefficient():
 
     def __init__(self):
@@ -123,6 +148,8 @@ class AeroCoefficient():
         self.cms = []
 
         self.damping_derivatives = DampingDerivative()
+
+        self.increment_map = IncrementMap()
 
     def add_param_point(alt,mach,aoa,aos):
 

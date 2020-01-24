@@ -121,7 +121,7 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name='calculate_damping_der',
+    var_name='damping_der',
     var_type=bool,
     default_value=False,
     unit='1',
@@ -141,6 +141,18 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH + '/aerodynamics/su2/options/rotationRate',
     gui=True,
     gui_name='Rotation Rate',
+    gui_group='Aeromap Options',
+)
+
+cpacs_inout.add_input(
+    var_name='control_surf',
+    var_type=bool,
+    default_value=False,
+    unit='1',
+    descr='To check if control surfaces deflections should be calculated or not',
+    xpath=CEASIOM_XPATH + '/aerodynamics/su2/options/clalculateCotrolSurfacesDeflections',
+    gui=True,
+    gui_name='Control Surfaces',
     gui_group='Aeromap Options',
 )
 

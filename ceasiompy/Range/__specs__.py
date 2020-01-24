@@ -17,7 +17,7 @@ CEASIOMPY_XPATH = '/cpacs/toolspecific/CEASIOMpy'
 WEIGHT_XPATH = '/cpacs/toolspecific/CEASIOMpy/weight'
 RANGE_XPATH = '/cpacs/toolspecific/CEASIOMpy/ranges'
 FUEL_CONSUMPTION_XPATH = '/cpacs/toolspecific/CEASIOMpy/fuelConsumption'
-MASSBREAKDOWN_XPATH = '/cpacs/vehicles/aircraft/model/analysis/massBreakdown'
+MASSBREAKDOWN_XPATH = '/cpacs/vehicles/aircraft/model/analyses/massBreakdown'
 
 # ===== CPACS inputs and outputs =====
 

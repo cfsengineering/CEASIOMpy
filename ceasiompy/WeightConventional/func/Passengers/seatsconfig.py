@@ -6,10 +6,12 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script defines a possible configuration for the seats
 inside the conventional aircraft.
 
-| Works with Python 2.7
+Python version: >=3.6
+
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-02-20
+| Last modifiction: 2020-01-24 (AJ)
+
 """
 
 
@@ -31,53 +33,50 @@ log = get_logger(__file__.split('.')[0])
  weightconvclass.py script.
 """
 
-
 #=============================================================================
 #   FUNCTIONS
 #=============================================================================
 
-def seat_config(pass_nb, row_nb, abreast_nb, aisle_nb,\
-                IS_DOUBLE_FLOOR, toilet_nb, PASS_PER_TOILET,\
-                fuse_length, ind, NAME):
+def get_seat_config(pass_nb, row_nb, abreast_nb, aisle_nb,
+                    IS_DOUBLE_FLOOR, toilet_nb, PASS_PER_TOILET,
+                    fuse_length, ind, NAME):
 
-    """ The function proposes a sit disposition.
+    """ The function to proposes a sit disposition.
 
-    ARGUMENTS
-    (integer) pass_nb           --Arg.: Number of passengers [-].
-    (integer) row_nb            --Arg.: Nmber of seat rows [-].
-    (integer) abreast_nb        --Arg.: Number of seat abreasts [-].
-    (integer) aisle_nb          --Arg.: Number of aisles [-].
-    (integer) toilet_nb            --Arg.: Number of toilets [-].
-    (integer) IS_DOUBLE_FLOOR   --Arg.: Double floor option [-].
-    (integer) PASS_PER_TOILET      --Arg.: Number of passengers per toilet [-].
-    (float) fuse_length         --Arg.: Fuselage_length [m].
-    (class) ind                 --Arg.: InsideDimensions class [-].
-    ##======= Class is defined in the Inputlasses folder =======##
+    Args:
+        pass_nb (int): Number of passengers [-]
+        row_nb (int): Nmber of seat rows [-]
+        abreast_nb (int): Number of seat abreasts [-]
+        aisle_nb (int): Number of aisles [-]
+        toilet_nb (int): Number of toilets [-]
+        IS_DOUBLE_FLOOR (int): Double floor option [-]
+        PASS_PER_TOILET (int): Number of passengers per toilet [-]
+        fuse_length (float): Fuselage_length [m]
+        ind (class): InsideDimensions class [-]
+        NAME  (str): Name of the aircraft
 
-    (char) NAME                 --Arg.: Name of the aircraft.
-
-    RETURNS
-    (file) NAME_Seats_disposition.out  --Out.: Print of the possible sets
+    Returns:
+        NAME_Seats_disposition.out (file) : Print of the possible sets
                                                disposition per each rows.
     """
 
     out_name = 'ToolOutput/' + NAME + '/' + NAME + '_Seats_disposition.out'
-    OutputTextFile = open(out_name, 'w')
-    OutputTextFile.write('---------------------------------------------')
-    OutputTextFile.write('\nPossible seat configuration -----------------')
-    OutputTextFile.write('\nSeat = 1 and Aisle = 0 ----------------------')
-    OutputTextFile.write('\n---------------------------------------------')
-    OutputTextFile.write('\nAbreast nb.: ' + str(abreast_nb))
-    OutputTextFile.write('\nRow nb.: ' + str(row_nb))
-    OutputTextFile.write('\nSeats_nb : ' +str(abreast_nb*row_nb))
-    OutputTextFile.write('\n---------------------------------------------')
+    out_txt_file = open(out_name, 'w')
+    out_txt_file.write('---------------------------------------------')
+    out_txt_file.write('\nPossible seat configuration -----------------')
+    out_txt_file.write('\nSeat = 1 and Aisle = 0 ----------------------')
+    out_txt_file.write('\n---------------------------------------------')
+    out_txt_file.write('\nAbreast nb.: ' + str(abreast_nb))
+    out_txt_file.write('\nRow nb.: ' + str(row_nb))
+    out_txt_file.write('\nSeats_nb : ' +str(abreast_nb*row_nb))
+    out_txt_file.write('\n---------------------------------------------')
 
     log.info('-------- Possible seat configuration --------')
     log.info('----------- Seat = 1 and Aisle = 0 ----------')
     warn = 0
     snd = False
     if IS_DOUBLE_FLOOR != 0:
-        OutputTextFile.write('\n---------------- First Floor ----------------')
+        out_txt_file.write('\n---------------- First Floor ----------------')
         if toilet_nb >= 1:
             f = ind.toilet_length
             t = toilet_nb - 2
@@ -94,7 +93,7 @@ def seat_config(pass_nb, row_nb, abreast_nb, aisle_nb,\
                     t -= 2
             if not snd and round((fuse_length - f),1) <= 0.1:
                 snd = True
-                OutputTextFile.write('\n---------------- Second Floor'\
+                out_txt_file.write('\n---------------- Second Floor'\
                                      + ' ---------------')
         for l in range(int(abreast_nb+aisle_nb)):
             seat[l] = 1
@@ -108,24 +107,26 @@ def seat_config(pass_nb, row_nb, abreast_nb, aisle_nb,\
                     s = int(round(abreast_nb // 3,0))
                     seat[s] = 0
                     seat[-s-1] = 0
-        OutputTextFile.write('\n'+str(seat))
+                    
+        out_txt_file.write('\n'+str(seat))
         e = (int(round((abreast_nb+aisle_nb)//2.0,0)))
         a = seat[0:e+1]
+        
         if (int(round((abreast_nb+aisle_nb)%2.0,0))) == 0:
             b = seat[e-1:abreast_nb+aisle_nb]
         else:
             b = seat[e:abreast_nb+aisle_nb]
         b = b[::-1]
+        
         if a != b:
             warn += 1
 
     if warn >= 1:
-        log.warning('Asymmetric passengers disposition in ' + str(warn)\
-                    +' rows')
-        OutputTextFile.write('\nAsymmetric passengers disposition in '\
+        log.warning('Asymmetric passengers disposition in ' + str(warn) +' rows')
+        out_txt_file.write('\nAsymmetric passengers disposition in '\
                              + str(warn) +' rows')
-    log.info(str(seat))
-    OutputTextFile.close()
+
+    out_txt_file.close()
 
     return()
 
@@ -135,6 +136,7 @@ def seat_config(pass_nb, row_nb, abreast_nb, aisle_nb,\
 #==============================================================================
 
 if __name__ == '__main__':
+    
     log.warning('###########################################################')
     log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ####')
     log.warning('###########################################################')

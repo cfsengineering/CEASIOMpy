@@ -75,8 +75,8 @@ def test_estimate_skin_friction_coef():
     # Test 2, with "real values"
     tixi = open_tixi(CPACS_IN_PATH)
     tigl = open_tigl(tixi)
-    analysis_xpath = '/cpacs/toolspecific/CEASIOMpy/geometry/analysis'
-    wetted_area = get_value(tixi,analysis_xpath + '/wettedArea')
+    analyses_xpath = '/cpacs/toolspecific/CEASIOMpy/geometry/analyses'
+    wetted_area = get_value(tixi,analyses_xpath + '/wettedArea')
     wing_area, wing_span = get_largest_wing_dim(tixi,tigl)
     mach = 0.78
     alt = 12000

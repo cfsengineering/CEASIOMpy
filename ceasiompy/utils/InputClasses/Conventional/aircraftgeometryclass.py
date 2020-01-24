@@ -35,7 +35,7 @@ class AircraftGeometry:
     (float) tot_length             --Att.: Aircraft total length [m].
 
     # Fuselage
-    (int) f_nb                 --Att.: Number of fuselage [-].
+    (int) fus_nb                 --Att.: Number of fuselage [-].
     (int) fuse_nb              --Att.: Number of fuselage counting\
                                            simmetry [-].
     (int_array) fuse_sym       --Att.: Fuselage symmetry plane [-].
@@ -121,7 +121,7 @@ class AircraftGeometry:
         self.tot_length = 0
 
         # Fuselage
-        self.f_nb = 0
+        self.fus_nb = 0
         self.fuse_nb = 0
         self.fuse_sym = []
         self.fuse_sec_nb = []

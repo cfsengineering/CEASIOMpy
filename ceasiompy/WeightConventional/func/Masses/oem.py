@@ -5,10 +5,12 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Function to evaluate the Oprating Empty Mass (OEM) from the maximum take of mass.
 
-| Works with Python 3.6
+Python version: >=3.6
+
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-10-30 (AJ)
+| Last modifiction: 2020-01-24 (AJ)
+
 """
 
 
@@ -35,27 +37,28 @@ log = get_logger(__file__.split('.')[0])
 #   FUNCTIONS
 #=============================================================================
 
-def estimate_operating_empty_mass(mtom, fuse_length, fuse_width, wing_area,\
-                                    wing_span, TURBOPROP):
+def estimate_operating_empty_mass(mtom, fuse_length, fuse_width, wing_area,
+                                  wing_span, TURBOPROP):
     """ The function estimates the operating empty mass (OEM)
 
     Source: Raymer, D.P. "Aircraft design: a conceptual approach"
             AIAA educational Series, Fourth edition (2006).
 
-    INPUT
-    mtom (float): Maximum take off mass [kg]
-    fuse_length (float): Fuselage length [m]
-    fuse_width (float): Fuselage width [m]
-    wing_area (float): Wing area [m^2]
-    wing_span (float): Wing span [m]
-    TURBOPROP (boolean): True if the the engines are turboprop False otherwise.
+    Args:
+        mtom (float): Maximum take off mass [kg]
+        fuse_length (float): Fuselage length [m]
+        fuse_width (float): Fuselage width [m]
+        wing_area (float): Wing area [m^2]
+        wing_span (float): Wing span [m]
+        TURBOPROP (bool): True if the the engines are turboprop False otherwise.
 
     Returns:
-    oem (float): Operating empty mass [kg]
+        oem (float): Operating empty mass [kg]
     """
 
     G = 9.81     # [m/s^2] Acceleration of gravity.
     KC = 1.04    # [-] Wing with variable sweep (1.0 otherwhise).
+
     if TURBOPROP:
         C = -0.05 # [-] General aviation twin turboprop
         if fuse_length < 15.00:
@@ -86,6 +89,7 @@ def estimate_operating_empty_mass(mtom, fuse_length, fuse_width, wing_area,\
 #==============================================================================
 
 if __name__ == '__main__':
+
     log.warning('###########################################################')
     log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ####')
     log.warning('###########################################################')

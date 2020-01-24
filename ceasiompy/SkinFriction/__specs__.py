@@ -36,7 +36,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m^2',
     descr='Wetted area of the aircraft (calculated by SU2)',
-    xpath=CEASIOM_XPATH + '/geometry/analysis/wettedArea',
+    xpath=CEASIOM_XPATH + '/geometry/analyses/wettedArea',
     gui=False,
     gui_name='Wetted Area',
     gui_group=None,
@@ -85,7 +85,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='m^2',
     descr='Wing area of the main (largest) wing',
-    xpath=CEASIOM_XPATH + '/geometry/analysis/wingArea',
+    xpath=CEASIOM_XPATH + '/geometry/analyses/wingArea',
 )
 
 cpacs_inout.add_output(
@@ -93,5 +93,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit='m',
     descr='Wing span of the main (largest) wing',
-    xpath=CEASIOM_XPATH + '/geometry/analysis/wingSpan',
+    xpath=CEASIOM_XPATH + '/geometry/analyses/wingSpan',
 )

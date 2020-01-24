@@ -5,10 +5,12 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 The script contains the user inputs required for the engine analysis.
 
-| Works with Python 2.7
+Python version: >=3.6
+
 | Author : Stefano Piccini
 | Date of creation: 2018-12-11
-| Last modifiction: 2019-02-20
+| Last modifiction: 2020-01-23 (AJ)
+
 """
 
 
@@ -28,31 +30,25 @@ class EngineData():
     The class contains all the engines information required for the
     unconventional aircraft analysis.
 
-    ATTRIBUTES
-    (integer) NE        --Att.: Number of Engines [-].
+    Attributes
+        NE (integer): Number of Engines [-].
+        en_mass (float): Single engine total mass [kg].
+        max_thrust (float): Maximum Take off Thrust of a single engine [kN].
+        TSFC_CRUISE (float): Thrust specific fuel consumption for cruise [1/hr].
+        position (float_array): Engine position coordinates in the aircraft
+                                (x, y, z) [m, m, m], if multiple engines are
+                                define the array should contain 1 row each.
+        EN_NAME (list): Name of each engine.
+        TURBOPROP (boolean): False if Turbofan, True if Truboprop.
+        APU (boolean): True if the aircraft will have the APU (Auxiliary Power Unit).
+        WING_MOUNTED (boolean): True if the engines are mounted on the front
+                                main wing (WARNING not for BWB aircraft).
 
-    (float) en_mass     --Att.: Single engine total mass [kg].
-    (float) max_thrust
-    --Att.: Maximum Take off Thrust
-                                 of a single engine [kN].
-    (float) TSFC_CRUISE   --Att.: Thrust specific fuel consumption
-                                  for cruise [1/hr].
-    (float_array) position --Att.: Engine position coordinates in the aircraft
-                                   (x, y, z) [m, m, m], if multiple engines are
-                                   define the array should contain 1 row each.
-    (cahr) EN_NAME   --Att.: Name of each engine.
-    (boolean) TURBOPROP    --Att.: False if Turbofan, True if Truboprop.
-    (boolean) APU          --Att.: True if the aircraft will have the APU
-                                   (Auxiliary Power Unit).
-    (boolean) WING_MOUNTED --Att.: True if the engines are mounted on the front
-                                   main wing (WARNING not for BWB aircraft).
-    METHODS
-    Name            Description
     """
 
     def __init__(self):
-        self.NE = 2
 
+        self.NE = 2
         self.en_mass = 0          #| CONCORDE 3175
         self.max_thrust = 0       #| CONCORDE 170
                                   #| TURBOPROP and TURBOFAN and CONCORDE
@@ -79,8 +75,7 @@ class EngineData():
 #=============================================================================
 
 if __name__ == '__main__':
+
     log.warning('########################################################')
     log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #')
     log.warning('########################################################')
-
-

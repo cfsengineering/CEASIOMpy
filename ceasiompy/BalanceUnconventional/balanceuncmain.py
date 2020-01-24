@@ -124,25 +124,25 @@ if __name__ == '__main__':
 
 ##============================= GEOMETRY ANALYSIS ==========================##
 
-    (f_nb, w_nb) = uncgeomanalysis.get_number_of_parts(PATH)
+    (fus_nb, w_nb) = uncgeomanalysis.get_number_of_parts(PATH)
     if not w_nb:
         log.warning('Aircraft does not have wings')
         raise Exception('Aircraft does not have wings')
-    elif not f_nb:
+    elif not fus_nb:
         (awg, wing_nodes) =\
-            uncgeomanalysis.no_fuse_geom_analysis(\
-                ui.FLOORS_NB, w_nb, ui.H_LIM_CABIN,\
-                ui.FUEL_ON_CABIN, PATH, name, ed.TURBOPROP)
+            uncgeomanalysis.no_fuse_geom_analysis(PATH, ui.FLOORS_NB,     \
+                                                  w_nb, ui.H_LIM_CABIN,   \
+                                                  ui.FUEL_ON_CABIN, name, \
+                                                  ed.TURBOPROP)
     else:
         log.info('Fuselage detected')
-        log.info('Number of fuselage: ' + str(int(f_nb)))
+        log.info('Number of fuselage: ' + str(int(fus_nb)))
         # Minimum fuselage segment height to be a cabin segment.
         h_min = ui.FLOORS_NB * ui.H_LIM_CABIN
-        (afg, awg) = uncgeomanalysis.with_fuse_geom_analysis(\
-                         f_nb, w_nb, h_min, adui, ed.TURBOPROP, ui.F_FUEL,\
-                         PATH, name)
+        (afg, awg) = uncgeomanalysis.with_fuse_geom_analysis(PATH, \
+                         fus_nb, w_nb, h_min, adui, ed.TURBOPROP, ui.F_FUEL, name)
 
-    ui = getdatafromcpacs.get_user_fuel(f_nb, ui, out_xml)
+    ui = getdatafromcpacs.get_user_fuel(fus_nb, ui, out_xml)
 ##============================== BALANCE ANALYSIS ==========================##
 
     log.info('----- Generating output text file -----')
@@ -151,7 +151,7 @@ if __name__ == '__main__':
 
 ### CENTER OF GRAVITY---------------------------------------------------------
 
-    if not f_nb:
+    if not fus_nb:
         (bout, airplane_centers_segs) =\
                 bwb_center_of_gravity(awg, bout, ui, bi, mw, ed)
     else:
@@ -160,7 +160,7 @@ if __name__ == '__main__':
 
 ### MOMENT OF INERTIA---------------------------------------------------------
 
-    if not f_nb:
+    if not fus_nb:
         (bout, wx, wy, wz) = uncinertia.bwb_inertia_eval(awg, bout, bi,\
                                                           mw, ed, out_xml)
     else:
@@ -188,7 +188,7 @@ if __name__ == '__main__':
 ###=============================================================================
 
     log.info('--- Generating aircraft center of gravity plot (.png) ---')
-    if not f_nb:
+    if not fus_nb:
       outputbalancegen.aircraft_cog_bwb_plot(bout.center_of_gravity,\
                                              bi, ed, awg, name)
     else:
@@ -197,7 +197,7 @@ if __name__ == '__main__':
 
 ### Aircraft Nodes -----------------------------------------------------------
     #log.info('--- Generating aircraft nodes plot (.png) ---')
-    #if not f_nb:
+    #if not fus_nb:
         #outputbalancegen.aircraft_nodes_bwb_plot(wx, wy, wz, name)
     #else:
         #outputbalancegen.aircraft_nodes_unc_plot(fx, fy, fz, wx, wy, wz, name)

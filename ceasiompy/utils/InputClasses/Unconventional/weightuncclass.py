@@ -6,10 +6,12 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script contains the user inputs required for the
 weight and balance unconventional analysis.
 
-| Works with Python 2.7
+Python version: >=3.6
+
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-02-20
+| Last modifiction: 2020-01-23
+
 """
 
 
@@ -29,38 +31,32 @@ class AdvancedInputs:
     The class contains all the default values for the input needed for
     the weight and balance analysis.
 
-    ATTRIBUTES
-    #People
-    (int) PILOT_NB           --Att.: Number of pilots.
-    (int) PASS_PER_TOILET       --Att.: Number of passengers per each toilet.
-    (float) MASS_PILOT       --Att.: Pilot mass  [kg].
-    (float) MASS_CABIN_CREW  --Att.: Cabin crew mass  [kg].
-    (float) MASS_PASS        --Att.: Passenger mass_cabin_crew  [kg].
-    #Fuel
-    (float) FUEL_DENSITY   --Att.: Fuel density [kg/m^3].
-    (float) RES_FUEL_PERC  --Att.: % of the total fuel,
-                                   unusable fuel_consumption.
-    (float) FMP             --Att.: Percentage of the total fuel
-                                    expected with maximum payload
-                                    for turbofan aircraft.
-    (float) FMP_tp          --Att.: Percentage of the total fuel
-                                    expected with maximum payload
-                                    for turboprop aircraft.
-    #Structure
-    (float) VRT_THICK       --Att.: Virtual thickness.
-    (float) VRT_EXP         --Att.: Strutural mass exponential coefficient.
-    (float) VRT_STR_DENSITY --Att.: Virtual structural density [kg/m^3].
+    Attributes:
 
-    (float) VRT_THICK
-    (float) FUSE_STR_DENSITY --Att.: Density of the fuselage structure [kg/m^3].
-    (boolean) LOW_PASS     --Att.: Set True if the aircraft will have only
-                                   business or first class seats.
-    #Hydraulics
-    (boolean) SINGLE_HYDRAULICS  --Att.: False is the aircraft will have a
-                                         multiple hydraulics system
-                                        (common for modern aircraft).
-    METHODS
-    Name            Description
+        #People
+        PILOT_NB (int): Number of pilots.
+        PASS_PER_TOILET (int): Number of passengers per each toilet.
+        MASS_PILOT (float): Pilot mass  [kg].
+        MASS_CABIN_CREW (float): Cabin crew mass  [kg].
+        MASS_PASS (float): Passenger mass_cabin_crew  [kg].
+        #Fuel
+        FUEL_DENSITY (float): Fuel density [kg/m^3].
+        RES_FUEL_PERC (float): % of the total fuel, unusable fuel_consumption.
+        FMP (float): Percentage of the total fuel expected with maximum payload
+                     for turbofan aircraft.
+        FMP_tp (float): Percentage of the total fuel expected with maximum
+                        payload for turboprop aircraft.
+        #Structure
+        VRT_THICK (float): Virtual thickness.
+        VRT_EXP (float): Strutural mass exponential coefficient.
+        VRT_STR_DENSITY (float): Virtual structural density [kg/m^3].
+        FUSE_STR_DENSITY (float): Density of the fuselage structure [kg/m^3].
+        LOW_PASS (boolean): Set True if the aircraft will have only business or
+                            first class seats.
+        #Hydraulics
+        SINGLE_HYDRAULICS (boolean): False is the aircraft will have a multiple
+                                     hydraulics system (common for modern aircraft).
+
     """
 
     def __init__(self):
@@ -91,38 +87,35 @@ class UserInputs:
     The class contains all the user input values for the input needed for
     the weight and balance analysis.
 
-    (int) FLOORS_NB      --Att.: Number of floors.
-    (float) H_LIM_CABIN  --Att.: Minimum height of the fuselage segments
-                                 that should contain the cabin [m].
-    (float) MASS_CARGO   --Att.: Extra cargo mass defined by the user
-                                 WARNING the code does not check if the
-                                 cargo fits inside the aircraft [kg].
-    (float) MAX_PAYLOAD  --Att.: Massimum payload allowed by the user
-                                 excluding the cargo mass [kg].
-    (float) MAX_FUEL_VOL --Att.: Maximum fuel volume allowed [l].
-    (int)   MAX_PASS     --Att.: Maximum numbre of passengers allowed [-].
-                                 WARNING if MAX PASS and MAX_PAYLOAD are
-                                 defined at the same time first the MAX_PASS
-                                 limit will be taken into account and then the
-                                 MAX_PAYLOAD limit.
-    (float) PASS_BASE_DENSITY  --Att.: Base passengers density [pass/m^2].
-    (float) LD           --Att.: Lift over drag coefficient [-].
-    (float) wing_loading --Att.: Ratio between the maximum take off mass
-                                 and the wing area [kg/m^2].
-    (float) CRUISE_SPEED --Att.: Aircraft cruise speed [m/s]
-    (float) FUEL_ON_CABIN --Att.: Amount of fuel allowed inside the central
-                                  wing area, near the cabin for the blended
-                                  wing body confiuration, expressed as
-                                 percentage of the free volume.
-    (array) F_FUEL     --Att.: Define if the fuselage can contain fuel.
-                               If 0 the code will try to add passengers
-                               inside. The order of the values correspond to the
-                               order of the element in the CPACS file.
-    (boolean) USER_ENGINES --Att.: Set True if the user defines the
-                                  the engine characteristics inside the CPACS
-                                  file.
-    METHODS
-    Name            Description
+    Attributes:
+
+        FLOORS_NB (int): Number of floors.
+        H_LIM_CABIN (float): Minimum height of the fuselage segments that should
+                             contain the cabin [m].
+        MASS_CARGO (float): Extra cargo mass defined by the user WARNING the
+                            code does not check if the cargo fits inside the
+                            aircraft [kg].
+        MAX_PAYLOAD (float): Massimum payload allowed by the user excluding the
+                             cargo mass [kg].
+        MAX_FUEL_VOL (float): Maximum fuel volume allowed [l].
+        MAX_PASS (int): Maximum numbre of passengers allowed [-]. WARNING if
+                        MAX PASS and MAX_PAYLOAD are defined at the same time
+                        first the MAX_PASS limit will be taken into account
+                        and then the MAX_PAYLOAD limit.
+        PASS_BASE_DENSITY (float): Base passengers density [pass/m^2].
+        LD (float): Lift over drag coefficient [-].
+        wing_loading (float): Ratio between the maximum take off mass and the
+                              wing area [kg/m^2].
+        CRUISE_SPEED (float): Aircraft cruise speed [m/s]
+        FUEL_ON_CABIN (float): Amount of fuel allowed inside the central wing
+                               area, near the cabin for the blended wing body
+                               confiuration, expressed as percentage of the free volume.
+        F_FUEL (array): Define if the fuselage can contain fuel. If 0 the code
+                        will try to add passengers inside. The order of the
+                        values correspond to the order of the element in the CPACS file.
+        USER_ENGINES (boolean): Set True if the user defines the the engine
+                                characteristics inside the CPACS file.
+
     """
 
     def __init__(self):
@@ -154,24 +147,23 @@ class MassesWeights:
     The class contains all the aircraft mass and weight value relative to the
     weight unconventional analysis.
 
-    ATTRIBUTES
-    (float) mass_fuse_fuel  --Att.: Mass of fuel inside the fuselage [kg].
-    (float) mass_wing_fuel  --Att.: Mass of fuel inside the main wing [kg].
-    (float) mass_fuel_max   --Att.: Total fuel mass [kg].
-    (float) mass_systems    --Att.: Systems mass [kg].
-    (float) mass_structure  --Att.: Mass of the aircraft struture [kg].
-    (float) mass_engines    --Att.: Engines total mass [kg].
-    (float) mass_fuel_maxpass     --Att.: Max fuel mass with max payload [kg].
-    (float) maximum_take_off_mass --Att.: Maximum take off mass [kg].
-    (float) operating_empty_mass  --Att.: Operating empty mass [kg].
-    (float) mass_payload    --Att.: Payload mass [kg].
-    (float) mass_crew       --Att.: Crew members total mass [kg].
-    (float) mass_people     --Att.: Mass of people inside the aircraft [kg].
-    (float) mass_pass      --Att.: Mass of passengers inside the aircraft [kg].
-    (float) zero_fuel_mass  --Att.: Zero fuel mass [kg].
+    Attributes:
+        mass_fuse_fuel        (float): Mass of fuel inside the fuselage [kg].
+        mass_wing_fuel        (float): Mass of fuel inside the main wing [kg].
+        mass_fuel_max         (float): Total fuel mass [kg].
+        mass_systems          (float): Systems mass [kg].
+        mass_structure        (float): Mass of the aircraft struture [kg].
+        mass_engines          (float): Engines total mass [kg].
+        mass_fuel_maxpass     (float): Max fuel mass with max payload [kg].
+        maximum_take_off_mass (float): Maximum take off mass [kg].
+        operating_empty_mass  (float): Operating empty mass [kg].
+        mass_payload          (float): Payload mass [kg].
+        mass_crew             (float): Crew members total mass [kg].
+        mass_people           (float): Mass of people inside the aircraft [kg].
+        mass_pass             (float): Mass of passengers inside the aircraft [kg].
+        zero_fuel_mass        (float): Zero fuel mass [kg].
 
-    METHODS
-    Name            Description
+
     """
 
     def __init__(self):
@@ -194,14 +186,13 @@ class WeightOutput:
     """
     The class contains some of the output value of the weight analysis.
 
-    ATTRIBUTES
-    (int) pass_nb        --Att.: Number of passengers.
-    (int) toilet_nb      --Att.: Numbre of toilets.
-    (int) crew_nb        --Att.: Number of total crew members.
-    (int) cabin_crew_nb  --Att.: Number of cabin crew members.
-    (float) wing_loading --Att.: Final wing loading estimated [kg/m^2].
-    METHODS
-    Name            Description
+    Attributes
+        pass_nb       (int): Number of passengers.
+        toilet_nb     (int): Numbre of toilets.
+        crew_nb       (int): Number of total crew members.
+        cabin_crew_nb (int): Number of cabin crew members.
+        wing_loading (float): Final wing loading estimated [kg/m^2].
+
     """
 
     def __init__(self):
@@ -217,6 +208,7 @@ class WeightOutput:
 #=============================================================================
 
 if __name__ == '__main__':
+
     log.warning('########################################################')
     log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #')
     log.warning('########################################################')

@@ -5,10 +5,12 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Evaluation of the number of passengers expected for an unconventional aircraft.
 
-| Works with Python 2.7
+Python version: >=3.6
+
 | Author : Stefano Piccini
 | Date of creation: 2018-12-19
-| Last modifiction: 2019-02-20
+| Last modifiction: 2020-01-23 (AJ)
+
 """
 
 
@@ -33,7 +35,7 @@ log = get_logger(__file__.split('.')[0])
 #   FUNCTIONS
 #=============================================================================
 
-def estimate_fuse_passengers(f_nb, FLOORS_NB, PASS_PER_TOILET, cabin_area,\
+def estimate_fuse_passengers(fus_nb, FLOORS_NB, PASS_PER_TOILET, cabin_area,\
                              MASS_PASS, pass_density):
     """ The function evaluates the number of passengers members on board in
         case of an unconventional aircraft with fuselage.
@@ -42,24 +44,25 @@ def estimate_fuse_passengers(f_nb, FLOORS_NB, PASS_PER_TOILET, cabin_area,\
     the maximum passengers allowed and the cabin area on different
     conventional aircraft.
 
-    ARGUMENTS
-    (int) f_nb               --Arg.: Number of fuselages.
-    (int) FLOORS_NB          --Arg.: Number of floors.
-    (int) PASS_PER_TOILET    --Arg.: Number of passengers per toilet.
-    (float) cabin_area       --Arg.: Cabin Area [m^2].
-    (float) MASS_PASS        --Arg.: Passenger mass [kg].
-    (float) pass_density  --Arg.: Base passengers density [pass/m^2].
+    Args:
+        fus_nb          (int): Number of fuselages.
+        FLOORS_NB       (int): Number of floors.
+        PASS_PER_TOILET (int): Number of passengers per toilet.
+        cabin_area    (float): Cabin Area [m^2].
+        MASS_PASS     (float): Passenger mass [kg].
+        pass_density  (float): Base passengers density [pass/m^2].
 
-    OUTPUTS
-    (int) pass_nb        --Out.: Number of passengers.
-    (int) toilet_nb      --Out.: Number of toilet.
-    (int) mass_pass_tot  --Out.: Total passengers mass [kg].
+    Returns:
+        pass_nb       (int): Number of passengers.
+        toilet_nb     (int): Number of toilet.
+        mass_pass_tot (int): Total passengers mass [kg].
+
     """
 
-    MF = FLOORS_NB*0.5 + 0.5
+    MF = FLOORS_NB * 0.5 + 0.5
     pass_nb = 0
 
-    for i in range(0, f_nb):
+    for i in range(0, fus_nb):
         pass_nb += cabin_area[i-1] * pass_density
 
     pass_nb = int(round(pass_nb * MF,0))
@@ -68,8 +71,6 @@ def estimate_fuse_passengers(f_nb, FLOORS_NB, PASS_PER_TOILET, cabin_area,\
 
     return(pass_nb, toilet_nb, mass_pass_tot)
 
-
-#=============================================================================
 
 def estimate_wing_passengers(FLOORS_NB, PASS_PER_TOILET, cabin_area,\
                              MASS_PASS, pass_density):
@@ -80,23 +81,23 @@ def estimate_wing_passengers(FLOORS_NB, PASS_PER_TOILET, cabin_area,\
     the maximum passengers allowed and the cabin area on different
     conventional aircraft.
 
-    ARGUMENTS
-    (int) FLOORS_NB          --Arg.: Number of floors.
-    (int) PASS_PER_TOILET    --Arg.: Number of passengers per toilet.
-    (float) cabin_area       --Arg.: Cabin Area [m^2].
-    (float) MASS_PASS        --Arg.: Passenger mass [kg].
-    (float) pass_density  --Att.: Base passengers density [pass/m^2].
+    Args:
+        FLOORS_NB       (int): Number of floors.
+        PASS_PER_TOILET (int): Number of passengers per toilet.
+        cabin_area    (float): Cabin Area [m^2].
+        MASS_PASS     (float): Passenger mass [kg].
+        pass_density  (float): Base passengers density [pass/m^2].
 
+    Returns:
+        pass_nb         (int): Number of passengers.
+        toilet_nb       (int): Number of toilet.
+        mass_pass_tot   (int): Total passengers mass [kg].
 
-    OUTPUTS
-    (int) pass_nb        --Out.: Number of passengers.
-    (int) toilet_nb      --Out.: Number of toilet.
-    (int) mass_pass_tot  --Out.: Total passengers mass [kg].
     """
 
     # Defining the number of passengers per square meters.
 
-    MF = FLOORS_NB*0.5 + 0.5
+    MF = FLOORS_NB * 0.5 + 0.5
 
     pass_nb = int(round((cabin_area * (pass_density)) * MF,0))
     mass_pass_tot = round(pass_nb * MASS_PASS,3)
@@ -110,6 +111,7 @@ def estimate_wing_passengers(FLOORS_NB, PASS_PER_TOILET, cabin_area,\
 #==============================================================================
 
 if __name__ == '__main__':
+    
     log.warning('########################################################')
     log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #')
     log.warning('########################################################')

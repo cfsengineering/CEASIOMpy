@@ -65,13 +65,13 @@ def center_of_gravity_evaluation(F_PERC, P_PERC, afg, awg, mw, ed, ui, bi):
     """
 
     max_seg_n = np.max([np.amax(afg.fuse_seg_nb), np.amax(awg.wing_seg_nb)])
-    t_nb = afg.f_nb + awg.w_nb      # Number of parts not counting symmetry
+    t_nb = afg.fus_nb + awg.w_nb      # Number of parts not counting symmetry
     tot_nb = afg.fuse_nb + awg.wing_nb  # Number of parts counting symmetry
     segments_nb = []
     fuse_fuel_vol = 0
     pass_vol = 0
 
-    for i in range(1,afg.f_nb+1):
+    for i in range(1,afg.fus_nb+1):
         segments_nb.append(afg.fuse_seg_nb[i-1])
         if ui.F_FUEL[i-1]:
             fuse_fuel_vol += afg.fuse_fuel_vol[i-1]
@@ -120,7 +120,7 @@ def center_of_gravity_evaluation(F_PERC, P_PERC, afg, awg, mw, ed, ui, bi):
     # Definition of the mass of each segment
     ex = False
     wg = []
-    for i in range(1,afg.f_nb+1):
+    for i in range(1,afg.fus_nb+1):
         if ui.F_FUEL[i-1]:
             for j in range(1,afg.fuse_seg_nb[i-1]+1):
                 mass_seg_i[j-1][i-1] = (oem_par+(mfuel_par*ui.F_FUEL[i-1]/100))\
@@ -133,21 +133,21 @@ def center_of_gravity_evaluation(F_PERC, P_PERC, afg, awg, mw, ed, ui, bi):
                 else:
                     mass_seg_i[j-1][i-1] = oem_par * afg.fuse_seg_vol[j-1][i-1]
     w = 0
-    for i in range(afg.f_nb+1,t_nb+1):
-        for j in range(1,awg.wing_seg_nb[i-1-afg.f_nb]+1):
-            if awg.is_horiz[i+w-1-afg.f_nb]:
+    for i in range(afg.fus_nb+1,t_nb+1):
+        for j in range(1,awg.wing_seg_nb[i-1-afg.fus_nb]+1):
+            if awg.is_horiz[i+w-1-afg.fus_nb]:
                 mass_seg_i[j-1][i-1+w] = oem_par\
-                    * (awg.wing_seg_vol[j-1][i-1-afg.f_nb]\
-                    - awg.wing_fuel_seg_vol[j-1][i-1-afg.f_nb])\
-                    + mfuel_par * (awg.wing_fuel_seg_vol[j-1][i-1-afg.f_nb])
+                    * (awg.wing_seg_vol[j-1][i-1-afg.fus_nb]\
+                    - awg.wing_fuel_seg_vol[j-1][i-1-afg.fus_nb])\
+                    + mfuel_par * (awg.wing_fuel_seg_vol[j-1][i-1-afg.fus_nb])
             else:
                 mass_seg_i[j-1][i-1+w] = oem_par\
-                                       * awg.wing_seg_vol[j-1][i-1-afg.f_nb]
-        wg.append(i-afg.f_nb)
-        if awg.wing_sym[i-1-afg.f_nb] != 0:
+                                       * awg.wing_seg_vol[j-1][i-1-afg.fus_nb]
+        wg.append(i-afg.fus_nb)
+        if awg.wing_sym[i-1-afg.fus_nb] != 0:
             w += 1
             mass_seg_i[:,i-1+w]=mass_seg_i[:,i-2+w]
-            wg.append(i-afg.f_nb)
+            wg.append(i-afg.fus_nb)
             if i+w == tot_nb:
                 break
     # Mass check

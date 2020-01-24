@@ -231,7 +231,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='m^2',
     descr='Aircraft wetted area calculated by SU2',
-    xpath=CEASIOM_XPATH + '/geometry/analysis/wettedArea',
+    xpath=CEASIOM_XPATH + '/geometry/analyses/wettedArea',
 )
 
 cpacs_inout.add_output(
@@ -240,7 +240,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='1',
     descr='Wall boundary conditions found in the SU2 mesh',
-    xpath=CEASIOM_XPATH + 'su2/boundaryConditions/wall'
+    xpath=CEASIOM_XPATH + '/aerodynamics/su2/boundaryConditions/wall'
 )
 
 

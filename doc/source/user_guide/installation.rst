@@ -4,18 +4,19 @@ Installation
 General requirements
 --------------------
 
-The following packages are required to be able to use |name|
-
-* Python 3.6 or higer
-* `Tixi`_ and `Tigl`_ libraries
-
 The easiest way to have all the correct requirements is to use Conda environment (e.g. Anaconda or Miniconda) to simplify the installation. At the root of CEASIOMpy you can find a file called  "environment.yml", with the following line you can create a new environment with it:
 
 .. code::
 
     >> conda env create -f environment.yml
 
-(for more informaiton about conda environment check out: https://docs.conda.io/projects/conda/en/latest/index.html)
+(for more information about Conda environment check out: https://docs.conda.io/projects/conda/en/latest/index.html)
+
+
+If you do not use Conda, the following packages are required to be able to use |name|
+
+* Python 3.6 or higer
+* `Tixi`_ and `Tigl`_ libraries
 
 
 Optional requirements
@@ -69,10 +70,11 @@ If you use *TCSH* you have to add the following line, in your `.tcshrc` file
     setenv PYTHONPATH ${PYTHONPATH}: /InstalDir/CEASIOMpy/
 
 
-Setting up RCE module
----------------------
+Setting up RCE
+--------------
 
 `RCE`_ is an Open Source distributed, workflow-driven integration environment. It is used by engineers and scientists to design and simulate complex systems (e.g., aircraft, ships, or satellites) by using and integrating their own design and simulation tools.
+RCE is not mendatory anymore to use |name|, you can use the module WorkflowCreator instead. However, RCE_ is probably better to understand what is happening in your workflows.
 
 * RCE environment can be download at: https://rcenvironment.de/pages/download.html
 

@@ -166,7 +166,7 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
 
     wing_area_max, wing_span_max = get_largest_wing_dim(tixi,tigl)
 
-    analyses_xpath = '/cpacs/toolspecific/CEASIOMpy/geometry/analyses'
+    analyses_xpath = '/cpacs/toolspecific/CEASIOMpy/geometry/analysis'
 
     # Requiered input data from CPACS
     wetted_area = get_value(tixi,analyses_xpath + '/wettedArea')
@@ -226,7 +226,7 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
             cd0 = estimate_skin_friction_coef(wetted_area,wing_area,wing_span, \
                                               mach,alt)
 
-            # Projection of cd0 on cl, cd and cs axis TODO: check!!!
+            # Projection of cd0 on cl, cd and cs axis TODO: change that Cd0 shouldn't be projected, it is only along Cd axix, no?
             aoa_rad = math.radians(aoa)
             aos_rad = math.radians(aos)
             cd0_cl = cd0 * math.sin(aoa_rad)

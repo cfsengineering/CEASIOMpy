@@ -3,19 +3,19 @@ CPACSCreator
 
 :Categories: CPACS, Aircraft modeling, CAO
 
-This module is just a launcher for CPACSCreator.
+This module is just a launcher for CPACSCrator_ [Drou18]_.
 
 .. figure:: https://dlr-sc.github.io/tigl/doc/cpacscreator-0.1/tuto_scratch_23.png
     :width: 600 px
     :align: center
     :alt: Example
 
-    CPACSCreator can be use to create or modify existing CPACS_ file aircraft.
+    CPACSCrator_ can be use to create or modify existing CPACS_ file aircraft.
 
 Installation
 ------------
 
-If you use the Conda installation as describes in the installation procedure. CPACSCreator will be install automatically in your Conda environment. If not, you can follow the procedure: https://dlr-sc.github.io/tigl/doc/cpacscreator-0.1/tigl_installation.html
+If you use the Conda installation as describes in the installation procedure. CPACSCreator_ will be install automatically in your Conda environment. If not, you can follow the procedure: https://dlr-sc.github.io/tigl/doc/cpacscreator-0.1/tigl_installation.html
 
 
 Analyses
@@ -29,13 +29,14 @@ https://dlr-sc.github.io/tigl/doc/cpacscreator-0.1/tuto.html#tuto_create_from_sc
 Output
 ------
 
-A CPACS file with all your modification will be created in the ToolOutput folder. Do not forget to save the aircraft before you close CPACSCreator.
+A CPACS file with all your modifications will be created in the ToolOutput folder. Do not forget to save the aircraft before you close CPACSCreator.
 
 
 Required CPACS input and settings
 ---------------------------------
 
 No CPACS input is required.
+
 
 Limitations
 -----------
@@ -47,3 +48,4 @@ More information
 ----------------
 
 * https://dlr-sc.github.io/tigl/doc/cpacscreator-0.1/index.html
+* Master thesis about CPACSCreator [Drou18]_

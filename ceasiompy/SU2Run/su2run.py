@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-11-06
-| Last modifiction: 2019-10-25
+| Last modifiction: 2020-01-10
 
 TODO:
 
@@ -553,7 +553,6 @@ def run_SU2_fsi(config_path, wkdir):
     cfg_cfd = su2f.read_config(config_path)
     cfg_cfd['MESH_FILENAME'] = 'mesh_out.su2'
     su2f.write_config(config_cfd_path,cfg_cfd)
-
 
     run_soft(SOFT_DICT,'SU2_DEF',config_def_path,wkdir) # does it work with mpi?
     run_soft(SOFT_DICT,'SU2_CFD',config_cfd_path,wkdir)

@@ -8,7 +8,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH, CEASIOM
 RCE = {
     "name": "WeightConventional",
     "description": "Estimate weights of conventional aircraft",
-    "exec": "pwd\npython weightconentional.py",
+    "exec": "pwd\npython weightconventional.py",
     "author": "Stefano Piccini",
     "email": "aidan.jungo@cfse.ch",
 }

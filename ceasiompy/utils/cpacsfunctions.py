@@ -26,11 +26,7 @@ TODO:
 import os
 import sys
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger(__file__.split('.')[0])
-
-# Should maybe be change depending how/where Tixi and Tigl are installed
+# Depending how/where Tixi and Tigl are installed, it could be:
 #     import tixi3wrapper
 #     import tigl3wrapper
 #     from tixi3wrapper import Tixi3Exception
@@ -41,6 +37,9 @@ import tigl3.tigl3wrapper as tigl3wrapper
 from tixi3.tixi3wrapper import Tixi3Exception
 from tigl3.tigl3wrapper import Tigl3Exception
 
+from ceasiompy.utils.ceasiomlogger import get_logger
+
+log = get_logger(__file__.split('.')[0])
 
 #==============================================================================
 #   CLASSES
@@ -592,9 +591,9 @@ if __name__ == '__main__':
 
 ### HOW TO IMPORT THESE MODULE
 
-# from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
-#                                            create_branch, copy_branch, add_uid,\
-#                                            get_value, get_value_or_default,    \
-#                                            add_float_vector, get_float_vector, \
-#                                            add_string_vector,get_string_vector,\
-#                                            get_path, aircraft_name
+# from ceasiompy.utils.cpacsfunctions import cpsf
+
+# All available function are:
+# open_tixi, close_tixi, open_tigl,create_branch, copy_branch, add_uid,
+# get_value, get_value_or_default, add_float_vector, get_float_vector,
+# add_string_vector,get_string_vector, get_path, aircraft_name

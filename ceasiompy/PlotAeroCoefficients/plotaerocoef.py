@@ -231,7 +231,7 @@ if __name__ == '__main__':
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     # Call the function which check if imputs are well define
-    check_cpacs_input_requirements(cpacs_path)
+    # check_cpacs_input_requirements(cpacs_path)
 
     # Plot aerodynamic coefficients
     plot_aero_coef(cpacs_path,cpacs_out_path)

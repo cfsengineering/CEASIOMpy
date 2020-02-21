@@ -62,7 +62,7 @@ SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 class Function(om.ExplicitComponent):
     """
-    Class to denifine function and variables for openmdao.
+    Class to define function and variables for openmdao.
     """
 
     def setup(self):
@@ -186,7 +186,7 @@ def run_subworkflow(module_to_run,cpacs_path_in='',cpacs_path_out=''):
 def run_optimizer():
     """Function to run optimisation with openmdao.
 
-    Function 'run_optimizer' is used to difine the optimisation problem for
+    Function 'run_optimizer' is used to define the optimisation problem for
     openmdao. The different parameter to define variables are pass through a
     global dictionnay (for now).
 
@@ -326,7 +326,7 @@ if __name__ == '__main__':
 
 
     ####### USER INPUT ########
-    # Available Moudle:
+    # Available Module:
 
     # Settings: 'SettingsGUI'
     # Geometry and mesh: 'CPACSCreator','CPACS2SUMO','SUMOAutoMesh'

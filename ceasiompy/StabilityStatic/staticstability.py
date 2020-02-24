@@ -13,8 +13,8 @@ Python version: >=3.6
 
 TODO:
     * Modify the code where there are "TODO"
-    * If only one aos angle -> dirrectionaly_stable  ???
-    * If only one aos angle -> longitudinaly_stable  ???
+    * If only one aos angle -> dirrectionaly_stable  ??? -> make a info message
+    * If only one aos angle -> longitudinaly_stable  ??? -> make a info message
     * Should we also save results as report (text file)
 """
 
@@ -34,23 +34,22 @@ import matplotlib.pyplot as plt
 import pandas as pd
 
 from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
-                                           add_uid, create_branch, copy_branch,\
-                                           get_value, get_value_or_default,    \
-                                           aircraft_name
-from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
-from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements, \
-                                             get_toolinput_file_path,        \
-                                             get_tooloutput_file_path
-from ceasiompy.utils.apmfunctions import aeromap_to_csv, get_aeromap_uid_list, \
-                                         aeromap_from_csv, get_aeromap, check_aeromap
-
-
-from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
                                            create_branch, copy_branch, add_uid,\
                                            get_value, get_value_or_default,    \
                                            add_float_vector, get_float_vector, \
-                                           add_string_vector, get_string_vector\
-
+                                           add_string_vector, get_string_vector
+from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
+                                           add_uid, create_branch, copy_branch,\
+                                           get_value, get_value_or_default,    \
+                                           aircraft_name
+from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements, \
+                                            get_toolinput_file_path,        \
+                                            get_tooloutput_file_path
+from ceasiompy.utils.apmfunctions import aeromap_to_csv, get_aeromap_uid_list, \
+                                            aeromap_from_csv, get_aeromap, check_aeromap
+from ceasiompy.StabilityDynamic.func import get_unic, extract_subelements, get_index, \
+                                            trim_derivative
+from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
@@ -62,134 +61,95 @@ MODULE_NAME = os.path.basename(os.getcwd())
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
-
-def get_unic(vector):
-    """Return a vector with the same element having only one occurence.
-
-    Args:
-        vector (list): List of element which may contains double elements
-
-    Returns:
-        vector_unic (list): List of unique value
-    """
-
-    vector_unic = []
-    for elem in vector:
-        if elem not in vector_unic:
-            vector_unic.append(elem)
-
-    return vector_unic
-
-
-def extract_subelements(vector):
-    """ Transform multiple element list into a 1D vector
-
-    Function 'extract_subelements' return [1,2,3,1] from an oririginal vector
-    like [[1,2,3], [1]]
-
-    Args:
-        vector (list of list): Original list of list
-
-    Returns:
-        extracted (list): Return 1D list
-    """
-
-    extracted = []
-    for elem in vector:
-        for value in elem :
-            extracted.append(value)
-
-    return extracted
-
-
-def change_sign(alt, angles, cm):
-    """Find if a moments coefficeint cm. cross the 0 line, once or more
-       Find if a moment coefficeint cm. crosse the 0 line only once and return
-        the corresponding angle and the cm derivative at cm=0
-
-    Args:
-        alt (float): Altitude [m]
-        cm (list): Moment coefficient
-        angle (list): Angle of attack (or sideslip)
-
-    Returns:
-        cruise_angle (float): Angle to get cm. = 0
-        moment_derivative (float): Moment derivative at cruise_angle
-        cross (boolean): List of unique value
-    """
-
-    crossed = True
-    cruise_angle = ''
-    moment_derivative = ''
-
-    if len(np.argwhere(np.diff(np.sign(cm)))) == 0  :
-        # If all Cm. values are 0:
-        crossed = False
-        if cm.count(0) == len(cm):
-            log.warning('Alt = '  + str(alt) + ' Cm list is composed of 0 only.' )
-        else:
-            log.error('Alt = '  + str(alt) + ' Cm does not cross the 0 line, aircraft not stable.' )
-    # If cm. Curve crosses the 0 line more than once no stability analysis can be performed
-    elif len(np.argwhere(np.diff(np.sign(cm)))) > 2 or cm.count(0) > 1:
-        log.error('Alt = '  + str(alt) + ' The Cm curves crosses more than once the 0 line, no stability analysis performed')
-        crossed  = False
-    # If cm. Curve crosses the 0 line twice
-    elif 0 not in np.sign(cm) and len(np.argwhere(np.diff(np.sign(cm)))) == 2:
-        log.error('Alt = '  + str(alt) + ' The Cm curves crosses the 0 line twice, no stability analysis performed')
-        crossed = False
-
-    # If Cm = 0 is in Cm list, and cm crosses oly once the 0 line
-    elif 0 in np.sign(cm) and cm.count(0) == 1 and crossed:
-        idx_cm_0 = [i for i in range(len(cm)) if cm[i] == 0][0]
-        # If cm. = 0 is the first element in cm. list, take the derivative at right
-        if idx_cm_0 == 0:
-            # Angles and coeffs before and after crossing the 0 line
-            angle_before = angles[idx_cm_0]
-            angle_after = angles[idx_cm_0+1]
-            cm_before = cm[idx_cm_0]
-            cm_after = cm[idx_cm_0+1]
-
-            cruise_angle = angle_before
-            moment_derivative = (cm_after-cm_before)/(angle_after-angle_before)
-
-        # If cm. = 0 is the last element of cm. list, take the derivative at left
-        elif idx_cm_0 == len(cm) - 1:
-            # Angles and coeffs before and after crossing the 0 line
-            angle_before = angles[idx_cm_0-1]
-            angle_after = angles[idx_cm_0]
-            cm_before = cm[idx_cm_0-1]
-            cm_after = cm[idx_cm_0]
-
-            cruise_angle = angle_after
-            moment_derivative = (cm_after-cm_before)/(angle_after-angle_before)
-
-        # If cm. = 0 is nor the first nor the last element in cm. list, take the centered derivative
-        elif 0 < idx_cm_0 < len(cm)-1:
-            # Angles and coeffs before and after crossing the 0 line
-            angle_before = angles[idx_cm_0-1]
-            angle_after = angles[idx_cm_0+1]
-            cm_before = cm[idx_cm_0-1]
-            cm_after = cm[idx_cm_0+1]
-
-            cruise_angle = angles[idx_cm_0]
-            moment_derivative = (cm_after - cm_before)/(angle_after - angle_before)
-
-    # If cm. crosses the 0 line once and Cm.= 0 is not in cm. list
-    elif  len(np.argwhere(np.diff(np.sign(cm)))) == 1 and 0 not in np.sign(cm) and crossed:
-        # Make the linear equation btween the 2 point before and after crossing the 0 ine y=ax+b
-        idx_cm_0 = np.argwhere(np.diff(np.sign(cm)))[0][0]
-
-        # Angles and coeffs before and after crossing the 0 line
-        angle_before = angles[idx_cm_0]
-        angle_after = angles[idx_cm_0+1]
-        cm_before = cm[idx_cm_0]
-        cm_after = cm[idx_cm_0+1]
-
-        fit = np.polyfit([angle_before, angle_after], [cm_before, cm_after], 1)  # returns [a,b] of y=ax+b
-        cruise_angle = -fit[1]/fit[0]    # Cm. = 0 for y = 0  hence cruise agngle = -b/a
-        moment_derivative = fit[0]
-
-    return (cruise_angle, moment_derivative, crossed)
+#
+# def change_sign(alt, angles, cm):
+#     """Find if a moments coefficeint cm. cross the 0 line, once or more
+#        Find if a moment coefficeint cm. crosse the 0 line only once and return
+#         the corresponding angle and the cm derivative at cm=0
+#
+#     Args:
+#         alt (float): Altitude [m]
+#         cm (list): Moment coefficient
+#         angles (list): Angle of attack (or sideslip)
+#
+#     Returns:
+#         cruise_angle (float): Angle to get cm. = 0
+#         moment_derivative (float): Moment derivative at cruise_angle
+#         cross (boolean): List of unique value
+#     """
+#
+#     crossed = True
+#     cruise_angle = ''
+#     moment_derivative = ''
+#
+#     if len(np.argwhere(np.diff(np.sign(cm)))) == 0  :
+#         # If all Cm. values are 0:
+#         crossed = False
+#         if cm.count(0) == len(cm):
+#             log.warning('Alt = '  + str(alt) + ' Cm list is composed of 0 only.' )
+#         else:
+#             log.error('Alt = '  + str(alt) + ' Cm does not cross the 0 line, aircraft not stable.' )
+#     # If cm. Curve crosses the 0 line more than once no stability analysis can be performed
+#     elif len(np.argwhere(np.diff(np.sign(cm)))) > 2 or cm.count(0) > 1:
+#         log.error('Alt = '  + str(alt) + ' The Cm curves crosses more than once the 0 line, no stability analysis performed')
+#         crossed  = False
+#     # If cm. Curve crosses the 0 line twice
+#     elif 0 not in np.sign(cm) and len(np.argwhere(np.diff(np.sign(cm)))) == 2:
+#         log.error('Alt = '  + str(alt) + ' The Cm curves crosses the 0 line twice, no stability analysis performed')
+#         crossed = False
+#
+#     # If Cm = 0 is in Cm list, and cm crosses oly once the 0 line
+#     elif 0 in np.sign(cm) and cm.count(0) == 1 and crossed:
+#         idx_cm_0 = [i for i in range(len(cm)) if cm[i] == 0][0]
+#         # If cm. = 0 is the first element in cm. list, take the derivative at right
+#         if idx_cm_0 == 0:
+#             # Angles and coeffs before and after crossing the 0 line
+#             angle_before = angles[idx_cm_0]
+#             angle_after = angles[idx_cm_0+1]
+#             cm_before = cm[idx_cm_0]
+#             cm_after = cm[idx_cm_0+1]
+#
+#             cruise_angle = angle_before
+#             moment_derivative = (cm_after-cm_before)/(angle_after-angle_before)
+#
+#         # If cm. = 0 is the last element of cm. list, take the derivative at left
+#         elif idx_cm_0 == len(cm) - 1:
+#             # Angles and coeffs before and after crossing the 0 line
+#             angle_before = angles[idx_cm_0-1]
+#             angle_after = angles[idx_cm_0]
+#             cm_before = cm[idx_cm_0-1]
+#             cm_after = cm[idx_cm_0]
+#
+#             cruise_angle = angle_after
+#             moment_derivative = (cm_after-cm_before)/(angle_after-angle_before)
+#
+#         # If cm. = 0 is nor the first nor the last element in cm. list, take the centered derivative
+#         elif 0 < idx_cm_0 < len(cm)-1:
+#             # Angles and coeffs before and after crossing the 0 line
+#             angle_before = angles[idx_cm_0-1]
+#             angle_after = angles[idx_cm_0+1]
+#             cm_before = cm[idx_cm_0-1]
+#             cm_after = cm[idx_cm_0+1]
+#
+#             cruise_angle = angles[idx_cm_0]
+#             moment_derivative = (cm_after - cm_before)/(angle_after - angle_before)
+#
+#     # If cm. crosses the 0 line once and Cm.= 0 is not in cm. list
+#     elif  len(np.argwhere(np.diff(np.sign(cm)))) == 1 and 0 not in np.sign(cm) and crossed:
+#         # Make the linear equation btween the 2 point before and after crossing the 0 ine y=ax+b
+#         idx_cm_0 = np.argwhere(np.diff(np.sign(cm)))[0][0]
+#
+#         # Angles and coeffs before and after crossing the 0 line
+#         angle_before = angles[idx_cm_0]
+#         angle_after = angles[idx_cm_0+1]
+#         cm_before = cm[idx_cm_0]
+#         cm_after = cm[idx_cm_0+1]
+#
+#         fit = np.polyfit([angle_before, angle_after], [cm_before, cm_after], 1)  # returns [a,b] of y=ax+b
+#         cruise_angle = -fit[1]/fit[0]    # Cm. = 0 for y = 0  hence cruise agngle = -b/a
+#         moment_derivative = fit[0]
+#
+#     return (cruise_angle, moment_derivative, crossed)
 
 
 def plot_multicurve(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots):
@@ -268,36 +228,6 @@ def plot_multicurve(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel, sho
 
     if show_plots:
         plt.show()
-
-
-def get_index(value_list,value,idx_list1,idx_list2):
-    """Function to get index list
-
-    Function 'get_index' returns the index of list at value  .???.. for list1 and list2
-
-    Args:
-        value_list (list): ...??
-        value (float): ...??
-        idx_list1 (list): index list at which the current corresonding value as been found
-        idx_list2 (list): index list at which the current corresonding value as been found
-
-    Returns:
-        find_idx (list): list of index
-    """
-
-    # List of index of elements which have the same index in vectors list, list1, list2
-    find_idx = []
-
-    idx_value_list = [k for k in range(len(value_list)) if value_list[k] == value]
-
-    # Fill   the liste find_index
-    for idx1 in idx_list1:
-        for idx2 in idx_list2:
-            for idx3 in idx_value_list:
-                if idx1 == idx2 == idx3:
-                    find_idx.append(idx1)
-
-    return find_idx
 
 
 def static_stability_analysis(cpacs_path, cpacs_out_path):
@@ -424,8 +354,8 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 #log.info('AOS: ' +  str(aos))
                 # by default, don't  cross 0 line
                 crossed = False
-
-                find_idx = get_index(aos_list,aos,idx_alt,idx_mach)
+                idx_aos = [j for j in range(len(aos_list)) if aos_list[j] == aos]
+                find_idx = get_index(idx_alt,idx_mach,idx_aos)
 
                 # If find_idx is empty an APM function would have corrected before
                 # If there there is only one value  in  find_idx for a given Alt, Mach, aos_list, no analyse can be performed
@@ -455,14 +385,16 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                     for jj in range(len(aoa)-1):
                         if  aoa[jj] == aoa[jj+1]:
                             aoa_good = False
-                            log.error('Alt = {} , at least 2 aoa values are equal in aoa list: {} at Mach= {}, aos = {}' .format(alt, aoa, mach, aos))
+                            log.error('Alt = {} , at least 2 aoa values are equal in aoa list: {} at Mach= {}, aos = {}'.format(alt, aoa, mach, aos))
                             break
 
                     if aoa_good :
-                        cruise_aoa, pitch_moment_derivative, crossed = change_sign(alt, aoa, cms)
+                        # cruise_aoa, pitch_moment_derivative, crossed = change_sign(alt, aoa, cms)
+                        cruise_aoa, pitch_moment_derivative, idx_trim_before, idx_trim_after, ratio =  trim_derivative(alt, mach, cms, aoa)
 
                     # Conclusion about stability, if the cms curve has crossed the 0 line and there is not 2 repeated aoa for the same alt, mach and aos.
-                    if crossed and aoa_good :
+                    # if  idx_trim_before != idx_trim_after allow to know if the cm curve crosses the 0 line. '
+                    if  idx_trim_before != idx_trim_after and aoa_good :
                         if pitch_moment_derivative < 0 :
                             log.info('Vehicle longitudinaly staticaly stable.')
                             if aos == 0 :
@@ -510,8 +442,8 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 crossed = False
                 #print('**aoa_list: ' + str(count_aoa))
                 count_aoa += 1
-
-                find_idx = get_index(aoa_list,aoa,idx_alt,idx_mach)
+                idx_aoa = [j for j in range(len(aoa_list)) if aoa_list[j] == aoa]
+                find_idx = get_index(idx_alt,idx_mach,idx_aoa)
 
                 # If find_idx is empty an APM function would have corrected before
                 # If there there is only one value  in  find_idx for a given Alt, Mach, aos_list, no analyse can be performed
@@ -546,9 +478,10 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                             break
 
                     if aos_good :
-                        [cruise_aos, side_moment_derivative, crossed] = change_sign(alt, aos, cml)
+                        #[cruise_aos, side_moment_derivative, crossed] = change_sign(alt, aos, cml)
+                        cruise_aos, side_moment_derivative, idx_trim_before, idx_trim_after, ratio =  trim_derivative(alt, mach, cml, aos)
 
-                    if crossed and aos_good :
+                    if  idx_trim_before != idx_trim_after and aos_good :
                         if side_moment_derivative > 0 :
                             log.info('Vehicle directionnaly staticaly stable.')
                             if aoa == 0 :
@@ -603,8 +536,8 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             longitudinaly_stable = True
 
             for mach in mach_unic:
-
-                find_idx = get_index(mach_list,mach,idx_alt,idx_aos)
+                idx_mach = [j for j in range(len(mach_list)) if mach_list[j] == mach]
+                find_idx = get_index(idx_alt,idx_aos,idx_mach)
 
                 # If there is only one value in Find_idx
                 # An error message has been already printed through the first part of the code
@@ -646,9 +579,8 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             dirrectionaly_stable = True
 
             for mach in mach_unic:
-
-                find_idx = get_index(mach_list,mach,idx_alt,idx_aoa)
-
+                idx_mach = [j for j in range(len(mach_list)) if mach_list[j] == mach]
+                find_idx = get_index(idx_alt,idx_aoa,idx_mach)
                 #If there is only one valur in find_idx
                 # An error message has been already printed through the first part of the code
 
@@ -702,8 +634,8 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
             # Find index of slip angle which have the same value
             for alt in alt_unic:
-
-                find_idx = get_index(alt_list,alt,idx_aos,idx_mach)
+                idx_alt = [j for j in range(len(alt_list)) if alt_list[j] == alt]
+                find_idx = get_index(idx_aos,idx_mach,idx_alt)
 
                 # If find_idx is empty an APM function would have corrected before
                 # If there is only one value  in  find_idx for a given Alt, Mach, aos_list, no analyse can be performed
@@ -752,9 +684,8 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
             # Find index of slip angle which have the same value
             for alt in alt_unic:
-
-                find_idx = get_index(alt_list,alt,idx_aoa,idx_mach)
-
+                idx_alt = [j for j in range(len(alt_list)) if alt_list[j] == alt]
+                find_idx = get_index(idx_aoa,idx_mach,idx_alt)
                 # If find_idx is empty an APM function would have corrected before
                 # If there there is only one value  in  find_idx for a given Alt, Mach, aos_list, no analyse can be performed
                 # An error message has been already printed through the first part of the code
@@ -797,9 +728,9 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     # xpath definition
     static_analysis_xpath = '/cpacs/toolspecific/CEASIOMpy/stability/static'
     aeromap_uid_xpath =   static_analysis_xpath + '/aeroMapUid'
-    longi_xpath = static_analysis_xpath + '/results/longitudinalStaticStable'
-    direc_xpath = static_analysis_xpath + '/results/directionnalStaticStable'
-    longi_trim_xpath = static_analysis_xpath +'/trimconditions/longitudinal'
+    longi_xpath = aeromap_uid_xpath + '/results/longitudinalStaticStable'
+    direc_xpath = aeromap_uid_xpath + '/results/directionnalStaticStable'
+    longi_trim_xpath = aeromap_uid_xpath +'/trimconditions/longitudinal'
     direc_trim_xpath = static_analysis_xpath +'/trimconditions/directional'
 
     create_branch(tixi,aeromap_uid_xpath)
@@ -836,17 +767,22 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 #==============================================================================
 
 
-if __name__ == '__main__':
+# if __name__ == '__main__':
+#
+#     log.info('----- Start of ' + MODULE_NAME + ' -----')
+#
+#     cpacs_path = get_toolinput_file_path(MODULE_NAME)
+#     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
+#
+#     # Call the function which check if imputs are well define
+#     check_cpacs_input_requirements(cpacs_path)
+#
+#     # Call the main function for static stability analysis
+#     static_stability_analysis(cpacs_path, cpacs_out_path)
+#
+#     log.info('----- End of ' + MODULE_NAME + ' -----')
 
-    log.info('----- Start of ' + MODULE_NAME + ' -----')
-
-    cpacs_path = get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
-
-    # Call the function which check if imputs are well define
-    check_cpacs_input_requirements(cpacs_path)
-
-    # Call the main function for static stability analysis
-    static_stability_analysis(cpacs_path, cpacs_out_path)
-
-    log.info('----- End of ' + MODULE_NAME + ' -----')
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+cpacs_path = MODULE_DIR  + '/toolInput/toolInput.xml'
+cpacs_out_path = MODULE_DIR  + '/toolOuput/toolOutput.xml'
+static_stability_analysis(cpacs_path, cpacs_out_path)

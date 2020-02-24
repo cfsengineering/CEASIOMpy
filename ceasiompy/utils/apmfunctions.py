@@ -628,6 +628,132 @@ def get_aeromap(tixi,aeromap_uid):
         else:
             Coef.cms = get_float_vector(tixi,cms_xpath)
 
+    ##### !!!!!  Damping derivatives   !!!!  ####
+
+    # dcmsdqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmsdqstar'
+    # if tixi.checkElement(dcmsdqstar_xpath):
+    #     check_str = tixi.getTextElement(dcmsdqstar_xpath)
+    #     if check_str == '':
+    #         log.warning('No /dampingDerivatives/positiveRates/dcmsdqstar,  values have been found in the CPACS file')
+    #         log.warning('An empty list will be returned.')
+    #         Coef.dcmsdqstar = []
+    #     else:
+    #         Coef.dcmsdqstar = get_float_vector(tixi, dcmsdqstar_xpath)
+
+    dcsdrstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcsdrstar'
+    if tixi.checkElement(dcsdrstar_xpath):
+        check_str = tixi.getTextElement(dcsdrstar_xpath)
+        if check_str == '':
+            log.warning('No /dampingDerivatives/positiveRates/dcsdrstar,  values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.dcsdrstar = []
+        else:
+            Coef.dcsdrstar = get_float_vector(tixi, dcsdrstar_xpath)
+
+    dcsdpstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcsdpstar'
+    if tixi.checkElement(dcsdpstar_xpath):
+        check_str = tixi.getTextElement(dcsdpstar_xpath)
+        if check_str == '':
+            log.warning('No /dampingDerivatives/positiveRates/dcsdpstar,  values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.dcsdpstar = []
+        else:
+            Coef.dcsdpstar = get_float_vector(tixi, dcsdpstar_xpath)
+
+    dcldqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcldqstar'
+    if tixi.checkElement(dcldqstar_xpath):
+        check_str = tixi.getTextElement(dcldqstar_xpath)
+        if check_str == '':
+            log.warning('No /dampingDerivatives/positiveRates/dcldqstar,  values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.dcddqstar = []
+        else:
+            Coef.dcldqstar = get_float_vector(tixi, dcldqstar_xpath)
+
+    dcmsdqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmsdqstar'
+    if tixi.checkElement(dcmsdqstar_xpath):
+        check_str = tixi.getTextElement(dcmsdqstar_xpath)
+        if check_str == '':
+            log.warning('No /dampingDerivatives/positiveRates/dcmsdqstar,  values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.dcmsdqstar = []
+        else:
+            Coef.dcmsdqstar = get_float_vector(tixi, dcmsdqstar_xpath)
+
+    dcddqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcddqstar'
+    if tixi.checkElement(dcddqstar_xpath):
+        check_str = tixi.getTextElement(dcddqstar_xpath)
+        if check_str == '':
+            log.warning('No /dampingDerivatives/positiveRates/dcddqstar,  values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.dcddqstar = []
+        else:
+            Coef.dcddqstar = get_float_vector(tixi, dcddqstar_xpath)
+
+    dcmsdqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmsdqstar'
+    if tixi.checkElement(dcmsdqstar_xpath):
+        check_str = tixi.getTextElement(dcmsdqstar_xpath)
+        if check_str == '':
+            log.warning('No /dampingDerivatives/positiveRates/dcmsdqstar,  values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.dcmsdqstar = []
+        else:
+            Coef.dcmsdqstar = get_float_vector(tixi, dcmsdqstar_xpath)
+
+    dcmddpstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmddpstar'
+    if tixi.checkElement(dcmddpstar_xpath):
+        check_str = tixi.getTextElement(dcmddpstar_xpath)
+        if check_str == '':
+            log.warning('No /dampingDerivatives/positiveRates/dcmddpstar,  values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.dcmddpstar = []
+        else:
+            Coef.dcmddpstar = get_float_vector(tixi, dcmddpstar_xpath)
+
+    dcmldqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmldqstar'
+    if tixi.checkElement(dcmldqstar_xpath):
+        check_str = tixi.getTextElement(dcmldqstar_xpath)
+        if check_str == '':
+            log.warning('No /dampingDerivatives/positiveRates/dcmldqstar,  values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.dcmldqstar = []
+        else:
+            Coef.dcmldqstar = get_float_vector(tixi, dcmldqstar_xpath)
+
+
+    dcmldpstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmldpstar'
+    if tixi.checkElement(dcmldpstar_xpath):
+        check_str = tixi.getTextElement(dcmldpstar_xpath)
+        if check_str == '':
+            log.warning('No /dampingDerivatives/positiveRates/dcmldpstar,  values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.dcmldpstar = []
+        else:
+            Coef.dcmldpstar = get_float_vector(tixi, dcmldpstar_xpath)
+
+    dcmldrstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmldrstar'
+    if tixi.checkElement(dcmldrstar_xpath):
+        check_str = tixi.getTextElement(dcmldrstar_xpath)
+        if check_str == '':
+            log.warning('No /dampingDerivatives/positiveRates/dcmldrstar,  values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.dcmldrstar = []
+        else:
+            Coef.dcmldrstar = get_float_vector(tixi, dcmldrstar_xpath)
+
+    dcmddrstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmddrstar'
+    if tixi.checkElement(dcmddrstar_xpath):
+        check_str = tixi.getTextElement(dcmddrstar_xpath)
+        if check_str == '':
+            log.warning('No /dampingDerivatives/positiveRates/dcmddrstar,  values have been found in the CPACS file')
+            log.warning('An empty list will be returned.')
+            Coef.dcmddrstar = []
+        else:
+            Coef.dcmddrstar = get_float_vector(tixi, dcmddrstar_xpath)
+
+
+    ##### !!!!!  END Damping derivatives   !!!!  ####
+
     return Coef
 
 

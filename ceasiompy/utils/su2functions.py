@@ -9,13 +9,13 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2019-09-30
-| Last modifiction: 2019-10-03
+| Last modifiction: 2020-02-24
 
 TODO:
 
     * Create coresponding test functions
-    * save comment lines ???
-    * do something for lines which use '|' as separators
+    * Config: save comment lines ???
+    * Config: do something for lines which use '|' as separators
 
 """
 
@@ -28,10 +28,15 @@ import sys
 
 from collections import OrderedDict
 
+import ceasiompy.utils.ceasiompyfunctions as ceaf
+
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
+# Get installation path for the following softwares
+SOFT_LIST = ['SU2_DEF','SU2_CFD','SU2_SOL','mpirun']
+SOFT_DICT = ceaf.get_install_path(SOFT_LIST)
 
 #==============================================================================
 #   CLASSES
@@ -117,6 +122,45 @@ def get_mesh_marker(su2_mesh_path):
         log.warning('No "MARKER_TAG" has been found in the mesh!')
 
     return marker_list
+
+
+def run_soft(soft, config_path, wkdir):
+    """Function run one of the existing SU2 software
+
+    Function 'run_soft' create the comment line to run correctly a SU2 software
+    (SU2_DEF, SU2_CFD, SU2_SOL) with MPI (if installed). The SOFT_DICT is
+    create from the SOFT_LIST define at the top of this script.
+
+    Args:
+        soft (str): Software to execute (SU2_DEF, SU2_CFD, SU2_SOL)
+        config_path (str): Path to the configuration file
+        wkdir (str): Path to the working directory
+
+    """
+
+    mpi_install_path = SOFT_DICT['mpirun']
+    soft_install_path = SOFT_DICT[soft]
+    proc_nb = os.cpu_count()
+    log.info('Number of proc: ' + str(proc_nb))
+    logfile_path = os.path.join(wkdir,'logfile' + soft + '.log')
+
+    if mpi_install_path is not None:
+        command_line =  [mpi_install_path,'-np',str(proc_nb),
+                         soft_install_path,config_path,'>',logfile_path]
+    # elif soft == 'SU2_DEF' a disp.dat must be there to run with MPI
+    else:
+        command_line = [soft_install_path,config_path,'>',logfile_path]
+
+    original_dir = os.getcwd()
+    os.chdir(wkdir)
+
+    log.info('>>> ' + soft + ' Start Time')
+
+    os.system(' '.join(command_line))
+
+    log.info('>>> ' + soft + ' End Time')
+
+    os.chdir(original_dir)
 
 
 #==============================================================================

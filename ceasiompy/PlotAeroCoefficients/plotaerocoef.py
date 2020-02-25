@@ -9,11 +9,12 @@ Python version: >=3.6
 
 | Author: Aidan jungo
 | Creation: 2019-08-19
-| Last modifiction: 2019-09-03
+| Last modifiction: 2020-02-21
 
 TODO:
 
-    * This script is not finish yet, but it can already be used as it is.
+    * Add option to save figures in ToolOutput folder
+    * Plot more coefficient (vs sideslip angle, damping derivatives, control surfaces)
 
 """
 
@@ -26,24 +27,13 @@ import os
 from tkinter import *
 import matplotlib.pyplot as plt
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
-                                           add_uid, create_branch, copy_branch,\
-                                           get_value, get_value_or_default,    \
-                                           aircraft_name,                      \
-                                           add_float_vector, get_float_vector, \
-                                           add_string_vector, get_string_vector
+import ceasiompy.utils.cpacsfunctions as cpsf
+import ceasiompy.utils.apmfunctions as apmf
+import ceasiompy.utils.moduleinterfaces as mi
 
-from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
-                                         check_aeromap, get_aeromap,           \
-                                         create_empty_aeromap,                 \
-                                         save_parameters, save_coefficients
-
-from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
-from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements,   \
-                                             get_toolinput_file_path,          \
-                                             get_tooloutput_file_path
 from ceasiompy.PlotAeroCoefficients.__specs__ import cpacs_inout
+
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
@@ -52,11 +42,10 @@ MODULE_NAME = os.path.basename(os.getcwd())
 
 PLOT_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/plotAeroCoefficient'
 
+
 #==============================================================================
 #   CLASSES
 #==============================================================================
-
-
 
 class ListBoxChoice(object):
     def __init__(self, master=None, title='Title', message='Message', list=[]):
@@ -88,7 +77,6 @@ class ListBoxChoice(object):
         cancelButton = Button(buttonFrame, text='Cancel', command=self._cancel)
         cancelButton.pack(side=RIGHT)
 
-
     def _select(self, event=None):
         try:
             firstIndex = self.listBox.curselection()[0]
@@ -112,13 +100,23 @@ class ListBoxChoice(object):
 #==============================================================================
 
 def call_select_aeromap(tixi):
-    """ ..."""
+    """Function to select the aeroMap to plot
 
-    aeromap_uid_list = get_aeromap_uid_list(tixi)
+    Function 'call_select_aeromap' open a GUI with the available aeroMap to plot
+    and retruns those selected by the user.
+
+    Args:
+        tixi (handles): TIXI Handle of the CPACS file
+
+    Returns:
+        selected_aeromap_list (list) : List of selected aeroMap
+
+    """
+
+    aeromap_uid_list = apmf.get_aeromap_uid_list(tixi)
 
     root = Tk()
-    selected_aeromap_list = ListBoxChoice(root,
-                                          'Select aeroMap Picking',
+    selected_aeromap_list = ListBoxChoice(root,'Select aeroMap Picking',
                                           'Select aeroMap(s) to plot \t \t',
                                           aeromap_uid_list).returnValue()
 
@@ -128,7 +126,9 @@ def call_select_aeromap(tixi):
 def plot_aero_coef(cpacs_path,cpacs_out_path):
     """Function to plot available aerodynamic coefficients from aeroMap.
 
-    Function 'plot_aero_coef' ...
+    Function 'plot_aero_coef' plot aerodynamic coefficients (CL,CD,Cm) of the
+    aeroMap selected in the CPACS file or if not define, ask the user to select
+    them.
 
     Args:
         cpacs_path (str): Path to CPACS file
@@ -137,7 +137,7 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
     """
 
     # Open TIXI handle
-    tixi = open_tixi(cpacs_path)
+    tixi = cpsf.open_tixi(cpacs_path)
 
     # Prepare subplots
     figure_1 = plt.figure(figsize=(12, 12))
@@ -152,19 +152,19 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
     aeromap_to_plot_xpath = PLOT_XPATH + '/aeroMapToPlot'
     aeromap_uid_list = []
     try:
-        aeromap_uid_list = get_string_vector(tixi,aeromap_to_plot_xpath)
+        aeromap_uid_list = cpsf.get_string_vector(tixi,aeromap_to_plot_xpath)
     except:
         # If aeroMapToPlot is not define, open GUI to select which ones shoud be
         aeromap_uid_list = call_select_aeromap(tixi)
-        create_branch(tixi,aeromap_to_plot_xpath)
-        add_string_vector(tixi,aeromap_to_plot_xpath,aeromap_uid_list)
+        cpsf.create_branch(tixi,aeromap_to_plot_xpath)
+        cpsf.add_string_vector(tixi,aeromap_to_plot_xpath,aeromap_uid_list)
 
     for i, aeromap_uid in enumerate(aeromap_uid_list):
 
         log.info('"' + aeromap_uid + '" will be added to the plot.')
 
         # Get aeroMap to plot and replace missing results with zeros
-        AeroCoef = get_aeromap(tixi,aeromap_uid)
+        AeroCoef = apmf.get_aeromap(tixi,aeromap_uid)
         AeroCoef.complete_with_zeros()
         AeroCoef.print_coef_list()
 
@@ -211,11 +211,9 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
     subplot3.grid()
     subplot4.grid()
 
-    close_tixi(tixi,cpacs_out_path)
+    cpsf.close_tixi(tixi,cpacs_out_path)
 
     plt.show()
-
-    # TODO: add option to save figures in ToolOutput...
 
 
 #==============================================================================
@@ -227,11 +225,8 @@ if __name__ == '__main__':
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    cpacs_path = get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
-
-    # Call the function which check if imputs are well define
-    # check_cpacs_input_requirements(cpacs_path)
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
 
     # Plot aerodynamic coefficients
     plot_aero_coef(cpacs_path,cpacs_out_path)

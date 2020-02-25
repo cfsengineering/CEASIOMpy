@@ -130,6 +130,46 @@ def get_install_path(soft_check_list):
     return soft_dict
 
 
+def get_execution_date(tixi, module_name, xpath):
+    """Function to get and write the execution date of a CEASIOMpy module.
+
+    Function 'get_execution_date' ...
+
+    Args:
+        tixi (handles): TIXI Handle of the CPACS file
+        module_name (str): Name of the module to test
+        xpath (str): xPath where start and end time will be stored
+
+    Returns:
+        tixi (handles): Modified TIXI Handle
+
+    """
+
+    # logfile_name = __file__.split('.')[0] + '.log'
+    #
+    # start_time = None
+    # end_time = None
+    #
+    # with open(logfile_name) as f:
+    #     for line in f.readlines():
+    #         if '>>> SU2_CFD Start Time' in line:
+    #             start_time = line.split(' - ')[0]
+    #         if '>>> SU2_CFD End Time' in line:
+    #             end_time = line.split(' - ')[0]
+    #
+    # if start_time == None:
+    #     log.warning("SU2 Start time has not been found in the logfile!")
+    # if end_time == None:
+    #     log.warning("SU2 End time has not been found in the logfile!")
+    #
+    # cpsf.create_branch(tixi,xpath+'/startTime')
+    # tixi.updateTextElement(xpath+'/startTime',start_time)
+    # cpsf.create_branch(tixi,xpath+'/endTime')
+    # tixi.updateTextElement(xpath+'/endTime',end_time)
+
+    return tixi
+
+
 #==============================================================================
 #    MAIN
 #==============================================================================

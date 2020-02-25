@@ -4,13 +4,14 @@ User Guide
 Units
 -----
 
-Units use in |name| are normally always in Intern (temperature in degree Celsius...?)
+Units use in |name| are normally given in International System of Units, except if something else is mentioned.
 
 
 CPACS format
 ------------
 
-website, simple explanation...
+|name| is based on the CPACS_ format. CPACS is an XML file format with allow to define an aircraft geometry and a lot of discipline specific parameters.
+
 
 
 |name| convention

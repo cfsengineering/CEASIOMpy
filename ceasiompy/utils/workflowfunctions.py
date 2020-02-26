@@ -15,24 +15,9 @@ TODO:
 #==============================================================================
 
 import os
-import sys
-import math
-import numpy
 import subprocess
-import matplotlib
 import shutil
-
-import openmdao.api as om
-import importlib
-import matplotlib
-import matplotlib.pyplot as plt
-
-import ceasiompy.utils.ceasiompyfunctions as ceaf
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.moduleinterfaces as mi
-
-from ceasiompy.CPACSUpdater.cpacsupdater import update_cpacs_file
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])

@@ -26,25 +26,13 @@ TODO:
 #==============================================================================
 
 import os
-import sys
-import math
-import numpy
-import subprocess
-import matplotlib
 import shutil
-
-import openmdao.api as om
-import importlib
-import matplotlib
-import matplotlib.pyplot as plt
 
 import ceasiompy.utils.workflowfunctions as wkf #NEW
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.moduleinterfaces as mi
 
-from ceasiompy.CPACSUpdater.cpacsupdater import update_cpacs_file
 from ceasiompy.Optimisation.optimisation import optimize
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -86,11 +74,11 @@ if __name__ == '__main__':
     # Mission analysis: 'Range'
 
     # Copy-Paste the module you want to execute, they will be run in order
-    module_pre = ['SettingsGUI','WeightConventional','WeightUnconventional','BalanceConventional','BalanceUnconventional','PyTornado','SkinFriction','CLCalculator','PlotAeroCoefficients','Range']
+    module_pre = ['SettingsGUI','WeightConventional','SkinFriction','CLCalculator','Range']
 
     module_optim = ['WeightConventional','PyTornado']
     module_post = []
-    optim =  False
+    optim =  True
     doe = False
 
     # Pre Workflow (only run once)------------------------

@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2020-02-24
-| Last modifiction: 2020-02-24
+| Last modifiction: 2020-02-26
 
 TODO:
 
@@ -24,6 +24,7 @@ TODO:
 import os
 import sys
 import math
+import numpy as np
 import pandas as pd
 import matplotlib
 
@@ -52,6 +53,163 @@ DEFAULT_CONFIG_PATH = MODULE_DIR + '/../files/DefaultConfig_v7.cfg'
 #==============================================================================
 
 
+def get_control_surf(tixi,tigl,cs_uid):
+    """ TODO
+        Source: * A part of this function as been copy from the pyTornado code
+                * CPACS Documentation
+
+    """
+            # Eta: Relative spanwise coordinate
+            # Xsi: Relative chordwise coordinate
+            # LE : Leading Edge
+            # TE : Trailing Edge
+            # IN : Inbord
+            # OUT : Outbord
+            # UP : Upper surface
+            # LOW: Lower surface
+
+
+    # Abbreviate long function name
+    tigl.get_eta_xsi = tigl.wingComponentSegmentPointGetSegmentEtaXsi
+
+    # TODO: don't need anymore
+    # wing_idx = 1
+    # comp_seg_idx = 1
+    # comp_seg_uid = tigl.wingGetComponentSegmentUID(wing_idx, comp_seg_idx)
+
+    control_xpath = tixi.uIDGetXPath(cs_uid)
+
+    # Parent Component Segment UID
+    comp_seg_uid = tixi.getTextElement(control_xpath + '/parentUID')
+
+    # Control surface coordinates dataframe
+    cs_coord = pd.DataFrame({'Edge': [],'Border': [], 'Surface': [],'x': [],'y': [],'z': []})
+
+    # Leading and Trailing Edge of the Control surface
+    for edge in ['LE', 'TE']:
+
+        # Inner and Outer border of the Control surface
+        for border, border_key in zip(['IN','OUT'],['innerBorder','outerBorder']):
+
+            local_xpath = control_xpath + '/outerShape/'+ border_key
+            if edge == 'TE':
+                eta = tixi.getDoubleElement(local_xpath +'/etaTE/eta')
+                xsi = 1.0
+            elif edge == 'LE':
+                eta = tixi.getDoubleElement(local_xpath +'/etaLE/eta')
+                xsi = tixi.getDoubleElement(local_xpath +'/xsiLE/xsi')
+
+            _, segment_uid, seg_eta, seg_xsi = tigl.get_eta_xsi(comp_seg_uid, eta, xsi)
+            seg_idx, wing_seg_idx = tigl.wingGetSegmentIndex(segment_uid)
+
+            # Upper and Lower surface of the Control surface
+            for surf in ['UP', 'LOW']:
+
+                if surf == 'UP':
+                    x,y,z = tigl.wingGetUpperPoint(wing_seg_idx,seg_idx, seg_eta, seg_xsi)
+                elif surf == 'LOW':
+                    x,y,z = tigl.wingGetLowerPoint(wing_seg_idx,seg_idx, seg_eta, seg_xsi)
+
+                cs_coord.loc[len(cs_coord)] = [edge,border,surf, x, y, z]
+
+    # Control surface coordinates dataframe
+    cs_hinge = pd.DataFrame({'Border': [],'x': [],'y': [],'z': []})
+
+    # Inner and Outer point of the hinge line
+    for border, border_key in zip(['IN','OUT'],['innerBorder','outerBorder']):
+
+        # TODO: Is it correct to use etaTE? can't find the definition in cpacs documentation
+        eta = tixi.getDoubleElement(control_xpath + '/outerShape/'+ border_key +'/etaTE/eta')
+
+        if border == 'IN':
+            xsi = tixi.getDoubleElement(control_xpath + '/path/innerHingePoint/hingeXsi')
+            rel_height = tixi.getDoubleElement(control_xpath + '/path/innerHingePoint/hingeRelHeight')
+
+        elif border == 'OUT':
+            xsi = tixi.getDoubleElement(control_xpath + '/path/outerHingePoint/hingeXsi')
+            rel_height = tixi.getDoubleElement(control_xpath + '/path/outerHingePoint/hingeRelHeight')
+
+        print('----')
+        print('eta',eta)
+        print('xsi',xsi)
+
+        _, segment_uid, seg_eta, seg_xsi = tigl.get_eta_xsi(comp_seg_uid, eta, xsi)
+        seg_idx, wing_seg_idx = tigl.wingGetSegmentIndex(segment_uid)
+
+        x_u,y_u,z_u = tigl.wingGetUpperPoint(wing_seg_idx,seg_idx, seg_eta, seg_xsi)
+        x_l,y_l,z_l = tigl.wingGetLowerPoint(wing_seg_idx,seg_idx, seg_eta, seg_xsi)
+
+        # Calculate Hingle line points (between upper and lower surface) with relative height
+        up_pnt = np.asarray([x_u,y_u,z_u])
+        lo_pnt = np.asarray([x_l,y_l,z_l])
+        v = up_pnt - lo_pnt
+        n = np.linalg.norm(v)
+        u = v / n
+        h = n * rel_height
+        hin = u * h + lo_pnt
+
+        cs_hinge.loc[len(cs_hinge)] = [border, hin[0],hin[1],hin[2]]
+
+    return cs_coord, cs_hinge
+
+
+def get_ffd_box(cs_coord):
+    """ TODO
+        Source: * https://su2code.github.io/tutorials/Inviscid_3D_Constrained_ONERAM6/
+                * CPACS Documentation
+
+    """
+
+    box_coord = pd.DataFrame({'Edge': [],'Border': [], 'Surface': [],'x': [],'y': [],'z': []})
+
+    # Calculate normal vector from the lower to upper surface of the inbord leading edge corner
+    c0 = cs_coord.iloc[0,3:6].to_numpy()
+    c1 = cs_coord.iloc[1,3:6].to_numpy()
+    v01 = c0 - c1
+    n01 = np.linalg.norm(v01)
+    u01 = v01 / n01
+    h = n01 * 0.5 * u01
+
+    for index, row in cs_coord.iterrows():
+
+        box_coord.loc[len(box_coord)] = cs_coord.iloc[index,0:6]
+
+        if row.Surface == 'UP':
+            box_coord.iloc[index,3:6] = box_coord.iloc[index,3:6] + h
+        elif row.Surface == 'LOW':
+            box_coord.iloc[index,3:6] = box_coord.iloc[index,3:6] - h
+
+    # print(cs_coord)
+    # print(box_coord)
+
+    # Re order corner of the box
+    # LE,OUT,UP,  2
+    # LE,IN,UP,   0
+    # TE,IN,UP,   4
+    # TE,OUT,UP,  6
+    # LE,OUT,LO,  3
+    # LE,IN,LO,   1
+    # TE,IN,LO,   5
+    # TE,OUT,LO   7
+
+    # Correct index order to respect SU2 FFD box definition
+
+    index_order = [2,0,4,6,3,1,5,7]
+
+    ordered_coord_list = []
+
+    for idx in index_order:
+
+        row = box_coord.iloc[idx]
+
+        ordered_coord_list.append(str(row.x))
+        ordered_coord_list.append(str(row.y))
+        ordered_coord_list.append(str(row.z))
+
+    return ordered_coord_list
+
+
+
 def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
     """Function to create SU2 confif file.
 
@@ -70,6 +228,7 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 
     # Get value from CPACS
     tixi = cpsf.open_tixi(cpacs_path)
+    tigl = cpsf.open_tigl(tixi)
 
     # Get SU2 mesh path
     su2_mesh_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh'
@@ -154,13 +313,10 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
         tixi.updateTextElement(SU2_XPATH+ '/aeroMapUID',aeromap_uid)
 
 
-
-
     # Get and modify the default configuration file
     cfg = su2f.read_config(DEFAULT_CONFIG_PATH)
 
     # General parmeters
-    cfg['MESH_FILENAME'] = su2_mesh_path
     cfg['REF_LENGTH'] = ref_len
     cfg['REF_AREA'] = ref_area
 
@@ -195,6 +351,8 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
     for case_nb in range(param_count):
 
+        cfg['MESH_FILENAME'] = su2_mesh_path
+
         alt = alt_list[case_nb]
         mach = mach_list[case_nb]
         aoa = aoa_list[case_nb]
@@ -224,6 +382,7 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
         config_output_path = os.path.join(wkdir,case_dir_name,config_file_name)
 
         su2f.write_config(config_output_path,cfg)
+
 
         # Damping derivatives
         damping_der_xpath = SU2_XPATH + '/options/clalculateDampingDerivatives'
@@ -260,28 +419,30 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 
         if control_surf:
 
-            # TODO :Get control surface from CPACS (should maybe be in another file)
+            # TODO :Get the following info from CPACS
+            # cs_marker = 'D150_VAMP_W1'
+            # cs_uid = 'D150_VAMP_W1_CompSeg1_innerFlap'
+            cs_uid = 'D150_VAMP_SL1_CompSeg1_rudder'
+            cs_marker = 'D150_VAMP_SL1'
+            defl = 10 # degree
+            cs_sym = False
 
-            # for cs_name in cs_name_list:
-            #     for defl in defl_list:
+            # Get control surface definition
+            cs_coord, cs_hinge = get_control_surf(tixi,tigl,cs_uid)
+            cs_str_list = get_ffd_box(cs_coord)
+            hinge_str_list = [str(cs_hinge.iloc[0].x),str(cs_hinge.iloc[0].y),str(cs_hinge.iloc[0].z),
+                              str(cs_hinge.iloc[1].x),str(cs_hinge.iloc[1].y),str(cs_hinge.iloc[1].z)]
 
-            cs_name = 'MY_BOX'
-            cs_box_point = [33,6,0,33,4,0,38,4,0,38,6,0,33,6,-3,33,4,-3,38,4,-3,38,6,-3]
-            cs_marker = 'multi_wing_1ID'
-            cs_sym = True
 
             cfg['GRID_MOVEMENT'] = 'NONE'
             cfg['ROTATION_RATE'] = '0.0 0.0 0.0'
 
             # Create config define ffd box  (settings)
             cfg['DV_KIND'] = 'FFD_SETTING'
-            cfg['DV_MARKER'] = '( multi_wing_1ID )'
+            cfg['DV_MARKER'] = '( ' + cs_marker + ')'
 
-            # TODO: get size/name from CPACS
-            # (FFD_BoxTag, X1,Y1,Z1,X2,Y2,Z2,X3,Y3, Z3, X4, Y4, Z4,X5, Y5, Z5, X6, Y6, Z6, X7, Y7, Z7, X8, Y8, Z8);(FFD_BoxTag_2,...
-            # Just dummy values
-            cfg['FFD_DEFINITION'] = '( MY_BOX, 33,6,0,33,4,0,38,4,0,38,6,0,33,6,-3,33,4,-3,38,4,-3,38,6,-3);( MY_BOX_sym, 33,-6,0,33,-4,0,38,-4,0,38,-6,0,33,-6,-3,33,-4,-3,38,-4,-3,38,-6,-3)'
-            cfg['FFD_DEGREE'] = '( 5, 5, 3 );( 5, 5, 3 )'  # ;(x_degree, y_degree, z_degree)
+            cfg['FFD_DEFINITION'] = '( '+ cs_uid +', ' +  ','.join(cs_str_list) + ')'
+            cfg['FFD_DEGREE'] = '( 6, 10, 3 )'  # TODO: how to chose these value?
             cfg['FFD_CONTINUITY'] = '2ND_DERIVATIVE'
 
             cfg['MESH_OUT_FILENAME'] = 'mesh_ffd_box.su2'
@@ -293,9 +454,11 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 
             # Create config files (rotate)
             cfg['DV_KIND'] = 'FFD_ROTATION'
-            cfg['DV_MARKER'] = '( multi_wing_1ID )'
-            cfg['DV_PARAM'] = '( MY_BOX, 33, 4, -1, 33, 6, -1 )'
-            cfg['DV_VALUE'] = '0.01'
+            cfg['DV_MARKER'] = '( ' + cs_marker + ')'
+
+
+            cfg['DV_PARAM'] = '( '+ cs_uid +', '+ ','.join(hinge_str_list)  + ')'
+            cfg['DV_VALUE'] = str(defl/1000)  # Why SU2 use 1/1000 degree???
 
             cfg['MESH_FILENAME'] = 'mesh_ffd_box.su2'
             cfg['MESH_OUT_FILENAME'] = 'mesh_ffd_box_rot.su2'
@@ -304,9 +467,11 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
             config_output_path = os.path.join(wkdir,case_dir_name+'_cs',config_file_name)
             su2f.write_config(config_output_path,cfg)
 
-            # Create config files (rotate + sym rotation)
+
+
+            # Create config files (rotate + sym rotation) TODO
             if cs_sym:
-                cfg['DV_PARAM'] = '( MY_BOX_sym, 33, -4, -1, 33, -6, -1 )'
+                cfg['DV_PARAM'] = '( '+ cs_uid +'_sym, 33, -4, -1, 33, -6, -1 )'
 
                 cfg['MESH_FILENAME'] = 'mesh_ffd_box_rot.su2'
                 cfg['MESH_OUT_FILENAME'] = 'mesh_ffd_box_rot_sym.su2'
@@ -326,9 +491,8 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
             su2f.write_config(config_output_path,cfg)
 
 
-    # TODO: change that, but it is save in tooloutput it will be erease by results
+    # TODO: change that, but if it is save in tooloutput it will be erease by results...
     cpsf.close_tixi(tixi,cpacs_path)
-    # close_tixi(tixi,cpacs_out_path)
 
 
 #==============================================================================
@@ -338,3 +502,9 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 if __name__ == '__main__':
 
     log.info('Nothing to execute!')
+
+    # # Just dummy values about how to use multiple ffd
+    # cfg['FFD_DEFINITION'] = '( MY_BOX, 33,6,0,33,4,0,38,4,0,38,6,0,33,6,-3,33,4,-3,38,4,-3,38,6,-3);( MY_BOX_sym, 33,-6,0,33,-4,0,38,-4,0,38,-6,0,33,-6,-3,33,-4,-3,38,-4,-3,38,-6,-3)'
+    # cfg['FFD_DEGREE'] = '( 5, 5, 3 );( 5, 5, 3 )'  # ;(x_degree, y_degree, z_degree)
+    # cfg['FFD_CONTINUITY'] = '2ND_DERIVATIVE'
+    # cfg['FFD_DEGREE'] = '( 6, 10, 3 );(x_degree, y_degree, z_degree)'

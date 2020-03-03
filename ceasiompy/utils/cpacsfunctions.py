@@ -260,6 +260,34 @@ def copy_branch(tixi, xpath_from, xpath_to):
                 last_attrib = 1
 
 
+def get_uid(tixi, xpath):
+    """ Function to get uID from a specific XPath.
+
+    Function 'get_uid' checks the xpath and get the corresponding uID.
+
+    Source :
+        * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
+
+    Args:
+        tixi (handles): TIXI Handle of the CPACS file
+        xpath (str): xpath of the branch to add the uid
+        
+    Returns:
+        uid (str): uid to add at xpath
+    """
+
+
+    if not tixi.checkElement(xpath):
+        raise ValueError(xpath + ' XPath does not exist!')
+
+    if tixi.checkAttribute(xpath, 'uID'):
+        uid = tixi.getTextAttribute(xpath, 'uID')
+        return uid
+    else:
+        raise ValueError("No uID found for: " + xpath)
+
+
+
 def add_uid(tixi, xpath, uid):
     """ Function to add UID at a specific XPath.
 
@@ -274,8 +302,6 @@ def add_uid(tixi, xpath, uid):
         xpath (str): xpath of the branch to add the uid
         uid (str): uid to add at xpath
 
-    Returns:
-        tixi (handles): Modified TIXI Handle (with new uid)
     """
 
     exist = True

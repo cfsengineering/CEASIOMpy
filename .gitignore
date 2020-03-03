@@ -38,6 +38,7 @@ forces_breakdown.dat
 
 # Exceptions
 !/ceasiompy/ModuleTemplate/ToolInput/ToolInput.xml
+!/test/utils/TestWorkflowFunctions/ToolInput/ToolInput.xml
 !/test/TestSU2Config/ToolInput/NoMarkerMesh.su2
 !/test/TestSU2Config/ToolInput/SimpleMesh.su2
 

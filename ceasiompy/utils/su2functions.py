@@ -34,9 +34,8 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
-# Get installation path for the following softwares
 SOFT_LIST = ['SU2_DEF','SU2_CFD','SU2_SOL','mpirun']
-SOFT_DICT = ceaf.get_install_path(SOFT_LIST)
+
 
 #==============================================================================
 #   CLASSES
@@ -137,6 +136,9 @@ def run_soft(soft, config_path, wkdir):
         wkdir (str): Path to the working directory
 
     """
+
+    # Get installation path for the following softwares
+    SOFT_DICT = ceaf.get_install_path(SOFT_LIST)
 
     mpi_install_path = SOFT_DICT['mpirun']
     soft_install_path = SOFT_DICT[soft]

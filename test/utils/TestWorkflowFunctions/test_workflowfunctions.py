@@ -20,7 +20,9 @@ Python version: >=3.6
 import os
 
 from ceasiompy.utils.workflowfunctions import copy_module_to_module
+
 from ceasiompy.utils.ceasiomlogger import get_logger
+
 log = get_logger(__file__.split('.')[0])
 
 import ceasiompy.__init__
@@ -39,11 +41,12 @@ def test_copy_module_to_module():
     """
     Tests the copy_module_to_module function
     """
-    
+
     module_from = MODULE_DIR
     module_to = MODULE_DIR
     io_from = "in"
     io_to = "out"
+
     copy_module_to_module(module_from, io_from, module_to, io_to)
 
     # Read Input and Ouput CPACS file as text, to compare them
@@ -58,11 +61,11 @@ def test_copy_module_to_module():
 #     """
 #     Tests the run_subworkflow function
 #     """
-    
+
 #     module_list = []
 
 #     run_subworkflow(module_list)
-     
+
 #==============================================================================
 #    MAIN
 #==============================================================================

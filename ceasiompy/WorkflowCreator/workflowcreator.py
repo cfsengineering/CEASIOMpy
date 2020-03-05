@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan jungo
 | Creation: 2019-11-05
-| Last modifiction: 2019-12-20
+| Last modification: 2019-12-20
 
 TODO:
 
@@ -28,7 +28,7 @@ TODO:
 import os
 import shutil
 
-import ceasiompy.utils.workflowfunctions as wkf #NEW
+import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mi
@@ -51,7 +51,6 @@ SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 #==============================================================================
 
 if __name__ == '__main__':
-
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
     MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -74,12 +73,16 @@ if __name__ == '__main__':
     # Mission analysis: 'Range'
 
     # Copy-Paste the module you want to execute, they will be run in order
-    module_pre = ['SettingsGUI','WeightConventional','SkinFriction','CLCalculator','Range']
+    module_pre = ['SettingsGUI','WeightConventional','PyTornado','Range'] #['SettingsGUI','CPACS2SUMO','SUMOAutoMesh','SU2Run','PyTornado','SkinFriction','CLCalculator','PlotAeroCoefficients','Range']
 
-    module_optim = ['WeightConventional','PyTornado']
+    module_optim = ['WeightConventional','PyTornado', 'Range']
     module_post = []
+
     optim =  True
     doe = False
+
+    # Choose the parameter to optimize
+    optim_target = "mtom"
 
     # Pre Workflow (only run once)------------------------
     wkf.run_subworkflow(module_pre,cpacs_path)
@@ -87,7 +90,6 @@ if __name__ == '__main__':
     # Optim Workflow ------------------------------------
     if optim:
         wkf.copy_module_to_module(module_pre[-1],'out','CPACSUpdater','in')
-        #run_optimizer()
         optimize(module_optim)
 
         # Post optim -------------------------------

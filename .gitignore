@@ -13,6 +13,7 @@
 /tmp
 /ceasiompy/CPACSCreator/tmp/*
 /ceasiompy/WKDIR/
+/ceasiompy/Pytornado/wkdir*
 
 # Ignore ModuleTest
 /ceasiompy/ModuleTest/

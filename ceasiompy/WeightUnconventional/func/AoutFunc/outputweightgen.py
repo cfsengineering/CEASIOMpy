@@ -106,7 +106,7 @@ def output_fuse_txt(fus_nb, FLOORS_NB, ed, out, mw, adui, awg, afg, NAME):
     out_txt_file.write('\nMaximum fuel mass with no passengers [kg]: '\
                          + str(int(round(mw.mass_fuel_max))))
     out_txt_file.write('\nMaximum fuel volume with no passengers [l]: '\
-                         + str(int(round(mw.mass_fuel_max/0.8,3))))
+                         + str(int(round(mw.mass_fuel_max/0.8,3))))   # TODO: 0.8 shoud be a variable...
     out_txt_file.write('\nMaximum take off mass [kg]: '\
                          + str(int(round(mw.maximum_take_off_mass))))
     out_txt_file.write('\nOperating empty mass [kg]: '\

@@ -271,7 +271,7 @@ def get_uid(tixi, xpath):
     Args:
         tixi (handles): TIXI Handle of the CPACS file
         xpath (str): xpath of the branch to add the uid
-        
+
     Returns:
         uid (str): uid to add at xpath
     """
@@ -584,7 +584,7 @@ def get_path(tixi, xpath):
     return correct_path
 
 
-def aircraft_name(cpacs_path):
+def aircraft_name(tixi_or_cpacs):
     """ The function gat the name of the aircraft from the cpacs file or add a
         default one if non-existant.
 
@@ -595,15 +595,29 @@ def aircraft_name(cpacs_path):
         name (str): Name of the aircraft.
     """
 
-    tixi = open_tixi(cpacs_path)
+    # TODO: MODIFY this funtion, temporary it could accept a cpacs path or tixi handle
+    # check xpath
+    # *modify corresponding test
 
-    aircraft_name_xpath = '/cpacs/header/name'
-    name = get_value_or_default(tixi,aircraft_name_xpath,'Aircraft')
+    if isinstance(tixi_or_cpacs,str):
+
+        tixi = open_tixi(tixi_or_cpacs)
+
+        aircraft_name_xpath = '/cpacs/header/name'
+        name = get_value_or_default(tixi,aircraft_name_xpath,'Aircraft')
+
+        close_tixi(tixi, tixi_or_cpacs)
+
+    else:
+
+        aircraft_name_xpath = '/cpacs/header/name'
+        name = get_value_or_default(tixi_or_cpacs,aircraft_name_xpath,'Aircraft')
+
     log.info('The name of the aircraft is : ' + name)
 
-    close_tixi(tixi, cpacs_path)
-
     return(name)
+
+
 
 
 #==============================================================================

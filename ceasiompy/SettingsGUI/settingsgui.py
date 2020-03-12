@@ -158,7 +158,8 @@ class AeroMapTab:
             self.selected_list = None
 
     def _import_csv(self, event=None):
-        csv_path = self.filename = filedialog.askopenfilename(initialdir = MODULE_DIR, title = "Select a CSV file" )
+        template_csv_dir = os.path.join(MODULE_DIR,'..','..','test','AeroMaps')
+        csv_path = self.filename = filedialog.askopenfilename(initialdir = template_csv_dir, title = "Select a CSV file" )
         new_aeromap_uid = os.path.splitext(os.path.basename(csv_path))[0]
         aeromap_from_csv(self.tixi, new_aeromap_uid, csv_path)
         self.listBox.selection_clear(0, tk.END)
@@ -563,7 +564,7 @@ def create_gui(cpacs_path, cpacs_out_path, submodule_list):
         module_list (list): List of module to inclue in the GUI
 
     """
-    
+
     # Call Tkinter Class
     root = tk.Tk()
     my_gui = CEASIOMpyGUI(root, cpacs_path, cpacs_out_path, submodule_list)

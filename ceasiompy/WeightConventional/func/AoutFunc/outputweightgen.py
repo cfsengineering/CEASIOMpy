@@ -113,7 +113,7 @@ def output_txt(out, mw, ind, ui, NAME):
     out_txt_file.write('\nMaximum fuel mass with no passengers [kg]: '\
                          + str(int(round(mw.mass_fuel_max,))))
     out_txt_file.write('\nMaximum fuel volume with no passengers [l]: '\
-                         + str(int(round(mw.mass_fuel_max/ui.FUEL_DENSITY*1000,0))))
+                         + str(int(round(mw.mass_fuel_max/ui.FUEL_DENSITY,0))))
     out_txt_file.write('\nMaximum take off mass [kg]: '\
                          + str(int(round(mw.maximum_take_off_mass,0))))
     out_txt_file.write('\nOperating empty mass [kg]: '\

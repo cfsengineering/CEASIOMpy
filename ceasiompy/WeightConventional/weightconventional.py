@@ -265,7 +265,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     log.info('Maximum ammount of fuel allowed with no passengers [kg]: '\
              + str(int(round(mw.mass_fuel_max))))
     log.info('Maximum ammount of fuel allowed with no passengers [l]: '\
-             + str(int(round(mw.mass_fuel_max/ui.FUEL_DENSITY*1000))))
+             + str(int(round(mw.mass_fuel_max/ui.FUEL_DENSITY))))
     log.info('--------- Passegers evaluated: ---------')
     log.info('Passengers: ' + str(out.pass_nb))
     log.info('Lavatory: ' + str(out.toilet_nb))

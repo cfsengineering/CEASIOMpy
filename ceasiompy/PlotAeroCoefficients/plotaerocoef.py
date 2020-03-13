@@ -14,6 +14,7 @@ Python version: >=3.6
 TODO:
 
     * Add option to save figures in ToolOutput folder
+    * Use aeromap with Pandas to sort easily the data
     * Plot more coefficient (vs sideslip angle, damping derivatives, control surfaces)
 
 """

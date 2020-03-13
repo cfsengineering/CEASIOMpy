@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2020-02-24
-| Last modifiction: 2020-02-24
+| Last modifiction: 2020-03-06
 
 TODO:
 
@@ -24,6 +24,7 @@ TODO:
 import os
 import sys
 import math
+import numpy as np
 import pandas as pd
 import matplotlib
 
@@ -42,6 +43,8 @@ SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_CONFIG_PATH = MODULE_DIR + '/../files/DefaultConfig_v7.cfg'
 
+SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
+
 #==============================================================================
 #   CLASSES
 #==============================================================================
@@ -51,7 +54,7 @@ DEFAULT_CONFIG_PATH = MODULE_DIR + '/../files/DefaultConfig_v7.cfg'
 #   FUNCTIONS
 #==============================================================================
 
-
+# TODO: Change name to generate_su2_cfd_config
 def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
     """Function to create SU2 confif file.
 
@@ -70,6 +73,7 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 
     # Get value from CPACS
     tixi = cpsf.open_tixi(cpacs_path)
+    tigl = cpsf.open_tigl(tixi)
 
     # Get SU2 mesh path
     su2_mesh_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh'
@@ -154,13 +158,10 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
         tixi.updateTextElement(SU2_XPATH+ '/aeroMapUID',aeromap_uid)
 
 
-
-
     # Get and modify the default configuration file
     cfg = su2f.read_config(DEFAULT_CONFIG_PATH)
 
     # General parmeters
-    cfg['MESH_FILENAME'] = su2_mesh_path
     cfg['REF_LENGTH'] = ref_len
     cfg['REF_AREA'] = ref_area
 
@@ -195,6 +196,8 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
     for case_nb in range(param_count):
 
+        cfg['MESH_FILENAME'] = su2_mesh_path
+
         alt = alt_list[case_nb]
         mach = mach_list[case_nb]
         aoa = aoa_list[case_nb]
@@ -225,6 +228,7 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 
         su2f.write_config(config_output_path,cfg)
 
+
         # Damping derivatives
         damping_der_xpath = SU2_XPATH + '/options/clalculateDampingDerivatives'
         damping_der = cpsf.get_value_or_default(tixi,damping_der_xpath,False)
@@ -254,81 +258,36 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
             log.info('Damping derivatives cases directory has been created.')
 
 
+
         # Control surfaces deflections
         control_surf_xpath = SU2_XPATH + '/options/clalculateCotrolSurfacesDeflections'
         control_surf = cpsf.get_value_or_default(tixi,control_surf_xpath,False)
 
         if control_surf:
 
-            # TODO :Get control surface from CPACS (should maybe be in another file)
+            # Get deformed mesh list
+            su2_def_mesh_xpath = SU2_XPATH + '/availableDeformedMesh'
+            if tixi.checkElement(su2_def_mesh_xpath):
+                su2_def_mesh_list = cpsf.get_string_vector(tixi,su2_def_mesh_xpath)
+            else:
+                log.warning('No SU2 deformed mesh has been found!')
+                su2_def_mesh_list = []
 
-            # for cs_name in cs_name_list:
-            #     for defl in defl_list:
+            for su2_def_mesh in su2_def_mesh_list:
 
-            cs_name = 'MY_BOX'
-            cs_box_point = [33,6,0,33,4,0,38,4,0,38,6,0,33,6,-3,33,4,-3,38,4,-3,38,6,-3]
-            cs_marker = 'multi_wing_1ID'
-            cs_sym = True
+                mesh_path = os.path.join(wkdir,'MESH',su2_def_mesh)
 
-            cfg['GRID_MOVEMENT'] = 'NONE'
-            cfg['ROTATION_RATE'] = '0.0 0.0 0.0'
+                config_dir_path = os.path.join(wkdir,case_dir_name+'_'+su2_def_mesh.split('.')[0])
+                os.mkdir(config_dir_path)
+                cfg['MESH_FILENAME'] = mesh_path
 
-            # Create config define ffd box  (settings)
-            cfg['DV_KIND'] = 'FFD_SETTING'
-            cfg['DV_MARKER'] = '( multi_wing_1ID )'
-
-            # TODO: get size/name from CPACS
-            # (FFD_BoxTag, X1,Y1,Z1,X2,Y2,Z2,X3,Y3, Z3, X4, Y4, Z4,X5, Y5, Z5, X6, Y6, Z6, X7, Y7, Z7, X8, Y8, Z8);(FFD_BoxTag_2,...
-            # Just dummy values
-            cfg['FFD_DEFINITION'] = '( MY_BOX, 33,6,0,33,4,0,38,4,0,38,6,0,33,6,-3,33,4,-3,38,4,-3,38,6,-3);( MY_BOX_sym, 33,-6,0,33,-4,0,38,-4,0,38,-6,0,33,-6,-3,33,-4,-3,38,-4,-3,38,-6,-3)'
-            cfg['FFD_DEGREE'] = '( 5, 5, 3 );( 5, 5, 3 )'  # ;(x_degree, y_degree, z_degree)
-            cfg['FFD_CONTINUITY'] = '2ND_DERIVATIVE'
-
-            cfg['MESH_OUT_FILENAME'] = 'mesh_ffd_box.su2'
-
-            config_file_name = 'ConfigDEF.cfg'
-            os.mkdir(os.path.join(wkdir,case_dir_name+'_cs'))
-            config_output_path = os.path.join(wkdir,case_dir_name+'_cs',config_file_name)
-            su2f.write_config(config_output_path,cfg)
-
-            # Create config files (rotate)
-            cfg['DV_KIND'] = 'FFD_ROTATION'
-            cfg['DV_MARKER'] = '( multi_wing_1ID )'
-            cfg['DV_PARAM'] = '( MY_BOX, 33, 4, -1, 33, 6, -1 )'
-            cfg['DV_VALUE'] = '0.01'
-
-            cfg['MESH_FILENAME'] = 'mesh_ffd_box.su2'
-            cfg['MESH_OUT_FILENAME'] = 'mesh_ffd_box_rot.su2'
-
-            config_file_name = 'ConfigDEF_rot.cfg'
-            config_output_path = os.path.join(wkdir,case_dir_name+'_cs',config_file_name)
-            su2f.write_config(config_output_path,cfg)
-
-            # Create config files (rotate + sym rotation)
-            if cs_sym:
-                cfg['DV_PARAM'] = '( MY_BOX_sym, 33, -4, -1, 33, -6, -1 )'
-
-                cfg['MESH_FILENAME'] = 'mesh_ffd_box_rot.su2'
-                cfg['MESH_OUT_FILENAME'] = 'mesh_ffd_box_rot_sym.su2'
-
-                config_file_name = 'ConfigDEF_rot_sym.cfg'
-                config_output_path = os.path.join(wkdir,case_dir_name+'_cs',config_file_name)
+                config_file_name = 'ConfigCFD.cfg'
+                config_output_path = os.path.join(wkdir,config_dir_path,config_file_name)
                 su2f.write_config(config_output_path,cfg)
 
-            # Create CFD config file
-            if cs_sym:
-                cfg['MESH_FILENAME'] = 'mesh_ffd_box_rot_sym.su2'
-            else:
-                cfg['MESH_FILENAME'] = 'mesh_ffd_box_rot.su2'
 
-            config_file_name = 'ConfigCFD.cfg'
-            config_output_path = os.path.join(wkdir,case_dir_name+'_cs',config_file_name)
-            su2f.write_config(config_output_path,cfg)
-
-
-    # TODO: change that, but it is save in tooloutput it will be erease by results
+    # TODO: change that, but if it is save in tooloutput it will be erease by results...
     cpsf.close_tixi(tixi,cpacs_path)
-    # close_tixi(tixi,cpacs_out_path)
 
 
 #==============================================================================

@@ -203,7 +203,7 @@ if __name__ == '__main__':
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
 
 # Example of use
-#AtmAt1000m = atmosphere(1000)
+#AtmAt1000m = get_atmosphere(1000)
 #print(AtmAt1000m.temp)
 #print(AtmAt1000m.pres)
 #print(AtmAt1000m.dens)

@@ -28,9 +28,10 @@ import os
 import sys
 import shutil
 
+import ceasiompy.utils.ceasiompyfunctions as ceaf
+import ceasiompy.utils.cpacsfunctions as cpsf
+
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyfunctions import create_new_wkdir, get_wkdir_or_create_new, get_install_path
-from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi, get_value_or_default, create_branch
 
 log = get_logger(__file__.split('.')[0])
 
@@ -63,25 +64,27 @@ def create_SU2_mesh(cpacs_path,cpacs_out_path):
 
     """
 
-    tixi =  open_tixi(cpacs_path)
+    tixi =  cpsf.open_tixi(cpacs_path)
 
-    wkdir = get_wkdir_or_create_new(tixi)
+    wkdir = ceaf.get_wkdir_or_create_new(tixi)
     sumo_dir = os.path.join(wkdir,'SUMO')
     if not os.path.isdir(sumo_dir):
         os.mkdir(sumo_dir)
 
+    mesh_dir = os.path.join(wkdir,'MESH')
+    if not os.path.isdir(mesh_dir):
+        os.mkdir(mesh_dir)
+
     original_dir = os.getcwd()
     os.chdir(sumo_dir)
 
-
-
     sumo_file_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath'
-    sumo_file_path = get_value_or_default(tixi,sumo_file_xpath,'')
+    sumo_file_path = cpsf.get_value_or_default(tixi,sumo_file_xpath,'')
     if sumo_file_path == '':
         raise ValueError('No SUMO file to use to create a mesh')
 
     # Check if SUMO is installed
-    soft_dict = get_install_path(['sumo'])
+    soft_dict = ceaf.get_install_path(['sumo'])
 
     # Run SUMO to create a create a mesh
     # sumo - batch -output=su2 -tetgen-options=pq1.16VY mesh.smx
@@ -93,21 +96,25 @@ def create_SU2_mesh(cpacs_path,cpacs_out_path):
     # print(' '.join(command_line))
     os.system(' '.join(command_line))
 
-
-
+    # Copy the mesh in the MESH directory
     su2_mesh_path = os.path.join(sumo_dir,'ToolOutput.su2')
+    aircraft_name = cpsf.aircraft_name(tixi)
+    su2_mesh_name = aircraft_name + '_baseline.su2'
+    su2_mesh_new_path = os.path.join(mesh_dir,su2_mesh_name)
+    shutil.copyfile(su2_mesh_path, su2_mesh_new_path)
 
-    if os.path.isfile(su2_mesh_path):
+    if os.path.isfile(su2_mesh_new_path):
         log.info('An SU2 Mesh has been correctly generated.')
         su2_mesh_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh'
-        create_branch(tixi,su2_mesh_xpath)
-        tixi.updateTextElement(su2_mesh_xpath,su2_mesh_path)
+        cpsf.create_branch(tixi,su2_mesh_xpath)
+        tixi.updateTextElement(su2_mesh_xpath,su2_mesh_new_path)
+
+        os.remove(su2_mesh_path)
+
     else:
         raise ValueError('No SU2 Mesh file has been generated!')
 
-
-
-    close_tixi(tixi, cpacs_out_path)
+    cpsf.close_tixi(tixi, cpacs_out_path)
 
     os.chdir(original_dir)
 

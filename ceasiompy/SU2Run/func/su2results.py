@@ -9,11 +9,13 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-10-02
-| Last modifiction: 2020-02-24
+| Last modifiction: 2020-03-13
 
 TODO:
 
-    * Modify and improvre
+    * Must be almost completly refactored
+    * Use Pandas datafarme to write aeromaps
+    * implement relusts saving for Control surface deflections
 
 """
 

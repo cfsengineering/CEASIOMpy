@@ -39,6 +39,7 @@ LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
 # Shortcut for XPath definition
 CEASIOM_XPATH = '/cpacs/toolspecific/CEASIOMpy'
 AIRCRAFT_XPATH = '/cpacs/vehicles/aircraft'
+SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 MODNAME_TOP = 'ceasiompy'
 MODNAME_SPECS = '__specs__'

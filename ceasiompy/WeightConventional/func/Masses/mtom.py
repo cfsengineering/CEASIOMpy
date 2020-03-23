@@ -6,10 +6,12 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 This script estimates the maximum take of mass from a database
 of conventional aircraft using the linear regression method.
 
-| Works with Python 2.7
+Python version: >=3.6
+
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-02-20
+| Last modifiction: 2019-11-01 (AJ)
+
 """
 
 
@@ -32,39 +34,33 @@ log = get_logger(__file__.split('.')[0])
 #   CLASSES
 #==============================================================================
 
-
 """
  InsideDimensions class, can be found on the InputClasses folder inside the
  weightconvclass.py script.
 """
 
-
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
+
 def estimate_limits(input_data, OBJ, fuse_length, wing_area):
-    """
-    The funtion adjusts the upper and lower limits used for the linear
-    regression method.
+    """ The funtion adjusts the upper and lower limits used for the linear
+        regression method.
 
+    Args:
+        input_data (float_array) : Array containing all the geometrical data of
+                                   the aircraft in the database (fuse_length,
+                                   fuse_width, wing_area, wing_span)
+        OBJ (float_array) : Array containing the geometrical data of the aircraft
+                            studied (fuse_length, fuse_width, wing_area, wing_span)
+        fuse_length (float): Fuselage length [m]
+        wing_area (float): Main wing area [m^2]
 
-    INPUT
-    (float_array) input_data --Arg.: Array containing all the geometrical
-                                     data of the aircraft in the database
-                                     (fuse_length, fuse_width,
-                                     wing_area, wing_span).
-    (float_Array) OBJ        --Arg.: Array containing the geometrical
-                                     data of the aircraft studied
-                                     (fuse_length, fuse_width,
-                                     wing_area, wing_span).
-    (float)     fuse_length  --Arg.: Fuselage length [m].
-    (float)     wing_area    --Arg.: Main wing area [m^2].
-
-    OUTPUT
-    (float) upper_limit_out   --Out.: Upper limit for the central section
-                                      of the linear regression method.
-    (float) lower_limit_out   --Out.: Lower limit for the central section
-                                      of the linear regression method.
+    Returns:
+        upper_limit_out (float): Upper limit for the central section of the
+                                 linear regression method.
+        lower_limit_out (float): Lower limit for the central section of the
+                                 linear regression method.
     """
 
     (L,) = np.shape(input_data)
@@ -117,21 +113,19 @@ def estimate_limits(input_data, OBJ, fuse_length, wing_area):
     return (upper_limit_out, lower_limit_out)
 
 
-#==============================================================================
-
 def estimate_mtom(fuse_length, fuse_width, wing_area, wing_span, NAME):
     """ Function that estimates the Maximum Take-Off Mass
         from statistical regression based on geometric parameters.
 
-    INPUT
-    (float)     fuse_length --Arg.: Fuselage length [m].
-    (float)     fuse_width  --Arg.: Fuselage width [m].
-    (float)     wing_area   --Arg.: Main wing area [m^2].
-    (float)     wing_span   --Arg.: Main wing span [m].
-    (char)      NAME        --Arg.: Name of the aircraft studied.
+    Args:
+        fuse_length (str): Fuselage length [m]
+        fuse_width (str): Fuselage width [m]
+        wing_area (str): Main wing area [m^2]
+        wing_span (str): Main wing span [m]
+        NAME (str): Name of the aircraft studied
 
-    OUTPUT
-    (float)     mtom     --Out.: Maximum Take-Off Mass [kg].
+    Returns:
+        mtom (float): Maximum Take-Off Mass [kg].
 
     """
 
@@ -190,7 +184,7 @@ def estimate_mtom(fuse_length, fuse_width, wing_area, wing_span, NAME):
 
     log.info('------- Calculating linear regression: ------')
     c=0
-    # UNDER ------------------------------------------------------------------
+    # UNDER
     if not np.all(mask_under == False):
        c += 1
        input_data_under = input_data[mask_under]
@@ -199,7 +193,7 @@ def estimate_mtom(fuse_length, fuse_width, wing_area, wing_span, NAME):
        regr_under.fit(input_data_under, output_data_under)
        output_predicted_under = regr_under.predict(input_data_under)
 
-    # MIDDLE -----------------------------------------------------------------
+    # MIDDLE
     if not np.all(mask_middle == False):
         c += 1
         input_data_middle = input_data[mask_middle]
@@ -208,7 +202,7 @@ def estimate_mtom(fuse_length, fuse_width, wing_area, wing_span, NAME):
         regr_middle.fit(input_data_middle, output_data_middle)
         output_predicted_middle = regr_middle.predict(input_data_middle)
 
-    # OVER -------------------------------------------------------------------
+    # OVER
     if not np.all(mask_over == False):
         c += 1
         input_data_over = input_data[mask_over]
@@ -300,6 +294,10 @@ def estimate_mtom(fuse_length, fuse_width, wing_area, wing_span, NAME):
     # Return mtom of the aircraft given in input
     mtom = round(output_new_aircraft[0],3)
 
+    if mtom <= 0:
+        raise Exception('Wrong mass estimation, unconventional aircraft '\
+                         + 'studied using the conventional aircraft database.')
+
     return mtom
 
 
@@ -308,8 +306,7 @@ def estimate_mtom(fuse_length, fuse_width, wing_area, wing_span, NAME):
 #=============================================================================
 
 if __name__ == '__main__':
+
     log.warning('###########################################################')
     log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ####')
     log.warning('###########################################################')
-
-

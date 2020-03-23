@@ -134,6 +134,7 @@ def create_integration_files():
         # Set other values
         submodule_name = module_name.split('.')[1]
         working_dir = os.path.join(ceasiompy_root_dir, submodule_name)
+        print("Current working directory value : ", working_dir, "\n")
         rce_conf['launchSettings'][0]['rootWorkingDirectory'] = working_dir
         rce_conf['launchSettings'][0]['toolDirectory'] = working_dir
 

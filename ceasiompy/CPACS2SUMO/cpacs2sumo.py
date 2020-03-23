@@ -168,8 +168,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
         log.info(str(fus_cnt) + ' fuselage has been found.')
     else:
         fus_cnt = 0
-
-    if fus_cnt == 0:
         log.warning('No fuselage has been found in this CPACS file!')
 
     for i_fus in range(fus_cnt):
@@ -475,8 +473,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
         log.info(str(wing_cnt) + ' wings has been found.')
     else:
         wing_cnt = 0
-
-    if wing_cnt == 0:
         log.warning('No wings has been found in this CPACS file!')
 
     for i_wing in range(wing_cnt):
@@ -771,8 +767,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
     sumo_file_path = os.path.join(sumo_dir,'ToolOutput.smx')
     if not os.path.isdir(sumo_dir):
         os.mkdir(sumo_dir)
-        create_branch(tixi,sumo_file_xpath)
-        tixi.updateTextElement(sumo_file_xpath,sumo_file_path)
+    create_branch(tixi,sumo_file_xpath)
+    tixi.updateTextElement(sumo_file_xpath,sumo_file_path)
 
     close_tixi(tixi, cpacs_out_path)
     close_tixi(sumo, sumo_file_path)

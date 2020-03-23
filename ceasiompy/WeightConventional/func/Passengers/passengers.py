@@ -6,10 +6,12 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script evaluates the maximum number of passengers (maximum
 number of people in economy class that can leave the aircraft in 90 sec).
 
-| Works with Python 2.7
+Python version: >=3.6
+
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-02-20
+| Last modifiction: 2020-01-24 (AJ)
+
 """
 
 
@@ -39,27 +41,25 @@ log = get_logger(__file__.split('.')[0])
 #=============================================================================
 
 def estimate_passengers(PASS_PER_TOILET, cabin_length, fuse_width, ind):
-
     """ The function evaluates the maximum number of passengers that can sit in
     the airplane, taking into account also the necessity of common space for
     big airplanes and a number of toilets in relation with the number
     of passengers.
 
-    ARGUMENTS
-    (interger) PASS_PER_TOILET   --Arg.: Number of passengers per toilet [-].
-    (float)    cabin_length   --Arg.: Cabin length [m].
-    (float)    fuse_width     --Arg.: Fuselage width [m].
-    (class)    ind            --Arg.: InsideDimensions class [-].
-    ##======= Class is defined in the InputClasses folder =======##
+    Args:
+        PASS_PER_TOILET(int): Number of passengers per toilet [-]
+        cabin_length (float): Cabin length [m]
+        fuse_width (float): Fuselage width [m]
+        ind (class): InsideDimensions class [-]
 
-    RETURNS
-    (integer) pass_nb     --Out.: Number of passengers [-].
-    (integer) row_nb      --Out.: Number of seat rows [-].
-    (integer) abreast_nb  --Out.: Number of seat abreasts [-].
-    (integer) aisle_nb    --Out.: Number of aisles [-].
-    (integer) toilet_nb      --Out.: Number of toilets [-].
-    (class) ind           --Out.: InsideDimensions class updated [-].
-    ##======= Class is defined in the InputClasses folder =======##
+    Returns:
+        pass_nb (int): Number of passengers [-]
+        row_nb   (int): Number of seat rows [-]
+        abreast_nb (int): Number of seat abreasts [-]
+        aisle_nb (int): Number of aisles [-]
+        toilet_nb (int): Number of toilets [-]
+        ind (class): InsideDimensions class updated [-]
+
     """
     cabin_width = fuse_width * (1-(ind.fuse_thick/100))
 
@@ -78,20 +78,24 @@ def estimate_passengers(PASS_PER_TOILET, cabin_length, fuse_width, ind):
 
     abreast_nb = math.floor((fuse_width/(1 + (ind.fuse_thick/100))\
                             - aisle_nb*ind.aisle_width)/ind.seat_width)
+
     if (int(round(abreast_nb/2.0,0) - max_ab2) > 0):
         add = int(round(abreast_nb/2.0,0) - max_ab2)
         log.warning('Configuration with ' + str(max_abreasts + add)\
                     + ' consecutive seats')
+
         if ((max_abreasts + add >= 3 and aisle_nb == 1)\
             or ((max_abreasts + add >= 5 and aisle_nb > 1))):
             log.warning('Reducing it to ' + str(max_abreasts)\
                          + ' increasing the seats width')
+
             while add != 0:
                 ind.seat_width = ind.seat_width + 0.01*(add)
                 abreast_nb = math.floor((fuse_width/(1 + (ind.fuse_thick/100))\
                                        - aisle_nb*ind.aisle_width)/ind.seat_width)
                 add = int(round(abreast_nb/2.0,0) - max_ab2)
         log.warning('Seats width increased to [m]:' + str(ind.seat_width))
+
     if ind.seat_width < 0.4:
         log.warning('Seats width less than 0.4 m, seats are too small')
 
@@ -123,8 +127,7 @@ def estimate_passengers(PASS_PER_TOILET, cabin_length, fuse_width, ind):
             toilet_nb = round(pass_nb / PASS_PER_TOILET,1)
             a = 0
             Tot_T_L = int(round((toilet_nb / 2.0),0))
-            row_nb = round((cabin_length - Tot_T_L*ind.toilet_length)\
-                           / ind.seat_length,0)
+            row_nb = round((cabin_length-Tot_T_L*ind.toilet_length)/ind.seat_length,0)
             pass_nb = abreast_nb * row_nb
         if abs(int(toilet_nb) - int(round(pass_nb / PASS_PER_TOILET,0))) == 0:
             control = 1
@@ -155,6 +158,7 @@ def estimate_passengers(PASS_PER_TOILET, cabin_length, fuse_width, ind):
         log.info('It is possible to modify the sits length by: '+\
                  str(round((cabin_length - check_length) / (row_nb),2)\
                  - 0.01) + ' m')
+
     log.info('------------ Seating estimation -------------')
     log.info('  Nb of abreasts: ' + str(abreast_nb))
     log.info('  Nb of row: ' + str(row_nb))
@@ -173,6 +177,7 @@ def estimate_passengers(PASS_PER_TOILET, cabin_length, fuse_width, ind):
 #==============================================================================
 
 if __name__ == '__main__':
+
     log.warning('###########################################################')
     log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ####')
     log.warning('###########################################################')

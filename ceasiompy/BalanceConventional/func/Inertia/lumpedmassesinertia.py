@@ -72,7 +72,7 @@ def fuselage_inertia(SPACING, center_of_gravity, mass_seg_i, ag, cpacs_in):
     Iyz = 0
     Ixz = 0
     a = 0
-    f = ag.f_nb
+    f = ag.fus_nb
     log.info('-------------------------------------------------------------')
     log.info('---- Evaluating fuselage nodes for lumped masses inertia ----')
     log.info('-------------------------------------------------------------')

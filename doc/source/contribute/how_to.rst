@@ -27,9 +27,3 @@ Writing a new module
 * Write  its ``__specs__.py`` file, which describes is input/output and RCE integration
 
 * Write its test functions , as example you can check: test/TestModuleTemplate/
-
-.. toctree::
-   :maxdepth: 1
-   :caption: Guidelines
-
-   guidelines

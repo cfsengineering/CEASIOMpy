@@ -21,7 +21,7 @@ CLCalculator determine the Lift coefficient :math:`C_L` required to fly with the
     * Static pressure: :math:`P_S [Pa]`
     * Acceleration of gravity: :math:`g [m/s^2]`
 
-In CEASIOMpy :math:`P_S` and  :math:`g` can be obtained from the altitude value by using the standard atmosphere function.
+In CEASIOMpy :math:`P_S` and  :math:`g` can be obtained from the altitude value by using the standard atmosphere function for any altitude.
 
 
 The Lift force of an aircraft is given by:

@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aaron Dettmann
 | Creation: 2019-08-06
-| Last modifiction: 2019-10-28
+| Last modifiction: 2020-02-17
 
 TODO:
 
@@ -20,18 +20,17 @@ TODO:
 #   IMPORTS
 #==============================================================================
 
-from glob import glob
-import importlib
 import os
 import uuid
-from pathlib import Path
 import inspect
+import importlib
+from glob import glob
+from pathlib import Path
+
+import ceasiompy.utils.cpacsfunctions as cpsf
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, create_branch
-
 log = get_logger(__file__.split('.')[0])
-
 
 # Path for main CEASIOMpy library
 import ceasiompy.__init__
@@ -40,6 +39,7 @@ LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
 # Shortcut for XPath definition
 CEASIOM_XPATH = '/cpacs/toolspecific/CEASIOMpy'
 AIRCRAFT_XPATH = '/cpacs/vehicles/aircraft'
+SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 MODNAME_TOP = 'ceasiompy'
 MODNAME_SPECS = '__specs__'
@@ -203,7 +203,7 @@ def check_cpacs_input_requirements(cpacs_file, *, submod_name=None, submodule_le
         specs_module = get_specs_for_module(submod_name, raise_error=True)
         cpacs_inout = specs_module.cpacs_inout
 
-    tixi = open_tixi(cpacs_file)
+    tixi = cpsf.open_tixi(cpacs_file)
     missing_nodes = []
     for entry in cpacs_inout.inputs:
         if entry.default_value is not None:
@@ -363,8 +363,8 @@ def create_default_toolspecific():
 
     CPACS_PATH = './doc/empty_cpacs.xml'
 
-    tixi_in = open_tixi(CPACS_PATH)
-    tixi_out = open_tixi(CPACS_PATH)
+    tixi_in = cpsf.open_tixi(CPACS_PATH)
+    tixi_out = cpsf.open_tixi(CPACS_PATH)
 
     for mod_name, specs in get_all_module_specs().items():
         if specs is not None:
@@ -379,7 +379,7 @@ def create_default_toolspecific():
                 xpath_parent = xpath[:-(len(value_name)+1)]
 
                 if not tixi_in.checkElement(xpath):
-                    create_branch(tixi_in,xpath_parent)
+                    cpsf.create_branch(tixi_in,xpath_parent)
                     if entry.default_value is not None:
                         value = str(entry.default_value)
                     else:
@@ -389,12 +389,12 @@ def create_default_toolspecific():
             # Outputs
             for entry in specs.cpacs_inout.outputs:
                 xpath = entry.xpath
-                create_branch(tixi_out,xpath)
+                cpsf.create_branch(tixi_out,xpath)
 
     TOOLSPECIFIC_INPUT_PATH = './doc/input_toolspecifics.xml'
     TOOLSPECIFIC_OUTPUT_PATH = './doc/output_toolspecifics.xml'
-    close_tixi(tixi_in,TOOLSPECIFIC_INPUT_PATH)
-    close_tixi(tixi_out,TOOLSPECIFIC_OUTPUT_PATH)
+    cpsf.close_tixi(tixi_in,TOOLSPECIFIC_INPUT_PATH)
+    cpsf.close_tixi(tixi_out,TOOLSPECIFIC_OUTPUT_PATH)
 
 
 def check_workflow(cpacs_path, submodule_list):
@@ -426,7 +426,7 @@ def check_workflow(cpacs_path, submodule_list):
     if not isinstance(submodule_list, (list, tuple)):
         raise TypeError("'submodule_list' must be of type list or tuple")
 
-    tixi = open_tixi(cpacs_path)
+    tixi = cpsf.open_tixi(cpacs_path)
     xpaths_from_workflow = set()
     err_msg = ''
     for i, submod_name in enumerate(submodule_list, start=1):

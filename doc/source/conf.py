@@ -18,7 +18,7 @@ NAME = 'CEASIOMpy'
 
 # -- Project information -----------------------------------------------------
 project = NAME
-copyright = '2019, CFS Engineering'
+copyright = '2020, CFS Engineering'
 author = 'CFS Engineering'
 
 # version: The short X.Y version
@@ -100,6 +100,9 @@ rst_prolog = f"""
 .. _CPACS: https://www.cpacs.de/
 .. _Tixi: https://github.com/DLR-SC/tixi
 .. _Tigl: https://github.com/DLR-SC/tigl
+.. _CPACSCrator: https://dlr-sc.github.io/tigl/doc/cpacscreator-0.1/
+.. _SUMO: https://www.larosterna.com/products/open-source
+.. _SU2: https://su2code.github.io/
 .. _RCE: https://rcenvironment.de/
 .. _DLR: https://www.dlr.de/
 .. _pip: https://pypi.org/project/pip/

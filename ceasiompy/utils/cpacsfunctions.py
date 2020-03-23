@@ -26,11 +26,7 @@ TODO:
 import os
 import sys
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger(__file__.split('.')[0])
-
-# Should maybe be change depending how/where Tixi and Tigl are installed
+# Depending how/where Tixi and Tigl are installed, it could be:
 #     import tixi3wrapper
 #     import tigl3wrapper
 #     from tixi3wrapper import Tixi3Exception
@@ -41,6 +37,9 @@ import tigl3.tigl3wrapper as tigl3wrapper
 from tixi3.tixi3wrapper import Tixi3Exception
 from tigl3.tigl3wrapper import Tigl3Exception
 
+from ceasiompy.utils.ceasiomlogger import get_logger
+
+log = get_logger(__file__.split('.')[0])
 
 #==============================================================================
 #   CLASSES
@@ -261,6 +260,34 @@ def copy_branch(tixi, xpath_from, xpath_to):
                 last_attrib = 1
 
 
+def get_uid(tixi, xpath):
+    """ Function to get uID from a specific XPath.
+
+    Function 'get_uid' checks the xpath and get the corresponding uID.
+
+    Source :
+        * TIXI functions: http://tixi.sourceforge.net/Doc/index.html
+
+    Args:
+        tixi (handles): TIXI Handle of the CPACS file
+        xpath (str): xpath of the branch to add the uid
+
+    Returns:
+        uid (str): uid to add at xpath
+    """
+
+
+    if not tixi.checkElement(xpath):
+        raise ValueError(xpath + ' XPath does not exist!')
+
+    if tixi.checkAttribute(xpath, 'uID'):
+        uid = tixi.getTextAttribute(xpath, 'uID')
+        return uid
+    else:
+        raise ValueError("No uID found for: " + xpath)
+
+
+
 def add_uid(tixi, xpath, uid):
     """ Function to add UID at a specific XPath.
 
@@ -275,8 +302,6 @@ def add_uid(tixi, xpath, uid):
         xpath (str): xpath of the branch to add the uid
         uid (str): uid to add at xpath
 
-    Returns:
-        tixi (handles): Modified TIXI Handle (with new uid)
     """
 
     exist = True
@@ -437,6 +462,7 @@ def add_float_vector(tixi, xpath, vector):
     else:
         tixi.addFloatVector(xpath_parent, xpath_child_name, vector, \
                             len(vector), format='%g')
+        tixi.addTextAttribute(xpath, 'mapType', 'vector')
 
 
 def get_float_vector(tixi, xpath):
@@ -558,7 +584,7 @@ def get_path(tixi, xpath):
     return correct_path
 
 
-def aircraft_name(cpacs_path):
+def aircraft_name(tixi_or_cpacs):
     """ The function gat the name of the aircraft from the cpacs file or add a
         default one if non-existant.
 
@@ -569,15 +595,29 @@ def aircraft_name(cpacs_path):
         name (str): Name of the aircraft.
     """
 
-    tixi = open_tixi(cpacs_path)
+    # TODO: MODIFY this funtion, temporary it could accept a cpacs path or tixi handle
+    # check xpath
+    # *modify corresponding test
 
-    aircraft_name_xpath = '/cpacs/header/name'
-    name = get_value_or_default(tixi,aircraft_name_xpath,'Aircraft')
+    if isinstance(tixi_or_cpacs,str):
+
+        tixi = open_tixi(tixi_or_cpacs)
+
+        aircraft_name_xpath = '/cpacs/header/name'
+        name = get_value_or_default(tixi,aircraft_name_xpath,'Aircraft')
+
+        close_tixi(tixi, tixi_or_cpacs)
+
+    else:
+
+        aircraft_name_xpath = '/cpacs/header/name'
+        name = get_value_or_default(tixi_or_cpacs,aircraft_name_xpath,'Aircraft')
+
     log.info('The name of the aircraft is : ' + name)
 
-    close_tixi(tixi, cpacs_path)
-
     return(name)
+
+
 
 
 #==============================================================================
@@ -591,9 +631,9 @@ if __name__ == '__main__':
 
 ### HOW TO IMPORT THESE MODULE
 
-# from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
-#                                            create_branch, copy_branch, add_uid,\
-#                                            get_value, get_value_or_default,    \
-#                                            add_float_vector, get_float_vector, \
-#                                            add_string_vector,get_string_vector,\
-#                                            get_path, aircraft_name
+# from ceasiompy.utils.cpacsfunctions import cpsf
+
+# All available function are:
+# open_tixi, close_tixi, open_tigl,create_branch, copy_branch, add_uid,
+# get_value, get_value_or_default, add_float_vector, get_float_vector,
+# add_string_vector,get_string_vector, get_path, aircraft_name

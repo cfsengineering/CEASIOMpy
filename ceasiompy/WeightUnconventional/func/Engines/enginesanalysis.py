@@ -5,10 +5,12 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Evaluation of the mass of the aircraft engines.
 
-| Works with Python 2.7
+Python version: >=3.6
+
 | Author : Stefano Piccini
 | Date of creation: 2018-12-19
-| Last modifiction: 2019-02-20
+| Last modifiction: 2020-01-23 (AJ)
+
 """
 
 
@@ -44,14 +46,15 @@ def engine_definition(mw, ui, ed):
     - EN_PLACEMENT;
     - NE.
 
-    ARGUMENTS
-    (class) mw --Arg.: MassesWeights class.
-    (class) ui --Arg.: UserInputs class.
-    (class) ed     --Arg.: EngineData class.
-    ##=========== Class are defined in the InputClasses folder ============##
+    Args:
+        mw (class): MassesWeights class.
+        ui (class): UserInputs class.
+        ed (class): EngineData class.
 
     OUTPUT
-    (class) ed --Out.: Updated EngineData class.
+        ed (class) : Updated EngineData class.
+        en_mass*ed.NE ...?
+
     """
 
     if not ed.TURBOPROP :
@@ -82,12 +85,9 @@ def check_ed(ed):
     The function checks if all the engine data are defined correctly in
     case they are defined directly by the user.
 
-    ARGUMENTS
-    (class) ed --Arg.: EngineData class.
-    ##=========== Class is defined in the InputClasses folder =========##
+    Args:
+        ed (class): EngineData class.
 
-    OUTPUT
-    -none-
     """
     s =np.shape(ed.EN_PLACEMENT)
     if not ed.NE:
@@ -109,8 +109,7 @@ def check_ed(ed):
 #=============================================================================
 
 if __name__ == '__main__':
+
     log.warning('########################################################')
     log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #')
     log.warning('########################################################')
-
-

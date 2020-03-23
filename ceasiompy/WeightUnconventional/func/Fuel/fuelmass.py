@@ -6,12 +6,13 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 Evaluation of the fuel mass in the fuselages and in the wings for
 an unconventional aircraft.
 
-| Works with Python 2.7
+Python version: >=3.6
+
 | Author: Stefano Piccini
 | Date of creation: 2018-12-19
 | Last modifiction: 2019-02-20
-"""
 
+"""
 
 #=============================================================================
 #   IMPORTS
@@ -40,12 +41,12 @@ def estimate_fuse_fuel_mass(fuse_fuel_vol, FUEL_DENSITY):
     """
     The function evaluates the fuel mass in the tank inside fuselages.
 
-    ARGUMENTS
-    (float) fuse_fuel_vol  --Arg.: Volume of the fuselage fuel tank [m^3].
-    (float) FUEL_DENSITY   --Arg.: Fuel density [kg/m^3].
+    Args:
+        fuse_fuel_vol (float): Volume of the fuselage fuel tank [m^3].
+        FUEL_DENSITY  (float): Fuel density [kg/m^3].
 
-    OUTPUTS
-    (float) fuse_fuel --Out.: Fuel mass in the fuselage [kg].
+    Returns:
+        fuse_fuel(float): Fuel mass in the fuselage [kg].
 
     """
     return(round(np.sum(fuse_fuel_vol) * FUEL_DENSITY,0))
@@ -56,13 +57,13 @@ def estimate_wing_fuel_mass(fuel_vol_tot, FUEL_DENSITY):
     """
     The function evaluates the fuel mass in the tanks inside the wings.
 
-    ARGUMENTS
-    (float) fuel_vol_tot   --Arg.: Total wing fuel volume [m^3].
-    (float) FUEL_DENSITY   --Arg.: Fuel density [kg/m^3].
-    ##========= Classes are defined in the InputClasses folder =========##
+    Args:
+        fuel_vol_tot (float): Total wing fuel volume [m^3].
+        FUEL_DENSITY (float): Fuel density [kg/m^3].
 
-    OUTPUTS
-    (float) wing_fuel --Out.: Fuel mass in the wings [kg].
+    Retruns:
+        wing_fuel (float): Fuel mass in the wings [kg].
+
     """
 
     return(round(np.sum(fuel_vol_tot) * FUEL_DENSITY,0))
@@ -73,8 +74,7 @@ def estimate_wing_fuel_mass(fuel_vol_tot, FUEL_DENSITY):
 #=============================================================================
 
 if __name__ == '__main__':
+
     log.warning('########################################################')
     log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #')
     log.warning('########################################################')
-
-

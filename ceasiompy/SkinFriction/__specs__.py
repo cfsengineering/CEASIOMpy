@@ -85,7 +85,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='m^2',
     descr='Wing area of the main (largest) wing',
-    xpath=CEASIOM_XPATH + '/geometry/analysis/wingArea',
+    xpath=CEASIOM_XPATH + '/geometry/analyses/wingArea',
 )
 
 cpacs_inout.add_output(
@@ -93,5 +93,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit='m',
     descr='Wing span of the main (largest) wing',
-    xpath=CEASIOM_XPATH + '/geometry/analysis/wingSpan',
+    xpath=CEASIOM_XPATH + '/geometry/analyses/wingSpan',
 )

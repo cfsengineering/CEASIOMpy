@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2019-10-04
-| Last modifiction: 2019-10-07
+| Last modifiction: 2020-02-17
 
 TODO:
 
@@ -26,10 +26,9 @@ import sys
 import shutil
 import datetime
 
+import ceasiompy.utils.cpacsfunctions as cpsf
+
 from ceasiompy.utils.ceasiomlogger import get_logger
-
-from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi, get_value_or_default, create_branch
-
 
 log = get_logger(__file__.split('.')[0])
 
@@ -84,16 +83,16 @@ def get_wkdir_or_create_new(tixi):
     """
 
     WKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath'
-    wkdir_path = get_value_or_default(tixi,WKDIR_XPATH,'')
+    wkdir_path = cpsf.get_value_or_default(tixi,WKDIR_XPATH,'')
     if wkdir_path is '':
         wkdir_path = create_new_wkdir()
-        create_branch(tixi,WKDIR_XPATH)
+        cpsf.create_branch(tixi,WKDIR_XPATH)
         tixi.updateTextElement(WKDIR_XPATH,wkdir_path)
     else:
         # Check if the directory really exists
         if not os.path.isdir(wkdir_path):
             wkdir_path = create_new_wkdir()
-            create_branch(tixi,WKDIR_XPATH)
+            cpsf.create_branch(tixi,WKDIR_XPATH)
             tixi.updateTextElement(WKDIR_XPATH,wkdir_path)
 
     return wkdir_path
@@ -109,7 +108,7 @@ def get_install_path(soft_check_list):
         soft_check_list (list): List of software to check installation path
 
     Returns:
-        soft_dict (check): Dictionary of software with their installation path
+        soft_dict (dict): Dictionary of software with their installation path
 
     """
 
@@ -131,6 +130,46 @@ def get_install_path(soft_check_list):
     return soft_dict
 
 
+def get_execution_date(tixi, module_name, xpath):
+    """Function to get and write the execution date of a CEASIOMpy module.
+
+    Function 'get_execution_date' ...
+
+    Args:
+        tixi (handles): TIXI Handle of the CPACS file
+        module_name (str): Name of the module to test
+        xpath (str): xPath where start and end time will be stored
+
+    Returns:
+        tixi (handles): Modified TIXI Handle
+
+    """
+
+    # logfile_name = __file__.split('.')[0] + '.log'
+    #
+    # start_time = None
+    # end_time = None
+    #
+    # with open(logfile_name) as f:
+    #     for line in f.readlines():
+    #         if '>>> SU2_CFD Start Time' in line:
+    #             start_time = line.split(' - ')[0]
+    #         if '>>> SU2_CFD End Time' in line:
+    #             end_time = line.split(' - ')[0]
+    #
+    # if start_time == None:
+    #     log.warning("SU2 Start time has not been found in the logfile!")
+    # if end_time == None:
+    #     log.warning("SU2 End time has not been found in the logfile!")
+    #
+    # cpsf.create_branch(tixi,xpath+'/startTime')
+    # tixi.updateTextElement(xpath+'/startTime',start_time)
+    # cpsf.create_branch(tixi,xpath+'/endTime')
+    # tixi.updateTextElement(xpath+'/endTime',end_time)
+
+    return tixi
+
+
 #==============================================================================
 #    MAIN
 #==============================================================================
@@ -140,6 +179,9 @@ if __name__ == '__main__':
     log.info('Nothing to execute!')
 
 
-### HOW TO IMPORT THESE MODULE
-
-# from ceasiompy.utils.ceasiompyfunctions import create_new_wkdir, get_wkdir_or_create_new, get_install_path
+### HOW TO USE THESE FUNCTIONS
+# import ceasiompy.utils.cpacsfunctions as cpsf
+#
+# cpsf.create_new_wkdir()
+# cpsf.get_wkdir_or_create_new(tixi)
+# cpsf.get_install_path(soft_check_list)

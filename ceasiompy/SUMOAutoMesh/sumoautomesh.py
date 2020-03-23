@@ -93,14 +93,15 @@ def create_SU2_mesh(cpacs_path,cpacs_out_path):
     command_line = [soft_dict['sumo'], '-batch',sumo_output,
                     tetgen_options, sumo_file_path]
 
-    # print(' '.join(command_line))
+    # print('COUCOU',' '.join(command_line))
     os.system(' '.join(command_line))
 
     # Copy the mesh in the MESH directory
     su2_mesh_path = os.path.join(sumo_dir,'ToolOutput.su2')
     aircraft_name = cpsf.aircraft_name(tixi)
     su2_mesh_name = aircraft_name + '_baseline.su2'
-    su2_mesh_new_path = os.path.join(mesh_dir,su2_mesh_name)
+
+    su2_mesh_new_path = os.path.join(mesh_dir,su2_mesh_name.replace(" ", "_"))
     shutil.copyfile(su2_mesh_path, su2_mesh_new_path)
 
     if os.path.isfile(su2_mesh_new_path):

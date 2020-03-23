@@ -35,14 +35,14 @@ from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
                                             get_aeromap, merge_aeroMap,           \
                                             aeromap_from_csv, aeromap_to_csv,     \
                                             delete_aeromap
-from ceasiompy.StabilityDynamic.func import get_unic,                \
-                                            extract_subelements,     \
-                                            change_sign,             \
-                                            get_index,               \
-                                            speed_derivative_at_trim,\
-                                            dynamic_stability_analysis, \
-                                            short_period, phugoid, \
-                                            roll, spiral, dutch_roll
+from ceasiompy.StabilityDynamic.func_dynamic import get_unic, interpolation, get_index, \
+                                            speed_derivative_at_trim, adimensionalise,\
+                                            speed_derivative_at_trim_lat, concise_derivative_longi, concise_derivative_lat,\
+                                            longi_root_identification, direc_root_identification,\
+                                            check_sign_longi, check_sign_lat,\
+                                            short_period_damping_rating, short_period_frequency_rating, cap_rating, \
+                                            phugoid_rating, roll_rating, spiral_rating, dutch_roll_rating, plot_splane,\
+                                            longi_mode_characteristic, direc_mode_characteristic, trim_condition
 from ceasiompy.StabilityDynamic.dynamicstability import dynamic_stability_analysis
 from ceasiompy.utils.ceasiomlogger import get_logger
 import ceasiompy.__init__
@@ -59,65 +59,51 @@ log = get_logger(__file__.split('.')[0])
 #   FUNCTIONS
 #==============================================================================
 
-# idx_cml_0 = [i for i in range(len(cml)) if cml[i] == 0][0]
-
-def test_short_period():
-    u0 =
-    qs =
-    i_yy = 100
-    mac =
-    m_alpha =
-    cd0 =
-    cl_alpha =
-    cm_q =
-    assert np.array_equal(short_period(u0, qs, i_yy, mac, m_alpha,  cd0, cl_alpha, cm_q), [1,2])
-
-def test_phugoid():
-    u0 =
-    cd0 =
-    cl0 =
-    g =
-    assert np.array_equal(phugoid( u0, cd0, cl0, g),[])
-
-def test_roll():
-    u0 =
-    qs =
-    i_xx = 100
-    i_zz =
-    b =
-    cl_p =
-    cn_p =
-    assert np.array_equal(roll(u0, qs, i_xx, i_zz, b, cl_p, cn_p), [1,2])
-
-def test_spiral() :
-    u0 =
-    qs =
-    b =
-    i_xx = 100
-    i_yy = 100
-    cn_r =
-    cl_r =
-    cl_beta =
-    cn_beta =
-    assert np.array_equal(spiral(u0, qs, b, i_xx, i_yy, cn_r, cl_r, cl_beta, cn_beta), [])
-
-def test_dutch_roll():
-    u0 =
-    qs =
-    b =
-    i_xx = 100
-    i_zz = 100
-    cl_p =
-    cl_r =
-    cl_beta =
-    n_p =
-    n_r =
-    cn_beta =
-    assert np.array_equal(dutch_roll(u0, qs, b,i_xx, i_zz, cl_p, cl_r, cl_beta , n_p, n_r, cn_beta), [1,2])
-
 def test_get_unic():
     """ Test function 'get_unic' """
     assert get_unic([1,1,1,1,1,1,1,2,2,2,2,2]) == [1, 2]
+
+
+def test_interpolation():
+    """Return the interpolation between list[idx1] and list[idx2] of vector "list"."""
+    list = [0,1,2]
+    idx1 = 1
+    idx2 = 2
+    ratio = 0.5
+    assert interpolation(list, idx1, idx2, ratio) == 1.5
+
+
+def test_get_index():
+    """Test Function 'get_index'"""
+    list1 = [0,1,3,11,22,30]
+    list2 = [0,1,2,3,5]
+    list3 = [1,3,4,5,6,7]
+    assert np.array_equal(get_index(list1,list2,list3) , [1,3])
+
+
+def test_speed_derivative_at_trim():
+    """ Gives the speed derivative of coefficient Cd for trim conditions given by:
+    idx_trim_before , idx_trim_after and ratio '"""
+    
+    alt_list      = [0,0,0,0,0,0,  0,0,0,0,0,0,  1,1,1,1,1,1,  1,1,1,1,1,1]
+    mach_list = [0,0,1,1,2,2,  0,0,1,1,2,2,  0,0,1,1,2,2,  0,0,1,1,2,2]
+    aoa_list    = [1,2,1,2,1,2,  1,2,1,2,1,2,  1,2,1,2,1,2,  1,2,1,2,1,2]
+    aos_list    = [0,0,0,0,0,0,  1,1,1,1,1,1,  0,0,0,0,0,0,  1,1,1,1,1,1]
+    cd_list      = [1,2,2,3,3,4,  2,3,2,3,2,3,  1,2,1,2,1,2,  2,3,2,3,2,3]
+
+    mach =2
+    idx_alt = [0,1,2,3,4,5,7,8,9,10,11]
+    aos = 0
+    mach_unic_list = [0,1,2]
+    idx_trim_before=0
+    idx_trim_after=1
+    ratio = 0.5
+    parameter_list = cd_list
+
+    cdu = speed_derivative_at_trim(parameter_list,mach,mach_list,idx_alt,aoa_list,aos,aos_list,mach_unic_list,idx_trim_before, idx_trim_after, ratio)
+    assert cdu == 1
+
+
 
 
 def test_extract_subelements():

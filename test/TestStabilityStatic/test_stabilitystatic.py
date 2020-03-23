@@ -38,12 +38,12 @@ from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
                                          get_aeromap, merge_aeroMap,           \
                                          aeromap_from_csv, aeromap_to_csv,     \
                                          delete_aeromap
-from ceasiompy.StabilityDynamic.func import get_unic,                \
-                                                      extract_subelements,     \
-                                                      get_index
 
-from ceasiompy.StabilityStatic.staticstability import change_sign,             \
-                                                      static_stability_analysis
+from ceasiompy.StabilityStatic.func_static import get_unic, get_index, extract_subelements,\
+                                            order_correctly, trim_derivative, plot_multicurve,\
+                                            trim_condition, interpolation
+# from ceasiompy.StabilityStatic.staticstability import change_sign,             \
+#                                                       static_stability_analysis
 
 import ceasiompy.__init__
 LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
@@ -66,9 +66,24 @@ def test_get_unic():
     assert get_unic([1,1,1,1,1,1,1,2,2,2,2,2]) == [1, 2]
 
 
+def test_get_index():
+    """Test Function 'get_index'"""
+    list1 = [0,1,3,11,22,30]
+    list2 = [0,1,2,3,5]
+    list3 = [1,3,4,5,6,7]
+    assert np.array_equal(get_index(list1,list2,list3) , [1,3])
+
+
 def test_extract_subelements():
     """ from a oririginal vector [[1,2,3],[1]] return [1,2,3,1] """
     assert extract_subelements([[1,2,3], [1]]) == [1,2,3,1]
+
+
+def test_order_correctly():
+    """ Order list X in incresing order and moves element in Y in the same way as elements in X have been ordered"""
+    X = [0,-2,-1,1,2]
+    Y = [1, 2,  3,4,5]
+    assert np.array_equal(order_correctly(X,Y), ([-2, -1, 0, 1, 2], [2, 3, 1, 4, 5] ))
 
 
 def test_polyfit():
@@ -81,61 +96,60 @@ def test_polyfit():
     assert slope == approx(1.0)
 
 
-def test_change_sign() :
-    """Test function 'change_sign' """
-    # to simplify understanfing of ARWHERE
-    'find index of 0 or the one of element just befor sign change'
-    vect1= [-3,-2,-1,1,2,3]
-    vect2= [-3,-2,-1,0,1,2,3]
-    vect3= [-3,-2,-1,0,0,-1,-3]
+def test_trim_condition():
+    """Find the required aoa for level flight and return index """
+    alt = 0
+    mach = 0.6
+    cl_required = 1.3182950297023035
+    aoa =  [-5.0, -4.0, -3.0, -2.0, -1.0, 0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
+    cl = [0.12369, 0.25968, 0.39544, 0.53093, 0.66608, 0.80082, 0.93512, 1.06889, 1.20208, 1.33464,\
+             1.46649, 1.59758, 1.72786, 1.85724, 1.98569, 2.11312]
+    (trim_aoa, idx_trim_before, idx_trim_after, ratio) = trim_condition(alt, mach, cl_required, cl, aoa)
+    assert((trim_aoa, idx_trim_before, idx_trim_after, ratio) == (3.876697568665536,8,9,0.876697568665536))
 
-    result1 = np.argwhere(np.diff(np.sign(vect1)))
-    result2 = np.argwhere(np.diff(np.sign(vect2)))
-    result3 = np.argwhere(np.diff(np.sign(vect3)))
 
-    assert np.array_equal(result1,[[2]])
-    assert np.array_equal(result2,[[2],[3]])
-    assert np.array_equal(result3,[[2],[4]])
-
-    # If all Cml values are 0:
-    assert np.array_equal(change_sign(10,[1,2,3,4,5,6],[0,0,0,0,0,0]), ['','',False])
-    # If cml curve does not cross the 0
-    assert np.array_equal(change_sign(10,[1,2,3,4,5,6],[1,2,3,4,5,6]), ['','',False])
-    assert np.array_equal(change_sign(10,[1,2,3,4,5,6],[-1,-2,-3,-4,-5,-6]), ['','',False])
-    # If cml Curve crosses the 0 line more than once no stability analysis can be performed
-    assert np.array_equal(change_sign(10,[1,2,3,4,5,6],[-1,-2,0,0,-1,-2]), ['','',False])
-    assert np.array_equal(change_sign(10,[1,2,3,4,5,6],[-1,-2,0,-1,2,3]), ['','',False])
-    # If cml Curve crosses the 0 line twice
-    assert np.array_equal(change_sign(10,[1,2,3,4,5,6],[-1,-2,1,2,-1,-2]), ['','',False])
-    assert np.array_equal(change_sign(10,[1,2,3,4,5,6],[-1,-2,0,-1,2,3]), ['','',False])
+def test_interpolation():
+    """Return the interpolation between list[idx1] and list[idx2] of vector "list"."""
+    list = [0,1,2]
+    idx1 = 1
+    idx2 = 2
+    ratio = 0.5
+    assert interpolation(list, idx1, idx2, ratio) == 1.5
 
 
 
-    """ Test function 'np.polyfit' which  find if  Coefficeint Moments, cm, crosse the 0 line only once and return the corresponding angle and the cm derivative at cm=0 """
-    [cruise_angle, moment_derivative, crossed] = change_sign(10, [1,2,3] , [0,-1,-4])
-    assert [cruise_angle, moment_derivative, crossed] == [1,-1, True]
 
-    [cruise_angle, moment_derivative, crossed] = change_sign(10, [1,2,3] , [4,1,0])
-    assert [cruise_angle, moment_derivative, crossed] == [3,-1, True]
-
-    [cruise_angle, moment_derivative, crossed] = change_sign(10, [1,2,3] , [1,0,-1])
-    assert [cruise_angle, moment_derivative, crossed] == [2,-1, True]
-
-    [cruise_angle, moment_derivative, crossed] = change_sign(10, [1,2,3] , [2,1,-1])
-    assert [cruise_angle, moment_derivative, crossed] == [approx(2.5),approx(-2), True]
-
-    # [cruise_angle, moment_derivative, crossed] = change_sign([1,2,3] , [2,1,1])
-    # assert [cruise_angle, moment_derivative, crossed] == ['','', False]
-
-def test_get_index():
-    """Test Function 'get_index'"""
-    list1 = [0,1,3,11,22,30]
-    list2 = [0,1,2,3,5]
-    list3 = [1,3,4,5,6,7]
-
-    assert np.array_equal(get_index(list1,list2,list3) , [1,3])
-
-
+# def test_change_sign() :
+#     """Test function 'change_sign' """
+#     # to simplify understanfing of ARWHERE
+#     'find index of 0 or the one of element just befor sign change'
+#     vect1= [-3,-2,-1,1,2,3]
+#     vect2= [-3,-2,-1,0,1,2,3]
+#     vect3= [-3,-2,-1,0,0,-1,-3]
+#
+#     result1 = np.argwhere(np.diff(np.sign(vect1)))
+#     result2 = np.argwhere(np.diff(np.sign(vect2)))
+#     result3 = np.argwhere(np.diff(np.sign(vect3)))
+#
+#     assert np.array_equal(result1,[[2]])
+#     assert np.array_equal(result2,[[2],[3]])
+#     assert np.array_equal(result3,[[2],[4]])
+#
+#     # If all Cml values are 0:
+#     assert np.array_equal(change_sign(10,[1,2,3,4,5,6],[0,0,0,0,0,0]), ['','',False])
+#     # If cml curve does not cross the 0
+#     assert np.array_equal(change_sign(10,[1,2,3,4,5,6],[1,2,3,4,5,6]), ['','',False])
+#     assert np.array_equal(change_sign(10,[1,2,3,4,5,6],[-1,-2,-3,-4,-5,-6]), ['','',False])
+#     # If cml Curve crosses the 0 line more than once no stability analysis can be performed
+#     assert np.array_equal(change_sign(10,[1,2,3,4,5,6],[-1,-2,0,0,-1,-2]), ['','',False])
+#     assert np.array_equal(change_sign(10,[1,2,3,4,5,6],[-1,-2,0,-1,2,3]), ['','',False])
+#     # If cml Curve crosses the 0 line twice
+#     assert np.array_equal(change_sign(10,[1,2,3,4,5,6],[-1,-2,1,2,-1,-2]), ['','',False])
+#     assert np.array_equal(change_sign(10,[1,2,3,4,5,6],[-1,-2,0,-1,2,3]), ['','',False])
+#
+#
+#
+#
 def test_static_stability_analysis():
     """Test function 'staticStabilityAnalysis' """
 
@@ -175,38 +189,38 @@ def test_static_stability_analysis():
     # Assert that all error type happend only once.
     assert graph_cruising == True
 
-    ERR = ['ERROR - Alt = 1200.0Cm does not cross the 0 line, aircraft not stable',
-           'ERROR - Alt = 1210.0Cm does not cross the 0 line, aircraft not stable',
-           'ERROR - Alt = 1300.0The Cm curves crosses more than once the 0 line, no stability analysis performed',
-           'ERROR - Alt = 1310.0The Cm curves crosses more than once the 0 line, no stability analysis performed',
-           'ERROR - Alt = 1400.0Vehicle *NOT* longitudinaly staticaly stable',
-           'ERROR - Alt = 1500.0Vehicle *NOT* longitudinaly staticaly stable',
-           'ERROR - Alt = 1600.0Vehicle *NOT* longitudinaly staticaly stable',
-           'ERROR - Alt = 1700.0Vehicle *NOT* longitudinaly staticaly stable',
-           'ERROR - Alt = 1800.0 , at least 2 aoa values are equal',
-           'ERROR - Alt = 1800.0 , at least 2 aos values are equal',
-           'ERROR - Alt = 2200.0Cm does not cross the 0 line, aircraft not stable',
-           'ERROR - Alt = 2210.0Cm does not cross the 0 line, aircraft not stable',
-           'ERROR - Alt = 2300.0The Cm curves crosses more than once the 0 line, no stability analysis performed',
-           'ERROR - Alt = 2310.0The Cm curves crosses more than once the 0 line, no stability analysis performed',
-           'ERROR - Alt = 2400.0Vehicle *NOT* directionnaly staticaly stable',
-           'ERROR - Alt = 2500.0Vehicle *NOT* directionnaly staticaly stable',
-           'ERROR - Alt = 2600.0Vehicle *NOT* directionnaly staticaly stable',
-           'ERROR - Alt = 2700.0Vehicle *NOT* directionnaly staticaly stable',
-           'ERROR - Alt = 2800.0 , at least 2 aoa values are equal',
-           'ERROR - Alt = 2800.0 , at least 2 aos values are equal',
-           'ERROR - Alt = 4000.0Vehicle *NOT* longitudinaly staticaly stable',
-           'ERROR - Alt = 5000.0Vehicle *NOT* longitudinaly staticaly stable',
-           'ERROR - Alt = 6000.0Vehicle *NOT* longitudinaly staticaly stable',
-           'ERROR - Alt = 7000.0Vehicle *NOT* directionnaly staticaly stable',
-           'ERROR - Alt = 7000.0Vehicle *NOT* directionnaly staticaly stable',
-           'ERROR - Alt = 8000.0Vehicle *NOT* directionnaly staticaly stable',
-           'ERROR - Alt = 9000.0Vehicle *NOT* directionnaly staticaly stable']
-    for the_error in ERR:
-        assert the_error in errors , 'Reffer to the the altitude in the .odt & .cvs files'
-    # TODO, change the way it is tested
-    #assert np.array_equal(error_list,occurence)
-    # print(errors)
+#     ERR = ['ERROR - Alt = 1200.0Cm does not cross the 0 line, aircraft not stable',
+#            'ERROR - Alt = 1210.0Cm does not cross the 0 line, aircraft not stable',
+#            'ERROR - Alt = 1300.0The Cm curves crosses more than once the 0 line, no stability analysis performed',
+#            'ERROR - Alt = 1310.0The Cm curves crosses more than once the 0 line, no stability analysis performed',
+#            'ERROR - Alt = 1400.0Vehicle *NOT* longitudinaly staticaly stable',
+#            'ERROR - Alt = 1500.0Vehicle *NOT* longitudinaly staticaly stable',
+#            'ERROR - Alt = 1600.0Vehicle *NOT* longitudinaly staticaly stable',
+#            'ERROR - Alt = 1700.0Vehicle *NOT* longitudinaly staticaly stable',
+#            'ERROR - Alt = 1800.0 , at least 2 aoa values are equal',
+#            'ERROR - Alt = 1800.0 , at least 2 aos values are equal',
+#            'ERROR - Alt = 2200.0Cm does not cross the 0 line, aircraft not stable',
+#            'ERROR - Alt = 2210.0Cm does not cross the 0 line, aircraft not stable',
+#            'ERROR - Alt = 2300.0The Cm curves crosses more than once the 0 line, no stability analysis performed',
+#            'ERROR - Alt = 2310.0The Cm curves crosses more than once the 0 line, no stability analysis performed',
+#            'ERROR - Alt = 2400.0Vehicle *NOT* directionnaly staticaly stable',
+#            'ERROR - Alt = 2500.0Vehicle *NOT* directionnaly staticaly stable',
+#            'ERROR - Alt = 2600.0Vehicle *NOT* directionnaly staticaly stable',
+#            'ERROR - Alt = 2700.0Vehicle *NOT* directionnaly staticaly stable',
+#            'ERROR - Alt = 2800.0 , at least 2 aoa values are equal',
+#            'ERROR - Alt = 2800.0 , at least 2 aos values are equal',
+#            'ERROR - Alt = 4000.0Vehicle *NOT* longitudinaly staticaly stable',
+#            'ERROR - Alt = 5000.0Vehicle *NOT* longitudinaly staticaly stable',
+#            'ERROR - Alt = 6000.0Vehicle *NOT* longitudinaly staticaly stable',
+#            'ERROR - Alt = 7000.0Vehicle *NOT* directionnaly staticaly stable',
+#            'ERROR - Alt = 7000.0Vehicle *NOT* directionnaly staticaly stable',
+#            'ERROR - Alt = 8000.0Vehicle *NOT* directionnaly staticaly stable',
+#            'ERROR - Alt = 9000.0Vehicle *NOT* directionnaly staticaly stable']
+#     for the_error in ERR:
+#         assert the_error in errors , 'Reffer to the the altitude in the .odt & .cvs files'
+#     # TODO, change the way it is tested
+#     #assert np.array_equal(error_list,occurence)
+#     # print(errors)
 
 #==============================================================================
 #    MAIN

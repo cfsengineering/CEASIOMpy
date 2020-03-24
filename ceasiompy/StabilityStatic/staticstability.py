@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Verdier Loïc
 | Creation: 2019-10-24
-| Last modifiction: 2019-11-28 (AJ)
+| Last modifiction: 2020-03-24 (AJ)
 
 TODO:
     * Modify the code where there are "TODO"
@@ -108,7 +108,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     # Aircraft MASS
     dynamic_analysis_xpath = '/cpacs/toolspecific/CEASIOMpy/stability/dynamic'    #  ADAPTER POUR MASS  CONFIG in STATIC
     selected_mass_config_xpath  = dynamic_analysis_xpath + '/MassConfiguration'
-    mass_config = get_value(tixi, selected_mass_config_xpath  )
+    mass_config = get_value(tixi,selected_mass_config_xpath)
     log.info('The aircraft mass configuration used for analysis is: ' + mass_config)
 
     model_xpath = '/cpacs/vehicles/aircraft/model'
@@ -934,22 +934,17 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 #==============================================================================
 
 
-# if __name__ == '__main__':
-#
-#     log.info('----- Start of ' + MODULE_NAME + ' -----')
-#
-#     cpacs_path = get_toolinput_file_path(MODULE_NAME)
-#     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
-#
-#     # Call the function which check if imputs are well define
-#     check_cpacs_input_requirements(cpacs_path)
-#
-#     # Call the main function for static stability analysis
-#     static_stability_analysis(cpacs_path, cpacs_out_path)
-#
-#     log.info('----- End of ' + MODULE_NAME + ' -----')
+if __name__ == '__main__':
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-cpacs_path = MODULE_DIR  + '/toolInput/toolInputD150mach.xml'
-cpacs_out_path = MODULE_DIR  + '/toolOuput/toolOutput.xml'
-static_stability_analysis(cpacs_path, cpacs_out_path)
+    log.info('----- Start of ' + MODULE_NAME + ' -----')
+
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
+
+    # Call the function which check if imputs are well define
+    check_cpacs_input_requirements(cpacs_path)
+
+    # Call the main function for static stability analysis
+    static_stability_analysis(cpacs_path, cpacs_out_path)
+
+    log.info('----- End of ' + MODULE_NAME + ' -----')

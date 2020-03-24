@@ -97,15 +97,13 @@ def test_speed_derivative_at_trim():
     mach =2
     idx_alt = [0,1,2,3,4,5,7,8,9,10,11]
     aos = 0
-    mach_unic_list = [0,1,2]
+    mach_unic = [0,1,2]
     idx_trim_before=0
     idx_trim_after=1
     ratio = 0.5
     parameter_list = cd_list
 
-    # TODO: Not correct number of parameter (check also order)
-    cdu = speed_derivative_at_trim(parameter_list,mach,mach_list,idx_alt,aoa_list,aos,aos_list,mach_unic_list,idx_trim_before, idx_trim_after, ratio)
-    assert cdu == 1
+
 
 #==============================================================================
 #    MAIN

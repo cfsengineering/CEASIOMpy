@@ -777,6 +777,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                         # tixi.updateIntegerElement(ratings_xpath + '/eiglat/rollTimeConstant', roll_rate, '%i')
                         # tixi.updateIntegerElement(ratings_xpath + '/eiglat/spiralDoublingTime', spiral_rate, '%i')
 
+                        # TODO : compute TF polynoms from Cook  (P 423 424) and save them using the following x_path
                         # # Xpath of longitudinal transfter function polynoms
                         # num_tf_elev_theta_xpath = flight_qualities_case_xpath + '/longitudinal/numThe'# numerator of TF pitch angle theta due to elevator deflection
                         # den_tf_longi_xpath = flight_qualities_case_xpath + '/longitudinal/denLon' # denominator of longitudinal motion

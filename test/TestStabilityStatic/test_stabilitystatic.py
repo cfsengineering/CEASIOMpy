@@ -86,6 +86,9 @@ def test_order_correctly():
     assert np.array_equal(order_correctly(X,Y), ([-2, -1, 0, 1, 2], [2, 3, 1, 4, 5] ))
 
 
+
+
+
 def test_polyfit():
     """ Test function 'np.polyfit' """
     fit = np.polyfit([-1, 1], [-1, 1], 1)  # returns [a,b] of y=ax+b

@@ -342,6 +342,16 @@ def test_add_float_vector():
 
     assert added_float_vector == float_vector
 
+    # TODO: fix that, apprently there is an issue with the tixi function addFloatVector when the vecor is null
+    # Add empty vector
+    # empty_vector = []
+    # xpath = '/cpacs/toolspecific/CEASIOMpy/testVectorEmpty/'
+    # add_float_vector(tixi,xpath,empty_vector)
+    # added_empty_vector = list(tixi.getFloatVector(xpath,3))
+    #
+    # assert added_empty_vector == empty_vector
+
+
 
 def test_get_float_vector():
     """ Test the function 'get_float_vector'"""

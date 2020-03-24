@@ -1,16 +1,22 @@
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
-Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 This programm stors all function needed for stability analysis (dynamic and static)
 
+Python version: >=3.6
 
-| Works with Python 2.7
-| Author : Verdier Loic
-| Date of creation: 2019-12-30
-| Last modifiction: 2019-12-30
+| Author: Loic Verdier
+| Creation: 2020-02-24
+| Last modifiction: 2020-03-24 (AJ)
+
+TODO:
+
+    * ...
+
 """
+
 #=============================================================================
 #   IMPORTS
 #=============================================================================
@@ -1575,165 +1581,10 @@ def dutch_roll_rating(flight_phase, aircraft_class, dr_damping, dr_frequency, dr
     return dr_rate
 
 
-# def plot_results_longi(analysis, longi_data, list1_unic, list2_unic, list3_unic, leg_var, title_var1, title_var2, show_plots, save_plots):
-#     for x in list1_unic :
-#         plot_damp_longi = []
-#         plot_freq_longi = []
-#         legend_longi = []
-#         for y in list2_unic :
-#             for z in list3_unic :
-#                 for data in longi_data :
-#                     if data[0] == x and data[1] == z and data[2] == y :
-#                         # Get the data to plot in the element of longi_data at (x, z, y)
-#                         trim_aoa= data[3]
-#                         short_damp = data[4]
-#                         short_freq = data[5]
-#                         phugoid_damp = data[6]
-#                         phugoid_freq = data[7]
-#                         # Prepare for plotting
-#                         plot_damp_longi.append([short_damp, phug_damp])
-#                         plot_freq_longi.append([short_freq, phug_freq])
-#                         legend_longi.append(leg_var + ' = ' + str(z) + r', $\alpha_{trim}$ = ' + str(trim_aoa) + '°')
-#         title_longi = title_var1 + ' = ' + str(x) + ' , ' + title_var2 + str(y) + ' °, and different ' + leg_var
-#         plot_multicurve(analysis, plot_damp_longi, plot_freq_longi,  legend_longi, title_longi, 'Re', 'Im', show_plots, save_plots)
-#
-#
-# def plot_results_dir(analysis, lat_dir_data, list1_unic, list2_unic, list3_unic, leg_var, title_var1, title_var2, show_plots, save_plots):
-#     for x in list1_unic :
-#         plot_damp_dir = []
-#         plot_freq_dir = []
-#         legend_dir = []
-#         for y in list2_unic :
-#             for z in list3_unic :
-#                 for data in longi_data :
-#                     if data[0] == x and data[1] == z and data[2] == y :
-#                         # Get the data to plot in the element of lat_dir_data at (alt, mach, aos)
-#                         trim_aos = data[3]
-#                         roll_damp = data[4]
-#                         roll_freq = data[5]
-#                         spiral_damp = data[6]
-#                         spiral_freq = data[7]
-#                         dutchl_damp = data[8]
-#                         dutch_freq = data[9]
-#                         # Prepare for plotting
-#                         plot_damp_dir.append([roll_damp, spiral_damp, dutch_damp])
-#                         plot_freq_dir.append([roll_freq, spiral_freq, dutch_freq])
-#                         legend_longi.append(leg_var + ' = ' + str(z) + r', $\beta_{trim}$ = ' + str(trim_aos) + '°')
-#         title_longi = title_var1 + ' = ' + str(x) + ' , ' + title_var2 + str(y) + ' °, and different ' + leg_var
-#         plot_multicurve(analysis, plot_damp_longi, plot_freq_longi,  legend_longi, title_longi, 'Re', 'Im', show_plots, save_plots)
+#==============================================================================
+#    MAIN
+#==============================================================================
 
-#
-# def plot_multicurve_dynamic(analyses, y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots):
-#     """Function to plot graph with different curves for a varying parameter
-#
-#     Function 'plot_multicurve' can plot few curves
-#
-#     Args:
-#         analyse (list) : list of 5 boolean to select curves to plot
-#             1st value : for plotting Short Periode mode
-#             2nd value : for plottin phugoid
-#             3rd value : for plotting roll mode
-#             4th value : for plotting
-#         x_axis (list) : List of vector of each curve's X coordinates
-#         y axis (list) : List of vector of each curve's Y coordinates
-#         plot_legend (list) : List of the leggends of all the different curves
-#         plot_title (str) : Tile of the plot
-#         xlabel (str) : Label of the x axis
-#         ylabel (str) : Label of the y axis
-#         show_plot (boolean) : To show plots on screen or not
-#         save_plot (boolean) : To save plots in the /ToolOutput dir or not
-#
-#     Returns:
-#         A plot with different curves if asked.
-#     """
-#     # Avoid to do the rest of the function if nothing to plot or save
-#     if not show_plots and not save_plots:
-#         return None
-#     # Create figure
-#     fig, ax = plt.subplots()
-#
-#     # To plot:
-#     short_period = analyses[0]
-#     phugoid = analyses[1]
-#     roll = analyses[2]
-#     spiral = analyses[3]
-#     dutch_roll = analyses[4]
-#
-#     # Plots
-#     N = len(x_axis)
-#     cmap = plt.cm.viridis
-#     rcParams['axes.prop_cycle'] = cycler(color=cmap(np.linspace(0, 1, N)))
-#     legend = []
-#
-#     if len(x_axis[0]) == 2 and (short_period or phugoid): # Plot longi
-#         if short_period :
-#             legend.append(Line2D([0], [0], marker='+', color='k', lw=0, label='Short Period', markersize=7))
-#         if phugoid :
-#             legend.append(Line2D([0], [0], marker='*', color='k', lw=0, label='Phugoid', markersize=7))
-#
-#         for n in range(N):
-#             the_color = cmap(np.linspace(0, 1, N))[n]
-#             legend.append(Patch(facecolor = the_color ,label=plot_legend[n]))
-#             if short_period:
-#                 plt.plot(x_axis[n][0], y_axis[n][0], marker='+', color=the_color,  markersize=7)
-#             if phugoid :
-#                 plt.plot(x_axis[n][1], y_axis[n][1], marker='*', color=the_color, markersize=7)
-#
-#     else: # Plot dir-lat
-#         if roll:
-#             legend.append(Line2D([0], [0], marker='+', color='k', lw=0, label='Roll Mode', markersize=7))
-#         if spiral:
-#             legend.append(Line2D([0], [0], marker='*', color='k', lw=0, label='Spiral Mode', markersize=7))
-#         if dutch_roll :
-#             legend.append(Line2D([0], [0], marker='o', color='k', lw=0, label='Dutch Roll Mode', markersize=7))
-#
-#         for n in range(len(x_axis)):
-#             the_color = cmap(np.linspace(0, 1, N))[n]
-#             legend.append(Patch(facecolor = the_color ,label=plot_legend[n]))
-#             if roll:
-#                 plt.plot(x_axis[n][0], y_axis[n][0], marker='+', color=the_color, markersize=4)
-#             if spiral :
-#                 plt.plot(x_axis[n][1], y_axis[n][1], marker='*',color=the_color, markersize=4)
-#             if dutch_roll :
-#                 plt.plot(x_axis[n][2], y_axis[n][2], marker='o', color=the_color, markersize=4)
-#
-#     # Title
-#     plt.title(plot_title, fontdict=None, loc='center')
-#     # Legend
-#     ax.legend(handles=legend, loc='upper right')
-#
-#     # Axes position
-#     axes = plt.gca()
-#     # Remove Top and right axes
-#     axes.spines['right'].set_color('none')
-#     axes.spines['top'].set_color('none')
-#     #Locate correctly axes:
-#     (x_max, x_min, y_max, y_min) = find_max_min(x_axis,y_axis)
-#     # Y axes
-#     if y_max < 0 :
-#         axes.spines['bottom'].set_position(('axes',1))
-#     elif y_min > 0 :
-#         axes.spines['bottom'].set_position(('axes',0))
-#     elif len(np.argwhere(np.diff(np.sign([y_min, y_max])))) != 0 :
-#         axes.spines['bottom'].set_position(('data',0))
-#     # X axes
-#     if x_max < 0 :
-#         axes.spines['left'].set_position(('axes',1))
-#     elif x_min > 0 :
-#         axes.spines['left'].set_position(('axes',0))
-#     elif len(np.argwhere(np.diff(np.sign([x_min, x_max])))) != 0 :
-#         axes.spines['left'].set_position(('data',0))
-#
-#     # Axes labels
-#     axes.annotate('$Im$', xy=(0.05*x_max, y_max+0.05*(y_max-y_min)),  ha='left', va='top',  fontsize=12)
-#     axes.annotate('$Re$', xy=(x_max, 0.1*y_max),  ha='left', va='top', fontsize=12)
-#
-#     if save_plots:
-#         fig_title = plot_title.replace(' ','_')
-#         fig_path = os.path.join(MODULE_DIR,'ToolOutput',fig_title) + '.svg'
-#         plt.savefig(fig_path)
-#
-#     if show_plots:
-#         plt.show()
-#
-#     log.info('Graph "{}" has been created'.format(plot_title))
+if __name__ == '__main__':
+
+    log.info('Nothing to execute!')

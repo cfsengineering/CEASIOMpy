@@ -30,7 +30,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit=None,
     descr="Name of the aero map to evaluate",
-    xpath=STABILITY_DYANMIC_XPATH + '/aeroMapUid',
+    xpath=STABILITY_DYNAMIC_XPATH + '/aeroMapUid',
     gui=True,
     gui_name='__AEROMAP_SELECTION',
     gui_group='Inputs',
@@ -39,10 +39,10 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name='MassConfig',
     var_type=list,
-    default_value= [mMLM, mMRM, mTOM, mZFM],
+    default_value= ['mMLM', 'mMRM', 'mTOM', 'mZFM'],
     unit='[unit]',
     xpath='/cpacs/toolspecific/CEASIOMpy/stability/dynamic/MassConfiguration',
-    gui=include_gui,
+    gui=True,
     gui_name='Mass selection: ',
     gui_group='Inputs'
 )

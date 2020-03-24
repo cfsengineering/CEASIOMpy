@@ -7,12 +7,16 @@ Test functions for 'StabbilityDynamic/dynamicstability.py'
 
 Python version: >=3.6
 
-
-| Author : Verdier Loïc
+| Author: Loic Verdier
 | Creation: 2019-10-24
-| Last modifiction: 2019-11-21 (AJ)
+| Last modifiction: 2020-03-24 (AJ)
+
+TODO:
+
+    * ...
 
 """
+
 
 #==============================================================================
 #   IMPORTS
@@ -98,12 +102,6 @@ def test_speed_derivative_at_trim():
     idx_trim_after=1
     ratio = 0.5
     parameter_list = cd_list
-
-    #cd_u = speed_derivative_at_trim(parameter_list,mach,mach_list,idx_alt,aoa_list,aos,aos_list,mach_unic_list,idx_trim_before, idx_trim_after, ratio)
-    cd_u = speed_derivative_at_trim(parameter_list , mach, mach_list, mach_unic, idx_alt, aoa_list, aos_list, idx_trim_before, idx_trim_after, ratio)
-    assert cd_u == 1
-
-
 
 
 

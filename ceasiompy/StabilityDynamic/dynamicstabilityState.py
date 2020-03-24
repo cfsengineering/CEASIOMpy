@@ -163,7 +163,6 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
         I_xz_xpath = mass_config_xpath + '/massInertia/Jxz'
     else :
         raise ValueError(' !!! The mass configuration : {} is not defined in the CPACS file !!!'.format(mass_config))
-    print('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
     # # For debugging!!!!!   Begin ----------
     # mass_xpath = 'cpacs/toolspecific/CEASIOMpy/balance/mZPM' + '/mass'
     # I_xx_xpath  = 'cpacs/toolspecific/CEASIOMpy/balance/mZPM' + '/massInertia/Jxx'
@@ -238,7 +237,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
 
     for alt in alt_unic:
         idx_alt = [i for i in range(len(alt_list)) if alt_list[i] == alt]
-
+        alt = 0
         Atm = get_atmosphere(alt)
         g = Atm.grav                            # gravity acceleration at alt
         a = Atm.sos                              # speed of sound at alt
@@ -268,17 +267,17 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                         cms.append(cms_list[index])
                         aoa.append(aoa_list[index]*np.pi/180)
                         cl.append(cl_list[index])
-                    # trim_aoa_deg, trim_cms, idx_trim_before, idx_trim_after, ratio = trim_derivative(alt, mach, cms, aoa)
-                    # trim_aoa = trim_aoa_deg # trim_aoa in rad
                     # --------------------  Calculate trim conditions  END   ------------------------------
 
                     # --------------------  Calculate trim conditions 2 Begin    ------------------------------
                     cl_required = (m*g)/(0.5*rho*u0**2*s)
                     (trim_aoa , idx_trim_before, idx_trim_after, ratio) = trim_condition(alt, mach, cl_required, cl, aoa,)
+
                     if trim_aoa:
+                        trim_aoa_deg = trim_aoa *180/np.pi
                         trim_cms = interpolation(cms, idx_trim_before, idx_trim_after, ratio)
                         pitch_moment_derivative_rad = (cms[idx_trim_after] - cms[idx_trim_before]) / (aoa[idx_trim_after] - aoa[idx_trim_before])
-
+                        pitch_moment_derivative_deg = pitch_moment_derivative_rad / (180/np.pi)
                         # Find incremental cms
                         if incrementalMap :
                             for index, mach_number in enumerate(mach_unic,0):
@@ -293,9 +292,10 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                             trim_elevator =  None
 
                     else:
+                        trim_aoa_deg = None
                         trim_cms = None
-                        pitch_moment_derivative_deg =None
-                        dcms  = None
+                        pitch_moment_derivative_deg = None
+                        dcms = None
                         trim_elevator =  None
 
                     # --------------------  Calculate trim conditions 2 END  ------------------------------
@@ -305,7 +305,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                     print('length : ' , len(mach_unic)*len(aoa_unic))
                     print('cl_required : ', cl_required)
                     print('cl_list : ', cl)
-                    print('trim_aoa: ', trim_aoa)
+                    print('trim_aoa_deg: ', trim_aoa_deg)
                     print('cms at trim : ', trim_cms)
                     print('dcms : ', dcms)
                     print('trim_elevator', trim_elevator)
@@ -335,7 +335,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                         cl_dividedby_cd_trim = cl0/cd0                                                #  cl/cd ratio at trim, at trim aoa
                         # (optimum_aoa, cl_dividedby_cd_max) = optimise_cl_vs_cd(aoa, cl, cd) #  optimum cl/cd ratio at optimum aoa
 
-                        print('trim_aoa : ', trim_aoa)
+                        print('trim_aoa_deg : ', trim_aoa_deg)
                         # Lift & drag coefficient derivative with respect to AOA at trimm
                         cl_alpha0 = (cl[idx_trim_after] - cl[idx_trim_before]) / (aoa[idx_trim_after] - aoa[idx_trim_before])
                         cd_alpha0 = (cd[idx_trim_after] - cd[idx_trim_before]) / (aoa[idx_trim_after] - aoa[idx_trim_before])
@@ -353,15 +353,15 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                             print('dcddm0' , dcddm0)
                             if dcddm0 == None :
                                 dcddm0 = 0
-                                log.warning('Not enough data to determine dcddm or (Cd_mach) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: dcddm = 0'.format(alt,mach,round(trim_aoa,2)))
+                                log.warning('Not enough data to determine dcddm or (Cd_mach) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: dcddm = 0'.format(alt,mach,round(trim_aoa_deg,2)))
                             dcldm0 =speed_derivative_at_trim (cl_list, mach, mach_list, mach_unic, idx_alt, aoa_list, aos_list, idx_trim_before, idx_trim_after, ratio)
                             if dcldm0 == None :
                                 dcldm0 = 0
-                                log.warning('Not enough data to determine dcldm (Cl_mach) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: dcldm = 0'.format(alt,mach,round(trim_aoa,2)))
+                                log.warning('Not enough data to determine dcldm (Cl_mach) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: dcldm = 0'.format(alt,mach,round(trim_aoa_deg,2)))
                         else :
                             dcddm0 = 0
                             dcldm0 = 0
-                            log.warning('Not enough data to determine dcddm (Cd_mach) and dcldm (Cl_mach) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: dcddm = dcldm = 0'.format(alt,mach,round(trim_aoa,2)))
+                            log.warning('Not enough data to determine dcddm (Cd_mach) and dcldm (Cl_mach) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: dcddm = dcldm = 0'.format(alt,mach,round(trim_aoa_deg,2)))
 
                         # Controls Derivatives to be found in the CPACS
                         dcddeta0 = 0
@@ -373,8 +373,8 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                         # ------------  Trimm condition : End   --------------
 
                         # -----------------  Traduction Ceasiom -> Theory   Begin   ----------------------
-                        Ue = u0*np.cos(trim_aoa)    # *np.cos(aos) as aos = 0 at trim, cos(aos)=1
-                        We = u0*np.sin(trim_aoa)    # *np.cos(aos) as aos = 0 at trim, cos(aos)=1
+                        Ue = u0*np.cos(trim_aoa)    # *np.cos(aos) as aos = 0 at trim, cos(aos)=1    and angle has to be in radian
+                        We = u0*np.sin(trim_aoa)    # *np.cos(aos) as aos = 0 at trim, cos(aos)=1    and angle has to be in radian
                         # Ve = u0*np.sin(trim_aos)  # Ve = 0 for symetric flight conditions
 
                         # Dimentionless State Space variables,
@@ -465,20 +465,20 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                             cs_beta0 = speed_derivative_at_trim_lat(cs_list , aos_list, aos_unic, idx_alt, idx_mach, aoa_list, idx_trim_before, idx_trim_after, ratio)# y_v
                             if cs_beta0 == None :
                                 cs_beta0 = 0
-                                log.warning('Not enough data to determine cs_beta (Y_v) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: cs_beta = 0'.format(alt,mach,round(trim_aoa,2)))
+                                log.warning('Not enough data to determine cs_beta (Y_v) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: cs_beta = 0'.format(alt,mach,round(trim_aoa_deg,2)))
                             cmd_beta0  = speed_derivative_at_trim_lat(cmd_list , aos_list, aos_unic, idx_alt, idx_mach, aoa_list, idx_trim_before, idx_trim_after, ratio)# l_v
                             if cmd_beta0 ==None :
                                 cmd_beta0 = 0
-                                log.warning('Not enough data to determine cmd_beta (L_v) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: cmd_beta = 0'.format(alt,mach,round(trim_aoa,2)))
+                                log.warning('Not enough data to determine cmd_beta (L_v) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: cmd_beta = 0'.format(alt,mach,round(trim_aoa_deg,2)))
                             cml_beta0 = speed_derivative_at_trim_lat(cml_list , aos_list, aos_unic, idx_alt, idx_mach, aoa_list, idx_trim_before, idx_trim_after, ratio)# n_v
                             if cml_beta0 == None :
                                 cml_beta0 = 0
-                                log.warning('Not enough data to determine cml_beta (N_v) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: cml_beta = 0'.format(alt,mach,round(trim_aoa,2)))
+                                log.warning('Not enough data to determine cml_beta (N_v) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: cml_beta = 0'.format(alt,mach,round(trim_aoa_deg,2)))
                         else :
                             cs_beta0 = 0
                             cmd_beta0 = 0
                             cml_beta0 = 0
-                            log.warning('Not enough data to determine cs_beta (Y_v), cmd_beta (L_v) and cml_beta (N_v) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: cs_beta = cmd_beta = cml_beta = 0'.format(alt,mach,round(trim_aoa,2)))
+                            log.warning('Not enough data to determine cs_beta (Y_v), cmd_beta (L_v) and cml_beta (N_v) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: cs_beta = cmd_beta = cml_beta = 0'.format(alt,mach,round(trim_aoa_deg,2)))
 
                         dcsdpstar0 = interpolation(dcsdpstar, idx_trim_before, idx_trim_after, ratio)         # y_p
                         dcmddpstar0  = interpolation(dcmddpstar, idx_trim_before, idx_trim_after, ratio) # l_p

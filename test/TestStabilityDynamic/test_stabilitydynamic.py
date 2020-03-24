@@ -103,6 +103,8 @@ def test_speed_derivative_at_trim():
     assert cdu == 1
 
 
+#
+#
 # def test_extract_subelements():
 #     """ from a oririginal vector [[1,2,3],[1]] return [1,2,3,1] """
 #     assert extract_subelements([[1,2,3], [1]]) == [1,2,3,1]

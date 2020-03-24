@@ -1,16 +1,22 @@
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
-Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 This programm stors all function needed for stability analysis (dynamic and static)
 
+Python version: >=3.6
 
-| Works with Python 2.7
-| Author : Verdier Loic
-| Date of creation: 2019-12-30
-| Last modifiction: 2019-12-30
+| Author: Loic Verdier
+| Creation: 2020-02-24
+| Last modifiction: 2020-03-24 (AJ)
+
+TODO:
+
+    * ...
+
 """
+
 #=============================================================================
 #   IMPORTS
 #=============================================================================
@@ -497,3 +503,11 @@ def plot_multicurve(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel, sho
 
     if show_plots:
         plt.show()
+
+#==============================================================================
+#    MAIN
+#==============================================================================
+
+if __name__ == '__main__':
+
+    log.info('Nothing to execute!')

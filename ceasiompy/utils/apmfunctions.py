@@ -102,33 +102,36 @@ class DampingDerivative():
 
 class IncrementMap():
 
-    def __init__(self):
+    def __init__(self,ted_uid):
         self.cs_list = 0
 
-        self.dcldrstar = []
-        self.dcddrstar = []
-        self.dcsdrstar = []
-        self.dcmldrstar = []
-        self.dcmddrstar = []
-        self.dcmsdrstar = []
+        self.ted_uid = ted_uid
+        self.control_parameter = 0
 
-    def add_cs_coef(self,dcl,dcd,dcs,dcml,dcmd,dcms,cs_uid,control_parameter):
+        self.dcl = []
+        self.dcd = []
+        self.dcs = []
+        self.dcml = []
+        self.dcmd = []
+        self.dcms = []
+
+    def add_cs_coef(self,dcl,dcd,dcs,dcml,dcmd,dcms,ted_uid,control_parameter):
         self.cs_list += 1
+        self.control_parameter = control_parameter
 
-        self.dcldrstar.append(dcl)
-        self.dcddrstar.append(dcd)
-        self.dcsdrstar.append(dcs)
-        self.dcmldrstar.append(dcml)
-        self.dcmddrstar.append(dcmd)
-        self.dcmsdrstar.append(dcms)
+        self.dcl.append(dcl)
+        self.dcd.append(dcd)
+        self.dcs.append(dcs)
+        self.dcml.append(dcml)
+        self.dcmd.append(dcmd)
+        self.dcms.append(dcms)
 
     # TODO: how ?
-    # altitude mapType="vector">1000.; 2000.; 3000.</altitude>
     # <incrementMaps>
     #     <incrementMap uID="incMap_b3ac2">
     #         <controlSurfaceUID>InnerWingFlap</controlSurfaceUID>
     #         <controlParameters mapType="vector">-1;-0.5;0;1</controlParameters>
-    #             <dcl mapType="array">11.; 12.; 13.; 14.; 15.; 21.; 22.; 23.; 24.; 25.; 31.; 32.; 33.; 34.; 35.</dcl>
+    #         <dcl mapType="array">11.; 12.; 13.; 14.; 15.; 21.; 22.; 23.; 24.; 25.; 31.; 32.; 33.; 34.; 35.</dcl>
 
 
 
@@ -152,7 +155,7 @@ class AeroCoefficient():
 
         self.damping_derivatives = DampingDerivative()
 
-        self.increment_map = IncrementMap()
+        #self.increment_map = IncrementMap()
 
     def add_param_point(alt,mach,aoa,aos):
 
@@ -572,6 +575,28 @@ def save_coefficients(tixi,aeromap_uid,Coef):
         cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmddrstar',Coef.damping_derivatives.dcmddrstar)
         cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmsdrstar',Coef.damping_derivatives.dcmsdrstar)
 
+# Add Control surace deflections
+# if len(Coef.IncrMap.dcl): # TODO: Improve this check
+#     cpsf.add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcl',Coef.IncrMap.dcl)
+#     cpsf.add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcd',Coef.IncrMap.dcd)
+#     cpsf.add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcs',Coef.IncrMap.dcs)
+#     cpsf.add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcml',Coef.IncrMap.dcml)
+#     cpsf.add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcmd',Coef.IncrMap.dcmd)
+#     cpsf.add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcms',Coef.IncrMap.dcms)
+#
+#
+#     cpsf.add_uid(tixi,apm_xpath+'/incrementMaps/incrementMap',Coef.IncrMap.ted_uid+'_incrementMap')
+#
+#     ctrl_dev_uid_xpath = apm_xpath+'/incrementMaps/incrementMap/controlDeviceUID'
+#     cpsf.create_branch(tixi,ctrl_dev_uid_xpath)
+#     tixi.updateTextElement(ctrl_dev_uid_xpath,Coef.IncrMap.ted_uid)
+#
+#     ctrl_param_xpath = apm_xpath+'/incrementMaps/incrementMap/controlParameters'
+#     cpsf.create_branch(tixi,ctrl_param_xpath)
+#     tixi.updateTextElement(ctrl_param_xpath,str(Coef.IncrMap.control_parameter))
+#
+#     cpsf.create_branch(tixi, apm_xpath+'/incrementMaps/incrementMap/controlParameters')
+
 
 def get_aeromap(tixi,aeromap_uid):
     """ Get aerodynamic parameters and coefficients from an aeroMap
@@ -658,21 +683,13 @@ def get_aeromap(tixi,aeromap_uid):
         else:
             Coef.cms = cpsf.get_float_vector(tixi,cms_xpath)
 
-    ##### !!!!!  Damping derivatives   !!!!  ####
 
-    # dcmsdqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmsdqstar'
-    # if tixi.checkElement(dcmsdqstar_xpath):
-    #     check_str = tixi.getTextElement(dcmsdqstar_xpath)
-    #     if check_str == '':
-    #         log.warning('No /dampingDerivatives/positiveRates/dcmsdqstar,  values have been found in the CPACS file')
-    #         log.warning('An empty list will be returned.')
-    #         Coef.dcmsdqstar = []
-    #     else:
-    #         Coef.dcmsdqstar = get_float_vector(tixi, dcmsdqstar_xpath)
+    #Damping derivatives (TODO: inprove that)
 
     dcsdrstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcsdrstar'
     if tixi.checkElement(dcsdrstar_xpath):
         check_str = tixi.getTextElement(dcsdrstar_xpath)
+
         if check_str == '':
             log.warning('No /dampingDerivatives/positiveRates/dcsdrstar,  values have been found in the CPACS file')
             log.warning('An empty list will be returned.')
@@ -693,11 +710,13 @@ def get_aeromap(tixi,aeromap_uid):
     dcldqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcldqstar'
     if tixi.checkElement(dcldqstar_xpath):
         check_str = tixi.getTextElement(dcldqstar_xpath)
+        print(check_str)
         if check_str == '':
             log.warning('No /dampingDerivatives/positiveRates/dcldqstar,  values have been found in the CPACS file')
             log.warning('An empty list will be returned.')
             Coef.dcddqstar = []
         else:
+            print('aaa')
             Coef.dcldqstar = cpsf.get_float_vector(tixi, dcldqstar_xpath)
 
     dcmsdqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmsdqstar'
@@ -720,15 +739,6 @@ def get_aeromap(tixi,aeromap_uid):
         else:
             Coef.dcddqstar = cpsf.get_float_vector(tixi, dcddqstar_xpath)
 
-    dcmsdqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmsdqstar'
-    if tixi.checkElement(dcmsdqstar_xpath):
-        check_str = tixi.getTextElement(dcmsdqstar_xpath)
-        if check_str == '':
-            log.warning('No /dampingDerivatives/positiveRates/dcmsdqstar,  values have been found in the CPACS file')
-            log.warning('An empty list will be returned.')
-            Coef.dcmsdqstar = []
-        else:
-            Coef.dcmsdqstar = cpsf.get_float_vector(tixi, dcmsdqstar_xpath)
 
     dcmddpstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmddpstar'
     if tixi.checkElement(dcmddpstar_xpath):
@@ -780,9 +790,6 @@ def get_aeromap(tixi,aeromap_uid):
             Coef.dcmddrstar = []
         else:
             Coef.dcmddrstar = cpsf.get_float_vector(tixi, dcmddrstar_xpath)
-
-
-    ##### !!!!!  END Damping derivatives   !!!!  ####
 
     return Coef
 

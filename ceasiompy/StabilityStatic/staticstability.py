@@ -307,7 +307,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                             trim_elevator =  None
                     else:
                         trim_cms = None
-                        pitch_moment_derivative_deg =None
+                        pitch_moment_derivative_deg = None
                         dcms  = None
                         trim_elevator =  None
 
@@ -318,7 +318,6 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                     print('cl_required : ',cl_required)
                     print('aoa : ', aoa)
                     print('cl : ', cl)
-                    print('ccount : ', ccount)
                     print('length : ' , len(mach_unic)*len(aoa_unic))
                     print('cl_list : ', cl)
                     print('trim_aoa : ', trim_aoa)
@@ -348,18 +347,18 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 # Conclusion about stability, if the cms curve has crossed the 0 line and there is not 2 repeated aoa for the same alt, mach and aos.
                 # if  idx_trim_before != idx_trim_after allow to know if the cm curve crosses the 0 line. '
                 if  idx_trim_before != idx_trim_after and aoa_good :
-                    if pitch_moment_derivative < 0 :
+                    if pitch_moment_derivative_deg < 0 :
                         log.info('Vehicle longitudinaly staticaly stable.')
                         trim_alt_longi.append(alt)
                         trim_mach_longi.append(mach)
-                        trim_aoa_longi.append(cruise_aoa)
+                        trim_aoa_longi.append(trim_aoa)
                         trim_aos_longi.append(0)
-                        trim_derivative_longi.append(pitch_moment_derivative)
+                        trim_derivative_longi.append(pitch_moment_derivative_deg)
                         # (optimum_aoa, cl_dividedby_cd_max) = optimise_cl_vs_cd(aoa, cl, cd) #  optimum cl/cd ratio at optimum aoa
-                    elif pitch_moment_derivative == 0 :
+                    elif pitch_moment_derivative_deg == 0 :
                         longitudinaly_stable = False
                         log.error('Alt = '  + str(alt) + 'Vehicle longitudinaly staticaly neutral stable.')
-                    else: #pitch_moment_derivative > 0
+                    else: #pitch_moment_derivative_deg > 0
                         longitudinaly_stable = False
                         log.error('Alt = '  + str(alt) + 'Vehicle *NOT* longitudinaly staticaly stable.')
 
@@ -951,6 +950,6 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 #     log.info('----- End of ' + MODULE_NAME + ' -----')
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-cpacs_path = MODULE_DIR  + '/toolInput/toolInputBWB2.xml'
+cpacs_path = MODULE_DIR  + '/toolInput/toolInputD150mach.xml'
 cpacs_out_path = MODULE_DIR  + '/toolOuput/toolOutput.xml'
 static_stability_analysis(cpacs_path, cpacs_out_path)

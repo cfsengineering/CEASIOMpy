@@ -102,7 +102,10 @@ def test_speed_derivative_at_trim():
     idx_trim_after=1
     ratio = 0.5
     parameter_list = cd_list
-
+    
+    #cd_u = speed_derivative_at_trim(parameter_list,mach,mach_list,idx_alt,aoa_list,aos,aos_list,mach_unic_list,idx_trim_before, idx_trim_after, ratio)
+    cd_u = speed_derivative_at_trim(parameter_list , mach, mach_list, mach_unic, idx_alt, aoa_list, aos_list, idx_trim_before, idx_trim_after, ratio)
+    assert cd_u == 1
 
 
 #==============================================================================

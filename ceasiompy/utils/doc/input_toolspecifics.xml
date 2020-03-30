@@ -156,6 +156,13 @@
         <su2Mesh>-</su2Mesh>
         <sumoFilePath>-</sumoFilePath>
       </filesPath>
+      <stability>
+        <static>
+          <aeroMapUid>No default value</aeroMapUid>
+          <showPlots>False</showPlots>
+          <savePlots>False</savePlots>
+        </static>
+      </stability>
     </CEASIOMpy>
     <pytornado>
       <deleteOldWKDIRs>False</deleteOldWKDIRs>

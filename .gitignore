@@ -38,6 +38,7 @@ forces_breakdown.dat
 *mtomPrediction.png
 *Payload_vs_Range.png
 *_Cog.png
+**/ToolOutput/*.svg
 
 # Exceptions
 !/ceasiompy/ModuleTemplate/ToolInput/ToolInput.xml

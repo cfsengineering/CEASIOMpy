@@ -192,7 +192,7 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
 
     case_dir_list = [dir for dir in dir_list if 'Case' in dir]
 
-    for config_dir in case_dir_list:
+    for config_dir in sorted(case_dir_list):
         if os.path.isdir(config_dir):
             os.chdir(config_dir)
             force_file_name = 'forces_breakdown.dat'
@@ -282,8 +282,6 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
     apmf.save_coefficients(tixi,aeromap_uid,Coef)
 
     cpsf.close_tixi(tixi,cpacs_out_path)
-
-
 
 
 #==============================================================================

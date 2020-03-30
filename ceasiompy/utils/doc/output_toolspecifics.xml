@@ -87,6 +87,28 @@
           <wingSpan/>
         </analyses>
       </geometry>
+      <stability>
+        <static>
+          <results>
+            <longitudinalStaticStable/>
+            <directionnalStaticStable/>
+          </results>
+          <trimconditions>
+            <longitudinal>
+              <altitude/>
+              <machNumber/>
+              <angleOfAttack/>
+              <angleOfSideslip/>
+            </longitudinal>
+            <directional>
+              <altitude/>
+              <machNumber/>
+              <angleOfAttack/>
+              <angleOfSideslip/>
+            </directional>
+          </trimconditions>
+        </static>
+      </stability>
     </CEASIOMpy>
   </toolspecific>
   <vehicles>

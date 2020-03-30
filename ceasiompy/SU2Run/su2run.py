@@ -101,7 +101,7 @@ def run_SU2_multi(wkdir):
     if case_dir_list == []:
         raise OSError('No folder has been found in the working directory: ' + wkdir)
 
-    for dir in case_dir_list:
+    for dir in sorted(case_dir_list):
         config_dir = os.path.join(wkdir,dir)
         os.chdir(config_dir)
 

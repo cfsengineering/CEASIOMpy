@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-06-13
-| Last modifiction: 2019-08-29
+| Last modifiction: 2020-03-18
 
 TODO:
 
@@ -26,18 +26,13 @@ TODO:
 import os
 import math
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+import ceasiompy.utils.cpacsfunctions as cpsf
+import ceasiompy.utils.apmfunctions as apmf
+import ceasiompy.utils.moduleinterfaces as mi
+
 from ceasiompy.utils.standardatmosphere import get_atmosphere
-from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, \
-                                           get_value, get_value_or_default,  \
-                                           create_branch
 
-from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
-                                         get_aeromap, create_empty_aeromap,    \
-                                         save_parameters, save_coefficients
-
-from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
-
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
@@ -161,40 +156,43 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
         cpacs_out_path (str): Path to CPACS output file
     """
 
-    tixi = open_tixi(cpacs_path)
-    tigl = open_tigl(tixi)
+    tixi = cpsf.open_tixi(cpacs_path)
+    tigl = cpsf.open_tigl(tixi)
 
     wing_area_max, wing_span_max = get_largest_wing_dim(tixi,tigl)
 
     analyses_xpath = '/cpacs/toolspecific/CEASIOMpy/geometry/analysis'
 
     # Requiered input data from CPACS
-    wetted_area = get_value(tixi,analyses_xpath + '/wettedArea')
+    wetted_area = cpsf.get_value(tixi,analyses_xpath + '/wettedArea')
 
     # Wing area/span, default values will be calated if no value found in the CPACS file
     wing_area_xpath = analyses_xpath + '/wingArea'
-    wing_area = get_value_or_default(tixi,wing_area_xpath, wing_area_max)
+    wing_area = cpsf.get_value_or_default(tixi,wing_area_xpath, wing_area_max)
     wing_span_xpath = analyses_xpath + '/wingSpan'
-    wing_span = get_value_or_default(tixi,wing_span_xpath, wing_span_max)
+    wing_span = cpsf.get_value_or_default(tixi,wing_span_xpath, wing_span_max)
 
     aeromap_uid_list = []
     # Try to get SU2 aeroMap
     su2_aeroMap_xpath = SU2_XPATH + '/aeroMapUID'
     if tixi.checkElement(su2_aeroMap_xpath):
-        aeromap_uid_list.append(get_value(tixi,su2_aeroMap_xpath))
+        aeromap_uid_list.append(cpsf.get_value(tixi,su2_aeroMap_xpath))
 
     # Try to get pyTornado aeroMap
     pyTornado_aeroMap_xpath = '/cpacs/toolspecific/pytornado/aeroMapUID'
     if tixi.checkElement(pyTornado_aeroMap_xpath):
-        aeromap_uid_list.append(get_value(tixi,pyTornado_aeroMap_xpath))
+        aeromap_uid_list.append(cpsf.get_value(tixi,pyTornado_aeroMap_xpath))
 
     # If pyTornado and SU2 aeroMap was not define, get all existing aeroMap
     if len(aeromap_uid_list) == 0:
-        aeromap_uid_list = get_aeromap_uid_list(tixi)
+        aeromap_uid_list = apmf.get_aeromap_uid_list(tixi)
 
     # If no aeroMap --> Error
     if len(aeromap_uid_list) == 0:
         raise ValueError('No aeroMap has been found in this CPACS file, skin friction cannot be added!')
+
+    # Get unique aeroMap list
+    aeromap_uid_list = list(set(aeromap_uid_list))
 
     # Add skin friction to all listed aeroMap
     for aeromap_uid in aeromap_uid_list:
@@ -202,11 +200,11 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
         log.info('adding skin friction coefficients to: ' + aeromap_uid)
 
         # Get orignial aeroPerformanceMap
-        AeroCoef = get_aeromap(tixi,aeromap_uid)
+        AeroCoef = apmf.get_aeromap(tixi,aeromap_uid)
         AeroCoef.complete_with_zeros()
 
         # Create new aeroCoefficient object to store coef with added skin friction
-        AeroCoefSF = AeroCoefficient()
+        AeroCoefSF = apmf.AeroCoefficient()
         AeroCoefSF.alt = AeroCoef.alt
         AeroCoefSF.mach = AeroCoef.mach
         AeroCoefSF.aoa = AeroCoef.aoa
@@ -261,16 +259,16 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
 
         # Create new description
         description_xpath = tixi.uIDGetXPath(aeromap_uid) + '/description'
-        sf_description = get_value(tixi,description_xpath) +  ' Skin friction has been add to this AeroMap.'
-        create_empty_aeromap(tixi,aeromap_sf_uid, sf_description)
+        sf_description = cpsf.get_value(tixi,description_xpath) +  ' Skin friction has been add to this AeroMap.'
+        apmf.create_empty_aeromap(tixi,aeromap_sf_uid, sf_description)
 
         # Save aeroCoefficient object Coef in the CPACS file
-        save_parameters(tixi,aeromap_sf_uid,AeroCoefSF)
-        save_coefficients(tixi,aeromap_sf_uid,AeroCoefSF)
+        apmf.save_parameters(tixi,aeromap_sf_uid,AeroCoefSF)
+        apmf.save_coefficients(tixi,aeromap_sf_uid,AeroCoefSF)
 
     log.info('AeroMap "' + aeromap_uid + '" has been added to the CPACS file')
 
-    close_tixi(tixi,cpacs_out_path)
+    cpsf.close_tixi(tixi,cpacs_out_path)
 
 
 #==============================================================================
@@ -285,7 +283,7 @@ if __name__ == '__main__':
     cpacs_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.xml')
     cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
 
-    check_cpacs_input_requirements(cpacs_path)
+    mi.check_cpacs_input_requirements(cpacs_path)
 
     add_skin_friction(cpacs_path,cpacs_out_path)
 
@@ -300,10 +298,10 @@ if __name__ == '__main__':
 
 #
 #     cruise_alt_xpath = range_xpath + '/cruiseAltitude'
-#     tixi, cruise_alt = get_value_or_default(tixi,cruise_alt_xpath,12000)
+#     tixi, cruise_alt = cpsf.get_value_or_default(tixi,cruise_alt_xpath,12000)
 #
 #     cruise_mach_xpath = range_xpath + '/cruiseMach'
-#     tixi, cruise_mach = get_value_or_default(tixi,cruise_mach_xpath,0.78)
+#     tixi, cruise_mach = cpsf.get_value_or_default(tixi,cruise_mach_xpath,0.78)
 #
 #     # Calculate Cd0
 #     cd0 = estimate_skin_friction_coef(wetted_area,wing_area,wing_span, \
@@ -311,9 +309,9 @@ if __name__ == '__main__':
 #
 #     # Save Cd0 in the CPACS file
 #     cd0_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction/cd0'
-#     create_branch(tixi, cd0_xpath)
+#     cpsf.create_branch(tixi, cd0_xpath)
 #     tixi.updateDoubleElement(cd0_xpath,cd0,'%g')
 #     log.info('Skin friction drag coeffienct (cd0) has been saved in the \
 #               CPACS file')
 #
-#     close_tixi(tixi,cpacs_out_path)
+#     cpsf.close_tixi(tixi,cpacs_out_path)

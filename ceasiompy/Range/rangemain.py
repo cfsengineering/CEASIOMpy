@@ -184,7 +184,7 @@ if __name__ == '__main__':
             shutil.rmtree('../' + B)
             os.makedirs('../' + B)
         PATH_BALANCE_OUT = '../' + B + '/ToolInput.xml'
-        shutil.copyfile('ToolOutput/ToolOutput.xml', PATH_BALANCE_OUT)
+        #shutil.copyfile('ToolOutput/ToolOutput.xml', PATH_BALANCE_OUT)
 
 
 #=============================================================================

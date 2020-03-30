@@ -707,16 +707,17 @@ def run_mesh_deformation(tixi,wkdir):
 
     ted_dir_list = [dir for dir in os.listdir(mesh_dir) if '_TED_' in dir]
 
+
     # Iterate in all TED directory
-    for dir in ted_dir_list:
+    for dir in sorted(ted_dir_list):
         ted_dir = os.path.join(mesh_dir,dir)
         os.chdir(ted_dir)
 
         cfg_file_list = [file for file in os.listdir(ted_dir) if 'Config' in file]
-        # TODO: how to be sure the config file are in order?
 
-        # Run all the config file in the directory with SU2_DEF
-        for cfg_file in cfg_file_list:
+        # Run all the config file in the directory with SU2_DEF, in alphabetical
+        # order to respect the order of execution (DEF,ROT_,ROT_sym)
+        for cfg_file in sorted(cfg_file_list):
 
             if os.path.isfile(cfg_file):
                 su2f.run_soft('SU2_DEF',cfg_file,ted_dir)

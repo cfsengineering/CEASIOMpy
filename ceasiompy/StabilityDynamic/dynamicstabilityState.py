@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Verdier Loïc
 | Creation: 2019-10-24
-| Last modifiction: 2020-03-24 (AJ)
+| Last modifiction: 2020-03-25 (AJ)
 
 TODO:
     * Modify the code where there are "TODO"
@@ -26,17 +26,18 @@ import os
 import sys
 import time
 import math
+
 import numpy as np
 from numpy import log as ln
 from numpy import linalg # For eigen values and aigen voectors
+
 import matplotlib as mpl, cycler
 import matplotlib.patheffects
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
-from scipy import signal # For transfert function
 
-import pandas as pd
+from scipy import signal # For transfert function
 
 from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
                                             create_branch, copy_branch, add_uid,\
@@ -68,6 +69,7 @@ log = get_logger(__file__.split('.')[0])
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
+DYNAMIC_ANALYSIS_XPATH = '/cpacs/toolspecific/CEASIOMpy/stability/dynamic'
 
 #==============================================================================
 #   Classes
@@ -88,7 +90,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
         cpacs_out_path (str):Path to CPACS output file
         plot (boolean): Choise to plot graph or not
 
-    Returns:
+    Returns:  (#TODO put that in the documentation)
         *   Adrvertisements certifying if the aircraft is stable or Not
         *   In case of longitudinal dynamic UNstability or unvalid test on data:
                 -	Plot cms VS aoa for constant Alt, Mach and different aos
@@ -100,7 +102,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                 -	plot cml VS aos for constant mach, AOA and different altitudes
         *  Plot one graph of  cruising angles of attack for different mach and altitudes
 
-    Make the following tests:            (To put in the documentation)
+    Make the following tests:
         *   Check the CPACS path
         *   For longitudinal dynamic stability analysis:
                 -   If there is more than one angle of attack for a given altitude, mach, aos
@@ -112,27 +114,24 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                 -   If there one aos value which is repeated for a given altitude, mach, aoa
     """
 
-    # Xpath definition accesssing ToolInput
-    dynamic_analysis_xpath = '/cpacs/toolspecific/CEASIOMpy/stability/dynamic'
-    aeromap_uid_xpath =   dynamic_analysis_xpath + '/aeroMapUid'
-    aeromap_uid_xpath2 =   dynamic_analysis_xpath + '/aeroMapUid2' # For tests
-    aircraft_class_xpath = dynamic_analysis_xpath + '/class' # Classes 1 2 3 4 small, heavy ...
-    aircraft_cathegory_xpath = dynamic_analysis_xpath  + '/category' # flight phase A B C
-    selected_mass_config_xpath  = dynamic_analysis_xpath + '/MassConfiguration'
-    longi_analysis_xpath = dynamic_analysis_xpath + '/instabilityModes/longitudinal'
-    direc_analysis_xpath = dynamic_analysis_xpath + '/instabilityModes/lateralDirectional'
-    show_plot_xpath = dynamic_analysis_xpath + '/showPlots'
-    save_plot_xpath =  dynamic_analysis_xpath + '/savePlots'
-    # Xpath definition accesssing somewhere else than ToolInput
+    # XPATH definition
+    aeromap_uid_xpath =   DYNAMIC_ANALYSIS_XPATH + '/aeroMapUid'
+    aircraft_class_xpath = DYNAMIC_ANALYSIS_XPATH + '/class' # Classes 1 2 3 4 small, heavy ...
+    aircraft_cathegory_xpath = DYNAMIC_ANALYSIS_XPATH  + '/category' # flight phase A B C
+    selected_mass_config_xpath  = DYNAMIC_ANALYSIS_XPATH + '/massConfiguration'
+    longi_analysis_xpath = DYNAMIC_ANALYSIS_XPATH + '/instabilityModes/longitudinal'
+    direc_analysis_xpath = DYNAMIC_ANALYSIS_XPATH + '/instabilityModes/lateralDirectional'
+    show_plot_xpath = DYNAMIC_ANALYSIS_XPATH + '/showPlots'
+    save_plot_xpath =  DYNAMIC_ANALYSIS_XPATH + '/savePlots'
+
     model_xpath = '/cpacs/vehicles/aircraft/model'
     ref_area_xpath = model_xpath + '/reference/area'
     ref_length_xpath = model_xpath + '/reference/length'
     flight_qualities_case_xpath = model_xpath + '/analyses/flyingQualities/fqCase'
-    masses_location_xpath =  model_xpath + '/analyses/massBreakdown/designMasses'  # !!!!!!!!!!   The user may chose a load case in ToolOuput from Weight&Balance
+    masses_location_xpath =  model_xpath + '/analyses/massBreakdown/designMasses'
     # aircraft_class_xpath = flight_qualities_case_xpath + '/class' # Classes 1 2 3 4 small, heavy ...
     # aircraft_cathegory_xpath = flight_qualities_case_xpath + '/cathegory' # flight phase A B C
 
-    # Ask user if reference area is : Wing already
     # Ask user flight path angles : gamma_e
     thrust_available = None # Thrust data are not available
     flight_path_angle_deg = [0] # [-15,-10,-5,0,5,10,15] # The user should have the choice to select them !!!!!!!!!!!!!!!!!!!!
@@ -141,18 +140,19 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
     tixi = open_tixi(cpacs_path)
     # Get aeromap uid
     aeromap_uid = get_value(tixi, aeromap_uid_xpath )
-    # aeromap_uid2 = get_value(tixi, aeromap_uid_xpath2 ) # for tests
     log.info('The following aeroMap will be analysed: ' + aeromap_uid)
+
     # Mass configuration: (Maximum landing mass, Maximum ramp mass (the maximum weight authorised for the ground handling), Take off mass, Zero Fuel mass)
-    mass_config = get_value(tixi, selected_mass_config_xpath  )
+    mass_config = get_value(tixi, selected_mass_config_xpath)
     log.info('The aircraft mass configuration used for analysis is: ' + mass_config)
+
     # Analyses to do : longitudinal / Lateral-Directional
-    longitudinal_analysis = get_value(tixi, longi_analysis_xpath )
+    longitudinal_analysis = get_value(tixi,longi_analysis_xpath)
     lateral_directional_analysis = False
     # lateral_directional_analysis = get_value(tixi, direc_analysis_xpath )
     # Plots configuration with Setting GUI
-    show_plots = get_value_or_default(tixi, show_plot_xpath, False)
-    save_plots = get_value_or_default(tixi, save_plot_xpath, False)
+    show_plots = get_value_or_default(tixi,show_plot_xpath,False)
+    save_plots = get_value_or_default(tixi,save_plot_xpath,False)
 
     mass_config_xpath = masses_location_xpath + '/' + mass_config
     if tixi.checkElement(mass_config_xpath):
@@ -162,46 +162,24 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
         I_zz_xpath = mass_config_xpath + '/massInertia/Jzz'
         I_xz_xpath = mass_config_xpath + '/massInertia/Jxz'
     else :
-        raise ValueError(' !!! The mass configuration : {} is not defined in the CPACS file !!!'.format(mass_config))
-    # # For debugging!!!!!   Begin ----------
-    # mass_xpath = 'cpacs/toolspecific/CEASIOMpy/balance/mZPM' + '/mass'
-    # I_xx_xpath  = 'cpacs/toolspecific/CEASIOMpy/balance/mZPM' + '/massInertia/Jxx'
-    # I_yy_xpath  = 'cpacs/toolspecific/CEASIOMpy/balance/mZPM' + '/massInertia/Jyy'
-    # I_zz_xpath = 'cpacs/toolspecific/CEASIOMpy/balance/mZPM' + '/massInertia/Jzz'
-    # I_xz_xpath = 'cpacs/toolspecific/CEASIOMpy/balance/mZPM' + '/massInertia/Jxz'
-    # # For debugging!!!!!   END  ----------
+        raise ValueError('The mass configuration : {} is not defined in the CPACS file !!!'.format(mass_config))
 
     s = get_value(tixi,ref_area_xpath)     # Wing area : s  for non-dimonsionalisation of aero data.
     mac = get_value(tixi,ref_length_xpath) # ref length for non dimensionalisation, Mean aerodynamic chord: mac,
-    # b= s/mac      !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!     Find a way to have b value !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-    b =  38.597
-    xh = 10 # distance Aircaft cg-ac_horizontal-tail-plane.  Find a way to find it thanks to the cpacs
-    print('Ref_area = {}'.format(s))
-    print('Ref_length = {} used as MAC'.format(mac))
-    print('Span = {}'.format(b))
+    # TODO: check that
+    b= s/mac
 
-    # if wing span not stored in cpacs, then calculate it.         # or without tigle, simply: b = ref_area / ref_length
-    # wing_span_xpath = dynamic_analysis_xpath + '/largestSpan'
-    # if tixi.checkElement(wing_span_xpath) :
-    #     b = get_value(tixi, wing_span_xpath)
-    # else :
-    #     tigl = open_tigl(tixi)
-    #     max_area, b  = get_largest_wing_dim(tixi,tigl) # Maximum wing area,  maximum aircraft span () calulated in "Skin friction" module
-    # mac_calculated= s/b
-    # log.info('The mean aero chord calculated from wing area and span (S/b) is : {}. And ref_length is : {}'.format(mac_calculated, mac))
+    # TODO: find a way to get that
+    xh = 10 # distance Aircaft cg-ac_horizontal-tail-plane.
 
     m = get_value(tixi,mass_xpath) # aircraft mass dimensional
     I_xx = get_value(tixi,I_xx_xpath) # X inertia dimensional
     I_yy = get_value(tixi,I_yy_xpath) # Y inertia dimensional
     I_zz = get_value(tixi,I_zz_xpath) # Z inertia dimensional
-    # I_xz = get_value(tixi,I_xz_xpath) # XZ inertia dimensional
-    I_xz = 6340239.1951
-
+    I_xz = get_value(tixi,I_xz_xpath) # XZ inertia dimensional
 
     aircraft_class = get_value(tixi,aircraft_class_xpath ) # aircraft class 1 2 3 4
     flight_phase = get_string_vector(tixi, aircraft_cathegory_xpath)[0] # Flight phase A B C
-
-    print('Aeromap UID ..: ',aeromap_uid)
 
     Coeffs = get_aeromap(tixi,aeromap_uid)    # Warning: Empty uID found! This might lead to unknown errors!
 
@@ -233,15 +211,15 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
     aos_unic = get_unic(aos_list)
     aoa_unic = get_unic(aoa_list)
 
+    # TODO get from CPACS
     incrementalMap = False
 
     for alt in alt_unic:
         idx_alt = [i for i in range(len(alt_list)) if alt_list[i] == alt]
-        alt = 0
         Atm = get_atmosphere(alt)
-        g = Atm.grav                            # gravity acceleration at alt
-        a = Atm.sos                              # speed of sound at alt
-        rho = Atm.dens                        # air density at alt
+        g = Atm.grav
+        a = Atm.sos
+        rho = Atm.dens
 
         for mach in mach_unic:
             print('Mach : ' , mach)
@@ -259,7 +237,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                     log.warning('Not enough data at : Alt = {} , mach = {}, aos = 0, can not perform stability analysis'.format(alt,mach))
                 # If there is at leat 2 data at (alt, mach, aos) then, make stability anlysis
                 else:
-                    # --------------------  Calculate trim conditions  Begin    ------------------------------
+                    # Calculate trim conditions
                     cms = []
                     aoa = []
                     cl = []
@@ -267,9 +245,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                         cms.append(cms_list[index])
                         aoa.append(aoa_list[index]*np.pi/180)
                         cl.append(cl_list[index])
-                    # --------------------  Calculate trim conditions  END   ------------------------------
 
-                    # --------------------  Calculate trim conditions 2 Begin    ------------------------------
                     cl_required = (m*g)/(0.5*rho*u0**2*s)
                     (trim_aoa , idx_trim_before, idx_trim_after, ratio) = trim_condition(alt, mach, cl_required, cl, aoa,)
 
@@ -298,24 +274,9 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                         dcms = None
                         trim_elevator =  None
 
-                    # --------------------  Calculate trim conditions 2 END  ------------------------------
-
-                    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-                    print('Mach :' , mach_unic)
-                    print('length : ' , len(mach_unic)*len(aoa_unic))
-                    print('cl_required : ', cl_required)
-                    print('cl_list : ', cl)
-                    print('trim_aoa_deg: ', trim_aoa_deg)
-                    print('cms at trim : ', trim_cms)
-                    print('dcms : ', dcms)
-                    print('trim_elevator', trim_elevator)
-                    print('cms sploe at trim : ', pitch_moment_derivative_deg)
-                    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>')
-
-
 
                     # Longitudinal dynamic stability,
-                    # -------------------  Stability analysis BEGIN ------------------------------------
+                    # Stability analysis
                     if longitudinal_analysis and trim_cms:
                         cl = []
                         cd = []
@@ -329,13 +290,11 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                             dcddqstar.append(dcddqstar_list[index])
                             dcmsdqstar.append(dcmsdqstar_list[index])
 
-                        # ----------------------  Trimm variables : Begining  ---------------
+                        # Trimm variables
                         cd0 =interpolation(cd, idx_trim_before, idx_trim_after, ratio) # Dragg coeff at trim
                         cl0 =interpolation(cl, idx_trim_before, idx_trim_after, ratio)   # Lift coeff at trim
-                        cl_dividedby_cd_trim = cl0/cd0                                                #  cl/cd ratio at trim, at trim aoa
-                        # (optimum_aoa, cl_dividedby_cd_max) = optimise_cl_vs_cd(aoa, cl, cd) #  optimum cl/cd ratio at optimum aoa
+                        cl_dividedby_cd_trim = cl0/cd0  #  cl/cd ratio at trim, at trim aoa
 
-                        print('trim_aoa_deg : ', trim_aoa_deg)
                         # Lift & drag coefficient derivative with respect to AOA at trimm
                         cl_alpha0 = (cl[idx_trim_after] - cl[idx_trim_before]) / (aoa[idx_trim_after] - aoa[idx_trim_before])
                         cd_alpha0 = (cd[idx_trim_after] - cd[idx_trim_before]) / (aoa[idx_trim_after] - aoa[idx_trim_before])
@@ -345,12 +304,11 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                         dcldqstar0 = interpolation(dcldqstar, idx_trim_before, idx_trim_after, ratio) # z_q
                         dcmsdqstar0 = interpolation(dcmsdqstar, idx_trim_before, idx_trim_after, ratio) # m_q
                         cm_alpha0 = trim_cms
-                        print('cm_alpha0 : ', cm_alpha0)
 
                         # Speed derivatives if there is at least 2 distinct mach values
                         if len(mach_unic) >=2 :
                             dcddm0 =speed_derivative_at_trim(cd_list, mach, mach_list, mach_unic, idx_alt, aoa_list, aos_list, idx_trim_before, idx_trim_after, ratio)
-                            print('dcddm0' , dcddm0)
+
                             if dcddm0 == None :
                                 dcddm0 = 0
                                 log.warning('Not enough data to determine dcddm or (Cd_mach) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: dcddm = 0'.format(alt,mach,round(trim_aoa_deg,2)))
@@ -363,19 +321,17 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                             dcldm0 = 0
                             log.warning('Not enough data to determine dcddm (Cd_mach) and dcldm (Cl_mach) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: dcddm = dcldm = 0'.format(alt,mach,round(trim_aoa_deg,2)))
 
-                        # Controls Derivatives to be found in the CPACS
+                        # Controls Derivatives to be found in the CPACS (To be calculated)
                         dcddeta0 = 0
                         dcldeta0 = 0
                         dcmsdeta0 = 0
                         dcddtau0 = 0
                         dcldtau0 = 0
                         dcmsdtau0 = 0
-                        # ------------  Trimm condition : End   --------------
 
-                        # -----------------  Traduction Ceasiom -> Theory   Begin   ----------------------
-                        Ue = u0*np.cos(trim_aoa)    # *np.cos(aos) as aos = 0 at trim, cos(aos)=1    and angle has to be in radian
-                        We = u0*np.sin(trim_aoa)    # *np.cos(aos) as aos = 0 at trim, cos(aos)=1    and angle has to be in radian
-                        # Ve = u0*np.sin(trim_aos)  # Ve = 0 for symetric flight conditions
+                        # Traduction Ceasiom -> Theory
+                        Ue = u0*np.cos(trim_aoa)    # *np.cos(aos) as aos = 0 at trim, cos(aos)=1
+                        We = u0*np.sin(trim_aoa)    # *np.cos(aos) as aos = 0 at trim, cos(aos)=1
 
                         # Dimentionless State Space variables,
                         # In generalised body axes coordinates ,
@@ -384,36 +340,21 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                             X_u = -(2*cd0 + mach*dcddm0) + 1/(0.5*rho*s*a^2) * dtaudm0  # dtaudm dimensional Thrust derivative at trim conditions, P340 Michael V. Cook
                         else:     #   Glider Mode
                             X_u = -(2*cd0 + mach*dcddm0)
-                        Z_u =  -(2*cl0 + mach*dcldm0)
-                        M_u =  0                              # Negligible for subsonic conditions  or better with P289 Yechout (cm_u+2cm0)
+
+                        Z_u = -(2*cl0 + mach*dcldm0)
+                        M_u = 0 # Negligible for subsonic conditions  or better with P289 Yechout (cm_u+2cm0)
 
                         X_w = (cl0 - cd_alpha0 )
                         Z_w = -(cl_alpha0 + cd0)
                         M_w = cm_alpha0
-                        print('idx_trim_before : ' , idx_trim_before )
-                        print('M_w : ', M_w)
-                        print('cl_alpha0', cl_alpha0)
-
 
                         X_q =   dcddqstar0 # Normally almost = 0
                         Z_q =  dcldqstar0
                         M_q = - dcmsdqstar0
 
                         X_dotw = 0 # Negligible
-                        Z_dotw = 1/3 * M_q/u0    / (xh/mac)                  # Thumb rule : M_alpha_dot = 1/3 Mq , ( not true for 747 :caughey P83,M_alpha_dot = 1/6Mq )
-                        M_dotw = 1/3 * M_q /u0                                    # Thumb rule : M_alpha_dot = 1/3 Mq
-                        print('M_dotW : ', M_dotw)
-                        print('M_dotW * u0 : ', M_dotw*u0)
-                        print('Z_dotw : ', Z_dotw)
-
-                        print('--------------->>>>>>>>--------------------')
-                        print(X_u, Z_u, M_u)
-                        print(X_w, Z_w, M_w)
-                        print(X_dotw, Z_dotw, M_dotw)
-                        print(X_q, Z_q, M_q)
-                        print('--------------->>>>>>>>--------------------')
-
-
+                        Z_dotw = 1/3 * M_q/u0 / (xh/mac) # Thumb rule : M_alpha_dot = 1/3 Mq , ( not true for 747 :caughey P83,M_alpha_dot = 1/6Mq )
+                        M_dotw = 1/3 * M_q /u0 # Thumb rule : M_alpha_dot = 1/3 Mq
 
                         # Controls:
                         X_eta = dcddeta0 # To be found from the cpacs file, and defined by the user!
@@ -454,11 +395,8 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                             dcsdrstar.append(dcsdrstar_list[index]) # y_r
                             dcmldrstar.append(dcmldrstar_list[index]) # n_r
                             dcmddrstar.append(dcmddrstar_list[index]) # l_r
-                        print('>>>>>>>>>>>>>>>>>>>><')
-                        print('AOS: ', aos)
-                        print('CMS : ', cml)
 
-                        # ------------------      Trimm condition  calculation  Begin -------------
+                        #Trimm condition calculation
                         # speed derivatives :  y_v / l_v / n_v  /  Must be devided by speed given that the hyp v=Beta*U
                         if len(aos_unic) >=2 :
                             print('Mach : ', mach, '   and idx_mach : ', idx_mach)
@@ -480,45 +418,35 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                             cml_beta0 = 0
                             log.warning('Not enough data to determine cs_beta (Y_v), cmd_beta (L_v) and cml_beta (N_v) at trim condition at Alt = {}, mach = {}, aoa = {}, aos = 0. Assumption: cs_beta = cmd_beta = cml_beta = 0'.format(alt,mach,round(trim_aoa_deg,2)))
 
-                        dcsdpstar0 = interpolation(dcsdpstar, idx_trim_before, idx_trim_after, ratio)         # y_p
+                        dcsdpstar0 = interpolation(dcsdpstar, idx_trim_before, idx_trim_after, ratio) # y_p
                         dcmddpstar0  = interpolation(dcmddpstar, idx_trim_before, idx_trim_after, ratio) # l_p
-                        dcmldpstar0 = interpolation(dcmldpstar, idx_trim_before, idx_trim_after, ratio)    # n_p
+                        dcmldpstar0 = interpolation(dcmldpstar, idx_trim_before, idx_trim_after, ratio) # n_p
 
-                        dcsdrstar0 =interpolation(dcsdrstar, idx_trim_before, idx_trim_after, ratio)           # y_r
-                        dcmldrstar0 =  interpolation(dcmldrstar, idx_trim_before, idx_trim_after, ratio)    # n_r
-                        dcmddrstar0 =  interpolation(dcmddrstar, idx_trim_before, idx_trim_after, ratio)  # l_r
-                        print('dcsdpstar0 : ', dcsdpstar0)
-                        print('dcmddpstar0 : ', dcsdpstar0)
-                        print('dcmldpstar0 : ', dcsdpstar0)
+                        dcsdrstar0 =interpolation(dcsdrstar, idx_trim_before, idx_trim_after, ratio) # y_r
+                        dcmldrstar0 =  interpolation(dcmldrstar, idx_trim_before, idx_trim_after, ratio) # n_r
+                        dcmddrstar0 =  interpolation(dcmddrstar, idx_trim_before, idx_trim_after, ratio) # l_r
 
-                        print('dcsdrstar0 : ',dcsdrstar0 )
-                        print('dcmldrstar0 : ',dcsdrstar0 )
-                        print('dcmddrstar0 : ',dcsdrstar0 )
-
-                        # Controls : will have to be found in the cpacs
+                        # TODO: calculate that and find in the cpacs
                         dcsdxi0 = 0
                         dcmddxi0 = 0
                         dcmldxi0 = 0
                         dcsdzeta0 = 0
                         dcmddzeta0 = 0
                         dcmldzeta0 = 0
-                        # -----------------     Trim conditions END    ---------------
 
-                        # -----------------  Traduction Ceasiom -> Theory   Begin   ----------------------
-                        Y_v = cs_beta0       # Sign checked
-                        L_v = cmd_beta0    # Sign checked
-                        N_v = cml_beta0   # Sign checked
-                        print('Y_v : ', Y_v)
-                        print('L_v : ', L_v)
-                        print('N_v : ', N_v)
 
-                        Y_p = -dcsdpstar0*mac/b                     # Sign checked
-                        L_p = -dcmddpstar0*mac/b                  # Sign checked
-                        N_p = dcmldpstar0*mac/b                    # Sign checked
+                        # Traduction Ceasiom -> Theory
+                        Y_v = cs_beta0
+                        L_v = cmd_beta0
+                        N_v = cml_beta0
 
-                        Y_r = dcsdrstar0*mac/b          # Sign checked
-                        N_r = -dcmldrstar0*mac/b      # Sign checked , mac/b :Because coefficients in ceasiom are nondimensionalised by the mac instead of the span
-                        L_r = dcmddrstar0*mac/b       # Sign checked
+                        Y_p = -dcsdpstar0*mac/b
+                        L_p = -dcmddpstar0*mac/b
+                        N_p = dcmldpstar0*mac/b
+
+                        Y_r = dcsdrstar0*mac/b
+                        N_r = -dcmldrstar0*mac/b # mac/b :Because coefficients in ceasiom are nondimensionalised by the mac instead of the span
+                        L_r = dcmddrstar0*mac/b
 
                         # Controls:
                         # Ailerons
@@ -532,7 +460,6 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
 
                         Ue = u0*np.cos(trim_aoa) # *np.cos(aos) as aos = 0 at trim, cos(aos)=1
                         We = u0*np.sin(trim_aoa) # *np.cos(aos) as aos = 0 at trim, cos(aos)=1
-                        # -----------------  Traduction Ceasiom -> Theory   END   ----------------------
 
                         # Sign check  (Ref: Thomas Yechout Book, P304)
                         check_sign_lat(Y_v,L_v,N_v,Y_p,L_p,Y_r,L_r,N_r,L_xi,Y_zeta,L_zeta,N_zeta)
@@ -540,7 +467,6 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                     if trim_aoa :
                         for angles in flight_path_angle:
                             theta_e =  angles + trim_aoa
-                            # Create UID for fqcase Alt, Mach, Flight_Path_Angle
 
                             if longitudinal_analysis :
                                 (A_longi, B_longi, x_u,z_u,m_u,x_w,z_w,m_w, x_q,z_q,m_q,x_theta,z_theta,m_theta,x_eta,z_eta,m_eta, x_tau,z_tau,m_tau)\
@@ -551,7 +477,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                                 C_longi = np.identity(4)
                                 D_longi = np.zeros((4,2))
                                 # Identify longitudinal roots
-                                if  longi_root_identification(A_longi)[0] == None :         # If longitudinal root not complex conjugate raise warning and plot roots
+                                if  longi_root_identification(A_longi)[0] == None : # If longitudinal root not complex conjugate raise warning and plot roots
                                     eg_value_longi = longi_root_identification(A_longi)[1]
                                     log.warning('Longi : charcateristic equation  roots are not complex conjugate : {}'.format(eg_value_longi))
                                     legend = ['Root1', 'Root2', 'Root3', 'Root4']
@@ -566,8 +492,8 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
 
                                     # Modes parameters : damping ratio, frequence, CAP, time tou double amplitude
                                     Z_w_dimensional = Z_w*(0.5*rho*s*u0**2)   # Z_w* (0.5*rho*s*u0**2)  is the dimensional form of Z_w,   Z_w = -(cl_alpha0 + cd0) P312 Yechout
-                                    z_alpha =  Z_w_dimensional * u0  /m               # alpha = w/u0 hence,   z_alpha =  Z_w_dimensional * u0      [Newton/rad/Kg :   m/s^2 /rad]
-                                    load_factor = - z_alpha/g                                   #  number of g's/rad (1g/rad 2g/rad  3g/rad)
+                                    z_alpha =  Z_w_dimensional * u0  /m # alpha = w/u0 hence,   z_alpha =  Z_w_dimensional * u0      [Newton/rad/Kg :   m/s^2 /rad]
+                                    load_factor = - z_alpha/g #  number of g's/rad (1g/rad 2g/rad  3g/rad)
                                     (sp_freq, sp_damp, sp_cap, ph_freq, ph_damp, ph_t2)\
                                             =  longi_mode_characteristic(sp1,sp2,ph1,ph2,load_factor)
 
@@ -593,21 +519,9 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                                         log.warning('ShortPeriod UNstable at Alt = {}, Mach = {} , with CAP evaluation, DampRatio = {} , CAP = {} '.format(alt,mach,round(sp_damp, 4),round(sp_cap, 4)))
                                     if ph_rate == None :
                                         log.warning('Phugoid UNstable at Alt = {}, Mach = {} , DampRatio = {} , UnDampedFreq = {} rad/s'.format(alt,mach,round(ph_damp, 4),round(ph_freq, 4)))
-                                    print('sp_damp : ' , sp_damp)
-                                    print('sp_freq : ' , sp_freq)
-                                    print('sp_cap : ', sp_cap)
-                                    print('ph_damp : ', ph_damp)
-                                    print('ph_t2 : ', ph_t2)
 
-                                    print('sp_damp_rate : ' , sp_damp_rate)
-                                    print('sp_feeq_rate : ' , sp_freq_rate)
-                                    print('sp_cap_rate : ', sp_cap_rate)
-                                    print('ph_rate : ', ph_rate)
-
-
+                                    # TODO
                                     # Compute numerator TF for (Alt, mach, flight_path_angle, aoa_trim, aos=0
-                                    # Works for a transfert function but not for a statestpace model, signal.statespace returns the temporal solution of the LTI system.
-                                    # zeros poles gain  = signal.ZerosPolesGain(A_longi,  B_longi , C_longi, D_longi
 
                             if lateral_directional_analysis:
                                 (A_direc, B_direc,y_v,l_v,n_v,y_p,y_phi,y_psi,l_p,l_phi,l_psi,n_p,y_r,l_r,n_r,n_phi,n_psi, y_xi,l_xi,n_xi, y_zeta,l_zeta,n_zeta)\
@@ -618,7 +532,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                                 C_direc = np.identity(5)
                                 D_direc = np.zeros((5,2))
 
-                                if  direc_root_identification(A_direc)[0] == None:         # Lateral-directional roots are correctly identified
+                                if  direc_root_identification(A_direc)[0] == None: # Lateral-directional roots are correctly identified
                                     eg_value_direc = direc_root_identification(A_direc)[1]
                                     print('Lat-Dir : charcateristic equation  roots are not complex conjugate : {}'.format(eg_value_direc))
                                     legend = ['Root1', 'Root2', 'Root3', 'Root4']
@@ -631,20 +545,12 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                                     plot_title = 'S-plane lateralcharacteristic equation roots at (Alt = {}, Mach= {}, trimed at aoa = {}°)'.format(alt,mach,trim_aoa)
                                     plot_splane(eg_value_direc, plot_title,legend,show_plots,save_plots)
                                     (roll_timecst, spiral_timecst, spiral_t2, dr_freq, dr_damp, dr_damp_freq) = direc_mode_characteristic(roll,spiral,dr1,dr2)
-                                    print('roll_timecst : ', roll_timecst)
-                                    print('spiral_timecst', spiral_timecst)
-                                    print('spiral_t2 : ', spiral_t2)
-                                    print('dr_damp : ', dr_damp)
-                                    print('dr_freq : ', dr_freq)
-                                    print('dr_damp_freq : ', dr_damp_freq)
-                                    print('Eigen vectors magnitude : \n', eg_vector_direc_magnitude)
+
                                     # Rating
                                     roll_rate = roll_rating(flight_phase, aircraft_class, roll_timecst)
                                     spiral_rate = spiral_rating(flight_phase, spiral_timecst, spiral_t2)
                                     dr_rate = dutch_roll_rating(flight_phase, aircraft_class, dr_damp, dr_freq, dr_damp_freq)
-                                    print('Roll_rate : ', roll_rate)
-                                    print('Spiral_rate : ', spiral_rate)
-                                    print('DR_rate : ', dr_rate)
+
                                     # Raise warning in the log file if unstable mode
                                     if roll_rate == None :
                                         log.warning('Roll mode UNstable at Alt = {}, Mach = {} , due to roll root = {}, roll time contatant = {} s'.format(alt,mach,round(roll_root, 4), round(roll_timecst, 4)))
@@ -654,59 +560,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                                         log.warning('Dutch Roll UNstable at Alt = {}, Mach = {} , Damping Ratio = {} , frequency = {} rad/s '.format(alt,mach,round(dr_damp, 4),round(dr_freq, 4)))
 
 
-
-
-
-                            # # Short Period Approximation from Caughey
-                            # cz_alpha_caug = - ( cd0 + cl_alpha0)
-                            # cm_alpha_caug = cm_alpha0
-                            # cmq_caug = - dcmsdqstar0                        # cf Repport -> code adaptation -> sign
-                            # q_caug = 0.5*rho*u0**2
-                            # Zalpha_caug = q_caug*s / m*cz_alpha_caug
-                            # Malpha_caug = q_caug*s/I_yy*cm_alpha_caug
-                            # Mq_caug =1/(2*I_yy*u0) * q_caug*s*(mac**2)*cmq_caug
-                            # sp_freq_approx = np.sqrt(-Malpha_caug+ (Zalpha_caug*Mq_caug)/u0)
-                            # sp_damp_approx = - (Mq_caug + Zalpha_caug/u0 )/(2*sp_freq_approx)
-                            # #  Phugoid Approximation from Caughey
-                            # ph_freq_approx = np.sqrt(2)*g/u0 # From Caughey
-                            # ph_damp_approx = 1/np.sqrt(2)*cd0/cl0
-                            # #  Spiral Approximation from Caughey
-                            # cnr_caug = -dcmldrstar0*mac/b                                                   # cf report
-                            # clr_caug = dcmddrstar0*mac/b                                                    # cf report
-                            # cn_beta_caug = cml_beta0
-                            # cl_beta_caug = cmd_beta0
-                            # Nr_caug =  1/(2*I_zz*u0) * (q_caug*s*b**2) * cnr_caug
-                            # Lr_caug =  1/(2*I_xx*u0) * (q_caug*s*b**2) * clr_caug
-                            # Nv_caug = 1/(I_zz*u0) * (q_caug*s*b) * cn_beta_caug
-                            # Lv_caug = 1/(I_xx*u0) * (q_caug*s*b) * cl_beta_caug
-                            # spiral_caug = Nr_caug - (Lr_caug * Nv_caug)/Lv_caug
-                            # spiral_time_caug = 1/spiral_caug                                           # [s]
-                            # #  Roll Approximation from Caughey
-                            # ix_caug = I_xz/I_xx
-                            # iz_caug = I_xz/I_zz
-                            # clp_caug = dcmddpstar0
-                            # cnp_caug = dcmldpstar0
-                            # Lp_caug = 1/(2*I_xx*u0) * (q_caug*s*b**2) * clp_caug
-                            # Np_caug = 1/(2*I_zz*u0) * (q_caug*s*b**2) * cnp_caug
-                            # roll_caug = (Lp_caug + ix_caug*Np_caug)/(1-ix_caug*iz_caug)
-                            # roll_time_caug = 1/roll_caug                                           # [s]
-                            # #  Dutch-Roll Approximation from Caughey
-                            # dr_freq_approx = np.sqrt( u0*(Lp_caug*Nv_caug-Lv_caug*Np_caug)/(Lp_caug+Nr_caug) )
-                            # dr_damp_approx = 1/(2*sp_freq_approx )*( (-Lp_caug*Nr_caug-u0*Nv_caug+Lr_caug*Np_caug)/(Lp_caug+Nr_caug) + u0*(-Lv_caug*Np_caug+Lp_caug*Nv_caug)/((Lp_caug+Nr_caug)**2) )
-
-                            # print('\n--------- Caughey s approximations :  -----------------  ')
-                            # print('ShortPeriod :      Freq: ', round(sp_freq_approx, 4) , '[rad/s]           Damping: ', round(sp_damp_approx, 4))
-                            # print('Phugoid :          Freq: ', round(ph_freq_approx, 4)  , '[rad/s]           Damping: ', round(ph_damp_approx, 4) )
-                            # print('Roll :          TimeCst: ', round(roll_time_caug, 4) , '  [s]')
-                            # print('Spiral :        TimeCst: ', round(spiral_time_caug, 4) , ' [s]')
-                            # print('DutchRoll :        Freq: ', round(dr_freq_approx, 4), '[rad/s]                           Damping: ', round(dr_damp_approx, 4))
-                            # print('--------- Caughey s approximations END  -----------------  ')
-
-
-
-
-                                # save parameters and rating results
-
+                        # TODO: Save those value if code works
                         # Save Parameters for the flight conditions
 
                         # # xpath definition
@@ -789,10 +643,6 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                         # num_tf_rud_beta_xpath = flight_qualities_case_xpath +'lateral/numBetaDrp'  # numerator of TF of rudder impact to sideslip angle : beta
                         # den_tf_latdir_xpath = flight_qualities_case_xpath + '/lateral/denLat' # denominator of longitudinal motion
 
-                                # Compute numerator TF for (Alt, mach, flight_path_angle, aoa_trim, aos=0)
-                                #  TO BE DOOOOONNNNE !!!!!!!!!!!!!!!
-                                # Works for a transfert function but not for a statestpace model, signal.statespace returns the temporal solution of the LTI system.
-                                # zeros poles gain  = signal.ZerosPolesGain(A_longi,  B_longi , C_longi, D_longi)
 
 if __name__ == '__main__':
 
@@ -802,7 +652,7 @@ if __name__ == '__main__':
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     # Call the function which check if imputs are well define
-    #check_cpacs_input_requirements(cpacs_path)
+    check_cpacs_input_requirements(cpacs_path)
 
     # Call the main function for static stability analysis
     dynamic_stability_analysis(cpacs_path, cpacs_out_path)

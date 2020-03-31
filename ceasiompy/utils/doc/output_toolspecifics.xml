@@ -93,7 +93,7 @@
             <longitudinalStaticStable/>
             <directionnalStaticStable/>
           </results>
-          <trimconditions>
+          <trimConditions>
             <longitudinal>
               <altitude/>
               <machNumber/>
@@ -106,7 +106,7 @@
               <angleOfAttack/>
               <angleOfSideslip/>
             </directional>
-          </trimconditions>
+          </trimConditions>
         </static>
       </stability>
     </CEASIOMpy>

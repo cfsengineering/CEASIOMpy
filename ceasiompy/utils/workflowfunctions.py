@@ -30,32 +30,6 @@ MODULE_NAME = os.path.basename(os.getcwd())
 
 SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
-
-#==============================================================================
-#   DICTIONNARY
-#==============================================================================
-optim_var_dict = {}
-# optim_var_dict[var1] = ('name',[init],min,max,'CPACSUpdater_command')
-optim_var_dict['var1'] = ('SPAN',[30],20,40,'wings.get_wing(1).set_half_span_keep_ar(var1)')
-optim_var_dict['var2'] = ('wing_sweep',[10],10,25,'wings.get_wing(1).set_sweep(var2)')
-# optim_var_dict['var3'] = ('AR_htp',[5],4,8,'wings.get_wing(2).set_arkeep_area(var3)')
-# optim_var_dict['var4'] = ('AR_vtp',[5],4,8,'wings.get_wing(3).set_arkeep_area(var4)')
-# optim_var_dict['var6'] = ('sec_size1',[13.43],10.0,15.2,'wings.get_wing(1).get_section(1).get_section_element(1).get_ctigl_section_element().set_width(var6)')
-# optim_var_dict['var7'] = ('sec_size2',[13.43],10.0,15.2,'wings.get_wing(1).get_section(2).get_section_element(1).get_ctigl_section_element().set_width(var7)')
-# optim_var_dict['var8'] = ('sec_size3',[9.56],8.0,11.2,'wings.get_wing(1).get_section(3).get_section_element(1).get_ctigl_section_element().set_width(var8)')
-# optim_var_dict['var9'] = ('sec_size4',[8.35],6.0,10.2,'wings.get_wing(1).get_section(4).get_section_element(1).get_ctigl_section_element().set_width(var9)')
-# optim_var_dict['var10'] = ('sec_size5',[4.14],3.0,5.2,'wings.get_wing(1).get_section(5).get_section_element(1).get_ctigl_section_element().set_width(var10)')
-# optim_var_dict['var11'] = ('sec_size6',[2.17],1.0,3.2,'wings.get_wing(1).get_section(6).get_section_element(1).get_ctigl_section_element().set_width(var11)')
-# optim_var_dict['var12'] = ('sec_size7',[1.47],1.0,2.2,'wings.get_wing(1).get_section(7).get_section_element(1).get_ctigl_section_element().set_width(var12)')
-# optim_var_dict['var13'] = ('rot_sec2',[0],-4,4,'wings.get_wing(1).get_section(5).set_rotation(geometry.CTiglPoint(0,var13,0))')
-# optim_var_dict['var14'] = ('rot_sec3',[0],-4,4,'wings.get_wing(1).get_section(6).set_rotation(geometry.CTiglPoint(0,var14,0))')
-# optim_var_dict['var15'] = ('rot_sec4',[0],-4,4,'wings.get_wing(1).get_section(7).set_rotation(geometry.CTiglPoint(0,var15,0))')
-# optim_var_dict['var16'] = ('rot_sec5',[0],-4,4,'wings.get_wing(1).get_section(5).set_rotation(geometry.CTiglPoint(0,var16,0))')
-# optim_var_dict['var17'] = ('rot_sec6',[0],-4,4,'wings.get_wing(1).get_section(6).set_rotation(geometry.CTiglPoint(0,var17,0))')
-# optim_var_dict['var18'] = ('rot_sec7',[0],-4,4,'wings.get_wing(1).get_section(7).set_rotation(geometry.CTiglPoint(0,var18,0))')
-
-
-
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
@@ -85,6 +59,9 @@ def copy_module_to_module(module_from, io_from, module_to, io_to):
         file_copy_to = mi.get_toolinput_file_path(module_to)
     else: # 'out' or anything else ('out' by default)
         file_copy_to = mi.get_tooloutput_file_path(module_to)
+
+    if module_to == "Optimisation":
+        file_copy_to = file_copy_to.replace('ToolOutput.xml', io_to+'.xml')
 
     log.info('Copy CPACS to:'+ file_copy_to)
 
@@ -128,7 +105,7 @@ def run_subworkflow(module_to_run,cpacs_path_in='',cpacs_path_out=''):
 
         # Go to the module directory
         module_path = os.path.join(LIB_DIR,module)
-        print('\n Going to ',module_path,'\n')
+
         os.chdir(module_path)
 
         # Copy CPACS file from previous module to this one

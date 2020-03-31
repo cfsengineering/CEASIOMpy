@@ -41,7 +41,7 @@ cpacs_inout.add_input(
     var_type=list,
     default_value= ['mMLM', 'mMRM', 'mTOM', 'mZFM'],
     unit='[unit]',
-    xpath='/cpacs/toolspecific/CEASIOMpy/stability/dynamic/MassConfiguration',
+    xpath='/cpacs/toolspecific/CEASIOMpy/stability/dynamic/massConfiguration',
     gui=True,
     gui_name='Mass selection: ',
     gui_group='Inputs'
@@ -95,7 +95,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='m',
     descr='corresponding trim altitude at which the airraft have been noticed to be longitudinaly stable',
-    xpath=STABILITY_DYNAMIC_XPATH+'/trimconditions/longitudinal/altitude',
+    xpath=STABILITY_DYNAMIC_XPATH+'/trimConditions/longitudinal/altitude',
 )
 
 cpacs_inout.add_output(
@@ -103,7 +103,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='-',
     descr='corresponding trim mach at which the airraft have been noticed to be longitudinaly stable',
-    xpath=STABILITY_DYNAMIC_XPATH+'/trimconditions/longitudinal/machNumber',
+    xpath=STABILITY_DYNAMIC_XPATH+'/trimConditions/longitudinal/machNumber',
 )
 
 cpacs_inout.add_output(
@@ -111,7 +111,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='deg',
     descr='corresponding trim AOA at which the airraft have been noticed to be longitudinaly stable',
-    xpath=STABILITY_DYNAMIC_XPATH+'/trimconditions/longitudinal/angleOfAttack',
+    xpath=STABILITY_DYNAMIC_XPATH+'/trimConditions/longitudinal/angleOfAttack',
 )
 
 cpacs_inout.add_output(
@@ -119,7 +119,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='deg',
     descr='corresponding trim AOS at which the airraft have been noticed to be longitudinaly stable',
-    xpath=STABILITY_DYNAMIC_XPATH+'/trimconditions/longitudinal/angleOfSideslip',
+    xpath=STABILITY_DYNAMIC_XPATH+'/trimConditions/longitudinal/angleOfSideslip',
 )
 
 cpacs_inout.add_output(
@@ -127,7 +127,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='m',
     descr='corresponding trim altitude at which the airraft have been noticed to be directionaly stable',
-    xpath=STABILITY_DYNAMIC_XPATH+'/trimconditions/directional/altitude',
+    xpath=STABILITY_DYNAMIC_XPATH+'/trimConditions/directional/altitude',
 )
 
 cpacs_inout.add_output(
@@ -135,7 +135,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='-',
     descr='corresponding trim mach at which the airraft have been noticed to be directionaly stable',
-    xpath=STABILITY_DYNAMIC_XPATH+'/trimconditions/directional/machNumber',
+    xpath=STABILITY_DYNAMIC_XPATH+'/trimConditions/directional/machNumber',
 )
 
 cpacs_inout.add_output(
@@ -143,7 +143,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='deg',
     descr='corresponding trim AOA at which the airraft have been noticed to be directionaly stable',
-    xpath=STABILITY_DYNAMIC_XPATH+'/trimconditions/directional/angleOfAttack',
+    xpath=STABILITY_DYNAMIC_XPATH+'/trimConditions/directional/angleOfAttack',
 )
 
 cpacs_inout.add_output(
@@ -151,5 +151,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit='deg',
     descr='corresponding trim AOA at which the airraft have been noticed to be directionaly stable',
-    xpath=STABILITY_DYNAMIC_XPATH+'/trimconditions/directional/angleOfSideslip',
+    xpath=STABILITY_DYNAMIC_XPATH+'/trimConditions/directional/angleOfSideslip',
 )

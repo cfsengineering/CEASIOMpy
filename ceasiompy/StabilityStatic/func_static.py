@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Loic Verdier
 | Creation: 2020-02-24
-| Last modifiction: 2020-03-24 (AJ)
+| Last modifiction: 2020-03-25 (AJ)
 
 TODO:
 
@@ -23,7 +23,6 @@ TODO:
 
 import os
 import sys
-from math import sqrt
 import numpy as np
 from numpy import log as ln
 from numpy import linalg # For eigen values and aigen voectors
@@ -63,7 +62,9 @@ def get_unic(vector):
         if elem not in vector_unic:
             vector_unic.append(elem)
     vector_unic.sort()
+
     return vector_unic
+
 
 def get_index(idx_list1, idx_list2, idx_list3):
     """Function to get index list
@@ -74,6 +75,7 @@ def get_index(idx_list1, idx_list2, idx_list3):
         idx_list1 (list): list of indexes (integer)
         idx_list2 (list): list of indexes (integer)
         idx_list3 (list): list of indexes (integer)
+
     Returns:
         find_idx (list): list of index (integer) common in the 3 lists
     """
@@ -104,10 +106,10 @@ def interpolation(list, idx1, idx2, ratio):
     Returns:
         value: the interpolated value
     """
-    value = list[idx1] + ratio * ( list[idx2] - list[idx1])
+    value = list[idx1] + ratio * (list[idx2] - list[idx1])
     return value
 
-
+#TODO: check function exist or change name
 def extract_subelements(vector):
     """ Transform multiple element list into a 1D vector
 
@@ -265,30 +267,22 @@ def trim_derivative(alt, mach, list1, list2):
 
 
 
-
 # Function derivative, or more trim condition function
 def trim_condition(alt, mach, cl_required, cl, aoa,):
     """Find if a moments coefficeint cm cross the 0 line, once or more
         Find if a moment coefficeint cm. crosse the 0 line only once and return
         the corresponding angle and the cm derivative at cm=0
-
     Args:
         alt (float): Altitude [m]
         mach (float) : Mach Number [-]
-        list1 cm (list): Moment coefficient [-]
-        aoa angle (list): Angle of attack (or sideslip) [deg]
-
+        cl (list): Lift coefficient list [-]
+        aoa (list): Angle of attack (or sideslip) list [deg]
     Returns:
         None if the lift is not enough to fly
         Aoa at which the lift compensate the weight
         pitch moement at this (aoa, alt, amch)
     """
 
-    # trim_value = 0
-    # trim_parameter = 0
-    # idx_trim_before = 0
-    # idx_trim_after = 0
-    # ratio = 0
     list1 = []
     for element in cl :
         list1.append(element - cl_required)
@@ -361,41 +355,9 @@ def trim_condition(alt, mach, cl_required, cl, aoa,):
     return (trim_aoa, idx_trim_before, idx_trim_after, ratio)
 
 
-def optimise_cl_vs_cd(aoa_list,cl_list,cd_list):
-    """ Find the best lift to drag ratio Cl/Cd and the corresponding angleOfAttack
-
-    Args:
-        aoa_list (list) : list of angles of attack
-        cl_list    (list) : list of cl coefficients
-        cd_list   (list) : list of cd coefficients
-
-    Returns:
-        optimum_aoa : the angle of attack for maximum lift to drag ratio
-        cl_dividedby_cd_max : maximum lift to drag ration
-    """
-    # calculate cl/cd
-    cl_dividedby_cd = []
-    for index in range(len(cl_list)):
-        cl_dividedby_cd.append(cl_list[index]/cd_list[index])
-
-    cl_dividedby_cd_max = cl_dividedby_cd[0]
-    for index, value in enumerate(cl_dividedby_cd,0):
-        if cl_dividedby_cd_max < value:
-            cl_dividedby_cd_max = value
-            optimum_aoa = aoa_list[index]
-
-    # fig = plt.figure(figsize=(9, 3))
-    # plot_title = r'$C_L/C_D$ vs $\alpha$'
-    # plt.title(plot_title, fontdict=None, loc='center', pad=None)
-    # plt.plot(aoa_list, cl_dividedby_cd, marker='o', markersize=4, linewidth=1)
-    # plt.plot(optimum_aoa, cl_dividedby_cd_max, marker='+', markerfacecolor='red', markersize=12)
-    # plt.show()
-
-    return (optimum_aoa, cl_dividedby_cd_max)
-
 
 def find_max_min(list1,list2): # fin values max and mi in list of lists
-    """find the max and the min of 2 lists of lists
+    """Find the max and the min of 2 lists of lists
     Args:
         list1 : list of lists e.i. : list1 = [[1,2],[3,4]]
         list2 : list of lists e.i. : list2 = [[0,1],[2,3]]
@@ -427,7 +389,9 @@ def find_max_min(list1,list2): # fin values max and mi in list of lists
 
 def plot_multicurve(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots):
     """Function to plot graph with different curves for a varying parameter
-    Function 'plot_multicurve' can plot few curves
+
+    Function 'plot_multicurve' can plot few curves ...
+
     Args:
         x_axis (list): List of vector of each curve's X coordinates
         y axis (list): List of vector of each curve's Y coordinates
@@ -437,6 +401,7 @@ def plot_multicurve(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel, sho
         ylabel (str): Label of the y axis
         show_plot (boolean): To show plots on screen or not
         save_plot (boolean): To save plots in the /ToolOutput dir or not
+
     Returns:
         A plot with different curves if asked.
     """
@@ -488,13 +453,9 @@ def plot_multicurve(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel, sho
     elif len(np.argwhere(np.diff(np.sign([x_min, x_max])))) != 0 :
         ax.spines['left'].set_position(('data',0))
 
-    #Legend
     ax.legend(plot_legend, loc='upper right')
-    # Label
     ax.annotate(xlabel, xy=(x_max, 0), ha='right', va='bottom', xycoords='data', fontsize=12)
     ax.annotate(ylabel, xy=(0, y_max), ha='left', va='center', xycoords='data', fontsize=12)
-    # ax.set_xlabel(xlabel)
-    # ax.set_ylabel(ylabel)
 
     if save_plots:
         fig_titile = plot_title.replace(' ','_')

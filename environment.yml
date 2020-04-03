@@ -55,6 +55,9 @@ dependencies:
   # Documentation
   - sphinx=1.8.5
 
+  # To compile PyTornado on Mac
+  - clang>=4.0.1
+
   # Misc
   - pip
 

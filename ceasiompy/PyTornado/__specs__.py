@@ -23,6 +23,19 @@ cpacs_inout.add_input(
     gui_group='Delete old working directories',
 )
 
+# TODO: move at the end of the spec file
+cpacs_inout.add_input(
+    var_name='check_extract_loads',
+    var_type=bool,
+    default_value=False,
+    unit='1',
+    descr='Option to extract loads from results',
+    xpath=XPATH_PYTORNADO + '/save_results/extractLoads',
+    gui=True,
+    gui_name='Extract loads',
+    gui_group='Results',
+)
+
 cpacs_inout.add_input(
     var_name='',
     var_type=list,

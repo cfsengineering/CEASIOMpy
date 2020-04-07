@@ -9,14 +9,13 @@ Python version: >=3.6
 
 | Author: Verdier Loïc
 | Creation: 2019-10-24
-| Last modifiction: 2020-03-25 (AJ)
+| Last modifiction: 2020-04-06 (AJ)
 
 TODO:
     * Modify the code where there are "TODO"
-    * If only one aos angle -> dirrectionaly_stable  ??? -> make a info message
-    * If only one aos angle -> longitudinaly_stable  ??? -> make a info message
+    * Not getting value from Incremental map (control surf) for now!
     * Should we also save results as report (text file)
-    * Shold not write True in result when a stability is not calculated
+
 """
 
 #==============================================================================
@@ -25,8 +24,7 @@ TODO:
 
 import os
 import sys
-import time
-import math
+
 import numpy as np
 import matplotlib as mpl
 import matplotlib.patheffects
@@ -102,11 +100,6 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     aeromap_uid = cpsf.get_value(tixi, STATIC_ANALYSIS_XPATH+'/aeroMapUid')
     log.info('The following aeroMap will be analysed: ' + aeromap_uid)
 
-    #TEST Aidan
-    #aeromap_uid = 'my_aeromap'
-    #apmf.aeromap_from_csv(tixi, aeromap_uid,'ToolInput/csvtest.csv')
-    ###
-
     show_plots = cpsf.get_value_or_default(tixi,STATIC_ANALYSIS_XPATH +'/showPlots',False)
     save_plots = cpsf.get_value_or_default(tixi,STATIC_ANALYSIS_XPATH +'/savePlots',False)
 
@@ -129,7 +122,6 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     ref_area_xpath = model_xpath + '/reference/area'
     s = cpsf.get_value(tixi,ref_area_xpath)     # Wing area : s  for non-dimonsionalisation of aero data.
 
-
     Coeffs = apmf.get_aeromap(tixi, aeromap_uid)
     Coeffs.print_coef_list()
 
@@ -148,21 +140,20 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     aos_unic = get_unic(aos_list)
     aoa_unic = get_unic(aoa_list)
 
+    # TODO: get incremental map from CPACS
     # Incremental map elevator
+    incrementalMap = False # if increment map available
     # aeromap_xpath = tixi.uIDGetXPath(aeromap_uid)
     # dcms_xpath = aeromap_xpath + '/aeroPerformanceMap/incrementMaps/incrementMap'  + ' ....to complete'
 
-    # TODO: get incremental map from CPACS
-    incrementalMap = True # if increment map available
-
     # TODO from incremental map
-    dcms_list = [0.52649,0.53744,0.54827,0.55898,0.56955,0.58001,0.59033,0.6005,0.61053,0.62043,0.63018,0.63979,0.64926,0.65859,0.66777,0.67684,0.53495,0.54603,0.55699,0.56783,0.57854,0.58912,0.59957,0.60986,0.62002,0.63004,0.63991,0.64964,0.65923,0.66867,0.67798,0.68717,0.55,0.56131,0.5725,0.58357,0.59451,0.60531,0.61598,0.62649,0.63687,0.64709,0.65718,0.66712,0.67691,0.68658,0.69609,0.70548,0.57333,0.585,0.59655,0.60796,0.61925,0.63038,0.64138,0.65224,0.66294,0.67349,0.68389,0.69415,0.70427,0.71424,0.72408,0.7338,0.60814,0.62033,0.63239,0.6443,0.65607,0.6677,0.67918,0.6905,0.70168,0.7127,0.72357,0.7343,0.74488,0.75532,0.76563,0.77581,0.66057,0.6735,0.68628,0.69891,0.71139,0.72371,0.73588,0.74789,0.75974,0.77144,0.78298,0.79438,0.80562,0.81673,0.82772,0.83858,\
-    0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\
-    -0.61653,-0.61254,-0.60842,-0.60419,-0.59988,-0.59549,-0.59105,-0.58658,-0.5821,-0.57762,-0.57318,-0.56879,-0.56447,-0.56025,-0.55616,-0.55221,-0.62605,-0.62194,-0.6177,-0.61336,-0.60894,-0.60444,-0.59988,-0.59531,-0.59072,-0.58614,-0.58159,-0.57711,-0.5727,-0.56841,-0.56423,-0.5602,-0.64293,-0.63862,-0.63418,-0.62963,-0.62499,-0.62029,-0.61554,-0.61076,-0.60598,-0.60123,-0.5965,-0.59185,-0.58728,-0.58282,-0.5785,-0.57433,-0.66906,-0.6644,-0.65963,-0.65475,-0.64978,-0.64476,-0.63971,-0.63461,-0.62954,-0.62449,-0.61949,-0.61456,-0.60973,-0.60503,-0.60048,-0.59609,-0.70787,-0.70268,-0.69739,-0.692,-0.68653,-0.68101,-0.67546,-0.66991,-0.66437,-0.65888,-0.65344,-0.6481,-0.64289,-0.63781,-0.6329,-0.62819,-0.76596,-0.75994,-0.75382,-0.74762,-0.74135,-0.73505,-0.72874,-0.72243,-0.71617,-0.70997,-0.70387,-0.69788,-0.69205,-0.68639,-0.68094,-0.67573]
+    # dcms_list = [0.52649,0.53744,0.54827,0.55898,0.56955,0.58001,0.59033,0.6005,0.61053,0.62043,0.63018,0.63979,0.64926,0.65859,0.66777,0.67684,0.53495,0.54603,0.55699,0.56783,0.57854,0.58912,0.59957,0.60986,0.62002,0.63004,0.63991,0.64964,0.65923,0.66867,0.67798,0.68717,0.55,0.56131,0.5725,0.58357,0.59451,0.60531,0.61598,0.62649,0.63687,0.64709,0.65718,0.66712,0.67691,0.68658,0.69609,0.70548,0.57333,0.585,0.59655,0.60796,0.61925,0.63038,0.64138,0.65224,0.66294,0.67349,0.68389,0.69415,0.70427,0.71424,0.72408,0.7338,0.60814,0.62033,0.63239,0.6443,0.65607,0.6677,0.67918,0.6905,0.70168,0.7127,0.72357,0.7343,0.74488,0.75532,0.76563,0.77581,0.66057,0.6735,0.68628,0.69891,0.71139,0.72371,0.73588,0.74789,0.75974,0.77144,0.78298,0.79438,0.80562,0.81673,0.82772,0.83858,\
+    # 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,\
+    # -0.61653,-0.61254,-0.60842,-0.60419,-0.59988,-0.59549,-0.59105,-0.58658,-0.5821,-0.57762,-0.57318,-0.56879,-0.56447,-0.56025,-0.55616,-0.55221,-0.62605,-0.62194,-0.6177,-0.61336,-0.60894,-0.60444,-0.59988,-0.59531,-0.59072,-0.58614,-0.58159,-0.57711,-0.5727,-0.56841,-0.56423,-0.5602,-0.64293,-0.63862,-0.63418,-0.62963,-0.62499,-0.62029,-0.61554,-0.61076,-0.60598,-0.60123,-0.5965,-0.59185,-0.58728,-0.58282,-0.5785,-0.57433,-0.66906,-0.6644,-0.65963,-0.65475,-0.64978,-0.64476,-0.63971,-0.63461,-0.62954,-0.62449,-0.61949,-0.61456,-0.60973,-0.60503,-0.60048,-0.59609,-0.70787,-0.70268,-0.69739,-0.692,-0.68653,-0.68101,-0.67546,-0.66991,-0.66437,-0.65888,-0.65344,-0.6481,-0.64289,-0.63781,-0.6329,-0.62819,-0.76596,-0.75994,-0.75382,-0.74762,-0.74135,-0.73505,-0.72874,-0.72243,-0.71617,-0.70997,-0.70387,-0.69788,-0.69205,-0.68639,-0.68094,-0.67573]
     # dcms are given for a relative deflection of [-1,0,1] of the
 
-    # TODO get from CPACS
-    elevator_deflection = 15
+    # # TODO get from CPACS
+    # elevator_deflection = 15
 
     # Gather trim aoa conditions
     trim_alt_longi_list = []
@@ -201,9 +192,9 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     for alt in alt_unic:
 
         Atm = get_atmosphere(alt)
-        g = Atm.grav                            # gravity acceleration at alt
-        a = Atm.sos                              # speed of sound at alt
-        rho = Atm.dens                        # air density at alt
+        g = Atm.grav
+        a = Atm.sos
+        rho = Atm.dens
 
         # Find index of altitude which have the same value
         idx_alt = [i for i in range(len(alt_list)) if alt_list[i] == alt]
@@ -328,9 +319,8 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                     # ax.annotate('Coefficient', xy=(0,1), ha='left', va='center', xycoords='axes fraction', fontsize=12)
                     plt.grid(True)
 
-                    if 1==1:  #show_plots:
+                    if show_plots:
                         plt.show()
-
 
                 # Conclusion about stability, if the cms curve has crossed the 0 line and there is not 2 repeated aoa for the same alt, mach and aos.
                 # if  idx_trim_before != idx_trim_after allow to know if the cm curve crosses the 0 line. '
@@ -462,6 +452,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                               + str(mach) + ' and aoa = ' + str(aoa)           \
                               + ' no stability analyse performed')
                     cpacs_stability_direc = 'NotCalculated'
+
                 elif len(find_idx)> 1: #if there is at least 2 values in find_idx
                     cml = []
                     aos = []
@@ -839,7 +830,6 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 if plot_cml:
                 # PLot cml VS aos for constant  Mach, aoa and different alt
                     plot_multicurve(plot_cml, plot_aos, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots)
-            ############      ALTITUDE PLOTS END ##########
 
 
     # Save in the CPACS file stability results:
@@ -906,7 +896,6 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 #==============================================================================
 #    MAIN
 #==============================================================================
-
 
 if __name__ == '__main__':
 

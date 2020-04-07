@@ -4175,7 +4175,7 @@
             <longitudinalStaticStable>False</longitudinalStaticStable>
             <directionnalStaticStable>False</directionnalStaticStable>
           </results>
-          <trimconditions>
+          <trimConditions>
             <longitudinal>
               <altitude mapType="vector">1400;1500;1600;1700;3000;3000;3000;3100;3100;3100;3200;3200;3200</altitude>
               <machNumber mapType="vector">0.6;0.5;0.5;0.5;0.1;0.2;0.3;0.1;0.2;0.3;0.1;0.2;0.3</machNumber>
@@ -4188,7 +4188,7 @@
               <angleOfAttack mapType="vector">1;2;4;2.5;0;0.5;1.5;3;3.5;4.5;6;6.5;7.5</angleOfAttack>
               <angleOfSideslip mapType="vector">0;0;0;0;0;0;0;0;0;0;0;0;0</angleOfSideslip>
             </directional>
-          </trimconditions>
+          </trimConditions>
           <showPlot>False</showPlot>
           <savePlot>False</savePlot>
         </static>

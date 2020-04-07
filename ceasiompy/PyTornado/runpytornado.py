@@ -252,11 +252,11 @@ def _get_load_fields(pytornado_results):
                     load_field = np.append(load_field, load_field_entry, axis=0)
 
             # # Write one CSV file per Wing
-            # load_fields[wing_uid + suffix] = load_field[1:, :]
-            # df = pd.DataFrame(load_field[1:, :])
-            # df.columns =['x', 'y','z','fx', 'fy','fz']
-            # frames.append(df)
-            # csv_path = os.path.join('ToolOutput',wing_uid + suffix +'.csv')
+            load_fields[wing_uid + suffix] = load_field[1:, :]
+            df = pd.DataFrame(load_field[1:, :])
+            df.columns =['x', 'y','z','fx', 'fy','fz']
+            frames.append(df)
+            csv_path = os.path.join('ToolOutput',wing_uid + suffix +'.csv')
             # df.to_csv(csv_path, sep=',',index=False)
 
     # Write aircraft load in a CSV file

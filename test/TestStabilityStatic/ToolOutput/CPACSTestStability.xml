@@ -4174,6 +4174,26 @@
           <massConfiguration>mTOM</massConfiguration>
           <showPlots>False</showPlots>
           <savePlots>False</savePlots>
+          <results>
+            <longitudinalStaticStable>NotCalculated</longitudinalStaticStable>
+            <lateralStaticStable>NotCalculated</lateralStaticStable>
+            <directionnalStaticStable>False</directionnalStaticStable>
+          </results>
+          <trimConditions>
+            <longitudinal>
+              <altitude mapType="vector">1400</altitude>
+              <machNumber mapType="vector">0.6</machNumber>
+              <angleOfAttack mapType="vector">3.25803</angleOfAttack>
+              <angleOfSideslip mapType="vector">0</angleOfSideslip>
+            </longitudinal>
+            <lateral/>
+            <directional>
+              <altitude mapType="vector">2400;2500;2600;2700</altitude>
+              <machNumber mapType="vector">0.6;0.5;0.5;0.5</machNumber>
+              <angleOfAttack mapType="vector">1;2;4;2.5</angleOfAttack>
+              <angleOfSideslip mapType="vector">0;0;0;0</angleOfSideslip>
+            </directional>
+          </trimConditions>
         </static>
       </stability>
       <fuels>

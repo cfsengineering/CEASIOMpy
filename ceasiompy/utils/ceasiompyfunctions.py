@@ -44,7 +44,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 #   FUNCTIONS
 #==============================================================================
 
-def create_new_wkdir():
+def create_new_wkdir(routine_date=''):
     """ Function to create a woking directory
 
     Function 'create_new_wkdir' creates a new working directory in the /tmp file
@@ -57,7 +57,11 @@ def create_new_wkdir():
 
     dir_name = 'CEASIOMpy_Run_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
-    wkdir = os.path.join(os.path.dirname(MODULE_DIR),'WKDIR')
+    if routine_date is not '':
+        wkdir = os.path.join(os.path.dirname(MODULE_DIR),'WKDIR/Optimisation_routine_' + routine_date)
+    else:
+        wkdir = os.path.join(os.path.dirname(MODULE_DIR),'WKDIR')
+        
     if not os.path.exists(wkdir):
         os.mkdir(wkdir)
 
@@ -125,7 +129,7 @@ def get_install_path(soft_check_list):
             log.warning('Calculations will be run only on 1 proc')
             soft_dict[soft] = None
         else:
-            raise RuntimeError(soft + ' is not install on your computer!')
+            raise RuntimeError(soft + ' is not installed on your computer!')
 
     return soft_dict
 

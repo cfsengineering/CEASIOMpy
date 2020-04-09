@@ -1,3 +1,8 @@
+.. figure:: CEASIOMpy_main_logos.png
+    :width: 300 px
+    :align: center
+    :alt: CEASIOMpy logo
+
 Welcome to |name|'s documentation!
 ==================================
 

@@ -11,6 +11,7 @@ Modules
    modules/CPACSCreator/index
    modules/CPACS2SUMO/index
    modules/SUMOAutoMesh/index
+   modules/SU2MeshDef/index
 
 
 .. toctree::
@@ -44,6 +45,8 @@ Modules
    :caption: Mission analysis
 
    modules/Range/index
+   modules/StabilityStatic/index
+   modules/StabilityDynamic/index
 
 .. toctree::
    :maxdepth: 1

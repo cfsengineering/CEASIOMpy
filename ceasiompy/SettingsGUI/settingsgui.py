@@ -110,7 +110,7 @@ class AeroMapTab:
         row_pos = 0
 
         self.aerotab = tk.Frame(self.tabs, borderwidth=1)
-        tabs.add(self.aerotab, text='aeroMaps Edition')
+        tabs.add(self.aerotab, text='AeroMaps')
 
         aeromap_uid_list = get_aeromap_uid_list(tixi)
 
@@ -224,6 +224,7 @@ class AutoTab:
         specs = mif.get_specs_for_module(module_name)
         self.gui_dict = specs.cpacs_inout.get_gui_dict()
 
+        #canvas has replaced self.tab in the following lines
         space_label = tk.Label(self.tab, text=' ')
         space_label.grid(column=0, row=0)
 
@@ -330,7 +331,7 @@ class AutoTab:
                         self.aeromap_var_dict[aeromap].set(True)
 
                         aeromap_entry = tk.Checkbutton(self.labelframe,text=aeromap,variable=self.aeromap_var_dict[aeromap])
-                        aeromap_entry.pack(side=tk.TOP, anchor='w')
+                        aeromap_entry.pack()#side=tk.TOP, anchor='w')
 
                 else: # Other kind of list (not aeroMap)
 
@@ -383,11 +384,18 @@ class CEASIOMpyGUI:
         # GUI =============
         self.master = master
         self.master.title('CEASIOMpy Settings GUI')
-        self.master.geometry('600x750+500+200')
+        self.master.geometry('1200x500+500+200')
+
+        # General buttons ============= (Normally after Notbook, but this is the only way i found to have acces to the buttons on a small screen)
+        self.close_button = tk.Button(self.master, text='Save & Quit', command=self._save_quit)
+        self.close_button.pack()#expand=1)#, side=tk.BOTTOM)
+        self.update_button = tk.Button(self.master, text='Update', command=self._update_all)
+        self.update_button.pack()#expand=1)#, side=tk.BOTTOM)
 
         self.tabs = ttk.Notebook(self.master)
-        self.tabs.pack(side=tk.TOP, fill='both')
-        self.tabs.pack(expand=1, fill='both')
+        #self.tabs.pack(side=tk.TOP, fill='both')
+        #self.tabs.pack(expand=1, fill='both')
+        self.tabs.pack()#expand=1, side=tk.LEFT)
 
         # CPACS =============
         self.tixi = open_tixi(cpacs_path)
@@ -400,16 +408,10 @@ class CEASIOMpyGUI:
 
         # Generate AeroMaps Edition tab
         aeromap_tap = AeroMapTab(self.tabs, self.tixi)
-
         # # Generate Auto Tab =============
         self.tab_list = []
         self._update_all()
 
-        # General buttons =============
-        self.close_button = tk.Button(self.master, text='Save & Quit', command=self._save_quit)
-        self.close_button.pack(side=tk.RIGHT)
-        self.update_button = tk.Button(self.master, text='Update', command=self._update_all)
-        self.update_button.pack(side=tk.RIGHT)
 
     def _update_all(self):
 
@@ -421,6 +423,7 @@ class CEASIOMpyGUI:
 
         # Generate new Auto Tab
         # Get a list of ALL CEASIOMpy submodules (could be improve by chosing only active module)
+
         for module_name in self.submodule_list:
 
             specs = mif.get_specs_for_module(module_name)
@@ -475,8 +478,8 @@ class CEASIOMpyGUI:
                         raise TypeError(name + ' has not the correct type!')
 
         close_tixi(self.tixi, self.cpacs_out_path)
-        self.master.quit()
 
+        self.master.quit()
 
 
 #==============================================================================
@@ -566,6 +569,7 @@ def create_gui(cpacs_path, cpacs_out_path, submodule_list):
     """
 
     # Call Tkinter Class
+
     root = tk.Tk()
     my_gui = CEASIOMpyGUI(root, cpacs_path, cpacs_out_path, submodule_list)
     root.mainloop()

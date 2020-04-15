@@ -85,6 +85,10 @@ def run_subworkflow(module_to_run,cpacs_path_in='',cpacs_path_out=''):
 
     """
 
+    if not module_to_run:
+        log.info('No module to run in "Pre-module"')
+        return 0
+
     submodule_list = mi.get_submodule_list()
 
     for module in module_to_run:
@@ -126,5 +130,3 @@ def run_subworkflow(module_to_run,cpacs_path_in='',cpacs_path_out=''):
     # Copy the cpacs file in the first module
     if cpacs_path_out:
         shutil.copy(mi.get_tooloutput_file_path(module_to_run[-1]),cpacs_path_out)
-
-

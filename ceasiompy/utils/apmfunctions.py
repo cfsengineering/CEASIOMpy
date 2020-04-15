@@ -710,13 +710,11 @@ def get_aeromap(tixi,aeromap_uid):
     dcldqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcldqstar'
     if tixi.checkElement(dcldqstar_xpath):
         check_str = tixi.getTextElement(dcldqstar_xpath)
-        print(check_str)
         if check_str == '':
             log.warning('No /dampingDerivatives/positiveRates/dcldqstar,  values have been found in the CPACS file')
             log.warning('An empty list will be returned.')
             Coef.dcddqstar = []
         else:
-            print('aaa')
             Coef.dcldqstar = cpsf.get_float_vector(tixi, dcldqstar_xpath)
 
     dcmsdqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmsdqstar'
@@ -869,7 +867,6 @@ def aeromap_from_csv(tixi,aeromap_uid,csv_path):
     # Read CSV file
     df = pd.read_csv(csv_path,keep_default_na=False)
     log.info(csv_path + ' has been read.')
-    print(df)
 
     # Create AeroCoefficient object and put data in it
     Aero = AeroCoefficient()

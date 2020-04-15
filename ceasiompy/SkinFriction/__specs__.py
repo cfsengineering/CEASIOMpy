@@ -95,3 +95,11 @@ cpacs_inout.add_output(
     descr='Wing span of the main (largest) wing',
     xpath=CEASIOM_XPATH + '/geometry/analyses/wingSpan',
 )
+
+cpacs_inout.add_output(
+    var_name='new_aeromap_to_plot',
+    default_value=None,
+    unit='m',
+    descr='List of aeroMap to plot',
+    xpath=CEASIOM_XPATH + '/aerodynamics/plotAeroCoefficient/aeroMapToPlot',
+)

@@ -4,7 +4,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 This is a wrapper module for AeroFrame. AeroFrame allows to perform
-partiotioned aeroelastic analyses. Any CFD and structure model can be used
+partitioned aeroelastic analyses. Any CFD and structure model can be used
 provided that a corresponding AeroFrame wrapper has been written.
 
 Note that AeroFrame is being developed in a separate repository on Github.

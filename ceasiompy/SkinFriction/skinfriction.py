@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-06-13
-| Last modifiction: 2020-03-18
+| Last modifiction: 2020-03-31
 
 TODO:
 
@@ -38,6 +38,8 @@ log = get_logger(__file__.split('.')[0])
 
 WINGS_XPATH = '/cpacs/vehicles/aircraft/model/wings'
 SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
+SF_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction'
+
 
 #==============================================================================
 #   CLASSES
@@ -173,26 +175,24 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
     wing_span = cpsf.get_value_or_default(tixi,wing_span_xpath, wing_span_max)
 
     aeromap_uid_list = []
-    # Try to get SU2 aeroMap
-    su2_aeroMap_xpath = SU2_XPATH + '/aeroMapUID'
-    if tixi.checkElement(su2_aeroMap_xpath):
-        aeromap_uid_list.append(cpsf.get_value(tixi,su2_aeroMap_xpath))
 
-    # Try to get pyTornado aeroMap
-    pyTornado_aeroMap_xpath = '/cpacs/toolspecific/pytornado/aeroMapUID'
-    if tixi.checkElement(pyTornado_aeroMap_xpath):
-        aeromap_uid_list.append(cpsf.get_value(tixi,pyTornado_aeroMap_xpath))
+    # Try to get aeroMapToCalculate
+    aeroMap_to_clculate_xpath = SF_XPATH + '/aeroMapToCalculate'
+    if tixi.checkElement(aeroMap_to_clculate_xpath):
+        aeromap_uid_list = cpsf.get_string_vector(tixi,aeroMap_to_clculate_xpath)
+    else:
+        aeromap_uid_list = []
 
-    # If pyTornado and SU2 aeroMap was not define, get all existing aeroMap
+    # If no aeroMap in aeroMapToCalculate, get all existing aeroMap
     if len(aeromap_uid_list) == 0:
-        aeromap_uid_list = apmf.get_aeromap_uid_list(tixi)
-
-    # If no aeroMap --> Error
-    if len(aeromap_uid_list) == 0:
-        raise ValueError('No aeroMap has been found in this CPACS file, skin friction cannot be added!')
+        try:
+            aeromap_uid_list = apmf.get_aeromap_uid_list(tixi)
+        except:
+            raise ValueError('No aeroMap has been found in this CPACS file, skin friction cannot be added!')
 
     # Get unique aeroMap list
     aeromap_uid_list = list(set(aeromap_uid_list))
+    new_aeromap_uid_list = []
 
     # Add skin friction to all listed aeroMap
     for aeromap_uid in aeromap_uid_list:
@@ -256,6 +256,7 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
 
         # Create new aeroMap UID
         aeromap_sf_uid = aeromap_uid + '_SkinFriction'
+        new_aeromap_uid_list.append(aeromap_sf_uid)
 
         # Create new description
         description_xpath = tixi.uIDGetXPath(aeromap_uid) + '/description'
@@ -265,6 +266,18 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
         # Save aeroCoefficient object Coef in the CPACS file
         apmf.save_parameters(tixi,aeromap_sf_uid,AeroCoefSF)
         apmf.save_coefficients(tixi,aeromap_sf_uid,AeroCoefSF)
+
+    # Get aeroMap list to plot
+    plot_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/plotAeroCoefficient'
+    aeromap_to_plot_xpath = plot_xpath + '/aeroMapToPlot'
+
+    if tixi.checkElement(aeromap_to_plot_xpath):
+        aeromap_uid_list = cpsf.get_string_vector(tixi,aeromap_to_plot_xpath)
+        new_aeromap_to_plot = aeromap_uid_list + new_aeromap_uid_list
+        cpsf.add_string_vector(tixi,aeromap_to_plot_xpath,new_aeromap_to_plot)
+    else:
+        cpsf.create_branch(tixi,aeromap_to_plot_xpath)
+        cpsf.add_string_vector(tixi,aeromap_to_plot_xpath,new_aeromap_uid_list)
 
     log.info('AeroMap "' + aeromap_uid + '" has been added to the CPACS file')
 
@@ -290,13 +303,10 @@ if __name__ == '__main__':
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
 
 
-
 # Old function !!!
 # TODO: Adapt the code deal with fixed CL mode case, then this function could be deleted completly
 
 # def add_skin_friction(cpacs_path,cpacs_out_path):
-
-#
 #     cruise_alt_xpath = range_xpath + '/cruiseAltitude'
 #     tixi, cruise_alt = cpsf.get_value_or_default(tixi,cruise_alt_xpath,12000)
 #

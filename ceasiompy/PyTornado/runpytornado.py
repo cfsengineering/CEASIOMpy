@@ -39,11 +39,15 @@ import shutil
 from datetime import datetime
 from random import randint
 from glob import glob
-
+import numpy as np
+import pandas as pd
 import xmltodict as xml
 
+import ceasiompy.utils.cpacsfunctions as cpsf
+import ceasiompy.utils.moduleinterfaces as mi
+
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
+
 
 log = get_logger(__file__.split('.')[0])
 dump_pretty_json = partial(json.dump, indent=4, separators=(',', ': '))
@@ -52,7 +56,7 @@ REGEX_INT = re.compile(r'^[-+]?[0-9]+$')
 REGEX_FLOAT = re.compile(r'^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$')
 
 DIR_MODULE = os.path.dirname(os.path.abspath(__file__))
-
+MODULE_NAME = os.path.basename(os.getcwd())
 
 def import_pytornado(module_name):
     """ Try to import PyTornado and return module if succesful
@@ -106,6 +110,7 @@ def get_pytornado_settings(cpacs_in_path):
     # * First, get a default settings dictionary from PyTornado
     # * The dictionary is described in the PyTornado documentation, see
     #   --> https://pytornado.readthedocs.io/en/latest/user_guide/input_file_settings.html
+
     ps = import_pytornado('pytornado.objects.settings')
     settings = ps.get_default_dict(ps.DEFAULT_SETTINGS)
 
@@ -205,12 +210,69 @@ def parse_pytornado_settings_dict(dictionary):
         # -----------
 
 
+def _get_load_fields(pytornado_results):
+    """
+    Return AeroFrame load fields from PyTornado results
+    Args:
+        :pytornado_results: (obj) PyTornado results data structure
+    Returns:
+        :load_fields: (dict) AeroFrame load fields
+    """
+
+    vlmdata = pytornado_results['vlmdata']
+    lattice = pytornado_results['lattice']
+
+    # PyTornado API provides access to loads on main wing and on mirrored side
+    bookkeeping_lists = (
+        (lattice.bookkeeping_by_wing_uid, ''),
+        (lattice.bookkeeping_by_wing_uid_mirror, '_m'),
+    )
+
+    frames = []
+
+    load_fields = {}
+    for (bookkeeping_list, suffix) in bookkeeping_lists:
+        for wing_uid, panellist in bookkeeping_list.items():
+            # Count number of panels
+            num_pan = 0
+            for entry in panellist:
+                num_pan += len(entry.pan_idx)
+
+            # Add a first row of zeros in order to use 'append' method (will be removed below)
+            load_field = np.zeros((1, 6))
+            for entry in panellist:
+                # pan_idx: Panel index in PyTornado book keeping system
+                for pan_idx in entry.pan_idx:
+                    load_field_entry = np.zeros((1, 6))
+                    # load_field_entry[0, 0:3] = self.points_of_attack_undeformed[pan_idx]
+                    load_field_entry[0, 0:3] = lattice.bound_leg_midpoints[pan_idx] #TODO: correct to use this field as coordinates??
+                    load_field_entry[0, 3] = vlmdata.panelwise['fx'][pan_idx]
+                    load_field_entry[0, 4] = vlmdata.panelwise['fy'][pan_idx]
+                    load_field_entry[0, 5] = vlmdata.panelwise['fz'][pan_idx]
+                    load_field = np.append(load_field, load_field_entry, axis=0)
+
+            # # Write one CSV file per Wing
+            load_fields[wing_uid + suffix] = load_field[1:, :]
+            df = pd.DataFrame(load_field[1:, :])
+            df.columns =['x', 'y','z','fx', 'fy','fz']
+            frames.append(df)
+            csv_path = os.path.join('ToolOutput',wing_uid + suffix +'.csv')
+            # df.to_csv(csv_path, sep=',',index=False)
+
+    # Write aircraft load in a CSV file
+    df_tot = pd.concat(frames)
+    csv_path = os.path.join('ToolOutput','aircraft_loads.csv')
+    print(csv_path)
+    df_tot.to_csv(csv_path, sep=',',index=False)
+
+
 def main():
     log.info("Running PyTornado...")
 
     # ===== CPACS inout and output paths =====
-    cpacs_in_path = DIR_MODULE + '/ToolInput/ToolInput.xml'
-    cpacs_out_path = DIR_MODULE + '/ToolOutput/ToolOutput.xml'
+    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+    cpacs_in_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
 
     # ===== Delete old working directories =====
     settings_from_CPACS = get_pytornado_settings_from_CPACS(cpacs_in_path)
@@ -237,7 +299,7 @@ def main():
 
     # ===== Setup =====
     shutil.copy(src=cpacs_in_path, dst=file_pyt_aircraft)
-    check_cpacs_input_requirements(cpacs_in_path)
+    mi.check_cpacs_input_requirements(cpacs_in_path)
 
     # ===== Get PyTornado settings =====
     cpacs_settings = get_pytornado_settings(cpacs_in_path)
@@ -246,7 +308,16 @@ def main():
 
     # ===== PyTornado analysis =====
     pytornado = import_pytornado('pytornado.stdfun.run')
-    pytornado.standard_run(args=pytornado.StdRunArgs(run=file_pyt_settings, verbose=True))
+    #pytornado.standard_run(args=pytornado.StdRunArgs(run=file_pyt_settings, verbose=True))
+    results = pytornado.standard_run(args=pytornado.StdRunArgs(run=file_pyt_settings, verbose=True))
+
+    # ===== Extract load =====
+    tixi =  cpsf.open_tixi(cpacs_in_path)
+    extract_loads_xpath = '/cpacs/toolspecific/pytornado/save_results/extractLoads'
+    extract_loads = cpsf.get_value_or_default(tixi, extract_loads_xpath, False)
+
+    if extract_loads:
+        _get_load_fields(results)
 
     # ===== Clean up =====
     shutil.copy(src=file_pyt_aircraft, dst=cpacs_out_path)

@@ -34,7 +34,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
-SOFT_LIST = ['SU2_DEF','SU2_CFD','SU2_SOL','mpirun']
+SOFT_LIST = ['SU2_DEF','SU2_CFD','SU2_SOL','mpirun.mpich','mpirun']
 
 
 #==============================================================================
@@ -140,12 +140,15 @@ def run_soft(soft, config_path, wkdir):
     # Get installation path for the following softwares
     SOFT_DICT = ceaf.get_install_path(SOFT_LIST)
 
-    mpi_install_path = SOFT_DICT['mpirun']
+    mpi_install_path = SOFT_DICT['mpirun.mpich']
     soft_install_path = SOFT_DICT[soft]
     proc_nb = os.cpu_count()
     log.info('Number of proc: ' + str(proc_nb))
     logfile_path = os.path.join(wkdir,'logfile' + soft + '.log')
 
+    # if mpi_install_path is not None:
+    #     command_line =  [mpi_install_path,'-np',str(proc_nb),
+    #                      soft_install_path,config_path,'>',logfile_path]
     if mpi_install_path is not None:
         command_line =  [mpi_install_path,'-np',str(proc_nb),
                          soft_install_path,config_path,'>',logfile_path]

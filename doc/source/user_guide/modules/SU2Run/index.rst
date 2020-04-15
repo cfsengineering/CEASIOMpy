@@ -15,7 +15,7 @@ You must install SU2 on your computer to use the SU2Run module. You can find SU2
 Analyses
 --------
 
-The module SU2Run can performed different analysis depending the inputs.
+The module SU2Run can perform different analysis depending the inputs.
 
 Output
 ------

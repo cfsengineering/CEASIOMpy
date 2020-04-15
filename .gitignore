@@ -13,6 +13,9 @@
 /tmp
 /ceasiompy/CPACSCreator/tmp/*
 /ceasiompy/WKDIR/
+/ceasiompy/Pytornado/wkdir*
+CrashInfo/
+
 
 # Ignore ModuleTest
 /ceasiompy/ModuleTest/

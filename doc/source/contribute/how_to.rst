@@ -22,8 +22,8 @@ Writing a new module
 
 * Rename it as you want
 
-* Write all the function it needs to run
+* Write all the functions it needs to run
 
-* Write  its ``__specs__.py`` file, which describes is input/output and RCE integration
+* Write its ``__specs__.py`` file, which describes its input/output and RCE integration
 
-* Write its test functions , as example you can check: test/TestModuleTemplate/
+* Write its test functions , for example you can check: test/TestModuleTemplate/

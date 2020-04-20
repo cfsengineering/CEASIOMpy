@@ -3,7 +3,7 @@ SU2Run
 
 :Categories: Aerodynamics, CFD, |Apms|
 
-SU2 is a CFD code develop by Stanford University
+SU2 is a CFD code developped by Stanford University.
 
 
 Installation

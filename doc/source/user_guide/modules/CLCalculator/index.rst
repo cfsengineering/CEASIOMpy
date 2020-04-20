@@ -6,13 +6,13 @@ CLCalculator
 Installation
 ------------
 
-CLCalculator will be install automatically with the installation of CEASIOMpy, no further action required.
+CLCalculator will be installed automatically with the installation of CEASIOMpy, no further action is required.
 
 
 Analyses
 --------
 
-CLCalculator determine the Lift coefficient :math:`C_L` required to fly with the set of following conditions:
+CLCalculator determines the Lift coefficient :math:`C_L` required to fly with the set of following conditions:
 
     * Mass of the aircraft: :math:`M [kg]`
     * Mach number: :math:`Ma [-]`
@@ -37,7 +37,7 @@ Dynamic pressure can be calculated as:
    q = \frac{1}{2} \cdot \gamma \cdot P_s \cdot M^2
 
 
-and we know the lift force must be compensate the weight of the aircraft (time the load factor), so :math:`L=M \cdot g \cdot LF`. With the first equation, we obtain:
+and we know the lift force must compensate the weight of the aircraft (times the load factor), so :math:`L=M \cdot g \cdot LF`. With the first equation, we obtain:
 
 .. math::
 

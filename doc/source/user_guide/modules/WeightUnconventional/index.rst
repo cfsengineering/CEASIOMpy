@@ -15,7 +15,7 @@ Main module for the unconvenentional aircraft class I design, it evaluates:
 * the maximum number of passengers;
 * the maximum amount of fuel with max passengers;
 * the number of crew members needed;
-* the number of toilet.
+* the number of toilets.
 
 Starting point:
 

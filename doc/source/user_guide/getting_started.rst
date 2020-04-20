@@ -45,6 +45,20 @@ Test Case 3 : ...
 WeightConventional -> CLCalculator -> CPACS2SUMO -> SUMOAutoMesh -> Range
 
 
+Test Case 4 : Optimising the CL
+*****************************
+
+When launching an optimisation routine, enter the desired parameter that you want to optimise in the "optim_var" variable.
+.. code::
+    optim_var = 'cl'
+
+Then select the modules you want to be run in the routine, for example :
+
+.. code::
+    module_optim = ['WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
+    
+The optimisation will create a new directory in the WKDIR folder and each iteration result (CPACS file + problem variables) will be saved in the Optimisation module.
+
 
 With RCE:
 ---------

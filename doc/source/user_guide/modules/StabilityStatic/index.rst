@@ -14,17 +14,17 @@ StabilityStatic is a native |name| module, hence it is available and installed b
 Analyses
 --------
 
-StabilityStatic check static stabilities in the tree main directions: longitudinal, lateral and directional. For each one, it writes in the CPACS file is stable of not (or not calculated). If stable, it also returns the value of the trim conditions.
+StabilityStatic checks static stabilities in the tree main directions: longitudinal, lateral and directional. For each one, it writes in the CPACS file if the aircraft is stable of not (or not calculated). If stable, it also returns the value of the trim conditions.
 
 Output
 ------
 
-A lot of graph are produce and saved in /ToolOutput.
+A lot of graphs are produced and saved in /ToolOutput.
 
 Required CPACS input and settings
 ---------------------------------
 
-The CPACS must contains an aeroMap. The aeroMap must contained at least a few points to calculate stability (several angle of attack for longitudinal and several angle of sideslip for lateral and directional).
+The CPACS must contain an aeroMap. The aeroMap must contain at least a few points to calculate stability (several angles of attack for longitudinal and several angles of sideslip for lateral and directional).
 
 Limitations
 -----------

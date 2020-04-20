@@ -3,7 +3,7 @@ Optimisation
 
 :Categories: Optimisation module
 
-This module launches a loop with a workflow routine and an optimiser.
+This module launches a loop with a workflow routine and an optimiser based on the Openmdao library.
 
 Installation
 ------------
@@ -29,7 +29,7 @@ Required CPACS input and settings
 Limitations
 -----------
 
-TBD
+ * The geometric modification of the fuselage is not available for now.
 
 More information
 ----------------

@@ -53,6 +53,7 @@ Modules
    :caption: Miscellaneous
 
    modules/SettingsGUI/index
+   modules/Optimisation/index
    modules/ModuleTemplate/index
 
 **Flight mechanics** Work in progress...

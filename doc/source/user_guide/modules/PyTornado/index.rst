@@ -9,7 +9,7 @@ PyTornado
 
 :Categories: Aerodynamics, CFD, |Apms|
 
-PyTornado is an aerodynamics module for fast, low-fidelity aerodynamics analyses. PyTornado is an implementation of the *vortex lattice method* (VLM), a potential flow CFD_ method.
+PyTornado is an aerodynamics module for fast, low-fidelity aerodynamics analysis. PyTornado is an implementation of the *vortex lattice method* (VLM), a potential flow CFD_ method.
 
 .. figure:: main.png
     :width: 500 px

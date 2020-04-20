@@ -27,7 +27,7 @@ Weight conventional module for preliminary design of conventional aircraft evalu
 * the number of lavatories
 * the seating disposition
 
-To do so, this software use the main geometrical data of the aircraft, which are found automatically in the CPACS file:
+To do so, this software uses the main geometrical data of the aircraft, which are found automatically in the CPACS file:
 
 * wing area
 * wing span
@@ -38,18 +38,19 @@ To do so, this software use the main geometrical data of the aircraft, which are
 Output
 ------
 
-WeightConventional module generate and output CPACS file with all the calculated data, but you can also find these information in some text file save in the ToolOutput folder of the module.
+WeightConventional module generates and outputs CPACS file with all the calculated data, but you can also find these information in some text file saved in the ToolOutput folder of the module.
 
 
 Required CPACS input and settings
 ---------------------------------
 
-A lot of options can be set in the CPACS file or via SettingsGUI, but default value will be set in the case you don't know these options.
+A lot of options can be set in the CPACS file or via SettingsGUI, but default value will be set in case you don't know these options.
+
 
 Limitations
 -----------
 
-WeightConventional is based on interpolation base on existing aircraft, it will not been able to take into account if the aircraft you design use new technologies or materials.
+WeightConventional is based on interpolation base on existing aircraft, it will not be able to take into account if the aircraft you design uses new technologies or materials.
 
 
 More information

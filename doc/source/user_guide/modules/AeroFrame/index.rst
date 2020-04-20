@@ -17,7 +17,7 @@ AeroFrame
     :target: https://aeroframe.readthedocs.io/
     :alt: AeroFrame example
 
-    Wing deformations in a pull-up maneuver. In the shown case, aerodynamics were computed with the vortex-lattice method (VLM) and the structural repsonse with a beam FEM model (image from [Dett19]_).
+    Wing deformations in a pull-up maneuver. In the shown case, aerodynamics were computed with the vortex-lattice method (VLM) and the structural response with a beam FEM model (image from [Dett19]_).
 
 Installation
 ------------
@@ -52,7 +52,7 @@ Limitations
 
 .. warning::
 
-    AeroFrame does currently only exchange data for *static* aeroelastic analyses. Extenstions for *dynamic* analyses which requires handling of *time*-related data are in planning.
+    AeroFrame does currently only exchange data for *static* aeroelastic analyses. Extensions for *dynamic* analyses which requires handling of *time*-related data are in planning.
 
 Contributions to the AeroFrame framework are highly welcomed.
 

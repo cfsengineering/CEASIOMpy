@@ -14,13 +14,13 @@ Test Case 1 : Simple workflow
 *****************************
 
 The module 'WorkflowCreator' can be found at /CEASIOMpy/ceasiompy/WorkflowCreator/workflowcreator.py
-You can open it and modify the list 'module_pre', which is the list of module to execute before to run an optimization, in this fist case will will disable the optimization for now, so these modules will be the only ones to be executed. You can write:
+You can open it and modify the list 'module_pre', which is the list of modules to execute before running an optimization, in this fist case we will disable the optimization for now, so these modules will be the only ones to be executed. You can write:
 
 .. code::
 
-    module_pre = ['SettingsGUI','WeightConventional','Range']
+    module_pre = ['WeightConventional','Range']
 
-In this example three modules will be executed, in order, first 'SettingsGUI' which is a user interface to set options of order modules, then 'WeightConventional' which estimates masses of a conventionl aircraft and finally estimates 'Range' the rage of the aircraft for different flight configurations. Each module input and output a CPACS file, all the data should be read and written into this CPACS file during the process.
+In this example two modules will be executed, in order, first 'WeightConventional' which estimates masses of a conventional aircraft and 'Range' which estimates the range of the aircraft for different flight configurations. Each module input and output a CPACS file, all the data should be read and written into this CPACS file during the process.
 
 
 
@@ -44,6 +44,20 @@ Test Case 3 : ...
 
 WeightConventional -> CLCalculator -> CPACS2SUMO -> SUMOAutoMesh -> Range
 
+
+Test Case 4 : Optimising the CL
+*****************************
+
+When launching an optimisation routine, enter the desired parameter that you want to optimise in the "optim_var" variable.
+.. code::
+    optim_var = 'cl'
+
+Then select the modules you want to be run in the routine, for example :
+
+.. code::
+    module_optim = ['WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
+    
+The optimisation will create a new directory in the WKDIR folder and each iteration result (CPACS file + problem variables) will be saved in the Optimisation module.
 
 
 With RCE:

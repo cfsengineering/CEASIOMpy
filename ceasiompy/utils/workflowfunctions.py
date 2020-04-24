@@ -1,14 +1,22 @@
 """
-Created on Tue Feb 25 15:59:13 2020
+CEASIOMpy: Conceptual Aircraft Design Software
 
-@author: Aidan Jungo
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module containing the utilitary functions for the workflowcreator and optimization modules
 
+Python version: >=3.6
+
+| Author: Aidan Jungo
+| Creation: 2020-02-25
+| Last modifiction: 2020-04-24
+
 TODO:
-    - Investigate why the stp models are not or badly exported
-    - Add the function to make a caption
+
+    * ...
+
 """
+
 
 #==============================================================================
 #   IMPORTS
@@ -17,7 +25,10 @@ TODO:
 import os
 import subprocess
 import shutil
+
 import ceasiompy.utils.moduleinterfaces as mi
+
+from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -29,6 +40,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
 SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
+
 
 #==============================================================================
 #   FUNCTIONS
@@ -60,9 +72,6 @@ def copy_module_to_module(module_from, io_from, module_to, io_to):
     else: # 'out' or anything else ('out' by default)
         file_copy_to = mi.get_tooloutput_file_path(module_to)
 
-    if module_to == "Optimisation":
-        file_copy_to = file_copy_to.replace('ToolOutput.xml', io_to+'.xml')
-
     log.info('Copy CPACS to:'+ file_copy_to)
 
     shutil.copy(file_copy_from,file_copy_to)
@@ -86,11 +95,11 @@ def run_subworkflow(module_to_run,cpacs_path_in='',cpacs_path_out=''):
     """
 
     if not module_to_run:
-        log.info('No module to run in "Pre-module"')
+        log.info('No module to run')
         return 0
 
+    # Check non existing module
     submodule_list = mi.get_submodule_list()
-
     for module in module_to_run:
         if module not in submodule_list:
             raise ValueError('No module named "' + module + '"!')
@@ -109,23 +118,29 @@ def run_subworkflow(module_to_run,cpacs_path_in='',cpacs_path_out=''):
 
         # Go to the module directory
         module_path = os.path.join(LIB_DIR,module)
-
+        print('\n Going to ',module_path,'\n')
         os.chdir(module_path)
 
         # Copy CPACS file from previous module to this one
         if m > 0:
             copy_module_to_module(module_to_run[m-1],'out',module,'in')
 
-        # Find the python file to run
-        for file in os.listdir(module_path):
-            if file.endswith('.py'):
-                if not file.startswith('__'):
-                    main_python = file
+        if module == 'SettingsGUI':
+            cpacs_path = mi.get_toolinput_file_path(module)
+            cpacs_out_path = mi.get_tooloutput_file_path(module)
+            create_settings_gui(cpacs_path,cpacs_out_path,module_to_run[m:])
 
-        # Run the module
-        error = subprocess.call(['python',main_python])
-        if error:
-            raise ValueError('An error ocured in the module '+ module)
+        else:
+            # Find the python file to run
+            for file in os.listdir(module_path):
+                if file.endswith('.py'):
+                    if not file.startswith('__'):
+                        main_python = file
+
+            # Run the module
+            error = subprocess.call(['python',main_python])
+            if error:
+                raise ValueError('An error ocured in the module '+ module)
 
     # Copy the cpacs file in the first module
     if cpacs_path_out:

@@ -10,11 +10,11 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-09-24
-| Last modifiction: 2019-10-04
+| Last modifiction: 2020-04-30
 
 TODO:
 
-    * Could be improved or merge with su2results ...
+    * 
 
 """
 
@@ -99,12 +99,18 @@ def compute_forces(vtk_file_path, force_file_path, config_dict):
                                            with added force and normal vectors
     """
 
-    reader = vtk.vtkUnstructuredGridReader()
+    # To read .vtu file
+    reader = vtk.vtkXMLUnstructuredGridReader() #test
     reader.SetFileName(vtk_file_path)
-    reader.SetReadAllNormals(1)
-    reader.SetReadAllScalars(1)
-    reader.SetReadAllTensors(1)
-    reader.SetReadAllVectors(1)
+
+    # To read .vtk file
+    # reader = vtk.vtkUnstructuredGridReader()
+    # reader.SetFileName(vtk_file_path)
+    # reader.SetReadAllNormals(1)
+    # reader.SetReadAllScalars(1)
+    # reader.SetReadAllTensors(1)
+    # reader.SetReadAllVectors(1)
+
     reader.Update()
     mesh = reader.GetOutput()
 
@@ -283,7 +289,7 @@ def extract_loads(results_files_dir):
 
     # Path definitons
     config_file_path = results_files_dir + '/ConfigCFD.cfg'
-    surface_flow_file_path = results_files_dir + '/surface_flow.vtk'
+    surface_flow_file_path = results_files_dir + '/surface_flow.vtu'  # .vtu are creteted by SU2 from v7.0.1
     surface_flow_force_file_path = results_files_dir + '/surface_flow_forces.vtk'
     force_file_path = results_files_dir + '/force.csv'
 

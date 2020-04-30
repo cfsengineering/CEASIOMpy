@@ -9,13 +9,13 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-10-02
-| Last modifiction: 2020-03-13
+| Last modifiction: 2020-03-24
 
 TODO:
 
-    * Must be almost completly refactored
     * Use Pandas datafarme to write aeromaps
-    * implement relusts saving for Control surface deflections
+    * Finish relusts saving for Control surface deflections
+    * Solve other small issues
 
 """
 
@@ -35,6 +35,8 @@ import ceasiompy.utils.su2functions as su2f
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.su2functions import read_config
+
+from ceasiompy.SU2Run.func.extractloads import extract_loads
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -252,22 +254,31 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
                 dcms = (cms-Coef.cms[-1])/adim_rot_rate
                 Coef.damping_derivatives.add_damping_der_coef(dcl,dcd,dcs,dcml,dcmd,dcms,'_dr')
 
-            elif '_cs' in config_dir:
+            elif '_TED_' in config_dir:
 
-                # TODO: how to store these results correctly (CPACS 3.1 doc)
+                config_dir_split = config_dir.split('_')
+                ted_idx = config_dir_split.index('TED')
+                ted_uid = config_dir_split[ted_idx+1]
+                defl_angle = float(config_dir.split('_defl')[1])
 
-                #controlDeviceUID
-                #controlParameters
+                try:
+                    print(Coef.IncrMap.dcl)
+                except AttributeError:
+                    Coef.IncrMap = apmf.IncrementMap(ted_uid)
+
+                # TODO: still in development, for now only 1 ted and 1 defl
+                print(ted_uid,defl_angle)
+
                 dcl = (cl-Coef.cl[-1])
                 dcd = (cd-Coef.cd[-1])
                 dcs = (cs-Coef.cs[-1])
                 dcml = (cml-Coef.cml[-1])
                 dcmd = (cmd-Coef.cmd[-1])
                 dcms = (cms-Coef.cms[-1])
-                cs_uid = 'test'
-                control_parameter = [0,1]
 
-                Coef.increment_map.add_cs_coef(dcl,dcd,dcs,dcml,dcmd,dcms,cs_uid,control_parameter)
+                control_parameter = -1
+
+                Coef.IncrMap.add_cs_coef(dcl,dcd,dcs,dcml,dcmd,dcms,ted_uid,control_parameter)
 
             else: # No damping derivative or control surfaces case
                 Coef.add_coefficients(cl,cd,cs,cml,cmd,cms)

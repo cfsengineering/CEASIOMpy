@@ -217,7 +217,8 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 
         config_file_name = 'ConfigCFD.cfg'
 
-        case_dir_name = ''.join(['Case',str(case_nb),
+
+        case_dir_name = ''.join(['Case',str(case_nb).zfill(2),
                                  '_alt',str(case_nb),
                                  '_mach',str(round(mach,2)),
                                  '_aoa',str(round(aoa,1)),

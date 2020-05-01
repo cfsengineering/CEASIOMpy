@@ -102,8 +102,7 @@ def no_fuse_geom_analysis(cpacs_in, FLOOR_NB, wing_nb, h_min, FUEL_ON_CABIN, NAM
     """
     awg = AircraftWingGeometry()
     awg = geom_eval(wing_nb, awg, cpacs_in)
-    (awg, wing_nodes) = wing_check_thickness(h_min, awg, cpacs_in,\
-                                             TP, FUEL_ON_CABIN)
+    (awg, wing_nodes) = wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN)
     produce_wing_output_txt(awg, NAME)
 
     return(awg, wing_nodes)

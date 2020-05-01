@@ -12,6 +12,10 @@ Python version: >=3.6
 | Date of creation: 2018-09-27
 | Last modifiction: 2020-01-23
 
+TODO 
+
+    * Simplify the classes and harmonise with inputs...
+
 """
 
 

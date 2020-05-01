@@ -17,405 +17,307 @@ RCE = {
 
 cpacs_inout = CPACSInOut()
 
-# TODO
-
 # ----- Input -----
 
-#
-# # User inputs ----
-# cpacs_inout.add_input(
-#     var_name='IS_DOUBLE_FLOOR',
-#     var_type=list,
-#     default_value=[0,1,2],
-#     unit=None,
-#     descr='0: no 2nd floor, 1: full 2nd floor (A380), 2: half 2nd floor (B747)',
-#     xpath=CEASIOM_XPATH + '/geometry/isDoubleFloor',
-#     gui=True,
-#     gui_name='Double deck',
-#     gui_group='User inputs',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='PILOT_NB',
-#     var_type=int,
-#     default_value=2,
-#     unit=None,
-#     descr='Number of pilot',
-#     xpath=CEASIOM_XPATH + '/weight/crew/pilots/pilotNb',
-#     gui=True,
-#     gui_name='Number of pilot',
-#     gui_group='User inputs',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='MASS_PILOT',
-#     var_type=int,
-#     default_value=102,
-#     unit='[kg]',
-#     descr='Pilot mass',
-#     xpath=CEASIOM_XPATH + '/weight/crew/pilots/pilotMass',
-#     gui=True,
-#     gui_name='Pilot mass',
-#     gui_group='User inputs',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='MASS_CABIN_CREW',
-#     var_type=int,
-#     default_value=68,
-#     unit='[kg]',
-#     descr='Cabin crew mass',
-#     xpath=CEASIOM_XPATH + '/weight/crew/cabinCrewMembers/cabinCrewMemberMass',
-#     gui=True,
-#     gui_name='Cabin crew mass',
-#     gui_group='User inputs',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='MASS_PASS',
-#     var_type=int,
-#     default_value=105,
-#     unit='[kg]',
-#     descr='Passenger mass',
-#     xpath=CEASIOM_XPATH + '/weight/passengers/passMass',
-#     gui=True,
-#     gui_name='Passenger mass',
-#     gui_group='User inputs',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='PASS_PER_TOILET',
-#     var_type=int,
-#     default_value=50,
-#     unit='[passenger/toilet]',
-#     descr='Number of passenger per toilet',
-#     xpath=CEASIOM_XPATH + '/weight/passengers/passPerToilet',
-#     gui=True,
-#     gui_name='Passenger/toilet',
-#     gui_group='User inputs',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='MAX_PAYLOAD',
-#     var_type=float,
-#     default_value=0,
-#     unit='[kg]',
-#     descr='Maximum payload allowed, set 0 if equal to max passenger mass.',
-#     xpath=CEASIOM_XPATH + '/weight/massLimits/maxPayload',
-#     gui=True,
-#     gui_name='Max payload',
-#     gui_group='User inputs',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='MAX_FUEL_VOL',
-#     var_type=float,
-#     default_value=0,
-#     unit='[l]',
-#     descr='Maximum fuel volume allowed [l]',
-#     xpath=CEASIOM_XPATH + '/weight/massLimits/maxFuelVol',
-#     gui=True,
-#     gui_name='Max Fuel volum',
-#     gui_group='User inputs',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='MASS_CARGO',
-#     var_type=float,
-#     default_value=0,
-#     unit='[kg]',
-#     descr='Cargo mass [kg]',
-#     xpath=AIRCRAFT_XPATH + '/model/analyses/massBreakdown/payload/mCargo/massDescription/mass',
-#     gui=True,
-#     gui_name='Mass cargo',
-#     gui_group='User inputs',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='FUEL_DENSITY',
-#     var_type=float,
-#     default_value=800,
-#     unit='[kg/m^3]',
-#     descr='Fuel density [kg/m^3]',
-#     xpath=CEASIOM_XPATH + '/fuels/density',
-#     gui=True,
-#     gui_name='Fuel density',
-#     gui_group='User inputs',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='TURBOPROP',
-#     var_type=bool,
-#     default_value=False,
-#     unit=None,
-#     descr='"True" only if the aircraft is a turboprop',
-#     xpath=CEASIOM_XPATH + '/propulsion/turboprop',
-#     gui=True,
-#     gui_name='Turboprop',
-#     gui_group='User inputs',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='RES_FUEL_PERC',
-#     var_type=float,
-#     default_value=0.06,
-#     unit='[-]',
-#     descr='percentage of the total fuel, unusable fuel_consumption (0 to 1)',
-#     xpath=CEASIOM_XPATH + '/fuels/resFuelPerc',
-#     gui=True,
-#     gui_name='RES_FUEL_PERC',
-#     gui_group='User inputs',
-# )
-#
-# # InsideDimensions ---
-#
-# cpacs_inout.add_input(
-#     var_name='seat_length',
-#     var_type=float,
-#     default_value=0.74,
-#     unit='[m]',
-#     descr='Seats length',
-#     xpath=CEASIOM_XPATH + '/geometry/seatLength',
-#     gui=True,
-#     gui_name='Seat length',
-#     gui_group='Inside dimension',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='seat_width',
-#     var_type=float,
-#     default_value=0.525,
-#     unit='[m]',
-#     descr='Seats width',
-#     xpath=CEASIOM_XPATH + '/geometry/seatWidth',
-#     gui=True,
-#     gui_name='Seat width',
-#     gui_group='Inside dimension',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='aisle_width',
-#     var_type=float,
-#     default_value=0.42,
-#     unit='[m]',
-#     descr='Aisles width',
-#     xpath=CEASIOM_XPATH + '/geometry/aisleWidth',
-#     gui=True,
-#     gui_name='Aisles width',
-#     gui_group='Inside dimension',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='fuse_thick',
-#     var_type=float,
-#     default_value=6.63,
-#     unit='[%]',
-#     descr='Fuselage thickness, percentage of fuselage width',
-#     xpath=CEASIOM_XPATH + '/geometry/fuseThick',
-#     gui=True,
-#     gui_name='Fuselage thickness',
-#     gui_group='Inside dimension',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='nose_length',
-#     var_type=float,
-#     default_value=0,
-#     unit='[m]',
-#     descr='Length of the aircraft nose',
-#     xpath=CEASIOM_XPATH + '/geometry/aaaaa',  #what is the xpath
-#     gui=True,
-#     gui_name='Nose length',
-#     gui_group='Inside dimension',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='tail_length',
-#     var_type=float,
-#     default_value=0,
-#     unit='[m]',
-#     descr='Length of the aircraft tail',
-#     xpath=CEASIOM_XPATH + '/geometry/aaaaa',  #what is the xpath
-#     gui=True,
-#     gui_name='Tail length',
-#     gui_group='Inside dimension',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='toilet_length',
-#     var_type=float,
-#     default_value=1.9,
-#     unit='[m]',
-#     descr='Common space length',
-#     xpath=CEASIOM_XPATH + '/geometry/toiletLength',
-#     gui=True,
-#     gui_name='Toilet length',
-#     gui_group='Inside dimension',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='cabin_length',
-#     var_type=float,
-#     default_value=None,
-#     unit='[m]',
-#     descr='Length of the aircraft cabin',
-#     xpath=CEASIOM_XPATH + '/geometry/aaaaa', #what is the xpath
-#     gui=False,
-#     gui_name='Cabin length',
-#     gui_group='Inside dimension',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='cabin_width',
-#     var_type=float,
-#     default_value=None,
-#     unit='[m]',
-#     descr='Width of the aircraft cabin',
-#     xpath=CEASIOM_XPATH + '/geometry/aaaaa', #what is the xpath
-#     gui=False,
-#     gui_name='Cabin width',
-#     gui_group='Inside dimension',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='cabin_area',
-#     var_type=float,
-#     default_value=None,
-#     unit='[m^2]',
-#     descr='Area of the aircraft cabin',
-#     xpath=CEASIOM_XPATH + '/geometry/aaaaa', #what is the xpath
-#     gui=False,
-#     gui_name='Cabin area',
-#     gui_group='Inside dimension',
-# )
-#
-#
-# # ----- Output -----
-#
-# cpacs_inout.add_output(
-#     var_name='maximum_take_off_mass',
-#     default_value=None,
-#     unit='[kg]',
-#     descr='Maximum take of mass',
-#     xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/designMasses/mTOM/mass',
-# )
-#
-# cpacs_inout.add_output(
-#     var_name='zero_fuel_mass',
-#     default_value=None,
-#     unit='[kg]',
-#     descr='Zero fuel mass',
-#     xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/designMasses/mZFM/mass',
-# )
-#
-# cpacs_inout.add_output(
-#     var_name='mass_fuel_max',
-#     default_value=None,
-#     unit='[kg]',
-#     descr='Maximum fuel mass',
-#     xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/fuel/massDescription/mass',
-# )
-#
-# cpacs_inout.add_output(
-#     var_name='mass_fuel_maxpass',
-#     default_value=None,
-#     unit='[kg]',
-#     descr='Maximum fuel mass with maximum payload',
-#     xpath=CEASIOM_XPATH+'/weight/passengers/fuelMassMaxpass/mass',
-# )
-#
-# cpacs_inout.add_output(
-#     var_name='operating_empty_mass',
-#     default_value=None,
-#     unit='[kg]',
-#     descr='Operating empty mass',
-#     xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/mOEM/massDescription/mass',
-# )
-#
-# cpacs_inout.add_output(
-#     var_name='mass_payload',
-#     default_value=None,
-#     unit='[kg]',
-#     descr='Maximum payload mass',
-#     xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/payload/massDescription/mass',
-# )
-#
-# cpacs_inout.add_output(
-#     var_name='crew_mass',
-#     default_value=None,
-#     unit='[kg]',
-#     descr='Crew members total mass',
-#     xpath=CEASIOM_XPATH+'/weight/crew/crewMass/mass',
-# )
-#
-# cpacs_inout.add_output(
-#     var_name='mass_cargo',
-#     default_value=None,
-#     unit='[kg]',
-#     descr='xtra payload mass in case of max fuel and total mass less than MTOM',
-#     xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/mCargo/massDescription/massCargo',
-# )
-#
-# cpacs_inout.add_output(
-#     var_name='pass_nb',
-#     default_value=None,
-#     unit='[kg]',
-#     descr='Maximum number of passengers',
-#     xpath=CEASIOM_XPATH+'/weight/passengers/passNb',
-# )
-#
-# cpacs_inout.add_output(
-#     var_name='cabin_crew_nb',
-#     default_value=None,
-#     unit='[kg]',
-#     descr='Maximum number of cabin crew members',
-#     xpath=CEASIOM_XPATH+'/weight/crew/crewMass/cabinCrewMemberNB',
-# )
-#
-# cpacs_inout.add_output(
-#     var_name='wing_area',
-#     default_value=None,
-#     unit='[m^2]',
-#     descr='Wing area',
-#     xpath=CEASIOM_XPATH+'/geometry/analyses/wingArea',
-# )
-#
-# cpacs_inout.add_output(
-#     var_name='fuse_length',
-#     default_value=None,
-#     unit='[m]',
-#     descr='Fuselage length',
-#     xpath=CEASIOM_XPATH+'/geometry/analyses/fuseLength',
-# )
-#
-# cpacs_inout.add_output(
-#     var_name='row_nb',
-#     default_value=None,
-#     unit='[-]',
-#     descr='Number of seat rows',
-#     xpath=CEASIOM_XPATH+'/weight/passengers/rowNb',
-# )
-#
-# cpacs_inout.add_output(
-#     var_name='abreast_nb',
-#     default_value=None,
-#     unit='[-]',
-#     descr='Number of abreasts',
-#     xpath=CEASIOM_XPATH+'/weight/passengers/abreastNb',
-# )
-#
-# cpacs_inout.add_output(
-#     var_name='aisle_nb',
-#     default_value=None,
-#     unit='[-]',
-#     descr='Number of aisles',
-#     xpath=CEASIOM_XPATH+'/weight/passengers/aisleNb',
-# )
-#
-# cpacs_inout.add_output(
-#     var_name='toilet_nb',
-#     default_value=None,
-#     unit='[-]',
-#     descr='Number of toilets',
-#     xpath=CEASIOM_XPATH+'/weight/passengers/toiletNb',
-# )
+# User inputs
+cpacs_inout.add_input(
+    var_name='IS_DOUBLE_FLOOR',
+    var_type=list,
+    default_value=[0,1,2],
+    unit=None,
+    descr='0: no 2nd floor, 1: full 2nd floor (A380), 2: half 2nd floor (B747)',
+    xpath=CEASIOM_XPATH + '/geometry/isDoubleFloor',
+    gui=True,
+    gui_name='Double deck',
+    gui_group='Cabin',
+)
+
+cpacs_inout.add_input(
+    var_name='ui.H_LIM_CABIN',
+    var_type=float,
+    default_value=2.3,
+    unit='m',
+    descr='Concorde 1.5m, Conventional 2.3m',
+    xpath=CEASIOM_XPATH + '/geometry/cabinHeight',
+    gui=True,
+    gui_name='Cabin height',
+    gui_group='Cabin',
+)
+
+cpacs_inout.add_input(
+    var_name='adui.PASS_PER_TOILET',
+    var_type=int,
+    default_value=50,
+    unit='[pax/toilet]',
+    descr='Number of passenger per toilet',
+    xpath=CEASIOM_XPATH + '/weight/passengers/passPerToilet',
+    gui=True,
+    gui_name='Passenger/toilet',
+    gui_group='Cabin',
+)
+
+cpacs_inout.add_input(
+    var_name='adui.VRT_THICK',
+    var_type=float,
+    default_value=0.00014263,
+    unit='m',
+    descr='to check',
+    xpath=CEASIOM_XPATH + '/geometry/virtualThick',
+    gui=True,
+    gui_name='virtual Thickness',
+    gui_group='Structure',
+)
+
+cpacs_inout.add_input(
+    var_name='adui.VRT_STR_DENSITY',
+    var_type=float,
+    default_value=2700.0,
+    unit='kg/m^3',
+    descr='to check',
+    xpath=CEASIOM_XPATH + '/geometry/virtualDensity',
+    gui=True,
+    gui_name='virtual Density',
+    gui_group='Structure',
+)
+
+cpacs_inout.add_input(
+    var_name='ui.PILOT_NB',
+    var_type=int,
+    default_value=2,
+    unit='-',
+    descr='Number of pilots',
+    xpath=CEASIOM_XPATH + '/weight/crew/pilots/pilotNb',
+    gui=True,
+    gui_name='Pilots',
+    gui_group='Crew',
+)
+
+cpacs_inout.add_input(
+    var_name='adui.MASS_PILOT',
+    var_type=float,
+    default_value=102.0,
+    unit='kg',
+    descr='Mass of each pilots + its suitcase',
+    xpath=CEASIOM_XPATH + '/weight/crew/pilots/pilotMass',
+    gui=True,
+    gui_name='Pilots mass',
+    gui_group='Crew',
+)
+
+cpacs_inout.add_input(
+    var_name='adui.MASS_CABIN_CREW',
+    var_type=float,
+    default_value=68.0,
+    unit='kg',
+    descr='Mass of cabin crew members',
+    xpath=CEASIOM_XPATH + '/weight/crew/cabinCrewMembers/cabinCrewMemberMass',
+    gui=True,
+    gui_name='Cabin crew mass',
+    gui_group='Crew',
+)
+
+cpacs_inout.add_input(
+    var_name='adui.MASS_PASS',
+    var_type=float,
+    default_value=105.0,
+    unit='[kg]',
+    descr='Passenger mass',
+    xpath=CEASIOM_XPATH + '/weight/passengers/passMass',
+    gui=True,
+    gui_name='Passenger mass',
+    gui_group='Passengers',
+)
+
+cpacs_inout.add_input(
+    var_name='adui.PASS_BASE_DENSITY',
+    var_type=float,
+    default_value=1.66,
+    unit='[/m^2]',
+    descr='Passenger surface density (Concorde: 1.16, B77: 1.66, ATR72: 1.39, BWB: 1.69)',
+    xpath=CEASIOM_XPATH + '/weight/passengers/passDensity',
+    gui=True,
+    gui_name='Passenger density',
+    gui_group='Passengers',
+)
+
+cpacs_inout.add_input(
+    var_name='adui.FUEL_DENSITY',
+    var_type=float,
+    default_value=800.0,
+    unit='[kg/m^3]',
+    descr='Fuel density [kg/m^3]',
+    xpath=CEASIOM_XPATH + '/fuels/density',
+    gui=True,
+    gui_name='Fuel density',
+    gui_group='Fuel',
+)
+
+cpacs_inout.add_input(
+    var_name='adui.RES_FUEL_PERC',
+    var_type=float,
+    default_value=0.06,
+    unit='[-]',
+    descr=' % of the total fuel, unusable fuel_consumption',
+    xpath=CEASIOM_XPATH + '/fuels/resFuelPerc',
+    gui=True,
+    gui_name='% unusable fuel',
+    gui_group='Fuel',
+)
+
+cpacs_inout.add_input(
+    var_name='ui.MAX_PAYLOAD',
+    var_type=float,
+    default_value=0.0,
+    unit='[kg]',
+    descr='Maximum payload allowed, set 0 if equal to max passenger mass.',
+    xpath=CEASIOM_XPATH + '/weight/massLimits/maxPayload',
+    gui=True,
+    gui_name='Max payload',
+    gui_group='Weight',
+)
+
+cpacs_inout.add_input(
+    var_name='ui.MAX_FUEL_VOL',
+    var_type=float,
+    default_value=0.0,
+    unit='[l]',
+    descr='Maximum fuel volume allowed [l]',
+    xpath=CEASIOM_XPATH + '/weight/massLimits/maxFuelVol',
+    gui=True,
+    gui_name='Max Fuel volume',
+    gui_group='Weight',
+)
+
+cpacs_inout.add_input(
+    var_name='ui.MASS_CARGO',
+    var_type=float,
+    default_value=0.0,
+    unit='[kg]',
+    descr='Cargo mass [kg]',
+    xpath=AIRCRAFT_XPATH + '/model/analyses/massBreakdown/payload/mCargo/massDescription/mass',
+    gui=True,
+    gui_name='Mass cargo',
+    gui_group='Weight',
+)
+
+cpacs_inout.add_input(
+    var_name='ed.TSFC_CRUISE',
+    var_type=float,
+    default_value=0.5,
+    unit='[1/h]',
+    descr='Thrust specific fuel consumption for cruise [1/h] (Truboprop 0.6, Trubofan 0.5, Concorde 0.8)',
+    xpath=CEASIOM_XPATH + '/propulsion/tSFC',
+    gui=True,
+    gui_name='TSFC',
+    gui_group='Cruise',
+)
+
+# TODO: Missing some imput about engines
+
+# ----- Output -----
+
+# TODO: check if all input are there
+
+cpacs_inout.add_output(
+    var_name='maximum_take_off_mass',
+    default_value=None,
+    unit='[kg]',
+    descr='Maximum take of mass',
+    xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/designMasses/mTOM/mass',
+)
+
+cpacs_inout.add_output(
+    var_name='zero_fuel_mass',
+    default_value=None,
+    unit='[kg]',
+    descr='Zero fuel mass',
+    xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/designMasses/mZFM/mass',
+)
+
+cpacs_inout.add_output(
+    var_name='mass_fuel_max',
+    default_value=None,
+    unit='[kg]',
+    descr='Maximum fuel mass',
+    xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/fuel/massDescription/mass',
+)
+
+cpacs_inout.add_output(
+    var_name='mass_fuel_maxpass',
+    default_value=None,
+    unit='[kg]',
+    descr='Maximum fuel mass with maximum payload',
+    xpath=CEASIOM_XPATH+'/weight/passengers/fuelMassMaxpass/mass',
+)
+
+cpacs_inout.add_output(
+    var_name='operating_empty_mass',
+    default_value=None,
+    unit='[kg]',
+    descr='Operating empty mass',
+    xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/mOEM/massDescription/mass',
+)
+
+cpacs_inout.add_output(
+    var_name='mass_payload',
+    default_value=None,
+    unit='[kg]',
+    descr='Maximum payload mass',
+    xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/payload/massDescription/mass',
+)
+
+cpacs_inout.add_output(
+    var_name='crew_mass',
+    default_value=None,
+    unit='[kg]',
+    descr='Crew members total mass',
+    xpath=CEASIOM_XPATH+'/weight/crew/crewMass/mass',
+)
+
+cpacs_inout.add_output(
+    var_name='mass_cargo',
+    default_value=None,
+    unit='[kg]',
+    descr='xtra payload mass in case of max fuel and total mass less than MTOM',
+    xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/mCargo/massDescription/massCargo',
+)
+
+cpacs_inout.add_output(
+    var_name='pass_nb',
+    default_value=None,
+    unit='[kg]',
+    descr='Maximum number of passengers',
+    xpath=CEASIOM_XPATH+'/weight/passengers/passNb',
+)
+
+cpacs_inout.add_output(
+    var_name='cabin_crew_nb',
+    default_value=None,
+    unit='[kg]',
+    descr='Maximum number of cabin crew members',
+    xpath=CEASIOM_XPATH+'/weight/crew/crewMass/cabinCrewMemberNB',
+)
+
+cpacs_inout.add_output(
+    var_name='wing_area',
+    default_value=None,
+    unit='[m^2]',
+    descr='Wing area',
+    xpath=CEASIOM_XPATH+'/geometry/analyses/wingArea',
+)
+
+cpacs_inout.add_output(
+    var_name='fuse_length',
+    default_value=None,
+    unit='[m]',
+    descr='Fuselage length',
+    xpath=CEASIOM_XPATH+'/geometry/analyses/fuseLength',
+)
+
+cpacs_inout.add_output(
+    var_name='toilet_nb',
+    default_value=None,
+    unit='[-]',
+    descr='Number of toilets',
+    xpath=CEASIOM_XPATH+'/weight/passengers/toiletNb',
+)

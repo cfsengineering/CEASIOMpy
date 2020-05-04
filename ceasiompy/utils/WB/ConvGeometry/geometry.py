@@ -21,8 +21,7 @@ from .Fuselage.fusegeom import fuse_geom_eval
 from .Wings.winggeom import wing_geom_eval
 from .Output.outputgeom import produce_output_txt
 
-from ceasiompy.utils.InputClasses.Conventional.aircraftgeometryclass\
-    import AircraftGeometry
+from ceasiompy.utils.InputClasses.Conventional.aircraftgeometryclass import AircraftGeometry
 
 log = get_logger(__file__.split('.')[0])
 
@@ -72,5 +71,3 @@ if __name__ == '__main__':
     log.warning('##########################################################')
     log.warning('############# ERROR NOT A STANDALONE PROGRAM #############')
     log.warning('##########################################################')
-
-

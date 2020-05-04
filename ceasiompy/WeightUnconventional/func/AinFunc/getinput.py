@@ -10,7 +10,13 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2020-01-20 (AJ)
+| Last modifiction: 2020-05-01 (AJ)
+
+TODO:
+
+    * A lot of things could be simplified...
+    * Get flight condition for aeromap, how?
+    * Get user inptut for engines
 
 """
 
@@ -147,125 +153,31 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
         tixi.updateTextElement(GEOM_XPATH + '/description', 'User '\
                                + 'geometry input')
 
-    # Number of floors.
-    if not tixi.checkElement(GEOM_XPATH + '/floorsNb'):
-        tixi.createElement(GEOM_XPATH, 'floorsNb')
-        tixi.updateDoubleElement(GEOM_XPATH + '/floorsNb',\
-                                 ui.FLOORS_NB, '%g')
-    else:
-        temp = tixi.getDoubleElement(GEOM_XPATH + '/floorsNb')
-        if temp != ui.FLOORS_NB and temp > 0:
-            ui.FLOORS_NB = temp
-
-    # Extracting fuselage material data.
-    if not tixi.checkElement(GEOM_XPATH + '/virtualThick'):
-        tixi.createElement(GEOM_XPATH, 'virtualThick')
-        tixi.updateDoubleElement(GEOM_XPATH + '/virtualThick',\
-                                 adui.VRT_THICK, '%g')
-    else:
-        temp = tixi.getDoubleElement(GEOM_XPATH + '/virtualThick')
-        if temp != adui.VRT_THICK and temp > 0:
-            adui.VRT_THICK = temp
-
-    if not tixi.checkElement(GEOM_XPATH + '/virtualDensity'):
-        tixi.createElement(GEOM_XPATH, 'virtualDensity')
-        tixi.updateDoubleElement(GEOM_XPATH + '/virtualDensity',\
-                                 adui.VRT_STR_DENSITY, '%g')
-    else:
-        temp = tixi.getDoubleElement(GEOM_XPATH + '/virtualDensity')
-        if temp != adui.VRT_STR_DENSITY and temp > 0:
-            adui.VRT_STR_DENSITY = temp
-
-    if not tixi.checkElement(GEOM_XPATH + '/cabinHeight'):
-        tixi.createElement(GEOM_XPATH, 'cabinHeight')
-        tixi.updateDoubleElement(GEOM_XPATH + '/cabinHeight',\
-                                 ui.H_LIM_CABIN, '%g')
-    else:
-        temp = tixi.getDoubleElement(GEOM_XPATH + '/cabinHeight')
-        if temp != ui.H_LIM_CABIN and temp > 0:
-            ui.H_LIM_CABIN = temp
+    ui.FLOORS_NB = cpsf.get_value_or_default(tixi,GEOM_XPATH + '/floorsNb', ui.FLOORS_NB)
+    adui.VRT_THICK = cpsf.get_value_or_default(tixi,GEOM_XPATH + '/virtualThick', 0.00014263)
+    adui.VRT_STR_DENSITY = cpsf.get_value_or_default(tixi,GEOM_XPATH + '/virtualDensity', 2700.0)
+    ui.H_LIM_CABIN = cpsf.get_value_or_default(tixi,GEOM_XPATH + '/cabinHeight', 2.3)
 
     # People =================================================================
     # Pilots user input data
-    if not tixi.checkElement(PILOTS_PATH + '/pilotNb'):
-        tixi.createElement(PILOTS_PATH, 'pilotNb')
-        tixi.updateIntegerElement(PILOTS_PATH + '/pilotNb',\
-                                 adui.PILOT_NB, '%i')
-    else:
-        temp = tixi.getIntegerElement(PILOTS_PATH + '/pilotNb')
-        if temp != adui.PILOT_NB and temp > 0:
-            adui.PILOT_NB = temp
 
-    if not tixi.checkElement(PILOTS_PATH + '/pilotMass'):
-        tixi.createElement(PILOTS_PATH, 'pilotMass')
-        tixi.updateDoubleElement(PILOTS_PATH + '/pilotMass',\
-                                 adui.MASS_PILOT, '%g')
-    else:
-        temp = tixi.getDoubleElement(PILOTS_PATH + '/pilotMass')
-        if temp != adui.MASS_PILOT and temp > 0:
-            adui.MASS_PILOT = temp
+    adui.PILOT_NB = cpsf.get_value_or_default(tixi,PILOTS_PATH + '/pilotNb', 2)
+    adui.MASS_PILOT = cpsf.get_value_or_default(tixi,PILOTS_PATH + '/pilotMass', 102.0)
+    adui.MASS_CABIN_CREW = cpsf.get_value_or_default(tixi,CAB_CREW_XPATH + '/cabinCrewMemberMass', 68.0)
+    adui.MASS_PASS = cpsf.get_value_or_default(tixi,PASS_XPATH + '/passMass', 105.0)
+    adui.PASS_BASE_DENSITY = cpsf.get_value_or_default(tixi,PASS_XPATH + '/passDensity', 1.66)
+    adui.PASS_PER_TOILET = cpsf.get_value_or_default(tixi,PASS_XPATH + '/passPerToilet', 50)
 
-    # Cabin crew user input data
-    if not tixi.checkElement(CAB_CREW_XPATH + '/cabinCrewMemberMass'):
-        tixi.createElement(CAB_CREW_XPATH, 'cabinCrewMemberMass')
-        tixi.updateDoubleElement(CAB_CREW_XPATH + '/cabinCrewMemberMass',\
-                                 adui.MASS_CABIN_CREW, '%g')
-    else:
-        temp = tixi.getDoubleElement(CAB_CREW_XPATH + '/cabinCrewMemberMass')
-        if temp != adui.MASS_CABIN_CREW and temp > 0:
-            adui.MASS_CABIN_CREW = temp
-
-    # Passengers user input data
-    if not tixi.checkElement(PASS_XPATH + '/passMass'):
-        tixi.createElement(PASS_XPATH, 'passMass')
-        tixi.updateDoubleElement(PASS_XPATH + '/passMass',\
-                                 adui.MASS_PASS, '%g')
-    else:
-        temp = tixi.getDoubleElement(PASS_XPATH+ '/passMass')
-        if temp != adui.MASS_PASS and temp > 0:
-            adui.MASS_PASS = temp
-
+    # what to to with this input
     if tixi.checkElement(PASS_XPATH + '/passNb'):
         temp = tixi.getIntegerElement(PASS_XPATH+ '/passNb')
         if temp != ui.MAX_PASS and temp > 0:
             ui.MAX_PASS = temp
 
-    if not tixi.checkElement(PASS_XPATH + '/passDensity'):
-        tixi.createElement(PASS_XPATH, 'passDensity')
-        tixi.updateDoubleElement(PASS_XPATH + '/passDensity',\
-                                 ui.PASS_BASE_DENSITY, '%i')
-    else:
-        temp = tixi.getDoubleElement(PASS_XPATH + '/passDensity')
-        if temp != ui.PASS_BASE_DENSITY and temp > 0:
-            ui.PASS_BASE_DENSITY = temp
-
-    if not tixi.checkElement(PASS_XPATH + '/passPerToilet'):
-        tixi.createElement(PASS_XPATH, 'passPerToilet')
-        tixi.updateIntegerElement(PASS_XPATH + '/passPerToilet',\
-                                 adui.PASS_PER_TOILET, '%i')
-    else:
-        temp = tixi.getIntegerElement(PASS_XPATH + '/passPerToilet')
-        if temp != adui.PASS_PER_TOILET and temp > 0:
-            adui.PASS_PER_TOILET = temp
 
     # Fuel ===================================================================
-    if not tixi.checkElement(F_XPATH + '/density'):
-        tixi.createElement(F_XPATH, 'density')
-        tixi.updateDoubleElement(F_XPATH + '/density',\
-                                 adui.FUEL_DENSITY, '%g')
-    else:
-        temp = tixi.getDoubleElement(F_XPATH + '/density')
-        if temp != adui.FUEL_DENSITY and temp > 0:
-            adui.FUEL_DENSITY = temp
-
-    if not tixi.checkElement(FUEL_XPATH + '/resFuelPerc'):
-        tixi.createElement(FUEL_XPATH, 'resFuelPerc')
-        tixi.updateDoubleElement(FUEL_XPATH + '/resFuelPerc',\
-                                 adui.RES_FUEL_PERC, '%g')
-    else:
-        temp = tixi.getDoubleElement(FUEL_XPATH + '/resFuelPerc')
-        if temp != adui.RES_FUEL_PERC and temp > 0:
-            adui.RES_FUEL_PERC = temp
+    adui.FUEL_DENSITY = cpsf.get_value_or_default(tixi,F_XPATH + '/density', 800)
+    adui.RES_FUEL_PERC = cpsf.get_value_or_default(tixi,F_XPATH + '/resFuelPerc', 0.06)
 
     # Weight =================================================================
     # Mass limits data
@@ -273,31 +185,18 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
         tixi.createElement(ML_XPATH, 'description')
         tixi.updateTextElement(ML_XPATH + '/description', 'Desired max fuel '\
                                + 'volume [m^3] and payload mass [kg]')
-    if not tixi.checkElement(ML_XPATH + '/maxPayload'):
-        tixi.createElement(ML_XPATH, 'maxPayload')
-        tixi.updateDoubleElement(ML_XPATH + '/maxPayload',\
-                                 ui.MAX_PAYLOAD, '%g')
-    else:
-        temp = tixi.getDoubleElement(ML_XPATH + '/maxPayload')
-        if temp != ui.MAX_PAYLOAD and temp != 0:
-            ui.MAX_PAYLOAD = temp
-    if not tixi.checkElement(ML_XPATH + '/maxFuelVol'):
-        tixi.createElement(ML_XPATH, 'maxFuelVol')
-        tixi.updateDoubleElement(ML_XPATH + '/maxFuelVol',\
-                                 ui.MAX_FUEL_VOL, '%g')
-    else:
-        temp = tixi.getDoubleElement(ML_XPATH + '/maxFuelVol')
-        if temp != ui.MAX_FUEL_VOL and temp != 0:
-            ui.MAX_FUEL_VOL = temp
 
-    if tixi.checkElement(MC_XPATH + '/massCargo'):
-        temp = tixi.getDoubleElement(MC_XPATH + '/massCargo')
-        if temp != ui.MASS_CARGO and temp != 0:
-            ui.MASS_CARGO = temp
-        # If the cargo mass is defined in the UserInputs class will be added
-        # in the CPACS file after the analysis.
+    ui.MAX_PAYLOAD = cpsf.get_value_or_default(tixi,ML_XPATH + '/maxPayload', 0.0)
+    ui.MAX_FUEL_VOL = cpsf.get_value_or_default(tixi,ML_XPATH + '/maxFuelVol', 0.0)
+    ui.MASS_CARGO = cpsf.get_value_or_default(tixi,MC_XPATH + '/massCargo', 0.0)
+    # If the cargo mass is defined in the UserInputs class will be added
+    # in the CPACS file after the analysis.
 
     # Flight =================================================================
+
+    ed.TSFC_CRUISE = cpsf.get_value_or_default(tixi,PROP_XPATH + '/tSFC', 0.5)
+
+    # TODO: These data should be taken from aeroMaps...
     if not tixi.checkElement(RANGE_XPATH + '/lDRatio'):
         tixi.createElement(RANGE_XPATH, 'lDRatio')
         tixi.updateDoubleElement(RANGE_XPATH + '/lDRatio',\
@@ -316,17 +215,7 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
         if temp != ui.CRUISE_SPEED and temp > 0:
             ui.CRUISE_SPEED = temp
 
-    TSFC_PATH = PROP_XPATH + '/tSFC'
-    cpsf.create_branch(tixi, TSFC_PATH, False)
-    if not tixi.checkElement(TSFC_PATH + '/tsfcCruise'):
-        tixi.createElement(TSFC_PATH, 'tsfcCruise')
-        tixi.updateDoubleElement(TSFC_PATH + '/tsfcCruise',\
-                                 ed.TSFC_CRUISE, '%g')
-    else:
-        temp = tixi.getDoubleElement(TSFC_PATH + '/tsfcCruise')
-        if temp != ed.TSFC_CRUISE and temp > 0:
-            ed.TSFC_CRUISE = temp
-
+    # TODO: see how to enter input for Engines
     if not tixi.checkElement(PROP_XPATH + '/userEngineOption'):
         tixi.createElement(PROP_XPATH, 'userEngineOption')
         if ui.USER_ENGINES:

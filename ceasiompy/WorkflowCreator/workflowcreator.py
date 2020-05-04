@@ -17,10 +17,9 @@ TODO:
     * more options ?
 
 """
-
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 
 import os
 import shutil
@@ -34,6 +33,7 @@ import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mi
 
+from ceasiompy.Optimisation.optimisation import routine_setup
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
@@ -44,9 +44,9 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 
 class WorkflowOptions:
     """ Class to pass option of the workflow """
@@ -76,7 +76,7 @@ class Tab(tk.Frame):
         self.modules_list.remove('utils')
         self.modules_list.remove('WKDIR')
         self.modules_list.remove('CPACSUpdater')
-        self.modules_list.remove('Optimisation')
+        # self.modules_list.remove('Optimisation')
         self.modules_list.remove('WorkflowCreator')
 
         self.selected_list = []
@@ -89,21 +89,21 @@ class Tab(tk.Frame):
             label_optim.grid(column=0, row=0, columnspan=1)
 
             # The Combobox is directly use as the varaible
-            optim_choice = ['None','DoE','Optim']
+            optim_choice = ['None', 'DoE', 'Optim']
             self.optim_choice_CB = ttk.Combobox(self, values=optim_choice)
             self.optim_choice_CB['width'] = 4
             self.optim_choice_CB.grid(column=4, row=row_pos)
             row_pos += 1
 
             space_label = tk.Label(self, text=' ')
-            space_label.grid(column=0, row=row_pos,columnspan=5)
+            space_label.grid(column=0, row=row_pos, columnspan=5)
             row_pos += 1
 
         # ListBox with all available modules
         tk.Label(self, text='Available modules').grid(column=0, row=row_pos)
         self.LB_modules = tk.Listbox(self, selectmode=tk.SINGLE)
         item_count = len(self.modules_list)
-        self.LB_modules.grid(column=0, row=row_pos+1, columnspan=3,rowspan=15)
+        self.LB_modules.grid(column=0, row=row_pos+1, columnspan=3, rowspan=15)
         for item in self.modules_list:
             self.LB_modules.insert(tk.END, item)
 
@@ -120,7 +120,7 @@ class Tab(tk.Frame):
         # ListBox with all selected modules
         tk.Label(self, text='Selected modules').grid(column=5, row=row_pos)
         self.LB_selected = tk.Listbox(self, selectmode=tk.SINGLE)
-        self.LB_selected.grid(column=5, row=row_pos+1, columnspan=3,rowspan=15)
+        self.LB_selected.grid(column=5, row=row_pos+1, columnspan=3, rowspan=15)
         for item in self.selected_list:
             self.LB_selected.insert(tk.END, item)
             row_pos += (item_count + 1)
@@ -158,11 +158,11 @@ class Tab(tk.Frame):
                 continue
             item = self.LB_selected.get(pos)
             self.LB_selected.delete(pos)
-            self.LB_selected.insert(pos-1, item)
+            self.LB_selected.insert(pos - 1, item)
 
     def _down(self, event=None):
         """ Function of the button down: to move downward a module in the
-            Selected module list"""
+            Selected module list."""
 
         pos_list = self.LB_selected.curselection()
 
@@ -174,7 +174,7 @@ class Tab(tk.Frame):
                 continue
             item = self.LB_selected.get(pos)
             self.LB_selected.delete(pos)
-            self.LB_selected.insert(pos+1, item)
+            self.LB_selected.insert(pos + 1, item)
 
 
 class WorkFlowGUI(tk.Frame):
@@ -183,7 +183,7 @@ class WorkFlowGUI(tk.Frame):
         tk.Frame.__init__(self, master, **kwargs)
         self.pack(fill=tk.BOTH)
 
-        #General buttons ============= (Normally after Notbook, but this is the only way i found to have acces to the buttons on a small screen)
+        # General buttons ============= (Normally after Notbook, but this is the only way i found to have acces to the buttons on a small screen)
         self.close_button = tk.Button(self, text='Save & Quit', command=self._save_quit)
         self.close_button.pack()
 
@@ -192,29 +192,28 @@ class WorkFlowGUI(tk.Frame):
 
         self.Options = WorkflowOptions()
 
-        self.TabPre =Tab(self, 'Pre')
+        self.TabPre = Tab(self, 'Pre')
         self.TabOptim = Tab(self, 'Optim')
         self.TabPost = Tab(self, 'Post')
 
-        self.tabs.add(self.TabPre,text=self.TabPre.name)
-        self.tabs.add(self.TabOptim,text=self.TabOptim.name)
-        self.tabs.add(self.TabPost,text=self.TabPost.name)
-
+        self.tabs.add(self.TabPre, text=self.TabPre.name)
+        self.tabs.add(self.TabOptim, text=self.TabOptim.name)
+        self.tabs.add(self.TabPost, text=self.TabPost.name)
 
     def _save_quit(self):
 
         self.Options.optim_method = self.TabOptim.optim_choice_CB.get()
 
-        self.Options.module_pre = [item[0] for item in self.TabPre.LB_selected.get(0,tk.END)]
-        self.Options.module_optim = [item[0] for item in self.TabOptim.LB_selected.get(0,tk.END)]
-        self.Options.module_post = [item[0] for item in self.TabPost.LB_selected.get(0,tk.END)]
+        self.Options.module_pre = [item[0] for item in self.TabPre.LB_selected.get(0, tk.END)]
+        self.Options.module_optim = [item[0] for item in self.TabOptim.LB_selected.get(0, tk.END)]
+        self.Options.module_post = [item[0] for item in self.TabPost.LB_selected.get(0, tk.END)]
 
         self.quit()
 
 
-#==============================================================================
+# ==============================================================================
 #    MAIN
-#==============================================================================
+# ==============================================================================
 
 def create_wf_gui():
     """ Create a GUI with Tkinter to fill the workflow to run
@@ -248,9 +247,9 @@ if __name__ == '__main__':
     cpacs_path_out = mi.get_tooloutput_file_path(MODULE_NAME)
 
     # Create a new wkdir
-    tixi =  cpsf.open_tixi(cpacs_path)
+    tixi = cpsf.open_tixi(cpacs_path)
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
-    cpsf.close_tixi(tixi,cpacs_path)
+    cpsf.close_tixi(tixi, cpacs_path)
 
     #--------------
     gui = True
@@ -268,52 +267,47 @@ if __name__ == '__main__':
         # Mission analysis: 'Range','StabilityStatic','StabilityDynamic'
 
         Opt = WorkflowOptions()
-        Opt.module_pre = ['SettingsGUI','PyTornado','PlotAeroCoefficients']
+        Opt.module_pre = ['SettingsGUI', 'Optimisation']
         Opt.module_optim = []
-        Opt.optim_method = 'None' # DoE, Optim, None
+        Opt.optim_method = 'Optim' # DoE, Optim, None
         Opt.module_post = []
 
     # Run Pre-otimisation workflow
     if Opt.module_pre:
-        wkf.run_subworkflow(Opt.module_pre,cpacs_path)
+        wkf.run_subworkflow(Opt.module_pre, cpacs_path)
 
         if not Opt.module_optim and not Opt.module_post:
-            shutil.copy(mi.get_tooloutput_file_path(Opt.module_pre[-1]),cpacs_path_out)
+            shutil.copy(mi.get_tooloutput_file_path(Opt.module_pre[-1]), cpacs_path_out)
 
     # Run Optimisation workflow
     if Opt.module_optim:
         if Opt.module_pre:
-            wkf.copy_module_to_module(Opt.module_pre[-1],'out',Opt.module_optim[0],'in')
+            wkf.copy_module_to_module(Opt.module_pre[-1], 'out', Opt.module_optim[0], 'in')
         else:
-            wkf.copy_module_to_module('WorkflowCreator','in',Opt.module_optim[0],'in')
+            wkf.copy_module_to_module('WorkflowCreator', 'in', Opt.module_optim[0], 'in')
 
-        if Opt.optim_method == 'Optim':
-            # TODO: link this function
-            optimize(Opt.module_optim)
-        elif Opt.optim_method == 'DoE':
-            pass
-            #TODO: Vivian: call the function as you want
-            # run_doe(Opt.module_optim)
+        if Opt.optim_method != 'None':
+            routine_setup(Opt.module_optim, Opt.optim_method)
         else:
             log.warning('No optimization method has been selected!')
             log.warning('The modules will be run as a simple workflow')
             wkf.run_subworkflow(Opt.module_optim)
 
         if not Opt.module_post:
-            shutil.copy(mi.get_tooloutput_file_path(Opt.module_optim[-1]),cpacs_path_out)
+            shutil.copy(mi.get_tooloutput_file_path(Opt.module_optim[-1]), cpacs_path_out)
 
     # Run Post-optimisation workflow
     if Opt.module_post:
 
         if Opt.module_optim:
-            wkf.copy_module_to_module(Opt.module_optim[-1],'out',Opt.module_post[0],'in')
+            wkf.copy_module_to_module(Opt.module_optim[-1], 'out', Opt.module_post[0], 'in')
         elif Opt.module_pre:
-            wkf.copy_module_to_module(Opt.module_pre[-1],'out',Opt.module_post[0],'in')
+            wkf.copy_module_to_module(Opt.module_pre[-1], 'out', Opt.module_post[0], 'in')
         else:
-            wkf.copy_module_to_module('WorkflowCreator','in',Opt.module_post[0],'in')
+            wkf.copy_module_to_module('WorkflowCreator', 'in', Opt.module_post[0], 'in')
 
         # wkf.copy_module_to_module('CPACSUpdater','out',Opt.module_post[0],'in')  usefuel?
         wkf.run_subworkflow(Opt.module_post)
-        shutil.copy(mi.get_tooloutput_file_path(Opt.module_post[-1]),cpacs_path_out)
+        shutil.copy(mi.get_tooloutput_file_path(Opt.module_post[-1]), cpacs_path_out)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

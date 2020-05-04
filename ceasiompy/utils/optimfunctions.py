@@ -1,5 +1,5 @@
 """
-CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software.
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
@@ -11,8 +11,8 @@ Python version: >=3.6
 | Creation: 2020-04-10
 | Last modification: 2020-04-10
 
-TODO:
-
+Todo:
+----
     * Write the doc
     * This module is still a bit tricky to use, it will be simplified in the future
     * Use a class instead of 'optim_var_dict' dictionnay???
@@ -22,19 +22,42 @@ TODO:
 """
 
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 
 import numpy as np
 import openmdao.api as om
 
 from matplotlib.pyplot import plot, show, legend, figure
 
+# ==============================================================================
+#   CLASS
+# ==============================================================================
 
-#==============================================================================
+
+class Routine:
+    """Setup the routine to launch in Openmdao."""
+
+    def __init__(self):
+        """Define default main parameters."""
+        # Choice of routine type : DOE or Optimisation
+        self.type = "Optim"
+        self.date = ""
+        self.modules = []
+
+        # Problem setup
+        self.objective = 'cl'
+        self.constrains = {'cms': (-0.1, 0.1)}
+        self.design_vars = {}
+
+        # Driver choice
+        self.driver = "COBYLA"
+
+
+# ==============================================================================
 #   FUNCTIONS
-#==============================================================================
+# ==============================================================================
 
 
 def gen_plot(dic, objective=False, constrains=False):
@@ -66,13 +89,14 @@ def gen_plot(dic, objective=False, constrains=False):
     elif constrains:
         for key, lst in dic.items():
             iterations = np.arange(len(lst))
-            plot(iterations, -lst+lst[0], label=key)
+            plot(iterations, lst/lst[0], label=key)
             legend()
     else:
         for key, lst in dic.items():
             iterations = np.arange(len(lst))
             plot(iterations, lst/lst[0], label=key)
             legend()
+
 
 def read_results():
     """
@@ -83,7 +107,6 @@ def read_results():
     None.
 
     """
-
     # Read recorded options
     path = '../Optimisation/'
     cr = om.CaseReader(path + 'Driver_recorder.sql')

@@ -34,6 +34,7 @@ ToolOutput.xml
 ToolOutput.smx
 ToolOutput.cfg
 forces_breakdown.dat
+aircraft_loads.csv
 *.out
 *mtomPrediction.png
 *Payload_vs_Range.png

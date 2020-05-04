@@ -1,5 +1,5 @@
 """
-CEASIOMpy: Conceptual Aircraft Design Software
+CEASIOMpy: Conceptual Aircraft Design Software.
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
@@ -11,8 +11,8 @@ Python version: >=3.6
 | Creation: 2020-03-24
 | Last modifiction: 2020-03-26
 
-TODO:
-
+TODO
+----
     * Write the module
 
 """
@@ -25,7 +25,6 @@ from sys import exit
 
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
-import ceasiompy.utils.apmfunctions as apmf
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -159,18 +158,17 @@ def init_wing_param(aircraft, wing_nb):
 
         wing = wings.get_wing(w)
 
-        var_name = name+"_sweep"
-        init_sweep = wing.get_sweep()
-        getcmd = cmd+'get_sweep()'
-        setcmd = cmd+'set_sweep({})'.format(var_name)
-        create_var(var_name, init_sweep, getcmd, setcmd)
+        # var_name = name+"_sweep"
+        # init_sweep = wing.get_sweep()
+        # getcmd = cmd+'get_sweep()'
+        # setcmd = cmd+'set_sweep({})'.format(var_name)
+        # create_var(var_name, init_sweep, getcmd, setcmd)
 
-        # AR and area also have span dependency -> implement command with constant span and choice option
-        var_name = name+"_span"
-        init_span = wing.get_wing_half_span()
-        getcmd = cmd+'get_wing_half_span()'
-        setcmd = cmd+'set_half_span_keep_ar({})'.format(var_name)  # keep_area
-        create_var(var_name, init_span, getcmd, setcmd)
+        # var_name = name+"_span"
+        # init_span = wing.get_wing_half_span()
+        # getcmd = cmd+'get_wing_half_span()'
+        # setcmd = cmd+'set_half_span_keep_ar({})'.format(var_name)  # keep_area
+        # create_var(var_name, init_span, getcmd, setcmd)
 
         # var_name = name + "_aspect_ratio"
         # init_AR = wing.get_aspect_ratio()
@@ -185,8 +183,8 @@ def init_wing_param(aircraft, wing_nb):
         # create_var(var_name, init_area, getcmd, setcmd)
 
         sec_nb = wing.get_section_count()
-        # if sec_nb:
-        #     init_sec_param(name, wing, sec_nb, cmd)
+        if sec_nb:
+            init_sec_param(name, wing, sec_nb, cmd)
 
     return
 
@@ -221,13 +219,39 @@ def init_fuse_param(aircraft, fuse_nb):
             var_name = name + "_sec" + str(secnb)
             init_sec_width = fuselage.get_maximal_width()
             getcmd = 'fuselage.get_maximal_width()'
-            setcmd = 'fuselage.set_max_width(var_name)'
+            setcmd = 'fuselage.set_max_width()'.format(var_name)
             create_var(var_name, init_sec_width, getcmd, setcmd)
 
     return
 
 
-def init_design_var_dict(tigl):
+def init_specials(tixi):
+    """
+    Add specific design variables without the tigl handler.
+
+    Parameters
+    ----------
+    tixi : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
+    # CL_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap/aeroPerformanceMap/angleOfAttack'
+    SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
+
+    aeromap_uid = cpsf.get_value(tixi, SU2_XPATH + '/aeroMapUID')
+    xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/angleOfAttack'
+
+    getcmd = 'cpsf.get_value(tixi, "{}")'.format(xpath)
+    setcmd = 'cpsf.add_float_vector(tixi, "{}", var_name)'.format(xpath)
+    init_value = eval(getcmd)
+    # create_var('AoA', init_value, getcmd, setcmd)
+
+
+def init_design_var_dict(tixi):
     """
     Return the dictionary of the design variables.
 
@@ -240,6 +264,7 @@ def init_design_var_dict(tigl):
     design_var_dict : TYPE
 
     """
+    tigl = cpsf.open_tigl(tixi)
     aircraft = cpud.get_aircraft(tigl)
 
     # fuse_nb = aircraft.get_fuselage_count()
@@ -250,6 +275,8 @@ def init_design_var_dict(tigl):
     if wing_nb:
         init_wing_param(aircraft, wing_nb)
 
+    init_specials(tixi)
+
     return design_var_dict
 
 
@@ -258,20 +285,10 @@ def update_res_var_dict(tixi):
     Return objective function value and update all constrains.
 
     Parameters
-    -------
+    ----------
     tixi : tixi3 handler
 
     """
-    # SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
-
-    # aeromap_uid = cpsf.get_value(tixi, SU2_XPATH + '/aeroMapUID')
-    # passenger = cpsf.get_value(tixi, '/cpacs/toolspecific/CEASIOMpy/weight/passengers/passNb')
-    # Coef = apmf.get_aeromap(tixi, aeromap_uid)
-
-    # cl = Coef.cl[0]
-    # cd = Coef.cd[0]
-    # cm = Coef.cms[0]
-
     log.info('=========================')
     for key, (var_name, listval, lower_bound, upper_bound, getcmd) in res_var_dict.items():
         new_val = eval(getcmd)
@@ -284,12 +301,6 @@ def update_res_var_dict(tixi):
             listval.append(new_val)
             log.info(key + ' ' + str(new_val))
     log.info('=========================')
-    # mtom = cpsf.get_value(tixi, '/cpacs/vehicles/aircraft/model/analyses/massBreakdown/designMasses/mTOM/mass')
-    # res_var_dict['passengers'] = ([passenger], '/cpacs/toolspecific/CEASIOMpy/weight/passengers/passNb')
-    # res_var_dict['cl'] = ([cl], '')
-    # res_var_dict['cd'] = ([cd], '')
-    # res_var_dict['cm'] = ([cm], '')
-    # res_var_dict['cl/cd'] = ([cl/cd], '')
 
     return res_var_dict
 
@@ -354,13 +365,13 @@ def init_dict(cpacs_path):
 
     """
     tixi = cpsf.open_tixi(cpacs_path)
-    tigl = cpsf.open_tigl(tixi)
 
-    return init_res_dict(tixi), init_design_var_dict(tigl)
+    return init_res_dict(tixi), init_design_var_dict(tixi)
 
 
 if __name__ == "__main__":
 
+    log.info("Launching dictionnary.py programm...")
     log.info("Not a standalone programm. Nothing will be executed !")
 
     exit()

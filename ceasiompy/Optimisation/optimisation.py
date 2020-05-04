@@ -24,7 +24,7 @@ import openmdao.api as om
 import numpy as np
 
 from re import split as splt
-from ceasiompy.Optimisation.dictionnary import init_dict, update_res_var_dict
+from ceasiompy.Optimisation.func.dictionnary import init_dict, update_res_var_dict
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.cpacsfunctions as cpsf
@@ -43,12 +43,13 @@ SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 #   GLOBAL VARIABLES
 # =============================================================================
 
-obj_var = ''
+Rt = opf.Routine
 counter = 0
 
 # =============================================================================
 #   CLASSES
 # =============================================================================
+
 
 class objective_function(om.ExplicitComponent):
     """Class to define function and variables for openmdao."""
@@ -60,32 +61,32 @@ class objective_function(om.ExplicitComponent):
             self.add_input(key, val=listval[0])
 
         # Add outputs
-        self.add_output(obj_var)
+        self.add_output(Rt.objective)
 
         # Finite difference all partials.
         self.declare_partials('*', '*', method='exact')
 
-
     def compute(self, inputs, outputs):
-        """"""
+        """Launch subroutine to compute objective function."""
         # Add new variable value to the list in the dictionnay
         for key, (name, listval, minval, maxval, setcommand, getcommand) in design_var_dict.items():
             listval.append(inputs[key][0])
 
         # Evaluate the function to optimize
-        outputs[obj_var] = one_optim_iter()
+        outputs[Rt.objective] = one_iteration()
 
 
 class constraint(om.ExplicitComponent):
     """Class to define the constraints or target that are not explicit design variables."""
 
     def setup(self):
-
+        """Create function inputs and outputs."""
         # Add output
         for key, (name, listval, lower_bound, upper_bound, getcommand) in res_var_dict.items():
             self.add_output(name, val=listval[0])
 
     def compute(self, inputs, outputs):
+        """Retrieve values of constrains."""
         for key, (name, listval, lower_bound, upper_bound, getcmd) in res_var_dict.items():
             outputs[name] = listval[-1]
 
@@ -96,11 +97,11 @@ class constraint(om.ExplicitComponent):
 # =============================================================================
 
 
-def run_optimizer():
+def run_routine():
     """
     Run optimisation with openmdao.
 
-    Function 'run_optimizer' is used to define the optimisation problem for
+    Function 'run_routine' is used to define the optimisation problem for
     openmdao. The different parameter to define variables are passed through a
     global dictionnay (for now).
 
@@ -121,36 +122,33 @@ def run_optimizer():
     model.add_subsystem('const', constraint())
 
     # Choose between optimizer or driver
-    doe = False
-    if doe:
+    if Rt.type == 'DoE':
         driver = prob.driver = om.DOEDriver(om.UniformGenerator(num_samples=10))
         # 2->9 3->81
         # driver = prob.driver = om.DOEDriver(om.FullFactorialGenerator(3))
-    else:
+    elif Rt.type == 'Optim':
         driver = prob.driver = om.ScipyOptimizeDriver()
         # SLSQP,COBYLA,shgo,TNC
-        driver.options['optimizer'] = 'COBYLA'
-        # driver.options['maxiter'] = 10
+        driver.options['optimizer'] = Rt.driver
+        driver.options['maxiter'] = 10
         # driver.options['tol'] = 1e-2
 
     # Connect problem components to model components
 
     # Design variable
     for key, (name, listval, minval, maxval, setcommand, getcommand) in design_var_dict.items():
-        a = int(np.log10(abs(listval[0])+1)+1)
-        indeps.add_output(key, listval[0], ref=a, ref0=0)
+        norm = int(np.log10(abs(listval[0])+1)+1)
+        indeps.add_output(key, listval[0], ref=norm, ref0=0)
         model.connect('indeps.'+key, 'objective.'+key)
         model.add_design_var('indeps.'+key, lower=minval, upper=maxval)
 
     # Constrains
     for key, (name, listval, minval, maxval, getcommand) in res_var_dict.items():
-        if name == 'cms':
-            model.add_constraint('const.'+name, lower=-0.1, upper=0.1)
-        else:
-            model.add_constraint('const.'+name, minval, maxval)
+        if name == "cms":
+            model.add_constraint('const.'+name, -0.1, 0.1)
 
     # Objective function
-    model.add_objective('objective.{}'.format(obj_var))
+    model.add_objective('objective.{}'.format(Rt.objective))
 
     # Recorder
     # TODO : make more robust path finding
@@ -162,9 +160,9 @@ def run_optimizer():
     prob.run_driver()
     prob.cleanup()
 
-    # Results (TODO: improve)
+    # Results
     log.info('=========================================')
-    log.info('min = ' + str(prob['objective.{}'.format(obj_var)]))
+    log.info('min = ' + str(prob['objective.{}'.format(Rt.objective)]))
 
     for key, (name, listval, minval, maxval, setcommand, getcommand) in design_var_dict.items():
         log.info(name + ' = ' + str(prob['indeps.'+key]))
@@ -179,11 +177,11 @@ def run_optimizer():
     opf.read_results()
 
 
-def one_optim_iter():
+def one_iteration():
     """
     Compute the objective function.
 
-    Function 'one_optim_iter' will exectute in order all the module contained
+    Function 'one_iteration' will exectute in order all the module contained
     in '...' and extract the ... value from the last CPACS file, this value will
     be returned to the optimizer CPACSUpdater....
 
@@ -196,7 +194,7 @@ def one_optim_iter():
     cpacs_out_path = mi.get_tooloutput_file_path('CPACSUpdater')
 
     tixi = cpsf.open_tixi(cpacs_path)
-    wkdir_path = ceaf.create_new_wkdir(routine_date)
+    wkdir_path = ceaf.create_new_wkdir(Rt.date)
     WKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath'
     tixi.updateTextElement(WKDIR_XPATH, wkdir_path)
 
@@ -218,12 +216,12 @@ def one_optim_iter():
                                   'iter_{}'.format(counter))
 
     # Run optimisation sub workflow
-    wkf.copy_module_to_module('CPACSUpdater', 'out', module_optim[0], 'in')
-    wkf.run_subworkflow(module_optim)
-    wkf.copy_module_to_module(module_optim[-1], 'out', 'CPACSUpdater', 'in')
+    wkf.copy_module_to_module('CPACSUpdater', 'out', Rt.modules[0], 'in')
+    wkf.run_subworkflow(Rt.modules)
+    wkf.copy_module_to_module(Rt.modules[-1], 'out', 'CPACSUpdater', 'in')
 
     # Extract results  TODO: improve this part
-    cpacs_results_path = mi.get_tooloutput_file_path(module_optim[-1])
+    cpacs_results_path = mi.get_tooloutput_file_path(Rt.modules[-1])
     log.info('Results will be extracted from:' + cpacs_results_path)
     tixi = cpsf.open_tixi(cpacs_results_path)
 
@@ -244,18 +242,20 @@ def compute_obj():
     None.
 
     """
-    # Get variable keys from string
-    var_list = splt('[+*/-]', obj_var)
+    # Get variable keys from objective function string
+    var_list = splt('[+*/-]', Rt.objective)
 
     # Create local variable and assign value
     for v in var_list:
         exec('{} = res_var_dict["{}"][1][-1]'.format(v, v))
 
+    result = eval(Rt.objective)
+    log.info('Objective function {} : {}'.format(Rt.objective, result))
     # Evaluate objective function expression
-    return -eval(obj_var)
+    return -result
 
 
-def optimize(modules, objective, user_constrain):
+def routine_setup(modules, routine_type):
     """
     Set up optimisation.
 
@@ -265,19 +265,40 @@ def optimize(modules, objective, user_constrain):
     """
     log.info('----- Start of Optimisation module -----')
 
-    global obj_var
-    global routine_date
-    global design_var_dict
-    global res_var_dict
-    global module_optim
+    global Rt, design_var_dict, res_var_dict
 
-    routine_date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    obj_var = objective
+    # Setup parameters of the routine (TODO : implement in the GUI)
+    Rt.type = routine_type
+    Rt.modules = modules
+    Rt.driver = 'COBYLA'
+    Rt.objective = 'cl/cd'
+    Rt.date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
-    cpacs_path = mi.get_toolinput_file_path('CPACSUpdater')
+    cpacs_path = mi.get_toolinput_file_path(modules[0])
 
     res_var_dict, design_var_dict = init_dict(cpacs_path)
 
-    module_optim = modules
-    wkf.copy_module_to_module('CPACSUpdater', 'out', 'Optimisation', 'initial')
-    run_optimizer()
+    # Copy initial model before the optimisation process
+    wkf.copy_module_to_module(modules[0], 'out', 'Optimisation', 'initial')
+
+    # Copy to CPACSUpdater to pass to next modules
+    wkf.copy_module_to_module(modules[0], 'out', 'CPACSUpdater', 'in')
+
+    # Display routine info
+    log.info('------ Problem description ------')
+    log.info('Routine type : {}'.format(routine_type))
+    log.info('Objective function : {}'.format(Rt.objective))
+    [log.info('Design variables : {}'.format(k)) for k in design_var_dict.keys()]
+    [log.info('Constrains : {}'.format(k)) for k in res_var_dict.keys()]
+
+    run_routine()
+
+    log.info('----- End of Optimisation module -----')
+
+
+if __name__ == '__main__':
+    # Specify parameters already implemented in the SettingsGUI
+    module_list = ['WeightConventional']
+    rt_type = 'Optim'
+
+    routine_setup(module_list, rt_type)

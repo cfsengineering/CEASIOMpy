@@ -22,7 +22,7 @@ The cpacs file Should also contain:
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-12-05
-| Last modifiction: 2019-08-29 (AJ)
+| Last modifiction: 2020-04-16 (AJ)
 """
 
 
@@ -82,7 +82,6 @@ def get_user_fuel(fus_nb, ui, cpacs_in):
                 F = 'fuelOnCabin' + str(i+1)
             else:
                 F = 'fuelOnCabin'
-            print((FUEL_PATH + '/' + F))
             if not tixi.checkElement(FUEL_PATH + '/' + F):
                 tixi.createElement(FUEL_PATH, F)
                 tixi.updateDoubleElement(FUEL_PATH + '/' + F,\
@@ -92,23 +91,24 @@ def get_user_fuel(fus_nb, ui, cpacs_in):
     else:
         if not tixi.checkElement(FUEL_PATH + '/fuelOnCabin'):
             tixi.createElement(FUEL_PATH, 'fuelOnCabin')
-            tixi.updateDoubleElement(FUEL_PATH + '/fuelOnCabin',\
-                                     ui.FUEL_ON_CABIN, '%g')
-        else:
-            temp = tixi.updateDoubleElement(FUEL_PATH + '/fuelOnCabin',\
-                                            ui.FUEL_ON_CABIN, '%g')
-            if temp != ui.FUEL_ON_CABIN and temp > 0:
-                ui.FUEL_ON_CABIN = temp
+        tixi.updateDoubleElement(FUEL_PATH + '/fuelOnCabin', ui.FUEL_ON_CABIN, '%g')
+
+        # Modif Aidan: this code seems useless
+        # else:
+        #     temp = tixi.updateDoubleElement(FUEL_PATH + '/fuelOnCabin',\
+        #                                     ui.FUEL_ON_CABIN, '%g')
+        #     if temp != ui.FUEL_ON_CABIN and temp > 0:
+        #         ui.FUEL_ON_CABIN = temp
 
     log.info('Data from CPACS file succesfully extracted')
-    # Saving and closing the cpacs file --------------------------------------
-    tixi.saveDocument(cpacs_in)
-    close_tixi(tixi, cpacs_in)
-
-    # Openign and closing again the cpacs file -------------------------------
-    tixi = open_tixi(cpacs_in)
-    tigl = open_tigl(tixi)
-    tixi.saveDocument(cpacs_in)
+    # # Saving and closing the cpacs file --------------------------------------
+    # tixi.saveDocument(cpacs_in)
+    # close_tixi(tixi, cpacs_in)
+    #
+    # # Openign and closing again the cpacs file -------------------------------
+    # tixi = open_tixi(cpacs_in)
+    # tigl = open_tigl(tixi)
+    # tixi.saveDocument(cpacs_in)
     close_tixi(tixi, cpacs_in)
 
     return(ui)
@@ -334,11 +334,9 @@ def get_data(ui, bi, mw, ed, cpacs_in):
         ed.EN_PLACEMENT = []
         for e in range(1,ed.NE+1):
             if ed.NE > 1:
-                ENLOC_PATH =  '/cpacs/vehicles/engines/engine' + str(e)\
-                              + '/analysis/mass/location'
+                ENLOC_PATH = '/cpacs/vehicles/engines/engine'+str(e)+'/analysis/mass/location'
             else:
-                ENLOC_PATH =  '/cpacs/vehicles/engines/engine'\
-                              + '/analysis/mass/location'
+                ENLOC_PATH =  '/cpacs/vehicles/engines/engine/analysis/mass/location'
             if not tixi.checkElement(ENLOC_PATH) and warn:
                 raise Exception('User engine Placement option defined'\
                                 + ' True but no engine placement data in the'\
@@ -372,14 +370,14 @@ def get_data(ui, bi, mw, ed, cpacs_in):
 
     log.info('Data from CPACS file succesfully extracted')
 
-    # Saving and closing the cpacs file ======================================
-    tixi.saveDocument(cpacs_in)
-    close_tixi(tixi, cpacs_in)
-
-    # Openign and closing again the cpacs file ===============================
-    tixi = open_tixi(cpacs_in)
-    tigl = open_tigl(tixi)
-    tixi.saveDocument(cpacs_in)
+    # # Saving and closing the cpacs file ======================================
+    # tixi.saveDocument(cpacs_in)
+    # close_tixi(tixi, cpacs_in)
+    #
+    # # Openign and closing again the cpacs file ===============================
+    # tixi = open_tixi(cpacs_in)
+    # tigl = open_tigl(tixi)
+    # tixi.saveDocument(cpacs_in)
     close_tixi(tixi, cpacs_in)
 
     return(mw, ed)

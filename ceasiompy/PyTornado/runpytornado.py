@@ -22,16 +22,23 @@ Python version: >=3.6
 
 | Author: Aaron Dettmann
 | Creation: 2019-08-12
-| Last modification: 2019-09-13
+| Last modification: 2020-05-04
+
+
+TODO:
+
+    * Dict parser --> Cast list/tuple
+
 """
 
-# TODO
-# -- Good to always remove wkdir?
-# -- Dict parser --> Cast list/tuple
+#==============================================================================
+#   IMPORTS
+#==============================================================================
 
 from functools import partial
 from importlib import import_module
 from pathlib import Path
+from uuid import uuid4
 import json
 import os
 import re
@@ -44,6 +51,7 @@ import pandas as pd
 import xmltodict as xml
 
 import ceasiompy.utils.cpacsfunctions as cpsf
+import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -57,6 +65,16 @@ REGEX_FLOAT = re.compile(r'^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$')
 
 DIR_MODULE = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
+
+
+#==============================================================================
+#   CLASSES
+#==============================================================================
+
+
+#==============================================================================
+#   FUNCTIONS
+#==============================================================================
 
 def import_pytornado(module_name):
     """ Try to import PyTornado and return module if succesful
@@ -267,6 +285,7 @@ def _get_load_fields(pytornado_results):
 
 
 def main():
+
     log.info("Running PyTornado...")
 
     # ===== CPACS inout and output paths =====
@@ -283,10 +302,8 @@ def main():
                 shutil.rmtree(wkdir, ignore_errors=True)
 
     # ===== Paths =====
-    dir_pyt_wkdir = os.path.join(
-        DIR_MODULE,
-        f"wkdir_{datetime.strftime(datetime.now(), '%F_%H%M%S')}_{randint(1000, 9999)}"
-    )
+    dir_pyt_wkdir = os.path.join(DIR_MODULE,'wkdir_temp')
+
     dir_pyt_aircraft = os.path.join(dir_pyt_wkdir, 'aircraft')
     dir_pyt_settings = os.path.join(dir_pyt_wkdir, 'settings')
     file_pyt_aircraft = os.path.join(dir_pyt_aircraft, 'ToolInput.xml')
@@ -321,8 +338,20 @@ def main():
 
     # ===== Clean up =====
     shutil.copy(src=file_pyt_aircraft, dst=cpacs_out_path)
+
+    wkdir = ceaf.get_wkdir_or_create_new(tixi)
+    dst_pyt_wkdir = os.path.join(wkdir,'CFD','PyTornado',
+                                f"wkdir_{datetime.strftime(datetime.now(), '%F_%H%M%S')}")
+    shutil.copytree(src=dir_pyt_wkdir, dst=dst_pyt_wkdir)
+    shutil.rmtree(dir_pyt_wkdir, ignore_errors=True)
+
     log.info("PyTornado analysis completed")
 
 
+#==============================================================================
+#    MAIN
+#==============================================================================
+
 if __name__ == '__main__':
+
     main()

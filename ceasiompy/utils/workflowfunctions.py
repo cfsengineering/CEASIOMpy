@@ -139,6 +139,7 @@ def run_subworkflow(module_to_run,cpacs_path_in='',cpacs_path_out=''):
 
             # Run the module
             error = subprocess.call(['python',main_python])
+
             if error:
                 raise ValueError('An error ocured in the module '+ module)
 

@@ -117,7 +117,7 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
     # help(wings.get_wing(1).get_section(2))
 
     # Perform update of all the variable contained in 'optim_var_dict'
-    for key, (name, listval, minval, maxval, command) in optim_var_dict.items():
+    for key, (name,listval,minval,maxval,setcommand,getcommand) in optim_var_dict.items():
 
         # Define variable (var1,var2,..)
         locals()[str(key)] = listval[-1]

@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2019-10-04
-| Last modifiction: 2020-02-17
+| Last modifiction: 2020-05-06
 
 TODO:
 
@@ -25,6 +25,7 @@ import os
 import sys
 import shutil
 import datetime
+import platform
 
 import ceasiompy.utils.cpacsfunctions as cpsf
 
@@ -44,9 +45,8 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 #   FUNCTIONS
 #==============================================================================
 
-def create_new_wkdir(routine_date=''):
-    """
-    Function to create a woking directory.
+def create_new_wkdir():
+    """ Function to create a woking directory
 
     Function 'create_new_wkdir' creates a new working directory in the /tmp file
     this directory is called 'SU2Run_data_hour'
@@ -55,17 +55,14 @@ def create_new_wkdir(routine_date=''):
         wkdir (str): working directory path
 
     """
+
     dir_name = 'CEASIOMpy_Run_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
-    if routine_date != '':
-        wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR/Routine_' + routine_date)
-    else:
-        wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR')
-
+    wkdir = os.path.join(os.path.dirname(MODULE_DIR),'WKDIR')
     if not os.path.exists(wkdir):
         os.mkdir(wkdir)
 
-    run_dir = os.path.join(wkdir, dir_name)
+    run_dir = os.path.join(wkdir,dir_name)
     os.mkdir(run_dir)
 
     return run_dir
@@ -116,10 +113,32 @@ def get_install_path(soft_check_list):
 
     """
 
+    current_os = platform.system()
+
     soft_dict = {}
 
     for soft in soft_check_list:
-        install_path = shutil.which(soft)
+
+        # TODO: Check more and improve
+        if current_os == 'Darwin':
+            log.info('Your OS is Mac')
+            # Run with MPICH not implemeted yet on mac
+            if 'mpi' in soft:
+                install_path = ''
+            else:
+                install_path = '/Applications/SU2/' + soft
+
+        elif current_os == 'Linux':
+            log.info('Your OS is Linux')
+            install_path = shutil.which(soft)
+
+        elif current_os == 'Windwos':
+            log.info('Your OS is Windows')
+            # TODO
+
+        else:
+            raise OSError('OS not recognize!')
+
 
         if  install_path:
             log.info(soft +' is intalled at: ' + install_path)
@@ -129,7 +148,7 @@ def get_install_path(soft_check_list):
             log.warning('Calculations will be run only on 1 proc')
             soft_dict[soft] = None
         else:
-            raise RuntimeError(soft + ' is not installed on your computer!')
+            raise RuntimeError(soft + ' is not install on your computer!')
 
     return soft_dict
 

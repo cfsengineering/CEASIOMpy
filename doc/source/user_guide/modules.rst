@@ -4,9 +4,12 @@ Modules
 |name| provides modules for different disciplines in aircraft design. Below you can find a list of available modules sorted by categories.
 
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Geometry and meshes
+
+.. figure:: CEASIOMpy_banner_geometry.png
+    :width: 400 px
+    :align: left
+    :alt: CEASIOMpy geometry
+
 
    modules/CPACSCreator/index
    modules/CPACS2SUMO/index
@@ -14,18 +17,23 @@ Modules
    modules/SU2MeshDef/index
 
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Weight and balance
+.. figure:: CEASIOMpy_banner_weights.png
+    :width: 400 px
+    :align: left
+    :alt: CEASIOMpy weights
+
 
    modules/BalanceConventional/index
    modules/BalanceUnconventional/index
    modules/WeightConventional/index
    modules/WeightUnconventional/index
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Aerodynamics
+
+.. figure:: CEASIOMpy_banner_aero.png
+    :width: 400 px
+    :align: left
+    :alt: CEASIOMpy aerodynamic
+
 
    modules/CLCalculator/index
    modules/PyTornado/index
@@ -33,27 +41,33 @@ Modules
    modules/SkinFriction/index
    modules/PlotAeroCoefficients/index
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Structures
+
+.. figure:: CEASIOMpy_banner_structure.png
+    :width: 400 px
+    :align: left
+    :alt: CEASIOMpy structure
+
 
    modules/AeroFrame/index
    modules/FramAT/index
 
-.. toctree::
-   :maxdepth: 1
-   :caption: Mission analysis
+
+.. figure:: CEASIOMpy_banner_missions.png
+    :width: 400 px
+    :align: left
+    :alt: CEASIOMpy missions analyses
+
 
    modules/Range/index
    modules/StabilityStatic/index
    modules/StabilityDynamic/index
 
+
 .. toctree::
    :maxdepth: 1
    :caption: Miscellaneous
 
+
    modules/SettingsGUI/index
    modules/Optimisation/index
    modules/ModuleTemplate/index
-
-**Flight mechanics** Work in progress...

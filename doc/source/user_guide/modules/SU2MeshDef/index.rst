@@ -1,3 +1,9 @@
+.. figure:: ../../CEASIOMpy_square_geometry.png
+    :width: 180 px
+    :align: right
+    :alt: CEASIOMpy aerodynamics
+
+
 SU2MeshDef
 ==========
 

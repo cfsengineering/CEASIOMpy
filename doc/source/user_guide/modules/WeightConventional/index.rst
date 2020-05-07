@@ -1,3 +1,9 @@
+.. figure:: ../../CEASIOMpy_square_weights.png
+    :width: 180 px
+    :align: right
+    :alt: CEASIOMpy weights
+
+
 WeightConventional
 ==================
 

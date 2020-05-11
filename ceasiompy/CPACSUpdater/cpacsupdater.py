@@ -117,18 +117,18 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
     # help(wings.get_wing(1).get_section(2))
 
     # Perform update of all the variable contained in 'optim_var_dict'
-    for key, (name, listval, minval, maxval, command) in optim_var_dict.items():
+    for key, (name, listval, minval, maxval, setcommand, getcommand) in optim_var_dict.items():
 
         # Define variable (var1,var2,..)
         locals()[str(key)] = listval[-1]
 
         # Execute the command coresponding to the variable
-        if ';' in command: # if more than one command on the line
-            command_split = command.split(';')
-            for command in command_split:
-                eval(command)
+        if ';' in setcommand: # if more than one command on the line
+            command_split = setcommand.split(';')
+            for setcommand in command_split:
+                eval(setcommand)
         else:
-            eval(command)
+            eval(setcommand)
 
     aircraft.write_cpacs(aircraft.get_uid())
     tixi.save(cpacs_out_path)
@@ -152,8 +152,8 @@ if __name__ == '__main__':
 
     optim_var_dict = {}
     # optim_var_dict[var1] = ('name',[init,value1,value2, ...],min,max,'cpacs_command')
-    optim_var_dict['var1'] = ('AR',[10],8,16,'wings.get_wing(1).set_arkeep_area(var1)')
-    optim_var_dict['var2'] = ('wing_sweep',[10],0,25,'wings.get_wing(1).set_sweep(var2)')
+    optim_var_dict['var1'] = ('AR',[10],8,16,'wings.get_wing(1).set_arkeep_area(var1)','wings.get_wing(1).get_aspect_ratio()')
+    optim_var_dict['var2'] = ('wing_sweep',[10],0,25,'wings.get_wing(1).set_sweep(var2)','wings.get_wing(1).get_sweep()')
 
     update_cpacs_file(cpacs_path,cpacs_out_path, optim_var_dict)
 

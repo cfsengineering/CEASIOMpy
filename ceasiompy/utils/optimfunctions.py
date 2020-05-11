@@ -152,12 +152,6 @@ def read_results(optim_dir_path, routine_type):
     des = case1.get_design_vars()
     const = case1.get_constraints()
 
-
-    for keyo in obj.items():
-        for key in des:
-            fig, ax = plt.subplots()
-            plt.plot(des[key], obj[keyo])
-
     for case in cases[1::]:
 
         for key, val in case.get_objectives().items():

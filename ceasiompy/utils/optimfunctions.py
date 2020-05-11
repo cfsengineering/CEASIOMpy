@@ -29,8 +29,9 @@ Todo:
 import numpy as np
 import openmdao.api as om
 
-from matplotlib.pyplot import plot, show, legend, figure
-
+import matplotlib.pyplot as plt
+from ceasiompy.utils.ceasiomlogger import get_logger
+log = get_logger(__file__.split('.')[0])
 # ==============================================================================
 #   CLASS
 # ==============================================================================
@@ -48,7 +49,7 @@ class Routine:
 
         # Problem setup
         self.objective = 'cl'
-        self.constrains = {'cms': (-0.1, 0.1)}
+        self.constraints = []
         self.design_vars = {}
 
         # Driver choice
@@ -59,6 +60,36 @@ class Routine:
 #   FUNCTIONS
 # ==============================================================================
 
+def get_aeromap_path(module_list):
+    """
+    Return xpath of selected aeromap.
+
+    Parameters
+    ----------
+    module_list : List
+        DESCRIPTION.
+
+    Returns
+    -------
+    xpath : String
+        DESCRIPTION.
+
+    """
+    PYTORNADO_XPATH = '/cpacs/toolspecific/pytornado'
+    SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
+
+    for module in module_list:
+        if module == 'SU2Run':
+            log.info('Found SU2 analysis')
+            xpath = SU2_XPATH
+            return xpath
+        elif module == 'PyTornado':
+            log.info('Found PyTornado analysis')
+            xpath = PYTORNADO_XPATH
+            return xpath
+        else:
+            xpath = 'None'
+    return xpath
 
 def gen_plot(dic, objective=False, constrains=False):
     """
@@ -80,25 +111,26 @@ def gen_plot(dic, objective=False, constrains=False):
     """
     iterations = len(dic)
 
-    figure()
+    plt.figure()
     if objective:
         for key, lst in dic.items():
             iterations = np.arange(len(lst))
-            plot(iterations, -lst+lst[0], label=key)
-            legend()
+            plt.plot(iterations, -lst+lst[0], label=key)
+            plt.legend()
     elif constrains:
         for key, lst in dic.items():
-            iterations = np.arange(len(lst))
-            plot(iterations, lst/lst[0], label=key)
-            legend()
+            if 'const' in key:
+                iterations = np.arange(len(lst))
+                plt.plot(iterations, lst-lst[0], label=key)
+                plt.legend()
     else:
         for key, lst in dic.items():
             iterations = np.arange(len(lst))
-            plot(iterations, lst/lst[0], label=key)
-            legend()
+            plt.plot(iterations, lst-lst[0], label=key)
+            plt.legend()
 
 
-def read_results():
+def read_results(optim_dir_path, routine_type):
     """
     Read sql file.
 
@@ -108,8 +140,8 @@ def read_results():
 
     """
     # Read recorded options
-    path = '../Optimisation/'
-    cr = om.CaseReader(path + 'Driver_recorder.sql')
+    path = optim_dir_path
+    cr = om.CaseReader(path + '/Driver_recorder.sql')
     # driver_cases = cr.list_cases('driver') (If  multiple recorders)
 
     cases = cr.get_cases()
@@ -120,6 +152,12 @@ def read_results():
     des = case1.get_design_vars()
     const = case1.get_constraints()
 
+
+    for keyo in obj.items():
+        for key in des:
+            fig, ax = plt.subplots()
+            plt.plot(des[key], obj[keyo])
+
     for case in cases[1::]:
 
         for key, val in case.get_objectives().items():
@@ -129,11 +167,24 @@ def read_results():
             des[key] = np.append(des[key], val)
 
         for key, val in case.get_constraints().items():
-            const[key] = np.append(const[key], val)
+            if 'const' in key:
+                const[key] = np.append(const[key], val)
 
+    # Datapoints for DoE
+    if routine_type.upper() == 'DOE':
+        for keyo, valo in obj.items():
+            for key, val in des.items():
+                fig, ax = plt.subplots()
+                plt.scatter(val, valo)
+
+    # Iterative evolution for Optim
     gen_plot(obj, objective=True)
     gen_plot(des)
     gen_plot(const, constrains=True)
 
-    show()
+    # 3D plot
+    # fig = plt.figure()
+    # ax = fig.gca(projection='3d')
+    # ax.scatter(des['indeps.wing2_span'],des['indeps.wing1_span'],-obj['objective.cl'])
 
+    plt.show()

@@ -23,8 +23,10 @@ TODO
 
 from sys import exit
 
+import ceasiompy.utils.optimfunctions as optf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
+import ceasiompy.utils.workflowfunctions as wkf
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -128,7 +130,7 @@ def init_sec_param(name, wing, sec_nb, wcmd):
 
         section = wing.get_section(s)
 
-        var_name = sec_name + "_rotation"
+        var_name = sec_name + "_Yrotation"
         init_rot = section.get_rotation().y
         getcmd = cmd+'get_rotation().y'
         setcmd = cmd+'set_rotation(geometry.CTiglPoint(0,{},0))'.format(var_name)
@@ -158,17 +160,17 @@ def init_wing_param(aircraft, wing_nb):
 
         wing = wings.get_wing(w)
 
-        # var_name = name+"_sweep"
-        # init_sweep = wing.get_sweep()
-        # getcmd = cmd+'get_sweep()'
-        # setcmd = cmd+'set_sweep({})'.format(var_name)
-        # create_var(var_name, init_sweep, getcmd, setcmd)
+        var_name = name+"_sweep"
+        init_sweep = wing.get_sweep()
+        getcmd = cmd+'get_sweep()'
+        setcmd = cmd+'set_sweep({})'.format(var_name)
+        create_var(var_name, init_sweep, getcmd, setcmd)
 
-        # var_name = name+"_span"
-        # init_span = wing.get_wing_half_span()
-        # getcmd = cmd+'get_wing_half_span()'
-        # setcmd = cmd+'set_half_span_keep_ar({})'.format(var_name)  # keep_area
-        # create_var(var_name, init_span, getcmd, setcmd)
+        var_name = name+"_span"
+        init_span = wing.get_wing_half_span()
+        getcmd = cmd+'get_wing_half_span()'
+        setcmd = cmd+'set_half_span_keep_ar({})'.format(var_name)  # keep_area
+        create_var(var_name, init_span, getcmd, setcmd)
 
         # var_name = name + "_aspect_ratio"
         # init_AR = wing.get_aspect_ratio()
@@ -182,9 +184,9 @@ def init_wing_param(aircraft, wing_nb):
         # setcmd = cmd+'set_area_keep_ar({})'.format(var_name)#keep_span
         # create_var(var_name, init_area, getcmd, setcmd)
 
-        sec_nb = wing.get_section_count()
-        if sec_nb:
-            init_sec_param(name, wing, sec_nb, cmd)
+        # sec_nb = wing.get_section_count()
+        # if sec_nb:
+        #     init_sec_param(name, wing, sec_nb, cmd)
 
     return
 
@@ -225,35 +227,34 @@ def init_fuse_param(aircraft, fuse_nb):
     return
 
 
-def init_specials(tixi):
+def update_res_var_dict(tixi):
     """
-    Add specific design variables without the tigl handler.
+    Return objective function value and update all constrains.
 
     Parameters
     ----------
-    tixi : TYPE
-        DESCRIPTION.
-
-    Returns
-    -------
-    None.
+    tixi : tixi3 handler
 
     """
-    # CL_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap/aeroPerformanceMap/angleOfAttack'
-    SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
+    log.info('=========================')
+    for key, (var_name, listval, lower_bound, upper_bound, getcmd) in res_var_dict.items():
+        new_val = eval(getcmd)
 
-    aeromap_uid = cpsf.get_value(tixi, SU2_XPATH + '/aeroMapUID')
-    xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/angleOfAttack'
+        # Checks if the
+        if type(new_val) == list:
+            listval.append(new_val[-1])
+            log.info(key + ' ' + str(new_val[-1]))
+        else:
+            listval.append(new_val)
+            log.info(key + ' ' + str(new_val))
+    log.info('=========================')
 
-    getcmd = 'cpsf.get_value(tixi, "{}")'.format(xpath)
-    setcmd = 'cpsf.add_float_vector(tixi, "{}", var_name)'.format(xpath)
-    init_value = eval(getcmd)
-    # create_var('AoA', init_value, getcmd, setcmd)
+    return res_var_dict
 
 
 def init_design_var_dict(tixi):
     """
-    Return the dictionary of the design variables.
+    Return the dictionary of the design variables using the TIGL library.
 
     Parameters
     ----------
@@ -280,31 +281,6 @@ def init_design_var_dict(tixi):
     return design_var_dict
 
 
-def update_res_var_dict(tixi):
-    """
-    Return objective function value and update all constrains.
-
-    Parameters
-    ----------
-    tixi : tixi3 handler
-
-    """
-    log.info('=========================')
-    for key, (var_name, listval, lower_bound, upper_bound, getcmd) in res_var_dict.items():
-        new_val = eval(getcmd)
-
-        # Checks if the
-        if type(new_val) == list:
-            listval.append(new_val[-1])
-            log.info(key + ' ' + str(new_val[-1]))
-        else:
-            listval.append(new_val)
-            log.info(key + ' ' + str(new_val))
-    log.info('=========================')
-
-    return res_var_dict
-
-
 def init_res_dict(tixi):
     """
     Return dictionary of the constraints.
@@ -318,21 +294,22 @@ def init_res_dict(tixi):
     res_var_dict : dictionnary
 
     """
-    SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
-
-    aeromap_uid = cpsf.get_value(tixi, SU2_XPATH + '/aeroMapUID')
-    # passenger = cpsf.get_value(tixi, '/cpacs/toolspecific/CEASIOMpy/weight/passengers/passNb')
-    # Coef = apmf.get_aeromap(tixi, aeromap_uid)
-
-    # res_var_dict['range'] = ([], '/cpacs/toolspecific/CEASIOMpy/ranges/rangeMaxP/rangeDescription/range')
-
+    # Xpath to optimisation results
+    aeromap_uid = cpsf.get_value(tixi, XPATH + '/aeroMapUID')
     xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/'
+
+    # Xpath to initial results
+    aeromap_uid_pre = cpsf.get_value(tixi, XPATH_PRE + '/aeroMapUID')
+    xpath_pre = tixi.uIDGetXPath(aeromap_uid_pre) + '/aeroPerformanceMap/'
 
     for el in ['cl', 'cd', 'cms']:
         getcmd = 'cpsf.get_float_vector(tixi, "{}")'.format(xpath + el)
         setcmd = ''
-        init_value = eval(getcmd)
+        init_value = eval('cpsf.get_float_vector(tixi, "{}")'.format(xpath_pre + el))
         create_var(el, init_value[0], getcmd, setcmd)
+
+    # passenger = cpsf.get_value(tixi, '/cpacs/toolspecific/CEASIOMpy/weight/passengers/passNb')
+    # Coef = apmf.get_aeromap(tixi, aeromap_uid)
 
     xpath = '/cpacs/vehicles/aircraft/model/analyses/massBreakdown/designMasses/mTOM/mass'
     getcmd = 'cpsf.get_value(tixi, "{}")'.format(xpath)
@@ -349,7 +326,35 @@ def init_res_dict(tixi):
     return res_var_dict
 
 
-def init_dict(cpacs_path):
+def init_specials(tixi):
+    """
+    Add specific design variables without the tigl handler.
+
+    Parameters
+    ----------
+    tixi : tixi3_handler
+
+    Returns
+    -------
+    None.
+
+    """
+    # Xpath to optimisation results
+    aeromap_uid = cpsf.get_value(tixi, XPATH + '/aeroMapUID')
+    xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/'
+
+    # Xpath to initial results
+    aeromap_uid_pre = cpsf.get_value(tixi, XPATH_PRE + '/aeroMapUID')
+    xpath_pre = tixi.uIDGetXPath(aeromap_uid_pre) + '/aeroPerformanceMap/'
+
+    var_name = 'angleOfAttack'
+    getcmd = 'cpsf.get_value(tixi, "{}")'.format(xpath + var_name)
+    setcmd = 'cpsf.add_float_vector(tixi, "{}", {})'.format(xpath, var_name)
+    init_value = cpsf.get_value(tixi, xpath_pre + var_name)
+    # create_var(var_name, init_value, getcmd, setcmd)
+
+
+def init_dict(cpacs_path, module_list, modules_pre_list=[]):
     """
     Create dictionnaries for the optimisation problem.
 
@@ -357,6 +362,8 @@ def init_dict(cpacs_path):
     ----------
     cpacs_path : String
         Path to the CPACS file.
+    module_list : List
+        List of modules.
 
     Returns
     -------
@@ -364,6 +371,30 @@ def init_dict(cpacs_path):
         All dictionnaries needed for the optimisation problem.
 
     """
+    # Check if aeromap results already exists, else run workflow
+    global XPATH
+    global XPATH_PRE
+
+    XPATH = optf.get_aeromap_path(module_list)
+    if 'PyTornado' in modules_pre_list or 'SU2Run' in modules_pre_list:
+        XPATH_PRE = optf.get_aeromap_path(modules_pre_list)
+    else:
+        XPATH_PRE = XPATH
+
+    # Settings needed for CFD calculation
+    if 'SettingsGUI' not in module_list or 'SettingsGUI' not in modules_pre_list:
+        module_list.insert(0,'SettingsGUI')
+
+    # First iteration to create aeromap results if no pre-workflow
+    if XPATH != XPATH_PRE or modules_pre_list == []:
+        wkf.copy_module_to_module('Optimisation', 'in', module_list[0], 'in')
+        wkf.run_subworkflow(module_list)
+        wkf.copy_module_to_module(module_list[-1], 'out', 'Optimisation', 'in')
+
+    # If settingsGUI only needed at the first iteration
+    if 'SettingsGUI' in module_list:
+        module_list.pop(module_list.index('SettingsGUI'))
+
     tixi = cpsf.open_tixi(cpacs_path)
 
     return init_res_dict(tixi), init_design_var_dict(tixi)

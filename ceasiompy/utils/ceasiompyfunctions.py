@@ -45,8 +45,9 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 #   FUNCTIONS
 #==============================================================================
 
-def create_new_wkdir():
-    """ Function to create a woking directory
+def create_new_wkdir(routine_date=''):
+    """
+    Function to create a woking directory.
 
     Function 'create_new_wkdir' creates a new working directory in the /tmp file
     this directory is called 'SU2Run_data_hour'
@@ -55,17 +56,21 @@ def create_new_wkdir():
         wkdir (str): working directory path
 
     """
-
     dir_name = 'CEASIOMpy_Run_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
-    wkdir = os.path.join(os.path.dirname(MODULE_DIR),'WKDIR')
+    if routine_date != '':
+        wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR/Routine_' + routine_date)
+    else:
+        wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR')
+
     if not os.path.exists(wkdir):
         os.mkdir(wkdir)
 
-    run_dir = os.path.join(wkdir,dir_name)
+    run_dir = os.path.join(wkdir, dir_name)
     os.mkdir(run_dir)
 
     return run_dir
+
 
 
 def get_wkdir_or_create_new(tixi):

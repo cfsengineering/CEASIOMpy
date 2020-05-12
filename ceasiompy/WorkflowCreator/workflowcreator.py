@@ -76,7 +76,7 @@ class Tab(tk.Frame):
         self.modules_list.remove('utils')
         self.modules_list.remove('WKDIR')
         self.modules_list.remove('CPACSUpdater')
-        # self.modules_list.remove('Optimisation')
+        self.modules_list.remove('Optimisation')
         self.modules_list.remove('WorkflowCreator')
 
         self.selected_list = []
@@ -267,8 +267,10 @@ if __name__ == '__main__':
         # Mission analysis: 'Range','StabilityStatic','StabilityDynamic'
 
         Opt = WorkflowOptions()
-        Opt.module_pre = ['SettingsGUI', 'Optimisation']
-        Opt.module_optim = []
+        Opt.module_pre = ['SettingsGUI', 'WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
+        # Opt.module_optim = ['WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
+        # Opt.module_pre = ['SettingsGUI', 'WeightConventional', 'PyTornado']
+        Opt.module_optim = ['WeightConventional', 'PyTornado']
         Opt.optim_method = 'Optim' # DoE, Optim, None
         Opt.module_post = []
 
@@ -282,12 +284,12 @@ if __name__ == '__main__':
     # Run Optimisation workflow
     if Opt.module_optim:
         if Opt.module_pre:
-            wkf.copy_module_to_module(Opt.module_pre[-1], 'out', Opt.module_optim[0], 'in')
+            wkf.copy_module_to_module(Opt.module_pre[-1], 'out', 'Optimisation', 'in')
         else:
-            wkf.copy_module_to_module('WorkflowCreator', 'in', Opt.module_optim[0], 'in')
+            wkf.copy_module_to_module('WorkflowCreator', 'in', 'Optimisation', 'in')
 
         if Opt.optim_method != 'None':
-            routine_setup(Opt.module_optim, Opt.optim_method)
+            routine_setup(Opt.module_optim, Opt.optim_method, Opt.module_pre)
         else:
             log.warning('No optimization method has been selected!')
             log.warning('The modules will be run as a simple workflow')

@@ -70,7 +70,6 @@ def read_results():
     print(const)
 
     for case in cases[0::]:
-
         for key, val in case.get_objectives().items():
             obj[key] = np.append(obj[key], val)
 
@@ -80,12 +79,28 @@ def read_results():
         for key, val in case.get_constraints().items():
             const[key] = np.append(const[key], val)
 
-    fig, ax = plt.subplots()
-    gen_plot(obj, ax)
-    fig, ax = plt.subplots()
-    gen_plot(des, ax)
-    fig, ax = plt.subplots()
-    gen_plot(const, ax)
+
+    for keyo in obj.items():
+        for key in des:
+            fig, ax = plt.subplots()
+            plt.plot(des[key], obj[keyo])
+
+    # Plot for every iteration
+    # fig, ax = plt.subplots()
+    # gen_plot(obj, ax)
+    # fig, ax = plt.subplots()
+    # gen_plot(des, ax)
+    # fig, ax = plt.subplots()
+    # gen_plot(const, ax)
+
+    # 3D plot
+    # fig = plt.figure()
+    # ax = fig.gca(projection='3d')
+    # ax.scatter(des['indeps.wing2_span'],des['indeps.wing1_span'],-obj['objective.cl'])
+
+    # ax.set_xlabel('Wing2 span')
+    # ax.set_ylabel('Wing1 span')
+    # ax.set_zlabel('Cl')
 
     plt.show()
 

@@ -1,3 +1,9 @@
+.. figure:: ../../CEASIOMpy_square_mission.png
+    :width: 180 px
+    :align: right
+    :alt: CEASIOMpy mission
+
+
 StabilityStatic
 ===============
 

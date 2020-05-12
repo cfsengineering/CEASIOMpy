@@ -9,12 +9,11 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-10-29
-| Last modifiction: 2019-10-07
+| Last modifiction: 2020-05-05
 
 TODO:
 
-    * Check and write the script to be compatible with other OS
-      (only tested with Centos 7 for now)
+    * Check and write the script to be compatible with Windows OS
     * Also work in wkdir
 
 """
@@ -25,12 +24,9 @@ TODO:
 
 import os
 import shutil
+import platform
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-
-from ceasiompy.utils.ceasiompyfunctions import get_wkdir_or_create_new
-
-from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi
 
 log = get_logger(__file__.split('.')[0])
 
@@ -50,7 +46,9 @@ def launch_cpacscreator(cpacs_path,cpacs_out_path):
 
     Function 'launch_cpacscreator' run CPACSCrator with an imput CPACS file and
     put the output CPACS file in the folder /ToolInput. This module is
-    especially useful for CEASIOMpy RCE integration.
+    especially useful for CEASIOMpy RCE integration. CPACSCreator must be
+    installed on your computre to run this function. (If you install CEASIOMpy
+    with Conda it should be installed automatically)
 
     Source :
         * For CPACSCreator https://github.com/cfsengineering/CPACSCreator
@@ -61,19 +59,37 @@ def launch_cpacscreator(cpacs_path,cpacs_out_path):
 
     """
 
-    #Check if CPACSCreator is installed
-    cpacscreator_install_path = shutil.which("cpacscreator")
-    if  cpacscreator_install_path:
-        log.info('"CPACSCreator" is intall at: ' + cpacscreator_install_path)
+    current_os = platform.system()
+
+    # Get CPACSCreator installation path
+    if current_os == 'Darwin':
+        install_path = shutil.which("CPACS-Creator")
+
+    elif current_os == 'Linux':
+        install_path = shutil.which("cpacscreator")
+
+    elif current_os == 'Windwos':
+        log.warning('OS not supported yet!')
+        install_path = ''
+        # TODO
+    else:
+        raise OSError('OS not recognize!')
+
+    # Check if CPACSCreator is installed
+    if  install_path:
+        log.info('"CPACSCreator" is intall at: ' + install_path)
     else:
         raise RuntimeError('"CPACSCreator" is not install on your computer or you are not running this script from your Conda environment!')
 
     # Empty /tmp directory
-    TMP_DIR = MODULE_DIR + '/tmp/'
-    tmp_file_list = os.listdir(TMP_DIR)
-    for tmp_file in tmp_file_list:
-        tmp_file_path = TMP_DIR + tmp_file
-        os.remove(tmp_file_path)
+    TMP_DIR = os.path.join(MODULE_DIR,'tmp')
+    if os.path.isdir(TMP_DIR):
+        tmp_file_list = os.listdir(TMP_DIR)
+        for tmp_file in tmp_file_list:
+            tmp_file_path = os.path.join(TMP_DIR,tmp_file)
+            os.remove(tmp_file_path)
+    else:
+        os.mkdir(TMP_DIR)
     log.info('The /tmp directory has been cleared.')
 
 
@@ -85,13 +101,25 @@ def launch_cpacscreator(cpacs_path,cpacs_out_path):
     else:
         log.error('The ToolInput (.xml file) cannot be found!')
 
+
     # Run 'cpacscreator' with CPACS input
-    os.system('cpacscreator ' + cpacs_tmp)
+    if current_os == 'Darwin':
+        os.system('CPACS-Creator ' + cpacs_tmp)
+
+    elif current_os == 'Linux':
+        os.system('cpacscreator ' + cpacs_tmp)
+
+    elif current_os == 'Windwos':
+        log.warning('OS not supported yet!')
+        # TODO
+    else:
+        raise OSError('OS not recognize!')
+
 
     # Copy CPACS temp file (.xml) from the temp directory to /ToolOutput
     if os.path.isfile(cpacs_tmp):
         shutil.copy(cpacs_tmp, cpacs_out_path)
-        # log.info('The output CPACS file has been copied in /ToolOutput')
+        log.info('The output CPACS file has been copied in /ToolOutput')
     else:
         log.error('The Output CPACS file cannot be found!')
 
@@ -104,7 +132,6 @@ def launch_cpacscreator(cpacs_path,cpacs_out_path):
 #==============================================================================
 #    MAIN
 #==============================================================================
-
 
 if __name__ == '__main__':
 

@@ -1,3 +1,9 @@
+.. figure:: ../../../CEASIOMpy_main_logos.png
+    :width: 180 px
+    :align: right
+    :alt: CEASIOMpy
+
+
 ModuleTemplate
 ==============
 

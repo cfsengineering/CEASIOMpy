@@ -17,7 +17,7 @@ RCE = {
 
 cpacs_inout = CPACSInOut()
 
-include_gui = False
+include_gui = True
 
 # ----- Input -----
 
@@ -44,8 +44,8 @@ cpacs_inout.add_input(
     descr='This is a test of description',
     xpath='/cpacs/toolspecific/CEASIOMpy/test/myTest',
     gui=include_gui,
-    gui_name='My test',
-    gui_group='Group Test',
+    gui_name='Objective',
+    gui_group='Objective function',
 )
 
 cpacs_inout.add_input(

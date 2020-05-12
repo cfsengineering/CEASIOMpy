@@ -247,12 +247,13 @@ if __name__ == '__main__':
     cpacs_path_out = mi.get_tooloutput_file_path(MODULE_NAME)
 
     # Create a new wkdir
+    # TODO : Check if it does not lead to Error[17] for SU2 and Pytornado
     tixi = cpsf.open_tixi(cpacs_path)
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
     cpsf.close_tixi(tixi, cpacs_path)
 
     #--------------
-    gui = True
+    gui = False
     #--------------
 
     if gui:
@@ -270,7 +271,7 @@ if __name__ == '__main__':
         Opt.module_pre = ['SettingsGUI', 'WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
         # Opt.module_optim = ['WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
         # Opt.module_pre = ['SettingsGUI', 'WeightConventional', 'PyTornado']
-        Opt.module_optim = ['WeightConventional', 'PyTornado']
+        Opt.module_optim = ['WeightConventional', 'PyTornado', 'SkinFriction']
         Opt.optim_method = 'Optim' # DoE, Optim, None
         Opt.module_post = []
 

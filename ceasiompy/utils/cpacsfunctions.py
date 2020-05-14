@@ -613,6 +613,7 @@ def aircraft_name(tixi_or_cpacs):
         aircraft_name_xpath = '/cpacs/header/name'
         name = get_value_or_default(tixi_or_cpacs,aircraft_name_xpath,'Aircraft')
 
+    name = name.replace(' ','_')
     log.info('The name of the aircraft is : ' + name)
 
     return(name)

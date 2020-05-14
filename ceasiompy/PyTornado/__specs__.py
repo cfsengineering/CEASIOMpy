@@ -3,38 +3,25 @@
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH
 
-cpacs_inout = CPACSInOut()
+# ===== RCE integration =====
+
+RCE = {
+    "name": "PyTornado",
+    "description": "Wrapper module for PyTornado",
+    "exec": "pwd\npython runpytornado.py",
+    "author": "Aaron Dettmann",
+    "email": "dettmann@kth.se",
+}
 
 REFS_XPATH = AIRCRAFT_XPATH + '/model/reference'
 WING_XPATH = AIRCRAFT_XPATH + '/model/wings'
 XPATH_PYTORNADO = '/cpacs/toolspecific/pytornado'
 
+# ===== CPACS inputs and outputs =====
+
+cpacs_inout = CPACSInOut()
+
 #===== Input =====
-
-cpacs_inout.add_input(
-    var_name='delete_old_wkdirs',
-    var_type=bool,
-    default_value=False,
-    unit=None,
-    descr="Delete old PyTornado working directories (if existent)",
-    xpath=XPATH_PYTORNADO + '/deleteOldWKDIRs',
-    gui=True,
-    gui_name='Delete',
-    gui_group='Delete old working directories',
-)
-
-# TODO: move at the end of the spec file
-cpacs_inout.add_input(
-    var_name='check_extract_loads',
-    var_type=bool,
-    default_value=False,
-    unit='1',
-    descr='Option to extract loads from results',
-    xpath=XPATH_PYTORNADO + '/save_results/extractLoads',
-    gui=True,
-    gui_name='Extract loads',
-    gui_group='Results',
-)
 
 cpacs_inout.add_input(
     var_name='',
@@ -47,6 +34,19 @@ cpacs_inout.add_input(
     gui_name='__AEROMAP_SELECTION',
     gui_group=None,
 )
+
+cpacs_inout.add_input(
+    var_name='delete_old_wkdirs',
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="Delete old PyTornado working directories (if existent)",
+    xpath=XPATH_PYTORNADO + '/deleteOldWKDIRs',
+    gui=False,
+    gui_name='Delete',
+    gui_group='Delete old working directories',
+)
+
 
 # ----- Discretisation -----
 # TO BE IMPROVED IN NEW PYTORNADO VERSION
@@ -106,6 +106,18 @@ for save_name in ['global', 'panelwise', 'aeroperformance']:
     )
 
 cpacs_inout.add_input(
+    var_name='check_extract_loads',
+    var_type=bool,
+    default_value=False,
+    unit='1',
+    descr='Option to extract loads from results',
+    xpath=XPATH_PYTORNADO + '/save_results/extractLoads',
+    gui=True,
+    gui_name='Extract loads',
+    gui_group=f'Save CPACS external results',
+)
+
+cpacs_inout.add_input(
     var_name='x_CG',
     default_value=None,
     unit='m',
@@ -153,20 +165,14 @@ cpacs_inout.add_input(
     xpath=WING_XPATH,
 )
 
-# ===== Output =====
 
-# cpacs_inout.add_output(
-#     var_name='output',
-#     default_value=None,
-#     unit='1',
-#     descr='Description of the output',
-#     xpath=CEASIOM_XPATH + '/...',
-# )
+# ----- Output -----
 
-RCE = {
-    "name": "PyTornado",
-    "description": "Wrapper module for PyTornado",
-    "exec": "pwd\npython runpytornado.py",
-    "author": "Aaron Dettmann",
-    "email": "dettmann@kth.se",
-}
+cpacs_inout.add_output(
+    var_name='aeromap_PyTornado',  # name to change...
+    # var_type=CPACS_aeroMap, # no type pour output, would it be useful?
+    default_value=None,
+    unit='-',
+    descr='aeroMap with aero coefficients calculated by PyTornado',
+    xpath='/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[i]/aeroPerformanceMap',
+)

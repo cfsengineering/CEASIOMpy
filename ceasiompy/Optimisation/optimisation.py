@@ -125,14 +125,16 @@ def run_routine():
 
     # Choose between optimizer or driver
     if Rt.type == 'DoE':
-        driver = prob.driver = om.DOEDriver(om.UniformGenerator(num_samples=10))
-        # 2->9 3->81
-        # driver = prob.driver = om.DOEDriver(om.FullFactorialGenerator(3))
+        if Rt.doetype == 'uniform':
+            driver = prob.driver = om.DOEDriver(om.UniformGenerator(num_samples=Rt.samplesnb))
+        elif Rt.doetype == 'fullfact':
+            # 2->9 3->81
+            driver = prob.driver = om.DOEDriver(om.FullFactorialGenerator(Rt.samplesnb))
     elif Rt.type == 'Optim':
         driver = prob.driver = om.ScipyOptimizeDriver()
         # SLSQP,COBYLA,shgo,TNC
         driver.options['optimizer'] = Rt.driver
-        driver.options['maxiter'] = 20
+        # driver.options['maxiter'] = 20
         driver.options['tol'] = 1e-2
         if Rt.driver == 'COBYLA':
             driver.opt_settings['catol'] = 0.06
@@ -206,13 +208,14 @@ def one_iteration():
 
     # TODO: improve this part! (maybe move somewhere else)
     # To delete coef from previous iter
-    xpath = opf.get_aeromap_path(Rt.modules)
-    aeromap_uid = cpsf.get_value(tixi, xpath + '/aeroMapUID')
-    Coef = apmf.get_aeromap(tixi, aeromap_uid)
-    apmf.delete_aeromap(tixi, aeromap_uid)
-    apmf.create_empty_aeromap(tixi, aeromap_uid, 'test_optim')
-    apmf.save_parameters(tixi, aeromap_uid, Coef)
-    cpsf.close_tixi(tixi, cpacs_path)
+    if opf.get_aeromap_path(Rt.modules) != 'None':
+        xpath = opf.get_aeromap_path(Rt.modules)
+        aeromap_uid = cpsf.get_value(tixi, xpath + '/aeroMapUID')
+        Coef = apmf.get_aeromap(tixi, aeromap_uid)
+        apmf.delete_aeromap(tixi, aeromap_uid)
+        apmf.create_empty_aeromap(tixi, aeromap_uid, 'test_optim')
+        apmf.save_parameters(tixi, aeromap_uid, Coef)
+        cpsf.close_tixi(tixi, cpacs_path)
 
     # Update the CPACS file with the parameters contained in design_var_dict
     update_cpacs_file(cpacs_path, cpacs_out_path, design_var_dict)
@@ -277,10 +280,12 @@ def routine_setup(modules, routine_type, modules_pre=[]):
     Rt.type = routine_type
     Rt.modules = modules
     Rt.driver = 'COBYLA'
-    Rt.objective = 'cl'
+    Rt.objective = 'mtom'
     # Rt.design_vars =
     Rt.constraints = ['cms']
     Rt.date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    Rt.doetype = 'uniform'
+    Rt.samplesnb = 3
 
     cpacs_path = mi.get_toolinput_file_path('Optimisation')
 

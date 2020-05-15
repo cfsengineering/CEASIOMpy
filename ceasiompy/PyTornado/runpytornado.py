@@ -228,11 +228,13 @@ def parse_pytornado_settings_dict(dictionary):
         # -----------
 
 
-def _get_load_fields(pytornado_results):
+def _get_load_fields(pytornado_results, dir_pyt_results):
     """
-    Return AeroFrame load fields from PyTornado results
+    Return load fields from PyTornado results (only extract load from last results)
+    (TODO: Maybe this function could integrated to Tornado...?)
     Args:
         :pytornado_results: (obj) PyTornado results data structure
+        :dir_pyt_results: (str): Path to the results dir
     Returns:
         :load_fields: (dict) AeroFrame load fields
     """
@@ -273,13 +275,12 @@ def _get_load_fields(pytornado_results):
             load_fields[wing_uid + suffix] = load_field[1:, :]
             df = pd.DataFrame(load_field[1:, :])
             df.columns =['x', 'y','z','fx', 'fy','fz']
+            df['wing_uid'] = wing_uid + suffix
             frames.append(df)
-            csv_path = os.path.join('ToolOutput',wing_uid + suffix +'.csv')
-            # df.to_csv(csv_path, sep=',',index=False)
 
     # Write aircraft load in a CSV file
     df_tot = pd.concat(frames)
-    csv_path = os.path.join('ToolOutput','aircraft_loads.csv')
+    csv_path = os.path.join(dir_pyt_results,'aircraft_loads.csv')
     print(csv_path)
     df_tot.to_csv(csv_path, sep=',',index=False)
 
@@ -306,6 +307,7 @@ def main():
 
     dir_pyt_aircraft = os.path.join(dir_pyt_wkdir, 'aircraft')
     dir_pyt_settings = os.path.join(dir_pyt_wkdir, 'settings')
+    dir_pyt_results = os.path.join(dir_pyt_wkdir, '_results')
     file_pyt_aircraft = os.path.join(dir_pyt_aircraft, 'ToolInput.xml')
     file_pyt_settings = os.path.join(dir_pyt_settings, 'cpacs_run.json')
 
@@ -313,6 +315,7 @@ def main():
     Path(dir_pyt_wkdir).mkdir(parents=True, exist_ok=True)
     Path(dir_pyt_aircraft).mkdir(parents=True, exist_ok=True)
     Path(dir_pyt_settings).mkdir(parents=True, exist_ok=True)
+    Path(dir_pyt_results).mkdir(parents=True, exist_ok=True)
 
     # ===== Setup =====
     shutil.copy(src=cpacs_in_path, dst=file_pyt_aircraft)
@@ -334,7 +337,7 @@ def main():
     extract_loads = cpsf.get_value_or_default(tixi, extract_loads_xpath, False)
 
     if extract_loads:
-        _get_load_fields(results)
+        _get_load_fields(results,dir_pyt_results)
 
     # ===== Clean up =====
     shutil.copy(src=file_pyt_aircraft, dst=cpacs_out_path)

@@ -9,12 +9,11 @@ Python version: >=3.6
 
 | Author: Aidan jungo
 | Creation: 2020-04-21
-| Last modifiction: 2020-04-24
+| Last modifiction: 2020-05-14
 
 TODO:
 
-    * add choice of ToolInput.xml/ToolOutput.xml ?
-    * more options ?
+    * more options for optim ?
 
 """
 # ==============================================================================
@@ -22,6 +21,7 @@ TODO:
 # ==============================================================================
 
 import os
+import sys
 import shutil
 
 import tkinter as tk
@@ -52,6 +52,12 @@ class WorkflowOptions:
     """ Class to pass option of the workflow """
 
     def __init__(self):
+
+        cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+        if os.path.isfile(cpacs_path):
+            self.cpacs_path = cpacs_path
+        else:
+             self.cpacs_path = ''
 
         self.optim_method = 'None' # 'None', 'Optim', 'DoE'
         self.module_pre = []
@@ -183,14 +189,29 @@ class WorkFlowGUI(tk.Frame):
         tk.Frame.__init__(self, master, **kwargs)
         self.pack(fill=tk.BOTH)
 
-        # General buttons ============= (Normally after Notbook, but this is the only way i found to have acces to the buttons on a small screen)
-        self.close_button = tk.Button(self, text='Save & Quit', command=self._save_quit)
-        self.close_button.pack()
-
-        self.tabs = ttk.Notebook(self)
-        self.tabs.pack()
-
         self.Options = WorkflowOptions()
+
+        space_label = tk.Label(self, text=' ')
+        space_label.grid(column=0, row=0)
+
+        # Input CPACS file
+        self.label = tk.Label(self, text='Input CPACS file')
+        self.label.grid(column=0, row=1)
+
+        self.path_var = tk.StringVar()
+        self.path_var.set(self.Options.cpacs_path)
+        value_entry = tk.Entry(self, textvariable=self.path_var)
+        value_entry.grid(column=1, row=1)
+
+        self.browse_button = tk.Button(self, text="Browse", command=self._browse_file)
+        self.browse_button.grid(column=2, row=1)
+
+        space_label2 = tk.Label(self, text=' ')
+        space_label2.grid(column=0, row=2)
+
+        # Notebook for tabs
+        self.tabs = ttk.Notebook(self)
+        self.tabs.grid(column=0, row=3, columnspan=3)
 
         self.TabPre = Tab(self, 'Pre')
         self.TabOptim = Tab(self, 'Optim')
@@ -200,6 +221,16 @@ class WorkFlowGUI(tk.Frame):
         self.tabs.add(self.TabOptim, text=self.TabOptim.name)
         self.tabs.add(self.TabPost, text=self.TabPost.name)
 
+        # General buttons
+        self.close_button = tk.Button(self, text='Save & Quit', command=self._save_quit)
+        self.close_button.grid(column=2, row=4)
+
+
+    def _browse_file(self):
+
+        self.filename = filedialog.askopenfilename(initialdir = MODULE_DIR, title = "Select a CPACS file" )
+        self.path_var.set(self.filename)
+
     def _save_quit(self):
 
         self.Options.optim_method = self.TabOptim.optim_choice_CB.get()
@@ -207,6 +238,11 @@ class WorkFlowGUI(tk.Frame):
         self.Options.module_pre = [item[0] for item in self.TabPre.LB_selected.get(0, tk.END)]
         self.Options.module_optim = [item[0] for item in self.TabOptim.LB_selected.get(0, tk.END)]
         self.Options.module_post = [item[0] for item in self.TabPost.LB_selected.get(0, tk.END)]
+
+        self.Options.cpacs_path = self.path_var.get()
+        if self.path_var.get() == '':
+            messagebox.showerror('ValueError', 'Yon must select an input CPACS file!')
+            raise TypeError('No CPACS file has been define !')
 
         self.quit()
 
@@ -227,7 +263,7 @@ def create_wf_gui():
 
     root = tk.Tk()
     root.title('Workflow Creator')
-    root.geometry('600x600+400+100')
+    root.geometry('520x600+400+100')
     my_gui = WorkFlowGUI()
     my_gui.mainloop()
     disg = my_gui.Options
@@ -242,8 +278,6 @@ if __name__ == '__main__':
 
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
     cpacs_path_out = mi.get_tooloutput_file_path(MODULE_NAME)
 
     # Create a new wkdir
@@ -252,9 +286,19 @@ if __name__ == '__main__':
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
     cpsf.close_tixi(tixi, cpacs_path)
 
-    #--------------
     gui = False
-    #--------------
+
+    if len(sys.argv)>1:
+        if sys.argv[1] == '-gui':
+            #--------------
+            gui = True
+            #--------------
+        else:
+            print(' ')
+            print('Not valid argument!')
+            print('You can use the option -gui to run this module with a user interface.')
+            print(' ')
+            sys.exit()
 
     if gui:
         Opt = create_wf_gui()
@@ -268,16 +312,23 @@ if __name__ == '__main__':
         # Mission analysis: 'Range','StabilityStatic','StabilityDynamic'
 
         Opt = WorkflowOptions()
+        # Opt.cpacs_path = ...
         Opt.module_pre = ['SettingsGUI', 'WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
         # Opt.module_optim = ['WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
         # Opt.module_pre = ['SettingsGUI', 'WeightConventional', 'PyTornado']
-        Opt.module_optim = ['WeightConventional', 'PyTornado', 'SkinFriction']
+        Opt.module_optim = ['WeightConventional', 'PyTornado']
+        
         Opt.optim_method = 'Optim' # DoE, Optim, None
         Opt.module_post = []
 
+    # Create a new wkdir
+    tixi = cpsf.open_tixi(Opt.cpacs_path)
+    wkdir = ceaf.get_wkdir_or_create_new(tixi)
+    cpsf.close_tixi(tixi, Opt.cpacs_path)
+
     # Run Pre-otimisation workflow
     if Opt.module_pre:
-        wkf.run_subworkflow(Opt.module_pre, cpacs_path)
+        wkf.run_subworkflow(Opt.module_pre, Opt.cpacs_path)
 
         if not Opt.module_optim and not Opt.module_post:
             shutil.copy(mi.get_tooloutput_file_path(Opt.module_pre[-1]), cpacs_path_out)

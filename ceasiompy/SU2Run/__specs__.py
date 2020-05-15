@@ -255,5 +255,11 @@ cpacs_inout.add_output(
     xpath=CEASIOM_XPATH + '/aerodynamics/su2/boundaryConditions/wall'
 )
 
-
-#TODO : The aeroMap is filled by this module, how to say that in terms of output...
+cpacs_inout.add_output(
+    var_name='aeromap_SU2',  # name to change...
+    # var_type=CPACS_aeroMap, # no type pour output, would it be useful?
+    default_value=None,
+    unit='-',
+    descr='aeroMap with aero coefficients calculated by SU2',
+    xpath='/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[i]/aeroPerformanceMap',
+)

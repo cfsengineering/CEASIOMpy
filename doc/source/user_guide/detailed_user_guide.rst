@@ -17,7 +17,7 @@ CPACS format
 |name| convention
 -----------------
 
-The convention used in |name| are base on the CPACS convtions
+The convention used in |name| are base on the CPACS conventions
 
 The following values are stored on the CPACS file (at /cpacs/vehicles/aircraft/model/reference)
 * Reference length: ...

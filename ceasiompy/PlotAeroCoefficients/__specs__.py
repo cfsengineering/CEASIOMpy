@@ -25,7 +25,7 @@ cpacs_inout.add_input(
     var_name='',
     var_type=list,
     default_value=None,
-    descr='To which aeroMap the skin priction coef shoud be added',
+    descr='List of aeroMap to plot',
     xpath='/cpacs/toolspecific/CEASIOMpy/aerodynamics/plotAeroCoefficient/aeroMapToPlot',
     gui=True,
     gui_name='__AEROMAP_CHECHBOX',

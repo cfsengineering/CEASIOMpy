@@ -294,19 +294,20 @@ def init_res_dict(tixi):
     res_var_dict : dictionnary
 
     """
+    if XPATH != 'None':
     # Xpath to optimisation results
-    aeromap_uid = cpsf.get_value(tixi, XPATH + '/aeroMapUID')
-    xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/'
+        aeromap_uid = cpsf.get_value(tixi, XPATH + '/aeroMapUID')
+        xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/'
 
-    # Xpath to initial results
-    aeromap_uid_pre = cpsf.get_value(tixi, XPATH_PRE + '/aeroMapUID')
-    xpath_pre = tixi.uIDGetXPath(aeromap_uid_pre) + '/aeroPerformanceMap/'
+        # Xpath to initial results
+        aeromap_uid_pre = cpsf.get_value(tixi, XPATH_PRE + '/aeroMapUID')
+        xpath_pre = tixi.uIDGetXPath(aeromap_uid_pre) + '/aeroPerformanceMap/'
 
-    for el in ['cl', 'cd', 'cms']:
-        getcmd = 'cpsf.get_float_vector(tixi, "{}")'.format(xpath + el)
-        setcmd = ''
-        init_value = eval('cpsf.get_float_vector(tixi, "{}")'.format(xpath_pre + el))
-        create_var(el, init_value[0], getcmd, setcmd)
+        for el in ['cl', 'cd', 'cms']:
+            getcmd = 'cpsf.get_float_vector(tixi, "{}")'.format(xpath + el)
+            setcmd = ''
+            init_value = eval('cpsf.get_float_vector(tixi, "{}")'.format(xpath_pre + el))
+            create_var(el, init_value[0], getcmd, setcmd)
 
     # passenger = cpsf.get_value(tixi, '/cpacs/toolspecific/CEASIOMpy/weight/passengers/passNb')
     # Coef = apmf.get_aeromap(tixi, aeromap_uid)
@@ -339,18 +340,19 @@ def init_specials(tixi):
     None.
 
     """
-    # Xpath to optimisation results
-    aeromap_uid = cpsf.get_value(tixi, XPATH + '/aeroMapUID')
-    xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/'
+    if XPATH != 'None':
+        # Xpath to optimisation results
+        aeromap_uid = cpsf.get_value(tixi, XPATH + '/aeroMapUID')
+        xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/'
 
-    # Xpath to initial results
-    aeromap_uid_pre = cpsf.get_value(tixi, XPATH_PRE + '/aeroMapUID')
-    xpath_pre = tixi.uIDGetXPath(aeromap_uid_pre) + '/aeroPerformanceMap/'
+        # Xpath to initial results
+        aeromap_uid_pre = cpsf.get_value(tixi, XPATH_PRE + '/aeroMapUID')
+        xpath_pre = tixi.uIDGetXPath(aeromap_uid_pre) + '/aeroPerformanceMap/'
 
-    var_name = 'angleOfAttack'
-    getcmd = 'cpsf.get_value(tixi, "{}")'.format(xpath + var_name)
-    setcmd = 'cpsf.add_float_vector(tixi, "{}", {})'.format(xpath, var_name)
-    init_value = cpsf.get_value(tixi, xpath_pre + var_name)
+        var_name = 'angleOfAttack'
+        getcmd = 'cpsf.get_value(tixi, "{}")'.format(xpath + var_name)
+        setcmd = 'cpsf.add_float_vector(tixi, "{}", {})'.format(xpath, var_name)
+        init_value = cpsf.get_value(tixi, xpath_pre + var_name)
     # create_var(var_name, init_value, getcmd, setcmd)
 
 

@@ -77,7 +77,7 @@ def get_aeromap_path(module_list):
     """
     PYTORNADO_XPATH = '/cpacs/toolspecific/pytornado'
     SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
-
+    # SKINFRICTION_xPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction/aeroMapToCalculate'
     for module in module_list:
         if module == 'SU2Run':
             log.info('Found SU2 analysis')

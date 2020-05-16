@@ -281,7 +281,11 @@ def routine_setup(modules, routine_type, modules_pre=[]):
     Rt.type = routine_type
     Rt.modules = modules
     Rt.driver = 'COBYLA'
+<<<<<<< HEAD
     Rt.objective = 'cl'
+=======
+    Rt.objective = 'cl/cd'
+>>>>>>> 0432dc169a3578c01b80e6dbdb1980e2f497b180
     # Rt.design_vars =
     Rt.constraints = []
     Rt.date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')

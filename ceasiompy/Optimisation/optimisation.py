@@ -223,7 +223,7 @@ def one_iteration():
     # Save the CPACS file
     if counter % 1 == 0:
         file_copy_from = mi.get_tooloutput_file_path('CPACSUpdater')
-        shutil.copy(file_copy_from, optim_dir_path+'/Geometry/'+'iter_{}'.format(counter))
+        shutil.copy(file_copy_from, optim_dir_path+'/Geometry/'+'iter_{}.xml'.format(counter))
 
     # Run optimisation sub workflow
     wkf.copy_module_to_module('CPACSUpdater', 'out', Rt.modules[0], 'in')
@@ -257,7 +257,8 @@ def compute_obj():
 
     # Create local variable and assign value
     for v in var_list:
-        exec('{} = res_var_dict["{}"][1][-1]'.format(v, v))
+        if not v.isdigit():
+            exec('{} = res_var_dict["{}"][1][-1]'.format(v, v))
 
     result = eval(Rt.objective)
     log.info('Objective function {} : {}'.format(Rt.objective, result))
@@ -280,9 +281,9 @@ def routine_setup(modules, routine_type, modules_pre=[]):
     Rt.type = routine_type
     Rt.modules = modules
     Rt.driver = 'COBYLA'
-    Rt.objective = 'mtom'
+    Rt.objective = 'cl'
     # Rt.design_vars =
-    Rt.constraints = ['cms']
+    Rt.constraints = []
     Rt.date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     Rt.doetype = 'uniform'
     Rt.samplesnb = 3

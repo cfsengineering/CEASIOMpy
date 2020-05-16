@@ -9,12 +9,13 @@ Python version: >=3.6
 
 | Author: Aidan jungo
 | Creation: 2019-08-19
-| Last modifiction: 2020-02-21
+| Last modifiction: 2020-05-15
 
 TODO:
 
     * Add option to save figures in ToolOutput folder
     * Use aeromap with Pandas to sort easily the data
+    * add plot vs Mach
     * Plot more coefficient (vs sideslip angle, damping derivatives, control surfaces)
 
 """
@@ -141,7 +142,7 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
     tixi = cpsf.open_tixi(cpacs_path)
 
     # Prepare subplots
-    figure_1 = plt.figure(figsize=(12, 12))
+    figure_1 = plt.figure(figsize=(9, 9))
     subplot1 = figure_1.add_subplot(221)
     subplot2 = figure_1.add_subplot(222)
     subplot3 = figure_1.add_subplot(223)

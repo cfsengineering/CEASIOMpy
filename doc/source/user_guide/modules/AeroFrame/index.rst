@@ -19,6 +19,12 @@ AeroFrame
 
     Wing deformations in a pull-up maneuver. In the shown case, aerodynamics were computed with the vortex-lattice method (VLM) and the structural response with a beam FEM model (image from [Dett19]_).
 
+
+.. warning::
+
+    This module is in development, it will probably not work correctly if you use it in a workflow.
+
+
 Installation
 ------------
 

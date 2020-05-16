@@ -53,7 +53,7 @@ cpacs_inout.add_input(
     unit='[kg]',
     descr='Pilot mass',
     xpath=CEASIOM_XPATH + '/weight/crew/pilots/pilotMass',
-    gui=True,
+    gui=False,
     gui_name='Pilot mass',
     gui_group='User inputs',
 )
@@ -86,7 +86,7 @@ cpacs_inout.add_input(
     var_name='PASS_PER_TOILET',
     var_type=int,
     default_value=50,
-    unit='[passenger/toilet]',
+    unit='[pax/toilet]',
     descr='Number of passenger per toilet',
     xpath=CEASIOM_XPATH + '/weight/passengers/passPerToilet',
     gui=True,

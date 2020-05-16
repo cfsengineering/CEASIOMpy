@@ -87,7 +87,7 @@ cpacs_inout.add_input(
     unit='-',
     descr='Number of pilots',
     xpath=CEASIOM_XPATH + '/weight/crew/pilots/pilotNb',
-    gui=True,
+    gui=False,
     gui_name='Pilots',
     gui_group='Crew',
 )
@@ -132,7 +132,7 @@ cpacs_inout.add_input(
     var_name='adui.PASS_BASE_DENSITY',
     var_type=float,
     default_value=1.66,
-    unit='[/m^2]',
+    unit='[pax/m^2]',
     descr='Passenger surface density (Concorde: 1.16, B77: 1.66, ATR72: 1.39, BWB: 1.69)',
     xpath=CEASIOM_XPATH + '/weight/passengers/passDensity',
     gui=True,

@@ -9,9 +9,12 @@ SUMOAutoMesh
 
 :Categories: Geometry, meshing
 
-SUMOAutoMesh gererate automatically a SU2_ mesh from a SUMO_ SMX file.
+SUMOAutoMesh generate automatically a SU2_ mesh from a SUMO_ SMX file.
 
-TODO: add figure
+.. warning::
+
+    This module do not work on MacOS for now, because SUMO cannot be run in batch as on Linux. If you place this module in a workflow anyway, it will just open SUMO in GUI.
+
 
 Installation
 ------------
@@ -21,7 +24,13 @@ SUMOAutoMesh is a native |name| module, hence it is available and installed by d
 Analyses
 --------
 
-SUMOAutoMesh ..
+SUMOAutoMesh do automatically operation that can also be done with SUMO with GUI. That is to say, creating the surface mesh and then using Tetgen to create the volume mesh.
+
+.. figure:: sumo_fig.png
+    :width: 500 px
+    :align: center
+    :alt: SUMO in GUI version
+
 
 Output
 ------

@@ -377,15 +377,9 @@ class SettingGUI(tk.Frame):
         self.submodule_list = submodule_list
         self.cpacs_out_path = cpacs_out_path
 
-        # General button (Normally after Notbook, but this is the only way i found to have acces to the buttons on a small screen)
-        self.close_button = tk.Button(self, text='Save & Quit', command=self._save_quit)
-        self.close_button.pack()#expand=1)#, side=tk.BOTTOM)
-        self.update_button = tk.Button(self, text='Update', command=self._update_all)
-        self.update_button.pack()#expand=1)#, side=tk.BOTTOM)
-
         # Notebook for tabs
         self.tabs = ttk.Notebook(self)
-        self.tabs.pack()#expand=1, side=tk.LEFT)
+        self.tabs.grid(row=0, column=0, columnspan=3)  #pack()#expand=1, side=tk.LEFT)
 
         self.tixi = cpsf.open_tixi(cpacs_path)
 
@@ -401,6 +395,13 @@ class SettingGUI(tk.Frame):
         # Generate Auto Tab =============
         self.tab_list = []
         self._update_all()
+
+        # General button
+        self.update_button = tk.Button(self, text='Update', command=self._update_all)
+        self.update_button.grid(row=1, column=1,sticky='E')
+        self.close_button = tk.Button(self, text='Save & Quit', command=self._save_quit)
+        self.close_button.grid(row=1, column=2,sticky='W')
+
 
 
     def _update_all(self):
@@ -558,7 +559,7 @@ def create_settings_gui(cpacs_path, cpacs_out_path, submodule_list):
 
     root = tk.Tk()
     root.title('CEASIOMpy Settings GUI')
-    root.geometry('600x800+400+100')
+    root.geometry('600x900+400+50')
     my_setting_gui = SettingGUI(root, cpacs_path, cpacs_out_path, submodule_list)
     my_setting_gui.mainloop()
     root.iconify()

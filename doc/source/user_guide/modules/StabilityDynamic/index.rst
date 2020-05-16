@@ -9,6 +9,11 @@ StabilityDynamic
 
 :Categories: Mission analysis, Stability
 
+.. warning::
+
+    This module is in development, it will probably not work correctly if you use it in a workflow.
+
+
 This module is made to check the dynamic stability of an aircraft and how it is able to handle the different modes (phughoid, short period, spiral, dutch roll).
 
 Installation

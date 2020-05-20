@@ -4,30 +4,65 @@ Installation
 General requirements
 --------------------
 
-The easiest way to have all the correct requirements is to use Conda environment (e.g. Anaconda or Miniconda) to simplify the installation. At the root of CEASIOMpy you can find a file called  "environment.yml", with the following line you can create a new environment with it:
+Step 1: Download |name|
+~~~~~~~~~~~~~~~~~~~~~~~
+
+First, you will need to download |name|. You can download the code as a `zip file <https://codeload.github.com/cfsengineeringaa/CEASIOMpy/zip/master>`_ and unpack it, or if you are familiar with the command line tool ``git``, you can clone the repository.
 
 .. code::
 
-    >> conda env create -f environment.yml
+    git clone https://github.com/cfsengineering/CEASIOMpy
 
-(for more information about Conda environment check out: https://docs.conda.io/projects/conda/en/latest/index.html)
+Place the ``CEASIOMpy`` folder where it is most convenient for you. This folder will be the main working directory when performing analyses.
 
+Step 2: Set up the work environment
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-If you do not use Conda, the following packages are required to be able to use |name|
+To run analyses with the |name| framework, you will need to install a couple of required packages. To to so, we *highly* recommended you to use a so-called *Conda* environment.
 
-* Python 3.6 or higer
-* `Tixi`_ and `Tigl`_ libraries
+.. hint::
 
+    Think of *Conda* as a separate environment on your computer which does not interfere with your remaining system. If you have not used such an environment before, this may seem unfamiliar. Also note, that you will have to *activate* or *deactivate* this environment using a command line interface (terminal).
+
+You may install either *Anaconda* or *Miniconda* (the latter is a smaller Conda installation with fewer pre-installed packages). Please refer to the Conda documentation for installation instructions.
+
+* *Anaconda*: https://docs.anaconda.com/anaconda/install/
+* *Miniconda*: https://docs.conda.io/en/latest/miniconda.html
+
+After you have installed the Conda environment, we will set up the work environment for |name|. In a terminal, navigate to your ``CEASIOMpy`` folder. In this folder there should be a file called ``environment.yml`` which specifies what requirements are needed. With this file, we create a new, specific environment. Run the following line in your terminal:
+
+.. code::
+
+    conda env create -f environment.yml
+
+The installation may take a couple of minutes. Now, you have created a new Conda environment called ``ceasiompy``.
+
+.. hint::
+
+    Whenever you work with |name|, you need to make sure that you are working inside the ``ceasiompy`` environment. You can always explicitely activate the ``cesiompy`` environment with the command:
+
+    .. code::
+
+        conda activate cesiompy
+
+    You will also see a ``(ceasiompy) ... $`` in you terminal prompt which indicates that the ``ceasiompy`` environment is active.
+
+..
+    # Perhaps remove this...? It's very hard to use CEASIOMpy without conda
+
+    If you do not use Conda, the following packages are required to be able to use |name|
+
+    * Python 3.6 or higher
+    * `Tixi`_ and `Tigl`_ libraries
 
 Optional requirements
 ---------------------
 
-The following software are not required to run all |name| workflows, it is still recommended to have them in order to use the all |name| suite.
+The following software tools are not required to run all |name| workflows. It is still recommended to install them in order to use the entire |name| suite.
 
-* PyTornado: https://github.com/airinnova/pytornado
-* SUMO: https://www.larosterna.com/products/open-source
-* SU2 v7: https://su2code.github.io/download.html
-
+* *PyTornado*: https://github.com/airinnova/pytornado
+* *SUMO*: https://www.larosterna.com/products/open-source
+* *SU2 v7*: https://su2code.github.io/download.html
 
 Setting up your path variables
 ------------------------------

@@ -157,6 +157,18 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
+    var_name='nb_proc',
+    var_type=int,
+    default_value=1,
+    unit='1',
+    descr='Number of proc to use to run SU2',
+    xpath=CEASIOM_XPATH + '/aerodynamics/su2/settings/nbProc',
+    gui=True,
+    gui_name='Nb of processor',
+    gui_group='CPU',
+)
+
+cpacs_inout.add_input(
     var_name='max_iter',
     var_type=int,
     default_value=200,

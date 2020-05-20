@@ -53,7 +53,7 @@ dependencies:
   - codecov==2.0.15
 
   # Documentation
-  - sphinx=1.8.5
+  - sphinx=3.0.3
 
   # To compile PyTornado on Mac
   - clang>=4.0.1

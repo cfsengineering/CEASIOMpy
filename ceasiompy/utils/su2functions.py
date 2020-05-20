@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2019-09-30
-| Last modifiction: 2020-02-24
+| Last modifiction: 2020-05-20
 
 TODO:
 
@@ -123,7 +123,7 @@ def get_mesh_marker(su2_mesh_path):
     return marker_list
 
 
-def run_soft(soft, config_path, wkdir):
+def run_soft(soft, config_path, wkdir, nb_proc):
     """Function run one of the existing SU2 software
 
     Function 'run_soft' create the comment line to run correctly a SU2 software
@@ -142,8 +142,10 @@ def run_soft(soft, config_path, wkdir):
 
     mpi_install_path = SOFT_DICT['mpirun.mpich']
     soft_install_path = SOFT_DICT[soft]
-    proc_nb = os.cpu_count()
-    log.info('Number of proc: ' + str(proc_nb))
+
+    log.info('Number of proc available: ' + str(os.cpu_count()))
+    log.info(str(nb_proc) +' will be use for this calculation.')
+
     logfile_path = os.path.join(wkdir,'logfile' + soft + '.log')
 
     # if mpi_install_path is not None:

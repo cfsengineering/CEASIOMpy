@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan jungo
 | Creation: 2020-04-21
-| Last modifiction: 2020-05-14
+| Last modifiction: 2020-05-20
 
 TODO:
 
@@ -306,14 +306,17 @@ if __name__ == '__main__':
         # Mission analysis: 'Range','StabilityStatic','StabilityDynamic'
 
         Opt = WorkflowOptions()
-        # Opt.cpacs_path = ...
+        # Opt.cpacs_path = ...to specify the CPACS input file
         Opt.module_pre = ['SettingsGUI', 'WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
-        # Opt.module_optim = ['WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
-        # Opt.module_pre = ['SettingsGUI', 'WeightConventional', 'PyTornado']
         Opt.module_optim = ['WeightConventional', 'PyTornado']
-        
         Opt.optim_method = 'Optim' # DoE, Optim, None
         Opt.module_post = []
+
+    # Copy ToolInput.xml in ToolInput dir if not already there
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    if not Opt.cpacs_path == cpacs_path:
+        shutil.copy(Opt.cpacs_path, cpacs_path)
+        Opt.cpacs_path = cpacs_path
 
     # Create a new wkdir
     tixi = cpsf.open_tixi(Opt.cpacs_path)

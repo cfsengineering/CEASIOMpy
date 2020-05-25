@@ -37,11 +37,11 @@ for direction in ['x', 'y', 'z']:
     )
 
 cpacs_inout.add_input(
-    var_name='test',
+    var_name='Objective function',
     var_type=str,
-    default_value='This is a test',
+    default_value='cl/cd',
     unit=None,
-    descr='This is a test of description',
+    descr='Objective function of the optimisation problem',
     xpath='/cpacs/toolspecific/CEASIOMpy/test/myTest',
     gui=include_gui,
     gui_name='Objective',
@@ -49,32 +49,27 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name='aeromap_uid',
-    var_type=list,
-    default_value=None,
-    xpath='/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID',
-    gui=include_gui,
-    gui_name='__AEROMAP_SELECTION',
-)
-
-cpacs_inout.add_input(
-    var_name='aeromap_uid',
-    var_type=list,
-    default_value=None,
-    xpath='/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction/aeroMapToCalculate',
-    gui=include_gui,
-    gui_name='__AEROMAP_CHECHBOX',
-)
-
-cpacs_inout.add_input(
-    var_name='other_var',
-    var_type=list,
-    default_value= [2,33,444],
-    unit='[unit]',
+    var_name='minmax',
+    var_type=str,
+    default_value=min,
+    unit=None,
+    descr='Objective function of the optimisation problem',
     xpath='/cpacs/toolspecific/CEASIOMpy/test/myList',
     gui=include_gui,
-    gui_name='Choice',
-    gui_group='My Selection'
+    gui_name='Optimisation goal',
+    gui_group='Optimisation settings'
+)
+
+cpacs_inout.add_input(
+    var_name='iterations',
+    var_type=int,
+    default_value=200,
+    unit=None,
+    descr='Numnber of iterations to do',
+    xpath='/cpacs/toolspecific/CEASIOMpy/test/myList',
+    gui=include_gui,
+    gui_name='Max number of iterations',
+    gui_group='Optimisation settings'
 )
 
 # ----- Output -----

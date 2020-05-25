@@ -117,21 +117,22 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
     # help(wings.get_wing(1).get_section(2))
 
     # Perform update of all the variable contained in 'optim_var_dict'
+    for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
+        if val_type == 'des' and listval[0] not in ['-', 'True', 'False']:
+            if setcommand not in ['-', '']:
+                # Define variable (var1,var2,..)
+                locals()[str(name)] = listval[-1]
 
-    for key, (name, listval, minval, maxval, setcommand, getcommand) in optim_var_dict.items():
-
-
-        # Define variable (var1,var2,..)
-        locals()[str(key)] = listval[-1]
-
-        # Execute the command coresponding to the variable
-        if ';' in setcommand: # if more than one command on the line
-            command_split = setcommand.split(';')
-            for setcommand in command_split:
-                eval(setcommand)
-        else:
-            eval(setcommand)
-
+                # Execute the command coresponding to the variable
+                if ';' in setcommand: # if more than one command on the line
+                    command_split = setcommand.split(';')
+                    for setcommand in command_split:
+                        eval(setcommand)
+                else:
+                    eval(setcommand)
+            else:
+                xpath = getcommand
+                tixi.updateTextElement(xpath, str(listval[-1]))
     aircraft.write_cpacs(aircraft.get_uid())
     tixi.save(cpacs_out_path)
     #or

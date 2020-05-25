@@ -14,9 +14,14 @@ def recupere():
 def clavier(event):
     touche = event.keysym
     print(touche)
+def ev(event):
+    print(val.get())
+    if val.get():
+        e2.config(state=DISABLED)
+        e3.config(state=DISABLED)
 
 
-# Create window
+# # Create window
 fenetre = Tk()
 fenetre['bg']='white'
 
@@ -55,10 +60,42 @@ label.pack()
 s = Spinbox(Frame1, from_=0, to=10)
 s.pack()
 
+fenetre.mainloop()
 
+# w = Tk()
+# # get screen width and height
+# wd = 700
+# ht = 200
+# ws = w.winfo_screenwidth()
+# hs = w.winfo_screenheight()
+# # calculate position x, y
+# x = (ws/2) - (wd/2)
+# y = (hs/2) - (ht/2)
+# w.geometry('%dx%d+%d+%d' % (wd, ht, x, y))
 
+# val = BooleanVar(w)
+# cb = Checkbutton(w)
+# cb.bind("<Button-1>", ev)
+# cb.grid(row=2,column=1)
 
-# canvas = Canvas(fenetre, width=500, height=500)
+# value1 = StringVar(w)
+# value1.set("Initial value")
+# value2 = StringVar(w)
+# value2.set("min value")
+# value3 = StringVar(w)
+# value3.set("max value")
+
+# e1 = Entry(w, textvariable=value1, width=30)
+# e2 = Entry(w, textvariable=value2, width=30)
+# e3 = Entry(w, textvariable=value3, width=30)
+
+# e1.grid(row=2,column=2)
+# e2.grid(row=2,column=3)
+# e3.grid(row=2,column=4)
+
+# w.mainloop()
+
+# # canvas = Canvas(fenetre, width=500, height=500)
 # canvas.focus_set()
 # canvas.bind("<Key>", clavier)
 # canvas.pack()
@@ -89,5 +126,3 @@ s.pack()
 
 
 
-
-fenetre.mainloop()

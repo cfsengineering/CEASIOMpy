@@ -307,11 +307,12 @@ if __name__ == '__main__':
 
         Opt = WorkflowOptions()
         # Opt.cpacs_path = ...
-        Opt.module_pre = ['SettingsGUI', 'WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
-        # Opt.module_optim = ['WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
+        Opt.module_pre = ['SettingsGUI', 'WeightUnconventional', 'BalanceUnconventional',
+                          'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction', 'PyTornado']
+        Opt.module_optim = ['WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
         # Opt.module_pre = ['SettingsGUI', 'WeightConventional', 'PyTornado']
-        Opt.module_optim = ['WeightConventional', 'PyTornado']
-        
+        # Opt.module_optim = ['WeightConventional', 'PyTornado']
+
         Opt.optim_method = 'Optim' # DoE, Optim, None
         Opt.module_post = []
 

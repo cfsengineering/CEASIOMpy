@@ -23,7 +23,7 @@ TODO
 
 from sys import exit
 
-import ceasiompy.utils.optimfunctions as optf
+# import ceasiompy.utils.optimfunctions as optf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
 import ceasiompy.utils.workflowfunctions as wkf
@@ -43,6 +43,12 @@ design_var_dict = {}
 # Contains the possible constraints and the objective function
 res_var_dict = {}
 # res_var_dict[var1] = ('name', [init], min, max, 'CPACSReading_command')
+
+# =============================================================================
+#   GLOBALS
+# =============================================================================
+
+XPATH = 'None'
 
 # =============================================================================
 #   FUNCTIONS
@@ -154,7 +160,7 @@ def init_wing_param(aircraft, wing_nb):
     """
     wings = aircraft.get_wings()
 
-    for w in range(1, wing_nb):
+    for w in range(1, wing_nb+1):
         cmd = 'wings.get_wing({}).'.format(w)
         name = "wing" + str(w)
 
@@ -172,21 +178,21 @@ def init_wing_param(aircraft, wing_nb):
         setcmd = cmd+'set_half_span_keep_ar({})'.format(var_name)  # keep_area
         create_var(var_name, init_span, getcmd, setcmd)
 
-        # var_name = name + "_aspect_ratio"
-        # init_AR = wing.get_aspect_ratio()
-        # getcmd = cmd+'get_aspect_ratio()'
-        # setcmd = cmd+'set_arkeep_area({})'.format(var_name)#keep_ar
-        # create_var(var_name, init_AR, getcmd, setcmd)
+        var_name = name + "_aspect_ratio"
+        init_AR = wing.get_aspect_ratio()
+        getcmd = cmd+'get_aspect_ratio()'
+        setcmd = cmd+'set_arkeep_area({})'.format(var_name)#keep_ar
+        create_var(var_name, init_AR, getcmd, setcmd)
 
-        # var_name = name + "_area"
-        # init_area = wing.get_surface_area()/2
-        # getcmd = cmd+'get_surface_area()'
-        # setcmd = cmd+'set_area_keep_ar({})'.format(var_name)#keep_span
-        # create_var(var_name, init_area, getcmd, setcmd)
+        var_name = name + "_area"
+        init_area = wing.get_surface_area()/2
+        getcmd = cmd+'get_surface_area()'
+        setcmd = cmd+'set_area_keep_ar({})'.format(var_name)#keep_span
+        create_var(var_name, init_area, getcmd, setcmd)
 
-        # sec_nb = wing.get_section_count()
-        # if sec_nb:
-        #     init_sec_param(name, wing, sec_nb, cmd)
+        sec_nb = wing.get_section_count()
+        if sec_nb:
+            init_sec_param(name, wing, sec_nb, cmd)
 
     return
 
@@ -217,39 +223,16 @@ def init_fuse_param(aircraft, fuse_nb):
         create_var(var_name, init_width, getcmd, setcmd)
 
         # Modify a specific section width
-        for secnb in fuselage.get_section_count():
-            var_name = name + "_sec" + str(secnb)
-            init_sec_width = fuselage.get_maximal_width()
-            getcmd = 'fuselage.get_maximal_width()'
-            setcmd = 'fuselage.set_max_width()'.format(var_name)
-            create_var(var_name, init_sec_width, getcmd, setcmd)
+        fnb = fuselage.get_section_count()
+        if type(fnb) is not int:
+            for secnb in fnb:
+                var_name = name + "_sec" + str(secnb)
+                init_sec_width = fuselage.get_maximal_width()
+                getcmd = 'fuselage.get_maximal_width()'
+                setcmd = 'fuselage.set_max_width()'.format(var_name)
+                create_var(var_name, init_sec_width, getcmd, setcmd)
 
     return
-
-
-def update_res_var_dict(tixi):
-    """
-    Return objective function value and update all constrains.
-
-    Parameters
-    ----------
-    tixi : tixi3 handler
-
-    """
-    log.info('=========================')
-    for key, (var_name, listval, lower_bound, upper_bound, getcmd) in res_var_dict.items():
-        new_val = eval(getcmd)
-
-        # Checks if the
-        if type(new_val) == list:
-            listval.append(new_val[-1])
-            log.info(key + ' ' + str(new_val[-1]))
-        else:
-            listval.append(new_val)
-            log.info(key + ' ' + str(new_val))
-    log.info('=========================')
-
-    return res_var_dict
 
 
 def init_design_var_dict(tixi):
@@ -268,9 +251,9 @@ def init_design_var_dict(tixi):
     tigl = cpsf.open_tigl(tixi)
     aircraft = cpud.get_aircraft(tigl)
 
-    # fuse_nb = aircraft.get_fuselage_count()
-    # if fuse_nb:
-    #     init_fuse_param(aircraft, fuse_nb)
+    fuse_nb = aircraft.get_fuselage_count()
+    if fuse_nb:
+        init_fuse_param(aircraft, fuse_nb)
 
     wing_nb = aircraft.get_wing_count()
     if wing_nb:
@@ -356,50 +339,50 @@ def init_specials(tixi):
     # create_var(var_name, init_value, getcmd, setcmd)
 
 
-def init_dict(cpacs_path, module_list, modules_pre_list=[]):
-    """
-    Create dictionnaries for the optimisation problem.
+# def init_dict(cpacs_path, module_list, modules_pre_list=[]):
+#     """
+#     Create dictionnaries for the optimisation problem.
 
-    Parameters
-    ----------
-    cpacs_path : String
-        Path to the CPACS file.
-    module_list : List
-        List of modules.
+#     Parameters
+#     ----------
+#     cpacs_path : String
+#         Path to the CPACS file.
+#     module_list : List
+#         List of modules.
 
-    Returns
-    -------
-    Dict
-        All dictionnaries needed for the optimisation problem.
+#     Returns
+#     -------
+#     Dict
+#         All dictionnaries needed for the optimisation problem.
 
-    """
-    # Check if aeromap results already exists, else run workflow
-    global XPATH
-    global XPATH_PRE
+#     """
+#     # Check if aeromap results already exists, else run workflow
+#     global XPATH
+#     global XPATH_PRE
 
-    XPATH = optf.get_aeromap_path(module_list)
-    if 'PyTornado' in modules_pre_list or 'SU2Run' in modules_pre_list:
-        XPATH_PRE = optf.get_aeromap_path(modules_pre_list)
-    else:
-        XPATH_PRE = XPATH
+#     XPATH = optf.get_aeromap_path(module_list)
+#     if 'PyTornado' in modules_pre_list or 'SU2Run' in modules_pre_list:
+#         XPATH_PRE = optf.get_aeromap_path(modules_pre_list)
+#     else:
+#         XPATH_PRE = XPATH
 
-    # Settings needed for CFD calculation
-    if 'SettingsGUI' not in module_list or 'SettingsGUI' not in modules_pre_list:
-        module_list.insert(0,'SettingsGUI')
+#     # Settings needed for CFD calculation
+#     if 'SettingsGUI' not in module_list or 'SettingsGUI' not in modules_pre_list:
+#         module_list.insert(0,'SettingsGUI')
 
-    # First iteration to create aeromap results if no pre-workflow
-    if XPATH != XPATH_PRE or modules_pre_list == []:
-        wkf.copy_module_to_module('Optimisation', 'in', module_list[0], 'in')
-        wkf.run_subworkflow(module_list)
-        wkf.copy_module_to_module(module_list[-1], 'out', 'Optimisation', 'in')
+#     # First iteration to create aeromap results if no pre-workflow
+#     if XPATH != XPATH_PRE or modules_pre_list == []:
+#         wkf.copy_module_to_module('Optimisation', 'in', module_list[0], 'in')
+#         wkf.run_subworkflow(module_list)
+#         wkf.copy_module_to_module(module_list[-1], 'out', 'Optimisation', 'in')
 
-    # If settingsGUI only needed at the first iteration
-    if 'SettingsGUI' in module_list:
-        module_list.pop(module_list.index('SettingsGUI'))
+#     # If settingsGUI only needed at the first iteration
+#     if 'SettingsGUI' in module_list:
+#         module_list.pop(module_list.index('SettingsGUI'))
 
-    tixi = cpsf.open_tixi(cpacs_path)
+#     tixi = cpsf.open_tixi(cpacs_path)
 
-    return init_res_dict(tixi), init_design_var_dict(tixi)
+#     return init_res_dict(tixi), init_design_var_dict(tixi)
 
 
 if __name__ == "__main__":

@@ -77,13 +77,18 @@ class Tab(tk.Frame):
         # Get list of available modules
         self.modules_list = mi.get_submodule_list()
         self.modules_list.sort()
+
         self.modules_list.remove('SettingsGUI')
         self.modules_list.insert(0,'SettingsGUI')
-        self.modules_list.remove('utils')
-        self.modules_list.remove('WKDIR')
+
         self.modules_list.remove('CPACSUpdater')
         self.modules_list.remove('Optimisation')
         self.modules_list.remove('WorkflowCreator')
+        self.modules_list.remove('utils')
+        try:
+            self.modules_list.remove('WKDIR')
+        except:
+            log.info('No WKDIR yet.')
 
         self.selected_list = []
 
@@ -282,11 +287,9 @@ if __name__ == '__main__':
 
     gui = False
 
-    if len(sys.argv)>1:
+    if len(sys.argv) > 1:
         if sys.argv[1] == '-gui':
-            #--------------
             gui = True
-            #--------------
         else:
             print(' ')
             print('Not valid argument!')
@@ -303,14 +306,16 @@ if __name__ == '__main__':
         # Geometry and mesh: 'CPACSCreator','CPACS2SUMO','SUMOAutoMesh'
         # Weight and balance: 'WeightConventional','WeightUnconventional','BalanceConventional','BalanceUnconventional'
         # Aerodynamics: 'CLCalculator','PyTornado','SkinFriction','PlotAeroCoefficients','SU2MeshDef','SU2Run'
-        # Mission analysis: 'Range','StabilityStatic','StabilityDynamic'
+        # Mission analysis: 'Range','StabilityStatic'
 
         Opt = WorkflowOptions()
-        # Opt.cpacs_path = ...to specify the CPACS input file
-        Opt.module_pre = ['SettingsGUI', 'WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
-        Opt.module_optim = ['WeightConventional', 'PyTornado']
+        # These options can be modified here if WorkflowCreator is used without GUI
+        Opt.cpacs_path = '../../test/CPACSfiles/simpletest_cpacs.xml'
+        Opt.module_pre = ['SettingsGUI', 'PyTornado']
+        Opt.module_optim = []
         Opt.optim_method = 'Optim' # DoE, Optim, None
         Opt.module_post = []
+
 
     # Copy ToolInput.xml in ToolInput dir if not already there
     cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)

@@ -119,10 +119,6 @@ class AeroMapTab:
             self.listBox.insert(tk.END, item)
         row_pos += (item_count + 1)
 
-        chooseButton = tk.Button(self.aerotab, text='Select', command=self._select)
-        chooseButton.grid(column=0, row=row_pos)
-        row_pos += 1
-
         importButton = tk.Button(self.aerotab, text='Import CSV', command=self._import_csv)
         importButton.grid(column=0, row=row_pos)
         row_pos += 1
@@ -131,22 +127,14 @@ class AeroMapTab:
         exportButton.grid(column=0, row=row_pos)
         row_pos += 1
 
-        updateButton = tk.Button(self.aerotab, text='Update', command=self._update)
-        updateButton.grid(column=0, row=row_pos)
-        row_pos += 1
+        # updateButton = tk.Button(self.aerotab, text='Update', command=self._update)
+        # updateButton.grid(column=0, row=row_pos)
+        # row_pos += 1
 
         deleteButton = tk.Button(self.aerotab, text='Delete', command=self._delete)
         deleteButton.grid(column=0, row=row_pos)
         row_pos += 1
 
-
-    def _select(self, event=None):
-        try:
-            firstIndex = self.listBox.curselection()[0]
-            self.selected_list = [self.listBox.get(i) for i in self.listBox.curselection()]
-            log.info('Selected aeroMap',self.selected_list)
-        except IndexError:
-            self.selected_list = None
 
     def _import_csv(self, event=None):
         template_csv_dir = os.path.join(MODULE_DIR,'..','..','test','AeroMaps')

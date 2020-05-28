@@ -11,8 +11,6 @@ Python version: >=3.6
 
 TODO:
 
-    * Class instead of dictionnary ?
-    * Add/modify the optimisation parameters
 """
 
 # =============================================================================
@@ -32,6 +30,8 @@ import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.moduleinterfaces as mi
 import ceasiompy.utils.optimfunctions as opf
+import ceasiompy.Optimisation.func.dictionnary as dct
+import ceasiompy.Optimisation.func.tools as tls
 
 from ceasiompy.CPACSUpdater.cpacsupdater import update_cpacs_file
 
@@ -59,8 +59,15 @@ class objective_function(om.ExplicitComponent):
         """Create function inputs and outputs."""
         # Add inputs
         for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
+            # Normal case
             if val_type == 'des' and listval[0] not in ['-', 'True', 'False']:
                 self.add_input(name, val=listval[0])
+            # Boolean case
+            # elif val_type == 'des' and listval[0] in ['True', 'False']:
+            #     if listval[0] == 'True':
+            #         self.add_discrete_input(name, val=1)
+            #     else:
+            #         self.add_discrete_input(name, val=0)
 
         # Add outputs
         self.add_output(Rt.objective)
@@ -72,8 +79,15 @@ class objective_function(om.ExplicitComponent):
         """Launch subroutine to compute objective function."""
         # Add new variable value to the list in the dictionnay
         for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
-            if val_type == 'des' and listval[0] not in ['-', 'True', 'False']:
+            # Normal case
+            if val_type == 'des' and listval[-1] not in ['-', 'True', 'False']:
                 listval.append(inputs[name][0])
+            # Boolean case
+            # elif val_type == 'des' and listval[-1] in ['True', 'False']:
+            #     if listval[-1] == 'True':
+            #         listval.append(1)
+            #     else:
+            #         listval.append(0)
 
         # Evaluate the function to optimize
         outputs[Rt.objective] = one_iteration()
@@ -86,16 +100,28 @@ class constraint(om.ExplicitComponent):
         """Create function inputs and outputs."""
         # Add output
         for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
-            if val_type == 'const':
+            # Normal case
+            if val_type == 'const' and listval[0] not in ['-', 'True', 'False']:
                 self.add_output(name, val=listval[0])
+            # Boolean case
+            # elif val_type == 'const' and listval[0] in ['True', 'False']:
+            #     if listval[0] == 'True':
+            #         self.add_discrete_output(name, val=1)
+            #     else:
+            #         self.add_discrete_output(name, val=0)
 
     def compute(self, inputs, outputs):
         """Retrieve values of constraints."""
         for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
-            if val_type == 'const':
+            # Normal case
+            if val_type == 'const' and listval[-1] not in ['-', 'True', 'False']:
                 outputs[name] = listval[-1]
-
-        # outputs['passengers'] = get_val()
+            # Boolean case
+            # elif val_type == 'const' and listval[-1] in ['True', 'False']:
+            #     if listval[-1] == 'True':
+            #         outputs[name] = 1
+            #     else:
+            #         outputs[name] = 0
 
 # =============================================================================
 #   FUNCTIONS
@@ -114,9 +140,6 @@ def run_routine():
         *http://openmdao.org/twodocs/versions/latest/getting_started/index.html
 
     """
-    # sInitialize dictionnaries
-    # init_dict()
-
     # Build the model
     prob = om.Problem()
     model = prob.model
@@ -128,17 +151,16 @@ def run_routine():
 
     # Choose between optimizer or driver
     if Rt.type == 'DoE':
-        if Rt.doetype == 'uniform':
+        if Rt.doetype.lower() == 'uniform':
             driver = prob.driver = om.DOEDriver(om.UniformGenerator(num_samples=Rt.samplesnb))
-        elif Rt.doetype == 'fullfact':
+        elif Rt.doetype.lower() == 'fullfact':
             # 2->9 3->81
             driver = prob.driver = om.DOEDriver(om.FullFactorialGenerator(Rt.samplesnb))
     elif Rt.type == 'Optim':
         driver = prob.driver = om.ScipyOptimizeDriver()
-        # SLSQP,COBYLA,shgo,TNC
         driver.options['optimizer'] = Rt.driver
-        # driver.options['maxiter'] = 20
-        driver.options['tol'] = 1e-2
+        driver.options['maxiter'] = int(Rt.max_iter)
+        driver.options['tol'] = Rt.tol
         if Rt.driver == 'COBYLA':
             driver.opt_settings['catol'] = 0.06
 
@@ -146,16 +168,22 @@ def run_routine():
 
     # Design variable and constrains
     for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
-        if listval[0] not in ['-', 'True', 'False']:
-            norm = int(np.log10(abs(listval[0])+1)+1)
+        if listval[0] not in ['-','True', 'False']:
+            norm = round(np.log10(abs(float(listval[0]))+1)+1)
             if val_type == 'des':
                 indeps.add_output(name, listval[0], ref=norm, ref0=0)
                 model.connect('indeps.'+name, 'objective.'+name)
                 model.add_design_var('indeps.'+name, lower=minval, upper=maxval)
             elif val_type == 'const':
                 model.add_constraint('const.'+name, ref=norm, lower=minval, upper=maxval)
-        else:
-            log.info('Variable not taken :'+name)
+        # Boolean
+        # else:
+        #     if val_type == 'des':
+        #         indeps.add_discrete_output(name, int(eval(listval[0])))
+        #         model.connect('indeps.'+name, 'objective.'+name)
+        #         model.add_design_var('indeps.'+name)
+        #     elif val_type == 'const':
+        #         model.add_constraint('const.'+name)
 
     # Objective function
     model.add_objective('objective.{}'.format(Rt.objective))
@@ -209,10 +237,9 @@ def one_iteration():
     WKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath'
     tixi.updateTextElement(WKDIR_XPATH, wkdir_path)
 
-    # TODO: improve this part! (maybe move somewhere else)
     # To delete coef from previous iter
-    if opf.get_aeromap_path(Rt.modules) != 'None':
-        xpath = opf.get_aeromap_path(Rt.modules)
+    if tls.get_aeromap_path(Rt.modules) != 'None':
+        xpath = tls.get_aeromap_path(Rt.modules)
         aeromap_uid = cpsf.get_value(tixi, xpath + '/aeroMapUID')
         Coef = apmf.get_aeromap(tixi, aeromap_uid)
         apmf.delete_aeromap(tixi, aeromap_uid)
@@ -220,7 +247,7 @@ def one_iteration():
         apmf.save_parameters(tixi, aeromap_uid, Coef)
         cpsf.close_tixi(tixi, cpacs_path)
 
-    # Update the CPACS file with the parameters contained in design_var_dict
+    # Update the CPACS file with the parameters contained in optim_var_dict
     update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict)
 
     # Save the CPACS file
@@ -235,10 +262,9 @@ def one_iteration():
 
     # Extract results
     cpacs_results_path = mi.get_tooloutput_file_path(Rt.modules[-1])
-    log.info(cpacs_results_path)
     log.info('Results will be extracted from:' + cpacs_results_path)
     tixi = cpsf.open_tixi(cpacs_results_path)
-    opf.update_dict(tixi, optim_var_dict)
+    dct.update_dict(tixi, optim_var_dict)
 
     return compute_obj()
 
@@ -260,15 +286,14 @@ def compute_obj():
 
     # Create local variable and assign value
     for v in var_list:
-        if not v.isdigit() and v !='':
+        if not v.isdigit() and v != '':
             exec('{} = optim_var_dict["{}"][1][-1]'.format(v, v))
-            exec('print({})'.format(v))
 
     result = eval(Rt.objective)
     log.info('Objective function {} : {}'.format(Rt.objective, result))
     # Evaluate objective function expression
 
-    if Rt.minmax =='min':
+    if Rt.minmax == 'min':
         return -result
     else:
         return result
@@ -283,31 +308,26 @@ def routine_setup(modules, routine_type, modules_pre=[]):
 
     """
     log.info('----- Start of Optimisation module -----')
+
     global Rt, optim_var_dict, optim_dir_path
+    cpacs_path = mi.get_toolinput_file_path('Optimisation')
 
     # Setup parameters of the routine
     Rt.type = routine_type
-    Rt.objective = 'cl/cd/mtom'
-    Rt.minmax = 'min'
-    Rt.save_iter = 1
     Rt.modules = modules
-    Rt.driver = 'COBYLA'
-    Rt.doetype = 'uniform'
-    Rt.samplesnb = 3
-    Rt.user_config = '../Optimisation/defvar2.csv'
     Rt.date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
-    cpacs_path = mi.get_toolinput_file_path('Optimisation')
-
+    Rt.get_user_inputs(cpacs_path)
     # Create Optim folder for results
     tixi = cpsf.open_tixi(cpacs_path)
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
-    optim_dir_path = os.path.join(wkdir,Rt.type)
+    optim_dir_path = os.path.join(wkdir, Rt.type)
     if not os.path.isdir(optim_dir_path):
         os.mkdir(optim_dir_path)
         os.mkdir(optim_dir_path+'/Geometry')
 
     # Initiate dictionnary
+    opf.first_run(cpacs_path, modules, modules_pre)
     optim_var_dict = opf.create_variable_library(Rt, tixi, modules)
 
     # Copy to CPACSUpdater to pass to next modules
@@ -327,7 +347,5 @@ def routine_setup(modules, routine_type, modules_pre=[]):
 
 if __name__ == '__main__':
     # Specify parameters already implemented in the SettingsGUI
-    module_list = ['WeightConventional','PyTornado']
-    rt_type = 'Optim'
 
-    routine_setup(module_list, rt_type)
+    log.info('This module is run automatically.')

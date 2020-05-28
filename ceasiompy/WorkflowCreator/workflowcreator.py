@@ -82,7 +82,7 @@ class Tab(tk.Frame):
         self.modules_list.remove('utils')
         self.modules_list.remove('WKDIR')
         self.modules_list.remove('CPACSUpdater')
-        self.modules_list.remove('Optimisation')
+        # self.modules_list.remove('Optimisation')
         self.modules_list.remove('WorkflowCreator')
 
         self.selected_list = []
@@ -307,7 +307,7 @@ if __name__ == '__main__':
 
         Opt = WorkflowOptions()
         # Opt.cpacs_path = ...
-        Opt.module_pre = ['SettingsGUI', 'WeightUnconventional', 'BalanceUnconventional',
+        Opt.module_pre = ['SettingsGUI', 'Optimisation', 'WeightUnconventional', 'BalanceUnconventional',
                           'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction', 'PyTornado']
         Opt.module_optim = ['WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
         # Opt.module_pre = ['SettingsGUI', 'WeightConventional', 'PyTornado']

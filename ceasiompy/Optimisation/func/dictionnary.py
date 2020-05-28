@@ -32,27 +32,45 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
 # =============================================================================
-#   DICTIONNARIES
-# =============================================================================
-
-# Contains the design variables
-design_var_dict = {}
-# design_var_dict["name"] = ('name',[init],min,max,'CPACSUpdater_command'
-#                            ,'CPACSReading_command')
-
-# Contains the possible constraints and the objective function
-res_var_dict = {}
-# res_var_dict[var1] = ('name', [init], min, max, 'CPACSReading_command')
-
-# =============================================================================
 #   GLOBALS
 # =============================================================================
 
+# Contains the geometric design variables
+design_var_dict = {}
 XPATH = 'None'
 
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
+
+
+def update_dict(tixi, optim_var_dict):
+    """
+    Update dictionnary after a workflow
+
+    Parameters
+    ----------
+    tixi : tixi3 handle
+        DESCRIPTION.
+    optim_var_dict : dict
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
+    for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
+        if setcommand == '-' or setcommand == '':
+            if tixi.checkElement(getcommand):
+                new_val = tixi.getDoubleElement(getcommand)
+                # Checks type of variable
+                if type(new_val) == list:
+                    listval.append(new_val[-1])
+                    log.info(name + ' ' + str(new_val[-1]))
+                else:
+                    listval.append(new_val)
+                    log.info(name + ' ' + str(new_val))
 
 
 def create_var(var_name, init_value, getcmd, setcmd, lim=0.2):
@@ -89,12 +107,7 @@ def create_var(var_name, init_value, getcmd, setcmd, lim=0.2):
         lower_bound = -lim
         upper_bound = lim
 
-    if setcmd:
-        design_var_dict[var_name] = (var_name, [init_value], lower_bound, upper_bound, setcmd, getcmd)
-    else:
-        res_var_dict[var_name] = (var_name, [init_value], lower_bound, upper_bound, getcmd)
-
-    return
+    design_var_dict[var_name] = (var_name, [init_value], lower_bound, upper_bound, setcmd, getcmd)
 
 
 def init_elem_param(sec_name, section, elem_nb, scmd):
@@ -259,87 +272,10 @@ def init_design_var_dict(tixi):
     if wing_nb:
         init_wing_param(aircraft, wing_nb)
 
-    init_specials(tixi)
-
     return design_var_dict
 
 
-def init_res_dict(tixi):
-    """
-    Return dictionary of the constraints.
-
-    Parameters
-    ----------
-    tixi : tixi3_handler
-
-    Returns
-    -------
-    res_var_dict : dictionnary
-
-    """
-    if XPATH != 'None':
-    # Xpath to optimisation results
-        aeromap_uid = cpsf.get_value(tixi, XPATH + '/aeroMapUID')
-        xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/'
-
-        # Xpath to initial results
-        aeromap_uid_pre = cpsf.get_value(tixi, XPATH_PRE + '/aeroMapUID')
-        xpath_pre = tixi.uIDGetXPath(aeromap_uid_pre) + '/aeroPerformanceMap/'
-
-        for el in ['cl', 'cd', 'cms']:
-            getcmd = 'cpsf.get_float_vector(tixi, "{}")'.format(xpath + el)
-            setcmd = ''
-            init_value = eval('cpsf.get_float_vector(tixi, "{}")'.format(xpath_pre + el))
-            create_var(el, init_value[0], getcmd, setcmd)
-
-    # passenger = cpsf.get_value(tixi, '/cpacs/toolspecific/CEASIOMpy/weight/passengers/passNb')
-    # Coef = apmf.get_aeromap(tixi, aeromap_uid)
-
-    xpath = '/cpacs/vehicles/aircraft/model/analyses/massBreakdown/designMasses/mTOM/mass'
-    getcmd = 'cpsf.get_value(tixi, "{}")'.format(xpath)
-    setcmd = ''
-    init_value = eval(getcmd)
-    create_var('mtom', init_value, getcmd, setcmd)
-
-    xpath = '/cpacs/toolspecific/CEASIOMpy/weight/passengers/passNb'
-    getcmd = 'cpsf.get_value(tixi, "{}")'.format(xpath)
-    setcmd = ''
-    init_value = eval(getcmd)
-    create_var('passengers', init_value, getcmd, setcmd)
-
-    return res_var_dict
-
-
-def init_specials(tixi):
-    """
-    Add specific design variables without the tigl handler.
-
-    Parameters
-    ----------
-    tixi : tixi3_handler
-
-    Returns
-    -------
-    None.
-
-    """
-    if XPATH != 'None':
-        # Xpath to optimisation results
-        aeromap_uid = cpsf.get_value(tixi, XPATH + '/aeroMapUID')
-        xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/'
-
-        # Xpath to initial results
-        aeromap_uid_pre = cpsf.get_value(tixi, XPATH_PRE + '/aeroMapUID')
-        xpath_pre = tixi.uIDGetXPath(aeromap_uid_pre) + '/aeroPerformanceMap/'
-
-        var_name = 'angleOfAttack'
-        getcmd = 'cpsf.get_value(tixi, "{}")'.format(xpath + var_name)
-        setcmd = 'cpsf.add_float_vector(tixi, "{}", {})'.format(xpath, var_name)
-        init_value = cpsf.get_value(tixi, xpath_pre + var_name)
-    # create_var(var_name, init_value, getcmd, setcmd)
-
-
-# def init_dict(cpacs_path, module_list, modules_pre_list=[]):
+# def first_run(cpacs_path, module_list, modules_pre_list=[]):
 #     """
 #     Create dictionnaries for the optimisation problem.
 
@@ -360,7 +296,7 @@ def init_specials(tixi):
 #     global XPATH
 #     global XPATH_PRE
 
-#     XPATH = optf.get_aeromap_path(module_list)
+#     XPATH = get_aeromap_path(module_list)
 #     if 'PyTornado' in modules_pre_list or 'SU2Run' in modules_pre_list:
 #         XPATH_PRE = optf.get_aeromap_path(modules_pre_list)
 #     else:
@@ -379,10 +315,6 @@ def init_specials(tixi):
 #     # If settingsGUI only needed at the first iteration
 #     if 'SettingsGUI' in module_list:
 #         module_list.pop(module_list.index('SettingsGUI'))
-
-#     tixi = cpsf.open_tixi(cpacs_path)
-
-#     return init_res_dict(tixi), init_design_var_dict(tixi)
 
 
 if __name__ == "__main__":

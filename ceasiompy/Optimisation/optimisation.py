@@ -153,7 +153,7 @@ def run_routine():
     if Rt.type == 'DoE':
         if Rt.doetype.lower() == 'uniform':
             driver = prob.driver = om.DOEDriver(om.UniformGenerator(num_samples=Rt.samplesnb))
-        elif Rt.doetype.lower() == 'fullfact':
+        elif Rt.doetype.lower() == 'fullfactorial':
             # 2->9 3->81
             driver = prob.driver = om.DOEDriver(om.FullFactorialGenerator(Rt.samplesnb))
     elif Rt.type == 'Optim':
@@ -317,7 +317,6 @@ def routine_setup(modules, routine_type, modules_pre=[]):
     Rt.modules = modules
     Rt.date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
-    Rt.get_user_inputs(cpacs_path)
     # Create Optim folder for results
     tixi = cpsf.open_tixi(cpacs_path)
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
@@ -326,8 +325,11 @@ def routine_setup(modules, routine_type, modules_pre=[]):
         os.mkdir(optim_dir_path)
         os.mkdir(optim_dir_path+'/Geometry')
 
-    # Initiate dictionnary
+    # Adds the initial parameters
     opf.first_run(cpacs_path, modules, modules_pre)
+    Rt.get_user_inputs(cpacs_path)
+
+    # Create dictionnary
     optim_var_dict = opf.create_variable_library(Rt, tixi, modules)
 
     # Copy to CPACSUpdater to pass to next modules

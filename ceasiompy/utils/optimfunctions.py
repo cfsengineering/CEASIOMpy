@@ -248,6 +248,8 @@ def first_run(cpacs_path, module_list, modules_pre_list=[]):
     # Settings needed for CFD calculation
     if 'SettingsGUI' not in module_list or 'SettingsGUI' not in modules_pre_list:
         module_list.insert(0, 'SettingsGUI')
+    if 'Optimisation' not in modules_pre_list:
+        module_list.insert(0, 'Optimisation')
 
     # First iteration to create aeromap results if no pre-workflow
     if XPATH != XPATH_PRE or modules_pre_list == []:
@@ -258,7 +260,8 @@ def first_run(cpacs_path, module_list, modules_pre_list=[]):
     # If settingsGUI only needed at the first iteration
     if 'SettingsGUI' in module_list:
         module_list.pop(module_list.index('SettingsGUI'))
-
+    # Optimisation parameters only needed for the first run
+    module_list.pop(module_list.index('Optimisation'))
 
 def get_normal(tixi, value_name, entry):
     """

@@ -1,3 +1,5 @@
+.. _sec_settings_gui:
+
 SettingsGUI
 ===========
 

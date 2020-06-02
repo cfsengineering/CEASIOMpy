@@ -82,7 +82,7 @@ class Tab(tk.Frame):
         self.modules_list.insert(0,'SettingsGUI')
 
         self.modules_list.remove('CPACSUpdater')
-        self.modules_list.remove('Optimisation')
+        # self.modules_list.remove('Optimisation')
         self.modules_list.remove('WorkflowCreator')
         self.modules_list.remove('utils')
         try:
@@ -309,10 +309,12 @@ if __name__ == '__main__':
         # Mission analysis: 'Range','StabilityStatic'
 
         Opt = WorkflowOptions()
+
         # These options can be modified here if WorkflowCreator is used without GUI
         Opt.cpacs_path = '../../test/CPACSfiles/simpletest_cpacs.xml'
         Opt.module_pre = ['SettingsGUI', 'PyTornado']
         Opt.module_optim = []
+
         Opt.optim_method = 'Optim' # DoE, Optim, None
         Opt.module_post = []
 

@@ -34,6 +34,9 @@ def get_aeromap_path(module_list):
     """
     Return xpath of selected aeromap.
 
+    Check the modules that will be run in the optimisation routine to specify
+    the path to the correct aeromap in the CPACS file.
+    
     Parameters
     ----------
     module_list : List
@@ -84,7 +87,16 @@ def isDigit(value):
 
 def accronym(name):
     """
-    Return accronym of a name.
+    Return accronym of a name. (EXPERIMENTAL)
+    
+    In order to detect the values specified by the user as accronyms, the 
+    complete name of a variable is decomposed and the first letter of
+    each word is taken.
+    
+    Ex : 'maximal take off mass' -> 'mtom'
+    
+    TODO : see how it can be made more robust as some names have the same
+    accronym
 
     Parameters
     ----------
@@ -107,9 +119,22 @@ def accronym(name):
     return accro
 
 
-def add_bounds(name, objective, value, var):
+def add_bounds_and_type(name, objective, value, var):
     """
-    Add upper and lower bound, plsu the variable type.
+    Add upper and lower bound, plus the variable type.
+
+    20% of the initial value is added and substracted to create the 
+    boundaries.
+    The type of the variable (boundary, constraint, objective function)
+    is also specified.
+    
+    Parameters
+    ----------
+    name : string
+        Name of a variable.
+    objective : list
+        List of variable names or accronyms appearing in the objective function
+    value : 
 
     Returns
     -------
@@ -117,8 +142,10 @@ def add_bounds(name, objective, value, var):
 
     """
     # var_accro = accronym(name)
-    var_accro = ''
-    if name in objective or var_accro in objective:
+    accro = 'XXX'
+    if name in objective or accro in objective:
+        log.info("{} in objective function expression.".format(name))
+        log.info(objective)
         var['type'].append('obj')
         lower = '-'
         upper = '-'

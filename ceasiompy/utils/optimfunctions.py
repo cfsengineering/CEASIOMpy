@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software.
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Tool to create workflow for CEASIOMpy (without using RCE)
+Function library for the optimisation module
 
 Python version: >=3.6
 
@@ -16,8 +16,6 @@ Todo:
     * Write the doc
     * This module is still a bit tricky to use, it will be simplified in the future
     * Use a class instead of 'optim_var_dict' dictionnary???
-    * How to pass 'module_optim' as argument
-    * Create a Design of Experiment functions
 
 """
 
@@ -46,7 +44,6 @@ log = get_logger(__file__.split('.')[0])
 # ==============================================================================
 var = {}
 objective = ''
-# CPACS_OPTIM_PATH = '../PyTornado/ToolOutput/ToolOutput.xml'
 CPACS_OPTIM_PATH = '../Optimisation/ToolInput/ToolInput.xml'
 CSV_PATH = '../Optimisation/Variable_library.csv'
 OPTIM_XPATH = '/cpacs/toolspecific/CEASIOMpy/Optimisation/'
@@ -79,7 +76,7 @@ class Routine:
 
         # DoE
         self.doedriver = 'uniform'
-        self.samplenb = 3
+        self.samplesnb = 3
 
         # User specified configuration file path
         self.user_config = '../Optimisation/Default_config.csv'
@@ -94,13 +91,13 @@ class Routine:
 
         # Global parameters
         self.driver = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'parameters/driver', 'COBYLA')
-        self.max_iter = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'iterationNB', 200)
-        self.tol = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'tolerance', 1e-3)
-        self.save_iter = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'saving/perIter', 1)
+        self.max_iter = int(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'iterationNB', 200))
+        self.tol = float(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'tolerance', 1e-3))
+        self.save_iter = int(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'saving/perIter', 1))
 
         # Specific DoE parameters
         self.doedriver = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'parameters/DoE/driver', 'uniform')
-        self.samplenb = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'parameters/DoE/sampleNB', 3)
+        self.samplesnb = int(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'parameters/DoE/sampleNB', 3))
 
         # User specified configuration file path
         self.user_config = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/filepath', '../Optimisation/Default_config.csv')
@@ -116,13 +113,17 @@ def gen_plot(dic, objective=False, constrains=False):
 
     Parameters
     ----------
-    dic : TYPE
-        DESCRIPTION.
-    objective : TYPE, optional
-        DESCRIPTION. The default is False.
-    constrains : TYPE, optional
-        DESCRIPTION. The default is False.
+    dic : dictionnary
+        Can contain the constraints, design or objective variables.
+    objective : Boolean, optional
+        Checks if the objective variables are passed. The default is False.
+    constrains : Boolean, optional
+        Checks if the objective variables are passed. The default is False.
 
+    TODO:
+        *Find an adequate way of representation of the variables 
+        (normalized ? If yes, how ?)
+        
     Returns
     -------
     None.
@@ -151,7 +152,7 @@ def gen_plot(dic, objective=False, constrains=False):
 
 def read_results(optim_dir_path, routine_type):
     """
-    Read sql file.
+    Read sql file and calls the function to generate the plots
 
     Returns
     -------
@@ -184,13 +185,12 @@ def read_results(optim_dir_path, routine_type):
 
     # Datapoints for DoE
     if routine_type.upper() == 'DOE':
-        fig = plt.figure()
+        plt.figure()
         r = 0
         c = 1
         cols_per_row = 5
-        nbR = len(obj.keys()) + len(des.keys()) % cols_per_row
+        nbR = len(obj.keys()) + len(des.keys()) / cols_per_row
         nbC = cols_per_row
-
         for keyo, valo in obj.items():
             plt.ylabel(keyo)
             for key, val in des.items():
@@ -200,7 +200,7 @@ def read_results(optim_dir_path, routine_type):
                 if c == 1:
                     plt.ylabel(keyo)
                 c += 1
-                if c > cols_per_row:
+                if c >= cols_per_row:
                     r += 1
                     c = 1
             c = 1
@@ -222,6 +222,9 @@ def read_results(optim_dir_path, routine_type):
 def first_run(cpacs_path, module_list, modules_pre_list=[]):
     """
     Create dictionnaries for the optimisation problem.
+    
+    This function runs a first loop to ensure that all problem variables
+    are created an can be fed to the optimisation setup program. 
 
     Parameters
     ----------
@@ -232,8 +235,7 @@ def first_run(cpacs_path, module_list, modules_pre_list=[]):
 
     Returns
     -------
-    Dict
-        All dictionnaries needed for the optimisation problem.
+    NONE.
     """
     # Check if aeromap results already exists, else run workflow
     global XPATH
@@ -246,10 +248,10 @@ def first_run(cpacs_path, module_list, modules_pre_list=[]):
         XPATH_PRE = XPATH
 
     # Settings needed for CFD calculation
-    if 'SettingsGUI' not in module_list or 'SettingsGUI' not in modules_pre_list:
-        module_list.insert(0, 'SettingsGUI')
     if 'Optimisation' not in modules_pre_list:
         module_list.insert(0, 'Optimisation')
+    if 'SettingsGUI' not in module_list or 'SettingsGUI' not in modules_pre_list:
+        module_list.insert(0, 'SettingsGUI')
 
     # First iteration to create aeromap results if no pre-workflow
     if XPATH != XPATH_PRE or modules_pre_list == []:
@@ -265,12 +267,19 @@ def first_run(cpacs_path, module_list, modules_pre_list=[]):
 
 def get_normal(tixi, value_name, entry):
     """
-    Add a variable to the dictionnary relative to a module.
+    Add a variable to the optimisation dictionnary.
+    
+    It is checked if the variable has a user-specified initial value, else it
+    will assign a default value or the variable will be excluded from the 
+    problem.
 
     Parameters
     ----------
     tixi : Tixi3 handler
-        DESCRIPTION.
+    
+    value_name : string.
+        Name of the parameter.
+    entry : 
 
     Returns
     -------
@@ -331,20 +340,20 @@ def get_normal(tixi, value_name, entry):
         var['init'].append(value)
         var['xpath'].append(xpath)
 
-        tls.add_bounds(entry.var_name, objective, value, var)
+        tls.add_bounds_and_type(entry.var_name, objective, value, var)
         log.info('Added to variable file')
 
 
-def get_variables(tixi, specs):
+def get_variables(tixi, specs, module_name):
     """
     Retrieve input and output variables of a module
 
     Parameters
     ----------
-    tixi : TYPE
-        DESCRIPTION.
-    specs : TYPE
-        DESCRIPTION.
+    tixi : Tixi3 handler
+
+    specs : class
+        Contains the modules inputs and outputs specifications.
 
     Returns
     -------
@@ -358,6 +367,7 @@ def get_variables(tixi, specs):
         if xpath.endswith('/'):
             xpath = xpath[:-1]
         value_name = xpath.split('/')[-1]
+        
         log.info('----------------------------')
         log.info('Name : '+entry.var_name)
         log.info(xpath)
@@ -374,19 +384,33 @@ def get_variables(tixi, specs):
         elif value_name == 'aeroPerformanceMap' and aeromap:
             aeromap = False
             log.info('Default aeromap parameters will be set')
-            # Get number of aeromaps
-            # TODO Solve the aeromap problem
+
+            # Get name of aeromap that is used
+            am_nb = tixi.getNumberOfChilds(xpath)
+            am_uid = tixi.getTextElement(tls.get_aeromap_path([module_name])+'/aeroMapUID')
+            log.info('Aeromap \"{}\" will be used for the variables.'.format(am_uid))
+            
+            # Search the aeromap index in the CPACS file if there are more
+            if am_nb > 1:
+                log.info('More than 1 aeromap, by defaut the first one will be used')
+                for i in range(1,am_nb+1):
+                    uid = tixi.getTextAttribute('/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[{}]'.format(i),'uID')
+                    if uid == am_uid:
+                        am_index = '[{}]'.format(i)
+            else:
+                am_index = 1
+
             for name in ['altitude', 'machNumber', 'angleOfAttack', 'angleOfSideslip',
                          'cl', 'cd', 'cs', 'cml', 'cmd', 'cms']:
                 var['Name'].append(name)
-                xpath_param = xpath.replace('[i]', '[1]')+'/'+name
+                xpath_param = xpath.replace('[i]', am_index)+'/'+name
 
                 value = str(tixi.getDoubleElement(xpath_param))
                 var['init'].append(value)
 
                 var['xpath'].append(xpath_param)
 
-                tls.add_bounds(name, objective, value, var)
+                tls.add_bounds_and_type(name, objective, value, var)
 
         # Normal case
         else:
@@ -408,6 +432,8 @@ def generate_dict(df, user_config=''):
         Used to pass the variables to the openMDAO setup.
 
     """
+    
+    # Use user-specified CSV or create a new one
     if user_config == '':
         # Save and open CSV file
         df.to_csv(CSV_PATH, index=False, na_rep='-')
@@ -427,7 +453,6 @@ def generate_dict(df, user_config=''):
         df = pd.read_csv(user_config, index_col=0)
 
     df = df.dropna()
-
     df.to_csv(CSV_PATH, index=True, na_rep='-')
     defined_dict = df.to_dict('index')
 
@@ -447,11 +472,29 @@ def generate_dict(df, user_config=''):
 
 def create_variable_library(Rt, tixi='', module_list=[]):
     """
-    Create .cvs file with all the variables and their xpath
+    Create a dictionnary and a CSV file containing all variables that appear
+    in the module list.
+    
+    The CSV files lists all the inputs and outputs of each module with :
+    * An initial value
+    * An upper and lower bound
+    * The commands to get and modify the value of the parameter in the CPACS file
+    * The variable type : Constraint, Design variable, Objective function component
 
+    Parameters
+    ----------
+    Rt : Class
+        Contains 
+
+    tixi : Tixi3 handler
+        
+    module_list : list
+        List of the modules that are included in the optimisation loop.
+    
     Returns
     -------
-    None.
+    optim_var_dict : dict
+        Dictionnary with all optimisation parameters
 
     """
     global objective, var
@@ -461,11 +504,11 @@ def create_variable_library(Rt, tixi='', module_list=[]):
     if tixi == '':
         tixi = cpsf.open_tixi(CPACS_OPTIM_PATH)
 
-    if Rt.user_config == '':
+    if Rt.user_config == '' or Rt.user_config == '-':
         log.info('No configuration file specified, a default file will be generated')
         for mod_name, specs in mif.get_all_module_specs().items():
             if specs is not None and mod_name in module_list:
-                get_variables(tixi, specs)
+                get_variables(tixi, specs, mod_name)
 
         # Add the default values for the variables
         # df['uID'] = var['uID']
@@ -500,3 +543,4 @@ if __name__ == '__main__':
     log.info('-------------------------------------------------')
     log.info('Not a standalone module. Nothing will be executed')
     log.info('-------------------------------------------------')
+    read_results('/users/disk11/cfse/Stage_Vivien/CEASIOMpy/ceasiompy/WKDIR/CEASIOMpy_Run_2020-06-02_15-27-01/DoE', 'DoE')

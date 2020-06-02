@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-def gen_plot(dic, ax, offset=False):
+def gen_plot(dic, objective=False, constrains=False):
     """
     Generate plots.
 
@@ -15,11 +15,9 @@ def gen_plot(dic, ax, offset=False):
     ----------
     dic : TYPE
         DESCRIPTION.
-    ax : TYPE
-        DESCRIPTION.
-    offset : TYPE, optional
+    objective : TYPE, optional
         DESCRIPTION. The default is False.
-    sec : TYPE, optional
+    constrains : TYPE, optional
         DESCRIPTION. The default is False.
 
     Returns
@@ -27,28 +25,30 @@ def gen_plot(dic, ax, offset=False):
     None.
 
     """
-    isolate = False
-    for key in key_dict:
-        if key in dic:
-            isolate = True
-            lst = dic[key]
-            iterations = np.arange(len(lst))
-            plt.plot(iterations, lst, label=key)
+    iterations = len(dic)
 
-    if not isolate:
+    plt.figure()
+    if objective:
         for key, lst in dic.items():
             iterations = np.arange(len(lst))
-            if offset:
-                ax.plot(iterations, lst-lst[0], label=key)
-            else:
-                plt.plot(iterations, lst, label=key)
+            plt.plot(iterations, -lst+lst[0], label=key)
+            plt.legend()
+    elif constrains:
+        for key, lst in dic.items():
+            if 'const' in key:
+                iterations = np.arange(len(lst))
+                plt.plot(iterations, lst-lst[0], label=key)
+                plt.legend()
+    else:
+        for key, lst in dic.items():
+            iterations = np.arange(len(lst))
+            plt.plot(iterations, lst-lst[0], label=key)
+            plt.legend()
 
-    plt.legend()
 
-
-def read_results():
+def read_results(optim_dir_path, routine_type):
     """
-    Read the sql file.
+    Read sql file.
 
     Returns
     -------
@@ -56,8 +56,8 @@ def read_results():
 
     """
     # Read recorded options
-    path = './'
-    cr = om.CaseReader(path + 'Driver_recorder.sql')
+    path = optim_dir_path
+    cr = om.CaseReader(path + '/Driver_recorder.sql')
     # driver_cases = cr.list_cases('driver') (If  multiple recorders)
 
     cases = cr.get_cases()
@@ -67,9 +67,8 @@ def read_results():
     obj = case1.get_objectives()
     des = case1.get_design_vars()
     const = case1.get_constraints()
-    print(const)
 
-    for case in cases[0::]:
+    for case in cases[1::]:
         for key, val in case.get_objectives().items():
             obj[key] = np.append(obj[key], val)
 
@@ -77,30 +76,42 @@ def read_results():
             des[key] = np.append(des[key], val)
 
         for key, val in case.get_constraints().items():
-            const[key] = np.append(const[key], val)
+            if 'const' in key:
+                const[key] = np.append(const[key], val)
 
+    # Datapoints for DoE
+    if routine_type.upper() == 'DOE':
+        fig = plt.figure()
+        r = 0
+        c = 1
+        cols_per_row = 5
+        nbR = len(obj.keys()) + len(des.keys()) % cols_per_row
+        nbC = cols_per_row
 
-    for keyo in obj.items():
-        for key in des:
-            fig, ax = plt.subplots()
-            plt.plot(des[key], obj[keyo])
+        for keyo, valo in obj.items():
+            plt.ylabel(keyo)
+            for key, val in des.items():
+                plt.subplot(nbR, nbC, c+r*nbC)
+                plt.scatter(val, valo)
+                plt.xlabel(key)
+                if c == 1:
+                    plt.ylabel(keyo)
+                c += 1
+                if c > cols_per_row:
+                    r += 1
+                    c = 1
+            c = 1
+            r += 1
 
-    # Plot for every iteration
-    # fig, ax = plt.subplots()
-    # gen_plot(obj, ax)
-    # fig, ax = plt.subplots()
-    # gen_plot(des, ax)
-    # fig, ax = plt.subplots()
-    # gen_plot(const, ax)
+    # Iterative evolution for Optim
+    gen_plot(obj, objective=True)
+    gen_plot(des)
+    gen_plot(const, constrains=True)
 
     # 3D plot
     # fig = plt.figure()
     # ax = fig.gca(projection='3d')
     # ax.scatter(des['indeps.wing2_span'],des['indeps.wing1_span'],-obj['objective.cl'])
-
-    # ax.set_xlabel('Wing2 span')
-    # ax.set_ylabel('Wing1 span')
-    # ax.set_zlabel('Cl')
 
     plt.show()
 
@@ -113,3 +124,4 @@ if __name__ == "__main__":
         for args in sys.argv:
             key_dict.append(args)
     read_results()
+

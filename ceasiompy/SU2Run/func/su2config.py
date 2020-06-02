@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2020-02-24
-| Last modifiction: 2020-03-06
+| Last modifiction: 2020-05-20
 
 TODO:
 
@@ -224,7 +224,10 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
                                  '_aoa',str(round(aoa,1)),
                                  '_aos',str(round(aos,1))])
 
-        os.mkdir(os.path.join(wkdir,case_dir_name))
+        case_dir_path = os.path.join(wkdir,case_dir_name)
+        if not os.path.isdir(case_dir_path):
+            os.mkdir(case_dir_path)
+
         config_output_path = os.path.join(wkdir,case_dir_name,config_file_name)
 
         su2f.write_config(config_output_path,cfg)

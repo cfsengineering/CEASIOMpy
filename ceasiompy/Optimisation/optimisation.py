@@ -10,6 +10,8 @@ Python version: >=3.6
 | Last modifiction: 2020-06-04
 
 TODO:
+    * Investigate the implementation of discrete values and booleans
+    * 
 
 """
 
@@ -111,7 +113,7 @@ class constraint(om.ExplicitComponent):
             #         self.add_discrete_output(name, val=0)
 
     def compute(self, inputs, outputs):
-        """Retrieve values of constraints."""
+        """Retrieve values of constraints from CPACS file."""
         for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
             # Normal case
             if val_type == 'const' and listval[-1] not in ['-', 'True', 'False']:
@@ -151,15 +153,17 @@ def run_routine():
 
     # Choose between optimizer or driver
     if Rt.type == 'DoE':
-        if Rt.doetype.lower() == 'uniform':
+        if Rt.doedriver.lower() == 'uniform':
             driver = prob.driver = om.DOEDriver(om.UniformGenerator(num_samples=Rt.samplesnb))
-        elif Rt.doetype.lower() == 'fullfactorial':
+        elif Rt.doedriver.lower() == 'fullfactorial':
             # 2->9 3->81
             driver = prob.driver = om.DOEDriver(om.FullFactorialGenerator(Rt.samplesnb))
+        elif Rt.doedriver.lower() == 'latinhypercube':
+            driver = prob.driver = om.DOEDriver(om.LatinHypercubeGenerator(Rt.samplesnb))
     elif Rt.type == 'Optim':
         driver = prob.driver = om.ScipyOptimizeDriver()
         driver.options['optimizer'] = Rt.driver
-        driver.options['maxiter'] = int(Rt.max_iter)
+        driver.options['maxiter'] = Rt.max_iter
         driver.options['tol'] = Rt.tol
         if Rt.driver == 'COBYLA':
             driver.opt_settings['catol'] = 0.06
@@ -273,12 +277,13 @@ def compute_obj():
     """
     Interpret the objective variable command.
 
-    Get all the values needed to compute the objective function and
-    evaluates its expression.
+    Retrieve all the values that appear in the objective function and
+    evaluates the mathematical operators that link them.
 
     Returns
     -------
-    None.
+    result : float
+    Objective function value
 
     """
     # Get variable keys from objective function string
@@ -324,12 +329,14 @@ def routine_setup(modules, routine_type, modules_pre=[]):
     if not os.path.isdir(optim_dir_path):
         os.mkdir(optim_dir_path)
         os.mkdir(optim_dir_path+'/Geometry')
-
+    tixi.close()
+    
     # Adds the initial parameters
     opf.first_run(cpacs_path, modules, modules_pre)
     Rt.get_user_inputs(cpacs_path)
 
     # Create dictionnary
+    tixi = cpsf.open_tixi(cpacs_path)
     optim_var_dict = opf.create_variable_library(Rt, tixi, modules)
 
     # Copy to CPACSUpdater to pass to next modules
@@ -350,4 +357,5 @@ def routine_setup(modules, routine_type, modules_pre=[]):
 if __name__ == '__main__':
     # Specify parameters already implemented in the SettingsGUI
 
-    log.info('This module is run automatically.')
+    log.info('This module does not modify the CPACS file.')
+    wkf.copy_module_to_module('Optimisation', 'in', 'Optimisation', 'out')

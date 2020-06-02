@@ -106,7 +106,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name='DoEDriver',
     var_type=list,
-    default_value=['Uniform','Fullfactorial'],
+    default_value=['Uniform','Fullfactorial', 'LatinHypercube'],
     unit='-',
     descr='Choose the type of sample generator',
     xpath=CEASIOM_XPATH+'/Optimisation/parameters/DoE/driver',

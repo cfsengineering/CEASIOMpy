@@ -3,17 +3,20 @@ CEASIOMpy: Conceptual Aircraft Design Software.
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Functions to create the dictionnaries of variables needed for the optimnization loop
+Functions to create the dictionnary of geometric variables needed 
+for the optimnization routine.
 
 Python version: >=3.6
 
 | Author : Vivien Riolo
 | Creation: 2020-03-24
-| Last modifiction: 2020-03-26
+| Last modification: 2020-06-02
 
 TODO
 ----
-    * Write the module
+    * Expand the geometric parameters
+    * Add constrains between the parameters to disable multiple modifications
+      of the same geometric aspect of the plane
 
 """
 
@@ -26,7 +29,7 @@ from sys import exit
 # import ceasiompy.utils.optimfunctions as optf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
-import ceasiompy.utils.workflowfunctions as wkf
+# import ceasiompy.utils.workflowfunctions as wkf
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -131,8 +134,6 @@ def init_elem_param(sec_name, section, elem_nb, scmd):
         setcmd = cmd+'set_width({})'.format(var_name)
         create_var(var_name, init_width, getcmd, setcmd)
 
-    return
-
 
 def init_sec_param(name, wing, sec_nb, wcmd):
     """
@@ -158,8 +159,6 @@ def init_sec_param(name, wing, sec_nb, wcmd):
         elem_nb = section.get_section_element_count()
         if elem_nb:
             init_elem_param(sec_name, section, elem_nb, cmd)
-
-    return
 
 
 def init_wing_param(aircraft, wing_nb):
@@ -207,8 +206,6 @@ def init_wing_param(aircraft, wing_nb):
         if sec_nb:
             init_sec_param(name, wing, sec_nb, cmd)
 
-    return
-
 
 def init_fuse_param(aircraft, fuse_nb):
     """
@@ -242,10 +239,8 @@ def init_fuse_param(aircraft, fuse_nb):
                 var_name = name + "_sec" + str(secnb)
                 init_sec_width = fuselage.get_maximal_width()
                 getcmd = 'fuselage.get_maximal_width()'
-                setcmd = 'fuselage.set_max_width()'.format(var_name)
+                setcmd = 'fuselage.set_max_width({})'.format(var_name)
                 create_var(var_name, init_sec_width, getcmd, setcmd)
-
-    return
 
 
 def init_design_var_dict(tixi):
@@ -273,48 +268,6 @@ def init_design_var_dict(tixi):
         init_wing_param(aircraft, wing_nb)
 
     return design_var_dict
-
-
-# def first_run(cpacs_path, module_list, modules_pre_list=[]):
-#     """
-#     Create dictionnaries for the optimisation problem.
-
-#     Parameters
-#     ----------
-#     cpacs_path : String
-#         Path to the CPACS file.
-#     module_list : List
-#         List of modules.
-
-#     Returns
-#     -------
-#     Dict
-#         All dictionnaries needed for the optimisation problem.
-
-#     """
-#     # Check if aeromap results already exists, else run workflow
-#     global XPATH
-#     global XPATH_PRE
-
-#     XPATH = get_aeromap_path(module_list)
-#     if 'PyTornado' in modules_pre_list or 'SU2Run' in modules_pre_list:
-#         XPATH_PRE = optf.get_aeromap_path(modules_pre_list)
-#     else:
-#         XPATH_PRE = XPATH
-
-#     # Settings needed for CFD calculation
-#     if 'SettingsGUI' not in module_list or 'SettingsGUI' not in modules_pre_list:
-#         module_list.insert(0,'SettingsGUI')
-
-#     # First iteration to create aeromap results if no pre-workflow
-#     if XPATH != XPATH_PRE or modules_pre_list == []:
-#         wkf.copy_module_to_module('Optimisation', 'in', module_list[0], 'in')
-#         wkf.run_subworkflow(module_list)
-#         wkf.copy_module_to_module(module_list[-1], 'out', 'Optimisation', 'in')
-
-#     # If settingsGUI only needed at the first iteration
-#     if 'SettingsGUI' in module_list:
-#         module_list.pop(module_list.index('SettingsGUI'))
 
 
 if __name__ == "__main__":

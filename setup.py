@@ -18,7 +18,7 @@ URL = 'https://github.com/cfsengineering/CEASIOMpy'
 REQUIRES_PYTHON = '>=3.6.0'
 REQUIRED = ['numpy']
 README = 'README.rst'
-PACKAGE_DIR = './'
+PACKAGE_DIR = '.'
 LICENSE = 'LICENSE'
 
 

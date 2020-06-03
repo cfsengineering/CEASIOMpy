@@ -140,7 +140,9 @@ def run_soft(soft, config_path, wkdir, nb_proc):
     # Get installation path for the following softwares
     SOFT_DICT = ceaf.get_install_path(SOFT_LIST)
 
-    mpi_install_path = SOFT_DICT['mpirun.mpich']
+    #mpi_install_path = SOFT_DICT['mpirun.mpich']
+    mpi_install_path = SOFT_DICT['mpirun']
+
     soft_install_path = SOFT_DICT[soft]
 
     log.info('Number of proc available: ' + str(os.cpu_count()))
@@ -149,10 +151,10 @@ def run_soft(soft, config_path, wkdir, nb_proc):
     logfile_path = os.path.join(wkdir,'logfile' + soft + '.log')
 
     # if mpi_install_path is not None:
-    #     command_line =  [mpi_install_path,'-np',str(proc_nb),
+    #     command_line =  [mpi_install_path,'-np',str(nb_proc),
     #                      soft_install_path,config_path,'>',logfile_path]
     if mpi_install_path is not None:
-        command_line =  [mpi_install_path,'-np',str(proc_nb),
+        command_line =  [mpi_install_path,'-np',str(nb_proc),
                          soft_install_path,config_path,'>',logfile_path]
     # elif soft == 'SU2_DEF' a disp.dat must be there to run with MPI
     else:

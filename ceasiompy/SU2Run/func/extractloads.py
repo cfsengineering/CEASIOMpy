@@ -10,11 +10,11 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-09-24
-| Last modifiction: 2020-04-30
+| Last modifiction: 2020-06-04
 
 TODO:
 
-    * 
+    *
 
 """
 
@@ -82,14 +82,14 @@ def compute_point_normals(coord, cells):
     return cell_sp.T.dot(cell_nvecs) / 3.
 
 
-def compute_forces(vtk_file_path, force_file_path, config_dict):
-    """ Function to compute force of a VTK file
+def compute_forces(vtu_file_path, force_file_path, config_dict):
+    """ Function to compute force of a VTU file
 
     Function 'compute_forces' computes surface forces at points for SU2 result
     files.
 
     Args:
-        vtk_file_path (str): Path of the VTK file
+        vtu_file_path (str): Path of the VTU file
         force_file_path (str): Path to the results force file to write
         config_dict (dict): SU2 cfg file dictionary to dimensionalize
                             non-dimensional output
@@ -99,17 +99,17 @@ def compute_forces(vtk_file_path, force_file_path, config_dict):
                                            with added force and normal vectors
     """
 
-    # To read .vtu file
-    reader = vtk.vtkXMLUnstructuredGridReader() #test
-    reader.SetFileName(vtk_file_path)
-
     # To read .vtk file
     # reader = vtk.vtkUnstructuredGridReader()
-    # reader.SetFileName(vtk_file_path)
+    # reader.SetFileName(vtu_file_path)
     # reader.SetReadAllNormals(1)
     # reader.SetReadAllScalars(1)
     # reader.SetReadAllTensors(1)
     # reader.SetReadAllVectors(1)
+
+    # To read .vtu file
+    reader = vtk.vtkXMLUnstructuredGridReader() #test
+    reader.SetFileName(vtu_file_path)
 
     reader.Update()
     mesh = reader.GetOutput()
@@ -199,26 +199,32 @@ def dimensionalize_pressure(p, config_dict):
         return (p * gamma * ma**2 - 1) * p_inf
 
 
-def write_updated_mesh(mesh, new_vtk_file_path):
-    """ Function to write the new VTK file
+def write_updated_mesh(mesh, new_vtu_file_path):
+    """ Function to write the new VTU file
 
-    Function 'write_updated_mesh' crete new VTK file with utdated value given
-    by 'mesh' and save at 'new_vtk_file_path'
+    Function 'write_updated_mesh' crete new VTU file with utdated value given
+    by 'mesh' and save at 'new_vtu_file_path'
 
     Args:
         mesh (vtkhelpers object instance): Python instance of SU2 result file
                                            with added force and normal vectors
-        new_vtk_file_path (str): New VTK file path
+        new_vtu_file_path (str): New VTU file path
 
     """
-    writer = vtk.vtkUnstructuredGridWriter()
-    writer.SetFileType(0)
+
+    # To write .vtk file
+    #writer = vtk.vtkUnstructuredGridWriter()
+    #writer.SetFileType(0)
+
+    # To write .vtu file
+    writer = vtk.vtkXMLUnstructuredGridWriter()
+
     try:
-       source = mesh.GetOutput()
+        source = mesh.GetOutput()
     except AttributeError:
         source = mesh
     writer.SetInputData(source)
-    writer.SetFileName(new_vtk_file_path)
+    writer.SetFileName(new_vtu_file_path)
     writer.Update()
 
 
@@ -290,7 +296,7 @@ def extract_loads(results_files_dir):
     # Path definitons
     config_file_path = results_files_dir + '/ConfigCFD.cfg'
     surface_flow_file_path = results_files_dir + '/surface_flow.vtu'  # .vtu are creteted by SU2 from v7.0.1
-    surface_flow_force_file_path = results_files_dir + '/surface_flow_forces.vtk'
+    surface_flow_force_file_path = results_files_dir + '/surface_flow_forces.vtu'
     force_file_path = results_files_dir + '/force.csv'
 
     cfg = read_config(config_file_path)

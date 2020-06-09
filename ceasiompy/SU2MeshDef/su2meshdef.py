@@ -707,6 +707,9 @@ def run_mesh_deformation(tixi,wkdir):
 
     ted_dir_list = [dir for dir in os.listdir(mesh_dir) if '_TED_' in dir]
 
+    # Get number of proc to use
+    nb_proc = cpsf.get_value_or_default(tixi,SU2_XPATH+'/settings/nbProc',1)
+
 
     # Iterate in all TED directory
     for dir in sorted(ted_dir_list):
@@ -720,7 +723,7 @@ def run_mesh_deformation(tixi,wkdir):
         for cfg_file in sorted(cfg_file_list):
 
             if os.path.isfile(cfg_file):
-                su2f.run_soft('SU2_DEF',cfg_file,ted_dir)
+                su2f.run_soft('SU2_DEF',cfg_file,ted_dir,nb_proc)
             else:
                 raise ValueError("Not correct configuration file to run!")
 

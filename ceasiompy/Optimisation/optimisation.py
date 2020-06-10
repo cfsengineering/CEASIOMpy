@@ -141,6 +141,14 @@ def run_routine():
     Source:
         *http://openmdao.org/twodocs/versions/latest/getting_started/index.html
 
+    Parameters
+    ----------
+    None.
+    
+    Returns
+    -------
+    None.
+    
     """
     # Build the model
     prob = om.Problem()
@@ -156,7 +164,6 @@ def run_routine():
         if Rt.doedriver.lower() == 'uniform':
             driver = prob.driver = om.DOEDriver(om.UniformGenerator(num_samples=Rt.samplesnb))
         elif Rt.doedriver.lower() == 'fullfactorial':
-            # 2->9 3->81
             driver = prob.driver = om.DOEDriver(om.FullFactorialGenerator(Rt.samplesnb))
         elif Rt.doedriver.lower() == 'latinhypercube':
             driver = prob.driver = om.DOEDriver(om.LatinHypercubeGenerator(Rt.samplesnb))
@@ -193,8 +200,7 @@ def run_routine():
     model.add_objective('objective.{}'.format(Rt.objective))
 
     # Recorder
-    path = optim_dir_path
-    driver.add_recorder(om.SqliteRecorder(path + '/Driver_recorder.sql'))
+    driver.add_recorder(om.SqliteRecorder(optim_dir_path + '/Driver_recorder.sql'))
 
     # Run
     prob.setup()
@@ -202,22 +208,10 @@ def run_routine():
     prob.cleanup()
 
     # Results
-    log.info('=========================================')
-    log.info('min = ' + str(prob['objective.{}'.format(Rt.objective)]))
-
-    for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
-        if val_type == 'des':
-            log.info(name + ' = ' + str(prob['indeps.'+name]) + '\n Min :' + str(minval) + ' Max : ' + str(maxval))
-
-    log.info('Variable history :')
-
-    for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
-        if val_type == 'des':
-            log.info(name + ' => ' + str(listval))
-    log.info('=========================================')
-
-    # Generate plots, maybe make a dynamic plot
+    wkf.copy_module_to_module('CPACSUpdater', 'in', 'Optimisation', 'out')
+    tls.save_results(opf.CSV_PATH, optim_dir_path, optim_var_dict)
     tls.read_results(optim_dir_path, Rt.type)
+    tls.display_results(prob, optim_var_dict, Rt)
 
 
 def one_iteration():
@@ -227,7 +221,14 @@ def one_iteration():
     Function 'one_iteration' will exectute in order all the module contained
     in '...' and extract the ... value from the last CPACS file, this value will
     be returned to the optimizer CPACSUpdater....
-
+    
+    Parameters
+    ----------
+    None.
+    
+    Returns
+    -------
+    None.
     """
     global counter
     counter += 1
@@ -280,6 +281,10 @@ def compute_obj():
     Retrieve all the values that appear in the objective function and
     evaluates the mathematical operators that link them.
 
+    Parameters
+    ----------
+    None.
+    
     Returns
     -------
     result : float
@@ -311,6 +316,19 @@ def routine_setup(modules, routine_type, modules_pre=[]):
     Retrieve the list of modules to use in the optimization
     loop and launches the optimization process.
 
+    Parameters
+    ----------
+    modules : list
+        Modules to run in the optimisation loop
+    routine_type : str
+        DoE or Optim 
+    modules_pre : list
+        Modules that were run before the optimisation 
+        
+    Returns
+    -------
+    None
+
     """
     log.info('----- Start of Optimisation module -----')
 
@@ -321,13 +339,11 @@ def routine_setup(modules, routine_type, modules_pre=[]):
     Rt.type = routine_type
     Rt.modules = modules
     Rt.date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-
     # Create Optim folder for results
     tixi = cpsf.open_tixi(cpacs_path)
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
     optim_dir_path = os.path.join(wkdir, Rt.type)
     if not os.path.isdir(optim_dir_path):
-        log.info('--------------------OPTIM WDIR CREATION --------')
         os.mkdir(optim_dir_path)
         os.mkdir(optim_dir_path+'/Geometry')
     cpsf.close_tixi(tixi, cpacs_path)

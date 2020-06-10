@@ -153,11 +153,4 @@ if __name__ == '__main__':
     # Call the function which check if imputs are well define
     # mi.check_cpacs_input_requirements(cpacs_path)
 
-    optim_var_dict = {}
-    # optim_var_dict[var1] = ('name',[init,value1,value2, ...],min,max,'cpacs_command')
-    optim_var_dict['var1'] = ('AR',[10],8,16,'wings.get_wing(1).set_arkeep_area(var1)','wings.get_wing(1).get_aspect_ratio()')
-    optim_var_dict['var2'] = ('wing_sweep',[10],0,25,'wings.get_wing(1).set_sweep(var2)','wings.get_wing(1).get_sweep()')
-
-    update_cpacs_file(cpacs_path,cpacs_out_path, optim_var_dict)
-
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

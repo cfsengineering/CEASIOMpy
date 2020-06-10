@@ -119,7 +119,8 @@ def first_run(cpacs_path, module_list, modules_pre_list=[]):
         Path to the CPACS file.
     module_list : List
         List of modules.
-
+    module_pre_list : List
+        List of modules that were run in a previous workflow.
     Returns
     -------
     NONE.
@@ -197,7 +198,7 @@ def get_normal(tixi, value_name, entry):
         if type_val is bool:
             log.info('Boolean value will be added')
             value = str(def_val)
-        elif not tls.isDigit(def_val):
+        elif not tls.is_digit(def_val):
             value = '-'
             log.info('Not a number, "-" will be added')
         else:
@@ -210,7 +211,7 @@ def get_normal(tixi, value_name, entry):
         if type_val is bool:
             log.info('Boolean value will be added')
             value = str(user_val)
-        elif not tls.isDigit(user_val):
+        elif not tls.is_digit(user_val):
             value = '-'
             log.info('Not a number, "-" will be added')
         else:

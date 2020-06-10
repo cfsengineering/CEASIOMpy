@@ -6,11 +6,11 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH, CEASIOM
 # ===== RCE integration =====
 
 RCE = {
-    "name": "ModuleTemplate",
-    "description": "This is a template module",
-    "exec": "pwd\npython moduletemplate.py",
-    "author": "Neil Armstrong",
-    "email": "neil@nasa.gov",
+    "name": "Optimisation module",
+    "description": "This module implements the optimization routine for a workflow",
+    "exec": "pwd\npython optimisation.py",
+    "author": "Vivien Riolo",
+    "email": "-",
 }
 
 # ===== CPACS inputs and outputs =====
@@ -26,7 +26,8 @@ cpacs_inout.add_input(
     var_type=str,
     default_value='cl/cd',
     unit='-',
-    descr='Objective function of the optimisation problem',
+    descr="""Objective function of the optimisation problem. \n Warning ! 
+    The parameters name must match the ones in the CSV file !""",
     xpath=CEASIOM_XPATH+'/Optimisation/objective',
     gui=include_gui,
     gui_name='Objective',
@@ -106,7 +107,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name='DoEDriver',
     var_type=list,
-    default_value=['Uniform','Fullfactorial', 'LatinHypercube'],
+    default_value=['Uniform','Fullfactorial', 'LatinHypercube', 'PlackettBurman'],
     unit='-',
     descr='Choose the type of sample generator',
     xpath=CEASIOM_XPATH+'/Optimisation/parameters/DoE/driver',
@@ -120,10 +121,10 @@ cpacs_inout.add_input(
     var_type=int,
     default_value=3,
     unit='-',
-    descr='Choose the driver to run the routine with',
+    descr='Needed to indicate the number of samples to be generated',
     xpath=CEASIOM_XPATH+'/Optimisation/parameters/DoE/sampleNB',
     gui=include_gui,
-    gui_name='Sample number',
+    gui_name='Sample # parameter',
     gui_group='DoE settings (if required)'
 )
 
@@ -148,7 +149,3 @@ cpacs_inout.add_input(
 #     descr='Description of the output',
 #     xpath='/cpacs/toolspecific/CEASIOMpy/test/myOutput',
 # )
-
-    # Rt.doetype = 'uniform'
-    # Rt.samplesnb = 3
-    # Rt.user_config = '..//Optimisation/defvar2.csv'

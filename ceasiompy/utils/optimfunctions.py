@@ -25,8 +25,7 @@ Todo:
 # ==============================================================================
 import os
 import sys
-import numpy as np
-import openmdao.api as om
+
 import pandas as pd
 
 import ceasiompy.utils.cpacsfunctions as cpsf
@@ -34,7 +33,6 @@ import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.Optimisation.func.dictionnary as dct
 import ceasiompy.Optimisation.func.tools as tls
-import matplotlib.pyplot as plt
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
@@ -44,10 +42,12 @@ log = get_logger(__file__.split('.')[0])
 # ==============================================================================
 var = {}
 objective = ''
+
 CPACS_OPTIM_PATH = '../Optimisation/ToolInput/ToolInput.xml'
 CSV_PATH = '../Optimisation/Variable_library.csv'
-OPTIM_XPATH = '/cpacs/toolspecific/CEASIOMpy/Optimisation/'
 
+OPTIM_XPATH = '/cpacs/toolspecific/CEASIOMpy/Optimisation/'
+AEROMAP_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance'
 
 # ==============================================================================
 #   CLASS
@@ -106,119 +106,6 @@ class Routine:
 #   FUNCTIONS
 # ==============================================================================
 
-
-def gen_plot(dic, objective=False, constrains=False):
-    """
-    Generate plots.
-
-    Parameters
-    ----------
-    dic : dictionnary
-        Can contain the constraints, design or objective variables.
-    objective : Boolean, optional
-        Checks if the objective variables are passed. The default is False.
-    constrains : Boolean, optional
-        Checks if the objective variables are passed. The default is False.
-
-    TODO:
-        *Find an adequate way of representation of the variables 
-        (normalized ? If yes, how ?)
-        
-    Returns
-    -------
-    None.
-
-    """
-    iterations = len(dic)
-
-    plt.figure()
-    if objective:
-        for key, lst in dic.items():
-            iterations = np.arange(len(lst))
-            plt.plot(iterations, -lst+lst[0], label=key)
-            plt.legend()
-    elif constrains:
-        for key, lst in dic.items():
-            if 'const' in key:
-                iterations = np.arange(len(lst))
-                plt.plot(iterations, lst-lst[0], label=key)
-                plt.legend()
-    else:
-        for key, lst in dic.items():
-            iterations = np.arange(len(lst))
-            plt.plot(iterations, lst-lst[0], label=key)
-            plt.legend()
-
-
-def read_results(optim_dir_path, routine_type):
-    """
-    Read sql file and calls the function to generate the plots
-
-    Returns
-    -------
-    None.
-
-    """
-    # Read recorded options
-    path = optim_dir_path
-    cr = om.CaseReader(path + '/Driver_recorder.sql')
-    # driver_cases = cr.list_cases('driver') (If  multiple recorders)
-
-    cases = cr.get_cases()
-
-    # Initiates dictionnaries
-    case1 = cr.get_case(0)
-    obj = case1.get_objectives()
-    des = case1.get_design_vars()
-    const = case1.get_constraints()
-
-    for case in cases[1::]:
-        for key, val in case.get_objectives().items():
-            obj[key] = np.append(obj[key], val)
-
-        for key, val in case.get_design_vars().items():
-            des[key] = np.append(des[key], val)
-
-        for key, val in case.get_constraints().items():
-            if 'const' in key:
-                const[key] = np.append(const[key], val)
-
-    # Datapoints for DoE
-    if routine_type.upper() == 'DOE':
-        plt.figure()
-        r = 0
-        c = 1
-        cols_per_row = 5
-        nbR = len(obj.keys()) + len(des.keys()) / cols_per_row
-        nbC = cols_per_row
-        for keyo, valo in obj.items():
-            plt.ylabel(keyo)
-            for key, val in des.items():
-                plt.subplot(nbR, nbC, c+r*nbC)
-                plt.scatter(val, valo)
-                plt.xlabel(key)
-                if c == 1:
-                    plt.ylabel(keyo)
-                c += 1
-                if c >= cols_per_row:
-                    r += 1
-                    c = 1
-            c = 1
-            r += 1
-
-    # Iterative evolution for Optim
-    gen_plot(obj, objective=True)
-    gen_plot(des)
-    gen_plot(const, constrains=True)
-
-    # 3D plot
-    # fig = plt.figure()
-    # ax = fig.gca(projection='3d')
-    # ax.scatter(des['indeps.wing2_span'],des['indeps.wing1_span'],-obj['objective.cl'])
-
-    plt.show()
-
-
 def first_run(cpacs_path, module_list, modules_pre_list=[]):
     """
     Create dictionnaries for the optimisation problem.
@@ -241,6 +128,8 @@ def first_run(cpacs_path, module_list, modules_pre_list=[]):
     global XPATH
     global XPATH_PRE
 
+    log.info('Launching initialization workflow')
+    
     XPATH = tls.get_aeromap_path(module_list)
     if 'PyTornado' in modules_pre_list or 'SU2Run' in modules_pre_list:
         XPATH_PRE = tls.get_aeromap_path(modules_pre_list)
@@ -386,7 +275,7 @@ def get_variables(tixi, specs, module_name):
             log.info('Default aeromap parameters will be set')
 
             # Get name of aeromap that is used
-            am_nb = tixi.getNumberOfChilds(xpath)
+            am_nb = tixi.getNumberOfChilds(AEROMAP_XPATH)
             am_uid = tixi.getTextElement(tls.get_aeromap_path([module_name])+'/aeroMapUID')
             log.info('Aeromap \"{}\" will be used for the variables.'.format(am_uid))
             
@@ -394,11 +283,11 @@ def get_variables(tixi, specs, module_name):
             if am_nb > 1:
                 log.info('More than 1 aeromap, by defaut the first one will be used')
                 for i in range(1,am_nb+1):
-                    uid = tixi.getTextAttribute('/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[{}]'.format(i),'uID')
+                    uid = tixi.getTextAttribute(AEROMAP_XPATH+'/aeromap[{}]'.format(i),'uID')
                     if uid == am_uid:
                         am_index = '[{}]'.format(i)
             else:
-                am_index = 1
+                am_index = '[1]'
 
             for name in ['altitude', 'machNumber', 'angleOfAttack', 'angleOfSideslip',
                          'cl', 'cd', 'cs', 'cml', 'cmd', 'cms']:
@@ -543,4 +432,3 @@ if __name__ == '__main__':
     log.info('-------------------------------------------------')
     log.info('Not a standalone module. Nothing will be executed')
     log.info('-------------------------------------------------')
-    read_results('/users/disk11/cfse/Stage_Vivien/CEASIOMpy/ceasiompy/WKDIR/CEASIOMpy_Run_2020-06-02_15-27-01/DoE', 'DoE')

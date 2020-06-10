@@ -217,7 +217,7 @@ def run_routine():
     log.info('=========================================')
 
     # Generate plots, maybe make a dynamic plot
-    opf.read_results(optim_dir_path, Rt.type)
+    tls.read_results(optim_dir_path, Rt.type)
 
 
 def one_iteration():
@@ -327,9 +327,10 @@ def routine_setup(modules, routine_type, modules_pre=[]):
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
     optim_dir_path = os.path.join(wkdir, Rt.type)
     if not os.path.isdir(optim_dir_path):
+        log.info('--------------------OPTIM WDIR CREATION --------')
         os.mkdir(optim_dir_path)
         os.mkdir(optim_dir_path+'/Geometry')
-    tixi.close()
+    cpsf.close_tixi(tixi, cpacs_path)
     
     # Adds the initial parameters
     opf.first_run(cpacs_path, modules, modules_pre)

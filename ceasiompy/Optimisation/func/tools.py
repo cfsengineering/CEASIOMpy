@@ -23,6 +23,7 @@ TODO
 import numpy as np
 import openmdao.api as om
 import matplotlib.pyplot as plt
+import pandas as pd
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -31,6 +32,73 @@ log = get_logger(__file__.split('.')[0])
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
+
+def display_results(prob, optim_var_dict, Rt):
+    """
+    Display variable history on terminal.
+
+    Parameters
+    ----------
+    prob : class
+        OpenMDAO problem object
+    optim_var_dict : dict
+        Variable dictionnary
+    Rt : Class
+        Routine parameters.
+
+    Returns
+    -------
+    None.
+
+    """
+    log.info('=========================================')
+    log.info('min = ' + str(prob['objective.{}'.format(Rt.objective)]))
+
+    for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
+        if val_type == 'des':
+            log.info(name + ' = ' + str(prob['indeps.'+name]) + '\n Min :' + str(minval) + ' Max : ' + str(maxval))
+
+    log.info('Variable history :')
+
+    for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
+        if val_type == 'des':
+            log.info(name + ' => ' + str(listval))
+    log.info('=========================================')
+    
+    
+def save_results(file, wdpath, results):
+    """
+    Add the variable history to the CSV paramater file and save it to the
+    corresponding working directory.
+
+    Parameters
+    ----------
+    file : str
+        Path to CSV file.
+    wdpath : str
+        Path to optimisation working directory.
+    results : dict
+        contains the variable history.
+
+    Returns
+    -------
+    None.
+
+    """
+    log.info('Variables will be saved')
+
+    # Get variable infos
+    df = pd.read_csv(file, index_col=0)
+    df = df.transpose()
+    
+    # Generate dictionary with variable history
+    values = {name:lv[1:] for name, (vt, lv, minv, maxv, gc, sc) in results.items()}
+    df2 = pd.DataFrame.from_dict(values)
+    
+    df = df.append(df2).transpose()
+
+    df.to_csv(wdpath+'/Variable_history.csv', index=True, na_rep='-')
+
 
 def gen_plot(dic, objective=False, constrains=False):
     """
@@ -85,8 +153,7 @@ def read_results(optim_dir_path, routine_type):
 
     """
     # Read recorded options
-    path = optim_dir_path
-    cr = om.CaseReader(path + '/Driver_recorder.sql')
+    cr = om.CaseReader(optim_dir_path + '/Driver_recorder.sql')
     # driver_cases = cr.list_cases('driver') (If  multiple recorders)
 
     cases = cr.get_cases()
@@ -114,7 +181,7 @@ def read_results(optim_dir_path, routine_type):
         r = 0
         c = 1
         cols_per_row = 5
-        nbR = len(obj.keys()) + len(des.keys()) / cols_per_row
+        nbR = len(obj.keys()) * np.ceil(len(des.keys())/cols_per_row)
         nbC = cols_per_row
         for keyo, valo in obj.items():
             plt.ylabel(keyo)
@@ -125,7 +192,7 @@ def read_results(optim_dir_path, routine_type):
                 if c == 1:
                     plt.ylabel(keyo)
                 c += 1
-                if c >= cols_per_row:
+                if c > cols_per_row:
                     r += 1
                     c = 1
             c = 1
@@ -175,8 +242,7 @@ def get_aeromap_path(module_list):
             xpath = 'None'
     return xpath
 
-
-def isDigit(value):
+def is_digit(value):
     """
     Check if a string value is a float.
 
@@ -199,7 +265,7 @@ def isDigit(value):
             return False
 
 
-def accronym(name):
+def accronym(name):    
     """
     Return accronym of a name. (EXPERIMENTAL)
     

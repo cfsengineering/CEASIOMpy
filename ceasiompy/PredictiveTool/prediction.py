@@ -262,7 +262,7 @@ if __name__ == "__main__":
     # Variables declaration
     global objective
     objective = ['cl', 'cd', 'cl/cd', 'cd/cl']
-    file = '_Aeromap_generated.csv'
+    file = 'Aeromap_generated.csv'
     aeromap = True
     modules = ['SettingsGUI','WeightConventional', 'PyTornado']
 

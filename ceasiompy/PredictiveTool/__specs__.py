@@ -22,39 +22,40 @@ include_gui = True
 # ----- Input -----
 
 cpacs_inout.add_input(
-    var_name='Objective function',
+    var_name='Objectives',
     var_type=str,
-    default_value='cl/cd',
+    default_value='cl/cd,cl',
     unit='-',
-    descr="""Objective function of the optimisation problem. \n Warning ! 
+    descr="""Objective function list for the surrogate model to predict \n Warning ! 
     The parameters name must match the ones in the CSV file !""",
-    xpath=CEASIOM_XPATH+'/Optimisation/objective',
+    xpath=CEASIOM_XPATH+'/SurrogateModel/objective',
     gui=include_gui,
     gui_name='Objective',
-    gui_group='Objective function',
+    gui_group='Global settings',
 )
 
 cpacs_inout.add_input(
-    var_name='minmax',
-    var_type=list,
-    default_value=['min','max'],
+    var_name='file',
+    var_type=str,
+    default_value='Aeromap_generated.csv',
     unit='-',
-    descr='Objective function of the optimisation problem',
-    xpath=CEASIOM_XPATH+'/Optimisation/minmax',
+    descr='File that summarises the inputs and outputs to train the model with',
+    xpath=CEASIOM_XPATH+'/SurrogateModel/file',
     gui=include_gui,
-    gui_name='Optimisation goal',
+    gui_name='File',
     gui_group='Global settings'
 )
 
 cpacs_inout.add_input(
-    var_name='Driver',
-    var_type=list,
-    default_value=['COBYLA'],
+    var_name='Aeromap only',
+    var_type=bool,
+    default_value='False',
     unit='-',
-    descr='Choose the driver to run the routine with',
-    xpath=CEASIOM_XPATH+'/Optimisation/parameters/driver',
+    descr="""Indicate wether or not the parameters are all contained in an aeromap, in which case
+    the workflow only has to be run once.""",
+    xpath=CEASIOM_XPATH+'/SurrogateModel/AeroMapOnly',
     gui=include_gui,
-    gui_name='Driver',
+    gui_name='Aeromap specific',
     gui_group='Global settings'
 )
 
@@ -73,7 +74,7 @@ cpacs_inout.add_input(
     default_value=['Uniform','Fullfactorial', 'LatinHypercube', 'PlackettBurman'],
     unit='-',
     descr='Choose the type of sample generator',
-    xpath=CEASIOM_XPATH+'/Optimisation/parameters/DoE/driver',
+    xpath=CEASIOM_XPATH+'/SurrogateModel/DoE/driver',
     gui=include_gui,
     gui_name='Driver (DoE)',
     gui_group='DoE settings (if required)'

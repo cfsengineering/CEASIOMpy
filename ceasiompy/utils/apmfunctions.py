@@ -157,7 +157,7 @@ class AeroCoefficient():
 
         #self.increment_map = IncrementMap()
 
-    def add_param_point(alt,mach,aoa,aos):
+    def add_param_point(self, alt,mach,aoa,aos):
 
         self.alt.append(alt)
         self.mach.append(mach)
@@ -246,16 +246,7 @@ class AeroCoefficient():
         """ sort the data in AeroCoefficient object by the 'sort_key' """
 
         # Create a dictionary from data
-        dict = {'alt':self.alt,
-                'mach': self.mach,
-                'aoa':self.aoa,
-                'aos':self.aos,
-                'cl':self.cl,
-                'cd':self.cd,
-                'cs':self.cs,
-                'cml':self.cml,
-                'cmd':self.cmd,
-                'cms':self.cms}
+        dict = self.to_dict(self)
 
         # Create a dataframe from dictionary
         df = pd.DataFrame(dict)
@@ -276,6 +267,18 @@ class AeroCoefficient():
         self.cmd = df_sorted['cmd'].tolist()
         self.cms = df_sorted['cms'].tolist()
 
+    def to_dict(self):
+        dct = {'alt':self.alt,
+        'mach': self.mach,
+        'aoa':self.aoa,
+        'aos':self.aos,
+        'cl':self.cl,
+        'cd':self.cd,
+        'cs':self.cs,
+        'cml':self.cml,
+        'cmd':self.cmd,
+        'cms':self.cms}
+        return dct
 
     def print_coef_list(self):
 
@@ -934,16 +937,7 @@ def aeromap_to_csv(tixi, aeromap_uid, csv_path):
     AeroCoefficient.complete_with_zeros()
 
     # Create a dictionary from the AeroCoefficient object
-    dict = {'alt':AeroCoefficient.alt,
-            'mach': AeroCoefficient.mach,
-            'aoa':AeroCoefficient.aoa,
-            'aos':AeroCoefficient.aos,
-            'cl':AeroCoefficient.cl,
-            'cd':AeroCoefficient.cd,
-            'cs':AeroCoefficient.cs,
-            'cml':AeroCoefficient.cml,
-            'cmd':AeroCoefficient.cmd,
-            'cms':AeroCoefficient.cms}
+    dict = AeroCoefficient.to_dict()
 
     # Create a DataFrame (pandas) from dictionary
     df = pd.DataFrame(dict)

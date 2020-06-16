@@ -24,6 +24,7 @@ import numpy as np
 import openmdao.api as om
 import matplotlib.pyplot as plt
 import pandas as pd
+import tigl3.configuration
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -32,6 +33,35 @@ log = get_logger(__file__.split('.')[0])
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
+
+def estimate_volume(tigl):
+    """
+    First approximation of the aircraft fuselage volume. Temporary solution
+    to the unsolved issue of calling fuselageGetVolume multiple times.
+
+
+    Parameters
+    ----------
+    tigl : Tigl3 handle
+
+    Returns
+    -------
+    None.
+
+    """
+    mgr =  tigl3.configuration.CCPACSConfigurationManager_get_instance()
+
+    aircraft = mgr.get_configuration(tigl._handle.value)
+    fuselage = aircraft.get_fuselages().get_fuselage(1)
+
+    # Retrieve ctigl element from the middle of the plane
+    snb = round(fuselage.get_section_count()/2)
+    sec = fuselage.get_section(snb)
+    el = sec.get_section_element(1)
+    cel = el.get_ctigl_section_element()
+
+    return (cel.get_width()+cel.get_height())**2*fuselage.get_length()/16*3.14
+
 
 def display_results(prob, optim_var_dict, Rt):
     """
@@ -64,8 +94,8 @@ def display_results(prob, optim_var_dict, Rt):
         if val_type == 'des':
             log.info(name + ' => ' + str(listval))
     log.info('=========================================')
-    
-    
+
+
 def save_results(file, wdpath, results):
     """
     Add the variable history to the CSV paramater file and save it to the
@@ -90,11 +120,11 @@ def save_results(file, wdpath, results):
     # Get variable infos
     df = pd.read_csv(file, index_col=0)
     df = df.transpose()
-    
+
     # Generate dictionary with variable history
     values = {name:lv[1:] for name, (vt, lv, minv, maxv, gc, sc) in results.items()}
     df2 = pd.DataFrame.from_dict(values)
-    
+
     df = df.append(df2).transpose()
 
     df.to_csv(wdpath+'/Variable_history.csv', index=True, na_rep='-')
@@ -114,9 +144,9 @@ def gen_plot(dic, objective=False, constrains=False):
         Checks if the objective variables are passed. The default is False.
 
     TODO:
-        *Find an adequate way of representation of the variables 
+        *Find an adequate way of representation of the variables
         (normalized ? If yes, how ?)
-        
+
     Returns
     -------
     None.
@@ -217,7 +247,7 @@ def get_aeromap_path(module_list):
 
     Check the modules that will be run in the optimisation routine to specify
     the path to the correct aeromap in the CPACS file.
-    
+
     Parameters
     ----------
     module_list : List
@@ -230,6 +260,7 @@ def get_aeromap_path(module_list):
 
     SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
     # SKINFRICTION_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction/aeroMapToCalculate'
+    xpath = 'None'
 
     for module in module_list:
         if module == 'SU2Run':
@@ -238,8 +269,6 @@ def get_aeromap_path(module_list):
         elif module == 'PyTornado':
             log.info('Found PyTornado analysis')
             xpath = PYTORNADO_XPATH
-        else:
-            xpath = 'None'
     return xpath
 
 def is_digit(value):
@@ -265,16 +294,16 @@ def is_digit(value):
             return False
 
 
-def accronym(name):    
+def accronym(name):
     """
-    Return accronym of a name. (EXPERIMENTAL)
-    
-    In order to detect the values specified by the user as accronyms, the 
+    Return accronym of a name. (EXPERIMENTAL FEATURE)
+
+    In order to detect the values specified by the user as accronyms, the
     complete name of a variable is decomposed and the first letter of
     each word is taken.
-    
+
     Ex : 'maximal take off mass' -> 'mtom'
-    
+
     TODO : see how it can be made more robust as some names have the same
     accronym
 
@@ -303,18 +332,18 @@ def add_bounds_and_type(name, objective, value, var):
     """
     Add upper and lower bound, plus the variable type.
 
-    20% of the initial value is added and substracted to create the 
+    20% of the initial value is added and substracted to create the
     boundaries.
     The type of the variable (boundary, constraint, objective function)
     is also specified.
-    
+
     Parameters
     ----------
     name : string
         Name of a variable.
     objective : list
         List of variable names or accronyms appearing in the objective function
-    value : 
+    value :
 
     Returns
     -------

@@ -77,9 +77,10 @@ def save_aircraft(tixi, aircraft, filename):
 
 
 def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
-    """Function to update a CPACS file with value from ...
+    """Function to update a CPACS file with value from the optimiser
 
-    Function 'update_cpacs_file' ....
+    This function sets the new values of the design variables given by
+    the routine driver to the CPACS file, using the Tigl and Tixi handler.
 
     Source:
         * See CPACSCreator api function,

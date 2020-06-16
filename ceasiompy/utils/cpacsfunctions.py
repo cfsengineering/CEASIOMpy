@@ -27,10 +27,10 @@ import os
 import sys
 
 # Depending how/where Tixi and Tigl are installed, it could be:
-#     import tixi3wrapper
-#     import tigl3wrapper
-#     from tixi3wrapper import Tixi3Exception
-#     from tigl3wrapper import Tigl3Exception
+# import tixi3wrapper
+# import tigl3wrapper
+# from tixi3wrapper import Tixi3Exception
+# from tigl3wrapper import Tigl3Exception
 
 import tixi3.tixi3wrapper as tixi3wrapper
 import tigl3.tigl3wrapper as tigl3wrapper

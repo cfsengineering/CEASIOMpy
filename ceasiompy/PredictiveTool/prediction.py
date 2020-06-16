@@ -23,7 +23,6 @@ TODO:
 import os
 import smt.surrogate_models as sms
 import smt.sampling_methods as smp
-from smt.utils import compute_rms_error
 import pandas as pd
 import numpy as np
 from re import split as splt
@@ -61,20 +60,21 @@ def extract_data_set(file):
         Set of points in the design space
     y : DataFrame
         Set of points in the result space
+
     TODO:
         * Maybe better deal with the dataframe, case of multiple objective functions ?
 
     """
 
     df = pd.read_csv(file)
-    df = df.rename(columns={'Unnamed: 0':'name'})
-
+    df = df.rename(columns={'Unnamed: 0':'Name'})
+    print(df)
     # Separate the input and output points
     x = df.loc[[i for i,v in enumerate(df['type']) if v == 'des']]
     y = pd.DataFrame()
 
     # Compute values of the objective function
-    df = df.set_index('name')
+    df = df.set_index('Name')
 
     # Extract the iteration results only
     x = x[[i for i in x.columns if i.isdigit()]]
@@ -85,13 +85,12 @@ def extract_data_set(file):
         for name in splt('[+*/-]', obj_expr):
             obj_expr = obj_expr.replace(name,'df.loc["{}"]'.format(name))
         exec('y["{}"] = {}'.format(objective[i], obj_expr))
+    print(df)
 
-    print(x)
-    print(y)
     return x.transpose().to_numpy(), y.to_numpy()
 
 
-def aeromap_case(modules):
+def aeromap_case_gen(modules):
     """
     Generate a CSV file containing a dataset generated with aeromap parameters only.
 
@@ -106,8 +105,6 @@ def aeromap_case(modules):
         Path to CSV file.
 
     """
-    log.info('No file found, a DoE will be run and a CSV file will be generated')
-
     file = MODULE_DIR+'/Aeromap_generated.csv'
     infile = mi.get_toolinput_file_path('PredictiveTool')
     outfile = mi.get_tooloutput_file_path('PredictiveTool')
@@ -120,14 +117,16 @@ def aeromap_case(modules):
     aoa = [-10, 10]
     aos = [0,0]
     nt = 100
+    bounds = np.array([alt, mach, aoa, aos])
     # Sort criterion : ‘center’, ‘maximin’, ‘centermaximin’, ‘correlation’
     crit = 'corr'
 
     # Generate sample points, LHS or FullFactorial
-    sampling = smp.LHS(xlimits = np.array([alt, mach, aoa, aos]), criterion=crit)
+    sampling = smp.LHS(xlimits=bounds, criterion=crit)
     xd = sampling(nt)
     xd = xd.transpose()
 
+    # Delete the other aeromaps... maybe conserve them ?
     for uid in apmf.get_aeromap_uid_list(tixi):
         apmf.delete_aeromap(tixi, uid)
 
@@ -144,7 +143,7 @@ def aeromap_case(modules):
     apmf.save_parameters(tixi, aeromap_uid, Param)
     cpsf.close_tixi(tixi, infile)
 
-    wkf.run_subworkflow(modules, cpacs_path_in = infile, cpacs_path_out = outfile)
+    wkf.run_subworkflow(modules, cpacs_path_in=infile, cpacs_path_out=outfile)
 
     # Get Aerocoefficient
     tixi = cpsf.open_tixi(outfile)
@@ -158,17 +157,20 @@ def aeromap_case(modules):
     # Write to CSV
     df = pd.DataFrame(dct)
     df = df.transpose()
-    var_type = ['obj' if i in objective else 'des' if i in ['alt','mach','aoa','aos'] else 'const' for i in df.index]
+    var_type = ['obj' if i in objective
+                else 'des' if i in ['alt','mach','aoa','aos']
+                else 'const'
+                for i in df.index]
     df.insert(0,'type',var_type)
     df.to_csv(file, index=True)
 
     return file
 
 
-def separate(x, y):
+def separate_data(x, y):
     """
-    Create two sets of points for the training and validation of the surrogate
-    model.
+    Create two sets of points for the training and validation of
+    the surrogate model.
 
     Parameters
     ----------
@@ -189,9 +191,10 @@ def separate(x, y):
         Validation outputs
 
     """
-    # Sets length d
+    # Sets length of each set
+    div = 0.7
     l = len(x)
-    sep = int(np.ceil(0.7*l))
+    sep = int(np.ceil(div*l))
 
     # Random repartition of the sample
     rng = np.random.default_rng()
@@ -221,7 +224,7 @@ def create_model(xd, yd):
         Trained surrogate model.
 
     """
-    xt, yt, xv, yv = separate(xd, yd)
+    xt, yt, xv, yv = separate_data(xd, yd)
 
     sm = sms.KRG(theta0=[1e-2]*xd.shape[1])
     sm.set_training_values(xt, yt)
@@ -245,10 +248,10 @@ def create_model(xd, yd):
             plt.subplot(1,xv.shape[1]+1,j+1)
             if j == 0:
                 plt.ylabel(objective[i])
-            plt.plot(xv[:,j], yv[:,i], 'b.')
+            # plt.plot(xv[:,j], yv[:,i], 'b.')
             plt.plot(xt[:,j], yt[:,i], 'b.')
             plt.plot(xv[:,j], yp[:,i], 'r.')
-            plt.xlabel(['alt','mach','aoa','aos'][j])
+            # plt.xlabel(['alt','mach','aoa','aos'][j])
             plt.title('$'+objective[i]+'$')
     plt.show()
 
@@ -259,25 +262,26 @@ if __name__ == "__main__":
 
     log.info('Start of Predictive tool')
 
-    # Variables declaration
+    # Variable declarations
     global objective
-    objective = ['cl', 'cd', 'cl/cd', 'cd/cl']
-    file = 'Aeromap_generated.csv'
-    aeromap = True
-    modules = ['SettingsGUI','WeightConventional', 'PyTornado']
-
-    # Specific aeromap case
-    if aeromap and not os.path.isfile(file):
-        file = aeromap_case(modules)
+    objective = ['cl', 'cd']
+    file = 'Aeromap_generated100_points.csv'
+    aeromap = False
+    modules = ['WeightConventional', 'PyTornado']
 
     if os.path.isfile(file):
-        log.info('File found, will be used to get training set')
+        log.info('File found, will be used to generate the model')
+    elif aeromap and not os.path.isfile(file):
+        log.info('Specific aeromap case')
+        file = aeromap_case_gen(modules.insert(0,'SettingsGUI'))
     else:
         log.info('No file found, a DoE will be run and a default file will be generated')
+        cpsf.copy_module_to_module('PredictiveTool', 'Optimisation')
         opt.routine_setup(modules, 'DoE')
+        cpsf.copy_module_to_module('Optimisation', 'PredictiveTool')
         cpacs_path = mi.get_tooloutput_file_path('Optimisation')
         tixi = cpsf.open_tixi(cpacs_path)
-        file = cpsf.get_value(tixi, opf.OPTWKDIR_XPATH)+'/Variable_history.csv'
+        file = cpsf.get_value(tixi, opf.OPTWKDIR_XPATH)+'/Variable_library.csv'
         objective = cpsf.get_value(tixi, opf.OPTIM_XPATH+'/objective')
 
     xd, yd = extract_data_set(file)

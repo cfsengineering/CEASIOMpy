@@ -22,7 +22,6 @@ TODO:
 #==============================================================================
 
 import os
-import sys
 import shutil
 import datetime
 import platform
@@ -34,11 +33,6 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-
-#==============================================================================
-#   CLASSES
-#==============================================================================
 
 
 #==============================================================================
@@ -56,11 +50,12 @@ def create_new_wkdir(routine_date=''):
         wkdir (str): working directory path
 
     """
-    dir_name = 'CEASIOMpy_Run_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-
+    date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     if routine_date != '':
+        dir_name = 'Run' + date
         wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR/Routine_' + routine_date)
     else:
+        dir_name = 'CEASIOMpy_Run_' + date
         wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR')
 
     if not os.path.exists(wkdir):
@@ -70,7 +65,6 @@ def create_new_wkdir(routine_date=''):
     os.mkdir(run_dir)
 
     return run_dir
-
 
 
 def get_wkdir_or_create_new(tixi):
@@ -90,7 +84,7 @@ def get_wkdir_or_create_new(tixi):
 
     WKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath'
     wkdir_path = cpsf.get_value_or_default(tixi,WKDIR_XPATH,'')
-    if wkdir_path is '':
+    if wkdir_path == '':
         wkdir_path = create_new_wkdir()
         cpsf.create_branch(tixi,WKDIR_XPATH)
         tixi.updateTextElement(WKDIR_XPATH,wkdir_path)

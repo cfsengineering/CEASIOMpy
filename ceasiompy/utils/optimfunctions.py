@@ -46,8 +46,11 @@ objective = ''
 CPACS_OPTIM_PATH = '../Optimisation/ToolInput/ToolInput.xml'
 CSV_PATH = '../Optimisation/Variable_library.csv'
 
+WKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath'
+OPTWKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/optimPath'
 OPTIM_XPATH = '/cpacs/toolspecific/CEASIOMpy/Optimisation/'
 AEROMAP_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance'
+SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 # ==============================================================================
 #   CLASS
@@ -109,9 +112,9 @@ class Routine:
 def first_run(cpacs_path, module_list, modules_pre_list=[]):
     """
     Create dictionnaries for the optimisation problem.
-    
+
     This function runs a first loop to ensure that all problem variables
-    are created an can be fed to the optimisation setup program. 
+    are created an can be fed to the optimisation setup program.
 
     Parameters
     ----------
@@ -130,7 +133,7 @@ def first_run(cpacs_path, module_list, modules_pre_list=[]):
     global XPATH_PRE
 
     log.info('Launching initialization workflow')
-    
+
     XPATH = tls.get_aeromap_path(module_list)
     if 'PyTornado' in modules_pre_list or 'SU2Run' in modules_pre_list:
         XPATH_PRE = tls.get_aeromap_path(modules_pre_list)
@@ -149,27 +152,27 @@ def first_run(cpacs_path, module_list, modules_pre_list=[]):
         wkf.run_subworkflow(module_list)
         wkf.copy_module_to_module(module_list[-1], 'out', 'Optimisation', 'in')
 
-    # If settingsGUI only needed at the first iteration
+    # SettingsGUI only needed at the first iteration
     if 'SettingsGUI' in module_list:
         module_list.pop(module_list.index('SettingsGUI'))
     # Optimisation parameters only needed for the first run
     module_list.pop(module_list.index('Optimisation'))
 
-def get_normal(tixi, value_name, entry):
+def get_normal_param(tixi, value_name, entry):
     """
     Add a variable to the optimisation dictionnary.
-    
+
     It is checked if the variable has a user-specified initial value, else it
-    will assign a default value or the variable will be excluded from the 
+    will assign a default value or the variable will be excluded from the
     problem.
 
     Parameters
     ----------
     tixi : Tixi3 handler
-    
+
     value_name : string.
         Name of the parameter.
-    entry : 
+    entry :
 
     Returns
     -------
@@ -234,6 +237,37 @@ def get_normal(tixi, value_name, entry):
         log.info('Added to variable file')
 
 
+def get_aero_param(tixi, xpath, module_name):
+
+    log.info('Default aeromap parameters will be set')
+
+    # Get name of aeromap that is used
+    am_nb = tixi.getNumberOfChilds(AEROMAP_XPATH)
+    am_uid = tixi.getTextElement(tls.get_aeromap_path([module_name])+'/aeroMapUID')
+    log.info('Aeromap \"{}\" will be used for the variables.'.format(am_uid))
+
+    # Search the aeromap index in the CPACS file if there are more
+    if am_nb > 1:
+        log.info('More than 1 aeromap, by defaut the first one will be used')
+        for i in range(1,am_nb+1):
+            uid = tixi.getTextAttribute(AEROMAP_XPATH+'/aeromap[{}]'.format(i),'uID')
+            if uid == am_uid:
+                am_index = '[{}]'.format(i)
+    else:
+        am_index = '[1]'
+
+    for name in ['altitude', 'machNumber', 'angleOfAttack', 'angleOfSideslip',
+                 'cl', 'cd', 'cs', 'cml', 'cmd', 'cms']:
+        var['Name'].append(name)
+        xpath_param = xpath.replace('[i]', am_index)+'/'+name
+
+        value = str(tixi.getDoubleElement(xpath_param))
+        var['init'].append(value)
+
+        var['xpath'].append(xpath_param)
+
+        tls.add_bounds_and_type(name, objective, value, var)
+
 def get_variables(tixi, specs, module_name):
     """
     Retrieve input and output variables of a module
@@ -257,7 +291,7 @@ def get_variables(tixi, specs, module_name):
         if xpath.endswith('/'):
             xpath = xpath[:-1]
         value_name = xpath.split('/')[-1]
-        
+
         log.info('----------------------------')
         log.info('Name : '+entry.var_name)
         log.info(xpath)
@@ -273,38 +307,11 @@ def get_variables(tixi, specs, module_name):
         # Aeromap variable
         elif value_name == 'aeroPerformanceMap' and aeromap:
             aeromap = False
-            log.info('Default aeromap parameters will be set')
-
-            # Get name of aeromap that is used
-            am_nb = tixi.getNumberOfChilds(AEROMAP_XPATH)
-            am_uid = tixi.getTextElement(tls.get_aeromap_path([module_name])+'/aeroMapUID')
-            log.info('Aeromap \"{}\" will be used for the variables.'.format(am_uid))
-            
-            # Search the aeromap index in the CPACS file if there are more
-            if am_nb > 1:
-                log.info('More than 1 aeromap, by defaut the first one will be used')
-                for i in range(1,am_nb+1):
-                    uid = tixi.getTextAttribute(AEROMAP_XPATH+'/aeromap[{}]'.format(i),'uID')
-                    if uid == am_uid:
-                        am_index = '[{}]'.format(i)
-            else:
-                am_index = '[1]'
-
-            for name in ['altitude', 'machNumber', 'angleOfAttack', 'angleOfSideslip',
-                         'cl', 'cd', 'cs', 'cml', 'cmd', 'cms']:
-                var['Name'].append(name)
-                xpath_param = xpath.replace('[i]', am_index)+'/'+name
-
-                value = str(tixi.getDoubleElement(xpath_param))
-                var['init'].append(value)
-
-                var['xpath'].append(xpath_param)
-
-                tls.add_bounds_and_type(name, objective, value, var)
+            get_aero_param(tixi, xpath, module_name)
 
         # Normal case
         else:
-            get_normal(tixi, value_name, entry)
+            get_normal_param(tixi, value_name, entry)
 
 
 def generate_dict(df, user_config=''):
@@ -322,7 +329,7 @@ def generate_dict(df, user_config=''):
         Used to pass the variables to the openMDAO setup.
 
     """
-    
+
     # Use user-specified CSV or create a new one
     if user_config == '':
         # Save and open CSV file
@@ -364,7 +371,7 @@ def create_variable_library(Rt, tixi='', module_list=[]):
     """
     Create a dictionnary and a CSV file containing all variables that appear
     in the module list.
-    
+
     The CSV files lists all the inputs and outputs of each module with :
     * An initial value
     * An upper and lower bound
@@ -374,13 +381,13 @@ def create_variable_library(Rt, tixi='', module_list=[]):
     Parameters
     ----------
     Rt : Class
-        Contains 
+        Contains
 
     tixi : Tixi3 handler
-        
+
     module_list : list
         List of the modules that are included in the optimisation loop.
-    
+
     Returns
     -------
     optim_var_dict : dict

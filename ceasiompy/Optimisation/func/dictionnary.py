@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software.
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Functions to create the dictionnary of geometric variables needed 
+Functions to create the dictionnary of geometric variables needed
 for the optimnization routine.
 
 Python version: >=3.6
@@ -253,7 +253,7 @@ def init_design_var_dict(tixi):
 
     Returns
     -------
-    design_var_dict : TYPE
+    design_var_dict : dict
 
     """
     tigl = cpsf.open_tigl(tixi)

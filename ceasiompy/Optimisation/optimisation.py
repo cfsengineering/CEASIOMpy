@@ -9,9 +9,10 @@ Python version: >=3.6
 | Creation: 2020-24-02
 | Last modifiction: 2020-06-04
 
-TODO:
+Todo:
     * Investigate the implementation of discrete values and booleans
-    * 
+    * Standalone module to be implemented
+    * Aeromap
 
 """
 
@@ -34,13 +35,13 @@ import ceasiompy.utils.moduleinterfaces as mi
 import ceasiompy.utils.optimfunctions as opf
 import ceasiompy.Optimisation.func.dictionnary as dct
 import ceasiompy.Optimisation.func.tools as tls
+import ceasiompy.CPACSUpdater.cpacsupdater as cpud
 
 from ceasiompy.CPACSUpdater.cpacsupdater import update_cpacs_file
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
-SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 # =============================================================================
 #   GLOBAL VARIABLES
@@ -52,6 +53,38 @@ counter = 0
 # =============================================================================
 #   CLASSES
 # =============================================================================
+class aeromap_results(om.ExplicitComponent):
+    """Class to define objective function in the subgroup of the aeromap case."""
+
+    def setup(self):
+        """Create inputs/outputs"""
+        tixi = cpsf.open_tixi(opf.CPACS_OPTIM_PATH)
+        xpath = tls.get_aeromap_path(Rt.modules)
+        aeromap_uid = cpsf.get_value(tixi, xpath + '/aeroMapUID')
+        Coef = apmf.get_aeromap(tixi, aeromap_uid)
+
+        coef_dict = Coef.to_dict()
+        for name, value in coef_dict.items():
+            if name in ['mach','alt','aoa','aos']:
+                self.add_input(name, val=value)
+            else:
+                self.add_output(name, val=value)
+
+    def compute(self, inputs, outputs):
+        """Search for best value of the objective function."""
+
+        tixi = cpsf.open_tixi(cpacs_path)
+        xpath = tls.get_aeromap_path(Rt.modules)
+        aeromap_uid = cpsf.get_value(tixi, xpath + '/aeroMapUID')
+        Coef = apmf.get_aeromap(tixi, aeromap_uid)
+
+        coef_dict = Coef.to_dict()
+        for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
+            # Normal case
+            if val_type == 'des' and name in ['mach','alt','aoa','aos']:
+                listval.append(inputs[name][0])
+            elif val_type == 'des' and listval[-1] not in ['-', 'True', 'False']:
+                listval.append(inputs[name][0])
 
 
 class objective_function(om.ExplicitComponent):
@@ -144,11 +177,11 @@ def run_routine():
     Parameters
     ----------
     None.
-    
+
     Returns
     -------
     None.
-    
+
     """
     # Build the model
     prob = om.Problem()
@@ -221,28 +254,25 @@ def one_iteration():
     Function 'one_iteration' will exectute in order all the module contained
     in '...' and extract the ... value from the last CPACS file, this value will
     be returned to the optimizer CPACSUpdater....
-    
+
     Parameters
     ----------
     None.
-    
+
     Returns
     -------
     None.
+
     """
     global counter
     counter += 1
 
-    # Create the parameter in CPACS with 'CPACSUpdater' module
-    cpacs_path = mi.get_toolinput_file_path('CPACSUpdater')
-    cpacs_out_path = mi.get_tooloutput_file_path('CPACSUpdater')
-
+    # Create new Run folder
     tixi = cpsf.open_tixi(cpacs_path)
     wkdir_path = ceaf.create_new_wkdir(Rt.date)
-    WKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath'
-    tixi.updateTextElement(WKDIR_XPATH, wkdir_path)
+    tixi.updateTextElement(opf.WKDIR_XPATH, wkdir_path)
 
-    # To delete coef from previous iter
+    # Delete coef from previous iteration
     if tls.get_aeromap_path(Rt.modules) != 'None':
         xpath = tls.get_aeromap_path(Rt.modules)
         aeromap_uid = cpsf.get_value(tixi, xpath + '/aeroMapUID')
@@ -252,24 +282,24 @@ def one_iteration():
         apmf.save_parameters(tixi, aeromap_uid, Coef)
         cpsf.close_tixi(tixi, cpacs_path)
 
-    # Update the CPACS file with the parameters contained in optim_var_dict
+    # Set new variable values
     update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict)
 
     # Save the CPACS file
     if counter % Rt.save_iter == 0:
-        file_copy_from = mi.get_tooloutput_file_path('CPACSUpdater')
-        shutil.copy(file_copy_from, optim_dir_path+'/Geometry/'+'iter_{}.xml'.format(counter))
+        loc = '/Geometry/'+'iter_{}.xml'.format(counter)
+        shutil.copy(cpacs_out_path, optim_dir_path+loc)
 
-    # Run optimisation sub workflow
-    wkf.copy_module_to_module('CPACSUpdater', 'out', Rt.modules[0], 'in')
+    # Run optimisation subworkflow
+    wkf.copy_module_to_module('Optimisation', 'out', Rt.modules[0], 'in')
     wkf.run_subworkflow(Rt.modules)
-    wkf.copy_module_to_module(Rt.modules[-1], 'out', 'CPACSUpdater', 'in')
+    wkf.copy_module_to_module(Rt.modules[-1], 'out', 'Optimisation', 'in')
 
-    # Extract results
-    cpacs_results_path = mi.get_tooloutput_file_path(Rt.modules[-1])
-    log.info('Results will be extracted from:' + cpacs_results_path)
-    tixi = cpsf.open_tixi(cpacs_results_path)
+    # Extract result variables
+    log.info('Results will be extracted from:' + cpacs_path)
+    tixi = cpsf.open_tixi(cpacs_path)
     dct.update_dict(tixi, optim_var_dict)
+    cpsf.close_tixi(tixi, cpacs_path)
 
     return compute_obj()
 
@@ -284,7 +314,7 @@ def compute_obj():
     Parameters
     ----------
     None.
-    
+
     Returns
     -------
     result : float
@@ -309,6 +339,35 @@ def compute_obj():
         return result
 
 
+def create_routine_folder():
+    """
+    Create a folder in which all CEASIOMpy runs in the optimisation loop
+    will be saved. This architecture may change in the future.
+
+    Parameters
+    ----------
+    cpacs_path : str
+        Path to file.
+
+    Returns
+    -------
+    None.
+
+    """
+    global optim_dir_path
+
+    tixi = cpsf.open_tixi(cpacs_path)
+    wkdir = ceaf.get_wkdir_or_create_new(tixi)
+    optim_dir_path = os.path.join(wkdir, Rt.type)
+
+    if not os.path.isdir(optim_dir_path):
+        os.mkdir(optim_dir_path)
+        os.mkdir(optim_dir_path+'/Geometry')
+
+    cpsf.get_value_or_default(tixi, opf.OPTWKDIR_XPATH,optim_dir_path)
+    cpsf.close_tixi(tixi, cpacs_path)
+
+
 def routine_setup(modules, routine_type, modules_pre=[]):
     """
     Set up optimisation.
@@ -321,10 +380,10 @@ def routine_setup(modules, routine_type, modules_pre=[]):
     modules : list
         Modules to run in the optimisation loop
     routine_type : str
-        DoE or Optim 
+        DoE or Optim
     modules_pre : list
-        Modules that were run before the optimisation 
-        
+        Modules that were run before the optimisation
+
     Returns
     -------
     None
@@ -332,39 +391,30 @@ def routine_setup(modules, routine_type, modules_pre=[]):
     """
     log.info('----- Start of Optimisation module -----')
 
-    global Rt, optim_var_dict, optim_dir_path
+    global Rt, optim_var_dict, cpacs_path, cpacs_out_path
     cpacs_path = mi.get_toolinput_file_path('Optimisation')
+    cpacs_out_path = mi.get_tooloutput_file_path('Optimisation')
 
     # Setup parameters of the routine
+    Rt.date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     Rt.type = routine_type
     Rt.modules = modules
-    Rt.date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    # Create Optim folder for results
-    tixi = cpsf.open_tixi(cpacs_path)
-    wkdir = ceaf.get_wkdir_or_create_new(tixi)
-    optim_dir_path = os.path.join(wkdir, Rt.type)
-    if not os.path.isdir(optim_dir_path):
-        os.mkdir(optim_dir_path)
-        os.mkdir(optim_dir_path+'/Geometry')
-    cpsf.close_tixi(tixi, cpacs_path)
-    
+
+    create_routine_folder()
+
     # Adds the initial parameters
     opf.first_run(cpacs_path, modules, modules_pre)
     Rt.get_user_inputs(cpacs_path)
 
-    # Create dictionnary
-    tixi = cpsf.open_tixi(cpacs_path)
-    optim_var_dict = opf.create_variable_library(Rt, tixi, modules)
-
-    # Copy to CPACSUpdater to pass to next modules
-    wkf.copy_module_to_module('Optimisation', 'in', 'CPACSUpdater', 'in')
+    optim_var_dict = opf.create_variable_library(Rt)
 
     # Display routine info
     log.info('------ Problem description ------')
     log.info('Routine type : {}'.format(routine_type))
     log.info('Objective function : {}'.format(Rt.objective))
     log.info('Variable recap')
-    [log.info('{} : {}'.format(k, t[0])) for k, t in optim_var_dict.items()]
+    for k, t in optim_var_dict.items():
+        log.info('{} : {}'.format(k, t[0]))
 
     run_routine()
 
@@ -372,7 +422,6 @@ def routine_setup(modules, routine_type, modules_pre=[]):
 
 
 if __name__ == '__main__':
-    # Specify parameters already implemented in the SettingsGUI
 
-    log.info('This module does not modify the CPACS file.')
+    log.info('This module must be run with the GUI for now.')
     wkf.copy_module_to_module('Optimisation', 'in', 'Optimisation', 'out')

@@ -3,6 +3,9 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
+This module sets up and solves an optimisation problem with specified inputs
+and outputs, read from a CSV file.
+
 Python version: >=3.6
 
 | Author: Aidan jungo
@@ -12,7 +15,8 @@ Python version: >=3.6
 Todo:
     * Investigate the implementation of discrete values and booleans
     * Standalone module to be implemented
-    * Aeromap
+    * Aeromap case
+    * list case/ multiple objectives
 
 """
 
@@ -30,12 +34,10 @@ from re import split as splt
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.moduleinterfaces as mi
 import ceasiompy.utils.optimfunctions as opf
 import ceasiompy.Optimisation.func.dictionnary as dct
 import ceasiompy.Optimisation.func.tools as tls
-import ceasiompy.CPACSUpdater.cpacsupdater as cpud
 
 from ceasiompy.CPACSUpdater.cpacsupdater import update_cpacs_file
 
@@ -53,36 +55,23 @@ counter = 0
 # =============================================================================
 #   CLASSES
 # =============================================================================
-class aeromap_results(om.ExplicitComponent):
+class list_components(om.ExplicitComponent):
     """Class to define objective function in the subgroup of the aeromap case."""
 
     def setup(self):
         """Create inputs/outputs"""
-        tixi = cpsf.open_tixi(opf.CPACS_OPTIM_PATH)
-        xpath = tls.get_aeromap_path(Rt.modules)
-        aeromap_uid = cpsf.get_value(tixi, xpath + '/aeroMapUID')
-        Coef = apmf.get_aeromap(tixi, aeromap_uid)
-
-        coef_dict = Coef.to_dict()
-        for name, value in coef_dict.items():
-            if name in ['mach','alt','aoa','aos']:
-                self.add_input(name, val=value)
-            else:
-                self.add_output(name, val=value)
+        # Add inputs
+        for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
+            # Normal case
+            self.add_input(name, val=listval[0])
 
     def compute(self, inputs, outputs):
         """Search for best value of the objective function."""
 
-        tixi = cpsf.open_tixi(cpacs_path)
-        xpath = tls.get_aeromap_path(Rt.modules)
-        aeromap_uid = cpsf.get_value(tixi, xpath + '/aeroMapUID')
-        Coef = apmf.get_aeromap(tixi, aeromap_uid)
-
-        coef_dict = Coef.to_dict()
         for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
             # Normal case
-            if val_type == 'des' and name in ['mach','alt','aoa','aos']:
-                listval.append(inputs[name][0])
+            if val_type == 'des':
+                listval = inputs[name]
             elif val_type == 'des' and listval[-1] not in ['-', 'True', 'False']:
                 listval.append(inputs[name][0])
 
@@ -195,7 +184,7 @@ def run_routine():
     # Choose between optimizer or driver
     if Rt.type == 'DoE':
         if Rt.doedriver.lower() == 'uniform':
-            driver = prob.driver = om.DOEDriver(om.UniformGenerator(num_samples=Rt.samplesnb))
+            driver = prob.driver = om.DOEDriver(om.UniformGenerator(Rt.samplesnb))
         elif Rt.doedriver.lower() == 'fullfactorial':
             driver = prob.driver = om.DOEDriver(om.FullFactorialGenerator(Rt.samplesnb))
         elif Rt.doedriver.lower() == 'latinhypercube':
@@ -206,11 +195,9 @@ def run_routine():
         driver.options['maxiter'] = Rt.max_iter
         driver.options['tol'] = Rt.tol
         if Rt.driver == 'COBYLA':
-            driver.opt_settings['catol'] = 0.06
+            driver.opt_settings['catol'] = 1e-3
 
-    # Connect problem components to model components
-
-    # Design variable and constrains
+    # Connect design variable and constrains
     for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
         if listval[0] not in ['-','True', 'False']:
             norm = round(np.log10(abs(float(listval[0]))+1)+1)
@@ -241,10 +228,10 @@ def run_routine():
     prob.cleanup()
 
     # Results
-    wkf.copy_module_to_module('CPACSUpdater', 'in', 'Optimisation', 'out')
-    tls.save_results(opf.CSV_PATH, optim_dir_path, optim_var_dict)
-    tls.read_results(optim_dir_path, Rt.type)
+    tls.save_results(optim_dir_path)
+    tls.plot_results(optim_dir_path, Rt.type)
     tls.display_results(prob, optim_var_dict, Rt)
+    wkf.copy_module_to_module('Optimisation', 'in', 'Optimisation', 'out')
 
 
 def one_iteration():
@@ -271,16 +258,6 @@ def one_iteration():
     tixi = cpsf.open_tixi(cpacs_path)
     wkdir_path = ceaf.create_new_wkdir(Rt.date)
     tixi.updateTextElement(opf.WKDIR_XPATH, wkdir_path)
-
-    # Delete coef from previous iteration
-    if tls.get_aeromap_path(Rt.modules) != 'None':
-        xpath = tls.get_aeromap_path(Rt.modules)
-        aeromap_uid = cpsf.get_value(tixi, xpath + '/aeroMapUID')
-        Coef = apmf.get_aeromap(tixi, aeromap_uid)
-        apmf.delete_aeromap(tixi, aeromap_uid)
-        apmf.create_empty_aeromap(tixi, aeromap_uid, 'test_optim')
-        apmf.save_parameters(tixi, aeromap_uid, Coef)
-        cpsf.close_tixi(tixi, cpacs_path)
 
     # Set new variable values
     update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict)

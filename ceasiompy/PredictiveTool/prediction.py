@@ -3,6 +3,8 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
+This module generates a surrogate model based on specified inputs and outputs.
+
 Python version: >=3.6
 
 | Author: Vivien Riolo
@@ -42,12 +44,38 @@ log = get_logger(__file__.split('.')[0])
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # =============================================================================
+#   GLOBALS
+# =============================================================================
+
+# Working surrogate models
+model_dict = {'KRG':'KRG(theta0=[1e-2]*xd.shape[1])',
+              'KPLSK':'KPLS(theta0=[1e-2])',
+              'KPLS':'KPLS(theta0=[1e-2])',
+              'RBF':'RBF(d0=5)',
+              'IDW':'IDW(p=2)',
+              'LS':'LS()'
+              }
+# To be implemented
+# sm = sms.RMTB(
+#     xlimits=xlimits,
+#     order=4,
+#     num_ctrl_pts=20,
+#     energy_weight=1e-15,
+#     regularization_weight=0.0,)
+# sm = sms.QP()
+# sm = GEKPLS(theta0=[1e-2], xlimits=fun.xlimits, extra_points=1, print_prediction=False)
+# sm = sms.GENN()
+
+# =============================================================================
 #   FUNCTIONS
 # =============================================================================
 
 def extract_data_set(file):
     """
-    Retrieve training dataset from a file or generates it automatically
+    Retrieve training dataset from a file or generates it automatically. The
+    file format must be a CSV with each variable parameters and values are in
+    a row. The file must also contain a 'Name' and a 'type' column which are
+    needed to describe the variable.
 
     Parameters
     ----------
@@ -65,34 +93,39 @@ def extract_data_set(file):
         * Maybe better deal with the dataframe, case of multiple objective functions ?
 
     """
-
     df = pd.read_csv(file)
     df = df.rename(columns={'Unnamed: 0':'Name'})
-    print(df)
+
+    # Drop duplicate (first and second columns are the same)
+    df = df.drop('0',1)
+
     # Separate the input and output points
     x = df.loc[[i for i,v in enumerate(df['type']) if v == 'des']]
-    y = pd.DataFrame()
+    y = df.loc[[i for i, v in enumerate(df['type']) if v == 'obj']]
 
-    # Compute values of the objective function
     df = df.set_index('Name')
 
     # Extract the iteration results only
     x = x[[i for i in x.columns if i.isdigit()]]
     df = df[[i for i in df.columns if i.isdigit()]]
 
-    # Compute the objectives
-    for i, obj_expr in enumerate(objective):
-        for name in splt('[+*/-]', obj_expr):
-            obj_expr = obj_expr.replace(name,'df.loc["{}"]'.format(name))
-        exec('y["{}"] = {}'.format(objective[i], obj_expr))
-    print(df)
+    # Compute the objectives in the aeromap case, else they are already given
+    if 'Variable_history' not in file:
+        y = pd.DataFrame()
+        for i, obj_expr in enumerate(objectives):
+            for name in splt('[+*/-]', obj_expr):
+                obj_expr = obj_expr.replace(name,'df.loc["{}"]'.format(name))
+            exec('y["{}"] = {}'.format(objectives[i], obj_expr))
+    else:
+        y = y[[i for i in y.columns if i.isdigit()]].transpose()
 
     return x.transpose().to_numpy(), y.to_numpy()
 
 
 def aeromap_case_gen(modules):
     """
-    Generate a CSV file containing a dataset generated with aeromap parameters only.
+    Generate a CSV file containing a dataset generated with aeromap parameters
+    only.
 
     Parameters
     ----------
@@ -148,7 +181,7 @@ def aeromap_case_gen(modules):
     # Get Aerocoefficient
     tixi = cpsf.open_tixi(outfile)
     am_xpath = tls.get_aeromap_path(modules)
-    aeromap_uid = cpsf.get_value(tixi, am_xpath + '/aeroMapUID')
+    aeromap_uid = cpsf.get_value(tixi, am_xpath+'/aeroMapUID')
     AeroCoefficient = apmf.get_aeromap(tixi,aeromap_uid)
     cpsf.close_tixi(tixi, outfile)
 
@@ -157,13 +190,12 @@ def aeromap_case_gen(modules):
     # Write to CSV
     df = pd.DataFrame(dct)
     df = df.transpose()
-    var_type = ['obj' if i in objective
+    var_type = ['obj' if i in objectives
                 else 'des' if i in ['alt','mach','aoa','aos']
                 else 'const'
                 for i in df.index]
     df.insert(0,'type',var_type)
     df.to_csv(file, index=True)
-
     return file
 
 
@@ -192,7 +224,7 @@ def separate_data(x, y):
 
     """
     # Sets length of each set
-    div = 0.7
+    div = 0.3
     l = len(x)
     sep = int(np.ceil(div*l))
 
@@ -224,35 +256,41 @@ def create_model(xd, yd):
         Trained surrogate model.
 
     """
+    model = 'KRG'
     xt, yt, xv, yv = separate_data(xd, yd)
+    sm = eval('sms.{}'.format(model_dict[model]))
+    # In case the options get user defined as string
+    # sm = eval('sms.{}({})'.format(model_dict[model]), options))
 
-    sm = sms.KRG(theta0=[1e-2]*xd.shape[1])
     sm.set_training_values(xt, yt)
+
     sm.train()
 
     yp = sm.predict_values(xv)
 
     for i in range(0,yv.shape[1]):
+
+        rms = np.sqrt(np.mean((yp[:,i]-yv[:,i])**2))#/yv.shape[0])
+        log.info(rms)
         plt.figure()
         plt.plot(yv[:,i], yv[:,i], '-', label='$y_{true}$')
-        plt.plot(yv[:,i], yp[:,i], 'r.', label='$\hat{y}$ :'+objective[i])
+        plt.plot(yv[:,i], yp[:,i], 'r.', label='$\hat{y}$ :'+objectives[i])
 
         plt.xlabel('$y_{true}$')
         plt.ylabel('$\hat{y}$')
 
         plt.legend(loc='upper left')
-        plt.title('Kriging model: validation of the prediction model')
+        plt.title('Kriging model: validation of the prediction model\n {}'.format(rms))
 
         plt.figure()
         for j in range(0,xv.shape[1]):
             plt.subplot(1,xv.shape[1]+1,j+1)
             if j == 0:
-                plt.ylabel(objective[i])
-            # plt.plot(xv[:,j], yv[:,i], 'b.')
-            plt.plot(xt[:,j], yt[:,i], 'b.')
-            plt.plot(xv[:,j], yp[:,i], 'r.')
-            # plt.xlabel(['alt','mach','aoa','aos'][j])
-            plt.title('$'+objective[i]+'$')
+                plt.ylabel(objectives[i])
+            plt.plot(xt[:,j], yt[:,i], 'b.', label='$y_{training set}$')
+            plt.plot(xv[:,j], yp[:,i], 'r.', label='$y_{prediction set}$')
+            plt.title('$'+objectives[i]+'$')
+            plt.legend(loc='upper left')
     plt.show()
 
     return sm
@@ -263,9 +301,10 @@ if __name__ == "__main__":
     log.info('Start of Predictive tool')
 
     # Variable declarations
-    global objective
-    objective = ['cl', 'cd']
-    file = 'Aeromap_generated100_points.csv'
+    global objectives
+    objectives = ['cl/cd','cms']
+    # file = 'Aeromap_generated100_points.csv'
+    file = 'Variable_history.csv'
     aeromap = False
     modules = ['WeightConventional', 'PyTornado']
 
@@ -275,14 +314,16 @@ if __name__ == "__main__":
         log.info('Specific aeromap case')
         file = aeromap_case_gen(modules.insert(0,'SettingsGUI'))
     else:
-        log.info('No file found, a DoE will be run and a default file will be generated')
-        cpsf.copy_module_to_module('PredictiveTool', 'Optimisation')
+        log.info('No file found, running DoE')
+
+        wkf.copy_module_to_module('PredictiveTool', 'in', 'Optimisation', 'in')
         opt.routine_setup(modules, 'DoE')
-        cpsf.copy_module_to_module('Optimisation', 'PredictiveTool')
+        wkf.copy_module_to_module('Optimisation', 'out', 'PredictiveTool', 'in')
+
         cpacs_path = mi.get_tooloutput_file_path('Optimisation')
         tixi = cpsf.open_tixi(cpacs_path)
-        file = cpsf.get_value(tixi, opf.OPTWKDIR_XPATH)+'/Variable_library.csv'
-        objective = cpsf.get_value(tixi, opf.OPTIM_XPATH+'/objective')
+        file = cpsf.get_value(tixi, opf.OPTWKDIR_XPATH)+'/Variable_history.csv'
+        objectives = cpsf.get_value(tixi, opf.OPTIM_XPATH+'/objectives')
 
     xd, yd = extract_data_set(file)
 

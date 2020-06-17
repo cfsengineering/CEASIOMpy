@@ -233,7 +233,8 @@ class WorkFlowGUI(tk.Frame):
 
     def _browse_file(self):
 
-        self.filename = filedialog.askopenfilename(initialdir = MODULE_DIR, title = "Select a CPACS file" )
+        cpacs_template_dir = os.path.join(MODULE_DIR,'..','..','test','CPACSfiles')
+        self.filename = filedialog.askopenfilename(initialdir = cpacs_template_dir, title = "Select a CPACS file" )
         self.path_var.set(self.filename)
 
     def _save_quit(self):

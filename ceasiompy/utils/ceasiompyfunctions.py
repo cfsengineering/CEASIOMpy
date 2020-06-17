@@ -72,7 +72,6 @@ def create_new_wkdir(routine_date=''):
     return run_dir
 
 
-
 def get_wkdir_or_create_new(tixi):
     """ Function get the wkdir path from CPACS or create a new one
 

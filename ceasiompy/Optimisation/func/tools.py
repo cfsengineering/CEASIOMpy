@@ -1,9 +1,10 @@
 """
 CEASIOMpy: Conceptual Aircraft Design Software.
 
-Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This module contains the tools used to create an adequate dictionnary.
+This module contains the tools used for data creation and manipulation of the
+Optimisation and PredictiveTool modules.
 
 Python version: >=3.6
 
@@ -34,11 +35,15 @@ log = get_logger(__file__.split('.')[0])
 #   FUNCTIONS
 #==============================================================================
 
+### --------------- MISCELANEOUS --------------- ###
+# -------------------------------------------------#
+
 def estimate_volume(tigl):
     """
     First approximation of the aircraft fuselage volume. Temporary solution
     to the unsolved issue of calling fuselageGetVolume multiple times.
-
+    Update : For the moment the get_width/get_height functions also encounter
+    this isssue, another solution has to be found.
 
     Parameters
     ----------
@@ -61,6 +66,10 @@ def estimate_volume(tigl):
     cel = el.get_ctigl_section_element()
 
     return (cel.get_width()+cel.get_height())**2*fuselage.get_length()/16*3.14
+
+
+### --------------- FUNCTIONS FOR POST-PROCESSING --------------- ###
+# ------------------------------------------------------------------#
 
 
 def display_results(prob, optim_var_dict, Rt):
@@ -96,7 +105,72 @@ def display_results(prob, optim_var_dict, Rt):
     log.info('=========================================')
 
 
-def save_results(file, wdpath, results):
+def read_results(optim_dir_path):
+    """
+    Read sql file and return a dataframe. This is mainly to facilitate data
+    manipulation by avoiding dealing with the pre-implemented CaseReader
+    dictionnary.
+
+    Parameters
+    ----------
+    optim_dir_path : str
+        Path to the SQL file directory.
+
+    Returns
+    -------
+    df : DataFrame
+        Contains all parameters of the routine
+
+    """
+    # Read recorded options
+    cr = om.CaseReader(optim_dir_path + '/Driver_recorder.sql')
+    # driver_cases = cr.list_cases('driver') (If  multiple recorders)
+
+    cases = cr.get_cases()
+
+    # Initiates dictionnaries
+    case1 = cr.get_case(0)
+    obj = {}
+    des = {}
+    const = {}
+
+    # Rename keys
+    for k, v in dict(case1.get_objectives()).items():
+        obj[k.replace('objective.','')] = v
+    for k, v in dict(case1.get_design_vars()).items():
+        des[k.replace('indeps.','')] = v
+    for k, v in dict(case1.get_constraints()).items():
+        if 'const' in k:
+            const[k.replace('const.','')] = v
+
+    # Retrieve data from SQL file
+    for case in cases:
+        for key, val in case.get_objectives().items():
+            key = key.replace('objective.','')
+            obj[key] = np.append(obj[key], val)
+
+        for key, val in case.get_design_vars().items():
+            key = key.replace('indeps.','')
+            des[key] = np.append(des[key], val)
+
+        for key, val in case.get_constraints().items():
+            if 'const' in key:
+                key = key.replace('const.','')
+                const[key] = np.append(const[key], val)
+
+
+    df_o = pd.DataFrame(obj).transpose()
+    df_d = pd.DataFrame(des).transpose()
+    df_c = pd.DataFrame(const).transpose()
+
+    df_o.insert(0, 'type', 'obj')
+    df_d.insert(0, 'type', 'des')
+    df_c.insert(0, 'type', 'const')
+
+    return pd.concat([df_o,df_d,df_c], axis=0)
+
+
+def save_results(optim_dir_path):
     """
     Add the variable history to the CSV paramater file and save it to the
     corresponding working directory.
@@ -118,16 +192,50 @@ def save_results(file, wdpath, results):
     log.info('Variables will be saved')
 
     # Get variable infos
-    df = pd.read_csv(file, index_col=0)
-    df = df.transpose()
+    df = read_results(optim_dir_path)
+    # df = df.transpose()
 
-    # Generate dictionary with variable history
-    values = {name:lv[1:] for name, (vt, lv, minv, maxv, gc, sc) in results.items()}
-    df2 = pd.DataFrame.from_dict(values)
+    # # Generate dictionary with variable history
+    # values = {name:lv[1:] for name, (vt, lv, minv, maxv, gc, sc) in results.items()}
+    # print(values)
+    # df2 = pd.DataFrame.from_dict(values)
 
-    df = df.append(df2).transpose()
+    # df = df.append(df2).transpose()
 
-    df.to_csv(wdpath+'/Variable_history.csv', index=True, na_rep='-')
+    df.to_csv(optim_dir_path+'/Variable_history.csv', index=True, na_rep='-')
+
+
+### --------------- FUNCTIONS FOR PLOTTING --------------- ###
+# -----------------------------------------------------------#
+
+def plot_results(optim_dir_path, routine_type):
+    """
+    Generate plots of the routine.
+
+    Parameters
+    ----------
+    optim_dir_path : TYPE
+        DESCRIPTION.
+    routine_type : TYPE
+        DESCRIPTION.
+
+    Returns
+    -------
+    None.
+
+    """
+    obj, des, const = read_results(optim_dir_path, routine_type)
+
+    # Datapoints for DoE
+    if routine_type.upper() == 'DOE':
+        scatter_plot(obj, des)
+
+    # Iterative evolution for Optim
+    gen_plot(obj, objective=True)
+    gen_plot(des)
+    gen_plot(const, constrains=True)
+
+    plt.show()
 
 
 def gen_plot(dic, objective=False, constrains=False):
@@ -173,72 +281,43 @@ def gen_plot(dic, objective=False, constrains=False):
             plt.legend()
 
 
-def read_results(optim_dir_path, routine_type):
+def scatter_plot(obj, des):
     """
-    Read sql file and calls the function to generate the plots
+    Plot of the datapoints for each objective in function of each
+    design variable.
+
+    Parameters
+    ----------
+    obj : dict
+        Contains objectives.
+    des : dict
+        Contains design variables.
 
     Returns
     -------
     None.
 
     """
-    # Read recorded options
-    cr = om.CaseReader(optim_dir_path + '/Driver_recorder.sql')
-    # driver_cases = cr.list_cases('driver') (If  multiple recorders)
-
-    cases = cr.get_cases()
-
-    # Initiates dictionnaries
-    case1 = cr.get_case(0)
-    obj = case1.get_objectives()
-    des = case1.get_design_vars()
-    const = case1.get_constraints()
-
-    for case in cases[1::]:
-        for key, val in case.get_objectives().items():
-            obj[key] = np.append(obj[key], val)
-
-        for key, val in case.get_design_vars().items():
-            des[key] = np.append(des[key], val)
-
-        for key, val in case.get_constraints().items():
-            if 'const' in key:
-                const[key] = np.append(const[key], val)
-
-    # Datapoints for DoE
-    if routine_type.upper() == 'DOE':
-        plt.figure()
-        r = 0
+    plt.figure()
+    r = 0
+    c = 1
+    cols_per_row = 5
+    nbR = len(obj.keys()) * np.ceil(len(des.keys())/cols_per_row)
+    nbC = cols_per_row
+    for keyo, valo in obj.items():
+        plt.ylabel(keyo)
+        for key, val in des.items():
+            plt.subplot(nbR, nbC, c+r*nbC)
+            plt.scatter(val, valo)
+            plt.xlabel(key)
+            if c == 1:
+                plt.ylabel(keyo)
+            c += 1
+            if c > cols_per_row:
+                r += 1
+                c = 1
         c = 1
-        cols_per_row = 5
-        nbR = len(obj.keys()) * np.ceil(len(des.keys())/cols_per_row)
-        nbC = cols_per_row
-        for keyo, valo in obj.items():
-            plt.ylabel(keyo)
-            for key, val in des.items():
-                plt.subplot(nbR, nbC, c+r*nbC)
-                plt.scatter(val, valo)
-                plt.xlabel(key)
-                if c == 1:
-                    plt.ylabel(keyo)
-                c += 1
-                if c > cols_per_row:
-                    r += 1
-                    c = 1
-            c = 1
-            r += 1
-
-    # Iterative evolution for Optim
-    gen_plot(obj, objective=True)
-    gen_plot(des)
-    gen_plot(const, constrains=True)
-
-    # 3D plot
-    # fig = plt.figure()
-    # ax = fig.gca(projection='3d')
-    # ax.scatter(des['indeps.wing2_span'],des['indeps.wing1_span'],-obj['objective.cl'])
-
-    plt.show()
+        r += 1
 
 
 def get_aeromap_path(module_list):
@@ -259,7 +338,7 @@ def get_aeromap_path(module_list):
     PYTORNADO_XPATH = '/cpacs/toolspecific/pytornado'
 
     SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
-    # SKINFRICTION_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction/aeroMapToCalculate'
+
     xpath = 'None'
 
     for module in module_list:
@@ -270,6 +349,10 @@ def get_aeromap_path(module_list):
             log.info('Found PyTornado analysis')
             xpath = PYTORNADO_XPATH
     return xpath
+
+
+### --------------- FUNCTIONS FOR OPTIMISATION PARAMETERS --------------- ###
+# --------------------------------------------------------------------------#
 
 def is_digit(value):
     """
@@ -303,9 +386,6 @@ def accronym(name):
     each word is taken.
 
     Ex : 'maximal take off mass' -> 'mtom'
-
-    TODO : see how it can be made more robust as some names have the same
-    accronym
 
     Parameters
     ----------

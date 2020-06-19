@@ -366,7 +366,7 @@ def get_value(tixi, xpath):
 
 
 def get_value_or_default(tixi,xpath,default_value):
-    """ Function to get value from a CPACS branch if this branch exist, it not
+    """ Function to get value from a CPACS branch if this branch exist, if not
         it returns the default value.
 
     Function 'get_value_or_default' do the same than the function 'get_value'
@@ -409,15 +409,15 @@ def get_value_or_default(tixi,xpath,default_value):
             is_bool = isinstance(default_value, bool)
         except:
             pass
-
         if is_bool:
            tixi.addTextElement(xpath_parent,value_name,str(value))
         elif is_float or is_int:
             value = float(default_value)
             tixi.addDoubleElement(xpath_parent,value_name,value,'%g')
         else:
+            value = str(value)
             tixi.addTextElement(xpath_parent,value_name,value)
-        log.info('Default value has been add to the cpacs file at: ' + xpath)
+        log.info('Default value has been added to the cpacs file at: ' + xpath)
     else:
         log.info('Value found at ' + xpath + ', default value will not be used')
 
@@ -585,7 +585,7 @@ def get_path(tixi, xpath):
 
 
 def aircraft_name(tixi_or_cpacs):
-    """ The function gat the name of the aircraft from the cpacs file or add a
+    """ The function get the name of the aircraft from the cpacs file or add a
         default one if non-existant.
 
     Args:

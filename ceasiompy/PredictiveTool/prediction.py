@@ -47,6 +47,9 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 #   GLOBALS
 # =============================================================================
 
+CPACS_PREDICT_PATH = '../PredictiveTool/ToolInput.ToolInput.xml'
+PREDICT_XPATH = '/cpacs/toolspecific/CEASIOMpy/Prediction/'
+
 # Working surrogate models
 model_dict = {'KRG':'KRG(theta0=[1e-2]*xd.shape[1])',
               'KPLSK':'KPLS(theta0=[1e-2])',
@@ -66,6 +69,35 @@ model_dict = {'KRG':'KRG(theta0=[1e-2]*xd.shape[1])',
 # sm = GEKPLS(theta0=[1e-2], xlimits=fun.xlimits, extra_points=1, print_prediction=False)
 # sm = sms.GENN()
 
+# =============================================================================
+#   ClASSES
+# =============================================================================
+
+class SM_parameters():
+    """Parameters for the surrogate model"""
+
+    def __init__(self):
+        """Define default main parameters."""
+
+        # Main parameters
+        self.objectives = ['']
+        self.user_config = 'Variable_history.csv'
+
+        # Only for the aeromap case
+        self.aeromap_case = False
+        self.doedriver = 'LatinHypercube'
+        self.samplesnb = 3
+
+    def get_user_inputs(self, cpacs_path):
+        """Take user inputs from the GUI."""
+        tixi = cpsf.open_tixi(CPACS_PREDICT_PATH)
+
+        self.objectives = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'objective', ['cl'])
+        self.user_config = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'Config/filepath', 'Variable_history.csv')
+
+        self.aeromap_case = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'aeromap_case/IsCase', False)
+        self.doedriver = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'aeromap_case/DoEdriver', 'LatinHypercube')
+        self.samplesnb = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'aeromap_case/sampleNB', 3)
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
@@ -157,8 +189,9 @@ def aeromap_case_gen(modules):
     # Generate sample points, LHS or FullFactorial
     sampling = smp.LHS(xlimits=bounds, criterion=crit)
     xd = sampling(nt)
+    print(xd)
     xd = xd.transpose()
-
+    print(xd)
     # Delete the other aeromaps... maybe conserve them ?
     for uid in apmf.get_aeromap_uid_list(tixi):
         apmf.delete_aeromap(tixi, uid)
@@ -304,8 +337,8 @@ if __name__ == "__main__":
     global objectives
     objectives = ['cl/cd','cms']
     # file = 'Aeromap_generated100_points.csv'
-    file = 'Variable_history.csv'
-    aeromap = False
+    file = '_Variable_history.csv'
+    aeromap = True
     modules = ['WeightConventional', 'PyTornado']
 
     if os.path.isfile(file):

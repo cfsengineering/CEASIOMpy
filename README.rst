@@ -21,9 +21,10 @@ CEASIOMpy is a conceptual aircraft design environment. CEASIOMpy can be used to 
 * Structures
 * Aeroelasticity
 
-.. image:: https://www.ceasiom.com/wp/wp-content/uploads/2017/09/CEASIOM_RCE_Workflow.png
-    :target: https://ceasiompy.readthedocs.io/en/latest/
-    :alt: Example Workflow
+.. image:: /doc/source/CEASIOMpy_main_logos.png
+    :width: 400 px
+    :align: center
+    :alt: CEASIOMpy logo
 
 CEASIOMpy uses the **CPACS** file format and **RCE** for setting up workflows. Both CPACS and RCE are developed by the German Aerospace Center `DLR <https://www.dlr.de/>`_
 

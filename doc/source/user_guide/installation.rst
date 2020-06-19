@@ -115,7 +115,7 @@ Optional requirements
 
 The following software tools are not required to run all |name| workflows. It is still recommended to install them in order to use the entire |name| suite.
 
-* *PyTornado*: https://github.com/airinnova/pytornado
+* *PyTornado*: https://github.com/airinnova/pytornado (when you install PyTornado by sure that you do it from your ceasiompy Conda environment)
 * *SUMO*: https://www.larosterna.com/products/open-source
 * *SU2 v7*: https://su2code.github.io/download.html
 

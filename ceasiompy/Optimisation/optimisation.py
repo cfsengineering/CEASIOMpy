@@ -380,7 +380,8 @@ def routine_setup(modules, routine_type, modules_pre=[]):
     create_routine_folder()
 
     # Adds the initial parameters
-    opf.first_run(cpacs_path, modules, modules_pre)
+    opf.first_run(modules, modules_pre)
+
     Rt.get_user_inputs(cpacs_path)
 
     optim_var_dict = opf.create_variable_library(Rt)

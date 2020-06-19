@@ -135,6 +135,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
         log.warning('Warning, double floor index can be only 0 (1 floor),\
                     2 (B747-2nd floor type) or 3 (A380-2nd floor type).\
                     Set Default value (0)')
+        cabin_length2 = ind.cabin_length
 
     ### WEIGHT ANALYSIS
     log.info('------- Starting the weight analysis --------')

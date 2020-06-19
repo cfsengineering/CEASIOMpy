@@ -179,7 +179,7 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
     cfg['FIXED_CL_MODE'] = fixed_cl
     cfg['TARGET_CL'] = target_cl
     cfg['DCL_DALPHA'] = '0.1'
-    cfg['UPDATE_AOA_ITER_LIMIT'] = '10'
+    cfg['UPDATE_AOA_ITER_LIMIT'] = '50'
     cfg['ITER_DCL_DALPHA'] = '80'
     # TODO: correct value for the 3 previous parameters ??
 

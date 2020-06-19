@@ -159,7 +159,11 @@ class AeroCoefficient():
 
         #self.increment_map = IncrementMap()
 
+<<<<<<< HEAD
     def add_param_point(self, alt,mach,aoa,aos):
+=======
+    def add_param_point(self,alt,mach,aoa,aos):
+>>>>>>> db217f8cc754b0199c92879eaf31b93a9b5f2c61
 
         self.alt.append(alt)
         self.mach.append(mach)

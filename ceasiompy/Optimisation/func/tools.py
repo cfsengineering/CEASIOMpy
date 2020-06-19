@@ -224,7 +224,7 @@ def plot_results(optim_dir_path, routine_type):
     None.
 
     """
-    obj, des, const = read_results(optim_dir_path, routine_type)
+    obj, des, const = read_results(optim_dir_path)
 
     # Datapoints for DoE
     if routine_type.upper() == 'DOE':

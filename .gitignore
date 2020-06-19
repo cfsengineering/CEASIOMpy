@@ -20,9 +20,6 @@ CrashInfo/
 # Ignore ModuleTest
 /ceasiompy/ModuleTest/
 
-# Ignore test files
-/test/CPACSfiles
-/test/AeroMaps
 
 # Ignore ToolInput and ToolOutput
 ToolInput.xml

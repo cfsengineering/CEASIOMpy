@@ -36,9 +36,8 @@ cpacs_inout.add_input(
 
 cpacs_inout.add_input(
     var_name='file',
-    var_type=str,
-    default_value='Aeromap_generated.csv',
-    unit='-',
+    var_type='pathtype',
+    default_value='../PredictiveTool/Aeromap_generated.csv',
     descr='File that summarises the inputs and outputs to train the model with',
     xpath=CEASIOM_XPATH+'/SurrogateModel/file',
     gui=include_gui,
@@ -55,29 +54,20 @@ cpacs_inout.add_input(
     the workflow only has to be run once.""",
     xpath=CEASIOM_XPATH+'/SurrogateModel/AeroMapOnly',
     gui=include_gui,
-    gui_name='Aeromap specific',
+    gui_name='Aeromap only',
     gui_group='Global settings'
-)
-
-cpacs_inout.add_input(
-    var_name='modules',
-    var_type=list,
-    default_value='-',
-    unit='-',
-    descr='List of modules to run',
-    gui=False,
 )
 
 cpacs_inout.add_input(
     var_name='DoEDriver',
     var_type=list,
-    default_value=['Uniform','Fullfactorial', 'LatinHypercube', 'PlackettBurman'],
+    default_value=['Fullfactorial', 'LatinHypercube'],
     unit='-',
     descr='Choose the type of sample generator',
     xpath=CEASIOM_XPATH+'/SurrogateModel/DoE/driver',
     gui=include_gui,
     gui_name='Driver (DoE)',
-    gui_group='DoE settings (if required)'
+    gui_group='DoE settings (Aeromap case)'
 )
 
 cpacs_inout.add_input(
@@ -89,20 +79,18 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH+'/Optimisation/parameters/DoE/sampleNB',
     gui=include_gui,
     gui_name='Sample # parameter',
-    gui_group='DoE settings (if required)'
+    gui_group='DoE settings (Aeromap case)'
 )
 
 cpacs_inout.add_input(
-    var_name='Configuration file path',
-    var_type='pathtype',
-    default_value='../Optimisation/Default_config.csv',
-    unit='1',
-    descr='Absolute path to the CSV file',
-    xpath=CEASIOM_XPATH + '/Optimisation/Config/filepath',
-    gui=True,
-    gui_name='CSV file path',
-    gui_group='Configuration',
+    var_name='modules',
+    var_type=list,
+    default_value='-',
+    unit='-',
+    descr='List of modules to run',
+    gui=False,
 )
+
 
 # ----- Output -----
 

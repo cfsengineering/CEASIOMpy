@@ -52,8 +52,8 @@ def create_new_wkdir(routine_date=''):
     """
     date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     if routine_date != '':
-        dir_name = 'Run' + date
-        wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR/Routine_' + routine_date)
+        dir_name = 'Optim/Runs/Run' + date
+        wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR/CEASIOMpy_Run_' + routine_date)
     else:
         dir_name = 'CEASIOMpy_Run_' + date
         wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR')

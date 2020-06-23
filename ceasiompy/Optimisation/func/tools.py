@@ -32,11 +32,48 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
 #==============================================================================
+#   GLOBALS
+#==============================================================================
+
+nbC = 5
+
+#==============================================================================
 #   FUNCTIONS
 #==============================================================================
 
 ### --------------- MISCELANEOUS --------------- ###
 # -------------------------------------------------#
+
+def get_aeromap_path(module_list):
+    """
+    Return xpath of selected aeromap.
+
+    Check the modules that will be run in the optimisation routine to specify
+    the path to the correct aeromap in the CPACS file.
+
+    Parameters
+    ----------
+    module_list : List
+
+    Returns
+    -------
+    xpath : String
+    """
+    PYTORNADO_XPATH = '/cpacs/toolspecific/pytornado'
+
+    SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
+
+    xpath = 'None'
+
+    for module in module_list:
+        if module == 'SU2Run':
+            log.info('Found SU2 analysis')
+            xpath = SU2_XPATH
+        elif module == 'PyTornado':
+            log.info('Found PyTornado analysis')
+            xpath = PYTORNADO_XPATH
+    return xpath
+
 
 def estimate_volume(tigl):
     """
@@ -214,7 +251,7 @@ def plot_results(optim_dir_path, routine_type):
 
     Parameters
     ----------
-    optim_dir_path : TYPE
+    optim_dir_path : str
         DESCRIPTION.
     routine_type : TYPE
         DESCRIPTION.
@@ -224,131 +261,56 @@ def plot_results(optim_dir_path, routine_type):
     None.
 
     """
-    obj, des, const = read_results(optim_dir_path)
+    df = read_results(optim_dir_path)
 
-    # Datapoints for DoE
-    if routine_type.upper() == 'DOE':
-        scatter_plot(obj, des)
+    obj = [i for i in df.index if df['type'][i] == 'obj']
+    des = [i for i in df.index if df['type'][i] == 'des']
+    const = [i for i in df.index if df['type'][i] == 'const']
 
-    # Iterative evolution for Optim
-    gen_plot(obj, objective=True)
-    gen_plot(des)
-    gen_plot(const, constrains=True)
-
+    df.pop('type')
+    df = df.transpose()
+    df.plot(subplots=True, layout=(-1,nbC))
     plt.show()
+    if routine_type.upper() == 'DOE':
+        gen_plot(df, obj, des)
+        gen_plot(df, obj, const)
 
 
-def gen_plot(dic, objective=False, constrains=False):
+def gen_plot(df, yvars, xvars):
     """
-    Generate plots.
+    Generate a scatter plot from a dataframe based on its row entries
 
     Parameters
     ----------
-    dic : dictionnary
-        Can contain the constraints, design or objective variables.
-    objective : Boolean, optional
-        Checks if the objective variables are passed. The default is False.
-    constrains : Boolean, optional
-        Checks if the objective variables are passed. The default is False.
-
-    TODO:
-        *Find an adequate way of representation of the variables
-        (normalized ? If yes, how ?)
+    df : DataFrame
+        Contains the data.
+    yvars : list
+        Index of the functions in df.
+    xvars : list
+        Index of the variables in df.
 
     Returns
     -------
     None.
 
     """
-    iterations = len(dic)
-
-    plt.figure()
-    if objective:
-        for key, lst in dic.items():
-            iterations = np.arange(len(lst))
-            plt.plot(iterations, -lst+lst[0], label=key)
-            plt.legend()
-    elif constrains:
-        for key, lst in dic.items():
-            if 'const' in key:
-                iterations = np.arange(len(lst))
-                plt.plot(iterations, lst-lst[0], label=key)
-                plt.legend()
-    else:
-        for key, lst in dic.items():
-            iterations = np.arange(len(lst))
-            plt.plot(iterations, lst-lst[0], label=key)
-            plt.legend()
-
-
-def scatter_plot(obj, des):
-    """
-    Plot of the datapoints for each objective in function of each
-    design variable.
-
-    Parameters
-    ----------
-    obj : dict
-        Contains objectives.
-    des : dict
-        Contains design variables.
-
-    Returns
-    -------
-    None.
-
-    """
-    plt.figure()
+    nbR = int(len(yvars) * np.ceil(len(xvars)/nbC))
     r = 0
     c = 1
-    cols_per_row = 5
-    nbR = len(obj.keys()) * np.ceil(len(des.keys())/cols_per_row)
-    nbC = cols_per_row
-    for keyo, valo in obj.items():
-        plt.ylabel(keyo)
-        for key, val in des.items():
-            plt.subplot(nbR, nbC, c+r*nbC)
-            plt.scatter(val, valo)
-            plt.xlabel(key)
+    for o in yvars:
+        for d in xvars:
+            plt.subplot(nbR,nbC,c+r*nbC)
+            plt.scatter(df[d],df[o])
+            plt.xlabel(d)
             if c == 1:
-                plt.ylabel(keyo)
+                plt.ylabel(o)
             c += 1
-            if c > cols_per_row:
+            if c > nbC:
                 r += 1
-                c = 1
-        c = 1
+                c = 0
         r += 1
-
-
-def get_aeromap_path(module_list):
-    """
-    Return xpath of selected aeromap.
-
-    Check the modules that will be run in the optimisation routine to specify
-    the path to the correct aeromap in the CPACS file.
-
-    Parameters
-    ----------
-    module_list : List
-
-    Returns
-    -------
-    xpath : String
-    """
-    PYTORNADO_XPATH = '/cpacs/toolspecific/pytornado'
-
-    SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
-
-    xpath = 'None'
-
-    for module in module_list:
-        if module == 'SU2Run':
-            log.info('Found SU2 analysis')
-            xpath = SU2_XPATH
-        elif module == 'PyTornado':
-            log.info('Found PyTornado analysis')
-            xpath = PYTORNADO_XPATH
-    return xpath
+        c = 0
+    plt.show()
 
 
 ### --------------- FUNCTIONS FOR OPTIMISATION PARAMETERS --------------- ###
@@ -408,55 +370,78 @@ def accronym(name):
     return accro
 
 
-def add_bounds_and_type(name, objective, value, var):
+def add_type(entry, outputs, objective, var):
     """
-    Add upper and lower bound, plus the variable type.
-
-    20% of the initial value is added and substracted to create the
-    boundaries.
-    The type of the variable (boundary, constraint, objective function)
-    is also specified.
+    Add variable type to the dictionary.
 
     Parameters
     ----------
-    name : string
-        Name of a variable.
-    objective : list
-        List of variable names or accronyms appearing in the objective function
-    value :
+    name : str
+        Name of a variable
+    outputs : lst
+        List of the modules' output
+    objective : str
+        Objective function
+    var : dct
+        Variable dictionary
 
     Returns
     -------
     None.
 
     """
-    # var_accro = accronym(name)
-    accro = 'XXX'
-    if name in objective or accro in objective:
-        log.info("{} in objective function expression.".format(name))
-        log.info(objective)
-        var['type'].append('obj')
-        lower = '-'
-        upper = '-'
+
+    if entry in outputs:
+        if type(entry) != str:
+            entry = entry.var_name
+        if entry in objective:
+            var['type'].append('obj')
+            log.info('Added type : obj')
+        else:
+            var['type'].append('const')
+            log.info('Added type : const')
     else:
         var['type'].append('des')
-        if value in ['False', 'True']:
+        log.info('Added type : des')
+
+def add_bounds(name, value, var):
+    """
+    Add upper and lower bound.
+
+    20% of the initial value is added and substracted to create the
+    boundaries.
+
+    Parameters
+    ----------
+    name : str
+        Name of a variable
+    value : str
+        Initial value of the variable
+    var : dct
+        Variable dictionary
+
+    Returns
+    -------
+    None.
+
+    """
+    if value in ['False', 'True']:
             lower = '-'
             upper = '-'
-        elif value.isdigit():
-            value = int(value)
-            lower = round(value-abs(0.2*value))
-            upper = round(value+abs(0.2*value))
-            if lower == upper:
-                lower -= 1
-                upper += 1
-        else:
-            value = float(value)
-            lower = round(value-abs(0.2*value))
-            upper = round(value+abs(0.2*value))
-            if lower == upper:
-                lower -= 1.0
-                upper += 1.0
+    elif value.isdigit():
+        value = int(value)
+        lower = round(value-abs(0.2*value))
+        upper = round(value+abs(0.2*value))
+        if lower == upper:
+            lower -= 1
+            upper += 1
+    else:
+        value = float(value)
+        lower = round(value-abs(0.2*value))
+        upper = round(value+abs(0.2*value))
+        if lower == upper:
+            lower -= 1.0
+            upper += 1.0
 
     var['min'].append(lower)
     var['max'].append(upper)

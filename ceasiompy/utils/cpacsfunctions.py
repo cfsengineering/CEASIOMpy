@@ -69,7 +69,7 @@ def open_tixi(cpacs_path):
     tixi_handle = tixi3wrapper.Tixi3()
     tixi_handle.open(cpacs_path)
 
-    log.info('TIXI handle has been created.')
+    log.info('TIXI handle has been created.'+cpacs_path)
 
     return tixi_handle
 
@@ -140,7 +140,7 @@ def create_branch(tixi, xpath, add_child=False):
     (index start at 1).
     e.g.: '/cpacs/vehicles/aircraft/model/wings/wing[2]/name'
 
-    If the entire xpath already exist, the option 'add_child' (True/False) let
+    If the entire xpath already exist, the option 'add_child' (True/False) lets
     the user decide if a named child should be added next to the existing
     one(s). This only valid for the last element of the xpath.
 
@@ -554,7 +554,7 @@ def get_string_vector(tixi, xpath):
 def get_path(tixi, xpath):
     """ Get a path with your os system format
 
-    Function 'get_path' will get a get the path in the CPACS file and retrurn
+    Function 'get_path' will get a get the path in the CPACS file and return
     a path with the format corresponding to your os ('/' for Linux and MacOS
     and '\' for Windows). All paths to store in the CPACS file could be saved as
     normal strings as long as this function is used to get them back.

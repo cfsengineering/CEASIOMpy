@@ -38,17 +38,18 @@ log = get_logger(__file__.split('.')[0])
 # ==============================================================================
 #   GLOBALS
 # ==============================================================================
-var = {}
-objective = ''
 
-CPACS_OPTIM_PATH = '../Optimisation/ToolInput/ToolInput.xml'
-CSV_PATH = '../Optimisation/Variable_library.csv'
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+CPACS_OPTIM_PATH = mif.get_toolinput_file_path('Optimisation')
+CSV_PATH = MODULE_DIR+'/Variable_library.csv'
 
 WKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath'
 OPTWKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/optimPath'
 OPTIM_XPATH = '/cpacs/toolspecific/CEASIOMpy/Optimisation/'
 AEROMAP_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance'
 SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
+
+banned_entries = ['wing','delete_old_wkdirs','check_extract_loads']
 
 # ==============================================================================
 #   CLASS
@@ -103,11 +104,13 @@ class Routine:
         # User specified configuration file path
         self.user_config = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/filepath', '../Optimisation/Default_config.csv')
 
+        cpsf.close_tixi(tixi, CPACS_OPTIM_PATH)
+
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
 
-def first_run(cpacs_path, module_list, modules_pre_list=[]):
+def first_run(module_list, modules_pre_list=[]):
     """
     Run subworkflow once for the optimisation problem.
 
@@ -116,8 +119,6 @@ def first_run(cpacs_path, module_list, modules_pre_list=[]):
 
     Parameters
     ----------
-    cpacs_path : String
-        Path to the CPACS file.
     module_list : List
         List of modules.
     module_pre_list : List
@@ -159,7 +160,7 @@ def first_run(cpacs_path, module_list, modules_pre_list=[]):
     module_list.pop(module_list.index('Optimisation'))
 
 
-def get_normal_param(tixi, value_name, entry):
+def get_normal_param(tixi, value_name, entry, outputs):
     """
     Add a variable to the optimisation dictionnary.
 
@@ -186,17 +187,21 @@ def get_normal_param(tixi, value_name, entry):
     value = '-'
 
     if not def_val:
-        if entry.var_type in [bool, float, int]:
+        if entry.var_type in [float, int]:
             def_val = 0.0
         else:
             def_val = '-'
-    if entry.var_name not in ['wing']:
+    if entry.var_name not in banned_entries:
         value = cpsf.get_value_or_default(tixi, xpath, def_val)
-        log.info('Value : {}'.format(value))
     if not tls.is_digit(value):
+        log.info('Not a digital value')
+        value = '-'
+    elif entry.var_type == bool:
+        log.info('Boolean, yet not implemented')
         value = '-'
 
-    # Ignores values that are not int, float or bool
+    log.info('Value : {}'.format(value))
+    # Ignores values that are not int or float
     # TODO : implement the list
     if value != '-':
         value = str(value)
@@ -206,7 +211,8 @@ def get_normal_param(tixi, value_name, entry):
         var['init'].append(value)
         var['xpath'].append(xpath)
 
-        tls.add_bounds_and_type(entry.var_name, objective, value, var)
+        tls.add_type(entry, outputs, objective, var)
+        tls.add_bounds(entry.var_name, value, var)
         log.info('Added to variable file')
 
 
@@ -229,8 +235,10 @@ def get_aero_param(tixi, xpath, module_name):
     else:
         am_index = '[1]'
 
-    for name in ['altitude', 'machNumber', 'angleOfAttack', 'angleOfSideslip',
-                 'cl', 'cd', 'cs', 'cml', 'cmd', 'cms']:
+    outputs = ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']
+    inputs = ['altitude', 'machNumber', 'angleOfAttack', 'angleOfSideslip']
+    inputs.extend(outputs)
+    for name in inputs:
         xpath_param = xpath.replace('[i]', am_index)+'/'+name
         value = str(tixi.getDoubleElement(xpath_param))
 
@@ -238,7 +246,8 @@ def get_aero_param(tixi, xpath, module_name):
         var['init'].append(value)
         var['xpath'].append(xpath_param)
 
-        tls.add_bounds_and_type(name, objective, value, var)
+        tls.add_type(name, outputs, objective, var)
+        tls.add_bounds(name, value, var)
 
 
 def get_variables(tixi, specs, module_name):
@@ -283,7 +292,8 @@ def get_variables(tixi, specs, module_name):
             get_aero_param(tixi, xpath, module_name)
         # Normal case
         else:
-            get_normal_param(tixi, value_name, entry)
+            get_normal_param(tixi, value_name, entry, specs.cpacs_inout.outputs)
+
 
 
 def generate_dict(df):
@@ -346,7 +356,7 @@ def get_default_df(module_list):
 
     return df
 
-def create_variable_library(Rt):
+def create_variable_library(Rt, optim_dir_path):
     """
     Create a dictionnary and a CSV file containing all variables that appear
     in the module list.
@@ -362,8 +372,8 @@ def create_variable_library(Rt):
     Rt : Class
         Contains
 
-    module_list : list
-        List of the modules that are included in the optimisation loop.
+    optim_dir_path : str
+        Path to the working directory.
 
     Returns
     -------
@@ -371,7 +381,8 @@ def create_variable_library(Rt):
         Dictionnary with all optimisation parameters
 
     """
-    global objective, var
+    global objective, var, CSV_PATH
+    CSV_PATH = optim_dir_path+'/Variable_library.csv'
     objective = Rt.objective
     var = {'Name':[], 'type':[], 'init':[], 'min':[], 'max':[], 'xpath':[]}
 
@@ -392,7 +403,7 @@ def create_variable_library(Rt):
         elif OS == 'darwin':
             os.system('Numbers ' + CSV_PATH)
 
-        log.info('Variable library file has been saved')
+        log.info('Variable library file has been saved at '+CSV_PATH)
         df = pd.read_csv(CSV_PATH, index_col=0)
     else:
         log.info('Configuration file found, will be used')

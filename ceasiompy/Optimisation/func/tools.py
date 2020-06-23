@@ -45,20 +45,18 @@ nbC = 5
 # -------------------------------------------------#
 
 def get_aeromap_path(module_list):
-    """
-    Return xpath of selected aeromap.
+    """Return xpath of selected aeromap.
 
     Check the modules that will be run in the optimisation routine to specify
     the path to the correct aeromap in the CPACS file.
 
-    Parameters
-    ----------
-    module_list : List
+    Args:
+        module_list (lst) : list of the modules that are run in the routin
 
-    Returns
-    -------
-    xpath : String
+    Returns:
+        xpath (str) : Xpath to the aeromap that is used for the routine
     """
+
     PYTORNADO_XPATH = '/cpacs/toolspecific/pytornado'
 
     SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
@@ -76,19 +74,19 @@ def get_aeromap_path(module_list):
 
 
 def estimate_volume(tigl):
-    """
+    """Estimate aircraft volume.
+
     First approximation of the aircraft fuselage volume. Temporary solution
     to the unsolved issue of calling fuselageGetVolume multiple times.
     Update : For the moment the get_width/get_height functions also encounter
     this isssue, another solution has to be found.
 
-    Parameters
-    ----------
-    tigl : Tigl3 handle
+    Args:
+        tigl (tigl3 handle) : Handle of the current CPACS
 
-    Returns
-    -------
-    None.
+    Returns:
+        volume (float) : Estimated value of the volume for the current
+        aircraft
 
     """
     mgr =  tigl3.configuration.CCPACSConfigurationManager_get_instance()
@@ -102,7 +100,8 @@ def estimate_volume(tigl):
     el = sec.get_section_element(1)
     cel = el.get_ctigl_section_element()
 
-    return (cel.get_width()+cel.get_height())**2*fuselage.get_length()/16*3.14
+    volume = (cel.get_width()+cel.get_height())**2*fuselage.get_length()/16*3.14
+    return volume
 
 
 ### --------------- FUNCTIONS FOR POST-PROCESSING --------------- ###
@@ -110,21 +109,19 @@ def estimate_volume(tigl):
 
 
 def display_results(prob, optim_var_dict, Rt):
-    """
-    Display variable history on terminal.
+    """Display variable history on terminal.
 
-    Parameters
-    ----------
-    prob : class
-        OpenMDAO problem object
-    optim_var_dict : dict
-        Variable dictionnary
-    Rt : Class
-        Routine parameters.
+    All the variables that were used in the routine and that saved in
+    optim_var_dict are displayed on terminal with their bounds and their value
+    history.
 
-    Returns
-    -------
-    None.
+    Args:
+        Rt (class) : Routine parameters
+        prob (class) : OpenMDAO problem object
+        optim_var_dict (dict) : Variable dictionnary
+
+    Returns:
+        None.
 
     """
     log.info('=========================================')
@@ -143,20 +140,17 @@ def display_results(prob, optim_var_dict, Rt):
 
 
 def read_results(optim_dir_path):
-    """
-    Read sql file and return a dataframe. This is mainly to facilitate data
-    manipulation by avoiding dealing with the pre-implemented CaseReader
-    dictionnary.
+    """Read sql file and converts data to dataframe.
 
-    Parameters
-    ----------
-    optim_dir_path : str
-        Path to the SQL file directory.
+    This is mainly to facilitate data manipulation by avoiding dealing with
+    the pre-implemented CaseReader dictionnary whose architecture is not
+    convenient.
 
-    Returns
-    -------
-    df : DataFrame
-        Contains all parameters of the routine
+    Args:
+        optim_dir_path (str) : Path to the SQL file directory.
+
+    Returns:
+        df (DataFrame) : Contains all parameters of the routine
 
     """
     # Read recorded options
@@ -208,22 +202,17 @@ def read_results(optim_dir_path):
 
 
 def save_results(optim_dir_path):
-    """
+    """Save routine results to CSV.
+
     Add the variable history to the CSV paramater file and save it to the
-    corresponding working directory.
+    corresponding working directory. This comes in handy for generating
+    data for surrogate models.
 
-    Parameters
-    ----------
-    file : str
-        Path to CSV file.
-    wdpath : str
-        Path to optimisation working directory.
-    results : dict
-        contains the variable history.
+    Args:
+        optim_dir_path (str) : Path to the routine working directory.
 
-    Returns
-    -------
-    None.
+    Returns:
+        None.
 
     """
     log.info('Variables will be saved')
@@ -246,19 +235,17 @@ def save_results(optim_dir_path):
 # -----------------------------------------------------------#
 
 def plot_results(optim_dir_path, routine_type):
-    """
-    Generate plots of the routine.
+    """Generate plots of the routine.
 
-    Parameters
-    ----------
-    optim_dir_path : str
-        DESCRIPTION.
-    routine_type : TYPE
-        DESCRIPTION.
+    Draw plots to vizualize the data. The evolution of each problem parameter
+    appears in a subplot.
 
-    Returns
-    -------
-    None.
+    Args:
+        optim_dir_path (str) : Path to the routine working directory.
+        routine_type (str) : Type of the routine, can be DoE or Optim
+
+    Returns:
+        None.
 
     """
     df = read_results(optim_dir_path)
@@ -277,21 +264,17 @@ def plot_results(optim_dir_path, routine_type):
 
 
 def gen_plot(df, yvars, xvars):
-    """
-    Generate a scatter plot from a dataframe based on its row entries
+    """Generate scatter plot
 
-    Parameters
-    ----------
-    df : DataFrame
-        Contains the data.
-    yvars : list
-        Index of the functions in df.
-    xvars : list
-        Index of the variables in df.
+    Generate a scatter plot from a dataframe based on its column entries.
 
-    Returns
-    -------
-    None.
+    Args:
+        df (DataFrame) : Contains the data.
+        yvars (lst) : Label of the functions in df.
+        xvars (lst) : Label of the variables in df.
+
+    Returns:
+        None.
 
     """
     nbR = int(len(yvars) * np.ceil(len(xvars)/nbC))
@@ -317,16 +300,17 @@ def gen_plot(df, yvars, xvars):
 # --------------------------------------------------------------------------#
 
 def is_digit(value):
-    """
-    Check if a string value is a float.
+    """Check if a string value is a float.
 
-    Parameters
-    ----------
-    value : string
+    This function comes in as more flexible than the implementde isdigit()
+    function, as it also enbales to check for floats and not just integers.
 
-    Returns
-    -------
-    Boolean.
+    Args:
+        value (str) : Chain of character that may contain something else than
+        a digit or a dot.
+
+    Returns:
+        Boolean.
 
     """
     if type(value) is list:
@@ -340,8 +324,7 @@ def is_digit(value):
 
 
 def accronym(name):
-    """
-    Return accronym of a name. (EXPERIMENTAL FEATURE)
+    """Return accronym of a name. (EXPERIMENTAL FEATURE)
 
     In order to detect the values specified by the user as accronyms, the
     complete name of a variable is decomposed and the first letter of
@@ -349,14 +332,11 @@ def accronym(name):
 
     Ex : 'maximal take off mass' -> 'mtom'
 
-    Parameters
-    ----------
-    name : string
-        name of a variable.
+    Args:
+        name (str) : Name of a variable.
 
-    Returns
-    -------
-    None.
+    Returns:
+        accro (str) : Accronym of the name.
 
     """
     full_name = name.split('_')
@@ -371,26 +351,24 @@ def accronym(name):
 
 
 def add_type(entry, outputs, objective, var):
+    """Add variable type to the dictionary.
+
+    Verifies if the entry of a module is listed in its outputs. If it is the
+    case it will be set as a constraint ('const') by default, except if
+    the entry is found in the expression of the objective function where it is
+    then labelled as 'obj'. Else it will be marked as a design variable as it
+    belongs to the module input.
+
+    Args:
+        name (str) : Name of a variable
+        outputs (lst) : List of the modules' output
+        objective (str) : Objective function
+        var (dct) : Variable dictionary
+
+    Returns:
+        None.
+
     """
-    Add variable type to the dictionary.
-
-    Parameters
-    ----------
-    name : str
-        Name of a variable
-    outputs : lst
-        List of the modules' output
-    objective : str
-        Objective function
-    var : dct
-        Variable dictionary
-
-    Returns
-    -------
-    None.
-
-    """
-
     if entry in outputs:
         if type(entry) != str:
             entry = entry.var_name
@@ -405,24 +383,18 @@ def add_type(entry, outputs, objective, var):
         log.info('Added type : des')
 
 def add_bounds(name, value, var):
-    """
-    Add upper and lower bound.
+    """Add upper and lower bound.
 
     20% of the initial value is added and substracted to create the
     boundaries.
 
-    Parameters
-    ----------
-    name : str
-        Name of a variable
-    value : str
-        Initial value of the variable
-    var : dct
-        Variable dictionary
+    Args:
+    name (str) : Name of a variable
+    value (str) : Initial value of the variable
+    var (dct) : Variable dictionary
 
-    Returns
-    -------
-    None.
+    Returns:
+        None.
 
     """
     if value in ['False', 'True']:

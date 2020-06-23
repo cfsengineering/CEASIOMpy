@@ -48,7 +48,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 # =============================================================================
 
 class geom_param(om.ExplicitComponent):
-    """ Classe to define  the geometric parameters"""
+    """ Classe to define the geometric parameters"""
 
     def setup(self):
         """ Setup inputs only for the geometry"""
@@ -197,18 +197,16 @@ class objective(om.ExplicitComponent):
 # =============================================================================
 
 def create_routine_folder():
-    """
-    Create a folder in which all CEASIOMpy runs in the optimisation loop
-    will be saved. This architecture may change in the future.
+    """Create the working dicrectory of the routine.
 
-    Parameters
-    ----------
-    cpacs_path : str
-        Path to file.
+    Create a folder in which all CEASIOMpy runs and routine parameters will be
+    saved. This architecture may change in the future.
 
-    Returns
-    -------
-    None.
+    Args:
+        None.
+
+    Returns:
+        None.
 
     """
     global optim_dir_path
@@ -216,7 +214,7 @@ def create_routine_folder():
     tixi = cpsf.open_tixi(opf.CPACS_OPTIM_PATH)
     wkdir = ceaf.create_new_wkdir()
     if not tixi.checkElement(opf.WKDIR_XPATH):
-        cpsf.create_branch(tixi, WKDIR_XPATH)
+        cpsf.create_branch(tixi, opf.WKDIR_XPATH)
     tixi.updateTextElement(opf.WKDIR_XPATH,wkdir)
     optim_dir_path = os.path.join(wkdir, Rt.type)
 
@@ -232,17 +230,20 @@ def create_routine_folder():
 
 
 def routine_launcher(Opt):
-    """
-    Run an optimisation routine or DoE using the OpenMDAO library.
+    """Run an optimisation routine or DoE using the OpenMDAO library.
 
-    Parameters
-    ----------
-    Opt : class
-        Indicates which modules to use and the routine type (Optim or DoE).
+    This function launches the setup for the routine by setting up the problem
+    with the OpenMDAO component, creating of reading a file containing all the
+    problem parameters and launching the driver. It also specifies where to
+    save the case recordings and launches the results plotting at the end of
+    the routine.
 
-    Returns
-    -------
-    None.
+    Args:
+        Opt (class) : Indicates which modules to use and the routine type
+        (Optim or DoE).
+
+    Returns:
+        None.
 
     """
     global mod, counter, optim_var_dict, Rt

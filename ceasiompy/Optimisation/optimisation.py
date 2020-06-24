@@ -19,10 +19,9 @@ Todo:
 import os
 import sys
 import shutil
-import datetime
 # import argparse
 import openmdao.api as om
-from tigl3 import geometry
+from tigl3 import geometry # Called within eval() function
 from re import split as splt
 
 import ceasiompy.utils.optimfunctions as opf
@@ -152,21 +151,24 @@ class moduleComp(om.ExplicitComponent):
 
 
 class objective(om.ExplicitComponent):
-    """Take the objective values and compute the function"""
+    """Class to compute the objective function(s)"""
 
     def setup(self):
         """ Setup inputs and outputs"""
-        var_list = splt('[+*/-]', Rt.objective)
-        for var in var_list:
-            self.add_input(var)
-        self.add_output('Objective function')
+        declared = []
+        for obj in Rt.objective:
+            var_list = splt('[+*/-]', obj)
+            for var in var_list:
+                if var not in declared:
+                    self.add_input(var)
+                    declared.append(var)
+            self.add_output('Objective function '+obj)
 
 
     def compute(self, inputs, outputs):
         """Compute the objective expression"""
         global counter
         counter += 1
-        var_list = splt('[+*/-]', Rt.objective)
         cpacs_path = mif.get_tooloutput_file_path(Rt.modules[-1])
 
         # Save the CPACS file for this iteration
@@ -181,15 +183,17 @@ class objective(om.ExplicitComponent):
         # Change local wkdir for the next iteration
         tixi.updateTextElement(opf.WKDIR_XPATH,ceaf.create_new_wkdir(Rt.date,Rt.type))
 
-        for v in var_list:
-            if not v.isdigit() and v != '':
-                exec('{} = inputs["{}"]'.format(v, v))
+        for obj in Rt.objective:
+            var_list = splt('[+*/-]', obj)
+            for v in var_list:
+                if not v.isdigit() and v != '':
+                    exec('{} = inputs["{}"]'.format(v, v))
 
-        result = eval(Rt.objective)
-        if Rt.minmax == 'min':
-            outputs['Objective function'] = -result
-        else:
-            outputs['Objective function'] = result
+            result = eval(obj)
+            if Rt.minmax == 'min':
+                outputs['Objective function '+obj] = -result
+            else:
+                outputs['Objective function '+obj] = result
 
         cpsf.close_tixi(tixi, cpacs_path)
 
@@ -213,12 +217,21 @@ def create_routine_folder():
     """
     global optim_dir_path, Rt
 
-    # Get the main working directory
+    # Create the main working directory
     tixi = cpsf.open_tixi(opf.CPACS_OPTIM_PATH)
+    if tixi.checkElement(opf.WKDIR_XPATH):
+        tixi.removeElement(opf.WKDIR_XPATH)
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
     optim_dir_path = os.path.join(wkdir, Rt.type)
     Rt.date = wkdir[-19:]
 
+    # Save the path to the directory in the CPACS
+    if tixi.checkElement(opf.OPTWKDIR_XPATH):
+        tixi.removeElement(opf.OPTWKDIR_XPATH)
+    cpsf.create_branch(tixi, opf.OPTWKDIR_XPATH)
+    tixi.updateTextElement(opf.OPTWKDIR_XPATH,optim_dir_path)
+
+    # Add subdirectories
     if not os.path.isdir(optim_dir_path):
         os.mkdir(optim_dir_path)
     os.mkdir(optim_dir_path+'/Geometry')
@@ -226,18 +239,37 @@ def create_routine_folder():
 
     cpsf.close_tixi(tixi, opf.CPACS_OPTIM_PATH)
 
-def driver_setup(prob):
 
+def driver_setup(prob):
+    """Change settings of the driver
+
+    Here the type of the driver has to be selected, wether it will be an
+    optimisation driver or a DoE driver. In both cases there are multiple
+    options to choose from to tune the driver.
+    Two recorders are then attached to the driver for results and N2 plotting.
+
+    Args:
+        prob (om.Problem object) : Instance of the Problem class that is used
+        to define the current routine.
+
+    Returns:
+        None.
+
+    """
     if Rt.type == 'Optim':
-        # prob.driver = om.pyOptSparseDriver() # multifunc driver : NSGA2
-        # prob.driver.options['optimizer'] = 'NSGA2'
-        # prob.driver.options['Popsize'] = 50
-        # prob.driver.options['maxGen'] = 50
-        prob.driver = om.ScipyOptimizeDriver()
-        prob.driver.options['optimizer'] = Rt.driver
-        prob.driver.options['maxiter'] = Rt.max_iter
-        prob.driver.options['tol'] = Rt.tol
-        prob.driver.options['disp'] = True
+        if len(Rt.objective) > 1 and False:
+            log.info("""More than 1 objective function, the driver will
+                     automatically be set to NSGA2""")
+            prob.driver = om.pyOptSparseDriver() # multifunc driver : NSGA2
+            prob.driver.options['optimizer'] = 'NSGA2'
+            prob.driver.opt_settings['PopSize'] = 7
+            prob.driver.opt_settings['maxGen'] = Rt.max_iter
+        else:
+            prob.driver = om.ScipyOptimizeDriver()
+            prob.driver.options['optimizer'] = Rt.driver
+            prob.driver.options['maxiter'] = Rt.max_iter
+            prob.driver.options['tol'] = Rt.tol
+            prob.driver.options['disp'] = True
     else:
         if Rt.doedriver == 'Uniform':
             driver_type = om.UniformGenerator(num_samples=Rt.samplesnb)
@@ -248,6 +280,73 @@ def driver_setup(prob):
         prob.driver = om.DOEDriver(driver_type)
         prob.driver.options['run_parallel'] = True
         # prob.driver.options['procs_per_model'] = 1
+
+    ## Attaching a recorder and a diagramm visualizer ##
+    prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path+'/Driver_recorder.sql'))
+    prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path+'/circuit.sqlite'))
+
+
+def add_subsystems(prob, ivc):
+    """Add subsystems to problem.
+
+    All subsystem classes are added to the problem model.
+
+    Args:
+        prob (om.Problem object): Current problem that is being defined
+        ivc (om.IndepVarComp object): Independent variables of the problem
+
+    Returns:
+        None.
+
+    """
+    global mod
+    geom = geom_param()
+    obj = objective()
+
+    # Independent variables
+    prob.model.add_subsystem('indeps', ivc, promotes=['*'])
+
+    # Geometric parameters
+    mod = [Rt.modules[0], Rt.modules[-1]]
+    prob.model.add_subsystem('Geometry', geom, promotes=['*'])
+
+    # Modules
+    for name in Rt.modules:
+        mod = name
+        spec = mif.get_specs_for_module(name)
+        if spec.cpacs_inout.inputs or spec.cpacs_inout.outputs:
+            prob.model.add_subsystem(name, moduleComp(), promotes=['*'])
+
+    # Objectives
+    prob.model.add_subsystem('objective', obj, promotes=['*'])
+
+
+def add_parameters(prob, ivc):
+    """Add problem parameters.
+
+    In this function all the problem parameters, namely the constraints,
+    design variables and objective functions, are added to the problem model.
+
+    Args:
+        prob (om.Problem object): Current problem that is being defined
+        ivc (om.IndepVarComp object): Independent variables of the problem
+
+    Returns:
+        None.
+    """
+    # Defining constraints and linking design variables to the ivc
+    for name, (val_type, listval, minval, maxval,
+               getcommand, setcommand) in optim_var_dict.items():
+        if val_type == 'des' and listval[0] not in ['True','False', '-']:
+            ivc.add_output(name, val=listval[0],lower=minval, upper=maxval)
+            prob.model.add_design_var(name, lower=minval, upper=maxval)
+        elif val_type == 'const':
+            prob.model.add_constraint(name, lower=minval, upper=maxval)
+
+    # Adding the objective function
+    for o in Rt.objective:
+        prob.model.add_objective('Objective function '+o)
+
 
 def routine_launcher(Opt):
     """Run an optimisation routine or DoE using the OpenMDAO library.
@@ -266,13 +365,12 @@ def routine_launcher(Opt):
         None.
 
     """
-    global mod, counter, optim_var_dict, Rt
+    global counter, optim_var_dict, Rt
 
     counter = 0
     Rt = opf.Routine()
     Rt.type = Opt.optim_method
     Rt.modules = Opt.module_optim
-
 
     ## Initialize CPACS file and problem dictionary ##
     create_routine_folder()
@@ -280,72 +378,40 @@ def routine_launcher(Opt):
     Rt.get_user_inputs(opf.CPACS_OPTIM_PATH)
     optim_var_dict = opf.create_variable_library(Rt, optim_dir_path)
 
-
-    ## Instantiate components ##
-    ivc = om.IndepVarComp()
+    ## Instantiate components and subsystems ##
     prob = om.Problem()
-    geom = geom_param()
-    obj = objective()
+    ivc = om.IndepVarComp()
 
-
-    ## Filling the components ##
-    # Problem variables
-    prob.model.add_subsystem('indeps', ivc, promotes=['*'])
-
-    # Geometric parameters
-    mod = [Rt.modules[0], Rt.modules[-1]]
-    prob.model.add_subsystem('Geometry', geom, promotes=['*'])
-
-    # Module inputs and outputs
-    for name in Rt.modules:
-        mod = name
-        spec = mif.get_specs_for_module(name)
-        if spec.cpacs_inout.inputs or spec.cpacs_inout.outputs:
-                prob.model.add_subsystem(name, moduleComp(), promotes=['*'])
-
-    # Objective function
-    prob.model.add_subsystem('objective', obj, promotes=['*'])
-
+    ## Add subsystems to problem ##
+    add_subsystems(prob, ivc)
 
     ## Defining problem parameters ##
-    # Defining constraints and linking design variables to the ivc
-    for name, (val_type, listval, minval, maxval,
-               getcommand, setcommand) in optim_var_dict.items():
-        if val_type == 'des' and listval[0] not in ['True','False', '-']:
-            ivc.add_output(name, val=listval[0],lower=minval, upper=maxval)
-            prob.model.add_design_var(name, lower=minval, upper=maxval)
-        elif val_type == 'const':
-            prob.model.add_constraint(name, lower=minval, upper=maxval)
-
-    # Adding the objective function
-    prob.model.add_objective('Objective function')
-
+    add_parameters(prob, ivc)
 
     ## Setting up the problem options ##
     driver_setup(prob)
 
-    # Attaching a recorder and a diagramm visualizer
-    prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path+'/Driver_recorder.sql'))
-    prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path+'/circuit.sqlite'))
-
-    # Setup the model hierarchy for OpenMDAO
+    ## Setup the model hierarchy for OpenMDAO ##
     prob.setup()
 
-    # Generate N2 model
-    # om.n2(path+'/circuit.sqlite', outfile=path+'/circuit.html')
-
-    # Run the model
+    ## Run the model ##
     prob.run_driver()
 
-    # Recap of the problem inputs/outputs
+    ## Recap of the problem inputs/outputs ##
     prob.model.list_inputs()
     prob.model.list_outputs()
 
+    ## Results processing ##
     tls.plot_results(optim_dir_path,'')
+    tls.save_results(optim_dir_path)
+
+    ## Generate N2 scheme ##
+    om.n2(optim_dir_path+'/circuit.sqlite', optim_dir_path+'/circuit.html', False)
 
 
 if __name__ == '__main__':
 
+    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
     # Creating a dummy class to pass the default arguments
     class Opt(): pass
     if len(sys.argv) > 2:
@@ -353,6 +419,7 @@ if __name__ == '__main__':
         Opt.module_optim = sys.argv[2]
     else:
         Opt.optim_method = 'Optim'
-        Opt.module_optim = ['WeightConventional', 'CPACS2SUMO', 'SUMOAutoMesh', 'SU2Run']
+        Opt.module_optim = ['WeightConventional', 'PyTornado']
+        # Opt.module_optim = ['WeightConventional', 'CPACS2SUMO', 'SUMOAutoMesh', 'SU2Run']
     routine_launcher(Opt)
-
+    log.info('----- End of ' + os.path.basename(__file__) + ' -----')

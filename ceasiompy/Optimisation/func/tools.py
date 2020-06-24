@@ -35,7 +35,9 @@ log = get_logger(__file__.split('.')[0])
 #   GLOBALS
 #==============================================================================
 
-nbC = 5
+#==============================================================================
+#   CLASSES
+#==============================================================================
 
 #==============================================================================
 #   FUNCTIONS
@@ -256,6 +258,7 @@ def plot_results(optim_dir_path, routine_type):
 
     df.pop('type')
     df = df.transpose()
+    nbC = min(len(des),5)
     df.plot(subplots=True, layout=(-1,nbC))
     plt.show()
     if routine_type.upper() == 'DOE':
@@ -277,6 +280,7 @@ def gen_plot(df, yvars, xvars):
         None.
 
     """
+    nbC = min(len(xvars),5)
     nbR = int(len(yvars) * np.ceil(len(xvars)/nbC))
     r = 0
     c = 1

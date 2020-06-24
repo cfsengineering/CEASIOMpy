@@ -90,7 +90,7 @@ def create_var(var_name, init_value, getcmd, setcmd, lim=0.2):
             init_value*(1-lim) < init_value < init_value*(1+lim)
             The default is 0.2.
 
-    Returns
+    Returns:
         None.
 
     """
@@ -119,7 +119,7 @@ def init_elem_param(sec_name, section, elem_nb, scmd):
         elem_nb (int) : Number of section elements
         scmd (str) : Command to get the section handle
 
-    Returns
+    Returns:
         None.
 
     """
@@ -148,7 +148,7 @@ def init_sec_param(name, wing, sec_nb, wcmd):
         sec_nb (int) : Number of wing elements
         wcmd (str) : Command to get the wing handle
 
-    Returns
+    Returns:
         None.
 
     """
@@ -179,7 +179,7 @@ def init_wing_param(aircraft, wing_nb):
         aircraft (handle) : Handle of the aircraft
         wing_nb (int) : Number of wings
 
-    Returns
+    Returns:
         None.
 
     """
@@ -230,7 +230,7 @@ def init_fuse_param(aircraft, fuse_nb):
         aircraft (handle) : Handle of the aircraft
         fuse_nb (int) : Number of fuselages
 
-    Returns
+    Returns:
         None.
 
     """
@@ -271,7 +271,7 @@ def init_design_var_dict(tixi):
     Args:
         tixi (handle) : Handle of the CPACS file
 
-    Returns
+    Returns:
         design_var_dict (dict) : dictionary with the geometric parameters of
         the routine.
 

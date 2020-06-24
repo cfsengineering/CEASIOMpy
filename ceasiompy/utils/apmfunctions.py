@@ -978,14 +978,10 @@ def create_aeromap(bounds, sample_type='Uniform', sample_nb=5, tixi=''):
     depending on what is indicated.
 
     Args:
-    bounds: numpy array
-        4-by-2 array containing the boundaries for each variable
-    tixi: TIXI handler of a CPACS file.
-        If no handle is given, a CSV file will be generated instead.
-    sample_type: str
-        Choice of the method to generate the points.
-    sample_nb: int
-        Number of samples to generate.
+    bounds (np array): 4-by-2 array containing the boundaries for each variable
+    tixi (Tixi3 handle): If no handle is given, a CSV file will be generated instead.
+    sample_type (str): Choice of the method to generate the points.
+    sample_nb (int): Number of samples to generate.
 
     """
     s_t = sample_type.lower()

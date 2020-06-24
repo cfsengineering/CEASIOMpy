@@ -111,21 +111,18 @@ class Routine:
 # ==============================================================================
 
 def first_run(module_list, modules_pre_list=[]):
-    """
-    Run subworkflow once for the optimisation problem.
+    """Run subworkflow once for the optimisation problem.
 
     This function runs a first loop to ensure that all problem variables
     are created an can be fed to the optimisation setup program.
 
-    Parameters
-    ----------
-    module_list : List
-        List of modules.
-    module_pre_list : List
-        List of modules that were run in a previous workflow.
-    Returns
-    -------
-    NONE.
+    Args:
+        module_list (lst) : List of modules to run.
+        module_pre_list (lst) : List of modules that were run in a previous
+        workflow.
+
+    Returns:
+        None.
 
     """
     # Check if aeromap results already exists, else run workflow
@@ -161,24 +158,19 @@ def first_run(module_list, modules_pre_list=[]):
 
 
 def get_normal_param(tixi, value_name, entry, outputs):
-    """
-    Add a variable to the optimisation dictionnary.
+    """Add a variable to the optimisation dictionnary.
 
     It is checked if the variable has a user-specified initial value, else it
     will assign a default value or the variable will be excluded from the
     problem.
 
-    Parameters
-    ----------
-    tixi : Tixi3 handler
+    Args:
+        tixi (Tixi3 handle): Handle of the current CPACS file.
+        value_name (str): Name of the parameter.
+        entry (object): Current parameter object.
 
-    value_name : string.
-        Name of the parameter.
-    entry :
-
-    Returns
-    -------
-    None.
+    Returns:
+        None.
 
     """
     log.info('Type : '+str(entry.var_type))
@@ -217,7 +209,22 @@ def get_normal_param(tixi, value_name, entry, outputs):
 
 
 def get_aero_param(tixi, xpath, module_name):
+    """Add the aeromap variables to the optimisation dictionnary.
 
+    Takes the variables of the aeromap that is used.
+    It is checked if the variable has a user-specified initial value, else it
+    will assign a default value or the variable will be excluded from the
+    problem.
+
+    Args:
+        tixi (Tixi3 handle): Handle of the current CPACS file.
+        value_name (str): Name of the parameter.
+        entry (object): Current parameter object.
+
+    Returns:
+        None.
+
+    """
     log.info('Default aeromap parameters will be set')
 
     # Get name of aeromap that is used

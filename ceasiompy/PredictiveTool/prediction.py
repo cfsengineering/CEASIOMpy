@@ -103,23 +103,19 @@ class SM_parameters():
 # =============================================================================
 
 def extract_data_set(file):
-    """
+    """Get training data from file.
+
     Retrieve training dataset from a file or generates it automatically. The
     file format must be a CSV with each variable parameters and values are in
     a row. The file must also contain a 'Name' and a 'type' column which are
     needed to describe the variable.
 
-    Parameters
-    ----------
-    file : str (optional)
-        Path to user-specified file (CSV format)
+    Args:
+        file (str) : Path to user-specified file (CSV format)
 
-    Returns
-    -------
-    x : DataFrame
-        Set of points in the design space
-    y : DataFrame
-        Set of points in the result space
+    Returns:
+        x (DataFrame) : Set of points in the design space
+        y (DataFrame) : Set of points in the result space
 
     TODO:
         * Maybe better deal with the dataframe, case of multiple objective functions ?
@@ -159,15 +155,11 @@ def aeromap_case_gen(modules):
     Generate a CSV file containing a dataset generated with aeromap parameters
     only.
 
-    Parameters
-    ----------
-    modules : lst
-        List of modules to execute.
+    Args:
+        modules (lst) : list of modules to execute.
 
-    Returns
-    -------
-    file : str
-        Path to CSV file.
+    Returns:
+        file (str) : Path to CSV file.
 
     """
     file = MODULE_DIR+'/Aeromap_generated.csv'
@@ -189,9 +181,7 @@ def aeromap_case_gen(modules):
     # Generate sample points, LHS or FullFactorial
     sampling = smp.LHS(xlimits=bounds, criterion=crit)
     xd = sampling(nt)
-    print(xd)
     xd = xd.transpose()
-    print(xd)
     # Delete the other aeromaps... maybe conserve them ?
     for uid in apmf.get_aeromap_uid_list(tixi):
         apmf.delete_aeromap(tixi, uid)
@@ -233,27 +223,20 @@ def aeromap_case_gen(modules):
 
 
 def separate_data(x, y):
-    """
+    """Create two sets of different sizes.
+
     Create two sets of points for the training and validation of
     the surrogate model.
 
-    Parameters
-    ----------
-    x : numpy array
-        DoE inputs
-    y : numpy array
-        DoE outputs
+    Args:
+    x (np array) : DoE inputs
+    y (np array) : DoE outputs
 
-    Returns
-    -------
-    xt : numpy array
-        Training inputs
-    yt : numpy array
-        Training outputs
-    xv : numpy array
-        Validation inputs
-    yv : numpy array
-        Validation outputs
+    Returns:
+    xt (np array) : Training inputs
+    yt (np array) : Training outputs
+    xv (np array) : Validation inputs
+    yv (np array) : Validation outputs
 
     """
     # Sets length of each set
@@ -275,18 +258,15 @@ def separate_data(x, y):
 
 
 def create_model(xd, yd):
-    """
+    """Create a surrogate.
+
     Generate, train and validate a surrogate model with the provided data.
 
-    Parameters
-    ----------
-    file : str
-        Path to CSV file.
+    Args:
+        file (str) : Path to CSV file.
 
-    Returns
-    -------
-    sm : surrogate model class
-        Trained surrogate model.
+    Returns:
+        sm (surrogate model object) : Trained surrogate model.
 
     """
     model = 'KRG'
@@ -336,8 +316,8 @@ if __name__ == "__main__":
     # Variable declarations
     global objectives
     objectives = ['cl/cd','cms']
-    # file = 'Aeromap_generated100_points.csv'
-    file = '_Variable_history.csv'
+    file = 'Aeromap_generated100_points.csv'
+    # file = '_Variable_history.csv'
     aeromap = True
     modules = ['WeightConventional', 'PyTornado']
 
@@ -345,7 +325,8 @@ if __name__ == "__main__":
         log.info('File found, will be used to generate the model')
     elif aeromap and not os.path.isfile(file):
         log.info('Specific aeromap case')
-        file = aeromap_case_gen(modules.insert(0,'SettingsGUI'))
+        modules.insert(0,'SettingsGUI')
+        file = aeromap_case_gen(modules)
     else:
         log.info('No file found, running DoE')
 
@@ -363,3 +344,4 @@ if __name__ == "__main__":
     sm = create_model(xd, yd)
 
     log.info('End of Predictive tool')
+

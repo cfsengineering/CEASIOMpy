@@ -66,7 +66,7 @@ class Routine:
 
         # Problem setup
         self.minmax = 'min' # Minimize or maximise the objective function
-        self.objective = 'cl'
+        self.objective = ['cl']
 
         # Driver choice
         self.driver = "COBYLA"
@@ -88,7 +88,8 @@ class Routine:
         tixi = cpsf.open_tixi(CPACS_OPTIM_PATH)
 
         # Problem setup
-        self.objective = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'objective', 'cl')
+        objectives = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'objective', 'cl')
+        self.objective = objectives.split(';')
         self.minmax = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'minmax', 'max')
 
         # Global parameters

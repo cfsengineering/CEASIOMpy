@@ -70,10 +70,8 @@ def update_dict(tixi, optim_var_dict):
                 # Checks type of variable
                 if type(new_val) == list:
                     listval.append(new_val[-1])
-                    log.info(name + ' ' + str(new_val[-1]))
                 else:
                     listval.append(new_val)
-                    log.info(name + ' ' + str(new_val))
 
 
 def create_var(var_name, init_value, getcmd, setcmd, lim=0.2):

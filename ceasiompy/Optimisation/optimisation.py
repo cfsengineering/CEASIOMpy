@@ -3,8 +3,8 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This module sets up and solves an optimisation problem with specified inputs
-and outputs, read from a CSV file.
+This module sets up and solves an optimisation problem or runs a design of
+experiement with specified inputs and outputs that are parsed from a CSV file.
 
 Python version: >=3.6
 
@@ -20,7 +20,7 @@ import os
 import sys
 import shutil
 import datetime
-import argparse
+# import argparse
 import openmdao.api as om
 from tigl3 import geometry
 from re import split as splt
@@ -70,8 +70,7 @@ class geom_param(om.ExplicitComponent):
 
         for name, (val_type, listval, minval, maxval,
                    setcommand, getcommand) in geom_dict.items():
-            if name in optim_var_dict:
-                listval.append(inputs[name][0])
+            listval.append(inputs[name][0])
         cpud.update_cpacs_file(cpacs_path, cpacs_path_out, geom_dict)
 
 
@@ -111,7 +110,10 @@ class moduleComp(om.ExplicitComponent):
                 for name in ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']:
                     if name in optim_var_dict:
                         var = optim_var_dict[name]
-                        self.add_output(name, val=var[1][0])
+                        if tls.is_digit(var[1][0]):
+                            self.add_output(name, val=var[1][0])
+                        else:
+                            self.add_output(name)
             # Add output by default as it may be an input for the next module
             else:
                 self.add_output(entry.var_name)
@@ -177,7 +179,7 @@ class objective(om.ExplicitComponent):
         dct.update_dict(tixi, optim_var_dict)
 
         # Change local wkdir for the next iteration
-        tixi.updateTextElement(opf.WKDIR_XPATH,ceaf.create_new_wkdir(Rt.date))
+        tixi.updateTextElement(opf.WKDIR_XPATH,ceaf.create_new_wkdir(Rt.date,Rt.type))
 
         for v in var_list:
             if not v.isdigit() and v != '':
@@ -209,25 +211,43 @@ def create_routine_folder():
         None.
 
     """
-    global optim_dir_path
+    global optim_dir_path, Rt
 
+    # Get the main working directory
     tixi = cpsf.open_tixi(opf.CPACS_OPTIM_PATH)
-    wkdir = ceaf.create_new_wkdir()
-    if not tixi.checkElement(opf.WKDIR_XPATH):
-        cpsf.create_branch(tixi, opf.WKDIR_XPATH)
-    tixi.updateTextElement(opf.WKDIR_XPATH,wkdir)
+    wkdir = ceaf.get_wkdir_or_create_new(tixi)
     optim_dir_path = os.path.join(wkdir, Rt.type)
+    Rt.date = wkdir[-19:]
 
     if not os.path.isdir(optim_dir_path):
         os.mkdir(optim_dir_path)
     os.mkdir(optim_dir_path+'/Geometry')
     os.mkdir(optim_dir_path+'/Runs')
 
-    # Dirty way to create a new path, may be changed
-    cpsf.get_value_or_default(tixi, opf.OPTWKDIR_XPATH,optim_dir_path)
-
     cpsf.close_tixi(tixi, opf.CPACS_OPTIM_PATH)
 
+def driver_setup(prob):
+
+    if Rt.type == 'Optim':
+        # prob.driver = om.pyOptSparseDriver() # multifunc driver : NSGA2
+        # prob.driver.options['optimizer'] = 'NSGA2'
+        # prob.driver.options['Popsize'] = 50
+        # prob.driver.options['maxGen'] = 50
+        prob.driver = om.ScipyOptimizeDriver()
+        prob.driver.options['optimizer'] = Rt.driver
+        prob.driver.options['maxiter'] = Rt.max_iter
+        prob.driver.options['tol'] = Rt.tol
+        prob.driver.options['disp'] = True
+    else:
+        if Rt.doedriver == 'Uniform':
+            driver_type = om.UniformGenerator(num_samples=Rt.samplesnb)
+        elif Rt.doedriver == 'LatinHypercube':
+            driver_type = om.LatinHypercubeGenerator(samples=Rt.samplesnb)
+        elif Rt.doedriver == 'FullFactorial':
+            driver_type = om.FullFactorialGenerator(levels=Rt.samplesnb)
+        prob.driver = om.DOEDriver(driver_type)
+        prob.driver.options['run_parallel'] = True
+        # prob.driver.options['procs_per_model'] = 1
 
 def routine_launcher(Opt):
     """Run an optimisation routine or DoE using the OpenMDAO library.
@@ -252,12 +272,13 @@ def routine_launcher(Opt):
     Rt = opf.Routine()
     Rt.type = Opt.optim_method
     Rt.modules = Opt.module_optim
-    Rt.date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
-    ## Initialize CPACS file ##
+
+    ## Initialize CPACS file and problem dictionary ##
     create_routine_folder()
     opf.first_run(Rt.modules)
     Rt.get_user_inputs(opf.CPACS_OPTIM_PATH)
+    optim_var_dict = opf.create_variable_library(Rt, optim_dir_path)
 
 
     ## Instantiate components ##
@@ -265,7 +286,6 @@ def routine_launcher(Opt):
     prob = om.Problem()
     geom = geom_param()
     obj = objective()
-    optim_var_dict = opf.create_variable_library(Rt, optim_dir_path)
 
 
     ## Filling the components ##
@@ -302,15 +322,7 @@ def routine_launcher(Opt):
 
 
     ## Setting up the problem options ##
-    # prob.driver = om.pyOptSparseDriver() #multifunc driver : NSGA2
-    # prob.driver.options['optimizer'] = 'NSGA2'
-    # prob.driver.options['Popsize'] = 50
-    # prob.driver.options['maxGen'] = 50
-    prob.driver = om.ScipyOptimizeDriver()
-    prob.driver.options['optimizer'] = Rt.driver
-    prob.driver.options['maxiter'] = Rt.max_iter
-    prob.driver.options['tol'] = Rt.tol
-    prob.driver.options['disp'] = True
+    driver_setup(prob)
 
     # Attaching a recorder and a diagramm visualizer
     prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path+'/Driver_recorder.sql'))
@@ -334,7 +346,7 @@ def routine_launcher(Opt):
 
 if __name__ == '__main__':
 
-    #Creating a dummy class to pass the default arguments
+    # Creating a dummy class to pass the default arguments
     class Opt(): pass
     if len(sys.argv) > 2:
         Opt.optim_method = sys.argv[1]

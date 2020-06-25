@@ -77,9 +77,10 @@ def save_aircraft(tixi, aircraft, filename):
 
 
 def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
-    """Function to update a CPACS file with value from ...
+    """Function to update a CPACS file with value from the optimiser
 
-    Function 'update_cpacs_file' ....
+    This function sets the new values of the design variables given by
+    the routine driver to the CPACS file, using the Tigl and Tixi handler.
 
     Source:
         * See CPACSCreator api function,
@@ -122,6 +123,7 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
             if setcommand not in ['-', '']:
                 # Define variable (var1,var2,..)
                 locals()[str(name)] = listval[-1]
+                log.info(listval[-1])
 
                 # Execute the command coresponding to the variable
                 if ';' in setcommand: # if more than one command on the line
@@ -134,7 +136,9 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
                 xpath = getcommand
                 tixi.updateTextElement(xpath, str(listval[-1]))
     aircraft.write_cpacs(aircraft.get_uid())
-    tixi.save(cpacs_out_path)
+    tigl.close()
+    cpsf.close_tixi(tixi, cpacs_out_path)
+
     #or
     # save_aircraft(tixi,aircraft,'test.xml')
 
@@ -152,12 +156,5 @@ if __name__ == '__main__':
 
     # Call the function which check if imputs are well define
     # mi.check_cpacs_input_requirements(cpacs_path)
-
-    optim_var_dict = {}
-    # optim_var_dict[var1] = ('name',[init,value1,value2, ...],min,max,'cpacs_command')
-    optim_var_dict['var1'] = ('AR',[10],8,16,'wings.get_wing(1).set_arkeep_area(var1)','wings.get_wing(1).get_aspect_ratio()')
-    optim_var_dict['var2'] = ('wing_sweep',[10],0,25,'wings.get_wing(1).set_sweep(var2)','wings.get_wing(1).get_sweep()')
-
-    update_cpacs_file(cpacs_path,cpacs_out_path, optim_var_dict)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

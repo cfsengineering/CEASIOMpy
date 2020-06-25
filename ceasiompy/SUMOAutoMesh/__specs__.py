@@ -14,12 +14,9 @@ RCE = {
 }
 
 
-
 # ===== CPACS inputs and outputs =====
 
 cpacs_inout = CPACSInOut()
-
-include_gui = False
 
 
 # ----- Input -----
@@ -34,6 +31,18 @@ cpacs_inout.add_input(
     gui=True,
     gui_name='SUMO File path',
     gui_group='Inputs',
+)
+
+cpacs_inout.add_input(
+    var_name='refine_level',
+    var_type='float',
+    default_value=0.0,
+    unit='1',
+    descr='0 is baseline, +1 env. equal double mesh points',
+    xpath=CEASIOM_XPATH + '/mesh/sumoOptions/refinementLevel',
+    gui=True,
+    gui_name='Refinement Level',
+    gui_group='SUMO options',
 )
 
 

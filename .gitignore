@@ -8,7 +8,10 @@
 # Ignore all SU2 meshes (.su2)
 *.su2
 
- # Ignore temp folder and  and temp files
+# Ignore CSV files
+*.csv
+
+# Ignore temp folder and  and temp files
 /temp
 /tmp
 /ceasiompy/CPACSCreator/tmp/*

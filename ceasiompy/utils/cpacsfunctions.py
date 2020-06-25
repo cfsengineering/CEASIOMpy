@@ -27,10 +27,10 @@ import os
 import sys
 
 # Depending how/where Tixi and Tigl are installed, it could be:
-#     import tixi3wrapper
-#     import tigl3wrapper
-#     from tixi3wrapper import Tixi3Exception
-#     from tigl3wrapper import Tigl3Exception
+# import tixi3wrapper
+# import tigl3wrapper
+# from tixi3wrapper import Tixi3Exception
+# from tigl3wrapper import Tigl3Exception
 
 import tixi3.tixi3wrapper as tixi3wrapper
 import tigl3.tigl3wrapper as tigl3wrapper
@@ -69,7 +69,7 @@ def open_tixi(cpacs_path):
     tixi_handle = tixi3wrapper.Tixi3()
     tixi_handle.open(cpacs_path)
 
-    log.info('TIXI handle has been created.')
+    log.info('TIXI handle has been created.'+cpacs_path)
 
     return tixi_handle
 
@@ -140,7 +140,7 @@ def create_branch(tixi, xpath, add_child=False):
     (index start at 1).
     e.g.: '/cpacs/vehicles/aircraft/model/wings/wing[2]/name'
 
-    If the entire xpath already exist, the option 'add_child' (True/False) let
+    If the entire xpath already exist, the option 'add_child' (True/False) lets
     the user decide if a named child should be added next to the existing
     one(s). This only valid for the last element of the xpath.
 
@@ -366,7 +366,7 @@ def get_value(tixi, xpath):
 
 
 def get_value_or_default(tixi,xpath,default_value):
-    """ Function to get value from a CPACS branch if this branch exist, it not
+    """ Function to get value from a CPACS branch if this branch exist, if not
         it returns the default value.
 
     Function 'get_value_or_default' do the same than the function 'get_value'
@@ -409,15 +409,15 @@ def get_value_or_default(tixi,xpath,default_value):
             is_bool = isinstance(default_value, bool)
         except:
             pass
-
         if is_bool:
            tixi.addTextElement(xpath_parent,value_name,str(value))
         elif is_float or is_int:
             value = float(default_value)
             tixi.addDoubleElement(xpath_parent,value_name,value,'%g')
         else:
+            value = str(value)
             tixi.addTextElement(xpath_parent,value_name,value)
-        log.info('Default value has been add to the cpacs file at: ' + xpath)
+        log.info('Default value has been added to the cpacs file at: ' + xpath)
     else:
         log.info('Value found at ' + xpath + ', default value will not be used')
 
@@ -554,7 +554,7 @@ def get_string_vector(tixi, xpath):
 def get_path(tixi, xpath):
     """ Get a path with your os system format
 
-    Function 'get_path' will get a get the path in the CPACS file and retrurn
+    Function 'get_path' will get a get the path in the CPACS file and return
     a path with the format corresponding to your os ('/' for Linux and MacOS
     and '\' for Windows). All paths to store in the CPACS file could be saved as
     normal strings as long as this function is used to get them back.
@@ -585,7 +585,7 @@ def get_path(tixi, xpath):
 
 
 def aircraft_name(tixi_or_cpacs):
-    """ The function gat the name of the aircraft from the cpacs file or add a
+    """ The function get the name of the aircraft from the cpacs file or add a
         default one if non-existant.
 
     Args:

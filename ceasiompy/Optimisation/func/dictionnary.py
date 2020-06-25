@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software.
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Functions to create the dictionnary of geometric variables needed 
+Functions to create the dictionnary of geometric variables needed
 for the optimnization routine.
 
 Python version: >=3.6
@@ -48,19 +48,19 @@ XPATH = 'None'
 
 
 def update_dict(tixi, optim_var_dict):
-    """
-    Update dictionnary after a workflow
+    """Update dictionnary after one iteration.
 
-    Parameters
-    ----------
-    tixi : tixi3 handle
-        DESCRIPTION.
-    optim_var_dict : dict
-        DESCRIPTION.
+    The dictionary containing all the problem variables (obj, des, const) is
+    updated with the new values from the resulting CPACS file after one run
+    through the all the modules that are contained in one iteration of the
+    routine.
 
-    Returns
-    -------
-    None.
+    Args:
+        tixi (tixi3 handle) : TIXI handle of the CPACS file
+        optim_var_dict (dict) : Variable dictionary
+
+    Returns:
+        None.
 
     """
     for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
@@ -70,34 +70,28 @@ def update_dict(tixi, optim_var_dict):
                 # Checks type of variable
                 if type(new_val) == list:
                     listval.append(new_val[-1])
-                    log.info(name + ' ' + str(new_val[-1]))
                 else:
                     listval.append(new_val)
-                    log.info(name + ' ' + str(new_val))
 
 
 def create_var(var_name, init_value, getcmd, setcmd, lim=0.2):
-    """
-    Add design variable to the dictionnary.
+    """Add design variable to the dictionary.
 
-    Parameters
-    ----------
-    var_name : str
-        Name of the variable.
-    init_value : float
-        V.
-    getcmd : str
-        Command to retrieve a value in the CPACS file.
-    setcmd : str
-        Command to change a value in the CPACS file.
-    lim : float, optional
-        Percentage of the initial value to define the upper and lower limit :
+    Add the parameters of one variable to the dictionary, which are saved in a
+    tuple as (Name, initial value, lower bound, upper bound, setcommand
+    getcommand).
+
+    Args:
+        var_name (str) : Name of the variable.
+        init_value (float) :
+        getcmd (str) : Command to retrieve a value in the CPACS file.
+        setcmd (str) : Command to change a value in the CPACS file.
+        lim (float) : Percentage of the initial value to define the upper and lower limit :
             init_value*(1-lim) < init_value < init_value*(1+lim)
-        The default is 0.2.
+            The default is 0.2.
 
-    Returns
-    -------
-    None.
+    Returns:
+        None.
 
     """
     if init_value > 0:
@@ -114,12 +108,19 @@ def create_var(var_name, init_value, getcmd, setcmd, lim=0.2):
 
 
 def init_elem_param(sec_name, section, elem_nb, scmd):
-    """
-    Add design variables and constrains relative to the wing section elements to the dictionnary.
+    """Create wing section element variable
 
-    Returns
-    -------
-    None.
+    Add design variables and constrains relative to the wing section elements
+    to the dictionnary.
+
+    Args:
+        sec_name (str) : Name of the wing section
+        section (handle) : Handle of the wing section
+        elem_nb (int) : Number of section elements
+        scmd (str) : Command to get the section handle
+
+    Returns:
+        None.
 
     """
     for enb in range(1, elem_nb+1):
@@ -136,12 +137,19 @@ def init_elem_param(sec_name, section, elem_nb, scmd):
 
 
 def init_sec_param(name, wing, sec_nb, wcmd):
-    """
-    Add design variables and constrains relative to the wing sectionelements to the dictionnary.
+    """Create wing section variable
 
-    Returns
-    -------
-    None.
+    Add design variables and constrains relative to the wing sections to the
+    dictionnary.
+
+    Args:
+        name (str) : Name of the wing
+        wing (handle) : Handle of the wing
+        sec_nb (int) : Number of wing elements
+        wcmd (str) : Command to get the wing handle
+
+    Returns:
+        None.
 
     """
     for s in range(1, sec_nb+1):
@@ -162,12 +170,17 @@ def init_sec_param(name, wing, sec_nb, wcmd):
 
 
 def init_wing_param(aircraft, wing_nb):
-    """
-    Add design variables and constrains relative to the wings to the dictionnary.
+    """Create wing variable
 
-    Returns
-    -------
-    None.
+    Add design variables and constrains relative to the wings to the
+    dictionnary.
+
+    Args:
+        aircraft (handle) : Handle of the aircraft
+        wing_nb (int) : Number of wings
+
+    Returns:
+        None.
 
     """
     wings = aircraft.get_wings()
@@ -208,12 +221,17 @@ def init_wing_param(aircraft, wing_nb):
 
 
 def init_fuse_param(aircraft, fuse_nb):
-    """
-    Add design variables and constrains relative to the fuselage to the dictionnary.
+    """Create fuselage variable
 
-    Returns
-    -------
-    None.
+    Add design variables and constrains relative to the aircraft fuselages to
+    the dictionnary.
+
+    Args:
+        aircraft (handle) : Handle of the aircraft
+        fuse_nb (int) : Number of fuselages
+
+    Returns:
+        None.
 
     """
     for f in range(1, fuse_nb+1):
@@ -244,16 +262,18 @@ def init_fuse_param(aircraft, fuse_nb):
 
 
 def init_design_var_dict(tixi):
-    """
+    """Create design variable dictionary
+
     Return the dictionary of the design variables using the TIGL library.
+    Add design variables and constrains relative to the aircraft fuselages to
+    the dictionnary.
 
-    Parameters
-    ----------
-    tigl : tigl3_handler
+    Args:
+        tixi (handle) : Handle of the CPACS file
 
-    Returns
-    -------
-    design_var_dict : TYPE
+    Returns:
+        design_var_dict (dict) : dictionary with the geometric parameters of
+        the routine.
 
     """
     tigl = cpsf.open_tigl(tixi)

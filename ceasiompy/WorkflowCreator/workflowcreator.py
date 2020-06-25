@@ -33,7 +33,7 @@ import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mi
 
-from ceasiompy.Optimisation.optimisation import routine_setup
+from ceasiompy.Optimisation.optim_modular import routine_launcher
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
@@ -346,7 +346,7 @@ if __name__ == '__main__':
             wkf.copy_module_to_module('WorkflowCreator', 'in', 'Optimisation', 'in')
 
         if Opt.optim_method != 'None':
-            routine_setup(Opt.module_optim, Opt.optim_method, Opt.module_pre)
+            routine_launcher(Opt)
         else:
             log.warning('No optimization method has been selected!')
             log.warning('The modules will be run as a simple workflow')

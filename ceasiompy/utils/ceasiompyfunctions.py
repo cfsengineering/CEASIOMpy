@@ -22,7 +22,6 @@ TODO:
 #==============================================================================
 
 import os
-import sys
 import shutil
 import datetime
 import platform
@@ -37,30 +36,33 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 #==============================================================================
-#   CLASSES
-#==============================================================================
-
-
-#==============================================================================
 #   FUNCTIONS
 #==============================================================================
 
-def create_new_wkdir(routine_date=''):
-    """
-    Function to create a woking directory.
+def create_new_wkdir(routine_date='', routine_type=''):
+    """Function to create a woking directory.
 
     Function 'create_new_wkdir' creates a new working directory in the /tmp file
-    this directory is called 'SU2Run_data_hour'
+    this directory is called 'SU2Run_data_hour'.
+    In the case of an optimisation or DoE, it will create a working directory
+    in the folder that was created at the first iteration of the routine.
+
+    Args:
+        routine_date (str) : Date of the first folder to find where to create
+        the new working directory.
+        routine_type (str) : Indicates if the folder has a subfolder called
+        'Optim' or 'DoE'.
 
     Returns:
         wkdir (str): working directory path
 
     """
-    dir_name = 'CEASIOMpy_Run_' + datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-
+    date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     if routine_date != '':
-        wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR/Routine_' + routine_date)
+        dir_name = routine_type+'/Runs/Run' + date
+        wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR/CEASIOMpy_Run_' + routine_date)
     else:
+        dir_name = 'CEASIOMpy_Run_' + date
         wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR')
 
     if not os.path.exists(wkdir):
@@ -89,7 +91,7 @@ def get_wkdir_or_create_new(tixi):
 
     WKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath'
     wkdir_path = cpsf.get_value_or_default(tixi,WKDIR_XPATH,'')
-    if wkdir_path is '':
+    if wkdir_path == '':
         wkdir_path = create_new_wkdir()
         cpsf.create_branch(tixi,WKDIR_XPATH)
         tixi.updateTextElement(WKDIR_XPATH,wkdir_path)

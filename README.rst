@@ -21,7 +21,7 @@ CEASIOMpy is a conceptual aircraft design environment. CEASIOMpy can be used to 
 * Structures
 * Aeroelasticity
 
-.. image:: /doc/source/CEASIOMpy_main_logos.png
+.. figure:: /doc/source/CEASIOMpy_main_logos.png
     :width: 400 px
     :align: center
     :alt: CEASIOMpy logo

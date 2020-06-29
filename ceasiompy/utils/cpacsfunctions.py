@@ -350,8 +350,8 @@ def get_value(tixi, xpath):
     else:
         # check if the path exist
         if tixi.checkElement(xpath):
-            log.error('No value has been fournd at ' + xpath)
-            raise ValueError('No value has been fournd at ' + xpath)
+            log.error('No value has been found at ' + xpath)
+            raise ValueError('No value has been found at ' + xpath)
         else:
             log.error(xpath + ' cannot be found in the CPACS file')
             raise ValueError(xpath + ' cannot be found in the CPACS file')

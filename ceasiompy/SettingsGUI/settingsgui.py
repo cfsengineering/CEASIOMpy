@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-09-05
-| Last modifiction: 2020-04-24
+| Last modification: 2020-04-24
 
 TODO:
 
@@ -136,6 +136,55 @@ class AeroMapTab:
         row_pos += 1
 
 
+        # root = tk.Tk()
+        # root.withdraw()
+        # folder_selected = filedialog.askdirectory()
+        # Setup aeromap parmaeters
+        self.window = tk.Frame(self.aerotab)
+        self.window.grid(column=0,row=row_pos)
+
+        self.lab = tk.LabelFrame(self.window,text='Aeromap name')
+        self.am_name = tk.StringVar()
+        self.name = tk.Entry(self.lab, textvariable=self.am_name)
+
+        self.lab2 = tk.LabelFrame(self.window,text='Bounds')
+        self.label1 = tk.Label(self.lab2,text="Altitude")
+        self.label2 = tk.Label(self.lab2,text="Mach")
+        self.label3 = tk.Label(self.lab2,text="AoA")
+        self.label4 = tk.Label(self.lab2,text="AoS")
+        self.str1 = tk.StringVar()
+        self.str2 = tk.StringVar()
+        self.str3 = tk.StringVar()
+        self.str4 = tk.StringVar()
+        self.name1 = tk.Entry(self.lab2, textvariable=self.str1, width=13)
+        self.name2 = tk.Entry(self.lab2, textvariable=self.str2, width=13)
+        self.name3 = tk.Entry(self.lab2, textvariable=self.str3, width=13)
+        self.name4 = tk.Entry(self.lab2, textvariable=self.str4, width=13)
+
+        self.button = tk.Button(self.window, text='Generate', command=self._generate_aeromap)
+
+        # Add to window grid
+        self.name.grid()
+        self.lab.grid(row=1,column=1)
+        self.button.grid(row=5,column=1)
+        self.lab2.grid(row=3,column=1)
+        self.label1.grid(row=1,column=1)
+        self.label2.grid(row=2,column=1)
+        self.label3.grid(row=3,column=1)
+        self.label4.grid(row=4,column=1)
+        self.name1.grid(row=1,column=2)
+        self.name2.grid(row=2,column=2)
+        self.name3.grid(row=3,column=2)
+        self.name4.grid(row=4,column=2)
+
+
+    def _generate_aeromap(self, event=None):
+        self.tixi
+        bounds = (self.str1.get(),self.str2.get(),self.str3.get(),self.str4.get())
+        apm.create_aeromap(self.tixi, self.am_name.get(), bounds)
+        self.listBox.selection_clear(0, tk.END)
+        self._update()
+
     def _import_csv(self, event=None):
         template_csv_dir = os.path.join(MODULE_DIR,'..','..','test','AeroMaps')
         csv_path = self.filename = filedialog.askopenfilename(initialdir = template_csv_dir, title = "Select a CSV file" )
@@ -157,6 +206,7 @@ class AeroMapTab:
         self.listBox.delete(0, tk.END)
         for item in self.list:
             self.listBox.insert(tk.END, item)
+
 
     def _delete(self, event=None):
         firstIndex = self.listBox.curselection()[0]

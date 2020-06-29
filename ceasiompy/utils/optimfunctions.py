@@ -14,6 +14,7 @@ Python version: >=3.6
 Todo:
 ----
     * Write the doc
+    * Check how to open the csv file depending on the user program
 
 """
 
@@ -152,10 +153,10 @@ def first_run(module_list, modules_pre_list=[]):
 
     # SettingsGUI only needed at the first iteration
     if 'SettingsGUI' in module_list:
-        module_list.pop(module_list.index('SettingsGUI'))
+        module_list.remove('SettingsGUI')
 
     # Optimisation parameters only needed for the first run
-    module_list.pop(module_list.index('Optimisation'))
+    module_list.remove('Optimisation')
 
 
 def get_normal_param(tixi, value_name, entry, outputs):
@@ -259,19 +260,18 @@ def get_aero_param(tixi, xpath, module_name):
 
 
 def get_variables(tixi, specs, module_name):
-    """
-    Retrieve input and output variables of a module
+    """Retrieve input and output variables of a module.
 
-    Parameters
-    ----------
-    tixi : Tixi3 handler
+    Gets all the inputs and outputs of a module based on its __spec__ file,
+    and decides for each parameter if it can be added to the problem or not,
+    depending on its.
 
-    specs : class
-        Contains the modules inputs and outputs specifications.
+    Returns:
+        tixi (Tixi3 handler): Tixi handle of the CPACS file.
+        specs (class): Contains the modules inputs and outputs specifications.
 
-    Returns
-    -------
-    None.
+    Returns:
+        None.
 
     """
     aeromap = True
@@ -305,18 +305,13 @@ def get_variables(tixi, specs, module_name):
 
 
 def generate_dict(df):
-    """
-    Write all variables in a CSV file or use a predefined file.
+    """Write all variables in a CSV file or use a predefined file.
 
-    Parameters
-    ----------
-    df : DataFrame
-        Contains all the variable. Used to passs from a csv to a dict
+    Args:
+        df (DataFrame): Contains all the variable. Used to passs from a csv to a dict
 
-    Returns
-    -------
-    optim_var_dict : dict
-        Used to pass the variables to the openMDAO setup.
+    Returns:
+        optim_var_dict (dict): Used to pass the variables to the openMDAO setup.
 
     """
     df = df.dropna()
@@ -338,6 +333,19 @@ def generate_dict(df):
 
 
 def get_default_df(module_list):
+    """Generate dataframe with all inouts.
+
+    Generates a dataframe containing all the variables that could be found in
+    each module and that could be used as a parameter for an optimisation or
+    DoE routine.
+
+    Args:
+        module_list (lst): list of modules to execute in the routine.
+
+    Returns:
+        df (Dataframe): Dataframe with all the module variables.
+    """
+
 
     tixi = cpsf.open_tixi(CPACS_OPTIM_PATH)
     for mod_name, specs in mif.get_all_module_specs().items():
@@ -365,8 +373,7 @@ def get_default_df(module_list):
     return df
 
 def create_variable_library(Rt, optim_dir_path):
-    """
-    Create a dictionnary and a CSV file containing all variables that appear
+    """Create a dictionnary and a CSV file containing all variables that appear
     in the module list.
 
     The CSV files lists all the inputs and outputs of each module with :
@@ -375,18 +382,12 @@ def create_variable_library(Rt, optim_dir_path):
     * The commands to get and modify the value of the parameter in the CPACS file
     * The variable type : Constraint, Design variable, Objective function component
 
-    Parameters
-    ----------
-    Rt : Class
-        Contains
+    Args:
+        Rt (class): Contains all the parameters of the current routine.
+        optim_dir_path (str): Path to the working directory.
 
-    optim_dir_path : str
-        Path to the working directory.
-
-    Returns
-    -------
-    optim_var_dict : dict
-        Dictionnary with all optimisation parameters
+    Returns:
+        optim_var_dict (dct): Dictionnary with all optimisation parameters.
 
     """
     global objective, var, CSV_PATH

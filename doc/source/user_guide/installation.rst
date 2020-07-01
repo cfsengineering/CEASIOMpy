@@ -44,13 +44,6 @@ The installation may take a couple of minutes. Now, you have created a new Conda
 
     You will also see a ``(ceasiompy) ... $`` in you terminal prompt which indicates that the ``ceasiompy`` environment is active.
 
-..
-    # Perhaps remove the following...? It's very hard to use CEASIOMpy without conda!
-
-    If you do not use Conda, the following packages are required to be able to use |name|
-
-    * Python 3.6 or higher
-    * `Tixi`_ and `Tigl`_ libraries
 
 Setting up your path variables
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -76,6 +69,10 @@ Make sure that you have activated the ``ceasiompy`` environment in your terminal
     To use core |name| you just have to download or clone the repository in a directory of your choice. Then, you may have to add this directory to your environment variable `PYTHONPATH`.
 
     **Windows**
+
+    .. warning::
+
+        |name| has not been tested on Windows yet, so you may encounter some unexpected issues, do not hesitate to report them on Github.
 
     If use Windows, you have to add the following line, in your `autoexec.bat` file.
 

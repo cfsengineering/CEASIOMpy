@@ -73,4 +73,5 @@ Modules
 
    modules/SettingsGUI/index
    modules/Optimisation/index
+   modules/PredictiveTool/index
    modules/ModuleTemplate/index

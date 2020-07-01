@@ -10,7 +10,7 @@ CPACS version: 3.1
 
 | Author : Aidan Jungo
 | Creation: 2019-08-15
-| Last modifiction: 2020-02-17
+| Last modifiction: 2020-07-01
 
 TODO:
 
@@ -28,7 +28,6 @@ import os
 import sys
 import time
 import math
-import smt.sampling_methods as smp
 
 import numpy as np
 import pandas as pd
@@ -984,18 +983,6 @@ def create_aeromap(tixi, name, bound_values):
         bounds (lst): List of the parameter entries as strings
 
     """
-    # s_t = sample_type.lower()
-
-    # if s_t in 'fullfactorial':
-    #     sampling = smp.FullFactorial(xlimits=bounds)
-    #     x = sampling(sample_nb)
-    # elif s_t in 'latinhypercube':
-    #     sampling = smp.LHS(xlimits=bounds)
-    #     x = sampling(sample_nb)
-    # elif s_t in 'random':
-    #     sampling = smp.random(xlimits=bounds)
-    #     x = sampling(sample_nb)
-    # else:
 
     bounds = []
     allowed = [str(i) for i in range(0,10)]

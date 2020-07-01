@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2017-03-03
-| Last modifiction: 2019-08-14
+| Last modifiction: 2020-06-30
 
 TODO:
 
@@ -17,7 +17,6 @@ TODO:
     * Improve testing script
     * Use <segements> both for wing and fuselage, as they define which
       part of the fuselage/wing should be built
-    * Add "fuselage cap" to improve mesh generation
     * Try to add engine conversion (should be possible with CPACS3.1/TIGL3)
 """
 
@@ -31,10 +30,12 @@ import math
 import numpy
 import matplotlib.pyplot as plt
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi, get_value_or_default, create_branch
-from ceasiompy.utils.ceasiompyfunctions import create_new_wkdir, get_wkdir_or_create_new
+import ceasiompy.utils.cpacsfunctions as cpsf
+import ceasiompy.utils.ceasiompyfunctions as ceaf
+
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
+
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
@@ -157,8 +158,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
     EMPTY_SMX = MODULE_DIR + '/files/sumo_empty.smx'
 
-    tixi = open_tixi(cpacs_path)
-    sumo = open_tixi(EMPTY_SMX)
+    tixi = cpsf.open_tixi(cpacs_path)
+    sumo = cpsf.open_tixi(EMPTY_SMX)
 
     # Fuslage(s) -----
     FUSELAGES_XPATH = '/cpacs/vehicles/aircraft/model/fuselages'
@@ -263,6 +264,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 pos_x_list[j_pos] += prev_pos_x
                 pos_y_list[j_pos] += prev_pos_y
                 pos_z_list[j_pos] += prev_pos_z
+
         else:
             log.warning('No "positionings" have been found!')
             pos_cnt = 0
@@ -336,6 +338,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     if item:
                         prof_vect_z.append(float(item))
 
+
                 prof_size_y = (max(prof_vect_y) - min(prof_vect_y))/2
                 prof_size_z = (max(prof_vect_z) - min(prof_vect_z))/2
 
@@ -352,16 +355,16 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
                 # Could be a problem if they are less positionings than secions
                 # TODO: solve that!
-                pos_y_list[i_sec] += (1 + prof_min_y) * prof_size_y
-                pos_z_list[i_sec] += (1 + prof_min_z) * prof_size_z
+                pos_y_list[i_sec] += ((1 + prof_min_y) * prof_size_y) * elem_transf.scale.y
+                pos_z_list[i_sec] += ((1 + prof_min_z) * prof_size_z) * elem_transf.scale.z
 
-                #To Plot a particular section
-                # if i_sec==30:
+                # #To Plot a particular section
+                # if i_sec==5:
                 #     plt.plot(prof_vect_z, prof_vect_y,'x')
                 #     plt.xlabel('y')
                 #     plt.ylabel('z')
                 #     plt.grid(True)
-                #     plt.show()
+                #     plt.show
 
                 # Put value in SUMO format
                 body_frm_center_x = ( elem_transf.translation.x \
@@ -378,6 +381,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                                         + sec_transf.translation.z \
                                         + pos_z_list[i_sec]) \
                                         * fus_transf.scale.z
+
 
                 body_frm_height = prof_size_z * 2 * elem_transf.scale.z \
                                   * sec_transf.scale.z * fus_transf.scale.z
@@ -457,6 +461,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 sumo.addTextAttribute(frame_xpath,'height',str(body_frm_height))
                 sumo.addTextAttribute(frame_xpath, 'width', str(body_frm_width))
                 sumo.addTextAttribute(frame_xpath, 'name', sec_uid)
+
 
     # To remove the default BodySkeleton
     if fus_cnt == 0:
@@ -760,18 +765,18 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
     # Save the SMX file
 
-    wkdir = get_wkdir_or_create_new(tixi)
+    wkdir = ceaf.get_wkdir_or_create_new(tixi)
 
     sumo_file_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath'
     sumo_dir = os.path.join(wkdir,'SUMO')
     sumo_file_path = os.path.join(sumo_dir,'ToolOutput.smx')
     if not os.path.isdir(sumo_dir):
         os.mkdir(sumo_dir)
-    create_branch(tixi,sumo_file_xpath)
+    cpsf.create_branch(tixi,sumo_file_xpath)
     tixi.updateTextElement(sumo_file_xpath,sumo_file_path)
 
-    close_tixi(tixi, cpacs_out_path)
-    close_tixi(sumo, sumo_file_path)
+    cpsf.close_tixi(tixi, cpacs_out_path)
+    cpsf.close_tixi(sumo, sumo_file_path)
 
 
 #==============================================================================

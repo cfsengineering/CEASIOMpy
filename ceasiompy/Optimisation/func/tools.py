@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author : Vivien Riolo
 | Creation: 2020-05-26
-| Last modification: 2020-05-26
+| Last modification: 2020-06-30
 
 TODO
 ----
@@ -34,6 +34,10 @@ log = get_logger(__file__.split('.')[0])
 #==============================================================================
 #   GLOBALS
 #==============================================================================
+
+# Not an exhaustive list
+accronym_dict = {'maximal_take_off_mass':'mtom', 'range':'rng',
+                 'zero_fuel_mass':'zfm', 'operating_empty_mass':'oem'}
 
 #==============================================================================
 #   CLASSES
@@ -157,7 +161,6 @@ def read_results(optim_dir_path):
     """
     # Read recorded options
     cr = om.CaseReader(optim_dir_path + '/Driver_recorder.sql')
-    # driver_cases = cr.list_cases('driver') (If  multiple recorders)
 
     cases = cr.get_cases()
 
@@ -191,7 +194,6 @@ def read_results(optim_dir_path):
                 key = key.replace('const.','')
                 const[key] = np.append(const[key], val)
 
-
     df_o = pd.DataFrame(obj).transpose()
     df_d = pd.DataFrame(des).transpose()
     df_c = pd.DataFrame(const).transpose()
@@ -200,7 +202,9 @@ def read_results(optim_dir_path):
     df_d.insert(0, 'type', 'des')
     df_c.insert(0, 'type', 'const')
 
-    return pd.concat([df_o,df_d,df_c], axis=0)
+    df = pd.concat([df_o,df_d,df_c], axis=0)
+    df.sort_values('type',0, ignore_index=True, ascending=False)
+    return df
 
 
 def save_results(optim_dir_path):
@@ -221,14 +225,6 @@ def save_results(optim_dir_path):
 
     # Get variable infos
     df = read_results(optim_dir_path)
-    # df = df.transpose()
-
-    # # Generate dictionary with variable history
-    # values = {name:lv[1:] for name, (vt, lv, minv, maxv, gc, sc) in results.items()}
-    # print(values)
-    # df2 = pd.DataFrame.from_dict(values)
-
-    # df = df.append(df2).transpose()
 
     df.to_csv(optim_dir_path+'/Variable_history.csv', index=True, na_rep='-')
 
@@ -280,7 +276,10 @@ def gen_plot(df, yvars, xvars):
         None.
 
     """
+    plt.figure()
     nbC = min(len(xvars),5)
+    if nbC == 0 :
+        nbC = 1
     nbR = int(len(yvars) * np.ceil(len(xvars)/nbC))
     r = 0
     c = 1
@@ -292,7 +291,7 @@ def gen_plot(df, yvars, xvars):
             if c == 1:
                 plt.ylabel(o)
             c += 1
-            if c > nbC:
+            if c >= nbC:
                 r += 1
                 c = 0
         r += 1
@@ -350,8 +349,12 @@ def accronym(name):
             accro += word
         else:
             accro += word[0]
-    log.info('Accronym : ' + accro)
-    return accro
+
+    if full_name in accronym_dict:
+        log.info('Accronym : ' + accro)
+        return accro
+    else:
+        return ''
 
 
 def add_type(entry, outputs, objective, var):
@@ -385,6 +388,7 @@ def add_type(entry, outputs, objective, var):
     else:
         var['type'].append('des')
         log.info('Added type : des')
+
 
 def add_bounds(name, value, var):
     """Add upper and lower bound.

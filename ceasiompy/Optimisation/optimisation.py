@@ -13,7 +13,7 @@ Python version: >=3.6
 | Last modification: 2020-06-22
 
 Todo:
-    * List case / multiple objectives
+    * List inputs or multiple objectives
 
 """
 import os
@@ -90,10 +90,10 @@ class moduleComp(om.ExplicitComponent):
         for entry in spec.cpacs_inout.inputs:
             if entry.var_name in optim_var_dict:
                 var = optim_var_dict[entry.var_name]
-                if var[0] == 'des':
+                if var[0] in ['const','des','obj']:
                     self.add_input(entry.var_name, val = var[1][0])
-                elif var[0] in ['const','obj']:
-                    self.add_output(entry.var_name, val = var[1][0])
+            elif entry.var_name not in ['']:
+                self.add_input(entry.var_name)
 
         # Outputs
         for entry in spec.cpacs_inout.outputs:
@@ -113,7 +113,6 @@ class moduleComp(om.ExplicitComponent):
                             self.add_output(name, val=var[1][0])
                         else:
                             self.add_output(name)
-            # Add output by default as it may be an input for the next module
             else:
                 self.add_output(entry.var_name)
 
@@ -149,6 +148,33 @@ class moduleComp(om.ExplicitComponent):
             cpacs_path = mif.get_toolinput_file_path(Rt.modules[0])
         cpsf.close_tixi(tixi, cpacs_path)
 
+
+class surrogate_model(om.ExplicitComponent):
+    """Uses a surrogate model to make a prediction"""
+
+    def __init__(self):
+        """Add the surrogate model object"""
+        om.ExplicitComponent.__init__(self)
+        file = ''
+        self.module_name = mod # Module to replace
+        self.Model = load_surrogate(file)
+
+    def setup(self):
+        """Setup inputs and outputs"""
+        spec =  mif.get_specs_for_module(self.module_name)
+        for entry in spec.cpacs_inout.inputs:
+            if entry.var_name in optim_var_dict:
+                var = optim_var_dict[entry.var_name]
+                if var[0] in ['const','des','obj']:
+                    self.add_input(entry.var_name, val = var[1][0])
+                else:
+                    self.add_input(entry.var_name)
+        self.add_input()
+        self.add_output()
+
+    def compute(self, inputs, outputs):
+        """Make a prediction"""
+        outputs["test"] = self.sm.predict(inputs)
 
 class objective(om.ExplicitComponent):
     """Class to compute the objective function(s)"""
@@ -219,8 +245,6 @@ def create_routine_folder():
 
     # Create the main working directory
     tixi = cpsf.open_tixi(opf.CPACS_OPTIM_PATH)
-    if tixi.checkElement(opf.WKDIR_XPATH):
-        tixi.removeElement(opf.WKDIR_XPATH)
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
     optim_dir_path = os.path.join(wkdir, Rt.type)
     Rt.date = wkdir[-19:]
@@ -234,8 +258,8 @@ def create_routine_folder():
     # Add subdirectories
     if not os.path.isdir(optim_dir_path):
         os.mkdir(optim_dir_path)
-    os.mkdir(optim_dir_path+'/Geometry')
-    os.mkdir(optim_dir_path+'/Runs')
+        os.mkdir(optim_dir_path+'/Geometry')
+        os.mkdir(optim_dir_path+'/Runs')
 
     cpsf.close_tixi(tixi, opf.CPACS_OPTIM_PATH)
 
@@ -266,7 +290,15 @@ def driver_setup(prob):
             prob.driver.opt_settings['maxGen'] = Rt.max_iter
         else:
             prob.driver = om.ScipyOptimizeDriver()
-            prob.driver.options['optimizer'] = Rt.driver
+            prob.driver.options['optimizer'] = Rt.driver #Nelder-Mead
+            # prob.driver.opt_settings['eps'] = 0.5
+            # prob.driver.opt_settings['ftol'] = 1e-5
+            prob.driver.opt_settings['initial_tr_radius'] = 1
+            # prob.driver.opt_settings['xtol'] = 1e-15
+            # prob.driver.opt_settings['barrier_tol'] = 1e-15
+            # prob.driver.opt_settings['finite_diff_rel_step'] = 1
+            # prob.driver.opt_settings['disp'] = True
+            # prob.driver.opt_settings['maxiter'] = Rt.max_iter
             prob.driver.options['maxiter'] = Rt.max_iter
             prob.driver.options['tol'] = Rt.tol
             prob.driver.options['disp'] = True
@@ -374,7 +406,12 @@ def routine_launcher(Opt):
 
     ## Initialize CPACS file and problem dictionary ##
     create_routine_folder()
+    print(Rt.modules)
     opf.first_run(Rt.modules)
+    sm_model = False
+    if 'PredictiveTool' in Rt.modules:
+        sm_model = True
+        Rt.modules.remove('PredictiveTool')
     Rt.get_user_inputs(opf.CPACS_OPTIM_PATH)
     optim_var_dict = opf.create_variable_library(Rt, optim_dir_path)
 
@@ -397,6 +434,9 @@ def routine_launcher(Opt):
     ## Run the model ##
     prob.run_driver()
 
+    ## Generate N2 scheme ##
+    om.n2(optim_dir_path+'/circuit.sqlite', optim_dir_path+'/circuit.html', False)
+
     ## Recap of the problem inputs/outputs ##
     prob.model.list_inputs()
     prob.model.list_outputs()
@@ -405,8 +445,12 @@ def routine_launcher(Opt):
     tls.plot_results(optim_dir_path,'')
     tls.save_results(optim_dir_path)
 
-    ## Generate N2 scheme ##
-    om.n2(optim_dir_path+'/circuit.sqlite', optim_dir_path+'/circuit.html', False)
+    wkf.copy_module_to_module(Rt.modules[-1], 'out', 'Optimisation', 'out')
+
+    # In the case where a surrogate must be generated
+    if sm_model:
+        wkf.copy_module_to_module('Optimisation', 'out', 'PredictiveTool', 'in')
+        wkf.run_subworkflow('SettingsGUI', 'PredictiveTool')
 
 
 if __name__ == '__main__':

@@ -49,11 +49,11 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name='Driver',
     var_type=list,
-    default_value=['COBYLA'],
+    default_value=['COBYLA','Nelder-Mead'],
     unit='-',
     descr='Choose the driver to run the routine with',
     xpath=CEASIOM_XPATH+'/Optimisation/parameters/driver',
-    gui=include_gui,
+    gui=False,
     gui_name='Driver',
     gui_group='Global settings'
 )

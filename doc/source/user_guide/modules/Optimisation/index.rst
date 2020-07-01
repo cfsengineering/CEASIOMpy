@@ -1,5 +1,5 @@
 Optimisation
-==============
+============
 
 :Categories: Optimisation module
 
@@ -9,9 +9,9 @@ This module launches a loop with a workflow routine and an optimiser based on th
     :width: 600 px
     :align: center
     :alt: Example
-    
+
     Wing modification at two different time steps of an optimisation routine.
-    
+
 Installation
 ------------
 

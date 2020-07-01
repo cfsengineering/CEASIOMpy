@@ -219,8 +219,8 @@ def create_routine_folder():
 
     # Create the main working directory
     tixi = cpsf.open_tixi(opf.CPACS_OPTIM_PATH)
-    if tixi.checkElement(opf.WKDIR_XPATH):
-        tixi.removeElement(opf.WKDIR_XPATH)
+    #if tixi.checkElement(opf.WKDIR_XPATH):
+    #    tixi.removeElement(opf.WKDIR_XPATH)
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
     optim_dir_path = os.path.join(wkdir, Rt.type)
     Rt.date = wkdir[-19:]

@@ -11,10 +11,6 @@ SUMOAutoMesh
 
 SUMOAutoMesh generate automatically a SU2_ mesh from a SUMO_ SMX file.
 
-.. warning::
-
-    This module do not work on MacOS for now, because SUMO cannot be run in batch as on Linux. If you place this module in a workflow anyway, it will just open SUMO in GUI.
-
 
 Installation
 ------------
@@ -34,7 +30,11 @@ SUMOAutoMesh create automatically a mesh that could be used by SU2. It generate 
 
 On MacOS:
 
-Unfortunately, on MacOS, the mesh has to be generated manually, but SUMOAutoMesh will be useful to preset the mesh criterion. Also, SUMO gui will be launches when the mesh should be created.
+
+.. warning::
+
+    Unfortunately, on MacOS, the mesh has to be generated manually, but SUMOAutoMesh will be useful to preset the mesh criterion. Also, SUMO gui will be launches when the mesh should be created.
+
 
 To create a SU2Mesh you have to :
 

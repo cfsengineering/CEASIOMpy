@@ -123,6 +123,28 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
         sumo.addTextAttribute(meshcrit_xpath, 'nvmax', '1073741824')
         sumo.addTextAttribute(meshcrit_xpath, 'xcoarse', 'false')
 
+
+        # Chage fusage caps
+        cap_cnt = sumo.getNamedChildrenCount(body_xpath, 'Cap')
+
+        for i_cap in range(cap_cnt):
+            cap_xpath = body_xpath + '/Cap[1]'
+            sumo.removeElement(cap_xpath)
+
+
+        sumo.addTextElementAtIndex(body_xpath,'Cap','',1)
+        cap1_xpath = body_xpath + '/Cap[1]'
+        sumo.addTextAttribute(cap1_xpath, 'height', '0')
+        sumo.addTextAttribute(cap1_xpath, 'shape', 'LongCap')
+        sumo.addTextAttribute(cap1_xpath, 'side', 'south')
+
+        cap2_xpath = body_xpath + '/Cap[2]'
+        sumo.addTextElementAtIndex(body_xpath,'Cap','',2)
+        sumo.addTextAttribute(cap2_xpath, 'height', '0')
+        sumo.addTextAttribute(cap2_xpath, 'shape', 'LongCap')
+        sumo.addTextAttribute(cap2_xpath, 'side', 'north')
+
+
     # Go through every Wing and apply mesh parameters
     if sumo.checkElement(ROOT_XPATH):
         wing_cnt = sumo.getNamedChildrenCount(ROOT_XPATH, 'WingSkeleton')

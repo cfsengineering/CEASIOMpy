@@ -3,7 +3,8 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This module generates a surrogate model based on specified inputs and outputs.
+This module can be called either to generate a surrogate model based on
+specified inputs and outputs, or to make a prediction by using a trained model.
 
 Python version: >=3.6
 
@@ -12,9 +13,7 @@ Python version: >=3.6
 | Last modifiction: 2020-06-09
 
 TODO:
-    * Write the module
-    * Make this module standalone
-    * Deal with the objective function, to recover in all cases
+    *
 
 """
 
@@ -23,17 +22,19 @@ TODO:
 # =============================================================================
 
 import os
+import pickle
+import datetime
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
 import smt.surrogate_models as sms
 import smt.sampling_methods as smp
-import pandas as pd
-import numpy as np
-from re import split as splt
-import matplotlib.pyplot as plt
 
-import ceasiompy.utils.moduleinterfaces as mi
+from re import split as splt
+
+import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.optimfunctions as opf
-import ceasiompy.Optimisation.optimisation as opt
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.Optimisation.func.tools as tls
@@ -41,14 +42,13 @@ import ceasiompy.Optimisation.func.tools as tls
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 # =============================================================================
 #   GLOBALS
 # =============================================================================
 
-CPACS_PREDICT_PATH = '../PredictiveTool/ToolInput.ToolInput.xml'
-PREDICT_XPATH = '/cpacs/toolspecific/CEASIOMpy/Prediction/'
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+PREDICT_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModel/'
 
 # Working surrogate models
 model_dict = {'KRG':'KRG(theta0=[1e-2]*xd.shape[1])',
@@ -73,36 +73,55 @@ model_dict = {'KRG':'KRG(theta0=[1e-2]*xd.shape[1])',
 #   ClASSES
 # =============================================================================
 
-class SM_parameters():
+
+class Prediction_tool():
     """Parameters for the surrogate model"""
 
     def __init__(self):
         """Define default main parameters."""
 
         # Main parameters
-        self.objectives = ['']
-        self.user_config = 'Variable_history.csv'
+        self.use_model = False
+        self.user_file = ''
+        self.result_file = ''
+
+        # Surrogate model settings
+        self.type = 'KRG'
+        self.objectives = ['cl']
+        self.df = pd.DataFrame()
 
         # Only for the aeromap case
         self.aeromap_case = False
+        self.aeromap_name = ''
         self.doedriver = 'LatinHypercube'
         self.samplesnb = 3
 
     def get_user_inputs(self, cpacs_path):
         """Take user inputs from the GUI."""
-        tixi = cpsf.open_tixi(CPACS_PREDICT_PATH)
+        cpacs_path = mif.get_toolinput_file_path('PredictiveTool')
+        tixi = cpsf.open_tixi(cpacs_path)
 
-        self.objectives = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'objective', ['cl'])
-        self.user_config = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'Config/filepath', 'Variable_history.csv')
+        self.aeromap_case = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'useModel', False)
+        obj = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'objective', ['cl'])
+        if type(obj) == list:
+            self.objectives = obj
+        else:
+            self.objectives = obj.split(';')
+        self.user_file = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'Config/filepath', '')
+        self.result_file = cpsf.get_value_or_default(tixi, opf.OPTWKDIR_XPATH, '')+'/Variable_history.csv'
 
         self.aeromap_case = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'aeromap_case/IsCase', False)
+        self.doedriver = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'aeromap_case/uID', '')
         self.doedriver = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'aeromap_case/DoEdriver', 'LatinHypercube')
         self.samplesnb = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'aeromap_case/sampleNB', 3)
+
+        cpsf.close_tixi(tixi, cpacs_path)
+
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
 
-def extract_data_set(file):
+def extract_data_set(file, Model):
     """Get training data from file.
 
     Retrieve training dataset from a file or generates it automatically. The
@@ -131,6 +150,8 @@ def extract_data_set(file):
     x = df.loc[[i for i,v in enumerate(df['type']) if v == 'des']]
     y = df.loc[[i for i, v in enumerate(df['type']) if v == 'obj']]
 
+    Model.df = df[['Name','type']]
+
     df = df.set_index('Name')
 
     # Extract the iteration results only
@@ -140,86 +161,14 @@ def extract_data_set(file):
     # Compute the objectives in the aeromap case, else they are already given
     if 'Variable_history' not in file:
         y = pd.DataFrame()
-        for i, obj_expr in enumerate(objectives):
+        for i, obj_expr in enumerate(Model.objectives):
             for name in splt('[+*/-]', obj_expr):
                 obj_expr = obj_expr.replace(name,'df.loc["{}"]'.format(name))
-            exec('y["{}"] = {}'.format(objectives[i], obj_expr))
+            exec('y["{}"] = {}'.format(Model.objectives[i], obj_expr))
     else:
         y = y[[i for i in y.columns if i.isdigit()]].transpose()
 
     return x.transpose().to_numpy(), y.to_numpy()
-
-
-def aeromap_case_gen(modules):
-    """
-    Generate a CSV file containing a dataset generated with aeromap parameters
-    only.
-
-    Args:
-        modules (lst) : list of modules to execute.
-
-    Returns:
-        file (str) : Path to CSV file.
-
-    """
-    file = MODULE_DIR+'/Aeromap_generated.csv'
-    infile = mi.get_toolinput_file_path('PredictiveTool')
-    outfile = mi.get_tooloutput_file_path('PredictiveTool')
-
-    tixi = cpsf.open_tixi(infile)
-
-    # Inputs
-    alt = [0, 0]
-    mach = [0.5, 0.5]
-    aoa = [-10, 10]
-    aos = [0,0]
-    nt = 100
-    bounds = np.array([alt, mach, aoa, aos])
-    # Sort criterion : ‘center’, ‘maximin’, ‘centermaximin’, ‘correlation’
-    crit = 'corr'
-
-    # Generate sample points, LHS or FullFactorial
-    sampling = smp.LHS(xlimits=bounds, criterion=crit)
-    xd = sampling(nt)
-    xd = xd.transpose()
-    # Delete the other aeromaps... maybe conserve them ?
-    for uid in apmf.get_aeromap_uid_list(tixi):
-        apmf.delete_aeromap(tixi, uid)
-
-    # Create new aeromap
-    aeromap_uid = 'DoE_Aeromap'
-    am_xpath = tls.get_aeromap_path(modules)
-    apmf.create_empty_aeromap(tixi, aeromap_uid)
-    cpsf.add_string_vector(tixi, am_xpath+'/aeroMapUID', [aeromap_uid])
-
-    # Add parameters to aeromap
-    Param = apmf.AeroCoefficient()
-    for i in range(0, xd.shape[1]):
-        Param.add_param_point(xd[0][i], xd[1][i], xd[2][i], xd[3][i])
-    apmf.save_parameters(tixi, aeromap_uid, Param)
-    cpsf.close_tixi(tixi, infile)
-
-    wkf.run_subworkflow(modules, cpacs_path_in=infile, cpacs_path_out=outfile)
-
-    # Get Aerocoefficient
-    tixi = cpsf.open_tixi(outfile)
-    am_xpath = tls.get_aeromap_path(modules)
-    aeromap_uid = cpsf.get_value(tixi, am_xpath+'/aeroMapUID')
-    AeroCoefficient = apmf.get_aeromap(tixi,aeromap_uid)
-    cpsf.close_tixi(tixi, outfile)
-
-    dct = AeroCoefficient.to_dict()
-
-    # Write to CSV
-    df = pd.DataFrame(dct)
-    df = df.transpose()
-    var_type = ['obj' if i in objectives
-                else 'des' if i in ['alt','mach','aoa','aos']
-                else 'const'
-                for i in df.index]
-    df.insert(0,'type',var_type)
-    df.to_csv(file, index=True)
-    return file
 
 
 def separate_data(x, y):
@@ -229,14 +178,14 @@ def separate_data(x, y):
     the surrogate model.
 
     Args:
-    x (np array) : DoE inputs
-    y (np array) : DoE outputs
+        x (np array) : DoE inputs
+        y (np array) : DoE outputs
 
     Returns:
-    xt (np array) : Training inputs
-    yt (np array) : Training outputs
-    xv (np array) : Validation inputs
-    yv (np array) : Validation outputs
+        xt (np array) : Training inputs
+        yt (np array) : Training outputs
+        xv (np array) : Validation inputs
+        yv (np array) : Validation outputs
 
     """
     # Sets length of each set
@@ -257,7 +206,7 @@ def separate_data(x, y):
     return xt, yt, xv, yv
 
 
-def create_model(xd, yd):
+def create_model(Model, xd, yd):
     """Create a surrogate.
 
     Generate, train and validate a surrogate model with the provided data.
@@ -265,15 +214,9 @@ def create_model(xd, yd):
     Args:
         file (str) : Path to CSV file.
 
-    Returns:
-        sm (surrogate model object) : Trained surrogate model.
-
     """
-    model = 'KRG'
     xt, yt, xv, yv = separate_data(xd, yd)
-    sm = eval('sms.{}'.format(model_dict[model]))
-    # In case the options get user defined as string
-    # sm = eval('sms.{}({})'.format(model_dict[model]), options))
+    sm = eval('sms.{}'.format(model_dict[Model.type]))
 
     sm.set_training_values(xt, yt)
 
@@ -287,7 +230,7 @@ def create_model(xd, yd):
         log.info(rms)
         plt.figure()
         plt.plot(yv[:,i], yv[:,i], '-', label='$y_{true}$')
-        plt.plot(yv[:,i], yp[:,i], 'r.', label='$\hat{y}$ :'+objectives[i])
+        plt.plot(yv[:,i], yp[:,i], 'r.', label='$\hat{y}$ :'+Model.objectives[i])
 
         plt.xlabel('$y_{true}$')
         plt.ylabel('$\hat{y}$')
@@ -299,49 +242,154 @@ def create_model(xd, yd):
         for j in range(0,xv.shape[1]):
             plt.subplot(1,xv.shape[1]+1,j+1)
             if j == 0:
-                plt.ylabel(objectives[i])
+                plt.ylabel(Model.objectives[i])
             plt.plot(xt[:,j], yt[:,i], 'b.', label='$y_{training set}$')
             plt.plot(xv[:,j], yp[:,i], 'r.', label='$y_{prediction set}$')
-            plt.title('$'+objectives[i]+'$')
+            plt.title('$'+Model.objectives[i]+'$')
             plt.legend(loc='upper left')
     plt.show()
 
-    return sm
+    Model.sm = sm
+
+
+def get_data_file(Model):
+    """Search for the file containing the data set.
+
+    The programm searches for a file given by the user through the GUI, else
+    it will look for a file that was generated by a previous DoE by looking at
+    the optimPath location in the CPACS file. If no file is found it will run
+    a DoE either with Aeromap parameters only, which will be run in one
+    subworkflow, or with other parameters which will result in a conventional
+    DoE.
+
+    Args:
+        Model (Prediction_tool object): Current predictor object.
+
+    Returns:
+        file (str): Path to the file containing the data.
+
+    """
+    if os.path.isfile(Model.user_file):
+        file = Model.user_file
+        log.info('User-specified file found')
+    elif os.path.isfile(Model.result_file):
+        file = Model.result_file
+        log.info('File found from a previous workflow')
+    else:
+        raise FileNotFoundError("""File not found, please enter the name of an
+                                 existing CSV file containing the data set.""")
+
+    return file
+
+
+def save_surrogate(Model):
+    """Save trained surrogate model to a file.
+
+    Create a file to which the class containing the surrogate model and its
+    parameters will be saved in order to be re-used using the pickle module.
+    The file is either saved in the Output folder of the PredictiveTool module
+    or in the current working directory.
+
+    Args:
+        sm (surrogate model object): Trained surrogate model.
+
+    Returns:
+        None.
+
+    """
+    date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+
+    cpacs_path = mif.get_toolinput_file_path('PredictiveTool')
+    tixi = cpsf.open_tixi(cpacs_path)
+    filepath = cpsf.get_value_or_default(tixi, opf.OPTWKDIR_XPATH, '-')
+    if os.path.isdir(filepath):
+        filename = filepath+'/Surrogate_Model'
+    else:
+        filename = MODULE_DIR+'/ToolOutput/SM_'+ date
+
+    Model.user_file = filename
+
+    sm_file = open(filename, 'wb')
+
+    pickle.dump(Model, sm_file)
+
+
+def load_surrogate(file):
+    """Load a surrogate model object from file
+
+    Using the pickle module, a surrogate model object is retrieved from a file.
+
+    Args:
+        file (str): Path to file.
+
+    Returns:
+        sm (object): The surrogate model.
+
+    """
+    try:
+        f = open(file, 'rb')
+    except:
+        raise IOError('File could not be opened')
+
+    Model = pickle.load(f)
+
+    return Model
+
+
+def generate_model(Model):
+    """Start process of creating a model
+
+    Reads or generates data to create a surrogate model.
+
+    Args:
+        data (): data to use to create the model
+
+    Returns:
+        sm (object): The surrogate model.
+
+    """
+    file = get_data_file(Model)
+
+    xd, yd = extract_data_set(file, Model)
+
+    create_model(Model, xd, yd)
+
+    save_surrogate(Model)
+
+
+def initiate_module():
+    """Check how to use the module.
+
+    Takes the user input to see wether to create a model or just use an
+    existing one to make a prediction.
+
+    Args:
+        None.
+
+    Returns:
+        None.
+
+    """
+
+    # Variable declarations
+    global Model
+    Model = Prediction_tool()
+    cpacs_path = mif.get_toolinput_file_path('PredictiveTool')
+
+    Model.get_user_inputs(cpacs_path)
+
+    if Model.use_model:
+        # Take the parameters from the loaded model structure (all of them ?)
+        Model = load_surrogate(Model.user_file)
+    else:
+        generate_model(Model)
 
 
 if __name__ == "__main__":
 
-    log.info('Start of Predictive tool')
+    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
-    # Variable declarations
-    global objectives
-    objectives = ['cl/cd','cms']
-    file = 'Aeromap_generated100_points.csv'
-    # file = '_Variable_history.csv'
-    aeromap = True
-    modules = ['WeightConventional', 'PyTornado']
+    initiate_module()
 
-    if os.path.isfile(file):
-        log.info('File found, will be used to generate the model')
-    elif aeromap and not os.path.isfile(file):
-        log.info('Specific aeromap case')
-        modules.insert(0,'SettingsGUI')
-        file = aeromap_case_gen(modules)
-    else:
-        log.info('No file found, running DoE')
-
-        wkf.copy_module_to_module('PredictiveTool', 'in', 'Optimisation', 'in')
-        opt.routine_setup(modules, 'DoE')
-        wkf.copy_module_to_module('Optimisation', 'out', 'PredictiveTool', 'in')
-
-        cpacs_path = mi.get_tooloutput_file_path('Optimisation')
-        tixi = cpsf.open_tixi(cpacs_path)
-        file = cpsf.get_value(tixi, opf.OPTWKDIR_XPATH)+'/Variable_history.csv'
-        objectives = cpsf.get_value(tixi, opf.OPTIM_XPATH+'/objectives')
-
-    xd, yd = extract_data_set(file)
-
-    sm = create_model(xd, yd)
-
-    log.info('End of Predictive tool')
+    log.info('----- End of ' + os.path.basename(__file__) + ' -----')
 

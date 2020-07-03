@@ -50,33 +50,36 @@ accronym_dict = {'maximal_take_off_mass':'mtom', 'range':'rng',
 ### --------------- MISCELANEOUS --------------- ###
 # -------------------------------------------------#
 
-def get_aeromap_path(module_list):
-    """Return xpath of selected aeromap.
+def get_current_aeromap_uid(tixi, module_list):
+    """Return uid of selected aeromap.
 
     Check the modules that will be run in the optimisation routine to specify
-    the path to the correct aeromap in the CPACS file.
+    the uID of the correct aeromap in the CPACS file.
 
     Args:
-        module_list (lst) : list of the modules that are run in the routin
+        module_list (lst): List of the modules that are run in the routine
+        tixi (tixi handle): Tixi handle of the CPACS file.
 
     Returns:
-        xpath (str) : Xpath to the aeromap that is used for the routine
+        uid (str) : Name of the aeromap that is used for the routine
     """
-
-    PYTORNADO_XPATH = '/cpacs/toolspecific/pytornado'
-
-    SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
-
-    xpath = 'None'
+    uid = 'None'
 
     for module in module_list:
         if module == 'SU2Run':
             log.info('Found SU2 analysis')
-            xpath = SU2_XPATH
+            xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID'
+            uid = tixi.getTextElement(xpath)
         elif module == 'PyTornado':
             log.info('Found PyTornado analysis')
-            xpath = PYTORNADO_XPATH
-    return xpath
+            xpath = '/cpacs/toolspecific/pytornado/aeroMapUID'
+            uid = tixi.getTextElement(xpath)
+
+    if 'SkinFriction' in module_list:
+        log.info('Found SkinFriction analysis')
+        uid = uid + '_SkinFriction'
+
+    return uid
 
 
 def estimate_volume(tigl):

@@ -19,19 +19,20 @@ Todo:
 import os
 import sys
 import shutil
-# import argparse
 import openmdao.api as om
 from tigl3 import geometry # Called within eval() function
 from re import split as splt
 
 import ceasiompy.utils.optimfunctions as opf
 import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.workflowfunctions as wkf
-import ceasiompy.Optimisation.func.dictionnary as dct
+import ceasiompy.utils.ceasiompyfunctions as ceaf
+
 import ceasiompy.Optimisation.func.tools as tls
+import ceasiompy.PredictiveTool.prediction as pred
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
+import ceasiompy.Optimisation.func.dictionnary as dct
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -101,18 +102,21 @@ class moduleComp(om.ExplicitComponent):
                 var = optim_var_dict[entry.var_name]
                 self.add_output(entry.var_name, val=var[1][0])
             elif 'aeromap' in entry.var_name:
-                for name in ['altitude', 'machNumber',
-                              'angleOfAttack', 'angleOfSideslip']:
-                    if name in optim_var_dict:
-                        var = optim_var_dict[name]
-                        self.add_input(name, val=var[1][0])
-                for name in ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']:
-                    if name in optim_var_dict:
-                        var = optim_var_dict[name]
-                        if tls.is_digit(var[1][0]):
-                            self.add_output(name, val=var[1][0])
-                        else:
-                            self.add_output(name)
+                # Condition to avoid conflict with skinfriction
+                is_skf = (self.module_name == 'SkinFriction')
+                if (skf and is_skf) or (not skf and not is_skf):
+                    for name in ['altitude', 'machNumber',
+                                  'angleOfAttack', 'angleOfSideslip']:
+                        if name in optim_var_dict:
+                            var = optim_var_dict[name]
+                            self.add_input(name, val=var[1][0])
+                    for name in ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']:
+                        if name in optim_var_dict:
+                            var = optim_var_dict[name]
+                            if tls.is_digit(var[1][0]):
+                                self.add_output(name, val=var[1][0])
+                            else:
+                                self.add_output(name)
             else:
                 self.add_output(entry.var_name)
 
@@ -157,7 +161,7 @@ class surrogate_model(om.ExplicitComponent):
         om.ExplicitComponent.__init__(self)
         file = ''
         self.module_name = mod # Module to replace
-        self.Model = load_surrogate(file)
+        self.Model = pred.load_surrogate(file)
 
     def setup(self):
         """Setup inputs and outputs"""
@@ -169,12 +173,10 @@ class surrogate_model(om.ExplicitComponent):
                     self.add_input(entry.var_name, val = var[1][0])
                 else:
                     self.add_input(entry.var_name)
-        self.add_input()
-        self.add_output()
 
     def compute(self, inputs, outputs):
         """Make a prediction"""
-        outputs["test"] = self.sm.predict(inputs)
+        outputs["test"] = self.Model.sm.predict_values(inputs)
 
 class objective(om.ExplicitComponent):
     """Class to compute the objective function(s)"""
@@ -213,6 +215,7 @@ class objective(om.ExplicitComponent):
             var_list = splt('[+*/-]', obj)
             for v in var_list:
                 if not v.isdigit() and v != '':
+                    optim_var_dict[v][1].append(inputs[v])
                     exec('{} = inputs["{}"]'.format(v, v))
 
             result = eval(obj)
@@ -245,8 +248,6 @@ def create_routine_folder():
 
     # Create the main working directory
     tixi = cpsf.open_tixi(opf.CPACS_OPTIM_PATH)
-    #if tixi.checkElement(opf.WKDIR_XPATH):
-    #    tixi.removeElement(opf.WKDIR_XPATH)
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
     optim_dir_path = os.path.join(wkdir, Rt.type)
     Rt.date = wkdir[-19:]
@@ -259,6 +260,15 @@ def create_routine_folder():
 
     # Add subdirectories
     if not os.path.isdir(optim_dir_path):
+        os.mkdir(optim_dir_path)
+        os.mkdir(optim_dir_path+'/Geometry')
+        os.mkdir(optim_dir_path+'/Runs')
+    else:
+        index = 2
+        optim_dir_path = optim_dir_path + str(index)
+        while os.path.isdir(optim_dir_path):
+            index += 1
+            optim_dir_path = optim_dir_path[:-1] + str(index)
         os.mkdir(optim_dir_path)
         os.mkdir(optim_dir_path+'/Geometry')
         os.mkdir(optim_dir_path+'/Runs')
@@ -293,14 +303,6 @@ def driver_setup(prob):
         else:
             prob.driver = om.ScipyOptimizeDriver()
             prob.driver.options['optimizer'] = Rt.driver #Nelder-Mead
-            # prob.driver.opt_settings['eps'] = 0.5
-            # prob.driver.opt_settings['ftol'] = 1e-5
-            prob.driver.opt_settings['initial_tr_radius'] = 1
-            # prob.driver.opt_settings['xtol'] = 1e-15
-            # prob.driver.opt_settings['barrier_tol'] = 1e-15
-            # prob.driver.opt_settings['finite_diff_rel_step'] = 1
-            # prob.driver.opt_settings['disp'] = True
-            # prob.driver.opt_settings['maxiter'] = Rt.max_iter
             prob.driver.options['maxiter'] = Rt.max_iter
             prob.driver.options['tol'] = Rt.tol
             prob.driver.options['disp'] = True
@@ -318,7 +320,7 @@ def driver_setup(prob):
     ## Attaching a recorder and a diagramm visualizer ##
     prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path+'/Driver_recorder.sql'))
     prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path+'/circuit.sqlite'))
-
+    prob.driver.recording_options['record_inputs'] = True
 
 def add_subsystems(prob, ivc):
     """Add subsystems to problem.
@@ -399,7 +401,7 @@ def routine_launcher(Opt):
         None.
 
     """
-    global counter, optim_var_dict, Rt
+    global counter, optim_var_dict, Rt, skf
 
     counter = 0
     Rt = opf.Routine()
@@ -408,12 +410,15 @@ def routine_launcher(Opt):
 
     ## Initialize CPACS file and problem dictionary ##
     create_routine_folder()
-    print(Rt.modules)
+
     opf.first_run(Rt.modules)
     sm_model = False
     if 'PredictiveTool' in Rt.modules:
         sm_model = True
         Rt.modules.remove('PredictiveTool')
+    skf = False
+    if 'SkinFriction' in Rt.modules:
+        skf = True
     Rt.get_user_inputs(opf.CPACS_OPTIM_PATH)
     optim_var_dict = opf.create_variable_library(Rt, optim_dir_path)
 
@@ -451,6 +456,7 @@ def routine_launcher(Opt):
 
     # In the case where a surrogate must be generated
     if sm_model:
+        log.info('Generating a Surrogate')
         wkf.copy_module_to_module('Optimisation', 'out', 'PredictiveTool', 'in')
         wkf.run_subworkflow('SettingsGUI', 'PredictiveTool')
 
@@ -459,13 +465,5 @@ if __name__ == '__main__':
 
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
     # Creating a dummy class to pass the default arguments
-    class Opt(): pass
-    if len(sys.argv) > 2:
-        Opt.optim_method = sys.argv[1]
-        Opt.module_optim = sys.argv[2]
-    else:
-        Opt.optim_method = 'Optim'
-        Opt.module_optim = ['WeightConventional', 'PyTornado']
-        # Opt.module_optim = ['WeightConventional', 'CPACS2SUMO', 'SUMOAutoMesh', 'SU2Run']
-    routine_launcher(Opt)
+    wkf.run_subworkflow('WorkflowCreator')
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

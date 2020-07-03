@@ -147,7 +147,7 @@ class AeroMapTab:
         self.am_name = tk.StringVar()
         self.name = tk.Entry(self.lab, textvariable=self.am_name)
 
-        self.lab2 = tk.LabelFrame(self.window,text='Bounds')
+        self.lab2 = tk.LabelFrame(self.window,text='Bounds (";" separated values)')
         self.label1 = tk.Label(self.lab2,text="Altitude")
         self.label2 = tk.Label(self.lab2,text="Mach")
         self.label3 = tk.Label(self.lab2,text="AoA")

@@ -26,10 +26,8 @@ TODO
 
 from sys import exit
 
-# import ceasiompy.utils.optimfunctions as optf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
-# import ceasiompy.utils.workflowfunctions as wkf
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])

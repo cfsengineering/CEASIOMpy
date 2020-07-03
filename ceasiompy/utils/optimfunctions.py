@@ -33,6 +33,7 @@ import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.Optimisation.func.dictionnary as dct
 import ceasiompy.Optimisation.func.tools as tls
+from re import split as splt
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
@@ -290,7 +291,6 @@ def get_variables(tixi, specs, module_name):
             get_normal_param(tixi, value_name, entry, specs.cpacs_inout.outputs)
 
 
-
 def generate_dict(df):
     """Write all variables in a CSV file or use a predefined file.
 
@@ -301,9 +301,7 @@ def generate_dict(df):
         optim_var_dict (dict): Used to pass the variables to the openMDAO setup.
 
     """
-    df = df.dropna()
-    df.sort_values('type',0, ignore_index=True, ascending=False)
-    df.to_csv(CSV_PATH, index=True, na_rep='-')
+    log.info(df)
     defined_dict = df.to_dict('index')
 
     # Transform to a convenient form of dict
@@ -332,9 +330,8 @@ def get_default_df(module_list):
 
     Returns:
         df (Dataframe): Dataframe with all the module variables.
+
     """
-
-
     tixi = cpsf.open_tixi(CPACS_OPTIM_PATH)
     for mod_name, specs in mif.get_all_module_specs().items():
         if specs and mod_name in module_list:
@@ -358,8 +355,10 @@ def get_default_df(module_list):
                    'setpath': setcmd}
         df = df.append(new_row, ignore_index=True)
 
-    df.sort_values('type',0, ignore_index=True, ascending=False)
+    df.sort_values(by=['type','Name'], axis=0, ignore_index=True,
+                   ascending=[False, True], inplace=True)
     return df
+
 
 def create_variable_library(Rt, optim_dir_path):
     """Create a dictionnary and a CSV file containing all variables that appear
@@ -381,7 +380,9 @@ def create_variable_library(Rt, optim_dir_path):
     """
     global objective, var, CSV_PATH
     CSV_PATH = optim_dir_path+'/Variable_library.csv'
-    objective = Rt.objective
+    objective = []
+    for obj in Rt.objective:
+        objective.extend(splt('[+*/-]',obj))
     var = {'Name':[], 'type':[], 'init':[], 'min':[], 'max':[], 'xpath':[]}
 
     log.info(Rt.user_config)
@@ -403,10 +404,12 @@ def create_variable_library(Rt, optim_dir_path):
             os.system('Numbers ' + CSV_PATH)
 
         log.info('Variable library file has been saved at '+CSV_PATH)
+        log.info(df)
         df = pd.read_csv(CSV_PATH, index_col=0)
+        log.info(df)
     else:
         log.info('Configuration file found, will be used')
-        df = pd.read_csv(Rt.user_config, index_col=0)
+        df = pd.read_csv(Rt.user_config)
 
     optim_var_dict = generate_dict(df)
 

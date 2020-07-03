@@ -52,11 +52,6 @@ class geom_param(om.ExplicitComponent):
 
     def setup(self):
         """ Setup inputs only for the geometry"""
-        global geom_dict
-        # Create dictionnary with only the geometric parameters
-        # i.e. which can be modified using the Tigl handler
-        geom_dict = {k:v for k, v in optim_var_dict.items() if v[5]!='-'}
-
         for name, (val_type, listval, minval, maxval,
                    setcommand, getcommand) in geom_dict.items():
             if name in optim_var_dict:
@@ -209,7 +204,7 @@ class objective(om.ExplicitComponent):
         dct.update_dict(tixi, optim_var_dict)
 
         # Change local wkdir for the next iteration
-        tixi.updateTextElement(opf.WKDIR_XPATH,ceaf.create_new_wkdir(Rt.date,Rt.type))
+        tixi.updateTextElement(opf.WKDIR_XPATH,ceaf.create_new_wkdir(optim_dir_path))
 
         for obj in Rt.objective:
             var_list = splt('[+*/-]', obj)
@@ -315,7 +310,7 @@ def driver_setup(prob):
             driver_type = om.FullFactorialGenerator(levels=Rt.samplesnb)
         prob.driver = om.DOEDriver(driver_type)
         prob.driver.options['run_parallel'] = True
-        # prob.driver.options['procs_per_model'] = 1
+        prob.driver.options['procs_per_model'] = 2
 
     ## Attaching a recorder and a diagramm visualizer ##
     prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path+'/Driver_recorder.sql'))
@@ -335,7 +330,7 @@ def add_subsystems(prob, ivc):
         None.
 
     """
-    global mod
+    global mod, geom_dict
     geom = geom_param()
     obj = objective()
 
@@ -344,7 +339,9 @@ def add_subsystems(prob, ivc):
 
     # Geometric parameters
     mod = [Rt.modules[0], Rt.modules[-1]]
-    prob.model.add_subsystem('Geometry', geom, promotes=['*'])
+    geom_dict = {k:v for k, v in optim_var_dict.items() if v[5]!='-'}
+    if geom_dict:
+        prob.model.add_subsystem('Geometry', geom, promotes=['*'])
 
     # Modules
     for name in Rt.modules:
@@ -421,7 +418,7 @@ def routine_launcher(Opt):
         skf = True
     Rt.get_user_inputs(opf.CPACS_OPTIM_PATH)
     optim_var_dict = opf.create_variable_library(Rt, optim_dir_path)
-
+    log.info(optim_var_dict)
     ## Instantiate components and subsystems ##
     prob = om.Problem()
     ivc = om.IndepVarComp()

@@ -58,20 +58,17 @@ def create_new_wkdir(global_wkdir=''):
 
     """
     date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    log.info('GLOBAL WKDIR IS')
-    log.info(global_wkdir)
+
     if global_wkdir != '':
         dir_name = '/Runs/Run' + date
-        wkdir = global_wkdir
-        run_dir = wkdir+dir_name
-        if not os.path.exists(run_dir):
-            os.mkdir(run_dir)
+        run_dir = global_wkdir+dir_name
     else:
         dir_name = 'CEASIOMpy_Run_' + date
         wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR')
         run_dir = os.path.join(wkdir, dir_name)
-        if not os.path.exists(wkdir):
-            os.mkdir(wkdir)
+
+    if not os.path.exists(run_dir):
+        os.mkdir(run_dir)
 
     return run_dir
 

@@ -382,6 +382,7 @@ def add_type(entry, outputs, objective, var):
     if entry in outputs:
         if type(entry) != str:
             entry = entry.var_name
+
         if entry in objective:
             var['type'].append('obj')
             log.info('Added type : obj')

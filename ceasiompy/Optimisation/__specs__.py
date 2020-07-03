@@ -43,7 +43,7 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH+'/Optimisation/minmax',
     gui=include_gui,
     gui_name='Optimisation goal',
-    gui_group='Global settings'
+    gui_group='Objective function'
 )
 
 cpacs_inout.add_input(
@@ -55,7 +55,7 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH+'/Optimisation/parameters/driver',
     gui=False,
     gui_name='Driver',
-    gui_group='Global settings'
+    gui_group='Optimisation settings'
 )
 
 cpacs_inout.add_input(
@@ -67,7 +67,7 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH+'/Optimisation/iterationNB',
     gui=include_gui,
     gui_name='Max number of iterations',
-    gui_group='Global settings'
+    gui_group='Optimisation settings'
 )
 
 cpacs_inout.add_input(
@@ -79,7 +79,7 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH+'/Optimisation/tolerance',
     gui=include_gui,
     gui_name='Tolerance',
-    gui_group='Global settings'
+    gui_group='Optimisation settings'
 )
 
 cpacs_inout.add_input(
@@ -100,7 +100,7 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH+'/Optimisation/saving/perIter',
     gui=include_gui,
     gui_name='Saving geometry every',
-    gui_group='Global settings'
+    gui_group='Optimisation settings'
 )
 
 
@@ -113,7 +113,7 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH+'/Optimisation/parameters/DoE/driver',
     gui=include_gui,
     gui_name='Driver (DoE)',
-    gui_group='DoE settings (if required)'
+    gui_group='DoE settings'
 )
 
 cpacs_inout.add_input(
@@ -125,13 +125,13 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH+'/Optimisation/parameters/DoE/sampleNB',
     gui=include_gui,
     gui_name='Sample # parameter',
-    gui_group='DoE settings (if required)'
+    gui_group='DoE settings'
 )
 
 cpacs_inout.add_input(
     var_name='Configuration file path',
     var_type='pathtype',
-    default_value='../Optimisation/Default_config.csv',
+    default_value='-',
     unit='1',
     descr='Absolute path to the CSV file',
     xpath=CEASIOM_XPATH + '/Optimisation/Config/filepath',

@@ -1,7 +1,6 @@
 # TODO
 
 ## CEASIOMpy project
-* Add a recognizable logo
 * Make installation easier
     * External dependencies
         * Sumo
@@ -14,7 +13,6 @@
 
 ## Module dependencies
 * Create a function to check consistency (does same variable name are stored a the same xpath, ...)
-
 
 ## Documentation
 * Fix `gen_module_interface_pages.py`: Script does not run on ReadTheDocs because Tigl/Tixi import fails
@@ -39,7 +37,7 @@
 * SU2CheckConvergence (maybe integrate with SU2Run)
 
 ### Module SettingsGUI
-* Find a way to detect active modules
+* Find a way to detect active modules in RCE
 
 ### Weight and Balance modules
 * Check input/output, try to simplify

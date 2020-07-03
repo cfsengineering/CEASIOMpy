@@ -18,8 +18,9 @@ RCE = {
 cpacs_inout = CPACSInOut()
 
 
-# ----- Input -----
+# TODO: check if all inptuts and outputs are really use/written by the module
 
+# ----- Input -----
 
 # User inputs ----
 cpacs_inout.add_input(
@@ -166,6 +167,21 @@ cpacs_inout.add_input(
     gui_group='User inputs',
 )
 
+
+
+cpacs_inout.add_input(
+    var_name='fuse_thick',
+    var_type=float,
+    default_value=6.63,
+    unit='[%]',
+    descr='Fuselage thickness, percentage of fuselage width',
+    xpath=CEASIOM_XPATH + '/geometry/fuseThick',
+    gui=True,
+    gui_name='Fuselage thickness',
+    gui_group='Fuselage',
+)
+
+
 # InsideDimensions ---
 
 cpacs_inout.add_input(
@@ -205,42 +221,6 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name='fuse_thick',
-    var_type=float,
-    default_value=6.63,
-    unit='[%]',
-    descr='Fuselage thickness, percentage of fuselage width',
-    xpath=CEASIOM_XPATH + '/geometry/fuseThick',
-    gui=True,
-    gui_name='Fuselage thickness',
-    gui_group='Inside dimension',
-)
-
-cpacs_inout.add_input(
-    var_name='nose_length',
-    var_type=float,
-    default_value=0,
-    unit='[m]',
-    descr='Length of the aircraft nose',
-    xpath=CEASIOM_XPATH + '/geometry/aaaaa',  #what is the xpath
-    gui=True,
-    gui_name='Nose length',
-    gui_group='Inside dimension',
-)
-
-cpacs_inout.add_input(
-    var_name='tail_length',
-    var_type=float,
-    default_value=0,
-    unit='[m]',
-    descr='Length of the aircraft tail',
-    xpath=CEASIOM_XPATH + '/geometry/aaaaa',  #what is the xpath
-    gui=True,
-    gui_name='Tail length',
-    gui_group='Inside dimension',
-)
-
-cpacs_inout.add_input(
     var_name='toilet_length',
     var_type=float,
     default_value=1.9,
@@ -255,10 +235,10 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name='cabin_length',
     var_type=float,
-    default_value=None,
+    default_value=0.0,
     unit='[m]',
     descr='Length of the aircraft cabin',
-    xpath=CEASIOM_XPATH + '/geometry/aaaaa', #what is the xpath
+    xpath=CEASIOM_XPATH + '/geometry/cabinLength', # Xpath to check
     gui=False,
     gui_name='Cabin length',
     gui_group='Inside dimension',
@@ -267,10 +247,10 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name='cabin_width',
     var_type=float,
-    default_value=None,
+    default_value=0.0,
     unit='[m]',
     descr='Width of the aircraft cabin',
-    xpath=CEASIOM_XPATH + '/geometry/aaaaa', #what is the xpath
+    xpath=CEASIOM_XPATH + '/geometry/cabinWidth', # Xpath to check
     gui=False,
     gui_name='Cabin width',
     gui_group='Inside dimension',
@@ -282,7 +262,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='[m^2]',
     descr='Area of the aircraft cabin',
-    xpath=CEASIOM_XPATH + '/geometry/aaaaa', #what is the xpath
+    xpath=CEASIOM_XPATH + '/geometry/cabinArea', # Xpath to check
     gui=False,
     gui_name='Cabin area',
     gui_group='Inside dimension',
@@ -306,11 +286,6 @@ Name of each engine	Belongs to the EngineData class, [..] stands for the number 
 Mass of a single mounted engine (Dry Weight)	Belongs to the EngineData class
 
 """
-
-# Mass weight
-
-
-
 
 # ----- Output -----
 

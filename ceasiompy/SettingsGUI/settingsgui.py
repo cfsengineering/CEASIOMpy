@@ -9,13 +9,13 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-09-05
-| Last modification: 2020-04-24
+| Last modification: 2020-07-02
 
 TODO:
 
     * Add "mouse over" for description
-    * Add other function to 'AeroMap Edition'
     * messagebox and error detection could be improved
+    * Add a function "modify name" for aeromap
 
 """
 
@@ -34,9 +34,9 @@ import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.apmfunctions as apm
 import ceasiompy.utils.moduleinterfaces as mi
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
 import ceasiompy.utils.moduleinterfaces as mif
+
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
@@ -46,44 +46,6 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 #==============================================================================
 #   CLASSES
 #==============================================================================
-
-# Not use for now, but could be useful
-# class ListBoxChoice(object):
-#     def __init__(self, tab, tixi, list=[]):
-#
-#         self.selected_item = None
-#
-#         self.tab = tab
-#         self.tixi = tixi
-#         self.list = list[:]
-#
-#         self.listBox = tk.Listbox(self.tab, selectmode=tk.SINGLE)
-#         self.listBox.grid(column=2, row=10)
-#         self.list.sort()
-#         for item in self.list:
-#             self.listBox.insert(tk.END, item)
-#
-#         self.chooseButton = tk.Button(self.tab, text='Select', command=self._select)
-#         self.chooseButton.grid(column=2, row=11)
-#
-#         self.cancelButton = tk.Button(self.tab, text='Cancel', command=self._cancel)
-#         self.cancelButton.grid(column=3, row=11)
-#
-#     def _select(self, event=None):
-#         try:
-#             firstIndex = self.listBox.curselection()[0]
-#             self.selected_item = [self.listBox.get(i) for i in self.listBox.curselection()]
-#         except IndexError:
-#             self.selected_item = None
-#
-#     def _cancel(self, event=None):
-#         self.listBox.selection_clear(0, tk.END)
-#
-#     # Do we need that?
-#     def returnValue(self):
-#         self.tab.wait_window()
-#         return self.selected_item
-
 
 class AeroMapTab:
     """ Class to create the AeroMap tab from the infomation in cpacs file. """
@@ -108,82 +70,101 @@ class AeroMapTab:
         self.selected_list = []
         self.list = aeromap_uid_list
 
-        tk.Label(self.aerotab, text='Existing AeroMaps').grid(column=0, row=row_pos)
-        row_pos += 1
+        # tk.Label(self.aerotab, text='Existing AeroMaps').grid(column=0, row=row_pos)
+        # row_pos += 1
 
-        self.listBox = tk.Listbox(self.aerotab, selectmode=tk.SINGLE)
+        self.existframe = tk.LabelFrame(self.aerotab,text='Existing AeroMaps')
+        self.existframe.grid(row=row_pos, column=0, padx=15,pady=15)
+
+        self.listBox = tk.Listbox(self.existframe, width=25, selectmode=tk.SINGLE)
         item_count = len(self.list)
-        self.listBox.grid(column=0, row=row_pos, columnspan=3,rowspan=item_count, sticky= tk.W, padx=5, pady=5)
+        self.listBox.grid(column=0, row=row_pos,rowspan=item_count, padx=5, pady=5)
         self.list.sort()
         for item in self.list:
             self.listBox.insert(tk.END, item)
         row_pos += (item_count + 1)
 
-        importButton = tk.Button(self.aerotab, text='Import CSV', command=self._import_csv)
+        importButton = tk.Button(self.existframe, text='Import from CSV', width=15, command=self._import_csv)
         importButton.grid(column=0, row=row_pos)
         row_pos += 1
 
-        exportButton = tk.Button(self.aerotab, text='Export CSV', command=self._export_csv)
+        exportButton = tk.Button(self.existframe, text='Export to CSV', width=15, command=self._export_csv)
         exportButton.grid(column=0, row=row_pos)
         row_pos += 1
 
-        # updateButton = tk.Button(self.aerotab, text='Update', command=self._update)
-        # updateButton.grid(column=0, row=row_pos)
+        # updateButton = tk.Button(self.existframe, width=14, text='Update', command=self._update)
+        # updateButton.grid(column=0, row=row_pos, sticky=tk.W)
         # row_pos += 1
 
-        deleteButton = tk.Button(self.aerotab, text='Delete', command=self._delete)
+        deleteButton = tk.Button(self.existframe, text='Delete', width=15, command=self._delete)
         deleteButton.grid(column=0, row=row_pos)
+
+
+        # To generate a new aeromap on the GUI
+        row_pos =0
+        self.generateframe = tk.LabelFrame(self.aerotab,text='Generate an AeroMap')
+        self.generateframe.grid(row=row_pos,column=1, padx=15,pady=15, sticky=tk.N)
+
+        self.labelaeromap = tk.Label(self.generateframe,text="Name")
+        self.labelaeromap.grid(row=row_pos,column=0, pady=3)
+        self.aeromap_name = tk.StringVar()
+        self.aeromap_name.set('MyNewAeroMap')
+        self.name = tk.Entry(self.generateframe, width=17, textvariable=self.aeromap_name)
+        self.name.grid(row=row_pos,column=1)
         row_pos += 1
 
+        altlabel = tk.Label(self.generateframe,text="Altitude")
+        altlabel.grid(row=row_pos,column=0, pady=3)
+        self.alt = tk.StringVar()
+        self.alt.set('0')
+        altentry = tk.Entry(self.generateframe, textvariable=self.alt, width=17)
+        altentry.grid(row=row_pos,column=1)
+        altunitlabel = tk.Label(self.generateframe, text='[m]')
+        altunitlabel.grid(column=2, row=row_pos)
+        row_pos += 1
 
-        # root = tk.Tk()
-        # root.withdraw()
-        # folder_selected = filedialog.askdirectory()
-        # Setup aeromap parmaeters
-        self.window = tk.Frame(self.aerotab)
-        self.window.grid(column=0,row=row_pos)
+        machlabel = tk.Label(self.generateframe,text="Mach")
+        machlabel.grid(row=row_pos,column=0, pady=3)
+        self.mach = tk.StringVar()
+        self.mach.set('0.3')
+        machentry = tk.Entry(self.generateframe, textvariable=self.mach, width=17)
+        machentry.grid(row=row_pos,column=1, pady=3)
+        machunitlabel = tk.Label(self.generateframe, text='[-]')
+        machunitlabel.grid(column=2, row=row_pos)
+        row_pos += 1
 
-        self.lab = tk.LabelFrame(self.window,text='Aeromap name')
-        self.am_name = tk.StringVar()
-        self.name = tk.Entry(self.lab, textvariable=self.am_name)
+        aoalabel = tk.Label(self.generateframe,text="AoA")
+        aoalabel.grid(row=row_pos,column=0, pady=3)
+        self.aoa = tk.StringVar()
+        self.aoa.set('2')
+        aoaentry = tk.Entry(self.generateframe, textvariable=self.aoa, width=17)
+        aoaentry.grid(row=row_pos,column=1)
+        aoaunitlabel = tk.Label(self.generateframe, text='[deg]')
+        aoaunitlabel.grid(column=2, row=row_pos)
+        row_pos += 1
 
-        self.lab2 = tk.LabelFrame(self.window,text='Bounds')
-        self.label1 = tk.Label(self.lab2,text="Altitude")
-        self.label2 = tk.Label(self.lab2,text="Mach")
-        self.label3 = tk.Label(self.lab2,text="AoA")
-        self.label4 = tk.Label(self.lab2,text="AoS")
-        self.str1 = tk.StringVar()
-        self.str2 = tk.StringVar()
-        self.str3 = tk.StringVar()
-        self.str4 = tk.StringVar()
-        self.name1 = tk.Entry(self.lab2, textvariable=self.str1, width=13)
-        self.name2 = tk.Entry(self.lab2, textvariable=self.str2, width=13)
-        self.name3 = tk.Entry(self.lab2, textvariable=self.str3, width=13)
-        self.name4 = tk.Entry(self.lab2, textvariable=self.str4, width=13)
+        aoslabel = tk.Label(self.generateframe,text="AoS")
+        aoslabel.grid(row=row_pos,column=0, pady=3)
+        self.aos = tk.StringVar()
+        self.aos.set('0')
+        aosentry = tk.Entry(self.generateframe, textvariable=self.aos, width=17)
+        aosentry.grid(row=row_pos,column=1)
+        aosunitlabel = tk.Label(self.generateframe, text='[deg]')
+        aosunitlabel.grid(column=2, row=row_pos)
+        row_pos += 1
 
-        self.button = tk.Button(self.window, text='Generate', command=self._generate_aeromap)
-
-        # Add to window grid
-        self.name.grid()
-        self.lab.grid(row=1,column=1)
-        self.button.grid(row=5,column=1)
-        self.lab2.grid(row=3,column=1)
-        self.label1.grid(row=1,column=1)
-        self.label2.grid(row=2,column=1)
-        self.label3.grid(row=3,column=1)
-        self.label4.grid(row=4,column=1)
-        self.name1.grid(row=1,column=2)
-        self.name2.grid(row=2,column=2)
-        self.name3.grid(row=3,column=2)
-        self.name4.grid(row=4,column=2)
+        self.genbutton = tk.Button(self.generateframe, text='Generate', command=self._generate_aeromap)
+        self.genbutton.grid(row=row_pos,column=1, pady=3)
+        row_pos += 1
 
 
     def _generate_aeromap(self, event=None):
         self.tixi
-        bounds = (self.str1.get(),self.str2.get(),self.str3.get(),self.str4.get())
-        apm.create_aeromap(self.tixi, self.am_name.get(), bounds)
+        param = (self.alt.get(),self.mach.get(),self.aoa.get(),self.aos.get())
+        apm.create_aeromap(self.tixi, self.aeromap_name.get(), param)
         self.listBox.selection_clear(0, tk.END)
         self._update()
+
 
     def _import_csv(self, event=None):
         template_csv_dir = os.path.join(MODULE_DIR,'..','..','test','AeroMaps')
@@ -191,14 +172,15 @@ class AeroMapTab:
         new_aeromap_uid = os.path.splitext(os.path.basename(csv_path))[0]
         apm.aeromap_from_csv(self.tixi, new_aeromap_uid, csv_path)
         self.listBox.selection_clear(0, tk.END)
-
         self._update()
+
 
     def _export_csv(self, event=None):
         aeromap_uid_list = [self.listBox.get(i) for i in self.listBox.curselection()]
         csv_path = self.filename = filedialog.asksaveasfilename(initialdir = MODULE_DIR, title = "Save CSV file", defaultextension=".csv")
         apm.aeromap_to_csv(self.tixi, aeromap_uid_list[0], csv_path)
         self.listBox.selection_clear(0, tk.END)
+
 
     def _update(self, event=None):
         self.list = apm.get_aeromap_uid_list(self.tixi)
@@ -215,8 +197,10 @@ class AeroMapTab:
         apm.delete_aeromap(self.tixi,aeromap_uid)
         self._update()
 
+
     # def _modify_name(self, event = None):
         #TODO
+
 
     def returnValue(self):
         self.master.wait_window()
@@ -265,7 +249,7 @@ class AutoTab:
             if group:
                 if not group in self.group_dict:
                     self.labelframe = tk.LabelFrame(self.tab, text=group)
-                    self.labelframe.grid(column=0, row=row_pos, columnspan=3,sticky= tk.W, padx=5, pady=5)
+                    self.labelframe.grid(column=0, row=row_pos, columnspan=3,sticky= tk.W, padx=15, pady=5)
                     self.group_dict[group] = self.labelframe
                 parent = self.group_dict[group]
             else:  # if not a group, use tab as parent
@@ -288,14 +272,14 @@ class AutoTab:
                 value = cpsf.get_value_or_default(self.tixi, xpath, def_value)
                 self.var_dict[key] = tk.IntVar()
                 self.var_dict[key].set(int(value))
-                value_entry = tk.Entry(parent, bd=2, textvariable=self.var_dict[key])
+                value_entry = tk.Entry(parent, bd=2, width=8, textvariable=self.var_dict[key])
                 value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
             elif dtype is float:
                 value = cpsf.get_value_or_default(self.tixi, xpath, def_value)
                 self.var_dict[key] = tk.DoubleVar()
                 self.var_dict[key].set(value)
-                value_entry = tk.Entry(parent, bd=2, textvariable=self.var_dict[key])
+                value_entry = tk.Entry(parent, bd=2, width=8, textvariable=self.var_dict[key])
                 value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
             elif dtype is 'pathtype':
@@ -309,7 +293,6 @@ class AutoTab:
                 self.key = key
                 self.browse_button = tk.Button(parent, text="Browse", command=self._browse_file)
                 self.browse_button.grid(column=2, row=row_pos, padx=5, pady=5)
-
 
             elif dtype is list:
                 if name == '__AEROMAP_SELECTION':
@@ -332,7 +315,6 @@ class AutoTab:
                     self.var_dict[key] = ttk.Combobox(self.labelframe, values=self.aeromap_uid_list)
                     self.var_dict[key].current(selected_aeromap_index)
                     self.var_dict[key].grid(column=1, row=row_pos, padx=5, pady=5)
-
 
                 elif name == '__AEROMAP_CHECHBOX':
 
@@ -361,7 +343,7 @@ class AutoTab:
                         self.aeromap_var_dict[aeromap].set(True)
 
                         aeromap_entry = tk.Checkbutton(self.labelframe,text=aeromap,variable=self.aeromap_var_dict[aeromap])
-                        aeromap_entry.pack()#side=tk.TOP, anchor='w')
+                        aeromap_entry.pack(padx=5,pady=3, anchor=tk.W)#side=tk.TOP)
 
                 else: # Other kind of list (not aeroMap)
 
@@ -376,7 +358,7 @@ class AutoTab:
                         selected_value_index = 0
 
                     # The Combobox is directly use as the varaible
-                    self.var_dict[key] = ttk.Combobox(parent, values=def_value)
+                    self.var_dict[key] = ttk.Combobox(parent, width=12, values=def_value)
                     self.var_dict[key].current(selected_value_index)
                     self.var_dict[key].grid(column=1, row=row_pos, padx=5, pady=5)
 
@@ -390,13 +372,9 @@ class AutoTab:
             # Units
             if unit and unit != '1':
                 unit_label = tk.Label(parent, text=pretty_unit(unit))
-                unit_label.grid(column=2, row=row_pos, padx=5, pady=5)
+                unit_label.grid(column=2, row=row_pos)
 
             row_pos += 1
-
-        # call listbox , Not used for now, could be useful...
-        # aeromap_uid_list = apm.get_aeromap_uid_list(self.tixi)
-        # self.listbox1 = ListBoxChoice(self.tab,self.tixi,aeromap_uid_list) #.returnValue()
 
     def _browse_file(self):
 
@@ -422,10 +400,9 @@ class SettingGUI(tk.Frame):
         self.tixi = cpsf.open_tixi(cpacs_path)
 
         if len(apm.get_aeromap_uid_list(self.tixi)) == 0 :
-            log.warning('No AeroMap in this CPACS file')
-            aeromap_uid = 'New_AeroMap'
-            description = 'AeroMap create by SettingGUI'
-            apm.create_empty_aeromap(self.tixi, aeromap_uid, description)
+            aeromap_uid = 'AeroMap_1point'
+            csv_path = os.path.join(MODULE_DIR,'..','..','test','AeroMaps','Aeromap_1point.csv')
+            apm.aeromap_from_csv(self.tixi, aeromap_uid, csv_path)
 
         # Generate AeroMaps Edition tab
         aeromap_tap = AeroMapTab(self.tabs, self.tixi)
@@ -439,7 +416,6 @@ class SettingGUI(tk.Frame):
         self.update_button.grid(row=1, column=1,sticky='E')
         self.close_button = tk.Button(self, text='Save & Quit', command=self._save_quit)
         self.close_button.grid(row=1, column=2,sticky='W')
-
 
 
     def _update_all(self):
@@ -597,7 +573,22 @@ def create_settings_gui(cpacs_path, cpacs_out_path, submodule_list):
 
     root = tk.Tk()
     root.title('CEASIOMpy Settings GUI')
-    root.geometry('600x900+400+50')
+
+    # Automatically set the size of the windows
+    gui_modules = 1
+    max_inputs = 0
+    for module_name in submodule_list:
+        specs = mif.get_specs_for_module(module_name)
+        if specs:
+            inputs = specs.cpacs_inout.get_gui_dict()
+            if inputs:
+                gui_modules +=  1
+                max_inputs = max(max_inputs,len(inputs))
+
+    tot_width = max(415, gui_modules * 82)
+    tot_height = max(330, max_inputs * 48)
+    root.geometry('{}x{}+400+50'.format(tot_width,tot_height))
+
     my_setting_gui = SettingGUI(root, cpacs_path, cpacs_out_path, submodule_list)
     my_setting_gui.mainloop()
     root.iconify()

@@ -29,6 +29,7 @@ import pandas as pd
 
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mif
+import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.Optimisation.func.dictionnary as dct
 import ceasiompy.Optimisation.func.tools as tls
@@ -50,6 +51,7 @@ OPTIM_XPATH = '/cpacs/toolspecific/CEASIOMpy/Optimisation/'
 AEROMAP_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance'
 SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
+# Parameters that can not be used as problem variables
 banned_entries = ['wing','delete_old_wkdirs','check_extract_loads']
 
 # ==============================================================================
@@ -127,29 +129,18 @@ def first_run(module_list, modules_pre_list=[]):
         None.
 
     """
-    # Check if aeromap results already exists, else run workflow
-    global XPATH
-    global XPATH_PRE
-
     log.info('Launching initialization workflow')
-
-    XPATH = tls.get_aeromap_path(module_list)
-    if 'PyTornado' in modules_pre_list or 'SU2Run' in modules_pre_list:
-        XPATH_PRE = tls.get_aeromap_path(modules_pre_list)
-    else:
-        XPATH_PRE = XPATH
 
     # Settings needed for CFD calculation
     if 'Optimisation' not in modules_pre_list:
         module_list.insert(0, 'Optimisation')
-    if 'SettingsGUI' not in module_list or 'SettingsGUI' not in modules_pre_list:
+    if 'SettingsGUI' not in module_list:
         module_list.insert(0, 'SettingsGUI')
 
     # First iteration to create aeromap results if no pre-workflow
-    if XPATH != XPATH_PRE or modules_pre_list == []:
-        wkf.copy_module_to_module('Optimisation', 'in', module_list[0], 'in')
-        wkf.run_subworkflow(module_list)
-        wkf.copy_module_to_module(module_list[-1], 'out', 'Optimisation', 'in')
+    wkf.copy_module_to_module('Optimisation', 'in', module_list[0], 'in')
+    wkf.run_subworkflow(module_list)
+    wkf.copy_module_to_module(module_list[-1], 'out', 'Optimisation', 'in')
 
     # SettingsGUI only needed at the first iteration
     if 'SettingsGUI' in module_list:
@@ -231,18 +222,14 @@ def get_aero_param(tixi, xpath, module_name):
 
     # Get name of aeromap that is used
     am_nb = tixi.getNumberOfChilds(AEROMAP_XPATH)
-    am_uid = tixi.getTextElement(tls.get_aeromap_path([module_name])+'/aeroMapUID')
+    am_uid = tls.get_current_aeromap_uid(tixi, [module_name])
     log.info('Aeromap \"{}\" will be used for the variables.'.format(am_uid))
 
     # Search the aeromap index in the CPACS file if there are more
-    if am_nb > 1:
-        for i in range(1,am_nb+1):
-            am_xpath = AEROMAP_XPATH+'/aeromap[{}]'.format(i)
-            uid = tixi.getTextAttribute(am_xpath, 'uID')
-            if uid == am_uid:
-                am_index = '[{}]'.format(i)
-    else:
-        am_index = '[1]'
+    am_list = apmf.get_aeromap_uid_list(tixi)
+    for i, uid in enumerate(am_list):
+        if uid == am_uid:
+            am_index = '[{}]'.format(i+1)
 
     outputs = ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']
     inputs = ['altitude', 'machNumber', 'angleOfAttack', 'angleOfSideslip']
@@ -315,6 +302,7 @@ def generate_dict(df):
 
     """
     df = df.dropna()
+    df.sort_values('type',0, ignore_index=True, ascending=False)
     df.to_csv(CSV_PATH, index=True, na_rep='-')
     defined_dict = df.to_dict('index')
 
@@ -370,6 +358,7 @@ def get_default_df(module_list):
                    'setpath': setcmd}
         df = df.append(new_row, ignore_index=True)
 
+    df.sort_values('type',0, ignore_index=True, ascending=False)
     return df
 
 def create_variable_library(Rt, optim_dir_path):
@@ -395,6 +384,7 @@ def create_variable_library(Rt, optim_dir_path):
     objective = Rt.objective
     var = {'Name':[], 'type':[], 'init':[], 'min':[], 'max':[], 'xpath':[]}
 
+    log.info(Rt.user_config)
     if not os.path.isfile(Rt.user_config):
         log.info('No configuration file found, default one will be generated')
         df = get_default_df(Rt.modules)
@@ -425,6 +415,6 @@ def create_variable_library(Rt, optim_dir_path):
 
 if __name__ == '__main__':
 
-    log.info('-------------------------------------------------')
-    log.info('Not a standalone module. Nothing will be executed')
-    log.info('-------------------------------------------------')
+    log.info('|-------------------------------------------------|')
+    log.info('|Not a standalone module. Nothing will be executed|')
+    log.info('|-------------------------------------------------|')

@@ -29,6 +29,12 @@ The module 'WorkflowCreator' can be found at /CEASIOMpy/ceasiompy/WorkflowCreato
 When you run this module, a GUI will appear. The first thing to do is to chose the CPACS file we will use for this analysis, click on "Browse" and select "D150_simple.xml", it is a test aircraft similar to an A320 . Then, we will have the possibility to chose which module to run and in which order. For this first test case, we will use only the tab "Pre". On the left you will see the list of all available modules, when you select one you can add it to the list of module to execute. You can also remove module from this list or change the order with the buttons.
 We will create a simple workflow with only three modules: SettingsGUI -> WeightConventional -> Range. Once you added these three modules in order you can click "Save & Quit".
 
+.. figure:: getting_started_fig/TestCase1_WorkflowCreator.png
+    :width: 400 px
+    :align: center
+    :alt: CEASIOMpy - WorkflowCreator - Test case 1
+
+
 The first module to run will be "SettingsGUI", it will show you all the available options for the next modules. All the options are pre-filled with default values. You don't need to change any value for this example, so you can just click "Save & Quit".
 The two next modules will be executed automatically without showing anything except some results in the terminal.
 
@@ -54,7 +60,7 @@ The software should run for a few seconds and when the calculation are done, a p
 Test Case 3 : SU2 at fixed CL and Range
 ***************************************
 
-For this test case you can try to run the folloing workflow with the same aircraft. It will calculate the after performing a CFD analysis at fixed CL.
+For this test case you can try to run the following workflow with the same aircraft. It will calculate the after performing a CFD analysis at fixed CL.
 
 SettingsGUI -> WeightConventional -> CLCalculator -> CPACS2SUMO -> SUMOAutoMesh -> SU2Run -> SkinFriction -> Range
 

@@ -48,23 +48,23 @@ cpacs_inout.add_input(
     gui_group='Group Test',
 )
 
-cpacs_inout.add_input(
-    var_name='aeromap_uid',
-    var_type=list,
-    default_value=None,
-    xpath='/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID',
-    gui=include_gui,
-    gui_name='__AEROMAP_SELECTION',
-)
-
-cpacs_inout.add_input(
-    var_name='aeromap_uid',
-    var_type=list,
-    default_value=None,
-    xpath='/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction/aeroMapToCalculate',
-    gui=include_gui,
-    gui_name='__AEROMAP_CHECHBOX',
-)
+# cpacs_inout.add_input(
+#     var_name='aeromap_uid',
+#     var_type=list,
+#     default_value=None,
+#     xpath='/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID',
+#     gui=include_gui,
+#     gui_name='__AEROMAP_SELECTION',
+# )
+#
+# cpacs_inout.add_input(
+#     var_name='aeromap_uid',
+#     var_type=list,
+#     default_value=None,
+#     xpath='/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction/aeroMapToCalculate',
+#     gui=include_gui,
+#     gui_name='__AEROMAP_CHECHBOX',
+# )
 
 cpacs_inout.add_input(
     var_name='other_var',

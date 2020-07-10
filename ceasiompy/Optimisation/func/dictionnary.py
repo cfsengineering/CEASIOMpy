@@ -37,7 +37,7 @@ log = get_logger(__file__.split('.')[0])
 # =============================================================================
 
 # Contains the geometric design variables
-design_var_dict = {}
+geom_var_dict = {}
 XPATH = 'None'
 
 # =============================================================================
@@ -102,7 +102,7 @@ def create_var(var_name, init_value, getcmd, setcmd, lim=0.2):
         lower_bound = -lim
         upper_bound = lim
 
-    design_var_dict[var_name] = (var_name, [init_value], lower_bound, upper_bound, setcmd, getcmd)
+    geom_var_dict[var_name] = (var_name, [init_value], lower_bound, upper_bound, setcmd, getcmd)
 
 
 def init_elem_param(sec_name, section, elem_nb, scmd):
@@ -270,7 +270,7 @@ def init_design_var_dict(tixi):
         tixi (handle) : Handle of the CPACS file
 
     Returns:
-        design_var_dict (dict) : dictionary with the geometric parameters of
+        geom_var_dict (dict) : dictionary with the geometric parameters of
         the routine.
 
     """
@@ -285,7 +285,7 @@ def init_design_var_dict(tixi):
     if wing_nb:
         init_wing_param(aircraft, wing_nb)
 
-    return design_var_dict
+    return geom_var_dict
 
 
 if __name__ == "__main__":

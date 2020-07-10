@@ -1014,14 +1014,19 @@ def create_aeromap(tixi, name, bound_values):
             param = [float(i) for i in param]
             bounds.append(np.array(param))
 
-    # Check number of values
+    lengths = set([len(b) for b in bounds])
+
+    if len(lengths) != 1:
+        if len(lengths) == 2 and 1 in lengths:
+            for i ,b in enumerate(bounds):
+                if len(b) == 1:
+                    b = np.full((1,max(lengths)),b[0])
+                    bounds[i]=b[0].tolist()
+        else:
+            raise ValueError(""" Not the same number of element for each parameter
+                  (each parameter must have the same number of elements or one
+                   single value which will be repeated.)""")
     bounds = np.array(bounds)
-
-    lengths = [len(l) for l in bounds]
-
-    if len(set(lengths)) != 1:
-        raise ValueError(""" Not the same number of element for each parameter
-              (each parameter must have the same number of elements)""")
 
     if name == '':
         raise ValueError("""Empty name, please enter a name !""")

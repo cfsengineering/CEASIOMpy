@@ -40,7 +40,6 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
 AEROPERFORMANCE_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance'
-
 #==============================================================================
 #   CLASSES
 #==============================================================================
@@ -1066,6 +1065,9 @@ def get_current_aeromap_uid(tixi, module_list):
             log.info('Found PyTornado analysis')
             xpath = '/cpacs/toolspecific/pytornado/aeroMapUID'
             uid = tixi.getTextElement(xpath)
+        elif module == 'SMUse':
+            log.info('Found a Surrogate model')
+            xpath = '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/aeroMapUID'
 
     if 'SkinFriction' in module_list:
         log.info('Found SkinFriction analysis')

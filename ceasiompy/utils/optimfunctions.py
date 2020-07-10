@@ -269,7 +269,7 @@ def get_normal_param(tixi, value_name, entry, outputs):
         log.info('Added to variable file')
 
 
-def get_aero_param(tixi, xpath, module_name):
+def get_aero_param(tixi, module_name):
     """Add the aeromap variables to the optimisation dictionnary.
 
     Takes the variables of the aeromap that is used.
@@ -297,12 +297,14 @@ def get_aero_param(tixi, xpath, module_name):
     for i, uid in enumerate(am_list):
         if uid == am_uid:
             am_index = '[{}]'.format(i+1)
+    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
 
     outputs = ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']
     inputs = ['altitude', 'machNumber', 'angleOfAttack', 'angleOfSideslip']
+
     inputs.extend(outputs)
     for name in inputs:
-        xpath_param = xpath.replace('[i]', am_index)+'/'+name
+        xpath_param = xpath+name
         value = str(tixi.getDoubleElement(xpath_param))
 
         var['Name'].append(name)
@@ -370,7 +372,7 @@ def get_variables(tixi, specs, module_name):
             # Aeromap variable
             elif value_name == 'aeroPerformanceMap' and aeromap:
                 aeromap = False
-                get_aero_param(tixi, xpath, module_name)
+                get_aero_param(tixi, module_name)
             # Normal case
             else:
                 get_normal_param(tixi, value_name, entry, specs.cpacs_inout.outputs)
@@ -418,9 +420,12 @@ def get_default_df(module_list):
 
     """
     tixi = cpsf.open_tixi(CPACS_OPTIM_PATH)
-    for mod_name, specs in mif.get_all_module_specs().items():
-        if specs and mod_name in module_list:
-            get_variables(tixi, specs, mod_name)
+    if 'SMUse' in module_list and cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'AeroMapOnly', False):
+        get_aero_param(tixi, 'SMUse')
+    else:
+        for mod_name, specs in mif.get_all_module_specs().items():
+            if specs and mod_name in module_list:
+                get_variables(tixi, specs, mod_name)
     cpsf.close_tixi(tixi, CPACS_OPTIM_PATH)
 
     # Add the default values for the variables

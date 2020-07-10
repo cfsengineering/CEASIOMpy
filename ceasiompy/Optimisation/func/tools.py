@@ -36,7 +36,7 @@ log = get_logger(__file__.split('.')[0])
 #==============================================================================
 
 # Not an exhaustive list
-accronym_dict = {'maximal_take_off_mass':'mtom', 'range':'rng',
+accronym_dict = {'maximum_take_off_mass':'mtom', 'range':'rng',
                  'zero_fuel_mass':'zfm', 'operating_empty_mass':'oem'}
 
 #==============================================================================
@@ -356,7 +356,7 @@ def accronym(name):
     complete name of a variable is decomposed and the first letter of
     each word is taken.
 
-    Ex : 'maximal take off mass' -> 'mtom'
+    Ex : 'maximum take off mass' -> 'mtom'
 
     Args:
         name (str) : Name of a variable.
@@ -365,17 +365,17 @@ def accronym(name):
         accro (str) : Accronym of the name.
 
     """
-    full_name = name.split('_')
-    accro = ''
-    for word in full_name:
-        if word.lower() in ['nb']:
-            accro += word
-        else:
-            accro += word[0]
+    # full_name = name.split('_')
+    # accro = ''
+    # for word in full_name:
+    #     if word.lower() in ['nb']:
+    #         accro += word
+    #     else:
+    #         accro += word[0]
 
-    if full_name in accronym_dict:
-        log.info('Accronym : ' + accro)
-        return accro
+    if name in accronym_dict:
+        log.info('Accronym : ' + accronym_dict[name])
+        return accronym_dict[name]
     else:
         return ''
 
@@ -402,8 +402,7 @@ def add_type(entry, outputs, objective, var):
     if entry in outputs:
         if type(entry) != str:
             entry = entry.var_name
-
-        if entry in objective:
+        if entry in objective or accronym(entry) in objective:
             var['type'].append('obj')
             log.info('Added type : obj')
         else:

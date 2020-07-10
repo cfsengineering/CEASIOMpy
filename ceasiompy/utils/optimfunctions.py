@@ -27,12 +27,14 @@ import sys
 
 import pandas as pd
 
+import ceasiompy.SMUse.smuse as smu
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.Optimisation.func.dictionnary as dct
 import ceasiompy.Optimisation.func.tools as tls
+
 from re import split as splt
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -54,7 +56,7 @@ SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 # Parameters that can not be used as problem variables
 banned_entries = ['wing','delete_old_wkdirs','check_extract_loads']
-
+special_chars = ['[',']']
 # ==============================================================================
 #   CLASS
 # ==============================================================================
@@ -83,6 +85,7 @@ class Routine:
         # DoE
         self.doedriver = 'uniform'
         self.samplesnb = 3
+        self.doe_file = ''
 
         # User specified configuration file path
         self.user_config = '../Optimisation/Default_config.csv'
@@ -93,7 +96,7 @@ class Routine:
 
         # Problem setup
         objectives = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'objective', 'cl')
-        self.objective = objectives.split(';')
+        self.objective = splt(';|,',objectives)
         self.minmax = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'minmax', 'max')
 
         # Global parameters
@@ -107,7 +110,7 @@ class Routine:
         self.samplesnb = int(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'parameters/DoE/sampleNB', 3))
 
         # User specified configuration file path
-        self.user_config = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/filepath', '../Optimisation/Default_config.csv')
+        self.user_config = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/filepath', '-'))
 
         cpsf.close_tixi(tixi, CPACS_OPTIM_PATH)
 
@@ -149,6 +152,65 @@ def first_run(module_list, modules_pre_list=[]):
 
     # Optimisation parameters only needed for the first run
     module_list.remove('Optimisation')
+
+
+def change_var_name(name):
+    """Modify the variable name
+
+    Checks for special characters and replaces them with '_' which can be taken
+    as a variable name for the OpenMDAO problem.
+
+    Args:
+        name (str): variable name.
+
+    Returns:
+        new_name (str): new variable_name.
+
+    """
+    log.info('Check variable name {}'.format(name))
+    for s in name:
+        if s in special_chars:
+            name = name.replace(s,'_')
+    log.info('Variable name was change to {}'.format(name))
+
+    return name
+
+
+def gen_doe_csv(user_config):
+    """Generate adequate csv with user-defined csv.
+
+    For a DoE where a CSV file is provided by the user, the format must be
+    adapted to the one that will be read by the OpenMDAO DoE tool. Here it is
+    ensured that the format is correct.
+
+    Args:
+        user_config (str): Path to user configured file.
+
+    Returns:
+        doe_csv (str): Path to reformated file.
+
+    """
+    df = pd.read_csv(user_config)
+
+    try:
+        # Check if the name, type and at least one point are present.
+        df[['Name','type',0]]
+
+        # Get only design variables
+        df = df.loc[[i for i,v in enumerate(df['type']) if v == 'des']]
+
+        # Get only name and columns with point values
+        l = [i for i in df.columns if i.isdigit()]
+        l.insert(0,'Name')
+        df = df[l]
+
+        df = df.T
+
+    except:
+        pass
+    doe_csv = os.path.split(user_config)[0]+'DoE_points.csv'
+
+    df.to_csv(doe_csv, header=False, index=False)
 
 
 def get_normal_param(tixi, value_name, entry, outputs):
@@ -264,31 +326,50 @@ def get_variables(tixi, specs, module_name):
     """
     aeromap = True
     inouts = specs.cpacs_inout.inputs + specs.cpacs_inout.outputs
-    for entry in inouts:
-        xpath = entry.xpath
-        if xpath.endswith('/'):
-            xpath = xpath[:-1]
-        value_name = xpath.split('/')[-1]
+    if module_name == 'SMUse':
+        Model = smu.load_surrogate(CPACS_OPTIM_PATH)
+        df = Model.df.rename(columns={'Unnamed: 0':'Name'})
+        df.set_index('Name', inplace=True)
+        for name in df.index:
+            if name not in var['Name'] and df.loc[name]['setcmd'] == '-':
+                var['Name'].append(name)
+                xpath = df.loc[name]['getcmd']
+                value = str(tixi.getDoubleElement(xpath))
+                var['xpath'].append(xpath)
+                var['init'].append(value)
+                var['type'].append(df.loc[name]['type'])
+                tls.add_bounds(name, value, var)
+            else:
+                log.warning('Variable already exists')
+                log.info(name+' will not be added to the variable file')
+    else:
+        for entry in inouts:
+            xpath = entry.xpath
+            if xpath.endswith('/'):
+                xpath = xpath[:-1]
+            value_name = xpath.split('/')[-1]
 
-        log.info('----------------------------')
-        log.info('Name : '+entry.var_name)
-        log.info(xpath)
-        log.info(value_name)
+            log.info('----------------------------')
+            log.info('Name : '+entry.var_name)
+            if 'range' in entry.var_name or 'payload' in entry.var_name:
+                entry.var_name = change_var_name(entry.var_name)
+            log.info(xpath)
+            log.info(value_name)
 
-        # Check validity of variable
-        if entry.var_name == '':
-            log.error('Not a valid variable name')
-        elif entry.var_name in var['Name']:
-            log.warning('Variable already exists')
-            log.info(entry.var_name+' will not be added to the variable file')
+            # Check validity of variable
+            if entry.var_name == '':
+                log.error('Not a valid variable name')
+            elif entry.var_name in var['Name']:
+                log.warning('Variable already exists')
+                log.info(entry.var_name+' will not be added to the variable file')
 
-        # Aeromap variable
-        elif value_name == 'aeroPerformanceMap' and aeromap:
-            aeromap = False
-            get_aero_param(tixi, xpath, module_name)
-        # Normal case
-        else:
-            get_normal_param(tixi, value_name, entry, specs.cpacs_inout.outputs)
+            # Aeromap variable
+            elif value_name == 'aeroPerformanceMap' and aeromap:
+                aeromap = False
+                get_aero_param(tixi, xpath, module_name)
+            # Normal case
+            else:
+                get_normal_param(tixi, value_name, entry, specs.cpacs_inout.outputs)
 
 
 def generate_dict(df):
@@ -301,7 +382,7 @@ def generate_dict(df):
         optim_var_dict (dict): Used to pass the variables to the openMDAO setup.
 
     """
-    df.dropna(inplace=True)
+    df.dropna(axis=0,subset=['type','getcmd'],inplace=True)
     defined_dict = df.to_dict('index')
 
     # Transform to a convenient form of dict
@@ -310,11 +391,11 @@ def generate_dict(df):
         if subdict['initial value'] in ['False', 'True', '-'] or subdict['type'] == 'obj':
             optim_var_dict[key] = (subdict['type'], [subdict['initial value']],
                                    subdict['min'], subdict['max'],
-                                   subdict['getpath'], subdict['setpath'])
+                                   subdict['getcmd'], subdict['setcmd'])
         else:
             optim_var_dict[key] = (subdict['type'], [float(subdict['initial value'])],
-                                   float(subdict['min']), float(subdict['max']),
-                                   subdict['getpath'], subdict['setpath'])
+                                   subdict['min'], subdict['max'],
+                                   subdict['getcmd'], subdict['setcmd'])
     return optim_var_dict
 
 
@@ -344,15 +425,15 @@ def get_default_df(module_list):
     df['initial value'] = var['init']
     df['min'] = var['min']
     df['max'] = var['max']
-    df['getpath'] = var['xpath']
+    df['getcmd'] = var['xpath']
 
     # Add geometry parameters as design variables (only design type for the moment)
     tixi = cpsf.open_tixi(CPACS_OPTIM_PATH)
-    geom_var = dct.init_design_var_dict(tixi)
+    geom_var = dct.init_geom_var_dict(tixi)
     for key, (var_name, [init_value], lower_bound, upper_bound, setcmd, getcmd) in geom_var.items():
         new_row = {'Name': var_name, 'type': 'des', 'initial value': init_value,
-                   'min': lower_bound, 'max': upper_bound, 'getpath': getcmd,
-                   'setpath': setcmd}
+                   'min': lower_bound, 'max': upper_bound, 'getcmd': getcmd,
+                   'setcmd': setcmd}
         df = df.append(new_row, ignore_index=True)
 
     df.sort_values(by=['type','Name'], axis=0, ignore_index=True,
@@ -392,6 +473,7 @@ def create_variable_library(Rt, optim_dir_path):
         # Save and open CSV file
         df.to_csv(CSV_PATH, index=False, na_rep='-')
         log.info('Variable library file has been generated')
+        log.info('Variable library file will opened to be modified')
 
         OS = sys.platform
         log.info('Identified OS : '+OS)
@@ -402,14 +484,15 @@ def create_variable_library(Rt, optim_dir_path):
         elif OS == 'darwin':
             os.system('Numbers ' + CSV_PATH)
 
+        input('Press ENTER to continue...')
         log.info('Variable library file has been saved at '+CSV_PATH)
-        df = pd.read_csv(CSV_PATH, index_col=0)
+        df = pd.read_csv(CSV_PATH, index_col=0, skip_blank_lines=True)
     else:
         log.info('Configuration file found, will be used')
         df = pd.read_csv(Rt.user_config, index_col=0)
-
+    log.info('The parameters that will be used are the following :')
     optim_var_dict = generate_dict(df)
-
+    print(optim_var_dict)
     return optim_var_dict
 
 

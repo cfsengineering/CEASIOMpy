@@ -259,7 +259,7 @@ def init_fuse_param(aircraft, fuse_nb):
                 create_var(var_name, init_sec_width, getcmd, setcmd)
 
 
-def init_design_var_dict(tixi):
+def init_geom_var_dict(tixi):
     """Create design variable dictionary
 
     Return the dictionary of the design variables using the TIGL library.

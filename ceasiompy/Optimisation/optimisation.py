@@ -13,7 +13,7 @@ Python version: >=3.6
 | Last modification: 2020-06-22
 
 Todo:
-    * List inputs or multiple objectives
+    * Vector inputs or multiple objectives
     * Discrete variables : find elegant solution of implementation
 
 """
@@ -24,16 +24,17 @@ import openmdao.api as om
 from tigl3 import geometry # Called within eval() function
 from re import split as splt
 
+import ceasiompy.SMUse.smuse as smu
+import ceasiompy.Optimisation.func.tools as tls
+import ceasiompy.CPACSUpdater.cpacsupdater as cpud
+import ceasiompy.Optimisation.func.dictionnary as dct
+
 import ceasiompy.utils.optimfunctions as opf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 
-import ceasiompy.SMUse.smuse as smu
-import ceasiompy.Optimisation.func.tools as tls
-import ceasiompy.CPACSUpdater.cpacsupdater as cpud
-import ceasiompy.Optimisation.func.dictionnary as dct
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -82,11 +83,14 @@ class moduleComp(om.ExplicitComponent):
 
     def setup(self):
         """ Setup inputs and outputs"""
+        declared = []
         spec =  mif.get_specs_for_module(self.module_name)
 
         #Inputs
         for entry in spec.cpacs_inout.inputs:
-            if entry.var_name in optim_var_dict:
+            if entry.var_name in declared:
+                log.info('already declared')
+            elif entry.var_name in optim_var_dict:
                 var = optim_var_dict[entry.var_name]
                 # if entry.var_type == int:
                 #     self.add_discrete_input(entry.var_name, val = var[1][0])
@@ -94,17 +98,24 @@ class moduleComp(om.ExplicitComponent):
                 self.add_input(entry.var_name, val=var[1][0])
             elif entry.var_name not in ['']:
                 self.add_input(entry.var_name)
+            declared.append(entry.var_name)
 
         # Outputs
         for entry in spec.cpacs_inout.outputs:
-            if entry.var_name in optim_var_dict:
+            # Replace special characters from the name of the entry
+            if 'range' in entry.var_name or 'payload' in entry.var_name:
+                entry.var_name = opf.change_var_name(entry.var_name)
+
+            if entry.var_name in declared:
+                log.info('already declared')
+            elif entry.var_name in optim_var_dict:
                 var = optim_var_dict[entry.var_name]
                 # if entry.var_type == int:
                 #     self.add_discrete_output(entry.var_name, val=var[1][0])
                 # else:
                 self.add_output(entry.var_name, val=var[1][0])
             elif 'aeromap' in entry.var_name:
-                # Condition to avoid conflict with skinfriction
+                # Condition to avoid any conflict with skinfriction
                 is_skf = (self.module_name == 'SkinFriction')
                 if (skf and is_skf) or (not skf and not is_skf):
                     for name in ['altitude', 'machNumber',
@@ -121,6 +132,7 @@ class moduleComp(om.ExplicitComponent):
                                 self.add_output(name)
             else:
                 self.add_output(entry.var_name)
+            declared.append(entry.var_name)
 
 
     def compute(self, inputs, outputs):
@@ -155,13 +167,13 @@ class moduleComp(om.ExplicitComponent):
         cpsf.close_tixi(tixi, cpacs_path)
 
 
-class surrogate_model(om.ExplicitComponent):
+class smComp(om.ExplicitComponent):
     """Uses a surrogate model to make a prediction"""
 
     def setup(self):
         """Setup inputs and outputs"""
         # Take CPACS file from the optimisation
-        cpacs_path = mif.get_toolinput_file_path(MODULE_NAME)
+        cpacs_path = mif.get_toolinput_file_path('SMUse')
         tixi = cpsf.open_tixi(cpacs_path)
         file = cpsf.get_value_or_default(tixi, smu.PREDICT_XPATH+'modelFile', '')
         cpsf.close_tixi(tixi, cpacs_path)
@@ -169,27 +181,28 @@ class surrogate_model(om.ExplicitComponent):
         self.Model = smu.load_surrogate(file)
 
         df = self.Model.df
-        df.set_index('Name')
+        df.set_index('Name', inplace=True)
         for name in df.index :
-            if df[name]['type'] == 'obj':
+            if df.loc[name,'type'] == 'obj':
                 self.add_output(name)
-            elif df[name]['type'] == 'des':
+            elif df.loc[name,'type'] == 'des':
                 self.add_input(name)
+
+        self.x = df.loc[[name for name in df.index if df.loc[name,'type'] == 'des']]
+        self.y = df.loc[[name for name in df.index if df.loc[name,'type'] == 'obj']]
 
     def compute(self, inputs, outputs):
         """Make a prediction"""
 
-        df = self.Model.df
-        x = df.loc[[i for i,v in enumerate(df['type']) if v == 'des']]
-        for name in x['Name']:
-            x.append(inputs[name])
+        xp = []
+        for name in self.x.index:
+            xp.append(inputs[name][0])
 
-        x = np.array([x])
-        yp = self.Model.sm.predict_values(x)
-        y = df.loc[[i for i, v in enumerate(df['type']) if v == 'obj']]
-        y.set_index('Name')
-        smu.write_outputs(y, yp)
-        for i, name in enumerate(y.index):
+        xp = np.array([xp])
+        yp = self.Model.sm.predict_values(xp)
+
+        smu.write_outputs(self.y, yp)
+        for i, name in enumerate(self.y.index):
             outputs[name] = yp[0][i]
 
 
@@ -201,10 +214,10 @@ class objective(om.ExplicitComponent):
         declared = []
         for obj in Rt.objective:
             var_list = splt('[+*/-]', obj)
-            for var in var_list:
-                if var not in declared:
-                    self.add_input(var)
-                    declared.append(var)
+            for v in var_list:
+                if v not in declared:
+                    self.add_input(v)
+                    declared.append(v)
             self.add_output('Objective function '+obj)
 
 
@@ -218,6 +231,7 @@ class objective(om.ExplicitComponent):
         if counter%Rt.save_iter == 0:
             loc = optim_dir_path+'/Geometry/'+'iter_{}.xml'.format(counter)
             shutil.copy(cpacs_path, loc)
+            log.info('Copy current CPACS to '+optim_dir_path)
 
         # Add new variables to dictionnary
         tixi = cpsf.open_tixi(cpacs_path)
@@ -329,6 +343,9 @@ def driver_setup(prob):
             driver_type = om.LatinHypercubeGenerator(samples=Rt.samplesnb)
         elif Rt.doedriver == 'FullFactorial':
             driver_type = om.FullFactorialGenerator(levels=Rt.samplesnb)
+        elif Rt.doedriver == 'CSVGenerated':
+            file = opf.gen_doe_csv(Rt.user_config)
+            driver_type = om.CSVGenerator(file)
         prob.driver = om.DOEDriver(driver_type)
         prob.driver.options['run_parallel'] = True
         prob.driver.options['procs_per_model'] = 1
@@ -372,10 +389,13 @@ def add_subsystems(prob):
 
     # Modules
     for name in Rt.modules:
-        mod = name
-        spec = mif.get_specs_for_module(name)
-        if spec.cpacs_inout.inputs or spec.cpacs_inout.outputs:
-            prob.model.add_subsystem(name, moduleComp(), promotes=['*'])
+        if name == 'SMUse':
+            prob.model.add_subsystem(name, smComp(), promotes=['*'])
+        else:
+            mod = name
+            spec = mif.get_specs_for_module(name)
+            if spec.cpacs_inout.inputs or spec.cpacs_inout.outputs:
+                prob.model.add_subsystem(name, moduleComp(), promotes=['*'])
 
     # Objectives
     prob.model.add_subsystem('objective', obj, promotes=['*'])
@@ -477,7 +497,5 @@ def routine_launcher(Opt):
 if __name__ == '__main__':
 
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
-
-    wkf.run_subworkflow('WorkflowCreator')
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

@@ -15,6 +15,7 @@ Python version: >=3.6
 Todo:
     * Vector inputs or multiple objectives
     * Discrete variables : find elegant solution of implementation
+    * Find a way to avoid the first run
 
 """
 import os

@@ -39,7 +39,7 @@ import ceasiompy.utils.ceasiompyfunctions as ceaf
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
-from ceasiompy.SMUse.SMUse import Surrogate_model
+from ceasiompy.SMUse.smuse import Surrogate_model
 # =============================================================================
 #   GLOBALS
 # =============================================================================
@@ -102,7 +102,9 @@ class Prediction_tool():
             os.mkdir(self.wkdir)
 
         obj = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'objective', 'cl')
-        self.objectives = re.split('; |,',obj)
+        print(obj)
+        self.objectives = re.split(';|,',obj)
+        print(self.objectives)
         self.user_file = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'trainFile', '')
         if self.user_file == '':
             path = cpsf.get_value_or_default(tixi, OPTWKDIR_XPATH, '')
@@ -248,7 +250,7 @@ def validation_plots(sm, xt, yt, xv, yv):
     plt.close('all')
 
 
-def create_model(Tool, xd, yd):
+def create_surrogate(Tool, xd, yd):
     """Create a surrogate.
 
     Generate, train and validate a surrogate model with the provided data.
@@ -316,7 +318,7 @@ def save_surrogate(Tool):
 
     filename = Tool.wkdir+'/Surrogate_Model_'+date
 
-    Tool.df.to_csv(Tool.wkdir+'/Data_setup.csv', index=False)
+    Tool.df.to_csv(Tool.wkdir+'/Data_setup.csv', index=False, na_rep='-')
 
     Model = Surrogate_model()
     Model.df = Tool.df
@@ -343,7 +345,7 @@ def generate_model(Tool):
 
     xd, yd = extract_data_set(file, Tool)
 
-    create_model(Tool, xd, yd)
+    create_surrogate(Tool, xd, yd)
 
     save_surrogate(Tool)
 

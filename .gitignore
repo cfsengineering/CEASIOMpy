@@ -19,10 +19,8 @@
 /ceasiompy/Pytornado/wkdir*
 CrashInfo/
 
-
 # Ignore ModuleTest
 /ceasiompy/ModuleTest/
-
 
 # Ignore ToolInput and ToolOutput
 ToolInput.xml
@@ -41,13 +39,14 @@ aircraft_loads.csv
 *_Cog.png
 **/ToolOutput/*.svg
 
+# CPACS file shortcut
+link_*.xml
+
 # Exceptions
 !/ceasiompy/ModuleTemplate/ToolInput/ToolInput.xml
 !/test/utils/TestWorkflowFunctions/ToolInput/ToolInput.xml
 !/test/TestSU2Config/ToolInput/NoMarkerMesh.su2
 !/test/TestSU2Config/ToolInput/SimpleMesh.su2
-
-
 
 # Mac files
 *.DS_Store

@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2019-08-14
-| Last modifiction: 2019-09-27
+| Last modifiction: 2020-07-08
 """
 
 #==============================================================================
@@ -75,6 +75,17 @@ def test_get_fuselage_scaling():
     assert x == approx(1)
     assert y == approx(0.5)
     assert z == approx(0.5)
+
+
+def test_subfunc():
+    """Test subfunction 'my_subfunc' """
+
+    a = 'a'
+    b = 'b'
+
+    my_subfunc = my_subfunc(a,b)
+
+    assert my_subfunc == 'a and b'
 
 
 #==============================================================================

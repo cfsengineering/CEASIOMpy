@@ -1037,6 +1037,38 @@ def create_aeromap(tixi, name, bound_values):
         save_parameters(tixi, name, Param)
 
 
+def get_current_aeromap_uid(tixi, module_list):
+    """Return uid of selected aeromap.
+
+    Check the modules that will be run in the optimisation routine to specify
+    the uID of the correct aeromap in the CPACS file.
+
+    Args:
+        module_list (lst): List of the modules that are run in the routine
+        tixi (tixi handle): Tixi handle of the CPACS file.
+
+    Returns:
+        uid (str) : Name of the aeromap that is used for the routine
+    """
+    uid = 'None'
+
+    for module in module_list:
+        if module == 'SU2Run':
+            log.info('Found SU2 analysis')
+            xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID'
+            uid = tixi.getTextElement(xpath)
+        elif module == 'PyTornado':
+            log.info('Found PyTornado analysis')
+            xpath = '/cpacs/toolspecific/pytornado/aeroMapUID'
+            uid = tixi.getTextElement(xpath)
+
+    if 'SkinFriction' in module_list:
+        log.info('Found SkinFriction analysis')
+        uid = uid + '_SkinFriction'
+
+    return uid
+
+
 def my_test_func():
     # this is just a github test
     pass

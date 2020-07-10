@@ -47,40 +47,8 @@ accronym_dict = {'maximal_take_off_mass':'mtom', 'range':'rng',
 #   FUNCTIONS
 #==============================================================================
 
-### --------------- MISCELANEOUS --------------- ###
+### --------------- TESTFUNCTION --------------- ###
 # -------------------------------------------------#
-
-def get_current_aeromap_uid(tixi, module_list):
-    """Return uid of selected aeromap.
-
-    Check the modules that will be run in the optimisation routine to specify
-    the uID of the correct aeromap in the CPACS file.
-
-    Args:
-        module_list (lst): List of the modules that are run in the routine
-        tixi (tixi handle): Tixi handle of the CPACS file.
-
-    Returns:
-        uid (str) : Name of the aeromap that is used for the routine
-    """
-    uid = 'None'
-
-    for module in module_list:
-        if module == 'SU2Run':
-            log.info('Found SU2 analysis')
-            xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID'
-            uid = tixi.getTextElement(xpath)
-        elif module == 'PyTornado':
-            log.info('Found PyTornado analysis')
-            xpath = '/cpacs/toolspecific/pytornado/aeroMapUID'
-            uid = tixi.getTextElement(xpath)
-
-    if 'SkinFriction' in module_list:
-        log.info('Found SkinFriction analysis')
-        uid = uid + '_SkinFriction'
-
-    return uid
-
 
 def estimate_volume(tigl):
     """Estimate aircraft volume.
@@ -148,7 +116,7 @@ def display_results(prob, optim_var_dict, Rt):
     log.info('=========================================')
 
 
-def read_results(optim_dir_path):
+def read_results(optim_dir_path, optim_var_dict={}):
     """Read sql file and converts data to dataframe.
 
     This is mainly to facilitate data manipulation by avoiding dealing with
@@ -174,20 +142,14 @@ def read_results(optim_dir_path):
     const = {}
 
     # Rename keys
-    for k, v in dict(case1.get_objectives()).items():
-        obj[k.replace('objective.','')] = v
+
     for k, v in dict(case1.get_design_vars()).items():
         des[k.replace('indeps.','')] = v
     for k, v in dict(case1.get_constraints()).items():
         if 'const' in k:
             const[k.replace('const.','')] = v
-
     # Retrieve data from SQL file
     for case in cases:
-        for key, val in case.get_objectives().items():
-            key = key.replace('objective.','')
-            obj[key] = np.append(obj[key], val)
-
         for key, val in case.get_design_vars().items():
             key = key.replace('indeps.','')
             des[key] = np.append(des[key], val)
@@ -196,6 +158,11 @@ def read_results(optim_dir_path):
             if 'const' in key:
                 key = key.replace('const.','')
                 const[key] = np.append(const[key], val)
+
+    # Retrieve data from optim variables
+    for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
+        if val_type == 'obj':
+            obj[name] = np.array(listval)
 
     df_o = pd.DataFrame(obj).transpose()
     df_d = pd.DataFrame(des).transpose()
@@ -207,10 +174,22 @@ def read_results(optim_dir_path):
 
     df = pd.concat([df_o,df_d,df_c], axis=0)
     df.sort_values('type',0, ignore_index=True, ascending=False)
+
+    # Drop duplicate (first and second columns are the same)
+    df = df.drop(0,1)
+
+    # Add get and set commands
+    df.insert(1, 'getcmd', '-')
+    df.insert(2, 'setcmd', '-')
+    for v in df.index:
+        if v in optim_var_dict:
+            df.loc[v,'getcmd'] = optim_var_dict[v][4]
+            df.loc[v,'setcmd'] = optim_var_dict[v][5]
+
     return df
 
 
-def save_results(optim_dir_path):
+def save_results(optim_dir_path, optim_var_dict={}):
     """Save routine results to CSV.
 
     Add the variable history to the CSV paramater file and save it to the
@@ -227,15 +206,17 @@ def save_results(optim_dir_path):
     log.info('Variables will be saved')
 
     # Get variable infos
-    df = read_results(optim_dir_path)
+    df = read_results(optim_dir_path, optim_var_dict)
 
     df.to_csv(optim_dir_path+'/Variable_history.csv', index=True, na_rep='-')
+
+    log.info('Results have been saved at '+optim_dir_path)
 
 
 ### --------------- FUNCTIONS FOR PLOTTING --------------- ###
 # -----------------------------------------------------------#
 
-def plot_results(optim_dir_path, routine_type):
+def plot_results(optim_dir_path, routine_type, optim_var_dict={}):
     """Generate plots of the routine.
 
     Draw plots to vizualize the data. The evolution of each problem parameter
@@ -249,20 +230,59 @@ def plot_results(optim_dir_path, routine_type):
         None.
 
     """
-    df = read_results(optim_dir_path)
+    df = read_results(optim_dir_path, optim_var_dict)
 
     obj = [i for i in df.index if df['type'][i] == 'obj']
     des = [i for i in df.index if df['type'][i] == 'des']
     const = [i for i in df.index if df['type'][i] == 'const']
 
     df.pop('type')
+    df.pop('getcmd')
+    df.pop('setcmd')
     df = df.transpose()
     nbC = min(len(des),5)
     df.plot(subplots=True, layout=(-1,nbC))
-    plt.show()
-    if routine_type.upper() == 'DOE':
+
+    plot_objective(optim_dir_path)
+
+    if routine_type == 'DoE':
         gen_plot(df, obj, des)
         gen_plot(df, obj, const)
+
+
+def plot_objective(optim_dir_path):
+    """Plot the objective function.
+
+    This function is used to compute the objective function from the case
+    recorder as defined in the routine, e.g. cl/cd or cl/mtom.
+
+    Args:
+        optim_dir_path (dct): Path to the case recorder.
+
+    Returns:
+        None.
+
+    """
+    cr = om.CaseReader(optim_dir_path + '/Driver_recorder.sql')
+
+    cases = cr.get_cases()
+    case1 = cr.get_case(0)
+    obj = {}
+
+    for k, v in dict(case1.get_objectives()).items():
+        obj[k.replace('objective.','')] = v
+
+    for case in cases:
+        for key, val in case.get_objectives().items():
+            key = key.replace('objective.','')
+            obj[key] = np.append(obj[key], val)
+    df_o = pd.DataFrame(obj).transpose()
+    df_o = df_o.drop(0,1)
+    df_o = df_o.transpose()
+    nbC = min(len(obj),5)
+
+    df_o.plot(subplots=True, layout=(-1,nbC))
+    plt.show()
 
 
 def gen_plot(df, yvars, xvars):

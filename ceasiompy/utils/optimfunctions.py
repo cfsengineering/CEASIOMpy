@@ -179,16 +179,17 @@ def get_normal_param(tixi, value_name, entry, outputs):
             def_val = '-'
     if entry.var_name not in banned_entries:
         value = cpsf.get_value_or_default(tixi, xpath, def_val)
+        if entry.var_type == int:
+            value = int(value)
     if not tls.is_digit(value):
         log.info('Not a digital value')
         value = '-'
     elif entry.var_type == bool:
-        log.info('Boolean, yet not implemented')
+        log.info('Boolean, not implemented yet')
         value = '-'
 
     log.info('Value : {}'.format(value))
     # Ignores values that are not int or float
-    # TODO : implement the list
     if value != '-':
         value = str(value)
         tixi.updateTextElement(xpath, value)
@@ -222,8 +223,7 @@ def get_aero_param(tixi, xpath, module_name):
     log.info('Default aeromap parameters will be set')
 
     # Get name of aeromap that is used
-    am_nb = tixi.getNumberOfChilds(AEROMAP_XPATH)
-    am_uid = tls.get_current_aeromap_uid(tixi, [module_name])
+    am_uid = apmf.get_current_aeromap_uid(tixi, [module_name])
     log.info('Aeromap \"{}\" will be used for the variables.'.format(am_uid))
 
     # Search the aeromap index in the CPACS file if there are more
@@ -301,7 +301,7 @@ def generate_dict(df):
         optim_var_dict (dict): Used to pass the variables to the openMDAO setup.
 
     """
-    log.info(df)
+    df.dropna(inplace=True)
     defined_dict = df.to_dict('index')
 
     # Transform to a convenient form of dict
@@ -385,7 +385,6 @@ def create_variable_library(Rt, optim_dir_path):
         objective.extend(splt('[+*/-]',obj))
     var = {'Name':[], 'type':[], 'init':[], 'min':[], 'max':[], 'xpath':[]}
 
-    log.info(Rt.user_config)
     if not os.path.isfile(Rt.user_config):
         log.info('No configuration file found, default one will be generated')
         df = get_default_df(Rt.modules)
@@ -404,12 +403,10 @@ def create_variable_library(Rt, optim_dir_path):
             os.system('Numbers ' + CSV_PATH)
 
         log.info('Variable library file has been saved at '+CSV_PATH)
-        log.info(df)
         df = pd.read_csv(CSV_PATH, index_col=0)
-        log.info(df)
     else:
         log.info('Configuration file found, will be used')
-        df = pd.read_csv(Rt.user_config)
+        df = pd.read_csv(Rt.user_config, index_col=0)
 
     optim_var_dict = generate_dict(df)
 

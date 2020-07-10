@@ -37,6 +37,8 @@ import ceasiompy.utils.moduleinterfaces as mi
 from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 
+from ceasiompy.ModuleTemplate.func.subfunc import my_subfunc
+
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
@@ -101,6 +103,9 @@ def sum_funcion(arg1, arg2):
 
     if not isinstance(arg1, int):
         raise ValueError('arg1 is not an integer')
+
+    # Use of a subfunction here
+    print(my_subfunc('test1','test2'))
 
     total = float(arg1) + arg2
 

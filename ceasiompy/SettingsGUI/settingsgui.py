@@ -586,8 +586,8 @@ def create_settings_gui(cpacs_path, cpacs_out_path, submodule_list):
                 max_inputs = max(max_inputs,len(inputs))
 
     tot_width = max(415, gui_modules * 82)
-    tot_height = max(330, max_inputs * 48)
-    root.geometry('{}x{}+400+50'.format(tot_width,tot_height))
+    tot_height = max(330, max_inputs * 50)
+    root.geometry('{}x{}+400+150'.format(tot_width,tot_height))
 
     my_setting_gui = SettingGUI(root, cpacs_path, cpacs_out_path, submodule_list)
     my_setting_gui.mainloop()

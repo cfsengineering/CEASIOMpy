@@ -191,8 +191,7 @@ def fuse_geom_eval(ag, cpacs_in):
 ## Counting fuselage number ---------------------------------------------------
 ## ----------------------------------------------------------------------------
 
-    fus_nb = tixi.getNamedChildrenCount('/cpacs/vehicles/aircraft\
-                                      /model/fuselages', 'fuselage')
+    fus_nb = tixi.getNamedChildrenCount('/cpacs/vehicles/aircraft/model/fuselages','fuselage')
 ## ----------------------------------------------------------------------------
 ## INITIALIZATION 1 -----------------------------------------------------------
 ## ----------------------------------------------------------------------------
@@ -412,27 +411,20 @@ def fuse_geom_eval(ag, cpacs_in):
     log.info('---------- Fuselage Results -----------------')
     log.info('Number of fuselage [-]: ' + str(ag.fuse_nb))
     log.info('Fuselage symmetry plane [-]: ' + str(ag.fuse_sym))
-    log.info('Number of fuselage sections (not counting symmetry) [-]: '\
-             + str(ag.fuse_sec_nb))
-    log.info('Number of fuselage segments (not counting symmetry) [-]: '\
-             + str(ag.fuse_seg_nb))
+    log.info('Number of fuselage sections (not counting symmetry) [-]: ' + str(ag.fuse_sec_nb))
+    log.info('Number of fuselage segments (not counting symmetry) [-]: ' + str(ag.fuse_seg_nb))
     # log.info('Cabin segments array [-]: ' + str(cabin_seg))
     log.info('Fuse Length [m]: ' + str(ag.fuse_length))
     log.info('Fuse nose Length [m]: ' + str(ag.fuse_nose_length))
     log.info('Fuse cabin Length [m]: ' + str(ag.fuse_cabin_length))
     log.info('Fuse tail Length [m]: ' + str(ag.fuse_tail_length))
     log.info('Aircraft Length [m]: ' + str(ag.tot_length))
-    # log.info('Circumference of each section of each fuselage [m]: \n'\
-             # + str(ag.fuse_sec_circ))
-    # log.info('Relative distance of each section of each fuselage [m]: \n'\
-    #          + str(ag.fuse_sec_rel_dist))
-    # log.info('Length of each segment of each fuselage [m]: \n'\
-    #          + str(ag.fuse_seg_length))
+    # log.info('Circumference of each section of each fuselage [m]: \n' + str(ag.fuse_sec_circ))
+    # log.info('Relative distance of each section of each fuselage [m]: \n' + str(ag.fuse_sec_rel_dist))
+    # log.info('Length of each segment of each fuselage [m]: \n' + str(ag.fuse_seg_length))
     log.info('Mean fuselage width [m]: ' + str(ag.fuse_mean_width))
-    # log.info('Width of each section of each fuselage [m]: \n'\
-    #          + str(ag.fuse_sec_width))
-    # log.info('Volume of all the segmetns of each fuselage [m^3]: \n'\
-    #          + str(ag.fuse_seg_vol))
+    # log.info('Width of each section of each fuselage [m]: \n' + str(ag.fuse_sec_width))
+    # log.info('Volume of all the segmetns of each fuselage [m^3]: \n' + str(ag.fuse_seg_vol))
     log.info('Volume of each cabin [m^3]: ' + str(ag.fuse_cabin_vol))
     log.info('Volume of each fuselage [m^3]: ' + str(ag.fuse_vol))
     log.info('---------------------------------------------')

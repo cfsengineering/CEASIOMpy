@@ -44,8 +44,8 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 PREDICT_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModel/'
 
-cpacs_path = mif.get_toolinput_file_path(MODULE_NAME)
-cpacs_path_out = mif.get_tooloutput_file_path(MODULE_NAME)
+cpacs_path = mif.get_toolinput_file_path('SMUse')
+cpacs_path_out = mif.get_tooloutput_file_path('SMUse')
 
 # =============================================================================
 #   ClASSES
@@ -142,12 +142,12 @@ def write_outputs(y, outputs):
     wings = aircraft.get_wings()
     fuselage = aircraft.get_fuselages().get_fuselage(1)
 
-    y.set_index('Name', inplace=True)
+    y.fillna('-', inplace=True)
     for i, name in enumerate(y.index):
         if y.loc[name,'setcmd'] != '-':
-            exec('{} = {}'.format(name, outputs[i]))
+            exec('{} = {}'.format(name, outputs[0][i]))
             eval(y.loc[name,'setcmd'])
-        else:
+        elif y.loc[name,'getcmd'] != '-':
             xpath = y.loc[name,'getcmd']
             if not tixi.checkElement(xpath):
                 elem_name = xpath.split('/')[-1]
@@ -179,6 +179,7 @@ def predict_output(Model):
 
     inputs = get_inputs(x)
     outputs = sm.predict_values(inputs)
+    y.set_index('Name', inplace=True)
     write_outputs(y, outputs)
 
 
@@ -190,9 +191,7 @@ if __name__ == "__main__":
     tixi = cpsf.open_tixi(cpacs_path)
     file = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'modelFile', '')
     cpsf.close_tixi(tixi, cpacs_path)
-
     Model = load_surrogate(file)
-
     predict_output(Model)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

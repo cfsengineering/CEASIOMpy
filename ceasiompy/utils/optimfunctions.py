@@ -89,6 +89,8 @@ class Routine:
 
         # User specified configuration file path
         self.user_config = '../Optimisation/Default_config.csv'
+        self.use_aeromap = False
+        self.aeromap_uid = '-'
 
     def get_user_inputs(self, cpacs_path):
         """Take user inputs from the GUI."""
@@ -111,6 +113,8 @@ class Routine:
 
         # User specified configuration file path
         self.user_config = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/filepath', '-'))
+        self.use_aeromap = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/useAero', '-')
+        self.aeromap_uid = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/aeroMapUID', '-'))
 
         cpsf.close_tixi(tixi, CPACS_OPTIM_PATH)
 
@@ -459,12 +463,13 @@ def create_variable_library(Rt, optim_dir_path):
         optim_var_dict (dct): Dictionnary with all optimisation parameters.
 
     """
-    global objective, var, CSV_PATH
-    CSV_PATH = optim_dir_path+'/Variable_library.csv'
+    global objective, var
     objective = []
+    CSV_PATH = optim_dir_path+'/Variable_library.csv'
+    var = {'Name':[], 'type':[], 'init':[], 'min':[], 'max':[], 'xpath':[]}
+
     for obj in Rt.objective:
         objective.extend(splt('[+*/-]',obj))
-    var = {'Name':[], 'type':[], 'init':[], 'min':[], 'max':[], 'xpath':[]}
 
     if not os.path.isfile(Rt.user_config):
         log.info('No configuration file found, default one will be generated')
@@ -492,7 +497,7 @@ def create_variable_library(Rt, optim_dir_path):
         df = pd.read_csv(Rt.user_config, index_col=0)
     log.info('The parameters that will be used are the following :')
     optim_var_dict = generate_dict(df)
-    print(optim_var_dict)
+
     return optim_var_dict
 
 

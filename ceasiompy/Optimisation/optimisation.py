@@ -176,7 +176,7 @@ class smComp(om.ExplicitComponent):
         # Take CPACS file from the optimisation
         cpacs_path = mif.get_toolinput_file_path('SMUse')
         tixi = cpsf.open_tixi(cpacs_path)
-        file = cpsf.get_value_or_default(tixi, smu.PREDICT_XPATH+'modelFile', '')
+        file = cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'modelFile', '')
         cpsf.close_tixi(tixi, cpacs_path)
 
         self.Model = smu.load_surrogate(file)

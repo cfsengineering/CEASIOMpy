@@ -21,6 +21,17 @@ include_gui = True
 
 # ----- Input -----
 
+cpacs_inout.add_input(
+    var_name='model_file',
+    var_type='pathtype',
+    default_value='-',
+    descr='File that contains a trained model',
+    xpath=CEASIOM_XPATH+'/surrogateModelUse/modelFile',
+    gui=include_gui,
+    gui_name='Model to use',
+    gui_group='Prediction options'
+)
+
 #cpacs_inout.add_input(
 #    var_name='Aeromap only',
 #    var_type=bool,
@@ -28,24 +39,21 @@ include_gui = True
 #    unit='-',
 #    descr="""Indicate wether or not the parameters are all contained in an aeromap, in which case
 #    the workflow only has to be run once.""",
-#    xpath=CEASIOM_XPATH+'/surrogateModel/AeroMapOnly',
+#    xpath=CEASIOM_XPATH+'/surrogateModelUse/AeroMapOnly',
 #    gui=include_gui,
 #    gui_name='Aeromap only',
-#    gui_group='Global settings'
+#    gui_group='Aeromap settings'
 #)
 
-
-cpacs_inout.add_input(
-    var_name='model_file',
-    var_type='pathtype',
-    default_value='-',
-    descr='File that contains a trained model',
-    xpath=CEASIOM_XPATH+'/surrogateModel/modelFile',
-    gui=include_gui,
-    gui_name='Model to use',
-    gui_group='Prediction options'
-)
-
+#cpacs_inout.add_input(
+#    var_name='',
+#    var_type=list,
+#    default_value=None,
+#    unit=None,
+#    xpath=CEASIOM_XPATH + '/surrogateModelUse/aeroMapUID',
+#    gui=True,
+#    gui_group='Aeromap settings',
+#)
 
 # ----- Output -----
 

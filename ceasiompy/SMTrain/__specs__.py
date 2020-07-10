@@ -35,6 +35,30 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
+    var_name='Aeromap',
+    var_type=bool,
+    default_value=False,
+    unit='-',
+    descr="""If only the aeromap has to be used""",
+    xpath=CEASIOM_XPATH+'/surrogateModel/useAeromap',
+    gui=include_gui,
+    gui_name='Aeromap only',
+    gui_group='Global settings',
+)
+
+cpacs_inout.add_input(
+    var_name='',
+    var_type=list,
+    default_value=None,
+    unit=None,
+    descr="Name of the aero map to evaluate",
+    xpath=CEASIOM_XPATH + '/surrogateModel/aeroMapUID',
+    gui=True,
+    gui_name='__AEROMAP_SELECTION',
+    gui_group='Global settings',
+)
+
+cpacs_inout.add_input(
     var_name='data_file',
     var_type='pathtype',
     default_value='-',

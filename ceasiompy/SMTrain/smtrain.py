@@ -28,12 +28,13 @@ import datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-import smt.surrogate_models as sms
 
 from re import split as splt
 
-import ceasiompy.utils.moduleinterfaces as mif
+import smt.surrogate_models as sms
+import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.cpacsfunctions as cpsf
+import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -45,7 +46,7 @@ from ceasiompy.SMUse.smuse import Surrogate_model
 # =============================================================================
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-PREDICT_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModel/'
+SMTRAIN_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModel/'
 OPTWKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/optimPath'
 # Working surrogate models
 model_dict = {'KRG':'KRG(theta0=[1e-2]*xd.shape[1])',
@@ -88,6 +89,7 @@ class Prediction_tool():
 
         # Only for the aeromap case
         self.aeromap_case = False
+        self.aeromap_uid = ''
 
     def get_user_inputs(self):
         """Take user inputs from the GUI."""
@@ -101,16 +103,15 @@ class Prediction_tool():
         if not os.path.isdir(self.wkdir):
             os.mkdir(self.wkdir)
 
-        obj = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'objective', 'cl')
-        print(obj)
+        obj = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'objective', 'cl')
         self.objectives = re.split(';|,',obj)
-        print(self.objectives)
-        self.user_file = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'trainFile', '')
+        self.user_file = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'trainFile', '')
         if self.user_file == '':
             path = cpsf.get_value_or_default(tixi, OPTWKDIR_XPATH, '')
             if path != '':
                 self.user_file = path+ '/Variable_history.csv'
-        self.aeromap_case = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'aeromap_case/IsCase', False)
+        self.aeromap_case = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'useAeromap', False)
+        self.aeromap_uid = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'aeroMapUID', '')
 
         cpsf.close_tixi(tixi, cpacs_path)
 
@@ -131,8 +132,8 @@ def extract_data_set(file, Tool):
         Tool (Prediction_tool object):
 
     Returns:
-        x (numpy array) : Set of points in the design space
-        y (numpy array) : Set of points in the result space
+        x (n*m numpy array): Set of m points in the n-dimensionnal design space.
+        y (p*m numpy array): Set of m points in the p-dimensionnal result space.
 
     """
     df = pd.read_csv(file)
@@ -219,6 +220,8 @@ def validation_plots(sm, xt, yt, xv, yv):
 
     """
     yp = sm.predict_values(xv)
+    if Tool.aeromap_case:
+        Tool.objectives = ['cl','cd','cs','cml','cmd','cms']
 
     for i in range(0,yv.shape[1]):
 
@@ -329,6 +332,70 @@ def save_surrogate(Tool):
     pickle.dump(Model, sm_file)
 
 
+def save_am_df(tixi):
+    """Create the dataframe to be saved in the Tool object.
+
+    Args:
+        tixi (tixi handle): Handle of the current CPACS file.
+
+    Returns:
+        Nones.
+
+    """
+    x = pd.DataFrame()
+    y = pd.DataFrame()
+    am_uid = apmf.get_current_aeromap_uid(tixi, ['SMTrain'])
+    am_list = apmf.get_aeromap_uid_list(tixi)
+    am_index = '[1]'
+    for i, uid in enumerate(am_list):
+        if uid == am_uid:
+            am_index = '[{}]'.format(i+1)
+
+    outputs = ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']
+    inputs = ['altitude', 'machNumber', 'angleOfAttack', 'angleOfSideslip']
+
+    x['Name'] = inputs
+    y['Name'] = outputs
+    x['type'] = 'des'
+    y['type'] = 'obj'
+
+    df = x.append(y,ignore_index=True)
+    df['getcmd'] = '-'
+    df['setcmd'] = '-'
+    df['initial value'] = '-'
+    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
+    for index, name in enumerate(df['Name']):
+        df.loc[index,'getcmd'] = xpath+name
+
+    Tool.df = df
+
+def extract_am_data(Tool):
+    """Get training data from aeromap.
+
+    Retrieve training dataset from an aeromap. The inputs are [alt, mach, aoa, aos]
+    parameters and the outputs are [cl, cd, cs, cml, cmd, cms].
+
+    Args:
+        Tool (Prediction_tool): Class containing the user specification.
+
+    Returns:
+        xd (4*m numpy array): Set of m points in the 4-dimensionnal design space.
+        yd (6*m numpy array): Set of m points in the 6-dimensionnal result space.
+
+    """
+    cpacs_path = mif.get_toolinput_file_path('SMTrain')
+    tixi = cpsf.open_tixi(cpacs_path)
+
+    save_am_df(tixi)
+
+    Aeromap = apmf.get_aeromap(tixi, Tool.aeromap_uid)
+    xd = np.array([Aeromap.alt,Aeromap.mach,Aeromap.aoa,Aeromap.aos])
+    yd = np.array([Aeromap.cl,Aeromap.cd,Aeromap.cs,
+                   Aeromap.cml,Aeromap.cmd,Aeromap.cms])
+
+    return xd.transpose(), yd.transpose()
+
+
 def generate_model(Tool):
     """Start process of creating a model
 
@@ -341,9 +408,11 @@ def generate_model(Tool):
         None.
 
     """
-    file = get_data_file(Tool)
-
-    xd, yd = extract_data_set(file, Tool)
+    if Tool.aeromap_case:
+        xd, yd = extract_am_data(Tool)
+    else:
+        file = get_data_file(Tool)
+        xd, yd = extract_data_set(file, Tool)
 
     create_surrogate(Tool, xd, yd)
 

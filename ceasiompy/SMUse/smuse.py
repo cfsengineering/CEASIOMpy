@@ -42,7 +42,7 @@ log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
-PREDICT_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModel/'
+SMUSE_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/'
 
 cpacs_path = mif.get_toolinput_file_path('SMUse')
 cpacs_path_out = mif.get_tooloutput_file_path('SMUse')
@@ -112,7 +112,7 @@ def get_inputs(x):
     x.set_index('Name', inplace=True)
     for name in x.index:
         if x.loc[name,'setcmd'] != '-':
-            inputs.append(eval(x.loc[name,'getcmd']))
+            inputs.append(eval(x.loc[name,'setcmd']))
         else:
             inputs.append(tixi.getDoubleElement(x.loc[name,'getcmd']))
 
@@ -172,7 +172,6 @@ def predict_output(Model):
     """
     sm = Model.sm
     df = Model.df
-
     x = df.loc[[i for i,v in enumerate(df['type']) if v == 'des']]
     y = df.loc[[i for i, v in enumerate(df['type']) if v == 'obj']]
     df = df.set_index('Name')
@@ -189,7 +188,7 @@ if __name__ == "__main__":
 
     # Load the model
     tixi = cpsf.open_tixi(cpacs_path)
-    file = cpsf.get_value_or_default(tixi, PREDICT_XPATH+'modelFile', '')
+    file = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'modelFile', '')
     cpsf.close_tixi(tixi, cpacs_path)
     Model = load_surrogate(file)
     predict_output(Model)

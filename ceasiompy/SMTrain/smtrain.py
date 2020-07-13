@@ -276,7 +276,8 @@ def create_surrogate(Tool, xd, yd):
 
     sm.train()
 
-    validation_plots(sm, xt, yt, xv, yv)
+    if Tool.data_repartition != 1.0:
+        validation_plots(sm, xt, yt, xv, yv)
 
     Tool.sm = sm
 

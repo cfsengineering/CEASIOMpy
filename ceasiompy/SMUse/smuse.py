@@ -28,6 +28,7 @@ import numpy as np
 import pandas as pd
 import smt.surrogate_models as sms # Use after loading the model
 
+import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
@@ -165,11 +166,43 @@ def write_outputs(y, outputs):
     cpsf.close_tixi(tixi, cpacs_path_out)
 
 
-def predict_output(Model):
+def aeromap_calculation(sm, tixi):
+    """Make a prediction using only the aeromap entries.
+
+    By using only the aeromap functions this module is way faster to execute. Only
+    works  with the aeromap as the other values of the CPACs are not vectors and
+    have to be evaluated with a different CPACS every time.
+
+    Args:
+        sm (Surrogate model object): Surrogate used to predict the function output.
+        tixi (Tixi handle): Handle of the current CPACS.
+
+    Returns:
+        None.
+
+    """
+    tigl = cpsf.open_tigl(tixi)
+    aircraft = cpud.get_aircraft(tigl)
+    wings = aircraft.get_wings()
+    fuselage = aircraft.get_fuselages().get_fuselage(1)
+
+    aeromap_uid = apmf.get_current_aeromap_uid(tixi, ['SMUse'])
+    Coef = apmf.get_aeromap(tixi, aeromap_uid)
+
+    inputs = np.array([Coef.alt,Coef.mach,Coef.aoa,Coef.aos]).T
+
+    outputs = sm.predict_values(inputs)
+    Coef.add_coefficients(outputs[:,0], outputs[:,1], outputs[:,2],
+                          outputs[:,3], outputs[:,4], outputs[:,5])
+    apmf.save_parameters(tixi,aeromap_uid,Coef)
+
+
+def predict_output(Model, tixi):
     """Make a prediction.
 
     Args:
         Model (Class): Object containing the surrogate model and its parameters
+        tixi (Tixi handle): Handle of the current CPACS.
 
     Returns:
         None.
@@ -193,7 +226,12 @@ if __name__ == "__main__":
 
     # Load the model
     Model = load_surrogate()
-    predict_output(Model)
+
+    tixi = cpsf.open_tixi(cpacs_path)
+    if cpsf.get_value_or_default(tixi, SMUSE_XPATH+'AeroMapOnly', False):
+        aeromap_calculation(Model.sm, tixi)
+    else:
+        predict_output(Model, tixi)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
 

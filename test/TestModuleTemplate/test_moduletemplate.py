@@ -22,9 +22,10 @@ import sys
 import pytest
 from pytest import approx
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, get_value
 from ceasiompy.ModuleTemplate.moduletemplate import MyClass, sum_funcion, get_fuselage_scaling
+from ceasiompy.ModuleTemplate.func.subfunc import my_subfunc
+
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
@@ -83,9 +84,9 @@ def test_subfunc():
     a = 'a'
     b = 'b'
 
-    my_subfunc = my_subfunc(a,b)
+    res = my_subfunc(a,b)
 
-    assert my_subfunc == 'a and b'
+    assert res == 'a and b'
 
 
 #==============================================================================

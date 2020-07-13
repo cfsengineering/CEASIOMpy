@@ -264,7 +264,18 @@ def create_routine_folder():
     """Create the working dicrectory of the routine.
 
     Create a folder in which all CEASIOMpy runs and routine parameters will be
-    saved. This architecture may change in the future.
+    saved. This architecture may change in the future. For now the architecture
+    of the folder is as such :
+
+    > CEASIOMpy_Run_XX-XX-XX
+        -> Optim
+            --> Geometry
+            --> Runs
+                ---> Run_XX-XX-XX
+        -> Optim2
+            |
+        -> OptimX
+        -> DoE
 
     Args:
         None.
@@ -323,7 +334,7 @@ def driver_setup(prob):
 
     """
     if Rt.type == 'Optim':
-        # TBD
+        # TBD : Genetic algorithm
         # if len(Rt.objective) > 1 and False:
         #     log.info("""More than 1 objective function, the driver will
         #              automatically be set to NSGA2""")
@@ -406,7 +417,8 @@ def add_parameters(prob):
     """Add problem parameters.
 
     In this function all the problem parameters, namely the constraints,
-    design variables and objective functions, are added to the problem model.
+    design variables and objective functions, are added to the problem model,
+    with their respective boundaries if they are given.
 
     Args:
         prob (om.Problem object): Current problem that is being defined
@@ -418,11 +430,25 @@ def add_parameters(prob):
     # Defining constraints and linking design variables to the ivc
     for name, (val_type, listval, minval, maxval,
                getcommand, setcommand) in optim_var_dict.items():
-        if val_type == 'des' and listval[0] not in ['True','False', '-']:
-            prob.model.add_design_var(name, lower=minval, upper=maxval)
-            ivc.add_output(name, val=listval[0])
+        if val_type == 'des' and listval[-1] not in ['True','False', '-']:
+            if tls.is_digit(minval) and tls.is_digit(maxval):
+                prob.model.add_design_var(name, lower=minval, upper=maxval)
+            elif tls.is_digit(minval):
+                prob.model.add_design_var(name, lower=minval)
+            elif tls.is_digit(maxval):
+                prob.model.add_design_var(name, upper=maxval)
+            else:
+                prob.model.add_design_var(name)
+            ivc.add_output(name, val=listval[-1])
         elif val_type == 'const':
-            prob.model.add_constraint(name, lower=minval, upper=maxval)
+            if tls.is_digit(minval) and tls.is_digit(maxval):
+                prob.model.add_constraint(name, lower=minval, upper=maxval)
+            elif tls.is_digit(minval):
+                prob.model.add_constraint(name, lower=minval)
+            elif tls.is_digit(maxval):
+                prob.model.add_constraint(name, upper=maxval)
+            else:
+                prob.model.add_constraint(name)
 
     # Adding the objective functions, multiple objectives TBD in SciPyOpt
     # for o in Rt.objective:

@@ -62,7 +62,7 @@ def update_dict(tixi, optim_var_dict):
 
     """
     for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
-        if setcommand == '-' or setcommand == '':
+        if setcommand in ['','-']:
             if tixi.checkElement(getcommand):
                 new_val = tixi.getDoubleElement(getcommand)
                 # Checks type of variable

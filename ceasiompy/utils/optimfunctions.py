@@ -292,7 +292,10 @@ def get_aero_param(tixi, module_name):
     log.info('Default aeromap parameters will be set')
 
     # Get name of aeromap that is used
-    am_uid = apmf.get_current_aeromap_uid(tixi, [module_name])
+    if module_name == 'SMUse' and cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'AeroMapOnly', False):
+        am_uid = tixi.getTextElement(smu.SMUSE_XPATH+'aeroMapUID')
+    else:
+        am_uid = apmf.get_current_aeromap_uid(tixi, [module_name])
     log.info('Aeromap \"{}\" will be used for the variables.'.format(am_uid))
 
     # Search the aeromap index in the CPACS file if there are more

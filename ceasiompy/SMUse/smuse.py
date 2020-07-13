@@ -85,6 +85,7 @@ def load_surrogate():
     file = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'modelFile', '')
     cpsf.close_tixi(tixi, cpacs_path)
 
+    log.info('Trying to open file'+file)
     try:
         f = open(file, 'rb')
     except:
@@ -186,15 +187,25 @@ def aeromap_calculation(sm, tixi):
     wings = aircraft.get_wings()
     fuselage = aircraft.get_fuselages().get_fuselage(1)
 
-    aeromap_uid = apmf.get_current_aeromap_uid(tixi, ['SMUse'])
+    aeromap_uid = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'aeroMapUID', False)
+    if not aeromap_uid:
+        aeromap_uid = apmf.get_current_aeromap_uid(tixi, ['SMUse'])
+
+    log.info('Using aeromap :'+aeromap_uid)
     Coef = apmf.get_aeromap(tixi, aeromap_uid)
 
     inputs = np.array([Coef.alt,Coef.mach,Coef.aoa,Coef.aos]).T
 
     outputs = sm.predict_values(inputs)
-    Coef.add_coefficients(outputs[:,0], outputs[:,1], outputs[:,2],
-                          outputs[:,3], outputs[:,4], outputs[:,5])
-    apmf.save_parameters(tixi,aeromap_uid,Coef)
+
+    for i in range(outputs.shape[0]):
+        Coef.add_coefficients(outputs[i,0], outputs[i,1], outputs[i,2],
+                              outputs[i,3], outputs[i,4], outputs[i,5])
+    Coef.print_coef_list()
+    apmf.save_coefficients(tixi, aeromap_uid, Coef)
+
+    tigl.close()
+    cpsf.close_tixi(tixi, cpacs_path_out)
 
 
 def predict_output(Model, tixi):

@@ -26,10 +26,8 @@ TODO
 
 from sys import exit
 
-# import ceasiompy.utils.optimfunctions as optf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
-# import ceasiompy.utils.workflowfunctions as wkf
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -39,7 +37,7 @@ log = get_logger(__file__.split('.')[0])
 # =============================================================================
 
 # Contains the geometric design variables
-design_var_dict = {}
+geom_var_dict = {}
 XPATH = 'None'
 
 # =============================================================================
@@ -64,7 +62,7 @@ def update_dict(tixi, optim_var_dict):
 
     """
     for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
-        if setcommand == '-' or setcommand == '':
+        if setcommand in ['','-']:
             if tixi.checkElement(getcommand):
                 new_val = tixi.getDoubleElement(getcommand)
                 # Checks type of variable
@@ -104,7 +102,7 @@ def create_var(var_name, init_value, getcmd, setcmd, lim=0.2):
         lower_bound = -lim
         upper_bound = lim
 
-    design_var_dict[var_name] = (var_name, [init_value], lower_bound, upper_bound, setcmd, getcmd)
+    geom_var_dict[var_name] = (var_name, [init_value], lower_bound, upper_bound, setcmd, getcmd)
 
 
 def init_elem_param(sec_name, section, elem_nb, scmd):
@@ -261,7 +259,7 @@ def init_fuse_param(aircraft, fuse_nb):
                 create_var(var_name, init_sec_width, getcmd, setcmd)
 
 
-def init_design_var_dict(tixi):
+def init_geom_var_dict(tixi):
     """Create design variable dictionary
 
     Return the dictionary of the design variables using the TIGL library.
@@ -272,7 +270,7 @@ def init_design_var_dict(tixi):
         tixi (handle) : Handle of the CPACS file
 
     Returns:
-        design_var_dict (dict) : dictionary with the geometric parameters of
+        geom_var_dict (dict) : dictionary with the geometric parameters of
         the routine.
 
     """
@@ -287,7 +285,7 @@ def init_design_var_dict(tixi):
     if wing_nb:
         init_wing_param(aircraft, wing_nb)
 
-    return design_var_dict
+    return geom_var_dict
 
 
 if __name__ == "__main__":

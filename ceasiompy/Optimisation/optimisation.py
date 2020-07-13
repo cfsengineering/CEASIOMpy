@@ -13,25 +13,29 @@ Python version: >=3.6
 | Last modification: 2020-06-22
 
 Todo:
-    * List case / multiple objectives
+    * Vector inputs or multiple objectives
+    * Discrete variables : find elegant solution of implementation
+    * Find a way to avoid the first run
 
 """
 import os
-import sys
 import shutil
-# import argparse
+import numpy as np
 import openmdao.api as om
 from tigl3 import geometry # Called within eval() function
 from re import split as splt
 
-import ceasiompy.utils.optimfunctions as opf
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.ceasiompyfunctions as ceaf
-import ceasiompy.utils.moduleinterfaces as mif
-import ceasiompy.utils.workflowfunctions as wkf
-import ceasiompy.Optimisation.func.dictionnary as dct
+import ceasiompy.SMUse.smuse as smu
 import ceasiompy.Optimisation.func.tools as tls
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
+import ceasiompy.Optimisation.func.dictionnary as dct
+
+import ceasiompy.utils.optimfunctions as opf
+import ceasiompy.utils.cpacsfunctions as cpsf
+import ceasiompy.utils.moduleinterfaces as mif
+import ceasiompy.utils.workflowfunctions as wkf
+import ceasiompy.utils.ceasiompyfunctions as ceaf
+
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -41,6 +45,7 @@ log = get_logger(__file__.split('.')[0])
 # =============================================================================
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_NAME = os.path.basename(os.getcwd())
 
 # =============================================================================
 #   CLASSES
@@ -51,11 +56,6 @@ class geom_param(om.ExplicitComponent):
 
     def setup(self):
         """ Setup inputs only for the geometry"""
-        global geom_dict
-        # Create dictionnary with only the geometric parameters
-        # i.e. which can be modified using the Tigl handler
-        geom_dict = {k:v for k, v in optim_var_dict.items() if v[5]!='-'}
-
         for name, (val_type, listval, minval, maxval,
                    setcommand, getcommand) in geom_dict.items():
             if name in optim_var_dict:
@@ -84,38 +84,56 @@ class moduleComp(om.ExplicitComponent):
 
     def setup(self):
         """ Setup inputs and outputs"""
+        declared = []
         spec =  mif.get_specs_for_module(self.module_name)
 
         #Inputs
         for entry in spec.cpacs_inout.inputs:
-            if entry.var_name in optim_var_dict:
+            if entry.var_name in declared:
+                log.info('already declared')
+            elif entry.var_name in optim_var_dict:
                 var = optim_var_dict[entry.var_name]
-                if var[0] == 'des':
-                    self.add_input(entry.var_name, val = var[1][0])
-                elif var[0] in ['const','obj']:
-                    self.add_output(entry.var_name, val = var[1][0])
+                # if entry.var_type == int:
+                #     self.add_discrete_input(entry.var_name, val = var[1][0])
+                # else:
+                self.add_input(entry.var_name, val=var[1][0])
+            elif entry.var_name not in ['']:
+                self.add_input(entry.var_name)
+            declared.append(entry.var_name)
 
         # Outputs
         for entry in spec.cpacs_inout.outputs:
-            if entry.var_name in optim_var_dict:
+            # Replace special characters from the name of the entry
+            if 'range' in entry.var_name or 'payload' in entry.var_name:
+                entry.var_name = opf.change_var_name(entry.var_name)
+
+            if entry.var_name in declared:
+                log.info('already declared')
+            elif entry.var_name in optim_var_dict:
                 var = optim_var_dict[entry.var_name]
+                # if entry.var_type == int:
+                #     self.add_discrete_output(entry.var_name, val=var[1][0])
+                # else:
                 self.add_output(entry.var_name, val=var[1][0])
             elif 'aeromap' in entry.var_name:
-                for name in ['altitude', 'machNumber',
-                              'angleOfAttack', 'angleOfSideslip']:
-                    if name in optim_var_dict:
-                        var = optim_var_dict[name]
-                        self.add_input(name, val=var[1][0])
-                for name in ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']:
-                    if name in optim_var_dict:
-                        var = optim_var_dict[name]
-                        if tls.is_digit(var[1][0]):
-                            self.add_output(name, val=var[1][0])
-                        else:
-                            self.add_output(name)
-            # Add output by default as it may be an input for the next module
+                # Condition to avoid any conflict with skinfriction
+                is_skf = (self.module_name == 'SkinFriction')
+                if (skf and is_skf) or (not skf and not is_skf):
+                    for name in ['altitude', 'machNumber',
+                                  'angleOfAttack', 'angleOfSideslip']:
+                        if name in optim_var_dict:
+                            var = optim_var_dict[name]
+                            self.add_input(name, val=var[1][0])
+                    for name in ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']:
+                        if name in optim_var_dict:
+                            var = optim_var_dict[name]
+                            if tls.is_digit(var[1][0]):
+                                self.add_output(name, val=var[1][0])
+                            else:
+                                self.add_output(name)
             else:
                 self.add_output(entry.var_name)
+            declared.append(entry.var_name)
 
 
     def compute(self, inputs, outputs):
@@ -150,6 +168,45 @@ class moduleComp(om.ExplicitComponent):
         cpsf.close_tixi(tixi, cpacs_path)
 
 
+class smComp(om.ExplicitComponent):
+    """Uses a surrogate model to make a prediction"""
+
+    def setup(self):
+        """Setup inputs and outputs"""
+        # Take CPACS file from the optimisation
+        cpacs_path = mif.get_toolinput_file_path('SMUse')
+        tixi = cpsf.open_tixi(cpacs_path)
+        file = cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'modelFile', '')
+        cpsf.close_tixi(tixi, cpacs_path)
+
+        self.Model = smu.load_surrogate(file)
+
+        df = self.Model.df
+        df.set_index('Name', inplace=True)
+        for name in df.index :
+            if df.loc[name,'type'] == 'obj':
+                self.add_output(name)
+            elif df.loc[name,'type'] == 'des':
+                self.add_input(name)
+
+        self.x = df.loc[[name for name in df.index if df.loc[name,'type'] == 'des']]
+        self.y = df.loc[[name for name in df.index if df.loc[name,'type'] == 'obj']]
+
+    def compute(self, inputs, outputs):
+        """Make a prediction"""
+
+        xp = []
+        for name in self.x.index:
+            xp.append(inputs[name][0])
+
+        xp = np.array([xp])
+        yp = self.Model.sm.predict_values(xp)
+
+        smu.write_outputs(self.y, yp)
+        for i, name in enumerate(self.y.index):
+            outputs[name] = yp[0][i]
+
+
 class objective(om.ExplicitComponent):
     """Class to compute the objective function(s)"""
 
@@ -158,10 +215,10 @@ class objective(om.ExplicitComponent):
         declared = []
         for obj in Rt.objective:
             var_list = splt('[+*/-]', obj)
-            for var in var_list:
-                if var not in declared:
-                    self.add_input(var)
-                    declared.append(var)
+            for v in var_list:
+                if v not in declared:
+                    self.add_input(v)
+                    declared.append(v)
             self.add_output('Objective function '+obj)
 
 
@@ -175,21 +232,22 @@ class objective(om.ExplicitComponent):
         if counter%Rt.save_iter == 0:
             loc = optim_dir_path+'/Geometry/'+'iter_{}.xml'.format(counter)
             shutil.copy(cpacs_path, loc)
+            log.info('Copy current CPACS to '+optim_dir_path)
 
         # Add new variables to dictionnary
         tixi = cpsf.open_tixi(cpacs_path)
         dct.update_dict(tixi, optim_var_dict)
 
         # Change local wkdir for the next iteration
-        tixi.updateTextElement(opf.WKDIR_XPATH,ceaf.create_new_wkdir(Rt.date,Rt.type))
+        tixi.updateTextElement(opf.WKDIR_XPATH,ceaf.create_new_wkdir(optim_dir_path))
 
         for obj in Rt.objective:
             var_list = splt('[+*/-]', obj)
             for v in var_list:
                 if not v.isdigit() and v != '':
                     exec('{} = inputs["{}"]'.format(v, v))
-
             result = eval(obj)
+
             if Rt.minmax == 'min':
                 outputs['Objective function '+obj] = -result
             else:
@@ -206,7 +264,18 @@ def create_routine_folder():
     """Create the working dicrectory of the routine.
 
     Create a folder in which all CEASIOMpy runs and routine parameters will be
-    saved. This architecture may change in the future.
+    saved. This architecture may change in the future. For now the architecture
+    of the folder is as such :
+
+    > CEASIOMpy_Run_XX-XX-XX
+        -> Optim
+            --> Geometry
+            --> Runs
+                ---> Run_XX-XX-XX
+        -> Optim2
+            |
+        -> OptimX
+        -> DoE
 
     Args:
         None.
@@ -219,8 +288,6 @@ def create_routine_folder():
 
     # Create the main working directory
     tixi = cpsf.open_tixi(opf.CPACS_OPTIM_PATH)
-    #if tixi.checkElement(opf.WKDIR_XPATH):
-    #    tixi.removeElement(opf.WKDIR_XPATH)
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
     optim_dir_path = os.path.join(wkdir, Rt.type)
     Rt.date = wkdir[-19:]
@@ -234,8 +301,18 @@ def create_routine_folder():
     # Add subdirectories
     if not os.path.isdir(optim_dir_path):
         os.mkdir(optim_dir_path)
-    os.mkdir(optim_dir_path+'/Geometry')
-    os.mkdir(optim_dir_path+'/Runs')
+        os.mkdir(optim_dir_path+'/Geometry')
+        os.mkdir(optim_dir_path+'/Runs')
+    else:
+        index = 2
+        optim_dir_path = optim_dir_path + str(index)
+        while os.path.isdir(optim_dir_path):
+            index += 1
+            optim_dir_path = optim_dir_path.split(Rt.type)[0]+Rt.type+str(index)
+        os.mkdir(optim_dir_path)
+        os.mkdir(optim_dir_path+'/Geometry')
+        os.mkdir(optim_dir_path+'/Runs')
+    tixi.updateTextElement(opf.OPTWKDIR_XPATH,optim_dir_path)
 
     cpsf.close_tixi(tixi, opf.CPACS_OPTIM_PATH)
 
@@ -257,19 +334,20 @@ def driver_setup(prob):
 
     """
     if Rt.type == 'Optim':
-        if len(Rt.objective) > 1 and False:
-            log.info("""More than 1 objective function, the driver will
-                     automatically be set to NSGA2""")
-            prob.driver = om.pyOptSparseDriver() # multifunc driver : NSGA2
-            prob.driver.options['optimizer'] = 'NSGA2'
-            prob.driver.opt_settings['PopSize'] = 7
-            prob.driver.opt_settings['maxGen'] = Rt.max_iter
-        else:
-            prob.driver = om.ScipyOptimizeDriver()
-            prob.driver.options['optimizer'] = Rt.driver
-            prob.driver.options['maxiter'] = Rt.max_iter
-            prob.driver.options['tol'] = Rt.tol
-            prob.driver.options['disp'] = True
+        # TBD : Genetic algorithm
+        # if len(Rt.objective) > 1 and False:
+        #     log.info("""More than 1 objective function, the driver will
+        #              automatically be set to NSGA2""")
+        #     prob.driver = om.pyOptSparseDriver() # multifunc driver : NSGA2
+        #     prob.driver.options['optimizer'] = 'NSGA2'
+        #     prob.driver.opt_settings['PopSize'] = 7
+        #     prob.driver.opt_settings['maxGen'] = Rt.max_iter
+        # else:
+        prob.driver = om.ScipyOptimizeDriver()
+        prob.driver.options['optimizer'] = Rt.driver
+        prob.driver.options['maxiter'] = Rt.max_iter
+        prob.driver.options['tol'] = Rt.tol
+        prob.driver.options['disp'] = True
     else:
         if Rt.doedriver == 'Uniform':
             driver_type = om.UniformGenerator(num_samples=Rt.samplesnb)
@@ -277,16 +355,20 @@ def driver_setup(prob):
             driver_type = om.LatinHypercubeGenerator(samples=Rt.samplesnb)
         elif Rt.doedriver == 'FullFactorial':
             driver_type = om.FullFactorialGenerator(levels=Rt.samplesnb)
+        elif Rt.doedriver == 'CSVGenerated':
+            file = opf.gen_doe_csv(Rt.user_config)
+            driver_type = om.CSVGenerator(file)
         prob.driver = om.DOEDriver(driver_type)
         prob.driver.options['run_parallel'] = True
-        # prob.driver.options['procs_per_model'] = 1
+        prob.driver.options['procs_per_model'] = 1
 
     ## Attaching a recorder and a diagramm visualizer ##
-    prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path+'/Driver_recorder.sql'))
+    prob.driver.recording_options['record_inputs'] = True
     prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path+'/circuit.sqlite'))
+    prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path+'/Driver_recorder.sql'))
 
 
-def add_subsystems(prob, ivc):
+def add_subsystems(prob):
     """Add subsystems to problem.
 
     All subsystem classes are added to the problem model.
@@ -299,7 +381,7 @@ def add_subsystems(prob, ivc):
         None.
 
     """
-    global mod
+    global mod, geom_dict, skf
     geom = geom_param()
     obj = objective()
 
@@ -308,24 +390,35 @@ def add_subsystems(prob, ivc):
 
     # Geometric parameters
     mod = [Rt.modules[0], Rt.modules[-1]]
-    prob.model.add_subsystem('Geometry', geom, promotes=['*'])
+    geom_dict = {k:v for k, v in optim_var_dict.items() if v[5]!='-'}
+    if geom_dict:
+        prob.model.add_subsystem('Geometry', geom, promotes=['*'])
+
+    # Deal with the SkinFriction case
+    skf = False
+    if 'SkinFriction' in Rt.modules:
+        skf = True
 
     # Modules
     for name in Rt.modules:
-        mod = name
-        spec = mif.get_specs_for_module(name)
-        if spec.cpacs_inout.inputs or spec.cpacs_inout.outputs:
-            prob.model.add_subsystem(name, moduleComp(), promotes=['*'])
+        if name == 'SMUse':
+            prob.model.add_subsystem(name, smComp(), promotes=['*'])
+        else:
+            mod = name
+            spec = mif.get_specs_for_module(name)
+            if spec.cpacs_inout.inputs or spec.cpacs_inout.outputs:
+                prob.model.add_subsystem(name, moduleComp(), promotes=['*'])
 
     # Objectives
     prob.model.add_subsystem('objective', obj, promotes=['*'])
 
 
-def add_parameters(prob, ivc):
+def add_parameters(prob):
     """Add problem parameters.
 
     In this function all the problem parameters, namely the constraints,
-    design variables and objective functions, are added to the problem model.
+    design variables and objective functions, are added to the problem model,
+    with their respective boundaries if they are given.
 
     Args:
         prob (om.Problem object): Current problem that is being defined
@@ -337,15 +430,32 @@ def add_parameters(prob, ivc):
     # Defining constraints and linking design variables to the ivc
     for name, (val_type, listval, minval, maxval,
                getcommand, setcommand) in optim_var_dict.items():
-        if val_type == 'des' and listval[0] not in ['True','False', '-']:
-            ivc.add_output(name, val=listval[0],lower=minval, upper=maxval)
-            prob.model.add_design_var(name, lower=minval, upper=maxval)
+        if val_type == 'des' and listval[-1] not in ['True','False', '-']:
+            if tls.is_digit(minval) and tls.is_digit(maxval):
+                prob.model.add_design_var(name,
+                                          lower=float(minval), upper=float(maxval))
+            elif tls.is_digit(minval):
+                prob.model.add_design_var(name, lower=float(minval))
+            elif tls.is_digit(maxval):
+                prob.model.add_design_var(name, upper=float(maxval))
+            else:
+                prob.model.add_design_var(name)
+            ivc.add_output(name, val=listval[-1])
         elif val_type == 'const':
-            prob.model.add_constraint(name, lower=minval, upper=maxval)
+            if tls.is_digit(minval) and tls.is_digit(maxval):
+                prob.model.add_constraint(name,
+                                          lower=float(minval), upper=float(maxval))
+            elif tls.is_digit(minval):
+                prob.model.add_constraint(name, lower=float(minval))
+            elif tls.is_digit(maxval):
+                prob.model.add_constraint(name, upper=float(maxval))
+            else:
+                prob.model.add_constraint(name)
 
-    # Adding the objective function
-    for o in Rt.objective:
-        prob.model.add_objective('Objective function '+o)
+    # Adding the objective functions, multiple objectives TBD in SciPyOpt
+    # for o in Rt.objective:
+    #     prob.model.add_objective('Objective function '+o)
+    prob.model.add_objective('Objective function '+Rt.objective[0])
 
 
 def routine_launcher(Opt):
@@ -365,7 +475,7 @@ def routine_launcher(Opt):
         None.
 
     """
-    global counter, optim_var_dict, Rt
+    global counter, optim_var_dict, Rt, skf, ivc
 
     counter = 0
     Rt = opf.Routine()
@@ -374,7 +484,9 @@ def routine_launcher(Opt):
 
     ## Initialize CPACS file and problem dictionary ##
     create_routine_folder()
+
     opf.first_run(Rt.modules)
+
     Rt.get_user_inputs(opf.CPACS_OPTIM_PATH)
     optim_var_dict = opf.create_variable_library(Rt, optim_dir_path)
 
@@ -383,10 +495,10 @@ def routine_launcher(Opt):
     ivc = om.IndepVarComp()
 
     ## Add subsystems to problem ##
-    add_subsystems(prob, ivc)
+    add_subsystems(prob)
 
     ## Defining problem parameters ##
-    add_parameters(prob, ivc)
+    add_parameters(prob)
 
     ## Setting up the problem options ##
     driver_setup(prob)
@@ -397,29 +509,22 @@ def routine_launcher(Opt):
     ## Run the model ##
     prob.run_driver()
 
+    ## Generate N2 scheme ##
+    om.n2(optim_dir_path+'/circuit.sqlite', optim_dir_path+'/circuit.html', False)
+
     ## Recap of the problem inputs/outputs ##
     prob.model.list_inputs()
     prob.model.list_outputs()
 
     ## Results processing ##
-    tls.plot_results(optim_dir_path,'')
-    tls.save_results(optim_dir_path)
+    tls.plot_results(optim_dir_path,'', optim_var_dict)
+    tls.save_results(optim_dir_path, optim_var_dict)
 
-    ## Generate N2 scheme ##
-    om.n2(optim_dir_path+'/circuit.sqlite', optim_dir_path+'/circuit.html', False)
+    wkf.copy_module_to_module(Rt.modules[-1], 'out', 'Optimisation', 'out')
 
 
 if __name__ == '__main__':
 
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
-    # Creating a dummy class to pass the default arguments
-    class Opt(): pass
-    if len(sys.argv) > 2:
-        Opt.optim_method = sys.argv[1]
-        Opt.module_optim = sys.argv[2]
-    else:
-        Opt.optim_method = 'Optim'
-        Opt.module_optim = ['WeightConventional', 'PyTornado']
-        # Opt.module_optim = ['WeightConventional', 'CPACS2SUMO', 'SUMOAutoMesh', 'SU2Run']
-    routine_launcher(Opt)
+
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

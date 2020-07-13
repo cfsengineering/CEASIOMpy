@@ -81,7 +81,7 @@ cpacs_inout.add_output(
 )
 
 cpacs_inout.add_output(
-    var_name='wing_area',
+    var_name='main_wing_area',
     default_value=None,
     unit='m^2',
     descr='Wing area of the main (largest) wing',
@@ -89,7 +89,7 @@ cpacs_inout.add_output(
 )
 
 cpacs_inout.add_output(
-    var_name='wing_span',
+    var_name='main_wing_span',
     default_value=None,
     unit='m',
     descr='Wing span of the main (largest) wing',

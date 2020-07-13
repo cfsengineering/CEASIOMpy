@@ -10,11 +10,12 @@ Python version: >=3.6
 
 | Author : Vivien Riolo
 | Creation: 2020-05-26
-| Last modification: 2020-05-26
+| Last modification: 2020-06-30
 
 TODO
 ----
-    * Solve the accronym problematic
+    * Some tools may be usefull for other modules, maybe write an new one in
+    the 'utils' folder ?
 
 """
 
@@ -35,6 +36,10 @@ log = get_logger(__file__.split('.')[0])
 #   GLOBALS
 #==============================================================================
 
+# Not an exhaustive list
+accronym_dict = {'maximum_take_off_mass':'mtom', 'range':'rng',
+                 'zero_fuel_mass':'zfm', 'operating_empty_mass':'oem'}
+
 #==============================================================================
 #   CLASSES
 #==============================================================================
@@ -43,37 +48,8 @@ log = get_logger(__file__.split('.')[0])
 #   FUNCTIONS
 #==============================================================================
 
-### --------------- MISCELANEOUS --------------- ###
+### --------------- TESTFUNCTION --------------- ###
 # -------------------------------------------------#
-
-def get_aeromap_path(module_list):
-    """Return xpath of selected aeromap.
-
-    Check the modules that will be run in the optimisation routine to specify
-    the path to the correct aeromap in the CPACS file.
-
-    Args:
-        module_list (lst) : list of the modules that are run in the routin
-
-    Returns:
-        xpath (str) : Xpath to the aeromap that is used for the routine
-    """
-
-    PYTORNADO_XPATH = '/cpacs/toolspecific/pytornado'
-
-    SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
-
-    xpath = 'None'
-
-    for module in module_list:
-        if module == 'SU2Run':
-            log.info('Found SU2 analysis')
-            xpath = SU2_XPATH
-        elif module == 'PyTornado':
-            log.info('Found PyTornado analysis')
-            xpath = PYTORNADO_XPATH
-    return xpath
-
 
 def estimate_volume(tigl):
     """Estimate aircraft volume.
@@ -141,7 +117,7 @@ def display_results(prob, optim_var_dict, Rt):
     log.info('=========================================')
 
 
-def read_results(optim_dir_path):
+def read_results(optim_dir_path, optim_var_dict={}):
     """Read sql file and converts data to dataframe.
 
     This is mainly to facilitate data manipulation by avoiding dealing with
@@ -157,7 +133,6 @@ def read_results(optim_dir_path):
     """
     # Read recorded options
     cr = om.CaseReader(optim_dir_path + '/Driver_recorder.sql')
-    # driver_cases = cr.list_cases('driver') (If  multiple recorders)
 
     cases = cr.get_cases()
 
@@ -168,20 +143,14 @@ def read_results(optim_dir_path):
     const = {}
 
     # Rename keys
-    for k, v in dict(case1.get_objectives()).items():
-        obj[k.replace('objective.','')] = v
+
     for k, v in dict(case1.get_design_vars()).items():
         des[k.replace('indeps.','')] = v
     for k, v in dict(case1.get_constraints()).items():
         if 'const' in k:
             const[k.replace('const.','')] = v
-
     # Retrieve data from SQL file
     for case in cases:
-        for key, val in case.get_objectives().items():
-            key = key.replace('objective.','')
-            obj[key] = np.append(obj[key], val)
-
         for key, val in case.get_design_vars().items():
             key = key.replace('indeps.','')
             des[key] = np.append(des[key], val)
@@ -191,6 +160,10 @@ def read_results(optim_dir_path):
                 key = key.replace('const.','')
                 const[key] = np.append(const[key], val)
 
+    # Retrieve data from optim variables
+    for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
+        if val_type == 'obj':
+            obj[name] = np.array(listval)
 
     df_o = pd.DataFrame(obj).transpose()
     df_d = pd.DataFrame(des).transpose()
@@ -200,10 +173,24 @@ def read_results(optim_dir_path):
     df_d.insert(0, 'type', 'des')
     df_c.insert(0, 'type', 'const')
 
-    return pd.concat([df_o,df_d,df_c], axis=0)
+    df = pd.concat([df_o,df_d,df_c], axis=0)
+    df.sort_values('type',0, ignore_index=True, ascending=False)
+
+    # Drop duplicate (first and second columns are the same)
+    df = df.drop(0,1)
+
+    # Add get and set commands
+    df.insert(1, 'getcmd', '-')
+    df.insert(2, 'setcmd', '-')
+    for v in df.index:
+        if v in optim_var_dict:
+            df.loc[v,'getcmd'] = optim_var_dict[v][4]
+            df.loc[v,'setcmd'] = optim_var_dict[v][5]
+
+    return df
 
 
-def save_results(optim_dir_path):
+def save_results(optim_dir_path, optim_var_dict={}):
     """Save routine results to CSV.
 
     Add the variable history to the CSV paramater file and save it to the
@@ -220,23 +207,17 @@ def save_results(optim_dir_path):
     log.info('Variables will be saved')
 
     # Get variable infos
-    df = read_results(optim_dir_path)
-    # df = df.transpose()
-
-    # # Generate dictionary with variable history
-    # values = {name:lv[1:] for name, (vt, lv, minv, maxv, gc, sc) in results.items()}
-    # print(values)
-    # df2 = pd.DataFrame.from_dict(values)
-
-    # df = df.append(df2).transpose()
+    df = read_results(optim_dir_path, optim_var_dict)
 
     df.to_csv(optim_dir_path+'/Variable_history.csv', index=True, na_rep='-')
+
+    log.info('Results have been saved at '+optim_dir_path)
 
 
 ### --------------- FUNCTIONS FOR PLOTTING --------------- ###
 # -----------------------------------------------------------#
 
-def plot_results(optim_dir_path, routine_type):
+def plot_results(optim_dir_path, routine_type, optim_var_dict={}):
     """Generate plots of the routine.
 
     Draw plots to vizualize the data. The evolution of each problem parameter
@@ -250,20 +231,59 @@ def plot_results(optim_dir_path, routine_type):
         None.
 
     """
-    df = read_results(optim_dir_path)
+    df = read_results(optim_dir_path, optim_var_dict)
 
     obj = [i for i in df.index if df['type'][i] == 'obj']
     des = [i for i in df.index if df['type'][i] == 'des']
     const = [i for i in df.index if df['type'][i] == 'const']
 
     df.pop('type')
+    df.pop('getcmd')
+    df.pop('setcmd')
     df = df.transpose()
     nbC = min(len(des),5)
     df.plot(subplots=True, layout=(-1,nbC))
-    plt.show()
-    if routine_type.upper() == 'DOE':
+
+    plot_objective(optim_dir_path)
+
+    if routine_type == 'DoE':
         gen_plot(df, obj, des)
         gen_plot(df, obj, const)
+
+
+def plot_objective(optim_dir_path):
+    """Plot the objective function.
+
+    This function is used to compute the objective function from the case
+    recorder as defined in the routine, e.g. cl/cd or cl/mtom.
+
+    Args:
+        optim_dir_path (dct): Path to the case recorder.
+
+    Returns:
+        None.
+
+    """
+    cr = om.CaseReader(optim_dir_path + '/Driver_recorder.sql')
+
+    cases = cr.get_cases()
+    case1 = cr.get_case(0)
+    obj = {}
+
+    for k, v in dict(case1.get_objectives()).items():
+        obj[k.replace('objective.','')] = v
+
+    for case in cases:
+        for key, val in case.get_objectives().items():
+            key = key.replace('objective.','')
+            obj[key] = np.append(obj[key], val)
+    df_o = pd.DataFrame(obj).transpose()
+    df_o = df_o.drop(0,1)
+    df_o = df_o.transpose()
+    nbC = min(len(obj),5)
+
+    df_o.plot(subplots=True, layout=(-1,nbC))
+    plt.show()
 
 
 def gen_plot(df, yvars, xvars):
@@ -280,7 +300,10 @@ def gen_plot(df, yvars, xvars):
         None.
 
     """
+    plt.figure()
     nbC = min(len(xvars),5)
+    if nbC == 0 :
+        nbC = 1
     nbR = int(len(yvars) * np.ceil(len(xvars)/nbC))
     r = 0
     c = 1
@@ -292,7 +315,7 @@ def gen_plot(df, yvars, xvars):
             if c == 1:
                 plt.ylabel(o)
             c += 1
-            if c > nbC:
+            if c >= nbC:
                 r += 1
                 c = 0
         r += 1
@@ -334,7 +357,7 @@ def accronym(name):
     complete name of a variable is decomposed and the first letter of
     each word is taken.
 
-    Ex : 'maximal take off mass' -> 'mtom'
+    Ex : 'maximum take off mass' -> 'mtom'
 
     Args:
         name (str) : Name of a variable.
@@ -343,15 +366,19 @@ def accronym(name):
         accro (str) : Accronym of the name.
 
     """
-    full_name = name.split('_')
-    accro = ''
-    for word in full_name:
-        if word.lower() in ['nb']:
-            accro += word
-        else:
-            accro += word[0]
-    log.info('Accronym : ' + accro)
-    return accro
+    # full_name = name.split('_')
+    # accro = ''
+    # for word in full_name:
+    #     if word.lower() in ['nb']:
+    #         accro += word
+    #     else:
+    #         accro += word[0]
+
+    if name in accronym_dict:
+        log.info('Accronym : ' + accronym_dict[name])
+        return accronym_dict[name]
+    else:
+        return ''
 
 
 def add_type(entry, outputs, objective, var):
@@ -376,7 +403,7 @@ def add_type(entry, outputs, objective, var):
     if entry in outputs:
         if type(entry) != str:
             entry = entry.var_name
-        if entry in objective:
+        if entry in objective or accronym(entry) in objective:
             var['type'].append('obj')
             log.info('Added type : obj')
         else:
@@ -385,6 +412,7 @@ def add_type(entry, outputs, objective, var):
     else:
         var['type'].append('des')
         log.info('Added type : des')
+
 
 def add_bounds(name, value, var):
     """Add upper and lower bound.

@@ -39,7 +39,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 #   FUNCTIONS
 #==============================================================================
 
-def create_new_wkdir(routine_date='', routine_type=''):
+def create_new_wkdir(global_wkdir=''):
     """Function to create a woking directory.
 
     Function 'create_new_wkdir' creates a new working directory in the /tmp file
@@ -58,18 +58,17 @@ def create_new_wkdir(routine_date='', routine_type=''):
 
     """
     date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    if routine_date != '':
-        dir_name = routine_type+'/Runs/Run' + date
-        wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR/CEASIOMpy_Run_' + routine_date)
+
+    if global_wkdir != '':
+        dir_name = '/Runs/Run' + date
+        run_dir = global_wkdir+dir_name
     else:
         dir_name = 'CEASIOMpy_Run_' + date
         wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR')
+        run_dir = os.path.join(wkdir, dir_name)
 
-    if not os.path.exists(wkdir):
-        os.mkdir(wkdir)
-
-    run_dir = os.path.join(wkdir, dir_name)
-    os.mkdir(run_dir)
+    if not os.path.exists(run_dir):
+        os.mkdir(run_dir)
 
     return run_dir
 

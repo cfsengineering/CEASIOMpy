@@ -24,7 +24,7 @@ include_gui = True
 cpacs_inout.add_input(
     var_name='Objective function',
     var_type=str,
-    default_value='cl/cd',
+    default_value='cl',
     unit='-',
     descr="""Objective function of the optimisation problem. \n Warning ! 
     The parameters name must match the ones in the CSV file !""",
@@ -43,19 +43,19 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH+'/Optimisation/minmax',
     gui=include_gui,
     gui_name='Optimisation goal',
-    gui_group='Global settings'
+    gui_group='Optimisation settings'
 )
 
 cpacs_inout.add_input(
     var_name='Driver',
     var_type=list,
-    default_value=['COBYLA'],
+    default_value=['COBYLA','Nelder-Mead'],
     unit='-',
     descr='Choose the driver to run the routine with',
     xpath=CEASIOM_XPATH+'/Optimisation/parameters/driver',
-    gui=include_gui,
+    gui=False,
     gui_name='Driver',
-    gui_group='Global settings'
+    gui_group='Optimisation settings'
 )
 
 cpacs_inout.add_input(
@@ -67,7 +67,7 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH+'/Optimisation/iterationNB',
     gui=include_gui,
     gui_name='Max number of iterations',
-    gui_group='Global settings'
+    gui_group='Optimisation settings'
 )
 
 cpacs_inout.add_input(
@@ -79,7 +79,7 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH+'/Optimisation/tolerance',
     gui=include_gui,
     gui_name='Tolerance',
-    gui_group='Global settings'
+    gui_group='Optimisation settings'
 )
 
 cpacs_inout.add_input(
@@ -100,7 +100,7 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH+'/Optimisation/saving/perIter',
     gui=include_gui,
     gui_name='Saving geometry every',
-    gui_group='Global settings'
+    gui_group='Optimisation settings'
 )
 
 
@@ -113,7 +113,7 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH+'/Optimisation/parameters/DoE/driver',
     gui=include_gui,
     gui_name='Driver (DoE)',
-    gui_group='DoE settings (if required)'
+    gui_group='DoE settings'
 )
 
 cpacs_inout.add_input(
@@ -125,13 +125,37 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH+'/Optimisation/parameters/DoE/sampleNB',
     gui=include_gui,
     gui_name='Sample # parameter',
-    gui_group='DoE settings (if required)'
+    gui_group='DoE settings'
 )
+
+#cpacs_inout.add_input(
+#    var_name='UseAeromap',
+#    var_type=bool,
+#    default_value=False,
+#    unit=None,
+#    descr='Enables use of an aeromap only for computation',
+#    xpath=CEASIOM_XPATH + '/Optimisation/Config/useAero',
+#    gui=True,
+#    gui_name='Use aeromap',
+#    gui_group='DoE settings',
+#)
+
+#cpacs_inout.add_input(
+#    var_name='',
+#    var_type=list,
+#    default_value=None,
+#    unit=None,
+#    descr="Name of the aero map to evaluate",
+#    xpath=CEASIOM_XPATH + '/Optimisation/Config/aeroMapUID',
+#    gui=True,
+#    gui_name='__AEROMAP_SELECTION',
+#    gui_group='DoE settings',
+#)
 
 cpacs_inout.add_input(
     var_name='Configuration file path',
     var_type='pathtype',
-    default_value='../Optimisation/Default_config.csv',
+    default_value='-',
     unit='1',
     descr='Absolute path to the CSV file',
     xpath=CEASIOM_XPATH + '/Optimisation/Config/filepath',

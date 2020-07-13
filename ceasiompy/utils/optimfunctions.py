@@ -55,8 +55,9 @@ AEROMAP_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance'
 SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 # Parameters that can not be used as problem variables
-banned_entries = ['wing','delete_old_wkdirs','check_extract_loads']
-special_chars = ['[',']']
+banned_entries = ['wing','delete_old_wkdirs','check_extract_loads', # Not relevant variables
+                  'cabin_crew_nb' # Is an input in range and an output in weightconv
+                  ]
 # ==============================================================================
 #   CLASS
 # ==============================================================================
@@ -173,7 +174,7 @@ def change_var_name(name):
     """
     log.info('Check variable name {}'.format(name))
     for s in name:
-        if s in special_chars:
+        if s in ['[',']']:
             name = name.replace(s,'_')
     log.info('Variable name was change to {}'.format(name))
 
@@ -215,6 +216,8 @@ def gen_doe_csv(user_config):
     doe_csv = os.path.split(user_config)[0]+'DoE_points.csv'
 
     df.to_csv(doe_csv, header=False, index=False)
+
+    return doe_csv
 
 
 def get_normal_param(tixi, value_name, entry, outputs):
@@ -321,6 +324,8 @@ def get_variables(tixi, specs, module_name):
     Gets all the inputs and outputs of a module based on its __spec__ file,
     and decides for each parameter if it can be added to the problem or not,
     depending on its.
+    In the case of a surrogate model being used, the entries are retrieved from
+    the dataframe that is saved in the SM file.
 
     Returns:
         tixi (Tixi3 handler): Tixi handle of the CPACS file.

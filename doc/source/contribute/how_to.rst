@@ -42,6 +42,6 @@ Writing a new module
 This is what the folder structure of a modules typically looks like:
 
 .. figure:: Modules_dirs.png
-    :width: 400 px
+    :width: 600 px
     :align: center
     :alt: Module folder structure

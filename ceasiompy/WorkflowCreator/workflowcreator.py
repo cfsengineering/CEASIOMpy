@@ -311,7 +311,6 @@ if __name__ == '__main__':
         Opt.optim_method = 'Optim' # DoE, Optim, None
         Opt.module_post = []
 
-
     # Copy ToolInput.xml in ToolInput dir if not already there
     cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
     if not Opt.cpacs_path == cpacs_path:

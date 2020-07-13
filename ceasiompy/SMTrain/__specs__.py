@@ -35,6 +35,29 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
+    var_name='trainig_part',
+    var_type=float,
+    default_value='0.9',
+    descr='Defining the percentage of the data to use to train the model',
+    xpath=CEASIOM_XPATH+'/surrogateModel/trainingPercentage',
+    gui=include_gui,
+    gui_name='% of training data',
+    gui_group='Global settings'
+)
+
+cpacs_inout.add_input(
+    var_name='',
+    var_type=list,
+    default_value=None,
+    unit=None,
+    descr="Name of the aero map to evaluate",
+    xpath=CEASIOM_XPATH + '/surrogateModel/aeroMapUID',
+    gui=True,
+    gui_name='__AEROMAP_SELECTION',
+    gui_group='Global settings',
+)
+
+cpacs_inout.add_input(
     var_name='Aeromap',
     var_type=bool,
     default_value=False,
@@ -47,14 +70,14 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name='',
-    var_type=list,
-    default_value=None,
-    unit=None,
-    descr="Name of the aero map to evaluate",
-    xpath=CEASIOM_XPATH + '/surrogateModel/aeroMapUID',
-    gui=True,
-    gui_name='__AEROMAP_SELECTION',
+    var_name='Show_validation_plots',
+    var_type=bool,
+    default_value=True,
+    unit='-',
+    descr='Choose if the validation plots must be shown or not',
+    xpath=CEASIOM_XPATH+'/surrogateModel/showPlots',
+    gui=include_gui,
+    gui_name='Show plots',
     gui_group='Global settings',
 )
 

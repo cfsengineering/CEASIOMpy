@@ -27,9 +27,6 @@ log = get_logger(__file__.split('.')[0])
 #   CLASSES
 #=============================================================================
 
-"""All classes are defined inside the InputClasses folder in the
-   rangeclass script."""
-
 
 #=============================================================================
 #   FUNCTIONS
@@ -123,5 +120,3 @@ if __name__ == '__main__':
     log.warning('##########################################################')
     log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN rangemain.py ####')
     log.warning('##########################################################')
-
-

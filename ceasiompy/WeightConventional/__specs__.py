@@ -18,7 +18,6 @@ RCE = {
 cpacs_inout = CPACSInOut()
 
 
-# TODO: check if all inptuts and outputs are really use/written by the module
 
 # ----- Input -----
 
@@ -167,8 +166,6 @@ cpacs_inout.add_input(
     gui_group='User inputs',
 )
 
-
-
 cpacs_inout.add_input(
     var_name='fuse_thick',
     var_type=float,
@@ -244,29 +241,30 @@ cpacs_inout.add_input(
     gui_group='Inside dimension',
 )
 
-cpacs_inout.add_input(
-    var_name='cabin_width',
-    var_type=float,
-    default_value=0.0,
-    unit='[m]',
-    descr='Width of the aircraft cabin',
-    xpath=CEASIOM_XPATH + '/geometry/cabinWidth', # Xpath to check
-    gui=False,
-    gui_name='Cabin width',
-    gui_group='Inside dimension',
-)
+# Is it relly an input?
+# cpacs_inout.add_input(
+#     var_name='cabin_width',
+#     var_type=float,
+#     default_value=0.0,
+#     unit='[m]',
+#     descr='Width of the aircraft cabin',
+#     xpath=CEASIOM_XPATH + '/geometry/cabinWidth', # Xpath to check
+#     gui=False,
+#     gui_name='Cabin width',
+#     gui_group='Inside dimension',
+# )
 
-cpacs_inout.add_input(
-    var_name='cabin_area',
-    var_type=float,
-    default_value=None,
-    unit='[m^2]',
-    descr='Area of the aircraft cabin',
-    xpath=CEASIOM_XPATH + '/geometry/cabinArea', # Xpath to check
-    gui=False,
-    gui_name='Cabin area',
-    gui_group='Inside dimension',
-)
+# cpacs_inout.add_input(
+#     var_name='cabin_area',
+#     var_type=float,
+#     default_value=None,
+#     unit='[m^2]',
+#     descr='Area of the aircraft cabin',
+#     xpath=CEASIOM_XPATH + '/geometry/cabinArea', # Xpath to check
+#     gui=False,
+#     gui_name='Cabin area',
+#     gui_group='Inside dimension',
+# )
 
 """
 
@@ -338,14 +336,6 @@ cpacs_inout.add_output(
 )
 
 cpacs_inout.add_output(
-    var_name='crew_mass',
-    default_value=None,
-    unit='[kg]',
-    descr='Crew members total mass',
-    xpath=CEASIOM_XPATH+'/weight/crew/crewMass/mass',
-)
-
-cpacs_inout.add_output(
     var_name='mass_cargo',
     default_value=None,
     unit='[kg]',
@@ -364,25 +354,9 @@ cpacs_inout.add_output(
 cpacs_inout.add_output(
     var_name='cabin_crew_nb',
     default_value=None,
-    unit='[kg]',
-    descr='Maximum number of cabin crew members',
-    xpath=CEASIOM_XPATH+'/weight/crew/crewMass/cabinCrewMemberNB',
-)
-
-cpacs_inout.add_output(
-    var_name='wing_area',
-    default_value=None,
-    unit='[m^2]',
-    descr='Wing area',
-    xpath=CEASIOM_XPATH+'/geometry/analyses/wingArea',
-)
-
-cpacs_inout.add_output(
-    var_name='fuse_length',
-    default_value=None,
-    unit='[m]',
-    descr='Fuselage length',
-    xpath=CEASIOM_XPATH+'/geometry/analyses/fuseLength',
+    unit='[-]',
+    descr='Number of cabin crew members',
+    xpath=CEASIOM_XPATH+'/weight/crew/cabinCrewMembers/cabinCrewMemberNb',
 )
 
 cpacs_inout.add_output(

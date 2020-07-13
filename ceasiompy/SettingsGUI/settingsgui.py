@@ -92,9 +92,9 @@ class AeroMapTab:
         exportButton.grid(column=0, row=row_pos)
         row_pos += 1
 
-        # updateButton = tk.Button(self.existframe, width=14, text='Update', command=self._update)
-        # updateButton.grid(column=0, row=row_pos, sticky=tk.W)
-        # row_pos += 1
+        checkButton = tk.Button(self.existframe, width=15, text='Check AeroMap', command=self._check_aeromap)
+        checkButton.grid(column=0, row=row_pos)
+        row_pos += 1
 
         deleteButton = tk.Button(self.existframe, text='Delete', width=15, command=self._delete)
         deleteButton.grid(column=0, row=row_pos)
@@ -189,6 +189,12 @@ class AeroMapTab:
         for item in self.list:
             self.listBox.insert(tk.END, item)
 
+    def _check_aeromap(self, event=None):
+        firstIndex = self.listBox.curselection()[0]
+        self.selected_list = [self.listBox.get(i) for i in self.listBox.curselection()]
+        aeromap_uid = self.selected_list[0]
+        apm_to_check = apm.get_aeromap(self.tixi,aeromap_uid)
+        apm_to_check.print_coef_list()
 
     def _delete(self, event=None):
         firstIndex = self.listBox.curselection()[0]

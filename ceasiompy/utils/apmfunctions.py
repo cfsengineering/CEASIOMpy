@@ -40,7 +40,6 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
 AEROPERFORMANCE_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance'
-
 #==============================================================================
 #   CLASSES
 #==============================================================================
@@ -995,9 +994,9 @@ def create_aeromap(tixi, name, bound_values):
     for param in bound_values:
         for i in param:
             if i not in allowed:
-                raise ValueError("""Not a valid entry : {}. \n
-                                 Only following entries are accepted : {}
-                                 """.format(i,allowed))
+                raise ValueError("""Not a valid entry : {}.
+                      Only following entries are accepted : {}""".format(i,allowed))
+
         # Check for linspace declaration
         if '[' in param or ']' in param:
             log.info('Linspace generation')
@@ -1006,7 +1005,7 @@ def create_aeromap(tixi, name, bound_values):
             param = param.split(';')
             if len(param) != 3:
                raise ValueError("""Not the right number of parameters
-                                (expected 3 as follows [start;step;stop])""")
+                     (expected 3 as follows [start;step;stop])""")
             bounds.append(np.arange(float(param[0]),
                                     float(param[2]),
                                     float(param[1])))
@@ -1014,18 +1013,25 @@ def create_aeromap(tixi, name, bound_values):
             raise ValueError("""Empty parameter, please enter a number""")
         else:
             param = param.split(';')
+            if '' in param:
+                param.remove('')
             param = [float(i) for i in param]
             bounds.append(np.array(param))
 
-    # Check number of values
+    lengths = set([len(b) for b in bounds])
+
+    if len(lengths) != 1:
+        if len(lengths) == 2 and 1 in lengths:
+            for i ,b in enumerate(bounds):
+                if len(b) == 1:
+                    b = np.full((1,max(lengths)),b[0])
+                    bounds[i]=b[0].tolist()
+        else:
+            raise ValueError(""" Not the same number of element for each parameter
+                  (each parameter must have the same number of elements or one
+                   single value which will be repeated.)""")
     bounds = np.array(bounds)
 
-    lengths = [len(l) for l in bounds]
-
-    if len(set(lengths)) != 1:
-        raise ValueError(""" Not the same number of element for each parameter
-                         (each parameter must have the same number of
-                          elements)""")
     if name == '':
         raise ValueError("""Empty name, please enter a name !""")
     else:
@@ -1038,6 +1044,41 @@ def create_aeromap(tixi, name, bound_values):
         Param.aos = bounds[3,:]
 
         save_parameters(tixi, name, Param)
+
+
+def get_current_aeromap_uid(tixi, module_list):
+    """Return uid of selected aeromap.
+
+    Check the modules that will be run in the optimisation routine to specify
+    the uID of the correct aeromap in the CPACS file.
+
+    Args:
+        module_list (lst): List of the modules that are run in the routine
+        tixi (tixi handle): Tixi handle of the CPACS file.
+
+    Returns:
+        uid (str) : Name of the aeromap that is used for the routine
+    """
+    uid = 'None'
+
+    for module in module_list:
+        if module == 'SU2Run':
+            log.info('Found SU2 analysis')
+            xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID'
+            uid = tixi.getTextElement(xpath)
+        elif module == 'PyTornado':
+            log.info('Found PyTornado analysis')
+            xpath = '/cpacs/toolspecific/pytornado/aeroMapUID'
+            uid = tixi.getTextElement(xpath)
+        elif module == 'SMUse':
+            log.info('Found a Surrogate model')
+            xpath = '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/aeroMapUID'
+
+    if 'SkinFriction' in module_list:
+        log.info('Found SkinFriction analysis')
+        uid = uid + '_SkinFriction'
+
+    return uid
 
 
 def my_test_func():

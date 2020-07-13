@@ -123,8 +123,6 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
             if setcommand not in ['-', '']:
                 # Define variable (var1,var2,..)
                 locals()[str(name)] = listval[-1]
-                log.info(listval[-1])
-
                 # Execute the command coresponding to the variable
                 if ';' in setcommand: # if more than one command on the line
                     command_split = setcommand.split(';')

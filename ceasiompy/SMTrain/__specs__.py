@@ -24,7 +24,7 @@ include_gui = True
 cpacs_inout.add_input(
     var_name='Objectives',
     var_type=str,
-    default_value='cl/cd,cl',
+    default_value='cl',
     unit='-',
     descr="""Objective function list for the surrogate model to predict \n Warning !
     The parameters name must match the ones in the CSV file !""",
@@ -38,7 +38,7 @@ cpacs_inout.add_input(
     var_name='trainig_part',
     var_type=float,
     default_value='0.9',
-    descr='Defining the percentage of the data to use to train the model',
+    descr='Defining the percentage of the data to use to train the model in [0;1]',
     xpath=CEASIOM_XPATH+'/surrogateModel/trainingPercentage',
     gui=include_gui,
     gui_name='% of training data',

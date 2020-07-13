@@ -14,7 +14,8 @@ Python version: >=3.6
 
 TODO
 ----
-    * Solve the accronym problematic
+    * Some tools may be usefull for other modules, maybe write an new one in
+    the 'utils' folder ?
 
 """
 

@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06
-| Last modifiction: 2020-07-06
+| Last modification: 2020-07-06
 
 TODO:
     *
@@ -67,18 +67,23 @@ class Surrogate_model():
 # =============================================================================
 
 
-def load_surrogate(file):
+def load_surrogate():
     """Load a surrogate model object from file
 
-    Using the pickle module, a surrogate model object is retrieved from a file.
+    Using the pickle module, a surrogate model object is retrieved from a file
+    provided by the user.
 
     Args:
-        file (str): Path to file.
+        None.
 
     Returns:
         sm (object): The surrogate model.
 
     """
+    tixi = cpsf.open_tixi(cpacs_path)
+    file = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'modelFile', '')
+    cpsf.close_tixi(tixi, cpacs_path)
+
     try:
         f = open(file, 'rb')
     except:
@@ -187,10 +192,7 @@ if __name__ == "__main__":
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
     # Load the model
-    tixi = cpsf.open_tixi(cpacs_path)
-    file = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'modelFile', '')
-    cpsf.close_tixi(tixi, cpacs_path)
-    Model = load_surrogate(file)
+    Model = load_surrogate()
     predict_output(Model)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

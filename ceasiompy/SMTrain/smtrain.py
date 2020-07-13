@@ -10,10 +10,10 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06
-| Last modifiction: 2020-07-06
+| Last modification: 2020-07-06
 
 TODO:
-    *
+    * Enable model-specific settings for user through the GUI
 
 """
 

@@ -432,21 +432,23 @@ def add_parameters(prob):
                getcommand, setcommand) in optim_var_dict.items():
         if val_type == 'des' and listval[-1] not in ['True','False', '-']:
             if tls.is_digit(minval) and tls.is_digit(maxval):
-                prob.model.add_design_var(name, lower=minval, upper=maxval)
+                prob.model.add_design_var(name,
+                                          lower=float(minval), upper=float(maxval))
             elif tls.is_digit(minval):
-                prob.model.add_design_var(name, lower=minval)
+                prob.model.add_design_var(name, lower=float(minval))
             elif tls.is_digit(maxval):
-                prob.model.add_design_var(name, upper=maxval)
+                prob.model.add_design_var(name, upper=float(maxval))
             else:
                 prob.model.add_design_var(name)
             ivc.add_output(name, val=listval[-1])
         elif val_type == 'const':
             if tls.is_digit(minval) and tls.is_digit(maxval):
-                prob.model.add_constraint(name, lower=minval, upper=maxval)
+                prob.model.add_constraint(name,
+                                          lower=float(minval), upper=float(maxval))
             elif tls.is_digit(minval):
-                prob.model.add_constraint(name, lower=minval)
+                prob.model.add_constraint(name, lower=float(minval))
             elif tls.is_digit(maxval):
-                prob.model.add_constraint(name, upper=maxval)
+                prob.model.add_constraint(name, upper=float(maxval))
             else:
                 prob.model.add_constraint(name)
 

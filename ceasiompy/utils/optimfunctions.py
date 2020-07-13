@@ -389,6 +389,11 @@ def generate_dict(df):
 
     """
     df.dropna(axis=0,subset=['type','getcmd'],inplace=True)
+    if 'min' not in df.columns:
+        df['min'] = '-'
+    if 'max' not in df.columns:
+        df['max'] = '-'
+
     defined_dict = df.to_dict('index')
 
     # Transform to a convenient form of dict
@@ -497,11 +502,15 @@ def create_variable_library(Rt, optim_dir_path):
         input('Press ENTER to continue...')
         log.info('Variable library file has been saved at '+CSV_PATH)
         df = pd.read_csv(CSV_PATH, index_col=0, skip_blank_lines=True)
+        optim_var_dict = generate_dict(df)
     else:
         log.info('Configuration file found, will be used')
         df = pd.read_csv(Rt.user_config, index_col=0)
-    log.info('The parameters that will be used are the following :')
-    optim_var_dict = generate_dict(df)
+        optim_var_dict = generate_dict(df)
+
+        tixi = cpsf.open_tixi(CPACS_OPTIM_PATH)
+        dct.update_dict(tixi, optim_var_dict)
+        cpsf.close_tixi(tixi, CPACS_OPTIM_PATH)
 
     return optim_var_dict
 

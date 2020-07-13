@@ -152,9 +152,9 @@ def write_outputs(y, outputs):
             if not tixi.checkElement(xpath):
                 elem_name = xpath.split('/')[-1]
                 xpath = xpath.replace('/'+elem_name,'')
-                tixi.addDoubleElement(xpath, elem_name, outputs[0][i], '')
+                tixi.addDoubleElement(xpath, elem_name, outputs[0][i], '%g')
             else:
-                tixi.updateDoubleElement(y.loc[name,'getcmd'], outputs[0][i],'')
+                tixi.updateDoubleElement(y.loc[name,'getcmd'], outputs[0][i],'%g')
 
     tigl.close()
     cpsf.close_tixi(tixi, cpacs_path_out)

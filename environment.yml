@@ -65,8 +65,9 @@ dependencies:
     - sphinx-rtd-theme==0.4.3
     - aeroframe  # See: https://github.com/airinnova/aeroframe
     - framat  # See: https://github.com/airinnova/framat
-    - mpi4py
     - smt
+    # - mpi4py # issue at installation of environment
+    
 
 # Other packages
 # ==============

@@ -285,6 +285,9 @@ class AeroCoefficient():
 
         case_count = self.get_count()
 
+        print('AeroMap name: ...')
+        print('AeroMap description: ...')
+
         print('======================================================================================')
         print('#\talt\tmach\taoa\taos\tcl\tcd\tcs\tcml\tcmd\tcms')
 
@@ -432,6 +435,8 @@ def check_aeromap(tixi, aeromap_uid):
         # Check AeroPerformanceMap, parameters and coefficients nodes
         apm_xpath = aeromap_xpath + '/aeroPerformanceMap'
         cpsf.create_branch(tixi,apm_xpath)
+
+        #TODO: Replace by a for loop
         cpsf.create_branch(tixi,apm_xpath+'/altitude')
         cpsf.create_branch(tixi,apm_xpath+'/machNumber')
         cpsf.create_branch(tixi,apm_xpath+'/angleOfAttack')

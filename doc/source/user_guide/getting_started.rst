@@ -97,6 +97,12 @@ Then select the modules you want to be run in the routine, for example :
 The optimisation will create a new directory in the WKDIR folder and each iteration result (CPACS file + problem variables) will be saved in the Optimisation module.
 
 
+Test Case 5 : Surrogate model for SU2
+*************************************
+
+TODO
+
+
 With RCE:
 ---------
 

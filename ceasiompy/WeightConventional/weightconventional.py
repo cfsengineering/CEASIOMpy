@@ -9,11 +9,11 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-11-01 (AJ)
+| Last modifiction: 2020-07-09 (AJ)
 
 TODO:
     * Simplify classes, use only one or use subclasses
-    * Make tings compatible also with the oters W&B Modules
+    * Make tings compatible also with the others W&B Modules
 
 """
 
@@ -24,7 +24,6 @@ TODO:
 import os
 import shutil
 import numpy as np
-import time
 
 # Should be kept
 from ceasiompy.WeightConventional.func.Passengers.passengers import estimate_passengers
@@ -33,13 +32,14 @@ from ceasiompy.WeightConventional.func.Crew.crewmembers import estimate_crew
 from ceasiompy.WeightConventional.func.Masses.oem import estimate_operating_empty_mass
 from ceasiompy.WeightConventional.func.Masses.mtom import estimate_limits, estimate_mtom
 from ceasiompy.utils.cpacsfunctions import aircraft_name
-from ceasiompy.utils.ceasiomlogger import get_logger
 
 # Should be changed or removed
 from ceasiompy.utils.InputClasses.Conventional import weightconvclass
 from ceasiompy.WeightConventional.func.AoutFunc import outputweightgen, cpacsweightupdate
 from ceasiompy.utils.WB.ConvGeometry import geometry
+import ceasiompy.utils.moduleinterfaces as mi
 
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
@@ -72,15 +72,11 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 
     """
 
-    # TODO: replace that by a general function??? (same for all modules)
-    start = time.time()
-
     # Removing and recreating the ToolOutput folder.
     if os.path.exists('ToolOutput'):
         shutil.rmtree('ToolOutput')
-        os.makedirs('ToolOutput')
-    else:
-        os.makedirs('ToolOutput')
+    os.makedirs('ToolOutput')
+
 
     # Classes
     # TODO: Use only one class or subclasses
@@ -137,9 +133,6 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
                     Set Default value (0)')
         cabin_length2 = ind.cabin_length
 
-    ### WEIGHT ANALYSIS
-    log.info('------- Starting the weight analysis --------')
-    log.info('---------- Aircraft: ' + name + ' -----------')
 
     # Maximum Take Off Mass Evaluation
     mw.maximum_take_off_mass = estimate_mtom(fuse_length,fuse_width,wing_area,
@@ -255,18 +248,12 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     log.info('Wing Span [m]: ' + str(round(wing_span,3)))
 
     log.info('--------- Masses evaluated: -----------')
-    log.info('Maximum Take Off Mass [kg]: '\
-             + str(int(round(mw.maximum_take_off_mass))))
-    log.info('Operating Empty Mass [kg]: '\
-             + str(int(round(mw.operating_empty_mass))))
-    log.info('Zero Fuel Mass [kg]: '\
-             + str(int(round(mw.zero_fuel_mass))))
-    log.info('Wing loading [kg/m^2]: '\
-             + str(int(round(out.wing_loading))))
-    log.info('Maximum ammount of fuel allowed with no passengers [kg]: '\
-             + str(int(round(mw.mass_fuel_max))))
-    log.info('Maximum ammount of fuel allowed with no passengers [l]: '\
-             + str(int(round(mw.mass_fuel_max/ui.FUEL_DENSITY))))
+    log.info('Maximum Take Off Mass [kg]: ' + str(int(round(mw.maximum_take_off_mass))))
+    log.info('Operating Empty Mass [kg]: ' + str(int(round(mw.operating_empty_mass))))
+    log.info('Zero Fuel Mass [kg]: '  + str(int(round(mw.zero_fuel_mass))))
+    log.info('Wing loading [kg/m^2]: ' + str(int(round(out.wing_loading))))
+    log.info('Maximum ammount of fuel allowed with no passengers [kg]: ' + str(int(round(mw.mass_fuel_max))))
+    log.info('Maximum ammount of fuel allowed with no passengers [l]: ' + str(int(round(mw.mass_fuel_max/ui.FUEL_DENSITY))))
     log.info('--------- Passegers evaluated: ---------')
     log.info('Passengers: ' + str(out.pass_nb))
     log.info('Lavatory: ' + str(out.toilet_nb))
@@ -274,11 +261,6 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     log.info('------- Crew members evaluated: --------')
     log.info('Pilots: ' + str(out.PILOT_NB))
     log.info('Cabin crew members: ' + str(out.cabin_crew_nb))
-
-    end = time.time()
-    log.info('---------------------------------------')
-    log.info('Elapsed time [s]: ' + str(round((end-start),3)))
-    log.info('---------------------------------------')
     log.info('############### Weight estimation completed ###############')
 
     # Outptu writting
@@ -299,6 +281,8 @@ if __name__ == '__main__':
 
     cpacs_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.xml')
     cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
+
+    mi.check_cpacs_input_requirements(cpacs_path)
 
     get_weight_estimations(cpacs_path,cpacs_out_path)
 

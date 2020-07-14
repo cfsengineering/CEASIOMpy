@@ -200,6 +200,13 @@ def aeromap_calculation(sm, tixi):
 
     outputs = sm.predict_values(inputs)
 
+    # Re-initiates the values of the results to write the new ones
+    Coef.cl = []
+    Coef.cd = []
+    Coef.cs = []
+    Coef.cml = []
+    Coef.cmd = []
+    Coef.cms = []
     for i in range(outputs.shape[0]):
         Coef.add_coefficients(outputs[i,0], outputs[i,1], outputs[i,2],
                               outputs[i,3], outputs[i,4], outputs[i,5])

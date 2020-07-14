@@ -10,7 +10,7 @@ RCE = {
     "description": "This module implements the optimization routine for a workflow",
     "exec": "pwd\npython optimisation.py",
     "author": "Vivien Riolo",
-    "email": "-",
+    "email": "info@cfse.ch",
 }
 
 # ===== CPACS inputs and outputs =====

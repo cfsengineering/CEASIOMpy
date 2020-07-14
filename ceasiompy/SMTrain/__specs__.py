@@ -6,11 +6,11 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH, CEASIOM
 # ===== RCE integration =====
 
 RCE = {
-    "name": "Predictive tool module",
-    "description": "This module builds a surrogate model to make predictions on data",
-    "exec": "pwd\npython prediction.py",
+    "name": "SMTrain module",
+    "description": "This module generates a surrogate model",
+    "exec": "pwd\npython smtrain.py",
     "author": "Vivien Riolo",
-    "email": "-",
+    "email": "info@cfse.ch",
 }
 
 # ===== CPACS inputs and outputs =====
@@ -95,7 +95,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name='type',
     var_type=list,
-    default_value=['KRG', 'KPLSK', 'KPLS', 'RBF', 'IDW', 'LS'],
+    default_value=['KRG', 'KPLSK', 'KPLS', 'LS'],
     unit='-',
     descr='Type of surrogate model to choose from',
     xpath=CEASIOM_XPATH+'/surrogateModel/modelType',

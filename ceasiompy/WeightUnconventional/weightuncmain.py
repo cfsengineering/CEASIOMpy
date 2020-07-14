@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07
-| Last modifiction: 2020-01-22 (AJ)
+| Last modifiction: 2020-07-09 (AJ)
 
 TODO:
     * Simplify classes, use only one or use subclasses
@@ -24,8 +24,6 @@ TODO:
 import os
 import shutil
 import numpy as np
-import time
-
 
 # Classes
 from ceasiompy.utils.InputClasses.Unconventional.weightuncclass import UserInputs, AdvancedInputs, MassesWeights, WeightOutput
@@ -41,8 +39,8 @@ from ceasiompy.WeightUnconventional.func.Engines.enginesanalysis import check_ed
 from ceasiompy.WeightUnconventional.func.Fuel.fuelmass import estimate_fuse_fuel_mass, estimate_wing_fuel_mass
 
 from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
-
 from ceasiompy.utils.cpacsfunctions import aircraft_name
+import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -77,15 +75,10 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
 
     """
 
-    # TODO: replace that by a general function??? (same for all modules)
-    start = time.time()
-
     # Removing and recreating the ToolOutput folder.
     if os.path.exists('ToolOutput'):
         shutil.rmtree('ToolOutput')
-        os.makedirs('ToolOutput')
-    else:
-        os.makedirs('ToolOutput')
+    os.makedirs('ToolOutput')
 
     if not os.path.exists(cpacs_path):
         raise ValueError ('No "ToolInput.xml" file in the ToolInput folder.')
@@ -295,9 +288,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
     log.info('------- Crew members evaluated: --------')
     log.info('Pilots: ' + str(adui.PILOT_NB))
     log.info('Cabin crew members: ' + str(out.cabin_crew_nb))
-    end = time.time()
     log.info('---------------------------------------')
-    log.info('Elapsed time [s]: ' + str(round((end-start),3)))
     log.info('Number of iterations: ' + str(it))
     log.info('---------------------------------------')
     log.info('### Uconventional Weight analysis succesfuly completed ###')
@@ -320,6 +311,8 @@ if __name__ == '__main__':
 
     cpacs_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.xml')
     cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
+
+    mi.check_cpacs_input_requirements(cpacs_path)
 
     get_weight_unc_estimations(cpacs_path,cpacs_out_path)
 

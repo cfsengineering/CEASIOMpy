@@ -107,7 +107,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='-',
     descr='Number of cabin crew members',
-    xpath=WEIGHT_XPATH + '/crew/cabinCrewMembers/cabinCrewMemberNB',
+    xpath=WEIGHT_XPATH + '/crew/cabinCrewMembers/cabinCrewMemberNb',
     gui=False,
     gui_name=None,
     gui_group=None,
@@ -192,18 +192,6 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name='TSFC_CRUISE',
-    var_type=float,
-    default_value=0.5,
-    unit='1/h',
-    descr='Thrust specific fuel consumption on cruise',
-    xpath=CEASIOMPY_XPATH + '/propulsion/tSFC/tsfcCruise',
-    gui=True,
-    gui_name='TSFC',
-    gui_group='Cruise',
-)
-
-cpacs_inout.add_input(
     var_name='LD',
     var_type=float,
     default_value=17.0,
@@ -212,6 +200,18 @@ cpacs_inout.add_input(
     xpath=CEASIOMPY_XPATH + '/ranges/lDRatio',
     gui=True,
     gui_name='CL/CD',
+    gui_group='Cruise',
+)
+
+cpacs_inout.add_input(
+    var_name='TSFC_CRUISE',
+    var_type=float,
+    default_value=0.5,
+    unit='1/h',
+    descr='Thrust specific fuel consumption on cruise',
+    xpath=CEASIOMPY_XPATH + '/propulsion/tSFC/tsfcCruise',
+    gui=True,
+    gui_name='TSFC',
     gui_group='Cruise',
 )
 
@@ -242,13 +242,14 @@ cpacs_inout.add_input(
 
 ### Fuel
 
+# Define at two differnt xpath in the weight & balance modules
 cpacs_inout.add_input(
     var_name='FUEL_DENSITY',
     var_type=float,
     default_value=0.8,
     unit='kg/m^3',
     descr='Fuel density',
-    xpath='/cpacs/vehicles/fuels/fuel/density',
+    xpath=CEASIOMPY_XPATH + '/fuels/density',
     gui=True,
     gui_name='Density',
     gui_group='Fuel',
@@ -338,7 +339,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='kg',
     descr='Range with max fuel and no payload',
-    xpath=RANGE_XPATH + '/rangeMaxMaximum/rangeDescription/range',
+    xpath=RANGE_XPATH + '/rangeMaximum/rangeDescription/range',
 )
 
 
@@ -347,7 +348,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='kg',
     descr='Payload corresponding to range[0] (max payload)',
-    xpath=RANGE_XPATH + '/rangeMaxMaximum/rangeDescription/payload',
+    xpath=RANGE_XPATH + '/rangeMaxP/rangeDescription/payload',
 )
 
 cpacs_inout.add_output(
@@ -355,7 +356,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='kg',
     descr='Payload corresponding to range[1]',
-    xpath=RANGE_XPATH + '/rangeMaxMaximum/rangeDescription/payload',
+    xpath=RANGE_XPATH + '/rangeMaxF/rangeDescription/payload',
 )
 
 cpacs_inout.add_output(
@@ -363,13 +364,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit='kg',
     descr='Payload = 0 kg',
-    xpath=RANGE_XPATH + '/rangeMaxMaximum/rangeDescription/payload',
-)
-
-cpacs_inout.add_output(
-    var_name='cabin_crew_nb',
-    default_value=None,
-    unit='-',
-    descr='Number of cabin crew members',
-    xpath=WEIGHT_XPATH + '/crew/cabinCrewMembers/cabinCrewMemberNB',
+    xpath=RANGE_XPATH + '/rangeMaximum/rangeDescription/payload',
 )

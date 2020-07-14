@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2020-01-24 (AJ)
+| Last modifiction: 2020-07-08 (AJ)
 
 """
 
@@ -30,34 +30,34 @@ class RangeInputs:
     The class contains all the default values for the inputs required for
     the range analysis.
 
+    Source:
+        * https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20000023189.pdf
+
     Attributes:
-        WINGLET (int): Winglet option (0 = no winglets, 1 = normale winglets,
-                       2 = high efficiency winglet for cruise).
-        PILOT_NB (int): Pilot number [-].
-        CRUISE_SPEED (float): Aircraft speed during cruise [m/s].
-        LD (float): Lift over drag coefficient [-].
-        LOITER_TIME (float): Loiter length [min]
-        MASS_PILOT (float): Pilot mass [kg].
-        MASS_CABIN_CREW (float): Cabin crew member mass [kg].
-        MASS_PASS (float): Passenger mass [kg].
-        TSFC_CRUISE (float): Thrust specific fuel consumption for cruise [1/hr].
-        TSFC_LOITER (float): Thrust specific fuel consumption for Loiter [1/hr].
-        RES_FUEL_PERC (float): Unusable fuel percentage (0.01<value<0.2).
-        TURBOPROP  (bool): Turboprop option.
+        WINGLET         (int): Winglet option (0 = no winglets, 1 = normale winglets,
+                                2 = high efficiency winglet for cruise).
+        PILOT_NB        (int): Pilot number [-].
+        CRUISE_SPEED    (float): Aircraft speed during cruise [m/s].
+        LD              (float): Lift over drag coefficient [-].
+        LOITER_TIME     (float): Loiter length [min]
+        MASS_PILOT      (float): Pilot mass [kg].
+        MASS_CABIN_CREW (float):Cabin crew member mass [kg].
+        MASS_PASS       (float): Passenger mass [kg].
+        TSFC_CRUISE     (float): Thrust specific fuel consumption for cruise [1/hr].
+        TSFC_LOITER     (float): Thrust specific fuel consumption for Loiter [1/hr].
+        RES_FUEL_PERC   (float): Unusable fuel percentage (0.01<value<0.2).
+        TURBOPROP       (bool): Turboprop option.
 
     """
 
     def __init__(self):
+
         self.WINGLET = 1
         self.pilot_nb = 2
         self.cabin_crew_nb = np.nan
-
-        self.CRUISE_SPEED = 272.0  # 141 190 272
+        self.CRUISE_SPEED = 272.0
         self.LD = 17               # A319 17, ATR72 15
-        self.LOITER_TIME = 30.00   # Loiter length [min]
-
-    # source:
-    # https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20000023189.pdf
+        self.LOITER_TIME = 30.00
         self.MASS_PILOT = 102.0
         self.MASS_CABIN_CREW = 68.0
         self.MASS_PASS = 105.0
@@ -100,6 +100,7 @@ class MassesWeights:
     """
 
     def __init__(self):
+
         self.w_after_climb = 0    #Updated with the range analysis
         self.w_after_cruise = 0   #Updated with the range analysis
         self.w_after_land = 0     #Updated with the range analysis
@@ -127,22 +128,23 @@ class RangeOutput:
     the class contains all the output values of the range analysis.
 
     Attributes:
-        crew_nb        (int): Number of total crew members.
-        cabin_crew_nb  (int): Number of cabin crew members.
-        pilot_nb       (int): Number of pilots.
-        mass_crew    (float): Crew members total mass.
-        fligth_time  (float): Appoximate fligth time [hr].
-        ranges (float_array): Array containing zero, the range at maximum paload,
-                              the range at maxium fuel and some payload, the
-                              range at maximum fuel and no payload [km].
-        ranges_cru (float_array): Similar array to the ranges one, but
-                                  containing the cruise ranges [km].
-        payloads  (float_array): Array containing the payload corresponding
-                                 to the ranges in the ranges array.
+        crew_nb         (int): Number of total crew members.
+        cabin_crew_nb   (int): Number of cabin crew members.
+        pilot_nb        (int): Number of pilots.
+        mass_crew       (float): Crew members total mass.
+        fligth_time     (float): Appoximate fligth time [hr].
+        ranges          (float_array): Array containing zero, the range at maximum paload,
+                                       the range at maxium fuel and some payload, the
+                                       range at maximum fuel and no payload [km].
+        ranges_cru      (float_array): Similar array to the ranges one, but
+                                       containing the cruise ranges [km].
+        payloads        (float_array): Array containing the payload corresponding
+                                       to the ranges in the ranges array.
 
     """
 
     def __init__(self):
+
         self.crew_nb = 0
         self.cabin_crew_nb = 0
         self.pilot_nb = 0
@@ -158,7 +160,7 @@ class RangeOutput:
 #=============================================================================
 
 if __name__ == '__main__':
-    
+
     log.warning('###########################################################')
     log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN Range_main.py ####')
     log.warning('###########################################################')

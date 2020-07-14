@@ -165,6 +165,18 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
+    var_name='FUEL_ON_CABIN',
+    var_type=float,
+    default_value=0.0,
+    unit='[-]',
+    descr=' % of the free volume fuel allowed inside the central wing area, near the cabin for the blended wing body',
+    xpath=CEASIOM_XPATH + '/fuels/fuelOnCabin',
+    gui=True,
+    gui_name='Fuel % on cabin',
+    gui_group='Fuel',
+)
+
+cpacs_inout.add_input(
     var_name='MAX_PAYLOAD',
     var_type=float,
     default_value=0.0,
@@ -212,11 +224,9 @@ cpacs_inout.add_input(
     gui_group='Cruise',
 )
 
-# TODO: Missing some imput about engines
+# TODO: Missing engines inputs!!!
 
 # ----- Output -----
-
-# TODO: check if all input are there
 
 cpacs_inout.add_output(
     var_name='maximum_take_off_mass',
@@ -267,25 +277,17 @@ cpacs_inout.add_output(
 )
 
 cpacs_inout.add_output(
-    var_name='crew_mass',
-    default_value=None,
-    unit='[kg]',
-    descr='Crew members total mass',
-    xpath=CEASIOM_XPATH+'/weight/crew/crewMass/mass',
-)
-
-cpacs_inout.add_output(
     var_name='mass_cargo',
     default_value=None,
     unit='[kg]',
     descr='xtra payload mass in case of max fuel and total mass less than MTOM',
-    xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/mCargo/massDescription/massCargo',
+    xpath=AIRCRAFT_XPATH+'/model/analyses/massBreakdown/mCargo/massCargo',
 )
 
 cpacs_inout.add_output(
     var_name='pass_nb',
     default_value=None,
-    unit='[kg]',
+    unit='[-]',
     descr='Maximum number of passengers',
     xpath=CEASIOM_XPATH+'/weight/passengers/passNb',
 )
@@ -293,25 +295,9 @@ cpacs_inout.add_output(
 cpacs_inout.add_output(
     var_name='cabin_crew_nb',
     default_value=None,
-    unit='[kg]',
-    descr='Maximum number of cabin crew members',
-    xpath=CEASIOM_XPATH+'/weight/crew/crewMass/cabinCrewMemberNB',
-)
-
-cpacs_inout.add_output(
-    var_name='wing_area',
-    default_value=None,
-    unit='[m^2]',
-    descr='Wing area',
-    xpath=CEASIOM_XPATH+'/geometry/analyses/wingArea',
-)
-
-cpacs_inout.add_output(
-    var_name='fuse_length',
-    default_value=None,
-    unit='[m]',
-    descr='Fuselage length',
-    xpath=CEASIOM_XPATH+'/geometry/analyses/fuseLength',
+    unit='[-]',
+    descr='Number of cabin crew members',
+    xpath=CEASIOM_XPATH+'/weight/crew/cabinCrewMembers/cabinCrewMemberNb',
 )
 
 cpacs_inout.add_output(

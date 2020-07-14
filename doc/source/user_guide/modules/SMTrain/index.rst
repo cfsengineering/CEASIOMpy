@@ -1,5 +1,5 @@
-PredictiveTool
-==============
+SMTrain
+=======
 
 :Categories: Optimisation module
 
@@ -9,17 +9,17 @@ This module is used to create surrogate models
 Installation
 ------------
 
-The PredictiveTool module is a native |name| module, hence it is available and installed by default.
+The SMTrain module is a native |name| module, hence it is available and installed by default.
 
 Analyses
 --------
 
-The PredictiveTool module ...
+The SMTrain module ...
 
 Output
 ------
 
-PredictiveTool module outputs ...
+SMTrain module outputs ...
 
 Required CPACS input and settings
 ---------------------------------

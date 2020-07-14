@@ -73,5 +73,6 @@ Modules
 
    modules/SettingsGUI/index
    modules/Optimisation/index
-   modules/PredictiveTool/index
+   modules/SMTrain/index
+   modules/SMUse/index
    modules/ModuleTemplate/index

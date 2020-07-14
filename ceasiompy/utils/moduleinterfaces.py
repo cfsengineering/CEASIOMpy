@@ -78,15 +78,15 @@ class _Entry:
         """Template for an entry which describes a module input or output
 
         Args:
-            var_name (str): Variable name as used in the module code
-            var_type (type): Type of the expected input or output variable
-            default_value (any): Default input value
-            unit (str): Unit of the required value, e.g. 'm/s'
-            descr (str): Description of the input or output data
-            xpath (str): CPACS node path
-            gui (bool): 'True' if entry should appear in GUI
-            gui_name (str): GUI name
-            gui_group (str): Group name for GUI generation
+            var_name        (str): Variable name as used in the module code
+            var_type        (type): Type of the expected input or output variable
+            default_value   (any): Default input value
+            unit            (str): Unit of the required value, e.g. 'm/s'
+            descr           (str): Description of the input or output data
+            xpath           (str): CPACS node xpath
+            gui             (bool): 'True' if entry should appear in GUI
+            gui_name        (str): GUI name
+            gui_group       (str): Group name for GUI generation
         """
 
         # ----- General information -----
@@ -206,6 +206,7 @@ def check_cpacs_input_requirements(cpacs_file, *, submod_name=None, submodule_le
     tixi = cpsf.open_tixi(cpacs_file)
     missing_nodes = []
     for entry in cpacs_inout.inputs:
+
         if entry.default_value is not None:
             continue
         if tixi.checkElement(entry.xpath) is False:

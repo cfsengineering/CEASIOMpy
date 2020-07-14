@@ -122,35 +122,23 @@ def get_data(mw, ri, cpacs_in):
     # Compulsory path checks =================================================
 
     if not tixi.checkElement(TSPEC_PATH):
-        raise Exception('Missing required toolspecific path. Run '\
-                        + 'Weight_main.py, in the 1Weight_module folder.')
+        raise Exception('Missing required toolspecific path.')
     elif not tixi.checkElement(CC_PATH + '/cabinCrewMemberNb'):
-        raise Exception('Missing required cabinCrewMemberNb path. Run '\
-                        + 'Weight_main.py, in the 1Weight_module folder.')
+        raise Exception('Missing required cabinCrewMemberNb path.')
     elif not tixi.checkElement(MASS_PATH):
-        raise Exception('Missing required massBreakdown path. Run '\
-                        + 'Weight_main.py, in the 1Weight_module folder.')
+        raise Exception('Missing required massBreakdown path.')
     elif not tixi.checkElement(DM_PATH):
-        raise Exception('Missing required designMasses path. Run '\
-                        + 'Weight_main.py, in the 1Weight_module folder.')
+        raise Exception('Missing required designMasses path.')
     elif not tixi.checkElement(MTOM_PATH):
-        raise Exception('Missing required mTOM/mass path. Run '\
-                        + 'Weight_main.py, in the 1Weight_module folder.')
+        raise Exception('Missing required mTOM/mass path.')
     elif not tixi.checkElement(F_PATH):
-        raise Exception('Missing required fuel/massDescription/mass '\
-                        + 'path. Run '\
-                        + 'Weight_main.py, in the 1Weight_module folder.')
+        raise Exception('Missing required fuel/massDescription/mass path.')
     elif not tixi.checkElement(FMP_PATH):
-        raise Exception('Missing required fuelMassMaxpass/mass path. Run '\
-                        + 'Weight_main.py, in the 1Weight_module folder.')
+        raise Exception('Missing required fuelMassMaxpass/mass path.')
     elif not tixi.checkElement(OEM_PATH):
-        raise Exception('Missing required mOEM/massDescription/mass '\
-                        + 'path. Run '\
-                        + 'Weight_main.py, in the 1Weight_module folder.')
+        raise Exception('Missing required mOEM/massDescription/mass path.')
     elif not tixi.checkElement(PAY_PATH):
-        raise Exception('Missing required payload/massDescription/mass '\
-                        + 'path. Run '\
-                        + 'Weight_main.py, in the 1Weight_module folder.')
+        raise Exception('Missing required payload/massDescription/mass path.')
     else:
         log.info('All path correctly defined in the toolinput.xml file, '\
                  + 'beginning data extracction.')
@@ -290,12 +278,6 @@ def get_data(mw, ri, cpacs_in):
 
     log.info('Data from CPACS file succesfully extracted')
     # Saving and closing the cpacs file ======================================
-    tixi.saveDocument(cpacs_in)
-    close_tixi(tixi, cpacs_in)
-
-    # Openign and closing again the cpacs file ===============================
-    tixi = open_tixi(cpacs_in)
-    tigl = open_tigl(tixi)
     tixi.saveDocument(cpacs_in)
     close_tixi(tixi, cpacs_in)
 

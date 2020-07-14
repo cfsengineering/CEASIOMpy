@@ -119,10 +119,12 @@ class UserInputs:
         self.MAX_FUEL_VOL = get_value_or_default(tixi, ML_XPATH + '/maxFuelVol', 0)
         self.MASS_CARGO = get_value_or_default(tixi, MC_XPATH + '/mass', 0.0)
         self.FUEL_DENSITY = get_value_or_default(tixi, F_XPATH + '/density', 800)
+        add_uid(tixi, F_XPATH, 'kerosene')
+        
         self.TURBOPROP = get_value_or_default(tixi, PROP_XPATH + '/turboprop', False)
         self.RES_FUEL_PERC = get_value_or_default(tixi, FUEL_XPATH + '/resFuelPerc', 0.06)
 
-        add_uid(tixi, F_XPATH, 'kerosene')
+
 
         close_tixi(tixi, cpacs_path)
 

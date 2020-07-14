@@ -3,8 +3,10 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This module can be called either to generate a surrogate model based on
-specified inputs and outputs, or to make a prediction by using a trained model.
+This module can be called to make a prediction by using a trained model.
+One particular feature is the Aeromap option which enables you to evaluate all
+points of an aeromap in one run, as they can be stored as vectors into the
+CPACS file.
 
 Python version: >=3.6
 

@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software.
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Function library for the optimisation module
+Function library for the optimisation module.
 
 Python version: >=3.6
 
@@ -13,7 +13,6 @@ Python version: >=3.6
 
 Todo:
 ----
-    * Write the doc
     * Check how to open the csv file depending on the user program
 
 """

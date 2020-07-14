@@ -6,11 +6,11 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH, CEASIOM
 # ===== RCE integration =====
 
 RCE = {
-    "name": "Predictive tool module",
-    "description": "This module builds a surrogate model to make predictions on data",
-    "exec": "pwd\npython prediction.py",
+    "name": "SMUse module",
+    "description": "This module uses a surrogate model to make predictions on data",
+    "exec": "pwd\npython smuse.py",
     "author": "Vivien Riolo",
-    "email": "-",
+    "email": "info@cfse.ch",
 }
 
 # ===== CPACS inputs and outputs =====

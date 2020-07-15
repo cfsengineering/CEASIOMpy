@@ -22,6 +22,8 @@ TODO
 #==============================================================================
 #   IMPORTS
 #==============================================================================
+import os
+import sys
 import numpy as np
 import openmdao.api as om
 import matplotlib.pyplot as plt
@@ -48,38 +50,29 @@ accronym_dict = {'maximum_take_off_mass':'mtom', 'range':'rng',
 #   FUNCTIONS
 #==============================================================================
 
-### --------------- TESTFUNCTION --------------- ###
+### --------------- MISCELLANEOUS --------------- ###
 # -------------------------------------------------#
 
-def estimate_volume(tigl):
-    """Estimate aircraft volume.
-
-    First approximation of the aircraft fuselage volume. Temporary solution
-    to the unsolved issue of calling fuselageGetVolume multiple times.
-    Update : For the moment the get_width/get_height functions also encounter
-    this isssue, another solution has to be found.
+def launch_external_program(path):
+    """Launches an application with a predefined CSV to open.
 
     Args:
-        tigl (tigl3 handle) : Handle of the current CPACS
+        path (str):
 
     Returns:
-        volume (float) : Estimated value of the volume for the current
-        aircraft
+        None.
 
     """
-    mgr =  tigl3.configuration.CCPACSConfigurationManager_get_instance()
+    OS = sys.platform
+    log.info('Identified OS : '+OS)
+    if OS == 'linux':
+        os.system('libreoffice ' + path)
+    elif OS == 'win32':
+        os.system('Start excel.exe ' + path.replace('/', '\\'))
+    elif OS == 'darwin':
+        os.system('Numbers ' + path)
 
-    aircraft = mgr.get_configuration(tigl._handle.value)
-    fuselage = aircraft.get_fuselages().get_fuselage(1)
-
-    # Retrieve ctigl element from the middle of the plane
-    snb = round(fuselage.get_section_count()/2)
-    sec = fuselage.get_section(snb)
-    el = sec.get_section_element(1)
-    cel = el.get_ctigl_section_element()
-
-    volume = (cel.get_width()+cel.get_height())**2*fuselage.get_length()/16*3.14
-    return volume
+    input('Press ENTER to continue...')
 
 
 ### --------------- FUNCTIONS FOR POST-PROCESSING --------------- ###
@@ -350,35 +343,34 @@ def is_digit(value):
             return False
 
 
-def accronym(name):
-    """Return accronym of a name. (EXPERIMENTAL FEATURE)
+def change_var_name(name):
+    """Modify the variable name
 
-    In order to detect the values specified by the user as accronyms, the
-    complete name of a variable is decomposed and the first letter of
-    each word is taken.
+    Checks for special characters and replaces them with '_' which can be taken
+    as a variable name for the OpenMDAO problem, and checks if an accronym is used.
 
     Ex : 'maximum take off mass' -> 'mtom'
 
     Args:
-        name (str) : Name of a variable.
+        name (str): variable name.
 
     Returns:
-        accro (str) : Accronym of the name.
+        new_name (str): new variable_name.
 
     """
-    # full_name = name.split('_')
-    # accro = ''
-    # for word in full_name:
-    #     if word.lower() in ['nb']:
-    #         accro += word
-    #     else:
-    #         accro += word[0]
+    log.info('Check variable name {}'.format(name))
+
+    if 'range' in name or 'payload' in name:
+        for s in name:
+            if s in ['[',']']:
+                name = name.replace(s,'_')
+        log.info('Variable name was changed to {}'.format(name))
 
     if name in accronym_dict:
-        log.info('Accronym : ' + accronym_dict[name])
+        log.info('Variable name was changed to {}'.format(accronym_dict[name]))
         return accronym_dict[name]
     else:
-        return ''
+        return name
 
 
 def add_type(entry, outputs, objective, var):
@@ -403,7 +395,7 @@ def add_type(entry, outputs, objective, var):
     if entry in outputs:
         if type(entry) != str:
             entry = entry.var_name
-        if entry in objective or accronym(entry) in objective:
+        if entry in objective or change_var_name(entry) in objective:
             var['type'].append('obj')
             log.info('Added type : obj')
         else:

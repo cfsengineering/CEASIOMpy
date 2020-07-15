@@ -103,9 +103,8 @@ class moduleComp(om.ExplicitComponent):
 
         # Outputs
         for entry in spec.cpacs_inout.outputs:
-            # Replace special characters from the name of the entry
-            if 'range' in entry.var_name or 'payload' in entry.var_name:
-                entry.var_name = opf.change_var_name(entry.var_name)
+            # Replace special characters from the name of the entry and checks for accronyms
+            entry.var_name = tls.change_var_name(entry.var_name)
 
             if entry.var_name in declared:
                 log.info('already declared')

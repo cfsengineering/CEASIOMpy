@@ -378,7 +378,7 @@ def get_module_vars(tixi, specs, module_name):
             get_aero_param(tixi, module_name)
         # Normal case
         else:
-            get_normal_param(tixi, value_name, entry, specs.cpacs_inout.outputs)
+            get_normal_param(tixi, entry, specs.cpacs_inout.outputs)
 
 
 def generate_dict(df):

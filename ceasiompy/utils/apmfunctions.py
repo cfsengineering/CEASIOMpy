@@ -10,13 +10,13 @@ CPACS version: 3.1
 
 | Author : Aidan Jungo
 | Creation: 2019-08-15
-| Last modifiction: 2020-07-01
+| Last modifiction: 2020-07-15
 
 TODO:
 
     * Create test functions
     * Developp other functions
-    * Use Penda DataFrame instead of AeroCoefficient object? is it possible?
+    * Use Penda DataFrame instead of AeroCoefficient object?
     * implement "IncrementMap" for damping_der and control_surf
 """
 
@@ -978,8 +978,7 @@ def delete_aeromap(tixi,aeromap_uid):
 def create_aeromap(tixi, name, bound_values):
     """Create an aeromap
 
-    This function  will generate an aeromap either as a CSV file or in a CPACS file
-    depending on what is indicated.
+    This function  will generate an aeromap in a CPACS file with certain bonds.
 
     Args:
         tixi (Tixi3 handle): If no handle is given, a CSV file will be generated instead.
@@ -1081,14 +1080,10 @@ def get_current_aeromap_uid(tixi, module_list):
     return uid
 
 
-def my_test_func():
-    # this is just a github test
-    pass
-
 # def modify_aeromap_uid(tixi,aeromap_uid, new aeromap_uid):
-# modify uid
-# modify name
-# fing in CPACS where this name is used... ?
+    # modify uid
+    # modify name
+    # find in CPACS where this name is used... ?
 
 
 # def convert_coefficients():
@@ -1097,6 +1092,51 @@ def my_test_func():
 
 # def add_points(alt_list,mach_list,aoa_list,aos_list)
     # """ Add a calculation point to an existing aeroPerformanceMap """
+
+
+#========================
+# New function using pandas
+
+def get_datafram_aeromap(tixi,aeromap_uid):
+    """Return the pandas datafram of an aeromap.
+
+    TODO: * test fuction
+          * modify other function to work with pandas
+
+    Args:
+        tixi (tixi handle): Tixi handle of the CPACS file.
+        aeromapuid (str): UID of the aeromap to retrun
+
+    Returns:
+        aeromap (df) : DataFrame of the aeromap
+    """
+
+    if not tixi.uIDCheckExists(aeromap_uid):
+        raise ValueError('The aeromap {} does not exist!'.format(aeromap_uid))
+
+    apm_xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap'
+
+    state_dict = {'alt': cpsf.get_float_vector(tixi,apm_xpath +'/altitude'),
+                  'mach': cpsf.get_float_vector(tixi,apm_xpath +'/machNumber'),
+                  'aoa': cpsf.get_float_vector(tixi,apm_xpath +'/angleOfAttack'),
+                  'aos': cpsf.get_float_vector(tixi,apm_xpath +'/angleOfSideslip')}
+
+    aeromap = pd.DataFrame(state_dict)
+
+    coef_list = ['cl','cd','cs','cml','cmd','cms']
+
+    for coef in coef_list:
+        try:
+            coef_value_list = cpsf.get_float_vector(tixi,apm_xpath +'/' + coef)
+        except:
+            coef_value_list = []
+
+        if coef_value_list:
+            aeromap[coef] = coef_value_list
+        else:
+            aeromap[coef] = float("NaN")
+
+    return aeromap
 
 
 #==============================================================================

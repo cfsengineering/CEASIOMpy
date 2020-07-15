@@ -82,25 +82,64 @@ SettingsGUI -> WeightConventional -> CLCalculator -> CPACS2SUMO -> SUMOAutoMesh 
 Test Case 4 : Optimising the CL
 *******************************
 
-When launching an optimisation routine, enter the desired parameter that you want to optimise in the "optim_var" variable.
+To launch an optimisation routine or a DoE, launch the WorkflowCreator tool with the GUI and select the modules you want to run in the routine in the 'Optim' tab and select the Optim option from the type list. Here the modules 'WeightConventional' and 'PyTornado' are chosen.
+
+.. figure:: getting_started_fig/TestCase4_WorkflowCreator.png
+    :width: 400 px
+    :align: center
+    :alt: CEASIOMpy - WFC - Test case 4
+    
+The next window that opens is the SettingsGUI, were you can tune the options specific to each module. Focusing on the options of the Optimisation tab, different options can be set. In our case the 'Objective' is set on 'cl' and the 'Optimisationn goal' is set to 'max' in order to search for the maximal cl. The other options from the 'Optimisation settings' group are left at their default values and the 'DoE settings' group is not used in the case of an optimisation. 
+The 'CSV file path' is left blank as we have not defined a file with the problem parameters.
+
+.. figure:: getting_started_fig/TestCase4_Optimisation.png
+    :width: 400 px
+    :align: center
+    :alt: CEASIOMpy - STG - Test case 4
+
+After saving the settings a CSV file is automatically generated and opened with your standard CSV opener.
+
+.. figure:: getting_started_fig/TestCase4_Generated_CSV.png
+    :width: 630 px
+    :align: center
+    :alt: CEASIOMpy - CSV - Test case 4
+    
+Here you can see all the parameters that can be used in the routine. The ones that appear in the objective function are labelled as 'obj' in the 'type' column, and the ones that are only outputs of some modules are labelled 'const', their type must not be changed. All the other parameters can have their values modified in the following columns :
 
 .. code::
+    ['type','min','max']
 
-    optim_var = 'cl'
+Or you can add a new element to the file if you know what to add. Here we suppress all the elements that we do not desire to have in our routine and we end up with just the parameters that we want for this optimisation. Note that you can also let some cases blank in the 'min' and 'max' columns if you don't want to restrain the domain on one side. The 'min' and 'max' values of the 'obj'-labelled parameters are not taken into account.
 
-Then select the modules you want to be run in the routine, for example :
+.. figure:: getting_started_fig/TestCase4_Variable_library.png
+    :width: 630 px
+    :align: center
+    :alt: CEASIOMpy - VL - Test case 4
 
-.. code::
+Save the file and close it, you must then press the enter key into the terminal to launch the routine. After that the routine is running and you just have to wait for the results.
 
-    module_optim = ['WeightConventional', 'CPACS2SUMO','SUMOAutoMesh', 'SU2Run', 'SkinFriction']
+.. figure:: getting_started_fig/TestCase4_terminal.png
+    :width: 400 px
+    :align: center
+    :alt: CEASIOMpy - Terminal - Test case 4
 
-The optimisation will create a new directory in the WKDIR folder and each iteration result (CPACS file + problem variables) will be saved in the Optimisation module.
+When the routine finishes two windows are generated containing the history plots of the parameters on one and the objective function on the other. After closing these windows the program closes and you finished the process !
 
+For the post-processing you can go in the WKDIR folder, where you will find the CEASIOMpy_Run with the corresponding date at which you launched the routine. In this file you will find the results of an initial run the program did befpore launching the optimisation loop and the 'Optim' folder, in which all the results of the routine are saved.
+
+* Driver_recorder.sql : Recorder of the routine from the OpenMDAO library. It is used to access the history of the objective function.
+* circuit.sqlite : File that is used to generate the N2 diagram of the problem.
+* circuit.html : This file represents an N2 diagram of the problem that was solved, showing the dependencies of the variables between the different modules.
+* Variable_library.csv : This file is the CSV that you modified before launching the routine.
+* Variable_history.csv : This file contains the value of all the desired parameters at each iteration, plus the basic informations of the parameters (name, type, getcmd, setcmd).
+* 
+* Geometry : This folder contains the CPACS that is used in the routine at each iteration, this can be changed by tuning the 'Save geometry every' parameter in the Optimisation settings.
+* Runs: This folder contains the directories of all the workflow runs that were made during the routine. These folders are equivalent to a simple CEASIOMpy_Run workflow folder.
 
 Test Case 5 : Surrogate model for SU2
 *************************************
 
-TODO
+
 
 
 With RCE:

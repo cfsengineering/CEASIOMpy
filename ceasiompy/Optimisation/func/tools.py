@@ -98,13 +98,16 @@ def display_results(prob, optim_var_dict, Rt):
     log.info('=========================================')
     log.info('min = ' + str(prob['objective.{}'.format(Rt.objective)]))
 
-    for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
+    for name, (val_type, listval, minval, maxval,
+               getcommand, setcommand) in optim_var_dict.items():
         if val_type == 'des':
-            log.info(name + ' = ' + str(prob['indeps.'+name]) + '\n Min :' + str(minval) + ' Max : ' + str(maxval))
+            log.info(name+' = ' + str(prob['indeps.' + name]))
+            log.info('Min :' + str(minval) + ' Max : ' + str(maxval))
 
     log.info('Variable history :')
 
-    for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
+    for name, (val_type, listval, minval, maxval,
+               getcommand, setcommand) in optim_var_dict.items():
         if val_type == 'des':
             log.info(name + ' => ' + str(listval))
     log.info('=========================================')
@@ -154,9 +157,9 @@ def read_results(optim_dir_path, optim_var_dict={}):
                 const[key] = np.append(const[key], val)
 
     # Retrieve data from optim variables
-    for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
-        if val_type == 'obj':
-            obj[name] = np.array(listval)
+    for name, infos in optim_var_dict.items():
+        if infos[0] == 'obj':
+            obj[name] = np.array(infos[1])
 
     df_o = pd.DataFrame(obj).transpose()
     df_d = pd.DataFrame(des).transpose()
@@ -395,7 +398,7 @@ def add_type(entry, outputs, objective, var):
     if entry in outputs:
         if type(entry) != str:
             entry = entry.var_name
-        if entry in objective or change_var_name(entry) in objective:
+        if entry in objective:
             var['type'].append('obj')
             log.info('Added type : obj')
         else:

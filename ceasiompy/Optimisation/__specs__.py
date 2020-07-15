@@ -46,6 +46,7 @@ cpacs_inout.add_input(
     gui_group='Optimisation settings'
 )
 
+# For now only the COBYLA algorithm should be used. (only one to deal with gradient-free, constrained optimisation)
 cpacs_inout.add_input(
     var_name='Driver',
     var_type=list,
@@ -90,19 +91,6 @@ cpacs_inout.add_input(
     descr='List of modules to run',
     gui=False,
 )
-
-cpacs_inout.add_input(
-    var_name='file_saving',
-    var_type=int,
-    default_value=1,
-    unit='iteration',
-    descr='Save file every X iteration',
-    xpath=CEASIOM_XPATH+'/Optimisation/saving/perIter',
-    gui=include_gui,
-    gui_name='Saving geometry every',
-    gui_group='Optimisation settings'
-)
-
 
 cpacs_inout.add_input(
     var_name='DoEDriver',
@@ -151,6 +139,18 @@ cpacs_inout.add_input(
 #    gui_name='__AEROMAP_SELECTION',
 #    gui_group='DoE settings',
 #)
+
+cpacs_inout.add_input(
+    var_name='file_saving',
+    var_type=int,
+    default_value=1,
+    unit='iteration',
+    descr='Save file every X iteration',
+    xpath=CEASIOM_XPATH+'/Optimisation/saving/perIter',
+    gui=include_gui,
+    gui_name='Saving geometry every',
+    gui_group='Configuration'
+)
 
 cpacs_inout.add_input(
     var_name='Configuration file path',

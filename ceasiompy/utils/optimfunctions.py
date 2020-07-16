@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software.
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Function library for the optimisation module
+Function library for the optimisation module.
 
 Python version: >=3.6
 
@@ -13,7 +13,6 @@ Python version: >=3.6
 
 Todo:
 ----
-    * Write the doc
     * Check how to open the csv file depending on the user program
 
 """
@@ -159,28 +158,6 @@ def first_run(module_list, modules_pre_list=[]):
     module_list.remove('Optimisation')
 
 
-def change_var_name(name):
-    """Modify the variable name
-
-    Checks for special characters and replaces them with '_' which can be taken
-    as a variable name for the OpenMDAO problem.
-
-    Args:
-        name (str): variable name.
-
-    Returns:
-        new_name (str): new variable_name.
-
-    """
-    log.info('Check variable name {}'.format(name))
-    for s in name:
-        if s in ['[',']']:
-            name = name.replace(s,'_')
-    log.info('Variable name was change to {}'.format(name))
-
-    return name
-
-
 def gen_doe_csv(user_config):
     """Generate adequate csv with user-defined csv.
 
@@ -220,7 +197,7 @@ def gen_doe_csv(user_config):
     return doe_csv
 
 
-def get_normal_param(tixi, value_name, entry, outputs):
+def get_normal_param(tixi, entry, outputs):
     """Add a variable to the optimisation dictionnary.
 
     It is checked if the variable has a user-specified initial value, else it
@@ -229,27 +206,27 @@ def get_normal_param(tixi, value_name, entry, outputs):
 
     Args:
         tixi (Tixi3 handle): Handle of the current CPACS file.
-        value_name (str): Name of the parameter.
         entry (object): Current parameter object.
 
     Returns:
         None.
 
     """
-    log.info('Type : '+str(entry.var_type))
+    value = '-'
     xpath = entry.xpath
     def_val = entry.default_value
-    value = '-'
 
     if not def_val:
         if entry.var_type in [float, int]:
             def_val = 0.0
         else:
             def_val = '-'
+
     if entry.var_name not in banned_entries:
         value = cpsf.get_value_or_default(tixi, xpath, def_val)
         if entry.var_type == int:
             value = int(value)
+
     if not tls.is_digit(value):
         log.info('Not a digital value')
         value = '-'
@@ -257,18 +234,18 @@ def get_normal_param(tixi, value_name, entry, outputs):
         log.info('Boolean, not implemented yet')
         value = '-'
 
-    log.info('Value : {}'.format(value))
     # Ignores values that are not int or float
     if value != '-':
         value = str(value)
         tixi.updateTextElement(xpath, value)
 
-        var['Name'].append(entry.var_name)
         var['init'].append(value)
         var['xpath'].append(xpath)
+        var['Name'].append(entry.var_name)
 
         tls.add_type(entry, outputs, objective, var)
         tls.add_bounds(entry.var_name, value, var)
+        log.info('Value : {}'.format(value))
         log.info('Added to variable file')
 
 
@@ -292,7 +269,12 @@ def get_aero_param(tixi, module_name):
     log.info('Default aeromap parameters will be set')
 
     # Get name of aeromap that is used
-    am_uid = apmf.get_current_aeromap_uid(tixi, [module_name])
+    use_am = cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'AeroMapOnly', False)
+    if module_name == 'SMUse' and use_am:
+        am_uid = tixi.getTextElement(smu.SMUSE_XPATH+'aeroMapUID')
+    else:
+        am_uid = apmf.get_current_aeromap_uid(tixi, [module_name])
+
     log.info('Aeromap \"{}\" will be used for the variables.'.format(am_uid))
 
     # Search the aeromap index in the CPACS file if there are more
@@ -300,8 +282,9 @@ def get_aero_param(tixi, module_name):
     for i, uid in enumerate(am_list):
         if uid == am_uid:
             am_index = '[{}]'.format(i+1)
-    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
 
+    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap'\
+            + am_index + '/aeroPerformanceMap/'
     outputs = ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']
     inputs = ['altitude', 'machNumber', 'angleOfAttack', 'angleOfSideslip']
 
@@ -318,18 +301,47 @@ def get_aero_param(tixi, module_name):
         tls.add_bounds(name, value, var)
 
 
-def get_variables(tixi, specs, module_name):
+def get_smu_vars(tixi):
+    """Retrieves variable in the case of a surrogate.
+
+    In the case of a surrogate model being used, the entries are retrieved from
+    the dataframe that is saved in the SM file.
+    Args:
+        tixi (Tixi3 handler): Tixi handle of the CPACS file.
+
+    Returns:
+        None.
+
+    """
+    Model = smu.load_surrogate(CPACS_OPTIM_PATH)
+    df = Model.df.rename(columns={'Unnamed: 0':'Name'})
+    df.set_index('Name', inplace=True)
+
+    for name in df.index:
+        name = tls.change_var_name(name)
+        if name not in var['Name'] and df.loc[name]['setcmd'] == '-':
+            var['Name'].append(name)
+            xpath = df.loc[name]['getcmd']
+            value = str(tixi.getDoubleElement(xpath))
+            var['xpath'].append(xpath)
+            var['init'].append(value)
+            var['type'].append(df.loc[name]['type'])
+            tls.add_bounds(name, value, var)
+        else:
+            log.warning('Variable already exists')
+            log.info(name+' will not be added to the variable file')
+
+
+def get_module_vars(tixi, specs, module_name):
     """Retrieve input and output variables of a module.
 
     Gets all the inputs and outputs of a module based on its __spec__ file,
-    and decides for each parameter if it can be added to the problem or not,
-    depending on its.
-    In the case of a surrogate model being used, the entries are retrieved from
-    the dataframe that is saved in the SM file.
+    and decides for each parameter if it can be added to the problem or not.
 
     Returns:
         tixi (Tixi3 handler): Tixi handle of the CPACS file.
         specs (class): Contains the modules inputs and outputs specifications.
+        module_name (str): Name of the current module
 
     Returns:
         None.
@@ -337,54 +349,43 @@ def get_variables(tixi, specs, module_name):
     """
     aeromap = True
     inouts = specs.cpacs_inout.inputs + specs.cpacs_inout.outputs
-    if module_name == 'SMUse':
-        Model = smu.load_surrogate(CPACS_OPTIM_PATH)
-        df = Model.df.rename(columns={'Unnamed: 0':'Name'})
-        df.set_index('Name', inplace=True)
-        for name in df.index:
-            if name not in var['Name'] and df.loc[name]['setcmd'] == '-':
-                var['Name'].append(name)
-                xpath = df.loc[name]['getcmd']
-                value = str(tixi.getDoubleElement(xpath))
-                var['xpath'].append(xpath)
-                var['init'].append(value)
-                var['type'].append(df.loc[name]['type'])
-                tls.add_bounds(name, value, var)
-            else:
-                log.warning('Variable already exists')
-                log.info(name+' will not be added to the variable file')
-    else:
-        for entry in inouts:
-            xpath = entry.xpath
-            if xpath.endswith('/'):
-                xpath = xpath[:-1]
-            value_name = xpath.split('/')[-1]
+    for entry in inouts:
+        xpath = entry.xpath
+        if xpath.endswith('/'):
+            xpath = xpath[:-1]
+        value_name = xpath.split('/')[-1]
 
-            log.info('----------------------------')
-            log.info('Name : '+entry.var_name)
-            if 'range' in entry.var_name or 'payload' in entry.var_name:
-                entry.var_name = change_var_name(entry.var_name)
-            log.info(xpath)
-            log.info(value_name)
+        log.info('----------------------------')
+        log.info('Name : '+entry.var_name)
 
-            # Check validity of variable
-            if entry.var_name == '':
-                log.error('Not a valid variable name')
-            elif entry.var_name in var['Name']:
-                log.warning('Variable already exists')
-                log.info(entry.var_name+' will not be added to the variable file')
+        # Change the name of the entry if it's a valid accronym (ex: mtom) or
+        # if it has a special sign (ex: ranges[0])
+        entry.var_name = tls.change_var_name(entry.var_name)
 
-            # Aeromap variable
-            elif value_name == 'aeroPerformanceMap' and aeromap:
-                aeromap = False
-                get_aero_param(tixi, module_name)
-            # Normal case
-            else:
-                get_normal_param(tixi, value_name, entry, specs.cpacs_inout.outputs)
+        log.info(xpath)
+        log.info(value_name)
+
+        # Check validity of variable
+        if entry.var_name == '':
+            log.error('Empty name, not a valid variable name')
+        elif entry.var_name in var['Name']:
+            log.warning('Variable already exists')
+            log.info(entry.var_name+' will not be added to the variable file')
+
+        # Aeromap variable
+        elif value_name == 'aeroPerformanceMap' and aeromap:
+            aeromap = False
+            get_aero_param(tixi, module_name)
+        # Normal case
+        else:
+            get_normal_param(tixi, entry, specs.cpacs_inout.outputs)
 
 
 def generate_dict(df):
-    """Write all variables in a CSV file or use a predefined file.
+    """Generate dictionary from a dataframe.
+
+    Convert a dataframe to a dictionary and modifies the dictionary in order to
+    have all the necessary keys to
 
     Args:
         df (DataFrame): Contains all the variable. Used to passs from a csv to a dict
@@ -430,12 +431,16 @@ def get_default_df(module_list):
 
     """
     tixi = cpsf.open_tixi(CPACS_OPTIM_PATH)
-    if 'SMUse' in module_list and cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'AeroMapOnly', False):
+    use_am = cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'AeroMapOnly', False)
+    if 'SMUse' in module_list and use_am:
         get_aero_param(tixi, 'SMUse')
     else:
         for mod_name, specs in mif.get_all_module_specs().items():
             if specs and mod_name in module_list:
-                get_variables(tixi, specs, mod_name)
+                if mod_name == 'SMUse':
+                    get_smu_vars(tixi)
+                else:
+                    get_module_vars(tixi, specs, mod_name)
     cpsf.close_tixi(tixi, CPACS_OPTIM_PATH)
 
     # Add the default values for the variables
@@ -495,16 +500,8 @@ def create_variable_library(Rt, optim_dir_path):
         log.info('Variable library file has been generated')
         log.info('Variable library file will opened to be modified')
 
-        OS = sys.platform
-        log.info('Identified OS : '+OS)
-        if OS == 'linux':
-            os.system('libreoffice ' + CSV_PATH)
-        elif OS == 'win32':
-            os.system('Start excel.exe ' + CSV_PATH.replace('/', '\\'))
-        elif OS == 'darwin':
-            os.system('Numbers ' + CSV_PATH)
+        tls.launch_external_program(CSV_PATH)
 
-        input('Press ENTER to continue...')
         log.info('Variable library file has been saved at '+CSV_PATH)
         df = pd.read_csv(CSV_PATH, index_col=0, skip_blank_lines=True)
         optim_var_dict = generate_dict(df)

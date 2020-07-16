@@ -1072,6 +1072,7 @@ def get_current_aeromap_uid(tixi, module_list):
         elif module == 'SMUse':
             log.info('Found a Surrogate model')
             xpath = '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/aeroMapUID'
+            uid = tixi.getTextElement(xpath)
 
     if 'SkinFriction' in module_list:
         log.info('Found SkinFriction analysis')

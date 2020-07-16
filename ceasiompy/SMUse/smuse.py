@@ -3,8 +3,10 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This module can be called either to generate a surrogate model based on
-specified inputs and outputs, or to make a prediction by using a trained model.
+This module can be called to make a prediction by using a trained model.
+One particular feature is the Aeromap option which enables you to evaluate all
+points of an aeromap in one run, as they can be stored as vectors into the
+CPACS file.
 
 Python version: >=3.6
 
@@ -28,6 +30,7 @@ import numpy as np
 import pandas as pd
 import smt.surrogate_models as sms # Use after loading the model
 
+import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
@@ -84,6 +87,7 @@ def load_surrogate():
     file = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'modelFile', '')
     cpsf.close_tixi(tixi, cpacs_path)
 
+    log.info('Trying to open file'+file)
     try:
         f = open(file, 'rb')
     except:
@@ -165,11 +169,60 @@ def write_outputs(y, outputs):
     cpsf.close_tixi(tixi, cpacs_path_out)
 
 
-def predict_output(Model):
+def aeromap_calculation(sm, tixi):
+    """Make a prediction using only the aeromap entries.
+
+    By using only the aeromap functions this module is way faster to execute. Only
+    works  with the aeromap as the other values of the CPACs are not vectors and
+    have to be evaluated with a different CPACS every time.
+
+    Args:
+        sm (Surrogate model object): Surrogate used to predict the function output.
+        tixi (Tixi handle): Handle of the current CPACS.
+
+    Returns:
+        None.
+
+    """
+    tigl = cpsf.open_tigl(tixi)
+    aircraft = cpud.get_aircraft(tigl)
+    wings = aircraft.get_wings()
+    fuselage = aircraft.get_fuselages().get_fuselage(1)
+
+    aeromap_uid = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'aeroMapUID', False)
+    if not aeromap_uid:
+        aeromap_uid = apmf.get_current_aeromap_uid(tixi, ['SMUse'])
+
+    log.info('Using aeromap :'+aeromap_uid)
+    Coef = apmf.get_aeromap(tixi, aeromap_uid)
+
+    inputs = np.array([Coef.alt,Coef.mach,Coef.aoa,Coef.aos]).T
+
+    outputs = sm.predict_values(inputs)
+
+    # Re-initiates the values of the results to write the new ones
+    Coef.cl = []
+    Coef.cd = []
+    Coef.cs = []
+    Coef.cml = []
+    Coef.cmd = []
+    Coef.cms = []
+    for i in range(outputs.shape[0]):
+        Coef.add_coefficients(outputs[i,0], outputs[i,1], outputs[i,2],
+                              outputs[i,3], outputs[i,4], outputs[i,5])
+    Coef.print_coef_list()
+    apmf.save_coefficients(tixi, aeromap_uid, Coef)
+
+    tigl.close()
+    cpsf.close_tixi(tixi, cpacs_path_out)
+
+
+def predict_output(Model, tixi):
     """Make a prediction.
 
     Args:
         Model (Class): Object containing the surrogate model and its parameters
+        tixi (Tixi handle): Handle of the current CPACS.
 
     Returns:
         None.
@@ -193,7 +246,12 @@ if __name__ == "__main__":
 
     # Load the model
     Model = load_surrogate()
-    predict_output(Model)
+
+    tixi = cpsf.open_tixi(cpacs_path)
+    if cpsf.get_value_or_default(tixi, SMUSE_XPATH+'AeroMapOnly', False):
+        aeromap_calculation(Model.sm, tixi)
+    else:
+        predict_output(Model, tixi)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
 

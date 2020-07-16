@@ -83,6 +83,7 @@ def load_surrogate():
         sm (object): The surrogate model.
 
     """
+
     tixi = cpsf.open_tixi(cpacs_path)
     file = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'modelFile', '')
     cpsf.close_tixi(tixi, cpacs_path)
@@ -110,6 +111,7 @@ def get_inputs(x):
         inputs (np.array): Array of floats.
 
     """
+
     tixi = cpsf.open_tixi(cpacs_path)
     tigl = cpsf.open_tigl(tixi)
     aircraft = cpud.get_aircraft(tigl)
@@ -121,7 +123,7 @@ def get_inputs(x):
     x.set_index('Name', inplace=True)
     for name in x.index:
         if x.loc[name,'setcmd'] != '-':
-            inputs.append(eval(x.loc[name,'setcmd']))
+            inputs.append(eval(x.loc[name,'getcmd']))
         else:
             inputs.append(tixi.getDoubleElement(x.loc[name,'getcmd']))
 
@@ -145,6 +147,7 @@ def write_outputs(y, outputs):
         None.
 
     """
+
     tixi = cpsf.open_tixi(cpacs_path)
     tigl = cpsf.open_tigl(tixi)
     aircraft = cpud.get_aircraft(tigl)
@@ -158,12 +161,8 @@ def write_outputs(y, outputs):
             eval(y.loc[name,'setcmd'])
         elif y.loc[name,'getcmd'] != '-':
             xpath = y.loc[name,'getcmd']
-            if not tixi.checkElement(xpath):
-                elem_name = xpath.split('/')[-1]
-                xpath = xpath.replace('/'+elem_name,'')
-                tixi.addDoubleElement(xpath, elem_name, outputs[0][i], '%g')
-            else:
-                tixi.updateDoubleElement(y.loc[name,'getcmd'], outputs[0][i],'%g')
+            cpsf.create_branch(tixi,xpath)
+            tixi.updateDoubleElement(xpath, outputs[0][i],'%g')
 
     tigl.close()
     cpsf.close_tixi(tixi, cpacs_path_out)
@@ -184,6 +183,7 @@ def aeromap_calculation(sm, tixi):
         None.
 
     """
+
     tigl = cpsf.open_tigl(tixi)
     aircraft = cpud.get_aircraft(tigl)
     wings = aircraft.get_wings()
@@ -228,6 +228,7 @@ def predict_output(Model, tixi):
         None.
 
     """
+    
     sm = Model.sm
     df = Model.df
     x = df.loc[[i for i,v in enumerate(df['type']) if v == 'des']]
@@ -254,5 +255,3 @@ if __name__ == "__main__":
         predict_output(Model, tixi)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
-
-

@@ -25,6 +25,7 @@ import os
 import sys
 
 import pandas as pd
+from re import split
 
 import ceasiompy.SMUse.smuse as smu
 import ceasiompy.utils.cpacsfunctions as cpsf
@@ -34,7 +35,6 @@ import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.Optimisation.func.dictionnary as dct
 import ceasiompy.Optimisation.func.tools as tls
 
-from re import split as splt
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
@@ -98,7 +98,7 @@ class Routine:
 
         # Problem setup
         objectives = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'objective', 'cl')
-        self.objective = splt(';|,',objectives)
+        self.objective = split(';|,',objectives)
         self.minmax = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'minmax', 'max')
 
         # Global parameters
@@ -137,6 +137,7 @@ def first_run(module_list, modules_pre_list=[]):
         None.
 
     """
+
     log.info('Launching initialization workflow')
 
     # Settings needed for CFD calculation
@@ -172,6 +173,7 @@ def gen_doe_csv(user_config):
         doe_csv (str): Path to reformated file.
 
     """
+
     df = pd.read_csv(user_config)
 
     try:
@@ -212,6 +214,7 @@ def get_normal_param(tixi, entry, outputs):
         None.
 
     """
+
     value = '-'
     xpath = entry.xpath
     def_val = entry.default_value
@@ -313,7 +316,7 @@ def get_smu_vars(tixi):
         None.
 
     """
-    Model = smu.load_surrogate(CPACS_OPTIM_PATH)
+    Model = smu.load_surrogate()
     df = Model.df.rename(columns={'Unnamed: 0':'Name'})
     df.set_index('Name', inplace=True)
 
@@ -489,7 +492,7 @@ def create_variable_library(Rt, optim_dir_path):
     var = {'Name':[], 'type':[], 'init':[], 'min':[], 'max':[], 'xpath':[]}
 
     for obj in Rt.objective:
-        objective.extend(splt('[+*/-]',obj))
+        objective.extend(split('[+*/-]',obj))
 
     if not os.path.isfile(Rt.user_config):
         log.info('No configuration file found, default one will be generated')

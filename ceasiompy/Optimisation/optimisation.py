@@ -178,7 +178,7 @@ class smComp(om.ExplicitComponent):
         file = cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'modelFile', '')
         cpsf.close_tixi(tixi, cpacs_path)
 
-        self.Model = smu.load_surrogate(file)
+        self.Model = smu.load_surrogate()
 
         df = self.Model.df
         df.set_index('Name', inplace=True)

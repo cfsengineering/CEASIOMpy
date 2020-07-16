@@ -10,7 +10,7 @@ CPACS version: 3.1
 
 | Author : Aidan Jungo
 | Creation: 2019-08-15
-| Last modifiction: 2020-07-16
+| Last modifiction: 2020-07-15
 
 TODO:
 
@@ -44,6 +44,7 @@ AEROPERFORMANCE_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance
 COEF_LIST = ['cl','cd','cs','cml','cmd','cms']
 STATES = ['alt','mach','aoa','aos']
 XSTATES = ['altitude','machNumber','angleOfAttack','angleOfSideslip']
+
 
 #==============================================================================
 #   CLASSES
@@ -1077,7 +1078,6 @@ def get_current_aeromap_uid(tixi, module_list):
         elif module == 'SMUse':
             log.info('Found a Surrogate model')
             xpath = '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/aeroMapUID'
-            uid = tixi.getTextElement(xpath)
 
     if 'SkinFriction' in module_list:
         log.info('Found SkinFriction analysis')

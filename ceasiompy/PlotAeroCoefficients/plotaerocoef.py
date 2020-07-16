@@ -9,12 +9,11 @@ Python version: >=3.6
 
 | Author: Aidan jungo
 | Creation: 2019-08-19
-| Last modifiction: 2020-05-15
+| Last modifiction: 2020-07-15
 
 TODO:
 
     * Add option to save figures in ToolOutput folder
-    * Use aeromap with Pandas to sort easily the data
     * add plot vs Mach
     * Plot more coefficient (vs sideslip angle, damping derivatives, control surfaces)
 
@@ -27,6 +26,7 @@ TODO:
 import os
 
 from tkinter import *
+import pandas as pd
 import matplotlib.pyplot as plt
 
 import ceasiompy.utils.cpacsfunctions as cpsf
@@ -86,7 +86,6 @@ class ListBoxChoice(object):
         except IndexError:
             self.selected_list = None
 
-        # self.modalPane.destroy()
         self.master.destroy()
 
     def _cancel(self, event=None):
@@ -125,96 +124,169 @@ def call_select_aeromap(tixi):
     return selected_aeromap_list
 
 
-def plot_aero_coef(cpacs_path,cpacs_out_path):
-    """Function to plot available aerodynamic coefficients from aeroMap.
+def write_legend(groupby_list, value):
+    """Write legen with the correct fromat for the plot.
 
-    Function 'plot_aero_coef' plot aerodynamic coefficients (CL,CD,Cm) of the
-    aeroMap selected in the CPACS file or if not define, ask the user to select
-    them.
+    Args:
+        groupby_list (list): List of parameter whih will be use to group plot data
+        value (...): If one value (str of float), if multiple value (tuple)
+
+    """
+
+    legend = ''
+    for i, param in enumerate(groupby_list):
+
+        if len(groupby_list) > 1:
+            value_i = value[i]
+        else:
+            value_i = value
+
+        if param is 'uid':
+            legend += value_i
+        else:
+            legend += param + '=' + str(value_i)
+
+        if i+1 != len(groupby_list):
+            legend += '\n'
+
+    return legend
+
+
+def subplot_options(ax,ylabel,xlabel):
+    """Set xlabel, ylabel and grit on a specific subplot.
+
+    Args:
+        ax (Axes objects): Axes of the concerned subplot
+        xlabel (str): x label name
+        ylabel (str): y label name
+    """
+
+    ax.set_ylabel(ylabel)
+    ax.set_xlabel(xlabel)
+    ax.grid()
+
+
+def plot_aero_coef(cpacs_path,cpacs_out_path):
+    """Plot all desire Aero coefficients from a CPACS file
+
+    Function 'plot_aero_coef' can plot one or several aeromap from the CPACS
+    file according to some user option, these option will be shown in the the
+    SettingGUI or default values will be used.
 
     Args:
         cpacs_path (str): Path to CPACS file
         cpacs_out_path (str):Path to CPACS output file
-
     """
 
     # Open TIXI handle
     tixi = cpsf.open_tixi(cpacs_path)
-
-    # Prepare subplots
-    figure_1 = plt.figure(figsize=(9, 9))
-    subplot1 = figure_1.add_subplot(221)
-    subplot2 = figure_1.add_subplot(222)
-    subplot3 = figure_1.add_subplot(223)
-    subplot4 = figure_1.add_subplot(224)
-
-    LINE_STYLE = ['bo-','ro-','go-','co-','mo-','ko-','yo-']
+    aircraft_name = cpsf.aircraft_name(tixi)
 
     # Get aeroMap list to plot
     aeromap_to_plot_xpath = PLOT_XPATH + '/aeroMapToPlot'
     aeromap_uid_list = []
-    try:
-        aeromap_uid_list = cpsf.get_string_vector(tixi,aeromap_to_plot_xpath)
-    except:
-        # If aeroMapToPlot is not define, open GUI to select which ones shoud be
+
+    # Option to select aeromap manualy
+    manual_selct = cpsf.get_value_or_default(tixi,PLOT_XPATH+'/manualSelection',False)
+    if manual_selct:
         aeromap_uid_list = call_select_aeromap(tixi)
         cpsf.create_branch(tixi,aeromap_to_plot_xpath)
         cpsf.add_string_vector(tixi,aeromap_to_plot_xpath,aeromap_uid_list)
 
-    for i, aeromap_uid in enumerate(aeromap_uid_list):
+    else:
+        try:
+            aeromap_uid_list = cpsf.get_string_vector(tixi,aeromap_to_plot_xpath)
+        except:
+            # If aeroMapToPlot is not define, select manualy anyway
+            aeromap_uid_list = call_select_aeromap(tixi)
+            cpsf.create_branch(tixi,aeromap_to_plot_xpath)
+            cpsf.add_string_vector(tixi,aeromap_to_plot_xpath,aeromap_uid_list)
 
-        log.info('"' + aeromap_uid + '" will be added to the plot.')
+    # Create DataFrame from aeromap(s)
+    aeromap_df_list = []
+    for aeromap_uid in aeromap_uid_list:
+        aeromap_df = apmf.get_datafram_aeromap(tixi,aeromap_uid)
+        aeromap_df['uid'] = aeromap_uid
+        aeromap_df_list.append(aeromap_df)
 
-        # Get aeroMap to plot and replace missing results with zeros
-        AeroCoef = apmf.get_aeromap(tixi,aeromap_uid)
-        AeroCoef.complete_with_zeros()
-        AeroCoef.print_coef_list()
+    aeromap = pd.concat(aeromap_df_list,ignore_index=True)
 
-        # Subplot1
-        x1 = AeroCoef.aoa
-        y1 = AeroCoef.cl
-        subplot1.plot(x1,y1,LINE_STYLE[i])
+    if len(aeromap_uid_list) > 1:
+        uid_crit = None
+    else:
+        uid_crit = aeromap_uid_list[0]
 
-        # Subplot2
-        x2 = AeroCoef.aoa
-        y2 = AeroCoef.cms
-        subplot2.plot(x2,y2,LINE_STYLE[i])
+    # Default options
+    title = aircraft_name
+    criterion = pd.Series([True]*len(aeromap.index))
+    groupby_list = ['uid','mach','alt', 'aos']
+    NONE_LIST = ['None','NONE','No','NO','N','n','-',' ','']
 
-        # Subplot3
-        x3 = AeroCoef.aoa
-        y3 = AeroCoef.cd
-        subplot3.plot(x3,y3,LINE_STYLE[i])
+    # Get criterion from CPACS
+    crit_xpath = PLOT_XPATH + '/criterion'
+    alt_crit = cpsf.get_value_or_default(tixi,crit_xpath+'/alt','None')
+    mach_crit = cpsf.get_value_or_default(tixi,crit_xpath+'/mach','None')
+    aos_crit = cpsf.get_value_or_default(tixi,crit_xpath+'/aos','None')
 
-        # Subplot4
-        x4 = AeroCoef.aoa
-        if any(AeroCoef.cd) == 0.0:
-            cl_cd = [0]*len(AeroCoef.aoa)
-        else:
-            cl_cd = res = [cl/cd for cl, cd in zip(AeroCoef.cl, AeroCoef.cd)]
-        y4 = cl_cd
-        subplot4.plot(x4,y4,LINE_STYLE[i])
+    # Modify criterion and title according to user option
+    if uid_crit is not None:
+        criterion = criterion & (aeromap.uid == uid_crit)
+        title += ' - ' + uid_crit
+        groupby_list.remove('uid')
 
-    # Labels
-    subplot1.set_xlabel('Angle of attack')
-    subplot1.set_ylabel('Lift coefficient')
-    subplot2.set_xlabel('Angle of attack')
-    subplot2.set_ylabel('Moment coefficient')
-    subplot3.set_xlabel('Angle of attack')
-    subplot3.set_ylabel('Drag coefficient')
-    subplot4.set_xlabel('Angle of attack')
-    subplot4.set_ylabel('Efficiency CL/CD')
+    if len(aeromap['alt'].unique()) == 1:
+        title += ' - Alt = ' + str(aeromap['alt'].loc[0])
+        groupby_list.remove('alt')
+    elif alt_crit not in NONE_LIST :
+        criterion = criterion & (aeromap.alt == alt_crit)
+        title += ' - Alt = ' + str(alt_crit)
+        groupby_list.remove('alt')
 
-    # Legend
-    figure_1.legend(aeromap_uid_list)
+    if len(aeromap['mach'].unique()) == 1:
+        title += ' - Mach = ' + str(aeromap['mach'].loc[0])
+        groupby_list.remove('mach')
+    elif mach_crit not in NONE_LIST:
+        criterion = criterion & (aeromap.mach == mach_crit)
+        title += ' - Mach = ' + str(mach_crit)
+        groupby_list.remove('mach')
 
-    # Grid
-    subplot1.grid()
-    subplot2.grid()
-    subplot3.grid()
-    subplot4.grid()
+    if len(aeromap['aos'].unique()) == 1:
+        title += ' - AoS = ' + str(aeromap['aos'].loc[0])
+        groupby_list.remove('aos')
+    elif aos_crit not in NONE_LIST:
+        criterion = criterion & (aeromap.aos == aos_crit)
+        title += ' - AoS = ' + str(aos_crit)
+        groupby_list.remove('aos')
 
-    cpsf.close_tixi(tixi,cpacs_out_path)
+    # Plot settings
+    fig, axs = plt.subplots(2,3)
+    fig.suptitle(title, fontsize=14)
+    fig.set_figheight(8)
+    fig.set_figwidth(15)
+    fig.subplots_adjust(left=0.06)
+    axs[0,1].axhline(y=0.0, color='k', linestyle='-') # Line at Cm=0
 
+    # Plot curves
+    for value, grp in aeromap.loc[criterion].groupby(groupby_list):
+
+        legend = write_legend(groupby_list, value)
+
+        axs[0,0].plot(grp['aoa'],grp['cl'],'x-',label=legend)
+        axs[1,0].plot(grp['aoa'],grp['cd'],'x-')
+        axs[0,1].plot(grp['aoa'],grp['cms'],'x-')
+        axs[1,1].plot(grp['aoa'],grp['cl']/grp['cd'],'x-')
+        axs[0,2].plot(grp['cd'],grp['cl'],'x-')
+        axs[1,2].plot(grp['cl'],grp['cl']/grp['cd'],'x-')
+
+    # Set subplot options
+    subplot_options(axs[0,0],'CL','AoA')
+    subplot_options(axs[1,0],'CD','AoA')
+    subplot_options(axs[0,1],'Cm','AoA')
+    subplot_options(axs[1,1],'CL/CD','AoA')
+    subplot_options(axs[0,2],'CL','CD')
+    subplot_options(axs[1,2],'CL/CD','CL')
+
+    fig.legend(loc='upper right')
     plt.show()
 
 
@@ -230,7 +302,6 @@ if __name__ == '__main__':
     cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
 
-    # Plot aerodynamic coefficients
     plot_aero_coef(cpacs_path,cpacs_out_path)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

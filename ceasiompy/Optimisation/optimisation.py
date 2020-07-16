@@ -103,9 +103,8 @@ class moduleComp(om.ExplicitComponent):
 
         # Outputs
         for entry in spec.cpacs_inout.outputs:
-            # Replace special characters from the name of the entry
-            if 'range' in entry.var_name or 'payload' in entry.var_name:
-                entry.var_name = opf.change_var_name(entry.var_name)
+            # Replace special characters from the name of the entry and checks for accronyms
+            entry.var_name = tls.change_var_name(entry.var_name)
 
             if entry.var_name in declared:
                 log.info('already declared')
@@ -368,7 +367,7 @@ def driver_setup(prob):
     prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path+'/Driver_recorder.sql'))
 
 
-def add_subsystems(prob):
+def add_subsystems(prob, ivc):
     """Add subsystems to problem.
 
     All subsystem classes are added to the problem model.
@@ -413,7 +412,7 @@ def add_subsystems(prob):
     prob.model.add_subsystem('objective', obj, promotes=['*'])
 
 
-def add_parameters(prob):
+def add_parameters(prob, ivc):
     """Add problem parameters.
 
     In this function all the problem parameters, namely the constraints,
@@ -458,6 +457,58 @@ def add_parameters(prob):
     prob.model.add_objective('Objective function '+Rt.objective[0])
 
 
+def create_om_problem(prob):
+    """Create a model for an optimisation problem or a DoE.
+
+    Args:
+        prob (om.Problem object): Current problem that is being defined
+
+    Returns:
+        None.
+
+    """
+    ivc = om.IndepVarComp()
+
+    ## Add subsystems to problem ##
+    add_subsystems(prob, ivc)
+
+    ## Defining problem parameters ##
+    add_parameters(prob, ivc)
+
+    ## Setting up the problem options ##
+    driver_setup(prob)
+
+    ## Setup the model hierarchy for OpenMDAO ##
+    prob.setup()
+
+
+def generate_results(prob):
+    """Create all results from the routine.
+
+    Extract the data that has been retrieved by OpenMDAO and use them to
+    generate, plot and save results.
+
+    Args:
+        prob (om.Problem object): Current problem that is being defined
+
+    Returns:
+        None.
+
+    """
+    ## Generate N2 scheme ##
+    om.n2(optim_dir_path+'/circuit.sqlite', optim_dir_path+'/circuit.html', False)
+
+    ## Recap of the problem inputs/outputs ##
+    prob.model.list_inputs()
+    prob.model.list_outputs()
+
+    ## Results processing ##
+    tls.plot_results(optim_dir_path,'', optim_var_dict)
+    tls.save_results(optim_dir_path, optim_var_dict)
+
+    wkf.copy_module_to_module(Rt.modules[-1], 'out', 'Optimisation', 'out')
+
+
 def routine_launcher(Opt):
     """Run an optimisation routine or DoE using the OpenMDAO library.
 
@@ -475,7 +526,7 @@ def routine_launcher(Opt):
         None.
 
     """
-    global counter, optim_var_dict, Rt, skf, ivc
+    global counter, optim_var_dict, Rt, skf
 
     counter = 0
     Rt = opf.Routine()
@@ -484,43 +535,18 @@ def routine_launcher(Opt):
 
     ## Initialize CPACS file and problem dictionary ##
     create_routine_folder()
-
     opf.first_run(Rt.modules)
-
     Rt.get_user_inputs(opf.CPACS_OPTIM_PATH)
     optim_var_dict = opf.create_variable_library(Rt, optim_dir_path)
 
     ## Instantiate components and subsystems ##
     prob = om.Problem()
-    ivc = om.IndepVarComp()
-
-    ## Add subsystems to problem ##
-    add_subsystems(prob)
-
-    ## Defining problem parameters ##
-    add_parameters(prob)
-
-    ## Setting up the problem options ##
-    driver_setup(prob)
-
-    ## Setup the model hierarchy for OpenMDAO ##
-    prob.setup()
+    create_om_problem(prob)
 
     ## Run the model ##
     prob.run_driver()
 
-    ## Generate N2 scheme ##
-    om.n2(optim_dir_path+'/circuit.sqlite', optim_dir_path+'/circuit.html', False)
-
-    ## Recap of the problem inputs/outputs ##
-    prob.model.list_inputs()
-    prob.model.list_outputs()
-
-    ## Results processing ##
-    tls.plot_results(optim_dir_path,'', optim_var_dict)
-    tls.save_results(optim_dir_path, optim_var_dict)
-
-    wkf.copy_module_to_module(Rt.modules[-1], 'out', 'Optimisation', 'out')
+    generate_results(prob)
 
 
 if __name__ == '__main__':

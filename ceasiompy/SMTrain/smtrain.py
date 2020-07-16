@@ -3,8 +3,10 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This module can be called either to generate a surrogate model based on
-specified inputs and outputs, or to make a prediction by using a trained model.
+This module can be called to generate a surrogate model based on specified
+inputs and outputs. A CSV file describing the entries and containing the data
+must be provided to train the model, except if the values are taken from an
+aeromap, in which case they can all be found in the CPACS file.
 
 Python version: >=3.6
 
@@ -35,6 +37,7 @@ import smt.surrogate_models as sms
 import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mif
+import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -86,6 +89,8 @@ class Prediction_tool():
         self.type = 'KRG'
         self.objectives = ['cl']
         self.df = pd.DataFrame()
+        self.data_repartition = 0.9
+        self.show_plots = False
 
         # Only for the aeromap case
         self.aeromap_case = False
@@ -110,6 +115,9 @@ class Prediction_tool():
             path = cpsf.get_value_or_default(tixi, OPTWKDIR_XPATH, '')
             if path != '':
                 self.user_file = path+ '/Variable_history.csv'
+        self.data_repartition = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'trainingPercentage', 0.9)
+        self.show_plots = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'showPlots', False)
+
         self.aeromap_case = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'useAeromap', False)
         self.aeromap_uid = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'aeroMapUID', '')
 
@@ -169,7 +177,7 @@ def extract_data_set(file, Tool):
     return x.transpose().to_numpy(), y.transpose().to_numpy()
 
 
-def separate_data(x, y):
+def separate_data(x, y, div):
     """Create two sets of different sizes.
 
     Create two sets of points for the training and validation of
@@ -187,7 +195,6 @@ def separate_data(x, y):
 
     """
     # Sets length of each set
-    div = 0.3
     l = len(x)
     sep = int(np.ceil(div*l))
 
@@ -249,7 +256,8 @@ def validation_plots(sm, xt, yt, xv, yv):
             plt.legend(loc='upper left')
         plt.savefig(Tool.wkdir+'/Output_comparison{}.svg'.format(i))
 
-    plt.show()
+    if Tool.show_plots:
+        plt.show()
     plt.close('all')
 
 
@@ -263,14 +271,15 @@ def create_surrogate(Tool, xd, yd):
         xd, yd (numpy array): Input and output data
 
     """
-    xt, yt, xv, yv = separate_data(xd, yd)
+    xt, yt, xv, yv = separate_data(xd, yd, Tool.data_repartition)
     sm = eval('sms.{}'.format(model_dict[Tool.type]))
 
     sm.set_training_values(xt, yt)
 
     sm.train()
 
-    validation_plots(sm, xt, yt, xv, yv)
+    if Tool.data_repartition != 1.0:
+        validation_plots(sm, xt, yt, xv, yv)
 
     Tool.sm = sm
 
@@ -339,7 +348,7 @@ def save_am_df(tixi):
         tixi (tixi handle): Handle of the current CPACS file.
 
     Returns:
-        Nones.
+        df (DataFrame): The dataframe containing the aeromap data.
 
     """
     x = pd.DataFrame()
@@ -367,7 +376,8 @@ def save_am_df(tixi):
     for index, name in enumerate(df['Name']):
         df.loc[index,'getcmd'] = xpath+name
 
-    Tool.df = df
+    return df
+
 
 def extract_am_data(Tool):
     """Get training data from aeromap.
@@ -386,12 +396,14 @@ def extract_am_data(Tool):
     cpacs_path = mif.get_toolinput_file_path('SMTrain')
     tixi = cpsf.open_tixi(cpacs_path)
 
-    save_am_df(tixi)
+    Tool.df = save_am_df(tixi)
 
     Aeromap = apmf.get_aeromap(tixi, Tool.aeromap_uid)
     xd = np.array([Aeromap.alt,Aeromap.mach,Aeromap.aoa,Aeromap.aos])
     yd = np.array([Aeromap.cl,Aeromap.cd,Aeromap.cs,
                    Aeromap.cml,Aeromap.cmd,Aeromap.cms])
+
+    cpsf.close_tixi(tixi, cpacs_path)
 
     return xd.transpose(), yd.transpose()
 
@@ -428,6 +440,8 @@ if __name__ == "__main__":
     Tool.get_user_inputs()
 
     generate_model(Tool)
+
+    wkf.copy_module_to_module('SMTrain', 'in', 'SMTrain', 'out')
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
 

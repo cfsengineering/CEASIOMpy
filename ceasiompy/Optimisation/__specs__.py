@@ -10,7 +10,7 @@ RCE = {
     "description": "This module implements the optimization routine for a workflow",
     "exec": "pwd\npython optimisation.py",
     "author": "Vivien Riolo",
-    "email": "-",
+    "email": "info@cfse.ch",
 }
 
 # ===== CPACS inputs and outputs =====
@@ -46,6 +46,7 @@ cpacs_inout.add_input(
     gui_group='Optimisation settings'
 )
 
+# For now only the COBYLA algorithm should be used. (only one to deal with gradient-free, constrained optimisation)
 cpacs_inout.add_input(
     var_name='Driver',
     var_type=list,
@@ -92,22 +93,9 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name='file_saving',
-    var_type=int,
-    default_value=1,
-    unit='iteration',
-    descr='Save file every X iteration',
-    xpath=CEASIOM_XPATH+'/Optimisation/saving/perIter',
-    gui=include_gui,
-    gui_name='Saving geometry every',
-    gui_group='Optimisation settings'
-)
-
-
-cpacs_inout.add_input(
     var_name='DoEDriver',
     var_type=list,
-    default_value=['Uniform','FullFactorial', 'LatinHypercube', 'PlackettBurman'],
+    default_value=['Uniform','FullFactorial', 'LatinHypercube', 'PlackettBurman', 'CSVGenerated'],
     unit='-',
     descr='Choose the type of sample generator',
     xpath=CEASIOM_XPATH+'/Optimisation/parameters/DoE/driver',
@@ -151,6 +139,18 @@ cpacs_inout.add_input(
 #    gui_name='__AEROMAP_SELECTION',
 #    gui_group='DoE settings',
 #)
+
+cpacs_inout.add_input(
+    var_name='file_saving',
+    var_type=int,
+    default_value=1,
+    unit='iteration',
+    descr='Save file every X iteration',
+    xpath=CEASIOM_XPATH+'/Optimisation/saving/perIter',
+    gui=include_gui,
+    gui_name='Saving geometry every',
+    gui_group='Configuration'
+)
 
 cpacs_inout.add_input(
     var_name='Configuration file path',

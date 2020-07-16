@@ -106,7 +106,7 @@ def create_var(var_name, init_value, getcmd, setcmd, lim=0.2):
 
 
 def init_elem_param(sec_name, section, elem_nb, scmd):
-    """Create wing section element variable
+    """Create wing section element variable.
 
     Add design variables and constrains relative to the wing section elements
     to the dictionnary.

@@ -68,17 +68,6 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name='aos_crit',
-    var_type=str,
-    default_value='None',
-    descr='Angle of Sideslip (AoS) inclusion criteria',
-    xpath=PLOT_XPATH + '/criterion/aos',
-    gui=True,
-    gui_name='AoS criteria',
-    gui_group='Plot vs AoA'
-)
-
-cpacs_inout.add_input(
     var_name='manual_selct',
     var_type=bool,
     default_value=False,

@@ -26,7 +26,7 @@ cpacs_inout.add_input(
     var_type=str,
     default_value='cl',
     unit='-',
-    descr="""Objective function of the optimisation problem. \n Warning ! 
+    descr="""Objective function of the optimisation problem. \n Warning !
     The parameters name must match the ones in the CSV file !""",
     xpath=CEASIOM_XPATH+'/Optimisation/objective',
     gui=include_gui,
@@ -44,6 +44,18 @@ cpacs_inout.add_input(
     gui=include_gui,
     gui_name='Optimisation goal',
     gui_group='Optimisation settings'
+)
+
+cpacs_inout.add_input(
+    var_name='',
+    var_type=list,
+    default_value=None,
+    unit=None,
+    descr="Name of the aero map to evaluate",
+    xpath=CEASIOM_XPATH + '/Optimisation/aeroMapUID',
+    gui=True,
+    gui_name='__AEROMAP_SELECTION',
+    gui_group='Global settings',
 )
 
 # For now only the COBYLA algorithm should be used. (only one to deal with gradient-free, constrained optimisation)

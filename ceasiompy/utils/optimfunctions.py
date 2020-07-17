@@ -89,7 +89,6 @@ class Routine:
 
         # User specified configuration file path
         self.user_config = '../Optimisation/Default_config.csv'
-        self.use_aeromap = False
         self.aeromap_uid = '-'
 
     def get_user_inputs(self, cpacs_path):
@@ -113,8 +112,7 @@ class Routine:
 
         # User specified configuration file path
         self.user_config = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/filepath', '-'))
-        self.use_aeromap = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/useAero', '-')
-        self.aeromap_uid = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/aeroMapUID', '-'))
+        self.aeromap_uid = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'aeroMapUID', '-'))
 
         cpsf.close_tixi(tixi, CPACS_OPTIM_PATH)
 
@@ -249,7 +247,50 @@ def get_normal_param(tixi, entry, outputs):
         log.info('Added to variable file')
 
 
-def get_aero_param(tixi, module_name):
+def update_am_path(tixi, am_uid):
+    """Replace the aeromap uID for each module.
+
+    Update the aeromap uID that is used for by modules in the optimisation loop
+
+    Args:
+        tixi (Tixi3 handle): Handle of the current CPACS file.
+        am_uid (str): uID of the aeromap that will be used by all modules.
+
+    Return:
+        None.
+
+    """
+    am_xpath = ['/cpacs/toolspecific/pytornado/aeroMapUID',
+                '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID',
+                '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/AeroMapOnly']
+    for name in am_xpath:
+        if tixi.checkElement(name):
+            tixi.updateTextElement(name, am_uid)
+
+
+def get_aeromap_index(tixi, am_uid):
+    """Return index of the aeromap to be used.
+
+    With the aeromap uID, the index of this aeromap is returned if there are
+    more than one in the CPACS file.
+
+    Args:
+        tixi (Tixi3 handle): Handle of the current CPACS file
+        am_uid (str): uID of the aeromap that will be used by all modules.
+
+    Returns:
+        am_index (str): The index of the aeromap between brackets.
+
+    """
+    am_list = apmf.get_aeromap_uid_list(tixi)
+    for i, uid in enumerate(am_list):
+        if uid == am_uid:
+            am_index = '[{}]'.format(i+1)
+
+    return am_index
+
+
+def get_aero_param(tixi):
     """Add the aeromap variables to the optimisation dictionnary.
 
     Takes the variables of the aeromap that is used.
@@ -259,8 +300,6 @@ def get_aero_param(tixi, module_name):
 
     Args:
         tixi (Tixi3 handle): Handle of the current CPACS file.
-        value_name (str): Name of the parameter.
-        entry (object): Current parameter object.
 
     Returns:
         None.
@@ -268,20 +307,10 @@ def get_aero_param(tixi, module_name):
     """
     log.info('Default aeromap parameters will be set')
 
-    # Get name of aeromap that is used
-    use_am = cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'AeroMapOnly', False)
-    if module_name == 'SMUse' and use_am:
-        am_uid = tixi.getTextElement(smu.SMUSE_XPATH+'aeroMapUID')
-    else:
-        am_uid = apmf.get_current_aeromap_uid(tixi, [module_name])
+    am_uid = cpsf.get_value(tixi, OPTIM_XPATH+'aeroMapUID')
+    am_index = get_aeromap_index(tixi, am_uid)
 
     log.info('Aeromap \"{}\" will be used for the variables.'.format(am_uid))
-
-    # Search the aeromap index in the CPACS file if there are more
-    am_list = apmf.get_aeromap_uid_list(tixi)
-    for i, uid in enumerate(am_list):
-        if uid == am_uid:
-            am_index = '[{}]'.format(i+1)
 
     xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap'\
             + am_index + '/aeroPerformanceMap/'
@@ -306,6 +335,7 @@ def get_smu_vars(tixi):
 
     In the case of a surrogate model being used, the entries are retrieved from
     the dataframe that is saved in the SM file.
+
     Args:
         tixi (Tixi3 handler): Tixi handle of the CPACS file.
 
@@ -375,7 +405,7 @@ def get_module_vars(tixi, specs, module_name):
         # Aeromap variable
         elif value_name == 'aeroPerformanceMap' and aeromap:
             aeromap = False
-            get_aero_param(tixi, module_name)
+            get_aero_param(tixi)
         # Normal case
         else:
             get_normal_param(tixi, entry, specs.cpacs_inout.outputs)
@@ -407,13 +437,85 @@ def generate_dict(df):
     for key, subdict in defined_dict.items():
         if subdict['initial value'] in ['False', 'True', '-'] or subdict['type'] == 'obj':
             optim_var_dict[key] = (subdict['type'], [subdict['initial value']],
-                                   subdict['min'], subdict['max'],
-                                   subdict['getcmd'], subdict['setcmd'])
+                                   '-', '-', subdict['getcmd'], subdict['setcmd'])
         else:
             optim_var_dict[key] = (subdict['type'], [float(subdict['initial value'])],
                                    subdict['min'], subdict['max'],
                                    subdict['getcmd'], subdict['setcmd'])
     return optim_var_dict
+
+
+def add_entries(tixi, module_list):
+    """Add the entries of all the modules.
+
+    Search all the entries that can be used as problenm parameters.
+
+    Args:
+        tixi (Tixi3 handler): Tixi handle of the CPACS file.
+
+    Returns:
+        None.
+
+    """
+    use_am = cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'AeroMapOnly', False)
+    if 'SMUse' in module_list and use_am:
+        get_aero_param(tixi)
+    else:
+        for mod_name, specs in mif.get_all_module_specs().items():
+            if specs and mod_name in module_list:
+                if mod_name == 'SMUse':
+                    get_smu_vars(tixi)
+                else:
+                    get_module_vars(tixi, specs, mod_name)
+
+
+def initialize_df():
+    """Initialize the dataframe with the entries.
+
+    Setup a dataframe that contains all the entries that were found in the
+    modules.
+
+    Args:
+        None
+
+    Returns:
+        None.
+
+    """
+    df = pd.DataFrame(columns=['Name'], data=var['Name'])
+    df['type'] = var['type']
+    df['initial value'] = var['init']
+    df['min'] = var['min']
+    df['max'] = var['max']
+    df['getcmd'] = var['xpath']
+
+    return df
+
+
+def add_geometric_vars(tixi, df):
+    """Add geometry parameters as design variables.
+
+    The geometric variables are not included as module entries and must be
+    added differently.
+
+    Args:
+        tixi (Tixi3 handler): Tixi handle of the CPACS file.
+
+    Returns:
+        None.
+
+    """
+    geom_var = dct.init_geom_var_dict(tixi)
+    for key, (var_name, [init_value], lower_bound, upper_bound, setcmd, getcmd) in geom_var.items():
+        new_row = {'Name': var_name, 'type': 'des', 'initial value': init_value,
+                   'min': lower_bound, 'max': upper_bound, 'getcmd': getcmd,
+                   'setcmd': setcmd}
+        df = df.append(new_row, ignore_index=True)
+
+    df.sort_values(by=['type','Name'], axis=0, ignore_index=True,
+                   ascending=[False, True], inplace=True)
+
+    return df
 
 
 def get_default_df(module_list):
@@ -431,37 +533,15 @@ def get_default_df(module_list):
 
     """
     tixi = cpsf.open_tixi(CPACS_OPTIM_PATH)
-    use_am = cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'AeroMapOnly', False)
-    if 'SMUse' in module_list and use_am:
-        get_aero_param(tixi, 'SMUse')
-    else:
-        for mod_name, specs in mif.get_all_module_specs().items():
-            if specs and mod_name in module_list:
-                if mod_name == 'SMUse':
-                    get_smu_vars(tixi)
-                else:
-                    get_module_vars(tixi, specs, mod_name)
+
+    add_entries(tixi, module_list)
+
+    df = initialize_df()
+
+    df = add_geometric_vars(tixi, df)
+
     cpsf.close_tixi(tixi, CPACS_OPTIM_PATH)
 
-    # Add the default values for the variables
-    df = pd.DataFrame(columns=['Name'], data=var['Name'])
-    df['type'] = var['type']
-    df['initial value'] = var['init']
-    df['min'] = var['min']
-    df['max'] = var['max']
-    df['getcmd'] = var['xpath']
-
-    # Add geometry parameters as design variables (only design type for the moment)
-    tixi = cpsf.open_tixi(CPACS_OPTIM_PATH)
-    geom_var = dct.init_geom_var_dict(tixi)
-    for key, (var_name, [init_value], lower_bound, upper_bound, setcmd, getcmd) in geom_var.items():
-        new_row = {'Name': var_name, 'type': 'des', 'initial value': init_value,
-                   'min': lower_bound, 'max': upper_bound, 'getcmd': getcmd,
-                   'setcmd': setcmd}
-        df = df.append(new_row, ignore_index=True)
-
-    df.sort_values(by=['type','Name'], axis=0, ignore_index=True,
-                   ascending=[False, True], inplace=True)
     return df
 
 
@@ -498,7 +578,6 @@ def create_variable_library(Rt, optim_dir_path):
         # Save and open CSV file
         df.to_csv(CSV_PATH, index=False, na_rep='-')
         log.info('Variable library file has been generated')
-        log.info('Variable library file will opened to be modified')
 
         tls.launch_external_program(CSV_PATH)
 

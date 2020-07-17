@@ -139,12 +139,12 @@ def read_results(optim_dir_path, optim_var_dict={}):
     const = {}
 
     # Rename keys
-
     for k, v in dict(case1.get_design_vars()).items():
         des[k.replace('indeps.','')] = v
     for k, v in dict(case1.get_constraints()).items():
         if 'const' in k:
             const[k.replace('const.','')] = v
+
     # Retrieve data from SQL file
     for case in cases:
         for key, val in case.get_design_vars().items():

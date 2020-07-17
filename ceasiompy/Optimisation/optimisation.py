@@ -60,7 +60,7 @@ class geom_param(om.ExplicitComponent):
                    setcommand, getcommand) in geom_dict.items():
             if name in optim_var_dict:
                 self.add_input(name, val=listval[0])
-
+            # Add input/output for the case no entry is used
 
     def compute(self, inputs, outputs):
         """Update the geometry of the CPACS"""
@@ -90,16 +90,23 @@ class moduleComp(om.ExplicitComponent):
         #Inputs
         for entry in spec.cpacs_inout.inputs:
             if entry.var_name in declared:
-                log.info('already declared')
+                log.info('Already declared')
             elif entry.var_name in optim_var_dict:
                 var = optim_var_dict[entry.var_name]
                 # if entry.var_type == int:
                 #     self.add_discrete_input(entry.var_name, val = var[1][0])
                 # else:
-                self.add_input(entry.var_name, val=var[1][0])
+                if entry.var_name in optim_var_dict:
+                    self.add_input(entry.var_name, val=var[1][0])
+                    declared.append(entry.var_name)
             elif entry.var_name not in ['']:
-                self.add_input(entry.var_name)
-            declared.append(entry.var_name)
+                if entry.var_name in optim_var_dict:
+                    self.add_input(entry.var_name)
+                    declared.append(entry.var_name)
+
+        if declared == []:
+            self.add_input(self.module_name+'_in')
+        declared = []
 
         # Outputs
         for entry in spec.cpacs_inout.outputs:
@@ -107,13 +114,14 @@ class moduleComp(om.ExplicitComponent):
             entry.var_name = tls.change_var_name(entry.var_name)
 
             if entry.var_name in declared:
-                log.info('already declared')
+                log.info('Already declared')
             elif entry.var_name in optim_var_dict:
                 var = optim_var_dict[entry.var_name]
                 # if entry.var_type == int:
                 #     self.add_discrete_output(entry.var_name, val=var[1][0])
                 # else:
                 self.add_output(entry.var_name, val=var[1][0])
+                declared.append(entry.var_name)
             elif 'aeromap' in entry.var_name:
                 # Condition to avoid any conflict with skinfriction
                 is_skf = (self.module_name == 'SkinFriction')
@@ -123,6 +131,7 @@ class moduleComp(om.ExplicitComponent):
                         if name in optim_var_dict:
                             var = optim_var_dict[name]
                             self.add_input(name, val=var[1][0])
+                            declared.append(entry.var_name)
                     for name in ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']:
                         if name in optim_var_dict:
                             var = optim_var_dict[name]
@@ -130,10 +139,13 @@ class moduleComp(om.ExplicitComponent):
                                 self.add_output(name, val=var[1][0])
                             else:
                                 self.add_output(name)
-            else:
+                            declared.append(entry.var_name)
+            elif entry.var_name in optim_var_dict:
                 self.add_output(entry.var_name)
-            declared.append(entry.var_name)
+                declared.append(entry.var_name)
 
+        if declared == []:
+            self.add_output(self.module_name+'_out')
 
     def compute(self, inputs, outputs):
         """Launches the module"""
@@ -552,5 +564,18 @@ def routine_launcher(Opt):
 if __name__ == '__main__':
 
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
+
+    log.info('Impose the aeromap of the optimisation to all other modules')
+
+    cpacs_path = mif.get_toolinput_file_path('Optimisation')
+    cpacs_out_path = mif.get_tooloutput_file_path('Optimisation')
+    tixi = cpsf.open_tixi(cpacs_path)
+    am_uid = cpsf.get_value(tixi, opf.OPTIM_XPATH+'aeroMapUID')
+    am_index = opf.get_aeromap_index(tixi, am_uid)
+
+    opf.update_am_path(tixi, am_uid)
+
+    cpsf.close_tixi(tixi, cpacs_out_path)
+
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

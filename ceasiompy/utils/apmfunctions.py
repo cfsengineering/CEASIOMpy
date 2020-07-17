@@ -326,7 +326,7 @@ class AeroCoefficient():
 def get_aeromap_uid_list(tixi):
     """ Get the list of all aeroMap UID.
 
-    Function 'get_aeromap_uid_list' looks for all aerMap in the CPACS file and
+    Function 'get_aeromap_uid_list' looks for all aeroMap in the CPACS file and
     create a list of their UID which is returned.
 
     Args:
@@ -1050,11 +1050,10 @@ def create_aeromap(tixi, name, bound_values):
         save_parameters(tixi, name, Param)
 
 
-def get_current_aeromap_uid(tixi, module_list):
+def get_current_aeromap_uid(tixi, module_name):
     """Return uid of selected aeromap.
 
-    Check the modules that will be run in the optimisation routine to specify
-    the uID of the correct aeromap in the CPACS file.
+    Check the modules that will be run and returns its affiliated uID.
 
     Args:
         module_list (lst): List of the modules that are run in the routine
@@ -1063,25 +1062,15 @@ def get_current_aeromap_uid(tixi, module_list):
     Returns:
         uid (str) : Name of the aeromap that is used for the routine
     """
-    uid = 'None'
-
-    for module in module_list:
-        if module == 'SU2Run':
-            log.info('Found SU2 analysis')
-            xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID'
-            uid = tixi.getTextElement(xpath)
-        elif module == 'PyTornado':
-            log.info('Found PyTornado analysis')
-            xpath = '/cpacs/toolspecific/pytornado/aeroMapUID'
-            uid = tixi.getTextElement(xpath)
-        elif module == 'SMUse':
-            log.info('Found a Surrogate model')
-            xpath = '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/aeroMapUID'
-            uid = tixi.getTextElement(xpath)
-
-    if 'SkinFriction' in module_list:
-        log.info('Found SkinFriction analysis')
-        uid = uid + '_SkinFriction'
+    if module_name == 'Optim':
+        xpath = '/cpacs/toolspecific/CEASIOMpy/Optimisation/aeroMapUID'
+        uid = tixi.getTextElement(xpath)
+    elif module_name == 'SMTrain':
+        xpath = '/cpacs/toolspecific/CEASIOMpy/surrogateModel/aeroMapUID'
+        uid = tixi.getTextElement(xpath)
+    elif module_name == 'SMUse':
+        xpath = '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/aeroMapUID'
+        uid = tixi.getTextElement(xpath)
 
     return uid
 

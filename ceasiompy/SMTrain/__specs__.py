@@ -46,6 +46,30 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
+    var_name='Show_validation_plots',
+    var_type=bool,
+    default_value=True,
+    unit=None,
+    descr='Choose if the validation plots must be shown or not',
+    xpath=CEASIOM_XPATH+'/surrogateModel/showPlots',
+    gui=include_gui,
+    gui_name='Show plots',
+    gui_group='Global settings',
+)
+
+cpacs_inout.add_input(
+    var_name='Aeromap',
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="""If only the aeromap has to be used""",
+    xpath=CEASIOM_XPATH+'/surrogateModel/useAeromap',
+    gui=include_gui,
+    gui_name='Use an aeromap',
+    gui_group='Aeromap settings',
+)
+
+cpacs_inout.add_input(
     var_name='',
     var_type=list,
     default_value=None,
@@ -54,31 +78,7 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH + '/surrogateModel/aeroMapUID',
     gui=True,
     gui_name='__AEROMAP_SELECTION',
-    gui_group='Global settings',
-)
-
-cpacs_inout.add_input(
-    var_name='Aeromap',
-    var_type=bool,
-    default_value=False,
-    unit='-',
-    descr="""If only the aeromap has to be used""",
-    xpath=CEASIOM_XPATH+'/surrogateModel/useAeromap',
-    gui=include_gui,
-    gui_name='Aeromap only',
-    gui_group='Global settings',
-)
-
-cpacs_inout.add_input(
-    var_name='Show_validation_plots',
-    var_type=bool,
-    default_value=True,
-    unit='-',
-    descr='Choose if the validation plots must be shown or not',
-    xpath=CEASIOM_XPATH+'/surrogateModel/showPlots',
-    gui=include_gui,
-    gui_name='Show plots',
-    gui_group='Global settings',
+    gui_group='Aeromap settings',
 )
 
 cpacs_inout.add_input(
@@ -96,7 +96,7 @@ cpacs_inout.add_input(
     var_name='type',
     var_type=list,
     default_value=['KRG', 'KPLSK', 'KPLS', 'LS'],
-    unit='-',
+    unit=None,
     descr='Type of surrogate model to choose from',
     xpath=CEASIOM_XPATH+'/surrogateModel/modelType',
     gui=include_gui,

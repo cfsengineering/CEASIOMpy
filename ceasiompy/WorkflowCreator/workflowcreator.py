@@ -261,7 +261,7 @@ def create_wf_gui():
 
     root = tk.Tk()
     root.title('Workflow Creator')
-    root.geometry('475x490+400+300')
+    root.geometry('475x495+400+300')
     my_gui = WorkFlowGUI()
     my_gui.mainloop()
     disg = my_gui.Options

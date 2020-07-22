@@ -218,7 +218,6 @@ def aeromap_calculation(sm, tixi):
     apmf.save_coefficients(tixi, aeromap_uid, Coef)
 
     tigl.close()
-    cpsf.close_tixi(tixi, cpacs_path_out)
 
 
 def predict_output(Model, tixi):
@@ -254,11 +253,12 @@ if __name__ == "__main__":
     Model = load_surrogate()
 
     tixi = cpsf.open_tixi(cpacs_path)
+
     # TODO: Check if this solves the issue
-    # if cpsf.get_value_or_default(tixi, SMUSE_XPATH+'AeroMapOnly', False):
-    #     aeromap_calculation(Model.sm, tixi)
-    # else:
-    predict_output(Model, tixi)
+    if cpsf.get_value_or_default(tixi, SMUSE_XPATH+'AeroMapOnly', False):
+        aeromap_calculation(Model.sm, tixi)
+    else:
+        predict_output(Model, tixi)
 
     cpsf.close_tixi(tixi, cpacs_path_out)
 

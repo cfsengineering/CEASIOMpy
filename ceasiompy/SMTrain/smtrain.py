@@ -404,19 +404,18 @@ def generate_model(Tool):
         None.
 
     """
-    # Check for aeromap values to add to model
-    if Tool.aeromap_case:
-        log.info('Using aeromap entries')
-        xd_am, yd_am = extract_am_data(Tool)
-
     # Check for user-specified file to add to model
     if os.path.isfile(Tool.user_file):
         log.info('Using normal entries')
         xd, yd = extract_data_set(Tool)
         if Tool.aeromap_case:
+            log.info('Using aeromap entries')
+            xd_am, yd_am = extract_am_data(Tool)
             xd = np.concatenate((xd_am,xd),axis=0)
             yd = np.concatenate((yd_am,yd),axis=0)
-
+    elif Tool.aeromap_case:
+        log.info('Using aeromap entries')
+        xd, yd = extract_am_data(Tool)
     create_surrogate(Tool, xd, yd)
 
 

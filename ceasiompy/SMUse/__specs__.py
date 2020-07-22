@@ -38,7 +38,7 @@ cpacs_inout.add_input(
     var_name='Aeromap only',
     var_type=bool,
     default_value='False',
-    unit='-',
+    unit=None,
     descr="""Indicate wether or not the parameters are all contained in an aeromap, in which case
     the workflow only has to be run once.""",
     xpath=CEASIOM_XPATH+'/surrogateModelUse/AeroMapOnly',

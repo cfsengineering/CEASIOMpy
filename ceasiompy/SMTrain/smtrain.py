@@ -228,6 +228,9 @@ def validation_plots(sm, xt, yt, xv, yv):
         None.
 
     """
+    fig_dir = Tool.wkdir+'/Validation plots'
+    os.mkdir(fig_dir)
+
     yp = sm.predict_values(xv)
     if Tool.aeromap_case:
         Tool.objectives = ['cl','cd','cs','cml','cmd','cms']
@@ -256,7 +259,7 @@ def validation_plots(sm, xt, yt, xv, yv):
             plt.plot(xv[:,j], yp[:,i], 'r.', label='$y_{prediction set}$')
             plt.title('$'+Tool.objectives[i]+'$')
             plt.legend(loc='upper left')
-        plt.savefig(Tool.wkdir+'/Output_comparison{}.svg'.format(i))
+        plt.savefig(fig_dir+'/Output_comparison{}.svg'.format(i))
 
     if Tool.show_plots:
         plt.show()
@@ -280,7 +283,7 @@ def create_surrogate(Tool, xd, yd):
 
     sm.train()
 
-    if Tool.data_repartition != 1.0:
+    if len(xv) >= 1:
         validation_plots(sm, xt, yt, xv, yv)
 
     Tool.sm = sm
@@ -398,22 +401,20 @@ def generate_model(Tool):
         None.
 
     """
-    xd = np.array([])
-    yd = np.array([])
-
     # Check for aeromap values to add to model
     if Tool.aeromap_case:
         log.info('Using aeromap entries')
         xd_am, yd_am = extract_am_data(Tool)
-        xd = np.concatenate((xd,xd_am),axis=0)
-        yd = np.concatenate((yd,yd_am),axis=0)
 
     # Check for user-specified file to add to model
     if os.path.isfile(Tool.user_file):
         log.info('Using normal entries')
-        xd_file, yd_file = extract_data_set(Tool)
-        xd = np.concatenate((xd,xd_file),axis=0)
-        yd = np.concatenate((yd,yd_file),axis=0)
+        xd, yd = extract_data_set(Tool)
+        print(xd)
+        print(xd_am)
+        if Tool.aeromap_case:
+            xd = np.concatenate((xd_am,xd),axis=0)
+            yd = np.concatenate((yd_am,yd),axis=0)
 
     create_surrogate(Tool, xd, yd)
 

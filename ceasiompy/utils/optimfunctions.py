@@ -28,12 +28,12 @@ import pandas as pd
 from re import split
 
 import ceasiompy.SMUse.smuse as smu
+import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mif
-import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.workflowfunctions as wkf
-import ceasiompy.Optimisation.func.dictionnary as dct
 import ceasiompy.Optimisation.func.tools as tls
+import ceasiompy.Optimisation.func.dictionnary as dct
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -55,7 +55,8 @@ SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 # Parameters that can not be used as problem variables
 banned_entries = ['wing','delete_old_wkdirs','check_extract_loads', # Not relevant variables
-                  'cabin_crew_nb' # Is an input in range and an output in weightconv
+                  'cabin_crew_nb', # Is an input in range and an output in weightconv
+                  'MASS_CARGO' # Strange behaviour to be fixed
                   ]
 # ==============================================================================
 #   CLASS
@@ -90,10 +91,10 @@ class Routine:
         # User specified configuration file path
         self.user_config = '../Optimisation/Default_config.csv'
         self.aeromap_uid = '-'
+        self.use_aeromap = False
 
-    def get_user_inputs(self, cpacs_path):
+    def get_user_inputs(self, tixi):
         """Take user inputs from the GUI."""
-        tixi = cpsf.open_tixi(CPACS_OPTIM_PATH)
 
         # Problem setup
         objectives = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'objective', 'cl')
@@ -114,47 +115,45 @@ class Routine:
         self.user_config = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/filepath', '-'))
         self.aeromap_uid = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'aeroMapUID', '-'))
 
-        cpsf.close_tixi(tixi, CPACS_OPTIM_PATH)
+        self.use_aeromap = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/useAero', False)
 
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
 
-def first_run(module_list, modules_pre_list=[]):
+def first_run(Rt):
     """Run subworkflow once for the optimisation problem.
 
     This function runs a first loop to ensure that all problem variables
     are created an can be fed to the optimisation setup program.
 
     Args:
-        module_list (lst) : List of modules to run.
-        module_pre_list (lst) : List of modules that were run in a previous
-        workflow.
+        Rt (Routine object): Class that contains the routine informations.
 
     Returns:
         None.
 
     """
-
     log.info('Launching initialization workflow')
+    Rt.modules.insert(0, 'Optimisation')
 
     # Settings needed for CFD calculation
-    if 'Optimisation' not in modules_pre_list:
-        module_list.insert(0, 'Optimisation')
-    if 'SettingsGUI' not in module_list:
-        module_list.insert(0, 'SettingsGUI')
+    added_gui = False
+    if 'SettingsGUI' not in Rt.modules:
+        Rt.modules.insert(0, 'SettingsGUI')
+        added_gui = True
 
     # First iteration to create aeromap results if no pre-workflow
-    wkf.copy_module_to_module('Optimisation', 'in', module_list[0], 'in')
-    wkf.run_subworkflow(module_list)
-    wkf.copy_module_to_module(module_list[-1], 'out', 'Optimisation', 'in')
+    wkf.copy_module_to_module('Optimisation', 'in', Rt.modules[0], 'in')
+    wkf.run_subworkflow(Rt.modules)
+    wkf.copy_module_to_module(Rt.modules[-1], 'out', 'Optimisation', 'in')
 
     # SettingsGUI only needed at the first iteration
-    if 'SettingsGUI' in module_list:
-        module_list.remove('SettingsGUI')
+    if 'SettingsGUI' in Rt.modules and added_gui:
+        Rt.modules.remove('SettingsGUI')
 
     # Optimisation parameters only needed for the first run
-    module_list.remove('Optimisation')
+    Rt.modules.remove('Optimisation')
 
 
 def gen_doe_csv(user_config):
@@ -269,6 +268,9 @@ def update_am_path(tixi, am_uid):
     for name in am_xpath:
         if tixi.checkElement(name):
             tixi.updateTextElement(name, am_uid)
+        else:
+            cpsf.create_branch(tixi, name)
+            tixi.updateTextElement(name, am_uid)
 
 
 def get_aeromap_index(tixi, am_uid):
@@ -286,6 +288,7 @@ def get_aeromap_index(tixi, am_uid):
 
     """
     am_list = apmf.get_aeromap_uid_list(tixi)
+    am_index = '[1]'
     for i, uid in enumerate(am_list):
         if uid == am_uid:
             am_index = '[{}]'.format(i+1)
@@ -317,11 +320,8 @@ def get_aero_param(tixi):
 
     xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap'\
             + am_index + '/aeroPerformanceMap/'
-    outputs = ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']
-    inputs = ['altitude', 'machNumber', 'angleOfAttack', 'angleOfSideslip']
 
-    inputs.extend(outputs)
-    for name in inputs:
+    for name in apmf.COEF_LIST+apmf.XSTATES:
         xpath_param = xpath+name
         value = str(tixi.getDoubleElement(xpath_param))
 
@@ -329,7 +329,7 @@ def get_aero_param(tixi):
         var['init'].append(value)
         var['xpath'].append(xpath_param)
 
-        tls.add_type(name, outputs, objective, var)
+        tls.add_type(name, apmf.COEF_LIST, objective, var)
         tls.add_bounds(name, value, var)
 
 
@@ -521,7 +521,7 @@ def add_geometric_vars(tixi, df):
     return df
 
 
-def get_default_df(module_list):
+def get_default_df(tixi, module_list):
     """Generate dataframe with all inouts.
 
     Generates a dataframe containing all the variables that could be found in
@@ -529,26 +529,66 @@ def get_default_df(module_list):
     DoE routine.
 
     Args:
+        tixi (Tixi3 handler): Tixi handle of the CPACS file.
         module_list (lst): list of modules to execute in the routine.
 
     Returns:
         df (Dataframe): Dataframe with all the module variables.
 
     """
-    tixi = cpsf.open_tixi(CPACS_OPTIM_PATH)
-
     add_entries(tixi, module_list)
 
     df = initialize_df()
 
     df = add_geometric_vars(tixi, df)
 
-    cpsf.close_tixi(tixi, CPACS_OPTIM_PATH)
-
     return df
 
 
-def create_variable_library(Rt, optim_dir_path):
+def create_am_lib(Rt, tixi):
+    """Create a dictionary for the aeromap coefficients.
+
+    Return a dictionary with all the values of the aeromap that is used during
+    the routine, so that all the results of the aeromap can later be exploited.
+
+    Args:
+        Rt (class): Contains all the parameters of the current routine.
+        tixi (Tixi3 handler): Tixi handle of the CPACS file.
+
+    Returns:
+        am_dict (dct): Dictionnary with all aeromap parameters.
+
+    """
+    Coef = apmf.get_aeromap(tixi, Rt.aeromap_uid)
+    am_length = len(Coef.alt)
+    am_dict = Coef.to_dict()
+    am_index = apmf.get_aeromap_index(tixi, Rt.aeromap_uid)
+
+    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap'\
+            + am_index + '/aeroPerformanceMap/'
+
+    for name in apmf.COEF_LIST+apmf.XSTATES:
+        if name in ['altitude','machNumber']:
+            min_val = 0
+            max_val = '-'
+            val_type = 'des'
+        if name in apmf.COEF_LIST:
+            min_val = -1
+            max_val = 1
+            if name in Rt.objective:
+                val_type = 'obj'
+            else:
+                val_type = 'const'
+        if name in ['angleOfAttack', 'angleOfSideslip']:
+            min_val = -5
+            max_val = 5
+            val_type = 'des'
+        am_dict[name] = (val_type, am_dict[name], min_val, max_val, xpath+name, '-')
+
+    return am_dict
+
+
+def create_variable_library(Rt, tixi, optim_dir_path):
     """Create a dictionnary and a CSV file containing all variables that appear
     in the module list.
 
@@ -560,6 +600,7 @@ def create_variable_library(Rt, optim_dir_path):
 
     Args:
         Rt (class): Contains all the parameters of the current routine.
+        tixi (Tixi3 handler): Tixi handle of the CPACS file.
         optim_dir_path (str): Path to the working directory.
 
     Returns:
@@ -574,9 +615,15 @@ def create_variable_library(Rt, optim_dir_path):
     for obj in Rt.objective:
         objective.extend(split('[+*/-]',obj))
 
-    if not os.path.isfile(Rt.user_config):
+    if os.path.isfile(Rt.user_config):
+        log.info('Configuration file found, will be used')
+        log.info(Rt.user_config)
+        df = pd.read_csv(Rt.user_config, index_col=0)
+        optim_var_dict = generate_dict(df)
+
+    else:
         log.info('No configuration file found, default one will be generated')
-        df = get_default_df(Rt.modules)
+        df = get_default_df(tixi, Rt.modules)
 
         # Save and open CSV file
         df.to_csv(CSV_PATH, index=False, na_rep='-')
@@ -587,14 +634,6 @@ def create_variable_library(Rt, optim_dir_path):
         log.info('Variable library file has been saved at '+CSV_PATH)
         df = pd.read_csv(CSV_PATH, index_col=0, skip_blank_lines=True)
         optim_var_dict = generate_dict(df)
-    else:
-        log.info('Configuration file found, will be used')
-        df = pd.read_csv(Rt.user_config, index_col=0)
-        optim_var_dict = generate_dict(df)
-
-        tixi = cpsf.open_tixi(CPACS_OPTIM_PATH)
-        dct.update_dict(tixi, optim_var_dict)
-        cpsf.close_tixi(tixi, CPACS_OPTIM_PATH)
 
     return optim_var_dict
 

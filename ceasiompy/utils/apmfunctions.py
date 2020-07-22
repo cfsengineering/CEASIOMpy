@@ -274,10 +274,10 @@ class AeroCoefficient():
         self.cms = df_sorted['cms'].tolist()
 
     def to_dict(self):
-        dct = {'alt':self.alt,
-        'mach': self.mach,
-        'aoa':self.aoa,
-        'aos':self.aos,
+        dct = {'altitude':self.alt,
+        'machNumber': self.mach,
+        'angleOfAttack':self.aoa,
+        'angleOfSideslip':self.aos,
         'cl':self.cl,
         'cd':self.cd,
         'cs':self.cs,
@@ -1048,6 +1048,33 @@ def create_aeromap(tixi, name, bound_values):
         Param.aos = bounds[3,:]
 
         save_parameters(tixi, name, Param)
+        index = get_aeromap_index(tixi, name)
+        path = """/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap{}
+               /aeroPerformanceMap/""".format(index)
+        for coef in COEF_LIST:
+            tixi.addTextAttribute(path+coef, 'mapType', 'vector')
+
+
+def get_aeromap_index(tixi, am_uid):
+    """Return index of the aeromap to be used.
+
+    With the aeromap uID, the index of this aeromap is returned if there are
+    more than one in the CPACS file.
+
+    Args:
+        tixi (Tixi3 handle): Handle of the current CPACS file
+        am_uid (str): uID of the aeromap that will be used by all modules.
+
+    Returns:
+        am_index (str): The index of the aeromap between brackets.
+
+    """
+    am_list = get_aeromap_uid_list(tixi)
+    for i, uid in enumerate(am_list):
+        if uid == am_uid:
+            am_index = '[{}]'.format(i+1)
+
+    return am_index
 
 
 def get_current_aeromap_uid(tixi, module_name):

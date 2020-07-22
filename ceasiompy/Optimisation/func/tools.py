@@ -121,45 +121,35 @@ def read_results(optim_dir_path, optim_var_dict={}):
     convenient.
 
     Args:
-        optim_dir_path (str) : Path to the SQL file directory.
+        optim_dir_path (str): Path to the SQL file directory.
+        optim_var_dict (dct): Contains the variables.
 
     Returns:
         df (DataFrame) : Contains all parameters of the routine
 
     """
-    # Read recorded options
-    cr = om.CaseReader(optim_dir_path + '/Driver_recorder.sql')
+    # # Read recorded options
+    # cr = om.CaseReader(optim_dir_path + '/Driver_recorder.sql')
 
-    cases = cr.get_cases()
+    # cases = cr.get_cases()
 
-    # Initiates dictionnaries
-    case1 = cr.get_case(0)
+    # # Initiates dictionnaries
+    # case1 = cr.get_case(0)
     obj = {}
     des = {}
     const = {}
-
-    # Rename keys
-    for k, v in dict(case1.get_design_vars()).items():
-        des[k.replace('indeps.','')] = v
-    for k, v in dict(case1.get_constraints()).items():
-        if 'const' in k:
-            const[k.replace('const.','')] = v
-
-    # Retrieve data from SQL file
-    for case in cases:
-        for key, val in case.get_design_vars().items():
-            key = key.replace('indeps.','')
-            des[key] = np.append(des[key], val)
-
-        for key, val in case.get_constraints().items():
-            if 'const' in key:
-                key = key.replace('const.','')
-                const[key] = np.append(const[key], val)
 
     # Retrieve data from optim variables
     for name, infos in optim_var_dict.items():
         if infos[0] == 'obj':
             obj[name] = np.array(infos[1])
+        if infos[0] == 'des':
+            des[name] = np.array(infos[1])
+        if infos[0] == 'const':
+            const[name] = np.array(infos[1])
+        print(name)
+        print(infos[0])
+        print(len(infos[1]))
 
     df_o = pd.DataFrame(obj).transpose()
     df_d = pd.DataFrame(des).transpose()
@@ -171,9 +161,6 @@ def read_results(optim_dir_path, optim_var_dict={}):
 
     df = pd.concat([df_o,df_d,df_c], axis=0)
     df.sort_values('type',0, ignore_index=True, ascending=False)
-
-    # Drop duplicate (first and second columns are the same)
-    df = df.drop(0,1)
 
     # Add get and set commands
     df.insert(1, 'getcmd', '-')
@@ -204,6 +191,7 @@ def save_results(optim_dir_path, optim_var_dict={}):
 
     # Get variable infos
     df = read_results(optim_dir_path, optim_var_dict)
+    print(df)
 
     df.to_csv(optim_dir_path+'/Variable_history.csv', index=True, na_rep='-')
 

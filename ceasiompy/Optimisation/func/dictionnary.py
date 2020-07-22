@@ -65,13 +65,12 @@ def add_am_to_dict(optim_var_dict, am_dict):
     var_in_dict = list(optim_var_dict.keys())[0]
     am_length = int(len(am_dict['cl'][1])/len(optim_var_dict[var_in_dict][1]))
     log.info("Adding the whole aeromap to the dictionary")
-    for name, (val_type, listval, minval, maxval,
-       getcommand, setcommand) in optim_var_dict.items():
+    for name, infos in optim_var_dict.items():
         if name not in apmf.XSTATES+apmf.COEF_LIST:
             # Calling a new list instance else the clear method will also clean l
-            l = list(listval)
-            listval.clear()
-            listval.extend(np.repeat(l, am_length))
+            l = list(infos[1])
+            infos[1].clear()
+            infos[1].extend(np.repeat(l, am_length))
 
     for name, infos in am_dict.items():
         optim_var_dict[name] = infos
@@ -93,8 +92,8 @@ def update_am_dict(tixi, aeromap_uid, am_dict):
     """
     Coef = apmf.get_aeromap(tixi, aeromap_uid)
     d = Coef.to_dict()
-    for k, v in am_dict.items():
-        v[1].extend(d[k])
+    for name , infos in am_dict.items():
+        infos[1].extend(d[name])
 
 
 def update_dict(tixi, optim_var_dict):
@@ -113,12 +112,11 @@ def update_dict(tixi, optim_var_dict):
         None.
 
     """
-    for name, (val_type, listval, minval, maxval,
-               getcommand, setcommand) in optim_var_dict.items():
-        if setcommand in ['','-']:
-            if tixi.checkElement(getcommand):
-                new_val = tixi.getDoubleElement(getcommand)
-                listval.append(new_val)
+    for name, infos in optim_var_dict.items():
+        if infos[5] in ['', '-']:
+            if tixi.checkElement(infos[4]):
+                new_val = tixi.getDoubleElement(infos[4])
+                infos[1].append(new_val)
 
 
 def create_var(var_name, init_value, getcmd, setcmd, lim=0.2):
@@ -299,7 +297,7 @@ def init_fuse_param(aircraft, fuse_nb):
 
         # Modify a specific section width
         fnb = fuselage.get_section_count()
-        if type(fnb) is not int:
+        if not isinstance(fnb, int):
             for secnb in fnb:
                 var_name = name + "_sec" + str(secnb)
                 init_sec_width = fuselage.get_maximal_width()

@@ -22,10 +22,9 @@ Todo:
 #   IMPORTS
 # ==============================================================================
 import os
-import sys
 
-import pandas as pd
 from re import split
+import pandas as pd
 
 import ceasiompy.SMUse.smuse as smu
 import ceasiompy.utils.apmfunctions as apmf
@@ -54,10 +53,14 @@ AEROMAP_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance'
 SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 # Parameters that can not be used as problem variables
-banned_entries = ['wing','delete_old_wkdirs','check_extract_loads', # Not relevant variables
+banned_entries = ['wing', 'delete_old_wkdirs', 'check_extract_loads', # Not relevant variables
                   'cabin_crew_nb', # Is an input in range and an output in weightconv
                   'MASS_CARGO' # Strange behaviour to be fixed
                   ]
+
+objective = []
+var = {'Name':[], 'type':[], 'init':[], 'min':[], 'max':[], 'xpath':[]}
+
 # ==============================================================================
 #   CLASS
 # ==============================================================================
@@ -98,7 +101,7 @@ class Routine:
 
         # Problem setup
         objectives = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'objective', 'cl')
-        self.objective = split(';|,',objectives)
+        self.objective = split(';|,', objectives)
         self.minmax = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'minmax', 'max')
 
         # Global parameters
@@ -175,14 +178,14 @@ def gen_doe_csv(user_config):
 
     try:
         # Check if the name, type and at least one point are present.
-        df[['Name','type',0]]
+        log.info(df[['Name', 'type', 0]])
 
         # Get only design variables
-        df = df.loc[[i for i,v in enumerate(df['type']) if v == 'des']]
+        df = df.loc[[i for i, v in enumerate(df['type']) if v == 'des']]
 
         # Get only name and columns with point values
         l = [i for i in df.columns if i.isdigit()]
-        l.insert(0,'Name')
+        l.insert(0, 'Name')
         df = df[l]
 
         df = df.T
@@ -244,7 +247,7 @@ def get_normal_param(tixi, entry, outputs):
         var['Name'].append(entry.var_name)
 
         tls.add_type(entry, outputs, objective, var)
-        tls.add_bounds(entry.var_name, value, var)
+        tls.add_bounds(value, var)
         log.info('Value : {}'.format(value))
         log.info('Added to variable file')
 
@@ -330,7 +333,7 @@ def get_aero_param(tixi):
         var['xpath'].append(xpath_param)
 
         tls.add_type(name, apmf.COEF_LIST, objective, var)
-        tls.add_bounds(name, value, var)
+        tls.add_bounds(value, var)
 
 
 def get_smu_vars(tixi):
@@ -346,7 +349,7 @@ def get_smu_vars(tixi):
         None.
 
     """
-    Model = smu.load_surrogate()
+    Model = smu.load_surrogate(tixi)
     df = Model.df.rename(columns={'Unnamed: 0':'Name'})
     df.set_index('Name', inplace=True)
 
@@ -359,13 +362,13 @@ def get_smu_vars(tixi):
             var['xpath'].append(xpath)
             var['init'].append(value)
             var['type'].append(df.loc[name]['type'])
-            tls.add_bounds(name, value, var)
+            tls.add_bounds(value, var)
         else:
             log.warning('Variable already exists')
             log.info(name+' will not be added to the variable file')
 
 
-def get_module_vars(tixi, specs, module_name):
+def get_module_vars(tixi, specs):
     """Retrieve input and output variables of a module.
 
     Gets all the inputs and outputs of a module based on its __spec__ file,
@@ -374,7 +377,6 @@ def get_module_vars(tixi, specs, module_name):
     Returns:
         tixi (Tixi3 handler): Tixi handle of the CPACS file.
         specs (class): Contains the modules inputs and outputs specifications.
-        module_name (str): Name of the current module
 
     Returns:
         None.
@@ -427,7 +429,7 @@ def generate_dict(df):
         optim_var_dict (dict): Used to pass the variables to the openMDAO setup.
 
     """
-    df.dropna(axis=0,subset=['type','getcmd'],inplace=True)
+    df.dropna(axis=0, subset=['type', 'getcmd'], inplace=True)
     if 'min' not in df.columns:
         df['min'] = '-'
     if 'max' not in df.columns:
@@ -469,7 +471,7 @@ def add_entries(tixi, module_list):
                 if mod_name == 'SMUse':
                     get_smu_vars(tixi)
                 else:
-                    get_module_vars(tixi, specs, mod_name)
+                    get_module_vars(tixi, specs)
 
 
 def initialize_df():
@@ -515,7 +517,7 @@ def add_geometric_vars(tixi, df):
                    'setcmd': setcmd}
         df = df.append(new_row, ignore_index=True)
 
-    df.sort_values(by=['type','Name'], axis=0, ignore_index=True,
+    df.sort_values(by=['type', 'Name'], axis=0, ignore_index=True,
                    ascending=[False, True], inplace=True)
 
     return df
@@ -560,7 +562,6 @@ def create_am_lib(Rt, tixi):
 
     """
     Coef = apmf.get_aeromap(tixi, Rt.aeromap_uid)
-    am_length = len(Coef.alt)
     am_dict = Coef.to_dict()
     am_index = apmf.get_aeromap_index(tixi, Rt.aeromap_uid)
 
@@ -568,7 +569,7 @@ def create_am_lib(Rt, tixi):
             + am_index + '/aeroPerformanceMap/'
 
     for name in apmf.COEF_LIST+apmf.XSTATES:
-        if name in ['altitude','machNumber']:
+        if name in ['altitude', 'machNumber']:
             min_val = 0
             max_val = '-'
             val_type = 'des'
@@ -608,12 +609,10 @@ def create_variable_library(Rt, tixi, optim_dir_path):
 
     """
     global objective, var
-    objective = []
     CSV_PATH = optim_dir_path+'/Variable_library.csv'
-    var = {'Name':[], 'type':[], 'init':[], 'min':[], 'max':[], 'xpath':[]}
 
     for obj in Rt.objective:
-        objective.extend(split('[+*/-]',obj))
+        objective.extend(split('[+*/-]', obj))
 
     if os.path.isfile(Rt.user_config):
         log.info('Configuration file found, will be used')

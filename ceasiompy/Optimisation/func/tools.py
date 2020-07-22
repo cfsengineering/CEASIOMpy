@@ -28,7 +28,7 @@ import numpy as np
 import openmdao.api as om
 import matplotlib.pyplot as plt
 import pandas as pd
-import tigl3.configuration
+import tigl3.configuration #used within eval
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -156,16 +156,16 @@ def read_results(optim_dir_path, optim_var_dict={}):
     df_d.insert(0, 'type', 'des')
     df_c.insert(0, 'type', 'const')
 
-    df = pd.concat([df_o,df_d,df_c], axis=0)
-    df.sort_values('type',0, ignore_index=True, ascending=False)
+    df = pd.concat([df_o, df_d, df_c], axis=0)
+    df.sort_values('type', 0, ignore_index=True, ascending=False)
 
     # Add get and set commands
     df.insert(1, 'getcmd', '-')
     df.insert(2, 'setcmd', '-')
     for v in df.index:
         if v in optim_var_dict:
-            df.loc[v,'getcmd'] = optim_var_dict[v][4]
-            df.loc[v,'setcmd'] = optim_var_dict[v][5]
+            df.loc[v, 'getcmd'] = optim_var_dict[v][4]
+            df.loc[v, 'setcmd'] = optim_var_dict[v][5]
 
     return df
 
@@ -221,8 +221,8 @@ def plot_results(optim_dir_path, routine_type, optim_var_dict={}):
     df.pop('getcmd')
     df.pop('setcmd')
     df = df.transpose()
-    nbC = min(len(des),5)
-    df.plot(subplots=True, layout=(-1,nbC))
+    nbC = min(len(des), 5)
+    df.plot(subplots=True, layout=(-1, nbC))
 
     plot_objective(optim_dir_path)
 
@@ -251,18 +251,18 @@ def plot_objective(optim_dir_path):
     obj = {}
 
     for k, v in dict(case1.get_objectives()).items():
-        obj[k.replace('objective.','')] = v
+        obj[k.replace('objective.', '')] = v
 
     for case in cases:
         for key, val in case.get_objectives().items():
-            key = key.replace('objective.','')
+            key = key.replace('objective.', '')
             obj[key] = np.append(obj[key], val)
     df_o = pd.DataFrame(obj).transpose()
-    df_o = df_o.drop(0,1)
+    df_o = df_o.drop(0, 1)
     df_o = df_o.transpose()
-    nbC = min(len(obj),5)
+    nbC = min(len(obj), 5)
 
-    df_o.plot(subplots=True, layout=(-1,nbC))
+    df_o.plot(subplots=True, layout=(-1, nbC))
     plt.show()
 
 
@@ -281,16 +281,16 @@ def gen_plot(df, yvars, xvars):
 
     """
     plt.figure()
-    nbC = min(len(xvars),5)
-    if nbC == 0 :
+    nbC = min(len(xvars), 5)
+    if nbC == 0:
         nbC = 1
     nbR = int(len(yvars) * np.ceil(len(xvars)/nbC))
     r = 0
     c = 1
     for o in yvars:
         for d in xvars:
-            plt.subplot(nbR,nbC,c+r*nbC)
-            plt.scatter(df[d],df[o])
+            plt.subplot(nbR, nbC, c+r*nbC)
+            plt.scatter(df[d], df[o])
             plt.xlabel(d)
             if c == 1:
                 plt.ylabel(o)
@@ -320,14 +320,14 @@ def is_digit(value):
         Boolean.
 
     """
-    if type(value) is list:
+    if isinstance(value, list):
         return False
-    else:
-        try:
-            float(value)
-            return True
-        except:
-            return False
+
+    try:
+        float(value)
+        return True
+    except:
+        return False
 
 
 def change_var_name(name):
@@ -349,15 +349,15 @@ def change_var_name(name):
 
     if 'range' in name or 'payload' in name:
         for s in name:
-            if s in ['[',']']:
-                name = name.replace(s,'_')
+            if s in ['[', ']']:
+                name = name.replace(s, '_')
         log.info('Variable name was changed to {}'.format(name))
 
     if name in accronym_dict:
         log.info('Variable name was changed to {}'.format(accronym_dict[name]))
         return accronym_dict[name]
-    else:
-        return name
+
+    return name
 
 
 def add_type(entry, outputs, objective, var):
@@ -380,7 +380,7 @@ def add_type(entry, outputs, objective, var):
 
     """
     if entry in outputs:
-        if type(entry) != str:
+        if not isinstance(entry, str):
             entry = entry.var_name
         if entry in objective:
             var['type'].append('obj')
@@ -393,14 +393,13 @@ def add_type(entry, outputs, objective, var):
         log.info('Added type : des')
 
 
-def add_bounds(name, value, var):
+def add_bounds(value, var):
     """Add upper and lower bound.
 
     20% of the initial value is added and substracted to create the
     boundaries.
 
     Args:
-    name (str) : Name of a variable
     value (str) : Initial value of the variable
     var (dct) : Variable dictionary
 
@@ -409,8 +408,8 @@ def add_bounds(name, value, var):
 
     """
     if value in ['False', 'True']:
-            lower = '-'
-            upper = '-'
+        lower = '-'
+        upper = '-'
     elif value.isdigit():
         value = int(value)
         lower = round(value-abs(0.2*value))

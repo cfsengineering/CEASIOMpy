@@ -26,6 +26,8 @@ TODO
 
 from sys import exit
 
+import numpy as np
+import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
 
@@ -43,6 +45,56 @@ XPATH = 'None'
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
+def add_am_to_dict(optim_var_dict, am_dict):
+    """Add aeromap values to variable dictionary.
+
+    All values are dupplicated to reach the same number of value than the
+    aeromap parameters and coefficient. This is done to add the aeromap points
+    that are not taken into account by the driver, but still computed in one
+    iteration.
+
+    Args:
+        optim_var_dict (dct): Variable dictionary.
+        am_dict (dct): Dictionary with the entire aeromap.
+
+    Returns:
+        None.
+
+    """
+    # Take a variable from the optim dict to compute the length to add
+    var_in_dict = list(optim_var_dict.keys())[0]
+    am_length = int(len(am_dict['cl'][1])/len(optim_var_dict[var_in_dict][1]))
+    log.info("Adding the whole aeromap to the dictionary")
+    for name, (val_type, listval, minval, maxval,
+       getcommand, setcommand) in optim_var_dict.items():
+        if name not in apmf.XSTATES+apmf.COEF_LIST:
+            # Calling a new list instance else the clear method will also clean l
+            l = list(listval)
+            listval.clear()
+            listval.extend(np.repeat(l, am_length))
+
+    for name, infos in am_dict.items():
+        optim_var_dict[name] = infos
+
+
+def update_am_dict(tixi, aeromap_uid, am_dict):
+    """Save the aeromap results.
+
+    Appends the new aeromap results to a dictionary.
+
+    Args:
+        tixi (tixi3 handle): TIXI handle of the CPACS file.
+        aeromap_uid (str): uID of the aeromap in use.
+        am_dict (dct): Contains the results of old aeromap calculations.
+
+    Returns
+        None.
+
+    """
+    Coef = apmf.get_aeromap(tixi, aeromap_uid)
+    d = Coef.to_dict()
+    for k, v in am_dict.items():
+        v[1].extend(d[k])
 
 
 def update_dict(tixi, optim_var_dict):
@@ -55,21 +107,18 @@ def update_dict(tixi, optim_var_dict):
 
     Args:
         tixi (tixi3 handle) : TIXI handle of the CPACS file
-        optim_var_dict (dict) : Variable dictionary
+        optim_var_dict (dict) : Variable dictionary.
 
     Returns:
         None.
 
     """
-    for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
+    for name, (val_type, listval, minval, maxval,
+               getcommand, setcommand) in optim_var_dict.items():
         if setcommand in ['','-']:
             if tixi.checkElement(getcommand):
                 new_val = tixi.getDoubleElement(getcommand)
-                # Checks type of variable
-                if type(new_val) == list:
-                    listval.append(new_val[-1])
-                else:
-                    listval.append(new_val)
+                listval.append(new_val)
 
 
 def create_var(var_name, init_value, getcmd, setcmd, lim=0.2):

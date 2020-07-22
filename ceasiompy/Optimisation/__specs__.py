@@ -128,29 +128,17 @@ cpacs_inout.add_input(
     gui_group='DoE settings'
 )
 
-#cpacs_inout.add_input(
-#    var_name='UseAeromap',
-#    var_type=bool,
-#    default_value=False,
-#    unit=None,
-#    descr='Enables use of an aeromap only for computation',
-#    xpath=CEASIOM_XPATH + '/Optimisation/Config/useAero',
-#    gui=True,
-#    gui_name='Use aeromap',
-#    gui_group='DoE settings',
-#)
-
-#cpacs_inout.add_input(
-#    var_name='',
-#    var_type=list,
-#    default_value=None,
-#    unit=None,
-#    descr="Name of the aero map to evaluate",
-#    xpath=CEASIOM_XPATH + '/Optimisation/Config/aeroMapUID',
-#    gui=True,
-#    gui_name='__AEROMAP_SELECTION',
-#    gui_group='DoE settings',
-#)
+cpacs_inout.add_input(
+    var_name='UseAeromap',
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr='Enables use of an aeromap only for computation',
+    xpath=CEASIOM_XPATH + '/Optimisation/Config/useAero',
+    gui=True,
+    gui_name='Use whole aeromap',
+    gui_group='DoE settings',
+)
 
 cpacs_inout.add_input(
     var_name='file_saving',

@@ -147,9 +147,6 @@ def read_results(optim_dir_path, optim_var_dict={}):
             des[name] = np.array(infos[1])
         if infos[0] == 'const':
             const[name] = np.array(infos[1])
-        print(name)
-        print(infos[0])
-        print(len(infos[1]))
 
     df_o = pd.DataFrame(obj).transpose()
     df_d = pd.DataFrame(des).transpose()
@@ -191,7 +188,6 @@ def save_results(optim_dir_path, optim_var_dict={}):
 
     # Get variable infos
     df = read_results(optim_dir_path, optim_var_dict)
-    print(df)
 
     df.to_csv(optim_dir_path+'/Variable_history.csv', index=True, na_rep='-')
 

@@ -53,7 +53,7 @@ counter = 0
 #   CLASSES
 # =============================================================================
 
-class geom_param(om.ExplicitComponent):
+class Geom_param(om.ExplicitComponent):
     """ Classe to define the geometric parameters"""
 
     def setup(self):
@@ -72,7 +72,7 @@ class geom_param(om.ExplicitComponent):
         cpud.update_cpacs_file(cpacs_path, cpacs_path_out, geom_dict)
 
 
-class moduleComp(om.ExplicitComponent):
+class ModuleComp(om.ExplicitComponent):
     """ Class to define each module in the problem as an independent component"""
 
     def __init__(self):
@@ -193,7 +193,7 @@ class moduleComp(om.ExplicitComponent):
         cpsf.close_tixi(tixi, cpacs_path)
 
 
-class smComp(om.ExplicitComponent):
+class SmComp(om.ExplicitComponent):
     """Uses a surrogate model to make a prediction"""
 
     def setup(self):
@@ -232,7 +232,7 @@ class smComp(om.ExplicitComponent):
             outputs[name] = yp[0][i]
 
 
-class objective(om.ExplicitComponent):
+class Objective(om.ExplicitComponent):
     """Class to compute the objective function(s)"""
 
     def setup(self):
@@ -411,8 +411,8 @@ def add_subsystems(prob, ivc):
 
     """
     global mod, geom_dict, skf
-    geom = geom_param()
-    obj = objective()
+    geom = Geom_param()
+    obj = Objective()
 
     # Independent variables
     prob.model.add_subsystem('indeps', ivc, promotes=['*'])
@@ -431,12 +431,12 @@ def add_subsystems(prob, ivc):
     # Modules
     for name in Rt.modules:
         if name == 'SMUse':
-            prob.model.add_subsystem(name, smComp(), promotes=['*'])
+            prob.model.add_subsystem(name, SmComp(), promotes=['*'])
         else:
             mod = name
             spec = mif.get_specs_for_module(name)
             if spec.cpacs_inout.inputs or spec.cpacs_inout.outputs:
-                prob.model.add_subsystem(name, moduleComp(), promotes=['*'])
+                prob.model.add_subsystem(name, ModuleComp(), promotes=['*'])
 
     # Objectives
     prob.model.add_subsystem('objective', obj, promotes=['*'])
@@ -597,7 +597,7 @@ if __name__ == '__main__':
     cpacs_out_path = mif.get_tooloutput_file_path('Optimisation')
     tixi = cpsf.open_tixi(cpacs_path)
     am_uid = cpsf.get_value(tixi, opf.OPTIM_XPATH+'aeroMapUID')
-    log.info('Aeromap '+am_uid+' willl be used')
+    log.info('Aeromap '+am_uid+' will be used')
     am_index = opf.get_aeromap_index(tixi, am_uid)
 
     opf.update_am_path(tixi, am_uid)

@@ -119,12 +119,18 @@ def get_inputs(x):
     fuselage = aircraft.get_fuselages().get_fuselage(1)
 
     inputs = []
+    am_uid = apmf.get_current_aeromap_uid(tixi, 'SMUse')
+    am_index = apmf.get_aeromap_index(tixi, am_uid)
+    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap'\
+            + am_index + '/aeroPerformanceMap/'
 
     x.set_index('Name', inplace=True)
     for name in x.index:
         if x.loc[name,'setcmd'] != '-':
             inputs.append(eval(x.loc[name,'getcmd']))
         else:
+            if name in apmf.COEF_LIST+apmf.XSTATES:
+                x.loc[name,'getcmd'] = xpath+name
             inputs.append(tixi.getDoubleElement(x.loc[name,'getcmd']))
 
     tigl.close()
@@ -189,9 +195,7 @@ def aeromap_calculation(sm, tixi):
     wings = aircraft.get_wings()
     fuselage = aircraft.get_fuselages().get_fuselage(1)
 
-    aeromap_uid = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'aeroMapUID', False)
-    if not aeromap_uid:
-        aeromap_uid = apmf.get_current_aeromap_uid(tixi, ['SMUse'])
+    aeromap_uid = apmf.get_current_aeromap_uid(tixi, 'SMUse')
 
     log.info('Using aeromap :'+aeromap_uid)
     Coef = apmf.get_aeromap(tixi, aeromap_uid)
@@ -228,9 +232,10 @@ def predict_output(Model, tixi):
         None.
 
     """
-    
+
     sm = Model.sm
     df = Model.df
+
     x = df.loc[[i for i,v in enumerate(df['type']) if v == 'des']]
     y = df.loc[[i for i, v in enumerate(df['type']) if v == 'obj']]
     df = df.set_index('Name')
@@ -249,9 +254,12 @@ if __name__ == "__main__":
     Model = load_surrogate()
 
     tixi = cpsf.open_tixi(cpacs_path)
-    if cpsf.get_value_or_default(tixi, SMUSE_XPATH+'AeroMapOnly', False):
-        aeromap_calculation(Model.sm, tixi)
-    else:
-        predict_output(Model, tixi)
+    # TODO: Check if this solves the issue
+    # if cpsf.get_value_or_default(tixi, SMUSE_XPATH+'AeroMapOnly', False):
+    #     aeromap_calculation(Model.sm, tixi)
+    # else:
+    predict_output(Model, tixi)
+
+    cpsf.close_tixi(tixi, cpacs_path_out)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

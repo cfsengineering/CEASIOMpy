@@ -130,9 +130,6 @@ def run_subworkflow(module_to_run,cpacs_path_in='',cpacs_path_out=''):
             cpacs_path = mi.get_toolinput_file_path(module)
             cpacs_out_path = mi.get_tooloutput_file_path(module)
             create_settings_gui(cpacs_path,cpacs_out_path,module_to_run[m:])
-        elif module == 'Optimisation':
-            log.info('The optimisation module is not being run as such')
-            copy_module_to_module(module,'in',module,'out')
         else:
             # Find the python file to run
             for file in os.listdir(module_path):

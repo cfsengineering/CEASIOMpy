@@ -304,11 +304,11 @@ if __name__ == '__main__':
         Opt = WorkflowOptions()
 
         # These options can be modified here if WorkflowCreator is used without GUI
-        Opt.cpacs_path = '../../test/CPACSfiles/simpletest_cpacs.xml'
-        Opt.module_pre = ['SettingsGUI', 'PyTornado']
-        Opt.module_optim = []
+        # Opt.cpacs_path = '../../test/CPACSfiles/simpletest_cpacs.xml'
+        Opt.module_pre = []
+        Opt.module_optim = ['WeightConventional', 'PyTornado']
 
-        Opt.optim_method = 'Optim' # DoE, Optim, None
+        Opt.optim_method = 'DoE' # DoE, Optim, None
         Opt.module_post = []
 
     # Copy ToolInput.xml in ToolInput dir if not already there

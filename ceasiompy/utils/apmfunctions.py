@@ -274,10 +274,10 @@ class AeroCoefficient():
         self.cms = df_sorted['cms'].tolist()
 
     def to_dict(self):
-        dct = {'alt':self.alt,
-        'mach': self.mach,
-        'aoa':self.aoa,
-        'aos':self.aos,
+        dct = {'altitude':self.alt,
+        'machNumber': self.mach,
+        'angleOfAttack':self.aoa,
+        'angleOfSideslip':self.aos,
         'cl':self.cl,
         'cd':self.cd,
         'cs':self.cs,
@@ -326,7 +326,7 @@ class AeroCoefficient():
 def get_aeromap_uid_list(tixi):
     """ Get the list of all aeroMap UID.
 
-    Function 'get_aeromap_uid_list' looks for all aerMap in the CPACS file and
+    Function 'get_aeromap_uid_list' looks for all aeroMap in the CPACS file and
     create a list of their UID which is returned.
 
     Args:
@@ -1048,13 +1048,39 @@ def create_aeromap(tixi, name, bound_values):
         Param.aos = bounds[3,:]
 
         save_parameters(tixi, name, Param)
+        index = get_aeromap_index(tixi, name)
+        path = """/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap{}
+               /aeroPerformanceMap/""".format(index)
+        for coef in COEF_LIST:
+            tixi.addTextAttribute(path+coef, 'mapType', 'vector')
 
 
-def get_current_aeromap_uid(tixi, module_list):
+def get_aeromap_index(tixi, am_uid):
+    """Return index of the aeromap to be used.
+
+    With the aeromap uID, the index of this aeromap is returned if there are
+    more than one in the CPACS file.
+
+    Args:
+        tixi (Tixi3 handle): Handle of the current CPACS file
+        am_uid (str): uID of the aeromap that will be used by all modules.
+
+    Returns:
+        am_index (str): The index of the aeromap between brackets.
+
+    """
+    am_list = get_aeromap_uid_list(tixi)
+    for i, uid in enumerate(am_list):
+        if uid == am_uid:
+            am_index = '[{}]'.format(i+1)
+
+    return am_index
+
+
+def get_current_aeromap_uid(tixi, module_name):
     """Return uid of selected aeromap.
 
-    Check the modules that will be run in the optimisation routine to specify
-    the uID of the correct aeromap in the CPACS file.
+    Check the modules that will be run and returns its affiliated uID.
 
     Args:
         module_list (lst): List of the modules that are run in the routine
@@ -1063,25 +1089,15 @@ def get_current_aeromap_uid(tixi, module_list):
     Returns:
         uid (str) : Name of the aeromap that is used for the routine
     """
-    uid = 'None'
-
-    for module in module_list:
-        if module == 'SU2Run':
-            log.info('Found SU2 analysis')
-            xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID'
-            uid = tixi.getTextElement(xpath)
-        elif module == 'PyTornado':
-            log.info('Found PyTornado analysis')
-            xpath = '/cpacs/toolspecific/pytornado/aeroMapUID'
-            uid = tixi.getTextElement(xpath)
-        elif module == 'SMUse':
-            log.info('Found a Surrogate model')
-            xpath = '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/aeroMapUID'
-            uid = tixi.getTextElement(xpath)
-
-    if 'SkinFriction' in module_list:
-        log.info('Found SkinFriction analysis')
-        uid = uid + '_SkinFriction'
+    if module_name == 'Optim':
+        xpath = '/cpacs/toolspecific/CEASIOMpy/Optimisation/aeroMapUID'
+        uid = tixi.getTextElement(xpath)
+    elif module_name == 'SMTrain':
+        xpath = '/cpacs/toolspecific/CEASIOMpy/surrogateModel/aeroMapUID'
+        uid = tixi.getTextElement(xpath)
+    elif module_name == 'SMUse':
+        xpath = '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/aeroMapUID'
+        uid = tixi.getTextElement(xpath)
 
     return uid
 

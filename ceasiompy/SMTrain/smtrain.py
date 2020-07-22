@@ -172,7 +172,7 @@ def extract_data_set(Tool):
             y.loc[obj]=eval(obj)
 
     Tool.objectives = y.index
-    Tool.df.append(df_data, ignore_index=True)
+    Tool.df = pd.concat([Tool.df, df_data], ignore_index=True)
 
     y = y[[i for i in y.columns if i.isdigit()]]
 
@@ -229,9 +229,11 @@ def validation_plots(sm, xt, yt, xv, yv):
 
     """
     fig_dir = Tool.wkdir+'/Validation plots'
-    os.mkdir(fig_dir)
+    if not os.path.isdir(fig_dir):
+        os.mkdir(fig_dir)
 
     yp = sm.predict_values(xv)
+
     if Tool.aeromap_case:
         Tool.objectives = ['cl','cd','cs','cml','cmd','cms']
 
@@ -284,6 +286,7 @@ def create_surrogate(Tool, xd, yd):
     sm.train()
 
     if len(xv) >= 1:
+        print('eva')
         validation_plots(sm, xt, yt, xv, yv)
 
     Tool.sm = sm
@@ -410,8 +413,6 @@ def generate_model(Tool):
     if os.path.isfile(Tool.user_file):
         log.info('Using normal entries')
         xd, yd = extract_data_set(Tool)
-        print(xd)
-        print(xd_am)
         if Tool.aeromap_case:
             xd = np.concatenate((xd_am,xd),axis=0)
             yd = np.concatenate((yd_am,yd),axis=0)

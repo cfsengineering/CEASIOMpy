@@ -119,12 +119,18 @@ def get_inputs(x):
     fuselage = aircraft.get_fuselages().get_fuselage(1)
 
     inputs = []
+    am_uid = apmf.get_current_aeromap_uid(tixi, 'SMUse')
+    am_index = apmf.get_aeromap_index(tixi, am_uid)
+    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap'\
+            + am_index + '/aeroPerformanceMap/'
 
     x.set_index('Name', inplace=True)
     for name in x.index:
         if x.loc[name,'setcmd'] != '-':
             inputs.append(eval(x.loc[name,'getcmd']))
         else:
+            if name in apmf.COEF_LIST+apmf.XSTATES:
+                x.loc[name,'getcmd'] = xpath+name
             inputs.append(tixi.getDoubleElement(x.loc[name,'getcmd']))
 
     tigl.close()
@@ -226,9 +232,10 @@ def predict_output(Model, tixi):
         None.
 
     """
-    
+
     sm = Model.sm
     df = Model.df
+
     x = df.loc[[i for i,v in enumerate(df['type']) if v == 'des']]
     y = df.loc[[i for i, v in enumerate(df['type']) if v == 'obj']]
     df = df.set_index('Name')

@@ -47,7 +47,13 @@ log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
+
+mod = []
 counter = 0
+skf = False
+geom_dict = {}
+optim_var_dict = {}
+Rt = opf.Routine()
 
 # =============================================================================
 #   CLASSES
@@ -98,16 +104,13 @@ class ModuleComp(om.ExplicitComponent):
                 if entry.var_name in optim_var_dict:
                     self.add_input(entry.var_name, val=var[1][0])
                     declared.append(entry.var_name)
-            elif entry.var_name not in ['']:
-                if entry.var_name in optim_var_dict:
-                    self.add_input(entry.var_name)
-                    declared.append(entry.var_name)
 
         if declared == []:
             self.add_input(self.module_name+'_in')
         declared = []
 
         # Outputs
+        is_skf = (self.module_name == 'SkinFriction')
         for entry in spec.cpacs_inout.outputs:
             # Replace special characters from the name of the entry and checks for accronyms
             entry.var_name = tls.change_var_name(entry.var_name)
@@ -121,26 +124,21 @@ class ModuleComp(om.ExplicitComponent):
                 # else:
                 self.add_output(entry.var_name, val=var[1][0])
                 declared.append(entry.var_name)
-            elif 'aeromap' in entry.var_name:
+            elif 'aeromap' in entry.var_name and not skf^is_skf:
                 # Condition to avoid any conflict with skinfriction
-                is_skf = (self.module_name == 'SkinFriction')
-                if not (skf^is_skf):
-                    for name in apmf.XSTATES:
-                        if name in optim_var_dict:
-                            var = optim_var_dict[name]
-                            self.add_input(name, val=var[1][0])
-                            declared.append(entry.var_name)
-                    for name in apmf.COEF_LIST:
-                        if name in optim_var_dict:
-                            var = optim_var_dict[name]
-                            if tls.is_digit(var[1][0]):
-                                self.add_output(name, val=var[1][0])
-                            else:
-                                self.add_output(name)
-                            declared.append(entry.var_name)
-            elif entry.var_name in optim_var_dict:
-                self.add_output(entry.var_name)
-                declared.append(entry.var_name)
+                for name in apmf.XSTATES:
+                    if name in optim_var_dict:
+                        var = optim_var_dict[name]
+                        self.add_input(name, val=var[1][0])
+                        declared.append(entry.var_name)
+                for name in apmf.COEF_LIST:
+                    if name in optim_var_dict:
+                        var = optim_var_dict[name]
+                        if tls.is_digit(var[1][0]):
+                            self.add_output(name, val=var[1][0])
+                        else:
+                            self.add_output(name)
+                        declared.append(entry.var_name)
 
         if declared == []:
             self.add_output(self.module_name+'_out')
@@ -176,7 +174,7 @@ class ModuleComp(om.ExplicitComponent):
                 xpath = optim_var_dict[name][4]
                 if name in apmf.COEF_LIST:
                     val = cpsf.get_value(tixi, xpath)
-                    if type(val) ==str:
+                    if isinstance(val, str):
                         val = val.split(';')
                         outputs[name] = val[0]
                     else:
@@ -201,10 +199,8 @@ class SmComp(om.ExplicitComponent):
         # Take CPACS file from the optimisation
         cpacs_path = mif.get_toolinput_file_path('SMUse')
         tixi = cpsf.open_tixi(cpacs_path)
-        file = cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'modelFile', '')
+        self.Model = smu.load_surrogate(tixi)
         cpsf.close_tixi(tixi, cpacs_path)
-
-        self.Model = smu.load_surrogate()
 
         df = self.Model.df
         df.set_index('Name', inplace=True)
@@ -223,6 +219,7 @@ class SmComp(om.ExplicitComponent):
         xp = []
         for name in self.xd.index:
             xp.append(inputs[name][0])
+            optim_var_dict[name][1].append(inputs[name][0])
 
         xp = np.array([xp])
         yp = self.Model.sm.predict_values(xp)
@@ -230,6 +227,8 @@ class SmComp(om.ExplicitComponent):
         smu.write_outputs(self.yd, yp)
         for i, name in enumerate(self.yd.index):
             outputs[name] = yp[0][i]
+            if name in optim_var_dict:
+                optim_var_dict[name][1].append(yp[0][i])
 
 
 class Objective(om.ExplicitComponent):
@@ -525,7 +524,7 @@ def generate_results(prob):
         None.
 
     """
-    if Rt.use_aeromap:
+    if Rt.use_aeromap and Rt.type == 'DoE':
         dct.add_am_to_dict(optim_var_dict, am_dict)
 
     ## Generate N2 scheme ##
@@ -562,7 +561,6 @@ def routine_launcher(Opt):
     """
     global optim_var_dict, am_dict, Rt, am_length
 
-    Rt = opf.Routine()
     Rt.type = Opt.optim_method
     Rt.modules = Opt.module_optim
 

@@ -22,6 +22,7 @@ TODO:
 # =============================================================================
 #   IMPORTS
 # =============================================================================
+from re import split as splt
 
 import os
 import re
@@ -30,8 +31,6 @@ import datetime
 import numpy as np
 import pandas as pd
 
-from re import split as splt
-
 import matplotlib.pyplot as plt
 import smt.surrogate_models as sms
 import ceasiompy.utils.apmfunctions as apmf
@@ -39,11 +38,11 @@ import ceasiompy.utils.optimfunctions as opf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.ceasiompyfunctions as ceaf
+from ceasiompy.SMUse.smuse import Surrogate_model
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
-from ceasiompy.SMUse.smuse import Surrogate_model
 # =============================================================================
 #   GLOBALS
 # =============================================================================
@@ -110,7 +109,7 @@ class Prediction_tool():
             os.mkdir(self.wkdir)
 
         obj = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'objective', 'cl')
-        self.objectives = re.split(';|,',obj)
+        self.objectives = re.split(';|,', obj)
         self.user_file = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'trainFile', '')
         if self.user_file == '':
             path = cpsf.get_value_or_default(tixi, OPTWKDIR_XPATH, '')
@@ -148,11 +147,11 @@ def extract_data_set(Tool):
     df = df.rename(columns={'Unnamed: 0':'Name'})
 
     # Separate the input and output points
-    x = df.loc[[i for i,v in enumerate(df['type']) if v == 'des']]
+    x = df.loc[[i for i, v in enumerate(df['type']) if v == 'des']]
     y = df.loc[[i for i, v in enumerate(df['type']) if v == 'obj']]
-    df = df.loc[[i for i, v in enumerate(df['type']) if v in ['obj','des']]]
+    df = df.loc[[i for i, v in enumerate(df['type']) if v in ['obj', 'des']]]
 
-    df_data = df[['Name','type','getcmd','setcmd']]
+    df_data = df[['Name', 'type', 'getcmd', 'setcmd']]
 
     df = df.set_index('Name')
     y = y.set_index('Name')
@@ -168,8 +167,8 @@ def extract_data_set(Tool):
             for v in var_list:
                 if not v.isdigit() and v != '' and v in df.index:
                     exec('{} = df.loc["{}"]'.format(v, v))
-            df_data = Tool.df.append({'Name':obj,'type':'obj'},ignore_index=True)
-            y.loc[obj]=eval(obj)
+            df_data = Tool.df.append({'Name':obj, 'type':'obj'}, ignore_index=True)
+            y.loc[obj] = eval(obj)
 
     Tool.objectives = y.index
     Tool.df = pd.concat([Tool.df, df_data], ignore_index=True)
@@ -235,15 +234,15 @@ def validation_plots(sm, xt, yt, xv, yv):
     yp = sm.predict_values(xv)
 
     if Tool.aeromap_case:
-        Tool.objectives = ['cl','cd','cs','cml','cmd','cms']
+        Tool.objectives = ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']
 
-    for i in range(0,yv.shape[1]):
+    for i in range(0, yv.shape[1]):
 
-        rms = np.sqrt(np.mean((yp[:,i]-yv[:,i])**2))
+        rms = np.sqrt(np.mean((yp[:, i]-yv[:, i])**2))
 
         plt.figure()
-        plt.plot(yv[:,i], yv[:,i], '-', label='$y_{true}$')
-        plt.plot(yv[:,i], yp[:,i], 'r.', label='$\hat{y}$ :'+Tool.objectives[i])
+        plt.plot(yv[:, i], yv[:, i], '-', label='$y_{true}$')
+        plt.plot(yv[:, i], yp[:, i], 'r.', label='$\hat{y}$ :'+Tool.objectives[i])
 
         plt.xlabel('$y_{true}$')
         plt.ylabel('$\hat{y}$')
@@ -253,12 +252,12 @@ def validation_plots(sm, xt, yt, xv, yv):
         plt.savefig(Tool.wkdir+'/Krigin_validation{}.svg'.format(i))
 
         plt.figure()
-        for j in range(0,xv.shape[1]):
-            plt.subplot(1,xv.shape[1]+1,j+1)
+        for j in range(0, xv.shape[1]):
+            plt.subplot(1, xv.shape[1]+1, j+1)
             if j == 0:
                 plt.ylabel(Tool.objectives[i])
-            plt.plot(xt[:,j], yt[:,i], 'b.', label='$y_{training set}$')
-            plt.plot(xv[:,j], yp[:,i], 'r.', label='$y_{prediction set}$')
+            plt.plot(xt[:, j], yt[:, i], 'b.', label='$y_{training set}$')
+            plt.plot(xv[:, j], yp[:, i], 'r.', label='$y_{prediction set}$')
             plt.title('$'+Tool.objectives[i]+'$')
             plt.legend(loc='upper left')
         plt.savefig(fig_dir+'/Output_comparison{}.svg'.format(i))
@@ -314,8 +313,8 @@ def save_model(Tool):
 
     filename = Tool.wkdir+'/Surrogate_Model_'+date
 
-    cpsf.create_branch(tixi,SMFILE_XPATH)
-    tixi.updateTextElement(SMFILE_XPATH,filename)
+    cpsf.create_branch(tixi, SMFILE_XPATH)
+    tixi.updateTextElement(SMFILE_XPATH, filename)
     cpsf.close_tixi(tixi, cpacs_out_path)
 
     Tool.df.to_csv(Tool.wkdir+'/Data_setup.csv', index=False, na_rep='-')
@@ -352,13 +351,13 @@ def gen_df_from_am(tixi):
     x['type'] = 'des'
     y['type'] = 'obj'
 
-    df = x.append(y,ignore_index=True)
+    df = x.append(y, ignore_index=True)
     df['getcmd'] = '-'
     df['setcmd'] = '-'
     df['initial value'] = '-'
     xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
     for index, name in enumerate(df['Name']):
-        df.loc[index,'getcmd'] = xpath+name
+        df.loc[index, 'getcmd'] = xpath + name
 
     return df
 
@@ -383,9 +382,9 @@ def extract_am_data(Tool):
     Tool.df = gen_df_from_am(tixi)
 
     Aeromap = apmf.get_aeromap(tixi, Tool.aeromap_uid)
-    xd = np.array([Aeromap.alt,Aeromap.mach,Aeromap.aoa,Aeromap.aos])
-    yd = np.array([Aeromap.cl,Aeromap.cd,Aeromap.cs,
-                   Aeromap.cml,Aeromap.cmd,Aeromap.cms])
+    xd = np.array([Aeromap.alt, Aeromap.mach, Aeromap.aoa, Aeromap.aos])
+    yd = np.array([Aeromap.cl, Aeromap.cd, Aeromap.cs,
+                   Aeromap.cml, Aeromap.cmd, Aeromap.cms])
 
     cpsf.close_tixi(tixi, cpacs_path)
 
@@ -411,8 +410,8 @@ def generate_model(Tool):
         if Tool.aeromap_case:
             log.info('Using aeromap entries')
             xd_am, yd_am = extract_am_data(Tool)
-            xd = np.concatenate((xd_am,xd),axis=0)
-            yd = np.concatenate((yd_am,yd),axis=0)
+            xd = np.concatenate((xd_am, xd), axis=0)
+            yd = np.concatenate((yd_am, yd), axis=0)
     elif Tool.aeromap_case:
         log.info('Using aeromap entries')
         xd, yd = extract_am_data(Tool)
@@ -432,4 +431,3 @@ if __name__ == "__main__":
     save_model(Tool)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
-

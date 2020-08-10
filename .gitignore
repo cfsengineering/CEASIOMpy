@@ -15,7 +15,7 @@
 /temp
 /tmp
 /ceasiompy/CPACSCreator/tmp/*
-/ceasiompy/WKDIR/
+/ceasiompy/WKDIR/CEASIOMpy*
 /ceasiompy/Pytornado/wkdir*
 CrashInfo/
 

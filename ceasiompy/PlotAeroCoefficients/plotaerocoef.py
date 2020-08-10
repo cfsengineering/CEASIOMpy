@@ -9,13 +9,12 @@ Python version: >=3.6
 
 | Author: Aidan jungo
 | Creation: 2019-08-19
-| Last modifiction: 2020-07-15
+| Last modifiction: 2020-07-16
 
 TODO:
 
     * Add option to save figures in ToolOutput folder
-    * add plot vs Mach
-    * Plot more coefficient (vs sideslip angle, damping derivatives, control surfaces)
+    * add plot vs Mach, vs sideslip angle, damping derivatives, CS deflections
 
 """
 
@@ -229,11 +228,6 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
     aos_crit = cpsf.get_value_or_default(tixi,crit_xpath+'/aos','None')
 
     # Modify criterion and title according to user option
-    if uid_crit is not None:
-        criterion = criterion & (aeromap.uid == uid_crit)
-        title += ' - ' + uid_crit
-        groupby_list.remove('uid')
-
     if len(aeromap['alt'].unique()) == 1:
         title += ' - Alt = ' + str(aeromap['alt'].loc[0])
         groupby_list.remove('alt')
@@ -257,6 +251,11 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
         criterion = criterion & (aeromap.aos == aos_crit)
         title += ' - AoS = ' + str(aos_crit)
         groupby_list.remove('aos')
+
+    if uid_crit is not None and len(groupby_list) > 1:
+        criterion = criterion & (aeromap.uid == uid_crit)
+        title += ' - ' + uid_crit
+        groupby_list.remove('uid')
 
     # Plot settings
     fig, axs = plt.subplots(2,3)

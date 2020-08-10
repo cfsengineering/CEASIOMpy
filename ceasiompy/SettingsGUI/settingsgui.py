@@ -315,12 +315,12 @@ class AutoTab:
                         selected_aeromap_index = 0
 
                     self.labelframe = tk.LabelFrame(parent, text='Choose an AeroMap')
-                    self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=5, pady=5)
+                    self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=15, pady=5)
 
                     # The Combobox is directly use as the varaible
                     self.var_dict[key] = ttk.Combobox(self.labelframe, values=self.aeromap_uid_list)
                     self.var_dict[key].current(selected_aeromap_index)
-                    self.var_dict[key].grid(column=1, row=row_pos, padx=5, pady=5)
+                    self.var_dict[key].grid(column=1, row=row_pos, padx=15, pady=5)
 
                 elif name == '__AEROMAP_CHECHBOX':
 
@@ -332,7 +332,7 @@ class AutoTab:
                     # Get the list of all AeroMaps
                     self.aeromap_uid_list = apm.get_aeromap_uid_list(self.tixi)
                     self.labelframe = tk.LabelFrame(parent, text='Selecte AeroMap(s)')
-                    self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=5, pady=5)
+                    self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=15, pady=5)
 
                     # Try to get pre-selected AeroMaps from the xpath
                     try:
@@ -592,7 +592,7 @@ def create_settings_gui(cpacs_path, cpacs_out_path, submodule_list):
                 max_inputs = max(max_inputs,len(inputs))
 
     tot_width = max(415, gui_modules * 82)
-    tot_height = max(330, max_inputs * 50)
+    tot_height = max(350, max_inputs * 50)
     root.geometry('{}x{}+400+150'.format(tot_width,tot_height))
 
     my_setting_gui = SettingGUI(root, cpacs_path, cpacs_out_path, submodule_list)

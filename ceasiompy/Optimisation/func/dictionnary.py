@@ -117,6 +117,8 @@ def update_dict(tixi, optim_var_dict):
             if tixi.checkElement(infos[4]):
                 new_val = tixi.getDoubleElement(infos[4])
                 infos[1].append(new_val)
+                print(new_val)
+    input('pause')
 
 
 def create_var(var_name, init_value, getcmd, setcmd, lim=0.2):

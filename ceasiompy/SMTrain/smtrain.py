@@ -115,7 +115,9 @@ class Prediction_tool():
             path = cpsf.get_value_or_default(tixi, OPTWKDIR_XPATH, '')
             if path != '':
                 self.user_file = path+ '/Variable_history.csv'
-        self.data_repartition = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'trainingPercentage', 0.9)
+        self.data_repartition = cpsf.get_value_or_default(tixi,
+                                                          SMTRAIN_XPATH+'trainingPercentage',
+                                                          0.9)
         self.show_plots = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'showPlots', False)
 
         self.aeromap_case = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'useAeromap', False)
@@ -358,7 +360,9 @@ def gen_df_from_am(tixi):
     xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
     for index, name in enumerate(df['Name']):
         df.loc[index, 'getcmd'] = xpath + name
+        df.loc[index, 'initial value'] = tixi.getDoubleElement(xpath+name)
 
+    print(df)
     return df
 
 

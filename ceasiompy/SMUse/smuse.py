@@ -139,38 +139,36 @@ def get_inputs(x):
     return inputs
 
 
-def write_outputs(y, outputs):
-    """Write outputs to cpacs.
+def write_inouts(v, inout, tixi):
+    """Write inputs or outputs to cpacs.
 
-    Write the predicted output of the model to the CPACS file.
+    Write the specified input or the predicted output of the model to the
+    CPACS file.
 
     Args:
-        y (DataFrame): Contains the outputs, locations.
-        outputs (np.array): Values of the outputs.
+        v (DataFrame): Contains the inout, locations.
+        inout (np.array): Values of the inout.
 
     Returns:
         None.
 
     """
-
-    tixi = cpsf.open_tixi(cpacs_path)
     tigl = cpsf.open_tigl(tixi)
     aircraft = cpud.get_aircraft(tigl)
     wings = aircraft.get_wings()
     fuselage = aircraft.get_fuselages().get_fuselage(1)
 
-    y.fillna('-', inplace=True)
-    for i, name in enumerate(y.index):
-        if y.loc[name, 'setcmd'] != '-':
-            exec('{} = {}'.format(name, outputs[0][i]))
-            eval(y.loc[name, 'setcmd'])
-        elif y.loc[name, 'getcmd'] != '-':
-            xpath = y.loc[name, 'getcmd']
+    v.fillna('-', inplace=True)
+    for i, name in enumerate(v.index):
+        if v.loc[name, 'setcmd'] != '-':
+            exec('{} = {}'.format(name, inout[0][i]))
+            eval(v.loc[name, 'setcmd'])
+        elif v.loc[name, 'getcmd'] != '-':
+            xpath = v.loc[name, 'getcmd']
             cpsf.create_branch(tixi, xpath)
-            tixi.updateDoubleElement(xpath, outputs[0][i], '%g')
+            tixi.updateDoubleElement(xpath, inout[0][i], '%g')
 
     tigl.close()
-    cpsf.close_tixi(tixi, cpacs_path_out)
 
 
 def aeromap_calculation(sm, tixi):
@@ -232,14 +230,17 @@ def predict_output(Model):
     sm = Model.sm
     df = Model.df
 
-    x = df.loc[[i for i,v in enumerate(df['type']) if v == 'des']]
+    x = df.loc[[i for i, v in enumerate(df['type']) if v == 'des']]
     y = df.loc[[i for i, v in enumerate(df['type']) if v == 'obj']]
     df = df.set_index('Name')
 
     inputs = get_inputs(x)
     outputs = sm.predict_values(inputs)
     y.set_index('Name', inplace=True)
-    write_outputs(y, outputs)
+
+    tixi = cpsf.open_tixi(cpacs_path)
+    write_inouts(y, outputs, tixi)
+    cpsf.close_tixi(tixi, cpacs_path_out)
 
 
 def check_aeromap(tixi):

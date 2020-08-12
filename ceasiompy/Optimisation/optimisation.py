@@ -341,6 +341,7 @@ def create_routine_folder():
         os.mkdir(optim_dir_path+'/Geometry')
         os.mkdir(optim_dir_path+'/Runs')
     tixi.updateTextElement(opf.OPTWKDIR_XPATH, optim_dir_path)
+    tixi.updateTextElement(opf.WKDIR_XPATH, optim_dir_path)
 
     cpsf.close_tixi(tixi, opf.CPACS_OPTIM_PATH)
 
@@ -569,11 +570,13 @@ def routine_launcher(Opt):
     opf.first_run(Rt)
 
     tixi = cpsf.open_tixi(opf.CPACS_OPTIM_PATH)
+    tixi.updateTextElement(opf.WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
     Rt.get_user_inputs(tixi)
     optim_var_dict = opf.create_variable_library(Rt, tixi, optim_dir_path)
     am_dict = opf.create_am_lib(Rt, tixi)
 
     cpsf.close_tixi(tixi, opf.CPACS_OPTIM_PATH)
+    wkf.copy_module_to_module('Optimisation', 'in', Rt.modules[-1], 'out')
 
     ## Instantiate components and subsystems ##
     prob = om.Problem()

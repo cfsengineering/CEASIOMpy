@@ -216,7 +216,7 @@ def aeromap_calculation(sm, tixi):
     tigl.close()
 
 
-def predict_output(Model):
+def predict_output(Model, tixi):
     """Make a prediction.
 
     Args:
@@ -238,9 +238,7 @@ def predict_output(Model):
     outputs = sm.predict_values(inputs)
     y.set_index('Name', inplace=True)
 
-    tixi = cpsf.open_tixi(cpacs_path)
     write_inouts(y, outputs, tixi)
-    cpsf.close_tixi(tixi, cpacs_path_out)
 
 
 def check_aeromap(tixi):
@@ -277,7 +275,7 @@ if __name__ == "__main__":
     if cpsf.get_value_or_default(tixi, SMUSE_XPATH+'AeroMapOnly', False):
         aeromap_calculation(Model.sm, tixi)
     else:
-        predict_output(Model)
+        predict_output(Model, tixi)
 
     cpsf.close_tixi(tixi, cpacs_path_out)
 

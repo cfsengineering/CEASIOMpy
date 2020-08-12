@@ -51,7 +51,9 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 SMTRAIN_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModel/'
 SMFILE_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/SMpath'
 OPTWKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/optimPath'
-# Working surrogate models
+
+# Working surrogate models, the hyperparameters can be changed here for
+# experienced users.
 model_dict = {'KRG':'KRG(theta0=[1e-2]*xd.shape[1])',
               'KPLSK':'KPLS(theta0=[1e-2])',
               'KPLS':'KPLS(theta0=[1e-2])',

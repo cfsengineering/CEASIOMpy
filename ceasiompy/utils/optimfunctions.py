@@ -179,25 +179,27 @@ def gen_doe_csv(user_config):
     """
 
     df = pd.read_csv(user_config)
+    print(df)
+    # try:
+    # Check if the name, type and at least one point are present.
+    log.info(df[['Name', 'type', '0']])
 
-    try:
-        # Check if the name, type and at least one point are present.
-        log.info(df[['Name', 'type', 0]])
+    # Get only design variables
+    df = df.loc[[i for i, v in enumerate(df['type']) if v == 'des']]
 
-        # Get only design variables
-        df = df.loc[[i for i, v in enumerate(df['type']) if v == 'des']]
-
-        # Get only name and columns with point values
-        l = [i for i in df.columns if i.isdigit()]
-        l.insert(0, 'Name')
-        df = df[l]
-
-        df = df.T
-
-    except:
-        pass
-    doe_csv = os.path.split(user_config)[0]+'DoE_points.csv'
-
+    # Get only name and columns with point values
+    l = [i for i in df.columns if i.isdigit()]
+    print(l)
+    l.insert(0, 'Name')
+    df = df[l]
+    df.set_index('Name')
+    print(df)
+    df = df.T
+    print(df)
+    # except:
+    #     pass
+    doe_csv = os.path.split(user_config)[0]+'/DoE_points.csv'
+    print(df)
     df.to_csv(doe_csv, header=False, index=False)
 
     return doe_csv

@@ -133,7 +133,7 @@ cpacs_inout.add_input(
     var_type=bool,
     default_value=False,
     unit=None,
-    descr='Enables use of an aeromap only for computation',
+    descr='Enables use of an entire aeromap for computation',
     xpath=CEASIOM_XPATH + '/Optimisation/Config/useAero',
     gui=True,
     gui_name='Use whole aeromap',

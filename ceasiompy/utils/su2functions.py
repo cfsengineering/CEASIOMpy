@@ -140,8 +140,8 @@ def run_soft(soft, config_path, wkdir, nb_proc):
     # Get installation path for the following softwares
     SOFT_DICT = ceaf.get_install_path(SOFT_LIST)
 
-    mpi_install_path = SOFT_DICT['mpirun.mpich']
-    #mpi_install_path = SOFT_DICT['mpirun']
+    # mpi_install_path = SOFT_DICT['mpirun.mpich']
+    mpi_install_path = SOFT_DICT['mpirun']
 
     soft_install_path = SOFT_DICT[soft]
 

@@ -70,6 +70,8 @@ def create_new_wkdir(global_wkdir=''):
     if not os.path.exists(run_dir):
         os.mkdir(run_dir)
 
+    log.info(' NEW WKDIR ')
+    log.info(run_dir)
     return run_dir
 
 

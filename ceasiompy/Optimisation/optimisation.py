@@ -282,6 +282,7 @@ class Objective(om.ExplicitComponent):
                 outputs['Objective function '+obj] = -result
 
         cpsf.close_tixi(tixi, cpacs_path)
+        wkf.copy_module_to_module(Rt.modules[-1], 'out', Rt.modules[0], 'in')
 
 
 # =============================================================================

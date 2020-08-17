@@ -120,7 +120,13 @@ class Routine:
 
         # User specified configuration file path
         self.user_config = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/filepath', '-'))
-        self.aeromap_uid = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'aeroMapUID', '-'))
+
+        fix_cl = cpsf.get_value_or_default(tixi, '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/fixedCL', 'no')
+        if fix_cl == 'YES':
+            tixi.updateTextElement(OPTIM_XPATH+'aeroMapUID','aeroMap_fixedCL_SU2')
+            self.aeromap_uid = 'aeroMap_fixedCL_SU2'
+        else:
+            self.aeromap_uid = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'aeroMapUID', '-'))
 
         self.use_aeromap = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/useAero', False)
 

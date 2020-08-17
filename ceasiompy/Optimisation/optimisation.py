@@ -577,7 +577,7 @@ def routine_launcher(Opt):
     am_dict = opf.create_am_lib(Rt, tixi)
 
     cpsf.close_tixi(tixi, opf.CPACS_OPTIM_PATH)
-    wkf.copy_module_to_module('Optimisation', 'in', Rt.modules[-1], 'out')
+    wkf.copy_module_to_module('Optimisation', 'in', Rt.modules[0], 'in')
 
     ## Instantiate components and subsystems ##
     prob = om.Problem()

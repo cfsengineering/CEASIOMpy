@@ -12,7 +12,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06
-| Last modification: 2020-07-06
+| Last modification: 2020-08-17
 
 TODO:
     * Enable model-specific settings for user through the GUI
@@ -59,7 +59,7 @@ model_dict = {'KRG':'KRG(theta0=[1e-2]*xd.shape[1])',
               'KPLS':'KPLS(theta0=[1e-2])',
               'LS':'LS()'
               }
-# To be implemented
+# Could be implemented
 # sm = sms.RMTB(
 #     xlimits=xlimits,
 #     order=4,
@@ -280,6 +280,9 @@ def create_surrogate(Tool, xd, yd):
         Tool (Prediction_tool object) : Path to CSV file.
         xd, yd (numpy array): Input and output data
 
+    Returns:
+        None.
+
     """
     xt, yt, xv, yv = separate_data(xd, yd, Tool.data_repartition)
     log.info('Data separated')
@@ -293,7 +296,6 @@ def create_surrogate(Tool, xd, yd):
     log.info('Done')
 
     if len(xv) >= 1:
-        print('eva')
         validation_plots(sm, xt, yt, xv, yv)
 
     Tool.sm = sm
@@ -363,12 +365,12 @@ def gen_df_from_am(tixi):
     df['getcmd'] = '-'
     df['setcmd'] = '-'
     df['initial value'] = '-'
+
     xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
     for index, name in enumerate(df['Name']):
         df.loc[index, 'getcmd'] = xpath + name
         df.loc[index, 'initial value'] = tixi.getDoubleElement(xpath+name)
 
-    print(df)
     return df
 
 
@@ -425,6 +427,8 @@ def generate_model(Tool):
     elif Tool.aeromap_case:
         log.info('Using aeromap entries')
         xd, yd = extract_am_data(Tool)
+    else:
+        raise(FileNotFoundError('No aeromap or SM file has been given !'))
     create_surrogate(Tool, xd, yd)
 
 

@@ -19,7 +19,6 @@ TODO:
 
 """
 
-
 # =============================================================================
 #   IMPORTS
 # =============================================================================
@@ -85,7 +84,6 @@ def load_surrogate(tixi):
         sm (object): The surrogate model.
 
     """
-
     file = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'modelFile', '')
 
     log.info('Trying to open file'+file)
@@ -111,7 +109,6 @@ def get_inputs(x):
         inputs (np.array): Array of floats.
 
     """
-
     tixi = cpsf.open_tixi(cpacs_path)
     tigl = cpsf.open_tigl(tixi)
     aircraft = cpud.get_aircraft(tigl)
@@ -186,7 +183,6 @@ def aeromap_calculation(sm, tixi):
         None.
 
     """
-
     tigl = cpsf.open_tigl(tixi)
     aircraft = cpud.get_aircraft(tigl)
     wings = aircraft.get_wings()
@@ -226,7 +222,6 @@ def predict_output(Model, tixi):
         None.
 
     """
-
     sm = Model.sm
     df = Model.df
 

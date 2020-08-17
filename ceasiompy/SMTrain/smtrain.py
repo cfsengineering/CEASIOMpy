@@ -178,7 +178,7 @@ def extract_data_set(Tool):
     Tool.df = pd.concat([Tool.df, df_data], ignore_index=True)
 
     y = y[[i for i in y.columns if i.isdigit()]]
-
+    log.info('Set extracted')
     return x.transpose().to_numpy(), y.transpose().to_numpy()
 
 
@@ -282,11 +282,15 @@ def create_surrogate(Tool, xd, yd):
 
     """
     xt, yt, xv, yv = separate_data(xd, yd, Tool.data_repartition)
+    log.info('Data separated')
     sm = eval('sms.{}'.format(model_dict[Tool.type]))
 
+    log.info('Training values set')
     sm.set_training_values(xt, yt)
 
+    log.info('Training... ')
     sm.train()
+    log.info('Done')
 
     if len(xv) >= 1:
         print('eva')

@@ -37,7 +37,7 @@ Required CPACS input and settings
 Limitations
 -----------
 
- * The geometric modification of the fuselage is not available for now.
+ * The geometric modification of the fuselage is not available for now, but they will be available with the next TiGL library update.
  
 
 More information

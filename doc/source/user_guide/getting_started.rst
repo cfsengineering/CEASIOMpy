@@ -157,6 +157,7 @@ For the post-processing you can go in the WKDIR folder, where you will find the 
 * Geometry : This folder contains the CPACS that is used in the routine at each iteration, this can be changed by tuning the 'Save geometry every' parameter in the Optimisation settings.
 * Runs: This folder contains the directories of all the workflow runs that were made during the routine. These folders are equivalent to a simple CEASIOMpy_Run workflow folder.
 
+
 Test Case 5 : Surrogate model for SU2
 *************************************
 
@@ -164,7 +165,7 @@ Before using a surrogate model the first step is to create a model and train it 
 When the CSV file for the parameters opens, choose the wing span and the angle of attack as design variables.
 
 .. figure:: getting_started_fig/TC5_Param.png
-    :width: 400 px
+    :width: 800 px
     :align: center
     :alt: CEASIOMpy - Terminal - Test case 5
 
@@ -174,14 +175,14 @@ As we do not have a lot of data, we will use all of it to train the model by set
 .. figure:: getting_started_fig/TC5_SGUI.png
     :width: 400 px
     :align: center
-    :alt: CEASIOMpy - Terminal - Test case 5
- 
- After setting the options launch the program, which will only take a few seconds before finishing, and go look for the trained model in the SM folder of the current working directory. This file cannot be normally opened as it has been dumped using a special python library (ref to 'pickle'). Now the part comes were we call the SMUse module to get results with our surrogate.
+    :alt: CEASIOMpy - SettingsGUI - Test case 5
+
+After setting the options launch the program, which will only take a few seconds before finishing, and go look for the trained model in the SM folder of the current working directory. This file cannot be normally opened as it has been dumped using a special python library (ref to 'pickle'). Note that there also is a CSV called 'Data_setup' which was generated that contains the informations about the model inputs/outputs in case you want to check your model entries. Now the part comes were we call the SMUse module to get results with our surrogate.
  
 .. figure:: getting_started_fig/TC5_SMTrain.png
     :width: 400 px
     :align: center
-    :alt: CEASIOMpy - Terminal - Test case 5   
+    :alt: CEASIOMpy - SM - Test case 5   
 
 For this part chose a CPACS file with different values than the one you fed to the model (either with a new CPACS or you can modify it using cpacscreator). Launch a workflow with SettingsGUI and SMUse. In the settings, choose the resulting file containing the surrogate, you don't have to change any other option. Launch the program and now you have the resulting CPACS file in the ToolOutput folder of the SMUse module ! If you take a look at the aeromap you chose for the computation you will see that only a value of cl has been added/modified.
 

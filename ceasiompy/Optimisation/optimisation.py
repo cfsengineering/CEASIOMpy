@@ -10,11 +10,11 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-06-15
-| Last modification: 2020-06-22
+| Last modification: 2020-08-10
 
 Todo:
     * Vector inputs or multiple objectives
-    * Discrete variables : find elegant solution of implementation
+    * Implement discrete variable with another solver
     * Find a way to avoid the first run
 
 """
@@ -54,6 +54,8 @@ skf = False
 geom_dict = {}
 optim_var_dict = {}
 Rt = opf.Routine()
+optim_dir_path = ''
+am_dict = {}
 
 # =============================================================================
 #   CLASSES
@@ -98,9 +100,6 @@ class ModuleComp(om.ExplicitComponent):
                 log.info('Already declared')
             elif entry.var_name in optim_var_dict:
                 var = optim_var_dict[entry.var_name]
-                # if entry.var_type == int:
-                #     self.add_discrete_input(entry.var_name, val = var[1][0])
-                # else:
                 if entry.var_name in optim_var_dict:
                     self.add_input(entry.var_name, val=var[1][0])
                     declared.append(entry.var_name)
@@ -119,9 +118,6 @@ class ModuleComp(om.ExplicitComponent):
                 log.info('Already declared')
             elif entry.var_name in optim_var_dict:
                 var = optim_var_dict[entry.var_name]
-                # if entry.var_type == int:
-                #     self.add_discrete_output(entry.var_name, val=var[1][0])
-                # else:
                 self.add_output(entry.var_name, val=var[1][0])
                 declared.append(entry.var_name)
             elif 'aeromap' in entry.var_name and not skf^is_skf:
@@ -215,20 +211,24 @@ class SmComp(om.ExplicitComponent):
 
     def compute(self, inputs, outputs):
         """Make a prediction"""
-
         xp = []
         for name in self.xd.index:
             xp.append(inputs[name][0])
-            optim_var_dict[name][1].append(inputs[name][0])
 
         xp = np.array([xp])
         yp = self.Model.sm.predict_values(xp)
 
-        smu.write_outputs(self.yd, yp)
         for i, name in enumerate(self.yd.index):
             outputs[name] = yp[0][i]
-            if name in optim_var_dict:
-                optim_var_dict[name][1].append(yp[0][i])
+
+        # Write the inouts to the CPACS
+        cpacs_path = mif.get_toolinput_file_path('SMUse')
+        tixi = cpsf.open_tixi(cpacs_path)
+        smu.write_inouts(self.xd, xp, tixi)
+        smu.write_inouts(self.yd, yp, tixi)
+        cpacs_path_out = mif.get_tooloutput_file_path('SMUse')
+        cpsf.close_tixi(tixi, cpacs_path_out)
+
 
 
 class Objective(om.ExplicitComponent):
@@ -277,11 +277,12 @@ class Objective(om.ExplicitComponent):
             result = eval(obj)
 
             if Rt.minmax == 'min':
-                outputs['Objective function '+obj] = -result
-            else:
                 outputs['Objective function '+obj] = result
+            else:
+                outputs['Objective function '+obj] = -result
 
         cpsf.close_tixi(tixi, cpacs_path)
+        wkf.copy_module_to_module(Rt.modules[-1], 'out', Rt.modules[0], 'in')
 
 
 # =============================================================================
@@ -341,6 +342,7 @@ def create_routine_folder():
         os.mkdir(optim_dir_path+'/Geometry')
         os.mkdir(optim_dir_path+'/Runs')
     tixi.updateTextElement(opf.OPTWKDIR_XPATH, optim_dir_path)
+    tixi.updateTextElement(opf.WKDIR_XPATH, optim_dir_path)
 
     cpsf.close_tixi(tixi, opf.CPACS_OPTIM_PATH)
 
@@ -569,11 +571,13 @@ def routine_launcher(Opt):
     opf.first_run(Rt)
 
     tixi = cpsf.open_tixi(opf.CPACS_OPTIM_PATH)
+    tixi.updateTextElement(opf.WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
     Rt.get_user_inputs(tixi)
     optim_var_dict = opf.create_variable_library(Rt, tixi, optim_dir_path)
     am_dict = opf.create_am_lib(Rt, tixi)
 
     cpsf.close_tixi(tixi, opf.CPACS_OPTIM_PATH)
+    wkf.copy_module_to_module('Optimisation', 'in', Rt.modules[0], 'in')
 
     ## Instantiate components and subsystems ##
     prob = om.Problem()
@@ -594,13 +598,16 @@ if __name__ == '__main__':
     cpacs_path = mif.get_toolinput_file_path('Optimisation')
     cpacs_out_path = mif.get_tooloutput_file_path('Optimisation')
     tixi = cpsf.open_tixi(cpacs_path)
-    am_uid = cpsf.get_value(tixi, opf.OPTIM_XPATH+'aeroMapUID')
+
+    try:
+        am_uid = cpsf.get_value(tixi, opf.OPTIM_XPATH+'aeroMapUID')
+    except:
+        raise ValueError('No aeromap found in the file')
+
     log.info('Aeromap '+am_uid+' will be used')
-    am_index = opf.get_aeromap_index(tixi, am_uid)
 
     opf.update_am_path(tixi, am_uid)
 
     cpsf.close_tixi(tixi, cpacs_out_path)
-
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

@@ -140,13 +140,13 @@ def run_soft(soft, config_path, wkdir, nb_proc):
     # Get installation path for the following softwares
     SOFT_DICT = ceaf.get_install_path(SOFT_LIST)
 
-    #mpi_install_path = SOFT_DICT['mpirun.mpich']
+    # mpi_install_path = SOFT_DICT['mpirun.mpich']
     mpi_install_path = SOFT_DICT['mpirun']
 
     soft_install_path = SOFT_DICT[soft]
 
     log.info('Number of proc available: ' + str(os.cpu_count()))
-    log.info(str(nb_proc) +' will be use for this calculation.')
+    log.info(str(nb_proc) +' will be used for this calculation.')
 
     logfile_path = os.path.join(wkdir,'logfile' + soft + '.log')
 

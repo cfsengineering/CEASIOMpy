@@ -12,7 +12,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06
-| Last modification: 2020-07-06
+| Last modification: 2020-08-17
 
 TODO:
     * Enable model-specific settings for user through the GUI
@@ -51,13 +51,15 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 SMTRAIN_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModel/'
 SMFILE_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/SMpath'
 OPTWKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/optimPath'
-# Working surrogate models
+
+# Working surrogate models, the hyperparameters can be changed here for
+# experienced users.
 model_dict = {'KRG':'KRG(theta0=[1e-2]*xd.shape[1])',
               'KPLSK':'KPLS(theta0=[1e-2])',
               'KPLS':'KPLS(theta0=[1e-2])',
               'LS':'LS()'
               }
-# To be implemented
+# Could be implemented
 # sm = sms.RMTB(
 #     xlimits=xlimits,
 #     order=4,
@@ -115,7 +117,9 @@ class Prediction_tool():
             path = cpsf.get_value_or_default(tixi, OPTWKDIR_XPATH, '')
             if path != '':
                 self.user_file = path+ '/Variable_history.csv'
-        self.data_repartition = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'trainingPercentage', 0.9)
+        self.data_repartition = cpsf.get_value_or_default(tixi,
+                                                          SMTRAIN_XPATH+'trainingPercentage',
+                                                          0.9)
         self.show_plots = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'showPlots', False)
 
         self.aeromap_case = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'useAeromap', False)
@@ -174,7 +178,7 @@ def extract_data_set(Tool):
     Tool.df = pd.concat([Tool.df, df_data], ignore_index=True)
 
     y = y[[i for i in y.columns if i.isdigit()]]
-
+    log.info('Set extracted')
     return x.transpose().to_numpy(), y.transpose().to_numpy()
 
 
@@ -276,16 +280,22 @@ def create_surrogate(Tool, xd, yd):
         Tool (Prediction_tool object) : Path to CSV file.
         xd, yd (numpy array): Input and output data
 
+    Returns:
+        None.
+
     """
     xt, yt, xv, yv = separate_data(xd, yd, Tool.data_repartition)
+    log.info('Data separated')
     sm = eval('sms.{}'.format(model_dict[Tool.type]))
 
+    log.info('Training values set')
     sm.set_training_values(xt, yt)
 
+    log.info('Training... ')
     sm.train()
+    log.info('Done')
 
     if len(xv) >= 1:
-        print('eva')
         validation_plots(sm, xt, yt, xv, yv)
 
     Tool.sm = sm
@@ -355,9 +365,11 @@ def gen_df_from_am(tixi):
     df['getcmd'] = '-'
     df['setcmd'] = '-'
     df['initial value'] = '-'
+
     xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
     for index, name in enumerate(df['Name']):
         df.loc[index, 'getcmd'] = xpath + name
+        df.loc[index, 'initial value'] = tixi.getDoubleElement(xpath+name)
 
     return df
 
@@ -415,6 +427,8 @@ def generate_model(Tool):
     elif Tool.aeromap_case:
         log.info('Using aeromap entries')
         xd, yd = extract_am_data(Tool)
+    else:
+        raise(FileNotFoundError('No aeromap or SM file has been given !'))
     create_surrogate(Tool, xd, yd)
 
 

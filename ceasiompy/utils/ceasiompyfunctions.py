@@ -70,6 +70,8 @@ def create_new_wkdir(global_wkdir=''):
     if not os.path.exists(run_dir):
         os.mkdir(run_dir)
 
+    log.info(' NEW WKDIR ')
+    log.info(run_dir)
     return run_dir
 
 
@@ -137,23 +139,23 @@ def get_install_path(soft_check_list):
             log.info('Your OS is Linux')
             install_path = shutil.which(soft)
 
-        elif current_os == 'Windwos':
+        elif current_os == 'Windows':
             log.info('Your OS is Windows')
             # TODO
 
         else:
-            raise OSError('OS not recognize!')
+            raise OSError('OS not recognized!')
 
 
         if  install_path:
             log.info(soft +' is intalled at: ' + install_path)
             soft_dict[soft] = install_path
         elif 'mpi' in soft:
-            log.warning(soft + ' is not install on your computer!')
-            log.warning('Calculations will be run only on 1 proc')
+            log.warning(soft + ' is not installed on your computer!')
+            log.warning('Calculations will be run on 1 proc only')
             soft_dict[soft] = None
         else:
-            raise RuntimeError(soft + ' is not install on your computer!')
+            raise RuntimeError(soft + ' is not installed on your computer!')
 
     return soft_dict
 

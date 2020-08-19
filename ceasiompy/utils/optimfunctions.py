@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-04-10
-| Last modification: 2020-04-10
+| Last modification: 2020-08-10
 
 Todo:
 ----
@@ -53,9 +53,9 @@ AEROMAP_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance'
 SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 # Parameters that can not be used as problem variables
-banned_entries = ['wing', 'delete_old_wkdirs', 'check_extract_loads', # Not relevant variables
+banned_entries = ['wing', 'delete_old_wkdirs', 'check_extract_loads', # Not relevant
                   'cabin_crew_nb', # Is an input in range and an output in weightconv
-                  'MASS_CARGO' # Strange behaviour to be fixed
+                  'MASS_CARGO' # Makes the programm crash for unkknown reasons
                   ]
 
 objective = []
@@ -111,12 +111,22 @@ class Routine:
         self.save_iter = int(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'saving/perIter', 1))
 
         # Specific DoE parameters
-        self.doedriver = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'parameters/DoE/driver', 'uniform')
-        self.samplesnb = int(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'parameters/DoE/sampleNB', 3))
+        self.doedriver = cpsf.get_value_or_default(tixi,
+                                                   OPTIM_XPATH+'parameters/DoE/driver',
+                                                   'uniform')
+        self.samplesnb = int(cpsf.get_value_or_default(tixi,
+                                                       OPTIM_XPATH+'parameters/DoE/sampleNB',
+                                                       3))
 
         # User specified configuration file path
         self.user_config = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/filepath', '-'))
-        self.aeromap_uid = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'aeroMapUID', '-'))
+
+        fix_cl = cpsf.get_value_or_default(tixi, '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/fixedCL', 'no')
+        if fix_cl == 'YES':
+            tixi.updateTextElement(OPTIM_XPATH+'aeroMapUID','aeroMap_fixedCL_SU2')
+            self.aeromap_uid = 'aeroMap_fixedCL_SU2'
+        else:
+            self.aeromap_uid = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'aeroMapUID', '-'))
 
         self.use_aeromap = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/useAero', False)
 
@@ -175,25 +185,21 @@ def gen_doe_csv(user_config):
     """
 
     df = pd.read_csv(user_config)
+    # Check if the name, type and at least one point are present.
+    log.info(df[['Name', 'type', '0']])
 
-    try:
-        # Check if the name, type and at least one point are present.
-        log.info(df[['Name', 'type', 0]])
+    # Get only design variables
+    df = df.loc[[i for i, v in enumerate(df['type']) if v == 'des']]
 
-        # Get only design variables
-        df = df.loc[[i for i, v in enumerate(df['type']) if v == 'des']]
+    # Get only name and columns with point values
+    l = [i for i in df.columns if i.isdigit()]
+    l.insert(0, 'Name')
 
-        # Get only name and columns with point values
-        l = [i for i in df.columns if i.isdigit()]
-        l.insert(0, 'Name')
-        df = df[l]
+    df = df[l]
+    df.set_index('Name')
+    df = df.T
 
-        df = df.T
-
-    except:
-        pass
-    doe_csv = os.path.split(user_config)[0]+'DoE_points.csv'
-
+    doe_csv = os.path.split(user_config)[0]+'/DoE_points.csv'
     df.to_csv(doe_csv, header=False, index=False)
 
     return doe_csv
@@ -336,7 +342,7 @@ def get_aero_param(tixi):
         tls.add_bounds(value, var)
 
 
-def get_smu_vars(tixi):
+def get_sm_vars(tixi):
     """Retrieves variable in the case of a surrogate.
 
     In the case of a surrogate model being used, the entries are retrieved from
@@ -357,11 +363,14 @@ def get_smu_vars(tixi):
         name = tls.change_var_name(name)
         if name not in var['Name'] and df.loc[name]['setcmd'] == '-':
             var['Name'].append(name)
-            xpath = df.loc[name]['getcmd']
-            value = str(tixi.getDoubleElement(xpath))
-            var['xpath'].append(xpath)
-            var['init'].append(value)
             var['type'].append(df.loc[name]['type'])
+
+            xpath = df.loc[name]['getcmd']
+            var['xpath'].append(xpath)
+
+            value = str(tixi.getDoubleElement(xpath))
+            var['init'].append(value)
+
             tls.add_bounds(value, var)
         else:
             log.warning('Variable already exists')
@@ -453,7 +462,8 @@ def generate_dict(df):
 def add_entries(tixi, module_list):
     """Add the entries of all the modules.
 
-    Search all the entries that can be used as problenm parameters.
+    Search all the entries that can be used as problem parameters and fills the
+    variable dictionary with the valid entries.
 
     Args:
         tixi (Tixi3 handler): Tixi handle of the CPACS file.
@@ -469,7 +479,7 @@ def add_entries(tixi, module_list):
         for mod_name, specs in mif.get_all_module_specs().items():
             if specs and mod_name in module_list:
                 if mod_name == 'SMUse':
-                    get_smu_vars(tixi)
+                    get_sm_vars(tixi)
                 else:
                     get_module_vars(tixi, specs)
 
@@ -500,8 +510,8 @@ def initialize_df():
 def add_geometric_vars(tixi, df):
     """Add geometry parameters as design variables.
 
-    The geometric variables are not included as module entries and must be
-    added differently.
+    Automatically add the geometric variables as they are not included as
+    module entries.
 
     Args:
         tixi (Tixi3 handler): Tixi handle of the CPACS file.
@@ -538,6 +548,8 @@ def get_default_df(tixi, module_list):
         df (Dataframe): Dataframe with all the module variables.
 
     """
+
+    # Fill the variable dictionary with all entries
     add_entries(tixi, module_list)
 
     df = initialize_df()

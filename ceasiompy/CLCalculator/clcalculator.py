@@ -25,12 +25,12 @@ TODO:
 import os
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi, \
-                                     get_value, get_value_or_default, \
-                                     create_branch
+
+import ceasiompy.utils.cpacsfunctions as cpsf
+import ceasiompy.utils.moduleinterfaces as mif
+
 from ceasiompy.utils.standardatmosphere import get_atmosphere
 
-from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
 
 log = get_logger(__file__.split('.')[0])
 
@@ -94,7 +94,7 @@ def get_cl(cpacs_path,cpacs_out_path):
 
     """
 
-    tixi = open_tixi(cpacs_path)
+    tixi = cpsf.open_tixi(cpacs_path)
 
     # XPath definition
     model_xpath = '/cpacs/vehicles/aircraft/model'
@@ -107,13 +107,13 @@ def get_cl(cpacs_path,cpacs_out_path):
     su2_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
     # Requiered input data from CPACS
-    ref_area = get_value(tixi,ref_area_xpath)
-    mtom = get_value(tixi,mtom_xpath)
+    ref_area = cpsf.get_value(tixi,ref_area_xpath)
+    mtom = cpsf.get_value(tixi,mtom_xpath)
 
     # Requiered input data that could be replace by a default value if missing
-    cruise_alt = get_value_or_default(tixi,cruise_alt_xpath,12000.0)
-    cruise_mach = get_value_or_default(tixi,cruise_mach_xpath,0.78)
-    load_fact = get_value_or_default(tixi,load_fact_xpath,1.05)
+    cruise_alt = cpsf.get_value_or_default(tixi,cruise_alt_xpath,12000.0)
+    cruise_mach = cpsf.get_value_or_default(tixi,cruise_mach_xpath,0.78)
+    load_fact = cpsf.get_value_or_default(tixi,load_fact_xpath,1.05)
 
     # Get atmosphere from cruise altitude
     Atm = get_atmosphere(cruise_alt)
@@ -122,14 +122,14 @@ def get_cl(cpacs_path,cpacs_out_path):
     target_cl = calculate_cl(ref_area, cruise_alt, cruise_mach, mtom, load_fact)
 
     # Save TargetCL
-    create_branch(tixi, su2_xpath)
-    create_branch(tixi, su2_xpath+'/targetCL')
-    create_branch(tixi, su2_xpath+'/fixedCL')
+    cpsf.create_branch(tixi, su2_xpath)
+    cpsf.create_branch(tixi, su2_xpath+'/targetCL')
+    cpsf.create_branch(tixi, su2_xpath+'/fixedCL')
     tixi.updateDoubleElement(su2_xpath+'/targetCL',target_cl,'%g')
     tixi.updateTextElement(su2_xpath+'/fixedCL','YES')
     log.info('Target CL has been saved in the CPACS file')
 
-    close_tixi(tixi,cpacs_out_path)
+    cpsf.close_tixi(tixi,cpacs_out_path)
 
 
 #==============================================================================
@@ -145,7 +145,7 @@ if __name__ == '__main__':
     cpacs_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.xml')
     cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
 
-    check_cpacs_input_requirements(cpacs_path)
+    mif.check_cpacs_input_requirements(cpacs_path)
     get_cl(cpacs_path,cpacs_out_path)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

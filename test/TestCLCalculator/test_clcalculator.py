@@ -23,9 +23,11 @@ import sys
 import pytest
 from pytest import approx
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi, get_value
 from ceasiompy.CLCalculator.clcalculator import calculate_cl, get_cl
+
+import ceasiompy.utils.cpacsfunctions as cpsf
+
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
@@ -60,7 +62,7 @@ def test_get_cl():
 
     get_cl(CPACS_IN_PATH,CPACS_OUT_PATH)
 
-    tixi = open_tixi(CPACS_OUT_PATH)
+    tixi = cpsf.open_tixi(CPACS_OUT_PATH)
     cl_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/targetCL'
 
     cl_to_check = tixi.getDoubleElement(cl_xpath)

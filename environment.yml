@@ -31,7 +31,7 @@ channels:
 # are explicitly imported, but we do not list 'package_C'.
 
 dependencies:
-  - python>=3.6
+  - python==3.6.10  # >=3.6
 
   # Required
   - numpy>=1.15
@@ -67,7 +67,7 @@ dependencies:
     - framat  # See: https://github.com/airinnova/framat
     - smt
     # - mpi4py # issue at installation of environment
-    
+
 
 # Other packages
 # ==============

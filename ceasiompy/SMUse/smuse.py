@@ -54,6 +54,7 @@ cpacs_path_out = mif.get_tooloutput_file_path('SMUse')
 # =============================================================================
 #   ClASSES
 # =============================================================================
+
 class Surrogate_model():
     """Class to be dumped for later use of a model"""
 
@@ -70,7 +71,6 @@ class Surrogate_model():
 #   FUNCTIONS
 # =============================================================================
 
-
 def load_surrogate(tixi):
     """Load a surrogate model object from file
 
@@ -84,6 +84,7 @@ def load_surrogate(tixi):
         sm (object): The surrogate model.
 
     """
+
     file = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'modelFile', '')
 
     log.info('Trying to open file'+file)
@@ -109,6 +110,7 @@ def get_inputs(x):
         inputs (np.array): Array of floats.
 
     """
+
     tixi = cpsf.open_tixi(cpacs_path)
     tigl = cpsf.open_tigl(tixi)
     aircraft = cpud.get_aircraft(tigl)
@@ -150,6 +152,7 @@ def write_inouts(v, inout, tixi):
         None.
 
     """
+
     tigl = cpsf.open_tigl(tixi)
     aircraft = cpud.get_aircraft(tigl)
     wings = aircraft.get_wings()
@@ -183,6 +186,7 @@ def aeromap_calculation(sm, tixi):
         None.
 
     """
+
     tigl = cpsf.open_tigl(tixi)
     aircraft = cpud.get_aircraft(tigl)
     wings = aircraft.get_wings()
@@ -203,6 +207,7 @@ def aeromap_calculation(sm, tixi):
     Coef.cml = []
     Coef.cmd = []
     Coef.cms = []
+
     for i in range(outputs.shape[0]):
         Coef.add_coefficients(outputs[i, 0], outputs[i, 1], outputs[i, 2],
                               outputs[i, 3], outputs[i, 4], outputs[i, 5])
@@ -222,6 +227,7 @@ def predict_output(Model, tixi):
         None.
 
     """
+
     sm = Model.sm
     df = Model.df
 
@@ -250,12 +256,17 @@ def check_aeromap(tixi):
         None.
 
     """
+
     am_uid_use = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'aeroMapUID', '')
     am_uid_train = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'aeroMapUID', '')
 
     if am_uid_train == am_uid_use:
         sys.exit('Same aeromap that was used to create the model')
 
+
+#==============================================================================
+#    MAIN
+#==============================================================================
 
 if __name__ == "__main__":
 

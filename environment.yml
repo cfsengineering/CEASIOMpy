@@ -7,7 +7,7 @@
 #
 # See also: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
 
-name: ceasiompy_test3
+name: ceasiompy
 
 channels:
   - dlr-sc  # See: https://anaconda.org/DLR-SC/repo

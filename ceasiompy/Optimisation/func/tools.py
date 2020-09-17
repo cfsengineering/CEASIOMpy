@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author : Vivien Riolo
 | Creation: 2020-05-26
-| Last modification: 2020-06-30
+| Last modification: 2020-09-16
 
 TODO
 ----
@@ -167,6 +167,8 @@ def read_results(optim_dir_path, optim_var_dict={}):
             df.loc[v, 'getcmd'] = optim_var_dict[v][4]
             df.loc[v, 'setcmd'] = optim_var_dict[v][5]
 
+    df['initial value'] = df[0]
+
     return df
 
 
@@ -189,7 +191,7 @@ def save_results(optim_dir_path, optim_var_dict={}):
     # Get variable infos
     df = read_results(optim_dir_path, optim_var_dict)
 
-    df.to_csv(optim_dir_path+'/Variable_history.csv', index=True, na_rep='-')
+    df.to_csv(optim_dir_path+'/Variable_history.csv', index=True, na_rep='-',index_label='Name')
 
     log.info('Results have been saved at '+optim_dir_path)
 

@@ -219,7 +219,7 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 
 
         case_dir_name = ''.join(['Case',str(case_nb).zfill(2),
-                                 '_alt',str(case_nb),
+                                 '_alt',str(alt),
                                  '_mach',str(round(mach,2)),
                                  '_aoa',str(round(aoa,1)),
                                  '_aos',str(round(aos,1))])

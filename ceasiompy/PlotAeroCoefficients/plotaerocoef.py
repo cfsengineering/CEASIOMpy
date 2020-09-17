@@ -132,6 +132,19 @@ def write_legend(groupby_list, value):
 
     """
 
+    groupby_name_list = []
+    for name in groupby_list:
+        if name=='mach':
+            groupby_name_list.append('Mach')
+        elif name=='aoa':
+            groupby_name_list.append('AoA')
+        elif name=='aos':
+            groupby_name_list.append('AoS')
+        elif name=='alt':
+            groupby_name_list.append('Alt')
+        else:
+            groupby_name_list.append(name)
+
     legend = ''
     for i, param in enumerate(groupby_list):
 
@@ -143,7 +156,17 @@ def write_legend(groupby_list, value):
         if param is 'uid':
             legend += value_i
         else:
-            legend += param + '=' + str(value_i)
+            if param =='mach':
+                name = 'Mach'
+            elif param=='aoa':
+                name = 'AoA'
+            elif param=='aos':
+                name = 'AoS'
+            elif param=='alt':
+                name = 'Alt'
+            else:
+                name = param
+            legend += name + '=' + str(value_i)
 
         if i+1 != len(groupby_list):
             legend += '\n'

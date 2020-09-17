@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-04-10
-| Last modification: 2020-08-10
+| Last modification: 2020-09-16
 
 Todo:
 ----
@@ -271,9 +271,9 @@ def update_am_path(tixi, am_uid):
         None.
 
     """
+
     am_xpath = ['/cpacs/toolspecific/pytornado/aeroMapUID',
-                '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID',
-                '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/AeroMapOnly']
+                '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID']
     for name in am_xpath:
         if tixi.checkElement(name):
             tixi.updateTextElement(name, am_uid)
@@ -296,6 +296,7 @@ def get_aeromap_index(tixi, am_uid):
         am_index (str): The index of the aeromap between brackets.
 
     """
+
     am_list = apmf.get_aeromap_uid_list(tixi)
     am_index = '[1]'
     for i, uid in enumerate(am_list):
@@ -320,6 +321,7 @@ def get_aero_param(tixi):
         None.
 
     """
+
     log.info('Default aeromap parameters will be set')
 
     am_uid = cpsf.get_value(tixi, OPTIM_XPATH+'aeroMapUID')
@@ -355,6 +357,7 @@ def get_sm_vars(tixi):
         None.
 
     """
+
     Model = smu.load_surrogate(tixi)
     df = Model.df.rename(columns={'Unnamed: 0':'Name'})
     df.set_index('Name', inplace=True)
@@ -391,6 +394,7 @@ def get_module_vars(tixi, specs):
         None.
 
     """
+
     aeromap = True
     inouts = specs.cpacs_inout.inputs + specs.cpacs_inout.outputs
     for entry in inouts:
@@ -438,6 +442,7 @@ def generate_dict(df):
         optim_var_dict (dict): Used to pass the variables to the openMDAO setup.
 
     """
+
     df.dropna(axis=0, subset=['type', 'getcmd'], inplace=True)
     if 'min' not in df.columns:
         df['min'] = '-'
@@ -472,6 +477,7 @@ def add_entries(tixi, module_list):
         None.
 
     """
+
     use_am = cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'AeroMapOnly', False)
     if 'SMUse' in module_list and use_am:
         get_aero_param(tixi)
@@ -497,6 +503,7 @@ def initialize_df():
         None.
 
     """
+
     df = pd.DataFrame(columns=['Name'], data=var['Name'])
     df['type'] = var['type']
     df['initial value'] = var['init']
@@ -520,6 +527,7 @@ def add_geometric_vars(tixi, df):
         None.
 
     """
+
     geom_var = dct.init_geom_var_dict(tixi)
     for key, (var_name, [init_value], lower_bound, upper_bound, setcmd, getcmd) in geom_var.items():
         new_row = {'Name': var_name, 'type': 'des', 'initial value': init_value,
@@ -573,6 +581,7 @@ def create_am_lib(Rt, tixi):
         am_dict (dct): Dictionnary with all aeromap parameters.
 
     """
+
     Coef = apmf.get_aeromap(tixi, Rt.aeromap_uid)
     am_dict = Coef.to_dict()
     am_index = apmf.get_aeromap_index(tixi, Rt.aeromap_uid)
@@ -620,6 +629,7 @@ def create_variable_library(Rt, tixi, optim_dir_path):
         optim_var_dict (dct): Dictionnary with all optimisation parameters.
 
     """
+    
     global objective, var
     CSV_PATH = optim_dir_path+'/Variable_library.csv'
 

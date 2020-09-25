@@ -57,11 +57,12 @@ def create_new_wkdir(global_wkdir=''):
         wkdir (str): working directory path
 
     """
+
     date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
 
     if global_wkdir != '':
         dir_name = '/Runs/Run' + date
-        run_dir = global_wkdir+dir_name
+        run_dir = global_wkdir + dir_name
     else:
         dir_name = 'CEASIOMpy_Run_' + date
         wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR')

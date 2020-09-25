@@ -3,13 +3,13 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Plot Aerodynamic coefficients from CPACS aeroMaps
+Plot Aerodynamic coefficients from CPACS v3 aeroMaps
 
 Python version: >=3.6
 
 | Author: Aidan jungo
 | Creation: 2019-08-19
-| Last modifiction: 2020-07-16
+| Last modifiction: 2020-09-18
 
 TODO:
 
@@ -28,11 +28,10 @@ from tkinter import *
 import pandas as pd
 import matplotlib.pyplot as plt
 
+
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.moduleinterfaces as mi
-
-from ceasiompy.PlotAeroCoefficients.__specs__ import cpacs_inout
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -43,6 +42,7 @@ MODULE_NAME = os.path.basename(os.getcwd())
 
 PLOT_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/plotAeroCoefficient'
 
+NONE_LIST = ['None','NONE','No','NO','N','n','-',' ','']
 
 #==============================================================================
 #   CLASSES
@@ -52,10 +52,8 @@ class ListBoxChoice(object):
     def __init__(self, master=None, title='Title', message='Message', list=[]):
 
         self.selected_list = []
-
         self.master = master
         self.list = list[:]
-
         self.master.geometry("300x250") #Width x Height
         self.master.grab_set()
         self.master.bind("<Return>", self._select)
@@ -100,23 +98,22 @@ class ListBoxChoice(object):
 #==============================================================================
 
 def call_select_aeromap(tixi):
-    """Function to select the aeroMap to plot
+    """Function to select one or several aeroMap to plot wit a GUI
 
-    Function 'call_select_aeromap' open a GUI with the available aeroMap to plot
-    and retruns those selected by the user.
+    Function 'call_select_aeromap' open a GUI with all the available aeroMaps
+    to plot and retruns a list of those selected by the user.
 
     Args:
         tixi (handles): TIXI Handle of the CPACS file
 
     Returns:
         selected_aeromap_list (list) : List of selected aeroMap
-
     """
 
     aeromap_uid_list = apmf.get_aeromap_uid_list(tixi)
 
     root = Tk()
-    selected_aeromap_list = ListBoxChoice(root,'Select aeroMap Picking',
+    selected_aeromap_list = ListBoxChoice(root,'Select aeroMap',
                                           'Select aeroMap(s) to plot \t \t',
                                           aeromap_uid_list).returnValue()
 
@@ -129,7 +126,6 @@ def write_legend(groupby_list, value):
     Args:
         groupby_list (list): List of parameter whih will be use to group plot data
         value (...): If one value (str of float), if multiple value (tuple)
-
     """
 
     groupby_name_list = []
@@ -175,7 +171,7 @@ def write_legend(groupby_list, value):
 
 
 def subplot_options(ax,ylabel,xlabel):
-    """Set xlabel, ylabel and grit on a specific subplot.
+    """Set xlabel, ylabel and grid on a specific subplot.
 
     Args:
         ax (Axes objects): Axes of the concerned subplot
@@ -189,7 +185,7 @@ def subplot_options(ax,ylabel,xlabel):
 
 
 def plot_aero_coef(cpacs_path,cpacs_out_path):
-    """Plot all desire Aero coefficients from a CPACS file
+    """Plot Aero coefficients from the chosen aeroMap in the CPACS file
 
     Function 'plot_aero_coef' can plot one or several aeromap from the CPACS
     file according to some user option, these option will be shown in the the
@@ -242,13 +238,14 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
     title = aircraft_name
     criterion = pd.Series([True]*len(aeromap.index))
     groupby_list = ['uid','mach','alt', 'aos']
-    NONE_LIST = ['None','NONE','No','NO','N','n','-',' ','']
 
     # Get criterion from CPACS
     crit_xpath = PLOT_XPATH + '/criterion'
     alt_crit = cpsf.get_value_or_default(tixi,crit_xpath+'/alt','None')
     mach_crit = cpsf.get_value_or_default(tixi,crit_xpath+'/mach','None')
     aos_crit = cpsf.get_value_or_default(tixi,crit_xpath+'/aos','None')
+
+    cpsf.close_tixi(tixi,cpacs_out_path)
 
     # Modify criterion and title according to user option
     if len(aeromap['alt'].unique()) == 1:
@@ -288,7 +285,7 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
     fig.subplots_adjust(left=0.06)
     axs[0,1].axhline(y=0.0, color='k', linestyle='-') # Line at Cm=0
 
-    # Plot curves
+    # Plot aerodynamic coerfficients
     for value, grp in aeromap.loc[criterion].groupby(groupby_list):
 
         legend = write_legend(groupby_list, value)

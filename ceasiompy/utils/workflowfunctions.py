@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2020-02-25
-| Last modifiction: 2020-04-24
+| Last modifiction: 2020-09-17
 
 TODO:
 
@@ -36,10 +36,6 @@ log = get_logger(__file__.split('.')[0])
 import ceasiompy.__init__
 LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
-
-SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 
 #==============================================================================
@@ -83,7 +79,6 @@ def run_subworkflow(module_to_run,cpacs_path_in='',cpacs_path_out=''):
     Function 'run_subworkflow' will exectute in order all the module contained
     in 'module_to_run' list. Every time the resuts of one module (generaly CPACS
     file) will be copied as input for the next module.
-
 
     Args:
         module_to_run (list): List of mododule to run (in order)
@@ -129,7 +124,13 @@ def run_subworkflow(module_to_run,cpacs_path_in='',cpacs_path_out=''):
         if module == 'SettingsGUI':
             cpacs_path = mi.get_toolinput_file_path(module)
             cpacs_out_path = mi.get_tooloutput_file_path(module)
-            create_settings_gui(cpacs_path,cpacs_out_path,module_to_run[m:])
+
+            # Check if there is at least one other 'SettingsGUI' after this one
+            if 'SettingsGUI' in module_to_run[m+1:] and m+1 != len(module_to_run):
+                idx = module_to_run.index('SettingsGUI', m+1)
+                create_settings_gui(cpacs_path,cpacs_out_path,module_to_run[m:idx])
+            else:
+                create_settings_gui(cpacs_path,cpacs_out_path,module_to_run[m:])
         else:
             # Find the python file to run
             for file in os.listdir(module_path):
@@ -146,3 +147,12 @@ def run_subworkflow(module_to_run,cpacs_path_in='',cpacs_path_out=''):
     # Copy the cpacs file in the first module
     if cpacs_path_out:
         shutil.copy(mi.get_tooloutput_file_path(module_to_run[-1]),cpacs_path_out)
+
+
+#==============================================================================
+#    MAIN
+#==============================================================================
+
+if __name__ == '__main__':
+
+    log.info('Nothing to execute!')

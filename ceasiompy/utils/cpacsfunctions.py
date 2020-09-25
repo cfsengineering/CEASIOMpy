@@ -287,7 +287,6 @@ def get_uid(tixi, xpath):
         raise ValueError("No uID found for: " + xpath)
 
 
-
 def add_uid(tixi, xpath, uid):
     """ Function to add UID at a specific XPath.
 
@@ -301,7 +300,6 @@ def add_uid(tixi, xpath, uid):
         tixi (handles): TIXI Handle of the CPACS file
         xpath (str): xpath of the branch to add the uid
         uid (str): uid to add at xpath
-
     """
 
     exist = True
@@ -617,8 +615,6 @@ def aircraft_name(tixi_or_cpacs):
     log.info('The name of the aircraft is : ' + name)
 
     return(name)
-
-
 
 
 #==============================================================================

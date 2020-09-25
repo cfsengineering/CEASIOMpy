@@ -3,17 +3,17 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Calculate lift coefficient to flight with some parameters
+Calculate lift coefficient required to fly at specific alt, mach, mass and LF
 
 Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2018-11-28
-| Last modifiction: 2019-08-13
+| Last modifiction: 2020-09-18
 
 TODO:
 
-    * Use another mass than MTOM? Use % of total fuel (100% = MTOM, 0% = MTOM - MFM)  ...
+    * Use another mass than MTOM? Use % of total fuel (100% = MTOM, 0% = MTOM - MFM)
     * Save CruiseCL somewhere
 
 """
@@ -24,13 +24,11 @@ TODO:
 
 import os
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mif
-
 from ceasiompy.utils.standardatmosphere import get_atmosphere
 
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
@@ -55,7 +53,7 @@ def calculate_cl(ref_area, alt, mach, mass, load_fact = 1.05):
          /CEASIOMpy/lib/CLCalculator/doc/Calculate_CL.pdf
 
     Args:
-        ref_area (float):  Reference area [m^2]
+        ref_area (float): Reference area [m^2]
         alt (float): Altitude [m]
         mach (float): Mach number [-]
         mass (float): Aircraft mass [kg]
@@ -67,15 +65,13 @@ def calculate_cl(ref_area, alt, mach, mass, load_fact = 1.05):
 
     # Get atmosphere values at this altitude
     Atm = get_atmosphere(alt)
-    # Air heat capacity ratio [-]
-    GAMMA = 1.401
+    GAMMA = 1.401 # Air heat capacity ratio [-]
 
     # Calculate lift coeffienct
     weight = mass * Atm.grav
     dyn_pres = 0.5 * GAMMA * Atm.pres * mach**2
     target_cl = weight * load_fact / (dyn_pres * ref_area)
-    log.info('A lift coefficent (CL) of ' + str(target_cl) +
-             ' has been calculated')
+    log.info('A lift coefficent (CL) of %f has been calculated' % target_cl)
 
     return target_cl
 
@@ -85,13 +81,12 @@ def get_cl(cpacs_path,cpacs_out_path):
     in the CPACS file.
 
     Function 'get_cl' find input value in the CPACS file, calculate the
-    requiered CL (with calculate_cl) and  save the CL value in
-    /cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/targetCL
+    requiered CL (with function calculate_cl) and  save the CL value in the
+    CPACS file.
 
     Args:
         cpacs_path (str):  Path to CPACS file
         cpacs_out_path (str): Path to CPACS output file
-
     """
 
     tixi = cpsf.open_tixi(cpacs_path)
@@ -108,20 +103,19 @@ def get_cl(cpacs_path,cpacs_out_path):
 
     # Requiered input data from CPACS
     ref_area = cpsf.get_value(tixi,ref_area_xpath)
+    log.info('Aircraft reference area is %f [m^2]' % ref_area)
     mtom = cpsf.get_value(tixi,mtom_xpath)
+    log.info('Aircraft MTOM is %f [kg]' % mtom)
 
     # Requiered input data that could be replace by a default value if missing
     cruise_alt = cpsf.get_value_or_default(tixi,cruise_alt_xpath,12000.0)
     cruise_mach = cpsf.get_value_or_default(tixi,cruise_mach_xpath,0.78)
     load_fact = cpsf.get_value_or_default(tixi,load_fact_xpath,1.05)
 
-    # Get atmosphere from cruise altitude
-    Atm = get_atmosphere(cruise_alt)
-
     # CL calculation
     target_cl = calculate_cl(ref_area, cruise_alt, cruise_mach, mtom, load_fact)
 
-    # Save TargetCL
+    # Save TargetCL and fixedCL option
     cpsf.create_branch(tixi, su2_xpath)
     cpsf.create_branch(tixi, su2_xpath+'/targetCL')
     cpsf.create_branch(tixi, su2_xpath+'/fixedCL')
@@ -135,7 +129,6 @@ def get_cl(cpacs_path,cpacs_out_path):
 #==============================================================================
 #    MAIN
 #==============================================================================
-
 
 if __name__ == '__main__':
 

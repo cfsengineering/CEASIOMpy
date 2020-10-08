@@ -9,11 +9,10 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-10-29
-| Last modifiction: 2020-05-05
+| Last modifiction: 2020-10-07
 
 TODO:
 
-    * Check and write the script to be compatible with Windows OS
     * Also work in wkdir
 
 """
@@ -61,17 +60,15 @@ def launch_cpacscreator(cpacs_path,cpacs_out_path):
 
     current_os = platform.system()
 
-    # Get CPACSCreator installation path
     if current_os == 'Darwin':
         install_path = shutil.which("CPACS-Creator")
 
     elif current_os == 'Linux':
         install_path = shutil.which("cpacscreator")
 
-    elif current_os == 'Windwos':
-        log.warning('OS not supported yet!')
-        install_path = ''
-        # TODO
+    elif current_os == 'Windows':
+        install_path = shutil.which("CPACSCreator")
+
     else:
         raise OSError('OS not recognize!')
 
@@ -110,8 +107,8 @@ def launch_cpacscreator(cpacs_path,cpacs_out_path):
         os.system('cpacscreator ' + cpacs_tmp)
 
     elif current_os == 'Windwos':
-        log.warning('OS not supported yet!')
-        # TODO
+        os.system('CPACSCreator ' + cpacs_tmp)
+
     else:
         raise OSError('OS not recognize!')
 

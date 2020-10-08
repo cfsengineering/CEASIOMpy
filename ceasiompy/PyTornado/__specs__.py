@@ -174,5 +174,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit='-',
     descr='aeroMap with aero coefficients calculated by PyTornado',
-    xpath='/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[i]/aeroPerformanceMap',
+    xpath='/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap/aeroPerformanceMap',
 )

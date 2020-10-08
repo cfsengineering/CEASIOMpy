@@ -10,7 +10,7 @@ RCE = {
     "description": "This module uses a surrogate model to make predictions on data",
     "exec": "pwd\npython smuse.py",
     "author": "Vivien Riolo",
-    "email": "info@cfse.ch",
+    "email": "aidan.jungo@cfse.ch",
 }
 
 # ===== CPACS inputs and outputs =====

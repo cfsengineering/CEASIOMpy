@@ -59,13 +59,10 @@ model_dict = {'KRG':'KRG(theta0=[1e-2]*xd.shape[1])',
               'KPLS':'KPLS(theta0=[1e-2])',
               'LS':'LS()'
               }
+
 # Could be implemented
-# sm = sms.RMTB(
-#     xlimits=xlimits,
-#     order=4,
-#     num_ctrl_pts=20,
-#     energy_weight=1e-15,
-#     regularization_weight=0.0,)
+# sm = sms.RMTB(xlimits=xlimits,order=4,num_ctrl_pts=20,energy_weight=1e-15,
+#               regularization_weight=0.0,)
 # sm = sms.QP()
 # sm = GEKPLS(theta0=[1e-2], xlimits=fun.xlimits, extra_points=1, print_prediction=False)
 # sm = sms.GENN()
@@ -109,6 +106,8 @@ class Prediction_tool():
             self.wkdir = ceaf.get_wkdir_or_create_new(tixi)+'/SM'
         if not os.path.isdir(self.wkdir):
             os.mkdir(self.wkdir)
+
+        self.type = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'modelType', 'KRG')
 
         obj = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'objective', 'cl')
         self.objectives = re.split(';|,', obj)
@@ -316,6 +315,7 @@ def save_model(Tool):
         None.
 
     """
+
     date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     cpacs_path = mif.get_toolinput_file_path('SMTrain')
     cpacs_out_path = mif.get_tooloutput_file_path('SMTrain')

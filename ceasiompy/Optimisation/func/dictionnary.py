@@ -236,12 +236,6 @@ def init_wing_param(aircraft, wing_nb):
 
         wing = wings.get_wing(w)
 
-        var_name = name+"_sweep"
-        init_sweep = wing.get_sweep()
-        getcmd = cmd+'get_sweep()'
-        setcmd = cmd+'set_sweep({})'.format(var_name)
-        create_var(var_name, init_sweep, getcmd, setcmd)
-
         var_name = name+"_span"
         init_span = wing.get_wing_half_span()
         getcmd = cmd+'get_wing_half_span()'
@@ -259,6 +253,19 @@ def init_wing_param(aircraft, wing_nb):
         getcmd = cmd+'get_surface_area()'
         setcmd = cmd+'set_area_keep_ar({})'.format(var_name)#keep_span
         create_var(var_name, init_area, getcmd, setcmd)
+
+        var_name = name+"_sweep"
+        init_sweep = wing.get_sweep()
+        getcmd = cmd+'get_sweep()'
+        setcmd = cmd+'set_sweep({})'.format(var_name)
+        create_var(var_name, init_sweep, getcmd, setcmd)
+
+        var_name = name + "_Yrotation"
+        init_rot = wing.get_rotation().y
+        getcmd = cmd+'get_rotation().y'
+        setcmd = cmd+'set_rotation(geometry.CTiglPoint(0,{},0))'.format(var_name)
+        create_var(var_name, init_rot, getcmd, setcmd)
+        #A tester....
 
         sec_nb = wing.get_section_count()
         if sec_nb:

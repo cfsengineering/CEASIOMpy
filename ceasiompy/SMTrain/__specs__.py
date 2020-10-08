@@ -10,7 +10,7 @@ RCE = {
     "description": "This module generates a surrogate model",
     "exec": "pwd\npython smtrain.py",
     "author": "Vivien Riolo",
-    "email": "info@cfse.ch",
+    "email": "aidan.jungo@cfse.ch",
 }
 
 # ===== CPACS inputs and outputs =====

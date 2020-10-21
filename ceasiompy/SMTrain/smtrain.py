@@ -283,12 +283,15 @@ def create_surrogate(Tool, xd, yd):
         None.
 
     """
+
     xt, yt, xv, yv = separate_data(xd, yd, Tool.data_repartition)
     log.info('Data separated')
     sm = eval('sms.{}'.format(model_dict[Tool.type]))
 
     log.info('Training values set')
     sm.set_training_values(xt, yt)
+    # Only one output should be use, e.g for CL
+    #sm.set_training_values(xt[:,2], yt[:,2])
 
     log.info('Training... ')
     sm.train()

@@ -10,7 +10,7 @@ RCE = {
     "description": "This module implements the optimization routine for a workflow",
     "exec": "pwd\npython optimisation.py",
     "author": "Vivien Riolo",
-    "email": "info@cfse.ch",
+    "email": "aidan.jungo@cfse.ch",
 }
 
 # ===== CPACS inputs and outputs =====
@@ -96,14 +96,15 @@ cpacs_inout.add_input(
     gui_group='Optimisation settings'
 )
 
-cpacs_inout.add_input(
-    var_name='modules',
-    var_type=list,
-    default_value='-',
-    unit=None,
-    descr='List of modules to run',
-    gui=False,
-)
+# Is it ok to comment that?
+# cpacs_inout.add_input(
+#     var_name='modules',
+#     var_type=list,
+#     default_value='-',
+#     unit=None,
+#     descr='List of modules to run',
+#     gui=False,
+# )
 
 cpacs_inout.add_input(
     var_name='DoEDriver',

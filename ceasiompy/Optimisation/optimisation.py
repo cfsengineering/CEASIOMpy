@@ -50,7 +50,7 @@ MODULE_NAME = os.path.basename(os.getcwd())
 
 mod = []
 counter = 0
-skf = False
+#skf = False
 geom_dict = {}
 optim_var_dict = {}
 Rt = opf.Routine()
@@ -109,7 +109,9 @@ class ModuleComp(om.ExplicitComponent):
         declared = []
 
         # Outputs
-        is_skf = (self.module_name == 'SkinFriction')
+        # To remove
+        #is_skf = (self.module_name == 'SkinFriction')
+
         for entry in spec.cpacs_inout.outputs:
             # Replace special characters from the name of the entry and checks for accronyms
             entry.var_name = tls.change_var_name(entry.var_name)
@@ -120,7 +122,7 @@ class ModuleComp(om.ExplicitComponent):
                 var = optim_var_dict[entry.var_name]
                 self.add_output(entry.var_name, val=var[1][0])
                 declared.append(entry.var_name)
-            elif 'aeromap' in entry.var_name and not skf^is_skf:
+            elif 'aeromap' in entry.var_name and self.module_name == last_am_module:  #== 'PyTornado':  #not skf^is_skf:
                 # Condition to avoid any conflict with skinfriction
                 for name in apmf.XSTATES:
                     if name in optim_var_dict:
@@ -411,7 +413,7 @@ def add_subsystems(prob, ivc):
         None.
 
     """
-    global mod, geom_dict, skf
+    global mod, geom_dict
     geom = Geom_param()
     obj = Objective()
 
@@ -424,13 +426,16 @@ def add_subsystems(prob, ivc):
     if geom_dict:
         prob.model.add_subsystem('Geometry', geom, promotes=['*'])
 
-    # Deal with the SkinFriction case
-    skf = False
-    if 'SkinFriction' in Rt.modules:
-        skf = True
+    # Find last module to use an aeromap
+    am_module = ['SU2Run','PyTornado','SkinFriction']
+    global last_am_module
+    last_am_module = ''
+    for name in Rt.modules:
+        if name in am_module:
+            last_am_module = name
 
     # Modules
-    for name in Rt.modules:
+    for n,name in enumerate(Rt.modules):
         if name == 'SMUse':
             prob.model.add_subsystem(name, SmComp(), promotes=['*'])
         else:
@@ -606,7 +611,7 @@ if __name__ == '__main__':
 
     log.info('Aeromap '+am_uid+' will be used')
 
-    opf.update_am_path(tixi, am_uid)
+    #opf.update_am_path(tixi, am_uid)
 
     cpsf.close_tixi(tixi, cpacs_out_path)
 

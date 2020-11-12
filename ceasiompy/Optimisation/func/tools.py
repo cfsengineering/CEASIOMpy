@@ -224,7 +224,7 @@ def plot_results(optim_dir_path, routine_type, optim_var_dict={}):
     df.pop('setcmd')
     df = df.transpose()
     nbC = min(len(des), 5)
-    df.plot(subplots=True, layout=(-1, nbC))
+    df.iloc[1:-1].plot(subplots=True, layout=(-1, nbC))
 
     plot_objective(optim_dir_path)
 

@@ -111,12 +111,8 @@ class Routine:
         self.save_iter = int(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'saving/perIter', 1))
 
         # Specific DoE parameters
-        self.doedriver = cpsf.get_value_or_default(tixi,
-                                                   OPTIM_XPATH+'parameters/DoE/driver',
-                                                   'uniform')
-        self.samplesnb = int(cpsf.get_value_or_default(tixi,
-                                                       OPTIM_XPATH+'parameters/DoE/sampleNB',
-                                                       3))
+        self.doedriver = cpsf.get_value_or_default(tixi,OPTIM_XPATH+'parameters/DoE/driver','uniform')
+        self.samplesnb = int(cpsf.get_value_or_default(tixi,OPTIM_XPATH+'parameters/DoE/sampleNB',3))
 
         # User specified configuration file path
         self.user_config = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/filepath', '-'))
@@ -151,6 +147,7 @@ def first_run(Rt):
     Rt.modules.insert(0, 'Optimisation')
 
     # Settings needed for CFD calculation
+    # TODO: maybe this shoud be remove when all option ar correctly set by default
     added_gui = False
     if 'SettingsGUI' not in Rt.modules:
         Rt.modules.insert(0, 'SettingsGUI')
@@ -586,8 +583,7 @@ def create_am_lib(Rt, tixi):
     am_dict = Coef.to_dict()
     am_index = apmf.get_aeromap_index(tixi, Rt.aeromap_uid)
 
-    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap'\
-            + am_index + '/aeroPerformanceMap/'
+    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
 
     for name in apmf.COEF_LIST+apmf.XSTATES:
         if name in ['altitude', 'machNumber']:
@@ -629,7 +625,7 @@ def create_variable_library(Rt, tixi, optim_dir_path):
         optim_var_dict (dct): Dictionnary with all optimisation parameters.
 
     """
-    
+
     global objective, var
     CSV_PATH = optim_dir_path+'/Variable_library.csv'
 

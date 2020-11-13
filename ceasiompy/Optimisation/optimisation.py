@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-06-15
-| Last modification: 2020-08-10
+| Last modification: 2020-11-13 (AJ)
 
 Todo:
     * Vector inputs or multiple objectives
@@ -18,6 +18,7 @@ Todo:
     * Find a way to avoid the first run
 
 """
+
 import os
 import shutil
 from re import split as splt
@@ -27,11 +28,11 @@ from tigl3 import geometry # Called within eval() function
 
 import ceasiompy.SMUse.smuse as smu
 import ceasiompy.Optimisation.func.tools as tls
+import ceasiompy.Optimisation.func.optimfunctions as opf
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
 import ceasiompy.Optimisation.func.dictionnary as dct
 
 import ceasiompy.utils.apmfunctions as apmf
-import ceasiompy.utils.optimfunctions as opf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.workflowfunctions as wkf
@@ -311,10 +312,8 @@ def create_routine_folder():
     Args:
         None.
 
-    Returns:
-        None.
-
     """
+
     global optim_dir_path, Rt
 
     # Create the main working directory
@@ -361,10 +360,8 @@ def driver_setup(prob):
         prob (om.Problem object) : Instance of the Problem class that is used
         to define the current routine.
 
-    Returns:
-        None.
-
     """
+
     if Rt.type == 'Optim':
         # TBD : Genetic algorithm
         # if len(Rt.objective) > 1 and False:
@@ -409,10 +406,8 @@ def add_subsystems(prob, ivc):
         prob (om.Problem object): Current problem that is being defined
         ivc (om.IndepVarComp object): Independent variables of the problem
 
-    Returns:
-        None.
-
     """
+
     global mod, geom_dict
     geom = Geom_param()
     obj = Objective()
@@ -459,9 +454,8 @@ def add_parameters(prob, ivc):
         prob (om.Problem object): Current problem that is being defined
         ivc (om.IndepVarComp object): Independent variables of the problem
 
-    Returns:
-        None.
     """
+
     # Defining constraints and linking design variables to the ivc
     for name, (val_type, listval, minval, maxval,
                getcommand, setcommand) in optim_var_dict.items():
@@ -527,10 +521,8 @@ def generate_results(prob):
     Args:
         prob (om.Problem object): Current problem that is being defined
 
-    Returns:
-        None.
-
     """
+
     if Rt.use_aeromap and Rt.type == 'DoE':
         dct.add_am_to_dict(optim_var_dict, am_dict)
 
@@ -562,10 +554,8 @@ def routine_launcher(Opt):
         Opt (class) : Indicates which modules to use and the routine type
         (Optim or DoE).
 
-    Returns:
-        None.
-
     """
+
     global optim_var_dict, am_dict, Rt, am_length
 
     Rt.type = Opt.optim_method

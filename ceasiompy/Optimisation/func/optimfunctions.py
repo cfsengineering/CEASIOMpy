@@ -9,11 +9,11 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-04-10
-| Last modification: 2020-09-16
+| Last modification: 2020-11-13 (AJ)
 
 Todo:
-----
-    * Check how to open the csv file depending on the user program
+
+    *
 
 """
 
@@ -139,10 +139,8 @@ def first_run(Rt):
     Args:
         Rt (Routine object): Class that contains the routine informations.
 
-    Returns:
-        None.
-
     """
+
     log.info('Launching initialization workflow')
     Rt.modules.insert(0, 'Optimisation')
 
@@ -213,9 +211,6 @@ def get_normal_param(tixi, entry, outputs):
         tixi (Tixi3 handle): Handle of the current CPACS file.
         entry (object): Current parameter object.
 
-    Returns:
-        None.
-
     """
 
     value = '-'
@@ -279,30 +274,6 @@ def update_am_path(tixi, am_uid):
             tixi.updateTextElement(name, am_uid)
 
 
-def get_aeromap_index(tixi, am_uid):
-    """Return index of the aeromap to be used.
-
-    With the aeromap uID, the index of this aeromap is returned if there are
-    more than one in the CPACS file.
-
-    Args:
-        tixi (Tixi3 handle): Handle of the current CPACS file
-        am_uid (str): uID of the aeromap that will be used by all modules.
-
-    Returns:
-        am_index (str): The index of the aeromap between brackets.
-
-    """
-
-    am_list = apmf.get_aeromap_uid_list(tixi)
-    am_index = '[1]'
-    for i, uid in enumerate(am_list):
-        if uid == am_uid:
-            am_index = '[{}]'.format(i+1)
-
-    return am_index
-
-
 def get_aero_param(tixi):
     """Add the aeromap variables to the optimisation dictionnary.
 
@@ -314,15 +285,12 @@ def get_aero_param(tixi):
     Args:
         tixi (Tixi3 handle): Handle of the current CPACS file.
 
-    Returns:
-        None.
-
     """
 
     log.info('Default aeromap parameters will be set')
 
     am_uid = cpsf.get_value(tixi, OPTIM_XPATH+'aeroMapUID')
-    am_index = get_aeromap_index(tixi, am_uid)
+    am_index = apmf.get_aeromap_index(tixi, am_uid)
 
     log.info('Aeromap \"{}\" will be used for the variables.'.format(am_uid))
 
@@ -349,9 +317,6 @@ def get_sm_vars(tixi):
 
     Args:
         tixi (Tixi3 handler): Tixi handle of the CPACS file.
-
-    Returns:
-        None.
 
     """
 
@@ -386,9 +351,6 @@ def get_module_vars(tixi, specs):
     Returns:
         tixi (Tixi3 handler): Tixi handle of the CPACS file.
         specs (class): Contains the modules inputs and outputs specifications.
-
-    Returns:
-        None.
 
     """
 
@@ -470,9 +432,6 @@ def add_entries(tixi, module_list):
     Args:
         tixi (Tixi3 handler): Tixi handle of the CPACS file.
 
-    Returns:
-        None.
-
     """
 
     use_am = cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'AeroMapOnly', False)
@@ -492,12 +451,6 @@ def initialize_df():
 
     Setup a dataframe that contains all the entries that were found in the
     modules.
-
-    Args:
-        None
-
-    Returns:
-        None.
 
     """
 
@@ -519,9 +472,6 @@ def add_geometric_vars(tixi, df):
 
     Args:
         tixi (Tixi3 handler): Tixi handle of the CPACS file.
-
-    Returns:
-        None.
 
     """
 

@@ -306,7 +306,7 @@ if __name__ == '__main__':
         # These options can be modified here if WorkflowCreator is used without GUI
         # Opt.cpacs_path = '../../test/CPACSfiles/simpletest_cpacs.xml'
         Opt.module_pre = []
-        Opt.module_optim = ['PyTornado','SkinFriction']
+        Opt.module_optim = ['CLCalculator','CPACS2SUMO','SUMOAutoMesh','SU2Run','SkinFriction']
 
         Opt.optim_method = 'Optim' # DoE, Optim, None
         Opt.module_post = []

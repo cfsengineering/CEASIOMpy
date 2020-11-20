@@ -221,11 +221,16 @@ def plot_results(optim_dir_path, routine_type, optim_var_dict={}):
     nbC = min(len(des), 5)
     df.iloc[1:-1].plot(subplots=True, layout=(-1, nbC),style='.-')
 
+    # Save figure (TODO: could be improved)
+    fig_path = optim_dir_path + '/plot_variable.png'
+    plt.savefig(fig_path)
+
+
     plot_objective(optim_dir_path)
 
     if routine_type == 'DoE':
-        gen_plot(df, obj, des)
-        gen_plot(df, obj, const)
+        gen_plot(optim_dir_path ,df, obj, des)
+        gen_plot(optim_dir_path ,df, obj, const)
 
 
 def plot_objective(optim_dir_path):
@@ -258,10 +263,16 @@ def plot_objective(optim_dir_path):
     nbC = min(len(obj), 5)
 
     df_o.plot(subplots=True, layout=(-1, nbC),style='.-')
-    plt.show()
+
+    #plt.show()
+
+    # Save figure (TODO: could be improved)
+    fig_path = optim_dir_path + '/plot_objective_function.png'
+    plt.savefig(fig_path)
 
 
-def gen_plot(df, yvars, xvars):
+
+def gen_plot(optim_dir_path, df, yvars, xvars):
     """Generate scatter plot
 
     Generate a scatter plot from a dataframe based on its column entries.
@@ -293,7 +304,12 @@ def gen_plot(df, yvars, xvars):
                 c = 0
         r += 1
         c = 0
-    plt.show()
+
+    #plt.show()
+
+    # Save figure (TODO: could be improved)
+    fig_path = optim_dir_path + '/plot_doe_variables.png'
+    plt.savefig(fig_path)
 
 
 ### --------------- FUNCTIONS FOR OPTIMISATION PARAMETERS --------------- ###

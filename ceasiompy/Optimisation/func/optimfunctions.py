@@ -145,14 +145,16 @@ def first_run(Rt):
     Rt.modules.insert(0, 'Optimisation')
 
     # Settings needed for CFD calculation
-    # TODO: maybe this shoud be remove when all option ar correctly set by default
-    # added_gui = False
-    # if 'SettingsGUI' not in Rt.modules:
-    #     Rt.modules.insert(0, 'SettingsGUI')
-    #     added_gui = True
-
+    if 'SettingsGUI' in Rt.modules:
+        Rt.modules.remove('SettingsGUI')
+        Rt.modules.insert(0, 'SettingsGUI')
+        
     # First iteration to create aeromap results if no pre-workflow
-    wkf.copy_module_to_module('Optimisation', 'in', Rt.modules[1], 'in')
+    if Rt.modules[0] == 'Optimisation':
+        wkf.copy_module_to_module('Optimisation', 'in', Rt.modules[1], 'in')
+    else:
+        wkf.copy_module_to_module('Optimisation', 'in', Rt.modules[0], 'in')
+
     wkf.run_subworkflow(Rt.modules)
     wkf.copy_module_to_module(Rt.modules[-1], 'out', 'Optimisation', 'in')
 

@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2020-02-25
-| Last modifiction: 2020-09-17
+| Last modifiction: 2020-12-01
 
 TODO:
 
@@ -37,10 +37,30 @@ import ceasiompy.__init__
 LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
 
 
-
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
+
+def get_list_from_config(config_value):
+    """ Return a list of module name (string)
+
+    Function 'get_list_config_value' transform the string imput from the  config
+    dictionary into a list of string with the correct format to be use by
+    'WorkflowCreator'
+
+    Args:
+        config_value (str): String from the config dictionary
+        module_list (list): List of modules
+
+    """
+
+    if config_value == 'NONE':
+        return
+
+    module_list = [x.strip() for x in config_value.split(',')]
+
+    return module_list
+
 
 def copy_module_to_module(module_from, io_from, module_to, io_to):
     """ Transfer CPACS file from one module to another.
@@ -53,6 +73,7 @@ def copy_module_to_module(module_from, io_from, module_to, io_to):
         io_from (str): "in" or "out", for ToolInput or ToolOutput
         module_to (str): Name of the module where the CPACS file will be copy
         io_to (str): "in" or "out", for ToolInput or ToolOutput
+
     """
 
     in_list = ['in','In','IN','iN','input','Input','INPUT','ToolInput','toolinput']
@@ -103,18 +124,19 @@ def run_subworkflow(module_to_run,cpacs_path_in='',cpacs_path_out=''):
     if cpacs_path_in:
         shutil.copy(cpacs_path_in,mi.get_toolinput_file_path(module_to_run[0]))
 
-    log.info('The following modules will be executed: ' + str(module_to_run))
+    log.info('The following modules will be executed: ')
+    for module in module_to_run:
+        log.info(module)
 
     for m, module in enumerate(module_to_run):
 
-        log.info('\n')
         log.info('######################################################################################')
         log.info('Run module: ' + module)
-        log.info('######################################################################################\n')
+        log.info('######################################################################################')
 
         # Go to the module directory
         module_path = os.path.join(LIB_DIR,module)
-        print('\n Going to ',module_path,'\n')
+        log.info('Going to ' + module_path)
         os.chdir(module_path)
 
         # Copy CPACS file from previous module to this one

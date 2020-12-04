@@ -34,6 +34,9 @@ import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mi
 
+#To modify if read/write config function are moved to a more general place
+import ceasiompy.utils.su2functions as su2f
+
 from ceasiompy.Optimisation.optimisation import routine_launcher
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -45,9 +48,9 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
 
-# ==============================================================================
-#   IMPORTS
-# ==============================================================================
+#==============================================================================
+#   CLASSES
+#==============================================================================
 
 class WorkflowOptions:
     """ Class to pass option of the workflow """
@@ -64,6 +67,17 @@ class WorkflowOptions:
         self.module_pre = []
         self.module_optim = []
         self.module_post = []
+
+    def from_file(self, workflow_config_path):
+
+        cfg = su2f.read_config(workflow_config_path)
+
+        self.cpacs_path = str(cfg['CPACS_TOOLINPUT'])
+
+        self.module_pre = wkf.get_list_from_config(cfg['MODULE_PRE'])
+        self.module_optim = wkf.get_list_from_config(cfg['MODULE_OPTIM'])
+        self.module_post = wkf.get_list_from_config(cfg['MODULE_POST'])
+        self.optim_method = str(cfg['OPTIM_METHOD'])
 
 
 class Tab(tk.Frame):
@@ -245,9 +259,9 @@ class WorkFlowGUI(tk.Frame):
         self.quit()
 
 
-# ==============================================================================
-#    MAIN
-# ==============================================================================
+#==============================================================================
+#   FUNCTIONS
+#==============================================================================
 
 def create_wf_gui():
     """ Create a GUI with Tkinter to fill the workflow to run
@@ -272,50 +286,21 @@ def create_wf_gui():
     return opt
 
 
-if __name__ == '__main__':
+def run_workflow(Otp):
+    """ Run the complete Worflow
 
-    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
+    Args:
+        Opt (class): Cl
+        cpacs_out_path (str): Path to the output CPACS file
+        module_list (list): List of module to inclue in the GUI
 
-    cpacs_path_out = mi.get_tooloutput_file_path(MODULE_NAME)
-
-    gui = False
-
-    if len(sys.argv) > 1:
-        if sys.argv[1] == '-gui':
-            gui = True
-        else:
-            print(' ')
-            print('Not valid argument!')
-            print('You can use the option -gui to run this module with a user interface.')
-            print(' ')
-            sys.exit()
-
-    if gui:
-        Opt = create_wf_gui()
-    else:
-        ####### USER INPUT ########
-        ### Available Module:
-        # Settings: 'SettingsGUI'
-        # Geometry and mesh: 'CPACSCreator','CPACS2SUMO','SUMOAutoMesh'
-        # Weight and balance: 'WeightConventional','WeightUnconventional','BalanceConventional','BalanceUnconventional'
-        # Aerodynamics: 'CLCalculator','PyTornado','SkinFriction','PlotAeroCoefficients','SU2MeshDef','SU2Run'
-        # Mission analysis: 'Range','StabilityStatic'
-
-        Opt = WorkflowOptions()
-
-        # These options can be modified here if WorkflowCreator is used without GUI
-        # Opt.cpacs_path = '../../test/CPACSfiles/simpletest_cpacs.xml'
-        Opt.module_pre = []
-        Opt.module_optim = ['CLCalculator','CPACS2SUMO','SUMOAutoMesh','SU2Run','SkinFriction']
-
-        Opt.optim_method = 'Optim' # DoE, Optim, None
-        Opt.module_post = []
+    """
 
     # Copy ToolInput.xml in ToolInput dir if not already there
     cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    if not Opt.cpacs_path == cpacs_path:
+    if not os.path.abspath(Opt.cpacs_path) == os.path.abspath(cpacs_path):
         shutil.copy(Opt.cpacs_path, cpacs_path)
-        Opt.cpacs_path = cpacs_path
+        Opt.cpacs_path = os.path.abspath(cpacs_path)
 
     # Create a new wkdir
     tixi = cpsf.open_tixi(Opt.cpacs_path)
@@ -359,5 +344,78 @@ if __name__ == '__main__':
         # wkf.copy_module_to_module('CPACSUpdater','out',Opt.module_post[0],'in')  usefuel?
         wkf.run_subworkflow(Opt.module_post)
         shutil.copy(mi.get_tooloutput_file_path(Opt.module_post[-1]), cpacs_path_out)
+
+
+# ==============================================================================
+#    MAIN
+# ==============================================================================
+
+if __name__ == '__main__':
+
+    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
+
+    cpacs_path_out = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    no_arg = True
+
+    if len(sys.argv) > 1:
+        if sys.argv[1] == '-gui':
+            no_arg = False
+
+            Opt = create_wf_gui()
+
+        elif sys.argv[1] == '-cfg':
+
+            if len(sys.argv) > 2:
+                cfg_file = sys.argv[2]
+                if os.path.isfile(cfg_file):
+                    no_arg = False
+                else:
+                    print(' ')
+                    print('The path you use as argument is not a file!')
+                    print(' ')
+                    sys.exit()
+            else:
+                print(' ')
+                print('No configuration file!')
+                print('If you use the option "-cfg" to run this module,')
+                print('you must specifiy the path to the config file!')
+                print(' ')
+                sys.exit()
+
+            Opt = WorkflowOptions()
+            #cfg_file =  'CEASIOMpy_workflow_default.cfg'
+            Opt.from_file(cfg_file)
+
+        else:
+            print(' ')
+            print('Invalid argument!')
+            print('You can use the option -gui to run this module with a user interface.')
+            print('You can use the option -cfg to run this module with a configuration file.')
+            print(' ')
+            sys.exit()
+
+    # To run a workflow without gui or config file
+    if no_arg:
+
+        Opt = WorkflowOptions()
+
+        ### Available Module:
+        # Settings: 'SettingsGUI'
+        # Geometry and mesh: 'CPACSCreator','CPACS2SUMO','SUMOAutoMesh'
+        # Weight and balance: 'WeightConventional','WeightUnconventional','BalanceConventional','BalanceUnconventional'
+        # Aerodynamics: 'CLCalculator','PyTornado','SkinFriction','PlotAeroCoefficients','SU2MeshDef','SU2Run'
+        # Mission analysis: 'Range','StabilityStatic'
+        # Surrogate modelling: 'SMTrain', 'SMUse'
+
+        Opt.module_pre = ['PyTornado','SkinFriction']
+        Opt.module_optim = []
+        Opt.module_post = []
+
+        Opt.optim_method = 'None' # DoE, Optim, None
+
+
+    # Run the workflow
+    run_workflow(Opt)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

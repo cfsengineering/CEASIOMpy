@@ -274,6 +274,7 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
     if tixi.checkElement(aeromap_to_plot_xpath):
         aeromap_uid_list = cpsf.get_string_vector(tixi,aeromap_to_plot_xpath)
         new_aeromap_to_plot = aeromap_uid_list + new_aeromap_uid_list
+        new_aeromap_to_plot = list(set(new_aeromap_to_plot))
         cpsf.add_string_vector(tixi,aeromap_to_plot_xpath,new_aeromap_to_plot)
     else:
         cpsf.create_branch(tixi,aeromap_to_plot_xpath)

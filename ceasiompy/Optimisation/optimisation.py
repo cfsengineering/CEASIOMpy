@@ -377,7 +377,7 @@ def driver_setup(prob):
         prob.driver.options['maxiter'] = Rt.max_iter
         prob.driver.options['tol'] = Rt.tol
         prob.driver.options['disp'] = True
-    else:
+    elif Rt.type == 'DoE':
         if Rt.doedriver == 'Uniform':
             driver_type = om.UniformGenerator(num_samples=Rt.samplesnb)
         elif Rt.doedriver == 'LatinHypercube':
@@ -390,6 +390,8 @@ def driver_setup(prob):
         prob.driver = om.DOEDriver(driver_type)
         prob.driver.options['run_parallel'] = True
         prob.driver.options['procs_per_model'] = 1
+    else:
+        log.error('Type of optimisation not recognize!!!')
 
     ## Attaching a recorder and a diagramm visualizer ##
     prob.driver.recording_options['record_inputs'] = True

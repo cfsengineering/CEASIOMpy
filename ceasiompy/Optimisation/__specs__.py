@@ -61,7 +61,7 @@ cpacs_inout.add_input(
 
 # For now only the COBYLA algorithm should be used. (only one to deal with gradient-free, constrained optimisation)
 cpacs_inout.add_input(
-    var_name='Driver',
+    var_name='driver',
     var_type=list,
     default_value=['COBYLA','Nelder-Mead'],
     unit=None,
@@ -73,7 +73,7 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name='iterations',
+    var_name='max_iter',
     var_type=int,
     default_value=200,
     unit=None,
@@ -85,7 +85,7 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name='Tolerance',
+    var_name='tol',
     var_type=float,
     default_value=1e-3,
     unit='-',
@@ -107,7 +107,7 @@ cpacs_inout.add_input(
 # )
 
 cpacs_inout.add_input(
-    var_name='DoEDriver',
+    var_name='doedriver',
     var_type=list,
     default_value=['Uniform','FullFactorial', 'LatinHypercube', 'PlackettBurman', 'CSVGenerated'],
     unit=None,
@@ -119,7 +119,7 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name='sample_generator',
+    var_name='samplesnb',
     var_type=int,
     default_value=3,
     unit=None,

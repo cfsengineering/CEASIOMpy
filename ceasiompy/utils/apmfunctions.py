@@ -881,6 +881,19 @@ def aeromap_from_csv(tixi,aeromap_uid,csv_path):
     df = pd.read_csv(csv_path,keep_default_na=False)
     log.info(csv_path + ' has been read.')
 
+    # Replace colomn name if "long" name are used
+    if 'altitude' in df:
+        df = df.rename(columns={'altitude': 'alt'})
+
+    if 'machNumber' in df:
+        df = df.rename(columns={'machNumber': 'mach'})
+
+    if 'angleOfAttack' in df:
+        df = df.rename(columns={'angleOfAttack': 'aoa'})
+
+    if 'angleOfSideslip' in df:
+        df = df.rename(columns={'angleOfSideslip': 'aos'})
+
     # Create AeroCoefficient object and put data in it
     Aero = AeroCoefficient()
 

@@ -38,10 +38,10 @@ cpacs_inout.add_input(
     var_name='trainig_part',
     var_type=float,
     default_value='0.9',
-    descr='Defining the percentage of the data to use to train the model in [0;1]',
+    descr='Defining the fraction of the data to use to train the model in [0;1]',
     xpath=CEASIOM_XPATH+'/surrogateModel/trainingPercentage',
     gui=include_gui,
-    gui_name='% of training data',
+    gui_name='fraction of training data',
     gui_group='Global settings'
 )
 

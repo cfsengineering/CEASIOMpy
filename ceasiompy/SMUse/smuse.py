@@ -85,6 +85,7 @@ def load_surrogate(tixi):
 
     """
 
+    # Todo: replace file by SM directory!!!
     file = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'modelFile', '')
 
     log.info('Trying to open file'+file)

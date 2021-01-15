@@ -180,6 +180,7 @@ def extract_data_set(Tool):
 
     y = y[[i for i in y.columns if i.isdigit()]]
     log.info('Set extracted')
+
     return x.transpose().to_numpy(), y.transpose().to_numpy()
 
 
@@ -424,7 +425,7 @@ def generate_model(Tool):
         None.
 
     """
-    
+
     # Check for user-specified file to add to model
     if os.path.isfile(Tool.user_file):
         log.info('Using normal entries')

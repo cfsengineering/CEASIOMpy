@@ -288,7 +288,7 @@ class AutoTab:
                 value_entry = tk.Entry(parent, bd=2, width=8, textvariable=self.var_dict[key])
                 value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
-            elif dtype is 'pathtype':
+            elif dtype is 'pathtype': # To select a file
 
                 value = cpsf.get_value_or_default(self.tixi,xpath,def_value)
                 self.var_dict[key] = tk.StringVar()
@@ -298,6 +298,18 @@ class AutoTab:
 
                 self.key = key
                 self.browse_button = tk.Button(parent, text="Browse", command=self._browse_file)
+                self.browse_button.grid(column=2, row=row_pos, padx=5, pady=5)
+
+            elif dtype is 'dirpathtype': # To select a directory
+
+                value = cpsf.get_value_or_default(self.tixi,xpath,def_value)
+                self.var_dict[key] = tk.StringVar()
+                self.var_dict[key].set(value)
+                value_entry = tk.Entry(parent, textvariable=self.var_dict[key])
+                value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
+
+                self.key = key
+                self.browse_button = tk.Button(parent, text="Browse", command=self._browse_dir)
                 self.browse_button.grid(column=2, row=row_pos, padx=5, pady=5)
 
             elif dtype is list:
@@ -386,6 +398,11 @@ class AutoTab:
 
         self.filename = filedialog.askopenfilename(initialdir = MODULE_DIR, title = "Select A File" )
         self.var_dict[self.key].set(self.filename)
+
+    def _browse_dir(self):
+
+        self.dirname = filedialog.askdirectory(initialdir = MODULE_DIR, title = "Select the SM directory" )
+        self.var_dict[self.key].set(self.dirname)
 
 
 class SettingGUI(tk.Frame):

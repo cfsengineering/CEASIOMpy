@@ -96,6 +96,9 @@ class Prediction_tool():
         self.aeromap_case = False
         self.aeromap_uid = ''
 
+        self.output = []
+        self.sm_list =[]
+
     def get_user_inputs(self):
         """Take user inputs from the GUI."""
         cpacs_path = mif.get_toolinput_file_path('SMTrain')
@@ -165,6 +168,9 @@ def extract_data_set(Tool):
     x = x[[i for i in x.columns if i.isdigit()]]
     df = df[[i for i in df.columns if i.isdigit()]]
 
+    print(Tool.objectives)
+    print(df.index)
+
     # Add user-specified objectives
     for obj in Tool.objectives:
         if obj not in df.index:
@@ -177,6 +183,11 @@ def extract_data_set(Tool):
 
     Tool.objectives = y.index
     Tool.df = pd.concat([Tool.df, df_data], ignore_index=True)
+
+    print(Tool.objectives)
+    print(df.index)
+    a=input('aaa')
+    Tool.output = Tool.objectives
 
     y = y[[i for i in y.columns if i.isdigit()]]
     log.info('Set extracted')
@@ -290,23 +301,31 @@ def create_surrogate(Tool, xd, yd):
     """
 
     xt, yt, xv, yv = separate_data(xd, yd, Tool.data_repartition)
+
     log.info('Data separated')
     sm = eval('sms.{}'.format(model_dict[Tool.type]))
 
     log.info('Training values set')
-    sm.set_training_values(xt, yt)
+
+    for col in range(yt.shape[1]):
+
+        yt_one_output = yt[:,col]
+
+        sm.set_training_values(xt, yt_one_output)
+
     # Only one output should be use, e.g for CL
     #sm.set_training_values(xt[:,2], yt[:,2])
 
-    log.info('Training... ')
-    sm.train()
-    log.info('Done')
+        log.info('Training... ')
+        sm.train()
+        log.info('Done')
 
-    if len(xv) >= 1:
-        validation_plots(sm, xt, yt, xv, yv)
+        # Todo: deal with that for multiple output
+        if len(xv) >= 1:
+            validation_plots(sm, xt, yt, xv, yv)
 
-    Tool.sm = sm
-
+        #Tool.sm = sm
+        Tool.sm_list.append(sm)
 
 def save_model(Tool):
     """Save trained surrogate model to a file.
@@ -324,26 +343,39 @@ def save_model(Tool):
 
     """
 
+    # Todo: save sm directory in the CPACSfile
+    # xpath=CEASIOM_XPATH+'/surrogateModelUse/smDirectory'
+
     date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     cpacs_path = mif.get_toolinput_file_path('SMTrain')
     cpacs_out_path = mif.get_tooloutput_file_path('SMTrain')
     tixi = cpsf.open_tixi(cpacs_path)
 
-    filename = Tool.wkdir+'/Surrogate_Model_'+date
 
+    filename = Tool.wkdir+'/Surrogate_Model_'+date
     cpsf.create_branch(tixi, SMFILE_XPATH)
     tixi.updateTextElement(SMFILE_XPATH, filename)
     cpsf.close_tixi(tixi, cpacs_out_path)
 
     Tool.df.to_csv(Tool.wkdir+'/Data_setup.csv', index=False, na_rep='-')
 
-    Model = Surrogate_model()
-    Model.df = Tool.df
-    Model.sm = Tool.sm
 
-    sm_file = open(filename, 'wb')
+    #for output in Tool.output_name:
+    for o,output_name in enumerate(Tool.output):
 
-    pickle.dump(Model, sm_file)
+        if output_name == 'cl/cd':
+            continue
+
+
+        Model = Surrogate_model()
+        Model.df = Tool.df
+        Model.sm = Tool.sm_list[o]
+
+
+        filename = Tool.wkdir+'/SM_'+output_name+ '_' +date
+        sm_file = open(filename, 'wb')
+
+        pickle.dump(Model, sm_file)
 
 
 def gen_df_from_am(tixi):

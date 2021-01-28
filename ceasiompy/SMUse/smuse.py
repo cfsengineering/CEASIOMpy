@@ -85,8 +85,12 @@ def load_surrogate(tixi):
 
     """
 
-    # Todo: replace file by SM directory!!!
-    file = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'modelFile', '')
+    # Todo: allow to deal with several SM in the directory
+    dir = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'smDirectory', '')
+
+    #TODO: loop trough all the saved surrogate
+    file = os.path.join(dir,os.listdir(dir)[1])
+    # file = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'modelFile', '')
 
     log.info('Trying to open file'+file)
     try:
@@ -277,7 +281,8 @@ if __name__ == "__main__":
     tixi = cpsf.open_tixi(cpacs_path)
     Model = load_surrogate(tixi)
 
-    check_aeromap(tixi)
+    # Todo remove: not useful if no use of aeromap anymore
+    #check_aeromap(tixi)
 
     if cpsf.get_value_or_default(tixi, SMUSE_XPATH+'AeroMapOnly', False):
         aeromap_calculation(Model.sm, tixi)

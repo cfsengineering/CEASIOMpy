@@ -44,17 +44,42 @@ cpacs_inout.add_input(
     gui_group='Inputs',
 )
 
+# cpacs_inout.add_input(
+#     var_name='control_surf',
+#     var_type=bool,
+#     default_value=False,
+#     unit='1',
+#     descr='To check if control surfaces deflections should be calculated or not',
+#     xpath=CEASIOM_XPATH + '/aerodynamics/su2/options/clalculateCotrolSurfacesDeflections',
+#     gui=True,
+#     gui_name='Control Surfaces',
+#     gui_group='Inputs',
+# )
+#
+# cpacs_inout.add_input(
+#     var_name='surf_file',
+#     var_type=bool,
+#     default_value=False,
+#     unit='1',
+#     descr='To check if mesh should be deform from a surfaces file',
+#     xpath=CEASIOM_XPATH + '/aerodynamics/su2/options/deformFromSurfaceFile',
+#     gui=True,
+#     gui_name='Surface file',
+#     gui_group='Inputs',
+# )
+
 cpacs_inout.add_input(
-    var_name='control_surf',
-    var_type=bool,
-    default_value=False,
-    unit='1',
-    descr='To check if control surfaces deflections should be calculated or not',
-    xpath=CEASIOM_XPATH + '/aerodynamics/su2/options/clalculateCotrolSurfacesDeflections',
+    var_name='type_def',
+    var_type=list,
+    default_value=['ControlSurf', 'FromFile'],
+    unit='None',
+    descr='To check if mesh should be deform from a surfaces file',
+    xpath=CEASIOM_XPATH + '/aerodynamics/su2/options/typeOfDeformation',
     gui=True,
-    gui_name='Control Surfaces',
+    gui_name='Type of Defromation',
     gui_group='Inputs',
 )
+
 
 # TODO: add TED,deflection and symetry selection
 

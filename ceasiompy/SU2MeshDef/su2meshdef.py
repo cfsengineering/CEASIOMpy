@@ -496,10 +496,10 @@ def get_hinge_lists(ted_hinge,sym_dir):
     return hinge_list, hinge_sym_list
 
 
-def generate_mesh_def_config(tixi,wkdir,ted_uid, wing_uid, sym_dir, defl_list):
+def generate_ted_meshdef_config(tixi,wkdir,ted_uid, wing_uid, sym_dir, defl_list):
     """Function to create config file for a TED.
 
-    Function 'generate_mesh_def_config' will create SU2 configuration files to
+    Function 'generate_ted_meshdef_config' will create SU2 configuration files to
     create SU2 deformed mesh for a specific Trailing Edge Device (TED) at several
     deflection angle (from defl_list)
 
@@ -611,8 +611,7 @@ def generate_mesh_def_config(tixi,wkdir,ted_uid, wing_uid, sym_dir, defl_list):
             log.info(config_path + ' have has been written.')
 
 
-def generate_config_deformed_mesh(cpacs_path,cpacs_out_path,
-                                    skip_config=False, skip_su2=False):
+def generate_config_deformed_mesh(cpacs_path,cpacs_out_path,skip_config=False,skip_su2=False):
     """Function to generate all deform meshes with SU2 from CPACS data
 
     Function 'generate_config_deformed_mesh' reads data in the CPACS file
@@ -647,14 +646,19 @@ def generate_config_deformed_mesh(cpacs_path,cpacs_out_path,
 
     if not skip_config:
 
-        # Control surfaces deflections
-        control_surf_xpath = SU2_XPATH + '/options/clalculateCotrolSurfacesDeflections'
-        control_surf = cpsf.get_value_or_default(tixi,control_surf_xpath,False)
+        # # Control surfaces deflections
+        # control_surf_xpath = SU2_XPATH + '/options/clalculateCotrolSurfacesDeflections'
+        # control_surf = cpsf.get_value_or_default(tixi,control_surf_xpath,False)
+        #
+        # # Surface file deformation
+        # surf_file_xpath = SU2_XPATH + '/options/deformFromSurfaceFile'
+        # surf_file = cpsf.get_value_or_default(tixi,surf_file_xpath,False)
 
-        if not control_surf:
-            log.warning('The CPACS file indicate that Control surface deflection should not be calculated!')
-            active_ted_list = []
-        else:
+        # Surface file deformation
+        type_def_xpath = SU2_XPATH + '/options/typeOfDeformation'
+        type_def = cpsf.get_value_or_default(tixi,type_def_xpath,False)
+
+        if type_def == 'ControlSurf':
 
             ted_df = get_ted_list(tixi)
 
@@ -674,7 +678,20 @@ def generate_config_deformed_mesh(cpacs_path,cpacs_out_path,
                 sym_dir = row['sym_dir']
                 defl_list = row['defl_list']
 
-                generate_mesh_def_config(tixi,wkdir,ted_uid, wing_uid, sym_dir, defl_list)
+                generate_ted_meshdef_config(tixi,wkdir,ted_uid, wing_uid, sym_dir, defl_list)
+
+        elif type_def == 'FromFile':
+
+            print('TODO: deromation from surface file')
+            # TODO add import function
+            #generate_fromfile_meshdef_config()
+
+
+
+        else:
+            log.warning('The type a deformation you want to use is not implemented! ')
+            active_ted_list = []
+
 
     if not skip_su2:
 

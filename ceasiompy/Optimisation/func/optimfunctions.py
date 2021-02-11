@@ -9,11 +9,11 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-04-10
-| Last modification: 2020-09-16
+| Last modification: 2020-11-13 (AJ)
 
 Todo:
-----
-    * Check how to open the csv file depending on the user program
+
+    *
 
 """
 
@@ -111,12 +111,8 @@ class Routine:
         self.save_iter = int(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'saving/perIter', 1))
 
         # Specific DoE parameters
-        self.doedriver = cpsf.get_value_or_default(tixi,
-                                                   OPTIM_XPATH+'parameters/DoE/driver',
-                                                   'uniform')
-        self.samplesnb = int(cpsf.get_value_or_default(tixi,
-                                                       OPTIM_XPATH+'parameters/DoE/sampleNB',
-                                                       3))
+        self.doedriver = cpsf.get_value_or_default(tixi,OPTIM_XPATH+'parameters/DoE/driver','uniform')
+        self.samplesnb = int(cpsf.get_value_or_default(tixi,OPTIM_XPATH+'parameters/DoE/sampleNB',3))
 
         # User specified configuration file path
         self.user_config = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/filepath', '-'))
@@ -143,26 +139,27 @@ def first_run(Rt):
     Args:
         Rt (Routine object): Class that contains the routine informations.
 
-    Returns:
-        None.
-
     """
+
     log.info('Launching initialization workflow')
     Rt.modules.insert(0, 'Optimisation')
 
     # Settings needed for CFD calculation
-    added_gui = False
-    if 'SettingsGUI' not in Rt.modules:
+    if 'SettingsGUI' in Rt.modules:
+        Rt.modules.remove('SettingsGUI')
         Rt.modules.insert(0, 'SettingsGUI')
-        added_gui = True
-
+        
     # First iteration to create aeromap results if no pre-workflow
-    wkf.copy_module_to_module('Optimisation', 'in', Rt.modules[0], 'in')
+    if Rt.modules[0] == 'Optimisation':
+        wkf.copy_module_to_module('Optimisation', 'in', Rt.modules[1], 'in')
+    else:
+        wkf.copy_module_to_module('Optimisation', 'in', Rt.modules[0], 'in')
+
     wkf.run_subworkflow(Rt.modules)
     wkf.copy_module_to_module(Rt.modules[-1], 'out', 'Optimisation', 'in')
 
     # SettingsGUI only needed at the first iteration
-    if 'SettingsGUI' in Rt.modules and added_gui:
+    if 'SettingsGUI' in Rt.modules: #and added_gui:
         Rt.modules.remove('SettingsGUI')
 
     # Optimisation parameters only needed for the first run
@@ -215,9 +212,6 @@ def get_normal_param(tixi, entry, outputs):
     Args:
         tixi (Tixi3 handle): Handle of the current CPACS file.
         entry (object): Current parameter object.
-
-    Returns:
-        None.
 
     """
 
@@ -282,30 +276,6 @@ def update_am_path(tixi, am_uid):
             tixi.updateTextElement(name, am_uid)
 
 
-def get_aeromap_index(tixi, am_uid):
-    """Return index of the aeromap to be used.
-
-    With the aeromap uID, the index of this aeromap is returned if there are
-    more than one in the CPACS file.
-
-    Args:
-        tixi (Tixi3 handle): Handle of the current CPACS file
-        am_uid (str): uID of the aeromap that will be used by all modules.
-
-    Returns:
-        am_index (str): The index of the aeromap between brackets.
-
-    """
-
-    am_list = apmf.get_aeromap_uid_list(tixi)
-    am_index = '[1]'
-    for i, uid in enumerate(am_list):
-        if uid == am_uid:
-            am_index = '[{}]'.format(i+1)
-
-    return am_index
-
-
 def get_aero_param(tixi):
     """Add the aeromap variables to the optimisation dictionnary.
 
@@ -317,15 +287,12 @@ def get_aero_param(tixi):
     Args:
         tixi (Tixi3 handle): Handle of the current CPACS file.
 
-    Returns:
-        None.
-
     """
 
     log.info('Default aeromap parameters will be set')
 
     am_uid = cpsf.get_value(tixi, OPTIM_XPATH+'aeroMapUID')
-    am_index = get_aeromap_index(tixi, am_uid)
+    am_index = apmf.get_aeromap_index(tixi, am_uid)
 
     log.info('Aeromap \"{}\" will be used for the variables.'.format(am_uid))
 
@@ -352,9 +319,6 @@ def get_sm_vars(tixi):
 
     Args:
         tixi (Tixi3 handler): Tixi handle of the CPACS file.
-
-    Returns:
-        None.
 
     """
 
@@ -389,9 +353,6 @@ def get_module_vars(tixi, specs):
     Returns:
         tixi (Tixi3 handler): Tixi handle of the CPACS file.
         specs (class): Contains the modules inputs and outputs specifications.
-
-    Returns:
-        None.
 
     """
 
@@ -473,9 +434,6 @@ def add_entries(tixi, module_list):
     Args:
         tixi (Tixi3 handler): Tixi handle of the CPACS file.
 
-    Returns:
-        None.
-
     """
 
     use_am = cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'AeroMapOnly', False)
@@ -495,12 +453,6 @@ def initialize_df():
 
     Setup a dataframe that contains all the entries that were found in the
     modules.
-
-    Args:
-        None
-
-    Returns:
-        None.
 
     """
 
@@ -522,9 +474,6 @@ def add_geometric_vars(tixi, df):
 
     Args:
         tixi (Tixi3 handler): Tixi handle of the CPACS file.
-
-    Returns:
-        None.
 
     """
 
@@ -586,8 +535,7 @@ def create_am_lib(Rt, tixi):
     am_dict = Coef.to_dict()
     am_index = apmf.get_aeromap_index(tixi, Rt.aeromap_uid)
 
-    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap'\
-            + am_index + '/aeroPerformanceMap/'
+    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
 
     for name in apmf.COEF_LIST+apmf.XSTATES:
         if name in ['altitude', 'machNumber']:
@@ -629,7 +577,7 @@ def create_variable_library(Rt, tixi, optim_dir_path):
         optim_var_dict (dct): Dictionnary with all optimisation parameters.
 
     """
-    
+
     global objective, var
     CSV_PATH = optim_dir_path+'/Variable_library.csv'
 

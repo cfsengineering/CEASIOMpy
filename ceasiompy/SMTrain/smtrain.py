@@ -12,7 +12,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06
-| Last modification: 2020-08-17
+| Last modification: 2020-11-13 (AJ)
 
 TODO:
     * Enable model-specific settings for user through the GUI
@@ -34,7 +34,6 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import smt.surrogate_models as sms
 import ceasiompy.utils.apmfunctions as apmf
-import ceasiompy.utils.optimfunctions as opf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.ceasiompyfunctions as ceaf
@@ -51,6 +50,8 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 SMTRAIN_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModel/'
 SMFILE_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/SMpath'
 OPTWKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/optimPath'
+
+COEF_LIST = ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']
 
 # Working surrogate models, the hyperparameters can be changed here for
 # experienced users.
@@ -146,6 +147,7 @@ def extract_data_set(Tool):
         y (p*m numpy array): Set of m points in the p-dimensionnal result space.
 
     """
+
     df = pd.read_csv(Tool.user_file)
     df = df.rename(columns={'Unnamed: 0':'Name'})
 
@@ -198,6 +200,7 @@ def separate_data(x, y, div):
         yv (np array) : Validation outputs
 
     """
+
     # Sets length of each set
     l = len(x)
     sep = int(np.ceil(div*l))
@@ -230,6 +233,7 @@ def validation_plots(sm, xt, yt, xv, yv):
         None.
 
     """
+
     fig_dir = Tool.wkdir+'/Validation plots'
     if not os.path.isdir(fig_dir):
         os.mkdir(fig_dir)
@@ -237,7 +241,7 @@ def validation_plots(sm, xt, yt, xv, yv):
     yp = sm.predict_values(xv)
 
     if Tool.aeromap_case:
-        Tool.objectives = ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']
+        Tool.objectives = COEF_LIST
 
     for i in range(0, yv.shape[1]):
 
@@ -351,12 +355,13 @@ def gen_df_from_am(tixi):
         df (DataFrame): The dataframe containing the aeromap data.
 
     """
+
     x = pd.DataFrame()
     y = pd.DataFrame()
     am_uid = apmf.get_current_aeromap_uid(tixi, 'SMTrain')
-    am_index = opf.get_aeromap_index(tixi, am_uid)
+    am_index = apmf.get_aeromap_index(tixi, am_uid)
 
-    outputs = ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']
+    outputs = COEF_LIST
     inputs = ['altitude', 'machNumber', 'angleOfAttack', 'angleOfSideslip']
 
     x['Name'] = inputs
@@ -391,6 +396,7 @@ def extract_am_data(Tool):
         yd (6*m numpy array): Set of m points in the 6-dimensionnal result space.
 
     """
+
     cpacs_path = mif.get_toolinput_file_path('SMTrain')
     tixi = cpsf.open_tixi(cpacs_path)
 
@@ -418,6 +424,7 @@ def generate_model(Tool):
         None.
 
     """
+    
     # Check for user-specified file to add to model
     if os.path.isfile(Tool.user_file):
         log.info('Using normal entries')

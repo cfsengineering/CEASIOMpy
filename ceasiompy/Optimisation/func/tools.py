@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author : Vivien Riolo
 | Creation: 2020-05-26
-| Last modification: 2020-09-16
+| Last modification: 2020-11-13 (AJ)
 
 TODO
 ----
@@ -63,8 +63,9 @@ def launch_external_program(path):
         None.
 
     """
+
     OS = sys.platform
-    log.info('Identified OS : '+OS)
+    log.info('Identified OS : ' + OS)
     if OS == 'linux':
         os.system('libreoffice ' + path)
     elif OS == 'win32':
@@ -79,7 +80,6 @@ def launch_external_program(path):
 ### --------------- FUNCTIONS FOR POST-PROCESSING --------------- ###
 # ------------------------------------------------------------------#
 
-
 def display_results(prob, optim_var_dict, Rt):
     """Display variable history on terminal.
 
@@ -92,10 +92,8 @@ def display_results(prob, optim_var_dict, Rt):
         prob (class) : OpenMDAO problem object
         optim_var_dict (dict) : Variable dictionnary
 
-    Returns:
-        None.
-
     """
+
     log.info('=========================================')
     log.info('min = ' + str(prob['objective.{}'.format(Rt.objective)]))
 
@@ -129,6 +127,7 @@ def read_results(optim_dir_path, optim_var_dict={}):
         df (DataFrame) : Contains all parameters of the routine
 
     """
+
     # # Read recorded options
     # cr = om.CaseReader(optim_dir_path + '/Driver_recorder.sql')
 
@@ -183,10 +182,8 @@ def save_results(optim_dir_path, optim_var_dict={}):
     Args:
         optim_dir_path (str) : Path to the routine working directory.
 
-    Returns:
-        None.
-
     """
+
     log.info('Variables will be saved')
 
     # Get variable infos
@@ -210,10 +207,8 @@ def plot_results(optim_dir_path, routine_type, optim_var_dict={}):
         optim_dir_path (str) : Path to the routine working directory.
         routine_type (str) : Type of the routine, can be DoE or Optim
 
-    Returns:
-        None.
-
     """
+
     df = read_results(optim_dir_path, optim_var_dict)
 
     obj = [i for i in df.index if df['type'][i] == 'obj']
@@ -225,13 +220,18 @@ def plot_results(optim_dir_path, routine_type, optim_var_dict={}):
     df.pop('setcmd')
     df = df.transpose()
     nbC = min(len(des), 5)
-    df.plot(subplots=True, layout=(-1, nbC))
+    df.iloc[1:-1].plot(subplots=True, layout=(-1, nbC),style='.-')
+
+    # Save figure (TODO: could be improved)
+    fig_path = optim_dir_path + '/plot_variable.png'
+    plt.savefig(fig_path)
+
 
     plot_objective(optim_dir_path)
 
     if routine_type == 'DoE':
-        gen_plot(df, obj, des)
-        gen_plot(df, obj, const)
+        gen_plot(optim_dir_path ,df, obj, des)
+        gen_plot(optim_dir_path ,df, obj, const)
 
 
 def plot_objective(optim_dir_path):
@@ -243,10 +243,8 @@ def plot_objective(optim_dir_path):
     Args:
         optim_dir_path (dct): Path to the case recorder.
 
-    Returns:
-        None.
-
     """
+
     cr = om.CaseReader(optim_dir_path + '/Driver_recorder.sql')
 
     cases = cr.get_cases()
@@ -265,11 +263,17 @@ def plot_objective(optim_dir_path):
     df_o = df_o.transpose()
     nbC = min(len(obj), 5)
 
-    df_o.plot(subplots=True, layout=(-1, nbC))
-    plt.show()
+    df_o.plot(subplots=True, layout=(-1, nbC),style='.-')
+
+    #plt.show()
+
+    # Save figure (TODO: could be improved)
+    fig_path = optim_dir_path + '/plot_objective_function.png'
+    plt.savefig(fig_path)
 
 
-def gen_plot(df, yvars, xvars):
+
+def gen_plot(optim_dir_path, df, yvars, xvars):
     """Generate scatter plot
 
     Generate a scatter plot from a dataframe based on its column entries.
@@ -279,10 +283,8 @@ def gen_plot(df, yvars, xvars):
         yvars (lst) : Label of the functions in df.
         xvars (lst) : Label of the variables in df.
 
-    Returns:
-        None.
-
     """
+
     plt.figure()
     nbC = min(len(xvars), 5)
     if nbC == 0:
@@ -303,7 +305,12 @@ def gen_plot(df, yvars, xvars):
                 c = 0
         r += 1
         c = 0
-    plt.show()
+
+    #plt.show()
+
+    # Save figure (TODO: could be improved)
+    fig_path = optim_dir_path + '/plot_doe_variables.png'
+    plt.savefig(fig_path)
 
 
 ### --------------- FUNCTIONS FOR OPTIMISATION PARAMETERS --------------- ###
@@ -323,6 +330,7 @@ def is_digit(value):
         Boolean.
 
     """
+
     if isinstance(value, list):
         return False
 
@@ -348,6 +356,7 @@ def change_var_name(name):
         new_name (str): new variable_name.
 
     """
+
     log.info('Check variable name {}'.format(name))
 
     if 'range' in name or 'payload' in name:
@@ -378,10 +387,8 @@ def add_type(entry, outputs, objective, var):
         objective (str) : Objective function
         var (dct) : Variable dictionary
 
-    Returns:
-        None.
-
     """
+
     if entry in outputs:
         if not isinstance(entry, str):
             entry = entry.var_name
@@ -406,10 +413,8 @@ def add_bounds(value, var):
     value (str) : Initial value of the variable
     var (dct) : Variable dictionary
 
-    Returns:
-        None.
-
     """
+
     if value in ['False', 'True']:
         lower = '-'
         upper = '-'

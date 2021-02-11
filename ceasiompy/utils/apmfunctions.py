@@ -370,9 +370,8 @@ def create_empty_aeromap(tixi, aeromap_uid, description = ''):
     """
 
     if tixi.uIDCheckExists(aeromap_uid):
-        log.warning('This UID already exits!')
-        aeromap_uid = aeromap_uid + '_bis'
-        log.warning(' The following UID will be used instead: ' + aeromap_uid )
+        log.warning('This UID already exits! The aeromap will be erase!')
+        delete_aeromap(tixi, aeromap_uid)
     else:
         log.info(aeromap_uid + ' aeroMap will be created.')
 
@@ -882,6 +881,19 @@ def aeromap_from_csv(tixi,aeromap_uid,csv_path):
     df = pd.read_csv(csv_path,keep_default_na=False)
     log.info(csv_path + ' has been read.')
 
+    # Replace colomn name if "long" name are used
+    if 'altitude' in df:
+        df = df.rename(columns={'altitude': 'alt'})
+
+    if 'machNumber' in df:
+        df = df.rename(columns={'machNumber': 'mach'})
+
+    if 'angleOfAttack' in df:
+        df = df.rename(columns={'angleOfAttack': 'aoa'})
+
+    if 'angleOfSideslip' in df:
+        df = df.rename(columns={'angleOfSideslip': 'aos'})
+
     # Create AeroCoefficient object and put data in it
     Aero = AeroCoefficient()
 
@@ -1182,13 +1194,12 @@ def save_aeromap_from_df(tixi,aeromap_df,aeromap_uid,description='No decription'
         """
 
     if tixi.uIDCheckExists(aeromap_uid):
-        log.warning('This UID already exits!')
-        aeromap_uid = aeromap_uid + '_bis'
-        log.warning(' The following UID will be used instead: ' + aeromap_uid )
+        log.warning('This UID already exits! The aeromap will be erase!')
+        delete_aeromap(tixi, aeromap_uid)
     else:
         log.info(aeromap_uid + ' aeroMap will be created.')
 
-    # Add the /aeroMap node, or a new child is already exists
+        # Add the /aeroMap node, or a new child is already exists
     cpsf.create_branch(tixi,AEROPERFORMANCE_XPATH + '/aeroMap',True)
     am_count = tixi.getNamedChildrenCount(AEROPERFORMANCE_XPATH, 'aeroMap')
     aeromap_xpath = AEROPERFORMANCE_XPATH + '/aeroMap[' + str(am_count) + ']'

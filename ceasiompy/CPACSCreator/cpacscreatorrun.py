@@ -59,6 +59,7 @@ def launch_cpacscreator(cpacs_path,cpacs_out_path):
     """
 
     current_os = platform.system()
+    log.info('Your current OS is: ' + current_os)
 
     if current_os == 'Darwin':
         install_path = shutil.which("CPACS-Creator")
@@ -106,7 +107,7 @@ def launch_cpacscreator(cpacs_path,cpacs_out_path):
     elif current_os == 'Linux':
         os.system('cpacscreator ' + cpacs_tmp)
 
-    elif current_os == 'Windwos':
+    elif current_os == 'Windows':
         os.system('CPACSCreator ' + cpacs_tmp)
 
     else:

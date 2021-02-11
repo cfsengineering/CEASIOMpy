@@ -271,7 +271,10 @@ def create_SU2_mesh(cpacs_path,cpacs_out_path):
         # For now, I did not find a way to run "sumo -batch" on Mac...
         # The command just open SUMO GUI, the mesh has to be generate and save manually
         command = ['open','/Applications/SUMO/dwfsumo.app/']
+
+        #/Applications/SUMO/dwfsumo.app/Contents/MacOS/dwfsumo -batch output=su2 -tetgen-options=pq1.16VY ToolOutput.smx
         os.system(' '.join(command))
+        input('Press ENTER to continue...')
 
     elif current_os == 'Linux':
         log.info('Your OS is Linux')

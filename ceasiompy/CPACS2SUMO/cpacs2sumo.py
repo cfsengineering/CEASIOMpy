@@ -97,12 +97,18 @@ class Point:
 
         try:
             self.x = tixi.getDoubleElement(xpath + '/x')
+        except:
+            pass
 
         try:
             self.y = tixi.getDoubleElement(xpath + '/y')
+        except:
+            pass
 
         try:
             self.z = tixi.getDoubleElement(xpath + '/z')
+        except:
+            pass
 
 
 class Transformation:

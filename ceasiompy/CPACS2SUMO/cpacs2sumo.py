@@ -154,13 +154,8 @@ class Transformation:
             log.warning('No translation in this transformation!')
 
 
-
-# Building in progress
-
-
-
 class Engine:
-    """docstring for Engine."""
+    """TODO docstring for Engine."""
 
     def __init__(self, tixi, xpath):
 
@@ -199,9 +194,9 @@ class Engine:
 
 class Nacelle:
     """
-    The Class "Engine" saves all the parameter to create an engine in SUMO.
+    The Class "Nacelle" saves all the parameter to create .. in SUMO.
 
-    Attributes:dfkjdjf
+    Attributes:
         TODO
 
     """
@@ -321,6 +316,51 @@ def sumo_string_format(x,y,z):
 
     return sumo_str
 
+
+
+def sumo_add_nacelle_lip(sumo, xpath, ax_offset = 1.2, rad_offset = 0.15, shape_coef = 0.3):
+
+    sumo.createElementAtIndex(xpath, "NacelleInletLip", 1)
+    sumo.addTextAttribute(xpath+'/NacelleInletLip', 'axialOffset', str(ax_offset))
+    sumo.addTextAttribute(xpath+'/NacelleInletLip', 'radialOffset', str(rad_offset))
+    sumo.addTextAttribute(xpath+'/NacelleInletLip', 'shapeCoef', str(shape_coef))
+
+
+def sumo_add_engine_bc(sumo,eng_name, part_uid):
+
+    sumo.createElementAtIndex('/Assembly', 'JetEngineSpec', 1)
+    eng_spec_xpath = '/Assembly/JetEngineSpec[' + str(1) + ']'
+
+    sumo.addTextAttribute(eng_spec_xpath, 'massflow', '0')
+    sumo.addTextAttribute(eng_spec_xpath, 'name', eng_name)
+
+    sumo.createElement(eng_spec_xpath, 'Turbofan')
+    turbofan_xpath = eng_spec_xpath + '/Turbofan'
+
+
+    # # For now value not take into account
+    sumo.addTextAttribute(turbofan_xpath, 'bypass_ratio', '3.5')
+    sumo.addTextAttribute(turbofan_xpath, 'fan_pr', '1.7')
+    sumo.addTextAttribute(turbofan_xpath, 'total_pr', '0')
+    sumo.addTextAttribute(turbofan_xpath, 'turbine_temp', '1400')
+
+    sumo.createElement(eng_spec_xpath, 'IntakeRegions')
+    intake_xpath = eng_spec_xpath + '/IntakeRegions'
+
+    sumo.createElement(intake_xpath, 'JeRegion')
+    jeregion_xpath = intake_xpath + '/JeRegion'
+
+    sumo.addTextAttribute(jeregion_xpath, 'surface', part_uid)
+    sumo.addTextAttribute(jeregion_xpath, 'type', 'nose')
+
+    sumo.createElement(eng_spec_xpath, 'NozzleRegions')
+    nozzle_xpath = eng_spec_xpath + '/NozzleRegions'
+
+    sumo.createElement(nozzle_xpath, 'JeRegion')
+    jeregion_xpath = nozzle_xpath + '/JeRegion'
+
+    sumo.addTextAttribute(jeregion_xpath, 'surface', part_uid)
+    sumo.addTextAttribute(jeregion_xpath, 'type', 'tail')
 
 
 def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
@@ -957,7 +997,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
 
 #     # Pylon(s) -----------------------------------------------------------------
-#
+
     PYLONS_XPATH = '/cpacs/vehicles/aircraft/model/enginePylons'
 
     if tixi.checkElement(PYLONS_XPATH):
@@ -1081,7 +1121,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
             pos_y_list = [0.0] * sec_cnt
             pos_z_list = [0.0] * sec_cnt
 
-        for i_sec in reversed(range(sec_cnt)):
+        for i_sec in range(sec_cnt):
+        # for i_sec in reversed(range(sec_cnt)):
             sec_xpath = pylon_xpath + '/sections/section[' + str(i_sec+1) + ']'
             sec_uid = tixi.getTextAttribute(sec_xpath, 'uID')
             sec_transf = Transformation()
@@ -1263,19 +1304,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
     for i_engine in range(engine_cnt):
         engine_xpath = ENGINES_XPATH + '/engine[' + str(i_engine+1) + ']'
 
-
         engine = Engine(tixi,engine_xpath)
-        #
-        # print(engine.nacelle)
-        # print(engine.transf.translation.x)
-        # print(engine.nacelle.fancowl.section.pointlist.ylist)
-        # print(engine.nacelle.fancowl.section.transf.scale.x)
-
-
-#
-#         # TODO: add more points or that them all...
-#
-
 
         # Nacelle (sumo)
 
@@ -1283,11 +1312,9 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
         yengtransl = engine.transf.translation.y
         zengtransl = engine.transf.translation.z
 
-
         engineparts = [engine.nacelle.fancowl,
                        engine.nacelle.corecowl,
                        engine.nacelle.centercowl]
-
 
         for engpart in engineparts:
 
@@ -1333,7 +1360,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 ysectransl = engpart.section.transf.translation.y
                 zsectransl = engpart.section.transf.translation.z
 
-
             # # Plot
             # fig, ax = plt.subplots()
             # ax.plot(xlist, ylist,'x')
@@ -1341,7 +1367,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
             # ax.set(xlabel='x', ylabel='y',title='Engine profile')
             # ax.grid()
             # plt.show()
-
 
             # Create new body (SUMO)
 
@@ -1375,12 +1400,11 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 sumo.addTextAttribute(frame_xpath, 'width', str(diam))
                 sumo.addTextAttribute(frame_xpath, 'name', namesec)
 
-            #Nacelle options
-            sumo.createElementAtIndex(body_xpath, "NacelleInletLip", 1)
-            sumo.addTextAttribute(body_xpath+'/NacelleInletLip', 'axialOffset', '1.2')
-            sumo.addTextAttribute(body_xpath+'/NacelleInletLip', 'radialOffset', '0.15')
-            sumo.addTextAttribute(body_xpath+'/NacelleInletLip', 'shapeCoef', '0.3')
+            #Nacelle/engine options
+            sumo_add_nacelle_lip(sumo, body_xpath)
 
+            if not engpart.iscone:
+                sumo_add_engine_bc(sumo,'Engine',engpart.uid)
 
 
             if engine.sym:
@@ -1413,18 +1437,12 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     sumo.addTextAttribute(frame_xpath, 'width', str(diam))
                     sumo.addTextAttribute(frame_xpath, 'name', namesec)
 
-                #Nacelle options
-                sumo.createElementAtIndex(body_xpath, "NacelleInletLip", 1)
-                sumo.addTextAttribute(body_xpath+'/NacelleInletLip', 'axialOffset', '1.2')
-                sumo.addTextAttribute(body_xpath+'/NacelleInletLip', 'radialOffset', '0.15')
-                sumo.addTextAttribute(body_xpath+'/NacelleInletLip', 'shapeCoef', '0.3')
 
+                #Nacelle/Enine options
+                sumo_add_nacelle_lip(sumo, body_xpath)
 
-    # Cone
-
-
-
-
+                if not engpart.iscone:
+                    sumo_add_engine_bc(sumo,'Engine_sym',engpart.uid+'_sym')
 
 
     # Save the SMX file

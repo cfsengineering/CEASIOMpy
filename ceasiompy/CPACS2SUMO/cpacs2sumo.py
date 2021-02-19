@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2017-03-03
-| Last modifiction: 2021-02-11
+| Last modifiction: 2021-02-19
 
 TODO:
 
@@ -17,8 +17,9 @@ TODO:
     * Improve testing script
     * Use <segements> both for wing and fuselage, as they define which
       part of the fuselage/wing should be built
-    * Try to add engine conversion (should be possible with CPACS3.1/TIGL3)
-    * Use 'sumo_string_format' function everywhere
+    * Use 'sumo_str_format' function everywhere
+    * Impove the class data structure of Engine
+    * Use class data structure for fuselage and wings
 """
 
 #==============================================================================
@@ -28,7 +29,6 @@ TODO:
 import os
 import sys
 import math
-import numpy
 import matplotlib.pyplot as plt
 
 import ceasiompy.utils.cpacsfunctions as cpsf
@@ -41,6 +41,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+
 
 #==============================================================================
 #   CLASSES
@@ -88,36 +89,30 @@ class Point:
         self.z = z
 
     def get_cpacs_points(self, tixi, xpath):
-        """ Get x,y,z point from a given path in the CPACS file
+        """ Get x,y,z points (or 2 of those 3) from a given path in the CPACS file
 
         Args:
             tixi (handles): TIXI Handle of the CPACS file
-            point_xpath (str): xpath to x,y,z value
+            xpath (str): xpath to x,y,z value
         """
 
-        try:
-            self.x = tixi.getDoubleElement(xpath + '/x')
-        except:
-            pass
+        coords = ['x','y','z']
 
-        try:
-            self.y = tixi.getDoubleElement(xpath + '/y')
-        except:
-            pass
-
-        try:
-            self.z = tixi.getDoubleElement(xpath + '/z')
-        except:
-            pass
+        for coord in coords:
+            try:
+                value = tixi.getDoubleElement(xpath + '/' + coord)
+                setattr(self, coord, value)
+            except:
+                pass
 
 
 class Transformation:
     """
     The Class "Transformation" store scaling, rotation and tanlsation by
-    calling the clas "Point"
+    calling the class "Point"
 
     Attributes:
-        scale (object): Scale object
+        scaling (object): scaling object
         rotation (object): Rotation object
         translation (object): Translation object
 
@@ -125,23 +120,23 @@ class Transformation:
 
     def __init__(self):
 
-        self.scale = Point(1.0, 1.0, 1.0)
+        self.scaling = Point(1.0, 1.0, 1.0)
         self.rotation = Point()
         self.translation = Point()
 
     def get_cpacs_transf(self, tixi, xpath):
-        """ Get scale, rotation and translation from a given path in the
+        """ Get scaling,rotation and translation from a given path in the
             CPACS file
 
         Args:
             tixi (handles): TIXI Handle of the CPACS file
-            point_xpath (str): xpath to the tansformations
+            xpath (str): xpath to the tansformations
         """
 
         try:
-            self.scale.get_cpacs_points(tixi, xpath + '/transformation/scaling')
+            self.scaling.get_cpacs_points(tixi, xpath + '/transformation/scaling')
         except:
-            log.warning('No scale in this transformation!')
+            log.warning('No scaling in this transformation!')
 
         try:
             self.rotation.get_cpacs_points(tixi, xpath + '/transformation/rotation')
@@ -170,7 +165,6 @@ class Engine:
             if tixi.getTextAttribute(self.xpath, 'symmetry') == 'x-z-plane':
                 self.sym = True
 
-
         if tixi.checkElement(self.xpath + '/parentUID'):
             self.parent_uid = tixi.getTextElement(self.xpath + '/parentUID')
             log.info('The parent UID is: ' + self.parent_uid)
@@ -191,10 +185,9 @@ class Engine:
         self.nacelle = Nacelle(tixi,nacelle_xpath)
 
 
-
 class Nacelle:
     """
-    The Class "Nacelle" saves all the parameter to create .. in SUMO.
+    The Class "Nacelle" saves all the parameter to create the entiere nacelle in SUMO.
 
     Attributes:
         TODO
@@ -233,10 +226,10 @@ class NacellePart:
         # Should have only 1 section
         self.section = NacelleSection(tixi, xpath + '/sections/section[1]')
 
+
 class Cone():
     """
-    The Class "Cone" saves all the parameter to create one
-    of and engine in SUMO.
+    The Class "Cone" saves all the parameter to create cone of and engine in SUMO.
 
     Attributes:
         TODO
@@ -260,8 +253,8 @@ class Cone():
 
 class NacelleSection:
     """
-    The Class "NacellePart" saves all the parameter to create fan/core/center
-    of and engine in SUMO.
+    The Class "NacelleSection" saves information relative to the section to
+    constructuce the nacelle parts
 
     Attributes:
         TODO
@@ -284,7 +277,13 @@ class NacelleSection:
 
 
 class PointList(object):
-    """docstring for PointList."""
+    """
+    The Class "PointList" saves list of points for profile/airfoil
+
+    Attributes:
+        TODO
+
+    """
 
     def __init__(self, tixi, xpath):
         self.xpath = xpath
@@ -294,12 +293,11 @@ class PointList(object):
 
 
 
-
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
 
-def sumo_string_format(x,y,z):
+def sumo_str_format(x,y,z):
     """ Function to coordinate x,y,z into the string format which is use by SUMO.
 
     Args:
@@ -337,8 +335,7 @@ def sumo_add_engine_bc(sumo,eng_name, part_uid):
     sumo.createElement(eng_spec_xpath, 'Turbofan')
     turbofan_xpath = eng_spec_xpath + '/Turbofan'
 
-
-    # # For now value not take into account
+    # For now value not taken into account
     sumo.addTextAttribute(turbofan_xpath, 'bypass_ratio', '3.5')
     sumo.addTextAttribute(turbofan_xpath, 'fan_pr', '1.7')
     sumo.addTextAttribute(turbofan_xpath, 'total_pr', '0')
@@ -585,8 +582,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
                 # Could be a problem if they are less positionings than secions
                 # TODO: solve that!
-                pos_y_list[i_sec] += ((1 + prof_min_y) * prof_size_y) * elem_transf.scale.y
-                pos_z_list[i_sec] += ((1 + prof_min_z) * prof_size_z) * elem_transf.scale.z
+                pos_y_list[i_sec] += ((1 + prof_min_y) * prof_size_y) * elem_transf.scaling.y
+                pos_z_list[i_sec] += ((1 + prof_min_z) * prof_size_z) * elem_transf.scaling.z
 
                 # #To Plot a particular section
                 # if i_sec==5:
@@ -600,25 +597,25 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 body_frm_center_x = ( elem_transf.translation.x \
                                         + sec_transf.translation.x \
                                         + pos_x_list[i_sec]) \
-                                        * fus_transf.scale.x
+                                        * fus_transf.scaling.x
                 body_frm_center_y = ( elem_transf.translation.y \
-                                        * sec_transf.scale.y \
+                                        * sec_transf.scaling.y \
                                         + sec_transf.translation.y \
                                         + pos_y_list[i_sec]) \
-                                        * fus_transf.scale.y
+                                        * fus_transf.scaling.y
                 body_frm_center_z = ( elem_transf.translation.z \
-                                        * sec_transf.scale.z \
+                                        * sec_transf.scaling.z \
                                         + sec_transf.translation.z \
                                         + pos_z_list[i_sec]) \
-                                        * fus_transf.scale.z
+                                        * fus_transf.scaling.z
 
 
-                body_frm_height = prof_size_z * 2 * elem_transf.scale.z \
-                                  * sec_transf.scale.z * fus_transf.scale.z
+                body_frm_height = prof_size_z * 2 * elem_transf.scaling.z \
+                                  * sec_transf.scaling.z * fus_transf.scaling.z
                 if body_frm_height < 0.01:
                     body_frm_height = 0.01
-                body_frm_width = prof_size_y * 2 * elem_transf.scale.y \
-                                 * sec_transf.scale.y * fus_transf.scale.y
+                body_frm_width = prof_size_y * 2 * elem_transf.scaling.y \
+                                 * sec_transf.scaling.y * fus_transf.scaling.y
                 if body_frm_width < 0.01:
                     body_frm_width = 0.01
 
@@ -890,14 +887,14 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
                 # Apply scaling
                 for i, item in enumerate(prof_vect_x):
-                    prof_vect_x[i] = item * elem_transf.scale.x \
-                                     * sec_transf.scale.x * wing_transf.scale.x
+                    prof_vect_x[i] = item * elem_transf.scaling.x \
+                                     * sec_transf.scaling.x * wing_transf.scaling.x
                 for i, item in enumerate(prof_vect_y):
-                    prof_vect_y[i] = item * elem_transf.scale.y \
-                                     * sec_transf.scale.y * wing_transf.scale.y
+                    prof_vect_y[i] = item * elem_transf.scaling.y \
+                                     * sec_transf.scaling.y * wing_transf.scaling.y
                 for i, item in enumerate(prof_vect_z):
-                    prof_vect_z[i] = item * elem_transf.scale.z \
-                                     * sec_transf.scale.z * wing_transf.scale.z
+                    prof_vect_z[i] = item * elem_transf.scaling.z \
+                                     * sec_transf.scaling.z * wing_transf.scaling.z
 
                 # Plot setions (for tests)
                 # if (i_sec>8 and i_sec<=10):
@@ -924,17 +921,17 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 wg_sec_center_x = ( elem_transf.translation.x \
                                   + sec_transf.translation.x \
                                   + pos_x_list[i_sec]) \
-                                  * wing_transf.scale.x
+                                  * wing_transf.scaling.x
                 wg_sec_center_y = ( elem_transf.translation.y \
-                                  * sec_transf.scale.y \
+                                  * sec_transf.scaling.y \
                                   + sec_transf.translation.y \
                                   + pos_y_list[i_sec]) \
-                                  * wing_transf.scale.y
+                                  * wing_transf.scaling.y
                 wg_sec_center_z = ( elem_transf.translation.z \
-                                  * sec_transf.scale.z \
+                                  * sec_transf.scaling.z \
                                   + sec_transf.translation.z \
                                   + pos_z_list[i_sec]) \
-                                  * wing_transf.scale.z
+                                  * wing_transf.scaling.z
 
                 # Add roation from element and sections
                 # Adding the two angles: Maybe not work in every case!!!
@@ -996,298 +993,297 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
         sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'side', 'north')
 
 
-#     # Pylon(s) -----------------------------------------------------------------
-
-    PYLONS_XPATH = '/cpacs/vehicles/aircraft/model/enginePylons'
-
-    if tixi.checkElement(PYLONS_XPATH):
-        pylon_cnt = tixi.getNamedChildrenCount(PYLONS_XPATH, 'enginePylon')
-        log.info(str(pylon_cnt) + ' pylons has been found.')
-    else:
-        pylon_cnt = 0
-        log.warning('No pylon has been found in this CPACS file!')
-
-    for i_pylon in range(pylon_cnt):
-        pylon_xpath = PYLONS_XPATH + '/enginePylon[' + str(i_pylon+1) + ']'
-        pylon_uid = tixi.getTextAttribute(pylon_xpath, 'uID')
-        pylon_transf = Transformation()
-        pylon_transf.get_cpacs_transf(tixi, pylon_xpath)
-
-        # Create new wing (SUMO) Pylons will be modeled as a wings
-        sumo.createElementAtIndex('/Assembly', 'WingSkeleton', i_pylon+1)
-        wg_sk_xpath = '/Assembly/WingSkeleton[' + str(i_pylon+1) + ']'
-
-        sumo.addTextAttribute(wg_sk_xpath, 'akimatg', 'false')
-        sumo.addTextAttribute(wg_sk_xpath, 'name', pylon_uid)
-
-        # Create a class for the transformation of the WingSkeleton
-        wg_sk_tansf = Transformation()
-
-        # Convert WingSkeleton rotation and add it to SUMO
-        wg_sk_tansf.rotation = euler2fix(pylon_transf.rotation)
-
-        wg_sk_rot_str = sumo_string_format(math.radians(wg_sk_tansf.rotation.x),
-                                           math.radians(wg_sk_tansf.rotation.y),
-                                           math.radians(wg_sk_tansf.rotation.z))
-        sumo.addTextAttribute(wg_sk_xpath,'rotation', wg_sk_rot_str)
-
-        # Add WingSkeleton origin
-        wg_sk_tansf.translation = pylon_transf.translation
-
-        sumo.addTextAttribute(wg_sk_xpath, 'origin', sumo_string_format(wg_sk_tansf.translation.x,
-                                                                        wg_sk_tansf.translation.y,
-                                                                        wg_sk_tansf.translation.z))
-
-        if tixi.checkAttribute(pylon_xpath, 'symmetry'):
-            if tixi.getTextAttribute(pylon_xpath, 'symmetry') == 'x-z-plane':
-                # TODO: symetry not workin in sumu is the wing is not define from the symetry plan
-                # sumo.addTextAttribute(wg_sk_xpath, 'flags',
-                #                       'autosym,detectwinglet')
-                sumo.addTextAttribute(wg_sk_xpath, 'flags', 'detectwinglet')
-            else:
-                sumo.addTextAttribute(wg_sk_xpath, 'flags', 'detectwinglet')
-
-        # Positionings
-        if tixi.checkElement(pylon_xpath + '/positionings'):
-            pos_cnt = tixi.getNamedChildrenCount(pylon_xpath + '/positionings',
-                                                 'positioning')
-            log.info(str(pylon_cnt) + ' "positionning" has been found : ')
-
-            pos_x_list = []
-            pos_y_list = []
-            pos_z_list = []
-            from_sec_list = []
-            to_sec_list = []
-
-            for i_pos in range(pos_cnt):
-                pos_xpath = pylon_xpath + '/positionings/positioning[' \
-                           + str(i_pos+1) + ']'
-
-                length = tixi.getDoubleElement(pos_xpath + '/length')
-                sweep_deg = tixi.getDoubleElement(pos_xpath + '/sweepAngle')
-                sweep = math.radians(sweep_deg)
-                dihedral_deg = tixi.getDoubleElement(pos_xpath+'/dihedralAngle')
-                dihedral = math.radians(dihedral_deg)
-
-                # Get the corresponding translation of each positionning
-                pos_x_list.append(length * math.sin(sweep))
-                pos_y_list.append(length * math.cos(dihedral)*math.cos(sweep))
-                pos_z_list.append(length * math.sin(dihedral)*math.cos(sweep))
-
-                # Get which section are connected by the positionning
-                if tixi.checkElement(pos_xpath + '/fromSectionUID'):
-                    from_sec = tixi.getTextElement(pos_xpath +'/fromSectionUID')
-                else:
-                    from_sec = ''
-                from_sec_list.append(from_sec)
-
-                if tixi.checkElement(pos_xpath + '/toSectionUID'):
-                    to_sec = tixi.getTextElement(pos_xpath + '/toSectionUID')
-                else:
-                    to_sec = ''
-                to_sec_list.append(to_sec)
-
-            # Re-loop though the positionning to re-order them
-            for j_pos in range(pos_cnt):
-                if from_sec_list[j_pos] == '':
-                    prev_pos_x = 0
-                    prev_pos_y = 0
-                    prev_pos_z = 0
-                elif from_sec_list[j_pos] == to_sec_list[j_pos-1]:
-                    prev_pos_x = pos_x_list[j_pos-1]
-                    prev_pos_y = pos_y_list[j_pos-1]
-                    prev_pos_z = pos_z_list[j_pos-1]
-                else:
-                    index_prev = to_sec_list.index(from_sec_list[j_pos])
-                    prev_pos_x = pos_x_list[index_prev]
-                    prev_pos_y = pos_y_list[index_prev]
-                    prev_pos_z = pos_z_list[index_prev]
-
-                pos_x_list[j_pos] += prev_pos_x
-                pos_y_list[j_pos] += prev_pos_y
-                pos_z_list[j_pos] += prev_pos_z
-
-        else:
-            log.warning('No "positionings" have been found!')
-            pos_cnt = 0
-
-        #Sections
-        sec_cnt = tixi.getNamedChildrenCount(pylon_xpath + '/sections','section')
-        log.info("    -" + str(sec_cnt) + ' wing sections have been found')
-        wing_sec_index = 1
-
-        if pos_cnt == 0:
-            pos_x_list = [0.0] * sec_cnt
-            pos_y_list = [0.0] * sec_cnt
-            pos_z_list = [0.0] * sec_cnt
-
-        for i_sec in range(sec_cnt):
-        # for i_sec in reversed(range(sec_cnt)):
-            sec_xpath = pylon_xpath + '/sections/section[' + str(i_sec+1) + ']'
-            sec_uid = tixi.getTextAttribute(sec_xpath, 'uID')
-            sec_transf = Transformation()
-            sec_transf.get_cpacs_transf(tixi, sec_xpath)
-
-            # Elements
-            elem_cnt = tixi.getNamedChildrenCount(sec_xpath + '/elements',
-                                                  'element')
-
-            if elem_cnt > 1:
-                log.warning("Sections " + sec_uid + "  contains multiple \
-                             element, it could be an issue for the conversion \
-                             to SUMO!")
-
-            for i_elem in range(elem_cnt):
-                elem_xpath = sec_xpath + '/elements/element[' \
-                            + str(i_elem + 1) + ']'
-                elem_uid = tixi.getTextAttribute(elem_xpath, 'uID')
-                elem_transf = Transformation()
-                elem_transf.get_cpacs_transf(tixi,elem_xpath)
-
-                # Wing profile (airfoil)
-                prof_uid = tixi.getTextElement(elem_xpath+'/airfoilUID')
-                prof_xpath = tixi.uIDGetXPath(prof_uid)
-
-                try:
-                    tixi.checkElement(prof_xpath)
-                except:
-                    log.error('No profile "' + prof_uid + '" has been found!')
-
-                prof_vect_x_str = tixi.getTextElement(prof_xpath+'/pointList/x')
-                prof_vect_y_str = tixi.getTextElement(prof_xpath+'/pointList/y')
-                prof_vect_z_str = tixi.getTextElement(prof_xpath+'/pointList/z')
-
-                # Transform airfoil points (string) into list of float
-                prof_vect_x = []
-                for i, item in enumerate(prof_vect_x_str.split(';')):
-                    if item:
-                        prof_vect_x.append(float(item))
-                prof_vect_y = []
-                for i, item in enumerate(prof_vect_y_str.split(';')):
-                    if item:
-                        prof_vect_y.append(float(item))
-                prof_vect_z = []
-                for i, item in enumerate(prof_vect_z_str.split(';')):
-                    if item:
-                        prof_vect_z.append(float(item))
-
-                if sum(prof_vect_z[0:len(prof_vect_z)//2]) \
-                   < sum(prof_vect_z[len(prof_vect_z)//2:-1]):
-                    log.info("Airfoil's points will be reversed.")
-
-                    tmp_vect_x = []
-                    tmp_vect_y = []
-                    tmp_vect_z = []
-
-                    for i in range(len(prof_vect_x)):
-                        tmp_vect_x.append(prof_vect_x[len(prof_vect_x)-1-i])
-                        tmp_vect_y.append(prof_vect_y[len(prof_vect_y)-1-i])
-                        tmp_vect_z.append(prof_vect_z[len(prof_vect_z)-1-i])
-
-                    prof_vect_x = tmp_vect_x
-                    prof_vect_y = tmp_vect_y
-                    prof_vect_z = tmp_vect_z
-
-                # Apply scaling
-                for i, item in enumerate(prof_vect_x):
-                    prof_vect_x[i] = item * elem_transf.scale.x * sec_transf.scale.x * pylon_transf.scale.x
-                for i, item in enumerate(prof_vect_y):
-                    prof_vect_y[i] = item * elem_transf.scale.y * sec_transf.scale.y * pylon_transf.scale.y
-                for i, item in enumerate(prof_vect_z):
-                    prof_vect_z[i] = item * elem_transf.scale.z * sec_transf.scale.z * pylon_transf.scale.z
-
-                # Plot setions (for tests)
-                # if (i_sec>8 and i_sec<=10):
-                #     plt.plot(prof_vect_x, prof_vect_z,'x')
-                #     plt.xlabel('x')
-                #     plt.ylabel('z')
-                #     plt.grid(True)
-                #     plt.show()
-
-                prof_size_x = (max(prof_vect_x) - min(prof_vect_x))
-                prof_size_y = (max(prof_vect_y) - min(prof_vect_y))
-                prof_size_z = (max(prof_vect_z) - min(prof_vect_z))
-
-                if prof_size_y == 0:
-                    prof_vect_x[:] = [x / prof_size_x for x in prof_vect_x]
-                    prof_vect_z[:] = [z / prof_size_x for z in prof_vect_z]
-                    # Is it correct to divide by prof_size_x ????
-
-                    wg_sec_chord = prof_size_x
-                else:
-                    log.error("An airfoil profile is not define correctly")
-
-                # SUMO variable for WingSection
-                wg_sec_center_x = ( elem_transf.translation.x \
-                                  + sec_transf.translation.x \
-                                  + pos_x_list[i_sec]) \
-                                  * pylon_transf.scale.x
-                wg_sec_center_y = ( elem_transf.translation.y \
-                                  * sec_transf.scale.y \
-                                  + sec_transf.translation.y \
-                                  + pos_y_list[i_sec]) \
-                                  * pylon_transf.scale.y
-                wg_sec_center_z = ( elem_transf.translation.z \
-                                  * sec_transf.scale.z \
-                                  + sec_transf.translation.z \
-                                  + pos_z_list[i_sec]) \
-                                  * pylon_transf.scale.z
-
-                # Add roation from element and sections
-                # Adding the two angles: Maybe not work in every case!!!
-                add_rotation = SimpleNamespace()
-                add_rotation.x = elem_transf.rotation.x + sec_transf.rotation.x
-                add_rotation.y = elem_transf.rotation.y + sec_transf.rotation.y
-                add_rotation.z = elem_transf.rotation.z + sec_transf.rotation.z
-
-                # Get Section rotation for SUMO
-                wg_sec_rot = euler2fix(add_rotation)
-                wg_sec_dihed = math.radians(wg_sec_rot.x)
-                wg_sec_twist = math.radians(wg_sec_rot.y)
-                wg_sec_yaw = math.radians(wg_sec_rot.z)
-
-                # Convert point list into string
-                prof_str = ''
-
-                # Airfoil points order : shoud be from TE (1 0) to LE (0 0)
-                # then TE(1 0), but not reverse way.
-
-                # to avoid double zero, not accepted by SUMO
-                for i, item in (enumerate(prof_vect_x)):
-                    # if not (prof_vect_x[i] == prof_vect_x[i-1] or \
-                    #         round(prof_vect_z[i],4) == round(prof_vect_z[i-1],4)):
-                    if round(prof_vect_z[i],4) != round(prof_vect_z[i-1],4):
-                        prof_str += str(round(prof_vect_x[i], 4)) + ' ' \
-                                    + str(round(prof_vect_z[i], 4)) + ' '
-
-                sumo.addTextElementAtIndex(wg_sk_xpath, 'WingSection', prof_str,
-                                           wing_sec_index)
-                wg_sec_xpath = wg_sk_xpath + '/WingSection[' \
-                              + str(wing_sec_index) + ']'
-                sumo.addTextAttribute(wg_sec_xpath, 'airfoil', prof_uid)
-                sumo.addTextAttribute(wg_sec_xpath, 'name', sec_uid)
-                sumo.addTextAttribute(wg_sec_xpath, 'center', sumo_string_format(wg_sec_center_x,wg_sec_center_y,wg_sec_center_z))
-                sumo.addTextAttribute(wg_sec_xpath, 'chord', str(wg_sec_chord))
-                sumo.addTextAttribute(wg_sec_xpath, 'dihedral',str(wg_sec_dihed))
-                sumo.addTextAttribute(wg_sec_xpath, 'twist', str(wg_sec_twist))
-                sumo.addTextAttribute(wg_sec_xpath, 'yaw', str(wg_sec_yaw))
-                sumo.addTextAttribute(wg_sec_xpath, 'napprox', '-1')
-                sumo.addTextAttribute(wg_sec_xpath, 'reversed', 'false')
-                sumo.addTextAttribute(wg_sec_xpath, 'vbreak', 'false')
-
-                wing_sec_index += 1
-
-        # Add Wing caps
-        sumo.createElementAtIndex(wg_sk_xpath, "Cap", 1)
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[1]', 'height', '0')
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[1]', 'shape', 'LongCap')
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[1]', 'side', 'south')
-
-        sumo.createElementAtIndex(wg_sk_xpath, 'Cap', 2)
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'height', '0')
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'shape', 'LongCap')
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'side', 'north')
-
+    # Pylon(s) -----------------------------------------------------------------
+    #
+    # PYLONS_XPATH = '/cpacs/vehicles/aircraft/model/enginePylons'
+    #
+    # if tixi.checkElement(PYLONS_XPATH):
+    #     pylon_cnt = tixi.getNamedChildrenCount(PYLONS_XPATH, 'enginePylon')
+    #     log.info(str(pylon_cnt) + ' pylons has been found.')
+    # else:
+    #     pylon_cnt = 0
+    #     log.warning('No pylon has been found in this CPACS file!')
+    #
+    # for i_pylon in range(pylon_cnt):
+    #     pylon_xpath = PYLONS_XPATH + '/enginePylon[' + str(i_pylon+1) + ']'
+    #     pylon_uid = tixi.getTextAttribute(pylon_xpath, 'uID')
+    #     pylon_transf = Transformation()
+    #     pylon_transf.get_cpacs_transf(tixi, pylon_xpath)
+    #
+    #     # Create new wing (SUMO) Pylons will be modeled as a wings
+    #     sumo.createElementAtIndex('/Assembly', 'WingSkeleton', i_pylon+1)
+    #     wg_sk_xpath = '/Assembly/WingSkeleton[' + str(i_pylon+1) + ']'
+    #
+    #     sumo.addTextAttribute(wg_sk_xpath, 'akimatg', 'false')
+    #     sumo.addTextAttribute(wg_sk_xpath, 'name', pylon_uid)
+    #
+    #     # Create a class for the transformation of the WingSkeleton
+    #     wg_sk_tansf = Transformation()
+    #
+    #     # Convert WingSkeleton rotation and add it to SUMO
+    #     wg_sk_tansf.rotation = euler2fix(pylon_transf.rotation)
+    #
+    #     wg_sk_rot_str = sumo_str_format(math.radians(wg_sk_tansf.rotation.x),
+    #                                     math.radians(wg_sk_tansf.rotation.y),
+    #                                     math.radians(wg_sk_tansf.rotation.z))
+    #     sumo.addTextAttribute(wg_sk_xpath,'rotation', wg_sk_rot_str)
+    #
+    #     # Add WingSkeleton origin
+    #     wg_sk_tansf.translation = pylon_transf.translation
+    #
+    #     sumo.addTextAttribute(wg_sk_xpath, 'origin', sumo_str_format(wg_sk_tansf.translation.x,
+    #                                                                  wg_sk_tansf.translation.y,
+    #                                                                  wg_sk_tansf.translation.z))
+    #
+    #     if tixi.checkAttribute(pylon_xpath, 'symmetry'):
+    #         if tixi.getTextAttribute(pylon_xpath, 'symmetry') == 'x-z-plane':
+    #             # TODO: symetry not workin in sumu is the wing is not define from the symetry plan
+    #             #sumo.addTextAttribute(wg_sk_xpath, 'flags','autosym,detectwinglet')
+    #             sumo.addTextAttribute(wg_sk_xpath, 'flags', 'detectwinglet')
+    #         else:
+    #             sumo.addTextAttribute(wg_sk_xpath, 'flags', 'detectwinglet')
+    #
+    #     # Positionings
+    #     if tixi.checkElement(pylon_xpath + '/positionings'):
+    #         pos_cnt = tixi.getNamedChildrenCount(pylon_xpath + '/positionings',
+    #                                              'positioning')
+    #         log.info(str(pylon_cnt) + ' "positionning" has been found : ')
+    #
+    #         pos_x_list = []
+    #         pos_y_list = []
+    #         pos_z_list = []
+    #         from_sec_list = []
+    #         to_sec_list = []
+    #
+    #         for i_pos in range(pos_cnt):
+    #             pos_xpath = pylon_xpath + '/positionings/positioning[' \
+    #                        + str(i_pos+1) + ']'
+    #
+    #             length = tixi.getDoubleElement(pos_xpath + '/length')
+    #             sweep_deg = tixi.getDoubleElement(pos_xpath + '/sweepAngle')
+    #             sweep = math.radians(sweep_deg)
+    #             dihedral_deg = tixi.getDoubleElement(pos_xpath+'/dihedralAngle')
+    #             dihedral = math.radians(dihedral_deg)
+    #
+    #             # Get the corresponding translation of each positionning
+    #             pos_x_list.append(length * math.sin(sweep))
+    #             pos_y_list.append(length * math.cos(dihedral)*math.cos(sweep))
+    #             pos_z_list.append(length * math.sin(dihedral)*math.cos(sweep))
+    #
+    #             # Get which section are connected by the positionning
+    #             if tixi.checkElement(pos_xpath + '/fromSectionUID'):
+    #                 from_sec = tixi.getTextElement(pos_xpath +'/fromSectionUID')
+    #             else:
+    #                 from_sec = ''
+    #             from_sec_list.append(from_sec)
+    #
+    #             if tixi.checkElement(pos_xpath + '/toSectionUID'):
+    #                 to_sec = tixi.getTextElement(pos_xpath + '/toSectionUID')
+    #             else:
+    #                 to_sec = ''
+    #             to_sec_list.append(to_sec)
+    #
+    #         # Re-loop though the positionning to re-order them
+    #         for j_pos in range(pos_cnt):
+    #             if from_sec_list[j_pos] == '':
+    #                 prev_pos_x = 0
+    #                 prev_pos_y = 0
+    #                 prev_pos_z = 0
+    #             elif from_sec_list[j_pos] == to_sec_list[j_pos-1]:
+    #                 prev_pos_x = pos_x_list[j_pos-1]
+    #                 prev_pos_y = pos_y_list[j_pos-1]
+    #                 prev_pos_z = pos_z_list[j_pos-1]
+    #             else:
+    #                 index_prev = to_sec_list.index(from_sec_list[j_pos])
+    #                 prev_pos_x = pos_x_list[index_prev]
+    #                 prev_pos_y = pos_y_list[index_prev]
+    #                 prev_pos_z = pos_z_list[index_prev]
+    #
+    #             pos_x_list[j_pos] += prev_pos_x
+    #             pos_y_list[j_pos] += prev_pos_y
+    #             pos_z_list[j_pos] += prev_pos_z
+    #
+    #     else:
+    #         log.warning('No "positionings" have been found!')
+    #         pos_cnt = 0
+    #
+    #     #Sections
+    #     sec_cnt = tixi.getNamedChildrenCount(pylon_xpath + '/sections','section')
+    #     log.info("    -" + str(sec_cnt) + ' wing sections have been found')
+    #     wing_sec_index = 1
+    #
+    #     if pos_cnt == 0:
+    #         pos_x_list = [0.0] * sec_cnt
+    #         pos_y_list = [0.0] * sec_cnt
+    #         pos_z_list = [0.0] * sec_cnt
+    #
+    #     for i_sec in range(sec_cnt):
+    #     # for i_sec in reversed(range(sec_cnt)):
+    #         sec_xpath = pylon_xpath + '/sections/section[' + str(i_sec+1) + ']'
+    #         sec_uid = tixi.getTextAttribute(sec_xpath, 'uID')
+    #         sec_transf = Transformation()
+    #         sec_transf.get_cpacs_transf(tixi, sec_xpath)
+    #
+    #         # Elements
+    #         elem_cnt = tixi.getNamedChildrenCount(sec_xpath + '/elements',
+    #                                               'element')
+    #
+    #         if elem_cnt > 1:
+    #             log.warning("Sections " + sec_uid + "  contains multiple \
+    #                          element, it could be an issue for the conversion \
+    #                          to SUMO!")
+    #
+    #         for i_elem in range(elem_cnt):
+    #             elem_xpath = sec_xpath + '/elements/element[' \
+    #                         + str(i_elem + 1) + ']'
+    #             elem_uid = tixi.getTextAttribute(elem_xpath, 'uID')
+    #             elem_transf = Transformation()
+    #             elem_transf.get_cpacs_transf(tixi,elem_xpath)
+    #
+    #             # Wing profile (airfoil)
+    #             prof_uid = tixi.getTextElement(elem_xpath+'/airfoilUID')
+    #             prof_xpath = tixi.uIDGetXPath(prof_uid)
+    #
+    #             try:
+    #                 tixi.checkElement(prof_xpath)
+    #             except:
+    #                 log.error('No profile "' + prof_uid + '" has been found!')
+    #
+    #             prof_vect_x_str = tixi.getTextElement(prof_xpath+'/pointList/x')
+    #             prof_vect_y_str = tixi.getTextElement(prof_xpath+'/pointList/y')
+    #             prof_vect_z_str = tixi.getTextElement(prof_xpath+'/pointList/z')
+    #
+    #             # Transform airfoil points (string) into list of float
+    #             prof_vect_x = []
+    #             for i, item in enumerate(prof_vect_x_str.split(';')):
+    #                 if item:
+    #                     prof_vect_x.append(float(item))
+    #             prof_vect_y = []
+    #             for i, item in enumerate(prof_vect_y_str.split(';')):
+    #                 if item:
+    #                     prof_vect_y.append(float(item))
+    #             prof_vect_z = []
+    #             for i, item in enumerate(prof_vect_z_str.split(';')):
+    #                 if item:
+    #                     prof_vect_z.append(float(item))
+    #
+    #             if sum(prof_vect_z[0:len(prof_vect_z)//2]) \
+    #                < sum(prof_vect_z[len(prof_vect_z)//2:-1]):
+    #                 log.info("Airfoil's points will be reversed.")
+    #
+    #                 tmp_vect_x = []
+    #                 tmp_vect_y = []
+    #                 tmp_vect_z = []
+    #
+    #                 for i in range(len(prof_vect_x)):
+    #                     tmp_vect_x.append(prof_vect_x[len(prof_vect_x)-1-i])
+    #                     tmp_vect_y.append(prof_vect_y[len(prof_vect_y)-1-i])
+    #                     tmp_vect_z.append(prof_vect_z[len(prof_vect_z)-1-i])
+    #
+    #                 prof_vect_x = tmp_vect_x
+    #                 prof_vect_y = tmp_vect_y
+    #                 prof_vect_z = tmp_vect_z
+    #
+    #             # Apply scaling
+    #             for i, item in enumerate(prof_vect_x):
+    #                 prof_vect_x[i] = item * elem_transf.scaling.x * sec_transf.scaling.x * pylon_transf.scaling.x
+    #             for i, item in enumerate(prof_vect_y):
+    #                 prof_vect_y[i] = item * elem_transf.scaling.y * sec_transf.scaling.y * pylon_transf.scaling.y
+    #             for i, item in enumerate(prof_vect_z):
+    #                 prof_vect_z[i] = item * elem_transf.scaling.z * sec_transf.scaling.z * pylon_transf.scaling.z
+    #
+    #             # Plot setions (for tests)
+    #             # if (i_sec>8 and i_sec<=10):
+    #             #     plt.plot(prof_vect_x, prof_vect_z,'x')
+    #             #     plt.xlabel('x')
+    #             #     plt.ylabel('z')
+    #             #     plt.grid(True)
+    #             #     plt.show()
+    #
+    #             prof_size_x = (max(prof_vect_x) - min(prof_vect_x))
+    #             prof_size_y = (max(prof_vect_y) - min(prof_vect_y))
+    #             prof_size_z = (max(prof_vect_z) - min(prof_vect_z))
+    #
+    #             if prof_size_y == 0:
+    #                 prof_vect_x[:] = [x / prof_size_x for x in prof_vect_x]
+    #                 prof_vect_z[:] = [z / prof_size_x for z in prof_vect_z]
+    #                 # Is it correct to divide by prof_size_x ????
+    #
+    #                 wg_sec_chord = prof_size_x
+    #             else:
+    #                 log.error("An airfoil profile is not define correctly")
+    #
+    #             # SUMO variable for WingSection
+    #             wg_sec_center_x = ( elem_transf.translation.x \
+    #                               + sec_transf.translation.x \
+    #                               + pos_x_list[i_sec]) \
+    #                               * pylon_transf.scaling.x
+    #             wg_sec_center_y = ( elem_transf.translation.y \
+    #                               * sec_transf.scaling.y \
+    #                               + sec_transf.translation.y \
+    #                               + pos_y_list[i_sec]) \
+    #                               * pylon_transf.scaling.y
+    #             wg_sec_center_z = ( elem_transf.translation.z \
+    #                               * sec_transf.scaling.z \
+    #                               + sec_transf.translation.z \
+    #                               + pos_z_list[i_sec]) \
+    #                               * pylon_transf.scaling.z
+    #
+    #             # Add roation from element and sections
+    #             # Adding the two angles: Maybe not work in every case!!!
+    #             add_rotation = SimpleNamespace()
+    #             add_rotation.x = elem_transf.rotation.x + sec_transf.rotation.x
+    #             add_rotation.y = elem_transf.rotation.y + sec_transf.rotation.y
+    #             add_rotation.z = elem_transf.rotation.z + sec_transf.rotation.z
+    #
+    #             # Get Section rotation for SUMO
+    #             wg_sec_rot = euler2fix(add_rotation)
+    #             wg_sec_dihed = math.radians(wg_sec_rot.x)
+    #             wg_sec_twist = math.radians(wg_sec_rot.y)
+    #             wg_sec_yaw = math.radians(wg_sec_rot.z)
+    #
+    #             # Convert point list into string
+    #             prof_str = ''
+    #
+    #             # Airfoil points order : shoud be from TE (1 0) to LE (0 0)
+    #             # then TE(1 0), but not reverse way.
+    #
+    #             # to avoid double zero, not accepted by SUMO
+    #             for i, item in (enumerate(prof_vect_x)):
+    #                 # if not (prof_vect_x[i] == prof_vect_x[i-1] or \
+    #                 #         round(prof_vect_z[i],4) == round(prof_vect_z[i-1],4)):
+    #                 if round(prof_vect_z[i],4) != round(prof_vect_z[i-1],4):
+    #                     prof_str += str(round(prof_vect_x[i], 4)) + ' ' \
+    #                                 + str(round(prof_vect_z[i], 4)) + ' '
+    #
+    #             sumo.addTextElementAtIndex(wg_sk_xpath, 'WingSection', prof_str,
+    #                                        wing_sec_index)
+    #             wg_sec_xpath = wg_sk_xpath + '/WingSection[' \
+    #                           + str(wing_sec_index) + ']'
+    #             sumo.addTextAttribute(wg_sec_xpath, 'airfoil', prof_uid)
+    #             sumo.addTextAttribute(wg_sec_xpath, 'name', sec_uid)
+    #             sumo.addTextAttribute(wg_sec_xpath, 'center', sumo_str_format(wg_sec_center_x,wg_sec_center_y,wg_sec_center_z))
+    #             sumo.addTextAttribute(wg_sec_xpath, 'chord', str(wg_sec_chord))
+    #             sumo.addTextAttribute(wg_sec_xpath, 'dihedral',str(wg_sec_dihed))
+    #             sumo.addTextAttribute(wg_sec_xpath, 'twist', str(wg_sec_twist))
+    #             sumo.addTextAttribute(wg_sec_xpath, 'yaw', str(wg_sec_yaw))
+    #             sumo.addTextAttribute(wg_sec_xpath, 'napprox', '-1')
+    #             sumo.addTextAttribute(wg_sec_xpath, 'reversed', 'false')
+    #             sumo.addTextAttribute(wg_sec_xpath, 'vbreak', 'false')
+    #
+    #             wing_sec_index += 1
+    #
+    #     # Add Wing caps
+    #     sumo.createElementAtIndex(wg_sk_xpath, "Cap", 1)
+    #     sumo.addTextAttribute(wg_sk_xpath+'/Cap[1]', 'height', '0')
+    #     sumo.addTextAttribute(wg_sk_xpath+'/Cap[1]', 'shape', 'LongCap')
+    #     sumo.addTextAttribute(wg_sk_xpath+'/Cap[1]', 'side', 'south')
+    #
+    #     sumo.createElementAtIndex(wg_sk_xpath, 'Cap', 2)
+    #     sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'height', '0')
+    #     sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'shape', 'LongCap')
+    #     sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'side', 'north')
+    #
 
 
     # Engine(s) ----------------------------------------------------------------
@@ -1333,12 +1329,12 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 xlist = engpart.section.pointlist.xlist
                 ylist = engpart.section.pointlist.ylist
 
-                xscale = engpart.section.transf.scale.x
-                zscale = engpart.section.transf.scale.z
+                xscaling = engpart.section.transf.scaling.x
+                zscaling = engpart.section.transf.scaling.z
 
-                # Why scale z for point in y??? CPACS mystery...
-                xlist = [i * xscale for i in xlist]
-                ylist = [i * zscale for i in ylist]
+                # Why scaling z for point in y??? CPACS mystery...
+                xlist = [i * xscaling for i in xlist]
+                ylist = [i * zscaling for i in ylist]
 
                 # Nacelle parts contour points
                 # In CPACS nacelles are define as the revolution of section, in SUMO they have to be define as a body composed of section + a lip at the inlet
@@ -1379,8 +1375,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
             sumo.addTextAttribute(body_xpath, 'name', engpart.uid)
 
             # Add body rotation and origin
-            sumo.addTextAttribute(body_xpath, 'rotation', sumo_string_format(0,0,0))
-            sumo.addTextAttribute(body_xpath, 'origin', sumo_string_format(xengtransl+ysectransl,yengtransl,zengtransl))
+            sumo.addTextAttribute(body_xpath, 'rotation', sumo_str_format(0,0,0))
+            sumo.addTextAttribute(body_xpath, 'origin', sumo_str_format(xengtransl+ysectransl,yengtransl,zengtransl))
 
             # Add section
             for i_sec in range(len(xcontours)):
@@ -1395,7 +1391,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 if diam < 0.01:
                     diam = 0.01
 
-                sumo.addTextAttribute(frame_xpath, 'center', sumo_string_format(xcontours[i_sec],0,0))
+                sumo.addTextAttribute(frame_xpath, 'center', sumo_str_format(xcontours[i_sec],0,0))
                 sumo.addTextAttribute(frame_xpath,'height',str(diam))
                 sumo.addTextAttribute(frame_xpath, 'width', str(diam))
                 sumo.addTextAttribute(frame_xpath, 'name', namesec)
@@ -1416,8 +1412,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 sumo.addTextAttribute(body_xpath, 'name', engpart.uid+'_sym')
 
                 # Add body rotation and origin
-                sumo.addTextAttribute(body_xpath, 'rotation', sumo_string_format(0,0,0))
-                sumo.addTextAttribute(body_xpath, 'origin', sumo_string_format(xengtransl+ysectransl,-yengtransl,zengtransl))
+                sumo.addTextAttribute(body_xpath, 'rotation', sumo_str_format(0,0,0))
+                sumo.addTextAttribute(body_xpath, 'origin', sumo_str_format(xengtransl+ysectransl,-yengtransl,zengtransl))
 
                 # Add section
                 for i_sec in range(len(xcontours)):
@@ -1432,7 +1428,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     if diam < 0.01:
                         diam = 0.01
 
-                    sumo.addTextAttribute(frame_xpath, 'center', sumo_string_format(xcontours[i_sec],0,0))
+                    sumo.addTextAttribute(frame_xpath, 'center', sumo_str_format(xcontours[i_sec],0,0))
                     sumo.addTextAttribute(frame_xpath,'height',str(diam))
                     sumo.addTextAttribute(frame_xpath, 'width', str(diam))
                     sumo.addTextAttribute(frame_xpath, 'name', namesec)
@@ -1465,7 +1461,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 #    MAIN
 #==============================================================================
 
-
 if __name__ == '__main__':
 
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
@@ -1474,16 +1469,5 @@ if __name__ == '__main__':
     cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
 
     convert_cpacs_to_sumo(cpacs_path, cpacs_out_path)
-
-    # inputfile1 = '/test/CPACSfiles/AGILE_DC1.xml'
-    # inputfile2 = '/test/CPACSfiles/D150_AGILE_Hangar.xml'
-    # inputfile3 = '/test/CPACSfiles/B7772VSP_v3.xml'
-    # inputfile4 = '/test/CPACSfiles/NASA_CRM_AGILE_Hangar.xml'
-    # inputfile5 = '/test/CPACSfiles/Strut_braced_DLR_Aidan.xml'
-    # inputfile6 = '/test/CPACSfiles/TP_AGILE_Hangar.xml'
-    # inputfile7 = '/test/CPACSfiles/Boxwing_AGILE_Hangar.xml'
-    # inputfile8 = '/test/CPACSfiles/cpacs_DC2_Reference.xml'
-    # inputfile9 = '/test/CPACSfiles/D150_AGILE_HangarTest.xml'
-    # convert_cpacs_to_sumo(inputfile3)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

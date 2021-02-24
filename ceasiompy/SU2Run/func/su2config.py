@@ -98,7 +98,10 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 
     # Mesh Marker
     bc_wall_xpath = SU2_XPATH + '/boundaryConditions/wall'
-    bc_wall_list = su2f.get_mesh_marker(su2_mesh_path)
+    bc_wall_list, engine_bc_list = su2f.get_mesh_marker(su2_mesh_path)
+
+    # TODO: save engine_bc_list in cpacs
+
     cpsf.create_branch(tixi, bc_wall_xpath)
     bc_wall_str = ';'.join(bc_wall_list)
     tixi.updateTextElement(bc_wall_xpath,bc_wall_str)

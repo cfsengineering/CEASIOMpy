@@ -110,17 +110,22 @@ def get_mesh_marker(su2_mesh_path):
         marker_list (list): List of all mesh marker
     """
 
-    marker_list = []
+    wall_marker_list = []
+    eng_bc_marker_list = []
     with open(su2_mesh_path) as f:
         for line in f.readlines():
             if ('MARKER_TAG' in line and 'Farfield' not in line):
                 new_marker = line.split('=')[1][:-1]  # -1 to remove "\n"
-                marker_list.append(new_marker)
 
-    if not marker_list:
+                if new_marker.endswith('Intake') or new_marker.endswith('Exhaust'):
+                    eng_bc_marker_list.append(new_marker)
+                else:
+                    wall_marker_list.append(new_marker)
+
+    if not wall_marker_list and not eng_bc_marker_list:
         log.warning('No "MARKER_TAG" has been found in the mesh!')
 
-    return marker_list
+    return wall_marker_list, eng_bc_marker_list
 
 
 def run_soft(soft, config_path, wkdir, nb_proc):

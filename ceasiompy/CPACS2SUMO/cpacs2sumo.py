@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2017-03-03
-| Last modifiction: 2021-02-19
+| Last modifiction: 2021-02-26
 
 TODO:
 
@@ -36,6 +36,10 @@ import ceasiompy.utils.ceasiompyfunctions as ceaf
 
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 
+from ceasiompy.CPACS2SUMO.func.generalclasses import SimpleNamespace, Point, Transformation
+from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
+from ceasiompy.CPACS2SUMO.func.sumofunctions import sumo_str_format, sumo_add_nacelle_lip, sumo_add_engine_bc
+
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
@@ -47,318 +51,12 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 #   CLASSES
 #==============================================================================
 
-# TODO Move this class in a global moudule callable from every where???
-class SimpleNamespace(object):
-    """
-    Rudimentary SimpleNamespace clone. Works as a record-type object, or
-    'struct'. Attributes can be added on-the-fly by assignment. Attributes
-    are accesed using point-notation.
-
-    Source:
-        * https://docs.python.org/3.5/library/types.html
-    """
-
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-    def __repr__(self):
-        keys = sorted(self.__dict__)
-        items = ("{}={!r}".format(k, self.__dict__[k]) for k in keys)
-        return "{}({})".format(type(self).__name__, ", ".join(items))
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
-
-class Point:
-    """
-    The Class "Point" store x,y,z value for scaling, rotation and tanlsation,
-    because of that unit can differ depending its use.
-
-    Attributes:
-        x (float): Value in x [depends]
-        y (float): Value in y [depends]
-        z (float): Value in z [depends]
-
-    """
-
-    def __init__(self, x=0.0, y=0.0, z=0.0):
-
-        self.x = x
-        self.y = y
-        self.z = z
-
-    def get_cpacs_points(self, tixi, xpath):
-        """ Get x,y,z points (or 2 of those 3) from a given path in the CPACS file
-
-        Args:
-            tixi (handles): TIXI Handle of the CPACS file
-            xpath (str): xpath to x,y,z value
-        """
-
-        coords = ['x','y','z']
-
-        for coord in coords:
-            try:
-                value = tixi.getDoubleElement(xpath + '/' + coord)
-                setattr(self, coord, value)
-            except:
-                pass
-
-
-class Transformation:
-    """
-    The Class "Transformation" store scaling, rotation and tanlsation by
-    calling the class "Point"
-
-    Attributes:
-        scaling (object): scaling object
-        rotation (object): Rotation object
-        translation (object): Translation object
-
-    """
-
-    def __init__(self):
-
-        self.scaling = Point(1.0, 1.0, 1.0)
-        self.rotation = Point()
-        self.translation = Point()
-
-    def get_cpacs_transf(self, tixi, xpath):
-        """ Get scaling,rotation and translation from a given path in the
-            CPACS file
-
-        Args:
-            tixi (handles): TIXI Handle of the CPACS file
-            xpath (str): xpath to the tansformations
-        """
-
-        try:
-            self.scaling.get_cpacs_points(tixi, xpath + '/transformation/scaling')
-        except:
-            log.warning('No scaling in this transformation!')
-
-        try:
-            self.rotation.get_cpacs_points(tixi, xpath + '/transformation/rotation')
-        except:
-            log.warning('No rotation in this transformation!')
-
-        try:
-            self.translation.get_cpacs_points(tixi, xpath + '/transformation/translation')
-        except:
-            log.warning('No translation in this transformation!')
-
-
-class Engine:
-    """TODO docstring for Engine."""
-
-    def __init__(self, tixi, xpath):
-
-        self.xpath = xpath
-        self.uid = tixi.getTextAttribute(xpath, 'uID')
-
-        self.transf = Transformation()
-        self.transf.get_cpacs_transf(tixi,self.xpath)
-
-        self.sym = False
-        if tixi.checkAttribute(self.xpath, 'symmetry'):
-            if tixi.getTextAttribute(self.xpath, 'symmetry') == 'x-z-plane':
-                self.sym = True
-
-        if tixi.checkElement(self.xpath + '/parentUID'):
-            self.parent_uid = tixi.getTextElement(self.xpath + '/parentUID')
-            log.info('The parent UID is: ' + self.parent_uid)
-
-        if tixi.checkElement(self.xpath + '/engineUID'):
-            engine_uid = tixi.getTextElement(self.xpath + '/engineUID')
-            log.info('The engine UID is: ' + engine_uid)
-        else:
-            log.error('No engine UID found!')
-
-
-        # In cpacs engine are "stored" at two different place
-        # The main at /cpacs/vehicles/aircraft/model/engines
-        # It contains symetry and translation and the UID to the engine definition
-        # stored at /cpacs/vehicles/engines/ with all the carateristic of the nacelle
-        nacelle_xpath = tixi.uIDGetXPath(engine_uid) + '/nacelle'
-
-        self.nacelle = Nacelle(tixi,nacelle_xpath)
-
-
-class Nacelle:
-    """
-    The Class "Nacelle" saves all the parameter to create the entiere nacelle in SUMO.
-
-    Attributes:
-        TODO
-
-    """
-
-    def __init__(self,tixi,xpath):
-
-
-        self.xpath = xpath
-        self.uid = tixi.getTextAttribute(xpath, 'uID')
-
-        self.fancowl = NacellePart(tixi,self.xpath + '/fanCowl')
-        self.corecowl = NacellePart(tixi,self.xpath + '/coreCowl')
-
-        self.centercowl = Cone(tixi,self.xpath + '/centerCowl')
-
-
-class NacellePart:
-    """
-    The Class "NacellePart" saves all the parameter to create fan/core/center
-    of and engine in SUMO.
-
-    Attributes:
-        TODO
-
-    """
-
-    def __init__(self,tixi,xpath):
-
-        self.xpath = xpath
-        self.uid = tixi.getTextAttribute(xpath, 'uID')
-
-        self.iscone = False
-
-        # Should have only 1 section
-        self.section = NacelleSection(tixi, xpath + '/sections/section[1]')
-
-
-class Cone():
-    """
-    The Class "Cone" saves all the parameter to create cone of and engine in SUMO.
-
-    Attributes:
-        TODO
-
-    """
-
-    def __init__(self,tixi,xpath):
-
-        self.xpath = xpath
-        self.uid = tixi.getTextAttribute(xpath, 'uID')
-
-        self.iscone = True
-
-        self.xoffset = tixi.getDoubleElement(xpath+'/xOffset')
-
-        self.curveUID = tixi.getTextElement(xpath+'/curveUID')
-        self.curveUID_xpath =  tixi.uIDGetXPath(self.curveUID)
-
-        self.pointlist = PointList(tixi, self.curveUID_xpath + '/pointList')
-
-
-class NacelleSection:
-    """
-    The Class "NacelleSection" saves information relative to the section to
-    constructuce the nacelle parts
-
-    Attributes:
-        TODO
-
-    """
-
-    def __init__(self, tixi, xpath):
-
-        self.xpath = xpath
-        self.uid = tixi.getTextAttribute(xpath, 'uID')
-
-        self.transf = Transformation()
-        self.transf.get_cpacs_transf(tixi, self.xpath)
-
-        self.profileUID = tixi.getTextElement(self.xpath + '/profileUID')
-
-        self.profileUID_xpath =  tixi.uIDGetXPath(self.profileUID)
-
-        self.pointlist = PointList(tixi, self.profileUID_xpath + '/pointList')
-
-
-class PointList(object):
-    """
-    The Class "PointList" saves list of points for profile/airfoil
-
-    Attributes:
-        TODO
-
-    """
-
-    def __init__(self, tixi, xpath):
-        self.xpath = xpath
-
-        self.xlist = cpsf.get_float_vector(tixi,self.xpath+'/x')
-        self.ylist = cpsf.get_float_vector(tixi,self.xpath+'/y')
 
 
 
 #==============================================================================
 #   FUNCTIONS
 #==============================================================================
-
-def sumo_str_format(x,y,z):
-    """ Function to coordinate x,y,z into the string format which is use by SUMO.
-
-    Args:
-        x (float): x coordinate
-        y (float): y coordinate
-        z (float): z coordinate
-
-    Returns:
-        sumo_str (str): String point format for SUMO
-
-    """
-
-    sumo_str = str(x) + ' ' + str(y) + ' ' + str(z)
-
-    return sumo_str
-
-
-
-def sumo_add_nacelle_lip(sumo, xpath, ax_offset = 1.2, rad_offset = 0.15, shape_coef = 0.3):
-
-    sumo.createElementAtIndex(xpath, "NacelleInletLip", 1)
-    sumo.addTextAttribute(xpath+'/NacelleInletLip', 'axialOffset', str(ax_offset))
-    sumo.addTextAttribute(xpath+'/NacelleInletLip', 'radialOffset', str(rad_offset))
-    sumo.addTextAttribute(xpath+'/NacelleInletLip', 'shapeCoef', str(shape_coef))
-
-
-def sumo_add_engine_bc(sumo,eng_name, part_uid):
-
-    sumo.createElementAtIndex('/Assembly', 'JetEngineSpec', 1)
-    eng_spec_xpath = '/Assembly/JetEngineSpec[' + str(1) + ']'
-
-    sumo.addTextAttribute(eng_spec_xpath, 'massflow', '0')
-    sumo.addTextAttribute(eng_spec_xpath, 'name', eng_name)
-
-    sumo.createElement(eng_spec_xpath, 'Turbofan')
-    turbofan_xpath = eng_spec_xpath + '/Turbofan'
-
-    # For now value not taken into account
-    sumo.addTextAttribute(turbofan_xpath, 'bypass_ratio', '3.5')
-    sumo.addTextAttribute(turbofan_xpath, 'fan_pr', '1.7')
-    sumo.addTextAttribute(turbofan_xpath, 'total_pr', '0')
-    sumo.addTextAttribute(turbofan_xpath, 'turbine_temp', '1400')
-
-    sumo.createElement(eng_spec_xpath, 'IntakeRegions')
-    intake_xpath = eng_spec_xpath + '/IntakeRegions'
-
-    sumo.createElement(intake_xpath, 'JeRegion')
-    jeregion_xpath = intake_xpath + '/JeRegion'
-
-    sumo.addTextAttribute(jeregion_xpath, 'surface', part_uid)
-    sumo.addTextAttribute(jeregion_xpath, 'type', 'nose')
-
-    sumo.createElement(eng_spec_xpath, 'NozzleRegions')
-    nozzle_xpath = eng_spec_xpath + '/NozzleRegions'
-
-    sumo.createElement(nozzle_xpath, 'JeRegion')
-    jeregion_xpath = nozzle_xpath + '/JeRegion'
-
-    sumo.addTextAttribute(jeregion_xpath, 'surface', part_uid)
-    sumo.addTextAttribute(jeregion_xpath, 'type', 'tail')
-
 
 def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
     """ Function to convert a CPACS file geometry into a SUMO file geometry.
@@ -688,6 +386,31 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 sumo.addTextAttribute(frame_xpath,'height',str(body_frm_height))
                 sumo.addTextAttribute(frame_xpath, 'width', str(body_frm_width))
                 sumo.addTextAttribute(frame_xpath, 'name', sec_uid)
+
+
+        # Fusalage symetry
+        # TODO: improve and check the body count in sumo
+
+        sym=False
+        if tixi.checkAttribute(fus_xpath, 'symmetry'):
+            if tixi.getTextAttribute(fus_xpath, 'symmetry') == 'x-z-plane':
+                sym=True
+
+        if sym:
+            body_cnt = sumo.getNamedChildrenCount('/Assembly', 'BodySkeleton')
+            sumo.createElementAtIndex('/Assembly', 'BodySkeleton', body_cnt+1)
+            body_xpath_sym = '/Assembly/BodySkeleton[' + str(body_cnt+1) + ']'
+
+            cpsf.copy_branch(sumo, body_xpath, body_xpath_sym)
+
+            sumo.removeAttribute(body_xpath_sym, 'name')
+            sumo.addTextAttribute(body_xpath_sym, 'name', fus_uid+'_sym')
+
+            ori_str = sumo.getTextAttribute(body_xpath_sym,'origin')
+            x,y,z = [float(item) for item in ori_str.split(' ')]
+
+            sumo.removeAttribute(body_xpath_sym, 'origin')
+            sumo.addTextAttribute(body_xpath_sym, 'origin', sumo_str_format(x,-y,z))
 
 
     # To remove the default BodySkeleton
@@ -1288,9 +1011,12 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
     # Engine(s) ----------------------------------------------------------------
 
+    inc_engine_xpath = '/cpacs/toolspecific/CEASIOMpy/engine/includeEngine'
     ENGINES_XPATH = '/cpacs/vehicles/aircraft/model/engines'
 
-    if tixi.checkElement(ENGINES_XPATH):
+    include_engine = cpsf.get_value_or_default(tixi,inc_engine_xpath,False)
+
+    if tixi.checkElement(ENGINES_XPATH) and include_engine:
         engine_cnt = tixi.getNamedChildrenCount(ENGINES_XPATH, 'engine')
         log.info(str(engine_cnt) + ' engines has been found.')
     else:

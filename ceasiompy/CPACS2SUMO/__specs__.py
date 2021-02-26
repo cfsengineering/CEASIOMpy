@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.moduleinterfaces import CPACSInOut, CEASIOM_XPATH
+
 
 # ===== RCE integration =====
 
@@ -28,6 +29,18 @@ cpacs_inout = CPACSInOut()
 #     gui=True,
 #     gui_name='Workin directory',
 # )
+
+cpacs_inout.add_input(
+    var_name='include_engine',
+    var_type=bool,
+    default_value=False,
+    unit='1',
+    descr='Convert engine from CEASIOMpy',
+    xpath=CEASIOM_XPATH + '/engine/includeEngine',
+    gui=True,
+    gui_name='Include engine',
+    gui_group='Option',
+)
 
 
 # ----- Output -----

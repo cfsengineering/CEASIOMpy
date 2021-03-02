@@ -2,7 +2,6 @@
 CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
-based on a script from Jan-Niclas Walther (DLR)
 
 General classes for CPACS2SUMO
 

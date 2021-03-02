@@ -20,16 +20,6 @@ cpacs_inout = CPACSInOut()
 
 # ----- Input -----
 
-# cpacs_inout.add_input(
-#     var_name='wkdir_path',
-#     var_type='pathtype',
-#     default_value=None,
-#     unit='1',
-#     xpath='/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath',
-#     gui=True,
-#     gui_name='Workin directory',
-# )
-
 cpacs_inout.add_input(
     var_name='include_engine',
     var_type=bool,
@@ -39,6 +29,18 @@ cpacs_inout.add_input(
     xpath=CEASIOM_XPATH + '/engine/includeEngine',
     gui=True,
     gui_name='Include engine',
+    gui_group='Option',
+)
+
+cpacs_inout.add_input(
+    var_name='include_pylon',
+    var_type=bool,
+    default_value=False,
+    unit='1',
+    descr='Convert engine from CEASIOMpy',
+    xpath=CEASIOM_XPATH + '/engine/includePylon',
+    gui=True,
+    gui_name='Include pylon',
     gui_group='Option',
 )
 

@@ -98,13 +98,16 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 
     # Mesh Marker
     bc_wall_xpath = SU2_XPATH + '/boundaryConditions/wall'
+    bc_farfield_xpath = SU2_XPATH + '/boundaryConditions/farfield'
     bc_wall_list, engine_bc_list = su2f.get_mesh_marker(su2_mesh_path)
-
-    # TODO: save engine_bc_list in cpacs
 
     cpsf.create_branch(tixi, bc_wall_xpath)
     bc_wall_str = ';'.join(bc_wall_list)
     tixi.updateTextElement(bc_wall_xpath,bc_wall_str)
+
+    cpsf.create_branch(tixi, bc_farfield_xpath)
+    bc_farfiled_str = ';'.join(engine_bc_list)
+    tixi.updateTextElement(bc_farfield_xpath,bc_farfiled_str)
 
     # Fixed CL parameters
     fixed_cl_xpath = SU2_XPATH + '/fixedCL'
@@ -172,7 +175,6 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
     cfg['REF_ORIGIN_MOMENT_Y'] = ref_ori_moment_y
     cfg['REF_ORIGIN_MOMENT_Z'] = ref_ori_moment_z
 
-
     # Settings
     cfg['INNER_ITER'] = int(max_iter)
     cfg['CFL_NUMBER'] = cfl_nb
@@ -189,7 +191,7 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
     # Mesh Marker
     bc_wall_str = '(' + ','.join(bc_wall_list) + ')'
     cfg['MARKER_EULER'] = bc_wall_str
-    cfg['MARKER_FAR'] = ' (Farfield)' # TODO: maybe make that a variable
+    cfg['MARKER_FAR'] = ' (Farfield, ' + ','.join(engine_bc_list) +')'
     cfg['MARKER_SYM'] = ' (0)'       # TODO: maybe make that a variable?
     cfg['MARKER_PLOTTING'] = bc_wall_str
     cfg['MARKER_MONITORING'] = bc_wall_str

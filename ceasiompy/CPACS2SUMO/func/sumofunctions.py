@@ -2,7 +2,6 @@
 CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
-based on a script from Jan-Niclas Walther (DLR)
 
 Functions used to help the cration of SUMO file
 
@@ -25,6 +24,8 @@ TODO:
 import os
 import sys
 import math
+
+import ceasiompy.utils.cpacsfunctions as cpsf
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -120,3 +121,26 @@ def sumo_add_engine_bc(sumo,eng_name, part_uid):
 
     sumo.addTextAttribute(jeregion_xpath, 'surface', part_uid)
     sumo.addTextAttribute(jeregion_xpath, 'type', 'tail')
+
+
+def sumo_mirror_copy(sumo,xpath,uid,is_fus=True):
+
+    if is_fus:
+        skeleton = 'BodySkeleton'
+    else:
+        skeleton = 'WingSkeleton'
+
+    cnt = sumo.getNamedChildrenCount('/Assembly', skeleton)
+    sumo.createElementAtIndex('/Assembly', skeleton, cnt+1)
+    xpath_sym = '/Assembly/' + skeleton + '[' + str(cnt+1) + ']'
+
+    cpsf.copy_branch(sumo, xpath, xpath_sym)
+
+    sumo.removeAttribute(xpath_sym, 'name')
+    sumo.addTextAttribute(xpath_sym, 'name', uid+'_sym')
+
+    ori_str = sumo.getTextAttribute(xpath_sym,'origin')
+    x,y,z = [float(axis) for axis in ori_str.split(' ')]
+
+    sumo.removeAttribute(xpath_sym, 'origin')
+    sumo.addTextAttribute(xpath_sym, 'origin', sumo_str_format(x,-y,z))

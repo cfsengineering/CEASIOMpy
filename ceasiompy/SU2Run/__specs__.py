@@ -268,6 +268,15 @@ cpacs_inout.add_output(
 )
 
 cpacs_inout.add_output(
+    var_name='bc_farfield_list',
+    var_type=list,
+    default_value=None,
+    unit='1',
+    descr='Farfield boundary conditions found in the SU2 mesh (for off engines)',
+    xpath=CEASIOM_XPATH + '/aerodynamics/su2/boundaryConditions/farfield'
+)
+
+cpacs_inout.add_output(
     var_name='aeromap_SU2',  # name to change...
     # var_type=CPACS_aeroMap, # no type pour output, would it be useful?
     default_value=None,

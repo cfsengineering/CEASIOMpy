@@ -159,7 +159,7 @@ def run_soft(soft, config_path, wkdir, nb_proc):
     #     command_line =  [mpi_install_path,'-np',str(nb_proc),
     #                      soft_install_path,config_path,'>',logfile_path]
     if mpi_install_path is not None:
-        command_line =  [mpi_install_path,'-np',str(nb_proc),
+        command_line =  [mpi_install_path,'-np',str(int(nb_proc)),
                          soft_install_path,config_path,'>',logfile_path]
     # elif soft == 'SU2_DEF' a disp.dat must be there to run with MPI
     else:

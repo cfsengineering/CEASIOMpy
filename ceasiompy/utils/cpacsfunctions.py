@@ -90,8 +90,16 @@ def open_tigl(tixi_handle):
         tigl_handle (handles): TIGL Handle of the CPACS file
     """
 
+    # Get model uid, requierd to open TiGL handle in case there is also a rotorcraft in the CPACS file
+    model_xpath = '/cpacs/vehicles/aircraft/model'
+    if tixi_handle.checkAttribute(model_xpath, 'uID'):
+        model_uid = tixi_handle.getTextAttribute(model_xpath, 'uID')
+    else:
+        log.warning('No model uID in the CPACS file!')
+        model_uid = ''
+
     tigl_handle = tigl3wrapper.Tigl3()
-    tigl_handle.open(tixi_handle, '')
+    tigl_handle.open(tixi_handle, model_uid)
 
     tigl_handle.logSetVerbosity(1)  # 1 - only error, 2 - error and warnings
 

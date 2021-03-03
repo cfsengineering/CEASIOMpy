@@ -935,8 +935,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                                   + pos_z_list[i_sec]) \
                                   * pylon_transf.scaling.z
 
-                if wg_sec_center_y == 0:
-                    a=input('a')
 
                 # Add roation from element and sections
                 # Adding the two angles: Maybe not work in every case!!!

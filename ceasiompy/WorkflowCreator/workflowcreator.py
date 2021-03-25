@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan jungo
 | Creation: 2020-04-21
-| Last modifiction: 2020-07-02
+| Last modifiction: 2021-03-25
 
 TODO:
 
@@ -24,6 +24,7 @@ TODO:
 import os
 import sys
 import shutil
+from collections import OrderedDict
 
 import tkinter as tk
 from tkinter import ttk
@@ -34,7 +35,7 @@ import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mi
 
-#To modify if read/write config function are moved to a more general place
+#TODo: modify if read/write config function are moved to a more general place
 import ceasiompy.utils.su2functions as su2f
 
 from ceasiompy.Optimisation.optimisation import routine_launcher
@@ -68,16 +69,30 @@ class WorkflowOptions:
         self.module_optim = []
         self.module_post = []
 
-    def from_file(self, workflow_config_path):
+    def from_config_file(self, workflow_config_path):
 
         cfg = su2f.read_config(workflow_config_path)
 
         self.cpacs_path = str(cfg['CPACS_TOOLINPUT'])
+        self.module_pre = cfg['MODULE_PRE']
+        self.module_optim = cfg['MODULE_OPTIM']
+        self.module_post = cfg['MODULE_POST']
+        self.optim_method = cfg['OPTIM_METHOD']
 
-        self.module_pre = wkf.get_list_from_config(cfg['MODULE_PRE'])
-        self.module_optim = wkf.get_list_from_config(cfg['MODULE_OPTIM'])
-        self.module_post = wkf.get_list_from_config(cfg['MODULE_POST'])
-        self.optim_method = str(cfg['OPTIM_METHOD'])
+    def write_config_file(self,wkdir):
+
+        # TODO write case description
+        config_dict = OrderedDict({
+                'CPACS_TOOLINPUT': self.cpacs_path,
+                'MODULE_PRE': self.module_pre,
+                'MODULE_OPTIM': self.module_optim,
+                'MODULE_POST': self.module_post,
+                'OPTIM_METHOD': self.optim_method,
+            })
+
+        # TODO: change config name
+        file_path = os.path.join(wkdir,'myConfig.cfg')
+        su2f.write_config(file_path,config_dict)
 
 
 class Tab(tk.Frame):
@@ -286,7 +301,7 @@ def create_wf_gui():
     return opt
 
 
-def run_workflow(Otp):
+def run_workflow(Opt):
     """ Run the complete Worflow
 
     Args:
@@ -307,6 +322,9 @@ def run_workflow(Otp):
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
     cpsf.close_tixi(tixi, Opt.cpacs_path)
 
+    # Copy ToolInput in the Working directory
+    shutil.copy(Opt.cpacs_path, os.path.join(wkdir,'Input.xml'))
+
     # Run Pre-otimisation workflow
     if Opt.module_pre:
         wkf.run_subworkflow(Opt.module_pre, Opt.cpacs_path)
@@ -316,12 +334,13 @@ def run_workflow(Otp):
 
     # Run Optimisation workflow
     if Opt.module_optim:
+
         if Opt.module_pre:
             wkf.copy_module_to_module(Opt.module_pre[-1], 'out', 'Optimisation', 'in')
         else:
             wkf.copy_module_to_module('WorkflowCreator', 'in', 'Optimisation', 'in')
 
-        if Opt.optim_method != 'None':
+        if Opt.optim_method:
             routine_launcher(Opt)
         else:
             log.warning('No optimization method has been selected!')
@@ -344,6 +363,13 @@ def run_workflow(Otp):
         # wkf.copy_module_to_module('CPACSUpdater','out',Opt.module_post[0],'in')  usefuel?
         wkf.run_subworkflow(Opt.module_post)
         shutil.copy(mi.get_tooloutput_file_path(Opt.module_post[-1]), cpacs_path_out)
+
+    # Copy ToolInput in the Working directory
+    shutil.copy(cpacs_path_out, os.path.join(wkdir,'Output.xml'))
+
+    # Write the config file in the working dir
+    Opt.write_config_file(wkdir)
+
 
 
 # ==============================================================================
@@ -385,7 +411,7 @@ if __name__ == '__main__':
 
             Opt = WorkflowOptions()
             #cfg_file =  'CEASIOMpy_workflow_default.cfg'
-            Opt.from_file(cfg_file)
+            Opt.from_config_file(cfg_file)
 
         else:
             print(' ')
@@ -411,9 +437,7 @@ if __name__ == '__main__':
         Opt.module_pre = ['PyTornado','SkinFriction']
         Opt.module_optim = []
         Opt.module_post = []
-
         Opt.optim_method = 'None' # DoE, Optim, None
-
 
     # Run the workflow
     run_workflow(Opt)

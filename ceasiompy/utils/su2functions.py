@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2019-09-30
-| Last modifiction: 2020-05-20
+| Last modifiction: 2021-03-25
 
 TODO:
 
@@ -60,19 +60,31 @@ def read_config(config_file_path):
 
     """
 
+    none_list = ['NONE','None','none']
+
     data_dict = OrderedDict()
     with open(config_file_path, 'r') as f:
         for line in f:
             if line.startswith('%') or '=' not in line:
                 continue
             key, value = line.split('=')
-            if '(' in value:
-                new_value = value.split('(')[1].split(')')[0]
+
+            # if any 'None' in value
+            find_none = any(ele in value for ele in none_list)
+
+            if find_none:
+                data_dict[key.strip()] = None
+            elif '(' in value:
+                new_value = value.replace('(','').replace(')','')
                 value_list = new_value.split(',')
                 strip_value_list = [item.strip() for item in value_list]
-                data_dict[key.strip()] = strip_value_list
+                if len(strip_value_list) == 1 and strip_value_list[0]=='':
+                    data_dict[key.strip()] = None
+                else:
+                    data_dict[key.strip()] = strip_value_list
             else:
                 data_dict[key.strip()] = value.strip()
+
     return data_dict
 
 
@@ -88,12 +100,15 @@ def write_config(config_file_path, config_dict):
 
     """
 
+    # TODO: add somting to include commentary
     with open(config_file_path, 'w') as f:
         for key, value in config_dict.items():
             if isinstance(value,list):
                 value_str = ' , '.join(value)
                 f.write(str(key) + ' = ( ' + value_str + ' ) \n')
             else:
+                if value is None or value == '':
+                    value = 'NONE'
                 f.write(str(key) + ' = ' + str(value) + '\n')
 
 

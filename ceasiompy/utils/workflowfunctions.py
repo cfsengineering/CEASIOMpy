@@ -41,27 +41,6 @@ LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
 #   FUNCTIONS
 #==============================================================================
 
-def get_list_from_config(config_value):
-    """ Return a list of module name (string)
-
-    Function 'get_list_config_value' transform the string imput from the  config
-    dictionary into a list of string with the correct format to be use by
-    'WorkflowCreator'
-
-    Args:
-        config_value (str): String from the config dictionary
-        module_list (list): List of modules
-
-    """
-
-    if config_value == 'NONE':
-        return
-
-    module_list = [x.strip() for x in config_value.split(',')]
-
-    return module_list
-
-
 def copy_module_to_module(module_from, io_from, module_to, io_to):
     """ Transfer CPACS file from one module to another.
 

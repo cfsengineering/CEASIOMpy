@@ -93,6 +93,7 @@ class Nacelle:
         self.uid = tixi.getTextAttribute(xpath, 'uID')
 
         self.fancowl = NacellePart(tixi,self.xpath + '/fanCowl')
+
         self.corecowl = NacellePart(tixi,self.xpath + '/coreCowl')
 
         self.centercowl = Cone(tixi,self.xpath + '/centerCowl')
@@ -110,13 +111,18 @@ class NacellePart:
 
     def __init__(self,tixi,xpath):
 
-        self.xpath = xpath
-        self.uid = tixi.getTextAttribute(xpath, 'uID')
 
+        self.isengpart = False
         self.iscone = False
 
-        # Should have only 1 section
-        self.section = NacelleSection(tixi, xpath + '/sections/section[1]')
+        if tixi.checkElement(xpath):
+            self.xpath = xpath
+            self.uid = tixi.getTextAttribute(xpath, 'uID')
+
+            self.isengpart = True
+
+            # Should have only 1 section
+            self.section = NacelleSection(tixi, xpath + '/sections/section[1]')
 
 
 class Cone():
@@ -130,17 +136,23 @@ class Cone():
 
     def __init__(self,tixi,xpath):
 
-        self.xpath = xpath
-        self.uid = tixi.getTextAttribute(xpath, 'uID')
+        self.isengpart = False
+        self.iscone = False
 
-        self.iscone = True
+        if tixi.checkElement(xpath):
 
-        self.xoffset = tixi.getDoubleElement(xpath+'/xOffset')
+            self.xpath = xpath
+            self.uid = tixi.getTextAttribute(xpath, 'uID')
 
-        self.curveUID = tixi.getTextElement(xpath+'/curveUID')
-        self.curveUID_xpath =  tixi.uIDGetXPath(self.curveUID)
+            self.isengpart = True
+            self.iscone = True
 
-        self.pointlist = PointList(tixi, self.curveUID_xpath + '/pointList')
+            self.xoffset = tixi.getDoubleElement(xpath+'/xOffset')
+
+            self.curveUID = tixi.getTextElement(xpath+'/curveUID')
+            self.curveUID_xpath =  tixi.uIDGetXPath(self.curveUID)
+
+            self.pointlist = PointList(tixi, self.curveUID_xpath + '/pointList')
 
 
 class NacelleSection:

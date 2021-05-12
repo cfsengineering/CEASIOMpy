@@ -39,7 +39,7 @@ from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 from ceasiompy.CPACS2SUMO.func.generalclasses import SimpleNamespace, Point, Transformation
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
 from ceasiompy.CPACS2SUMO.func.sumofunctions import sumo_str_format, sumo_add_nacelle_lip, sumo_add_engine_bc, sumo_mirror_copy
-
+from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
@@ -128,9 +128,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
         # Positionings
         if tixi.checkElement(fus_xpath + '/positionings'):
-            pos_cnt = tixi.getNamedChildrenCount(fus_xpath + '/positionings',
-                                                 'positioning')
-
+            pos_cnt = tixi.getNamedChildrenCount(fus_xpath + '/positionings','positioning')
             log.info(str(fus_cnt) + ' "Positionning" has been found : ')
 
             pos_x_list = []
@@ -242,26 +240,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
                 # Fuselage profiles
                 prof_uid = tixi.getTextElement(elem_xpath+'/profileUID')
-                prof_xpath = tixi.uIDGetXPath(prof_uid)
-
-                prof_vect_x_str = tixi.getTextElement(prof_xpath+'/pointList/x')
-                prof_vect_y_str = tixi.getTextElement(prof_xpath+'/pointList/y')
-                prof_vect_z_str = tixi.getTextElement(prof_xpath+'/pointList/z')
-
-                # Transform sting into list of float
-                prof_vect_x = []
-                for i, item in enumerate(prof_vect_x_str.split(';')):
-                    if item:
-                        prof_vect_x.append(float(item))
-                prof_vect_y = []
-                for i, item in enumerate(prof_vect_y_str.split(';')):
-                    if item:
-                        prof_vect_y.append(float(item))
-                prof_vect_z = []
-                for i, item in enumerate(prof_vect_z_str.split(';')):
-                    if item:
-                        prof_vect_z.append(float(item))
-
+                prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(tixi,prof_uid)
 
                 prof_size_y = (max(prof_vect_y) - min(prof_vect_y))/2
                 prof_size_z = (max(prof_vect_z) - min(prof_vect_z))/2
@@ -292,23 +271,24 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
                 # Put value in SUMO format
                 body_frm_center_x = ( elem_transf.translation.x \
-                                        + sec_transf.translation.x \
-                                        + pos_x_list[i_sec]) \
-                                        * fus_transf.scaling.x
+                                      + sec_transf.translation.x \
+                                      + pos_x_list[i_sec]) \
+                                      * fus_transf.scaling.x
                 body_frm_center_y = ( elem_transf.translation.y \
-                                        * sec_transf.scaling.y \
-                                        + sec_transf.translation.y \
-                                        + pos_y_list[i_sec]) \
-                                        * fus_transf.scaling.y
+                                      * sec_transf.scaling.y \
+                                      + sec_transf.translation.y \
+                                      + pos_y_list[i_sec]) \
+                                      * fus_transf.scaling.y
                 body_frm_center_z = ( elem_transf.translation.z \
-                                        * sec_transf.scaling.z \
-                                        + sec_transf.translation.z \
-                                        + pos_z_list[i_sec]) \
-                                        * fus_transf.scaling.z
+                                      * sec_transf.scaling.z \
+                                      + sec_transf.translation.z \
+                                      + pos_z_list[i_sec]) \
+                                      * fus_transf.scaling.z
 
 
                 body_frm_height = prof_size_z * 2 * elem_transf.scaling.z \
                                   * sec_transf.scaling.z * fus_transf.scaling.z
+
                 if body_frm_height < 0.01:
                     body_frm_height = 0.01
                 body_frm_width = prof_size_y * 2 * elem_transf.scaling.y \
@@ -392,7 +372,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
             if tixi.getTextAttribute(fus_xpath, 'symmetry') == 'x-z-plane':
                 sumo_mirror_copy(sumo,body_xpath,fus_uid,True)
 
-
     # To remove the default BodySkeleton
     if fus_cnt == 0:
         sumo.removeElement('/Assembly/BodySkeleton')
@@ -450,8 +429,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
         # Positionings
         if tixi.checkElement(wing_xpath + '/positionings'):
-            pos_cnt = tixi.getNamedChildrenCount(wing_xpath + '/positionings',
-                                                 'positioning')
+            pos_cnt = tixi.getNamedChildrenCount(wing_xpath + '/positionings','positioning')
             log.info(str(wing_cnt) + ' "positionning" has been found : ')
 
             pos_x_list = []
@@ -461,8 +439,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
             to_sec_list = []
 
             for i_pos in range(pos_cnt):
-                pos_xpath = wing_xpath + '/positionings/positioning[' \
-                           + str(i_pos+1) + ']'
+                pos_xpath = wing_xpath + '/positionings/positioning[' + str(i_pos+1) + ']'
 
                 length = tixi.getDoubleElement(pos_xpath + '/length')
                 sweep_deg = tixi.getDoubleElement(pos_xpath + '/sweepAngle')
@@ -544,49 +521,9 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 elem_transf = Transformation()
                 elem_transf.get_cpacs_transf(tixi,elem_xpath)
 
-                # Wing profile (airfoil)
+                # Get wing profile (airfoil)
                 prof_uid = tixi.getTextElement(elem_xpath+'/airfoilUID')
-                prof_xpath = tixi.uIDGetXPath(prof_uid)
-
-                try:
-                    tixi.checkElement(prof_xpath)
-                except:
-                    log.error('No profile "' + prof_uid + '" has been found!')
-
-                prof_vect_x_str = tixi.getTextElement(prof_xpath+'/pointList/x')
-                prof_vect_y_str = tixi.getTextElement(prof_xpath+'/pointList/y')
-                prof_vect_z_str = tixi.getTextElement(prof_xpath+'/pointList/z')
-
-                # Transform airfoil points (string) into list of float
-                prof_vect_x = []
-                for i, item in enumerate(prof_vect_x_str.split(';')):
-                    if item:
-                        prof_vect_x.append(float(item))
-                prof_vect_y = []
-                for i, item in enumerate(prof_vect_y_str.split(';')):
-                    if item:
-                        prof_vect_y.append(float(item))
-                prof_vect_z = []
-                for i, item in enumerate(prof_vect_z_str.split(';')):
-                    if item:
-                        prof_vect_z.append(float(item))
-
-                if sum(prof_vect_z[0:len(prof_vect_z)//2]) \
-                   < sum(prof_vect_z[len(prof_vect_z)//2:-1]):
-                    log.info("Airfoil's points will be reversed.")
-
-                    tmp_vect_x = []
-                    tmp_vect_y = []
-                    tmp_vect_z = []
-
-                    for i in range(len(prof_vect_x)):
-                        tmp_vect_x.append(prof_vect_x[len(prof_vect_x)-1-i])
-                        tmp_vect_y.append(prof_vect_y[len(prof_vect_y)-1-i])
-                        tmp_vect_z.append(prof_vect_z[len(prof_vect_z)-1-i])
-
-                    prof_vect_x = tmp_vect_x
-                    prof_vect_y = tmp_vect_y
-                    prof_vect_z = tmp_vect_z
+                prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(tixi,prof_uid)
 
                 # Apply scaling
                 for i, item in enumerate(prof_vect_x):
@@ -743,7 +680,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
         if tixi.checkAttribute(pylon_xpath, 'symmetry'):
             if tixi.getTextAttribute(pylon_xpath, 'symmetry') == 'x-z-plane':
-                # TODO: symetry not workin in sumu is the wing is not define from the symetry plan
+                # TODO: symetry not workin in sumo is the wing is not define from the symetry plan
                 sumo.addTextAttribute(wg_sk_xpath, 'flags','autosym,detectwinglet')
                 #sumo.addTextAttribute(wg_sk_xpath, 'flags', 'detectwinglet')
             else:
@@ -846,49 +783,9 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 elem_transf = Transformation()
                 elem_transf.get_cpacs_transf(tixi,elem_xpath)
 
-                # Wing profile (airfoil)
+                # Get pylon profile (airfoil)
                 prof_uid = tixi.getTextElement(elem_xpath+'/airfoilUID')
-                prof_xpath = tixi.uIDGetXPath(prof_uid)
-
-                try:
-                    tixi.checkElement(prof_xpath)
-                except:
-                    log.error('No profile "' + prof_uid + '" has been found!')
-
-                prof_vect_x_str = tixi.getTextElement(prof_xpath+'/pointList/x')
-                prof_vect_y_str = tixi.getTextElement(prof_xpath+'/pointList/y')
-                prof_vect_z_str = tixi.getTextElement(prof_xpath+'/pointList/z')
-
-                # Transform airfoil points (string) into list of float
-                prof_vect_x = []
-                for i, item in enumerate(prof_vect_x_str.split(';')):
-                    if item:
-                        prof_vect_x.append(float(item))
-                prof_vect_y = []
-                for i, item in enumerate(prof_vect_y_str.split(';')):
-                    if item:
-                        prof_vect_y.append(float(item))
-                prof_vect_z = []
-                for i, item in enumerate(prof_vect_z_str.split(';')):
-                    if item:
-                        prof_vect_z.append(float(item))
-
-                if sum(prof_vect_z[0:len(prof_vect_z)//2]) \
-                   < sum(prof_vect_z[len(prof_vect_z)//2:-1]):
-                    log.info("Airfoil's points will be reversed.")
-
-                    tmp_vect_x = []
-                    tmp_vect_y = []
-                    tmp_vect_z = []
-
-                    for i in range(len(prof_vect_x)):
-                        tmp_vect_x.append(prof_vect_x[len(prof_vect_x)-1-i])
-                        tmp_vect_y.append(prof_vect_y[len(prof_vect_y)-1-i])
-                        tmp_vect_z.append(prof_vect_z[len(prof_vect_z)-1-i])
-
-                    prof_vect_x = tmp_vect_x
-                    prof_vect_y = tmp_vect_y
-                    prof_vect_z = tmp_vect_z
+                prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(tixi,prof_uid)
 
                 # Apply scaling
                 for i, item in enumerate(prof_vect_x):
@@ -1019,7 +916,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
         engine = Engine(tixi,engine_xpath)
 
         # Nacelle (sumo)
-
         xengtransl = engine.transf.translation.x
         yengtransl = engine.transf.translation.y
         zengtransl = engine.transf.translation.z
@@ -1029,6 +925,10 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                        engine.nacelle.centercowl]
 
         for engpart in engineparts:
+
+            if not engpart.isengpart:
+                log.info('This engine part is not define.')
+                continue
 
             if engpart.iscone:
 
@@ -1071,6 +971,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
                 ysectransl = engpart.section.transf.translation.y
                 zsectransl = engpart.section.transf.translation.z
+
 
             # # Plot
             # fig, ax = plt.subplots()

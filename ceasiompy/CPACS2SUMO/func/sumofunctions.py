@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2021-02-25
-| Last modifiction: 2021-02-26
+| Last modifiction: 2021-05-17
 
 TODO:
 
@@ -123,24 +123,75 @@ def sumo_add_engine_bc(sumo,eng_name, part_uid):
     sumo.addTextAttribute(jeregion_xpath, 'type', 'tail')
 
 
-def sumo_mirror_copy(sumo,xpath,uid,is_fus=True):
 
-    if is_fus:
-        skeleton = 'BodySkeleton'
-    else:
+def add_wing_cap(sumo,wg_sk_xpath):
+
+    sumo.createElementAtIndex(wg_sk_xpath, "Cap", 1)
+    sumo.addTextAttribute(wg_sk_xpath+'/Cap[1]', 'height', '0')
+    sumo.addTextAttribute(wg_sk_xpath+'/Cap[1]', 'shape', 'LongCap')
+    sumo.addTextAttribute(wg_sk_xpath+'/Cap[1]', 'side', 'south')
+
+    sumo.createElementAtIndex(wg_sk_xpath, 'Cap', 2)
+    sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'height', '0')
+    sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'shape', 'LongCap')
+    sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'side', 'north')
+
+
+
+def sumo_mirror_copy(sumo,xpath,uid,is_wing=True):
+
+    skeleton = 'BodySkeleton'
+    if is_wing:
         skeleton = 'WingSkeleton'
 
+    # Copy the element
     cnt = sumo.getNamedChildrenCount('/Assembly', skeleton)
     sumo.createElementAtIndex('/Assembly', skeleton, cnt+1)
     xpath_sym = '/Assembly/' + skeleton + '[' + str(cnt+1) + ']'
-
     cpsf.copy_branch(sumo, xpath, xpath_sym)
 
+    # Rename the element
     sumo.removeAttribute(xpath_sym, 'name')
     sumo.addTextAttribute(xpath_sym, 'name', uid+'_sym')
 
+    # Inverse sign of y origin value
     ori_str = sumo.getTextAttribute(xpath_sym,'origin')
     x,y,z = [float(axis) for axis in ori_str.split(' ')]
-
     sumo.removeAttribute(xpath_sym, 'origin')
     sumo.addTextAttribute(xpath_sym, 'origin', sumo_str_format(x,-y,z))
+
+    # Inverse sections, sign of center y position and rotations
+    if is_wing:
+
+        sec_cnt = sumo.getNamedChildrenCount(xpath_sym, 'WingSection')
+
+        for i_sec in range(sec_cnt):
+            xpath_sec = xpath_sym +'/WingSection' + '[' + str(i_sec+1) + ']'
+
+            # Inverse section center in y
+            center_str = sumo.getTextAttribute(xpath_sec,'center')
+            x,y,z = [float(axis) for axis in center_str.split(' ')]
+            sumo.removeAttribute(xpath_sec, 'center')
+            sumo.addTextAttribute(xpath_sec, 'center', sumo_str_format(x,-y,z))
+
+            # Inverse section dihedral rotation
+            dih = sumo.getDoubleAttribute(xpath_sec,'dihedral')
+            sumo.removeAttribute(xpath_sec, 'dihedral')
+            sumo.addTextAttribute(xpath_sec, 'dihedral', str(-dih))
+
+            # Inverse section yaw rotation
+            yaw = sumo.getDoubleAttribute(xpath_sec,'yaw')
+            sumo.removeAttribute(xpath_sec, 'yaw')
+            sumo.addTextAttribute(xpath_sec, 'yaw', str(-yaw))
+
+        # Invers wing section order
+        for i_sec in reversed(range(sec_cnt)):
+            new_xpath_from = xpath_sym +'/WingSection' + '[' + str(i_sec+1) + ']'
+            new_xpath_to = xpath_sym +'/WingSection' + '[' + str(sec_cnt+1) + ']'
+            print(new_xpath_from)
+            print(new_xpath_to)
+            sumo.createElement(xpath_sym,'WingSection')
+            cpsf.copy_branch(sumo, new_xpath_from, new_xpath_to)
+            sumo.removeElement(new_xpath_from)
+
+        add_wing_cap(sumo,xpath_sym)

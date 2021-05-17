@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2017-03-03
-| Last modifiction: 2021-03-02
+| Last modifiction: 2021-05-17
 
 TODO:
 
@@ -38,7 +38,7 @@ from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 
 from ceasiompy.CPACS2SUMO.func.generalclasses import SimpleNamespace, Point, Transformation
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
-from ceasiompy.CPACS2SUMO.func.sumofunctions import sumo_str_format, sumo_add_nacelle_lip, sumo_add_engine_bc, sumo_mirror_copy
+from ceasiompy.CPACS2SUMO.func.sumofunctions import sumo_str_format, sumo_add_nacelle_lip, sumo_add_engine_bc, add_wing_cap, sumo_mirror_copy
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -370,7 +370,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
         # Fusalage symetry (mirror copy)
         if tixi.checkAttribute(fus_xpath, 'symmetry'):
             if tixi.getTextAttribute(fus_xpath, 'symmetry') == 'x-z-plane':
-                sumo_mirror_copy(sumo,body_xpath,fus_uid,True)
+                sumo_mirror_copy(sumo,body_xpath,fus_uid,False)
 
     # To remove the default BodySkeleton
     if fus_cnt == 0:
@@ -622,18 +622,10 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 wing_sec_index += 1
 
         # Add Wing caps
-        sumo.createElementAtIndex(wg_sk_xpath, "Cap", 1)
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[1]', 'height', '0')
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[1]', 'shape', 'LongCap')
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[1]', 'side', 'south')
-
-        sumo.createElementAtIndex(wg_sk_xpath, 'Cap', 2)
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'height', '0')
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'shape', 'LongCap')
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'side', 'north')
+        add_wing_cap(sumo,wg_sk_xpath)
 
 
-    # Pylon(s) -----------------------------------------------------------------
+    # Engyine pylon(s) ---------------------------------------------------------
 
     PYLONS_XPATH = '/cpacs/vehicles/aircraft/model/enginePylons'
 
@@ -677,14 +669,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
         sumo.addTextAttribute(wg_sk_xpath, 'origin', sumo_str_format(wg_sk_tansf.translation.x,
                                                                      wg_sk_tansf.translation.y,
                                                                      wg_sk_tansf.translation.z))
-
-        if tixi.checkAttribute(pylon_xpath, 'symmetry'):
-            if tixi.getTextAttribute(pylon_xpath, 'symmetry') == 'x-z-plane':
-                # TODO: symetry not workin in sumo is the wing is not define from the symetry plan
-                sumo.addTextAttribute(wg_sk_xpath, 'flags','autosym,detectwinglet')
-                #sumo.addTextAttribute(wg_sk_xpath, 'flags', 'detectwinglet')
-            else:
-                sumo.addTextAttribute(wg_sk_xpath, 'flags', 'detectwinglet')
+        sumo.addTextAttribute(wg_sk_xpath, 'flags', 'detectwinglet')
 
         # Positionings
         if tixi.checkElement(pylon_xpath + '/positionings'):
@@ -877,23 +862,12 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
                 wing_sec_index += 1
 
-        # Add Wing caps
-        sumo.createElementAtIndex(wg_sk_xpath, "Cap", 1)
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[1]', 'height', '0')
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[1]', 'shape', 'LongCap')
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[1]', 'side', 'south')
+        # Pylon symetry (mirror copy)
+        if tixi.checkAttribute(pylon_xpath, 'symmetry'):
+            if tixi.getTextAttribute(pylon_xpath, 'symmetry') == 'x-z-plane':
+                sumo_mirror_copy(sumo,wg_sk_xpath,pylon_uid,True)
 
-        sumo.createElementAtIndex(wg_sk_xpath, 'Cap', 2)
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'height', '0')
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'shape', 'LongCap')
-        sumo.addTextAttribute(wg_sk_xpath+'/Cap[2]', 'side', 'north')
-
-        # Seems not ideal for wings
-        # # Pylon symetry (mirror copy)
-        # if tixi.checkAttribute(pylon_xpath, 'symmetry'):
-        #     if tixi.getTextAttribute(pylon_xpath, 'symmetry') == 'x-z-plane':
-        #         sumo_mirror_copy(sumo,wg_sk_xpath,pylon_uid,is_fus=False)
-
+        add_wing_cap(sumo,wg_sk_xpath)
 
 
     # Engine(s) ----------------------------------------------------------------
@@ -972,7 +946,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 ysectransl = engpart.section.transf.translation.y
                 zsectransl = engpart.section.transf.translation.z
 
-
             # # Plot
             # fig, ax = plt.subplots()
             # ax.plot(xlist, ylist,'x')
@@ -980,10 +953,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
             # ax.set(xlabel='x', ylabel='y',title='Engine profile')
             # ax.grid()
             # plt.show()
-
-            # Create new body (SUMO)
-
-            # i_fus is used for the loop to create fuselages ...
 
             sumo.createElementAtIndex('/Assembly', 'BodySkeleton', i_fus+1)
             body_xpath = '/Assembly/BodySkeleton[' + str(i_fus+1) + ']'

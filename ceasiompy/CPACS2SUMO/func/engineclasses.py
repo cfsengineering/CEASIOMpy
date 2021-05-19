@@ -24,12 +24,10 @@ TODO:
 import os
 import sys
 import math
-import matplotlib.pyplot as plt
 
 import ceasiompy.utils.cpacsfunctions as cpsf
 
-from ceasiompy.CPACS2SUMO.func.generalclasses import Point, Transformation
-
+from ceasiompy.utils.generalclasses import SimpleNamespace, Point, Transformation
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])

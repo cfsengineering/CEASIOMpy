@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2017-03-03
-| Last modifiction: 2021-05-17
+| Last modifiction: 2021-05-19
 
 TODO:
 
@@ -33,13 +33,13 @@ import matplotlib.pyplot as plt
 
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.ceasiompyfunctions as ceaf
-
+from ceasiompy.utils.generalclasses import SimpleNamespace, Point, Transformation
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 
-from ceasiompy.CPACS2SUMO.func.generalclasses import SimpleNamespace, Point, Transformation
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
 from ceasiompy.CPACS2SUMO.func.sumofunctions import sumo_str_format, sumo_add_nacelle_lip, sumo_add_engine_bc, add_wing_cap, sumo_mirror_copy
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
+
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
@@ -745,6 +745,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
             pos_y_list = [0.0] * sec_cnt
             pos_z_list = [0.0] * sec_cnt
 
+        check_reversed_wing = []
+
         for i_sec in range(sec_cnt):
         # for i_sec in reversed(range(sec_cnt)):
             sec_xpath = pylon_xpath + '/sections/section[' + str(i_sec+1) + ']'
@@ -780,14 +782,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 for i, item in enumerate(prof_vect_z):
                     prof_vect_z[i] = item * elem_transf.scaling.z * sec_transf.scaling.z * pylon_transf.scaling.z
 
-                # Plot setions (for tests)
-                # if (i_sec>8 and i_sec<=10):
-                #     plt.plot(prof_vect_x, prof_vect_z,'x')
-                #     plt.xlabel('x')
-                #     plt.ylabel('z')
-                #     plt.grid(True)
-                #     plt.show()
-
                 prof_size_x = (max(prof_vect_x) - min(prof_vect_x))
                 prof_size_y = (max(prof_vect_y) - min(prof_vect_y))
                 prof_size_z = (max(prof_vect_z) - min(prof_vect_z))
@@ -817,6 +811,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                                   + pos_z_list[i_sec]) \
                                   * pylon_transf.scaling.z
 
+                check_reversed_wing.append(wg_sec_center_y)
 
                 # Add roation from element and sections
                 # Adding the two angles: Maybe not work in every case!!!
@@ -862,7 +857,16 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
                 wing_sec_index += 1
 
-        # Pylon symetry (mirror copy)
+        # Check if the wing section order must be inverted with reversed attribute
+        if check_reversed_wing[0] < check_reversed_wing[1]:
+            log.info('Wing section order will be reversed.')
+            reversed_wing = 'true'
+            for i_sec in range(sec_cnt):
+                wg_sec_xpath = wg_sk_xpath + '/WingSection[' + str(i_sec+1) + ']'
+                sumo.removeAttribute(wg_sec_xpath, 'reversed')
+                sumo.addTextAttribute(wg_sec_xpath, 'reversed', 'true')
+
+        # If symmetry, create a mirror copy of the Pylon
         if tixi.checkAttribute(pylon_xpath, 'symmetry'):
             if tixi.getTextAttribute(pylon_xpath, 'symmetry') == 'x-z-plane':
                 sumo_mirror_copy(sumo,wg_sk_xpath,pylon_uid,True)

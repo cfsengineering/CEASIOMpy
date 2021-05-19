@@ -3,13 +3,13 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-General classes for CPACS2SUMO
+General classes to get transformation from any part of a CPACS file
 
 Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2021-02-25
-| Last modifiction: 2021-02-26
+| Last modifiction: 2021-05-18
 
 TODO:
 
@@ -112,6 +112,7 @@ class Transformation:
         self.rotation = Point()
         self.translation = Point()
 
+
     def get_cpacs_transf(self, tixi, xpath):
         """ Get scaling,rotation and translation from a given path in the
             CPACS file
@@ -120,6 +121,9 @@ class Transformation:
             tixi (handles): TIXI Handle of the CPACS file
             xpath (str): xpath to the tansformations
         """
+
+        self.tixi = tixi
+        self.xpath = xpath
 
         try:
             self.scaling.get_cpacs_points(tixi, xpath + '/transformation/scaling')
@@ -135,3 +139,32 @@ class Transformation:
             self.translation.get_cpacs_points(tixi, xpath + '/transformation/translation')
         except:
             log.warning('No translation in this transformation!')
+
+        # Find type of reference: absGlobal, absLocal or nothing
+        # TODO: check if it correct to get parent when absLocal is used..?
+        ref_type = ''
+        try:
+            ref_type = self.tixi.getTextAttribute(self.xpath+'/transformation/translation', 'refType')
+        except:
+            log.info('No refType attribute')
+
+        if ref_type != 'absGlobal':
+            self.get_parent_transformation()
+
+
+    def get_parent_transformation(self):
+
+        if self.tixi.checkElement(self.xpath + '/parentUID'):
+            parent_uid = self.tixi.getTextElement(self.xpath + '/parentUID')
+            log.info('The parent UID is: ' + parent_uid)
+
+            self.xpath = self.tixi.uIDGetXPath(parent_uid)
+
+            # Get parent transformation
+            transf = Transformation()
+            transf.get_cpacs_transf(self.tixi,self.xpath)
+
+            # Sum translation
+            self.translation.x += transf.translation.x
+            self.translation.y += transf.translation.y
+            self.translation.z += transf.translation.z

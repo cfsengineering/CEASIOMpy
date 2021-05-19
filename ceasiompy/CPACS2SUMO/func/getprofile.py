@@ -139,7 +139,7 @@ def get_profile_coord(tixi,prof_uid):
 
     if sum(prof_vect_z[0:len(prof_vect_z)//2]) < sum(prof_vect_z[len(prof_vect_z)//2:-1]):
 
-        log.info("Airfoil's points will be reversed.")
+        # reverse airfoil's points
         prof_vect_x.reverse()
         prof_vect_y.reverse()
         prof_vect_z.reverse()

@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-11-06
-| Last modifiction: 2020-05-20
+| Last modifiction: 2020-05-21
 
 TODO:
 
@@ -37,7 +37,7 @@ import ceasiompy.utils.su2functions as su2f
 
 from ceasiompy.SU2Run.func.su2config import generate_su2_config
 from ceasiompy.SU2Run.func.extractloads import extract_loads
-from ceasiompy.SU2Run.func.su2results import get_wetted_area, get_efficiency, get_su2_results
+from ceasiompy.SU2Run.func.su2results import get_wetted_area, get_su2_results
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])

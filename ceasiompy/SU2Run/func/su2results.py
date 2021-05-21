@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-10-02
-| Last modifiction: 2020-03-24
+| Last modifiction: 2020-05-21
 
 TODO:
 
@@ -98,34 +98,45 @@ def get_wetted_area(wkdir):
         return wetted_area
 
 
-# This function should be modified
-def get_efficiency(force_path):
-    """Function to get efficiency (CL/CD)
+# This function should be modified maybe merge with get_aoa
+def get_efficiency_and_aoa(force_path):
+    """Function to get efficiency (CL/CD) and angle of attack (AoA)
 
-    Function 'get_efficiency' the CL/CD ratio in the results file
-    (forces_breakdown.dat)
+    Function 'get_efficiency_and_aoa' search fot the efficiency (CL/CD) and
+    the Angle of Attack (AoA) in the results file (forces_breakdown.dat)
 
     Args:
         force_path (str): Path to the Force Breakdown result file
 
     Returns:
-        cl_cd (float): CL/CD ratio [-]
+        cl_cd (float):  CL/CD ratio [-]
+        aoa (float):    Angle of Attack [deg]
 
     """
 
     cl_cd = None
+    aoa = None
 
     with open(force_path) as f:
         for line in f.readlines():
             if 'CL/CD' in line:
                 cl_cd = float(line.split(':')[1].split('|')[0])
+                continue
+
+            if 'Angle of attack (AoA):' in line:
+                aoa = float(line.split('Angle of attack (AoA):')[1].split('deg,')[0].strip())
+                continue
+
+            if cl_cd and aoa:
                 break
-    if cl_cd is None:
-        raise ValueError('No value has been found for the CL/CD ratio!')
+
+    if cl_cd is None or aoa is None:
+        raise ValueError('No value has been found for the CL/CD ratio or AoA!')
     else:
-        log.info('CL/CD ratio has been found and is equal to: ' \
-                  + str(cl_cd) + '[-]')
-        return cl_cd
+        log.info('CL/CD ratio has been found and is equal to: '+ str(cl_cd) + '[-]')
+        log.info('AoA has been found and is equal to: ' + str(aoa) + '[-]')
+
+        return cl_cd, aoa
 
 
 def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
@@ -162,16 +173,6 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
 
     tixi.updateDoubleElement(wetted_area_xpath,wetted_area,'%g')
 
-    # Get and save CL/CD ratio
-    fixed_cl_xpath = SU2_XPATH + '/fixedCL'
-    fixed_cl = cpsf.get_value_or_default(tixi, fixed_cl_xpath,'NO')
-    # TODO
-    # if fixed_cl == 'YES':
-        # find force_file_name = 'forces_breakdown.dat'
-        # cl_cd = get_efficiency(force_path)
-        # lDRatio_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges/lDRatio' # TODO: probalby change xpath and name
-        # cpsf.create_branch(tixi, lDRatio_xpath)
-        # tixi.updateDoubleElement(lDRatio_xpath,cl_cd,'%g')
 
     # Save aeroPerformanceMap
     su2_aeromap_xpath = SU2_XPATH + '/aeroMapUID'
@@ -200,6 +201,24 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
             force_file_name = 'forces_breakdown.dat'
             if not os.path.isfile(force_file_name):
                 raise OSError('No result force file have been found!')
+
+            fixed_cl_xpath = SU2_XPATH + '/fixedCL'
+            fixed_cl = cpsf.get_value_or_default(tixi,fixed_cl_xpath,'NO')
+
+            if fixed_cl == 'YES':
+                force_file_name = 'forces_breakdown.dat'
+                cl_cd, aoa = get_efficiency_and_aoa(force_file_name)
+
+                # Save the AoA found during the fixed CL calculation
+                Coef.aoa = [aoa]
+                apmf.save_parameters(tixi,aeromap_uid,Coef)
+
+                # Save cl/cd found during the fixed CL calculation
+                # TODO: maybe save cl/cd somewhere else
+                lDRatio_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges/lDRatio'
+                cpsf.create_branch(tixi, lDRatio_xpath)
+                tixi.updateDoubleElement(lDRatio_xpath,cl_cd,'%g')
+
 
             # Read result file
             with open(force_file_name) as f:

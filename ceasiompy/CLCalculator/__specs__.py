@@ -20,15 +20,39 @@ cpacs_inout = CPACSInOut()
 # ===== Input =====
 
 cpacs_inout.add_input(
-    var_name='mtom',
+    var_name='mass_type',
+    var_type=list,
+    default_value= ['mTOM', 'mZFM', 'Custom','% fuel mass'],
+    unit=None,
+    descr='Type of mass to use for CL calculation',
+    xpath=CEASIOM_XPATH +'/aerodynamics/clCalculation/massType',
+    gui=True,
+    gui_name='Type',
+    gui_group='Mass'
+)
+
+cpacs_inout.add_input(
+    var_name='custom_mass',
     var_type=float,
-    default_value=None,
+    default_value=0.0,
     unit='kg',
-    descr='Maximum take off mass (MTOM)',
-    xpath=AIRCRAFT_XPATH + '/model/analyses/massBreakdown/designMasses/mTOM/mass',
-    gui=False,
-    gui_name=None,
-    gui_group=None,
+    descr='Mass value if Custom is selected',
+    xpath=CEASIOM_XPATH +'/aerodynamics/clCalculation/customMass',
+    gui=True,
+    gui_name='Custom mass',
+    gui_group='Mass',
+)
+
+cpacs_inout.add_input(
+    var_name='percent_fuel_mass',
+    var_type=float,
+    default_value=100,
+    unit='-',
+    descr='Percentage of fuel mass between mTOM and mZFM, if % fuel mass is selected',
+    xpath=CEASIOM_XPATH + '/aerodynamics/clCalculation/percentFuelMass',
+    gui=True,
+    gui_name='Percent fuel mass',
+    gui_group='Mass',
 )
 
 cpacs_inout.add_input(
@@ -37,7 +61,7 @@ cpacs_inout.add_input(
     default_value=0.78,
     unit='1',
     descr='Aircraft cruise Mach number',
-    xpath=CEASIOM_XPATH + '/ranges/cruiseMach',
+    xpath=CEASIOM_XPATH + '/aerodynamics/clCalculation/cruiseMach',
     gui=True,
     gui_name='Mach',
     gui_group='Cruise',
@@ -49,7 +73,7 @@ cpacs_inout.add_input(
     default_value=12000.0,
     unit='m',
     descr='Aircraft cruise altitude',
-    xpath=CEASIOM_XPATH + '/ranges/cruiseAltitude',
+    xpath=CEASIOM_XPATH + '/aerodynamics/clCalculation/cruiseAltitude',
     gui=True,
     gui_name='Altitude',
     gui_group='Cruise',
@@ -61,7 +85,7 @@ cpacs_inout.add_input(
     default_value=1.05,
     unit='1',
     descr='Aircraft cruise altitude',
-    xpath=CEASIOM_XPATH + '/ranges/loadFactor',
+    xpath=CEASIOM_XPATH + '/aerodynamics/clCalculation/loadFactor',
     gui=True,
     gui_name='Load Factor',
     gui_group='Cruise',
@@ -96,5 +120,4 @@ cpacs_inout.add_output(
     unit='-',
     descr='FIXED_CL_MODE parameter for SU2',
     xpath=CEASIOM_XPATH + '/aerodynamics/su2/fixedCL',
-
 )

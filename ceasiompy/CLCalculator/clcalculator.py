@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2018-11-28
-| Last modifiction: 2020-09-18
+| Last modifiction: 2021-06-09
 
 TODO:
 
@@ -27,6 +27,7 @@ import os
 import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.moduleinterfaces as mif
 from ceasiompy.utils.standardatmosphere import get_atmosphere
+from ceasiompy.utils.moduleinterfaces import CEASIOM_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -71,7 +72,7 @@ def calculate_cl(ref_area, alt, mach, mass, load_fact = 1.05):
     weight = mass * Atm.grav
     dyn_pres = 0.5 * GAMMA * Atm.pres * mach**2
     target_cl = weight * load_fact / (dyn_pres * ref_area)
-    log.info('A lift coefficent (CL) of %f has been calculated' % target_cl)
+    log.info(f'A lift coefficent (CL) of {target_cl} has been calculated')
 
     return target_cl
 
@@ -94,18 +95,45 @@ def get_cl(cpacs_path,cpacs_out_path):
     # XPath definition
     model_xpath = '/cpacs/vehicles/aircraft/model'
     ref_area_xpath = model_xpath + '/reference/area'
-    mtom_xpath = model_xpath + '/analyses/massBreakdown/designMasses/mTOM/mass'
-    range_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges'
-    cruise_alt_xpath = range_xpath + '/cruiseAltitude'
-    cruise_mach_xpath = range_xpath + '/cruiseMach'
-    load_fact_xpath = range_xpath + '/loadFactor'
+
+    mass_type_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/clCalculation/massType'
+    custom_mass_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/clCalculation/customMass'
+    percent_fuel_mass_xpath='/cpacs/toolspecific/CEASIOMpy/aerodynamics/clCalculation/percentFuelMass'
+
+    cruise_alt_xpath = CEASIOM_XPATH + '/aerodynamics/clCalculation/cruiseAltitude'
+    cruise_mach_xpath = CEASIOM_XPATH + '/aerodynamics/clCalculation/cruiseMach'
+    load_fact_xpath = CEASIOM_XPATH + '/aerodynamics/clCalculation/loadFactor'
+
     su2_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
     # Requiered input data from CPACS
     ref_area = cpsf.get_value(tixi,ref_area_xpath)
-    log.info('Aircraft reference area is %f [m^2]' % ref_area)
-    mtom = cpsf.get_value(tixi,mtom_xpath)
-    log.info('Aircraft MTOM is %f [kg]' % mtom)
+    log.info(f'Aircraft reference area is {ref_area} [m^2]')
+
+    # Mass
+    mass  = None
+    mass_type = cpsf.get_value_or_default(tixi, mass_type_xpath, 'mTOM')
+
+    if mass_type == 'Custom':
+        mass = cpsf.get_value(tixi, custom_mass_xpath)
+
+    elif mass_type == '% fuel mass':
+        percent_fuel_mass = cpsf.get_value(tixi, percent_fuel_mass_xpath)
+        mtom = cpsf.get_value(tixi, model_xpath + '/analyses/massBreakdown/designMasses/mTOM/mass')
+        mzfm = cpsf.get_value(tixi, model_xpath + '/analyses/massBreakdown/designMasses/mZFM/mass')
+        if mzfm > mtom:
+            raise ValueError('mZFM is bigger than mTOM!')
+        mass =  (mtom-mzfm) * percent_fuel_mass / 100 + mzfm
+
+    else:
+        mass_xpath = model_xpath + f'/analyses/massBreakdown/designMasses/{mass_type}/mass'
+        mass = cpsf.get_value(tixi, mass_xpath)
+
+    # mtom = cpsf.get_value(tixi,mtom_xpath)
+    if mass:
+        log.info(f'Aircraft mass use for this analysis is {mass} [kg]')
+    else:
+        raise ValueError('The chosen aircraft mass has not been found!')
 
     # Requiered input data that could be replace by a default value if missing
     cruise_alt = cpsf.get_value_or_default(tixi,cruise_alt_xpath,12000.0)
@@ -113,7 +141,7 @@ def get_cl(cpacs_path,cpacs_out_path):
     load_fact = cpsf.get_value_or_default(tixi,load_fact_xpath,1.05)
 
     # CL calculation
-    target_cl = calculate_cl(ref_area, cruise_alt, cruise_mach, mtom, load_fact)
+    target_cl = calculate_cl(ref_area, cruise_alt, cruise_mach, mass, load_fact)
 
     # Save TargetCL and fixedCL option
     cpsf.create_branch(tixi, su2_xpath)

@@ -22,8 +22,6 @@
 * Continue with documentation
 
 ## Modules
-* To adapt and integrate
-    * SUMO2CPACS
 
 * To develop
     * Propulsion
@@ -42,7 +40,6 @@
 ### Weight and Balance modules
 * Check input/output, try to simplify
 * Modify the code to make it more CEASIOMpy style
-* Add missing `__specs__` file
 
 ### AeroFrame
 * Get OptiMale test case to work (A/C with multiple wings) with SU2

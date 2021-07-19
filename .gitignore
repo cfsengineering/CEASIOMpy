@@ -18,6 +18,7 @@
 /ceasiompy/WKDIR/CEASIOMpy*
 /ceasiompy/Pytornado/wkdir*
 CrashInfo/
+failure.xml
 
 # Ignore ModuleTest
 /ceasiompy/ModuleTest/
@@ -173,6 +174,7 @@ venv/
 ENV/
 env.bak/
 venv.bak/
+.vscode
 
 # Spyder project settings
 .spyderproject

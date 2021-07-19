@@ -548,7 +548,8 @@ def generate_mesh_def_config(tixi,wkdir,ted_uid, wing_uid, sym_dir, defl_list):
     cfg['MESH_FILENAME'] = '../' + aircraft_name + '_baseline.su2'
 
     # Mesh Marker
-    bc_wall_list = su2f.get_mesh_marker(su2_mesh_path)
+    bc_wall_list, engine_bc_list  = su2f.get_mesh_marker(su2_mesh_path)
+
     bc_wall_str = '(' + ','.join(bc_wall_list) + ')'
     cfg['MARKER_EULER'] = bc_wall_str
     cfg['MARKER_FAR'] = ' (Farfield)'

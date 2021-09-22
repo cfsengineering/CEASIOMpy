@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2021-02-25
-| Last modifiction: 2021-02-26
+| Last modifiction: 2021-09-22
 
 TODO:
 
@@ -25,7 +25,7 @@ import os
 import sys
 import math
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import get_float_vector 
 
 from ceasiompy.utils.generalclasses import SimpleNamespace, Point, Transformation
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -65,7 +65,6 @@ class Engine:
         else:
             log.error('No engine UID found!')
 
-
         # In cpacs engine are "stored" at two different place
         # The main at /cpacs/vehicles/aircraft/model/engines
         # It contains symetry and translation and the UID to the engine definition
@@ -85,7 +84,6 @@ class Nacelle:
     """
 
     def __init__(self,tixi,xpath):
-
 
         self.xpath = xpath
         self.uid = tixi.getTextAttribute(xpath, 'uID')
@@ -108,7 +106,6 @@ class NacellePart:
     """
 
     def __init__(self,tixi,xpath):
-
 
         self.isengpart = False
         self.iscone = False
@@ -190,5 +187,5 @@ class PointList(object):
     def __init__(self, tixi, xpath):
         self.xpath = xpath
 
-        self.xlist = cpsf.get_float_vector(tixi,self.xpath+'/x')
-        self.ylist = cpsf.get_float_vector(tixi,self.xpath+'/y')
+        self.xlist = get_float_vector(tixi,self.xpath+'/x')
+        self.ylist = get_float_vector(tixi,self.xpath+'/y')

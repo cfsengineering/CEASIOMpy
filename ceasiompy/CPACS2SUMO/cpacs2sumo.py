@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2017-03-03
-| Last modifiction: 2021-05-19
+| Last modifiction: 2021-09-22
 
 TODO:
 
@@ -31,7 +31,8 @@ import sys
 import math
 import matplotlib.pyplot as plt
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import (open_tixi , get_value_or_default, create_branch)
+
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 from ceasiompy.utils.generalclasses import SimpleNamespace, Point, Transformation
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
@@ -80,8 +81,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
     EMPTY_SMX = MODULE_DIR + '/files/sumo_empty.smx'
 
-    tixi = cpsf.open_tixi(cpacs_path)
-    sumo = cpsf.open_tixi(EMPTY_SMX)
+    tixi = open_tixi(cpacs_path)
+    sumo = open_tixi(EMPTY_SMX)
 
 
     # Fuslage(s) ---------------------------------------------------------------
@@ -630,7 +631,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
     PYLONS_XPATH = '/cpacs/vehicles/aircraft/model/enginePylons'
 
     inc_pylon_xpath = '/cpacs/toolspecific/CEASIOMpy/engine/includePylon'
-    include_pylon = cpsf.get_value_or_default(tixi,inc_pylon_xpath,False)
+    include_pylon = get_value_or_default(tixi,inc_pylon_xpath,False)
 
     if tixi.checkElement(PYLONS_XPATH) and include_pylon:
         pylon_cnt = tixi.getNamedChildrenCount(PYLONS_XPATH, 'enginePylon')
@@ -879,7 +880,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
     ENGINES_XPATH = '/cpacs/vehicles/aircraft/model/engines'
 
     inc_engine_xpath = '/cpacs/toolspecific/CEASIOMpy/engine/includeEngine'
-    include_engine = cpsf.get_value_or_default(tixi,inc_engine_xpath,False)
+    include_engine = get_value_or_default(tixi,inc_engine_xpath,False)
 
     if tixi.checkElement(ENGINES_XPATH) and include_engine:
         engine_cnt = tixi.getNamedChildrenCount(ENGINES_XPATH, 'engine')
@@ -1032,19 +1033,17 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
 
     # Save the SMX file
-
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
-
     sumo_file_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath'
     sumo_dir = os.path.join(wkdir,'SUMO')
     sumo_file_path = os.path.join(sumo_dir,'ToolOutput.smx')
     if not os.path.isdir(sumo_dir):
         os.mkdir(sumo_dir)
-    cpsf.create_branch(tixi,sumo_file_xpath)
+    create_branch(tixi,sumo_file_xpath)
     tixi.updateTextElement(sumo_file_xpath,sumo_file_path)
 
-    cpsf.close_tixi(tixi, cpacs_out_path)
-    cpsf.close_tixi(sumo, sumo_file_path)
+    tixi.save(cpacs_out_path)
+    sumo.save(sumo_file_path)
 
 
 #==============================================================================

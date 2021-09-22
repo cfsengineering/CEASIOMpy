@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2021-02-25
-| Last modifiction: 2021-05-19
+| Last modifiction: 2021-09-22
 
 TODO:
 
@@ -26,7 +26,8 @@ import sys
 import math
 import json
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+#import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import copy_branch 
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -149,7 +150,7 @@ def sumo_mirror_copy(sumo,xpath,uid,is_wing=True):
     cnt = sumo.getNamedChildrenCount('/Assembly', skeleton)
     sumo.createElementAtIndex('/Assembly', skeleton, cnt+1)
     xpath_sym = '/Assembly/' + skeleton + '[' + str(cnt+1) + ']'
-    cpsf.copy_branch(sumo, xpath, xpath_sym)
+    copy_branch(sumo, xpath, xpath_sym)
 
     # Rename the element
     sumo.removeAttribute(xpath_sym, 'name')

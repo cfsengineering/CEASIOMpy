@@ -46,7 +46,7 @@ from ceasiompy.BalanceUnconventional.func.AoutFunc import outputbalancegen
 from ceasiompy.BalanceUnconventional.func.AoutFunc import cpacsbalanceupdate
 from ceasiompy.BalanceUnconventional.func.AinFunc import getdatafromcpacs
 
-from ceasiompy.utils.cpacsfunctions import aircraft_name
+from ceasiompy.utils.ceasiompyfunctions import aircraft_name
 from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
 import ceasiompy.utils.moduleinterfaces as mi
 

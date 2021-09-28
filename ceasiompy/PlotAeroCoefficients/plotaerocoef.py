@@ -30,6 +30,7 @@ import matplotlib.pyplot as plt
 
 
 import ceasiompy.utils.cpacsfunctions as cpsf
+import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.moduleinterfaces as mi
 
@@ -198,7 +199,7 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
 
     # Open TIXI handle
     tixi = cpsf.open_tixi(cpacs_path)
-    aircraft_name = cpsf.aircraft_name(tixi)
+    aircraft_name = ceaf.aircraft_name(tixi)
 
     # Get aeroMap list to plot
     aeromap_to_plot_xpath = PLOT_XPATH + '/aeroMapToPlot'

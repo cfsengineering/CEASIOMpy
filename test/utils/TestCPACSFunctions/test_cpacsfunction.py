@@ -13,7 +13,7 @@ Python version: >=3.6
 
 TODO:
 
-    * test_get_path function should be tested on a Windows machine
+    * 
 
 """
 
@@ -428,39 +428,6 @@ def test_get_string_vector():
     no_value_xpath = '/cpacs/toolspecific/CEASIOMpy'
     with pytest.raises(ValueError):
         vector = cpsf.get_string_vector(tixi,no_value_xpath)
-
-
-def test_get_path():
-    """ Test the function 'get_path'"""
-
-    tixi = cpsf.open_tixi(CPACS_IN_PATH)
-
-    linux_xpath = '/cpacs/toolspecific/testUtils/testCPACSFunctions/linuxPath'
-    windows_xpath = '/cpacs/toolspecific/testUtils/testCPACSFunctions/windowsPath'
-
-    linux_path = cpsf.get_path(tixi,linux_xpath)
-    windows_path = cpsf.get_path(tixi,windows_xpath)
-
-    path_to_test = os.path.join('usr','test1','test2','mypath')
-
-    assert path_to_test == linux_path
-    assert path_to_test == windows_path
-
-    with pytest.raises(ValueError):
-        error_xpath1 = '/cpacs/toolspecific/testUtils/testCPACSFunctions/errorPath1'
-        path = cpsf.get_path(tixi,error_xpath1)
-
-    with pytest.raises(ValueError):
-        error_xpath2 = '/cpacs/toolspecific/testUtils/testCPACSFunctions/errorPath2'
-        path = cpsf.get_path(tixi,error_xpath2)
-
-
-def test_aircraft_name():
-    """Test the function 'aircraft_name'"""
-
-    name = cpsf.aircraft_name(CPACS_IN_PATH)
-    assert name == 'Cpacs2Test'
-
 
 #==============================================================================
 #    MAIN

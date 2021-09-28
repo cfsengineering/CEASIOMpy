@@ -32,11 +32,7 @@ from tixi3.tixi3wrapper import Tixi3Exception
 from tigl3.tigl3wrapper import Tigl3Exception
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
-                                     add_uid, get_value, get_value_or_default, \
-                                     create_branch, copy_branch, aircraft_name,\
-                                     add_float_vector, get_float_vector,       \
-                                     add_string_vector, get_string_vector
+from ceasiompy.utils.cpacsfunctions import open_tixi
 
 from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
                                          create_empty_aeromap, check_aeromap,  \

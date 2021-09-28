@@ -300,7 +300,7 @@ def create_SU2_mesh(cpacs_path,cpacs_out_path):
         raise OSError('OS not recognize!')
 
     # Copy the mesh in the MESH directory
-    aircraft_name = cpsf.aircraft_name(tixi)
+    aircraft_name = ceaf.aircraft_name(tixi)
     su2_mesh_name = aircraft_name + '_baseline.su2'
     su2_mesh_new_path = os.path.join(meshdir,su2_mesh_name)
     shutil.copyfile(su2_mesh_path, su2_mesh_new_path)

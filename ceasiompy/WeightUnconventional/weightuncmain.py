@@ -39,7 +39,7 @@ from ceasiompy.WeightUnconventional.func.Engines.enginesanalysis import check_ed
 from ceasiompy.WeightUnconventional.func.Fuel.fuelmass import estimate_fuse_fuel_mass, estimate_wing_fuel_mass
 
 from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
-from ceasiompy.utils.cpacsfunctions import aircraft_name
+from ceasiompy.utils.ceasiompyfunctions import aircraft_name
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger

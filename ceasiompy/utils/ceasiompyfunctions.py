@@ -200,6 +200,40 @@ def get_execution_date(tixi, module_name, xpath):
 
     return tixi
 
+def aircraft_name(tixi_or_cpacs):
+    """ The function get the name of the aircraft from the cpacs file or add a
+        default one if non-existant.
+
+    Args:
+        cpacs_path (str): Path to the CPACS file
+
+    Returns:
+        name (str): Name of the aircraft.
+    """
+
+    # TODO: MODIFY this funtion, temporary it could accept a cpacs path or tixi handle
+    # check xpath
+    # *modify corresponding test
+
+    if isinstance(tixi_or_cpacs,str):
+
+        tixi = cpsf.open_tixi(tixi_or_cpacs)
+
+        aircraft_name_xpath = '/cpacs/header/name'
+        name = cpsf.get_value_or_default(tixi,aircraft_name_xpath,'Aircraft')
+
+        cpsf.close_tixi(tixi, tixi_or_cpacs)
+
+    else:
+
+        aircraft_name_xpath = '/cpacs/header/name'
+        name = cpsf.get_value_or_default(tixi_or_cpacs,aircraft_name_xpath,'Aircraft')
+
+    name = name.replace(' ','_')
+    log.info('The name of the aircraft is : ' + name)
+
+    return(name)
+    
 
 #==============================================================================
 #    MAIN

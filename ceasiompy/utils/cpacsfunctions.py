@@ -557,74 +557,6 @@ def get_string_vector(tixi, xpath):
     return string_vector
 
 
-def get_path(tixi, xpath):
-    """ Get a path with your os system format
-
-    Function 'get_path' will get a get the path in the CPACS file and return
-    a path with the format corresponding to your os ('/' for Linux and MacOS
-    and '\' for Windows). All paths to store in the CPACS file could be saved as
-    normal strings as long as this function is used to get them back.
-
-    Args:
-        tixi (handle): Tixi handle
-        xpath (str): XPath of the path to get
-
-    Returns:
-        correct_path (str): Path with the correct separators
-
-    """
-
-    path_str = get_value(tixi,xpath)
-
-    if ('/' in path_str and '\\' in path_str):
-        raise ValueError('Request path format is unrecognized!')
-    elif '/' in path_str:
-        path_list = path_str.split('/')
-    elif '\\' in path_str:
-        path_list = path_str.split('\\')
-    else:
-        raise ValueError('No path has been recognized!')
-
-    correct_path = os.path.join('',*path_list)
-
-    return correct_path
-
-
-def aircraft_name(tixi_or_cpacs):
-    """ The function get the name of the aircraft from the cpacs file or add a
-        default one if non-existant.
-
-    Args:
-        cpacs_path (str): Path to the CPACS file
-
-    Returns:
-        name (str): Name of the aircraft.
-    """
-
-    # TODO: MODIFY this funtion, temporary it could accept a cpacs path or tixi handle
-    # check xpath
-    # *modify corresponding test
-
-    if isinstance(tixi_or_cpacs,str):
-
-        tixi = open_tixi(tixi_or_cpacs)
-
-        aircraft_name_xpath = '/cpacs/header/name'
-        name = get_value_or_default(tixi,aircraft_name_xpath,'Aircraft')
-
-        close_tixi(tixi, tixi_or_cpacs)
-
-    else:
-
-        aircraft_name_xpath = '/cpacs/header/name'
-        name = get_value_or_default(tixi_or_cpacs,aircraft_name_xpath,'Aircraft')
-
-    name = name.replace(' ','_')
-    log.info('The name of the aircraft is : ' + name)
-
-    return(name)
-
-
 #==============================================================================
 #    MAIN
 #==============================================================================
@@ -641,4 +573,4 @@ if __name__ == '__main__':
 # All available function are:
 # open_tixi, close_tixi, open_tigl,create_branch, copy_branch, add_uid,
 # get_value, get_value_or_default, add_float_vector, get_float_vector,
-# add_string_vector,get_string_vector, get_path, aircraft_name
+# add_string_vector,get_string_vector, aircraft_name

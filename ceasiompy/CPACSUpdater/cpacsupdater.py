@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-11-11
-| Last modifiction: 2019-12-16
+| Last modifiction: 2021-09-28
 
 TODO:
 
@@ -22,19 +22,10 @@ TODO:
 #==============================================================================
 
 import os
-import sys
-import math
-import numpy
-import matplotlib
 
-from tixi3 import tixi3wrapper
-from tigl3 import tigl3wrapper
-from tigl3 import geometry
 import tigl3.configuration
 
-import ceasiompy.utils.ceasiompyfunctions as ceaf
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.apmfunctions as apmf
+from cpacspy.cpacsfunctions import (open_tixi, open_tigl)
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -93,8 +84,8 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
 
     """
 
-    tixi = cpsf.open_tixi(cpacs_path)
-    tigl = cpsf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_path)
+    tigl = open_tigl(tixi)
 
     aircraft = get_aircraft(tigl)
     # help(aircraft)
@@ -135,7 +126,7 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
                 tixi.updateTextElement(xpath, str(listval[-1]))
     aircraft.write_cpacs(aircraft.get_uid())
     tigl.close()
-    cpsf.close_tixi(tixi, cpacs_out_path)
+    tixi.save(cpacs_out_path)
 
     #or
     # save_aircraft(tixi,aircraft,'test.xml')

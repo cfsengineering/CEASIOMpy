@@ -28,8 +28,13 @@ import math
 import numpy
 import matplotlib
 
+from cpacspy.cpacsfunctions import (add_float_vector, add_string_vector,
+                                    add_uid, copy_branch, create_branch,
+                                    get_float_vector, get_string_vector,
+                                    get_tigl_aircraft, get_uid, get_value,
+                                    get_value_or_default, get_xpath_parent,
+                                    open_tigl, open_tixi)
 import ceasiompy.utils.ceasiompyfunctions as ceaf
-import ceasiompy.utils.cpacsfunctions as cpsf
 import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.su2functions as su2f
 import ceasiompy.utils.moduleinterfaces as mi
@@ -134,7 +139,7 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
     """
 
     # Open TIXI handle
-    tixi = cpsf.open_tixi(cpacs_path)
+    tixi = open_tixi(cpacs_path)
 
     # Create xpaths
     FUSELAGE_XPATH = '/cpacs/vehicles/aircraft/model/fuselages/fuselage'
@@ -145,9 +150,9 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
     z_fus_scaling_xpath = FUSELAGE_XPATH + SCALING_XPATH + '/z'
 
     # Get values
-    x = cpsf.get_value(tixi, x_fus_scaling_xpath)
-    y = cpsf.get_value(tixi, y_fus_scaling_xpath)
-    z = cpsf.get_value(tixi, z_fus_scaling_xpath)
+    x = get_value(tixi, x_fus_scaling_xpath)
+    y = get_value(tixi, y_fus_scaling_xpath)
+    z = get_value(tixi, z_fus_scaling_xpath)
 
     # Log
     log.info('Fuselage x scaling is : ' + str(x))
@@ -155,7 +160,7 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
     log.info('Fuselage z scaling is : ' + str(z))
 
     # Close TIXI handle and save the CPACS file
-    cpsf.close_tixi(tixi, cpacs_out_path)
+    tixi.save(cpacs_out_path)
 
     return(x, y, z)
 

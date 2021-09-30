@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-04-10
-| Last modification: 2020-11-13 (AJ)
+| Last modification: 2021-09-30 (AJ)
 
 Todo:
 
@@ -28,7 +28,7 @@ import pandas as pd
 
 import ceasiompy.SMUse.smuse as smu
 import ceasiompy.utils.apmfunctions as apmf
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import create_branch,get_value,get_value_or_default
 import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.Optimisation.func.tools as tls
@@ -100,31 +100,31 @@ class Routine:
         """Take user inputs from the GUI."""
 
         # Problem setup
-        objectives = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'objective', 'cl')
+        objectives = get_value_or_default(tixi, OPTIM_XPATH+'objective', 'cl')
         self.objective = split(';|,', objectives)
-        self.minmax = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'minmax', 'max')
+        self.minmax = get_value_or_default(tixi, OPTIM_XPATH+'minmax', 'max')
 
         # Global parameters
-        self.driver = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'parameters/driver', 'COBYLA')
-        self.max_iter = int(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'iterationNB', 200))
-        self.tol = float(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'tolerance', 1e-3))
-        self.save_iter = int(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'saving/perIter', 1))
+        self.driver = get_value_or_default(tixi, OPTIM_XPATH+'parameters/driver', 'COBYLA')
+        self.max_iter = int(get_value_or_default(tixi, OPTIM_XPATH+'iterationNB', 200))
+        self.tol = float(get_value_or_default(tixi, OPTIM_XPATH+'tolerance', 1e-3))
+        self.save_iter = int(get_value_or_default(tixi, OPTIM_XPATH+'saving/perIter', 1))
 
         # Specific DoE parameters
-        self.doedriver = cpsf.get_value_or_default(tixi,OPTIM_XPATH+'parameters/DoE/driver','uniform')
-        self.samplesnb = int(cpsf.get_value_or_default(tixi,OPTIM_XPATH+'parameters/DoE/sampleNB',3))
+        self.doedriver = get_value_or_default(tixi,OPTIM_XPATH+'parameters/DoE/driver','uniform')
+        self.samplesnb = int(get_value_or_default(tixi,OPTIM_XPATH+'parameters/DoE/sampleNB',3))
 
         # User specified configuration file path
-        self.user_config = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/filepath', '-'))
+        self.user_config = str(get_value_or_default(tixi, OPTIM_XPATH+'Config/filepath', '-'))
 
-        fix_cl = cpsf.get_value_or_default(tixi, '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/fixedCL', 'no')
+        fix_cl = get_value_or_default(tixi, '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/fixedCL', 'no')
         if fix_cl == 'YES':
             tixi.updateTextElement(OPTIM_XPATH+'aeroMapUID','aeroMap_fixedCL_SU2')
             self.aeromap_uid = 'aeroMap_fixedCL_SU2'
         else:
-            self.aeromap_uid = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'aeroMapUID', '-'))
+            self.aeromap_uid = str(get_value_or_default(tixi, OPTIM_XPATH+'aeroMapUID', '-'))
 
-        self.use_aeromap = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/useAero', False)
+        self.use_aeromap = get_value_or_default(tixi, OPTIM_XPATH+'Config/useAero', False)
 
 # ==============================================================================
 #   FUNCTIONS
@@ -226,7 +226,7 @@ def get_normal_param(tixi, entry, outputs):
             def_val = '-'
 
     if entry.var_name not in banned_entries:
-        value = cpsf.get_value_or_default(tixi, xpath, def_val)
+        value = get_value_or_default(tixi, xpath, def_val)
         if entry.var_type == int:
             value = int(value)
 
@@ -272,7 +272,7 @@ def update_am_path(tixi, am_uid):
         if tixi.checkElement(name):
             tixi.updateTextElement(name, am_uid)
         else:
-            cpsf.create_branch(tixi, name)
+            create_branch(tixi, name)
             tixi.updateTextElement(name, am_uid)
 
 
@@ -291,7 +291,7 @@ def get_aero_param(tixi):
 
     log.info('Default aeromap parameters will be set')
 
-    am_uid = cpsf.get_value(tixi, OPTIM_XPATH+'aeroMapUID')
+    am_uid = get_value(tixi, OPTIM_XPATH+'aeroMapUID')
     am_index = apmf.get_aeromap_index(tixi, am_uid)
 
     log.info('Aeromap \"{}\" will be used for the variables.'.format(am_uid))
@@ -436,7 +436,7 @@ def add_entries(tixi, module_list):
 
     """
 
-    use_am = cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'AeroMapOnly', False)
+    use_am = get_value_or_default(tixi, smu.SMUSE_XPATH+'AeroMapOnly', False)
     if 'SMUse' in module_list and use_am:
         get_aero_param(tixi)
     else:

@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author : Vivien Riolo
 | Creation: 2020-03-24
-| Last modification: 2020-06-02
+| Last modification: 2021-09-30
 
 TODO
 ----
@@ -28,7 +28,7 @@ from sys import exit
 
 import numpy as np
 import ceasiompy.utils.apmfunctions as apmf
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import open_tigl
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -291,6 +291,7 @@ def init_fuse_param(aircraft, fuse_nb):
         fuselage = aircraft.get_fuselage(f)
 
         var_name = name+"_length"
+        
         init_length = fuselage.get_length()
         getcmd = 'fuselage.get_length()'
         setcmd = 'fuselage.set_length({})'.format(var_name)
@@ -328,7 +329,7 @@ def init_geom_var_dict(tixi):
         the routine.
 
     """
-    tigl = cpsf.open_tigl(tixi)
+    tigl = open_tigl(tixi)
     aircraft = cpud.get_aircraft(tigl)
 
     fuse_nb = aircraft.get_fuselage_count()

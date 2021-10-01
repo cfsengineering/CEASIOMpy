@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan jungo
 | Creation: 2019-08-19
-| Last modifiction: 2020-09-18
+| Last modifiction: 2021-10-01
 
 TODO:
 
@@ -23,15 +23,15 @@ TODO:
 #==============================================================================
 
 import os
-
-from tkinter import *
 import pandas as pd
 import matplotlib.pyplot as plt
+from tkinter import *
 
-
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.ceasiompyfunctions as ceaf
+from cpacspy.cpacsfunctions import (add_string_vector, create_branch,
+                                    get_string_vector, get_value_or_default,
+                                    open_tixi)
 import ceasiompy.utils.apmfunctions as apmf
+import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -198,7 +198,7 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
     """
 
     # Open TIXI handle
-    tixi = cpsf.open_tixi(cpacs_path)
+    tixi = open_tixi(cpacs_path)
     aircraft_name = ceaf.aircraft_name(tixi)
 
     # Get aeroMap list to plot
@@ -206,20 +206,20 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
     aeromap_uid_list = []
 
     # Option to select aeromap manualy
-    manual_selct = cpsf.get_value_or_default(tixi,PLOT_XPATH+'/manualSelection',False)
+    manual_selct = get_value_or_default(tixi,PLOT_XPATH+'/manualSelection',False)
     if manual_selct:
         aeromap_uid_list = call_select_aeromap(tixi)
-        cpsf.create_branch(tixi,aeromap_to_plot_xpath)
-        cpsf.add_string_vector(tixi,aeromap_to_plot_xpath,aeromap_uid_list)
+        create_branch(tixi,aeromap_to_plot_xpath)
+        add_string_vector(tixi,aeromap_to_plot_xpath,aeromap_uid_list)
 
     else:
         try:
-            aeromap_uid_list = cpsf.get_string_vector(tixi,aeromap_to_plot_xpath)
+            aeromap_uid_list = get_string_vector(tixi,aeromap_to_plot_xpath)
         except:
             # If aeroMapToPlot is not define, select manualy anyway
             aeromap_uid_list = call_select_aeromap(tixi)
-            cpsf.create_branch(tixi,aeromap_to_plot_xpath)
-            cpsf.add_string_vector(tixi,aeromap_to_plot_xpath,aeromap_uid_list)
+            create_branch(tixi,aeromap_to_plot_xpath)
+            add_string_vector(tixi,aeromap_to_plot_xpath,aeromap_uid_list)
 
     # Create DataFrame from aeromap(s)
     aeromap_df_list = []
@@ -242,11 +242,11 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
 
     # Get criterion from CPACS
     crit_xpath = PLOT_XPATH + '/criterion'
-    alt_crit = cpsf.get_value_or_default(tixi,crit_xpath+'/alt','None')
-    mach_crit = cpsf.get_value_or_default(tixi,crit_xpath+'/mach','None')
-    aos_crit = cpsf.get_value_or_default(tixi,crit_xpath+'/aos','None')
+    alt_crit = get_value_or_default(tixi,crit_xpath+'/alt','None')
+    mach_crit = get_value_or_default(tixi,crit_xpath+'/mach','None')
+    aos_crit = get_value_or_default(tixi,crit_xpath+'/aos','None')
 
-    cpsf.close_tixi(tixi,cpacs_out_path)
+    tixi.save(cpacs_out_path)
 
     # Modify criterion and title according to user option
     if len(aeromap['alt'].unique()) == 1:

@@ -22,7 +22,7 @@ Python version: >=3.6
 
 | Author: Aaron Dettmann
 | Creation: 2019-08-12
-| Last modification: 2020-05-04
+| Last modification: 2021-10-01
 
 
 TODO:
@@ -50,7 +50,7 @@ import numpy as np
 import pandas as pd
 import xmltodict as xml
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import open_tixi, get_value_or_default
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.moduleinterfaces as mi
 
@@ -332,9 +332,9 @@ def main():
     results = pytornado.standard_run(args=pytornado.StdRunArgs(run=file_pyt_settings, verbose=True))
 
     # ===== Extract load =====
-    tixi =  cpsf.open_tixi(cpacs_in_path)
+    tixi = open_tixi(cpacs_in_path)
     extract_loads_xpath = '/cpacs/toolspecific/pytornado/save_results/extractLoads'
-    extract_loads = cpsf.get_value_or_default(tixi, extract_loads_xpath, False)
+    extract_loads = get_value_or_default(tixi, extract_loads_xpath, False)
 
     if extract_loads:
         _get_load_fields(results,dir_pyt_results)

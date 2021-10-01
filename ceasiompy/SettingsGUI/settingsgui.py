@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-09-05
-| Last modification: 2020-07-02
+| Last modification: 2021-10-01
 
 TODO:
 
@@ -30,11 +30,11 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox, filedialog
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import (create_branch, get_string_vector,
+                                    get_value, get_value_or_default,
+                                    open_tixi)
 import ceasiompy.utils.apmfunctions as apm
 import ceasiompy.utils.moduleinterfaces as mi
-
-import ceasiompy.utils.moduleinterfaces as mif
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -240,7 +240,7 @@ class AutoTab:
         tabs.add(self.tab, text=module_name)
 
         # Get GUI dict from specs
-        specs = mif.get_specs_for_module(module_name)
+        specs = mi.get_specs_for_module(module_name)
 
         self.gui_dict = specs.cpacs_inout.get_gui_dict()
 
@@ -269,20 +269,20 @@ class AutoTab:
             # Type and Value
             if dtype is bool:
                 self.var_dict[key] = tk.BooleanVar()
-                value = cpsf.get_value_or_default(self.tixi,xpath,def_value)
+                value = get_value_or_default(self.tixi,xpath,def_value)
                 self.var_dict[key].set(value)
                 bool_entry = tk.Checkbutton(parent, text='', variable=self.var_dict[key])
                 bool_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
             elif dtype is int:
-                value = cpsf.get_value_or_default(self.tixi, xpath, def_value)
+                value = get_value_or_default(self.tixi, xpath, def_value)
                 self.var_dict[key] = tk.IntVar()
                 self.var_dict[key].set(int(value))
                 value_entry = tk.Entry(parent, bd=2, width=8, textvariable=self.var_dict[key])
                 value_entry.grid(column=1, row=row_pos, padx=5, pady=5)
 
             elif dtype is float:
-                value = cpsf.get_value_or_default(self.tixi, xpath, def_value)
+                value = get_value_or_default(self.tixi, xpath, def_value)
                 self.var_dict[key] = tk.DoubleVar()
                 self.var_dict[key].set(value)
                 value_entry = tk.Entry(parent, bd=2, width=8, textvariable=self.var_dict[key])
@@ -290,7 +290,7 @@ class AutoTab:
 
             elif dtype is 'pathtype':
 
-                value = cpsf.get_value_or_default(self.tixi,xpath,def_value)
+                value = get_value_or_default(self.tixi,xpath,def_value)
                 self.var_dict[key] = tk.StringVar()
                 self.var_dict[key].set(value)
                 value_entry = tk.Entry(parent, textvariable=self.var_dict[key])
@@ -308,7 +308,7 @@ class AutoTab:
 
                     # Try to get the pre-selected AeroMap from the xpath
                     try:
-                        selected_aeromap = cpsf.get_value(self.tixi,xpath)
+                        selected_aeromap = get_value(self.tixi,xpath)
                         selected_aeromap_index = self.aeromap_uid_list.index(selected_aeromap)
                     except:
                         selected_aeromap = ''
@@ -336,7 +336,7 @@ class AutoTab:
 
                     # Try to get pre-selected AeroMaps from the xpath
                     try:
-                        selected_aeromap = cpsf.get_string_vector(self.tixi,xpath)
+                        selected_aeromap = get_string_vector(self.tixi,xpath)
                     except:
                         selected_aeromap = ''
 
@@ -357,7 +357,7 @@ class AutoTab:
 
                     # Try to get the pre-selected AeroMap from the xpath
                     try: # TODO Should be retested...
-                        selected_value = cpsf.get_value(self.tixi,xpath)
+                        selected_value = get_value(self.tixi,xpath)
                         selected_value_index = def_value.index(selected_value)
                     except:
                         selected_value = ''
@@ -369,7 +369,7 @@ class AutoTab:
                     self.var_dict[key].grid(column=1, row=row_pos, padx=5, pady=5)
 
             else:
-                value = cpsf.get_value_or_default(self.tixi,xpath,def_value)
+                value = get_value_or_default(self.tixi,xpath,def_value)
                 self.var_dict[key] = tk.StringVar()
                 self.var_dict[key].set(value)
                 value_entry = tk.Entry(parent, textvariable=self.var_dict[key])
@@ -403,7 +403,7 @@ class SettingGUI(tk.Frame):
         self.tabs = ttk.Notebook(self)
         self.tabs.grid(row=0, column=0, columnspan=3)  #pack()#expand=1, side=tk.LEFT)
 
-        self.tixi = cpsf.open_tixi(cpacs_path)
+        self.tixi = open_tixi(cpacs_path)
 
         if len(apm.get_aeromap_uid_list(self.tixi)) == 0 :
             aeromap_uid = 'AeroMap_1point'
@@ -435,7 +435,7 @@ class SettingGUI(tk.Frame):
         # Generate new Auto Tab
         for module_name in self.submodule_list:
 
-            specs = mif.get_specs_for_module(module_name)
+            specs = mi.get_specs_for_module(module_name)
             if specs is None:  # Specs does not exist
                 continue
             self.gui_dict = specs.cpacs_inout.get_gui_dict()
@@ -455,7 +455,7 @@ class SettingGUI(tk.Frame):
                 # Get the XPath from the GUI setting dictionary and crate a branch
                 name = tab.gui_dict[key][0]
                 xpath = tab.gui_dict[key][4]
-                cpsf.create_branch(self.tixi,xpath)
+                create_branch(self.tixi,xpath)
                 if name == '__AEROMAP_CHECHBOX':
                     aeromap_uid_list_str = ''
                     for aeromap_uid, aeromap_bool in tab.aeromap_var_dict.items():
@@ -486,7 +486,7 @@ class SettingGUI(tk.Frame):
                                        name + '" has not the correct type!')
                         raise TypeError(name + ' has not the correct type!')
 
-        cpsf.close_tixi(self.tixi, self.cpacs_out_path)
+        self.tixi.save(self.cpacs_out_path)
 
         self.quit()
 
@@ -584,7 +584,7 @@ def create_settings_gui(cpacs_path, cpacs_out_path, submodule_list):
     gui_modules = 1
     max_inputs = 0
     for module_name in submodule_list:
-        specs = mif.get_specs_for_module(module_name)
+        specs = mi.get_specs_for_module(module_name)
         if specs:
             inputs = specs.cpacs_inout.get_gui_dict()
             if inputs:
@@ -613,10 +613,10 @@ if __name__ == '__main__':
     cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
 
     # Call the function which check if imputs are well define
-    mif.check_cpacs_input_requirements(cpacs_path)
+    mi.check_cpacs_input_requirements(cpacs_path)
 
     # Get the complete submodule
-    submodule_list = mif.get_submodule_list()
+    submodule_list = mi.get_submodule_list()
 
     create_settings_gui(cpacs_path, cpacs_out_path, submodule_list)
 

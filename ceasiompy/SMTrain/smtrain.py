@@ -12,7 +12,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06
-| Last modification: 2020-11-13 (AJ)
+| Last modification: 2021-10-01 (AJ)
 
 TODO:
     * Enable model-specific settings for user through the GUI
@@ -30,12 +30,13 @@ import pickle
 import datetime
 import numpy as np
 import pandas as pd
-
 import matplotlib.pyplot as plt
 import smt.surrogate_models as sms
+
 import ceasiompy.utils.apmfunctions as apmf
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.moduleinterfaces as mif
+from cpacspy.cpacsfunctions import (create_branch, get_value_or_default, 
+                                    open_tixi)
+import ceasiompy.utils.moduleinterfaces as mi
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 from ceasiompy.SMUse.smuse import Surrogate_model
 
@@ -98,34 +99,34 @@ class Prediction_tool():
 
     def get_user_inputs(self):
         """Take user inputs from the GUI."""
-        cpacs_path = mif.get_toolinput_file_path('SMTrain')
-        tixi = cpsf.open_tixi(cpacs_path)
+        cpacs_path = mi.get_toolinput_file_path('SMTrain')
+        tixi = open_tixi(cpacs_path)
 
         # Search working directory
-        self.wkdir = cpsf.get_value_or_default(tixi, OPTWKDIR_XPATH, '')
+        self.wkdir = get_value_or_default(tixi, OPTWKDIR_XPATH, '')
         if self.wkdir == '':
             self.wkdir = ceaf.get_wkdir_or_create_new(tixi)+'/SM'
         if not os.path.isdir(self.wkdir):
             os.mkdir(self.wkdir)
 
-        self.type = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'modelType', 'KRG')
+        self.type = get_value_or_default(tixi, SMTRAIN_XPATH+'modelType', 'KRG')
 
-        obj = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'objective', 'cl')
+        obj = get_value_or_default(tixi, SMTRAIN_XPATH+'objective', 'cl')
         self.objectives = re.split(';|,', obj)
-        self.user_file = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'trainFile', '')
+        self.user_file = get_value_or_default(tixi, SMTRAIN_XPATH+'trainFile', '')
         if self.user_file == '':
-            path = cpsf.get_value_or_default(tixi, OPTWKDIR_XPATH, '')
+            path = get_value_or_default(tixi, OPTWKDIR_XPATH, '')
             if path != '':
                 self.user_file = path+ '/Variable_history.csv'
-        self.data_repartition = cpsf.get_value_or_default(tixi,
+        self.data_repartition = get_value_or_default(tixi,
                                                           SMTRAIN_XPATH+'trainingPercentage',
                                                           0.9)
-        self.show_plots = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'showPlots', False)
+        self.show_plots = get_value_or_default(tixi, SMTRAIN_XPATH+'showPlots', False)
 
-        self.aeromap_case = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'useAeromap', False)
-        self.aeromap_uid = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'aeroMapUID', '')
+        self.aeromap_case = get_value_or_default(tixi, SMTRAIN_XPATH+'useAeromap', False)
+        self.aeromap_uid = get_value_or_default(tixi, SMTRAIN_XPATH+'aeroMapUID', '')
 
-        cpsf.close_tixi(tixi, cpacs_path)
+        tixi.save(cpacs_path)
 
 # =============================================================================
 #   FUNCTIONS
@@ -324,15 +325,15 @@ def save_model(Tool):
     """
 
     date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
-    cpacs_path = mif.get_toolinput_file_path('SMTrain')
-    cpacs_out_path = mif.get_tooloutput_file_path('SMTrain')
-    tixi = cpsf.open_tixi(cpacs_path)
+    cpacs_path = mi.get_toolinput_file_path('SMTrain')
+    cpacs_out_path = mi.get_tooloutput_file_path('SMTrain')
+    tixi = open_tixi(cpacs_path)
 
     filename = Tool.wkdir+'/Surrogate_Model_'+date
 
-    cpsf.create_branch(tixi, SMFILE_XPATH)
+    create_branch(tixi, SMFILE_XPATH)
     tixi.updateTextElement(SMFILE_XPATH, filename)
-    cpsf.close_tixi(tixi, cpacs_out_path)
+    tixi.save(cpacs_out_path)
 
     Tool.df.to_csv(Tool.wkdir+'/Data_setup.csv', index=False, na_rep='-')
 
@@ -397,8 +398,8 @@ def extract_am_data(Tool):
 
     """
 
-    cpacs_path = mif.get_toolinput_file_path('SMTrain')
-    tixi = cpsf.open_tixi(cpacs_path)
+    cpacs_path = mi.get_toolinput_file_path('SMTrain')
+    tixi = open_tixi(cpacs_path)
 
     Tool.df = gen_df_from_am(tixi)
 
@@ -407,7 +408,7 @@ def extract_am_data(Tool):
     yd = np.array([Aeromap.cl, Aeromap.cd, Aeromap.cs,
                    Aeromap.cml, Aeromap.cmd, Aeromap.cms])
 
-    cpsf.close_tixi(tixi, cpacs_path)
+    tixi.save(cpacs_path)
 
     return xd.transpose(), yd.transpose()
 

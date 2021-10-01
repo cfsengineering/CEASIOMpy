@@ -12,7 +12,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06
-| Last modification: 2020-07-06
+| Last modification: 2021-10-01 (AJ)
 
 TODO:
     *
@@ -31,8 +31,9 @@ import pandas as pd
 import smt.surrogate_models as sms # Use after loading the model
 
 import ceasiompy.utils.apmfunctions as apmf
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.moduleinterfaces as mif
+from cpacspy.cpacsfunctions import (create_branch, get_value_or_default,
+                                    open_tigl, open_tixi)
+import ceasiompy.utils.moduleinterfaces as mi
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -48,8 +49,8 @@ MODULE_NAME = os.path.basename(os.getcwd())
 SMUSE_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/'
 SMTRAIN_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModel/'
 
-cpacs_path = mif.get_toolinput_file_path('SMUse')
-cpacs_path_out = mif.get_tooloutput_file_path('SMUse')
+cpacs_path = mi.get_toolinput_file_path('SMUse')
+cpacs_path_out = mi.get_tooloutput_file_path('SMUse')
 
 # =============================================================================
 #   ClASSES
@@ -85,7 +86,7 @@ def load_surrogate(tixi):
 
     """
 
-    file = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'modelFile', '')
+    file = get_value_or_default(tixi, SMUSE_XPATH+'modelFile', '')
 
     log.info('Trying to open file'+file)
     try:
@@ -111,8 +112,8 @@ def get_inputs(x):
 
     """
 
-    tixi = cpsf.open_tixi(cpacs_path)
-    tigl = cpsf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_path)
+    tigl = open_tigl(tixi)
     aircraft = cpud.get_aircraft(tigl)
     wings = aircraft.get_wings()
     fuselage = aircraft.get_fuselages().get_fuselage(1)
@@ -132,7 +133,7 @@ def get_inputs(x):
             inputs.append(tixi.getDoubleElement(x.loc[name, 'getcmd']))
 
     tigl.close()
-    cpsf.close_tixi(tixi, cpacs_path)
+    tixi.save(cpacs_path)
 
     inputs = np.array([inputs])
     return inputs
@@ -153,7 +154,7 @@ def write_inouts(v, inout, tixi):
 
     """
 
-    tigl = cpsf.open_tigl(tixi)
+    tigl = open_tigl(tixi)
     aircraft = cpud.get_aircraft(tigl)
     wings = aircraft.get_wings()
     fuselage = aircraft.get_fuselages().get_fuselage(1)
@@ -165,7 +166,7 @@ def write_inouts(v, inout, tixi):
             eval(v.loc[name, 'setcmd'])
         elif v.loc[name, 'getcmd'] != '-':
             xpath = v.loc[name, 'getcmd']
-            cpsf.create_branch(tixi, xpath)
+            create_branch(tixi, xpath)
             tixi.updateDoubleElement(xpath, inout[0][i], '%g')
 
     tigl.close()
@@ -187,7 +188,7 @@ def aeromap_calculation(sm, tixi):
 
     """
 
-    tigl = cpsf.open_tigl(tixi)
+    tigl = open_tigl(tixi)
     aircraft = cpud.get_aircraft(tigl)
     wings = aircraft.get_wings()
     fuselage = aircraft.get_fuselages().get_fuselage(1)
@@ -257,8 +258,8 @@ def check_aeromap(tixi):
 
     """
 
-    am_uid_use = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'aeroMapUID', '')
-    am_uid_train = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'aeroMapUID', '')
+    am_uid_use = get_value_or_default(tixi, SMUSE_XPATH+'aeroMapUID', '')
+    am_uid_train = get_value_or_default(tixi, SMTRAIN_XPATH+'aeroMapUID', '')
 
     if am_uid_train == am_uid_use:
         sys.exit('Same aeromap that was used to create the model')
@@ -273,16 +274,16 @@ if __name__ == "__main__":
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
     # Load the model
-    tixi = cpsf.open_tixi(cpacs_path)
+    tixi = open_tixi(cpacs_path)
     Model = load_surrogate(tixi)
 
     check_aeromap(tixi)
 
-    if cpsf.get_value_or_default(tixi, SMUSE_XPATH+'AeroMapOnly', False):
+    if get_value_or_default(tixi, SMUSE_XPATH+'AeroMapOnly', False):
         aeromap_calculation(Model.sm, tixi)
     else:
         predict_output(Model, tixi)
 
-    cpsf.close_tixi(tixi, cpacs_path_out)
+    tixi.save(cpacs_path_out)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

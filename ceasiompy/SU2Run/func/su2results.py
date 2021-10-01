@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-10-02
-| Last modifiction: 2020-05-21
+| Last modifiction: 2021-10-01
 
 TODO:
 
@@ -24,18 +24,11 @@ TODO:
 #==============================================================================
 
 import os
-import sys
-import math
-import pandas as pd
-import matplotlib
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import (create_branch, get_value,
+                                    get_value_or_default,
+                                    open_tixi)
 import ceasiompy.utils.apmfunctions as apmf
-import ceasiompy.utils.su2functions as su2f
-import ceasiompy.utils.moduleinterfaces as mi
-
-from ceasiompy.utils.su2functions import read_config
-
 from ceasiompy.SU2Run.func.extractloads import extract_loads
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -154,7 +147,7 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
 
     """
 
-    tixi = cpsf.open_tixi(cpacs_path)
+    tixi = open_tixi(cpacs_path)
 
     # TODO Check and reactivate that
     # save_timestamp(tixi,SU2_XPATH) <-- ceaf.replace by get get_execution_date()
@@ -169,18 +162,18 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
     wetted_area = get_wetted_area(wkdir)
 
     wetted_area_xpath = '/cpacs/toolspecific/CEASIOMpy/geometry/analysis/wettedArea'
-    cpsf.create_branch(tixi, wetted_area_xpath)
+    create_branch(tixi, wetted_area_xpath)
 
     tixi.updateDoubleElement(wetted_area_xpath,wetted_area,'%g')
 
 
     # Save aeroPerformanceMap
     su2_aeromap_xpath = SU2_XPATH + '/aeroMapUID'
-    aeromap_uid = cpsf.get_value(tixi,su2_aeromap_xpath)
+    aeromap_uid = get_value(tixi,su2_aeromap_xpath)
 
     # Check if loads shoud be extracted
     check_extract_loads_xpath = SU2_XPATH + '/results/extractLoads'
-    check_extract_loads = cpsf.get_value_or_default(tixi, check_extract_loads_xpath,False)
+    check_extract_loads = get_value_or_default(tixi, check_extract_loads_xpath,False)
 
     # Create an oject to store the aerodynamic coefficients
     apmf.check_aeromap(tixi,aeromap_uid)
@@ -203,7 +196,7 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
                 raise OSError('No result force file have been found!')
 
             fixed_cl_xpath = SU2_XPATH + '/fixedCL'
-            fixed_cl = cpsf.get_value_or_default(tixi,fixed_cl_xpath,'NO')
+            fixed_cl = get_value_or_default(tixi,fixed_cl_xpath,'NO')
 
             if fixed_cl == 'YES':
                 force_file_name = 'forces_breakdown.dat'
@@ -216,7 +209,7 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
                 # Save cl/cd found during the fixed CL calculation
                 # TODO: maybe save cl/cd somewhere else
                 lDRatio_xpath = '/cpacs/toolspecific/CEASIOMpy/ranges/lDRatio'
-                cpsf.create_branch(tixi, lDRatio_xpath)
+                create_branch(tixi, lDRatio_xpath)
                 tixi.updateDoubleElement(lDRatio_xpath,cl_cd,'%g')
 
 
@@ -241,9 +234,9 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
 
             # Damping derivatives
             rotation_rate_xpath = SU2_XPATH + '/options/rotationRate'
-            rotation_rate = cpsf.get_value_or_default(tixi,rotation_rate_xpath,1.0)
+            rotation_rate = get_value_or_default(tixi,rotation_rate_xpath,1.0)
             ref_xpath = '/cpacs/vehicles/aircraft/model/reference'
-            ref_len = cpsf.get_value(tixi,ref_xpath + '/length')
+            ref_len = get_value(tixi,ref_xpath + '/length')
             adim_rot_rate =  rotation_rate * ref_len / velocity
 
             if '_dp' in config_dir:
@@ -311,7 +304,7 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
     # Save object Coef in the CPACS file
     apmf.save_coefficients(tixi,aeromap_uid,Coef)
 
-    cpsf.close_tixi(tixi,cpacs_out_path)
+    tixi.save(cpacs_out_path)
 
 
 #==============================================================================

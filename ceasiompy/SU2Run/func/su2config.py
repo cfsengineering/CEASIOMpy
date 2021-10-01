@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2020-02-24
-| Last modifiction: 2020-05-20
+| Last modifiction: 2021-10-01
 
 TODO:
 
@@ -26,12 +26,12 @@ import sys
 import math
 import numpy as np
 import pandas as pd
-import matplotlib
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import (create_branch, get_string_vector,
+                                    get_value, get_value_or_default,
+                                    open_tigl, open_tixi)
 import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.su2functions as su2f
-import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.standardatmosphere import get_atmosphere
 
@@ -72,52 +72,52 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
     """
 
     # Get value from CPACS
-    tixi = cpsf.open_tixi(cpacs_path)
-    tigl = cpsf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_path)
+    tigl = open_tigl(tixi)
 
     # Get SU2 mesh path
     su2_mesh_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh'
-    su2_mesh_path = cpsf.get_value(tixi,su2_mesh_xpath)
+    su2_mesh_path = get_value(tixi,su2_mesh_xpath)
 
     # Get reference values
     ref_xpath = '/cpacs/vehicles/aircraft/model/reference'
-    ref_len = cpsf.get_value(tixi,ref_xpath + '/length')
-    ref_area = cpsf.get_value(tixi,ref_xpath + '/area')
-    ref_ori_moment_x = cpsf.get_value_or_default(tixi,ref_xpath+'/point/x',0.0)
-    ref_ori_moment_y = cpsf.get_value_or_default(tixi,ref_xpath+'/point/y',0.0)
-    ref_ori_moment_z = cpsf.get_value_or_default(tixi,ref_xpath+'/point/z',0.0)
+    ref_len = get_value(tixi,ref_xpath + '/length')
+    ref_area = get_value(tixi,ref_xpath + '/area')
+    ref_ori_moment_x = get_value_or_default(tixi,ref_xpath+'/point/x',0.0)
+    ref_ori_moment_y = get_value_or_default(tixi,ref_xpath+'/point/y',0.0)
+    ref_ori_moment_z = get_value_or_default(tixi,ref_xpath+'/point/z',0.0)
 
     # Get SU2 settings
     settings_xpath = SU2_XPATH + '/settings'
     max_iter_xpath = settings_xpath + '/maxIter'
-    max_iter = cpsf.get_value_or_default(tixi, max_iter_xpath,200)
+    max_iter = get_value_or_default(tixi, max_iter_xpath,200)
     cfl_nb_xpath = settings_xpath + '/cflNumber'
-    cfl_nb = cpsf.get_value_or_default(tixi, cfl_nb_xpath,1.0)
+    cfl_nb = get_value_or_default(tixi, cfl_nb_xpath,1.0)
     mg_level_xpath =  settings_xpath + '/multigridLevel'
-    mg_level = cpsf.get_value_or_default(tixi, mg_level_xpath,3)
+    mg_level = get_value_or_default(tixi, mg_level_xpath,3)
 
     # Mesh Marker
     bc_wall_xpath = SU2_XPATH + '/boundaryConditions/wall'
     bc_farfield_xpath = SU2_XPATH + '/boundaryConditions/farfield'
     bc_wall_list, engine_bc_list = su2f.get_mesh_marker(su2_mesh_path)
 
-    cpsf.create_branch(tixi, bc_wall_xpath)
+    create_branch(tixi, bc_wall_xpath)
     bc_wall_str = ';'.join(bc_wall_list)
     tixi.updateTextElement(bc_wall_xpath,bc_wall_str)
 
-    cpsf.create_branch(tixi, bc_farfield_xpath)
+    create_branch(tixi, bc_farfield_xpath)
     bc_farfiled_str = ';'.join(engine_bc_list)
     tixi.updateTextElement(bc_farfield_xpath,bc_farfiled_str)
 
     # Fixed CL parameters
     fixed_cl_xpath = SU2_XPATH + '/fixedCL'
-    fixed_cl = cpsf.get_value_or_default(tixi, fixed_cl_xpath,'NO')
+    fixed_cl = get_value_or_default(tixi, fixed_cl_xpath,'NO')
     target_cl_xpath = SU2_XPATH + '/targetCL'
-    target_cl = cpsf.get_value_or_default(tixi, target_cl_xpath,1.0)
+    target_cl = get_value_or_default(tixi, target_cl_xpath,1.0)
 
     if fixed_cl == 'NO':
         active_aeroMap_xpath = SU2_XPATH + '/aeroMapUID'
-        aeromap_uid = cpsf.get_value(tixi,active_aeroMap_xpath)
+        aeromap_uid = get_value(tixi,active_aeroMap_xpath)
 
         log.info('Configuration file for ""' + aeromap_uid + '"" calculation will be created.')
 
@@ -146,10 +146,10 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
         aos_list = [0.0]
 
         cruise_mach_xpath= range_xpath + '/cruiseMach'
-        mach = cpsf.get_value_or_default(tixi,cruise_mach_xpath,0.78)
+        mach = get_value_or_default(tixi,cruise_mach_xpath,0.78)
         mach_list = [mach]
         cruise_alt_xpath= range_xpath + '/cruiseAltitude'
-        alt = cpsf.get_value_or_default(tixi,cruise_alt_xpath,12000)
+        alt = get_value_or_default(tixi,cruise_alt_xpath,12000)
         alt_list = [alt]
 
         aeromap_uid = 'aeroMap_fixedCL_SU2'
@@ -240,12 +240,12 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 
         # Damping derivatives
         damping_der_xpath = SU2_XPATH + '/options/clalculateDampingDerivatives'
-        damping_der = cpsf.get_value_or_default(tixi,damping_der_xpath,False)
+        damping_der = get_value_or_default(tixi,damping_der_xpath,False)
 
         if damping_der:
 
             rotation_rate_xpath = SU2_XPATH + '/options/rotationRate'
-            rotation_rate = cpsf.get_value_or_default(tixi,rotation_rate_xpath,1.0)
+            rotation_rate = get_value_or_default(tixi,rotation_rate_xpath,1.0)
 
             cfg['GRID_MOVEMENT'] = 'ROTATING_FRAME'
 
@@ -270,14 +270,14 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 
         # Control surfaces deflections
         control_surf_xpath = SU2_XPATH + '/options/clalculateCotrolSurfacesDeflections'
-        control_surf = cpsf.get_value_or_default(tixi,control_surf_xpath,False)
+        control_surf = get_value_or_default(tixi,control_surf_xpath,False)
 
         if control_surf:
 
             # Get deformed mesh list
             su2_def_mesh_xpath = SU2_XPATH + '/availableDeformedMesh'
             if tixi.checkElement(su2_def_mesh_xpath):
-                su2_def_mesh_list = cpsf.get_string_vector(tixi,su2_def_mesh_xpath)
+                su2_def_mesh_list = get_string_vector(tixi,su2_def_mesh_xpath)
             else:
                 log.warning('No SU2 deformed mesh has been found!')
                 su2_def_mesh_list = []
@@ -296,7 +296,7 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
 
 
     # TODO: change that, but if it is save in tooloutput it will be erease by results...
-    cpsf.close_tixi(tixi,cpacs_path)
+    tixi.save(cpacs_path)
 
 
 #==============================================================================

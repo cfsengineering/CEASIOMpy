@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-09-24
-| Last modifiction: 2020-06-04
+| Last modifiction: 2021-10-01
 
 TODO:
 
@@ -22,11 +22,7 @@ TODO:
 #   IMPORTS
 #==============================================================================
 
-import os
-import sys
-import math
 import pandas
-import matplotlib
 
 import vtk
 import numpy as np
@@ -34,16 +30,9 @@ from scipy.sparse import csr_matrix
 from six import iteritems
 from vtk.util.numpy_support import vtk_to_numpy, numpy_to_vtk
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
-                                           add_uid, create_branch, copy_branch,\
-                                           get_value, get_value_or_default,    \
-                                           aircraft_name
-from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
-from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
-from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
-
 from ceasiompy.utils.su2functions import read_config
+
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 

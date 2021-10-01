@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-11-06
-| Last modifiction: 2020-05-21
+| Last modifiction: 2021-10-01
 
 TODO:
 
@@ -31,15 +31,15 @@ import shutil
 import datetime
 
 import ceasiompy.utils.ceasiompyfunctions as ceaf
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.apmfunctions as apmf
+from cpacspy.cpacsfunctions import (get_value_or_default, open_tixi)
 import ceasiompy.utils.su2functions as su2f
 
 from ceasiompy.SU2Run.func.su2config import generate_su2_config
 from ceasiompy.SU2Run.func.extractloads import extract_loads
-from ceasiompy.SU2Run.func.su2results import get_wetted_area, get_su2_results
+from ceasiompy.SU2Run.func.su2results import get_su2_results
 
 from ceasiompy.utils.ceasiomlogger import get_logger
+
 log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -185,10 +185,10 @@ if __name__ == '__main__':
     cpacs_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.xml')
     cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
 
-    tixi = cpsf.open_tixi(cpacs_path)
+    tixi = open_tixi(cpacs_path)
 
     # Get number of proc to use
-    nb_proc = cpsf.get_value_or_default(tixi,SU2_XPATH+'/settings/nbProc',1)
+    nb_proc = get_value_or_default(tixi,SU2_XPATH+'/settings/nbProc',1)
 
     if len(sys.argv)>1:
         if sys.argv[1] == '-c':
@@ -219,7 +219,6 @@ if __name__ == '__main__':
     # TODO: cpacs_out_path for 'create_config' should be a temp file, now it's erase by 'get_su2get_su2_results'
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')
-
 
 
 # TODO: try to use subprocess instead of os.system, how to deal with log file...?

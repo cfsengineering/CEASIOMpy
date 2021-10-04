@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-10-29
-| Last modifiction: 2020-06-24
+| Last modifiction: 2021-10-04
 
 TODO:
 
@@ -25,13 +25,13 @@ TODO:
 #==============================================================================
 
 import os
-import sys
 import math
 import shutil
 import platform
 
 import ceasiompy.utils.ceasiompyfunctions as ceaf
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import (create_branch, get_value_or_default,
+                                    open_tixi)
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -73,7 +73,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     log.info('Refinement factor is {}'.format(refine_factor))
 
     # Open SUMO (.smx) with tixi library
-    sumo = cpsf.open_tixi(sumo_file_path)
+    sumo = open_tixi(sumo_file_path)
     ROOT_XPATH = '/Assembly'
 
     # Get all Body (fuselage) and apply mesh parameters
@@ -197,7 +197,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
         sumo.addTextAttribute(meshcrit_xpath, 'nvmax', '1073741824')
         sumo.addTextAttribute(meshcrit_xpath, 'xcoarse', 'false')
 
-    cpsf.close_tixi(sumo, sumo_file_path)
+    sumo.save(sumo_file_path)
 
 
 def create_SU2_mesh(cpacs_path,cpacs_out_path):
@@ -217,7 +217,7 @@ def create_SU2_mesh(cpacs_path,cpacs_out_path):
 
     """
 
-    tixi =  cpsf.open_tixi(cpacs_path)
+    tixi =  open_tixi(cpacs_path)
 
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
     sumo_dir = os.path.join(wkdir,'SUMO')
@@ -233,14 +233,14 @@ def create_SU2_mesh(cpacs_path,cpacs_out_path):
     os.chdir(sumo_dir)
 
     sumo_file_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath'
-    sumo_file_path = cpsf.get_value_or_default(tixi,sumo_file_xpath,'')
+    sumo_file_path = get_value_or_default(tixi,sumo_file_xpath,'')
     if sumo_file_path == '':
         raise ValueError('No SUMO file to use to create a mesh')
 
     # Set mesh parameters
     log.info('Mesh parameter will be set')
     refine_level_xpath = '/cpacs/toolspecific/CEASIOMpy/mesh/sumoOptions/refinementLevel'
-    refine_level = cpsf.get_value_or_default(tixi,refine_level_xpath,0.0)
+    refine_level = get_value_or_default(tixi,refine_level_xpath,0.0)
     log.info('Refinement level is {}'.format(refine_level))
     add_mesh_parameters(sumo_file_path,refine_level)
 
@@ -308,14 +308,14 @@ def create_SU2_mesh(cpacs_path,cpacs_out_path):
     if os.path.isfile(su2_mesh_new_path):
         log.info('An SU2 Mesh has been correctly generated.')
         su2_mesh_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh'
-        cpsf.create_branch(tixi,su2_mesh_xpath)
+        create_branch(tixi,su2_mesh_xpath)
         tixi.updateTextElement(su2_mesh_xpath,su2_mesh_new_path)
         os.remove(su2_mesh_path)
 
     else:
         raise ValueError('No SU2 Mesh file has been generated!')
 
-    cpsf.close_tixi(tixi, cpacs_out_path)
+    tixi.save(cpacs_out_path)
     os.chdir(original_dir)
 
 

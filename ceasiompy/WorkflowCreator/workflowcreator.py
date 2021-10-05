@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan jungo
 | Creation: 2020-04-21
-| Last modifiction: 2021-03-25
+| Last modifiction: 2021-10-05
 
 TODO:
 
@@ -32,7 +32,7 @@ from tkinter import messagebox, filedialog
 
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.utils.ceasiompyfunctions as ceaf
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import open_tixi
 import ceasiompy.utils.moduleinterfaces as mi
 
 #TODo: modify if read/write config function are moved to a more general place
@@ -318,9 +318,9 @@ def run_workflow(Opt):
         Opt.cpacs_path = os.path.abspath(cpacs_path)
 
     # Create a new wkdir
-    tixi = cpsf.open_tixi(Opt.cpacs_path)
+    tixi = open_tixi(Opt.cpacs_path)
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
-    cpsf.close_tixi(tixi, Opt.cpacs_path)
+    tixi.save(Opt.cpacs_path)
 
     # Copy ToolInput in the Working directory
     shutil.copy(Opt.cpacs_path, os.path.join(wkdir,'Input.xml'))

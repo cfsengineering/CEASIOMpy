@@ -26,6 +26,7 @@ TODO:
 import os
 import math
 
+from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import (add_string_vector, create_branch,
                                     get_string_vector, get_value,
                                     get_value_or_default, open_tigl, open_tixi)
@@ -160,36 +161,39 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
         cpacs_out_path (str): Path to CPACS output file
     """
 
-    tixi = open_tixi(cpacs_path)
-    tigl = open_tigl(tixi)
+    # Load a CPACS file
+    cpacs = CPACS(cpacs_path)
 
-    wing_area_max, wing_span_max = get_largest_wing_dim(tixi,tigl)
+    # tixi = open_tixi(cpacs_path)
+    # tigl = open_tigl(tixi)
+
+    wing_area_max, wing_span_max = get_largest_wing_dim(cpacs.tixi,cpacs.tigl)
 
     analyses_xpath = '/cpacs/toolspecific/CEASIOMpy/geometry/analysis'
 
     # Requiered input data from CPACS
-    wetted_area = get_value(tixi,analyses_xpath + '/wettedArea')
+    wetted_area = get_value(cpacs.tixi,analyses_xpath + '/wettedArea')
 
     # Wing area/span, default values will be calated if no value found in the CPACS file
     wing_area_xpath = analyses_xpath + '/wingArea'
-    wing_area = get_value_or_default(tixi,wing_area_xpath, wing_area_max)
+    wing_area = get_value_or_default(cpacs.tixi,wing_area_xpath, wing_area_max)
     wing_span_xpath = analyses_xpath + '/wingSpan'
-    wing_span = get_value_or_default(tixi,wing_span_xpath, wing_span_max)
+    wing_span = get_value_or_default(cpacs.tixi,wing_span_xpath, wing_span_max)
 
     aeromap_uid_list = []
 
     # Try to get aeroMapToCalculate
     aeroMap_to_clculate_xpath = SF_XPATH + '/aeroMapToCalculate'
-    if tixi.checkElement(aeroMap_to_clculate_xpath):
-        aeromap_uid_list = get_string_vector(tixi,aeroMap_to_clculate_xpath)
+    if cpacs.tixi.checkElement(aeroMap_to_clculate_xpath):
+        aeromap_uid_list = get_string_vector(cpacs.tixi,aeroMap_to_clculate_xpath)
     else:
         aeromap_uid_list = []
 
     # If no aeroMap in aeroMapToCalculate, get all existing aeroMap
     if len(aeromap_uid_list) == 0:
-        try:
-            aeromap_uid_list = apmf.get_aeromap_uid_list(tixi)
-        except:
+        aeromap_uid_list = cpacs.get_aeromap_uid_list()
+
+        if not aeromap_uid_list:
             raise ValueError('No aeroMap has been found in this CPACS file, skin friction cannot be added!')
 
     # Get unique aeroMap list
@@ -202,17 +206,23 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
         log.info('adding skin friction coefficients to: ' + aeromap_uid)
 
         # Get orignial aeroPerformanceMap
-        AeroCoef = apmf.get_aeromap(tixi,aeromap_uid)
-        AeroCoef.complete_with_zeros()
+        # AeroCoef = apmf.get_aeromap(tixi,aeromap_uid)---
+        aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+        # AeroCoef.complete_with_zeros()---
 
         # Create new aeroCoefficient object to store coef with added skin friction
-        AeroCoefSF = apmf.AeroCoefficient()
-        AeroCoefSF.alt = AeroCoef.alt
-        AeroCoefSF.mach = AeroCoef.mach
-        AeroCoefSF.aoa = AeroCoef.aoa
-        AeroCoefSF.aos = AeroCoef.aos
+        aeromap_sf = cpacs.duplicate_aeromap(aeromap_uid,aeromap_uid+'_SkinFriction')
+        # AeroCoefSF = apmf.AeroCoefficient()
+        # AeroCoefSF.alt = AeroCoef.alt
+        # AeroCoefSF.mach = AeroCoef.mach
+        # AeroCoefSF.aoa = AeroCoef.aoa
+        # AeroCoefSF.aos = AeroCoef.aos
 
         # Iterate over all cases
+
+
+        aeromap_sf.df['cd'] = aeromap.df['cd'].add(estimate_skin_friction_coef(wetted_area,wing_area,wing_span,aeromap.df['machNumber'],aeromap.df['altitude'],)* math.cos(math.radians(aeromap.df['angleOfAttack'])) * math.cos(math.radians(aeromap.df['angleOfAttack'])))
+
         case_count = AeroCoef.get_count()
         for case in range(case_count):
 

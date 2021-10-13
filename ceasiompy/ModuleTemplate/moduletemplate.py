@@ -31,7 +31,7 @@ import matplotlib
 from cpacspy.cpacsfunctions import (add_float_vector, add_string_vector,
                                     add_uid, copy_branch, create_branch,
                                     get_float_vector, get_string_vector,
-                                    get_tigl_aircraft, get_uid, get_value,
+                                    get_tigl_configuration, get_uid, get_value,
                                     get_value_or_default, get_xpath_parent,
                                     open_tigl, open_tixi)
 import ceasiompy.utils.ceasiompyfunctions as ceaf

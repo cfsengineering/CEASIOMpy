@@ -5049,6 +5049,22 @@
                 <angleOfSideslip mapType="vector">0.0</angleOfSideslip>
               </aeroPerformanceMap>
             </aeroMap>
+            <aeroMap uID="test_apm">
+              <name>test_apm</name>
+              <description>Aeromap for tests</description>
+              <boundaryConditions>
+                <atmosphericModel>ISA</atmosphericModel>
+              </boundaryConditions>
+              <aeroPerformanceMap>
+                <altitude mapType="vector">0;0;0;0</altitude>
+                <machNumber mapType="vector">0.3;0.3;0.3;0.3</machNumber>
+                <angleOfAttack mapType="vector">0;10;0;10</angleOfAttack>
+                <angleOfSideslip mapType="vector">0;0;10;10</angleOfSideslip>
+                <cl mapType="vector">0.1;0.1;0.1;0.1</cl>
+                <cd mapType="vector">0.01;0.01;0.01;0.01</cd>
+                <cs mapType="vector">0.001;0.001;0.001;0.001</cs>
+              </aeroPerformanceMap>
+            </aeroMap>
           </aeroPerformance>
         </analyses>
       </model>
@@ -5193,6 +5209,11 @@
           <wettedArea>701.813</wettedArea>
         </analysis>
       </geometry>
+      <aerodynamics>
+        <skinFriction>
+          <aeroMapToCalculate>test_apm</aeroMapToCalculate>
+        </skinFriction>
+      </aerodynamics>
     </CEASIOMpy>
   </toolspecific>
 </cpacs>

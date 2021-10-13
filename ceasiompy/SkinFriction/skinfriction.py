@@ -25,6 +25,7 @@ TODO:
 
 import os
 import math
+from cpacspy.aircraft import Aircraft
 
 from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import (add_string_vector, create_branch,
@@ -51,53 +52,53 @@ SF_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction'
 #   FUNCTIONS
 #==============================================================================
 
-def get_largest_wing_dim(tixi,tigl):
-    """ Get Wing Area and Span of the largest wing present in the cpacs file.
+# def get_largest_wing_dim(tixi,tigl):
+#     """ Get Wing Area and Span of the largest wing present in the cpacs file.
 
-    Function 'get_largest_wing_dim' look at all wings in the CPACS file and
-    return the wing area and the wing span of the largest.
+#     Function 'get_largest_wing_dim' look at all wings in the CPACS file and
+#     return the wing area and the wing span of the largest.
 
-    Source:
-        * TIXI functions : http://tixi.sourceforge.net/Doc/
-        * TIGL functions : http://tigl.sourceforge.net/Doc/
+#     Source:
+#         * TIXI functions : http://tixi.sourceforge.net/Doc/
+#         * TIGL functions : http://tigl.sourceforge.net/Doc/
 
-    Args:
-        tixi (handles): TIXI Handle
-        tigl (handles): TIGL Handle
+#     Args:
+#         tixi (handles): TIXI Handle
+#         tigl (handles): TIGL Handle
 
-    Returns:
-        wing_area_max (float): Max Wing Area [m^2]
-        wing_span_max (float): Max Wing Span [m]
-    """
+#     Returns:
+#         wing_area_max (float): Max Wing Area [m^2]
+#         wing_span_max (float): Max Wing Span [m]
+#     """
 
-    # Get Number of wings
-    if tixi.checkElement(WINGS_XPATH):
-        wing_count = tixi.getNamedChildrenCount(WINGS_XPATH, 'wing')
-        log.info(str(wing_count) + ' wing has been found : ')
-    else:
-        wing_count = 0
-        log.warning('No wing found in this CPACS file!')
+#     # Get Number of wings
+#     if tixi.checkElement(WINGS_XPATH):
+#         wing_count = tixi.getNamedChildrenCount(WINGS_XPATH, 'wing')
+#         log.info(str(wing_count) + ' wing has been found : ')
+#     else:
+#         wing_count = 0
+#         log.warning('No wing found in this CPACS file!')
 
-    wing_span_max = 0
-    wing_area_max = 0
-    for i_wing in range(wing_count):
-        wing_xpath = WINGS_XPATH + '/wing[' + str(i_wing+1) + ']'
-        wing_uid = tixi.getTextAttribute(wing_xpath,'uID')
-        log.info("  -" + str(wing_uid))
+#     wing_span_max = 0
+#     wing_area_max = 0
+#     for i_wing in range(wing_count):
+#         wing_xpath = WINGS_XPATH + '/wing[' + str(i_wing+1) + ']'
+#         wing_uid = tixi.getTextAttribute(wing_xpath,'uID')
+#         log.info("  -" + str(wing_uid))
 
-        # *2 to take the symetry into account
-        wing_area = tigl.wingGetReferenceArea(i_wing+1,1) * 2
+#         # *2 to take the symetry into account
+#         wing_area = tigl.wingGetReferenceArea(i_wing+1,1) * 2
 
-        # Get value from the largest wing (larger span)
-        if wing_area > wing_area_max:
-            wing_area_max = wing_area
-            wing_span = tigl.wingGetSpan(wing_uid)
-            wing_span_max = wing_span
+#         # Get value from the largest wing (larger span)
+#         if wing_area > wing_area_max:
+#             wing_area_max = wing_area
+#             wing_span = tigl.wingGetSpan(wing_uid)
+#             wing_span_max = wing_span
 
-    log.info("Largest wing area [m^2]= " + str(wing_area_max))
-    log.info("Largest wing span [m]= " + str(wing_span_max))
+#     log.info("Largest wing area [m^2]= " + str(wing_area_max))
+#     log.info("Largest wing span [m]= " + str(wing_span_max))
 
-    return wing_area_max, wing_span_max
+#     return wing_area_max, wing_span_max
 
 
 def estimate_skin_friction_coef(wetted_area,wing_area,wing_span,mach,alt):
@@ -160,9 +161,6 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
     # Load a CPACS file
     cpacs = CPACS(cpacs_path)
 
-
-    wing_area_max, wing_span_max = get_largest_wing_dim(cpacs.tixi,cpacs.tigl)
-
     analyses_xpath = '/cpacs/toolspecific/CEASIOMpy/geometry/analysis'
 
     # Requiered input data from CPACS
@@ -170,10 +168,9 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
 
     # Wing area/span, default values will be calated if no value found in the CPACS file
     wing_area_xpath = analyses_xpath + '/wingArea'
-    wing_area = get_value_or_default(cpacs.tixi,wing_area_xpath, wing_area_max)
+    wing_area = get_value_or_default(cpacs.tixi,wing_area_xpath, cpacs.aircraft.wing_area)
     wing_span_xpath = analyses_xpath + '/wingSpan'
-    wing_span = get_value_or_default(cpacs.tixi,wing_span_xpath, wing_span_max)
-
+    wing_span = get_value_or_default(cpacs.tixi,wing_span_xpath, cpacs.aircraft.wing_span)
 
     # Get aeroMapToCalculate
     aeroMap_to_clculate_xpath = SF_XPATH + '/aeroMapToCalculate'
@@ -204,17 +201,16 @@ def add_skin_friction(cpacs_path,cpacs_out_path):
         aeromap_sf = cpacs.duplicate_aeromap(aeromap_uid,aeromap_uid+'_SkinFriction')
         aeromap_sf.description = aeromap_sf.description + ' Skin friction has been add to this AeroMap.'
 
-
         # Add skin friction to all force coeffiencent (with projections)
         aeromap_sf.df['cd'] = aeromap.df.apply(lambda row: row['cd']  \
                 + estimate_skin_friction_coef(wetted_area,wing_area,wing_span,row['machNumber'],row['altitude']) \
                 * math.cos(math.radians(row['angleOfAttack'])) * math.cos(math.radians(row['angleOfSideslip'])), axis=1)
 
-        aeromap_sf.df['cl'] = aeromap.df.apply(lambda row: row['cd']  \
+        aeromap_sf.df['cl'] = aeromap.df.apply(lambda row: row['cl']  \
                 + estimate_skin_friction_coef(wetted_area,wing_area,wing_span,row['machNumber'],row['altitude']) \
                 * math.sin(math.radians(row['angleOfAttack'])), axis=1)
 
-        aeromap_sf.df['cs'] = aeromap.df.apply(lambda row: row['cd']  \
+        aeromap_sf.df['cs'] = aeromap.df.apply(lambda row: row['cs']  \
                 + estimate_skin_friction_coef(wetted_area,wing_area,wing_span,row['machNumber'],row['altitude']) \
                 * math.sin(math.radians(row['angleOfSideslip'])), axis=1)
 

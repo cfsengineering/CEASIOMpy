@@ -25,7 +25,6 @@ from .fusecog import center_of_gravity_evaluation
 from .bwbcog import center_of_gravity_evaluation_bwb
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import cpacsfunctions as cpf
 
 log = get_logger(__file__.split('.')[0])
 

@@ -22,24 +22,20 @@ TODO:
 #==============================================================================
 
 import os
-import sys
-import shutil
 
 import pytest
 from pytest import raises
 
-from tixi3.tixi3wrapper import Tixi3Exception
-from tigl3.tigl3wrapper import Tigl3Exception
+from cpacspy.cpacsfunctions import open_tixi
+
+from ceasiompy.utils.apmfunctions import (AeroCoefficient, get_aeromap_uid_list,
+                                          create_empty_aeromap, check_aeromap,  
+                                          save_parameters, save_coefficients,   
+                                          get_aeromap, merge_aeroMap,           
+                                          aeromap_from_csv, aeromap_to_csv,     
+                                          delete_aeromap)
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi
-
-from ceasiompy.utils.apmfunctions import AeroCoefficient, get_aeromap_uid_list,\
-                                         create_empty_aeromap, check_aeromap,  \
-                                         save_parameters, save_coefficients,   \
-                                         get_aeromap, merge_aeroMap,           \
-                                         aeromap_from_csv, aeromap_to_csv,     \
-                                         delete_aeromap
 
 log = get_logger(__file__.split('.')[0])
 

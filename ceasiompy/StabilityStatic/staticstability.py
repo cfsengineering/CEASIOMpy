@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Verdier Loïc
 | Creation: 2019-10-24
-| Last modifiction: 2020-04-06 (AJ)
+| Last modifiction: 2021-10-14 (AJ)
 
 TODO:
     * Modify the code where there are "TODO"
@@ -32,7 +32,9 @@ import matplotlib.pyplot as plt
 
 import pandas as pd
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import (add_float_vector, create_branch,
+                                    get_value, get_value_or_default,
+                                    open_tixi)
 import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.moduleinterfaces as mi
 
@@ -94,18 +96,18 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     plot_for_different_mach = False # To check Mach influence
     plot_for_different_alt = False  # To check Altitude influence
 
-    tixi = cpsf.open_tixi(cpacs_path)
+    tixi = open_tixi(cpacs_path)
 
     # Get aeromap uid
-    aeromap_uid = cpsf.get_value(tixi, STATIC_ANALYSIS_XPATH+'/aeroMapUid')
+    aeromap_uid = get_value(tixi, STATIC_ANALYSIS_XPATH+'/aeroMapUid')
     log.info('The following aeroMap will be analysed: ' + aeromap_uid)
 
-    show_plots = cpsf.get_value_or_default(tixi,STATIC_ANALYSIS_XPATH +'/showPlots',False)
-    save_plots = cpsf.get_value_or_default(tixi,STATIC_ANALYSIS_XPATH +'/savePlots',False)
+    show_plots = get_value_or_default(tixi,STATIC_ANALYSIS_XPATH +'/showPlots',False)
+    save_plots = get_value_or_default(tixi,STATIC_ANALYSIS_XPATH +'/savePlots',False)
 
     # Aircraft mass configuration
     selected_mass_config_xpath  = STATIC_ANALYSIS_XPATH + '/massConfiguration'
-    mass_config = cpsf.get_value(tixi,selected_mass_config_xpath)
+    mass_config = get_value(tixi,selected_mass_config_xpath)
     # TODO: use get value or default instead and deal with not mass config
     log.info('The aircraft mass configuration used for analysis is: ' + mass_config)
 
@@ -114,13 +116,13 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     mass_config_xpath = masses_location_xpath + '/' + mass_config
     if tixi.checkElement(mass_config_xpath):
         mass_xpath = mass_config_xpath + '/mass'
-        m = cpsf.get_value(tixi,mass_xpath) # aircraft mass [Kg]
+        m = get_value(tixi,mass_xpath) # aircraft mass [Kg]
     else :
         raise ValueError(' !!! The mass configuration : {} is not defined in the CPACS file !!!'.format(mass_config))
 
     # Wing plane AREA.
     ref_area_xpath = model_xpath + '/reference/area'
-    s = cpsf.get_value(tixi,ref_area_xpath)     # Wing area : s  for non-dimonsionalisation of aero data.
+    s = get_value(tixi,ref_area_xpath)     # Wing area : s  for non-dimonsionalisation of aero data.
 
     Coeffs = apmf.get_aeromap(tixi, aeromap_uid)
     Coeffs.print_coef_list()
@@ -860,37 +862,37 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     lat_trim_xpath = STATIC_ANALYSIS_XPATH +'/trimConditions/lateral'
     direc_trim_xpath = STATIC_ANALYSIS_XPATH +'/trimConditions/directional'
 
-    cpsf.create_branch(tixi, longi_xpath)
-    cpsf.create_branch(tixi, lat_xpath)
-    cpsf.create_branch(tixi, direc_xpath)
+    create_branch(tixi, longi_xpath)
+    create_branch(tixi, lat_xpath)
+    create_branch(tixi, direc_xpath)
 
     # Store in the CPACS the stability results
     tixi.updateTextElement(longi_xpath, str(cpacs_stability_longi))
     tixi.updateTextElement(lat_xpath, str(cpacs_stability_lat))
     tixi.updateTextElement(direc_xpath, str(cpacs_stability_direc))
 
-    cpsf.create_branch(tixi,longi_trim_xpath)
-    cpsf.create_branch(tixi,lat_trim_xpath)
-    cpsf.create_branch(tixi,direc_trim_xpath)
+    create_branch(tixi,longi_trim_xpath)
+    create_branch(tixi,lat_trim_xpath)
+    create_branch(tixi,direc_trim_xpath)
 
     # TODO: Normaly this "if" is not required, but the tixi function to add a vector does not support an empty vercor...
     if trim_alt_longi_list:
-        cpsf.add_float_vector(tixi,longi_trim_xpath+'/altitude',trim_alt_longi_list)
-        cpsf.add_float_vector(tixi,longi_trim_xpath+'/machNumber',trim_mach_longi_list)
-        cpsf.add_float_vector(tixi,longi_trim_xpath+'/angleOfAttack',trim_aoa_longi_list)
-        cpsf.add_float_vector(tixi,longi_trim_xpath+'/angleOfSideslip',trim_aos_longi_list)
+        add_float_vector(tixi,longi_trim_xpath+'/altitude',trim_alt_longi_list)
+        add_float_vector(tixi,longi_trim_xpath+'/machNumber',trim_mach_longi_list)
+        add_float_vector(tixi,longi_trim_xpath+'/angleOfAttack',trim_aoa_longi_list)
+        add_float_vector(tixi,longi_trim_xpath+'/angleOfSideslip',trim_aos_longi_list)
     if trim_alt_lat_list:
-        cpsf.add_float_vector(tixi,lat_trim_xpath+'/altitude',trim_alt_lat_list)
-        cpsf.add_float_vector(tixi,lat_trim_xpath+'/machNumber',trim_mach_lat_list)
-        cpsf.add_float_vector(tixi,lat_trim_xpath+'/angleOfAttack',trim_aoa_lat_list)
-        cpsf.add_float_vector(tixi,lat_trim_xpath+'/angleOfSideslip',trim_aos_lat_list)
+        add_float_vector(tixi,lat_trim_xpath+'/altitude',trim_alt_lat_list)
+        add_float_vector(tixi,lat_trim_xpath+'/machNumber',trim_mach_lat_list)
+        add_float_vector(tixi,lat_trim_xpath+'/angleOfAttack',trim_aoa_lat_list)
+        add_float_vector(tixi,lat_trim_xpath+'/angleOfSideslip',trim_aos_lat_list)
     if trim_alt_direc_list:
-        cpsf.add_float_vector(tixi,direc_trim_xpath+'/altitude',trim_alt_direc_list)
-        cpsf.add_float_vector(tixi,direc_trim_xpath+'/machNumber',trim_mach_direc_list)
-        cpsf.add_float_vector(tixi,direc_trim_xpath+'/angleOfAttack',trim_aoa_direc_list)
-        cpsf.add_float_vector(tixi,direc_trim_xpath+'/angleOfSideslip',trim_aos_direc_list)
+        add_float_vector(tixi,direc_trim_xpath+'/altitude',trim_alt_direc_list)
+        add_float_vector(tixi,direc_trim_xpath+'/machNumber',trim_mach_direc_list)
+        add_float_vector(tixi,direc_trim_xpath+'/angleOfAttack',trim_aoa_direc_list)
+        add_float_vector(tixi,direc_trim_xpath+'/angleOfSideslip',trim_aos_direc_list)
 
-    cpsf.close_tixi(tixi, cpacs_out_path)
+    tixi.save(cpacs_out_path)
 
 
 #==============================================================================

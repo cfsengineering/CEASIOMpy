@@ -9,11 +9,12 @@ Python version: >=3.6
 
 | Author: Loic Verdier
 | Creation: 2019-10-24
-| Last modifiction: 2020-04-07 (AJ)
+| Last modifiction: 2021-10-14 (AJ)
 
 TODO:
 
-    * crate better tests, especially for 'test_static_stability_analysis'
+    * Create better tests, especially for 'test_static_stability_analysis'
+    * Check if these tests are really useful
 
 """
 
@@ -27,7 +28,7 @@ import numpy as np
 import pytest
 from pytest import approx
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import (get_string_vector, get_value, open_tixi)
 import ceasiompy.utils.apmfunctions as apmf
 
 from ceasiompy.StabilityStatic.staticstability import static_stability_analysis
@@ -45,7 +46,6 @@ log = get_logger(__file__.split('.')[0])
 
 import ceasiompy.__init__
 LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
-
 
 
 #==============================================================================
@@ -123,13 +123,13 @@ def test_static_stability_analysis():
     cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput', 'CPACSTestStability.xml')
     csv_path = MODULE_DIR + '/ToolInput/csvtest.csv'
 
-    tixi = cpsf.open_tixi(cpacs_path)
+    tixi = open_tixi(cpacs_path)
     # Get Aeromap UID list
     # uid_list = apmf.get_aeromap_uid_list(tixi)
     # aeromap_uid = uid_list[0]
     # # Import aeromap from the CSV to the xml
     # apmf.aeromap_from_csv(tixi, aeromap_uid, csv_path)
-    # cpsf.close_tixi(tixi, cpacs_out_path)
+    # close_tixi(tixi, cpacs_out_path)
 
     # Make the static stability analysis, on the modified xml file
     static_stability_analysis(cpacs_path, cpacs_out_path)
@@ -153,37 +153,37 @@ def test_static_stability_analysis():
     # Assert that all error type happend only once.
     #assert graph_cruising == True
 
-    tixi = cpsf.open_tixi(cpacs_out_path)
+    tixi = open_tixi(cpacs_out_path)
     static_xpath = '/cpacs/toolspecific/CEASIOMpy/stability/static'
-    long_static_stable = cpsf.get_value(tixi, static_xpath+'/results/longitudinalStaticStable')
-    lat_static_stable = cpsf.get_value(tixi, static_xpath+'/results/lateralStaticStable')
-    dir_static_stable = cpsf.get_value(tixi, static_xpath+'/results/directionnalStaticStable')
+    long_static_stable = get_value(tixi, static_xpath+'/results/longitudinalStaticStable')
+    lat_static_stable = get_value(tixi, static_xpath+'/results/lateralStaticStable')
+    dir_static_stable = get_value(tixi, static_xpath+'/results/directionnalStaticStable')
 
     assert long_static_stable
     assert lat_static_stable
     assert not dir_static_stable
 
-    trim_longi_alt = cpsf.get_value(tixi, static_xpath+'/trimConditions/longitudinal/altitude')
-    trim_longi_mach = cpsf.get_value(tixi, static_xpath+'/trimConditions/longitudinal/machNumber')
-    trim_longi_aoa = cpsf.get_value(tixi, static_xpath+'/trimConditions/longitudinal/angleOfAttack')
-    trim_longi_aos = cpsf.get_value(tixi, static_xpath+'/trimConditions/longitudinal/angleOfSideslip')
+    trim_longi_alt = get_value(tixi, static_xpath+'/trimConditions/longitudinal/altitude')
+    trim_longi_mach = get_value(tixi, static_xpath+'/trimConditions/longitudinal/machNumber')
+    trim_longi_aoa = get_value(tixi, static_xpath+'/trimConditions/longitudinal/angleOfAttack')
+    trim_longi_aos = get_value(tixi, static_xpath+'/trimConditions/longitudinal/angleOfSideslip')
 
     assert trim_longi_alt == 1400
     assert trim_longi_mach == 0.6
     assert trim_longi_aoa == 3.25803
     assert trim_longi_aos == 0
 
-    trim_dir_alt = cpsf.get_string_vector(tixi, static_xpath+'/trimConditions/directional/altitude')
-    trim_dir_mach = cpsf.get_string_vector(tixi, static_xpath+'/trimConditions/directional/machNumber')
-    trim_dir_aoa = cpsf.get_string_vector(tixi, static_xpath+'/trimConditions/directional/angleOfAttack')
-    trim_dir_aos = cpsf.get_string_vector(tixi, static_xpath+'/trimConditions/directional/angleOfSideslip')
+    trim_dir_alt = get_string_vector(tixi, static_xpath+'/trimConditions/directional/altitude')
+    trim_dir_mach = get_string_vector(tixi, static_xpath+'/trimConditions/directional/machNumber')
+    trim_dir_aoa = get_string_vector(tixi, static_xpath+'/trimConditions/directional/angleOfAttack')
+    trim_dir_aos = get_string_vector(tixi, static_xpath+'/trimConditions/directional/angleOfSideslip')
 
     assert trim_dir_alt == ['2400','2500','2600','2700']
     assert trim_dir_mach == ['0.6','0.5','0.5','0.5']
     assert trim_dir_aoa == ['1','2','4','2.5']
     assert trim_dir_aos == ['0','0','0','0']
 
-    cpsf.close_tixi(tixi, cpacs_out_path)
+    tixi.save(cpacs_out_path)
 
 
 #==============================================================================

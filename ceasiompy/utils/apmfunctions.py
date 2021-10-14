@@ -10,10 +10,11 @@ CPACS version: 3.1
 
 | Author : Aidan Jungo
 | Creation: 2019-08-15
-| Last modifiction: 2020-07-16
+| Last modifiction: 2021-07-16
 
 TODO:
 
+    * These function will probably be replace by cpacspy !!!
     * Create test functions
     * Developp other functions
     * Use Penda DataFrame instead of AeroCoefficient object?
@@ -32,8 +33,8 @@ import math
 import numpy as np
 import pandas as pd
 
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.ceasiompyfunctions as ceaf
+from cpacspy.cpacsfunctions import (add_float_vector, add_uid, create_branch,
+                                    get_float_vector, get_value_or_default)
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -376,31 +377,31 @@ def create_empty_aeromap(tixi, aeromap_uid, description = ''):
         log.info(aeromap_uid + ' aeroMap will be created.')
 
     # Add the /aeroMap node, or a new child is already exists
-    cpsf.create_branch(tixi,AEROPERFORMANCE_XPATH + '/aeroMap',True)
+    create_branch(tixi,AEROPERFORMANCE_XPATH + '/aeroMap',True)
     am_count = tixi.getNamedChildrenCount(AEROPERFORMANCE_XPATH, 'aeroMap')
     aeromap_xpath = AEROPERFORMANCE_XPATH + '/aeroMap[' + str(am_count) + ']'
 
     # Add UID and sub nodes
-    cpsf.add_uid(tixi, aeromap_xpath, aeromap_uid)
+    add_uid(tixi, aeromap_xpath, aeromap_uid)
     tixi.addTextElement(aeromap_xpath, 'name', aeromap_uid)
     tixi.addTextElement(aeromap_xpath, 'description', description)
     apm_bc_xpath = aeromap_xpath + '/boundaryConditions'
-    cpsf.create_branch(tixi, apm_bc_xpath)
+    create_branch(tixi, apm_bc_xpath)
     tixi.addTextElement(apm_bc_xpath,'atmosphericModel','ISA')
 
     # Add /AeroPerformanceMap and sub nodes
     apm_xpath = aeromap_xpath + '/aeroPerformanceMap'
-    cpsf.create_branch(tixi,apm_xpath)
-    cpsf.create_branch(tixi,apm_xpath+'/altitude')
-    cpsf.create_branch(tixi,apm_xpath+'/machNumber')
-    cpsf.create_branch(tixi,apm_xpath+'/angleOfAttack')
-    cpsf.create_branch(tixi,apm_xpath+'/angleOfSideslip')
-    cpsf.create_branch(tixi,apm_xpath+'/cl')
-    cpsf.create_branch(tixi,apm_xpath+'/cd')
-    cpsf.create_branch(tixi,apm_xpath+'/cs')
-    cpsf.create_branch(tixi,apm_xpath+'/cml')
-    cpsf.create_branch(tixi,apm_xpath+'/cmd')
-    cpsf.create_branch(tixi,apm_xpath+'/cms')
+    create_branch(tixi,apm_xpath)
+    create_branch(tixi,apm_xpath+'/altitude')
+    create_branch(tixi,apm_xpath+'/machNumber')
+    create_branch(tixi,apm_xpath+'/angleOfAttack')
+    create_branch(tixi,apm_xpath+'/angleOfSideslip')
+    create_branch(tixi,apm_xpath+'/cl')
+    create_branch(tixi,apm_xpath+'/cd')
+    create_branch(tixi,apm_xpath+'/cs')
+    create_branch(tixi,apm_xpath+'/cml')
+    create_branch(tixi,apm_xpath+'/cmd')
+    create_branch(tixi,apm_xpath+'/cms')
 
 
 def check_aeromap(tixi, aeromap_uid):
@@ -429,28 +430,28 @@ def check_aeromap(tixi, aeromap_uid):
         log.info('The aeroMap to check as been found')
 
         # Check name, description and boundary conditions
-        cpsf.get_value_or_default(tixi,aeromap_xpath+'/name', aeromap_uid)
+        get_value_or_default(tixi,aeromap_xpath+'/name', aeromap_uid)
         description = 'AeroMap checked and utdated by CEASIOMpy ' + str(local_time)
-        cpsf.get_value_or_default(tixi,aeromap_xpath+'/description', description)
+        get_value_or_default(tixi,aeromap_xpath+'/description', description)
         aeromap_bc_xpath = aeromap_xpath + '/boundaryConditions'
-        cpsf.create_branch(tixi,aeromap_bc_xpath)
-        cpsf.get_value_or_default(tixi,aeromap_bc_xpath+'/atmosphericModel', 'ISA')
+        create_branch(tixi,aeromap_bc_xpath)
+        get_value_or_default(tixi,aeromap_bc_xpath+'/atmosphericModel', 'ISA')
 
         # Check AeroPerformanceMap, parameters and coefficients nodes
         apm_xpath = aeromap_xpath + '/aeroPerformanceMap'
-        cpsf.create_branch(tixi,apm_xpath)
+        create_branch(tixi,apm_xpath)
 
         #TODO: Replace by a for loop
-        cpsf.create_branch(tixi,apm_xpath+'/altitude')
-        cpsf.create_branch(tixi,apm_xpath+'/machNumber')
-        cpsf.create_branch(tixi,apm_xpath+'/angleOfAttack')
-        cpsf.create_branch(tixi,apm_xpath+'/angleOfSideslip')
-        cpsf.create_branch(tixi,apm_xpath+'/cl')
-        cpsf.create_branch(tixi,apm_xpath+'/cd')
-        cpsf.create_branch(tixi,apm_xpath+'/cs')
-        cpsf.create_branch(tixi,apm_xpath+'/cml')
-        cpsf.create_branch(tixi,apm_xpath+'/cmd')
-        cpsf.create_branch(tixi,apm_xpath+'/cms')
+        create_branch(tixi,apm_xpath+'/altitude')
+        create_branch(tixi,apm_xpath+'/machNumber')
+        create_branch(tixi,apm_xpath+'/angleOfAttack')
+        create_branch(tixi,apm_xpath+'/angleOfSideslip')
+        create_branch(tixi,apm_xpath+'/cl')
+        create_branch(tixi,apm_xpath+'/cd')
+        create_branch(tixi,apm_xpath+'/cs')
+        create_branch(tixi,apm_xpath+'/cml')
+        create_branch(tixi,apm_xpath+'/cmd')
+        create_branch(tixi,apm_xpath+'/cms')
 
 
 # TODO: Could be improved
@@ -477,10 +478,10 @@ def save_parameters(tixi,aeromap_uid,Param):
     Param.check_validity()
 
     # Add parameters to the aeroPerformanceMap
-    cpsf.add_float_vector(tixi,apm_xpath+'/altitude',Param.alt)
-    cpsf.add_float_vector(tixi,apm_xpath+'/machNumber',Param.mach)
-    cpsf.add_float_vector(tixi,apm_xpath+'/angleOfAttack',Param.aoa)
-    cpsf.add_float_vector(tixi,apm_xpath+'/angleOfSideslip',Param.aos)
+    add_float_vector(tixi,apm_xpath+'/altitude',Param.alt)
+    add_float_vector(tixi,apm_xpath+'/machNumber',Param.mach)
+    add_float_vector(tixi,apm_xpath+'/angleOfAttack',Param.aoa)
+    add_float_vector(tixi,apm_xpath+'/angleOfSideslip',Param.aos)
 
 
 
@@ -509,7 +510,7 @@ def save_coefficients(tixi,aeromap_uid,Coef):
     if len(Coef.cl) == 0:
         log.warning('No "cl" value have been found, this node will stay empty')
     elif len(Coef.cl) == param_count:
-        cpsf.add_float_vector(tixi,apm_xpath+'/cl',Coef.cl)
+        add_float_vector(tixi,apm_xpath+'/cl',Coef.cl)
         log.info('"cl" values have been added to the corresponding node')
     else:
         raise ValueError('The number of "cl" values is incorrect, it must be \
@@ -519,7 +520,7 @@ def save_coefficients(tixi,aeromap_uid,Coef):
     if len(Coef.cd) == 0:
         log.warning('No "cd" value have been found, this node will stay empty')
     elif len(Coef.cd) == param_count:
-        cpsf.add_float_vector(tixi,apm_xpath+'/cd',Coef.cd)
+        add_float_vector(tixi,apm_xpath+'/cd',Coef.cd)
         log.info('"cd" values have been added to the corresponding node')
     else:
         raise ValueError('The number of "cd" values is incorrect, it must be \
@@ -529,7 +530,7 @@ def save_coefficients(tixi,aeromap_uid,Coef):
     if len(Coef.cs) == 0:
         log.warning('No "cs" value have been found, this node will stay empty')
     elif len(Coef.cs) == param_count:
-        cpsf.add_float_vector(tixi,apm_xpath+'/cs',Coef.cs)
+        add_float_vector(tixi,apm_xpath+'/cs',Coef.cs)
         log.info('"cs" values have been added to the corresponding node')
     else:
         raise ValueError('The number of "cs" values is incorrect, it must \
@@ -539,7 +540,7 @@ def save_coefficients(tixi,aeromap_uid,Coef):
     if len(Coef.cml) == 0:
         log.warning('No "cml" value have been found, this node will stay empty')
     elif len(Coef.cml) == param_count:
-        cpsf.add_float_vector(tixi,apm_xpath+'/cml',Coef.cml)
+        add_float_vector(tixi,apm_xpath+'/cml',Coef.cml)
         log.info('"cml" values have been added to the corresponding node')
     else:
         raise ValueError('The number of "cml" values is incorrect, it must \
@@ -549,7 +550,7 @@ def save_coefficients(tixi,aeromap_uid,Coef):
     if len(Coef.cmd) == 0:
         log.warning('No "cmd" value have been found, this node will stay empty')
     elif len(Coef.cmd) == param_count:
-        cpsf.add_float_vector(tixi,apm_xpath+'/cmd',Coef.cmd)
+        add_float_vector(tixi,apm_xpath+'/cmd',Coef.cmd)
         log.info('"cmd" values have been added to the corresponding node')
     else:
         raise ValueError('The number of "cmd" values is incorrect, it must \
@@ -559,7 +560,7 @@ def save_coefficients(tixi,aeromap_uid,Coef):
     if len(Coef.cms) == 0:
         log.warning('No "cms" value have been found, this node will stay empty')
     elif len(Coef.cms) == param_count:
-        cpsf.add_float_vector(tixi,apm_xpath+'/cms',Coef.cms)
+        add_float_vector(tixi,apm_xpath+'/cms',Coef.cms)
         log.info('"cms" values have been added to the corresponding node')
     else:
         raise ValueError('The number of "cms" values is incorrect, it must \
@@ -567,48 +568,48 @@ def save_coefficients(tixi,aeromap_uid,Coef):
 
     # DampingDerivative
     if len(Coef.damping_derivatives.dcldpstar): # TODO: Improve this check
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcldpstar',Coef.damping_derivatives.dcldpstar)
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcddpstar',Coef.damping_derivatives.dcddpstar)
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcsdpstar',Coef.damping_derivatives.dcsdpstar)
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmldpstar',Coef.damping_derivatives.dcmldpstar)
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmddpstar',Coef.damping_derivatives.dcmddpstar)
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmsdpstar',Coef.damping_derivatives.dcmsdpstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcldpstar',Coef.damping_derivatives.dcldpstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcddpstar',Coef.damping_derivatives.dcddpstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcsdpstar',Coef.damping_derivatives.dcsdpstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmldpstar',Coef.damping_derivatives.dcmldpstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmddpstar',Coef.damping_derivatives.dcmddpstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmsdpstar',Coef.damping_derivatives.dcmsdpstar)
 
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcldqstar',Coef.damping_derivatives.dcldqstar)
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcddqstar',Coef.damping_derivatives.dcddqstar)
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcsdqstar',Coef.damping_derivatives.dcsdqstar)
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmldqstar',Coef.damping_derivatives.dcmldqstar)
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmddqstar',Coef.damping_derivatives.dcmddqstar)
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmsdqstar',Coef.damping_derivatives.dcmsdqstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcldqstar',Coef.damping_derivatives.dcldqstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcddqstar',Coef.damping_derivatives.dcddqstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcsdqstar',Coef.damping_derivatives.dcsdqstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmldqstar',Coef.damping_derivatives.dcmldqstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmddqstar',Coef.damping_derivatives.dcmddqstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmsdqstar',Coef.damping_derivatives.dcmsdqstar)
 
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcldrstar',Coef.damping_derivatives.dcldrstar)
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcddrstar',Coef.damping_derivatives.dcddrstar)
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcsdrstar',Coef.damping_derivatives.dcsdrstar)
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmldrstar',Coef.damping_derivatives.dcmldrstar)
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmddrstar',Coef.damping_derivatives.dcmddrstar)
-        cpsf.add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmsdrstar',Coef.damping_derivatives.dcmsdrstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcldrstar',Coef.damping_derivatives.dcldrstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcddrstar',Coef.damping_derivatives.dcddrstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcsdrstar',Coef.damping_derivatives.dcsdrstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmldrstar',Coef.damping_derivatives.dcmldrstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmddrstar',Coef.damping_derivatives.dcmddrstar)
+        add_float_vector(tixi,apm_xpath+'/dampingDerivatives/positiveRates/dcmsdrstar',Coef.damping_derivatives.dcmsdrstar)
 
 # Add Control surace deflections
 # if len(Coef.IncrMap.dcl): # TODO: Improve this check
-#     cpsf.add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcl',Coef.IncrMap.dcl)
-#     cpsf.add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcd',Coef.IncrMap.dcd)
-#     cpsf.add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcs',Coef.IncrMap.dcs)
-#     cpsf.add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcml',Coef.IncrMap.dcml)
-#     cpsf.add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcmd',Coef.IncrMap.dcmd)
-#     cpsf.add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcms',Coef.IncrMap.dcms)
+#     add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcl',Coef.IncrMap.dcl)
+#     add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcd',Coef.IncrMap.dcd)
+#     add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcs',Coef.IncrMap.dcs)
+#     add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcml',Coef.IncrMap.dcml)
+#     add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcmd',Coef.IncrMap.dcmd)
+#     add_float_vector(tixi,apm_xpath+'/incrementMaps/incrementMap/dcms',Coef.IncrMap.dcms)
 #
 #
-#     cpsf.add_uid(tixi,apm_xpath+'/incrementMaps/incrementMap',Coef.IncrMap.ted_uid+'_incrementMap')
+#     add_uid(tixi,apm_xpath+'/incrementMaps/incrementMap',Coef.IncrMap.ted_uid+'_incrementMap')
 #
 #     ctrl_dev_uid_xpath = apm_xpath+'/incrementMaps/incrementMap/controlDeviceUID'
-#     cpsf.create_branch(tixi,ctrl_dev_uid_xpath)
+#     create_branch(tixi,ctrl_dev_uid_xpath)
 #     tixi.updateTextElement(ctrl_dev_uid_xpath,Coef.IncrMap.ted_uid)
 #
 #     ctrl_param_xpath = apm_xpath+'/incrementMaps/incrementMap/controlParameters'
-#     cpsf.create_branch(tixi,ctrl_param_xpath)
+#     create_branch(tixi,ctrl_param_xpath)
 #     tixi.updateTextElement(ctrl_param_xpath,str(Coef.IncrMap.control_parameter))
 #
-#     cpsf.create_branch(tixi, apm_xpath+'/incrementMaps/incrementMap/controlParameters')
+#     create_branch(tixi, apm_xpath+'/incrementMaps/incrementMap/controlParameters')
 
 
 def get_aeromap(tixi,aeromap_uid):
@@ -631,10 +632,10 @@ def get_aeromap(tixi,aeromap_uid):
 
     Coef = AeroCoefficient()
 
-    Coef.alt = cpsf.get_float_vector(tixi,apm_xpath +'/altitude')
-    Coef.mach  = cpsf.get_float_vector(tixi,apm_xpath +'/machNumber')
-    Coef.aoa = cpsf.get_float_vector(tixi,apm_xpath +'/angleOfAttack')
-    Coef.aos = cpsf.get_float_vector(tixi,apm_xpath +'/angleOfSideslip')
+    Coef.alt = get_float_vector(tixi,apm_xpath +'/altitude')
+    Coef.mach  = get_float_vector(tixi,apm_xpath +'/machNumber')
+    Coef.aoa = get_float_vector(tixi,apm_xpath +'/angleOfAttack')
+    Coef.aos = get_float_vector(tixi,apm_xpath +'/angleOfSideslip')
 
     cl_xpath = apm_xpath +'/cl'
     if tixi.checkElement(cl_xpath):
@@ -644,7 +645,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.cl = []
         else:
-            Coef.cl = cpsf.get_float_vector(tixi,cl_xpath)
+            Coef.cl = get_float_vector(tixi,cl_xpath)
 
     cd_xpath = apm_xpath +'/cd'
     if tixi.checkElement(cd_xpath):
@@ -654,7 +655,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.cd = []
         else:
-            Coef.cd = cpsf.get_float_vector(tixi,cd_xpath)
+            Coef.cd = get_float_vector(tixi,cd_xpath)
 
     cs_xpath = apm_xpath +'/cs'
     if tixi.checkElement(cs_xpath):
@@ -664,7 +665,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.cs = []
         else:
-            Coef.cs = cpsf.get_float_vector(tixi,cs_xpath)
+            Coef.cs = get_float_vector(tixi,cs_xpath)
 
     cml_xpath = apm_xpath +'/cml'
     if tixi.checkElement(cml_xpath):
@@ -674,7 +675,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.cml = []
         else:
-            Coef.cml = cpsf.get_float_vector(tixi,cml_xpath)
+            Coef.cml = get_float_vector(tixi,cml_xpath)
 
     cmd_xpath = apm_xpath +'/cmd'
     if tixi.checkElement(cmd_xpath):
@@ -684,7 +685,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.cmd = []
         else:
-            Coef.cmd = cpsf.get_float_vector(tixi,cmd_xpath)
+            Coef.cmd = get_float_vector(tixi,cmd_xpath)
 
     cms_xpath = apm_xpath +'/cms'
     if tixi.checkElement(cms_xpath):
@@ -694,7 +695,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.cms = []
         else:
-            Coef.cms = cpsf.get_float_vector(tixi,cms_xpath)
+            Coef.cms = get_float_vector(tixi,cms_xpath)
 
 
     #Damping derivatives (TODO: inprove that)
@@ -708,7 +709,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.dcsdrstar = []
         else:
-            Coef.dcsdrstar = cpsf.get_float_vector(tixi, dcsdrstar_xpath)
+            Coef.dcsdrstar = get_float_vector(tixi, dcsdrstar_xpath)
 
     dcsdpstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcsdpstar'
     if tixi.checkElement(dcsdpstar_xpath):
@@ -718,7 +719,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.dcsdpstar = []
         else:
-            Coef.dcsdpstar = cpsf.get_float_vector(tixi, dcsdpstar_xpath)
+            Coef.dcsdpstar = get_float_vector(tixi, dcsdpstar_xpath)
 
     dcldqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcldqstar'
     if tixi.checkElement(dcldqstar_xpath):
@@ -728,7 +729,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.dcddqstar = []
         else:
-            Coef.dcldqstar = cpsf.get_float_vector(tixi, dcldqstar_xpath)
+            Coef.dcldqstar = get_float_vector(tixi, dcldqstar_xpath)
 
     dcmsdqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmsdqstar'
     if tixi.checkElement(dcmsdqstar_xpath):
@@ -738,7 +739,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.dcmsdqstar = []
         else:
-            Coef.dcmsdqstar = cpsf.get_float_vector(tixi, dcmsdqstar_xpath)
+            Coef.dcmsdqstar = get_float_vector(tixi, dcmsdqstar_xpath)
 
     dcddqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcddqstar'
     if tixi.checkElement(dcddqstar_xpath):
@@ -748,7 +749,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.dcddqstar = []
         else:
-            Coef.dcddqstar = cpsf.get_float_vector(tixi, dcddqstar_xpath)
+            Coef.dcddqstar = get_float_vector(tixi, dcddqstar_xpath)
 
 
     dcmddpstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmddpstar'
@@ -759,7 +760,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.dcmddpstar = []
         else:
-            Coef.dcmddpstar = cpsf.get_float_vector(tixi, dcmddpstar_xpath)
+            Coef.dcmddpstar = get_float_vector(tixi, dcmddpstar_xpath)
 
     dcmldqstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmldqstar'
     if tixi.checkElement(dcmldqstar_xpath):
@@ -769,7 +770,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.dcmldqstar = []
         else:
-            Coef.dcmldqstar = cpsf.get_float_vector(tixi, dcmldqstar_xpath)
+            Coef.dcmldqstar = get_float_vector(tixi, dcmldqstar_xpath)
 
 
     dcmldpstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmldpstar'
@@ -780,7 +781,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.dcmldpstar = []
         else:
-            Coef.dcmldpstar = cpsf.get_float_vector(tixi, dcmldpstar_xpath)
+            Coef.dcmldpstar = get_float_vector(tixi, dcmldpstar_xpath)
 
     dcmldrstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmldrstar'
     if tixi.checkElement(dcmldrstar_xpath):
@@ -790,7 +791,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.dcmldrstar = []
         else:
-            Coef.dcmldrstar = cpsf.get_float_vector(tixi, dcmldrstar_xpath)
+            Coef.dcmldrstar = get_float_vector(tixi, dcmldrstar_xpath)
 
     dcmddrstar_xpath = apm_xpath +'/dampingDerivatives/positiveRates/dcmddrstar'
     if tixi.checkElement(dcmddrstar_xpath):
@@ -800,7 +801,7 @@ def get_aeromap(tixi,aeromap_uid):
             log.warning('An empty list will be returned.')
             Coef.dcmddrstar = []
         else:
-            Coef.dcmddrstar = cpsf.get_float_vector(tixi, dcmddrstar_xpath)
+            Coef.dcmddrstar = get_float_vector(tixi, dcmddrstar_xpath)
 
     return Coef
 
@@ -1150,16 +1151,16 @@ def get_datafram_aeromap(tixi,aeromap_uid):
 
     apm_xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap'
 
-    # state_dict = {'alt': cpsf.get_float_vector(tixi,apm_xpath +'/altitude'),
-    #               'mach': cpsf.get_float_vector(tixi,apm_xpath +'/machNumber'),
-    #               'aoa': cpsf.get_float_vector(tixi,apm_xpath +'/angleOfAttack'),
-    #               'aos': cpsf.get_float_vector(tixi,apm_xpath +'/angleOfSideslip')}
+    # state_dict = {'alt': get_float_vector(tixi,apm_xpath +'/altitude'),
+    #               'mach': get_float_vector(tixi,apm_xpath +'/machNumber'),
+    #               'aoa': get_float_vector(tixi,apm_xpath +'/angleOfAttack'),
+    #               'aos': get_float_vector(tixi,apm_xpath +'/angleOfSideslip')}
 
     state_dict = {}
 
     for state,xstate in zip(STATES,XSTATES):
         state_xpath = apm_xpath +'/' + xstate
-        state_dict[state] = cpsf.get_float_vector(tixi,state_xpath)
+        state_dict[state] = get_float_vector(tixi,state_xpath)
 
     aeromap = pd.DataFrame(state_dict)
 
@@ -1167,7 +1168,7 @@ def get_datafram_aeromap(tixi,aeromap_uid):
     for coef in COEF_LIST:
         coef_xpath = apm_xpath + '/' + coef
         try:
-            coef_value_list = cpsf.get_float_vector(tixi,coef_xpath)
+            coef_value_list = get_float_vector(tixi,coef_xpath)
         except:
             coef_value_list = []
 
@@ -1200,36 +1201,36 @@ def save_aeromap_from_df(tixi,aeromap_df,aeromap_uid,description='No decription'
         log.info(aeromap_uid + ' aeroMap will be created.')
 
         # Add the /aeroMap node, or a new child is already exists
-    cpsf.create_branch(tixi,AEROPERFORMANCE_XPATH + '/aeroMap',True)
+    create_branch(tixi,AEROPERFORMANCE_XPATH + '/aeroMap',True)
     am_count = tixi.getNamedChildrenCount(AEROPERFORMANCE_XPATH, 'aeroMap')
     aeromap_xpath = AEROPERFORMANCE_XPATH + '/aeroMap[' + str(am_count) + ']'
 
     # Add UID and sub nodes
-    cpsf.add_uid(tixi, aeromap_xpath, aeromap_uid)
+    add_uid(tixi, aeromap_xpath, aeromap_uid)
     tixi.addTextElement(aeromap_xpath, 'name', aeromap_uid)
     tixi.addTextElement(aeromap_xpath, 'description', description)
     apm_bc_xpath = aeromap_xpath + '/boundaryConditions'
-    cpsf.create_branch(tixi, apm_bc_xpath)
+    create_branch(tixi, apm_bc_xpath)
     tixi.addTextElement(apm_bc_xpath,'atmosphericModel','ISA')
 
     # Add /AeroPerformanceMap and sub nodes
     apm_xpath = aeromap_xpath + '/aeroPerformanceMap'
-    cpsf.create_branch(tixi,apm_xpath)
+    create_branch(tixi,apm_xpath)
 
     # Add states
     for state,xstate in zip(STATES,XSTATES):
         if not state in aeromap_df:
             raise ValueError('Missing {} value in the AeroMap!'.format(state))
         state_xpath = apm_xpath + '/' + xstate
-        cpsf.create_branch(tixi,state_xpath)
-        cpsf.add_float_vector(tixi,state_xpath,aeromap_df[state].tolist())
+        create_branch(tixi,state_xpath)
+        add_float_vector(tixi,state_xpath,aeromap_df[state].tolist())
 
     # Add coefficients
     for coef in COEF_LIST:
         if coef in aeromap_df:
             coef_xpath = apm_xpath + '/' + coef
-            cpsf.create_branch(tixi,coef_xpath)
-            cpsf.add_float_vector(tixi,coef_xpath,aeromap_df[coef].tolist())
+            create_branch(tixi,coef_xpath)
+            add_float_vector(tixi,coef_xpath,aeromap_df[coef].tolist())
         else:
             log.info('There is no {} coefficient in this AeroMap!'.format(coef))
 

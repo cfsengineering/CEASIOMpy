@@ -25,9 +25,10 @@ from pytest import approx
 
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.SkinFriction.skinfriction import estimate_skin_friction_coef, \
                                                 add_skin_friction
+
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
@@ -50,7 +51,7 @@ CPACS_OUT_PATH = MODULE_DIR + '/D150_simple_skinfriction_test.xml'
 def test_estimate_skin_friction_coef():
     """Test function 'estimate_skin_friction_coef' """
 
-    # cd0:[wetted_area,wing_area,wing_span,mach,alt]
+    # {cd0:[wetted_area,wing_area,wing_span,mach,alt]}
     test_dict = {
         0.005308238904488722:[1,1,1,1,1],
         0.021046702729598663:[701.813,100,20,0.78,12000],

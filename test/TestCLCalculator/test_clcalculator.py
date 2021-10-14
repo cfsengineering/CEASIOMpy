@@ -7,10 +7,10 @@ Test functions for 'lib/CLCalculator/clcalculator.py'
 
 Python version: >=3.6
 
-
 | Author : Aidan Jungo
 | Creation: 2019-07-24
-| Last modifiction: 2019-09-27
+| Last modifiction: 2021-10-14
+
 """
 
 #==============================================================================
@@ -18,14 +18,13 @@ Python version: >=3.6
 #==============================================================================
 
 import os
-import sys
 
 import pytest
 from pytest import approx
 
 from ceasiompy.CLCalculator.clcalculator import calculate_cl, get_cl
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import open_tixi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -62,7 +61,7 @@ def test_get_cl():
 
     get_cl(CPACS_IN_PATH,CPACS_OUT_PATH)
 
-    tixi = cpsf.open_tixi(CPACS_OUT_PATH)
+    tixi = open_tixi(CPACS_OUT_PATH)
     cl_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/targetCL'
 
     cl_to_check = tixi.getDoubleElement(cl_xpath)

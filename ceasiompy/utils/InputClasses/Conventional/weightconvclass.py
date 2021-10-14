@@ -8,7 +8,7 @@ The script contains the user inputs required for the weight analysis.
 | Works with Python 3.6
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-10-30 (AJ)
+| Last modifiction: 2021-10-14 (AJ)
 
 TODO:
 
@@ -21,12 +21,9 @@ TODO:
 #   IMPORTS
 #=============================================================================
 
+from cpacspy.cpacsfunctions import (add_uid, get_value_or_default, open_tixi)
+
 from ceasiompy.utils.ceasiomlogger import get_logger
-
-from ceasiompy.utils.cpacsfunctions import open_tixi, close_tixi,add_uid, \
-                                           create_branch, get_value,      \
-                                           get_value_or_default
-
 
 log = get_logger(__file__.split('.')[0])
 
@@ -124,9 +121,7 @@ class UserInputs:
         self.TURBOPROP = get_value_or_default(tixi, PROP_XPATH + '/turboprop', False)
         self.RES_FUEL_PERC = get_value_or_default(tixi, FUEL_XPATH + '/resFuelPerc', 0.06)
 
-
-
-        close_tixi(tixi, cpacs_path)
+        tixi.save(cpacs_path)
 
 
 class InsideDimensions:
@@ -199,7 +194,7 @@ class InsideDimensions:
         self.fuse_thick = get_value_or_default(tixi,GEOM_XPATH+'/fuseThick',6.63)
         self.toilet_length = get_value_or_default(tixi,GEOM_XPATH+'/toiletLength',self.toilet_length)
 
-        close_tixi(tixi, cpacs_path)
+        tixi.save(cpacs_path)
 
 class MassesWeights:
     """

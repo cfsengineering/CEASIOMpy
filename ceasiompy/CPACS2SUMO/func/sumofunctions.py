@@ -22,12 +22,9 @@ TODO:
 #==============================================================================
 
 import os
-import sys
-import math
 import json
 
-#import ceasiompy.utils.cpacsfunctions as cpsf
-from cpacspy.cpacsfunctions import copy_branch 
+from cpacspy.cpacsfunctions import copy_branch
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 

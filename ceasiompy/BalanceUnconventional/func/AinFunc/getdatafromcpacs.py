@@ -22,7 +22,7 @@ The cpacs file Should also contain:
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-12-05
-| Last modifiction: 2020-04-16 (AJ)
+| Last modifiction: 2021-10-14 (AJ)
 """
 
 
@@ -32,9 +32,9 @@ The cpacs file Should also contain:
 
 import numpy as np
 
+from cpacspy.cpacsfunctions import (create_branch, open_tixi)
+
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi,open_tigl, close_tixi,    \
-                                           create_branch
 
 log = get_logger(__file__.split('.')[0])
 
@@ -101,15 +101,9 @@ def get_user_fuel(fus_nb, ui, cpacs_in):
         #         ui.FUEL_ON_CABIN = temp
 
     log.info('Data from CPACS file succesfully extracted')
+
     # # Saving and closing the cpacs file --------------------------------------
-    # tixi.saveDocument(cpacs_in)
-    # close_tixi(tixi, cpacs_in)
-    #
-    # # Openign and closing again the cpacs file -------------------------------
-    # tixi = open_tixi(cpacs_in)
-    # tigl = open_tigl(tixi)
-    # tixi.saveDocument(cpacs_in)
-    close_tixi(tixi, cpacs_in)
+    tixi.save(cpacs_in)
 
     return(ui)
 
@@ -371,14 +365,7 @@ def get_data(ui, bi, mw, ed, cpacs_in):
     log.info('Data from CPACS file succesfully extracted')
 
     # # Saving and closing the cpacs file ======================================
-    # tixi.saveDocument(cpacs_in)
-    # close_tixi(tixi, cpacs_in)
-    #
-    # # Openign and closing again the cpacs file ===============================
-    # tixi = open_tixi(cpacs_in)
-    # tigl = open_tigl(tixi)
-    # tixi.saveDocument(cpacs_in)
-    close_tixi(tixi, cpacs_in)
+    tixi.save(cpacs_in)
 
     return(mw, ed)
 

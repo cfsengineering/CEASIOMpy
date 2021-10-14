@@ -8,7 +8,7 @@ This file will analyse the wing geometry from cpacs file.
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-08-29 (AJ)
+| Last modifiction: 2021-10-14 (AJ)
 """
 
 
@@ -19,9 +19,8 @@ This file will analyse the wing geometry from cpacs file.
 import numpy as np
 import math
 
+from cpacspy.cpacsfunctions import (open_tigl, open_tixi)
 from ceasiompy.utils.ceasiomlogger import get_logger
-
-from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi
 
 log = get_logger(__file__.split('.')[0])
 
@@ -386,7 +385,7 @@ def wing_geom_eval(ag, cpacs_in):
             a += 1
 
     ag.w_seg_sec = seg_sec
-    close_tixi(tixi, cpacs_in)
+    tixi.save(cpacs_in)
 
 # log info display ------------------------------------------------------------
     log.info('---------------------------------------------')

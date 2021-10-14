@@ -21,8 +21,7 @@ Python version: >=3.6
 import numpy as np
 import math
 
-import ceasiompy.utils.cpacsfunctions as cpsf
-
+from cpacspy.cpacsfunctions import (open_tigl, open_tixi)
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
@@ -183,8 +182,8 @@ def geom_eval(w_nb, awg, cpacs_in):
     log.info('-----------------------------------------------------------')
 
     # Opening tixi and tigl
-    tixi = cpsf.open_tixi(cpacs_in)
-    tigl = cpsf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_in)
+    tigl = open_tigl(tixi)
 
     # INITIALIZATION 1 ---------------------------------------------------------
     awg.w_nb = w_nb
@@ -350,7 +349,7 @@ def geom_eval(w_nb, awg, cpacs_in):
             c = True
             a += 1
 
-    cpsf.close_tixi(tixi, cpacs_in)
+    tixi.save(cpacs_in)
 
     # log info display ------------------------------------------------------------
     log.info('-----------------------------------------------------------')

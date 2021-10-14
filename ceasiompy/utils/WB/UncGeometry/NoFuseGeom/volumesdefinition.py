@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07
-| Last modifiction: 2020-01-21 (AJ)
+| Last modifiction: 2021-10-14 (AJ)
 
 """
 
@@ -21,9 +21,9 @@ Python version: >=3.6
 import numpy as np
 import math
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from cpacspy.cpacsfunctions import (open_tigl, open_tixi)
 
-from ceasiompy.utils.cpacsfunctions import open_tixi,open_tigl, close_tixi
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 

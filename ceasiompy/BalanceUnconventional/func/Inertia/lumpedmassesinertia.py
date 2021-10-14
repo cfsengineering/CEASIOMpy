@@ -9,7 +9,7 @@ using the lumped masses method.
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-08-29 (AJ)
+| Last modifiction: 2021-10-14 (AJ)
 """
 
 
@@ -20,9 +20,9 @@ using the lumped masses method.
 import numpy as np
 import math
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from cpacspy.cpacsfunctions import (open_tigl, open_tixi)
 
-from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 

@@ -63,10 +63,11 @@ dependencies:
 
   - pip:
     - sphinx-rtd-theme==0.4.3
-    - aeroframe  # See: https://github.com/airinnova/aeroframe
-    - framat  # See: https://github.com/airinnova/framat
+    #- aeroframe  # See: https://github.com/airinnova/aeroframe
+    #- framat  # See: https://github.com/airinnova/framat
     - smt
     - cpacspy
+    - ambiance
     # - mpi4py # issue at installation of environment
 
 

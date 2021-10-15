@@ -24,12 +24,6 @@ jobs:
     - name: Add package dir to pythonpath
       run: |
         pip install -e .
-    - name: Install pyTorndao
-      run: |
-        git clone https://github.com/airinnova/pytornado.git
-        cd pytornado
-        pip install .
-        cd ..
     - name: Run pytest
       run: |
-        pytest
+        pytest -v

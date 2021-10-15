@@ -2,8 +2,9 @@
     :target: https://ceasiompy.readthedocs.io/en/latest/
     :alt: Documentation Status
 
-.. image:: https://travis-ci.com/cfsengineering/CEASIOMpy.svg?branch=master
-    :target: https://travis-ci.com/cfsengineering/CEASIOMpy
+.. image:: https://github.com/cfsengineering/CEASIOMpy/actions/workflows/pytest.yml/badge.svg?branch=master
+    :target: https://github.com/cfsengineering/CEASIOMpy/actions/workflows/pytest.yml
+    :alt: Pytest status
 
 .. image:: https://img.shields.io/badge/license-Apache%202-blue.svg
     :target: https://github.com/cfsengineering/CEASIOMpy/blob/master/LICENSE

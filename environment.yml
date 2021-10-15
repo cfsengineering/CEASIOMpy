@@ -36,10 +36,8 @@ dependencies:
   # Required
   - numpy>=1.15
   #- cpacscreator>=0.1
-  - tigl3=3.2.0
-  - tixi3=3.1.1
-  #- tigl3>=3.1.0  # Dependencies of cpacscreator
-  #- tixi3>=3.1    # Dependencies of cpacscreator
+  - tigl3>=3.2.1
+  - tixi3>=3.1
   - matplotlib>=3.0.2
   - scipy>=1.1
   - scikit-learn>=0.21.3

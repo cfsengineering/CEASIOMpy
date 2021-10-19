@@ -74,13 +74,13 @@ def test_add_skin_friction():
     
     # Expected values
     cl_list_expected = [0.1,0.102944,0.1,0.102944]
-    cd_list_expected = [0.0269521,0.0266946,0.0266946,0.0264409]
-    cs_list_expected = [0.001,0.001,0.0039437,0.0039437]
+    cd_list_expected = [0.0269518,0.0266942,0.0266942,0.0264406]
+    cs_list_expected = [0.001,0.001,0.00394364,0.00394364]
 
-    assert all([a == b for a, b in zip(apm_sf.get('cl'), cl_list_expected)])
-    assert all([a == b for a, b in zip(apm_sf.get('cd'), cd_list_expected)])
-    assert all([a == b for a, b in zip(apm_sf.get('cs'), cs_list_expected)])
-
+    assert all([a == approx(b, rel=1e-4) for a, b in zip(apm_sf.get('cl'), cl_list_expected)])
+    assert all([a == approx(b, rel=1e-4) for a, b in zip(apm_sf.get('cd'), cd_list_expected)])
+    assert all([a == approx(b, rel=1e-4) for a, b in zip(apm_sf.get('cs'), cs_list_expected)])
+    
     # Remove the output cpacs file if exist
     if os.path.exists(CPACS_OUT_PATH):
         os.remove(CPACS_OUT_PATH)

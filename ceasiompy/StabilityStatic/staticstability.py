@@ -66,8 +66,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     Args:
         cpacs_path (str): Path to CPACS file
         cpacs_out_path (str):Path to CPACS output file
-        plot (boolean): Choise to plot graph or not
-
+        
     Returns:
         *   Adrvertisements certifying if the aircraft is stable or Not
         *   In case of longitudinal static UNstability or unvalid test on data:

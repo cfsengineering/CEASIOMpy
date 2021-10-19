@@ -34,9 +34,8 @@ log = get_logger(__file__.split('.')[0])
 
 # Default CPACS file to test
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CPACS_IN_PATH = MODULE_DIR + '/../CPACSfiles/D150_simple.xml'
-CPACS_OUT_PATH = MODULE_DIR + '/D150_simple_skinfriction_test.xml'
-
+CPACS_IN_PATH =  os.path.join(MODULE_DIR,'..','CPACSfiles','D150_simple.xml')
+CPACS_OUT_PATH = os.path.join(MODULE_DIR,'D150_simple_skinfriction_test.xml')
 
 #==============================================================================
 #   CLASSES

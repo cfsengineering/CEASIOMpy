@@ -30,6 +30,11 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
+# Default CPACS file to test
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+CPACS_IN_PATH =  os.path.join(MODULE_DIR,'..','CPACSfiles','D150_simple.xml')
+CPACS_OUT_PATH = os.path.join(MODULE_DIR,'D150_simple_clcalulator_test.xml')
+
 #==============================================================================
 #   CLASSES
 #==============================================================================
@@ -55,10 +60,6 @@ def test_calculate_cl():
 def test_get_cl():
     """Test function 'get_cl' """
 
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    CPACS_IN_PATH = os.path.join(MODULE_DIR,'ToolInput','D150_AGILE_Hangar_v3.xml')
-    CPACS_OUT_PATH = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
-
     get_cl(CPACS_IN_PATH,CPACS_OUT_PATH)
 
     tixi = open_tixi(CPACS_OUT_PATH)
@@ -66,6 +67,10 @@ def test_get_cl():
 
     cl_to_check = tixi.getDoubleElement(cl_xpath)
     assert cl_to_check == approx(0.794788)
+
+    # Remove the output cpacs file if exist
+    if os.path.exists(CPACS_OUT_PATH):
+        os.remove(CPACS_OUT_PATH)
 
 
 #==============================================================================

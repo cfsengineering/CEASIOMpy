@@ -5032,6 +5032,20 @@
         </global>
         <analyses>
           <massBreakdown>
+            <designMasses>
+              <mTOM uID="D150_VAMP_mTOM1">
+                <mass>78126</mass>
+                <location uID="D150_VAMP_mTOM1_location1">
+                  <x>16.3</x>
+                </location>
+              </mTOM>
+              <mZFM uID="D150_VAMP_mZFM1">
+                <mass>54038</mass>
+              </mZFM>
+              <mMLM uID="D150_VAMP_mMLM1">
+                <mass>57593</mass>
+              </mMLM>
+            </designMasses>
           </massBreakdown>
           <weightAndBalance>
           </weightAndBalance>

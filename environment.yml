@@ -31,7 +31,7 @@ channels:
 # are explicitly imported, but we do not list 'package_C'.
 
 dependencies:
-  - python>=3.6
+  - python>=3.7
 
   # Required
   - numpy>=1.15

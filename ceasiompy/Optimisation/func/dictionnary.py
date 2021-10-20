@@ -28,8 +28,7 @@ from sys import exit
 
 import numpy as np
 import ceasiompy.utils.apmfunctions as apmf
-from cpacspy.cpacsfunctions import open_tigl
-import ceasiompy.CPACSUpdater.cpacsupdater as cpud
+from cpacspy.cpacsfunctions import open_tigl, get_tigl_configuration
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -329,8 +328,9 @@ def init_geom_var_dict(tixi):
         the routine.
 
     """
+
     tigl = open_tigl(tixi)
-    aircraft = cpud.get_aircraft(tigl)
+    aircraft = get_tigl_configuration(tigl)
 
     fuse_nb = aircraft.get_fuselage_count()
     if fuse_nb:

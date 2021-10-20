@@ -32,9 +32,8 @@ import smt.surrogate_models as sms # Use after loading the model
 
 import ceasiompy.utils.apmfunctions as apmf
 from cpacspy.cpacsfunctions import (create_branch, get_value_or_default,
-                                    open_tigl, open_tixi)
+                                    open_tigl, open_tixi, get_tigl_configuration)
 import ceasiompy.utils.moduleinterfaces as mi
-import ceasiompy.CPACSUpdater.cpacsupdater as cpud
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -114,7 +113,7 @@ def get_inputs(x):
 
     tixi = open_tixi(cpacs_path)
     tigl = open_tigl(tixi)
-    aircraft = cpud.get_aircraft(tigl)
+    aircraft = get_tigl_configuration(tigl)
     wings = aircraft.get_wings()
     fuselage = aircraft.get_fuselages().get_fuselage(1)
 
@@ -155,7 +154,7 @@ def write_inouts(v, inout, tixi):
     """
 
     tigl = open_tigl(tixi)
-    aircraft = cpud.get_aircraft(tigl)
+    aircraft = get_tigl_configuration(tigl)
     wings = aircraft.get_wings()
     fuselage = aircraft.get_fuselages().get_fuselage(1)
 
@@ -189,7 +188,7 @@ def aeromap_calculation(sm, tixi):
     """
 
     tigl = open_tigl(tixi)
-    aircraft = cpud.get_aircraft(tigl)
+    aircraft = get_tigl_configuration(tigl)
     wings = aircraft.get_wings()
     fuselage = aircraft.get_fuselages().get_fuselage(1)
 

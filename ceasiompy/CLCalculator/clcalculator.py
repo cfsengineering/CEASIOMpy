@@ -28,7 +28,7 @@ from cpacspy.cpacsfunctions import (get_value, get_value_or_default, create_bran
 
 import ceasiompy.utils.moduleinterfaces as mif
 from ceasiompy.utils.standardatmosphere import get_atmosphere
-from ceasiompy.utils.moduleinterfaces import CEASIOM_XPATH
+from ceasiompy.utils.xpath import (CLCALC_XPATH, SU2_XPATH)
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -101,11 +101,9 @@ def get_cl(cpacs_path,cpacs_out_path):
     custom_mass_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/clCalculation/customMass'
     percent_fuel_mass_xpath='/cpacs/toolspecific/CEASIOMpy/aerodynamics/clCalculation/percentFuelMass'
 
-    cruise_alt_xpath = CEASIOM_XPATH + '/aerodynamics/clCalculation/cruiseAltitude'
-    cruise_mach_xpath = CEASIOM_XPATH + '/aerodynamics/clCalculation/cruiseMach'
-    load_fact_xpath = CEASIOM_XPATH + '/aerodynamics/clCalculation/loadFactor'
-
-    su2_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
+    cruise_alt_xpath = CLCALC_XPATH + '/cruiseAltitude'
+    cruise_mach_xpath = CLCALC_XPATH + '/cruiseMach'
+    load_fact_xpath = CLCALC_XPATH + '/loadFactor'
 
     # Requiered input data from CPACS
     ref_area = get_value(tixi,ref_area_xpath)
@@ -145,11 +143,11 @@ def get_cl(cpacs_path,cpacs_out_path):
     target_cl = calculate_cl(ref_area, cruise_alt, cruise_mach, mass, load_fact)
 
     # Save TargetCL and fixedCL option
-    create_branch(tixi, su2_xpath)
-    create_branch(tixi, su2_xpath+'/targetCL')
-    create_branch(tixi, su2_xpath+'/fixedCL')
-    tixi.updateDoubleElement(su2_xpath+'/targetCL',target_cl,'%g')
-    tixi.updateTextElement(su2_xpath+'/fixedCL','YES')
+    create_branch(tixi, SU2_XPATH)
+    create_branch(tixi, SU2_XPATH+'/targetCL')
+    create_branch(tixi, SU2_XPATH+'/fixedCL')
+    tixi.updateDoubleElement(SU2_XPATH+'/targetCL',target_cl,'%g')
+    tixi.updateTextElement(SU2_XPATH+'/fixedCL','YES')
     log.info('Target CL has been saved in the CPACS file')
 
     cpacs.save_cpacs(cpacs_out_path,overwrite=True)

@@ -34,6 +34,8 @@ import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.Optimisation.func.tools as tls
 import ceasiompy.Optimisation.func.dictionnary as dct
 
+from ceasiompy.utils.xpath import (OPTIM_XPATH, AEROPERFORMANCE_XPATH, SMUSE_XPATH )
+
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
@@ -45,12 +47,6 @@ log = get_logger(__file__.split('.')[0])
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 CPACS_OPTIM_PATH = mif.get_toolinput_file_path('Optimisation')
 CSV_PATH = MODULE_DIR+'/Variable_library.csv'
-
-WKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath'
-OPTWKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/optimPath'
-OPTIM_XPATH = '/cpacs/toolspecific/CEASIOMpy/Optimisation/'
-AEROMAP_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance'
-SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 # Parameters that can not be used as problem variables
 banned_entries = ['wing', 'delete_old_wkdirs', 'check_extract_loads', # Not relevant
@@ -296,8 +292,7 @@ def get_aero_param(tixi):
 
     log.info('Aeromap \"{}\" will be used for the variables.'.format(am_uid))
 
-    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap'\
-            + am_index + '/aeroPerformanceMap/'
+    xpath = AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
 
     for name in apmf.COEF_LIST+apmf.XSTATES:
         xpath_param = xpath+name
@@ -436,7 +431,7 @@ def add_entries(tixi, module_list):
 
     """
 
-    use_am = get_value_or_default(tixi, smu.SMUSE_XPATH+'AeroMapOnly', False)
+    use_am = get_value_or_default(tixi, SMUSE_XPATH+'AeroMapOnly', False)
     if 'SMUse' in module_list and use_am:
         get_aero_param(tixi)
     else:
@@ -535,7 +530,7 @@ def create_am_lib(Rt, tixi):
     am_dict = Coef.to_dict()
     am_index = apmf.get_aeromap_index(tixi, Rt.aeromap_uid)
 
-    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
+    xpath = AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
 
     for name in apmf.COEF_LIST+apmf.XSTATES:
         if name in ['altitude', 'machNumber']:

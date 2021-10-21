@@ -33,6 +33,7 @@ from cpacspy.cpacsfunctions import (add_string_vector, create_branch,
 import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.moduleinterfaces as mi
+from ceasiompy.utils.xpath import PLOT_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -41,7 +42,6 @@ log = get_logger(__file__.split('.')[0])
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
-PLOT_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/plotAeroCoefficient'
 
 NONE_LIST = ['None','NONE','No','NO','N','n','-',' ','']
 

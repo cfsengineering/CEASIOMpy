@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH, CEASIOM_XPATH, SU2_XPATH
-
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.xpath import (CEASIOMPY_XPATH, REF_XPATH, SU2_XPATH)
 
 # ===== RCE integration =====
 
@@ -26,7 +26,7 @@ cpacs_inout.add_input(
     default_value=1,
     unit='1',
     descr='Number of proc to use to run SU2',
-    xpath=CEASIOM_XPATH + '/aerodynamics/su2/settings/nbProc',
+    xpath=SU2_XPATH + '/settings/nbProc',
     gui=True,
     gui_name='Nb of processor',
     gui_group='CPU',
@@ -38,7 +38,7 @@ cpacs_inout.add_input(
     default_value='-',
     unit='1',
     descr='Absolute path of the SU2 mesh',
-    xpath=CEASIOM_XPATH + '/filesPath/su2Mesh',
+    xpath=CEASIOMPY_XPATH + '/filesPath/su2Mesh',
     gui=True,
     gui_name='SU2 Mesh',
     gui_group='Inputs',
@@ -50,7 +50,7 @@ cpacs_inout.add_input(
     default_value=False,
     unit='1',
     descr='To check if control surfaces deflections should be calculated or not',
-    xpath=CEASIOM_XPATH + '/aerodynamics/su2/options/clalculateCotrolSurfacesDeflections',
+    xpath=SU2_XPATH + '/options/clalculateCotrolSurfacesDeflections',
     gui=True,
     gui_name='Control Surfaces',
     gui_group='Inputs',
@@ -64,7 +64,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m',
     descr='Reference length of the aircraft',
-    xpath=AIRCRAFT_XPATH + '/model/reference/length',
+    xpath=REF_XPATH + '/length',
     gui=False,
     gui_name=None,
     gui_group=None,
@@ -76,7 +76,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m^2',
     descr='Reference area of the aircraft',
-    xpath=AIRCRAFT_XPATH + '/model/reference/area',
+    xpath=REF_XPATH + '/area',
     gui=False,
     gui_name=None,
     gui_group=None,
@@ -89,7 +89,7 @@ for direction in ['x', 'y', 'z']:
         default_value=0.0,
         unit='m',
         descr=f"Fuselage scaling on {direction} axis",
-        xpath=AIRCRAFT_XPATH + f'/model/reference/point/{direction}',
+        xpath=REF_XPATH + f'/point/{direction}',
         gui=False,
         gui_name=None,
         gui_group=None,
@@ -106,7 +106,7 @@ for direction in ['x', 'y', 'z']:
 #     default_value=None,
 #     unit='m^2',
 #     descr='Aircraft wetted area calculated by SU2',
-#     xpath=CEASIOM_XPATH + '/geometry/analyses/wettedArea',
+#     xpath=CEASIOMPY_XPATH + '/geometry/analyses/wettedArea',
 # )
 
 cpacs_inout.add_output(
@@ -124,5 +124,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit='1',
     descr='Wall boundary conditions found in the SU2 mesh',
-    xpath=CEASIOM_XPATH + '/aerodynamics/su2/boundaryConditions/wall'
+    xpath=SU2_XPATH + '/boundaryConditions/wall'
 )

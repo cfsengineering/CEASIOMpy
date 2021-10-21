@@ -14,6 +14,7 @@ Python version: >=3.6
 TODO:
 
     * add control surface functions
+    * Replace Atmosphere by ambiance
 
 """
 
@@ -33,17 +34,17 @@ from cpacspy.cpacsfunctions import (create_branch, get_string_vector,
 import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.su2functions as su2f
 
-from ceasiompy.utils.standardatmosphere import get_atmosphere
+from ceasiompy.utils.standardatmosphere import get_atmosphere 
+
+from ceasiompy.utils.xpath import SU2_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
-SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 DEFAULT_CONFIG_PATH = MODULE_DIR + '/../files/DefaultConfig_v7.cfg'
 
-SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 #==============================================================================
 #   CLASSES

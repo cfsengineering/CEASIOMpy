@@ -30,12 +30,12 @@ from cpacspy.cpacsfunctions import (create_branch, get_value,
                                     open_tixi)
 import ceasiompy.utils.apmfunctions as apmf
 from ceasiompy.SU2Run.func.extractloads import extract_loads
+from ceasiompy.utils.xpath import SU2_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
-SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 #==============================================================================
 #   CLASSES

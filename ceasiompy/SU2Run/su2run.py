@@ -37,13 +37,13 @@ import ceasiompy.utils.su2functions as su2f
 from ceasiompy.SU2Run.func.su2config import generate_su2_config
 from ceasiompy.SU2Run.func.extractloads import extract_loads
 from ceasiompy.SU2Run.func.su2results import get_su2_results
+from ceasiompy.utils.xpath import SU2_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 #==============================================================================
 #   CLASSES

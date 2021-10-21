@@ -34,6 +34,8 @@ import ceasiompy.utils.apmfunctions as apmf
 from cpacspy.cpacsfunctions import (create_branch, get_value_or_default,
                                     open_tigl, open_tixi, get_tigl_configuration)
 import ceasiompy.utils.moduleinterfaces as mi
+from ceasiompy.utils.xpath import (AEROPERFORMANCE_XPATH, SMTRAIN_XPATH, 
+                                   SMTRAIN_XPATH, SMUSE_XPATH)
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -45,8 +47,6 @@ log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
-SMUSE_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/'
-SMTRAIN_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModel/'
 
 cpacs_path = mi.get_toolinput_file_path('SMUse')
 cpacs_path_out = mi.get_tooloutput_file_path('SMUse')
@@ -120,7 +120,7 @@ def get_inputs(x):
     inputs = []
     am_uid = apmf.get_current_aeromap_uid(tixi, 'SMUse')
     am_index = apmf.get_aeromap_index(tixi, am_uid)
-    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
+    xpath = AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
 
     x.set_index('Name', inplace=True)
     for name in x.index:

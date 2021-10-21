@@ -12,7 +12,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06
-| Last modification: 2021-10-01 (AJ)
+| Last modification: 2021-10-21 (AJ)
 
 TODO:
     * Enable model-specific settings for user through the GUI
@@ -36,6 +36,7 @@ import smt.surrogate_models as sms
 import ceasiompy.utils.apmfunctions as apmf
 from cpacspy.cpacsfunctions import (create_branch, get_value_or_default, 
                                     open_tixi)
+from ceasiompy.utils.xpath import (SMTRAIN_XPATH, SMTRAIN_XPATH, SMFILE_XPATH, OPTWKDIR_XPATH)
 import ceasiompy.utils.moduleinterfaces as mi
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 from ceasiompy.SMUse.smuse import Surrogate_model
@@ -48,9 +49,6 @@ log = get_logger(__file__.split('.')[0])
 # =============================================================================
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-SMTRAIN_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModel/'
-SMFILE_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/SMpath'
-OPTWKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/optimPath'
 
 COEF_LIST = ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']
 

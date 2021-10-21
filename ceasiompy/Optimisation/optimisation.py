@@ -39,6 +39,8 @@ import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 
+from ceasiompy.utils.xpath import (WKDIR_XPATH, OPTWKDIR_XPATH, OPTIM_XPATH)
+
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -271,7 +273,7 @@ class Objective(om.ExplicitComponent):
             dct.update_am_dict(tixi, Rt.aeromap_uid, am_dict)
 
         # Change local wkdir for the next iteration
-        tixi.updateTextElement(opf.WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
+        tixi.updateTextElement(WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
 
         for obj in Rt.objective:
             var_list = splt('[+*/-]', obj)
@@ -324,10 +326,10 @@ def create_routine_folder():
     Rt.date = wkdir[-19:]
 
     # Save the path to the directory in the CPACS
-    if tixi.checkElement(opf.OPTWKDIR_XPATH):
-        tixi.removeElement(opf.OPTWKDIR_XPATH)
-    create_branch(tixi, opf.OPTWKDIR_XPATH)
-    tixi.updateTextElement(opf.OPTWKDIR_XPATH, optim_dir_path)
+    if tixi.checkElement(OPTWKDIR_XPATH):
+        tixi.removeElement(OPTWKDIR_XPATH)
+    create_branch(tixi, OPTWKDIR_XPATH)
+    tixi.updateTextElement(OPTWKDIR_XPATH, optim_dir_path)
 
     # Add subdirectories
     if not os.path.isdir(optim_dir_path):
@@ -343,8 +345,8 @@ def create_routine_folder():
         os.mkdir(optim_dir_path)
         os.mkdir(optim_dir_path+'/Geometry')
         os.mkdir(optim_dir_path+'/Runs')
-    tixi.updateTextElement(opf.OPTWKDIR_XPATH, optim_dir_path)
-    tixi.updateTextElement(opf.WKDIR_XPATH, optim_dir_path)
+    tixi.updateTextElement(OPTWKDIR_XPATH, optim_dir_path)
+    tixi.updateTextElement(WKDIR_XPATH, optim_dir_path)
 
     tixi.save(opf.CPACS_OPTIM_PATH)
 
@@ -569,7 +571,7 @@ def routine_launcher(Opt):
     opf.first_run(Rt)
 
     tixi = open_tixi(opf.CPACS_OPTIM_PATH)
-    tixi.updateTextElement(opf.WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
+    tixi.updateTextElement(WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
     Rt.get_user_inputs(tixi)
     optim_var_dict = opf.create_variable_library(Rt, tixi, optim_dir_path)
     am_dict = opf.create_am_lib(Rt, tixi)
@@ -598,7 +600,7 @@ if __name__ == '__main__':
     tixi = open_tixi(cpacs_path)
 
     try:
-        am_uid = get_value(tixi, opf.OPTIM_XPATH+'aeroMapUID')
+        am_uid = get_value(tixi, OPTIM_XPATH+'aeroMapUID')
     except:
         raise ValueError('No aeromap found in the file')
 

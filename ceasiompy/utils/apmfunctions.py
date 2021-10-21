@@ -10,14 +10,11 @@ CPACS version: 3.1
 
 | Author : Aidan Jungo
 | Creation: 2019-08-15
-| Last modifiction: 2021-07-16
+| Last modifiction: 2021-10-21
 
 TODO:
 
     * These function will probably be replace by cpacspy !!!
-    * Create test functions
-    * Developp other functions
-    * Use Penda DataFrame instead of AeroCoefficient object?
     * implement "IncrementMap" for damping_der and control_surf
 """
 
@@ -35,12 +32,11 @@ import pandas as pd
 
 from cpacspy.cpacsfunctions import (add_float_vector, add_uid, create_branch,
                                     get_float_vector, get_value_or_default)
+from ceasiompy.utils.xpath import AEROPERFORMANCE_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
-
-AEROPERFORMANCE_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance'
 
 COEF_LIST = ['cl','cd','cs','cml','cmd','cms']
 STATES = ['alt','mach','aoa','aos']

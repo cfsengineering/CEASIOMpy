@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Verdier Loïc
 | Creation: 2019-10-24
-| Last modifiction: 2021-10-14 (AJ)
+| Last modifiction: 2021-10-21 (AJ)
 
 TODO:
     * Modify the code where there are "TODO"
@@ -56,8 +56,9 @@ from ceasiompy.StabilityDynamic.func_dynamic import plot_sp_level_a, plot_sp_lev
                                             phugoid_rating, roll_rating, spiral_rating, dutch_roll_rating, plot_splane,\
                                             longi_mode_characteristic, direc_mode_characteristic, trim_condition
 
-from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
-from ceasiompy.SkinFriction.skinfriction import get_largest_wing_dim
+from ceasiompy.utils.standardatmosphere import get_atmosphere
+from ceasiompy.utils.xpath import STABILITY_DYNAMIC_XPATH
+
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
@@ -65,7 +66,6 @@ log = get_logger(__file__.split('.')[0])
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
-DYNAMIC_ANALYSIS_XPATH = '/cpacs/toolspecific/CEASIOMpy/stability/dynamic'
 
 #==============================================================================
 #   Classes
@@ -111,14 +111,14 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
     """
 
     # XPATH definition
-    aeromap_uid_xpath =   DYNAMIC_ANALYSIS_XPATH + '/aeroMapUid'
-    aircraft_class_xpath = DYNAMIC_ANALYSIS_XPATH + '/class' # Classes 1 2 3 4 small, heavy ...
-    aircraft_cathegory_xpath = DYNAMIC_ANALYSIS_XPATH  + '/category' # flight phase A B C
-    selected_mass_config_xpath  = DYNAMIC_ANALYSIS_XPATH + '/massConfiguration'
-    longi_analysis_xpath = DYNAMIC_ANALYSIS_XPATH + '/instabilityModes/longitudinal'
-    direc_analysis_xpath = DYNAMIC_ANALYSIS_XPATH + '/instabilityModes/lateralDirectional'
-    show_plot_xpath = DYNAMIC_ANALYSIS_XPATH + '/showPlots'
-    save_plot_xpath =  DYNAMIC_ANALYSIS_XPATH + '/savePlots'
+    aeromap_uid_xpath =   STABILITY_DYNAMIC_XPATH + '/aeroMapUid'
+    aircraft_class_xpath = STABILITY_DYNAMIC_XPATH + '/class' # Classes 1 2 3 4 small, heavy ...
+    aircraft_cathegory_xpath = STABILITY_DYNAMIC_XPATH  + '/category' # flight phase A B C
+    selected_mass_config_xpath  = STABILITY_DYNAMIC_XPATH + '/massConfiguration'
+    longi_analysis_xpath = STABILITY_DYNAMIC_XPATH + '/instabilityModes/longitudinal'
+    direc_analysis_xpath = STABILITY_DYNAMIC_XPATH + '/instabilityModes/lateralDirectional'
+    show_plot_xpath = STABILITY_DYNAMIC_XPATH + '/showPlots'
+    save_plot_xpath =  STABILITY_DYNAMIC_XPATH + '/savePlots'
 
     model_xpath = '/cpacs/vehicles/aircraft/model'
     ref_area_xpath = model_xpath + '/reference/area'

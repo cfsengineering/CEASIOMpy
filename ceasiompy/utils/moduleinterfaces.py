@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aaron Dettmann
 | Creation: 2019-08-06
-| Last modifiction: 2021-10-14 (AJ)
+| Last modifiction: 2021-10-21 (AJ)
 
 TODO:
 
@@ -35,11 +35,6 @@ log = get_logger(__file__.split('.')[0])
 # Path for main CEASIOMpy library
 import ceasiompy.__init__
 LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
-
-# Shortcut for XPath definition
-CEASIOM_XPATH = '/cpacs/toolspecific/CEASIOMpy'
-AIRCRAFT_XPATH = '/cpacs/vehicles/aircraft'
-SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 MODNAME_TOP = 'ceasiompy'
 MODNAME_SPECS = '__specs__'

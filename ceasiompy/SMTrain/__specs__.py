@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH, CEASIOM_XPATH
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.xpath import SMTRAIN_XPATH
 
 # ===== RCE integration =====
 
@@ -28,7 +29,7 @@ cpacs_inout.add_input(
     unit='-',
     descr="""Objective function list for the surrogate model to predict \n Warning !
     The parameters name must match the ones in the CSV file !""",
-    xpath=CEASIOM_XPATH+'/surrogateModel/objective',
+    xpath=SMTRAIN_XPATH+'/objective',
     gui=include_gui,
     gui_name='Objective',
     gui_group='Global settings',
@@ -39,7 +40,7 @@ cpacs_inout.add_input(
     var_type=float,
     default_value='0.9',
     descr='Defining the percentage of the data to use to train the model in [0;1]',
-    xpath=CEASIOM_XPATH+'/surrogateModel/trainingPercentage',
+    xpath=SMTRAIN_XPATH+'/trainingPercentage',
     gui=include_gui,
     gui_name='% of training data',
     gui_group='Global settings'
@@ -51,7 +52,7 @@ cpacs_inout.add_input(
     default_value=True,
     unit=None,
     descr='Choose if the validation plots must be shown or not',
-    xpath=CEASIOM_XPATH+'/surrogateModel/showPlots',
+    xpath=SMTRAIN_XPATH+'/showPlots',
     gui=include_gui,
     gui_name='Show plots',
     gui_group='Global settings',
@@ -63,7 +64,7 @@ cpacs_inout.add_input(
     default_value=False,
     unit=None,
     descr="""If only the aeromap has to be used""",
-    xpath=CEASIOM_XPATH+'/surrogateModel/useAeromap',
+    xpath=SMTRAIN_XPATH+'/useAeromap',
     gui=include_gui,
     gui_name='Use an aeromap',
     gui_group='Aeromap settings',
@@ -75,7 +76,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit=None,
     descr="Name of the aero map to evaluate",
-    xpath=CEASIOM_XPATH + '/surrogateModel/aeroMapUID',
+    xpath=SMTRAIN_XPATH+'/aeroMapUID',
     gui=True,
     gui_name='__AEROMAP_SELECTION',
     gui_group='Aeromap settings',
@@ -86,7 +87,7 @@ cpacs_inout.add_input(
     var_type='pathtype',
     default_value='-',
     descr='CSV file to be used to train a model',
-    xpath=CEASIOM_XPATH+'/surrogateModel/trainFile',
+    xpath=SMTRAIN_XPATH+'/trainFile',
     gui=include_gui,
     gui_name='Training dataset',
     gui_group='Training options'
@@ -98,7 +99,7 @@ cpacs_inout.add_input(
     default_value=['KRG', 'KPLSK', 'KPLS', 'LS'],
     unit=None,
     descr='Type of surrogate model to choose from',
-    xpath=CEASIOM_XPATH+'/surrogateModel/modelType',
+    xpath=SMTRAIN_XPATH+'/modelType',
     gui=include_gui,
     gui_name='Type of surrogate',
     gui_group='Training options'

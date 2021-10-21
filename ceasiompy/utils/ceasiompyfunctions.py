@@ -28,6 +28,7 @@ import platform
 
 from cpacspy.cpacsfunctions import (create_branch, get_value_or_default, 
                                     open_tixi)
+from ceasiompy.utils.xpath import WKDIR_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -92,7 +93,6 @@ def get_wkdir_or_create_new(tixi):
 
     """
 
-    WKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath'
     wkdir_path = get_value_or_default(tixi,WKDIR_XPATH,'')
     if wkdir_path == '':
         wkdir_path = create_new_wkdir()

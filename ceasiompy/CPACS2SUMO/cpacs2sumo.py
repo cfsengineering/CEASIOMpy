@@ -36,6 +36,7 @@ from cpacspy.cpacsfunctions import (open_tixi , get_value_or_default, create_bra
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 from ceasiompy.utils.generalclasses import SimpleNamespace, Point, Transformation
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
+from ceasiompy.utils.xpath import (FUSELAGES_XPATH, WINGS_XPATH, PYLONS_XPATH, ENGINES_XPATH)
 
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
 from ceasiompy.CPACS2SUMO.func.sumofunctions import sumo_str_format, sumo_add_nacelle_lip, sumo_add_engine_bc, add_wing_cap, sumo_mirror_copy
@@ -86,8 +87,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
 
     # Fuslage(s) ---------------------------------------------------------------
-
-    FUSELAGES_XPATH = '/cpacs/vehicles/aircraft/model/fuselages'
 
     if tixi.checkElement(FUSELAGES_XPATH):
         fus_cnt = tixi.getNamedChildrenCount(FUSELAGES_XPATH, 'fuselage')
@@ -382,8 +381,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
     # Wing(s) ------------------------------------------------------------------
 
-    WINGS_XPATH = '/cpacs/vehicles/aircraft/model/wings'
-
     if tixi.checkElement(WINGS_XPATH):
         wing_cnt = tixi.getNamedChildrenCount(WINGS_XPATH, 'wing')
         log.info(str(wing_cnt) + ' wings has been found.')
@@ -627,8 +624,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
 
     # Engyine pylon(s) ---------------------------------------------------------
-
-    PYLONS_XPATH = '/cpacs/vehicles/aircraft/model/enginePylons'
 
     inc_pylon_xpath = '/cpacs/toolspecific/CEASIOMpy/engine/includePylon'
     include_pylon = get_value_or_default(tixi,inc_pylon_xpath,False)
@@ -876,8 +871,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
 
     # Engine(s) ----------------------------------------------------------------
-
-    ENGINES_XPATH = '/cpacs/vehicles/aircraft/model/engines'
 
     inc_engine_xpath = '/cpacs/toolspecific/CEASIOMpy/engine/includeEngine'
     include_engine = get_value_or_default(tixi,inc_engine_xpath,False)

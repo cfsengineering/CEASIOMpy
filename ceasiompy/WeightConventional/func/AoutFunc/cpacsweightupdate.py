@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2021-10-14 (AJ)
+| Last modifiction: 2021-10-21 (AJ)
 
 TODO:
     * also integrate to Class function?
@@ -21,6 +21,9 @@ TODO:
 #=============================================================================
 
 from cpacspy.cpacsfunctions import (add_uid, create_branch, open_tixi)
+from ceasiompy.utils.xpath import (CREW_XPATH, MASSBREAKDOWN_XPATH,
+                                   PASS_XPATH)
+
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
@@ -52,11 +55,6 @@ def cpacs_update(mw, out, cpacs_path, cpacs_out_path):
     """
 
     tixi = open_tixi(cpacs_out_path)  # (because it has been modifed somewre else, TODO: change that)
-
-    # Path definition
-    WEIGHT_XPATH = '/cpacs/toolspecific/CEASIOMpy/weight'
-    CREW_XPATH = WEIGHT_XPATH + '/crew'
-    PASS_XPATH = WEIGHT_XPATH + '/passengers'
 
     # Path update
     if not tixi.checkElement(CREW_XPATH+'/cabinCrewMembers/cabinCrewMemberNb'):
@@ -95,18 +93,18 @@ def cpacs_update(mw, out, cpacs_path, cpacs_out_path):
     # CPACS MASS BREAKDOWN UPDATE
 
     # Path creation
-    MB_XPATH = '/cpacs/vehicles/aircraft/model/analyses/massBreakdown'
-    if tixi.checkElement(MB_XPATH):
-        tixi.removeElement(MB_XPATH)
+    if tixi.checkElement(MASSBREAKDOWN_XPATH):
+        tixi.removeElement(MASSBREAKDOWN_XPATH)
 
-    MD_XPATH = MB_XPATH + '/designMasses'
+    MD_XPATH = MASSBREAKDOWN_XPATH + '/designMasses'
     MTOM_XPATH = MD_XPATH + '/mTOM'
     MZFM_XPATH = MD_XPATH + '/mZFM'
-    MF_XPATH = MB_XPATH + '/fuel/massDescription'
-    OEM_XPATH = MB_XPATH + '/mOEM/massDescription'
-    PAY_XPATH = MB_XPATH + '/payload/massDescription'
-    MC_XPATH = MB_XPATH + '/payload/mCargo'
-    OIM_XPATH = MB_XPATH + '/mOEM/mOperatorItems/mCrewMembers/massDescription'
+    MF_XPATH = MASSBREAKDOWN_XPATH + '/fuel/massDescription'
+    OEM_XPATH = MASSBREAKDOWN_XPATH + '/mOEM/massDescription'
+    PAY_XPATH = MASSBREAKDOWN_XPATH + '/payload/massDescription'
+    MC_XPATH = MASSBREAKDOWN_XPATH + '/payload/mCargo'
+    OIM_XPATH = MASSBREAKDOWN_XPATH + '/mOEM/mOperatorItems/mCrewMembers/massDescription'
+
     create_branch(tixi, MTOM_XPATH + '/mass', False)
     create_branch(tixi, MZFM_XPATH + '/mass', False)
     create_branch(tixi, MF_XPATH + '/mass', False)

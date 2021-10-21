@@ -32,15 +32,13 @@ from cpacspy.cpacsfunctions import (add_string_vector, create_branch,
                                     get_string_vector, get_value,
                                     get_value_or_default)
 import ceasiompy.utils.moduleinterfaces as mi
+from ceasiompy.utils.xpath import (WINGS_XPATH, SF_XPATH)
 
 from ambiance import Atmosphere
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
-
-WINGS_XPATH = '/cpacs/vehicles/aircraft/model/wings'
-SF_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction'
 
 
 #==============================================================================

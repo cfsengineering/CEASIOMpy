@@ -41,6 +41,7 @@ import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
+from ceasiompy.utils.xpath import (FUSELAGES_XPATH, WINGS_XPATH, PYLONS_XPATH, ENGINES_XPATH)
 
 from ceasiompy.ModuleTemplate.func.subfunc import my_subfunc
 
@@ -142,12 +143,11 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
     tixi = open_tixi(cpacs_path)
 
     # Create xpaths
-    FUSELAGE_XPATH = '/cpacs/vehicles/aircraft/model/fuselages/fuselage'
-    SCALING_XPATH = '/transformation/scaling'
+    SCALING_XPATH = '/fuselage/transformation/scaling'
 
-    x_fus_scaling_xpath = FUSELAGE_XPATH + SCALING_XPATH + '/x'
-    y_fus_scaling_xpath = FUSELAGE_XPATH + SCALING_XPATH + '/y'
-    z_fus_scaling_xpath = FUSELAGE_XPATH + SCALING_XPATH + '/z'
+    x_fus_scaling_xpath = FUSELAGES_XPATH + SCALING_XPATH + '/x'
+    y_fus_scaling_xpath = FUSELAGES_XPATH + SCALING_XPATH + '/y'
+    z_fus_scaling_xpath = FUSELAGES_XPATH + SCALING_XPATH + '/z'
 
     # Get values
     x = get_value(tixi, x_fus_scaling_xpath)

@@ -43,6 +43,7 @@ from ceasiompy.utils.standardatmosphere import get_atmosphere
 from ceasiompy.StabilityStatic.func_static import get_unic, get_index, extract_subelements,\
                                             order_correctly, trim_derivative, plot_multicurve,\
                                             trim_condition, interpolation
+from ceasiompy.utils.xpath import STABILITY_STATIC_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -51,7 +52,6 @@ log = get_logger(__file__.split('.')[0])
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
-STATIC_ANALYSIS_XPATH = '/cpacs/toolspecific/CEASIOMpy/stability/static'
 
 #===========================================================
 #   FUNCTIONS
@@ -98,14 +98,14 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     tixi = open_tixi(cpacs_path)
 
     # Get aeromap uid
-    aeromap_uid = get_value(tixi, STATIC_ANALYSIS_XPATH+'/aeroMapUid')
+    aeromap_uid = get_value(tixi, STABILITY_STATIC_XPATH+'/aeroMapUid')
     log.info('The following aeroMap will be analysed: ' + aeromap_uid)
 
-    show_plots = get_value_or_default(tixi,STATIC_ANALYSIS_XPATH +'/showPlots',False)
-    save_plots = get_value_or_default(tixi,STATIC_ANALYSIS_XPATH +'/savePlots',False)
+    show_plots = get_value_or_default(tixi,STABILITY_STATIC_XPATH +'/showPlots',False)
+    save_plots = get_value_or_default(tixi,STABILITY_STATIC_XPATH +'/savePlots',False)
 
     # Aircraft mass configuration
-    selected_mass_config_xpath  = STATIC_ANALYSIS_XPATH + '/massConfiguration'
+    selected_mass_config_xpath  = STABILITY_STATIC_XPATH + '/massConfiguration'
     mass_config = get_value(tixi,selected_mass_config_xpath)
     # TODO: use get value or default instead and deal with not mass config
     log.info('The aircraft mass configuration used for analysis is: ' + mass_config)
@@ -854,12 +854,12 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
     # xpath definition
     # TODO: add uid of the coresponding aeropm for results
-    longi_xpath = STATIC_ANALYSIS_XPATH + '/results/longitudinalStaticStable'
-    lat_xpath = STATIC_ANALYSIS_XPATH + '/results/lateralStaticStable'
-    direc_xpath = STATIC_ANALYSIS_XPATH + '/results/directionnalStaticStable'
-    longi_trim_xpath = STATIC_ANALYSIS_XPATH +'/trimConditions/longitudinal'
-    lat_trim_xpath = STATIC_ANALYSIS_XPATH +'/trimConditions/lateral'
-    direc_trim_xpath = STATIC_ANALYSIS_XPATH +'/trimConditions/directional'
+    longi_xpath = STABILITY_STATIC_XPATH + '/results/longitudinalStaticStable'
+    lat_xpath = STABILITY_STATIC_XPATH + '/results/lateralStaticStable'
+    direc_xpath = STABILITY_STATIC_XPATH + '/results/directionnalStaticStable'
+    longi_trim_xpath = STABILITY_STATIC_XPATH +'/trimConditions/longitudinal'
+    lat_trim_xpath = STABILITY_STATIC_XPATH +'/trimConditions/lateral'
+    direc_trim_xpath = STABILITY_STATIC_XPATH +'/trimConditions/directional'
 
     create_branch(tixi, longi_xpath)
     create_branch(tixi, lat_xpath)

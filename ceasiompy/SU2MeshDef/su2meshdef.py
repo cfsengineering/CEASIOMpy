@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2020-02-27
-| Last modifiction: 2021-10-01
+| Last modifiction: 2021-10-21
 
 TODO:
 
@@ -38,15 +38,13 @@ from cpacspy.cpacsfunctions import (add_string_vector, get_uid, get_value,
                                     get_value_or_default,
                                     open_tigl, open_tixi)
 import ceasiompy.utils.su2functions as su2f
+from ceasiompy.utils.xpath import (REF_XPATH, WINGS_XPATH, SU2_XPATH)
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-REF_XPATH = '/cpacs/vehicles/aircraft/model/reference'
-WINGS_XPATH = '/cpacs/vehicles/aircraft/model/wings'
-SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 #==============================================================================
 #   CLASSES

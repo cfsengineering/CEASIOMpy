@@ -10,16 +10,16 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2021-10-14 (AJ)
+| Last modifiction: 2021-10-21 (AJ)
 
 """
-
 
 #=============================================================================
 #   IMPORTS
 #=============================================================================
 
 from cpacspy.cpacsfunctions import (add_uid, create_branch,  open_tixi)
+from ceasiompy.utils.xpath import (CREW_XPATH, PASS_XPATH)
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
@@ -54,14 +54,8 @@ def toolspecific_update(fus_nb, awg, mw, out, cpacs_out_path):
 
     tixi = open_tixi(cpacs_out_path)
 
-    # Path definition
-    CEASIOM_PATH = '/cpacs/toolspecific/CEASIOMpy'
-    WEIGHT_XPATH = CEASIOM_PATH + '/weight'
-
-    CREW_XPATH = WEIGHT_XPATH + '/crew'
+    # Path creation
     create_branch(tixi, CREW_XPATH + '/cabinCrewMembers', False)
-
-    PASS_XPATH = WEIGHT_XPATH + '/passengers'
     create_branch(tixi, PASS_XPATH, False)
 
     # Path update

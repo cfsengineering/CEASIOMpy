@@ -4183,7 +4183,7 @@
             <longitudinal>
               <altitude mapType="vector">1400</altitude>
               <machNumber mapType="vector">0.6</machNumber>
-              <angleOfAttack mapType="vector">3.25803</angleOfAttack>
+              <angleOfAttack mapType="vector">3.25808</angleOfAttack>
               <angleOfSideslip mapType="vector">0</angleOfSideslip>
             </longitudinal>
             <lateral/>

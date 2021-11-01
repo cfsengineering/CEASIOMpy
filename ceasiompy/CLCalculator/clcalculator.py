@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2018-11-28
-| Last modifiction: 2021-09-08
+| Last modifiction: 2021-11-01
 
 TODO:
 
@@ -27,7 +27,9 @@ from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import (get_value, get_value_or_default, create_branch)
 
 import ceasiompy.utils.moduleinterfaces as mif
-from ceasiompy.utils.standardatmosphere import get_atmosphere
+
+from ambiance import Atmosphere
+
 from ceasiompy.utils.xpath import (CLCALC_XPATH, SU2_XPATH)
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -66,12 +68,13 @@ def calculate_cl(ref_area, alt, mach, mass, load_fact = 1.05):
     """
 
     # Get atmosphere values at this altitude
-    Atm = get_atmosphere(alt)
+    Atm = Atmosphere(alt)
+
     GAMMA = 1.401 # Air heat capacity ratio [-]
 
     # Calculate lift coeffienct
-    weight = mass * Atm.grav
-    dyn_pres = 0.5 * GAMMA * Atm.pres * mach**2
+    weight = mass * Atm.grav_accel[0]
+    dyn_pres = 0.5 * GAMMA * Atm.pressure[0] * mach**2
     target_cl = weight * load_fact / (dyn_pres * ref_area)
     log.info(f'A lift coefficent (CL) of {target_cl} has been calculated')
 

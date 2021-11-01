@@ -170,7 +170,7 @@ def test_static_stability_analysis():
 
     assert trim_longi_alt == 1400
     assert trim_longi_mach == 0.6
-    assert trim_longi_aoa == 3.25803
+    assert trim_longi_aoa == 3.25808
     assert trim_longi_aos == 0
 
     trim_dir_alt = get_string_vector(tixi, static_xpath+'/trimConditions/directional/altitude')

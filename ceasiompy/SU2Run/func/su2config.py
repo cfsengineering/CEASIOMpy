@@ -9,12 +9,11 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2020-02-24
-| Last modifiction: 2021-10-01
+| Last modifiction: 2021-11-01
 
 TODO:
 
     * add control surface functions
-    * Replace Atmosphere by ambiance
 
 """
 
@@ -34,7 +33,7 @@ from cpacspy.cpacsfunctions import (create_branch, get_string_vector,
 import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.su2functions as su2f
 
-from ceasiompy.utils.standardatmosphere import get_atmosphere 
+from ambiance import Atmosphere
 
 from ceasiompy.utils.xpath import SU2_XPATH
 
@@ -209,15 +208,13 @@ def generate_su2_config(cpacs_path, cpacs_out_path, wkdir):
         aoa = aoa_list[case_nb]
         aos = aos_list[case_nb]
 
-        Atm = get_atmosphere(alt)
-        pressure = Atm.pres
-        temp = Atm.temp
+        Atm = Atmosphere(alt)
 
         cfg['MACH_NUMBER'] = mach
         cfg['AOA'] = aoa
         cfg['SIDESLIP_ANGLE'] = aos
-        cfg['FREESTREAM_PRESSURE'] = pressure
-        cfg['FREESTREAM_TEMPERATURE'] = temp
+        cfg['FREESTREAM_PRESSURE'] = Atm.pressure[0]
+        cfg['FREESTREAM_TEMPERATURE'] = Atm.temperature[0]
 
         cfg['ROTATION_RATE'] = '0.0 0.0 0.0'
 

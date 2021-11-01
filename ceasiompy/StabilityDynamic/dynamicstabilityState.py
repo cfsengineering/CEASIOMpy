@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Verdier Loïc
 | Creation: 2019-10-24
-| Last modifiction: 2021-10-21 (AJ)
+| Last modifiction: 2021-11-01 (AJ)
 
 TODO:
     * Modify the code where there are "TODO"
@@ -56,7 +56,7 @@ from ceasiompy.StabilityDynamic.func_dynamic import plot_sp_level_a, plot_sp_lev
                                             phugoid_rating, roll_rating, spiral_rating, dutch_roll_rating, plot_splane,\
                                             longi_mode_characteristic, direc_mode_characteristic, trim_condition
 
-from ceasiompy.utils.standardatmosphere import get_atmosphere
+from ambiance import Atmosphere
 from ceasiompy.utils.xpath import STABILITY_DYNAMIC_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -212,10 +212,10 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
 
     for alt in alt_unic:
         idx_alt = [i for i in range(len(alt_list)) if alt_list[i] == alt]
-        Atm = get_atmosphere(alt)
-        g = Atm.grav
-        a = Atm.sos
-        rho = Atm.dens
+        Atm = Atmosphere(alt)
+        g = Atm.grav_accel[0]
+        a = Atm.speed_of_sound[0]
+        rho = Atm.density[0]
 
         for mach in mach_unic:
             print('Mach : ' , mach)

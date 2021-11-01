@@ -39,7 +39,7 @@ import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.su2functions as su2f
 import ceasiompy.utils.moduleinterfaces as mi
 
-from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
+from ambiance import Atmosphere
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 from ceasiompy.utils.xpath import (FUSELAGES_XPATH, WINGS_XPATH, PYLONS_XPATH, ENGINES_XPATH)
 

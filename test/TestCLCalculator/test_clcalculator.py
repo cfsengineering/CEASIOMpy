@@ -55,7 +55,7 @@ def test_calculate_cl():
 
     cl = calculate_cl(ref_area,alt,mach,mass,load_fact)
 
-    assert cl == approx(0.48602439823924726)
+    assert cl == approx(0.48429196151547343)
 
 def test_get_cl():
     """Test function 'get_cl' """
@@ -66,7 +66,7 @@ def test_get_cl():
     cl_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/targetCL'
 
     cl_to_check = tixi.getDoubleElement(cl_xpath)
-    assert cl_to_check == approx(0.794788)
+    assert cl_to_check == approx(0.791955)
 
     # Remove the output cpacs file if exist
     if os.path.exists(CPACS_OUT_PATH):

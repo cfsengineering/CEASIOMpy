@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Verdier Loïc
 | Creation: 2019-10-24
-| Last modifiction: 2021-10-14 (AJ)
+| Last modifiction: 2021-11-01 (AJ)
 
 TODO:
     * Modify the code where there are "TODO"
@@ -38,7 +38,7 @@ from cpacspy.cpacsfunctions import (add_float_vector, create_branch,
 import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.moduleinterfaces as mi
 
-from ceasiompy.utils.standardatmosphere import get_atmosphere
+from ambiance import Atmosphere
 
 from ceasiompy.StabilityStatic.func_static import get_unic, get_index, extract_subelements,\
                                             order_correctly, trim_derivative, plot_multicurve,\
@@ -192,10 +192,10 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     # Aero analyses for all given altitude, mach and aos_list, over different
     for alt in alt_unic:
 
-        Atm = get_atmosphere(alt)
-        g = Atm.grav
-        a = Atm.sos
-        rho = Atm.dens
+        Atm = Atmosphere(alt)
+        g = Atm.grav_accel[0]
+        a = Atm.speed_of_sound[0]
+        rho = Atm.density[0]
 
         # Find index of altitude which have the same value
         idx_alt = [i for i in range(len(alt_list)) if alt_list[i] == alt]

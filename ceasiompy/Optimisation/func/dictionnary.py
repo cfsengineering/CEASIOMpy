@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author : Vivien Riolo
 | Creation: 2020-03-24
-| Last modification: 2021-09-30
+| Last modification: 2021-11-02 (AJ)
 
 TODO
 ----
@@ -28,6 +28,7 @@ from sys import exit
 
 import numpy as np
 import ceasiompy.utils.apmfunctions as apmf
+from cpacspy.utils import PARAMS_COEFS
 from cpacspy.cpacsfunctions import open_tigl, get_tigl_configuration
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -65,7 +66,7 @@ def add_am_to_dict(optim_var_dict, am_dict):
     am_length = int(len(am_dict['cl'][1])/len(optim_var_dict[var_in_dict][1]))
     log.info("Adding the whole aeromap to the dictionary")
     for name, infos in optim_var_dict.items():
-        if name not in apmf.XSTATES+apmf.COEF_LIST:
+        if name not in PARAMS_COEFS:
             # Calling a new list instance else the clear method will also clean l
             l = list(infos[1])
             infos[1].clear()

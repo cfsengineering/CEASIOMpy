@@ -35,7 +35,6 @@ from cpacspy.cpacsfunctions import (add_float_vector, add_string_vector,
                                     get_value_or_default, get_xpath_parent,
                                     open_tigl, open_tixi)
 import ceasiompy.utils.ceasiompyfunctions as ceaf
-import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.su2functions as su2f
 import ceasiompy.utils.moduleinterfaces as mi
 

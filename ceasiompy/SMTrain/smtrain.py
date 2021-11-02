@@ -12,7 +12,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06
-| Last modification: 2021-10-21 (AJ)
+| Last modification: 2021-11-02 (AJ)
 
 TODO:
     * Enable model-specific settings for user through the GUI
@@ -34,9 +34,12 @@ import matplotlib.pyplot as plt
 import smt.surrogate_models as sms
 
 import ceasiompy.utils.apmfunctions as apmf
+from cpacspy.utils import PARAMS,COEFS
 from cpacspy.cpacsfunctions import (create_branch, get_value_or_default, 
                                     open_tixi)
-from ceasiompy.utils.xpath import (SMTRAIN_XPATH, SMTRAIN_XPATH, SMFILE_XPATH, OPTWKDIR_XPATH)
+from ceasiompy.utils.xpath import (SMTRAIN_XPATH, SMTRAIN_XPATH, SMFILE_XPATH, 
+                                   OPTWKDIR_XPATH,AEROPERFORMANCE_XPATH)
+
 import ceasiompy.utils.moduleinterfaces as mi
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 from ceasiompy.SMUse.smuse import Surrogate_model
@@ -49,8 +52,6 @@ log = get_logger(__file__.split('.')[0])
 # =============================================================================
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-COEF_LIST = ['cl', 'cd', 'cs', 'cml', 'cmd', 'cms']
 
 # Working surrogate models, the hyperparameters can be changed here for
 # experienced users.
@@ -240,7 +241,7 @@ def validation_plots(sm, xt, yt, xv, yv):
     yp = sm.predict_values(xv)
 
     if Tool.aeromap_case:
-        Tool.objectives = COEF_LIST
+        Tool.objectives = COEFS
 
     for i in range(0, yv.shape[1]):
 
@@ -360,8 +361,8 @@ def gen_df_from_am(tixi):
     am_uid = apmf.get_current_aeromap_uid(tixi, 'SMTrain')
     am_index = apmf.get_aeromap_index(tixi, am_uid)
 
-    outputs = COEF_LIST
-    inputs = ['altitude', 'machNumber', 'angleOfAttack', 'angleOfSideslip']
+    outputs = COEFS
+    inputs = PARAMS
 
     x['Name'] = inputs
     y['Name'] = outputs
@@ -373,7 +374,7 @@ def gen_df_from_am(tixi):
     df['setcmd'] = '-'
     df['initial value'] = '-'
 
-    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
+    xpath = AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
     for index, name in enumerate(df['Name']):
         df.loc[index, 'getcmd'] = xpath + name
         df.loc[index, 'initial value'] = tixi.getDoubleElement(xpath+name)

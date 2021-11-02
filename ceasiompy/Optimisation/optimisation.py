@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-06-15
-| Last modification: 2020-11-13 (AJ)
+| Last modification: 2021-11-02 (AJ)
 
 Todo:
     * Vector inputs or multiple objectives
@@ -32,9 +32,10 @@ import ceasiompy.Optimisation.func.optimfunctions as opf
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
 import ceasiompy.Optimisation.func.dictionnary as dct
 
-import ceasiompy.utils.apmfunctions as apmf
+from cpacspy.utils import PARAMS,COEFS
 from cpacspy.cpacsfunctions import (add_float_vector, create_branch,
                                     get_value, open_tixi)
+
 import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.utils.ceasiompyfunctions as ceaf
@@ -128,12 +129,12 @@ class ModuleComp(om.ExplicitComponent):
                 declared.append(entry.var_name)
             elif 'aeromap' in entry.var_name and self.module_name == last_am_module:  #== 'PyTornado':  #not skf^is_skf:
                 # Condition to avoid any conflict with skinfriction
-                for name in apmf.XSTATES:
+                for name in PARAMS:
                     if name in optim_var_dict:
                         var = optim_var_dict[name]
                         self.add_input(name, val=var[1][0])
                         declared.append(entry.var_name)
-                for name in apmf.COEF_LIST:
+                for name in COEFS:
                     if name in optim_var_dict:
                         var = optim_var_dict[name]
                         if tls.is_digit(var[1][0]):
@@ -155,7 +156,7 @@ class ModuleComp(om.ExplicitComponent):
             if name in optim_var_dict:
                 xpath = optim_var_dict[name][4]
                 # Change only the first vector value for aeromap param
-                if name in apmf.XSTATES:
+                if name in PARAMS:
                     size = tixi.getVectorSize(xpath)
                     v = list(tixi.getFloatVector(xpath, size))
                     v.pop(0)
@@ -174,7 +175,7 @@ class ModuleComp(om.ExplicitComponent):
         for name in outputs:
             if name in optim_var_dict:
                 xpath = optim_var_dict[name][4]
-                if name in apmf.COEF_LIST:
+                if name in COEFS:
                     val = get_value(tixi, xpath)
                     if isinstance(val, str):
                         val = val.split(';')

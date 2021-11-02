@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-04-10
-| Last modification: 2021-09-30 (AJ)
+| Last modification: 2021-11-02 (AJ)
 
 Todo:
 
@@ -25,6 +25,8 @@ import os
 
 from re import split
 import pandas as pd
+
+from cpacspy.utils import COEFS, PARAMS_COEFS
 
 import ceasiompy.SMUse.smuse as smu
 import ceasiompy.utils.apmfunctions as apmf
@@ -294,7 +296,7 @@ def get_aero_param(tixi):
 
     xpath = AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
 
-    for name in apmf.COEF_LIST+apmf.XSTATES:
+    for name in PARAMS_COEFS:
         xpath_param = xpath+name
         value = str(tixi.getDoubleElement(xpath_param))
 
@@ -302,7 +304,7 @@ def get_aero_param(tixi):
         var['init'].append(value)
         var['xpath'].append(xpath_param)
 
-        tls.add_type(name, apmf.COEF_LIST, objective, var)
+        tls.add_type(name, COEFS, objective, var)
         tls.add_bounds(value, var)
 
 
@@ -532,12 +534,12 @@ def create_am_lib(Rt, tixi):
 
     xpath = AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
 
-    for name in apmf.COEF_LIST+apmf.XSTATES:
+    for name in PARAMS_COEFS:
         if name in ['altitude', 'machNumber']:
             min_val = 0
             max_val = '-'
             val_type = 'des'
-        if name in apmf.COEF_LIST:
+        if name in COEFS:
             min_val = -1
             max_val = 1
             if name in Rt.objective:

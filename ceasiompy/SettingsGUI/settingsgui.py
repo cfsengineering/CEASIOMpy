@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-09-05
-| Last modification: 2021-10-01
+| Last modification: 2021-11-02
 
 TODO:
 
@@ -33,7 +33,7 @@ from tkinter import messagebox, filedialog
 from cpacspy.cpacsfunctions import (create_branch, get_string_vector,
                                     get_value, get_value_or_default,
                                     open_tixi)
-import ceasiompy.utils.apmfunctions as apm
+import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -65,7 +65,7 @@ class AeroMapTab:
         self.aerotab = tk.Frame(self.tabs, borderwidth=1)
         tabs.add(self.aerotab, text='AeroMaps')
 
-        aeromap_uid_list = apm.get_aeromap_uid_list(tixi)
+        aeromap_uid_list = apmf.get_aeromap_uid_list(tixi)
 
         self.selected_list = []
         self.list = aeromap_uid_list
@@ -161,7 +161,7 @@ class AeroMapTab:
     def _generate_aeromap(self, event=None):
         self.tixi
         param = (self.alt.get(),self.mach.get(),self.aoa.get(),self.aos.get())
-        apm.create_aeromap(self.tixi, self.aeromap_name.get(), param)
+        apmf.create_aeromap(self.tixi, self.aeromap_name.get(), param)
         self.listBox.selection_clear(0, tk.END)
         self._update()
 
@@ -170,7 +170,7 @@ class AeroMapTab:
         template_csv_dir = os.path.join(MODULE_DIR,'..','..','test','AeroMaps')
         csv_path = self.filename = filedialog.askopenfilename(initialdir = template_csv_dir, title = "Select a CSV file" )
         new_aeromap_uid = os.path.splitext(os.path.basename(csv_path))[0]
-        apm.aeromap_from_csv(self.tixi, new_aeromap_uid, csv_path)
+        apmf.aeromap_from_csv(self.tixi, new_aeromap_uid, csv_path)
         self.listBox.selection_clear(0, tk.END)
         self._update()
 
@@ -178,12 +178,12 @@ class AeroMapTab:
     def _export_csv(self, event=None):
         aeromap_uid_list = [self.listBox.get(i) for i in self.listBox.curselection()]
         csv_path = self.filename = filedialog.asksaveasfilename(initialdir = MODULE_DIR, title = "Save CSV file", defaultextension=".csv")
-        apm.aeromap_to_csv(self.tixi, aeromap_uid_list[0], csv_path)
+        apmf.aeromap_to_csv(self.tixi, aeromap_uid_list[0], csv_path)
         self.listBox.selection_clear(0, tk.END)
 
 
     def _update(self, event=None):
-        self.list = apm.get_aeromap_uid_list(self.tixi)
+        self.list = apmf.get_aeromap_uid_list(self.tixi)
         self.list.sort()
         self.listBox.delete(0, tk.END)
         for item in self.list:
@@ -193,14 +193,14 @@ class AeroMapTab:
         firstIndex = self.listBox.curselection()[0]
         self.selected_list = [self.listBox.get(i) for i in self.listBox.curselection()]
         aeromap_uid = self.selected_list[0]
-        apm_to_check = apm.get_aeromap(self.tixi,aeromap_uid)
-        apm_to_check.print_coef_list()
+        apmf_to_check = apmf.get_aeromap(self.tixi,aeromap_uid)
+        apmf_to_check.print_coef_list()
 
     def _delete(self, event=None):
         firstIndex = self.listBox.curselection()[0]
         self.selected_list = [self.listBox.get(i) for i in self.listBox.curselection()]
         aeromap_uid = self.selected_list[0]
-        apm.delete_aeromap(self.tixi,aeromap_uid)
+        apmf.delete_aeromap(self.tixi,aeromap_uid)
         self._update()
 
 
@@ -304,7 +304,7 @@ class AutoTab:
                 if name == '__AEROMAP_SELECTION':
 
                     # Get the list of all AeroMaps
-                    self.aeromap_uid_list = apm.get_aeromap_uid_list(self.tixi)
+                    self.aeromap_uid_list = apmf.get_aeromap_uid_list(self.tixi)
 
                     # Try to get the pre-selected AeroMap from the xpath
                     try:
@@ -330,7 +330,7 @@ class AutoTab:
                     self.aeromap_var_dict = {}
 
                     # Get the list of all AeroMaps
-                    self.aeromap_uid_list = apm.get_aeromap_uid_list(self.tixi)
+                    self.aeromap_uid_list = apmf.get_aeromap_uid_list(self.tixi)
                     self.labelframe = tk.LabelFrame(parent, text='Selecte AeroMap(s)')
                     self.labelframe.grid(column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=15, pady=5)
 
@@ -405,10 +405,10 @@ class SettingGUI(tk.Frame):
 
         self.tixi = open_tixi(cpacs_path)
 
-        if len(apm.get_aeromap_uid_list(self.tixi)) == 0 :
+        if len(apmf.get_aeromap_uid_list(self.tixi)) == 0 :
             aeromap_uid = 'AeroMap_1point'
             csv_path = os.path.join(MODULE_DIR,'..','..','test','AeroMaps','Aeromap_1point.csv')
-            apm.aeromap_from_csv(self.tixi, aeromap_uid, csv_path)
+            apmf.aeromap_from_csv(self.tixi, aeromap_uid, csv_path)
 
         # Generate AeroMaps Edition tab
         aeromap_tap = AeroMapTab(self.tabs, self.tixi)

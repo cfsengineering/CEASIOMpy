@@ -12,7 +12,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06
-| Last modification: 2021-10-01 (AJ)
+| Last modification: 2021-11-02 (AJ)
 
 TODO:
     *
@@ -31,6 +31,8 @@ import pandas as pd
 import smt.surrogate_models as sms # Use after loading the model
 
 import ceasiompy.utils.apmfunctions as apmf
+
+from cpacspy.utils import PARAMS_COEFS
 from cpacspy.cpacsfunctions import (create_branch, get_value_or_default,
                                     open_tigl, open_tixi, get_tigl_configuration)
 import ceasiompy.utils.moduleinterfaces as mi
@@ -127,7 +129,7 @@ def get_inputs(x):
         if x.loc[name, 'setcmd'] != '-':
             inputs.append(eval(x.loc[name, 'getcmd']))
         else:
-            if name in apmf.COEF_LIST+apmf.XSTATES:
+            if name in PARAMS_COEFS:
                 x.loc[name, 'getcmd'] = xpath + name
             inputs.append(tixi.getDoubleElement(x.loc[name, 'getcmd']))
 

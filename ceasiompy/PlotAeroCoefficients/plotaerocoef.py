@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan jungo
 | Creation: 2019-08-19
-| Last modifiction: 2021-10-01
+| Last modifiction: 2021-11-04
 
 TODO:
 
@@ -27,11 +27,10 @@ import pandas as pd
 import matplotlib.pyplot as plt
 from tkinter import *
 
+from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import (add_string_vector, create_branch,
-                                    get_string_vector, get_value_or_default,
-                                    open_tixi)
-import ceasiompy.utils.apmfunctions as apmf
-import ceasiompy.utils.ceasiompyfunctions as ceaf
+                                    get_string_vector, get_value_or_default)
+
 import ceasiompy.utils.moduleinterfaces as mi
 from ceasiompy.utils.xpath import PLOT_XPATH
 
@@ -41,7 +40,6 @@ log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
-
 
 NONE_LIST = ['None','NONE','No','NO','N','n','-',' ','']
 
@@ -79,7 +77,6 @@ class ListBoxChoice(object):
 
     def _select(self, event=None):
         try:
-            firstIndex = self.listBox.curselection()[0]
             self.selected_list = [self.listBox.get(i) for i in self.listBox.curselection()]
         except IndexError:
             self.selected_list = None
@@ -98,20 +95,20 @@ class ListBoxChoice(object):
 #   FUNCTIONS
 #==============================================================================
 
-def call_select_aeromap(tixi):
+def open_select_aeromap_gui(cpacs):
     """Function to select one or several aeroMap to plot wit a GUI
 
-    Function 'call_select_aeromap' open a GUI with all the available aeroMaps
+    Function 'open_select_aeromap_gui' open a GUI with all the available aeroMaps
     to plot and retruns a list of those selected by the user.
 
     Args:
-        tixi (handles): TIXI Handle of the CPACS file
+        cpacs (oject): CPACS Object (from cpacspy)
 
     Returns:
         selected_aeromap_list (list) : List of selected aeroMap
     """
 
-    aeromap_uid_list = apmf.get_aeromap_uid_list(tixi)
+    aeromap_uid_list = cpacs.get_aeromap_uid_list()
 
     root = Tk()
     selected_aeromap_list = ListBoxChoice(root,'Select aeroMap',
@@ -131,13 +128,13 @@ def write_legend(groupby_list, value):
 
     groupby_name_list = []
     for name in groupby_list:
-        if name=='mach':
+        if name=='machNumber':
             groupby_name_list.append('Mach')
-        elif name=='aoa':
+        elif name=='angleOfAttack':
             groupby_name_list.append('AoA')
-        elif name=='aos':
+        elif name=='angleOfSideslip':
             groupby_name_list.append('AoS')
-        elif name=='alt':
+        elif name=='altitude':
             groupby_name_list.append('Alt')
         else:
             groupby_name_list.append(name)
@@ -153,13 +150,13 @@ def write_legend(groupby_list, value):
         if param is 'uid':
             legend += value_i
         else:
-            if param =='mach':
+            if param =='machNumber':
                 name = 'Mach'
-            elif param=='aoa':
+            elif param=='angleOfAttack':
                 name = 'AoA'
-            elif param=='aos':
+            elif param=='angleOfSideslip':
                 name = 'AoS'
-            elif param=='alt':
+            elif param=='altitude':
                 name = 'Alt'
             else:
                 name = param
@@ -198,36 +195,35 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
     """
 
     # Open TIXI handle
-    tixi = open_tixi(cpacs_path)
-    aircraft_name = ceaf.aircraft_name(tixi)
+    cpacs = CPACS(cpacs_path)
 
     # Get aeroMap list to plot
     aeromap_to_plot_xpath = PLOT_XPATH + '/aeroMapToPlot'
     aeromap_uid_list = []
 
     # Option to select aeromap manualy
-    manual_selct = get_value_or_default(tixi,PLOT_XPATH+'/manualSelection',False)
+    manual_selct = get_value_or_default(cpacs.tixi,PLOT_XPATH+'/manualSelection',False)
     if manual_selct:
-        aeromap_uid_list = call_select_aeromap(tixi)
-        create_branch(tixi,aeromap_to_plot_xpath)
-        add_string_vector(tixi,aeromap_to_plot_xpath,aeromap_uid_list)
+        aeromap_uid_list = open_select_aeromap_gui(cpacs)
+        create_branch(cpacs.tixi,aeromap_to_plot_xpath)
+        add_string_vector(cpacs.tixi,aeromap_to_plot_xpath,aeromap_uid_list)
 
     else:
         try:
-            aeromap_uid_list = get_string_vector(tixi,aeromap_to_plot_xpath)
+            aeromap_uid_list = get_string_vector(cpacs.tixi,aeromap_to_plot_xpath)
         except:
             # If aeroMapToPlot is not define, select manualy anyway
-            aeromap_uid_list = call_select_aeromap(tixi)
-            create_branch(tixi,aeromap_to_plot_xpath)
-            add_string_vector(tixi,aeromap_to_plot_xpath,aeromap_uid_list)
+            aeromap_uid_list = open_select_aeromap_gui(cpacs)
+            create_branch(cpacs.tixi,aeromap_to_plot_xpath)
+            add_string_vector(cpacs.tixi,aeromap_to_plot_xpath,aeromap_uid_list)
 
     # Create DataFrame from aeromap(s)
     aeromap_df_list = []
     for aeromap_uid in aeromap_uid_list:
-        aeromap_df = apmf.get_datafram_aeromap(tixi,aeromap_uid)
+        aeromap_df = cpacs.get_aeromap_by_uid(aeromap_uid).df
         aeromap_df['uid'] = aeromap_uid
         aeromap_df_list.append(aeromap_df)
-
+    
     aeromap = pd.concat(aeromap_df_list,ignore_index=True)
 
     if len(aeromap_uid_list) > 1:
@@ -236,42 +232,42 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
         uid_crit = aeromap_uid_list[0]
 
     # Default options
-    title = aircraft_name
+    title = cpacs.ac_name
     criterion = pd.Series([True]*len(aeromap.index))
-    groupby_list = ['uid','mach','alt', 'aos']
+    groupby_list = ['uid','machNumber','altitude', 'angleOfSideslip']
 
     # Get criterion from CPACS
     crit_xpath = PLOT_XPATH + '/criterion'
-    alt_crit = get_value_or_default(tixi,crit_xpath+'/alt','None')
-    mach_crit = get_value_or_default(tixi,crit_xpath+'/mach','None')
-    aos_crit = get_value_or_default(tixi,crit_xpath+'/aos','None')
+    alt_crit = get_value_or_default(cpacs.tixi,crit_xpath+'/alt','None')
+    mach_crit = get_value_or_default(cpacs.tixi,crit_xpath+'/mach','None')
+    aos_crit = get_value_or_default(cpacs.tixi,crit_xpath+'/aos','None')
 
-    tixi.save(cpacs_out_path)
+    cpacs.save_cpacs(cpacs_out_path,overwrite=True)
 
     # Modify criterion and title according to user option
-    if len(aeromap['alt'].unique()) == 1:
-        title += ' - Alt = ' + str(aeromap['alt'].loc[0])
-        groupby_list.remove('alt')
+    if len(aeromap['altitude'].unique()) == 1:
+        title += ' - Alt = ' + str(aeromap['altitude'].loc[0])
+        groupby_list.remove('altitude')
     elif alt_crit not in NONE_LIST :
-        criterion = criterion & (aeromap.alt == alt_crit)
+        criterion = criterion & (aeromap.altitude == alt_crit)
         title += ' - Alt = ' + str(alt_crit)
-        groupby_list.remove('alt')
+        groupby_list.remove('altitude')
 
-    if len(aeromap['mach'].unique()) == 1:
-        title += ' - Mach = ' + str(aeromap['mach'].loc[0])
-        groupby_list.remove('mach')
+    if len(aeromap['machNumber'].unique()) == 1:
+        title += ' - Mach = ' + str(aeromap['machNumber'].loc[0])
+        groupby_list.remove('machNumber')
     elif mach_crit not in NONE_LIST:
-        criterion = criterion & (aeromap.mach == mach_crit)
+        criterion = criterion & (aeromap.machNumber == mach_crit)
         title += ' - Mach = ' + str(mach_crit)
-        groupby_list.remove('mach')
+        groupby_list.remove('machNumber')
 
-    if len(aeromap['aos'].unique()) == 1:
-        title += ' - AoS = ' + str(aeromap['aos'].loc[0])
-        groupby_list.remove('aos')
+    if len(aeromap['angleOfSideslip'].unique()) == 1:
+        title += ' - AoS = ' + str(aeromap['angleOfSideslip'].loc[0])
+        groupby_list.remove('angleOfSideslip')
     elif aos_crit not in NONE_LIST:
-        criterion = criterion & (aeromap.aos == aos_crit)
+        criterion = criterion & (aeromap.angleOfSideslip == aos_crit)
         title += ' - AoS = ' + str(aos_crit)
-        groupby_list.remove('aos')
+        groupby_list.remove('angleOfSideslip')
 
     if uid_crit is not None and len(groupby_list) > 1:
         criterion = criterion & (aeromap.uid == uid_crit)
@@ -291,10 +287,10 @@ def plot_aero_coef(cpacs_path,cpacs_out_path):
 
         legend = write_legend(groupby_list, value)
 
-        axs[0,0].plot(grp['aoa'],grp['cl'],'x-',label=legend)
-        axs[1,0].plot(grp['aoa'],grp['cd'],'x-')
-        axs[0,1].plot(grp['aoa'],grp['cms'],'x-')
-        axs[1,1].plot(grp['aoa'],grp['cl']/grp['cd'],'x-')
+        axs[0,0].plot(grp['angleOfAttack'],grp['cl'],'x-',label=legend)
+        axs[1,0].plot(grp['angleOfAttack'],grp['cd'],'x-')
+        axs[0,1].plot(grp['angleOfAttack'],grp['cms'],'x-')
+        axs[1,1].plot(grp['angleOfAttack'],grp['cl']/grp['cd'],'x-')
         axs[0,2].plot(grp['cd'],grp['cl'],'x-')
         axs[1,2].plot(grp['cl'],grp['cl']/grp['cd'],'x-')
 

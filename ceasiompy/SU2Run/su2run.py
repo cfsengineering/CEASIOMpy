@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2018-11-06
-| Last modifiction: 2021-10-01
+| Last modifiction: 2021-11-04
 
 TODO:
 
@@ -27,14 +27,12 @@ TODO:
 
 import os
 import sys
-import shutil
-import datetime
 
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 from cpacspy.cpacsfunctions import (get_value_or_default, open_tixi)
 import ceasiompy.utils.su2functions as su2f
 
-from ceasiompy.SU2Run.func.su2config import generate_su2_config
+from ceasiompy.SU2Run.func.su2config import generate_su2_cfd_config
 from ceasiompy.SU2Run.func.extractloads import extract_loads
 from ceasiompy.SU2Run.func.su2results import get_su2_results
 from ceasiompy.utils.xpath import SU2_XPATH
@@ -193,7 +191,7 @@ if __name__ == '__main__':
     if len(sys.argv)>1:
         if sys.argv[1] == '-c':
             wkdir = ceaf.get_wkdir_or_create_new(tixi)
-            generate_su2_config(cpacs_path,cpacs_out_path,wkdir)
+            generate_su2_cfd_config(cpacs_path,cpacs_out_path,wkdir)
         elif sys.argv[1] == '-s':
             wkdir = os.path.join(MODULE_DIR,sys.argv[2])
             config_path = os.path.join(wkdir,'ConfigCFD.cfg') # temporary
@@ -212,7 +210,7 @@ if __name__ == '__main__':
             print('This arugment is not a valid option!')
     else: # if no argument given
         wkdir = ceaf.get_wkdir_or_create_new(tixi)
-        generate_su2_config(cpacs_path,cpacs_out_path,wkdir)
+        generate_su2_cfd_config(cpacs_path,cpacs_out_path,wkdir)
         run_SU2_multi(wkdir,nb_proc)
         get_su2_results(cpacs_path,cpacs_out_path,wkdir)
 

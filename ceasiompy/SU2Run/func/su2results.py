@@ -25,12 +25,13 @@ TODO:
 
 import os
 
+from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import (create_branch, get_value,
                                     get_value_or_default,
                                     open_tixi)
 import ceasiompy.utils.apmfunctions as apmf
 from ceasiompy.SU2Run.func.extractloads import extract_loads
-from ceasiompy.utils.xpath import SU2_XPATH
+from ceasiompy.utils.xpath import SU2_XPATH, WETTED_AREA_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -147,7 +148,8 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
 
     """
 
-    tixi = open_tixi(cpacs_path)
+    cpacs = CPACS(cpacs_path)
+    # tixi = open_tixi(cpacs_path)
 
     # TODO Check and reactivate that
     # save_timestamp(tixi,SU2_XPATH) <-- ceaf.replace by get get_execution_date()
@@ -160,20 +162,16 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
 
     # Get and save Wetted area
     wetted_area = get_wetted_area(wkdir)
-
-    wetted_area_xpath = '/cpacs/toolspecific/CEASIOMpy/geometry/analysis/wettedArea'
-    create_branch(tixi, wetted_area_xpath)
-
-    tixi.updateDoubleElement(wetted_area_xpath,wetted_area,'%g')
-
+    create_branch(cpacs.tixi, WETTED_AREA_XPATH)
+    cpacs.tixi.updateDoubleElement(WETTED_AREA_XPATH,wetted_area,'%g')
 
     # Save aeroPerformanceMap
     su2_aeromap_xpath = SU2_XPATH + '/aeroMapUID'
-    aeromap_uid = get_value(tixi,su2_aeromap_xpath)
+    aeromap_uid = get_value(cpacs.tixi,su2_aeromap_xpath)
 
     # Check if loads shoud be extracted
     check_extract_loads_xpath = SU2_XPATH + '/results/extractLoads'
-    check_extract_loads = get_value_or_default(tixi, check_extract_loads_xpath,False)
+    check_extract_loads = get_value_or_default(cpacs.tixi, check_extract_loads_xpath,False)
 
     # Create an oject to store the aerodynamic coefficients
     apmf.check_aeromap(tixi,aeromap_uid)

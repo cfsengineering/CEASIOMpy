@@ -52,6 +52,8 @@ SU2_XPATH =                 '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 SF_XPATH =                  '/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction'
 
+WETTED_AREA_XPATH =         '/cpacs/toolspecific/CEASIOMpy/geometry/analysis/wettedArea'
+
 SMTRAIN_XPATH =             '/cpacs/toolspecific/CEASIOMpy/surrogateModel/'
 SMUSE_XPATH =               '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/'
 

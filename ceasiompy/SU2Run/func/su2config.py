@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2020-02-24
-| Last modifiction: 2021-11-04
+| Last modifiction: 2021-11-17
 
 TODO:
 
@@ -26,11 +26,11 @@ import os
 from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import (create_branch, get_string_vector,
                                     get_value, get_value_or_default)
+from ceasiompy.utils.xpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
+
 import ceasiompy.utils.su2functions as su2f
 
 from ambiance import Atmosphere
-
-from ceasiompy.utils.xpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -72,12 +72,11 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     su2_mesh_path = get_value(cpacs.tixi,SU2MESH_XPATH)
 
     # Get SU2 settings
-    settings_xpath = SU2_XPATH + '/settings'
-    max_iter_xpath = settings_xpath + '/maxIter'
+    max_iter_xpath = SU2_XPATH + '/settings/maxIter'
     max_iter = get_value_or_default(cpacs.tixi, max_iter_xpath,200)
-    cfl_nb_xpath = settings_xpath + '/cflNumber'
+    cfl_nb_xpath = SU2_XPATH + '/settings/cflNumber'
     cfl_nb = get_value_or_default(cpacs.tixi, cfl_nb_xpath,1.0)
-    mg_level_xpath =  settings_xpath + '/multigridLevel'
+    mg_level_xpath =  SU2_XPATH + '/settings/multigridLevel'
     mg_level = get_value_or_default(cpacs.tixi, mg_level_xpath,3)
 
     # Mesh Marker
@@ -103,7 +102,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         active_aeroMap_xpath = SU2_XPATH + '/aeroMapUID'
         aeromap_uid = get_value(cpacs.tixi,active_aeroMap_xpath)
 
-        log.info('Configuration file for ""' + aeromap_uid + '"" calculation will be created.')
+        log.info(f'Configuration file for "{aeromap_uid}" calculation will be created.')
         
         active_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
         
@@ -168,7 +167,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     bc_wall_str = '(' + ','.join(bc_wall_list) + ')'
     cfg['MARKER_EULER'] = bc_wall_str
     cfg['MARKER_FAR'] = ' (Farfield, ' + ','.join(engine_bc_list) +')'
-    cfg['MARKER_SYM'] = ' (0)'       # TODO: maybe make that a variable?
+    cfg['MARKER_SYM'] = ' (0)'  # TODO: maybe make that a variable?
     cfg['MARKER_PLOTTING'] = bc_wall_str
     cfg['MARKER_MONITORING'] = bc_wall_str
     cfg['MARKER_MOVING'] = '( NONE )'  # TODO: when do we need to define MARKER_MOVING?
@@ -264,7 +263,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
                 su2f.write_config(config_output_path,cfg)
 
     # TODO: change that, but if it is save in tooloutput it will be erease by results...
-    cpacs.save_cpacs(cpacs_path)
+    cpacs.save_cpacs(cpacs_path,overwrite=True)
 
 #==============================================================================
 #    MAIN

@@ -29,7 +29,6 @@ import pytest
 from pytest import approx
 
 from cpacspy.cpacsfunctions import (get_string_vector, get_value, open_tixi)
-import ceasiompy.utils.apmfunctions as apmf
 
 from ceasiompy.StabilityStatic.staticstability import static_stability_analysis
 from ceasiompy.StabilityStatic.func_static import get_unic, get_index, \
@@ -125,10 +124,10 @@ def test_static_stability_analysis():
 
     tixi = open_tixi(cpacs_path)
     # Get Aeromap UID list
-    # uid_list = apmf.get_aeromap_uid_list(tixi)
+
     # aeromap_uid = uid_list[0]
     # # Import aeromap from the CSV to the xml
-    # apmf.aeromap_from_csv(tixi, aeromap_uid, csv_path)
+
     # close_tixi(tixi, cpacs_out_path)
 
     # Make the static stability analysis, on the modified xml file

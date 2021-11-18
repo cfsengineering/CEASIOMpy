@@ -9,11 +9,11 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2020-02-24
-| Last modifiction: 2021-11-17
+| Last modifiction: 2021-11-18
 
 TODO:
 
-    * add control surface functions
+    * add and test control surface functions
 
 """
 
@@ -131,10 +131,10 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         alt = get_value_or_default(cpacs.tixi,cruise_alt_xpath,12000)
         
         # Add new parameters to the aeroMap and save it
-        fix_cl_aeromap.add_values(alt, mach, 0.0, 0.0)
+        fix_cl_aeromap.add_row(alt=alt, mach=mach, aos=0.0, aoa=0.0)
         fix_cl_aeromap.save()
 
-        # TODO: do that in a better way
+        # Parameter lists
         alt_list = [alt]
         mach_list =  [mach]
         aoa_list = [0.0]

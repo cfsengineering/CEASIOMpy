@@ -9,13 +9,12 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-10-02
-| Last modifiction: 2021-11-17
+| Last modifiction: 2021-11-18
 
 TODO:
 
-    * Use Pandas datafarme to write aeromaps
-    * Finish relusts saving for Control surface deflections
-    * Solve other small issues
+    * Saving for Control surface deflections
+    * Solve other small issues (see TODO)
 
 """
 
@@ -163,13 +162,24 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
     create_branch(cpacs.tixi, WETTED_AREA_XPATH)
     cpacs.tixi.updateDoubleElement(WETTED_AREA_XPATH,wetted_area,'%g')
 
-    # Save aeroPerformanceMap
-    su2_aeromap_xpath = SU2_XPATH + '/aeroMapUID'
-    aeromap_uid = get_value(cpacs.tixi,su2_aeromap_xpath)
+
 
     # Check if loads shoud be extracted
     check_extract_loads_xpath = SU2_XPATH + '/results/extractLoads'
     check_extract_loads = get_value_or_default(cpacs.tixi, check_extract_loads_xpath,False)
+
+    # Get fixed_cl option
+    fixed_cl_xpath = SU2_XPATH + '/fixedCL'
+    fixed_cl = get_value_or_default(cpacs.tixi,fixed_cl_xpath,'NO')
+
+    # Get aeroMap uid 
+    if fixed_cl == 'YES':
+        aeromap_uid = 'aeroMap_fixedCL_SU2'   
+    elif fixed_cl == 'NO':
+        su2_aeromap_xpath = SU2_XPATH + '/aeroMapUID'
+        aeromap_uid = get_value(cpacs.tixi,su2_aeromap_xpath)
+    else:
+        raise ValueError('The value for fixed_cl is not valid! Should be YES or NO')
 
     aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
@@ -195,15 +205,12 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
             if not os.path.isfile(force_file_name):
                 raise OSError('No result force file have been found!')
 
-            fixed_cl_xpath = SU2_XPATH + '/fixedCL'
-            fixed_cl = get_value_or_default(cpacs.tixi,fixed_cl_xpath,'NO')
-
             if fixed_cl == 'YES':
                 force_file_name = 'forces_breakdown.dat'
                 cl_cd, aoa = get_efficiency_and_aoa(force_file_name)
 
                 # Replace aoa with the with the value from fixed cl calculation
-                aeromap.df.loc['angleOfAttack'][case_nb] = aoa
+                aeromap.df.loc[0,['angleOfAttack']] = aoa
 
                 # Save cl/cd found during the fixed CL calculation
                 # TODO: maybe save cl/cd somewhere else
@@ -272,9 +279,6 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
                 #     print(Coef.IncrMap.dcl)
                 # except AttributeError:
                 #     Coef.IncrMap = apmf.IncrementMap(ted_uid)
-
-                # # TODO: still in development, for now only 1 ted and 1 defl
-                # print(ted_uid,defl_angle)
 
                 # dcl = (cl-Coef.cl[-1])
                 # dcd = (cd-Coef.cd[-1])

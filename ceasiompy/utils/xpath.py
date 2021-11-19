@@ -41,7 +41,7 @@ FUEL_XPATH =                '/cpacs/toolspecific/CEASIOMpy/fuels'
 FUEL_CONSUMPTION_XPATH =    '/cpacs/toolspecific/CEASIOMpy/fuelConsumption'
 GEOM_XPATH =                '/cpacs/toolspecific/CEASIOMpy/geometry'
 MESH_XPATH =                '/cpacs/toolspecific/CEASIOMpy/mesh'
-OPTIM_XPATH =               '/cpacs/toolspecific/CEASIOMpy/Optimisation/'
+OPTIM_XPATH =               '/cpacs/toolspecific/CEASIOMpy/optimisation'
 PROP_XPATH =                '/cpacs/toolspecific/CEASIOMpy/propulsion'
 RANGE_XPATH =               '/cpacs/toolspecific/CEASIOMpy/ranges'
 WEIGHT_XPATH =              '/cpacs/toolspecific/CEASIOMpy/weight'
@@ -54,8 +54,8 @@ SF_XPATH =                  '/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFric
 
 WETTED_AREA_XPATH =         '/cpacs/toolspecific/CEASIOMpy/geometry/analysis/wettedArea'
 
-SMTRAIN_XPATH =             '/cpacs/toolspecific/CEASIOMpy/surrogateModel/'
-SMUSE_XPATH =               '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/'
+SMTRAIN_XPATH =             '/cpacs/toolspecific/CEASIOMpy/surrogateModel'
+SMUSE_XPATH =               '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse'
 
 STABILITY_STATIC_XPATH =    '/cpacs/toolspecific/CEASIOMpy/stability/static'
 STABILITY_DYNAMIC_XPATH =   '/cpacs/toolspecific/CEASIOMpy/stability/dynamic'

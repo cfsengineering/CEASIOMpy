@@ -278,7 +278,7 @@ def get_su2_results(cpacs_path,cpacs_out_path,wkdir):
                 # try:
                 #     print(Coef.IncrMap.dcl)
                 # except AttributeError:
-                #     Coef.IncrMap = apmf.IncrementMap(ted_uid)
+                #     Coef.IncrMap = a.p.m.f.IncrementMap(ted_uid)
 
                 # dcl = (cl-Coef.cl[-1])
                 # dcd = (cd-Coef.cd[-1])

@@ -12,9 +12,10 @@ Python version: >=3.6
 | Last modifiction: 2021-11-01 (AJ)
 
 TODO:
+    * All the script must be refactored and checked
     * Modify the code where there are "TODO"
-    * If only one aos angle -> dirrectionaly_stable  ???     - LV : Laterl and directional static stability can not be tested
-    * If only one aos angle -> longitudinaly_stable  ???    - LV : If only one aos and aos == 0: Longitudinal Static stability can be tested.
+    * If only one aos angle -> dirrectionaly_stable  ??? - LV : Laterl and directional static stability can not be tested
+    * If only one aos angle -> longitudinaly_stable  ??? - LV : If only one aos and aos == 0: Longitudinal Static stability can be tested.
     * Should we also save results as report (text file)
 """
 
@@ -23,27 +24,22 @@ TODO:
 #==============================================================================
 
 import os
-import sys
-import time
-import math
 
 import numpy as np
 from numpy import log as ln
 from numpy import linalg # For eigen values and aigen voectors
 
 import matplotlib as mpl, cycler
-import matplotlib.patheffects
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
 from scipy import signal # For transfert function
 
-from cpacspy.cpacsfunctions import (create_branch, get_string_vector,
-                                    get_value, get_value_or_default, 
-                                    open_tixi)
+from cpacspy.cpacspy import CPACS
+from cpacspy.cpacsfunctions import (get_string_vector,
+                                    get_value, get_value_or_default)
 
-import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.StabilityDynamic.func_dynamic import plot_sp_level_a, plot_sp_level_b, plot_sp_level_c,\
@@ -121,7 +117,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
     save_plot_xpath =  STABILITY_DYNAMIC_XPATH + '/savePlots'
 
     model_xpath = '/cpacs/vehicles/aircraft/model'
-    ref_area_xpath = model_xpath + '/reference/area'
+
     ref_length_xpath = model_xpath + '/reference/length'
     flight_qualities_case_xpath = model_xpath + '/analyses/flyingQualities/fqCase'
     masses_location_xpath =  model_xpath + '/analyses/massBreakdown/designMasses'
@@ -133,7 +129,9 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
     flight_path_angle_deg = [0] # [-15,-10,-5,0,5,10,15] # The user should have the choice to select them !!!!!!!!!!!!!!!!!!!!
     flight_path_angle = [angle *(np.pi/180) for angle  in flight_path_angle_deg]  # flight_path_angle in [rad]
 
-    tixi = open_tixi(cpacs_path)
+    cpacs = CPACS(cpacs_path)
+    tixi = cpacs.tixi
+
     # Get aeromap uid
     aeromap_uid = get_value(tixi, aeromap_uid_xpath )
     log.info('The following aeroMap will be analysed: ' + aeromap_uid)
@@ -158,10 +156,11 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
         I_zz_xpath = mass_config_xpath + '/massInertia/Jzz'
         I_xz_xpath = mass_config_xpath + '/massInertia/Jxz'
     else :
-        raise ValueError('The mass configuration : {} is not defined in the CPACS file !!!'.format(mass_config))
+        raise ValueError(f'The mass configuration : {mass_config} is not defined in the CPACS file !!!')
 
-    s = get_value(tixi,ref_area_xpath)     # Wing area : s  for non-dimonsionalisation of aero data.
-    mac = get_value(tixi,ref_length_xpath) # ref length for non dimensionalisation, Mean aerodynamic chord: mac,
+    s = cpacs.aircraft.ref_area  # Wing area : s  for non-dimonsionalisation of aero data.
+    mac = cpacs.aircraft.ref_lenght  # ref length for non dimensionalisation, Mean aerodynamic chord: mac,
+    
     # TODO: check that
     b= s/mac
 
@@ -177,29 +176,30 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
     aircraft_class = get_value(tixi,aircraft_class_xpath ) # aircraft class 1 2 3 4
     flight_phase = get_string_vector(tixi, aircraft_cathegory_xpath)[0] # Flight phase A B C
 
-    Coeffs = apmf.get_aeromap(tixi,aeromap_uid)    # Warning: Empty uID found! This might lead to unknown errors!
+    aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
-    alt_list = Coeffs.alt
-    mach_list = Coeffs.mach
-    aoa_list = Coeffs.aoa
-    aos_list = Coeffs.aos
-    cl_list = Coeffs.cl
-    cd_list = Coeffs.cd
-    cs_list = Coeffs.cs
-    cml_list = Coeffs.cml
-    cms_list = Coeffs.cms
-    cmd_list = Coeffs.cmd
-    dcsdrstar_list = Coeffs.dcsdrstar
-    dcsdpstar_list = Coeffs.dcsdpstar
-    dcldqstar_list = Coeffs.dcldqstar
-    dcmsdqstar_list = Coeffs.dcmsdqstar
-    dcddqstar_list = Coeffs.dcddqstar
-    dcmldqstar_list = Coeffs.dcmldqstar
-    dcmddpstar_list = Coeffs.dcmddpstar
-    dcmldpstar_list = Coeffs.dcmldpstar
-    dcmldrstar_list = Coeffs.dcmldrstar
-    dcmddrstar_list = Coeffs.dcmddrstar
+    alt_list = aeromap.get('altitude')
+    mach_list = aeromap.get('machNumber')
+    aoa_list = aeromap.get('angleOfAttack')
+    aos_list = aeromap.get('angleOfSideslip')
+    cl_list = aeromap.get('cl')
+    cd_list = aeromap.get('cd')
+    cs_list = aeromap.get('cm')
+    cml_list = aeromap.get('cml')
+    cms_list = aeromap.get('cms')
+    cmd_list = aeromap.get('cmd')
 
+    # TODO: check that
+    dcsdrstar_list = aeromap.get('dampingDerivatives_negativeRates_dcsdrStar')   
+    dcsdpstar_list = aeromap.get('dampingDerivatives_negativeRates_dcsdpStar')   
+    dcldqstar_list = aeromap.get('dampingDerivatives_negativeRates_dcldqStar')   
+    dcmsdqstar_list = aeromap.get('ddampingDerivatives_negativeRates_cmsdqStar')   
+    dcddqstar_list = aeromap.get('dampingDerivatives_negativeRates_dcddqStar')   
+    dcmldqstar_list = aeromap.get('ddampingDerivatives_negativeRates_cmldqStar')   
+    dcmddpstar_list = aeromap.get('ddampingDerivatives_negativeRates_cmddpStar')   
+    dcmldpstar_list = aeromap.get('ddampingDerivatives_negativeRates_cmldpStar')   
+    dcmldrstar_list = aeromap.get('ddampingDerivatives_negativeRates_cmldrStar')   
+    dcmddrstar_list = aeromap.get('ddampingDerivatives_negativeRates_cmddrStar')   
 
     # All different vallues with only one occurence
     alt_unic = get_unic(alt_list)

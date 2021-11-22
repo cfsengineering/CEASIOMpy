@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-06-15
-| Last modification: 2021-11-02 (AJ)
+| Last modification: 2021-11-22 (AJ)
 
 Todo:
     * Vector inputs or multiple objectives
@@ -32,6 +32,7 @@ import ceasiompy.Optimisation.func.optimfunctions as opf
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
 import ceasiompy.Optimisation.func.dictionnary as dct
 
+from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS,COEFS
 from cpacspy.cpacsfunctions import (add_float_vector, create_branch,
                                     get_value, open_tixi)
@@ -266,15 +267,16 @@ class Objective(om.ExplicitComponent):
             log.info('Copy current CPACS to '+optim_dir_path)
 
         # Add new variables to dictionnary
-        tixi = open_tixi(cpacs_path)
-        dct.update_dict(tixi, optim_var_dict)
+        cpacs = CPACS(cpacs_path)
+ 
+        dct.update_dict(cpacs.tixi, optim_var_dict)
 
         # Save the whole aeromap if needed
         if Rt.use_aeromap:
-            dct.update_am_dict(tixi, Rt.aeromap_uid, am_dict)
+            dct.update_am_dict(cpacs, Rt.aeromap_uid, am_dict)
 
         # Change local wkdir for the next iteration
-        tixi.updateTextElement(WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
+        cpacs.tixi.updateTextElement(WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
 
         for obj in Rt.objective:
             var_list = splt('[+*/-]', obj)
@@ -288,7 +290,7 @@ class Objective(om.ExplicitComponent):
             else:
                 outputs['Objective function '+obj] = -result
 
-        tixi.save(cpacs_path)
+        cpacs.save_cpacs(cpacs_path, overwrite=True)
         wkf.copy_module_to_module(Rt.modules[-1], 'out', Rt.modules[0], 'in')
 
 
@@ -571,13 +573,14 @@ def routine_launcher(Opt):
     create_routine_folder()
     opf.first_run(Rt)
 
-    tixi = open_tixi(opf.CPACS_OPTIM_PATH)
-    tixi.updateTextElement(WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
-    Rt.get_user_inputs(tixi)
-    optim_var_dict = opf.create_variable_library(Rt, tixi, optim_dir_path)
-    am_dict = opf.create_am_lib(Rt, tixi)
+    cpacs = CPACS(opf.CPACS_OPTIM_PATH)
 
-    tixi.save(opf.CPACS_OPTIM_PATH)
+    cpacs.tixi.updateTextElement(WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
+    Rt.get_user_inputs(cpacs.tixi)
+    optim_var_dict = opf.create_variable_library(Rt, cpacs.tixi, optim_dir_path)
+    am_dict = opf.create_am_lib(Rt, cpacs)
+
+    cpacs.save_cpacs(opf.CPACS_OPTIM_PATH,overwrite=True)
     wkf.copy_module_to_module('Optimisation', 'in', Rt.modules[0], 'in')
 
     ## Instantiate components and subsystems ##
@@ -601,13 +604,11 @@ if __name__ == '__main__':
     tixi = open_tixi(cpacs_path)
 
     try:
-        am_uid = get_value(tixi, OPTIM_XPATH+'aeroMapUID')
+        am_uid = get_value(tixi, OPTIM_XPATH+'/aeroMapUID')
     except:
         raise ValueError('No aeromap found in the file')
 
     log.info('Aeromap '+am_uid+' will be used')
-
-    #opf.update_am_path(tixi, am_uid)
 
     tixi.save(cpacs_out_path)
 

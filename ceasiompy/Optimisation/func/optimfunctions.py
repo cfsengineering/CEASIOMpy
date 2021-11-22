@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-04-10
-| Last modification: 2021-11-02 (AJ)
+| Last modification: 2021-11-19 (AJ)
 
 Todo:
 
@@ -26,17 +26,17 @@ import os
 from re import split
 import pandas as pd
 
-from cpacspy.utils import COEFS, PARAMS_COEFS
-
 import ceasiompy.SMUse.smuse as smu
-import ceasiompy.utils.apmfunctions as apmf
-from cpacspy.cpacsfunctions import create_branch,get_value,get_value_or_default
+
+from cpacspy.utils import COEFS, PARAMS_COEFS
+from cpacspy.cpacsfunctions import get_value_or_default
+
 import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.Optimisation.func.tools as tls
 import ceasiompy.Optimisation.func.dictionnary as dct
 
-from ceasiompy.utils.xpath import (OPTIM_XPATH, AEROPERFORMANCE_XPATH, SMUSE_XPATH )
+from ceasiompy.utils.xpath import OPTIM_XPATH, SMUSE_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -90,7 +90,7 @@ class Routine:
         self.doe_file = ''
 
         # User specified configuration file path
-        self.user_config = '../Optimisation/Default_config.csv'
+        self.user_config = '../optimisation/Default_config.csv'
         self.aeromap_uid = '-'
         self.use_aeromap = False
 
@@ -117,10 +117,10 @@ class Routine:
 
         fix_cl = get_value_or_default(tixi, '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/fixedCL', 'no')
         if fix_cl == 'YES':
-            tixi.updateTextElement(OPTIM_XPATH+'aeroMapUID','aeroMap_fixedCL_SU2')
+            tixi.updateTextElement(OPTIM_XPATH+'/aeroMapUID','aeroMap_fixedCL_SU2')
             self.aeromap_uid = 'aeroMap_fixedCL_SU2'
         else:
-            self.aeromap_uid = str(get_value_or_default(tixi, OPTIM_XPATH+'aeroMapUID', '-'))
+            self.aeromap_uid = str(get_value_or_default(tixi, OPTIM_XPATH+'/aeroMapUID', '-'))
 
         self.use_aeromap = get_value_or_default(tixi, OPTIM_XPATH+'Config/useAero', False)
 
@@ -250,30 +250,6 @@ def get_normal_param(tixi, entry, outputs):
         log.info('Added to variable file')
 
 
-def update_am_path(tixi, am_uid):
-    """Replace the aeromap uID for each module.
-
-    Update the aeromap uID that is used for by modules in the optimisation loop
-
-    Args:
-        tixi (Tixi3 handle): Handle of the current CPACS file.
-        am_uid (str): uID of the aeromap that will be used by all modules.
-
-    Return:
-        None.
-
-    """
-
-    am_xpath = ['/cpacs/toolspecific/pytornado/aeroMapUID',
-                '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID']
-    for name in am_xpath:
-        if tixi.checkElement(name):
-            tixi.updateTextElement(name, am_uid)
-        else:
-            create_branch(tixi, name)
-            tixi.updateTextElement(name, am_uid)
-
-
 def get_aero_param(tixi):
     """Add the aeromap variables to the optimisation dictionnary.
 
@@ -287,14 +263,12 @@ def get_aero_param(tixi):
 
     """
 
+    # TODO: This function could probalbly be (partrly) replace by cpacspy
+
     log.info('Default aeromap parameters will be set')
 
-    am_uid = get_value(tixi, OPTIM_XPATH+'aeroMapUID')
-    am_index = apmf.get_aeromap_index(tixi, am_uid)
-
-    log.info('Aeromap \"{}\" will be used for the variables.'.format(am_uid))
-
-    xpath = AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
+    aeromap_uid = tixi.getTextElement(OPTIM_XPATH+'/aeroMapUID')
+    xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/'
 
     for name in PARAMS_COEFS:
         xpath_param = xpath+name
@@ -513,7 +487,7 @@ def get_default_df(tixi, module_list):
     return df
 
 
-def create_am_lib(Rt, tixi):
+def create_am_lib(Rt, cpacs):
     """Create a dictionary for the aeromap coefficients.
 
     Return a dictionary with all the values of the aeromap that is used during
@@ -521,18 +495,15 @@ def create_am_lib(Rt, tixi):
 
     Args:
         Rt (class): Contains all the parameters of the current routine.
-        tixi (Tixi3 handler): Tixi handle of the CPACS file.
+        cpacs (cbject): CPACS object.
 
     Returns:
         am_dict (dct): Dictionnary with all aeromap parameters.
 
     """
 
-    Coef = apmf.get_aeromap(tixi, Rt.aeromap_uid)
-    am_dict = Coef.to_dict()
-    am_index = apmf.get_aeromap_index(tixi, Rt.aeromap_uid)
-
-    xpath = AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
+    aeromap = cpacs.get_aeromap_by_uid(Rt.aeromap_uid)
+    am_dict = aeromap.df.to_dict(orient='list')
 
     for name in PARAMS_COEFS:
         if name in ['altitude', 'machNumber']:
@@ -550,7 +521,7 @@ def create_am_lib(Rt, tixi):
             min_val = -5
             max_val = 5
             val_type = 'des'
-        am_dict[name] = (val_type, am_dict[name], min_val, max_val, xpath+name, '-')
+        am_dict[name] = (val_type, am_dict[name], min_val, max_val, aeromap.xpath+name, '-')
 
     return am_dict
 

@@ -12,7 +12,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06
-| Last modification: 2021-11-02 (AJ)
+| Last modification: 2021-11-19 (AJ)
 
 TODO:
     * Enable model-specific settings for user through the GUI
@@ -33,12 +33,12 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import smt.surrogate_models as sms
 
-import ceasiompy.utils.apmfunctions as apmf
+from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS,COEFS
-from cpacspy.cpacsfunctions import (create_branch, get_value_or_default, 
-                                    open_tixi)
+from cpacspy.cpacsfunctions import (create_branch, get_value_or_default)
+
 from ceasiompy.utils.xpath import (SMTRAIN_XPATH, SMTRAIN_XPATH, SMFILE_XPATH, 
-                                   OPTWKDIR_XPATH,AEROPERFORMANCE_XPATH)
+                                   OPTWKDIR_XPATH)
 
 import ceasiompy.utils.moduleinterfaces as mi
 import ceasiompy.utils.ceasiompyfunctions as ceaf
@@ -75,6 +75,7 @@ model_dict = {'KRG':'KRG(theta0=[1e-2]*xd.shape[1])',
 # =============================================================================
 #   ClASSES
 # =============================================================================
+
 class Prediction_tool():
     """Parameters for the surrogate model"""
 
@@ -99,33 +100,35 @@ class Prediction_tool():
     def get_user_inputs(self):
         """Take user inputs from the GUI."""
         cpacs_path = mi.get_toolinput_file_path('SMTrain')
-        tixi = open_tixi(cpacs_path)
+        cpacs = CPACS(cpacs_path)
 
         # Search working directory
-        self.wkdir = get_value_or_default(tixi, OPTWKDIR_XPATH, '')
+        self.wkdir = get_value_or_default(cpacs.tixi, OPTWKDIR_XPATH, '')
         if self.wkdir == '':
-            self.wkdir = ceaf.get_wkdir_or_create_new(tixi)+'/SM'
+            self.wkdir = ceaf.get_wkdir_or_create_new(cpacs.tixi)+'/SM'
         if not os.path.isdir(self.wkdir):
             os.mkdir(self.wkdir)
 
-        self.type = get_value_or_default(tixi, SMTRAIN_XPATH+'modelType', 'KRG')
+        self.type = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'modelType', 'KRG')
 
-        obj = get_value_or_default(tixi, SMTRAIN_XPATH+'objective', 'cl')
+        obj = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'objective', 'cl')
         self.objectives = re.split(';|,', obj)
-        self.user_file = get_value_or_default(tixi, SMTRAIN_XPATH+'trainFile', '')
+        self.user_file = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'trainFile', '')
         if self.user_file == '':
-            path = get_value_or_default(tixi, OPTWKDIR_XPATH, '')
+            path = get_value_or_default(cpacs.tixi, OPTWKDIR_XPATH, '')
             if path != '':
                 self.user_file = path+ '/Variable_history.csv'
-        self.data_repartition = get_value_or_default(tixi,
+        self.data_repartition = get_value_or_default(cpacs.tixi,
                                                           SMTRAIN_XPATH+'trainingPercentage',
                                                           0.9)
-        self.show_plots = get_value_or_default(tixi, SMTRAIN_XPATH+'showPlots', False)
+        self.show_plots = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'showPlots', False)
 
-        self.aeromap_case = get_value_or_default(tixi, SMTRAIN_XPATH+'useAeromap', False)
-        self.aeromap_uid = get_value_or_default(tixi, SMTRAIN_XPATH+'aeroMapUID', '')
+        self.aeromap_case = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'useAeromap', False)
+        self.aeromap_uid = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'aeroMapUID', '')
 
-        tixi.save(cpacs_path)
+        # Save CPACS file
+        cpacs.save_cpacs(cpacs_path, overwrite=True)
+
 
 # =============================================================================
 #   FUNCTIONS
@@ -326,13 +329,14 @@ def save_model(Tool):
     date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
     cpacs_path = mi.get_toolinput_file_path('SMTrain')
     cpacs_out_path = mi.get_tooloutput_file_path('SMTrain')
-    tixi = open_tixi(cpacs_path)
+    
+    cpacs = CPACS(cpacs_path)
 
     filename = Tool.wkdir+'/Surrogate_Model_'+date
 
-    create_branch(tixi, SMFILE_XPATH)
-    tixi.updateTextElement(SMFILE_XPATH, filename)
-    tixi.save(cpacs_out_path)
+    create_branch(cpacs.tixi, SMFILE_XPATH)
+    cpacs.tixi.updateTextElement(SMFILE_XPATH, filename)
+    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
     Tool.df.to_csv(Tool.wkdir+'/Data_setup.csv', index=False, na_rep='-')
 
@@ -358,8 +362,8 @@ def gen_df_from_am(tixi):
 
     x = pd.DataFrame()
     y = pd.DataFrame()
-    am_uid = apmf.get_current_aeromap_uid(tixi, 'SMTrain')
-    am_index = apmf.get_aeromap_index(tixi, am_uid)
+
+    aeromap_uid = tixi.getTextElement(SMTRAIN_XPATH+'/aeroMapUID')
 
     outputs = COEFS
     inputs = PARAMS
@@ -374,7 +378,8 @@ def gen_df_from_am(tixi):
     df['setcmd'] = '-'
     df['initial value'] = '-'
 
-    xpath = AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
+    # TODO: could maybe replace by CPACSpy
+    xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/'
     for index, name in enumerate(df['Name']):
         df.loc[index, 'getcmd'] = xpath + name
         df.loc[index, 'initial value'] = tixi.getDoubleElement(xpath+name)
@@ -398,16 +403,27 @@ def extract_am_data(Tool):
     """
 
     cpacs_path = mi.get_toolinput_file_path('SMTrain')
-    tixi = open_tixi(cpacs_path)
+    cpacs = CPACS(cpacs_path)
+    
+    Tool.df = gen_df_from_am(cpacs.tixi)
+    aeromap = cpacs.get_aeromap_by_uid(Tool.aeromap_uid)
 
-    Tool.df = gen_df_from_am(tixi)
+    # TODO: could be simplified
+    alt_list = aeromap.get('altitude').tolist()
+    mach_list = aeromap.get('machNumber').tolist()
+    aoa_list = aeromap.get('angleOfAttack').tolist()
+    aos_list = aeromap.get('angleOfSideslip').tolist()
+    cl_list = aeromap.get('cl').tolist()
+    cd_list = aeromap.get('cd').tolist()
+    cs_list = aeromap.get('cs').tolist()
+    cml_list = aeromap.get('cml').tolist()
+    cmd_list = aeromap.get('cmd').tolist()
+    cms_list = aeromap.get('cms').tolist()
 
-    Aeromap = apmf.get_aeromap(tixi, Tool.aeromap_uid)
-    xd = np.array([Aeromap.alt, Aeromap.mach, Aeromap.aoa, Aeromap.aos])
-    yd = np.array([Aeromap.cl, Aeromap.cd, Aeromap.cs,
-                   Aeromap.cml, Aeromap.cmd, Aeromap.cms])
+    xd = np.array([alt_list, mach_list, aoa_list, aos_list])
+    yd = np.array([cl_list, cd_list, cs_list, cml_list, cmd_list, cms_list])
 
-    tixi.save(cpacs_path)
+    cpacs.save_cpacs(cpacs_path,overwrite=True)
 
     return xd.transpose(), yd.transpose()
 
@@ -447,11 +463,9 @@ if __name__ == "__main__":
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
     Tool = Prediction_tool()
-
     Tool.get_user_inputs()
 
     generate_model(Tool)
-
     save_model(Tool)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

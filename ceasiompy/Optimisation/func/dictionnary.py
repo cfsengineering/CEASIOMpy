@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author : Vivien Riolo
 | Creation: 2020-03-24
-| Last modification: 2021-11-02 (AJ)
+| Last modification: 2021-11-22 (AJ)
 
 TODO
 ----
@@ -25,9 +25,8 @@ TODO
 # =============================================================================
 
 from sys import exit
-
 import numpy as np
-import ceasiompy.utils.apmfunctions as apmf
+
 from cpacspy.utils import PARAMS_COEFS
 from cpacspy.cpacsfunctions import open_tigl, get_tigl_configuration
 
@@ -76,13 +75,13 @@ def add_am_to_dict(optim_var_dict, am_dict):
         optim_var_dict[name] = infos
 
 
-def update_am_dict(tixi, aeromap_uid, am_dict):
+def update_am_dict(cpacs, aeromap_uid, am_dict):
     """Save the aeromap results.
 
     Appends the new aeromap results to a dictionary.
 
     Args:
-        tixi (tixi3 handle): TIXI handle of the CPACS file.
+        cpacs (object): CPACS object from cpacspy
         aeromap_uid (str): uID of the aeromap in use.
         am_dict (dct): Contains the results of old aeromap calculations.
 
@@ -90,8 +89,10 @@ def update_am_dict(tixi, aeromap_uid, am_dict):
         None.
 
     """
-    Coef = apmf.get_aeromap(tixi, aeromap_uid)
-    d = Coef.to_dict()
+
+    aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+    d = aeromap.df.to_dict(orient='list')
+
     for name , infos in am_dict.items():
         infos[1].extend(d[name])
 
@@ -286,6 +287,7 @@ def init_fuse_param(aircraft, fuse_nb):
         None.
 
     """
+
     for f in range(1, fuse_nb+1):
         name = "fuse" + str(f)
         fuselage = aircraft.get_fuselage(f)

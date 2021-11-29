@@ -85,7 +85,7 @@ def load_surrogate(tixi):
 
     """
 
-    file = get_value_or_default(tixi, SMUSE_XPATH+'modelFile', '')
+    file = get_value_or_default(tixi, SMUSE_XPATH+'/modelFile', '')
 
     log.info('Trying to open file'+file)
     try:
@@ -238,8 +238,8 @@ def check_aeromap(tixi):
 
     """
 
-    am_uid_use = get_value_or_default(tixi, SMUSE_XPATH+'aeroMapUID', '')
-    am_uid_train = get_value_or_default(tixi, SMTRAIN_XPATH+'aeroMapUID', '')
+    am_uid_use = get_value_or_default(tixi, SMUSE_XPATH+'/aeroMapUID', '')
+    am_uid_train = get_value_or_default(tixi, SMTRAIN_XPATH+'/aeroMapUID', '')
 
     if am_uid_train == am_uid_use:
         sys.exit('Same aeromap that was used to create the model')
@@ -259,7 +259,7 @@ if __name__ == "__main__":
 
     check_aeromap(cpacs.tixi)
 
-    if get_value_or_default(cpacs.tixi, SMUSE_XPATH+'AeroMapOnly', False):
+    if get_value_or_default(cpacs.tixi, SMUSE_XPATH+'/AeroMapOnly', False):
         aeromap_calculation(Model.sm, cpacs.tixi)
     else:
         predict_output(Model, cpacs.tixi)

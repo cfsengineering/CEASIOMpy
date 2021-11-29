@@ -407,7 +407,7 @@ def add_entries(tixi, module_list):
 
     """
 
-    use_am = get_value_or_default(tixi, SMUSE_XPATH+'AeroMapOnly', False)
+    use_am = get_value_or_default(tixi, SMUSE_XPATH+'/AeroMapOnly', False)
     if 'SMUse' in module_list and use_am:
         get_aero_param(tixi)
     else:

@@ -85,7 +85,7 @@ class Routine:
         self.tol = 1e-3
 
         # DoE
-        self.doedriver = 'uniform'
+        self.doedriver = 'Uniform'
         self.samplesnb = 3
         self.doe_file = ''
 
@@ -109,7 +109,7 @@ class Routine:
         self.save_iter = int(get_value_or_default(tixi, OPTIM_XPATH+'saving/perIter', 1))
 
         # Specific DoE parameters
-        self.doedriver = get_value_or_default(tixi,OPTIM_XPATH+'parameters/DoE/driver','uniform')
+        self.doedriver = get_value_or_default(tixi,OPTIM_XPATH+'parameters/DoE/driver','Uniform')
         self.samplesnb = int(get_value_or_default(tixi,OPTIM_XPATH+'parameters/DoE/sampleNB',3))
 
         # User specified configuration file path

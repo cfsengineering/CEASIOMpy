@@ -109,22 +109,22 @@ class Prediction_tool():
         if not os.path.isdir(self.wkdir):
             os.mkdir(self.wkdir)
 
-        self.type = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'modelType', 'KRG')
+        self.type = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'/modelType', 'KRG')
 
-        obj = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'objective', 'cl')
+        obj = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'/objective', 'cl')
         self.objectives = re.split(';|,', obj)
-        self.user_file = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'trainFile', '')
+        self.user_file = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'/trainFile', '')
         if self.user_file == '':
             path = get_value_or_default(cpacs.tixi, OPTWKDIR_XPATH, '')
             if path != '':
                 self.user_file = path+ '/Variable_history.csv'
         self.data_repartition = get_value_or_default(cpacs.tixi,
-                                                          SMTRAIN_XPATH+'trainingPercentage',
+                                                          SMTRAIN_XPATH+'/trainingPercentage',
                                                           0.9)
-        self.show_plots = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'showPlots', False)
+        self.show_plots = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'/showPlots', False)
 
-        self.aeromap_case = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'useAeromap', False)
-        self.aeromap_uid = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'aeroMapUID', '')
+        self.aeromap_case = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'/useAeromap', False)
+        self.aeromap_uid = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH+'/aeroMapUID', '')
 
         # Save CPACS file
         cpacs.save_cpacs(cpacs_path, overwrite=True)

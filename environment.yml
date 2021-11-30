@@ -44,8 +44,8 @@ dependencies:
 
   - pip:
     - sphinx-rtd-theme==0.4.3
-    - smt
-    - cpacspy
+    - smt==0.7.1
+    - cpacspy==0.0.8
     - ambiance
     #- aeroframe  # See: https://github.com/airinnova/aeroframe
     #- framat  # See: https://github.com/airinnova/framat

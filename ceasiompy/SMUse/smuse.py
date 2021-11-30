@@ -112,10 +112,15 @@ def get_inputs(x):
     """
 
     cpacs = CPACS(cpacs_path)
+    
+    # These variable will be used in eval
+    aircraft = cpacs.aircraft.configuration
+    wings = aircraft.get_wings()
+    fuselage = aircraft.get_fuselages().get_fuselage(1)
 
     inputs = []
 
-    aeromap_uid = cpacs.tixi.getTextElement(SMUSE_XPATH+'/aeroMapUID')
+    aeromap_uid = cpacs.tixi.getTextElement(SMUSE_XPATH + '/aeroMapUID')
     xpath = cpacs.tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/'
 
     x.set_index('Name', inplace=True)
@@ -127,11 +132,9 @@ def get_inputs(x):
                 x.loc[name, 'getcmd'] = xpath + name
             inputs.append(cpacs.tixi.getDoubleElement(x.loc[name, 'getcmd']))
 
-
     cpacs.save_cpacs(cpacs_path,overwrite=True)
 
-    inputs = np.array([inputs])
-    return inputs
+    return np.array([inputs])
 
 
 def write_inouts(v, inout, tixi):

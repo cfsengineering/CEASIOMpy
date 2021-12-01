@@ -48,7 +48,7 @@ log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 CPACS_OPTIM_PATH = mif.get_toolinput_file_path('Optimisation')
-CSV_PATH = MODULE_DIR+'/Variable_library.csv'
+CSV_PATH = MODULE_DIR + '/Variable_library.csv'
 
 # Parameters that can not be used as problem variables
 banned_entries = ['wing', 'delete_old_wkdirs', 'check_extract_loads', # Not relevant
@@ -98,31 +98,31 @@ class Routine:
         """Take user inputs from the GUI."""
 
         # Problem setup
-        objectives = get_value_or_default(tixi, OPTIM_XPATH+'objective', 'cl')
+        objectives = get_value_or_default(tixi, OPTIM_XPATH + '/objective', 'cl')
         self.objective = split(';|,', objectives)
-        self.minmax = get_value_or_default(tixi, OPTIM_XPATH+'minmax', 'max')
+        self.minmax = get_value_or_default(tixi, OPTIM_XPATH + '/minmax', 'max')
 
         # Global parameters
-        self.driver = get_value_or_default(tixi, OPTIM_XPATH+'parameters/driver', 'COBYLA')
-        self.max_iter = int(get_value_or_default(tixi, OPTIM_XPATH+'iterationNB', 200))
-        self.tol = float(get_value_or_default(tixi, OPTIM_XPATH+'tolerance', 1e-3))
-        self.save_iter = int(get_value_or_default(tixi, OPTIM_XPATH+'saving/perIter', 1))
+        self.driver = get_value_or_default(tixi, OPTIM_XPATH + '/parameters/driver', 'COBYLA')
+        self.max_iter = int(get_value_or_default(tixi, OPTIM_XPATH + '/iterationNB', 200))
+        self.tol = float(get_value_or_default(tixi, OPTIM_XPATH + '/tolerance', 1e-3))
+        self.save_iter = int(get_value_or_default(tixi, OPTIM_XPATH + '/saving/perIter', 1))
 
         # Specific DoE parameters
-        self.doedriver = get_value_or_default(tixi,OPTIM_XPATH+'parameters/DoE/driver','Uniform')
-        self.samplesnb = int(get_value_or_default(tixi,OPTIM_XPATH+'parameters/DoE/sampleNB',3))
+        self.doedriver = get_value_or_default(tixi,OPTIM_XPATH + '/parameters/DoE/driver','Uniform')
+        self.samplesnb = int(get_value_or_default(tixi,OPTIM_XPATH + '/parameters/DoE/sampleNB',3))
 
         # User specified configuration file path
-        self.user_config = str(get_value_or_default(tixi, OPTIM_XPATH+'Config/filepath', '-'))
+        self.user_config = str(get_value_or_default(tixi, OPTIM_XPATH + '/Config/filepath', '-'))
 
         fix_cl = get_value_or_default(tixi, '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/fixedCL', 'no')
         if fix_cl == 'YES':
-            tixi.updateTextElement(OPTIM_XPATH+'/aeroMapUID','aeroMap_fixedCL_SU2')
+            tixi.updateTextElement(OPTIM_XPATH + '/aeroMapUID','aeroMap_fixedCL_SU2')
             self.aeromap_uid = 'aeroMap_fixedCL_SU2'
         else:
-            self.aeromap_uid = str(get_value_or_default(tixi, OPTIM_XPATH+'/aeroMapUID', '-'))
+            self.aeromap_uid = str(get_value_or_default(tixi, OPTIM_XPATH + '/aeroMapUID', '-'))
 
-        self.use_aeromap = get_value_or_default(tixi, OPTIM_XPATH+'Config/useAero', False)
+        self.use_aeromap = get_value_or_default(tixi, OPTIM_XPATH + '/Config/useAero', False)
 
 # ==============================================================================
 #   FUNCTIONS
@@ -194,7 +194,7 @@ def gen_doe_csv(user_config):
     df.set_index('Name')
     df = df.T
 
-    doe_csv = os.path.split(user_config)[0]+'/DoE_points.csv'
+    doe_csv = os.path.split(user_config)[0] + '/DoE_points.csv'
     df.to_csv(doe_csv, header=False, index=False)
 
     return doe_csv
@@ -267,7 +267,7 @@ def get_aero_param(tixi):
 
     log.info('Default aeromap parameters will be set')
 
-    aeromap_uid = tixi.getTextElement(OPTIM_XPATH+'/aeroMapUID')
+    aeromap_uid = tixi.getTextElement(OPTIM_XPATH + '/aeroMapUID')
     xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/'
 
     for name in PARAMS_COEFS:
@@ -312,7 +312,7 @@ def get_sm_vars(tixi):
             tls.add_bounds(value, var)
         else:
             log.warning('Variable already exists')
-            log.info(name+' will not be added to the variable file')
+            log.info(name + ' will not be added to the variable file')
 
 
 def get_module_vars(tixi, specs):
@@ -350,7 +350,7 @@ def get_module_vars(tixi, specs):
             log.error('Empty name, not a valid variable name')
         elif entry.var_name in var['Name']:
             log.warning('Variable already exists')
-            log.info(entry.var_name+' will not be added to the variable file')
+            log.info(entry.var_name + ' will not be added to the variable file')
 
         # Aeromap variable
         elif value_name == 'aeroPerformanceMap' and aeromap:
@@ -407,7 +407,7 @@ def add_entries(tixi, module_list):
 
     """
 
-    use_am = get_value_or_default(tixi, SMUSE_XPATH+'/AeroMapOnly', False)
+    use_am = get_value_or_default(tixi, SMUSE_XPATH + '/AeroMapOnly', False)
     if 'SMUse' in module_list and use_am:
         get_aero_param(tixi)
     else:
@@ -547,7 +547,7 @@ def create_variable_library(Rt, tixi, optim_dir_path):
     """
 
     global objective, var
-    CSV_PATH = optim_dir_path+'/Variable_library.csv'
+    CSV_PATH = optim_dir_path + '/Variable_library.csv'
 
     for obj in Rt.objective:
         objective.extend(split('[+*/-]', obj))

@@ -18,7 +18,7 @@ NAME = 'CEASIOMpy'
 
 # -- Project information -----------------------------------------------------
 project = NAME
-copyright = '2020, CFS Engineering'
+copyright = '2021, CFS Engineering'
 author = 'CFS Engineering'
 
 # version: The short X.Y version

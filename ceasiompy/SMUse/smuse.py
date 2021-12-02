@@ -263,7 +263,7 @@ if __name__ == "__main__":
     check_aeromap(cpacs.tixi)
 
     if get_value_or_default(cpacs.tixi, SMUSE_XPATH+'/AeroMapOnly', False):
-        aeromap_calculation(Model.sm, cpacs.tixi)
+        aeromap_calculation(Model.sm, cpacs)
     else:
         predict_output(Model, cpacs.tixi)
 

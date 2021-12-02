@@ -10,12 +10,12 @@
 name: ceasiompy
 
 channels:
-  - dlr-sc  # See: https://anaconda.org/DLR-SC/repo
+  - dlr-sc
   - conda-forge
   - defaults
 
 dependencies:
-  - python>=3.7
+  - python=3.7
   - numpy>=1.15
   - cpacscreator>=0.1
   # - tigl3>=3.2.1
@@ -50,6 +50,7 @@ dependencies:
     #- aeroframe  # See: https://github.com/airinnova/aeroframe
     #- framat  # See: https://github.com/airinnova/framat
     # - mpi4py # issue at installation of environment
+
 
 # Other packages
 # ==============

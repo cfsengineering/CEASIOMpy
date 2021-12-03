@@ -1,4 +1,4 @@
-alt,mach,aoa,aos
+altitude,machNumber,angleOfAttack,angleOfSideslip
 0,0.3,-6,0
 0,0.3,-4,0
 0,0.3,-2,0

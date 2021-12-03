@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.xpath import FUSELAGES_XPATH
 
 # ===== RCE integration =====
 
@@ -30,7 +31,7 @@ for direction in ['x', 'y', 'z']:
         default_value=None,
         unit='1',
         descr=f"Fuselage scaling on {direction} axis",
-        xpath=AIRCRAFT_XPATH + f'/model/fuselages/fuselage/transformation/scaling/{direction}',
+        xpath=FUSELAGES_XPATH + f'/fuselage/transformation/scaling/{direction}',
         gui=include_gui,
         gui_name=f'{direction.capitalize()} scaling',
         gui_group='Fuselage scaling',

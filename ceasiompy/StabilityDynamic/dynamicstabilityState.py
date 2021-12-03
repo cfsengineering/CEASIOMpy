@@ -9,12 +9,13 @@ Python version: >=3.6
 
 | Author: Verdier Loïc
 | Creation: 2019-10-24
-| Last modifiction: 2020-04-07 (AJ)
+| Last modifiction: 2021-11-01 (AJ)
 
 TODO:
+    * All the script must be refactored and checked
     * Modify the code where there are "TODO"
-    * If only one aos angle -> dirrectionaly_stable  ???     - LV : Laterl and directional static stability can not be tested
-    * If only one aos angle -> longitudinaly_stable  ???    - LV : If only one aos and aos == 0: Longitudinal Static stability can be tested.
+    * If only one aos angle -> dirrectionaly_stable  ??? - LV : Laterl and directional static stability can not be tested
+    * If only one aos angle -> longitudinaly_stable  ??? - LV : If only one aos and aos == 0: Longitudinal Static stability can be tested.
     * Should we also save results as report (text file)
 """
 
@@ -23,24 +24,22 @@ TODO:
 #==============================================================================
 
 import os
-import sys
-import time
-import math
 
 import numpy as np
 from numpy import log as ln
 from numpy import linalg # For eigen values and aigen voectors
 
 import matplotlib as mpl, cycler
-import matplotlib.patheffects
 import matplotlib.pyplot as plt
 from matplotlib.lines import Line2D
 from matplotlib.patches import Patch
 
 from scipy import signal # For transfert function
 
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.apmfunctions as apmf
+from cpacspy.cpacspy import CPACS
+from cpacspy.cpacsfunctions import (get_string_vector,
+                                    get_value, get_value_or_default)
+
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.StabilityDynamic.func_dynamic import plot_sp_level_a, plot_sp_level_b, plot_sp_level_c,\
@@ -53,8 +52,9 @@ from ceasiompy.StabilityDynamic.func_dynamic import plot_sp_level_a, plot_sp_lev
                                             phugoid_rating, roll_rating, spiral_rating, dutch_roll_rating, plot_splane,\
                                             longi_mode_characteristic, direc_mode_characteristic, trim_condition
 
-from ceasiompy.utils.standardatmosphere import get_atmosphere, plot_atmosphere
-from ceasiompy.SkinFriction.skinfriction import get_largest_wing_dim
+from ambiance import Atmosphere
+from ceasiompy.utils.xpath import STABILITY_DYNAMIC_XPATH
+
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
@@ -62,7 +62,6 @@ log = get_logger(__file__.split('.')[0])
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
-DYNAMIC_ANALYSIS_XPATH = '/cpacs/toolspecific/CEASIOMpy/stability/dynamic'
 
 #==============================================================================
 #   Classes
@@ -108,17 +107,17 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
     """
 
     # XPATH definition
-    aeromap_uid_xpath =   DYNAMIC_ANALYSIS_XPATH + '/aeroMapUid'
-    aircraft_class_xpath = DYNAMIC_ANALYSIS_XPATH + '/class' # Classes 1 2 3 4 small, heavy ...
-    aircraft_cathegory_xpath = DYNAMIC_ANALYSIS_XPATH  + '/category' # flight phase A B C
-    selected_mass_config_xpath  = DYNAMIC_ANALYSIS_XPATH + '/massConfiguration'
-    longi_analysis_xpath = DYNAMIC_ANALYSIS_XPATH + '/instabilityModes/longitudinal'
-    direc_analysis_xpath = DYNAMIC_ANALYSIS_XPATH + '/instabilityModes/lateralDirectional'
-    show_plot_xpath = DYNAMIC_ANALYSIS_XPATH + '/showPlots'
-    save_plot_xpath =  DYNAMIC_ANALYSIS_XPATH + '/savePlots'
+    aeromap_uid_xpath =   STABILITY_DYNAMIC_XPATH + '/aeroMapUid'
+    aircraft_class_xpath = STABILITY_DYNAMIC_XPATH + '/class' # Classes 1 2 3 4 small, heavy ...
+    aircraft_cathegory_xpath = STABILITY_DYNAMIC_XPATH  + '/category' # flight phase A B C
+    selected_mass_config_xpath  = STABILITY_DYNAMIC_XPATH + '/massConfiguration'
+    longi_analysis_xpath = STABILITY_DYNAMIC_XPATH + '/instabilityModes/longitudinal'
+    direc_analysis_xpath = STABILITY_DYNAMIC_XPATH + '/instabilityModes/lateralDirectional'
+    show_plot_xpath = STABILITY_DYNAMIC_XPATH + '/showPlots'
+    save_plot_xpath =  STABILITY_DYNAMIC_XPATH + '/savePlots'
 
     model_xpath = '/cpacs/vehicles/aircraft/model'
-    ref_area_xpath = model_xpath + '/reference/area'
+
     ref_length_xpath = model_xpath + '/reference/length'
     flight_qualities_case_xpath = model_xpath + '/analyses/flyingQualities/fqCase'
     masses_location_xpath =  model_xpath + '/analyses/massBreakdown/designMasses'
@@ -130,22 +129,24 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
     flight_path_angle_deg = [0] # [-15,-10,-5,0,5,10,15] # The user should have the choice to select them !!!!!!!!!!!!!!!!!!!!
     flight_path_angle = [angle *(np.pi/180) for angle  in flight_path_angle_deg]  # flight_path_angle in [rad]
 
-    tixi = cpsf.open_tixi(cpacs_path)
+    cpacs = CPACS(cpacs_path)
+    tixi = cpacs.tixi
+
     # Get aeromap uid
-    aeromap_uid = cpsf.get_value(tixi, aeromap_uid_xpath )
+    aeromap_uid = get_value(tixi, aeromap_uid_xpath )
     log.info('The following aeroMap will be analysed: ' + aeromap_uid)
 
     # Mass configuration: (Maximum landing mass, Maximum ramp mass (the maximum weight authorised for the ground handling), Take off mass, Zero Fuel mass)
-    mass_config = cpsf.get_value(tixi, selected_mass_config_xpath)
+    mass_config = get_value(tixi, selected_mass_config_xpath)
     log.info('The aircraft mass configuration used for analysis is: ' + mass_config)
 
     # Analyses to do : longitudinal / Lateral-Directional
-    longitudinal_analysis = cpsf.get_value(tixi,longi_analysis_xpath)
+    longitudinal_analysis = get_value(tixi,longi_analysis_xpath)
     lateral_directional_analysis = False
-    # lateral_directional_analysis = cpsf.get_value(tixi, direc_analysis_xpath )
+    # lateral_directional_analysis = get_value(tixi, direc_analysis_xpath )
     # Plots configuration with Setting GUI
-    show_plots = cpsf.get_value_or_default(tixi,show_plot_xpath,False)
-    save_plots = cpsf.get_value_or_default(tixi,save_plot_xpath,False)
+    show_plots = get_value_or_default(tixi,show_plot_xpath,False)
+    save_plots = get_value_or_default(tixi,save_plot_xpath,False)
 
     mass_config_xpath = masses_location_xpath + '/' + mass_config
     if tixi.checkElement(mass_config_xpath):
@@ -155,48 +156,50 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
         I_zz_xpath = mass_config_xpath + '/massInertia/Jzz'
         I_xz_xpath = mass_config_xpath + '/massInertia/Jxz'
     else :
-        raise ValueError('The mass configuration : {} is not defined in the CPACS file !!!'.format(mass_config))
+        raise ValueError(f'The mass configuration : {mass_config} is not defined in the CPACS file !!!')
 
-    s = cpsf.get_value(tixi,ref_area_xpath)     # Wing area : s  for non-dimonsionalisation of aero data.
-    mac = cpsf.get_value(tixi,ref_length_xpath) # ref length for non dimensionalisation, Mean aerodynamic chord: mac,
+    s = cpacs.aircraft.ref_area  # Wing area : s  for non-dimonsionalisation of aero data.
+    mac = cpacs.aircraft.ref_lenght  # ref length for non dimensionalisation, Mean aerodynamic chord: mac,
+    
     # TODO: check that
     b= s/mac
 
     # TODO: find a way to get that
     xh = 10 # distance Aircaft cg-ac_horizontal-tail-plane.
 
-    m = cpsf.get_value(tixi,mass_xpath) # aircraft mass dimensional
-    I_xx = cpsf.get_value(tixi,I_xx_xpath) # X inertia dimensional
-    I_yy = cpsf.get_value(tixi,I_yy_xpath) # Y inertia dimensional
-    I_zz = cpsf.get_value(tixi,I_zz_xpath) # Z inertia dimensional
-    I_xz = cpsf.get_value(tixi,I_xz_xpath) # XZ inertia dimensional
+    m = get_value(tixi,mass_xpath) # aircraft mass dimensional
+    I_xx = get_value(tixi,I_xx_xpath) # X inertia dimensional
+    I_yy = get_value(tixi,I_yy_xpath) # Y inertia dimensional
+    I_zz = get_value(tixi,I_zz_xpath) # Z inertia dimensional
+    I_xz = get_value(tixi,I_xz_xpath) # XZ inertia dimensional
 
-    aircraft_class = cpsf.get_value(tixi,aircraft_class_xpath ) # aircraft class 1 2 3 4
-    flight_phase = cpsf.get_string_vector(tixi, aircraft_cathegory_xpath)[0] # Flight phase A B C
+    aircraft_class = get_value(tixi,aircraft_class_xpath ) # aircraft class 1 2 3 4
+    flight_phase = get_string_vector(tixi, aircraft_cathegory_xpath)[0] # Flight phase A B C
 
-    Coeffs = apmf.get_aeromap(tixi,aeromap_uid)    # Warning: Empty uID found! This might lead to unknown errors!
+    aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
-    alt_list = Coeffs.alt
-    mach_list = Coeffs.mach
-    aoa_list = Coeffs.aoa
-    aos_list = Coeffs.aos
-    cl_list = Coeffs.cl
-    cd_list = Coeffs.cd
-    cs_list = Coeffs.cs
-    cml_list = Coeffs.cml
-    cms_list = Coeffs.cms
-    cmd_list = Coeffs.cmd
-    dcsdrstar_list = Coeffs.dcsdrstar
-    dcsdpstar_list = Coeffs.dcsdpstar
-    dcldqstar_list = Coeffs.dcldqstar
-    dcmsdqstar_list = Coeffs.dcmsdqstar
-    dcddqstar_list = Coeffs.dcddqstar
-    dcmldqstar_list = Coeffs.dcmldqstar
-    dcmddpstar_list = Coeffs.dcmddpstar
-    dcmldpstar_list = Coeffs.dcmldpstar
-    dcmldrstar_list = Coeffs.dcmldrstar
-    dcmddrstar_list = Coeffs.dcmddrstar
+    alt_list = aeromap.get('altitude')
+    mach_list = aeromap.get('machNumber')
+    aoa_list = aeromap.get('angleOfAttack')
+    aos_list = aeromap.get('angleOfSideslip')
+    cl_list = aeromap.get('cl')
+    cd_list = aeromap.get('cd')
+    cs_list = aeromap.get('cm')
+    cml_list = aeromap.get('cml')
+    cms_list = aeromap.get('cms')
+    cmd_list = aeromap.get('cmd')
 
+    # TODO: check that
+    dcsdrstar_list = aeromap.get('dampingDerivatives_negativeRates_dcsdrStar')   
+    dcsdpstar_list = aeromap.get('dampingDerivatives_negativeRates_dcsdpStar')   
+    dcldqstar_list = aeromap.get('dampingDerivatives_negativeRates_dcldqStar')   
+    dcmsdqstar_list = aeromap.get('ddampingDerivatives_negativeRates_cmsdqStar')   
+    dcddqstar_list = aeromap.get('dampingDerivatives_negativeRates_dcddqStar')   
+    dcmldqstar_list = aeromap.get('ddampingDerivatives_negativeRates_cmldqStar')   
+    dcmddpstar_list = aeromap.get('ddampingDerivatives_negativeRates_cmddpStar')   
+    dcmldpstar_list = aeromap.get('ddampingDerivatives_negativeRates_cmldpStar')   
+    dcmldrstar_list = aeromap.get('ddampingDerivatives_negativeRates_cmldrStar')   
+    dcmddrstar_list = aeromap.get('ddampingDerivatives_negativeRates_cmddrStar')   
 
     # All different vallues with only one occurence
     alt_unic = get_unic(alt_list)
@@ -209,10 +212,10 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
 
     for alt in alt_unic:
         idx_alt = [i for i in range(len(alt_list)) if alt_list[i] == alt]
-        Atm = get_atmosphere(alt)
-        g = Atm.grav
-        a = Atm.sos
-        rho = Atm.dens
+        Atm = Atmosphere(alt)
+        g = Atm.grav_accel[0]
+        a = Atm.speed_of_sound[0]
+        rho = Atm.density[0]
 
         for mach in mach_unic:
             print('Mach : ' , mach)
@@ -570,15 +573,15 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                         # ratings_xpath = flying_qality_uid_xpath + '/ratings'
                         #
                         # # Flight case branche and UID
-                        # cpsf.create_branch(tixi, flight_case_uid_xpath )
+                        # create_branch(tixi, flight_case_uid_xpath )
                         # tixi.updateTextElement(flight_case_uid_xpath, flight_case_uid )
                         # # Save trim results  (alt, mach, aoa_trim)
-                        # cpsf.create_branch(tixi,trim_result_xpath)
+                        # create_branch(tixi,trim_result_xpath)
                         # tixi.updateDoubleElement(trim_result_xpath + '/altitude', mach, '%g')
                         # tixi.updateDoubleElement(trim_result_xpath + '/mach', mach, '%g')
                         # tixi.updateDoubleElement(trim_result_xpath + '/alpha', mach, '%g')
                         # # Save linerarisation matrixes
-                        # cpsf.create_branch(tixi,linear_model_xpath )
+                        # create_branch(tixi,linear_model_xpath )
                         # tixi.addFloatVector(linear_model_xpath + '/aLon', A_longi, '%g')  # SHould be an arrayy!!!!!!
                         # tixi.addFloatVector(linear_model_xpath + '/bLon', B_longi, '%g')
                         # tixi.addFloatVector(linear_model_xpath + '/cLon', C_longi, '%g')
@@ -588,18 +591,18 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                         # tixi.addFloatVector(linear_model_xpath + '/cLat', C_direc, '%g')
                         # tixi.addFloatVector(linear_model_xpath + '/dLat', D_direc, '%g')
                         # # Flying qualities branche and UID
-                        # cpsf.create_branch(tixi, flying_qality_uid_xpath  )
+                        # create_branch(tixi, flying_qality_uid_xpath  )
                         # tixi.updateTextElement(flying_qality_uid_xpath , flight_case_uid ) # Set UID
                         # tixi.updateIntegerElement(flying_qality_uid_xpath + '/class', aircraft_class, '%i') # Aircraft calss : 1 2 3
                         # tixi.updateTextElement(flying_qality_uid_xpath + '/category', flight_phase) # Aircraft calss : A B C
                         # # TF longi
-                        # cpsf.create_branch(tixi, tf_longi_xpath )
+                        # create_branch(tixi, tf_longi_xpath )
                         # tixi.addFloatVector(tf_longi_xpath+'/denLon', delta_longi, '%g') # DEN Longi TF
                         # # TF lateral
-                        # cpsf.create_branch(tixi, tf_lat_xpath )
+                        # create_branch(tixi, tf_lat_xpath )
                         # tixi.addFloatVector(tf_lat_xpath+'/denLat', delta_direc, '%g') # DEN Lateral-direction TF
                         # # Parameters
-                        # cpsf.create_branch(tixi, parameters_xpath)
+                        # create_branch(tixi, parameters_xpath)
                         # tixi.updateDoubleElement(parameters_xpath + '/shortPeriod/nAlpha', load_factor, '%g') # Short period load factor
                         # tixi.updateDoubleElement(parameters_xpath + '/shortPeriod/spFrequency', sp_freq, '%g') # Short period frequency
                         # tixi.updateDoubleElement(parameters_xpath + '/shortPeriod/spDamping', sp_damp, '%g') # Short period dmaping
@@ -612,7 +615,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                         # tixi.updateDoubleElement(parameters_xpath + '/eiglat/rollTimeConstant', roll_timecst, '%g')
                         # tixi.updateDoubleElement(parameters_xpath + '/eiglat/spiralDoublingTime', spiral_t2, '%g')
                         # # Parameters' rate
-                        # cpsf.create_branch(tixi, ratings_xpath)
+                        # create_branch(tixi, ratings_xpath)
                         # tixi.updateIntegerElement(ratings_xpath + '/shortPeriod/spFrequency', sp_freq_rate, '%i') # Short period frequency
                         # tixi.updateIntegerElement(ratings_xpath + '/shortPeriod/spDamping', sp_damp_rate, '%i') # Short period dmaping
                         # tixi.updateIntegerElement(ratings_xpath + '/shortPeriod/cap', sp_cap_rate, '%i')               # Short period CAP

@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2020-01-21 (AJ)
+| Last modifiction: 2021-10-14 (AJ)
 
 """
 
@@ -20,9 +20,8 @@ Python version: >=3.6
 #==============================================================================
 
 import numpy as np
-import math
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import (open_tigl, open_tixi)
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -186,8 +185,8 @@ def fuse_geom_eval(fus_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
     log.info('-----------------------------------------------------------')
 
     # Opening tixi and tigl
-    tixi = cpsf.open_tixi(cpacs_in)
-    tigl = cpsf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_in)
+    tigl = open_tigl(tixi)
 
     #INITIALIZATION 1 ----------------------------------------------------------
     afg.fus_nb = fus_nb
@@ -430,7 +429,7 @@ def fuse_geom_eval(fus_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
             afg.fuse_cabin_vol[i-1] = 0
             afg.cabin_area[i-1] = 0
 
-    cpsf.close_tixi(tixi, cpacs_in)
+    tixi.save(cpacs_in)
 
     # log info display ------------------------------------------------------------
     log.info('-----------------------------------------------------------')

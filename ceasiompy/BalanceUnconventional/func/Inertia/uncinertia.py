@@ -25,7 +25,6 @@ The script evaluates the Moments of Inertia (Ixx, Iyy, Izz) in case of:
 from . import lumpedmassesinertia
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import cpacsfunctions as cpf
 
 log = get_logger(__file__.split('.')[0])
 

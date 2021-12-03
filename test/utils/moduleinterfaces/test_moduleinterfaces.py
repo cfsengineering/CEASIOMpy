@@ -21,7 +21,8 @@ import os
 
 import pytest
 
-import ceasiompy.utils.moduleinterfaces as m
+import ceasiompy.utils.moduleinterfaces as mi
+from ceasiompy.utils.xpath import RANGE_XPATH
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 CPACS_TEST_FILE = os.path.join(HERE, 'ToolInput', 'cpacs_test_file.xml')
@@ -32,7 +33,7 @@ def test_cpacs_inout():
     Test basic functionality of 'CPACSInOut()'
     """
 
-    cpacs_inout = m.CPACSInOut()
+    cpacs_inout = mi.CPACSInOut()
 
     # Adding input
     cpacs_inout.add_input(
@@ -81,7 +82,7 @@ def test_check_cpacs_input_requirements():
 
     os.chdir(os.path.dirname(__file__))
 
-    cpacs_inout = m.CPACSInOut()
+    cpacs_inout = mi.CPACSInOut()
     cpacs_file = 'ToolInput/D150_AGILE_Hangar_v3.xml'
 
     cpacs_inout.add_input(
@@ -89,10 +90,10 @@ def test_check_cpacs_input_requirements():
         default_value=12000,
         unit='m',
         descr='Aircraft cruise altitude',
-        xpath=m.CEASIOM_XPATH + '/ranges/cruiseAltitude',
+        xpath=RANGE_XPATH+'/cruiseAltitude',
     )
 
-    assert m.check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout) is None
+    assert mi.check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout) is None
 
     cpacs_inout.add_input(
         var_name='something',
@@ -102,8 +103,8 @@ def test_check_cpacs_input_requirements():
         xpath='/a/non-existent/path',
     )
 
-    with pytest.raises(m.CPACSRequirementError):
-        m.check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout)
+    with pytest.raises(mi.CPACSRequirementError):
+        mi.check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout)
 
 
 def test_get_submodule_list():
@@ -111,7 +112,7 @@ def test_get_submodule_list():
     Test 'get_submodule_list()' function
     """
 
-    submodule_list = m.get_submodule_list()
+    submodule_list = mi.get_submodule_list()
     for submod_name in submodule_list:
         assert len(submod_name.split('.')) == 1
 
@@ -121,7 +122,7 @@ def test_get_module_list():
     Test "get_module_list()" function
     """
 
-    module_list = m.get_module_list()
+    module_list = mi.get_module_list()
 
     assert isinstance(module_list, list)
 
@@ -141,7 +142,7 @@ def test_get_toolinput_file_path():
 
     module_name = 'ModuleTemplate'
 
-    toolinput_path = m.get_toolinput_file_path(module_name)
+    toolinput_path = mi.get_toolinput_file_path(module_name)
 
     # Test that the end of the path is correct
     assert toolinput_path.endswith(os.path.join('CEASIOMpy','ceasiompy',
@@ -156,7 +157,7 @@ def test_get_tooloutput_file_path():
 
     module_name = 'ModuleTemplate'
 
-    toolinput_path = m.get_tooloutput_file_path(module_name)
+    toolinput_path = mi.get_tooloutput_file_path(module_name)
 
     # Test that the end of the path is correct
     assert toolinput_path.endswith(os.path.join('CEASIOMpy','ceasiompy',
@@ -170,12 +171,12 @@ def test_get_specs_for_module():
     """
 
     # Return None for non-existent modules...
-    specs = m.get_specs_for_module(module_name='SomeModuleThatDoesNotExist')
+    specs = mi.get_specs_for_module(module_name='SomeModuleThatDoesNotExist')
     assert specs is None
 
     # ... but raise an error if explicitly told to do so
     with pytest.raises(ImportError):
-        m.get_specs_for_module(module_name='SomeModuleThatDoesNotExist', raise_error=True)
+        mi.get_specs_for_module(module_name='SomeModuleThatDoesNotExist', raise_error=True)
 
 
 def test_get_all_module_specs():
@@ -183,7 +184,7 @@ def test_get_all_module_specs():
     Test that 'get_all_module_specs()' runs
     """
 
-    all_specs = m.get_all_module_specs()
+    all_specs = mi.get_all_module_specs()
     assert isinstance(all_specs, dict)
 
 
@@ -192,7 +193,7 @@ def test_find_missing_specs():
     Test that 'find_missing_specs()' runs
     """
 
-    missing = m.find_missing_specs()
+    missing = mi.find_missing_specs()
     assert isinstance(missing, list)
 
 
@@ -214,8 +215,8 @@ def test_check_workflow():
 
     with pytest.raises(ValueError):
         workflow = ('PyTornado', 'NON_EXISTENT_MODULE')
-        m.check_workflow(CPACS_TEST_FILE, workflow)
+        mi.check_workflow(CPACS_TEST_FILE, workflow)
 
     with pytest.raises(ValueError):
         workflow = ('SU2Run', 'PyTornado', 'WeightUnconventional', 'BalanceUnconventional')
-        m.check_workflow(CPACS_TEST_FILE, workflow)
+        mi.check_workflow(CPACS_TEST_FILE, workflow)

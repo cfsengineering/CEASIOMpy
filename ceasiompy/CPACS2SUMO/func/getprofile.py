@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2021-04-26
-| Last modifiction: 2021-05-11
+| Last modifiction: 2021-09-22
 
 TODO:
 
@@ -26,7 +26,7 @@ import os
 import sys
 import math
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import get_float_vector 
 from ceasiompy.CPACS2SUMO.func.cst2coord import CST_shape
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -74,32 +74,32 @@ def get_profile_coord(tixi,prof_uid):
     if tixi.checkElement(prof_xpath+'/pointList'):
 
         try:
-            prof_vect_x = cpsf.get_float_vector(tixi, prof_xpath+'/pointList/x')
+            prof_vect_x = get_float_vector(tixi, prof_xpath+'/pointList/x')
         except:
             log.warning('No point list in x coordinate has been found!')
 
         try:
-            prof_vect_y = cpsf.get_float_vector(tixi, prof_xpath+'/pointList/y')
+            prof_vect_y = get_float_vector(tixi, prof_xpath+'/pointList/y')
         except:
             log.warning('No point list in y coordinate has been found!')
 
         try:
-            prof_vect_z = cpsf.get_float_vector(tixi, prof_xpath+'/pointList/z')
+            prof_vect_z = get_float_vector(tixi, prof_xpath+'/pointList/z')
         except:
             log.warning('No point list in z coordinate has been found!')
 
 
     elif tixi.checkElement(prof_xpath+'/cst2D'):
 
-        psi = cpsf.get_float_vector(tixi, prof_xpath+'/cst2D/psi')
+        psi = get_float_vector(tixi, prof_xpath+'/cst2D/psi')
 
         upperN1 = tixi.getTextElement(prof_xpath+'/cst2D/upperN1')
         upperN2 = tixi.getTextElement(prof_xpath+'/cst2D/upperN2')
-        upperB = cpsf.get_float_vector(tixi, prof_xpath+'/cst2D/upperB')
+        upperB = get_float_vector(tixi, prof_xpath+'/cst2D/upperB')
 
         lowerN1 = tixi.getTextElement(prof_xpath+'/cst2D/lowerN1')
         lowerN2 = tixi.getTextElement(prof_xpath+'/cst2D/lowerN2')
-        lowerB = cpsf.get_float_vector(tixi, prof_xpath+'/cst2D/lowerB')
+        lowerB = get_float_vector(tixi, prof_xpath+'/cst2D/lowerB')
 
         if tixi.checkElement(prof_xpath+'/cst2D/trailingEdgeThickness'):
             TEThickness = tixi.getTextElement(prof_xpath+'/cst2D/trailingEdgeThickness')
@@ -135,7 +135,6 @@ def get_profile_coord(tixi,prof_uid):
 
     elif not prof_vect_z:
         prof_vect_z = [0]*len(prof_vect_x)
-
 
     if sum(prof_vect_z[0:len(prof_vect_z)//2]) < sum(prof_vect_z[len(prof_vect_z)//2:-1]):
 

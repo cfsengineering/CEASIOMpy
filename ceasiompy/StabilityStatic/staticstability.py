@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Verdier Loïc
 | Creation: 2019-10-24
-| Last modifiction: 2020-04-06 (AJ)
+| Last modifiction: 2021-11-17 (AJ)
 
 TODO:
     * Modify the code where there are "TODO"
@@ -23,20 +23,17 @@ TODO:
 #==============================================================================
 
 import os
-import sys
 
-import numpy as np
-import matplotlib as mpl
-import matplotlib.patheffects
 import matplotlib.pyplot as plt
 
-import pandas as pd
+from cpacspy.cpacspy import CPACS
+from cpacspy.cpacsfunctions import (add_float_vector, create_branch,
+                                    get_value, get_value_or_default)
 
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.apmfunctions as apmf
 import ceasiompy.utils.moduleinterfaces as mi
+from ceasiompy.utils.xpath import MASSBREAKDOWN_XPATH, STABILITY_STATIC_XPATH
 
-from ceasiompy.utils.standardatmosphere import get_atmosphere
+from ambiance import Atmosphere
 
 from ceasiompy.StabilityStatic.func_static import get_unic, get_index, extract_subelements,\
                                             order_correctly, trim_derivative, plot_multicurve,\
@@ -49,7 +46,6 @@ log = get_logger(__file__.split('.')[0])
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
-STATIC_ANALYSIS_XPATH = '/cpacs/toolspecific/CEASIOMpy/stability/static'
 
 #===========================================================
 #   FUNCTIONS
@@ -64,8 +60,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     Args:
         cpacs_path (str): Path to CPACS file
         cpacs_out_path (str):Path to CPACS output file
-        plot (boolean): Choise to plot graph or not
-
+        
     Returns:
         *   Adrvertisements certifying if the aircraft is stable or Not
         *   In case of longitudinal static UNstability or unvalid test on data:
@@ -90,50 +85,46 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 -   If there one aos value which is repeated for a given altitude, mach, aoa
     """
 
+    cpacs = CPACS(cpacs_path)
+
     # TODO: add as CPACS option
     plot_for_different_mach = False # To check Mach influence
     plot_for_different_alt = False  # To check Altitude influence
 
-    tixi = cpsf.open_tixi(cpacs_path)
-
     # Get aeromap uid
-    aeromap_uid = cpsf.get_value(tixi, STATIC_ANALYSIS_XPATH+'/aeroMapUid')
+    aeromap_uid = get_value(cpacs.tixi, STABILITY_STATIC_XPATH+'/aeroMapUid')
     log.info('The following aeroMap will be analysed: ' + aeromap_uid)
 
-    show_plots = cpsf.get_value_or_default(tixi,STATIC_ANALYSIS_XPATH +'/showPlots',False)
-    save_plots = cpsf.get_value_or_default(tixi,STATIC_ANALYSIS_XPATH +'/savePlots',False)
+    show_plots = get_value_or_default(cpacs.tixi,STABILITY_STATIC_XPATH +'/showPlots',False)
+    save_plots = get_value_or_default(cpacs.tixi,STABILITY_STATIC_XPATH +'/savePlots',False)
 
     # Aircraft mass configuration
-    selected_mass_config_xpath  = STATIC_ANALYSIS_XPATH + '/massConfiguration'
-    mass_config = cpsf.get_value(tixi,selected_mass_config_xpath)
+    selected_mass_config_xpath  = STABILITY_STATIC_XPATH + '/massConfiguration'
+    mass_config = get_value(cpacs.tixi,selected_mass_config_xpath)
+    print('Mass configuration: ' + mass_config)
     # TODO: use get value or default instead and deal with not mass config
     log.info('The aircraft mass configuration used for analysis is: ' + mass_config)
 
-    model_xpath = '/cpacs/vehicles/aircraft/model'
-    masses_location_xpath =  model_xpath + '/analyses/massBreakdown/designMasses'
-    mass_config_xpath = masses_location_xpath + '/' + mass_config
-    if tixi.checkElement(mass_config_xpath):
-        mass_xpath = mass_config_xpath + '/mass'
-        m = cpsf.get_value(tixi,mass_xpath) # aircraft mass [Kg]
+    mass_config_xpath = MASSBREAKDOWN_XPATH + '/designMasses/' + mass_config + '/mass'
+    if cpacs.tixi.checkElement(mass_config_xpath):
+        m = get_value(cpacs.tixi,mass_config_xpath) # aircraft mass [Kg]
     else :
-        raise ValueError(' !!! The mass configuration : {} is not defined in the CPACS file !!!'.format(mass_config))
+        raise ValueError(f' !!! The mass configuration : {mass_config} is not defined in the CPACS file !!!')
 
     # Wing plane AREA.
-    ref_area_xpath = model_xpath + '/reference/area'
-    s = cpsf.get_value(tixi,ref_area_xpath)     # Wing area : s  for non-dimonsionalisation of aero data.
+    s = cpacs.aircraft.ref_area   # Wing area : s  for non-dimonsionalisation of aero data.
 
-    Coeffs = apmf.get_aeromap(tixi, aeromap_uid)
-    Coeffs.print_coef_list()
+    aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
-    alt_list = Coeffs.alt
-    mach_list = Coeffs.mach
-    aoa_list = Coeffs.aoa
-    aos_list = Coeffs.aos
-    cl_list = Coeffs.cl
-    cd_list = Coeffs.cd
-    cml_list = Coeffs.cml
-    cms_list = Coeffs.cms
-    cmd_list = Coeffs.cmd
+    alt_list = aeromap.get('altitude')
+    mach_list = aeromap.get('machNumber')
+    aoa_list = aeromap.get('angleOfAttack')
+    aos_list = aeromap.get('angleOfSideslip')
+    cl_list = aeromap.get('cl')
+    cd_list = aeromap.get('cd')
+    cml_list = aeromap.get('cml')
+    cms_list = aeromap.get('cms')
+    cmd_list = aeromap.get('cmd')
 
     alt_unic = get_unic(alt_list)
     mach_unic = get_unic(mach_list)
@@ -143,7 +134,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     # TODO: get incremental map from CPACS
     # Incremental map elevator
     incrementalMap = False # if increment map available
-    # aeromap_xpath = tixi.uIDGetXPath(aeromap_uid)
+    # aeromap_xpath = cpacs.tixi.uIDGetXPath(aeromap_uid)
     # dcms_xpath = aeromap_xpath + '/aeroPerformanceMap/incrementMaps/incrementMap'  + ' ....to complete'
 
     # TODO from incremental map
@@ -191,10 +182,10 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     # Aero analyses for all given altitude, mach and aos_list, over different
     for alt in alt_unic:
 
-        Atm = get_atmosphere(alt)
-        g = Atm.grav
-        a = Atm.sos
-        rho = Atm.dens
+        Atm = Atmosphere(alt)
+        g = Atm.grav_accel[0]
+        a = Atm.speed_of_sound[0]
+        rho = Atm.density[0]
 
         # Find index of altitude which have the same value
         idx_alt = [i for i in range(len(alt_list)) if alt_list[i] == alt]
@@ -853,44 +844,44 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
     # xpath definition
     # TODO: add uid of the coresponding aeropm for results
-    longi_xpath = STATIC_ANALYSIS_XPATH + '/results/longitudinalStaticStable'
-    lat_xpath = STATIC_ANALYSIS_XPATH + '/results/lateralStaticStable'
-    direc_xpath = STATIC_ANALYSIS_XPATH + '/results/directionnalStaticStable'
-    longi_trim_xpath = STATIC_ANALYSIS_XPATH +'/trimConditions/longitudinal'
-    lat_trim_xpath = STATIC_ANALYSIS_XPATH +'/trimConditions/lateral'
-    direc_trim_xpath = STATIC_ANALYSIS_XPATH +'/trimConditions/directional'
+    longi_xpath = STABILITY_STATIC_XPATH + '/results/longitudinalStaticStable'
+    lat_xpath = STABILITY_STATIC_XPATH + '/results/lateralStaticStable'
+    direc_xpath = STABILITY_STATIC_XPATH + '/results/directionnalStaticStable'
+    longi_trim_xpath = STABILITY_STATIC_XPATH +'/trimConditions/longitudinal'
+    lat_trim_xpath = STABILITY_STATIC_XPATH +'/trimConditions/lateral'
+    direc_trim_xpath = STABILITY_STATIC_XPATH +'/trimConditions/directional'
 
-    cpsf.create_branch(tixi, longi_xpath)
-    cpsf.create_branch(tixi, lat_xpath)
-    cpsf.create_branch(tixi, direc_xpath)
+    create_branch(cpacs.tixi, longi_xpath)
+    create_branch(cpacs.tixi, lat_xpath)
+    create_branch(cpacs.tixi, direc_xpath)
 
     # Store in the CPACS the stability results
-    tixi.updateTextElement(longi_xpath, str(cpacs_stability_longi))
-    tixi.updateTextElement(lat_xpath, str(cpacs_stability_lat))
-    tixi.updateTextElement(direc_xpath, str(cpacs_stability_direc))
+    cpacs.tixi.updateTextElement(longi_xpath, str(cpacs_stability_longi))
+    cpacs.tixi.updateTextElement(lat_xpath, str(cpacs_stability_lat))
+    cpacs.tixi.updateTextElement(direc_xpath, str(cpacs_stability_direc))
 
-    cpsf.create_branch(tixi,longi_trim_xpath)
-    cpsf.create_branch(tixi,lat_trim_xpath)
-    cpsf.create_branch(tixi,direc_trim_xpath)
+    create_branch(cpacs.tixi,longi_trim_xpath)
+    create_branch(cpacs.tixi,lat_trim_xpath)
+    create_branch(cpacs.tixi,direc_trim_xpath)
 
     # TODO: Normaly this "if" is not required, but the tixi function to add a vector does not support an empty vercor...
     if trim_alt_longi_list:
-        cpsf.add_float_vector(tixi,longi_trim_xpath+'/altitude',trim_alt_longi_list)
-        cpsf.add_float_vector(tixi,longi_trim_xpath+'/machNumber',trim_mach_longi_list)
-        cpsf.add_float_vector(tixi,longi_trim_xpath+'/angleOfAttack',trim_aoa_longi_list)
-        cpsf.add_float_vector(tixi,longi_trim_xpath+'/angleOfSideslip',trim_aos_longi_list)
+        add_float_vector(cpacs.tixi,longi_trim_xpath+'/altitude',trim_alt_longi_list)
+        add_float_vector(cpacs.tixi,longi_trim_xpath+'/machNumber',trim_mach_longi_list)
+        add_float_vector(cpacs.tixi,longi_trim_xpath+'/angleOfAttack',trim_aoa_longi_list)
+        add_float_vector(cpacs.tixi,longi_trim_xpath+'/angleOfSideslip',trim_aos_longi_list)
     if trim_alt_lat_list:
-        cpsf.add_float_vector(tixi,lat_trim_xpath+'/altitude',trim_alt_lat_list)
-        cpsf.add_float_vector(tixi,lat_trim_xpath+'/machNumber',trim_mach_lat_list)
-        cpsf.add_float_vector(tixi,lat_trim_xpath+'/angleOfAttack',trim_aoa_lat_list)
-        cpsf.add_float_vector(tixi,lat_trim_xpath+'/angleOfSideslip',trim_aos_lat_list)
+        add_float_vector(cpacs.tixi,lat_trim_xpath+'/altitude',trim_alt_lat_list)
+        add_float_vector(cpacs.tixi,lat_trim_xpath+'/machNumber',trim_mach_lat_list)
+        add_float_vector(cpacs.tixi,lat_trim_xpath+'/angleOfAttack',trim_aoa_lat_list)
+        add_float_vector(cpacs.tixi,lat_trim_xpath+'/angleOfSideslip',trim_aos_lat_list)
     if trim_alt_direc_list:
-        cpsf.add_float_vector(tixi,direc_trim_xpath+'/altitude',trim_alt_direc_list)
-        cpsf.add_float_vector(tixi,direc_trim_xpath+'/machNumber',trim_mach_direc_list)
-        cpsf.add_float_vector(tixi,direc_trim_xpath+'/angleOfAttack',trim_aoa_direc_list)
-        cpsf.add_float_vector(tixi,direc_trim_xpath+'/angleOfSideslip',trim_aos_direc_list)
+        add_float_vector(cpacs.tixi,direc_trim_xpath+'/altitude',trim_alt_direc_list)
+        add_float_vector(cpacs.tixi,direc_trim_xpath+'/machNumber',trim_mach_direc_list)
+        add_float_vector(cpacs.tixi,direc_trim_xpath+'/angleOfAttack',trim_aoa_direc_list)
+        add_float_vector(cpacs.tixi,direc_trim_xpath+'/angleOfSideslip',trim_aos_direc_list)
 
-    cpsf.close_tixi(tixi, cpacs_out_path)
+    cpacs.tixi.save(cpacs_out_path)
 
 
 #==============================================================================

@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.xpath import (REF_XPATH, WINGS_XPATH, 
+                                   PYTORNADO_XPATH,AEROPERFORMANCE_XPATH)
 
 # ===== RCE integration =====
 
@@ -13,9 +15,6 @@ RCE = {
     "email": "dettmann@kth.se",
 }
 
-REFS_XPATH = AIRCRAFT_XPATH + '/model/reference'
-WING_XPATH = AIRCRAFT_XPATH + '/model/wings'
-XPATH_PYTORNADO = '/cpacs/toolspecific/pytornado'
 
 # ===== CPACS inputs and outputs =====
 
@@ -29,7 +28,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit=None,
     descr="Name of the aero map to evaluate",
-    xpath=XPATH_PYTORNADO + '/aeroMapUID',
+    xpath=PYTORNADO_XPATH + '/aeroMapUID',
     gui=True,
     gui_name='__AEROMAP_SELECTION',
     gui_group=None,
@@ -41,7 +40,7 @@ cpacs_inout.add_input(
     default_value=False,
     unit=None,
     descr="Delete old PyTornado working directories (if existent)",
-    xpath=XPATH_PYTORNADO + '/deleteOldWKDIRs',
+    xpath=PYTORNADO_XPATH + '/deleteOldWKDIRs',
     gui=False,
     gui_name='Delete',
     gui_group='Delete old working directories',
@@ -56,7 +55,7 @@ cpacs_inout.add_input(
     default_value=20,
     unit=None,
     descr="The number of chordwise VLM panels",
-    xpath=XPATH_PYTORNADO + '/vlm_autopanels_c',
+    xpath=PYTORNADO_XPATH + '/vlm_autopanels_c',
     gui=True,
     gui_name='Number of chordwise panels',
     gui_group='Dicretisation',
@@ -68,7 +67,7 @@ cpacs_inout.add_input(
     default_value=5,
     unit=None,
     descr="The number of spanwise VLM panels",
-    xpath=XPATH_PYTORNADO + '/vlm_autopanels_s',
+    xpath=PYTORNADO_XPATH + '/vlm_autopanels_s',
     gui=True,
     gui_name='Number of spanwise panels',
     gui_group='Dicretisation',
@@ -83,7 +82,7 @@ for plot_name in ['lattice', 'geometry', 'results', 'matrix_downwash']:
             default_value=False,
             unit=None,
             descr=f"{action.capitalize()} a {plot_name.replace('_', ' ')} plot (program will pause to show)",
-            xpath=XPATH_PYTORNADO + f'/plot/{plot_name}/{action}',
+            xpath=PYTORNADO_XPATH + f'/plot/{plot_name}/{action}',
             gui=True,
             gui_name=f'{action.capitalize()} plot',
             gui_group=f"{plot_name.capitalize().replace('_', ' ')} plot",
@@ -99,7 +98,7 @@ for save_name in ['global', 'panelwise', 'aeroperformance']:
         default_value=False,
         unit=None,
         descr=f"Save PyTornado '{save_name}' results",
-        xpath=XPATH_PYTORNADO + f'/save_results/{save_name}',
+        xpath=PYTORNADO_XPATH + f'/save_results/{save_name}',
         gui=True,
         gui_name=f'Save {save_name.capitalize()}',
         gui_group=f'Save CPACS external results',
@@ -111,7 +110,7 @@ cpacs_inout.add_input(
     default_value=False,
     unit='1',
     descr='Option to extract loads from results',
-    xpath=XPATH_PYTORNADO + '/save_results/extractLoads',
+    xpath=PYTORNADO_XPATH + '/save_results/extractLoads',
     gui=True,
     gui_name='Extract loads',
     gui_group=f'Save CPACS external results',
@@ -122,7 +121,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m',
     descr='Centre of gravity (x-coordinate)',
-    xpath=REFS_XPATH + '/point/x'
+    xpath=REF_XPATH + '/point/x'
 )
 
 cpacs_inout.add_input(
@@ -130,7 +129,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m',
     descr='Centre of gravity (y-coordinate)',
-    xpath=REFS_XPATH + '/point/x'
+    xpath=REF_XPATH + '/point/x'
 )
 
 cpacs_inout.add_input(
@@ -138,7 +137,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m',
     descr='Centre of gravity (z-coordinate)',
-    xpath=REFS_XPATH + '/point/x'
+    xpath=REF_XPATH + '/point/x'
 )
 
 cpacs_inout.add_input(
@@ -146,7 +145,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m^2',
     descr='Reference area for force and moment coefficients',
-    xpath=REFS_XPATH + '/area'
+    xpath=REF_XPATH + '/area'
 )
 
 cpacs_inout.add_input(
@@ -154,7 +153,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m',
     descr='Reference length for force and moment coefficients',
-    xpath=REFS_XPATH + '/length'
+    xpath=REF_XPATH + '/length'
 )
 
 cpacs_inout.add_input(
@@ -162,7 +161,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='-',
     descr='Aircraft lifting surface',
-    xpath=WING_XPATH,
+    xpath=WINGS_XPATH,
 )
 
 
@@ -174,5 +173,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit='-',
     descr='aeroMap with aero coefficients calculated by PyTornado',
-    xpath='/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap/aeroPerformanceMap',
+    xpath=AEROPERFORMANCE_XPATH+'/aeroMap/aeroPerformanceMap',
 )

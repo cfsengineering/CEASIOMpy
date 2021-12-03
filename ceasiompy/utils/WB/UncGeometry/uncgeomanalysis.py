@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07
-| Last modifiction: 2020-01-21 (AJ)
+| Last modifiction: 2021-10-14 (AJ)
 
 """
 
@@ -33,7 +33,7 @@ from .WithFuseGeom.Wings.wingsgeom import wing_geom_eval
 from .WithFuseGeom.Fuselages.fusegeom import fuse_geom_eval
 from .Output.outputgeom import produce_geom_output_txt
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import open_tixi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -64,7 +64,7 @@ def get_number_of_parts(cpacs_in):
 
     """
 
-    tixi = cpsf.open_tixi(cpacs_in)
+    tixi = open_tixi(cpacs_in)
 
     if tixi.checkElement('/cpacs/vehicles/aircraft/model/fuselages'):
         fus_nb = tixi.getNamedChildrenCount('/cpacs/vehicles/aircraft/model/fuselages','fuselage')
@@ -76,7 +76,7 @@ def get_number_of_parts(cpacs_in):
     else:
         wing_nb = 0
 
-    cpsf.close_tixi(tixi, cpacs_in)
+    tixi.save(cpacs_in)
 
     return(fus_nb, wing_nb)
 

@@ -1,7 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH, CEASIOM_XPATH
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.xpath import OPTIM_XPATH
+
 
 # ===== RCE integration =====
 
@@ -28,7 +30,7 @@ cpacs_inout.add_input(
     unit='-',
     descr="""Objective function of the optimisation problem. \n Warning !
     The parameters name must match the ones in the CSV file !""",
-    xpath=CEASIOM_XPATH+'/Optimisation/objective',
+    xpath=OPTIM_XPATH + '/objective',
     gui=include_gui,
     gui_name='Objective',
     gui_group='Global settings',
@@ -40,7 +42,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit=None,
     descr="Name of the aero map to evaluate",
-    xpath=CEASIOM_XPATH + '/Optimisation/aeroMapUID',
+    xpath=OPTIM_XPATH + '/aeroMapUID',
     gui=True,
     gui_name='__AEROMAP_SELECTION',
     gui_group='Global settings',
@@ -52,7 +54,7 @@ cpacs_inout.add_input(
     default_value=['min','max'],
     unit=None,
     descr='Objective function of the optimisation problem',
-    xpath=CEASIOM_XPATH+'/Optimisation/minmax',
+    xpath=OPTIM_XPATH + '/minmax',
     gui=include_gui,
     gui_name='Optimisation goal',
     gui_group='Optimisation settings'
@@ -66,7 +68,7 @@ cpacs_inout.add_input(
     default_value=['COBYLA','Nelder-Mead'],
     unit=None,
     descr='Choose the driver to run the routine with',
-    xpath=CEASIOM_XPATH+'/Optimisation/parameters/driver',
+    xpath=OPTIM_XPATH + '/parameters/driver',
     gui=False,
     gui_name='Driver',
     gui_group='Optimisation settings'
@@ -78,7 +80,7 @@ cpacs_inout.add_input(
     default_value=200,
     unit=None,
     descr='Number of iterations to do',
-    xpath=CEASIOM_XPATH+'/Optimisation/iterationNB',
+    xpath=OPTIM_XPATH + '/iterationNB',
     gui=include_gui,
     gui_name='Max number of iterations',
     gui_group='Optimisation settings'
@@ -90,7 +92,7 @@ cpacs_inout.add_input(
     default_value=1e-3,
     unit='-',
     descr='Tolerance criterion',
-    xpath=CEASIOM_XPATH+'/Optimisation/tolerance',
+    xpath=OPTIM_XPATH + '/tolerance',
     gui=include_gui,
     gui_name='Tolerance',
     gui_group='Optimisation settings'
@@ -112,7 +114,7 @@ cpacs_inout.add_input(
     default_value=['Uniform','FullFactorial', 'LatinHypercube', 'PlackettBurman', 'CSVGenerated'],
     unit=None,
     descr='Choose the type of sample generator',
-    xpath=CEASIOM_XPATH+'/Optimisation/parameters/DoE/driver',
+    xpath=OPTIM_XPATH + '/parameters/DoE/driver',
     gui=include_gui,
     gui_name='Driver (DoE)',
     gui_group='DoE settings'
@@ -124,7 +126,7 @@ cpacs_inout.add_input(
     default_value=3,
     unit=None,
     descr='Needed to indicate the number of samples to be generated',
-    xpath=CEASIOM_XPATH+'/Optimisation/parameters/DoE/sampleNB',
+    xpath=OPTIM_XPATH + '/parameters/DoE/sampleNB',
     gui=include_gui,
     gui_name='Sample # parameter',
     gui_group='DoE settings'
@@ -136,7 +138,7 @@ cpacs_inout.add_input(
     default_value=False,
     unit=None,
     descr='Enables use of an entire aeromap for computation',
-    xpath=CEASIOM_XPATH + '/Optimisation/Config/useAero',
+    xpath=OPTIM_XPATH + '/Config/useAero',
     gui=True,
     gui_name='Use whole aeromap',
     gui_group='DoE settings',
@@ -148,7 +150,7 @@ cpacs_inout.add_input(
     default_value=1,
     unit='iteration',
     descr='Save file every X iteration',
-    xpath=CEASIOM_XPATH+'/Optimisation/saving/perIter',
+    xpath=OPTIM_XPATH + '/saving/perIter',
     gui=include_gui,
     gui_name='Saving geometry every',
     gui_group='Configuration'
@@ -160,7 +162,7 @@ cpacs_inout.add_input(
     default_value='-',
     unit='1',
     descr='Absolute path to the CSV file',
-    xpath=CEASIOM_XPATH + '/Optimisation/Config/filepath',
+    xpath=OPTIM_XPATH + '/Config/filepath',
     gui=True,
     gui_name='CSV file path',
     gui_group='Configuration',

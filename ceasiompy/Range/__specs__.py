@@ -1,7 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut, AIRCRAFT_XPATH
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.xpath import (CAB_CREW_XPATH, FUEL_CONSUMPTION_XPATH,
+                                   FUEL_XPATH, GEOM_XPATH, MASSBREAKDOWN_XPATH,
+                                   PILOTS_XPATH, PROP_XPATH, RANGE_XPATH,
+                                   WEIGHT_XPATH)
 
 # ===== RCE integration =====
 
@@ -12,12 +16,6 @@ RCE = {
     "author": "Stefano Piccini",
     "email": "info@ceasiom.com",
 }
-
-CEASIOMPY_XPATH = '/cpacs/toolspecific/CEASIOMpy'
-WEIGHT_XPATH = '/cpacs/toolspecific/CEASIOMpy/weight'
-RANGE_XPATH = '/cpacs/toolspecific/CEASIOMpy/ranges'
-FUEL_CONSUMPTION_XPATH = '/cpacs/toolspecific/CEASIOMpy/fuelConsumption'
-MASSBREAKDOWN_XPATH = '/cpacs/vehicles/aircraft/model/analyses/massBreakdown'
 
 # ===== CPACS inputs and outputs =====
 
@@ -95,7 +93,7 @@ cpacs_inout.add_input(
     default_value=2,
     unit='-',
     descr='Number of pilots',
-    xpath=WEIGHT_XPATH + '/crew/pilots/pilotNb',
+    xpath=PILOTS_XPATH + '/pilotNb',
     gui=False,
     gui_name=None,
     gui_group=None,
@@ -107,7 +105,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='-',
     descr='Number of cabin crew members',
-    xpath=WEIGHT_XPATH + '/crew/cabinCrewMembers/cabinCrewMemberNb',
+    xpath=CAB_CREW_XPATH + '/cabinCrewMemberNb',
     gui=False,
     gui_name=None,
     gui_group=None,
@@ -119,7 +117,7 @@ cpacs_inout.add_input(
     default_value=102.0,
     unit='kg',
     descr='Mass of one pilot',
-    xpath=WEIGHT_XPATH + '/crew/pilots/pilotMass',
+    xpath=PILOTS_XPATH + '/pilotMass',
     gui=False,
     gui_name=None,
     gui_group=None,
@@ -131,7 +129,7 @@ cpacs_inout.add_input(
     default_value=68.0,
     unit='kg',
     descr='Mass of one cabin crew member',
-    xpath=WEIGHT_XPATH + '/crew/cabinCrewMembers/cabinCrewMemberMass',
+    xpath=CAB_CREW_XPATH + '/cabinCrewMemberMass',
     gui=False,
     gui_name=None,
     gui_group=None,
@@ -157,7 +155,7 @@ cpacs_inout.add_input(
     default_value=False,
     unit=None,
     descr='"True" only if the aircraft is a turboprop',
-    xpath=CEASIOMPY_XPATH + '/propulsion/turboprop',
+    xpath=PROP_XPATH + '/turboprop',
     gui=True,
     gui_name='Turboprop',
     gui_group='Options',
@@ -169,7 +167,7 @@ cpacs_inout.add_input(
     default_value=[0,1,2],
     unit=None,
     descr='Winglet option (0 = no winglets, 1 = normal winglets, 2 = high efficiency winglet for cruise',
-    xpath=CEASIOMPY_XPATH + '/geometry/winglet',
+    xpath=GEOM_XPATH + '/winglet',
     gui=True,
     gui_name='Winglet type',
     gui_group='Options',
@@ -185,7 +183,7 @@ cpacs_inout.add_input(
     default_value=272,
     unit='m/s',
     descr='Cruise speed used to calculate the range',
-    xpath=CEASIOMPY_XPATH + '/ranges/cruiseSpeed',
+    xpath=RANGE_XPATH + '/cruiseSpeed',
     gui=True,
     gui_name='Speed',
     gui_group='Cruise',
@@ -197,7 +195,7 @@ cpacs_inout.add_input(
     default_value=17.0,
     unit='-',
     descr='On cruise efficiency, CL/CD ratio',
-    xpath=CEASIOMPY_XPATH + '/ranges/lDRatio',
+    xpath=RANGE_XPATH + '/lDRatio',
     gui=True,
     gui_name='CL/CD',
     gui_group='Cruise',
@@ -209,7 +207,7 @@ cpacs_inout.add_input(
     default_value=0.5,
     unit='1/h',
     descr='Thrust specific fuel consumption on cruise',
-    xpath=CEASIOMPY_XPATH + '/propulsion/tSFC/tsfcCruise',
+    xpath=PROP_XPATH + '/tSFC/tsfcCruise',
     gui=True,
     gui_name='TSFC',
     gui_group='Cruise',
@@ -222,7 +220,7 @@ cpacs_inout.add_input(
     default_value=0.4,
     unit='1/h',
     descr='Thrust specific fuel consumption on loiter',
-    xpath=CEASIOMPY_XPATH + '/propulsion/tSFC/tsfcLoiter',
+    xpath=PROP_XPATH + '/tSFC/tsfcLoiter',
     gui=True,
     gui_name='TSFC',
     gui_group='Loiter',
@@ -234,7 +232,7 @@ cpacs_inout.add_input(
     default_value=30.0,
     unit='min', # TODO: change by seconde?
     descr='Loiter time to include in the range calculation',
-    xpath=CEASIOMPY_XPATH + '/ranges/loiterTime',
+    xpath=RANGE_XPATH + '/loiterTime',
     gui=True,
     gui_name='Duration',
     gui_group='Loiter',
@@ -249,7 +247,7 @@ cpacs_inout.add_input(
     default_value=0.8,
     unit='kg/m^3',
     descr='Fuel density',
-    xpath=CEASIOMPY_XPATH + '/fuels/density',
+    xpath=FUEL_XPATH + '/density',
     gui=True,
     gui_name='Density',
     gui_group='Fuel',
@@ -261,7 +259,7 @@ cpacs_inout.add_input(
     default_value=0.1,
     unit='-',
     descr='Unusable fuel percentage [0 - 1]',
-    xpath=CEASIOMPY_XPATH + '/fuels/resFuelPerc',
+    xpath=FUEL_XPATH + '/resFuelPerc',
     gui=True,
     gui_name='Unusable fuel',
     gui_group='Fuel',

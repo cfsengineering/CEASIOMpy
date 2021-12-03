@@ -10,37 +10,18 @@
 name: ceasiompy
 
 channels:
-  - dlr-sc  # See: https://anaconda.org/DLR-SC/repo
+  - dlr-sc
   - conda-forge
   - defaults
 
-# List all explicitly imported/used packages
-# ------------------------------------------
-#
-# Example -- Consider a Python file with following imports:
-#
-#   import package_A
-#   import package_B
-#
-# Assume:
-#
-# ==> 'package_A' depends on 'package_B'
-# ==> 'package_B' depends on a third 'package_C'
-#
-# 'package_A' and 'package_B' should be listed in this file since they
-# are explicitly imported, but we do not list 'package_C'.
-
 dependencies:
-  - python>=3.6
-
-  # Required
+  - python=3.7
   - numpy>=1.15
-  #- cpacscreator>=0.1
-  - tigl3>=3.2.1
-  - tixi3>=3.1
+  - cpacscreator>=0.1
+  # - tigl3>=3.2.1
+  - tixi3=3.0.3
   - matplotlib>=3.0.2
   - scipy>=1.1
-  - scikit-learn>=0.21.3
   - pandas>=0.25.0
   - vtk>=8.2.0
   - xmltodict>=0.12.0
@@ -63,10 +44,11 @@ dependencies:
 
   - pip:
     - sphinx-rtd-theme==0.4.3
-    - aeroframe  # See: https://github.com/airinnova/aeroframe
-    - framat  # See: https://github.com/airinnova/framat
-    - smt
-    - cpacspy
+    - smt==0.7.1
+    - cpacspy==0.0.8
+    - ambiance
+    #- aeroframe  # See: https://github.com/airinnova/aeroframe
+    #- framat  # See: https://github.com/airinnova/framat
     # - mpi4py # issue at installation of environment
 
 
@@ -77,14 +59,3 @@ dependencies:
 # https://github.com/airinnova/pytornado
 #   - pytornado>=0.5.0
 #
-# ------------------------------
-#
-# SU2
-# https://github.com/su2code/SU2
-#
-# ------------------------------
-#
-# RCE
-# https://rcenvironment.de/
-#
-# ------------------------------

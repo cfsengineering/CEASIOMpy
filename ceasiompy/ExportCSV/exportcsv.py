@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2021-04-07
-| Last modifiction: 2021-04-08
+| Last modifiction: 2021-10-20
 
 TODO:
 
@@ -23,16 +23,12 @@ TODO:
 #==============================================================================
 
 import os
-import sys
-import math
-import numpy
-import matplotlib
 
 import ceasiompy.utils.ceasiompyfunctions as ceaf
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.apmfunctions as apmf
-import ceasiompy.utils.su2functions as su2f
 import ceasiompy.utils.moduleinterfaces as mi
+
+from cpacspy.cpacspy import CPACS
+from cpacspy.cpacsfunctions import get_string_vector
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -54,15 +50,19 @@ MODULE_NAME = os.path.basename(os.getcwd())
 
 def export_aeromaps(cpacs_path, cpacs_out_path):
 
-    tixi = cpsf.open_tixi(cpacs_path)
+    cpacs = CPACS(cpacs_path)
+    tixi = cpacs.tixi
+
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
 
     aeromap_to_export_xpath = '/cpacs/toolspecific/CEASIOMpy/export/aeroMapToExport'
 
     aeromap_uid_list = []
-    aeromap_uid_list = cpsf.get_string_vector(tixi,aeromap_to_export_xpath)
+    aeromap_uid_list = get_string_vector(tixi,aeromap_to_export_xpath)
 
     for aeromap_uid in aeromap_uid_list:
+
+        aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
         csv_dir_path = os.path.join(wkdir,'CSVresults')
         if not os.path.isdir(csv_dir_path):
@@ -70,9 +70,9 @@ def export_aeromaps(cpacs_path, cpacs_out_path):
 
         csv_path = os.path.join(csv_dir_path,aeromap_uid+'.csv')
 
-        apmf.aeromap_to_csv(tixi, aeromap_uid, csv_path)
+        aeromap.export_csv(csv_path)
 
-    cpsf.close_tixi(tixi,cpacs_out_path)
+    tixi.save(cpacs_out_path)
 
 
 #==============================================================================

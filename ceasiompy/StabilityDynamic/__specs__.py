@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut, CEASIOM_XPATH
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.xpath import STABILITY_DYNAMIC_XPATH
 
-STABILITY_DYNAMIC_XPATH =  '/cpacs/toolspecific/CEASIOMpy/stability/dynamic'
 
 
 # ===== RCE integration =====

@@ -73,7 +73,6 @@ def launch_external_program(path):
     elif OS == 'darwin':
         os.system('/Applications/Microsoft\ Excel.app/Contents/MacOS/Microsoft\ Excel ' + path)
 
-
     input('Press ENTER to continue...')
 
 
@@ -226,7 +225,6 @@ def plot_results(optim_dir_path, routine_type, optim_var_dict={}):
     fig_path = optim_dir_path + '/plot_variable.png'
     plt.savefig(fig_path)
 
-
     plot_objective(optim_dir_path)
 
     if routine_type == 'DoE':
@@ -270,7 +268,6 @@ def plot_objective(optim_dir_path):
     # Save figure (TODO: could be improved)
     fig_path = optim_dir_path + '/plot_objective_function.png'
     plt.savefig(fig_path)
-
 
 
 def gen_plot(optim_dir_path, df, yvars, xvars):

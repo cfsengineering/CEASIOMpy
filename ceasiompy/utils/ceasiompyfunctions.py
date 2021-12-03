@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2019-10-04
-| Last modifiction: 2020-05-06
+| Last modifiction: 2021-10-14
 
 TODO:
 
@@ -26,7 +26,9 @@ import shutil
 import datetime
 import platform
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import (create_branch, get_value_or_default, 
+                                    open_tixi)
+from ceasiompy.utils.xpath import WKDIR_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -91,17 +93,16 @@ def get_wkdir_or_create_new(tixi):
 
     """
 
-    WKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath'
-    wkdir_path = cpsf.get_value_or_default(tixi,WKDIR_XPATH,'')
+    wkdir_path = get_value_or_default(tixi,WKDIR_XPATH,'')
     if wkdir_path == '':
         wkdir_path = create_new_wkdir()
-        cpsf.create_branch(tixi,WKDIR_XPATH)
+        create_branch(tixi,WKDIR_XPATH)
         tixi.updateTextElement(WKDIR_XPATH,wkdir_path)
     else:
         # Check if the directory really exists
         if not os.path.isdir(wkdir_path):
             wkdir_path = create_new_wkdir()
-            cpsf.create_branch(tixi,WKDIR_XPATH)
+            create_branch(tixi,WKDIR_XPATH)
             tixi.updateTextElement(WKDIR_XPATH,wkdir_path)
 
     return wkdir_path
@@ -193,13 +194,47 @@ def get_execution_date(tixi, module_name, xpath):
     # if end_time == None:
     #     log.warning("SU2 End time has not been found in the logfile!")
     #
-    # cpsf.create_branch(tixi,xpath+'/startTime')
+    # create_branch(tixi,xpath+'/startTime')
     # tixi.updateTextElement(xpath+'/startTime',start_time)
-    # cpsf.create_branch(tixi,xpath+'/endTime')
+    # create_branch(tixi,xpath+'/endTime')
     # tixi.updateTextElement(xpath+'/endTime',end_time)
 
     return tixi
 
+def aircraft_name(tixi_or_cpacs):
+    """ The function get the name of the aircraft from the cpacs file or add a
+        default one if non-existant.
+
+    Args:
+        cpacs_path (str): Path to the CPACS file
+
+    Returns:
+        name (str): Name of the aircraft.
+    """
+
+    # TODO: MODIFY this funtion, temporary it could accept a cpacs path or tixi handle
+    # check xpath
+    # *modify corresponding test
+
+    if isinstance(tixi_or_cpacs,str):
+
+        tixi = open_tixi(tixi_or_cpacs)
+
+        aircraft_name_xpath = '/cpacs/header/name'
+        name = get_value_or_default(tixi,aircraft_name_xpath,'Aircraft')
+
+        tixi.save(tixi_or_cpacs)
+
+    else:
+
+        aircraft_name_xpath = '/cpacs/header/name'
+        name = get_value_or_default(tixi_or_cpacs,aircraft_name_xpath,'Aircraft')
+
+    name = name.replace(' ','_')
+    log.info('The name of the aircraft is : ' + name)
+
+    return(name)
+    
 
 #==============================================================================
 #    MAIN
@@ -208,11 +243,3 @@ def get_execution_date(tixi, module_name, xpath):
 if __name__ == '__main__':
 
     log.info('Nothing to execute!')
-
-
-### HOW TO USE THESE FUNCTIONS
-# import ceasiompy.utils.cpacsfunctions as cpsf
-#
-# cpsf.create_new_wkdir()
-# cpsf.get_wkdir_or_create_new(tixi)
-# cpsf.get_install_path(soft_check_list)

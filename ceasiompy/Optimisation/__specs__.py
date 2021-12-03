@@ -51,7 +51,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name='minmax',
     var_type=list,
-    default_value=['min','max'],
+    default_value=['min', 'max'],
     unit=None,
     descr='Objective function of the optimisation problem',
     xpath=OPTIM_XPATH + '/minmax',
@@ -61,11 +61,12 @@ cpacs_inout.add_input(
 )
 
 
-# For now only the COBYLA algorithm should be used. (only one to deal with gradient-free, constrained optimisation)
+# For now only the COBYLA algorithm should be used.
+# (only one to deal with gradient-free, constrained optimisation)
 cpacs_inout.add_input(
     var_name='driver',
     var_type=list,
-    default_value=['COBYLA','Nelder-Mead'],
+    default_value=['COBYLA', 'Nelder-Mead'],
     unit=None,
     descr='Choose the driver to run the routine with',
     xpath=OPTIM_XPATH + '/parameters/driver',
@@ -111,7 +112,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name='doedriver',
     var_type=list,
-    default_value=['Uniform','FullFactorial', 'LatinHypercube', 'PlackettBurman', 'CSVGenerated'],
+    default_value=['Uniform', 'FullFactorial', 'LatinHypercube', 'PlackettBurman', 'CSVGenerated'],
     unit=None,
     descr='Choose the type of sample generator',
     xpath=OPTIM_XPATH + '/parameters/DoE/driver',

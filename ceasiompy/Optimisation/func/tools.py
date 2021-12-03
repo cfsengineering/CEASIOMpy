@@ -19,39 +19,44 @@ TODO
 
 """
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 import os
 import sys
 import numpy as np
 import openmdao.api as om
 import matplotlib.pyplot as plt
 import pandas as pd
-import tigl3.configuration #used within eval
+import tigl3.configuration  # used within eval
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
-#==============================================================================
+# ==============================================================================
 #   GLOBALS
-#==============================================================================
+# ==============================================================================
 
 # Not an exhaustive list
-accronym_dict = {'maximum_take_off_mass':'mtom', 'range':'rng',
-                 'zero_fuel_mass':'zfm', 'operating_empty_mass':'oem'}
+accronym_dict = {
+    "maximum_take_off_mass": "mtom",
+    "range": "rng",
+    "zero_fuel_mass": "zfm",
+    "operating_empty_mass": "oem",
+}
 
-#==============================================================================
+# ==============================================================================
 #   CLASSES
-#==============================================================================
+# ==============================================================================
 
-#==============================================================================
+# ==============================================================================
 #   FUNCTIONS
-#==============================================================================
+# ==============================================================================
 
 ### --------------- MISCELLANEOUS --------------- ###
 # -------------------------------------------------#
+
 
 def launch_external_program(path):
     """Launches an application with a predefined CSV to open.
@@ -65,19 +70,20 @@ def launch_external_program(path):
     """
 
     OS = sys.platform
-    log.info('Identified OS : ' + OS)
-    if OS == 'linux':
-        os.system('libreoffice ' + path)
-    elif OS == 'win32':
-        os.system('Start excel.exe ' + path.replace('/', '\\'))
-    elif OS == 'darwin':
-        os.system('/Applications/Microsoft\ Excel.app/Contents/MacOS/Microsoft\ Excel ' + path)
+    log.info("Identified OS : " + OS)
+    if OS == "linux":
+        os.system("libreoffice " + path)
+    elif OS == "win32":
+        os.system("Start excel.exe " + path.replace("/", "\\"))
+    elif OS == "darwin":
+        os.system("/Applications/Microsoft\ Excel.app/Contents/MacOS/Microsoft\ Excel " + path)
 
-    input('Press ENTER to continue...')
+    input("Press ENTER to continue...")
 
 
 ### --------------- FUNCTIONS FOR POST-PROCESSING --------------- ###
 # ------------------------------------------------------------------#
+
 
 def display_results(prob, optim_var_dict, Rt):
     """Display variable history on terminal.
@@ -93,22 +99,34 @@ def display_results(prob, optim_var_dict, Rt):
 
     """
 
-    log.info('=========================================')
-    log.info('min = ' + str(prob['objective.{}'.format(Rt.objective)]))
+    log.info("=========================================")
+    log.info("min = " + str(prob["objective.{}".format(Rt.objective)]))
 
-    for name, (val_type, listval, minval, maxval,
-               getcommand, setcommand) in optim_var_dict.items():
-        if val_type == 'des':
-            log.info(name+' = ' + str(prob['indeps.' + name]))
-            log.info('Min :' + str(minval) + ' Max : ' + str(maxval))
+    for name, (
+        val_type,
+        listval,
+        minval,
+        maxval,
+        getcommand,
+        setcommand,
+    ) in optim_var_dict.items():
+        if val_type == "des":
+            log.info(name + " = " + str(prob["indeps." + name]))
+            log.info("Min :" + str(minval) + " Max : " + str(maxval))
 
-    log.info('Variable history :')
+    log.info("Variable history :")
 
-    for name, (val_type, listval, minval, maxval,
-               getcommand, setcommand) in optim_var_dict.items():
-        if val_type == 'des':
-            log.info(name + ' => ' + str(listval))
-    log.info('=========================================')
+    for name, (
+        val_type,
+        listval,
+        minval,
+        maxval,
+        getcommand,
+        setcommand,
+    ) in optim_var_dict.items():
+        if val_type == "des":
+            log.info(name + " => " + str(listval))
+    log.info("=========================================")
 
 
 def read_results(optim_dir_path, optim_var_dict={}):
@@ -140,33 +158,33 @@ def read_results(optim_dir_path, optim_var_dict={}):
 
     # Retrieve data from optim variables
     for name, infos in optim_var_dict.items():
-        if infos[0] == 'obj':
+        if infos[0] == "obj":
             obj[name] = np.array(infos[1])
-        if infos[0] == 'des':
+        if infos[0] == "des":
             des[name] = np.array(infos[1])
-        if infos[0] == 'const':
+        if infos[0] == "const":
             const[name] = np.array(infos[1])
 
     df_o = pd.DataFrame(obj).transpose()
     df_d = pd.DataFrame(des).transpose()
     df_c = pd.DataFrame(const).transpose()
 
-    df_o.insert(0, 'type', 'obj')
-    df_d.insert(0, 'type', 'des')
-    df_c.insert(0, 'type', 'const')
+    df_o.insert(0, "type", "obj")
+    df_d.insert(0, "type", "des")
+    df_c.insert(0, "type", "const")
 
     df = pd.concat([df_o, df_d, df_c], axis=0)
-    df.sort_values('type', 0, ignore_index=True, ascending=False)
+    df.sort_values("type", 0, ignore_index=True, ascending=False)
 
     # Add get and set commands
-    df.insert(1, 'getcmd', '-')
-    df.insert(2, 'setcmd', '-')
+    df.insert(1, "getcmd", "-")
+    df.insert(2, "setcmd", "-")
     for v in df.index:
         if v in optim_var_dict:
-            df.loc[v, 'getcmd'] = optim_var_dict[v][4]
-            df.loc[v, 'setcmd'] = optim_var_dict[v][5]
+            df.loc[v, "getcmd"] = optim_var_dict[v][4]
+            df.loc[v, "setcmd"] = optim_var_dict[v][5]
 
-    df['initial value'] = df[0]
+    df["initial value"] = df[0]
 
     return df
 
@@ -183,18 +201,19 @@ def save_results(optim_dir_path, optim_var_dict={}):
 
     """
 
-    log.info('Variables will be saved')
+    log.info("Variables will be saved")
 
     # Get variable infos
     df = read_results(optim_dir_path, optim_var_dict)
 
-    df.to_csv(optim_dir_path+'/Variable_history.csv', index=True, na_rep='-',index_label='Name')
+    df.to_csv(optim_dir_path + "/Variable_history.csv", index=True, na_rep="-", index_label="Name")
 
-    log.info('Results have been saved at '+optim_dir_path)
+    log.info("Results have been saved at " + optim_dir_path)
 
 
 ### --------------- FUNCTIONS FOR PLOTTING --------------- ###
 # -----------------------------------------------------------#
+
 
 def plot_results(optim_dir_path, routine_type, optim_var_dict={}):
     """Generate plots of the routine.
@@ -210,26 +229,26 @@ def plot_results(optim_dir_path, routine_type, optim_var_dict={}):
 
     df = read_results(optim_dir_path, optim_var_dict)
 
-    obj = [i for i in df.index if df['type'][i] == 'obj']
-    des = [i for i in df.index if df['type'][i] == 'des']
-    const = [i for i in df.index if df['type'][i] == 'const']
+    obj = [i for i in df.index if df["type"][i] == "obj"]
+    des = [i for i in df.index if df["type"][i] == "des"]
+    const = [i for i in df.index if df["type"][i] == "const"]
 
-    df.pop('type')
-    df.pop('getcmd')
-    df.pop('setcmd')
+    df.pop("type")
+    df.pop("getcmd")
+    df.pop("setcmd")
     df = df.transpose()
     nbC = min(len(des), 5)
-    df.iloc[1:-1].plot(subplots=True, layout=(-1, nbC),style='.-')
+    df.iloc[1:-1].plot(subplots=True, layout=(-1, nbC), style=".-")
 
     # Save figure (TODO: could be improved)
-    fig_path = optim_dir_path + '/plot_variable.png'
+    fig_path = optim_dir_path + "/plot_variable.png"
     plt.savefig(fig_path)
 
     plot_objective(optim_dir_path)
 
-    if routine_type == 'DoE':
-        gen_plot(optim_dir_path ,df, obj, des)
-        gen_plot(optim_dir_path ,df, obj, const)
+    if routine_type == "DoE":
+        gen_plot(optim_dir_path, df, obj, des)
+        gen_plot(optim_dir_path, df, obj, const)
 
 
 def plot_objective(optim_dir_path):
@@ -243,30 +262,30 @@ def plot_objective(optim_dir_path):
 
     """
 
-    cr = om.CaseReader(optim_dir_path + '/Driver_recorder.sql')
+    cr = om.CaseReader(optim_dir_path + "/Driver_recorder.sql")
 
     cases = cr.get_cases()
     case1 = cr.get_case(0)
     obj = {}
 
     for k, v in dict(case1.get_objectives()).items():
-        obj[k.replace('objective.', '')] = v
+        obj[k.replace("objective.", "")] = v
 
     for case in cases:
         for key, val in case.get_objectives().items():
-            key = key.replace('objective.', '')
+            key = key.replace("objective.", "")
             obj[key] = np.append(obj[key], val)
     df_o = pd.DataFrame(obj).transpose()
     df_o = df_o.drop(0, 1)
     df_o = df_o.transpose()
     nbC = min(len(obj), 5)
 
-    df_o.plot(subplots=True, layout=(-1, nbC),style='.-')
+    df_o.plot(subplots=True, layout=(-1, nbC), style=".-")
 
-    #plt.show()
+    # plt.show()
 
     # Save figure (TODO: could be improved)
-    fig_path = optim_dir_path + '/plot_objective_function.png'
+    fig_path = optim_dir_path + "/plot_objective_function.png"
     plt.savefig(fig_path)
 
 
@@ -286,12 +305,12 @@ def gen_plot(optim_dir_path, df, yvars, xvars):
     nbC = min(len(xvars), 5)
     if nbC == 0:
         nbC = 1
-    nbR = int(len(yvars) * np.ceil(len(xvars)/nbC))
+    nbR = int(len(yvars) * np.ceil(len(xvars) / nbC))
     r = 0
     c = 1
     for o in yvars:
         for d in xvars:
-            plt.subplot(nbR, nbC, c+r*nbC)
+            plt.subplot(nbR, nbC, c + r * nbC)
             plt.scatter(df[d], df[o])
             plt.xlabel(d)
             if c == 1:
@@ -303,15 +322,16 @@ def gen_plot(optim_dir_path, df, yvars, xvars):
         r += 1
         c = 0
 
-    #plt.show()
+    # plt.show()
 
     # Save figure (TODO: could be improved)
-    fig_path = optim_dir_path + '/plot_doe_variables.png'
+    fig_path = optim_dir_path + "/plot_doe_variables.png"
     plt.savefig(fig_path)
 
 
 ### --------------- FUNCTIONS FOR OPTIMISATION PARAMETERS --------------- ###
 # --------------------------------------------------------------------------#
+
 
 def is_digit(value):
     """Check if a string value is a float.
@@ -334,7 +354,7 @@ def is_digit(value):
     try:
         float(value)
         return True
-    except:
+    except ValueError:
         return False
 
 
@@ -354,16 +374,16 @@ def change_var_name(name):
 
     """
 
-    log.info('Check variable name {}'.format(name))
+    log.info("Check variable name {}".format(name))
 
-    if 'range' in name or 'payload' in name:
+    if "range" in name or "payload" in name:
         for s in name:
-            if s in ['[', ']']:
-                name = name.replace(s, '_')
-        log.info('Variable name was changed to {}'.format(name))
+            if s in ["[", "]"]:
+                name = name.replace(s, "_")
+        log.info("Variable name was changed to {}".format(name))
 
     if name in accronym_dict:
-        log.info('Variable name was changed to {}'.format(accronym_dict[name]))
+        log.info("Variable name was changed to {}".format(accronym_dict[name]))
         return accronym_dict[name]
 
     return name
@@ -390,14 +410,14 @@ def add_type(entry, outputs, objective, var):
         if not isinstance(entry, str):
             entry = entry.var_name
         if entry in objective:
-            var['type'].append('obj')
-            log.info('Added type : obj')
+            var["type"].append("obj")
+            log.info("Added type : obj")
         else:
-            var['type'].append('const')
-            log.info('Added type : const')
+            var["type"].append("const")
+            log.info("Added type : const")
     else:
-        var['type'].append('des')
-        log.info('Added type : des')
+        var["type"].append("des")
+        log.info("Added type : des")
 
 
 def add_bounds(value, var):
@@ -412,23 +432,23 @@ def add_bounds(value, var):
 
     """
 
-    if value in ['False', 'True']:
-        lower = '-'
-        upper = '-'
+    if value in ["False", "True"]:
+        lower = "-"
+        upper = "-"
     elif value.isdigit():
         value = int(value)
-        lower = round(value-abs(0.2*value))
-        upper = round(value+abs(0.2*value))
+        lower = round(value - abs(0.2 * value))
+        upper = round(value + abs(0.2 * value))
         if lower == upper:
             lower -= 1
             upper += 1
     else:
         value = float(value)
-        lower = round(value-abs(0.2*value))
-        upper = round(value+abs(0.2*value))
+        lower = round(value - abs(0.2 * value))
+        upper = round(value + abs(0.2 * value))
         if lower == upper:
             lower -= 1.0
             upper += 1.0
 
-    var['min'].append(lower)
-    var['max'].append(upper)
+    var["min"].append(lower)
+    var["max"].append(upper)

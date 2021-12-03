@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut, CEASIOM_XPATH
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.xpath import GEOM_XPATH, RANGE_XPATH, SF_XPATH, PLOT_XPATH
 
-SKINFRICTION_PATH = CEASIOM_XPATH + '/aerodynamics/skinFriction'
 
 # ===== RCE =====
 
@@ -25,7 +25,7 @@ cpacs_inout.add_input(
     var_type=list,
     default_value=None,
     descr='To which aeroMap the skin priction coef shoud be added',
-    xpath=SKINFRICTION_PATH + '/aeroMapToCalculate',
+    xpath=SF_XPATH + '/aeroMapToCalculate',
     gui=True,
     gui_name='__AEROMAP_CHECHBOX',
 )
@@ -36,7 +36,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit='m^2',
     descr='Wetted area of the aircraft (calculated by SU2)',
-    xpath=CEASIOM_XPATH + '/geometry/analysis/wettedArea',
+    xpath=GEOM_XPATH + '/analysis/wettedArea',
     gui=False,
     gui_name='Wetted Area',
     gui_group=None,
@@ -48,7 +48,7 @@ cpacs_inout.add_input(
     default_value=False,
     unit=None,
     descr='Delete orignal aeroMap once skin friction coefficient has been added',
-    xpath=SKINFRICTION_PATH + '/deleteOriginal',
+    xpath=SF_XPATH + '/deleteOriginal',
     gui=True,
     gui_name='Delete Orignal',
     gui_group=None,
@@ -59,7 +59,7 @@ cpacs_inout.add_input(
     default_value=0.78,
     unit='-',
     descr='Aircraft cruise Mach number',
-    xpath=CEASIOM_XPATH + '/ranges/cruiseMach',
+    xpath=RANGE_XPATH + '/cruiseMach',
 )
 
 cpacs_inout.add_input(
@@ -67,7 +67,7 @@ cpacs_inout.add_input(
     default_value=12000,
     unit='m',
     descr='Aircraft cruise altitude',
-    xpath=CEASIOM_XPATH + '/ranges/cruiseAltitude',
+    xpath=RANGE_XPATH + '/cruiseAltitude',
 )
 
 # ===== Output =====
@@ -77,7 +77,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='1',
     descr='Skin friction drag coefficient',
-    xpath=CEASIOM_XPATH + '/aerodynamics/su2/skinFriction/cd0',
+    xpath=SF_XPATH + '/cd0',
 )
 
 cpacs_inout.add_output(
@@ -85,7 +85,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='m^2',
     descr='Wing area of the main (largest) wing',
-    xpath=CEASIOM_XPATH + '/geometry/analyses/wingArea',
+    xpath=GEOM_XPATH + '/analyses/wingArea',
 )
 
 cpacs_inout.add_output(
@@ -93,7 +93,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit='m',
     descr='Wing span of the main (largest) wing',
-    xpath=CEASIOM_XPATH + '/geometry/analyses/wingSpan',
+    xpath=GEOM_XPATH + '/analyses/wingSpan',
 )
 
 cpacs_inout.add_output(
@@ -101,5 +101,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit='m',
     descr='List of aeroMap to plot',
-    xpath=CEASIOM_XPATH + '/aerodynamics/plotAeroCoefficient/aeroMapToPlot',
+    xpath=PLOT_XPATH + '/aeroMapToPlot',
 )

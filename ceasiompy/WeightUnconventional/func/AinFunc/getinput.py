@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2020-05-01 (AJ)
+| Last modifiction: 2021-10-21 (AJ)
 
 TODO:
 
@@ -24,8 +24,13 @@ TODO:
 #   IMPORTS
 #=============================================================================
 
-import ceasiompy.utils.cpacsfunctions as cpsf
-
+from cpacspy.cpacsfunctions import (add_uid, create_branch,
+                                    get_value_or_default, open_tixi)
+from ceasiompy.utils.xpath import (CAB_CREW_XPATH, F_XPATH, FUEL_XPATH,
+                                   GEOM_XPATH, MASSBREAKDOWN_XPATH, ML_XPATH,
+                                   PASS_XPATH, PILOTS_XPATH, PROP_XPATH,
+                                   RANGE_XPATH)
+                            
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
@@ -61,9 +66,9 @@ def get_user_fuel(fus_nb, ui, cpacs_in):
 
     log.info('Starting data extraction from CPACS file')
 
-    tixi = cpsf.open_tixi(cpacs_in)
-    FUEL_XPATH = '/cpacs/toolspecific/CEASIOMpy/fuels'
-    cpsf.create_branch(tixi, FUEL_XPATH, False)
+    tixi = open_tixi(cpacs_in)
+
+    create_branch(tixi, FUEL_XPATH, False)
 
     if fus_nb:
         for i in range(0, fus_nb):
@@ -87,7 +92,7 @@ def get_user_fuel(fus_nb, ui, cpacs_in):
 
     log.info('Data from CPACS file succesfully extracted')
 
-    cpsf.close_tixi(tixi, cpacs_in)
+    tixi.save(cpacs_in)
 
     return(ui)
 
@@ -114,37 +119,23 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
 
     log.info('Starting data extraction from CPACS file')
 
-    tixi = cpsf.open_tixi(cpacs_in)
+    tixi = open_tixi(cpacs_in)
 
-    # toolspecific
-    CEASIOM_XPATH = '/cpacs/toolspecific/CEASIOMpy'
-    GEOM_XPATH = CEASIOM_XPATH + '/geometry'
-    RANGE_XPATH = CEASIOM_XPATH + '/ranges'
-    WEIGHT_XPATH = CEASIOM_XPATH + '/weight'
-    CREW_XPATH = WEIGHT_XPATH + '/crew'
-    PILOTS_PATH = CREW_XPATH + '/pilots'
-    CAB_CREW_XPATH = CREW_XPATH + '/cabinCrewMembers'
-    PASS_XPATH = WEIGHT_XPATH + '/passengers'
-    ML_XPATH = WEIGHT_XPATH + '/massLimits'
-    PROP_XPATH = CEASIOM_XPATH + '/propulsion'
-    FUEL_XPATH = '/cpacs/toolspecific/CEASIOMpy/fuels'
-
-    cpsf.create_branch(tixi, FUEL_XPATH, False)
-    cpsf.create_branch(tixi, GEOM_XPATH, False)
-    cpsf.create_branch(tixi, RANGE_XPATH, False)
-    cpsf.create_branch(tixi, PILOTS_PATH, False)
-    cpsf.create_branch(tixi, CAB_CREW_XPATH, False)
-    cpsf.create_branch(tixi, PASS_XPATH, False)
-    cpsf.create_branch(tixi, ML_XPATH, False)
-    cpsf.create_branch(tixi, PROP_XPATH, False)
+    create_branch(tixi, FUEL_XPATH, False)
+    create_branch(tixi, GEOM_XPATH, False)
+    create_branch(tixi, RANGE_XPATH, False)
+    create_branch(tixi, PILOTS_XPATH, False)
+    create_branch(tixi, CAB_CREW_XPATH, False)
+    create_branch(tixi, PASS_XPATH, False)
+    create_branch(tixi, ML_XPATH, False)
+    create_branch(tixi, PROP_XPATH, False)
 
     # cpacs/vehicles
-    MC_XPATH = '/cpacs/vehicles/aircraft/model/analyses/massBreakdown/payload/mCargo/massDescription'
-    F_XPATH = '/cpacs/vehicles/fuels/fuel'
+    MC_XPATH = MASSBREAKDOWN_XPATH + '/payload/mCargo/massDescription'
 
-    cpsf.create_branch(tixi, MC_XPATH, False)
-    cpsf.create_branch(tixi, F_XPATH, False)
-    cpsf.add_uid(tixi, F_XPATH, 'kerosene')
+    create_branch(tixi, MC_XPATH, False)
+    create_branch(tixi, F_XPATH, False)
+    add_uid(tixi, F_XPATH, 'kerosene')
 
     # Gathering data =========================================================
     # Geometry ===============================================================
@@ -153,20 +144,20 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
         tixi.updateTextElement(GEOM_XPATH + '/description', 'User '\
                                + 'geometry input')
 
-    ui.FLOORS_NB = cpsf.get_value_or_default(tixi,GEOM_XPATH + '/floorsNb', ui.FLOORS_NB)
-    adui.VRT_THICK = cpsf.get_value_or_default(tixi,GEOM_XPATH + '/virtualThick', 0.00014263)
-    adui.VRT_STR_DENSITY = cpsf.get_value_or_default(tixi,GEOM_XPATH + '/virtualDensity', 2700.0)
-    ui.H_LIM_CABIN = cpsf.get_value_or_default(tixi,GEOM_XPATH + '/cabinHeight', 2.3)
+    ui.FLOORS_NB = get_value_or_default(tixi,GEOM_XPATH + '/floorsNb', ui.FLOORS_NB)
+    adui.VRT_THICK = get_value_or_default(tixi,GEOM_XPATH + '/virtualThick', 0.00014263)
+    adui.VRT_STR_DENSITY = get_value_or_default(tixi,GEOM_XPATH + '/virtualDensity', 2700.0)
+    ui.H_LIM_CABIN = get_value_or_default(tixi,GEOM_XPATH + '/cabinHeight', 2.3)
 
     # People =================================================================
     # Pilots user input data
 
-    adui.PILOT_NB = cpsf.get_value_or_default(tixi,PILOTS_PATH + '/pilotNb', 2)
-    adui.MASS_PILOT = cpsf.get_value_or_default(tixi,PILOTS_PATH + '/pilotMass', 102.0)
-    adui.MASS_CABIN_CREW = cpsf.get_value_or_default(tixi,CAB_CREW_XPATH + '/cabinCrewMemberMass', 68.0)
-    adui.MASS_PASS = cpsf.get_value_or_default(tixi,PASS_XPATH + '/passMass', 105.0)
-    adui.PASS_BASE_DENSITY = cpsf.get_value_or_default(tixi,PASS_XPATH + '/passDensity', 1.66)
-    adui.PASS_PER_TOILET = cpsf.get_value_or_default(tixi,PASS_XPATH + '/passPerToilet', 50)
+    adui.PILOT_NB = get_value_or_default(tixi,PILOTS_XPATH + '/pilotNb', 2)
+    adui.MASS_PILOT = get_value_or_default(tixi,PILOTS_XPATH + '/pilotMass', 102.0)
+    adui.MASS_CABIN_CREW = get_value_or_default(tixi,CAB_CREW_XPATH + '/cabinCrewMemberMass', 68.0)
+    adui.MASS_PASS = get_value_or_default(tixi,PASS_XPATH + '/passMass', 105.0)
+    adui.PASS_BASE_DENSITY = get_value_or_default(tixi,PASS_XPATH + '/passDensity', 1.66)
+    adui.PASS_PER_TOILET = get_value_or_default(tixi,PASS_XPATH + '/passPerToilet', 50)
 
     # what to to with this input
     if tixi.checkElement(PASS_XPATH + '/passNb'):
@@ -176,8 +167,8 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
 
 
     # Fuel ===================================================================
-    adui.FUEL_DENSITY = cpsf.get_value_or_default(tixi,F_XPATH + '/density', 800)
-    adui.RES_FUEL_PERC = cpsf.get_value_or_default(tixi,F_XPATH + '/resFuelPerc', 0.06)
+    adui.FUEL_DENSITY = get_value_or_default(tixi,F_XPATH + '/density', 800)
+    adui.RES_FUEL_PERC = get_value_or_default(tixi,F_XPATH + '/resFuelPerc', 0.06)
 
     # Weight =================================================================
     # Mass limits data
@@ -186,15 +177,15 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
         tixi.updateTextElement(ML_XPATH + '/description', 'Desired max fuel '\
                                + 'volume [m^3] and payload mass [kg]')
 
-    ui.MAX_PAYLOAD = cpsf.get_value_or_default(tixi,ML_XPATH + '/maxPayload', 0.0)
-    ui.MAX_FUEL_VOL = cpsf.get_value_or_default(tixi,ML_XPATH + '/maxFuelVol', 0.0)
-    ui.MASS_CARGO = cpsf.get_value_or_default(tixi,MC_XPATH + '/massCargo', 0.0)
+    ui.MAX_PAYLOAD = get_value_or_default(tixi,ML_XPATH + '/maxPayload', 0.0)
+    ui.MAX_FUEL_VOL = get_value_or_default(tixi,ML_XPATH + '/maxFuelVol', 0.0)
+    ui.MASS_CARGO = get_value_or_default(tixi,MC_XPATH + '/massCargo', 0.0)
     # If the cargo mass is defined in the UserInputs class will be added
     # in the CPACS file after the analysis.
 
     # Flight =================================================================
 
-    ed.TSFC_CRUISE = cpsf.get_value_or_default(tixi,PROP_XPATH + '/tSFC', 0.5)
+    ed.TSFC_CRUISE = get_value_or_default(tixi,PROP_XPATH + '/tSFC', 0.5)
 
     # TODO: These data should be taken from aeroMaps...
     if not tixi.checkElement(RANGE_XPATH + '/lDRatio'):
@@ -244,7 +235,7 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
 
     log.info('Data from CPACS file succesfully extracted')
 
-    cpsf.close_tixi(tixi, cpacs_in)
+    tixi.save(cpacs_in)
 
     return(ed, ui, adui)
 
@@ -270,14 +261,12 @@ def get_engine_inputs(ui, ed, cpacs_in):
 
     log.info('Starting engine data extraction from CPACS file')
 
-    tixi = cpsf.open_tixi(cpacs_in)
-    CEASIOM_XPATH = '/cpacs/toolspecific/CEASIOMpy'
+    tixi = open_tixi(cpacs_in)
 
-    PROP_XPATH = CEASIOM_XPATH + '/propulsion'
-    cpsf.create_branch(tixi, PROP_XPATH, False)
+    create_branch(tixi, PROP_XPATH, False)
     # Propulsion =============================================================
     if not tixi.checkElement(PROP_XPATH + '/turboprop'):
-        cpsf.create_branch(tixi, PROP_XPATH, False)
+        create_branch(tixi, PROP_XPATH, False)
         tixi.createElement(PROP_XPATH, 'turboprop')
         if ed.TURBOPROP:
             tixi.updateTextElement(PROP_XPATH + '/turboprop', 'True')
@@ -307,13 +296,12 @@ def get_engine_inputs(ui, ed, cpacs_in):
     else:
         ed.NE = tixi.getIntegerElement(PROP_XPATH + '/engineNumber')
 
-    #Engines
+    #Engines (TODO: check this _XPATH)
     mp = []
     tp = []
     EN_XPATH = '/cpacs/vehicles/engines'
     if tixi.checkElement(EN_XPATH):
         for e in range(0,ed.NE-1):
-            EN_XPATH = '/cpacs/vehicles/engines'
             if ed.NE > 1:
                 EN_XPATH += '/engine' + str(e+1)
             else:
@@ -357,7 +345,7 @@ def get_engine_inputs(ui, ed, cpacs_in):
                                 + ' engine thrust in the cpacs file')
     log.info('Data from CPACS file succesfully extracted')
 
-    cpsf.close_tixi(tixi, cpacs_in)
+    tixi.save(cpacs_in)
 
     return(ed)
 

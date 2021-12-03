@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-11-11
-| Last modifiction: 2019-12-16
+| Last modifiction: 2021-09-28
 
 TODO:
 
@@ -22,19 +22,8 @@ TODO:
 #==============================================================================
 
 import os
-import sys
-import math
-import numpy
-import matplotlib
 
-from tixi3 import tixi3wrapper
-from tigl3 import tigl3wrapper
-from tigl3 import geometry
-import tigl3.configuration
-
-import ceasiompy.utils.ceasiompyfunctions as ceaf
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.apmfunctions as apmf
+from cpacspy.cpacsfunctions import (open_tixi, open_tigl, get_tigl_configuration)
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -55,27 +44,6 @@ MODULE_NAME = os.path.basename(os.getcwd())
 #   FUNCTIONS
 #==============================================================================
 
-def get_aircraft(tigl):
-    """ Maybe this function could be integrate in cpacsfunctions.py"""
-
-    # Get the configuration manager
-    mgr =  tigl3.configuration.CCPACSConfigurationManager_get_instance()
-    aircraft = mgr.get_configuration(tigl._handle.value)
-    return aircraft
-
-
-def save_aircraft(tixi, aircraft, filename):
-    """ Maybe this function could be integrate in cpacsfunctions.py"""
-
-    # Save in Tixi meomory
-    aircraft.write_cpacs(aircraft.get_uid())
-    configAsString = tixi.exportDocumentAsString();
-
-    text_file = open(filename, "w")
-    text_file.write(configAsString)
-    text_file.close()
-
-
 def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
     """Function to update a CPACS file with value from the optimiser
 
@@ -93,10 +61,10 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
 
     """
 
-    tixi = cpsf.open_tixi(cpacs_path)
-    tigl = cpsf.open_tigl(tixi)
+    tixi = open_tixi(cpacs_path)
+    tigl = open_tigl(tixi)
 
-    aircraft = get_aircraft(tigl)
+    aircraft = get_tigl_configuration(tigl)
     # help(aircraft)
 
     wings = aircraft.get_wings()
@@ -135,10 +103,7 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
                 tixi.updateTextElement(xpath, str(listval[-1]))
     aircraft.write_cpacs(aircraft.get_uid())
     tigl.close()
-    cpsf.close_tixi(tixi, cpacs_out_path)
-
-    #or
-    # save_aircraft(tixi,aircraft,'test.xml')
+    tixi.save(cpacs_out_path)
 
 
 #==============================================================================

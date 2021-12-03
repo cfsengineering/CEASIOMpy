@@ -23,7 +23,7 @@ The cpacs file Should also contain:
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-12-5
-| Last modifiction: 2019-08-29 (AJ)
+| Last modifiction: 2021-10-14 (AJ)
 """
 
 
@@ -33,8 +33,7 @@ The cpacs file Should also contain:
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
-                                           create_branch
+from cpacspy.cpacsfunctions import (create_branch, open_tixi)
 
 log = get_logger(__file__.split('.')[0])
 
@@ -184,15 +183,9 @@ def get_data(mw, bi, cpacs_in):
     mw.mass_fuel_max = tixi.getDoubleElement(F_PATH)
 
     log.info('Data from CPACS file succesfully extracted')
-    # Saving and closing the cpacs file ======================================
-    tixi.saveDocument(cpacs_in)
-    close_tixi(tixi, cpacs_in)
 
-    # Openign and closing again the cpacs file ===============================
-    tixi = open_tixi(cpacs_in)
-    tigl = open_tigl(tixi)
-    tixi.saveDocument(cpacs_in)
-    close_tixi(tixi, cpacs_in)
+    # Saving and closing the cpacs file ======================================
+    tixi.save(cpacs_in)
 
     return(mw, bi)
 

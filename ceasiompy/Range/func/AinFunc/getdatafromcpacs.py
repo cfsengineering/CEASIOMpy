@@ -36,7 +36,7 @@ The cpacs file should also contain:
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-08-29 (AJ)
+| Last modifiction: 2021-10-14 (AJ)
 """
 
 
@@ -44,10 +44,9 @@ The cpacs file should also contain:
 #   IMPORTS
 #=============================================================================
 
+from cpacspy.cpacsfunctions import (add_uid, create_branch, open_tixi)
+
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils import cpacsfunctions as cpf
-from ceasiompy.utils.cpacsfunctions import open_tixi, open_tigl, close_tixi,   \
-                                           add_uid, create_branch
 
 log = get_logger(__file__.split('.')[0])
 
@@ -277,9 +276,9 @@ def get_data(mw, ri, cpacs_in):
     mw.mass_fuel_max = tixi.getDoubleElement(F_PATH)
 
     log.info('Data from CPACS file succesfully extracted')
+
     # Saving and closing the cpacs file ======================================
-    tixi.saveDocument(cpacs_in)
-    close_tixi(tixi, cpacs_in)
+    tixi.save(cpacs_in)
 
     return(mw, ri)
 

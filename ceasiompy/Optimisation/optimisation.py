@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-06-15
-| Last modification: 2020-11-13 (AJ)
+| Last modification: 2021-11-22 (AJ)
 
 Todo:
     * Vector inputs or multiple objectives
@@ -32,11 +32,16 @@ import ceasiompy.Optimisation.func.optimfunctions as opf
 import ceasiompy.CPACSUpdater.cpacsupdater as cpud
 import ceasiompy.Optimisation.func.dictionnary as dct
 
-import ceasiompy.utils.apmfunctions as apmf
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacspy import CPACS
+from cpacspy.utils import PARAMS,COEFS
+from cpacspy.cpacsfunctions import (add_float_vector, create_branch,
+                                    get_value, open_tixi)
+
 import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.utils.ceasiompyfunctions as ceaf
+
+from ceasiompy.utils.xpath import (WKDIR_XPATH, OPTWKDIR_XPATH, OPTIM_XPATH)
 
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -125,12 +130,12 @@ class ModuleComp(om.ExplicitComponent):
                 declared.append(entry.var_name)
             elif 'aeromap' in entry.var_name and self.module_name == last_am_module:  #== 'PyTornado':  #not skf^is_skf:
                 # Condition to avoid any conflict with skinfriction
-                for name in apmf.XSTATES:
+                for name in PARAMS:
                     if name in optim_var_dict:
                         var = optim_var_dict[name]
                         self.add_input(name, val=var[1][0])
                         declared.append(entry.var_name)
-                for name in apmf.COEF_LIST:
+                for name in COEFS:
                     if name in optim_var_dict:
                         var = optim_var_dict[name]
                         if tls.is_digit(var[1][0]):
@@ -147,39 +152,39 @@ class ModuleComp(om.ExplicitComponent):
 
         # Updating inputs in CPACS file
         cpacs_path = mif.get_toolinput_file_path(self.module_name)
-        tixi = cpsf.open_tixi(cpacs_path)
+        tixi = open_tixi(cpacs_path)
         for name in inputs:
             if name in optim_var_dict:
                 xpath = optim_var_dict[name][4]
                 # Change only the first vector value for aeromap param
-                if name in apmf.XSTATES:
+                if name in PARAMS:
                     size = tixi.getVectorSize(xpath)
                     v = list(tixi.getFloatVector(xpath, size))
                     v.pop(0)
                     v.insert(0, inputs[name])
                     tixi.updateFloatVector(xpath, v, size, '%g')
                 else:
-                    cpsf.add_float_vector(tixi, xpath, inputs[name])
-        cpsf.close_tixi(tixi, cpacs_path)
+                    add_float_vector(tixi, xpath, inputs[name])
+        tixi.save(cpacs_path)
 
         # Running the module
         wkf.run_subworkflow([self.module_name])
 
         # Feeding CPACS file results to outputs
         cpacs_path = mif.get_tooloutput_file_path(self.module_name)
-        tixi = cpsf.open_tixi(cpacs_path)
+        tixi = open_tixi(cpacs_path)
         for name in outputs:
             if name in optim_var_dict:
                 xpath = optim_var_dict[name][4]
-                if name in apmf.COEF_LIST:
-                    val = cpsf.get_value(tixi, xpath)
+                if name in COEFS:
+                    val = get_value(tixi, xpath)
                     if isinstance(val, str):
                         val = val.split(';')
                         outputs[name] = val[0]
                     else:
                         outputs[name] = val
                 else:
-                    outputs[name] = cpsf.get_value(tixi, xpath)
+                    outputs[name] = get_value(tixi, xpath)
 
         # Copy CPACS to input folder of next module
         index = Rt.modules.index(self.module_name)+1
@@ -187,7 +192,7 @@ class ModuleComp(om.ExplicitComponent):
             cpacs_path = mif.get_toolinput_file_path(Rt.modules[index])
         else:
             cpacs_path = mif.get_toolinput_file_path(Rt.modules[0])
-        cpsf.close_tixi(tixi, cpacs_path)
+        tixi.save(cpacs_path)
 
 
 class SmComp(om.ExplicitComponent):
@@ -197,9 +202,9 @@ class SmComp(om.ExplicitComponent):
         """Setup inputs and outputs"""
         # Take CPACS file from the optimisation
         cpacs_path = mif.get_toolinput_file_path('SMUse')
-        tixi = cpsf.open_tixi(cpacs_path)
+        tixi = open_tixi(cpacs_path)
         self.Model = smu.load_surrogate(tixi)
-        cpsf.close_tixi(tixi, cpacs_path)
+        tixi.save(cpacs_path)
 
         df = self.Model.df
         df.set_index('Name', inplace=True)
@@ -226,11 +231,11 @@ class SmComp(om.ExplicitComponent):
 
         # Write the inouts to the CPACS
         cpacs_path = mif.get_toolinput_file_path('SMUse')
-        tixi = cpsf.open_tixi(cpacs_path)
+        tixi = open_tixi(cpacs_path)
         smu.write_inouts(self.xd, xp, tixi)
         smu.write_inouts(self.yd, yp, tixi)
         cpacs_path_out = mif.get_tooloutput_file_path('SMUse')
-        cpsf.close_tixi(tixi, cpacs_path_out)
+        tixi.save(cpacs_path_out)
 
 
 
@@ -262,15 +267,16 @@ class Objective(om.ExplicitComponent):
             log.info('Copy current CPACS to '+optim_dir_path)
 
         # Add new variables to dictionnary
-        tixi = cpsf.open_tixi(cpacs_path)
-        dct.update_dict(tixi, optim_var_dict)
+        cpacs = CPACS(cpacs_path)
+ 
+        dct.update_dict(cpacs.tixi, optim_var_dict)
 
         # Save the whole aeromap if needed
         if Rt.use_aeromap:
-            dct.update_am_dict(tixi, Rt.aeromap_uid, am_dict)
+            dct.update_am_dict(cpacs, Rt.aeromap_uid, am_dict)
 
         # Change local wkdir for the next iteration
-        tixi.updateTextElement(opf.WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
+        cpacs.tixi.updateTextElement(WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
 
         for obj in Rt.objective:
             var_list = splt('[+*/-]', obj)
@@ -284,7 +290,7 @@ class Objective(om.ExplicitComponent):
             else:
                 outputs['Objective function '+obj] = -result
 
-        cpsf.close_tixi(tixi, cpacs_path)
+        cpacs.save_cpacs(cpacs_path, overwrite=True)
         wkf.copy_module_to_module(Rt.modules[-1], 'out', Rt.modules[0], 'in')
 
 
@@ -317,16 +323,16 @@ def create_routine_folder():
     global optim_dir_path, Rt
 
     # Create the main working directory
-    tixi = cpsf.open_tixi(opf.CPACS_OPTIM_PATH)
+    tixi = open_tixi(opf.CPACS_OPTIM_PATH)
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
     optim_dir_path = os.path.join(wkdir, Rt.type)
     Rt.date = wkdir[-19:]
 
     # Save the path to the directory in the CPACS
-    if tixi.checkElement(opf.OPTWKDIR_XPATH):
-        tixi.removeElement(opf.OPTWKDIR_XPATH)
-    cpsf.create_branch(tixi, opf.OPTWKDIR_XPATH)
-    tixi.updateTextElement(opf.OPTWKDIR_XPATH, optim_dir_path)
+    if tixi.checkElement(OPTWKDIR_XPATH):
+        tixi.removeElement(OPTWKDIR_XPATH)
+    create_branch(tixi, OPTWKDIR_XPATH)
+    tixi.updateTextElement(OPTWKDIR_XPATH, optim_dir_path)
 
     # Add subdirectories
     if not os.path.isdir(optim_dir_path):
@@ -342,10 +348,10 @@ def create_routine_folder():
         os.mkdir(optim_dir_path)
         os.mkdir(optim_dir_path+'/Geometry')
         os.mkdir(optim_dir_path+'/Runs')
-    tixi.updateTextElement(opf.OPTWKDIR_XPATH, optim_dir_path)
-    tixi.updateTextElement(opf.WKDIR_XPATH, optim_dir_path)
+    tixi.updateTextElement(OPTWKDIR_XPATH, optim_dir_path)
+    tixi.updateTextElement(WKDIR_XPATH, optim_dir_path)
 
-    cpsf.close_tixi(tixi, opf.CPACS_OPTIM_PATH)
+    tixi.save(opf.CPACS_OPTIM_PATH)
 
 
 def driver_setup(prob):
@@ -567,13 +573,14 @@ def routine_launcher(Opt):
     create_routine_folder()
     opf.first_run(Rt)
 
-    tixi = cpsf.open_tixi(opf.CPACS_OPTIM_PATH)
-    tixi.updateTextElement(opf.WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
-    Rt.get_user_inputs(tixi)
-    optim_var_dict = opf.create_variable_library(Rt, tixi, optim_dir_path)
-    am_dict = opf.create_am_lib(Rt, tixi)
+    cpacs = CPACS(opf.CPACS_OPTIM_PATH)
 
-    cpsf.close_tixi(tixi, opf.CPACS_OPTIM_PATH)
+    cpacs.tixi.updateTextElement(WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
+    Rt.get_user_inputs(cpacs.tixi)
+    optim_var_dict = opf.create_variable_library(Rt, cpacs.tixi, optim_dir_path)
+    am_dict = opf.create_am_lib(Rt, cpacs)
+
+    cpacs.save_cpacs(opf.CPACS_OPTIM_PATH,overwrite=True)
     wkf.copy_module_to_module('Optimisation', 'in', Rt.modules[0], 'in')
 
     ## Instantiate components and subsystems ##
@@ -594,17 +601,15 @@ if __name__ == '__main__':
 
     cpacs_path = mif.get_toolinput_file_path('Optimisation')
     cpacs_out_path = mif.get_tooloutput_file_path('Optimisation')
-    tixi = cpsf.open_tixi(cpacs_path)
+    tixi = open_tixi(cpacs_path)
 
     try:
-        am_uid = cpsf.get_value(tixi, opf.OPTIM_XPATH+'aeroMapUID')
+        am_uid = get_value(tixi, OPTIM_XPATH+'/aeroMapUID')
     except:
         raise ValueError('No aeromap found in the file')
 
     log.info('Aeromap '+am_uid+' will be used')
 
-    #opf.update_am_path(tixi, am_uid)
-
-    cpsf.close_tixi(tixi, cpacs_out_path)
+    tixi.save(cpacs_out_path)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

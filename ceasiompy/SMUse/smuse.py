@@ -12,7 +12,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06
-| Last modification: 2020-07-06
+| Last modification: 2021-11-19 (AJ)
 
 TODO:
     *
@@ -30,10 +30,12 @@ import numpy as np
 import pandas as pd
 import smt.surrogate_models as sms # Use after loading the model
 
-import ceasiompy.utils.apmfunctions as apmf
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.moduleinterfaces as mif
-import ceasiompy.CPACSUpdater.cpacsupdater as cpud
+from cpacspy.cpacspy import CPACS
+from cpacspy.utils import PARAMS_COEFS
+from cpacspy.cpacsfunctions import create_branch, get_value_or_default
+
+import ceasiompy.utils.moduleinterfaces as mi
+from ceasiompy.utils.xpath import SMTRAIN_XPATH, SMUSE_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -45,11 +47,9 @@ log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
-SMUSE_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModelUse/'
-SMTRAIN_XPATH = '/cpacs/toolspecific/CEASIOMpy/surrogateModel/'
 
-cpacs_path = mif.get_toolinput_file_path('SMUse')
-cpacs_path_out = mif.get_tooloutput_file_path('SMUse')
+cpacs_path = mi.get_toolinput_file_path('SMUse')
+cpacs_path_out = mi.get_tooloutput_file_path('SMUse')
 
 # =============================================================================
 #   ClASSES
@@ -85,7 +85,7 @@ def load_surrogate(tixi):
 
     """
 
-    file = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'modelFile', '')
+    file = get_value_or_default(tixi, SMUSE_XPATH+'/modelFile', '')
 
     log.info('Trying to open file'+file)
     try:
@@ -111,31 +111,30 @@ def get_inputs(x):
 
     """
 
-    tixi = cpsf.open_tixi(cpacs_path)
-    tigl = cpsf.open_tigl(tixi)
-    aircraft = cpud.get_aircraft(tigl)
+    cpacs = CPACS(cpacs_path)
+    
+    # These variable will be used in eval
+    aircraft = cpacs.aircraft.configuration
     wings = aircraft.get_wings()
     fuselage = aircraft.get_fuselages().get_fuselage(1)
 
     inputs = []
-    am_uid = apmf.get_current_aeromap_uid(tixi, 'SMUse')
-    am_index = apmf.get_aeromap_index(tixi, am_uid)
-    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
+
+    aeromap_uid = cpacs.tixi.getTextElement(SMUSE_XPATH + '/aeroMapUID')
+    xpath = cpacs.tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/'
 
     x.set_index('Name', inplace=True)
     for name in x.index:
         if x.loc[name, 'setcmd'] != '-':
             inputs.append(eval(x.loc[name, 'getcmd']))
         else:
-            if name in apmf.COEF_LIST+apmf.XSTATES:
+            if name in PARAMS_COEFS:
                 x.loc[name, 'getcmd'] = xpath + name
-            inputs.append(tixi.getDoubleElement(x.loc[name, 'getcmd']))
+            inputs.append(cpacs.tixi.getDoubleElement(x.loc[name, 'getcmd']))
 
-    tigl.close()
-    cpsf.close_tixi(tixi, cpacs_path)
+    cpacs.save_cpacs(cpacs_path,overwrite=True)
 
-    inputs = np.array([inputs])
-    return inputs
+    return np.array([inputs])
 
 
 def write_inouts(v, inout, tixi):
@@ -153,11 +152,6 @@ def write_inouts(v, inout, tixi):
 
     """
 
-    tigl = cpsf.open_tigl(tixi)
-    aircraft = cpud.get_aircraft(tigl)
-    wings = aircraft.get_wings()
-    fuselage = aircraft.get_fuselages().get_fuselage(1)
-
     v.fillna('-', inplace=True)
     for i, name in enumerate(v.index):
         if v.loc[name, 'setcmd'] != '-':
@@ -165,13 +159,11 @@ def write_inouts(v, inout, tixi):
             eval(v.loc[name, 'setcmd'])
         elif v.loc[name, 'getcmd'] != '-':
             xpath = v.loc[name, 'getcmd']
-            cpsf.create_branch(tixi, xpath)
+            create_branch(tixi, xpath)
             tixi.updateDoubleElement(xpath, inout[0][i], '%g')
 
-    tigl.close()
 
-
-def aeromap_calculation(sm, tixi):
+def aeromap_calculation(sm, cpacs):
     """Make a prediction using only the aeromap entries.
 
     By using only the aeromap functions this module is way faster to execute. Only
@@ -180,42 +172,34 @@ def aeromap_calculation(sm, tixi):
 
     Args:
         sm (Surrogate model object): Surrogate used to predict the function output.
-        tixi (Tixi handle): Handle of the current CPACS.
+        cpacs (object): CPACS object from cpacspy
 
     Returns:
         None.
 
     """
 
-    tigl = cpsf.open_tigl(tixi)
-    aircraft = cpud.get_aircraft(tigl)
-    wings = aircraft.get_wings()
-    fuselage = aircraft.get_fuselages().get_fuselage(1)
-
-    aeromap_uid = apmf.get_current_aeromap_uid(tixi, 'SMUse')
+    aeromap_uid = cpacs.tixi.getTextElement(SMUSE_XPATH+'/aeroMapUID')
     log.info('Using aeromap :'+aeromap_uid)
-    Coef = apmf.get_aeromap(tixi, aeromap_uid)
+    aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+    
+    alt_list = aeromap.get('altitude').tolist()
+    mach_list = aeromap.get('machNumber').tolist()
+    aoa_list = aeromap.get('angleOfAttack').tolist()
+    aos_list = aeromap.get('angleOfSideslip').tolist()
 
-    inputs = np.array([Coef.alt, Coef.mach, Coef.aoa, Coef.aos]).T
-
+    inputs = np.array([alt_list, mach_list, aoa_list, aos_list]).T
     outputs = sm.predict_values(inputs)
 
-    # Re-initiates the values of the results to write the new ones
-    Coef.cl = []
-    Coef.cd = []
-    Coef.cs = []
-    Coef.cml = []
-    Coef.cmd = []
-    Coef.cms = []
-
-    for i in range(outputs.shape[0]):
-        Coef.add_coefficients(outputs[i, 0], outputs[i, 1], outputs[i, 2],
-                              outputs[i, 3], outputs[i, 4], outputs[i, 5])
-    Coef.print_coef_list()
-    apmf.save_coefficients(tixi, aeromap_uid, Coef)
-
-    tigl.close()
-
+    i = 0
+    for alt,mach,aos,aoa in zip(alt_list,mach_list,aos_list,aoa_list):
+        aeromap.add_coefficients(alt,mach,aos,aoa,
+                                 cl=outputs[i, 0],cd=outputs[i, 1],cs=outputs[i, 2],
+                                 cml=outputs[i, 3],cmd=outputs[i, 4],cms=outputs[i, 5])
+        i += 1
+        
+    print(aeromap)
+    aeromap.save()
 
 def predict_output(Model, tixi):
     """Make a prediction.
@@ -257,8 +241,8 @@ def check_aeromap(tixi):
 
     """
 
-    am_uid_use = cpsf.get_value_or_default(tixi, SMUSE_XPATH+'aeroMapUID', '')
-    am_uid_train = cpsf.get_value_or_default(tixi, SMTRAIN_XPATH+'aeroMapUID', '')
+    am_uid_use = get_value_or_default(tixi, SMUSE_XPATH+'/aeroMapUID', '')
+    am_uid_train = get_value_or_default(tixi, SMTRAIN_XPATH+'/aeroMapUID', '')
 
     if am_uid_train == am_uid_use:
         sys.exit('Same aeromap that was used to create the model')
@@ -273,16 +257,16 @@ if __name__ == "__main__":
     log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
 
     # Load the model
-    tixi = cpsf.open_tixi(cpacs_path)
-    Model = load_surrogate(tixi)
+    cpacs = CPACS(cpacs_path)
+    Model = load_surrogate(cpacs.tixi)
 
-    check_aeromap(tixi)
+    check_aeromap(cpacs.tixi)
 
-    if cpsf.get_value_or_default(tixi, SMUSE_XPATH+'AeroMapOnly', False):
-        aeromap_calculation(Model.sm, tixi)
+    if get_value_or_default(cpacs.tixi, SMUSE_XPATH+'/AeroMapOnly', False):
+        aeromap_calculation(Model.sm, cpacs)
     else:
-        predict_output(Model, tixi)
+        predict_output(Model, cpacs.tixi)
 
-    cpsf.close_tixi(tixi, cpacs_path_out)
+    cpacs.save_cpacs(cpacs_path_out, overwrite=True)
 
     log.info('----- End of ' + os.path.basename(__file__) + ' -----')

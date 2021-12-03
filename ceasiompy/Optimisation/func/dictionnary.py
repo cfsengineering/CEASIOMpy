@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author : Vivien Riolo
 | Creation: 2020-03-24
-| Last modification: 2020-06-02
+| Last modification: 2021-11-22 (AJ)
 
 TODO
 ----
@@ -25,11 +25,10 @@ TODO
 # =============================================================================
 
 from sys import exit
-
 import numpy as np
-import ceasiompy.utils.apmfunctions as apmf
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.CPACSUpdater.cpacsupdater as cpud
+
+from cpacspy.utils import PARAMS_COEFS
+from cpacspy.cpacsfunctions import open_tigl, get_tigl_configuration
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -61,12 +60,13 @@ def add_am_to_dict(optim_var_dict, am_dict):
         None.
 
     """
+    
     # Take a variable from the optim dict to compute the length to add
     var_in_dict = list(optim_var_dict.keys())[0]
     am_length = int(len(am_dict['cl'][1])/len(optim_var_dict[var_in_dict][1]))
     log.info("Adding the whole aeromap to the dictionary")
     for name, infos in optim_var_dict.items():
-        if name not in apmf.XSTATES+apmf.COEF_LIST:
+        if name not in PARAMS_COEFS:
             # Calling a new list instance else the clear method will also clean l
             l = list(infos[1])
             infos[1].clear()
@@ -76,13 +76,13 @@ def add_am_to_dict(optim_var_dict, am_dict):
         optim_var_dict[name] = infos
 
 
-def update_am_dict(tixi, aeromap_uid, am_dict):
+def update_am_dict(cpacs, aeromap_uid, am_dict):
     """Save the aeromap results.
 
     Appends the new aeromap results to a dictionary.
 
     Args:
-        tixi (tixi3 handle): TIXI handle of the CPACS file.
+        cpacs (object): CPACS object from cpacspy
         aeromap_uid (str): uID of the aeromap in use.
         am_dict (dct): Contains the results of old aeromap calculations.
 
@@ -90,8 +90,10 @@ def update_am_dict(tixi, aeromap_uid, am_dict):
         None.
 
     """
-    Coef = apmf.get_aeromap(tixi, aeromap_uid)
-    d = Coef.to_dict()
+
+    aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+    d = aeromap.df.to_dict(orient='list')
+
     for name , infos in am_dict.items():
         infos[1].extend(d[name])
 
@@ -112,6 +114,7 @@ def update_dict(tixi, optim_var_dict):
         None.
 
     """
+    
     for name, infos in optim_var_dict.items():
         if infos[5] in ['', '-']:
             if tixi.checkElement(infos[4]):
@@ -128,7 +131,7 @@ def create_var(var_name, init_value, getcmd, setcmd, lim=0.2):
 
     Args:
         var_name (str) : Name of the variable.
-        init_value (float) :
+        init_value (float) : Initial value of the variable.
         getcmd (str) : Command to retrieve a value in the CPACS file.
         setcmd (str) : Command to change a value in the CPACS file.
         lim (float) : Percentage of the initial value to define the upper and lower limit :
@@ -139,6 +142,7 @@ def create_var(var_name, init_value, getcmd, setcmd, lim=0.2):
         None.
 
     """
+    
     if init_value > 0:
         lower_bound = init_value*(1-lim)
         upper_bound = init_value*(1+lim)
@@ -150,7 +154,7 @@ def create_var(var_name, init_value, getcmd, setcmd, lim=0.2):
         upper_bound = lim
 
     geom_var_dict[var_name] = (var_name, [init_value], lower_bound, upper_bound, setcmd, getcmd)
-
+    
 
 def init_elem_param(sec_name, section, elem_nb, scmd):
     """Create wing section element variable.
@@ -169,15 +173,15 @@ def init_elem_param(sec_name, section, elem_nb, scmd):
 
     """
     for enb in range(1, elem_nb+1):
-        cmd = scmd + 'get_section_element({}).get_ctigl_section_element().'.format(enb)
+        cmd = scmd + f'get_section_element({enb}).get_ctigl_section_element().'
         el_name = sec_name + "_el" + str(enb)
 
         element = section.get_section_element(enb).get_ctigl_section_element()
 
         var_name = el_name + "_width"
         init_width = element.get_width()
-        getcmd = cmd+'get_width()'
-        setcmd = cmd+'set_width({})'.format(var_name)
+        getcmd = cmd + 'get_width()'
+        setcmd = cmd + f'set_width({var_name})'
         create_var(var_name, init_width, getcmd, setcmd)
 
 
@@ -197,8 +201,9 @@ def init_sec_param(name, wing, sec_nb, wcmd):
         None.
 
     """
+    
     for s in range(1, sec_nb+1):
-        cmd = wcmd + 'get_section({}).'.format(s)
+        cmd = wcmd + f'get_section({s}).'
         sec_name = name + "_sec" + str(s)
 
         section = wing.get_section(s)
@@ -206,7 +211,7 @@ def init_sec_param(name, wing, sec_nb, wcmd):
         var_name = sec_name + "_Yrotation"
         init_rot = section.get_rotation().y
         getcmd = cmd+'get_rotation().y'
-        setcmd = cmd+'set_rotation(geometry.CTiglPoint(0,{},0))'.format(var_name)
+        setcmd = cmd+f'set_rotation(geometry.CTiglPoint(0,{var_name},0))'
         create_var(var_name, init_rot, getcmd, setcmd)
 
         elem_nb = section.get_section_element_count()
@@ -228,42 +233,43 @@ def init_wing_param(aircraft, wing_nb):
         None.
 
     """
+    
     wings = aircraft.get_wings()
 
     for w in range(1, wing_nb+1):
-        cmd = 'wings.get_wing({}).'.format(w)
+        cmd = f'wings.get_wing({w}).'
         name = "wing" + str(w)
 
         wing = wings.get_wing(w)
 
-        var_name = name+"_span"
+        var_name = name + "_span"
         init_span = wing.get_wing_half_span()
-        getcmd = cmd+'get_wing_half_span()'
-        setcmd = cmd+'set_half_span_keep_ar({})'.format(var_name)  # keep_area
+        getcmd = cmd + 'get_wing_half_span()'
+        setcmd = cmd + f'set_half_span_keep_ar({var_name})'  # keep_area
         create_var(var_name, init_span, getcmd, setcmd)
 
         var_name = name + "_aspect_ratio"
         init_AR = wing.get_aspect_ratio()
-        getcmd = cmd+'get_aspect_ratio()'
-        setcmd = cmd+'set_arkeep_area({})'.format(var_name)#keep_ar
+        getcmd = cmd + 'get_aspect_ratio()'
+        setcmd = cmd + f'set_arkeep_area({var_name})'  # keep_ar
         create_var(var_name, init_AR, getcmd, setcmd)
 
         var_name = name + "_area"
         init_area = wing.get_surface_area()/2
-        getcmd = cmd+'get_surface_area()'
-        setcmd = cmd+'set_area_keep_ar({})'.format(var_name)#keep_span
+        getcmd = cmd + 'get_surface_area()'
+        setcmd = cmd + f'set_area_keep_ar({var_name})'  # keep_span
         create_var(var_name, init_area, getcmd, setcmd)
 
-        var_name = name+"_sweep"
+        var_name = name + "_sweep"
         init_sweep = wing.get_sweep()
-        getcmd = cmd+'get_sweep()'
-        setcmd = cmd+'set_sweep({})'.format(var_name)
+        getcmd = cmd + 'get_sweep()'
+        setcmd = cmd + f'set_sweep({var_name})'
         create_var(var_name, init_sweep, getcmd, setcmd)
 
         var_name = name + "_Yrotation"
         init_rot = wing.get_rotation().y
-        getcmd = cmd+'get_rotation().y'
-        setcmd = cmd+'set_rotation(geometry.CTiglPoint(0,{},0))'.format(var_name)
+        getcmd = cmd + 'get_rotation().y'
+        setcmd = cmd + f'set_rotation(geometry.CTiglPoint(0,{var_name},0))'
         create_var(var_name, init_rot, getcmd, setcmd)
         #A tester....
 
@@ -286,20 +292,22 @@ def init_fuse_param(aircraft, fuse_nb):
         None.
 
     """
+
     for f in range(1, fuse_nb+1):
         name = "fuse" + str(f)
         fuselage = aircraft.get_fuselage(f)
 
         var_name = name+"_length"
+        
         init_length = fuselage.get_length()
         getcmd = 'fuselage.get_length()'
-        setcmd = 'fuselage.set_length({})'.format(var_name)
+        setcmd = f'fuselage.set_length({var_name})'
         create_var(var_name, init_length, getcmd, setcmd)
 
         var_name = name+"_width"
         init_width = fuselage.get_maximal_width()
         getcmd = 'fuselage.get_maximal_width()'
-        setcmd = 'fuselage.set_max_width({})'.format(var_name)
+        setcmd = f'fuselage.set_max_width({var_name})'
         create_var(var_name, init_width, getcmd, setcmd)
 
         # Modify a specific section width
@@ -309,7 +317,7 @@ def init_fuse_param(aircraft, fuse_nb):
                 var_name = name + "_sec" + str(secnb)
                 init_sec_width = fuselage.get_maximal_width()
                 getcmd = 'fuselage.get_maximal_width()'
-                setcmd = 'fuselage.set_max_width({})'.format(var_name)
+                setcmd = f'fuselage.set_max_width({var_name})'
                 create_var(var_name, init_sec_width, getcmd, setcmd)
 
 
@@ -328,8 +336,9 @@ def init_geom_var_dict(tixi):
         the routine.
 
     """
-    tigl = cpsf.open_tigl(tixi)
-    aircraft = cpud.get_aircraft(tigl)
+
+    tigl = open_tigl(tixi)
+    aircraft = get_tigl_configuration(tigl)
 
     fuse_nb = aircraft.get_fuselage_count()
     if fuse_nb:

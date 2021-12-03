@@ -1,9 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut, CEASIOM_XPATH
-
-STABILITY_STATIC_XPATH =  '/cpacs/toolspecific/CEASIOMpy/stability/static'
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.xpath import STABILITY_STATIC_XPATH
 
 
 # ===== RCE integration =====

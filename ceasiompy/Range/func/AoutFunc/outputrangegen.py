@@ -16,6 +16,7 @@ Output text and plot generation functions.
 #   IMPORTS
 #=============================================================================
 
+import os
 import numpy as np
 import matplotlib as mpl
 from matplotlib import rcParams
@@ -200,14 +201,11 @@ def payload_range_plot(ranges, ranges_cru, payloads, mw, NAME):
         else:
             ctr = True
 
-    major_ticks_x = np.arange(0, (round(np.amax(ranges),0)\
-                                  + round(np.amax(ranges),0)/4.0), maxr_ax)
-    minor_ticks_x = np.arange(0, (round(np.amax(ranges),0)\
-                                  + round(np.amax(ranges),0)/4.0), minr_ax)
-    major_ticks_y = np.arange(0, (round(mw.mass_payload,0)\
-                                  + round(mw.mass_payload,0)/4.0), maxp_ax)
-    minor_ticks_y = np.arange(0, (round(mw.mass_payload,0)\
-                                  + round(mw.mass_payload,0)/4.0), minp_ax)
+    major_ticks_x = np.arange(0, (round(np.amax(ranges),0) + round(np.amax(ranges),0)/4.0), maxr_ax)
+    minor_ticks_x = np.arange(0, (round(np.amax(ranges),0) + round(np.amax(ranges),0)/4.0), minr_ax)
+    major_ticks_y = np.arange(0, (round(mw.mass_payload,0) + round(mw.mass_payload,0)/4.0), maxp_ax)
+    minor_ticks_y = np.arange(0, (round(mw.mass_payload,0) + round(mw.mass_payload,0)/4.0), minp_ax)
+
     ax.set_axisbelow(True)
     ax.set_xticks(major_ticks_x)
     ax.set_xticks(minor_ticks_x, minor = True)
@@ -219,7 +217,8 @@ def payload_range_plot(ranges, ranges_cru, payloads, mw, NAME):
     ax.xaxis.set_minor_locator(MultipleLocator(minr_ax))
     ax.ticklabel_format(style='sci', axis='x', scilimits=(0,0))
     ax.grid(which = 'both')
-    FIG_NAME = 'ToolOutput/' + NAME + '/' + NAME + '_Payload_vs_Range.png'
+
+    FIG_NAME = os.path.join('ToolOutput', NAME, NAME + '_Payload_vs_Range.png')
     fig.savefig(FIG_NAME, dpi = 300)
 
     return()

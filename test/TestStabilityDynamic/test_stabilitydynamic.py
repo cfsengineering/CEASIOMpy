@@ -14,6 +14,7 @@ Python version: >=3.6
 TODO:
 
     * Create more tests
+    * Check is these test are really useful
 
 """
 
@@ -23,13 +24,9 @@ TODO:
 #==============================================================================
 
 import os
-import sys
 import numpy as np
 import pytest
 from pytest import approx
-
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.apmfunctions as apmf
 
 from ceasiompy.StabilityDynamic.func_dynamic import get_unic, interpolation, get_index, \
                                             speed_derivative_at_trim, adimensionalise,\

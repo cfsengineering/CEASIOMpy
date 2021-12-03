@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2020-02-27
-| Last modifiction: 2020-03-10
+| Last modifiction: 2021-10-21
 
 TODO:
 
@@ -34,18 +34,17 @@ import numpy as np
 import pandas as pd
 
 import ceasiompy.utils.ceasiompyfunctions as ceaf
-import ceasiompy.utils.cpacsfunctions as cpsf
-import ceasiompy.utils.apmfunctions as apmf
+from cpacspy.cpacsfunctions import (add_string_vector, get_uid, get_value,
+                                    get_value_or_default,
+                                    open_tigl, open_tixi)
 import ceasiompy.utils.su2functions as su2f
+from ceasiompy.utils.xpath import (REF_XPATH, WINGS_XPATH, SU2_XPATH)
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-REF_XPATH = '/cpacs/vehicles/aircraft/model/reference'
-WINGS_XPATH = '/cpacs/vehicles/aircraft/model/wings'
-SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
 
 #==============================================================================
 #   CLASSES
@@ -78,7 +77,7 @@ def get_ted_list(tixi):
 
     """
 
-    tigl = cpsf.open_tigl(tixi)
+    tigl = open_tigl(tixi)
 
     ted_df = pd.DataFrame({'ted_uid': [],'comp_seg_uid': [], 'wing_uid': [],
                            'sym_dir': [], 'defl_list': []})
@@ -92,7 +91,7 @@ def get_ted_list(tixi):
 
     for i_wing in range(wing_cnt):
         wing_xpath = WINGS_XPATH + '/wing[' + str(i_wing+1) + ']'
-        wing_uid = cpsf.get_uid(tixi,wing_xpath)
+        wing_uid = get_uid(tixi,wing_xpath)
         log.info(wing_uid)
         comp_segments_xpath = wing_xpath + '/componentSegments'
 
@@ -105,7 +104,7 @@ def get_ted_list(tixi):
 
         for c_seg in range(comp_seg_cnt):
             comp_seg_xpath =  comp_segments_xpath + '/componentSegment[' + str(c_seg+1) + ']'
-            comp_seg_uid = cpsf.get_uid(tixi,comp_seg_xpath)
+            comp_seg_uid = get_uid(tixi,comp_seg_xpath)
             log.info(comp_seg_uid)
             teds_xpath = comp_seg_xpath + '/controlSurfaces/trailingEdgeDevices'
 
@@ -119,7 +118,7 @@ def get_ted_list(tixi):
             for ted in range(ted_cnt):
                 ted_xpath = teds_xpath + '/trailingEdgeDevice[' + str(ted+1) + ']'
 
-                ted_uid = cpsf.get_uid(tixi,ted_xpath)
+                ted_uid = get_uid(tixi,ted_xpath)
                 log.info(ted_uid)
 
                 sym_dir = get_ted_symmetry(tixi,ted_uid)
@@ -513,8 +512,8 @@ def generate_mesh_def_config(tixi,wkdir,ted_uid, wing_uid, sym_dir, defl_list):
 
     """
 
-    tigl = cpsf.open_tigl(tixi)
-    aircraft_name = cpsf.aircraft_name(tixi)
+    tigl = open_tigl(tixi)
+    aircraft_name = ceaf.aircraft_name(tixi)
     DEFAULT_CONFIG_PATH = MODULE_DIR + '/files/DefaultConfig_v7.cfg'
     cfg = su2f.read_config(DEFAULT_CONFIG_PATH)
     config_dir_name = aircraft_name + '_TED_' + ted_uid
@@ -528,11 +527,11 @@ def generate_mesh_def_config(tixi,wkdir,ted_uid, wing_uid, sym_dir, defl_list):
     hinge_list, hinge_sym_list = get_hinge_lists(ted_hinge,sym_dir)
 
     # General parmeters
-    ref_len = cpsf.get_value(tixi,REF_XPATH + '/length')
-    ref_area = cpsf.get_value(tixi,REF_XPATH + '/area')
-    ref_ori_moment_x = cpsf.get_value_or_default(tixi,REF_XPATH+'/point/x',0.0)
-    ref_ori_moment_y = cpsf.get_value_or_default(tixi,REF_XPATH+'/point/y',0.0)
-    ref_ori_moment_z = cpsf.get_value_or_default(tixi,REF_XPATH+'/point/z',0.0)
+    ref_len = get_value(tixi,REF_XPATH + '/length')
+    ref_area = get_value(tixi,REF_XPATH + '/area')
+    ref_ori_moment_x = get_value_or_default(tixi,REF_XPATH+'/point/x',0.0)
+    ref_ori_moment_y = get_value_or_default(tixi,REF_XPATH+'/point/y',0.0)
+    ref_ori_moment_z = get_value_or_default(tixi,REF_XPATH+'/point/z',0.0)
 
     cfg['REF_LENGTH'] = ref_len
     cfg['REF_AREA'] = ref_area
@@ -628,12 +627,12 @@ def generate_config_deformed_mesh(cpacs_path,cpacs_out_path,
 
     """
 
-    tixi = cpsf.open_tixi(cpacs_path)
+    tixi = open_tixi(cpacs_path)
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
 
     # Get SU2 mesh path
     su2_mesh_xpath = '/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh'
-    su2_mesh_path = cpsf.get_value(tixi,su2_mesh_xpath)
+    su2_mesh_path = get_value(tixi,su2_mesh_xpath)
 
     if wkdir in su2_mesh_path:
         log.info('The Baseline SU2 mesh is already in the working directory.')
@@ -641,7 +640,7 @@ def generate_config_deformed_mesh(cpacs_path,cpacs_out_path,
         mesh_dir = os.path.join(wkdir,'MESH')
         if not os.path.isdir(mesh_dir):
             os.mkdir(mesh_dir)
-        aircraft_name = cpsf.aircraft_name(tixi)
+        aircraft_name = aircraft_name(tixi)
         su2_mesh_new_path = os.path.join(mesh_dir,aircraft_name + '_baseline.su2')
         shutil.copyfile(su2_mesh_path, su2_mesh_new_path)
         tixi.updateTextElement(su2_mesh_xpath,su2_mesh_new_path)
@@ -650,7 +649,7 @@ def generate_config_deformed_mesh(cpacs_path,cpacs_out_path,
 
         # Control surfaces deflections
         control_surf_xpath = SU2_XPATH + '/options/clalculateCotrolSurfacesDeflections'
-        control_surf = cpsf.get_value_or_default(tixi,control_surf_xpath,False)
+        control_surf = get_value_or_default(tixi,control_surf_xpath,False)
 
         if not control_surf:
             log.warning('The CPACS file indicate that Control surface deflection should not be calculated!')
@@ -663,7 +662,7 @@ def generate_config_deformed_mesh(cpacs_path,cpacs_out_path,
             # if ...
             #     active_ted_xpath = SU2_XPATH + '/options/....'
             #     # check element
-            #     active_ted_list = cpsf.get_string_vector(tixi,active_ted_xpath)
+            #     active_ted_list = get_string_vector(tixi,active_ted_xpath)
             # else: calculate all TED adn all deflections from CPACS
             #     active_ted_list = ted_list
 
@@ -681,8 +680,7 @@ def generate_config_deformed_mesh(cpacs_path,cpacs_out_path,
 
         run_mesh_deformation(tixi,wkdir)
 
-
-    cpsf.close_tixi(tixi,cpacs_out_path)
+    tixi.save(cpacs_out_path)
 
 
 def run_mesh_deformation(tixi,wkdir):
@@ -709,7 +707,7 @@ def run_mesh_deformation(tixi,wkdir):
     ted_dir_list = [dir for dir in os.listdir(mesh_dir) if '_TED_' in dir]
 
     # Get number of proc to use
-    nb_proc = cpsf.get_value_or_default(tixi,SU2_XPATH+'/settings/nbProc',1)
+    nb_proc = get_value_or_default(tixi,SU2_XPATH+'/settings/nbProc',1)
 
 
     # Iterate in all TED directory
@@ -743,7 +741,7 @@ def run_mesh_deformation(tixi,wkdir):
 
     # Add the list of available SU2 deformed mesh in the CPACS file
     su2_def_mesh_xpath = SU2_XPATH + '/availableDeformedMesh'
-    cpsf.add_string_vector(tixi,su2_def_mesh_xpath,su2_def_mesh_list)
+    add_string_vector(tixi,su2_def_mesh_xpath,su2_def_mesh_list)
 
 
 #==============================================================================

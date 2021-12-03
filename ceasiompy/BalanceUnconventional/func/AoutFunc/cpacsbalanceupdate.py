@@ -8,7 +8,7 @@ Functions to update the CPACS fiel and copy it on the ToolOutput folder.
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2019-08-29 (AJ)
+| Last modifiction: 2021-10-14 (AJ)
 """
 
 
@@ -16,9 +16,9 @@ Functions to update the CPACS fiel and copy it on the ToolOutput folder.
 #   IMPORTS
 #=============================================================================
 
+from cpacspy.cpacsfunctions import (add_uid, create_branch, open_tixi)
+
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.cpacsfunctions import open_tixi,open_tigl, close_tixi,  \
-                                           add_uid, create_branch
 
 log = get_logger(__file__.split('.')[0])
 
@@ -53,7 +53,6 @@ def cpacs_mbd_update(out, mw, bi, ms_zpm, out_xml):
         (file) cpacs.xml --Out.: Updated cpacs file.
     """
     tixi = open_tixi(out_xml)
-    tigl = open_tigl(tixi)
 
     # CREATING PATH ==========================================================
     MB_PATH = '/cpacs/vehicles/aircraft/'\
@@ -225,14 +224,7 @@ def cpacs_mbd_update(out, mw, bi, ms_zpm, out_xml):
         tixi.updateDoubleElement((MOI_PATH + '/Jxz'), out.Ixz_lump_user, '%g')
 
     # Saving and closing the new cpacs file inside the ToolOutput folder -----
-    tixi.saveDocument(out_xml)
-    close_tixi(tixi, out_xml)
-
-    # Openign and closing again the cpacs file, formatting purpose -----------
-    tixi = open_tixi(out_xml)
-    tigl = open_tigl(tixi)
-    tixi.saveDocument(out_xml)
-    close_tixi(tixi, out_xml)
+    tixi.save(out_xml)
 
     return()
 

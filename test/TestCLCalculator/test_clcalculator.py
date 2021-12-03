@@ -7,10 +7,10 @@ Test functions for 'lib/CLCalculator/clcalculator.py'
 
 Python version: >=3.6
 
-
 | Author : Aidan Jungo
 | Creation: 2019-07-24
-| Last modifiction: 2019-09-27
+| Last modifiction: 2021-10-14
+
 """
 
 #==============================================================================
@@ -18,18 +18,22 @@ Python version: >=3.6
 #==============================================================================
 
 import os
-import sys
 
 import pytest
 from pytest import approx
 
 from ceasiompy.CLCalculator.clcalculator import calculate_cl, get_cl
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import open_tixi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split('.')[0])
+
+# Default CPACS file to test
+MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+CPACS_IN_PATH =  os.path.join(MODULE_DIR,'..','CPACSfiles','D150_simple.xml')
+CPACS_OUT_PATH = os.path.join(MODULE_DIR,'D150_simple_clcalulator_test.xml')
 
 #==============================================================================
 #   CLASSES
@@ -51,22 +55,22 @@ def test_calculate_cl():
 
     cl = calculate_cl(ref_area,alt,mach,mass,load_fact)
 
-    assert cl == approx(0.48602439823924726)
+    assert cl == approx(0.48429196151547343)
 
 def test_get_cl():
     """Test function 'get_cl' """
 
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    CPACS_IN_PATH = os.path.join(MODULE_DIR,'ToolInput','D150_AGILE_Hangar_v3.xml')
-    CPACS_OUT_PATH = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
-
     get_cl(CPACS_IN_PATH,CPACS_OUT_PATH)
 
-    tixi = cpsf.open_tixi(CPACS_OUT_PATH)
+    tixi = open_tixi(CPACS_OUT_PATH)
     cl_xpath = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/targetCL'
 
     cl_to_check = tixi.getDoubleElement(cl_xpath)
-    assert cl_to_check == approx(0.794788)
+    assert cl_to_check == approx(0.791955)
+
+    # Remove the output cpacs file if exist
+    if os.path.exists(CPACS_OUT_PATH):
+        os.remove(CPACS_OUT_PATH)
 
 
 #==============================================================================

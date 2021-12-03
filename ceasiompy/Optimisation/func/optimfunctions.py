@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-04-10
-| Last modification: 2020-11-13 (AJ)
+| Last modification: 2021-11-19 (AJ)
 
 Todo:
 
@@ -27,12 +27,16 @@ from re import split
 import pandas as pd
 
 import ceasiompy.SMUse.smuse as smu
-import ceasiompy.utils.apmfunctions as apmf
-import ceasiompy.utils.cpacsfunctions as cpsf
+
+from cpacspy.utils import COEFS, PARAMS_COEFS
+from cpacspy.cpacsfunctions import get_value_or_default
+
 import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.Optimisation.func.tools as tls
 import ceasiompy.Optimisation.func.dictionnary as dct
+
+from ceasiompy.utils.xpath import OPTIM_XPATH, SMUSE_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split('.')[0])
@@ -44,13 +48,7 @@ log = get_logger(__file__.split('.')[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 CPACS_OPTIM_PATH = mif.get_toolinput_file_path('Optimisation')
-CSV_PATH = MODULE_DIR+'/Variable_library.csv'
-
-WKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath'
-OPTWKDIR_XPATH = '/cpacs/toolspecific/CEASIOMpy/filesPath/optimPath'
-OPTIM_XPATH = '/cpacs/toolspecific/CEASIOMpy/Optimisation/'
-AEROMAP_XPATH = '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance'
-SU2_XPATH = '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2'
+CSV_PATH = MODULE_DIR + '/Variable_library.csv'
 
 # Parameters that can not be used as problem variables
 banned_entries = ['wing', 'delete_old_wkdirs', 'check_extract_loads', # Not relevant
@@ -87,12 +85,12 @@ class Routine:
         self.tol = 1e-3
 
         # DoE
-        self.doedriver = 'uniform'
+        self.doedriver = 'Uniform'
         self.samplesnb = 3
         self.doe_file = ''
 
         # User specified configuration file path
-        self.user_config = '../Optimisation/Default_config.csv'
+        self.user_config = '../optimisation/Default_config.csv'
         self.aeromap_uid = '-'
         self.use_aeromap = False
 
@@ -100,31 +98,31 @@ class Routine:
         """Take user inputs from the GUI."""
 
         # Problem setup
-        objectives = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'objective', 'cl')
+        objectives = get_value_or_default(tixi, OPTIM_XPATH + '/objective', 'cl')
         self.objective = split(';|,', objectives)
-        self.minmax = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'minmax', 'max')
+        self.minmax = get_value_or_default(tixi, OPTIM_XPATH + '/minmax', 'max')
 
         # Global parameters
-        self.driver = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'parameters/driver', 'COBYLA')
-        self.max_iter = int(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'iterationNB', 200))
-        self.tol = float(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'tolerance', 1e-3))
-        self.save_iter = int(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'saving/perIter', 1))
+        self.driver = get_value_or_default(tixi, OPTIM_XPATH + '/parameters/driver', 'COBYLA')
+        self.max_iter = int(get_value_or_default(tixi, OPTIM_XPATH + '/iterationNB', 200))
+        self.tol = float(get_value_or_default(tixi, OPTIM_XPATH + '/tolerance', 1e-3))
+        self.save_iter = int(get_value_or_default(tixi, OPTIM_XPATH + '/saving/perIter', 1))
 
         # Specific DoE parameters
-        self.doedriver = cpsf.get_value_or_default(tixi,OPTIM_XPATH+'parameters/DoE/driver','uniform')
-        self.samplesnb = int(cpsf.get_value_or_default(tixi,OPTIM_XPATH+'parameters/DoE/sampleNB',3))
+        self.doedriver = get_value_or_default(tixi,OPTIM_XPATH + '/parameters/DoE/driver','Uniform')
+        self.samplesnb = int(get_value_or_default(tixi,OPTIM_XPATH + '/parameters/DoE/sampleNB',3))
 
         # User specified configuration file path
-        self.user_config = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/filepath', '-'))
+        self.user_config = str(get_value_or_default(tixi, OPTIM_XPATH + '/Config/filepath', '-'))
 
-        fix_cl = cpsf.get_value_or_default(tixi, '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/fixedCL', 'no')
+        fix_cl = get_value_or_default(tixi, '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/fixedCL', 'no')
         if fix_cl == 'YES':
-            tixi.updateTextElement(OPTIM_XPATH+'aeroMapUID','aeroMap_fixedCL_SU2')
+            tixi.updateTextElement(OPTIM_XPATH + '/aeroMapUID','aeroMap_fixedCL_SU2')
             self.aeromap_uid = 'aeroMap_fixedCL_SU2'
         else:
-            self.aeromap_uid = str(cpsf.get_value_or_default(tixi, OPTIM_XPATH+'aeroMapUID', '-'))
+            self.aeromap_uid = str(get_value_or_default(tixi, OPTIM_XPATH + '/aeroMapUID', '-'))
 
-        self.use_aeromap = cpsf.get_value_or_default(tixi, OPTIM_XPATH+'Config/useAero', False)
+        self.use_aeromap = get_value_or_default(tixi, OPTIM_XPATH + '/Config/useAero', False)
 
 # ==============================================================================
 #   FUNCTIONS
@@ -196,7 +194,7 @@ def gen_doe_csv(user_config):
     df.set_index('Name')
     df = df.T
 
-    doe_csv = os.path.split(user_config)[0]+'/DoE_points.csv'
+    doe_csv = os.path.split(user_config)[0] + '/DoE_points.csv'
     df.to_csv(doe_csv, header=False, index=False)
 
     return doe_csv
@@ -226,7 +224,7 @@ def get_normal_param(tixi, entry, outputs):
             def_val = '-'
 
     if entry.var_name not in banned_entries:
-        value = cpsf.get_value_or_default(tixi, xpath, def_val)
+        value = get_value_or_default(tixi, xpath, def_val)
         if entry.var_type == int:
             value = int(value)
 
@@ -252,30 +250,6 @@ def get_normal_param(tixi, entry, outputs):
         log.info('Added to variable file')
 
 
-def update_am_path(tixi, am_uid):
-    """Replace the aeromap uID for each module.
-
-    Update the aeromap uID that is used for by modules in the optimisation loop
-
-    Args:
-        tixi (Tixi3 handle): Handle of the current CPACS file.
-        am_uid (str): uID of the aeromap that will be used by all modules.
-
-    Return:
-        None.
-
-    """
-
-    am_xpath = ['/cpacs/toolspecific/pytornado/aeroMapUID',
-                '/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID']
-    for name in am_xpath:
-        if tixi.checkElement(name):
-            tixi.updateTextElement(name, am_uid)
-        else:
-            cpsf.create_branch(tixi, name)
-            tixi.updateTextElement(name, am_uid)
-
-
 def get_aero_param(tixi):
     """Add the aeromap variables to the optimisation dictionnary.
 
@@ -289,17 +263,14 @@ def get_aero_param(tixi):
 
     """
 
+    # TODO: This function could probalbly be (partrly) replace by cpacspy
+
     log.info('Default aeromap parameters will be set')
 
-    am_uid = cpsf.get_value(tixi, OPTIM_XPATH+'aeroMapUID')
-    am_index = apmf.get_aeromap_index(tixi, am_uid)
+    aeromap_uid = tixi.getTextElement(OPTIM_XPATH + '/aeroMapUID')
+    xpath = tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/'
 
-    log.info('Aeromap \"{}\" will be used for the variables.'.format(am_uid))
-
-    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap'\
-            + am_index + '/aeroPerformanceMap/'
-
-    for name in apmf.COEF_LIST+apmf.XSTATES:
+    for name in PARAMS_COEFS:
         xpath_param = xpath+name
         value = str(tixi.getDoubleElement(xpath_param))
 
@@ -307,7 +278,7 @@ def get_aero_param(tixi):
         var['init'].append(value)
         var['xpath'].append(xpath_param)
 
-        tls.add_type(name, apmf.COEF_LIST, objective, var)
+        tls.add_type(name, COEFS, objective, var)
         tls.add_bounds(value, var)
 
 
@@ -341,7 +312,7 @@ def get_sm_vars(tixi):
             tls.add_bounds(value, var)
         else:
             log.warning('Variable already exists')
-            log.info(name+' will not be added to the variable file')
+            log.info(name + ' will not be added to the variable file')
 
 
 def get_module_vars(tixi, specs):
@@ -379,7 +350,7 @@ def get_module_vars(tixi, specs):
             log.error('Empty name, not a valid variable name')
         elif entry.var_name in var['Name']:
             log.warning('Variable already exists')
-            log.info(entry.var_name+' will not be added to the variable file')
+            log.info(entry.var_name + ' will not be added to the variable file')
 
         # Aeromap variable
         elif value_name == 'aeroPerformanceMap' and aeromap:
@@ -436,7 +407,7 @@ def add_entries(tixi, module_list):
 
     """
 
-    use_am = cpsf.get_value_or_default(tixi, smu.SMUSE_XPATH+'AeroMapOnly', False)
+    use_am = get_value_or_default(tixi, SMUSE_XPATH + '/AeroMapOnly', False)
     if 'SMUse' in module_list and use_am:
         get_aero_param(tixi)
     else:
@@ -516,7 +487,7 @@ def get_default_df(tixi, module_list):
     return df
 
 
-def create_am_lib(Rt, tixi):
+def create_am_lib(Rt, cpacs):
     """Create a dictionary for the aeromap coefficients.
 
     Return a dictionary with all the values of the aeromap that is used during
@@ -524,25 +495,22 @@ def create_am_lib(Rt, tixi):
 
     Args:
         Rt (class): Contains all the parameters of the current routine.
-        tixi (Tixi3 handler): Tixi handle of the CPACS file.
+        cpacs (cbject): CPACS object.
 
     Returns:
         am_dict (dct): Dictionnary with all aeromap parameters.
 
     """
 
-    Coef = apmf.get_aeromap(tixi, Rt.aeromap_uid)
-    am_dict = Coef.to_dict()
-    am_index = apmf.get_aeromap_index(tixi, Rt.aeromap_uid)
+    aeromap = cpacs.get_aeromap_by_uid(Rt.aeromap_uid)
+    am_dict = aeromap.df.to_dict(orient='list')
 
-    xpath = apmf.AEROPERFORMANCE_XPATH + '/aeroMap' + am_index + '/aeroPerformanceMap/'
-
-    for name in apmf.COEF_LIST+apmf.XSTATES:
+    for name in PARAMS_COEFS:
         if name in ['altitude', 'machNumber']:
             min_val = 0
             max_val = '-'
             val_type = 'des'
-        if name in apmf.COEF_LIST:
+        if name in COEFS:
             min_val = -1
             max_val = 1
             if name in Rt.objective:
@@ -553,7 +521,7 @@ def create_am_lib(Rt, tixi):
             min_val = -5
             max_val = 5
             val_type = 'des'
-        am_dict[name] = (val_type, am_dict[name], min_val, max_val, xpath+name, '-')
+        am_dict[name] = (val_type, am_dict[name], min_val, max_val, aeromap.xpath+name, '-')
 
     return am_dict
 
@@ -579,7 +547,7 @@ def create_variable_library(Rt, tixi, optim_dir_path):
     """
 
     global objective, var
-    CSV_PATH = optim_dir_path+'/Variable_library.csv'
+    CSV_PATH = optim_dir_path + '/Variable_library.csv'
 
     for obj in Rt.objective:
         objective.extend(split('[+*/-]', obj))

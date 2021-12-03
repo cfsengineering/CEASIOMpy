@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2020-01-23 (AJ)
+| Last modifiction: 2021-10-21 (AJ)
 
 TODO:
     * also integrate to Class function?
@@ -20,7 +20,9 @@ TODO:
 #   IMPORTS
 #=============================================================================
 
-import ceasiompy.utils.cpacsfunctions as cpsf
+from cpacspy.cpacsfunctions import (add_uid, create_branch, open_tixi)
+from ceasiompy.utils.xpath import (CREW_XPATH, MASSBREAKDOWN_XPATH,
+                                   PASS_XPATH)
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -52,16 +54,11 @@ def cpacs_update(mw, out, cpacs_path, cpacs_out_path):
 
     """
 
-    tixi = cpsf.open_tixi(cpacs_out_path)  # (because it has been modifed somewre else, TODO: change that)
-
-    # Path definition
-    WEIGHT_XPATH = '/cpacs/toolspecific/CEASIOMpy/weight'
-    CREW_XPATH = WEIGHT_XPATH + '/crew'
-    PASS_XPATH = WEIGHT_XPATH + '/passengers'
+    tixi = open_tixi(cpacs_out_path)  # (because it has been modifed somewre else, TODO: change that)
 
     # Path update
     if not tixi.checkElement(CREW_XPATH+'/cabinCrewMembers/cabinCrewMemberNb'):
-        cpsf.create_branch(tixi,CREW_XPATH+'/cabinCrewMembers/cabinCrewMemberNb')
+        create_branch(tixi,CREW_XPATH+'/cabinCrewMembers/cabinCrewMemberNb')
     tixi.updateDoubleElement(CREW_XPATH+'/cabinCrewMembers/cabinCrewMemberNb',\
                              out.cabin_crew_nb, '%g')
 
@@ -96,28 +93,28 @@ def cpacs_update(mw, out, cpacs_path, cpacs_out_path):
     # CPACS MASS BREAKDOWN UPDATE
 
     # Path creation
-    MB_XPATH = '/cpacs/vehicles/aircraft/model/analyses/massBreakdown'
-    if tixi.checkElement(MB_XPATH):
-        tixi.removeElement(MB_XPATH)
+    if tixi.checkElement(MASSBREAKDOWN_XPATH):
+        tixi.removeElement(MASSBREAKDOWN_XPATH)
 
-    MD_XPATH = MB_XPATH + '/designMasses'
+    MD_XPATH = MASSBREAKDOWN_XPATH + '/designMasses'
     MTOM_XPATH = MD_XPATH + '/mTOM'
     MZFM_XPATH = MD_XPATH + '/mZFM'
-    MF_XPATH = MB_XPATH + '/fuel/massDescription'
-    OEM_XPATH = MB_XPATH + '/mOEM/massDescription'
-    PAY_XPATH = MB_XPATH + '/payload/massDescription'
-    MC_XPATH = MB_XPATH + '/payload/mCargo'
-    OIM_XPATH = MB_XPATH + '/mOEM/mOperatorItems/mCrewMembers/massDescription'
-    cpsf.create_branch(tixi, MTOM_XPATH + '/mass', False)
-    cpsf.create_branch(tixi, MZFM_XPATH + '/mass', False)
-    cpsf.create_branch(tixi, MF_XPATH + '/mass', False)
-    cpsf.create_branch(tixi, OEM_XPATH + '/mass', False)
-    cpsf.create_branch(tixi, PAY_XPATH + '/mass', False)
-    cpsf.create_branch(tixi, MC_XPATH, False)
-    cpsf.create_branch(tixi, OIM_XPATH + '/mass', False)
+    MF_XPATH = MASSBREAKDOWN_XPATH + '/fuel/massDescription'
+    OEM_XPATH = MASSBREAKDOWN_XPATH + '/mOEM/massDescription'
+    PAY_XPATH = MASSBREAKDOWN_XPATH + '/payload/massDescription'
+    MC_XPATH = MASSBREAKDOWN_XPATH + '/payload/mCargo'
+    OIM_XPATH = MASSBREAKDOWN_XPATH + '/mOEM/mOperatorItems/mCrewMembers/massDescription'
+
+    create_branch(tixi, MTOM_XPATH + '/mass', False)
+    create_branch(tixi, MZFM_XPATH + '/mass', False)
+    create_branch(tixi, MF_XPATH + '/mass', False)
+    create_branch(tixi, OEM_XPATH + '/mass', False)
+    create_branch(tixi, PAY_XPATH + '/mass', False)
+    create_branch(tixi, MC_XPATH, False)
+    create_branch(tixi, OIM_XPATH + '/mass', False)
 
     # DESIGN MASSES
-    cpsf.add_uid(tixi, MTOM_XPATH, 'MTOM')
+    add_uid(tixi, MTOM_XPATH, 'MTOM')
     tixi.createElement(MTOM_XPATH, 'name')
     tixi.updateTextElement(MTOM_XPATH + '/name', 'Maximum take-off mass')
     tixi.createElement(MTOM_XPATH, 'description')
@@ -127,7 +124,7 @@ def cpacs_update(mw, out, cpacs_path, cpacs_out_path):
     tixi.updateDoubleElement(MTOM_XPATH + '/mass', mw.maximum_take_off_mass, '%g')
 
     # MZFM
-    cpsf.add_uid(tixi, MZFM_XPATH, 'MZFM')
+    add_uid(tixi, MZFM_XPATH, 'MZFM')
     tixi.createElement(MZFM_XPATH, 'name')
     tixi.updateTextElement(MZFM_XPATH + '/name', 'Maximum zero fuel mass')
     tixi.createElement(MZFM_XPATH, 'description')
@@ -138,7 +135,7 @@ def cpacs_update(mw, out, cpacs_path, cpacs_out_path):
 
 
     # FUEL MASS
-    cpsf.add_uid(tixi, MF_XPATH, 'MFM')
+    add_uid(tixi, MF_XPATH, 'MFM')
     tixi.createElement(MF_XPATH, 'name')
     tixi.updateTextElement(MF_XPATH + '/name', 'Max fuel mass')
     tixi.createElement(MF_XPATH, 'description')
@@ -146,7 +143,7 @@ def cpacs_update(mw, out, cpacs_path, cpacs_out_path):
     tixi.updateDoubleElement(MF_XPATH + '/mass', mw.mass_fuel_max, '%g')
 
     # OEM
-    cpsf.add_uid(tixi, OEM_XPATH, 'OEM')
+    add_uid(tixi, OEM_XPATH, 'OEM')
     tixi.createElement(OEM_XPATH, 'name')
     tixi.updateTextElement(OEM_XPATH + '/name', 'Operating empty mass')
     tixi.createElement(OEM_XPATH, 'description')
@@ -154,10 +151,10 @@ def cpacs_update(mw, out, cpacs_path, cpacs_out_path):
                            + ' mass [kg] and related inertia [kgm^2].')
     tixi.updateDoubleElement(OEM_XPATH + '/mass', mw.operating_empty_mass, '%g')
     tixi.updateDoubleElement(OIM_XPATH + '/mass', mw.mass_crew, '%g')
-    cpsf.add_uid(tixi, OIM_XPATH, 'massCrew')
+    add_uid(tixi, OIM_XPATH, 'massCrew')
 
     # PAYLOAD MASS AND FUEL WITH MAX PAYLOAD
-    cpsf.add_uid(tixi, PAY_XPATH, 'MPM')
+    add_uid(tixi, PAY_XPATH, 'MPM')
     tixi.createElement(PAY_XPATH, 'name')
     tixi.updateTextElement(PAY_XPATH + '/name', 'Max payload mass')
     tixi.createElement(PAY_XPATH, 'description')
@@ -169,7 +166,7 @@ def cpacs_update(mw, out, cpacs_path, cpacs_out_path):
         tixi.createElement(MC_XPATH, 'massCargo')
         tixi.updateDoubleElement(MC_XPATH + '/massCargo', mw.mass_cargo, '%g')
 
-    cpsf.close_tixi(tixi, cpacs_out_path)
+    tixi.save(cpacs_out_path)
 
 
 #=============================================================================

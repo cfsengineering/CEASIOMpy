@@ -1,7 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut, CEASIOM_XPATH
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.xpath import MESH_XPATH, SU2MESH_XPATH, SUMOFILE_XPATH
 
 # ===== RCE integration =====
 
@@ -27,7 +28,7 @@ cpacs_inout.add_input(
     default_value='-',
     unit='1',
     descr='Absolute path to the SUMO file',
-    xpath=CEASIOM_XPATH + '/filesPath/sumoFilePath',
+    xpath=SUMOFILE_XPATH,
     gui=True,
     gui_name='SUMO File path',
     gui_group='Inputs',
@@ -39,7 +40,7 @@ cpacs_inout.add_input(
     default_value=1.0,
     unit='1',
     descr='0 is baseline, +1 env. equal double mesh points',
-    xpath=CEASIOM_XPATH + '/mesh/sumoOptions/refinementLevel',
+    xpath=MESH_XPATH + '/sumoOptions/refinementLevel',
     gui=True,
     gui_name='Refinement Level',
     gui_group='SUMO options',
@@ -54,5 +55,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit='1',
     descr='Absolute path of the SU2 mesh',
-    xpath=CEASIOM_XPATH + '/filesPath/su2Mesh',
+    xpath=SU2MESH_XPATH,
 )

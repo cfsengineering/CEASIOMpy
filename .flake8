@@ -1,4 +1,4 @@
 [flake8]
-ignore = E266, W503, E712
+ignore = E203, E266, W503, E712
 max-line-length = 99
 exclude = tests/*, build/*, dist/* setup.py

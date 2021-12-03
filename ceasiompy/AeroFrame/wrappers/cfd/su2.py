@@ -20,20 +20,19 @@ from ceasiompy.SU2Run.su2run import run_SU2_fsi
 
 
 class Wrapper(AeroWrapper):
-
     def __init__(self, root_path, shared, settings):
         super().__init__(root_path, shared, settings)
 
         # SU2 specific files
         self.paths = {}
-        self.paths['d_calc'] = join(self.root_path, '..', 'temp')
-        self.paths['f_config'] = join(self.paths['d_calc'], 'ToolInput.cfg')
-        self.paths['f_loads'] = join(self.paths['d_calc'], 'force.csv')
-        self.paths['f_mesh'] = join(self.paths['d_calc'], 'ToolInput.su2')
-        self.paths['f_disp'] = join(self.paths['d_calc'], 'disp.dat')
+        self.paths["d_calc"] = join(self.root_path, "..", "temp")
+        self.paths["f_config"] = join(self.paths["d_calc"], "ToolInput.cfg")
+        self.paths["f_loads"] = join(self.paths["d_calc"], "force.csv")
+        self.paths["f_mesh"] = join(self.paths["d_calc"], "ToolInput.su2")
+        self.paths["f_disp"] = join(self.paths["d_calc"], "disp.dat")
 
         # Make the working directory if it does not exist
-        Path(self.paths['d_calc']).mkdir(parents=True, exist_ok=True)
+        Path(self.paths["d_calc"]).mkdir(parents=True, exist_ok=True)
 
         self.first_iteration = True
         self.undeformed_mesh = None
@@ -42,11 +41,7 @@ class Wrapper(AeroWrapper):
         """Return the load files as a array"""
 
         su2_load_array = np.genfromtxt(
-            self.paths['f_loads'],
-            delimiter=',',
-            dtype=None,
-            skip_header=1,
-            encoding='latin1'
+            self.paths["f_loads"], delimiter=",", dtype=None, skip_header=1, encoding="latin1"
         )
 
         return su2_load_array
@@ -87,8 +82,8 @@ class Wrapper(AeroWrapper):
         def_fields = self.shared.structure.def_fields
 
         # TODO: make work for multiple wings
-        orig_mesh = self.undeformed_mesh['Wing']
-        def_field = self.shared.structure.def_fields['Wing']
+        orig_mesh = self.undeformed_mesh["Wing"]
+        def_field = self.shared.structure.def_fields["Wing"]
 
         def_mesh = get_deformed_mesh(orig_mesh, def_field)
 
@@ -98,16 +93,10 @@ class Wrapper(AeroWrapper):
         u_xyz = def_mesh - orig_mesh
 
         # Write the displacement file
-        header = f'{num_mesh_points}\t2\t1\t0'
-        output_data = np.block([idx, orig_mesh+u_xyz])
-        fmt = ['%d'] + ['%.10e' for _ in range(3)]
-        np.savetxt(
-            self.paths['f_disp'],
-            output_data,
-            fmt=fmt,
-            delimiter='\t',
-            header=header
-        )
+        header = f"{num_mesh_points}\t2\t1\t0"
+        output_data = np.block([idx, orig_mesh + u_xyz])
+        fmt = ["%d"] + ["%.10e" for _ in range(3)]
+        np.savetxt(self.paths["f_disp"], output_data, fmt=fmt, delimiter="\t", header=header)
 
     def run_analysis(self, turn_off_deform=False):
         """
@@ -120,7 +109,7 @@ class Wrapper(AeroWrapper):
         # Hint: If there is no displacement file, no deformation will be
         # taken into account
         if turn_off_deform:
-            if os.path.exists(self.paths['f_disp']):
+            if os.path.exists(self.paths["f_disp"]):
                 pass
                 # os.remove(self.paths['f_disp'])
         else:
@@ -128,8 +117,7 @@ class Wrapper(AeroWrapper):
 
         # ----- Run the SU2 analysis -----
         run_SU2_fsi(
-            config_path=self.paths['f_config'],
-            wkdir=self.paths['d_calc'],
+            config_path=self.paths["f_config"], wkdir=self.paths["d_calc"],
         )
 
         # Get the undeformed mesh in the first

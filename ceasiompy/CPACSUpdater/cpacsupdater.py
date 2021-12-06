@@ -17,32 +17,32 @@ TODO:
 
 """
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 
 import os
 
-from cpacspy.cpacsfunctions import (open_tixi, open_tigl, get_tigl_configuration)
+from cpacspy.cpacsfunctions import open_tixi, open_tigl, get_tigl_configuration
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
 
-#==============================================================================
+# ==============================================================================
 #   CLASSES
-#==============================================================================
+# ==============================================================================
 
 
-
-#==============================================================================
+# ==============================================================================
 #   FUNCTIONS
-#==============================================================================
+# ==============================================================================
+
 
 def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
     """Function to update a CPACS file with value from the optimiser
@@ -86,14 +86,17 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
     # help(wings.get_wing(1).get_section(2))
 
     # Perform update of all the variable contained in 'optim_var_dict'
-    for name, (val_type, listval, minval, maxval, getcommand, setcommand) in optim_var_dict.items():
-        if val_type == 'des' and listval[0] not in ['-', 'True', 'False']:
-            if setcommand not in ['-', '']:
+    for (
+        name,
+        (val_type, listval, minval, maxval, getcommand, setcommand),
+    ) in optim_var_dict.items():
+        if val_type == "des" and listval[0] not in ["-", "True", "False"]:
+            if setcommand not in ["-", ""]:
                 # Define variable (var1,var2,..)
                 locals()[str(name)] = listval[-1]
                 # Execute the command coresponding to the variable
-                if ';' in setcommand: # if more than one command on the line
-                    command_split = setcommand.split(';')
+                if ";" in setcommand:  # if more than one command on the line
+                    command_split = setcommand.split(";")
                     for setcommand in command_split:
                         eval(setcommand)
                 else:
@@ -106,13 +109,13 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
     tixi.save(cpacs_out_path)
 
 
-#==============================================================================
+# ==============================================================================
 #    MAIN
-#==============================================================================
+# ==============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
+    log.info("----- Start of " + os.path.basename(__file__) + " -----")
 
     cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
@@ -120,4 +123,4 @@ if __name__ == '__main__':
     # Call the function which check if imputs are well define
     # mi.check_cpacs_input_requirements(cpacs_path)
 
-    log.info('----- End of ' + os.path.basename(__file__) + ' -----')
+    log.info("----- End of " + os.path.basename(__file__) + " -----")

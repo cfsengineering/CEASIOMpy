@@ -15,9 +15,9 @@ Python version: >=3.6
 """
 
 
-#=============================================================================
+# =============================================================================
 #   IMPORTS
-#=============================================================================
+# =============================================================================
 
 # Classes
 from ceasiompy.utils.InputClasses.Unconventional.aircraftgeometryclass import AircraftWingGeometry
@@ -37,20 +37,21 @@ from cpacspy.cpacsfunctions import open_tixi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 
-#=============================================================================
+# =============================================================================
 #   CLASSES
-#=============================================================================
+# =============================================================================
 
 """All classes are defined inside the classes and into
    the InputClasses/Unconventional folder."""
 
 
-#=============================================================================
+# =============================================================================
 #   FUNCTIONS
-#=============================================================================
+# =============================================================================
+
 
 def get_number_of_parts(cpacs_in):
     """ The fuction counts the number of fuselage and wings.
@@ -66,19 +67,19 @@ def get_number_of_parts(cpacs_in):
 
     tixi = open_tixi(cpacs_in)
 
-    if tixi.checkElement('/cpacs/vehicles/aircraft/model/fuselages'):
-        fus_nb = tixi.getNamedChildrenCount('/cpacs/vehicles/aircraft/model/fuselages','fuselage')
+    if tixi.checkElement("/cpacs/vehicles/aircraft/model/fuselages"):
+        fus_nb = tixi.getNamedChildrenCount("/cpacs/vehicles/aircraft/model/fuselages", "fuselage")
     else:
         fus_nb = 0
 
-    if tixi.checkElement('/cpacs/vehicles/aircraft/model/wings'):
-        wing_nb = tixi.getNamedChildrenCount('/cpacs/vehicles/aircraft/model/wings','wing')
+    if tixi.checkElement("/cpacs/vehicles/aircraft/model/wings"):
+        wing_nb = tixi.getNamedChildrenCount("/cpacs/vehicles/aircraft/model/wings", "wing")
     else:
         wing_nb = 0
 
     tixi.save(cpacs_in)
 
-    return(fus_nb, wing_nb)
+    return (fus_nb, wing_nb)
 
 
 def no_fuse_geom_analysis(cpacs_in, FLOOR_NB, wing_nb, h_min, FUEL_ON_CABIN, NAME, TP):
@@ -105,7 +106,7 @@ def no_fuse_geom_analysis(cpacs_in, FLOOR_NB, wing_nb, h_min, FUEL_ON_CABIN, NAM
     (awg, wing_nodes) = wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN)
     produce_wing_output_txt(awg, NAME)
 
-    return(awg, wing_nodes)
+    return (awg, wing_nodes)
 
 
 def with_fuse_geom_analysis(cpacs_in, fus_nb, wing_nb, h_min, adui, TP, F_FUEL, NAME):
@@ -136,15 +137,15 @@ def with_fuse_geom_analysis(cpacs_in, fus_nb, wing_nb, h_min, adui, TP, F_FUEL, 
     afg = fuse_geom_eval(fus_nb, h_min, adui.VRT_THICK, F_FUEL, afg, cpacs_in)
     produce_geom_output_txt(afg, awg, NAME)
 
-    return(afg, awg)
+    return (afg, awg)
 
 
-#=============================================================================
+# =============================================================================
 #    MAIN
-#=============================================================================
+# =============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.warning('#########################################################')
-    log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN balanceuncmain.py #')
-    log.warning('#########################################################')
+    log.warning("#########################################################")
+    log.warning("# ERROR NOT A STANDALONE PROGRAM, RUN balanceuncmain.py #")
+    log.warning("#########################################################")

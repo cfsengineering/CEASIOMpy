@@ -17,31 +17,31 @@ TODO:
 
 """
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 
 import os
 import shutil
 import datetime
 import platform
 
-from cpacspy.cpacsfunctions import (create_branch, get_value_or_default, 
-                                    open_tixi)
+from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
 from ceasiompy.utils.xpath import WKDIR_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-#==============================================================================
+# ==============================================================================
 #   FUNCTIONS
-#==============================================================================
+# ==============================================================================
 
-def create_new_wkdir(global_wkdir=''):
+
+def create_new_wkdir(global_wkdir=""):
     """Function to create a woking directory.
 
     Function 'create_new_wkdir' creates a new working directory in the /tmp file
@@ -60,20 +60,20 @@ def create_new_wkdir(global_wkdir=''):
 
     """
 
-    date = datetime.datetime.now().strftime('%Y-%m-%d_%H-%M-%S')
+    date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    if global_wkdir != '':
-        dir_name = '/Runs/Run' + date
+    if global_wkdir != "":
+        dir_name = "/Runs/Run" + date
         run_dir = global_wkdir + dir_name
     else:
-        dir_name = 'CEASIOMpy_Run_' + date
-        wkdir = os.path.join(os.path.dirname(MODULE_DIR), 'WKDIR')
+        dir_name = "CEASIOMpy_Run_" + date
+        wkdir = os.path.join(os.path.dirname(MODULE_DIR), "WKDIR")
         run_dir = os.path.join(wkdir, dir_name)
 
     if not os.path.exists(run_dir):
         os.mkdir(run_dir)
 
-    log.info(' NEW WKDIR ')
+    log.info(" NEW WKDIR ")
     log.info(run_dir)
     return run_dir
 
@@ -93,17 +93,17 @@ def get_wkdir_or_create_new(tixi):
 
     """
 
-    wkdir_path = get_value_or_default(tixi,WKDIR_XPATH,'')
-    if wkdir_path == '':
+    wkdir_path = get_value_or_default(tixi, WKDIR_XPATH, "")
+    if wkdir_path == "":
         wkdir_path = create_new_wkdir()
-        create_branch(tixi,WKDIR_XPATH)
-        tixi.updateTextElement(WKDIR_XPATH,wkdir_path)
+        create_branch(tixi, WKDIR_XPATH)
+        tixi.updateTextElement(WKDIR_XPATH, wkdir_path)
     else:
         # Check if the directory really exists
         if not os.path.isdir(wkdir_path):
             wkdir_path = create_new_wkdir()
-            create_branch(tixi,WKDIR_XPATH)
-            tixi.updateTextElement(WKDIR_XPATH,wkdir_path)
+            create_branch(tixi, WKDIR_XPATH)
+            tixi.updateTextElement(WKDIR_XPATH, wkdir_path)
 
     return wkdir_path
 
@@ -129,35 +129,34 @@ def get_install_path(soft_check_list):
     for soft in soft_check_list:
 
         # TODO: Check more and improve
-        if current_os == 'Darwin':
-            log.info('Your OS is Mac')
+        if current_os == "Darwin":
+            log.info("Your OS is Mac")
             # Run with MPICH not implemeted yet on mac
-            if 'mpi' in soft:
-                install_path = ''
+            if "mpi" in soft:
+                install_path = ""
             else:
-                install_path = '/Applications/SU2/' + soft
+                install_path = "/Applications/SU2/" + soft
 
-        elif current_os == 'Linux':
-            log.info('Your OS is Linux')
+        elif current_os == "Linux":
+            log.info("Your OS is Linux")
             install_path = shutil.which(soft)
 
-        elif current_os == 'Windows':
-            log.info('Your OS is Windows')
+        elif current_os == "Windows":
+            log.info("Your OS is Windows")
             # TODO
 
         else:
-            raise OSError('OS not recognized!')
+            raise OSError("OS not recognized!")
 
-
-        if  install_path:
-            log.info(soft +' is intalled at: ' + install_path)
+        if install_path:
+            log.info(soft + " is intalled at: " + install_path)
             soft_dict[soft] = install_path
-        elif 'mpi' in soft:
-            log.warning(soft + ' is not installed on your computer!')
-            log.warning('Calculations will be run on 1 proc only')
+        elif "mpi" in soft:
+            log.warning(soft + " is not installed on your computer!")
+            log.warning("Calculations will be run on 1 proc only")
             soft_dict[soft] = None
         else:
-            raise RuntimeError(soft + ' is not installed on your computer!')
+            raise RuntimeError(soft + " is not installed on your computer!")
 
     return soft_dict
 
@@ -201,6 +200,7 @@ def get_execution_date(tixi, module_name, xpath):
 
     return tixi
 
+
 def aircraft_name(tixi_or_cpacs):
     """ The function get the name of the aircraft from the cpacs file or add a
         default one if non-existant.
@@ -216,30 +216,30 @@ def aircraft_name(tixi_or_cpacs):
     # check xpath
     # *modify corresponding test
 
-    if isinstance(tixi_or_cpacs,str):
+    if isinstance(tixi_or_cpacs, str):
 
         tixi = open_tixi(tixi_or_cpacs)
 
-        aircraft_name_xpath = '/cpacs/header/name'
-        name = get_value_or_default(tixi,aircraft_name_xpath,'Aircraft')
+        aircraft_name_xpath = "/cpacs/header/name"
+        name = get_value_or_default(tixi, aircraft_name_xpath, "Aircraft")
 
         tixi.save(tixi_or_cpacs)
 
     else:
 
-        aircraft_name_xpath = '/cpacs/header/name'
-        name = get_value_or_default(tixi_or_cpacs,aircraft_name_xpath,'Aircraft')
+        aircraft_name_xpath = "/cpacs/header/name"
+        name = get_value_or_default(tixi_or_cpacs, aircraft_name_xpath, "Aircraft")
 
-    name = name.replace(' ','_')
-    log.info('The name of the aircraft is : ' + name)
+    name = name.replace(" ", "_")
+    log.info("The name of the aircraft is : " + name)
 
-    return(name)
-    
+    return name
 
-#==============================================================================
+
+# ==============================================================================
 #    MAIN
-#==============================================================================
+# ==============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.info('Nothing to execute!')
+    log.info("Nothing to execute!")

@@ -14,31 +14,32 @@ Python version: >=3.6
 """
 
 
-#=============================================================================
+# =============================================================================
 #   IMPORTS
-#=============================================================================
+# =============================================================================
 
 import numpy as np
 import math
 
-from cpacspy.cpacsfunctions import (open_tigl, open_tixi)
+from cpacspy.cpacsfunctions import open_tigl, open_tixi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 
-#=============================================================================
+# =============================================================================
 #   CLASSES
-#=============================================================================
+# =============================================================================
 
 """All classes are defined inside the classes folder and in the
    InputClasses/Unconventional folder."""
 
 
-#=============================================================================
+# =============================================================================
 #   FUNCTIONS
-#=============================================================================
+# =============================================================================
+
 
 def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
     """ The fuction subdivides the main wing into nodes and defines
@@ -59,53 +60,53 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
                      in the classes folder for explanation.
     """
 
-    log.info('-----------------------------------------------------------')
-    log.info('----------- Evaluating fuselage and wing volume -----------')
-    log.info('-----------------------------------------------------------')
+    log.info("-----------------------------------------------------------")
+    log.info("----------- Evaluating fuselage and wing volume -----------")
+    log.info("-----------------------------------------------------------")
 
     tixi = open_tixi(cpacs_in)
     tigl = open_tigl(tixi)
 
     SPACING = 0.1
     subd_c = 30  # Number of subdivisions along the perimeter on eachsurface,
-                 # total number of points for each section subd_c * 2
+    # total number of points for each section subd_c * 2
     DEN = 0.0
     w = awg.main_wing_index - 1
-    wing_nodes  = 0
+    wing_nodes = 0
     c = False
 
-    for d in range(1,subd_c+2):
+    for d in range(1, subd_c + 2):
         DEN += d
-    zeta = 1.0/DEN
-    for i in awg.w_seg_sec[:,w,2]:
+    zeta = 1.0 / DEN
+    for i in awg.w_seg_sec[:, w, 2]:
         if i == 0.0:
             break
-        w_temp=np.zeros((2,subd_c+2,3))
-        #Number of subdivisions along the longitudinal axis
-        subd_l = math.ceil((awg.wing_seg_length[int(i)-1][w]/SPACING))
+        w_temp = np.zeros((2, subd_c + 2, 3))
+        # Number of subdivisions along the longitudinal axis
+        subd_l = math.ceil((awg.wing_seg_length[int(i) - 1][w] / SPACING))
         if subd_l == 0:
             subd_l = 1
-        eta = 1.0/subd_l
+        eta = 1.0 / subd_l
         et = 0.0
-        (xc,yc,zc) = awg.wing_center_seg_point[int(i)-1][w][:]
-        for j in range(0,int(subd_l)-1):
-            (xle,yle,zle) =  tigl.wingGetLowerPoint(w+1,int(i),et,0.0)
-            (xle2,yle2,zle2) =  tigl.wingGetLowerPoint(w+1,int(i),et,1.0)
+        (xc, yc, zc) = awg.wing_center_seg_point[int(i) - 1][w][:]
+        for j in range(0, int(subd_l) - 1):
+            (xle, yle, zle) = tigl.wingGetLowerPoint(w + 1, int(i), et, 0.0)
+            (xle2, yle2, zle2) = tigl.wingGetLowerPoint(w + 1, int(i), et, 1.0)
             if xle < xle2:
                 ZLE = 0.0
                 ze = 0.0
             else:
                 ZLE = 1.0
                 ze = 1.0
-            for k in range(0,subd_c+2):
+            for k in range(0, subd_c + 2):
                 if ZLE == 0.0:
-                    ze += float(k)*zeta
+                    ze += float(k) * zeta
                 elif ZLE == 1.0:
-                    ze -= float(k)*zeta
-                (xl,yl,zl) =  tigl.wingGetLowerPoint(w+1,int(i),et,ze)
-                (xu,yu,zu) =  tigl.wingGetUpperPoint(w+1,int(i),et,ze)
-                w_temp[0, k, :] = (xu,yu,zu)
-                w_temp[1, k, :] = (xl,yl,zl)
+                    ze -= float(k) * zeta
+                (xl, yl, zl) = tigl.wingGetLowerPoint(w + 1, int(i), et, ze)
+                (xu, yu, zu) = tigl.wingGetUpperPoint(w + 1, int(i), et, ze)
+                w_temp[0, k, :] = (xu, yu, zu)
+                w_temp[1, k, :] = (xl, yl, zl)
             if c is False:
                 wing_nodes = w_temp
                 c = True
@@ -122,17 +123,17 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
     h_mean = []
     y_sec = []
 
-    for r in range(0,rows-1,2):
+    for r in range(0, rows - 1, 2):
         h_max_temp = 0
         z_min = 9999
         z_max = 0
         h = []
-        for c in range(0,columns):
-            (xu, yu, zu) = wing_nodes[r,c,:]
-            (xl, yl, zl) = wing_nodes[r+1,c,:]
-            h.append(abs(zu-zl))
-            if abs(zu-zl) > h_max_temp:
-                h_max_temp = abs(zu-zl)
+        for c in range(0, columns):
+            (xu, yu, zu) = wing_nodes[r, c, :]
+            (xl, yl, zl) = wing_nodes[r + 1, c, :]
+            h.append(abs(zu - zl))
+            if abs(zu - zl) > h_max_temp:
+                h_max_temp = abs(zu - zl)
             if r == 0:
                 if zl < z_min:
                     (x13, y13, z13) = (xl, yl, zl)
@@ -142,10 +143,10 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
                     z_max = zu
             else:
                 if zl < z_min:
-                    (x23_t,y23_t,z23_t) = (xl,yl,zl)
+                    (x23_t, y23_t, z23_t) = (xl, yl, zl)
                     z_min = zl
                 if zu > z_max:
-                    (x24_t,y24_t,z24_t) = (xu,yu,zu)
+                    (x24_t, y24_t, z24_t) = (xu, yu, zu)
                     z_max = zu
         h_max.append(h_max_temp)
         h_mean.append(np.mean(h))
@@ -155,71 +156,98 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
             awg.y_max_cabin = yl
             seg = r
             if r != 0:
-                (x23,y23,z23) = (x23_t,y23_t,z23_t)
-                (x24,y24,z24) = (x24_t,y24_t,z24_t)
+                (x23, y23, z23) = (x23_t, y23_t, z23_t)
+                (x24, y24, z24) = (x24_t, y24_t, z24_t)
         else:
-            (x11, y11, z11) =  wing_nodes[0,0,:]
-            (x12, y12, z12) =  wing_nodes[0,-1,:]
-            (x21, y21, z21) =  wing_nodes[seg,0,:]
-            (x22, y22, z22) =  wing_nodes[seg,-1,:]
+            (x11, y11, z11) = wing_nodes[0, 0, :]
+            (x12, y12, z12) = wing_nodes[0, -1, :]
+            (x21, y21, z21) = wing_nodes[seg, 0, :]
+            (x22, y22, z22) = wing_nodes[seg, -1, :]
             break
 
     for c in range(0, columns):
-        (xu,yu,zu) = wing_nodes[0,c,:]
-        (xl,yl,zl) = wing_nodes[1,c,:]
-        if abs(zu-zl) >= h_min:
+        (xu, yu, zu) = wing_nodes[0, c, :]
+        (xl, yl, zl) = wing_nodes[1, c, :]
+        if abs(zu - zl) >= h_min:
             xs1 = xu
             zs1u = zu
             zs1l = zl
             yse1 = yl
             break
     for c in range(0, columns):
-        (xu,yu,zu) = wing_nodes[seg,c,:]
-        (xl,yl,zl) = wing_nodes[seg+1,c,:]
-        if abs(zu-zl) >= h_min:
+        (xu, yu, zu) = wing_nodes[seg, c, :]
+        (xl, yl, zl) = wing_nodes[seg + 1, c, :]
+        if abs(zu - zl) >= h_min:
             xs2 = xu
             zs2u = zu
             zs2l = zl
             yse2 = yl
             break
-    for c in range(columns-1, -1, -1):
-        (xu,yu,zu) = wing_nodes[0,c,:]
-        (xl,yl,zl) = wing_nodes[1,c,:]
-        if abs(zu-zl) >= h_min:
+    for c in range(columns - 1, -1, -1):
+        (xu, yu, zu) = wing_nodes[0, c, :]
+        (xl, yl, zl) = wing_nodes[1, c, :]
+        if abs(zu - zl) >= h_min:
             xe1 = xu
             ze1u = zu
             ze1l = zl
             break
-    for c in range(columns-1, -1, -1):
-        (xu,yu,zu) = wing_nodes[seg,c,:]
-        (xl,yl,zl) = wing_nodes[seg+1,c,:]
-        if abs(zu-zl) >= h_min:
+    for c in range(columns - 1, -1, -1):
+        (xu, yu, zu) = wing_nodes[seg, c, :]
+        (xl, yl, zl) = wing_nodes[seg + 1, c, :]
+        if abs(zu - zl) >= h_min:
             xe2 = xu
             ze2u = zu
             ze2l = zl
             break
 
-    awg.cabin_area = 0.5 * abs(xs1*yse2 + xs2*yse2 + xe2*yse1 + xe1*yse1\
-                               - xs2*yse1 - xe2*yse2 - xe1*yse2 - xs1*yse1)
-    fuse_plt_area = 0.5 * abs(x11*y21 + x21*y22 + x22*y12 + x12*y11\
-                              - x21*y11 - x22*y21 - x12*y22 - x11*y12)
-    fuse_frontal_area = 0.5 * abs(y24*z23 + y23*z13 + y13*z14 + y14*z24\
-                                  - z24*y23 - z23*y13 - z13*y14 -z14*y24)
-    c1 = math.sqrt((x11-x12)**2 + (y11-y12)**2 + (z11-z12)**2)
-    c2 = math.sqrt((x21-x22)**2 + (y21-y22)**2 + (z21-z22)**2)
+    awg.cabin_area = 0.5 * abs(
+        xs1 * yse2
+        + xs2 * yse2
+        + xe2 * yse1
+        + xe1 * yse1
+        - xs2 * yse1
+        - xe2 * yse2
+        - xe1 * yse2
+        - xs1 * yse1
+    )
+    fuse_plt_area = 0.5 * abs(
+        x11 * y21
+        + x21 * y22
+        + x22 * y12
+        + x12 * y11
+        - x21 * y11
+        - x22 * y21
+        - x12 * y22
+        - x11 * y12
+    )
+    fuse_frontal_area = 0.5 * abs(
+        y24 * z23
+        + y23 * z13
+        + y13 * z14
+        + y14 * z24
+        - z24 * y23
+        - z23 * y13
+        - z13 * y14
+        - z14 * y24
+    )
+    c1 = math.sqrt((x11 - x12) ** 2 + (y11 - y12) ** 2 + (z11 - z12) ** 2)
+    c2 = math.sqrt((x21 - x22) ** 2 + (y21 - y22) ** 2 + (z21 - z22) ** 2)
 
-    awg.cabin_span = abs(awg.y_max_cabin-y11)
+    awg.cabin_span = abs(awg.y_max_cabin - y11)
 
-    awg.fuse_vol = (0.95 * fuse_frontal_area) * (fuse_plt_area/(awg.cabin_span))\
-                    / (math.sqrt(1+(c2/c1)))
+    awg.fuse_vol = (
+        (0.95 * fuse_frontal_area)
+        * (fuse_plt_area / (awg.cabin_span))
+        / (math.sqrt(1 + (c2 / c1)))
+    )
 
-    if awg.wing_sym[w-1] != 0:
+    if awg.wing_sym[w - 1] != 0:
         awg.fuse_vol *= 2
         awg.cabin_area *= 2
 
-    awg.cabin_vol = (awg.cabin_area * h_min)
-    delta_vol = (awg.fuse_vol - awg.cabin_vol)
-    awg.fuse_fuel_vol = (float(FUEL_ON_CABIN)/100.0)*delta_vol
+    awg.cabin_vol = awg.cabin_area * h_min
+    delta_vol = awg.fuse_vol - awg.cabin_vol
+    awg.fuse_fuel_vol = (float(FUEL_ON_CABIN) / 100.0) * delta_vol
     if TP:
         t = 0.5
     else:
@@ -228,26 +256,27 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
     awg.fuel_vol_tot = awg.fuse_fuel_vol + awg.wing_fuel_vol
 
     # log info display ------------------------------------------------------------
-    log.info('--------------------- Main wing Volumes -------------------')
-    log.info('Wing volume [m^3]: ' + str(awg.wing_vol[w]))
-    log.info('Cabin volume [m^3]: ' + str(awg.cabin_vol))
-    log.info('Volume of the wing as fuselage [m^3]: ' + str(awg.fuse_vol))
-    log.info('Volume of the remaining portion of the wing [m^3]: '\
-             + str(awg.wing_vol[w] - awg.fuse_vol))
-    log.info('Fuel volume in the fuselage [m^3]: ' + str(awg.fuse_fuel_vol))
-    log.info('Fuel volume in the wing [m^3]: ' + str(awg.wing_fuel_vol))
-    log.info('Total fuel Volume [m^3]: ' + str(awg.fuel_vol_tot))
-    log.info('-----------------------------------------------------------')
+    log.info("--------------------- Main wing Volumes -------------------")
+    log.info("Wing volume [m^3]: " + str(awg.wing_vol[w]))
+    log.info("Cabin volume [m^3]: " + str(awg.cabin_vol))
+    log.info("Volume of the wing as fuselage [m^3]: " + str(awg.fuse_vol))
+    log.info(
+        "Volume of the remaining portion of the wing [m^3]: " + str(awg.wing_vol[w] - awg.fuse_vol)
+    )
+    log.info("Fuel volume in the fuselage [m^3]: " + str(awg.fuse_fuel_vol))
+    log.info("Fuel volume in the wing [m^3]: " + str(awg.wing_fuel_vol))
+    log.info("Total fuel Volume [m^3]: " + str(awg.fuel_vol_tot))
+    log.info("-----------------------------------------------------------")
 
-    return(awg, wing_nodes)
+    return (awg, wing_nodes)
 
 
-#=============================================================================
+# =============================================================================
 #    MAIN
-#=============================================================================
+# =============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.warning('#########################################################')
-    log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN balanceuncmain.py #')
-    log.warning('#########################################################')
+    log.warning("#########################################################")
+    log.warning("# ERROR NOT A STANDALONE PROGRAM, RUN balanceuncmain.py #")
+    log.warning("#########################################################")

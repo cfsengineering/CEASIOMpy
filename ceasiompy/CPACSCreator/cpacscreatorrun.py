@@ -17,9 +17,9 @@ TODO:
 
 """
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 
 import os
 import shutil
@@ -27,20 +27,21 @@ import platform
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-#==============================================================================
+# ==============================================================================
 #   CLASSES
-#==============================================================================
+# ==============================================================================
 
 
-#==============================================================================
+# ==============================================================================
 #   FUNCTIONS
-#==============================================================================
+# ==============================================================================
 
-def launch_cpacscreator(cpacs_path,cpacs_out_path):
+
+def launch_cpacscreator(cpacs_path, cpacs_out_path):
     """ Function to run CPACSCrator with an imput CPACS file
 
     Function 'launch_cpacscreator' run CPACSCrator with an imput CPACS file and
@@ -59,67 +60,66 @@ def launch_cpacscreator(cpacs_path,cpacs_out_path):
     """
 
     current_os = platform.system()
-    log.info('Your current OS is: ' + current_os)
+    log.info("Your current OS is: " + current_os)
 
-    if current_os == 'Darwin':
+    if current_os == "Darwin":
         install_path = shutil.which("CPACS-Creator")
 
-    elif current_os == 'Linux':
+    elif current_os == "Linux":
         install_path = shutil.which("cpacscreator")
 
-    elif current_os == 'Windows':
+    elif current_os == "Windows":
         install_path = shutil.which("CPACSCreator")
 
     else:
-        raise OSError('OS not recognize!')
+        raise OSError("OS not recognize!")
 
     # Check if CPACSCreator is installed
-    if  install_path:
+    if install_path:
         log.info('"CPACSCreator" is intall at: ' + install_path)
     else:
-        raise RuntimeError('"CPACSCreator" is not install on your computer or you are not running this script from your Conda environment!')
+        raise RuntimeError(
+            "'CPACSCreator' is not install on your computer or in your Conda environment!"
+        )
 
     # Empty /tmp directory
-    TMP_DIR = os.path.join(MODULE_DIR,'tmp')
+    TMP_DIR = os.path.join(MODULE_DIR, "tmp")
     if os.path.isdir(TMP_DIR):
         tmp_file_list = os.listdir(TMP_DIR)
         for tmp_file in tmp_file_list:
-            tmp_file_path = os.path.join(TMP_DIR,tmp_file)
+            tmp_file_path = os.path.join(TMP_DIR, tmp_file)
             os.remove(tmp_file_path)
     else:
         os.mkdir(TMP_DIR)
-    log.info('The /tmp directory has been cleared.')
-
+    log.info("The /tmp directory has been cleared.")
 
     # Copy CPACS input file (.xml) in /tmp directory
-    cpacs_tmp = os.path.join(MODULE_DIR,'tmp','cpacsTMP.xml')
+    cpacs_tmp = os.path.join(MODULE_DIR, "tmp", "cpacsTMP.xml")
     if os.path.isfile(cpacs_path):
         shutil.copy(cpacs_path, cpacs_tmp)
-        log.info('The input CPACS file has been copied in /tmp ')
+        log.info("The input CPACS file has been copied in /tmp ")
     else:
-        log.error('The ToolInput (.xml file) cannot be found!')
-
+        log.error("The ToolInput (.xml file) cannot be found!")
 
     # Run 'cpacscreator' with CPACS input
-    if current_os == 'Darwin':
-        os.system('CPACS-Creator ' + cpacs_tmp)
+    if current_os == "Darwin":
+        os.system("CPACS-Creator " + cpacs_tmp)
 
-    elif current_os == 'Linux':
-        os.system('cpacscreator ' + cpacs_tmp)
+    elif current_os == "Linux":
+        os.system("cpacscreator " + cpacs_tmp)
 
-    elif current_os == 'Windows':
-        os.system('CPACSCreator ' + cpacs_tmp)
+    elif current_os == "Windows":
+        os.system("CPACSCreator " + cpacs_tmp)
 
     else:
-        raise OSError('OS not recognize!')
-
+        raise OSError("OS not recognize!")
 
     # Copy CPACS temp file (.xml) from the temp directory to /ToolOutput
     if os.path.isfile(cpacs_tmp):
         shutil.copy(cpacs_tmp, cpacs_out_path)
-        log.info('The output CPACS file has been copied in /ToolOutput')
+        log.info("The output CPACS file has been copied in /ToolOutput")
     else:
-        log.error('The Output CPACS file cannot be found!')
+        log.error("The Output CPACS file cannot be found!")
 
 
 # TODO: create a new function to export screenshots ...
@@ -127,17 +127,17 @@ def launch_cpacscreator(cpacs_path,cpacs_out_path):
 # # Problem: TIGLViewer in not close after the script in the shell
 # os.system('cpacscreator ' + cpacs_tmp + ' --script test_script.js')
 
-#==============================================================================
+# ==============================================================================
 #    MAIN
-#==============================================================================
+# ==============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
+    log.info("----- Start of " + os.path.basename(__file__) + " -----")
 
-    cpacs_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.xml')
-    cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
+    cpacs_path = os.path.join(MODULE_DIR, "ToolInput", "ToolInput.xml")
+    cpacs_out_path = os.path.join(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
 
-    launch_cpacscreator(cpacs_path,cpacs_out_path)
+    launch_cpacscreator(cpacs_path, cpacs_out_path)
 
-    log.info('----- End of ' + os.path.basename(__file__) + ' -----')
+    log.info("----- End of " + os.path.basename(__file__) + " -----")

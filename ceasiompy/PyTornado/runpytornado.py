@@ -291,7 +291,7 @@ def main():
     log.info("Running PyTornado...")
 
     # ===== CPACS inout and output paths =====
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+    # MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
     cpacs_in_path = mi.get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
 

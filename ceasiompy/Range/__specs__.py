@@ -30,7 +30,7 @@ cpacs_inout = CPACSInOut()
 
 # ----- Input -----
 
-### Masses
+# Masses
 
 cpacs_inout.add_input(
     var_name="maximum_take_off_mass",
@@ -154,7 +154,7 @@ cpacs_inout.add_input(
     gui_group=None,
 )
 
-### Options
+# Options
 
 cpacs_inout.add_input(
     var_name="TURBOPROP",
@@ -181,7 +181,7 @@ cpacs_inout.add_input(
 )
 
 
-### Cruise
+# Cruise
 
 # This one should probalby be removed, at least use cruise_mach
 cpacs_inout.add_input(
@@ -220,7 +220,7 @@ cpacs_inout.add_input(
     gui_group="Cruise",
 )
 
-### Loiter
+# Loiter
 cpacs_inout.add_input(
     var_name="TSFC_LOITER",
     var_type=float,
@@ -245,7 +245,7 @@ cpacs_inout.add_input(
     gui_group="Loiter",
 )
 
-### Fuel
+# Fuel
 
 # Define at two differnt xpath in the weight & balance modules
 cpacs_inout.add_input(

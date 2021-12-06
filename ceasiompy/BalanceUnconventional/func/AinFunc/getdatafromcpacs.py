@@ -207,7 +207,7 @@ def get_data(ui, bi, mw, ed, cpacs_in):
         )
 
     # Gathering data =========================================================
-    ## Geometry Data
+    # Geometry Data
 
     if not tixi.checkElement(GEOM_PATH + "/floorsNb"):
         tixi.createElement(GEOM_PATH, "floorsNb")
@@ -225,7 +225,7 @@ def get_data(ui, bi, mw, ed, cpacs_in):
         if temp != ui.H_LIM_CABIN and temp > 0:
             ui.H_LIM_CABIN = temp
 
-    ## User Case Balance
+    #  User Case Balance
     if not tixi.checkElement(BC_PATH + "/userCase"):
         tixi.createElement(BC_PATH, "userCase")
         if bi.USER_CASE:
@@ -262,7 +262,7 @@ def get_data(ui, bi, mw, ed, cpacs_in):
                 + " True but no payload percentage data in"
                 + " the CPACS file or in th BalanceInput class."
             )
-    ## Engines Data
+    #  Engines Data
     ed.en_mass = tixi.getDoubleElement(EN_PATH)
 
     if not tixi.checkElement(PROP_PATH + "/wingMountedEngine"):
@@ -299,7 +299,7 @@ def get_data(ui, bi, mw, ed, cpacs_in):
     else:
         ed.NE = tixi.getIntegerElement(PROP_PATH + "/engineNumber")
 
-    ## User Engine Placement
+    #  User Engine Placement
     tp = []
     ed.EN_NAME = []
     if tixi.checkElement(EN_PATH):
@@ -374,11 +374,11 @@ def get_data(ui, bi, mw, ed, cpacs_in):
                 ed.EN_PLACEMENT.append([x, y, z])
         ed.EN_PLACEMENT = np.array(ed.EN_PLACEMENT)
 
-    ## REQUIRED TOOLSPECIFIC DATA ============================================
+    # REQUIRED TOOLSPECIFIC DATA ============================================
     # Fuel
     mw.mass_fuel_maxpass = tixi.getDoubleElement(FMP_PATH)
 
-    ## REQUIRED MASSBREAKDOWN DATA ===========================================
+    # REQUIRED MASSBREAKDOWN DATA ===========================================
 
     mw.maximum_take_off_mass = tixi.getDoubleElement(MTOM_PATH)
     mw.operating_empty_mass = tixi.getDoubleElement(OEM_PATH)

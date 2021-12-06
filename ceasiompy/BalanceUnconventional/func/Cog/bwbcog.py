@@ -128,7 +128,7 @@ def center_of_gravity_evaluation_bwb(F_PERC, P_PERC, awg, mw, ed, ui, bi):
             mass = (round(mtom, 3) - round(np.sum(mass_seg_i), 3)) / 2
             a = wg.index(awg.main_wing_index)
             mass /= awg.wing_seg_nb[a] * 2
-            mass_seg_i[:][a : a + 1] += mass
+            mass_seg_i[:][a:a + 1] += mass
 
     awg.wing_center_seg_point.resize(max_seg_n, awg.wing_nb, 3)
     airplane_centers_segs = awg.wing_center_seg_point

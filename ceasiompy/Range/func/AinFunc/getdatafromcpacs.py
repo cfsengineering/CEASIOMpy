@@ -146,7 +146,7 @@ def get_data(mw, ri, cpacs_in):
         )
 
     # Gathering data =========================================================
-    ## TOOLSPECIFIC ----------------------------------------------------------
+    #  TOOLSPECIFIC ----------------------------------------------------------
     if not tixi.checkElement(RANGE_PATH + "/lDRatio"):
         tixi.createElement(RANGE_PATH, "lDRatio")
         tixi.updateDoubleElement(RANGE_PATH + "/lDRatio", ri.LD, "%g")
@@ -254,14 +254,14 @@ def get_data(mw, ri, cpacs_in):
         if temp != ri.TSFC_LOITER and temp > 0:
             ri.TSFC_LOITER = temp
 
-    ## REQUIRED DATA =========================================================
+    #  REQUIRED DATA =========================================================
     # Cabin Crew
     ri.cabin_crew_nb = tixi.getIntegerElement(CC_PATH + "/cabinCrewMemberNb")
 
     # Fuel
     mw.mass_fuel_maxpass = tixi.getDoubleElement(FMP_PATH)
 
-    ## REQUIRED MASSBREAKDOWN DATA ===========================================
+    #  REQUIRED MASSBREAKDOWN DATA ===========================================
     mw.maximum_take_off_mass = tixi.getDoubleElement(MTOM_PATH)
     mw.operating_empty_mass = tixi.getDoubleElement(OEM_PATH)
     mw.mass_payload = tixi.getDoubleElement(PAY_PATH)
@@ -280,6 +280,6 @@ def get_data(mw, ri, cpacs_in):
 # =============================================================================
 
 if __name__ == "__main__":
-    log.warning("##########################################################")
-    log.warning("#### ERROR NOT A STANDALONE PROGRAM, RUN rangemain.py ####")
-    log.warning("##########################################################")
+    print("##########################################################")
+    print("#### ERROR NOT A STANDALONE PROGRAM, RUN rangemain.py ####")
+    print("##########################################################")

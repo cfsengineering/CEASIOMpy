@@ -89,8 +89,8 @@ def euler2fix(rotation_euler):
     )
 
     # Identity matrices
-    I = np.eye(3)
-    I2 = Rx @ I
+    I1 = np.eye(3)
+    I2 = Rx @ I1
     I3 = Ry @ I2
 
     # Direction cosine matrix

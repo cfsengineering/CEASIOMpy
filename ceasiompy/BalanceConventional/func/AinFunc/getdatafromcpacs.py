@@ -134,7 +134,7 @@ def get_data(mw, bi, cpacs_in):
         )
 
     # Gathering data =========================================================
-    ## TOOLSPECIFIC ----------------------------------------------------------
+    #  TOOLSPECIFIC ----------------------------------------------------------
     if not tixi.checkElement(PROP_PATH + "/wingMountedEngine"):
         create_branch(tixi, PROP_PATH, False)
         tixi.createElement(PROP_PATH, "wingMountedEngine")
@@ -149,7 +149,7 @@ def get_data(mw, bi, cpacs_in):
         else:
             bi.WING_MOUNTED = True
 
-    ## User Case Balance
+    #  User Case Balance
     if not tixi.checkElement(BC_PATH + "/userCase"):
         tixi.createElement(BC_PATH, "userCase")
         if bi.USER_CASE:
@@ -189,11 +189,11 @@ def get_data(mw, bi, cpacs_in):
                 + " the CPACS file or in th BalanceInput class."
             )
 
-    ## REQUIRED TOOLSPECIFIC DATA ============================================
+    #  REQUIRED TOOLSPECIFIC DATA ============================================
     # Fuel
     mw.mass_fuel_maxpass = tixi.getDoubleElement(FMP_PATH)
 
-    ## REQUIRED MASSBREAKDOWN DATA ===========================================
+    #  REQUIRED MASSBREAKDOWN DATA ===========================================
 
     mw.maximum_take_off_mass = tixi.getDoubleElement(MTOM_PATH)
     mw.operating_empty_mass = tixi.getDoubleElement(OEM_PATH)
@@ -213,6 +213,6 @@ def get_data(mw, bi, cpacs_in):
 # =============================================================================
 
 if __name__ == "__main__":
-    log.warning("##########################################################")
-    log.warning("### ERROR NOT A STANDALONE PROGRAM, RUN balancemain.py ###")
-    log.warning("##########################################################")
+    print("##########################################################")
+    print("### ERROR NOT A STANDALONE PROGRAM, RUN balancemain.py ###")
+    print("##########################################################")

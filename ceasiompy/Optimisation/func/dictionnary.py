@@ -71,9 +71,9 @@ def add_am_to_dict(optim_var_dict, am_dict):
     for name, infos in optim_var_dict.items():
         if name not in PARAMS_COEFS:
             # Calling a new list instance else the clear method will also clean l
-            l = list(infos[1])
+            list_infos = list(infos[1])
             infos[1].clear()
-            infos[1].extend(np.repeat(l, am_length))
+            infos[1].extend(np.repeat(list_infos, am_length))
 
     for name, infos in am_dict.items():
         optim_var_dict[name] = infos

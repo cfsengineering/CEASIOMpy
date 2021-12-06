@@ -265,9 +265,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 prof_vect_z[:] = [z / prof_size_z for z in prof_vect_z]
 
                 prof_min_y = min(prof_vect_y)
-                prof_max_y = max(prof_vect_y)
                 prof_min_z = min(prof_vect_z)
-                prof_max_z = max(prof_vect_z)
 
                 prof_vect_y[:] = [y - 1 - prof_min_y for y in prof_vect_y]
                 prof_vect_z[:] = [z - 1 - prof_min_z for z in prof_vect_z]
@@ -922,7 +920,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
         # Check if the wing section order must be inverted with reversed attribute
         if check_reversed_wing[0] < check_reversed_wing[1]:
             log.info("Wing section order will be reversed.")
-            reversed_wing = "true"
             for i_sec in range(sec_cnt):
                 wg_sec_xpath = wg_sk_xpath + "/WingSection[" + str(i_sec + 1) + "]"
                 sumo.removeAttribute(wg_sec_xpath, "reversed")
@@ -992,7 +989,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 # be define as a body composed of section + a lip at the inlet
 
                 # Find upper part of the profile
-                xmaxidx = xlist.index(max(xlist))
                 xminidx = xlist.index(min(xlist))
 
                 yavg1 = sum(ylist[0:xminidx]) / (xminidx)

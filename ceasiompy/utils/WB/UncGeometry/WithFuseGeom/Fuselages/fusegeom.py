@@ -90,13 +90,13 @@ def check_segment_connection(fus_nb, fuse_seg_nb, fuse_sec_nb, tigl):
             (seg_sec[j - 1, i - 1, 0], e) = tigl.fuselageGetStartSectionAndElementIndex(i, j)
             (seg_sec[j - 1, i - 1, 1], e) = tigl.fuselageGetEndSectionAndElementIndex(i, j)
             seg_sec[j - 1, i - 1, 2] = j
-        (slpx, slpy, slpz) = tigl.fuselageGetPoint(i, 1, 0.0, 0.0)
+        (slpx, _, _) = tigl.fuselageGetPoint(i, 1, 0.0, 0.0)
         seg_sec_reordered[0, i - 1, :] = seg_sec[0, i - 1, :]
         start_index.append(1)
         for j in range(2, fuse_seg_nb[i - 1] + 1):
             (x, y, z) = tigl.fuselageGetPoint(i, j, 1.0, 0.0)
             if x < slpx:
-                (slpx, slpy, slpz) = (x, y, z)
+                (slpx, _, _) = (x, y, z)
                 start_index.append(j)
                 seg_sec_reordered[0, i - 1, :] = seg_sec[j - 1, i - 1, :]
         for j in range(2, fuse_seg_nb[i - 1] + 1):
@@ -144,17 +144,17 @@ def rel_dist(i, sec_nb, seg_nb, tigl, seg_sec, start_index):
     log.info("-----------------------------------------------------------")
 
     rel_sec_dis = np.zeros((sec_nb, 2))
-    rel_sec_dist_index = np.zeros((sec_nb, 2))
+    # rel_sec_dist_index = np.zeros((sec_nb, 2))
 
     # Relative distance evaluated by the difference between the x position of
     # of the 1st section of the aircraft and the x position of the jth section
 
     rel_sec_dis[0, 0] = 0.0
     rel_sec_dis[0, 1] = 0
-    (slpx, slpy, slpz) = tigl.fuselageGetPoint(i, start_index, 0.0, 0.0)
+    (slpx, _, _) = tigl.fuselageGetPoint(i, start_index, 0.0, 0.0)
     for j in range(1, seg_nb + 1):
         k = int(seg_sec[j - 1, 2])
-        (slpx2, slpy2, slpz2) = tigl.fuselageGetPoint(i, k, 1.0, 0.0)
+        (slpx2, _, _) = tigl.fuselageGetPoint(i, k, 1.0, 0.0)
         rel_sec_dis[j, 0] = abs(slpx2 - slpx)
         rel_sec_dis[j, 1] = k
 
@@ -410,10 +410,10 @@ def fuse_geom_eval(fus_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
             cabin_area = 0
             for j in range(0, afg.fuse_seg_nb[i - 1]):
                 if afg.cabin_seg[j, i - 1] == 1:
-                    (x11, y11, z11) = (x1[j, i - 1], y1[j, i - 1], z1[j, i - 1])
-                    (x12, y12, z12) = (x1[j + 1, i - 1], y1[j + 1, i - 1], z1[j + 1, i - 1])
-                    (x21, y21, z21) = (x2[j, i - 1], y2[j, i - 1], z2[j, i - 1])
-                    (x22, y22, z22) = (x2[j + 1, i - 1], y2[j + 1, i - 1], z2[j + 1, i - 1])
+                    (x11, y11, _) = (x1[j, i - 1], y1[j, i - 1], z1[j, i - 1])
+                    (x12, y12, _) = (x1[j + 1, i - 1], y1[j + 1, i - 1], z1[j + 1, i - 1])
+                    (x21, y21, _) = (x2[j, i - 1], y2[j, i - 1], z2[j, i - 1])
+                    (x22, y22, _) = (x2[j + 1, i - 1], y2[j + 1, i - 1], z2[j + 1, i - 1])
                     cabin_area += 0.5 * abs(
                         x11 * y12
                         + x12 * y22

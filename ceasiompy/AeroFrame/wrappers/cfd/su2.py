@@ -79,7 +79,7 @@ class Wrapper(AeroWrapper):
         """Write the SU2 displacement file"""
 
         # Fetch the FEM deformation fields
-        def_fields = self.shared.structure.def_fields
+        # def_fields = self.shared.structure.def_fields
 
         # TODO: make work for multiple wings
         orig_mesh = self.undeformed_mesh["Wing"]

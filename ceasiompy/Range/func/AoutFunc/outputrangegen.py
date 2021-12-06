@@ -129,7 +129,7 @@ def output_txt(LDloi, LDcru, mw, ri, out, NAME):
         + str(int(round(out.ranges_cru[2])))
     )
     OutputTextFile.write("\nMaximum cruise range [km]: " + str(int(round(out.ranges_cru[-1]))))
-    ### Closing Text File
+    # Closing Text File
     OutputTextFile.close()
 
     return ()
@@ -161,7 +161,7 @@ def payload_range_plot(ranges, ranges_cru, payloads, mw, NAME):
         (file)Payload_vs_Range.png --Out.: Png file containing all the
                                           range versus payload plot.
     """
-    ### ----------------------------------------------------------------------
+    # ----------------------------------------------------------------------
     fig, (ax) = plt.subplots(1, 1, sharey=True, figsize=(9, 9))
     fig.patch.set_facecolor("w")
     mpl.rcParams.update({"font.size": 14})

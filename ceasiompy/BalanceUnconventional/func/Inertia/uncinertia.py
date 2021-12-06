@@ -40,12 +40,12 @@ log = get_logger(__file__.split(".")[0])
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
-def check_rounding(I, I2):
+def check_rounding(I1, I2):
     """Evaluation of the rounding digit for the inertia evaluation
 
        ARGUMENTS
-       (float) I --Arg.: Yaw moment of inertia with Max Payload.
-       (float) I --Arg.: Ixy moment of inertia with Max Payload.
+       (float) I1 --Arg.: Yaw moment of inertia with Max Payload.
+       (float) I2 --Arg.: Ixy moment of inertia with Max Payload.
 
        RETURN
        (int) rd  --Out.: Number of rounded digits.
@@ -54,7 +54,7 @@ def check_rounding(I, I2):
     rd = 0
     rd2 = 0
     while not ex:
-        if round(I, rd) == 0:
+        if round(I1, rd) == 0:
             ex = True
         else:
             rd -= 1
@@ -100,8 +100,7 @@ def unc_inertia_eval(awg, afg, bout, bi, mw, ed, out_xml):
         (class) bout  --Out.: Updated BalanceOutputs class.
 
     """
-    center_of_gravity_seg = []
-    mass_component = []
+
     log.info("---------- Inertia Evaluation ---------")
     if bi.USER_EN_PLACEMENT:
         (
@@ -251,8 +250,7 @@ def bwb_inertia_eval(awg, bout, bi, mw, ed, out_xml):
                                   of the wing nodes.
         (class) bout  --Out.: Updated BalanceOutputs class.
     """
-    center_of_gravity_seg = []
-    mass_component = []
+
     log.info("---------- Inertia Evaluation ---------")
     if bi.USER_EN_PLACEMENT:
         (

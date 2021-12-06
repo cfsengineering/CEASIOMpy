@@ -104,8 +104,8 @@ def get_seat_config(
             if not snd and round((fuse_length - f), 1) <= 0.1:
                 snd = True
                 out_txt_file.write("\n---------------- Second Floor" + " ---------------")
-        for l in range(int(abreast_nb + aisle_nb)):
-            seat[l] = 1
+        for i in range(int(abreast_nb + aisle_nb)):
+            seat[i] = 1
             if aisle_nb == 1:
                 seat[int(abreast_nb // 2)] = 0
             elif aisle_nb == 2:
@@ -119,12 +119,12 @@ def get_seat_config(
 
         out_txt_file.write("\n" + str(seat))
         e = int(round((abreast_nb + aisle_nb) // 2.0, 0))
-        a = seat[0 : e + 1]
+        a = seat[0:e + 1]
 
         if (int(round((abreast_nb + aisle_nb) % 2.0, 0))) == 0:
-            b = seat[e - 1 : abreast_nb + aisle_nb]
+            b = seat[e - 1:abreast_nb + aisle_nb]
         else:
-            b = seat[e : abreast_nb + aisle_nb]
+            b = seat[e:abreast_nb + aisle_nb]
         b = b[::-1]
 
         if a != b:

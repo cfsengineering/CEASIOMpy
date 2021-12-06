@@ -65,13 +65,13 @@ def estimate_limits(input_data, OBJ, fuse_length, wing_area):
     """
 
     (L,) = np.shape(input_data)
-    l = L - 1
-    upper_limit = np.zeros(l,)
-    lower_limit = np.zeros(l,)
+    l_1 = L - 1
+    upper_limit = np.zeros(l_1,)
+    lower_limit = np.zeros(l_1,)
     cnt_l = 0
     cnt_u = 0
 
-    for i in range(0, l):
+    for i in range(0, l_1):
         if (input_data[i, ] - OBJ) >= 0:
             delta_plus = round(input_data[i, ] - OBJ, 2)
             upper_limit[cnt_u] = delta_plus

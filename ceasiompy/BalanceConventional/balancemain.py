@@ -63,12 +63,12 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 # =============================================================================
 
 
-def check_rounding(I, I2):
+def check_rounding(I1, I2):
     """Evaluation of the rounding digit for the inertia evaluation
 
        ARGUMENTS
-       (float) I --Arg.: Yaw moment of inertia with Max Payload.
-       (float) I --Arg.: Ixy moment of inertia with Max Payload.
+       (float) I1 --Arg.: Yaw moment of inertia with Max Payload.
+       (float) I2 --Arg.: Ixy moment of inertia with Max Payload.
 
        RETURN
        (int) rd  --Out.: Number of rounded digits.
@@ -77,7 +77,7 @@ def check_rounding(I, I2):
     rd = 0
     rd2 = 0
     while not ex:
-        if round(I, rd) == 0:
+        if round(I1, rd) == 0:
             ex = True
         else:
             rd -= 1
@@ -174,15 +174,13 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
         )
 
     # MOMENT OF INERTIA
-    center_of_gravity_seg = []
-    mass_component = []
     log.info("------------- Inertia Evaluation ------------")
     log.info("------------ Lumped mass Inertia ------------")
     log.info("--------- Max Payload configuration ---------")
-    (fx, fy, fz, Ixxf, Iyyf, Izzf, Ixyf, Iyzf, Ixzf) = lumpedmassesinertia.fuselage_inertia(
+    (_, _, _, Ixxf, Iyyf, Izzf, Ixyf, Iyzf, Ixzf) = lumpedmassesinertia.fuselage_inertia(
         bi.SPACING_FUSE, out.center_of_gravity, mass_seg_i, ag, cpacs_out_path
     )
-    (wx, wy, wz, Ixxw, Iyyw, Izzw, Ixyw, Iyzw, Ixzw) = lumpedmassesinertia.wing_inertia(
+    (_, _, _, Ixxw, Iyyw, Izzw, Ixyw, Iyzw, Ixzw) = lumpedmassesinertia.wing_inertia(
         bi.WPP, bi.SPACING_WING, out.center_of_gravity, mass_seg_i, ag, cpacs_out_path
     )
 
@@ -195,10 +193,10 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
     out.Ixz_lump = round(Ixzf + Ixzw, rd)
 
     log.info("---------- Zero Fuel configuration ----------")
-    (fx, fy, fz, Ixxf2, Iyyf2, Izzf2, Ixyf2, Iyzf2, Ixzf2) = lumpedmassesinertia.fuselage_inertia(
+    (_, _, _, Ixxf2, Iyyf2, Izzf2, Ixyf2, Iyzf2, Ixzf2) = lumpedmassesinertia.fuselage_inertia(
         bi.SPACING_FUSE, out.cg_zfm, ms_zfm, ag, cpacs_out_path
     )
-    (wx, wy, wz, Ixxw2, Iyyw2, Izzw2, Ixyw2, Iyzw2, Ixzw2) = lumpedmassesinertia.wing_inertia(
+    (_, _, _, Ixxw2, Iyyw2, Izzw2, Ixyw2, Iyzw2, Ixzw2) = lumpedmassesinertia.wing_inertia(
         bi.WPP, bi.SPACING_WING, out.cg_zfm, ms_zfm, ag, cpacs_out_path
     )
 
@@ -210,10 +208,10 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
     out.Ixz_lump_zfm = round(Ixzf2 + Ixzw2, rd)
 
     log.info("--------- Zero Payload configuration --------")
-    (fx, fy, fz, Ixxf3, Iyyf3, Izzf3, Ixyf3, Iyzf3, Ixzf3) = lumpedmassesinertia.fuselage_inertia(
+    (_, _, _, Ixxf3, Iyyf3, Izzf3, Ixyf3, Iyzf3, Ixzf3) = lumpedmassesinertia.fuselage_inertia(
         bi.SPACING_FUSE, out.cg_zpm, ms_zpm, ag, cpacs_out_path
     )
-    (wx, wy, wz, Ixxw3, Iyyw3, Izzw3, Ixyw3, Iyzw3, Ixzw3) = lumpedmassesinertia.wing_inertia(
+    (_, _, _, Ixxw3, Iyyw3, Izzw3, Ixyw3, Iyzw3, Ixzw3) = lumpedmassesinertia.wing_inertia(
         bi.WPP, bi.SPACING_WING, out.cg_zpm, ms_zpm, ag, cpacs_out_path
     )
 

@@ -17,10 +17,7 @@ Output text and plot generation functions.
 # =============================================================================
 
 import numpy as np
-import math
 import matplotlib as mpl
-from matplotlib import rcParams
-from mpl_toolkits.mplot3d import Axes3D
 import matplotlib.pyplot as plt
 
 
@@ -159,7 +156,7 @@ def output_txt(bout, mw, bi, ec, NAME):
         OutputTextFile.write("\nIxz moment [kgm^2]: " + str(bout.Ixz_lump_oem))
         OutputTextFile.write("\n---------------------------------------" + "--------")
 
-    ### Closing Text File
+    #  Closing Text File
     OutputTextFile.close()
     return ()
 
@@ -168,7 +165,7 @@ def output_txt(bout, mw, bi, ec, NAME):
 #   PLOTS
 # =============================================================================
 
-### AIRCRAFT NODES PLOT ------------------------------------------------------
+#  AIRCRAFT NODES PLOT ------------------------------------------------------
 def aircraft_nodes_unc_plot(fx, fy, fz, wx, wy, wz, NAME):
     """The function generates the plot of the aircraft nodes.
        INPUT
@@ -194,8 +191,8 @@ def aircraft_nodes_unc_plot(fx, fy, fz, wx, wy, wz, NAME):
     ax = fig.add_subplot(111, projection="3d")
     ax.plot([fx[0]], [fy[0]], [fz[0]], c="g", marker="o", label="Fuselage nodes", markersize=10)
     ax.plot([wx[0]], [wy[0]], [wz[0]], c="b", marker="o", label="Wing nodes", markersize=10)
-    s1 = ax.scatter(fx, fy, fz, c="g", marker="o", s=100 * np.ones((np.max(np.shape(fx)))))
-    s2 = ax.scatter(wx, wy, wz, c="b", marker="o", s=100 * np.ones((np.max(np.shape(wx)))))
+    # s1 = ax.scatter(fx, fy, fz, c="g", marker="o", s=100 * np.ones((np.max(np.shape(fx)))))
+    # s2 = ax.scatter(wx, wy, wz, c="b", marker="o", s=100 * np.ones((np.max(np.shape(wx)))))
     ax.set_ylim3d(np.min(wy) - 5, np.max(wy) + 5)
     ax.set_xlim3d(np.min(fx) - 10, np.max(fx) + 10)
     ax.set_zlim3d(np.min(wz) - 5, np.max(wz) + 5)
@@ -227,7 +224,7 @@ def aircraft_nodes_bwb_plot(wx, wy, wz, NAME):
     mpl.rcParams.update({"font.size": 20})
     ax = fig.add_subplot(111, projection="3d")
     ax.plot([wx[0]], [wy[0]], [wz[0]], c="b", marker="o", label="Wing nodes", markersize=10)
-    s = ax.scatter(wx, wy, wz, c="b", marker="o", s=100 * np.ones((np.max(np.shape(wx)))))
+    # s = ax.scatter(wx, wy, wz, c="b", marker="o", s=100 * np.ones((np.max(np.shape(wx)))))
     ax.set_ylim3d(np.min(wy) - 5, np.max(wy) + 5)
     ax.set_xlim3d(np.min(wx) - 10, np.max(wx) + 10)
     ax.set_zlim3d(np.min(wz) - 5, np.max(wz) + 5)
@@ -241,7 +238,7 @@ def aircraft_nodes_bwb_plot(wx, wy, wz, NAME):
     return ()
 
 
-### AIRCRAFT CoG PLOT --------------------------------------------------------
+#  AIRCRAFT CoG PLOT --------------------------------------------------------
 def aircraft_cog_unc_plot(cg, bi, ed, afg, awg, NAME):
     """ The function generates the plot of the unconventional aircrafy
         center og gravity and the nodes used to evaluate it.
@@ -272,8 +269,8 @@ def aircraft_cog_unc_plot(cg, bi, ed, afg, awg, NAME):
     wy = []
     wz = []
     fx = afg.fuse_center_seg_point[:, :, 0]
-    fy = afg.fuse_center_seg_point[:, :, 1]
-    fz = afg.fuse_center_seg_point[:, :, 2]
+    # fy = afg.fuse_center_seg_point[:, :, 1]
+    # fz = afg.fuse_center_seg_point[:, :, 2]
     for i in range(1, awg.wing_nb + 1):
         for j in range(1, np.max(awg.wing_seg_nb) + 1):
             if awg.wing_center_seg_point[j - 1, i - 1, 0] != 0.0:
@@ -306,7 +303,7 @@ def aircraft_cog_unc_plot(cg, bi, ed, afg, awg, NAME):
     )
     ax.plot([wplot1], [wplot2], [wplot3], "ob", label="Wing nodes", markersize=8)
     ax.plot([cx], [cy], [cz], "xr", label="Center of Gravity", markersize=14)
-    s1 = ax.scatter([fx], [fy], [fz], c="g", marker="o", s=80 * np.ones((np.max(np.shape(fx)))))
+    # s1 = ax.scatter([fx], [fy], [fz], c="g", marker="o", s=80 * np.ones((np.max(np.shape(fx)))))
     ax.scatter([wx], [wy], [wz], c="b", marker="o", s=80 * np.ones((np.max(np.shape(wx)))))
     ax.scatter([cx], [cy], [cz], c="r", marker="x", s=80)
     ax.set_ylim(np.min(wy) - 5, np.max(wy) + 5)

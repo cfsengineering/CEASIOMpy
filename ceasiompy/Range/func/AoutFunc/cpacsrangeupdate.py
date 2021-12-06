@@ -51,7 +51,7 @@ def cpacs_update(mass_pass, out, mw, out_xml):
     """
     tixi = open_tixi(out_xml)
 
-    ### PATH CHECKS ==========================================================
+    # PATH CHECKS ==========================================================
 
     CEASIOM_PATH = "/cpacs/toolspecific/CEASIOMpy"
     # Ranges
@@ -85,23 +85,23 @@ def cpacs_update(mass_pass, out, mw, out_xml):
     create_branch(tixi, FLD_PATH, False)
     create_branch(tixi, FAL_PATH, False)
 
-    ### RANGES ===============================================================
-    ### Max payload max range ------------------------------------------------
+    #  RANGES ===============================================================
+    #  Max payload max range ------------------------------------------------
     add_uid(tixi, R_DES_MAXP_PATH, "Maximum_range_[km]" + "_with_maximum_payload_[kg]")
     tixi.updateDoubleElement(R_DES_MAXP_PATH + "/range", out.ranges[1], "%g")
     tixi.updateDoubleElement(R_DES_MAXP_PATH + "/payload", out.payloads[1], "%g")
 
-    ### Max fuel range with some payload -------------------------------------
+    #  Max fuel range with some payload -------------------------------------
     add_uid(tixi, R_DES_MAXF_PATH, "Range_[km]_with_" + "maximum_fuel_and_some_payload_[kg]")
     tixi.updateDoubleElement(R_DES_MAXF_PATH + "/range", out.ranges[2], "%g")
     tixi.updateDoubleElement(R_DES_MAXF_PATH + "/payload", out.payloads[2], "%g")
 
-    ### Maximum range, no payload and max fuel -------------------------------
+    #  Maximum range, no payload and max fuel -------------------------------
     add_uid(tixi, R_DES_MAXIMUM_PATH, "Maximum_range_[km]_with_" + "max_fuel_and_no_payload_[kg]")
     tixi.updateDoubleElement(R_DES_MAXIMUM_PATH + "/range", out.ranges[3], "%g")
     tixi.updateDoubleElement(R_DES_MAXIMUM_PATH + "/payload", out.payloads[3], "%g")
 
-    ### FUEL CONSUMPTION =====================================================
+    #  FUEL CONSUMPTION =====================================================
     add_uid(
         tixi, FDES_PATH, "Fuel required for each flight phase " + "[kg], with maximum payload."
     )
@@ -113,7 +113,7 @@ def cpacs_update(mass_pass, out, mw, out_xml):
     tixi.updateDoubleElement(FLD_PATH, mw.mf_for_landing, "%g")
     tixi.updateDoubleElement(FAL_PATH, mw.mf_after_land, "%g")
 
-    ### Saving and closing the new cpacs file inside the ToolOutput folder ---
+    #  Saving and closing the new cpacs file inside the ToolOutput folder ---
     tixi.save(out_xml)
 
     return out_xml

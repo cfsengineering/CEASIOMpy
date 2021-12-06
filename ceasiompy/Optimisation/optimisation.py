@@ -400,7 +400,7 @@ def driver_setup(prob):
     else:
         log.error("Type of optimisation not recognize!!!")
 
-    ## Attaching a recorder and a diagramm visualizer ##
+    #  Attaching a recorder and a diagramm visualizer ##
     prob.driver.recording_options["record_inputs"] = True
     prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path + "/circuit.sqlite"))
     prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path + "/Driver_recorder.sql"))
@@ -512,16 +512,16 @@ def create_om_problem(prob):
     """
     ivc = om.IndepVarComp()
 
-    ## Add subsystems to problem ##
+    # Add subsystems to problem ##
     add_subsystems(prob, ivc)
 
-    ## Defining problem parameters ##
+    # Defining problem parameters ##
     add_parameters(prob, ivc)
 
-    ## Setting up the problem options ##
+    # Setting up the problem options ##
     driver_setup(prob)
 
-    ## Setup the model hierarchy for OpenMDAO ##
+    # Setup the model hierarchy for OpenMDAO ##
     prob.setup()
 
 
@@ -539,14 +539,14 @@ def generate_results(prob):
     if Rt.use_aeromap and Rt.type == "DoE":
         dct.add_am_to_dict(optim_var_dict, am_dict)
 
-    ## Generate N2 scheme ##
+    # Generate N2 scheme ##
     om.n2(optim_dir_path + "/circuit.sqlite", optim_dir_path + "/circuit.html", False)
 
-    ## Recap of the problem inputs/outputs ##
+    # Recap of the problem inputs/outputs ##
     prob.model.list_inputs()
     prob.model.list_outputs()
 
-    ## Results processing ##
+    # Results processing ##
     tls.plot_results(optim_dir_path, "", optim_var_dict)
 
     tls.save_results(optim_dir_path, optim_var_dict)
@@ -574,7 +574,7 @@ def routine_launcher(Opt):
     Rt.type = Opt.optim_method
     Rt.modules = Opt.module_optim
 
-    ## Initialize CPACS file and problem dictionary ##
+    # Initialize CPACS file and problem dictionary ##
     create_routine_folder()
     opf.first_run(Rt)
 
@@ -588,11 +588,11 @@ def routine_launcher(Opt):
     cpacs.save_cpacs(opf.CPACS_OPTIM_PATH, overwrite=True)
     wkf.copy_module_to_module("Optimisation", "in", Rt.modules[0], "in")
 
-    ## Instantiate components and subsystems ##
+    # Instantiate components and subsystems ##
     prob = om.Problem()
     create_om_problem(prob)
 
-    ## Run the model ##
+    # Run the model ##
     prob.run_driver()
 
     generate_results(prob)

@@ -212,10 +212,10 @@ def gen_doe_csv(user_config):
     df = df.loc[[i for i, v in enumerate(df["type"]) if v == "des"]]
 
     # Get only name and columns with point values
-    l = [i for i in df.columns if i.isdigit()]
-    l.insert(0, "Name")
+    col = [i for i in df.columns if i.isdigit()]
+    col.insert(0, "Name")
 
-    df = df[l]
+    df = df[col]
     df.set_index("Name")
     df = df.T
 

@@ -687,7 +687,7 @@ def generate_config_deformed_mesh(cpacs_path, cpacs_out_path, skip_config=False,
             log.warning(
                 "The CPACS file indicate that Control surface deflection should not be calculated!"
             )
-            active_ted_list = []
+            # active_ted_list = []
         else:
 
             ted_df = get_ted_list(tixi)

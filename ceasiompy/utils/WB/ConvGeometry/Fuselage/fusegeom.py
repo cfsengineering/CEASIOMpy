@@ -86,13 +86,13 @@ def check_segment_connection(fus_nb, fuse_seg_nb, fuse_sec_nb, tigl):
         seg_sec[j - 1, fus_nb - 1, 0] = s0
         seg_sec[j - 1, fus_nb - 1, 1] = s1
         seg_sec[j - 1, fus_nb - 1, 2] = j
-    (slpx, slpy, slpz) = tigl.fuselageGetPoint(fus_nb, 1, 0.0, 0.0)
+    (slpx, _, _) = tigl.fuselageGetPoint(fus_nb, 1, 0.0, 0.0)
     seg_sec_reordered[0, fus_nb - 1, :] = seg_sec[0, fus_nb - 1, :]
     start_index.append(1)
     for j in range(2, fuse_seg_nb[fus_nb - 1] + 1):
         (x, y, z) = tigl.fuselageGetPoint(fus_nb, j, 1.0, 0.0)
         if x < slpx:
-            (slpx, slpy, slpz) = (x, y, z)
+            (slpx, _, _) = (x, y, z)
             start_index.append(j)
             seg_sec_reordered[0, fus_nb - 1, :] = seg_sec[j - 1, fus_nb - 1, :]
     for j in range(2, fuse_seg_nb[fus_nb - 1] + 1):
@@ -145,7 +145,7 @@ def rel_dist(fus_nb, sec_nb, seg_nb, tigl, seg_sec, start_index):
     log.info("---------------------------------------------")
 
     rel_sec_dis = np.zeros((sec_nb, 2))
-    rel_sec_dist_index = np.zeros((sec_nb, 2))
+    # rel_sec_dist_index = np.zeros((sec_nb, 2))
 
     # Relative distance evaluated by the difference between the x position of
     # of the 1st section of the aircraft and the x position of the jth section

@@ -208,13 +208,13 @@ def separate_data(x, y, div):
     """
 
     # Sets length of each set
-    l = len(x)
-    sep = int(np.ceil(div * l))
+    lenght = len(x)
+    sep = int(np.ceil(div * lenght))
 
     # Random repartition of the sample
     rng = np.random.default_rng()
-    train_index = rng.choice(l, sep, replace=False)
-    valid_index = np.delete(np.arange(l), train_index)
+    train_index = rng.choice(lenght, sep, replace=False)
+    valid_index = np.delete(np.arange(lenght), train_index)
 
     xt = x[train_index]
     yt = y[train_index]

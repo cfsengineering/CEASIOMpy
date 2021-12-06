@@ -136,10 +136,10 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
                 h_max_temp = abs(zu - zl)
             if r == 0:
                 if zl < z_min:
-                    (x13, y13, z13) = (xl, yl, zl)
+                    (_, y13, z13) = (xl, yl, zl)
                     z_min = zl
                 if zu > z_max:
-                    (x14, y14, z14) = (xu, yu, zu)
+                    (_, y14, z14) = (xu, yu, zu)
                     z_max = zu
             else:
                 if zl < z_min:
@@ -152,12 +152,12 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
         h_mean.append(np.mean(h))
         y_sec.append(yl)
         if np.mean(h) >= h_min:
-            h_mean_cabin = np.mean(h_mean)
+            # h_mean_cabin = np.mean(h_mean)
             awg.y_max_cabin = yl
             seg = r
             if r != 0:
-                (x23, y23, z23) = (x23_t, y23_t, z23_t)
-                (x24, y24, z24) = (x24_t, y24_t, z24_t)
+                (_, y23, z23) = (x23_t, y23_t, z23_t)
+                (_, y24, z24) = (x24_t, y24_t, z24_t)
         else:
             (x11, y11, z11) = wing_nodes[0, 0, :]
             (x12, y12, z12) = wing_nodes[0, -1, :]
@@ -170,8 +170,6 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
         (xl, yl, zl) = wing_nodes[1, c, :]
         if abs(zu - zl) >= h_min:
             xs1 = xu
-            zs1u = zu
-            zs1l = zl
             yse1 = yl
             break
     for c in range(0, columns):
@@ -179,8 +177,6 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
         (xl, yl, zl) = wing_nodes[seg + 1, c, :]
         if abs(zu - zl) >= h_min:
             xs2 = xu
-            zs2u = zu
-            zs2l = zl
             yse2 = yl
             break
     for c in range(columns - 1, -1, -1):
@@ -188,16 +184,14 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
         (xl, yl, zl) = wing_nodes[1, c, :]
         if abs(zu - zl) >= h_min:
             xe1 = xu
-            ze1u = zu
-            ze1l = zl
             break
     for c in range(columns - 1, -1, -1):
         (xu, yu, zu) = wing_nodes[seg, c, :]
         (xl, yl, zl) = wing_nodes[seg + 1, c, :]
         if abs(zu - zl) >= h_min:
             xe2 = xu
-            ze2u = zu
-            ze2l = zl
+            # ze2u = zu
+            # ze2l = zl
             break
 
     awg.cabin_area = 0.5 * abs(

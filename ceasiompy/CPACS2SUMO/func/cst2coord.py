@@ -225,7 +225,7 @@ class CST_shape(object):
     def plotting(self):
         x_coor = self.coord[0]
         y_coor = self.coord[1]
-        fig7 = plt.figure()
+        plt.figure()
         ax7 = plt.subplot(111)
         ax7.plot(x_coor, y_coor, "-o")
         plt.xlabel("x/c")

@@ -138,7 +138,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
     ui = getinput.get_user_fuel(fus_nb, ui, cpacs_out_path)
 
     # WEIGHT ANALYSIS
-    ## Engine evaluation
+    #  Engine evaluation
     if ui.USER_ENGINES:
         check_ed(ed)
         mw.mass_engines = ed.en_mass * ed.NE
@@ -215,7 +215,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         log.warning("the number of passengers is: " + str(out.pass_nb))
         log.warning("and the passenger density is: " + str(pass_density))
 
-    ## Fuel mass
+    #  Fuel mass
     if fus_nb:
         mw.mass_fuse_fuel = estimate_fuse_fuel_mass(afg.fuse_fuel_vol, adui.FUEL_DENSITY)
         mw.mass_wing_fuel = estimate_wing_fuel_mass(awg.wing_fuel_vol, adui.FUEL_DENSITY)
@@ -272,7 +272,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         # Total people and payload mass on the aircraft
         mw.mass_people = round(mw.mass_crew + mw.mass_pass, 0)
 
-        ## System mass
+        #  System mass
         mw.mass_systems = round(
             estimate_system_mass(
                 out.pass_nb,
@@ -285,7 +285,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
             0,
         )
 
-        ## MTOM, OEM, ZFM re-evaluation
+        #  MTOM, OEM, ZFM re-evaluation
         mw.operating_empty_mass = round(
             mw.mass_systems
             + mw.mass_crew

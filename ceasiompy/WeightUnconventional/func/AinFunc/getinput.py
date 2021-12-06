@@ -246,7 +246,7 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
     return (ed, ui, adui)
 
 
-## ====================== ENGINES INPUT EXTRACTION DATA =======================#
+# ====================== ENGINES INPUT EXTRACTION DATA ======================= #
 
 
 def get_engine_inputs(ui, ed, cpacs_in):

@@ -90,7 +90,7 @@ def check_segment_connection(wing_plt_area_xz, wing_plt_area_yz, awg, tigl):
             seg_sec[j - 1, i - 1, 0] = s0
             seg_sec[j - 1, i - 1, 1] = s1
             seg_sec[j - 1, i - 1, 2] = j
-        (slpx, slpy, slpz) = tigl.wingGetChordPoint(i, 1, 0.0, 0.0)
+        (_, slpy, slpz) = tigl.wingGetChordPoint(i, 1, 0.0, 0.0)
         seg_sec_reordered[0, i - 1, :] = seg_sec[0, i - 1, :]
         start_index.append(1)
         for j in range(2, awg.wing_seg_nb[i - 1] + 1):
@@ -100,12 +100,12 @@ def check_segment_connection(wing_plt_area_xz, wing_plt_area_yz, awg, tigl):
                 and awg.wing_plt_area[i - 1] > wing_plt_area_yz[i - 1]
             ):
                 if y < slpy:
-                    (slpx, slpy, slpz) = (x, y, z)
+                    (_, slpy, slpz) = (x, y, z)
                     start_index.append(j)
                     seg_sec_reordered[0, i - 1, :] = seg_sec[j - 1, i - 1, :]
             else:
                 if z < slpz:
-                    (slpx, slpy, slpz) = (x, y, z)
+                    (_, slpy, slpz) = (x, y, z)
                     start_index.append(j)
                     seg_sec_reordered[0, i - 1, :] = seg_sec[j - 1, i - 1, :]
         for j in range(2, awg.wing_seg_nb[i - 1] + 1):

@@ -31,7 +31,7 @@ import os
 import aeroframe.stdfun.run as af
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
+# from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
 
 log = get_logger(__file__.split(".")[0])
 

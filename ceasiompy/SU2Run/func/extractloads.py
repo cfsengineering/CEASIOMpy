@@ -18,9 +18,9 @@ TODO:
 
 """
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 
 import pandas
 
@@ -34,17 +34,18 @@ from ceasiompy.utils.su2functions import read_config
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 
-#==============================================================================
+# ==============================================================================
 #   CLASSES
-#==============================================================================
+# ==============================================================================
 
 
-#==============================================================================
+# ==============================================================================
 #   FUNCTIONS
-#==============================================================================
+# ==============================================================================
+
 
 def compute_point_normals(coord, cells):
     """ Function the normal vectors
@@ -61,14 +62,14 @@ def compute_point_normals(coord, cells):
     """
 
     cell_vecs = np.diff(coord[cells], axis=1)
-    cell_nvecs = np.cross(-cell_vecs[:, 0, :], cell_vecs[:, 1, :]) / 2.
+    cell_nvecs = np.cross(-cell_vecs[:, 0, :], cell_vecs[:, 1, :]) / 2.0
 
-    cell_sp = csr_matrix((np.ones(cells.shape[0]*3),
-                         cells.flat, np.arange(0, 3*cells.shape[0]+1, 3)),
-                         shape=(cells.shape[0],
-                         coord.shape[0]))
+    cell_sp = csr_matrix(
+        (np.ones(cells.shape[0] * 3), cells.flat, np.arange(0, 3 * cells.shape[0] + 1, 3)),
+        shape=(cells.shape[0], coord.shape[0]),
+    )
 
-    return cell_sp.T.dot(cell_nvecs) / 3.
+    return cell_sp.T.dot(cell_nvecs) / 3.0
 
 
 def compute_forces(vtu_file_path, force_file_path, config_dict):
@@ -97,7 +98,7 @@ def compute_forces(vtu_file_path, force_file_path, config_dict):
     # reader.SetReadAllVectors(1)
 
     # To read .vtu file
-    reader = vtk.vtkXMLUnstructuredGridReader() #test
+    reader = vtk.vtkXMLUnstructuredGridReader()  # test
     reader.SetFileName(vtu_file_path)
 
     reader.Update()
@@ -108,23 +109,23 @@ def compute_forces(vtu_file_path, force_file_path, config_dict):
     point_nvecs = compute_point_normals(coord, cells)
 
     press = np.ascontiguousarray(
-        vtk_to_numpy(mesh.GetPointData().GetAbstractArray('Pressure'))
-        ).astype(np.double)
+        vtk_to_numpy(mesh.GetPointData().GetAbstractArray("Pressure"))
+    ).astype(np.double)
 
     # TODO raine ERROR, now we need config_dict anyway
     if config_dict is not None:
         press = dimensionalize_pressure(press, config_dict)
 
-
     force = point_nvecs * press[:, None]
 
-    #unit_norm = point_nvecs / np.linalg.norm(point_nvecs, axis=1, keepdims=True) # had to chage that with the last version of numpy
+    # unit_norm = point_nvecs / np.linalg.norm(point_nvecs, axis=1, keepdims=True)
+    # # had to chage that with the last version of numpy
     unit_norm = point_nvecs / np.linalg.norm(point_nvecs)
 
-    for name, values in iteritems({'n': unit_norm, 'f': force}):
+    for name, values in iteritems({"n": unit_norm, "f": force}):
         vectors = numpy_to_vtk(
-            np.ascontiguousarray(values).astype(np.double),
-            deep=True, array_type=vtk.VTK_FLOAT)
+            np.ascontiguousarray(values).astype(np.double), deep=True, array_type=vtk.VTK_FLOAT
+        )
         vectors.SetName(name)
         mesh.GetPointData().AddArray(vectors)
         mesh.GetPointData().SetActiveVectors(name)
@@ -132,7 +133,7 @@ def compute_forces(vtu_file_path, force_file_path, config_dict):
     # Write CSV force file
     ids = range(len(coord))
 
-    su2_mesh_path = config_dict.get('MESH_FILENAME')
+    su2_mesh_path = config_dict.get("MESH_FILENAME")
 
     marker_dict = get_mesh_markers_ids(su2_mesh_path)
     mesh_maker = []
@@ -148,12 +149,20 @@ def compute_forces(vtu_file_path, force_file_path, config_dict):
                     mesh_maker.append(marker)
                     find = True
 
-    df = pandas.DataFrame(data={"ids": ids,
-                                'x': coord[:,0],'y': coord[:,1],'z': coord[:,2],
-                                'fx': force[:,0],'fy': force[:,1],'fz': force[:,2],
-                                'marker': mesh_maker })
+    df = pandas.DataFrame(
+        data={
+            "ids": ids,
+            "x": coord[:, 0],
+            "y": coord[:, 1],
+            "z": coord[:, 2],
+            "fx": force[:, 0],
+            "fy": force[:, 1],
+            "fz": force[:, 2],
+            "marker": mesh_maker,
+        }
+    )
 
-    df.to_csv(force_file_path, sep=',',index=False)
+    df.to_csv(force_file_path, sep=",", index=False)
 
     return mesh
 
@@ -173,19 +182,19 @@ def dimensionalize_pressure(p, config_dict):
         p (list): New pressure values
     """
 
-    ref_dim = config_dict.get('REF_DIMENSIONALIZATION', 'DIMENSIONAL')
-    p_inf = float(config_dict.get('FREESTREAM_PRESSURE', 101325.0))
-    gamma = float(config_dict.get('GAMMA_VALUE', 1.4))
-    ma = float(config_dict.get('MACH_NUMBER', 0.78))
+    ref_dim = config_dict.get("REF_DIMENSIONALIZATION", "DIMENSIONAL")
+    p_inf = float(config_dict.get("FREESTREAM_PRESSURE", 101325.0))
+    gamma = float(config_dict.get("GAMMA_VALUE", 1.4))
+    ma = float(config_dict.get("MACH_NUMBER", 0.78))
 
-    if ref_dim == 'DIMENSIONAL':
+    if ref_dim == "DIMENSIONAL":
         return p - p_inf
-    elif ref_dim == 'FREESTREAM_PRESS_EQ_ONE':
+    elif ref_dim == "FREESTREAM_PRESS_EQ_ONE":
         return (p - 1) * p_inf
-    elif ref_dim == 'FREESTREAM_VEL_EQ_MACH':
+    elif ref_dim == "FREESTREAM_VEL_EQ_MACH":
         return (p * gamma - 1) * p_inf
-    elif ref_dim == 'FREESTREAM_VEL_EQ_ONE':
-        return (p * gamma * ma**2 - 1) * p_inf
+    elif ref_dim == "FREESTREAM_VEL_EQ_ONE":
+        return (p * gamma * ma ** 2 - 1) * p_inf
 
 
 def write_updated_mesh(mesh, new_vtu_file_path):
@@ -202,8 +211,8 @@ def write_updated_mesh(mesh, new_vtu_file_path):
     """
 
     # To write .vtk file
-    #writer = vtk.vtkUnstructuredGridWriter()
-    #writer.SetFileType(0)
+    # writer = vtk.vtkUnstructuredGridWriter()
+    # writer.SetFileType(0)
 
     # To write .vtu file
     writer = vtk.vtkXMLUnstructuredGridWriter()
@@ -239,21 +248,21 @@ def get_mesh_markers_ids(su2_mesh_path):
     with open(su2_mesh_path) as f:
         for line_nb, line in enumerate(f.readlines()):
 
-            if 'Farfield' in line:
+            if "Farfield" in line:
                 start_line_nb = 1e14
 
-            if 'NPERIODIC' in line:
+            if "NPERIODIC" in line:
                 start_line_nb = 1e14
 
-            if ('MARKER_TAG' in line and 'Farfield' not in line):
-                new_marker = line.split('=')[1][:-1]  # -1 to remove "\n"
+            if "MARKER_TAG" in line and "Farfield" not in line:
+                new_marker = line.split("=")[1][:-1]  # -1 to remove "\n"
                 marker_dict[new_marker] = []
                 start_line_nb = line_nb
-                log.info('Mesh marker ' + new_marker + ' start at line: ' + str(start_line_nb))
+                log.info("Mesh marker " + new_marker + " start at line: " + str(start_line_nb))
 
-            if line_nb > start_line_nb+1 :
+            if line_nb > start_line_nb + 1:
                 # print(line)
-                line_ids = line.split('\n')[0].split()
+                line_ids = line.split("\n")[0].split()
                 # print(line_ids)
                 marker_dict[new_marker].append(int(line_ids[1]))
                 marker_dict[new_marker].append(int(line_ids[2]))
@@ -263,7 +272,7 @@ def get_mesh_markers_ids(su2_mesh_path):
     for key, ids_list in marker_dict.items():
         new_ids_list = list(dict.fromkeys(ids_list))
         marker_dict[key] = new_ids_list
-        log.info('Mesh marker ' + key + ' contains ' + str(len(marker_dict[key])) + ' points.')
+        log.info("Mesh marker " + key + " contains " + str(len(marker_dict[key])) + " points.")
 
     if not marker_dict:
         log.warning('No "MARKER_TAG" has been found in the mesh!')
@@ -283,22 +292,24 @@ def extract_loads(results_files_dir):
     """
 
     # Path definitons
-    config_file_path = results_files_dir + '/ConfigCFD.cfg'
-    surface_flow_file_path = results_files_dir + '/surface_flow.vtu'  # .vtu are creteted by SU2 from v7.0.1
-    surface_flow_force_file_path = results_files_dir + '/surface_flow_forces.vtu'
-    force_file_path = results_files_dir + '/force.csv'
+    config_file_path = results_files_dir + "/ConfigCFD.cfg"
+    surface_flow_file_path = (
+        results_files_dir + "/surface_flow.vtu"
+    )  # .vtu are creteted by SU2 from v7.0.1
+    surface_flow_force_file_path = results_files_dir + "/surface_flow_forces.vtu"
+    force_file_path = results_files_dir + "/force.csv"
 
     cfg = read_config(config_file_path)
     updated_mesh = compute_forces(surface_flow_file_path, force_file_path, cfg)
     write_updated_mesh(updated_mesh, surface_flow_force_file_path)
 
 
-#==============================================================================
+# ==============================================================================
 #    MAIN
-#==============================================================================
+# ==============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.info('Nothing to execute!')
+    log.info("Nothing to execute!")
 
     # TODO: adapt to be use as stand alone

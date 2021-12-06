@@ -14,16 +14,17 @@ Python version: >=3.6
 """
 
 
-#=============================================================================
+# =============================================================================
 #   IMPORTS
-#=============================================================================
+# =============================================================================
 
 import numpy as np
 
 
-#=============================================================================
+# =============================================================================
 #   CLASSES
-#=============================================================================
+# =============================================================================
+
 
 class RangeInputs:
     """
@@ -56,14 +57,14 @@ class RangeInputs:
         self.pilot_nb = 2
         self.cabin_crew_nb = np.nan
         self.CRUISE_SPEED = 272.0
-        self.LD = 17               # A319 17, ATR72 15
+        self.LD = 17  # A319 17, ATR72 15
         self.LOITER_TIME = 30.00
         self.MASS_PILOT = 102.0
         self.MASS_CABIN_CREW = 68.0
         self.MASS_PASS = 105.0
-                                  # TURBOPROP and TURBOFAN and CONCORDE
-        self.TSFC_CRUISE = 0.5    #    0.6         0.5          0.8
-        self.TSFC_LOITER = 0.4    #    0.7         0.4          0.9
+        # TURBOPROP and TURBOFAN and CONCORDE
+        self.TSFC_CRUISE = 0.5  # 0.6         0.5          0.8
+        self.TSFC_LOITER = 0.4  # 0.7         0.4          0.9
         self.RES_FUEL_PERC = 0.06
 
         self.TURBOPROP = False
@@ -101,26 +102,26 @@ class MassesWeights:
 
     def __init__(self):
 
-        self.w_after_climb = 0    #Updated with the range analysis
-        self.w_after_cruise = 0   #Updated with the range analysis
-        self.w_after_land = 0     #Updated with the range analysis
-        self.w_after_loiter = 0   #Updated with the range analysis
-        self.w_after_to = 0       #Updated with the range analysis
-        self.wf_tot = 0           #Updated with the range analysis
-        self.w_al_maxfuel = 0     #Updated with the range analysis
-        self.w_g = 0              #Updated with the range analysis
-        self.mf_for_climb = 0     #Updated with the range analysis
-        self.mf_for_cruise = 0    #Updated with the range analysis
-        self.mf_for_landing = 0   #Updated with the range analysis
-        self.mf_after_land = 0    #Updated with the range analysis
-        self.mf_for_to = 0        #Updated with the range analysis
-        self.mf_for_loiter = 0    #Updated with the range analysis
-        self.mass_fuel_maxpass = np.nan       # To get from CPACS
-        self.mass_fuel_max = np.nan           # To get from CPACS
-        self.maximum_take_off_mass = np.nan   # To get from CPACS
-        self.operating_empty_mass = np.nan    # To get from CPACS
-        self.mass_payload = np.nan            # To get from CPACS
-        self.m_pass_middle = 0    #Updated with the range analysis
+        self.w_after_climb = 0  # Updated with the range analysis
+        self.w_after_cruise = 0  # Updated with the range analysis
+        self.w_after_land = 0  # Updated with the range analysis
+        self.w_after_loiter = 0  # Updated with the range analysis
+        self.w_after_to = 0  # Updated with the range analysis
+        self.wf_tot = 0  # Updated with the range analysis
+        self.w_al_maxfuel = 0  # Updated with the range analysis
+        self.w_g = 0  # Updated with the range analysis
+        self.mf_for_climb = 0  # Updated with the range analysis
+        self.mf_for_cruise = 0  # Updated with the range analysis
+        self.mf_for_landing = 0  # Updated with the range analysis
+        self.mf_after_land = 0  # Updated with the range analysis
+        self.mf_for_to = 0  # Updated with the range analysis
+        self.mf_for_loiter = 0  # Updated with the range analysis
+        self.mass_fuel_maxpass = np.nan  # To get from CPACS
+        self.mass_fuel_max = np.nan  # To get from CPACS
+        self.maximum_take_off_mass = np.nan  # To get from CPACS
+        self.operating_empty_mass = np.nan  # To get from CPACS
+        self.mass_payload = np.nan  # To get from CPACS
+        self.m_pass_middle = 0  # Updated with the range analysis
 
 
 class RangeOutput:
@@ -155,12 +156,12 @@ class RangeOutput:
         self.payloads = []
 
 
-#=============================================================================
+# =============================================================================
 #    MAIN
-#=============================================================================
+# =============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.warning('###########################################################')
-    log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN Range_main.py ####')
-    log.warning('###########################################################')
+    print("###########################################################")
+    print("#### ERROR NOT A STANDALONE PROGRAM, RUN Range_main.py ####")
+    print("###########################################################")

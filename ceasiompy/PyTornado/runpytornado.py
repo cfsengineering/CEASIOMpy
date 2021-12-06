@@ -31,20 +31,18 @@ TODO:
 
 """
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 
 from functools import partial
 from importlib import import_module
 from pathlib import Path
-from uuid import uuid4
 import json
 import os
 import re
 import shutil
 from datetime import datetime
-from random import randint
 from glob import glob
 import numpy as np
 import pandas as pd
@@ -57,24 +55,25 @@ import ceasiompy.utils.moduleinterfaces as mi
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 
-log = get_logger(__file__.split('.')[0])
-dump_pretty_json = partial(json.dump, indent=4, separators=(',', ': '))
+log = get_logger(__file__.split(".")[0])
+dump_pretty_json = partial(json.dump, indent=4, separators=(",", ": "))
 
-REGEX_INT = re.compile(r'^[-+]?[0-9]+$')
-REGEX_FLOAT = re.compile(r'^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$')
+REGEX_INT = re.compile(r"^[-+]?[0-9]+$")
+REGEX_FLOAT = re.compile(r"^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$")
 
 DIR_MODULE = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
 
-#==============================================================================
+# ==============================================================================
 #   CLASSES
-#==============================================================================
+# ==============================================================================
 
 
-#==============================================================================
+# ==============================================================================
 #   FUNCTIONS
-#==============================================================================
+# ==============================================================================
+
 
 def import_pytornado(module_name):
     """ Try to import PyTornado and return module if succesful
@@ -129,14 +128,14 @@ def get_pytornado_settings(cpacs_in_path):
     # * The dictionary is described in the PyTornado documentation, see
     #   --> https://pytornado.readthedocs.io/en/latest/user_guide/input_file_settings.html
 
-    ps = import_pytornado('pytornado.objects.settings')
+    ps = import_pytornado("pytornado.objects.settings")
     settings = ps.get_default_dict(ps.DEFAULT_SETTINGS)
 
     # ----- Modify the default dict -----
     settings["aircraft"] = "ToolInput.xml"  # Aircraft input file
     settings["state"] = "__CPACS"  # Load aeroperformance map from CPACS
-    settings['plot']['results']['show'] = False
-    settings['plot']['results']['save'] = False
+    settings["plot"]["results"]["show"] = False
+    settings["plot"]["results"]["save"] = False
 
     # ----- Try to read PyTornado settings from CPACS -----
     cpacs_settings = get_pytornado_settings_from_CPACS(cpacs_in_path)
@@ -161,7 +160,7 @@ def get_pytornado_settings_from_CPACS(cpacs_in_path):
 
     with open(cpacs_in_path, "r") as fp:
         cpacs_as_dict = xml.parse(fp.read())
-    cpacs_settings = cpacs_as_dict.get('cpacs', {}).get('toolspecific', {}).get('pytornado', None)
+    cpacs_settings = cpacs_as_dict.get("cpacs", {}).get("toolspecific", {}).get("pytornado", None)
     parse_pytornado_settings_dict(cpacs_settings)
     return cpacs_settings
 
@@ -206,9 +205,9 @@ def parse_pytornado_settings_dict(dictionary):
 
         # Convert strings to bool, float, int
         elif isinstance(v, str):
-            if v.lower() == 'true':
+            if v.lower() == "true":
                 v = True
-            elif v.lower() == 'false':
+            elif v.lower() == "false":
                 v = False
             # First check integer, then float!
             elif REGEX_INT.fullmatch(v):
@@ -239,13 +238,13 @@ def _get_load_fields(pytornado_results, dir_pyt_results):
         :load_fields: (dict) AeroFrame load fields
     """
 
-    vlmdata = pytornado_results['vlmdata']
-    lattice = pytornado_results['lattice']
+    vlmdata = pytornado_results["vlmdata"]
+    lattice = pytornado_results["lattice"]
 
     # PyTornado API provides access to loads on main wing and on mirrored side
     bookkeeping_lists = (
-        (lattice.bookkeeping_by_wing_uid, ''),
-        (lattice.bookkeeping_by_wing_uid_mirror, '_m'),
+        (lattice.bookkeeping_by_wing_uid, ""),
+        (lattice.bookkeeping_by_wing_uid_mirror, "_m"),
     )
 
     frames = []
@@ -265,24 +264,26 @@ def _get_load_fields(pytornado_results, dir_pyt_results):
                 for pan_idx in entry.pan_idx:
                     load_field_entry = np.zeros((1, 6))
                     # load_field_entry[0, 0:3] = self.points_of_attack_undeformed[pan_idx]
-                    load_field_entry[0, 0:3] = lattice.bound_leg_midpoints[pan_idx] #TODO: correct to use this field as coordinates??
-                    load_field_entry[0, 3] = vlmdata.panelwise['fx'][pan_idx]
-                    load_field_entry[0, 4] = vlmdata.panelwise['fy'][pan_idx]
-                    load_field_entry[0, 5] = vlmdata.panelwise['fz'][pan_idx]
+                    load_field_entry[0, 0:3] = lattice.bound_leg_midpoints[
+                        pan_idx
+                    ]  # TODO: correct to use this field as coordinates??
+                    load_field_entry[0, 3] = vlmdata.panelwise["fx"][pan_idx]
+                    load_field_entry[0, 4] = vlmdata.panelwise["fy"][pan_idx]
+                    load_field_entry[0, 5] = vlmdata.panelwise["fz"][pan_idx]
                     load_field = np.append(load_field, load_field_entry, axis=0)
 
             # # Write one CSV file per Wing
             load_fields[wing_uid + suffix] = load_field[1:, :]
             df = pd.DataFrame(load_field[1:, :])
-            df.columns =['x', 'y','z','fx', 'fy','fz']
-            df['wing_uid'] = wing_uid + suffix
+            df.columns = ["x", "y", "z", "fx", "fy", "fz"]
+            df["wing_uid"] = wing_uid + suffix
             frames.append(df)
 
     # Write aircraft load in a CSV file
     df_tot = pd.concat(frames)
-    csv_path = os.path.join(dir_pyt_results,'aircraft_loads.csv')
+    csv_path = os.path.join(dir_pyt_results, "aircraft_loads.csv")
     print(csv_path)
-    df_tot.to_csv(csv_path, sep=',',index=False)
+    df_tot.to_csv(csv_path, sep=",", index=False)
 
 
 def main():
@@ -297,19 +298,19 @@ def main():
     # ===== Delete old working directories =====
     settings_from_CPACS = get_pytornado_settings_from_CPACS(cpacs_in_path)
     if settings_from_CPACS is not None:
-        if settings_from_CPACS.get('deleteOldWKDIRs', False):
-            wkdirs = glob(os.path.join(DIR_MODULE, 'wkdir_*'))
+        if settings_from_CPACS.get("deleteOldWKDIRs", False):
+            wkdirs = glob(os.path.join(DIR_MODULE, "wkdir_*"))
             for wkdir in wkdirs:
                 shutil.rmtree(wkdir, ignore_errors=True)
 
     # ===== Paths =====
-    dir_pyt_wkdir = os.path.join(DIR_MODULE,'wkdir_temp')
+    dir_pyt_wkdir = os.path.join(DIR_MODULE, "wkdir_temp")
 
-    dir_pyt_aircraft = os.path.join(dir_pyt_wkdir, 'aircraft')
-    dir_pyt_settings = os.path.join(dir_pyt_wkdir, 'settings')
-    dir_pyt_results = os.path.join(dir_pyt_wkdir, '_results')
-    file_pyt_aircraft = os.path.join(dir_pyt_aircraft, 'ToolInput.xml')
-    file_pyt_settings = os.path.join(dir_pyt_settings, 'cpacs_run.json')
+    dir_pyt_aircraft = os.path.join(dir_pyt_wkdir, "aircraft")
+    dir_pyt_settings = os.path.join(dir_pyt_wkdir, "settings")
+    dir_pyt_results = os.path.join(dir_pyt_wkdir, "_results")
+    file_pyt_aircraft = os.path.join(dir_pyt_aircraft, "ToolInput.xml")
+    file_pyt_settings = os.path.join(dir_pyt_settings, "cpacs_run.json")
 
     # ===== Make directories =====
     Path(dir_pyt_wkdir).mkdir(parents=True, exist_ok=True)
@@ -327,34 +328,37 @@ def main():
         dump_pretty_json(cpacs_settings, fp)
 
     # ===== PyTornado analysis =====
-    pytornado = import_pytornado('pytornado.stdfun.run')
-    #pytornado.standard_run(args=pytornado.StdRunArgs(run=file_pyt_settings, verbose=True))
-    results = pytornado.standard_run(args=pytornado.StdRunArgs(run=file_pyt_settings, verbose=True))
+    pytornado = import_pytornado("pytornado.stdfun.run")
+    # pytornado.standard_run(args=pytornado.StdRunArgs(run=file_pyt_settings, verbose=True))
+    results = pytornado.standard_run(
+        args=pytornado.StdRunArgs(run=file_pyt_settings, verbose=True)
+    )
 
     # ===== Extract load =====
     tixi = open_tixi(cpacs_in_path)
-    extract_loads_xpath = '/cpacs/toolspecific/pytornado/save_results/extractLoads'
+    extract_loads_xpath = "/cpacs/toolspecific/pytornado/save_results/extractLoads"
     extract_loads = get_value_or_default(tixi, extract_loads_xpath, False)
 
     if extract_loads:
-        _get_load_fields(results,dir_pyt_results)
+        _get_load_fields(results, dir_pyt_results)
 
     # ===== Clean up =====
     shutil.copy(src=file_pyt_aircraft, dst=cpacs_out_path)
 
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
-    dst_pyt_wkdir = os.path.join(wkdir,'CFD','PyTornado',
-                                f"wkdir_{datetime.strftime(datetime.now(), '%F_%H%M%S')}")
+    dst_pyt_wkdir = os.path.join(
+        wkdir, "CFD", "PyTornado", f"wkdir_{datetime.strftime(datetime.now(), '%F_%H%M%S')}"
+    )
     shutil.copytree(src=dir_pyt_wkdir, dst=dst_pyt_wkdir)
     shutil.rmtree(dir_pyt_wkdir, ignore_errors=True)
 
     log.info("PyTornado analysis completed")
 
 
-#==============================================================================
+# ==============================================================================
 #    MAIN
-#==============================================================================
+# ==============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
     main()

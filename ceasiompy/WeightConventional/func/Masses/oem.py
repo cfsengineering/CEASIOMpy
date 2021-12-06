@@ -14,18 +14,18 @@ Python version: >=3.6
 """
 
 
-#=============================================================================
+# =============================================================================
 #   IMPORTS
-#=============================================================================
+# =============================================================================
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 
-#==============================================================================
+# ==============================================================================
 #   CLASSES
-#==============================================================================
+# ==============================================================================
 
 """
  InsideDimensions class, can be found on the InputClasses folder inside the
@@ -33,12 +33,12 @@ log = get_logger(__file__.split('.')[0])
 """
 
 
-#=============================================================================
+# =============================================================================
 #   FUNCTIONS
-#=============================================================================
+# =============================================================================
 
-def estimate_operating_empty_mass(mtom, fuse_length, fuse_width, wing_area,
-                                  wing_span, TURBOPROP):
+
+def estimate_operating_empty_mass(mtom, fuse_length, fuse_width, wing_area, wing_span, TURBOPROP):
     """ The function estimates the operating empty mass (OEM)
 
     Source: Raymer, D.P. "Aircraft design: a conceptual approach"
@@ -56,11 +56,11 @@ def estimate_operating_empty_mass(mtom, fuse_length, fuse_width, wing_area,
         oem (float): Operating empty mass [kg]
     """
 
-    G = 9.81     # [m/s^2] Acceleration of gravity.
-    KC = 1.04    # [-] Wing with variable sweep (1.0 otherwhise).
+    G = 9.81  # [m/s^2] Acceleration of gravity.
+    KC = 1.04  # [-] Wing with variable sweep (1.0 otherwhise).
 
     if TURBOPROP:
-        C = -0.05 # [-] General aviation twin turboprop
+        C = -0.05  # [-] General aviation twin turboprop
         if fuse_length < 15.00:
             A = 0.96
         elif fuse_length < 30.00:
@@ -68,11 +68,11 @@ def estimate_operating_empty_mass(mtom, fuse_length, fuse_width, wing_area,
         else:
             A = 1.0
     else:
-        C = -0.08 # [-] General aviation twin engines
+        C = -0.08  # [-] General aviation twin engines
         if fuse_length < 30.00:
             A = 1.45
         elif fuse_length < 35.00:
-                A = 1.63
+            A = 1.63
         elif fuse_length < 60.00:
             if wing_span > 61:
                 A = 1.63
@@ -80,16 +80,16 @@ def estimate_operating_empty_mass(mtom, fuse_length, fuse_width, wing_area,
                 A = 1.57
         else:
             A = 1.63
-    oem = round((A * KC * (mtom*G)**(C)) * mtom,3)
+    oem = round((A * KC * (mtom * G) ** (C)) * mtom, 3)
     return oem
 
 
-##=============================================================================
+# =============================================================================
 #   MAIN
-#==============================================================================
+# ==============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.warning('###########################################################')
-    log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ####')
-    log.warning('###########################################################')
+    print("###########################################################")
+    print("#### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ####")
+    print("###########################################################")

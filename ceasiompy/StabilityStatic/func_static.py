@@ -17,36 +17,29 @@ TODO:
 
 """
 
-#=============================================================================
+# =============================================================================
 #   IMPORTS
-#=============================================================================
+# =============================================================================
 
 import os
-import sys
 import numpy as np
-from numpy import log as ln
-from numpy import linalg # For eigen values and aigen voectors
-import matplotlib.patheffects
 import matplotlib.pyplot as plt
-from matplotlib import rcParams, cycler
-from matplotlib.lines import Line2D
-from matplotlib.patches import Patch
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-#=============================================================================
+# =============================================================================
 #   CLASSES
-#=============================================================================
+# =============================================================================
 
 
-
-#=============================================================================
+# =============================================================================
 #   FUNCTIONS
-#=============================================================================
+# =============================================================================
+
 
 def get_unic(vector):
     """Return a vector with the same element having only one occurence.
@@ -109,7 +102,8 @@ def interpolation(list, idx1, idx2, ratio):
     value = list[idx1] + ratio * (list[idx2] - list[idx1])
     return value
 
-#TODO: check function exist or change name
+
+# TODO: check function exist or change name
 def extract_subelements(vector):
     """ Transform multiple element list into a 1D vector
 
@@ -125,14 +119,15 @@ def extract_subelements(vector):
 
     extracted = []
     for elem in vector:
-        for value in elem :
+        for value in elem:
             extracted.append(value)
 
     return extracted
 
-
-def order_correctly(A,B):
-    """ Order list A in incresing order and moves element in B in the same way as elements in A have been ordered
+# TODO: replace this function by "A,B = zip(*sorted(zip(X, Y)))"
+def order_correctly(A, B):
+    """ Order list A in incresing order and moves element in B in the same way as elements in
+    A have been ordered
 
     Args:
         A (list) : a list  of floats must be of the same length as B
@@ -145,13 +140,14 @@ def order_correctly(A,B):
 
         A plot with different curves if asked.
     """
+
     n = len(A)
     for i in range(n):
         for j in range(n):
             if A[i] > A[j] and i <= j:
-                A[i], A[j] = A[j] , A[i]
-                B[i], B[j] = B[j] , B[i]
-    return A,B
+                A[i], A[j] = A[j], A[i]
+                B[i], B[j] = B[j], B[i]
+    return A, B
 
 
 # Function derivative, or more trim condition function
@@ -180,43 +176,59 @@ def trim_derivative(alt, mach, list1, list2):
     ratio = 0
 
     # Check moment coefficient list
-    if len(np.argwhere(np.diff(np.sign(list1)))) == 0  :
+    if len(np.argwhere(np.diff(np.sign(list1)))) == 0:
         crossed = False
         # If all list1. values are 0:
         if list1.count(0) == len(list1):
-            log.warning('Alt = {}, mach = {} moment coefficients list is composed of 0 only.'.format(alt, mach))
+            log.warning(
+                "Alt = {}, mach = {} moment coefficients list is composed of 0 only.".format(
+                    alt, mach
+                )
+            )
         # If cm curve does not cross the 0 line
         else:
-            log.error('Alt = {}, mach = {} moment coefficients list does not cross the 0 line, aircraft not stable, trimm conditions not achieved.'.format(alt, mach))
+            log.error(
+                "Alt = {}, mach = {} moment coefficients list does not cross the 0 line, aircraft not stable, trimm conditions not achieved.".format(
+                    alt, mach
+                )
+            )
     # If list1. Curve crosses the 0 line more than once no stability analysis can be performed
     elif len(np.argwhere(np.diff(np.sign(list1)))) > 2 or list1.count(0) > 1:
-        log.error('Alt = {}, mach = {} moment coefficients list crosses more than once the 0 line, no stability analysis performed'.format(alt, mach))
-        crossed  = False
+        log.error(
+            "Alt = {}, mach = {} moment coefficients list crosses more than once the 0 line, no stability analysis performed".format(
+                alt, mach
+            )
+        )
+        crossed = False
     # If list1. Curve crosses the 0 line twice
     elif 0 not in np.sign(list1) and len(np.argwhere(np.diff(np.sign(list1)))) == 2:
-        log.error('Alt = {}, mach = {} moment coefficients list crosses the 0 line twice, no stability analysis performed'.format(alt, mach))
+        log.error(
+            "Alt = {}, mach = {} moment coefficients list crosses the 0 line twice, no stability analysis performed".format(
+                alt, mach
+            )
+        )
         crossed = False
     # If   0 is in list1
     elif 0 in np.sign(list1) and list1.count(0) == 1 and crossed:
         idx_list1_0 = [i for i in range(len(list1)) if list1[i] == 0][0]
         # If 0 is the first element in list1
-        if idx_list1_0 == 0 :
+        if idx_list1_0 == 0:
             idx_trim_before = idx_list1_0
-            idx_trim_after = idx_list1_0+1
+            idx_trim_after = idx_list1_0 + 1
 
             # Angles and coeffs before and after crossing the 0 line
-            value_before = list2[idx_trim_before ]
-            value_after = list2[idx_trim_after ]
-            list1_before = list1[idx_trim_before ]
-            list1_after = list1[idx_trim_after ]
+            value_before = list2[idx_trim_before]
+            value_after = list2[idx_trim_after]
+            list1_before = list1[idx_trim_before]
+            list1_after = list1[idx_trim_after]
 
             trim_value = value_before
-            trim_parameter = (list1_after-list1_before)/(value_after-value_before)
-            ratio = trim_value/(value_after -value_before )
+            trim_parameter = (list1_after - list1_before) / (value_after - value_before)
+            ratio = trim_value / (value_after - value_before)
 
         # If 0 is the last element in list1
         elif idx_list1_0 == len(list1) - 1:
-            idx_trim_before = idx_list1_0-1
+            idx_trim_before = idx_list1_0 - 1
             idx_trim_after = idx_list1_0
 
             # values and coeffs before and after crossing the 0 line
@@ -226,13 +238,13 @@ def trim_derivative(alt, mach, list1, list2):
             list1_after = list1[idx_trim_after]
 
             trim_value = value_after
-            trim_parameter = (list1_after-list1_before)/(value_after-value_before)
-            ratio = trim_value/(value_after -value_before)
+            trim_parameter = (list1_after - list1_before) / (value_after - value_before)
+            ratio = trim_value / (value_after - value_before)
 
         # If  0 is nor the first nor the last element in list1
-        elif 0 < idx_list1_0 < len(list1)-1:
-            idx_trim_before = idx_list1_0-1
-            idx_trim_after = idx_list1_0+1
+        elif 0 < idx_list1_0 < len(list1) - 1:
+            idx_trim_before = idx_list1_0 - 1
+            idx_trim_after = idx_list1_0 + 1
 
             # Angles and coeffs before and after crossing the 0 line
             value_before = list2[idx_trim_before]
@@ -240,16 +252,16 @@ def trim_derivative(alt, mach, list1, list2):
             list1_before = list1[idx_trim_before]
             list1_after = list1[idx_trim_after]
 
-            trim_value= list2[idx_list1_0]
-            trim_parameter = (list1_after - list1_before)/(value_after - value_before)
-            ratio = trim_value/(value_after - value_before )
+            trim_value = list2[idx_list1_0]
+            trim_parameter = (list1_after - list1_before) / (value_after - value_before)
+            ratio = trim_value / (value_after - value_before)
 
     # If list1 crosse the 0 line and 0 is not in list1
-    elif  len(np.argwhere(np.diff(np.sign(list1)))) == 1 and 0 not in np.sign(list1) and crossed:
+    elif len(np.argwhere(np.diff(np.sign(list1)))) == 1 and 0 not in np.sign(list1) and crossed:
         # Make the linear equation btween the 2 point before and after crossing the 0 ine y=ax+b
         idx_list1_0 = np.argwhere(np.diff(np.sign(list1)))[0][0]
         idx_trim_before = idx_list1_0
-        idx_trim_after = idx_list1_0+1
+        idx_trim_after = idx_list1_0 + 1
 
         # Angles and coeffs before and after crossing the 0 line
         value_before = list2[idx_trim_before]
@@ -257,18 +269,21 @@ def trim_derivative(alt, mach, list1, list2):
         list1_before = list1[idx_trim_before]
         list1_after = list1[idx_trim_after]
 
-        fit = np.polyfit([value_before, value_after], [list1_before, list1_after], 1)  # returns [a,b] of y=ax+b
+        fit = np.polyfit(
+            [value_before, value_after], [list1_before, list1_after], 1
+        )  # returns [a,b] of y=ax+b
 
-        trim_value= -fit[1]/fit[0]    # list1. = 0 for y = 0  hence cruise agngle = -b/a
+        trim_value = -fit[1] / fit[0]  # list1. = 0 for y = 0  hence cruise agngle = -b/a
         trim_parameter = fit[0]
-        ratio =  trim_value/(value_after - value_before )
+        ratio = trim_value / (value_after - value_before)
 
     return (trim_value, trim_parameter, idx_trim_before, idx_trim_after, ratio)
 
 
-
 # Function derivative, or more trim condition function
-def trim_condition(alt, mach, cl_required, cl, aoa,):
+def trim_condition(
+    alt, mach, cl_required, cl, aoa,
+):
     """Find if a moments coefficeint cm cross the 0 line, once or more
         Find if a moment coefficeint cm. crosse the 0 line only once and return
         the corresponding angle and the cm derivative at cm=0
@@ -284,34 +299,38 @@ def trim_condition(alt, mach, cl_required, cl, aoa,):
     """
 
     list1 = []
-    for element in cl :
+    for element in cl:
         list1.append(element - cl_required)
 
     # Check moment coefficient list
-    if len(np.argwhere(np.diff(np.sign(list1)))) == 0  :
+    if len(np.argwhere(np.diff(np.sign(list1)))) == 0:
         # If list1 does not cross the 0 line
-        log.info('Alt = {}, mach = {} not enough lift to fly, cl_max= {} and required_cl = {}'.format(alt, mach, max(cl), cl_required))
-        return  (None, None, None, None)
+        log.info(
+            "Alt = {}, mach = {} not enough lift to fly, cl_max= {} and required_cl = {}".format(
+                alt, mach, max(cl), cl_required
+            )
+        )
+        return (None, None, None, None)
 
         #  COMPUTE cms derivatives and check if the slope is negative.
     # If  0 is in list1
-    elif 0 in np.sign(list1) and list1.count(0) == 1 :
+    elif 0 in np.sign(list1) and list1.count(0) == 1:
         idx_list1_0 = [i for i in range(len(list1)) if list1[i] == 0][0]
         # If 0 is the first element in list1
-        if idx_list1_0 == 0 :
+        if idx_list1_0 == 0:
             idx_trim_before = idx_list1_0
-            idx_trim_after = idx_list1_0+1
+            idx_trim_after = idx_list1_0 + 1
 
             # Angles and coeffs before and after crossing the 0 line
-            aoa_before = aoa[idx_trim_before ]
-            aoa_after = aoa[idx_trim_after ]
+            aoa_before = aoa[idx_trim_before]
+            aoa_after = aoa[idx_trim_after]
 
             trim_aoa = aoa_before
-            ratio =  (trim_aoa - aoa_before)/(aoa_after - aoa_before )
+            ratio = (trim_aoa - aoa_before) / (aoa_after - aoa_before)
 
         # If 0 is the last element in list1
         elif idx_list1_0 == len(list1) - 1:
-            idx_trim_before = idx_list1_0-1
+            idx_trim_before = idx_list1_0 - 1
             idx_trim_after = idx_list1_0
 
             # aoas and coeffs before and after crossing the 0 line
@@ -319,19 +338,19 @@ def trim_condition(alt, mach, cl_required, cl, aoa,):
             aoa_after = aoa[idx_trim_after]
 
             trim_aoa = aoa_after
-            ratio =  (trim_aoa - aoa_before)/(aoa_after - aoa_before )
+            ratio = (trim_aoa - aoa_before) / (aoa_after - aoa_before)
 
         # If  0 is nor the first nor the last element in list1
-        elif 0 < idx_list1_0 < len(list1)-1:
-            idx_trim_before = idx_list1_0-1
-            idx_trim_after = idx_list1_0+1
+        elif 0 < idx_list1_0 < len(list1) - 1:
+            idx_trim_before = idx_list1_0 - 1
+            idx_trim_after = idx_list1_0 + 1
 
             # Angles and coeffs before and after crossing the 0 line
             aoa_before = aoa[idx_trim_before]
             aoa_after = aoa[idx_trim_after]
 
-            trim_aoa= aoa[idx_list1_0]
-            ratio =  (trim_aoa - aoa_before)/(aoa_after - aoa_before )
+            trim_aoa = aoa[idx_list1_0]
+            ratio = (trim_aoa - aoa_before) / (aoa_after - aoa_before)
 
     # If list1 crosse the 0 line and 0 is not in list1
     # elif  len(np.argwhere(np.diff(np.sign(list1)))) == 1 and 0 not in np.sign(list1) and crossed:
@@ -339,7 +358,7 @@ def trim_condition(alt, mach, cl_required, cl, aoa,):
         # Make the linear equation btween the 2 point before and after crossing the 0 ine y=ax+b
         idx_list1_0 = np.argwhere(np.diff(np.sign(list1)))[0][0]
         idx_trim_before = idx_list1_0
-        idx_trim_after = idx_list1_0+1
+        idx_trim_after = idx_list1_0 + 1
 
         # Angles and coeffs before and after crossing the 0 line
         aoa_before = aoa[idx_trim_before]
@@ -347,16 +366,17 @@ def trim_condition(alt, mach, cl_required, cl, aoa,):
         list1_before = list1[idx_trim_before]
         list1_after = list1[idx_trim_after]
 
-        fit = np.polyfit([aoa_before, aoa_after], [list1_before, list1_after], 1)  # returns [a,b] of y=ax+b
+        fit = np.polyfit(
+            [aoa_before, aoa_after], [list1_before, list1_after], 1
+        )  # returns [a,b] of y=ax+b
 
-        trim_aoa= -fit[1]/fit[0]    # list1. = 0 for y = 0  hence cruise agngle = -b/a
-        ratio =  (trim_aoa - aoa_before)/(aoa_after - aoa_before )
+        trim_aoa = -fit[1] / fit[0]  # list1. = 0 for y = 0  hence cruise agngle = -b/a
+        ratio = (trim_aoa - aoa_before) / (aoa_after - aoa_before)
 
     return (trim_aoa, idx_trim_before, idx_trim_after, ratio)
 
 
-
-def find_max_min(list1,list2): # fin values max and mi in list of lists
+def find_max_min(list1, list2):  # fin values max and mi in list of lists
     """Find the max and the min of 2 lists of lists
     Args:
         list1 : list of lists e.i. : list1 = [[1,2],[3,4]]
@@ -369,25 +389,29 @@ def find_max_min(list1,list2): # fin values max and mi in list of lists
         y_min : min of list2
         e.i. : [4,1,3,0]
     """
-    for n in range(min([len(list1), len(list2)])): # take the minimum length even if the vectors are supposed to have the same length
+    for n in range(
+        min([len(list1), len(list2)])
+    ):  # take the minimum length even if the vectors are supposed to have the same length
         # Find x and y axis limits
-        if n==0 :
+        if n == 0:
             x_max = max(list1[0])
             x_min = min(list1[0])
             y_max = max(list2[0])
             y_min = min(list2[0])
-        if n > 0  and max(list2[n]) > y_max :
+        if n > 0 and max(list2[n]) > y_max:
             y_max = max(list2[n])
-        if n > 0  and min(list2[n]) < y_min :
-            y_min  = min(list2[n])
-        if n > 0  and max(list1[n]) > x_max :
+        if n > 0 and min(list2[n]) < y_min:
+            y_min = min(list2[n])
+        if n > 0 and max(list1[n]) > x_max:
             x_max = max(list1[n])
-        if n > 0  and min(list1[n]) < x_min :
+        if n > 0 and min(list1[n]) < x_min:
             x_min = min(list1[n])
     return (x_max, x_min, y_max, y_min)
 
 
-def plot_multicurve(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots):
+def plot_multicurve(
+    y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel, show_plots, save_plots
+):
     """Function to plot graph with different curves for a varying parameter
 
     Function 'plot_multicurve' can plot few curves ...
@@ -412,63 +436,64 @@ def plot_multicurve(y_axis, x_axis, plot_legend, plot_title, xlabel, ylabel, sho
 
     fig = plt.figure(figsize=(9, 3))
 
-    plt.title(plot_title, fontdict=None, loc='center', pad=None)
+    plt.title(plot_title, fontdict=None, loc="center", pad=None)
 
     for n in range(len(x_axis)):
-        plt.plot(x_axis[n], y_axis[n], marker='o', markersize=4, linewidth=1)
+        plt.plot(x_axis[n], y_axis[n], marker="o", markersize=4, linewidth=1)
         # Find x and y axis limits
-        if n==0 :
+        if n == 0:
             y_max = max(y_axis[0])
             y_min = min(y_axis[0])
             x_max = max(x_axis[0])
             x_min = min(x_axis[0])
-        if n > 0  and max(y_axis[n]) > y_max :
+        if n > 0 and max(y_axis[n]) > y_max:
             y_max = max(y_axis[n])
-        if n > 0  and min(y_axis[n]) < y_min :
-            y_min  = min(y_axis[n])
-        if n > 0  and max(x_axis[n]) > x_max :
+        if n > 0 and min(y_axis[n]) < y_min:
+            y_min = min(y_axis[n])
+        if n > 0 and max(x_axis[n]) > x_max:
             x_max = max(x_axis[n])
-        if n > 0  and min(x_axis[n]) < x_min :
+        if n > 0 and min(x_axis[n]) < x_min:
             x_min = min(x_axis[n])
     ax = plt.gca()
 
     plt.grid(True)
     # Remove Top and right axes
-    ax.spines['right'].set_color('none')
-    ax.spines['top'].set_color('none')
+    ax.spines["right"].set_color("none")
+    ax.spines["top"].set_color("none")
 
-    #Locate horizontal axis in a coherent way
-    if y_max < 0 :
-        ax.spines['bottom'].set_position(('axes',1))
-    elif y_min > 0 :
-        ax.spines['bottom'].set_position(('axes',0))
-    elif len(np.argwhere(np.diff(np.sign([y_min, y_max])))) != 0 :
-        ax.spines['bottom'].set_position(('data',0))
+    # Locate horizontal axis in a coherent way
+    if y_max < 0:
+        ax.spines["bottom"].set_position(("axes", 1))
+    elif y_min > 0:
+        ax.spines["bottom"].set_position(("axes", 0))
+    elif len(np.argwhere(np.diff(np.sign([y_min, y_max])))) != 0:
+        ax.spines["bottom"].set_position(("data", 0))
 
-    #Locate vertical axis in a coherent way
-    if x_max < 0 :
-        ax.spines['left'].set_position(('axes',1))
-    elif x_min > 0 :
-        ax.spines['left'].set_position(('axes',0))
-    elif len(np.argwhere(np.diff(np.sign([x_min, x_max])))) != 0 :
-        ax.spines['left'].set_position(('data',0))
+    # Locate vertical axis in a coherent way
+    if x_max < 0:
+        ax.spines["left"].set_position(("axes", 1))
+    elif x_min > 0:
+        ax.spines["left"].set_position(("axes", 0))
+    elif len(np.argwhere(np.diff(np.sign([x_min, x_max])))) != 0:
+        ax.spines["left"].set_position(("data", 0))
 
-    ax.legend(plot_legend, loc='upper right')
-    ax.annotate(xlabel, xy=(x_max, 0), ha='right', va='bottom', xycoords='data', fontsize=12)
-    ax.annotate(ylabel, xy=(0, y_max), ha='left', va='center', xycoords='data', fontsize=12)
+    ax.legend(plot_legend, loc="upper right")
+    ax.annotate(xlabel, xy=(x_max, 0), ha="right", va="bottom", xycoords="data", fontsize=12)
+    ax.annotate(ylabel, xy=(0, y_max), ha="left", va="center", xycoords="data", fontsize=12)
 
     if save_plots:
-        fig_titile = plot_title.replace(' ','_')
-        fig_path = os.path.join(MODULE_DIR,'ToolOutput',fig_titile) + '.svg'
+        fig_titile = plot_title.replace(" ", "_")
+        fig_path = os.path.join(MODULE_DIR, "ToolOutput", fig_titile) + ".svg"
         plt.savefig(fig_path)
 
     if show_plots:
         plt.show()
 
-#==============================================================================
+
+# ==============================================================================
 #    MAIN
-#==============================================================================
+# ==============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.info('Nothing to execute!')
+    log.info("Nothing to execute!")

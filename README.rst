@@ -6,9 +6,17 @@
     :target: https://github.com/cfsengineering/CEASIOMpy/actions/workflows/pytest.yml
     :alt: Pytest status
 
+.. image:: https://codecov.io/gh/cfsengineering/CEASIOMpy/branch/master/graph/badge.svg?token=d6cyUEOmOQ
+    :target: https://codecov.io/gh/cfsengineering/CEASIOMpy
+    :alt: Codecov
+
 .. image:: https://img.shields.io/badge/license-Apache%202-blue.svg
     :target: https://github.com/cfsengineering/CEASIOMpy/blob/master/LICENSE
     :alt: License
+
+.. image:: https://img.shields.io/badge/code%20style-black-000000.svg
+    :target: https://github.com/psf/black
+    :alt: Black code style
 
 
 CEASIOMpy

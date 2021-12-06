@@ -14,29 +14,31 @@ Python version: >=3.6
 """
 
 
-#=============================================================================
+# =============================================================================
 #   IMPORTS
-#=============================================================================
+# =============================================================================
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 
-#=============================================================================
+# =============================================================================
 #   CLASSES
-#=============================================================================
+# =============================================================================
 
 """All classes are defined inside the classes folder and in the
    InputClasses/Unconventional folder."""
 
 
-#=============================================================================
+# =============================================================================
 #   FUNCTIONS
-#=============================================================================
+# =============================================================================
 
-def estimate_fuse_passengers(fus_nb, FLOORS_NB, PASS_PER_TOILET, cabin_area,\
-                             MASS_PASS, pass_density):
+
+def estimate_fuse_passengers(
+    fus_nb, FLOORS_NB, PASS_PER_TOILET, cabin_area, MASS_PASS, pass_density
+):
     """ The function evaluates the number of passengers members on board in
         case of an unconventional aircraft with fuselage.
 
@@ -63,17 +65,16 @@ def estimate_fuse_passengers(fus_nb, FLOORS_NB, PASS_PER_TOILET, cabin_area,\
     pass_nb = 0
 
     for i in range(0, fus_nb):
-        pass_nb += cabin_area[i-1] * pass_density
+        pass_nb += cabin_area[i - 1] * pass_density
 
-    pass_nb = int(round(pass_nb * MF,0))
-    mass_pass_tot = round(pass_nb * MASS_PASS,3)
-    toilet_nb = round(pass_nb/PASS_PER_TOILET,0)
+    pass_nb = int(round(pass_nb * MF, 0))
+    mass_pass_tot = round(pass_nb * MASS_PASS, 3)
+    toilet_nb = round(pass_nb / PASS_PER_TOILET, 0)
 
-    return(pass_nb, toilet_nb, mass_pass_tot)
+    return (pass_nb, toilet_nb, mass_pass_tot)
 
 
-def estimate_wing_passengers(FLOORS_NB, PASS_PER_TOILET, cabin_area,\
-                             MASS_PASS, pass_density):
+def estimate_wing_passengers(FLOORS_NB, PASS_PER_TOILET, cabin_area, MASS_PASS, pass_density):
     """ The function evaluates the number of passengers members on board in
         case of an unconventional aircraft without fuselage.
 
@@ -99,19 +100,19 @@ def estimate_wing_passengers(FLOORS_NB, PASS_PER_TOILET, cabin_area,\
 
     MF = FLOORS_NB * 0.5 + 0.5
 
-    pass_nb = int(round((cabin_area * (pass_density)) * MF,0))
-    mass_pass_tot = round(pass_nb * MASS_PASS,3)
-    toilet_nb = int(round(pass_nb/PASS_PER_TOILET,0))
+    pass_nb = int(round((cabin_area * (pass_density)) * MF, 0))
+    mass_pass_tot = round(pass_nb * MASS_PASS, 3)
+    toilet_nb = int(round(pass_nb / PASS_PER_TOILET, 0))
 
-    return(pass_nb, toilet_nb, mass_pass_tot)
+    return (pass_nb, toilet_nb, mass_pass_tot)
 
 
-##=============================================================================
+# =============================================================================
 #   MAIN
-#==============================================================================
+# ==============================================================================
 
-if __name__ == '__main__':
-    
-    log.warning('########################################################')
-    log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #')
-    log.warning('########################################################')
+if __name__ == "__main__":
+
+    log.warning("########################################################")
+    log.warning("# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #")
+    log.warning("########################################################")

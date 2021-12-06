@@ -14,18 +14,19 @@ Python version: >=3.6
 """
 
 
-#=============================================================================
+# =============================================================================
 #   IMPORTS
-#=============================================================================
+# =============================================================================
 
 import numpy as np
 
 
-#=============================================================================
+# =============================================================================
 #   CLASSES
-#=============================================================================
+# =============================================================================
 
-class EngineData():
+
+class EngineData:
     """
     The class contains all the engines information required for the
     unconventional aircraft analysis.
@@ -49,33 +50,33 @@ class EngineData():
     def __init__(self):
 
         self.NE = 2
-        self.en_mass = 0          #| CONCORDE 3175
-        self.max_thrust = 0       #| CONCORDE 170
-                                  #| TURBOPROP and TURBOFAN and CONCORDE
-        self.TSFC_CRUISE = 0.5    #|    0.6          0.5          0.8
-        #|Balance input
-        self.EN_PLACEMENT=np.array([])
-        self.EN_NAME = ['Engine1', 'Engine2', 'Engine3', 'Engine4']
-        #Concorde
-        #self.EN_PLACEMENT=np.array([[42.0, 4.6, 0.0], [42.0, 6.4, 0.0],\
-                                    #[42.0, -4.6, 0.0], [42.0, -6.4, 0.0]])
-        #Bwb
-        #self.EN_PLACEMENT=np.array([[32.0, -3.0, 1.0],[32.0, 0, 1.0],[32.0, 3.0, 1.0]])
-        #WP46RM
-        #self.EN_PLACEMENT=np.array([[26.0, 4.5, 2.0],[26.0, -4.5, 2.0]])
+        self.en_mass = 0  # | CONCORDE 3175
+        self.max_thrust = 0  # | CONCORDE 170
+        # | TURBOPROP and TURBOFAN and CONCORDE
+        self.TSFC_CRUISE = 0.5  # |    0.6          0.5          0.8
+        # |Balance input
+        self.EN_PLACEMENT = np.array([])
+        self.EN_NAME = ["Engine1", "Engine2", "Engine3", "Engine4"]
+        # Concorde
+        # self.EN_PLACEMENT=np.array([[42.0, 4.6, 0.0], [42.0, 6.4, 0.0],\
+        # [42.0, -4.6, 0.0], [42.0, -6.4, 0.0]])
+        # Bwb
+        # self.EN_PLACEMENT=np.array([[32.0, -3.0, 1.0],[32.0, 0, 1.0],[32.0, 3.0, 1.0]])
+        # WP46RM
+        # self.EN_PLACEMENT=np.array([[26.0, 4.5, 2.0],[26.0, -4.5, 2.0]])
 
         # The name must be char tipe.
-        self.TURBOPROP =  False
+        self.TURBOPROP = False
         self.APU = True
-        self.WING_MOUNTED = True  #|Balance input
+        self.WING_MOUNTED = True  # |Balance input
 
 
-#=============================================================================
+# =============================================================================
 #    MAIN
-#=============================================================================
+# =============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.warning('########################################################')
-    log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #')
-    log.warning('########################################################')
+    print("########################################################")
+    print("# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #")
+    print("########################################################")

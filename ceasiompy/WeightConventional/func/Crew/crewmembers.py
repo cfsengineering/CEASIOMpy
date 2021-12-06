@@ -13,18 +13,19 @@ Python version: >=3.6
 
 """
 
-#=============================================================================
+# =============================================================================
 #   IMPORTS
-#=============================================================================
+# =============================================================================
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 
-#=============================================================================
+# =============================================================================
 #   FUNCTIONS
-#=============================================================================
+# =============================================================================
+
 
 def estimate_crew(pass_nb, mass_pilot, mass_cabin_crew, mtom, pilot_nb=2):
     """ Function to evaluate the number of crew members on board.
@@ -47,7 +48,7 @@ def estimate_crew(pass_nb, mass_pilot, mass_cabin_crew, mtom, pilot_nb=2):
     """
 
     if pass_nb >= 101:
-        cabin_crew_nb = int(pass_nb/50) + 1
+        cabin_crew_nb = int(pass_nb / 50) + 1
     elif pass_nb >= 51:
         cabin_crew_nb = 2
     elif pass_nb >= 19 and mtom <= 3400:
@@ -57,22 +58,22 @@ def estimate_crew(pass_nb, mass_pilot, mass_cabin_crew, mtom, pilot_nb=2):
     else:
         cabin_crew_nb = 0
 
-    crew_nb =  pilot_nb + cabin_crew_nb
-    log.info(' Crew members: ' + str(crew_nb))
-    log.info(str(pilot_nb) + ' pilots')
-    log.info(str(cabin_crew_nb) + ' cabin crew members')
+    crew_nb = pilot_nb + cabin_crew_nb
+    log.info(" Crew members: " + str(crew_nb))
+    log.info(str(pilot_nb) + " pilots")
+    log.info(str(cabin_crew_nb) + " cabin crew members")
 
-    mass_crew = round((pilot_nb*mass_pilot + cabin_crew_nb*mass_cabin_crew),3)
+    mass_crew = round((pilot_nb * mass_pilot + cabin_crew_nb * mass_cabin_crew), 3)
 
-    return(crew_nb, cabin_crew_nb, mass_crew)
+    return (crew_nb, cabin_crew_nb, mass_crew)
 
 
-##=============================================================================
+# =============================================================================
 #   MAIN
-#==============================================================================
+# ==============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.warning('###########################################################')
-    log.warning('#### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ####')
-    log.warning('###########################################################')
+    print("###########################################################")
+    print("#### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ####")
+    print("###########################################################")

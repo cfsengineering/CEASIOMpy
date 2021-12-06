@@ -7,7 +7,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 RCE = {
     "name": "BalanceUnconventional",
-    "description": "Module to calculate Center of gravity and inertia for a unconventonal aircraft",
+    "description": "Module to calculate center of gravity and inertia of a unconventonal aircraft",
     "exec": "pwd\npython balanceuncmain.py",
     "author": "Stefano Piccini",
     "email": "info@ceasiom.com",

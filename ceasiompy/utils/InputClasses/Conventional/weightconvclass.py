@@ -17,24 +17,33 @@ TODO:
 """
 
 
-#=============================================================================
+# =============================================================================
 #   IMPORTS
-#=============================================================================
+# =============================================================================
 
 
 from cpacspy.cpacsfunctions import add_uid, get_value_or_default, open_tixi
-from ceasiompy.utils.xpath import (CAB_CREW_XPATH, F_XPATH, FUEL_XPATH,
-                                   GEOM_XPATH, MASSBREAKDOWN_XPATH, ML_XPATH, 
-                                   PASS_XPATH, PILOTS_XPATH, PROP_XPATH)
+from ceasiompy.utils.xpath import (
+    CAB_CREW_XPATH,
+    F_XPATH,
+    FUEL_XPATH,
+    GEOM_XPATH,
+    MASSBREAKDOWN_XPATH,
+    ML_XPATH,
+    PASS_XPATH,
+    PILOTS_XPATH,
+    PROP_XPATH,
+)
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 
-#=============================================================================
+# =============================================================================
 #   CLASSES
-#=============================================================================
+# =============================================================================
+
 
 class UserInputs:
     """
@@ -62,7 +71,7 @@ class UserInputs:
     """
 
     def __init__(self):
-        self.IS_DOUBLE_FLOOR=0
+        self.IS_DOUBLE_FLOOR = 0
         self.PILOT_NB = 2
         self.MASS_PILOT = 102
         self.MASS_CABIN_CREW = 68
@@ -74,7 +83,6 @@ class UserInputs:
         self.FUEL_DENSITY = 800
         self.RES_FUEL_PERC = 0.06
         self.TURBOPROP = False
-
 
     def get_user_inputs(self, cpacs_path):
         """ Get user input from the CPACS file
@@ -89,27 +97,31 @@ class UserInputs:
 
         tixi = open_tixi(cpacs_path)
 
-        description = 'User geometry input'
-        get_value_or_default(tixi, GEOM_XPATH + '/description', description)
+        description = "User geometry input"
+        get_value_or_default(tixi, GEOM_XPATH + "/description", description)
 
-        self.IS_DOUBLE_FLOOR = get_value_or_default(tixi,GEOM_XPATH+'/isDoubleFloor',0)
-        self.PILOT_NB = get_value_or_default(tixi,PILOTS_XPATH+'/pilotNb',2)
-        self.MASS_PILOT = get_value_or_default(tixi,PILOTS_XPATH+'/pilotMass',102)
-        self.MASS_CABIN_CREW = get_value_or_default(tixi,CAB_CREW_XPATH+'/cabinCrewMemberMass',68)
-        self.MASS_PASS = get_value_or_default(tixi,PASS_XPATH+'/passMass',105)
-        self.PASS_PER_TOILET = get_value_or_default(tixi,PASS_XPATH+'/passPerToilet',50)
+        self.IS_DOUBLE_FLOOR = get_value_or_default(tixi, GEOM_XPATH + "/isDoubleFloor", 0)
+        self.PILOT_NB = get_value_or_default(tixi, PILOTS_XPATH + "/pilotNb", 2)
+        self.MASS_PILOT = get_value_or_default(tixi, PILOTS_XPATH + "/pilotMass", 102)
+        self.MASS_CABIN_CREW = get_value_or_default(
+            tixi, CAB_CREW_XPATH + "/cabinCrewMemberMass", 68
+        )
+        self.MASS_PASS = get_value_or_default(tixi, PASS_XPATH + "/passMass", 105)
+        self.PASS_PER_TOILET = get_value_or_default(tixi, PASS_XPATH + "/passPerToilet", 50)
 
-        description = 'Desired max fuel volume [m^3] and payload mass [kg]'
-        get_value_or_default(tixi, ML_XPATH + '/description', description)
+        description = "Desired max fuel volume [m^3] and payload mass [kg]"
+        get_value_or_default(tixi, ML_XPATH + "/description", description)
 
-        self.MAX_PAYLOAD = get_value_or_default(tixi, ML_XPATH + '/maxPayload', 0)
-        self.MAX_FUEL_VOL = get_value_or_default(tixi, ML_XPATH + '/maxFuelVol', 0)
-        self.MASS_CARGO = get_value_or_default(tixi, MASSBREAKDOWN_XPATH + '/payload/mCargo/massDescription/mass', 0.0)
-        self.FUEL_DENSITY = get_value_or_default(tixi, F_XPATH + '/density', 800)
-        add_uid(tixi, F_XPATH, 'kerosene')
-        
-        self.TURBOPROP = get_value_or_default(tixi, PROP_XPATH + '/turboprop', False)
-        self.RES_FUEL_PERC = get_value_or_default(tixi, FUEL_XPATH + '/resFuelPerc', 0.06)
+        self.MAX_PAYLOAD = get_value_or_default(tixi, ML_XPATH + "/maxPayload", 0)
+        self.MAX_FUEL_VOL = get_value_or_default(tixi, ML_XPATH + "/maxFuelVol", 0)
+        self.MASS_CARGO = get_value_or_default(
+            tixi, MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass", 0.0
+        )
+        self.FUEL_DENSITY = get_value_or_default(tixi, F_XPATH + "/density", 800)
+        add_uid(tixi, F_XPATH, "kerosene")
+
+        self.TURBOPROP = get_value_or_default(tixi, PROP_XPATH + "/turboprop", False)
+        self.RES_FUEL_PERC = get_value_or_default(tixi, FUEL_XPATH + "/resFuelPerc", 0.06)
 
         tixi.save(cpacs_path)
 
@@ -140,16 +152,16 @@ class InsideDimensions:
         if fuse_length < 15.00:
             self.seat_length = 1.4
         else:
-           self.seat_length = 0.74
+            self.seat_length = 0.74
 
-        self.seat_width  = 0.525
-        self.aisle_width  = 0.42
+        self.seat_width = 0.525
+        self.aisle_width = 0.42
         self.fuse_thick = 6.63
 
         self.nose_length = 0
         self.tail_length = 0
 
-        #[m] Adding common space in relation with airplane dimensions.
+        # [m] Adding common space in relation with airplane dimensions.
         if fuse_length >= 70:
             self.toilet_length = 4.2
         elif fuse_length >= 65:
@@ -161,7 +173,6 @@ class InsideDimensions:
         # --- Value to be evaluated ---
         self.cabin_width = 0
         self.cabin_area = 0
-
 
     def get_inside_dim(self, cpacs_path):
         """ Get user input from the CPACS file
@@ -178,13 +189,16 @@ class InsideDimensions:
         tixi = open_tixi(cpacs_path)
 
         # Get inside dimension from the CPACS file if exit
-        self.seat_width = get_value_or_default(tixi,GEOM_XPATH+'/seatWidth',0.525)
-        self.seat_length = get_value_or_default(tixi,GEOM_XPATH+'/seatLength',self.seat_length)
-        self.aisle_width = get_value_or_default(tixi,GEOM_XPATH+'/aisleWidth',0.42)
-        self.fuse_thick = get_value_or_default(tixi,GEOM_XPATH+'/fuseThick',6.63)
-        self.toilet_length = get_value_or_default(tixi,GEOM_XPATH+'/toiletLength',self.toilet_length)
+        self.seat_width = get_value_or_default(tixi, GEOM_XPATH + "/seatWidth", 0.525)
+        self.seat_length = get_value_or_default(tixi, GEOM_XPATH + "/seatLength", self.seat_length)
+        self.aisle_width = get_value_or_default(tixi, GEOM_XPATH + "/aisleWidth", 0.42)
+        self.fuse_thick = get_value_or_default(tixi, GEOM_XPATH + "/fuseThick", 6.63)
+        self.toilet_length = get_value_or_default(
+            tixi, GEOM_XPATH + "/toiletLength", self.toilet_length
+        )
 
         tixi.save(cpacs_path)
+
 
 class MassesWeights:
     """
@@ -247,11 +261,11 @@ class WeightOutput:
         self.wing_loading = 0
 
 
-#=============================================================================
+# =============================================================================
 #    MAIN
-#=============================================================================
+# =============================================================================
 
-if __name__ == '__main__':
-    log.warning('#########################################################')
-    log.warning('### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ###')
-    log.warning('#####################1###################################')
+if __name__ == "__main__":
+    log.warning("#########################################################")
+    log.warning("### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ###")
+    log.warning("#####################1###################################")

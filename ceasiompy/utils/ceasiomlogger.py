@@ -18,15 +18,15 @@ TODO:
 
 """
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 
 import logging
 
-#==============================================================================
+# ==============================================================================
 #   FUNCTIONS
-#==============================================================================
+# ==============================================================================
 
 
 def get_logger(name):
@@ -53,22 +53,24 @@ def get_logger(name):
     logger.setLevel(logging.DEBUG)
 
     # Write logfile
-    file_formatter = logging.Formatter('%(asctime)s - %(name)20s \
-    - %(levelname)s - %(message)s')
+    file_formatter = logging.Formatter(
+        "%(asctime)s - %(name)20s \
+    - %(levelname)s - %(message)s"
+    )
 
     # Workaround for ReadTheDocs: do not raise an error if we cannot create a log file
     try:
-        file_handler = logging.FileHandler(filename=name+'.log', mode='w')
-        file_handler.setLevel(logging.DEBUG)     # Level for the logfile
+        file_handler = logging.FileHandler(filename=name + ".log", mode="w")
+        file_handler.setLevel(logging.DEBUG)  # Level for the logfile
         file_handler.setFormatter(file_formatter)
         logger.addHandler(file_handler)
     except PermissionError:
         pass
 
     # Write log messages on the console
-    console_formatter = logging.Formatter('%(levelname)-8s - %(message)s')
+    console_formatter = logging.Formatter("%(levelname)-8s - %(message)s")
     console_handler = logging.StreamHandler()
-    console_handler.setLevel(logging.DEBUG)   # Level for the console log
+    console_handler.setLevel(logging.DEBUG)  # Level for the console log
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
 

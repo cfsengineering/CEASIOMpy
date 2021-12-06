@@ -28,7 +28,7 @@ import sys
 import pickle
 import numpy as np
 import pandas as pd
-import smt.surrogate_models as sms # Use after loading the model
+import smt.surrogate_models as sms  # Use after loading the model
 
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
@@ -38,7 +38,8 @@ import ceasiompy.utils.moduleinterfaces as mi
 from ceasiompy.utils.xpath import SMTRAIN_XPATH, SMUSE_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-log = get_logger(__file__.split('.')[0])
+
+log = get_logger(__file__.split(".")[0])
 
 
 # =============================================================================
@@ -48,14 +49,15 @@ log = get_logger(__file__.split('.')[0])
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
-cpacs_path = mi.get_toolinput_file_path('SMUse')
-cpacs_path_out = mi.get_tooloutput_file_path('SMUse')
+cpacs_path = mi.get_toolinput_file_path("SMUse")
+cpacs_path_out = mi.get_tooloutput_file_path("SMUse")
 
 # =============================================================================
 #   ClASSES
 # =============================================================================
 
-class Surrogate_model():
+
+class Surrogate_model:
     """Class to be dumped for later use of a model"""
 
     def __init__(self):
@@ -67,9 +69,11 @@ class Surrogate_model():
         # The trained surrogate model object
         self.sm = sms.surrogate_model.SurrogateModel()
 
+
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
+
 
 def load_surrogate(tixi):
     """Load a surrogate model object from file
@@ -85,15 +89,11 @@ def load_surrogate(tixi):
 
     """
 
-    file = get_value_or_default(tixi, SMUSE_XPATH+'/modelFile', '')
+    file = get_value_or_default(tixi, SMUSE_XPATH + "/modelFile", "")
 
-    log.info('Trying to open file'+file)
-    try:
-        f = open(file, 'rb')
-    except:
-        raise IOError('File could not be opened')
-
-    Model = pickle.load(f)
+    log.info("Trying to open file" + file)
+    with open(file, "rb") as f:
+        Model = pickle.load(f)
 
     return Model
 
@@ -112,7 +112,7 @@ def get_inputs(x):
     """
 
     cpacs = CPACS(cpacs_path)
-    
+
     # These variable will be used in eval
     aircraft = cpacs.aircraft.configuration
     wings = aircraft.get_wings()
@@ -120,19 +120,19 @@ def get_inputs(x):
 
     inputs = []
 
-    aeromap_uid = cpacs.tixi.getTextElement(SMUSE_XPATH + '/aeroMapUID')
-    xpath = cpacs.tixi.uIDGetXPath(aeromap_uid) + '/aeroPerformanceMap/'
+    aeromap_uid = cpacs.tixi.getTextElement(SMUSE_XPATH + "/aeroMapUID")
+    xpath = cpacs.tixi.uIDGetXPath(aeromap_uid) + "/aeroPerformanceMap/"
 
-    x.set_index('Name', inplace=True)
+    x.set_index("Name", inplace=True)
     for name in x.index:
-        if x.loc[name, 'setcmd'] != '-':
-            inputs.append(eval(x.loc[name, 'getcmd']))
+        if x.loc[name, "setcmd"] != "-":
+            inputs.append(eval(x.loc[name, "getcmd"]))
         else:
             if name in PARAMS_COEFS:
-                x.loc[name, 'getcmd'] = xpath + name
-            inputs.append(cpacs.tixi.getDoubleElement(x.loc[name, 'getcmd']))
+                x.loc[name, "getcmd"] = xpath + name
+            inputs.append(cpacs.tixi.getDoubleElement(x.loc[name, "getcmd"]))
 
-    cpacs.save_cpacs(cpacs_path,overwrite=True)
+    cpacs.save_cpacs(cpacs_path, overwrite=True)
 
     return np.array([inputs])
 
@@ -152,15 +152,15 @@ def write_inouts(v, inout, tixi):
 
     """
 
-    v.fillna('-', inplace=True)
+    v.fillna("-", inplace=True)
     for i, name in enumerate(v.index):
-        if v.loc[name, 'setcmd'] != '-':
-            exec('{} = {}'.format(name, inout[0][i]))
-            eval(v.loc[name, 'setcmd'])
-        elif v.loc[name, 'getcmd'] != '-':
-            xpath = v.loc[name, 'getcmd']
+        if v.loc[name, "setcmd"] != "-":
+            exec("{} = {}".format(name, inout[0][i]))
+            eval(v.loc[name, "setcmd"])
+        elif v.loc[name, "getcmd"] != "-":
+            xpath = v.loc[name, "getcmd"]
             create_branch(tixi, xpath)
-            tixi.updateDoubleElement(xpath, inout[0][i], '%g')
+            tixi.updateDoubleElement(xpath, inout[0][i], "%g")
 
 
 def aeromap_calculation(sm, cpacs):
@@ -179,27 +179,37 @@ def aeromap_calculation(sm, cpacs):
 
     """
 
-    aeromap_uid = cpacs.tixi.getTextElement(SMUSE_XPATH+'/aeroMapUID')
-    log.info('Using aeromap :'+aeromap_uid)
+    aeromap_uid = cpacs.tixi.getTextElement(SMUSE_XPATH + "/aeroMapUID")
+    log.info("Using aeromap :" + aeromap_uid)
     aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
-    
-    alt_list = aeromap.get('altitude').tolist()
-    mach_list = aeromap.get('machNumber').tolist()
-    aoa_list = aeromap.get('angleOfAttack').tolist()
-    aos_list = aeromap.get('angleOfSideslip').tolist()
+
+    alt_list = aeromap.get("altitude").tolist()
+    mach_list = aeromap.get("machNumber").tolist()
+    aoa_list = aeromap.get("angleOfAttack").tolist()
+    aos_list = aeromap.get("angleOfSideslip").tolist()
 
     inputs = np.array([alt_list, mach_list, aoa_list, aos_list]).T
     outputs = sm.predict_values(inputs)
 
     i = 0
-    for alt,mach,aos,aoa in zip(alt_list,mach_list,aos_list,aoa_list):
-        aeromap.add_coefficients(alt,mach,aos,aoa,
-                                 cl=outputs[i, 0],cd=outputs[i, 1],cs=outputs[i, 2],
-                                 cml=outputs[i, 3],cmd=outputs[i, 4],cms=outputs[i, 5])
+    for alt, mach, aos, aoa in zip(alt_list, mach_list, aos_list, aoa_list):
+        aeromap.add_coefficients(
+            alt,
+            mach,
+            aos,
+            aoa,
+            cl=outputs[i, 0],
+            cd=outputs[i, 1],
+            cs=outputs[i, 2],
+            cml=outputs[i, 3],
+            cmd=outputs[i, 4],
+            cms=outputs[i, 5],
+        )
         i += 1
-        
+
     print(aeromap)
     aeromap.save()
+
 
 def predict_output(Model, tixi):
     """Make a prediction.
@@ -215,13 +225,13 @@ def predict_output(Model, tixi):
     sm = Model.sm
     df = Model.df
 
-    x = df.loc[[i for i, v in enumerate(df['type']) if v == 'des']]
-    y = df.loc[[i for i, v in enumerate(df['type']) if v == 'obj']]
-    df = df.set_index('Name')
+    x = df.loc[[i for i, v in enumerate(df["type"]) if v == "des"]]
+    y = df.loc[[i for i, v in enumerate(df["type"]) if v == "obj"]]
+    df = df.set_index("Name")
 
     inputs = get_inputs(x)
     outputs = sm.predict_values(inputs)
-    y.set_index('Name', inplace=True)
+    y.set_index("Name", inplace=True)
 
     write_inouts(y, outputs, tixi)
 
@@ -241,20 +251,20 @@ def check_aeromap(tixi):
 
     """
 
-    am_uid_use = get_value_or_default(tixi, SMUSE_XPATH+'/aeroMapUID', '')
-    am_uid_train = get_value_or_default(tixi, SMTRAIN_XPATH+'/aeroMapUID', '')
+    am_uid_use = get_value_or_default(tixi, SMUSE_XPATH + "/aeroMapUID", "")
+    am_uid_train = get_value_or_default(tixi, SMTRAIN_XPATH + "/aeroMapUID", "")
 
     if am_uid_train == am_uid_use:
-        sys.exit('Same aeromap that was used to create the model')
+        sys.exit("Same aeromap that was used to create the model")
 
 
-#==============================================================================
+# ==============================================================================
 #    MAIN
-#==============================================================================
+# ==============================================================================
 
 if __name__ == "__main__":
 
-    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
+    log.info("----- Start of " + os.path.basename(__file__) + " -----")
 
     # Load the model
     cpacs = CPACS(cpacs_path)
@@ -262,11 +272,11 @@ if __name__ == "__main__":
 
     check_aeromap(cpacs.tixi)
 
-    if get_value_or_default(cpacs.tixi, SMUSE_XPATH+'/AeroMapOnly', False):
+    if get_value_or_default(cpacs.tixi, SMUSE_XPATH + "/AeroMapOnly", False):
         aeromap_calculation(Model.sm, cpacs)
     else:
         predict_output(Model, cpacs.tixi)
 
     cpacs.save_cpacs(cpacs_path_out, overwrite=True)
 
-    log.info('----- End of ' + os.path.basename(__file__) + ' -----')
+    log.info("----- End of " + os.path.basename(__file__) + " -----")

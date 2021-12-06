@@ -18,9 +18,9 @@ TODO:
 
 """
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 
 import os
 import sys
@@ -28,33 +28,44 @@ import math
 import numpy
 import matplotlib
 
-from cpacspy.cpacsfunctions import (add_float_vector, add_string_vector,
-                                    add_uid, copy_branch, create_branch,
-                                    get_float_vector, get_string_vector,
-                                    get_tigl_configuration, get_uid, get_value,
-                                    get_value_or_default, get_xpath_parent,
-                                    open_tigl, open_tixi)
+from cpacspy.cpacsfunctions import (
+    add_float_vector,
+    add_string_vector,
+    add_uid,
+    copy_branch,
+    create_branch,
+    get_float_vector,
+    get_string_vector,
+    get_tigl_configuration,
+    get_uid,
+    get_value,
+    get_value_or_default,
+    get_xpath_parent,
+    open_tigl,
+    open_tixi,
+)
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.su2functions as su2f
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ambiance import Atmosphere
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
-from ceasiompy.utils.xpath import (FUSELAGES_XPATH, WINGS_XPATH, PYLONS_XPATH, ENGINES_XPATH)
+from ceasiompy.utils.xpath import FUSELAGES_XPATH, WINGS_XPATH, PYLONS_XPATH, ENGINES_XPATH
 
 from ceasiompy.ModuleTemplate.func.subfunc import my_subfunc
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
 
-#==============================================================================
+# ==============================================================================
 #   CLASSES
-#==============================================================================
+# ==============================================================================
+
 
 class MyClass:
     """
@@ -81,9 +92,10 @@ class MyClass:
         self.var_c = self.var_a + self.var_b
 
 
-#==============================================================================
+# ==============================================================================
 #   FUNCTIONS
-#==============================================================================
+# ==============================================================================
+
 
 def sum_funcion(arg1, arg2):
     """ Function to clacluate ...
@@ -107,10 +119,10 @@ def sum_funcion(arg1, arg2):
     """
 
     if not isinstance(arg1, int):
-        raise ValueError('arg1 is not an integer')
+        raise ValueError("arg1 is not an integer")
 
     # Use of a subfunction here
-    print(my_subfunc('test1','test2'))
+    print(my_subfunc("test1", "test2"))
 
     total = float(arg1) + arg2
 
@@ -142,11 +154,11 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
     tixi = open_tixi(cpacs_path)
 
     # Create xpaths
-    SCALING_XPATH = '/fuselage/transformation/scaling'
+    SCALING_XPATH = "/fuselage/transformation/scaling"
 
-    x_fus_scaling_xpath = FUSELAGES_XPATH + SCALING_XPATH + '/x'
-    y_fus_scaling_xpath = FUSELAGES_XPATH + SCALING_XPATH + '/y'
-    z_fus_scaling_xpath = FUSELAGES_XPATH + SCALING_XPATH + '/z'
+    x_fus_scaling_xpath = FUSELAGES_XPATH + SCALING_XPATH + "/x"
+    y_fus_scaling_xpath = FUSELAGES_XPATH + SCALING_XPATH + "/y"
+    z_fus_scaling_xpath = FUSELAGES_XPATH + SCALING_XPATH + "/z"
 
     # Get values
     x = get_value(tixi, x_fus_scaling_xpath)
@@ -154,23 +166,24 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
     z = get_value(tixi, z_fus_scaling_xpath)
 
     # Log
-    log.info('Fuselage x scaling is : ' + str(x))
-    log.info('Fuselage y scaling is : ' + str(y))
-    log.info('Fuselage z scaling is : ' + str(z))
+    log.info("Fuselage x scaling is : " + str(x))
+    log.info("Fuselage y scaling is : " + str(y))
+    log.info("Fuselage z scaling is : " + str(z))
 
     # Close TIXI handle and save the CPACS file
     tixi.save(cpacs_out_path)
 
-    return(x, y, z)
+    return (x, y, z)
 
-#==============================================================================
+
+# ==============================================================================
 #    MAIN
-#==============================================================================
+# ==============================================================================
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.info('----- Start of ' + MODULE_NAME + ' -----')
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
     cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
@@ -184,13 +197,13 @@ if __name__ == '__main__':
 
     # Call 'sum_function'
     my_total = sum_funcion(my_value1, my_value2)
-    log.info('My total is equal to: ' + str(my_total))
+    log.info("My total is equal to: " + str(my_total))
 
     # Call a function which use CPACS inputs
     x, y, z = get_fuselage_scaling(cpacs_path, cpacs_out_path)
-    log.info('Value x,y,z as been calculated')
-    log.info('x = ' + str(x))
-    log.info('y = ' + str(y))
-    log.info('z = ' + str(z))
+    log.info("Value x,y,z as been calculated")
+    log.info("x = " + str(x))
+    log.info("y = " + str(y))
+    log.info("z = " + str(z))
 
-    log.info('----- End of ' + MODULE_NAME + ' -----')
+    log.info("----- End of " + MODULE_NAME + " -----")

@@ -16,32 +16,34 @@ TODO:
     * Add somefunction for input/output files
 """
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
+
+# Path for main CEASIOMpy library
+import ceasiompy.__init__
 
 import os
 import uuid
 import inspect
 import importlib
 from glob import glob
-from pathlib import Path
 
-from cpacspy.cpacsfunctions import (create_branch, open_tixi)
+from cpacspy.cpacsfunctions import create_branch, open_tixi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-log = get_logger(__file__.split('.')[0])
 
-# Path for main CEASIOMpy library
-import ceasiompy.__init__
+log = get_logger(__file__.split(".")[0])
+
 LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
 
-MODNAME_TOP = 'ceasiompy'
-MODNAME_SPECS = '__specs__'
+MODNAME_TOP = "ceasiompy"
+MODNAME_SPECS = "__specs__"
 
-#==============================================================================
+# ==============================================================================
 #   CLASSES
-#==============================================================================
+# ==============================================================================
+
 
 class CPACSRequirementError(Exception):
     pass
@@ -52,23 +54,24 @@ class _Entry:
     # TODO: Use a dict instead of class?
 
     ONLY_INPUT = [
-        'default_value',
-        'gui',
-        'gui_group',
-        'gui_name',
+        "default_value",
+        "gui",
+        "gui_group",
+        "gui_name",
     ]
 
     def __init__(
-        self, *,
-        var_name='',
+        self,
+        *,
+        var_name="",
         var_type=None,
         default_value=None,
-        unit='1',
-        descr='',
-        xpath='',
+        unit="1",
+        descr="",
+        xpath="",
         gui=False,
-        gui_name='',
-        gui_group=None
+        gui_name="",
+        gui_group=None,
     ):
         """Template for an entry which describes a module input or output
 
@@ -99,7 +102,6 @@ class _Entry:
 
 
 class CPACSInOut:
-
     def __init__(self):
         """
         Class summarising the input and output data
@@ -152,11 +154,14 @@ class CPACSInOut:
         return gui_settings_dict
 
 
-#==============================================================================
+# ==============================================================================
 #   FUNCTIONS
-#==============================================================================
+# ==============================================================================
 
-def check_cpacs_input_requirements(cpacs_file, *, submod_name=None, submodule_level=1, cpacs_inout=None):
+
+def check_cpacs_input_requirements(
+    cpacs_file, *, submod_name=None, submodule_level=1, cpacs_inout=None
+):
     """ Check if the input CPACS file contains the required nodes
 
     Note:
@@ -208,9 +213,9 @@ def check_cpacs_input_requirements(cpacs_file, *, submod_name=None, submodule_le
             missing_nodes.append(entry.xpath)
 
     if missing_nodes:
-        missing_str = ''
+        missing_str = ""
         for missing in missing_nodes:
-            missing_str += '==> ' + missing + '\n'
+            missing_str += "==> " + missing + "\n"
 
         msg = f"CPACS path required but does not exist\n{missing_str}"
         # log.error(msg)
@@ -228,13 +233,13 @@ def get_submodule_list():
         A list of submodule names (as strings)
     """
 
-    dirnames = glob(os.path.join(LIB_DIR, '*'))
+    dirnames = glob(os.path.join(LIB_DIR, "*"))
     submodule_list = []
     for dirname in dirnames:
         submod_name = os.path.basename(dirname)
 
         # Ignore "dunder"-files
-        if submod_name.startswith('__'):
+        if submod_name.startswith("__"):
             continue
 
         submodule_list.append(submod_name)
@@ -253,7 +258,7 @@ def get_module_list():
 
     module_list = []
     for submod_name in get_submodule_list():
-        module_list.append('.'.join((MODNAME_TOP, submod_name)))
+        module_list.append(".".join((MODNAME_TOP, submod_name)))
     return module_list
 
 
@@ -268,7 +273,7 @@ def get_toolinput_file_path(module_name):
 
     """
 
-    toolinput_path = os.path.join(LIB_DIR,module_name,'ToolInput','ToolInput.xml')
+    toolinput_path = os.path.join(LIB_DIR, module_name, "ToolInput", "ToolInput.xml")
 
     return toolinput_path
 
@@ -284,7 +289,7 @@ def get_tooloutput_file_path(module_name):
 
     """
 
-    toolinput_path = os.path.join(LIB_DIR,module_name,'ToolOutput','ToolOutput.xml')
+    toolinput_path = os.path.join(LIB_DIR, module_name, "ToolOutput", "ToolOutput.xml")
 
     return toolinput_path
 
@@ -298,15 +303,15 @@ def get_specs_for_module(module_name, raise_error=False):
                             if __specs__ does not exist
     """
 
-    if not module_name.startswith('ceasiompy.'):
-        module_name = '.'.join((MODNAME_TOP, module_name))
+    if not module_name.startswith("ceasiompy."):
+        module_name = ".".join((MODNAME_TOP, module_name))
 
     try:
-        specs = importlib.import_module('.'.join((module_name, MODNAME_SPECS)))
+        specs = importlib.import_module(".".join((module_name, MODNAME_SPECS)))
         return specs
     except ImportError:
         if raise_error:
-            raise ImportError(f'{MODNAME_SPECS} module not found for {module_name}')
+            raise ImportError(f"{MODNAME_SPECS} module not found for {module_name}")
         return None
 
 
@@ -357,7 +362,7 @@ def create_default_toolspecific():
 
     """
 
-    CPACS_PATH = './doc/empty_cpacs.xml'
+    CPACS_PATH = "./doc/empty_cpacs.xml"
 
     tixi_in = open_tixi(CPACS_PATH)
     tixi_out = open_tixi(CPACS_PATH)
@@ -368,27 +373,27 @@ def create_default_toolspecific():
             for entry in specs.cpacs_inout.inputs:
 
                 xpath = entry.xpath
-                if xpath.endswith('/'):
+                if xpath.endswith("/"):
                     xpath = xpath[:-1]
 
                 value_name = xpath.split("/")[-1]
-                xpath_parent = xpath[:-(len(value_name)+1)]
+                xpath_parent = xpath[: -(len(value_name) + 1)]
 
                 if not tixi_in.checkElement(xpath):
-                    create_branch(tixi_in,xpath_parent)
+                    create_branch(tixi_in, xpath_parent)
                     if entry.default_value is not None:
                         value = str(entry.default_value)
                     else:
-                        value = 'No default value'
-                    tixi_in.addTextElement(xpath_parent,value_name,value)
+                        value = "No default value"
+                    tixi_in.addTextElement(xpath_parent, value_name, value)
 
             # Outputs
             for entry in specs.cpacs_inout.outputs:
                 xpath = entry.xpath
-                create_branch(tixi_out,xpath)
+                create_branch(tixi_out, xpath)
 
-    TOOLSPECIFIC_INPUT_PATH = './doc/input_toolspecifics.xml'
-    TOOLSPECIFIC_OUTPUT_PATH = './doc/output_toolspecifics.xml'
+    TOOLSPECIFIC_INPUT_PATH = "./doc/input_toolspecifics.xml"
+    TOOLSPECIFIC_OUTPUT_PATH = "./doc/output_toolspecifics.xml"
     tixi_in.save(TOOLSPECIFIC_INPUT_PATH)
     tixi_out.save(TOOLSPECIFIC_OUTPUT_PATH)
 
@@ -424,7 +429,7 @@ def check_workflow(cpacs_path, submodule_list):
 
     tixi = open_tixi(cpacs_path)
     xpaths_from_workflow = set()
-    err_msg = ''
+    err_msg = ""
     for i, submod_name in enumerate(submodule_list, start=1):
         specs = get_specs_for_module(submod_name)
         if specs is None or not specs.cpacs_inout:
@@ -435,10 +440,11 @@ def check_workflow(cpacs_path, submodule_list):
             # The required xpath can either be in the original CPACS file
             # OR in the xpaths produced during the workflow exectution
             if not tixi.checkElement(entry.xpath) and entry.xpath not in xpaths_from_workflow:
-                err_msg += \
-                    f"==> XPath '{entry.xpath}' required by " \
-                    + f"module '{submod_name}' ({i}/{len(submodule_list)}), " \
+                err_msg += (
+                    f"==> XPath '{entry.xpath}' required by "
+                    f"module '{submod_name}' ({i}/{len(submodule_list)}), "
                     "but not found\n"
+                )
             xpaths_from_workflow.add(entry.xpath)
         # ----- Generated output -----
         for entry in specs.cpacs_inout.outputs:
@@ -449,13 +455,13 @@ def check_workflow(cpacs_path, submodule_list):
         raise ValueError(err_msg)
 
 
-#==============================================================================
+# ==============================================================================
 #    MAIN
-#==============================================================================
+# ==============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.info('Nothing to execute')
+    log.info("Nothing to execute")
 
     # TODO: maybe shoul be launch differently
     # TODO: add function to mange input/ouput, check double

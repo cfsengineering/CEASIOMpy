@@ -24,29 +24,29 @@ include_gui = False
 
 # * In the following example we add three (!) new entries to 'cpacs_inout'
 # * Try to use (readable) loops instead of copy-pasting three almost same entries :)
-for direction in ['x', 'y', 'z']:
+for direction in ["x", "y", "z"]:
     cpacs_inout.add_input(
         var_name=direction,
         var_type=float,
         default_value=None,
-        unit='1',
+        unit="1",
         descr=f"Fuselage scaling on {direction} axis",
-        xpath=FUSELAGES_XPATH + f'/fuselage/transformation/scaling/{direction}',
+        xpath=FUSELAGES_XPATH + f"/fuselage/transformation/scaling/{direction}",
         gui=include_gui,
-        gui_name=f'{direction.capitalize()} scaling',
-        gui_group='Fuselage scaling',
+        gui_name=f"{direction.capitalize()} scaling",
+        gui_group="Fuselage scaling",
     )
 
 cpacs_inout.add_input(
-    var_name='test',
+    var_name="test",
     var_type=str,
-    default_value='This is a test',
+    default_value="This is a test",
     unit=None,
-    descr='This is a test of description',
-    xpath='/cpacs/toolspecific/CEASIOMpy/test/myTest',
+    descr="This is a test of description",
+    xpath="/cpacs/toolspecific/CEASIOMpy/test/myTest",
     gui=include_gui,
-    gui_name='My test',
-    gui_group='Group Test',
+    gui_name="My test",
+    gui_group="Group Test",
 )
 
 # cpacs_inout.add_input(
@@ -68,22 +68,22 @@ cpacs_inout.add_input(
 # )
 
 cpacs_inout.add_input(
-    var_name='other_var',
+    var_name="other_var",
     var_type=list,
-    default_value= [2,33,444],
-    unit='[unit]',
-    xpath='/cpacs/toolspecific/CEASIOMpy/test/myList',
+    default_value=[2, 33, 444],
+    unit="[unit]",
+    xpath="/cpacs/toolspecific/CEASIOMpy/test/myList",
     gui=include_gui,
-    gui_name='Choice',
-    gui_group='My Selection'
+    gui_name="Choice",
+    gui_group="My Selection",
 )
 
 # ----- Output -----
 
 cpacs_inout.add_output(
-    var_name='output',
+    var_name="output",
     default_value=None,
-    unit='1',
-    descr='Description of the output',
-    xpath='/cpacs/toolspecific/CEASIOMpy/test/myOutput',
+    unit="1",
+    descr="Description of the output",
+    xpath="/cpacs/toolspecific/CEASIOMpy/test/myOutput",
 )

@@ -14,26 +14,27 @@ Python version: >=3.6
 """
 
 
-#=============================================================================
+# =============================================================================
 #   IMPORTS
-#=============================================================================
+# =============================================================================
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 
-#=============================================================================
+# =============================================================================
 #   CLASSES
-#=============================================================================
+# =============================================================================
 
 """All classes are defined inside the classes folder and in the
    InputClasses/Unconventional folder."""
 
 
-#=============================================================================
+# =============================================================================
 #   FUNCTIONS
-#=============================================================================
+# =============================================================================
+
 
 def estimate_crew(pass_nb, MASS_PILOT, MASS_CABIN_CREW, mtom, PILOT_NB=2):
     """ Function to evaluate the number of crew members on board.
@@ -54,7 +55,7 @@ def estimate_crew(pass_nb, MASS_PILOT, MASS_CABIN_CREW, mtom, PILOT_NB=2):
     """
 
     if pass_nb >= 101:
-        cabin_crew_nb = int(pass_nb/50) + 1
+        cabin_crew_nb = int(pass_nb / 50) + 1
     elif pass_nb >= 51:
         cabin_crew_nb = 2
     elif pass_nb >= 19 and mtom <= 3400:
@@ -65,21 +66,21 @@ def estimate_crew(pass_nb, MASS_PILOT, MASS_CABIN_CREW, mtom, PILOT_NB=2):
         cabin_crew_nb = 0
 
     crew_nb = PILOT_NB + cabin_crew_nb
-    log.info(' Crew members: ' + str(crew_nb))
-    log.info(str(PILOT_NB) + ' pilots')
-    log.info(str(cabin_crew_nb) + ' cabin crew members')
+    log.info(" Crew members: " + str(crew_nb))
+    log.info(str(PILOT_NB) + " pilots")
+    log.info(str(cabin_crew_nb) + " cabin crew members")
 
-    mass_crew = round((PILOT_NB*MASS_PILOT + cabin_crew_nb*MASS_CABIN_CREW),3)
+    mass_crew = round((PILOT_NB * MASS_PILOT + cabin_crew_nb * MASS_CABIN_CREW), 3)
 
-    return(crew_nb, cabin_crew_nb, mass_crew)
+    return (crew_nb, cabin_crew_nb, mass_crew)
 
 
-##=============================================================================
+# =============================================================================
 #   MAIN
-#==============================================================================
+# ==============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.warning('########################################################')
-    log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #')
-    log.warning('########################################################')
+    log.warning("########################################################")
+    log.warning("# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #")
+    log.warning("########################################################")

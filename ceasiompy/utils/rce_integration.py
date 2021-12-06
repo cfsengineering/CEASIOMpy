@@ -20,14 +20,14 @@ import tempfile
 from ceasiompy.utils.moduleinterfaces import get_module_list
 import ceasiompy.__init__ as ceasiompy_root
 
-TMPDIR_PREFIX = 'CEASIOMpy_'
+TMPDIR_PREFIX = "CEASIOMpy_"
 
-RCE_CONF_FILE_NAME = 'configuration.json'
-RCE_GROUP_NAME = 'CEASIOMpy'
-RCE_CPACS_IN_VAR = 'cpacs_in'
-RCE_CPACS_OUT_VAR = 'cpacs_out'
-RCE_PRESCRIPT = 'shutil.copy(\"${in:cpacs_in}\", \"${dir:tool}/ToolInput/ToolInput.xml\")'
-RCE_POSTSCRIPT = '${out:cpacs_out}=\"${dir:tool}/ToolOutput/ToolOutput.xml\"'
+RCE_CONF_FILE_NAME = "configuration.json"
+RCE_GROUP_NAME = "CEASIOMpy"
+RCE_CPACS_IN_VAR = "cpacs_in"
+RCE_CPACS_OUT_VAR = "cpacs_out"
+RCE_PRESCRIPT = 'shutil.copy("${in:cpacs_in}", "${dir:tool}/ToolInput/ToolInput.xml")'
+RCE_POSTSCRIPT = '${out:cpacs_out}="${dir:tool}/ToolOutput/ToolOutput.xml"'
 
 # RCE template configuration dictionary
 RCE_CONF_DICT = {
@@ -54,35 +54,38 @@ RCE_CONF_DICT = {
     "toolName": None,
     "toolProperties": {"Default": {}},
     "uploadIcon": True,
-
-    "inputs": [{
-        "inputHandling": "Single",
-        "endpointFileName": "",
-        "endpointDataType": "FileReference",
-        "defaultInputExecutionConstraint": "Required",
-        "endpointName": RCE_CPACS_IN_VAR,
-        "defaultInputHandling": "Single",
-        "inputExecutionConstraint": "Required",
-        "endpointFolder": "Input folder"
-        }],
-
-    "launchSettings": [{
-        "limitInstallationInstancesNumber": "10",
-        "limitInstallationInstances": "True",
-        "rootWorkingDirectory": None,
-        "host": "RCE",
-        "toolDirectory": None,
-        "version": "3.0"
-        }],
-
-    "outputs": [{
-        "inputHandling": "-",
-        "endpointFileName": "",
-        "endpointDataType": "FileReference",
-        "endpointName": RCE_CPACS_OUT_VAR,
-        "inputExecutionConstraint": "-",
-        "endpointFolder": ""
-        }],
+    "inputs": [
+        {
+            "inputHandling": "Single",
+            "endpointFileName": "",
+            "endpointDataType": "FileReference",
+            "defaultInputExecutionConstraint": "Required",
+            "endpointName": RCE_CPACS_IN_VAR,
+            "defaultInputHandling": "Single",
+            "inputExecutionConstraint": "Required",
+            "endpointFolder": "Input folder",
+        }
+    ],
+    "launchSettings": [
+        {
+            "limitInstallationInstancesNumber": "10",
+            "limitInstallationInstances": "True",
+            "rootWorkingDirectory": None,
+            "host": "RCE",
+            "toolDirectory": None,
+            "version": "3.0",
+        }
+    ],
+    "outputs": [
+        {
+            "inputHandling": "-",
+            "endpointFileName": "",
+            "endpointDataType": "FileReference",
+            "endpointName": RCE_CPACS_OUT_VAR,
+            "inputExecutionConstraint": "-",
+            "endpointFolder": "",
+        }
+    ],
 }
 
 # 'RCE-key': ('CEASIOMpy-key', <bool, is data required?>, <type, expected type>)
@@ -109,7 +112,7 @@ def create_integration_files():
     # Iterate through the CEASIOMpy modules
     for module_name in get_module_list():
         try:
-            specs = importlib.import_module(module_name + '.__specs__')
+            specs = importlib.import_module(module_name + ".__specs__")
             module_conf = specs.RCE
         except:
             print(f"--> RCE configuration NOT found for '{module_name}'")
@@ -125,18 +128,18 @@ def create_integration_files():
 
             if not isinstance(data, dtype):
                 raise TypeError(
-                    f"Data for key '{ceasiom_key}' has wrong type:\n" +
+                    f"Data for key '{ceasiom_key}' has wrong type:\n"
                     f"Expected '{dtype}', got '{type(data)}'"
                 )
 
             rce_conf[rce_key] = data
 
         # Set other values
-        submodule_name = module_name.split('.')[1]
+        submodule_name = module_name.split(".")[1]
         working_dir = os.path.join(ceasiompy_root_dir, submodule_name)
         print("Current working directory value : ", working_dir, "\n")
-        rce_conf['launchSettings'][0]['rootWorkingDirectory'] = working_dir
-        rce_conf['launchSettings'][0]['toolDirectory'] = working_dir
+        rce_conf["launchSettings"][0]["rootWorkingDirectory"] = working_dir
+        rce_conf["launchSettings"][0]["toolDirectory"] = working_dir
 
         # Write the JSON config file
         print(f"Writing RCE config for '{module_name}'")
@@ -144,7 +147,7 @@ def create_integration_files():
         conf_file_name = os.path.join(module_dir, RCE_CONF_FILE_NAME)
         os.makedirs(module_dir)
         with open(conf_file_name, "w") as fp:
-            json.dump(rce_conf, fp, indent=4, separators=(',', ':'))
+            json.dump(rce_conf, fp, indent=4, separators=(",", ":"))
 
     print(f"\nCreated temporary directory '{tmp_dir}'")
 
@@ -154,5 +157,5 @@ def create_integration_files():
     #   shutil.rmtree(tmpdir)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     create_integration_files()

@@ -18,9 +18,9 @@ TODO:
 
 """
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 
 import copy
 import math
@@ -28,16 +28,16 @@ import numpy as np
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
-#==============================================================================
+# ==============================================================================
 #   CLASSES
-#==============================================================================
+# ==============================================================================
 
 
-#==============================================================================
+# ==============================================================================
 #   FUNCTIONS
-#==============================================================================
+# ==============================================================================
 
 
 def euler2fix(rotation_euler):
@@ -66,42 +66,42 @@ def euler2fix(rotation_euler):
     RaZ = math.radians(rotation_euler.z)
 
     # Rotation matrices
-    Rx = np.array([
-        [1., 0., 0.],
-        [0., math.cos(RaX), -math.sin(RaX)],
-        [0., math.sin(RaX), math.cos(RaX)]
-    ])
-    Ry = np.array([
-        [math.cos(RaY), 0., -math.sin(RaY)],
-        [0., 1., 0.],
-        [math.sin(RaY), 0., math.cos(RaY)]
-    ])
-    Rz = np.array([
-        [math.cos(RaZ), -math.sin(RaZ), 0.],
-        [math.sin(RaZ), math.cos(RaZ), 0.],
-        [0., 0., 1.]
-    ])
+    Rx = np.array(
+        [
+            [1.0, 0.0, 0.0],
+            [0.0, math.cos(RaX), -math.sin(RaX)],
+            [0.0, math.sin(RaX), math.cos(RaX)],
+        ]
+    )
+    Ry = np.array(
+        [
+            [math.cos(RaY), 0.0, -math.sin(RaY)],
+            [0.0, 1.0, 0.0],
+            [math.sin(RaY), 0.0, math.cos(RaY)],
+        ]
+    )
+    Rz = np.array(
+        [
+            [math.cos(RaZ), -math.sin(RaZ), 0.0],
+            [math.sin(RaZ), math.cos(RaZ), 0.0],
+            [0.0, 0.0, 1.0],
+        ]
+    )
 
     # Identity matrices
-    I = np.eye(3)
-    I2 = Rx @ I
+    I1 = np.eye(3)
+    I2 = Rx @ I1
     I3 = Ry @ I2
 
     # Direction cosine matrix
     DirCos = Rz @ I3
 
     # Angle of rotation (fix frame angle)
-    rax = math.atan2(
-        -DirCos[1, 2],
-        DirCos[2, 2]
-    )
-    ray = math.atan2(
-        DirCos[0, 2],
-        DirCos[2, 2]*math.cos(rax) - DirCos[1, 2]*math.sin(rax)
-    )
+    rax = math.atan2(-DirCos[1, 2], DirCos[2, 2])
+    ray = math.atan2(DirCos[0, 2], DirCos[2, 2] * math.cos(rax) - DirCos[1, 2] * math.sin(rax))
     raz = math.atan2(
-        DirCos[1, 0]*math.cos(rax) + DirCos[2, 0]*math.sin(rax),
-        DirCos[1, 1]*math.cos(rax) + DirCos[2, 1]*math.sin(rax)
+        DirCos[1, 0] * math.cos(rax) + DirCos[2, 0] * math.sin(rax),
+        DirCos[1, 1] * math.cos(rax) + DirCos[2, 1] * math.sin(rax),
     )
 
     # Transform back to degree and round angles
@@ -164,28 +164,34 @@ def fix2euler(rotation_fix):
     RaZ = math.radians(rotation_fix.z)
 
     # Rotation matrices
-    Rx = np.array([
-        [1., 0., 0.],
-        [0., math.cos(RaX), -math.sin(RaX)],
-        [0., math.sin(RaX), math.cos(RaX)]
-    ])
-    Ry = np.array([
-        [math.cos(RaY), 0., -math.sin(RaY)],
-        [0., 1., 0.],
-        [math.sin(RaY), 0., math.cos(RaY)]
-    ])
-    Rz = np.array([
-        [math.cos(RaZ), -math.sin(RaZ), 0.],
-        [math.sin(RaZ), math.cos(RaZ), 0.],
-        [0., 0., 1.]
-    ])
+    Rx = np.array(
+        [
+            [1.0, 0.0, 0.0],
+            [0.0, math.cos(RaX), -math.sin(RaX)],
+            [0.0, math.sin(RaX), math.cos(RaX)],
+        ]
+    )
+    Ry = np.array(
+        [
+            [math.cos(RaY), 0.0, -math.sin(RaY)],
+            [0.0, 1.0, 0.0],
+            [math.sin(RaY), 0.0, math.cos(RaY)],
+        ]
+    )
+    Rz = np.array(
+        [
+            [math.cos(RaZ), -math.sin(RaZ), 0.0],
+            [math.sin(RaZ), math.cos(RaZ), 0.0],
+            [0.0, 0.0, 1.0],
+        ]
+    )
 
     # Direction cosine matrix
     DirCos = Rx @ Ry @ Rz
 
     # Angle of rotation (euler angle)
     rax = math.atan2(DirCos[2, 1], DirCos[2, 2])
-    ray = math.atan2(DirCos[2, 0], math.sqrt(DirCos[2, 1]**2 + DirCos[2, 2]**2))
+    ray = math.atan2(DirCos[2, 0], math.sqrt(DirCos[2, 1] ** 2 + DirCos[2, 2] ** 2))
     raz = math.atan2(DirCos[0, 0], DirCos[1, 0])
 
     # Transform back to degree and round angles
@@ -202,10 +208,10 @@ def fix2euler(rotation_fix):
     return rotation_euler
 
 
-#==============================================================================
+# ==============================================================================
 #    MAIN
-#==============================================================================
+# ==============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.info('Nothing to execute!')
+    log.info("Nothing to execute!")

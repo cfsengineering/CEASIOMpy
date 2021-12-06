@@ -12,23 +12,24 @@ Python version: >=3.6
 | Date of creation: 2018-09-27
 | Last modifiction: 2020-01-23
 
-TODO 
+TODO:
 
     * Simplify the classes and harmonise with inputs...
 
 """
 
 
-#=============================================================================
+# =============================================================================
 #   IMPORTS
-#=============================================================================
+# =============================================================================
 
 """ No inport """
 
 
-#=============================================================================
+# =============================================================================
 #   CLASSES
-#=============================================================================
+# =============================================================================
+
 
 class AdvancedInputs:
     """
@@ -64,26 +65,26 @@ class AdvancedInputs:
     """
 
     def __init__(self):
-        #People
+        # People
         self.PILOT_NB = 2
         self.PASS_PER_TOILET = 50
         self.MASS_PILOT = 102.0
         self.MASS_CABIN_CREW = 68.0
         self.MASS_PASS = 105.0
 
-        #Fuel
+        # Fuel
         self.FUEL_DENSITY = 800
         self.RES_FUEL_PERC = 0.06
-        self.FPM = 80         #|80 all // 95 for the B777 or Concorde
+        self.FPM = 80  # |80 all // 95 for the B777 or Concorde
         self.FPM_TP = 50
 
-        #Structures
-        self.VRT_THICK = 0.00014263    #|ok 0.00009 Concorde, #0.00014263 def
+        # Structures
+        self.VRT_THICK = 0.00014263  # |ok 0.00009 Concorde, #0.00014263 def
         self.VRT_EXP = 1.6276
-        self.VRT_STR_DENSITY = 2700.0  #|ok
+        self.VRT_STR_DENSITY = 2700.0  # |ok
 
-        #Hydraulics
-        self.SINGLE_HYDRAULICS = False   #|ok
+        # Hydraulics
+        self.SINGLE_HYDRAULICS = False  # |ok
 
 
 class UserInputs:
@@ -123,27 +124,27 @@ class UserInputs:
     """
 
     def __init__(self):
-       #Cabin
-       self.FLOORS_NB = 1
-       self.H_LIM_CABIN = 2.3 # Concorde 1.5, Conventional 2.3
+        # Cabin
+        self.FLOORS_NB = 1
+        self.H_LIM_CABIN = 2.3  # Concorde 1.5, Conventional 2.3
 
-       # Payload & fuel
-       self.MASS_CARGO = 0.0
-       self.MAX_PAYLOAD = 0.0
-       self.MAX_FUEL_VOL = 0.0
-       self.MAX_PASS = 0
-       self.PASS_BASE_DENSITY = 1.66 #| Concorde 1.16, B777 1.66, ATR72 1.39, BWB 1.69
+        # Payload & fuel
+        self.MASS_CARGO = 0.0
+        self.MAX_PAYLOAD = 0.0
+        self.MAX_FUEL_VOL = 0.0
+        self.MAX_PASS = 0
+        self.PASS_BASE_DENSITY = 1.66  # | Concorde 1.16, B777 1.66, ATR72 1.39, BWB 1.69
 
-       #Aerodynamics and Flight
-       self.LD = 17        #|
-       self.wing_loading = 600.0      #|not save into the cpacs file
-       self.CRUISE_SPEED = 272.0      #|600 272 141 190
+        # Aerodynamics and Flight
+        self.LD = 17  # |
+        self.wing_loading = 600.0  # |not save into the cpacs file
+        self.CRUISE_SPEED = 272.0  # |600 272 141 190
 
-       #|Not in the cpacs
-       self.F_FUEL = [0.0, 0.0]  # Value must be less than 80.
-       self.FUEL_ON_CABIN = 0    # Value must be less than 80,
-                                 # WARNING (only for bwb analysis).
-       self.USER_ENGINES = False
+        # |Not in the cpacs
+        self.F_FUEL = [0.0, 0.0]  # Value must be less than 80.
+        self.FUEL_ON_CABIN = 0  # Value must be less than 80,
+        # WARNING (only for bwb analysis).
+        self.USER_ENGINES = False
 
 
 class MassesWeights:
@@ -186,6 +187,7 @@ class MassesWeights:
         self.mass_pass = 0
         self.zero_fuel_mass = 0
 
+
 class WeightOutput:
     """
     The class contains some of the output value of the weight analysis.
@@ -207,12 +209,12 @@ class WeightOutput:
         self.wing_loading = 0
 
 
-#=============================================================================
+# =============================================================================
 #    MAIN
-#=============================================================================
+# =============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.warning('########################################################')
-    log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #')
-    log.warning('########################################################')
+    print("########################################################")
+    print("# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #")
+    print("########################################################")

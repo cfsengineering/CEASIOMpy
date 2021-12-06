@@ -20,33 +20,41 @@ TODO:
 
 """
 
-#=============================================================================
+# =============================================================================
 #   IMPORTS
-#=============================================================================
+# =============================================================================
 
-from cpacspy.cpacsfunctions import (add_uid, create_branch,
-                                    get_value_or_default, open_tixi)
-from ceasiompy.utils.xpath import (CAB_CREW_XPATH, F_XPATH, FUEL_XPATH,
-                                   GEOM_XPATH, MASSBREAKDOWN_XPATH, ML_XPATH,
-                                   PASS_XPATH, PILOTS_XPATH, PROP_XPATH,
-                                   RANGE_XPATH)
-                            
+from cpacspy.cpacsfunctions import add_uid, create_branch, get_value_or_default, open_tixi
+from ceasiompy.utils.xpath import (
+    CAB_CREW_XPATH,
+    F_XPATH,
+    FUEL_XPATH,
+    GEOM_XPATH,
+    MASSBREAKDOWN_XPATH,
+    ML_XPATH,
+    PASS_XPATH,
+    PILOTS_XPATH,
+    PROP_XPATH,
+    RANGE_XPATH,
+)
+
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 
-#=============================================================================
+# =============================================================================
 #   CLASSES
-#=============================================================================
+# =============================================================================
 
 """All classes are defined inside the classes folder and in the
    InputClasses/Unconventional folder."""
 
 
-#=============================================================================
+# =============================================================================
 #   FUNCTIONS
-#=============================================================================
+# =============================================================================
+
 
 def get_user_fuel(fus_nb, ui, cpacs_in):
     """Function to extract fuel data from a CPACS file
@@ -64,7 +72,7 @@ def get_user_fuel(fus_nb, ui, cpacs_in):
 
     """
 
-    log.info('Starting data extraction from CPACS file')
+    log.info("Starting data extraction from CPACS file")
 
     tixi = open_tixi(cpacs_in)
 
@@ -73,28 +81,28 @@ def get_user_fuel(fus_nb, ui, cpacs_in):
     if fus_nb:
         for i in range(0, fus_nb):
             if fus_nb > 1:
-                F = 'fuelOnCabin' + str(i+1)
+                F = "fuelOnCabin" + str(i + 1)
             else:
-                F = 'fuelOnCabin'
-            if not tixi.checkElement(FUEL_XPATH + '/' + F):
+                F = "fuelOnCabin"
+            if not tixi.checkElement(FUEL_XPATH + "/" + F):
                 tixi.createElement(FUEL_XPATH, F)
-                tixi.updateDoubleElement(FUEL_XPATH + '/' + F, ui.F_FUEL[i], '%g')
+                tixi.updateDoubleElement(FUEL_XPATH + "/" + F, ui.F_FUEL[i], "%g")
             else:
-                ui.F_FUEL[i] = tixi.getDoubleElement(FUEL_XPATH + '/' + F)
+                ui.F_FUEL[i] = tixi.getDoubleElement(FUEL_XPATH + "/" + F)
     else:
-        if not tixi.checkElement(FUEL_XPATH + '/fuelOnCabin'):
-            tixi.createElement(FUEL_XPATH, 'fuelOnCabin')
-            tixi.updateDoubleElement(FUEL_XPATH + '/fuelOnCabin', ui.FUEL_ON_CABIN, '%g')
+        if not tixi.checkElement(FUEL_XPATH + "/fuelOnCabin"):
+            tixi.createElement(FUEL_XPATH, "fuelOnCabin")
+            tixi.updateDoubleElement(FUEL_XPATH + "/fuelOnCabin", ui.FUEL_ON_CABIN, "%g")
         else:
-            temp = tixi.updateDoubleElement(FUEL_XPATH + '/fuelOnCabin', ui.FUEL_ON_CABIN, '%g')
+            temp = tixi.updateDoubleElement(FUEL_XPATH + "/fuelOnCabin", ui.FUEL_ON_CABIN, "%g")
             if temp != ui.FUEL_ON_CABIN and temp > 0:
                 ui.FUEL_ON_CABIN = temp
 
-    log.info('Data from CPACS file succesfully extracted')
+    log.info("Data from CPACS file succesfully extracted")
 
     tixi.save(cpacs_in)
 
-    return(ui)
+    return ui
 
 
 def get_user_inputs(ed, ui, adui, cpacs_in):
@@ -116,8 +124,7 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
 
     """
 
-
-    log.info('Starting data extraction from CPACS file')
+    log.info("Starting data extraction from CPACS file")
 
     tixi = open_tixi(cpacs_in)
 
@@ -131,116 +138,116 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
     create_branch(tixi, PROP_XPATH, False)
 
     # cpacs/vehicles
-    MC_XPATH = MASSBREAKDOWN_XPATH + '/payload/mCargo/massDescription'
+    MC_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription"
 
     create_branch(tixi, MC_XPATH, False)
     create_branch(tixi, F_XPATH, False)
-    add_uid(tixi, F_XPATH, 'kerosene')
+    add_uid(tixi, F_XPATH, "kerosene")
 
     # Gathering data =========================================================
     # Geometry ===============================================================
-    if not tixi.checkElement(GEOM_XPATH + '/description'):
-        tixi.createElement(GEOM_XPATH, 'description')
-        tixi.updateTextElement(GEOM_XPATH + '/description', 'User '\
-                               + 'geometry input')
+    if not tixi.checkElement(GEOM_XPATH + "/description"):
+        tixi.createElement(GEOM_XPATH, "description")
+        tixi.updateTextElement(GEOM_XPATH + "/description", "User " + "geometry input")
 
-    ui.FLOORS_NB = get_value_or_default(tixi,GEOM_XPATH + '/floorsNb', ui.FLOORS_NB)
-    adui.VRT_THICK = get_value_or_default(tixi,GEOM_XPATH + '/virtualThick', 0.00014263)
-    adui.VRT_STR_DENSITY = get_value_or_default(tixi,GEOM_XPATH + '/virtualDensity', 2700.0)
-    ui.H_LIM_CABIN = get_value_or_default(tixi,GEOM_XPATH + '/cabinHeight', 2.3)
+    ui.FLOORS_NB = get_value_or_default(tixi, GEOM_XPATH + "/floorsNb", ui.FLOORS_NB)
+    adui.VRT_THICK = get_value_or_default(tixi, GEOM_XPATH + "/virtualThick", 0.00014263)
+    adui.VRT_STR_DENSITY = get_value_or_default(tixi, GEOM_XPATH + "/virtualDensity", 2700.0)
+    ui.H_LIM_CABIN = get_value_or_default(tixi, GEOM_XPATH + "/cabinHeight", 2.3)
 
     # People =================================================================
     # Pilots user input data
 
-    adui.PILOT_NB = get_value_or_default(tixi,PILOTS_XPATH + '/pilotNb', 2)
-    adui.MASS_PILOT = get_value_or_default(tixi,PILOTS_XPATH + '/pilotMass', 102.0)
-    adui.MASS_CABIN_CREW = get_value_or_default(tixi,CAB_CREW_XPATH + '/cabinCrewMemberMass', 68.0)
-    adui.MASS_PASS = get_value_or_default(tixi,PASS_XPATH + '/passMass', 105.0)
-    adui.PASS_BASE_DENSITY = get_value_or_default(tixi,PASS_XPATH + '/passDensity', 1.66)
-    adui.PASS_PER_TOILET = get_value_or_default(tixi,PASS_XPATH + '/passPerToilet', 50)
+    adui.PILOT_NB = get_value_or_default(tixi, PILOTS_XPATH + "/pilotNb", 2)
+    adui.MASS_PILOT = get_value_or_default(tixi, PILOTS_XPATH + "/pilotMass", 102.0)
+    adui.MASS_CABIN_CREW = get_value_or_default(
+        tixi, CAB_CREW_XPATH + "/cabinCrewMemberMass", 68.0
+    )
+    adui.MASS_PASS = get_value_or_default(tixi, PASS_XPATH + "/passMass", 105.0)
+    adui.PASS_BASE_DENSITY = get_value_or_default(tixi, PASS_XPATH + "/passDensity", 1.66)
+    adui.PASS_PER_TOILET = get_value_or_default(tixi, PASS_XPATH + "/passPerToilet", 50)
 
     # what to to with this input
-    if tixi.checkElement(PASS_XPATH + '/passNb'):
-        temp = tixi.getIntegerElement(PASS_XPATH+ '/passNb')
+    if tixi.checkElement(PASS_XPATH + "/passNb"):
+        temp = tixi.getIntegerElement(PASS_XPATH + "/passNb")
         if temp != ui.MAX_PASS and temp > 0:
             ui.MAX_PASS = temp
 
-
     # Fuel ===================================================================
-    adui.FUEL_DENSITY = get_value_or_default(tixi,F_XPATH + '/density', 800)
-    adui.RES_FUEL_PERC = get_value_or_default(tixi,F_XPATH + '/resFuelPerc', 0.06)
+    adui.FUEL_DENSITY = get_value_or_default(tixi, F_XPATH + "/density", 800)
+    adui.RES_FUEL_PERC = get_value_or_default(tixi, F_XPATH + "/resFuelPerc", 0.06)
 
     # Weight =================================================================
     # Mass limits data
-    if not tixi.checkElement(ML_XPATH + '/description'):
-        tixi.createElement(ML_XPATH, 'description')
-        tixi.updateTextElement(ML_XPATH + '/description', 'Desired max fuel '\
-                               + 'volume [m^3] and payload mass [kg]')
+    if not tixi.checkElement(ML_XPATH + "/description"):
+        tixi.createElement(ML_XPATH, "description")
+        tixi.updateTextElement(
+            ML_XPATH + "/description", "Desired max fuel " + "volume [m^3] and payload mass [kg]"
+        )
 
-    ui.MAX_PAYLOAD = get_value_or_default(tixi,ML_XPATH + '/maxPayload', 0.0)
-    ui.MAX_FUEL_VOL = get_value_or_default(tixi,ML_XPATH + '/maxFuelVol', 0.0)
-    ui.MASS_CARGO = get_value_or_default(tixi,MC_XPATH + '/massCargo', 0.0)
+    ui.MAX_PAYLOAD = get_value_or_default(tixi, ML_XPATH + "/maxPayload", 0.0)
+    ui.MAX_FUEL_VOL = get_value_or_default(tixi, ML_XPATH + "/maxFuelVol", 0.0)
+    ui.MASS_CARGO = get_value_or_default(tixi, MC_XPATH + "/massCargo", 0.0)
     # If the cargo mass is defined in the UserInputs class will be added
     # in the CPACS file after the analysis.
 
     # Flight =================================================================
 
-    ed.TSFC_CRUISE = get_value_or_default(tixi,PROP_XPATH + '/tSFC', 0.5)
+    ed.TSFC_CRUISE = get_value_or_default(tixi, PROP_XPATH + "/tSFC", 0.5)
 
     # TODO: These data should be taken from aeroMaps...
-    if not tixi.checkElement(RANGE_XPATH + '/lDRatio'):
-        tixi.createElement(RANGE_XPATH, 'lDRatio')
-        tixi.updateDoubleElement(RANGE_XPATH + '/lDRatio',\
-                                  ui.LD, '%g')
+    if not tixi.checkElement(RANGE_XPATH + "/lDRatio"):
+        tixi.createElement(RANGE_XPATH, "lDRatio")
+        tixi.updateDoubleElement(RANGE_XPATH + "/lDRatio", ui.LD, "%g")
     else:
-        temp = tixi.getIntegerElement(RANGE_XPATH + '/lDRatio')
+        temp = tixi.getIntegerElement(RANGE_XPATH + "/lDRatio")
         if temp != ui.LD and temp > 0:
             ui.LD = temp
 
-    if not tixi.checkElement(RANGE_XPATH + '/cruiseSpeed'):
-        tixi.createElement(RANGE_XPATH, 'cruiseSpeed')
-        tixi.updateDoubleElement(RANGE_XPATH + '/cruiseSpeed',\
-                                 ui.CRUISE_SPEED, '%g')
+    if not tixi.checkElement(RANGE_XPATH + "/cruiseSpeed"):
+        tixi.createElement(RANGE_XPATH, "cruiseSpeed")
+        tixi.updateDoubleElement(RANGE_XPATH + "/cruiseSpeed", ui.CRUISE_SPEED, "%g")
     else:
-        temp = tixi.getIntegerElement(RANGE_XPATH + '/cruiseSpeed')
+        temp = tixi.getIntegerElement(RANGE_XPATH + "/cruiseSpeed")
         if temp != ui.CRUISE_SPEED and temp > 0:
             ui.CRUISE_SPEED = temp
 
     # TODO: see how to enter input for Engines
-    if not tixi.checkElement(PROP_XPATH + '/userEngineOption'):
-        tixi.createElement(PROP_XPATH, 'userEngineOption')
+    if not tixi.checkElement(PROP_XPATH + "/userEngineOption"):
+        tixi.createElement(PROP_XPATH, "userEngineOption")
         if ui.USER_ENGINES:
-            tixi.updateTextElement(PROP_XPATH + '/userEngineOption', 'True')
+            tixi.updateTextElement(PROP_XPATH + "/userEngineOption", "True")
         else:
-            tixi.updateTextElement(PROP_XPATH + '/userEngineOption', 'False')
+            tixi.updateTextElement(PROP_XPATH + "/userEngineOption", "False")
     else:
-        temp = tixi.getTextElement(PROP_XPATH + '/userEngineOption')
-        if temp == 'False':
+        temp = tixi.getTextElement(PROP_XPATH + "/userEngineOption")
+        if temp == "False":
             ui.USER_ENGINES = False
         else:
             ui.USER_ENGINES = True
 
-    if not tixi.checkElement(PROP_XPATH + '/singleHydraulics'):
-        tixi.createElement(PROP_XPATH, 'singleHydraulics')
+    if not tixi.checkElement(PROP_XPATH + "/singleHydraulics"):
+        tixi.createElement(PROP_XPATH, "singleHydraulics")
         if adui.SINGLE_HYDRAULICS:
-            tixi.updateTextElement(PROP_XPATH + '/singleHydraulics', 'True')
+            tixi.updateTextElement(PROP_XPATH + "/singleHydraulics", "True")
         else:
-            tixi.updateTextElement(PROP_XPATH + '/singleHydraulics', 'False')
+            tixi.updateTextElement(PROP_XPATH + "/singleHydraulics", "False")
     else:
-        temp = tixi.getTextElement(PROP_XPATH + '/singleHydraulics')
-        if temp == 'False':
+        temp = tixi.getTextElement(PROP_XPATH + "/singleHydraulics")
+        if temp == "False":
             adui.SINGLE_HYDRAULICS = False
         else:
             adui.SINGLE_HYDRAULICS = True
 
-    log.info('Data from CPACS file succesfully extracted')
+    log.info("Data from CPACS file succesfully extracted")
 
     tixi.save(cpacs_in)
 
-    return(ed, ui, adui)
+    return (ed, ui, adui)
 
 
-## ====================== ENGINES INPUT EXTRACTION DATA =======================#
+# ====================== ENGINES INPUT EXTRACTION DATA ======================= #
+
 
 def get_engine_inputs(ui, ed, cpacs_in):
     """ Function to extract from the xml file the required input data,
@@ -259,103 +266,108 @@ def get_engine_inputs(ui, ed, cpacs_in):
         (file) cpacs_in  --Out.: Updated cpasc file
     """
 
-    log.info('Starting engine data extraction from CPACS file')
+    log.info("Starting engine data extraction from CPACS file")
 
     tixi = open_tixi(cpacs_in)
 
     create_branch(tixi, PROP_XPATH, False)
     # Propulsion =============================================================
-    if not tixi.checkElement(PROP_XPATH + '/turboprop'):
+    if not tixi.checkElement(PROP_XPATH + "/turboprop"):
         create_branch(tixi, PROP_XPATH, False)
-        tixi.createElement(PROP_XPATH, 'turboprop')
+        tixi.createElement(PROP_XPATH, "turboprop")
         if ed.TURBOPROP:
-            tixi.updateTextElement(PROP_XPATH + '/turboprop', 'True')
+            tixi.updateTextElement(PROP_XPATH + "/turboprop", "True")
         else:
-            tixi.updateTextElement(PROP_XPATH + '/turboprop', 'False')
+            tixi.updateTextElement(PROP_XPATH + "/turboprop", "False")
     else:
-        temp = tixi.getTextElement(PROP_XPATH + '/turboprop')
-        if temp == 'False':
+        temp = tixi.getTextElement(PROP_XPATH + "/turboprop")
+        if temp == "False":
             ed.TURBOPROP = False
         else:
             ed.TURBOPROP = True
-    if not tixi.checkElement(PROP_XPATH + '/auxiliaryPowerUnit'):
-        tixi.createElement(PROP_XPATH, 'auxiliaryPowerUnit')
+    if not tixi.checkElement(PROP_XPATH + "/auxiliaryPowerUnit"):
+        tixi.createElement(PROP_XPATH, "auxiliaryPowerUnit")
         if ed.APU:
-            tixi.updateTextElement(PROP_XPATH + '/auxiliaryPowerUnit', 'True')
+            tixi.updateTextElement(PROP_XPATH + "/auxiliaryPowerUnit", "True")
         else:
-            tixi.updateTextElement(PROP_XPATH + '/auxiliaryPowerUnit', 'False')
+            tixi.updateTextElement(PROP_XPATH + "/auxiliaryPowerUnit", "False")
     else:
-        temp = tixi.getTextElement(PROP_XPATH + '/auxiliaryPowerUnit')
-        if temp == 'False':
+        temp = tixi.getTextElement(PROP_XPATH + "/auxiliaryPowerUnit")
+        if temp == "False":
             ed.APU = False
         else:
             ed.APU = True
-    if not tixi.checkElement(PROP_XPATH + '/engineNumber'):
-        tixi.createElement(PROP_XPATH, 'engineNumber')
-        tixi.updateIntegerElement(PROP_XPATH + '/engineNumber', ed.NE, '%i')
+    if not tixi.checkElement(PROP_XPATH + "/engineNumber"):
+        tixi.createElement(PROP_XPATH, "engineNumber")
+        tixi.updateIntegerElement(PROP_XPATH + "/engineNumber", ed.NE, "%i")
     else:
-        ed.NE = tixi.getIntegerElement(PROP_XPATH + '/engineNumber')
+        ed.NE = tixi.getIntegerElement(PROP_XPATH + "/engineNumber")
 
-    #Engines (TODO: check this _XPATH)
+    # Engines (TODO: check this _XPATH)
     mp = []
     tp = []
-    EN_XPATH = '/cpacs/vehicles/engines'
+    EN_XPATH = "/cpacs/vehicles/engines"
     if tixi.checkElement(EN_XPATH):
-        for e in range(0,ed.NE-1):
+        for e in range(0, ed.NE - 1):
             if ed.NE > 1:
-                EN_XPATH += '/engine' + str(e+1)
+                EN_XPATH += "/engine" + str(e + 1)
             else:
-                EN_XPATH += '/engine'
+                EN_XPATH += "/engine"
             if not tixi.checkElement(EN_XPATH):
-                raise Exception('Engine definition inclomplete, missing'\
-                                + ' one or more engines in the cpacs file')
-            if not tixi.checkElement(EN_XPATH + '/name'):
-                ed.EN_NAME.append('Engine_' + str(e+1))
-                tixi.createElement(EN_XPATH, 'name')
-                tixi.updateTextElement(EN_XPATH + '/name', ed.EN_NAME[e])
+                raise Exception(
+                    "Engine definition inclomplete, missing"
+                    + " one or more engines in the cpacs file"
+                )
+            if not tixi.checkElement(EN_XPATH + "/name"):
+                ed.EN_NAME.append("Engine_" + str(e + 1))
+                tixi.createElement(EN_XPATH, "name")
+                tixi.updateTextElement(EN_XPATH + "/name", ed.EN_NAME[e])
             else:
                 if e > len(ed.EN_NAME):
-                    ed.EN_NAME.append(tixi.getTextElement(EN_XPATH + '/name'))
-            ENA_XPATH = EN_XPATH + '/analysis/mass'
-            if tixi.checkElement(ENA_XPATH + '/mass'):
-                ed.en_mass = tixi.getDoubleElement(ENA_XPATH + '/mass')
+                    ed.EN_NAME.append(tixi.getTextElement(EN_XPATH + "/name"))
+            ENA_XPATH = EN_XPATH + "/analysis/mass"
+            if tixi.checkElement(ENA_XPATH + "/mass"):
+                ed.en_mass = tixi.getDoubleElement(ENA_XPATH + "/mass")
                 mp.append(ed.en_mass)
-                if e>0 and ed.en_mass != mp[e-1]:
-                    raise Exception('The engines have different masses, this'\
-                                    + ' can lead to an unbalanced aircraft')
+                if e > 0 and ed.en_mass != mp[e - 1]:
+                    raise Exception(
+                        "The engines have different masses, this"
+                        + " can lead to an unbalanced aircraft"
+                    )
             elif ed.en_mass:
-                tixi.createElement(ENA_XPATH, 'mass')
-                tixi.updateDoubleElement(ENA_XPATH + '/mass', ed.en_mass, '%g')
+                tixi.createElement(ENA_XPATH, "mass")
+                tixi.updateDoubleElement(ENA_XPATH + "/mass", ed.en_mass, "%g")
             else:
-                raise Exception('Engine definition inclomplete, missing'\
-                                + ' engine mass in the cpacs file')
+                raise Exception(
+                    "Engine definition inclomplete, missing" + " engine mass in the cpacs file"
+                )
 
-            if tixi.checkElement(EN_XPATH + '/analysis/thrust00'):
-                ed.max_thrust = tixi.getDoubleElement(EN_XPATH + '/analysis/thrust00')
+            if tixi.checkElement(EN_XPATH + "/analysis/thrust00"):
+                ed.max_thrust = tixi.getDoubleElement(EN_XPATH + "/analysis/thrust00")
                 tp.append(ed.max_thrust)
-                if e>0 and ed.max_thrust != tp[e-1]:
-                    raise Exception('The engines have different thrust, this')
-                                    #+ ' can lead to an unbalanced flight')
+                if e > 0 and ed.max_thrust != tp[e - 1]:
+                    raise Exception("The engines have different thrust, this")
+                    # + ' can lead to an unbalanced flight')
             elif ed.max_thrust:
-                tixi.createElement(EN_XPATH, '/analysisthrust00')
-                tixi.updateDoubleElement(EN_XPATH + '/analysis/thrust00',
-                                         ed.max_thrust, '%g')
+                tixi.createElement(EN_XPATH, "/analysisthrust00")
+                tixi.updateDoubleElement(EN_XPATH + "/analysis/thrust00", ed.max_thrust, "%g")
             else:
-                raise Exception('Engine definition inclomplete, missing'\
-                                + ' engine thrust in the cpacs file')
-    log.info('Data from CPACS file succesfully extracted')
+                raise Exception(
+                    "Engine definition inclomplete, missing" + " engine thrust in the cpacs file"
+                )
+    log.info("Data from CPACS file succesfully extracted")
 
     tixi.save(cpacs_in)
 
-    return(ed)
+    return ed
 
 
-#=============================================================================
+# =============================================================================
 #    MAIN
-#=============================================================================
+# =============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.warning('########################################################')
-    log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #')
-    log.warning('########################################################')
+    log.warning("########################################################")
+    log.warning("# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #")
+    log.warning("########################################################")

@@ -14,28 +14,29 @@ Python version: >=3.6
 """
 
 
-#=============================================================================
+# =============================================================================
 #   IMPORTS
-#=============================================================================
+# =============================================================================
 
 import numpy as np
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 
-#=============================================================================
+# =============================================================================
 #   CLASSES
-#=============================================================================
+# =============================================================================
 
 """All classes are defined inside the classes folder and in the
    InputClasses/Unconventional folder."""
 
 
-#=============================================================================
+# =============================================================================
 #   FUNCTIONS
-#=============================================================================
+# =============================================================================
+
 
 def engine_definition(mw, ui, ed):
     """
@@ -57,28 +58,29 @@ def engine_definition(mw, ui, ed):
 
     """
 
-    if not ed.TURBOPROP :
-        LD_CRU = 0.866*ui.LD
+    if not ed.TURBOPROP:
+        LD_CRU = 0.866 * ui.LD
         # [kN] Cruise Thrust for 1 engine
-        thrust = ((mw.maximum_take_off_mass*9.81)/LD_CRU)/(1000.0*ed.NE)
+        thrust = ((mw.maximum_take_off_mass * 9.81) / LD_CRU) / (1000.0 * ed.NE)
         # [kN] Max Take off Thrust for 1 engine
-        ed.max_thrust = thrust/0.25
-        en_mass = round((16.948*ed.max_thrust + 447.985),0)
+        ed.max_thrust = thrust / 0.25
+        en_mass = round((16.948 * ed.max_thrust + 447.985), 0)
     else:
         LD_CRU = ui.LD
         # [kN] Cruise Thrust for 1 engine
-        thrust = ((mw.maximum_take_off_mass*9.81)/LD_CRU)/(1000.0*ed.NE)
+        thrust = ((mw.maximum_take_off_mass * 9.81) / LD_CRU) / (1000.0 * ed.NE)
         # [kW] Max Take off Power for 1 engine
-        ed.max_thrust= thrust/0.5
+        ed.max_thrust = thrust / 0.5
         power = ed.max_thrust * ui.CRUISE_SPEED / 0.85
-        en_mass = round((0.221*power + 80.986),0)
+        en_mass = round((0.221 * power + 80.986), 0)
 
     ed.en_mass = en_mass
 
-    return(round(en_mass*ed.NE,0), ed)
+    return (round(en_mass * ed.NE, 0), ed)
 
 
-#=============================================================================
+# =============================================================================
+
 
 def check_ed(ed):
     """
@@ -89,27 +91,27 @@ def check_ed(ed):
         ed (class): EngineData class.
 
     """
-    s =np.shape(ed.EN_PLACEMENT)
+    s = np.shape(ed.EN_PLACEMENT)
     if not ed.NE:
-        raise Exception('No engine defined for the aircraft')
+        raise Exception("No engine defined for the aircraft")
     elif not ed.en_mass:
-        raise Exception('Engine weight equal to zero')
+        raise Exception("Engine weight equal to zero")
     elif not ed.max_thrust:
-        raise Exception('Engine max thrust equal to zero')
+        raise Exception("Engine max thrust equal to zero")
     elif s[0] < ed.NE or s[1] < 3:
-        raise Exception('Incorrect engine placement')
+        raise Exception("Incorrect engine placement")
     else:
-        log.info('EngineData class defined correctly.')
+        log.info("EngineData class defined correctly.")
 
-    return()
+    return ()
 
 
-#=============================================================================
+# =============================================================================
 #    MAIN
-#=============================================================================
+# =============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.warning('########################################################')
-    log.warning('# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #')
-    log.warning('########################################################')
+    log.warning("########################################################")
+    log.warning("# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #")
+    log.warning("########################################################")

@@ -24,13 +24,13 @@ include_gui = False
 # ----- Input -----
 
 cpacs_inout.add_input(
-    var_name='',
+    var_name="",
     var_type=list,
     default_value=None,
-    descr='List of aeroMap to plot',
-    xpath=EXPORT_XPATH + '/aeroMapToExport',
+    descr="List of aeroMap to plot",
+    xpath=EXPORT_XPATH + "/aeroMapToExport",
     gui=True,
-    gui_name='__AEROMAP_CHECHBOX',
+    gui_name="__AEROMAP_CHECHBOX",
     # gui_group='Multipe aeromap'
 )
 

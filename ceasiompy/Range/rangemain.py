@@ -26,9 +26,9 @@ Python version: >=3.6
 """
 
 
-#=============================================================================
+# =============================================================================
 #   IMPORTS
-#=============================================================================
+# =============================================================================
 
 import os
 import shutil
@@ -45,40 +45,41 @@ from ceasiompy.utils.ceasiompyfunctions import aircraft_name
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-log = get_logger(__file__.split('.')[0])
+
+log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-#=============================================================================
+# =============================================================================
 #   CLASSES
-#=============================================================================
+# =============================================================================
 
 """All classes are defined inside the classes folder in the
    range_output_class script and into the Input_classes/Conventional
    folder inside the range_user_input.py script."""
 
 
-#=============================================================================
+# =============================================================================
 #   FUNCTIONS
-#=============================================================================
+# =============================================================================
 
-def get_range_estimation(cpacs_path,cpacs_out_path):
 
-    if os.path.exists('ToolOutput'):
-        shutil.rmtree('ToolOutput')
-    os.makedirs('ToolOutput')
+def get_range_estimation(cpacs_path, cpacs_out_path):
+
+    if os.path.exists("ToolOutput"):
+        shutil.rmtree("ToolOutput")
+    os.makedirs("ToolOutput")
 
     if not os.path.exists(cpacs_path):
-        raise ValueError ('No "ToolInput.xml" file in the ToolInput folder.')
+        raise ValueError('No "ToolInput.xml" file in the ToolInput folder.')
 
     name = aircraft_name(cpacs_path)
 
-    shutil.copyfile(cpacs_path, cpacs_out_path) # TODO: shoud not be like that
-    newpath = 'ToolOutput/' + name
+    shutil.copyfile(cpacs_path, cpacs_out_path)  # TODO: shoud not be like that
+    newpath = "ToolOutput/" + name
     if not os.path.exists(newpath):
         os.makedirs(newpath)
-
 
     # RANGE ANALYSIS IMPUTS
 
@@ -89,135 +90,150 @@ def get_range_estimation(cpacs_path,cpacs_out_path):
     (mw, ri) = getdatafromcpacs.get_data(mw, ri, cpacs_out_path)
 
     if ri.TURBOPROP:
-       LDcru = ri.LD
-       LDloi = ri.LD * 0.866
+        LDcru = ri.LD
+        LDloi = ri.LD * 0.866
     else:
-       LDcru = ri.LD * 0.866
-       LDloi = ri.LD
+        LDcru = ri.LD * 0.866
+        LDloi = ri.LD
 
     if ri.WINGLET >= 0:
-        ri.TSFC_CRUISE = ri.TSFC_CRUISE - 0.05*ri.WINGLET
+        ri.TSFC_CRUISE = ri.TSFC_CRUISE - 0.05 * ri.WINGLET
     elif ri.WINGLET > 2:
-        log.warning('Warning, winglet type index is 1 (medium efficiency),'\
-                    + ' 2 (high efficiency). Set no winglet (0)')
-
+        log.warning(
+            "Warning, winglet type index is 1 (medium efficiency),"
+            + " 2 (high efficiency). Set no winglet (0)"
+        )
 
     # RANGE ANALYSIS
 
-    log.info('-------- Starting the range analysis --------')
-    log.info('---------- Aircraft: ' + name + ' -----------')
+    log.info("-------- Starting the range analysis --------")
+    log.info("---------- Aircraft: " + name + " -----------")
 
     # RANGE AND FUEL CONSUMPTION
     mw = fuel_consumption(LDloi, mw, ri, ri.RES_FUEL_PERC)
 
-    (out.ranges, out.ranges_cru, mw.m_pass_middle)\
-        = breguet_cruise_range(LDcru, ri, mw, ri.RES_FUEL_PERC)
+    (out.ranges, out.ranges_cru, mw.m_pass_middle) = breguet_cruise_range(
+        LDcru, ri, mw, ri.RES_FUEL_PERC
+    )
 
     if mw.m_pass_middle:
-        out.payloads=[round(mw.mass_payload,0), round(mw.mass_payload,0),\
-                      round(mw.m_pass_middle,0), 0]
+        out.payloads = [
+            round(mw.mass_payload, 0),
+            round(mw.mass_payload, 0),
+            round(mw.m_pass_middle, 0),
+            0,
+        ]
     else:
-        out.payloads=[round(mw.mass_payload,0), round(mw.mass_payload,0),\
-                      round(mw.mass_payload,0), 0]
+        out.payloads = [
+            round(mw.mass_payload, 0),
+            round(mw.mass_payload, 0),
+            round(mw.mass_payload, 0),
+            0,
+        ]
 
     # CREW MEMBERS CHECK
     if ri.cabin_crew_nb:
-        (out.pilot_nb, out.cabin_crew_nb, out.crew_nb,\
-         out.mass_crew, out.flight_time)= crew_check(out.ranges[1], ri)
+        (
+            out.pilot_nb,
+            out.cabin_crew_nb,
+            out.crew_nb,
+            out.mass_crew,
+            out.flight_time,
+        ) = crew_check(out.ranges[1], ri)
 
     # OUTPUT WRITING
 
-    log.info('-------- Generating output text file --------')
+    log.info("-------- Generating output text file --------")
     outputrangegen.output_txt(LDloi, LDcru, mw, ri, out, name)
-
 
     # CPACS WRITING
 
     cpacsrangeupdate.cpacs_update(ri.MASS_PASS, out, mw, cpacs_out_path)
 
-    if os.path.exists('ToolInput/conv.temp'):
-        B = 'BalanceConventional/ToolInput'
-    elif os.path.exists('ToolInput/unconv.temp'):
-        B = 'BalanceUnconventional/ToolInput'
-    elif os.path.exists('ToolInput/nocpacs.temp'):
-        log.warning('No Balance analysis without cpacs geometry file')
+    if os.path.exists("ToolInput/conv.temp"):
+        B = "BalanceConventional/ToolInput"
+    elif os.path.exists("ToolInput/unconv.temp"):
+        B = "BalanceUnconventional/ToolInput"
+    elif os.path.exists("ToolInput/nocpacs.temp"):
+        log.warning("No Balance analysis without cpacs geometry file")
         B = False
     else:
-        raise Exception('Error no conv.temp, unconv.temp '\
-                        + 'or nocpacs.temp inside ToolInput folder')
+        raise Exception(
+            "Error no conv.temp, unconv.temp " + "or nocpacs.temp inside ToolInput folder"
+        )
 
-    if os.path.exists('ToolOutput/ToolOutput.xml') and B:
-        if os.path.exists('../' + B):
-            shutil.rmtree('../' + B)
-            os.makedirs('../' + B)
-        PATH_BALANCE_OUT = '../' + B + '/ToolInput.xml'
-        #shutil.copyfile('ToolOutput/ToolOutput.xml', PATH_BALANCE_OUT)
-
+    if os.path.exists("ToolOutput/ToolOutput.xml") and B:
+        if os.path.exists("../" + B):
+            shutil.rmtree("../" + B)
+            os.makedirs("../" + B)
+        # PATH_BALANCE_OUT = "../" + B + "/ToolInput.xml"
+        # shutil.copyfile('ToolOutput/ToolOutput.xml', PATH_BALANCE_OUT)
 
     # PLOTS
     # Payload vs Range ---------------------------------------------------------
-    log.info('---- Generating payload versus range plot ---')
+    log.info("---- Generating payload versus range plot ---")
     outputrangegen.payload_range_plot(out.ranges, out.ranges_cru, out.payloads, mw, name)
 
     # Show plots
-    #plt.show()
+    # plt.show()
 
     # LOG WRITING
-    log.info('------ Mass evaluation completed ------')
-    log.info('-------------- Masses -----------------')
-    log.info('Payload mass [kg]: ' + str(int(round(mw.mass_payload))))
-    log.info('Total fuel mass [kg]: ' + str(int(round(mw.mass_fuel_max))))
-    log.info('Mass of fuel with maximum passengers [kg]:' + str(int(round(mw.mass_fuel_maxpass))))
-    log.info('Maximum Take Off Mass [kg]: ' + str(int(round(mw.maximum_take_off_mass))))
+    log.info("------ Mass evaluation completed ------")
+    log.info("-------------- Masses -----------------")
+    log.info("Payload mass [kg]: " + str(int(round(mw.mass_payload))))
+    log.info("Total fuel mass [kg]: " + str(int(round(mw.mass_fuel_max))))
+    log.info("Mass of fuel with maximum passengers [kg]:" + str(int(round(mw.mass_fuel_maxpass))))
+    log.info("Maximum Take Off Mass [kg]: " + str(int(round(mw.maximum_take_off_mass))))
 
     if ri.cabin_crew_nb:
-        log.info('------- Suggested crew members --------')
-        log.info('Pilots: ' + str(out.pilot_nb))
-        log.info('Cabin crew members: ' + str(out.cabin_crew_nb))
-        log.info('Flight time [min]: ' + str(int(round(out.flight_time*60))))
+        log.info("------- Suggested crew members --------")
+        log.info("Pilots: " + str(out.pilot_nb))
+        log.info("Cabin crew members: " + str(out.cabin_crew_nb))
+        log.info("Flight time [min]: " + str(int(round(out.flight_time * 60))))
 
-    log.info('--------------- Ranges ----------------')
-    log.info('Range with maximum payload [km]: ' + str(int(round(out.ranges[1]))))
-    log.info('Range with maximum fuel and some payload [km]: ' + str(int(round(out.ranges[2]))))
-    log.info('Maximum range [km]: ' + str(int(round(out.ranges[-1]))))
+    log.info("--------------- Ranges ----------------")
+    log.info("Range with maximum payload [km]: " + str(int(round(out.ranges[1]))))
+    log.info("Range with maximum fuel and some payload [km]: " + str(int(round(out.ranges[2]))))
+    log.info("Maximum range [km]: " + str(int(round(out.ranges[-1]))))
 
-    log.info('------------- Cruise Ranges --------------')
-    log.info('Cruise range with maximum payload [km]: ' + str(int(round(out.ranges_cru[1]))))
-    log.info('Cruise range with maximum fuel and some payload [km]: ' + str(int(round(out.ranges_cru[2]))))
-    log.info('Maximum cruise range [km]: ' + str(int(round(out.ranges_cru[-1]))))
-    log.info('--- Fuel Consumption  (max passengers) ---')
-    log.info('Fuel for take off [kg]: ' + str(int(round(mw.mf_for_to))))
-    log.info('Fuel for climb [kg]: ' + str(int(round(mw.mf_for_climb))))
-    log.info('Fuel for cruise [kg]: ' + str(int(round(mw.mf_for_cruise))))
-    log.info('Fuel for a 30 min loiter [kg]: ' + str(int(round(mw.mf_for_loiter))))
-    log.info('Fuel for landing [kg]: ' + str(int(round(mw.mf_for_landing))))
-    log.info('Total fuel remaining after landing [kg]: ' + str(int(round(mw.mf_after_land))))
+    log.info("------------- Cruise Ranges --------------")
+    log.info("Cruise range with maximum payload [km]: " + str(int(round(out.ranges_cru[1]))))
+    log.info(
+        "Cruise range with maximum fuel and some payload [km]: "
+        + str(int(round(out.ranges_cru[2])))
+    )
+    log.info("Maximum cruise range [km]: " + str(int(round(out.ranges_cru[-1]))))
+    log.info("--- Fuel Consumption  (max passengers) ---")
+    log.info("Fuel for take off [kg]: " + str(int(round(mw.mf_for_to))))
+    log.info("Fuel for climb [kg]: " + str(int(round(mw.mf_for_climb))))
+    log.info("Fuel for cruise [kg]: " + str(int(round(mw.mf_for_cruise))))
+    log.info("Fuel for a 30 min loiter [kg]: " + str(int(round(mw.mf_for_loiter))))
+    log.info("Fuel for landing [kg]: " + str(int(round(mw.mf_for_landing))))
+    log.info("Total fuel remaining after landing [kg]: " + str(int(round(mw.mf_after_land))))
 
-    log.info('------ Weigth loss (max passengers) ------')
-    log.info('Weight after take off [N]: ' + str(int(round(mw.w_after_to))))
-    log.info('Weight after climb [N]: ' + str(int(round(mw.w_after_climb))))
-    log.info('Weight after cruise [N]: ' + str(int(round(mw.w_after_cruise))))
-    log.info('Weight after a 30 min loiter [N]: ' + str(int(round(mw.w_after_loiter))))
-    log.info('Weight after landing [N]: ' + str(int(round(mw.w_after_land))))
+    log.info("------ Weigth loss (max passengers) ------")
+    log.info("Weight after take off [N]: " + str(int(round(mw.w_after_to))))
+    log.info("Weight after climb [N]: " + str(int(round(mw.w_after_climb))))
+    log.info("Weight after cruise [N]: " + str(int(round(mw.w_after_cruise))))
+    log.info("Weight after a 30 min loiter [N]: " + str(int(round(mw.w_after_loiter))))
+    log.info("Weight after landing [N]: " + str(int(round(mw.w_after_land))))
 
-    log.info('############### Range estimation completed ###############')
-
-
+    log.info("############### Range estimation completed ###############")
 
 
-#=============================================================================
+# =============================================================================
 #    MAIN
-#=============================================================================
+# =============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.info('----- Start of ' + os.path.basename(__file__) + ' -----')
+    log.info("----- Start of " + os.path.basename(__file__) + " -----")
 
-    cpacs_path = os.path.join(MODULE_DIR,'ToolInput','ToolInput.xml')
-    cpacs_out_path = os.path.join(MODULE_DIR,'ToolOutput','ToolOutput.xml')
+    cpacs_path = os.path.join(MODULE_DIR, "ToolInput", "ToolInput.xml")
+    cpacs_out_path = os.path.join(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
 
     mi.check_cpacs_input_requirements(cpacs_path)
-    
-    get_range_estimation(cpacs_path,cpacs_out_path)
 
-    log.info('----- End of ' + os.path.basename(__file__) + ' -----')
+    get_range_estimation(cpacs_path, cpacs_out_path)
+
+    log.info("----- End of " + os.path.basename(__file__) + " -----")

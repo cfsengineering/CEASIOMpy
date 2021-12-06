@@ -17,24 +17,23 @@ TODO:
 
 """
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 
 import os
-import sys
-import math
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split('.')[0])
+log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
-#==============================================================================
+# ==============================================================================
 #   CLASSES
-#==============================================================================
+# ==============================================================================
+
 
 class SimpleNamespace(object):
     """
@@ -84,11 +83,11 @@ class Point:
             xpath (str): xpath to x,y,z value
         """
 
-        coords = ['x','y','z']
+        coords = ["x", "y", "z"]
 
         for coord in coords:
             try:
-                value = tixi.getDoubleElement(xpath + '/' + coord)
+                value = tixi.getDoubleElement(xpath + "/" + coord)
                 setattr(self, coord, value)
             except:
                 pass
@@ -112,7 +111,6 @@ class Transformation:
         self.rotation = Point()
         self.translation = Point()
 
-
     def get_cpacs_transf(self, tixi, xpath):
         """ Get scaling,rotation and translation from a given path in the
             CPACS file
@@ -126,43 +124,44 @@ class Transformation:
         self.xpath = xpath
 
         try:
-            self.scaling.get_cpacs_points(tixi, xpath + '/transformation/scaling')
+            self.scaling.get_cpacs_points(tixi, xpath + "/transformation/scaling")
         except:
-            log.warning('No scaling in this transformation!')
+            log.warning("No scaling in this transformation!")
 
         try:
-            self.rotation.get_cpacs_points(tixi, xpath + '/transformation/rotation')
+            self.rotation.get_cpacs_points(tixi, xpath + "/transformation/rotation")
         except:
-            log.warning('No rotation in this transformation!')
+            log.warning("No rotation in this transformation!")
 
         try:
-            self.translation.get_cpacs_points(tixi, xpath + '/transformation/translation')
+            self.translation.get_cpacs_points(tixi, xpath + "/transformation/translation")
         except:
-            log.warning('No translation in this transformation!')
+            log.warning("No translation in this transformation!")
 
         # Find type of reference: absGlobal, absLocal or nothing
         # TODO: check if it correct to get parent when absLocal is used..?
-        ref_type = ''
+        ref_type = ""
         try:
-            ref_type = self.tixi.getTextAttribute(self.xpath+'/transformation/translation', 'refType')
+            ref_type = self.tixi.getTextAttribute(
+                self.xpath + "/transformation/translation", "refType"
+            )
         except:
-            log.info('No refType attribute')
+            log.info("No refType attribute")
 
-        if ref_type != 'absGlobal':
+        if ref_type != "absGlobal":
             self.get_parent_transformation()
-
 
     def get_parent_transformation(self):
 
-        if self.tixi.checkElement(self.xpath + '/parentUID'):
-            parent_uid = self.tixi.getTextElement(self.xpath + '/parentUID')
-            log.info('The parent UID is: ' + parent_uid)
+        if self.tixi.checkElement(self.xpath + "/parentUID"):
+            parent_uid = self.tixi.getTextElement(self.xpath + "/parentUID")
+            log.info("The parent UID is: " + parent_uid)
 
             self.xpath = self.tixi.uIDGetXPath(parent_uid)
 
             # Get parent transformation
             transf = Transformation()
-            transf.get_cpacs_transf(self.tixi,self.xpath)
+            transf.get_cpacs_transf(self.tixi, self.xpath)
 
             # Sum translation
             self.translation.x += transf.translation.x

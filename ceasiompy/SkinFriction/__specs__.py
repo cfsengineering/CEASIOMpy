@@ -21,85 +21,85 @@ cpacs_inout = CPACSInOut()
 # ===== Input =====
 
 cpacs_inout.add_input(
-    var_name='',
+    var_name="",
     var_type=list,
     default_value=None,
-    descr='To which aeroMap the skin priction coef shoud be added',
-    xpath=SF_XPATH + '/aeroMapToCalculate',
+    descr="To which aeroMap the skin priction coef shoud be added",
+    xpath=SF_XPATH + "/aeroMapToCalculate",
     gui=True,
-    gui_name='__AEROMAP_CHECHBOX',
+    gui_name="__AEROMAP_CHECHBOX",
 )
 
 cpacs_inout.add_input(
-    var_name='wetted_area',
+    var_name="wetted_area",
     var_type=float,
     default_value=None,
-    unit='m^2',
-    descr='Wetted area of the aircraft (calculated by SU2)',
-    xpath=GEOM_XPATH + '/analysis/wettedArea',
+    unit="m^2",
+    descr="Wetted area of the aircraft (calculated by SU2)",
+    xpath=GEOM_XPATH + "/analysis/wettedArea",
     gui=False,
-    gui_name='Wetted Area',
+    gui_name="Wetted Area",
     gui_group=None,
 )
 
 cpacs_inout.add_input(
-    var_name='',
+    var_name="",
     var_type=bool,
     default_value=False,
     unit=None,
-    descr='Delete orignal aeroMap once skin friction coefficient has been added',
-    xpath=SF_XPATH + '/deleteOriginal',
+    descr="Delete orignal aeroMap once skin friction coefficient has been added",
+    xpath=SF_XPATH + "/deleteOriginal",
     gui=True,
-    gui_name='Delete Orignal',
+    gui_name="Delete Orignal",
     gui_group=None,
 )
 
 cpacs_inout.add_input(
-    var_name='cruise_mach',
+    var_name="cruise_mach",
     default_value=0.78,
-    unit='-',
-    descr='Aircraft cruise Mach number',
-    xpath=RANGE_XPATH + '/cruiseMach',
+    unit="-",
+    descr="Aircraft cruise Mach number",
+    xpath=RANGE_XPATH + "/cruiseMach",
 )
 
 cpacs_inout.add_input(
-    var_name='cruise_alt',
+    var_name="cruise_alt",
     default_value=12000,
-    unit='m',
-    descr='Aircraft cruise altitude',
-    xpath=RANGE_XPATH + '/cruiseAltitude',
+    unit="m",
+    descr="Aircraft cruise altitude",
+    xpath=RANGE_XPATH + "/cruiseAltitude",
 )
 
 # ===== Output =====
 
 cpacs_inout.add_output(
-    var_name='cd0',
+    var_name="cd0",
     default_value=None,
-    unit='1',
-    descr='Skin friction drag coefficient',
-    xpath=SF_XPATH + '/cd0',
+    unit="1",
+    descr="Skin friction drag coefficient",
+    xpath=SF_XPATH + "/cd0",
 )
 
 cpacs_inout.add_output(
-    var_name='main_wing_area',
+    var_name="main_wing_area",
     default_value=None,
-    unit='m^2',
-    descr='Wing area of the main (largest) wing',
-    xpath=GEOM_XPATH + '/analyses/wingArea',
+    unit="m^2",
+    descr="Wing area of the main (largest) wing",
+    xpath=GEOM_XPATH + "/analyses/wingArea",
 )
 
 cpacs_inout.add_output(
-    var_name='main_wing_span',
+    var_name="main_wing_span",
     default_value=None,
-    unit='m',
-    descr='Wing span of the main (largest) wing',
-    xpath=GEOM_XPATH + '/analyses/wingSpan',
+    unit="m",
+    descr="Wing span of the main (largest) wing",
+    xpath=GEOM_XPATH + "/analyses/wingSpan",
 )
 
 cpacs_inout.add_output(
-    var_name='new_aeromap_to_plot',
+    var_name="new_aeromap_to_plot",
     default_value=None,
-    unit='m',
-    descr='List of aeroMap to plot',
-    xpath=PLOT_XPATH + '/aeroMapToPlot',
+    unit="m",
+    descr="List of aeroMap to plot",
+    xpath=PLOT_XPATH + "/aeroMapToPlot",
 )

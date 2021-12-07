@@ -1,0 +1,29 @@
+[tool.black]
+line-length = 99
+extend-exclude = '''
+/(
+  | build/
+  | dist/
+)/
+'''
+
+[tool.pytest.ini_options]
+minversion = "6.0"
+addopts = "-v --cov"
+testpaths = [
+    "test",
+]
+
+[tool.coverage.run]
+branch = true
+source = ["ceasiompy"]
+
+[tool.coverage.report]
+exclude_lines = [
+  'def __repr__',
+  'def __str__',
+  'if __name__ == "__main__":',
+]
+
+[tool.coverage.html]
+directory = "htmlcov"

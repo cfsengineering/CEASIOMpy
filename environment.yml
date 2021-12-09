@@ -16,7 +16,7 @@ channels:
 
 dependencies:
   - python=3.7
-  - numpy>=1.15
+  - numpy>=1.21.4
   - cpacscreator>=0.1
   # - tigl3>=3.2.1
   - tixi3=3.0.3

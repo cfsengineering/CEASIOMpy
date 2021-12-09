@@ -179,10 +179,10 @@ class AeroMapTab:
             return
 
         # Transfrom entries in list
-        alt_list = [float(alt) for alt in self.alt.get().split(";")]
-        mach_list = [float(mach) for mach in self.mach.get().split(";")]
-        aoa_list = [float(aoa) for aoa in self.aoa.get().split(";")]
-        aos_list = [float(aos) for aos in self.aos.get().split(";")]
+        alt_list = [float(alt) for alt in self.alt.get().split(";") if alt]
+        mach_list = [float(mach) for mach in self.mach.get().split(";") if mach]
+        aos_list = [float(aos) for aos in self.aos.get().split(";") if aos]
+        aoa_list = [float(aoa) for aoa in self.aoa.get().split(";") if aoa]
 
         if len(alt_list) == len(mach_list) == len(aoa_list) == len(aos_list):
             aeromap = self.cpacs.create_aeromap(self.aeromap_name.get())

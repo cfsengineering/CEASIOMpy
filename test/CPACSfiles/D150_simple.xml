@@ -5228,6 +5228,9 @@
           <aeroMapToCalculate>test_apm</aeroMapToCalculate>
         </skinFriction>
       </aerodynamics>
+      <export>
+        <aeroMapToExport>test_apm</aeroMapToExport>
+      </export>
     </CEASIOMpy>
   </toolspecific>
 </cpacs>

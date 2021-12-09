@@ -26,6 +26,7 @@ import os
 
 import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.moduleinterfaces as mi
+from ceasiompy.utils.xpath import CEASIOMPY_XPATH
 
 from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import get_string_vector
@@ -55,7 +56,7 @@ def export_aeromaps(cpacs_path, cpacs_out_path):
 
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
 
-    aeromap_to_export_xpath = "/cpacs/toolspecific/CEASIOMpy/export/aeroMapToExport"
+    aeromap_to_export_xpath = CEASIOMPY_XPATH + "/export/aeroMapToExport"
 
     aeromap_uid_list = []
     aeromap_uid_list = get_string_vector(tixi, aeromap_to_export_xpath)

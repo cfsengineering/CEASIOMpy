@@ -332,7 +332,7 @@ def run_workflow(Opt):
     tixi = open_tixi(Opt.cpacs_path)
     wkdir = ceaf.get_wkdir_or_create_new(tixi)
     tixi.save(Opt.cpacs_path)
-    
+
     # Write the config file in the working dir
     Opt.write_config_file(wkdir)
 
@@ -380,8 +380,6 @@ def run_workflow(Opt):
 
     # Copy ToolInput in the Working directory
     shutil.copy(cpacs_path_out, os.path.join(wkdir, "Output.xml"))
-
-
 
 
 # ==============================================================================

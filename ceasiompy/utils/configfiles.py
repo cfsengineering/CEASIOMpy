@@ -33,89 +33,111 @@ log = get_logger(__file__.split(".")[0])
 #   CLASSES
 # ==============================================================================
 
+
 class ConfigFile:
-    
-    def __init__(self, filename):
+    """ Class to read/write and modify a configuration file. """
+
+    def __init__(self, filename=''):
+
         self.filename = filename
-        
+
         self.data = OrderedDict()
         self.comment_idx = 1
-        
-        self.read_file(filename)
-        
+
+        if filename:
+            self.read_file(filename)
+
     def read_file(self, file):
-        
+        """ Read a .cfg or .txt configuration file. """
+
+        if not file.endswith(".cfg") and not file.endswith(".txt"):
+            raise ValueError("File must be a .cfg or .txt file")
+
         if not os.path.isfile(file):
             raise FileNotFoundError(f"File {file} not found")
-        
-        with open(file, "r") as f:
-            for line in f:
+
+        with open(file, "r") as lines:
+            for line in lines:
                 if not line.strip():
                     continue
-                
+
                 elif line.startswith("%"):
                     key = f"comment_{self.comment_idx}"
                     self.data[key] = line.strip()
                     self.comment_idx += 1
-                
+
                 elif "=" in line:
 
                     key, value = line.split("=")
-                    
-                    if "(" in value and ")" in value:
-                        value = value.replace('(','').replace(')','')
+
+                    if ";" in value:
+                        value_list = value.split(";")
+                        value_list = [v.strip() for v in value_list]
+
+                        self.data[key.strip()] = value_list
+
+                    elif "(" in value and ")" in value:
+                        value = value.replace("(", "").replace(")", "")
                         value_list = value.split(",")
-                        value_list = [ val.strip() for val in value_list ]
-                        
+                        value_list = [val.strip() for val in value_list]
+
                         # Check if the list could be a list of floats
                         try:
-                            value_list = [ float(val) for val in value_list ]
+                            value_list = [float(val) for val in value_list]
                         except ValueError:
                             pass
-                        
+
                         self.data[key.strip()] = value_list
-                        
-                    else:                    
+
+                    else:
 
                         self.data[key.strip()] = value.strip()
-                
+
                 else:
                     raise ValueError(f"Invalid line in file {file}: {line}")
-                
- 
-    
+
     def write_file(self, file, overwrite=False):
-        
-        if os.path.isfile(file) and overwrite:
-            os.remove(file)
-        else:
-            raise FileExistsError(f"File {file} already exists. Use overwrite=True to overwrite")
-        
+        """ Write a .cfg configuration file. """
+
+        if os.path.isfile(file):
+            if overwrite:
+                os.remove(file)
+            else:
+                raise FileExistsError(
+                    f"File {file} already exists. Use overwrite=True to overwrite"
+                )
+
         with open(file, "w") as f:
             for key, value in self.data.items():
                 if "comment_" in key:
                     f.write(value + "\n")
                 elif isinstance(value, list):
-                    f.write(f"{key} = ( {' , '.join(map(str,value))} )\n")
+                    if any("(" in str(val) for val in value):
+                        f.write(f"{key} = {'; '.join(map(str,value))}\n")
+                    else:
+                        f.write(f"{key} = ( {', '.join(map(str,value))} )\n")
                 else:
                     f.write(f"{key} = {value}\n")
-        
-        
+
     def __setitem__(self, key, value):
         self.data[key] = value
-        
+
     def __getitem__(self, key):
         return self.data[key]
-    
+
     def __str__(self) -> str:
+        text_line = []
         for key, value in self.data.items():
             if "comment_" in key:
-                print(value)
+                text_line.append(value)
             elif isinstance(value, list):
-                print(f"{key} = ( {' , '.join(map(str,value))} )\n")
+                if any("(" in str(val) for val in value):
+                    text_line.append(f"{key} = {'; '.join(map(str,value))}\n")
+                else:
+                    text_line.append(f"{key} = ( {', '.join(map(str,value))} )\n")
             else:
-                print(f"{key} = {value}")
-        return ""
+                text_line.append(f"{key} = {value}")
+        return ("\n").join(text_line)
 
 
 # ==============================================================================
@@ -124,16 +146,5 @@ class ConfigFile:
 
 
 if __name__ == "__main__":
-    
-    # print("Nothing to execute")
-    
-    # Test ConfigFile class
-    
-    A = ConfigFile("test.cfg")
-    
-    A['test1'] = 1
-    A['test2'] = 2
 
-    print(A)
-    
-    A.write_file("test_output.cfg",overwrite=True)
+    print("Nothing to execute")

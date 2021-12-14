@@ -77,6 +77,7 @@ def test_configfiles():
     config1.write_file(CONFIG_OUT_1,overwrite=True)
     
     assert config1['VALUE1'] == 4
+    assert config1['VALUE2'] == None
     assert config1['LIST'] == ['a', 'b', 'c']
     assert config1['DIFFENT_LIST'] == ['( 1, 1.0 | a )','( 2, 2.0 | b )','( 3, 3.0 | c )']
     assert config1['NEWLINE'] == 'text'
@@ -87,6 +88,7 @@ def test_configfiles():
         
     assert lines[1] == '% Comment 2\n'
     assert lines[2] == 'VALUE1 = 4\n'
+    assert lines[3] == 'VALUE2 = NONE\n'
     assert lines[5] == 'LIST = ( a, b, c )\n'
     assert lines[6] == 'DIFFENT_LIST = ( 1, 1.0 | a ); ( 2, 2.0 | b ); ( 3, 3.0 | c )\n'
     assert lines[7] == 'NEWLINE = text\n'

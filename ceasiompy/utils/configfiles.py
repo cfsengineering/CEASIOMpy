@@ -89,8 +89,10 @@ class ConfigFile:
 
                         self.data[key.strip()] = value_list
 
-                    else:
+                    elif value.strip().lower() == "none":
+                        self.data[key.strip()] = None
 
+                    else:
                         self.data[key.strip()] = value.strip()
 
                 else:
@@ -114,6 +116,8 @@ class ConfigFile:
                         f.write(value + "\n")
                     else:
                         f.write("% " + value + "\n")
+                elif value is None:
+                    f.write(f"{key} = NONE\n")
                 elif isinstance(value, list):
                     if any("(" in str(val) for val in value):
                         f.write(f"{key} = {'; '.join(map(str,value))}\n")
@@ -136,6 +140,8 @@ class ConfigFile:
                     text_line.append(value)
                 else:
                     text_line.append("% " + value)
+            elif value is None:
+                text_line.append(f"{key} = NONE\n")
             elif isinstance(value, list):
                 if any("(" in str(val) for val in value):
                     text_line.append(f"{key} = {'; '.join(map(str,value))}\n")

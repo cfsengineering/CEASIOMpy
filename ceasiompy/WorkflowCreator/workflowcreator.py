@@ -95,7 +95,7 @@ class WorkflowOptions:
             pass
 
     def write_config_file(self, wkdir):
-       
+
         cfg = ConfigFile()
         cfg["comment_1"] = f"File written {datetime.now()}"
         cfg["comment_2"] = f"Working directory {wkdir}"
@@ -104,7 +104,7 @@ class WorkflowOptions:
             cfg["MODULE_PRE"] = self.module_pre
         else:
             cfg["comment_module_pre"] = "MODULE_PRE = (  )"
-            
+
         if self.module_optim:
             cfg["MODULE_OPTIM"] = self.module_optim
             cfg["OPTIM_METHOD"] = self.optim_method
@@ -115,9 +115,9 @@ class WorkflowOptions:
             cfg["MODULE_POST"] = self.module_post
         else:
             cfg["comment_module_post"] = "MODULE_POST = (  )"
-        
+
         file_path = os.path.join(wkdir, "Config.cfg")
-        cfg.write_file(file_path,overwrite=True)
+        cfg.write_file(file_path, overwrite=True)
 
 
 class Tab(tk.Frame):

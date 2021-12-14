@@ -110,7 +110,10 @@ class ConfigFile:
         with open(file, "w") as f:
             for key, value in self.data.items():
                 if "comment_" in key:
-                    f.write(value + "\n")
+                    if value.startswith("%"):
+                        f.write(value + "\n")
+                    else:
+                        f.write("% " + value + "\n")
                 elif isinstance(value, list):
                     if any("(" in str(val) for val in value):
                         f.write(f"{key} = {'; '.join(map(str,value))}\n")
@@ -129,7 +132,10 @@ class ConfigFile:
         text_line = []
         for key, value in self.data.items():
             if "comment_" in key:
-                text_line.append(value)
+                if value.startswith("%"):
+                    text_line.append(value)
+                else:
+                    text_line.append("% " + value)
             elif isinstance(value, list):
                 if any("(" in str(val) for val in value):
                     text_line.append(f"{key} = {'; '.join(map(str,value))}\n")

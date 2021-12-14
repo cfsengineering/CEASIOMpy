@@ -27,6 +27,7 @@ import os
 import sys
 import shutil
 from collections import OrderedDict
+from datetime import datetime
 
 import tkinter as tk
 from tkinter import ttk
@@ -34,11 +35,10 @@ from tkinter import messagebox, filedialog
 
 import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.utils.ceasiompyfunctions as ceaf
-from cpacspy.cpacsfunctions import open_tixi
+from ceasiompy.utils.configfiles import ConfigFile
 import ceasiompy.utils.moduleinterfaces as mi
 
-# TODo: modify if read/write config function are moved to a more general place
-import ceasiompy.utils.su2functions as su2f
+from cpacspy.cpacsfunctions import open_tixi
 
 from ceasiompy.Optimisation.optimisation import routine_launcher
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -74,30 +74,50 @@ class WorkflowOptions:
 
     def from_config_file(self, workflow_config_path):
 
-        cfg = su2f.read_config(workflow_config_path)
+        cfg = ConfigFile(workflow_config_path)
 
-        self.cpacs_path = str(cfg["CPACS_TOOLINPUT"])
-        self.module_pre = cfg["MODULE_PRE"]
-        self.module_optim = cfg["MODULE_OPTIM"]
-        self.module_post = cfg["MODULE_POST"]
-        self.optim_method = cfg["OPTIM_METHOD"]
+        self.cpacs_path = cfg["CPACS_TOOLINPUT"]
+        try:
+            self.module_pre = cfg["MODULE_PRE"]
+        except KeyError:
+            pass
+        try:
+            self.module_optim = cfg["MODULE_OPTIM"]
+        except KeyError:
+            pass
+        try:
+            self.optim_method = cfg["OPTIM_METHOD"]
+        except KeyError:
+            pass
+        try:
+            self.module_post = cfg["MODULE_POST"]
+        except KeyError:
+            pass
 
     def write_config_file(self, wkdir):
-
-        # TODO write case description
-        config_dict = OrderedDict(
-            {
-                "CPACS_TOOLINPUT": self.cpacs_path,
-                "MODULE_PRE": self.module_pre,
-                "MODULE_OPTIM": self.module_optim,
-                "MODULE_POST": self.module_post,
-                "OPTIM_METHOD": self.optim_method,
-            }
-        )
-
-        # TODO: change config name
-        file_path = os.path.join(wkdir, "myConfig.cfg")
-        su2f.write_config(file_path, config_dict)
+       
+        cfg = ConfigFile()
+        cfg["comment_1"] = f"File written {datetime.now()}"
+        cfg["comment_2"] = f"Working directory {wkdir}"
+        cfg["CPACS_TOOLINPUT"] = self.cpacs_path
+        if self.module_pre:
+            cfg["MODULE_PRE"] = self.module_pre
+        else:
+            cfg["comment_module_pre"] = "MODULE_PRE = (  )"
+            
+        if self.module_optim:
+            cfg["MODULE_OPTIM"] = self.module_optim
+            cfg["OPTIM_METHOD"] = self.optim_method
+        else:
+            cfg["comment_module_optim"] = "MODULE_OPTIM = (  )"
+            cfg["comment_optim_method"] = "OPTIM_METHOD = NONE"
+        if self.module_post:
+            cfg["MODULE_POST"] = self.module_post
+        else:
+            cfg["comment_module_post"] = "MODULE_POST = (  )"
+        
+        file_path = os.path.join(wkdir, "Config.cfg")
+        cfg.write_file(file_path,overwrite=True)
 
 
 class Tab(tk.Frame):

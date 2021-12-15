@@ -23,7 +23,7 @@ dependencies:
   - matplotlib>=3.5.0
   - scipy>=1.7.3
   - pandas>=1.3.4
-  - vtk>=8.2.0
+  - vtk>=9.1.0
   - xmltodict>=0.12.0
   - openmdao >=2.9.1
 

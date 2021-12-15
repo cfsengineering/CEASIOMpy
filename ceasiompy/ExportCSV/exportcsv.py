@@ -9,11 +9,11 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2021-04-07
-| Last modifiction: 2021-10-20
+| Last modifiction: 2021-12-15
 
 TODO:
 
-    * export of other data...
+    * export other data...
     *
 
 """
@@ -24,8 +24,9 @@ TODO:
 
 import os
 
-import ceasiompy.utils.ceasiompyfunctions as ceaf
+from ceasiompy.utils.ceasiompyfunctions import get_wkdir_or_create_new
 import ceasiompy.utils.moduleinterfaces as mi
+from ceasiompy.utils.xpath import CEASIOMPY_XPATH
 
 from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import get_string_vector
@@ -34,7 +35,6 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
 
@@ -48,31 +48,29 @@ MODULE_NAME = os.path.basename(os.getcwd())
 # ==============================================================================
 
 
-def export_aeromaps(cpacs_path, cpacs_out_path):
+def export_aeromaps(cpacs_path, cpacs_out_path, csv_dir_path=None):
 
     cpacs = CPACS(cpacs_path)
-    tixi = cpacs.tixi
+    wkdir = get_wkdir_or_create_new(cpacs.tixi)
 
-    wkdir = ceaf.get_wkdir_or_create_new(tixi)
-
-    aeromap_to_export_xpath = "/cpacs/toolspecific/CEASIOMpy/export/aeroMapToExport"
+    aeromap_to_export_xpath = CEASIOMPY_XPATH + "/export/aeroMapToExport"
 
     aeromap_uid_list = []
-    aeromap_uid_list = get_string_vector(tixi, aeromap_to_export_xpath)
+    aeromap_uid_list = get_string_vector(cpacs.tixi, aeromap_to_export_xpath)
 
     for aeromap_uid in aeromap_uid_list:
-
         aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
-        csv_dir_path = os.path.join(wkdir, "CSVresults")
+        if not csv_dir_path:
+            csv_dir_path = os.path.join(wkdir, "CSVresults")
+
         if not os.path.isdir(csv_dir_path):
             os.mkdir(csv_dir_path)
 
         csv_path = os.path.join(csv_dir_path, aeromap_uid + ".csv")
-
         aeromap.export_csv(csv_path)
 
-    tixi.save(cpacs_out_path)
+    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
 
 # ==============================================================================

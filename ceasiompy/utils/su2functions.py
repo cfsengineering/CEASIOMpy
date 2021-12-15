@@ -26,7 +26,7 @@ TODO:
 import os
 from collections import OrderedDict
 
-import ceasiompy.utils.ceasiompyfunctions as ceaf
+from ceasiompy.utils.ceasiompyfunctions import get_install_path
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
@@ -42,72 +42,6 @@ SOFT_LIST = ["SU2_DEF", "SU2_CFD", "SU2_SOL", "mpirun.mpich", "mpirun"]
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
-
-
-def read_config(config_file_path):
-    """ Function read a SU2 configuration file
-
-    Function 'read_config' return a dictionary of the data found in the SU2
-    configuration file.
-
-    Args:
-        config_file_path (str):  SU2 configuration file path
-
-    Returns:
-        data_dict (dict): Dictionary of the data from the SU2 configuration file
-
-    """
-
-    none_list = ["NONE", "None", "none"]
-
-    data_dict = OrderedDict()
-    with open(config_file_path, "r") as f:
-        for line in f:
-            if line.startswith("%") or "=" not in line:
-                continue
-            key, value = line.split("=")
-
-            # if any 'None' in value
-            find_none = any(ele in value for ele in none_list)
-
-            if find_none:
-                data_dict[key.strip()] = None
-            elif "(" in value:
-                new_value = value.replace("(", "").replace(")", "")
-                value_list = new_value.split(",")
-                strip_value_list = [item.strip() for item in value_list]
-                if len(strip_value_list) == 1 and strip_value_list[0] == "":
-                    data_dict[key.strip()] = None
-                else:
-                    data_dict[key.strip()] = strip_value_list
-            else:
-                data_dict[key.strip()] = value.strip()
-
-    return data_dict
-
-
-def write_config(config_file_path, config_dict):
-    """ Function write a SU2 configuration file from a dictionary.
-
-    Function 'write_config' write a SU2 configuration file with the infomation
-    contained in the given 'config_dict'.
-
-    Args:
-        config_file_path (str):  SU2 configuration file path
-        config_dict (dict): Dictionary of the data from the SU2 configuration file
-
-    """
-
-    # TODO: add somting to include commentary
-    with open(config_file_path, "w") as f:
-        for key, value in config_dict.items():
-            if isinstance(value, list):
-                value_str = " , ".join(value)
-                f.write(str(key) + " = ( " + value_str + " ) \n")
-            else:
-                if value is None or value == "":
-                    value = "NONE"
-                f.write(str(key) + " = " + str(value) + "\n")
 
 
 def get_mesh_marker(su2_mesh_path):
@@ -156,7 +90,7 @@ def run_soft(soft, config_path, wkdir, nb_proc):
     """
 
     # Get installation path for the following softwares
-    SOFT_DICT = ceaf.get_install_path(SOFT_LIST)
+    SOFT_DICT = get_install_path(SOFT_LIST)
 
     # mpi_install_path = SOFT_DICT['mpirun.mpich']
     mpi_install_path = SOFT_DICT["mpirun"]
@@ -203,9 +137,7 @@ def run_soft(soft, config_path, wkdir, nb_proc):
 
 if __name__ == "__main__":
 
-    log.info("Nothing to execute!")
+    print("Nothing to execute!")
+    print("You can use this module by importing:")
+    print("from ceasiompy.utils.su2functions import get_mesh_marker, run_soft")
 
-
-# HOW TO IMPORT THESE MODULES
-
-#  from ceasiompy.utils.su2functions import read_config, write_config, get_mesh_marker

@@ -30,10 +30,10 @@ from cpacspy.cpacsfunctions import (
     get_value,
     get_value_or_default,
 )
+
+from ceasiompy.utils.su2functions import get_mesh_marker
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.xpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
-
-import ceasiompy.utils.su2functions as su2f
 
 from ambiance import Atmosphere
 
@@ -88,7 +88,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     # Mesh Marker
     bc_wall_xpath = SU2_XPATH + "/boundaryConditions/wall"
     bc_farfield_xpath = SU2_XPATH + "/boundaryConditions/farfield"
-    bc_wall_list, engine_bc_list = su2f.get_mesh_marker(su2_mesh_path)
+    bc_wall_list, engine_bc_list = get_mesh_marker(su2_mesh_path)
 
     create_branch(cpacs.tixi, bc_wall_xpath)
     bc_wall_str = ";".join(bc_wall_list)

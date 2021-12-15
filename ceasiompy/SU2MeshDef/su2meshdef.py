@@ -43,7 +43,7 @@ from cpacspy.cpacsfunctions import (
     open_tigl,
     open_tixi,
 )
-import ceasiompy.utils.su2functions as su2f
+from ceasiompy.utils.su2functions import get_mesh_marker, run_soft
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.xpath import REF_XPATH, WINGS_XPATH, SU2_XPATH
 
@@ -579,7 +579,7 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
     cfg["MESH_FILENAME"] = "../" + aircraft_name + "_baseline.su2"
 
     # Mesh Marker
-    bc_wall_list, engine_bc_list = su2f.get_mesh_marker(su2_mesh_path)
+    bc_wall_list, engine_bc_list = get_mesh_marker(su2_mesh_path)
 
     bc_wall_str = "(" + ",".join(bc_wall_list) + ")"
     cfg["MARKER_EULER"] = bc_wall_str
@@ -756,7 +756,7 @@ def run_mesh_deformation(tixi, wkdir):
         for cfg_file in sorted(cfg_file_list):
 
             if os.path.isfile(cfg_file):
-                su2f.run_soft("SU2_DEF", cfg_file, ted_dir, nb_proc)
+                run_soft("SU2_DEF", cfg_file, ted_dir, nb_proc)
             else:
                 raise ValueError("Not correct configuration file to run!")
 

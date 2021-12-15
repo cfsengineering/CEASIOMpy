@@ -10,7 +10,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2019-09-24
-| Last modifiction: 2021-10-01
+| Last modifiction: 2021-12-15
 
 TODO:
 
@@ -22,15 +22,15 @@ TODO:
 #   IMPORTS
 # ==============================================================================
 
-import pandas
-
-import vtk
+import os
 import numpy as np
 from scipy.sparse import csr_matrix
+import pandas as pd
 from six import iteritems
+import vtk
 from vtk.util.numpy_support import vtk_to_numpy, numpy_to_vtk
 
-from ceasiompy.utils.su2functions import read_config
+from ceasiompy.utils.configfiles import ConfigFile
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -149,7 +149,7 @@ def compute_forces(vtu_file_path, force_file_path, config_dict):
                     mesh_maker.append(marker)
                     find = True
 
-    df = pandas.DataFrame(
+    df = pd.DataFrame(
         data={
             "ids": ids,
             "x": coord[:, 0],
@@ -283,24 +283,20 @@ def get_mesh_markers_ids(su2_mesh_path):
 def extract_loads(results_files_dir):
     """ Function to extract loads from a SU2 resuts file.
 
-    Function 'extract_loads'
-
     Args:
-        results_files_dir (str): Path to the directory where results from SU2
-                                 are saved.
+        results_files_dir (str): Path to the directory where results from SU2 are saved.
 
     """
 
     # Path definitons
-    config_file_path = results_files_dir + "/ConfigCFD.cfg"
-    surface_flow_file_path = (
-        results_files_dir + "/surface_flow.vtu"
-    )  # .vtu are creteted by SU2 from v7.0.1
-    surface_flow_force_file_path = results_files_dir + "/surface_flow_forces.vtu"
-    force_file_path = results_files_dir + "/force.csv"
+    config_file_path = os.path.join(results_files_dir, "ConfigCFD.cfg")
+    # .vtu are creteted by SU2 from v7.0.1
+    surface_flow_file_path = os.path.join(results_files_dir, "surface_flow.vtu")
+    surface_flow_force_file_path = os.path.join(results_files_dir, "surface_flow_forces.vtu")
+    force_file_path = os.path.join(results_files_dir, "forces.csv")
 
-    cfg = read_config(config_file_path)
-    updated_mesh = compute_forces(surface_flow_file_path, force_file_path, cfg)
+    config_dict = ConfigFile(config_file_path).data
+    updated_mesh = compute_forces(surface_flow_file_path, force_file_path, config_dict)
     write_updated_mesh(updated_mesh, surface_flow_force_file_path)
 
 

@@ -159,7 +159,7 @@ def run_SU2_fsi(config_path, wkdir, nb_proc):
 
     # Modify config file for SU2_CFD
     config_cfd_path = os.path.join(wkdir, "ConfigCFD.cfg")
-    cfg_cfd = su2f.read_config(config_path)
+    cfg_cfd = ConfigFile(config_path)
     cfg_cfd["MESH_FILENAME"] = "mesh_out.su2"
     cfg_cfd.write_file(config_cfd_path, overwrite=True)
 

@@ -140,4 +140,3 @@ if __name__ == "__main__":
     print("Nothing to execute!")
     print("You can use this module by importing:")
     print("from ceasiompy.utils.su2functions import get_mesh_marker, run_soft")
-

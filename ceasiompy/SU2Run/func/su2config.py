@@ -30,9 +30,10 @@ from cpacspy.cpacsfunctions import (
     get_value,
     get_value_or_default,
 )
-from ceasiompy.utils.xpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
 
-import ceasiompy.utils.su2functions as su2f
+from ceasiompy.utils.su2functions import get_mesh_marker
+from ceasiompy.utils.configfiles import ConfigFile
+from ceasiompy.utils.xpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
 
 from ambiance import Atmosphere
 
@@ -87,7 +88,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     # Mesh Marker
     bc_wall_xpath = SU2_XPATH + "/boundaryConditions/wall"
     bc_farfield_xpath = SU2_XPATH + "/boundaryConditions/farfield"
-    bc_wall_list, engine_bc_list = su2f.get_mesh_marker(su2_mesh_path)
+    bc_wall_list, engine_bc_list = get_mesh_marker(su2_mesh_path)
 
     create_branch(cpacs.tixi, bc_wall_xpath)
     bc_wall_str = ";".join(bc_wall_list)
@@ -146,7 +147,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         aos_list = [0.0]
 
     # Get and modify the default configuration file
-    cfg = su2f.read_config(DEFAULT_CONFIG_PATH)
+    cfg = ConfigFile(DEFAULT_CONFIG_PATH)
 
     # General parmeters
     cfg["REF_LENGTH"] = cpacs.aircraft.ref_lenght
@@ -219,8 +220,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             os.mkdir(case_dir_path)
 
         config_output_path = os.path.join(wkdir, case_dir_name, config_file_name)
-
-        su2f.write_config(config_output_path, cfg)
+        cfg.write_file(config_output_path, overwrite=True)
 
         # Damping derivatives
         damping_der_xpath = SU2_XPATH + "/options/clalculateDampingDerivatives"
@@ -236,18 +236,17 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             cfg["ROTATION_RATE"] = str(rotation_rate) + " 0.0 0.0"
             os.mkdir(os.path.join(wkdir, case_dir_name + "_dp"))
             config_output_path = os.path.join(wkdir, case_dir_name + "_dp", config_file_name)
-            su2f.write_config(config_output_path, cfg)
+            cfg.write_file(config_output_path, overwrite=True)
 
             cfg["ROTATION_RATE"] = "0.0 " + str(rotation_rate) + " 0.0"
             os.mkdir(os.path.join(wkdir, case_dir_name + "_dq"))
             config_output_path = os.path.join(wkdir, case_dir_name + "_dq", config_file_name)
-            su2f.write_config(config_output_path, cfg)
+            cfg.write_file(config_output_path, overwrite=True)
 
             cfg["ROTATION_RATE"] = "0.0 0.0 " + str(rotation_rate)
             os.mkdir(os.path.join(wkdir, case_dir_name + "_dr"))
             config_output_path = os.path.join(wkdir, case_dir_name + "_dr", config_file_name)
-            su2f.write_config(config_output_path, cfg)
-
+            cfg.write_file(config_output_path, overwrite=True)
             log.info("Damping derivatives cases directory has been created.")
 
         # Control surfaces deflections
@@ -276,7 +275,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
                 config_file_name = "ConfigCFD.cfg"
                 config_output_path = os.path.join(wkdir, config_dir_path, config_file_name)
-                su2f.write_config(config_output_path, cfg)
+                cfg.write_file(config_output_path, overwrite=True)
 
     # TODO: change that, but if it is save in tooloutput it will be erease by results...
     cpacs.save_cpacs(cpacs_path, overwrite=True)

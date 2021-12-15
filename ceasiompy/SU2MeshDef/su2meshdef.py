@@ -43,7 +43,8 @@ from cpacspy.cpacsfunctions import (
     open_tigl,
     open_tixi,
 )
-import ceasiompy.utils.su2functions as su2f
+from ceasiompy.utils.su2functions import get_mesh_marker, run_soft
+from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.xpath import REF_XPATH, WINGS_XPATH, SU2_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -546,7 +547,7 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
     tigl = open_tigl(tixi)
     aircraft_name = ceaf.aircraft_name(tixi)
     DEFAULT_CONFIG_PATH = MODULE_DIR + "/files/DefaultConfig_v7.cfg"
-    cfg = su2f.read_config(DEFAULT_CONFIG_PATH)
+    cfg = ConfigFile(DEFAULT_CONFIG_PATH)
     config_dir_name = aircraft_name + "_TED_" + ted_uid
     # TODO: add check or remove if alread exist?
     os.mkdir(os.path.join(wkdir, "MESH", config_dir_name))
@@ -578,7 +579,7 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
     cfg["MESH_FILENAME"] = "../" + aircraft_name + "_baseline.su2"
 
     # Mesh Marker
-    bc_wall_list, engine_bc_list = su2f.get_mesh_marker(su2_mesh_path)
+    bc_wall_list, engine_bc_list = get_mesh_marker(su2_mesh_path)
 
     bc_wall_str = "(" + ",".join(bc_wall_list) + ")"
     cfg["MARKER_EULER"] = bc_wall_str
@@ -603,7 +604,7 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
     # Write Config definition for FFD box
     config_file_name = "ConfigDEF.cfg"
     config_path = os.path.join(wkdir, "MESH", config_dir_name, config_file_name)
-    su2f.write_config(config_path, cfg)
+    cfg.write_file(config_path, overwrite=True)
     log.info(config_path + " have has been written.")
 
     # FFD BOX rotation
@@ -623,7 +624,7 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
         # Write Config rotation for FFD box
         config_file_name = "ConfigROT_defl" + str(defl) + ".cfg"
         config_path = os.path.join(wkdir, "MESH", config_dir_name, config_file_name)
-        su2f.write_config(config_path, cfg)
+        cfg.write_file(config_path, overwrite=True)
         log.info(config_path + " have has been written.")
 
         if sym_dir:
@@ -640,7 +641,7 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
 
             config_file_name = "ConfigROT_sym_defl" + str(defl) + ".cfg"
             config_path = os.path.join(wkdir, "MESH", config_dir_name, config_file_name)
-            su2f.write_config(config_path, cfg)
+            cfg.write_file(config_path, overwrite=True)
             log.info(config_path + " have has been written.")
 
 
@@ -755,7 +756,7 @@ def run_mesh_deformation(tixi, wkdir):
         for cfg_file in sorted(cfg_file_list):
 
             if os.path.isfile(cfg_file):
-                su2f.run_soft("SU2_DEF", cfg_file, ted_dir, nb_proc)
+                run_soft("SU2_DEF", cfg_file, ted_dir, nb_proc)
             else:
                 raise ValueError("Not correct configuration file to run!")
 

@@ -100,7 +100,7 @@ def run_subworkflow(module_to_run, cpacs_path_in="", cpacs_path_out=""):
     submodule_list = mi.get_submodule_list()
     for module in module_to_run:
         if module not in submodule_list:
-            raise ValueError('No module named "' + module + '"!')
+            raise ValueError(f"No module named '{module}'!")
 
     # Copy the cpacs file in the first module
     if cpacs_path_in:

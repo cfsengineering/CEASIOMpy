@@ -9,40 +9,45 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2021-12-09
-| Last modifiction: 2021-12-09
+| Last modifiction: 2021-12-15
 
 """
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 
 import os
-
-from cpacspy.cpacspy import CPACS
-
+import shutil
 from ceasiompy.ExportCSV.exportcsv import export_aeromaps
 
-from cpacspy.cpacsfunctions import open_tixi
-
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger(__file__.split('.')[0])
 
 # Default CPACS file to test
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CPACS_IN_PATH =  os.path.join(MODULE_DIR,'..','CPACSfiles','D150_simple.xml')
-CPACS_OUT_PATH = os.path.join(MODULE_DIR,'D150_simple_clcalulator_test.xml')
+CPACS_IN_PATH = os.path.join(MODULE_DIR, "D150_simple.xml")
 
 
 def test_export_aeromaps():
     """Test function 'exportcsv' """
-    
-    # cpacs = CPACS(CPACS_OUT_PATH)
-    # aeromap = cpacs.get_aeromap_by_uid("test_apm")
-    
-    # export_aeromaps(cpacs_path, cpacs_out_path):
-    
-    # TODO Continue when WorkingDir will be refactored
-    # then add a working directory for test
-    pass
+
+    WKDIR = os.path.join(MODULE_DIR, "WKDIR_test")
+    csv_dir_path = os.path.join(WKDIR, "CSVresults")
+    csv_file_path = os.path.join(csv_dir_path, "test_apm.csv")
+
+    # Remove directory in the WKDIR if exists and create it empty
+    if os.path.isdir(WKDIR):
+        shutil.rmtree(WKDIR)
+    os.mkdir(WKDIR)
+
+    # Run the function
+    export_aeromaps(CPACS_IN_PATH, CPACS_IN_PATH, csv_dir_path)
+
+    # Read and check csv file
+    with open(csv_file_path, "r") as csv_file:
+        lines = csv_file.readlines()
+
+    assert lines[0] == "altitude,machNumber,angleOfSideslip,angleOfAttack,cd,cl,cs,cmd,cml,cms\n"
+    assert lines[1] == "0,0.3,0,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
+    assert lines[2] == "0,0.3,0,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
+    assert lines[3] == "0,0.3,10,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
+    assert lines[4] == "0,0.3,10,10,0.01,0.1,0.001,NaN,NaN,NaN\n"

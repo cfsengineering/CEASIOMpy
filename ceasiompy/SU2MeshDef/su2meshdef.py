@@ -44,6 +44,7 @@ from cpacspy.cpacsfunctions import (
     open_tixi,
 )
 import ceasiompy.utils.su2functions as su2f
+from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.xpath import REF_XPATH, WINGS_XPATH, SU2_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -546,7 +547,7 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
     tigl = open_tigl(tixi)
     aircraft_name = ceaf.aircraft_name(tixi)
     DEFAULT_CONFIG_PATH = MODULE_DIR + "/files/DefaultConfig_v7.cfg"
-    cfg = su2f.read_config(DEFAULT_CONFIG_PATH)
+    cfg = ConfigFile(DEFAULT_CONFIG_PATH)
     config_dir_name = aircraft_name + "_TED_" + ted_uid
     # TODO: add check or remove if alread exist?
     os.mkdir(os.path.join(wkdir, "MESH", config_dir_name))
@@ -603,7 +604,7 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
     # Write Config definition for FFD box
     config_file_name = "ConfigDEF.cfg"
     config_path = os.path.join(wkdir, "MESH", config_dir_name, config_file_name)
-    su2f.write_config(config_path, cfg)
+    cfg.write_file(config_path, overwrite=True)
     log.info(config_path + " have has been written.")
 
     # FFD BOX rotation
@@ -623,7 +624,7 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
         # Write Config rotation for FFD box
         config_file_name = "ConfigROT_defl" + str(defl) + ".cfg"
         config_path = os.path.join(wkdir, "MESH", config_dir_name, config_file_name)
-        su2f.write_config(config_path, cfg)
+        cfg.write_file(config_path, overwrite=True)
         log.info(config_path + " have has been written.")
 
         if sym_dir:
@@ -640,7 +641,7 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
 
             config_file_name = "ConfigROT_sym_defl" + str(defl) + ".cfg"
             config_path = os.path.join(wkdir, "MESH", config_dir_name, config_file_name)
-            su2f.write_config(config_path, cfg)
+            cfg.write_file(config_path, overwrite=True)
             log.info(config_path + " have has been written.")
 
 

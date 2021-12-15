@@ -35,6 +35,7 @@ import ceasiompy.utils.su2functions as su2f
 from ceasiompy.SU2Run.func.su2config import generate_su2_cfd_config
 from ceasiompy.SU2Run.func.extractloads import extract_loads
 from ceasiompy.SU2Run.func.su2results import get_su2_results
+from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.xpath import SU2_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -146,7 +147,7 @@ def run_SU2_fsi(config_path, wkdir, nb_proc):
 
     # Modify config file for SU2_DEF
     config_def_path = os.path.join(wkdir, "ConfigDEF.cfg")
-    cfg_def = su2f.read_config(config_path)
+    cfg_def = ConfigFile(config_path)
 
     cfg_def["DV_KIND"] = "SURFACE_FILE"
     cfg_def["DV_MARKER"] = "Wing"
@@ -154,13 +155,13 @@ def run_SU2_fsi(config_path, wkdir, nb_proc):
     # TODO: Do we need that? if yes, find 'WING' in CPACS
     cfg_def["DV_PARAM"] = ["WING", "0", "0", "1", "0.0", "0.0", "1.0"]
     cfg_def["DV_VALUE"] = 0.01
-    su2f.write_config(config_def_path, cfg_def)
+    cfg_def.write_file(config_def_path, overwrite=True)
 
     # Modify config file for SU2_CFD
     config_cfd_path = os.path.join(wkdir, "ConfigCFD.cfg")
     cfg_cfd = su2f.read_config(config_path)
     cfg_cfd["MESH_FILENAME"] = "mesh_out.su2"
-    su2f.write_config(config_cfd_path, cfg_cfd)
+    cfg_cfd.write_file(config_cfd_path, overwrite=True)
 
     su2f.run_soft("SU2_DEF", config_def_path, wkdir, nb_proc)
     su2f.run_soft("SU2_CFD", config_cfd_path, wkdir, nb_proc)

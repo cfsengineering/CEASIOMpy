@@ -659,6 +659,14 @@ def create_settings_gui(cpacs_path, cpacs_out_path, submodule_list):
 
     root = tk.Tk()
     root.title("CEASIOMpy Settings GUI")
+    
+    # Check windows size
+    screen_width = root.winfo_screenwidth()
+    screen_height = root.winfo_screenheight()
+    print(screen_width,screen_height)
+    # TODO
+            
+    # self.place(x = 0, y = 0, relwidth = 1, relheight = 1)
 
     # Automatically set the size of the windows
     gui_modules = 1

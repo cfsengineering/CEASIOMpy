@@ -9,7 +9,7 @@ Python version: >=3.6
 
 | Author: Aidan Jungo
 | Creation: 2021-02-25
-| Last modifiction: 2021-05-18
+| Last modifiction: 2021-12-17
 
 TODO:
 
@@ -22,6 +22,7 @@ TODO:
 # ==============================================================================
 
 import os
+from tixi3.tixi3wrapper import Tixi3Exception
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -76,7 +77,7 @@ class Point:
         self.z = z
 
     def get_cpacs_points(self, tixi, xpath):
-        """ Get x,y,z points (or 2 of those 3) from a given path in the CPACS file
+        """Get x,y,z points (or 2 of those 3) from a given path in the CPACS file
 
         Args:
             tixi (handles): TIXI Handle of the CPACS file
@@ -84,13 +85,15 @@ class Point:
         """
 
         coords = ["x", "y", "z"]
-
-        for coord in coords:
-            try:
-                value = tixi.getDoubleElement(xpath + "/" + coord)
-                setattr(self, coord, value)
-            except:
-                pass
+        if tixi.checkElement(xpath):
+            for coord in coords:
+                try:
+                    value = tixi.getDoubleElement(xpath + "/" + coord)
+                    setattr(self, coord, value)
+                except Tixi3Exception:
+                    pass
+        else:
+            log.warning(f"xpath {xpath} do not exist!")
 
 
 class Transformation:
@@ -112,7 +115,7 @@ class Transformation:
         self.translation = Point()
 
     def get_cpacs_transf(self, tixi, xpath):
-        """ Get scaling,rotation and translation from a given path in the
+        """Get scaling,rotation and translation from a given path in the
             CPACS file
 
         Args:
@@ -123,20 +126,9 @@ class Transformation:
         self.tixi = tixi
         self.xpath = xpath
 
-        try:
-            self.scaling.get_cpacs_points(tixi, xpath + "/transformation/scaling")
-        except:
-            log.warning("No scaling in this transformation!")
-
-        try:
-            self.rotation.get_cpacs_points(tixi, xpath + "/transformation/rotation")
-        except:
-            log.warning("No rotation in this transformation!")
-
-        try:
-            self.translation.get_cpacs_points(tixi, xpath + "/transformation/translation")
-        except:
-            log.warning("No translation in this transformation!")
+        self.scaling.get_cpacs_points(tixi, xpath + "/transformation/scaling")
+        self.rotation.get_cpacs_points(tixi, xpath + "/transformation/rotation")
+        self.translation.get_cpacs_points(tixi, xpath + "/transformation/translation")
 
         # Find type of reference: absGlobal, absLocal or nothing
         # TODO: check if it correct to get parent when absLocal is used..?
@@ -145,7 +137,7 @@ class Transformation:
             ref_type = self.tixi.getTextAttribute(
                 self.xpath + "/transformation/translation", "refType"
             )
-        except:
+        except Tixi3Exception:
             log.info("No refType attribute")
 
         if ref_type != "absGlobal":

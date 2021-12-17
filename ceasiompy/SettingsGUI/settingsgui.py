@@ -55,7 +55,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 class AeroMapTab:
-    """ Class to create the AeroMap tab from the infomation in cpacs file. """
+    """Class to create the AeroMap tab from the infomation in cpacs file."""
 
     def __init__(self, tabs, cpacs, aeromap_uid_list):
         """AeroMapTab class
@@ -259,8 +259,8 @@ class AeroMapTab:
 
 
 class AutoTab:
-    """ Class to create automatically tabs from the infomation in the __specs__
-        file of each module. """
+    """Class to create automatically tabs from the infomation in the __specs__
+    file of each module."""
 
     def __init__(self, tabs, cpacs, module_name):
         """Tab class
@@ -447,7 +447,7 @@ class AutoTab:
 
 
 class SettingGUI(tk.Frame):
-    """ Main window. All the other widgets are stored in this window. """
+    """Main window. All the other widgets are stored in this window."""
 
     def __init__(self, master, cpacs_path, cpacs_out_path, submodule_list, **kwargs):
         tk.Frame.__init__(self, master, **kwargs)
@@ -485,12 +485,12 @@ class SettingGUI(tk.Frame):
         if self.winfo_screenheight() < 1000:
             row = 0
             col = 3
-            
+
         # General button
         self.update_button = tk.Button(self, text="Update", command=self._update_all)
         self.update_button.grid(row=row, column=col, sticky="E")
         self.close_button = tk.Button(self, text="Save & Quit", command=self._save_quit)
-        self.close_button.grid(row=row, column=col+1, sticky="W")
+        self.close_button.grid(row=row, column=col + 1, sticky="W")
 
     def _update_all(self):
 
@@ -579,7 +579,7 @@ class SettingGUI(tk.Frame):
 
 
 def date_time_str():
-    """ Return the current date and time as a string. """
+    """Return the current date and time as a string."""
 
     return datetime.now().strftime("%Y-%m-%d at %H:%M:%S")
 
@@ -655,7 +655,7 @@ def wrap_in_brackets(string, brackets="[]", space=0):
 
 
 def create_settings_gui(cpacs_path, cpacs_out_path, submodule_list):
-    """ Create a GUI with Tkinter to fill CEASIOMpy settings
+    """Create a GUI with Tkinter to fill CEASIOMpy settings
 
     Args:
         cpacs_path (str): Path to the CPACS file
@@ -666,7 +666,7 @@ def create_settings_gui(cpacs_path, cpacs_out_path, submodule_list):
 
     root = tk.Tk()
     root.title("CEASIOMpy Settings GUI")
-    
+
     # Automatically set the size of the windows
     gui_modules = 1
     max_inputs = 0

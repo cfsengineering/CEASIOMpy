@@ -24,7 +24,7 @@ from ceasiompy.utils.generalclasses import SimpleNamespace, Point, Transformatio
 from cpacspy.cpacspy import CPACS
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CPACS_PATH = os.path.join(MODULE_DIR,"simpletest_cpacs.xml")
+CPACS_PATH = os.path.join(MODULE_DIR, "simpletest_cpacs.xml")
 
 # ==============================================================================
 #   CLASSES
@@ -121,6 +121,6 @@ def test_Transfomation():
 
 if __name__ == "__main__":
 
-    log.info("Test configfile.py")
-    log.info("To run test use the following command:")
-    log.info(">> pytest -v")
+    print("Test configfile.py")
+    print("To run test use the following command:")
+    print(">> pytest -v")

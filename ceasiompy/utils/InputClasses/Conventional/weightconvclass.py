@@ -85,7 +85,7 @@ class UserInputs:
         self.TURBOPROP = False
 
     def get_user_inputs(self, cpacs_path):
-        """ Get user input from the CPACS file
+        """Get user input from the CPACS file
 
         The function 'get_user_inputs' extracts from the CPACS file the required
         input data, the code will use the default value when they are missing.
@@ -175,7 +175,7 @@ class InsideDimensions:
         self.cabin_area = 0
 
     def get_inside_dim(self, cpacs_path):
-        """ Get user input from the CPACS file
+        """Get user input from the CPACS file
 
         The function 'get_inside_dim' extracts from the CPACS file the required
         aircraft inside dimension, the code will use the default value when they are

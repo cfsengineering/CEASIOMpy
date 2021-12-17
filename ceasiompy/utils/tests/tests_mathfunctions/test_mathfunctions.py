@@ -12,9 +12,9 @@ Python version: >=3.6
 | Last modifiction: 2019-08-07
 """
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 
 import os
 import sys
@@ -25,14 +25,13 @@ from pytest import approx
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 
-log = get_logger(__file__.split('.')[0])
-
-#==============================================================================
+# ==============================================================================
 #   CLASSES
-#==============================================================================
+# ==============================================================================
+
 
 class SimpleNamespace(object):
-    """ Rudimentary SimpleNamespace clone.
+    """Rudimentary SimpleNamespace clone.
 
     Works as a record-type object, or 'struct'. Attributes can be added
     on-the-fly by assignment. Attributes are accesed using point-notation.
@@ -53,12 +52,13 @@ class SimpleNamespace(object):
         return self.__dict__ == other.__dict__
 
 
-#==============================================================================
+# ==============================================================================
 #   FUNCTIONS
-#==============================================================================
+# ==============================================================================
+
 
 def test_euler2fix():
-    """Test convertion from Euler angles to fix angles """
+    """Test convertion from Euler angles to fix angles"""
 
     euler_angle = SimpleNamespace()
 
@@ -124,12 +124,13 @@ def test_fix2euler():
     fix_angle2 = euler2fix(euler_angle)
     assert fix_angle == fix_angle2
 
-#==============================================================================
+
+# ==============================================================================
 #    MAIN
-#==============================================================================
+# ==============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    log.info('Running Test Math Functions')
-    log.info('To run test use the following command:')
-    log.info('>> pytest -v')
+    print("Running Test Math Functions")
+    print("To run test use the following command:")
+    print(">> pytest -v")

@@ -479,11 +479,18 @@ class SettingGUI(tk.Frame):
         self.tab_list = []
         self._update_all()
 
+        # Check windows size to change position of button if too small
+        row = 1
+        col = 1
+        if self.winfo_screenheight() < 1000:
+            row = 0
+            col = 3
+            
         # General button
         self.update_button = tk.Button(self, text="Update", command=self._update_all)
-        self.update_button.grid(row=1, column=1, sticky="E")
+        self.update_button.grid(row=row, column=col, sticky="E")
         self.close_button = tk.Button(self, text="Save & Quit", command=self._save_quit)
-        self.close_button.grid(row=1, column=2, sticky="W")
+        self.close_button.grid(row=row, column=col+1, sticky="W")
 
     def _update_all(self):
 
@@ -660,14 +667,6 @@ def create_settings_gui(cpacs_path, cpacs_out_path, submodule_list):
     root = tk.Tk()
     root.title("CEASIOMpy Settings GUI")
     
-    # Check windows size
-    screen_width = root.winfo_screenwidth()
-    screen_height = root.winfo_screenheight()
-    print(screen_width,screen_height)
-    # TODO
-            
-    # self.place(x = 0, y = 0, relwidth = 1, relheight = 1)
-
     # Automatically set the size of the windows
     gui_modules = 1
     max_inputs = 0

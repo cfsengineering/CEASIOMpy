@@ -29,7 +29,7 @@ from ceasiompy.SkinFriction.skinfriction import estimate_skin_friction_coef, add
 
 # Default CPACS file to test
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CPACS_IN_PATH = os.path.join(MODULE_DIR,  "D150_simple_SkinFriction_test.xml")
+CPACS_IN_PATH = os.path.join(MODULE_DIR, "D150_simple_SkinFriction_test.xml")
 CPACS_OUT_PATH = os.path.join(MODULE_DIR, "D150_simple_skinfriction_test_output.xml")
 
 # ==============================================================================

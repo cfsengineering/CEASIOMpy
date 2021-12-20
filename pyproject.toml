@@ -12,7 +12,7 @@ minversion = "6.0"
 addopts = "-v --cov"
 
 [tool.coverage.run]
-branch = true
+branch = false
 source = ["ceasiompy"]
 
 [tool.coverage.report]

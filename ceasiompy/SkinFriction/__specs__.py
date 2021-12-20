@@ -9,7 +9,7 @@ from ceasiompy.utils.xpath import GEOM_XPATH, RANGE_XPATH, SF_XPATH, PLOT_XPATH
 
 RCE = {
     "name": "SkinFriction",
-    "description": "Calculate skin friction drag coefficent",
+    "description": "Calculate skin friction drag coefficient",
     "exec": "pwd\npython skinfriction.py",
     "author": "Aidan Jungo",
     "email": "aidan.jungo@cfse.ch",
@@ -24,7 +24,7 @@ cpacs_inout.add_input(
     var_name="",
     var_type=list,
     default_value=None,
-    descr="To which aeroMap the skin priction coef shoud be added",
+    descr="To which aeroMap the skin friction coef should be added",
     xpath=SF_XPATH + "/aeroMapToCalculate",
     gui=True,
     gui_name="__AEROMAP_CHECHBOX",
@@ -47,10 +47,10 @@ cpacs_inout.add_input(
     var_type=bool,
     default_value=False,
     unit=None,
-    descr="Delete orignal aeroMap once skin friction coefficient has been added",
+    descr="Delete original aeroMap once skin friction coefficient has been added",
     xpath=SF_XPATH + "/deleteOriginal",
     gui=True,
-    gui_name="Delete Orignal",
+    gui_name="Delete Original",
     gui_group=None,
 )
 

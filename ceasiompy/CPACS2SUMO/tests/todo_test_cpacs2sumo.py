@@ -17,9 +17,9 @@ TODO:
 
 """
 
-#==============================================================================
+# ==============================================================================
 #   IMPORTS
-#==============================================================================
+# ==============================================================================
 
 import os
 import sys
@@ -29,26 +29,26 @@ import pytest
 
 from ceasiompy.CPACS2SUMO.cpacs2sumo import convert_cpacs_to_sumo
 
-yes_list = ['YES','Yes','yes','Y','y','1']
+yes_list = ["YES", "Yes", "yes", "Y", "y", "1"]
 
-#==============================================================================
+# ==============================================================================
 #   CLASSES
-#==============================================================================
+# ==============================================================================
 
 
-#==============================================================================
+# ==============================================================================
 #   FUNCTIONS
-#==============================================================================
+# ==============================================================================
+
 
 def test_cpacs2sumo():
     """Test convertion of several CPACS file into SUMO file. This function has
-       some manual testing to performed, it must be completed with more
-       explanations."""
+    some manual testing to performed, it must be completed with more
+    explanations."""
 
     # CEASIOMPY_DIR
-    CPACS_TEST_FOLDER = os.getcwd() + '/../CPACSfiles/'
-    SUMO_OUTPUT_PATH = os.getcwd() \
-                       + '/../../lib/CPACS2SUMO/ToolOutput/ToolOutput.smx'
+    CPACS_TEST_FOLDER = os.getcwd() + "/../CPACSfiles/"
+    SUMO_OUTPUT_PATH = os.getcwd() + "/../../lib/CPACS2SUMO/ToolOutput/ToolOutput.smx"
 
     # Get list of CPACS file to test
     cpacs_test_list = os.listdir(CPACS_TEST_FOLDER)
@@ -60,19 +60,19 @@ def test_cpacs2sumo():
         print("========")
         print(cpacs_path)
         convert_cpacs_to_sumo(cpacs_path)
-        os.system('sumo ' + SUMO_OUTPUT_PATH)
+        os.system("sumo " + SUMO_OUTPUT_PATH)
 
         # TODO: Export step file from cpacs and explain the procedure
         answer = input("Is this file seems OK? ")
         assert answer in yes_list
 
 
-#==============================================================================
+# ==============================================================================
 #    MAIN
-#==============================================================================
+# ==============================================================================
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 
-    print('Running Test CPACS2SUMO module')
-    print('To run test use the following command:')
-    print('>> pytest -v')
+    print("Running Test CPACS2SUMO module")
+    print("To run test use the following command:")
+    print(">> pytest -v")

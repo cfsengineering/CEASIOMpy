@@ -282,7 +282,7 @@ class WorkFlowGUI(tk.Frame):
 
     def _browse_file(self):
 
-        cpacs_template_dir = os.path.join(MODULE_DIR, "..", "..", "test", "CPACSfiles")
+        cpacs_template_dir = os.path.join(MODULE_DIR, "..", "..", "test_files", "CPACSfiles")
         self.filename = filedialog.askopenfilename(
             initialdir=cpacs_template_dir, title="Select a CPACS file"
         )

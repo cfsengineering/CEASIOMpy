@@ -281,7 +281,11 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
 
                     cl_required = (m * g) / (0.5 * rho * u0 ** 2 * s)
                     (trim_aoa, idx_trim_before, idx_trim_after, ratio) = trim_condition(
-                        alt, mach, cl_required, cl, aoa,
+                        alt,
+                        mach,
+                        cl_required,
+                        cl,
+                        aoa,
                     )
 
                     if trim_aoa:

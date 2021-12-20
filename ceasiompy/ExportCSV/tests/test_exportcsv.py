@@ -21,14 +21,13 @@ import os
 import shutil
 from ceasiompy.ExportCSV.exportcsv import export_aeromaps
 
-
 # Default CPACS file to test
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 CPACS_IN_PATH = os.path.join(MODULE_DIR, "D150_simple.xml")
 
 
 def test_export_aeromaps():
-    """Test function 'exportcsv' """
+    """Test function 'exportcsv'"""
 
     WKDIR = os.path.join(MODULE_DIR, "WKDIR_test")
     csv_dir_path = os.path.join(WKDIR, "CSVresults")

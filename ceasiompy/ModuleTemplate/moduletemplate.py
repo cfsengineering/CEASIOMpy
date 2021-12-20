@@ -98,9 +98,9 @@ class MyClass:
 
 
 def sum_funcion(arg1, arg2):
-    """ Function to clacluate ...
+    """Function to calculate ...
 
-    Function 'sum_funcion' return the tolal of arg1 and arg2, after it convert
+    Function 'sum_funcion' return the total of arg1 and arg2, after it convert
     arg1 into an float.
 
     Source:
@@ -133,7 +133,7 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
     """Function to get fuselage scaling along x,y,z axis.
 
     Function 'get_fuselage_scaling' return the value of the scaling for the
-    fuselage. (This is an example function just to show usaga of CPACS and tixi)
+    fuselage. (This is an example function just to show usage of CPACS and tixi)
 
     Source:
         * Reference paper or book, with author and date

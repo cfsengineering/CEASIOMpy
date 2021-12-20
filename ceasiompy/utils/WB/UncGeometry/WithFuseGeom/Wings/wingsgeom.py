@@ -42,7 +42,7 @@ log = get_logger(__file__.split(".")[0])
 
 
 def check_segment_connection(wing_plt_area_xz, wing_plt_area_yz, awg, tigl):
-    """ The function checks for each segment the start and end section index
+    """The function checks for each segment the start and end section index
         and to reorder them.
 
     Args:
@@ -117,22 +117,22 @@ def check_segment_connection(wing_plt_area_xz, wing_plt_area_yz, awg, tigl):
             seg_sec_reordered[j - 1, i - 1, :] = seg_sec[start_next[0], i - 1, :]
         wing_sec_index.append(seg_sec_reordered[0, 0, 0])
         for j in range(2, awg.wing_seg_nb[i - 1] + 1):
-            if (seg_sec_reordered[j - 1, i - 1, 0] not in wing_sec_index):
+            if seg_sec_reordered[j - 1, i - 1, 0] not in wing_sec_index:
                 wing_sec_index.append(seg_sec_reordered[j - 1, i - 1, 0])
-        if (seg_sec_reordered[j - 1, i - 1, 1] not in wing_sec_index):
+        if seg_sec_reordered[j - 1, i - 1, 1] not in wing_sec_index:
             wing_sec_index.append(seg_sec_reordered[j - 1, i - 1, 1])
         nb = np.shape(wing_sec_index)
         if nb[0] > nbmax:
             nbmax = nb[0]
         sec_index.resize(nbmax, awg.w_nb)
-        sec_index[0:nb[0], i - 1] = wing_sec_index[0:nb[0]]
+        sec_index[0 : nb[0], i - 1] = wing_sec_index[0 : nb[0]]
         sec_nb.append(nb[0])
 
     return (sec_nb, start_index, seg_sec_reordered, sec_index)
 
 
 def get_wing_segment_length(awg, wing_center_section_point):
-    """ The function evaluates the length of each segment of each wing,
+    """The function evaluates the length of each segment of each wing,
         also considering the ones defined using symmetry.
 
     Args:
@@ -172,7 +172,7 @@ def get_wing_segment_length(awg, wing_center_section_point):
 
 
 def wing_geom_eval(w_nb, TP, awg, cpacs_in):
-    """ Main function to evaluate the wings geometry
+    """Main function to evaluate the wings geometry
 
     Args:
         w_nb (int): Number of wings.
@@ -304,7 +304,7 @@ def wing_geom_eval(w_nb, TP, awg, cpacs_in):
         wing_center_section_point[awg.wing_seg_nb[i - 1]][i - 1][1] = (wply + wpuy) / 2
         wing_center_section_point[awg.wing_seg_nb[i - 1]][i - 1][2] = (wplz + wpuz) / 2
         awg.wing_sec_mean_thick.append(
-            np.mean(awg.wing_sec_thicknes[0:awg.wing_seg_nb[i - 1] + 1, i - 1])
+            np.mean(awg.wing_sec_thicknes[0 : awg.wing_seg_nb[i - 1] + 1, i - 1])
         )
 
         # Evaluating wing fuel tank volume and if the wing is horizontal or vertical
@@ -417,8 +417,22 @@ def wing_geom_eval(w_nb, TP, awg, cpacs_in):
     log.info("Number of wing sections (not counting symmetry) [-]: " + str(awg.wing_sec_nb))
     log.info("Number of wing segments (not counting symmetry) [-]: " + str(awg.wing_seg_nb))
     log.info("Wing Span (counting symmetry)[m]: \n" + str(awg.wing_span))
-    log.info("Wing MAC length [m]: " + str(awg.wing_mac[0, ]))
-    log.info("Wing MAC x,y,z coordinate [m]: \n" + str(awg.wing_mac[1:4, ]))
+    log.info(
+        "Wing MAC length [m]: "
+        + str(
+            awg.wing_mac[
+                0,
+            ]
+        )
+    )
+    log.info(
+        "Wing MAC x,y,z coordinate [m]: \n"
+        + str(
+            awg.wing_mac[
+                1:4,
+            ]
+        )
+    )
     log.info("Wings sections thicknes [m]: \n" + str(awg.wing_sec_thicknes))
     log.info("Wings sections mean thicknes [m]: \n" + str(awg.wing_sec_mean_thick))
     log.info("Wing segments length [m]: \n" + str(awg.wing_seg_length))

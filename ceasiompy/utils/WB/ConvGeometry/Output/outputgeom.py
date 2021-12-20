@@ -32,7 +32,7 @@ import numpy as np
 
 
 def produce_output_txt(ag, NAME):
-    """ Function to generate the output file with all the geometry data
+    """Function to generate the output file with all the geometry data
         evaluated.
 
     ARGUMENTS
@@ -110,9 +110,27 @@ def produce_output_txt(ag, NAME):
     OutputTextFile.write("\nNumber of wing sections [-]: " + str(ag.wing_sec_nb))
     OutputTextFile.write("\nNumber of wing segments [-]: " + str(ag.wing_seg_nb))
     OutputTextFile.write("\nWing Span [m]: \n" + str(np.around(ag.wing_span, 5)))
-    OutputTextFile.write("\nWing MAC length [m]: \n" + str(np.around(ag.wing_mac[0, ], 5)))
     OutputTextFile.write(
-        "\nWing MAC x,y,z coordinate [m]: \n" + str(np.around(ag.wing_mac[1:4, ], 5))
+        "\nWing MAC length [m]: \n"
+        + str(
+            np.around(
+                ag.wing_mac[
+                    0,
+                ],
+                5,
+            )
+        )
+    )
+    OutputTextFile.write(
+        "\nWing MAC x,y,z coordinate [m]: \n"
+        + str(
+            np.around(
+                ag.wing_mac[
+                    1:4,
+                ],
+                5,
+            )
+        )
     )
     OutputTextFile.write(
         "\nWings sections thicknes [m]: \n" + str(np.around(ag.wing_sec_thicknes, 5))

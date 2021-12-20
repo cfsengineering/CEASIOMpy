@@ -37,7 +37,7 @@ log = get_logger(__file__.split(".")[0])
 
 
 def check_segment_connection(fus_nb, fuse_seg_nb, fuse_sec_nb, tigl):
-    """ The function checks for each segment the start and end section index
+    """The function checks for each segment the start and end section index
         and it reorders them.
 
     ARGUMENTS
@@ -101,15 +101,15 @@ def check_segment_connection(fus_nb, fuse_seg_nb, fuse_sec_nb, tigl):
         seg_sec_reordered[j - 1, fus_nb - 1, :] = seg_sec[start_next[0], :]
     fuse_sec_index.append(seg_sec[0, 0, 0])
     for j in range(2, fuse_seg_nb[fus_nb - 1] + 1):
-        if (seg_sec_reordered[j - 1, fus_nb - 1, 0] not in fuse_sec_index):
+        if seg_sec_reordered[j - 1, fus_nb - 1, 0] not in fuse_sec_index:
             fuse_sec_index.append(seg_sec_reordered[j - 1, fus_nb - 1, 0])
-    if (seg_sec_reordered[j - 1, fus_nb - 1, 1] not in fuse_sec_index):
+    if seg_sec_reordered[j - 1, fus_nb - 1, 1] not in fuse_sec_index:
         fuse_sec_index.append(seg_sec_reordered[j - 1, fus_nb - 1, 1])
     nb = np.shape(fuse_sec_index)
     if nb[0] > nbmax:
         nbmax = nb[0]
     sec_index.resize(nbmax, fus_nb)
-    sec_index[0:nb[0], fus_nb - 1] = fuse_sec_index[0:nb[0]]
+    sec_index[0 : nb[0], fus_nb - 1] = fuse_sec_index[0 : nb[0]]
     sec_nb.append(nb[0])
 
     return (sec_nb, start_index, seg_sec_reordered, sec_index)
@@ -120,7 +120,7 @@ def check_segment_connection(fus_nb, fuse_seg_nb, fuse_sec_nb, tigl):
 
 
 def rel_dist(fus_nb, sec_nb, seg_nb, tigl, seg_sec, start_index):
-    """ The function evaluates the relative distance of each section
+    """The function evaluates the relative distance of each section
         used from the start section.
 
     ARGUMENTS
@@ -167,7 +167,7 @@ def rel_dist(fus_nb, sec_nb, seg_nb, tigl, seg_sec, start_index):
 
 
 def fuse_geom_eval(ag, cpacs_in):
-    """ Main function to evaluate the fuselage geometry.
+    """Main function to evaluate the fuselage geometry.
 
     INPUT
     (class) ag    --Arg.: AircraftGeometry class.

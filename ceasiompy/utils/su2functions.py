@@ -45,7 +45,7 @@ SOFT_LIST = ["SU2_DEF", "SU2_CFD", "SU2_SOL", "mpirun.mpich", "mpirun"]
 
 
 def get_mesh_marker(su2_mesh_path):
-    """ Function to get the name of all the SU2 mesh marker
+    """Function to get the name of all the SU2 mesh marker
 
     Function 'get_mesh_marker' return all the SU2 mesh marker (except Farfield)
     found in the SU2 mesh file.

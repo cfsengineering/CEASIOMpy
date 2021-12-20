@@ -10,12 +10,9 @@ extend-exclude = '''
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-v --cov"
-testpaths = [
-    "test",
-]
 
 [tool.coverage.run]
-branch = true
+branch = false
 source = ["ceasiompy"]
 
 [tool.coverage.report]

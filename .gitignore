@@ -43,12 +43,6 @@ aircraft_loads.csv
 # CPACS file shortcut
 link_*.xml
 
-# Exceptions
-!/ceasiompy/ModuleTemplate/ToolInput/ToolInput.xml
-!/test/utils/TestWorkflowFunctions/ToolInput/ToolInput.xml
-!/test/TestSU2Config/ToolInput/NoMarkerMesh.su2
-!/test/TestSU2Config/ToolInput/SimpleMesh.su2
-
 # Mac files
 *.DS_Store
 
@@ -194,4 +188,7 @@ dmypy.json
 # Pyre type checker
 .pyre/
 
-# End of https://www.gitignore.io/api/python
+# Exceptions
+!/ceasiompy/ModuleTemplate/ToolInput/ToolInput.xml
+!/ceasiompy/utils/tests/tests_workflowfunctions/ToolInput/ToolInput.xml
+!/test_files/AeroMaps/*.csv

@@ -257,7 +257,7 @@ def plot_sp_level_b(x_axis, y_axis, legend, show_plots, save_plots):
 
     # Level 2 inf.
     x_level_two_inf1 = [1, 100]
-    y_level_two_inf1 = [0.2, 01.9]
+    y_level_two_inf1 = [0.2, 1.9]
     plt.plot(x_level_two_inf1, y_level_two_inf1, color="orange", linewidth=1.5)
     #  Plot text : "Level2 & 3" on garpah
     l2_inf = np.array((11, 0.68))  # Location
@@ -925,7 +925,7 @@ def check_sign_lat(Y_v, L_v, N_v, Y_p, L_p, Y_r, L_r, N_r, L_xi, Y_zeta, L_zeta,
 
 
 def plot_splane(eg_value_longi, plot_title, legend, show_plots, save_plots):
-    """ TODO
+    """TODO
 
     Args:
         Y_v (float): ..
@@ -1122,7 +1122,7 @@ def concise_derivative_lat(
     i_zz,
     i_xz,
 ):
-    """ TODO
+    """TODO
 
     Args:
         Y_v (float): ..
@@ -1213,7 +1213,7 @@ def speed_derivative_at_trim(
     ratio,
 ):
 
-    """ Find the speed derivative of "parameter" at trim conditions
+    """Find the speed derivative of "parameter" at trim conditions
     Args:
         parameter_list (): list of parameter's values : e.i. Cd (dragg coefficient)
         mach (): the mach at trim conditions
@@ -1306,7 +1306,7 @@ def speed_derivative_at_trim_lat(
     idx_trim_after,
     ratio,
 ):
-    """ Find the speed derivative of "parameter" at trim conditions, at trom: aos =0
+    """Find the speed derivative of "parameter" at trim conditions, at trom: aos =0
 
     Args:
         parameter_list : list of parameter's values : e.i. Cd (dragg coefficient)
@@ -1514,7 +1514,7 @@ def longi_mode_characteristic(sp1, sp2, ph1, ph2, load_factor):
 
 
 def cap_rating(flight_phase, short_period_cap, short_period_damping):
-    """ Give a rating of the short period mode flight quality level: Level1 Level2 or Level3 and 4
+    """Give a rating of the short period mode flight quality level: Level1 Level2 or Level3 and 4
           according to MIL-STD-1797A
     Args:
         flight_phase (string) : 'A',  'B' or 'C'
@@ -1583,7 +1583,7 @@ def cap_rating(flight_phase, short_period_cap, short_period_damping):
 
 
 def short_period_damping_rating(flight_phase, short_period_damping):
-    """ Give a rating of the short period damping Level1 Level2 or Level 3 according to MILF-8785C
+    """Give a rating of the short period damping Level1 Level2 or Level 3 according to MILF-8785C
     Args:
         flight_phase (str): Flight phase A, B or C
         short_period_damping (float): Short period damping ratio
@@ -1616,7 +1616,7 @@ def short_period_damping_rating(flight_phase, short_period_damping):
 
 
 def short_period_frequency_rating(flight_phase, aircraft_class, sp_freq, load_factor):
-    """ Give a rating of the Roll mode : Level1 Level2 or Level 3 according to MILF-8785C
+    """Give a rating of the Roll mode : Level1 Level2 or Level 3 according to MILF-8785C
     Args:
         flight_phase (str): Flith phase 'A',  'B' or 'C' (Cooper-Harper)
         aircraft_class (int): Type of aircrft (1, 2, 3 or 4) (Cooper-Harper)
@@ -1728,7 +1728,7 @@ def short_period_frequency_rating(flight_phase, aircraft_class, sp_freq, load_fa
 
 
 def phugoid_rating(phugoid_damping, ph_t2):
-    """ Give a rating of the phugoid mode : Level1 Level2 or Level 3 according to MILF-8785C
+    """Give a rating of the phugoid mode : Level1 Level2 or Level 3 according to MILF-8785C
 
     Args:
         phugoid_damping (float): Phugoid damping ratio[-]
@@ -1823,7 +1823,7 @@ def direc_root_identification(A_direc):
 
 
 def direc_mode_characteristic(roll, spiral, dr1, dr2):
-    """ TODO:
+    """TODO:
 
     roll,spiral,dr1,dr2 roots of characteristic equation
 
@@ -1857,7 +1857,7 @@ def direc_mode_characteristic(roll, spiral, dr1, dr2):
 
 
 def roll_rating(flight_phase, aircraft_class, roll_timecst):
-    """ Give a rating of the Roll mode : Level1 Level2 or Level 3 according to MILF-8785C
+    """Give a rating of the Roll mode : Level1 Level2 or Level 3 according to MILF-8785C
 
     Args:
         flight_phase (str): 'A',  'B' or 'C'
@@ -1902,7 +1902,7 @@ def roll_rating(flight_phase, aircraft_class, roll_timecst):
 
 
 def spiral_rating(flight_phase, spiral_timecst, spiral_t2):
-    """ Give a rating of the Spiral mode : Level1 Level2 or Level 3 according to MILF-8785C
+    """Give a rating of the Spiral mode : Level1 Level2 or Level 3 according to MILF-8785C
 
     Args:
         flight_phase (str): 'A',  'B' or 'C'
@@ -1945,7 +1945,7 @@ def spiral_rating(flight_phase, spiral_timecst, spiral_t2):
 def dutch_roll_rating(
     flight_phase, aircraft_class, dr_damping, dr_frequency, dr_damping_frequency
 ):
-    """ Give a rating of the Dutch Roll mode : Level1 Level2 or Level3 according to MILF-8785C
+    """Give a rating of the Dutch Roll mode : Level1 Level2 or Level3 according to MILF-8785C
     Args:
         flight_phase (str) : 'A',  'B' or 'C'
         aircraft_class (int) : 1, 2, 3 or 4
@@ -2015,4 +2015,4 @@ def dutch_roll_rating(
 
 if __name__ == "__main__":
 
-    log.info("Nothing to execute!")
+    print("Nothing to execute!")

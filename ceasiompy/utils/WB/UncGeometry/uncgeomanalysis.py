@@ -54,7 +54,7 @@ log = get_logger(__file__.split(".")[0])
 
 
 def get_number_of_parts(cpacs_in):
-    """ The fuction counts the number of fuselage and wings.
+    """The fuction counts the number of fuselage and wings.
 
     Args:
         cpacs_in (str): Path to the CPACS file.
@@ -83,7 +83,7 @@ def get_number_of_parts(cpacs_in):
 
 
 def no_fuse_geom_analysis(cpacs_in, FLOOR_NB, wing_nb, h_min, FUEL_ON_CABIN, NAME, TP):
-    """ The fuction evaluates the geometry of an aircraft realized without
+    """The fuction evaluates the geometry of an aircraft realized without
         fuselage, like the blended wing body.
 
     Args:
@@ -110,7 +110,7 @@ def no_fuse_geom_analysis(cpacs_in, FLOOR_NB, wing_nb, h_min, FUEL_ON_CABIN, NAM
 
 
 def with_fuse_geom_analysis(cpacs_in, fus_nb, wing_nb, h_min, adui, TP, F_FUEL, NAME):
-    """ The fuction evaluates the geometry of an aircraft realized without
+    """The fuction evaluates the geometry of an aircraft realized without
         fuselage.
 
     Args:

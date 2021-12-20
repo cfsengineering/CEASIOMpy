@@ -45,7 +45,7 @@ LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
 
 
 def copy_module_to_module(module_from, io_from, module_to, io_to):
-    """ Transfer CPACS file from one module to another.
+    """Transfer CPACS file from one module to another.
 
     Function 'copy_module_to_module' copy the CPACS file form ToolInput or
     ToolOutput of 'module_from' to ToolInput or ToolOutput of 'module_to'
@@ -134,7 +134,7 @@ def run_subworkflow(module_to_run, cpacs_path_in="", cpacs_path_out=""):
             cpacs_out_path = mi.get_tooloutput_file_path(module)
 
             # Check if there is at least one other 'SettingsGUI' after this one
-            if "SettingsGUI" in module_to_run[m + 1:] and m + 1 != len(module_to_run):
+            if "SettingsGUI" in module_to_run[m + 1 :] and m + 1 != len(module_to_run):
                 idx = module_to_run.index("SettingsGUI", m + 1)
                 create_settings_gui(cpacs_path, cpacs_out_path, module_to_run[m:idx])
             else:

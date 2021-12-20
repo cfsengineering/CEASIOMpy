@@ -198,7 +198,7 @@ class AeroMapTab:
         self._update()
 
     def _import_csv(self, event=None):
-        template_csv_dir = os.path.join(MODULE_DIR, "..", "..", "test", "AeroMaps")
+        template_csv_dir = os.path.join(MODULE_DIR, "..", "..", "test_files", "AeroMaps")
         csv_path = self.filename = filedialog.askopenfilename(
             initialdir=template_csv_dir, title="Select a CSV file"
         )
@@ -466,7 +466,7 @@ class SettingGUI(tk.Frame):
         aeromap_uid_list = self.cpacs.get_aeromap_uid_list()
         if not aeromap_uid_list:
             csv_path = os.path.join(
-                MODULE_DIR, "..", "..", "test", "AeroMaps", "Aeromap_1point.csv"
+                MODULE_DIR, "..", "..", "test_files", "AeroMaps", "Aeromap_1point.csv"
             )
             new_aeromap = self.cpacs.create_aeromap_from_csv(csv_path, "AeroMap_1point")
             new_aeromap.save()

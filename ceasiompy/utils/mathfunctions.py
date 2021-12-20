@@ -41,7 +41,7 @@ log = get_logger(__file__.split(".")[0])
 
 
 def euler2fix(rotation_euler):
-    """ Function to convert Euler angles into fix angles.
+    """Function to convert Euler angles into fix angles.
 
     Function to convert an Euler angle roation into a fix angle rotation
     Euler angle (CPACS): First rotation around Ox, then rotation around
@@ -136,7 +136,7 @@ def euler2fix(rotation_euler):
 
 
 def fix2euler(rotation_fix):
-    """ Function to convert fix angles into Euler angles.
+    """Function to convert fix angles into Euler angles.
 
     Function to convert a fix angle rotation into an Euler angle roation
     Fix angle (for SUMO): Rotation around the tree axe are done independently

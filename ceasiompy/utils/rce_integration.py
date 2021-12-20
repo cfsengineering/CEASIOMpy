@@ -99,7 +99,7 @@ MAPPINGS = {
 
 
 def create_integration_files():
-    """ Create RCE configuration files (one for each CEASIOMpy module)
+    """Create RCE configuration files (one for each CEASIOMpy module)
 
     Notes:
         * RCE configuration will be created in a temporary directory

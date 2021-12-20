@@ -35,7 +35,7 @@ Python version: >=3.6
 
 
 def produce_wing_output_txt(awg, NAME):
-    """ Function to generate the output file with all the geometry data
+    """Function to generate the output file with all the geometry data
         evaluated for the aircraft built without fuselage.
 
     Args:
@@ -80,8 +80,22 @@ def produce_wing_output_txt(awg, NAME):
     OutputTextFile.write("\nNumber of wing sections [-]: " + str(awg.wing_sec_nb))
     OutputTextFile.write("\nNumber of wing segments [-]: " + str(awg.wing_seg_nb))
     OutputTextFile.write("\nWingd Span [m]: " + str(awg.wing_span))
-    OutputTextFile.write("\nWing MAC length [m]: " + str(awg.wing_mac[0, ]))
-    OutputTextFile.write("\nWing MAC x,y,z coordinate [m]: \n" + str(awg.wing_mac[1:4, ]))
+    OutputTextFile.write(
+        "\nWing MAC length [m]: "
+        + str(
+            awg.wing_mac[
+                0,
+            ]
+        )
+    )
+    OutputTextFile.write(
+        "\nWing MAC x,y,z coordinate [m]: \n"
+        + str(
+            awg.wing_mac[
+                1:4,
+            ]
+        )
+    )
     OutputTextFile.write("\nWings sections thickness [m]:\n" + str(awg.wing_sec_thicknes))
     OutputTextFile.write("\nWings sections mean thickness [m]:\n" + str(awg.wing_sec_mean_thick))
     OutputTextFile.write("\nWing segments length [m]:\n " + str(awg.wing_seg_length))
@@ -114,7 +128,7 @@ def produce_wing_output_txt(awg, NAME):
 
 
 def produce_geom_output_txt(afg, awg, NAME):
-    """ Function to generate the output file with all the geometry data
+    """Function to generate the output file with all the geometry data
         evaluated  for the aircraft built with 1 or more fuselage.
 
     Args:
@@ -201,8 +215,22 @@ def produce_geom_output_txt(afg, awg, NAME):
         "\nNumber of wing segments (not counting symmetry) [-]: " + str(awg.wing_seg_nb)
     )
     OutputTextFile.write("\nWingd Span [m]: " + str(awg.wing_span))
-    OutputTextFile.write("\nWing MAC length [m]: " + str(awg.wing_mac[0, ]))
-    OutputTextFile.write("\nWing MAC x,y,z coordinate [m]: \n" + str(awg.wing_mac[1:4, ]))
+    OutputTextFile.write(
+        "\nWing MAC length [m]: "
+        + str(
+            awg.wing_mac[
+                0,
+            ]
+        )
+    )
+    OutputTextFile.write(
+        "\nWing MAC x,y,z coordinate [m]: \n"
+        + str(
+            awg.wing_mac[
+                1:4,
+            ]
+        )
+    )
     OutputTextFile.write("\nWings sections thickness [m]:\n" + str(awg.wing_sec_thicknes))
     OutputTextFile.write("\nWings sections mean thickness [m]:\n" + str(awg.wing_sec_mean_thick))
     OutputTextFile.write("\nWing segments length [m]:\n " + str(awg.wing_seg_length))

@@ -42,7 +42,7 @@ log = get_logger(__file__.split(".")[0])
 
 
 def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
-    """ The fuction subdivides the main wing into nodes and defines
+    """The fuction subdivides the main wing into nodes and defines
         the fuel and cabin volumes.
 
     Args:

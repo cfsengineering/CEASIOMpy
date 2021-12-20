@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Calculate skin friction drag coefficent
+Calculate skin friction drag coefficient
 
 Python version: >=3.6
 
@@ -56,7 +56,7 @@ log = get_logger(__file__.split(".")[0])
 
 
 def estimate_skin_friction_coef(wetted_area, wing_area, wing_span, mach, alt):
-    """ Return an estimation of skin friction drag coefficient.
+    """Return an estimation of skin friction drag coefficient.
 
     Function 'estimate_skin_friction_coef' gives an estimation of the skin
     friction drag coefficient, based on an empirical formala (see source).
@@ -103,12 +103,12 @@ def estimate_skin_friction_coef(wetted_area, wing_area, wing_span, mach, alt):
 
 
 def add_skin_friction(cpacs_path, cpacs_out_path):
-    """ Function to add the skin frinction drag coeffienct to aerodynamic coefficients
+    """Function to add the skin frictions drag coefficient to aerodynamic coefficients
 
     Function 'add_skin_friction' add the skin friction drag 'cd0' to  the
-    SU2 and pyTornado aeroMap, if their UID is not geven, it will add skin
+    SU2 and pyTornado aeroMap, if their UID is not given, it will add skin
     friction to all aeroMap. For each aeroMap it creates a new aeroMap where
-    the skin friction drag coeffienct is added with the correct projcetions.
+    the skin friction drag coefficient is added with the correct projections.
 
     Args:
         cpacs_path (str):  Path to CPACS file
@@ -120,19 +120,19 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
 
     analyses_xpath = "/cpacs/toolspecific/CEASIOMpy/geometry/analysis"
 
-    # Requiered input data from CPACS
+    # Required input data from CPACS
     wetted_area = get_value(cpacs.tixi, analyses_xpath + "/wettedArea")
 
-    # Wing area/span, default values will be calated if no value found in the CPACS file
+    # Wing area/span, default values will be calculated if no value found in the CPACS file
     wing_area_xpath = analyses_xpath + "/wingArea"
     wing_area = get_value_or_default(cpacs.tixi, wing_area_xpath, cpacs.aircraft.wing_area)
     wing_span_xpath = analyses_xpath + "/wingSpan"
     wing_span = get_value_or_default(cpacs.tixi, wing_span_xpath, cpacs.aircraft.wing_span)
 
     # Get aeroMapToCalculate
-    aeroMap_to_clculate_xpath = SF_XPATH + "/aeroMapToCalculate"
-    if cpacs.tixi.checkElement(aeroMap_to_clculate_xpath):
-        aeromap_uid_list = get_string_vector(cpacs.tixi, aeroMap_to_clculate_xpath)
+    aeroMap_to_calculate_xpath = SF_XPATH + "/aeroMapToCalculate"
+    if cpacs.tixi.checkElement(aeroMap_to_calculate_xpath):
+        aeromap_uid_list = get_string_vector(cpacs.tixi, aeroMap_to_calculate_xpath)
     else:
         aeromap_uid_list = []
 
@@ -162,7 +162,7 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
             aeromap_sf.description + " Skin friction has been add to this AeroMap."
         )
 
-        # Add skin friction to all force coeffiencent (with projections)
+        # Add skin friction to all force coefficient (with projections)
         aeromap_sf.df["cd"] = aeromap.df.apply(
             lambda row: row["cd"]
             + estimate_skin_friction_coef(
@@ -191,7 +191,7 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
             axis=1,
         )
 
-        # TODO: Shoud we change something in moment coef?
+        # TODO: Should we change something in moment coef?
         # e.i. if a force is not apply at aero center...?
 
         aeromap_sf.save()

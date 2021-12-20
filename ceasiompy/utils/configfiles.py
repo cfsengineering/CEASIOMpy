@@ -35,9 +35,9 @@ log = get_logger(__file__.split(".")[0])
 
 
 class ConfigFile:
-    """ Class to read/write and modify a configuration file. """
+    """Class to read/write and modify a configuration file."""
 
-    def __init__(self, filename=''):
+    def __init__(self, filename=""):
 
         self.filename = filename
 
@@ -48,7 +48,7 @@ class ConfigFile:
             self.read_file(filename)
 
     def read_file(self, file):
-        """ Read a .cfg or .txt configuration file. """
+        """Read a .cfg or .txt configuration file."""
 
         if not file.endswith(".cfg") and not file.endswith(".txt"):
             raise ValueError("File must be a .cfg or .txt file")
@@ -99,7 +99,7 @@ class ConfigFile:
                     raise ValueError(f"Invalid line in file {file}: {line}")
 
     def write_file(self, file, overwrite=False):
-        """ Write a .cfg configuration file. """
+        """Write a .cfg configuration file."""
 
         if os.path.isfile(file):
             if overwrite:

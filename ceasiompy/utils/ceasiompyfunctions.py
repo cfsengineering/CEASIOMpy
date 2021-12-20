@@ -79,7 +79,7 @@ def create_new_wkdir(global_wkdir=""):
 
 
 def get_wkdir_or_create_new(tixi):
-    """ Function get the wkdir path from CPACS or create a new one
+    """Function get the wkdir path from CPACS or create a new one
 
     Function 'get_wkdir_or_create_new' checks in the CPACS file if a working
     directory already exit for this run, if not, a new one is created and
@@ -202,7 +202,7 @@ def get_execution_date(tixi, module_name, xpath):
 
 
 def aircraft_name(tixi_or_cpacs):
-    """ The function get the name of the aircraft from the cpacs file or add a
+    """The function get the name of the aircraft from the cpacs file or add a
         default one if non-existant.
 
     Args:

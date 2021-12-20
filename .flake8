@@ -1,7 +1,7 @@
 [flake8]
 max-line-length = 99
 
-ignore = W503, E722, E712, F401, F841, W605  
+ignore = W503, E722, E712, F401, F841, W605, E203
 # Should be removed: E712, E722,F841
 
 exclude = test/*, doc/*, build/*, dist/* setup.py, ceasiompy/Stability*

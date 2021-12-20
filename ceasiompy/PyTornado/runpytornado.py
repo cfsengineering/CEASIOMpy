@@ -76,7 +76,7 @@ MODULE_NAME = os.path.basename(os.getcwd())
 
 
 def import_pytornado(module_name):
-    """ Try to import PyTornado and return module if succesful
+    """Try to import PyTornado and return module if successful
 
     Args:
         module_name (str): Name of the module
@@ -104,7 +104,7 @@ def import_pytornado(module_name):
 
 
 def get_pytornado_settings(cpacs_in_path):
-    """ Return a default settings dictionary
+    """Return a default settings dictionary
 
     The default PyTornado settings will be used. Settings defined in CPACS will
     be loaded and will overwrite the PyTornado default dictionary.
@@ -146,7 +146,7 @@ def get_pytornado_settings(cpacs_in_path):
 
 
 def get_pytornado_settings_from_CPACS(cpacs_in_path):
-    """ Try to read PyTornado settings from CPACS
+    """Try to read PyTornado settings from CPACS
 
     Note:
         * Returns None if PyTornado settings not found in CPACS
@@ -184,7 +184,7 @@ def update_dict(to_update, other_dict):
 
 
 def parse_pytornado_settings_dict(dictionary):
-    """ Parse the PyTornado settings dict
+    """Parse the PyTornado settings dict
 
     Note:
         * Parses dictionary recursively

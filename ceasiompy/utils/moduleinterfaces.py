@@ -162,7 +162,7 @@ class CPACSInOut:
 def check_cpacs_input_requirements(
     cpacs_file, *, submod_name=None, submodule_level=1, cpacs_inout=None
 ):
-    """ Check if the input CPACS file contains the required nodes
+    """Check if the input CPACS file contains the required nodes
 
     Note:
         * The __specs__ file will be located based on the calling module
@@ -263,7 +263,7 @@ def get_module_list():
 
 
 def get_toolinput_file_path(module_name):
-    """ Get the path to the ToolInput.xml CPACS file of a specific module
+    """Get the path to the ToolInput.xml CPACS file of a specific module
 
     Args:
         module_name (str): name of the module as a string
@@ -279,7 +279,7 @@ def get_toolinput_file_path(module_name):
 
 
 def get_tooloutput_file_path(module_name):
-    """ Get the path to the ToolOutput.xml CPACS file of a specific module
+    """Get the path to the ToolOutput.xml CPACS file of a specific module
 
     Args:
         module_name (str): name of the module as a string
@@ -358,7 +358,7 @@ def find_missing_specs():
 
 def create_default_toolspecific():
     """Create a default XML /toolspecific based on all __spec__ xpath and
-       default values. Two CPACS file are created and saved in /utils/doc/
+    default values. Two CPACS file are created and saved in /utils/doc/
 
     """
 

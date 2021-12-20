@@ -30,7 +30,7 @@ import logging
 
 
 def get_logger(name):
-    """ Function to create a logger
+    """Function to create a logger
 
     Function 'get_logger' create a logger, it sets the format and the level of
     the logfile and console log.

@@ -395,7 +395,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 sumo.addTextAttribute(frame_xpath, "width", str(body_frm_width))
                 sumo.addTextAttribute(frame_xpath, "name", sec_uid)
 
-        # Fusalage symetry (mirror copy)
+        # Fuselage symmetry (mirror copy)
         if tixi.checkAttribute(fus_xpath, "symmetry"):
             if tixi.getTextAttribute(fus_xpath, "symmetry") == "x-z-plane":
                 sumo_mirror_copy(sumo, body_xpath, fus_uid, False)
@@ -883,7 +883,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 # Convert point list into string
                 prof_str = ""
 
-                # Airfoil points order : shoud be from TE (1 0) to LE (0 0)
+                # Airfoil points order : should be from TE (1 0) to LE (0 0)
                 # then TE(1 0), but not reverse way.
 
                 # to avoid double zero, not accepted by SUMO

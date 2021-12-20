@@ -48,9 +48,9 @@ log = get_logger(__file__.split(".")[0])
 
 
 def calculate_cl(ref_area, alt, mach, mass, load_fact=1.05):
-    """ Function to clacluate the lif coefficient (cl)
+    """Function to calculate the lif coefficient (cl)
 
-    Function 'calculate_cl' return the lift coefficent value for the given
+    Function 'calculate_cl' return the lift coefficient value for the given
     input (Reference Area, Altitude, Mach Number, Mass and Load Factor)
 
     Source:
@@ -65,7 +65,7 @@ def calculate_cl(ref_area, alt, mach, mass, load_fact=1.05):
         load_fact (float): Load Factor [-] (1.05 by default)
 
     Returns:
-        target_cl (float): Lift coefficent [unit]
+        target_cl (float): Lift coefficient [unit]
     """
 
     # Get atmosphere values at this altitude
@@ -73,21 +73,21 @@ def calculate_cl(ref_area, alt, mach, mass, load_fact=1.05):
 
     GAMMA = 1.401  # Air heat capacity ratio [-]
 
-    # Calculate lift coeffienct
+    # Calculate lift coefficient
     weight = mass * Atm.grav_accel[0]
     dyn_pres = 0.5 * GAMMA * Atm.pressure[0] * mach ** 2
     target_cl = weight * load_fact / (dyn_pres * ref_area)
-    log.info(f"A lift coefficent (CL) of {target_cl} has been calculated")
+    log.info(f"A lift coefficient (CL) of {target_cl} has been calculated")
 
     return target_cl
 
 
 def get_cl(cpacs_path, cpacs_out_path):
-    """ Function to calculate CL requiered as a function of the parameter found
+    """Function to calculate CL required as a function of the parameter found
     in the CPACS file.
 
     Function 'get_cl' find input value in the CPACS file, calculate the
-    requiered CL (with function calculate_cl) and  save the CL value in the
+    required CL (with function calculate_cl) and  save the CL value in the
     CPACS file.
 
     Args:
@@ -111,7 +111,7 @@ def get_cl(cpacs_path, cpacs_out_path):
     cruise_mach_xpath = CLCALC_XPATH + "/cruiseMach"
     load_fact_xpath = CLCALC_XPATH + "/loadFactor"
 
-    # Requiered input data from CPACS
+    # Required input data from CPACS
     ref_area = get_value(tixi, ref_area_xpath)
     log.info(f"Aircraft reference area is {ref_area} [m^2]")
 
@@ -140,7 +140,7 @@ def get_cl(cpacs_path, cpacs_out_path):
     else:
         raise ValueError("The chosen aircraft mass has not been found!")
 
-    # Requiered input data that could be replace by a default value if missing
+    # Required input data that could be replace by a default value if missing
     cruise_alt = get_value_or_default(tixi, cruise_alt_xpath, 12000.0)
     cruise_mach = get_value_or_default(tixi, cruise_mach_xpath, 0.78)
     load_fact = get_value_or_default(tixi, load_fact_xpath, 1.05)

@@ -62,19 +62,19 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     """Function to analyse a full Aeromap
 
     Function 'static_stability_analysis' analyses longitudinal static static
-    stability and directionnal static.
+    stability and directional static.
 
     Args:
         cpacs_path (str): Path to CPACS file
         cpacs_out_path (str):Path to CPACS output file
-        
+
     Returns:
-        *   Adrvertisements certifying if the aircraft is stable or Not
-        *   In case of longitudinal static UNstability or unvalid test on data:
+        *   Advertisements certifying if the aircraft is stable or Not
+        *   In case of longitudinal static UNstability or invalid test on data:
                 -	Plot cms VS aoa for constant Alt, Mach and different aos
                 -	Plot cms VS aoa for const alt and aos=0 and different mach
                 -	plot cms VS aoa for constant mach, aos=0 and different altitudes
-        *  In case of directionnal static UNstability or unvalid test on data:
+        *  In case of directional static UNstability or invalid test on data:
                 -	Pcot cml VS aos for constant Alt, Mach and different aoa
                 -	Plot cml VS aos for const alt and aoa and different mach
                 -	plot cml VS aos for constant mach, AOA and different altitudes
@@ -86,7 +86,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 -   If there is more than one angle of attack for a given altitude, mach, aos
                 -   If cml values are only zeros for a given altitude, mach, aos
                 -   If there one aoa value which is repeated for a given altitude, mach, aos
-        *   For directionnal static stability analysis:
+        *   For directional static stability analysis:
                 -   If there is more than one angle of sideslip for a given altitude, mach, aoa
                 -   If cms values are only zeros for a given altitude, mach, aoa
                 -   If there one aos value which is repeated for a given altitude, mach, aoa
@@ -235,7 +235,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             plot_aoa = []
             plot_legend = []
             plot_title = (
-                r"Pitch moment coefficeint $C_M$ vs $\alpha$ @ Atl = "
+                r"Pitch moment coefficient $C_M$ vs $\alpha$ @ Atl = "
                 + str(alt)
                 + "m, and Mach = "
                 + str(mach)
@@ -266,7 +266,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 cpacs_stability_longi = "NotCalculated"
             elif len(find_idx) > 1:  # if there is at least 2 values in find_idx :
 
-                # Find all cms_list values for index corresonding to an altitude, a mach, an aos_list=0, and different aoa_list
+                # Find all cms_list values for index corresponding to an altitude, a mach, an aos_list=0, and different aoa_list
                 cms = []
                 aoa = []
                 cl = []
@@ -360,7 +360,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
                 if idx_trim_before != idx_trim_after and aoa_good:
                     if pitch_moment_derivative_deg < 0:
-                        log.info("Vehicle longitudinaly staticaly stable.")
+                        log.info("Vehicle longitudinally statically stable.")
                         trim_alt_longi.append(alt)
                         trim_mach_longi.append(mach)
                         trim_aoa_longi.append(trim_aoa)
@@ -370,12 +370,14 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                     elif pitch_moment_derivative_deg == 0:
                         longitudinaly_stable = False
                         log.error(
-                            "Alt = " + str(alt) + "Vehicle longitudinaly staticaly neutral stable."
+                            "Alt = "
+                            + str(alt)
+                            + "Vehicle longitudinally statically neutral stable."
                         )
                     else:  # pitch_moment_derivative_deg > 0
                         longitudinaly_stable = False
                         log.error(
-                            "Alt = " + str(alt) + "Vehicle *NOT* longitudinaly staticaly stable."
+                            "Alt = " + str(alt) + "Vehicle *NOT* longitudinally statically stable."
                         )
 
                 # If not stable store the set [alt, mach, aos] at which the aircraft is unstable.
@@ -408,7 +410,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             )
             xlabel = r"$\beta$ [°]"
             ylabel = r"$C_L$ [-]"
-            # Init for determinig if it is an unstability case
+            # Init for determining if it is an unstability case
             laterally_stable = True
             # Find INDEX
             for aoa in aoa_unic:
@@ -422,7 +424,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 # If there there is only one value  in  find_idx for a given Alt, Mach, aos_list, no analyse can be performed
                 if len(find_idx) == 1:
                     log.info(
-                        "Laterral-Directional : only one data, one aos ("
+                        "Lateral-Directional : only one data, one aos ("
                         + str(aos_list[find_idx[0]])
                         + "), for Altitude = "
                         + str(alt)
@@ -440,7 +442,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                     for index in find_idx:
                         cmd.append(
                             -cmd_list[index]
-                        )  # menus sign because cmd sign convention on ceasiom is the oposite as books convention
+                        )  # menus sign because cmd sign convention on CEASIOMpy is the opposite as books convention
                         aos.append(aos_list[index])
                     aos, cmd = order_correctly(
                         aos, cmd
@@ -475,7 +477,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
                     if idx_trim_before != idx_trim_after and aos_good:
                         if roll_moment_derivative < 0:
-                            log.info("Vehicle laterally staticaly stable.")
+                            log.info("Vehicle laterally statically stable.")
                             if aoa == 0:
                                 trim_alt_lat.append(alt)
                                 trim_mach_lat.append(mach)
@@ -487,12 +489,12 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                             log.error(
                                 "At alt = "
                                 + str(alt)
-                                + "Vehicle laterally staticaly neutral stable."
+                                + "Vehicle laterally statically neutral stable."
                             )
                         if roll_moment_derivative > 0:
                             laterally_stable = False
                             log.error(
-                                "Alt = " + str(alt) + "Vehicle *NOT* laterally staticaly stable."
+                                "Alt = " + str(alt) + "Vehicle *NOT* laterally statically stable."
                             )
 
                     # If not stable store the set [alt, mach, aos] at which the aircraft is unstable.
@@ -526,7 +528,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             )
             xlabel = r"$\beta$ [°]"
             ylabel = r"$C_N$ [-]"
-            # Init for determinig if it is an unstability case
+            # Init for determining if it is an unstability case
             dirrectionaly_stable = True
             # Find INDEX
             for aoa in aoa_unic:
@@ -556,10 +558,8 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                     cml = []
                     aos = []
                     for index in find_idx:
-                        cml.append(
-                            -cml_list[index]
-                        )
-                        # neg because cml convention on ceasiom is the oposite as books convention
+                        cml.append(-cml_list[index])
+                        # neg because cml convention on CEASIOMpy is the opposite as books convention
                         aos.append(aos_list[index])
                     aos, cml = order_correctly(aos, cml)  # To order values with growing aos
                     # If cml curve crosses the 0 line more than once na stability analysis can
@@ -592,7 +592,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
                     if idx_trim_before != idx_trim_after and aos_good:
                         if side_moment_derivative > 0:
-                            log.info("Vehicle directionnaly staticaly stable.")
+                            log.info("Vehicle directionally statically stable.")
                             if aoa == 0:
                                 trim_alt_direc.append(alt)
                                 trim_mach_direc.append(mach)
@@ -604,14 +604,14 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                             log.error(
                                 "At alt = "
                                 + str(alt)
-                                + "Vehicle directionnaly staticaly neutral stable."
+                                + "Vehicle directionally statically neutral stable."
                             )
                         if side_moment_derivative < 0:
                             dirrectionaly_stable = False
                             log.error(
                                 "Alt = "
                                 + str(alt)
-                                + "Vehicle *NOT* directionnaly staticaly stable."
+                                + "Vehicle *NOT* directionally statically stable."
                             )
 
                     # If not stable store the [alt, mach, aos] at which the aircraft is unstable.
@@ -674,7 +674,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             )
             xlabel = r"$\alpha$ [°]"
             ylabel = r"$C_M$ [-]"
-            # Init for determinig if it is an unstability case
+            # Init for determining if it is an unstability case
             longitudinaly_stable = True
 
             for mach in mach_unic:
@@ -690,7 +690,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
                 # If there is at list 2 values in find_idx :
                 if len(find_idx) > 1:
-                    # Find all cms_list values for index corresonding to an altitude, a mach,
+                    # Find all cms_list values for index corresponding to an altitude, a mach,
                     # an aos_list=0, and different aoa_list
                     cms = []
                     aoa = []
@@ -723,7 +723,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 plot_aos = []
                 plot_legend = []
                 plot_title = (
-                    r"Roll moment coefficiel $C_L$ vs $\beta$ @ Atl = "
+                    r"Roll moment coefficient $C_L$ vs $\beta$ @ Atl = "
                     + str(alt)
                     + r"m, and $\alpha$= "
                     + str(aoa)
@@ -732,14 +732,14 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 xlabel = r"$\beta$ [°]"
                 ylabel = r"$C_L$ [-]"
 
-                # Init for determinig if it is an unstability case
+                # Init for determining if it is an unstability case
                 laterally_stable = True
 
                 for mach in mach_unic:
                     idx_mach = [j for j in range(len(mach_list)) if mach_list[j] == mach]
                     find_idx = get_index(idx_alt, idx_aoa, idx_mach)
 
-                    # If there is only one valur in find_idx
+                    # If there is only one value in find_idx
                     # An error message has been already printed through the first part of the code
 
                     # Check if it is an unstability case detected previously
@@ -753,7 +753,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
                     # If there is at list 2 values in find_idx :
                     if len(find_idx) > 1:
-                        # Find all cmd_list values for index corresonding to an altitude, a mach,
+                        # Find all cmd_list values for index corresponding to an altitude, a mach,
                         # an aos_list=0, and different aoa_list
                         cmd = []
                         aos = []
@@ -789,7 +789,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 plot_aos = []
                 plot_legend = []
                 plot_title = (
-                    r"Yaw moment coefficiel $C_N$ vs $\beta$ @ Atl = "
+                    r"Yaw moment coefficient $C_N$ vs $\beta$ @ Atl = "
                     + str(alt)
                     + r"m, and $\alpha$= "
                     + str(aoa)
@@ -798,13 +798,13 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 xlabel = r"$\beta$ [°]"
                 ylabel = r"$C_N$ [-]"
 
-                # Init for determinig if it is an unstability case
+                # Init for determining if it is an unstability case
                 dirrectionaly_stable = True
 
                 for mach in mach_unic:
                     idx_mach = [j for j in range(len(mach_list)) if mach_list[j] == mach]
                     find_idx = get_index(idx_alt, idx_aoa, idx_mach)
-                    # If there is only one valur in find_idx
+                    # If there is only one value in find_idx
                     # An error message has been already printed through the first part of the code
 
                     # Check if it is an unstability case detected previously
@@ -818,7 +818,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
                     # If there is at list 2 values in find_idx :
                     if len(find_idx) > 1:
-                        # Find all cml_list values for index corresonding to an altitude, a mach,
+                        # Find all cml_list values for index corresponding to an altitude, a mach,
                         # an aos_list=0, and different aoa_list
                         cml = []
                         aos = []
@@ -939,7 +939,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
                 # If there is at list 2 values in find_idx :
                 if len(find_idx) > 1:
-                    # Find all cms_list values for index corresonding to an altitude, a mach,
+                    # Find all cms_list values for index corresponding to an altitude, a mach,
                     # an aos_list=0, and different aoa_list
                     cms = []
                     aoa = []
@@ -1010,7 +1010,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
                     # If there is at list 2 values in find_idx :
                     if len(find_idx) > 1:
-                        # Find all cmd_list values for index corresonding to an altitude, a mach,
+                        # Find all cmd_list values for index corresponding to an altitude, a mach,
                         # an aos_list=0, and different aoa_list
                         cmd = []
                         aos = []
@@ -1077,7 +1077,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
                     # If there is at list 2 values in find_idx :
                     if len(find_idx) > 1:
-                        # Find all cml_list values for index corresonding to an altitude, a mach,
+                        # Find all cml_list values for index corresponding to an altitude, a mach,
                         # an aos_list=0, and different aoa_list
                         cml = []
                         aos = []

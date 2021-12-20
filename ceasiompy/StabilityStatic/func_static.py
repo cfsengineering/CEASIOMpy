@@ -105,9 +105,9 @@ def interpolation(list, idx1, idx2, ratio):
 
 # TODO: check function exist or change name
 def extract_subelements(vector):
-    """ Transform multiple element list into a 1D vector
+    """Transform multiple element list into a 1D vector
 
-    Function 'extract_subelements' return [1,2,3,1] from an oririginal vector
+    Function 'extract_subelements' return [1,2,3,1] from an original vector
     like [[1,2,3], [1]]
 
     Args:
@@ -124,9 +124,10 @@ def extract_subelements(vector):
 
     return extracted
 
+
 # TODO: replace this function by "A,B = zip(*sorted(zip(X, Y)))"
 def order_correctly(A, B):
-    """ Order list A in incresing order and moves element in B in the same way as elements in
+    """Order list A in incresing order and moves element in B in the same way as elements in
     A have been ordered
 
     Args:
@@ -152,8 +153,8 @@ def order_correctly(A, B):
 
 # Function derivative, or more trim condition function
 def trim_derivative(alt, mach, list1, list2):
-    """Find if a moments coefficeint cm cross the 0 line, once or more
-        Find if a moment coefficeint cm. crosse the 0 line only once and return
+    """Find if a moments coefficient cm cross the 0 line, once or more
+        Find if a moment coefficient cm. crosse the 0 line only once and return
         the corresponding angle and the cm derivative at cm=0
 
     Args:
@@ -258,7 +259,7 @@ def trim_derivative(alt, mach, list1, list2):
 
     # If list1 crosse the 0 line and 0 is not in list1
     elif len(np.argwhere(np.diff(np.sign(list1)))) == 1 and 0 not in np.sign(list1) and crossed:
-        # Make the linear equation btween the 2 point before and after crossing the 0 ine y=ax+b
+        # Make the linear equation between the 2 point before and after crossing the 0 ine y=ax+b
         idx_list1_0 = np.argwhere(np.diff(np.sign(list1)))[0][0]
         idx_trim_before = idx_list1_0
         idx_trim_after = idx_list1_0 + 1
@@ -273,7 +274,7 @@ def trim_derivative(alt, mach, list1, list2):
             [value_before, value_after], [list1_before, list1_after], 1
         )  # returns [a,b] of y=ax+b
 
-        trim_value = -fit[1] / fit[0]  # list1. = 0 for y = 0  hence cruise agngle = -b/a
+        trim_value = -fit[1] / fit[0]  # list1. = 0 for y = 0  hence cruise angle = -b/a
         trim_parameter = fit[0]
         ratio = trim_value / (value_after - value_before)
 
@@ -282,10 +283,14 @@ def trim_derivative(alt, mach, list1, list2):
 
 # Function derivative, or more trim condition function
 def trim_condition(
-    alt, mach, cl_required, cl, aoa,
+    alt,
+    mach,
+    cl_required,
+    cl,
+    aoa,
 ):
-    """Find if a moments coefficeint cm cross the 0 line, once or more
-        Find if a moment coefficeint cm. crosse the 0 line only once and return
+    """Find if a moments coefficient cm cross the 0 line, once or more
+        Find if a moment coefficient cm. crosse the 0 line only once and return
         the corresponding angle and the cm derivative at cm=0
     Args:
         alt (float): Altitude [m]
@@ -295,7 +300,7 @@ def trim_condition(
     Returns:
         None if the lift is not enough to fly
         Aoa at which the lift compensate the weight
-        pitch moement at this (aoa, alt, amch)
+        pitch moment at this (aoa, alt, mach)
     """
 
     list1 = []
@@ -333,7 +338,7 @@ def trim_condition(
             idx_trim_before = idx_list1_0 - 1
             idx_trim_after = idx_list1_0
 
-            # aoas and coeffs before and after crossing the 0 line
+            # aoa and coeffs before and after crossing the 0 line
             aoa_before = aoa[idx_trim_before]
             aoa_after = aoa[idx_trim_after]
 
@@ -355,7 +360,7 @@ def trim_condition(
     # If list1 crosse the 0 line and 0 is not in list1
     # elif  len(np.argwhere(np.diff(np.sign(list1)))) == 1 and 0 not in np.sign(list1) and crossed:
     else:
-        # Make the linear equation btween the 2 point before and after crossing the 0 ine y=ax+b
+        # Make the linear equation between the 2 point before and after crossing the 0 ine y=ax+b
         idx_list1_0 = np.argwhere(np.diff(np.sign(list1)))[0][0]
         idx_trim_before = idx_list1_0
         idx_trim_after = idx_list1_0 + 1
@@ -370,7 +375,7 @@ def trim_condition(
             [aoa_before, aoa_after], [list1_before, list1_after], 1
         )  # returns [a,b] of y=ax+b
 
-        trim_aoa = -fit[1] / fit[0]  # list1. = 0 for y = 0  hence cruise agngle = -b/a
+        trim_aoa = -fit[1] / fit[0]  # list1. = 0 for y = 0  hence cruise angle = -b/a
         ratio = (trim_aoa - aoa_before) / (aoa_after - aoa_before)
 
     return (trim_aoa, idx_trim_before, idx_trim_after, ratio)
@@ -496,4 +501,4 @@ def plot_multicurve(
 
 if __name__ == "__main__":
 
-    log.info("Nothing to execute!")
+    print("Nothing to execute!")

@@ -9,7 +9,6 @@ Python version: >=3.6
 
 | Author : Aidan Jungo
 | Creation: 2021-12-09
-| Last modifiction: 2021-12-15
 
 """
 

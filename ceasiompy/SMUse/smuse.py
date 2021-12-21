@@ -12,7 +12,6 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06
-| Last modification: 2021-11-19 (AJ)
 
 TODO:
     *

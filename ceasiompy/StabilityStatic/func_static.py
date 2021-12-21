@@ -3,13 +3,12 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This programm stors all function needed for stability analysis (dynamic and static)
+This program stores all function needed for stability analysis (dynamic and static)
 
 Python version: >=3.6
 
 | Author: Loic Verdier
 | Creation: 2020-02-24
-| Last modifiction: 2020-03-25 (AJ)
 
 TODO:
 
@@ -42,7 +41,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def get_unic(vector):
-    """Return a vector with the same element having only one occurence.
+    """Return a vector with the same element having only one occurrence.
 
     Args:
         vector (list): List of element which may contains double elements

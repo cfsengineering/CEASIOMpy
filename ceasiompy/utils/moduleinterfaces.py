@@ -9,7 +9,6 @@ Python version: >=3.6
 
 | Author : Aaron Dettmann
 | Creation: 2019-08-06
-| Last modifiction: 2021-10-21 (AJ)
 
 TODO:
 

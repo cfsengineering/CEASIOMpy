@@ -9,7 +9,6 @@ Python version: >=3.6
 
 | Author: Name
 | Creation: YEAR-MONTH-DAY
-| Last modifiction: YEAR-MONTH-DAY
 
 TODO:
 

@@ -9,7 +9,6 @@ Python version: >=3.6
 
 | Author: Verdier Loïc
 | Creation: 2019-10-24
-| Last modifiction: 2021-11-17 (AJ)
 
 TODO:
     * Modify the code where there are "TODO"

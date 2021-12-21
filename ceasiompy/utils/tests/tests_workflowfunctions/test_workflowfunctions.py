@@ -9,7 +9,6 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 26-02-2020
-| Last modification: 26-02-2020
 
 """
 

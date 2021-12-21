@@ -9,7 +9,6 @@ Python version: >=3.6
 
 | Author: Loic Verdier
 | Creation: 2020-02-24
-| Last modifiction: 2020-03-24 (AJ)
 
 TODO:
 

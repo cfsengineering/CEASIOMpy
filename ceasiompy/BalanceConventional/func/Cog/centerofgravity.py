@@ -14,7 +14,7 @@ The script evaluates the centre of gravity coordinates in case of:
 | Works with Python 2.7
 | Author: Stefano Piccini
 | Date of creation: 2018-10-12
-| Last modifiction: 2019-02-20
+
 """
 
 

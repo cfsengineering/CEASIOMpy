@@ -9,7 +9,6 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07
-| Last modifiction: 2020-07-09 (AJ)
 
 TODO:
     * Simplify classes, use only one or use subclasses

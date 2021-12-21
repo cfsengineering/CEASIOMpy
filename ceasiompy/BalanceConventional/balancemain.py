@@ -19,7 +19,7 @@ Python version: >=3.6
 
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2020-07-09 (AJ)
+
 """
 
 # =============================================================================

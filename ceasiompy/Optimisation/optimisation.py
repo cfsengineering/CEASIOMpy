@@ -10,7 +10,6 @@ Python version: >=3.6
 
 | Author: Vivien Riolo
 | Creation: 2020-06-15
-| Last modification: 2021-11-22 (AJ)
 
 Todo:
     * Vector inputs or multiple objectives

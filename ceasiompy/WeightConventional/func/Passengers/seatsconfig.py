@@ -6,7 +6,7 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script defines a possible configuration for the seats
 inside the conventional aircraft.
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27

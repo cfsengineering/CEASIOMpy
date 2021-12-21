@@ -5,7 +5,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Tool to create workflow for CEASIOMpy with or without GUI
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author: Aidan jungo
 | Creation: 2020-04-21

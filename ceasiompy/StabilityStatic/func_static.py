@@ -5,7 +5,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 This program stores all function needed for stability analysis (dynamic and static)
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author: Loic Verdier
 | Creation: 2020-02-24

@@ -8,7 +8,7 @@ One particular feature is the Aeromap option which enables you to evaluate all
 points of an aeromap in one run, as they can be stored as vectors into the
 CPACS file.
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06

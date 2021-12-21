@@ -6,7 +6,7 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 This script estimates the maximum take of mass from a database
 of conventional aircraft using the linear regression method.
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27

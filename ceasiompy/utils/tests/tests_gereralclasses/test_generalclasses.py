@@ -5,7 +5,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'lib/SkinFriction/skinfriction.py'
 
-Python version: >=3.6
+Python version: >=3.7
 
 
 | Author : Aidan Jungo

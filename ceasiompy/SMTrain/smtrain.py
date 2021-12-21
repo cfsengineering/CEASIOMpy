@@ -8,7 +8,7 @@ inputs and outputs. A CSV file describing the entries and containing the data
 must be provided to train the model, except if the values are taken from an
 aeromap, in which case they can all be found in the CPACS file.
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06

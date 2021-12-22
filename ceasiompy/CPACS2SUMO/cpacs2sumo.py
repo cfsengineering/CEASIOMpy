@@ -5,11 +5,10 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Script to convert CPACS file geometry into SUMO geometry
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author : Aidan Jungo
 | Creation: 2017-03-03
-| Last modifiction: 2021-09-22
 
 TODO:
 

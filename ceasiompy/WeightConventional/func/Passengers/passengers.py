@@ -6,11 +6,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script evaluates the maximum number of passengers (maximum
 number of people in economy class that can leave the aircraft in 90 sec).
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2020-01-24 (AJ)
 
 """
 

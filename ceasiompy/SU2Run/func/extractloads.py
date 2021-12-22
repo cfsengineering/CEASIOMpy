@@ -6,11 +6,10 @@ based on a script from Jan-Niclas Walther (DLR)
 
 Small description of the script
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author: Aidan Jungo
 | Creation: 2019-09-24
-| Last modifiction: 2021-12-15
 
 TODO:
 

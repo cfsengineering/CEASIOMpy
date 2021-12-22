@@ -6,11 +6,10 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 This module contains the tools used for data creation and manipulation of the
 Optimisation and PredictiveTool modules.
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author : Vivien Riolo
 | Creation: 2020-05-26
-| Last modification: 2020-11-13 (AJ)
 
 TODO
 ----

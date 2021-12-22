@@ -5,11 +5,10 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module to create new deformed mesh with SU2 mesh deformation
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author : Aidan Jungo
 | Creation: 2020-02-27
-| Last modifiction: 2021-10-21
 
 TODO:
 

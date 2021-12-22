@@ -5,11 +5,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Weight unconventional module for preliminary design of unconventional aircraft
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07
-| Last modifiction: 2020-07-09 (AJ)
 
 TODO:
     * Simplify classes, use only one or use subclasses

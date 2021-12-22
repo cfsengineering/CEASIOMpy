@@ -5,11 +5,10 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 General classes to get transformation from any part of a CPACS file
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author: Aidan Jungo
 | Creation: 2021-02-25
-| Last modifiction: 2021-12-17
 
 TODO:
 

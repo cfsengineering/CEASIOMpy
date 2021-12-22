@@ -6,11 +6,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script contains all the geometrical value required for the
 weight unconventional analysis.
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author : Stefano Piccini
 | Date of creation: 2018-11-26
-| Last modifiction: 2020-01-22 (AJ)
 
 """
 

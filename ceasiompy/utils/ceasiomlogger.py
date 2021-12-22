@@ -6,11 +6,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Logging method use by other CEASIOMpy modules
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author : Aidan Jungo
 | Creation: 2018-09-26
-| Last modifiction: 2018-09-27
 
 TODO:
 

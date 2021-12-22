@@ -6,11 +6,10 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 List of CPACS xpath which are used in CEASIOMpy, if possible base xpath must be
 called only from here to avoid mistakes.
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author: Aidan jungo
 | Creation: 2021-10-21
-| Last modifiction: 2021-10-21
 
 TODO:
 

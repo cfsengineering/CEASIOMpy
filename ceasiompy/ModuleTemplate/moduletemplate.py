@@ -5,11 +5,10 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Small description of the script
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author: Name
 | Creation: YEAR-MONTH-DAY
-| Last modifiction: YEAR-MONTH-DAY
 
 TODO:
 

@@ -8,7 +8,6 @@ The script contains the user inputs required for the weight analysis.
 | Works with Python 3.6
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2021-10-21 (AJ)
 
 TODO:
 

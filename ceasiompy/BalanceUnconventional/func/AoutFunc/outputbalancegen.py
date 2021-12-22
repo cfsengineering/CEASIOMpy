@@ -8,7 +8,7 @@ Output text and plot generation functions.
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2019-02-20
+
 """
 
 
@@ -47,7 +47,7 @@ def output_txt(bout, mw, bi, ec, NAME):
 
         OUTPUT
         (file) Balance_module.out --Out.: Text file containing all the
-                                          informations estimated from the
+                                          information estimated from the
                                           code.
     """
     out_name = "ToolOutput/" + NAME + "/" + NAME + "_Balance_unc_module.out"
@@ -240,13 +240,13 @@ def aircraft_nodes_bwb_plot(wx, wy, wz, NAME):
 
 #  AIRCRAFT CoG PLOT --------------------------------------------------------
 def aircraft_cog_unc_plot(cg, bi, ed, afg, awg, NAME):
-    """ The function generates the plot of the unconventional aircrafy
+    """ The function generates the plot of the unconventional aircraft
         center og gravity and the nodes used to evaluate it.
 
         INPUT
         (float_array) cg --Arg.: Center of gravity global coordinates [m].
         (class) bi       --Arg.: BalanceInputs class.
-        (class) ed       --Arg.: EnineData class.
+        (class) ed       --Arg.: EngineData class.
         ##======= Classes are defined in the Input_classes folder =======##
         (class) afg      --Arg.: AircraftFuseGeometry class.
         (class) awg      --Arg.: AircraftWingGeometry class.

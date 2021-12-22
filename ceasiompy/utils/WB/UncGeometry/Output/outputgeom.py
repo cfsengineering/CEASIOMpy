@@ -6,11 +6,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script generates the output txt file from the geometry analysis
 of an unconventional aircraft.
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2020-01-21 (AJ)
 
 """
 

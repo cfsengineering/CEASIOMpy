@@ -5,11 +5,10 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module to test the workflowfunctions module
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author: Vivien Riolo
 | Creation: 26-02-2020
-| Last modification: 26-02-2020
 
 """
 

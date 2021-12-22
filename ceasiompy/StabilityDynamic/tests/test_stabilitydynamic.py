@@ -5,11 +5,10 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'StabbilityDynamic/dynamicstability.py'
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author: Loic Verdier
 | Creation: 2019-10-24
-| Last modifiction: 2020-04-07 (AJ)
 
 TODO:
 

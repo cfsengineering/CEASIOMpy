@@ -5,11 +5,10 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module to export Aeromap (or other data?) to CSV
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author: Aidan Jungo
 | Creation: 2021-04-07
-| Last modifiction: 2021-12-15
 
 TODO:
 

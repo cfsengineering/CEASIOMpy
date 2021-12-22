@@ -5,11 +5,10 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'lib/CLCalculator/clcalculator.py'
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author : Aidan Jungo
 | Creation: 2019-07-24
-| Last modifiction: 2021-10-14
 
 """
 

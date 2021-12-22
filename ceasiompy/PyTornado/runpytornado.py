@@ -18,11 +18,10 @@ PyTornado supports:
 
 * AeroperformanceMap analyses
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author: Aaron Dettmann
 | Creation: 2019-08-12
-| Last modification: 2021-10-01
 
 
 TODO:

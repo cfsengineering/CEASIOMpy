@@ -5,11 +5,10 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'StabilityStatic/staticstability.py'
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author: Loic Verdier
 | Creation: 2019-10-24
-| Last modifiction: 2021-10-14 (AJ)
 
 TODO:
 

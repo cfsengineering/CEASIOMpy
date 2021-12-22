@@ -6,11 +6,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script obtain all the informations required for the Unconventional
 weight analysis from the CPACS file
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2021-10-21 (AJ)
 
 TODO:
 

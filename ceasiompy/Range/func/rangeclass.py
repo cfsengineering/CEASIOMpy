@@ -5,11 +5,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 The script contains the user inputs required for the range analysis.
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2020-07-08 (AJ)
 
 """
 

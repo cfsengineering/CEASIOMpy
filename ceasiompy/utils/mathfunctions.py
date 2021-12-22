@@ -5,11 +5,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Math functions which are used in different modules of CEASIOMpy
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author : Aidan Jungo
 | Creation: 2018-10-19
-| Last modifiction: 2019-10-04
 
 TODO:
 

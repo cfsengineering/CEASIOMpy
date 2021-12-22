@@ -5,11 +5,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Functions to manipulate SU2 Configuration and results.
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author : Aidan Jungo
 | Creation: 2019-09-30
-| Last modifiction: 2021-03-25
 
 TODO:
 

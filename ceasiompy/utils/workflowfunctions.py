@@ -5,11 +5,10 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module containing the utilitary functions for the workflowcreator and optimization modules
 
-Python version: >=3.6
+Python version: >=3.7
 
 | Author: Aidan Jungo
 | Creation: 2020-02-25
-| Last modifiction: 2020-12-01
 
 TODO:
 

@@ -9,7 +9,7 @@ using the lumped masses method.
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2021-10-14 (AJ)
+
 """
 
 

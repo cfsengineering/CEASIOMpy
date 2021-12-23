@@ -1,3 +1,4 @@
 # Requirements to build the documentation
 Sphinx==3.0.3
 sphinx-rtd-theme==0.4.3
+setuptools<60.0

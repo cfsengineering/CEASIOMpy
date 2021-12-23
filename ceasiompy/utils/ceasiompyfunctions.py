@@ -12,7 +12,10 @@ Python version: >=3.7
 
 TODO:
 
-    *
+    * Those functions must be:
+        - refactored
+        - improved
+        - tested
 
 """
 
@@ -34,6 +37,7 @@ log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
+SOFT_LIST = ["SU2_DEF", "SU2_CFD", "SU2_SOL", "mpirun.mpich", "mpirun"]
 
 # ==============================================================================
 #   FUNCTIONS
@@ -148,7 +152,7 @@ def get_install_path(soft_check_list):
             raise OSError("OS not recognized!")
 
         if install_path:
-            log.info(soft + " is intalled at: " + install_path)
+            log.info(soft + " is installed at: " + install_path)
             soft_dict[soft] = install_path
         elif "mpi" in soft:
             log.warning(soft + " is not installed on your computer!")
@@ -158,6 +162,64 @@ def get_install_path(soft_check_list):
             raise RuntimeError(soft + " is not installed on your computer!")
 
     return soft_dict
+
+
+# TODO make it more genearl, also for sumo and other
+def run_soft(soft, config_path, wkdir, nb_proc):
+    """Function run one of the existing SU2 software
+
+    Function 'run_soft' create the comment line to run correctly a SU2 software
+    (SU2_DEF, SU2_CFD, SU2_SOL) with MPI (if installed). The SOFT_DICT is
+    create from the SOFT_LIST define at the top of this script.
+
+    Args:
+        soft (str): Software to execute (SU2_DEF, SU2_CFD, SU2_SOL)
+        config_path (str): Path to the configuration file
+        wkdir (str): Path to the working directory
+
+    """
+
+    # Get installation path for the following softwares
+    SOFT_DICT = get_install_path(SOFT_LIST)
+
+    # mpi_install_path = SOFT_DICT['mpirun.mpich']
+    mpi_install_path = SOFT_DICT["mpirun"]
+
+    soft_install_path = SOFT_DICT[soft]
+
+    log.info("Number of proc available: " + str(os.cpu_count()))
+    log.info(str(nb_proc) + " will be used for this calculation.")
+
+    logfile_path = os.path.join(wkdir, "logfile" + soft + ".log")
+
+    # if mpi_install_path is not None:
+    #     command_line =  [mpi_install_path,'-np',str(nb_proc),
+    #                      soft_install_path,config_path,'>',logfile_path]
+
+    if mpi_install_path is not None:
+        command_line = [
+            mpi_install_path,
+            "-np",
+            str(int(nb_proc)),
+            soft_install_path,
+            config_path,
+            ">",
+            logfile_path,
+        ]
+    # elif soft == 'SU2_DEF' a disp.dat must be there to run with MPI
+    else:
+        command_line = [soft_install_path, config_path, ">", logfile_path]
+
+    original_dir = os.getcwd()
+    os.chdir(wkdir)
+
+    log.info(">>> " + soft + " Start Time")
+
+    os.system(" ".join(command_line))
+
+    log.info(">>> " + soft + " End Time")
+
+    os.chdir(original_dir)
 
 
 def get_execution_date(tixi, module_name, xpath):

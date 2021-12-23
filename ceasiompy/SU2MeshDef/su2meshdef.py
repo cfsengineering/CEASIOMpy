@@ -42,7 +42,7 @@ from cpacspy.cpacsfunctions import (
     open_tigl,
     open_tixi,
 )
-from ceasiompy.utils.su2functions import get_mesh_marker, run_soft
+from ceasiompy.utils.su2functions import get_mesh_marker
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.xpath import REF_XPATH, WINGS_XPATH, SU2_XPATH
 
@@ -64,7 +64,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def get_ted_list(tixi):
-    """ Get a list of all the TED found in the CPACS file.
+    """Get a list of all the TED found in the CPACS file.
 
     Function 'get_ted_list' looks in the CPACS file for all the Trailin Edge
     Devices (TED), saved them in a Pandas DataFrame with for each one corresponding:
@@ -137,7 +137,7 @@ def get_ted_list(tixi):
 
 
 def get_ted_symmetry(tixi, ted_uid):
-    """ Get the symmetry direction of a TED from its uID.
+    """Get the symmetry direction of a TED from its uID.
 
     Function 'get_ted_symmetry' get the symmetry direction of the wing on which
     the TED is and retrun it as 'x','y','z' or '' (for no symmetry)
@@ -166,7 +166,7 @@ def get_ted_symmetry(tixi, ted_uid):
             log.info("This wing has a symmetry in the plane y-z")
             sym_dir = "x"
         else:
-            raise ValueError("Invalid symmetry deifinition for: " + wing_xpath)
+            raise ValueError("Invalid symmetry definition for: " + wing_xpath)
     else:
         log.info("No symmetry detected for this TED.")
         sym_dir = ""
@@ -175,7 +175,7 @@ def get_ted_symmetry(tixi, ted_uid):
 
 
 def get_ted_deflections(tixi, ted_uid):
-    """ Get the deflection of a TED from its uID.
+    """Get the deflection of a TED from its uID.
 
     Function 'get_ted_deflections' get the deflection of a TED from the CPACS
     file. It only gets the rotation, no translation of the TED. If a deflection
@@ -188,7 +188,7 @@ def get_ted_deflections(tixi, ted_uid):
 
     Returns:
         defl_list (list): List of deflection in degree
-        rel_delf_list (list): List relateve of deflection (between -1 and 1)
+        rel_delf_list (list): List relative of deflection (between -1 and 1)
 
     """
 
@@ -241,7 +241,7 @@ def get_ted_deflections(tixi, ted_uid):
 
 
 def get_ted_corner(tixi, tigl, ted_uid):
-    """ Get TED asbolute coordinates from CPACS.
+    """Get TED absolute coordinates from CPACS.
 
     Function 'get_ted_corner' will find in the CPACS file the relative (eta, xsi)
     corner coordinates of a TED (given by its uID), transform them into
@@ -310,12 +310,12 @@ def get_ted_corner(tixi, tigl, ted_uid):
 
 
 def get_ted_hinge(tixi, tigl, ted_uid):
-    """ Get TED coordinate and hinge line from CPACS.
+    """Get TED coordinate and hinge line from CPACS.
 
     Function 'get_ted_hinge' will find in the CPACS file the relative (eta, xsi)
     coordinate of the hinge line of a TED (given by its uID), transform them
     into absolute (x,y,z) and save them in a DataFrame. The followings
-    abreviation are used in this function:
+    abbreviation are used in this function:
 
         * Eta:  Relative spanwise coordinate
         * Xsi:  Relative chordwise coordinate
@@ -370,7 +370,7 @@ def get_ted_hinge(tixi, tigl, ted_uid):
         x_u, y_u, z_u = tigl.wingGetUpperPoint(wing_seg_idx, seg_idx, seg_eta, seg_xsi)
         x_l, y_l, z_l = tigl.wingGetLowerPoint(wing_seg_idx, seg_idx, seg_eta, seg_xsi)
 
-        # Calculate hingle line points (between upper and lower surface) with relative height
+        # Calculate hinge line points (between upper and lower surface) with relative height
         up_pnt = np.asarray([x_u, y_u, z_u])
         lo_pnt = np.asarray([x_l, y_l, z_l])
         v = up_pnt - lo_pnt
@@ -385,10 +385,10 @@ def get_ted_hinge(tixi, tigl, ted_uid):
 
 
 def get_ffd_box(ted_corner, sym_dir):
-    """ Get FFD BOX coordinates from TED coordinate.
+    """Get FFD BOX coordinates from TED coordinate.
 
     Function 'get_ffd_box' will calculate from the coordinates of the TED the
-    coordinate of a box around it. It also crate the symetric box if required.
+    coordinate of a box around it. It also crate the symmetric box if required.
     The points are reordered (in the correct order for SU2 config file) and
     return as a list and a second one with the symmetric box.
     The order for the FFE Box is: LE,OUT,UP/LE,IN,UP/TE,IN,UP/TE,OUT,UP/
@@ -419,7 +419,7 @@ def get_ffd_box(ted_corner, sym_dir):
     n01 = np.linalg.norm(v01)
     u01 = v01 / n01
 
-    # Size of the box exceeding the TED, 0.5x the lenght of the vector v01
+    # Size of the box exceeding the TED, 0.5x the length of the vector v01
     h = n01 * 0.5 * u01
 
     for index, row in ted_corner.iterrows():
@@ -465,12 +465,12 @@ def get_ffd_box(ted_corner, sym_dir):
 
 
 def get_hinge_lists(ted_hinge, sym_dir):
-    """ Get hinge line points coordinate as a list for SU2 config file.
+    """Get hinge line points coordinate as a list for SU2 config file.
 
     Function 'get_hinge_lists' will return a list of hinge line point coordinates
     as a list for the SU2 config file and a second one of the symmetric
     FFD Box if required. For the symmetric hing line the points are inverted
-    to have the same direction and so coherant angle deflection direction.
+    to have the same direction and so coherent angle deflection direction.
 
     Args:
         ted_hinge (dataframe): Pandas dataframe containing the 2 points ot the
@@ -539,7 +539,7 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
         ted_uid (str): uID of the TED
         wing_uid (str): uID of the coresponding wing
         sym_dir (str): Direction of the axis of symmetry ('x','y','z' or '')
-        defl_list (str): List of deflction angles to generate
+        defl_list (str): List of deflection angles to generate
 
     """
 
@@ -548,7 +548,7 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
     DEFAULT_CONFIG_PATH = MODULE_DIR + "/files/DefaultConfig_v7.cfg"
     cfg = ConfigFile(DEFAULT_CONFIG_PATH)
     config_dir_name = aircraft_name + "_TED_" + ted_uid
-    # TODO: add check or remove if alread exist?
+    # TODO: add check or remove if already exist?
     os.mkdir(os.path.join(wkdir, "MESH", config_dir_name))
 
     # Get TED and hinge line definition
@@ -627,7 +627,7 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
         log.info(config_path + " have has been written.")
 
         if sym_dir:
-            # TODO: add a condition for anti symetric deflection (e.g. ailerons)
+            # TODO: add a condition for anti symmetric deflection (e.g. ailerons)
             cfg["DV_MARKER"] = "( " + wing_uid + ")"
             cfg["DV_PARAM"] = "( " + ted_uid + "_sym, " + ",".join(hinge_sym_list) + ")"
             cfg["DV_VALUE"] = str(defl / 1000)  # SU2 use 1/1000 degree...
@@ -729,7 +729,7 @@ def run_mesh_deformation(tixi, wkdir):
 
     """
 
-    log.info("All mesh deromation will be preformed.")
+    log.info("All mesh deformation will be preformed.")
 
     mesh_dir = os.path.join(wkdir, "MESH")
     if not os.path.exists(mesh_dir):
@@ -755,13 +755,13 @@ def run_mesh_deformation(tixi, wkdir):
         for cfg_file in sorted(cfg_file_list):
 
             if os.path.isfile(cfg_file):
-                run_soft("SU2_DEF", cfg_file, ted_dir, nb_proc)
+                ceaf.run_soft("SU2_DEF", cfg_file, ted_dir, nb_proc)
             else:
                 raise ValueError("Not correct configuration file to run!")
 
         tmp_su2_mesh_list = [file for file in os.listdir(ted_dir) if ".su2" in file]
 
-        # Copy in the completly deform mesh in the MESH directory
+        # Copy in the completely deform mesh in the MESH directory
         for su2_mesh in tmp_su2_mesh_list:
             if not su2_mesh.startswith("_"):
                 shutil.copyfile(su2_mesh, os.path.join("..", su2_mesh))

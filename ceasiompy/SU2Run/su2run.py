@@ -29,12 +29,11 @@ import sys
 
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
-from ceasiompy.utils.ceasiompyfunctions import get_wkdir_or_create_new
+from ceasiompy.utils.ceasiompyfunctions import get_wkdir_or_create_new, run_soft
 from ceasiompy.SU2Run.func.su2config import generate_su2_cfd_config
 from ceasiompy.SU2Run.func.extractloads import extract_loads
 from ceasiompy.SU2Run.func.su2results import get_su2_results
 from ceasiompy.utils.configfiles import ConfigFile
-from ceasiompy.utils.su2functions import run_soft
 from ceasiompy.utils.xpath import SU2_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -54,7 +53,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def run_SU2_single(config_path, wkdir, nb_proc):
-    """Function to run a single SU2 claculation.
+    """Function to run a single SU2 calculation.
 
     Function 'run_SU2_single' will run in the given working directory a SU2
     calculation (SU2_CFD then SU2_SOL) with the given config_path.
@@ -78,11 +77,11 @@ def run_SU2_single(config_path, wkdir, nb_proc):
 
 
 def run_SU2_multi(wkdir, nb_proc):
-    """Function to run a multiple SU2 claculation.
+    """Function to run a multiple SU2 calculation.
 
     Function 'run_SU2_multi' will run in the given working directory SU2
     calculations (SU2_CFD then SU2_SOL). The working directory must have a
-    folder sctructure created by 'SU2Config' module.
+    folder structure created by 'SU2Config' module.
 
     Args:
         wkdir (str): Path to the working directory
@@ -125,12 +124,12 @@ def run_SU2_multi(wkdir, nb_proc):
 
 # TODO: The deformation part should be moved to SU2MeshDef module
 def run_SU2_fsi(config_path, wkdir, nb_proc):
-    """Function to run a SU2 claculation for FSI .
+    """Function to run a SU2 calculation for FSI .
 
     Function 'run_SU2_fsi' deforms an element of the mesh (e.g. wing) from
-    point file 'disp.dat' given by a sctructural model and then runs a SU2
+    point file 'disp.dat' given by a structural model and then runs a SU2
     calculation (SU2_CFD then SU2_SOL) with the given config_path. Finally a
-    load file is saved, to be send to the sctructural model.
+    load file is saved, to be send to the structural model.
 
     Args:
         config_path (str): Path to the configuration file
@@ -207,7 +206,7 @@ if __name__ == "__main__":
             wkdir = os.path.join(MODULE_DIR, sys.argv[2])
             get_su2_results(cpacs_path, cpacs_out_path, wkdir)
         else:
-            print("This arugment is not a valid option!")
+            print("This argument is not a valid option!")
     else:  # if no argument given
         wkdir = get_wkdir_or_create_new(tixi)
         generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir)

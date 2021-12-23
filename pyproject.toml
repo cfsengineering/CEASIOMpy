@@ -24,3 +24,7 @@ exclude_lines = [
 
 [tool.coverage.html]
 directory = "htmlcov"
+
+[build-system]
+requires = ["setuptools<60.0", "wheel"]
+build-backend = "setuptools.build_meta"

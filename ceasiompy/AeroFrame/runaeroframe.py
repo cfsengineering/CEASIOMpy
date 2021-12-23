@@ -20,7 +20,7 @@ Python version: >=3.7
 
 | Author: Aaron Dettmann
 | Creation: 2019-09-25
-| Last modification: 2019-09-25
+
 """
 
 # TODO

@@ -8,7 +8,7 @@ Output text and plot generation functions.
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
-| Last modifiction: 2019-02-20
+
 """
 
 

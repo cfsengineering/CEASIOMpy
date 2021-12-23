@@ -8,7 +8,7 @@ This file will connect the wing/fuse/output modules.
 | Works with Python 2.7/3.4
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2020-07-03 (AJ)
+
 """
 
 # =============================================================================

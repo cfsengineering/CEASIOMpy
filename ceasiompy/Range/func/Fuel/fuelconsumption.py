@@ -8,7 +8,7 @@ The script evaluates the fuel consumption during the different flight phases.
 | Works with Python 2.7/3.4
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-02-20
+
 """
 
 

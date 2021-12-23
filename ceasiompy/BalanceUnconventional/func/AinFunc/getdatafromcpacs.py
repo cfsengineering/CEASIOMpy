@@ -22,7 +22,7 @@ The cpacs file Should also contain:
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-12-05
-| Last modifiction: 2021-10-14 (AJ)
+
 """
 
 

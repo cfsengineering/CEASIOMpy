@@ -9,7 +9,7 @@ Python version: >=3.7
 
 | Author : Aaron Dettmann
 | Creation: 2019-09-09
-| Last modifiction: 2019-11-08 (AJ)
+
 """
 
 # ==============================================================================

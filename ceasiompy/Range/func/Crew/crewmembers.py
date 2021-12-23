@@ -8,7 +8,7 @@ The script suggests the crew member number in relation with the range.
 | Works with Python 2.7
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
-| Last modifiction: 2019-02-20
+
 """
 
 

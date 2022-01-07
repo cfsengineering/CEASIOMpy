@@ -27,8 +27,10 @@ import os
 import shutil
 import datetime
 import platform
+from pathlib import Path
 
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
+from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.xpath import WKDIR_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -39,9 +41,132 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 SOFT_LIST = ["SU2_DEF", "SU2_CFD", "SU2_SOL", "mpirun.mpich", "mpirun"]
 
+
+# ==============================================================================
+#   CLASSES
+# ==============================================================================
+
+class WorkflowOptions:
+    """ Class to pass options of the workflow """
+
+    def __init__(self):
+        
+        self.working_dir = "./"
+        self.cpacs_path = "./ToolInput.xml"  # TODO change that
+        
+        self.optim_method = "None"  # 'None', 'Optim', 'DoE'
+        self.module_pre = []
+        self.module_optim = []
+        self.module_post = []
+
+    def from_config_file(self, cfg_file):
+
+        cfg = ConfigFile(cfg_file)
+        
+        self.working_dir = cfg["WOKING_DIR"]
+        self.cpacs_path = cfg["CPACS_TOOLINPUT"]
+        
+        try:
+            self.module_pre = cfg["MODULE_PRE"]
+        except KeyError:
+            pass
+        try:
+            self.module_optim = cfg["MODULE_OPTIM"]
+        except KeyError:
+            pass
+        try:
+            self.optim_method = cfg["OPTIM_METHOD"]
+        except KeyError:
+            pass
+        try:
+            self.module_post = cfg["MODULE_POST"]
+        except KeyError:
+            pass
+
+    def write_config_file(self, wkdir):
+
+        cfg = ConfigFile()
+        cfg["comment_1"] = f"File written {datetime.datetime.now()}"
+        cfg["WOKING_DIR"] = self.working_dir
+        cfg["CPACS_TOOLINPUT"] = self.cpacs_path
+        if self.module_pre:
+            cfg["MODULE_PRE"] = self.module_pre
+        else:
+            cfg["comment_module_pre"] = "MODULE_PRE = (  )"
+
+        if self.module_optim:
+            cfg["MODULE_OPTIM"] = self.module_optim
+            cfg["OPTIM_METHOD"] = self.optim_method
+        else:
+            cfg["comment_module_optim"] = "MODULE_OPTIM = (  )"
+            cfg["comment_optim_method"] = "OPTIM_METHOD = NONE"
+        if self.module_post:
+            cfg["MODULE_POST"] = self.module_post
+        else:
+            cfg["comment_module_post"] = "MODULE_POST = (  )"
+
+        cfg_file = os.path.join(wkdir, "Config.cfg")
+        cfg.write_file(cfg_file, overwrite=True)
+
+
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
+
+
+def create_dir_structure(Opt):
+    
+    wkdir = Opt.working_dir
+    print(wkdir)
+    
+    # Copy CPACS to the Workin dir
+    # TODO
+    
+    # Create next Workflow_xx dir
+    
+    wkflow_list = [int(str(dir).split("_")[-1]) for dir in wkdir.glob('Workflow_*')]
+    if wkflow_list:
+        wkflow_idx = str(max(wkflow_list)+1).rjust(3, "0")
+    else:
+        wkflow_idx = "01"
+
+    new_wkflow_dir = Path.joinpath(wkdir, "Workflow_" + wkflow_idx)
+    new_wkflow_dir.mkdir()
+     
+    cnt = 1
+    # Create Structure of each mudule of the wokrflow
+    for module in Opt.module_pre:
+        cnt_str = str(cnt).rjust(2, "0")
+        new_module_dir = Path.joinpath(new_wkflow_dir, cnt_str + "_" + module)
+        new_module_dir.mkdir()
+        cnt += 1
+    
+    for module in Opt.module_optim:
+        cnt_str = str(cnt).rjust(2, "0")
+        new_module_dir = Path.joinpath(new_wkflow_dir, cnt_str + "_" + module)
+        new_module_dir.mkdir()
+        cnt += 1
+    
+    for module in Opt.module_post:
+        cnt_str = str(cnt).rjust(2, "0")
+        new_module_dir = Path.joinpath(new_wkflow_dir, cnt_str + "_" + module)
+        new_module_dir.mkdir()
+        cnt += 1
+        
+    
+    # Create next Results_xx dir
+    new_res_dir = Path.joinpath(wkdir, "Results_" + wkflow_idx)
+    new_res_dir.mkdir()
+ 
+    
+    return Opt
+    
+    
+    
+    
+    
+    
+
 
 
 def create_new_wkdir(global_wkdir=""):

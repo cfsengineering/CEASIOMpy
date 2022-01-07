@@ -14,6 +14,7 @@
 # Ignore temp folder and  and temp files
 /temp
 /tmp
+/WKDIR
 /ceasiompy/CPACSCreator/tmp/*
 /ceasiompy/WKDIR/CEASIOMpy*
 /ceasiompy/Pytornado/wkdir*

@@ -147,9 +147,6 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
 
     cpacs = CPACS(cpacs_path)
 
-    # TODO Check and reactivate that
-    # save_timestamp(tixi,SU2_XPATH) <-- ceaf.replace by get get_execution_date()
-
     if not os.path.exists(wkdir):
         raise OSError("The working directory : " + wkdir + "does not exit!")
 

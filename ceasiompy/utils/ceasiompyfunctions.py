@@ -52,7 +52,7 @@ class WorkflowOptions:
     def __init__(self):
         
         self.working_dir = "./"
-        self.cpacs_path = "./ToolInput.xml"  # TODO change that
+        self.cpacs_path = Path("./ToolInput.xml")  # TODO change that
         
         self.optim_method = "None"  # 'None', 'Optim', 'DoE'
         self.module_pre = []
@@ -64,7 +64,7 @@ class WorkflowOptions:
         cfg = ConfigFile(cfg_file)
         
         self.working_dir = cfg["WOKING_DIR"]
-        self.cpacs_path = cfg["CPACS_TOOLINPUT"]
+        self.cpacs_path = Path(cfg["CPACS_TOOLINPUT"])
         
         try:
             self.module_pre = cfg["MODULE_PRE"]
@@ -113,62 +113,76 @@ class WorkflowOptions:
 #   FUNCTIONS
 # ==============================================================================
 
-
 def create_dir_structure(Opt):
     
     wkdir = Opt.working_dir
-    print(wkdir)
+
+    # Go to working dir
+    os.chdir(wkdir)
     
-    # Copy CPACS to the Workin dir
-    # TODO
-    
-    # Create next Workflow_xx dir
-    
+    # Create new Workflow_xx directory
     wkflow_list = [int(str(dir).split("_")[-1]) for dir in wkdir.glob('Workflow_*')]
     if wkflow_list:
         wkflow_idx = str(max(wkflow_list)+1).rjust(3, "0")
     else:
-        wkflow_idx = "01"
+        wkflow_idx = "001"
 
-    new_wkflow_dir = Path.joinpath(wkdir, "Workflow_" + wkflow_idx)
-    new_wkflow_dir.mkdir()
+    wkflow_dir = Path.joinpath(wkdir, "Workflow_" + wkflow_idx)
+    wkflow_dir.mkdir()
+    
+    
+    # Copy CPACS to the workflow dir
+    cpacs_path  = Opt.cpacs_path.absolute()
+    if not cpacs_path.exists():
+        raise FileNotFoundError(f"{cpacs_path} has not been fount!")
+    
+    toolinput_cpacs_path = Path.joinpath(wkflow_dir,"00_ToolInput.xml").absolute()
+        
+    shutil.copy(cpacs_path, toolinput_cpacs_path)
+    
      
+    # Create the directory structure for each mudule in the wokrflow
     cnt = 1
-    # Create Structure of each mudule of the wokrflow
     for module in Opt.module_pre:
         cnt_str = str(cnt).rjust(2, "0")
-        new_module_dir = Path.joinpath(new_wkflow_dir, cnt_str + "_" + module)
+        new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_" + module)
         new_module_dir.mkdir()
         cnt += 1
     
-    for module in Opt.module_optim:
+    if Opt.optim_method == "DOE":
         cnt_str = str(cnt).rjust(2, "0")
-        new_module_dir = Path.joinpath(new_wkflow_dir, cnt_str + "_" + module)
-        new_module_dir.mkdir()
-        cnt += 1
-    
-    for module in Opt.module_post:
-        cnt_str = str(cnt).rjust(2, "0")
-        new_module_dir = Path.joinpath(new_wkflow_dir, cnt_str + "_" + module)
+        new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_DesignOfExperiment")
         new_module_dir.mkdir()
         cnt += 1
         
+    elif Opt.optim_method == "OPTIM":
+        cnt_str = str(cnt).rjust(2, "0")
+        new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_Optimization")
+        new_module_dir.mkdir()
+        cnt += 1
+             
+    else:
+        
+        for module in Opt.module_optim:
+            cnt_str = str(cnt).rjust(2, "0")
+            new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_" + module)
+            new_module_dir.mkdir()
+            cnt += 1
     
-    # Create next Results_xx dir
+    for module in Opt.module_post:
+        cnt_str = str(cnt).rjust(2, "0")
+        new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_" + module)
+        new_module_dir.mkdir()
+        cnt += 1
+        
+    # Create new Results_xx directoryr
     new_res_dir = Path.joinpath(wkdir, "Results_" + wkflow_idx)
     new_res_dir.mkdir()
  
-    
     return Opt
     
-    
-    
-    
-    
-    
 
-
-
+# TODO: remove, to be replace by something else
 def create_new_wkdir(global_wkdir=""):
     """Function to create a woking directory.
 
@@ -206,6 +220,7 @@ def create_new_wkdir(global_wkdir=""):
     return run_dir
 
 
+# TODO: Replace by new function
 def get_wkdir_or_create_new(tixi):
     """Function get the wkdir path from CPACS or create a new one
 
@@ -345,46 +360,6 @@ def run_soft(soft, config_path, wkdir, nb_proc):
     log.info(">>> " + soft + " End Time")
 
     os.chdir(original_dir)
-
-
-def get_execution_date(tixi, module_name, xpath):
-    """Function to get and write the execution date of a CEASIOMpy module.
-
-    Function 'get_execution_date' ...
-
-    Args:
-        tixi (handles): TIXI Handle of the CPACS file
-        module_name (str): Name of the module to test
-        xpath (str): xPath where start and end time will be stored
-
-    Returns:
-        tixi (handles): Modified TIXI Handle
-
-    """
-
-    # logfile_name = __file__.split('.')[0] + '.log'
-    #
-    # start_time = None
-    # end_time = None
-    #
-    # with open(logfile_name) as f:
-    #     for line in f.readlines():
-    #         if '>>> SU2_CFD Start Time' in line:
-    #             start_time = line.split(' - ')[0]
-    #         if '>>> SU2_CFD End Time' in line:
-    #             end_time = line.split(' - ')[0]
-    #
-    # if start_time == None:
-    #     log.warning("SU2 Start time has not been found in the logfile!")
-    # if end_time == None:
-    #     log.warning("SU2 End time has not been found in the logfile!")
-    #
-    # create_branch(tixi,xpath+'/startTime')
-    # tixi.updateTextElement(xpath+'/startTime',start_time)
-    # create_branch(tixi,xpath+'/endTime')
-    # tixi.updateTextElement(xpath+'/endTime',end_time)
-
-    return tixi
 
 
 def aircraft_name(tixi_or_cpacs):

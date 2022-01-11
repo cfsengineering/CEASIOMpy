@@ -167,7 +167,7 @@ if __name__ == "__main__":
             Opt = WorkflowOptions()
 
             Opt.from_config_file(cfg_file)
-            Opt.working_dir = Path(cfg_file).parent
+            Opt.working_dir = Path(cfg_file).parent.absolute()
 
         else:
             print(" ")

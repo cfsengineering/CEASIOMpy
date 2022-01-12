@@ -34,7 +34,7 @@ import ceasiompy.utils.ceasiompyfunctions as ceaf
 import ceasiompy.utils.workflowfunctions as wkf
 from cpacspy.cpacsfunctions import open_tixi
 from ceasiompy.Optimisation.optimisation import routine_launcher
-from ceasiompy.utils.ceasiompyfunctions import WorkflowOptions, create_dir_structure
+from ceasiompy.utils.ceasiompyfunctions import WorkflowOptions
 from ceasiompy.utils.configfiles import ConfigFile
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -49,13 +49,13 @@ MODULE_NAME = os.path.basename(os.getcwd())
 # ==============================================================================
 
 
-
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
 
+
 def run_workflow(Opt):
-    """ Run the complete Worflow
+    """Run the complete Worflow
 
     Args:
         Opt (class): Cl
@@ -124,85 +124,74 @@ def run_workflow(Opt):
 
     # Copy ToolInput in the Working directory
     shutil.copy(cpacs_path_out, os.path.join(wkdir, "Output.xml"))
-    
 
-    
+
+def print_help():
+
+    print("\nUsage: python run_ceasiompy.py [-h] [-gui] [-cfg my_path/Configfile.cfg] ")
+
+    print("\nThis is this help of the CEASIOMpy.")
+
+    print("\nOptional arguments:")
+    print("\n-h\tshow this help message and exit")
+    print("-gui\tlaunch a graphical user inter to create a workflow and run it.")
+    print("-cfg\trun a workflow from configuration file.")
+
+    print("\nNo argument correspond to the [-gui] option.\n")
+
+
 # ==============================================================================
 #    MAIN
 # ==============================================================================
 
 if __name__ == "__main__":
-    
+
     log.info("========== Start of " + os.path.basename(__file__) + " ==========")
-    
+
     cpacs_path_out = mi.get_tooloutput_file_path(MODULE_NAME)
 
-    no_arg = True
+    # If no argument create run the GUI
+    if len(sys.argv) == 1:
 
-    if len(sys.argv) > 1:
+        Opt = create_wf_gui()
+        Opt.write_config_file()
+
+    elif len(sys.argv) == 2:
+
         if sys.argv[1] == "-gui":
-            no_arg = False
 
             Opt = create_wf_gui()
-
-        elif sys.argv[1] == "-cfg":
-
-            if len(sys.argv) > 2:
-                cfg_file = sys.argv[2]
-                if os.path.isfile(cfg_file):
-                    no_arg = False
-                else:
-                    print(" ")
-                    print("The path you use as argument is not a file!")
-                    print(" ")
-                    sys.exit()
-            else:
-                print(" ")
-                print("No configuration file!")
-                print('If you use the option "-cfg" to run this module,')
-                print("you must specifiy the path to the config file!")
-                print(" ")
-                sys.exit()
-
-            Opt = WorkflowOptions()
-
-            Opt.from_config_file(cfg_file)
-            Opt.working_dir = Path(cfg_file).parent.absolute()
+            Opt.write_config_file()
 
         else:
-            print(" ")
-            print("Invalid argument!")
-            print("You can use the option -gui to run this module with a user interface.")
-            print("You can use the option -cfg to run this module with a configuration file.")
-            print(" ")
+            print_help()
             sys.exit()
 
-    # To run a workflow without gui or config file
-    if no_arg:
+    elif len(sys.argv) == 3:
 
-        Opt = WorkflowOptions()
+        if sys.argv[1] == "-cfg":
 
-        # Available Module:
-        # Settings: 'SettingsGUI'
-        # Geometry and mesh:
-        #       'CPACSCreator','CPACS2SUMO','SUMOAutoMesh'
-        # Weight and balance:
-        #       'WeightConventional','WeightUnconventional',
-        #       'BalanceConventional','BalanceUnconventional'
-        # Aerodynamics:
-        #       'CLCalculator','PyTornado','SkinFriction','PlotAeroCoefficients',
-        #       'SU2MeshDef','SU2Run'
-        # Mission analysis: 'Range','StabilityStatic'
-        # Surrogate modelling: 'SMTrain', 'SMUse'
+            cfg_file = sys.argv[2]
 
-        Opt.module_pre = ["PyTornado", "SkinFriction"]
-        Opt.module_optim = []
-        Opt.module_post = []
-        Opt.optim_method = "None"  # DoE, Optim, None
+            if not os.path.isfile(cfg_file):
+                raise FileNotFoundError(f"{cfg_file} has not been found!")
 
-    create_dir_structure(Opt)
+            if not cfg_file.endswith(".cfg"):
+                raise ValueError("The CEASIOMpy configuration file must be a *.cfg file!")
 
-    # # Run the workflow
+            Opt = WorkflowOptions()
+            Opt.from_config_file(cfg_file)
+
+        else:
+            print_help()
+            sys.exit()
+
+    else:
+        print_help()
+        sys.exit()
+
+    # Run the workflow
+    Opt.create_dir_structure()
     # run_workflow(Opt)
-    
+
     log.info("=========== End of " + os.path.basename(__file__) + " ===========")

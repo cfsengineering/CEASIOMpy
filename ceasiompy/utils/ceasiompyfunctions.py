@@ -46,14 +46,15 @@ SOFT_LIST = ["SU2_DEF", "SU2_CFD", "SU2_SOL", "mpirun.mpich", "mpirun"]
 #   CLASSES
 # ==============================================================================
 
+
 class WorkflowOptions:
-    """ Class to pass options of the workflow """
+    """Class to pass options of the workflow"""
 
     def __init__(self):
-        
-        self.working_dir = "./"
-        self.cpacs_path = Path("./ToolInput.xml")  # TODO change that
-        
+
+        self.working_dir = ""
+        self.cpacs_path = Path("../test_files/CPACSfiles/D150_simple.xml").resolve()
+
         self.optim_method = "None"  # 'None', 'Optim', 'DoE'
         self.module_pre = []
         self.module_optim = []
@@ -62,10 +63,11 @@ class WorkflowOptions:
     def from_config_file(self, cfg_file):
 
         cfg = ConfigFile(cfg_file)
-        
-        self.working_dir = cfg["WOKING_DIR"]
+
+        self.working_dir = Path(cfg_file).parent.absolute()
+
         self.cpacs_path = Path(cfg["CPACS_TOOLINPUT"])
-        
+
         try:
             self.module_pre = cfg["MODULE_PRE"]
         except KeyError:
@@ -83,11 +85,10 @@ class WorkflowOptions:
         except KeyError:
             pass
 
-    def write_config_file(self, wkdir):
+    def write_config_file(self):
 
         cfg = ConfigFile()
         cfg["comment_1"] = f"File written {datetime.datetime.now()}"
-        cfg["WOKING_DIR"] = self.working_dir
         cfg["CPACS_TOOLINPUT"] = self.cpacs_path
         if self.module_pre:
             cfg["MODULE_PRE"] = self.module_pre
@@ -105,82 +106,78 @@ class WorkflowOptions:
         else:
             cfg["comment_module_post"] = "MODULE_POST = (  )"
 
-        cfg_file = os.path.join(wkdir, "Config.cfg")
+        cfg_file = os.path.join(self.working_dir, "Config.cfg")
         cfg.write_file(cfg_file, overwrite=True)
+
+    def create_dir_structure(self):
+
+        wkdir = self.working_dir
+
+        # Go to working dir
+        os.chdir(wkdir)
+
+        # Create new Workflow_xx directory
+        wkflow_list = [int(str(dir).split("_")[-1]) for dir in wkdir.glob("Workflow_*")]
+        if wkflow_list:
+            wkflow_idx = str(max(wkflow_list) + 1).rjust(3, "0")
+        else:
+            wkflow_idx = "001"
+
+        wkflow_dir = Path.joinpath(wkdir, "Workflow_" + wkflow_idx)
+        wkflow_dir.mkdir()
+
+        # Copy CPACS to the workflow dir
+        cpacs_path = self.cpacs_path
+        if not cpacs_path.exists():
+            raise FileNotFoundError(f"{cpacs_path} has not been fount!")
+
+        toolinput_cpacs_path = Path.joinpath(wkflow_dir, "00_ToolInput.xml").absolute()
+
+        shutil.copy(cpacs_path, toolinput_cpacs_path)
+
+        # Create the directory structure for each mudule in the wokrflow
+        cnt = 1
+        for module in self.module_pre:
+            cnt_str = str(cnt).rjust(2, "0")
+            new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_" + module)
+            new_module_dir.mkdir()
+            cnt += 1
+
+        if self.optim_method == "DOE":
+            cnt_str = str(cnt).rjust(2, "0")
+            new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_DesignOfExperiment")
+            new_module_dir.mkdir()
+            cnt += 1
+
+        elif self.optim_method == "OPTIM":
+            cnt_str = str(cnt).rjust(2, "0")
+            new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_Optimization")
+            new_module_dir.mkdir()
+            cnt += 1
+
+        else:
+
+            for module in self.module_optim:
+                cnt_str = str(cnt).rjust(2, "0")
+                new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_" + module)
+                new_module_dir.mkdir()
+                cnt += 1
+
+        for module in self.module_post:
+            cnt_str = str(cnt).rjust(2, "0")
+            new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_" + module)
+            new_module_dir.mkdir()
+            cnt += 1
+
+        # Create new Results_xx directoryr
+        new_res_dir = Path.joinpath(wkdir, "Results_" + wkflow_idx)
+        new_res_dir.mkdir()
 
 
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
 
-def create_dir_structure(Opt):
-    
-    wkdir = Opt.working_dir
-
-    # Go to working dir
-    os.chdir(wkdir)
-    
-    # Create new Workflow_xx directory
-    wkflow_list = [int(str(dir).split("_")[-1]) for dir in wkdir.glob('Workflow_*')]
-    if wkflow_list:
-        wkflow_idx = str(max(wkflow_list)+1).rjust(3, "0")
-    else:
-        wkflow_idx = "001"
-
-    wkflow_dir = Path.joinpath(wkdir, "Workflow_" + wkflow_idx)
-    wkflow_dir.mkdir()
-    
-    
-    # Copy CPACS to the workflow dir
-    cpacs_path  = Opt.cpacs_path.absolute()
-    if not cpacs_path.exists():
-        raise FileNotFoundError(f"{cpacs_path} has not been fount!")
-    
-    toolinput_cpacs_path = Path.joinpath(wkflow_dir,"00_ToolInput.xml").absolute()
-        
-    shutil.copy(cpacs_path, toolinput_cpacs_path)
-    
-     
-    # Create the directory structure for each mudule in the wokrflow
-    cnt = 1
-    for module in Opt.module_pre:
-        cnt_str = str(cnt).rjust(2, "0")
-        new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_" + module)
-        new_module_dir.mkdir()
-        cnt += 1
-    
-    if Opt.optim_method == "DOE":
-        cnt_str = str(cnt).rjust(2, "0")
-        new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_DesignOfExperiment")
-        new_module_dir.mkdir()
-        cnt += 1
-        
-    elif Opt.optim_method == "OPTIM":
-        cnt_str = str(cnt).rjust(2, "0")
-        new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_Optimization")
-        new_module_dir.mkdir()
-        cnt += 1
-             
-    else:
-        
-        for module in Opt.module_optim:
-            cnt_str = str(cnt).rjust(2, "0")
-            new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_" + module)
-            new_module_dir.mkdir()
-            cnt += 1
-    
-    for module in Opt.module_post:
-        cnt_str = str(cnt).rjust(2, "0")
-        new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_" + module)
-        new_module_dir.mkdir()
-        cnt += 1
-        
-    # Create new Results_xx directoryr
-    new_res_dir = Path.joinpath(wkdir, "Results_" + wkflow_idx)
-    new_res_dir.mkdir()
- 
-    return Opt
-    
 
 # TODO: remove, to be replace by something else
 def create_new_wkdir(global_wkdir=""):

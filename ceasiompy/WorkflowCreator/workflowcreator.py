@@ -16,13 +16,14 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
 import ceasiompy.__init__
 
 import os
+from pathlib import Path
 
 import tkinter as tk
 from tkinter import ttk
@@ -41,12 +42,13 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
+
 
 class Tab(tk.Frame):
-    """ Class to create tab in the WorkflowCreator GUI """
+    """Class to create tab in the WorkflowCreator GUI"""
 
     def __init__(self, master, name, **kwargs):
 
@@ -115,8 +117,8 @@ class Tab(tk.Frame):
             row_pos += item_count + 1
 
     def _add(self, event=None):
-        """ Function of the button add: to pass a module from Available module
-            list to Selected module list"""
+        """Function of the button add: to pass a module from Available module
+        list to Selected module list"""
 
         try:
             select_item = [self.LB_modules.get(i) for i in self.LB_modules.curselection()]
@@ -126,16 +128,16 @@ class Tab(tk.Frame):
             self.selected_item = None
 
     def _remove(self, event=None):
-        """ Function of the button remove: to remove a module from the Selected
-            module list"""
+        """Function of the button remove: to remove a module from the Selected
+        module list"""
 
         sel = self.LB_selected.curselection()
         for index in sel[::-1]:
             self.LB_selected.delete(index)
 
     def _up(self, event=None):
-        """ Function of the button up: to move upward a module in the Selected
-            module list"""
+        """Function of the button up: to move upward a module in the Selected
+        module list"""
 
         pos_list = self.LB_selected.curselection()
 
@@ -150,8 +152,8 @@ class Tab(tk.Frame):
             self.LB_selected.insert(pos - 1, item)
 
     def _down(self, event=None):
-        """ Function of the button down: to move downward a module in the
-            Selected module list."""
+        """Function of the button down: to move downward a module in the
+        Selected module list."""
 
         pos_list = self.LB_selected.curselection()
 
@@ -177,21 +179,33 @@ class WorkFlowGUI(tk.Frame):
         space_label = tk.Label(self, text=" ")
         space_label.grid(column=0, row=0)
 
+        # Input Working directory
+        self.label = tk.Label(self, text="  Working Directory")
+        self.label.grid(column=0, row=1)
+
+        self.wkdir_path_var = tk.StringVar()
+        self.wkdir_path_var.set(self.Options.working_dir)
+        value_entry = tk.Entry(self, textvariable=self.wkdir_path_var, width=45)
+        value_entry.grid(column=1, row=1)
+
+        self.browse_button = tk.Button(self, text="Browse", command=self._browse_dir)
+        self.browse_button.grid(column=2, row=1, pady=5)
+
         # Input CPACS file
         self.label = tk.Label(self, text="  Input CPACS file")
-        self.label.grid(column=0, row=1)
+        self.label.grid(column=0, row=2)
 
         self.path_var = tk.StringVar()
         self.path_var.set(self.Options.cpacs_path)
         value_entry = tk.Entry(self, textvariable=self.path_var, width=45)
-        value_entry.grid(column=1, row=1)
+        value_entry.grid(column=1, row=2)
 
         self.browse_button = tk.Button(self, text="Browse", command=self._browse_file)
-        self.browse_button.grid(column=2, row=1, pady=5)
+        self.browse_button.grid(column=2, row=2, pady=5)
 
         # Notebook for tabs
         self.tabs = ttk.Notebook(self)
-        self.tabs.grid(column=0, row=2, columnspan=3, padx=10, pady=10)
+        self.tabs.grid(column=0, row=3, columnspan=3, padx=10, pady=10)
 
         self.TabPre = Tab(self, "Pre")
         self.TabOptim = Tab(self, "Optim")
@@ -203,7 +217,7 @@ class WorkFlowGUI(tk.Frame):
 
         # General buttons
         self.close_button = tk.Button(self, text="Save & Quit", command=self._save_quit)
-        self.close_button.grid(column=2, row=3)
+        self.close_button.grid(column=2, row=4)
 
     def _browse_file(self):
 
@@ -213,6 +227,14 @@ class WorkFlowGUI(tk.Frame):
         )
         self.path_var.set(self.filename)
 
+    def _browse_dir(self):
+
+        wkdir_template = os.path.join(MODULE_DIR, "..", "..", "WKDIR", "MyNewWokingDir")
+        self.wkdir = filedialog.askdirectory(
+            initialdir=wkdir_template, title="Select a CPACS file"
+        )
+        self.wkdir_path_var.set(self.wkdir)
+
     def _save_quit(self):
 
         self.Options.optim_method = self.TabOptim.optim_choice_CB.get()
@@ -221,20 +243,44 @@ class WorkFlowGUI(tk.Frame):
         self.Options.module_optim = [item[0] for item in self.TabOptim.LB_selected.get(0, tk.END)]
         self.Options.module_post = [item[0] for item in self.TabPost.LB_selected.get(0, tk.END)]
 
-        self.Options.cpacs_path = self.path_var.get()
+        # CPACS file
         if self.path_var.get() == "":
             messagebox.showerror("ValueError", "Yon must select an input CPACS file!")
             raise TypeError("No CPACS file has been define !")
 
+        self.Options.cpacs_path = Path(self.path_var.get())
+
+        if self.wkdir_path_var.get() == "":
+            messagebox.showerror("ValueError", "Yon must select a Woking Directory!")
+            raise TypeError("No Working directory has been define !")
+
+        # Working directory
+        self.Options.working_dir = Path(self.wkdir_path_var.get())
+
+        if not self.Options.working_dir.exists():
+            self.Options.working_dir.mkdir()
+
+        if any(file.endswith(".cfg") for file in os.listdir(self.Options.working_dir)):
+            answer = messagebox.askokcancel(
+                title="Confirmation",
+                message="Be carefule a CEASIOMpy configuration file (.cfg) already exist in this"
+                " working directory, it will be overwriten!",
+                icon=messagebox.WARNING,
+            )
+
+            if not answer:
+                return
+
         self.quit()
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
+
 
 def create_wf_gui():
-    """ Create a GUI with Tkinter to fill the workflow to run
+    """Create a GUI with Tkinter to fill the workflow to run
 
     Args:
         cpacs_path (str): Path to the CPACS file
@@ -245,7 +291,7 @@ def create_wf_gui():
 
     root = tk.Tk()
     root.title("Workflow Creator")
-    root.geometry("475x495+400+300")
+    root.geometry("730x750+400+150")
     my_gui = WorkFlowGUI()
     my_gui.mainloop()
     opt = my_gui.Options
@@ -255,9 +301,10 @@ def create_wf_gui():
 
     return opt
 
-# ==============================================================================
+
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 

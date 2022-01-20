@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Functions to simplify some file and data handling in CEASIOMpy
+Functions and classes to run ceasiompy workflows
 
 Python version: >=3.7
 
@@ -12,25 +12,29 @@ Python version: >=3.7
 
 TODO:
 
-    * Those functions must be:
-        - refactored
-        - improved
-        - tested
-
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
+
+from typing import List
+from xml.dom import NotFoundErr
+
+import ceasiompy.__init__
 
 import os
 import shutil
 import datetime
 import platform
+import importlib
 from pathlib import Path
+from dataclasses import dataclass, field
 
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
+from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
 from ceasiompy.utils.configfiles import ConfigFile
+from ceasiompy.utils.moduleinterfaces import get_submodule_list
 from ceasiompy.utils.xpath import WKDIR_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -38,15 +42,103 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+LIB_DIR = Path(ceasiompy.__init__.__file__).parent
 
 SOFT_LIST = ["SU2_DEF", "SU2_CFD", "SU2_SOL", "mpirun.mpich", "mpirun"]
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
+@dataclass
+class Optim:
+
+    optim_method: str
+    optim_modules: list
+
+
+@dataclass
+class ModuleToRun:
+
+    module_name: str
+    wkflow_dir: Path
+    cpacs_in: Path
+    cpacs_out: Path = None
+
+    def __post_init__(self) -> None:
+
+        # Check if the module is valid
+        if self.module_name not in get_submodule_list():
+            raise ValueError(f"Module '{self.module_name}' did not exit!")
+
+        # Set module path
+        self.module_path = Path.joinpath(LIB_DIR, self.module_name)
+
+        # Check if the workflow directory exist
+        if not self.wkflow_dir.exists():
+            raise NotFoundErr(f"{str(self.wkflow_dir)} did not exist!")
+
+        # Set default values
+        self.is_settinggui = False
+        self.inculde_in_optim = False
+        self.optim_method = None
+
+    def define_settinggui(self, related_module: list):
+
+        self.is_settinggui = True
+        self.related_module = related_module
+
+    def define_optim_module(self, optim_method):
+
+        self.inculde_in_optim = True
+        self.optim_method = optim_method
+
+    def create_module_wkflow_dir(self, cnt: int) -> None:
+
+        if self.inculde_in_optim and self.optim_method:  # HERE <------
+            module_wkflow_name = (
+                str(cnt).rjust(2, "0") + "_" + self.optim_method + "_" + self.module_name
+            )
+        else:
+
+            module_wkflow_name = str(cnt).rjust(2, "0") + "_" + self.module_name
+
+        self.module_wkflow_path = Path.joinpath(self.wkflow_dir, module_wkflow_name)
+        self.module_wkflow_path.mkdir()
+
+        self.cpacs_out = Path.joinpath(self.module_wkflow_path, "ToolOutput.xml")
+
+    def run(self) -> None:
+
+        log.info("###############################################################################")
+        log.info("# Run module: " + self.module_name)
+        log.info("###############################################################################")
+
+        # Changing current directory
+        log.info(f"Going to {self.module_path}")
+        os.chdir(self.module_path)
+
+        if self.module_name == "SettingsGUI":
+
+            create_settings_gui(str(self.cpacs_in), str(self.cpacs_out), self.related_module)
+
+        else:
+
+            # Find the main python file (TODO: maybe move this part elsewhere)
+            for file in self.module_path.iterdir():
+                if file.name.endswith(".py") and not file.name.startswith("__"):
+                    python_file = file.stem
+
+            # Import the main function of the module
+            my_module = importlib.import_module(f"ceasiompy.{self.module_name}.{python_file}")
+
+            # Run the module
+            my_module.main(str(self.cpacs_in), str(self.cpacs_out))
+
+
+# TODO: change name of the class
 class WorkflowOptions:
     """Class to pass options of the workflow"""
 
@@ -55,33 +147,34 @@ class WorkflowOptions:
         self.working_dir = ""
         self.cpacs_path = Path("../test_files/CPACSfiles/D150_simple.xml").resolve()
 
-        self.optim_method = "None"  # 'None', 'Optim', 'DoE'
-        self.module_pre = []
+        self.module_to_run = []
+
+        self.optim_method = None  # None, 'Optim', 'DoE'
         self.module_optim = []
-        self.module_post = []
+
+        self.module_to_run_obj = []
+
+        self.current_workflow_dir = None
 
     def from_config_file(self, cfg_file):
 
         cfg = ConfigFile(cfg_file)
 
         self.working_dir = Path(cfg_file).parent.absolute()
-
         self.cpacs_path = Path(cfg["CPACS_TOOLINPUT"])
 
         try:
-            self.module_pre = cfg["MODULE_PRE"]
+            self.module_to_run = cfg["MODULE_TO_RUN"]
         except KeyError:
             pass
+
         try:
             self.module_optim = cfg["MODULE_OPTIM"]
         except KeyError:
             pass
+
         try:
             self.optim_method = cfg["OPTIM_METHOD"]
-        except KeyError:
-            pass
-        try:
-            self.module_post = cfg["MODULE_POST"]
         except KeyError:
             pass
 
@@ -90,10 +183,10 @@ class WorkflowOptions:
         cfg = ConfigFile()
         cfg["comment_1"] = f"File written {datetime.datetime.now()}"
         cfg["CPACS_TOOLINPUT"] = self.cpacs_path
-        if self.module_pre:
-            cfg["MODULE_PRE"] = self.module_pre
+        if self.module_to_run:
+            cfg["MODULE_TO_RUN"] = self.module_to_run
         else:
-            cfg["comment_module_pre"] = "MODULE_PRE = (  )"
+            cfg["comment_module_to_run"] = "MODULE_TO_RUN = (  )"
 
         if self.module_optim:
             cfg["MODULE_OPTIM"] = self.module_optim
@@ -101,82 +194,99 @@ class WorkflowOptions:
         else:
             cfg["comment_module_optim"] = "MODULE_OPTIM = (  )"
             cfg["comment_optim_method"] = "OPTIM_METHOD = NONE"
-        if self.module_post:
-            cfg["MODULE_POST"] = self.module_post
-        else:
-            cfg["comment_module_post"] = "MODULE_POST = (  )"
 
-        cfg_file = os.path.join(self.working_dir, "Config.cfg")
+        cfg_file = os.path.join(self.working_dir, "ceasiompy.cfg")
         cfg.write_file(cfg_file, overwrite=True)
 
-    def create_dir_structure(self):
+    def set_workflow(self):
+        """Create the directory structure and set input/output of each modules"""
+
+        if not self.working_dir:
+            raise ValueError("You must first define a working directory!")
 
         wkdir = self.working_dir
 
-        # Go to working dir
+        # Go to working dir, is it useful??
         os.chdir(wkdir)
 
-        # Create new Workflow_xx directory
-        wkflow_list = [int(str(dir).split("_")[-1]) for dir in wkdir.glob("Workflow_*")]
+        # Check index of the last workflow directory to set the next one
+        wkflow_list = [int(dir.stem.split("_")[-1]) for dir in wkdir.glob("Workflow_*")]
         if wkflow_list:
             wkflow_idx = str(max(wkflow_list) + 1).rjust(3, "0")
         else:
             wkflow_idx = "001"
 
-        wkflow_dir = Path.joinpath(wkdir, "Workflow_" + wkflow_idx)
-        wkflow_dir.mkdir()
+        self.current_wkflow_dir = Path.joinpath(wkdir, "Workflow_" + wkflow_idx)
+        self.current_wkflow_dir.mkdir()
 
         # Copy CPACS to the workflow dir
-        cpacs_path = self.cpacs_path
-        if not cpacs_path.exists():
-            raise FileNotFoundError(f"{cpacs_path} has not been fount!")
+        if not self.cpacs_path.exists():
+            raise FileNotFoundError(f"{self.cpacs_path} has not been fount!")
 
-        toolinput_cpacs_path = Path.joinpath(wkflow_dir, "00_ToolInput.xml").absolute()
+        toolinput_cpacs_path = Path.joinpath(
+            self.current_wkflow_dir, "00_ToolInput.xml"
+        ).absolute()
 
-        shutil.copy(cpacs_path, toolinput_cpacs_path)
+        shutil.copy(self.cpacs_path, toolinput_cpacs_path)
 
-        # Create the directory structure for each mudule in the wokrflow
+        # Create the directory structure for each mudule in the wokrflow and its corresponding object
         cnt = 1
-        for module in self.module_pre:
-            cnt_str = str(cnt).rjust(2, "0")
-            new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_" + module)
-            new_module_dir.mkdir()
+
+        for m, module_name in enumerate(self.module_to_run):
+
+            # Check if it is the first module (to know where the cpacs input file should come from)
+            if m == 0:
+                cpacs_in = toolinput_cpacs_path
+            else:
+                cpacs_in = self.module_to_run_obj[m - 1].cpacs_out
+
+            # Create an object for the module
+            module_obj = ModuleToRun(module_name, self.current_wkflow_dir, cpacs_in)
+
+            # Check if the module is SettingGUI
+            related_modules = []
+            if module_name == "SettingsGUI":
+                related_modules = self.get_related_modules(self.module_to_run, m)
+                module_obj.define_settinggui(related_modules)
+
+            # Check if should be included in Optim/DoE
+            if self.optim_method and module_name in self.module_optim:
+                module_obj.define_optim_module(self.optim_method)
+
+            module_obj.create_module_wkflow_dir(cnt)
+            self.module_to_run_obj.append(module_obj)
             cnt += 1
 
-        if self.optim_method == "DOE":
-            cnt_str = str(cnt).rjust(2, "0")
-            new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_DesignOfExperiment")
-            new_module_dir.mkdir()
-            cnt += 1
-
-        elif self.optim_method == "OPTIM":
-            cnt_str = str(cnt).rjust(2, "0")
-            new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_Optimization")
-            new_module_dir.mkdir()
-            cnt += 1
-
-        else:
-
-            for module in self.module_optim:
-                cnt_str = str(cnt).rjust(2, "0")
-                new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_" + module)
-                new_module_dir.mkdir()
-                cnt += 1
-
-        for module in self.module_post:
-            cnt_str = str(cnt).rjust(2, "0")
-            new_module_dir = Path.joinpath(wkflow_dir, cnt_str + "_" + module)
-            new_module_dir.mkdir()
-            cnt += 1
-
-        # Create new Results_xx directoryr
+        # Create Results_xx directory
         new_res_dir = Path.joinpath(wkdir, "Results_" + wkflow_idx)
         new_res_dir.mkdir()
 
+    def run_workflow(self):
+        """Run the complete Worflow
 
-# ==============================================================================
+        Args:
+            ???
+
+        """
+
+        # TODO: Check if optim loop in the workflow
+
+        for module_obj in self.module_to_run_obj:
+            module_obj.run()
+
+    @staticmethod
+    def get_related_modules(module_list, idx):
+
+        if "SettingsGUI" in module_list[idx + 1 :] and idx + 1 != len(module_list):
+            idx = module_list.index("SettingsGUI", idx + 1)
+            return module_list[idx:idx]
+        else:
+            return module_list[idx:]
+
+
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 # TODO: remove, to be replace by something else
@@ -394,9 +504,9 @@ def aircraft_name(tixi_or_cpacs):
     return name
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 

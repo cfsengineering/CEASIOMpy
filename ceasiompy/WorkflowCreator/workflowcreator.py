@@ -12,7 +12,7 @@ Python version: >=3.7
 
 TODO:
 
-    * more options for optim ?
+    * Modifiy Opimisation Tab to restrict selection to only Module to run
 
 """
 
@@ -29,17 +29,14 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox, filedialog
 
-from ceasiompy.utils.ceasiompyfunctions import WorkflowOptions
+from ceasiompy.utils.ceasiompyfunctions import Workflow
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
 
-LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
-
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
 
 
 # =================================================================================================
@@ -66,6 +63,8 @@ class Tab(tk.Frame):
         self.modules_list.remove("CPACSUpdater")
         self.modules_list.remove("WorkflowCreator")
         self.modules_list.remove("utils")
+
+        # TODO: remove that when WKDIR is completly out of /ceasiompy/
         try:
             self.modules_list.remove("WKDIR")
         except:
@@ -75,7 +74,7 @@ class Tab(tk.Frame):
 
         row_pos = 0
 
-        if name == "Optim":
+        if name == "Optimisation":
 
             label_optim = tk.Label(self, text="Optimisation method")
             label_optim.grid(column=0, row=0, columnspan=1, pady=10)
@@ -174,7 +173,7 @@ class WorkFlowGUI(tk.Frame):
         tk.Frame.__init__(self, master, **kwargs)
         self.pack(fill=tk.BOTH)
 
-        self.Options = WorkflowOptions()
+        self.workflow = Workflow()
 
         space_label = tk.Label(self, text=" ")
         space_label.grid(column=0, row=0)
@@ -184,7 +183,7 @@ class WorkFlowGUI(tk.Frame):
         self.label.grid(column=0, row=1)
 
         self.wkdir_path_var = tk.StringVar()
-        self.wkdir_path_var.set(self.Options.working_dir)
+        self.wkdir_path_var.set(self.workflow.working_dir)
         value_entry = tk.Entry(self, textvariable=self.wkdir_path_var, width=45)
         value_entry.grid(column=1, row=1)
 
@@ -196,7 +195,7 @@ class WorkFlowGUI(tk.Frame):
         self.label.grid(column=0, row=2)
 
         self.path_var = tk.StringVar()
-        self.path_var.set(self.Options.cpacs_path)
+        self.path_var.set(self.workflow.cpacs_path)
         value_entry = tk.Entry(self, textvariable=self.path_var, width=45)
         value_entry.grid(column=1, row=2)
 
@@ -207,13 +206,11 @@ class WorkFlowGUI(tk.Frame):
         self.tabs = ttk.Notebook(self)
         self.tabs.grid(column=0, row=3, columnspan=3, padx=10, pady=10)
 
-        self.TabPre = Tab(self, "Pre")
-        self.TabOptim = Tab(self, "Optim")
-        self.TabPost = Tab(self, "Post")
+        self.TabModToRun = Tab(self, "Module to run")
+        self.TabOptim = Tab(self, "Optimisation")
 
-        self.tabs.add(self.TabPre, text=self.TabPre.name)
+        self.tabs.add(self.TabModToRun, text=self.TabModToRun.name)
         self.tabs.add(self.TabOptim, text=self.TabOptim.name)
-        self.tabs.add(self.TabPost, text=self.TabPost.name)
 
         # General buttons
         self.close_button = tk.Button(self, text="Save & Quit", command=self._save_quit)
@@ -237,30 +234,31 @@ class WorkFlowGUI(tk.Frame):
 
     def _save_quit(self):
 
-        self.Options.optim_method = self.TabOptim.optim_choice_CB.get()
+        self.workflow.optim_method = self.TabOptim.optim_choice_CB.get()
 
-        self.Options.module_pre = [item[0] for item in self.TabPre.LB_selected.get(0, tk.END)]
-        self.Options.module_optim = [item[0] for item in self.TabOptim.LB_selected.get(0, tk.END)]
-        self.Options.module_post = [item[0] for item in self.TabPost.LB_selected.get(0, tk.END)]
+        self.workflow.module_to_run = [
+            item[0] for item in self.TabModToRun.LB_selected.get(0, tk.END)
+        ]
+        self.workflow.module_optim = [item[0] for item in self.TabOptim.LB_selected.get(0, tk.END)]
 
         # CPACS file
         if self.path_var.get() == "":
             messagebox.showerror("ValueError", "Yon must select an input CPACS file!")
             raise TypeError("No CPACS file has been define !")
 
-        self.Options.cpacs_path = Path(self.path_var.get())
+        self.workflow.cpacs_path = Path(self.path_var.get())
 
         if self.wkdir_path_var.get() == "":
             messagebox.showerror("ValueError", "Yon must select a Woking Directory!")
             raise TypeError("No Working directory has been define !")
 
         # Working directory
-        self.Options.working_dir = Path(self.wkdir_path_var.get())
+        self.workflow.working_dir = Path(self.wkdir_path_var.get())
 
-        if not self.Options.working_dir.exists():
-            self.Options.working_dir.mkdir()
+        if not self.workflow.working_dir.exists():
+            self.workflow.working_dir.mkdir()
 
-        if any(file.endswith(".cfg") for file in os.listdir(self.Options.working_dir)):
+        if any(file.endswith(".cfg") for file in os.listdir(self.workflow.working_dir)):
             answer = messagebox.askokcancel(
                 title="Confirmation",
                 message="Be carefule a CEASIOMpy configuration file (.cfg) already exist in this"
@@ -292,14 +290,14 @@ def create_wf_gui():
     root = tk.Tk()
     root.title("Workflow Creator")
     root.geometry("730x750+400+150")
-    my_gui = WorkFlowGUI()
-    my_gui.mainloop()
-    opt = my_gui.Options
+    gui = WorkFlowGUI()
+    gui.mainloop()
+    workflow = gui.workflow
 
     root.iconify()  # Not super solution but only way to make it close on Mac
     root.destroy()
 
-    return opt
+    return workflow
 
 
 # =================================================================================================

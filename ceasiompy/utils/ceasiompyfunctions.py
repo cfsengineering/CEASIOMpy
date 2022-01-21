@@ -43,6 +43,7 @@ LIB_DIR = Path(ceasiompy.__init__.__file__).parent
 
 SOFT_LIST = ["SU2_DEF", "SU2_CFD", "SU2_SOL", "mpirun.mpich", "mpirun"]
 
+OPTIM_METHOD = ["OPTIM", "DOE"]
 
 # =================================================================================================
 #   CLASSES
@@ -75,15 +76,20 @@ class ModuleToRun:
         self.inculde_in_optim = False
         self.optim_method = None
 
-    def define_settinggui(self, related_module: list):
+    def define_settinggui(self, related_module: list) -> None:
 
         self.is_settinggui = True
         self.related_module = related_module
 
-    def define_optim_module(self, optim_method):
+    def define_optim_module(self, optim_method) -> None:
 
-        self.inculde_in_optim = True
+        if optim_method not in OPTIM_METHOD:
+            raise ValueError(
+                f"Not recognize optim_method! It must be test {' or '.join(OPTIM_METHOD)}"
+            )
+
         self.optim_method = optim_method
+        self.inculde_in_optim = True
 
     def create_module_wkflow_dir(self, cnt: int) -> None:
 

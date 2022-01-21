@@ -278,8 +278,8 @@ class WorkflowOptions:
     def get_related_modules(module_list, idx):
 
         if "SettingsGUI" in module_list[idx + 1 :] and idx + 1 != len(module_list):
-            idx = module_list.index("SettingsGUI", idx + 1)
-            return module_list[idx:idx]
+            idx_next = module_list.index("SettingsGUI", idx + 1)
+            return module_list[idx:idx_next]
         else:
             return module_list[idx:]
 

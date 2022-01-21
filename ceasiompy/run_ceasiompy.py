@@ -60,7 +60,8 @@ def print_help():
 #    MAIN
 # ==============================================================================
 
-if __name__ == "__main__":
+
+def main():
 
     log.info("========== Start of " + os.path.basename(__file__) + " ==========")
 
@@ -109,3 +110,8 @@ if __name__ == "__main__":
     workflow.run_workflow()
 
     log.info("=========== End of " + os.path.basename(__file__) + " ===========")
+
+
+if __name__ == "__main__":
+
+    main()

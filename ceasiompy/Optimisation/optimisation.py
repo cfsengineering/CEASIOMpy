@@ -597,15 +597,18 @@ def routine_launcher(Opt):
     generate_results(prob)
 
 
-if __name__ == "__main__":
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + os.path.basename(__file__) + " -----")
 
-    log.info("Impose the aeromap of the optimisation to all other modules")
-
-    cpacs_path = mif.get_toolinput_file_path("Optimisation")
-    cpacs_out_path = mif.get_tooloutput_file_path("Optimisation")
     tixi = open_tixi(cpacs_path)
+
+    log.info("Impose the aeromap of the optimisation to all other modules")
 
     try:
         am_uid = get_value(tixi, OPTIM_XPATH + "/aeroMapUID")
@@ -617,3 +620,11 @@ if __name__ == "__main__":
     tixi.save(cpacs_out_path)
 
     log.info("----- End of " + os.path.basename(__file__) + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mif.get_toolinput_file_path("Optimisation")
+    cpacs_out_path = mif.get_tooloutput_file_path("Optimisation")
+
+    main(cpacs_path, cpacs_out_path)

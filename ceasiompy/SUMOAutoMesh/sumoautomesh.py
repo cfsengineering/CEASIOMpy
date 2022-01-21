@@ -29,6 +29,7 @@ import shutil
 import platform
 
 import ceasiompy.utils.ceasiompyfunctions as ceaf
+import ceasiompy.utils.moduleinterfaces as mi
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -36,6 +37,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_NAME = os.path.basename(os.getcwd())
 
 
 # ==============================================================================
@@ -49,7 +51,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def add_mesh_parameters(sumo_file_path, refine_level=0.0):
-    """ Function to add mesh parameter options in SUMO geometry (.smx file)
+    """Function to add mesh parameter options in SUMO geometry (.smx file)
 
     Function 'add_mesh_parameters' is used to add meshing paramers in the SUMO
     geometry (.smx file) to get finer meshes. The only user input parameter is
@@ -201,7 +203,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
 
 
 def create_SU2_mesh(cpacs_path, cpacs_out_path):
-    """ Function to create a simple SU2 mesh form an SUMO file (.smx)
+    """Function to create a simple SU2 mesh form an SUMO file (.smx)
 
     Function 'create_mesh' is used to generate an unstructured mesh with  SUMO
     (which integrage Tetgen for the volume mesh) using a SUMO (.smx) geometry
@@ -327,13 +329,19 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 #    MAIN
 # ==============================================================================
 
-if __name__ == "__main__":
+
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + os.path.basename(__file__) + " -----")
-
-    cpacs_path = os.path.join(MODULE_DIR, "ToolInput", "ToolInput.xml")
-    cpacs_out_path = os.path.join(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
 
     create_SU2_mesh(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + os.path.basename(__file__) + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_path, cpacs_out_path)

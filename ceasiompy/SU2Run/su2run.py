@@ -30,6 +30,7 @@ import sys
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
 from ceasiompy.utils.ceasiompyfunctions import get_wkdir_or_create_new, run_soft
+import ceasiompy.utils.moduleinterfaces as mi
 from ceasiompy.SU2Run.func.su2config import generate_su2_cfd_config
 from ceasiompy.SU2Run.func.extractloads import extract_loads
 from ceasiompy.SU2Run.func.su2results import get_su2_results
@@ -41,6 +42,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_NAME = os.path.basename(os.getcwd())
 
 # ==============================================================================
 #   CLASSES
@@ -175,12 +177,9 @@ def run_SU2_fsi(config_path, wkdir, nb_proc):
 # ==============================================================================
 
 
-if __name__ == "__main__":
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + os.path.basename(__file__) + " -----")
-
-    cpacs_path = os.path.join(MODULE_DIR, "ToolInput", "ToolInput.xml")
-    cpacs_out_path = os.path.join(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
 
     tixi = open_tixi(cpacs_path)
 
@@ -218,11 +217,18 @@ if __name__ == "__main__":
 
     log.info("----- End of " + os.path.basename(__file__) + " -----")
 
+    # TODO: try to use subprocess instead of os.system, how to deal with log file...?
+    # import subprocess
+    # p = subprocess.Popen(command_line, stdout=subprocess.PIPE)
+    # log_lines = p.communicate()[0]
+    # logfile = open(logfile_path, 'w')
+    # logfile.writelines(log_lines)
+    # logfile.close()
 
-# TODO: try to use subprocess instead of os.system, how to deal with log file...?
-# import subprocess
-# p = subprocess.Popen(command_line, stdout=subprocess.PIPE)
-# log_lines = p.communicate()[0]
-# logfile = open(logfile_path, 'w')
-# logfile.writelines(log_lines)
-# logfile.close()
+
+if __name__ == "__main__":
+
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_path, cpacs_out_path)

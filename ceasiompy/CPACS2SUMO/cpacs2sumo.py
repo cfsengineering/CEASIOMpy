@@ -32,6 +32,7 @@ import matplotlib.pyplot as plt
 from cpacspy.cpacsfunctions import open_tixi, get_value_or_default, create_branch
 
 import ceasiompy.utils.ceasiompyfunctions as ceaf
+import ceasiompy.utils.moduleinterfaces as mi
 from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
 from ceasiompy.utils.mathfunctions import euler2fix
 from ceasiompy.utils.xpath import FUSELAGES_XPATH, WINGS_XPATH, PYLONS_XPATH, ENGINES_XPATH
@@ -51,6 +52,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_NAME = os.path.basename(os.getcwd())
 
 # ==============================================================================
 #   CLASSES
@@ -63,7 +65,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
-    """ Function to convert a CPACS file geometry into a SUMO file geometry.
+    """Function to convert a CPACS file geometry into a SUMO file geometry.
 
     Function 'convert_cpacs_to_sumo' open an input cpacs file with TIXI handle
     and via two main loop, one for fuselage(s), one for wing(s) it convert
@@ -1111,13 +1113,19 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 #    MAIN
 # ==============================================================================
 
-if __name__ == "__main__":
+
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + os.path.basename(__file__) + " -----")
-
-    cpacs_path = os.path.join(MODULE_DIR, "ToolInput", "ToolInput.xml")
-    cpacs_out_path = os.path.join(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
 
     convert_cpacs_to_sumo(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + os.path.basename(__file__) + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_path, cpacs_out_path)

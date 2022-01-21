@@ -85,6 +85,7 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
     # help(wings.get_wing(1).get_section(2))
 
     # Perform update of all the variable contained in 'optim_var_dict'
+
     for (
         name,
         (val_type, listval, minval, maxval, getcommand, setcommand),
@@ -114,12 +115,4 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
 
 if __name__ == "__main__":
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
-
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
-
-    # Call the function which check if imputs are well define
-    # mi.check_cpacs_input_requirements(cpacs_path)
-
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    print("Nothing to execute!")

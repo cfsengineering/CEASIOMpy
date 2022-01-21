@@ -28,7 +28,7 @@ from pytest import approx
 from cpacspy.cpacsfunctions import get_string_vector, get_value, open_tixi
 
 from ceasiompy.StabilityStatic.staticstability import static_stability_analysis
-from ceasiompy.StabilityStatic.func_static import (
+from ceasiompy.StabilityStatic.func.func_static import (
     get_unic,
     get_index,
     extract_subelements,

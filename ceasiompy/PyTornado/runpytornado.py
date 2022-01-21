@@ -285,14 +285,14 @@ def _get_load_fields(pytornado_results, dir_pyt_results):
     df_tot.to_csv(csv_path, sep=",", index=False)
 
 
-def main():
+# ==============================================================================
+#    MAIN
+# ==============================================================================
+
+
+def main(cpacs_in_path, cpacs_out_path):
 
     log.info("Running PyTornado...")
-
-    # ===== CPACS inout and output paths =====
-    # MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    cpacs_in_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
 
     # ===== Delete old working directories =====
     settings_from_CPACS = get_pytornado_settings_from_CPACS(cpacs_in_path)
@@ -354,10 +354,11 @@ def main():
     log.info("PyTornado analysis completed")
 
 
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
 if __name__ == "__main__":
 
-    main()
+    # ===== CPACS inout and output paths =====
+    # MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+    cpacs_in_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_in_path, cpacs_out_path)

@@ -11,7 +11,7 @@ Python version: >=3.7
 | Creation: 2022-01-06
 
 Todo:
-    * 
+    *
 
 """
 

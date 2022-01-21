@@ -229,7 +229,7 @@ class WorkflowOptions:
 
         shutil.copy(self.cpacs_path, toolinput_cpacs_path)
 
-        # Create the directory structure for each mudule in the wokrflow and its corresponding object
+        # Create the directory structure for each mudule in the wokrflow and its corresponding obj
         cnt = 1
 
         for m, module_name in enumerate(self.module_to_run):

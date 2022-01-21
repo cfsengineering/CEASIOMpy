@@ -33,6 +33,7 @@ import numpy as np
 import pandas as pd
 
 import ceasiompy.utils.ceasiompyfunctions as ceaf
+import ceasiompy.utils.moduleinterfaces as mi
 
 from cpacspy.cpacsfunctions import (
     add_string_vector,
@@ -51,6 +52,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_NAME = os.path.basename(os.getcwd())
 
 
 # ==============================================================================
@@ -781,12 +783,10 @@ def run_mesh_deformation(tixi, wkdir):
 #    MAIN
 # ==============================================================================
 
-if __name__ == "__main__":
+
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + os.path.basename(__file__) + " -----")
-
-    cpacs_path = os.path.join(MODULE_DIR, "ToolInput", "ToolInput.xml")
-    cpacs_out_path = os.path.join(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
 
     if len(sys.argv) > 1:
         if sys.argv[1] == "-c":
@@ -799,3 +799,11 @@ if __name__ == "__main__":
         generate_config_deformed_mesh(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + os.path.basename(__file__) + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_path, cpacs_out_path)

@@ -18,9 +18,6 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-from typing import List
-from xml.dom import NotFoundErr
-
 import ceasiompy.__init__
 
 import os
@@ -29,7 +26,7 @@ import datetime
 import platform
 import importlib
 from pathlib import Path
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
 from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
@@ -53,13 +50,6 @@ SOFT_LIST = ["SU2_DEF", "SU2_CFD", "SU2_SOL", "mpirun.mpich", "mpirun"]
 
 
 @dataclass
-class Optim:
-
-    optim_method: str
-    optim_modules: list
-
-
-@dataclass
 class ModuleToRun:
 
     module_name: str
@@ -78,7 +68,7 @@ class ModuleToRun:
 
         # Check if the workflow directory exist
         if not self.wkflow_dir.exists():
-            raise NotFoundErr(f"{str(self.wkflow_dir)} did not exist!")
+            raise FileNotFoundError(f"{str(self.wkflow_dir)} did not exist!")
 
         # Set default values
         self.is_settinggui = False
@@ -139,7 +129,7 @@ class ModuleToRun:
 
 
 # TODO: change name of the class
-class WorkflowOptions:
+class Workflow:
     """Class to pass options of the workflow"""
 
     def __init__(self):

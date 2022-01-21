@@ -25,7 +25,7 @@ import os
 import sys
 
 from ceasiompy.WorkflowCreator.workflowcreator import create_wf_gui
-from ceasiompy.utils.ceasiompyfunctions import WorkflowOptions
+from ceasiompy.utils.ceasiompyfunctions import Workflow
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -67,15 +67,15 @@ if __name__ == "__main__":
     # If no argument create run the GUI
     if len(sys.argv) == 1:
 
-        Opt = create_wf_gui()
-        Opt.write_config_file()
+        workflow = create_wf_gui()
+        workflow.write_config_file()
 
     elif len(sys.argv) == 2:
 
         if sys.argv[1] == "-gui":
 
-            Opt = create_wf_gui()
-            Opt.write_config_file()
+            workflow = create_wf_gui()
+            workflow.write_config_file()
 
         else:
             print_help()
@@ -93,8 +93,8 @@ if __name__ == "__main__":
             if not cfg_file.endswith(".cfg"):
                 raise ValueError("The CEASIOMpy configuration file must be a *.cfg file!")
 
-            Opt = WorkflowOptions()
-            Opt.from_config_file(cfg_file)
+            workflow = Workflow()
+            workflow.from_config_file(cfg_file)
 
         else:
             print_help()
@@ -105,7 +105,7 @@ if __name__ == "__main__":
         sys.exit()
 
     # Run the workflow
-    Opt.set_workflow()
-    Opt.run_workflow()
+    workflow.set_workflow()
+    workflow.run_workflow()
 
     log.info("=========== End of " + os.path.basename(__file__) + " ===========")

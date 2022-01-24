@@ -23,8 +23,8 @@ from pathlib import Path
 from ceasiompy.utils.ceasiompyfunctions import ModuleToRun, Workflow
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CPACS_PATH = os.path.join(MODULE_DIR, "simpletest_cpacs.xml")
-CPACS_PATH_OUT = os.path.join(MODULE_DIR, "simpletest_cpacs_out.xml")
+CPACS_PATH = os.path.join(MODULE_DIR, "D150_simple.xml")
+CPACS_PATH_OUT = os.path.join(MODULE_DIR, "D150_simple_out.xml")
 
 # ==============================================================================
 #   CLASSES
@@ -101,22 +101,86 @@ class TestModuleToRun:
 
     def test_run(self):
 
-        pass
+        # Remove CPACS output file from privious run
+        if Path(CPACS_PATH_OUT).exists():
+            Path(CPACS_PATH_OUT).unlink()
 
-        # TODO: should be tested differently, because with that CPACS2SUMO is consider as coverd
-        # module = ModuleToRun(
-        #     "CPACS2SUMO", self.wkflow_test, Path(CPACS_PATH), Path(CPACS_PATH_OUT)
-        # )
-        # module.run()
+        module = ModuleToRun(
+            "ModuleTemplate", self.wkflow_test, Path(CPACS_PATH), Path(CPACS_PATH_OUT)
+        )
+        module.run()
 
-        # assert Path(CPACS_PATH_OUT).exists()
+        assert Path(CPACS_PATH_OUT).exists()
 
 
 class TestWorkflow:
 
     workflow = Workflow()
 
-    # TODO
+    MODULE_TO_RUN = [
+        "SettingsGUI",
+        "CPACS2SUMO",
+        "CLCalculator",
+        "PyTornado",
+        "SettingsGUI",
+        "PlotAeroCoefficients",
+    ]
+
+    MODULE_OPTIM = ["CPACS2SUMO", "CLCalculator"]
+
+    def test_from_config_file(self):
+
+        # SHould use Pathlib everywhere ??
+        self.workflow.from_config_file(os.path.join(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
+
+        assert self.workflow.module_to_run == self.MODULE_TO_RUN
+
+        assert self.workflow.module_optim == self.MODULE_OPTIM
+
+        assert self.workflow.optim_method == "OPTIM"
+
+    def test_write_config_file(self):
+        pass
+
+    def test_set_workflow(self):
+        import shutil
+
+        for dir in Path(MODULE_DIR, "WKFLOW_test").iterdir():
+            if dir.is_dir():
+                shutil.rmtree(dir, ignore_errors=True)
+
+        self.workflow.set_workflow()
+
+        assert self.workflow.current_wkflow_dir.exists()
+        assert self.workflow.cpacs_path.exists()
+
+        assert len(list(self.workflow.current_wkflow_dir.iterdir())) == 7
+
+        for m, module in enumerate(self.MODULE_TO_RUN):
+            assert self.workflow.module_to_run_obj[m].module_name == module
+
+        assert self.workflow.module_to_run_obj[0].is_settinggui
+        assert self.workflow.module_to_run_obj[0].related_module == [
+            "SettingsGUI",
+            "CPACS2SUMO",
+            "CLCalculator",
+            "PyTornado",
+        ]
+        assert self.workflow.module_to_run_obj[0].module_wkflow_path == Path.joinpath(
+            self.workflow.current_wkflow_dir, "01_SettingsGUI"
+        )
+
+        assert self.workflow.module_to_run_obj[1].inculde_in_optim
+        assert self.workflow.module_to_run_obj[1].optim_method == "OPTIM"
+        assert self.workflow.module_to_run_obj[1].module_wkflow_path == Path.joinpath(
+            self.workflow.current_wkflow_dir, "02_OPTIM_CPACS2SUMO"
+        )
+
+        assert self.workflow.module_to_run_obj[2].inculde_in_optim
+        assert self.workflow.module_to_run_obj[2].optim_method == "OPTIM"
+        assert self.workflow.module_to_run_obj[2].module_wkflow_path == Path.joinpath(
+            self.workflow.current_wkflow_dir, "03_OPTIM_CLCalculator"
+        )
 
 
 # ==============================================================================

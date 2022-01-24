@@ -152,7 +152,7 @@ class Workflow:
 
         self.current_workflow_dir = None
 
-    def from_config_file(self, cfg_file):
+    def from_config_file(self, cfg_file: str) -> None:
 
         cfg = ConfigFile(cfg_file)
 
@@ -174,11 +174,12 @@ class Workflow:
         except KeyError:
             pass
 
-    def write_config_file(self):
+    def write_config_file(self) -> None:
 
         cfg = ConfigFile()
         cfg["comment_1"] = f"File written {datetime.datetime.now()}"
         cfg["CPACS_TOOLINPUT"] = self.cpacs_path
+
         if self.module_to_run:
             cfg["MODULE_TO_RUN"] = self.module_to_run
         else:
@@ -194,7 +195,7 @@ class Workflow:
         cfg_file = os.path.join(self.working_dir, "ceasiompy.cfg")
         cfg.write_file(cfg_file, overwrite=True)
 
-    def set_workflow(self):
+    def set_workflow(self) -> None:
         """Create the directory structure and set input/output of each modules"""
 
         if not self.working_dir:
@@ -217,7 +218,7 @@ class Workflow:
 
         # Copy CPACS to the workflow dir
         if not self.cpacs_path.exists():
-            raise FileNotFoundError(f"{self.cpacs_path} has not been fount!")
+            raise FileNotFoundError(f"{self.cpacs_path} has not been found!")
 
         toolinput_cpacs_path = Path.joinpath(
             self.current_wkflow_dir, "00_ToolInput.xml"
@@ -257,13 +258,8 @@ class Workflow:
         new_res_dir = Path.joinpath(wkdir, "Results_" + wkflow_idx)
         new_res_dir.mkdir()
 
-    def run_workflow(self):
-        """Run the complete Worflow
-
-        Args:
-            ???
-
-        """
+    def run_workflow(self) -> None:
+        """Run the complete Worflow"""
 
         # TODO: Check if optim loop in the workflow
 
@@ -271,7 +267,8 @@ class Workflow:
             module_obj.run()
 
     @staticmethod
-    def get_related_modules(module_list, idx):
+    def get_related_modules(module_list, idx) -> list:
+        """Get modules list related to a specific SettingGUI module"""
 
         if "SettingsGUI" in module_list[idx + 1 :] and idx + 1 != len(module_list):
             idx_next = module_list.index("SettingsGUI", idx + 1)

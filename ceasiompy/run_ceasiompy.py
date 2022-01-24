@@ -15,9 +15,9 @@ Todo:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
 import ceasiompy.__init__
 
@@ -35,30 +35,33 @@ MODULE_NAME = os.path.basename(os.getcwd())
 LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def print_help():
 
     print("\nUsage: python run_ceasiompy.py [-h] [-gui] [-cfg my_path/Configfile.cfg] ")
+
     print("\nThis is this help of the CEASIOMpy.")
+
     print("\nOptional arguments:")
     print("\n-h\tshow this help message and exit")
     print("-gui\tlaunch a graphical user inter to create a workflow and run it.")
     print("-cfg\trun a workflow from configuration file.")
+
     print("\nNo argument correspond to the [-gui] option.\n")
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 
 def main():
@@ -86,16 +89,8 @@ def main():
 
         if sys.argv[1] == "-cfg":
 
-            cfg_file = sys.argv[2]
-
-            if not os.path.isfile(cfg_file):
-                raise FileNotFoundError(f"{cfg_file} has not been found!")
-
-            if not cfg_file.endswith(".cfg"):
-                raise ValueError("The CEASIOMpy configuration file must be a *.cfg file!")
-
             workflow = Workflow()
-            workflow.from_config_file(cfg_file)
+            workflow.from_config_file(sys.argv[2])
 
         else:
             print_help()
@@ -105,7 +100,7 @@ def main():
         print_help()
         sys.exit()
 
-    # Run the workflow
+    # Set and run the workflow
     workflow.set_workflow()
     workflow.run_workflow()
 

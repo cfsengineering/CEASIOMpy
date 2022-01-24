@@ -31,7 +31,7 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# import smt.surrogate_models as sms
+import smt.surrogate_models as sms
 
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS, COEFS

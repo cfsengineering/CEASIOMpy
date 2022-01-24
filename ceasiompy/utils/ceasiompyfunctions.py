@@ -142,17 +142,20 @@ class Workflow:
 
         self.working_dir = ""
         self.cpacs_path = Path("../test_files/CPACSfiles/D150_simple.xml").resolve()
-
-        self.module_to_run = []
-
-        self.optim_method = None  # None, 'Optim', 'DoE'
-        self.module_optim = []
-
-        self.module_to_run_obj = []
-
         self.current_workflow_dir = None
 
+        self.module_to_run = []
+        self.module_to_run_obj = []
+
+        self.optim_method = None
+        self.module_optim = []
+
     def from_config_file(self, cfg_file: str) -> None:
+        """Get parameters from a config file
+
+        Args:
+            cfg_file (str): Configuration file path
+        """
 
         cfg = ConfigFile(cfg_file)
 
@@ -175,6 +178,7 @@ class Workflow:
             pass
 
     def write_config_file(self) -> None:
+        """Write the configuration file in the working directory."""
 
         cfg = ConfigFile()
         cfg["comment_1"] = f"File written {datetime.datetime.now()}"

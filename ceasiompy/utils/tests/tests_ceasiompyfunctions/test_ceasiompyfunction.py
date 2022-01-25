@@ -154,7 +154,7 @@ class TestWorkflow:
         assert self.workflow.current_wkflow_dir.exists()
         assert self.workflow.cpacs_path.exists()
 
-        assert len(list(self.workflow.current_wkflow_dir.iterdir())) == 7
+        assert len(list(self.workflow.current_wkflow_dir.iterdir())) == 8
 
         for m, module in enumerate(self.MODULE_TO_RUN):
             assert self.workflow.module_to_run_obj[m].module_name == module

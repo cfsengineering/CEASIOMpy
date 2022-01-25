@@ -112,17 +112,12 @@ class ModuleToRun:
         log.info("# Run module: " + self.module_name)
         log.info("###############################################################################")
 
-        # Changing current directory
-        log.info(f"Going to {self.module_path}")
-        os.chdir(self.module_path)
-
         if self.module_name == "SettingsGUI":
 
             create_settings_gui(str(self.cpacs_in), str(self.cpacs_out), self.related_module)
 
         else:
 
-            # Find the main python file (TODO: maybe move this part elsewhere)
             for file in self.module_path.iterdir():
                 if file.name.endswith(".py") and not file.name.startswith("__"):
                     python_file = file.stem
@@ -134,7 +129,6 @@ class ModuleToRun:
             my_module.main(str(self.cpacs_in), str(self.cpacs_out))
 
 
-# TODO: change name of the class
 class Workflow:
     """Class to pass options of the workflow"""
 
@@ -206,8 +200,6 @@ class Workflow:
             raise ValueError("You must first define a working directory!")
 
         wkdir = self.working_dir
-
-        # Go to working dir, is it useful??
         os.chdir(wkdir)
 
         # Check index of the last workflow directory to set the next one
@@ -224,11 +216,9 @@ class Workflow:
         if not self.cpacs_path.exists():
             raise FileNotFoundError(f"{self.cpacs_path} has not been found!")
 
-        toolinput_cpacs_path = Path.joinpath(
-            self.current_wkflow_dir, "00_ToolInput.xml"
-        ).absolute()
+        wkflow_cpacs_in = Path.joinpath(self.current_wkflow_dir, "00_ToolInput.xml").absolute()
 
-        shutil.copy(self.cpacs_path, toolinput_cpacs_path)
+        shutil.copy(self.cpacs_path, wkflow_cpacs_in)
 
         # Create the directory structure for each mudule in the wokrflow and its corresponding obj
         cnt = 1
@@ -237,7 +227,7 @@ class Workflow:
 
             # Check if it is the first module (to know where the cpacs input file should come from)
             if m == 0:
-                cpacs_in = toolinput_cpacs_path
+                cpacs_in = wkflow_cpacs_in
             else:
                 cpacs_in = self.module_to_run_obj[m - 1].cpacs_out
 
@@ -258,14 +248,18 @@ class Workflow:
             self.module_to_run_obj.append(module_obj)
             cnt += 1
 
-        # Create Results_xx directory
-        new_res_dir = Path.joinpath(wkdir, "Results_" + wkflow_idx)
+        # Create Results directory
+        new_res_dir = Path.joinpath(self.current_wkflow_dir, "Results")
         new_res_dir.mkdir()
 
     def run_workflow(self) -> None:
         """Run the complete Worflow"""
 
-        # TODO: Check if optim loop in the workflow
+        log.info(f"Running the workflow in {self.current_wkflow_dir}")
+
+        os.chdir(self.current_wkflow_dir)
+
+        # TODO: Check if optim loop in the workflow and run it with specific optim method
 
         for module_obj in self.module_to_run_obj:
             module_obj.run()

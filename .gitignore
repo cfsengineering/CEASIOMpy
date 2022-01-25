@@ -15,11 +15,13 @@
 /temp
 /tmp
 /WKDIR
+/Results
 /ceasiompy/CPACSCreator/tmp/*
 /ceasiompy/WKDIR/CEASIOMpy*
 /ceasiompy/Pytornado/wkdir*
 CrashInfo/
 failure.xml
+
 
 # Ignore ModuleTest
 /ceasiompy/ModuleTest/

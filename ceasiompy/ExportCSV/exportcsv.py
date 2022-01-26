@@ -25,6 +25,7 @@ import os
 from pathlib import Path
 
 import ceasiompy.utils.moduleinterfaces as mi
+from ceasiompy.utils.ceasiompyfunctions import get_results_directory
 from ceasiompy.utils.xpath import CEASIOMPY_XPATH
 
 from cpacspy.cpacspy import CPACS
@@ -56,10 +57,7 @@ def export_aeromaps(cpacs_path, cpacs_out_path):
     aeromap_uid_list = []
     aeromap_uid_list = get_string_vector(cpacs.tixi, aeromap_to_export_xpath)
 
-    results_dir = Path(Path.cwd(), "Results", "ExportCSV")
-
-    if not results_dir.exists():
-        results_dir.mkdir(parents=True)
+    results_dir = get_results_directory("ExportCSV")
 
     for aeromap_uid in aeromap_uid_list:
         aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)

@@ -21,17 +21,20 @@ import shutil
 import pytest
 from pathlib import Path
 from ceasiompy.ExportCSV.exportcsv import export_aeromaps
+from ceasiompy.utils.ceasiompyfunctions import get_results_directory
 
 # Default CPACS file to test
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 CPACS_IN_PATH = os.path.join(MODULE_DIR, "D150_simple.xml")
 
-CSV_FILE_PATH = Path("Results", "ExportCSV", "test_apm.csv")
-
 
 @pytest.fixture(autouse=True)
 def change_test_dir(request, monkeypatch):
     monkeypatch.chdir(request.fspath.dirname)
+
+    global CSV_FILE_PATH
+    results_dir = get_results_directory("ExportCSV")
+    CSV_FILE_PATH = Path(results_dir, "test_apm.csv")
 
     yield
 
@@ -46,6 +49,7 @@ class TestExportCSV:
         export_aeromaps(CPACS_IN_PATH, CPACS_IN_PATH)
 
         # Read and check csv file
+
         with open(CSV_FILE_PATH, "r") as csv_file:
             lines = csv_file.readlines()
 

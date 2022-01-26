@@ -48,7 +48,7 @@ import pandas as pd
 import xmltodict as xml
 
 from cpacspy.cpacsfunctions import open_tixi, get_value_or_default
-import ceasiompy.utils.ceasiompyfunctions as ceaf
+from ceasiompy.utils.ceasiompyfunctions import get_results_directory
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -344,10 +344,9 @@ def main(cpacs_in_path, cpacs_out_path):
     # ===== Clean up =====
     shutil.copy(src=file_pyt_aircraft, dst=cpacs_out_path)
 
-    wkdir = ceaf.get_wkdir_or_create_new(tixi)
-    dst_pyt_wkdir = os.path.join(
-        wkdir, "CFD", "PyTornado", f"wkdir_{datetime.strftime(datetime.now(), '%F_%H%M%S')}"
-    )
+    # ===== Copy files in the wkflow results directory =====
+    # TODO: use dirs_exist_ok=True option when  python >=3.8 and remove "tmp"
+    dst_pyt_wkdir = Path(get_results_directory("PyTornado"), "tmp")
     shutil.copytree(src=dir_pyt_wkdir, dst=dst_pyt_wkdir)
     shutil.rmtree(dir_pyt_wkdir, ignore_errors=True)
 

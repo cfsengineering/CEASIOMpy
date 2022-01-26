@@ -280,6 +280,21 @@ class Workflow:
 # =================================================================================================
 
 
+def get_results_directory(module_name: str) -> Path:
+    """Create (if not exists) and return the results directory for a module"""
+
+    if module_name not in get_submodule_list():
+        raise ValueError(f"Module '{module_name}' did not exit!")
+
+    specs = importlib.import_module(f"ceasiompy.{module_name}.__specs__")
+    results_dir = Path(Path.cwd(), specs.RESULTS_DIR)
+
+    if not results_dir.is_dir():
+        results_dir.mkdir(parents=True)
+
+    return results_dir
+
+
 # TODO: remove, to be replace by something else
 def create_new_wkdir(global_wkdir=""):
     """Function to create a woking directory.

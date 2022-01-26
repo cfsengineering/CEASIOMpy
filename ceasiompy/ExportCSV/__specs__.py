@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import EXPORT_XPATH
 
@@ -14,6 +15,11 @@ RCE = {
     "author": "Aidan Jungo",
     "email": "aidan.jungo@cfse.ch",
 }
+
+# ===== Results directory path =====
+
+RESULTS_DIR = Path("Results", "Aeromaps")
+
 
 # ===== CPACS inputs and outputs =====
 

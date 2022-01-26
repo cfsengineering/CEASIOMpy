@@ -28,10 +28,11 @@ TODO:
 import os
 import math
 import matplotlib.pyplot as plt
+from pathlib import Path
 
-from cpacspy.cpacsfunctions import open_tixi, get_value_or_default, create_branch
+from cpacspy.cpacsfunctions import open_tixi, get_value_or_default
 
-import ceasiompy.utils.ceasiompyfunctions as ceaf
+from ceasiompy.utils.ceasiompyfunctions import get_results_directory
 import ceasiompy.utils.moduleinterfaces as mi
 from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
 from ceasiompy.utils.mathfunctions import euler2fix
@@ -1095,18 +1096,13 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 if not engpart.iscone:
                     sumo_add_engine_bc(sumo, "Engine_sym", engpart.uid + "_sym")
 
-    # Save the SMX file
-    wkdir = ceaf.get_wkdir_or_create_new(tixi)
-    sumo_file_xpath = "/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath"
-    sumo_dir = os.path.join(wkdir, "SUMO")
-    sumo_file_path = os.path.join(sumo_dir, "ToolOutput.smx")
-    if not os.path.isdir(sumo_dir):
-        os.mkdir(sumo_dir)
-    create_branch(tixi, sumo_file_xpath)
-    tixi.updateTextElement(sumo_file_xpath, sumo_file_path)
+    # Get results directory
+    results_dir = get_results_directory("CPACS2SUMO")
+    sumo_file_path = Path(results_dir, "ToolOutput.smx")
 
+    # Save CPACS and SMX file
     tixi.save(cpacs_out_path)
-    sumo.save(sumo_file_path)
+    sumo.save(str(sumo_file_path))
 
 
 # ==============================================================================

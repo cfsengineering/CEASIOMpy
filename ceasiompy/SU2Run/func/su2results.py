@@ -17,9 +17,9 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
 import os
 
@@ -35,18 +35,18 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split(".")[0])
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def get_wetted_area(wkdir):
-    """ Function get the wetted area calculated by SU2
+    """Function get the wetted area calculated by SU2
 
     Function 'get_wetted_area' finds the SU2 logfile and returns the wetted
     area value previously calculated by SU2.
@@ -131,7 +131,7 @@ def get_efficiency_and_aoa(force_path):
 
 
 def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
-    """ Function to write SU2 results in a CPACS file.
+    """Function to write SU2 results in a CPACS file.
 
     Function 'get_su2_results' get available results from the latest SU2
     calculation and put it at the correct place in the CPACS file.
@@ -150,7 +150,6 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
     if not os.path.exists(wkdir):
         raise OSError("The working directory : " + wkdir + "does not exit!")
 
-    os.chdir(wkdir)
     dir_list = os.listdir(wkdir)
 
     # Get and save Wetted area
@@ -193,15 +192,17 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
         mach = mach_list[case_nb]
         alt = alt_list[case_nb]
 
-        if os.path.isdir(config_dir):
-            os.chdir(config_dir)
-            force_file_name = "forces_breakdown.dat"
-            if not os.path.isfile(force_file_name):
+        config_dir_path = os.path.join(wkdir, config_dir)
+
+        if os.path.isdir(config_dir_path):
+
+            force_file_path = os.path.join(config_dir_path, "forces_breakdown.dat")
+
+            if not os.path.isfile(force_file_path):
                 raise OSError("No result force file have been found!")
 
             if fixed_cl == "YES":
-                force_file_name = "forces_breakdown.dat"
-                cl_cd, aoa = get_efficiency_and_aoa(force_file_name)
+                cl_cd, aoa = get_efficiency_and_aoa(force_file_path)
 
                 # Replace aoa with the with the value from fixed cl calculation
                 aeromap.df.loc[0, ["angleOfAttack"]] = aoa
@@ -213,7 +214,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
                 cpacs.tixi.updateDoubleElement(lDRatio_xpath, cl_cd, "%g")
 
             # Read result file
-            with open(force_file_name) as f:
+            with open(force_file_path) as f:
                 for line in f.readlines():
                     if "Total CL:" in line:
                         cl = float(line.split(":")[1].split("|")[0])
@@ -328,8 +329,6 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
                 results_files_dir = os.path.join(wkdir, config_dir)
                 extract_loads(results_files_dir)
 
-            os.chdir(wkdir)
-
     # Save object Coef in the CPACS file
     aeromap.save()
 
@@ -337,9 +336,9 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 

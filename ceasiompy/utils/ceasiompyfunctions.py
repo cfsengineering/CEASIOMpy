@@ -487,6 +487,14 @@ def run_soft(soft, config_path, wkdir, nb_proc):
 
     log.info(f">>> {soft} End")
 
+    # TODO: try to use subprocess instead of os.system, how to deal with log file...?
+    # import subprocess
+    # p = subprocess.Popen(command_line, stdout=subprocess.PIPE)
+    # log_lines = p.communicate()[0]
+    # logfile = open(logfile_path, 'w')
+    # logfile.writelines(log_lines)
+    # logfile.close()
+
 
 def aircraft_name(tixi_or_cpacs):
     """The function get the name of the aircraft from the cpacs file or add a

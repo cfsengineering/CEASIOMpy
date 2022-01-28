@@ -37,7 +37,7 @@ from cpacspy.cpacsfunctions import add_float_vector, create_branch, get_value, o
 
 import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.workflowfunctions as wkf
-import ceasiompy.utils.ceasiompyfunctions as ceaf
+from ceasiompy.utils.ceasiompyfunctions import create_new_wkdir, get_wkdir_or_create_new
 
 from ceasiompy.utils.xpath import WKDIR_XPATH, OPTWKDIR_XPATH, OPTIM_XPATH
 
@@ -275,7 +275,7 @@ class Objective(om.ExplicitComponent):
             dct.update_am_dict(cpacs, Rt.aeromap_uid, am_dict)
 
         # Change local wkdir for the next iteration
-        cpacs.tixi.updateTextElement(WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
+        cpacs.tixi.updateTextElement(WKDIR_XPATH, create_new_wkdir(optim_dir_path))
 
         for obj in Rt.objective:
             var_list = splt("[+*/-]", obj)
@@ -324,7 +324,7 @@ def create_routine_folder():
 
     # Create the main working directory
     tixi = open_tixi(opf.CPACS_OPTIM_PATH)
-    wkdir = ceaf.get_wkdir_or_create_new(tixi)
+    wkdir = get_wkdir_or_create_new(tixi)
     optim_dir_path = os.path.join(wkdir, Rt.type)
     Rt.date = wkdir[-19:]
 
@@ -579,7 +579,7 @@ def routine_launcher(Opt):
 
     cpacs = CPACS(opf.CPACS_OPTIM_PATH)
 
-    cpacs.tixi.updateTextElement(WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
+    cpacs.tixi.updateTextElement(WKDIR_XPATH, create_new_wkdir(optim_dir_path))
     Rt.get_user_inputs(cpacs.tixi)
     optim_var_dict = opf.create_variable_library(Rt, cpacs.tixi, optim_dir_path)
     am_dict = opf.create_am_lib(Rt, cpacs)

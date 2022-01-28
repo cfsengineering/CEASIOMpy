@@ -18,6 +18,7 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+
 import ceasiompy.__init__
 
 import os
@@ -260,13 +261,29 @@ class Workflow:
         log.info(f"Running the workflow in {self.current_wkflow_dir}")
 
         # TODO: Implement optim and doe method
-        if self.optim_method == "OPTIM":
-            raise NotImplementedError("OPTIM optimisation is not yet implemented yet!")
-        elif self.optim_method == "DOE":
-            raise NotImplementedError("DOE optimisation is not yet implemented yet!")
+        # if self.optim_method == "OPTIM":
+        #     raise NotImplementedError("OPTIM optimisation is not yet implemented yet!")
+        # elif self.optim_method == "DOE":
+        #     raise NotImplementedError("DOE optimisation is not yet implemented yet!")
 
         for module_obj in self.module_to_run_obj:
-            module_obj.run(self.current_wkflow_dir)
+
+            if module_obj.inculde_in_optim:
+                if module_obj.module_name == self.module_optim[0]:
+
+                    log.info("First module of the optimisatoin: initialization...")
+                    # Replace that by the real function
+                    module_obj.run(self.current_wkflow_dir)
+
+                else:
+                    # Skip because already treated from the frist modulue of optim
+
+                    # Replace that by the real function:
+                    module_obj.run(self.current_wkflow_dir)
+                    # continue
+
+            else:
+                module_obj.run(self.current_wkflow_dir)
 
     @staticmethod
     def get_related_modules(module_list, idx) -> list:

@@ -27,6 +27,7 @@ import platform
 import importlib
 from pathlib import Path
 from dataclasses import dataclass
+from contextlib import contextmanager
 
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
 from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
@@ -106,7 +107,7 @@ class ModuleToRun:
 
         self.cpacs_out = Path.joinpath(self.module_wkflow_path, "ToolOutput.xml")
 
-    def run(self) -> None:
+    def run(self, wkdir: Path = Path.cwd()) -> None:
 
         log.info("###############################################################################")
         log.info("# Run module: " + self.module_name)
@@ -126,7 +127,8 @@ class ModuleToRun:
             my_module = importlib.import_module(f"ceasiompy.{self.module_name}.{python_file}")
 
             # Run the module
-            my_module.main(str(self.cpacs_in), str(self.cpacs_out))
+            with change_working_dir(wkdir):
+                my_module.main(str(self.cpacs_in), str(self.cpacs_out))
 
 
 class Workflow:
@@ -172,7 +174,7 @@ class Workflow:
             pass
 
     def write_config_file(self) -> None:
-        """Write the configuration file in the working directory."""
+        """Write the workflow configuration file in the working directory."""
 
         cfg = ConfigFile()
         cfg["comment_1"] = f"File written {datetime.datetime.now()}"
@@ -257,12 +259,14 @@ class Workflow:
 
         log.info(f"Running the workflow in {self.current_wkflow_dir}")
 
-        os.chdir(self.current_wkflow_dir)
-
-        # TODO: Check if optim loop in the workflow and run it with specific optim method
+        # TODO: Implement optim and doe method
+        if self.optim_method == "OPTIM":
+            raise NotImplementedError("OPTIM optimisation is not yet implemented yet!")
+        elif self.optim_method == "DOE":
+            raise NotImplementedError("DOE optimisation is not yet implemented yet!")
 
         for module_obj in self.module_to_run_obj:
-            module_obj.run()
+            module_obj.run(self.current_wkflow_dir)
 
     @staticmethod
     def get_related_modules(module_list, idx) -> list:
@@ -280,6 +284,18 @@ class Workflow:
 # =================================================================================================
 
 
+@contextmanager
+def change_working_dir(working_dir):
+    """Context manager to change the working directory just before the execution of a function."""
+
+    try:
+        cwd = os.getcwd()
+        os.chdir(working_dir)
+        yield
+    finally:
+        os.chdir(cwd)
+
+
 def get_results_directory(module_name: str) -> Path:
     """Create (if not exists) and return the results directory for a module"""
 
@@ -295,7 +311,7 @@ def get_results_directory(module_name: str) -> Path:
     return results_dir
 
 
-# TODO: remove, to be replace by something else
+# TODO: to be removed when not used anywhere
 def create_new_wkdir(global_wkdir=""):
     """Function to create a woking directory.
 
@@ -333,7 +349,7 @@ def create_new_wkdir(global_wkdir=""):
     return run_dir
 
 
-# TODO: Replace by new function
+# TODO: to be removed when not used anywhere
 def get_wkdir_or_create_new(tixi):
     """Function get the wkdir path from CPACS or create a new one
 
@@ -463,16 +479,13 @@ def run_soft(soft, config_path, wkdir, nb_proc):
     else:
         command_line = [soft_install_path, config_path, ">", logfile_path]
 
-    original_dir = os.getcwd()
-    os.chdir(wkdir)
+    log.info(f">>> Running {soft} on {nb_proc} proc")
+    log.info(f"    from {wkdir}")
 
-    log.info(">>> " + soft + " Start Time")
+    with change_working_dir(wkdir):
+        os.system(" ".join(command_line))
 
-    os.system(" ".join(command_line))
-
-    log.info(">>> " + soft + " End Time")
-
-    os.chdir(original_dir)
+    log.info(f">>> {soft} End")
 
 
 def aircraft_name(tixi_or_cpacs):

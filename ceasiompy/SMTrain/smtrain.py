@@ -40,7 +40,7 @@ from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from ceasiompy.utils.xpath import SMTRAIN_XPATH, SMFILE_XPATH, OPTWKDIR_XPATH
 
 import ceasiompy.utils.moduleinterfaces as mi
-import ceasiompy.utils.ceasiompyfunctions as ceaf
+from ceasiompy.utils.ceasiompyfunctions import get_wkdir_or_create_new, get_results_directory
 from ceasiompy.SMUse.smuse import Surrogate_model
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -101,26 +101,23 @@ class Prediction_tool:
         self.aeromap_case = False
         self.aeromap_uid = ""
 
-    def get_user_inputs(self, cpacs_path):
+    def get_user_inputs(self, cpacs_path, wkdir):
 
         cpacs = CPACS(cpacs_path)
 
         # Search working directory
-        self.wkdir = get_value_or_default(cpacs.tixi, OPTWKDIR_XPATH, "")
-        if self.wkdir == "":
-            self.wkdir = ceaf.get_wkdir_or_create_new(cpacs.tixi) + "/SM"
-        if not os.path.isdir(self.wkdir):
-            os.mkdir(self.wkdir)
+        self.wkdir = get_value_or_default(cpacs.tixi, OPTWKDIR_XPATH, str(wkdir))
 
         self.type = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH + "/modelType", "KRG")
-
         obj = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH + "/objective", "cl")
         self.objectives = re.split(";|,", obj)
+
         self.user_file = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH + "/trainFile", "")
         if self.user_file == "":
             path = get_value_or_default(cpacs.tixi, OPTWKDIR_XPATH, "")
             if path != "":
                 self.user_file = path + "/Variable_history.csv"
+
         self.data_repartition = get_value_or_default(
             cpacs.tixi, SMTRAIN_XPATH + "/trainingPercentage", 0.9
         )
@@ -468,8 +465,11 @@ def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + os.path.basename(__file__) + " -----")
 
+    # Get results directory
+    results_dir = get_results_directory("SMTrain")
+
     Tool = Prediction_tool()
-    Tool.get_user_inputs(cpacs_path)
+    Tool.get_user_inputs(cpacs_path, results_dir)
     generate_model(Tool, cpacs_path)
     save_model(Tool, cpacs_path, cpacs_out_path)
 

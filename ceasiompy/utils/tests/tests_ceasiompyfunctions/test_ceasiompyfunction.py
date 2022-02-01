@@ -125,7 +125,7 @@ class TestWorkflow:
         "PlotAeroCoefficients",
     ]
 
-    MODULE_OPTIM = ["CPACS2SUMO", "CLCalculator"]
+    MODULE_OPTIM = ["NO", "YES", "YES", "NO", "NO", "NO"]
 
     def test_from_config_file(self):
 

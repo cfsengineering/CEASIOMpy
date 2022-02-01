@@ -30,13 +30,19 @@ import math
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-from cpacspy.cpacsfunctions import open_tixi, get_value_or_default
+from cpacspy.cpacsfunctions import open_tixi, get_value_or_default, create_branch
 
 from ceasiompy.utils.ceasiompyfunctions import get_results_directory
 import ceasiompy.utils.moduleinterfaces as mi
 from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
 from ceasiompy.utils.mathfunctions import euler2fix
-from ceasiompy.utils.xpath import FUSELAGES_XPATH, WINGS_XPATH, PYLONS_XPATH, ENGINES_XPATH
+from ceasiompy.utils.xpath import (
+    FUSELAGES_XPATH,
+    SUMOFILE_XPATH,
+    WINGS_XPATH,
+    PYLONS_XPATH,
+    ENGINES_XPATH,
+)
 
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
 from ceasiompy.CPACS2SUMO.func.sumofunctions import (
@@ -1099,6 +1105,9 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
     # Get results directory
     results_dir = get_results_directory("CPACS2SUMO")
     sumo_file_path = Path(results_dir, "ToolOutput.smx")
+
+    create_branch(tixi, SUMOFILE_XPATH)
+    tixi.updateTextElement(SUMOFILE_XPATH, str(sumo_file_path))
 
     # Save CPACS and SMX file
     tixi.save(cpacs_out_path)

@@ -75,6 +75,7 @@ class ModuleToRun:
 
         # Set default values
         self.is_settinggui = False
+        self.related_module = []
         self.inculde_in_optim = False
         self.optim_method = None
 
@@ -244,7 +245,7 @@ class Workflow:
                 module_obj.define_settinggui(related_modules)
 
             # Check if should be included in Optim/DoE
-            if self.optim_method and module_name in self.module_optim:
+            if self.optim_method and self.module_optim[m] == "YES":
                 module_obj.define_optim_module(self.optim_method)
 
             module_obj.create_module_wkflow_dir(cnt)
@@ -269,20 +270,15 @@ class Workflow:
         for module_obj in self.module_to_run_obj:
 
             if module_obj.inculde_in_optim:
-                if module_obj.module_name == self.module_optim[0]:
 
-                    log.info("First module of the optimisatoin: initialization...")
-                    # Replace that by the real function
-                    module_obj.run(self.current_wkflow_dir)
+                if module_obj.module_name == "SettingsGUI":
+                    module_obj.related_module.insert(1, "Optimisation")
 
-                else:
-                    # Skip because already treated from the frist modulue of optim
-
-                    # Replace that by the real function:
-                    module_obj.run(self.current_wkflow_dir)
-                    # continue
+                # For now, only run the module normally (without OPTIM/DOE)
+                module_obj.run(self.current_wkflow_dir)
 
             else:
+
                 module_obj.run(self.current_wkflow_dir)
 
     @staticmethod

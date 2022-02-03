@@ -30,8 +30,9 @@ from pathlib import Path
 from dataclasses import dataclass
 from contextlib import contextmanager
 
-from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
+from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
+from ceasiompy.Optimisation.optimisation import routine_launcher
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
 from ceasiompy.utils.xpath import WKDIR_XPATH
@@ -63,7 +64,8 @@ class ModuleToRun:
     def __post_init__(self) -> None:
 
         # Check if the module is valid
-        if self.module_name not in get_submodule_list():
+        accepted_names = get_submodule_list() + OPTIM_METHOD
+        if self.module_name not in accepted_names:
             raise ValueError(f"Module '{self.module_name}' did not exit!")
 
         # Set module path
@@ -75,14 +77,15 @@ class ModuleToRun:
 
         # Set default values
         self.is_settinggui = False
-        self.related_module = []
-        self.inculde_in_optim = False
+        self.gui_related_module = []
+        self.is_optim_module = False
         self.optim_method = None
+        self.optim_related_modules = []
 
-    def define_settinggui(self, related_module: list) -> None:
+    def define_settinggui(self, gui_related_module: list) -> None:
 
         self.is_settinggui = True
-        self.related_module = related_module
+        self.gui_related_module = gui_related_module
 
     def define_optim_module(self, optim_method) -> None:
 
@@ -92,16 +95,13 @@ class ModuleToRun:
             )
 
         self.optim_method = optim_method
-        self.inculde_in_optim = True
+        self.is_optim_module = True
 
     def create_module_wkflow_dir(self, cnt: int) -> None:
 
-        if self.inculde_in_optim and self.optim_method:  # HERE <------
-            module_wkflow_name = (
-                str(cnt).rjust(2, "0") + "_" + self.optim_method + "_" + self.module_name
-            )
+        if self.is_optim_module and self.optim_method:
+            module_wkflow_name = str(cnt).rjust(2, "0") + "_" + self.optim_method
         else:
-
             module_wkflow_name = str(cnt).rjust(2, "0") + "_" + self.module_name
 
         self.module_wkflow_path = Path.joinpath(self.wkflow_dir, module_wkflow_name)
@@ -117,7 +117,11 @@ class ModuleToRun:
 
         if self.module_name == "SettingsGUI":
 
-            create_settings_gui(str(self.cpacs_in), str(self.cpacs_out), self.related_module)
+            create_settings_gui(str(self.cpacs_in), str(self.cpacs_out), self.gui_related_module)
+
+        elif self.module_name in OPTIM_METHOD:
+            # TODO: Implement optim module
+            pass
 
         else:
 
@@ -226,6 +230,7 @@ class Workflow:
 
         # Create the directory structure for each mudule in the wokrflow and its corresponding obj
         cnt = 1
+        module_optim_idx = None
 
         for m, module_name in enumerate(self.module_to_run):
 
@@ -233,24 +238,37 @@ class Workflow:
             if m == 0:
                 cpacs_in = wkflow_cpacs_in
             else:
-                cpacs_in = self.module_to_run_obj[m - 1].cpacs_out
+                cpacs_in = self.module_to_run_obj[-1].cpacs_out
 
-            # Create an object for the module
-            module_obj = ModuleToRun(module_name, self.current_wkflow_dir, cpacs_in)
+            # Create an object for the module if not and opitm module
+            if self.module_optim[m] == "NO":
+                module_obj = ModuleToRun(module_name, self.current_wkflow_dir, cpacs_in)
 
             # Check if the module is SettingGUI
-            related_modules = []
+            gui_related_modules = []
             if module_name == "SettingsGUI":
-                related_modules = self.get_related_modules(self.module_to_run, m)
-                module_obj.define_settinggui(related_modules)
+                gui_related_modules = self.get_gui_related_modules(self.module_to_run, m)
+                module_obj.define_settinggui(gui_related_modules)
+
+            skip_create_module = False
 
             # Check if should be included in Optim/DoE
             if self.optim_method and self.module_optim[m] == "YES":
-                module_obj.define_optim_module(self.optim_method)
+                if module_optim_idx is None:
+                    module_obj = ModuleToRun(self.optim_method, self.current_wkflow_dir, cpacs_in)
+                    module_obj.define_optim_module(self.optim_method)
+                    module_obj.optim_related_modules.append(module_name)
+                    module_optim_idx = m
+                else:
+                    self.module_to_run_obj[module_optim_idx].optim_related_modules.append(
+                        module_name
+                    )
+                    skip_create_module = True
 
-            module_obj.create_module_wkflow_dir(cnt)
-            self.module_to_run_obj.append(module_obj)
-            cnt += 1
+            if not skip_create_module:
+                module_obj.create_module_wkflow_dir(cnt)
+                self.module_to_run_obj.append(module_obj)
+                cnt += 1
 
         # Create Results directory
         new_res_dir = Path.joinpath(self.current_wkflow_dir, "Results")
@@ -269,20 +287,16 @@ class Workflow:
 
         for module_obj in self.module_to_run_obj:
 
-            if module_obj.inculde_in_optim:
+            if module_obj.is_optim_module:
 
-                if module_obj.module_name == "SettingsGUI":
-                    module_obj.related_module.insert(1, "Optimisation")
-
-                # For now, only run the module normally (without OPTIM/DOE)
-                module_obj.run(self.current_wkflow_dir)
+                routine_launcher(module_obj.optim_method, module_obj.optim_related_modules)
 
             else:
 
                 module_obj.run(self.current_wkflow_dir)
 
     @staticmethod
-    def get_related_modules(module_list, idx) -> list:
+    def get_gui_related_modules(module_list, idx) -> list:
         """Get modules list related to a specific SettingGUI module"""
 
         if "SettingsGUI" in module_list[idx + 1 :] and idx + 1 != len(module_list):
@@ -322,75 +336,6 @@ def get_results_directory(module_name: str) -> Path:
         results_dir.mkdir(parents=True)
 
     return results_dir
-
-
-# TODO: to be removed when not used anywhere
-def create_new_wkdir(global_wkdir=""):
-    """Function to create a woking directory.
-
-    Function 'create_new_wkdir' creates a new working directory in the /tmp file
-    this directory is called 'SU2Run_data_hour'.
-    In the case of an optimisation or DoE, it will create a working directory
-    in the folder that was created at the first iteration of the routine.
-
-    Args:
-        routine_date (str) : Date of the first folder to find where to create
-        the new working directory.
-        routine_type (str) : Indicates if the folder has a subfolder called
-        'Optim' or 'DoE'.
-
-    Returns:
-        wkdir (str): working directory path
-
-    """
-
-    date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
-    if global_wkdir != "":
-        dir_name = "/Runs/Run" + date
-        run_dir = global_wkdir + dir_name
-    else:
-        dir_name = "CEASIOMpy_Run_" + date
-        wkdir = os.path.join(os.path.dirname(MODULE_DIR), "WKDIR")
-        run_dir = os.path.join(wkdir, dir_name)
-
-    if not os.path.exists(run_dir):
-        os.mkdir(run_dir)
-
-    log.info(" NEW WKDIR ")
-    log.info(run_dir)
-    return run_dir
-
-
-# TODO: to be removed when not used anywhere
-def get_wkdir_or_create_new(tixi):
-    """Function get the wkdir path from CPACS or create a new one
-
-    Function 'get_wkdir_or_create_new' checks in the CPACS file if a working
-    directory already exit for this run, if not, a new one is created and
-    return.
-
-    Args:
-        tixi (handle): TIXI handle
-
-    Returns:
-        wkdir_path (str): Path to the active working directory
-
-    """
-
-    wkdir_path = get_value_or_default(tixi, WKDIR_XPATH, "")
-    if wkdir_path == "":
-        wkdir_path = create_new_wkdir()
-        create_branch(tixi, WKDIR_XPATH)
-        tixi.updateTextElement(WKDIR_XPATH, wkdir_path)
-    else:
-        # Check if the directory really exists
-        if not os.path.isdir(wkdir_path):
-            wkdir_path = create_new_wkdir()
-            create_branch(tixi, WKDIR_XPATH)
-            tixi.updateTextElement(WKDIR_XPATH, wkdir_path)
-
-    return wkdir_path
 
 
 def get_install_path(soft_check_list):

@@ -18,6 +18,7 @@ Todo:
 
 """
 
+import datetime
 import os
 import shutil
 from re import split as splt
@@ -33,11 +34,15 @@ import ceasiompy.Optimisation.func.dictionnary as dct
 
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS, COEFS
-from cpacspy.cpacsfunctions import add_float_vector, create_branch, get_value, open_tixi
-
+from cpacspy.cpacsfunctions import (
+    add_float_vector,
+    create_branch,
+    get_value,
+    open_tixi,
+    get_value_or_default,
+)
 import ceasiompy.utils.moduleinterfaces as mif
 import ceasiompy.utils.workflowfunctions as wkf
-from ceasiompy.utils.ceasiompyfunctions import create_new_wkdir, get_wkdir_or_create_new
 
 from ceasiompy.utils.xpath import WKDIR_XPATH, OPTWKDIR_XPATH, OPTIM_XPATH
 
@@ -297,6 +302,74 @@ class Objective(om.ExplicitComponent):
 #   FUNCTIONS
 # =============================================================================
 
+# TODO: to be removed when not used anywhere
+def create_new_wkdir(global_wkdir=""):
+    """Function to create a woking directory.
+
+    Function 'create_new_wkdir' creates a new working directory in the /tmp file
+    this directory is called 'SU2Run_data_hour'.
+    In the case of an optimisation or DoE, it will create a working directory
+    in the folder that was created at the first iteration of the routine.
+
+    Args:
+        routine_date (str) : Date of the first folder to find where to create
+        the new working directory.
+        routine_type (str) : Indicates if the folder has a subfolder called
+        'Optim' or 'DoE'.
+
+    Returns:
+        wkdir (str): working directory path
+
+    """
+
+    date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
+
+    if global_wkdir != "":
+        dir_name = "/Runs/Run" + date
+        run_dir = global_wkdir + dir_name
+    else:
+        dir_name = "CEASIOMpy_Run_" + date
+        wkdir = os.path.join(os.path.dirname(MODULE_DIR), "WKDIR")
+        run_dir = os.path.join(wkdir, dir_name)
+
+    if not os.path.exists(run_dir):
+        os.mkdir(run_dir)
+
+    log.info(" NEW WKDIR ")
+    log.info(run_dir)
+    return run_dir
+
+
+# TODO: to be removed when not used anywhere
+def get_wkdir_or_create_new(tixi):
+    """Function get the wkdir path from CPACS or create a new one
+
+    Function 'get_wkdir_or_create_new' checks in the CPACS file if a working
+    directory already exit for this run, if not, a new one is created and
+    return.
+
+    Args:
+        tixi (handle): TIXI handle
+
+    Returns:
+        wkdir_path (str): Path to the active working directory
+
+    """
+
+    wkdir_path = get_value_or_default(tixi, WKDIR_XPATH, "")
+    if wkdir_path == "":
+        wkdir_path = create_new_wkdir()
+        create_branch(tixi, WKDIR_XPATH)
+        tixi.updateTextElement(WKDIR_XPATH, wkdir_path)
+    else:
+        # Check if the directory really exists
+        if not os.path.isdir(wkdir_path):
+            wkdir_path = create_new_wkdir()
+            create_branch(tixi, WKDIR_XPATH)
+            tixi.updateTextElement(WKDIR_XPATH, wkdir_path)
+
+    return wkdir_path
+
 
 def create_routine_folder():
     """Create the working dicrectory of the routine.
@@ -553,7 +626,7 @@ def generate_results(prob):
     wkf.copy_module_to_module(Rt.modules[-1], "out", "Optimisation", "out")
 
 
-def routine_launcher(Opt):
+def routine_launcher(optim_method, module_optim):
     """Run an optimisation routine or DoE using the OpenMDAO library.
 
     This function launches the setup for the routine by setting up the problem
@@ -570,8 +643,8 @@ def routine_launcher(Opt):
 
     global optim_var_dict, am_dict, Rt, am_length
 
-    Rt.type = Opt.optim_method
-    Rt.modules = Opt.module_optim
+    Rt.type = optim_method
+    Rt.modules = module_optim
 
     # Initialize CPACS file and problem dictionary ##
     create_routine_folder()

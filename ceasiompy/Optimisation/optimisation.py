@@ -39,7 +39,6 @@ from cpacspy.cpacsfunctions import (
     create_branch,
     get_value,
     open_tixi,
-    get_value_or_default,
 )
 
 from ceasiompy.utils.ceasiompyutils import (
@@ -49,7 +48,7 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 import ceasiompy.utils.moduleinterfaces as mif
 
-from ceasiompy.utils.xpath import WKDIR_XPATH, OPTWKDIR_XPATH, OPTIM_XPATH
+from ceasiompy.utils.xpath import OPTWKDIR_XPATH, OPTIM_XPATH
 
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -285,7 +284,7 @@ class Objective(om.ExplicitComponent):
             dct.update_am_dict(cpacs, Rt.aeromap_uid, am_dict)
 
         # Change local wkdir for the next iteration
-        cpacs.tixi.updateTextElement(WKDIR_XPATH, create_new_wkdir(optim_dir_path))
+        # TODO: ......
 
         for obj in Rt.objective:
             var_list = splt("[+*/-]", obj)
@@ -306,43 +305,6 @@ class Objective(om.ExplicitComponent):
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
-
-# TODO: to be removed when not used anywhere
-def create_new_wkdir(global_wkdir=""):
-    """Function to create a woking directory.
-
-    Function 'create_new_wkdir' creates a new working directory in the /tmp file
-    this directory is called 'SU2Run_data_hour'.
-    In the case of an optimisation or DoE, it will create a working directory
-    in the folder that was created at the first iteration of the routine.
-
-    Args:
-        routine_date (str) : Date of the first folder to find where to create
-        the new working directory.
-        routine_type (str) : Indicates if the folder has a subfolder called
-        'Optim' or 'DoE'.
-
-    Returns:
-        wkdir (str): working directory path
-
-    """
-
-    date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
-    if global_wkdir != "":
-        dir_name = "/Runs/Run" + date
-        run_dir = global_wkdir + dir_name
-    else:
-        dir_name = "CEASIOMpy_Run_" + date
-        wkdir = os.path.join(os.path.dirname(MODULE_DIR), "WKDIR")
-        run_dir = os.path.join(wkdir, dir_name)
-
-    if not os.path.exists(run_dir):
-        os.mkdir(run_dir)
-
-    log.info(" NEW WKDIR ")
-    log.info(run_dir)
-    return run_dir
 
 
 def create_routine_folder():
@@ -398,7 +360,6 @@ def create_routine_folder():
         os.mkdir(optim_dir_path + "/Geometry")
         os.mkdir(optim_dir_path + "/Runs")
     tixi.updateTextElement(OPTWKDIR_XPATH, optim_dir_path)
-    tixi.updateTextElement(WKDIR_XPATH, optim_dir_path)
 
     tixi.save(opf.CPACS_OPTIM_PATH)
 
@@ -628,7 +589,6 @@ def routine_launcher(optim_method, module_optim):
 
     cpacs = CPACS(opf.CPACS_OPTIM_PATH)
 
-    cpacs.tixi.updateTextElement(WKDIR_XPATH, create_new_wkdir(optim_dir_path))
     Rt.get_user_inputs(cpacs.tixi)
     optim_var_dict = opf.create_variable_library(Rt, cpacs.tixi, optim_dir_path)
     am_dict = opf.create_am_lib(Rt, cpacs)

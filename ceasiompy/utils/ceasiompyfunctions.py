@@ -56,7 +56,7 @@ class ModuleToRun:
 
     module_name: str
     wkflow_dir: Path
-    cpacs_in: Path
+    cpacs_in: Path = None
     cpacs_out: Path = None
 
     def __post_init__(self) -> None:
@@ -135,10 +135,59 @@ class ModuleToRun:
                 my_module.main(str(self.cpacs_in), str(self.cpacs_out))
 
 
-class Workflow:
-    """Class to pass options of the workflow"""
+class OptimSubWorkflow:
+    """Class to define and run CEASIOMpy optimisation (opim/doe) subworkflow."""
 
-    def __init__(self):
+    def __init__(self, subworkflow_dir: Path, cpacs_path: Path, modules: list) -> None:
+
+        self.subworkflow_dir = subworkflow_dir
+        self.cpacs_path = cpacs_path
+        self.modules = [ModuleToRun(module, self.subworkflow_dir) for module in modules]
+        self.iteration = 0
+
+    def set_subworkflow(self) -> None:
+        """Create the directory structure and set input/output of each modules for the subworkflow."""
+
+        self.set_cpacs_in_out()
+
+        for i, module in enumerate(self.modules):
+            with change_working_dir(self.subworkflow_dir):
+                module.create_module_wkflow_dir(i + 1)
+
+    def set_cpacs_in_out(self) -> None:
+        """Set the input/output of module of the subworkflow."""
+
+        # Set the input/output of each modules
+        for i, module in enumerate(self.modules):
+            if i == 0:
+                if self.iteration == 0:
+                    cpacs_in = self.cpacs_path
+                else:
+                    cpacs_in = self.modules[-1].cpacs_out
+            else:
+                cpacs_in = self.modules[i - 1].cpacs_out
+
+            module.cpacs_in = cpacs_in
+            module.cpacs_out = Path(
+                module.wkflow_dir, "iter_" + str(self.iteration).rjust(2, "0") + ".xml"
+            )
+
+    def run_subworkflow(self) -> None:
+        """Run the opimisation subworflow"""
+
+        log.info(f"Running the subworkflow in {self.subworkflow_dir}")
+
+        if self.iteration == 0:
+            pass
+            # TODO: Create the first iteration of the subworkflow
+        else:
+            pass
+
+
+class Workflow:
+    """Class to define and run CEASIOMpy workflow."""
+
+    def __init__(self) -> None:
 
         self.working_dir = ""
         self.cpacs_path = Path("../test_files/CPACSfiles/D150_simple.xml").resolve()
@@ -268,6 +317,16 @@ class Workflow:
                 self.module_to_run_obj.append(module_obj)
                 cnt += 1
 
+        # Create Optim/DoE subworkflow directory for the optim module if exists
+        if module_optim_idx is not None:
+            module_optim_obj = self.module_to_run_obj[module_optim_idx]
+            self.subworkflow = OptimSubWorkflow(
+                module_optim_obj.module_wkflow_path,
+                module_optim_obj.cpacs_in,
+                module_optim_obj.optim_related_modules,
+            )
+            self.subworkflow.set_subworkflow()
+
         # Create Results directory
         new_res_dir = Path.joinpath(self.current_wkflow_dir, "Results")
         new_res_dir.mkdir()
@@ -287,8 +346,7 @@ class Workflow:
 
             if module_obj.is_optim_module:
 
-                with change_working_dir(self.current_wkflow_dir):
-                    routine_launcher(module_obj.optim_method, module_obj.optim_related_modules)
+                self.subworkflow.run_subworkflow()
 
             else:
 

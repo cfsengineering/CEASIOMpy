@@ -46,11 +46,10 @@ log = get_logger(__file__.split(".")[0])
 # =================================================================================================
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CPACS_OPTIM_PATH = get_toolinput_file_path("Optimisation")
 CSV_PATH = MODULE_DIR + "/Variable_library.csv"
 
 # Parameters that can not be used as problem variables
-banned_entries = [
+BANNED_ENTRIES = [
     "wing",
     "delete_old_wkdirs",
     "check_extract_loads",  # Not relevant
@@ -65,6 +64,8 @@ var = {"Name": [], "type": [], "init": [], "min": [], "max": [], "xpath": []}
 # =================================================================================================
 #   CLASS
 # =================================================================================================
+
+
 class Routine:
     """Setup the routine to launch in Openmdao."""
 
@@ -234,7 +235,7 @@ def get_normal_param(tixi, entry, outputs):
         else:
             def_val = "-"
 
-    if entry.var_name not in banned_entries:
+    if entry.var_name not in BANNED_ENTRIES:
         value = get_value_or_default(tixi, xpath, def_val)
         if entry.var_type == int:
             value = int(value)

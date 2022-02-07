@@ -23,7 +23,6 @@ TODO
 #   IMPORTS
 # =============================================================================
 
-from sys import exit
 import numpy as np
 
 from cpacspy.utils import PARAMS_COEFS
@@ -355,7 +354,5 @@ def init_geom_var_dict(tixi):
 
 if __name__ == "__main__":
 
-    log.info("Launching dictionnary.py programm...")
-    log.info("Not a standalone programm. Nothing will be executed !")
-
-    exit()
+    print("Launching dictionnary.py programm...")
+    print("Not a standalone programm. Nothing will be executed !")

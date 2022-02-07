@@ -16,11 +16,11 @@ Python version: >=3.7
 #   IMPORTS
 # ==============================================================================
 
-import os
-
-from ceasiompy.utils.workflowfunctions import copy_module_to_module
 
 import ceasiompy.__init__
+
+import os
+from ceasiompy.utils.ceasiompyutils import copy_module_to_module
 
 LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
 

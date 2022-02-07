@@ -17,24 +17,23 @@ Todo:
 """
 
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
-import os
+# =================================================================================================
 
+
+import os
 from re import split
 import pandas as pd
 
-import ceasiompy.SMUse.smuse as smu
-
-from cpacspy.utils import COEFS, PARAMS_COEFS
 from cpacspy.cpacsfunctions import get_value_or_default
+from cpacspy.utils import COEFS, PARAMS_COEFS
 
-import ceasiompy.utils.moduleinterfaces as mif
-import ceasiompy.utils.workflowfunctions as wkf
 import ceasiompy.Optimisation.func.tools as tls
 import ceasiompy.Optimisation.func.dictionnary as dct
-
+import ceasiompy.SMUse.smuse as smu
+from ceasiompy.utils.ceasiompyutils import copy_module_to_module, run_subworkflow
+from ceasiompy.utils.moduleinterfaces import get_all_module_specs, get_toolinput_file_path
 from ceasiompy.utils.xpath import OPTIM_XPATH, SMUSE_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -42,12 +41,12 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split(".")[0])
 
 
-# ==============================================================================
+# =================================================================================================
 #   GLOBALS
-# ==============================================================================
+# =================================================================================================
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CPACS_OPTIM_PATH = mif.get_toolinput_file_path("Optimisation")
+CPACS_OPTIM_PATH = get_toolinput_file_path("Optimisation")
 CSV_PATH = MODULE_DIR + "/Variable_library.csv"
 
 # Parameters that can not be used as problem variables
@@ -63,9 +62,9 @@ objective = []
 var = {"Name": [], "type": [], "init": [], "min": [], "max": [], "xpath": []}
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASS
-# ==============================================================================
+# =================================================================================================
 class Routine:
     """Setup the routine to launch in Openmdao."""
 
@@ -135,9 +134,9 @@ class Routine:
         self.use_aeromap = get_value_or_default(tixi, OPTIM_XPATH + "/Config/useAero", False)
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def first_run(Rt):
@@ -161,12 +160,12 @@ def first_run(Rt):
 
     # First iteration to create aeromap results if no pre-workflow
     if Rt.modules[0] == "Optimisation":
-        wkf.copy_module_to_module("Optimisation", "in", Rt.modules[1], "in")
+        copy_module_to_module("Optimisation", "in", Rt.modules[1], "in")
     else:
-        wkf.copy_module_to_module("Optimisation", "in", Rt.modules[0], "in")
+        copy_module_to_module("Optimisation", "in", Rt.modules[0], "in")
 
-    wkf.run_subworkflow(Rt.modules)
-    wkf.copy_module_to_module(Rt.modules[-1], "out", "Optimisation", "in")
+    run_subworkflow(Rt.modules)
+    copy_module_to_module(Rt.modules[-1], "out", "Optimisation", "in")
 
     # SettingsGUI only needed at the first iteration
     if "SettingsGUI" in Rt.modules:  # and added_gui:
@@ -284,6 +283,7 @@ def get_aero_param(tixi):
 
     for name in PARAMS_COEFS:
         xpath_param = xpath + name
+
         value = str(tixi.getDoubleElement(xpath_param))
 
         var["Name"].append(name)
@@ -434,7 +434,7 @@ def add_entries(tixi, module_list):
     if "SMUse" in module_list and use_am:
         get_aero_param(tixi)
     else:
-        for mod_name, specs in mif.get_all_module_specs().items():
+        for mod_name, specs in get_all_module_specs().items():
             if specs and mod_name in module_list:
                 if mod_name == "SMUse":
                     get_sm_vars(tixi)
@@ -623,8 +623,11 @@ def create_variable_library(Rt, tixi, optim_dir_path):
     return optim_var_dict
 
 
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+
 if __name__ == "__main__":
 
-    log.info("|-------------------------------------------------|")
-    log.info("|Not a standalone module. Nothing will be executed|")
-    log.info("|-------------------------------------------------|")
+    print("Nothing to execute!")

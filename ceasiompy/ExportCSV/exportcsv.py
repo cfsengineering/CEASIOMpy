@@ -25,7 +25,7 @@ import os
 from pathlib import Path
 
 import ceasiompy.utils.moduleinterfaces as mi
-from ceasiompy.utils.ceasiompyfunctions import get_results_directory
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.xpath import CEASIOMPY_XPATH
 
 from cpacspy.cpacspy import CPACS

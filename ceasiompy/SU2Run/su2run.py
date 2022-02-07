@@ -29,7 +29,7 @@ import sys
 
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
-from ceasiompy.utils.ceasiompyfunctions import get_results_directory, run_soft
+from ceasiompy.utils.ceasiompyutils import get_results_directory, run_soft
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.SU2Run.func.su2config import generate_su2_cfd_config

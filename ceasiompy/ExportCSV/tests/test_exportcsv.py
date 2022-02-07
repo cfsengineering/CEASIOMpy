@@ -21,7 +21,7 @@ import shutil
 import pytest
 from pathlib import Path
 from ceasiompy.ExportCSV.exportcsv import export_aeromaps
-from ceasiompy.utils.ceasiompyfunctions import get_results_directory
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 # Default CPACS file to test
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))

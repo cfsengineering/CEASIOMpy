@@ -41,8 +41,9 @@ from cpacspy.cpacsfunctions import (
     open_tixi,
     get_value_or_default,
 )
+
+from ceasiompy.utils.ceasiompyutils import copy_module_to_module, run_subworkflow
 import ceasiompy.utils.moduleinterfaces as mif
-import ceasiompy.utils.workflowfunctions as wkf
 
 from ceasiompy.utils.xpath import WKDIR_XPATH, OPTWKDIR_XPATH, OPTIM_XPATH
 
@@ -174,7 +175,7 @@ class ModuleComp(om.ExplicitComponent):
         tixi.save(cpacs_path)
 
         # Running the module
-        wkf.run_subworkflow([self.module_name])
+        run_subworkflow([self.module_name])
 
         # Feeding CPACS file results to outputs
         cpacs_path = mif.get_tooloutput_file_path(self.module_name)
@@ -295,7 +296,7 @@ class Objective(om.ExplicitComponent):
                 outputs["Objective function " + obj] = -result
 
         cpacs.save_cpacs(cpacs_path, overwrite=True)
-        wkf.copy_module_to_module(Rt.modules[-1], "out", Rt.modules[0], "in")
+        copy_module_to_module(Rt.modules[-1], "out", Rt.modules[0], "in")
 
 
 # =============================================================================
@@ -623,7 +624,7 @@ def generate_results(prob):
 
     tls.save_results(optim_dir_path, optim_var_dict)
 
-    wkf.copy_module_to_module(Rt.modules[-1], "out", "Optimisation", "out")
+    copy_module_to_module(Rt.modules[-1], "out", "Optimisation", "out")
 
 
 def routine_launcher(optim_method, module_optim):
@@ -658,7 +659,7 @@ def routine_launcher(optim_method, module_optim):
     am_dict = opf.create_am_lib(Rt, cpacs)
 
     cpacs.save_cpacs(opf.CPACS_OPTIM_PATH, overwrite=True)
-    wkf.copy_module_to_module("Optimisation", "in", Rt.modules[0], "in")
+    copy_module_to_module("Optimisation", "in", Rt.modules[0], "in")
 
     # Instantiate components and subsystems ##
     prob = om.Problem()

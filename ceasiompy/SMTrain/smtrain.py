@@ -40,7 +40,7 @@ from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from ceasiompy.utils.xpath import SMTRAIN_XPATH, SMFILE_XPATH, OPTWKDIR_XPATH
 
 import ceasiompy.utils.moduleinterfaces as mi
-from ceasiompy.utils.ceasiompyfunctions import get_results_directory
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.SMUse.smuse import Surrogate_model
 
 from ceasiompy.utils.ceasiomlogger import get_logger

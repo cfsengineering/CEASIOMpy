@@ -48,7 +48,7 @@ import pandas as pd
 import xmltodict as xml
 
 from cpacspy.cpacsfunctions import open_tixi, get_value_or_default
-from ceasiompy.utils.ceasiompyfunctions import get_results_directory
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger

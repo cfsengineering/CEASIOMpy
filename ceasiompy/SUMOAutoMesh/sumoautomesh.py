@@ -28,11 +28,10 @@ import math
 import shutil
 import platform
 
+from ceasiompy.utils.ceasiompyutils import get_results_directory, change_working_dir
 from ceasiompy.utils.ceasiompyfunctions import (
-    change_working_dir,
     get_install_path,
     aircraft_name,
-    get_results_directory,
 )
 import ceasiompy.utils.moduleinterfaces as mi
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi

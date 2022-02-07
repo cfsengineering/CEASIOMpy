@@ -32,7 +32,7 @@ from pathlib import Path
 
 from cpacspy.cpacsfunctions import open_tixi, get_value_or_default, create_branch
 
-from ceasiompy.utils.ceasiompyfunctions import get_results_directory
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 import ceasiompy.utils.moduleinterfaces as mi
 from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
 from ceasiompy.utils.mathfunctions import euler2fix

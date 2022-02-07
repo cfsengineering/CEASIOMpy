@@ -42,7 +42,11 @@ from cpacspy.cpacsfunctions import (
     get_value_or_default,
 )
 
-from ceasiompy.utils.ceasiompyutils import copy_module_to_module, run_subworkflow
+from ceasiompy.utils.ceasiompyutils import (
+    copy_module_to_module,
+    get_results_directory,
+    run_subworkflow,
+)
 import ceasiompy.utils.moduleinterfaces as mif
 
 from ceasiompy.utils.xpath import WKDIR_XPATH, OPTWKDIR_XPATH, OPTIM_XPATH
@@ -341,37 +345,6 @@ def create_new_wkdir(global_wkdir=""):
     return run_dir
 
 
-# TODO: to be removed when not used anywhere
-def get_wkdir_or_create_new(tixi):
-    """Function get the wkdir path from CPACS or create a new one
-
-    Function 'get_wkdir_or_create_new' checks in the CPACS file if a working
-    directory already exit for this run, if not, a new one is created and
-    return.
-
-    Args:
-        tixi (handle): TIXI handle
-
-    Returns:
-        wkdir_path (str): Path to the active working directory
-
-    """
-
-    wkdir_path = get_value_or_default(tixi, WKDIR_XPATH, "")
-    if wkdir_path == "":
-        wkdir_path = create_new_wkdir()
-        create_branch(tixi, WKDIR_XPATH)
-        tixi.updateTextElement(WKDIR_XPATH, wkdir_path)
-    else:
-        # Check if the directory really exists
-        if not os.path.isdir(wkdir_path):
-            wkdir_path = create_new_wkdir()
-            create_branch(tixi, WKDIR_XPATH)
-            tixi.updateTextElement(WKDIR_XPATH, wkdir_path)
-
-    return wkdir_path
-
-
 def create_routine_folder():
     """Create the working dicrectory of the routine.
 
@@ -398,7 +371,9 @@ def create_routine_folder():
 
     # Create the main working directory
     tixi = open_tixi(opf.CPACS_OPTIM_PATH)
-    wkdir = get_wkdir_or_create_new(tixi)
+
+    wkdir = get_results_directory("Optimisation")
+
     optim_dir_path = os.path.join(wkdir, Rt.type)
     Rt.date = wkdir[-19:]
 

@@ -19,15 +19,14 @@ Python version: >=3.7
 import os
 import pytest
 from pathlib import Path
-from ceasiompy.utils.ceasiompyfunctions import ModuleToRun, Workflow
-from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.ceasiompyfunctions import ModuleToRun, Workflow, get_gui_related_modules
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 CPACS_PATH = os.path.join(MODULE_DIR, "D150_simple.xml")
 CPACS_PATH_OUT = os.path.join(MODULE_DIR, "D150_simple_out.xml")
 
 # =================================================================================================
-#   CLASSES
+#   TESTS
 # =================================================================================================
 
 
@@ -188,9 +187,20 @@ class TestWorkflow:
         )
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
+def test_get_gui_related_modules():
+    """Test 'get_gui_related_modules' function.'"""
+
+    module_list = ["SettingsGUI"]
+    assert get_gui_related_modules(module_list) == module_list
+
+    module_list = ["SettingsGUI", "CPACS2SUMO", "CLCalculator", "PyTornado"]
+    assert get_gui_related_modules(module_list) == module_list
+
+    module_list = ["SettingsGUI", "CPACS2SUMO", "CLCalculator", "SettingsGUI"]
+    assert get_gui_related_modules(module_list) == module_list[:-1]
+
+    module_list = ["SettingsGUI", "CPACS2SUMO", "CLCalculator", "SettingsGUI", "PyTornado"]
+    assert get_gui_related_modules(module_list, 3) == module_list[-2:]
 
 
 # =================================================================================================

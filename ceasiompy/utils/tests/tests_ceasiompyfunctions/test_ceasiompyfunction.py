@@ -188,18 +188,6 @@ class TestWorkflow:
         )
 
 
-def test_get_results_directory():
-
-    results_dir = get_results_directory("ExportCSV")
-    assert results_dir == Path(Path.cwd(), "Results", "Aeromaps")
-
-    results_dir = get_results_directory("CPACS2SUMO")
-    assert results_dir == Path(Path.cwd(), "Results", "SUMO")
-
-    with pytest.raises(ValueError):
-        results_dir = get_results_directory("NotExistingModule")
-
-
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================

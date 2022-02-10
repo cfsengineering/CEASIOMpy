@@ -29,12 +29,9 @@ from pathlib import Path
 from dataclasses import dataclass
 from ceasiompy.utils.ceasiompyutils import change_working_dir
 
-import ceasiompy.utils.moduleinterfaces as mi
 from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
-from ceasiompy.Optimisation.optimisation import routine_launcher
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
-from ceasiompy.utils.xpath import WKDIR_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -105,8 +102,6 @@ class ModuleToRun:
         self.module_wkflow_path = Path.joinpath(self.wkflow_dir, module_wkflow_name)
         self.module_wkflow_path.mkdir()
 
-        self.cpacs_out = Path.joinpath(self.module_wkflow_path, "ToolOutput.xml")
-
     def run(self, wkdir: Path = Path.cwd()) -> None:
 
         log.info("###############################################################################")
@@ -138,40 +133,44 @@ class ModuleToRun:
 class OptimSubWorkflow:
     """Class to define and run CEASIOMpy optimisation (opim/doe) subworkflow."""
 
-    def __init__(self, subworkflow_dir: Path, cpacs_path: Path, modules: list) -> None:
+    def __init__(self, subworkflow_dir: Path, cpacs_path: Path, modules_list: list) -> None:
 
         self.subworkflow_dir = subworkflow_dir
         self.cpacs_path = cpacs_path
-        self.modules = [ModuleToRun(module, self.subworkflow_dir) for module in modules]
+        self.modules_list = modules_list
+        self.modules = [ModuleToRun(module, subworkflow_dir) for module in modules_list]
+
         self.iteration = 0
 
     def set_subworkflow(self) -> None:
-        """Create the directory structure and set input/output cpacs file
-        of each modules for the subworkflow."""
+        """...."""
 
-        self.set_cpacs_in_out()
+        for m, module in enumerate(self.modules):
 
-        for i, module in enumerate(self.modules):
+            # Create the module directory in the subworkflow directory
             with change_working_dir(self.subworkflow_dir):
-                module.create_module_wkflow_dir(i + 1)
+                self.modules[m].create_module_wkflow_dir(m + 1)
 
-    def set_cpacs_in_out(self) -> None:
-        """Set the input/output of module of the subworkflow."""
-
-        # Set the input/output of each modules
-        for i, module in enumerate(self.modules):
-            if i == 0:
+            # Set the input/output of each modules
+            if m == 0:
                 if self.iteration == 0:
                     cpacs_in = self.cpacs_path
                 else:
                     cpacs_in = self.modules[-1].cpacs_out
             else:
-                cpacs_in = self.modules[i - 1].cpacs_out
+                cpacs_in = self.modules[m - 1].cpacs_out
 
-            module.cpacs_in = cpacs_in
-            module.cpacs_out = Path(
-                module.wkflow_dir, "iter_" + str(self.iteration).rjust(2, "0") + ".xml"
+            self.modules[m].cpacs_in = cpacs_in
+            self.modules[m].cpacs_out = Path(
+                self.modules[m].module_wkflow_path,
+                "iter_" + str(self.iteration).rjust(2, "0") + ".xml",
             )
+
+            # Check if module is SettingGUI
+            gui_related_modules = []
+            if module.module_name == "SettingsGUI":
+                gui_related_modules = get_gui_related_modules(self.modules_list)
+                self.modules[m].define_settinggui(gui_related_modules)
 
     def run_subworkflow(self) -> None:
         """Run the opimisation subworflow"""
@@ -179,8 +178,17 @@ class OptimSubWorkflow:
         log.info(f"Running the subworkflow in {self.subworkflow_dir}")
 
         if self.iteration == 0:
-            pass
-            # TODO: Create the first iteration of the subworkflow
+
+            for module in self.modules:
+
+                module.run(self.subworkflow_dir)
+
+            if any([module.module_name == "SettingsGUI" for module in self.modules]):
+                pass
+
+            # TODO: copy last tool output when optim done (last iteration)
+            shutil.copy(self.modules[-1].cpacs_out, Path(self.subworkflow_dir, "ToolOutput.xml"))
+
         else:
             pass
 
@@ -252,6 +260,20 @@ class Workflow:
     def set_workflow(self) -> None:
         """Create the directory structure and set input/output of each modules"""
 
+        # Check coehrence of the optimisation modules from config file
+        if "YES" in self.module_optim:
+            if not self.optim_method:
+                raise ValueError(
+                    "Some modules are define as optimistion module but "
+                    "not optmimisation methode is defined"
+                )
+
+            optim_idx = [i for i, val in enumerate(self.module_optim) if val == "YES"]
+            for i, val in enumerate(optim_idx[:-1]):
+                if val + 1 != optim_idx[i + 1]:
+                    raise ValueError("All optimisation module must be contiguous!")
+
+        # Check working directory
         if not self.working_dir:
             raise ValueError("You must first define a working directory!")
 
@@ -292,11 +314,11 @@ class Workflow:
             if self.module_optim[m] == "NO":
                 module_obj = ModuleToRun(module_name, self.current_wkflow_dir, cpacs_in)
 
-            # Check if the module is SettingGUI
-            gui_related_moduless = []
-            if module_name == "SettingsGUI":
-                gui_related_moduless = self.get_gui_related_moduless(self.module_to_run, m)
-                module_obj.define_settinggui(gui_related_moduless)
+                # Check if the module is SettingGUI
+                gui_related_modules = []
+                if module_name == "SettingsGUI":
+                    gui_related_modules = get_gui_related_modules(self.module_to_run, m)
+                    module_obj.define_settinggui(gui_related_modules)
 
             skip_create_module = False
 
@@ -316,6 +338,9 @@ class Workflow:
             if not skip_create_module:
                 module_obj.create_module_wkflow_dir(cnt)
                 self.module_to_run_obj.append(module_obj)
+                module_obj.cpacs_out = Path.joinpath(
+                    module_obj.module_wkflow_path, "ToolOutput.xml"
+                )
                 cnt += 1
 
         # Create Optim/DoE subworkflow directory for the optim module if exists
@@ -337,15 +362,11 @@ class Workflow:
 
         log.info(f"Running the workflow in {self.current_wkflow_dir}")
 
-        # TODO: Implement optim and doe method
-        # if self.optim_method == "OPTIM":
-        #     raise NotImplementedError("OPTIM optimisation is not yet implemented yet!")
-        # elif self.optim_method == "DOE":
-        #     raise NotImplementedError("DOE optimisation is not yet implemented yet!")
-
         for module_obj in self.module_to_run_obj:
 
             if module_obj.is_optim_module:
+
+                print("Start subworkflow -----------------------------------")
 
                 self.subworkflow.run_subworkflow()
 
@@ -353,20 +374,20 @@ class Workflow:
 
                 module_obj.run(self.current_wkflow_dir)
 
-    @staticmethod
-    def get_gui_related_moduless(module_list, idx) -> list:
-        """Get modules list related to a specific SettingGUI module"""
-
-        if "SettingsGUI" in module_list[idx + 1 :] and idx + 1 != len(module_list):
-            idx_next = module_list.index("SettingsGUI", idx + 1)
-            return module_list[idx:idx_next]
-        else:
-            return module_list[idx:]
-
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def get_gui_related_modules(module_list, idx=0) -> list:
+    """Get modules list related to a specific SettingGUI module"""
+
+    if "SettingsGUI" in module_list[idx + 1 :] and idx + 1 != len(module_list):
+        idx_next = module_list.index("SettingsGUI", idx + 1)
+        return module_list[idx:idx_next]
+    else:
+        return module_list[idx:]
 
 
 # =================================================================================================

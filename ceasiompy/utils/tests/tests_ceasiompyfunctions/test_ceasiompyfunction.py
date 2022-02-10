@@ -96,10 +96,6 @@ class TestModuleToRun:
         assert self.module_works.module_wkflow_path.exists()
         assert self.module_works.module_wkflow_path.stem == "02_SU2Run"
 
-        assert self.module_works.cpacs_out == Path.joinpath(
-            self.module_works.module_wkflow_path, "ToolOutput.xml"
-        )
-
     def test_run(self):
 
         # Remove CPACS output file from privious run

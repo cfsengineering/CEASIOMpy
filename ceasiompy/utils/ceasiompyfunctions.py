@@ -146,7 +146,8 @@ class OptimSubWorkflow:
         self.iteration = 0
 
     def set_subworkflow(self) -> None:
-        """Create the directory structure and set input/output of each modules for the subworkflow."""
+        """Create the directory structure and set input/output cpacs file
+        of each modules for the subworkflow."""
 
         self.set_cpacs_in_out()
 

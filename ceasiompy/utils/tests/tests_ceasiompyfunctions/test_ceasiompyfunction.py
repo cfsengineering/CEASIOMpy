@@ -18,8 +18,14 @@ Python version: >=3.7
 
 import os
 import pytest
+import shutil
 from pathlib import Path
-from ceasiompy.utils.ceasiompyfunctions import ModuleToRun, Workflow, get_gui_related_modules
+from ceasiompy.utils.ceasiompyfunctions import (
+    ModuleToRun,
+    OptimSubWorkflow,
+    Workflow,
+    get_gui_related_modules,
+)
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 CPACS_PATH = os.path.join(MODULE_DIR, "D150_simple.xml")
@@ -37,7 +43,7 @@ class TestModuleToRun:
 
     def test_default_values(self):
 
-        assert self.module_works.module_path.exists()
+        assert self.module_works.module_dir.exists()
         assert self.module_works.wkflow_dir.exists()
         assert self.module_works.cpacs_in.exists()
         assert self.module_works.cpacs_out.exists()
@@ -58,27 +64,10 @@ class TestModuleToRun:
         with pytest.raises(FileNotFoundError):
             ModuleToRun("SU2Run", Path("./Not_WKFLOW"), Path(CPACS_PATH))
 
-    def test_define_settinggui(self):
-
-        RELATED_MODULE = ["CPACS2SUMO", "SU2Run"]
-        self.module_works.define_settinggui(RELATED_MODULE)
-
-        assert self.module_works.gui_related_modules == RELATED_MODULE
-        assert self.module_works.is_settinggui
-
-    def test_define_optim_module(self):
-
-        OPTIM_METHOD = ["OPTIM", "DOE"]
-
-        for optim_method in OPTIM_METHOD:
-            self.module_works.define_optim_module(optim_method)
-            assert self.module_works.optim_method == optim_method
-            assert self.module_works.is_optim_module
-
-        with pytest.raises(ValueError):
-            self.module_works.define_optim_module("invalid_optim_method")
-
     def test_create_module_wkflow_dir(self):
+
+        self.module_works.is_optim_module = True
+        self.module_works.optim_method = "DOE"
 
         # Remove dir from previous runs
         if Path.joinpath(self.wkflow_test, "01_DOE").exists():
@@ -110,6 +99,12 @@ class TestModuleToRun:
         assert Path(CPACS_PATH_OUT).exists()
 
 
+class TestOptimSubWorkflow:
+    pass
+
+    # TODO: When the optim subworkflow is implemented, add tests here
+
+
 class TestWorkflow:
 
     workflow = Workflow()
@@ -124,61 +119,88 @@ class TestWorkflow:
     ]
 
     MODULE_OPTIM = ["NO", "YES", "YES", "NO", "NO", "NO"]
+    MODULE_OPTIM_NOT_CONTIGOUS = ["YES", "NO", "YES", "NO", "NO", "NO"]
 
     def test_from_config_file(self):
 
         # SHould use Pathlib everywhere ??
         self.workflow.from_config_file(os.path.join(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
 
-        assert self.workflow.module_to_run == self.MODULE_TO_RUN
-
+        assert self.workflow.modules_list == self.MODULE_TO_RUN
         assert self.workflow.module_optim == self.MODULE_OPTIM
-
         assert self.workflow.optim_method == "OPTIM"
 
     def test_write_config_file(self):
         pass
 
     def test_set_workflow(self):
-        import shutil
 
         for dir in Path(MODULE_DIR, "WKFLOW_test").iterdir():
             if dir.is_dir():
                 shutil.rmtree(dir, ignore_errors=True)
 
+        # Test all raising errors
+        self.workflow.optim_method = "notValidMethod"
+        with pytest.raises(ValueError):
+            self.workflow.set_workflow()
+
+        self.workflow.optim_method = "NONE"
+        self.workflow.module_optim = self.MODULE_OPTIM
+        with pytest.raises(ValueError):
+            self.workflow.set_workflow()
+
+        self.workflow.optim_method = "DOE"
+        self.workflow.module_optim = self.MODULE_OPTIM_NOT_CONTIGOUS
+        with pytest.raises(ValueError):
+            self.workflow.set_workflow()
+
+        self.workflow.module_optim = self.MODULE_OPTIM
+        self.workflow.working_dir = ""
+        with pytest.raises(ValueError):
+            self.workflow.set_workflow()
+
+        self.workflow.from_config_file(os.path.join(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
+        self.workflow.cpacs_in = Path(MODULE_DIR, "NotExistingCPACS.xml")
+        with pytest.raises(FileNotFoundError):
+            self.workflow.set_workflow()
+
+        # Test nomral behaviour
+        self.workflow = Workflow()
+        self.workflow.from_config_file(os.path.join(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
+        self.workflow.optim_method = "OPTIM"
         self.workflow.set_workflow()
 
         assert self.workflow.current_wkflow_dir.exists()
-        assert self.workflow.cpacs_path.exists()
+        assert self.workflow.cpacs_in.exists()
 
         assert len(list(self.workflow.current_wkflow_dir.iterdir())) == 7
 
-        assert self.workflow.module_to_run_obj[0].module_name == "SettingsGUI"
-        assert self.workflow.module_to_run_obj[1].module_name == "OPTIM"
-        assert self.workflow.module_to_run_obj[2].module_name == "PyTornado"
-        assert self.workflow.module_to_run_obj[3].module_name == "SettingsGUI"
-        assert self.workflow.module_to_run_obj[4].module_name == "PlotAeroCoefficients"
+        assert self.workflow.modules[0].name == "SettingsGUI"
+        assert self.workflow.modules[1].name == "OPTIM"
+        assert self.workflow.modules[2].name == "PyTornado"
+        assert self.workflow.modules[3].name == "SettingsGUI"
+        assert self.workflow.modules[4].name == "PlotAeroCoefficients"
 
-        assert self.workflow.module_to_run_obj[0].is_settinggui
-        assert self.workflow.module_to_run_obj[0].gui_related_modules == [
+        assert self.workflow.modules[0].is_settinggui
+        assert self.workflow.modules[0].gui_related_modules == [
             "SettingsGUI",
             "CPACS2SUMO",
             "CLCalculator",
             "PyTornado",
         ]
-        assert self.workflow.module_to_run_obj[0].module_wkflow_path == Path.joinpath(
+        assert self.workflow.modules[0].module_wkflow_path == Path.joinpath(
             self.workflow.current_wkflow_dir, "01_SettingsGUI"
         )
 
-        assert self.workflow.module_to_run_obj[1].is_optim_module
-        assert self.workflow.module_to_run_obj[1].optim_method == "OPTIM"
-        assert self.workflow.module_to_run_obj[1].module_wkflow_path == Path.joinpath(
+        assert self.workflow.modules[1].is_optim_module
+        assert self.workflow.modules[1].optim_method == "OPTIM"
+        assert self.workflow.modules[1].module_wkflow_path == Path.joinpath(
             self.workflow.current_wkflow_dir, "02_OPTIM"
         )
 
-        assert not self.workflow.module_to_run_obj[2].is_optim_module
-        assert self.workflow.module_to_run_obj[2].optim_method is None
-        assert self.workflow.module_to_run_obj[2].module_wkflow_path == Path.joinpath(
+        assert not self.workflow.modules[2].is_optim_module
+        assert self.workflow.modules[2].optim_method is None
+        assert self.workflow.modules[2].module_wkflow_path == Path.joinpath(
             self.workflow.current_wkflow_dir, "03_PyTornado"
         )
 

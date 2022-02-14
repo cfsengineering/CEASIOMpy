@@ -79,6 +79,23 @@ To test if it works, you can open a new terminal and type:
 It should launch CPACSCreator in a new window, if it is the case, you can close it and continue the installation.
 
 
+.. warning::
+
+  **Possible error**
+
+  If during the installation you get the following error:
+
+  cpacscreator: error while loading shared libraries: libtbb.so.2: cannot open shared object file: No such file or directory
+
+  try:
+
+  .. code::
+
+      >> sudo apt-get install libtbb2
+
+  and redo the previous step.
+
+
 **Update your paths**
 
 Go in your /home folder and open the (hidden) file “.bashrc” with your favorite text editor.
@@ -441,21 +458,6 @@ To test if it works, you can open a new terminal and type:
 It should launch CPACSCreator in a new window, if it is the case, you can close it and continue the installation.
 
 
-.. warning::
-
-  **Possible error**
-
-  If during the installation you get the following error:
-
-  cpacscreator: error while loading shared libraries: libtbb.so.2: cannot open shared object file: No such file or directory
-
-  try:
-
-  .. code::
-
-      >> sudo apt-get install libtbb2
-
-  and redo the previous step.
 
 ..
 

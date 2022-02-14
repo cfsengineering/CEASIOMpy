@@ -3,7 +3,7 @@ Installation
 
 .. warning::
 
-  CEASIOMpy is not a One-Click installation. As it gathers several different software, it required to have some computer knowledge.
+  CEASIOMpy is not a One-Click installation. As it gathers several different software, it required to have some computer knowledge and a little patience.
 
 Also some software are optional and you don't need ton install them if you don't plan to use them.
 
@@ -17,7 +17,7 @@ Miniconda
 Miniconda is an open source minimal package management system and environment management system.
 You will need it to install all the python program of CEASIOMpy.
 
-* Miniconda can be download at: ﻿https://docs.conda.io/en/latest/miniconda.html
+* Miniconda can be download at: https://docs.conda.io/en/latest/miniconda.html
 Choose the “Python 3.8 Miniconda3 Linux 64-bit” version
 
 Open a terminal (Ctrl+Alt+T) and type the following lines:
@@ -25,7 +25,7 @@ Open a terminal (Ctrl+Alt+T) and type the following lines:
 .. code::
 
   >> cd /PathToTheMinicondaDirectory
-  >> ﻿sudo chmod +x Miniconda3-latest-Linux-x86_64.sh
+  >> sudo chmod +x Miniconda3-latest-Linux-x86_64.sh
   >> ./Miniconda3-latest-Linux-x86_64.sh
 
 Press Enter several times (to the end)
@@ -44,7 +44,7 @@ install git and download CEASIOMpy from Github with the following lines:
 
   >> cd /PathToYourRepository
   >> sudo apt install git
-  >> ﻿git clone https://github.com/cfsengineering/CEASIOMpy.git
+  >> git clone https://github.com/cfsengineering/CEASIOMpy.git
 
 
 Then, create the virtual Conda environment for CEASIOMpy (it may take a few minutes to download and install all the libraries):
@@ -56,7 +56,7 @@ Then, create the virtual Conda environment for CEASIOMpy (it may take a few minu
   >> pip install -e .
 
 
-.. hint::
+.. warning::
 
   **Possible error**
 
@@ -108,7 +108,7 @@ Navigate to the repertory where you want to install PyTornado (e.g. next to the 
 
   >> mkdir PyTornado
   >> cd PyTornado
-  >> ﻿git clone https://github.com/airinnova/pytornado.git
+  >> git clone https://github.com/airinnova/pytornado.git
   >> cd pytornado
   >> pip install --user .
 
@@ -118,7 +118,7 @@ To test if the installation was a success you can type “pytornado” in a term
 SUMO (optional)
 ~~~~~~~~~~~~~~~
 
-* SUMO can be download at: ﻿https://www.larosterna.com/products/open-source
+* SUMO can be download at: https://www.larosterna.com/products/open-source
 Choose the Linux Standalone package.
 
 Right-click on the folder you just download and extract it.
@@ -127,11 +127,11 @@ Try to run SUMO from a terminal, by typing:
 
 .. code::
 
-  >> c﻿d /sumo-standalone-Qt4-2.7.9/sumo-2.7.9/bin/
+  >> cd /sumo-standalone-Qt4-2.7.9/sumo-2.7.9/bin/
   >> ./dwfsumo
 
 
-.. hint::
+.. warning::
 
     **Possible error**
 
@@ -150,7 +150,7 @@ Try to run SUMO from a terminal, by typing:
     .. code::
 
         >> cd /etc/apt/
-        >> sudo vi source.list
+        >> sudo vi sources.list
 
     Add the following lines:
     (the VI command is "i" to insert something and "esc" to quit the insert mode)
@@ -169,7 +169,7 @@ Try to run SUMO from a terminal, by typing:
 
 
 
-.. hint::
+.. warning::
 
     **Possible error**
 
@@ -192,11 +192,11 @@ Try to run SUMO from a terminal, by typing:
         >> sudo cp libpng12.so.0 /usr/lib/x86_64-linux-gnu/.
 
 
-﻿Now you should be able to run SUMO from the terminal with:
+Now you should be able to run SUMO from the terminal with:
 
 .. code::
 
-  >> c﻿d /sumo-standalone-Qt4-2.7.9/sumo-2.7.9/bin/
+  >> cd /sumo-standalone-Qt4-2.7.9/sumo-2.7.9/bin/
   >> ./dwfsumo
 
 To make it easier to run and possible to launch via CEASIOMpy you must create a symbolic link, with the following line:
@@ -240,7 +240,7 @@ In a terminal type the following line:
 
 .. code::
 
-  ﻿>> sudo apt-get install -y mpich
+  >> sudo apt-get install -y mpich
 
 
 Paraview (optional)
@@ -375,7 +375,7 @@ Navigate to the repertory where you want to install PyTornado (e.g. next to the 
 
   >> mkdir PyTornado
   >> cd PyTornado
-  >> ﻿git clone https://github.com/airinnova/pytornado.git
+  >> git clone https://github.com/airinnova/pytornado.git
   >> cd pytornado
   >> pip install --user .
 
@@ -406,7 +406,7 @@ install git and download CEASIOMpy from Github with the following lines:
 .. code::
 
   >> cd /PathToYourRepository
-  >> ﻿git clone https://github.com/cfsengineering/CEASIOMpy.git
+  >> git clone https://github.com/cfsengineering/CEASIOMpy.git
 
 
 Then, create the virtual Conda environment for CEASIOMpy (it may take a few minutes to download and install all the libraries):
@@ -418,7 +418,7 @@ Then, create the virtual Conda environment for CEASIOMpy (it may take a few minu
   >> pip install -e .
 
 
-.. hint::
+.. warning::
 
   **Possible error**
 
@@ -440,6 +440,22 @@ To test if it works, you can open a new terminal and type:
 
 It should launch CPACSCreator in a new window, if it is the case, you can close it and continue the installation.
 
+
+.. warning::
+
+  **Possible error**
+
+  If during the installation you get the following error:
+
+  cpacscreator: error while loading shared libraries: libtbb.so.2: cannot open shared object file: No such file or directory
+
+  try:
+
+  .. code::
+
+      >> sudo apt-get install libtbb2
+
+  and redo the previous step.
 
 ..
 
@@ -471,7 +487,7 @@ Navigate to the repertory where you want to install PyTornado (e.g. next to the 
 
   >> mkdir PyTornado
   >> cd PyTornado
-  >> ﻿git clone https://github.com/airinnova/pytornado.git
+  >> git clone https://github.com/airinnova/pytornado.git
   >> cd pytornado
   >> pip install --user .
 

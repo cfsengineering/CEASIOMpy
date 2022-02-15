@@ -44,6 +44,8 @@ install git and download CEASIOMpy from Github with the following lines:
 
   >> cd /PathToYourRepository
   >> sudo apt install git
+  >> sudo apt install g++
+  >> sudo apt install libtbb2
   >> git clone https://github.com/cfsengineering/CEASIOMpy.git
 
 
@@ -56,19 +58,6 @@ Then, create the virtual Conda environment for CEASIOMpy (it may take a few minu
   >> pip install -e .
 
 
-.. warning::
-
-  **Possible error**
-
-  If during the installation you get an error with SMT installation (gcc missing), try:
-
-  .. code::
-
-      >> sudo apt-get install g++
-
-  and redo the previous step.
-
-
 To test if it works, you can open a new terminal and type:
 
 .. code::
@@ -78,22 +67,6 @@ To test if it works, you can open a new terminal and type:
 
 It should launch CPACSCreator in a new window, if it is the case, you can close it and continue the installation.
 
-
-.. warning::
-
-  **Possible error**
-
-  If during the installation you get the following error:
-
-  cpacscreator: error while loading shared libraries: libtbb.so.2: cannot open shared object file: No such file or directory
-
-  try:
-
-  .. code::
-
-      >> sudo apt-get install libtbb2
-
-  and redo the previous step.
 
 
 **Update your paths**
@@ -157,7 +130,7 @@ Try to run SUMO from a terminal, by typing:
 
     .. code::
 
-        >> sudo apt-get install libgfortran3
+        >> sudo apt install libgfortran3
 
 
     If you get the error “E: Unable to locate package...”
@@ -181,8 +154,8 @@ Try to run SUMO from a terminal, by typing:
 
     .. code::
 
-        >> sudo apt-get update
-        >> sudo apt-get install libgfortran3 
+        >> sudo apt update
+        >> sudo apt install libgfortran3 
 
 
 
@@ -196,7 +169,7 @@ Try to run SUMO from a terminal, by typing:
 
     .. code::
 
-        >> sudo apt-get install libpng12
+        >> sudo apt install libpng12
 
     If you get the error “E: Unable to locate package…”:
 
@@ -257,7 +230,7 @@ In a terminal type the following line:
 
 .. code::
 
-  >> sudo apt-get install -y mpich
+  >> sudo apt install -y mpich
 
 
 Paraview (optional)
@@ -322,8 +295,6 @@ You may install either *Anaconda* or *Miniconda* (the latter is a smaller Conda 
 
 * *Anaconda*: https://docs.anaconda.com/anaconda/install/
 * *Miniconda*: https://docs.conda.io/en/latest/miniconda.html
-
-
 
 
 CEASIOMpy
@@ -443,7 +414,7 @@ Then, create the virtual Conda environment for CEASIOMpy (it may take a few minu
 
   .. code::
 
-      >> sudo apt-get install g++
+      >> sudo apt install g++
 
   and redo the previous step.
 

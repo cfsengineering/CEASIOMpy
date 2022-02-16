@@ -23,6 +23,7 @@ Todo:
 
 
 import os
+from pathlib import Path
 from re import split
 import pandas as pd
 
@@ -71,6 +72,7 @@ class Routine:
 
     def __init__(self):
         """Define default main parameters."""
+
         # Choice of routine type : DOE or Optimisation
         self.type = "Optim"
         self.date = ""
@@ -139,41 +141,41 @@ class Routine:
 #   FUNCTIONS
 # =================================================================================================
 
+# TODO: Remove this when the new optimisation routine is ready
+# def first_run(Rt):
+#     """Run subworkflow once for the optimisation problem.
 
-def first_run(Rt):
-    """Run subworkflow once for the optimisation problem.
+#     This function runs a first loop to ensure that all problem variables
+#     are created an can be fed to the optimisation setup program.
 
-    This function runs a first loop to ensure that all problem variables
-    are created an can be fed to the optimisation setup program.
+#     Args:
+#         Rt (Routine object): Class that contains the routine informations.
 
-    Args:
-        Rt (Routine object): Class that contains the routine informations.
+#     """
 
-    """
+#     log.info("Launching initialization workflow")
+#     Rt.modules.insert(0, "Optimisation")
 
-    log.info("Launching initialization workflow")
-    Rt.modules.insert(0, "Optimisation")
+#     # Settings needed for CFD calculation
+#     if "SettingsGUI" in Rt.modules:
+#         Rt.modules.remove("SettingsGUI")
+#         Rt.modules.insert(0, "SettingsGUI")
 
-    # Settings needed for CFD calculation
-    if "SettingsGUI" in Rt.modules:
-        Rt.modules.remove("SettingsGUI")
-        Rt.modules.insert(0, "SettingsGUI")
+#     # First iteration to create aeromap results if no pre-workflow
+#     if Rt.modules[0] == "Optimisation":
+#         copy_module_to_module("Optimisation", "in", Rt.modules[1], "in")
+#     else:
+#         copy_module_to_module("Optimisation", "in", Rt.modules[0], "in")
 
-    # First iteration to create aeromap results if no pre-workflow
-    if Rt.modules[0] == "Optimisation":
-        copy_module_to_module("Optimisation", "in", Rt.modules[1], "in")
-    else:
-        copy_module_to_module("Optimisation", "in", Rt.modules[0], "in")
+#     run_subworkflow(Rt.modules)
+#     copy_module_to_module(Rt.modules[-1], "out", "Optimisation", "in")
 
-    run_subworkflow(Rt.modules)
-    copy_module_to_module(Rt.modules[-1], "out", "Optimisation", "in")
+#     # SettingsGUI only needed at the first iteration
+#     if "SettingsGUI" in Rt.modules:  # and added_gui:
+#         Rt.modules.remove("SettingsGUI")
 
-    # SettingsGUI only needed at the first iteration
-    if "SettingsGUI" in Rt.modules:  # and added_gui:
-        Rt.modules.remove("SettingsGUI")
-
-    # Optimisation parameters only needed for the first run
-    Rt.modules.remove("Optimisation")
+#     # Optimisation parameters only needed for the first run
+#     Rt.modules.remove("Optimisation")
 
 
 def gen_doe_csv(user_config):
@@ -529,52 +531,6 @@ def get_default_df(tixi, module_list):
     return df
 
 
-def create_am_lib(Rt, cpacs):
-    """Create a dictionary for the aeromap coefficients.
-
-    Return a dictionary with all the values of the aeromap that is used during
-    the routine, so that all the results of the aeromap can later be exploited.
-
-    Args:
-        Rt (class): Contains all the parameters of the current routine.
-        cpacs (cbject): CPACS object.
-
-    Returns:
-        am_dict (dct): Dictionnary with all aeromap parameters.
-
-    """
-
-    aeromap = cpacs.get_aeromap_by_uid(Rt.aeromap_uid)
-    am_dict = aeromap.df.to_dict(orient="list")
-
-    for name in PARAMS_COEFS:
-        if name in ["altitude", "machNumber"]:
-            min_val = 0
-            max_val = "-"
-            val_type = "des"
-        if name in COEFS:
-            min_val = -1
-            max_val = 1
-            if name in Rt.objective:
-                val_type = "obj"
-            else:
-                val_type = "const"
-        if name in ["angleOfAttack", "angleOfSideslip"]:
-            min_val = -5
-            max_val = 5
-            val_type = "des"
-        am_dict[name] = (
-            val_type,
-            am_dict[name],
-            min_val,
-            max_val,
-            aeromap.xpath + name,
-            "-",
-        )
-
-    return am_dict
-
-
 def create_variable_library(Rt, tixi, optim_dir_path):
     """Create a dictionnary and a CSV file containing all variables that appear
     in the module list.
@@ -596,7 +552,8 @@ def create_variable_library(Rt, tixi, optim_dir_path):
     """
 
     global objective, var
-    CSV_PATH = optim_dir_path + "/Variable_library.csv"
+
+    CSV_PATH = Path(optim_dir_path, "Variable_library.csv")
 
     for obj in Rt.objective:
         objective.extend(split("[+*/-]", obj))
@@ -617,7 +574,7 @@ def create_variable_library(Rt, tixi, optim_dir_path):
 
         tls.launch_external_program(CSV_PATH)
 
-        log.info("Variable library file has been saved at " + CSV_PATH)
+        log.info(f"Variable library file has been saved at {CSV_PATH}")
         df = pd.read_csv(CSV_PATH, index_col=0, skip_blank_lines=True)
         optim_var_dict = generate_dict(df)
 

@@ -19,6 +19,7 @@ TODO:
 # =================================================================================================
 
 
+from ceasiompy.Optimisation.optimisation import routine_launcher
 import ceasiompy.__init__
 
 import os
@@ -117,11 +118,24 @@ class ModuleToRun:
 class OptimSubWorkflow:
     """Class to define and run CEASIOMpy optimisation (opim/doe) subworkflow."""
 
-    def __init__(self, subworkflow_dir: Path, cpacs_in: Path, modules_list: list) -> None:
+    def __init__(
+        self, subworkflow_dir: Path, cpacs_in: Path, optim_method: str, modules_list: list
+    ) -> None:
 
         self.subworkflow_dir = subworkflow_dir
         self.cpacs_in = cpacs_in
+        self.optim_method = optim_method
         self.modules_list = modules_list  # List of modules to run (str)
+
+        # If Otimisation module was not in the list add it just after the SettingsGUI
+        if not "Optimisation" in self.modules_list:
+            if self.modules_list[0] == "SettingsGUI":
+                pos = 1
+            else:
+                pos = 0
+
+            self.modules_list.insert(pos, "Optimisation")
+
         self.modules = [ModuleToRun(module, subworkflow_dir) for module in modules_list]
 
         self.iteration = 0
@@ -160,23 +174,30 @@ class OptimSubWorkflow:
 
         log.info(f"Running optim subworkflow in {self.subworkflow_dir}")
 
-        if self.iteration == 0:
+        finished = False
+        while not finished:
 
-            for module in self.modules:
+            if self.iteration == 0:  # First iteration
 
-                module.run(self.subworkflow_dir)
+                for module in self.modules:
 
-            # if any([module.name == "SettingsGUI" for module in self.modules]):
-            #     pass
+                    module.run(self.subworkflow_dir)
 
-            # TODO: copy last tool output when optim done (last iteration)
-            shutil.copy(self.modules[-1].cpacs_out, Path(self.subworkflow_dir, "ToolOutput.xml"))
+                # TODO: copy last tool output when optim done (last iteration)
+                shutil.copy(
+                    self.modules[-1].cpacs_out, Path(self.subworkflow_dir, "ToolOutput.xml")
+                )
 
-        else:
+            else:  # Next iterations
 
-            # Next iterations
+                # Remove "SettingsGUI" module from the list for the optimisation
+                module_optim = [module for module in self.modules if module.name != "SettingsGUI"]
 
-            pass
+                routine_launcher(self.optim_method, module_optim, self.subworkflow_dir.parent)
+
+            self.iteration += 1
+            if self.iteration > 1:
+                finished = True
 
 
 class Workflow:
@@ -335,6 +356,7 @@ class Workflow:
             self.subworkflow = OptimSubWorkflow(
                 module_optim_obj.module_wkflow_path,
                 module_optim_obj.cpacs_in,
+                self.optim_method,
                 module_optim_obj.optim_related_modules,
             )
             self.subworkflow.set_subworkflow()

@@ -25,7 +25,7 @@ TODO
 
 import numpy as np
 
-from cpacspy.utils import PARAMS_COEFS
+from cpacspy.utils import COEFS, PARAMS_COEFS
 from cpacspy.cpacsfunctions import open_tigl, get_tigl_configuration
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -77,6 +77,55 @@ def add_am_to_dict(optim_var_dict, am_dict):
         optim_var_dict[name] = infos
 
 
+def create_aeromap_dict(cpacs, aeromap_uid, objective):
+    """Create a dictionary for the aeromap coefficients.
+
+    Return a dictionary with all the values of the aeromap that is used during
+    the routine, so that all the results of the aeromap can later be exploited.
+
+    Args:
+        cpacs (cbject): CPACS object.
+        aeromap_uid (str): UID of the aeromap.
+        objective (str): Objective function to use.
+
+    Returns:
+        am_dict (dct): Dictionnary with all aeromap parameters.
+
+    """
+
+    aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+    aeromap_value_dict = aeromap.df.to_dict(orient="list")
+    aeromap_dict = {}
+
+    for name in PARAMS_COEFS:
+        if name in ["altitude", "machNumber"]:
+            min_val = 0
+            max_val = "-"
+            val_type = "des"
+        elif name in ["angleOfAttack", "angleOfSideslip"]:
+            min_val = -5
+            max_val = 5
+            val_type = "des"
+        elif name in COEFS:
+            min_val = -1
+            max_val = 1
+            if name in objective:
+                val_type = "obj"
+            else:
+                val_type = "const"
+
+        aeromap_dict[name] = (
+            val_type,
+            aeromap_value_dict[name],
+            min_val,
+            max_val,
+            aeromap.xpath + name,
+            "-",
+        )
+
+    return aeromap_dict
+
+
 def update_am_dict(cpacs, aeromap_uid, am_dict):
     """Save the aeromap results.
 
@@ -93,10 +142,10 @@ def update_am_dict(cpacs, aeromap_uid, am_dict):
     """
 
     aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
-    d = aeromap.df.to_dict(orient="list")
+    aeromap_value_dict = aeromap.df.to_dict(orient="list")
 
     for name, infos in am_dict.items():
-        infos[1].extend(d[name])
+        infos[1].extend(aeromap_value_dict[name])
 
 
 def update_dict(tixi, optim_var_dict):

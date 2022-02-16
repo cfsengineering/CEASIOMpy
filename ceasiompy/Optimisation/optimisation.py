@@ -18,8 +18,8 @@ Todo:
 
 """
 
-import datetime
 import os
+from pathlib import Path
 import shutil
 from re import split as splt
 import numpy as np
@@ -68,7 +68,6 @@ counter = 0
 geom_dict = {}
 optim_var_dict = {}
 Rt = opf.Routine()
-optim_dir_path = ""
 am_dict = {}
 
 # =============================================================================
@@ -306,62 +305,62 @@ class Objective(om.ExplicitComponent):
 #   FUNCTIONS
 # =============================================================================
 
+# TODO: Remove this when the new optimisation routine is ready
+# def create_routine_folder():
+#     """Create the working dicrectory of the routine.
 
-def create_routine_folder():
-    """Create the working dicrectory of the routine.
+#     Create a folder in which all CEASIOMpy runs and routine parameters will be
+#     saved. This architecture may change in the future. For now the architecture
+#     of the folder is as such :
 
-    Create a folder in which all CEASIOMpy runs and routine parameters will be
-    saved. This architecture may change in the future. For now the architecture
-    of the folder is as such :
+#     > CEASIOMpy_Run_XX-XX-XX
+#         -> Optim
+#             --> Geometry
+#             --> Runs
+#                 ---> Run_XX-XX-XX
+#         -> Optim2
+#             |
+#         -> OptimX
+#         -> DoE
 
-    > CEASIOMpy_Run_XX-XX-XX
-        -> Optim
-            --> Geometry
-            --> Runs
-                ---> Run_XX-XX-XX
-        -> Optim2
-            |
-        -> OptimX
-        -> DoE
+#     Args:
+#         None.
 
-    Args:
-        None.
+#     """
 
-    """
+#     global optim_dir_path, Rt
 
-    global optim_dir_path, Rt
+#     # Create the main working directory
+#     tixi = open_tixi(opf.CPACS_OPTIM_PATH)
 
-    # Create the main working directory
-    tixi = open_tixi(opf.CPACS_OPTIM_PATH)
+#     wkdir = get_results_directory("Optimisation")
 
-    wkdir = get_results_directory("Optimisation")
+#     optim_dir_path = os.path.join(wkdir, Rt.type)
+#     Rt.date = wkdir[-19:]
 
-    optim_dir_path = os.path.join(wkdir, Rt.type)
-    Rt.date = wkdir[-19:]
+#     # Save the path to the directory in the CPACS
+#     if tixi.checkElement(OPTWKDIR_XPATH):
+#         tixi.removeElement(OPTWKDIR_XPATH)
+#     create_branch(tixi, OPTWKDIR_XPATH)
+#     tixi.updateTextElement(OPTWKDIR_XPATH, optim_dir_path)
 
-    # Save the path to the directory in the CPACS
-    if tixi.checkElement(OPTWKDIR_XPATH):
-        tixi.removeElement(OPTWKDIR_XPATH)
-    create_branch(tixi, OPTWKDIR_XPATH)
-    tixi.updateTextElement(OPTWKDIR_XPATH, optim_dir_path)
+#     # Add subdirectories
+#     if not os.path.isdir(optim_dir_path):
+#         os.mkdir(optim_dir_path)
+#         os.mkdir(optim_dir_path + "/Geometry")
+#         os.mkdir(optim_dir_path + "/Runs")
+#     else:
+#         index = 2
+#         optim_dir_path = optim_dir_path + str(index)
+#         while os.path.isdir(optim_dir_path):
+#             index += 1
+#             optim_dir_path = optim_dir_path.split(Rt.type)[0] + Rt.type + str(index)
+#         os.mkdir(optim_dir_path)
+#         os.mkdir(optim_dir_path + "/Geometry")
+#         os.mkdir(optim_dir_path + "/Runs")
+#     tixi.updateTextElement(OPTWKDIR_XPATH, optim_dir_path)
 
-    # Add subdirectories
-    if not os.path.isdir(optim_dir_path):
-        os.mkdir(optim_dir_path)
-        os.mkdir(optim_dir_path + "/Geometry")
-        os.mkdir(optim_dir_path + "/Runs")
-    else:
-        index = 2
-        optim_dir_path = optim_dir_path + str(index)
-        while os.path.isdir(optim_dir_path):
-            index += 1
-            optim_dir_path = optim_dir_path.split(Rt.type)[0] + Rt.type + str(index)
-        os.mkdir(optim_dir_path)
-        os.mkdir(optim_dir_path + "/Geometry")
-        os.mkdir(optim_dir_path + "/Runs")
-    tixi.updateTextElement(OPTWKDIR_XPATH, optim_dir_path)
-
-    tixi.save(opf.CPACS_OPTIM_PATH)
+#     tixi.save(opf.CPACS_OPTIM_PATH)
 
 
 def driver_setup(prob):
@@ -563,7 +562,7 @@ def generate_results(prob):
     copy_module_to_module(Rt.modules[-1], "out", "Optimisation", "out")
 
 
-def routine_launcher(optim_method, module_optim):
+def routine_launcher(optim_method, module_optim, wkflow_dir):
     """Run an optimisation routine or DoE using the OpenMDAO library.
 
     This function launches the setup for the routine by setting up the problem
@@ -573,26 +572,39 @@ def routine_launcher(optim_method, module_optim):
     the routine.
 
     Args:
-        Opt (class) : Indicates which modules to use and the routine type
-        (Optim or DoE).
+        optim_method (str): Optimisation method to be used
+        module_optim (list): list of modules (ModuleToRun object) in the optimisation loop
 
     """
 
-    global optim_var_dict, am_dict, Rt, am_length
+    global optim_var_dict, am_dict, Rt
 
     Rt.type = optim_method
-    Rt.modules = module_optim
+    Rt.modules = [module.name for module in module_optim]
 
+    # TODO: Remove this when the new optimisation routine is ready
     # Initialize CPACS file and problem dictionary ##
-    create_routine_folder()
-    opf.first_run(Rt)
+    # create_routine_folder()
+    # opf.first_run(Rt)
 
-    cpacs = CPACS(opf.CPACS_OPTIM_PATH)
+    # TODO: change that, from which module should it comes?
+    # CPACS_OPTIM_PATH = mif.get_toolinput_file_path("Optimisation")
+
+    # Cpacs from the ouput of the last module
+    cpacs_path = str(module_optim[-1].cpacs_out)
+    print("CPACS_PATH: ", cpacs_path)
+
+    cpacs = CPACS(cpacs_path)
 
     Rt.get_user_inputs(cpacs.tixi)
-    optim_var_dict = opf.create_variable_library(Rt, cpacs.tixi, optim_dir_path)
-    am_dict = opf.create_am_lib(Rt, cpacs)
 
+    optim_dir_path = Path(wkflow_dir, "Results", optim_method)
+    optim_dir_path.mkdir(parents=True, exist_ok=True)
+
+    optim_var_dict = opf.create_variable_library(Rt, cpacs.tixi, optim_dir_path)
+    am_dict = dct.create_aeromap_dict(cpacs, Rt.aeromap_uid, Rt.objective)
+
+    # TODO: Where to save new file
     cpacs.save_cpacs(opf.CPACS_OPTIM_PATH, overwrite=True)
     copy_module_to_module("Optimisation", "in", Rt.modules[0], "in")
 

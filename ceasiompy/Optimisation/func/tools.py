@@ -71,11 +71,13 @@ def launch_external_program(path):
     OS = sys.platform
     log.info("Identified OS : " + OS)
     if OS == "linux":
-        os.system("libreoffice " + path)
+        os.system("libreoffice " + str(path))
     elif OS == "win32":
-        os.system("Start excel.exe " + path.replace("/", "\\"))
+        os.system("Start excel.exe " + str(path).replace("/", "\\"))
     elif OS == "darwin":
-        os.system("/Applications/Microsoft\ Excel.app/Contents/MacOS/Microsoft\ Excel " + path)
+        os.system(
+            "/Applications/Microsoft\ Excel.app/Contents/MacOS/Microsoft\ Excel " + str(path)
+        )
 
     input("Press ENTER to continue...")
 

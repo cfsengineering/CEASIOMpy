@@ -410,8 +410,8 @@ def driver_setup(prob):
 
     #  Attaching a recorder and a diagramm visualizer ##
     prob.driver.recording_options["record_inputs"] = True
-    prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path + "/circuit.sqlite"))
-    prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path + "/Driver_recorder.sql"))
+    prob.driver.add_recorder(om.SqliteRecorder(str(optim_dir_path) + "/circuit.sqlite"))
+    prob.driver.add_recorder(om.SqliteRecorder(str(optim_dir_path) + "/Driver_recorder.sql"))
 
 
 def add_subsystems(prob, ivc):
@@ -592,12 +592,12 @@ def routine_launcher(optim_method, module_optim, wkflow_dir):
 
     # Cpacs from the ouput of the last module
     cpacs_path = str(module_optim[-1].cpacs_out)
-    print("CPACS_PATH: ", cpacs_path)
 
     cpacs = CPACS(cpacs_path)
 
     Rt.get_user_inputs(cpacs.tixi)
 
+    global optim_dir_path  # TODO change that
     optim_dir_path = Path(wkflow_dir, "Results", optim_method)
     optim_dir_path.mkdir(parents=True, exist_ok=True)
 
@@ -605,8 +605,10 @@ def routine_launcher(optim_method, module_optim, wkflow_dir):
     am_dict = dct.create_aeromap_dict(cpacs, Rt.aeromap_uid, Rt.objective)
 
     # TODO: Where to save new file
-    cpacs.save_cpacs(opf.CPACS_OPTIM_PATH, overwrite=True)
-    copy_module_to_module("Optimisation", "in", Rt.modules[0], "in")
+    tmp_cpacs = Path(wkflow_dir, "temp.xml")
+    cpacs.save_cpacs(str(tmp_cpacs), overwrite=True)
+
+    module_optim[0].cpacs_in = tmp_cpacs
 
     # Instantiate components and subsystems ##
     prob = om.Problem()

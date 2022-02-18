@@ -62,13 +62,11 @@ log = get_logger(__file__.split(".")[0])
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
-mod = []
-counter = 0
-# skf = False
 geom_dict = {}
 optim_var_dict = {}
-Rt = opf.Routine()
 am_dict = {}
+Rt = opf.Routine()
+
 
 # =============================================================================
 #   CLASSES
@@ -97,10 +95,10 @@ class Geom_param(om.ExplicitComponent):
 class ModuleComp(om.ExplicitComponent):
     """Class to define each module in the problem as an independent component"""
 
-    def __init__(self):
+    def __init__(self, module_name):
         """Add the module name that corresponds to the object being created"""
         om.ExplicitComponent.__init__(self)
-        self.module_name = mod
+        self.module_name = module_name
 
     def setup(self):
         """Setup inputs and outputs"""
@@ -120,10 +118,6 @@ class ModuleComp(om.ExplicitComponent):
         if declared == []:
             self.add_input(self.module_name + "_in")
         declared = []
-
-        # Outputs
-        # To remove
-        # is_skf = (self.module_name == 'SkinFriction')
 
         for entry in spec.cpacs_inout.outputs:
             # Replace special characters from the name of the entry and checks for accronyms
@@ -263,15 +257,16 @@ class Objective(om.ExplicitComponent):
 
     def compute(self, inputs, outputs):
         """Compute the objective expression"""
-        global counter
-        counter += 1
+
+        Rt.counter += 1
         cpacs_path = mif.get_tooloutput_file_path(Rt.modules[-1])
 
+        # TODO: will be replace by iter_xx.xlm in each module directory
         # Save the CPACS file for this iteration
-        if counter % Rt.save_iter == 0:
-            loc = optim_dir_path + "/Geometry/" + "iter_{}.xml".format(counter)
+        if Rt.counter % Rt.save_iter == 0:
+            loc = Rt.optim_dir + f"/Geometry/" + "iter_{Rt.counter}.xml"
             shutil.copy(cpacs_path, loc)
-            log.info("Copy current CPACS to " + optim_dir_path)
+            log.info("Copy current CPACS to " + Rt.optim_dir)
 
         # Add new variables to dictionnary
         cpacs = CPACS(cpacs_path)
@@ -410,8 +405,8 @@ def driver_setup(prob):
 
     #  Attaching a recorder and a diagramm visualizer ##
     prob.driver.recording_options["record_inputs"] = True
-    prob.driver.add_recorder(om.SqliteRecorder(str(optim_dir_path) + "/circuit.sqlite"))
-    prob.driver.add_recorder(om.SqliteRecorder(str(optim_dir_path) + "/Driver_recorder.sql"))
+    prob.driver.add_recorder(om.SqliteRecorder(str(Rt.optim_dir) + "/circuit.sqlite"))
+    prob.driver.add_recorder(om.SqliteRecorder(str(Rt.optim_dir) + "/Driver_recorder.sql"))
 
 
 def add_subsystems(prob, ivc):
@@ -425,7 +420,7 @@ def add_subsystems(prob, ivc):
 
     """
 
-    global mod, geom_dict
+    global geom_dict
     geom = Geom_param()
     obj = Objective()
 
@@ -433,7 +428,6 @@ def add_subsystems(prob, ivc):
     prob.model.add_subsystem("indeps", ivc, promotes=["*"])
 
     # Geometric parameters
-    mod = [Rt.modules[0], Rt.modules[-1]]
     geom_dict = {k: v for k, v in optim_var_dict.items() if v[5] != "-"}
     if geom_dict:
         prob.model.add_subsystem("Geometry", geom, promotes=["*"])
@@ -451,10 +445,9 @@ def add_subsystems(prob, ivc):
         if name == "SMUse":
             prob.model.add_subsystem(name, SmComp(), promotes=["*"])
         else:
-            mod = name
             spec = mif.get_specs_for_module(name)
             if spec.cpacs_inout.inputs or spec.cpacs_inout.outputs:
-                prob.model.add_subsystem(name, ModuleComp(), promotes=["*"])
+                prob.model.add_subsystem(name, ModuleComp(name), promotes=["*"])
 
     # Objectives
     prob.model.add_subsystem("objective", obj, promotes=["*"])
@@ -548,16 +541,16 @@ def generate_results(prob):
         dct.add_am_to_dict(optim_var_dict, am_dict)
 
     # Generate N2 scheme ##
-    om.n2(optim_dir_path + "/circuit.sqlite", optim_dir_path + "/circuit.html", False)
+    om.n2(Rt.optim_dir + "/circuit.sqlite", Rt.optim_dir + "/circuit.html", False)
 
     # Recap of the problem inputs/outputs ##
     prob.model.list_inputs()
     prob.model.list_outputs()
 
     # Results processing ##
-    tls.plot_results(optim_dir_path, "", optim_var_dict)
+    tls.plot_results(Rt.optim_dir, "", optim_var_dict)
 
-    tls.save_results(optim_dir_path, optim_var_dict)
+    tls.save_results(Rt.optim_dir, optim_var_dict)
 
     copy_module_to_module(Rt.modules[-1], "out", "Optimisation", "out")
 
@@ -597,11 +590,10 @@ def routine_launcher(optim_method, module_optim, wkflow_dir):
 
     Rt.get_user_inputs(cpacs.tixi)
 
-    global optim_dir_path  # TODO change that
-    optim_dir_path = Path(wkflow_dir, "Results", optim_method)
-    optim_dir_path.mkdir(parents=True, exist_ok=True)
+    Rt.optim_dir = Path(wkflow_dir, "Results", optim_method)
+    Rt.optim_dir.mkdir(parents=True, exist_ok=True)
 
-    optim_var_dict = opf.create_variable_library(Rt, cpacs.tixi, optim_dir_path)
+    optim_var_dict = opf.create_variable_library(Rt, cpacs.tixi, Rt.optim_dir)
     am_dict = dct.create_aeromap_dict(cpacs, Rt.aeromap_uid, Rt.objective)
 
     # TODO: Where to save new file

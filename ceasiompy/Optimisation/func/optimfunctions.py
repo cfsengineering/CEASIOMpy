@@ -99,12 +99,17 @@ class Routine:
         self.user_config = "../optimisation/Default_config.csv"
         self.aeromap_uid = "-"
         self.use_aeromap = False
-        
+
         # Counter
         self.counter = 0
-        
+
         # Optimisation directory
         self.optim_dir = None
+
+        # Variable dictionary
+        self.geom_dict = {}
+        self.optim_var_dict = {}
+        self.am_dict = {}
 
     def get_user_inputs(self, tixi):
         """Take user inputs from the GUI."""

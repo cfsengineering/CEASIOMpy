@@ -62,9 +62,6 @@ log = get_logger(__file__.split(".")[0])
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
-geom_dict = {}
-optim_var_dict = {}
-am_dict = {}
 Rt = opf.Routine()
 
 
@@ -78,8 +75,8 @@ class Geom_param(om.ExplicitComponent):
 
     def setup(self):
         """Setup inputs only for the geometry"""
-        for name, infos in geom_dict.items():
-            if name in optim_var_dict:
+        for name, infos in Rt.geom_dict.items():
+            if name in Rt.optim_var_dict:
                 self.add_input(name, val=infos[1][0])
 
     def compute(self, inputs, outputs):
@@ -87,9 +84,9 @@ class Geom_param(om.ExplicitComponent):
         cpacs_path = mif.get_tooloutput_file_path(Rt.modules[-1])
         cpacs_path_out = mif.get_toolinput_file_path(Rt.modules[0])
 
-        for name, infos in geom_dict.items():
+        for name, infos in Rt.geom_dict.items():
             infos[1].append(inputs[name][0])
-        cpud.update_cpacs_file(cpacs_path, cpacs_path_out, geom_dict)
+        cpud.update_cpacs_file(cpacs_path, cpacs_path_out, Rt.geom_dict)
 
 
 class ModuleComp(om.ExplicitComponent):
@@ -109,9 +106,9 @@ class ModuleComp(om.ExplicitComponent):
         for entry in spec.cpacs_inout.inputs:
             if entry.var_name in declared:
                 log.info("Already declared")
-            elif entry.var_name in optim_var_dict:
-                var = optim_var_dict[entry.var_name]
-                if entry.var_name in optim_var_dict:
+            elif entry.var_name in Rt.optim_var_dict:
+                var = Rt.optim_var_dict[entry.var_name]
+                if entry.var_name in Rt.optim_var_dict:
                     self.add_input(entry.var_name, val=var[1][0])
                     declared.append(entry.var_name)
 
@@ -125,8 +122,8 @@ class ModuleComp(om.ExplicitComponent):
 
             if entry.var_name in declared:
                 log.info("Already declared")
-            elif entry.var_name in optim_var_dict:
-                var = optim_var_dict[entry.var_name]
+            elif entry.var_name in Rt.optim_var_dict:
+                var = Rt.optim_var_dict[entry.var_name]
                 self.add_output(entry.var_name, val=var[1][0])
                 declared.append(entry.var_name)
             elif (
@@ -134,13 +131,13 @@ class ModuleComp(om.ExplicitComponent):
             ):  # == 'PyTornado':  #not skf^is_skf:
                 # Condition to avoid any conflict with skinfriction
                 for name in PARAMS:
-                    if name in optim_var_dict:
-                        var = optim_var_dict[name]
+                    if name in Rt.optim_var_dict:
+                        var = Rt.optim_var_dict[name]
                         self.add_input(name, val=var[1][0])
                         declared.append(entry.var_name)
                 for name in COEFS:
-                    if name in optim_var_dict:
-                        var = optim_var_dict[name]
+                    if name in Rt.optim_var_dict:
+                        var = Rt.optim_var_dict[name]
                         if tls.is_digit(var[1][0]):
                             self.add_output(name, val=var[1][0])
                         else:
@@ -157,8 +154,8 @@ class ModuleComp(om.ExplicitComponent):
         cpacs_path = mif.get_toolinput_file_path(self.module_name)
         tixi = open_tixi(cpacs_path)
         for name in inputs:
-            if name in optim_var_dict:
-                xpath = optim_var_dict[name][4]
+            if name in Rt.optim_var_dict:
+                xpath = Rt.optim_var_dict[name][4]
                 # Change only the first vector value for aeromap param
                 if name in PARAMS:
                     size = tixi.getVectorSize(xpath)
@@ -177,8 +174,8 @@ class ModuleComp(om.ExplicitComponent):
         cpacs_path = mif.get_tooloutput_file_path(self.module_name)
         tixi = open_tixi(cpacs_path)
         for name in outputs:
-            if name in optim_var_dict:
-                xpath = optim_var_dict[name][4]
+            if name in Rt.optim_var_dict:
+                xpath = Rt.optim_var_dict[name][4]
                 if name in COEFS:
                     val = get_value(tixi, xpath)
                     if isinstance(val, str):
@@ -271,11 +268,11 @@ class Objective(om.ExplicitComponent):
         # Add new variables to dictionnary
         cpacs = CPACS(cpacs_path)
 
-        dct.update_dict(cpacs.tixi, optim_var_dict)
+        dct.update_dict(cpacs.tixi, Rt.optim_var_dict)
 
         # Save the whole aeromap if needed
         if Rt.use_aeromap:
-            dct.update_am_dict(cpacs, Rt.aeromap_uid, am_dict)
+            dct.update_am_dict(cpacs, Rt.aeromap_uid, Rt.am_dict)
 
         # Change local wkdir for the next iteration
         # TODO: ......
@@ -420,7 +417,6 @@ def add_subsystems(prob, ivc):
 
     """
 
-    global geom_dict
     geom = Geom_param()
     obj = Objective()
 
@@ -428,8 +424,8 @@ def add_subsystems(prob, ivc):
     prob.model.add_subsystem("indeps", ivc, promotes=["*"])
 
     # Geometric parameters
-    geom_dict = {k: v for k, v in optim_var_dict.items() if v[5] != "-"}
-    if geom_dict:
+    Rt.geom_dict = {k: v for k, v in Rt.optim_var_dict.items() if v[5] != "-"}
+    if Rt.geom_dict:
         prob.model.add_subsystem("Geometry", geom, promotes=["*"])
 
     # Find last module to use an aeromap
@@ -474,7 +470,7 @@ def add_parameters(prob, ivc):
         maxval,
         getcommand,
         setcommand,
-    ) in optim_var_dict.items():
+    ) in Rt.optim_var_dict.items():
         if val_type == "des" and listval[-1] not in ["True", "False", "-"]:
             if tls.is_digit(minval) and tls.is_digit(maxval):
                 prob.model.add_design_var(name, lower=float(minval), upper=float(maxval))
@@ -538,7 +534,7 @@ def generate_results(prob):
     """
 
     if Rt.use_aeromap and Rt.type == "DoE":
-        dct.add_am_to_dict(optim_var_dict, am_dict)
+        dct.add_am_to_dict(Rt.optim_var_dict, Rt.am_dict)
 
     # Generate N2 scheme ##
     om.n2(Rt.optim_dir + "/circuit.sqlite", Rt.optim_dir + "/circuit.html", False)
@@ -548,9 +544,9 @@ def generate_results(prob):
     prob.model.list_outputs()
 
     # Results processing ##
-    tls.plot_results(Rt.optim_dir, "", optim_var_dict)
+    tls.plot_results(Rt.optim_dir, "", Rt.optim_var_dict)
 
-    tls.save_results(Rt.optim_dir, optim_var_dict)
+    tls.save_results(Rt.optim_dir, Rt.optim_var_dict)
 
     copy_module_to_module(Rt.modules[-1], "out", "Optimisation", "out")
 
@@ -570,7 +566,7 @@ def routine_launcher(optim_method, module_optim, wkflow_dir):
 
     """
 
-    global optim_var_dict, am_dict, Rt
+    global Rt
 
     Rt.type = optim_method
     Rt.modules = [module.name for module in module_optim]
@@ -593,8 +589,8 @@ def routine_launcher(optim_method, module_optim, wkflow_dir):
     Rt.optim_dir = Path(wkflow_dir, "Results", optim_method)
     Rt.optim_dir.mkdir(parents=True, exist_ok=True)
 
-    optim_var_dict = opf.create_variable_library(Rt, cpacs.tixi, Rt.optim_dir)
-    am_dict = dct.create_aeromap_dict(cpacs, Rt.aeromap_uid, Rt.objective)
+    Rt.optim_var_dict = opf.create_variable_library(Rt, cpacs.tixi, Rt.optim_dir)
+    Rt.am_dict = dct.create_aeromap_dict(cpacs, Rt.aeromap_uid, Rt.objective)
 
     # TODO: Where to save new file
     tmp_cpacs = Path(wkflow_dir, "temp.xml")

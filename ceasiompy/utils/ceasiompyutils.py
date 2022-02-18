@@ -115,6 +115,41 @@ def copy_module_to_module(module_from, io_from, module_to, io_to):
     shutil.copy(file_copy_from, file_copy_to)
 
 
+def run_module(module, wkdir=Path.cwd()):
+    """Run a 'ModuleToRun' ojbect in a specific wkdir.
+
+    Args:
+        module (ModuleToRun): 'ModuleToRun' ojbect (define in ceasiompyfunctions.py)
+        wkdir (Path, optional): Path of the working directory. Defaults to Path.cwd().
+    """
+
+    # TODO: make that more general
+    OPTIM_METHOD = ["OPTIM", "DOE"]
+
+    log.info("###############################################################################")
+    log.info("# Run module: " + module.name)
+    log.info("###############################################################################")
+
+    if module.name == "SettingsGUI":
+
+        create_settings_gui(
+            str(module.cpacs_in), str(module.cpacs_out), module.gui_related_modules
+        )
+
+    else:
+
+        for file in module.module_dir.iterdir():
+            if file.name.endswith(".py") and not file.name.startswith("__"):
+                python_file = file.stem
+
+        # Import the main function of the module
+        my_module = importlib.import_module(f"ceasiompy.{module.name}.{python_file}")
+
+        # Run the module
+        with change_working_dir(wkdir):
+            my_module.main(str(module.cpacs_in), str(module.cpacs_out))
+
+
 def run_subworkflow(module_to_run, cpacs_path_in="", cpacs_path_out=""):
     """Function to run a list of module in order.
 

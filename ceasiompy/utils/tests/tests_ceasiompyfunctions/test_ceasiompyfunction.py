@@ -26,6 +26,7 @@ from ceasiompy.utils.ceasiompyfunctions import (
     Workflow,
     get_gui_related_modules,
 )
+from ceasiompy.utils.ceasiompyutils import run_module
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 CPACS_PATH = os.path.join(MODULE_DIR, "D150_simple.xml")
@@ -94,7 +95,9 @@ class TestModuleToRun:
         module = ModuleToRun(
             "ModuleTemplate", self.wkflow_test, Path(CPACS_PATH), Path(CPACS_PATH_OUT)
         )
-        module.run()
+
+        # TODO: how to separate test from ceasiompyfunctions.py and ceasiompyutils.py
+        run_module(module)
 
         assert Path(CPACS_PATH_OUT).exists()
 

@@ -25,11 +25,9 @@ import ceasiompy.__init__
 import os
 import shutil
 import datetime
-import importlib
 from pathlib import Path
 
-from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
-from ceasiompy.utils.ceasiompyutils import change_working_dir
+from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
 
@@ -86,33 +84,6 @@ class ModuleToRun:
 
         self.module_wkflow_path = Path.joinpath(self.wkflow_dir, module_wkflow_name)
         self.module_wkflow_path.mkdir()
-
-    def run(self, wkdir: Path = Path.cwd()) -> None:
-
-        log.info("###############################################################################")
-        log.info("# Run module: " + self.name)
-        log.info("###############################################################################")
-
-        if self.name == "SettingsGUI":
-
-            create_settings_gui(str(self.cpacs_in), str(self.cpacs_out), self.gui_related_modules)
-
-        elif self.name in OPTIM_METHOD:
-            # TODO: Implement optim module
-            pass
-
-        else:
-
-            for file in self.module_dir.iterdir():
-                if file.name.endswith(".py") and not file.name.startswith("__"):
-                    python_file = file.stem
-
-            # Import the main function of the module
-            my_module = importlib.import_module(f"ceasiompy.{self.name}.{python_file}")
-
-            # Run the module
-            with change_working_dir(wkdir):
-                my_module.main(str(self.cpacs_in), str(self.cpacs_out))
 
 
 class OptimSubWorkflow:
@@ -180,8 +151,7 @@ class OptimSubWorkflow:
             if self.iteration == 0:  # First iteration
 
                 for module in self.modules:
-
-                    module.run(self.subworkflow_dir)
+                    run_module(module, self.subworkflow_dir)
 
                 # TODO: copy last tool output when optim done (last iteration)
                 shutil.copy(
@@ -374,7 +344,7 @@ class Workflow:
             if module.is_optim_module:
                 self.subworkflow.run_subworkflow()
             else:
-                module.run(self.current_wkflow_dir)
+                run_module(module, self.current_wkflow_dir)
 
 
 # =================================================================================================

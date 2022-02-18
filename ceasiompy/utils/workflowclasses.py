@@ -197,20 +197,17 @@ class Workflow:
         self.working_dir = Path(cfg_file).parent.absolute()
         self.cpacs_in = Path(cfg["CPACS_TOOLINPUT"])
 
-        try:
-            self.modules_list = cfg["MODULE_TO_RUN"]
-        except KeyError:
-            pass
+        self.modules_list = cfg["MODULE_TO_RUN"]
 
         try:
             self.module_optim = cfg["MODULE_OPTIM"]
         except KeyError:
-            pass
+            self.module_optim = ["NO"] * len(self.modules_list)
 
         try:
             self.optim_method = cfg["OPTIM_METHOD"]
         except KeyError:
-            pass
+            self.optim_method = "None"
 
     def write_config_file(self) -> None:
         """Write the workflow configuration file in the working directory."""
@@ -238,7 +235,7 @@ class Workflow:
         """Create the directory structure and set input/output of each modules"""
 
         # Check optim method validity
-        if self.optim_method not in OPTIM_METHOD + ["NONE"]:
+        if self.optim_method not in OPTIM_METHOD + ["None", "NONE"]:
             raise ValueError(f"Optimisation method {self.optim_method} not supported")
 
         # Check coehrence of the optimisation modules from config file

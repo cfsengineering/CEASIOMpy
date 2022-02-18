@@ -195,7 +195,7 @@ class WorkFlowGUI(tk.Frame):
         self.label.grid(column=0, row=2)
 
         self.path_var = tk.StringVar()
-        self.path_var.set(self.workflow.cpacs_path)
+        self.path_var.set(self.workflow.cpacs_in)
         value_entry = tk.Entry(self, textvariable=self.path_var, width=45)
         value_entry.grid(column=1, row=2)
 
@@ -235,18 +235,22 @@ class WorkFlowGUI(tk.Frame):
     def _save_quit(self):
 
         self.workflow.optim_method = self.TabOptim.optim_choice_CB.get()
+        if not self.workflow.optim_method:
+            self.workflow.optim_method = "None"
 
-        self.workflow.module_to_run = [
+        self.workflow.modules_list = [
             item[0] for item in self.TabModToRun.LB_selected.get(0, tk.END)
         ]
         self.workflow.module_optim = [item[0] for item in self.TabOptim.LB_selected.get(0, tk.END)]
+        if not self.workflow.module_optim:
+            self.workflow.module_optim = ["NO"] * len(self.workflow.modules_list)
 
         # CPACS file
         if self.path_var.get() == "":
             messagebox.showerror("ValueError", "Yon must select an input CPACS file!")
             raise TypeError("No CPACS file has been define !")
 
-        self.workflow.cpacs_path = Path(self.path_var.get())
+        self.workflow.cpacs_in = Path(self.path_var.get())
 
         if self.wkdir_path_var.get() == "":
             messagebox.showerror("ValueError", "Yon must select a Woking Directory!")
@@ -278,14 +282,7 @@ class WorkFlowGUI(tk.Frame):
 
 
 def create_wf_gui():
-    """Create a GUI with Tkinter to fill the workflow to run
-
-    Args:
-        cpacs_path (str): Path to the CPACS file
-        cpacs_out_path (str): Path to the output CPACS file
-        module_list (list): List of module to include in the GUI
-
-    """
+    """Create a GUI with Tkinter to fill the workflow to run."""
 
     root = tk.Tk()
     root.title("Workflow Creator")

@@ -25,7 +25,7 @@ import os
 import sys
 
 from ceasiompy.WorkflowCreator.workflowcreator import create_wf_gui
-from ceasiompy.utils.ceasiompyfunctions import Workflow
+from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 

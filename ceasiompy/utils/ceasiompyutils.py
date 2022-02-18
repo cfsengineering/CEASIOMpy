@@ -83,6 +83,7 @@ def get_results_directory(module_name: str) -> Path:
     return results_dir
 
 
+# TODO: will be removed when not used anymore in optimisation.py
 def copy_module_to_module(module_from, io_from, module_to, io_to):
     """Transfer CPACS file from one module to another.
 
@@ -119,12 +120,9 @@ def run_module(module, wkdir=Path.cwd()):
     """Run a 'ModuleToRun' ojbect in a specific wkdir.
 
     Args:
-        module (ModuleToRun): 'ModuleToRun' ojbect (define in ceasiompyfunctions.py)
+        module (ModuleToRun): 'ModuleToRun' ojbect (define in workflowclasses.py)
         wkdir (Path, optional): Path of the working directory. Defaults to Path.cwd().
     """
-
-    # TODO: make that more general
-    OPTIM_METHOD = ["OPTIM", "DOE"]
 
     log.info("###############################################################################")
     log.info("# Run module: " + module.name)
@@ -150,6 +148,7 @@ def run_module(module, wkdir=Path.cwd()):
             my_module.main(str(module.cpacs_in), str(module.cpacs_out))
 
 
+# TODO: will be remove when not used anymore in optimisation.py
 def run_subworkflow(module_to_run, cpacs_path_in="", cpacs_path_out=""):
     """Function to run a list of module in order.
 

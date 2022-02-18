@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Test functions for 'utils/ceasiompyfunctions.py'
+Test functions for 'utils/workflowclasses.py'
 
 Python version: >=3.7
 
@@ -20,7 +20,7 @@ import os
 import pytest
 import shutil
 from pathlib import Path
-from ceasiompy.utils.ceasiompyfunctions import (
+from ceasiompy.utils.workflowclasses import (
     ModuleToRun,
     OptimSubWorkflow,
     Workflow,
@@ -96,7 +96,7 @@ class TestModuleToRun:
             "ModuleTemplate", self.wkflow_test, Path(CPACS_PATH), Path(CPACS_PATH_OUT)
         )
 
-        # TODO: how to separate test from ceasiompyfunctions.py and ceasiompyutils.py
+        # TODO: how to separate test from workflowclasses.py and ceasiompyutils.py
         run_module(module)
 
         assert Path(CPACS_PATH_OUT).exists()

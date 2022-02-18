@@ -29,7 +29,7 @@ import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox, filedialog
 
-from ceasiompy.utils.ceasiompyfunctions import Workflow
+from ceasiompy.utils.workflowclasses import Workflow
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger

@@ -30,7 +30,7 @@ from ceasiompy.WeightConventional.func.Passengers.seatsconfig import get_seat_co
 from ceasiompy.WeightConventional.func.Crew.crewmembers import estimate_crew
 from ceasiompy.WeightConventional.func.Masses.oem import estimate_operating_empty_mass
 from ceasiompy.WeightConventional.func.Masses.mtom import estimate_mtom
-from ceasiompy.utils.ceasiompyfunctions import aircraft_name
+from ceasiompy.utils.ceasiompyutils import aircraft_name
 
 # Should be changed or removed
 from ceasiompy.utils.InputClasses.Conventional import weightconvclass

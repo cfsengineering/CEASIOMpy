@@ -43,7 +43,7 @@ from cpacspy.cpacsfunctions import (
     open_tigl,
     open_tixi,
 )
-import ceasiompy.utils.ceasiompyfunctions as ceaf
+
 from ceasiompy.utils.su2functions import get_mesh_marker
 import ceasiompy.utils.moduleinterfaces as mi
 

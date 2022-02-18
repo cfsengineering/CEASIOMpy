@@ -41,7 +41,7 @@ from ceasiompy.Range.func.AoutFunc import outputrangegen
 from ceasiompy.Range.func.AoutFunc import cpacsrangeupdate
 from ceasiompy.Range.func.AinFunc import getdatafromcpacs
 
-from ceasiompy.utils.ceasiompyfunctions import aircraft_name
+from ceasiompy.utils.ceasiompyutils import aircraft_name
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger

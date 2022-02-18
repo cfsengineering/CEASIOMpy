@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Functions and classes to run ceasiompy workflows
+Classes to run ceasiompy workflows
 
 Python version: >=3.7
 
@@ -19,7 +19,6 @@ TODO:
 # =================================================================================================
 
 
-from ceasiompy.Optimisation.optimisation import routine_launcher
 import ceasiompy.__init__
 
 import os
@@ -27,6 +26,7 @@ import shutil
 import datetime
 from pathlib import Path
 
+from ceasiompy.Optimisation.optimisation import routine_launcher
 from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
@@ -99,7 +99,7 @@ class OptimSubWorkflow:
         self.modules_list = modules_list  # List of modules to run (str)
 
         # If Otimisation module was not in the list add it just after the SettingsGUI
-        if not "Optimisation" in self.modules_list:
+        if "Optimisation" not in self.modules_list:
             if self.modules_list[0] == "SettingsGUI":
                 pos = 1
             else:

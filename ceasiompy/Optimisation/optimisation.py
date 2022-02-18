@@ -24,32 +24,34 @@ import shutil
 from re import split as splt
 import numpy as np
 import openmdao.api as om
-from tigl3 import geometry  # Called within eval() function
 
-import ceasiompy.SMUse.smuse as smu
-import ceasiompy.Optimisation.func.tools as tls
-import ceasiompy.Optimisation.func.optimfunctions as opf
-import ceasiompy.CPACSUpdater.cpacsupdater as cpud
-import ceasiompy.Optimisation.func.dictionnary as dct
+# Do not remove: Called within eval() function
+from tigl3 import geometry
 
-from cpacspy.cpacspy import CPACS
-from cpacspy.utils import PARAMS, COEFS
-from cpacspy.cpacsfunctions import (
-    add_float_vector,
-    create_branch,
-    get_value,
-    open_tixi,
+from ceasiompy.CPACSUpdater.cpacsupdater import update_cpacs_file
+from ceasiompy.Optimisation.func.dictionnary import (
+    add_am_to_dict,
+    create_aeromap_dict,
+    update_am_dict,
+    update_dict,
 )
-
+from ceasiompy.Optimisation.func.optimfunctions import (
+    Routine,
+    create_variable_library,
+    gen_doe_csv,
+)
+from ceasiompy.Optimisation.func.tools import change_var_name, is_digit, plot_results, save_results
+from ceasiompy.SMUse.smuse import load_surrogate, write_inouts
 from ceasiompy.utils.ceasiompyutils import (
     copy_module_to_module,
-    get_results_directory,
     run_subworkflow,
 )
 import ceasiompy.utils.moduleinterfaces as mif
+from ceasiompy.utils.xpath import OPTIM_XPATH
 
-from ceasiompy.utils.xpath import OPTWKDIR_XPATH, OPTIM_XPATH
-
+from cpacspy.cpacspy import CPACS
+from cpacspy.utils import PARAMS, COEFS
+from cpacspy.cpacsfunctions import add_float_vector, get_value, open_tixi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -62,7 +64,7 @@ log = get_logger(__file__.split(".")[0])
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
-Rt = opf.Routine()
+Rt = Routine()
 
 
 # =============================================================================
@@ -86,7 +88,7 @@ class Geom_param(om.ExplicitComponent):
 
         for name, infos in Rt.geom_dict.items():
             infos[1].append(inputs[name][0])
-        cpud.update_cpacs_file(cpacs_path, cpacs_path_out, Rt.geom_dict)
+        update_cpacs_file(cpacs_path, cpacs_path_out, Rt.geom_dict)
 
 
 class ModuleComp(om.ExplicitComponent):
@@ -118,7 +120,7 @@ class ModuleComp(om.ExplicitComponent):
 
         for entry in spec.cpacs_inout.outputs:
             # Replace special characters from the name of the entry and checks for accronyms
-            entry.var_name = tls.change_var_name(entry.var_name)
+            entry.var_name = change_var_name(entry.var_name)
 
             if entry.var_name in declared:
                 log.info("Already declared")
@@ -138,7 +140,7 @@ class ModuleComp(om.ExplicitComponent):
                 for name in COEFS:
                     if name in Rt.optim_var_dict:
                         var = Rt.optim_var_dict[name]
-                        if tls.is_digit(var[1][0]):
+                        if is_digit(var[1][0]):
                             self.add_output(name, val=var[1][0])
                         else:
                             self.add_output(name)
@@ -203,7 +205,7 @@ class SmComp(om.ExplicitComponent):
         # Take CPACS file from the optimisation
         cpacs_path = mif.get_toolinput_file_path("SMUse")
         tixi = open_tixi(cpacs_path)
-        self.Model = smu.load_surrogate(tixi)
+        self.Model = load_surrogate(tixi)
         tixi.save(cpacs_path)
 
         df = self.Model.df
@@ -232,8 +234,8 @@ class SmComp(om.ExplicitComponent):
         # Write the inouts to the CPACS
         cpacs_path = mif.get_toolinput_file_path("SMUse")
         tixi = open_tixi(cpacs_path)
-        smu.write_inouts(self.xd, xp, tixi)
-        smu.write_inouts(self.yd, yp, tixi)
+        write_inouts(self.xd, xp, tixi)
+        write_inouts(self.yd, yp, tixi)
         cpacs_path_out = mif.get_tooloutput_file_path("SMUse")
         tixi.save(cpacs_path_out)
 
@@ -261,18 +263,18 @@ class Objective(om.ExplicitComponent):
         # TODO: will be replace by iter_xx.xlm in each module directory
         # Save the CPACS file for this iteration
         if Rt.counter % Rt.save_iter == 0:
-            loc = Rt.optim_dir + f"/Geometry/" + "iter_{Rt.counter}.xml"
+            loc = Rt.optim_dir + "/Geometry/" + f"iter_{Rt.counter}.xml"
             shutil.copy(cpacs_path, loc)
             log.info("Copy current CPACS to " + Rt.optim_dir)
 
         # Add new variables to dictionnary
         cpacs = CPACS(cpacs_path)
 
-        dct.update_dict(cpacs.tixi, Rt.optim_var_dict)
+        update_dict(cpacs.tixi, Rt.optim_var_dict)
 
         # Save the whole aeromap if needed
         if Rt.use_aeromap:
-            dct.update_am_dict(cpacs, Rt.aeromap_uid, Rt.am_dict)
+            update_am_dict(cpacs, Rt.aeromap_uid, Rt.am_dict)
 
         # Change local wkdir for the next iteration
         # TODO: ......
@@ -296,63 +298,6 @@ class Objective(om.ExplicitComponent):
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
-
-# TODO: Remove this when the new optimisation routine is ready
-# def create_routine_folder():
-#     """Create the working dicrectory of the routine.
-
-#     Create a folder in which all CEASIOMpy runs and routine parameters will be
-#     saved. This architecture may change in the future. For now the architecture
-#     of the folder is as such :
-
-#     > CEASIOMpy_Run_XX-XX-XX
-#         -> Optim
-#             --> Geometry
-#             --> Runs
-#                 ---> Run_XX-XX-XX
-#         -> Optim2
-#             |
-#         -> OptimX
-#         -> DoE
-
-#     Args:
-#         None.
-
-#     """
-
-#     global optim_dir_path, Rt
-
-#     # Create the main working directory
-#     tixi = open_tixi(opf.CPACS_OPTIM_PATH)
-
-#     wkdir = get_results_directory("Optimisation")
-
-#     optim_dir_path = os.path.join(wkdir, Rt.type)
-#     Rt.date = wkdir[-19:]
-
-#     # Save the path to the directory in the CPACS
-#     if tixi.checkElement(OPTWKDIR_XPATH):
-#         tixi.removeElement(OPTWKDIR_XPATH)
-#     create_branch(tixi, OPTWKDIR_XPATH)
-#     tixi.updateTextElement(OPTWKDIR_XPATH, optim_dir_path)
-
-#     # Add subdirectories
-#     if not os.path.isdir(optim_dir_path):
-#         os.mkdir(optim_dir_path)
-#         os.mkdir(optim_dir_path + "/Geometry")
-#         os.mkdir(optim_dir_path + "/Runs")
-#     else:
-#         index = 2
-#         optim_dir_path = optim_dir_path + str(index)
-#         while os.path.isdir(optim_dir_path):
-#             index += 1
-#             optim_dir_path = optim_dir_path.split(Rt.type)[0] + Rt.type + str(index)
-#         os.mkdir(optim_dir_path)
-#         os.mkdir(optim_dir_path + "/Geometry")
-#         os.mkdir(optim_dir_path + "/Runs")
-#     tixi.updateTextElement(OPTWKDIR_XPATH, optim_dir_path)
-
-#     tixi.save(opf.CPACS_OPTIM_PATH)
 
 
 def driver_setup(prob):
@@ -392,7 +337,7 @@ def driver_setup(prob):
         elif Rt.doedriver == "FullFactorial":
             driver_type = om.FullFactorialGenerator(levels=Rt.samplesnb)
         elif Rt.doedriver == "CSVGenerated":
-            file = opf.gen_doe_csv(Rt.user_config)
+            file = gen_doe_csv(Rt.user_config)
             driver_type = om.CSVGenerator(file)
         prob.driver = om.DOEDriver(driver_type)
         prob.driver.options["run_parallel"] = True
@@ -472,21 +417,21 @@ def add_parameters(prob, ivc):
         setcommand,
     ) in Rt.optim_var_dict.items():
         if val_type == "des" and listval[-1] not in ["True", "False", "-"]:
-            if tls.is_digit(minval) and tls.is_digit(maxval):
+            if is_digit(minval) and is_digit(maxval):
                 prob.model.add_design_var(name, lower=float(minval), upper=float(maxval))
-            elif tls.is_digit(minval):
+            elif is_digit(minval):
                 prob.model.add_design_var(name, lower=float(minval))
-            elif tls.is_digit(maxval):
+            elif is_digit(maxval):
                 prob.model.add_design_var(name, upper=float(maxval))
             else:
                 prob.model.add_design_var(name)
             ivc.add_output(name, val=listval[-1])
         elif val_type == "const":
-            if tls.is_digit(minval) and tls.is_digit(maxval):
+            if is_digit(minval) and is_digit(maxval):
                 prob.model.add_constraint(name, lower=float(minval), upper=float(maxval))
-            elif tls.is_digit(minval):
+            elif is_digit(minval):
                 prob.model.add_constraint(name, lower=float(minval))
-            elif tls.is_digit(maxval):
+            elif is_digit(maxval):
                 prob.model.add_constraint(name, upper=float(maxval))
             else:
                 prob.model.add_constraint(name)
@@ -534,19 +479,18 @@ def generate_results(prob):
     """
 
     if Rt.use_aeromap and Rt.type == "DoE":
-        dct.add_am_to_dict(Rt.optim_var_dict, Rt.am_dict)
+        add_am_to_dict(Rt.optim_var_dict, Rt.am_dict)
 
-    # Generate N2 scheme ##
+    # Generate N2 scheme
     om.n2(Rt.optim_dir + "/circuit.sqlite", Rt.optim_dir + "/circuit.html", False)
 
-    # Recap of the problem inputs/outputs ##
+    # Recap of the problem inputs/outputs
     prob.model.list_inputs()
     prob.model.list_outputs()
 
-    # Results processing ##
-    tls.plot_results(Rt.optim_dir, "", Rt.optim_var_dict)
-
-    tls.save_results(Rt.optim_dir, Rt.optim_var_dict)
+    # Results processing
+    plot_results(Rt.optim_dir, "", Rt.optim_var_dict)
+    save_results(Rt.optim_dir, Rt.optim_var_dict)
 
     copy_module_to_module(Rt.modules[-1], "out", "Optimisation", "out")
 
@@ -571,14 +515,6 @@ def routine_launcher(optim_method, module_optim, wkflow_dir):
     Rt.type = optim_method
     Rt.modules = [module.name for module in module_optim]
 
-    # TODO: Remove this when the new optimisation routine is ready
-    # Initialize CPACS file and problem dictionary ##
-    # create_routine_folder()
-    # opf.first_run(Rt)
-
-    # TODO: change that, from which module should it comes?
-    # CPACS_OPTIM_PATH = mif.get_toolinput_file_path("Optimisation")
-
     # Cpacs from the ouput of the last module
     cpacs_path = str(module_optim[-1].cpacs_out)
 
@@ -589,8 +525,8 @@ def routine_launcher(optim_method, module_optim, wkflow_dir):
     Rt.optim_dir = Path(wkflow_dir, "Results", optim_method)
     Rt.optim_dir.mkdir(parents=True, exist_ok=True)
 
-    Rt.optim_var_dict = opf.create_variable_library(Rt, cpacs.tixi, Rt.optim_dir)
-    Rt.am_dict = dct.create_aeromap_dict(cpacs, Rt.aeromap_uid, Rt.objective)
+    Rt.optim_var_dict = create_variable_library(Rt, cpacs.tixi, Rt.optim_dir)
+    Rt.am_dict = create_aeromap_dict(cpacs, Rt.aeromap_uid, Rt.objective)
 
     # TODO: Where to save new file
     tmp_cpacs = Path(wkflow_dir, "temp.xml")

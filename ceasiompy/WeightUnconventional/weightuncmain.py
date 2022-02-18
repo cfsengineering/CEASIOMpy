@@ -49,7 +49,7 @@ from ceasiompy.WeightUnconventional.func.Fuel.fuelmass import (
 )
 
 from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
-from ceasiompy.utils.ceasiompyfunctions import aircraft_name
+from ceasiompy.utils.ceasiompyutils import aircraft_name
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger

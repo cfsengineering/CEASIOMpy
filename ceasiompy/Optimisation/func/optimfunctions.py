@@ -30,11 +30,16 @@ import pandas as pd
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.utils import COEFS, PARAMS_COEFS
 
-import ceasiompy.Optimisation.func.tools as tls
-import ceasiompy.Optimisation.func.dictionnary as dct
-import ceasiompy.SMUse.smuse as smu
-from ceasiompy.utils.ceasiompyutils import copy_module_to_module, run_subworkflow
-from ceasiompy.utils.moduleinterfaces import get_all_module_specs, get_toolinput_file_path
+from ceasiompy.Optimisation.func.dictionnary import init_geom_var_dict
+from ceasiompy.Optimisation.func.tools import (
+    add_bounds,
+    add_type,
+    change_var_name,
+    is_digit,
+    launch_external_program,
+)
+from ceasiompy.SMUse.smuse import load_surrogate
+from ceasiompy.utils.moduleinterfaces import get_all_module_specs
 from ceasiompy.utils.xpath import OPTIM_XPATH, SMUSE_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -152,42 +157,6 @@ class Routine:
 #   FUNCTIONS
 # =================================================================================================
 
-# TODO: Remove this when the new optimisation routine is ready
-# def first_run(Rt):
-#     """Run subworkflow once for the optimisation problem.
-
-#     This function runs a first loop to ensure that all problem variables
-#     are created an can be fed to the optimisation setup program.
-
-#     Args:
-#         Rt (Routine object): Class that contains the routine informations.
-
-#     """
-
-#     log.info("Launching initialization workflow")
-#     Rt.modules.insert(0, "Optimisation")
-
-#     # Settings needed for CFD calculation
-#     if "SettingsGUI" in Rt.modules:
-#         Rt.modules.remove("SettingsGUI")
-#         Rt.modules.insert(0, "SettingsGUI")
-
-#     # First iteration to create aeromap results if no pre-workflow
-#     if Rt.modules[0] == "Optimisation":
-#         copy_module_to_module("Optimisation", "in", Rt.modules[1], "in")
-#     else:
-#         copy_module_to_module("Optimisation", "in", Rt.modules[0], "in")
-
-#     run_subworkflow(Rt.modules)
-#     copy_module_to_module(Rt.modules[-1], "out", "Optimisation", "in")
-
-#     # SettingsGUI only needed at the first iteration
-#     if "SettingsGUI" in Rt.modules:  # and added_gui:
-#         Rt.modules.remove("SettingsGUI")
-
-#     # Optimisation parameters only needed for the first run
-#     Rt.modules.remove("Optimisation")
-
 
 def gen_doe_csv(user_config):
     """Generate adequate csv with user-defined csv.
@@ -253,7 +222,7 @@ def get_normal_param(tixi, entry, outputs):
         if entry.var_type == int:
             value = int(value)
 
-    if not tls.is_digit(value):
+    if not is_digit(value):
         log.info("Not a digital value")
         value = "-"
     elif entry.var_type == bool:
@@ -269,8 +238,8 @@ def get_normal_param(tixi, entry, outputs):
         var["xpath"].append(xpath)
         var["Name"].append(entry.var_name)
 
-        tls.add_type(entry, outputs, objective, var)
-        tls.add_bounds(value, var)
+        add_type(entry, outputs, objective, var)
+        add_bounds(value, var)
         log.info("Value : {}".format(value))
         log.info("Added to variable file")
 
@@ -304,8 +273,8 @@ def get_aero_param(tixi):
         var["init"].append(value)
         var["xpath"].append(xpath_param)
 
-        tls.add_type(name, COEFS, objective, var)
-        tls.add_bounds(value, var)
+        add_type(name, COEFS, objective, var)
+        add_bounds(value, var)
 
 
 def get_sm_vars(tixi):
@@ -319,12 +288,12 @@ def get_sm_vars(tixi):
 
     """
 
-    Model = smu.load_surrogate(tixi)
+    Model = load_surrogate(tixi)
     df = Model.df.rename(columns={"Unnamed: 0": "Name"})
     df.set_index("Name", inplace=True)
 
     for name in df.index:
-        name = tls.change_var_name(name)
+        name = change_var_name(name)
         if name not in var["Name"] and df.loc[name]["setcmd"] == "-":
             var["Name"].append(name)
             var["type"].append(df.loc[name]["type"])
@@ -335,7 +304,7 @@ def get_sm_vars(tixi):
             value = str(tixi.getDoubleElement(xpath))
             var["init"].append(value)
 
-            tls.add_bounds(value, var)
+            add_bounds(value, var)
         else:
             log.warning("Variable already exists")
             log.info(name + " will not be added to the variable file")
@@ -366,7 +335,7 @@ def get_module_vars(tixi, specs):
 
         # Change the name of the entry if it's a valid accronym (ex: mtom) or
         # if it has a special sign (ex: ranges[0])
-        entry.var_name = tls.change_var_name(entry.var_name)
+        entry.var_name = change_var_name(entry.var_name)
 
         log.info(xpath)
         log.info(value_name)
@@ -485,7 +454,7 @@ def add_geometric_vars(tixi, df):
 
     """
 
-    geom_var = dct.init_geom_var_dict(tixi)
+    geom_var = init_geom_var_dict(tixi)
     for key, (
         var_name,
         [init_value],
@@ -558,7 +527,7 @@ def create_variable_library(Rt, tixi, optim_dir_path):
         optim_dir_path (str): Path to the working directory.
 
     Returns:
-        optim_var_dict (dct): Dictionnary with all optimisation parameters.
+        optim_var_dict (dict): Dictionnary with all optimisation parameters.
 
     """
 
@@ -583,7 +552,7 @@ def create_variable_library(Rt, tixi, optim_dir_path):
         df.to_csv(CSV_PATH, index=False, na_rep="-")
         log.info("Variable library file has been generated")
 
-        tls.launch_external_program(CSV_PATH)
+        launch_external_program(CSV_PATH)
 
         log.info(f"Variable library file has been saved at {CSV_PATH}")
         df = pd.read_csv(CSV_PATH, index_col=0, skip_blank_lines=True)

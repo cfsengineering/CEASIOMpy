@@ -347,6 +347,8 @@ def main(cpacs_in_path, cpacs_out_path):
     # ===== Copy files in the wkflow results directory =====
     # TODO: use dirs_exist_ok=True option when  python >=3.8 and remove "tmp"
     dst_pyt_wkdir = Path(get_results_directory("PyTornado"), "tmp")
+    if os.path.isdir(dst_pyt_wkdir):
+        shutil.rmtree(dst_pyt_wkdir)
     shutil.copytree(src=dir_pyt_wkdir, dst=dst_pyt_wkdir)
     shutil.rmtree(dir_pyt_wkdir, ignore_errors=True)
 

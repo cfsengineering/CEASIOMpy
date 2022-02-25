@@ -116,6 +116,8 @@ class Routine:
         self.optim_var_dict = {}
         self.am_dict = {}
 
+        self.last_am_module = ""
+
     def get_user_inputs(self, tixi):
         """Take user inputs from the GUI."""
 

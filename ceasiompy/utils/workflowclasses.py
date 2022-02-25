@@ -146,6 +146,7 @@ class OptimSubWorkflow:
         log.info(f"Running optim subworkflow in {self.subworkflow_dir}")
 
         finished = False
+
         while not finished:
 
             if self.iteration == 0:  # First iteration
@@ -160,13 +161,17 @@ class OptimSubWorkflow:
 
             else:  # Next iterations
 
-                # Remove "SettingsGUI" module from the list for the optimisation
-                module_optim = [module for module in self.modules if module.name != "SettingsGUI"]
+                module_optim = [
+                    module
+                    for module in self.modules
+                    if module.name not in ["SettingsGUI", "Optimisation"]
+                ]
 
                 routine_launcher(self.optim_method, module_optim, self.subworkflow_dir.parent)
 
+            # TODO: how to know if optim is finished?
             self.iteration += 1
-            if self.iteration > 1:
+            if self.iteration > 3:
                 finished = True
 
 

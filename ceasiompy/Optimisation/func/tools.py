@@ -28,6 +28,7 @@ import openmdao.api as om
 import matplotlib.pyplot as plt
 import pandas as pd
 import tigl3.configuration  # used within eval
+from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -207,9 +208,11 @@ def save_results(optim_dir_path, optim_var_dict={}):
     # Get variable infos
     df = read_results(optim_dir_path, optim_var_dict)
 
-    df.to_csv(optim_dir_path + "/Variable_history.csv", index=True, na_rep="-", index_label="Name")
+    df.to_csv(
+        Path(optim_dir_path, "Variable_history.csv"), index=True, na_rep="-", index_label="Name"
+    )
 
-    log.info("Results have been saved at " + optim_dir_path)
+    log.info(f"Results have been saved at {optim_dir_path}")
 
 
 # ---------------- FUNCTIONS FOR PLOTTING ------------------ #
@@ -242,7 +245,7 @@ def plot_results(optim_dir_path, routine_type, optim_var_dict={}):
     df.iloc[1:-1].plot(subplots=True, layout=(-1, nbC), style=".-")
 
     # Save figure (TODO: could be improved)
-    fig_path = optim_dir_path + "/plot_variable.png"
+    fig_path = Path(optim_dir_path, "plot_variable.png")
     plt.savefig(fig_path)
 
     plot_objective(optim_dir_path)
@@ -263,7 +266,7 @@ def plot_objective(optim_dir_path):
 
     """
 
-    cr = om.CaseReader(optim_dir_path + "/Driver_recorder.sql")
+    cr = om.CaseReader(Path(optim_dir_path, "Driver_recorder.sql"))
 
     cases = cr.get_cases()
     case1 = cr.get_case(0)
@@ -286,7 +289,7 @@ def plot_objective(optim_dir_path):
     # plt.show()
 
     # Save figure (TODO: could be improved)
-    fig_path = optim_dir_path + "/plot_objective_function.png"
+    fig_path = Path(optim_dir_path, "plot_objective_function.png")
     plt.savefig(fig_path)
 
 
@@ -326,7 +329,7 @@ def gen_plot(optim_dir_path, df, yvars, xvars):
     # plt.show()
 
     # Save figure (TODO: could be improved)
-    fig_path = optim_dir_path + "/plot_doe_variables.png"
+    fig_path = Path(optim_dir_path, "plot_doe_variables.png")
     plt.savefig(fig_path)
 
 

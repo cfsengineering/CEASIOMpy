@@ -42,10 +42,7 @@ from ceasiompy.Optimisation.func.optimfunctions import (
 )
 from ceasiompy.Optimisation.func.tools import change_var_name, is_digit, plot_results, save_results
 from ceasiompy.SMUse.smuse import load_surrogate, write_inouts
-from ceasiompy.utils.ceasiompyutils import (
-    copy_module_to_module,
-    run_subworkflow,
-)
+from ceasiompy.utils.ceasiompyutils import run_module
 import ceasiompy.utils.moduleinterfaces as mif
 from ceasiompy.utils.xpath import OPTIM_XPATH
 
@@ -83,21 +80,34 @@ class Geom_param(om.ExplicitComponent):
 
     def compute(self, inputs, outputs):
         """Update the geometry of the CPACS"""
-        cpacs_path = mif.get_tooloutput_file_path(Rt.modules[-1])
-        cpacs_path_out = mif.get_toolinput_file_path(Rt.modules[0])
 
         for name, infos in Rt.geom_dict.items():
             infos[1].append(inputs[name][0])
-        update_cpacs_file(cpacs_path, cpacs_path_out, Rt.geom_dict)
+        update_cpacs_file(str(Rt.modules[-1].cpacs_out), str(Rt.modules[0].cpacs_in), Rt.geom_dict)
+
+        Rt.counter += 1
+
+        for m, module in enumerate(Rt.modules):
+
+            if m == 0:
+                Rt.modules[m].cpacs_in = Rt.modules[-1].cpacs_out
+            else:
+                Rt.modules[m].cpacs_in = Rt.modules[m - 1].cpacs_out
+
+            Rt.modules[m].cpacs_out = Path(
+                Rt.modules[m].cpacs_out.parents[0],
+                "iter_" + str(Rt.counter).rjust(2, "0") + ".xml",
+            )
 
 
 class ModuleComp(om.ExplicitComponent):
     """Class to define each module in the problem as an independent component"""
 
-    def __init__(self, module_name):
+    def __init__(self, module):
         """Add the module name that corresponds to the object being created"""
         om.ExplicitComponent.__init__(self)
-        self.module_name = module_name
+        self.module = module
+        self.module_name = module.name
 
     def setup(self):
         """Setup inputs and outputs"""
@@ -129,7 +139,7 @@ class ModuleComp(om.ExplicitComponent):
                 self.add_output(entry.var_name, val=var[1][0])
                 declared.append(entry.var_name)
             elif (
-                "aeromap" in entry.var_name and self.module_name == last_am_module
+                "aeromap" in entry.var_name and self.module_name == Rt.last_am_module
             ):  # == 'PyTornado':  #not skf^is_skf:
                 # Condition to avoid any conflict with skinfriction
                 for name in PARAMS:
@@ -170,11 +180,10 @@ class ModuleComp(om.ExplicitComponent):
         tixi.save(cpacs_path)
 
         # Running the module
-        run_subworkflow([self.module_name])
+        run_module(self.module)
 
         # Feeding CPACS file results to outputs
-        cpacs_path = mif.get_tooloutput_file_path(self.module_name)
-        tixi = open_tixi(cpacs_path)
+        tixi = open_tixi(str(self.module.cpacs_out))
         for name in outputs:
             if name in Rt.optim_var_dict:
                 xpath = Rt.optim_var_dict[name][4]
@@ -189,21 +198,24 @@ class ModuleComp(om.ExplicitComponent):
                     outputs[name] = get_value(tixi, xpath)
 
         # Copy CPACS to input folder of next module
-        index = Rt.modules.index(self.module_name) + 1
-        if index != len(Rt.modules):
-            cpacs_path = mif.get_toolinput_file_path(Rt.modules[index])
-        else:
-            cpacs_path = mif.get_toolinput_file_path(Rt.modules[0])
-        tixi.save(cpacs_path)
+        index = 0
+        for i, module in enumerate(Rt.modules[:-1]):
+            if module.name == self.module_name:
+                index == i
+
+        tixi.save(str(Rt.modules[index].cpacs_in))
 
 
 class SmComp(om.ExplicitComponent):
     """Uses a surrogate model to make a prediction"""
 
-    def setup(self):
+    def setup(self, module):
         """Setup inputs and outputs"""
+
+        self.module = module
+
         # Take CPACS file from the optimisation
-        cpacs_path = mif.get_toolinput_file_path("SMUse")
+        cpacs_path = str(module.cpacs_in)
         tixi = open_tixi(cpacs_path)
         self.Model = load_surrogate(tixi)
         tixi.save(cpacs_path)
@@ -232,12 +244,10 @@ class SmComp(om.ExplicitComponent):
             outputs[name] = yp[0][i]
 
         # Write the inouts to the CPACS
-        cpacs_path = mif.get_toolinput_file_path("SMUse")
-        tixi = open_tixi(cpacs_path)
+        tixi = open_tixi(str(self.module.cpacs_in))
         write_inouts(self.xd, xp, tixi)
         write_inouts(self.yd, yp, tixi)
-        cpacs_path_out = mif.get_tooloutput_file_path("SMUse")
-        tixi.save(cpacs_path_out)
+        tixi.save(str(self.module.cpacs_out))
 
 
 class Objective(om.ExplicitComponent):
@@ -257,27 +267,14 @@ class Objective(om.ExplicitComponent):
     def compute(self, inputs, outputs):
         """Compute the objective expression"""
 
-        Rt.counter += 1
-        cpacs_path = mif.get_tooloutput_file_path(Rt.modules[-1])
-
-        # TODO: will be replace by iter_xx.xlm in each module directory
-        # Save the CPACS file for this iteration
-        if Rt.counter % Rt.save_iter == 0:
-            loc = Rt.optim_dir + "/Geometry/" + f"iter_{Rt.counter}.xml"
-            shutil.copy(cpacs_path, loc)
-            log.info("Copy current CPACS to " + Rt.optim_dir)
-
         # Add new variables to dictionnary
-        cpacs = CPACS(cpacs_path)
+        cpacs = CPACS(str(Rt.modules[-1].cpacs_out))
 
         update_dict(cpacs.tixi, Rt.optim_var_dict)
 
         # Save the whole aeromap if needed
         if Rt.use_aeromap:
             update_am_dict(cpacs, Rt.aeromap_uid, Rt.am_dict)
-
-        # Change local wkdir for the next iteration
-        # TODO: ......
 
         for obj in Rt.objective:
             var_list = splt("[+*/-]", obj)
@@ -291,8 +288,7 @@ class Objective(om.ExplicitComponent):
             else:
                 outputs["Objective function " + obj] = -result
 
-        cpacs.save_cpacs(cpacs_path, overwrite=True)
-        copy_module_to_module(Rt.modules[-1], "out", Rt.modules[0], "in")
+        cpacs.save_cpacs(str(Rt.modules[0].cpacs_in), overwrite=True)
 
 
 # =============================================================================
@@ -373,22 +369,18 @@ def add_subsystems(prob, ivc):
     if Rt.geom_dict:
         prob.model.add_subsystem("Geometry", geom, promotes=["*"])
 
-    # Find last module to use an aeromap
-    am_module = ["SU2Run", "PyTornado", "SkinFriction"]
-    global last_am_module
-    last_am_module = ""
-    for name in Rt.modules:
-        if name in am_module:
-            last_am_module = name
+    # Loop throuth Modules
+    for module in Rt.modules:
 
-    # Modules
-    for n, name in enumerate(Rt.modules):
-        if name == "SMUse":
-            prob.model.add_subsystem(name, SmComp(), promotes=["*"])
+        if module.name in ["SU2Run", "PyTornado", "SkinFriction"]:
+            Rt.last_am_module = module.name
+
+        if module.name == "SMUse":
+            prob.model.add_subsystem(module.name, SmComp(module), promotes=["*"])
         else:
-            spec = mif.get_specs_for_module(name)
+            spec = mif.get_specs_for_module(module.name)
             if spec.cpacs_inout.inputs or spec.cpacs_inout.outputs:
-                prob.model.add_subsystem(name, ModuleComp(name), promotes=["*"])
+                prob.model.add_subsystem(module.name, ModuleComp(module), promotes=["*"])
 
     # Objectives
     prob.model.add_subsystem("objective", obj, promotes=["*"])
@@ -482,7 +474,8 @@ def generate_results(prob):
         add_am_to_dict(Rt.optim_var_dict, Rt.am_dict)
 
     # Generate N2 scheme
-    om.n2(Rt.optim_dir + "/circuit.sqlite", Rt.optim_dir + "/circuit.html", False)
+    # TODO: should be uncommented
+    # om.n2(Path(Rt.optim_dir, "circuit.sqlite"), Path(Rt.optim_dir, "circuit.html"), False)
 
     # Recap of the problem inputs/outputs
     prob.model.list_inputs()
@@ -491,8 +484,6 @@ def generate_results(prob):
     # Results processing
     plot_results(Rt.optim_dir, "", Rt.optim_var_dict)
     save_results(Rt.optim_dir, Rt.optim_var_dict)
-
-    copy_module_to_module(Rt.modules[-1], "out", "Optimisation", "out")
 
 
 def routine_launcher(optim_method, module_optim, wkflow_dir):
@@ -513,10 +504,10 @@ def routine_launcher(optim_method, module_optim, wkflow_dir):
     global Rt
 
     Rt.type = optim_method
-    Rt.modules = [module.name for module in module_optim]
+    Rt.modules = module_optim
 
     # Cpacs from the ouput of the last module
-    cpacs_path = str(module_optim[-1].cpacs_out)
+    cpacs_path = str(Rt.modules[0].cpacs_in)
 
     cpacs = CPACS(cpacs_path)
 
@@ -527,12 +518,6 @@ def routine_launcher(optim_method, module_optim, wkflow_dir):
 
     Rt.optim_var_dict = create_variable_library(Rt, cpacs.tixi, Rt.optim_dir)
     Rt.am_dict = create_aeromap_dict(cpacs, Rt.aeromap_uid, Rt.objective)
-
-    # TODO: Where to save new file
-    tmp_cpacs = Path(wkflow_dir, "temp.xml")
-    cpacs.save_cpacs(str(tmp_cpacs), overwrite=True)
-
-    module_optim[0].cpacs_in = tmp_cpacs
 
     # Instantiate components and subsystems ##
     prob = om.Problem()

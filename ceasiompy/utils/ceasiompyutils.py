@@ -128,6 +128,10 @@ def run_module(module, wkdir=Path.cwd()):
     log.info("# Run module: " + module.name)
     log.info("###############################################################################")
 
+    log.info("Working directory: " + str(wkdir))
+    log.info("CPACS input file: " + str(module.cpacs_in))
+    log.info("CPACS output file: " + str(module.cpacs_out))
+
     if module.name == "SettingsGUI":
 
         create_settings_gui(

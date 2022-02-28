@@ -145,34 +145,23 @@ class OptimSubWorkflow:
 
         log.info(f"Running optim subworkflow in {self.subworkflow_dir}")
 
-        finished = False
+        # First iteration
 
-        while not finished:
+        for module in self.modules:
+            run_module(module, self.subworkflow_dir)
 
-            if self.iteration == 0:  # First iteration
+        # TODO: copy last tool output when optim done (last iteration)
+        shutil.copy(self.modules[-1].cpacs_out, Path(self.subworkflow_dir, "ToolOutput.xml"))
 
-                for module in self.modules:
-                    run_module(module, self.subworkflow_dir)
+        # TODO: Probably not here
+        self.iteration += 1
 
-                # TODO: copy last tool output when optim done (last iteration)
-                shutil.copy(
-                    self.modules[-1].cpacs_out, Path(self.subworkflow_dir, "ToolOutput.xml")
-                )
+        # Other iterations
+        module_optim = [
+            module for module in self.modules if module.name not in ["SettingsGUI", "Optimisation"]
+        ]
 
-            else:  # Next iterations
-
-                module_optim = [
-                    module
-                    for module in self.modules
-                    if module.name not in ["SettingsGUI", "Optimisation"]
-                ]
-
-                routine_launcher(self.optim_method, module_optim, self.subworkflow_dir.parent)
-
-            # TODO: how to know if optim is finished?
-            self.iteration += 1
-            if self.iteration > 3:
-                finished = True
+        routine_launcher(self.optim_method, module_optim, self.subworkflow_dir.parent)
 
 
 class Workflow:

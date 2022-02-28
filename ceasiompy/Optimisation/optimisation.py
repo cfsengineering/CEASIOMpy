@@ -21,7 +21,7 @@ Todo:
 import os
 from pathlib import Path
 import shutil
-from re import split as splt
+from re import split
 import numpy as np
 import openmdao.api as om
 
@@ -257,7 +257,7 @@ class Objective(om.ExplicitComponent):
         """Setup inputs and outputs"""
         declared = []
         for obj in Rt.objective:
-            var_list = splt("[+*/-]", obj)
+            var_list = split("[+*/-]", obj)
             for v in var_list:
                 if v not in declared:
                     self.add_input(v)
@@ -277,7 +277,7 @@ class Objective(om.ExplicitComponent):
             update_am_dict(cpacs, Rt.aeromap_uid, Rt.am_dict)
 
         for obj in Rt.objective:
-            var_list = splt("[+*/-]", obj)
+            var_list = split("[+*/-]", obj)
             for v in var_list:
                 if not v.isdigit() and v != "":
                     exec('{} = inputs["{}"]'.format(v, v))

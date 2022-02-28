@@ -180,7 +180,7 @@ def gen_doe_csv(user_config):
     log.info(df[["Name", "type", "0"]])
 
     # Get only design variables
-    df = df.loc[[i for i, v in enumerate(df["type"]) if v == "des"]]
+    df = df[df["type"] == "des"]
 
     # Get only name and columns with point values
     col = [i for i in df.columns if i.isdigit()]

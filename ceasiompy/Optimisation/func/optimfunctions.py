@@ -548,7 +548,8 @@ def create_variable_library(Rt, tixi, optim_dir_path):
 
     else:
         log.info("No configuration file found, default one will be generated")
-        df = get_default_df(tixi, Rt.modules)
+        module_list = [module.name for module in Rt.modules]
+        df = get_default_df(tixi, module_list)
 
         # Save and open CSV file
         df.to_csv(CSV_PATH, index=False, na_rep="-")

@@ -35,15 +35,12 @@ CEASIOMpy is a conceptual aircraft design environment. CEASIOMpy can be used to 
     :align: center
     :alt: CEASIOMpy logo
 
-CEASIOMpy uses the **CPACS** file format and **RCE** for setting up workflows. Both CPACS and RCE are developed by the German Aerospace Center `DLR <https://www.dlr.de/>`_
+CEASIOMpy uses the **CPACS** file format. CPACS is developed by the German Aerospace Center `DLR <https://www.dlr.de/>`_
 
 **CPACS** *The Common Parametric Aircraft Configuration Schema (CPACS) is a data definition for the air transportation system. CPACS enables engineers to exchange information between their tools.*
 
 See also: https://www.cpacs.de/
 
-**RCE** *RCE is an Open Source distributed, workflow-driven integration environment. It is used by engineers and scientists to design and simulate complex systems (e.g., aircraft, ships, or satellites) by using and integrating their own design and simulation tools.*
-
-See also: https://rcenvironment.de/
 
 Installation and usage
 ----------------------
@@ -51,3 +48,11 @@ Installation and usage
 Please refer to the official documentation for installation and usage guides.
 
 * https://ceasiompy.readthedocs.io/
+
+
+Contributing to the project
+---------------------------
+
+Please refer to the CONTRIBUTING.md document for mor information.
+
+* https://github.com/cfsengineering/CEASIOMpy/blob/master/CONTRIBUTING.md

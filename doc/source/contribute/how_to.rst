@@ -3,10 +3,8 @@ How to contribute to |name|
 
 We highly encourage and appreciate any contributions to |name|.
 
-Reporting bugs
---------------
 
-* See `Github_BugReport`_
+More details can be found in the `CONTRIBUTING.md file <https://github.com/cfsengineering/CEASIOMpy/blob/master/CONTRIBUTING.md>`_.
 
 
 Writing a new module

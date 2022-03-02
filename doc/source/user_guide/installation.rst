@@ -55,6 +55,7 @@ Then, create the virtual Conda environment for CEASIOMpy (it may take a few minu
 
   >> cd CEASIOMpy
   >> conda env create -f environment.yml
+  >> conda activate ceasiompy
   >> pip install -e .
 
 
@@ -62,7 +63,6 @@ To test if it works, you can open a new terminal and type:
 
 .. code::
 
-  >> conda activate ceasiompy
   >> cpacscreator
 
 It should launch CPACSCreator in a new window, if it is the case, you can close it and continue the installation.

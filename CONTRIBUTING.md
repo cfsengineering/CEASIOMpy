@@ -1,12 +1,12 @@
 # Contributing to CEASIOMpy
 
- - [Documetation/intallation](#documentation--installation)
+ - [Documentation/installation](#documentation--installation)
  - [Development guidelines](#development-guidelines)
    - [Git/Github](#git--github)
    - [Python](#python)
    - [CPACS](#cpacs)
    - [Other](#other)
-- [How to contibute](#how-to-contribute) 
+- [How to contribute](#how-to-contribute) 
 
 
 ## Documentation / Installation
@@ -68,9 +68,9 @@ We try to follow th following naming conventions in CEASIOMpy (should be close t
 
 #### Testing and coverage
 
-If possible new functions should have corresponding [pytest](https://docs.pytest.org/en/latest/getting-started.html).
+If possible, new functions should have corresponding [pytest](https://docs.pytest.org/en/latest/getting-started.html).
 
-Pytest, [flake8](https://flake8.pycqa.org/en/latest/) and [codecov](https://about.codecov.io/) are included in our Github action CI and will run automatically for each push and pull request to the master branch.
+Pytest, [flake8](https://flake8.pycqa.org/en/latest/) and [codecov](https://about.codecov.io/) are included in our [Github action CI](https://github.com/cfsengineering/CEASIOMpy/blob/master/.github/workflows/pytest.yml) and will run automatically for each push and pull request to the master branch.
 
 You could also run the CI manually with on your machine with:
 
@@ -91,13 +91,14 @@ If your are new to Python we recommend some material that could help you:
 
 ### CPACS
 
-CPACS is ....
+CPACS is a Common Parametric Aircraft Configuration Schema. It is a data definition for the air transportation system. CPACS enables engineers to exchange information between their tools.
 
 - [CPACS website](www.cpacs.de)
 - [Github repository](https://github.com/DLR-SL/CPACS)
-- Related libraries
+- Related libraries:
   - [TIXI](https://github.com/DLR-SC/tixi) A simple XML interface library
-  - [TiGL](https://github.com/DLR-SC/tigl) Geometry Library to process aircraft geometries 
+  - [TiGL](https://github.com/DLR-SC/tigl) Geometry Library to process aircraft geometries
+  - [cpacspy](https://github.com/cfsengineering/cpacspy) A Python package to work with CPACS file and AeroMaps 
 
 
 ### Other
@@ -129,4 +130,4 @@ If you find a bug, please report it on the [Github issues](https://github.com/cf
 
 ### Writing a new module
 
-If you want to write a new module you can use the [Module Template](https://github.com/cfsengineering/CEASIOMpy/tree/master/ceasiompy/ModuleTemplate) to help you. Maybe it is also a good idea to contact the CEASIOMpy team to help you to write the module and be sure that the module is coherent with the rest of the project.
+If you want to write a new module you can use the [Module Template](https://github.com/cfsengineering/CEASIOMpy/tree/master/ceasiompy/ModuleTemplate) to help you. Maybe it is also a good idea to contact the CEASIOMpy team which could help you to write the module and be sure it is coherent with the rest of the project.

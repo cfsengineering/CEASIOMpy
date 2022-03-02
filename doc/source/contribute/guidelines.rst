@@ -15,7 +15,7 @@ Naming
 Quotes
 ------
 
--  ’ ’ simple quote are used for string, e.g. print(‘Test1’)
+-  " " simple quote are used for string, e.g. print("Test1")
 -  """ """ triple double quote are used for docstring (documentation)
 
 Variable

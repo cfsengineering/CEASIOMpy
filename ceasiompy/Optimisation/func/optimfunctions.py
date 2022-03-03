@@ -118,6 +118,8 @@ class Routine:
 
         self.last_am_module = ""
 
+        self.wkflow_dir = None
+
     def get_user_inputs(self, tixi):
         """Take user inputs from the GUI."""
 

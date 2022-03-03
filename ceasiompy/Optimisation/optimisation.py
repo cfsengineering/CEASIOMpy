@@ -188,7 +188,7 @@ class ModuleComp(om.ExplicitComponent):
         """Launches the module"""
 
         # Updating inputs in CPACS file
-        cpacs_path = mif.get_toolinput_file_path(self.module_name)
+        cpacs_path = str(self.module.cpacs_in)
         tixi = open_tixi(cpacs_path)
         for name in inputs:
             if name in Rt.optim_var_dict:
@@ -205,7 +205,7 @@ class ModuleComp(om.ExplicitComponent):
         tixi.save(cpacs_path)
 
         # Running the module
-        run_module(self.module)
+        run_module(self.module, Rt.wkflow_dir)
 
         # Feeding CPACS file results to outputs
         tixi = open_tixi(str(self.module.cpacs_out))
@@ -222,13 +222,13 @@ class ModuleComp(om.ExplicitComponent):
                 else:
                     outputs[name] = get_value(tixi, xpath)
 
-        # Copy CPACS to input folder of next module
-        index = 0
-        for i, module in enumerate(Rt.modules[:-1]):
-            if module.name == self.module_name:
-                index == i
+        # # Copy CPACS to input folder of next module
+        # index = 0
+        # for i, module in enumerate(Rt.modules[:-1]):
+        #     if module.name == self.module_name:
+        #         index == i
 
-        tixi.save(str(Rt.modules[index].cpacs_in))
+        # tixi.save(str(Rt.modules[index].cpacs_in))
 
 
 class SmComp(om.ExplicitComponent):
@@ -312,8 +312,6 @@ class Objective(om.ExplicitComponent):
                 outputs["Objective function " + obj] = result
             else:
                 outputs["Objective function " + obj] = -result
-
-        cpacs.save_cpacs(str(Rt.modules[0].cpacs_in), overwrite=True)
 
 
 # =============================================================================
@@ -528,6 +526,7 @@ def routine_launcher(optim_method, module_optim, wkflow_dir):
 
     Rt.type = optim_method
     Rt.modules = module_optim
+    Rt.wkflow_dir = wkflow_dir
 
     # Cpacs from the ouput of the last module
     cpacs_path = str(Rt.modules[0].cpacs_in)

@@ -146,7 +146,6 @@ class OptimSubWorkflow:
         log.info(f"Running optim subworkflow in {self.subworkflow_dir}")
 
         # First iteration
-
         for module in self.modules:
             run_module(module, self.subworkflow_dir)
 

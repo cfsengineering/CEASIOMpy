@@ -20,7 +20,6 @@ Todo:
 
 import os
 from pathlib import Path
-import shutil
 from re import split
 import numpy as np
 import openmdao.api as om
@@ -74,6 +73,7 @@ class Geom_param(om.ExplicitComponent):
 
     def setup(self):
         """Setup inputs only for the geometry"""
+
         for name, infos in Rt.geom_dict.items():
             if name in Rt.optim_var_dict:
                 self.add_input(name, val=infos[1][0])
@@ -81,23 +81,48 @@ class Geom_param(om.ExplicitComponent):
     def compute(self, inputs, outputs):
         """Update the geometry of the CPACS"""
 
+        log.info(f"Start optimisation iteration: {Rt.counter}")
+
+        # Update the geometry dictionary
         for name, infos in Rt.geom_dict.items():
             infos[1].append(inputs[name][0])
-        update_cpacs_file(str(Rt.modules[-1].cpacs_out), str(Rt.modules[0].cpacs_in), Rt.geom_dict)
+
+        if Rt.counter == 0:
+
+            # For the first iteration, update the CPACS file from previous module
+            cpacs_in = str(Rt.modules[0].cpacs_in)
+            cpacs_out = str(Rt.modules[0].cpacs_out)
+            update_cpacs_file(cpacs_in, cpacs_out, Rt.geom_dict)
+
+        else:
+
+            for m, module in enumerate(Rt.modules):
+
+                # Increment name of output CPACS file
+                Rt.modules[m].cpacs_out = Path(
+                    Rt.modules[m].cpacs_out.parents[0],
+                    "iter_" + str(Rt.counter).rjust(2, "0") + ".xml",
+                )
+
+                if m == 0:
+
+                    # Use output of the last module of the previous iteration as input
+                    Rt.modules[m].cpacs_in = Rt.modules[-1].cpacs_out
+
+                    # Update the geometry of the CPACS file
+                    cpacs_in = str(Rt.modules[m].cpacs_in)
+                    cpacs_out = str(Rt.modules[m].cpacs_out)
+                    update_cpacs_file(cpacs_in, cpacs_out, Rt.geom_dict)
+
+                else:
+
+                    # Increment name of input CPACS file
+                    Rt.modules[m].cpacs_in = Path(
+                        Rt.modules[m].cpacs_in.parents[0],
+                        "iter_" + str(Rt.counter).rjust(2, "0") + ".xml",
+                    )
 
         Rt.counter += 1
-
-        for m, module in enumerate(Rt.modules):
-
-            if m == 0:
-                Rt.modules[m].cpacs_in = Rt.modules[-1].cpacs_out
-            else:
-                Rt.modules[m].cpacs_in = Rt.modules[m - 1].cpacs_out
-
-            Rt.modules[m].cpacs_out = Path(
-                Rt.modules[m].cpacs_out.parents[0],
-                "iter_" + str(Rt.counter).rjust(2, "0") + ".xml",
-            )
 
 
 class ModuleComp(om.ExplicitComponent):
@@ -310,7 +335,7 @@ def driver_setup(prob):
 
     """
 
-    if Rt.type == "Optim":
+    if Rt.type == "OPTIM":
         # TBD : Genetic algorithm
         # if len(Rt.objective) > 1 and False:
         #     log.info("""More than 1 objective function, the driver will
@@ -325,7 +350,7 @@ def driver_setup(prob):
         prob.driver.options["maxiter"] = Rt.max_iter
         prob.driver.options["tol"] = Rt.tol
         prob.driver.options["disp"] = True
-    elif Rt.type == "DoE":
+    elif Rt.type == "DOE":
         if Rt.doedriver == "Uniform":
             driver_type = om.UniformGenerator(num_samples=Rt.samplesnb)
         elif Rt.doedriver == "LatinHypercube":
@@ -470,7 +495,7 @@ def generate_results(prob):
 
     """
 
-    if Rt.use_aeromap and Rt.type == "DoE":
+    if Rt.use_aeromap and Rt.type == "DOE":
         add_am_to_dict(Rt.optim_var_dict, Rt.am_dict)
 
     # Generate N2 scheme
@@ -500,8 +525,6 @@ def routine_launcher(optim_method, module_optim, wkflow_dir):
         module_optim (list): list of modules (ModuleToRun object) in the optimisation loop
 
     """
-
-    global Rt
 
     Rt.type = optim_method
     Rt.modules = module_optim

@@ -80,7 +80,7 @@ class Tab(tk.Frame):
             label_optim.grid(column=0, row=0, columnspan=1, pady=10)
 
             # The Combobox is directly use as the varaible
-            optim_choice = ["None", "DoE", "Optim"]
+            optim_choice = ["None", "DOE", "OPTIM"]
             self.optim_choice_CB = ttk.Combobox(self, values=optim_choice, width=15)
             self.optim_choice_CB.grid(column=4, row=row_pos)
             row_pos += 1

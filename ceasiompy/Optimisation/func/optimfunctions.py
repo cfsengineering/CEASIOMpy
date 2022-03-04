@@ -79,7 +79,7 @@ class Routine:
         """Define default main parameters."""
 
         # Choice of routine type : DOE or Optimisation
-        self.type = "Optim"
+        self.type = "OPTIM"
         self.date = ""
         self.modules = []
 

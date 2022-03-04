@@ -156,9 +156,7 @@ class OptimSubWorkflow:
         self.iteration += 1
 
         # Other iterations
-        module_optim = [
-            module for module in self.modules if module.name not in ["SettingsGUI", "Optimisation"]
-        ]
+        module_optim = [module for module in self.modules if module.name not in ["SettingsGUI"]]
 
         routine_launcher(self.optim_method, module_optim, self.subworkflow_dir.parent)
 

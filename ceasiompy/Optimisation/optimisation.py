@@ -114,6 +114,10 @@ class Geom_param(om.ExplicitComponent):
                     cpacs_out = str(Rt.modules[m].cpacs_out)
                     update_cpacs_file(cpacs_in, cpacs_out, Rt.geom_dict)
 
+                    # # The first module of the loop must update its output where the input
+                    # # was saved because it has been updated by "update_cpacs_file" function.
+                    # Rt.modules[m].cpacs_in = Rt.modules[m].cpacs_out
+
                 else:
 
                     # Increment name of input CPACS file
@@ -131,7 +135,6 @@ class ModuleComp(om.ExplicitComponent):
     def __init__(self, module):
         """Add the module name that corresponds to the object being created"""
         om.ExplicitComponent.__init__(self)
-        self.module = module
         self.module_name = module.name
 
     def setup(self):
@@ -187,8 +190,10 @@ class ModuleComp(om.ExplicitComponent):
     def compute(self, inputs, outputs):
         """Launches the module"""
 
+        module = [m for m in Rt.modules if m.name == self.module_name][0]
+
         # Updating inputs in CPACS file
-        cpacs_path = str(self.module.cpacs_in)
+        cpacs_path = str(module.cpacs_in)
         tixi = open_tixi(cpacs_path)
         for name in inputs:
             if name in Rt.optim_var_dict:
@@ -205,10 +210,10 @@ class ModuleComp(om.ExplicitComponent):
         tixi.save(cpacs_path)
 
         # Running the module
-        run_module(self.module, Rt.wkflow_dir)
+        run_module(module, Rt.wkflow_dir, Rt.counter)
 
         # Feeding CPACS file results to outputs
-        tixi = open_tixi(str(self.module.cpacs_out))
+        tixi = open_tixi(str(module.cpacs_out))
         for name in outputs:
             if name in Rt.optim_var_dict:
                 xpath = Rt.optim_var_dict[name][4]
@@ -221,14 +226,6 @@ class ModuleComp(om.ExplicitComponent):
                         outputs[name] = val
                 else:
                     outputs[name] = get_value(tixi, xpath)
-
-        # # Copy CPACS to input folder of next module
-        # index = 0
-        # for i, module in enumerate(Rt.modules[:-1]):
-        #     if module.name == self.module_name:
-        #         index == i
-
-        # tixi.save(str(Rt.modules[index].cpacs_in))
 
 
 class SmComp(om.ExplicitComponent):

@@ -116,7 +116,7 @@ def copy_module_to_module(module_from, io_from, module_to, io_to):
     shutil.copy(file_copy_from, file_copy_to)
 
 
-def run_module(module, wkdir=Path.cwd()):
+def run_module(module, wkdir=Path.cwd(), iter=0):
     """Run a 'ModuleToRun' ojbect in a specific wkdir.
 
     Args:
@@ -137,6 +137,10 @@ def run_module(module, wkdir=Path.cwd()):
         create_settings_gui(
             str(module.cpacs_in), str(module.cpacs_out), module.gui_related_modules
         )
+
+    elif module.name == "Optimisation" and iter > 0:
+
+        log.info("Optimisation module is only run at first iteration!")
 
     else:
 

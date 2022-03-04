@@ -127,7 +127,7 @@ def get_inputs(cpacs, x):
                 x.loc[name, "getcmd"] = xpath + name
             inputs.append(cpacs.tixi.getDoubleElement(x.loc[name, "getcmd"]))
 
-    cpacs.save_cpacs(cpacs_path, overwrite=True)
+    # cpacs.save_cpacs(cpacs_path, overwrite=True)
 
     return np.array([inputs])
 

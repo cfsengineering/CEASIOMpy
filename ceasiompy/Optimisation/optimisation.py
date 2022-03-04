@@ -231,10 +231,15 @@ class ModuleComp(om.ExplicitComponent):
 class SmComp(om.ExplicitComponent):
     """Uses a surrogate model to make a prediction"""
 
-    def setup(self, module):
+    def __init__(self, module):
+        """Add the module name that corresponds to the object being created"""
+        om.ExplicitComponent.__init__(self)
+        self.module_name = module.name
+
+    def setup(self):
         """Setup inputs and outputs"""
 
-        self.module = module
+        module = [m for m in Rt.modules if m.name == self.module_name][0]
 
         # Take CPACS file from the optimisation
         cpacs_path = str(module.cpacs_in)
@@ -265,11 +270,13 @@ class SmComp(om.ExplicitComponent):
         for i, name in enumerate(self.yd.index):
             outputs[name] = yp[0][i]
 
+        module = [m for m in Rt.modules if m.name == self.module_name][0]
+
         # Write the inouts to the CPACS
-        tixi = open_tixi(str(self.module.cpacs_in))
+        tixi = open_tixi(str(module.cpacs_in))
         write_inouts(self.xd, xp, tixi)
         write_inouts(self.yd, yp, tixi)
-        tixi.save(str(self.module.cpacs_out))
+        tixi.save(str(module.cpacs_out))
 
 
 class Objective(om.ExplicitComponent):

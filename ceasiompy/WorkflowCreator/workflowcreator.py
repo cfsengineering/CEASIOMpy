@@ -226,7 +226,7 @@ class WorkFlowGUI(tk.Frame):
 
     def _browse_dir(self):
 
-        wkdir_template = os.path.join(MODULE_DIR, "..", "..", "WKDIR", "MyNewWokingDir")
+        wkdir_template = os.path.join(MODULE_DIR, "..", "..", "WKDIR")
         self.wkdir = filedialog.askdirectory(
             initialdir=wkdir_template, title="Select a CPACS file"
         )

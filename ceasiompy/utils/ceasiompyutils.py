@@ -18,9 +18,7 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-
 import platform
-import ceasiompy.__init__
 
 import os
 import shutil
@@ -35,8 +33,6 @@ from ceasiompy.utils.moduleinterfaces import get_submodule_list
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
-
-LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
 
 SOFT_LIST = ["SU2_DEF", "SU2_CFD", "SU2_SOL", "mpirun.mpich", "mpirun"]
 
@@ -59,6 +55,7 @@ def change_working_dir(working_dir):
         cwd = os.getcwd()
         os.chdir(working_dir)
         yield
+
     finally:
         os.chdir(cwd)
 

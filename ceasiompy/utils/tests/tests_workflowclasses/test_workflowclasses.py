@@ -28,9 +28,9 @@ from ceasiompy.utils.workflowclasses import (
 )
 from ceasiompy.utils.ceasiompyutils import run_module
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CPACS_PATH = os.path.join(MODULE_DIR, "D150_simple.xml")
-CPACS_PATH_OUT = os.path.join(MODULE_DIR, "D150_simple_out.xml")
+MODULE_DIR = Path(__file__).parent
+CPACS_PATH = Path(MODULE_DIR.parents[3], "test_files", "CPACSfiles", "D150_simple.xml")
+CPACS_PATH_OUT = Path(MODULE_DIR, "D150_simple_out.xml")
 
 # =================================================================================================
 #   TESTS
@@ -39,8 +39,8 @@ CPACS_PATH_OUT = os.path.join(MODULE_DIR, "D150_simple_out.xml")
 
 class TestModuleToRun:
 
-    wkflow_test = Path.joinpath(Path(MODULE_DIR, "WKFLOW_test"))
-    module_works = ModuleToRun("SU2Run", Path(wkflow_test), Path(CPACS_PATH), Path(CPACS_PATH))
+    wkflow_test = Path(MODULE_DIR, "WKFLOW_test")
+    module_works = ModuleToRun("SU2Run", wkflow_test, CPACS_PATH, CPACS_PATH)
 
     def test_default_values(self):
 
@@ -63,7 +63,7 @@ class TestModuleToRun:
     def test_no_wkflow_error(self):
 
         with pytest.raises(FileNotFoundError):
-            ModuleToRun("SU2Run", Path("./Not_WKFLOW"), Path(CPACS_PATH))
+            ModuleToRun("SU2Run", Path("./Not_WKFLOW"), CPACS_PATH)
 
     def test_create_module_wkflow_dir(self):
 
@@ -71,11 +71,11 @@ class TestModuleToRun:
         self.module_works.optim_method = "DOE"
 
         # Remove dir from previous runs
-        if Path.joinpath(self.wkflow_test, "01_DOE").exists():
-            Path.joinpath(self.wkflow_test, "01_DOE").rmdir()
+        if Path(self.wkflow_test, "01_DOE").exists():
+            Path(self.wkflow_test, "01_DOE").rmdir()
 
-        if Path.joinpath(self.wkflow_test, "02_SU2Run").exists():
-            Path.joinpath(self.wkflow_test, "02_SU2Run").rmdir()
+        if Path(self.wkflow_test, "02_SU2Run").exists():
+            Path(self.wkflow_test, "02_SU2Run").rmdir()
 
         self.module_works.create_module_wkflow_dir(1)
         assert self.module_works.module_wkflow_path.exists()
@@ -89,19 +89,18 @@ class TestModuleToRun:
     def test_run(self):
 
         # Remove CPACS output file from privious run
-        if Path(CPACS_PATH_OUT).exists():
-            Path(CPACS_PATH_OUT).unlink()
+        if CPACS_PATH_OUT.exists():
+            CPACS_PATH_OUT.unlink()
 
-        module = ModuleToRun(
-            "ModuleTemplate", self.wkflow_test, Path(CPACS_PATH), Path(CPACS_PATH_OUT)
-        )
+        module = ModuleToRun("ModuleTemplate", self.wkflow_test, CPACS_PATH, CPACS_PATH_OUT)
 
         # TODO: how to separate test from workflowclasses.py and ceasiompyutils.py
         run_module(module)
 
-        assert Path(CPACS_PATH_OUT).exists()
+        assert CPACS_PATH_OUT.exists()
 
 
+@pytest.mark.skip(reason="Not implemented yet")
 class TestOptimSubWorkflow:
     pass
 
@@ -162,14 +161,14 @@ class TestWorkflow:
         with pytest.raises(ValueError):
             self.workflow.set_workflow()
 
-        self.workflow.from_config_file(os.path.join(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
+        self.workflow.from_config_file(str(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg")))
         self.workflow.cpacs_in = Path(MODULE_DIR, "NotExistingCPACS.xml")
         with pytest.raises(FileNotFoundError):
             self.workflow.set_workflow()
 
         # Test nomral behaviour
         self.workflow = Workflow()
-        self.workflow.from_config_file(os.path.join(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
+        self.workflow.from_config_file(str(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg")))
         self.workflow.optim_method = "OPTIM"
         self.workflow.set_workflow()
 
@@ -191,19 +190,19 @@ class TestWorkflow:
             "CLCalculator",
             "PyTornado",
         ]
-        assert self.workflow.modules[0].module_wkflow_path == Path.joinpath(
+        assert self.workflow.modules[0].module_wkflow_path == Path(
             self.workflow.current_wkflow_dir, "01_SettingsGUI"
         )
 
         assert self.workflow.modules[1].is_optim_module
         assert self.workflow.modules[1].optim_method == "OPTIM"
-        assert self.workflow.modules[1].module_wkflow_path == Path.joinpath(
+        assert self.workflow.modules[1].module_wkflow_path == Path(
             self.workflow.current_wkflow_dir, "02_OPTIM"
         )
 
         assert not self.workflow.modules[2].is_optim_module
         assert self.workflow.modules[2].optim_method is None
-        assert self.workflow.modules[2].module_wkflow_path == Path.joinpath(
+        assert self.workflow.modules[2].module_wkflow_path == Path(
             self.workflow.current_wkflow_dir, "03_PyTornado"
         )
 

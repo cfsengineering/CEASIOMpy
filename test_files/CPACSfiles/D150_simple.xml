@@ -38,12 +38,12 @@
       </update>
     </updates>
     <update>
-        <modification>Simplified version for CEASIOMpy</modification>
-        <creator>Aidan Jungo</creator>
-        <timestamp>2020-06-15T10:29:00</timestamp>
-        <version>3.1</version>
-        <cpacsVersion>3.0</cpacsVersion>
-      </update>
+      <modification>Simplified version for CEASIOMpy</modification>
+      <creator>Aidan Jungo</creator>
+      <timestamp>2020-06-15T10:29:00</timestamp>
+      <version>3.1</version>
+      <cpacsVersion>3.0</cpacsVersion>
+    </update>
   </header>
   <vehicles xsi:type="vehiclesType">
     <aircraft xsi:type="aircraftType">

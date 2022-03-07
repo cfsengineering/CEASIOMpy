@@ -30,12 +30,7 @@ from contextlib import contextmanager
 
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
-from ceasiompy.utils.moduleinterfaces import (
-    get_submodule_list,
-    get_toolinput_file_path,
-    get_tooloutput_file_path,
-)
-from ceasiompy.utils.xpath import WKDIR_XPATH
+from ceasiompy.utils.moduleinterfaces import get_submodule_list
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -83,39 +78,6 @@ def get_results_directory(module_name: str) -> Path:
     return results_dir
 
 
-# TODO: will be removed when not used anymore in optimisation.py
-def copy_module_to_module(module_from, io_from, module_to, io_to):
-    """Transfer CPACS file from one module to another.
-
-    Function 'copy_module_to_module' copy the CPACS file form ToolInput or
-    ToolOutput of 'module_from' to ToolInput or ToolOutput of 'module_to'
-
-    Args:
-        module_from (str): Name of the module the CPACS file is copy from
-        io_from (str): "in" or "out", for ToolInput or ToolOutput
-        module_to (str): Name of the module where the CPACS file will be copy
-        io_to (str): "in" or "out", for ToolInput or ToolOutput
-
-    """
-
-    in_list = ["in", "In", "IN", "iN", "input", "Input", "INPUT", "ToolInput", "toolinput"]
-
-    if io_from in in_list:
-        file_copy_from = get_toolinput_file_path(module_from)
-    else:  # 'out' or anything else ('out' by default)
-        file_copy_from = get_tooloutput_file_path(module_from)
-    log.info("Copy CPACS from:" + file_copy_from)
-
-    if io_to in in_list:
-        file_copy_to = get_toolinput_file_path(module_to)
-    else:  # 'out' or anything else ('out' by default)
-        file_copy_to = get_tooloutput_file_path(module_to)
-
-    log.info("Copy CPACS to:" + file_copy_to)
-
-    shutil.copy(file_copy_from, file_copy_to)
-
-
 def run_module(module, wkdir=Path.cwd(), iter=0):
     """Run a 'ModuleToRun' ojbect in a specific wkdir.
 
@@ -154,100 +116,6 @@ def run_module(module, wkdir=Path.cwd(), iter=0):
         # Run the module
         with change_working_dir(wkdir):
             my_module.main(str(module.cpacs_in), str(module.cpacs_out))
-
-
-# TODO: will be remove when not used anymore in optimisation.py
-def run_subworkflow(module_to_run, cpacs_path_in="", cpacs_path_out=""):
-    """Function to run a list of module in order.
-
-    Function 'run_subworkflow' will exectute in order all the module contained
-    in 'module_to_run' list. Every time the resuts of one module (generaly CPACS
-    file) will be copied as input for the next module.
-
-    Args:
-        module_to_run (list): List of mododule to run (in order)
-        cpacs_path_in (str): Path of the CPACS file use, if not already in the
-                             ToolInput folder of the first submodule
-        cpacs_path_out (str): Path of the output CPACS file use, if not already
-                              in the ToolInput folder of the first submodule
-
-    """
-
-    if not module_to_run:
-        log.info("No module to run")
-        return 0
-
-    # Check non existing module
-    submodule_list = get_submodule_list()
-    for module in module_to_run:
-        if module not in submodule_list:
-            raise ValueError(f"No module named '{module}'!")
-
-    # Copy the cpacs file in the first module
-    if cpacs_path_in:
-        shutil.copy(cpacs_path_in, get_toolinput_file_path(module_to_run[0]))
-
-    log.info("The following modules will be executed: ")
-    for module in module_to_run:
-        log.info(module)
-
-    for m, module in enumerate(module_to_run):
-
-        log.info(
-            "#####################################################################################"
-        )
-        log.info("Run module: " + module)
-        log.info(
-            "#####################################################################################"
-        )
-
-        # Go to the module directory
-        module_path = Path(Path(LIB_DIR), module)
-
-        # Copy CPACS file from previous module to this one
-        if m > 0:
-            copy_module_to_module(module_to_run[m - 1], "out", module, "in")
-
-        if module == "SettingsGUI":
-            cpacs_in = get_toolinput_file_path(module)
-            cpacs_out = get_tooloutput_file_path(module)
-
-            # Check if there is at least one other 'SettingsGUI' after this one
-            if "SettingsGUI" in module_to_run[m + 1 :] and m + 1 != len(module_to_run):
-                idx = module_to_run.index("SettingsGUI", m + 1)
-                create_settings_gui(cpacs_in, cpacs_out, module_to_run[m:idx])
-            else:
-                create_settings_gui(cpacs_in, cpacs_out, module_to_run[m:])
-        else:
-            # Find the python file to run
-            # for file in os.listdir(module_path):
-            #     if file.endswith(".py"):
-            #         if not file.startswith("__"):
-            #             main_python = file
-
-            # Run the module
-            # print(os.getcwd())
-            # error = subprocess.call(["python", main_python])
-
-            # if error:
-            #     raise ValueError("An error ocured in the module " + module)
-
-            # Run the module
-            for file in module_path.iterdir():
-                if file.name.endswith(".py") and not file.name.startswith("__"):
-                    python_file = file.stem
-
-            # Import the main function of the module
-            my_module = importlib.import_module(f"ceasiompy.{module}.{python_file}")
-
-            wkdir = get_results_directory("Optimisation")
-            # Run the module
-            with change_working_dir(wkdir):
-                my_module.main(str(cpacs_in), str(cpacs_out))
-
-    # Copy the cpacs file in the first module
-    if cpacs_path_out:
-        shutil.copy(get_tooloutput_file_path(module_to_run[-1]), cpacs_path_out)
 
 
 def get_install_path(soft_check_list):

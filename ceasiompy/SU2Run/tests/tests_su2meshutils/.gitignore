@@ -1,0 +1,3 @@
+# Normally all .su2 mesh are ignore but those two are requiered for testing
+!test_mesh0.su2
+!test_mesh1.su2

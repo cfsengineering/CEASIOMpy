@@ -194,6 +194,4 @@ dmypy.json
 # Exceptions
 !/ceasiompy/ModuleTemplate/ToolInput/ToolInput.xml
 !/ceasiompy/utils/tests/tests_workflowfunctions/ToolInput/ToolInput.xml
-!/ceasiompy/utils/tests/tests_su2functions/test_mesh0.su2
-!/ceasiompy/utils/tests/tests_su2functions/test_mesh1.su2
 !/test_files/AeroMaps/*.csv

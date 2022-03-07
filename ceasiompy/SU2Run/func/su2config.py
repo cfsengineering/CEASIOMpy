@@ -30,7 +30,7 @@ from cpacspy.cpacsfunctions import (
     get_value_or_default,
 )
 
-from ceasiompy.utils.su2functions import get_mesh_marker
+from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.xpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
 

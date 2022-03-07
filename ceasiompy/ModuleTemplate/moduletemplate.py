@@ -44,7 +44,7 @@ from cpacspy.cpacsfunctions import (
     open_tixi,
 )
 
-from ceasiompy.utils.su2functions import get_mesh_marker
+from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ambiance import Atmosphere

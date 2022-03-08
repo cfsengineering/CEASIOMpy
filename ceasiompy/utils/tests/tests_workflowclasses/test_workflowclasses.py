@@ -43,7 +43,7 @@ class TestModuleToRun:
     wkflow_test = Path(MODULE_DIR, "WKFLOW_test")
     if wkflow_test.exists():
         shutil.rmtree(wkflow_test)
-        wkflow_test.mkdir()
+    wkflow_test.mkdir()
 
     module_works = ModuleToRun("SU2Run", wkflow_test, CPACS_PATH, CPACS_PATH)
 

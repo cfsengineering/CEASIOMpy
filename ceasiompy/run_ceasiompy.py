@@ -24,6 +24,7 @@ import ceasiompy.__init__
 import os
 import sys
 
+from pathlib import Path
 from ceasiompy.WorkflowCreator.workflowcreator import create_wf_gui
 from ceasiompy.utils.workflowclasses import Workflow
 
@@ -90,7 +91,7 @@ def main():
         if sys.argv[1] == "-cfg":
 
             workflow = Workflow()
-            workflow.from_config_file(sys.argv[2])
+            workflow.from_config_file(Path(sys.argv[2]))
 
         else:
             print_help()

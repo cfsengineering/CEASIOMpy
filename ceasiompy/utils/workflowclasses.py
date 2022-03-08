@@ -176,16 +176,16 @@ class Workflow:
         self.optim_method = None
         self.module_optim = []
 
-    def from_config_file(self, cfg_file: str) -> None:
+    def from_config_file(self, cfg_file: Path) -> None:
         """Get parameters from a config file
 
         Args:
             cfg_file (str): Configuration file path
         """
 
-        cfg = ConfigFile(cfg_file)
+        cfg = ConfigFile(str(cfg_file))
 
-        self.working_dir = Path(cfg_file).parent.absolute()
+        self.working_dir = cfg_file.parent.absolute()
         self.cpacs_in = Path(cfg["CPACS_TOOLINPUT"])
 
         self.modules_list = cfg["MODULE_TO_RUN"]

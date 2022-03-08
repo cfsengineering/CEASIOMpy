@@ -39,7 +39,12 @@ CPACS_PATH_OUT = Path(MODULE_DIR, "D150_simple_out.xml")
 
 class TestModuleToRun:
 
+    # Remove old WKFLOW_test dir and create an empty one
     wkflow_test = Path(MODULE_DIR, "WKFLOW_test")
+    if wkflow_test.exists():
+        shutil.rmtree(wkflow_test)
+        wkflow_test.mkdir()
+
     module_works = ModuleToRun("SU2Run", wkflow_test, CPACS_PATH, CPACS_PATH)
 
     def test_default_values(self):
@@ -125,8 +130,12 @@ class TestWorkflow:
 
     def test_from_config_file(self):
 
-        # SHould use Pathlib everywhere ??
-        self.workflow.from_config_file(os.path.join(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
+        # Copy config file to WKFLOW_test dir
+        shutil.copy(
+            Path(MODULE_DIR, "ceasiompy.cfg"), Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg")
+        )
+
+        self.workflow.from_config_file(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
 
         assert self.workflow.modules_list == self.MODULE_TO_RUN
         assert self.workflow.module_optim == self.MODULE_OPTIM
@@ -161,14 +170,14 @@ class TestWorkflow:
         with pytest.raises(ValueError):
             self.workflow.set_workflow()
 
-        self.workflow.from_config_file(str(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg")))
+        self.workflow.from_config_file(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
         self.workflow.cpacs_in = Path(MODULE_DIR, "NotExistingCPACS.xml")
         with pytest.raises(FileNotFoundError):
             self.workflow.set_workflow()
 
         # Test nomral behaviour
         self.workflow = Workflow()
-        self.workflow.from_config_file(str(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg")))
+        self.workflow.from_config_file(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
         self.workflow.optim_method = "OPTIM"
         self.workflow.set_workflow()
 

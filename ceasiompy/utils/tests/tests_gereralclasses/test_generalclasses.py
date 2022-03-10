@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Test functions for 'lib/SkinFriction/skinfriction.py'
+Test functions for 'ceasiompy/utils/generalclasses.py'
 
 Python version: >=3.7
 

@@ -32,7 +32,8 @@ import shutil
 import numpy as np
 import pandas as pd
 
-import ceasiompy.utils.ceasiompyfunctions as ceaf
+from ceasiompy.utils.ceasiompyutils import get_results_directory, run_soft, aircraft_name
+import ceasiompy.utils.moduleinterfaces as mi
 
 from cpacspy.cpacsfunctions import (
     add_string_vector,
@@ -42,7 +43,7 @@ from cpacspy.cpacsfunctions import (
     open_tigl,
     open_tixi,
 )
-from ceasiompy.utils.su2functions import get_mesh_marker
+from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.xpath import REF_XPATH, WINGS_XPATH, SU2_XPATH
 
@@ -51,6 +52,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_NAME = os.path.basename(os.getcwd())
 
 
 # ==============================================================================
@@ -544,10 +546,10 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
     """
 
     tigl = open_tigl(tixi)
-    aircraft_name = ceaf.aircraft_name(tixi)
+    ac_name = aircraft_name(tixi)
     DEFAULT_CONFIG_PATH = MODULE_DIR + "/files/DefaultConfig_v7.cfg"
     cfg = ConfigFile(DEFAULT_CONFIG_PATH)
-    config_dir_name = aircraft_name + "_TED_" + ted_uid
+    config_dir_name = ac_name + "_TED_" + ted_uid
     # TODO: add check or remove if already exist?
     os.mkdir(os.path.join(wkdir, "MESH", config_dir_name))
 
@@ -574,8 +576,8 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
 
     # TODO: is it the best way or should be pass as arg?
     mesh_dir = os.path.join(wkdir, "MESH")
-    su2_mesh_path = os.path.join(mesh_dir, aircraft_name + "_baseline.su2")
-    cfg["MESH_FILENAME"] = "../" + aircraft_name + "_baseline.su2"
+    su2_mesh_path = os.path.join(mesh_dir, ac_name + "_baseline.su2")
+    cfg["MESH_FILENAME"] = "../" + ac_name + "_baseline.su2"
 
     # Mesh Marker
     bc_wall_list, engine_bc_list = get_mesh_marker(su2_mesh_path)
@@ -615,7 +617,7 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
         cfg["DV_VALUE"] = str(defl / 1000)  # SU2 use 1/1000 degree...
 
         cfg["MESH_FILENAME"] = "_mesh_ffd_box.su2"
-        defl_mesh_name = aircraft_name + "_TED_" + ted_uid + "_defl" + str(defl) + ".su2"
+        defl_mesh_name = ac_name + "_TED_" + ted_uid + "_defl" + str(defl) + ".su2"
         if sym_dir:
             defl_mesh_name = "_" + defl_mesh_name
         cfg["MESH_OUT_FILENAME"] = defl_mesh_name
@@ -633,9 +635,7 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
             cfg["DV_VALUE"] = str(defl / 1000)  # SU2 use 1/1000 degree...
 
             cfg["MESH_FILENAME"] = defl_mesh_name
-            defl_mesh_sym_name = (
-                aircraft_name + "_TED_" + ted_uid + "_defl" + str(defl) + "_sym.su2"
-            )
+            defl_mesh_sym_name = ac_name + "_TED_" + ted_uid + "_defl" + str(defl) + "_sym.su2"
             cfg["MESH_OUT_FILENAME"] = defl_mesh_sym_name
 
             config_file_name = "ConfigROT_sym_defl" + str(defl) + ".cfg"
@@ -660,7 +660,8 @@ def generate_config_deformed_mesh(cpacs_path, cpacs_out_path, skip_config=False,
     """
 
     tixi = open_tixi(cpacs_path)
-    wkdir = ceaf.get_wkdir_or_create_new(tixi)
+
+    wkdir = get_results_directory("SU2Run")
 
     # Get SU2 mesh path
     su2_mesh_xpath = "/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh"
@@ -672,8 +673,8 @@ def generate_config_deformed_mesh(cpacs_path, cpacs_out_path, skip_config=False,
         mesh_dir = os.path.join(wkdir, "MESH")
         if not os.path.isdir(mesh_dir):
             os.mkdir(mesh_dir)
-        aircraft_name = ceaf.aircraft_name(tixi)
-        su2_mesh_new_path = os.path.join(mesh_dir, aircraft_name + "_baseline.su2")
+        ac_name = aircraft_name(tixi)
+        su2_mesh_new_path = os.path.join(mesh_dir, ac_name + "_baseline.su2")
         shutil.copyfile(su2_mesh_path, su2_mesh_new_path)
         tixi.updateTextElement(su2_mesh_xpath, su2_mesh_new_path)
 
@@ -755,7 +756,7 @@ def run_mesh_deformation(tixi, wkdir):
         for cfg_file in sorted(cfg_file_list):
 
             if os.path.isfile(cfg_file):
-                ceaf.run_soft("SU2_DEF", cfg_file, ted_dir, nb_proc)
+                run_soft("SU2_DEF", cfg_file, ted_dir, nb_proc)
             else:
                 raise ValueError("Not correct configuration file to run!")
 
@@ -781,12 +782,10 @@ def run_mesh_deformation(tixi, wkdir):
 #    MAIN
 # ==============================================================================
 
-if __name__ == "__main__":
+
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + os.path.basename(__file__) + " -----")
-
-    cpacs_path = os.path.join(MODULE_DIR, "ToolInput", "ToolInput.xml")
-    cpacs_out_path = os.path.join(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
 
     if len(sys.argv) > 1:
         if sys.argv[1] == "-c":
@@ -799,3 +798,11 @@ if __name__ == "__main__":
         generate_config_deformed_mesh(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + os.path.basename(__file__) + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_path, cpacs_out_path)

@@ -3,112 +3,116 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Functions to simplify some file and data handling in CEASIOMpy
+Functions utils to run ceasiompy workflows
 
 Python version: >=3.7
 
 | Author : Aidan Jungo
-| Creation: 2019-10-04
+| Creation: 2022-02-04
 
 TODO:
 
-    * Those functions must be:
-        - refactored
-        - improved
-        - tested
-
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
+
+import platform
 
 import os
 import shutil
-import datetime
-import platform
+import importlib
+from pathlib import Path
+from contextlib import contextmanager
 
-from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
-from ceasiompy.utils.xpath import WKDIR_XPATH
+from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
+from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
+from ceasiompy.utils.moduleinterfaces import get_submodule_list
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-
 SOFT_LIST = ["SU2_DEF", "SU2_CFD", "SU2_SOL", "mpirun.mpich", "mpirun"]
 
-# ==============================================================================
+
+# =================================================================================================
+#   CLASSES
+# =================================================================================================
+
+
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
-def create_new_wkdir(global_wkdir=""):
-    """Function to create a woking directory.
+@contextmanager
+def change_working_dir(working_dir):
+    """Context manager to change the working directory just before the execution of a function."""
 
-    Function 'create_new_wkdir' creates a new working directory in the /tmp file
-    this directory is called 'SU2Run_data_hour'.
-    In the case of an optimisation or DoE, it will create a working directory
-    in the folder that was created at the first iteration of the routine.
+    try:
+        cwd = os.getcwd()
+        os.chdir(working_dir)
+        yield
 
-    Args:
-        routine_date (str) : Date of the first folder to find where to create
-        the new working directory.
-        routine_type (str) : Indicates if the folder has a subfolder called
-        'Optim' or 'DoE'.
-
-    Returns:
-        wkdir (str): working directory path
-
-    """
-
-    date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-
-    if global_wkdir != "":
-        dir_name = "/Runs/Run" + date
-        run_dir = global_wkdir + dir_name
-    else:
-        dir_name = "CEASIOMpy_Run_" + date
-        wkdir = os.path.join(os.path.dirname(MODULE_DIR), "WKDIR")
-        run_dir = os.path.join(wkdir, dir_name)
-
-    if not os.path.exists(run_dir):
-        os.mkdir(run_dir)
-
-    log.info(" NEW WKDIR ")
-    log.info(run_dir)
-    return run_dir
+    finally:
+        os.chdir(cwd)
 
 
-def get_wkdir_or_create_new(tixi):
-    """Function get the wkdir path from CPACS or create a new one
+def get_results_directory(module_name: str) -> Path:
+    """Create (if not exists) and return the results directory for a module"""
 
-    Function 'get_wkdir_or_create_new' checks in the CPACS file if a working
-    directory already exit for this run, if not, a new one is created and
-    return.
+    if module_name not in get_submodule_list():
+        raise ValueError(f"Module '{module_name}' did not exit!")
+
+    specs = importlib.import_module(f"ceasiompy.{module_name}.__specs__")
+    results_dir = Path(Path.cwd(), specs.RESULTS_DIR)
+
+    if not results_dir.is_dir():
+        results_dir.mkdir(parents=True)
+
+    return results_dir
+
+
+def run_module(module, wkdir=Path.cwd(), iter=0):
+    """Run a 'ModuleToRun' ojbect in a specific wkdir.
 
     Args:
-        tixi (handle): TIXI handle
-
-    Returns:
-        wkdir_path (str): Path to the active working directory
-
+        module (ModuleToRun): 'ModuleToRun' ojbect (define in workflowclasses.py)
+        wkdir (Path, optional): Path of the working directory. Defaults to Path.cwd().
     """
 
-    wkdir_path = get_value_or_default(tixi, WKDIR_XPATH, "")
-    if wkdir_path == "":
-        wkdir_path = create_new_wkdir()
-        create_branch(tixi, WKDIR_XPATH)
-        tixi.updateTextElement(WKDIR_XPATH, wkdir_path)
-    else:
-        # Check if the directory really exists
-        if not os.path.isdir(wkdir_path):
-            wkdir_path = create_new_wkdir()
-            create_branch(tixi, WKDIR_XPATH)
-            tixi.updateTextElement(WKDIR_XPATH, wkdir_path)
+    log.info("###############################################################################")
+    log.info("# Run module: " + module.name)
+    log.info("###############################################################################")
 
-    return wkdir_path
+    log.info("Working directory: " + str(wkdir))
+    log.info("CPACS input file: " + str(module.cpacs_in))
+    log.info("CPACS output file: " + str(module.cpacs_out))
+
+    if module.name == "SettingsGUI":
+
+        create_settings_gui(
+            str(module.cpacs_in), str(module.cpacs_out), module.gui_related_modules
+        )
+
+    elif module.name == "Optimisation" and iter > 0:
+
+        log.info("Optimisation module is only run at first iteration!")
+
+    else:
+
+        for file in module.module_dir.iterdir():
+            if file.name.endswith(".py") and not file.name.startswith("__"):
+                python_file = file.stem
+
+        # Import the main function of the module
+        my_module = importlib.import_module(f"ceasiompy.{module.name}.{python_file}")
+
+        # Run the module
+        with change_working_dir(wkdir):
+            my_module.main(str(module.cpacs_in), str(module.cpacs_out))
 
 
 def get_install_path(soft_check_list):
@@ -210,56 +214,21 @@ def run_soft(soft, config_path, wkdir, nb_proc):
     else:
         command_line = [soft_install_path, config_path, ">", logfile_path]
 
-    original_dir = os.getcwd()
-    os.chdir(wkdir)
+    log.info(f">>> Running {soft} on {nb_proc} proc")
+    log.info(f"    from {wkdir}")
 
-    log.info(">>> " + soft + " Start Time")
+    with change_working_dir(wkdir):
+        os.system(" ".join(command_line))
 
-    os.system(" ".join(command_line))
+    log.info(f">>> {soft} End")
 
-    log.info(">>> " + soft + " End Time")
-
-    os.chdir(original_dir)
-
-
-def get_execution_date(tixi, module_name, xpath):
-    """Function to get and write the execution date of a CEASIOMpy module.
-
-    Function 'get_execution_date' ...
-
-    Args:
-        tixi (handles): TIXI Handle of the CPACS file
-        module_name (str): Name of the module to test
-        xpath (str): xPath where start and end time will be stored
-
-    Returns:
-        tixi (handles): Modified TIXI Handle
-
-    """
-
-    # logfile_name = __file__.split('.')[0] + '.log'
-    #
-    # start_time = None
-    # end_time = None
-    #
-    # with open(logfile_name) as f:
-    #     for line in f.readlines():
-    #         if '>>> SU2_CFD Start Time' in line:
-    #             start_time = line.split(' - ')[0]
-    #         if '>>> SU2_CFD End Time' in line:
-    #             end_time = line.split(' - ')[0]
-    #
-    # if start_time == None:
-    #     log.warning("SU2 Start time has not been found in the logfile!")
-    # if end_time == None:
-    #     log.warning("SU2 End time has not been found in the logfile!")
-    #
-    # create_branch(tixi,xpath+'/startTime')
-    # tixi.updateTextElement(xpath+'/startTime',start_time)
-    # create_branch(tixi,xpath+'/endTime')
-    # tixi.updateTextElement(xpath+'/endTime',end_time)
-
-    return tixi
+    # TODO: try to use subprocess instead of os.system, how to deal with log file...?
+    # import subprocess
+    # p = subprocess.Popen(command_line, stdout=subprocess.PIPE)
+    # log_lines = p.communicate()[0]
+    # logfile = open(logfile_path, 'w')
+    # logfile.writelines(log_lines)
+    # logfile.close()
 
 
 def aircraft_name(tixi_or_cpacs):
@@ -297,9 +266,9 @@ def aircraft_name(tixi_or_cpacs):
     return name
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 

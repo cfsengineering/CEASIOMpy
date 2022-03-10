@@ -41,7 +41,7 @@ from ceasiompy.BalanceConventional.func.AoutFunc import cpacsbalanceupdate
 from ceasiompy.BalanceConventional.func.AinFunc import getdatafromcpacs
 
 
-from ceasiompy.utils.ceasiompyfunctions import aircraft_name
+from ceasiompy.utils.ceasiompyutils import aircraft_name
 from ceasiompy.utils.WB.ConvGeometry import geometry
 import ceasiompy.utils.moduleinterfaces as mi
 
@@ -50,6 +50,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_NAME = os.path.basename(os.getcwd())
 
 # =============================================================================
 #   CLASSES
@@ -66,12 +67,12 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 def check_rounding(I1, I2):
     """Evaluation of the rounding digit for the inertia evaluation
 
-       ARGUMENTS
-       (float) I1 --Arg.: Yaw moment of inertia with Max Payload.
-       (float) I2 --Arg.: Ixy moment of inertia with Max Payload.
+    ARGUMENTS
+    (float) I1 --Arg.: Yaw moment of inertia with Max Payload.
+    (float) I2 --Arg.: Ixy moment of inertia with Max Payload.
 
-       RETURN
-       (int) rd  --Out.: Number of rounded digits.
+    RETURN
+    (int) rd  --Out.: Number of rounded digits.
     """
     ex = False
     rd = 0
@@ -355,15 +356,20 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
 #    MAIN
 # =============================================================================
 
-if __name__ == "__main__":
+
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + os.path.basename(__file__) + " -----")
 
-    cpacs_path = os.path.join(MODULE_DIR, "ToolInput", "ToolInput.xml")
-    cpacs_out_path = os.path.join(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
-
     mi.check_cpacs_input_requirements(cpacs_path)
-
     get_balance_estimations(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + os.path.basename(__file__) + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_path, cpacs_out_path)

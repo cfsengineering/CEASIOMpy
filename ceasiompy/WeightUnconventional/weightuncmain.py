@@ -49,7 +49,7 @@ from ceasiompy.WeightUnconventional.func.Fuel.fuelmass import (
 )
 
 from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
-from ceasiompy.utils.ceasiompyfunctions import aircraft_name
+from ceasiompy.utils.ceasiompyutils import aircraft_name
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -57,6 +57,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_NAME = os.path.basename(os.getcwd())
 
 
 # =============================================================================
@@ -347,15 +348,25 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         outputweightgen.output_fuse_txt(fus_nb, ui.FLOORS_NB, ed, out, mw, adui, awg, afg, name)
 
 
-if __name__ == "__main__":
+# =============================================================================
+#    MAIN
+# =============================================================================
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
 
-    cpacs_path = os.path.join(MODULE_DIR, "ToolInput", "ToolInput.xml")
-    cpacs_out_path = os.path.join(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
+def main(cpacs_path, cpacs_out_path):
+
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
     mi.check_cpacs_input_requirements(cpacs_path)
 
     get_weight_unc_estimations(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_path, cpacs_out_path)

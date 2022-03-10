@@ -33,7 +33,7 @@ from ceasiompy.utils.xpath import MASSBREAKDOWN_XPATH, STABILITY_STATIC_XPATH
 
 from ambiance import Atmosphere
 
-from ceasiompy.StabilityStatic.func_static import (
+from ceasiompy.StabilityStatic.func.func_static import (
     get_unic,
     get_index,
     extract_subelements,
@@ -1167,12 +1167,10 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 #    MAIN
 # ==============================================================================
 
-if __name__ == "__main__":
+
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + MODULE_NAME + " -----")
-
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
 
     # Call the function which check if imputs are well define
     mi.check_cpacs_input_requirements(cpacs_path)
@@ -1181,3 +1179,11 @@ if __name__ == "__main__":
     static_stability_analysis(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + MODULE_NAME + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_path, cpacs_out_path)

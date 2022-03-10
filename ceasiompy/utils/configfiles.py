@@ -22,6 +22,7 @@ TODO:
 
 import os
 from collections import OrderedDict
+from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -37,6 +38,15 @@ class ConfigFile:
     """Class to read/write and modify a configuration file."""
 
     def __init__(self, filename=""):
+        """Initialize the ConfigFile class.
+
+        Args:
+            filename (str or Path, optional): path to the configuration file.
+        """
+
+        # Convert Path object to string
+        if isinstance(filename, Path):
+            filename = str(filename)
 
         self.filename = filename
 

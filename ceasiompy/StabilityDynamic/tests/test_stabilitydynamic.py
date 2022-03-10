@@ -26,7 +26,7 @@ import os
 import numpy as np
 from pytest import approx
 
-from ceasiompy.StabilityDynamic.func_dynamic import (
+from ceasiompy.StabilityDynamic.func.func_dynamic import (
     get_unic,
     interpolation,
     get_index,

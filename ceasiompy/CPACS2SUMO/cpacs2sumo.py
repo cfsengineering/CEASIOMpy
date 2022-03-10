@@ -28,13 +28,21 @@ TODO:
 import os
 import math
 import matplotlib.pyplot as plt
+from pathlib import Path
 
 from cpacspy.cpacsfunctions import open_tixi, get_value_or_default, create_branch
 
-import ceasiompy.utils.ceasiompyfunctions as ceaf
+from ceasiompy.utils.ceasiompyutils import get_results_directory
+import ceasiompy.utils.moduleinterfaces as mi
 from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
 from ceasiompy.utils.mathfunctions import euler2fix
-from ceasiompy.utils.xpath import FUSELAGES_XPATH, WINGS_XPATH, PYLONS_XPATH, ENGINES_XPATH
+from ceasiompy.utils.xpath import (
+    FUSELAGES_XPATH,
+    SUMOFILE_XPATH,
+    WINGS_XPATH,
+    PYLONS_XPATH,
+    ENGINES_XPATH,
+)
 
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
 from ceasiompy.CPACS2SUMO.func.sumofunctions import (
@@ -51,6 +59,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_NAME = os.path.basename(os.getcwd())
 
 # ==============================================================================
 #   CLASSES
@@ -63,7 +72,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
-    """ Function to convert a CPACS file geometry into a SUMO file geometry.
+    """Function to convert a CPACS file geometry into a SUMO file geometry.
 
     Function 'convert_cpacs_to_sumo' open an input cpacs file with TIXI handle
     and via two main loop, one for fuselage(s), one for wing(s) it convert
@@ -1093,31 +1102,35 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 if not engpart.iscone:
                     sumo_add_engine_bc(sumo, "Engine_sym", engpart.uid + "_sym")
 
-    # Save the SMX file
-    wkdir = ceaf.get_wkdir_or_create_new(tixi)
-    sumo_file_xpath = "/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath"
-    sumo_dir = os.path.join(wkdir, "SUMO")
-    sumo_file_path = os.path.join(sumo_dir, "ToolOutput.smx")
-    if not os.path.isdir(sumo_dir):
-        os.mkdir(sumo_dir)
-    create_branch(tixi, sumo_file_xpath)
-    tixi.updateTextElement(sumo_file_xpath, sumo_file_path)
+    # Get results directory
+    results_dir = get_results_directory("CPACS2SUMO")
+    sumo_file_path = Path(results_dir, "ToolOutput.smx")
 
+    create_branch(tixi, SUMOFILE_XPATH)
+    tixi.updateTextElement(SUMOFILE_XPATH, str(sumo_file_path))
+
+    # Save CPACS and SMX file
     tixi.save(cpacs_out_path)
-    sumo.save(sumo_file_path)
+    sumo.save(str(sumo_file_path))
 
 
 # ==============================================================================
 #    MAIN
 # ==============================================================================
 
-if __name__ == "__main__":
+
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + os.path.basename(__file__) + " -----")
-
-    cpacs_path = os.path.join(MODULE_DIR, "ToolInput", "ToolInput.xml")
-    cpacs_out_path = os.path.join(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
 
     convert_cpacs_to_sumo(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + os.path.basename(__file__) + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_path, cpacs_out_path)

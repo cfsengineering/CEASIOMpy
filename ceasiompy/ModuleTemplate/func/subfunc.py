@@ -68,4 +68,4 @@ def my_subfunc(arg_a, arg_b):
 
 if __name__ == "__main__":
 
-    log.info("Nothing to execute!")
+    print("Nothing to execute!")

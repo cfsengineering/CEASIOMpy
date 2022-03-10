@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from pathlib import Path
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import REF_XPATH, WINGS_XPATH, PYTORNADO_XPATH, AEROPERFORMANCE_XPATH
 
@@ -13,6 +15,10 @@ RCE = {
     "author": "Aaron Dettmann",
     "email": "dettmann@kth.se",
 }
+
+# ===== Results directory path =====
+
+RESULTS_DIR = Path("Results", "PyTornado")
 
 
 # ===== CPACS inputs and outputs =====

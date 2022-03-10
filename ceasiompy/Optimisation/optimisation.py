@@ -19,28 +19,35 @@ Todo:
 """
 
 import os
-import shutil
-from re import split as splt
+from pathlib import Path
+from re import split
 import numpy as np
 import openmdao.api as om
-from tigl3 import geometry  # Called within eval() function
 
-import ceasiompy.SMUse.smuse as smu
-import ceasiompy.Optimisation.func.tools as tls
-import ceasiompy.Optimisation.func.optimfunctions as opf
-import ceasiompy.CPACSUpdater.cpacsupdater as cpud
-import ceasiompy.Optimisation.func.dictionnary as dct
+# Do not remove: Called within eval() function
+from tigl3 import geometry
+
+from ceasiompy.CPACSUpdater.cpacsupdater import update_cpacs_file
+from ceasiompy.Optimisation.func.dictionnary import (
+    add_am_to_dict,
+    create_aeromap_dict,
+    update_am_dict,
+    update_dict,
+)
+from ceasiompy.Optimisation.func.optimfunctions import (
+    Routine,
+    create_variable_library,
+    gen_doe_csv,
+)
+from ceasiompy.Optimisation.func.tools import change_var_name, is_digit, plot_results, save_results
+from ceasiompy.SMUse.smuse import load_surrogate, write_inouts
+from ceasiompy.utils.ceasiompyutils import run_module
+import ceasiompy.utils.moduleinterfaces as mif
+from ceasiompy.utils.xpath import OPTIM_XPATH
 
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS, COEFS
-from cpacspy.cpacsfunctions import add_float_vector, create_branch, get_value, open_tixi
-
-import ceasiompy.utils.moduleinterfaces as mif
-import ceasiompy.utils.workflowfunctions as wkf
-import ceasiompy.utils.ceasiompyfunctions as ceaf
-
-from ceasiompy.utils.xpath import WKDIR_XPATH, OPTWKDIR_XPATH, OPTIM_XPATH
-
+from cpacspy.cpacsfunctions import add_float_vector, get_value, open_tixi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -53,14 +60,8 @@ log = get_logger(__file__.split(".")[0])
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
-mod = []
-counter = 0
-# skf = False
-geom_dict = {}
-optim_var_dict = {}
-Rt = opf.Routine()
-optim_dir_path = ""
-am_dict = {}
+Rt = Routine()
+
 
 # =============================================================================
 #   CLASSES
@@ -72,27 +73,69 @@ class Geom_param(om.ExplicitComponent):
 
     def setup(self):
         """Setup inputs only for the geometry"""
-        for name, infos in geom_dict.items():
-            if name in optim_var_dict:
+
+        for name, infos in Rt.geom_dict.items():
+            if name in Rt.optim_var_dict:
                 self.add_input(name, val=infos[1][0])
 
     def compute(self, inputs, outputs):
         """Update the geometry of the CPACS"""
-        cpacs_path = mif.get_tooloutput_file_path(Rt.modules[-1])
-        cpacs_path_out = mif.get_toolinput_file_path(Rt.modules[0])
 
-        for name, infos in geom_dict.items():
+        log.info(f"Start optimisation iteration: {Rt.counter}")
+
+        # Update the geometry dictionary
+        for name, infos in Rt.geom_dict.items():
             infos[1].append(inputs[name][0])
-        cpud.update_cpacs_file(cpacs_path, cpacs_path_out, geom_dict)
+
+        if Rt.counter == 0:
+
+            # For the first iteration, update the CPACS file from previous module
+            cpacs_in = str(Rt.modules[0].cpacs_in)
+            cpacs_out = str(Rt.modules[0].cpacs_out)
+            update_cpacs_file(cpacs_in, cpacs_out, Rt.geom_dict)
+
+        else:
+
+            for m, module in enumerate(Rt.modules):
+
+                # Increment name of output CPACS file
+                Rt.modules[m].cpacs_out = Path(
+                    Rt.modules[m].cpacs_out.parents[0],
+                    "iter_" + str(Rt.counter).rjust(2, "0") + ".xml",
+                )
+
+                if m == 0:
+
+                    # Use output of the last module of the previous iteration as input
+                    Rt.modules[m].cpacs_in = Rt.modules[-1].cpacs_out
+
+                    # Update the geometry of the CPACS file
+                    cpacs_in = str(Rt.modules[m].cpacs_in)
+                    cpacs_out = str(Rt.modules[m].cpacs_out)
+                    update_cpacs_file(cpacs_in, cpacs_out, Rt.geom_dict)
+
+                    # # The first module of the loop must update its output where the input
+                    # # was saved because it has been updated by "update_cpacs_file" function.
+                    # Rt.modules[m].cpacs_in = Rt.modules[m].cpacs_out
+
+                else:
+
+                    # Increment name of input CPACS file
+                    Rt.modules[m].cpacs_in = Path(
+                        Rt.modules[m].cpacs_in.parents[0],
+                        "iter_" + str(Rt.counter).rjust(2, "0") + ".xml",
+                    )
+
+        Rt.counter += 1
 
 
 class ModuleComp(om.ExplicitComponent):
     """Class to define each module in the problem as an independent component"""
 
-    def __init__(self):
+    def __init__(self, module):
         """Add the module name that corresponds to the object being created"""
         om.ExplicitComponent.__init__(self)
-        self.module_name = mod
+        self.module_name = module.name
 
     def setup(self):
         """Setup inputs and outputs"""
@@ -103,9 +146,9 @@ class ModuleComp(om.ExplicitComponent):
         for entry in spec.cpacs_inout.inputs:
             if entry.var_name in declared:
                 log.info("Already declared")
-            elif entry.var_name in optim_var_dict:
-                var = optim_var_dict[entry.var_name]
-                if entry.var_name in optim_var_dict:
+            elif entry.var_name in Rt.optim_var_dict:
+                var = Rt.optim_var_dict[entry.var_name]
+                if entry.var_name in Rt.optim_var_dict:
                     self.add_input(entry.var_name, val=var[1][0])
                     declared.append(entry.var_name)
 
@@ -113,33 +156,29 @@ class ModuleComp(om.ExplicitComponent):
             self.add_input(self.module_name + "_in")
         declared = []
 
-        # Outputs
-        # To remove
-        # is_skf = (self.module_name == 'SkinFriction')
-
         for entry in spec.cpacs_inout.outputs:
             # Replace special characters from the name of the entry and checks for accronyms
-            entry.var_name = tls.change_var_name(entry.var_name)
+            entry.var_name = change_var_name(entry.var_name)
 
             if entry.var_name in declared:
                 log.info("Already declared")
-            elif entry.var_name in optim_var_dict:
-                var = optim_var_dict[entry.var_name]
+            elif entry.var_name in Rt.optim_var_dict:
+                var = Rt.optim_var_dict[entry.var_name]
                 self.add_output(entry.var_name, val=var[1][0])
                 declared.append(entry.var_name)
             elif (
-                "aeromap" in entry.var_name and self.module_name == last_am_module
+                "aeromap" in entry.var_name and self.module_name == Rt.last_am_module
             ):  # == 'PyTornado':  #not skf^is_skf:
                 # Condition to avoid any conflict with skinfriction
                 for name in PARAMS:
-                    if name in optim_var_dict:
-                        var = optim_var_dict[name]
+                    if name in Rt.optim_var_dict:
+                        var = Rt.optim_var_dict[name]
                         self.add_input(name, val=var[1][0])
                         declared.append(entry.var_name)
                 for name in COEFS:
-                    if name in optim_var_dict:
-                        var = optim_var_dict[name]
-                        if tls.is_digit(var[1][0]):
+                    if name in Rt.optim_var_dict:
+                        var = Rt.optim_var_dict[name]
+                        if is_digit(var[1][0]):
                             self.add_output(name, val=var[1][0])
                         else:
                             self.add_output(name)
@@ -151,12 +190,14 @@ class ModuleComp(om.ExplicitComponent):
     def compute(self, inputs, outputs):
         """Launches the module"""
 
+        module = [m for m in Rt.modules if m.name == self.module_name][0]
+
         # Updating inputs in CPACS file
-        cpacs_path = mif.get_toolinput_file_path(self.module_name)
+        cpacs_path = str(module.cpacs_in)
         tixi = open_tixi(cpacs_path)
         for name in inputs:
-            if name in optim_var_dict:
-                xpath = optim_var_dict[name][4]
+            if name in Rt.optim_var_dict:
+                xpath = Rt.optim_var_dict[name][4]
                 # Change only the first vector value for aeromap param
                 if name in PARAMS:
                     size = tixi.getVectorSize(xpath)
@@ -169,14 +210,13 @@ class ModuleComp(om.ExplicitComponent):
         tixi.save(cpacs_path)
 
         # Running the module
-        wkf.run_subworkflow([self.module_name])
+        run_module(module, Rt.wkflow_dir, Rt.counter)
 
         # Feeding CPACS file results to outputs
-        cpacs_path = mif.get_tooloutput_file_path(self.module_name)
-        tixi = open_tixi(cpacs_path)
+        tixi = open_tixi(str(module.cpacs_out))
         for name in outputs:
-            if name in optim_var_dict:
-                xpath = optim_var_dict[name][4]
+            if name in Rt.optim_var_dict:
+                xpath = Rt.optim_var_dict[name][4]
                 if name in COEFS:
                     val = get_value(tixi, xpath)
                     if isinstance(val, str):
@@ -187,24 +227,24 @@ class ModuleComp(om.ExplicitComponent):
                 else:
                     outputs[name] = get_value(tixi, xpath)
 
-        # Copy CPACS to input folder of next module
-        index = Rt.modules.index(self.module_name) + 1
-        if index != len(Rt.modules):
-            cpacs_path = mif.get_toolinput_file_path(Rt.modules[index])
-        else:
-            cpacs_path = mif.get_toolinput_file_path(Rt.modules[0])
-        tixi.save(cpacs_path)
-
 
 class SmComp(om.ExplicitComponent):
     """Uses a surrogate model to make a prediction"""
 
+    def __init__(self, module):
+        """Add the module name that corresponds to the object being created"""
+        om.ExplicitComponent.__init__(self)
+        self.module_name = module.name
+
     def setup(self):
         """Setup inputs and outputs"""
+
+        module = [m for m in Rt.modules if m.name == self.module_name][0]
+
         # Take CPACS file from the optimisation
-        cpacs_path = mif.get_toolinput_file_path("SMUse")
+        cpacs_path = str(module.cpacs_in)
         tixi = open_tixi(cpacs_path)
-        self.Model = smu.load_surrogate(tixi)
+        self.Model = load_surrogate(tixi)
         tixi.save(cpacs_path)
 
         df = self.Model.df
@@ -230,13 +270,13 @@ class SmComp(om.ExplicitComponent):
         for i, name in enumerate(self.yd.index):
             outputs[name] = yp[0][i]
 
+        module = [m for m in Rt.modules if m.name == self.module_name][0]
+
         # Write the inouts to the CPACS
-        cpacs_path = mif.get_toolinput_file_path("SMUse")
-        tixi = open_tixi(cpacs_path)
-        smu.write_inouts(self.xd, xp, tixi)
-        smu.write_inouts(self.yd, yp, tixi)
-        cpacs_path_out = mif.get_tooloutput_file_path("SMUse")
-        tixi.save(cpacs_path_out)
+        tixi = open_tixi(str(module.cpacs_in))
+        write_inouts(self.xd, xp, tixi)
+        write_inouts(self.yd, yp, tixi)
+        tixi.save(str(module.cpacs_out))
 
 
 class Objective(om.ExplicitComponent):
@@ -246,7 +286,7 @@ class Objective(om.ExplicitComponent):
         """Setup inputs and outputs"""
         declared = []
         for obj in Rt.objective:
-            var_list = splt("[+*/-]", obj)
+            var_list = split("[+*/-]", obj)
             for v in var_list:
                 if v not in declared:
                     self.add_input(v)
@@ -255,30 +295,18 @@ class Objective(om.ExplicitComponent):
 
     def compute(self, inputs, outputs):
         """Compute the objective expression"""
-        global counter
-        counter += 1
-        cpacs_path = mif.get_tooloutput_file_path(Rt.modules[-1])
-
-        # Save the CPACS file for this iteration
-        if counter % Rt.save_iter == 0:
-            loc = optim_dir_path + "/Geometry/" + "iter_{}.xml".format(counter)
-            shutil.copy(cpacs_path, loc)
-            log.info("Copy current CPACS to " + optim_dir_path)
 
         # Add new variables to dictionnary
-        cpacs = CPACS(cpacs_path)
+        cpacs = CPACS(str(Rt.modules[-1].cpacs_out))
 
-        dct.update_dict(cpacs.tixi, optim_var_dict)
+        update_dict(cpacs.tixi, Rt.optim_var_dict)
 
         # Save the whole aeromap if needed
         if Rt.use_aeromap:
-            dct.update_am_dict(cpacs, Rt.aeromap_uid, am_dict)
-
-        # Change local wkdir for the next iteration
-        cpacs.tixi.updateTextElement(WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
+            update_am_dict(cpacs, Rt.aeromap_uid, Rt.am_dict)
 
         for obj in Rt.objective:
-            var_list = splt("[+*/-]", obj)
+            var_list = split("[+*/-]", obj)
             for v in var_list:
                 if not v.isdigit() and v != "":
                     exec('{} = inputs["{}"]'.format(v, v))
@@ -289,69 +317,10 @@ class Objective(om.ExplicitComponent):
             else:
                 outputs["Objective function " + obj] = -result
 
-        cpacs.save_cpacs(cpacs_path, overwrite=True)
-        wkf.copy_module_to_module(Rt.modules[-1], "out", Rt.modules[0], "in")
-
 
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
-
-
-def create_routine_folder():
-    """Create the working dicrectory of the routine.
-
-    Create a folder in which all CEASIOMpy runs and routine parameters will be
-    saved. This architecture may change in the future. For now the architecture
-    of the folder is as such :
-
-    > CEASIOMpy_Run_XX-XX-XX
-        -> Optim
-            --> Geometry
-            --> Runs
-                ---> Run_XX-XX-XX
-        -> Optim2
-            |
-        -> OptimX
-        -> DoE
-
-    Args:
-        None.
-
-    """
-
-    global optim_dir_path, Rt
-
-    # Create the main working directory
-    tixi = open_tixi(opf.CPACS_OPTIM_PATH)
-    wkdir = ceaf.get_wkdir_or_create_new(tixi)
-    optim_dir_path = os.path.join(wkdir, Rt.type)
-    Rt.date = wkdir[-19:]
-
-    # Save the path to the directory in the CPACS
-    if tixi.checkElement(OPTWKDIR_XPATH):
-        tixi.removeElement(OPTWKDIR_XPATH)
-    create_branch(tixi, OPTWKDIR_XPATH)
-    tixi.updateTextElement(OPTWKDIR_XPATH, optim_dir_path)
-
-    # Add subdirectories
-    if not os.path.isdir(optim_dir_path):
-        os.mkdir(optim_dir_path)
-        os.mkdir(optim_dir_path + "/Geometry")
-        os.mkdir(optim_dir_path + "/Runs")
-    else:
-        index = 2
-        optim_dir_path = optim_dir_path + str(index)
-        while os.path.isdir(optim_dir_path):
-            index += 1
-            optim_dir_path = optim_dir_path.split(Rt.type)[0] + Rt.type + str(index)
-        os.mkdir(optim_dir_path)
-        os.mkdir(optim_dir_path + "/Geometry")
-        os.mkdir(optim_dir_path + "/Runs")
-    tixi.updateTextElement(OPTWKDIR_XPATH, optim_dir_path)
-    tixi.updateTextElement(WKDIR_XPATH, optim_dir_path)
-
-    tixi.save(opf.CPACS_OPTIM_PATH)
 
 
 def driver_setup(prob):
@@ -368,7 +337,7 @@ def driver_setup(prob):
 
     """
 
-    if Rt.type == "Optim":
+    if Rt.type == "OPTIM":
         # TBD : Genetic algorithm
         # if len(Rt.objective) > 1 and False:
         #     log.info("""More than 1 objective function, the driver will
@@ -383,7 +352,7 @@ def driver_setup(prob):
         prob.driver.options["maxiter"] = Rt.max_iter
         prob.driver.options["tol"] = Rt.tol
         prob.driver.options["disp"] = True
-    elif Rt.type == "DoE":
+    elif Rt.type == "DOE":
         if Rt.doedriver == "Uniform":
             driver_type = om.UniformGenerator(num_samples=Rt.samplesnb)
         elif Rt.doedriver == "LatinHypercube":
@@ -391,7 +360,7 @@ def driver_setup(prob):
         elif Rt.doedriver == "FullFactorial":
             driver_type = om.FullFactorialGenerator(levels=Rt.samplesnb)
         elif Rt.doedriver == "CSVGenerated":
-            file = opf.gen_doe_csv(Rt.user_config)
+            file = gen_doe_csv(Rt.user_config)
             driver_type = om.CSVGenerator(file)
         prob.driver = om.DOEDriver(driver_type)
         prob.driver.options["run_parallel"] = True
@@ -401,8 +370,8 @@ def driver_setup(prob):
 
     #  Attaching a recorder and a diagramm visualizer ##
     prob.driver.recording_options["record_inputs"] = True
-    prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path + "/circuit.sqlite"))
-    prob.driver.add_recorder(om.SqliteRecorder(optim_dir_path + "/Driver_recorder.sql"))
+    prob.driver.add_recorder(om.SqliteRecorder(str(Rt.optim_dir) + "/circuit.sqlite"))
+    prob.driver.add_recorder(om.SqliteRecorder(str(Rt.optim_dir) + "/Driver_recorder.sql"))
 
 
 def add_subsystems(prob, ivc):
@@ -416,7 +385,6 @@ def add_subsystems(prob, ivc):
 
     """
 
-    global mod, geom_dict
     geom = Geom_param()
     obj = Objective()
 
@@ -424,28 +392,22 @@ def add_subsystems(prob, ivc):
     prob.model.add_subsystem("indeps", ivc, promotes=["*"])
 
     # Geometric parameters
-    mod = [Rt.modules[0], Rt.modules[-1]]
-    geom_dict = {k: v for k, v in optim_var_dict.items() if v[5] != "-"}
-    if geom_dict:
+    Rt.geom_dict = {k: v for k, v in Rt.optim_var_dict.items() if v[5] != "-"}
+    if Rt.geom_dict:
         prob.model.add_subsystem("Geometry", geom, promotes=["*"])
 
-    # Find last module to use an aeromap
-    am_module = ["SU2Run", "PyTornado", "SkinFriction"]
-    global last_am_module
-    last_am_module = ""
-    for name in Rt.modules:
-        if name in am_module:
-            last_am_module = name
+    # Loop throuth Modules
+    for module in Rt.modules:
 
-    # Modules
-    for n, name in enumerate(Rt.modules):
-        if name == "SMUse":
-            prob.model.add_subsystem(name, SmComp(), promotes=["*"])
+        if module.name in ["SU2Run", "PyTornado", "SkinFriction"]:
+            Rt.last_am_module = module.name
+
+        if module.name == "SMUse":
+            prob.model.add_subsystem(module.name, SmComp(module), promotes=["*"])
         else:
-            mod = name
-            spec = mif.get_specs_for_module(name)
+            spec = mif.get_specs_for_module(module.name)
             if spec.cpacs_inout.inputs or spec.cpacs_inout.outputs:
-                prob.model.add_subsystem(name, ModuleComp(), promotes=["*"])
+                prob.model.add_subsystem(module.name, ModuleComp(module), promotes=["*"])
 
     # Objectives
     prob.model.add_subsystem("objective", obj, promotes=["*"])
@@ -472,23 +434,23 @@ def add_parameters(prob, ivc):
         maxval,
         getcommand,
         setcommand,
-    ) in optim_var_dict.items():
+    ) in Rt.optim_var_dict.items():
         if val_type == "des" and listval[-1] not in ["True", "False", "-"]:
-            if tls.is_digit(minval) and tls.is_digit(maxval):
+            if is_digit(minval) and is_digit(maxval):
                 prob.model.add_design_var(name, lower=float(minval), upper=float(maxval))
-            elif tls.is_digit(minval):
+            elif is_digit(minval):
                 prob.model.add_design_var(name, lower=float(minval))
-            elif tls.is_digit(maxval):
+            elif is_digit(maxval):
                 prob.model.add_design_var(name, upper=float(maxval))
             else:
                 prob.model.add_design_var(name)
             ivc.add_output(name, val=listval[-1])
         elif val_type == "const":
-            if tls.is_digit(minval) and tls.is_digit(maxval):
+            if is_digit(minval) and is_digit(maxval):
                 prob.model.add_constraint(name, lower=float(minval), upper=float(maxval))
-            elif tls.is_digit(minval):
+            elif is_digit(minval):
                 prob.model.add_constraint(name, lower=float(minval))
-            elif tls.is_digit(maxval):
+            elif is_digit(maxval):
                 prob.model.add_constraint(name, upper=float(maxval))
             else:
                 prob.model.add_constraint(name)
@@ -535,25 +497,23 @@ def generate_results(prob):
 
     """
 
-    if Rt.use_aeromap and Rt.type == "DoE":
-        dct.add_am_to_dict(optim_var_dict, am_dict)
+    if Rt.use_aeromap and Rt.type == "DOE":
+        add_am_to_dict(Rt.optim_var_dict, Rt.am_dict)
 
-    # Generate N2 scheme ##
-    om.n2(optim_dir_path + "/circuit.sqlite", optim_dir_path + "/circuit.html", False)
+    # Generate N2 scheme
+    # TODO: should be uncommented
+    # om.n2(Path(Rt.optim_dir, "circuit.sqlite"), Path(Rt.optim_dir, "circuit.html"), False)
 
-    # Recap of the problem inputs/outputs ##
+    # Recap of the problem inputs/outputs
     prob.model.list_inputs()
     prob.model.list_outputs()
 
-    # Results processing ##
-    tls.plot_results(optim_dir_path, "", optim_var_dict)
-
-    tls.save_results(optim_dir_path, optim_var_dict)
-
-    wkf.copy_module_to_module(Rt.modules[-1], "out", "Optimisation", "out")
+    # Results processing
+    plot_results(Rt.optim_dir, "", Rt.optim_var_dict)
+    save_results(Rt.optim_dir, Rt.optim_var_dict)
 
 
-def routine_launcher(Opt):
+def routine_launcher(optim_method, module_optim, wkflow_dir):
     """Run an optimisation routine or DoE using the OpenMDAO library.
 
     This function launches the setup for the routine by setting up the problem
@@ -563,29 +523,27 @@ def routine_launcher(Opt):
     the routine.
 
     Args:
-        Opt (class) : Indicates which modules to use and the routine type
-        (Optim or DoE).
+        optim_method (str): Optimisation method to be used
+        module_optim (list): list of modules (ModuleToRun object) in the optimisation loop
 
     """
 
-    global optim_var_dict, am_dict, Rt, am_length
+    Rt.type = optim_method
+    Rt.modules = module_optim
+    Rt.wkflow_dir = wkflow_dir
 
-    Rt.type = Opt.optim_method
-    Rt.modules = Opt.module_optim
+    # Cpacs from the ouput of the last module
+    cpacs_path = str(Rt.modules[0].cpacs_in)
 
-    # Initialize CPACS file and problem dictionary ##
-    create_routine_folder()
-    opf.first_run(Rt)
+    cpacs = CPACS(cpacs_path)
 
-    cpacs = CPACS(opf.CPACS_OPTIM_PATH)
-
-    cpacs.tixi.updateTextElement(WKDIR_XPATH, ceaf.create_new_wkdir(optim_dir_path))
     Rt.get_user_inputs(cpacs.tixi)
-    optim_var_dict = opf.create_variable_library(Rt, cpacs.tixi, optim_dir_path)
-    am_dict = opf.create_am_lib(Rt, cpacs)
 
-    cpacs.save_cpacs(opf.CPACS_OPTIM_PATH, overwrite=True)
-    wkf.copy_module_to_module("Optimisation", "in", Rt.modules[0], "in")
+    Rt.optim_dir = Path(wkflow_dir, "Results", optim_method)
+    Rt.optim_dir.mkdir(parents=True, exist_ok=True)
+
+    Rt.optim_var_dict = create_variable_library(Rt, cpacs.tixi, Rt.optim_dir)
+    Rt.am_dict = create_aeromap_dict(cpacs, Rt.aeromap_uid, Rt.objective)
 
     # Instantiate components and subsystems ##
     prob = om.Problem()
@@ -597,15 +555,18 @@ def routine_launcher(Opt):
     generate_results(prob)
 
 
-if __name__ == "__main__":
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + os.path.basename(__file__) + " -----")
 
-    log.info("Impose the aeromap of the optimisation to all other modules")
-
-    cpacs_path = mif.get_toolinput_file_path("Optimisation")
-    cpacs_out_path = mif.get_tooloutput_file_path("Optimisation")
     tixi = open_tixi(cpacs_path)
+
+    log.info("Impose the aeromap of the optimisation to all other modules")
 
     try:
         am_uid = get_value(tixi, OPTIM_XPATH + "/aeroMapUID")
@@ -617,3 +578,11 @@ if __name__ == "__main__":
     tixi.save(cpacs_out_path)
 
     log.info("----- End of " + os.path.basename(__file__) + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mif.get_toolinput_file_path("Optimisation")
+    cpacs_out_path = mif.get_tooloutput_file_path("Optimisation")
+
+    main(cpacs_path, cpacs_out_path)

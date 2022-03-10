@@ -18,34 +18,45 @@ Python version: >=3.7
 
 import os
 import shutil
+import pytest
+from pathlib import Path
 from ceasiompy.ExportCSV.exportcsv import export_aeromaps
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 # Default CPACS file to test
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 CPACS_IN_PATH = os.path.join(MODULE_DIR, "D150_simple.xml")
 
 
-def test_export_aeromaps():
-    """Test function 'exportcsv'"""
+@pytest.fixture(autouse=True)
+def change_test_dir(request, monkeypatch):
+    monkeypatch.chdir(request.fspath.dirname)
 
-    WKDIR = os.path.join(MODULE_DIR, "WKDIR_test")
-    csv_dir_path = os.path.join(WKDIR, "CSVresults")
-    csv_file_path = os.path.join(csv_dir_path, "test_apm.csv")
+    global CSV_FILE_PATH
+    results_dir = get_results_directory("ExportCSV")
+    CSV_FILE_PATH = Path(results_dir, "test_apm.csv")
 
-    # Remove directory in the WKDIR if exists and create it empty
-    if os.path.isdir(WKDIR):
-        shutil.rmtree(WKDIR)
-    os.mkdir(WKDIR)
+    yield
 
-    # Run the function
-    export_aeromaps(CPACS_IN_PATH, CPACS_IN_PATH, csv_dir_path)
+    # Clean up
+    shutil.rmtree(CSV_FILE_PATH.parent.parent)
 
-    # Read and check csv file
-    with open(csv_file_path, "r") as csv_file:
-        lines = csv_file.readlines()
 
-    assert lines[0] == "altitude,machNumber,angleOfSideslip,angleOfAttack,cd,cl,cs,cmd,cml,cms\n"
-    assert lines[1] == "0,0.3,0,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
-    assert lines[2] == "0,0.3,0,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
-    assert lines[3] == "0,0.3,10,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
-    assert lines[4] == "0,0.3,10,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
+class TestExportCSV:
+    def test_export_aeromaps(self):
+        """Test function 'exportcsv' function."""
+
+        export_aeromaps(CPACS_IN_PATH, CPACS_IN_PATH)
+
+        # Read and check csv file
+
+        with open(CSV_FILE_PATH, "r") as csv_file:
+            lines = csv_file.readlines()
+
+        assert (
+            lines[0] == "altitude,machNumber,angleOfSideslip,angleOfAttack,cd,cl,cs,cmd,cml,cms\n"
+        )
+        assert lines[1] == "0,0.3,0,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
+        assert lines[2] == "0,0.3,0,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
+        assert lines[3] == "0,0.3,10,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
+        assert lines[4] == "0,0.3,10,10,0.01,0.1,0.001,NaN,NaN,NaN\n"

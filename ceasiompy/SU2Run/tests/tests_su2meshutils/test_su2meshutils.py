@@ -20,7 +20,7 @@ Python version: >=3.7
 import os
 import pytest
 
-from ceasiompy.utils.su2functions import get_mesh_marker
+from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 

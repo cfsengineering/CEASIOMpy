@@ -17,24 +17,29 @@ Todo:
 """
 
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
-import os
+# =================================================================================================
 
+
+import os
+from pathlib import Path
 from re import split
 import pandas as pd
 
-import ceasiompy.SMUse.smuse as smu
-
-from cpacspy.utils import COEFS, PARAMS_COEFS
 from cpacspy.cpacsfunctions import get_value_or_default
+from cpacspy.utils import COEFS, PARAMS_COEFS
 
-import ceasiompy.utils.moduleinterfaces as mif
-import ceasiompy.utils.workflowfunctions as wkf
-import ceasiompy.Optimisation.func.tools as tls
-import ceasiompy.Optimisation.func.dictionnary as dct
-
+from ceasiompy.Optimisation.func.dictionnary import init_geom_var_dict
+from ceasiompy.Optimisation.func.tools import (
+    add_bounds,
+    add_type,
+    change_var_name,
+    is_digit,
+    launch_external_program,
+)
+from ceasiompy.SMUse.smuse import load_surrogate
+from ceasiompy.utils.moduleinterfaces import get_all_module_specs
 from ceasiompy.utils.xpath import OPTIM_XPATH, SMUSE_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -42,16 +47,15 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split(".")[0])
 
 
-# ==============================================================================
+# =================================================================================================
 #   GLOBALS
-# ==============================================================================
+# =================================================================================================
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CPACS_OPTIM_PATH = mif.get_toolinput_file_path("Optimisation")
 CSV_PATH = MODULE_DIR + "/Variable_library.csv"
 
 # Parameters that can not be used as problem variables
-banned_entries = [
+BANNED_ENTRIES = [
     "wing",
     "delete_old_wkdirs",
     "check_extract_loads",  # Not relevant
@@ -63,16 +67,19 @@ objective = []
 var = {"Name": [], "type": [], "init": [], "min": [], "max": [], "xpath": []}
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASS
-# ==============================================================================
+# =================================================================================================
+
+
 class Routine:
     """Setup the routine to launch in Openmdao."""
 
     def __init__(self):
         """Define default main parameters."""
+
         # Choice of routine type : DOE or Optimisation
-        self.type = "Optim"
+        self.type = "OPTIM"
         self.date = ""
         self.modules = []
 
@@ -98,6 +105,21 @@ class Routine:
         self.aeromap_uid = "-"
         self.use_aeromap = False
 
+        # Counter
+        self.counter = 0
+
+        # Optimisation directory
+        self.optim_dir = None
+
+        # Variable dictionary
+        self.geom_dict = {}
+        self.optim_var_dict = {}
+        self.am_dict = {}
+
+        self.last_am_module = ""
+
+        self.wkflow_dir = None
+
     def get_user_inputs(self, tixi):
         """Take user inputs from the GUI."""
 
@@ -107,16 +129,10 @@ class Routine:
         self.minmax = get_value_or_default(tixi, OPTIM_XPATH + "/minmax", "max")
 
         # Global parameters
-        self.driver = get_value_or_default(
-            tixi, OPTIM_XPATH + "/parameters/driver", "COBYLA"
-        )
-        self.max_iter = int(
-            get_value_or_default(tixi, OPTIM_XPATH + "/iterationNB", 200)
-        )
+        self.driver = get_value_or_default(tixi, OPTIM_XPATH + "/parameters/driver", "COBYLA")
+        self.max_iter = int(get_value_or_default(tixi, OPTIM_XPATH + "/iterationNB", 200))
         self.tol = float(get_value_or_default(tixi, OPTIM_XPATH + "/tolerance", 1e-3))
-        self.save_iter = int(
-            get_value_or_default(tixi, OPTIM_XPATH + "/saving/perIter", 1)
-        )
+        self.save_iter = int(get_value_or_default(tixi, OPTIM_XPATH + "/saving/perIter", 1))
 
         # Specific DoE parameters
         self.doedriver = get_value_or_default(
@@ -127,9 +143,7 @@ class Routine:
         )
 
         # User specified configuration file path
-        self.user_config = str(
-            get_value_or_default(tixi, OPTIM_XPATH + "/Config/filepath", "-")
-        )
+        self.user_config = str(get_value_or_default(tixi, OPTIM_XPATH + "/Config/filepath", "-"))
 
         fix_cl = get_value_or_default(
             tixi, "/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/fixedCL", "no"
@@ -138,54 +152,14 @@ class Routine:
             tixi.updateTextElement(OPTIM_XPATH + "/aeroMapUID", "aeroMap_fixedCL_SU2")
             self.aeromap_uid = "aeroMap_fixedCL_SU2"
         else:
-            self.aeromap_uid = str(
-                get_value_or_default(tixi, OPTIM_XPATH + "/aeroMapUID", "-")
-            )
+            self.aeromap_uid = str(get_value_or_default(tixi, OPTIM_XPATH + "/aeroMapUID", "-"))
 
-        self.use_aeromap = get_value_or_default(
-            tixi, OPTIM_XPATH + "/Config/useAero", False
-        )
+        self.use_aeromap = get_value_or_default(tixi, OPTIM_XPATH + "/Config/useAero", False)
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
-
-
-def first_run(Rt):
-    """Run subworkflow once for the optimisation problem.
-
-    This function runs a first loop to ensure that all problem variables
-    are created an can be fed to the optimisation setup program.
-
-    Args:
-        Rt (Routine object): Class that contains the routine informations.
-
-    """
-
-    log.info("Launching initialization workflow")
-    Rt.modules.insert(0, "Optimisation")
-
-    # Settings needed for CFD calculation
-    if "SettingsGUI" in Rt.modules:
-        Rt.modules.remove("SettingsGUI")
-        Rt.modules.insert(0, "SettingsGUI")
-
-    # First iteration to create aeromap results if no pre-workflow
-    if Rt.modules[0] == "Optimisation":
-        wkf.copy_module_to_module("Optimisation", "in", Rt.modules[1], "in")
-    else:
-        wkf.copy_module_to_module("Optimisation", "in", Rt.modules[0], "in")
-
-    wkf.run_subworkflow(Rt.modules)
-    wkf.copy_module_to_module(Rt.modules[-1], "out", "Optimisation", "in")
-
-    # SettingsGUI only needed at the first iteration
-    if "SettingsGUI" in Rt.modules:  # and added_gui:
-        Rt.modules.remove("SettingsGUI")
-
-    # Optimisation parameters only needed for the first run
-    Rt.modules.remove("Optimisation")
+# =================================================================================================
 
 
 def gen_doe_csv(user_config):
@@ -208,7 +182,7 @@ def gen_doe_csv(user_config):
     log.info(df[["Name", "type", "0"]])
 
     # Get only design variables
-    df = df.loc[[i for i, v in enumerate(df["type"]) if v == "des"]]
+    df = df[df["type"] == "des"]
 
     # Get only name and columns with point values
     col = [i for i in df.columns if i.isdigit()]
@@ -247,12 +221,12 @@ def get_normal_param(tixi, entry, outputs):
         else:
             def_val = "-"
 
-    if entry.var_name not in banned_entries:
+    if entry.var_name not in BANNED_ENTRIES:
         value = get_value_or_default(tixi, xpath, def_val)
         if entry.var_type == int:
             value = int(value)
 
-    if not tls.is_digit(value):
+    if not is_digit(value):
         log.info("Not a digital value")
         value = "-"
     elif entry.var_type == bool:
@@ -268,8 +242,8 @@ def get_normal_param(tixi, entry, outputs):
         var["xpath"].append(xpath)
         var["Name"].append(entry.var_name)
 
-        tls.add_type(entry, outputs, objective, var)
-        tls.add_bounds(value, var)
+        add_type(entry, outputs, objective, var)
+        add_bounds(value, var)
         log.info("Value : {}".format(value))
         log.info("Added to variable file")
 
@@ -296,14 +270,15 @@ def get_aero_param(tixi):
 
     for name in PARAMS_COEFS:
         xpath_param = xpath + name
+
         value = str(tixi.getDoubleElement(xpath_param))
 
         var["Name"].append(name)
         var["init"].append(value)
         var["xpath"].append(xpath_param)
 
-        tls.add_type(name, COEFS, objective, var)
-        tls.add_bounds(value, var)
+        add_type(name, COEFS, objective, var)
+        add_bounds(value, var)
 
 
 def get_sm_vars(tixi):
@@ -317,12 +292,12 @@ def get_sm_vars(tixi):
 
     """
 
-    Model = smu.load_surrogate(tixi)
+    Model = load_surrogate(tixi)
     df = Model.df.rename(columns={"Unnamed: 0": "Name"})
     df.set_index("Name", inplace=True)
 
     for name in df.index:
-        name = tls.change_var_name(name)
+        name = change_var_name(name)
         if name not in var["Name"] and df.loc[name]["setcmd"] == "-":
             var["Name"].append(name)
             var["type"].append(df.loc[name]["type"])
@@ -333,7 +308,7 @@ def get_sm_vars(tixi):
             value = str(tixi.getDoubleElement(xpath))
             var["init"].append(value)
 
-            tls.add_bounds(value, var)
+            add_bounds(value, var)
         else:
             log.warning("Variable already exists")
             log.info(name + " will not be added to the variable file")
@@ -364,7 +339,7 @@ def get_module_vars(tixi, specs):
 
         # Change the name of the entry if it's a valid accronym (ex: mtom) or
         # if it has a special sign (ex: ranges[0])
-        entry.var_name = tls.change_var_name(entry.var_name)
+        entry.var_name = change_var_name(entry.var_name)
 
         log.info(xpath)
         log.info(value_name)
@@ -410,10 +385,7 @@ def generate_dict(df):
     # Transform to a convenient form of dict
     optim_var_dict = {}
     for key, subdict in defined_dict.items():
-        if (
-            subdict["initial value"] in ["False", "True", "-"]
-            or subdict["type"] == "obj"
-        ):
+        if subdict["initial value"] in ["False", "True", "-"] or subdict["type"] == "obj":
             optim_var_dict[key] = (
                 subdict["type"],
                 [subdict["initial value"]],
@@ -449,7 +421,7 @@ def add_entries(tixi, module_list):
     if "SMUse" in module_list and use_am:
         get_aero_param(tixi)
     else:
-        for mod_name, specs in mif.get_all_module_specs().items():
+        for mod_name, specs in get_all_module_specs().items():
             if specs and mod_name in module_list:
                 if mod_name == "SMUse":
                     get_sm_vars(tixi)
@@ -486,7 +458,7 @@ def add_geometric_vars(tixi, df):
 
     """
 
-    geom_var = dct.init_geom_var_dict(tixi)
+    geom_var = init_geom_var_dict(tixi)
     for key, (
         var_name,
         [init_value],
@@ -543,52 +515,6 @@ def get_default_df(tixi, module_list):
     return df
 
 
-def create_am_lib(Rt, cpacs):
-    """Create a dictionary for the aeromap coefficients.
-
-    Return a dictionary with all the values of the aeromap that is used during
-    the routine, so that all the results of the aeromap can later be exploited.
-
-    Args:
-        Rt (class): Contains all the parameters of the current routine.
-        cpacs (cbject): CPACS object.
-
-    Returns:
-        am_dict (dct): Dictionnary with all aeromap parameters.
-
-    """
-
-    aeromap = cpacs.get_aeromap_by_uid(Rt.aeromap_uid)
-    am_dict = aeromap.df.to_dict(orient="list")
-
-    for name in PARAMS_COEFS:
-        if name in ["altitude", "machNumber"]:
-            min_val = 0
-            max_val = "-"
-            val_type = "des"
-        if name in COEFS:
-            min_val = -1
-            max_val = 1
-            if name in Rt.objective:
-                val_type = "obj"
-            else:
-                val_type = "const"
-        if name in ["angleOfAttack", "angleOfSideslip"]:
-            min_val = -5
-            max_val = 5
-            val_type = "des"
-        am_dict[name] = (
-            val_type,
-            am_dict[name],
-            min_val,
-            max_val,
-            aeromap.xpath + name,
-            "-",
-        )
-
-    return am_dict
-
-
 def create_variable_library(Rt, tixi, optim_dir_path):
     """Create a dictionnary and a CSV file containing all variables that appear
     in the module list.
@@ -605,12 +531,13 @@ def create_variable_library(Rt, tixi, optim_dir_path):
         optim_dir_path (str): Path to the working directory.
 
     Returns:
-        optim_var_dict (dct): Dictionnary with all optimisation parameters.
+        optim_var_dict (dict): Dictionnary with all optimisation parameters.
 
     """
 
     global objective, var
-    CSV_PATH = optim_dir_path + "/Variable_library.csv"
+
+    CSV_PATH = Path(optim_dir_path, "Variable_library.csv")
 
     for obj in Rt.objective:
         objective.extend(split("[+*/-]", obj))
@@ -623,23 +550,27 @@ def create_variable_library(Rt, tixi, optim_dir_path):
 
     else:
         log.info("No configuration file found, default one will be generated")
-        df = get_default_df(tixi, Rt.modules)
+        module_list = [module.name for module in Rt.modules]
+        df = get_default_df(tixi, module_list)
 
         # Save and open CSV file
         df.to_csv(CSV_PATH, index=False, na_rep="-")
         log.info("Variable library file has been generated")
 
-        tls.launch_external_program(CSV_PATH)
+        launch_external_program(CSV_PATH)
 
-        log.info("Variable library file has been saved at " + CSV_PATH)
+        log.info(f"Variable library file has been saved at {CSV_PATH}")
         df = pd.read_csv(CSV_PATH, index_col=0, skip_blank_lines=True)
         optim_var_dict = generate_dict(df)
 
     return optim_var_dict
 
 
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+
 if __name__ == "__main__":
 
-    log.info("|-------------------------------------------------|")
-    log.info("|Not a standalone module. Nothing will be executed|")
-    log.info("|-------------------------------------------------|")
+    print("Nothing to execute!")

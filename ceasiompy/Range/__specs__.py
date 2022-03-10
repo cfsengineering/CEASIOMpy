@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import (
     CAB_CREW_XPATH,
@@ -23,6 +24,11 @@ RCE = {
     "author": "Stefano Piccini",
     "email": "info@ceasiom.com",
 }
+
+# ===== Results directory path =====
+
+RESULTS_DIR = Path("Results", "Range")
+
 
 # ===== CPACS inputs and outputs =====
 

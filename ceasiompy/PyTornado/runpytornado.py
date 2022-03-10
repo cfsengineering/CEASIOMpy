@@ -48,7 +48,7 @@ import pandas as pd
 import xmltodict as xml
 
 from cpacspy.cpacsfunctions import open_tixi, get_value_or_default
-import ceasiompy.utils.ceasiompyfunctions as ceaf
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -285,14 +285,14 @@ def _get_load_fields(pytornado_results, dir_pyt_results):
     df_tot.to_csv(csv_path, sep=",", index=False)
 
 
-def main():
+# ==============================================================================
+#    MAIN
+# ==============================================================================
+
+
+def main(cpacs_in_path, cpacs_out_path):
 
     log.info("Running PyTornado...")
-
-    # ===== CPACS inout and output paths =====
-    # MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    cpacs_in_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
 
     # ===== Delete old working directories =====
     settings_from_CPACS = get_pytornado_settings_from_CPACS(cpacs_in_path)
@@ -344,20 +344,22 @@ def main():
     # ===== Clean up =====
     shutil.copy(src=file_pyt_aircraft, dst=cpacs_out_path)
 
-    wkdir = ceaf.get_wkdir_or_create_new(tixi)
-    dst_pyt_wkdir = os.path.join(
-        wkdir, "CFD", "PyTornado", f"wkdir_{datetime.strftime(datetime.now(), '%F_%H%M%S')}"
-    )
+    # ===== Copy files in the wkflow results directory =====
+    # TODO: use dirs_exist_ok=True option when  python >=3.8 and remove "tmp"
+    dst_pyt_wkdir = Path(get_results_directory("PyTornado"), "tmp")
+    if os.path.isdir(dst_pyt_wkdir):
+        shutil.rmtree(dst_pyt_wkdir)
     shutil.copytree(src=dir_pyt_wkdir, dst=dst_pyt_wkdir)
     shutil.rmtree(dir_pyt_wkdir, ignore_errors=True)
 
     log.info("PyTornado analysis completed")
 
 
-# ==============================================================================
-#    MAIN
-# ==============================================================================
-
 if __name__ == "__main__":
 
-    main()
+    # ===== CPACS inout and output paths =====
+    # MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+    cpacs_in_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_in_path, cpacs_out_path)

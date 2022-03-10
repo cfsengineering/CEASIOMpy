@@ -40,7 +40,7 @@ from cpacspy.cpacsfunctions import get_string_vector, get_value, get_value_or_de
 
 import ceasiompy.utils.moduleinterfaces as mi
 
-from ceasiompy.StabilityDynamic.func_dynamic import (
+from ceasiompy.StabilityDynamic.func.func_dynamic import (
     plot_sp_level_a,
     plot_sp_level_b,
     plot_sp_level_c,
@@ -1032,12 +1032,14 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                         # den_tf_latdir_xpath = flight_qualities_case_xpath + '/lateral/denLat' # denominator of longitudinal motion
 
 
-if __name__ == "__main__":
+# ==============================================================================
+#    MAIN
+# ==============================================================================
+
+
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + MODULE_NAME + " -----")
-
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
 
     # Call the function which check if imputs are well define
     mi.check_cpacs_input_requirements(cpacs_path)
@@ -1046,3 +1048,11 @@ if __name__ == "__main__":
     dynamic_stability_analysis(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + MODULE_NAME + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_path, cpacs_out_path)

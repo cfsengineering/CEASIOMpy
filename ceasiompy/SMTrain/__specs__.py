@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+from pathlib import Path
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import SMTRAIN_XPATH
@@ -13,6 +14,10 @@ RCE = {
     "author": "Vivien Riolo",
     "email": "aidan.jungo@cfse.ch",
 }
+
+# ===== Results directory path =====
+
+RESULTS_DIR = Path("Results", "SurrogateModels")
 
 # ===== CPACS inputs and outputs =====
 

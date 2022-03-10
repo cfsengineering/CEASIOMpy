@@ -19,6 +19,7 @@ Python version: >=3.7
 
 import os
 import pytest
+from pathlib import Path
 
 from ceasiompy.utils.configfiles import ConfigFile
 
@@ -51,6 +52,11 @@ def test_configfiles():
 
     with open(CONFIG_0, "r") as c, open(CONFIG_OUT_0, "r") as cout:
         assert c.readlines() == cout.readlines()
+
+    # Test ConfigFile from a Path object instead of string
+    file_path = Path(CONFIG_0)
+    config0_path = ConfigFile(file_path)
+    assert config0["LIST_OF_NUM"] == config0_path["LIST_OF_NUM"]
 
     # Check if ValueError is raised when trying read a file with wrong extension
     with pytest.raises(ValueError):
@@ -95,7 +101,7 @@ def test_configfiles():
     CONFIG_2 = os.path.join(MODULE_DIR, "config_test2.cfg")
 
     with pytest.raises(ValueError):
-        config2 = ConfigFile(CONFIG_2)
+        ConfigFile(CONFIG_2)
 
     # Remove output files
     if os.path.isfile(CONFIG_OUT_0):

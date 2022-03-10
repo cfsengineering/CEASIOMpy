@@ -30,7 +30,7 @@ from ceasiompy.WeightConventional.func.Passengers.seatsconfig import get_seat_co
 from ceasiompy.WeightConventional.func.Crew.crewmembers import estimate_crew
 from ceasiompy.WeightConventional.func.Masses.oem import estimate_operating_empty_mass
 from ceasiompy.WeightConventional.func.Masses.mtom import estimate_mtom
-from ceasiompy.utils.ceasiompyfunctions import aircraft_name
+from ceasiompy.utils.ceasiompyutils import aircraft_name
 
 # Should be changed or removed
 from ceasiompy.utils.InputClasses.Conventional import weightconvclass
@@ -43,6 +43,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_NAME = os.path.basename(os.getcwd())
 
 # =============================================================================
 #   CLASSES
@@ -301,15 +302,21 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 #    MAIN
 # =============================================================================
 
-if __name__ == "__main__":
+
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + os.path.basename(__file__) + " -----")
-
-    cpacs_path = os.path.join(MODULE_DIR, "ToolInput", "ToolInput.xml")
-    cpacs_out_path = os.path.join(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
 
     mi.check_cpacs_input_requirements(cpacs_path)
 
     get_weight_estimations(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + os.path.basename(__file__) + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_path, cpacs_out_path)

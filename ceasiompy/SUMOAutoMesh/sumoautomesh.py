@@ -28,14 +28,18 @@ import math
 import shutil
 import platform
 
-import ceasiompy.utils.ceasiompyfunctions as ceaf
+from ceasiompy.utils.ceasiompyutils import get_results_directory, change_working_dir
+from ceasiompy.utils.ceasiompyutils import get_install_path, aircraft_name
+import ceasiompy.utils.moduleinterfaces as mi
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.xpath import SU2MESH_XPATH
 
 log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_NAME = os.path.basename(os.getcwd())
 
 
 # ==============================================================================
@@ -49,7 +53,7 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
 
 def add_mesh_parameters(sumo_file_path, refine_level=0.0):
-    """ Function to add mesh parameter options in SUMO geometry (.smx file)
+    """Function to add mesh parameter options in SUMO geometry (.smx file)
 
     Function 'add_mesh_parameters' is used to add meshing paramers in the SUMO
     geometry (.smx file) to get finer meshes. The only user input parameter is
@@ -201,7 +205,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
 
 
 def create_SU2_mesh(cpacs_path, cpacs_out_path):
-    """ Function to create a simple SU2 mesh form an SUMO file (.smx)
+    """Function to create a simple SU2 mesh form an SUMO file (.smx)
 
     Function 'create_mesh' is used to generate an unstructured mesh with  SUMO
     (which integrage Tetgen for the volume mesh) using a SUMO (.smx) geometry
@@ -219,18 +223,8 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 
     tixi = open_tixi(cpacs_path)
 
-    wkdir = ceaf.get_wkdir_or_create_new(tixi)
-    sumo_dir = os.path.join(wkdir, "SUMO")
-    if not os.path.isdir(sumo_dir):
-        os.mkdir(sumo_dir)
+    sumo_dir = get_results_directory("SUMOAutoMesh")
     su2_mesh_path = os.path.join(sumo_dir, "ToolOutput.su2")
-
-    meshdir = os.path.join(wkdir, "MESH")
-    if not os.path.isdir(meshdir):
-        os.mkdir(meshdir)
-
-    original_dir = os.getcwd()
-    os.chdir(sumo_dir)
 
     sumo_file_xpath = "/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath"
     sumo_file_path = get_value_or_default(tixi, sumo_file_xpath, "")
@@ -273,7 +267,8 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 
         # For now, I did not find a way to run "sumo -batch" on Mac...
         # The command just open SUMO GUI, the mesh has to be generate and save manually
-        command = ["open", "/Applications/SUMO/dwfsumo.app/"]
+        with change_working_dir(sumo_dir):
+            command = ["open", "/Applications/SUMO/dwfsumo.app/"]
 
         # /Applications/SUMO/dwfsumo.app/Contents/MacOS/dwfsumo
         # -batch output=su2 -tetgen-options=pq1.16VY ToolOutput.smx
@@ -284,56 +279,61 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
         log.info("Your OS is Linux")
 
         # Check if SUMO is installed
-        soft_dict = ceaf.get_install_path(["sumo"])
+        soft_dict = get_install_path(["sumo"])
 
         # Run SUMO in batch
         output = "-output=su2"
         options = "-tetgen-options=pq1.16VY"  # See Tetgen help for more options
         # Command line to run: sumo -batch -output=su2 -tetgen-options=pq1.16VY ToolOutput.smx
         command = [soft_dict["sumo"], "-batch", output, options, sumo_file_path]
-        os.system(" ".join(command))
+
+        with change_working_dir(sumo_dir):
+            os.system(" ".join(command))
 
     elif current_os == "Windows":
         log.info("Your OS is Windows")
         # TODO: develop this part
 
         log.warning("OS not supported yet by SUMOAutoMesh!")
-        raise OSError("OS not supported yet!")
+        raise NotImplementedError("OS not supported yet!")
 
     else:
         raise OSError("OS not recognize!")
 
     # Copy the mesh in the MESH directory
-    aircraft_name = ceaf.aircraft_name(tixi)
-    su2_mesh_name = aircraft_name + "_baseline.su2"
-    su2_mesh_new_path = os.path.join(meshdir, su2_mesh_name)
+    su2_mesh_name = aircraft_name(tixi) + "_baseline.su2"
+    su2_mesh_new_path = os.path.join(sumo_dir, su2_mesh_name)
     shutil.copyfile(su2_mesh_path, su2_mesh_new_path)
 
     if os.path.isfile(su2_mesh_new_path):
         log.info("An SU2 Mesh has been correctly generated.")
-        su2_mesh_xpath = "/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh"
-        create_branch(tixi, su2_mesh_xpath)
-        tixi.updateTextElement(su2_mesh_xpath, su2_mesh_new_path)
+        create_branch(tixi, SU2MESH_XPATH)
+        tixi.updateTextElement(SU2MESH_XPATH, su2_mesh_new_path)
         os.remove(su2_mesh_path)
 
     else:
         raise ValueError("No SU2 Mesh file has been generated!")
 
     tixi.save(cpacs_out_path)
-    os.chdir(original_dir)
 
 
 # ==============================================================================
 #    MAIN
 # ==============================================================================
 
-if __name__ == "__main__":
+
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + os.path.basename(__file__) + " -----")
-
-    cpacs_path = os.path.join(MODULE_DIR, "ToolInput", "ToolInput.xml")
-    cpacs_out_path = os.path.join(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
 
     create_SU2_mesh(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + os.path.basename(__file__) + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_path, cpacs_out_path)

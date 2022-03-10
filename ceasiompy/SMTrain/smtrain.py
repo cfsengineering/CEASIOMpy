@@ -30,7 +30,8 @@ import datetime
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
-# import smt.surrogate_models as sms
+
+import smt.surrogate_models as sms
 
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS, COEFS
@@ -39,12 +40,14 @@ from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from ceasiompy.utils.xpath import SMTRAIN_XPATH, SMFILE_XPATH, OPTWKDIR_XPATH
 
 import ceasiompy.utils.moduleinterfaces as mi
-import ceasiompy.utils.ceasiompyfunctions as ceaf
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.SMUse.smuse import Surrogate_model
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
+
+MODULE_NAME = os.path.basename(os.getcwd())
 
 # =============================================================================
 #   GLOBALS
@@ -98,27 +101,23 @@ class Prediction_tool:
         self.aeromap_case = False
         self.aeromap_uid = ""
 
-    def get_user_inputs(self):
-        """Take user inputs from the GUI."""
-        cpacs_path = mi.get_toolinput_file_path("SMTrain")
+    def get_user_inputs(self, cpacs_path, wkdir):
+
         cpacs = CPACS(cpacs_path)
 
         # Search working directory
-        self.wkdir = get_value_or_default(cpacs.tixi, OPTWKDIR_XPATH, "")
-        if self.wkdir == "":
-            self.wkdir = ceaf.get_wkdir_or_create_new(cpacs.tixi) + "/SM"
-        if not os.path.isdir(self.wkdir):
-            os.mkdir(self.wkdir)
+        self.wkdir = get_value_or_default(cpacs.tixi, OPTWKDIR_XPATH, str(wkdir))
 
         self.type = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH + "/modelType", "KRG")
-
         obj = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH + "/objective", "cl")
         self.objectives = re.split(";|,", obj)
+
         self.user_file = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH + "/trainFile", "")
         if self.user_file == "":
             path = get_value_or_default(cpacs.tixi, OPTWKDIR_XPATH, "")
             if path != "":
                 self.user_file = path + "/Variable_history.csv"
+
         self.data_repartition = get_value_or_default(
             cpacs.tixi, SMTRAIN_XPATH + "/trainingPercentage", 0.9
         )
@@ -223,7 +222,7 @@ def separate_data(x, y, div):
     return xt, yt, xv, yv
 
 
-def validation_plots(sm, xt, yt, xv, yv):
+def validation_plots(Tool, sm, xt, yt, xv, yv):
     """Create validation plots.
 
     Plot the training and validation set of points and compare the outputs for
@@ -307,12 +306,12 @@ def create_surrogate(Tool, xd, yd):
     log.info("Done")
 
     if len(xv) >= 1:
-        validation_plots(sm, xt, yt, xv, yv)
+        validation_plots(Tool, sm, xt, yt, xv, yv)
 
     Tool.sm = sm
 
 
-def save_model(Tool):
+def save_model(Tool, cpacs_path, cpacs_out_path):
     """Save trained surrogate model to a file.
 
     Create a file to which the class containing the surrogate model and its
@@ -329,8 +328,6 @@ def save_model(Tool):
     """
 
     date = datetime.datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
-    cpacs_path = mi.get_toolinput_file_path("SMTrain")
-    cpacs_out_path = mi.get_tooloutput_file_path("SMTrain")
 
     cpacs = CPACS(cpacs_path)
 
@@ -389,7 +386,7 @@ def gen_df_from_am(tixi):
     return df
 
 
-def extract_am_data(Tool):
+def extract_am_data(Tool, cpacs_path):
     """Get training data from aeromap.
 
     Retrieve training dataset from an aeromap. The inputs are [alt, mach, aoa, aos]
@@ -404,7 +401,6 @@ def extract_am_data(Tool):
 
     """
 
-    cpacs_path = mi.get_toolinput_file_path("SMTrain")
     cpacs = CPACS(cpacs_path)
 
     Tool.df = gen_df_from_am(cpacs.tixi)
@@ -430,7 +426,7 @@ def extract_am_data(Tool):
     return xd.transpose(), yd.transpose()
 
 
-def generate_model(Tool):
+def generate_model(Tool, cpacs_path):
     """Start process of creating a model
 
     Read data from entries and use them to create a surrogate model.
@@ -449,25 +445,40 @@ def generate_model(Tool):
         xd, yd = extract_data_set(Tool)
         if Tool.aeromap_case:
             log.info("Using aeromap entries")
-            xd_am, yd_am = extract_am_data(Tool)
+            xd_am, yd_am = extract_am_data(Tool, cpacs_path)
             xd = np.concatenate((xd_am, xd), axis=0)
             yd = np.concatenate((yd_am, yd), axis=0)
     elif Tool.aeromap_case:
         log.info("Using aeromap entries")
-        xd, yd = extract_am_data(Tool)
+        xd, yd = extract_am_data(Tool, cpacs_path)
     else:
         raise (FileNotFoundError("No aeromap or SM file has been given !"))
     create_surrogate(Tool, xd, yd)
 
 
-if __name__ == "__main__":
+# ==============================================================================
+#    MAIN
+# ==============================================================================
+
+
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + os.path.basename(__file__) + " -----")
 
-    Tool = Prediction_tool()
-    Tool.get_user_inputs()
+    # Get results directory
+    results_dir = get_results_directory("SMTrain")
 
-    generate_model(Tool)
-    save_model(Tool)
+    Tool = Prediction_tool()
+    Tool.get_user_inputs(cpacs_path, results_dir)
+    generate_model(Tool, cpacs_path)
+    save_model(Tool, cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + os.path.basename(__file__) + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_path, cpacs_out_path)

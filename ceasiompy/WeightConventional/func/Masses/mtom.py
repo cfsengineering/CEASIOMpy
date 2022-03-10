@@ -18,6 +18,9 @@ Python version: >=3.7
 #   IMPORT
 # ==============================================================================
 
+import ceasiompy.__init__
+
+import os
 import pandas as pd
 import numpy as np
 import matplotlib as mpl
@@ -28,6 +31,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
 
+LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
 
 # ==============================================================================
 #   CLASSES
@@ -44,7 +48,7 @@ log = get_logger(__file__.split(".")[0])
 
 
 def estimate_limits(input_data, OBJ, fuse_length, wing_area):
-    """ The funtion adjusts the upper and lower limits used for the linear
+    """The funtion adjusts the upper and lower limits used for the linear
         regression method.
 
     Args:
@@ -65,18 +69,39 @@ def estimate_limits(input_data, OBJ, fuse_length, wing_area):
 
     (L,) = np.shape(input_data)
     l_1 = L - 1
-    upper_limit = np.zeros(l_1,)
-    lower_limit = np.zeros(l_1,)
+    upper_limit = np.zeros(
+        l_1,
+    )
+    lower_limit = np.zeros(
+        l_1,
+    )
     cnt_l = 0
     cnt_u = 0
 
     for i in range(0, l_1):
-        if (input_data[i, ] - OBJ) >= 0:
-            delta_plus = round(input_data[i, ] - OBJ, 2)
+        if (
+            input_data[
+                i,
+            ]
+            - OBJ
+        ) >= 0:
+            delta_plus = round(
+                input_data[
+                    i,
+                ]
+                - OBJ,
+                2,
+            )
             upper_limit[cnt_u] = delta_plus
             cnt_u += 1
         else:
-            delta_minus = round(input_data[i, ] - OBJ, 2)
+            delta_minus = round(
+                input_data[
+                    i,
+                ]
+                - OBJ,
+                2,
+            )
             lower_limit[cnt_l] = delta_minus
             cnt_l += 1
 
@@ -114,7 +139,7 @@ def estimate_limits(input_data, OBJ, fuse_length, wing_area):
 
 
 def estimate_mtom(fuse_length, fuse_width, wing_area, wing_span, NAME):
-    """ Function that estimates the Maximum Take-Off Mass
+    """Function that estimates the Maximum Take-Off Mass
         from statistical regression based on geometric parameters.
 
     Args:
@@ -131,7 +156,9 @@ def estimate_mtom(fuse_length, fuse_width, wing_area, wing_span, NAME):
 
     log.info("-------------- mtom regression --------------")
 
-    aircraft_data_file_name = "ToolInput/AircraftData2018_v1_ste.csv"
+    aircraft_data_file_name = os.path.join(
+        LIB_DIR, "WeightConventional/ToolInput/AircraftData2018_v1_ste.csv"
+    )
     log.info("Open " + str(aircraft_data_file_name))
     aircraft_data = pd.read_csv(aircraft_data_file_name)
     aircraft_data_1 = aircraft_data.set_index("Manufacturer")

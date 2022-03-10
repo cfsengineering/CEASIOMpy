@@ -48,9 +48,6 @@ log = get_logger(__file__.split(".")[0])
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
-cpacs_path = mi.get_toolinput_file_path("SMUse")
-cpacs_path_out = mi.get_tooloutput_file_path("SMUse")
-
 # =============================================================================
 #   ClASSES
 # =============================================================================
@@ -97,20 +94,19 @@ def load_surrogate(tixi):
     return Model
 
 
-def get_inputs(x):
+def get_inputs(cpacs, x):
     """Get input for the surrogate model.
 
     Retrieve the inputs from the cpacs and return them as a numpy array.
 
     Args:
+        cpacs (obj): CPACS instance form cpacspy
         x (DataFrame): Contains the inputs locations.
 
     Returns:
         inputs (np.array): Array of floats.
 
     """
-
-    cpacs = CPACS(cpacs_path)
 
     # These variable will be used in eval
     aircraft = cpacs.aircraft.configuration
@@ -131,7 +127,7 @@ def get_inputs(x):
                 x.loc[name, "getcmd"] = xpath + name
             inputs.append(cpacs.tixi.getDoubleElement(x.loc[name, "getcmd"]))
 
-    cpacs.save_cpacs(cpacs_path, overwrite=True)
+    # cpacs.save_cpacs(cpacs_path, overwrite=True)
 
     return np.array([inputs])
 
@@ -210,7 +206,7 @@ def aeromap_calculation(sm, cpacs):
     aeromap.save()
 
 
-def predict_output(Model, tixi):
+def predict_output(Model, cpacs):
     """Make a prediction.
 
     Args:
@@ -228,11 +224,11 @@ def predict_output(Model, tixi):
     y = df.loc[[i for i, v in enumerate(df["type"]) if v == "obj"]]
     df = df.set_index("Name")
 
-    inputs = get_inputs(x)
+    inputs = get_inputs(cpacs, x)
     outputs = sm.predict_values(inputs)
     y.set_index("Name", inplace=True)
 
-    write_inouts(y, outputs, tixi)
+    write_inouts(y, outputs, cpacs.tixi)
 
 
 def check_aeromap(tixi):
@@ -261,7 +257,8 @@ def check_aeromap(tixi):
 #    MAIN
 # ==============================================================================
 
-if __name__ == "__main__":
+
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + os.path.basename(__file__) + " -----")
 
@@ -274,8 +271,16 @@ if __name__ == "__main__":
     if get_value_or_default(cpacs.tixi, SMUSE_XPATH + "/AeroMapOnly", False):
         aeromap_calculation(Model.sm, cpacs)
     else:
-        predict_output(Model, cpacs.tixi)
+        predict_output(Model, cpacs)
 
-    cpacs.save_cpacs(cpacs_path_out, overwrite=True)
+    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
     log.info("----- End of " + os.path.basename(__file__) + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mi.get_toolinput_file_path("SMUse")
+    cpacs_out_path = mi.get_tooloutput_file_path("SMUse")
+
+    main(cpacs_path, cpacs_out_path)

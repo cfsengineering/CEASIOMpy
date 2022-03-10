@@ -12,115 +12,40 @@ Python version: >=3.7
 
 TODO:
 
-    * more options for optim ?
+    * Modifiy Opimisation Tab to restrict selection to only Module to run
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
 import ceasiompy.__init__
 
 import os
-import sys
-import shutil
-from collections import OrderedDict
-from datetime import datetime
+from pathlib import Path
 
 import tkinter as tk
 from tkinter import ttk
 from tkinter import messagebox, filedialog
 
-import ceasiompy.utils.workflowfunctions as wkf
-import ceasiompy.utils.ceasiompyfunctions as ceaf
-from ceasiompy.utils.configfiles import ConfigFile
+from ceasiompy.utils.workflowclasses import Workflow
 import ceasiompy.utils.moduleinterfaces as mi
 
-from cpacspy.cpacsfunctions import open_tixi
-
-from ceasiompy.Optimisation.optimisation import routine_launcher
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
 
-LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
-
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
-
-
-class WorkflowOptions:
-    """ Class to pass options of the workflow """
-
-    def __init__(self):
-
-        cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-        if os.path.isfile(cpacs_path):
-            self.cpacs_path = cpacs_path
-        else:
-            self.cpacs_path = ""
-
-        self.optim_method = "None"  # 'None', 'Optim', 'DoE'
-        self.module_pre = []
-        self.module_optim = []
-        self.module_post = []
-
-    def from_config_file(self, workflow_config_path):
-
-        cfg = ConfigFile(workflow_config_path)
-
-        self.cpacs_path = cfg["CPACS_TOOLINPUT"]
-        try:
-            self.module_pre = cfg["MODULE_PRE"]
-        except KeyError:
-            pass
-        try:
-            self.module_optim = cfg["MODULE_OPTIM"]
-        except KeyError:
-            pass
-        try:
-            self.optim_method = cfg["OPTIM_METHOD"]
-        except KeyError:
-            pass
-        try:
-            self.module_post = cfg["MODULE_POST"]
-        except KeyError:
-            pass
-
-    def write_config_file(self, wkdir):
-
-        cfg = ConfigFile()
-        cfg["comment_1"] = f"File written {datetime.now()}"
-        cfg["comment_2"] = f"Working directory {wkdir}"
-        cfg["CPACS_TOOLINPUT"] = self.cpacs_path
-        if self.module_pre:
-            cfg["MODULE_PRE"] = self.module_pre
-        else:
-            cfg["comment_module_pre"] = "MODULE_PRE = (  )"
-
-        if self.module_optim:
-            cfg["MODULE_OPTIM"] = self.module_optim
-            cfg["OPTIM_METHOD"] = self.optim_method
-        else:
-            cfg["comment_module_optim"] = "MODULE_OPTIM = (  )"
-            cfg["comment_optim_method"] = "OPTIM_METHOD = NONE"
-        if self.module_post:
-            cfg["MODULE_POST"] = self.module_post
-        else:
-            cfg["comment_module_post"] = "MODULE_POST = (  )"
-
-        file_path = os.path.join(wkdir, "Config.cfg")
-        cfg.write_file(file_path, overwrite=True)
+# =================================================================================================
 
 
 class Tab(tk.Frame):
-    """ Class to create tab in the WorkflowCreator GUI """
+    """Class to create tab in the WorkflowCreator GUI"""
 
     def __init__(self, master, name, **kwargs):
 
@@ -138,6 +63,8 @@ class Tab(tk.Frame):
         self.modules_list.remove("CPACSUpdater")
         self.modules_list.remove("WorkflowCreator")
         self.modules_list.remove("utils")
+
+        # TODO: remove that when WKDIR is completly out of /ceasiompy/
         try:
             self.modules_list.remove("WKDIR")
         except:
@@ -147,13 +74,13 @@ class Tab(tk.Frame):
 
         row_pos = 0
 
-        if name == "Optim":
+        if name == "Optimisation":
 
             label_optim = tk.Label(self, text="Optimisation method")
             label_optim.grid(column=0, row=0, columnspan=1, pady=10)
 
             # The Combobox is directly use as the varaible
-            optim_choice = ["None", "DoE", "Optim"]
+            optim_choice = ["None", "DOE", "OPTIM"]
             self.optim_choice_CB = ttk.Combobox(self, values=optim_choice, width=15)
             self.optim_choice_CB.grid(column=4, row=row_pos)
             row_pos += 1
@@ -189,8 +116,8 @@ class Tab(tk.Frame):
             row_pos += item_count + 1
 
     def _add(self, event=None):
-        """ Function of the button add: to pass a module from Available module
-            list to Selected module list"""
+        """Function of the button add: to pass a module from Available module
+        list to Selected module list"""
 
         try:
             select_item = [self.LB_modules.get(i) for i in self.LB_modules.curselection()]
@@ -200,16 +127,16 @@ class Tab(tk.Frame):
             self.selected_item = None
 
     def _remove(self, event=None):
-        """ Function of the button remove: to remove a module from the Selected
-            module list"""
+        """Function of the button remove: to remove a module from the Selected
+        module list"""
 
         sel = self.LB_selected.curselection()
         for index in sel[::-1]:
             self.LB_selected.delete(index)
 
     def _up(self, event=None):
-        """ Function of the button up: to move upward a module in the Selected
-            module list"""
+        """Function of the button up: to move upward a module in the Selected
+        module list"""
 
         pos_list = self.LB_selected.curselection()
 
@@ -224,8 +151,8 @@ class Tab(tk.Frame):
             self.LB_selected.insert(pos - 1, item)
 
     def _down(self, event=None):
-        """ Function of the button down: to move downward a module in the
-            Selected module list."""
+        """Function of the button down: to move downward a module in the
+        Selected module list."""
 
         pos_list = self.LB_selected.curselection()
 
@@ -246,38 +173,48 @@ class WorkFlowGUI(tk.Frame):
         tk.Frame.__init__(self, master, **kwargs)
         self.pack(fill=tk.BOTH)
 
-        self.Options = WorkflowOptions()
+        self.workflow = Workflow()
 
         space_label = tk.Label(self, text=" ")
         space_label.grid(column=0, row=0)
 
-        # Input CPACS file
-        self.label = tk.Label(self, text="  Input CPACS file")
+        # Input Working directory
+        self.label = tk.Label(self, text="  Working Directory")
         self.label.grid(column=0, row=1)
 
-        self.path_var = tk.StringVar()
-        self.path_var.set(self.Options.cpacs_path)
-        value_entry = tk.Entry(self, textvariable=self.path_var, width=45)
+        self.wkdir_path_var = tk.StringVar()
+        self.wkdir_path_var.set(self.workflow.working_dir)
+        value_entry = tk.Entry(self, textvariable=self.wkdir_path_var, width=45)
         value_entry.grid(column=1, row=1)
 
-        self.browse_button = tk.Button(self, text="Browse", command=self._browse_file)
+        self.browse_button = tk.Button(self, text="Browse", command=self._browse_dir)
         self.browse_button.grid(column=2, row=1, pady=5)
+
+        # Input CPACS file
+        self.label = tk.Label(self, text="  Input CPACS file")
+        self.label.grid(column=0, row=2)
+
+        self.path_var = tk.StringVar()
+        self.path_var.set(self.workflow.cpacs_in)
+        value_entry = tk.Entry(self, textvariable=self.path_var, width=45)
+        value_entry.grid(column=1, row=2)
+
+        self.browse_button = tk.Button(self, text="Browse", command=self._browse_file)
+        self.browse_button.grid(column=2, row=2, pady=5)
 
         # Notebook for tabs
         self.tabs = ttk.Notebook(self)
-        self.tabs.grid(column=0, row=2, columnspan=3, padx=10, pady=10)
+        self.tabs.grid(column=0, row=3, columnspan=3, padx=10, pady=10)
 
-        self.TabPre = Tab(self, "Pre")
-        self.TabOptim = Tab(self, "Optim")
-        self.TabPost = Tab(self, "Post")
+        self.TabModToRun = Tab(self, "Module to run")
+        self.TabOptim = Tab(self, "Optimisation")
 
-        self.tabs.add(self.TabPre, text=self.TabPre.name)
+        self.tabs.add(self.TabModToRun, text=self.TabModToRun.name)
         self.tabs.add(self.TabOptim, text=self.TabOptim.name)
-        self.tabs.add(self.TabPost, text=self.TabPost.name)
 
         # General buttons
         self.close_button = tk.Button(self, text="Save & Quit", command=self._save_quit)
-        self.close_button.grid(column=2, row=3)
+        self.close_button.grid(column=2, row=4)
 
     def _browse_file(self):
 
@@ -287,193 +224,83 @@ class WorkFlowGUI(tk.Frame):
         )
         self.path_var.set(self.filename)
 
+    def _browse_dir(self):
+
+        wkdir_template = os.path.join(MODULE_DIR, "..", "..", "WKDIR")
+        self.wkdir = filedialog.askdirectory(
+            initialdir=wkdir_template, title="Select a CPACS file"
+        )
+        self.wkdir_path_var.set(self.wkdir)
+
     def _save_quit(self):
 
-        self.Options.optim_method = self.TabOptim.optim_choice_CB.get()
+        self.workflow.optim_method = self.TabOptim.optim_choice_CB.get()
+        if not self.workflow.optim_method:
+            self.workflow.optim_method = "None"
 
-        self.Options.module_pre = [item[0] for item in self.TabPre.LB_selected.get(0, tk.END)]
-        self.Options.module_optim = [item[0] for item in self.TabOptim.LB_selected.get(0, tk.END)]
-        self.Options.module_post = [item[0] for item in self.TabPost.LB_selected.get(0, tk.END)]
+        self.workflow.modules_list = [
+            item[0] for item in self.TabModToRun.LB_selected.get(0, tk.END)
+        ]
+        self.workflow.module_optim = [item[0] for item in self.TabOptim.LB_selected.get(0, tk.END)]
+        if not self.workflow.module_optim:
+            self.workflow.module_optim = ["NO"] * len(self.workflow.modules_list)
 
-        self.Options.cpacs_path = self.path_var.get()
+        # CPACS file
         if self.path_var.get() == "":
             messagebox.showerror("ValueError", "Yon must select an input CPACS file!")
             raise TypeError("No CPACS file has been define !")
 
+        self.workflow.cpacs_in = Path(self.path_var.get())
+
+        if self.wkdir_path_var.get() == "":
+            messagebox.showerror("ValueError", "Yon must select a Woking Directory!")
+            raise TypeError("No Working directory has been define !")
+
+        # Working directory
+        self.workflow.working_dir = Path(self.wkdir_path_var.get())
+
+        if not self.workflow.working_dir.exists():
+            self.workflow.working_dir.mkdir()
+
+        if any(file.endswith(".cfg") for file in os.listdir(self.workflow.working_dir)):
+            answer = messagebox.askokcancel(
+                title="Confirmation",
+                message="Be carefule a CEASIOMpy configuration file (.cfg) already exist in this"
+                " working directory, it will be overwriten!",
+                icon=messagebox.WARNING,
+            )
+
+            if not answer:
+                return
+
         self.quit()
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def create_wf_gui():
-    """ Create a GUI with Tkinter to fill the workflow to run
-
-    Args:
-        cpacs_path (str): Path to the CPACS file
-        cpacs_out_path (str): Path to the output CPACS file
-        module_list (list): List of module to inclue in the GUI
-
-    """
+    """Create a GUI with Tkinter to fill the workflow to run."""
 
     root = tk.Tk()
     root.title("Workflow Creator")
-    root.geometry("475x495+400+300")
-    my_gui = WorkFlowGUI()
-    my_gui.mainloop()
-    opt = my_gui.Options
+    root.geometry("730x750+400+150")
+    gui = WorkFlowGUI()
+    gui.mainloop()
+    workflow = gui.workflow
 
     root.iconify()  # Not super solution but only way to make it close on Mac
     root.destroy()
 
-    return opt
+    return workflow
 
 
-def run_workflow(Opt):
-    """ Run the complete Worflow
-
-    Args:
-        Opt (class): Cl
-        cpacs_out_path (str): Path to the output CPACS file
-        module_list (list): List of module to inclue in the GUI
-
-    """
-
-    # Copy ToolInput.xml in ToolInput dir if not already there
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    if not os.path.abspath(Opt.cpacs_path) == os.path.abspath(cpacs_path):
-        shutil.copy(Opt.cpacs_path, cpacs_path)
-        Opt.cpacs_path = os.path.abspath(cpacs_path)
-
-    # Create a new wkdir
-    tixi = open_tixi(Opt.cpacs_path)
-    wkdir = ceaf.get_wkdir_or_create_new(tixi)
-    tixi.save(Opt.cpacs_path)
-
-    # Write the config file in the working dir
-    Opt.write_config_file(wkdir)
-
-    # Copy ToolInput in the Working directory
-    shutil.copy(Opt.cpacs_path, os.path.join(wkdir, "Input.xml"))
-
-    # Run Pre-otimisation workflow
-    if Opt.module_pre:
-        wkf.run_subworkflow(Opt.module_pre, Opt.cpacs_path)
-
-        if not Opt.module_optim and not Opt.module_post:
-            shutil.copy(mi.get_tooloutput_file_path(Opt.module_pre[-1]), cpacs_path_out)
-
-    # Run Optimisation workflow
-    if Opt.module_optim:
-
-        if Opt.module_pre:
-            wkf.copy_module_to_module(Opt.module_pre[-1], "out", "Optimisation", "in")
-        else:
-            wkf.copy_module_to_module("WorkflowCreator", "in", "Optimisation", "in")
-
-        if Opt.optim_method:
-            routine_launcher(Opt)
-        else:
-            log.warning("No optimization method has been selected!")
-            log.warning("The modules will be run as a simple workflow")
-            wkf.run_subworkflow(Opt.module_optim)
-
-        if not Opt.module_post:
-            shutil.copy(mi.get_tooloutput_file_path(Opt.module_optim[-1]), cpacs_path_out)
-
-    # Run Post-optimisation workflow
-    if Opt.module_post:
-
-        if Opt.module_optim:
-            wkf.copy_module_to_module(Opt.module_optim[-1], "out", Opt.module_post[0], "in")
-        elif Opt.module_pre:
-            wkf.copy_module_to_module(Opt.module_pre[-1], "out", Opt.module_post[0], "in")
-        else:
-            wkf.copy_module_to_module("WorkflowCreator", "in", Opt.module_post[0], "in")
-
-        # wkf.copy_module_to_module('CPACSUpdater','out',Opt.module_post[0],'in')  usefuel?
-        wkf.run_subworkflow(Opt.module_post)
-        shutil.copy(mi.get_tooloutput_file_path(Opt.module_post[-1]), cpacs_path_out)
-
-    # Copy ToolInput in the Working directory
-    shutil.copy(cpacs_path_out, os.path.join(wkdir, "Output.xml"))
-
-
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
-
-    cpacs_path_out = mi.get_tooloutput_file_path(MODULE_NAME)
-
-    no_arg = True
-
-    if len(sys.argv) > 1:
-        if sys.argv[1] == "-gui":
-            no_arg = False
-
-            Opt = create_wf_gui()
-
-        elif sys.argv[1] == "-cfg":
-
-            if len(sys.argv) > 2:
-                cfg_file = sys.argv[2]
-                if os.path.isfile(cfg_file):
-                    no_arg = False
-                else:
-                    print(" ")
-                    print("The path you use as argument is not a file!")
-                    print(" ")
-                    sys.exit()
-            else:
-                print(" ")
-                print("No configuration file!")
-                print('If you use the option "-cfg" to run this module,')
-                print("you must specifiy the path to the config file!")
-                print(" ")
-                sys.exit()
-
-            Opt = WorkflowOptions()
-            # cfg_file =  'CEASIOMpy_workflow_default.cfg'
-            Opt.from_config_file(cfg_file)
-
-        else:
-            print(" ")
-            print("Invalid argument!")
-            print("You can use the option -gui to run this module with a user interface.")
-            print("You can use the option -cfg to run this module with a configuration file.")
-            print(" ")
-            sys.exit()
-
-    # To run a workflow without gui or config file
-    if no_arg:
-
-        Opt = WorkflowOptions()
-
-        # Available Module:
-        # Settings: 'SettingsGUI'
-        # Geometry and mesh:
-        #       'CPACSCreator','CPACS2SUMO','SUMOAutoMesh'
-        # Weight and balance:
-        #       'WeightConventional','WeightUnconventional',
-        #       'BalanceConventional','BalanceUnconventional'
-        # Aerodynamics:
-        #       'CLCalculator','PyTornado','SkinFriction','PlotAeroCoefficients',
-        #       'SU2MeshDef','SU2Run'
-        # Mission analysis: 'Range','StabilityStatic'
-        # Surrogate modelling: 'SMTrain', 'SMUse'
-
-        Opt.module_pre = ["PyTornado", "SkinFriction"]
-        Opt.module_optim = []
-        Opt.module_post = []
-        Opt.optim_method = "None"  # DoE, Optim, None
-
-    # Run the workflow
-    run_workflow(Opt)
-
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    print("Nothing to execute")

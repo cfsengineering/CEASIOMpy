@@ -17,9 +17,9 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
 import os
 import sys
@@ -43,8 +43,8 @@ from cpacspy.cpacsfunctions import (
     open_tigl,
     open_tixi,
 )
-import ceasiompy.utils.ceasiompyfunctions as ceaf
-from ceasiompy.utils.su2functions import get_mesh_marker
+
+from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
 import ceasiompy.utils.moduleinterfaces as mi
 
 from ambiance import Atmosphere
@@ -61,9 +61,9 @@ MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 MODULE_NAME = os.path.basename(os.getcwd())
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
 class MyClass:
@@ -91,9 +91,9 @@ class MyClass:
         self.var_c = self.var_a + self.var_b
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def sum_funcion(arg1, arg2):
@@ -175,17 +175,14 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
     return (x, y, z)
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 
-if __name__ == "__main__":
+def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + MODULE_NAME + " -----")
-
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
 
     # Call the function which check if imputs are well define
     mi.check_cpacs_input_requirements(cpacs_path)
@@ -206,3 +203,11 @@ if __name__ == "__main__":
     log.info("z = " + str(z))
 
     log.info("----- End of " + MODULE_NAME + " -----")
+
+
+if __name__ == "__main__":
+
+    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_path, cpacs_out_path)

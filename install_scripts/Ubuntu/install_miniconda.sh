@@ -9,6 +9,8 @@ else
     install_dir="$(pwd)/CEASIOMpy_install_dir"
 fi
 
+echo "Creating install directory..."
+mkdir -p "$install_dir"
 cd $install_dir
 
 # Download Miniconda

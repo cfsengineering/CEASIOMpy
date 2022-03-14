@@ -4,9 +4,9 @@
 
 # Get install dir from input if it exists
 if [ $# -gt 0 ]; then
-    install_dir="$1/SUMO_install"
+    install_dir="$1/CEASIOMpy_install_dir"
 else
-    install_dir="$(pwd)/SUMO_install"
+    install_dir="$(pwd)/CEASIOMpy_install_dir"
 fi
 
 echo "Creating install directory..."

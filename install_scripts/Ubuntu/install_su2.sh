@@ -16,14 +16,16 @@ mkdir -p "$install_dir"
 cd $install_dir
 
 echo "Downloading SU2..."
-wget https://github.com/su2code/SU2/releases/download/v{$su2_version}/SU2-v{$su2_version}-linux64-mpi.zip
-unzip -d SU2-v{$su2_version}-linux64-mpi SU2-v{$su2_version}-linux64-mpi.zip
+wget https://github.com/su2code/SU2/releases/download/v"$su2_version"/SU2-v"$su2_version"-linux64-mpi.zip
+unzip -d SU2-v"$su2_version"-linux64-mpi SU2-v"$su2_version"-linux64-mpi.zip
 
 echo "Adding path to the .bashrc"
-'export SU2_RUN="/{$install_dir}/SU2-v{$su2_version}-linux64-mpi/bin"' >> ~/.bashrc
-'export SU2_HOME="/{$install_dir}/SU2-v{$su2_version}-linux64-mpi"' >> ~/.bashrc
-'export PYTHONPATH=$PYTHONPATH:$SU2_RUN' >> ~/.bashrc
-'export PATH="$PATH:$SU2_RUN"' >> ~/.bashrc
+su2_run_path=/"$install_dir"/SU2-v"$su2_version"-linux64-mpi/bin
+su2_home_path=/"$install_dir"/SU2-v"$su2_version"-linux64-mpi
+echo export SU2_RUN=\""$su2_run_path"\" >> ~/.bashrc
+echo export SU2_HOME=\""$su2_home_path"\" >> ~/.bashrc
+echo export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN >> ~/.bashrc
+echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
 
 echo "Installing MPICH..."
 sudo apt install -y mpich

@@ -10,4 +10,4 @@ cd ../../..
 # Download PyTornado from GitHub and install it
 git clone https://github.com/airinnova/pytornado.git
 cd pytornado
-pip install --user .
+pip install -e .

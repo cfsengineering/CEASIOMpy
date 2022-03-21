@@ -20,18 +20,20 @@ To install CEASIOMpy on Ubuntu (or other version based on it), you can use the f
 If you agree with the remark above, you can start the installation by openning a terminal where you want to install CEASIOMpy and run the following commands:
 
 ```bash
-apt-get install git
+sudo apt-get install git
 git clone https://github.com/cfsengineering/CEASIOMpy.git
 cd CEASIOMpy/install_scripts/Ubuntu
-./install_conda.sh
+./install_miniconda.sh
+source ~/.bashrc
 ./install_ceasiompy.sh
 ./install_pytornado.sh
 ./install_sumo.sh
 ./install_su2.sh
 ./install_paraview.sh
+source ~/.bashrc
 ```
 
-To test the installation, you can open a terminal and run the following commands:
+To test the installation, you can open a terminal and try to run the following commands one by one:
 
 ```bash
 conda activate ceasiompy

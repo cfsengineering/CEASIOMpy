@@ -6,15 +6,6 @@ from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import REF_XPATH, WINGS_XPATH, PYTORNADO_XPATH, AEROPERFORMANCE_XPATH
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "PyTornado",
-    "description": "Wrapper module for PyTornado",
-    "exec": "pwd\npython runpytornado.py",
-    "author": "Aaron Dettmann",
-    "email": "dettmann@kth.se",
-}
 
 # ===== Results directory path =====
 

@@ -5,15 +5,6 @@ from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import SMTRAIN_XPATH
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "SMTrain module",
-    "description": "This module generates a surrogate model",
-    "exec": "pwd\npython smtrain.py",
-    "author": "Vivien Riolo",
-    "email": "aidan.jungo@cfse.ch",
-}
 
 # ===== Results directory path =====
 

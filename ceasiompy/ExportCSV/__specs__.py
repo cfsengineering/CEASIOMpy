@@ -6,16 +6,6 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import EXPORT_XPATH
 
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "ExportCSV",
-    "description": "Module to export Aeromap to CSV",
-    "exec": "pwd\npython exportcsv.py",
-    "author": "Aidan Jungo",
-    "email": "aidan.jungo@cfse.ch",
-}
-
 # ===== Results directory path =====
 
 RESULTS_DIR = Path("Results", "Aeromaps")

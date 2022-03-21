@@ -5,15 +5,6 @@ from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import CEASIOMPY_XPATH, SUMOFILE_XPATH
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "CPACS2SUMO",
-    "description": "Convert CPACS .xml file into SUMO .smx file",
-    "exec": "pwd\npython cpacs2sumo.py",
-    "author": "Aidan Jungo",
-    "email": "aidan.jungo@cfse.ch",
-}
 
 # ===== Results directory path =====
 

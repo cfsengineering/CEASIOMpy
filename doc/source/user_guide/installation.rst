@@ -248,30 +248,6 @@ Create a symbolic link as for SUMO:
   >> sudo ln -s  /YourPathToParaview/ParaView-5.9.0-RC1-MPI-Linux-Python3.8-64bit/bin/paraview  /usr/bin/paraview
 
 
-RCE (optional)
-~~~~~~~~~~~~~~
-
-`RCE`_ is an open source distributed, workflow-driven integration environment. It is used by engineers and scientists to design and simulate complex systems (e.g. aircraft, ships, or satellites) by using and integrating their own design and simulation tools.
-
-RCE is not mandatory any more to use |name|. Instead, you can use the module ``WorkflowCreator`` to set up your analysis. However, RCE_ is probably still a good tool to understand what is happening in your workflow. But beware that this tools also has a learning curve.
-
-* RCE environment can be download at: https://rcenvironment.de/pages/download.html
-Download the version 10 (.deb) and install it on your computer.
-
-To use the CEASIOMpy modules in the RCE interface it is necessary to make them available to RCE. To do so, you should first execute the following Python script:
-
-.. code::
-
-    >> python ceasiompy/utils/rce_integration.py
-
-This will create in a folder on you computer in you temp directory. In this folder you can see one folder per module, each of them contain a JSON file. All of these folders must be copied where RCE saved your profile information:
-
-* ``$HOME/.rce/default/integration/tools/common/``
-
-Once you restart RCE, all the CEASIOMpy modules should appear on left of your screen next to all the default modules.
-
-
-
 Windows 10
 ----------
 

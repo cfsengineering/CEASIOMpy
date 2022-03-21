@@ -2,16 +2,16 @@
     :target: https://ceasiompy.readthedocs.io/en/latest/
     :alt: Documentation Status
 
-.. image:: https://github.com/cfsengineering/CEASIOMpy/actions/workflows/pytest.yml/badge.svg?branch=master
+.. image:: https://github.com/cfsengineering/CEASIOMpy/actions/workflows/pytest.yml/badge.svg?branch=main
     :target: https://github.com/cfsengineering/CEASIOMpy/actions/workflows/pytest.yml
     :alt: Pytest status
 
-.. image:: https://codecov.io/gh/cfsengineering/CEASIOMpy/branch/master/graph/badge.svg?token=d6cyUEOmOQ
+.. image:: https://codecov.io/gh/cfsengineering/CEASIOMpy/branch/main/graph/badge.svg?token=d6cyUEOmOQ
     :target: https://codecov.io/gh/cfsengineering/CEASIOMpy
     :alt: Codecov
 
 .. image:: https://img.shields.io/badge/license-Apache%202-blue.svg
-    :target: https://github.com/cfsengineering/CEASIOMpy/blob/master/LICENSE
+    :target: https://github.com/cfsengineering/CEASIOMpy/blob/main/LICENSE
     :alt: License
 
 .. image:: https://img.shields.io/badge/code%20style-black-000000.svg
@@ -55,4 +55,4 @@ Contributing to the project
 
 Please refer to the CONTRIBUTING.md document for mor information.
 
-* https://github.com/cfsengineering/CEASIOMpy/blob/master/CONTRIBUTING.md
+* https://github.com/cfsengineering/CEASIOMpy/blob/main/CONTRIBUTING.md

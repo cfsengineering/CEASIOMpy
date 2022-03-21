@@ -118,7 +118,7 @@ and prinded in the console during the execution.
 
 If possible, new functions should have corresponding [pytest](https://docs.pytest.org/en/latest/getting-started.html).
 
-Pytest, [flake8](https://flake8.pycqa.org/en/latest/) and [codecov](https://about.codecov.io/) are included in our [Github action CI](https://github.com/cfsengineering/CEASIOMpy/blob/master/.github/workflows/pytest.yml) and will run automatically for each push and pull request to the master branch.
+Pytest, [flake8](https://flake8.pycqa.org/en/latest/) and [codecov](https://about.codecov.io/) are included in our [Github action CI](https://github.com/cfsengineering/CEASIOMpy/blob/main/.github/workflows/pytest.yml) and will run automatically for each push and pull request to the main branch.
 
 You could also run the CI manually with on your machine with:
 
@@ -183,7 +183,7 @@ If you find a bug, please report it on the [Github issues page](https://github.c
 ### Writing a new module
 
 We highly encourage and appreciate any contributions to the CEASIOMpy codebase. If you have an idea for a new module, it could be a good thing to contact the CEASIOMpy team which could help you to write the module and be sure it is coherent with the rest of the project. You can also check the [CEASIOMpy project board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see what are the development status of the project.
-If you want to write a new module you can use the [Module Template](https://github.com/cfsengineering/CEASIOMpy/tree/master/ceasiompy/ModuleTemplate) to help you. Normally, all modules follow the same file structure:
+If you want to write a new module you can use the [Module Template](https://github.com/cfsengineering/CEASIOMpy/tree/main/ceasiompy/ModuleTemplate) to help you. Normally, all modules follow the same file structure:
 
 ```
 .

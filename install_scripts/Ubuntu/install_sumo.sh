@@ -2,11 +2,13 @@
 
 # Script to install SUMO on Ubuntu 20.04 and  Mint 20.3
 
+current_dir="$(pwd)"
+
 # Get install dir from input if it exists
 if [ $# -gt 0 ]; then
     install_dir="$1/CEASIOMpy_install_dir"
 else
-    install_dir="$(pwd)/CEASIOMpy_install_dir"
+    install_dir="$(pwd)/../../CEASIOMpy_install_dir"
 fi
 
 echo "Creating install directory..."
@@ -41,3 +43,5 @@ sudo ln -s $install_dir/sumo-2.7.9/bin/dwfsumo /usr/bin/sumo
 
 echo "Reloading bashrc..."
 source ~/.bashrc
+
+cd $current_dir

@@ -2,11 +2,13 @@
 
 # Script to install Paraview on Ubuntu 20.04 and  Mint 20.3
 
+current_dir="$(pwd)"
+
 # Get install dir from input if it exists
 if [ $# -gt 0 ]; then
     install_dir="$1/CEASIOMpy_install_dir"
 else
-    install_dir="$(pwd)/CEASIOMpy_install_dir"
+    install_dir="$(pwd)/../../CEASIOMpy_install_dir"
 fi
 
 echo "Creating install directory..."
@@ -19,3 +21,5 @@ tar zxvf ParaView-5.10.0-MPI-Linux-Python3.9-x86_64
 
 echo "Adding sybolic link for Paraview"
 sudo ln -s $(pwd)/ParaView-5.10.0-MPI-Linux-Python3.9-x86_64/bin/paraview  /usr/bin/paraview
+
+cd $current_dir

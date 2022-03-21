@@ -4,11 +4,13 @@
 
 su2_version="7.3.0"
 
+current_dir="$(pwd)"
+
 # Get install dir from input if it exists
 if [ $# -gt 0 ]; then
     install_dir="$1/CEASIOMpy_install_dir"
 else
-    install_dir="$(pwd)/CEASIOMpy_install_dir"
+    install_dir="$(pwd)/../../CEASIOMpy_install_dir"
 fi
 
 echo "Creating install directory..."
@@ -32,3 +34,5 @@ echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
 
 echo "Installing MPICH..."
 sudo apt install -y mpich
+
+cd $current_dir

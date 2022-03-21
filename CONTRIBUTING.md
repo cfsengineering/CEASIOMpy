@@ -4,6 +4,12 @@
  - [Development guidelines](#development-guidelines)
    - [Git/Github](#git--github)
    - [Python](#python)
+     - [Conda](#conda)
+     - [Formatting](#formatting)
+     - [Naming conventions](#naming-conventions)
+     - [Logging](#logging)
+     - [Testing and coverage](#testing-and-coverage)
+     - [Other resources](#other-resources)
    - [CPACS](#cpacs)
    - [Other](#other)
 - [How to contribute](#how-to-contribute) 
@@ -15,12 +21,12 @@ The CEASIOMpy documentation is available at [https://ceasiompy.readthedocs.io/](
 
 #### Installation issues
 
-If you have some trouble to install CEASIOMpy on your computer, please use the [Github Discussion page](https://github.com/cfsengineering/CEASIOMpy/discussions/categories/installation-issues). If your problem is something that could be reproduce it will be transformed into a an issues.
+If you have some trouble to install CEASIOMpy on your computer, please use the following [Github Discussion page](https://github.com/cfsengineering/CEASIOMpy/discussions/categories/installation-issues). If your problem is something that could be reproduce it will be transformed into an issues.
 
 
 ## Development guidelines
 
-### Git/Github
+### Git / Github
 
 If you want participate to development of CEASIOMpy, it is a good thing if you have a basic understanding of how the version control system [Git](https://git-scm.com/) and the Github platform work.
 
@@ -52,11 +58,9 @@ Then, you could either set it as the your default formatting tool in your IDE an
 black -l 99 name_of_your_file.py
 ```
 
-It is also recommended to have a look to the Python convention guidelines [PEP8](https://www.python.org/dev/peps/pep-0008/#naming-conventions) 
-
 #### Naming conventions
 
-We try to follow th following naming conventions in CEASIOMpy (should be close to PEP8):
+We try to follow th following naming conventions in CEASIOMpy:
 
 - Variables : lower_case_with_underscores
 - Functions : lower_case_with_underscores
@@ -64,6 +68,50 @@ We try to follow th following naming conventions in CEASIOMpy (should be close t
 - Packages and modules : short, all-lowercase names, no underscore
 - Constants : CAPITAL_LETTER_WITH_UNDERSCORE
 - Index in loops: i,j,k or lowercase (e.g. alpha, beta,…) or more explicit (i_fus, i_wing, i_eng)
+
+Quotes:
+-  `" "` simple quote are used for strings, e.g. print("Test1")
+-  `"""Docstring"""` triple double quote are used for docstring (documentation)
+
+-  Variable name should be explicit, with in first position the object
+   it represents, then detail about its type, if needed. - aircraft_name
+   - engine_nb - wing_span - controlsurf_deflection_angle
+
+Variable name:
+-  Variable name should be explicit, with in first position the object
+   it represents, then detail about its type, e.g:
+    - aircraft_name
+    - engine_nb 
+    - wing_span 
+    - controlsurf_deflection_angle
+
+These guidelines have been adapted from:
+- https://www.python.org/dev/peps/pep-0008/#naming-conventions 
+- https://gist.github.com/sloria/7001839
+- https://www.python.org/dev/peps/pep-0008/
+
+
+#### Logging
+
+Create a logfle for a module can be very useful to understand what happens during its execution or debuging it.  The CEASIOMpy logger can be imported and used as following:
+
+```python
+from lib.utils.ceasiomlogger import get_logger
+log = get_logger(__file__.split('.')[0])
+```
+
+Then, you can use the following logging function anywhere in the code of the module:
+
+```python
+log.debug('This is for debugging messages')
+log.info('This is for information messages')
+log.warning('This is for warning messages')
+log.error('This is for error messages')
+log.critical('This is for critical error messages')
+```
+
+They will be saved in a log file with the same name as your module (.log)
+and prinded in the console during the execution.
 
 
 #### Testing and coverage
@@ -74,7 +122,7 @@ Pytest, [flake8](https://flake8.pycqa.org/en/latest/) and [codecov](https://abou
 
 You could also run the CI manually with on your machine with:
 
-```sh
+```bash
 cd CEASIOMpy
 ./run_ci.sh
 ```
@@ -82,7 +130,11 @@ cd CEASIOMpy
 
 #### Other resources
 
-If your are new to Python we recommend some material that could help you:
+If your are new to Python we recommend some material that could help you (you can also find many other ressources online):
+
+- Website with Python tutorials: 
+
+  - [learnpython.org](https://www.learnpython.org/)
 
 - On YouTube, videos by [Corey Schafer](https://www.youtube.com/channel/UCCezIgC97PvUuR4_gbFUs5g):
   - [Python Programming Beginner Tutorials playlist](https://www.youtube.com/playlist?list=PL-osiE80TeTskrapNbzXhwoFUiLCjGgY7)
@@ -91,7 +143,7 @@ If your are new to Python we recommend some material that could help you:
 
 ### CPACS
 
-CPACS is a Common Parametric Aircraft Configuration Schema. It is a data definition for the air transportation system. CPACS enables engineers to exchange information between their tools.
+CPACS is a Common Parametric Aircraft Configuration Schema. It is a data definition for the air transportation system. CPACS enables engineers to exchange information between their tools. CPACS is the default format to define aircrafts geometry in CEASIOMpy.
 
 - [CPACS website](www.cpacs.de)
 - [Github repository](https://github.com/DLR-SL/CPACS)
@@ -125,9 +177,34 @@ Other resources that could the useful.
 
 ### Reporting bugs
 
-If you find a bug, please report it on the [Github issues](https://github.com/cfsengineering/CEASIOMpy/issues) 
+If you find a bug, please report it on the [Github issues page](https://github.com/cfsengineering/CEASIOMpy/issues) 
 
 
 ### Writing a new module
 
-If you want to write a new module you can use the [Module Template](https://github.com/cfsengineering/CEASIOMpy/tree/master/ceasiompy/ModuleTemplate) to help you. Maybe it is also a good idea to contact the CEASIOMpy team which could help you to write the module and be sure it is coherent with the rest of the project.
+We highly encourage and appreciate any contributions to the CEASIOMpy codebase. If you have an idea for a new module, it could be a good thing to contact the CEASIOMpy team which could help you to write the module and be sure it is coherent with the rest of the project. You can also check the [CEASIOMpy project board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see what are the development status of the project.
+If you want to write a new module you can use the [Module Template](https://github.com/cfsengineering/CEASIOMpy/tree/master/ceasiompy/ModuleTemplate) to help you. Normally, all modules follow the same file structure:
+
+```
+.
+├── files               <- Files related to this module
+│   ├── doc1.md
+│   └── doc2.md
+├── func                <- Module subfunction import by the main one.
+│   ├── subfunc1.py
+│   └── subfunc2.py
+├── tests               <- Test function for this module.
+│   ├── cpacsfile_for_test.xml
+│   └── test_moduletemplate.py
+├── __specs__.py        <- Specification of the module.
+└── moduletemplate.py   <- Main module of the module.
+```
+
+To develop a new module you need to:
+
+- Create a fork of the CEASIOMpy repository
+- On your fork, create a new branch
+- On this branch, write your module and its test functions
+- Create a pull request on the CEASIOMpy repository
+- Ask for a review on the pull request
+- If the pull request is accepted, the module will be merged into the CEASIOMpy repository

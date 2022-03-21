@@ -12,12 +12,10 @@ if [[ "$make_list" == "" ]]; then
     exit 1
 fi
 
-while true; do
-    make clean
 
-    for format in $make_list; do
-        make $format
-    done
+make clean
 
-    read -p "Press enter to recompile..."
+for format in $make_list; do
+    make $format
 done
+

@@ -44,8 +44,7 @@ Introduction
    :maxdepth: 2
    :caption: Contributing
 
-   contribute/how_to
-   contribute/guidelines
+   contribute/CONTRIBUTING.md
 
 .. toctree::
    :maxdepth: 1

@@ -45,6 +45,7 @@ dependencies:
 
   - pip:
     - sphinx-rtd-theme==0.4.3
+    - myst-parser 
     - smt==0.7.1
     - cpacspy==0.0.8
     - ambiance

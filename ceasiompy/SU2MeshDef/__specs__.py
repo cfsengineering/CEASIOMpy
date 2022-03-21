@@ -4,15 +4,6 @@
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import CEASIOMPY_XPATH, REF_XPATH, SU2_XPATH
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "SU2MeshDef",
-    "description": "Module to create new deformed meshes with SU2 mesh deformation",
-    "exec": "pwd\npython su2meshdef.py",
-    "author": "Aidan Jungo",
-    "email": "aidan.jungo@cfse.ch",
-}
 
 # ===== CPACS inputs and outputs =====
 

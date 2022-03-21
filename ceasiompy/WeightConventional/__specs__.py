@@ -13,15 +13,6 @@ from ceasiompy.utils.xpath import (
     PROP_XPATH,
 )
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "WeightConventional",
-    "description": "Estimate weights of conventional aircraft",
-    "exec": "pwd\npython weightconventional.py",
-    "author": "Stefano Piccini",
-    "email": "aidan.jungo@cfse.ch",
-}
 
 # ===== CPACS inputs and outputs =====
 

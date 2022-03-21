@@ -5,17 +5,6 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import STABILITY_DYNAMIC_XPATH
 
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "StabilityDynamic",
-    "description": "Determine if a vehicle isdynamically stable or not  ",
-    "exec": "pwd\npython dynamicstability.py",
-    "author": "Loïc Verdier",
-    "email": "loic.verdier@epfl.ch",
-}
-
-
 # ===== CPACS inputs and outputs =====
 
 cpacs_inout = CPACSInOut()

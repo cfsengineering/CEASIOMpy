@@ -47,8 +47,7 @@ def launch_cpacscreator(cpacs_path, cpacs_out_path):
     """Function to run CPACSCrator with an imput CPACS file
 
     Function 'launch_cpacscreator' run CPACSCrator with an imput CPACS file and
-    put the output CPACS file in the folder /ToolInput. This module is
-    especially useful for CEASIOMpy RCE integration. CPACSCreator must be
+    put the output CPACS file in the folder /ToolInput. CPACSCreator must be
     installed on your computre to run this function. (If you install CEASIOMpy
     with Conda it should be installed automatically)
 

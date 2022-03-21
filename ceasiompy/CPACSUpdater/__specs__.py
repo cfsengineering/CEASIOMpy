@@ -3,15 +3,6 @@
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "CPACSUpdater",
-    "description": "Modify a CPACS file (e.g. for optimisation)",
-    "exec": "pwd\npython cpacsupdater.py",
-    "author": "Aidan Jungo",
-    "email": "aidan.jungo@cfse.ch",
-}
 
 # ===== CPACS inputs and outputs =====
 

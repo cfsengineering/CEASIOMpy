@@ -5,17 +5,6 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import PLOT_XPATH
 
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "PlotAeroCoef",
-    "description": "Plot aerodynamic coefficient from a CPACS file",
-    "exec": "pwd\npython plotaerocoef.py",
-    "author": "Aidan Jungo",
-    "email": "aidan.jungo@cfse.ch",
-}
-
-
 # ===== CPACS inputs and outputs =====
 
 cpacs_inout = CPACSInOut()

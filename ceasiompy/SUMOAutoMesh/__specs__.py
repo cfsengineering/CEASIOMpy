@@ -5,15 +5,6 @@ from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import MESH_XPATH, SU2MESH_XPATH, SUMOFILE_XPATH
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "SUMOAutoMesh",
-    "description": "Module to generate a SUMO mesh automatically",
-    "exec": "pwd\npython sumoautomesh.py",
-    "author": "Aidan Jungo",
-    "email": "aidan.jungo@cfse.ch",
-}
 
 # ===== Results directory path =====
 

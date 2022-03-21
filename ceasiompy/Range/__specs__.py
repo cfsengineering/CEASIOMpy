@@ -15,15 +15,6 @@ from ceasiompy.utils.xpath import (
     WEIGHT_XPATH,
 )
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "Range",
-    "description": "Module to calculate the rage of an aircraft",
-    "exec": "pwd\npython rangemain.py",
-    "author": "Stefano Piccini",
-    "email": "info@ceasiom.com",
-}
 
 # ===== Results directory path =====
 

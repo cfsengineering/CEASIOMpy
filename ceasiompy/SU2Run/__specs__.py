@@ -5,15 +5,6 @@ from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import CEASIOMPY_XPATH, GEOM_XPATH, RANGE_XPATH, REF_XPATH, SU2_XPATH
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "SU2Run",
-    "description": "Moudule to run SU2 calculation",
-    "exec": "pwd\npython su2run.py",
-    "author": "Aidan Jungo",
-    "email": "aidan.jungo@cfse.ch",
-}
 
 # ===== Results directory path =====
 

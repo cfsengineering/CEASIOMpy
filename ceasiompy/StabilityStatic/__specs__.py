@@ -5,17 +5,6 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import STABILITY_STATIC_XPATH
 
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "StabilityStatic",
-    "description": "Determine if a vehicle is statically stable or not  ",
-    "exec": "pwd\npython staticstability.py",
-    "author": "Loïc Verdier",
-    "email": "loic.verdier@epfl.ch",
-}
-
-
 # ===== CPACS inputs and outputs =====
 
 cpacs_inout = CPACSInOut()

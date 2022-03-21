@@ -4,15 +4,6 @@
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import REF_XPATH, CLCALC_XPATH, SU2_XPATH
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "CLCalculator",
-    "description": "Calculate required Lift coefficient to fly",
-    "exec": "pwd\npython clcalculator.py",
-    "author": "Aidan Jungo",
-    "email": "aidan.jungo@cfse.ch",
-}
 
 # ===== CPACS inputs and outputs =====
 

@@ -5,15 +5,6 @@ from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import SMUSE_XPATH
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "SMUse module",
-    "description": "This module uses a surrogate model to make predictions on data",
-    "exec": "pwd\npython smuse.py",
-    "author": "Vivien Riolo",
-    "email": "aidan.jungo@cfse.ch",
-}
 
 # ===== Results directory path =====
 

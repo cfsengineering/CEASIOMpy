@@ -4,15 +4,6 @@
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import FUSELAGES_XPATH
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "ModuleTemplate",
-    "description": "This is a template module",
-    "exec": "pwd\npython moduletemplate.py",
-    "author": "Neil Armstrong",
-    "email": "neil@nasa.gov",
-}
 
 # ===== CPACS inputs and outputs =====
 

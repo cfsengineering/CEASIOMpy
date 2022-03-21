@@ -3,15 +3,6 @@
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "BalanceConventional",
-    "description": "Module to calculate Center of gravity and inertia for a conventonal aircraft",
-    "exec": "pwd\npython balancemain.py",
-    "author": "Stefano Piccini",
-    "email": "info@ceasiom.com",
-}
 
 # ===== CPACS inputs and outputs =====
 

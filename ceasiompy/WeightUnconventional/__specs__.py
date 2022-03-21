@@ -13,15 +13,6 @@ from ceasiompy.utils.xpath import (
     PROP_XPATH,
 )
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "WeightUnconventional",
-    "description": "Estimate weights of unconventional aircraft",
-    "exec": "pwd\npython weightuncmain.py",  # Change this name
-    "author": "Stefano Piccini",
-    "email": "aidan.jungo@cfse.ch",
-}
 
 # ===== CPACS inputs and outputs =====
 

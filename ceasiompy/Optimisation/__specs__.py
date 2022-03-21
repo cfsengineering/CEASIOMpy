@@ -5,17 +5,6 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import OPTIM_XPATH
 
 
-# ===== RCE integration =====
-
-RCE = {
-    "name": "Optimisation module",
-    "description": "This module implements the optimization routine for a workflow",
-    "exec": "pwd\npython optimisation.py",
-    "author": "Vivien Riolo",
-    "email": "aidan.jungo@cfse.ch",
-}
-
-
 # ===== Results directory path =====
 
 RESULTS_DIR = Path("Results", "Optimisation")

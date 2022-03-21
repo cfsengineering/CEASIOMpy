@@ -5,17 +5,6 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import GEOM_XPATH, RANGE_XPATH, SF_XPATH, PLOT_XPATH
 
 
-# ===== RCE =====
-
-RCE = {
-    "name": "SkinFriction",
-    "description": "Calculate skin friction drag coefficient",
-    "exec": "pwd\npython skinfriction.py",
-    "author": "Aidan Jungo",
-    "email": "aidan.jungo@cfse.ch",
-}
-
-
 cpacs_inout = CPACSInOut()
 
 # ===== Input =====

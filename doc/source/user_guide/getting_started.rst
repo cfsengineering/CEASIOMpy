@@ -3,11 +3,9 @@ Getting started
 
 Once you finished the installation you could try to run the following test cases to familiarize yourself with |name|
 
-Without RCE:
-------------
+.. warning::
 
-If you want to use RCE to create your workflow, you can directly go to the next section.
-If you cannot or do not want to install RCE on your computer, you can still use CEASIOMpy through the module 'WorkflowCreator'.
+These test case are not up to date, they will be updated soon.
 
 
 Test Case 1 : Simple workflow
@@ -186,37 +184,6 @@ After setting the options launch the program, which will only take a few seconds
 
 For this part chose a CPACS file with different values than the one you fed to the model (either with a new CPACS or you can modify it using cpacscreator). Launch a workflow with SettingsGUI and SMUse. In the settings, choose the resulting file containing the surrogate, you don't have to change any other option. Launch the program and now you have the resulting CPACS file in the ToolOutput folder of the SMUse module ! If you take a look at the aeromap you chose for the computation you will see that only a value of cl has been added/modified.
 
-
-With RCE:
----------
-
-To run the following workflow you need to have a running version of RCE with the CEASIOMpy module installed. For more information check out the Step 3 of the installation page.
-
-Test Case 1 : Simple workflow
-*****************************
-
-We will create a simple workflow which contains a CPACS input and three modules.
-
-CPACS input -> SettingsGUI -> WeightConventional -> Range
-
-Your workflow should look like that:
-
-.. figure:: CEASIOMpy_RCE_TC1.png
-    :width: 630 px
-    :align: center
-    :alt: CEASIOMpy - RCE - Test case 1
-
-
-Test Case 2 : Aerodynamic database with PyTornado
-*************************************************
-
-CPACS input -> CPACSCreator -> PyTornado -> SkinFriction -> PlotAeroCoefficients
-
-
-Test Case 3 : SU2 at fixed CL and Range
-***************************************
-
-CPACS input -> SettingsGUI -> WeightConventional -> CLCalculator -> CPACS2SUMO -> SUMOAutoMesh -> SU2Run -> SkinFriction -> Range
 
 
 Module compatibility

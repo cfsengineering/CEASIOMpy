@@ -5,7 +5,6 @@
     * External dependencies
         * Sumo
         * SU2
-        * RCE
         * PyTornado
         * Conda?
     * Script for automatic installation?
@@ -33,9 +32,6 @@
 ### Aerodynamics
 * Calculate and save controls surface deflections
 * SU2CheckConvergence (maybe integrate with SU2Run)
-
-### Module SettingsGUI
-* Find a way to detect active modules in RCE
 
 ### Weight and Balance modules
 * Check input/output, try to simplify

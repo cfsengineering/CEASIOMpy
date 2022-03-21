@@ -18,11 +18,7 @@ Introduction
 * Mission analysis
 * Stability analysis
 
-|name| uses the open-standard format `CPACS`_. Workflows can be set up with the open-source environment `RCE`_. Both `CPACS`_ and `RCE`_ are actively developed by the |dlr_full| `DLR`_. Follow the links below to learn how get started or how to contribute to the project.
-
-.. image:: https://www.ceasiom.com/wp/wp-content/uploads/2017/09/CEASIOM_RCE_Workflow.png
-    :target: https://ceasiompy.readthedocs.io/en/latest/
-    :alt: Example Workflow
+|name| uses the open-standard format `CPACS`_. `CPACS`_ is developed by the |dlr_full| `DLR`_. Follow the links below to learn how get started or how to contribute to the project.
 
 .. toctree::
    :maxdepth: 1

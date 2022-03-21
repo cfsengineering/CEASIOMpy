@@ -104,7 +104,6 @@ rst_prolog = f"""
 .. _CPACSCrator: https://dlr-sc.github.io/tigl/doc/cpacscreator-0.1/
 .. _SUMO: https://www.larosterna.com/products/open-source
 .. _SU2: https://su2code.github.io/
-.. _RCE: https://rcenvironment.de/
 .. _DLR: https://www.dlr.de/
 .. _pip: https://pypi.org/project/pip/
 """

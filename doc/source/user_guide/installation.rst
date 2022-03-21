@@ -276,7 +276,7 @@ You may install either *Anaconda* or *Miniconda* (the latter is a smaller Conda 
 CEASIOMpy
 ~~~~~~~~~
 
-First, you will need to download |name|. You can download the code as a `zip file <https://codeload.github.com/cfsengineeringaa/CEASIOMpy/zip/master>`_ and unpack it, or if you are familiar with the command line tool ``git``, you can clone the repository.
+First, you will need to download |name|. You can download the code as a `zip file <https://github.com/cfsengineering/CEASIOMpy/archive/refs/heads/main.zip>`_ and unpack it, or if you are familiar with the command line tool ``git``, you can clone the repository.
 
 .. code::
 

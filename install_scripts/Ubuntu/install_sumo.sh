@@ -41,7 +41,4 @@ sudo cp libpng12.so.0 /usr/lib/x86_64-linux-gnu/.
 echo "Creating a symlink for sumo..."
 sudo ln -s $install_dir/sumo-2.7.9/bin/dwfsumo /usr/bin/sumo
 
-echo "Reloading bashrc..."
-source ~/.bashrc
-
 cd $current_dir

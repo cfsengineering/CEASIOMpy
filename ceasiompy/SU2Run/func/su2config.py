@@ -41,7 +41,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_CONFIG_PATH = MODULE_DIR + "/../files/DefaultConfig_v7.cfg"
+DEFAULT_CONFIG_PATH = MODULE_DIR + "/../files/DefaultConfig_v73.cfg"
 
 
 # =================================================================================================

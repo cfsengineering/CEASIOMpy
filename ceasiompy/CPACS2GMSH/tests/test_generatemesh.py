@@ -7,8 +7,8 @@ Test functions for 'lib/ModuleTemplate/moduletemplate.py'
 
 Python version: >=3.7
 
-| Author : Tony Govoni
-| Creation: 2022-03-22
+| Author : Aidan Jungo
+| Creation: 2019-08-14
 
 """
 
@@ -19,9 +19,9 @@ Python version: >=3.7
 import os
 import sys
 import pytest
-from ceasiompy.CPACS2GMSH.cpacs2gmsh import exportbrep
 from pytest import approx
 
+from ceasiompy.CPACS2GMSH.cpacs2gmsh import exportbrep, generategmesh
 
 # Default CPACS file to test
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -39,18 +39,20 @@ TEST_OUT_PATH = os.path.join(MODULE_DIR, "ToolOutput")
 # ==============================================================================
 
 
-def test_exportbrep():
+def test_generategmesh():
     """Test Class 'test_exportbrep'"""
     exportbrep(CPACS_IN_PATH, TEST_OUT_PATH)
-    file_count = 0
-    for file in os.listdir(TEST_OUT_PATH):
-        if ".brep" in file:
-            file_count += 1
+    generategmesh(TEST_OUT_PATH, TEST_OUT_PATH)
+    with open(os.path.join(TEST_OUT_PATH, "mesh.su2"), "r") as f:
+        content = f.read()
+
+    assert "NMARK= 2" in content
+    assert "MARKER_TAG= airfoil" in content
+    assert "MARKER_TAG= farfield" in content
     # erease generated file
     for file in os.listdir(TEST_OUT_PATH):
-        if ".brep" in file:
+        if (".brep" in file) or (".su2" in file):
             os.remove(os.path.join(TEST_OUT_PATH, file))
-    assert file_count == 3  # simpletest_cpacs.xml containt only 3 airplane parts
 
 
 # ==============================================================================

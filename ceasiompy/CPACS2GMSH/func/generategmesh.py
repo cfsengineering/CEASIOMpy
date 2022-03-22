@@ -73,7 +73,7 @@ class Part_airplane:
 # ==============================================================================
 
 
-def generategmesh(brep_dir_path, results_dir):
+def generategmesh(brep_dir_path, results_dir, UI_gmsh=False):
     """Function to generate a mesh from brep files forming an airplane
 
     Function 'generategmesh' is a subfunction of CPACS2GMSH which return a
@@ -98,12 +98,15 @@ def generategmesh(brep_dir_path, results_dir):
     gmsh.initialize()
     airplane_parts = []
     for file in os.listdir(brep_dir_path):
-        log.info(f"Importing :{file[:-5]}")
-        part = gmsh.model.occ.importShapes(os.path.join(brep_dir_path, file), highestDimOnly=True)
-        gmsh.model.occ.synchronize()
-        part_obj = Part_airplane(*part, file[:-5])
-        gmsh.model.occ.synchronize()
-        airplane_parts.append(part_obj)
+        if ".brep" in file:
+            log.info(f"Importing :{file[:-5]}")
+            part = gmsh.model.occ.importShapes(
+                os.path.join(brep_dir_path, file), highestDimOnly=True
+            )
+            gmsh.model.occ.synchronize()
+            part_obj = Part_airplane(*part, file[:-5])
+            gmsh.model.occ.synchronize()
+            airplane_parts.append(part_obj)
 
     # Fuse operation
     part_to_fuse = [part.dim_tag for part in airplane_parts]
@@ -248,12 +251,14 @@ def generategmesh(brep_dir_path, results_dir):
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
-    log.info("Result of 2D surface mesh")
-    gmsh.fltk.run()
+    if UI_gmsh:
+        log.info("Result of 2D surface mesh")
+        gmsh.fltk.run()
     gmsh.model.mesh.generate(3)
     gmsh.model.occ.synchronize()
-    log.info("Result of the 3D mesh")
-    gmsh.fltk.run()
+    if UI_gmsh:
+        log.info("Result of the 3D mesh")
+        gmsh.fltk.run()
     gmsh.write(os.path.join(results_dir, "mesh.su2"))
     gmsh.finalize()
 

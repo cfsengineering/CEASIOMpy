@@ -23,4 +23,4 @@ sudo chmod +x Miniconda3-latest-Linux-x86_64.sh
 echo "Running Miniconda3 installation script"
 ./Miniconda3-latest-Linux-x86_64.sh
 
-cd current_dir
+cd $current_dir

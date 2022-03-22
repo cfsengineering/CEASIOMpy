@@ -15,4 +15,4 @@ git clone https://github.com/airinnova/pytornado.git
 cd pytornado
 pip install -e .
 
-cd current_dir
+cd $current_dir

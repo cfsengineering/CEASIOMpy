@@ -22,9 +22,9 @@ TODO:
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
+
 import gmsh
 import os
-import warnings
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
@@ -33,21 +33,22 @@ log = get_logger(__file__.split(".")[0])
 # ==============================================================================
 #   CLASSES
 # ==============================================================================
-class Part_airplane:
+class AircraftPart:
     """
     A class to represent part of the airplane in order to keep track of each gmsh
     part entities and their location in space
 
-    For each Part_airplane, its surfaces,lines and points locations are stored
+    For each AircraftPart, its surfaces,lines and points locations are stored
     in order to remap them correctly when gmsh boolean operations are performed
     ...
 
     Attributes
     ----------
     dim_tag : tuple
-        tuple (dim,tag) is the dim and tag of the gmsh volume of the airplane part
+        tuple (dim,tag) of the gmsh volume of the aircraft part
     name : str
         name of the part which correspond to its .brep file name
+
     """
 
     def __init__(self, dim_tag, name):
@@ -74,10 +75,10 @@ class Part_airplane:
 # ==============================================================================
 
 
-def generategmesh(brep_dir_path, results_dir, UI_gmsh=False):
+def generate_gmsh(brep_dir_path, results_dir, open_gmsh=False):
     """Function to generate a mesh from brep files forming an airplane
 
-    Function 'generategmesh' is a subfunction of CPACS2GMSH which return a
+    Function 'generate_gmsh' is a subfunction of CPACS2GMSH which return a
     mesh file.
     The airplane is fused with the different brep files : fuselage, wings and
     other parts are identified anf fused together, then a farfield is generated
@@ -87,12 +88,6 @@ def generategmesh(brep_dir_path, results_dir, UI_gmsh=False):
 
     Args:
         brep_dir_path (path):  Path to the directory containing the brep files
-
-    .. warning:
-        Unmatching number of entities in the current model : This warning
-        indcate that something went wrong during the remapping process,
-        either surfaces,lines or points get duplicated or are missing.
-        This is likely to result in corrupted marker in the mesh file.
 
     """
 
@@ -105,7 +100,7 @@ def generategmesh(brep_dir_path, results_dir, UI_gmsh=False):
                 os.path.join(brep_dir_path, file), highestDimOnly=True
             )
             gmsh.model.occ.synchronize()
-            part_obj = Part_airplane(*part, file[:-5])
+            part_obj = AircraftPart(*part, file[:-5])
             gmsh.model.occ.synchronize()
             airplane_parts.append(part_obj)
 
@@ -153,15 +148,15 @@ def generategmesh(brep_dir_path, results_dir, UI_gmsh=False):
         # log.info("lines", part.lines, "\n")
         # log.info("surf", part.surfaces, "\n\n")
 
-    """
-    In general when a wing is fused to the fuselage ,some points and lines are in both fuselage and wing entities list
-    by conventions, those points and lines will be removed of the fuselage part and left to the wings one
+    # In general when a wing is fused to the fuselage ,some points and lines are in both fuselage
+    # and wing entities list by conventions, those points and lines will be removed of the
+    # fuselage part and left to the wings one
 
-    """
     wings_parts = [part for part in airplane_parts if "wing" in part.name]
     fuselage = [part for part in airplane_parts if "fuselage" in part.name]
     # normally there is only one fuselage
     fuselage = fuselage[0]
+
     twin_points = set.union(*[fuselage.points & wings_part.points for wings_part in wings_parts])
     twin_lines = set.union(*[fuselage.lines & wings_part.lines for wings_part in wings_parts])
     twin_surfaces = set.union(
@@ -185,7 +180,7 @@ def generategmesh(brep_dir_path, results_dir, UI_gmsh=False):
         or (len(airplane_lines) != check_lines)
         or (len(airplane_surfaces) != check_surfaces)
     ):
-        warnings.warn("Unmatching number of entities in the current model", DeprecationWarning)
+        raise ValueError("Unmatching number of entities in the current model")
     else:
         log.info("Remaping of the airplane parts as been successfull")
 
@@ -203,6 +198,7 @@ def generategmesh(brep_dir_path, results_dir, UI_gmsh=False):
     final_domain_points = gmsh.model.getEntities(dim=0)
     final_domain_lines = gmsh.model.getEntities(dim=1)
     final_domain_surfaces = gmsh.model.getEntities(dim=2)
+
     # find the entites belonging to the farfield
     farfield_points = set([point for point in final_domain_points if point not in airplane_points])
     farfield_lines = set([line for line in final_domain_lines if line not in airplane_lines])
@@ -225,11 +221,11 @@ def generategmesh(brep_dir_path, results_dir, UI_gmsh=False):
         log.info("Remaping of the external domain as been successfull")
 
     gmsh.model.occ.synchronize()
-    # Form physical groups
 
-    # get the tags list
+    # Get the tags list
     airplane_surfaces_tags = [surface[1] for surface in airplane_surfaces]
     farfield_surfaces_tags = [surface[1] for surface in farfield_surfaces]
+
     # Form physical groups
     bc_airplane = gmsh.model.addPhysicalGroup(2, airplane_surfaces_tags)
     gmsh.model.setPhysicalName(2, bc_airplane, "airfoil")
@@ -252,14 +248,17 @@ def generategmesh(brep_dir_path, results_dir, UI_gmsh=False):
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
-    if UI_gmsh:
+
+    if open_gmsh:
         log.info("Result of 2D surface mesh")
         gmsh.fltk.run()
     gmsh.model.mesh.generate(3)
     gmsh.model.occ.synchronize()
-    if UI_gmsh:
+
+    if open_gmsh:
         log.info("Result of the 3D mesh")
         gmsh.fltk.run()
+
     gmsh.write(os.path.join(results_dir, "mesh.su2"))
     gmsh.finalize()
 
@@ -291,14 +290,16 @@ def get_visual_bounding_box(dim_tag):
     size_x = abs(bb[0] - bb[3])
     size_y = abs(bb[1] - bb[4])
     size_z = abs(bb[2] - bb[5])
-    # extend a bit the bounding_box
+
+    # Extend a bit the bounding_box
     bb[0] = bb[0] - 1e-3 * size_x
     bb[1] = bb[1] - 1e-3 * size_y
     bb[2] = bb[2] - 1e-3 * size_z
     bb[3] = bb[3] + 1e-3 * size_x
     bb[4] = bb[4] + 1e-3 * size_y
     bb[5] = bb[5] + 1e-3 * size_z
-    # update size due to the extend
+
+    # Update size due to the extend
     size_x = abs(bb[0] - bb[3])
     size_y = abs(bb[1] - bb[4])
     size_z = abs(bb[2] - bb[5])

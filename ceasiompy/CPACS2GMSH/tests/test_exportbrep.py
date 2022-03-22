@@ -19,8 +19,11 @@ Python version: >=3.7
 import os
 import sys
 import pytest
-from ceasiompy.CPACS2GMSH.cpacs2gmsh import exportbrep
+
 from pytest import approx
+from cpacspy.cpacspy import CPACS
+
+from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 
 
 # Default CPACS file to test
@@ -39,18 +42,24 @@ TEST_OUT_PATH = os.path.join(MODULE_DIR, "ToolOutput")
 # ==============================================================================
 
 
-def test_exportbrep():
-    """Test Class 'test_exportbrep'"""
-    exportbrep(CPACS_IN_PATH, TEST_OUT_PATH)
+def test_export_brep():
+    """Test function for 'export_brep'"""
+
+    cpacs = CPACS(CPACS_IN_PATH)
+
+    export_brep(cpacs, TEST_OUT_PATH)
+
     file_count = 0
     for file in os.listdir(TEST_OUT_PATH):
         if ".brep" in file:
             file_count += 1
-    # erease generated file
+
+    assert file_count == 3  # simpletest_cpacs.xml containt only 3 parts
+
+    # Erease generated file
     for file in os.listdir(TEST_OUT_PATH):
         if ".brep" in file:
             os.remove(os.path.join(TEST_OUT_PATH, file))
-    assert file_count == 3  # simpletest_cpacs.xml containt only 3 airplane parts
 
 
 # ==============================================================================

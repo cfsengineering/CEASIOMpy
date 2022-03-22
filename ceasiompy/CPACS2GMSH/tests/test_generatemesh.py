@@ -21,7 +21,10 @@ import sys
 import pytest
 from pytest import approx
 
-from ceasiompy.CPACS2GMSH.cpacs2gmsh import exportbrep, generategmesh
+from cpacspy.cpacspy import CPACS
+from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
+from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
+
 
 # Default CPACS file to test
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -39,17 +42,22 @@ TEST_OUT_PATH = os.path.join(MODULE_DIR, "ToolOutput")
 # ==============================================================================
 
 
-def test_generategmesh():
-    """Test Class 'test_exportbrep'"""
-    exportbrep(CPACS_IN_PATH, TEST_OUT_PATH)
-    generategmesh(TEST_OUT_PATH, TEST_OUT_PATH)
+def test_generate_gmsh():
+    """Test function for 'export_brep'"""
+
+    cpacs = CPACS(CPACS_IN_PATH)
+
+    export_brep(cpacs, TEST_OUT_PATH)
+    generate_gmsh(TEST_OUT_PATH, TEST_OUT_PATH)
+
     with open(os.path.join(TEST_OUT_PATH, "mesh.su2"), "r") as f:
         content = f.read()
 
     assert "NMARK= 2" in content
     assert "MARKER_TAG= airfoil" in content
     assert "MARKER_TAG= farfield" in content
-    # erease generated file
+
+    # Erease generated file
     for file in os.listdir(TEST_OUT_PATH):
         if (".brep" in file) or (".su2" in file):
             os.remove(os.path.join(TEST_OUT_PATH, file))

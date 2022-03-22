@@ -55,8 +55,9 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     results_dir = get_results_directory("CPACS2GMSH")
     brep_dir_path = Path(results_dir, "brep_files")
     brep_dir_path.mkdir()
-    print(brep_dir_path)
-    print("hello")
+    exportbrep(cpacs_path, brep_dir_path)
+    generategmesh(brep_dir_path, results_dir, UI_gmsh=True)
+
     # Save CPACS and SMX file
     # tixi.save(cpacs_out_path)
 

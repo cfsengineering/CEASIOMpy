@@ -11,9 +11,7 @@ Python version: >=3.7
 | Creation: YEAR-MONTH-DAY
 
 TODO:
-
-    * Things to improve ...
-    * Things to add ...
+    -
 
 """
 
@@ -22,12 +20,13 @@ TODO:
 #   IMPORTS
 # ==============================================================================
 
-from tixi3 import tixi3wrapper
-from tigl3 import tigl3wrapper
-import tigl3.configuration
-from tigl3.import_export_helper import export_shapes
-from ceasiompy.utils.ceasiomlogger import get_logger
 from pathlib import Path
+
+import tigl3.configuration
+from ceasiompy.utils.ceasiomlogger import get_logger
+from tigl3 import tigl3wrapper
+from tigl3.import_export_helper import export_shapes
+from tixi3 import tixi3wrapper
 
 log = get_logger(__file__.split(".")[0])
 

@@ -18,7 +18,7 @@ NAME = "CEASIOMpy"
 
 # -- Project information -----------------------------------------------------
 project = NAME
-copyright = "2021, CFS Engineering"
+copyright = "2022, CFS Engineering"
 author = "CFS Engineering"
 
 # version: The short X.Y version
@@ -42,10 +42,10 @@ extensions = [
     "sphinx.ext.todo",
     "sphinx.ext.mathjax",
     "sphinx.ext.ifconfig",
-    # 'sphinx.ext.viewcode',
     "sphinx.ext.napoleon",
     "sphinx.ext.autosummary",
     "myst_parser",
+    "sphinxcontrib.mermaid",
 ]
 
 # See: http://www.sphinx-doc.org/en/master/usage/extensions/autodoc.html#confval-autodoc_mock_imports
@@ -113,7 +113,7 @@ rst_prolog = f"""
 # html_theme = 'classic'
 # html_theme = 'alabaster'
 html_theme = "sphinx_rtd_theme"
-
+html_logo = "CEASIOMpy_main_logos.png"
 html_theme_options = {
     "canonical_url": "",
     "logo_only": False,

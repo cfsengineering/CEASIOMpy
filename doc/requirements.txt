@@ -3,3 +3,4 @@ setuptools<58.3.0
 Sphinx==4.4.0
 sphinx-rtd-theme==1.0.0
 myst-parser==0.17.0
+sphinxcontrib-mermaid==0.7.1

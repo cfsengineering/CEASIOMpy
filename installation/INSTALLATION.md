@@ -30,7 +30,7 @@ If you agree with the remark above, you can start the installation by openning a
 ```bash
 sudo apt-get install git
 git clone https://github.com/cfsengineering/CEASIOMpy.git
-cd CEASIOMpy/install_scripts/Ubuntu
+cd CEASIOMpy/installation/Ubuntu
 ./install_miniconda.sh
 source ~/.bashrc
 ./install_ceasiompy.sh

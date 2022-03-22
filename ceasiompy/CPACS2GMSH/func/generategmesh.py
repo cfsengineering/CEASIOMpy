@@ -4,7 +4,8 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Use .brep files parts of an airplane to generate a fused airplane in GMSH with
-the OCC kernel. Then a farfield  
+the OCC kernel. Then Spherical farfield is created arround the airplane and the
+resulting domain is meshed using gmsh
 
 Python version: >=3.7
 

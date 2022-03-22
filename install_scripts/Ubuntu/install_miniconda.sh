@@ -6,9 +6,9 @@ current_dir="$(pwd)"
 
 # Get install dir from input if it exists
 if [ $# -gt 0 ]; then
-    install_dir="$1/CEASIOMpy_install_dir"
+    install_dir="$1/INSTALLDIR"
 else
-    install_dir="$(pwd)/../../CEASIOMpy_install_dir"
+    install_dir="$(pwd)/../../INSTALLDIR"
 fi
 
 echo "Creating install directory..."

@@ -159,8 +159,9 @@ forces_breakdown.dat
 *.csv
 
 # Ignore temp folder and  and temp files
-/WKDIR
+/INSTALLDIR
 /Results
+/WKDIR
 /ceasiompy/CPACSCreator/tmp/*
 /ceasiompy/WKDIR/CEASIOMpy*
 /ceasiompy/Pytornado/wkdir*

@@ -28,11 +28,20 @@ from pathlib import Path
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 from cpacspy.cpacspy import CPACS
+from cpacspy.cpacsfunctions import (
+    add_string_vector,
+    create_branch,
+    get_string_vector,
+    get_value,
+    get_value_or_default,
+)
 import ceasiompy.utils.moduleinterfaces as mi
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.xpath import ENGINES_XPATH, FUSELAGES_XPATH, PYLONS_XPATH, WINGS_XPATH
+from ceasiompy.utils.xpath import (
+    CEASIOMPY_XPATH,
+)
 
 log = get_logger(__file__.split(".")[0])
 
@@ -60,9 +69,28 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     brep_dir_path = Path(results_dir, "brep_files")
     brep_dir_path.mkdir()
 
+    # Retrieve value from the GUI Setting
+
+    open_gui_xpath = CEASIOMPY_XPATH + "/gmsh/open_gui"
+    open_gmsh = get_value_or_default(cpacs.tixi, open_gui_xpath, False)
+
+    mesh_size_farfield_xpath = CEASIOMPY_XPATH + "/gmsh/mesh_size/farfield"
+    mesh_size_farfield = get_value_or_default(cpacs.tixi, mesh_size_farfield_xpath, 5)
+    mesh_size_fuselage_xpath = CEASIOMPY_XPATH + "/gmsh/mesh_size/fuselage"
+    mesh_size_fuselage = get_value_or_default(cpacs.tixi, mesh_size_fuselage_xpath, 0.5)
+    mesh_size_wings_xpath = CEASIOMPY_XPATH + "/gmsh/mesh_size/wings"
+    mesh_size_wings = get_value_or_default(cpacs.tixi, mesh_size_wings_xpath, 0.5)
+
     # Run mesh generation
     export_brep(cpacs, brep_dir_path)
-    generate_gmsh(brep_dir_path, results_dir, open_gmsh=False)
+    generate_gmsh(
+        brep_dir_path,
+        results_dir,
+        open_gmsh=open_gmsh,
+        mesh_size_farfield=mesh_size_farfield,
+        mesh_size_fuselage=mesh_size_fuselage,
+        mesh_size_wings=mesh_size_wings,
+    )
 
     # Save CPACS
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)

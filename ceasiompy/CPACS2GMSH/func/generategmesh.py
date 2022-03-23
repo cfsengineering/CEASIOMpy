@@ -75,7 +75,14 @@ class AircraftPart:
 # ==============================================================================
 
 
-def generate_gmsh(brep_dir_path, results_dir, open_gmsh=False):
+def generate_gmsh(
+    brep_dir_path,
+    results_dir,
+    open_gmsh=False,
+    mesh_size_farfield=1,
+    mesh_size_fuselage=0.1,
+    mesh_size_wings=0.1,
+):
     """Function to generate a mesh from brep files forming an airplane
 
     Function 'generate_gmsh' is a subfunction of CPACS2GMSH which return a
@@ -240,11 +247,11 @@ def generate_gmsh(brep_dir_path, results_dir, open_gmsh=False):
 
     for part in airplane_parts:
         if "wing" in part.name:
-            gmsh.model.mesh.setSize(list(part.points), 0.5)
+            gmsh.model.mesh.setSize(list(part.points), mesh_size_wings)
         if "fuselage" in part.name:
-            gmsh.model.mesh.setSize(list(part.points), 0.5)
+            gmsh.model.mesh.setSize(list(part.points), mesh_size_fuselage)
 
-    gmsh.model.mesh.setSize(list(farfield_points), 10)
+    gmsh.model.mesh.setSize(list(farfield_points), mesh_size_farfield)
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)

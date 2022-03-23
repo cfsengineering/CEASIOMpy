@@ -7,7 +7,7 @@
 
 # CEASIOMpy
 
-<img align="right" width="300" height="300" src="doc/source/figures/CEASIOMpy_main_logos.png">
+<img align="right" width="300" height="300" src="./doc/source/figures/CEASIOMpy_main_logos.png">
 
 CEASIOMpy is an open source conceptual aircraft design environment. CEASIOMpy can be used to set up complex design and optimization workflows, both for conventional and unconventional aircraft configurations. Tools for various disciplines in aircraft design are provided, however, the aerodynamic tools are the most developed. They allow to automatically generate aerodynamic meshes and perform CFD calculation.
 

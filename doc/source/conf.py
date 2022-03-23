@@ -113,7 +113,7 @@ rst_prolog = f"""
 # html_theme = 'classic'
 # html_theme = 'alabaster'
 html_theme = "sphinx_rtd_theme"
-html_logo = "CEASIOMpy_main_logos.png"
+html_logo = "figures/CEASIOMpy_main_logos.png"
 html_theme_options = {
     "canonical_url": "",
     "logo_only": False,

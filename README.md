@@ -17,6 +17,8 @@ CEASIOMpy is based on the open-standard format [CPACS](www.cpacs.de), a *Common 
 
 CEASIOMpy is maintained by [CFS Engineering](https://cfse.ch/) and [Airinnova](https://airinnova.se/). CEASIOMpy is under the [Apache License 2.0](https://github.com/cfsengineering/CEASIOMpy/blob/main/LICENSE).
 
+------------
+
 ## Installation
 
 To install CEASIOMpy, please refer to the [installation documentation](./installation/INSTALLATION.md).
@@ -131,6 +133,7 @@ cd CEASIOMpy/ceasiompy
 python run_ceasiompy.py -cfg <path to config file>
 ```
 
+------------
 
 ## Contributing
 

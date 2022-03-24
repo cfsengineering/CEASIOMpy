@@ -17,14 +17,95 @@ CEASIOMpy is based on the open-standard format [CPACS](www.cpacs.de), a *Common 
 
 CEASIOMpy is maintained by [CFS Engineering](https://cfse.ch/) and [Airinnova](https://airinnova.se/). CEASIOMpy is under the [Apache License 2.0](https://github.com/cfsengineering/CEASIOMpy/blob/main/LICENSE).
 
-------------
+:scroll: The Documentation of CEASIOMpy is integrated in this repository and can be read in document like this one. Follow links to find the information that you are looking for.
+
+## Table of contents
+
+ - [Installation](#installation)
+ - [Usage](#usage)
+   - [Run CEASIOMpy](#run-ceasiompy)
+   - [Examples of workflows](#examples-of-workflows)
+   - [Test cases](#test-cases)
+   - [Available modules](#available-modules)
+ - [Contributing](#contributing)
+ - [References](#references)
+
+
 
 ## Installation
 
-To install CEASIOMpy, please refer to the [installation documentation](./installation/INSTALLATION.md).
+To install CEASIOMpy, please refer to the [installation page](./installation/INSTALLATION.md), it will guide you through the installation process depending on your system.
 
 
 ## Usage
+
+### Run CEASIOMpy
+
+- **Run CEASIOMpy with a GUI to build the workflow**
+    
+    If you run CEASIOMpy with the following command, you can build the workflow from the user interface.
+
+    ```bash
+    cd CEASIOMpy/ceasiompy
+    python run_ceasiompy.py -gui
+    ```
+
+- **Run CEASIOMpy with an existing configuration file**
+
+    You can run an existing configuration file (e.g. from the [test cases](#test-cases) with the following command.
+
+    ```bash
+    cd CEASIOMpy/ceasiompy
+    python run_ceasiompy.py -cfg ../test_cases/config_test_case_1.cfg
+    ```
+
+- **Write a CEASIOMpy configuration file**
+
+    A CEASIOMpy configuration file is a text file (saved as `*.cfg`) which contains the information necessary to run CEASIOMpy. You can write a configuration file by following the example.
+
+    ```text
+    % CEASIOMpy configuration file
+
+    % Input CPACS files (required) which contain the aircraft geometry
+    CPACS_TOOLINPUT = /users/disk10/jungo/github/CEASIOMpy/test_files/CPACSfiles/D150_simple.xml
+
+    # Modules which will be used in the workflow (in order)
+    MODULE_TO_RUN = ( SettingsGUI, PyTornado, PlotAeroCoefficients )
+    ```
+
+### Examples of workflows
+
+- **Simple workflow with PyTornado (Vortex Lattice Method)**
+
+<div align="center">
+
+```mermaid
+  graph LR;
+      SettingsGUI-->WeightConventionnal;
+      WeightConventionnal-->PyTornado;
+      PyTornado-->PlotAeroCoefficients;
+```
+</div>
+
+
+- **Simple workflow SU2 (CFD)**
+
+<div align="center">
+
+```mermaid
+  graph LR;
+      SettingsGUI-->CLCalculator
+      CLCalculator-->CPACS2SUMO;
+      CPACS2SUMO-->SU2AutoMesh;
+      SU2AutoMesh-->SU2Run;
+      SU2Run-->ExportCSV;
+```
+</div>
+
+### Test cases
+
+We have a few test cases that can be used to test the functionality of CEASIOMpy and understand how it works.
+
 
 ### Available modules
 
@@ -33,7 +114,7 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 #### General modules
 
 - SettingsGUI
-- ModuleTemplate
+- [ModuleTemplate](./ceasiompy/ModuleTemplate/README.md)
 <!-- - Optimisation
 - SMTrain
 - SMUse -->
@@ -87,57 +168,22 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 - AeroFrame -->
 
 
-### Examples of workflows
-
-#### Simple workflow with PyTornado (Vortex Lattice Method)
-
-<div align="center">
-
-```mermaid
-  graph LR;
-      SettingsGUI-->WeightConventionnal;
-      WeightConventionnal-->PyTornado;
-      PyTornado-->PlotAeroCoefficients;
-```
-</div>
-
-
-#### Simple workflow SU2 (CFD)
-
-<div align="center">
-
-```mermaid
-  graph LR;
-      SettingsGUI-->CLCalculator
-      CLCalculator-->CPACS2SUMO;
-      CPACS2SUMO-->SU2AutoMesh;
-      SU2AutoMesh-->SU2Run;
-      SU2Run-->ExportCSV;
-```
-</div>
-
-
-### Run CEASIOMpy
-
-#### Run CEASIOMpy with a GUI to build the workflow
-
-```bash
-cd CEASIOMpy/ceasiompy
-python run_ceasiompy.py -gui
-```
-
-#### Run CEASIOMpy with an existing workflow
-
-```bash
-cd CEASIOMpy/ceasiompy
-python run_ceasiompy.py -cfg <path to config file>
-```
-
-------------
-
 ## Contributing
 
 CEASIOMpy is an open source project and we welcome contributions from everyone. Some CEASIOMpy modules have been developed by students during their internship or master thesis.
 If you want to contribute to the development of CEASIOMpy , please refer to the [CONTRIBUTING.md](./CONTRIBUTING.md) document.
+
+
+## References
+
+<!-- How to cite a reference [[1]](#Dett19) -->
+ 
+<a id="Dett19">[1]</a> Dettmann, A.: Loosely coupled, modular framework for linear static aeroelastic analyses. Master Thesis (2019). KTH Royal Institute of Technology. http://kth.diva-portal.org/smash/record.jsf?pid=diva2:1360722
+
+<a id="Picc19">[2]</a> Piccini, S.: A Weight and Balance evaluation software for conventional and unconventional aircraft design. Master Thesis (2019). LINK
+
+<a id="Sigg19">[3]</a> Siggel, M. and Kleinert, J. and Stollenwerk, T. and Maierl, R.: TiGL: An Open Source Computational Geometry Library for Parametric Aircraft Design. Mathematics in Computer Science (2019). [10.1007/s11786-019-00401-y](https://link.springer.com/article/10.1007/s11786-019-00401-y)  
+
+<a id="Drou18">[4]</a> Drougard, M.: Computer-Aided Design for Aircraft. Master Thesis (2018). EPFL École polytechnique fédérale de Lausanne. LINK  
 
 

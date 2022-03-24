@@ -13,11 +13,11 @@ CEASIOMpy is an open source conceptual aircraft design environment. CEASIOMpy ca
 
 CEASIOMpy is written mostly in Python but it also depends on third-party libraries and software (like [SU2](https://su2code.github.io/) for the CFD calculation).
 
-CEASIOMpy is based on the open-standard format [CPACS](www.cpacs.de), a *Common Parametric Aircraft Configuration Schema*. It is a data definition for the air transportation system which is developed by the German Aerospace Center [DLR](https://www.dlr.de/). CPACS enables engineers to exchange information between their tools.
+CEASIOMpy is based on the open-standard format [CPACS](https://www.cpacs.de/), a *Common Parametric Aircraft Configuration Schema*. It is a data definition for the air transportation system which is developed by the German Aerospace Center [DLR](https://www.dlr.de/). CPACS enables engineers to exchange information between their tools.
 
-CEASIOMpy is maintained by [CFS Engineering](https://cfse.ch/) and [Airinnova](https://airinnova.se/). CEASIOMpy is under the [Apache License 2.0](https://github.com/cfsengineering/CEASIOMpy/blob/main/LICENSE).
+:scroll: CEASIOMpy is maintained by [CFS Engineering](https://cfse.ch/) and [Airinnova](https://airinnova.se/). CEASIOMpy is under the [Apache License 2.0](https://github.com/cfsengineering/CEASIOMpy/blob/main/LICENSE).
 
-:scroll: The Documentation of CEASIOMpy is integrated in this repository and can be read in document like this one. Follow links to find the information that you are looking for.
+:book: The Documentation of CEASIOMpy is integrated in this repository and can be read in document like this one. Follow links to find the information that you are looking for.
 
 ## Table of contents
 
@@ -104,7 +104,7 @@ To install CEASIOMpy, please refer to the [installation page](./installation/INS
 
 ### Test cases
 
-We have a few test cases that can be used to test the functionality of CEASIOMpy and understand how it works.
+We have a few [test cases](./test_cases/TESTCASES.md) that can be used to test the functionality of CEASIOMpy and understand how it works.
 
 
 ### Available modules
@@ -114,7 +114,7 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 #### General modules
 
 - SettingsGUI
-- [ModuleTemplate](./ceasiompy/ModuleTemplate/README.md)
+- [ModuleTemplate](./ceasiompy/ModuleTemplate/MODULETEMPLATE.md)
 <!-- - Optimisation
 - SMTrain
 - SMUse -->

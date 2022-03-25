@@ -123,7 +123,7 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 
 #### General modules
 
-- SettingsGUI :white_check_mark:
+- [SettingsGUI](./ceasiompy/SettingsGUI/README.md) :white_check_mark:
 -  [ModuleTemplate](./ceasiompy/ModuleTemplate/README.md) :white_check_mark:
 - Optimisation :x:
 - SMTrain :x:
@@ -134,7 +134,7 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 
 #### Geometry and Mesh
 
-- CPACSCreator :white_check_mark:
+- [CPACSCreator](./ceasiompy/CPACSCreator/README.md) :white_check_mark:
 - CPACS2SUMO :white_check_mark:
 - SUMOAutoMesh :white_check_mark:
 - SU2MeshDef :warning:
@@ -194,3 +194,5 @@ If you want to contribute to the development of CEASIOMpy , please refer to the 
 <a id="Sigg19">[3]</a> Siggel, M. and Kleinert, J. and Stollenwerk, T. and Maierl, R.: TiGL: An Open Source Computational Geometry Library for Parametric Aircraft Design. Mathematics in Computer Science (2019). [10.1007/s11786-019-00401-y](https://link.springer.com/article/10.1007/s11786-019-00401-y)  
 
 <a id="Drou18">[4]</a> Drougard, M.: Computer-Aided Design for Aircraft. Master Thesis (2018). EPFL École polytechnique fédérale de Lausanne. LINK  
+
+[CEASIOMpy YouTube channel](https://www.youtube.com/channel/UCcGsFJV29os1Zzv66YKFRZQ)

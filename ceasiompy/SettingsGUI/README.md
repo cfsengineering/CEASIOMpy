@@ -13,7 +13,7 @@
 
 
 <p align="center">
-<img height="340" src="files/SettingsGUI_examples.png">
+<img height="400" src="files/SettingsGUI_examples.png">
 </p>
 <p align="center">
 SettingsGUI interface
@@ -35,7 +35,7 @@ For each module in the list, `SettingsGUI` will automatically propose to set the
 
 ## Installation or requirements
 
-`SettingsGUI` is a native CEASIOMpy module, hence it is available and installed by default. To run it, you just have to be sure are you are in the CEASIOMpy Conda environment.
+`SettingsGUI` is a native CEASIOMpy module, hence it is available and installed by default. To run it, you just have to be sure that are you are in the CEASIOMpy Conda environment.
 
 
 ## Limitations

@@ -145,7 +145,7 @@ If your are new to Python we recommend some material that could help you (you ca
 
 CPACS is a Common Parametric Aircraft Configuration Schema. It is a data definition for the air transportation system. CPACS enables engineers to exchange information between their tools. CPACS is the default format to define aircrafts geometry in CEASIOMpy.
 
-- [CPACS website](www.cpacs.de)
+- [CPACS website](https://www.cpacs.de)
 - [Github repository](https://github.com/DLR-SL/CPACS)
 - Related libraries:
   - [TIXI](https://github.com/DLR-SC/tixi) A simple XML interface library

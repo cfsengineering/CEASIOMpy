@@ -7,7 +7,7 @@
 
 # CEASIOMpy
 
-<img align="right" width="300" height="300" src="./doc/source/figures/CEASIOMpy_main_logos.png">
+<img align="right" width="300" height="300" src="./documents/logos/CEASIOMpy_main_logos.png">
 
 CEASIOMpy is an open source conceptual aircraft design environment. CEASIOMpy can be used to set up complex design and optimization workflows, both for conventional and unconventional aircraft configurations. Tools for various disciplines in aircraft design are provided, however, the aerodynamic tools are the most developed. They allow to automatically generate aerodynamic meshes and perform CFD calculation.
 
@@ -102,6 +102,7 @@ To install CEASIOMpy, please refer to the [installation page](./installation/INS
 ```
 </div>
 
+
 ### Test cases
 
 We have a few [test cases](./test_cases/TESTCASES.md) that can be used to test the functionality of CEASIOMpy and understand how it works.
@@ -109,63 +110,71 @@ We have a few [test cases](./test_cases/TESTCASES.md) that can be used to test t
 
 ### Available modules
 
-A lot of different modules are available in CEASIOMpy, they can be assembled in various workflows. The following modules are available:
+A lot of different modules are available in CEASIOMpy, they can be assembled in various workflows. You can find bellow the list of available modules. The module status is marked as follows:
+
+:white_check_mark: : The module should be working as expected. Some small bugs may be present, don't hesitate to report them.
+
+:warning: : The module is not working fully as expected. It is not a bug, but some features or data handling are yet compatible with the new file structure. Check the [Kanban board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see planned and in progress features.
+
+:x: : The module is not working at all. Some function have been written but requires a lot of changes to be compatible with the rest of CEASIOMpy.
+
+
+<img align="right" height="80" src="documents/logos/CEASIOMpy_banner_main.png">
 
 #### General modules
 
-- SettingsGUI
-- [ModuleTemplate](./ceasiompy/ModuleTemplate/MODULETEMPLATE.md)
-<!-- - Optimisation
-- SMTrain
-- SMUse -->
+- SettingsGUI :white_check_mark:
+-  [ModuleTemplate](./ceasiompy/ModuleTemplate/MODULETEMPLATE.md) :white_check_mark:
+- Optimisation :x:
+- SMTrain :x:
+- SMUse :x:
 
 
-<img align="right" height="80" src="doc/source/figures/CEASIOMpy_banner_geometry.png">
+<img align="right" height="80" src="documents/logos/CEASIOMpy_banner_geometry.png">
 
 #### Geometry and Mesh
 
-- CPACSCreator
-- CPACS2SUMO
-- SUMOAutoMesh
-<!-- - SU2MeshDef -->
+- CPACSCreator :white_check_mark:
+- CPACS2SUMO :white_check_mark:
+- SUMOAutoMesh :white_check_mark:
+- SU2MeshDef :warning:
 
 
-
-<img align="right" height="80" src="doc/source/figures/CEASIOMpy_banner_aero.png">
+<img align="right" height="80" src="documents/logos/CEASIOMpy_banner_aero.png">
 
 #### Aerodynamics
 
-- CLCalculator
-- PyTornado
-- SU2Run
-- SkinFriction
-- PlotAeroCoefficients
+- CLCalculator :white_check_mark:
+- PyTornado :white_check_mark:
+- SU2Run :white_check_mark:
+- SkinFriction :white_check_mark:
+- PlotAeroCoefficients :white_check_mark:
 
 
-<img align="right" height="80" src="doc/source/figures/CEASIOMpy_banner_weights.png">
+<img align="right" height="80" src="documents/logos/CEASIOMpy_banner_weights.png">
 
 #### Weight and Balance
 
-- BalanceConventional
-- BalanceUnconventional
-- WeightConventional
-- WeightUnconventional
+- BalanceConventional :warning:
+- BalanceUnconventional :warning:
+- WeightConventional :warning:
+- WeightUnconventional :warning:
 
 
-<img align="right" height="80" src="doc/source/figures/CEASIOMpy_banner_mission.png">
+<img align="right" height="80" src="documents/logos/CEASIOMpy_banner_mission.png">
 
 #### Mission Analysis
 
-- Range
-- StabilityStatic
-<!-- - StabilityDynamic -->
+- Range :warning:
+- StabilityStatic :warning:
+- StabilityDynamic :x:
 
 
-<!-- <img align="right" height="80" src="doc/source/figures/CEASIOMpy_banner_structure.png"
+<img align="right" height="80" src="documents/logos/CEASIOMpy_banner_structure.png">
 
 #### Structure 
 
-- AeroFrame -->
+- AeroFrame :x:
 
 
 ## Contributing
@@ -185,5 +194,3 @@ If you want to contribute to the development of CEASIOMpy , please refer to the 
 <a id="Sigg19">[3]</a> Siggel, M. and Kleinert, J. and Stollenwerk, T. and Maierl, R.: TiGL: An Open Source Computational Geometry Library for Parametric Aircraft Design. Mathematics in Computer Science (2019). [10.1007/s11786-019-00401-y](https://link.springer.com/article/10.1007/s11786-019-00401-y)  
 
 <a id="Drou18">[4]</a> Drougard, M.: Computer-Aided Design for Aircraft. Master Thesis (2018). EPFL École polytechnique fédérale de Lausanne. LINK  
-
-

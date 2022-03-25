@@ -124,7 +124,7 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 #### General modules
 
 - SettingsGUI :white_check_mark:
--  [ModuleTemplate](./ceasiompy/ModuleTemplate/MODULETEMPLATE.md) :white_check_mark:
+-  [ModuleTemplate](./ceasiompy/ModuleTemplate/README.md) :white_check_mark:
 - Optimisation :x:
 - SMTrain :x:
 - SMUse :x:

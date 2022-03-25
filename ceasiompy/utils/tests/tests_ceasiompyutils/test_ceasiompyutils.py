@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Test functions for 'utils/workflowclasses.py'
+Test functions for 'utils/ceasiompyutils.py'
 
 Python version: >=3.7
 
@@ -23,6 +23,8 @@ import pytest
 from ceasiompy.utils.ceasiompyutils import aircraft_name, change_working_dir, get_results_directory
 from cpacspy.cpacsfunctions import open_tixi
 
+MODULE_DIR = Path(__file__).parent
+
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
@@ -31,10 +33,16 @@ from cpacspy.cpacsfunctions import open_tixi
 def test_change_working_dir():
     """Test the function (context manager) change_working_dir."""
 
-    with change_working_dir("/tmp"):
-        assert os.getcwd() == "/tmp"
+    default_cwd = Path.cwd()
 
-    assert os.getcwd() != "/tmp"
+    os.chdir(str(MODULE_DIR))
+
+    with change_working_dir(Path(MODULE_DIR, "tmp")):
+        assert Path.cwd() == Path(MODULE_DIR, "tmp")
+
+    assert Path.cwd() == MODULE_DIR
+
+    os.chdir(str(default_cwd))
 
 
 def test_get_results_directory():

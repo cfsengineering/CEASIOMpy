@@ -135,8 +135,8 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 #### Geometry and Mesh
 
 - [CPACSCreator](./ceasiompy/CPACSCreator/README.md) :white_check_mark:
-- CPACS2SUMO :white_check_mark:
-- SUMOAutoMesh :white_check_mark:
+- [CPACS2SUMO](./ceasiompy/CPACS2SUMO/README.md) :white_check_mark:
+- [SUMOAutoMesh](./ceasiompy/SUMOAutoMesh/README.md) :white_check_mark:
 - SU2MeshDef :warning:
 
 

@@ -41,6 +41,7 @@ from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.xpath import (
     CEASIOMPY_XPATH,
+    SU2MESH_XPATH,
 )
 
 log = get_logger(__file__.split(".")[0])
@@ -83,7 +84,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
 
     # Run mesh generation
     export_brep(cpacs, brep_dir_path)
-    generate_gmsh(
+    mesh_path = generate_gmsh(
         brep_dir_path,
         results_dir,
         open_gmsh=open_gmsh,
@@ -91,6 +92,11 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         mesh_size_fuselage=mesh_size_fuselage,
         mesh_size_wings=mesh_size_wings,
     )
+
+    if os.path.exists(mesh_path):
+        log.info("An SU2 Mesh has been correctly generated.")
+        create_branch(cpacs.tixi, SU2MESH_XPATH)
+        cpacs.tixi.updateTextElement(SU2MESH_XPATH, mesh_path)
 
     # Save CPACS
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)

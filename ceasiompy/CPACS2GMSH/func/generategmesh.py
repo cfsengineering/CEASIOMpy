@@ -26,6 +26,7 @@ TODO:
 import gmsh
 import os
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.xpath import SU2MESH_XPATH
 
 log = get_logger(__file__.split(".")[0])
 
@@ -393,10 +394,10 @@ def generate_gmsh(
             if i != j:
                 twin_surfaces = aircraft_parts[i].surfaces.intersection(aircraft_parts[j].surfaces)
 
-            if twin_surfaces:  # check if not empty
-                # One of the two part need to transfert the duplicated surface to the other
-                Flag_duplicated_surface = True
-                hierarchy_surface(aircraft_parts[i], aircraft_parts[j], twin_surfaces, 0)
+                if twin_surfaces:  # check if not empty
+                    # One of the two part need to transfert the duplicated surface to the other
+                    Flag_duplicated_surface = True
+                    hierarchy_surface(aircraft_parts[i], aircraft_parts[j], twin_surfaces, 0)
 
     # count if the number of surface remaped is equal to the fused aircraft surfaces
     check_surface = sum([len(part.surfaces) for part in aircraft_parts])
@@ -621,13 +622,15 @@ def generate_gmsh(
     gmsh.model.mesh.generate(3)
     gmsh.model.occ.synchronize()
 
-    gmsh.write(os.path.join(results_dir, "mesh.su2"))
+    SU2MESH_XPATH = os.path.join(results_dir, "mesh.su2")
+    gmsh.write(SU2MESH_XPATH)
 
     if open_gmsh:
         log.info("Result of the 3D mesh")
         gmsh.fltk.run()
 
     gmsh.finalize()
+    return SU2MESH_XPATH
 
 
 # ==============================================================================

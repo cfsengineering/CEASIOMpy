@@ -144,8 +144,8 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 
 #### Aerodynamics
 
-- CLCalculator :white_check_mark:
-- PyTornado :white_check_mark:
+- [CLCalculator](./ceasiompy/CLCalculator/README.md) :white_check_mark:
+- [PyTornado](./ceasiompy/PyTornado/README.md) :white_check_mark:
 - SU2Run :white_check_mark:
 - SkinFriction :white_check_mark:
 - PlotAeroCoefficients :white_check_mark:

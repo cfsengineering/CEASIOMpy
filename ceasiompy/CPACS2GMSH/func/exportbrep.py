@@ -25,6 +25,7 @@ from pathlib import Path
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 from tigl3.import_export_helper import export_shapes
+from tigl3.boolean_ops import CFuseShapes
 
 
 log = get_logger(__file__.split(".")[0])
@@ -66,7 +67,6 @@ def export_brep(cpacs, brep_dir_path):
         wing = aircraft_config.get_wing(k).get_loft()
         brep_file = Path(brep_dir_path, f"wing{k}.brep")
         export_shapes([wing], str(brep_file))
-
         # TODO: use something like
         # sym = aircraft_config.get_wing(k).get_symmetry()
         # if sym: ...

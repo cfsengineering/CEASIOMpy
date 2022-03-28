@@ -386,16 +386,14 @@ def generate_gmsh(
 
             if len(potential_parts) == 1:
                 part.surfaces.add(surface)
-                log.info(surface, " was added to", part.name)
+                log.info(f"{surface} was added to {part.name}")
 
             if len(potential_parts) == 2:
-                log.info(surface)
                 hierarchy_surface(*potential_parts, surface, 1)
             if len(potential_parts) > 2:
                 raise ValueError(f"Too many parts found for surface{surface}")
 
         check_surface = sum([len(part.surfaces) for part in aircraft_parts])
-        log.info(check_surface, len(aircraft.surfaces))
         if check_surface != len(aircraft.surfaces):
             log.info("There is still missing surfaces, check that your cpacs geometry is healthy")
         else:
@@ -507,7 +505,6 @@ def generate_gmsh(
 
     # Generate mesh
     gmsh.model.occ.synchronize()
-    gmsh.fltk.run()
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
     # Apply smoothing

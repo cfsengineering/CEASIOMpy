@@ -48,13 +48,22 @@ def test_generate_gmsh():
     cpacs = CPACS(CPACS_IN_PATH)
 
     export_brep(cpacs, TEST_OUT_PATH)
-    generate_gmsh(TEST_OUT_PATH, TEST_OUT_PATH)
+    generate_gmsh(
+        TEST_OUT_PATH,
+        TEST_OUT_PATH,
+        open_gmsh=False,
+        mesh_size_farfield=2,
+        mesh_size_fuselage=0.2,
+        mesh_size_wings=0.2,
+    )
 
     with open(os.path.join(TEST_OUT_PATH, "mesh.su2"), "r") as f:
         content = f.read()
 
-    assert "NMARK= 2" in content
-    assert "MARKER_TAG= airfoil" in content
+    assert "NMARK= 4" in content
+    assert "MARKER_TAG= wing1" in content
+    assert "MARKER_TAG= wing1_m" in content
+    assert "MARKER_TAG= fuselage1" in content
     assert "MARKER_TAG= farfield" in content
 
     # Erease generated file

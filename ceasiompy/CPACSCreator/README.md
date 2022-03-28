@@ -4,7 +4,7 @@
 
 **Categories:** Geometry, CPACS, Aircraft modeling, CAO
 
-**State**: :white_check_mark:
+**State**: :heavy_check_mark:
 
 
 `CPACSCreator` is just a launcher for [CPACSCreator](https://dlr-sc.github.io/tigl/doc/cpacscreator-0.1/) which has been developed in collaboration between CFS Engineering and DLR [[1]](#Drou18).

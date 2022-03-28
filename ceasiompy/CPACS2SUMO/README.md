@@ -4,7 +4,7 @@
 
 **Categories:** Geometry, Mesh
 
-**State**: :white_check_mark:
+**State**: :heavy_check_mark:
 
 
 `CPACS2SUMO` is a geometry converter to go from a [CPACS](https://www.cpacs.de) aircraft geometry to a [SUMO](https://www.larosterna.com/products/open-source) geometry. It will then be possible to run `SUMOAutoMesh` to generate a mesh with SUMO or to open SUMO to generate a mesh manually. 

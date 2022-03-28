@@ -4,7 +4,7 @@
 
 **Categories:** Aerodynamics, CFD, aeromaps
 
-**State**: :white_check_mark:
+**State**: :heavy_check_mark:
 
 
 <img align="right" height="120" src="https://github.com/su2code/SU2/raw/master/Common/doc/logoSU2small.png">

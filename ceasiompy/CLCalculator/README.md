@@ -4,7 +4,7 @@
 
 **Categories:** Aerodynamics, Flight
 
-**State**: :white_check_mark:
+**State**: :heavy_check_mark:
 
 
 `CLCalculator` determines the lift coefficient C<sub>L</sub> of an aircraft to sustain a cruise flight, for a given Mach number, altitude, and mass.

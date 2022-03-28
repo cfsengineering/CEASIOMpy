@@ -4,7 +4,7 @@
 
 **Categories:** Aerodynamics, CFD, aeromaps
 
-**State**: :white_check_mark:
+**State**: :heavy_check_mark:
 
 
 <img align="right" height="120" src="files/pytornado_logo.svg">

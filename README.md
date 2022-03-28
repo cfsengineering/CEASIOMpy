@@ -112,7 +112,7 @@ We have a few [test cases](./test_cases/TESTCASES.md) that can be used to test t
 
 A lot of different modules are available in CEASIOMpy, they can be assembled in various workflows. You can find bellow the list of available modules. The module status is marked as follows:
 
-:white_check_mark: : The module should be working as expected. Some small bugs may be present, don't hesitate to report them.
+:heavy_check_mark: : The module should be working as expected. Some small bugs may be present, don't hesitate to report them.
 
 :warning: : The module is not working fully as expected. It is not a bug, but some features or data handling are yet compatible with the new file structure. Check the [Kanban board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see planned and in progress features.
 
@@ -123,8 +123,8 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 
 #### General modules
 
-- [SettingsGUI](./ceasiompy/SettingsGUI/README.md) :white_check_mark:
--  [ModuleTemplate](./ceasiompy/ModuleTemplate/README.md) :white_check_mark:
+- [SettingsGUI](./ceasiompy/SettingsGUI/README.md) :heavy_check_mark:
+-  [ModuleTemplate](./ceasiompy/ModuleTemplate/README.md) :heavy_check_mark:
 - Optimisation :x:
 - SMTrain :x:
 - SMUse :x:
@@ -134,9 +134,9 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 
 #### Geometry and Mesh
 
-- [CPACSCreator](./ceasiompy/CPACSCreator/README.md) :white_check_mark:
-- [CPACS2SUMO](./ceasiompy/CPACS2SUMO/README.md) :white_check_mark:
-- [SUMOAutoMesh](./ceasiompy/SUMOAutoMesh/README.md) :white_check_mark:
+- [CPACSCreator](./ceasiompy/CPACSCreator/README.md) :heavy_check_mark:
+- [CPACS2SUMO](./ceasiompy/CPACS2SUMO/README.md) :heavy_check_mark:
+- [SUMOAutoMesh](./ceasiompy/SUMOAutoMesh/README.md) :heavy_check_mark:
 - SU2MeshDef :warning:
 
 
@@ -144,11 +144,11 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 
 #### Aerodynamics
 
-- [CLCalculator](./ceasiompy/CLCalculator/README.md) :white_check_mark:
-- [PyTornado](./ceasiompy/PyTornado/README.md) :white_check_mark:
-- SU2Run :white_check_mark:
-- SkinFriction :white_check_mark:
-- PlotAeroCoefficients :white_check_mark:
+- [CLCalculator](./ceasiompy/CLCalculator/README.md) :heavy_check_mark:
+- [PyTornado](./ceasiompy/PyTornado/README.md) :heavy_check_mark:
+- [SU2Run](./ceasiompy/SU2Run/README.md) :heavy_check_mark:
+- SkinFriction :heavy_check_mark:
+- PlotAeroCoefficients :heavy_check_mark:
 
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_weights.png">

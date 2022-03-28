@@ -4,7 +4,7 @@
 
 **Categories:** Mesh
 
-**State**: :white_check_mark:
+**State**: :heavy_check_mark:
 
 
 `SUMOAutoMesh` generates automatically a [SU2](https://su2code.github.io/) mesh file from a [SUMO](https://www.larosterna.com/products/open-source) (.smx) geometry file.

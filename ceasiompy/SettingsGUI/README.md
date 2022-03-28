@@ -6,7 +6,7 @@
 
 **Categories:** General, Settings, GUI
 
-**State**: :white_check_mark:
+**State**: :heavy_check_mark:
 
 
 `SettingsGUI` is made to allow users to set up inputs for other modules of a workflow. If `SettingsGUI` is included in a workflow, it will propose to set value for all the following modules until the next `SettingsGUI` is found or the workflow is finished.

@@ -6,7 +6,7 @@
 
 **Categories:** Template module, Example, Illustration
 
-**State**: :white_check_mark:
+**State**: :heavy_check_mark:
 
 
 This is a template module. Its purpose is to illustrate how other modules of CEASIOMpy should be structured, set up and documented.

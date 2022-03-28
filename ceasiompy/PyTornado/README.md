@@ -19,7 +19,7 @@
  
 ## Analyses
 
-`PyTornado` evaluates calculated aerodynamic coefficients of an aircraft for a given aeromap and write back results in a CPACS file. 
+`PyTornado` calculates aerodynamic coefficients of an aircraft for a given aeromap and write back results in a CPACS file. 
 
 Optionaly, `PyTornado` can also plot some results.
 

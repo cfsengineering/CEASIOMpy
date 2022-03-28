@@ -148,7 +148,7 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 - [PyTornado](./ceasiompy/PyTornado/README.md) :heavy_check_mark:
 - [SU2Run](./ceasiompy/SU2Run/README.md) :heavy_check_mark:
 - [SkinFriction](./ceasiompy/SkinFriction/README.md) :heavy_check_mark:
-- PlotAeroCoefficients :heavy_check_mark:
+- [PlotAeroCoefficients](./ceasiompy/PlotAeroCoefficients/README.md) :heavy_check_mark:
 
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_weights.png">

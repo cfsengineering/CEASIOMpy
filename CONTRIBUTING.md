@@ -9,17 +9,22 @@
      - [Naming conventions](#naming-conventions)
      - [Logging](#logging)
      - [Testing and coverage](#testing-and-coverage)
-     - [Other resources](#other-resources)
+     - [Learn Python](#learn-python)
    - [CPACS](#cpacs)
    - [Other](#other)
-- [How to contribute](#how-to-contribute) 
+- [How to contribute](#how-to-contribute)
+   - [Reporting bugs](#reporting-bugs)
+   - [Writing a new module](#writing-a-new-module)
+   - [Writing specs file](#writing-specs-file)
 
 
 ## Documentation / Installation
 
-The CEASIOMpy documentation is available at [https://ceasiompy.readthedocs.io/](https://ceasiompy.readthedocs.io/). You will also find the installation procedure.
+The CEASIOMpy documentation is include in the [Github repository](./README.md) in Markdown files as this one. You can follow the links to find the information that you are looking for.
 
-#### Installation issues
+#### Installation
+
+To install CEASIOMpy please refer to the [installation page](./installation/INSTALLATION.md), it will guide you through the installation process depending on your system.
 
 If you have some trouble to install CEASIOMpy on your computer, please use the following [Github Discussion page](https://github.com/cfsengineering/CEASIOMpy/discussions/categories/installation-issues). If your problem is something that could be reproduce it will be transformed into an issues.
 
@@ -70,14 +75,8 @@ We try to follow th following naming conventions in CEASIOMpy:
 - Index in loops: i,j,k or lowercase (e.g. alpha, beta,…) or more explicit (i_fus, i_wing, i_eng)
 
 Quotes:
--  `" "` simple quote are used for strings, e.g. print("Test1")
+-  `" "` simple quote are used for strings, e.g. `print("Test1")`
 -  `"""Docstring"""` triple double quote are used for docstring (documentation)
-
--  Variable name should be explicit, with in first position the object
-   it represents, then detail about its type, if needed. - aircraft_name
-   - engine_nb - wing_span - controlsurf_deflection_angle
-
-Variable name:
 -  Variable name should be explicit, with in first position the object
    it represents, then detail about its type, e.g:
     - aircraft_name
@@ -128,7 +127,7 @@ cd CEASIOMpy
 ```
 
 
-#### Other resources
+#### Learn Python
 
 If your are new to Python we recommend some material that could help you (you can also find many other ressources online):
 
@@ -143,10 +142,11 @@ If your are new to Python we recommend some material that could help you (you ca
 
 ### CPACS
 
-CPACS is a Common Parametric Aircraft Configuration Schema. It is a data definition for the air transportation system. CPACS enables engineers to exchange information between their tools. CPACS is the default format to define aircrafts geometry in CEASIOMpy.
+[CPACS](https://www.cpacs.de) is a Common Parametric Aircraft Configuration Schema. It is a data definition for the air transportation system. CPACS enables engineers to exchange information between their tools. CPACS is the default format to define aircrafts geometry in CEASIOMpy.
 
-- [CPACS website](https://www.cpacs.de)
-- [Github repository](https://github.com/DLR-SL/CPACS)
+- [CPACS official website](https://www.cpacs.de)
+- [CPACS Github repository](https://github.com/DLR-SL/CPACS)
+- [CPACS documentation](https://www.cpacs.de/documentation/CPACS_3_3_0_Docs/html/89b6a288-0944-bd56-a1ef-8d3c8e48ad95.htm)
 - Related libraries:
   - [TIXI](https://github.com/DLR-SC/tixi) A simple XML interface library
   - [TiGL](https://github.com/DLR-SC/tigl) Geometry Library to process aircraft geometries
@@ -188,23 +188,116 @@ If you want to write a new module you can use the [Module Template](https://gith
 ```
 .
 ├── files               <- Files related to this module
-│   ├── doc1.md
-│   └── doc2.md
+│   ├── doc1.pdf
+│   └── module_logo.png
 ├── func                <- Module subfunction import by the main one.
 │   ├── subfunc1.py
 │   └── subfunc2.py
 ├── tests               <- Test function for this module.
 │   ├── cpacsfile_for_test.xml
+│   ├── test_subfunc1.py
+│   ├── test_subfunc2.py
 │   └── test_moduletemplate.py
 ├── __specs__.py        <- Specification of the module.
-└── moduletemplate.py   <- Main module of the module.
+├── moduletemplate.py   <- Main module of the module.
+└── README.md           <- Readme for the module.
 ```
 
-To develop a new module you need to:
+To develop a new module you should follow the above steps.:
 
 - Create a fork of the CEASIOMpy repository
 - On your fork, create a new branch
 - On this branch, write your module and its test functions
 - Create a pull request on the CEASIOMpy repository
-- Ask for a review on the pull request
+- Ask for a review of the pull request
 - If the pull request is accepted, the module will be merged into the CEASIOMpy repository
+
+### Writing specs file
+
+The `__specs__.py` file is a python file that contains the specification of the module. It is used to define your module input and output. It is also used to create automatically a tab in the SettingsGUI module with the correct input and default values.
+
+The `__specs__.py` file should look like this:
+
+```python
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.xpath import FUSELAGES_XPATH, WINGS_XPATH
+# Hint: you can check the file /ceasiompy/utils/xpath.py to find all the XPath which are already defined. If you use a new XPath, you can add it in the file.
+
+# ===== CPACS inputs and outputs =====
+
+cpacs_inout = CPACSInOut()
+
+
+# ----- Input -----
+
+# In the following example we add three (!) new entries to 'cpacs_inout'
+# Try to use (readable) loops instead of copy-pasting three almost same entries
+for direction in ["x", "y", "z"]:
+    cpacs_inout.add_input(
+        var_name=direction,
+        var_type=float,
+        default_value=None,
+        unit="1",
+        descr=f"Fuselage scaling on {direction} axis",
+        xpath=FUSELAGES_XPATH + f"/fuselage/transformation/scaling/{direction}",
+        gui=True,
+        gui_name=f"{direction.capitalize()} scaling",
+        gui_group="Fuselage scaling",
+    )
+
+# You can add input for different types of variables. In this case a string.
+cpacs_inout.add_input(
+    var_name="test",
+    var_type=str,
+    default_value="This is a test",
+    unit=None,
+    descr="This is a test of description",
+    xpath="/cpacs/toolspecific/CEASIOMpy/test/myTest",
+    gui=True,
+    gui_name="My test",
+    gui_group="Group Test",
+)
+
+# You can also provide a list of possible values for the input. In SettingsGUI, it will appear as a combobox.
+cpacs_inout.add_input(
+    var_name="other_var",
+    var_type=list,
+    default_value=[2, 33, 444],
+    unit="[unit]",
+    xpath="/cpacs/toolspecific/CEASIOMpy/test/myList",
+    gui=True,
+    gui_name="Choice",
+    gui_group="My Selection",
+)
+
+# For a selection a aeromaps (amongst those in the CPACS file) you should use the following syntax:
+cpacs_inout.add_input(
+    var_name='aeromap_uid_select',
+    var_type=list,
+    default_value=None,
+    xpath='/cpacs/toolspecific/CEASIOMpy/test/aeroMapUIDSelecton',
+    gui=True,
+    gui_name='__AEROMAP_SELECTION',
+)
+
+# For a checkbox selection of aeromaps (amongst those in the CPACS file) you should use the following syntax:
+cpacs_inout.add_input(
+    var_name='aeromap_uid_cb',
+    var_type=list,
+    default_value=None,
+    xpath='/cpacs/toolspecific/CEASIOMpy/test/aeroMapCheckBoxSelction',
+    gui=include_gui,
+    gui_name='__AEROMAP_CHECHBOX',
+)
+
+# ----- Output -----
+
+cpacs_inout.add_output(
+    var_name="output",
+    default_value=None,
+    unit="1",
+    descr="Description of the output",
+    xpath="/cpacs/toolspecific/CEASIOMpy/test/myOutput",
+)
+
+```

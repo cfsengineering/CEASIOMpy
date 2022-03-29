@@ -32,11 +32,14 @@ fi
 sudo apt-get update
 sudo apt-get install libgfortran3
 
-echo "--> libpng12"
-if [ ! -e $install_dir/libpng12.so.0 ]; then	
-    wget https://ceasiompy.readthedocs.io/en/latest/_downloads/29351a34f8c71099a642b6a4681e4f87/libpng12.so.0
-fi
-sudo cp libpng12.so.0 /usr/lib/x86_64-linux-gnu/.
+# echo "--> libpng12"
+# if [ ! -e $install_dir/libpng12.so.0 ]; then	
+#     wget https://ceasiompy.readthedocs.io/en/latest/_downloads/29351a34f8c71099a642b6a4681e4f87/libpng12.so.0
+# fi
+# sudo cp libpng12.so.0 /usr/lib/x86_64-linux-gnu/.
+sudo add-apt-repository ppa:linuxuprising/libpng12
+sudo apt update
+sudo apt install libpng12-0
 
 echo "Creating a symlink for sumo..."
 sudo ln -s $install_dir/sumo-2.7.9/bin/dwfsumo /usr/bin/sumo

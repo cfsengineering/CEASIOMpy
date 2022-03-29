@@ -26,7 +26,6 @@ TODO:
 import gmsh
 import os
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.xpath import SU2MESH_XPATH
 
 log = get_logger(__file__.split(".")[0])
 
@@ -275,14 +274,14 @@ def generate_gmsh(
 
     aircraft_parts = []
 
-    if symmetry:
+    # if symmetry:
 
-        # Delete the symmetric part of the aicraft
-        log.info("Symmetry detected, deleting unused symmetric part of the aircraft")
+    #     # Delete the symmetric part of the aicraft
+    #     log.info("Symmetry detected, deleting unused symmetric part of the aircraft")
 
-        for file in os.listdir(brep_dir_path):
-            if "_m" in file:
-                os.remove(os.path.join(brep_dir_path, file))
+    #     for file in os.listdir(brep_dir_path):
+    #         if "_m" in file:
+    #             os.remove(os.path.join(brep_dir_path, file))
 
     for file in os.listdir(brep_dir_path):
 
@@ -386,12 +385,12 @@ def generate_gmsh(
 
         domain_lenght = farfield_factor * max(aircraft.sizes)
         box_symm = gmsh.model.occ.addBox(
-            center_aircraft[0] - domain_lenght,
+            (center_aircraft[0] - domain_lenght) * 1.05,
             center_aircraft[1] - 2 * domain_lenght,
-            center_aircraft[2] - domain_lenght,
+            (center_aircraft[2] - domain_lenght) * 1.05,
+            2 * domain_lenght * 1.05,
             2 * domain_lenght,
-            2 * domain_lenght,
-            2 * domain_lenght,
+            2 * domain_lenght * 1.05,
         )
 
         gmsh.model.occ.synchronize()

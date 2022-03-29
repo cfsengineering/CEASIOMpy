@@ -251,9 +251,11 @@ def generate_gmsh(
     brep_dir_path,
     results_dir,
     open_gmsh=False,
-    mesh_size_farfield=1,
-    mesh_size_fuselage=0.1,
-    mesh_size_wings=0.1,
+    farfield_factor=5,
+    symmetry=False,
+    mesh_size_farfield=12,
+    mesh_size_fuselage=0.2,
+    mesh_size_wings=0.2,
 ):
     """Function to generate a mesh from brep files forming an airplane
     Function 'generate_gmsh' is a subfunction of CPACS2GMSH which return a
@@ -272,6 +274,15 @@ def generate_gmsh(
     # when bbs are found, remove the part from the model the part
 
     aircraft_parts = []
+
+    if symmetry:
+
+        # Delete the symmetric part of the aicraft
+        log.info("Symmetry detected, deleting unused symmetric part of the aircraft")
+
+        for file in os.listdir(brep_dir_path):
+            if "_m" in file:
+                os.remove(os.path.join(brep_dir_path, file))
 
     for file in os.listdir(brep_dir_path):
 
@@ -338,20 +349,25 @@ def generate_gmsh(
     part_to_fuse = [part.dim_tag for part in aircraft_parts]
 
     log.info(f"Start Fusing process, {len(part_to_fuse)} parts to fuse")
-    fused_shape, side = gmsh.model.occ.fuse(
-        [part_to_fuse[0]], part_to_fuse[1:], removeObject=True, removeTool=True
-    )
+    if len(part_to_fuse) > 1:
 
-    gmsh.model.occ.synchronize()
+        fused_shape, side = gmsh.model.occ.fuse(
+            [part_to_fuse[0]], part_to_fuse[1:], removeObject=True, removeTool=True
+        )
+        gmsh.model.occ.synchronize()
 
-    # An aircraft part representing the whole aircraft is created
+        # An aircraft part representing the whole aircraft is created
+        aircraft = AircraftPart(*fused_shape, "aircraft")
 
-    aircraft = AircraftPart(*fused_shape, "aircraft")
+    else:
+
+        fused_shape = part_to_fuse[0]
+        aircraft = aircraft_parts[0]
 
     # create external domain for the farfield
 
     center_aircraft = gmsh.model.occ.get_center_of_mass(*aircraft.dim_tag)
-    ext_domain = gmsh.model.occ.addSphere(*center_aircraft, 5 * max(aircraft.sizes))
+    ext_domain = gmsh.model.occ.addSphere(*center_aircraft, farfield_factor * max(aircraft.sizes))
     gmsh.model.occ.synchronize()
 
     # cut the fluid with the airplane
@@ -363,6 +379,32 @@ def generate_gmsh(
         removeTool=True,
     )
     gmsh.model.occ.synchronize()
+
+    # Cut the domain for symmetry
+
+    if symmetry:
+
+        domain_lenght = farfield_factor * max(aircraft.sizes)
+        box_symm = gmsh.model.occ.addBox(
+            center_aircraft[0] - domain_lenght,
+            center_aircraft[1] - 2 * domain_lenght,
+            center_aircraft[2] - domain_lenght,
+            2 * domain_lenght,
+            2 * domain_lenght,
+            2 * domain_lenght,
+        )
+
+        gmsh.model.occ.synchronize()
+
+        # cut the domain in half
+
+        final_domain, side = gmsh.model.occ.cut(
+            [(3, final_domain[0][1])],
+            [(3, box_symm)],
+            removeObject=True,
+            removeTool=True,
+        )
+        gmsh.model.occ.synchronize()
 
     # Find the aircraft entities after all the boolean operations
     aircraft.get_entities()
@@ -507,14 +549,34 @@ def generate_gmsh(
         gmsh.model.setPhysicalName(2, bc_part, part.name)
 
     # Farfield
+    if symmetry:
+        symm_plane_bb = (
+            (center_aircraft[0] - domain_lenght) * 1.05,
+            -0.1,
+            (center_aircraft[2] - domain_lenght) * 1.05,
+            (center_aircraft[0] + domain_lenght) * 1.05,
+            0.1,
+            (center_aircraft[0] + domain_lenght) * 1.05,
+        )
+        # Find the entity of the symmetry plane
+        symm_surface = gmsh.model.occ.getEntitiesInBoundingBox(*symm_plane_bb, dim=2)
+        farfield_surfaces = list(farfield_surfaces.difference(set(symm_surface)))
 
-    farfield_surfaces_tags = []
+        farfield = gmsh.model.addPhysicalGroup(2, [farfield_surfaces[0][1]])
+        gmsh.model.setPhysicalName(2, farfield, "farfield")
 
-    for surface in farfield_surfaces:
-        farfield_surfaces_tags.append(surface[1])
+        symmetry = gmsh.model.addPhysicalGroup(2, [symm_surface[0][1]])
+        gmsh.model.setPhysicalName(2, symmetry, "symmetry_plane")
 
-    farfield = gmsh.model.addPhysicalGroup(2, farfield_surfaces_tags)
-    gmsh.model.setPhysicalName(2, farfield, "farfield")
+    else:
+        # Farfield without symmetry
+        farfield_surfaces_tags = []
+
+        for surface in farfield_surfaces:
+            farfield_surfaces_tags.append(surface[1])
+
+        farfield = gmsh.model.addPhysicalGroup(2, farfield_surfaces_tags)
+        gmsh.model.setPhysicalName(2, farfield, "farfield")
 
     # Fluid domain
 

@@ -29,9 +29,33 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="farfield_mesh_size",
+    var_name="symmetry",
+    var_type=bool,
+    default_value=False,
+    unit="1",
+    descr="Create a symmetry condition",
+    xpath=CEASIOMPY_XPATH + "/gmsh/symmetry",
+    gui=True,
+    gui_name="Use Symmetry",
+    gui_group="Domain",
+)
+
+cpacs_inout.add_input(
+    var_name="farfield_factor",
     var_type=float,
     default_value=5,
+    unit="[-]",
+    descr="Farfiled size factor compaire to the aircraft largest dimension",
+    xpath=CEASIOMPY_XPATH + "/gmsh/farfield_factor",
+    gui=True,
+    gui_name="Farfield size factor",
+    gui_group="Domain",
+)
+
+cpacs_inout.add_input(
+    var_name="farfield_mesh_size",
+    var_type=float,
+    default_value=12,
     unit="[m]",
     descr="Value assigned for the farfield surface mesh size",
     xpath=CEASIOMPY_XPATH + "/gmsh/mesh_size/farfield",
@@ -43,7 +67,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="fuselage_mesh_size",
     var_type=float,
-    default_value=0.5,
+    default_value=0.2,
     unit="[m]",
     descr="Value assigned for the fuselage surface mesh size",
     xpath=CEASIOMPY_XPATH + "/gmsh/mesh_size/fuselage",
@@ -55,7 +79,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="wing_mesh_size",
     var_type=float,
-    default_value=0.5,
+    default_value=0.2,
     unit="[m]",
     descr="Value assigned for the wings surface mesh size",
     xpath=CEASIOMPY_XPATH + "/gmsh/mesh_size/wings",

@@ -37,6 +37,7 @@ log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 LIB_DIR = Path(ceasiompy.__init__.__file__).parent
+TEST_FILE_DIR = Path(LIB_DIR.parent, "test_files")
 
 OPTIM_METHOD = ["OPTIM", "DOE"]
 
@@ -167,7 +168,7 @@ class Workflow:
     def __init__(self) -> None:
 
         self.working_dir = ""
-        self.cpacs_in = Path("../test_files/CPACSfiles/D150_simple.xml").resolve()
+        self.cpacs_in = Path(TEST_FILE_DIR, "CPACSfiles/D150_simple.xml").resolve()
         self.current_workflow_dir = None
 
         self.modules_list = []  # List of modules to run (str)

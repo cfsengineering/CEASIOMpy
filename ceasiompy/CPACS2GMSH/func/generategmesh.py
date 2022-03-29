@@ -683,15 +683,15 @@ def generate_gmsh(
     gmsh.model.mesh.generate(3)
     gmsh.model.occ.synchronize()
 
-    SU2MESH_XPATH = os.path.join(results_dir, "mesh.su2")
-    gmsh.write(SU2MESH_XPATH)
+    su2mesh_path = os.path.join(results_dir, "mesh.su2")
+    gmsh.write(su2mesh_path)
 
     if open_gmsh:
         log.info("Result of the 3D mesh")
         gmsh.fltk.run()
 
     gmsh.finalize()
-    return SU2MESH_XPATH
+    return su2mesh_path
 
 
 # ==============================================================================

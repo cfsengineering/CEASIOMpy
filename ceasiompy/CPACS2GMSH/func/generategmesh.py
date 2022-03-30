@@ -273,7 +273,7 @@ def classify_wing(wing_part):
     """
     A profile is composed of two Spline (one upper and one lower) that are connected
     with the same two points (the leading and trailing edge points)
-    this definition is only valid for non troncated profile 
+    this definition is only valid for non troncated profile
     """
     lines_composition = []
 

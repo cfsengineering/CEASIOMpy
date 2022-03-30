@@ -59,6 +59,7 @@ class AircraftPart:
         self.lines = []
         self.surfaces = []
         self.surfaces_tags = []
+        self.score = give_score(self)
 
     def get_entities(self):
         """
@@ -192,6 +193,26 @@ def get_visual_bounding_box(dim_tag, enhance=0):
     return (bb[0], bb[1], bb[2], bb[3], bb[4], bb[5]), sizes
 
 
+def give_score(part):
+    """
+    Function to give a score to a part, a part with a higher score will be given
+    priority to the surface assignation
+    ...
+
+    Args:
+    ----------
+    part : AircraftPart
+        aircraft part to assign a score
+    ...
+    """
+    if "engine" in part.name:
+        return 3
+    if "fuselage" in part.name:
+        return 2
+    if "wing" in part.name:
+        return 1
+
+
 def hierarchy_surface(part1, part2, surfaces, operation):
     """
     Function to select which of two part sharing an common surface should be the final
@@ -209,19 +230,9 @@ def hierarchy_surface(part1, part2, surfaces, operation):
     ...
     """
 
-    # Score : a part with a higher score will be given priority to the surface assignation
-    def give_score(part):
-
-        if "fuselage" in part.name:
-            return 2
-        if "wing" in part.name:
-            return 1
-        if "engine" in part.name:
-            return 3
-
     # Get score of each part
-    part1_score = give_score(part1)
-    part2_score = give_score(part2)
+    part1_score = part1.score
+    part2_score = part2.score
 
     if part1_score >= part2_score:
         if operation == 0:

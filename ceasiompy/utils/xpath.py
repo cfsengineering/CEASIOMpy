@@ -75,4 +75,4 @@ WKDIR_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath"
 PYTORNADO_XPATH = "/cpacs/toolspecific/pytornado"
 
 # GMSH
-GMSHFILE_XPATH = "/cpacs/toolspecific/gmsh"
+GMSHFILE_XPATH = "/cpacs/toolspecific/CEASIOMpy/mesh/gmsh"

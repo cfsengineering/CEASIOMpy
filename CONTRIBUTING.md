@@ -35,9 +35,12 @@ If you have some trouble to install CEASIOMpy on your computer, please use the f
 
 If you want participate to development of CEASIOMpy, it is a good thing if you have a basic understanding of how the version control system [Git](https://git-scm.com/) and the Github platform work.
 
+- [Learn Git Branching](https://learngitbranching.js.org/?locale=en_EN) : online tutorial to learn how to use Git
+
 - [Git Tutorials YouTube playlist](https://www.youtube.com/playlist?list=PL-osiE80TeTuRUfjRe54Eea17-YfnOOAx) by [Corey Schafer](https://www.youtube.com/channel/UCCezIgC97PvUuR4_gbFUs5g)
 
 - [Official Github documentation](https://docs.github.com/en/get-started/quickstart/hello-world)
+
 
 You could then fork the CEASIOMpy repository and create pull request when you think your work is ready to be reviewed.
 

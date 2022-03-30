@@ -420,8 +420,8 @@ def generate_gmsh(
     aircraft.get_entities()
 
     """
-    After the fuse and the boolean operation, 
-    all the entites are unknown, we need to find from which original part
+    After the fuse and the boolean operation all the entites are unknown,
+    we need to find from which original part
     of the aircraft they belong to
     """
 

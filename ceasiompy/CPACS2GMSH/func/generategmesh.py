@@ -464,10 +464,8 @@ def generate_gmsh(
         else:
 
             Flag_missing_surface = True
-            log.info(
-                f"Duplicate surface remapping done , but there is still",
-                f"{aircraft_total_surfaces - check_surface} missing surfaces",
-            )
+            log.info("Duplicate surface remapping done , but there is still :")
+            log.info(f"{aircraft_total_surfaces - check_surface} missing surfaces")
 
     if check_surface != aircraft_total_surfaces:
 

@@ -257,6 +257,198 @@ def hierarchy_surface(part1, part2, surfaces, operation):
             return log.info(f"{surfaces} was added to {part2.name}")
 
 
+def classify_wing(wing_part):
+    """
+    Function to classify the points and line of a wing
+    ...
+
+    Args:
+    ----------
+    wing_part : AircraftPart
+        aircraft part to classify
+    ...
+    """
+    # find the pair of spline making wing profile
+    profiles = []
+    """
+    A profile is composed of two Spline (one upper and one lower) that are connected
+    with the same two points (the leading and trailing edge points)
+    this definition is only valid for non troncated profile 
+    """
+    lines_composition = []
+
+    for line in wing_part.lines:
+
+        _, adj_points = gmsh.model.getAdjacencies(*line)
+        lines_composition.append({"line_dimtag": line, "points_tags": adj_points})
+
+    for line_comp in lines_composition:
+
+        pair_points = sorted(line_comp["points_tags"])
+
+        for line_comp_other in lines_composition:
+            if line_comp_other["line_dimtag"] != line_comp["line_dimtag"]:
+                if pair_points == sorted(line_comp_other["points_tags"]):
+
+                    # a profile is found
+                    # find leading and trailing edge points
+
+                    p1 = gmsh.model.occ.getBoundingBox(0, pair_points[0])
+                    p2 = gmsh.model.occ.getBoundingBox(0, pair_points[1])
+
+                    # assuming the wing is oriented along the x axis
+                    # pair_points = [le,te]
+
+                    if p1[0] > p2[0]:
+                        pair_points.reverse()
+
+                    # determine upper and lower spline
+                    c1 = gmsh.model.occ.getCenterOfMass(*line_comp["line_dimtag"])
+                    c2 = gmsh.model.occ.getCenterOfMass(*line_comp_other["line_dimtag"])
+
+                    splines_dim_tag = [
+                        line_comp["line_dimtag"],
+                        line_comp_other["line_dimtag"],
+                    ]
+                    if c2[2] > c1[2]:
+                        splines_dim_tag.reverse()
+
+                    profiles.append(
+                        {
+                            "lines_dimtag": splines_dim_tag,
+                            "points_tag": pair_points,
+                        }
+                    )
+                    # remove from the list to avoid double counting
+                    lines_composition.remove(line_comp_other)
+
+    # classify wing section made of the profiles founded
+    wing_sections = []
+    """
+    A wing section is composed of two profiles and the lines that connect their
+    leading and trailing edge points
+    """
+    for profile in profiles:
+
+        profile_pts = profile["points_tag"]
+
+        adj_le_lines, _ = gmsh.model.getAdjacencies(0, profile_pts[0])
+        adj_le_lines = list(adj_le_lines)
+
+        adj_te_lines, _ = gmsh.model.getAdjacencies(0, profile_pts[1])
+        adj_te_lines = list(adj_te_lines)
+
+        # remove the line that are the profile spline
+        [adj_le_lines.remove(spline[1]) for spline in profile["lines_dimtag"]]
+        [adj_te_lines.remove(spline[1]) for spline in profile["lines_dimtag"]]
+
+        profile["adj_le_lines"] = adj_le_lines
+        profile["adj_te_lines"] = adj_te_lines
+
+    # then search in the other profile if there is the same line
+    for profile in profiles:
+        for other_profiles in profiles:
+
+            if other_profiles != profile:
+
+                # find the shared leading edge line
+                for line_le in profile["adj_le_lines"]:
+                    if line_le in other_profiles["adj_le_lines"]:
+
+                        # find the shared trailing edge line
+                        for line_te in profile["adj_te_lines"]:
+                            if line_te in other_profiles["adj_te_lines"]:
+
+                                # determine the surfaces of the wing section
+                                surfaces = []
+
+                                adj_surfs_le, _ = gmsh.model.getAdjacencies(1, line_le)
+                                adj_surfs_te, _ = gmsh.model.getAdjacencies(1, line_te)
+
+                                if sorted(list(adj_surfs_le)) == sorted(list(adj_surfs_le)):
+                                    for surf_tag in adj_surfs_te:
+                                        surfaces.append((2, surf_tag))
+
+                                # check if there is a wing tip surface
+
+                                wing_sections.append(
+                                    {
+                                        "surfaces": surfaces,
+                                        "profiles": [
+                                            profile["lines_dimtag"],
+                                            other_profiles["lines_dimtag"],
+                                        ],
+                                        "le_line": [(1, line_le)],
+                                        "te_line": [(1, line_te)],
+                                        "le_point": [(0, profile["points_tag"][0])],
+                                        "te_point": [(0, profile["points_tag"][1])],
+                                    }
+                                )
+                                # remove from the list to avoid double counting
+                                profiles.remove(other_profiles)
+
+    wing_part.wing_sections = wing_sections
+
+
+def mesh_transfinite_wing(wing_part, span_wise_distrib, chord_wise_distrib, coef_chord):
+    """
+    Function to apply transfinite mesh to a wing_part by setting transfinite
+    meshing condition to each wing section of the wing
+    ...
+
+    Args:
+    ----------
+    wing_part : AircraftPart
+        aircraft part to classify
+    ...
+    """
+    for wing_section in wing_part.wing_sections:
+
+        # get the leading and trailing edge lines tags
+        span_wise_tag = [wing_section["le_line"][0][1], wing_section["te_line"][0][1]]
+
+        # get the upper splines tag
+        upper_spline_tags = [splines[0][1] for splines in wing_section["profiles"]]
+        lower_spline_tags = [splines[1][1] for splines in wing_section["profiles"]]
+
+        # set the transfinite condition to the curves
+
+        # spanwise distribution
+        for tag in span_wise_tag:
+            gmsh.model.mesh.setTransfiniteCurve(
+                tag,
+                span_wise_distrib,
+                meshType="Progression",
+                coef=1.0,
+            )
+
+        # chordwise distribution
+        for tag in upper_spline_tags:
+            gmsh.model.mesh.setTransfiniteCurve(
+                tag,
+                chord_wise_distrib,
+                meshType="Progression",
+                coef=coef_chord,
+            )
+
+        # Attention the coeficient must be negative since the curve is defined
+        # in the opposite direction
+        for tag in lower_spline_tags:
+            gmsh.model.mesh.setTransfiniteCurve(
+                tag,
+                chord_wise_distrib,
+                meshType="Progression",
+                coef=-coef_chord,
+            )
+
+        # Surfaces
+
+        surfaces_tags = [surface[1] for surface in wing_section["surfaces"]]
+
+        for tag in surfaces_tags:
+            gmsh.model.mesh.setTransfiniteSurface(tag)
+
+
 def generate_gmsh(
     brep_dir_path,
     results_dir,

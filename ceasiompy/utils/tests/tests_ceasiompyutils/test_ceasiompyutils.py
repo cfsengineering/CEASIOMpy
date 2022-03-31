@@ -17,6 +17,7 @@ Python version: >=3.7
 # =================================================================================================
 
 import os
+import shutil
 from pathlib import Path
 
 import pytest
@@ -27,6 +28,11 @@ MODULE_DIR = Path(__file__).parent
 
 # =================================================================================================
 #   CLASSES
+# =================================================================================================
+
+
+# =================================================================================================
+#   FUNCTIONS
 # =================================================================================================
 
 
@@ -47,11 +53,17 @@ def test_change_working_dir():
 
 def test_get_results_directory():
 
-    results_dir = get_results_directory("ExportCSV")
-    assert results_dir == Path(Path.cwd(), "Results", "Aeromaps")
+    with change_working_dir(Path(MODULE_DIR, "tmp")):
 
-    results_dir = get_results_directory("CPACS2SUMO")
-    assert results_dir == Path(Path.cwd(), "Results", "SUMO")
+        results_dir = get_results_directory("ExportCSV")
+        assert results_dir == Path(Path.cwd(), "Results", "Aeromaps")
+
+        results_dir = get_results_directory("CPACS2SUMO")
+        assert results_dir == Path(Path.cwd(), "Results", "SUMO")
+
+        # Remove the results directory
+        if results_dir.parent.exists():
+            shutil.rmtree(results_dir.parent)
 
     with pytest.raises(ValueError):
         results_dir = get_results_directory("NotExistingModule")
@@ -81,11 +93,6 @@ def test_aircraft_name():
     # Get name form TIXI handle
     tixi = open_tixi(cpacs_in)
     assert aircraft_name(tixi) == "D150"
-
-
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
 
 # =================================================================================================

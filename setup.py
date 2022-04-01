@@ -1,25 +1,38 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-# Aaron Dettmann
+# Author: Aaron Dettmann
+# Modif: Aidan Jungo
 
+import platform
 import setuptools
 import os
+from pathlib import Path
 
 from ceasiompy.__version__ import __version__
 
-NAME = 'ceasiompy'
-EXCLUDE_DIRS = ['doc', 'test']
+NAME = "ceasiompy"
+EXCLUDE_DIRS = ["doc", "test"]
 VERSION = __version__
-AUTHOR = 'CFS Engineering'
-EMAIL = 'aidan.jungo@cfse.ch'
-DESCRIPTION = 'A conceptual aircraft design environment'
-URL = 'https://github.com/cfsengineering/CEASIOMpy'
-REQUIRES_PYTHON = '>=3.7.0'
-REQUIRED = ['numpy']
-README = 'README.rst'
-PACKAGE_DIR = '.'
-LICENSE = 'LICENSE'
+AUTHOR = "CFS Engineering"
+EMAIL = "aidan.jungo@cfse.ch"
+DESCRIPTION = "A conceptual aircraft design environment"
+URL = "https://github.com/cfsengineering/CEASIOMpy"
+REQUIRES_PYTHON = ">=3.7.0"
+REQUIRED = ["numpy"]
+README = "README.rst"
+PACKAGE_DIR = "."
+LICENSE = "LICENSE"
+
+SCRIPTS = [str(Path("src/bin/ceasiompy_exec.py"))]
+
+# Windows
+if platform.system().lower() == "windows":
+    # Use BAT file as wrapper, see file header for reason
+    SCRIPTS.append(str(Path("src/bin/ceasiompy_run.bat")))
+# Linux and MacOs
+else:
+    SCRIPTS.append(str(Path("src/bin/ceasiompy_run")))
 
 
 here = os.path.abspath(os.path.dirname(__file__))
@@ -39,7 +52,8 @@ setuptools.setup(
     long_description=long_description,
     url=URL,
     include_package_data=True,
-    package_dir={'': PACKAGE_DIR},
+    package_dir={"": PACKAGE_DIR},
+    scripts=SCRIPTS,
     license=license,
     packages=setuptools.find_packages(exclude=EXCLUDE_DIRS),
     python_requires=REQUIRES_PYTHON,

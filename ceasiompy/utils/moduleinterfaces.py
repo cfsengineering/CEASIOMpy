@@ -241,10 +241,6 @@ def get_submodule_list():
         if submod_name.startswith("__"):
             continue
 
-        # Ignore run_ceasiompy.py and run_ceasiompy.log
-        if submod_name.startswith("run_ceasiompy"):
-            continue
-
         submodule_list.append(submod_name)
 
     return submodule_list

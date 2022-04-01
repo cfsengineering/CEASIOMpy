@@ -62,7 +62,10 @@ If everything is working correctly, you can follow the [first turtorial](https:/
 
 :x: No automatic installation script are available yet.
 
-You can install it manually, the basic steps are the following:
+
+You can try to install it manually, the basic steps are the following:
+
+:warning: For now it seems there are some issues with some packages (TiGL, smt) in the Conda environment. We are working on it.
 
 - Install [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 - Clone the [CEASIOMpy](https://github.com/cfsengineering/CEASIOMpy) repository

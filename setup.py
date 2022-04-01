@@ -29,7 +29,7 @@ SCRIPTS = [str(Path("src/bin/ceasiompy_exec.py"))]
 # Windows
 if platform.system().lower() == "windows":
     # Use BAT file as wrapper, see file header for reason
-    SCRIPTS.append(str(Path("src/bin/ceasiompy.bat")))
+    SCRIPTS.append(str(Path("src/bin/ceasiompy_run.bat")))
 # Linux and MacOs
 else:
     SCRIPTS.append(str(Path("src/bin/ceasiompy_run")))

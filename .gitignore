@@ -162,22 +162,12 @@ forces_breakdown.dat
 /INSTALLDIR
 /Results
 /WKDIR
-/ceasiompy/CPACSCreator/tmp/*
-/ceasiompy/WKDIR/CEASIOMpy*
-/ceasiompy/Pytornado/wkdir*
-
-# Ignore ModuleTest
-/ceasiompy/ModuleTest/
 
 # Ignore ToolInput and ToolOutput
 ToolInput.xml
 ToolInput*.xml
-ToolInput.smx
-ToolInput.cfg
 /ToolOutput
 ToolOutput.xml
-ToolOutput.smx
-ToolOutput.cfg
 
 aircraft_loads.csv
 *.out

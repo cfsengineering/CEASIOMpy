@@ -169,7 +169,7 @@ class Workflow:
 
         self.working_dir = Path().cwd()
         self.cpacs_in = Path(TEST_FILE_DIR, "CPACSfiles", "D150_simple.xml").resolve()
-        self.current_workflow_dir = None
+        self.current_wkflow_dir = None
 
         self.modules_list = []  # List of modules to run (str)
         self.modules = []  # List of modules to run (object ModuleToRun)
@@ -327,7 +327,12 @@ class Workflow:
     def run_workflow(self) -> None:
         """Run the complete Worflow"""
 
-        log.info(f"Running the workflow in {self.current_wkflow_dir}")
+        log.info("#" * 99)
+        log.info(f"The workflow will be run in {self.current_wkflow_dir}")
+        log.info(f"Input CPACS file: {self.cpacs_in}")
+        log.info("The following modules with be run:")
+        for module in self.modules:
+            log.info(f"  * {module.name}")
 
         for module in self.modules:
             if module.is_optim_module:

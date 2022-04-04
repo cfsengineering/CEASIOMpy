@@ -105,8 +105,12 @@ To install CEASIOMpy, please refer to the [installation page](./installation/INS
 
 ### Test cases
 
-We have a few [test cases](./test_cases/TESTCASES.md) that can be used to test the functionality of CEASIOMpy and understand how it works.
+Theses test cases are there to learn how to use CEASIOMpy. You will probably also learn a few thinks about the CPACS format. You can also run these test to check that everything is installed and works as expected as they cover a different possibilities of use of CEASIOMpy.
 
+- [Test case 1](./test_cases/test_case_1/README.md) : Run a simple existing workflow :heavy_check_mark:
+- [Test case 2](./test_cases/test_case_2/README.md) : Create and run a workflow with the Graphical User Interface :x:
+- [Test case 3](./test_cases/test_case_3/README.md) : Create and run a from a command line :x:
+- [Test case 4](./test_cases/test_case_4/README.md) : Create and run a from a configuration file :x:
 
 ### Available modules
 

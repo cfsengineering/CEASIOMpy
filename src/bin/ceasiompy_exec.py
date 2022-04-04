@@ -153,7 +153,7 @@ def run_gui():
 def main():
 
     parser = argparse.ArgumentParser(
-        description="CEASIOMpy: Conceptual Aircraft Design Software",
+        description="CEASIOMpy: Conceptual Aircraft Design Environment",
         usage=argparse.SUPPRESS,
         formatter_class=lambda prog: argparse.HelpFormatter(prog, max_help_position=80, width=99),
     )
@@ -177,7 +177,8 @@ def main():
         nargs="+",
         metavar="",
         default=[],
-        help="create a CEASIOMpy workflow by giving the CPACS file and the list of module to run [Path to the CPACS] [Module list]",
+        help="create a CEASIOMpy workflow by giving the CPACS file and the list of module to run"
+        " [Path to the CPACS] [Module list]",
     )
     parser.add_argument(
         "--testcase",

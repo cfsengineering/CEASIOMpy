@@ -28,6 +28,7 @@ from pathlib import Path
 from ceasiompy.WorkflowCreator.workflowcreator import create_wf_gui
 from ceasiompy.utils.workflowclasses import Workflow
 
+TEST_FILE_PATH = Path(Path(ceasiompy.__init__.__file__).parents[1], "test_files", "CPACSfiles")
 TEST_CASES_PATH = Path(Path(ceasiompy.__init__.__file__).parents[1], "test_cases")
 
 
@@ -64,6 +65,7 @@ def run_testcase(testcase_nb):
         workflow = Workflow()
         workflow.from_config_file(test_case_1_cfg)
         workflow.working_dir = Path().cwd()
+        workflow.cpacs_in = Path(TEST_FILE_PATH, "D150_simple.xml")
 
         workflow.set_workflow()
         workflow.run_workflow()

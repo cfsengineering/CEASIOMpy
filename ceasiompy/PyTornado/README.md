@@ -21,7 +21,7 @@
 
 `PyTornado` calculates aerodynamic coefficients of an aircraft for a given aeromap and write back results in a CPACS file. 
 
-Optionaly, `PyTornado` can also plot some results.
+Optionally, `PyTornado` can also plot some results.
 
 
 <p align="center">
@@ -54,10 +54,10 @@ If you follow an automatic installation procedure on the [CEASIOMpy installation
 
 * The flow field is incompressible (Ma < 0.5), inviscid and irrotational.
 
-* The lifting surfaces are thin. The influence of thickness on aerodynamic forces are neglected.
+* The lifting surfaces are thin. The influence of the thickness on aerodynamic forces are neglected.
 * The angle of attack and the angle of sideslip are both small (small angle approximation)
 
-:warning: No fuselage is modeled by `PyTornado` so the drag coefficient is not correct, generally underestimated.
+:warning: No fuselage is modelled by `PyTornado` so the drag coefficient is not correct, generally underestimated.
 
 
 ## More information

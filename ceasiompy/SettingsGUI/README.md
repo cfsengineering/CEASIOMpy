@@ -22,11 +22,11 @@ SettingsGUI interface
 
 ## Inputs
 
-`SettingsGUI` takes as input a CPACS file and a list of modules that should be included for settings modification.
+`SettingsGUI` takes as input a CPACS file and a list of modules that should be included for setting modifications.
 
 ## Analyses
 
-For each module in the list, `SettingsGUI` will automatically propose to set the inputs of the module. These inputs are base on the definition given by the `__specs__.py` file of the module. It allows create a tab to define, import, export and modify the aeromaps present in the CPACS file.
+For each module in the list, `SettingsGUI` will automatically propose to set the inputs of the module. These inputs are based on the definition given by the `__specs__.py` file of the module. It allows yout to create a tab to define, import, export and modify the aeromaps present in the CPACS file.
 
 ## Outputs
 
@@ -35,7 +35,7 @@ For each module in the list, `SettingsGUI` will automatically propose to set the
 
 ## Installation or requirements
 
-`SettingsGUI` is a native CEASIOMpy module, hence it is available and installed by default. To run it, you just have to be sure that are you are in the CEASIOMpy Conda environment.
+`SettingsGUI` is a native CEASIOMpy module, hence it is available and installed by default. To run it, you just have to be sure that you are in the CEASIOMpy Conda environment.
 
 
 ## Limitations

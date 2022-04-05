@@ -19,14 +19,14 @@
       SU2AutoMesh-->SU2Run;
 ```
 
-To define the the size of the mesh only one option can be set by the user, it is called `refinement level`. By default it is set to `1.0`. The scale is logarithmic, that is to say:
+To define the size of the mesh only one option can be set by the user, it is called `refinement level`. By default it is set to `1.0`. The scale is logarithmic, that is to say:
 
 * `refinement level = 1.0` : the mesh generated will have the default number of cells.
 * `refinement level = 2.0` : the mesh generated will have twice the number of cells.
 * `refinement level = 3.0` : the mesh generated will have four times the number of cells.
 * ...
 
-:warning: It is recommanded to check the mesh convergence to know wihch value gives the best trade-off between the results accuracy and computation time, for your application case.
+:warning: It is recommended to check the mesh convergence to know which value gives the best trade-off between the results accuracy and computation time, for your application case.
 
 
 ## Analyses
@@ -36,19 +36,19 @@ To define the the size of the mesh only one option can be set by the user, it is
 
 ## Outputs
 
-`SUMOAutoMesh` outputs a SU2 mesh files (.su2), the path to this file is save in the CPACS file under this xpath: `/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh`.
+`SUMOAutoMesh` outputs a SU2 mesh files (.su2), the path to this file is saved in the CPACS file under this xpath: `/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh`.
 
 
 ## Installation or requirements
 
-`SUMOAutoMesh` is a native CEASIOMpy module, hence it is available and installed by default. To run it, you just have to be sure that are you are in the CEASIOMpy Conda environment.
+`SUMOAutoMesh` is a native CEASIOMpy module, hence it is available and installed by default. To run it, you just have to be sure that you are in the CEASIOMpy Conda environment.
 
 However to run `SUMOAutoMesh` module, SUMO, must be installed on your computer. Please refer to the [CEASIOMpy installation page](../../installation/INSTALLATION.md) for more information.
 
 
 ## Limitations
 
-Sometimes `SUMOAutoMesh` may not succeed to generate a mesh. In this case, you can try to chage the `refinement level` by `0.1` or `0.2`. Also, it may be difficult to mesh very small interstitial spaces between parts.
+Sometimes `SUMOAutoMesh` may not succeed in generating a mesh. In this case, you can try to change the `refinement level` by `0.1` or `0.2`. Also, it may be difficult to mesh very small interstitial spaces between parts.
 
 :warning: On MacOS, the mesh has to be generated manually, but SUMOAutoMesh will be useful to preset the mesh criterion. Also, SUMO gui will be launches when the mesh should be created. Then the user will have to:
 

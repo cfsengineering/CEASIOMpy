@@ -20,7 +20,7 @@
 
 ## Outputs
 
-`CPACS2SUMO` outputs a SUMO files (.smx), the path to this file is save in the CPACS file under this xpath: `/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath`.
+`CPACS2SUMO` outputs a SUMO files (.smx), the path to this file is saved in the CPACS file under this xpath: `/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath`.
 
 
 ## Installation or requirements
@@ -30,7 +30,7 @@
 
 ## Limitations
 
-`CPACS2SUMO` can convert fuselage, wings, engines and pylons. Other parts such as control surfaces, can not be converted. 
+`CPACS2SUMO` can convert fuselage, wings, engines and pylons. Other parts such as control surfaces cannot be converted. 
 
 Other differences may appear:
 

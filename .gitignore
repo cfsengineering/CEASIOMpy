@@ -161,7 +161,8 @@ forces_breakdown.dat
 # Ignore temp folder and  and temp files
 /INSTALLDIR
 /Results
-/WKDIR
+/WKDIR/*
+!/WKDIR/.keep
 
 # Ignore ToolInput and ToolOutput
 ToolInput.xml

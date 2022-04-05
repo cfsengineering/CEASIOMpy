@@ -12,7 +12,7 @@
 
 ## Inputs
 
-`SkinFriction` only takes as input a CPACS file. It needs the wetted surface area of the aircraft to get get it you must have run `SU2Run` before this modules, the it will be saved in the CPACS file.
+`SkinFriction` only takes as input a CPACS file. It needs the wetted surface area of the aircraft, to get it you must have run `SU2Run` before this module, the result will be saved in the CPACS file.
 
 
 ## Analyses
@@ -50,7 +50,7 @@ Then, this coefficient is added to the drag coefficient C<sub>D</sub> in the alr
 
 ## Installation or requirements
 
-`SkinFriction` is a native CEASIOMpy module, hence it is available and installed by default. To run it, you just have to be sure that are you are in the CEASIOMpy Conda environment.
+`SkinFriction` is a native CEASIOMpy module, hence it is available and installed by default. To run it, you just have to be sure that you are in the CEASIOMpy Conda environment.
 
 
 ## Limitations

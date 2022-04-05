@@ -7,7 +7,7 @@
 **State**: :heavy_check_mark:
 
 
-`CPACSCreator` is just a launcher for [CPACSCreator](https://dlr-sc.github.io/tigl/doc/cpacscreator-0.1/) which has been developed in collaboration between CFS Engineering and DLR [[1]](#Drou18).
+`CPACSCreator` modules is just a launcher for [CPACSCreator](https://dlr-sc.github.io/tigl/doc/cpacscreator-0.1/) which has been developed in collaboration between CFS Engineering and DLR [[1]](#Drou18). CPACSCreator is a CAD tool for creating and modifying a CPACS file.
 
 
 <p align="center">

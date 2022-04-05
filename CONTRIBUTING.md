@@ -145,14 +145,14 @@ If your are new to Python we recommend some material that could help you (you ca
 
 ### CPACS
 
-[CPACS](https://www.cpacs.de) is a Common Parametric Aircraft Configuration Schema. It is a data definition for the air transportation system. CPACS enables engineers to exchange information between their tools. CPACS is the default format to define aircrafts geometry in CEASIOMpy.
+[CPACS](https://www.cpacs.de) is a Common Parametric Aircraft Configuration Schema [[1]](#Alder20). It is a data definition for the air transportation system. CPACS enables engineers to exchange information between their tools. CPACS is the default format to define aircrafts geometry in CEASIOMpy.
 
 - [CPACS official website](https://www.cpacs.de)
 - [CPACS Github repository](https://github.com/DLR-SL/CPACS)
 - [CPACS documentation](https://www.cpacs.de/documentation/CPACS_3_3_0_Docs/html/89b6a288-0944-bd56-a1ef-8d3c8e48ad95.htm)
 - Related libraries:
   - [TIXI](https://github.com/DLR-SC/tixi) A simple XML interface library
-  - [TiGL](https://github.com/DLR-SC/tigl) Geometry Library to process aircraft geometries
+  - [TiGL](https://github.com/DLR-SC/tigl) Geometry Library to process aircraft geometries [[2]](#Sigg19)
   - [cpacspy](https://github.com/cfsengineering/cpacspy) A Python package to work with CPACS file and AeroMaps 
 
 
@@ -304,3 +304,12 @@ cpacs_inout.add_output(
 )
 
 ```
+
+## References
+
+<!-- How to cite a reference [[1]](#Alder20) -->
+
+<a id="Alder20">[1]</a> M. Alder, E. Moerland, J. Jepsen and B. Nagel. Recent Advances in Establishing a Common Language for Aircraft Design with CPACS. Aerospace Europe Conference 2020, Bordeaux, France, 2020. https://elib.dlr.de/134341/  
+
+<a id="Sigg19">[2]</a> Siggel, M. and Kleinert, J. and Stollenwerk, T. and Maierl, R.: TiGL: An Open Source Computational Geometry Library for Parametric Aircraft Design. Mathematics in Computer Science (2019). [10.1007/s11786-019-00401-y](https://link.springer.com/article/10.1007/s11786-019-00401-y)  
+

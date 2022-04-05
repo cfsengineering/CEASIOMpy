@@ -7,7 +7,7 @@
 **State**: :heavy_check_mark:
 
 
-`CPACS2SUMO` is a geometry converter to go from a [CPACS](https://www.cpacs.de) aircraft geometry to a [SUMO](https://www.larosterna.com/products/open-source) geometry. It will then be possible to run `SUMOAutoMesh` to generate a mesh with SUMO or to open SUMO to generate a mesh manually. 
+`CPACS2SUMO` is a geometry converter to go from a [CPACS](https://www.cpacs.de) aircraft geometry [[1]](#Alder20) to a [SUMO](https://www.larosterna.com/products/open-source) geometry. It will then be possible to run `SUMOAutoMesh` to generate a mesh with SUMO or to open SUMO to generate a mesh manually. 
 
 ## Inputs
 
@@ -47,3 +47,6 @@ Other differences may appear:
 
 * [SUMO official website](https://www.larosterna.com/products/open-source)
 
+## References
+
+<a id="Alder20">[1]</a> M. Alder, E. Moerland, J. Jepsen and B. Nagel. Recent Advances in Establishing a Common Language for Aircraft Design with CPACS. Aerospace Europe Conference 2020, Bordeaux, France, 2020. https://elib.dlr.de/134341/  

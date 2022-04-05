@@ -28,7 +28,7 @@ CEASIOMpy is based on the open-standard format [CPACS](https://www.cpacs.de/), a
    - [Test cases](#test-cases)
    - [Available modules](#available-modules)
  - [Contributing](#contributing)
- - [References](#references)
+ - [More Information](#more-information)
 
 
 
@@ -46,8 +46,17 @@ To install CEASIOMpy, please refer to the [installation page](./installation/INS
     If you run CEASIOMpy with the following command, you can build the workflow from the user interface.
 
     ```bash
-    cd CEASIOMpy/ceasiompy
-    python run_ceasiompy.py -gui
+    ceasiompy_run --gui
+    ```
+
+- **Run CEASIOMpy with a command line to build the workflow**
+
+    If you run CEASIOMpy with the following command, you can build the workflow directly by defining the CPACS files and the modules you want to use.
+
+    ```bash
+    cd WKDIR
+    ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml SettingsGUI PyTornado PlotAeroCoefficients
+    ```
     ```
 
 - **Run CEASIOMpy with an existing configuration file**
@@ -55,8 +64,8 @@ To install CEASIOMpy, please refer to the [installation page](./installation/INS
     You can run an existing configuration file (e.g. from the [test cases](#test-cases) with the following command.
 
     ```bash
-    cd CEASIOMpy/ceasiompy
-    python run_ceasiompy.py -cfg ../test_cases/config_test_case_1.cfg
+    cd WKDIR
+    ceasiompy_run --cfg ../test_cases/config_test_case_1.cfg
     ```
 
 - **Write a CEASIOMpy configuration file**
@@ -186,17 +195,8 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 CEASIOMpy is an open source project and we welcome contributions from everyone. Some CEASIOMpy modules have been developed by students during their internship or master thesis.
 If you want to contribute to the development of CEASIOMpy , please refer to the [CONTRIBUTING.md](./CONTRIBUTING.md) document.
 
-
-## References
-
-<!-- How to cite a reference [[1]](#Dett19) -->
- 
-<a id="Dett19">[1]</a> Dettmann, A.: Loosely coupled, modular framework for linear static aeroelastic analyses. Master Thesis (2019). KTH Royal Institute of Technology. http://kth.diva-portal.org/smash/record.jsf?pid=diva2:1360722
-
-<a id="Picc19">[2]</a> Piccini, S.: A Weight and Balance evaluation software for conventional and unconventional aircraft design. Master Thesis (2019). LINK
-
-<a id="Sigg19">[3]</a> Siggel, M. and Kleinert, J. and Stollenwerk, T. and Maierl, R.: TiGL: An Open Source Computational Geometry Library for Parametric Aircraft Design. Mathematics in Computer Science (2019). [10.1007/s11786-019-00401-y](https://link.springer.com/article/10.1007/s11786-019-00401-y)  
-
-<a id="Drou18">[4]</a> Drougard, M.: Computer-Aided Design for Aircraft. Master Thesis (2018). EPFL École polytechnique fédérale de Lausanne. LINK  
+## More information
 
 - [CEASIOMpy YouTube channel](https://www.youtube.com/channel/UCcGsFJV29os1Zzv66YKFRZQ)
+- [CFS Engineering](https://cfse.ch/)
+- [Airinnova](https://airinnova.se/)

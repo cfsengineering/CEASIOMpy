@@ -17,7 +17,7 @@ CEASIOMpy is based on the open-standard format [CPACS](https://www.cpacs.de/), a
 
 :scroll: CEASIOMpy is maintained by [CFS Engineering](https://cfse.ch/) and [Airinnova](https://airinnova.se/). CEASIOMpy is under the [Apache License 2.0](https://github.com/cfsengineering/CEASIOMpy/blob/main/LICENSE).
 
-:book: The Documentation of CEASIOMpy is integrated in this repository and can be read in document like this one. Follow links to find the information that you are looking for.
+:book: The Documentation of CEASIOMpy is integrated in this repository and can be read in documents like this one. Follow links to find the information that you are looking for.
 
 ## Table of contents
 
@@ -41,7 +41,7 @@ To install CEASIOMpy, please refer to the [installation page](./installation/INS
 
 ### Test cases
 
-Theses test cases are there to learn how to use CEASIOMpy. You will probably also learn a few things about the CPACS format. You can also run these test to check that everything is installed and works as expected as they cover a different possibilities of use of CEASIOMpy.
+Theses test cases are there to learn how to use CEASIOMpy. You will probably also learn a few things about the CPACS format. You can also run these tests to check that everything is installed and works as expected as they cover differents possibilities of use of CEASIOMpy.
 
 - [Test case 1](./test_cases/test_case_1/README.md) : Run a simple existing workflow :heavy_check_mark:
 - [Test case 2](./test_cases/test_case_2/README.md) : Create and run a workflow with the Graphical User Interface :x:
@@ -120,13 +120,13 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
 
 ### Available modules
 
-A lot of different modules are available in CEASIOMpy, they can be assembled in various workflows. You can find bellow the list of available modules. The module status is marked as follows:
+A lot of different modules are available in CEASIOMpy, they can be assembled in various workflows. You can find below the list of available modules. The module status is marked as follows:
 
 :heavy_check_mark: : The module should be working as expected. Some small bugs may be present, don't hesitate to report them (more details [here](./CONTRIBUTING.md#reporting-bugs)).
 
 :warning: : The module is not working fully as expected. It is not a bug, but some features or data handling are yet compatible with the new file structure. Check the [Kanban board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see planned and in progress features.
 
-:x: : The module is not working at all. Some function have been written but requires a lot of changes to be compatible with the rest of CEASIOMpy.
+:x: : The module is not working at all. Some functions have been written but requires a lot of changes to be compatible with the rest of CEASIOMpy.
 
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_main.png">

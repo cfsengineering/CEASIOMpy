@@ -6,7 +6,7 @@
 
 **Categories:** Optimisation, DoE
 
-**State**: :x: must be refactored to work version of the code (see [Issue #147](https://github.com/cfsengineering/CEASIOMpy/issues/169))
+**State**: :x: must be refactored to work with the new version of the code (see [Issue #169](https://github.com/cfsengineering/CEASIOMpy/issues/169))
 
 
 `Optimisation` module launches a loop with a workflow routine and an optimiser based on the [Openmdao](https://openmdao.org/) library. It could also be used to run Design of Experiments (DOE).

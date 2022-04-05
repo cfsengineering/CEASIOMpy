@@ -6,7 +6,7 @@
 
 **Categories:** Optimisation, Surrogate Modeling
 
-**State**: :x: must be refactored to work version of the code (see [Issue #147](https://github.com/cfsengineering/CEASIOMpy/issues/147))
+**State**: :x: must be refactored to work with the new version of the code (see [Issue #147](https://github.com/cfsengineering/CEASIOMpy/issues/147))
 
 
 `SMTrain` is a module to train a surrogate model, with data calculated with CEASIOMpy.

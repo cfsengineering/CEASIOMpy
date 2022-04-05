@@ -199,4 +199,4 @@ If you want to contribute to the development of CEASIOMpy , please refer to the 
 
 <a id="Drou18">[4]</a> Drougard, M.: Computer-Aided Design for Aircraft. Master Thesis (2018). EPFL École polytechnique fédérale de Lausanne. LINK  
 
-[CEASIOMpy YouTube channel](https://www.youtube.com/channel/UCcGsFJV29os1Zzv66YKFRZQ)
+- [CEASIOMpy YouTube channel](https://www.youtube.com/channel/UCcGsFJV29os1Zzv66YKFRZQ)

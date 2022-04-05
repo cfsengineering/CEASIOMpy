@@ -17,7 +17,7 @@ To install CEASIOMpy on Ubuntu (or other version based on it), you can use the f
 
 - If you already have a recent version of [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or [Anaconda](https://anaconda.org/) installed on you computer, you can skip the line with `./install_conda.sh`
 
-- PyTornado, SUMO, SU2 and Paraview are not mendatory to run CEASIOMpy. You can skip the lines corresponding to those you don't want to insatll. However, if you want to be able to run all possible workflows, you should all the modules.
+- PyTornado, SUMO, SU2 and Paraview are not mendatory to run CEASIOMpy. You can skip the lines corresponding to those you don't want to insatll. However, if you want to be able to run all possible workflows, you should have all the modules.
 
 - Some of the softwares will need to be execuded with `sudo` command. It will ask you you for your password and you will have to type `yes` to confirm some of the installation steps.
 

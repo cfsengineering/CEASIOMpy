@@ -36,7 +36,7 @@ Dynamic pressure can be calculated as:
 
 ![Dynamic pressure](https://latex.codecogs.com/png.image?\dpi{110}\bg{white}q&space;=&space;\frac{1}{2}&space;\cdot&space;\gamma&space;\cdot&space;P_s&space;\cdot&space;M^2)
 
-and we know the lift force must compensate the weight of the aircraft (times the load factor), so L=M·g·LF and with the first equation, we obtain:
+and we know the lift force must compensate for the weight of the aircraft (times the load factor), so L=M·g·LF and with the first equation, we obtain:
 
 ![CL](https://latex.codecogs.com/png.image?\dpi{110}\bg{white}C_L&space;=&space;\frac{M&space;\cdot&space;g&space;\cdot&space;LF}{q&space;\cdot&space;S_{ref}})
 
@@ -48,7 +48,7 @@ and we know the lift force must compensate the weight of the aircraft (times the
 
 ## Installation or requirements
 
-`CLCalculator` is a native CEASIOMpy module, hence it is available and installed by default. To run it, you just have to be sure that are you are in the CEASIOMpy Conda environment.
+`CLCalculator` is a native CEASIOMpy module, hence it is available and installed by default. To run it, you just have to be sure that you are in the CEASIOMpy Conda environment.
 
 
 ## Limitations

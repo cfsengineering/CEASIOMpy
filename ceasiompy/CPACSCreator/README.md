@@ -7,14 +7,14 @@
 **State**: :heavy_check_mark:
 
 
-`CPACSCreator` modules is just a launcher for [CPACSCreator](https://dlr-sc.github.io/tigl/doc/cpacscreator-0.1/) which has been developed in collaboration between CFS Engineering and DLR [[1]](#Drou18). CPACSCreator is a CAD tool for creating and modifying a CPACS file.
+`CPACSCreator` module is just a launcher for [CPACSCreator](https://dlr-sc.github.io/tigl/doc/cpacscreator-0.1/) which has been developed in collaboration between CFS Engineering and DLR [[1]](#Drou18). CPACSCreator is a CAD tool for creating and modifying a CPACS file.
 
 
 <p align="center">
 <img height="340" src="https://dlr-sc.github.io/tigl/doc/cpacscreator-0.1/tuto_scratch_23.png">
 </p>
 <p align="center">
-CPACSCreator can be use to create or modify existing CPACS file of aircraft.
+CPACSCreator can be used to create or modify existing CPACS file of aircraft.
 </p>
 
 
@@ -36,12 +36,12 @@ In a CEASIOMpy workflow `CPACSCreator` takes as input a CPACS file, the other in
 
 ## Installation or requirements
 
-`CPACSCreator` is installed automatically when install the CEASIOMpy Conda environnement. To run it, you just have to be sure are you are in the CEASIOMpy Conda environment.
+`CPACSCreator` is installed automatically when install the CEASIOMpy Conda environement. To run it, you just have to be sure you are in the CEASIOMpy Conda environment.
 
 
 ## Limitations
 
-`CPACSCreator` allows to modify the wings and fuselage of an aircraft. For now it is not possible to add or modify things like engines, control surfaces, landing gear, etc.  
+`CPACSCreator` allows you to modify the wings and fuselage of an aircraft. For now it is not possible to add or modify things like engines, control surfaces, landing gear, etc.  
 
 
 ## More information

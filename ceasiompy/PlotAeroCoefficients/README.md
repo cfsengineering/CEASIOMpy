@@ -27,7 +27,7 @@ Nothing is calculated by this module, it just plots the aerodynamic coefficients
 
 ## Installation or requirements
 
-`PlotAeroCoefficients` is a native CEASIOMpy module, hence it is available and installed by default. To run it, you just have to be sure that are you are in the CEASIOMpy Conda environment.
+`PlotAeroCoefficients` is a native CEASIOMpy module, hence it is available and installed by default. To run it, you just have to be sure that you are in the CEASIOMpy Conda environment.
 
 
 ## Limitations

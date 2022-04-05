@@ -23,9 +23,11 @@ TODO:
 #   IMPORTS
 # ==============================================================================
 
+from asyncio import futures
 import gmsh
 import os
 from ceasiompy.utils.ceasiomlogger import get_logger
+import numpy as np
 
 log = get_logger(__file__.split(".")[0])
 
@@ -257,7 +259,7 @@ def hierarchy_surface(part1, part2, surfaces, operation):
             return log.info(f"{surfaces} was added to {part2.name}")
 
 
-def classify_wing(wing_part):
+def classify_wing(wing_part, aircraft_parts):
     """
     Function to classify the points and line of a wing
     ...
@@ -267,26 +269,42 @@ def classify_wing(wing_part):
     wing_part : AircraftPart
         aircraft part to classify
     ...
+    aircraft_parts : list(AircraftPart)
+        parts of the aircraft
+    ...
     """
-    # find the pair of spline making wing profile
+    # find the profiles that composed the wing and its sections
+
     profiles = []
     """
     A profile is composed of two Spline (one upper and one lower) that are connected
     with the same two points (the leading and trailing edge points)
-    this definition is only valid for non troncated profile
+    this definition is only valid for non truncated profile
+    for a truncated profile further operation need to be done do determine the two
+    trailing edge points
     """
     lines_composition = []
 
     for line in wing_part.lines:
 
+        # Seek for the adjacent points of each line in the wing part
+
         _, adj_points = gmsh.model.getAdjacencies(*line)
-        lines_composition.append({"line_dimtag": line, "points_tags": adj_points})
+
+        # store the line composition : line dimTag and the two adjacent points dimTag
+
+        lines_composition.append({"line_dimtag": line[1], "points_tags": list(adj_points)})
+
+    # try to find simple profile (untruncated) first
 
     for line_comp in lines_composition:
 
         pair_points = sorted(line_comp["points_tags"])
 
         for line_comp_other in lines_composition:
+
+            # seek for another line that share the exact same two points
+
             if line_comp_other["line_dimtag"] != line_comp["line_dimtag"]:
                 if pair_points == sorted(line_comp_other["points_tags"]):
 
@@ -303,8 +321,8 @@ def classify_wing(wing_part):
                         pair_points.reverse()
 
                     # determine upper and lower spline
-                    c1 = gmsh.model.occ.getCenterOfMass(*line_comp["line_dimtag"])
-                    c2 = gmsh.model.occ.getCenterOfMass(*line_comp_other["line_dimtag"])
+                    c1 = gmsh.model.occ.getCenterOfMass(1, line_comp["line_dimtag"])
+                    c2 = gmsh.model.occ.getCenterOfMass(1, line_comp_other["line_dimtag"])
 
                     splines_dim_tag = [
                         line_comp["line_dimtag"],
@@ -313,140 +331,396 @@ def classify_wing(wing_part):
                     if c2[2] > c1[2]:
                         splines_dim_tag.reverse()
 
+                    le2te_vector = [p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]]
+
+                    chord = np.linalg.norm(le2te_vector)
+
                     profiles.append(
                         {
+                            "truncated": False,
                             "lines_dimtag": splines_dim_tag,
                             "points_tag": pair_points,
+                            "chord_length": chord,
                         }
                     )
-                    # remove from the list to avoid double counting
+                    # remove the profile from the list to avoid double counting
                     lines_composition.remove(line_comp_other)
+                    truncated_profile = False
 
-    # classify wing section made of the profiles founded
+    # if none of the line share the same two points, the wing is truncated
+    if profiles == []:
+
+        truncated_profile = True
+        log.info("No simple profile found : try to find a truncated profile")
+
+        profile_lines = []
+        profile_points = []
+
+        # Compare two line of the wing searching for this time only one point in common
+        for line_comp in lines_composition:
+            pair_points = line_comp["points_tags"]
+
+            for line_comp_other in lines_composition:
+                pair_points_other = line_comp_other["points_tags"]
+
+                if line_comp_other["line_dimtag"] != line_comp["line_dimtag"]:
+
+                    # Search if at least one point is shared by the two lines
+
+                    if pair_points[0] in pair_points_other or pair_points[1] in pair_points_other:
+
+                        # determine the common point in the two pair of points
+
+                        if pair_points[0] in pair_points_other:
+
+                            common_point = pair_points[0]
+                            points = set([*pair_points, *pair_points_other])
+
+                        else:
+                            common_point = pair_points[1]
+                            points = set([*pair_points, *pair_points_other])
+
+                        # if those 3 point form a truncated profile with a third line,
+                        # those 3 points and lines should form a looping line
+
+                        # find the looping line by seeking the line adj to the points
+                        # all the adj line will be added to the pool of lines
+                        # if one line is already in the pool, then it is shared by two points
+                        # and one line of the looping line is found
+                        pool_line = []
+                        loop_line = []
+
+                        for pt in points:
+                            adj_lines, _ = gmsh.model.getAdjacencies(0, pt)
+
+                            for line in adj_lines:
+
+                                if line in pool_line:
+                                    loop_line.append(line)
+
+                                pool_line.append(line)
+
+                        # if 3 line sharing common points are found, then the profile is found
+                        if len(loop_line) == 3:
+
+                            # a profile is found
+                            loop_line = sorted(loop_line)
+
+                            # store all the profile found but first check that it was not already founded
+                            if loop_line not in profile_lines:
+
+                                profile_lines.append(loop_line)
+                                profile_points.append(list(points))
+
+        # With all the truncated profiles found, we can do further operation and classification
+        for profile_line, profile_point in zip(profile_lines, profile_points):
+
+            # TODO: code a function to find the correct orientation of the profile
+
+            # find leading and trailing edge points
+
+            p1x, p1y, p1z, _, _, _ = gmsh.model.occ.getBoundingBox(0, profile_point[0])
+            p2x, p2y, p2z, _, _, _ = gmsh.model.occ.getBoundingBox(0, profile_point[1])
+            p3x, p3y, p3z, _, _, _ = gmsh.model.occ.getBoundingBox(0, profile_point[2])
+
+            # assuming that the distance between the two trailing edge points is smaller
+            # than the chord length
+
+            d12 = [
+                np.linalg.norm([p2x - p1x, p2y - p1y, p2z - p1z]),
+                profile_point[0],
+                profile_point[1],
+            ]
+            d23 = [
+                np.linalg.norm([p3x - p2x, p3y - p2y, p3z - p2z]),
+                profile_point[1],
+                profile_point[2],
+            ]
+            d31 = [
+                np.linalg.norm([p1x - p3x, p1y - p3y, p1z - p3z]),
+                profile_point[2],
+                profile_point[0],
+            ]
+
+            pts = [d12[1:], d23[1:], d31[1:]]
+            distances = [d12[0], d23[0], d31[0]]
+
+            # the two trailing edge points are the closest togheter
+            te_points = pts[distances.index(min(distances))]
+
+            # remove te points from the list to find le point
+            profile_point.remove(te_points[0]), profile_point.remove(te_points[1])
+
+            # classify the profile
+            profiles.append(
+                {
+                    "truncated": True,
+                    "lines_dimtag": profile_line,
+                    "points_tag": [*profile_point, *te_points],
+                    "chord_length": max(distances),
+                }
+            )
+
+    # Now that profiles in the wing are classify, we can seek the pair of profiles that
+    # forms a wing section
+
     wing_sections = []
     """
     A wing section is composed of two profiles and the lines that connect their
     leading and trailing edge points
     """
-    for profile in profiles:
 
-        profile_pts = profile["points_tag"]
+    if not truncated_profile:
 
-        adj_le_lines, _ = gmsh.model.getAdjacencies(0, profile_pts[0])
-        adj_le_lines = list(adj_le_lines)
+        for profile in profiles:
 
-        adj_te_lines, _ = gmsh.model.getAdjacencies(0, profile_pts[1])
-        adj_te_lines = list(adj_te_lines)
+            profile_pts = profile["points_tag"]
 
-        # remove the line that are the profile spline
-        [adj_le_lines.remove(spline[1]) for spline in profile["lines_dimtag"]]
-        [adj_te_lines.remove(spline[1]) for spline in profile["lines_dimtag"]]
+            # find the leading and trailing edge lines who leaves the profile
 
-        profile["adj_le_lines"] = adj_le_lines
-        profile["adj_te_lines"] = adj_te_lines
+            adj_le_lines, _ = gmsh.model.getAdjacencies(0, profile_pts[0])
+            adj_le_lines = list(adj_le_lines)
 
-    # then search in the other profile if there is the same line
-    for profile in profiles:
-        for other_profiles in profiles:
+            adj_te_lines, _ = gmsh.model.getAdjacencies(0, profile_pts[1])
+            adj_te_lines = list(adj_te_lines)
 
-            if other_profiles != profile:
+            # remove from all the adjacent line the ones that are the profile spline
 
-                # find the shared leading edge line
-                for line_le in profile["adj_le_lines"]:
-                    if line_le in other_profiles["adj_le_lines"]:
+            [adj_le_lines.remove(spline) for spline in profile["lines_dimtag"]]
+            [adj_te_lines.remove(spline) for spline in profile["lines_dimtag"]]
 
-                        # find the shared trailing edge line
-                        for line_te in profile["adj_te_lines"]:
-                            if line_te in other_profiles["adj_te_lines"]:
+            # the remaining lines are the leading and trailing edge lines
 
-                                # determine the surfaces of the wing section
-                                surfaces = []
+            profile["adj_le_lines"] = adj_le_lines
+            profile["adj_te_lines"] = adj_te_lines
 
-                                adj_surfs_le, _ = gmsh.model.getAdjacencies(1, line_le)
-                                adj_surfs_te, _ = gmsh.model.getAdjacencies(1, line_te)
+        # then search if there is another profile who shares the same le/te lines
+        for profile in profiles:
+            for other_profile in profiles:
 
-                                if sorted(list(adj_surfs_le)) == sorted(list(adj_surfs_le)):
-                                    for surf_tag in adj_surfs_te:
-                                        surfaces.append((2, surf_tag))
+                if other_profile != profile:
 
-                                # check if there is a wing tip surface
+                    # find the shared leading edge line
+                    for line_le in profile["adj_le_lines"]:
+                        if line_le in other_profile["adj_le_lines"]:
 
-                                wing_sections.append(
-                                    {
-                                        "surfaces": surfaces,
-                                        "profiles": [
-                                            profile["lines_dimtag"],
-                                            other_profiles["lines_dimtag"],
-                                        ],
-                                        "le_line": [(1, line_le)],
-                                        "te_line": [(1, line_te)],
-                                        "le_point": [(0, profile["points_tag"][0])],
-                                        "te_point": [(0, profile["points_tag"][1])],
-                                    }
-                                )
-                                # remove from the list to avoid double counting
-                                profiles.remove(other_profiles)
+                            # find the shared trailing edge line
+                            for line_te in profile["adj_te_lines"]:
+                                if line_te in other_profile["adj_te_lines"]:
 
+                                    # TODO: classify the surfaces between the profile
+
+                                    # # determine the surfaces of the wing section
+                                    # surfaces = []
+
+                                    # adj_surfs_le, _ = gmsh.model.getAdjacencies(1, line_le)
+                                    # adj_surfs_te, _ = gmsh.model.getAdjacencies(1, line_te)
+
+                                    # if sorted(list(adj_surfs_le)) == sorted(list(adj_surfs_le)):
+                                    #     for surf_tag in adj_surfs_te:
+                                    #         surfaces.append((2, surf_tag))
+
+                                    # classify the wing section:
+
+                                    wing_sections.append(
+                                        {
+                                            "truncated": truncated_profile,
+                                            "profiles": [
+                                                profile["lines_dimtag"],
+                                                other_profile["lines_dimtag"],
+                                            ],
+                                            "le_line": [line_le],
+                                            "te_line": [line_te],
+                                            "le_points": [
+                                                (0, profile["points_tag"][0]),
+                                                (0, other_profile["points_tag"][0]),
+                                            ],
+                                            "te_points": [
+                                                (0, profile["points_tag"][1]),
+                                                (0, other_profile["points_tag"][1]),
+                                            ],
+                                            "mean_chord": 0.5
+                                            * (
+                                                profile["chord_length"]
+                                                + other_profile["chord_length"]
+                                            ),
+                                        }
+                                    )
+
+                                    # remove from the list to avoid double counting
+                                    profiles.remove(other_profile)
+
+    else:
+
+        # truncated profiles need to be handeled differently for the te
+        for profile in profiles:
+
+            # similar opertation on the leading edge
+            le_point = profile["points_tag"][0]
+
+            adj_le_lines, _ = gmsh.model.getAdjacencies(0, le_point)
+            adj_le_lines = set(adj_le_lines)
+
+            # multiple trailing edge lines
+            adj_te_lines = []
+
+            for point in profile["points_tag"][1:]:
+
+                adj_lines, _ = gmsh.model.getAdjacencies(0, point)
+                adj_te_lines += list(adj_lines)
+
+            adj_te_lines = set(adj_te_lines)
+
+            # then search if there is another profile who shares the same le/te lines
+            for other_profile in profiles:
+
+                # leading edge
+
+                oth_le_point = other_profile["points_tag"][0]
+                oth_adj_le_lines, _ = gmsh.model.getAdjacencies(0, oth_le_point)
+                oth_adj_le_lines = set(oth_adj_le_lines)
+
+                # trailing edge
+
+                oth_adj_te_lines = []
+                for point in other_profile["points_tag"][1:]:
+                    oth_adj_lines, _ = gmsh.model.getAdjacencies(0, point)
+                    oth_adj_te_lines += list(oth_adj_lines)
+                oth_adj_te_lines = set(oth_adj_te_lines)
+
+                # seek for the shared leading edge and trailing line
+
+                line_le = oth_adj_le_lines.intersection(adj_le_lines)
+                lines_te = oth_adj_te_lines.intersection(adj_te_lines)
+
+                # there must be 1 le line and 2 te lines
+                if len(line_le) == 1 and len(lines_te) == 2:
+
+                    # TODO: classify the surfaces between the profile
+                    # classify the wing section
+                    wing_sections.append(
+                        {
+                            "truncated": truncated_profile,
+                            "profiles": [
+                                profile["lines_dimtag"],
+                                other_profile["lines_dimtag"],
+                            ],
+                            "le_line": list(line_le),
+                            "te_line": list(lines_te),
+                            "le_points": [
+                                (0, profile["points_tag"][0]),
+                                (0, other_profile["points_tag"][0]),
+                            ],
+                            "te_points": [
+                                (0, profile["points_tag"][1]),
+                                (0, profile["points_tag"][2]),
+                                (0, other_profile["points_tag"][1]),
+                                (0, other_profile["points_tag"][2]),
+                            ],
+                            "mean_chord": 0.5
+                            * (profile["chord_length"] + other_profile["chord_length"]),
+                        }
+                    )
+                    # remove from the list to avoid double counting
+                    profiles.remove(other_profile)
+
+    # add the wing sections founded to the wing Aircraftpart
     wing_part.wing_sections = wing_sections
 
+    # Dealing with the special wing section that is attached to the fuselage :
+    # this wing section is special because multiple lines form the profile that is
+    # attached to the fuselage
 
-def mesh_transfinite_wing(wing_part, span_wise_distrib, chord_wise_distrib, coef_chord):
-    """
-    Function to apply transfinite mesh to a wing_part by setting transfinite
-    meshing condition to each wing section of the wing
-    ...
+    fuselage = False
 
-    Args:
-    ----------
-    wing_part : AircraftPart
-        aircraft part to classify
-    ...
-    """
-    for wing_section in wing_part.wing_sections:
+    # First seek if the aircraft contain a fuselage
+    for part in aircraft_parts:
+        if "fuselage" in part.name:
+            fuselage = True
 
-        # get the leading and trailing edge lines tags
-        span_wise_tag = [wing_section["le_line"][0][1], wing_section["te_line"][0][1]]
+    if fuselage:
 
-        # get the upper splines tag
-        upper_spline_tags = [splines[0][1] for splines in wing_section["profiles"]]
-        lower_spline_tags = [splines[1][1] for splines in wing_section["profiles"]]
+        # find all the lines and points in the wing that we already classified
 
-        # set the transfinite condition to the curves
+        already_classifed_lines = []
+        le_points = []
+        te_points = []
 
-        # spanwise distribution
-        for tag in span_wise_tag:
-            gmsh.model.mesh.setTransfiniteCurve(
-                tag,
-                span_wise_distrib,
-                meshType="Progression",
-                coef=1.0,
-            )
+        for wing_section in wing_sections:
+            profiles = wing_section["profiles"]
+            for profile in profiles:
+                for line in profile:
+                    already_classifed_lines.append(line)
+            for line in wing_section["le_line"]:
+                already_classifed_lines.append(line)
+            for line in wing_section["te_line"]:
+                already_classifed_lines.append(line)
+            for point in wing_section["le_points"]:
+                le_points.append(point[1])
+            for point in wing_section["te_points"]:
+                te_points.append(point[1])
 
-        # chordwise distribution
-        for tag in upper_spline_tags:
-            gmsh.model.mesh.setTransfiniteCurve(
-                tag,
-                chord_wise_distrib,
-                meshType="Progression",
-                coef=coef_chord,
-            )
+        # transform in set
+        already_classifed_lines = set(already_classifed_lines)
+        le_points = set(le_points)
+        te_points = set(te_points)
 
-        # Attention the coeficient must be negative since the curve is defined
-        # in the opposite direction
-        for tag in lower_spline_tags:
-            gmsh.model.mesh.setTransfiniteCurve(
-                tag,
-                chord_wise_distrib,
-                meshType="Progression",
-                coef=-coef_chord,
-            )
+        # seek for unclassified lines comming from classified leading edge points
+        # since all the wing except the part that is link to the fuselage is classifed
+        # the remaining unclassified comming from classified le / te points must be the
+        # the le/te lines linked to the fuselage
+        adj_lines = []
 
-        # Surfaces
+        for point in list(le_points):
 
-        surfaces_tags = [surface[1] for surface in wing_section["surfaces"]]
+            adj_local_lines, _ = gmsh.model.getAdjacencies(0, point)
 
-        for tag in surfaces_tags:
-            gmsh.model.mesh.setTransfiniteSurface(tag)
+            for line in adj_local_lines:
+                adj_lines.append(line)
+
+        adj_lines = set(adj_lines)
+        le_line_fus_wing = list(adj_lines.difference(already_classifed_lines))
+
+        # seek for unclassified lines comming from classified trailing edge points
+        adj_lines = []
+
+        for point in list(te_points):
+
+            adj_local_lines, _ = gmsh.model.getAdjacencies(0, point)
+
+            for line in adj_local_lines:
+                adj_lines.append(line)
+
+        adj_lines = set(adj_lines)
+        te_line_fus_wing = list(adj_lines.difference(already_classifed_lines))
+
+        # find the points of the wing leading edge and trailing edge
+
+        _, le_points = gmsh.model.getAdjacencies(1, le_line_fus_wing[0])
+
+        te_points = []
+
+        for line in te_line_fus_wing:
+            _, points = gmsh.model.getAdjacencies(1, line)
+
+            for point in points:
+                te_points.append(point)
+
+        # TODO: classify the surfaces and profiles
+
+        # classify the wing section
+        wing_sections.append(
+            {
+                "truncated": truncated_profile,
+                "profiles": [],
+                "le_line": [le_line_fus_wing[0]],
+                "te_line": [te_line_fus_wing],
+                "le_points": [le_points],
+                "te_points": [te_points],
+            }
+        )
+
+        return log.info(f"{wing_part.name} classified")
 
 
 def generate_gmsh(
@@ -476,15 +750,6 @@ def generate_gmsh(
     # when bbs are found, remove the part from the model the part
 
     aircraft_parts = []
-
-    # if symmetry:
-
-    #     # Delete the symmetric part of the aicraft
-    #     log.info("Symmetry detected, deleting unused symmetric part of the aircraft")
-
-    #     for file in os.listdir(brep_dir_path):
-    #         if "_m" in file:
-    #             os.remove(os.path.join(brep_dir_path, file))
 
     for file in os.listdir(brep_dir_path):
 
@@ -545,9 +810,7 @@ def generate_gmsh(
                 if original_part.name == str(file[:-5]):
 
                     original_part.dim_tag = tuple(*part)
-
     gmsh.model.occ.synchronize()
-
     part_to_fuse = [part.dim_tag for part in aircraft_parts]
 
     log.info(f"Start Fusing process, {len(part_to_fuse)} parts to fuse")
@@ -567,9 +830,10 @@ def generate_gmsh(
         aircraft = aircraft_parts[0]
 
     # create external domain for the farfield
+    domain_lenght = farfield_factor * max(aircraft.sizes)
 
     center_aircraft = gmsh.model.occ.get_center_of_mass(*aircraft.dim_tag)
-    ext_domain = gmsh.model.occ.addSphere(*center_aircraft, farfield_factor * max(aircraft.sizes))
+    ext_domain = gmsh.model.occ.addSphere(*center_aircraft, domain_lenght)
     gmsh.model.occ.synchronize()
 
     # cut the fluid with the airplane
@@ -586,7 +850,6 @@ def generate_gmsh(
 
     if symmetry:
 
-        domain_lenght = farfield_factor * max(aircraft.sizes)
         box_symm = gmsh.model.occ.addBox(
             (center_aircraft[0] - domain_lenght) * 1.05,
             center_aircraft[1] - 2 * domain_lenght,
@@ -844,7 +1107,6 @@ def generate_gmsh(
             gmsh.model.mesh.setSize([point], sum(point_mesh_size) / len(point_mesh_size))
 
     # Farfiled size
-
     gmsh.model.mesh.setSize(list(farfield_points), mesh_size_farfield)
 
     # Color the mesh according to the surfaces found on the airplane parts
@@ -868,6 +1130,9 @@ def generate_gmsh(
     gmsh.model.setColor(list(farfield_surfaces), *mesh_color_farfield, a=150, recursive=True)
 
     # Generate mesh
+    for part in aircraft_parts[0:1]:
+        if "wing" in part.name:
+            classify_wing(part, aircraft_parts)
 
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(1)
@@ -898,7 +1163,15 @@ def generate_gmsh(
 # ==============================================================================
 #    MAIN
 # ==============================================================================
-
 if __name__ == "__main__":
-
+    generate_gmsh(
+        "test_files/simple",
+        "",
+        open_gmsh=True,
+        farfield_factor=5,
+        symmetry=False,
+        mesh_size_farfield=12,
+        mesh_size_fuselage=0.2,
+        mesh_size_wings=0.2,
+    )
     print("Nothing to execute!")

@@ -69,7 +69,7 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
 
 - **Run CEASIOMpy with an existing configuration file**
 
-    You can run an existing configuration file (e.g. from the [test cases](#test-cases) with the following command.
+    You can run an existing configuration file (e.g. from the [test cases](#test-cases)) with the following command.
 
     ```bash
     cd WKDIR

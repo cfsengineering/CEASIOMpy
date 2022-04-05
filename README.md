@@ -128,8 +128,8 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 #### General modules
 
 - [SettingsGUI](./ceasiompy/SettingsGUI/README.md) :heavy_check_mark:
--  [ModuleTemplate](./ceasiompy/ModuleTemplate/README.md) :heavy_check_mark:
-- Optimisation :x:
+- [ModuleTemplate](./ceasiompy/ModuleTemplate/README.md) :heavy_check_mark:
+- [Optimisation](./ceasiompy/Optimisation/README.md) :x:
 - [SMTrain](./ceasiompy/SMTrain/README.md) :x:
 - [SMUse](./ceasiompy/SMUse/README.md) :x:
 

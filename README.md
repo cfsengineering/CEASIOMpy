@@ -23,9 +23,9 @@ CEASIOMpy is based on the open-standard format [CPACS](https://www.cpacs.de/), a
 
  - [Installation](#installation)
  - [Usage](#usage)
+   - [Test cases](#test-cases)
    - [Run CEASIOMpy](#run-ceasiompy)
    - [Examples of workflows](#examples-of-workflows)
-   - [Test cases](#test-cases)
    - [Available modules](#available-modules)
  - [Contributing](#contributing)
  - [More Information](#more-information)
@@ -39,11 +39,20 @@ To install CEASIOMpy, please refer to the [installation page](./installation/INS
 
 ## Usage
 
+### Test cases
+
+Theses test cases are there to learn how to use CEASIOMpy. You will probably also learn a few things about the CPACS format. You can also run these test to check that everything is installed and works as expected as they cover a different possibilities of use of CEASIOMpy.
+
+- [Test case 1](./test_cases/test_case_1/README.md) : Run a simple existing workflow :heavy_check_mark:
+- [Test case 2](./test_cases/test_case_2/README.md) : Create and run a workflow with the Graphical User Interface :x:
+- [Test case 3](./test_cases/test_case_3/README.md) : Create and run a from a command line :x:
+- [Test case 4](./test_cases/test_case_4/README.md) : Create and run a from a configuration file :x:
+
 ### Run CEASIOMpy
 
 - **Run CEASIOMpy with a GUI to build the workflow**
     
-    If you run CEASIOMpy with the following command, you can build the workflow from the user interface.
+    If you run CEASIOMpy with the following command, you can build the workflow with a graphical user interface.
 
     ```bash
     ceasiompy_run --gui
@@ -56,7 +65,6 @@ To install CEASIOMpy, please refer to the [installation page](./installation/INS
     ```bash
     cd WKDIR
     ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml SettingsGUI PyTornado PlotAeroCoefficients
-    ```
     ```
 
 - **Run CEASIOMpy with an existing configuration file**
@@ -90,14 +98,13 @@ To install CEASIOMpy, please refer to the [installation page](./installation/INS
 
 ```mermaid
   graph LR;
-      SettingsGUI-->WeightConventionnal;
-      WeightConventionnal-->PyTornado;
+      SettingsGUI-->PyTornado;
       PyTornado-->PlotAeroCoefficients;
 ```
 </div>
 
 
-- **Simple workflow SU2 (CFD)**
+- **Workflow with SU2 (CFD) at fixed CL**
 
 <div align="center">
 
@@ -111,21 +118,11 @@ To install CEASIOMpy, please refer to the [installation page](./installation/INS
 ```
 </div>
 
-
-### Test cases
-
-Theses test cases are there to learn how to use CEASIOMpy. You will probably also learn a few thinks about the CPACS format. You can also run these test to check that everything is installed and works as expected as they cover a different possibilities of use of CEASIOMpy.
-
-- [Test case 1](./test_cases/test_case_1/README.md) : Run a simple existing workflow :heavy_check_mark:
-- [Test case 2](./test_cases/test_case_2/README.md) : Create and run a workflow with the Graphical User Interface :x:
-- [Test case 3](./test_cases/test_case_3/README.md) : Create and run a from a command line :x:
-- [Test case 4](./test_cases/test_case_4/README.md) : Create and run a from a configuration file :x:
-
 ### Available modules
 
 A lot of different modules are available in CEASIOMpy, they can be assembled in various workflows. You can find bellow the list of available modules. The module status is marked as follows:
 
-:heavy_check_mark: : The module should be working as expected. Some small bugs may be present, don't hesitate to report them.
+:heavy_check_mark: : The module should be working as expected. Some small bugs may be present, don't hesitate to report them (more details [here](./CONTRIBUTING.md#reporting-bugs)).
 
 :warning: : The module is not working fully as expected. It is not a bug, but some features or data handling are yet compatible with the new file structure. Check the [Kanban board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see planned and in progress features.
 

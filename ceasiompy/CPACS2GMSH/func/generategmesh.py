@@ -160,10 +160,16 @@ class AircraftPart:
         for surface in self.surfaces:
             _, adj_lines = gmsh.model.getAdjacencies(*surface)
             [self.boundary_lines.append(boundary_line) for boundary_line in adj_lines]
+        # to avoid double counting
+        self.boundary_lines = list(set(self.boundary_lines))
+        self.boundary_lines.sort()
 
         for boundary_line in self.boundary_lines:
             _, adj_points = gmsh.model.getAdjacencies(1, boundary_line)
             [self.boundary_points.append(boundary_point) for boundary_point in adj_points]
+        # to avoid double counting
+        self.boundary_points = list(set(self.boundary_points))
+        self.boundary_points.sort()
 
 
 # ==============================================================================
@@ -691,9 +697,7 @@ def generate_gmsh(
     #     if "wing" in part.name:
     #         classify_wing(part, aircraft_parts)
     #         nb_sect = len(part.wing_sections)
-    #         log.info(
-    #             f"Classification of {part.name} done, {nb_sect} section(s) found "
-    #         )
+    #         log.info(f"Classification of {part.name} done, {nb_sect} section(s) found ")
 
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(1)
@@ -726,13 +730,13 @@ def generate_gmsh(
 # ==============================================================================
 if __name__ == "__main__":
     # generate_gmsh(
-    #     "test_files/optimal",
+    #     "test_files/bwb",
     #     "",
     #     open_gmsh=True,
     #     farfield_factor=5,
     #     symmetry=False,
     #     mesh_size_farfield=12,
-    #     mesh_size_fuselage=0.2,
-    #     mesh_size_wings=0.2,
+    #     mesh_size_fuselage=0.1,
+    #     mesh_size_wings=0.1,
     # )
     print("Nothing to execute!")

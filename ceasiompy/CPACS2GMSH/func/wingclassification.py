@@ -376,14 +376,20 @@ def classify_wing_section(wing_sections, profile, other_profile):
             return True
 
 
-def classify_special_section(wing_sections, profiles):
+def classify_special_section(wing_part, wing_sections, profiles):
     """
     Function to detect and classify a special wing section in a wing part,
     this wing section is connected to the fuselage of the plane
+
+    The junction between the fuselage and the wing can be a simple profile or
+    a complex arrangement of lines, thus detecting and classifing this wing section
+    is not exactly the same method than standart wing sections
     ...
 
     Args:
     ----------
+    wing_part : AircraftPart
+        aircraft part to classify
     wing_sections : list
         list of all the previously found wing_section
     profile : dict
@@ -393,8 +399,8 @@ def classify_special_section(wing_sections, profiles):
     ...
     Returns:
     ----------
-    True : if the two profiles form a wing section
-    False : otherwise
+    True : if the special wing section is classified
+    False : if already classified
     """
     # Search if this is the only wing section of the wing
     if len(wing_sections) != 0:
@@ -427,11 +433,22 @@ def classify_special_section(wing_sections, profiles):
         already_classifed_lines = set(already_classifed_lines)
         le_points = set(le_points)
         te_points = set(te_points)
+        """
+        seek for unclassified lines comming from classified leading edge points
+        Normally all the wing except the part that is link to the fuselage is classifed
+        the remaining unclassified comming from classified le / te points must be the
+        the le/te lines linked to the fuselage
 
-        # seek for unclassified lines comming from classified leading edge points
-        # since all the wing except the part that is link to the fuselage is classifed
-        # the remaining unclassified comming from classified le / te points must be the
-        # the le/te lines linked to the fuselage
+        But sometimes if no fuselage line interesect the wing profile embedded in the wing
+        the profile projection on the fuselage is a simple profile so it must has been
+        normally classified and thus the already_classified_lines and points are exactly all
+        the lines and points of the wing
+        """
+        # seek if the profile projection on the fuselage is a simple profile
+        if (already_classifed_lines == set(wing_part.boundary_lines)) and (
+            (le_points.union(te_points)) == set(wing_part.boundary_points)
+        ):
+            return False
         adj_lines = []
 
         for point in list(le_points):
@@ -525,6 +542,7 @@ def classify_special_section(wing_sections, profiles):
                 "te_points": te_points,
             }
         )
+        return True
 
 
 def classify_wing(wing_part, aircraft_parts):
@@ -619,7 +637,7 @@ def classify_wing(wing_part, aircraft_parts):
             fuselage = True
 
     if fuselage:
-        classify_special_section(wing_sections, profiles)
+        classify_special_section(wing_part, wing_sections, profiles)
 
 
 # ==============================================================================

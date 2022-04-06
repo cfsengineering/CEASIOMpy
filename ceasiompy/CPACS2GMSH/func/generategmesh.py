@@ -60,6 +60,8 @@ class AircraftPart:
         self.lines = []
         self.surfaces = []
         self.surfaces_tags = []
+        self.boundary_lines = []
+        self.boundary_points = []
         self.score = give_score(self)
 
     def get_entities(self):
@@ -147,6 +149,21 @@ class AircraftPart:
             [self.surfaces.append(surface) for surface in surfaces_found]
 
         self.surfaces = set(self.surfaces)
+
+    def get_boundary_from_surfaces(self):
+        """
+        Function to get the adjacent lines and points of each surface in the part$
+        Note that with this method some the lines and points found in the part are shared
+        with the adjacent parts.
+        ...
+        """
+        for surface in self.surfaces:
+            _, adj_lines = gmsh.model.getAdjacencies(*surface)
+            [self.boundary_lines.append(boundary_line) for boundary_line in adj_lines]
+
+        for boundary_line in self.boundary_lines:
+            _, adj_points = gmsh.model.getAdjacencies(1, boundary_line)
+            [self.boundary_points.append(boundary_point) for boundary_point in adj_points]
 
 
 # ==============================================================================
@@ -535,6 +552,10 @@ def generate_gmsh(
     else:
         log.info("Remapping of the external domain as been successfull")
 
+    # now that each surface is well defined, we can map its boundary lines and points
+    for part in aircraft_parts:
+        part.get_boundary_from_surfaces()
+
     # Form physical groups
 
     # Aircraft
@@ -666,9 +687,13 @@ def generate_gmsh(
     gmsh.model.setColor(list(farfield_surfaces), *mesh_color_farfield, a=150, recursive=True)
 
     # Generate mesh
-    # for part in aircraft_parts[0:1]:
+    # for part in aircraft_parts:
     #     if "wing" in part.name:
     #         classify_wing(part, aircraft_parts)
+    #         nb_sect = len(part.wing_sections)
+    #         log.info(
+    #             f"Classification of {part.name} done, {nb_sect} section(s) found "
+    #         )
 
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(1)
@@ -701,7 +726,7 @@ def generate_gmsh(
 # ==============================================================================
 if __name__ == "__main__":
     # generate_gmsh(
-    #     "test_files/test",
+    #     "test_files/optimal",
     #     "",
     #     open_gmsh=True,
     #     farfield_factor=5,

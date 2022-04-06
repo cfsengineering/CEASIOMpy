@@ -29,7 +29,30 @@ import numpy as np
 
 
 def classify_profile(profile_list, line_comp1, line_comp2):
+    """
+    Function to detect and classify lines and points that form a profile in a wing part
+    A profile is composed of two Spline (one upper and one lower) that are connected
+    with the same two points (the leading and trailing edge points)
 
+    two lines (line_comp1 and line_comp2) are given as input
+    classify_profile() try to detect if those two lines form a profile
+    ...
+
+    Args:
+    ----------
+    profile_list : list
+        list of all the previously found profile
+    line_comp1 : dict
+        dictionary containing a line and its two points
+    line_comp2 : dict
+        dictionary containing a line and its two points
+    ...
+
+    Returns:
+    ----------
+    True : if the two lines form a profile
+    False : otherwise
+    """
     pair_points = sorted(line_comp1["points_tags"])
 
     if pair_points == sorted(line_comp2["points_tags"]) and (
@@ -89,11 +112,36 @@ def classify_profile(profile_list, line_comp1, line_comp2):
         return False
 
 
-def classify_trunc_profile(profiles, profile_lines, line_comp, line_comp_other):
-    pair_points = line_comp["points_tags"]
-    pair_points_other = line_comp_other["points_tags"]
+def classify_trunc_profile(profile_list, profile_lines, line_comp1, line_comp2):
+    """
+    Function to detect and classify lines and points that form a truncated profile in a wing part
+    A profile is composed of two Spline (one upper and one lower) that are connected
+    with the same leading edge points, but with two different trailing edge points
 
-    if (line_comp_other["line_dimtag"] == line_comp["line_dimtag"]) or (
+    two lines (line_comp1 and line_comp2) are given as input
+    classify_profile() try to detect if those two lines form a profile
+    ...
+
+    Args:
+    ----------
+    profile_list : list
+        list of all the previously found profile
+    profile_lines
+        list of all the previously found profile lines
+    line_comp1 : dict
+        dictionary containing a line and its two points
+    line_comp2 : dict
+        dictionary containing a line and its two points
+    ...
+    Returns:
+    ----------
+    True : if the two lines form a profile
+    False : otherwise
+    """
+    pair_points = line_comp1["points_tags"]
+    pair_points_other = line_comp2["points_tags"]
+
+    if (line_comp2["line_dimtag"] == line_comp1["line_dimtag"]) or (
         (pair_points[0] not in pair_points_other) and (pair_points[1] not in pair_points_other)
     ):
         return False
@@ -195,7 +243,7 @@ def classify_trunc_profile(profiles, profile_lines, line_comp, line_comp_other):
         adj_te_lines = set(adj_te_lines)
 
         # classify the profile
-        profiles.append(
+        profile_list.append(
             {
                 "truncated": True,
                 "lines_dimtag": loop_line,
@@ -209,6 +257,26 @@ def classify_trunc_profile(profiles, profile_lines, line_comp, line_comp_other):
 
 
 def classify_wing_section(wing_sections, profile, other_profile):
+    """
+    Function to detect and classify wing section in a wing part
+    A wing section is composed of two profiles and the lines that connect their
+    leading and trailing edge points
+    ...
+
+    Args:
+    ----------
+    wing_sections : list
+        list of all the previously found wing_section
+    profile : dict
+        dictionary containing a profile
+    other_profile : dict
+        dictionary containing a profile
+    ...
+    Returns:
+    ----------
+    True : if the two profiles form a wing section
+    False : otherwise
+    """
     truncated_profile = profile["truncated"]
 
     if not truncated_profile:
@@ -233,6 +301,13 @@ def classify_wing_section(wing_sections, profile, other_profile):
             #     for surf_tag in adj_surfs_te:
             #         surfaces.append((2, surf_tag))
 
+            # verifiy that this wing section was not already found
+            # the leading edge line is a unique feature of the wing section
+            le_line = list(le_line)
+            previous_le_lines = [wing_section["le_line"][0] for wing_section in wing_sections]
+
+            if le_line[0] in previous_le_lines:
+                return False
             # classify the wing section:
 
             wing_sections.append(
@@ -242,7 +317,7 @@ def classify_wing_section(wing_sections, profile, other_profile):
                         profile["lines_dimtag"],
                         other_profile["lines_dimtag"],
                     ],
-                    "le_line": list(le_line),
+                    "le_line": le_line,
                     "te_line": list(te_line),
                     "le_points": [
                         (0, profile["points_tag"][0]),
@@ -266,6 +341,14 @@ def classify_wing_section(wing_sections, profile, other_profile):
         # there must be 1 le line and 2 te lines
         if len(le_line) == 1 and len(te_line) == 2:
 
+            # verifiy that this wing section was not already found
+            # the leading edge line is a unique feature of the wing section
+            le_line = list(le_line)
+            previous_le_lines = [wing_section["le_line"][0] for wing_section in wing_sections]
+
+            if le_line[0] in previous_le_lines:
+                return False
+
             # TODO: classify the surfaces between the profile
             # classify the wing section
             wing_sections.append(
@@ -275,7 +358,7 @@ def classify_wing_section(wing_sections, profile, other_profile):
                         profile["lines_dimtag"],
                         other_profile["lines_dimtag"],
                     ],
-                    "le_line": list(le_line),
+                    "le_line": le_line,
                     "te_line": list(te_line),
                     "le_points": [
                         (0, profile["points_tag"][0]),
@@ -293,100 +376,162 @@ def classify_wing_section(wing_sections, profile, other_profile):
             return True
 
 
-def classify_special_section(wing_sections):
+def classify_special_section(wing_sections, profiles):
+    """
+    Function to detect and classify a special wing section in a wing part,
+    this wing section is connected to the fuselage of the plane
+    ...
 
-    # find all the lines and points in the wing that we already classified
-    already_classifed_lines = []
-    le_points = []
-    te_points = []
+    Args:
+    ----------
+    wing_sections : list
+        list of all the previously found wing_section
+    profile : dict
+        dictionary containing a profile
+    other_profile : dict
+        dictionary containing a profile
+    ...
+    Returns:
+    ----------
+    True : if the two profiles form a wing section
+    False : otherwise
+    """
+    # Search if this is the only wing section of the wing
+    if len(wing_sections) != 0:
+        # find all the lines and points in the wing that we already classified
+        already_classifed_lines = []
+        le_points = []
+        te_points = []
 
-    for wing_section in wing_sections:
+        for wing_section in wing_sections:
 
-        profiles = wing_section["profiles"]
+            profiles = wing_section["profiles"]
 
-        for profile in profiles:
-            for line in profile:
+            for profile in profiles:
+                for line in profile:
+                    already_classifed_lines.append(line)
+
+            for line in wing_section["le_line"]:
                 already_classifed_lines.append(line)
 
-        for line in wing_section["le_line"]:
-            already_classifed_lines.append(line)
+            for line in wing_section["te_line"]:
+                already_classifed_lines.append(line)
 
-        for line in wing_section["te_line"]:
-            already_classifed_lines.append(line)
+            for point in wing_section["le_points"]:
+                le_points.append(point[1])
 
-        for point in wing_section["le_points"]:
-            le_points.append(point[1])
+            for point in wing_section["te_points"]:
+                te_points.append(point[1])
 
-        for point in wing_section["te_points"]:
-            te_points.append(point[1])
+        # transform in set
+        already_classifed_lines = set(already_classifed_lines)
+        le_points = set(le_points)
+        te_points = set(te_points)
 
-    # transform in set
-    already_classifed_lines = set(already_classifed_lines)
-    le_points = set(le_points)
-    te_points = set(te_points)
+        # seek for unclassified lines comming from classified leading edge points
+        # since all the wing except the part that is link to the fuselage is classifed
+        # the remaining unclassified comming from classified le / te points must be the
+        # the le/te lines linked to the fuselage
+        adj_lines = []
 
-    # seek for unclassified lines comming from classified leading edge points
-    # since all the wing except the part that is link to the fuselage is classifed
-    # the remaining unclassified comming from classified le / te points must be the
-    # the le/te lines linked to the fuselage
-    adj_lines = []
+        for point in list(le_points):
 
-    for point in list(le_points):
+            adj_local_lines, _ = gmsh.model.getAdjacencies(0, point)
 
-        adj_local_lines, _ = gmsh.model.getAdjacencies(0, point)
+            for line in adj_local_lines:
+                adj_lines.append(line)
 
-        for line in adj_local_lines:
-            adj_lines.append(line)
+        adj_lines = set(adj_lines)
+        le_line_fus_wing = list(adj_lines.difference(already_classifed_lines))
 
-    adj_lines = set(adj_lines)
-    le_line_fus_wing = list(adj_lines.difference(already_classifed_lines))
+        # seek for unclassified lines comming from classified trailing edge points
+        adj_lines = []
 
-    # seek for unclassified lines comming from classified trailing edge points
-    adj_lines = []
+        for point in list(te_points):
 
-    for point in list(te_points):
+            adj_local_lines, _ = gmsh.model.getAdjacencies(0, point)
 
-        adj_local_lines, _ = gmsh.model.getAdjacencies(0, point)
+            for line in adj_local_lines:
+                adj_lines.append(line)
 
-        for line in adj_local_lines:
-            adj_lines.append(line)
+        adj_lines = set(adj_lines)
+        te_line_fus_wing = list(adj_lines.difference(already_classifed_lines))
 
-    adj_lines = set(adj_lines)
-    te_line_fus_wing = list(adj_lines.difference(already_classifed_lines))
+        # find the points of the wing leading edge and trailing edge
 
-    # find the points of the wing leading edge and trailing edge
+        _, le_points = gmsh.model.getAdjacencies(1, le_line_fus_wing[0])
 
-    print(le_line_fus_wing)
+        te_points = []
 
-    _, le_points = gmsh.model.getAdjacencies(1, le_line_fus_wing[0])
+        for line in te_line_fus_wing:
+            _, points = gmsh.model.getAdjacencies(1, line)
 
-    te_points = []
+            for point in points:
+                te_points.append(point)
 
-    for line in te_line_fus_wing:
-        _, points = gmsh.model.getAdjacencies(1, line)
+        # TODO: classify the surfaces and profiles
 
-        for point in points:
-            te_points.append(point)
+        # classify the wing section
+        wing_sections.append(
+            {
+                "truncated": wing_section["truncated"],
+                "profiles": [],
+                "le_line": [le_line_fus_wing],
+                "te_line": [te_line_fus_wing],
+                "le_points": list(le_points),
+                "te_points": te_points,
+            }
+        )
+        return True
+    else:
+        # the special wing section is the only wing section of the wing
+        # TODO: classify the surfaces and profiles
 
-    # TODO: classify the surfaces and profiles
+        tip_wing_profile = profiles[0]
 
-    # classify the wing section
-    wing_sections.append(
-        {
-            "truncated": wing_section["truncated"],
-            "profiles": [],
-            "le_line": [le_line_fus_wing[0]],
-            "te_line": [te_line_fus_wing],
-            "le_points": [le_points],
-            "te_points": [te_points],
-        }
-    )
-    return True
+        # thus it is simple to find the leading edge and trailing edge lines
+
+        le_line_fus_wing = list(
+            (set(tip_wing_profile["adj_le_lines"])).difference(
+                set(tip_wing_profile["lines_dimtag"])
+            )
+        )
+        te_line_fus_wing = list(
+            (set(tip_wing_profile["adj_te_lines"])).difference(
+                set(tip_wing_profile["lines_dimtag"])
+            )
+        )
+
+        # find the points of the wing leading edge and trailing edge
+
+        _, le_points = gmsh.model.getAdjacencies(1, le_line_fus_wing[0])
+
+        te_points = []
+
+        for line in te_line_fus_wing:
+            _, points = gmsh.model.getAdjacencies(1, line)
+
+            for point in points:
+                te_points.append(point)
+
+        # classify the wing section
+        wing_sections.append(
+            {
+                "truncated": tip_wing_profile["truncated"],
+                "profiles": [],
+                "le_line": le_line_fus_wing,
+                "te_line": te_line_fus_wing,
+                "le_points": list(le_points),
+                "te_points": te_points,
+            }
+        )
 
 
 def classify_wing(wing_part, aircraft_parts):
     """
-    Function to classify the points and line of a wing
+    Function to classify the points and line of a wing part
+    points and lines are classified in the wing section to indentify the trailing and leading edge
+    and the profiles who forms each wing section
     ...
 
     Args:
@@ -410,26 +555,26 @@ def classify_wing(wing_part, aircraft_parts):
     """
     lines_composition = []
 
-    for line in wing_part.lines:
+    for line in wing_part.boundary_lines:
 
         # Seek for the adjacent points of each line in the wing part
 
-        _, adj_points = gmsh.model.getAdjacencies(*line)
+        _, adj_points = gmsh.model.getAdjacencies(1, line)
 
         # store the line composition : line dimTag and the two adjacent points dimTag
 
-        lines_composition.append({"line_dimtag": line[1], "points_tags": list(adj_points)})
+        lines_composition.append({"line_dimtag": line, "points_tags": list(adj_points)})
 
     # try to find simple profile (untruncated) first
 
-    for line_comp in lines_composition:
+    for line_comp1 in lines_composition:
 
-        for line_comp_other in lines_composition:
+        for line_comp2 in lines_composition:
 
-            profile_found = classify_profile(profiles, line_comp, line_comp_other)
+            profile_found = classify_profile(profiles, line_comp1, line_comp2)
 
             if profile_found:
-                lines_composition.remove(line_comp_other)
+                lines_composition.remove(line_comp2)
 
     # if none of the line share the same two points, the wing is truncated
     if profiles == []:
@@ -437,18 +582,17 @@ def classify_wing(wing_part, aircraft_parts):
         profile_lines = []
 
         # Compare two line of the wing searching for this time only one point in common
-        for line_comp in lines_composition:
-            for line_comp_other in lines_composition:
+        for line_comp1 in lines_composition:
+            for line_comp2 in lines_composition:
 
                 profile_found = classify_trunc_profile(
-                    profiles, profile_lines, line_comp, line_comp_other
+                    profiles, profile_lines, line_comp1, line_comp2
                 )
                 if profile_found:
-                    lines_composition.remove(line_comp_other)
+                    lines_composition.remove(line_comp2)
 
     # Now that profiles in the wing are classify, we can seek the pair of profiles that
     # forms a wing section
-
     wing_sections = []
     """
     A wing section is composed of two profiles and the lines that connect their
@@ -458,11 +602,7 @@ def classify_wing(wing_part, aircraft_parts):
     # then search if there is another profile who shares the same le/te lines
     for profile in profiles:
         for other_profile in profiles:
-            section_found = classify_wing_section(wing_sections, profile, other_profile)
-
-            if section_found:
-                # remove from the list to avoid double counting
-                profiles.remove(other_profile)
+            classify_wing_section(wing_sections, profile, other_profile)
 
     # add the wing sections founded to the wing Aircraftpart
     wing_part.wing_sections = wing_sections
@@ -479,7 +619,7 @@ def classify_wing(wing_part, aircraft_parts):
             fuselage = True
 
     if fuselage:
-        classify_special_section(wing_sections)
+        classify_special_section(wing_sections, profiles)
 
 
 # ==============================================================================

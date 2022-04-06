@@ -17,15 +17,15 @@ To install CEASIOMpy on Ubuntu (or other version based on it), you can use the f
 
 - If you already have a recent version of [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or [Anaconda](https://anaconda.org/) installed on you computer, you can skip the line with `./install_conda.sh`
 
-- PyTornado, SUMO, SU2 and Paraview are not mendatory to run CEASIOMpy. You can skip the lines corresponding to those you don't want to insatll. However, if you want to be able to run all possible workflows, you should all the modules.
+- PyTornado, SUMO, SU2 and Paraview are not mendatory to run CEASIOMpy. You can skip the lines corresponding to those you don't want to install. However, if you want to be able to run all possible workflows, you should have all the modules.
 
-- Some of the softwares will need to be execuded with `sudo` command. It will ask you you for your password and you will have to type `yes` to confirm some of the installation steps.
+- Some softwares will need to be executed with `sudo` command. It will ask you you for your password and you will have to type `yes` to confirm some of the installation steps.
 
 - If you want to be sure of what every script does, we encourage you to read those [scripts](./Ubuntu) in detail before you run them.
 
-- We offer no warranty for the correctness of the installation. These script have been tested only on Ubuntu 20.04 and Mint 20.3, but installation may differ because of different hardware and software configurations.
+- We offer no warranty for the correctness of the installation. These scripts have been tested only on Ubuntu 20.04 and Mint 20.3, but installation may differ because of different hardware and software configurations.
 
-If you agree with the remark above, you can start the installation by openning a terminal where you want to install CEASIOMpy and run the following commands one by one:
+If you agree with the remark above, you can start the installation by opening a terminal where you want to install CEASIOMpy and run the following commands one by one:
 
 ```bash
 sudo apt-get install git
@@ -41,7 +41,7 @@ source ~/.bashrc
 source ~/.bashrc
 ```
 
-When it is done, you can test the installation, by openning a new terminal and try to run the following commands one by one:
+When it is done, you can test the installation, by opening a new terminal and try to run the following commands one by one:
 
 ```bash
 conda activate ceasiompy
@@ -62,7 +62,10 @@ If everything is working correctly, you can follow the [first turtorial](https:/
 
 :x: No automatic installation script are available yet.
 
-You can install it manually, the basic steps are the following:
+
+You can try to install it manually, the basic steps are the following:
+
+:warning: For now it seems there are some issues with some packages (TiGL, smt) in the Conda environment. We are working on it.
 
 - Install [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 - Clone the [CEASIOMpy](https://github.com/cfsengineering/CEASIOMpy) repository

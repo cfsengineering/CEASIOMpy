@@ -83,9 +83,9 @@ def run_module(module, wkdir=Path.cwd(), iter=0):
         wkdir (Path, optional): Path of the working directory. Defaults to Path.cwd().
     """
 
-    log.info("###############################################################################")
+    log.info("#" * 99)
     log.info("# Run module: " + module.name)
-    log.info("###############################################################################")
+    log.info("#" * 99)
 
     log.info("Working directory: " + str(wkdir))
     log.info("CPACS input file: " + str(module.cpacs_in))

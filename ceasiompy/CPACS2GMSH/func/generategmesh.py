@@ -694,10 +694,10 @@ def generate_gmsh(
 
     # Generate mesh
     # for part in aircraft_parts:
-    #     if "wing" in part.name:
-    #         classify_wing(part, aircraft_parts)
-    #         nb_sect = len(part.wing_sections)
-    #         log.info(f"Classification of {part.name} done, {nb_sect} section(s) found ")
+    # if "wing" in part.name:
+    #     classify_wing(part, aircraft_parts)
+    #     nb_sect = len(part.wing_sections)
+    #     log.info(f"Classification of {part.name} done, {nb_sect} section(s) found ")
 
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(1)
@@ -730,7 +730,7 @@ def generate_gmsh(
 # ==============================================================================
 if __name__ == "__main__":
     # generate_gmsh(
-    #     "test_files/bwb",
+    #     "test_files/d150",
     #     "",
     #     open_gmsh=True,
     #     farfield_factor=5,

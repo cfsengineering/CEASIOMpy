@@ -256,7 +256,7 @@ def classify_trunc_profile(profile_list, profile_lines, line_comp1, line_comp2):
         return True
 
 
-def classify_wing_section(wing_sections, profile, other_profile):
+def classify_wing_section(wing_part, wing_sections, profile, other_profile):
     """
     Function to detect and classify wing section in a wing part
     A wing section is composed of two profiles and the lines that connect their
@@ -288,49 +288,53 @@ def classify_wing_section(wing_sections, profile, other_profile):
         le_line = (set(profile["adj_le_lines"])).intersection(set(other_profile["adj_le_lines"]))
         te_line = (set(profile["adj_te_lines"])).intersection(set(other_profile["adj_te_lines"]))
 
-        if len(le_line) == 1 and len(te_line) == 1:
-            # TODO: classify the surfaces between the profile
+        if len(le_line) != 1 and len(te_line) != 1:
+            return False
 
-            # # determine the surfaces of the wing section
-            # surfaces = []
+        # verifiy that this wing section was not already found
+        # the leading edge line is a unique feature of the wing section
+        le_line = list(le_line)
+        te_line = list(te_line)
+        previous_le_lines = [wing_section["le_line"][0] for wing_section in wing_sections]
 
-            # adj_surfs_le, _ = gmsh.model.getAdjacencies(1, line_le)
-            # adj_surfs_te, _ = gmsh.model.getAdjacencies(1, line_te)
+        if le_line[0] in previous_le_lines:
+            return False
 
-            # if sorted(list(adj_surfs_le)) == sorted(list(adj_surfs_le)):
-            #     for surf_tag in adj_surfs_te:
-            #         surfaces.append((2, surf_tag))
+        # classify the wing section:
+        # TODO: classify the wing tip surfaces
 
-            # verifiy that this wing section was not already found
-            # the leading edge line is a unique feature of the wing section
-            le_line = list(le_line)
-            previous_le_lines = [wing_section["le_line"][0] for wing_section in wing_sections]
+        section_surfaces = []
 
-            if le_line[0] in previous_le_lines:
-                return False
-            # classify the wing section:
+        adj_le_surfaces, _ = gmsh.model.getAdjacencies(1, le_line[0])
+        adj_te_surfaces, _ = gmsh.model.getAdjacencies(1, te_line[0])
 
-            wing_sections.append(
-                {
-                    "truncated": truncated_profile,
-                    "profiles": [
-                        profile["lines_dimtag"],
-                        other_profile["lines_dimtag"],
-                    ],
-                    "le_line": le_line,
-                    "te_line": list(te_line),
-                    "le_points": [
-                        (0, profile["points_tag"][0]),
-                        (0, other_profile["points_tag"][0]),
-                    ],
-                    "te_points": [
-                        (0, profile["points_tag"][1]),
-                        (0, other_profile["points_tag"][1]),
-                    ],
-                    "mean_chord": 0.5 * (profile["chord_length"] + other_profile["chord_length"]),
-                }
-            )
-            return True
+        [section_surfaces.append(adj_le_surface) for adj_le_surface in adj_le_surfaces]
+        [section_surfaces.append(adj_te_surface) for adj_te_surface in adj_te_surfaces]
+
+        section_surfaces = list(set(section_surfaces))
+
+        wing_sections.append(
+            {
+                "truncated": truncated_profile,
+                "profiles": [
+                    profile["lines_dimtag"],
+                    other_profile["lines_dimtag"],
+                ],
+                "le_line": le_line,
+                "te_line": te_line,
+                "le_points": [
+                    (0, profile["points_tag"][0]),
+                    (0, other_profile["points_tag"][0]),
+                ],
+                "te_points": [
+                    (0, profile["points_tag"][1]),
+                    (0, other_profile["points_tag"][1]),
+                ],
+                "mean_chord": 0.5 * (profile["chord_length"] + other_profile["chord_length"]),
+                "surfaces": section_surfaces,
+            }
+        )
+        return True
 
     else:
 
@@ -344,12 +348,24 @@ def classify_wing_section(wing_sections, profile, other_profile):
             # verifiy that this wing section was not already found
             # the leading edge line is a unique feature of the wing section
             le_line = list(le_line)
+            te_line = list(te_line)
             previous_le_lines = [wing_section["le_line"][0] for wing_section in wing_sections]
 
             if le_line[0] in previous_le_lines:
                 return False
 
-            # TODO: classify the surfaces between the profile
+            # classify the surfaces between the profile
+            # TODO: classify the wing tip surfaces
+
+            section_surfaces = []
+
+            adj_le_surfaces, _ = gmsh.model.getAdjacencies(1, le_line[0])
+            adj_te_surfaces, _ = gmsh.model.getAdjacencies(1, te_line[0])
+
+            [section_surfaces.append(adj_le_surface) for adj_le_surface in adj_le_surfaces]
+            [section_surfaces.append(adj_te_surface) for adj_te_surface in adj_te_surfaces]
+
+            section_surfaces = list(set(section_surfaces))
             # classify the wing section
             wing_sections.append(
                 {
@@ -359,7 +375,7 @@ def classify_wing_section(wing_sections, profile, other_profile):
                         other_profile["lines_dimtag"],
                     ],
                     "le_line": le_line,
-                    "te_line": list(te_line),
+                    "te_line": te_line,
                     "le_points": [
                         (0, profile["points_tag"][0]),
                         (0, other_profile["points_tag"][0]),
@@ -371,6 +387,7 @@ def classify_wing_section(wing_sections, profile, other_profile):
                         (0, other_profile["points_tag"][2]),
                     ],
                     "mean_chord": 0.5 * (profile["chord_length"] + other_profile["chord_length"]),
+                    "surfaces": section_surfaces,
                 }
             )
             return True
@@ -486,23 +503,35 @@ def classify_special_section(wing_part, wing_sections, profiles):
             for point in points:
                 te_points.append(point)
 
+        le_points = list(le_points)
+        te_points = list(te_points)
+
         # TODO: classify the surfaces and profiles
+        section_surfaces = []
+
+        adj_le_surfaces, _ = gmsh.model.getAdjacencies(1, le_line_fus_wing[0])
+        adj_te_surfaces, _ = gmsh.model.getAdjacencies(1, te_line_fus_wing[0])
+
+        [section_surfaces.append(adj_le_surface) for adj_le_surface in adj_le_surfaces]
+        [section_surfaces.append(adj_te_surface) for adj_te_surface in adj_te_surfaces]
+
+        section_surfaces = list(set(section_surfaces))
 
         # classify the wing section
         wing_sections.append(
             {
                 "truncated": wing_section["truncated"],
                 "profiles": [],
-                "le_line": [le_line_fus_wing],
-                "te_line": [te_line_fus_wing],
-                "le_points": list(le_points),
+                "le_line": le_line_fus_wing,
+                "te_line": te_line_fus_wing,
+                "le_points": le_points,
                 "te_points": te_points,
+                "surfaces": section_surfaces,
             }
         )
         return True
     else:
         # the special wing section is the only wing section of the wing
-        # TODO: classify the surfaces and profiles
 
         tip_wing_profile = profiles[0]
 
@@ -531,6 +560,19 @@ def classify_special_section(wing_part, wing_sections, profiles):
             for point in points:
                 te_points.append(point)
 
+        le_points = list(le_points)
+        te_points = list(te_points)
+
+        section_surfaces = []
+
+        adj_le_surfaces, _ = gmsh.model.getAdjacencies(1, le_line_fus_wing[0])
+        adj_te_surfaces, _ = gmsh.model.getAdjacencies(1, te_line_fus_wing[0])
+
+        [section_surfaces.append(adj_le_surface) for adj_le_surface in adj_le_surfaces]
+        [section_surfaces.append(adj_te_surface) for adj_te_surface in adj_te_surfaces]
+
+        section_surfaces = list(set(section_surfaces))
+
         # classify the wing section
         wing_sections.append(
             {
@@ -538,8 +580,9 @@ def classify_special_section(wing_part, wing_sections, profiles):
                 "profiles": [],
                 "le_line": le_line_fus_wing,
                 "te_line": te_line_fus_wing,
-                "le_points": list(le_points),
+                "le_points": le_points,
                 "te_points": te_points,
+                "surfaces": section_surfaces,
             }
         )
         return True
@@ -620,7 +663,7 @@ def classify_wing(wing_part, aircraft_parts):
     # then search if there is another profile who shares the same le/te lines
     for profile in profiles:
         for other_profile in profiles:
-            classify_wing_section(wing_sections, profile, other_profile)
+            classify_wing_section(wing_part, wing_sections, profile, other_profile)
 
     # add the wing sections founded to the wing Aircraftpart
     wing_part.wing_sections = wing_sections

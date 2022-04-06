@@ -80,15 +80,34 @@ def estimate_skin_friction_coef(wetted_area, wing_area, wing_span, mach, alt):
         cd0 (float): Drag coefficient due to skin friction [-]
     """
 
+    # Check if the input parameters are in the correct range
+    log.info(f"Wetted area: {round(wetted_area,1)} [m^2]")
+    if wetted_area < 120 or wetted_area > 3400:
+        log.warning(
+            "Wetted area is not in the correct range. It must be between 120 and 3400 [m^2]"
+        )
+
+    log.info(f"Wing area: {round(wing_area,1)} [m^2]")
+    if wing_area < 20 or wing_area > 580:
+        log.warning("Wing area is not in the correct range. It must be between 20 and 580 [m^2]")
+
+    log.info(f"Wing span: {round(wing_span,1)} [m]")
+    if wing_span < 10 or wing_span > 68:
+        log.warning("Wing span is not in the correct range. It must be between 10 and 68 [m]")
+
     # Get atmosphere values at this altitude
     Atm = Atmosphere(alt)
 
     # Get speed from Mach Number
     speed = mach * Atm.speed_of_sound[0]
+    log.info(f"Mach number: {mach} [-] -> Velocity: {round(speed)} [m/s]")
 
     # Reynolds number based on the ratio Wetted Area / Wing Span
     reynolds_number = (wetted_area / wing_span) * speed / Atm.kinematic_viscosity[0]
-    log.info("Reynolds number:" + str(round(reynolds_number)))
+
+    log.info(f"Reynolds number: {reynolds_number:.2E} [-]")  # + str(round(reynolds_number)))
+    if reynolds_number < 35e06 or reynolds_number > 390e06:
+        log.warning("Reynolds number is out of range. It must be between 35*10^6 and 390*10^6.")
 
     # Skin friction coefficient, formula from source (see function description)
     cfe = (
@@ -96,11 +115,11 @@ def estimate_skin_friction_coef(wetted_area, wing_area, wing_span, mach, alt):
         + 0.00102 * math.exp(-6.28 * 1e-9 * reynolds_number)
         + 0.00295 * math.exp(-2.01 * 1e-8 * reynolds_number)
     )
-    log.info("Skin friction coefficient:" + str(round(cfe, 5)))
+    log.info(f"Skin friction coefficient: {str(round(cfe, 5))} [-]")
 
     # Drag coefficient due to skin friction
     cd0 = cfe * wetted_area / wing_area
-    log.info("Skin friction drag coefficient: " + str(cd0))
+    log.info(f"Skin friction drag coefficient: {str(round(cd0, 5))} [-]")
 
     return cd0
 

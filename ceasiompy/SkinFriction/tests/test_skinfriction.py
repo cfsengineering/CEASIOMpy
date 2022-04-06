@@ -18,9 +18,8 @@ Python version: >=3.7
 # ==============================================================================
 
 import os
-import sys
+import logging
 
-import pytest
 from pytest import approx
 
 from cpacspy.cpacspy import CPACS
@@ -42,9 +41,10 @@ CPACS_OUT_PATH = os.path.join(MODULE_DIR, "D150_simple_skinfriction_test_output.
 # ==============================================================================
 
 
-def test_estimate_skin_friction_coef():
+def test_estimate_skin_friction_coef(caplog):
     """Test function 'estimate_skin_friction_coef'"""
 
+    # Normal case
     # {cd0:[wetted_area,wing_area,wing_span,mach,alt]}
     test_dict = {
         0.005308238904488722: [1, 1, 1, 1, 1],
@@ -54,6 +54,25 @@ def test_estimate_skin_friction_coef():
 
     for cd0, inputs in test_dict.items():
         assert cd0 == approx(estimate_skin_friction_coef(*inputs))
+
+    # Case that raise warning (in logs)
+    caplog.clear()
+
+    with caplog.at_level(logging.WARNING):
+        estimate_skin_friction_coef(400.0, 50, 20, 0.22, 12000)
+    assert "Reynolds number is out of range." in caplog.text
+
+    with caplog.at_level(logging.WARNING):
+        estimate_skin_friction_coef(3401.0, 100, 20, 0.78, 12000)
+    assert "Wetted area is not in the correct range." in caplog.text
+
+    with caplog.at_level(logging.WARNING):
+        estimate_skin_friction_coef(701.813, 19, 20, 0.78, 12000)
+    assert "Wing area is not in the correct range." in caplog.text
+
+    with caplog.at_level(logging.WARNING):
+        estimate_skin_friction_coef(701.813, 100, 75, 0.78, 12000)
+    assert "Wing span is not in the correct range." in caplog.text
 
 
 def test_add_skin_friction():

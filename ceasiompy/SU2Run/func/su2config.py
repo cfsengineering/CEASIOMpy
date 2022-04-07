@@ -21,6 +21,9 @@ TODO:
 # =================================================================================================
 
 import os
+from pathlib import Path
+import re
+import requests
 
 from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import (
@@ -31,7 +34,9 @@ from cpacspy.cpacsfunctions import (
 )
 
 from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
+from ceasiompy.utils.ceasiompyutils import get_install_path
 from ceasiompy.utils.configfiles import ConfigFile
+from ceasiompy.utils.moduleinterfaces import get_module_path
 from ceasiompy.utils.xpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
 
 from ambiance import Atmosphere
@@ -40,8 +45,9 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-DEFAULT_CONFIG_PATH = MODULE_DIR + "/../files/DefaultConfig_v7.cfg"
+MODULE_DIR = Path(__file__).parent
+
+# DEFAULT_CONFIG_PATH = MODULE_DIR + "/../files/DefaultConfig_v7.cfg"
 
 
 # =================================================================================================
@@ -52,6 +58,61 @@ DEFAULT_CONFIG_PATH = MODULE_DIR + "/../files/DefaultConfig_v7.cfg"
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def get_su2_version():
+    """
+    Return the version of the installed SU2
+    """
+
+    soft_dict = get_install_path(["SU2_CFD"])
+    su2_path = Path(soft_dict["SU2_CFD"]).with_suffix(".py")
+
+    if not su2_path.exists():
+        return None
+
+    with open(su2_path, "r") as f:
+        lines = f.readlines()
+
+    for line in lines:
+        log.info(line)
+        try:
+            version = re.search(r"version\s*([\d.]+)", line).group(1)
+        except AttributeError:
+            version = None
+
+        if version is not None:
+            return version
+
+    return None
+
+
+def get_su2_config_template():
+    """Return path of the SU2 config template coresponding to the SU2 version."""
+
+    su2_version = get_su2_version()
+    su2_dir = get_module_path("SU2Run")
+    su2_config_template_path = Path(su2_dir, "files", f"config_template_v{su2_version}.cfg")
+
+    if not su2_config_template_path.exists():
+
+        url = f"https://raw.githubusercontent.com/su2code/SU2/v{su2_version}/config_template.cfg"
+        r = requests.get(url)
+
+        if r.status_code == 404:
+            raise FileNotFoundError(
+                f"The SU2 config template corresponding to SU2 version {su2_version} does not exist."
+            )
+
+        if not r.status_code == 200:
+            raise ConnectionError(
+                f"Cannot download the template file for SU2 version {su2_version} at {url}"
+            )
+
+        with open(su2_config_template_path, "wb") as f:
+            f.write(r.content)
+
+    return su2_config_template_path
 
 
 def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):

@@ -27,6 +27,7 @@ import uuid
 import inspect
 import importlib
 from glob import glob
+from pathlib import Path
 
 from cpacspy.cpacsfunctions import create_branch, open_tixi
 
@@ -156,6 +157,16 @@ class CPACSInOut:
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
+
+
+def get_module_path(module_name: str) -> Path:
+    """Get the path to the module directory"""
+
+    if module_name not in get_submodule_list():
+        raise ValueError(f"Module '{module_name}' not found")
+
+    # TODO: improve when pathlib will be use everywhere
+    return Path(Path(LIB_DIR), module_name)
 
 
 def check_cpacs_input_requirements(

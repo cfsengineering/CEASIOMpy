@@ -20,12 +20,25 @@ Python version: >=3.7
 import os
 
 import pytest
-
+from pathlib import Path
+import ceasiompy
 import ceasiompy.utils.moduleinterfaces as mi
 from ceasiompy.utils.xpath import RANGE_XPATH
 
 HERE = os.path.abspath(os.path.dirname(__file__))
 CPACS_TEST_FILE = os.path.join(HERE, "ToolInput", "cpacs_test_file.xml")
+
+
+def test_get_module_path():
+    """Test function 'get_module_path'."""
+
+    assert (
+        mi.get_module_path("ModuleTemplate")
+        == Path(ceasiompy.__init__.__file__).parent / "ModuleTemplate"
+    )
+
+    with pytest.raises(ValueError):
+        mi.get_module_path("NotExistingModule")
 
 
 def test_cpacs_inout():

@@ -419,12 +419,16 @@ def classify_special_section(wing_part, wing_sections, profiles):
     True : if the special wing section is classified
     False : if already classified
     """
+    # seek if there is at least a profile in this wing
+    if len(profiles) == 0:
+        # part of the aircraft may be deleted due to symmerty application
+        return False
     # Search if this is the only wing section of the wing
     if len(wing_sections) != 0:
         # find all the lines and points in the wing that we already classified
         already_classifed_lines = []
-        le_points = []
-        te_points = []
+        le_points_wing = []
+        te_points_wing = []
 
         for wing_section in wing_sections:
 
@@ -441,15 +445,15 @@ def classify_special_section(wing_part, wing_sections, profiles):
                 already_classifed_lines.append(line)
 
             for point in wing_section["le_points"]:
-                le_points.append(point[1])
+                le_points_wing.append(point[1])
 
             for point in wing_section["te_points"]:
-                te_points.append(point[1])
+                te_points_wing.append(point[1])
 
         # transform in set
         already_classifed_lines = set(already_classifed_lines)
-        le_points = set(le_points)
-        te_points = set(te_points)
+        le_points_wing = set(le_points_wing)
+        te_points_wing = set(te_points_wing)
         """
         seek for unclassified lines comming from classified leading edge points
         Normally all the wing except the part that is link to the fuselage is classifed
@@ -463,12 +467,12 @@ def classify_special_section(wing_part, wing_sections, profiles):
         """
         # seek if the profile projection on the fuselage is a simple profile
         if (already_classifed_lines == set(wing_part.boundary_lines)) and (
-            (le_points.union(te_points)) == set(wing_part.boundary_points)
+            (le_points_wing.union(te_points_wing)) == set(wing_part.boundary_points)
         ):
             return False
         adj_lines = []
 
-        for point in list(le_points):
+        for point in list(le_points_wing):
 
             adj_local_lines, _ = gmsh.model.getAdjacencies(0, point)
 
@@ -481,7 +485,7 @@ def classify_special_section(wing_part, wing_sections, profiles):
         # seek for unclassified lines comming from classified trailing edge points
         adj_lines = []
 
-        for point in list(te_points):
+        for point in list(te_points_wing):
 
             adj_local_lines, _ = gmsh.model.getAdjacencies(0, point)
 
@@ -503,10 +507,18 @@ def classify_special_section(wing_part, wing_sections, profiles):
             for point in points:
                 te_points.append(point)
 
+        # mean chord determination
+        # mean chord determination
+        middle_le_line = [gmsh.model.occ.getCenterOfMass(1, line) for line in le_line_fus_wing]
+        middle_te_line = [gmsh.model.occ.getCenterOfMass(1, line) for line in te_line_fus_wing]
+        center_le_line = np.mean(middle_le_line, axis=0)
+        center_te_line = np.mean(middle_te_line, axis=0)
+
+        mean_chord = np.linalg.norm(center_le_line - center_te_line)
         le_points = list(le_points)
         te_points = list(te_points)
 
-        # TODO: classify the surfaces and profiles
+        # TODO: classify the surfaces tip of the wing
         section_surfaces = []
 
         adj_le_surfaces, _ = gmsh.model.getAdjacencies(1, le_line_fus_wing[0])
@@ -526,6 +538,7 @@ def classify_special_section(wing_part, wing_sections, profiles):
                 "te_line": te_line_fus_wing,
                 "le_points": le_points,
                 "te_points": te_points,
+                "mean_chord": mean_chord,
                 "surfaces": section_surfaces,
             }
         )
@@ -563,6 +576,14 @@ def classify_special_section(wing_part, wing_sections, profiles):
         le_points = list(le_points)
         te_points = list(te_points)
 
+        # mean chord determination
+        middle_le_line = [gmsh.model.occ.getCenterOfMass(1, line) for line in le_line_fus_wing]
+        middle_te_line = [gmsh.model.occ.getCenterOfMass(1, line) for line in te_line_fus_wing]
+        center_le_line = np.mean(middle_le_line, axis=0)
+        center_te_line = np.mean(middle_te_line, axis=0)
+
+        mean_chord = np.linalg.norm(center_le_line - center_te_line)
+
         section_surfaces = []
 
         adj_le_surfaces, _ = gmsh.model.getAdjacencies(1, le_line_fus_wing[0])
@@ -572,7 +593,6 @@ def classify_special_section(wing_part, wing_sections, profiles):
         [section_surfaces.append(adj_te_surface) for adj_te_surface in adj_te_surfaces]
 
         section_surfaces = list(set(section_surfaces))
-
         # classify the wing section
         wing_sections.append(
             {
@@ -582,6 +602,7 @@ def classify_special_section(wing_part, wing_sections, profiles):
                 "te_line": te_line_fus_wing,
                 "le_points": le_points,
                 "te_points": te_points,
+                "mean_chord": mean_chord,
                 "surfaces": section_surfaces,
             }
         )

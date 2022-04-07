@@ -27,6 +27,7 @@ import os
 from ceasiompy.utils.ceasiomlogger import get_logger
 import numpy as np
 from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
+from ceasiompy.CPACS2GMSH.func.advancemeshing import refine_wing_section
 
 log = get_logger(__file__.split(".")[0])
 
@@ -301,7 +302,25 @@ def generate_gmsh(
     marker of each airplane part and farfield surfaces is reported in the mesh
     file.
     Args:
-        brep_dir_path (path):  Path to the directory containing the brep files
+    ----------
+    brep_dir_path : (path)
+        Path to the directory containing the brep files
+    results_dir : (path)
+        Path to the directory containing the result (mesh) files
+    open_gmsh : bool
+        Open gmsh GUI after the mesh generation if set to true
+    farfield_factor = float
+        Factor to enlarge the farfield : factor times the largest dimension(x,y,z)
+        of the aircraft
+    symmetry : bool
+        If set to true, the mesh will be generated with symmetry wrt the x,z plane
+    mesh_size_farfield : float
+        Size of the farfield mesh
+    mesh_size_fuselage : float
+        Size of the fuselage mesh
+    mesh_size_wings : float
+        Size of the wing mesh
+
     """
     gmsh.initialize()
 
@@ -309,7 +328,6 @@ def generate_gmsh(
     # when bbs are found, remove the part from the model the part
 
     aircraft_parts = []
-
     for file in os.listdir(brep_dir_path):
 
         if ".brep" in file:
@@ -371,17 +389,51 @@ def generate_gmsh(
                     original_part.dim_tag = tuple(*part)
     gmsh.model.occ.synchronize()
     part_to_fuse = [part.dim_tag for part in aircraft_parts]
+    if symmetry:
+        log.info("Preparing:symmetry box")
+        symm_lenght = 200
+        box_symm = gmsh.model.occ.addBox(
+            0 - symm_lenght,
+            0 - 2 * symm_lenght,
+            0 - symm_lenght,
+            2 * symm_lenght,
+            2 * symm_lenght,
+            2 * symm_lenght,
+        )
+        gmsh.model.occ.synchronize()
+        part_to_fuse.append((3, box_symm))
 
-    log.info(f"Start Fusing process, {len(part_to_fuse)} parts to fuse")
     if len(part_to_fuse) > 1:
-
+        log.info(f"Start Fusing process, {len(part_to_fuse)} parts fused")
         fused_shape, side = gmsh.model.occ.fuse(
             [part_to_fuse[0]], part_to_fuse[1:], removeObject=True, removeTool=True
         )
         gmsh.model.occ.synchronize()
 
+        if symmetry:
+            # add a giant symmetry box
+            box_symm = gmsh.model.occ.addBox(
+                0 - symm_lenght,
+                0 - 2 * symm_lenght,
+                0 - symm_lenght,
+                2 * symm_lenght,
+                2 * symm_lenght,
+                2 * symm_lenght,
+            )
+            gmsh.model.occ.synchronize()
+
+            # Cut the aircraft in half
+            fused_shape, side = gmsh.model.occ.cut(
+                [(3, fused_shape[0][1])],
+                [(3, box_symm)],
+                removeObject=True,
+                removeTool=True,
+            )
+            gmsh.model.occ.synchronize()
+
         # An aircraft part representing the whole aircraft is created
         aircraft = AircraftPart(*fused_shape, "aircraft")
+        log.info(f"End Fusing process, {len(part_to_fuse)} parts to fuse")
 
     else:
 
@@ -391,7 +443,9 @@ def generate_gmsh(
     # create external domain for the farfield
     domain_lenght = farfield_factor * max(aircraft.sizes)
 
-    center_aircraft = gmsh.model.occ.get_center_of_mass(*aircraft.dim_tag)
+    center_aircraft = list(gmsh.model.occ.get_center_of_mass(*aircraft.dim_tag))
+    if symmetry:
+        center_aircraft[1] = 0
     ext_domain = gmsh.model.occ.addSphere(*center_aircraft, domain_lenght)
     gmsh.model.occ.synchronize()
 
@@ -576,22 +630,26 @@ def generate_gmsh(
 
     # Farfield
     if symmetry:
-        symm_plane_bb = (
-            (center_aircraft[0] - domain_lenght) * 1.05,
-            -0.1,
-            (center_aircraft[2] - domain_lenght) * 1.05,
-            (center_aircraft[0] + domain_lenght) * 1.05,
-            0.1,
-            (center_aircraft[0] + domain_lenght) * 1.05,
-        )
-        # Find the entity of the symmetry plane
-        symm_surface = gmsh.model.occ.getEntitiesInBoundingBox(*symm_plane_bb, dim=2)
-        farfield_surfaces = list(farfield_surfaces.difference(set(symm_surface)))
+        # Find the difference between the entity of the symmetry plane and farfield
+        external_domain_surfaces_tags = [surface[1] for surface in farfield_surfaces]
+        aircraft_line_tags = [line[1] for line in aircraft.lines]
 
-        farfield = gmsh.model.addPhysicalGroup(2, [farfield_surfaces[0][1]])
+        # check each surface from the external domain
+        for tag in external_domain_surfaces_tags:
+            # adjacent lines of each surface
+            _, adj_lines = gmsh.model.getAdjacencies(2, tag)
+
+            # check if the adjacent lines are not part of the aircraft
+            common_lines = set(adj_lines).intersection(set(aircraft_line_tags))
+            if common_lines:  # if line are common to a external field surface
+                # then it should be the symmetry surface
+                symm_surface_tag = tag
+            else:
+                farfield_surface_tag = tag
+        farfield = gmsh.model.addPhysicalGroup(2, [farfield_surface_tag])
         gmsh.model.setPhysicalName(2, farfield, "farfield")
 
-        symmetry = gmsh.model.addPhysicalGroup(2, [symm_surface[0][1]])
+        symmetry = gmsh.model.addPhysicalGroup(2, [symm_surface_tag])
         gmsh.model.setPhysicalName(2, symmetry, "symmetry_plane")
 
     else:
@@ -693,11 +751,29 @@ def generate_gmsh(
     gmsh.model.setColor(list(farfield_surfaces), *mesh_color_farfield, a=150, recursive=True)
 
     # Generate mesh
+    mesh_fields = {"nbfields": 0, "restrict_fields": []}
+
     # for part in aircraft_parts:
-    # if "wing" in part.name:
-    #     classify_wing(part, aircraft_parts)
-    #     nb_sect = len(part.wing_sections)
-    #     log.info(f"Classification of {part.name} done, {nb_sect} section(s) found ")
+    #     if "wing" in part.name:
+    #         classify_wing(part, aircraft_parts)
+    #         nb_sect = len(part.wing_sections)
+    #         log.info(f"Classification of {part.name} done, {nb_sect} section(s) found ")
+    #         refine_wing_section(
+    #             mesh_fields,
+    #             part,
+    #             mesh_size_wings,
+    #             refine=5,
+    #             chord_percent=0.1,
+    #         )
+
+    print(mesh_fields["nbfields"])
+    print(mesh_fields["restrict_fields"])
+    mesh_fields["nbfields"] += 1
+    gmsh.model.mesh.field.add("Min", mesh_fields["nbfields"])
+    gmsh.model.mesh.field.setNumbers(
+        mesh_fields["nbfields"], "FieldsList", mesh_fields["restrict_fields"]
+    )
+    gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
 
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(1)
@@ -729,14 +805,14 @@ def generate_gmsh(
 #    MAIN
 # ==============================================================================
 if __name__ == "__main__":
-    # generate_gmsh(
-    #     "test_files/d150",
-    #     "",
-    #     open_gmsh=True,
-    #     farfield_factor=5,
-    #     symmetry=False,
-    #     mesh_size_farfield=12,
-    #     mesh_size_fuselage=0.1,
-    #     mesh_size_wings=0.1,
-    # )
+    generate_gmsh(
+        "test_files/simple",
+        "",
+        open_gmsh=True,
+        farfield_factor=5,
+        symmetry=False,
+        mesh_size_farfield=12,
+        mesh_size_fuselage=0.1,
+        mesh_size_wings=0.1,
+    )
     print("Nothing to execute!")

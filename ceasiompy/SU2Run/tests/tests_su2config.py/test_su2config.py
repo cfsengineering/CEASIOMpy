@@ -50,11 +50,11 @@ def test_get_su2_version():
 
     mock_data = mock_open(read_data=mock_text)
 
-    # TODO: When Python 3.10 will be used, with could be use with parentheses
-    with patch("builtins.open", mock_data), patch(
-        "ceasiompy.utils.ceasiompyutils.get_install_path", return_value=None
-    ), patch.object(Path, "exists", return_value=True):
-        assert get_su2_version() == "9.9.9"
+    # TODO: When Python 3.10 will be used, with could use one "with" with parentheses
+    with patch("ceasiompy.utils.ceasiompyutils.get_install_path", return_value=None):
+        with patch.object(Path, "exists", return_value=True):
+            with patch("builtins.open", mock_data):
+                assert get_su2_version() == "9.9.9"
 
     mock_text_no_version = (
         r"## \file SU2_CFD.py\n"
@@ -62,8 +62,12 @@ def test_get_su2_version():
     )
 
     mock_data_no_version = mock_open(read_data=mock_text_no_version)
-    with patch("builtins.open", mock_data_no_version):
-        assert get_su2_version() is None
+
+    # TODO: When Python 3.10 will be used, with could use one "with" with parentheses
+    with patch("ceasiompy.utils.ceasiompyutils.get_install_path", return_value=None):
+        with patch.object(Path, "exists", return_value=True):
+            with patch("builtins.open", mock_data_no_version):
+                assert get_su2_version() is None
 
 
 def test_get_su2_config_template():

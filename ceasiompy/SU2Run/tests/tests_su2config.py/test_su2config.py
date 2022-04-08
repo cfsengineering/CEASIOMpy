@@ -17,8 +17,6 @@ Python version: >=3.7
 #   IMPORTS
 # =================================================================================================
 
-import os
-from sys import modules
 import pytest
 from pathlib import Path
 from unittest import mock

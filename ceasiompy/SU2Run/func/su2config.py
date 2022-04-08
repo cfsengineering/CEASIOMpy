@@ -47,8 +47,6 @@ log = get_logger(__file__.split(".")[0])
 
 MODULE_DIR = Path(__file__).parent
 
-# DEFAULT_CONFIG_PATH = MODULE_DIR + "/../files/DefaultConfig_v7.cfg"
-
 
 # =================================================================================================
 #   CLASSES
@@ -82,6 +80,7 @@ def get_su2_version():
             version = None
 
         if version is not None:
+            log.info(f"Version of SU2 detected: {version}")
             return version
 
     return None
@@ -101,7 +100,7 @@ def get_su2_config_template():
 
         if r.status_code == 404:
             raise FileNotFoundError(
-                f"The SU2 config template corresponding to SU2 version {su2_version} does not exist."
+                f"The SU2 config template for SU2 version {su2_version} does not exist."
             )
 
         if not r.status_code == 200:
@@ -207,7 +206,8 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         aos_list = [0.0]
 
     # Get and modify the default configuration file
-    cfg = ConfigFile(DEFAULT_CONFIG_PATH)
+    su2_congig_template_path = get_su2_config_template()
+    cfg = ConfigFile(su2_congig_template_path)
 
     # General parmeters
     cfg["REF_LENGTH"] = cpacs.aircraft.ref_lenght

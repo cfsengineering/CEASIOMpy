@@ -19,7 +19,7 @@ Python version: >=3.7
 
 import pytest
 from pathlib import Path
-from unittest import mock
+from unittest.mock import patch, mock_open
 
 from ceasiompy.SU2Run.func.su2config import get_su2_version, get_su2_config_template
 from ceasiompy.utils.moduleinterfaces import get_module_path
@@ -48,8 +48,12 @@ def test_get_su2_version():
         r"# SU2 Project Website: https://su2code.github.io\n"
     )
 
-    mock_open = mock.mock_open(read_data=mock_text)
-    with mock.patch("builtins.open", mock_open):
+    mock_data = mock_open(read_data=mock_text)
+
+    # TODO: When Python 3.10 will be used, with could be use with parentheses
+    with patch("builtins.open", mock_data), patch(
+        "ceasiompy.utils.ceasiompyutils.get_install_path", return_value=None
+    ), patch.object(Path, "exists", return_value=True):
         assert get_su2_version() == "9.9.9"
 
     mock_text_no_version = (
@@ -57,8 +61,8 @@ def test_get_su2_version():
         r"#  \brief Python script to launch SU2_CFD through the Python Wrapper.\n"
     )
 
-    mock_open_no_version = mock.mock_open(read_data=mock_text_no_version)
-    with mock.patch("builtins.open", mock_open_no_version):
+    mock_data_no_version = mock_open(read_data=mock_text_no_version)
+    with patch("builtins.open", mock_data_no_version):
         assert get_su2_version() is None
 
 
@@ -75,11 +79,11 @@ def test_get_su2_config_template():
     if config_template_path.exists():
         config_template_path.unlink()
 
-    with mock.patch("ceasiompy.SU2Run.func.su2config.get_su2_version", return_value=su2_version):
+    with patch("ceasiompy.SU2Run.func.su2config.get_su2_version", return_value=su2_version):
         assert get_su2_config_template() == config_template_path
 
     # Test with an inexistent config template version
-    with mock.patch("ceasiompy.SU2Run.func.su2config.get_su2_version", return_value="9.9.99"):
+    with patch("ceasiompy.SU2Run.func.su2config.get_su2_version", return_value="9.9.99"):
         with pytest.raises(FileNotFoundError):
             assert get_su2_config_template() == config_template_path
 

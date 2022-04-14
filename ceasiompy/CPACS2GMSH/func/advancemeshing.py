@@ -82,7 +82,6 @@ def refine_wing_section(
         percentage of the chord to refine from le/te edge
     ...
     """
-    # get current state of the mesh_fields
     # get the wing section chord, le and te lines and the surface of the wing section
 
     sigmoid = False
@@ -92,45 +91,149 @@ def refine_wing_section(
         le_line = wing_section["le_line"]
         te_line = wing_section["te_line"]
         surfaces = wing_section["surfaces"]
+        adj_lines = []
+        for surface in surfaces:
+            _, adj_lin = gmsh.model.getAdjacencies(2, surface)
+            adj_lines.extend(adj_lin)
+
+        adj_surfaces = []
+        for line in adj_lines:
+            adj_surf, _ = gmsh.model.getAdjacencies(1, line)
+            adj_surfaces.extend(adj_surf)
+        adj_surfaces = list(set(adj_surfaces))
+
         lines_to_refine = [*le_line, *te_line]
 
-        for line in lines_to_refine:
-            # create new distance field
-            mesh_fields["nbfields"] += 1
-            gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
-            gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "CurvesList", [line])
-            gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sampling", 100)
+        # create new distance field
+        mesh_fields["nbfields"] += 1
+        gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
+        gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "CurvesList", lines_to_refine)
+        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sampling", 100)
 
-            # create new threshold field
-            mesh_fields["nbfields"] += 1
-            gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-            gmsh.model.mesh.field.setNumber(
-                mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
-            )
-            gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sigmoid", sigmoid)
-            gmsh.model.mesh.field.setNumber(
-                mesh_fields["nbfields"], "SizeMin", mesh_size_wings / refine
-            )
-            gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_wings)
-            gmsh.model.mesh.field.setNumber(
-                mesh_fields["nbfields"], "DistMin", chord_percent * chord_mean
-            )
-            gmsh.model.mesh.field.setNumber(
-                mesh_fields["nbfields"], "DistMax", chord_percent * chord_mean * 1.2
-            )
+        # create new threshold field
+        mesh_fields["nbfields"] += 1
+        gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
+        )
+        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sigmoid", sigmoid)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "SizeMin", mesh_size_wings / refine
+        )
+        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_wings)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "DistMin", chord_percent * chord_mean
+        )
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "DistMax", chord_percent * chord_mean * 1.2
+        )
 
-            # create new Restrict field
-            mesh_fields["nbfields"] += 1
-            gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
-            gmsh.model.mesh.field.setNumber(
-                mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
-            )
-            gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", surfaces)
-            gmsh.model.mesh.field.setNumber(
-                mesh_fields["nbfields"], "IncludeBoundary", include_boundary
-            )
-            # add the new field to the list of restrict fields
-            mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
+        # create new Restrict field
+        mesh_fields["nbfields"] += 1
+        gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
+        )
+        gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", adj_surfaces)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "IncludeBoundary", include_boundary
+        )
+        # add the new field to the list of restrict fields
+        mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
+
+
+def set_fuselage_mesh(mesh_fields, fuselage_part, mesh_size_fuselage):
+    """
+    Function to refine the fuselage mesh
+
+    Args:
+    ----------
+    mesh_fields : dict
+        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        each field must be created with a different index !!!
+        mesh_fields["restrict_fields"] : list of the restrict fields,
+        this is the list to be use for the final "Min" background field
+    fuselage_part : Aircraftpart
+        fuselage part to set mesh size
+    mesh_size_fuselage : float
+        mesh size of the fuselage
+    ...
+    """
+    # get the fuselage surface
+    surfaces = fuselage_part.surfaces
+    surfaces_tags = [dimtag[1] for dimtag in surfaces]
+    include_boundary = True
+
+    # create new distance field
+    mesh_fields["nbfields"] += 1
+    gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
+    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", surfaces_tags)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sampling", 100)
+
+    # create new threshold field
+    mesh_fields["nbfields"] += 1
+    gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
+    )
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_fuselage)
+
+    # create new Restrict field
+    mesh_fields["nbfields"] += 1
+    gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
+    )
+    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", surfaces_tags)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "IncludeBoundary", include_boundary)
+    # add the new field to the list of restrict fields
+    mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
+
+
+def set_farfiled_mesh(mesh_fields, farfield_surfaces, mesh_size_farfield):
+    """
+    Function to refine the fuselage mesh
+
+    Args:
+    ----------
+    mesh_fields : dict
+        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        each field must be created with a different index !!!
+        mesh_fields["restrict_fields"] : list of the restrict fields,
+        this is the list to be use for the final "Min" background field
+    farfield_surfaces : list
+        list of the farfield surfaces to set mesh size
+    mesh_size_fuselage : float
+        mesh size of the farfield
+    ...
+    """
+    # get the fuselage surface
+    surfaces_tags = [dimtag[1] for dimtag in farfield_surfaces]
+    include_boundary = True
+
+    # create new distance field
+    mesh_fields["nbfields"] += 1
+    gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
+    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", surfaces_tags)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sampling", 100)
+
+    # create new threshold field
+    mesh_fields["nbfields"] += 1
+    gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
+    )
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_farfield)
+    # create new Restrict field
+    mesh_fields["nbfields"] += 1
+    gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
+    )
+    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", surfaces_tags)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "IncludeBoundary", include_boundary)
+    # add the new field to the list of restrict fields
+    mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
 
 
 # ==============================================================================

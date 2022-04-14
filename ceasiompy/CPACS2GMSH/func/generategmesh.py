@@ -27,7 +27,11 @@ import os
 from ceasiompy.utils.ceasiomlogger import get_logger
 import numpy as np
 from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
-from ceasiompy.CPACS2GMSH.func.advancemeshing import refine_wing_section
+from ceasiompy.CPACS2GMSH.func.advancemeshing import (
+    refine_wing_section,
+    set_fuselage_mesh,
+    set_farfiled_mesh,
+)
 
 log = get_logger(__file__.split(".")[0])
 
@@ -37,140 +41,32 @@ log = get_logger(__file__.split(".")[0])
 # ==============================================================================
 class AircraftPart:
     """
-    A class to represent part of the aircraft in order to keep track of each gmsh
-    part entities and their location in space
-
-    For each AircraftPart, its surfaces,lines and points locations are stored
-    in order to remap them correctly when gmsh boolean operations are performed
+    A class to represent part of the aircraft in order to classify its entities
     ...
 
     Attributes
     ----------
-    dim_tag : tuple
-        tuple (dim,tag) of the gmsh volume of the aircraft part
     name : str
         name of the part which correspond to its .brep file name
 
     """
 
-    def __init__(self, dim_tag, name):
-        self.dim_tag = dim_tag
+    def __init__(self, name):
+
         self.name = name
-        self.bb, self.sizes = get_visual_bounding_box(self.dim_tag, 1e-3)
+
+        # dimtag
         self.points = []
         self.lines = []
         self.surfaces = []
+        self.volume = []
+        # tag only
+        self.points_tags = []
+        self.lines_tags = []
         self.surfaces_tags = []
-        self.boundary_lines = []
-        self.boundary_points = []
-        self.score = give_score(self)
-
-    def get_entities(self):
-        """
-        Function to grab the points,lines and surfaces entites of the part
-        ...
-        """
-
-        self.points = sorted(
-            set(gmsh.model.occ.getEntitiesInBoundingBox(*self.bb, dim=0)),
-            key=lambda tup: tup[1],
-        )
-        self.lines = sorted(
-            set(gmsh.model.occ.getEntitiesInBoundingBox(*self.bb, dim=1)),
-            key=lambda tup: tup[1],
-        )
-        self.surfaces = sorted(
-            set(gmsh.model.occ.getEntitiesInBoundingBox(*self.bb, dim=2)),
-            key=lambda tup: tup[1],
-        )
-
-    def clear_entities(self):
-        """
-        Function to reset the entities of the part
-        ...
-        """
-
-        self.points = list()
-
-        self.lines = list()
-
-        self.surfaces = list()
-
-    def get_entities_bb_visual(self, enhance=0):
-        """
-        Function to get the visual bouding box of each entity in the part
-        ...
-
-        Args:
-        ----------
-        enhance : float
-            enhance factor for the bounding box size, sometimes OCC doesnt detect
-            entities on the boundary of the original bb, an small enhance help to
-            resolve this issue
-        ...
-        """
-
-        self.points_bb_visual = [get_visual_bounding_box(point, enhance) for point in self.points]
-        self.lines_bb_visual = [get_visual_bounding_box(line, enhance) for line in self.lines]
-        self.surfaces_bb_visual = [
-            get_visual_bounding_box(surface, enhance) for surface in self.surfaces
-        ]
-
-    def get_entities_bb(self):
-        """
-        Function to get the strict bouding box of each entity in the part
-        ...
-        """
-        self.points_bb = [gmsh.model.occ.getBoundingBox(*point) for point in self.points]
-        self.lines_bb = [gmsh.model.occ.getBoundingBox(*line) for line in self.lines]
-        self.surfaces_bb = [gmsh.model.occ.getBoundingBox(*surface) for surface in self.surfaces]
-
-    def remap_entites(self):
-        """
-        Function to remap the entities of the part using the bb of the part entites
-        ...
-        """
-        for bb in self.points_bb:
-
-            points_found = gmsh.model.occ.getEntitiesInBoundingBox(*bb, dim=0)
-            [self.points.append(point) for point in points_found]
-
-        self.points = set(self.points)
-
-        for bb in self.lines_bb:
-
-            lines_found = gmsh.model.occ.getEntitiesInBoundingBox(*bb, dim=1)
-            [self.lines.append(line) for line in lines_found]
-
-        self.lines = set(self.lines)
-
-        for bb in self.surfaces_bb:
-
-            surfaces_found = gmsh.model.occ.getEntitiesInBoundingBox(*bb, dim=2)
-            [self.surfaces.append(surface) for surface in surfaces_found]
-
-        self.surfaces = set(self.surfaces)
-
-    def get_boundary_from_surfaces(self):
-        """
-        Function to get the adjacent lines and points of each surface in the part$
-        Note that with this method some the lines and points found in the part are shared
-        with the adjacent parts.
-        ...
-        """
-        for surface in self.surfaces:
-            _, adj_lines = gmsh.model.getAdjacencies(*surface)
-            [self.boundary_lines.append(boundary_line) for boundary_line in adj_lines]
-        # to avoid double counting
-        self.boundary_lines = list(set(self.boundary_lines))
-        self.boundary_lines.sort()
-
-        for boundary_line in self.boundary_lines:
-            _, adj_points = gmsh.model.getAdjacencies(1, boundary_line)
-            [self.boundary_points.append(boundary_point) for boundary_point in adj_points]
-        # to avoid double counting
-        self.boundary_points = list(set(self.boundary_points))
-        self.boundary_points.sort()
+        self.volume_tag = []
+        # children
+        self.childs_dimtag = set()
 
 
 # ==============================================================================
@@ -178,108 +74,58 @@ class AircraftPart:
 # ==============================================================================
 
 
-def get_visual_bounding_box(dim_tag, enhance=0):
+def get_entities_from_volume(volume_dimtag):
+    surfaces_dimtags = gmsh.model.getBoundary(
+        volume_dimtag, combined=True, oriented=False, recursive=False
+    )
+
+    lines_dimtag = list(
+        set().union(
+            *[
+                gmsh.model.getBoundary([surface], combined=True, oriented=False, recursive=False)
+                for surface in surfaces_dimtags
+            ]
+        )
+    )
+    lines_dimtag.sort()
+    points_dimtag = list(
+        set().union(
+            *[
+                gmsh.model.getBoundary([surface], combined=True, oriented=False, recursive=True)
+                for surface in surfaces_dimtags
+            ]
+        )
+    )
+    points_dimtag.sort()
+
+    return surfaces_dimtags, lines_dimtag, points_dimtag
+
+
+def associate_child_to_parent(child_dimtag, parent):
     """
-    Function to find the bounding box (bb) of a gmsh object
-    The bounding box is extend by a fraction of its size in order to prevent
-    non detection of entites on the boundary of the original bb
-    ...
-
-    Args:
-    ----------
-    dim_tag : tuple
-        tuple (dim,tag) is the dim and tag of the gmsh volume of the airplane part
-    enhance : float
-        scaling factor to enhance the size of the bounding box
-    ...
-
-    Return :
-    ----------
-    bb : tuple
-        tuple containing the bottom right and top left location of the bb
-    size : tuple
-        tuple  containing the size of the bb in each dimention
-    """
-
-    bb = list(gmsh.model.occ.getBoundingBox(*dim_tag))
-    sizes = [abs(bb[0] - bb[3]), abs(bb[1] - bb[4]), abs(bb[2] - bb[5])]
-
-    # Extend a bit the bounding_box if enhance is non zero
-    bb[0] = bb[0] - sizes[0] * enhance
-    bb[1] = bb[1] - sizes[1] * enhance
-    bb[2] = bb[2] - sizes[2] * enhance
-    bb[3] = bb[3] + sizes[0] * enhance
-    bb[4] = bb[4] + sizes[1] * enhance
-    bb[5] = bb[5] + sizes[2] * enhance
-
-    # Update size due to the extend
-    sizes = (abs(bb[0] - bb[3]), abs(bb[1] - bb[4]), abs(bb[2] - bb[5]))
-
-    return (bb[0], bb[1], bb[2], bb[3], bb[4], bb[5]), sizes
-
-
-def give_score(part):
-    """
-    Function to give a score to a part, a part with a higher score will be given
-    priority to the surface assignation
-    ...
-
-    Args:
-    ----------
-    part : AircraftPart
-        aircraft part to assign a score
-    ...
-    """
-    if "engine" in part.name:
-        return 3
-    if "fuselage" in part.name:
-        return 2
-    if "wing" in part.name:
-        return 1
-
-
-def hierarchy_surface(part1, part2, surfaces, operation):
-    """
-    Function to select which of two part sharing an common surface should be the final
-    parent of the surface
-    ...
-
-    Args:
-    ----------
-    part1 : AircraftPart
-        aircraft part sharing a surface with part2
-    part2 : AircraftPart
-        aircraft part sharing a surface with part1
-    operation : int
-        operation to perform on the the surface : 0 := remove, 1 := add
-    ...
+    Associate childs to parent
     """
 
-    # Get score of each part
-    part1_score = part1.score
-    part2_score = part2.score
+    child_volume = [child_dimtag]
 
-    if part1_score >= part2_score:
-        if operation == 0:
+    child_surfaces, child_lines, child_points = get_entities_from_volume(child_volume)
 
-            [part2.surfaces.remove(surface) for surface in surfaces]
-            return log.info(f"{surfaces} were removed from {part2.name}")
+    # first get the dimtags
+    child_volume_tag = [dimtag[1] for dimtag in child_volume]
+    child_surfaces_tags = [dimtag[1] for dimtag in child_surfaces]
+    child_lines_tags = [dimtag[1] for dimtag in child_lines]
+    child_points_tags = [dimtag[1] for dimtag in child_points]
 
-        else:
+    # store in parent parts for latter use
+    parent.points.extend(child_points)
+    parent.lines.extend(child_lines)
+    parent.surfaces.extend(child_surfaces)
+    parent.volume.extend(child_volume)
 
-            part1.surfaces.add(surfaces)
-            return log.info(f"{surfaces} was added to {part1.name}")
-
-    else:
-        if operation == 0:
-
-            [part1.surfaces.remove(surface) for surface in surfaces]
-            return log.info(f"{surfaces} were removed from {part1.name}")
-
-        else:
-
-            part2.surfaces.add(surfaces)
-            return log.info(f"{surfaces} was added to {part2.name}")
+    parent.points_tags.extend(child_points_tags)
+    parent.lines_tags.extend(child_lines_tags)
+    parent.surfaces_tags.extend(child_surfaces_tags)
+    parent.volume_tag.extend(child_volume_tag)
 
 
 def generate_gmsh(
@@ -324,418 +170,323 @@ def generate_gmsh(
     """
     gmsh.initialize()
 
-    # import each aircraft original part and find the entities bounding box (bb)
-    # when bbs are found, remove the part from the model the part
-
+    # import each aircraft original parts / parent parts
     aircraft_parts = []
+    parts_parent_dimtag = []
+
     for file in os.listdir(brep_dir_path):
 
         if ".brep" in file:
 
-            log.info(f"Finding boundary boxes :{file[:-5]}")
+            log.info(f"Importing :{file[:-5]}")
 
             # Import the part and create the aircraft part object
 
-            part = gmsh.model.occ.importShapes(
-                os.path.join(brep_dir_path, file), highestDimOnly=True
+            part_entities = gmsh.model.occ.importShapes(
+                os.path.join(brep_dir_path, file), highestDimOnly=False
             )
-
             gmsh.model.occ.synchronize()
-            part_obj = AircraftPart(*part, file[:-5])
 
-            gmsh.model.occ.synchronize()
+            part_obj = AircraftPart(f"{file[:-5]}")
             aircraft_parts.append(part_obj)
-
-            # since the part is alone in the model we can grab its entities
-
-            part_obj.points = sorted(
-                set(gmsh.model.occ.getEntities(dim=0)), key=lambda tup: tup[1]
-            )
-            part_obj.lines = sorted(set(gmsh.model.occ.getEntities(dim=1)), key=lambda tup: tup[1])
-            part_obj.surfaces = sorted(
-                set(gmsh.model.occ.getEntities(dim=2)), key=lambda tup: tup[1]
-            )
-
-            # Find the bounding box of the part (strict and enhance)
-
-            part_obj.get_entities_bb()
-            part_obj.get_entities_bb_visual(1e-3)
-
-            # bb found, so we can clear the entites and remove the part
-
-            part_obj.clear_entities()
-            gmsh.model.occ.remove([part_obj.dim_tag], recursive=True)
-            gmsh.model.occ.synchronize()
-
-    nb_parts = len(aircraft_parts)
-
-    # Fuse operation of the aircraft
-
-    for file in os.listdir(brep_dir_path):
-        if ".brep" in file:
-
-            log.info(f"Preparing:{file[:-5]}")
-
-            # reimport
-
-            part = gmsh.model.occ.importShapes(
-                os.path.join(brep_dir_path, file), highestDimOnly=True
-            )
-
-            # remap the correct volume tag
-            for original_part in aircraft_parts:
-                if original_part.name == str(file[:-5]):
-
-                    original_part.dim_tag = tuple(*part)
-    gmsh.model.occ.synchronize()
-    part_to_fuse = [part.dim_tag for part in aircraft_parts]
-    if symmetry:
-        log.info("Preparing:symmetry box")
-        symm_lenght = 200
-        box_symm = gmsh.model.occ.addBox(
-            0 - symm_lenght,
-            0 - 2 * symm_lenght,
-            0 - symm_lenght,
-            2 * symm_lenght,
-            2 * symm_lenght,
-            2 * symm_lenght,
-        )
-        gmsh.model.occ.synchronize()
-        part_to_fuse.append((3, box_symm))
-
-    if len(part_to_fuse) > 1:
-        log.info(f"Start Fusing process, {len(part_to_fuse)} parts fused")
-        fused_shape, side = gmsh.model.occ.fuse(
-            [part_to_fuse[0]], part_to_fuse[1:], removeObject=True, removeTool=True
-        )
-        gmsh.model.occ.synchronize()
-
-        if symmetry:
-            # add a giant symmetry box
-            box_symm = gmsh.model.occ.addBox(
-                0 - symm_lenght,
-                0 - 2 * symm_lenght,
-                0 - symm_lenght,
-                2 * symm_lenght,
-                2 * symm_lenght,
-                2 * symm_lenght,
-            )
-            gmsh.model.occ.synchronize()
-
-            # Cut the aircraft in half
-            fused_shape, side = gmsh.model.occ.cut(
-                [(3, fused_shape[0][1])],
-                [(3, box_symm)],
-                removeObject=True,
-                removeTool=True,
-            )
-            gmsh.model.occ.synchronize()
-
-        # An aircraft part representing the whole aircraft is created
-        aircraft = AircraftPart(*fused_shape, "aircraft")
-        log.info(f"End Fusing process, {len(part_to_fuse)} parts to fuse")
-
-    else:
-
-        fused_shape = part_to_fuse[0]
-        aircraft = aircraft_parts[0]
+            parts_parent_dimtag.append(part_entities[0])
 
     # create external domain for the farfield
-    domain_lenght = farfield_factor * max(aircraft.sizes)
+    bb = gmsh.model.getBoundingBox(-1, -1)
+    model_dimensions = [abs(bb[0] - bb[3]), abs(bb[1] - bb[4]), abs(bb[2] - bb[5])]
+    model_center = [
+        bb[0] + model_dimensions[0] / 2,
+        bb[1] + model_dimensions[1] / 2,
+        bb[2] + model_dimensions[2] / 2,
+    ]
 
-    center_aircraft = list(gmsh.model.occ.get_center_of_mass(*aircraft.dim_tag))
-    if symmetry:
-        center_aircraft[1] = 0
-    ext_domain = gmsh.model.occ.addSphere(*center_aircraft, domain_lenght)
+    domain_length = farfield_factor * max(model_dimensions)
+    farfield = gmsh.model.occ.addSphere(*model_center, domain_length)
     gmsh.model.occ.synchronize()
 
-    # cut the fluid with the airplane
-
-    final_domain, side = gmsh.model.occ.cut(
-        [(3, ext_domain)],
-        [aircraft.dim_tag],
-        removeObject=True,
-        removeTool=True,
-    )
-    gmsh.model.occ.synchronize()
-
-    # Cut the domain for symmetry
+    ext_domain = [(3, farfield)]
 
     if symmetry:
+        log.info("Preparing: symmetry operation")
+        sym_plane = gmsh.model.occ.addDisk(*model_center, domain_length, domain_length)
+        sym_vector = [0, 1, 0]
+        plane_vector = [0, 0, 1]
+        if sym_vector != plane_vector:
+            rotation_axis = np.cross(sym_vector, plane_vector)
+            gmsh.model.occ.rotate([(2, sym_plane)], *model_center, *rotation_axis, np.pi / 2)
+            sym_box = gmsh.model.occ.extrude(
+                [(2, sym_plane)], *(np.multiply(sym_vector, -domain_length * 1.1))
+            )
+        parts_parent_dimtag.append(sym_box[1])
 
-        box_symm = gmsh.model.occ.addBox(
-            (center_aircraft[0] - domain_lenght) * 1.05,
-            center_aircraft[1] - 2 * domain_lenght,
-            (center_aircraft[2] - domain_lenght) * 1.05,
-            2 * domain_lenght * 1.05,
-            2 * domain_lenght,
-            2 * domain_lenght * 1.05,
-        )
+    # Generate fragment beteen the aircraft and the farfield
 
-        gmsh.model.occ.synchronize()
+    log.info("Start fragment operation")
 
-        # cut the domain in half
+    fragments_dimtag, childs_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)
+    gmsh.model.occ.synchronize()
 
-        final_domain, side = gmsh.model.occ.cut(
-            [(3, final_domain[0][1])],
-            [(3, box_symm)],
-            removeObject=True,
-            removeTool=True,
-        )
-        gmsh.model.occ.synchronize()
-
-    # Find the aircraft entities after all the boolean operations
-    aircraft.get_entities()
+    log.info("Fragment operation finished")
 
     """
-    After the fuse and the boolean operation all the entites are unknown,
-    we need to find from which original part
-    of the aircraft they belong to
+    fragment produce fragments_dimtag and childs_dimtag
+
+    fragments_dimtag is a list of tuples (dimtag, tag) of all the volumes in the model
+    the firts fragment is the enitre domain, each other fragment are subvolume of the domain
+
+    childs_dimtag is a list list of tuples (dimtag, tag)
+    the first list is associated to the entire domain as for fragments_dimtag, we dont need it
+    so for the following we work with childs_dimtag[1:]
+
+    The rest of childs_dimtag are list of tuples (dimtag, tag) that represent the volumes in the
+    model childs_dimtag is "sorted" according to the order of importation of the parent parts.
+    for example if the first part imported was "fuselage1" then the first childs_dimtag is
+    all the "child" volumes in the model that are from the "parent" "fuselage1"
+    we can then associate each entities in the model to their parent origin
+
+    When two parents part ex. a fuselage and a wing intersect each other
+    two childs are generated for both parts, thus if a child is shared by
+    two parent parts (or more), then this child is a volume given
+    by the intersection of the two parent parts, we don't need them and some
+    of its surfaces, lines and point in the final models
+
+    Thus we need to find those unwanted child and their entites that don't belong
+    to the final model, and remove them
+
+    afterward the entities of each child will be associated with their parent part names
+    then we can delete all the child in the model, and only keep the final domain
+    Removing a child will not delete its entities shared by the final domain, this means that
+    at the end we will only have one volume with all the surfaces,lines,points assigned
+    to the original parent parts imported at the begging of the function
+
+    If symmetry is applied the last childs_dimtag is all the volume in the symmerty cylinder
+    thus the we can easily remove them and only keep the volumes of half domain
     """
+    unwanted_childs = []
+    if symmetry:
+        # take the unwanted childs from symmetry
+        unwanted_childs = childs_dimtag[-1]
 
-    # for each aircraft original part, find the entities inside their entity bounding box
+        # remove them from the model
+        gmsh.model.occ.remove(unwanted_childs, recursive=True)
+        gmsh.model.occ.synchronize()
+
+    print("update child removed from symmertry")
+    gmsh.model.occ.synchronize()
+    gmsh.fltk.run()
+
+    # Get the final domain (farfield fluid domain with the aircraft volume removed)
+
+    final_domain = fragments_dimtag[0]
+
+    # Get the childs of the aicraft parts
+
+    aircraft_parts_childs_dimtag = childs_dimtag[1:]
+
+    log.info("Before/after fragment operation relations:")
+    for parent, childs in zip(aircraft_parts, aircraft_parts_childs_dimtag):
+
+        # don't assign unwanted childs if symmetry was used
+
+        childs = [child for child in childs if child not in unwanted_childs]
+
+        log.info(f"{parent.name} has generated {childs} childs")
+        parent.childs_dimtag = set(childs)
+
+    # Some parent may have no childs (due to symmetry), we need to remove them
+    for parent in aircraft_parts:
+        if not parent.childs_dimtag:
+            log.info(f"{parent.name} has no more childs due to symmetry, it will be deleted")
+
+    # Process and add childs that are shared by two parent parts in the shared childs list
+    # and put them in a new unwanted childs list
+
+    unwanted_childs = []
+
+    for part in aircraft_parts:
+        for other_part in aircraft_parts:
+
+            if part != other_part:
+                shared_childs = part.childs_dimtag.intersection(other_part.childs_dimtag)
+
+                if part.childs_dimtag.intersection(other_part.childs_dimtag):
+                    part.childs_dimtag = part.childs_dimtag - shared_childs
+                    other_part.childs_dimtag = other_part.childs_dimtag - shared_childs
+
+                unwanted_childs.extend(list(shared_childs))
+
+    # remove duplicated from the unwanted child list
+
+    unwanted_childs = list(set(unwanted_childs))
+
+    # and remove them from the model
+
+    gmsh.model.occ.remove(unwanted_childs, recursive=True)
+    gmsh.model.occ.synchronize()
+    log.info(f"Unwanted childs {unwanted_childs} removed from model")
+
+    print("inside volumes should be removed from the model")
+    gmsh.model.occ.synchronize()
+    gmsh.fltk.run()
+
+    # Associate good child with their parent
+    good_childs = []
+    for parent in aircraft_parts:
+        for child_dimtag in parent.childs_dimtag:
+            if child_dimtag not in unwanted_childs:
+                good_childs.append(child_dimtag)
+                log.info(f"Associating child {child_dimtag} to parent {parent.name}")
+                associate_child_to_parent(child_dimtag, parent)
+
+    # Now that its clear which child entites in the model are from which parent part,
+    # we can delete the child volumes and only keep the final domain
+
+    gmsh.model.occ.remove(good_childs, recursive=True)
+    gmsh.model.occ.synchronize()
+    print("all other volumes should be removed from the model")
+    gmsh.model.occ.synchronize()
+    gmsh.fltk.run()
+
+    # Now only the final domain is left, in the model
+    # Find the final domain entites
+    final_domain_volume = [final_domain]
+    (
+        final_domain_surfaces,
+        final_domain_lines,
+        final_domain_points,
+    ) = get_entities_from_volume(final_domain_volume)
+
+    final_domain_surfaces_tags = [dimtag[1] for dimtag in final_domain_surfaces]
+    final_domain_lines_tags = [dimtag[1] for dimtag in final_domain_lines]
+    final_domain_points_tags = [dimtag[1] for dimtag in final_domain_points]
+
+    """
+    As already discussed, it is often that two parts intersect each other,
+    it can also happend that some parts create holes inside other parts
+    for example a fuselage and 2 wings defined in the center of the fuselage
+    will create a holed fragment of the fuselage
+    This is not a problem since this hole is not in the final domain volume
+    but they may be some lines and surfaces from the hole in the fuselage
+    that were not eliminated since they were shared by the unwanted childs
+    and those lines and surfaces were assigned to the fuselage part
+
+    thus we need to clean a bit the associated entities by the function
+    associate_child_to_parent() by comparing them with the entities of the
+    final domain
+
+    """
+    for parent in aircraft_parts:
+        # detect only shared entities with the final domain
+
+        parent.surfaces = list(set(parent.surfaces).intersection(set(final_domain_surfaces)))
+        parent.lines = list(set(parent.lines).intersection(set(final_domain_lines)))
+        parent.points = list(set(parent.points).intersection(set(final_domain_points)))
+
+        parent.surfaces_tags = list(
+            set(parent.surfaces_tags).intersection(set(final_domain_surfaces_tags))
+        )
+        parent.lines_tags = list(set(parent.lines_tags).intersection(set(final_domain_lines_tags)))
+        parent.points_tags = list(
+            set(parent.points_tags).intersection(set(final_domain_points_tags))
+        )
+        # # generate physical groups
+        # surfaces_group = gmsh.model.addPhysicalGroup(2, parent.surfaces_tags)
+        # gmsh.model.setPhysicalName(2, surfaces_group, f"{parent.name}_surfaces")
+        # lines_group = gmsh.model.addPhysicalGroup(1, parent.lines_tags)
+        # gmsh.model.setPhysicalName(1, lines_group, f"{parent.name}_lines")
+        # points_group = gmsh.model.addPhysicalGroup(0, parent.points_tags)
+        # gmsh.model.setPhysicalName(0, points_group, f"{parent.name}_points")
+
+    log.info("Model cleaned")
+
+    # Create an aircraft part containing all the parts of the aircraft
+
+    aircraft = AircraftPart("aircraft")
 
     for part in aircraft_parts:
 
-        log.info(f"Remapping :{part.name}")
-        part.remap_entites()
+        aircraft.points.extend(part.points)
+        aircraft.lines.extend(part.lines)
+        aircraft.surfaces.extend(part.surfaces)
+        aircraft.volume.extend(part.volume)
+        aircraft.points_tags.extend(part.points_tags)
+        aircraft.lines_tags.extend(part.lines_tags)
+        aircraft.surfaces_tags.extend(part.surfaces_tags)
+        aircraft.volume_tag.extend(part.volume_tag)
 
-    # Check if remaping has been done correctly
+    # Form physical groups for SU2
 
-    Flag_duplicated_surface = False
-    Flag_missing_surface = False
-
-    aircraft_total_surfaces = len(aircraft.surfaces)
-
-    # 1) search for duplicated surface that may be shared by more than one part"
-    for i in range(nb_parts):
-        for j in range(nb_parts):
-
-            if i != j:
-                twin_surfaces = aircraft_parts[i].surfaces.intersection(aircraft_parts[j].surfaces)
-
-                if twin_surfaces:  # check if not empty
-                    # One of the two part need to transfert the duplicated surface to the other
-                    Flag_duplicated_surface = True
-                    hierarchy_surface(aircraft_parts[i], aircraft_parts[j], twin_surfaces, 0)
-
-    # count if the number of surface remaped is equal to the fused aircraft surfaces
-    check_surface = sum([len(part.surfaces) for part in aircraft_parts])
-
-    if Flag_duplicated_surface:
-
-        log.info("Duplicated surfaces were found, second remapping triggered")
-        if check_surface == aircraft_total_surfaces:
-
-            log.info("Duplicate surface remapping successful")
-
-        else:
-
-            Flag_missing_surface = True
-            log.info("Duplicate surface remapping done , but there is still :")
-            log.info(f"{aircraft_total_surfaces - check_surface} missing surfaces")
-
-    if check_surface != aircraft_total_surfaces:
-
-        Flag_missing_surface = True
-        log.info(f"{aircraft_total_surfaces - check_surface}missing surfaces")
-
-    # 2) search for missing surfaces
-
-    if Flag_missing_surface:
-
-        log.info("Missing surfaces remapping triggered")
-
-        # find which surface is missing
-
-        surfaces_found = set.union(*[part.surfaces for part in aircraft_parts])
-        surfaces_missing = set(aircraft.surfaces).difference(surfaces_found)
-
-        # remap the missing surfaces
-
-        for surface in surfaces_missing:
-            potential_parts = []
-
-            for part in aircraft_parts:
-                surfaces_in_part = set(gmsh.model.occ.getEntitiesInBoundingBox(*part.bb, dim=2))
-
-                if surface in surfaces_in_part:
-                    potential_parts.append(part)
-
-            if len(potential_parts) == 1:
-
-                part.surfaces.add(surface)
-                log.info(f"{surface} was added to {part.name}")
-
-            if len(potential_parts) == 2:
-
-                hierarchy_surface(*potential_parts, surface, 1)
-
-            if len(potential_parts) > 2:
-                raise ValueError(f"Too many parts found for surface{surface}")
-
-        check_surface = sum([len(part.surfaces) for part in aircraft_parts])
-
-        if check_surface != aircraft_total_surfaces:
-            log.info("There is still missing surfaces, check that your cpacs geometry is healthy")
-
-        else:
-            log.info("Missing surfaces remapping successful ")
-
-    # Remap the entities of the farfield:
-
-    final_domain_points = gmsh.model.getEntities(dim=0)
-    final_domain_lines = gmsh.model.getEntities(dim=1)
-    final_domain_surfaces = gmsh.model.getEntities(dim=2)
-
-    # Find the entites belonging to the farfield
-
-    farfield_points = set([point for point in final_domain_points if point not in aircraft.points])
-    farfield_lines = set([line for line in final_domain_lines if line not in aircraft.lines])
-    farfield_surfaces = set(
-        [surface for surface in final_domain_surfaces if surface not in aircraft.surfaces]
-    )
-
-    # check sum on the entire domain:
-
-    check_points = len(aircraft.points) + len(farfield_points)
-    check_lines = len(aircraft.lines) + len(farfield_lines)
-    check_surfaces = aircraft_total_surfaces + len(farfield_surfaces)
-
-    if (
-        (len(final_domain_points) != check_points)
-        or (len(final_domain_lines) != check_lines)
-        or (len(final_domain_surfaces) != check_surfaces)
-    ):
-        raise ValueError("Unmatching number of entities in the current model")
-
-    else:
-        log.info("Remapping of the external domain as been successfull")
-
-    # now that each surface is well defined, we can map its boundary lines and points
-    for part in aircraft_parts:
-        part.get_boundary_from_surfaces()
-
-    # Form physical groups
-
-    # Aircraft
-
-    for part in aircraft_parts:
-        for surface in part.surfaces:
-
-            part.surfaces_tags.append(surface[1])
-
-        bc_part = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
-        gmsh.model.setPhysicalName(2, bc_part, part.name)
+    bc_aircraft = gmsh.model.addPhysicalGroup(2, aircraft.surfaces_tags)
+    gmsh.model.setPhysicalName(2, bc_aircraft, "aircraft")
 
     # Farfield
+    # farfield entities are simply the entites left in the final domain
+    # that don't belong to the aircraft
+    farfield_surfaces = list(set(final_domain_surfaces) - set(aircraft.surfaces))
+    farfield_lines = list(set(final_domain_lines) - set(aircraft.lines))
+    farfield_points = list(set(final_domain_points) - set(aircraft.points))
+
+    farfield_surfaces_tags = list(set(final_domain_surfaces_tags) - set(aircraft.surfaces_tags))
+    farfield_lines_tags = list(set(final_domain_lines_tags) - set(aircraft.lines_tags))
+    farfield_points_tags = list(set(final_domain_points_tags) - set(aircraft.points_tags))
+
     if symmetry:
-        # Find the difference between the entity of the symmetry plane and farfield
-        external_domain_surfaces_tags = [surface[1] for surface in farfield_surfaces]
-        aircraft_line_tags = [line[1] for line in aircraft.lines]
 
-        # check each surface from the external domain
-        for tag in external_domain_surfaces_tags:
-            # adjacent lines of each surface
-            _, adj_lines = gmsh.model.getAdjacencies(2, tag)
+        symmetry_surfaces = []
+        symmetry_surfaces_tags = []
+        """
+        If symmetry was used, it means that in the farfield entites we have
+        a surface that is the plane of symmetry, we need to find it
+        and remove it from the farfield entities
 
-            # check if the adjacent lines are not part of the aircraft
-            common_lines = set(adj_lines).intersection(set(aircraft_line_tags))
-            if common_lines:  # if line are common to a external field surface
-                # then it should be the symmetry surface
-                symm_surface_tag = tag
-            else:
-                farfield_surface_tag = tag
-        farfield = gmsh.model.addPhysicalGroup(2, [farfield_surface_tag])
-        gmsh.model.setPhysicalName(2, farfield, "farfield")
+        In general it is easy because the symmetry plane should be the only surface
+        in the farfield who touch the aircraft
+        """
 
-        symmetry = gmsh.model.addPhysicalGroup(2, [symm_surface_tag])
-        gmsh.model.setPhysicalName(2, symmetry, "symmetry_plane")
+        for farfield_surface in farfield_surfaces:
+            _, adj_lines_tags = gmsh.model.getAdjacencies(*farfield_surface)
 
-    else:
-        # Farfield without symmetry
-        farfield_surfaces_tags = []
+            if set(adj_lines_tags).intersection(set(aircraft.lines_tags)):
 
-        for surface in farfield_surfaces:
-            farfield_surfaces_tags.append(surface[1])
+                farfield_surfaces.remove(farfield_surface)
+                farfield_surfaces_tags.remove(farfield_surface[1])
 
-        farfield = gmsh.model.addPhysicalGroup(2, farfield_surfaces_tags)
-        gmsh.model.setPhysicalName(2, farfield, "farfield")
+                symmetry_surfaces.append(farfield_surface)
+                symmetry_surfaces_tags.append(farfield_surface[1])
+
+        symmetry_group = gmsh.model.addPhysicalGroup(2, symmetry_surfaces_tags)
+        gmsh.model.setPhysicalName(2, symmetry_group, "symmetry")
+
+    farfield = gmsh.model.addPhysicalGroup(2, farfield_surfaces_tags)
+    gmsh.model.setPhysicalName(2, farfield, "farfield")
 
     # Fluid domain
-
-    ps = gmsh.model.addPhysicalGroup(3, [final_domain[0][1]])
+    final_domain_volume_tag = [final_domain_volume[0][1]]
+    ps = gmsh.model.addPhysicalGroup(3, final_domain_volume_tag)
     gmsh.model.setPhysicalName(3, ps, "fluid")
 
     gmsh.model.occ.synchronize()
+    log.info("Markers for SU2 generated")
 
-    # Mesh Tags
+    # Mesh Generation
 
-    wing_surfaces_tags = []
-    fuselage_surfaces_tags = []
-
+    # Set mesh size of the aircraft parts
     for part in aircraft_parts:
-
-        if "wing" in part.name:
-            wing_surfaces_tags += part.surfaces_tags
-
         if "fuselage" in part.name:
-            fuselage_surfaces_tags += part.surfaces_tags
-
-    # Set mesh size
-
-    for part in aircraft_parts:
-
+            gmsh.model.mesh.setSize(part.points, mesh_size_fuselage)
         if "wing" in part.name:
-            gmsh.model.mesh.setSize(list(part.points), mesh_size_wings)
+            gmsh.model.mesh.setSize(part.points, mesh_size_wings)
 
-        if "fuselage" in part.name:
-            gmsh.model.mesh.setSize(list(part.points), mesh_size_fuselage)
+    # Set mesh size of the farfield
+    gmsh.model.mesh.setSize(farfield_points, mesh_size_farfield)
 
-    # Find missing points or points that are between two part of different mesh size
+    # Color the mesh according to the aircraft parts
 
-    points_found = set.union(*[part.points for part in aircraft_parts])
-    points_missing = set(aircraft.points).difference(points_found)
-
-    if points_missing:
-        log.info("Points remapping")
-
-        for point in points_missing:
-
-            adj_lines, _ = gmsh.model.getAdjacencies(*point)
-            adj_surfaces_tags = []
-
-            for line_tag in adj_lines:
-
-                adj_surfaces_2_line, _ = gmsh.model.getAdjacencies(1, line_tag)
-
-                for surface_tag in adj_surfaces_2_line:
-                    adj_surfaces_tags.append(surface_tag)
-
-            # The point size will be a function of the nearby parts
-
-            point_mesh_size = []
-
-            for adj_surface_tag in adj_surfaces_tags:
-
-                if adj_surface_tag in wing_surfaces_tags:
-                    point_mesh_size.append(mesh_size_wings)
-
-                if adj_surface_tag in fuselage_surfaces_tags:
-                    point_mesh_size.append(mesh_size_fuselage)
-
-            point_mesh_size = set(point_mesh_size)
-            gmsh.model.mesh.setSize([point], sum(point_mesh_size) / len(point_mesh_size))
-
-    # Farfiled size
-    gmsh.model.mesh.setSize(list(farfield_points), mesh_size_farfield)
-
-    # Color the mesh according to the surfaces found on the airplane parts
     # Color code
-
     mesh_color_wing = (0, 255, 0)
     mesh_color_fus = (0, 0, 255)
     mesh_color_farfield = (255, 255, 0)
+    mesh_color_symmetry = (255, 0, 255)
 
     # Color assignation for each part
 
@@ -746,13 +497,14 @@ def generate_gmsh(
 
         if "fuselage" in part.name:
             color = mesh_color_fus
-        gmsh.model.setColor(list(part.surfaces), *color, a=150, recursive=True)
+        gmsh.model.setColor(part.surfaces, *color, a=150, recursive=False)
 
-    gmsh.model.setColor(list(farfield_surfaces), *mesh_color_farfield, a=150, recursive=True)
+    gmsh.model.setColor(farfield_surfaces, *mesh_color_farfield, a=150, recursive=False)
+    if symmetry:
+        gmsh.model.setColor(symmetry_surfaces, *mesh_color_symmetry, a=150, recursive=False)
 
-    # Generate mesh
-    mesh_fields = {"nbfields": 0, "restrict_fields": []}
-
+    # Generate advance meshing features
+    # mesh_fields = {"nbfields": 0, "restrict_fields": []}
     # for part in aircraft_parts:
     #     if "wing" in part.name:
     #         classify_wing(part, aircraft_parts)
@@ -762,20 +514,25 @@ def generate_gmsh(
     #             mesh_fields,
     #             part,
     #             mesh_size_wings,
-    #             refine=5,
-    #             chord_percent=0.1,
+    #             refine=2,
+    #             chord_percent=0.2,
     #         )
+    #     if "fuselage" in part.name:
+    #         set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
+    # set_farfiled_mesh(mesh_fields, farfield_surfaces, mesh_size_farfield)
+    # mesh_fields["nbfields"] += 1
+    # gmsh.model.mesh.field.add("Min", mesh_fields["nbfields"])
+    # gmsh.model.mesh.field.setNumbers(
+    #     mesh_fields["nbfields"], "FieldsList", mesh_fields["restrict_fields"]
+    # )
+    # gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
+    # gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
+    # gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
+    # gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
 
-    print(mesh_fields["nbfields"])
-    print(mesh_fields["restrict_fields"])
-    mesh_fields["nbfields"] += 1
-    gmsh.model.mesh.field.add("Min", mesh_fields["nbfields"])
-    gmsh.model.mesh.field.setNumbers(
-        mesh_fields["nbfields"], "FieldsList", mesh_fields["restrict_fields"]
-    )
-    gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
-
+    # Mesh generation
     gmsh.model.occ.synchronize()
+
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
 
@@ -806,11 +563,11 @@ def generate_gmsh(
 # ==============================================================================
 if __name__ == "__main__":
     generate_gmsh(
-        "test_files/simple",
+        "test_files/concorde",
         "",
         open_gmsh=True,
-        farfield_factor=5,
-        symmetry=False,
+        farfield_factor=4,
+        symmetry=True,
         mesh_size_farfield=12,
         mesh_size_fuselage=0.1,
         mesh_size_wings=0.1,

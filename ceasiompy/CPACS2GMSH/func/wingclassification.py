@@ -180,6 +180,16 @@ def classify_trunc_profile(profile_list, profile_lines, line_comp1, line_comp2):
         # if 3 line sharing common points are found, then the profile is found
         if len(loop_line) != 3:
             return False
+        # check that each line share only one point with the two other line
+        for k in range(0, len(loop_line)):
+
+            _, adj_points = gmsh.model.getAdjacencies(1, loop_line[k])
+
+            for line in loop_line[:k] + loop_line[k + 1 :]:
+                _, adj_points_other = gmsh.model.getAdjacencies(1, line)
+
+                if len(set(adj_points).intersection(set(adj_points_other))) != 1:
+                    return False
 
         # a profile is found
         loop_line = sorted(loop_line)
@@ -221,18 +231,21 @@ def classify_trunc_profile(profile_list, profile_lines, line_comp1, line_comp2):
         distances = [d12[0], d23[0], d31[0]]
 
         # the two trailing edge points are the closest togheter
+
         te_points = pts[distances.index(min(distances))]
 
         # remove te points from the list to find le point
+
         points.remove(te_points[0]), points.remove(te_points[1])
 
         # find the leading and trailing edge lines who leaves the profile
-        le_point = points[0]
 
+        le_point = points[0]
         adj_le_lines, _ = gmsh.model.getAdjacencies(0, le_point)
         adj_le_lines = set(adj_le_lines)
 
         # multiple trailing edge lines
+
         adj_te_lines = []
 
         for point in te_points:
@@ -241,6 +254,10 @@ def classify_trunc_profile(profile_list, profile_lines, line_comp1, line_comp2):
             adj_te_lines += list(adj_lines)
 
         adj_te_lines = set(adj_te_lines)
+
+        # remove from all the adjacent line the ones that are the profile spline
+        adj_le_lines = adj_le_lines.difference(set(loop_line))
+        adj_te_lines = adj_te_lines.difference(set(loop_line))
 
         # classify the profile
         profile_list.append(
@@ -256,7 +273,7 @@ def classify_trunc_profile(profile_list, profile_lines, line_comp1, line_comp2):
         return True
 
 
-def classify_wing_section(wing_part, wing_sections, profile, other_profile):
+def classify_wing_section(wing_sections, profile, other_profile):
     """
     Function to detect and classify wing section in a wing part
     A wing section is composed of two profiles and the lines that connect their
@@ -295,13 +312,13 @@ def classify_wing_section(wing_part, wing_sections, profile, other_profile):
         # the leading edge line is a unique feature of the wing section
         le_line = list(le_line)
         te_line = list(te_line)
+
         previous_le_lines = [wing_section["le_line"][0] for wing_section in wing_sections]
 
-        if le_line[0] in previous_le_lines:
+        if le_line[0] in previous_le_lines:  # if leading edge line already found
             return False
 
         # classify the wing section:
-        # TODO: classify the wing tip surfaces
 
         section_surfaces = []
 
@@ -466,8 +483,8 @@ def classify_special_section(wing_part, wing_sections, profiles):
         the lines and points of the wing
         """
         # seek if the profile projection on the fuselage is a simple profile
-        if (already_classifed_lines == set(wing_part.boundary_lines)) and (
-            (le_points_wing.union(te_points_wing)) == set(wing_part.boundary_points)
+        if (already_classifed_lines == set(wing_part.lines)) and (
+            (le_points_wing.union(te_points_wing)) == set(wing_part.points)
         ):
             return False
         adj_lines = []
@@ -626,7 +643,6 @@ def classify_wing(wing_part, aircraft_parts):
     ...
     """
     # find the profiles that composed the wing and its sections
-
     profiles = []
     """
     A profile is composed of two Spline (one upper and one lower) that are connected
@@ -637,15 +653,15 @@ def classify_wing(wing_part, aircraft_parts):
     """
     lines_composition = []
 
-    for line in wing_part.boundary_lines:
+    for line in wing_part.lines:
 
         # Seek for the adjacent points of each line in the wing part
 
-        _, adj_points = gmsh.model.getAdjacencies(1, line)
+        _, adj_points = gmsh.model.getAdjacencies(*line)
 
         # store the line composition : line dimTag and the two adjacent points dimTag
 
-        lines_composition.append({"line_dimtag": line, "points_tags": list(adj_points)})
+        lines_composition.append({"line_dimtag": line[1], "points_tags": list(adj_points)})
 
     # try to find simple profile (untruncated) first
 
@@ -684,7 +700,7 @@ def classify_wing(wing_part, aircraft_parts):
     # then search if there is another profile who shares the same le/te lines
     for profile in profiles:
         for other_profile in profiles:
-            classify_wing_section(wing_part, wing_sections, profile, other_profile)
+            classify_wing_section(wing_sections, profile, other_profile)
 
     # add the wing sections founded to the wing Aircraftpart
     wing_part.wing_sections = wing_sections
@@ -698,7 +714,15 @@ def classify_wing(wing_part, aircraft_parts):
     # First seek if the aircraft contain a fuselage
     for part in aircraft_parts:
         if "fuselage" in part.name:
-            fuselage = True
+
+            # seek if the wing is actually attached to the fuselage
+
+            fuselage_boundary = set(part.points)
+            wing_boundary = set(wing_part.points)
+
+            if len(wing_boundary.intersection(fuselage_boundary)) != 0:
+
+                fuselage = True
 
     if fuselage:
         classify_special_section(wing_part, wing_sections, profiles)

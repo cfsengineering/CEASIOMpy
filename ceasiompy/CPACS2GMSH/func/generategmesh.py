@@ -30,8 +30,9 @@ from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
     set_fuselage_mesh,
-    set_farfiled_mesh,
+    set_farfield_mesh,
 )
+
 
 log = get_logger(__file__.split(".")[0])
 
@@ -271,9 +272,9 @@ def generate_gmsh(
         gmsh.model.occ.remove(unwanted_childs, recursive=True)
         gmsh.model.occ.synchronize()
 
-    print("update child removed from symmertry")
-    gmsh.model.occ.synchronize()
-    gmsh.fltk.run()
+    # print("update child removed from symmertry")
+    # gmsh.model.occ.synchronize()
+    # gmsh.fltk.run()
 
     # Get the final domain (farfield fluid domain with the aircraft volume removed)
 
@@ -325,9 +326,9 @@ def generate_gmsh(
     gmsh.model.occ.synchronize()
     log.info(f"Unwanted childs {unwanted_childs} removed from model")
 
-    print("inside volumes should be removed from the model")
-    gmsh.model.occ.synchronize()
-    gmsh.fltk.run()
+    # print("inside volumes should be removed from the model")
+    # gmsh.model.occ.synchronize()
+    # gmsh.fltk.run()
 
     # Associate good child with their parent
     good_childs = []
@@ -343,9 +344,10 @@ def generate_gmsh(
 
     gmsh.model.occ.remove(good_childs, recursive=True)
     gmsh.model.occ.synchronize()
-    print("all other volumes should be removed from the model")
-    gmsh.model.occ.synchronize()
-    gmsh.fltk.run()
+
+    # print("all other volumes should be removed from the model")
+    # gmsh.model.occ.synchronize()
+    # gmsh.fltk.run()
 
     # Now only the final domain is left, in the model
     # Find the final domain entites
@@ -471,6 +473,11 @@ def generate_gmsh(
     # Mesh Generation
 
     # Set mesh size of the aircraft parts
+    """
+    not that points common between parts will overwrite the mesh size
+    be sure to define mesh size in a certain order to control
+    the size of the points on boundaries
+    """
     for part in aircraft_parts:
         if "fuselage" in part.name:
             gmsh.model.mesh.setSize(part.points, mesh_size_fuselage)
@@ -504,35 +511,46 @@ def generate_gmsh(
         gmsh.model.setColor(symmetry_surfaces, *mesh_color_symmetry, a=150, recursive=False)
 
     # Generate advance meshing features
-    # mesh_fields = {"nbfields": 0, "restrict_fields": []}
-    # for part in aircraft_parts:
-    #     if "wing" in part.name:
-    #         classify_wing(part, aircraft_parts)
-    #         nb_sect = len(part.wing_sections)
-    #         log.info(f"Classification of {part.name} done, {nb_sect} section(s) found ")
-    #         refine_wing_section(
-    #             mesh_fields,
-    #             part,
-    #             mesh_size_wings,
-    #             refine=2,
-    #             chord_percent=0.2,
-    #         )
-    #     if "fuselage" in part.name:
-    #         set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
-    # set_farfiled_mesh(mesh_fields, farfield_surfaces, mesh_size_farfield)
-    # mesh_fields["nbfields"] += 1
-    # gmsh.model.mesh.field.add("Min", mesh_fields["nbfields"])
-    # gmsh.model.mesh.field.setNumbers(
-    #     mesh_fields["nbfields"], "FieldsList", mesh_fields["restrict_fields"]
-    # )
-    # gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
-    # gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
-    # gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
-    # gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
+    mesh_fields = {"nbfields": 0, "restrict_fields": []}
+    for part in aircraft_parts:
+        if "wing" in part.name:
+            classify_wing(part, aircraft_parts)
+            nb_sect = len(part.wing_sections)
+            log.info(f"Classification of {part.name} done, {nb_sect} section(s) found ")
+            refine_wing_section(
+                mesh_fields,
+                part,
+                mesh_size_wings,
+                refine=2,
+                chord_percent=0.2,
+            )
+        if "fuselage" in part.name:
+            set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
+
+    min_size_mesh = min(mesh_size_wings, mesh_size_fuselage, mesh_size_farfield)
+
+    set_farfield_mesh(
+        mesh_fields,
+        model_center,
+        domain_length,
+        min_size_mesh,
+        farfield_surfaces,
+        mesh_size_farfield,
+    )
+
+    mesh_fields["nbfields"] += 1
+    gmsh.model.mesh.field.add("Min", mesh_fields["nbfields"])
+    gmsh.model.mesh.field.setNumbers(
+        mesh_fields["nbfields"], "FieldsList", mesh_fields["restrict_fields"]
+    )
+    gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
+
+    gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
+    gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
+    gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
 
     # Mesh generation
     gmsh.model.occ.synchronize()
-
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
 
@@ -563,7 +581,7 @@ def generate_gmsh(
 # ==============================================================================
 if __name__ == "__main__":
     generate_gmsh(
-        "test_files/concorde",
+        "test_files/simple",
         "",
         open_gmsh=True,
         farfield_factor=4,

@@ -450,8 +450,11 @@ def generate_gmsh(
 
     # Form physical groups for SU2
 
-    bc_aircraft = gmsh.model.addPhysicalGroup(2, aircraft.surfaces_tags)
-    gmsh.model.setPhysicalName(2, bc_aircraft, "aircraft")
+    # bc_aircraft = gmsh.model.addPhysicalGroup(2, aircraft.surfaces_tags)
+    # gmsh.model.setPhysicalName(2, bc_aircraft, "aircraft")
+    for part in aircraft_parts:
+        surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
+        gmsh.model.setPhysicalName(2, surfaces_group, f"{part.name}")
 
     # Farfield
     # farfield entities are simply the entites left in the final domain
@@ -607,7 +610,7 @@ def generate_gmsh(
         gmsh.fltk.run()
 
     gmsh.finalize()
-    return su2mesh_path
+    return su2mesh_path, aircraft_parts
 
 
 # ==============================================================================
@@ -615,11 +618,11 @@ def generate_gmsh(
 # ==============================================================================
 if __name__ == "__main__":
     generate_gmsh(
-        "test_files/simple",
+        "test_files/pytest_files",
         "",
         open_gmsh=True,
         farfield_factor=4,
-        symmetry=True,
+        symmetry=False,
         mesh_size_farfield=12,
         mesh_size_fuselage=0.1,
         mesh_size_wings=0.1,

@@ -12,7 +12,7 @@ Python version: >=3.7
 
 TODO:
 
-    -
+    -Do something better with the background field for the farfield volume
 
 """
 
@@ -86,21 +86,22 @@ def refine_wing_section(
 
     sigmoid = False
     include_boundary = True
+    surfaces_wing = wing_part.surfaces_tags
     for wing_section in wing_part.wing_sections:
         chord_mean = wing_section["mean_chord"]
         le_line = wing_section["le_line"]
         te_line = wing_section["te_line"]
-        surfaces = wing_section["surfaces"]
-        adj_lines = []
-        for surface in surfaces:
-            _, adj_lin = gmsh.model.getAdjacencies(2, surface)
-            adj_lines.extend(adj_lin)
+        # surfaces = wing_section["surfaces"]
+        # adj_lines = []
+        # for surface in surfaces:
+        #     _, adj_lin = gmsh.model.getAdjacencies(2, surface)
+        #     adj_lines.extend(adj_lin)
 
-        adj_surfaces = []
-        for line in adj_lines:
-            adj_surf, _ = gmsh.model.getAdjacencies(1, line)
-            adj_surfaces.extend(adj_surf)
-        adj_surfaces = list(set(adj_surfaces))
+        # adj_surfaces = []
+        # for line in adj_lines:
+        #     adj_surf, _ = gmsh.model.getAdjacencies(1, line)
+        #     adj_surfaces.extend(adj_surf)
+        # adj_surfaces = list(set(adj_surfaces))
 
         lines_to_refine = [*le_line, *te_line]
 
@@ -134,7 +135,7 @@ def refine_wing_section(
         gmsh.model.mesh.field.setNumber(
             mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
         )
-        gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", adj_surfaces)
+        gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", surfaces_wing)
         gmsh.model.mesh.field.setNumber(
             mesh_fields["nbfields"], "IncludeBoundary", include_boundary
         )
@@ -160,8 +161,7 @@ def set_fuselage_mesh(mesh_fields, fuselage_part, mesh_size_fuselage):
     ...
     """
     # get the fuselage surface
-    surfaces = fuselage_part.surfaces
-    surfaces_tags = [dimtag[1] for dimtag in surfaces]
+    surfaces_tags = fuselage_part.surfaces_tags
     include_boundary = True
 
     # create new distance field

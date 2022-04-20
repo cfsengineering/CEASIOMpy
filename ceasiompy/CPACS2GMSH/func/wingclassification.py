@@ -12,7 +12,20 @@ Python version: >=3.7
 
 TODO:
 
-    -
+    -For the special wing section add the profile in profile list
+    one profile is easy, the other one is more complicated but it
+    seams to be formed of the remaining lines of the wing that are not
+    classified
+
+    - Add for a a wing the surfaces of the fusealge that are touching the wing
+    thus a refinement of the fuselage near the wing can be done
+    by making extra fields restricted to those surfaces with the maxmeshsize of
+    the fuselage
+
+    - Try to handle special case when symetry is applied and it cuts the vertical
+    wing such that there is no profile to be found :
+    ex. optimal with sym : wing3 no sections found
+
 
 """
 
@@ -85,15 +98,14 @@ def classify_profile(profile_list, line_comp1, line_comp2):
 
         # find the leading and trailing edge lines who leaves the profile
         adj_le_lines, _ = gmsh.model.getAdjacencies(0, pair_points[0])
-        adj_le_lines = list(adj_le_lines)
+        adj_le_lines = set(adj_le_lines)
 
         adj_te_lines, _ = gmsh.model.getAdjacencies(0, pair_points[1])
-        adj_te_lines = list(adj_te_lines)
+        adj_te_lines = set(adj_te_lines)
 
         # remove from all the adjacent line the ones that are the profile spline
-
-        [adj_le_lines.remove(spline) for spline in splines_dim_tag]
-        [adj_te_lines.remove(spline) for spline in splines_dim_tag]
+        adj_le_lines.difference(set(splines_dim_tag))
+        adj_te_lines.difference(set(splines_dim_tag))
 
         # the remaining lines are the leading and trailing edge lines
 
@@ -102,8 +114,8 @@ def classify_profile(profile_list, line_comp1, line_comp2):
                 "truncated": False,
                 "lines_dimtag": splines_dim_tag,
                 "points_tag": pair_points,
-                "adj_le_lines": adj_le_lines,
-                "adj_te_lines": adj_te_lines,
+                "adj_le_lines": list(adj_le_lines),
+                "adj_te_lines": list(adj_te_lines),
                 "chord_length": chord,
             }
         )
@@ -440,6 +452,7 @@ def classify_special_section(wing_part, wing_sections, profiles):
     True : if the special wing section is classified
     False : if already classified
     """
+
     # seek if there is at least a profile in this wing
     if len(profiles) == 0:
         # part of the aircraft may be deleted due to symmerty application
@@ -487,9 +500,7 @@ def classify_special_section(wing_part, wing_sections, profiles):
         the lines and points of the wing
         """
         # seek if the profile projection on the fuselage is a simple profile
-        print(already_classifed_lines)
-        print(wing_part.lines_tags)
-        gmsh.fltk.run()
+
         if (already_classifed_lines == set(wing_part.lines_tags)) and (
             (le_points_wing.union(te_points_wing)) == set(wing_part.points_tags)
         ):
@@ -565,6 +576,7 @@ def classify_special_section(wing_part, wing_sections, profiles):
                 "surfaces": section_surfaces,
             }
         )
+
         return True
     else:
         # the special wing section is the only wing section of the wing
@@ -668,7 +680,6 @@ def classify_wing(wing_part, aircraft_parts):
         # store the line composition : line dimTag and the two adjacent points dimTag
 
         lines_composition.append({"line_dimtag": line[1], "points_tags": list(adj_points)})
-
     # try to find simple profile (untruncated) first
 
     for line_comp1 in lines_composition:
@@ -694,9 +705,6 @@ def classify_wing(wing_part, aircraft_parts):
                 )
                 if profile_found:
                     lines_composition.remove(line_comp2)
-    for profile in profiles:
-        print(profile)
-        print()
     # Now that profiles in the wing are classify, we can seek the pair of profiles that
     # forms a wing section
     wing_sections = []
@@ -712,30 +720,13 @@ def classify_wing(wing_part, aircraft_parts):
 
     # add the wing sections founded to the wing Aircraftpart
     wing_part.wing_sections = wing_sections
-    for wing_section in wing_sections:
-        print()
-        print(wing_section)
     # Dealing with the special wing section that is attached to the fuselage :
     # this wing section is special because multiple lines form the profile that is
     # attached to the fuselage
 
-    fuselage = False
-
-    # First seek if the aircraft contain a fuselage
-    for part in aircraft_parts:
-        if "fuselage" in part.name:
-
-            # seek if the wing is actually attached to the fuselage
-
-            fuselage_boundary = set(part.points)
-            wing_boundary = set(wing_part.points)
-
-            if len(wing_boundary.intersection(fuselage_boundary)) != 0:
-
-                fuselage = True
-
-    if fuselage:
-        classify_special_section(wing_part, wing_sections, profiles)
+    classify_special_section(wing_part, wing_sections, profiles)
+    # update wing sections in the part
+    wing_part.wing_sections = wing_sections
 
 
 # ==============================================================================

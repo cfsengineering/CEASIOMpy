@@ -24,6 +24,7 @@ TODO:
 # ==============================================================================
 import gmsh
 import os
+import pickle
 from ceasiompy.utils.ceasiomlogger import get_logger
 import numpy as np
 from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
@@ -32,6 +33,7 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     set_fuselage_mesh,
     set_farfield_mesh,
 )
+from ceasiompy.CPACS2GMSH.func.enginereposition import reposition_engine
 
 
 log = get_logger(__file__.split(".")[0])
@@ -201,13 +203,16 @@ def generate_gmsh(
         Size of the wing mesh
 
     """
-    gmsh.initialize()
+    # for now supress nacelle parts since they are not supported
+    file_list = os.listdir(brep_dir_path)
+    file_list = [file for file in file_list if (("nacelle" not in file))]
 
+    gmsh.initialize()
     # import each aircraft original parts / parent parts
     aircraft_parts = []
     parts_parent_dimtag = []
 
-    for file in os.listdir(brep_dir_path):
+    for file in file_list:
 
         if ".brep" in file:
 
@@ -223,6 +228,9 @@ def generate_gmsh(
             part_obj = AircraftPart(f"{file[:-5]}")
             aircraft_parts.append(part_obj)
             parts_parent_dimtag.append(part_entities[0])
+
+    gmsh.model.occ.synchronize()
+    gmsh.fltk.run()
 
     # create external domain for the farfield
     bb = gmsh.model.getBoundingBox(-1, -1)
@@ -295,6 +303,7 @@ def generate_gmsh(
     If symmetry is applied the last childs_dimtag is all the volume in the symmerty cylinder
     thus the we can easily remove them and only keep the volumes of half domain
     """
+
     unwanted_childs = []
     if symmetry:
         # take the unwanted childs from symmetry
@@ -303,11 +312,7 @@ def generate_gmsh(
         # remove them from the model
         gmsh.model.occ.remove(unwanted_childs, recursive=True)
         gmsh.model.occ.synchronize()
-
-    # print("update child removed from symmertry")
-    # gmsh.model.occ.synchronize()
-    # gmsh.fltk.run()
-
+    gmsh.fltk.run()
     # Get the final domain (farfield fluid domain with the aircraft volume removed)
 
     final_domain = fragments_dimtag[0]
@@ -330,6 +335,7 @@ def generate_gmsh(
     for parent in aircraft_parts:
         if not parent.childs_dimtag:
             log.info(f"{parent.name} has no more childs due to symmetry, it will be deleted")
+            aircraft_parts.remove(parent)
 
     # Process and add childs that are shared by two parent parts in the shared childs list
     # and put them in a new unwanted childs list
@@ -358,10 +364,6 @@ def generate_gmsh(
     gmsh.model.occ.synchronize()
     log.info(f"Unwanted childs {unwanted_childs} removed from model")
 
-    # print("inside volumes should be removed from the model")
-    # gmsh.model.occ.synchronize()
-    # gmsh.fltk.run()
-
     # Associate good child with their parent
     good_childs = []
     for parent in aircraft_parts:
@@ -370,16 +372,11 @@ def generate_gmsh(
                 good_childs.append(child_dimtag)
                 log.info(f"Associating child {child_dimtag} to parent {parent.name}")
                 associate_child_to_parent(child_dimtag, parent)
-
     # Now that its clear which child entites in the model are from which parent part,
     # we can delete the child volumes and only keep the final domain
 
     gmsh.model.occ.remove(good_childs, recursive=True)
     gmsh.model.occ.synchronize()
-
-    # print("all other volumes should be removed from the model")
-    # gmsh.model.occ.synchronize()
-    # gmsh.fltk.run()
 
     # Now only the final domain is left, in the model
     # Find the final domain entites
@@ -423,13 +420,6 @@ def generate_gmsh(
         parent.points_tags = list(
             set(parent.points_tags).intersection(set(final_domain_points_tags))
         )
-        # # generate physical groups
-        # surfaces_group = gmsh.model.addPhysicalGroup(2, parent.surfaces_tags)
-        # gmsh.model.setPhysicalName(2, surfaces_group, f"{parent.name}_surfaces")
-        # lines_group = gmsh.model.addPhysicalGroup(1, parent.lines_tags)
-        # gmsh.model.setPhysicalName(1, lines_group, f"{parent.name}_lines")
-        # points_group = gmsh.model.addPhysicalGroup(0, parent.points_tags)
-        # gmsh.model.setPhysicalName(0, points_group, f"{parent.name}_points")
 
     log.info("Model cleaned")
 
@@ -509,14 +499,15 @@ def generate_gmsh(
 
     # Set mesh size of the aircraft parts
     """
-    not that points common between parts will overwrite the mesh size
-    be sure to define mesh size in a certain order to control
-    the size of the points on boundaries
+    not that points common between parts will have the size of the last part
+    to set its mesh size.
+    Thus be sure to define mesh size in a certain order to control
+    the size of the points on boundaries.
     """
     for part in aircraft_parts:
         if "fuselage" in part.name:
             gmsh.model.mesh.setSize(part.points, mesh_size_fuselage)
-        if "wing" in part.name:
+        if "wing" in part.name or "pylon" in part.name:
             gmsh.model.mesh.setSize(part.points, mesh_size_wings)
 
     # Set mesh size of the farfield
@@ -527,6 +518,7 @@ def generate_gmsh(
     # Color code
     mesh_color_wing = (0, 255, 0)
     mesh_color_fus = (0, 0, 255)
+    mesh_color_pylon = (255, 0, 0)
     mesh_color_farfield = (255, 255, 0)
     mesh_color_symmetry = (255, 0, 255)
 
@@ -539,6 +531,8 @@ def generate_gmsh(
 
         if "fuselage" in part.name:
             color = mesh_color_fus
+        if "pylon" in part.name:
+            color = mesh_color_pylon
         gmsh.model.setColor(part.surfaces, *color, a=150, recursive=False)
 
     gmsh.model.setColor(farfield_surfaces, *mesh_color_farfield, a=150, recursive=False)
@@ -618,13 +612,13 @@ def generate_gmsh(
 # ==============================================================================
 if __name__ == "__main__":
     generate_gmsh(
-        "test_files/pytest_files",
+        "test_files/simple_pylon_engine",
         "",
         open_gmsh=True,
         farfield_factor=4,
         symmetry=False,
         mesh_size_farfield=12,
         mesh_size_fuselage=0.1,
-        mesh_size_wings=0.1,
+        mesh_size_wings=0.05,
     )
     print("Nothing to execute!")

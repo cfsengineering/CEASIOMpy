@@ -7,8 +7,8 @@ Test functions for 'lib/ModuleTemplate/moduletemplate.py'
 
 Python version: >=3.7
 
-| Author : Aidan Jungo
-| Creation: 2019-08-14
+| Author : Tony Govoni
+| Creation: 2022-03-22
 
 """
 

@@ -186,12 +186,17 @@ def set_fuselage_mesh(mesh_fields, fuselage_part, mesh_size_fuselage):
     )
     gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", surfaces_tags)
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "IncludeBoundary", include_boundary)
+
     # add the new field to the list of restrict fields
     mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
 
 
 def set_farfield_mesh(
-    mesh_fields, model_center, domain_length, min_mesh_size, farfield_surfaces, mesh_size_farfield
+    mesh_fields,
+    max_size_mesh_aircraft,
+    aircraft_surfaces_tags,
+    skin_thickness,
+    mesh_size_farfield,
 ):
     """
     Function to define the farfield mesh
@@ -203,20 +208,25 @@ def set_farfield_mesh(
         each field must be created with a different index !!!
         mesh_fields["restrict_fields"] : list of the restrict fields,
         this is the list to be use for the final "Min" background field
-    farfield_surfaces : list
-        list of the farfield surfaces to set mesh size
-    mesh_size_fuselage : float
+    max_size_mesh_aircraft : float
+        maximum mesh size of the aircraft
+    aircraft_surfaces_tags : list
+        list of the aircraft surfaces tags
+    skin_thickness : float
+        mesh skin thickness of the aircraft with a mesh size of max_mesh_size_aircraft
+    mesh_size_farfield : float
         mesh size of the farfield
     ...
     """
     # get the farfield surface
-    surfaces_tags = [dimtag[1] for dimtag in farfield_surfaces]
     include_boundary = True
 
     # create new distance field
     mesh_fields["nbfields"] += 1
     gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
-    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", surfaces_tags)
+    gmsh.model.mesh.field.setNumbers(
+        mesh_fields["nbfields"], "SurfacesList", aircraft_surfaces_tags
+    )
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sampling", 100)
 
     # create new threshold field
@@ -225,44 +235,9 @@ def set_farfield_mesh(
     gmsh.model.mesh.field.setNumber(
         mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
     )
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_farfield)
-    # create new Restrict field
-    mesh_fields["nbfields"] += 1
-    gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
-    gmsh.model.mesh.field.setNumber(
-        mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
-    )
-    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", surfaces_tags)
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "IncludeBoundary", include_boundary)
-    # add the new field to the list of restrict fields
-    mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
-
-    # create new distance field
-    # temp_center = gmsh.model.occ.addPoint(*model_center, 0)
-
-    # gmsh.model.occ.remove([(0, temp_center)])
-    # gmsh.model.occ.synchronize()
-
-    mesh_fields["nbfields"] += 1
-    gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
-    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "PointsList", [12])
-
-    mesh_fields["nbfields"] += 1
-    gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
-    xc, yc, zc = round(model_center[0], 3), round(model_center[1], 3), round(model_center[2], 3)
-    gmsh.model.mesh.field.setString(
-        mesh_fields["nbfields"],
-        "F",
-        "Max(((("
-        + str(xc)
-        + "-x)^2 +("
-        + str(yc)
-        + "-y)^2+("
-        + str(zc)
-        + "-z)^2)^0.5)/10 ,"
-        + str(min_mesh_size)
-        + ")",
-    )
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", max_size_mesh_aircraft)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_farfield)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "DistMin", skin_thickness)
     mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
 
 

@@ -12,7 +12,11 @@ Python version: >=3.7
 
 TODO:
 
+    -Update tigle to get the engine position
     -Try to better handle the way to get the engine nacelle coordinates
+    -Rework the engine to "close" with inlet and outlet surface
+    -Fuse nacelle with pylon ?
+    -Engine seems to make gmsh laggy, no more response to kill command ctrl+c
 
 
 

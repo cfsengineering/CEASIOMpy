@@ -172,6 +172,8 @@ def generate_gmsh(
     mesh_size_farfield=12,
     mesh_size_fuselage=0.2,
     mesh_size_wings=0.2,
+    advance_mesh=False,
+    refine_factor=4,
 ):
     """
     Function to generate a mesh from brep files forming an airplane
@@ -201,6 +203,10 @@ def generate_gmsh(
         Size of the fuselage mesh
     mesh_size_wings : float
         Size of the wing mesh
+    advance_mesh : bool
+        If set to true, the mesh will be generated with advanced meshing options
+    refine_factor : int
+        refine factor for the mesh le and te edge
 
     """
     # for now supress nacelle parts since they are not supported
@@ -230,7 +236,6 @@ def generate_gmsh(
             parts_parent_dimtag.append(part_entities[0])
 
     gmsh.model.occ.synchronize()
-    gmsh.fltk.run()
 
     # create external domain for the farfield
     bb = gmsh.model.getBoundingBox(-1, -1)
@@ -312,7 +317,7 @@ def generate_gmsh(
         # remove them from the model
         gmsh.model.occ.remove(unwanted_childs, recursive=True)
         gmsh.model.occ.synchronize()
-    gmsh.fltk.run()
+
     # Get the final domain (farfield fluid domain with the aircraft volume removed)
 
     final_domain = fragments_dimtag[0]
@@ -540,7 +545,6 @@ def generate_gmsh(
         gmsh.model.setColor(symmetry_surfaces, *mesh_color_symmetry, a=150, recursive=False)
 
     # Generate advance meshing features
-    advance_mesh = False
     if advance_mesh:
         mesh_fields = {"nbfields": 0, "restrict_fields": []}
         for part in aircraft_parts:
@@ -552,20 +556,19 @@ def generate_gmsh(
                     mesh_fields,
                     part,
                     mesh_size_wings,
-                    refine=2,
+                    refine=refine_factor,
                     chord_percent=0.2,
                 )
             if "fuselage" in part.name:
                 set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
 
-        min_size_mesh = min(mesh_size_wings, mesh_size_fuselage, mesh_size_farfield)
-
+        max_size_mesh_aircraft = max(mesh_size_wings, mesh_size_fuselage)
+        skin_thickness = 0.5
         set_farfield_mesh(
             mesh_fields,
-            model_center,
-            domain_length,
-            min_size_mesh,
-            farfield_surfaces,
+            max_size_mesh_aircraft,
+            aircraft.surfaces_tags,
+            skin_thickness,
             mesh_size_farfield,
         )
 
@@ -612,13 +615,15 @@ def generate_gmsh(
 # ==============================================================================
 if __name__ == "__main__":
     generate_gmsh(
-        "test_files/simple_pylon_engine",
+        "test_files/d150",
         "",
         open_gmsh=True,
         farfield_factor=4,
         symmetry=False,
         mesh_size_farfield=12,
         mesh_size_fuselage=0.1,
-        mesh_size_wings=0.05,
+        mesh_size_wings=0.1,
+        advance_mesh=True,
+        refine_factor=4,
     )
     print("Nothing to execute!")

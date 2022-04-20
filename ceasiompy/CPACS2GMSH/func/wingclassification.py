@@ -24,7 +24,7 @@ TODO:
 
     - Try to handle special case when symetry is applied and it cuts the vertical
     wing such that there is no profile to be found :
-    ex. optimal with sym : wing3 no sections found
+    ex. optimal.xml with sym : wing3 no sections found
 
 
 """

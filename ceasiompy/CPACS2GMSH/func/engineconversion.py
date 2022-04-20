@@ -113,3 +113,30 @@ def reposition_engine(pylon, brep_dir_path):
 
     gmsh.clear()
     gmsh.finalize()
+
+
+def close_engine(brep_dir_path, engine_name):
+    gmsh.initialize()
+    nacelle_part = gmsh.model.occ.importShapes(
+        os.path.join(brep_dir_path, engine_name), highestDimOnly=False
+    )
+    gmsh.model.occ.synchronize()
+    gmsh.fltk.run()
+
+    # find inlet and outlet points
+    nacelle_lines = [dimtag for dimtag in nacelle_part if dimtag[0] == 1]
+    print(nacelle_lines)
+    lines_center = [gmsh.model.occ.getCenterOfMass(*dimtag) for dimtag in nacelle_lines]
+    lines_x_pos = [pos[0] for pos in lines_center]
+    inlet_circle = nacelle_lines[lines_x_pos.index(min(lines_x_pos))]
+    outlet_circle = nacelle_lines[lines_x_pos.index(max(lines_x_pos))]
+
+    # create disk with inlet and outlet circles
+
+    # merge all with addSurfaceLoop
+    print(inlet_circle, outlet_circle)
+
+    # export the engine nacelle and test it =)
+
+
+close_engine("test_files/simple_pylon_engine", "nacelle_fan_cowl1.brep")

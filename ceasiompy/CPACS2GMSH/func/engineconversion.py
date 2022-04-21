@@ -29,6 +29,7 @@ TODO:
 import gmsh
 import os
 import pickle
+from math import pi
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
@@ -55,17 +56,16 @@ def reposition_engine(pylon, brep_dir_path):
     pylon_id = pylon[5:]
     log.info(f"Repositioning of engine {pylon_id}")
 
-    # import the pylon and all the engine nacelle parts
-
+    # import the pylon
+    print(pylon)
+    pylon_part = gmsh.model.occ.importShapes(
+        os.path.join(brep_dir_path, pylon + ".brep"), highestDimOnly=True
+    )
+    gmsh.model.occ.synchronize()
+    # find nacelle files corresponding to the pylon id
     nacelle_files = []
-
     for file in os.listdir(brep_dir_path):
-        if file[:-5] == pylon:
-            pylon_part = gmsh.model.occ.importShapes(
-                os.path.join(brep_dir_path, file), highestDimOnly=True
-            )
-            gmsh.model.occ.synchronize()
-        if "nacelle" in file and pylon_id in file:
+        if "nacelle" in file and file[-len(pylon_id) - 5 : -5] == pylon_id:
             nacelle_files.append(file)
 
     if nacelle_files == []:
@@ -99,17 +99,30 @@ def reposition_engine(pylon, brep_dir_path):
     translation_vector = [position_rel_2_pylon[i] + pylon_ref_point[i] for i in range(0, 3)]
 
     # import each nacelle part and move it to the correct position then replace the nacelle file
-    gmsh.clear()
+    print(nacelle_files)
     for file in nacelle_files:
-
+        print()
+        print(file)
+        print()
+        gmsh.clear()  # remove the pylon
         nacelle_part = gmsh.model.occ.importShapes(
             os.path.join(brep_dir_path, file), highestDimOnly=True
         )
         gmsh.model.occ.translate(nacelle_part, *translation_vector)
         gmsh.model.occ.synchronize()
-
-    gmsh.fltk.run()
-    gmsh.write(os.path.join(brep_dir_path, "engine" + pylon_id + ".brep"))
+        # apply some healshapes since engine nacelle fan are sometimes not closed volumes
+        if "fan" in file:
+            gmsh.model.occ.healShapes(
+                dimTags=[],
+                tolerance=1e-8,
+                fixDegenerated=True,
+                fixSmallEdges=True,
+                fixSmallFaces=True,
+                sewFaces=True,
+                makeSolids=True,
+            )
+        gmsh.model.occ.synchronize()
+        gmsh.write(os.path.join(brep_dir_path, file))
 
     gmsh.clear()
     gmsh.finalize()
@@ -121,22 +134,47 @@ def close_engine(brep_dir_path, engine_name):
         os.path.join(brep_dir_path, engine_name), highestDimOnly=False
     )
     gmsh.model.occ.synchronize()
-    gmsh.fltk.run()
 
     # find inlet and outlet points
     nacelle_lines = [dimtag for dimtag in nacelle_part if dimtag[0] == 1]
-    print(nacelle_lines)
     lines_center = [gmsh.model.occ.getCenterOfMass(*dimtag) for dimtag in nacelle_lines]
     lines_x_pos = [pos[0] for pos in lines_center]
     inlet_circle = nacelle_lines[lines_x_pos.index(min(lines_x_pos))]
     outlet_circle = nacelle_lines[lines_x_pos.index(max(lines_x_pos))]
-
-    # create disk with inlet and outlet circles
-
-    # merge all with addSurfaceLoop
     print(inlet_circle, outlet_circle)
+    # create disk with inlet and outlet circles
+    gmsh.model.occ.synchronize()
+    inlet_loop = gmsh.model.occ.addCurveLoop([inlet_circle[1]])
+    outlet_loop = gmsh.model.occ.addCurveLoop([outlet_circle[1]])
+    disk_inlet = gmsh.model.occ.addPlaneSurface([inlet_loop])
+    disk_outlet = gmsh.model.occ.addPlaneSurface([outlet_loop])
+    gmsh.model.occ.synchronize()
+    # find adj surface between inlet and outlet
+    _, adj_lines_inlet = gmsh.model.getAdjacencies(2, disk_inlet)
+    _, adj_lines_outlet = gmsh.model.getAdjacencies(2, disk_outlet)
 
-    # export the engine nacelle and test it =)
+    print(adj_lines_inlet, adj_lines_outlet)
+    common_line = set(adj_lines_inlet).intersection(set(adj_lines_outlet))
+    print(common_line)
+    # merge all with addSurfaceLoop
+    surf_loop = gmsh.model.occ.addSurfaceLoop([disk_inlet, 2, disk_outlet])
+    # generate volume
+    gmsh.model.occ.addVolume([surf_loop])
+    gmsh.model.occ.synchronize()
+    # remove old nacelle
+    gmsh.model.occ.remove([(3, 1)], recursive=True)
+    gmsh.model.occ.synchronize()
+    # export the new engine nacelle
+    # gmsh.write(os.path.join(brep_dir_path, engine_name))
+
+    gmsh.clear()
+    gmsh.finalize()
 
 
-close_engine("test_files/simple_pylon_engine", "nacelle_fan_cowl1.brep")
+brep_dir_path = "test_files/simple_pylon_engine"
+
+file_list = os.listdir(brep_dir_path)
+
+for file in file_list:
+    if "pylon" in file:
+        reposition_engine(file[:-5], brep_dir_path)

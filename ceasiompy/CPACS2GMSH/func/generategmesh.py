@@ -33,7 +33,6 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     set_fuselage_mesh,
     set_farfield_mesh,
 )
-from ceasiompy.CPACS2GMSH.func.enginereposition import reposition_engine
 
 
 log = get_logger(__file__.split(".")[0])
@@ -209,9 +208,9 @@ def generate_gmsh(
         refine factor for the mesh le and te edge
 
     """
-    # for now supress nacelle parts since they are not supported
     file_list = os.listdir(brep_dir_path)
-    file_list = [file for file in file_list if (("nacelle" not in file))]
+    # for now supress nacelle center parts since they are not supported
+    file_list = [file for file in file_list if (("center" not in file))]
 
     gmsh.initialize()
     # import each aircraft original parts / parent parts
@@ -379,7 +378,6 @@ def generate_gmsh(
                 associate_child_to_parent(child_dimtag, parent)
     # Now that its clear which child entites in the model are from which parent part,
     # we can delete the child volumes and only keep the final domain
-
     gmsh.model.occ.remove(good_childs, recursive=True)
     gmsh.model.occ.synchronize()
 
@@ -427,7 +425,6 @@ def generate_gmsh(
         )
 
     log.info("Model cleaned")
-
     # Create an aircraft part containing all the parts of the aircraft
 
     aircraft = AircraftPart("aircraft")
@@ -512,7 +509,7 @@ def generate_gmsh(
     for part in aircraft_parts:
         if "fuselage" in part.name:
             gmsh.model.mesh.setSize(part.points, mesh_size_fuselage)
-        if "wing" in part.name or "pylon" in part.name:
+        if "wing" in part.name or "pylon" in part.name or "nacelle" in part.name:
             gmsh.model.mesh.setSize(part.points, mesh_size_wings)
 
     # Set mesh size of the farfield
@@ -521,11 +518,14 @@ def generate_gmsh(
     # Color the mesh according to the aircraft parts
 
     # Color code
-    mesh_color_wing = (0, 255, 0)
-    mesh_color_fus = (0, 0, 255)
+    mesh_color_fus = (255, 200, 0)
+
+    mesh_color_wing = (0, 200, 200)
     mesh_color_pylon = (255, 0, 0)
-    mesh_color_farfield = (255, 255, 0)
-    mesh_color_symmetry = (255, 0, 255)
+    mesh_color_nacelle = (0, 100, 255)
+
+    mesh_color_farfield = (255, 200, 0)
+    mesh_color_symmetry = (200, 255, 0)
 
     # Color assignation for each part
 
@@ -538,6 +538,8 @@ def generate_gmsh(
             color = mesh_color_fus
         if "pylon" in part.name:
             color = mesh_color_pylon
+        if "nacelle" in part.name:
+            color = mesh_color_nacelle
         gmsh.model.setColor(part.surfaces, *color, a=150, recursive=False)
 
     gmsh.model.setColor(farfield_surfaces, *mesh_color_farfield, a=150, recursive=False)
@@ -615,14 +617,14 @@ def generate_gmsh(
 # ==============================================================================
 if __name__ == "__main__":
     generate_gmsh(
-        "test_files/d150",
+        "test_files/simple_pylon_engine",
         "",
         open_gmsh=True,
         farfield_factor=4,
         symmetry=False,
-        mesh_size_farfield=12,
-        mesh_size_fuselage=0.1,
-        mesh_size_wings=0.1,
+        mesh_size_farfield=5,
+        mesh_size_fuselage=0.01,
+        mesh_size_wings=0.005,
         advance_mesh=True,
         refine_factor=4,
     )

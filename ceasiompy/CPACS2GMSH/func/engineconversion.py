@@ -130,7 +130,7 @@ def reposition_engine(pylon, brep_dir_path):
     gmsh.finalize()
 
 
-def close_engine(center_file, fan_file):
+def close_engine(brep_dir_path, center_file, fan_file):
     """
     Function to close the engine nacelle fan by adding an inlet and outlet inside of the engine.
     Then the nacelle part are fused together to form only one engine that is saved as .brep file
@@ -274,10 +274,10 @@ engine reposition testing
 #         reposition_engine(file[:-5], brep_dir_path)
 
 """
-Close the engine testing 
+Close the engine testing
 """
 # brep_dir_path = "test_files/converted_engine"
 
 # file_list = os.listdir(brep_dir_path)
 
-# close_engine("nacelle_center_cowl1_m.brep", "nacelle_fan_cowl1_m.brep")
+# close_engine(brep_dir_path,"nacelle_center_cowl1_m.brep", "nacelle_fan_cowl1_m.brep")

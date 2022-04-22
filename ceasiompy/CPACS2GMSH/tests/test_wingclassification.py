@@ -49,10 +49,9 @@ TEST_OUT_PATH = os.path.join(MODULE_DIR, "ToolOutput")
 # ==============================================================================
 
 
-def test_classify_profile():
+def test_classify_wing():
     """
-    Test if the profiles is correctly classified
-    Test if uncorrect profile is not classified
+    Test if one of the wing of the simple test model is correctly classified
     """
 
     cpacs = CPACS(CPACS_IN_PATH)
@@ -62,25 +61,50 @@ def test_classify_profile():
         TEST_OUT_PATH,
         TEST_OUT_PATH,
         open_gmsh=False,
-        mesh_size_farfield=2,
-        mesh_size_fuselage=0.2,
-        mesh_size_wings=0.2,
+        mesh_size_farfield=5,
+        mesh_size_fuselage=0.5,
+        mesh_size_wings=0.5,
         symmetry=False,
+        advance_mesh=True,
+        refine_factor=1,
     )
+
+    for part in aircraft_parts:
+        if "wing1_m" in part.name:
+            test_wingsection = part.wing_sections
+
+    # Test if the wing1_m is correctly classified
+    nb_wing_section = len(test_wingsection)
+    test_nb_section = 2
+    assert nb_wing_section == test_nb_section
+
+    # Test if the first wing section is correctly classified
+
+    wing_sec1 = test_wingsection[0]
+    truncated = wing_sec1["truncated"]
+    test_truncated = True
+    assert truncated == test_truncated
+
+    profile_1_sec1 = wing_sec1["profiles"][0]
+    test_profile_1_sec1 = [19, 20, 21]
+    assert profile_1_sec1 == test_profile_1_sec1
+
+    profile_2_sec1 = wing_sec1["profiles"][1]
+    test_profile_2_sec1 = [28, 30, 32]
+    assert profile_2_sec1 == test_profile_2_sec1
+
+    le_line_sec1 = wing_sec1["le_line"]
+    test_le_line_sec1 = [27]
+    assert le_line_sec1 == test_le_line_sec1
+
+    te_line_sec1 = wing_sec1["te_line"]
+    test_te_line_sec1 = [29, 31]
+    assert te_line_sec1 == test_te_line_sec1
+    
     # Erease generated file
     for file in os.listdir(TEST_OUT_PATH):
         if (".brep" in file) or (".su2" in file):
             os.remove(os.path.join(TEST_OUT_PATH, file))
-
-    aircraft_parts
-    profile_list = []
-    line_comp1 = {"line_dimtag": 5, "points_tags": [8, 5]}
-    line_comp2 = {"line_dimtag": 14, "points_tags": [5, 8]}
-    line_comp3 = {"line_dimtag": 14, "points_tags": [8, 3]}
-    # Correct profile
-    assert classify_profile(profile_list, line_comp1, line_comp2) is True
-    # Uncorrect profile
-    assert classify_profile(profile_list, line_comp1, line_comp3) is False
 
 
 # ==============================================================================
@@ -88,7 +112,6 @@ def test_classify_profile():
 # ==============================================================================
 
 if __name__ == "__main__":
-
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

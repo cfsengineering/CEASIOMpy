@@ -56,9 +56,9 @@ def test_generate_gmsh():
         TEST_OUT_PATH,
         TEST_OUT_PATH,
         open_gmsh=False,
-        mesh_size_farfield=2,
-        mesh_size_fuselage=0.2,
-        mesh_size_wings=0.2,
+        mesh_size_farfield=5,
+        mesh_size_fuselage=0.5,
+        mesh_size_wings=0.5,
     )
 
     with open(os.path.join(TEST_OUT_PATH, "mesh.su2"), "r") as f:
@@ -90,9 +90,9 @@ def test_generate_gmsh_symm():
         TEST_OUT_PATH,
         TEST_OUT_PATH,
         open_gmsh=False,
-        mesh_size_farfield=2,
-        mesh_size_fuselage=0.2,
-        mesh_size_wings=0.2,
+        mesh_size_farfield=5,
+        mesh_size_fuselage=0.5,
+        mesh_size_wings=0.5,
         symmetry=True,
     )
 
@@ -124,9 +124,9 @@ def test_symm_part_removed():
         TEST_OUT_PATH,
         TEST_OUT_PATH,
         open_gmsh=False,
-        mesh_size_farfield=2,
-        mesh_size_fuselage=0.2,
-        mesh_size_wings=0.2,
+        mesh_size_farfield=5,
+        mesh_size_fuselage=0.5,
+        mesh_size_wings=0.5,
         symmetry=True,
     )
 
@@ -155,9 +155,9 @@ def test_assignation():
         TEST_OUT_PATH,
         TEST_OUT_PATH,
         open_gmsh=False,
-        mesh_size_farfield=2,
-        mesh_size_fuselage=0.2,
-        mesh_size_wings=0.2,
+        mesh_size_farfield=5,
+        mesh_size_fuselage=0.5,
+        mesh_size_wings=0.5,
         symmetry=False,
     )
     fuselage1_child = set([(3, 3)])

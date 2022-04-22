@@ -421,7 +421,6 @@ def generate_gmsh(
     unwanted_childs = list(set(unwanted_childs))
 
     # and remove them from the model
-
     gmsh.model.occ.remove(unwanted_childs, recursive=True)
     gmsh.model.occ.synchronize()
     log.info(f"Unwanted childs {unwanted_childs} removed from model")
@@ -441,7 +440,8 @@ def generate_gmsh(
 
     # Now only the final domain is left, in the model
     # Find the final domain entites
-    final_domain_volume = [final_domain]
+    final_domain_volume = gmsh.model.getEntities(dim=3)
+    # final_domain_volume = [final_domain]
     (
         final_domain_surfaces,
         final_domain_lines,
@@ -700,16 +700,16 @@ def generate_gmsh(
 #    MAIN
 # ==============================================================================
 if __name__ == "__main__":
-    # generate_gmsh(
-    #     "test_files/simple_engine_closed",
-    #     "",
-    #     open_gmsh=True,
-    #     farfield_factor=8,
-    #     symmetry=True,
-    #     mesh_size_farfield=2,
-    #     mesh_size_fuselage=0.01,
-    #     mesh_size_wings=0.01,
-    #     advance_mesh=True,
-    #     refine_factor=4,
-    # )
+    generate_gmsh(
+        "test_files/one_section",
+        "",
+        open_gmsh=True,
+        farfield_factor=8,
+        symmetry=False,
+        mesh_size_farfield=2,
+        mesh_size_fuselage=0.05,
+        mesh_size_wings=0.05,
+        advance_mesh=False,
+        refine_factor=4,
+    )
     print("Nothing to execute!")

@@ -26,7 +26,9 @@ TODO:
     wing such that there is no profile to be found :
     ex. optimal.xml with sym : wing3 no sections found
 
-
+    - Try to handle the problem of the pylon that completly destroy the wing classifier
+    by adding multiple curve inside the wing section
+    a similar problem will happen when the wing is cut by flaps
 """
 
 

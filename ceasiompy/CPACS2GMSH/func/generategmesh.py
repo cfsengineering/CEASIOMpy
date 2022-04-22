@@ -33,7 +33,7 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     set_fuselage_mesh,
     set_farfield_mesh,
 )
-
+from ceasiompy.CPACS2GMSH.func.rotatingdisk import gen_rot_disk
 
 log = get_logger(__file__.split(".")[0])
 
@@ -160,6 +160,60 @@ def associate_child_to_parent(child_dimtag, parent):
     parent.lines_tags.extend(child_lines_tags)
     parent.surfaces_tags.extend(child_surfaces_tags)
     parent.volume_tag.extend(child_volume_tag)
+
+
+def define_engine_bc(engine_part):
+    """
+    Function to define the boundary conditions for the engine part.
+    The engine is defined as a volume and the boundary conditions inlet outlet
+    are set to be fixed.
+
+    Args:
+    ----------
+    engine_part : AircraftPart
+        engine part of the aircraft
+
+    """
+
+    adj_surf_lines = []
+    for dimtag in engine_part.surfaces:
+        lines = []
+        adj_volume, adj_lines = gmsh.model.getAdjacencies(*dimtag)
+        for line in adj_lines:
+            lines.append(line)
+        adj_surf_lines.append(lines)
+
+    possible_inlet_outlet = []
+    for surf, lines in zip(engine_part.surfaces, adj_surf_lines):
+        if len(lines) == 2:
+            possible_inlet_outlet.append(surf)
+            # should be only two lines
+            # lines mass center should the same
+
+    # then search for x min xmax to determine inlet and outlet
+    x1, _, _ = gmsh.model.occ.getCenterOfMass(*possible_inlet_outlet[0])
+    x2, _, _ = gmsh.model.occ.getCenterOfMass(*possible_inlet_outlet[1])
+    if x1 < x2:
+        inlet_tag = possible_inlet_outlet[0][1]
+        outlet_tag = possible_inlet_outlet[1][1]
+    else:
+        inlet_tag = possible_inlet_outlet[1][1]
+        outlet_tag = possible_inlet_outlet[0][1]
+
+    log.info(f"Inlet of {engine_part.name} detected as surface {inlet_tag} ")
+    log.info(f"Outlet of {engine_part.name} detected as surface {outlet_tag} ")
+    engine_part.other_surfaces_tags = list(
+        set(engine_part.surfaces_tags).difference(set([inlet_tag, outlet_tag]))
+    )
+    engine_part.inlet_tag = [inlet_tag]
+    engine_part.outlet_tag = [outlet_tag]
+
+    surfaces_group = gmsh.model.addPhysicalGroup(2, engine_part.other_surfaces_tags)
+    gmsh.model.setPhysicalName(2, surfaces_group, f"{engine_part.name}")
+    inlet_group = gmsh.model.addPhysicalGroup(2, engine_part.inlet_tag)
+    gmsh.model.setPhysicalName(2, inlet_group, f"inlet_{engine_part.name}")
+    outlet_group = gmsh.model.addPhysicalGroup(2, engine_part.outlet_tag)
+    gmsh.model.setPhysicalName(2, outlet_group, f"outlet_{engine_part.name}")
 
 
 def generate_gmsh(
@@ -445,8 +499,11 @@ def generate_gmsh(
     # bc_aircraft = gmsh.model.addPhysicalGroup(2, aircraft.surfaces_tags)
     # gmsh.model.setPhysicalName(2, bc_aircraft, "aircraft")
     for part in aircraft_parts:
-        surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
-        gmsh.model.setPhysicalName(2, surfaces_group, f"{part.name}")
+        if "engine" in part.name:
+            define_engine_bc(part)
+        else:
+            surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
+            gmsh.model.setPhysicalName(2, surfaces_group, f"{part.name}")
 
     # Farfield
     # farfield entities are simply the entites left in the final domain
@@ -509,7 +566,12 @@ def generate_gmsh(
     for part in aircraft_parts:
         if "fuselage" in part.name:
             gmsh.model.mesh.setSize(part.points, mesh_size_fuselage)
-        if "wing" in part.name or "pylon" in part.name or "nacelle" in part.name:
+        if (
+            "wing" in part.name
+            or "pylon" in part.name
+            or "nacelle" in part.name
+            or "engine" in part.name
+        ):
             gmsh.model.mesh.setSize(part.points, mesh_size_wings)
 
     # Set mesh size of the farfield
@@ -539,6 +601,8 @@ def generate_gmsh(
         if "pylon" in part.name:
             color = mesh_color_pylon
         if "nacelle" in part.name:
+            color = mesh_color_nacelle
+        if "engine" in part.name:
             color = mesh_color_nacelle
         gmsh.model.setColor(part.surfaces, *color, a=150, recursive=False)
 
@@ -585,6 +649,19 @@ def generate_gmsh(
         gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
         gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
 
+    """
+    Test of implementation of a disk actuator
+    TODO : implement the actuator disk generation only here since new surfaces are
+    generated
+    """
+    # test rotating disk
+    # disk_pos = (0, -1.5, 0)
+    # disk_axis = (1, 0, 0)
+    # radius = 0.5
+    # rot_disk_dimtag = gen_rot_disk(disk_pos, disk_axis, radius)
+    # disk_actuator = gmsh.model.addPhysicalGroup(2, [rot_disk_dimtag[1]])
+    # gmsh.model.setPhysicalName(2, disk_actuator, "disk_actuator")
+
     # Mesh generation
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(1)
@@ -617,15 +694,15 @@ def generate_gmsh(
 # ==============================================================================
 if __name__ == "__main__":
     generate_gmsh(
-        "test_files/simple_pylon_engine",
+        "test_files/simple_engine_closed",
         "",
         open_gmsh=True,
         farfield_factor=4,
         symmetry=False,
         mesh_size_farfield=5,
         mesh_size_fuselage=0.01,
-        mesh_size_wings=0.005,
-        advance_mesh=True,
+        mesh_size_wings=0.01,
+        advance_mesh=False,
         refine_factor=4,
     )
     print("Nothing to execute!")

@@ -291,12 +291,16 @@ def generate_gmsh(
     gmsh.model.occ.synchronize()
 
     # create external domain for the farfield
-    bb = gmsh.model.getBoundingBox(-1, -1)
-    model_dimensions = [abs(bb[0] - bb[3]), abs(bb[1] - bb[4]), abs(bb[2] - bb[5])]
+    model_bb = gmsh.model.getBoundingBox(-1, -1)
+    model_dimensions = [
+        abs(model_bb[0] - model_bb[3]),
+        abs(model_bb[1] - model_bb[4]),
+        abs(model_bb[2] - model_bb[5]),
+    ]
     model_center = [
-        bb[0] + model_dimensions[0] / 2,
-        bb[1] + model_dimensions[1] / 2,
-        bb[2] + model_dimensions[2] / 2,
+        model_bb[0] + model_dimensions[0] / 2,
+        model_bb[1] + model_dimensions[1] / 2,
+        model_bb[2] + model_dimensions[2] / 2,
     ]
 
     domain_length = farfield_factor * max(model_dimensions)
@@ -636,6 +640,9 @@ def generate_gmsh(
             aircraft.surfaces_tags,
             skin_thickness,
             mesh_size_farfield,
+            model_bb,
+            domain_length,
+            final_domain_volume_tag,
         )
 
         mesh_fields["nbfields"] += 1
@@ -693,16 +700,16 @@ def generate_gmsh(
 #    MAIN
 # ==============================================================================
 if __name__ == "__main__":
-    generate_gmsh(
-        "test_files/simple_engine_closed",
-        "",
-        open_gmsh=True,
-        farfield_factor=4,
-        symmetry=False,
-        mesh_size_farfield=5,
-        mesh_size_fuselage=0.01,
-        mesh_size_wings=0.01,
-        advance_mesh=False,
-        refine_factor=4,
-    )
+    # generate_gmsh(
+    #     "test_files/simple_engine_closed",
+    #     "",
+    #     open_gmsh=True,
+    #     farfield_factor=8,
+    #     symmetry=True,
+    #     mesh_size_farfield=2,
+    #     mesh_size_fuselage=0.01,
+    #     mesh_size_wings=0.01,
+    #     advance_mesh=True,
+    #     refine_factor=4,
+    # )
     print("Nothing to execute!")

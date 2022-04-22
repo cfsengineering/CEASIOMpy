@@ -13,6 +13,9 @@ Python version: >=3.7
 TODO:
 
     -Do something better with the background field for the farfield volume
+    -Add all the box /farfield/ skin parameter tunable in an advance mesh GUI?
+    -get each part its bounding box and use it to define field box for each part
+    -add a function to define many boxes with a deacreasing mesh size
 
 """
 
@@ -197,6 +200,9 @@ def set_farfield_mesh(
     aircraft_surfaces_tags,
     skin_thickness,
     mesh_size_farfield,
+    model_bb,
+    domain_length,
+    final_domain_volume_tag,
 ):
     """
     Function to define the farfield mesh
@@ -216,6 +222,12 @@ def set_farfield_mesh(
         mesh skin thickness of the aircraft with a mesh size of max_mesh_size_aircraft
     mesh_size_farfield : float
         mesh size of the farfield
+    model_bb : list
+        bounding box of the model
+    domain_length : float
+        length of the domain
+    final_domain_volume_tag : int
+        tag of the final domain volume
     ...
     """
     # get the farfield surface
@@ -238,6 +250,43 @@ def set_farfield_mesh(
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", max_size_mesh_aircraft)
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_farfield)
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "DistMin", skin_thickness)
+    mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
+
+    # create new box field
+    mesh_fields["nbfields"] += 1
+    gmsh.model.mesh.field.add("Box", mesh_fields["nbfields"])
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "VIn", max_size_mesh_aircraft * 1.5)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "VOut", mesh_size_farfield)
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "XMin", model_bb[0] - (model_bb[3] - model_bb[0]) * 0.5
+    )
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "XMax", model_bb[3] + (model_bb[3] - model_bb[0]) * 2
+    )
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "YMin", model_bb[1] - (model_bb[4] - model_bb[1]) * 0.2
+    )
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "YMax", model_bb[4] + (model_bb[4] - model_bb[1]) * 0.2
+    )
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "ZMin", model_bb[2] - (model_bb[5] - model_bb[2]) * 0.3
+    )
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "ZMax", model_bb[5] + (model_bb[5] - model_bb[2]) * 0.3
+    )
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Thickness", domain_length / 10)
+
+    # create new Restrict field
+    mesh_fields["nbfields"] += 1
+    gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
+    )
+    gmsh.model.mesh.field.setNumbers(
+        mesh_fields["nbfields"], "VolumesList", final_domain_volume_tag
+    )
+    # add the new field to the list of restrict fields
     mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
 
 

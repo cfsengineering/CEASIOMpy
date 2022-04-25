@@ -584,7 +584,7 @@ def generate_gmsh(
     # Color the mesh according to the aircraft parts
 
     # Color code
-    mesh_color_fus = (255, 200, 0)
+    mesh_color_fus = (255, 215, 0)
 
     mesh_color_wing = (0, 200, 200)
     mesh_color_pylon = (255, 0, 0)
@@ -610,7 +610,7 @@ def generate_gmsh(
             color = mesh_color_nacelle
         gmsh.model.setColor(part.surfaces, *color, a=150, recursive=False)
 
-    gmsh.model.setColor(farfield_surfaces, *mesh_color_farfield, a=150, recursive=False)
+    gmsh.model.setColor(farfield_surfaces, *mesh_color_farfield, a=255, recursive=False)
     if symmetry:
         gmsh.model.setColor(symmetry_surfaces, *mesh_color_symmetry, a=150, recursive=False)
 
@@ -656,19 +656,6 @@ def generate_gmsh(
         gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
         gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
 
-    """
-    Test of implementation of a disk actuator
-    TODO : implement the actuator disk generation only here since new surfaces are
-    generated
-    """
-    # test rotating disk
-    # disk_pos = (0, -1.5, 0)
-    # disk_axis = (1, 0, 0)
-    # radius = 0.5
-    # rot_disk_dimtag = gen_rot_disk(disk_pos, disk_axis, radius)
-    # disk_actuator = gmsh.model.addPhysicalGroup(2, [rot_disk_dimtag[1]])
-    # gmsh.model.setPhysicalName(2, disk_actuator, "disk_actuator")
-
     # Mesh generation
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(1)
@@ -700,16 +687,4 @@ def generate_gmsh(
 #    MAIN
 # ==============================================================================
 if __name__ == "__main__":
-    generate_gmsh(
-        "test_files/one_section",
-        "",
-        open_gmsh=True,
-        farfield_factor=8,
-        symmetry=False,
-        mesh_size_farfield=2,
-        mesh_size_fuselage=0.05,
-        mesh_size_wings=0.05,
-        advance_mesh=False,
-        refine_factor=4,
-    )
     print("Nothing to execute!")

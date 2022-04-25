@@ -65,8 +65,7 @@ def test_classify_wing():
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
         symmetry=False,
-        advance_mesh=True,
-        refine_factor=1,
+        refine_factor=1.2,
     )
 
     for part in aircraft_parts:
@@ -100,7 +99,7 @@ def test_classify_wing():
     te_line_sec1 = wing_sec1["te_line"]
     test_te_line_sec1 = [29, 31]
     assert te_line_sec1 == test_te_line_sec1
-    
+
     # Erease generated file
     for file in os.listdir(TEST_OUT_PATH):
         if (".brep" in file) or (".su2" in file):

@@ -211,6 +211,7 @@ def generate_gmsh(
     file_list = os.listdir(brep_dir_path)
     # for now suppress nacelle center parts since they are not supported
     file_list = [file for file in file_list if (("center" not in file))]
+    file_list.sort()
 
     gmsh.initialize()
     # import each aircraft original parts / parent parts

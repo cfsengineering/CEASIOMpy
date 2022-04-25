@@ -160,14 +160,14 @@ def test_assignation():
         mesh_size_wings=0.5,
         symmetry=False,
     )
-    fuselage1_child = set([(3, 3)])
-    wing1_m_child = set([(3, 6)])
+    fuselage1_child = set([(3, 2)])
+    wing1_m_child = set([(3, 5)])
 
-    wing1_child = set([(3, 4)])
-    wing1_volume_tag = [4]
-    wing1_surfaces_tags = [2, 3, 4, 5, 7, 8, 9]
-    wing1_lines_tags = [4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 22, 23, 24]
-    wing1_points_tags = [3, 4, 5, 6, 7, 8, 9, 10, 16]
+    wing1_child = set([(3, 3)])
+    wing1_volume_tag = [3]
+    wing1_surfaces_tags = [5, 6, 7, 12, 13, 14, 19]
+    wing1_lines_tags = [32, 33, 34, 7, 8, 9, 15, 16, 17, 18, 19, 20, 29, 30, 31]
+    wing1_points_tags = [5, 6, 7, 12, 13, 14, 19, 20, 21]
 
     for part in aircraft_parts:
         if part.name == "wing1_m":

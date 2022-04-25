@@ -85,19 +85,19 @@ def test_classify_wing():
     assert truncated == test_truncated
 
     profile_1_sec1 = wing_sec1["profiles"][0]
-    test_profile_1_sec1 = [19, 20, 21]
+    test_profile_1_sec1 = [22, 24, 26]
     assert profile_1_sec1 == test_profile_1_sec1
 
     profile_2_sec1 = wing_sec1["profiles"][1]
-    test_profile_2_sec1 = [28, 30, 32]
+    test_profile_2_sec1 = [10, 11, 12]
     assert profile_2_sec1 == test_profile_2_sec1
 
     le_line_sec1 = wing_sec1["le_line"]
-    test_le_line_sec1 = [27]
+    test_le_line_sec1 = [23]
     assert le_line_sec1 == test_le_line_sec1
 
     te_line_sec1 = wing_sec1["te_line"]
-    test_te_line_sec1 = [29, 31]
+    test_te_line_sec1 = [25, 21]
     assert te_line_sec1 == test_te_line_sec1
 
     # Erase generated file

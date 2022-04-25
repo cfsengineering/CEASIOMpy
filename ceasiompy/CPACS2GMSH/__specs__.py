@@ -90,22 +90,11 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="advance_mesh",
-    var_type=bool,
-    default_value=False,
-    unit="1",
-    descr="Activate advanced mesh generation",
-    xpath=CEASIOMPY_XPATH + "/gmsh/advance_mesh",
-    gui=True,
-    gui_name="Advanced mesh generation",
-    gui_group="Advanced mesh parameters",
-)
-cpacs_inout.add_input(
     var_name="refine_factor",
     var_type=float,
-    default_value=4.0,
+    default_value=2.0,
     unit="1",
-    descr="Refinement factor for the advanced mesh generation",
+    descr="Refinement factor of wing leading/trailing edge mesh",
     xpath=CEASIOMPY_XPATH + "/gmsh/refine_factor",
     gui=True,
     gui_name="Le/Te refinement factor",

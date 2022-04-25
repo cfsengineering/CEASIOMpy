@@ -85,27 +85,18 @@ def refine_wing_section(
         percentage of the chord to refine from le/te edge
     ...
     """
-    # get the wing section chord, le and te lines and the surface of the wing section
+    # get the wing section chord, le and te lines and the surface of the wing
 
     sigmoid = False
     include_boundary = True
     surfaces_wing = wing_part.surfaces_tags
+
+    # for each wing section get the mean chord and le/te lines
     for wing_section in wing_part.wing_sections:
+
         chord_mean = wing_section["mean_chord"]
         le_line = wing_section["le_line"]
         te_line = wing_section["te_line"]
-        # surfaces = wing_section["surfaces"]
-        # adj_lines = []
-        # for surface in surfaces:
-        #     _, adj_lin = gmsh.model.getAdjacencies(2, surface)
-        #     adj_lines.extend(adj_lin)
-
-        # adj_surfaces = []
-        # for line in adj_lines:
-        #     adj_surf, _ = gmsh.model.getAdjacencies(1, line)
-        #     adj_surfaces.extend(adj_surf)
-        # adj_surfaces = list(set(adj_surfaces))
-
         lines_to_refine = [*le_line, *te_line]
 
         # create new distance field
@@ -205,7 +196,7 @@ def set_farfield_mesh(
     final_domain_volume_tag,
 ):
     """
-    Function to define the farfield mesh
+    Function to define the farfield mesh with a box field around the aircraft
 
     Args:
     ----------
@@ -261,7 +252,7 @@ def set_farfield_mesh(
         mesh_fields["nbfields"], "XMin", model_bb[0] - (model_bb[3] - model_bb[0]) * 0.5
     )
     gmsh.model.mesh.field.setNumber(
-        mesh_fields["nbfields"], "XMax", model_bb[3] + (model_bb[3] - model_bb[0]) * 2
+        mesh_fields["nbfields"], "XMax", model_bb[3] + (model_bb[3] - model_bb[0]) * 1.0
     )
     gmsh.model.mesh.field.setNumber(
         mesh_fields["nbfields"], "YMin", model_bb[1] - (model_bb[4] - model_bb[1]) * 0.2

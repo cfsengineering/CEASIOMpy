@@ -7,13 +7,10 @@ Small description of the script
 
 Python version: >=3.7
 
-| Author: Name
-| Creation: YEAR-MONTH-DAY
+| Author:Tony Govoni
+| Creation: 2022-03-22
 
 TODO:
-
-    * Things to improve ...
-    * Things to add ...
 
 """
 
@@ -90,7 +87,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     advance_mesh_xpath = CEASIOMPY_XPATH + "/gmsh/advance_mesh"
     advance_mesh = get_value_or_default(cpacs.tixi, advance_mesh_xpath, False)
     refine_factor_xpath = CEASIOMPY_XPATH + "/gmsh/refine_factor"
-    refine_factor = get_value_or_default(cpacs.tixi, refine_factor_xpath, 4)
+    refine_factor = get_value_or_default(cpacs.tixi, refine_factor_xpath, 2)
 
     # Run mesh generation
     export_brep(cpacs, brep_dir_path)
@@ -103,7 +100,6 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         mesh_size_farfield=mesh_size_farfield,
         mesh_size_fuselage=mesh_size_fuselage,
         mesh_size_wings=mesh_size_wings,
-        advance_mesh=advance_mesh,
         refine_factor=refine_factor,
     )
 

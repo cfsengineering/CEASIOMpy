@@ -221,9 +221,6 @@ def set_farfield_mesh(
         tag of the final domain volume
     ...
     """
-    # get the farfield surface
-    include_boundary = True
-
     # create new distance field
     mesh_fields["nbfields"] += 1
     gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])

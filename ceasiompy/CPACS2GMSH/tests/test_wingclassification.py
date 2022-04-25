@@ -17,7 +17,7 @@ Python version: >=3.7
 # ==============================================================================
 
 import os
-import sys
+import gmsh
 import pytest
 from pytest import approx
 
@@ -47,6 +47,43 @@ TEST_OUT_PATH = os.path.join(MODULE_DIR, "ToolOutput")
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
+
+
+def test_classify_profile():
+    """
+    Test if a simple 2 bspline profile is correctly classified
+    """
+
+    gmsh.initialize()
+
+    le_point_tag = gmsh.model.occ.addPoint(0, 0, 0, 1)
+    te_point_tag = gmsh.model.occ.addPoint(1, 0, 0, 1)
+    up_profile_point_tag = gmsh.model.occ.addPoint(0.2, 0.1, 0, 1)
+    lo_profile_point_tag = gmsh.model.occ.addPoint(0.2, -0.1, 0, 1)
+
+    gmsh.model.occ.synchronize()
+    up_bspline = gmsh.model.occ.addBSpline([le_point_tag, up_profile_point_tag, te_point_tag])
+    lo_bspline = gmsh.model.occ.addBSpline([te_point_tag, lo_profile_point_tag, le_point_tag])
+    bad_bspline = gmsh.model.occ.addBSpline([le_point_tag, lo_profile_point_tag])
+    gmsh.model.occ.synchronize()
+
+    # try to classify this profile
+    profiles = []
+    line_comp_up = {"line_dimtag": up_bspline, "points_tags": [le_point_tag, te_point_tag]}
+    line_comp_lo = {"line_dimtag": lo_bspline, "points_tags": [te_point_tag, le_point_tag]}
+    bad_line_comp = {
+        "line_dimtag": bad_bspline,
+        "points_tags": [le_point_tag, lo_profile_point_tag],
+    }
+    # Test if the profile is correctly classified
+    profile_found = classify_profile(profiles, line_comp_up, line_comp_lo)
+    assert profile_found == True
+
+    # Test if two line that doesn't form a profile are not classified
+    profile_found = classify_profile(profiles, line_comp_up, bad_line_comp)
+    assert profile_found == False
+    gmsh.clear()
+    gmsh.finalize()
 
 
 def test_classify_wing():

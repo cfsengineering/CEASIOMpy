@@ -293,7 +293,7 @@ def generate_gmsh(
 
     log.info("Start fragment operation")
 
-    fragments_dimtag, children_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)
+    _, children_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)
     gmsh.model.occ.synchronize()
 
     log.info("Fragment operation finished")

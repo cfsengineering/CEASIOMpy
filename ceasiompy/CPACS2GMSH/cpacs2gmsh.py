@@ -19,17 +19,13 @@ TODO:
 # =================================================================================================
 
 import os
-import sys
 from pathlib import Path
 
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import (
-    add_string_vector,
     create_branch,
-    get_string_vector,
-    get_value,
     get_value_or_default,
 )
 import ceasiompy.utils.moduleinterfaces as mi
@@ -84,8 +80,6 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     mesh_size_wings_xpath = CEASIOMPY_XPATH + "/gmsh/mesh_size/wings"
     mesh_size_wings = get_value_or_default(cpacs.tixi, mesh_size_wings_xpath, 0.2)
 
-    advance_mesh_xpath = CEASIOMPY_XPATH + "/gmsh/advance_mesh"
-    advance_mesh = get_value_or_default(cpacs.tixi, advance_mesh_xpath, False)
     refine_factor_xpath = CEASIOMPY_XPATH + "/gmsh/refine_factor"
     refine_factor = get_value_or_default(cpacs.tixi, refine_factor_xpath, 2)
 

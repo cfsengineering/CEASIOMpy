@@ -26,9 +26,6 @@ from pathlib import Path
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 from tigl3.import_export_helper import export_shapes
-from tigl3.boolean_ops import CFuseShapes
-
-import pickle
 
 
 log = get_logger(__file__.split(".")[0])
@@ -59,8 +56,8 @@ def export_brep(cpacs, brep_dir_path):
     # aircraft configuration
     nb_fuselage = aircraft_config.get_fuselage_count()
     nb_wing = aircraft_config.get_wing_count()
-    nb_rotor = aircraft_config.get_rotor_count()
-    nb_rotor_blade = aircraft_config.get_rotor_blade_count()
+    # nb_rotor = aircraft_config.get_rotor_count()
+    # nb_rotor_blade = aircraft_config.get_rotor_blade_count()
     pylons_config = aircraft_config.get_engine_pylons()
 
     # Export into brep

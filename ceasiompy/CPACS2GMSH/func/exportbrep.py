@@ -100,11 +100,10 @@ def export_brep(cpacs, brep_dir_path):
 
     # Engine position
 
-    """
-    The following must be done in a cleaner way using the cpacs.xml file
-    or upgrading tigl version
-    There also must be a better way to do this and the engine symmetry
-    """
+    # The following must be done in a cleaner way using the cpacs.xml file
+    # or upgrading tigl version
+    # There also must be a better way to do this and the engine symmetry
+
     # Engine
     engines_config = aircraft_config.get_engines()
     if engines_config:

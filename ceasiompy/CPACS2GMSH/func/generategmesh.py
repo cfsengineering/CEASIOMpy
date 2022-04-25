@@ -297,8 +297,7 @@ def generate_gmsh(
 
     log.info("Fragment operation finished")
 
-    """
-    fragment produce fragments_dimtag and children_dimtag
+    """fragment produce fragments_dimtag and children_dimtag
 
     fragments_dimtag is a list of tuples (dimtag, tag) of all the volumes in the model
     the first fragment is the entire domain, each other fragment are subvolume of the domain
@@ -329,8 +328,7 @@ def generate_gmsh(
     to the original parent parts imported at the begging of the function
 
     If symmetry is applied the last children_dimtag is all the volume in the symmetry cylinder
-    thus the we can easily remove them and only keep the volumes of half domain
-    """
+    thus the we can easily remove them and only keep the volumes of half domain"""
 
     unwanted_children = []
     if symmetry:
@@ -409,8 +407,7 @@ def generate_gmsh(
     left_volume = gmsh.model.getEntities(dim=3)
     final_domain.associate_child_to_parent(*left_volume)
 
-    """
-    As already discussed, it is often that two parts intersect each other,
+    """As already discussed, it is often that two parts intersect each other,
     it can also happend that some parts create holes inside other parts
     for example a fuselage and 2 wings defined in the center of the fuselage
     will create a holed fragment of the fuselage
@@ -421,9 +418,8 @@ def generate_gmsh(
 
     thus we need to clean a bit the associated entities by the function
     associate_child_to_parent() by comparing them with the entities of the
-    final domain
+    final domain"""
 
-    """
     for parent in aircraft_parts:
         parent.clean_inside_entities(final_domain)
 
@@ -469,14 +465,13 @@ def generate_gmsh(
 
         symmetry_surfaces = []
         symmetry_surfaces_tags = []
-        """
-        If symmetry was used, it means that in the farfield entities we have
+
+        """If symmetry was used, it means that in the farfield entities we have
         a surface that is the plane of symmetry, we need to find it
         and remove it from the farfield entities
 
         In general it is easy because the symmetry plane should be the only surface
-        in the farfield who touch the aircraft
-        """
+        in the farfield who touch the aircraft"""
 
         for farfield_surface in farfield_surfaces:
             _, adj_lines_tags = gmsh.model.getAdjacencies(*farfield_surface)
@@ -505,12 +500,12 @@ def generate_gmsh(
     # Mesh Generation
 
     # Set mesh size of the aircraft parts
-    """
-    not that points common between parts will have the size of the last part
+
+    """not that points common between parts will have the size of the last part
     to set its mesh size.
     Thus be sure to define mesh size in a certain order to control
-    the size of the points on boundaries.
-    """
+    the size of the points on boundaries."""
+
     for part in aircraft_parts:
         if "fuselage" in part.name:
             gmsh.model.mesh.setSize(part.points, mesh_size_fuselage)

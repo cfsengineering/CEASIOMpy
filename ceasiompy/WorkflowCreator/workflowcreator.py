@@ -20,8 +20,6 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import ceasiompy.__init__
-
 import os
 from pathlib import Path
 

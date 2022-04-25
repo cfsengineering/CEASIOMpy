@@ -18,12 +18,13 @@ Python version: >=3.7
 
 import os
 import sys
+import gmsh
 import pytest
 from pytest import approx
 
 from cpacspy.cpacspy import CPACS
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
+from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh, get_entities_from_volume
 
 
 # Default CPACS file to test
@@ -142,6 +143,39 @@ def test_symm_part_removed():
             os.remove(os.path.join(TEST_OUT_PATH, file))
 
 
+def test_get_entities_from_volume():
+    """
+    Test on a simple cube if the lower dimensions entities are correctly found.
+
+    """
+    gmsh.initialize()
+    test_cube = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)
+    gmsh.model.occ.synchronize()
+    print(test_cube)
+    surfaces_dimtags, lines_dimtags, points_dimtags = get_entities_from_volume([(3, test_cube)])
+    assert len(surfaces_dimtags) == 6
+    assert len(lines_dimtags) == 12
+    assert len(points_dimtags) == 8
+    assert surfaces_dimtags == [(2, 1), (2, 2), (2, 3), (2, 4), (2, 5), (2, 6)]
+    assert lines_dimtags == [
+        (1, 1),
+        (1, 2),
+        (1, 3),
+        (1, 4),
+        (1, 5),
+        (1, 6),
+        (1, 7),
+        (1, 8),
+        (1, 9),
+        (1, 10),
+        (1, 11),
+        (1, 12),
+    ]
+    assert points_dimtags == [(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8)]
+    gmsh.clear()
+    gmsh.finalize()
+
+
 def test_assignation():
     """
     Test if the assignation mechanism is correct on all parts
@@ -195,3 +229,4 @@ if __name__ == "__main__":
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")
+test_assignation()

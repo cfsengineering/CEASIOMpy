@@ -440,7 +440,7 @@ def classify_special_section(wing_part, wing_sections, profiles):
 
     Args:
     ----------
-    wing_part : AircraftPart
+    wing_part : ModelPart
         aircraft part to classify
     wing_sections : list
         list of all the previously found wing_section
@@ -655,10 +655,10 @@ def classify_wing(wing_part):
 
     Args:
     ----------
-    wing_part : AircraftPart
+    wing_part : ModelPart
         aircraft part to classify
     ...
-    aircraft_parts : list(AircraftPart)
+    aircraft_parts : list(ModelPart)
         parts of the aircraft
     ...
     """
@@ -724,7 +724,7 @@ def classify_wing(wing_part):
 
             classify_wing_section(wing_sections, profile, other_profile)
 
-    # add the wing sections founded to the wing Aircraftpart
+    # add the wing sections founded to the wing ModelPart
 
     wing_part.wing_sections = wing_sections
 

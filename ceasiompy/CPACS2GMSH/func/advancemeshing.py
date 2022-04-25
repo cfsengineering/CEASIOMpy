@@ -73,7 +73,7 @@ def refine_wing_section(
         each field must be created with a different index !!!
         mesh_fields["restrict_fields"] : list of the restrict fields,
         this is the list to be use for the final "Min" background field
-    wing_part : Aircraftpart
+    wing_part : ModelPart
         wing part to refine
     mesh_size_wings : float
         mesh size of the wing
@@ -148,7 +148,7 @@ def set_fuselage_mesh(mesh_fields, fuselage_part, mesh_size_fuselage):
         each field must be created with a different index !!!
         mesh_fields["restrict_fields"] : list of the restrict fields,
         this is the list to be use for the final "Min" background field
-    fuselage_part : Aircraftpart
+    fuselage_part : ModelPart
         fuselage part to set mesh size
     mesh_size_fuselage : float
         mesh size of the fuselage

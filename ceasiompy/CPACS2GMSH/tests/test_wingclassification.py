@@ -30,7 +30,7 @@ from ceasiompy.CPACS2GMSH.func.wingclassification import (
     classify_wing,
 )
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.CPACS2GMSH.func.generategmesh import AircraftPart, generate_gmsh
+from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
 
 
 # Default CPACS file to test

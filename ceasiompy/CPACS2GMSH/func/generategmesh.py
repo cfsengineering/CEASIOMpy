@@ -14,7 +14,7 @@ Python version: >=3.7
 
 TODO:
 
-    - Make add to AircraftPart the mesh size and mesh color
+    - Make add to ModelPart the mesh size and mesh color
     - Add the possibility to change the symmetry plane orientation
 
 """
@@ -41,15 +41,17 @@ log = get_logger(__file__.split(".")[0])
 # ==============================================================================
 #   CLASSES
 # ==============================================================================
-class AircraftPart:
+class ModelPart:
     """
-    A class to represent part of the aircraft in order to classify its entities
+    A class to represent part of the aircraft or other part of the gmsh model
+    in order to classify its entities and dimension tags
     ...
 
     Attributes
     ----------
     name : str
-        name of the part which correspond to its .brep file name
+        name of the part which correspond to its .brep file name for aircraft parts
+        or a simple name describing the part function in the model
 
     """
 
@@ -111,7 +113,7 @@ class AircraftPart:
 
         Args:
         ----------
-        final_domain : AircraftPart
+        final_domain : ModelPart
             final_domain part
         """
         # detect only shared entities with the final domain
@@ -249,7 +251,7 @@ def generate_gmsh(
             )
             gmsh.model.occ.synchronize()
 
-            part_obj = AircraftPart(f"{file[:-5]}")
+            part_obj = ModelPart(f"{file[:-5]}")
             aircraft_parts.append(part_obj)
             parts_parent_dimtag.append(part_entities[0])
 
@@ -403,25 +405,10 @@ def generate_gmsh(
     gmsh.model.occ.synchronize()
 
     # Now only the final domain is left, in the model, we can find its entities
-    # we will use the AircraftPart class to store the entities of the final domain
-    final_domain = AircraftPart("fluid")
-    final_domain.volume = gmsh.model.getEntities(dim=3)
-
-    (
-        final_domain_surfaces,
-        final_domain_lines,
-        final_domain_points,
-    ) = get_entities_from_volume(final_domain.volume)
-
-    # assign
-    final_domain.surfaces = final_domain_surfaces
-    final_domain.lines = final_domain_lines
-    final_domain.points = final_domain_points
-
-    final_domain.volume_tag = [dimtag[1] for dimtag in final_domain.volume]
-    final_domain.surfaces_tags = [dimtag[1] for dimtag in final_domain.surfaces]
-    final_domain.lines_tags = [dimtag[1] for dimtag in final_domain.lines]
-    final_domain.points_tags = [dimtag[1] for dimtag in final_domain.points]
+    # we will use the ModelPart class to store the entities of the final domain
+    final_domain = ModelPart("fluid")
+    left_volume = gmsh.model.getEntities(dim=3)
+    final_domain.associate_child_to_parent(*left_volume)
 
     """
     As already discussed, it is often that two parts intersect each other,
@@ -445,7 +432,7 @@ def generate_gmsh(
 
     # Create an aircraft part containing all the parts of the aircraft
 
-    aircraft = AircraftPart("aircraft")
+    aircraft = ModelPart("aircraft")
 
     for part in aircraft_parts:
 
@@ -471,9 +458,9 @@ def generate_gmsh(
     # farfield entities are simply the entities left in the final domain
     # that don't belong to the aircraft
 
-    farfield_surfaces = list(set(final_domain_surfaces) - set(aircraft.surfaces))
-    farfield_lines = list(set(final_domain_lines) - set(aircraft.lines))
-    farfield_points = list(set(final_domain_points) - set(aircraft.points))
+    farfield_surfaces = list(set(final_domain.surfaces) - set(aircraft.surfaces))
+    farfield_lines = list(set(final_domain.lines) - set(aircraft.lines))
+    farfield_points = list(set(final_domain.points) - set(aircraft.points))
 
     farfield_surfaces_tags = list(set(final_domain.surfaces_tags) - set(aircraft.surfaces_tags))
     farfield_lines_tags = list(set(final_domain.surfaces_tags) - set(aircraft.lines_tags))

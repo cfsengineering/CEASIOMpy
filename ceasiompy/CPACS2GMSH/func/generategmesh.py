@@ -297,38 +297,38 @@ def generate_gmsh(
 
     log.info("Fragment operation finished")
 
-    """fragment produce fragments_dimtag and children_dimtag
+    # fragment produce fragments_dimtag and children_dimtag
 
-    fragments_dimtag is a list of tuples (dimtag, tag) of all the volumes in the model
-    the first fragment is the entire domain, each other fragment are subvolume of the domain
+    # fragments_dimtag is a list of tuples (dimtag, tag) of all the volumes in the model
+    # the first fragment is the entire domain, each other fragment are subvolume of the domain
 
-    children_dimtag is a list list of tuples (dimtag, tag)
-    the first list is associated to the entire domain as for fragments_dimtag, we don't need it
-    so for the following we work with children_dimtag[1:]
+    # children_dimtag is a list list of tuples (dimtag, tag)
+    # the first list is associated to the entire domain as for fragments_dimtag, we don't need it
+    # so for the following we work with children_dimtag[1:]
 
-    The rest of children_dimtag are list of tuples (dimtag, tag) that represent the volumes in the
-    model children_dimtag is "sorted" according to the order of importation of the parent parts.
-    for example if the first part imported was "fuselage1" then the first children_dimtag is a list
-    of all the "child" volumes in the model that are from the "parent" "fuselage1"
-    we can then associate each entities in the model to their parent origin
+    # The rest of children_dimtag are list of tuples (dimtag, tag) that represent the volumes in the
+    # model children_dimtag is "sorted" according to the order of importation of the parent parts.
+    # for example if the first part imported was "fuselage1" then the first children_dimtag is a list
+    # of all the "child" volumes in the model that are from the "parent" "fuselage1"
+    # we can then associate each entities in the model to their parent origin
 
-    When two parents part ex. a fuselage and a wing intersect each other
-    two children are generated for both parts, thus if a child is shared by
-    two parent parts (or more), then this child is a volume given
-    by the intersection of the two parent parts, we don't need them and some
-    of its surfaces, lines and point in the final models
+    # When two parents part ex. a fuselage and a wing intersect each other
+    # two children are generated for both parts, thus if a child is shared by
+    # two parent parts (or more), then this child is a volume given
+    # by the intersection of the two parent parts, we don't need them and some
+    # of its surfaces, lines and point in the final models
 
-    Thus we need to find those unwanted child and their entities that don't belong
-    to the final model, and remove them
+    # Thus we need to find those unwanted child and their entities that don't belong
+    # to the final model, and remove them
 
-    afterward the entities of each child will be associated with their parent part names
-    then we can delete all the child in the model, and only keep the final domain
-    Removing a child will not delete its entities shared by the final domain, this means that
-    at the end we will only have one volume with all the surfaces,lines,points assigned
-    to the original parent parts imported at the begging of the function
+    # afterward the entities of each child will be associated with their parent part names
+    # then we can delete all the child in the model, and only keep the final domain
+    # Removing a child will not delete its entities shared by the final domain, this means that
+    # at the end we will only have one volume with all the surfaces,lines,points assigned
+    # to the original parent parts imported at the begging of the function
 
-    If symmetry is applied the last children_dimtag is all the volume in the symmetry cylinder
-    thus the we can easily remove them and only keep the volumes of half domain"""
+    # If symmetry is applied the last children_dimtag is all the volume in the symmetry cylinder
+    # thus the we can easily remove them and only keep the volumes of half domain
 
     unwanted_children = []
     if symmetry:
@@ -407,18 +407,18 @@ def generate_gmsh(
     left_volume = gmsh.model.getEntities(dim=3)
     final_domain.associate_child_to_parent(*left_volume)
 
-    """As already discussed, it is often that two parts intersect each other,
-    it can also happend that some parts create holes inside other parts
-    for example a fuselage and 2 wings defined in the center of the fuselage
-    will create a holed fragment of the fuselage
-    This is not a problem since this hole is not in the final domain volume
-    but they may be some lines and surfaces from the hole in the fuselage
-    that were not eliminated since they were shared by the unwanted children
-    and those lines and surfaces were assigned to the fuselage part
+    # As already discussed, it is often that two parts intersect each other,
+    # it can also happend that some parts create holes inside other parts
+    # for example a fuselage and 2 wings defined in the center of the fuselage
+    # will create a holed fragment of the fuselage
+    # This is not a problem since this hole is not in the final domain volume
+    # but they may be some lines and surfaces from the hole in the fuselage
+    # that were not eliminated since they were shared by the unwanted children
+    # and those lines and surfaces were assigned to the fuselage part
 
-    thus we need to clean a bit the associated entities by the function
-    associate_child_to_parent() by comparing them with the entities of the
-    final domain"""
+    # thus we need to clean a bit the associated entities by the function
+    # associate_child_to_parent() by comparing them with the entities of the
+    # final domain
 
     for parent in aircraft_parts:
         parent.clean_inside_entities(final_domain)
@@ -466,12 +466,12 @@ def generate_gmsh(
         symmetry_surfaces = []
         symmetry_surfaces_tags = []
 
-        """If symmetry was used, it means that in the farfield entities we have
-        a surface that is the plane of symmetry, we need to find it
-        and remove it from the farfield entities
+        # If symmetry was used, it means that in the farfield entities we have
+        # a surface that is the plane of symmetry, we need to find it
+        # and remove it from the farfield entities
 
-        In general it is easy because the symmetry plane should be the only surface
-        in the farfield who touch the aircraft"""
+        # In general it is easy because the symmetry plane should be the only surface
+        # in the farfield who touch the aircraft
 
         for farfield_surface in farfield_surfaces:
             _, adj_lines_tags = gmsh.model.getAdjacencies(*farfield_surface)
@@ -501,10 +501,10 @@ def generate_gmsh(
 
     # Set mesh size of the aircraft parts
 
-    """not that points common between parts will have the size of the last part
-    to set its mesh size.
-    Thus be sure to define mesh size in a certain order to control
-    the size of the points on boundaries."""
+    # not that points common between parts will have the size of the last part
+    # to set its mesh size.
+    # Thus be sure to define mesh size in a certain order to control
+    # the size of the points on boundaries.
 
     for part in aircraft_parts:
         if "fuselage" in part.name:

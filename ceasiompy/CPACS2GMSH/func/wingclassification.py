@@ -487,17 +487,17 @@ def classify_special_section(wing_part, wing_sections, profiles):
         already_classified_lines = set(already_classified_lines)
         le_points_wing = set(le_points_wing)
         te_points_wing = set(te_points_wing)
-        """
-        seek for unclassified lines comming from classified leading edge points
-        Normally all the wing except the part that is link to the fuselage is classifed
-        the remaining unclassified comming from classified le / te points must be the
-        the le/te lines linked to the fuselage
 
-        But sometimes if no fuselage line interesect the wing profile embedded in the wing
-        the profile projection on the fuselage is a simple profile so it must has been
-        normally classified and thus the already_classified_lines and points are exactly all
-        the lines and points of the wing
-        """
+        # seek for unclassified lines comming from classified leading edge points
+        # Normally all the wing except the part that is link to the fuselage is classifed
+        # the remaining unclassified comming from classified le / te points must be the
+        # the le/te lines linked to the fuselage
+
+        # But sometimes if no fuselage line interesect the wing profile embedded in the wing
+        # the profile projection on the fuselage is a simple profile so it must has been
+        # normally classified and thus the already_classified_lines and points are exactly all
+        # the lines and points of the wing
+
         # seek if the profile projection on the fuselage is a simple profile
 
         if (already_classified_lines == set(wing_part.lines_tags)) and (
@@ -620,11 +620,11 @@ def classify_special_section(wing_part, wing_sections, profiles):
 
         section_surfaces = []
 
+        adj_le_surfaces, _ = gmsh.model.getAdjacencies(1, le_line_fus_wing[0])
+        adj_te_surfaces, _ = gmsh.model.getAdjacencies(1, te_line_fus_wing[0])
+
         section_surfaces.extend(list(adj_le_surfaces))
         section_surfaces.extend(list(adj_te_surfaces))
-
-        [section_surfaces.append(adj_le_surface) for adj_le_surface in adj_le_surfaces]
-        [section_surfaces.append(adj_te_surface) for adj_te_surface in adj_te_surfaces]
 
         section_surfaces = list(set(section_surfaces))
         # classify the wing section
@@ -661,13 +661,13 @@ def classify_wing(wing_part):
     """
     # find the profiles that composed the wing and its sections
     profiles = []
-    """
-    A profile is composed of two Spline (one upper and one lower) that are connected
-    with the same two points (the leading and trailing edge points)
-    this definition is only valid for non truncated profile
-    for a truncated profile further operation need to be done do determine the two
-    trailing edge points
-    """
+
+    # A profile is composed of two Spline (one upper and one lower) that are connected
+    # with the same two points (the leading and trailing edge points)
+    # this definition is only valid for non truncated profile
+    # for a truncated profile further operation need to be done do determine the two
+    # trailing edge points
+
     lines_composition = []
 
     for line in wing_part.lines:
@@ -709,10 +709,9 @@ def classify_wing(wing_part):
     # forms a wing section
 
     wing_sections = []
-    """
-    A wing section is composed of two profiles and the lines that connect their
-    leading and trailing edge points
-    """
+
+    # A wing section is composed of two profiles and the lines that connect their
+    # leading and trailing edge points
 
     # then search if there is another profile who shares the same le/te lines
 

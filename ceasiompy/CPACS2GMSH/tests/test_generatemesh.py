@@ -70,7 +70,7 @@ def test_generate_gmsh():
     assert "MARKER_TAG= fuselage1" in content
     assert "MARKER_TAG= farfield" in content
 
-    # Erease generated file
+    # Erase generated file
     for file in os.listdir(TEST_OUT_PATH):
         if (".brep" in file) or (".su2" in file):
             os.remove(os.path.join(TEST_OUT_PATH, file))
@@ -105,7 +105,7 @@ def test_generate_gmsh_symm():
     assert "MARKER_TAG= farfield" in content
     assert "MARKER_TAG= symmetry" in content
 
-    # Erease generated file
+    # Erase generated file
     for file in os.listdir(TEST_OUT_PATH):
         if (".brep" in file) or (".su2" in file):
             os.remove(os.path.join(TEST_OUT_PATH, file))
@@ -144,8 +144,8 @@ def test_symm_part_removed():
 
 def test_assignation():
     """
-    Test if the assignation mechanisme is correct on all parts
-    test if the assignation of the entites of wing1 is correct
+    Test if the assignation mechanism is correct on all parts
+    test if the assignation of the entities of wing1 is correct
 
     """
     cpacs = CPACS(CPACS_IN_PATH)
@@ -180,7 +180,7 @@ def test_assignation():
             assert part.surfaces_tags == wing1_surfaces_tags
             assert part.lines_tags == wing1_lines_tags
             assert part.points_tags == wing1_points_tags
-    # Erease generated file
+    # Erase generated file
     for file in os.listdir(TEST_OUT_PATH):
         if (".brep" in file) or (".su2" in file):
             os.remove(os.path.join(TEST_OUT_PATH, file))

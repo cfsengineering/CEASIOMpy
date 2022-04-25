@@ -100,7 +100,7 @@ def test_classify_wing():
     test_te_line_sec1 = [29, 31]
     assert te_line_sec1 == test_te_line_sec1
 
-    # Erease generated file
+    # Erase generated file
     for file in os.listdir(TEST_OUT_PATH):
         if (".brep" in file) or (".su2" in file):
             os.remove(os.path.join(TEST_OUT_PATH, file))

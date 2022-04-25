@@ -108,19 +108,6 @@ def export_brep(cpacs, brep_dir_path):
     or upgrading tigl version
     There also must be a better way to do this and the engine symmetry
     """
-    engine_pos_config = aircraft_config.get_engine_positions()
-    if engine_pos_config:
-
-        # engine_position = engine_pos_config.get_engine_position(1)
-
-        # transfo = engine_position.get_transformation()
-        # translation = transfo.get_translation_vector()
-        # engine_coord = translation.get_gp_pnt().Coord()
-        engine_coord_path = Path(brep_dir_path, "engine_coord.txt")
-
-        engine_coord = (-0.1, 0.0, -0.41)
-        pickle.dump(engine_coord, open(str(engine_coord_path), "wb"))
-
     # Engine
     engines_config = aircraft_config.get_engines()
     if engines_config:

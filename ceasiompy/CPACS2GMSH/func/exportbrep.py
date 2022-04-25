@@ -7,8 +7,8 @@ Small description of the script
 
 Python version: >=3.7
 
-| Author: Name
-| Creation: YEAR-MONTH-DAY
+| Author: Tony Govoni
+| Creation: 2022-03-22
 
 TODO:
 

@@ -104,6 +104,28 @@ class AircraftPart:
         self.surfaces_tags.extend(child_surfaces_tags)
         self.volume_tag.extend(child_volume_tag)
 
+    def clean_inside_entities(self, final_domain):
+        """
+        Function to clean the inside entities of the part.
+        Inside entities are entities that are not part of the final domain.
+
+        Args:
+        ----------
+        final_domain : AircraftPart
+            final_domain part
+        """
+        # detect only shared entities with the final domain
+
+        self.surfaces = list(set(self.surfaces).intersection(set(final_domain.surfaces)))
+        self.lines = list(set(self.lines).intersection(set(final_domain.lines)))
+        self.points = list(set(self.points).intersection(set(final_domain.points)))
+
+        self.surfaces_tags = list(
+            set(self.surfaces_tags).intersection(set(final_domain.surfaces_tags))
+        )
+        self.lines_tags = list(set(self.lines_tags).intersection(set(final_domain.lines_tags)))
+        self.points_tags = list(set(self.points_tags).intersection(set(final_domain.points_tags)))
+
 
 # ==============================================================================
 #   FUNCTIONS
@@ -168,7 +190,6 @@ def generate_gmsh(
     mesh_size_farfield=12,
     mesh_size_fuselage=0.2,
     mesh_size_wings=0.2,
-    advance_mesh=False,
     refine_factor=4,
 ):
     """
@@ -206,8 +227,8 @@ def generate_gmsh(
 
     """
     file_list = os.listdir(brep_dir_path)
-    # for now suppress nacelle center parts since they are not supported
-    file_list = [file for file in file_list if (("center" not in file))]
+    # for now suppress nacelle parts since they are not supported
+    file_list = [file for file in file_list if (("nacelle" not in file))]
     file_list.sort()
 
     gmsh.initialize()
@@ -287,8 +308,8 @@ def generate_gmsh(
 
     The rest of childs_dimtag are list of tuples (dimtag, tag) that represent the volumes in the
     model childs_dimtag is "sorted" according to the order of importation of the parent parts.
-    for example if the first part imported was "fuselage1" then the first childs_dimtag is
-    all the "child" volumes in the model that are from the "parent" "fuselage1"
+    for example if the first part imported was "fuselage1" then the first childs_dimtag is a list
+    of all the "child" volumes in the model that are from the "parent" "fuselage1"
     we can then associate each entities in the model to their parent origin
 
     When two parents part ex. a fuselage and a wing intersect each other
@@ -318,10 +339,6 @@ def generate_gmsh(
         # remove them from the model
         gmsh.model.occ.remove(unwanted_childs, recursive=True)
         gmsh.model.occ.synchronize()
-
-    # Get the final domain (farfield fluid domain with the aircraft volume removed)
-
-    final_domain = fragments_dimtag[0]
 
     # Get the childs of the aircraft parts
 
@@ -385,20 +402,26 @@ def generate_gmsh(
     gmsh.model.occ.remove(good_childs, recursive=True)
     gmsh.model.occ.synchronize()
 
-    # Now only the final domain is left, in the model
-    # Find the final domain entities
-
-    final_domain_volume = gmsh.model.getEntities(dim=3)
+    # Now only the final domain is left, in the model, we can find its entities
+    # we will use the AircraftPart class to store the entities of the final domain
+    final_domain = AircraftPart("fluid")
+    final_domain.volume = gmsh.model.getEntities(dim=3)
 
     (
         final_domain_surfaces,
         final_domain_lines,
         final_domain_points,
-    ) = get_entities_from_volume(final_domain_volume)
+    ) = get_entities_from_volume(final_domain.volume)
 
-    final_domain_surfaces_tags = [dimtag[1] for dimtag in final_domain_surfaces]
-    final_domain_lines_tags = [dimtag[1] for dimtag in final_domain_lines]
-    final_domain_points_tags = [dimtag[1] for dimtag in final_domain_points]
+    # assign
+    final_domain.surfaces = final_domain_surfaces
+    final_domain.lines = final_domain_lines
+    final_domain.points = final_domain_points
+
+    final_domain.volume_tag = [dimtag[1] for dimtag in final_domain.volume]
+    final_domain.surfaces_tags = [dimtag[1] for dimtag in final_domain.surfaces]
+    final_domain.lines_tags = [dimtag[1] for dimtag in final_domain.lines]
+    final_domain.points_tags = [dimtag[1] for dimtag in final_domain.points]
 
     """
     As already discussed, it is often that two parts intersect each other,
@@ -416,19 +439,7 @@ def generate_gmsh(
 
     """
     for parent in aircraft_parts:
-        # detect only shared entities with the final domain
-
-        parent.surfaces = list(set(parent.surfaces).intersection(set(final_domain_surfaces)))
-        parent.lines = list(set(parent.lines).intersection(set(final_domain_lines)))
-        parent.points = list(set(parent.points).intersection(set(final_domain_points)))
-
-        parent.surfaces_tags = list(
-            set(parent.surfaces_tags).intersection(set(final_domain_surfaces_tags))
-        )
-        parent.lines_tags = list(set(parent.lines_tags).intersection(set(final_domain_lines_tags)))
-        parent.points_tags = list(
-            set(parent.points_tags).intersection(set(final_domain_points_tags))
-        )
+        parent.clean_inside_entities(final_domain)
 
     log.info("Model cleaned")
 
@@ -464,9 +475,9 @@ def generate_gmsh(
     farfield_lines = list(set(final_domain_lines) - set(aircraft.lines))
     farfield_points = list(set(final_domain_points) - set(aircraft.points))
 
-    farfield_surfaces_tags = list(set(final_domain_surfaces_tags) - set(aircraft.surfaces_tags))
-    farfield_lines_tags = list(set(final_domain_lines_tags) - set(aircraft.lines_tags))
-    farfield_points_tags = list(set(final_domain_points_tags) - set(aircraft.points_tags))
+    farfield_surfaces_tags = list(set(final_domain.surfaces_tags) - set(aircraft.surfaces_tags))
+    farfield_lines_tags = list(set(final_domain.surfaces_tags) - set(aircraft.lines_tags))
+    farfield_points_tags = list(set(final_domain.points_tags) - set(aircraft.points_tags))
 
     if symmetry:
 
@@ -499,9 +510,8 @@ def generate_gmsh(
     gmsh.model.setPhysicalName(2, farfield, "farfield")
 
     # Fluid domain
-    final_domain_volume_tag = [final_domain_volume[0][1]]
-    ps = gmsh.model.addPhysicalGroup(3, final_domain_volume_tag)
-    gmsh.model.setPhysicalName(3, ps, "fluid")
+    ps = gmsh.model.addPhysicalGroup(3, final_domain.volume_tag)
+    gmsh.model.setPhysicalName(3, ps, final_domain.name)
 
     gmsh.model.occ.synchronize()
     log.info("Markers for SU2 generated")
@@ -591,7 +601,7 @@ def generate_gmsh(
             mesh_size_farfield,
             model_bb,
             domain_length,
-            final_domain_volume_tag,
+            final_domain.volume_tag,
         )
 
         mesh_fields["nbfields"] += 1

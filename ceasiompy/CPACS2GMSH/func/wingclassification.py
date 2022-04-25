@@ -194,7 +194,7 @@ def classify_trunc_profile(profile_list, profile_lines, line_comp1, line_comp2):
         if len(loop_line) != 3:
             return False
         # check that each line share only one point with the two other line
-        for k in range(0, len(loop_line)):
+        for k in range(0, 3):
 
             _, adj_points = gmsh.model.getAdjacencies(1, loop_line[k])
 

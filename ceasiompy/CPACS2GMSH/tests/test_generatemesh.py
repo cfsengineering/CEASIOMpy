@@ -24,7 +24,11 @@ from pytest import approx
 
 from cpacspy.cpacspy import CPACS
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh, get_entities_from_volume
+from ceasiompy.CPACS2GMSH.func.generategmesh import (
+    ModelPart,
+    generate_gmsh,
+    get_entities_from_volume,
+)
 
 
 # Default CPACS file to test
@@ -151,7 +155,6 @@ def test_get_entities_from_volume():
     gmsh.initialize()
     test_cube = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)
     gmsh.model.occ.synchronize()
-    print(test_cube)
     surfaces_dimtags, lines_dimtags, points_dimtags = get_entities_from_volume([(3, test_cube)])
     assert len(surfaces_dimtags) == 6
     assert len(lines_dimtags) == 12
@@ -172,6 +175,54 @@ def test_get_entities_from_volume():
         (1, 12),
     ]
     assert points_dimtags == [(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), (0, 7), (0, 8)]
+    gmsh.clear()
+    gmsh.finalize()
+
+
+def test_ModelPart_associate_child_to_parent():
+    """
+    Test if the ModelPart associate_child_to_parent function works correctly.
+
+    """
+    gmsh.initialize()
+    cube_child_tag = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)
+    gmsh.model.occ.synchronize()
+    model_part = ModelPart("cube_parent")
+    model_part.associate_child_to_parent((3, cube_child_tag))
+
+    # assert correct number of associated entities
+    assert len(model_part.volume_tag) == 1
+    assert len(model_part.surfaces_tags) == 6
+    assert len(model_part.lines_tags) == 12
+    assert len(model_part.points_tags) == 8
+
+    gmsh.clear()
+    gmsh.finalize()
+
+
+def test_ModelPart_clean_inside_entities():
+    """
+    Test if the ModelPart clean_inside_entities function works correctly.
+
+    """
+    gmsh.initialize()
+    final_domain_tag = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)
+    gmsh.model.occ.synchronize()
+    final_domain = ModelPart("fluid")
+    final_domain.associate_child_to_parent((3, final_domain_tag))
+
+    cube_child_tag = gmsh.model.occ.addBox(0, 0, 0, 1, 1, 1)
+    gmsh.model.occ.synchronize()
+
+    model_part = ModelPart("cube_parent")
+    model_part.associate_child_to_parent((3, cube_child_tag))
+    model_part.clean_inside_entities(final_domain)
+
+    # assert correct number of cleaned inside entities
+    assert len(model_part.surfaces_tags) == 0
+    assert len(model_part.lines_tags) == 0
+    assert len(model_part.points_tags) == 0
+
     gmsh.clear()
     gmsh.finalize()
 

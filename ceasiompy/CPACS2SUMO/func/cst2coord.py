@@ -110,7 +110,8 @@ class CST_shape(object):
         return self.coord
 
     # Function to calculate class and shape function
-    def __ClassShape(self, w, x, N1, N2, dz):
+    @staticmethod
+    def __ClassShape(w, x, N1, N2, dz):
 
         # Class function; taking input of N1 and N2
         C = np.zeros(len(x))
@@ -137,7 +138,8 @@ class CST_shape(object):
 
         return y
 
-    def __writeToFile(self, x, y):
+    @staticmethod
+    def __writeToFile(x, y):
 
         basepath = os.path.dirname(os.path.realpath(__file__))
         airfoil_shape_file = basepath + os.path.sep + "airfoil_shape.dat"

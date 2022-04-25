@@ -256,11 +256,11 @@ def test_assignation():
 
     for part in aircraft_parts:
         if part.name == "wing1_m":
-            assert part.childs_dimtag == wing1_m_child
+            assert part.children_dimtag == wing1_m_child
         if part.name == "fuselage1":
-            assert part.childs_dimtag == fuselage1_child
+            assert part.children_dimtag == fuselage1_child
         if part.name == "wing1":
-            assert part.childs_dimtag == wing1_child
+            assert part.children_dimtag == wing1_child
             assert part.volume_tag == wing1_volume_tag
             assert part.surfaces_tags == wing1_surfaces_tags
             assert part.lines_tags == wing1_lines_tags

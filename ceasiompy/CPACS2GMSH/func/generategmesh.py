@@ -70,7 +70,7 @@ class ModelPart:
         self.surfaces_tags = []
         self.volume_tag = []
         # children
-        self.childs_dimtag = set()
+        self.children_dimtag = set()
 
     def associate_child_to_parent(self, child_dimtag):
         """
@@ -293,29 +293,29 @@ def generate_gmsh(
 
     log.info("Start fragment operation")
 
-    fragments_dimtag, childs_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)
+    fragments_dimtag, children_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)
     gmsh.model.occ.synchronize()
 
     log.info("Fragment operation finished")
 
     """
-    fragment produce fragments_dimtag and childs_dimtag
+    fragment produce fragments_dimtag and children_dimtag
 
     fragments_dimtag is a list of tuples (dimtag, tag) of all the volumes in the model
     the first fragment is the entire domain, each other fragment are subvolume of the domain
 
-    childs_dimtag is a list list of tuples (dimtag, tag)
+    children_dimtag is a list list of tuples (dimtag, tag)
     the first list is associated to the entire domain as for fragments_dimtag, we don't need it
-    so for the following we work with childs_dimtag[1:]
+    so for the following we work with children_dimtag[1:]
 
-    The rest of childs_dimtag are list of tuples (dimtag, tag) that represent the volumes in the
-    model childs_dimtag is "sorted" according to the order of importation of the parent parts.
-    for example if the first part imported was "fuselage1" then the first childs_dimtag is a list
+    The rest of children_dimtag are list of tuples (dimtag, tag) that represent the volumes in the
+    model children_dimtag is "sorted" according to the order of importation of the parent parts.
+    for example if the first part imported was "fuselage1" then the first children_dimtag is a list
     of all the "child" volumes in the model that are from the "parent" "fuselage1"
     we can then associate each entities in the model to their parent origin
 
     When two parents part ex. a fuselage and a wing intersect each other
-    two childs are generated for both parts, thus if a child is shared by
+    two children are generated for both parts, thus if a child is shared by
     two parent parts (or more), then this child is a volume given
     by the intersection of the two parent parts, we don't need them and some
     of its surfaces, lines and point in the final models
@@ -329,79 +329,79 @@ def generate_gmsh(
     at the end we will only have one volume with all the surfaces,lines,points assigned
     to the original parent parts imported at the begging of the function
 
-    If symmetry is applied the last childs_dimtag is all the volume in the symmetry cylinder
+    If symmetry is applied the last children_dimtag is all the volume in the symmetry cylinder
     thus the we can easily remove them and only keep the volumes of half domain
     """
 
-    unwanted_childs = []
+    unwanted_children = []
     if symmetry:
-        # take the unwanted childs from symmetry
-        unwanted_childs = childs_dimtag[-1]
+        # take the unwanted children from symmetry
+        unwanted_children = children_dimtag[-1]
 
         # remove them from the model
-        gmsh.model.occ.remove(unwanted_childs, recursive=True)
+        gmsh.model.occ.remove(unwanted_children, recursive=True)
         gmsh.model.occ.synchronize()
 
-    # Get the childs of the aircraft parts
+    # Get the children of the aircraft parts
 
-    aircraft_parts_childs_dimtag = childs_dimtag[1:]
+    aircraft_parts_children_dimtag = children_dimtag[1:]
 
     log.info("Before/after fragment operation relations:")
-    for parent, childs in zip(aircraft_parts, aircraft_parts_childs_dimtag):
+    for parent, children in zip(aircraft_parts, aircraft_parts_children_dimtag):
 
-        # don't assign unwanted childs if symmetry was used
+        # don't assign unwanted children if symmetry was used
 
-        childs = [child for child in childs if child not in unwanted_childs]
+        children = [child for child in children if child not in unwanted_children]
 
-        log.info(f"{parent.name} has generated {childs} childs")
-        parent.childs_dimtag = set(childs)
+        log.info(f"{parent.name} has generated {children} children")
+        parent.children_dimtag = set(children)
 
-    # Some parent may have no childs (due to symmetry), we need to remove them
+    # Some parent may have no children (due to symmetry), we need to remove them
     for parent in aircraft_parts:
-        if not parent.childs_dimtag:
-            log.info(f"{parent.name} has no more childs due to symmetry, it will be deleted")
+        if not parent.children_dimtag:
+            log.info(f"{parent.name} has no more children due to symmetry, it will be deleted")
             aircraft_parts.remove(parent)
 
-    # Process and add childs that are shared by two parent parts in the shared childs list
-    # and put them in a new unwanted childs list
+    # Process and add children that are shared by two parent parts in the shared children list
+    # and put them in a new unwanted children list
 
-    unwanted_childs = []
+    unwanted_children = []
 
     for part in aircraft_parts:
         for other_part in aircraft_parts:
 
             if part != other_part:
-                shared_childs = part.childs_dimtag.intersection(other_part.childs_dimtag)
+                shared_children = part.children_dimtag.intersection(other_part.children_dimtag)
 
-                if part.childs_dimtag.intersection(other_part.childs_dimtag):
-                    part.childs_dimtag = part.childs_dimtag - shared_childs
-                    other_part.childs_dimtag = other_part.childs_dimtag - shared_childs
+                if part.children_dimtag.intersection(other_part.children_dimtag):
+                    part.children_dimtag = part.children_dimtag - shared_children
+                    other_part.children_dimtag = other_part.children_dimtag - shared_children
 
-                unwanted_childs.extend(list(shared_childs))
+                unwanted_children.extend(list(shared_children))
 
     # remove duplicated from the unwanted child list
 
-    unwanted_childs = list(set(unwanted_childs))
+    unwanted_children = list(set(unwanted_children))
 
     # and remove them from the model
-    gmsh.model.occ.remove(unwanted_childs, recursive=True)
+    gmsh.model.occ.remove(unwanted_children, recursive=True)
     gmsh.model.occ.synchronize()
-    log.info(f"Unwanted childs {unwanted_childs} removed from model")
+    log.info(f"Unwanted children {unwanted_children} removed from model")
 
     # Associate good child with their parent
-    good_childs = []
+    good_children = []
 
     for parent in aircraft_parts:
-        for child_dimtag in parent.childs_dimtag:
-            if child_dimtag not in unwanted_childs:
+        for child_dimtag in parent.children_dimtag:
+            if child_dimtag not in unwanted_children:
 
-                good_childs.append(child_dimtag)
+                good_children.append(child_dimtag)
                 log.info(f"Associating child {child_dimtag} to parent {parent.name}")
                 parent.associate_child_to_parent(child_dimtag)
 
     # Now that its clear which child entities in the model are from which parent part,
     # we can delete the child volumes and only keep the final domain
-    gmsh.model.occ.remove(good_childs, recursive=True)
+    gmsh.model.occ.remove(good_children, recursive=True)
     gmsh.model.occ.synchronize()
 
     # Now only the final domain is left, in the model, we can find its entities
@@ -417,7 +417,7 @@ def generate_gmsh(
     will create a holed fragment of the fuselage
     This is not a problem since this hole is not in the final domain volume
     but they may be some lines and surfaces from the hole in the fuselage
-    that were not eliminated since they were shared by the unwanted childs
+    that were not eliminated since they were shared by the unwanted children
     and those lines and surfaces were assigned to the fuselage part
 
     thus we need to clean a bit the associated entities by the function

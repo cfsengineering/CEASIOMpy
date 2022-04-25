@@ -43,9 +43,18 @@ import matplotlib.pylab as plt
 
 
 class CST_shape(object):
-    def __init__(self, wl=[-1, -1, -1], wu=[1, 1, 1], dz=0, N=200):
-        self.wl = wl
-        self.wu = wu
+    def __init__(self, wl=None, wu=None, dz=0, N=200):
+
+        if wl is None:
+            self.wl = [-1, -1, -1]
+        else:
+            self.wl = wl
+
+        if wu is None:
+            self.wu = [1, 1, 1]
+        else:
+            self.wu = wu
+
         self.dz = dz
         self.N = N
         self.x_list = []

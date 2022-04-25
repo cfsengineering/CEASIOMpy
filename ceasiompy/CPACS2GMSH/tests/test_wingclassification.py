@@ -19,7 +19,6 @@ Python version: >=3.7
 import os
 import gmsh
 import pytest
-from pytest import approx
 
 from cpacspy.cpacspy import CPACS
 from ceasiompy.CPACS2GMSH.func.wingclassification import (

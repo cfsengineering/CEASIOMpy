@@ -341,8 +341,8 @@ def classify_wing_section(wing_sections, profile, other_profile):
         adj_le_surfaces, _ = gmsh.model.getAdjacencies(1, le_line[0])
         adj_te_surfaces, _ = gmsh.model.getAdjacencies(1, te_line[0])
 
-        [section_surfaces.append(adj_le_surface) for adj_le_surface in adj_le_surfaces]
-        [section_surfaces.append(adj_te_surface) for adj_te_surface in adj_te_surfaces]
+        section_surfaces.extend(list(adj_le_surfaces))
+        section_surfaces.extend(list(adj_te_surfaces))
 
         section_surfaces = list(set(section_surfaces))
 
@@ -394,8 +394,8 @@ def classify_wing_section(wing_sections, profile, other_profile):
             adj_le_surfaces, _ = gmsh.model.getAdjacencies(1, le_line[0])
             adj_te_surfaces, _ = gmsh.model.getAdjacencies(1, te_line[0])
 
-            [section_surfaces.append(adj_le_surface) for adj_le_surface in adj_le_surfaces]
-            [section_surfaces.append(adj_te_surface) for adj_te_surface in adj_te_surfaces]
+            section_surfaces.extend(list(adj_le_surfaces))
+            section_surfaces.extend(list(adj_te_surfaces))
 
             section_surfaces = list(set(section_surfaces))
             # classify the wing section

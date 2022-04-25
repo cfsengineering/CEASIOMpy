@@ -17,10 +17,8 @@ Python version: >=3.7
 # ==============================================================================
 
 import os
-import sys
 import gmsh
 import pytest
-from pytest import approx
 
 from cpacspy.cpacspy import CPACS
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep

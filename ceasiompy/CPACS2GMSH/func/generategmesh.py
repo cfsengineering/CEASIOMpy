@@ -25,7 +25,6 @@ TODO:
 # ==============================================================================
 import gmsh
 import os
-import pickle
 from ceasiompy.utils.ceasiomlogger import get_logger
 import numpy as np
 from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
@@ -459,12 +458,12 @@ def generate_gmsh(
     # that don't belong to the aircraft
 
     farfield_surfaces = list(set(final_domain.surfaces) - set(aircraft.surfaces))
-    farfield_lines = list(set(final_domain.lines) - set(aircraft.lines))
+    # farfield_lines = list(set(final_domain.lines) - set(aircraft.lines))
     farfield_points = list(set(final_domain.points) - set(aircraft.points))
 
     farfield_surfaces_tags = list(set(final_domain.surfaces_tags) - set(aircraft.surfaces_tags))
-    farfield_lines_tags = list(set(final_domain.surfaces_tags) - set(aircraft.lines_tags))
-    farfield_points_tags = list(set(final_domain.points_tags) - set(aircraft.points_tags))
+    # farfield_lines_tags = list(set(final_domain.surfaces_tags) - set(aircraft.lines_tags))
+    # farfield_points_tags = list(set(final_domain.points_tags) - set(aircraft.points_tags))
 
     if symmetry:
 

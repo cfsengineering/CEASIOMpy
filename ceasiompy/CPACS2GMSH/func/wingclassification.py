@@ -140,7 +140,7 @@ def classify_trunc_profile(profile_list, profile_lines, line_comp1, line_comp2):
     ----------
     profile_list : list
         list of all the previously found profile
-    profile_lines
+    profile_lines : list
         list of all the previously found profile lines
     line_comp1 : dict
         dictionary containing a line and its two points
@@ -165,12 +165,9 @@ def classify_trunc_profile(profile_list, profile_lines, line_comp1, line_comp2):
         # determine the common point in the two pair of points
 
         if pair_points[0] in pair_points_other:
-
-            common_point = pair_points[0]
             points = set([*pair_points, *pair_points_other])
 
         else:
-            common_point = pair_points[1]
             points = set([*pair_points, *pair_points_other])
 
         # if those 3 point form a truncated profile with a third line,

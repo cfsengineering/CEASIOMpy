@@ -25,9 +25,6 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
     classify_profile,
     classify_trunc_profile,
-    classify_wing_section,
-    classify_special_section,
-    classify_wing,
 )
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
@@ -81,6 +78,42 @@ def test_classify_profile():
 
     # Test if two line that doesn't form a profile are not classified
     profile_found = classify_profile(profiles, line_comp_up, bad_line_comp)
+    assert profile_found == False
+    gmsh.clear()
+    gmsh.finalize()
+
+
+def test_classify_trunc_profile():
+    """
+    Test if a simple 2 bspline truncated profile is correctly classified
+    """
+
+    gmsh.initialize()
+
+    le_point_tag = gmsh.model.occ.addPoint(0, 0, 0, 1)
+    up_te_point_tag = gmsh.model.occ.addPoint(1, 0, 0.01, 1)
+    lo_te_point_tag = gmsh.model.occ.addPoint(1, 0, -0.01, 1)
+    up_profile_point_tag = gmsh.model.occ.addPoint(0.2, 0.1, 0, 1)
+    lo_profile_point_tag = gmsh.model.occ.addPoint(0.2, -0.1, 0, 1)
+
+    gmsh.model.occ.synchronize()
+    up_bspline = gmsh.model.occ.addBSpline([le_point_tag, up_profile_point_tag, up_te_point_tag])
+    lo_bspline = gmsh.model.occ.addBSpline([lo_te_point_tag, lo_profile_point_tag, le_point_tag])
+    gmsh.model.occ.addBSpline([up_te_point_tag, lo_te_point_tag])
+    gmsh.model.occ.synchronize()
+
+    # try to classify this profile
+    profile_list = []
+    profile_lines = []
+    line_comp_up = {"line_dimtag": up_bspline, "points_tags": [le_point_tag, up_te_point_tag]}
+    line_comp_lo = {"line_dimtag": lo_bspline, "points_tags": [lo_te_point_tag, le_point_tag]}
+
+    # Test if the profile is correctly classified
+    profile_found = classify_trunc_profile(profile_list, profile_lines, line_comp_up, line_comp_lo)
+    assert profile_found == True
+
+    # Test if the profile is not two times classified
+    profile_found = classify_trunc_profile(profile_list, profile_lines, line_comp_up, line_comp_lo)
     assert profile_found == False
     gmsh.clear()
     gmsh.finalize()

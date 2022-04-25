@@ -16,7 +16,6 @@ Python version: >=3.7
 #   IMPORTS
 # =================================================================================================
 
-import os
 import pytest
 import shutil
 from pathlib import Path
@@ -35,6 +34,18 @@ CPACS_PATH_OUT = Path(MODULE_DIR, "D150_simple_out.xml")
 # =================================================================================================
 #   TESTS
 # =================================================================================================
+
+
+def test_module_name_error():
+
+    with pytest.raises(ValueError):
+        ModuleToRun("NotExistingModule", "", "", "")
+
+
+def test_no_wkflow_error():
+
+    with pytest.raises(FileNotFoundError):
+        ModuleToRun("SU2Run", Path("./Not_WKFLOW"), CPACS_PATH)
 
 
 class TestModuleToRun:
@@ -59,16 +70,6 @@ class TestModuleToRun:
         assert not self.module_works.is_optim_module
         assert self.module_works.optim_related_modules == []
         assert self.module_works.optim_method is None
-
-    def test_module_name_error(self):
-
-        with pytest.raises(ValueError):
-            ModuleToRun("NotExistingModule", "", "", "")
-
-    def test_no_wkflow_error(self):
-
-        with pytest.raises(FileNotFoundError):
-            ModuleToRun("SU2Run", Path("./Not_WKFLOW"), CPACS_PATH)
 
     def test_create_module_wkflow_dir(self):
 

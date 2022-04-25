@@ -42,21 +42,18 @@ def change_test_dir(request, monkeypatch):
     shutil.rmtree(CSV_FILE_PATH.parent.parent)
 
 
-class TestExportCSV:
-    def test_export_aeromaps(self):
-        """Test function 'exportcsv' function."""
+def test_export_aeromaps():
+    """Test function 'exportcsv' function."""
 
-        export_aeromaps(CPACS_IN_PATH, CPACS_IN_PATH)
+    export_aeromaps(CPACS_IN_PATH, CPACS_IN_PATH)
 
-        # Read and check csv file
+    # Read and check csv file
 
-        with open(CSV_FILE_PATH, "r") as csv_file:
-            lines = csv_file.readlines()
+    with open(CSV_FILE_PATH, "r") as csv_file:
+        lines = csv_file.readlines()
 
-        assert (
-            lines[0] == "altitude,machNumber,angleOfSideslip,angleOfAttack,cd,cl,cs,cmd,cml,cms\n"
-        )
-        assert lines[1] == "0,0.3,0,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
-        assert lines[2] == "0,0.3,0,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
-        assert lines[3] == "0,0.3,10,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
-        assert lines[4] == "0,0.3,10,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
+    assert lines[0] == "altitude,machNumber,angleOfSideslip,angleOfAttack,cd,cl,cs,cmd,cml,cms\n"
+    assert lines[1] == "0,0.3,0,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
+    assert lines[2] == "0,0.3,0,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
+    assert lines[3] == "0,0.3,10,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
+    assert lines[4] == "0,0.3,10,10,0.01,0.1,0.001,NaN,NaN,NaN\n"

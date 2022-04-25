@@ -23,7 +23,7 @@ import numpy as np
 #   CLASSES
 # =============================================================================
 
-"""All classes are defined inside the InputClasses/Conventional"""
+# All classes are defined inside the InputClasses/Conventional
 
 
 # =============================================================================

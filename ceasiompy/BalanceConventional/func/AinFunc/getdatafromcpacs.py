@@ -42,7 +42,7 @@ log = get_logger(__file__.split(".")[0])
 #   CLASSES
 # =============================================================================
 
-"""All classes are defined inside the InputClasses/Conventional"""
+# All classes are defined inside the InputClasses/Conventional
 
 
 # =============================================================================
@@ -51,23 +51,23 @@ log = get_logger(__file__.split(".")[0])
 
 
 def get_data(mw, bi, cpacs_in):
-    """ The function extracts from the XML file the required input data,
-        the code will use the default value when they are missing.
+    """The function extracts from the XML file the required input data,
+    the code will use the default value when they are missing.
 
-        INPUT
-        (class) mw       --Arg.: MassesWeight class.
-        (class) bi       --Arg.: BalanceInput class.
-        ##======= Classes are defined in the InputClasses folder =======##
+    INPUT
+    (class) mw       --Arg.: MassesWeight class.
+    (class) bi       --Arg.: BalanceInput class.
+    ##======= Classes are defined in the InputClasses folder =======##
 
-        (char) cpacs_in  --Arg.: Relative location of the xml file in the
-                                 ToolInput folder (cpacs option) or
-                                 relative location of the temp. xml file in
-                                 the ToolOutput folder (input option).
+    (char) cpacs_in  --Arg.: Relative location of the xml file in the
+                             ToolInput folder (cpacs option) or
+                             relative location of the temp. xml file in
+                             the ToolOutput folder (input option).
 
-        OUTPUT
-        (class) mw       --Out.: MassesWeight class updated.
-        (class) bi       --Out.: RangeInput class updated.
-        (file) cpacs_in  --Out.: Updated cpasc file.
+    OUTPUT
+    (class) mw       --Out.: MassesWeight class updated.
+    (class) bi       --Out.: RangeInput class updated.
+    (file) cpacs_in  --Out.: Updated cpasc file.
     """
     log.info("CPACS file path check")
 

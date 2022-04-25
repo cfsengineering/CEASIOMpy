@@ -30,7 +30,7 @@ log = get_logger(__file__.split(".")[0])
 #   CLASSES
 # =============================================================================
 
-"""All classes are defined inside the InputClasses/Conventional"""
+# All classes are defined inside the InputClasses/Conventional
 
 
 # =============================================================================
@@ -40,25 +40,25 @@ log = get_logger(__file__.split(".")[0])
 
 def fuselage_inertia(SPACING, center_of_gravity, mass_seg_i, ag, cpacs_in):
     """Thefunction evaluates the inertia of the fuselage using the lumped
-       masses method.
+    masses method.
 
-       INPUT
-       (float) SPACING  --Arg.: Maximum distance between fuselage nodes [m].
-       (float_array) center_of_gravity --Arg.: x,y,z coordinates of the CoG.
-       (float_array) mass_seg_i        --Arg.: Mass of each segment of each
-                                               component of the aircraft.
-       (class) ag      --Arg.: AircraftGeometry class.
-       ##======= Class is defined in the InputClasses folder =======##
+    INPUT
+    (float) SPACING  --Arg.: Maximum distance between fuselage nodes [m].
+    (float_array) center_of_gravity --Arg.: x,y,z coordinates of the CoG.
+    (float_array) mass_seg_i        --Arg.: Mass of each segment of each
+                                            component of the aircraft.
+    (class) ag      --Arg.: AircraftGeometry class.
+    ##======= Class is defined in the InputClasses folder =======##
 
-       (char) cpacs_in --Arg.: Cpacs xml file location.
+    (char) cpacs_in --Arg.: Cpacs xml file location.
 
-       OUTPUT
-       (float) sfx --Out.: Lumped nodes x-coordinate [m].
-       (float) sfy --Out.: Lumped nodes y-coordinate [m].
-       (float) sfz --Out.: Lumped nodes z-coordinate [m].
-       (float) Ixx --Out.: Moment of inertia respect to the x-axis [kgm^2].
-       (float) Iyy --Out.: Moment of inertia respect to the y-axis [kgm^].
-       (float) Izz --Out.: Moment of inertia respect to the z-axis [kgm^2].
+    OUTPUT
+    (float) sfx --Out.: Lumped nodes x-coordinate [m].
+    (float) sfy --Out.: Lumped nodes y-coordinate [m].
+    (float) sfz --Out.: Lumped nodes z-coordinate [m].
+    (float) Ixx --Out.: Moment of inertia respect to the x-axis [kgm^2].
+    (float) Iyy --Out.: Moment of inertia respect to the y-axis [kgm^].
+    (float) Izz --Out.: Moment of inertia respect to the z-axis [kgm^2].
     """
 
     tixi = open_tixi(cpacs_in)
@@ -126,9 +126,9 @@ def fuselage_inertia(SPACING, center_of_gravity, mass_seg_i, ag, cpacs_in):
         fcx = fx - (np.zeros((np.shape(fx))) + center_of_gravity[0])
         fcy = fy - (np.zeros((np.shape(fx))) + center_of_gravity[1])
         fcz = fz - (np.zeros((np.shape(fx))) + center_of_gravity[2])
-        Ixx += np.sum(M * np.add(fcy ** 2, fcz ** 2))
-        Iyy += np.sum(M * np.add(fcx ** 2, fcz ** 2))
-        Izz += np.sum(M * np.add(fcx ** 2, fcy ** 2))
+        Ixx += np.sum(M * np.add(fcy**2, fcz**2))
+        Iyy += np.sum(M * np.add(fcx**2, fcz**2))
+        Izz += np.sum(M * np.add(fcx**2, fcy**2))
         Ixy += np.sum(M * fcx * fcy)
         Iyz += np.sum(M * fcy * fcz)
         Ixz += np.sum(M * fcx * fcz)
@@ -158,9 +158,9 @@ def fuselage_inertia(SPACING, center_of_gravity, mass_seg_i, ag, cpacs_in):
             fcx_t = fx_t - (np.zeros((np.shape(fx_t))) + center_of_gravity[0])
             fcy_t = fy_t - (np.zeros((np.shape(fy_t))) + center_of_gravity[1])
             fcz_t = fz_t - (np.zeros((np.shape(fz_t))) + center_of_gravity[2])
-            Ixx += np.sum(M * np.add(fcy_t ** 2, fcz_t ** 2))
-            Iyy += np.sum(M * np.add(fcx_t ** 2, fcz_t ** 2))
-            Izz += np.sum(M * np.add(fcx_t ** 2, fcy_t ** 2))
+            Ixx += np.sum(M * np.add(fcy_t**2, fcz_t**2))
+            Iyy += np.sum(M * np.add(fcx_t**2, fcz_t**2))
+            Izz += np.sum(M * np.add(fcx_t**2, fcy_t**2))
             Ixy += np.sum(M * fcx_t * fcy_t)
             Iyz += np.sum(M * fcy_t * fcz_t)
             Ixz += np.sum(M * fcx_t * fcz_t)
@@ -175,29 +175,29 @@ def fuselage_inertia(SPACING, center_of_gravity, mass_seg_i, ag, cpacs_in):
 
 def wing_inertia(subd_c, SPACING, center_of_gravity, mass_seg_i, ag, cpacs_in):
     """The function evaluates the inertia of the wings using the lumped
-       masses method.
+    masses method.
 
-       INPUT
-       (float) subd_c   --Arg.:  Number of subdivisions along the perimeter
-                                 on each surface, total number of points for
-                                 each section subd_c * 2
-       (float) SPACING  --Arg.: Maximum distance between wing nodes along
-                                the span [m].
-       (float_array) center_of_gravity --Arg.: x,y,z coordinates of the CoG.
-       (float_array) mass_seg_i        --Arg.: Mass of each segment of each
-                                               component of the aircraft.
-       (class) ag      --Arg.: AircraftGeometry class.
-       ##======= Class is defined in the classes folder =======##
+    INPUT
+    (float) subd_c   --Arg.:  Number of subdivisions along the perimeter
+                              on each surface, total number of points for
+                              each section subd_c * 2
+    (float) SPACING  --Arg.: Maximum distance between wing nodes along
+                             the span [m].
+    (float_array) center_of_gravity --Arg.: x,y,z coordinates of the CoG.
+    (float_array) mass_seg_i        --Arg.: Mass of each segment of each
+                                            component of the aircraft.
+    (class) ag      --Arg.: AircraftGeometry class.
+    ##======= Class is defined in the classes folder =======##
 
-       (char) cpacs_in --Arg.: Cpacs xml file location.
+    (char) cpacs_in --Arg.: Cpacs xml file location.
 
-       OUTPUT
-       (float) swx --Out.: Lumped nodes x-coordinate [m].
-       (float) swy --Out.: Lumped nodes y-coordinate [m].
-       (float) swz --Out.: Lumped nodes z-coordinate [m].
-       (float) Ixx --Out.: Moment of inertia respect to the x-axis [kgm^2].
-       (float) Iyy --Out.: Moment of inertia respect to the y-axis [kgm^].
-       (float) Izz --Out.: Moment of inertia respect to the z-axis [kgm^2].
+    OUTPUT
+    (float) swx --Out.: Lumped nodes x-coordinate [m].
+    (float) swy --Out.: Lumped nodes y-coordinate [m].
+    (float) swz --Out.: Lumped nodes z-coordinate [m].
+    (float) Ixx --Out.: Moment of inertia respect to the x-axis [kgm^2].
+    (float) Iyy --Out.: Moment of inertia respect to the y-axis [kgm^].
+    (float) Izz --Out.: Moment of inertia respect to the z-axis [kgm^2].
 
     """
 
@@ -269,9 +269,9 @@ def wing_inertia(subd_c, SPACING, center_of_gravity, mass_seg_i, ag, cpacs_in):
             wcx = wx - (np.zeros((np.shape(wx))) + center_of_gravity[0])
             wcy = wy - (np.zeros((np.shape(wy))) + center_of_gravity[1])
             wcz = wz - (np.zeros((np.shape(wz))) + center_of_gravity[2])
-            Ixx += np.sum(M * np.add(wcy ** 2, wcz ** 2))
-            Iyy += np.sum(M * np.add(wcx ** 2, wcz ** 2))
-            Izz += np.sum(M * np.add(wcx ** 2, wcy ** 2))
+            Ixx += np.sum(M * np.add(wcy**2, wcz**2))
+            Iyy += np.sum(M * np.add(wcx**2, wcz**2))
+            Izz += np.sum(M * np.add(wcx**2, wcy**2))
             Ixy += np.sum(M * wcx * wcy)
             Iyz += np.sum(M * wcy * wcz)
             Ixz += np.sum(M * wcx * wcz)
@@ -298,9 +298,9 @@ def wing_inertia(subd_c, SPACING, center_of_gravity, mass_seg_i, ag, cpacs_in):
                 wcx_t = wx_t - (np.zeros((np.shape(wx_t))) + center_of_gravity[0])
                 wcy_t = wy_t - (np.zeros((np.shape(wy_t))) + center_of_gravity[1])
                 wcz_t = wz_t - (np.zeros((np.shape(wz_t))) + center_of_gravity[2])
-                Ixx += np.sum(M * np.add(wcy_t ** 2, wcz_t ** 2))
-                Iyy += np.sum(M * np.add(wcx_t ** 2, wcz_t ** 2))
-                Izz += np.sum(M * np.add(wcx_t ** 2, wcy_t ** 2))
+                Ixx += np.sum(M * np.add(wcy_t**2, wcz_t**2))
+                Iyy += np.sum(M * np.add(wcx_t**2, wcz_t**2))
+                Izz += np.sum(M * np.add(wcx_t**2, wcy_t**2))
                 Ixy += np.sum(M * wcx_t * wcy_t)
                 Iyz += np.sum(M * wcy_t * wcz_t)
                 Ixz += np.sum(M * wcx_t * wcz_t)

@@ -18,7 +18,6 @@ Python version: >=3.7
 # ==============================================================================
 
 import os
-import pytest
 
 from ceasiompy.utils.generalclasses import SimpleNamespace, Point, Transformation
 from cpacspy.cpacspy import CPACS

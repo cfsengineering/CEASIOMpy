@@ -131,7 +131,7 @@ def display_results(prob, optim_var_dict, Rt):
     log.info("=========================================")
 
 
-def read_results(optim_dir_path, optim_var_dict={}):
+def read_results(optim_dir_path, optim_var_dict=None):
     """Read sql file and converts data to dataframe.
 
     This is mainly to facilitate data manipulation by avoiding dealing with
@@ -146,6 +146,9 @@ def read_results(optim_dir_path, optim_var_dict={}):
         df (DataFrame) : Contains all parameters of the routine
 
     """
+
+    if optim_var_dict is None:
+        optim_var_dict = {}
 
     # # Read recorded options
     # cr = om.CaseReader(optim_dir_path + '/Driver_recorder.sql')
@@ -191,7 +194,7 @@ def read_results(optim_dir_path, optim_var_dict={}):
     return df
 
 
-def save_results(optim_dir_path, optim_var_dict={}):
+def save_results(optim_dir_path, optim_var_dict=None):
     """Save routine results to CSV.
 
     Add the variable history to the CSV paramater file and save it to the
@@ -202,6 +205,9 @@ def save_results(optim_dir_path, optim_var_dict={}):
         optim_dir_path (str) : Path to the routine working directory.
 
     """
+
+    if optim_var_dict is None:
+        optim_var_dict = {}
 
     log.info("Variables will be saved")
 
@@ -219,7 +225,7 @@ def save_results(optim_dir_path, optim_var_dict={}):
 # -----------------------------------------------------------#
 
 
-def plot_results(optim_dir_path, routine_type, optim_var_dict={}):
+def plot_results(optim_dir_path, routine_type, optim_var_dict=None):
     """Generate plots of the routine.
 
     Draw plots to vizualize the data. The evolution of each problem parameter
@@ -230,6 +236,9 @@ def plot_results(optim_dir_path, routine_type, optim_var_dict={}):
         routine_type (str) : Type of the routine, can be DoE or Optim
 
     """
+
+    if optim_var_dict is None:
+        optim_var_dict = {}
 
     df = read_results(optim_dir_path, optim_var_dict)
 

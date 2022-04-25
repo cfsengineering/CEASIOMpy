@@ -52,11 +52,14 @@ NONE_LIST = ["None", "NONE", "No", "NO", "N", "n", "-", " ", ""]
 
 
 class ListBoxChoice(object):
-    def __init__(self, master=None, title="Title", message="Message", list=[]):
+    def __init__(self, master=None, title="Title", message="Message", list=None):
 
+        if list is None:
+            self.list = []
+        else:
+            self.list = list
         self.selected_list = []
         self.master = master
-        self.list = list[:]
         self.master.geometry("300x250")  # Width x Height
         self.master.grab_set()
         self.master.bind("<Return>", self._select)

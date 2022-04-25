@@ -33,7 +33,7 @@ log = get_logger(__file__.split(".")[0])
 #   CLASSES
 # =============================================================================
 
-"""All classes are defined inside the InputClasses/Conventional"""
+# All classes are defined inside the InputClasses/Conventional
 
 
 # =============================================================================
@@ -42,33 +42,33 @@ log = get_logger(__file__.split(".")[0])
 
 
 def center_of_gravity_evaluation(F_PERC, P_PERC, cabin_seg, ag, mw, WING_MOUNTED=True):
-    """ The function evaluates the center of gravity of airplanes given the
-        geometry from cpacs file (tigl_func.py) and masses from
-        weight_main.py.
+    """The function evaluates the center of gravity of airplanes given the
+    geometry from cpacs file (tigl_func.py) and masses from
+    weight_main.py.
 
-        Source: An introduction to mechanics, 2nd ed., D. Kleppner
-                and R. Kolenkow, Cambridge University Press.
+    Source: An introduction to mechanics, 2nd ed., D. Kleppner
+            and R. Kolenkow, Cambridge University Press.
 
-        ARGUMENTS
-        (int) FPERC --Arg.: Percentage of the maximum amount of fuel used
-        (int_array) cabin_seg --Arg.: Array that will contain 1 if the
-                                      segment is a cabin segment or
-                                      0 otherwise.
-        (class) ag  --Arg.: AircraftGeometry class look at
-                            aircraft_geometry_class.py in the
-                            classes folder for explanation.
-        (class) mw  --Arg.: MassesWeights class.
-        ##======= Class is defined in the InputClasses folder =======##
+    ARGUMENTS
+    (int) FPERC --Arg.: Percentage of the maximum amount of fuel used
+    (int_array) cabin_seg --Arg.: Array that will contain 1 if the
+                                  segment is a cabin segment or
+                                  0 otherwise.
+    (class) ag  --Arg.: AircraftGeometry class look at
+                        aircraft_geometry_class.py in the
+                        classes folder for explanation.
+    (class) mw  --Arg.: MassesWeights class.
+    ##======= Class is defined in the InputClasses folder =======##
 
-        (boolean) WING_MOUNTED --Att.: True if the engines are
-                                       mounted on the front main wing.
-        RETURN
-        (float_array) center_of_gravity --Out.: x,y,z coordinates of the CoG.
-        (float_array) mass_seg_i        --Out.: Mass of each segment of each
-                                                component of the aircraft.
-        (float_array) airplane_centers_segs --Out.: Point at the center of
-                                                    each segment of the
-                                                    aircraft.
+    (boolean) WING_MOUNTED --Att.: True if the engines are
+                                   mounted on the front main wing.
+    RETURN
+    (float_array) center_of_gravity --Out.: x,y,z coordinates of the CoG.
+    (float_array) mass_seg_i        --Out.: Mass of each segment of each
+                                            component of the aircraft.
+    (float_array) airplane_centers_segs --Out.: Point at the center of
+                                                each segment of the
+                                                aircraft.
     """
 
     max_seg_n = np.max([np.amax(ag.fuse_seg_nb), np.amax(ag.wing_seg_nb)])

@@ -37,10 +37,8 @@ LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
 #   CLASSES
 # ==============================================================================
 
-"""
- InsideDimensions class, can be found on the InputClasses folder inside the
- weightconvclass.py script.
-"""
+#  InsideDimensions class, can be found on the InputClasses folder inside the
+#  weightconvclass.py script.
 
 # ==============================================================================
 #   FUNCTIONS

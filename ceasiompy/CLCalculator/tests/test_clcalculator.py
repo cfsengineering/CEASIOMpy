@@ -18,7 +18,6 @@ Python version: >=3.7
 
 import os
 
-import pytest
 from pytest import approx
 
 from ceasiompy.CLCalculator.clcalculator import calculate_cl, get_cl

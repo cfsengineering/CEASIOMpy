@@ -21,10 +21,6 @@ TODO:
 # ==============================================================================
 
 import os
-import sys
-import unittest
-
-import pytest
 
 from ceasiompy.CPACS2SUMO.cpacs2sumo import convert_cpacs_to_sumo
 

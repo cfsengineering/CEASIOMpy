@@ -17,17 +17,15 @@ Python version: >=3.7
 #   IMPORTS
 # =============================================================================
 
-""" No imports needed """
+# No imports needed
 
 
 # =============================================================================
 #   CLASSES
 # =============================================================================
 
-"""
- InsideDimensions class, can be found on the InputClasses folder inside the
- weightconvclass.py script.
-"""
+#  InsideDimensions class, can be found on the InputClasses folder inside the
+#  weightconvclass.py script.
 
 
 # =============================================================================
@@ -36,7 +34,7 @@ Python version: >=3.7
 
 
 def output_txt(out, mw, ind, ui, NAME):
-    """ The function generates the output text file for the Weight analysis.
+    """The function generates the output text file for the Weight analysis.
 
     Args:
         out  (class): WeightOutput class.
@@ -112,7 +110,14 @@ def output_txt(out, mw, ind, ui, NAME):
         "\nMaximum fuel mass with max passengers [kg]: " + str(int(round(mw.mass_fuel_maxpass, 0)))
     )
     out_txt_file.write(
-        "\nMaximum fuel mass with no passengers [kg]: " + str(int(round(mw.mass_fuel_max,)))
+        "\nMaximum fuel mass with no passengers [kg]: "
+        + str(
+            int(
+                round(
+                    mw.mass_fuel_max,
+                )
+            )
+        )
     )
     out_txt_file.write(
         "\nMaximum fuel volume with no passengers [l]: "

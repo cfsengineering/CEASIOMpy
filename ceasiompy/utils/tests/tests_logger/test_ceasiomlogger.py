@@ -17,9 +17,6 @@ Python version: >=3.7
 # ==============================================================================
 
 import os
-import sys
-
-import pytest
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 

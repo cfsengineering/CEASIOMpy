@@ -27,7 +27,7 @@ log = get_logger(__file__.split(".")[0])
 #   CLASSES
 # =============================================================================
 
-"""All classes are defined inside the InputClasses/Conventional"""
+# All classes are defined inside the InputClasses/Conventional
 
 
 # =============================================================================
@@ -36,20 +36,20 @@ log = get_logger(__file__.split(".")[0])
 
 
 def cpacs_mbd_update(out, mw, bi, ms_zpm, out_xml):
-    """ The function updates the cpacs file after the Weight_and_Balance
-        program.
+    """The function updates the cpacs file after the Weight_and_Balance
+    program.
 
-        INPUT
-        (float) mass_pass   --Arg.: Passenger mass, countig also the
-                                          extra mass.
-        (class) out         --Arg.: BalanceOutput class.
-        (class) mw          --Arg.: MassesWeights class.
-        (class) bi          --Arg.: BalanceInput class.
-        ##======= Classes are defined in the InputClasses folder =======##
-        (cahr) out_xml      --Arg.: Path of the output file.
+    INPUT
+    (float) mass_pass   --Arg.: Passenger mass, countig also the
+                                      extra mass.
+    (class) out         --Arg.: BalanceOutput class.
+    (class) mw          --Arg.: MassesWeights class.
+    (class) bi          --Arg.: BalanceInput class.
+    ##======= Classes are defined in the InputClasses folder =======##
+    (cahr) out_xml      --Arg.: Path of the output file.
 
-        OUTPUT
-        (file) cpacs.xml --Out.: Updated cpacs file.
+    OUTPUT
+    (file) cpacs.xml --Out.: Updated cpacs file.
     """
 
     tixi = open_tixi(out_xml)

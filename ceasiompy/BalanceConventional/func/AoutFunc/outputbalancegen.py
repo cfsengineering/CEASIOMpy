@@ -24,7 +24,7 @@ import matplotlib.pyplot as plt
 #   CLASSES
 # =============================================================================
 
-"""All classes are defined inside the InputClasses/Conventional"""
+# All classes are defined inside the InputClasses/Conventional
 
 
 # =============================================================================
@@ -33,21 +33,21 @@ import matplotlib.pyplot as plt
 
 
 def output_txt(out, mw, bi, NAME):
-    """ Function that generate the output text file for the Weight_and_Balance
-        program.
+    """Function that generate the output text file for the Weight_and_Balance
+    program.
 
-        INPUT
-        (class) out     --Arg.: BalanceOutput class.
-        (class) mw      --Arg.: MassesWeights class.
-        (class) bi      --Arg.: BalanceInputs class.
-        ##======= Classes are defined in the Input_classes folder =======##
-        (char) NAME     --Arg.: Name of the Aircraft
+    INPUT
+    (class) out     --Arg.: BalanceOutput class.
+    (class) mw      --Arg.: MassesWeights class.
+    (class) bi      --Arg.: BalanceInputs class.
+    ##======= Classes are defined in the Input_classes folder =======##
+    (char) NAME     --Arg.: Name of the Aircraft
 
 
-        OUTPUT
-        (file) Balance_module.out --Out.: Text file containing all the
-                                          informations estimated from the
-                                          code.
+    OUTPUT
+    (file) Balance_module.out --Out.: Text file containing all the
+                                      informations estimated from the
+                                      code.
     """
     out_name = "ToolOutput/" + NAME + "/" + NAME + "_Balance_module.out"
 
@@ -162,23 +162,23 @@ def output_txt(out, mw, bi, NAME):
 
 def aircraft_nodes_plot(fx, fy, fz, wx, wy, wz, NAME):
     """The function unction generates the plot of the aircraft nodes.
-       INPUT
-       (float_array) fx      --Arg.: Array containing the x-coordinates
-                                     of the fuselage nodes.
-       (float_array) fy      --Arg.: Array containing the y-coordinates
-                                     of the fuselage nodes.
-       (float_array) fz      --Arg.: Array containing the z-coordinates
-                                     of the fuselage nodes.
-       (float_array) wx      --Arg.: Array containing the x-coordinates
-                                     of the wing nodes.
-       (float_array) wy      --Arg.: Array containing the y-coordinates
-                                     of the wing nodes.
-       (float_array) wz      --Arg.: Array containing the z-coordinates
-                                     of the wing nodes.
-       (char) NAME           --Arg.: Aircraft name.
-       OUTPUT
-       (file)NAME_Aircraft_Nodes.png --Out.: Png file containing all the
-                                             aircraft nodes plot.
+    INPUT
+    (float_array) fx      --Arg.: Array containing the x-coordinates
+                                  of the fuselage nodes.
+    (float_array) fy      --Arg.: Array containing the y-coordinates
+                                  of the fuselage nodes.
+    (float_array) fz      --Arg.: Array containing the z-coordinates
+                                  of the fuselage nodes.
+    (float_array) wx      --Arg.: Array containing the x-coordinates
+                                  of the wing nodes.
+    (float_array) wy      --Arg.: Array containing the y-coordinates
+                                  of the wing nodes.
+    (float_array) wz      --Arg.: Array containing the z-coordinates
+                                  of the wing nodes.
+    (char) NAME           --Arg.: Aircraft name.
+    OUTPUT
+    (file)NAME_Aircraft_Nodes.png --Out.: Png file containing all the
+                                          aircraft nodes plot.
     """
     fig = plt.figure()
     mpl.rcParams.update({"font.size": 20})
@@ -204,20 +204,20 @@ def aircraft_nodes_plot(fx, fy, fz, wx, wy, wz, NAME):
 
 
 def aircraft_cog_plot(cg, ag, NAME):
-    """ The function generates the plot of the aircraf center of gravity and
-        the nodes used to evaluate it.
+    """The function generates the plot of the aircraf center of gravity and
+    the nodes used to evaluate it.
 
-        INPUT
-        (float_array) cg --Arg.: Center of gravity global coordinates [m].
-        (class) ag       --Arg.: Aircraft geometry class.
-        (char) NAME      --Arg.: Aircraft name.
+    INPUT
+    (float_array) cg --Arg.: Center of gravity global coordinates [m].
+    (class) ag       --Arg.: Aircraft geometry class.
+    (char) NAME      --Arg.: Aircraft name.
 
-        ##======= Class are defined in the InputClasses folder =======##
+    ##======= Class are defined in the InputClasses folder =======##
 
-        OUTPUT
-        (file)NAME_Aircraft_Cog.png --Out.: Png file containing the center
-                                            of gravity and the nodes used
-                                            to evaluate it.
+    OUTPUT
+    (file)NAME_Aircraft_Cog.png --Out.: Png file containing the center
+                                        of gravity and the nodes used
+                                        to evaluate it.
     """
     fig = plt.figure()
     fig.patch.set_facecolor("w")

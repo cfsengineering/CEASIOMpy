@@ -27,10 +27,8 @@ log = get_logger(__file__.split(".")[0])
 #   CLASSES
 # =============================================================================
 
-"""
- InsideDimensions class, can be found on the InputClasses folder inside the
- weightconvclass.py script.
-"""
+#  InsideDimensions class, can be found on the InputClasses folder inside the
+#  weightconvclass.py script.
 
 # =============================================================================
 #   FUNCTIONS
@@ -50,7 +48,7 @@ def get_seat_config(
     NAME,
 ):
 
-    """ The function to proposes a sit disposition.
+    """The function to proposes a sit disposition.
 
     Args:
         pass_nb (int): Number of passengers [-]
@@ -118,12 +116,12 @@ def get_seat_config(
 
         out_txt_file.write("\n" + str(seat))
         e = int(round((abreast_nb + aisle_nb) // 2.0, 0))
-        a = seat[0:e + 1]
+        a = seat[0 : e + 1]
 
         if (int(round((abreast_nb + aisle_nb) % 2.0, 0))) == 0:
-            b = seat[e - 1:abreast_nb + aisle_nb]
+            b = seat[e - 1 : abreast_nb + aisle_nb]
         else:
-            b = seat[e:abreast_nb + aisle_nb]
+            b = seat[e : abreast_nb + aisle_nb]
         b = b[::-1]
 
         if a != b:

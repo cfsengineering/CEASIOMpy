@@ -16,10 +16,6 @@ Python version: >=3.7
 #   IMPORTS
 # ==============================================================================
 
-import os
-import sys
-
-import pytest
 from pytest import approx
 
 from ceasiompy.utils.ceasiomlogger import get_logger

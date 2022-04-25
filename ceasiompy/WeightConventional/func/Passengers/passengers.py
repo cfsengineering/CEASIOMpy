@@ -29,10 +29,8 @@ log = get_logger(__file__.split(".")[0])
 #   CLASSES
 # =============================================================================
 
-"""
- InsideDimensions class, can be found on the InputClasses folder inside the
- weightconvclass.py script.
-"""
+#  InsideDimensions class, can be found on the InputClasses folder inside the
+#  weightconvclass.py script.
 
 
 # =============================================================================
@@ -41,7 +39,7 @@ log = get_logger(__file__.split(".")[0])
 
 
 def estimate_passengers(PASS_PER_TOILET, cabin_length, fuse_width, ind):
-    """ The function evaluates the maximum number of passengers that can sit in
+    """The function evaluates the maximum number of passengers that can sit in
     the airplane, taking into account also the necessity of common space for
     big airplanes and a number of toilets in relation with the number
     of passengers.

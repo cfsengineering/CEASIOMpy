@@ -21,18 +21,11 @@ TODO:
 # =============================================================================
 
 import os
-import sys
-from math import sqrt
 
 import numpy as np
 from numpy import log as ln
 from numpy import linalg  # For eigen values and aigen voectors
-
-import matplotlib.patheffects
 import matplotlib.pyplot as plt
-from matplotlib import rcParams, cycler
-from matplotlib.lines import Line2D
-from matplotlib.patches import Patch
 from matplotlib.ticker import ScalarFormatter
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -794,7 +787,7 @@ def adimensionalise(a, mach, rho, s, b, mac, m, I_xx, I_yy, I_zz, I_xz):
     """
 
     u0 = a * mach  # Trimm speed
-    q = 0.5 * rho * u0 ** 2  # Static pressure
+    q = 0.5 * rho * u0**2  # Static pressure
     m_adim = m / (0.5 * rho * u0 * s)
     i_xx = I_xx / (0.5 * rho * u0 * s * b)
     i_yy = I_yy / (0.5 * rho * u0 * s * mac)
@@ -1136,28 +1129,28 @@ def concise_derivative_lat(
     y_phi = g * np.cos(theta_e)
     y_psi = g * np.sin(theta_e)
 
-    l_v = (i_zz * L_v + i_xz * N_v) / (i_xx * i_zz - i_xz ** 2)
-    l_p = b * (i_zz * L_p + i_xz * N_p) / (i_xx * i_zz - i_xz ** 2)
-    l_r = b * (i_zz * L_r + i_xz * N_r) / (i_xx * i_zz - i_xz ** 2)
+    l_v = (i_zz * L_v + i_xz * N_v) / (i_xx * i_zz - i_xz**2)
+    l_p = b * (i_zz * L_p + i_xz * N_p) / (i_xx * i_zz - i_xz**2)
+    l_r = b * (i_zz * L_r + i_xz * N_r) / (i_xx * i_zz - i_xz**2)
     l_phi = 0
     l_psi = 0
 
-    n_v = (i_xx * N_v + i_xz * L_v) / (i_xx * i_zz - i_xz ** 2)
-    n_p = b * (i_xx * N_p + i_xz * L_p) / (i_xx * i_zz - i_xz ** 2)
-    n_r = b * (i_xx * N_r + i_xz * L_r) / (i_xx * i_zz - i_xz ** 2)
+    n_v = (i_xx * N_v + i_xz * L_v) / (i_xx * i_zz - i_xz**2)
+    n_p = b * (i_xx * N_p + i_xz * L_p) / (i_xx * i_zz - i_xz**2)
+    n_r = b * (i_xx * N_r + i_xz * L_r) / (i_xx * i_zz - i_xz**2)
     n_phi = 0
     n_psi = 0
 
     # Controls
     y_xi = u0 * Y_xi / m_adim
-    l_xi = u0 * (i_zz * L_xi + i_xz * N_xi) / (i_xx * i_zz - i_xz ** 2)
-    n_xi = u0 * (i_xx * N_xi + i_xz * L_xi) / (i_xx * i_zz - i_xz ** 2)
+    l_xi = u0 * (i_zz * L_xi + i_xz * N_xi) / (i_xx * i_zz - i_xz**2)
+    n_xi = u0 * (i_xx * N_xi + i_xz * L_xi) / (i_xx * i_zz - i_xz**2)
 
     y_zeta = u0 * Y_zeta / m_adim
     l_zeta = (
-        u0 * (i_zz * L_zeta + i_xz * N_zeta) / (i_xx * i_zz - i_xz ** 2)
+        u0 * (i_zz * L_zeta + i_xz * N_zeta) / (i_xx * i_zz - i_xz**2)
     )  # A mon avis il y a une faute, il ne doit surement pas il y avoir 2 fois L_zeta au numerateur et il devrait il y avoir i_xx en comparaison, les l et n_xi
-    n_zeta = u0 * (i_xx * N_zeta + i_xz * L_zeta) / (i_xx * i_zz - i_xz ** 2)
+    n_zeta = u0 * (i_xx * N_zeta + i_xz * L_zeta) / (i_xx * i_zz - i_xz**2)
 
     # Lateral-directional state and input matrix in concise form
     A_direc = np.array(
@@ -1495,7 +1488,7 @@ def longi_mode_characteristic(sp1, sp2, ph1, ph2, load_factor):
         np.sqrt(sp1 * sp2)
     ).real  #  [rad/s] Undamped natural frequency omega, of concise equations, .real  for get ride of  "+0j"
     sp_damp = -np.real(sp1) / sp_freq  # [-] Damping of concise equations
-    sp_cap = sp_freq ** 2 / load_factor  # [1/g 1/s^2]   g: g's (1g 2g 3g)
+    sp_cap = sp_freq**2 / load_factor  # [1/g 1/s^2]   g: g's (1g 2g 3g)
 
     # Phugoid mode characteristics
     if ph1.real < 0:  #  If Phugoid stable
@@ -1628,23 +1621,23 @@ def short_period_frequency_rating(flight_phase, aircraft_class, sp_freq, load_fa
     """
     if flight_phase == "A":
         if 3.6 <= load_factor <= 100:
-            if 0.28 * load_factor <= sp_freq ** 2 <= 3.5 * load_factor:
+            if 0.28 * load_factor <= sp_freq**2 <= 3.5 * load_factor:
                 sp_freq_rate = 1
-            elif 0.28 * load_factor <= sp_freq ** 2 <= 10 * load_factor:
+            elif 0.28 * load_factor <= sp_freq**2 <= 10 * load_factor:
                 sp_freq_rate = 2
             else:
                 sp_freq_rate = 3
         elif 2.2 <= load_factor <= 3.6:
-            if 1 <= sp_freq ** 2 <= 3.5 * load_factor:
+            if 1 <= sp_freq**2 <= 3.5 * load_factor:
                 sp_freq_rate = 1
-            elif 1 <= sp_freq ** 2 <= 10 * load_factor:
+            elif 1 <= sp_freq**2 <= 10 * load_factor:
                 sp_freq_rate = 2
             else:
                 sp_freq_rate = 3
         elif 1 <= load_factor <= 2.2:
-            if 1 <= sp_freq ** 2 <= 3.5 * load_factor:
+            if 1 <= sp_freq**2 <= 3.5 * load_factor:
                 sp_freq_rate = 1
-            elif 0.6 <= sp_freq ** 2 <= 10 * load_factor:
+            elif 0.6 <= sp_freq**2 <= 10 * load_factor:
                 sp_freq_rate = 2
             else:
                 sp_freq_rate = 3
@@ -1653,9 +1646,9 @@ def short_period_frequency_rating(flight_phase, aircraft_class, sp_freq, load_fa
 
     elif flight_phase == "B":
         if 1 <= load_factor <= 100:
-            if 0.085 * load_factor <= sp_freq ** 2 <= 3.6 * load_factor:
+            if 0.085 * load_factor <= sp_freq**2 <= 3.6 * load_factor:
                 sp_freq_rate = 1
-            elif 0.085 * load_factor <= sp_freq ** 2 <= 10 * load_factor:
+            elif 0.085 * load_factor <= sp_freq**2 <= 10 * load_factor:
                 sp_freq_rate = 2
             else:
                 sp_freq_rate = 3
@@ -1665,28 +1658,28 @@ def short_period_frequency_rating(flight_phase, aircraft_class, sp_freq, load_fa
     else:  #  flight_phase == 'C' :
         if aircraft_class == 1 or aircraft_class == 4:
             if 4.2 <= load_factor <= 100:
-                if 0.16 * load_factor <= sp_freq ** 2 <= 3.6 * load_factor:
+                if 0.16 * load_factor <= sp_freq**2 <= 3.6 * load_factor:
                     sp_freq_rate = 1
-                elif 0.096 * load_factor <= sp_freq ** 2 <= 10 * load_factor:
+                elif 0.096 * load_factor <= sp_freq**2 <= 10 * load_factor:
                     sp_freq_rate = 2
                 else:
                     sp_freq_rate = 3
             elif 3.3 <= load_factor <= 4.2:
-                if 0.86 <= sp_freq ** 2 <= 3.6 * load_factor:
+                if 0.86 <= sp_freq**2 <= 3.6 * load_factor:
                     sp_freq_rate = 1
-                elif 0.86 <= sp_freq ** 2 <= 10 * load_factor:
+                elif 0.86 <= sp_freq**2 <= 10 * load_factor:
                     sp_freq_rate = 2
                 else:
                     sp_freq_rate = 3
             elif 2.7 <= load_factor <= 3.3:
-                if 0.86 <= sp_freq ** 2 <= 3.6 * load_factor:
+                if 0.86 <= sp_freq**2 <= 3.6 * load_factor:
                     sp_freq_rate = 1
-                elif 0.6 <= sp_freq ** 2 <= 10 * load_factor:
+                elif 0.6 <= sp_freq**2 <= 10 * load_factor:
                     sp_freq_rate = 2
                 else:
                     sp_freq_rate = 3
             elif 1.7 <= load_factor <= 2.7:
-                if 0.6 <= sp_freq ** 2 <= 10 * load_factor:
+                if 0.6 <= sp_freq**2 <= 10 * load_factor:
                     sp_freq_rate = 2
                 else:
                     sp_freq_rate = 3
@@ -1697,26 +1690,26 @@ def short_period_frequency_rating(flight_phase, aircraft_class, sp_freq, load_fa
 
         else:  # aircraft_class == 2 or aircraft_class == 3:
             if 3 <= load_factor <= 100:
-                if 0.16 * load_factor <= sp_freq ** 2 <= 3.6 * load_factor:
+                if 0.16 * load_factor <= sp_freq**2 <= 3.6 * load_factor:
                     sp_freq_rate = 1
-                elif 0.096 * load_factor <= sp_freq ** 2 <= 10 * load_factor:
+                elif 0.096 * load_factor <= sp_freq**2 <= 10 * load_factor:
                     sp_freq_rate = 2
                 else:
                     sp_freq_rate = 3
             elif 2 <= load_factor <= 3:
-                if 0.7 <= sp_freq ** 2 <= 3.6 * load_factor:
+                if 0.7 <= sp_freq**2 <= 3.6 * load_factor:
                     sp_freq_rate = 1
-                elif 0.096 * load_factor <= sp_freq ** 2 <= 10 * load_factor:
+                elif 0.096 * load_factor <= sp_freq**2 <= 10 * load_factor:
                     sp_freq_rate = 2
                 else:
                     sp_freq_rate = 3
             elif 1.6 <= load_factor <= 3:
-                if 0.096 * load_factor <= sp_freq ** 2 <= 10 * load_factor:
+                if 0.096 * load_factor <= sp_freq**2 <= 10 * load_factor:
                     sp_freq_rate = 2
                 else:
                     sp_freq_rate = 3
             elif 1 <= load_factor <= 1.6:
-                if 0.4 <= sp_freq ** 2 <= 10 * load_factor:
+                if 0.4 <= sp_freq**2 <= 10 * load_factor:
                     sp_freq_rate = 2
                 else:
                     sp_freq_rate = 3

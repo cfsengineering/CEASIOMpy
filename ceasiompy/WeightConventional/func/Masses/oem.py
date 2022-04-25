@@ -26,10 +26,8 @@ log = get_logger(__file__.split(".")[0])
 #   CLASSES
 # ==============================================================================
 
-"""
- InsideDimensions class, can be found on the InputClasses folder inside the
- weightconvclass.py script.
-"""
+#  InsideDimensions class, can be found on the InputClasses folder inside the
+#  weightconvclass.py script.
 
 
 # =============================================================================
@@ -38,7 +36,7 @@ log = get_logger(__file__.split(".")[0])
 
 
 def estimate_operating_empty_mass(mtom, fuse_length, fuse_width, wing_area, wing_span, TURBOPROP):
-    """ The function estimates the operating empty mass (OEM)
+    """The function estimates the operating empty mass (OEM)
 
     Source: Raymer, D.P. "Aircraft design: a conceptual approach"
             AIAA educational Series, Fourth edition (2006).

@@ -25,15 +25,6 @@ TODO:
 import os
 
 import numpy as np
-from numpy import log as ln
-from numpy import linalg  # For eigen values and aigen voectors
-
-import matplotlib as mpl, cycler
-import matplotlib.pyplot as plt
-from matplotlib.lines import Line2D
-from matplotlib.patches import Patch
-
-from scipy import signal  # For transfert function
 
 from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import get_string_vector, get_value, get_value_or_default
@@ -47,7 +38,6 @@ from ceasiompy.StabilityDynamic.func.func_dynamic import (
     get_unic,
     interpolation,
     get_index,
-    trim_derivative,
     speed_derivative_at_trim,
     adimensionalise,
     speed_derivative_at_trim_lat,
@@ -278,7 +268,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                         aoa.append(aoa_list[index] * np.pi / 180)
                         cl.append(cl_list[index])
 
-                    cl_required = (m * g) / (0.5 * rho * u0 ** 2 * s)
+                    cl_required = (m * g) / (0.5 * rho * u0**2 * s)
                     (trim_aoa, idx_trim_before, idx_trim_after, ratio) = trim_condition(
                         alt,
                         mach,
@@ -734,7 +724,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
 
                                     # Modes parameters : damping ratio, frequence, CAP, time tou double amplitude
                                     Z_w_dimensional = Z_w * (
-                                        0.5 * rho * s * u0 ** 2
+                                        0.5 * rho * s * u0**2
                                     )  # Z_w* (0.5*rho*s*u0**2)  is the dimensional form of Z_w,   Z_w = -(cl_alpha0 + cd0) P312 Yechout
                                     z_alpha = (
                                         Z_w_dimensional * u0 / m

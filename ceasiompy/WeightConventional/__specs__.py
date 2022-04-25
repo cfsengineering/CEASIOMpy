@@ -266,24 +266,22 @@ cpacs_inout.add_input(
 #     gui_group='Inside dimension',
 # )
 
-"""
 
-USER_ENGINE
-NE
-EN_NAME
-en_mass
+# USER_ENGINE
+# NE
+# EN_NAME
+# en_mass
 
-/cpacs/toolspecific/CEASIOMpy/propulsion/userEngineOption
-/cpacs/toolspecific/CEASIOMpy/propulsion/engineNumber
-cpacs/vehicles/engines/engine[..]/name
-cpacs/vehicles/engines/engine/analyses/mass/mass
+# /cpacs/toolspecific/CEASIOMpy/propulsion/userEngineOption
+# /cpacs/toolspecific/CEASIOMpy/propulsion/engineNumber
+# cpacs/vehicles/engines/engine[..]/name
+# cpacs/vehicles/engines/engine/analyses/mass/mass
 
-True if the User define the Engines in the EngineData class 	Belongs to the UserInputs Class
-Number of Engines	Belongs to the EngineData class
-Name of each engine	Belongs to the EngineData class, [..] stands for the number of the engine
-Mass of a single mounted engine (Dry Weight)	Belongs to the EngineData class
+# True if the User define the Engines in the EngineData class 	Belongs to the UserInputs Class
+# Number of Engines	Belongs to the EngineData class
+# Name of each engine	Belongs to the EngineData class, [..] stands for the number of the engine
+# Mass of a single mounted engine (Dry Weight)	Belongs to the EngineData class
 
-"""
 
 # ----- Output -----
 

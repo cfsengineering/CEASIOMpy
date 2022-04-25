@@ -18,7 +18,6 @@ Python version: >=3.7
 
 import os
 import gmsh
-import pytest
 
 from cpacspy.cpacspy import CPACS
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
@@ -143,31 +142,26 @@ def test_classify_wing():
 
     # Test if the wing1_m is correctly classified
     nb_wing_section = len(test_wingsection)
-    test_nb_section = 2
-    assert nb_wing_section == test_nb_section
+    assert nb_wing_section == 2
 
     # Test if the first wing section is correctly classified
 
     wing_sec1 = test_wingsection[0]
+
     truncated = wing_sec1["truncated"]
-    test_truncated = True
-    assert truncated == test_truncated
+    assert truncated == True
 
     profile_1_sec1 = wing_sec1["profiles"][0]
-    test_profile_1_sec1 = [22, 24, 26]
-    assert profile_1_sec1 == test_profile_1_sec1
+    assert profile_1_sec1 == [22, 24, 26]
 
     profile_2_sec1 = wing_sec1["profiles"][1]
-    test_profile_2_sec1 = [10, 11, 12]
-    assert profile_2_sec1 == test_profile_2_sec1
+    assert profile_2_sec1 == [10, 11, 12]
 
     le_line_sec1 = wing_sec1["le_line"]
-    test_le_line_sec1 = [23]
-    assert le_line_sec1 == test_le_line_sec1
+    assert le_line_sec1 == [23]
 
     te_line_sec1 = wing_sec1["te_line"]
-    test_te_line_sec1 = [25, 21]
-    assert te_line_sec1 == test_te_line_sec1
+    assert te_line_sec1 == [25, 21]
 
     # Erase generated file
     for file in os.listdir(TEST_OUT_PATH):

@@ -56,7 +56,7 @@ MODULE_NAME = os.path.basename(os.getcwd())
 #   CLASSES
 # =============================================================================
 
-"""All classes are defined inside the InputClasses/Conventional"""
+# All classes are defined inside the InputClasses/Conventional
 
 
 # =============================================================================

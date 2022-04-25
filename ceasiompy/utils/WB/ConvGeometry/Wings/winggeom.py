@@ -29,7 +29,7 @@ log = get_logger(__file__.split(".")[0])
 #   CLASSES
 # ==============================================================================
 
-"""All classes are defined inside the InputClasses/Conventional"""
+# All classes are defined inside the InputClasses/Conventional
 
 
 # ==============================================================================

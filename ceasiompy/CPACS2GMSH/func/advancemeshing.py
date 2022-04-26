@@ -234,25 +234,25 @@ def set_farfield_mesh(
     # create new box field
     mesh_fields["nbfields"] += 1
     gmsh.model.mesh.field.add("Box", mesh_fields["nbfields"])
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "VIn", max_size_mesh_aircraft * 1.5)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "VIn", max_size_mesh_aircraft * 2)
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "VOut", mesh_size_farfield)
     gmsh.model.mesh.field.setNumber(
-        mesh_fields["nbfields"], "XMin", model_bb[0] - (model_bb[3] - model_bb[0]) * 0.5
+        mesh_fields["nbfields"], "XMin", model_bb[0] - (model_bb[3] - model_bb[0]) * 0.1
     )
     gmsh.model.mesh.field.setNumber(
-        mesh_fields["nbfields"], "XMax", model_bb[3] + (model_bb[3] - model_bb[0]) * 1.0
+        mesh_fields["nbfields"], "XMax", model_bb[3] + (model_bb[3] - model_bb[0]) * 0.5
     )
     gmsh.model.mesh.field.setNumber(
-        mesh_fields["nbfields"], "YMin", model_bb[1] - (model_bb[4] - model_bb[1]) * 0.2
+        mesh_fields["nbfields"], "YMin", model_bb[1] - (model_bb[4] - model_bb[1]) * 0.1
     )
     gmsh.model.mesh.field.setNumber(
-        mesh_fields["nbfields"], "YMax", model_bb[4] + (model_bb[4] - model_bb[1]) * 0.2
+        mesh_fields["nbfields"], "YMax", model_bb[4] + (model_bb[4] - model_bb[1]) * 0.1
     )
     gmsh.model.mesh.field.setNumber(
-        mesh_fields["nbfields"], "ZMin", model_bb[2] - (model_bb[5] - model_bb[2]) * 0.3
+        mesh_fields["nbfields"], "ZMin", model_bb[2] - (model_bb[5] - model_bb[2]) * 0.1
     )
     gmsh.model.mesh.field.setNumber(
-        mesh_fields["nbfields"], "ZMax", model_bb[5] + (model_bb[5] - model_bb[2]) * 0.3
+        mesh_fields["nbfields"], "ZMax", model_bb[5] + (model_bb[5] - model_bb[2]) * 0.1
     )
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Thickness", domain_length / 10)
 

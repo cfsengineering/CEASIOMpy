@@ -6,7 +6,6 @@
 
 **State**: :heavy_check_mark:
 
-
 `SUMOAutoMesh` generates automatically a [SU2](https://su2code.github.io/) mesh file from a [SUMO](https://www.larosterna.com/products/open-source) (.smx) geometry file.
 
 ## Inputs
@@ -28,23 +27,19 @@ To define the size of the mesh only one option can be set by the user, it is cal
 
 :warning: It is recommended to check the mesh convergence to know which value gives the best trade-off between the results accuracy and computation time, for your application case.
 
-
 ## Analyses
 
 `SUMOAutoMesh` runs SUMO with batch mode to generates a SU2 mesh file. Within this command, SUMO first generate a surface mesh made of triangles and then a volume mesh (with [Tetgen](https://wias-berlin.de/software/tetgen/features.html)) made of tetrahedra.
 
-
 ## Outputs
 
 `SUMOAutoMesh` outputs a SU2 mesh files (.su2), the path to this file is saved in the CPACS file under this xpath: `/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh`.
-
 
 ## Installation or requirements
 
 `SUMOAutoMesh` is a native CEASIOMpy module, hence it is available and installed by default. To run it, you just have to be sure that you are in the CEASIOMpy Conda environment.
 
 However to run `SUMOAutoMesh` module, SUMO, must be installed on your computer. Please refer to the [CEASIOMpy installation page](../../installation/INSTALLATION.md) for more information.
-
 
 ## Limitations
 
@@ -63,7 +58,6 @@ Sometimes `SUMOAutoMesh` may not succeed in generating a mesh. In this case, you
 * Copy/Paste the line (given by SUMOAutoMesh when it is executed) as File Name.
 * Click on “Save”
 * You can now close SUMO, your workflow will continue.
-
 
 ## More information
 

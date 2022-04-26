@@ -4,7 +4,6 @@
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/cfsengineering/CEASIOMpy/blob/main/LICENSE)
 [![Black code style](https://img.shields.io/badge/code%20style-black-000000.svg)](https://github.com/psf/black)
 
-
 # CEASIOMpy
 
 <img align="right" width="300" height="300" src="./documents/logos/CEASIOMpy_main_logos.png">
@@ -21,27 +20,24 @@ CEASIOMpy is based on the open-standard format [CPACS](https://www.cpacs.de/), a
 
 ## Table of contents
 
- - [Installation](#installation)
- - [Usage](#usage)
-   - [Test cases](#test-cases)
-   - [Run CEASIOMpy](#run-ceasiompy)
-   - [Examples of workflows](#examples-of-workflows)
-   - [Available modules](#available-modules)
- - [Contributing](#contributing)
- - [More Information](#more-information)
-
-
+- [Installation](#installation)
+- [Usage](#usage)
+  - [Test cases](#test-cases)
+  - [Run CEASIOMpy](#run-ceasiompy)
+  - [Examples of workflows](#examples-of-workflows)
+  - [Available modules](#available-modules)
+- [Contributing](#contributing)
+- [More Information](#more-information)
 
 ## Installation
 
 To install CEASIOMpy, please refer to the [installation page](./installation/INSTALLATION.md), it will guide you through the installation process depending on your system.
 
-
 ## Usage
 
 ### Test cases
 
-Theses test cases are there to learn how to use CEASIOMpy. You will probably also learn a few things about the CPACS format. You can also run these tests to check that everything is installed and works as expected as they cover differents possibilities of use of CEASIOMpy.
+Theses test cases are there to learn how to use CEASIOMpy. You will probably also learn a few things about the CPACS format. You can also run these tests to check that everything is installed and works as expected as they cover different possibilities of use of CEASIOMpy.
 
 - [Test case 1](./test_cases/test_case_1/README.md) : Run a simple existing workflow :heavy_check_mark:
 - [Test case 2](./test_cases/test_case_2/README.md) : Create and run a workflow with the Graphical User Interface :x:
@@ -51,7 +47,7 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
 ### Run CEASIOMpy
 
 - **Run CEASIOMpy with a GUI to build the workflow**
-    
+
     If you run CEASIOMpy with the following command, you can build the workflow with a graphical user interface.
 
     ```bash
@@ -101,8 +97,8 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
       SettingsGUI-->PyTornado;
       PyTornado-->PlotAeroCoefficients;
 ```
-</div>
 
+</div>
 
 - **Workflow with SU2 (CFD) at fixed CL**
 
@@ -116,6 +112,7 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
       SU2AutoMesh-->SU2Run;
       SU2Run-->ExportCSV;
 ```
+
 </div>
 
 ### Available modules
@@ -128,7 +125,6 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 
 :x: : The module is not working at all. Some functions have been written but requires a lot of changes to be compatible with the rest of CEASIOMpy.
 
-
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_main.png">
 
 #### General modules
@@ -139,7 +135,6 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 - [SMTrain](./ceasiompy/SMTrain/README.md) :x:
 - [SMUse](./ceasiompy/SMUse/README.md) :x:
 
-
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_geometry.png">
 
 #### Geometry and Mesh
@@ -148,7 +143,6 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 - [CPACS2SUMO](./ceasiompy/CPACS2SUMO/README.md) :heavy_check_mark:
 - [SUMOAutoMesh](./ceasiompy/SUMOAutoMesh/README.md) :heavy_check_mark:
 - SU2MeshDef :warning:
-
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_aero.png">
 
@@ -160,7 +154,6 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 - [SkinFriction](./ceasiompy/SkinFriction/README.md) :heavy_check_mark:
 - [PlotAeroCoefficients](./ceasiompy/PlotAeroCoefficients/README.md) :heavy_check_mark:
 
-
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_weights.png">
 
 #### Weight and Balance
@@ -170,7 +163,6 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 - WeightConventional :warning:
 - WeightUnconventional :warning:
 
-
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_mission.png">
 
 #### Mission Analysis
@@ -179,13 +171,11 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 - StabilityStatic :warning:
 - StabilityDynamic :x:
 
-
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_structure.png">
 
-#### Structure 
+#### Structure
 
 - AeroFrame :x:
-
 
 ## Contributing
 

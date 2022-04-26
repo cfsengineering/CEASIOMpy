@@ -1,33 +1,31 @@
 # Contributing to CEASIOMpy
 
- - [Documentation/installation](#documentation--installation)
- - [Development guidelines](#development-guidelines)
-   - [Git/Github](#git--github)
-   - [Python](#python)
-     - [Conda](#conda)
-     - [Formatting](#formatting)
-     - [Naming conventions](#naming-conventions)
-     - [Logging](#logging)
-     - [Testing and coverage](#testing-and-coverage)
-     - [Learn Python](#learn-python)
-   - [CPACS](#cpacs)
-   - [Other](#other)
+- [Documentation/installation](#documentation--installation)
+- [Development guidelines](#development-guidelines)
+  - [Git/Github](#git--github)
+  - [Python](#python)
+    - [Conda](#conda)
+    - [Formatting](#formatting)
+    - [Naming conventions](#naming-conventions)
+    - [Logging](#logging)
+    - [Testing and coverage](#testing-and-coverage)
+    - [Learn Python](#learn-python)
+  - [CPACS](#cpacs)
+  - [Other](#other)
 - [How to contribute](#how-to-contribute)
-   - [Reporting bugs](#reporting-bugs)
-   - [Writing a new module](#writing-a-new-module)
-   - [Writing specs file](#writing-specs-file)
-
+  - [Reporting bugs](#reporting-bugs)
+  - [Writing a new module](#writing-a-new-module)
+  - [Writing specs file](#writing-specs-file)
 
 ## Documentation / Installation
 
 The CEASIOMpy documentation is included in the [Github repository](./README.md) in Markdown files as this one. You can follow the links to find the information that you are looking for.
 
-#### Installation
+### Installation
 
 To install CEASIOMpy please refer to the [installation page](./installation/INSTALLATION.md), it will guide you through the installation process depending on your system.
 
 If you have some trouble to install CEASIOMpy on your computer, please use the following [Github Discussion page](https://github.com/cfsengineering/CEASIOMpy/discussions/categories/installation-issues). If your problem is something that could be reproduced it will be transformed into an issues.
-
 
 ## Development guidelines
 
@@ -41,16 +39,13 @@ If you want to participate in the development of CEASIOMpy, it is a good thing i
 
 - [Official Github documentation](https://docs.github.com/en/get-started/quickstart/hello-world)
 
-
 You could then fork the CEASIOMpy repository and create pull request when you think your work is ready to be reviewed.
-
 
 ### Python
 
 #### Conda
 
 It is highly recommended to use conda (or miniconda) for CEASIOMpy. Some libraries could be complicated to install without it. If you install the default environment as explain in the [installation procedure](https://ceasiompy.readthedocs.io/en/latest/user_guide/installation.html#miniconda) you should then have all the requirements you need to run and develop CEASIOMpy.
-
 
 #### Formatting
 
@@ -78,20 +73,21 @@ We try to follow the following naming conventions in CEASIOMpy:
 - Index in loops: i,j,k or lowercase (e.g. alpha, beta,…) or more explicit (i_fus, i_wing, i_eng)
 
 Quotes:
--  `" "` simple quotes are used for strings, e.g. `print("Test1")`
--  `"""Docstring"""` triple-double quotes are used for docstring (documentation)
--  Variable name should be explicit, with in first position the object
+
+- `" "` simple quotes are used for strings, e.g. `print("Test1")`
+- `"""Docstring"""` triple-double quotes are used for docstring (documentation)
+- Variable name should be explicit, with in first position the object
    it represents, then detail about its type, e.g:
-    - aircraft_name
-    - engine_nb 
-    - wing_span 
-    - controlsurf_deflection_angle
+  - aircraft_name
+  - engine_nb
+  - wing_span
+  - controlsurf_deflection_angle
 
 These guidelines have been adapted from:
-- https://www.python.org/dev/peps/pep-0008/#naming-conventions 
-- https://gist.github.com/sloria/7001839
-- https://www.python.org/dev/peps/pep-0008/
 
+- <https://www.python.org/dev/peps/pep-0008/#naming-conventions>
+- <https://gist.github.com/sloria/7001839>
+- <https://www.python.org/dev/peps/pep-0008/>
 
 #### Logging
 
@@ -115,7 +111,6 @@ log.critical('This is for critical error messages')
 They will be saved in a log file with the same name as your module (.log)
 and printed in the console during the execution.
 
-
 #### Testing and coverage
 
 If possible, new functions should have corresponding [pytest](https://docs.pytest.org/en/latest/getting-started.html).
@@ -129,19 +124,17 @@ cd CEASIOMpy
 ./run_ci.sh
 ```
 
-
 #### Learn Python
 
 If you are new to Python we recommend some material that could help you (you can also find many other resources online):
 
-- Website with Python tutorials: 
+- Website with Python tutorials:
 
   - [learnpython.org](https://www.learnpython.org/)
 
 - On YouTube, videos by [Corey Schafer](https://www.youtube.com/channel/UCCezIgC97PvUuR4_gbFUs5g):
   - [Python Programming Beginner Tutorials playlist](https://www.youtube.com/playlist?list=PL-osiE80TeTskrapNbzXhwoFUiLCjGgY7)
   - [Python Object-Oriented Tutorial playlist](https://www.youtube.com/playlist?list=PL-osiE80TeTsqhIuOqKhwlXsIBIdSeYtc)
-
 
 ### CPACS
 
@@ -153,8 +146,7 @@ If you are new to Python we recommend some material that could help you (you can
 - Related libraries:
   - [TIXI](https://github.com/DLR-SC/tixi) A simple XML interface library
   - [TiGL](https://github.com/DLR-SC/tigl) Geometry Library to process aircraft geometries [[2]](#Sigg19)
-  - [cpacspy](https://github.com/cfsengineering/cpacspy) A Python package to work with CPACS file and AeroMaps 
-
+  - [cpacspy](https://github.com/cfsengineering/cpacspy) A Python package to work with CPACS file and AeroMaps
 
 ### Other
 
@@ -174,21 +166,18 @@ Other resources that could the useful.
 - [SU2 website](https://su2code.github.io/)
 - [SU2 Configuration template file](https://github.com/su2code/SU2/blob/master/config_template.cfg)
 
-
-
 ## How to contribute
 
 ### Reporting bugs
 
-If you find a bug, please report it on the [Github issues page](https://github.com/cfsengineering/CEASIOMpy/issues) 
-
+If you find a bug, please report it on the [Github issues page](https://github.com/cfsengineering/CEASIOMpy/issues)
 
 ### Writing a new module
 
 We highly encourage and appreciate any contributions to the CEASIOMpy codebase. If you have an idea for a new module, it could be a good thing to contact the CEASIOMpy team which could help you to write the module and be sure it is coherent with the rest of the project. You can also check the [CEASIOMpy project board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see what is the development status of the project.
 If you want to write a new module, you can use the [Module Template](https://github.com/cfsengineering/CEASIOMpy/tree/main/ceasiompy/ModuleTemplate) to help you. Normally, all modules follow the same file structure:
 
-```
+```text
 .
 ├── files               <- Files related to this module
 │   ├── doc1.pdf
@@ -309,7 +298,6 @@ cpacs_inout.add_output(
 
 <!-- How to cite a reference [[1]](#Alder20) -->
 
-<a id="Alder20">[1]</a> M. Alder, E. Moerland, J. Jepsen and B. Nagel. Recent Advances in Establishing a Common Language for Aircraft Design with CPACS. Aerospace Europe Conference 2020, Bordeaux, France, 2020. https://elib.dlr.de/134341/  
+<a id="Alder20">[1]</a> M. Alder, E. Moerland, J. Jepsen and B. Nagel. Recent Advances in Establishing a Common Language for Aircraft Design with CPACS. Aerospace Europe Conference 2020, Bordeaux, France, 2020. <https://elib.dlr.de/134341/>  
 
 <a id="Sigg19">[2]</a> Siggel, M. and Kleinert, J. and Stollenwerk, T. and Maierl, R.: TiGL: An Open Source Computational Geometry Library for Parametric Aircraft Design. Mathematics in Computer Science (2019). [10.1007/s11786-019-00401-y](https://link.springer.com/article/10.1007/s11786-019-00401-y)  
-

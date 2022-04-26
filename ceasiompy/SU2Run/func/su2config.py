@@ -95,7 +95,10 @@ def get_su2_config_template():
     if not su2_config_template_path.exists():
 
         # Use the Euler Onera M6 config as template
-        url = f"https://raw.githubusercontent.com/su2code/SU2/v{su2_version}/TestCases/euler/oneram6/inv_ONERAM6.cfg"
+        url = (
+            f"https://raw.githubusercontent.com/su2code/SU2/v{su2_version}"
+            "/TestCases/euler/oneram6/inv_ONERAM6.cfg"
+        )
         r = requests.get(url)
 
         if r.status_code == 404:

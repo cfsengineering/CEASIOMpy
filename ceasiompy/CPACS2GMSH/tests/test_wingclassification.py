@@ -127,7 +127,8 @@ def test_classify_wing_section():
     """
     Test if a simple 2 bspline  profile wing section is correctly classified
 
-    This test create two profile in gmsh and link them with a leading edge line and a trailing edge line
+    This test create two profile in gmsh and link them with a leading edge line and
+    a trailing edge line.
     Then we check if it is correctly classified
     """
     gmsh.initialize()
@@ -185,10 +186,11 @@ def test_classify_wing_section():
 
 def test_classify_special_section():
     """
-    Test if a wing section composed of a bspline profile linked to a fake fuselage is correctly classified
+    Test if a wing section composed of a bspline profile linked to a fake fuselage is
+    correctly classified.
 
-    This test create one profile in gmsh and link it to a non profile shapewith a leading edge line and a
-    trailing edge line, then we check if it is correctly classified
+    This test create one profile in gmsh and link it to a non profile shapewith a
+    leading edge line and a trailing edge line,check if it is correctly classified
     """
     gmsh.initialize()
     # profile1

@@ -558,22 +558,29 @@ def generate_gmsh(
         mesh_fields = {"nbfields": 0, "restrict_fields": []}
         for part in aircraft_parts:
             if "wing" in part.name:
+
+                # wing classifications
                 classify_wing(part)
                 nb_sect = len(part.wing_sections)
                 log.info(f"Classification of {part.name} done, {nb_sect} section(s) found ")
+
+                # wing refinement
+                log.info(f"Set mesh refinement of {part.name}")
                 refine_wing_section(
                     mesh_fields,
                     part,
                     mesh_size_wings,
                     refine=refine_factor,
-                    chord_percent=0.2,
+                    chord_percent=0.15,
                 )
             if "fuselage" in part.name:
+                log.info(f"Set mesh refinement of {part.name}")
                 set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
 
         max_size_mesh_aircraft = max(mesh_size_wings, mesh_size_fuselage)
 
         skin_thickness = 0.5
+        log.info("Set mesh refinement of fluid domain")
         set_farfield_mesh(
             mesh_fields,
             max_size_mesh_aircraft,
@@ -629,3 +636,14 @@ def generate_gmsh(
 # ==============================================================================
 if __name__ == "__main__":
     print("Nothing to execute!")
+    generate_gmsh(
+        "test_files/d150",
+        "",
+        open_gmsh=True,
+        farfield_factor=5,
+        symmetry=True,
+        mesh_size_farfield=5,
+        mesh_size_fuselage=0.1,
+        mesh_size_wings=0.05,
+        refine_factor=4.0,
+    )

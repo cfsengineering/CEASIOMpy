@@ -120,7 +120,7 @@ def refine_wing_section(
             mesh_fields["nbfields"], "DistMin", chord_percent * chord_mean
         )
         gmsh.model.mesh.field.setNumber(
-            mesh_fields["nbfields"], "DistMax", chord_percent * chord_mean * 1.2
+            mesh_fields["nbfields"], "DistMax", chord_percent * chord_mean * 1.25
         )
 
         # create new Restrict field

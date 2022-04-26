@@ -735,6 +735,8 @@ def classify_wing(wing_part):
 
     wing_part.wing_sections = wing_sections
 
+    print(profiles)
+
 
 # ==============================================================================
 #    MAIN

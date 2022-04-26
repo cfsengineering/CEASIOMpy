@@ -249,7 +249,8 @@ def classify_trunc_profile(profile_list, profile_lines, line_comp1, line_comp2):
 
         # remove te points from the list to find le point
 
-        points.remove(te_points[0]), points.remove(te_points[1])
+        points.remove(te_points[0])
+        points.remove(te_points[1])
 
         # find the leading and trailing edge lines who leaves the profile
 

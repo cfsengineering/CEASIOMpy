@@ -23,6 +23,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
     classify_profile,
     classify_trunc_profile,
+    classify_wing_section,
 )
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
@@ -113,6 +114,63 @@ def test_classify_trunc_profile():
     # Test if the profile is not two times classified
     profile_found = classify_trunc_profile(profile_list, profile_lines, line_comp_up, line_comp_lo)
     assert profile_found == False
+    gmsh.clear()
+    gmsh.finalize()
+
+
+def test_classify_wing_section():
+    """
+    Test if a simple 2 bspline  profile wing section is correctly classified
+    """
+    gmsh.initialize()
+    # profile1
+    le_pt_1 = gmsh.model.occ.addPoint(0, 0, 0, 1)
+    te_pt_1 = gmsh.model.occ.addPoint(1, 0, 0, 1)
+    up_pr_pt_1 = gmsh.model.occ.addPoint(0.2, 0.1, 0, 1)
+    lo_pr_pt_1 = gmsh.model.occ.addPoint(0.2, -0.1, 0, 1)
+    gmsh.model.occ.synchronize()
+    up_bspline_1 = gmsh.model.occ.addBSpline([le_pt_1, up_pr_pt_1, te_pt_1])
+    lo_bspline_1 = gmsh.model.occ.addBSpline([te_pt_1, lo_pr_pt_1, le_pt_1])
+
+    # profile2
+    le_pt_2 = gmsh.model.occ.addPoint(0, 0, 1, 1)
+    te_pt_2 = gmsh.model.occ.addPoint(1, 0, 1, 1)
+    up_pr_pt_2 = gmsh.model.occ.addPoint(0.2, 0.1, 1, 1)
+    lo_pr_pt_2 = gmsh.model.occ.addPoint(0.2, -0.1, 1, 1)
+    gmsh.model.occ.synchronize()
+    up_bspline_2 = gmsh.model.occ.addBSpline([le_pt_2, up_pr_pt_2, te_pt_2])
+    lo_bspline_2 = gmsh.model.occ.addBSpline([te_pt_2, lo_pr_pt_2, le_pt_2])
+
+    # le/te line
+    le_line = gmsh.model.occ.addLine(le_pt_1, le_pt_2)
+    te_line = gmsh.model.occ.addLine(te_pt_1, te_pt_2)
+    gmsh.model.occ.synchronize()
+    profiles = [
+        {
+            "truncated": False,
+            "lines_dimtag": [up_bspline_1, lo_bspline_1],
+            "points_tag": [le_pt_1, te_pt_1],
+            "adj_le_lines": [up_bspline_1, lo_bspline_1, le_line],
+            "adj_te_lines": [up_bspline_1, lo_bspline_1, te_line],
+            "chord_length": 1.0,
+        },
+        {
+            "truncated": False,
+            "lines_dimtag": [up_pr_pt_2, lo_bspline_2],
+            "points_tag": [le_pt_2, te_pt_2],
+            "adj_le_lines": [up_pr_pt_2, lo_bspline_2, le_line],
+            "adj_te_lines": [up_pr_pt_2, lo_bspline_2, te_line],
+            "chord_length": 1.0,
+        },
+    ]
+    wing_sections = []
+    # Test if the profile is correctly classified
+    assert classify_wing_section(wing_sections, profiles[0], profiles[1]) == True
+    # Test if the profile is not two times classified
+    assert classify_wing_section(wing_sections, profiles[0], profiles[1]) == False
+    # Test if wrong profile is not classified
+    assert classify_wing_section(wing_sections, profiles[0], profiles[0]) == False
+
     gmsh.clear()
     gmsh.finalize()
 

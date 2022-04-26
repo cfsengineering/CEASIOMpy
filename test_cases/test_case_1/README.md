@@ -21,9 +21,6 @@ conda activate ceasiompy
 ceasiompy_run --testcase 1
 ```
 
-
-
-
 This workflow will take as input the CPACS file of the aircraft (D150_simple.xml), it will run the PyTornado module, and it will export the aerodynamic coefficients in a CSV file.
 
 ```mermaid
@@ -67,6 +64,6 @@ These results have also been written in the last output CPACS file that you can 
 </aeroPerformanceMap>
 ```
 
-You can see that parameters `altitude`, `machNumber`, `angleOfSideslip`, `angleOfAttack` and coefficients `cl`, `cd`, `cs`, `cml`, `cms` and `cmd` are defined as lists of four values, representing the four calculations made by PyTornado. 
+You can see that parameters `altitude`, `machNumber`, `angleOfSideslip`, `angleOfAttack` and coefficients `cl`, `cd`, `cs`, `cml`, `cms` and `cmd` are defined as lists of four values, representing the four calculations made by PyTornado.
 
 | [Home](../../README.md#test-cases) | Next test case [**>>**](../test_case_2/README.md)

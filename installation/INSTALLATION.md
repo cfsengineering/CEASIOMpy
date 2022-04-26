@@ -3,13 +3,10 @@
 - [Ubuntu / Mint](#ubuntu--mint)
 - [Windows](#windows)
 - [MacOS](#macos)
- 
 
-### :warning: **Warning**
+## :warning: **Warning**
 
 *Unless required by applicable law or agreed to in writing, Licensor provides the Work (and each Contributor provides its Contributions) on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied, including, without limitation, any warranties or conditions of TITLE, NON-INFRINGEMENT, MERCHANTABILITY, or FITNESS FOR A PARTICULAR PURPOSE. You are solely responsible for determining the appropriateness of using or redistributing the Work and assume any risks associated with Your exercise of permissions under the [License](https://github.com/cfsengineering/CEASIOMpy/blob/main/LICENSE).*
-
-
 
 ## Ubuntu / Mint
 
@@ -17,7 +14,7 @@ To install CEASIOMpy on Ubuntu (or other version based on it), you can use the f
 
 - If you already have a recent version of [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or [Anaconda](https://anaconda.org/) installed on you computer, you can skip the line with `./install_conda.sh`
 
-- PyTornado, SUMO, SU2 and Paraview are not mendatory to run CEASIOMpy. You can skip the lines corresponding to those you don't want to install. However, if you want to be able to run all possible workflows, you should have all the modules.
+- PyTornado, SUMO, SU2 and Paraview are not mandatory to run CEASIOMpy. You can skip the lines corresponding to those you don't want to install. However, if you want to be able to run all possible workflows, you should have all the modules.
 
 - Some softwares will need to be executed with `sudo` command. It will ask you you for your password and you will have to type `yes` to confirm some of the installation steps.
 
@@ -53,15 +50,12 @@ SU2_CFD # You should see something like "Error in "void CConfig::SetConfig_Parsi
 paraview # A "Paraview" window will open, you can close it.
 ```
 
-If one of the software is not working correctly, you can try to run its installation script again or open the script and run the command manually. 
-If everything is working correctly, you can follow the [first turtorial](https://ceasiompy.readthedocs.io/en/latest/user_guide/getting_started.html#test-case-1-simple-workflow) to get familiar with CEASIOMpy.
-
-
+If one of the software is not working correctly, you can try to run its installation script again or open the script and run the command manually.
+If everything is working correctly, you can follow the [first tutorial](https://ceasiompy.readthedocs.io/en/latest/user_guide/getting_started.html#test-case-1-simple-workflow) to get familiar with CEASIOMpy.
 
 ## Windows
 
 :x: No automatic installation script are available yet.
-
 
 You can try to install it manually, the basic steps are the following:
 
@@ -76,8 +70,6 @@ You can try to install it manually, the basic steps are the following:
 - Install [SUMO](https://www.larosterna.com/products/open-source)
 - Install [SU2](https://su2code.github.io/download.html)
 - Install [Paraview](https://www.paraview.org/download/)
-
-
 
 ## MacOS
 

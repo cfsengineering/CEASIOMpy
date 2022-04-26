@@ -70,60 +70,60 @@ def classify_profile(profile_list, line_comp1, line_comp2):
     """
     pair_points = sorted(line_comp1["points_tags"])
 
-    if pair_points == sorted(line_comp2["points_tags"]) and (
-        line_comp2["line_dimtag"] != line_comp1["line_dimtag"]
+    if pair_points != sorted(line_comp2["points_tags"]) or (
+        line_comp2["line_dimtag"] == line_comp1["line_dimtag"]
     ):
-        # find leading and trailing edge points
-        p1 = gmsh.model.occ.getBoundingBox(0, pair_points[0])
-        p2 = gmsh.model.occ.getBoundingBox(0, pair_points[1])
-
-        # assuming the wing is oriented along the x axis
-        # pair_points = [le,te]
-
-        if p1[0] > p2[0]:
-            pair_points.reverse()
-
-        # determine upper and lower spline
-        c1 = gmsh.model.occ.getCenterOfMass(1, line_comp1["line_dimtag"])
-        c2 = gmsh.model.occ.getCenterOfMass(1, line_comp2["line_dimtag"])
-
-        splines_dim_tag = [
-            line_comp1["line_dimtag"],
-            line_comp2["line_dimtag"],
-        ]
-        if c2[2] > c1[2]:
-            splines_dim_tag.reverse()
-
-        le2te_vector = [p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]]
-
-        chord = np.linalg.norm(le2te_vector)
-
-        # find the leading and trailing edge lines who leaves the profile
-        adj_le_lines, _ = gmsh.model.getAdjacencies(0, pair_points[0])
-        adj_le_lines = set(adj_le_lines)
-
-        adj_te_lines, _ = gmsh.model.getAdjacencies(0, pair_points[1])
-        adj_te_lines = set(adj_te_lines)
-
-        # remove from all the adjacent line the ones that are the profile spline
-        adj_le_lines.difference(set(splines_dim_tag))
-        adj_te_lines.difference(set(splines_dim_tag))
-
-        # the remaining lines are the leading and trailing edge lines
-
-        profile_list.append(
-            {
-                "truncated": False,
-                "lines_dimtag": splines_dim_tag,
-                "points_tag": pair_points,
-                "adj_le_lines": list(adj_le_lines),
-                "adj_te_lines": list(adj_te_lines),
-                "chord_length": chord,
-            }
-        )
-        return True
-    else:
         return False
+
+    # find leading and trailing edge points
+    p1 = gmsh.model.occ.getBoundingBox(0, pair_points[0])
+    p2 = gmsh.model.occ.getBoundingBox(0, pair_points[1])
+
+    # assuming the wing is oriented along the x axis
+    # pair_points = [le,te]
+
+    if p1[0] > p2[0]:
+        pair_points.reverse()
+
+    # determine upper and lower spline
+    c1 = gmsh.model.occ.getCenterOfMass(1, line_comp1["line_dimtag"])
+    c2 = gmsh.model.occ.getCenterOfMass(1, line_comp2["line_dimtag"])
+
+    splines_dim_tag = [
+        line_comp1["line_dimtag"],
+        line_comp2["line_dimtag"],
+    ]
+    if c2[2] > c1[2]:
+        splines_dim_tag.reverse()
+
+    le2te_vector = [p2[0] - p1[0], p2[1] - p1[1], p2[2] - p1[2]]
+
+    chord = np.linalg.norm(le2te_vector)
+
+    # find the leading and trailing edge lines who leaves the profile
+    adj_le_lines, _ = gmsh.model.getAdjacencies(0, pair_points[0])
+    adj_le_lines = set(adj_le_lines)
+
+    adj_te_lines, _ = gmsh.model.getAdjacencies(0, pair_points[1])
+    adj_te_lines = set(adj_te_lines)
+
+    # remove from all the adjacent line the ones that are the profile spline
+    adj_le_lines.difference(set(splines_dim_tag))
+    adj_te_lines.difference(set(splines_dim_tag))
+
+    # the remaining lines are the leading and trailing edge lines
+
+    profile_list.append(
+        {
+            "truncated": False,
+            "lines_dimtag": splines_dim_tag,
+            "points_tag": pair_points,
+            "adj_le_lines": list(adj_le_lines),
+            "adj_te_lines": list(adj_te_lines),
+            "chord_length": chord,
+        }
+    )
+    return True
 
 
 def classify_trunc_profile(profile_list, profile_lines, line_comp1, line_comp2):
@@ -458,7 +458,7 @@ def classify_special_section(wing_part, wing_sections, profiles):
         # part of the aircraft may be deleted due to symmetry application
         return False
     # Search if this is the only wing section of the wing
-    if len(wing_sections) != 0:
+    if wing_sections:
         # find all the lines and points in the wing that we already classified
         already_classified_lines = []
         le_points_wing = []
@@ -490,7 +490,7 @@ def classify_special_section(wing_part, wing_sections, profiles):
         te_points_wing = set(te_points_wing)
 
         # seek for unclassified lines comming from classified leading edge points
-        # Normally all the wing except the part that is link to the fuselage is classifed
+        # Normally all the wing except the part that is link to the fuselage is classified
         # the remaining unclassified comming from classified le / te points must be the
         # the le/te lines linked to the fuselage
 

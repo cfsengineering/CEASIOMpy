@@ -274,8 +274,8 @@ def test_classify_wing():
             test_wingsection = part.wing_sections
 
     # Test if the wing1_m is correctly classified
-    nb_wing_section = len(test_wingsection)
-    assert nb_wing_section == 2
+
+    assert len(test_wingsection) == 2
 
     # Test if the first wing section is correctly classified
 

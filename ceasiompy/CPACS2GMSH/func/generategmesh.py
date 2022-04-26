@@ -127,6 +127,23 @@ class ModelPart:
         self.lines_tags = list(set(self.lines_tags).intersection(set(final_domain.lines_tags)))
         self.points_tags = list(set(self.points_tags).intersection(set(final_domain.points_tags)))
 
+    def set_mesh_color(self):
+        """
+        Function to set the mesh color of the model part.
+        """
+        if "wing" in self.name:
+            color = (0, 200, 200)
+
+        if "fuselage" in self.name:
+            color = (255, 215, 0)
+        if "pylon" in self.name:
+            color = (255, 0, 0)
+        if "nacelle" in self.name:
+            color = (0, 100, 255)
+        if "engine" in self.name:
+            color = (0, 100, 255)
+        gmsh.model.setColor(self.surfaces, *color, a=150, recursive=False)
+
 
 # ==============================================================================
 #   FUNCTIONS
@@ -520,35 +537,12 @@ def generate_gmsh(
     # Set mesh size of the farfield
     gmsh.model.mesh.setSize(farfield_points, mesh_size_farfield)
 
-    # Color the mesh according to the aircraft parts
-
-    # Color code
-    mesh_color_fus = (255, 215, 0)
-
-    mesh_color_wing = (0, 200, 200)
-    mesh_color_pylon = (255, 0, 0)
-    mesh_color_nacelle = (0, 100, 255)
+    # Color the mesh
+    for part in aircraft_parts:
+        part.set_mesh_color()
 
     mesh_color_farfield = (255, 200, 0)
     mesh_color_symmetry = (200, 255, 0)
-
-    # Color assignation for each part
-
-    for part in aircraft_parts:
-
-        if "wing" in part.name:
-            color = mesh_color_wing
-
-        if "fuselage" in part.name:
-            color = mesh_color_fus
-        if "pylon" in part.name:
-            color = mesh_color_pylon
-        if "nacelle" in part.name:
-            color = mesh_color_nacelle
-        if "engine" in part.name:
-            color = mesh_color_nacelle
-        gmsh.model.setColor(part.surfaces, *color, a=150, recursive=False)
-
     gmsh.model.setColor(farfield_surfaces, *mesh_color_farfield, a=255, recursive=False)
     if symmetry:
         gmsh.model.setColor(symmetry_surfaces, *mesh_color_symmetry, a=150, recursive=False)

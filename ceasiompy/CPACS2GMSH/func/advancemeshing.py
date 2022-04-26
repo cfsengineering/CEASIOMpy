@@ -86,9 +86,6 @@ def refine_wing_section(
     ...
     """
     # get the wing section chord, le and te lines and the surface of the wing
-
-    sigmoid = False
-    include_boundary = True
     surfaces_wing = wing_part.surfaces_tags
 
     # for each wing section get the mean chord and le/te lines
@@ -111,7 +108,6 @@ def refine_wing_section(
         gmsh.model.mesh.field.setNumber(
             mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
         )
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sigmoid", sigmoid)
         gmsh.model.mesh.field.setNumber(
             mesh_fields["nbfields"], "SizeMin", mesh_size_wings / refine
         )
@@ -130,9 +126,6 @@ def refine_wing_section(
             mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
         )
         gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", surfaces_wing)
-        gmsh.model.mesh.field.setNumber(
-            mesh_fields["nbfields"], "IncludeBoundary", include_boundary
-        )
         # add the new field to the list of restrict fields
         mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
 
@@ -156,7 +149,6 @@ def set_fuselage_mesh(mesh_fields, fuselage_part, mesh_size_fuselage):
     """
     # get the fuselage surface
     surfaces_tags = fuselage_part.surfaces_tags
-    include_boundary = True
 
     # create new distance field
     mesh_fields["nbfields"] += 1
@@ -179,7 +171,6 @@ def set_fuselage_mesh(mesh_fields, fuselage_part, mesh_size_fuselage):
         mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
     )
     gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", surfaces_tags)
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "IncludeBoundary", include_boundary)
 
     # add the new field to the list of restrict fields
     mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])

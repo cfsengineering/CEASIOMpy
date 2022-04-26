@@ -41,7 +41,7 @@ def export(shape, brep_dir_path, name):
 
     Parameters
     ----------
-    shape: Tigl Cshape
+    shape: TiGL Cshape
         The shape to be exported
     brep_dir_path (obj): Path object
         Path object to the directory where the brep files are saved
@@ -63,7 +63,7 @@ def engine_export(aircraft_config, brep_dir_path, need_symmetric_engine):
 
     Parameters
     ----------
-    aircraft_config: Tigl AircraftConfiguration
+    aircraft_config: TiGL AircraftConfiguration
         The aircraft configuration
     brep_dir_path (obj):
         Path object to the directory where the brep files are saved
@@ -108,7 +108,7 @@ def engine_export(aircraft_config, brep_dir_path, need_symmetric_engine):
 def export_brep(cpacs, brep_dir_path):
     """Function to generate and export the geometries of a .xml file
 
-    Function 'export_brep' is a subfunction of CPACS2GMSH that generate with tigl
+    Function 'export_brep' is a subfunction of CPACS2GMSH that generate with TiGL
     the airplane geometry of the .xml file. Then all the airplane parts are
     exported in .brep format with a name corresponding to the element function :
     fuselage.brep, wing1.brep, ...
@@ -167,7 +167,7 @@ def export_brep(cpacs, brep_dir_path):
     # Engine position
 
     # The following must be done in a cleaner way using the cpacs.xml file
-    # or upgrading tigl version
+    # or upgrading TiGL version
     # There also must be a better way to do this and the engine symmetry
     engine_export(aircraft_config, brep_dir_path, need_symmetric_engine)
 

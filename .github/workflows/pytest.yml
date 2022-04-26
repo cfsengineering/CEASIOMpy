@@ -35,7 +35,7 @@ jobs:
       run: flake8
 
     - name: Run pytest
-      run: pytest -v --cov=ceasiompy/ --cov-report=xml
+      run: pytest -v --cov=ceasiompy/ --cov-report xml:coverage.xml
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v2

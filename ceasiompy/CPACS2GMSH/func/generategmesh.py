@@ -505,7 +505,7 @@ def generate_gmsh(
         gmsh.model.setPhysicalName(2, symmetry_group, "symmetry")
 
     farfield = gmsh.model.addPhysicalGroup(2, farfield_surfaces_tags)
-    gmsh.model.setPhysicalName(2, farfield, "farfield")
+    gmsh.model.setPhysicalName(2, farfield, "Farfield")
 
     # Fluid domain
     ps = gmsh.model.addPhysicalGroup(3, final_domain.volume_tag)
@@ -630,14 +630,3 @@ def generate_gmsh(
 # ==============================================================================
 if __name__ == "__main__":
     print("Nothing to execute!")
-    generate_gmsh(
-        "test_files/d150",
-        "",
-        open_gmsh=True,
-        farfield_factor=5,
-        symmetry=True,
-        mesh_size_farfield=5,
-        mesh_size_fuselage=0.1,
-        mesh_size_wings=0.05,
-        refine_factor=4.0,
-    )

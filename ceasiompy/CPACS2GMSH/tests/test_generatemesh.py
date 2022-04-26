@@ -70,7 +70,7 @@ def test_generate_gmsh():
     assert "MARKER_TAG= wing1" in content
     assert "MARKER_TAG= wing1_m" in content
     assert "MARKER_TAG= fuselage1" in content
-    assert "MARKER_TAG= farfield" in content
+    assert "MARKER_TAG= Farfield" in content
 
     # Erase generated file
     for file in os.listdir(TEST_OUT_PATH):
@@ -104,7 +104,7 @@ def test_generate_gmsh_symm():
     # assert "NMARK= 4" in content
     assert "MARKER_TAG= wing1" in content
     assert "MARKER_TAG= fuselage1" in content
-    assert "MARKER_TAG= farfield" in content
+    assert "MARKER_TAG= Farfield" in content
     assert "MARKER_TAG= symmetry" in content
 
     # Erase generated file

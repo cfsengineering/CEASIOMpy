@@ -25,7 +25,7 @@ cpacs_inout.add_input(
     xpath=CEASIOMPY_XPATH + "/gmsh/open_gui",
     gui=True,
     gui_name="Display mesh with GMSH",
-    gui_group="Option",
+    gui_group="General options",
 )
 
 cpacs_inout.add_input(

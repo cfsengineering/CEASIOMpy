@@ -7,11 +7,42 @@
 **State**: :heavy_check_mark:
 
 
-`CPACS2GMSH` is a geometry converter to go from a [CPACS](https://www.cpacs.de) aircraft geometry [[1]](#Alder20) to a [GMSH](link) geometry. ....
+`CPACS2GMSH` is an automatic mesh generator module for a [CPACS](https://www.cpacs.de) aircraft geometry [[1]](#Alder20) using [GMSH](https://gmsh.info/) finite element mesh generator. A unstructured mesh is automatically generated in a spherical domain surrounding the aircraft. The resulting mesh can be use for a CFD calculation by connecting the `SU2Run` module after `CPACS2GMSH` module.
+
+
 
 ## Inputs
+`CPACS2GMSH` takes as input a CPACS file. This is done automatically when it is run in workflow
 
-`CPACS2GMSH` only takes as input a CPACS file.
+Multiple option are available with `CPACS2GMSH`
+They are tunable with the `SettingsGUI` module:
+
+General options:
+* `Display mesh with GMSHl : False `
+Open the gmsh GUI after the generation of the surface mesh (2D) and the domain mesh (3D). This option is usefully to control the quality of the automated generated mesh or make extra operation with gmsh GUI.
+
+Domain:
+* `Use Symmetry : False `
+Apply a symmetry operation to the model with a xz symmetry plane in the center of the aircraft. The resulting mesh will only be generated in the y positive domain.
+
+* `Farfield size factor : 5.0 `
+Enable to control the spherical domain size. The fluid domain surrounding the aircraft is defined with a radius equivalent to the largest xyz aircraft dimension times the `Farfield size factor`
+
+Mesh size:
+
+* `Farfield mesh size : 12.0 ` Mesh size of the farfield surface
+* `Fuselage mesh size : 0.2 ` Mesh size of the fuselage surface
+* `Wings mesh size : 0.2 ` Mesh size of the wings surface
+
+:warning: The mesh size values are unitless. They are consistent with the aircraft dimensions units
+
+Advanced mesh parameters :
+
+* `Le/Te refinement factor : 2.0` Apply a refinement on the leading and trailing edge of the aircraft wings. This option can be disable if set to `1.0`
+
+
+:warning: It is recommended to check the mesh convergence to know which value gives the best trade-off between the results accuracy and computation time, for your application case.
+
 
 ## Analyses
 

@@ -7,14 +7,14 @@
 **State**: :heavy_check_mark:
 
 
-`CPACS2GMSH` is an automatic mesh generator module for a [CPACS](https://www.cpacs.de) aircraft geometry [[1]](#Alder20) using [GMSH](https://gmsh.info/) finite element mesh generator. A unstructured mesh is automatically generated in a spherical domain surrounding the aircraft. The resulting mesh can be use for a CFD calculation by connecting the `SU2Run` module after `CPACS2GMSH` module.
+`CPACS2GMSH` is an automatic mesh generator module for a [CPACS](https://www.cpacs.de) aircraft geometry [[1]](#Alder20) using [GMSH](https://gmsh.info/) ,a finite element mesh generator. An unstructured mesh is automatically generated in a spherical domain surrounding the aircraft. The resulting mesh can be used for a CFD calculation by connecting the `SU2Run` module after `CPACS2GMSH` module.
 
 
 
 ## Inputs
 `CPACS2GMSH` takes as input a CPACS file. This is done automatically when it is run in workflow
 
-Multiple option are available with `CPACS2GMSH`
+Multiple options are available with `CPACS2GMSH`
 They are tunable with the `SettingsGUI` module:
 
 General options:
@@ -42,7 +42,7 @@ Mesh size of the fuselage surface
 Advanced mesh parameters :
 
 * `Le/Te refinement factor : 2.0 `<br />
-Apply a refinement on the leading and trailing edge of the aircraft wings. Apply also a box refinement around the aircraft. This option can be disable if set to `1.0`
+Apply a refinement on the leading and trailing edge of the aircraft wings. Apply also a box refinement around the aircraft. This option can be disabled if set to `1.0`
 
 
 :warning: It is recommended to check the mesh convergence to know which value gives the best trade-off between the results accuracy and computation time, for your application case.
@@ -64,7 +64,7 @@ Apply a refinement on the leading and trailing edge of the aircraft wings. Apply
 
 
 ## Limitations
-At the time of writing, this module is not able to handle aircraft with engine and control surfaces (they will not be modeled and thus will not appear in mesh).<br />
+At the time of writing, this module is not able to handle aircraft with engine and control surfaces (they will not be modelled and thus appear in the final mesh).<br />
 If the wing geometry of the CPACS model is not well defined or altered by the intersection of other aircraft parts, the leading and trailing edge refinement may not work completely. This can be avoided when the geometry of the aircraft is created by making sure that the wings profiles do not intersect other aircraft parts
 
 ## More information

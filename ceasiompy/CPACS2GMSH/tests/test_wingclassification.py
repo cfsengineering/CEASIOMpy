@@ -24,9 +24,10 @@ from ceasiompy.CPACS2GMSH.func.wingclassification import (
     classify_profile,
     classify_trunc_profile,
     classify_wing_section,
+    classify_special_section,
 )
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
+from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh, ModelPart
 
 
 # Default CPACS file to test
@@ -48,6 +49,8 @@ TEST_OUT_PATH = os.path.join(MODULE_DIR, "ToolOutput")
 def test_classify_profile():
     """
     Test if a simple 2 bspline profile is correctly classified
+
+    This test create a profile in gmsh and check if it is correctly classified
     """
 
     gmsh.initialize()
@@ -85,6 +88,8 @@ def test_classify_profile():
 def test_classify_trunc_profile():
     """
     Test if a simple 2 bspline truncated profile is correctly classified
+
+    This test create a truncated profile in gmsh and check if it is correctly classified
     """
 
     gmsh.initialize()
@@ -121,6 +126,9 @@ def test_classify_trunc_profile():
 def test_classify_wing_section():
     """
     Test if a simple 2 bspline  profile wing section is correctly classified
+
+    This test create two profile in gmsh and link them with a leading edge line and a trailing edge line
+    Then we check if it is correctly classified
     """
     gmsh.initialize()
     # profile1
@@ -156,7 +164,7 @@ def test_classify_wing_section():
         },
         {
             "truncated": False,
-            "lines_dimtag": [up_pr_pt_2, lo_bspline_2],
+            "lines_dimtag": [up_bspline_2, lo_bspline_2],
             "points_tag": [le_pt_2, te_pt_2],
             "adj_le_lines": [up_pr_pt_2, lo_bspline_2, le_line],
             "adj_te_lines": [up_pr_pt_2, lo_bspline_2, te_line],
@@ -175,9 +183,74 @@ def test_classify_wing_section():
     gmsh.finalize()
 
 
+def test_classify_special_section():
+    """
+    Test if a wing section composed of a bspline profile linked to a fake fuselage is correctly classified
+
+    This test create one profile in gmsh and link it to a non profile shapewith a leading edge line and a
+    trailing edge line, then we check if it is correctly classified
+    """
+    gmsh.initialize()
+    # profile1
+    le_pt_1 = gmsh.model.occ.addPoint(0, 0, 0, 1)
+    te_pt_1 = gmsh.model.occ.addPoint(1, 0, 0, 1)
+    up_pr_pt_1 = gmsh.model.occ.addPoint(0.2, 0.1, 0, 1)
+    lo_pr_pt_1 = gmsh.model.occ.addPoint(0.2, -0.1, 0, 1)
+    gmsh.model.occ.synchronize()
+    up_bspline_1 = gmsh.model.occ.addBSpline([le_pt_1, up_pr_pt_1, te_pt_1])
+    lo_bspline_1 = gmsh.model.occ.addBSpline([te_pt_1, lo_pr_pt_1, le_pt_1])
+
+    # square fuselage
+    sq_pt1 = gmsh.model.occ.addPoint(0, 0, 1, 1)
+    sq_pt2 = gmsh.model.occ.addPoint(0.5, -0.5, 1, 1)
+    sq_pt3 = gmsh.model.occ.addPoint(1, 0, 1, 1)
+    sq_pt4 = gmsh.model.occ.addPoint(0.5, -0.5, 1, 1)
+    gmsh.model.occ.synchronize()
+    sq_line1 = gmsh.model.occ.addLine(sq_pt1, sq_pt2)
+    sq_line2 = gmsh.model.occ.addLine(sq_pt2, sq_pt3)
+    sq_line3 = gmsh.model.occ.addLine(sq_pt3, sq_pt4)
+    sq_line4 = gmsh.model.occ.addLine(sq_pt4, sq_pt1)
+
+    # le/te line
+    le_line = gmsh.model.occ.addLine(le_pt_1, sq_pt1)
+    te_line = gmsh.model.occ.addLine(te_pt_1, sq_pt3)
+    gmsh.model.occ.synchronize()
+    profiles = [
+        {
+            "truncated": False,
+            "lines_dimtag": [up_bspline_1, lo_bspline_1],
+            "points_tag": [le_pt_1, te_pt_1],
+            "adj_le_lines": [up_bspline_1, lo_bspline_1, le_line],
+            "adj_te_lines": [up_bspline_1, lo_bspline_1, te_line],
+            "chord_length": 1.0,
+        }
+    ]
+    wing_sections = []
+    wing_part = ModelPart("testwing")
+    wing_part.lines_tags = [
+        sq_line1,
+        sq_line2,
+        sq_line3,
+        sq_line4,
+        up_bspline_1,
+        lo_bspline_1,
+        te_line,
+        le_line,
+    ]
+    wing_part.points_tags = [le_pt_1, te_pt_1, sq_pt1, sq_pt2, sq_pt3, sq_pt4]
+    # Test if the profile is correctly classified
+    assert classify_special_section(wing_part, wing_sections, profiles) == True
+
+    gmsh.clear()
+    gmsh.finalize()
+
+
 def test_classify_wing():
     """
     Test if one of the wing of the simple test model is correctly classified
+
+    This test import the whole simple.xml file and check if one of its wing is correctly
+    classified
     """
 
     cpacs = CPACS(CPACS_IN_PATH)

@@ -73,7 +73,6 @@ def get_su2_version():
         lines = f.readlines()
 
     for line in lines:
-        log.info(line)
         try:
             version = re.search(r"version\s*([\d.]+)", line).group(1)
         except AttributeError:
@@ -95,7 +94,8 @@ def get_su2_config_template():
 
     if not su2_config_template_path.exists():
 
-        url = f"https://raw.githubusercontent.com/su2code/SU2/v{su2_version}/config_template.cfg"
+        # Use the Euler Onera M6 config as template
+        url = f"https://raw.githubusercontent.com/su2code/SU2/v{su2_version}/TestCases/euler/oneram6/inv_ONERAM6.cfg"
         r = requests.get(url)
 
         if r.status_code == 404:
@@ -210,6 +210,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     cfg = ConfigFile(su2_congig_template_path)
 
     # General parmeters
+    cfg["RESTART_SOL"] = "NO"
     cfg["REF_LENGTH"] = cpacs.aircraft.ref_lenght
     cfg["REF_AREA"] = cpacs.aircraft.ref_area
     cfg["REF_ORIGIN_MOMENT_X"] = cpacs.aircraft.ref_point_x
@@ -238,6 +239,10 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     cfg["MARKER_MONITORING"] = bc_wall_str
     cfg["MARKER_MOVING"] = "( NONE )"  # TODO: when do we need to define MARKER_MOVING?
     cfg["DV_MARKER"] = bc_wall_str
+
+    # Output
+    cfg["WRT_FORCES_BREAKDOWN"] = "YES"
+    cfg["BREAKDOWN_FILENAME"] = "forces_breakdown.dat"
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
     for case_nb in range(param_count):

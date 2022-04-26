@@ -17,14 +17,11 @@ Python version: >=3.7
 #   IMPORTS
 # =================================================================================================
 
-import pytest
 from pathlib import Path
-from unittest.mock import patch, mock_open
+from unittest.mock import mock_open, patch
 
-from ceasiompy.SU2Run.func.su2config import get_su2_version, get_su2_config_template
-
-from ceasiompy.utils.ceasiompyutils import get_install_path
-
+import pytest
+from ceasiompy.SU2Run.func.su2config import get_su2_config_template, get_su2_version
 from ceasiompy.utils.moduleinterfaces import get_module_path
 
 MODULE_DIR = Path(__file__).parent

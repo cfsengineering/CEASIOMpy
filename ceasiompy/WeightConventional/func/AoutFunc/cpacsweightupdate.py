@@ -31,10 +31,8 @@ log = get_logger(__file__.split(".")[0])
 #   CLASSES
 # =============================================================================
 
-"""
- InsideDimensions class, can be found on the InputClasses folder inside the
- weightconvclass.py script.
-"""
+#  InsideDimensions class, can be found on the InputClasses folder inside the
+#  weightconvclass.py script.
 
 
 # =============================================================================
@@ -43,7 +41,7 @@ log = get_logger(__file__.split(".")[0])
 
 
 def cpacs_update(mw, out, cpacs_path, cpacs_out_path):
-    """ The function updates the cpacs file after the Weight analysis.
+    """The function updates the cpacs file after the Weight analysis.
 
     Args:
         mw (class) : MassesWeights class

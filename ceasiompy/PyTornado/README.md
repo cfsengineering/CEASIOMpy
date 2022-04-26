@@ -6,23 +6,19 @@
 
 **State**: :heavy_check_mark:
 
-
 <img align="right" height="120" src="files/pytornado_logo.svg">
 
-
 `PyTornado` module is a launcher for the software [PyTornado](https://github.com/airinnova/pytornado) which has been developed by [Airinnova](https://airinnova.se/) based on the Matlab version of [Tornado](https://tornado.redhammer.se/index.php). It is a Vortex Lattice Method (VLM) solver for  low-fidelity aerodynamic analysis of wings.
-
 
 ## Inputs
 
 `PyTornado` takes as input a CPACS file, the aircraft geometry will be use to create the mesh required by the VLM solver. To define the flight conditions an aeromap on which the calculation will be done is also required.
- 
+
 ## Analyses
 
-`PyTornado` calculates aerodynamic coefficients of an aircraft for a given aeromap and write back results in a CPACS file. 
+`PyTornado` calculates aerodynamic coefficients of an aircraft for a given aeromap and write back results in a CPACS file.
 
 Optionally, `PyTornado` can also plot some results.
-
 
 <p align="center">
 <img height="340" src="files/pytornado_example.png">
@@ -34,7 +30,6 @@ Example of PyTornado results.
 ## Outputs
 
 `PyTornado` outputs a CPACS files with the calculated aerodynamic coefficients added into the aeromap.
-
 
 ## Installation or requirements
 
@@ -59,7 +54,6 @@ If you follow an automatic installation procedure on the [CEASIOMpy installation
 
 :warning: No fuselage is modelled by `PyTornado` so the drag coefficient is not correct, generally underestimated.
 
-
 ## More information
 
 * [PyTornado Github repository](ttps://github.com/airinnova/pytornado)
@@ -68,14 +62,14 @@ If you follow an automatic installation procedure on the [CEASIOMpy installation
 
 * [Original Matlab version of Tornado](https://tornado.redhammer.se/index.php)
 
-* [ Flight Vehicle Aerodynamics](https://mitpress.mit.edu/books/flight-vehicle-aerodynamics) by Mark Drela
+* [Flight Vehicle Aerodynamics](https://mitpress.mit.edu/books/flight-vehicle-aerodynamics) by Mark Drela
 
-* https://en.wikipedia.org/wiki/Vortex_lattice_method
+* <https://en.wikipedia.org/wiki/Vortex_lattice_method>
 
 ## References
 
-<a id="Melin2000">[1]</a> Melin, T.: A Vortex Lattice MATLAB Implementation for Linear Aerodynamic Wing Applications, Diss., December 2000. http://dx.doi.org/10.13140/RG.2.2.24472.49923
+<a id="Melin2000">[1]</a> Melin, T.: A Vortex Lattice MATLAB Implementation for Linear Aerodynamic Wing Applications, Diss., December 2000. <http://dx.doi.org/10.13140/RG.2.2.24472.49923>
 
 <a id="Drela14">[2]</a> Drela, M.: Flight Vehicle Aerodynamics. Cambridge, Massachusetts: MIT Press, 2014. – ISBN 978-0-262-52644-9
 
-<a id="Dett19">[3]</a> Dettmann, A.: Loosely coupled, modular framework for linear static aeroelastic analyses. Master Thesis (2019). KTH Royal Institute of Technology. http://kth.diva-portal.org/smash/record.jsf?pid=diva2:1360722
+<a id="Dett19">[3]</a> Dettmann, A.: Loosely coupled, modular framework for linear static aeroelastic analyses. Master Thesis (2019). KTH Royal Institute of Technology. <http://kth.diva-portal.org/smash/record.jsf?pid=diva2:1360722>

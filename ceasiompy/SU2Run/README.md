@@ -6,12 +6,9 @@
 
 **State**: :heavy_check_mark:
 
-
 <img align="right" height="120" src="https://github.com/su2code/SU2/raw/master/Common/doc/logoSU2small.png">
 
-
-`SU2Run` module can prepare and run calculations with the CFD code [SU2](https://su2code.github.io/). SU2 is a computational analysis and design package that has been developed to solve multiphysics analysis and optimization tasks using unstructured mesh topologies. [[1]](#Economon15) 
-
+`SU2Run` module can prepare and run calculations with the CFD code [SU2](https://su2code.github.io/). SU2 is a computational analysis and design package that has been developed to solve multiphysics analysis and optimization tasks using unstructured mesh topologies. [[1]](#Economon15)
 
 ## Inputs
 
@@ -25,10 +22,10 @@
 ```
 
 The flight conditions must be defined by an aeromap from the CPACS file. Some calculation parameters can also be defined in the CPACS file (but some value will by provided by default)
- 
+
 ## Analyses
 
-`SU2Run` calculates aerodynamic coefficients of an aircraft for a given mesh and aeromap. It performs an Euler calculation with the SU2 code. 
+`SU2Run` calculates aerodynamic coefficients of an aircraft for a given mesh and aeromap. It performs an Euler calculation with the SU2 code.
 
 Other results can be obtained from the SU2 calculation, generally [Paraview](https://www.paraview.org/) is used to visualize the results.
 
@@ -58,18 +55,14 @@ Although SU2 is able to run Navier-Stokes calculations, for now, `SU2Run` only s
 
 :warning: The mesh convergence should also be checked. If you use a mesh too coarse, the aerodynamic coefficients might be far from the values you would expect with a finer mesh.
 
-
-
 ## More information
 
 * [SU2 website](https://su2code.github.io/)
 
 * [SU2 Github repository](https://github.com/su2code/SU2)
 
-* https://en.wikipedia.org/wiki/Euler_equations_(fluid_dynamics)
-
-
+* <https://en.wikipedia.org/wiki/Euler_equations_(fluid_dynamics>)
 
 ## References
 
-<a id="Economon15">[1]</a> Economon and al. : SU2: An open-source suite for multiphysics simulation and design, AIAA Journal, 54(3):828-846, 2016. http://arc.aiaa.org/doi/10.2514/1.J053813
+<a id="Economon15">[1]</a> Economon and al. : SU2: An open-source suite for multiphysics simulation and design, AIAA Journal, 54(3):828-846, 2016. <http://arc.aiaa.org/doi/10.2514/1.J053813>

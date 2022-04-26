@@ -6,21 +6,17 @@
 
 **State**: :heavy_check_mark:
 
-
 `SkinFriction` module adds skin friction drag to an Aeromap calculated without it. The aerodynamic coefficients calculated with pyTornado or Euler methods (SU2) do not depend on atmospheric parameters and do not include the skin friction drag. It means that for different altitudes as input you will get the same aerodynamic coefficients. Furthermore, the drag calculated with these methods is generally underestimated. You can use this module to estimate the skin friction drag from empirical formula and add it to the selected aeroMap.
-
 
 ## Inputs
 
 `SkinFriction` only takes as input a CPACS file. It needs the wetted surface area of the aircraft, to get it you must have run `SU2Run` before this module, the result will be saved in the CPACS file.
 
-
 ## Analyses
-
 
 The formula used to estimate the skin friction drag is from the paper by Gerard W. H. van Es [[1]](#Gerard12)
 
-With the Wetted aera S<sub>wet</sub> the span b, the aircraft velocity 
+With the Wetted aera S<sub>wet</sub> the span b, the aircraft velocity
 V and kinematic viscosity ν we can calculate the Reynolds number Re:
 
 ![Re](https://latex.codecogs.com/png.image?\dpi{110}\bg{white}Re&space;=&space;(S_{wet}/b)&space;\cdot&space;V&space;/&space;\nu)
@@ -42,16 +38,13 @@ And finally, we can calculate the zero-lift drag coefficient with the following 
 
 Then, this coefficient is added to the drag coefficient C<sub>D</sub> in the already calculated aeromap.
 
-
 ## Outputs
 
  The output of `SkinFriction` outputs a CPACS files with a new or updated aeromap.
 
-
 ## Installation or requirements
 
 `SkinFriction` is a native CEASIOMpy module, hence it is available and installed by default. To run it, you just have to be sure that you are in the CEASIOMpy Conda environment.
-
 
 ## Limitations
 
@@ -64,13 +57,10 @@ The equation used above should be valid in the following ranges of values:
 * S<sub>ref</sub>: 20-580 [m<sup>2</sup>]
 * b: 10–68 [m]
 
-
 ## More information
 
-* https://en.wikipedia.org/wiki/Skin_friction_drag
-
+* <https://en.wikipedia.org/wiki/Skin_friction_drag>
 
 ## References
 
-<a id="Gerard12">[1]</a> Gerard W. H. van Es, Rapid Estimation of the Zero-Lift Drag Coefficient of Transport Aircraft, Journal of Aircraft, Volume 39, Number 4,  https://arc.aiaa.org/doi/10.2514/2.2997
-
+<a id="Gerard12">[1]</a> Gerard W. H. van Es, Rapid Estimation of the Zero-Lift Drag Coefficient of Transport Aircraft, Journal of Aircraft, Volume 39, Number 4,  <https://arc.aiaa.org/doi/10.2514/2.2997>

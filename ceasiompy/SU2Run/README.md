@@ -47,6 +47,8 @@ Example of results from a SU2 calculation.
 However to run `SU2Run` module, SU2 must be installed on your computer. Please refer to the [CEASIOMpy installation page](../../installation/INSTALLATION.md) to see if an automatic installation script is available for your OS.
 For more information check out the official [SU2 installation page](https://su2code.github.io/docs_v7/Installation/).
 
+We recommend to use a recent version of SU2, with older versions you might encounter some issues with the configuration file in which options are regularly changed.
+
 ## Limitations
 
 Although SU2 is able to run Navier-Stokes calculations, for now, `SU2Run` only supports Euler calculation, that is to say the skin friction is neglected. You can use the [`SkinFriction`](../SkinFriction/README.md) module to calculate the skin frictions (with empirical methods) afterwards and add them to the drag coefficient.

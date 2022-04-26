@@ -306,10 +306,10 @@ def generate_gmsh(
     # the first list is associated to the entire domain as for fragments_dimtag, we don't need it
     # so for the following we work with children_dimtag[1:]
 
-    # The rest of children_dimtag are list of tuples (dimtag, tag) that represent the volumes in the
+    # The rest of children_dimtag are list of tuples (dimtag, tag) that represent volumes in the
     # model children_dimtag is "sorted" according to the order of importation of the parent parts.
-    # for example if the first part imported was "fuselage1" then the first children_dimtag is a list
-    # of all the "child" volumes in the model that are from the "parent" "fuselage1"
+    # for example : if the first part imported was "fuselage1" then the first children_dimtag
+    # is a list of all the "child" volumes in the model that are from the "parent" "fuselage1"
     # we can then associate each entities in the model to their parent origin
 
     # When two parents part ex. a fuselage and a wing intersect each other

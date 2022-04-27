@@ -51,7 +51,7 @@ paraview # A "Paraview" window will open, you can close it.
 ```
 
 If one of the software is not working correctly, you can try to run its installation script again or open the script and run the command manually.
-If everything is working correctly, you can follow the [first tutorial](https://ceasiompy.readthedocs.io/en/latest/user_guide/getting_started.html#test-case-1-simple-workflow) to get familiar with CEASIOMpy.
+If everything is working correctly, you can try the first [test case](../test_cases/test_case_1/README.md) to get familiarized with CEASIOMpy.
 
 ## Windows
 

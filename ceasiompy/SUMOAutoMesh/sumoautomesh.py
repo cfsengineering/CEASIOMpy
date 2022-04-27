@@ -259,10 +259,6 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
         log.info(su2_mesh_path)
         log.info('Click on "Save"')
         log.info("You can now close SUMO, your workflow will continue.")
-        log.info(
-            "More information:"
-            "https://ceasiompy.readthedocs.io/en/latest/user_guide/modules/SUMOAutoMesh/index.html"
-        )
         log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n")
 
         # For now, I did not find a way to run "sumo -batch" on Mac...

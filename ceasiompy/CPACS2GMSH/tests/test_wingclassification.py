@@ -17,7 +17,9 @@ Python version: >=3.7
 # ==============================================================================
 
 import os
+import sys
 import gmsh
+import pytest
 
 from cpacspy.cpacspy import CPACS
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
@@ -46,6 +48,9 @@ TEST_OUT_PATH = os.path.join(MODULE_DIR, "ToolOutput")
 # ==============================================================================
 
 
+@pytest.mark.skipif(
+    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
+)
 def test_classify_profile():
     """
     Test if a simple 2 bspline profile is correctly classified
@@ -85,6 +90,9 @@ def test_classify_profile():
     gmsh.finalize()
 
 
+@pytest.mark.skipif(
+    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
+)
 def test_classify_trunc_profile():
     """
     Test if a simple 2 bspline truncated profile is correctly classified
@@ -123,6 +131,9 @@ def test_classify_trunc_profile():
     gmsh.finalize()
 
 
+@pytest.mark.skipif(
+    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
+)
 def test_classify_wing_section():
     """
     Test if a simple 2 bspline  profile wing section is correctly classified
@@ -184,6 +195,9 @@ def test_classify_wing_section():
     gmsh.finalize()
 
 
+@pytest.mark.skipif(
+    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
+)
 def test_classify_special_section():
     """
     Test if a wing section composed of a bspline profile linked to a fake fuselage is
@@ -247,6 +261,9 @@ def test_classify_special_section():
     gmsh.finalize()
 
 
+@pytest.mark.skipif(
+    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
+)
 def test_classify_wing():
     """
     Test if one of the wing of the simple test model is correctly classified

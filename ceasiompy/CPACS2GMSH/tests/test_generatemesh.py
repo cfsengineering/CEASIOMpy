@@ -17,7 +17,9 @@ Python version: >=3.7
 # ==============================================================================
 
 import os
+import sys
 import gmsh
+import pytest
 
 from cpacspy.cpacspy import CPACS
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
@@ -26,7 +28,6 @@ from ceasiompy.CPACS2GMSH.func.generategmesh import (
     generate_gmsh,
     get_entities_from_volume,
 )
-
 
 # Default CPACS file to test
 MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
@@ -44,6 +45,9 @@ TEST_OUT_PATH = os.path.join(MODULE_DIR, "ToolOutput")
 # ==============================================================================
 
 
+@pytest.mark.skipif(
+    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
+)
 def test_generate_gmsh():
     """
     This test try to generate a simple mesh and test if the SU2 markers
@@ -78,6 +82,9 @@ def test_generate_gmsh():
             os.remove(os.path.join(TEST_OUT_PATH, file))
 
 
+@pytest.mark.skipif(
+    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
+)
 def test_generate_gmsh_symm():
     """
     This test try to generate a simple symmetric mesh and test if the SU2 markers
@@ -113,6 +120,9 @@ def test_generate_gmsh_symm():
             os.remove(os.path.join(TEST_OUT_PATH, file))
 
 
+@pytest.mark.skipif(
+    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
+)
 def test_symm_part_removed():
     """
     Test if when symmetry is used, symmetry part are removed
@@ -144,6 +154,9 @@ def test_symm_part_removed():
             os.remove(os.path.join(TEST_OUT_PATH, file))
 
 
+@pytest.mark.skipif(
+    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
+)
 def test_get_entities_from_volume():
     """
     Test on a simple cube if the lower dimensions entities are correctly found.
@@ -176,6 +189,9 @@ def test_get_entities_from_volume():
     gmsh.finalize()
 
 
+@pytest.mark.skipif(
+    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
+)
 def test_ModelPart_associate_child_to_parent():
     """
     Test if the ModelPart associate_child_to_parent function works correctly.
@@ -197,6 +213,9 @@ def test_ModelPart_associate_child_to_parent():
     gmsh.finalize()
 
 
+@pytest.mark.skipif(
+    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
+)
 def test_ModelPart_clean_inside_entities():
     """
     Test if the ModelPart clean_inside_entities function works correctly.
@@ -224,6 +243,9 @@ def test_ModelPart_clean_inside_entities():
     gmsh.finalize()
 
 
+@pytest.mark.skipif(
+    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
+)
 def test_assignation():
     """
     Test if the assignation mechanism is correct on all parts
@@ -277,4 +299,3 @@ if __name__ == "__main__":
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")
-test_assignation()

@@ -45,7 +45,7 @@ You could then fork the CEASIOMpy repository and create pull request when you th
 
 #### Conda
 
-It is highly recommended to use conda (or miniconda) for CEASIOMpy. Some libraries could be complicated to install without it. If you install the default environment as explain in the [installation procedure](https://ceasiompy.readthedocs.io/en/latest/user_guide/installation.html#miniconda) you should then have all the requirements you need to run and develop CEASIOMpy.
+It is highly recommended to use conda (or miniconda) for CEASIOMpy. Some libraries could be complicated to install without it. If you install the default environment as explain in the [installation procedure](./installation/INSTALLATION.md) you should then have all the requirements you need to run and develop CEASIOMpy.
 
 #### Formatting
 

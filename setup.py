@@ -12,7 +12,7 @@ from pathlib import Path
 from ceasiompy.__version__ import __version__
 
 NAME = "ceasiompy"
-EXCLUDE_DIRS = ["doc", "test"]
+EXCLUDE_DIRS = ["test_cases", "test_files", "installation"]
 VERSION = __version__
 AUTHOR = "CFS Engineering"
 EMAIL = "aidan.jungo@cfse.ch"

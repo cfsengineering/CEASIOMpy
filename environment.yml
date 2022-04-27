@@ -35,9 +35,6 @@ dependencies:
   - pytest-cov>=3.0.0
   - codecov>=2.0.15
 
-  # Documentation
-  - sphinx>=3.0.3
-
   # To compile PyTornado on Mac
   - clang>=13.0.0
 
@@ -45,8 +42,6 @@ dependencies:
   - pip>=21.2.4
 
   - pip:
-    - sphinx-rtd-theme==0.4.3
-    - myst-parser 
     - smt==0.7.1
     - cpacspy==0.0.8
     - ambiance

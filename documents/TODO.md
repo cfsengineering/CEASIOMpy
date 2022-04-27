@@ -15,14 +15,6 @@
 
 * Create a function to check consistency (does same variable name are stored a the same xpath, ...)
 
-## Documentation
-
-* Fix `gen_module_interface_pages.py`: Script does not run on ReadTheDocs because Tigl/Tixi import fails
-* Fix docstring translation/formatting
-  * <https://www.python.org/dev/peps/pep-0257/>
-  * <http://www.sphinx-doc.org/en/master/usage/extensions/napoleon.html>
-* Continue with documentation
-
 ## Modules
 
 * To develop

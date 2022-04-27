@@ -1,4 +1,3 @@
-[![Documentation Status](https://readthedocs.org/projects/ceasiompy/badge/?version=latest)](https://ceasiompy.readthedocs.io/en/latest/?badge=latest)
 [![Pytest status](https://github.com/cfsengineering/CEASIOMpy/actions/workflows/pytest.yml/badge.svg?branch=main)](https://github.com/cfsengineering/CEASIOMpy/actions/workflows/pytest.yml)
 [![Codecov](https://codecov.io/gh/cfsengineering/CEASIOMpy/branch/main/graph/badge.svg?token=d6cyUEOmOQ)](https://codecov.io/gh/cfsengineering/CEASIOMpy)
 [![License](https://img.shields.io/badge/license-Apache%202-blue.svg)](https://github.com/cfsengineering/CEASIOMpy/blob/main/LICENSE)

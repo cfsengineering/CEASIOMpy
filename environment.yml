@@ -15,7 +15,7 @@ channels:
   - dlr-sc
 
 dependencies:
-  - python=3.7
+  - python=3.10
   - numpy>=1.21.4
   - cpacscreator>=0.1
   # - tigl3>=3.2.1

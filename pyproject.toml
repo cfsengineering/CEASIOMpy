@@ -9,7 +9,7 @@ extend-exclude = '''
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-v --cov-report xml"
+addopts = "-v --cov=ceasiompy/ --cov-report xml:coverage.xml"
 
 [tool.coverage.run]
 branch = false

@@ -9,7 +9,7 @@ extend-exclude = '''
 
 [tool.pytest.ini_options]
 minversion = "6.0"
-addopts = "-v --cov-report xml:coverage.xml"
+addopts = "-v --cov-report xml"
 
 [tool.coverage.run]
 branch = false

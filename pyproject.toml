@@ -17,6 +17,8 @@ source = ["ceasiompy"]
 
 [tool.coverage.report]
 exclude_lines = ['def __repr__', 'def __str__', 'if __name__ == "__main__":']
+skip_empty = true
+omit = ['*/tests/*']
 
 [tool.coverage.html]
 directory = "htmlcov"

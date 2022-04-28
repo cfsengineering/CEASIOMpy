@@ -19,7 +19,7 @@ TODO:
 
 from pathlib import Path
 
-import ceasiompy
+import ceasiompy.__init__
 
 # /CEASIOMpy/
 CEASIOMPY_PATH = Path(ceasiompy.__init__.__file__).parents[1]

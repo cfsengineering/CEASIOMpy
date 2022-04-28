@@ -18,9 +18,6 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-
-import ceasiompy.__init__
-
 import os
 import shutil
 import datetime
@@ -30,14 +27,12 @@ from ceasiompy.Optimisation.optimisation import routine_launcher
 from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
+from ceasiompy.utils.paths import MODULES_DIR_PATH, CPACS_FILE_PATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-LIB_DIR = Path(ceasiompy.__init__.__file__).parent
-TEST_FILE_DIR = Path(LIB_DIR.parent, "test_files")
 
 OPTIM_METHOD = ["OPTIM", "DOE"]
 
@@ -67,7 +62,7 @@ class ModuleToRun:
         self.cpacs_out = cpacs_out
 
         # Set module path
-        self.module_dir = Path.joinpath(LIB_DIR, self.name)
+        self.module_dir = Path(MODULES_DIR_PATH, self.name)
 
         # Set other default values
         self.is_settinggui = False
@@ -168,7 +163,7 @@ class Workflow:
     def __init__(self) -> None:
 
         self.working_dir = Path().cwd()
-        self.cpacs_in = Path(TEST_FILE_DIR, "CPACSfiles", "D150_simple.xml").resolve()
+        self.cpacs_in = Path(CPACS_FILE_PATH, "D150_simple.xml").resolve()
         self.current_wkflow_dir = None
 
         self.modules_list = []  # List of modules to run (str)

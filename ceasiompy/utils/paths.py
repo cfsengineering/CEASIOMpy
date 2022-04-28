@@ -25,7 +25,7 @@ import ceasiompy
 CEASIOMPY_PATH = Path(ceasiompy.__init__.__file__).parents[1]
 
 # /CEASIOMpy/ceasiompy/
-MODULES_DIR_PATH = Path(ceasiompy.__init__.__file__)
+MODULES_DIR_PATH = Path(ceasiompy.__init__.__file__).parent
 
 # /CEASIOMpy/ceasiompy/test_cases/
 TEST_CASES_PATH = Path(CEASIOMPY_PATH, "test_cases")

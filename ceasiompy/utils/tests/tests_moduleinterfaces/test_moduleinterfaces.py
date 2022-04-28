@@ -21,8 +21,8 @@ import os
 
 import pytest
 from pathlib import Path
-import ceasiompy
 import ceasiompy.utils.moduleinterfaces as mi
+from ceasiompy.utils.paths import MODULES_DIR_PATH
 from ceasiompy.utils.xpath import RANGE_XPATH
 
 HERE = os.path.abspath(os.path.dirname(__file__))
@@ -32,10 +32,7 @@ CPACS_TEST_FILE = os.path.join(HERE, "ToolInput", "cpacs_test_file.xml")
 def test_get_module_path():
     """Test function 'get_module_path'."""
 
-    assert (
-        mi.get_module_path("ModuleTemplate")
-        == Path(ceasiompy.__init__.__file__).parent / "ModuleTemplate"
-    )
+    assert mi.get_module_path("ModuleTemplate") == Path(MODULES_DIR_PATH, "ModuleTemplate")
 
     with pytest.raises(ValueError):
         mi.get_module_path("NotExistingModule")
@@ -155,9 +152,7 @@ def test_get_toolinput_file_path():
     toolinput_path = mi.get_toolinput_file_path(module_name)
 
     # Test that the end of the path is correct
-    assert toolinput_path.endswith(
-        os.path.join("CEASIOMpy", "ceasiompy", "ModuleTemplate", "ToolInput", "ToolInput.xml")
-    )
+    assert toolinput_path == Path(MODULES_DIR_PATH, "ModuleTemplate", "ToolInput", "ToolInput.xml")
 
 
 def test_get_tooloutput_file_path():
@@ -170,8 +165,8 @@ def test_get_tooloutput_file_path():
     toolinput_path = mi.get_tooloutput_file_path(module_name)
 
     # Test that the end of the path is correct
-    assert toolinput_path.endswith(
-        os.path.join("CEASIOMpy", "ceasiompy", "ModuleTemplate", "ToolOutput", "ToolOutput.xml")
+    assert toolinput_path == Path(
+        MODULES_DIR_PATH, "ModuleTemplate", "ToolOutput", "ToolOutput.xml"
     )
 
 

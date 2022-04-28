@@ -19,9 +19,6 @@ TODO:
 #   IMPORTS
 # ==============================================================================
 
-# Path for main CEASIOMpy library
-import ceasiompy.__init__
-
 import os
 import uuid
 import inspect
@@ -32,10 +29,9 @@ from pathlib import Path
 from cpacspy.cpacsfunctions import create_branch, open_tixi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.paths import MODULES_DIR_PATH
 
 log = get_logger(__file__.split(".")[0])
-
-LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
 
 MODNAME_TOP = "ceasiompy"
 MODNAME_SPECS = "__specs__"
@@ -165,8 +161,7 @@ def get_module_path(module_name: str) -> Path:
     if module_name not in get_submodule_list():
         raise ValueError(f"Module '{module_name}' not found")
 
-    # TODO: improve when pathlib will be use everywhere
-    return Path(Path(LIB_DIR), module_name)
+    return Path(MODULES_DIR_PATH, module_name)
 
 
 def check_cpacs_input_requirements(
@@ -243,7 +238,7 @@ def get_submodule_list():
         A list of submodule names (as strings)
     """
 
-    dirnames = glob(os.path.join(LIB_DIR, "*"))
+    dirnames = glob(os.path.join(MODULES_DIR_PATH, "*"))
     submodule_list = []
     for dirname in dirnames:
         submod_name = os.path.basename(dirname)
@@ -283,9 +278,7 @@ def get_toolinput_file_path(module_name):
 
     """
 
-    toolinput_path = os.path.join(LIB_DIR, module_name, "ToolInput", "ToolInput.xml")
-
-    return toolinput_path
+    return Path(MODULES_DIR_PATH, module_name, "ToolInput", "ToolInput.xml")
 
 
 def get_tooloutput_file_path(module_name):
@@ -299,9 +292,7 @@ def get_tooloutput_file_path(module_name):
 
     """
 
-    toolinput_path = os.path.join(LIB_DIR, module_name, "ToolOutput", "ToolOutput.xml")
-
-    return toolinput_path
+    return Path(MODULES_DIR_PATH, module_name, "ToolOutput", "ToolOutput.xml")
 
 
 def get_specs_for_module(module_name, raise_error=False):

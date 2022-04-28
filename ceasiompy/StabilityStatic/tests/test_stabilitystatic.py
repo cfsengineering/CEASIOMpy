@@ -40,11 +40,6 @@ from ceasiompy.StabilityStatic.func.func_static import (
 )
 
 
-import ceasiompy.__init__
-
-LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
-
-
 # ==============================================================================
 #   CLASSES
 # ==============================================================================

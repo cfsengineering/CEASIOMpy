@@ -22,15 +22,14 @@ TODO:
 # =================================================================================================
 
 import os
-
-from cpacspy.cpacspy import CPACS
-from cpacspy.cpacsfunctions import create_branch, get_value, get_value_or_default
-from cpacspy.utils import COEFS
-from ceasiompy.utils.xpath import SU2_XPATH, WETTED_AREA_XPATH
+from pathlib import Path
 
 from ceasiompy.SU2Run.func.extractloads import extract_loads
-
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.xpath import SU2_XPATH, WETTED_AREA_XPATH
+from cpacspy.cpacsfunctions import create_branch, get_value, get_value_or_default
+from cpacspy.cpacspy import CPACS
+from cpacspy.utils import COEFS
 
 log = get_logger(__file__.split(".")[0])
 
@@ -60,16 +59,16 @@ def get_wetted_area(wkdir):
     """
 
     wetted_area = None
-    su2_logfile_path = ""
+    su2_logfile_path = None
 
     # Find a logfile in wkdir
-    for (root, dirs, files) in os.walk(wkdir):
+    for (root, _, files) in os.walk(wkdir):
         for file in files:
             if file == "logfileSU2_CFD.log":
-                su2_logfile_path = os.path.join(root, file)
+                su2_logfile_path = Path(root, file)
                 break
 
-    if su2_logfile_path == "":
+    if su2_logfile_path is None:
         log.warning("No logfile has been found for working directory!")
 
     # Read the logfile
@@ -139,18 +138,16 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
     '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aerpMap[n]/aeroPerformanceMap'
 
     Args:
-        cpacs_path (str): Path to input CPACS file
-        cpacs_out_path (str): Path to output CPACS file
-        wkdir (str): Path to the working directory
+        cpacs_path (Path): Path to input CPACS file
+        cpacs_out_path (Path): Path to output CPACS file
+        wkdir (Path): Path to the working directory
 
     """
 
-    cpacs = CPACS(cpacs_path)
+    cpacs = CPACS(str(cpacs_path))
 
-    if not os.path.exists(wkdir):
-        raise OSError("The working directory : " + wkdir + "does not exit!")
-
-    dir_list = os.listdir(wkdir)
+    if not wkdir.exists():
+        raise OSError(f"The working directory : {wkdir} does not exit!")
 
     # Get and save Wetted area
     wetted_area = get_wetted_area(wkdir)
@@ -181,24 +178,22 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
     aoa_list = aeromap.get("angleOfAttack").tolist()
     aos_list = aeromap.get("angleOfSideslip").tolist()
 
-    case_dir_list = [dir for dir in dir_list if "Case" in dir]
+    case_dir_list = [dir for dir in wkdir.iterdir() if "Case" in dir.name]
 
     for config_dir in sorted(case_dir_list):
 
-        case_nb = int(config_dir.split("_")[0].split("Case")[1])
+        case_nb = int(config_dir.name.split("_")[0].split("Case")[1])
 
         aoa = aoa_list[case_nb]
         aos = aos_list[case_nb]
         mach = mach_list[case_nb]
         alt = alt_list[case_nb]
 
-        config_dir_path = os.path.join(wkdir, config_dir)
+        if config_dir.is_dir():
 
-        if os.path.isdir(config_dir_path):
+            force_file_path = Path(config_dir, "forces_breakdown.dat")
 
-            force_file_path = os.path.join(config_dir_path, "forces_breakdown.dat")
-
-            if not os.path.isfile(force_file_path):
+            if not force_file_path.exists():
                 raise OSError("No result force file have been found!")
 
             if fixed_cl == "YES":
@@ -240,7 +235,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
 
             coefs = {"cl": cl, "cd": cd, "cs": cs, "cmd": cmd, "cms": cms, "cml": cml}
 
-            if "_dp" in config_dir:
+            if "_dp" in config_dir.name:
                 for coef in COEFS:
                     coef_baseline = aeromap.get(coef, alt=alt, mach=mach, aoa=aoa, aos=aos)
                     dcoef = (coefs[coef] - coef_baseline) / adim_rot_rate
@@ -255,7 +250,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
                         rate=rotation_rate,
                     )
 
-            elif "_dq" in config_dir:
+            elif "_dq" in config_dir.name:
                 for coef in COEFS:
                     coef_baseline = aeromap.get(coef, alt=alt, mach=mach, aoa=aoa, aos=aos)
                     dcoef = (coefs[coef] - coef_baseline) / adim_rot_rate
@@ -270,7 +265,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
                         rate=rotation_rate,
                     )
 
-            elif "_dr" in config_dir:
+            elif "_dr" in config_dir.name:
                 for coef in COEFS:
                     coef_baseline = aeromap.get(coef, alt=alt, mach=mach, aoa=aoa, aos=aos)
                     dcoef = (coefs[coef] - coef_baseline) / adim_rot_rate
@@ -285,7 +280,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
                         rate=rotation_rate,
                     )
 
-            elif "_TED_" in config_dir:
+            elif "_TED_" in config_dir.name:
 
                 # TODO: convert when it is possible to save TED in cpacspy
                 raise NotImplementedError("TED not implemented yet")
@@ -326,14 +321,13 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
                 )
 
             if check_extract_loads:
-                results_files_dir = os.path.join(wkdir, config_dir)
-                extract_loads(results_files_dir)
+                extract_loads(config_dir)
 
     # Save object Coef in the CPACS file
     aeromap.save()
 
     # Save the CPACS file
-    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
+    cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
 
 
 # =================================================================================================

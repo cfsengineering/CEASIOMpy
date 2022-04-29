@@ -35,4 +35,3 @@ CPACS_FILE_PATH = Path(CEASIOMPY_PATH, "test_files", "CPACSfiles")
 
 # /CEASIOMpy/ceasiompy/WKDIR/
 WKDIR_PATH = Path(CEASIOMPY_PATH, "WKDIR")
-

@@ -20,28 +20,24 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import os
-from pathlib import Path
 import re
-import requests
+from pathlib import Path
 
-from cpacspy.cpacspy import CPACS
+import requests
+from ambiance import Atmosphere
+from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import get_install_path
+from ceasiompy.utils.configfiles import ConfigFile
+from ceasiompy.utils.moduleinterfaces import get_module_path
+from ceasiompy.utils.xpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
 from cpacspy.cpacsfunctions import (
     create_branch,
     get_string_vector,
     get_value,
     get_value_or_default,
 )
-
-from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
-from ceasiompy.utils.ceasiompyutils import get_install_path
-from ceasiompy.utils.configfiles import ConfigFile
-from ceasiompy.utils.moduleinterfaces import get_module_path
-from ceasiompy.utils.xpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
-
-from ambiance import Atmosphere
-
-from ceasiompy.utils.ceasiomlogger import get_logger
+from cpacspy.cpacspy import CPACS
 
 log = get_logger(__file__.split(".")[0])
 
@@ -134,10 +130,10 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     """
 
     # Get value from CPACS
-    cpacs = CPACS(cpacs_path)
+    cpacs = CPACS(str(cpacs_path))
 
     # Get SU2 mesh path
-    su2_mesh_path = get_value(cpacs.tixi, SU2MESH_XPATH)
+    su2_mesh_path = Path(get_value(cpacs.tixi, SU2MESH_XPATH))
 
     # Get SU2 settings
     max_iter_xpath = SU2_XPATH + "/settings/maxIter"
@@ -246,11 +242,12 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     # Output
     cfg["WRT_FORCES_BREAKDOWN"] = "YES"
     cfg["BREAKDOWN_FILENAME"] = "forces_breakdown.dat"
+    cfg["OUTPUT_FILES"] = "(RESTART, PARAVIEW, SURFACE_PARAVIEW)"
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
     for case_nb in range(param_count):
 
-        cfg["MESH_FILENAME"] = su2_mesh_path
+        cfg["MESH_FILENAME"] = str(su2_mesh_path)
 
         alt = alt_list[case_nb]
         mach = mach_list[case_nb]
@@ -283,11 +280,11 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             ]
         )
 
-        case_dir_path = os.path.join(wkdir, case_dir_name)
-        if not os.path.isdir(case_dir_path):
-            os.mkdir(case_dir_path)
+        case_dir_path = Path(wkdir, case_dir_name)
+        if not case_dir_path.exists():
+            case_dir_path.mkdir()
 
-        config_output_path = os.path.join(wkdir, case_dir_name, config_file_name)
+        config_output_path = Path(case_dir_path, config_file_name)
         cfg.write_file(config_output_path, overwrite=True)
 
         # Damping derivatives
@@ -302,19 +299,23 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             cfg["GRID_MOVEMENT"] = "ROTATING_FRAME"
 
             cfg["ROTATION_RATE"] = str(rotation_rate) + " 0.0 0.0"
-            os.mkdir(os.path.join(wkdir, case_dir_name + "_dp"))
-            config_output_path = os.path.join(wkdir, case_dir_name + "_dp", config_file_name)
+            case_dir = Path(wkdir, "{case_dir_name}_dp")
+            case_dir.mkdir()
+            config_output_path = Path(case_dir, config_file_name)
             cfg.write_file(config_output_path, overwrite=True)
 
             cfg["ROTATION_RATE"] = "0.0 " + str(rotation_rate) + " 0.0"
-            os.mkdir(os.path.join(wkdir, case_dir_name + "_dq"))
-            config_output_path = os.path.join(wkdir, case_dir_name + "_dq", config_file_name)
+            case_dir = Path(wkdir, "{case_dir_name}_dq")
+            case_dir.mkdir()
+            config_output_path = Path(case_dir, config_file_name)
             cfg.write_file(config_output_path, overwrite=True)
 
             cfg["ROTATION_RATE"] = "0.0 0.0 " + str(rotation_rate)
-            os.mkdir(os.path.join(wkdir, case_dir_name + "_dr"))
-            config_output_path = os.path.join(wkdir, case_dir_name + "_dr", config_file_name)
+            case_dir = Path(wkdir, "{case_dir_name}_dr")
+            case_dir.mkdir()
+            config_output_path = Path(case_dir, config_file_name)
             cfg.write_file(config_output_path, overwrite=True)
+
             log.info("Damping derivatives cases directory has been created.")
 
         # Control surfaces deflections
@@ -333,20 +334,17 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
             for su2_def_mesh in su2_def_mesh_list:
 
-                mesh_path = os.path.join(wkdir, "MESH", su2_def_mesh)
-
-                config_dir_path = os.path.join(
-                    wkdir, case_dir_name + "_" + su2_def_mesh.split(".")[0]
-                )
-                os.mkdir(config_dir_path)
+                mesh_path = Path(wkdir, "MESH", su2_def_mesh)
+                config_dir_path = Path(wkdir, case_dir_name + "_" + su2_def_mesh.split(".")[0])
+                config_dir_path.mkdir()
                 cfg["MESH_FILENAME"] = mesh_path
 
                 config_file_name = "ConfigCFD.cfg"
-                config_output_path = os.path.join(wkdir, config_dir_path, config_file_name)
+                config_output_path = Path(wkdir, config_dir_path, config_file_name)
                 cfg.write_file(config_output_path, overwrite=True)
 
     # TODO: change that, but if it is save in tooloutput it will be erease by results...
-    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
+    cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
 
 
 # =================================================================================================

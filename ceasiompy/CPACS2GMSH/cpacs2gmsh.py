@@ -18,29 +18,25 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import os
 from pathlib import Path
 
-from ceasiompy.utils.ceasiompyutils import get_results_directory
-
-from cpacspy.cpacspy import CPACS
-from cpacspy.cpacsfunctions import (
-    create_branch,
-    get_value_or_default,
-)
-import ceasiompy.utils.moduleinterfaces as mi
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.xpath import (
-    CEASIOMPY_XPATH,
-    SU2MESH_XPATH,
+from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.moduleinterfaces import (
+    check_cpacs_input_requirements,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
 )
+from ceasiompy.utils.xpath import CEASIOMPY_XPATH, SU2MESH_XPATH
+from cpacspy.cpacsfunctions import create_branch, get_value_or_default
+from cpacspy.cpacspy import CPACS
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
 
 # =================================================================================================
@@ -97,10 +93,10 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         refine_factor=refine_factor,
     )
 
-    if os.path.exists(mesh_path):
-        log.info("An SU2 Mesh has been correctly generated.")
+    if mesh_path.exists():
         create_branch(cpacs.tixi, SU2MESH_XPATH)
-        cpacs.tixi.updateTextElement(SU2MESH_XPATH, mesh_path)
+        cpacs.tixi.updateTextElement(SU2MESH_XPATH, str(mesh_path))
+        log.info("SU2 Mesh has been correctly generated.")
 
     # Save CPACS
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
@@ -113,19 +109,19 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
     # Call the function which check if imputs are well define
-    mi.check_cpacs_input_requirements(cpacs_path)
+    check_cpacs_input_requirements(cpacs_path)
 
     cpacs2gmsh(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

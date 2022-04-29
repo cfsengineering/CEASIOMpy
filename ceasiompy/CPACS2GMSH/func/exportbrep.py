@@ -24,9 +24,7 @@ TODO:
 from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-
 from tigl3.import_export_helper import export_shapes
-
 
 log = get_logger(__file__.split(".")[0])
 
@@ -57,7 +55,7 @@ def export(shape, brep_dir_path, name):
     export_shapes([shape], str(brep_file))
 
 
-def engine_export(aircraft_config, brep_dir_path, need_symmetric_engine):
+def engine_export(aircraft_config, brep_dir_path, symmetric_engine):
     """
     Export the engine to a brep file
 
@@ -67,7 +65,7 @@ def engine_export(aircraft_config, brep_dir_path, need_symmetric_engine):
         The aircraft configuration
     brep_dir_path (obj):
         Path object to the directory where the brep files are saved
-    need_symmetric_engine: bool
+    symmetric_engine: bool
         True if a second symmetric engine is needed
 
 
@@ -87,21 +85,21 @@ def engine_export(aircraft_config, brep_dir_path, need_symmetric_engine):
                 if center_cowl:
                     center_cowl_shape = center_cowl.build_loft()
                     export(center_cowl_shape, brep_dir_path, f"nacelle_center_cowl{k}")
-                    if need_symmetric_engine:
+                    if symmetric_engine:
                         export(center_cowl_shape, brep_dir_path, f"nacelle_center_cowl{k}_m")
 
                 core_cowl = nacelle.get_core_cowl()
                 if core_cowl:
                     core_cowl_shape = core_cowl.build_loft()
                     export(core_cowl_shape, brep_dir_path, f"nacelle_core_cowl{k}")
-                    if need_symmetric_engine:
+                    if symmetric_engine:
                         export(core_cowl_shape, brep_dir_path, f"nacelle_core_cowl{k}_m")
 
                 fan_cowl = nacelle.get_fan_cowl()
                 if fan_cowl:
                     fan_cowl_shape = fan_cowl.build_loft()
                     export(fan_cowl_shape, brep_dir_path, f"nacelle_fan_cowl{k}")
-                    if need_symmetric_engine:
+                    if symmetric_engine:
                         export(fan_cowl_shape, brep_dir_path, f"nacelle_fan_cowl{k}_m")
 
 
@@ -129,21 +127,21 @@ def export_brep(cpacs, brep_dir_path):
     # Retrieve aircraft parts
 
     # aircraft configuration
-    nb_fuselage = aircraft_config.get_fuselage_count()
-    nb_wing = aircraft_config.get_wing_count()
-    # nb_rotor = aircraft_config.get_rotor_count()
-    # nb_rotor_blade = aircraft_config.get_rotor_blade_count()
+    fuselage_cnt = aircraft_config.get_fuselage_count()
+    wing_cnt = aircraft_config.get_wing_count()
+    # rotor_cnt = aircraft_config.get_rotor_count()
+    # rotor_blade_cnt = aircraft_config.get_rotor_blade_count()
     pylons_config = aircraft_config.get_engine_pylons()
 
     # Export into brep
 
     # Fuselage
-    for k in range(1, nb_fuselage + 1):
+    for k in range(1, fuselage_cnt + 1):
         fuselage = aircraft_config.get_fuselage(k).get_loft()
         export(fuselage, brep_dir_path, f"fuselage{k}")
 
     # Wing
-    for k in range(1, nb_wing + 1):
+    for k in range(1, wing_cnt + 1):
         wing = aircraft_config.get_wing(k).get_loft()
         export(wing, brep_dir_path, f"wing{k}")
 
@@ -151,25 +149,26 @@ def export_brep(cpacs, brep_dir_path):
         if wing_m is not None:
             export(wing_m, brep_dir_path, f"wing{k}_m")
 
-    need_symmetric_engine = False
+    symmetric_engine = False
+
     # Pylon
     if pylons_config:
-        nb_pylon = pylons_config.get_pylon_count()
-        for k in range(1, nb_pylon + 1):
+        pylon_cnt = pylons_config.get_pylon_count()
+        for k in range(1, pylon_cnt + 1):
             pylon = pylons_config.get_engine_pylon(k).get_loft()
             export(pylon, brep_dir_path, f"pylon{k}")
 
             pylon_m = pylons_config.get_engine_pylon(k).get_mirrored_loft()
             if pylon_m is not None:
                 export(pylon_m, brep_dir_path, f"pylon{k}_m")
-                need_symmetric_engine = True
+                symmetric_engine = True
 
     # Engine position
 
     # The following must be done in a cleaner way using the cpacs.xml file
     # or upgrading TiGL version
     # There also must be a better way to do this and the engine symmetry
-    engine_export(aircraft_config, brep_dir_path, need_symmetric_engine)
+    engine_export(aircraft_config, brep_dir_path, symmetric_engine)
 
 
 # ==============================================================================

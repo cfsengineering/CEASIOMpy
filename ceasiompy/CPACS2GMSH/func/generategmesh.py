@@ -23,16 +23,18 @@ TODO:
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
+
+from pathlib import Path
+
 import gmsh
-import os
-from ceasiompy.utils.ceasiomlogger import get_logger
 import numpy as np
-from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
-    set_fuselage_mesh,
     set_farfield_mesh,
+    set_fuselage_mesh,
 )
+from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
 
@@ -244,32 +246,28 @@ def generate_gmsh(
         refine factor for the mesh le and te edge
 
     """
-    file_list = os.listdir(brep_dir_path)
+    brep_files = list(brep_dir_path.glob("*.brep"))
+
+    # TODO: Remove when nacelle will be supported
     # for now suppress nacelle parts since they are not supported
-    file_list = [file for file in file_list if (("nacelle" not in file))]
-    file_list.sort()
+    brep_files = [file for file in brep_files if "nacelle" not in file.name]
+    brep_files.sort()
 
     gmsh.initialize()
     # import each aircraft original parts / parent parts
     aircraft_parts = []
     parts_parent_dimtag = []
 
-    for file in file_list:
+    for file in brep_files:
 
-        if ".brep" in file:
+        log.info(f"Importing :{file.name}")
 
-            log.info(f"Importing :{file[:-5]}")
-
-            # Import the part and create the aircraft part object
-
-            part_entities = gmsh.model.occ.importShapes(
-                os.path.join(brep_dir_path, file), highestDimOnly=False
-            )
-            gmsh.model.occ.synchronize()
-
-            part_obj = ModelPart(f"{file[:-5]}")
-            aircraft_parts.append(part_obj)
-            parts_parent_dimtag.append(part_entities[0])
+        # Import the part and create the aircraft part object
+        part_entities = gmsh.model.occ.importShapes(str(file), highestDimOnly=False)
+        gmsh.model.occ.synchronize()
+        part_obj = ModelPart(f"{file.name}")
+        aircraft_parts.append(part_obj)
+        parts_parent_dimtag.append(part_entities[0])
 
     gmsh.model.occ.synchronize()
 
@@ -613,8 +611,8 @@ def generate_gmsh(
     gmsh.model.mesh.generate(3)
     gmsh.model.occ.synchronize()
 
-    su2mesh_path = os.path.join(results_dir, "mesh.su2")
-    gmsh.write(su2mesh_path)
+    su2mesh_path = Path(results_dir, "mesh.su2")
+    gmsh.write(str(su2mesh_path))
 
     if open_gmsh:
         log.info("Result of the 3D mesh")

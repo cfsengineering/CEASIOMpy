@@ -22,51 +22,53 @@ Python version: >=3.7
 
 """
 
-
-# =============================================================================
+# =================================================================================================
 #   IMPORTS
-# =============================================================================
+# =================================================================================================
 
 import os
 import shutil
+from pathlib import Path
 
-import numpy as np
 import matplotlib.pyplot as plt
-
-from ceasiompy.utils.InputClasses.Unconventional import balanceuncclass
-from ceasiompy.utils.InputClasses.Unconventional import weightuncclass
-from ceasiompy.utils.InputClasses.Unconventional import engineclass
-
-from ceasiompy.BalanceUnconventional.func.Cog.unccog import unc_center_of_gravity
-from ceasiompy.BalanceUnconventional.func.Cog.unccog import bwb_center_of_gravity
-
-from ceasiompy.BalanceUnconventional.func.Inertia import uncinertia
-from ceasiompy.BalanceUnconventional.func.AoutFunc import outputbalancegen
-from ceasiompy.BalanceUnconventional.func.AoutFunc import cpacsbalanceupdate
+import numpy as np
 from ceasiompy.BalanceUnconventional.func.AinFunc import getdatafromcpacs
-
-from ceasiompy.utils.ceasiompyutils import aircraft_name
-from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
-import ceasiompy.utils.moduleinterfaces as mi
-
+from ceasiompy.BalanceUnconventional.func.AoutFunc import cpacsbalanceupdate, outputbalancegen
+from ceasiompy.BalanceUnconventional.func.Cog.unccog import (
+    bwb_center_of_gravity,
+    unc_center_of_gravity,
+)
+from ceasiompy.BalanceUnconventional.func.Inertia import uncinertia
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import aircraft_name
+from ceasiompy.utils.InputClasses.Unconventional import (
+    balanceuncclass,
+    engineclass,
+    weightuncclass,
+)
+from ceasiompy.utils.moduleinterfaces import (
+    check_cpacs_input_requirements,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+)
+from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
-# =============================================================================
+# =================================================================================================
 #   CLASSES
-# =============================================================================
+# =================================================================================================
 
 """All classes are defined inside the classes folder and into the
    InputClasses/Uconventional folder"""
 
 
-# =============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# =============================================================================
+# =================================================================================================
 
 
 def get_balance_unc_estimations(cpacs_path, cpacs_out_path):
@@ -265,25 +267,25 @@ def get_balance_unc_estimations(cpacs_path, cpacs_out_path):
     log.info("##  Uconventional Balance analysis succesfuly completed ##")
 
 
-# =============================================================================
+# =================================================================================================
 #    MAIN
-# =============================================================================
+# =================================================================================================
 
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
-    mi.check_cpacs_input_requirements(cpacs_path)
+    check_cpacs_input_requirements(cpacs_path)
 
     get_balance_unc_estimations(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

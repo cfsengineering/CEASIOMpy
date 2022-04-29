@@ -32,3 +32,7 @@ TEST_CASES_PATH = Path(CEASIOMPY_PATH, "test_cases")
 
 # /CEASIOMpy/ceasiompy/test_files/CPACSfiles/
 CPACS_FILE_PATH = Path(CEASIOMPY_PATH, "test_files", "CPACSfiles")
+
+# /CEASIOMpy/ceasiompy/WKDIR/
+WKDIR_PATH = Path(CEASIOMPY_PATH, "WKDIR")
+

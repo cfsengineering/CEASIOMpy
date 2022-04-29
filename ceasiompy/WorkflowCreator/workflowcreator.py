@@ -20,21 +20,18 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import os
-from pathlib import Path
-
 import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox, filedialog
-
-from ceasiompy.utils.workflowclasses import Workflow
-import ceasiompy.utils.moduleinterfaces as mi
+from pathlib import Path
+from tkinter import filedialog, messagebox, ttk
 
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.moduleinterfaces import get_submodule_list
+from ceasiompy.utils.paths import CPACS_FILE_PATH, WKDIR_PATH
+from ceasiompy.utils.workflowclasses import Workflow
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = Path(__file__).parent
 
 
 # =================================================================================================
@@ -52,7 +49,7 @@ class Tab(tk.Frame):
         self.name = name
 
         # Get list of available modules
-        self.modules_list = mi.get_submodule_list()
+        self.modules_list = get_submodule_list()
         self.modules_list.sort()
 
         self.modules_list.remove("SettingsGUI")
@@ -216,18 +213,14 @@ class WorkFlowGUI(tk.Frame):
 
     def _browse_file(self):
 
-        cpacs_template_dir = os.path.join(MODULE_DIR, "..", "..", "test_files", "CPACSfiles")
         self.filename = filedialog.askopenfilename(
-            initialdir=cpacs_template_dir, title="Select a CPACS file"
+            initialdir=CPACS_FILE_PATH, title="Select a CPACS file"
         )
         self.path_var.set(self.filename)
 
     def _browse_dir(self):
 
-        wkdir_template = os.path.join(MODULE_DIR, "..", "..", "WKDIR")
-        self.wkdir = filedialog.askdirectory(
-            initialdir=wkdir_template, title="Select a CPACS file"
-        )
+        self.wkdir = filedialog.askdirectory(initialdir=WKDIR_PATH, title="Select a CPACS file")
         self.wkdir_path_var.set(self.wkdir)
 
     def _save_quit(self):
@@ -260,7 +253,8 @@ class WorkFlowGUI(tk.Frame):
         if not self.workflow.working_dir.exists():
             self.workflow.working_dir.mkdir()
 
-        if any(file.endswith(".cfg") for file in os.listdir(self.workflow.working_dir)):
+        if list(self.workflow.working_dir.glob("*.cfg")):
+
             answer = messagebox.askokcancel(
                 title="Confirmation",
                 message="Be carefule a CEASIOMpy configuration file (.cfg) already exist in this"

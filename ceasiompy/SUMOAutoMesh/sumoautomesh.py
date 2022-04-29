@@ -19,48 +19,52 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
-import os
 import math
-import shutil
+import os
 import platform
-
-from ceasiompy.utils.ceasiompyutils import get_results_directory, change_working_dir
-from ceasiompy.utils.ceasiompyutils import get_install_path, aircraft_name
-import ceasiompy.utils.moduleinterfaces as mi
-from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
+import shutil
+from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import (
+    aircraft_name,
+    change_working_dir,
+    get_install_path,
+    get_results_directory,
+)
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.utils.xpath import SU2MESH_XPATH
+from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     """Function to add mesh parameter options in SUMO geometry (.smx file)
 
-    Function 'add_mesh_parameters' is used to add meshing paramers in the SUMO
+    Function 'add_mesh_parameters' is used to add meshing parameters in the SUMO
     geometry (.smx file) to get finer meshes. The only user input parameter is
     the refinement level which allows to generate finer meshes. 0 correspond
     to the default (close to values obtain with SUMO GUI). Then, increasing
     refinement level of 1 corespond to approximately two time more cells in
-    the mesh. You can alos use float number (e.g. refine_level=2.4).
+    the mesh. You can also use float number (e.g. refine_level=2.4).
 
     Source :
         * sumo source code
@@ -72,7 +76,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     """
 
     refine_ratio = 0.6  # to get approx. double mesh cell when +1 on "refine_level"
-    refine_factor = refine_ratio ** refine_level
+    refine_factor = refine_ratio**refine_level
     log.info("Refinement factor is {}".format(refine_factor))
 
     # Open SUMO (.smx) with tixi library
@@ -101,7 +105,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
             # Estimate circumference and add to the list
             height = sumo.getDoubleAttribute(frame_xpath, "height")
             width = sumo.getDoubleAttribute(frame_xpath, "width")
-            circ = 2 * math.pi * math.sqrt((height ** 2 + width ** 2) / 2)
+            circ = 2 * math.pi * math.sqrt((height**2 + width**2) / 2)
             circ_list.append(circ)
 
             # Get overall min radius (semi-minor axi for elipse)
@@ -224,7 +228,7 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
     tixi = open_tixi(cpacs_path)
 
     sumo_dir = get_results_directory("SUMOAutoMesh")
-    su2_mesh_path = os.path.join(sumo_dir, "ToolOutput.su2")
+    su2_mesh_path = Path(sumo_dir, "ToolOutput.su2")
 
     sumo_file_xpath = "/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath"
     sumo_file_path = get_value_or_default(tixi, sumo_file_xpath, "")
@@ -288,7 +292,7 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 
     elif current_os == "Windows":
         log.info("Your OS is Windows")
-        # TODO: develop this part
+        # TODO: implement this part
 
         log.warning("OS not supported yet by SUMOAutoMesh!")
         raise NotImplementedError("OS not supported yet!")
@@ -298,14 +302,14 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 
     # Copy the mesh in the MESH directory
     su2_mesh_name = aircraft_name(tixi) + "_baseline.su2"
-    su2_mesh_new_path = os.path.join(sumo_dir, su2_mesh_name)
+    su2_mesh_new_path = Path(sumo_dir, su2_mesh_name)
     shutil.copyfile(su2_mesh_path, su2_mesh_new_path)
 
-    if os.path.isfile(su2_mesh_new_path):
+    if su2_mesh_new_path.exists():
         log.info("An SU2 Mesh has been correctly generated.")
         create_branch(tixi, SU2MESH_XPATH)
-        tixi.updateTextElement(SU2MESH_XPATH, su2_mesh_new_path)
-        os.remove(su2_mesh_path)
+        tixi.updateTextElement(SU2MESH_XPATH, str(su2_mesh_new_path))
+        su2_mesh_path.unlink()
 
     else:
         raise ValueError("No SU2 Mesh file has been generated!")
@@ -313,23 +317,23 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
     tixi.save(cpacs_out_path)
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
     create_SU2_mesh(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

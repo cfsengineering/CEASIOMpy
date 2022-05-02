@@ -239,8 +239,8 @@ def get_submodule_list():
     """
 
     submodule_list = []
-    for dir in MODULES_DIR_PATH.iterdir():
-        submod_name = dir.name
+    for module_dir in MODULES_DIR_PATH.iterdir():
+        submod_name = module_dir.name
 
         # Ignore "dunder"-files
         if submod_name.startswith("__"):

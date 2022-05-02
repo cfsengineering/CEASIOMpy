@@ -28,7 +28,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
-from ceasiompy.utils.paths import CPACS_FILE_PATH, MODULES_DIR_PATH
+from ceasiompy.utils.paths import CPACS_FILES_PATH, MODULES_DIR_PATH
 
 log = get_logger(__file__.split(".")[0])
 
@@ -162,7 +162,7 @@ class Workflow:
     def __init__(self) -> None:
 
         self.working_dir = Path().cwd()
-        self.cpacs_in = Path(CPACS_FILE_PATH, "D150_simple.xml").resolve()
+        self.cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml").resolve()
         self.current_wkflow_dir = None
 
         self.modules_list = []  # List of modules to run (str)

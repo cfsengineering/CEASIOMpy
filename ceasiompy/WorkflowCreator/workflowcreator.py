@@ -26,7 +26,7 @@ from tkinter import filedialog, messagebox, ttk
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
-from ceasiompy.utils.paths import CPACS_FILE_PATH, WKDIR_PATH
+from ceasiompy.utils.paths import CPACS_FILES_PATH, WKDIR_PATH
 from ceasiompy.utils.workflowclasses import Workflow
 
 log = get_logger(__file__.split(".")[0])
@@ -214,7 +214,7 @@ class WorkFlowGUI(tk.Frame):
     def _browse_file(self):
 
         self.filename = filedialog.askopenfilename(
-            initialdir=CPACS_FILE_PATH, title="Select a CPACS file"
+            initialdir=CPACS_FILES_PATH, title="Select a CPACS file"
         )
         self.path_var.set(self.filename)
 

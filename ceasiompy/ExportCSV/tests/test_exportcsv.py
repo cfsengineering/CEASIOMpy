@@ -12,24 +12,29 @@ Python version: >=3.7
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
-import os
 import shutil
-import pytest
 from pathlib import Path
+
+import pytest
 from ceasiompy.ExportCSV.exportcsv import export_aeromaps
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 
-# Default CPACS file to test
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CPACS_IN_PATH = os.path.join(MODULE_DIR, "D150_simple.xml")
+MODULE_DIR = Path(__file__).parent
+CPACS_IN_PATH = Path(MODULE_DIR, "D150_simple.xml")
+
+
+# =================================================================================================
+#   FUNCTIONS
+# =================================================================================================
 
 
 @pytest.fixture(autouse=True)
 def change_test_dir(request, monkeypatch):
+
     monkeypatch.chdir(request.fspath.dirname)
 
     global CSV_FILE_PATH
@@ -45,10 +50,9 @@ def change_test_dir(request, monkeypatch):
 def test_export_aeromaps():
     """Test function 'exportcsv' function."""
 
-    export_aeromaps(CPACS_IN_PATH, CPACS_IN_PATH)
+    export_aeromaps(str(CPACS_IN_PATH), str(CPACS_IN_PATH))
 
     # Read and check csv file
-
     with open(CSV_FILE_PATH, "r") as csv_file:
         lines = csv_file.readlines()
 
@@ -57,3 +61,14 @@ def test_export_aeromaps():
     assert lines[2] == "0,0.3,0,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
     assert lines[3] == "0,0.3,10,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
     assert lines[4] == "0,0.3,10,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
+
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+
+    print("Running Test ExportCSV")
+    print("To run test use the following command:")
+    print(">> pytest -v")

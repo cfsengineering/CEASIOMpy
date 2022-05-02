@@ -18,15 +18,12 @@ Todo:
 
 """
 
-import os
+
 from pathlib import Path
 from re import split
+
 import numpy as np
 import openmdao.api as om
-
-# Do not remove: Called within eval() function
-from tigl3 import geometry
-
 from ceasiompy.CPACSUpdater.cpacsupdater import update_cpacs_file
 from ceasiompy.Optimisation.func.dictionnary import (
     add_am_to_dict,
@@ -41,31 +38,32 @@ from ceasiompy.Optimisation.func.optimfunctions import (
 )
 from ceasiompy.Optimisation.func.tools import change_var_name, is_digit, plot_results, save_results
 from ceasiompy.SMUse.smuse import load_surrogate, write_inouts
-from ceasiompy.utils.ceasiompyutils import run_module
-import ceasiompy.utils.moduleinterfaces as mif
-from ceasiompy.utils.xpath import OPTIM_XPATH
-
-from cpacspy.cpacspy import CPACS
-from cpacspy.utils import PARAMS, COEFS
-from cpacspy.cpacsfunctions import add_float_vector, get_value, open_tixi
-
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import run_module
+from ceasiompy.utils.moduleinterfaces import (
+    get_specs_for_module,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+)
+from ceasiompy.utils.xpath import OPTIM_XPATH
+from cpacspy.cpacsfunctions import add_float_vector, get_value, open_tixi
+from cpacspy.cpacspy import CPACS
+from cpacspy.utils import COEFS, PARAMS
+
+# Do not remove: Called within eval() function
+from tigl3 import geometry
 
 log = get_logger(__file__.split(".")[0])
 
-# =============================================================================
-#   GLOBAL VARIABLES
-# =============================================================================
-
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
 Rt = Routine()
 
 
-# =============================================================================
+# =================================================================================================
 #   CLASSES
-# =============================================================================
+# =================================================================================================
 
 
 class Geom_param(om.ExplicitComponent):
@@ -140,7 +138,7 @@ class ModuleComp(om.ExplicitComponent):
     def setup(self):
         """Setup inputs and outputs"""
         declared = []
-        spec = mif.get_specs_for_module(self.module_name)
+        spec = get_specs_for_module(self.module_name)
 
         # Inputs
         for entry in spec.cpacs_inout.inputs:
@@ -318,9 +316,9 @@ class Objective(om.ExplicitComponent):
                 outputs["Objective function " + obj] = -result
 
 
-# =============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# =============================================================================
+# =================================================================================================
 
 
 def driver_setup(prob):
@@ -405,7 +403,7 @@ def add_subsystems(prob, ivc):
         if module.name == "SMUse":
             prob.model.add_subsystem(module.name, SmComp(module), promotes=["*"])
         else:
-            spec = mif.get_specs_for_module(module.name)
+            spec = get_specs_for_module(module.name)
             if spec.cpacs_inout.inputs or spec.cpacs_inout.outputs:
                 prob.model.add_subsystem(module.name, ModuleComp(module), promotes=["*"])
 
@@ -555,14 +553,14 @@ def routine_launcher(optim_method, module_optim, wkflow_dir):
     generate_results(prob)
 
 
-# =================================================================================================
+# =====================================================================================================================
 #    MAIN
-# =================================================================================================
+# =====================================================================================================================
 
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
     tixi = open_tixi(cpacs_path)
 
@@ -577,12 +575,12 @@ def main(cpacs_path, cpacs_out_path):
 
     tixi.save(cpacs_out_path)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
 
-    cpacs_path = mif.get_toolinput_file_path("Optimisation")
-    cpacs_out_path = mif.get_tooloutput_file_path("Optimisation")
+    cpacs_path = get_toolinput_file_path("Optimisation")
+    cpacs_out_path = get_tooloutput_file_path("Optimisation")
 
     main(cpacs_path, cpacs_out_path)

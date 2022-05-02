@@ -18,25 +18,23 @@ TODO
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
+
 import os
 import sys
-import numpy as np
-import openmdao.api as om
-import matplotlib.pyplot as plt
-import pandas as pd
-import tigl3.configuration  # used within eval
 from pathlib import Path
 
+import matplotlib.pyplot as plt
+import numpy as np
+import openmdao.api as om
+import pandas as pd
+import tigl3.configuration  # used within eval
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
 
-# ==============================================================================
-#   GLOBALS
-# ==============================================================================
 
 # Not an exhaustive list
 accronym_dict = {
@@ -46,13 +44,14 @@ accronym_dict = {
     "operating_empty_mass": "oem",
 }
 
-# ==============================================================================
+# =================================================================================================
 # CLASSES
-# ==============================================================================
+# =================================================================================================
 
-# ==============================================================================
+
+# =================================================================================================
 # FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 # -------------- MISCELLANEOUS ---------------- #
 # ----------------------------------------------#
@@ -74,7 +73,7 @@ def launch_external_program(path):
     if OS == "linux":
         os.system("libreoffice " + str(path))
     elif OS == "win32":
-        os.system("Start excel.exe " + str(path).replace("/", "\\"))
+        os.system("Start excel.exe " + str(path))
     elif OS == "darwin":
         os.system(
             "/Applications/Microsoft\ Excel.app/Contents/MacOS/Microsoft\ Excel " + str(path)
@@ -109,8 +108,8 @@ def display_results(prob, optim_var_dict, Rt):
         listval,
         minval,
         maxval,
-        getcommand,
-        setcommand,
+        _,
+        _,
     ) in optim_var_dict.items():
         if val_type == "des":
             log.info(name + " = " + str(prob["indeps." + name]))
@@ -123,8 +122,8 @@ def display_results(prob, optim_var_dict, Rt):
         listval,
         minval,
         maxval,
-        getcommand,
-        setcommand,
+        _,
+        _,
     ) in optim_var_dict.items():
         if val_type == "des":
             log.info(name + " => " + str(listval))
@@ -139,7 +138,7 @@ def read_results(optim_dir_path, optim_var_dict=None):
     convenient.
 
     Args:
-        optim_dir_path (str): Path to the SQL file directory.
+        optim_dir_path (Path): Path to the SQL file directory.
         optim_var_dict (dct): Contains the variables.
 
     Returns:
@@ -465,3 +464,13 @@ def add_bounds(value, var):
 
     var["min"].append(lower)
     var["max"].append(upper)
+
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+
+if __name__ == "__main__":
+
+    print("Nothing to execute!")

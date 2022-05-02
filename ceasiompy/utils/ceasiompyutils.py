@@ -194,7 +194,7 @@ def run_soft(soft, config_path, wkdir, nb_proc):
     log.info("Number of proc available: " + str(os.cpu_count()))
     log.info(str(nb_proc) + " will be used for this calculation.")
 
-    logfile_path = os.path.join(wkdir, "logfile" + soft + ".log")
+    logfile_path = Path(wkdir, f"logfile{soft}.log")
 
     # if mpi_install_path is not None:
     #     command_line =  [mpi_install_path,'-np',str(nb_proc),

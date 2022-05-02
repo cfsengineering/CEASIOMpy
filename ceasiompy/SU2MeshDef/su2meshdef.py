@@ -12,6 +12,7 @@ Python version: >=3.7
 
 TODO:
 
+    * MUST BE REFACTOR
     * Add symmetric, anti symmetric deflection option
     * Add the possibility to have multiple deflection on the same mesh (e.g. all the flaps down)
     * and more choice from the user to calculate or not
@@ -19,21 +20,22 @@ TODO:
     * Mesh def for FSI (with surface disp)
     * Create the doc for this module
     * Create test functions
+    * Use Pathlib and asolute path when refactor this module
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
 import os
+from pathlib import Path
 import sys
 import shutil
 import numpy as np
 import pandas as pd
 
 from ceasiompy.utils.ceasiompyutils import get_results_directory, run_soft, aircraft_name
-import ceasiompy.utils.moduleinterfaces as mi
 
 from cpacspy.cpacsfunctions import (
     add_string_vector,
@@ -45,24 +47,25 @@ from cpacspy.cpacsfunctions import (
 )
 from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
 from ceasiompy.utils.configfiles import ConfigFile
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.utils.xpath import REF_XPATH, WINGS_XPATH, SU2_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def get_ted_list(tixi):
@@ -778,14 +781,14 @@ def run_mesh_deformation(tixi, wkdir):
     add_string_vector(tixi, su2_def_mesh_xpath, su2_def_mesh_list)
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
     if len(sys.argv) > 1:
         if sys.argv[1] == "-c":
@@ -797,12 +800,12 @@ def main(cpacs_path, cpacs_out_path):
     else:  # if no argument given
         generate_config_deformed_mesh(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

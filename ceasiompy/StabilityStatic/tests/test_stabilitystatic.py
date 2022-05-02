@@ -17,11 +17,11 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
-import os
+from pathlib import Path
 import numpy as np
 from pytest import approx
 
@@ -39,15 +39,17 @@ from ceasiompy.StabilityStatic.func.func_static import (
     interpolation,
 )
 
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 # idx_cml_0 = [i for i in range(len(cml)) if cml[i] == 0][0]
 
@@ -72,7 +74,8 @@ def test_extract_subelements():
 
 
 def test_order_correctly():
-    """Order list X in incresing order and moves element in Y in the same way as elements in X have been ordered"""
+    """Order list X in incresing order and moves element in Y in the same way as elements in X have
+    been ordered"""
     X = [0, -2, -1, 1, 2]
     Y = [1, 2, 3, 4, 5]
     assert np.array_equal(order_correctly(X, Y), ([-2, -1, 0, 1, 2], [2, 3, 1, 4, 5]))
@@ -135,12 +138,11 @@ def test_interpolation():
 def test_static_stability_analysis():
     """Test function 'staticStabilityAnalysis'"""
 
-    MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    cpacs_path = os.path.join(MODULE_DIR, "ToolInput", "CPACSTestStability.xml")
-    cpacs_out_path = os.path.join(MODULE_DIR, "ToolOutput", "CPACSTestStability.xml")
-    csv_path = MODULE_DIR + "/ToolInput/csvtest.csv"
+    cpacs_path = Path(MODULE_DIR, "ToolInput", "CPACSTestStability.xml")
+    cpacs_out_path = Path(MODULE_DIR, "ToolOutput", "CPACSTestStability.xml")
 
-    tixi = open_tixi(cpacs_path)
+    tixi = open_tixi(str(cpacs_path))
+
     # Get Aeromap UID list
 
     # aeromap_uid = uid_list[0]
@@ -151,7 +153,7 @@ def test_static_stability_analysis():
     # Make the static stability analysis, on the modified xml file
     static_stability_analysis(cpacs_path, cpacs_out_path)
 
-    tixi = open_tixi(cpacs_out_path)
+    tixi = open_tixi(str(cpacs_out_path))
     static_xpath = "/cpacs/toolspecific/CEASIOMpy/stability/static"
     long_static_stable = get_value(tixi, static_xpath + "/results/longitudinalStaticStable")
     lat_static_stable = get_value(tixi, static_xpath + "/results/lateralStaticStable")
@@ -187,12 +189,12 @@ def test_static_stability_analysis():
     assert trim_dir_aoa == ["1", "2", "4", "2.5"]
     assert trim_dir_aos == ["0", "0", "0", "0"]
 
-    tixi.save(cpacs_out_path)
+    tixi.save(str(cpacs_out_path))
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 

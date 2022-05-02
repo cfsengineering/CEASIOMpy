@@ -9,80 +9,33 @@
     <cpacsVersion>3.1</cpacsVersion>
     <updates/>
   </header>
-  <vehicles>
-    <aircraft>
-      <model>
-        <analyses>
-          <massBreakdown>
-            <designMasses>
-              <mTOM>
-                <mass>No default value</mass>
-              </mTOM>
-            </designMasses>
-            <fuel>
-              <massDescription>
-                <mass>No default value</mass>
-              </massDescription>
-            </fuel>
-            <mOEM>
-              <massDescription>
-                <mass>No default value</mass>
-              </massDescription>
-            </mOEM>
-            <payload>
-              <massDescription>
-                <mass>No default value</mass>
-              </massDescription>
-              <mCargo>
-                <massDescription>
-                  <mass>0</mass>
-                </massDescription>
-              </mCargo>
-            </payload>
-          </massBreakdown>
-        </analyses>
-        <reference>
-          <area>No default value</area>
-          <length>No default value</length>
-          <point>
-            <x>No default value</x>
-          </point>
-        </reference>
-        <fuselages>
-          <fuselage>
-            <transformation>
-              <scaling>
-                <x>No default value</x>
-                <y>No default value</y>
-                <z>No default value</z>
-              </scaling>
-            </transformation>
-          </fuselage>
-        </fuselages>
-        <wings>No default value</wings>
-      </model>
-    </aircraft>
-    <fuels>
-      <fuel>
-        <density>0.8</density>
-      </fuel>
-    </fuels>
-  </vehicles>
   <toolspecific>
     <CEASIOMpy>
-      <ranges>
-        <cruiseMach>0.78</cruiseMach>
-        <cruiseAltitude>12000.0</cruiseAltitude>
-        <loadFactor>1.05</loadFactor>
-        <cruiseSpeed>272</cruiseSpeed>
-        <lDRatio>17.0</lDRatio>
-        <loiterTime>30.0</loiterTime>
-      </ranges>
-      <test>
-        <myTest>This is a test</myTest>
-        <myList>[2, 33, 444]</myList>
-      </test>
+      <surrogateModelUse>
+        <modelFile>-</modelFile>
+        <AeroMapOnly>False</AeroMapOnly>
+        <aeroMapUID>No default value</aeroMapUID>
+      </surrogateModelUse>
+      <engine>
+        <includeEngine>False</includeEngine>
+        <includePylon>False</includePylon>
+      </engine>
+      <export>
+        <aeroMapToExport>No default value</aeroMapToExport>
+      </export>
       <aerodynamics>
+        <clCalculation>
+          <massType>['mTOM', 'mZFM', 'Custom', '% fuel mass']</massType>
+          <customMass>0.0</customMass>
+          <percentFuelMass>100</percentFuelMass>
+          <cruiseMach>0.78</cruiseMach>
+          <cruiseAltitude>12000.0</cruiseAltitude>
+          <loadFactor>1.05</loadFactor>
+        </clCalculation>
+        <skinFriction>
+          <aeroMapToCalculate>No default value</aeroMapToCalculate>
+          <deleteOriginal>False</deleteOriginal>
+        </skinFriction>
         <su2>
           <aeroMapUID>No default value</aeroMapUID>
           <targetCL>1.0</targetCL>
@@ -90,8 +43,10 @@
           <options>
             <clalculateDampingDerivatives>False</clalculateDampingDerivatives>
             <rotationRate>1.0</rotationRate>
+            <clalculateCotrolSurfacesDeflections>False</clalculateCotrolSurfacesDeflections>
           </options>
           <settings>
+            <nbProc>1</nbProc>
             <maxIter>200</maxIter>
             <cflNumber>1.0</cflNumber>
             <multigridLevel>3</multigridLevel>
@@ -100,18 +55,65 @@
             <extractLoads>False</extractLoads>
           </results>
         </su2>
-        <skinFriction>
-          <aeroMapToCalculate>No default value</aeroMapToCalculate>
-          <deleteOriginal>False</deleteOriginal>
-        </skinFriction>
+        <plotAeroCoefficient>
+          <aeroMapToPlot>No default value</aeroMapToPlot>
+          <criterion>
+            <alt>None</alt>
+            <mach>None</mach>
+            <aos>None</aos>
+          </criterion>
+          <manualSelection>False</manualSelection>
+        </plotAeroCoefficient>
       </aerodynamics>
+      <gmsh>
+        <open_gui>False</open_gui>
+        <symmetry>False</symmetry>
+        <farfield_factor>5</farfield_factor>
+        <mesh_size>
+          <farfield>12</farfield>
+          <fuselage>0.2</fuselage>
+          <wings>0.2</wings>
+        </mesh_size>
+        <refine_factor>2.0</refine_factor>
+      </gmsh>
+      <stability>
+        <static>
+          <aeroMapUid>No default value</aeroMapUid>
+          <massConfiguration>['mMLM', 'mMRM', 'mTOM', 'mZFM']</massConfiguration>
+          <showPlots>False</showPlots>
+          <savePlots>False</savePlots>
+        </static>
+        <dynamic>
+          <aeroMapUid>No default value</aeroMapUid>
+          <massConfiguration>['mMLM', 'mMRM', 'mTOM', 'mZFM']</massConfiguration>
+          <showPlots>False</showPlots>
+          <savePlots>False</savePlots>
+        </dynamic>
+      </stability>
+      <geometry>
+        <isDoubleFloor>[0, 1, 2]</isDoubleFloor>
+        <cabinHeight>2.3</cabinHeight>
+        <virtualThick>0.00014263</virtualThick>
+        <virtualDensity>2700.0</virtualDensity>
+        <winglet>[0, 1, 2]</winglet>
+        <analysis>
+          <wettedArea>No default value</wettedArea>
+        </analysis>
+        <fuseThick>6.63</fuseThick>
+        <seatLength>0.74</seatLength>
+        <seatWidth>0.525</seatWidth>
+        <aisleWidth>0.42</aisleWidth>
+        <toiletLength>1.9</toiletLength>
+        <cabinLength>0.0</cabinLength>
+      </geometry>
       <weight>
         <passengers>
+          <passPerToilet>50</passPerToilet>
+          <passMass>105.0</passMass>
+          <passDensity>1.66</passDensity>
           <fuelMassMaxpass>
             <mass>No default value</mass>
           </fuelMassMaxpass>
-          <passMass>105.0</passMass>
-          <passPerToilet>50</passPerToilet>
         </passengers>
         <crew>
           <pilots>
@@ -119,54 +121,78 @@
             <pilotMass>102.0</pilotMass>
           </pilots>
           <cabinCrewMembers>
-            <cabinCrewMemberNB>No default value</cabinCrewMemberNB>
             <cabinCrewMemberMass>68.0</cabinCrewMemberMass>
+            <cabinCrewMemberNb>No default value</cabinCrewMemberNb>
           </cabinCrewMembers>
         </crew>
         <massLimits>
-          <maxPayload>0</maxPayload>
-          <maxFuelVol>0</maxFuelVol>
+          <maxPayload>0.0</maxPayload>
+          <maxFuelVol>0.0</maxFuelVol>
         </massLimits>
       </weight>
-      <propulsion>
-        <turboprop>False</turboprop>
-        <tSFC>
-          <tsfcCruise>0.5</tsfcCruise>
-          <tsfcLoiter>0.4</tsfcLoiter>
-        </tSFC>
-      </propulsion>
-      <geometry>
-        <winglet>[0, 1, 2]</winglet>
-        <isDoubleFloor>[0, 1, 2]</isDoubleFloor>
-        <seatLength>0.74</seatLength>
-        <seatWidth>0.525</seatWidth>
-        <aisleWidth>0.42</aisleWidth>
-        <fuseThick>6.63</fuseThick>
-        <aaaaa>0</aaaaa>
-        <toiletLength>1.9</toiletLength>
-        <analyses>
-          <wettedArea>No default value</wettedArea>
-        </analyses>
-      </geometry>
       <fuels>
-        <resFuelPerc>0.1</resFuelPerc>
-        <density>800</density>
+        <density>800.0</density>
+        <resFuelPerc>0.06</resFuelPerc>
+        <fuelOnCabin>0.0</fuelOnCabin>
       </fuels>
+      <propulsion>
+        <tSFC>0.5<tsfcCruise>0.5</tsfcCruise><tsfcLoiter>0.4</tsfcLoiter></tSFC>
+        <turboprop>False</turboprop>
+      </propulsion>
+      <optimisation>
+        <objective>cl</objective>
+        <aeroMapUID>No default value</aeroMapUID>
+        <minmax>['min', 'max']</minmax>
+        <parameters>
+          <driver>['COBYLA', 'Nelder-Mead']</driver>
+          <DoE>
+            <driver>['Uniform', 'FullFactorial', 'LatinHypercube', 'PlackettBurman', 'CSVGenerated']</driver>
+            <sampleNB>3</sampleNB>
+          </DoE>
+        </parameters>
+        <iterationNB>200</iterationNB>
+        <tolerance>0.001</tolerance>
+        <Config>
+          <useAero>False</useAero>
+          <filepath>-</filepath>
+        </Config>
+        <saving>
+          <perIter>1</perIter>
+        </saving>
+      </optimisation>
+      <ranges>
+        <cruiseSpeed>272</cruiseSpeed>
+        <lDRatio>17.0</lDRatio>
+        <loiterTime>30.0</loiterTime>
+        <cruiseMach>0.78</cruiseMach>
+        <cruiseAltitude>12000</cruiseAltitude>
+      </ranges>
       <filesPath>
-        <su2Mesh>-</su2Mesh>
         <sumoFilePath>-</sumoFilePath>
+        <su2Mesh>-</su2Mesh>
       </filesPath>
-      <stability>
-        <static>
-          <aeroMapUid>No default value</aeroMapUid>
-          <showPlots>False</showPlots>
-          <savePlots>False</savePlots>
-        </static>
-      </stability>
+      <mesh>
+        <sumoOptions>
+          <refinementLevel>1.0</refinementLevel>
+        </sumoOptions>
+      </mesh>
+      <surrogateModel>
+        <objective>cl</objective>
+        <trainingPercentage>0.9</trainingPercentage>
+        <showPlots>True</showPlots>
+        <useAeromap>False</useAeromap>
+        <aeroMapUID>No default value</aeroMapUID>
+        <trainFile>-</trainFile>
+        <modelType>['KRG', 'KPLSK', 'KPLS', 'LS']</modelType>
+      </surrogateModel>
+      <test>
+        <myTest>This is a test</myTest>
+        <myList>[2, 33, 444]</myList>
+      </test>
     </CEASIOMpy>
     <pytornado>
-      <deleteOldWKDIRs>False</deleteOldWKDIRs>
       <aeroMapUID>No default value</aeroMapUID>
+      <deleteOldWKDIRs>False</deleteOldWKDIRs>
       <vlm_autopanels_c>20</vlm_autopanels_c>
       <vlm_autopanels_s>5</vlm_autopanels_s>
       <plot>
@@ -191,7 +217,64 @@
         <global>False</global>
         <panelwise>False</panelwise>
         <aeroperformance>False</aeroperformance>
+        <extractLoads>False</extractLoads>
       </save_results>
     </pytornado>
   </toolspecific>
+  <vehicles>
+    <aircraft>
+      <model>
+        <reference>
+          <area>No default value</area>
+          <length>No default value</length>
+          <point>
+            <x>0.0</x>
+            <y>0.0</y>
+            <z>0.0</z>
+          </point>
+        </reference>
+        <analyses>
+          <massBreakdown>
+            <payload>
+              <mCargo>
+                <massDescription>
+                  <mass>0.0</mass>
+                </massDescription>
+              </mCargo>
+              <massDescription>
+                <mass>No default value</mass>
+              </massDescription>
+            </payload>
+            <designMasses>
+              <mTOM>
+                <mass>No default value</mass>
+              </mTOM>
+            </designMasses>
+            <fuel>
+              <massDescription>
+                <mass>No default value</mass>
+              </massDescription>
+            </fuel>
+            <mOEM>
+              <massDescription>
+                <mass>No default value</mass>
+              </massDescription>
+            </mOEM>
+          </massBreakdown>
+        </analyses>
+        <fuselages>
+          <fuselage>
+            <transformation>
+              <scaling>
+                <x>No default value</x>
+                <y>No default value</y>
+                <z>No default value</z>
+              </scaling>
+            </transformation>
+          </fuselage>
+        </fuselages>
+        <wings>No default value</wings>
+      </model>
+    </aircraft>
+  </vehicles>
 </cpacs>

@@ -19,19 +19,19 @@ TODO:
 #   IMPORTS
 # ==============================================================================
 
-import os
-import uuid
-import inspect
-import importlib
-from glob import glob
-from pathlib import Path
 
-from cpacspy.cpacsfunctions import create_branch, open_tixi
+import importlib
+import inspect
+import uuid
+from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.paths import MODULES_DIR_PATH
+from cpacspy.cpacsfunctions import create_branch, open_tixi
 
 log = get_logger(__file__.split(".")[0])
+
+MODULE_DIR = Path(__file__).parent
 
 MODNAME_TOP = "ceasiompy"
 MODNAME_SPECS = "__specs__"
@@ -197,12 +197,12 @@ def check_cpacs_input_requirements(
             # Get the path of the caller submodule
             frm = inspect.stack()[1]
             mod = inspect.getmodule(frm[0])
-            caller_module_path = os.path.dirname(os.path.abspath(mod.__file__))
+            caller_module_path = Path(mod.__file__).parent
 
             # Get the CEASIOM_XPATH submodule name
-            parent_path, submod_name = os.path.split(caller_module_path)
+            submod_name = caller_module_path.name
             for _ in range(1, submodule_level):
-                parent_path, submod_name = os.path.split(parent_path)
+                submod_name = caller_module_path.name
 
         # Load the submodule specifications
         specs_module = get_specs_for_module(submod_name, raise_error=True)
@@ -238,10 +238,9 @@ def get_submodule_list():
         A list of submodule names (as strings)
     """
 
-    dirnames = glob(os.path.join(MODULES_DIR_PATH, "*"))
     submodule_list = []
-    for dirname in dirnames:
-        submod_name = os.path.basename(dirname)
+    for dir in MODULES_DIR_PATH.iterdir():
+        submod_name = dir.name
 
         # Ignore "dunder"-files
         if submod_name.startswith("__"):
@@ -363,10 +362,10 @@ def create_default_toolspecific():
 
     """
 
-    CPACS_PATH = "./doc/empty_cpacs.xml"
+    EMPTY_CPACS_PATH = Path(MODULE_DIR, "doc", "empty_cpacs.xml")
 
-    tixi_in = open_tixi(CPACS_PATH)
-    tixi_out = open_tixi(CPACS_PATH)
+    tixi_in = open_tixi(str(EMPTY_CPACS_PATH))
+    tixi_out = open_tixi(str(EMPTY_CPACS_PATH))
 
     for mod_name, specs in get_all_module_specs().items():
         if specs is not None:
@@ -393,10 +392,11 @@ def create_default_toolspecific():
                 xpath = entry.xpath
                 create_branch(tixi_out, xpath)
 
-    TOOLSPECIFIC_INPUT_PATH = "./doc/input_toolspecifics.xml"
-    TOOLSPECIFIC_OUTPUT_PATH = "./doc/output_toolspecifics.xml"
-    tixi_in.save(TOOLSPECIFIC_INPUT_PATH)
-    tixi_out.save(TOOLSPECIFIC_OUTPUT_PATH)
+    TOOLSPECIFIC_INPUT_PATH = Path(MODULE_DIR, "doc", "input_toolspecifics.xml")
+    TOOLSPECIFIC_OUTPUT_PATH = Path(MODULE_DIR, "doc", "output_toolspecifics.xml")
+
+    tixi_in.save(str(TOOLSPECIFIC_INPUT_PATH))
+    tixi_out.save(str(TOOLSPECIFIC_OUTPUT_PATH))
 
 
 def check_workflow(cpacs_path, submodule_list):
@@ -414,7 +414,7 @@ def check_workflow(cpacs_path, submodule_list):
           accumulate all will be shown at the end
 
     Args:
-        cpacs_path (str): CPACS node path
+        cpacs_path (Path): CPACS node path
         submodule_list (list): List of CEASIOMpy module names (order matters!)
 
     Raises:
@@ -422,13 +422,13 @@ def check_workflow(cpacs_path, submodule_list):
         ValueError: If a workflow cannot be exectued from start to end
     """
 
-    if not isinstance(cpacs_path, str):
-        raise TypeError("'cpacs_path' must be of type str")
+    if not isinstance(cpacs_path, Path):
+        raise TypeError("'cpacs_path' must be of type Path")
 
     if not isinstance(submodule_list, (list, tuple)):
         raise TypeError("'submodule_list' must be of type list or tuple")
 
-    tixi = open_tixi(cpacs_path)
+    tixi = open_tixi(str(cpacs_path))
     xpaths_from_workflow = set()
     err_msg = ""
     for i, submod_name in enumerate(submodule_list, start=1):

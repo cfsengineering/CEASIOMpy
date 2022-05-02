@@ -12,30 +12,52 @@ Python version: >=3.7
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
 
-import os
+from pathlib import Path
 
 import pytest
-from pathlib import Path
-import ceasiompy.utils.moduleinterfaces as mi
+from ceasiompy.utils.moduleinterfaces import (
+    CPACSInOut,
+    CPACSRequirementError,
+    check_cpacs_input_requirements,
+    check_workflow,
+    find_missing_specs,
+    get_all_module_specs,
+    get_module_list,
+    get_module_path,
+    get_specs_for_module,
+    get_submodule_list,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+)
 from ceasiompy.utils.paths import MODULES_DIR_PATH
 from ceasiompy.utils.xpath import RANGE_XPATH
 
-HERE = os.path.abspath(os.path.dirname(__file__))
-CPACS_TEST_FILE = os.path.join(HERE, "ToolInput", "cpacs_test_file.xml")
+MODULE_DIR = Path(__file__).parent
+CPACS_TEST_FILE = Path(MODULE_DIR, "ToolInput", "cpacs_test_file.xml")
+
+
+# =================================================================================================
+#   CLASSES
+# =================================================================================================
+
+
+# =================================================================================================
+#   FUNCTIONS
+# =================================================================================================
 
 
 def test_get_module_path():
     """Test function 'get_module_path'."""
 
-    assert mi.get_module_path("ModuleTemplate") == Path(MODULES_DIR_PATH, "ModuleTemplate")
+    assert get_module_path("ModuleTemplate") == Path(MODULES_DIR_PATH, "ModuleTemplate")
 
     with pytest.raises(ValueError):
-        mi.get_module_path("NotExistingModule")
+        get_module_path("NotExistingModule")
 
 
 def test_cpacs_inout():
@@ -43,7 +65,7 @@ def test_cpacs_inout():
     Test basic functionality of 'CPACSInOut()'
     """
 
-    cpacs_inout = mi.CPACSInOut()
+    cpacs_inout = CPACSInOut()
 
     # Adding input
     cpacs_inout.add_input(
@@ -87,10 +109,8 @@ def test_check_cpacs_input_requirements():
     Test "check_cpacs_input_requirements()" function
     """
 
-    os.chdir(os.path.dirname(__file__))
-
-    cpacs_inout = mi.CPACSInOut()
-    cpacs_file = "ToolInput/D150_AGILE_Hangar_v3.xml"
+    cpacs_inout = CPACSInOut()
+    cpacs_file = Path(MODULE_DIR, "ToolInput", "D150_AGILE_Hangar_v3.xml")
 
     cpacs_inout.add_input(
         var_name="cruise_alt",
@@ -100,7 +120,7 @@ def test_check_cpacs_input_requirements():
         xpath=RANGE_XPATH + "/cruiseAltitude",
     )
 
-    assert mi.check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout) is None
+    assert check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout) is None
 
     cpacs_inout.add_input(
         var_name="something",
@@ -110,8 +130,8 @@ def test_check_cpacs_input_requirements():
         xpath="/a/non-existent/path",
     )
 
-    with pytest.raises(mi.CPACSRequirementError):
-        mi.check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout)
+    with pytest.raises(CPACSRequirementError):
+        check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout)
 
 
 def test_get_submodule_list():
@@ -119,8 +139,9 @@ def test_get_submodule_list():
     Test 'get_submodule_list()' function
     """
 
-    submodule_list = mi.get_submodule_list()
+    submodule_list = get_submodule_list()
     for submod_name in submodule_list:
+        print(submod_name)
         assert len(submod_name.split(".")) == 1
 
 
@@ -129,7 +150,7 @@ def test_get_module_list():
     Test "get_module_list()" function
     """
 
-    module_list = mi.get_module_list()
+    module_list = get_module_list()
 
     assert isinstance(module_list, list)
 
@@ -149,7 +170,7 @@ def test_get_toolinput_file_path():
 
     module_name = "ModuleTemplate"
 
-    toolinput_path = mi.get_toolinput_file_path(module_name)
+    toolinput_path = get_toolinput_file_path(module_name)
 
     # Test that the end of the path is correct
     assert toolinput_path == Path(MODULES_DIR_PATH, "ModuleTemplate", "ToolInput", "ToolInput.xml")
@@ -162,7 +183,7 @@ def test_get_tooloutput_file_path():
 
     module_name = "ModuleTemplate"
 
-    toolinput_path = mi.get_tooloutput_file_path(module_name)
+    toolinput_path = get_tooloutput_file_path(module_name)
 
     # Test that the end of the path is correct
     assert toolinput_path == Path(
@@ -176,12 +197,12 @@ def test_get_specs_for_module():
     """
 
     # Return None for non-existent modules...
-    specs = mi.get_specs_for_module(module_name="SomeModuleThatDoesNotExist")
+    specs = get_specs_for_module(module_name="SomeModuleThatDoesNotExist")
     assert specs is None
 
     # ... but raise an error if explicitly told to do so
     with pytest.raises(ImportError):
-        mi.get_specs_for_module(module_name="SomeModuleThatDoesNotExist", raise_error=True)
+        get_specs_for_module(module_name="SomeModuleThatDoesNotExist", raise_error=True)
 
 
 def test_get_all_module_specs():
@@ -189,7 +210,7 @@ def test_get_all_module_specs():
     Test that 'get_all_module_specs()' runs
     """
 
-    all_specs = mi.get_all_module_specs()
+    all_specs = get_all_module_specs()
     assert isinstance(all_specs, dict)
 
 
@@ -198,7 +219,7 @@ def test_find_missing_specs():
     Test that 'find_missing_specs()' runs
     """
 
-    missing = mi.find_missing_specs()
+    missing = find_missing_specs()
     assert isinstance(missing, list)
 
 
@@ -220,8 +241,19 @@ def test_check_workflow():
 
     with pytest.raises(ValueError):
         workflow = ("PyTornado", "NON_EXISTENT_MODULE")
-        mi.check_workflow(CPACS_TEST_FILE, workflow)
+        check_workflow(CPACS_TEST_FILE, workflow)
 
     with pytest.raises(ValueError):
         workflow = ("SU2Run", "PyTornado", "WeightUnconventional", "BalanceUnconventional")
-        mi.check_workflow(CPACS_TEST_FILE, workflow)
+        check_workflow(CPACS_TEST_FILE, workflow)
+
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+
+    print("Test moduleinterfaces.py")
+    print("To run test use the following command:")
+    print(">> pytest -v")

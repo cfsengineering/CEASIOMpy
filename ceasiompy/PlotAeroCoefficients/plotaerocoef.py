@@ -17,38 +17,36 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
-import os
-import pandas as pd
+from pathlib import Path
+from tkinter import BOTH, BOTTOM, END, MULTIPLE, RIGHT, Button, Frame, Label, Listbox, Tk
+
 import matplotlib.pyplot as plt
-from tkinter import Label, Tk, Listbox, END, Button, MULTIPLE, BOTH, Frame, BOTTOM, RIGHT
-
-from cpacspy.cpacspy import CPACS
+import pandas as pd
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
+from ceasiompy.utils.xpath import PLOT_XPATH
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     create_branch,
     get_string_vector,
     get_value_or_default,
 )
-
-import ceasiompy.utils.moduleinterfaces as mi
-from ceasiompy.utils.xpath import PLOT_XPATH
-
-from ceasiompy.utils.ceasiomlogger import get_logger
+from cpacspy.cpacspy import CPACS
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
 NONE_LIST = ["None", "NONE", "No", "NO", "N", "n", "-", " ", ""]
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
 class ListBoxChoice(object):
@@ -98,9 +96,9 @@ class ListBoxChoice(object):
         return self.selected_list
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def open_select_aeromap_gui(cpacs):
@@ -198,12 +196,12 @@ def plot_aero_coef(cpacs_path, cpacs_out_path):
     SettingGUI or default values will be used.
 
     Args:
-        cpacs_path (str): Path to CPACS file
-        cpacs_out_path (str):Path to CPACS output file
+        cpacs_path (Path): Path to CPACS file
+        cpacs_out_path (Path):Path to CPACS output file
     """
 
     # Open TIXI handle
-    cpacs = CPACS(cpacs_path)
+    cpacs = CPACS(str(cpacs_path))
 
     # Get aeroMap list to plot
     aeromap_to_plot_xpath = PLOT_XPATH + "/aeroMapToPlot"
@@ -250,7 +248,7 @@ def plot_aero_coef(cpacs_path, cpacs_out_path):
     mach_crit = get_value_or_default(cpacs.tixi, crit_xpath + "/mach", "None")
     aos_crit = get_value_or_default(cpacs.tixi, crit_xpath + "/aos", "None")
 
-    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
+    cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
 
     # Modify criterion and title according to user option
     if len(aeromap["altitude"].unique()) == 1:
@@ -314,23 +312,23 @@ def plot_aero_coef(cpacs_path, cpacs_out_path):
     plt.show()
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
     plot_aero_coef(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

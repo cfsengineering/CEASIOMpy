@@ -6,8 +6,8 @@
 
 import platform
 import setuptools
-import os
 from pathlib import Path
+
 
 from ceasiompy.__version__ import __version__
 
@@ -44,9 +44,9 @@ README = "README.md"
 PACKAGE_DIR = "."
 LICENSE = "LICENSE"
 
-here = os.path.abspath(os.path.dirname(__file__))
+here = Path(__file__).parent
 
-with open(os.path.join(here, README), "r") as fp:
+with open(Path(here, README), "r") as fp:
     long_description = fp.read()
 
 with open(LICENSE) as f:

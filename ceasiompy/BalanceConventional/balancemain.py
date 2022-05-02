@@ -22,7 +22,7 @@ Python version: >=3.7
 
 TODO:
     * Use Pathlib and asolute path when refactor this module
-    
+
 """
 
 # =================================================================================================

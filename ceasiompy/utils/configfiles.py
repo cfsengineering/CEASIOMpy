@@ -21,7 +21,6 @@ TODO:
 # ==============================================================================
 
 from collections import OrderedDict
-from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 

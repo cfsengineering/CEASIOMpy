@@ -18,18 +18,17 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+import datetime
 import os
 import shutil
-import datetime
 from pathlib import Path
 
 from ceasiompy.Optimisation.optimisation import routine_launcher
+from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
-from ceasiompy.utils.paths import MODULES_DIR_PATH, CPACS_FILE_PATH
-
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.paths import CPACS_FILE_PATH, MODULES_DIR_PATH
 
 log = get_logger(__file__.split(".")[0])
 
@@ -108,7 +107,7 @@ class OptimSubWorkflow:
         self.iteration = 0
 
     def set_subworkflow(self) -> None:
-        """...."""
+        """Set input and output for subworkflow."""
 
         for m, module in enumerate(self.modules):
 
@@ -179,7 +178,7 @@ class Workflow:
             cfg_file (str): Configuration file path
         """
 
-        cfg = ConfigFile(str(cfg_file))
+        cfg = ConfigFile(cfg_file)
 
         self.working_dir = cfg_file.parent.absolute()
         self.cpacs_in = Path(cfg["CPACS_TOOLINPUT"])
@@ -215,7 +214,7 @@ class Workflow:
             cfg["comment_module_optim"] = "MODULE_OPTIM = (  )"
             cfg["comment_optim_method"] = "OPTIM_METHOD = NONE"
 
-        cfg_file = os.path.join(self.working_dir, "ceasiompy.cfg")
+        cfg_file = Path(self.working_dir, "ceasiompy.cfg")
         cfg.write_file(cfg_file, overwrite=True)
 
     def set_workflow(self) -> None:

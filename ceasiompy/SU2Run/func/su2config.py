@@ -299,19 +299,19 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             cfg["GRID_MOVEMENT"] = "ROTATING_FRAME"
 
             cfg["ROTATION_RATE"] = str(rotation_rate) + " 0.0 0.0"
-            case_dir = Path(wkdir, "{case_dir_name}_dp")
+            case_dir = Path(wkdir, f"{case_dir_name}_dp")
             case_dir.mkdir()
             config_output_path = Path(case_dir, config_file_name)
             cfg.write_file(config_output_path, overwrite=True)
 
             cfg["ROTATION_RATE"] = "0.0 " + str(rotation_rate) + " 0.0"
-            case_dir = Path(wkdir, "{case_dir_name}_dq")
+            case_dir = Path(wkdir, f"{case_dir_name}_dq")
             case_dir.mkdir()
             config_output_path = Path(case_dir, config_file_name)
             cfg.write_file(config_output_path, overwrite=True)
 
             cfg["ROTATION_RATE"] = "0.0 0.0 " + str(rotation_rate)
-            case_dir = Path(wkdir, "{case_dir_name}_dr")
+            case_dir = Path(wkdir, f"{case_dir_name}_dr")
             case_dir.mkdir()
             config_output_path = Path(case_dir, config_file_name)
             cfg.write_file(config_output_path, overwrite=True)

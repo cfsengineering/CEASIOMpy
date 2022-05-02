@@ -19,30 +19,24 @@ TODO
 
 """
 
-# =============================================================================
+# =================================================================================================
 #   IMPORTS
-# =============================================================================
+# =================================================================================================
 
 import numpy as np
-
-from cpacspy.utils import COEFS, PARAMS_COEFS
-from cpacspy.cpacsfunctions import open_tigl, get_tigl_configuration
-
 from ceasiompy.utils.ceasiomlogger import get_logger
+from cpacspy.cpacsfunctions import get_tigl_configuration, open_tigl
+from cpacspy.utils import COEFS, PARAMS_COEFS
 
 log = get_logger(__file__.split(".")[0])
-
-# =============================================================================
-#   GLOBALS
-# =============================================================================
 
 # Contains the geometric design variables
 geom_var_dict = {}
 XPATH = "None"
 
-# =============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# =============================================================================
+# =================================================================================================
 
 
 def add_am_to_dict(optim_var_dict, am_dict):
@@ -401,7 +395,11 @@ def init_geom_var_dict(tixi):
     return geom_var_dict
 
 
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+
 if __name__ == "__main__":
 
-    print("Launching dictionnary.py programm...")
-    print("Not a standalone programm. Nothing will be executed !")
+    print("Nothing to execute!")

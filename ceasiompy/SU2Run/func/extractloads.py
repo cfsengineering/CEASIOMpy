@@ -17,37 +17,36 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
-import os
+from pathlib import Path
+
 import numpy as np
-from scipy.sparse import csr_matrix
 import pandas as pd
-from six import iteritems
 import vtk
-from vtk.util.numpy_support import vtk_to_numpy, numpy_to_vtk
-
-from ceasiompy.utils.configfiles import ConfigFile
-
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.configfiles import ConfigFile
+from scipy.sparse import csr_matrix
+from six import iteritems
+from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
 
 log = get_logger(__file__.split(".")[0])
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def compute_point_normals(coord, cells):
-    """ Function the normal vectors
+    """Function the normal vectors
 
     Function 'compute_point_normals' computes normals at points weighted by the
     area of the surrounding cells on a triangular mesh.
@@ -72,7 +71,7 @@ def compute_point_normals(coord, cells):
 
 
 def compute_forces(vtu_file_path, force_file_path, config_dict):
-    """ Function to compute force of a VTU file
+    """Function to compute force of a VTU file
 
     Function 'compute_forces' computes surface forces at points for SU2 result
     files.
@@ -167,7 +166,7 @@ def compute_forces(vtu_file_path, force_file_path, config_dict):
 
 
 def dimensionalize_pressure(p, config_dict):
-    """ Function to dimensionalize pressure
+    """Function to dimensionalize pressure
 
     Function 'dimensionalize_pressure' retrurns the pressures values
     dimensionalize accorind to data from the SU2 configuration file
@@ -197,7 +196,7 @@ def dimensionalize_pressure(p, config_dict):
 
 
 def write_updated_mesh(mesh, new_vtu_file_path):
-    """ Function to write the new VTU file
+    """Function to write the new VTU file
 
     Function 'write_updated_mesh' crete new VTU file with utdated value given
     by 'mesh' and save at 'new_vtu_file_path'
@@ -227,7 +226,7 @@ def write_updated_mesh(mesh, new_vtu_file_path):
 
 # TODO: maybe create some exteral function to cope with SU2Mesh, get coord, get marker ...
 def get_mesh_markers_ids(su2_mesh_path):
-    """ Function to get ids corresponding to each marker
+    """Function to get ids corresponding to each marker
 
     Function 'get_mesh_markers_ids' crete dictionary which contains for each
     mesh marker (keys) a list of ids belonging to this mesh marker
@@ -280,28 +279,27 @@ def get_mesh_markers_ids(su2_mesh_path):
 
 
 def extract_loads(results_files_dir):
-    """ Function to extract loads from a SU2 resuts file.
+    """Function to extract loads from a SU2 resuts file.
 
     Args:
-        results_files_dir (str): Path to the directory where results from SU2 are saved.
+        results_files_dir (Path): Path to the directory where results from SU2 are saved.
 
     """
 
     # Path definitons
-    config_file_path = os.path.join(results_files_dir, "ConfigCFD.cfg")
-    # .vtu are creteted by SU2 from v7.0.1
-    surface_flow_file_path = os.path.join(results_files_dir, "surface_flow.vtu")
-    surface_flow_force_file_path = os.path.join(results_files_dir, "surface_flow_forces.vtu")
-    force_file_path = os.path.join(results_files_dir, "forces.csv")
+    config_file_path = Path(results_files_dir, "ConfigCFD.cfg")
+    surface_flow_file_path = Path(results_files_dir, "surface_flow.vtu")
+    surface_flow_force_file_path = Path(results_files_dir, "surface_flow_forces.vtu")
+    force_file_path = Path(results_files_dir, "forces.csv")
 
     config_dict = ConfigFile(config_file_path).data
     updated_mesh = compute_forces(surface_flow_file_path, force_file_path, config_dict)
     write_updated_mesh(updated_mesh, surface_flow_force_file_path)
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 

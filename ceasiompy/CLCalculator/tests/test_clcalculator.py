@@ -12,32 +12,28 @@ Python version: >=3.7
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
-import os
-
-from pytest import approx
+from pathlib import Path
 
 from ceasiompy.CLCalculator.clcalculator import calculate_cl, get_cl
-
 from cpacspy.cpacsfunctions import open_tixi
+from pytest import approx
 
+MODULE_DIR = Path(__file__).parent
+CPACS_IN_PATH = Path(MODULE_DIR, "D150_simple.xml")
+CPACS_OUT_PATH = Path(MODULE_DIR, "D150_simple_clcalulator_test.xml")
 
-# Default CPACS file to test
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CPACS_IN_PATH = os.path.join(MODULE_DIR, "D150_simple.xml")
-CPACS_OUT_PATH = os.path.join(MODULE_DIR, "D150_simple_clcalulator_test.xml")
-
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def test_calculate_cl():
@@ -57,22 +53,21 @@ def test_calculate_cl():
 def test_get_cl():
     """Test function 'get_cl'"""
 
-    get_cl(CPACS_IN_PATH, CPACS_OUT_PATH)
+    get_cl(str(CPACS_IN_PATH), str(CPACS_OUT_PATH))
 
-    tixi = open_tixi(CPACS_OUT_PATH)
+    tixi = open_tixi(str(CPACS_OUT_PATH))
     cl_xpath = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/targetCL"
 
     cl_to_check = tixi.getDoubleElement(cl_xpath)
     assert cl_to_check == approx(0.791955)
 
-    # Remove the output cpacs file if exist
-    if os.path.exists(CPACS_OUT_PATH):
-        os.remove(CPACS_OUT_PATH)
+    if CPACS_OUT_PATH.exists():
+        CPACS_OUT_PATH.unlink()
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 

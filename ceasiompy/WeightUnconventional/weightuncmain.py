@@ -13,64 +13,65 @@ Python version: >=3.7
 TODO:
     * Simplify classes, use only one or use subclasses
     * Make tings compatible also with the oters W&B Modules
+    * Use Pathlib and asolute path when refactor this module
 
 """
 
-# =============================================================================
+# =================================================================================================
 #   IMPORTS
-# =============================================================================
+# =================================================================================================
 
 import os
 import shutil
-import numpy as np
+from pathlib import Path
 
-# Classes
+import numpy as np
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import aircraft_name
+from ceasiompy.utils.InputClasses.Unconventional.engineclass import EngineData
 from ceasiompy.utils.InputClasses.Unconventional.weightuncclass import (
-    UserInputs,
     AdvancedInputs,
     MassesWeights,
+    UserInputs,
     WeightOutput,
 )
-from ceasiompy.utils.InputClasses.Unconventional.engineclass import EngineData
-
-# Functions
-from ceasiompy.WeightUnconventional.func.AinFunc import getinput
-from ceasiompy.WeightUnconventional.func.AoutFunc import outputweightgen, cpacsweightupdate
-from ceasiompy.WeightUnconventional.func.People.passengers import (
-    estimate_fuse_passengers,
-    estimate_wing_passengers,
+from ceasiompy.utils.moduleinterfaces import (
+    check_cpacs_input_requirements,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
 )
-from ceasiompy.WeightUnconventional.func.People.crewmembers import estimate_crew
-from ceasiompy.WeightUnconventional.func.Systems.systemsmass import estimate_system_mass
+from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
+from ceasiompy.WeightUnconventional.func.AinFunc import getinput
+from ceasiompy.WeightUnconventional.func.AoutFunc import cpacsweightupdate, outputweightgen
 from ceasiompy.WeightUnconventional.func.Engines.enginesanalysis import check_ed, engine_definition
 from ceasiompy.WeightUnconventional.func.Fuel.fuelmass import (
     estimate_fuse_fuel_mass,
     estimate_wing_fuel_mass,
 )
-
-from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
-from ceasiompy.utils.ceasiompyutils import aircraft_name
-import ceasiompy.utils.moduleinterfaces as mi
-
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.WeightUnconventional.func.People.crewmembers import estimate_crew
+from ceasiompy.WeightUnconventional.func.People.passengers import (
+    estimate_fuse_passengers,
+    estimate_wing_passengers,
+)
+from ceasiompy.WeightUnconventional.func.Systems.systemsmass import estimate_system_mass
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
 
-# =============================================================================
+# =================================================================================================
 #   CLASSES
-# =============================================================================
+# =================================================================================================
 
 """All classes are defined inside the classes and into
    the InputClasses/Unconventional folder."""
 
 
-# =============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# =============================================================================
+# =================================================================================================
 
 
 def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
@@ -348,16 +349,16 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         outputweightgen.output_fuse_txt(fus_nb, ui.FLOORS_NB, ed, out, mw, adui, awg, afg, name)
 
 
-# =============================================================================
+# =================================================================================================
 #    MAIN
-# =============================================================================
+# =================================================================================================
 
 
 def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + MODULE_NAME + " -----")
 
-    mi.check_cpacs_input_requirements(cpacs_path)
+    check_cpacs_input_requirements(cpacs_path)
 
     get_weight_unc_estimations(cpacs_path, cpacs_out_path)
 
@@ -366,7 +367,7 @@ def main(cpacs_path, cpacs_out_path):
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

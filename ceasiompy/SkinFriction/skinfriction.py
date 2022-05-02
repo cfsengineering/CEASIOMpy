@@ -13,20 +13,26 @@ Python version: >=3.7
 TODO:
 
     * update __specs__ file
-    * Redo test functions
     * (Check if projected value are realistic for different cases)
     * Adapt the code deal with fixed CL mode case
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
-import os
 import math
+from pathlib import Path
 
-from cpacspy.cpacspy import CPACS
+from ambiance import Atmosphere
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.moduleinterfaces import (
+    check_cpacs_input_requirements,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+)
+from ceasiompy.utils.xpath import SF_XPATH
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     create_branch,
@@ -34,28 +40,22 @@ from cpacspy.cpacsfunctions import (
     get_value,
     get_value_or_default,
 )
-import ceasiompy.utils.moduleinterfaces as mi
-from ceasiompy.utils.xpath import SF_XPATH
-
-from ambiance import Atmosphere
-
-from ceasiompy.utils.ceasiomlogger import get_logger
+from cpacspy.cpacspy import CPACS
 
 log = get_logger(__file__.split(".")[0])
 
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
 
-
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def estimate_skin_friction_coef(wetted_area, wing_area, wing_span, mach, alt):
@@ -133,12 +133,12 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
     the skin friction drag coefficient is added with the correct projections.
 
     Args:
-        cpacs_path (str):  Path to CPACS file
-        cpacs_out_path (str): Path to CPACS output file
+        cpacs_path (Path):  Path to CPACS file
+        cpacs_out_path (Path): Path to CPACS output file
     """
 
     # Load a CPACS file
-    cpacs = CPACS(cpacs_path)
+    cpacs = CPACS(str(cpacs_path))
 
     analyses_xpath = "/cpacs/toolspecific/CEASIOMpy/geometry/analysis"
 
@@ -233,27 +233,27 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
 
     log.info('AeroMap "' + aeromap_uid + '" has been added to the CPACS file')
 
-    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
+    cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
 
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
-    mi.check_cpacs_input_requirements(cpacs_path)
+    check_cpacs_input_requirements(cpacs_path)
 
     add_skin_friction(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

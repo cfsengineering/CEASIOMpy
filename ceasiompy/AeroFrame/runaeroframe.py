@@ -26,31 +26,38 @@ Python version: >=3.7
 # TODO
 # - make working directories
 
-import os
+# =================================================================================================
+#   IMPORTS
+# =================================================================================================
+
+
+from pathlib import Path
 
 import aeroframe.stdfun.run as af
-
 from ceasiompy.utils.ceasiomlogger import get_logger
+
 # from ceasiompy.utils.moduleinterfaces import check_cpacs_input_requirements
 
 log = get_logger(__file__.split(".")[0])
 
-DIR_MODULE = os.path.dirname(os.path.abspath(__file__))
-DIR_TOOL_INPUT = os.path.join(DIR_MODULE, "ToolInput")
-DIR_AEROFRAME_WKDIR = os.path.join(DIR_MODULE, "wkdir")
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
-FILE_SU2_DISP = os.path.join(DIR_TOOL_INPUT, "disp.dat")
-FILE_SU2_CONF = os.path.join(DIR_TOOL_INPUT, "ToolInput.cfg")
-FILE_SU2_CONF = os.path.join(DIR_TOOL_INPUT, "ToolInput.su2")
+DIR_TOOL_INPUT = Path(MODULE_DIR, "ToolInput")
+DIR_AEROFRAME_WKDIR = Path(MODULE_DIR, "wkdir")
+
+FILE_SU2_DISP = Path(DIR_TOOL_INPUT, "disp.dat")
+FILE_SU2_CONF = Path(DIR_TOOL_INPUT, "ToolInput.cfg")
+FILE_SU2_CONF = Path(DIR_TOOL_INPUT, "ToolInput.su2")
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
 
 if __name__ == "__main__":
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
 
-    # MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    # cpacs_path = MODULE_DIR + '/ToolInput/ToolInput.xml'
-    # cpacs_out_path = MODULE_DIR + '/ToolOutput/ToolOutput.xml'
-    # check_cpacs_input_requirements(cpacs_path)
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
     af.standard_run(args=af.StdRunArgs(dest=DIR_AEROFRAME_WKDIR, verbose=True))
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")

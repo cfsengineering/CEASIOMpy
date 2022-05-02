@@ -18,9 +18,7 @@ Python version: >=3.7
 #   IMPORT
 # ==============================================================================
 
-import ceasiompy.__init__
-
-import os
+from pathlib import Path
 import pandas as pd
 import numpy as np
 import matplotlib as mpl
@@ -28,10 +26,9 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.paths import MODULES_DIR_PATH
 
 log = get_logger(__file__.split(".")[0])
-
-LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
 
 # ==============================================================================
 #   CLASSES
@@ -154,8 +151,8 @@ def estimate_mtom(fuse_length, fuse_width, wing_area, wing_span, NAME):
 
     log.info("-------------- mtom regression --------------")
 
-    aircraft_data_file_name = os.path.join(
-        LIB_DIR, "WeightConventional/ToolInput/AircraftData2018_v1_ste.csv"
+    aircraft_data_file_name = Path(
+        MODULES_DIR_PATH, "WeightConventional", "ToolInput", "AircraftData2018_v1_ste.csv"
     )
     log.info("Open " + str(aircraft_data_file_name))
     aircraft_data = pd.read_csv(aircraft_data_file_name)

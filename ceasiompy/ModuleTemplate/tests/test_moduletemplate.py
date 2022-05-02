@@ -12,32 +12,31 @@ Python version: >=3.7
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
-import os
+
+from pathlib import Path
 
 import pytest
+from ceasiompy.ModuleTemplate.func.subfunc import my_subfunc
+from ceasiompy.ModuleTemplate.moduletemplate import MyClass, get_fuselage_scaling, sum_funcion
 from pytest import approx
 
-from ceasiompy.ModuleTemplate.moduletemplate import MyClass, sum_funcion, get_fuselage_scaling
-from ceasiompy.ModuleTemplate.func.subfunc import my_subfunc
-
-# Default CPACS file to test
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CPACS_IN_PATH = os.path.join(MODULE_DIR, "ToolInput", "simpletest_cpacs.xml")
-CPACS_OUT_PATH = os.path.join(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
+MODULE_DIR = Path(__file__).parent
+CPACS_IN_PATH = Path(MODULE_DIR, "ToolInput", "simpletest_cpacs.xml")
+CPACS_OUT_PATH = Path(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def test_MyClass():
@@ -67,7 +66,7 @@ def test_sum_funcion():
 def test_get_fuselage_scaling():
     """Test function 'get_fuselage_scaling'"""
 
-    x, y, z = get_fuselage_scaling(CPACS_IN_PATH, CPACS_OUT_PATH)
+    x, y, z = get_fuselage_scaling(str(CPACS_IN_PATH), str(CPACS_OUT_PATH))
 
     assert x == approx(1)
     assert y == approx(0.5)
@@ -85,9 +84,9 @@ def test_subfunc():
     assert res == "a and b"
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 

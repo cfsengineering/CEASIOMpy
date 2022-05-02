@@ -16,36 +16,39 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
-import os
-
+from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import get_value, get_value_or_default, create_branch
 
-import ceasiompy.utils.moduleinterfaces as mi
+from ceasiompy.utils.moduleinterfaces import (
+    check_cpacs_input_requirements,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+)
 
 from ambiance import Atmosphere
 
-from ceasiompy.utils.xpath import CLCALC_XPATH, SU2_XPATH
+from ceasiompy.utils.xpath import CLCALC_XPATH, MASSBREAKDOWN_XPATH, REF_XPATH, SU2_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def calculate_cl(ref_area, alt, mach, mass, load_fact=1.05):
@@ -76,8 +79,9 @@ def calculate_cl(ref_area, alt, mach, mass, load_fact=1.05):
 
     # Calculate lift coefficient
     weight = mass * Atm.grav_accel[0]
-    dyn_pres = 0.5 * GAMMA * Atm.pressure[0] * mach ** 2
+    dyn_pres = 0.5 * GAMMA * Atm.pressure[0] * mach**2
     target_cl = weight * load_fact / (dyn_pres * ref_area)
+
     log.info(f"A lift coefficient (CL) of {target_cl} has been calculated")
 
     return target_cl
@@ -92,22 +96,18 @@ def get_cl(cpacs_path, cpacs_out_path):
     CPACS file.
 
     Args:
-        cpacs_path (str):  Path to CPACS file
-        cpacs_out_path (str): Path to CPACS output file
+        cpacs_path (Path):  Path to CPACS file
+        cpacs_out_path (Path): Path to CPACS output file
     """
-    cpacs = CPACS(cpacs_path)
+
+    cpacs = CPACS(str(cpacs_path))
     tixi = cpacs.tixi
 
     # XPath definition
-    model_xpath = "/cpacs/vehicles/aircraft/model"
-    ref_area_xpath = model_xpath + "/reference/area"
-
-    mass_type_xpath = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/clCalculation/massType"
-    custom_mass_xpath = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/clCalculation/customMass"
-    percent_fuel_mass_xpath = (
-        "/cpacs/toolspecific/CEASIOMpy/aerodynamics/clCalculation/percentFuelMass"
-    )
-
+    ref_area_xpath = REF_XPATH + "/area"
+    mass_type_xpath = CLCALC_XPATH + "/massType"
+    custom_mass_xpath = CLCALC_XPATH + "/customMass"
+    percent_fuel_mass_xpath = CLCALC_XPATH + "/percentFuelMass"
     cruise_alt_xpath = CLCALC_XPATH + "/cruiseAltitude"
     cruise_mach_xpath = CLCALC_XPATH + "/cruiseMach"
     load_fact_xpath = CLCALC_XPATH + "/loadFactor"
@@ -125,17 +125,16 @@ def get_cl(cpacs_path, cpacs_out_path):
 
     elif mass_type == "% fuel mass":
         percent_fuel_mass = get_value(tixi, percent_fuel_mass_xpath)
-        mtom = get_value(tixi, model_xpath + "/analyses/massBreakdown/designMasses/mTOM/mass")
-        mzfm = get_value(tixi, model_xpath + "/analyses/massBreakdown/designMasses/mZFM/mass")
+        mtom = get_value(tixi, MASSBREAKDOWN_XPATH + "/designMasses/mTOM/mass")
+        mzfm = get_value(tixi, MASSBREAKDOWN_XPATH + "/designMasses/mZFM/mass")
         if mzfm > mtom:
             raise ValueError("mZFM is bigger than mTOM!")
         mass = (mtom - mzfm) * percent_fuel_mass / 100 + mzfm
 
     else:
-        mass_xpath = model_xpath + f"/analyses/massBreakdown/designMasses/{mass_type}/mass"
+        mass_xpath = MASSBREAKDOWN_XPATH + f"/designMasses/{mass_type}/mass"
         mass = get_value(tixi, mass_xpath)
 
-    # mtom = get_value(tixi,mtom_xpath)
     if mass:
         log.info(f"Aircraft mass use for this analysis is {mass} [kg]")
     else:
@@ -157,27 +156,27 @@ def get_cl(cpacs_path, cpacs_out_path):
     tixi.updateTextElement(SU2_XPATH + "/fixedCL", "YES")
     log.info("Target CL has been saved in the CPACS file")
 
-    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
+    cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
-    mi.check_cpacs_input_requirements(cpacs_path)
+    check_cpacs_input_requirements(cpacs_path)
     get_cl(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

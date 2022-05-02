@@ -30,48 +30,48 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
+import json
+import re
+import shutil
 from functools import partial
 from importlib import import_module
 from pathlib import Path
-import json
-import os
-import re
-import shutil
-from datetime import datetime
-from glob import glob
+
 import numpy as np
 import pandas as pd
 import xmltodict as xml
-
-from cpacspy.cpacsfunctions import open_tixi, get_value_or_default
-from ceasiompy.utils.ceasiompyutils import get_results_directory
-import ceasiompy.utils.moduleinterfaces as mi
-
 from ceasiompy.utils.ceasiomlogger import get_logger
-
+from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.moduleinterfaces import (
+    check_cpacs_input_requirements,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+)
+from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
 log = get_logger(__file__.split(".")[0])
+
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
+
 dump_pretty_json = partial(json.dump, indent=4, separators=(",", ": "))
 
 REGEX_INT = re.compile(r"^[-+]?[0-9]+$")
 REGEX_FLOAT = re.compile(r"^[+-]?(\d+(\.\d*)?|\.\d+)([eE][+-]?\d+)?$")
 
-DIR_MODULE = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
 
-
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def import_pytornado(module_name):
@@ -280,14 +280,14 @@ def _get_load_fields(pytornado_results, dir_pyt_results):
 
     # Write aircraft load in a CSV file
     df_tot = pd.concat(frames)
-    csv_path = os.path.join(dir_pyt_results, "aircraft_loads.csv")
+    csv_path = Path(dir_pyt_results, "aircraft_loads.csv")
     print(csv_path)
     df_tot.to_csv(csv_path, sep=",", index=False)
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 
 def main(cpacs_in_path, cpacs_out_path):
@@ -298,18 +298,18 @@ def main(cpacs_in_path, cpacs_out_path):
     settings_from_CPACS = get_pytornado_settings_from_CPACS(cpacs_in_path)
     if settings_from_CPACS is not None:
         if settings_from_CPACS.get("deleteOldWKDIRs", False):
-            wkdirs = glob(os.path.join(DIR_MODULE, "wkdir_*"))
+            wkdirs = [p for p in MODULE_DIR.iterdir() if "wkdir_" in p.name]
             for wkdir in wkdirs:
                 shutil.rmtree(wkdir, ignore_errors=True)
 
     # ===== Paths =====
-    dir_pyt_wkdir = os.path.join(DIR_MODULE, "wkdir_temp")
+    dir_pyt_wkdir = Path(MODULE_DIR, "wkdir_temp")
 
-    dir_pyt_aircraft = os.path.join(dir_pyt_wkdir, "aircraft")
-    dir_pyt_settings = os.path.join(dir_pyt_wkdir, "settings")
-    dir_pyt_results = os.path.join(dir_pyt_wkdir, "_results")
-    file_pyt_aircraft = os.path.join(dir_pyt_aircraft, "ToolInput.xml")
-    file_pyt_settings = os.path.join(dir_pyt_settings, "cpacs_run.json")
+    dir_pyt_aircraft = Path(dir_pyt_wkdir, "aircraft")
+    dir_pyt_settings = Path(dir_pyt_wkdir, "settings")
+    dir_pyt_results = Path(dir_pyt_wkdir, "_results")
+    file_pyt_aircraft = Path(dir_pyt_aircraft, "ToolInput.xml")
+    file_pyt_settings = Path(dir_pyt_settings, "cpacs_run.json")
 
     # ===== Make directories =====
     Path(dir_pyt_wkdir).mkdir(parents=True, exist_ok=True)
@@ -319,7 +319,7 @@ def main(cpacs_in_path, cpacs_out_path):
 
     # ===== Setup =====
     shutil.copy(src=cpacs_in_path, dst=file_pyt_aircraft)
-    mi.check_cpacs_input_requirements(cpacs_in_path)
+    check_cpacs_input_requirements(cpacs_in_path)
 
     # ===== Get PyTornado settings =====
     cpacs_settings = get_pytornado_settings(cpacs_in_path)
@@ -334,7 +334,7 @@ def main(cpacs_in_path, cpacs_out_path):
     )
 
     # ===== Extract load =====
-    tixi = open_tixi(cpacs_in_path)
+    tixi = open_tixi(str(cpacs_in_path))
     extract_loads_xpath = "/cpacs/toolspecific/pytornado/save_results/extractLoads"
     extract_loads = get_value_or_default(tixi, extract_loads_xpath, False)
 
@@ -347,7 +347,7 @@ def main(cpacs_in_path, cpacs_out_path):
     # ===== Copy files in the wkflow results directory =====
     # TODO: use dirs_exist_ok=True option when  python >=3.8 and remove "tmp"
     dst_pyt_wkdir = Path(get_results_directory("PyTornado"), "tmp")
-    if os.path.isdir(dst_pyt_wkdir):
+    if dst_pyt_wkdir.is_dir():
         shutil.rmtree(dst_pyt_wkdir)
     shutil.copytree(src=dir_pyt_wkdir, dst=dst_pyt_wkdir)
     shutil.rmtree(dir_pyt_wkdir, ignore_errors=True)
@@ -357,9 +357,7 @@ def main(cpacs_in_path, cpacs_out_path):
 
 if __name__ == "__main__":
 
-    # ===== CPACS inout and output paths =====
-    # MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-    cpacs_in_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_in_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_in_path, cpacs_out_path)

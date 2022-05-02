@@ -13,50 +13,52 @@ Python version: >=3.7
 TODO:
     * Simplify classes, use only one or use subclasses
     * Make tings compatible also with the others W&B Modules
+    * Use Pathlib and asolute path when refactor this module
 
 """
 
-# =============================================================================
+# =================================================================================================
 #   IMPORTS
-# =============================================================================
+# =================================================================================================
 
 import os
 import shutil
-import numpy as np
+from pathlib import Path
 
-# Should be kept
+import numpy as np
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import aircraft_name
+from ceasiompy.utils.InputClasses.Conventional import weightconvclass
+from ceasiompy.utils.moduleinterfaces import (
+    check_cpacs_input_requirements,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+)
+from ceasiompy.utils.WB.ConvGeometry import geometry
+from ceasiompy.WeightConventional.func.AoutFunc import cpacsweightupdate, outputweightgen
+from ceasiompy.WeightConventional.func.Crew.crewmembers import estimate_crew
+from ceasiompy.WeightConventional.func.Masses.mtom import estimate_mtom
+from ceasiompy.WeightConventional.func.Masses.oem import estimate_operating_empty_mass
 from ceasiompy.WeightConventional.func.Passengers.passengers import estimate_passengers
 from ceasiompy.WeightConventional.func.Passengers.seatsconfig import get_seat_config
-from ceasiompy.WeightConventional.func.Crew.crewmembers import estimate_crew
-from ceasiompy.WeightConventional.func.Masses.oem import estimate_operating_empty_mass
-from ceasiompy.WeightConventional.func.Masses.mtom import estimate_mtom
-from ceasiompy.utils.ceasiompyutils import aircraft_name
-
-# Should be changed or removed
-from ceasiompy.utils.InputClasses.Conventional import weightconvclass
-from ceasiompy.WeightConventional.func.AoutFunc import outputweightgen, cpacsweightupdate
-from ceasiompy.utils.WB.ConvGeometry import geometry
-import ceasiompy.utils.moduleinterfaces as mi
-
-from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
-# =============================================================================
+# =================================================================================================
 #   CLASSES
-# =============================================================================
+# =================================================================================================
 
 """
     All classes are defined in the Classes and in the Input_classes folders.
 """
 
 
-# =============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# =============================================================================
+# =================================================================================================
 
 
 def get_weight_estimations(cpacs_path, cpacs_out_path):
@@ -298,25 +300,25 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     cpacsweightupdate.cpacs_update(mw, out, cpacs_path, cpacs_out_path)
 
 
-# =============================================================================
+# =================================================================================================
 #    MAIN
-# =============================================================================
+# =================================================================================================
 
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
-    mi.check_cpacs_input_requirements(cpacs_path)
+    check_cpacs_input_requirements(cpacs_path)
 
     get_weight_estimations(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

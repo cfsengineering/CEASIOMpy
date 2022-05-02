@@ -19,8 +19,6 @@ TODO:
 #   IMPORTS
 # ==============================================================================
 
-import os
-
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
@@ -43,14 +41,14 @@ def get_mesh_marker(su2_mesh_path):
     found in the SU2 mesh file.
 
     Args:
-        su2_mesh_path (interger):  Path to the SU2 mesh
+        su2_mesh_path (Path):  Path to the SU2 mesh
 
     """
 
-    if not os.path.isfile(su2_mesh_path):
+    if not su2_mesh_path.is_file():
         raise FileNotFoundError(f"The SU2 mesh '{su2_mesh_path}' has not been found!")
 
-    if not su2_mesh_path.endswith(".su2"):
+    if not su2_mesh_path.suffix == ".su2":
         raise ValueError("The input must be SU2 mesh (*.su2)!")
 
     with open(su2_mesh_path) as f:

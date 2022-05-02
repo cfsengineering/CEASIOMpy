@@ -52,10 +52,6 @@ from ceasiompy.StabilityDynamic.func.func_dynamic import (
     trim_condition,
 )
 
-import ceasiompy.__init__
-
-LIB_DIR = os.path.dirname(ceasiompy.__init__.__file__)
-
 # ==============================================================================
 #   CLASSES
 # ==============================================================================

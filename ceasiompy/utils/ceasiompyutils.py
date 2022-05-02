@@ -112,7 +112,7 @@ def run_module(module, wkdir=Path.cwd(), iter=0):
 
         # Run the module
         with change_working_dir(wkdir):
-            my_module.main(str(module.cpacs_in), str(module.cpacs_out))
+            my_module.main(module.cpacs_in, module.cpacs_out)
 
 
 def get_install_path(soft_check_list):
@@ -194,7 +194,7 @@ def run_soft(soft, config_path, wkdir, nb_proc):
     log.info("Number of proc available: " + str(os.cpu_count()))
     log.info(str(nb_proc) + " will be used for this calculation.")
 
-    logfile_path = os.path.join(wkdir, "logfile" + soft + ".log")
+    logfile_path = Path(wkdir, f"logfile{soft}.log")
 
     # if mpi_install_path is not None:
     #     command_line =  [mpi_install_path,'-np',str(nb_proc),
@@ -206,13 +206,13 @@ def run_soft(soft, config_path, wkdir, nb_proc):
             "-np",
             str(int(nb_proc)),
             soft_install_path,
-            config_path,
+            str(config_path),
             ">",
             logfile_path,
         ]
     # elif soft == 'SU2_DEF' a disp.dat must be there to run with MPI
     else:
-        command_line = [soft_install_path, config_path, ">", logfile_path]
+        command_line = [soft_install_path, str(config_path), ">", logfile_path]
 
     log.info(f">>> Running {soft} on {nb_proc} proc")
     log.info(f"    from {wkdir}")
@@ -242,18 +242,18 @@ def aircraft_name(tixi_or_cpacs):
         name (str): Name of the aircraft.
     """
 
-    # TODO: MODIFY this funtion, temporary it could accept a cpacs path or tixi handle
+    # TODO: MODIFY this function, temporary it could accept a cpacs path or tixi handle
     # check xpath
     # *modify corresponding test
 
-    if isinstance(tixi_or_cpacs, str):
+    if isinstance(tixi_or_cpacs, Path):
 
-        tixi = open_tixi(tixi_or_cpacs)
+        tixi = open_tixi(str(tixi_or_cpacs))
 
         aircraft_name_xpath = "/cpacs/header/name"
         name = get_value_or_default(tixi, aircraft_name_xpath, "Aircraft")
 
-        tixi.save(tixi_or_cpacs)
+        tixi.save(str(tixi_or_cpacs))
 
     else:
 

@@ -22,14 +22,10 @@ Todo:
 # =================================================================================================
 
 
-import os
 from pathlib import Path
 from re import split
+
 import pandas as pd
-
-from cpacspy.cpacsfunctions import get_value_or_default
-from cpacspy.utils import COEFS, PARAMS_COEFS
-
 from ceasiompy.Optimisation.func.dictionnary import init_geom_var_dict
 from ceasiompy.Optimisation.func.tools import (
     add_bounds,
@@ -39,20 +35,16 @@ from ceasiompy.Optimisation.func.tools import (
     launch_external_program,
 )
 from ceasiompy.SMUse.smuse import load_surrogate
+from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import get_all_module_specs
 from ceasiompy.utils.xpath import OPTIM_XPATH, SMUSE_XPATH
-
-from ceasiompy.utils.ceasiomlogger import get_logger
+from cpacspy.cpacsfunctions import get_value_or_default
+from cpacspy.utils import COEFS, PARAMS_COEFS
 
 log = get_logger(__file__.split(".")[0])
 
-
-# =================================================================================================
-#   GLOBALS
-# =================================================================================================
-
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CSV_PATH = MODULE_DIR + "/Variable_library.csv"
+MODULE_DIR = Path(__file__).parent
+CSV_PATH = Path(MODULE_DIR, "Variable_library.csv")
 
 # Parameters that can not be used as problem variables
 BANNED_ENTRIES = [
@@ -101,7 +93,7 @@ class Routine:
         self.doe_file = ""
 
         # User specified configuration file path
-        self.user_config = "../optimisation/Default_config.csv"
+        self.user_config = Path(MODULE_DIR, "files", "Default_config.csv")
         self.aeromap_uid = "-"
         self.use_aeromap = False
 
@@ -170,10 +162,10 @@ def gen_doe_csv(user_config):
     ensured that the format is correct.
 
     Args:
-        user_config (str): Path to user configured file.
+        user_config (Path): Path to user configured file.
 
     Returns:
-        doe_csv (str): Path to reformated file.
+        doe_csv (Path): Path to reformated file.
 
     """
 
@@ -192,7 +184,7 @@ def gen_doe_csv(user_config):
     df.set_index("Name")
     df = df.T
 
-    doe_csv = os.path.split(user_config)[0] + "/DoE_points.csv"
+    doe_csv = Path(user_config.parent, "/DoE_points.csv")
     df.to_csv(doe_csv, header=False, index=False)
 
     return doe_csv
@@ -528,7 +520,7 @@ def create_variable_library(Rt, tixi, optim_dir_path):
     Args:
         Rt (class): Contains all the parameters of the current routine.
         tixi (Tixi3 handler): Tixi handle of the CPACS file.
-        optim_dir_path (str): Path to the working directory.
+        optim_dir_path (Path): Path to the working directory.
 
     Returns:
         optim_var_dict (dict): Dictionnary with all optimisation parameters.
@@ -542,7 +534,7 @@ def create_variable_library(Rt, tixi, optim_dir_path):
     for obj in Rt.objective:
         objective.extend(split("[+*/-]", obj))
 
-    if os.path.isfile(Rt.user_config):
+    if Rt.user_config.is_file():
         log.info("Configuration file found, will be used")
         log.info(Rt.user_config)
         df = pd.read_csv(Rt.user_config, index_col=0)

@@ -17,13 +17,13 @@ Python version: >=3.7
 #   IMPORTS
 # ==============================================================================
 
-import os
+from pathlib import Path
 
 from ceasiompy.utils.generalclasses import SimpleNamespace, Point, Transformation
 from cpacspy.cpacspy import CPACS
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-CPACS_PATH = os.path.join(MODULE_DIR, "simpletest_cpacs.xml")
+MODULE_DIR = Path(__file__).parent
+CPACS_PATH = Path(MODULE_DIR, "simpletest_cpacs.xml")
 
 # ==============================================================================
 #   CLASSES
@@ -59,7 +59,7 @@ def test_SimpleNamespace():
 def test_Point():
     """Test the class 'Point'"""
 
-    cpacs = CPACS(CPACS_PATH)
+    cpacs = CPACS(str(CPACS_PATH))
     tixi = cpacs.tixi
 
     point1 = Point()
@@ -79,7 +79,7 @@ def test_Point():
 def test_Transfomation():
     """Test the class 'Point'"""
 
-    cpacs = CPACS(CPACS_PATH)
+    cpacs = CPACS(str(CPACS_PATH))
     tixi = cpacs.tixi
 
     trans1 = Transformation()

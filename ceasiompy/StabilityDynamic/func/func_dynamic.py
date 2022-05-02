@@ -16,11 +16,11 @@ TODO:
 
 """
 
-# =============================================================================
+# =================================================================================================
 #   IMPORTS
-# =============================================================================
+# =================================================================================================
 
-import os
+from pathlib import Path
 
 import numpy as np
 from numpy import log as ln
@@ -32,16 +32,17 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
-# =============================================================================
+# =================================================================================================
 #   CLASSES
-# =============================================================================
+# =================================================================================================
 
 
-# =============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# =============================================================================
+# =================================================================================================
 
 # 'MILF-8785C ShortPeriod natual frequency requirements for flight phase A'
 def plot_sp_level_a(x_axis, y_axis, legend, show_plots, save_plots):
@@ -164,7 +165,7 @@ def plot_sp_level_a(x_axis, y_axis, legend, show_plots, save_plots):
 
     if save_plots:
         fig_title = plot_title.replace(" ", "_")
-        fig_path = os.path.join(MODULE_DIR, "ToolOutput", fig_title) + ".svg"
+        fig_path = Path(MODULE_DIR, "ToolOutput", f"{fig_title}.svg")
         plt.savefig(fig_path)
 
     if show_plots:
@@ -263,7 +264,7 @@ def plot_sp_level_b(x_axis, y_axis, legend, show_plots, save_plots):
 
     if save_plots:
         fig_title = plot_title.replace(" ", "_")
-        fig_path = os.path.join(MODULE_DIR, "ToolOutput", fig_title) + ".svg"
+        fig_path = Path(MODULE_DIR, "ToolOutput", f"{fig_title}.svg")
         plt.savefig(fig_path)
 
     # Show Plots
@@ -467,7 +468,7 @@ def plot_sp_level_c(x_axis, y_axis, legend, show_plots, save_plots):
 
     if save_plots:
         fig_title = plot_title.replace(" ", "_")
-        fig_path = os.path.join(MODULE_DIR, "ToolOutput", fig_title) + ".svg"
+        fig_path = Path(MODULE_DIR, "ToolOutput", f"{fig_title}.svg")
         plt.savefig(fig_path)
 
     if show_plots:
@@ -972,7 +973,7 @@ def plot_splane(eg_value_longi, plot_title, legend, show_plots, save_plots):
 
     if save_plots:
         fig_title = plot_title.replace(" ", "_")
-        fig_path = os.path.join(MODULE_DIR, "ToolOutput", fig_title) + ".svg"
+        fig_path = Path(MODULE_DIR, "ToolOutput", f"{fig_title}.svg")
         plt.savefig(fig_path)
 
     if show_plots:
@@ -2001,9 +2002,9 @@ def dutch_roll_rating(
     return dr_rate
 
 
-# ==============================================================================
+# ==================================================================================================
 #    MAIN
-# ==============================================================================
+# ==================================================================================================
 
 if __name__ == "__main__":
 

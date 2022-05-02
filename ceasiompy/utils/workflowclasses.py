@@ -18,26 +18,20 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-
-import ceasiompy.__init__
-
+import datetime
 import os
 import shutil
-import datetime
 from pathlib import Path
 
 from ceasiompy.Optimisation.optimisation import routine_launcher
+from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
-
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.paths import CPACS_FILES_PATH, MODULES_DIR_PATH
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-LIB_DIR = Path(ceasiompy.__init__.__file__).parent
-TEST_FILE_DIR = Path(LIB_DIR.parent, "test_files")
 
 OPTIM_METHOD = ["OPTIM", "DOE"]
 
@@ -67,7 +61,7 @@ class ModuleToRun:
         self.cpacs_out = cpacs_out
 
         # Set module path
-        self.module_dir = Path.joinpath(LIB_DIR, self.name)
+        self.module_dir = Path(MODULES_DIR_PATH, self.name)
 
         # Set other default values
         self.is_settinggui = False
@@ -113,7 +107,7 @@ class OptimSubWorkflow:
         self.iteration = 0
 
     def set_subworkflow(self) -> None:
-        """...."""
+        """Set input and output for subworkflow."""
 
         for m, module in enumerate(self.modules):
 
@@ -168,7 +162,7 @@ class Workflow:
     def __init__(self) -> None:
 
         self.working_dir = Path().cwd()
-        self.cpacs_in = Path(TEST_FILE_DIR, "CPACSfiles", "D150_simple.xml").resolve()
+        self.cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml").resolve()
         self.current_wkflow_dir = None
 
         self.modules_list = []  # List of modules to run (str)
@@ -184,7 +178,7 @@ class Workflow:
             cfg_file (str): Configuration file path
         """
 
-        cfg = ConfigFile(str(cfg_file))
+        cfg = ConfigFile(cfg_file)
 
         self.working_dir = cfg_file.parent.absolute()
         self.cpacs_in = Path(cfg["CPACS_TOOLINPUT"])
@@ -220,7 +214,7 @@ class Workflow:
             cfg["comment_module_optim"] = "MODULE_OPTIM = (  )"
             cfg["comment_optim_method"] = "OPTIM_METHOD = NONE"
 
-        cfg_file = os.path.join(self.working_dir, "ceasiompy.cfg")
+        cfg_file = Path(self.working_dir, "ceasiompy.cfg")
         cfg.write_file(cfg_file, overwrite=True)
 
     def set_workflow(self) -> None:

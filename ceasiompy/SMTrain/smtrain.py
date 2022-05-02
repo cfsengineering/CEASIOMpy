@@ -18,45 +18,35 @@ TODO:
 
 """
 
-# =============================================================================
+import datetime
+import pickle
+import re
+from pathlib import Path
+
+# =================================================================================================
 #   IMPORTS
-# =============================================================================
+# =================================================================================================
 from re import split as splt
 
-import os
-import re
-import pickle
-import datetime
+import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
-
 import smt.surrogate_models as sms
-
-from cpacspy.cpacspy import CPACS
-from cpacspy.utils import PARAMS, COEFS
-from cpacspy.cpacsfunctions import create_branch, get_value_or_default
-
-from ceasiompy.utils.xpath import SMTRAIN_XPATH, SMFILE_XPATH, OPTWKDIR_XPATH
-
-import ceasiompy.utils.moduleinterfaces as mi
-from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.SMUse.smuse import Surrogate_model
-
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
+from ceasiompy.utils.xpath import OPTWKDIR_XPATH, SMFILE_XPATH, SMTRAIN_XPATH
+from cpacspy.cpacsfunctions import create_branch, get_value_or_default
+from cpacspy.cpacspy import CPACS
+from cpacspy.utils import COEFS, PARAMS
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
-# =============================================================================
-#   GLOBALS
-# =============================================================================
-
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# Working surrogate models, the hyperparameters can be changed here for
-# experienced users.
+# Working surrogate models, the hyperparameters can be changed here for experienced users.
 model_dict = {
     "KRG": "KRG(theta0=[1e-2]*xd.shape[1])",
     "KPLSK": "KPLS(theta0=[1e-2])",
@@ -75,9 +65,9 @@ model_dict = {
 # 'RBF':'RBF(d0=5)'
 # 'IDW':'IDW(p=2)'
 
-# =============================================================================
+# =================================================================================================
 #   ClASSES
-# =============================================================================
+# =================================================================================================
 
 
 class Prediction_tool:
@@ -130,9 +120,9 @@ class Prediction_tool:
         cpacs.save_cpacs(cpacs_path, overwrite=True)
 
 
-# =============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# =============================================================================
+# =================================================================================================
 
 
 def extract_data_set(Tool):
@@ -238,9 +228,9 @@ def validation_plots(Tool, sm, xt, yt, xv, yv):
 
     """
 
-    fig_dir = Tool.wkdir + "/Validation plots"
-    if not os.path.isdir(fig_dir):
-        os.mkdir(fig_dir)
+    fig_dir = Path(Tool.wkdir, "Validation plots")
+    if not fig_dir.is_dir():
+        fig_dir.mkdir()
 
     yp = sm.predict_values(xv)
 
@@ -440,7 +430,7 @@ def generate_model(Tool, cpacs_path):
     """
 
     # Check for user-specified file to add to model
-    if os.path.isfile(Tool.user_file):
+    if Tool.user_file.is_file():
         log.info("Using normal entries")
         xd, yd = extract_data_set(Tool)
         if Tool.aeromap_case:
@@ -456,14 +446,14 @@ def generate_model(Tool, cpacs_path):
     create_surrogate(Tool, xd, yd)
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
     # Get results directory
     results_dir = get_results_directory("SMTrain")
@@ -473,12 +463,12 @@ def main(cpacs_path, cpacs_out_path):
     generate_model(Tool, cpacs_path)
     save_model(Tool, cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

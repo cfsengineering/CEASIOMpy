@@ -21,17 +21,18 @@ TODO:
 # =================================================================================================
 
 import os
+from pathlib import Path
 import shutil
 import platform
 
-import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
 # =================================================================================================
 #   CLASSES
@@ -55,8 +56,8 @@ def launch_cpacscreator(cpacs_path, cpacs_out_path):
         * For CPACSCreator https://github.com/cfsengineering/CPACSCreator
 
     Args:
-        cpacs_path (str): Path to the input CPACS file
-        cpacs_out_path (str): Path to the output CPACS file
+        cpacs_path (Path): Path to the input CPACS file
+        cpacs_out_path (Path): Path to the output CPACS file
 
     """
 
@@ -84,19 +85,17 @@ def launch_cpacscreator(cpacs_path, cpacs_out_path):
         )
 
     # Empty /tmp directory
-    TMP_DIR = os.path.join(MODULE_DIR, "tmp")
-    if os.path.isdir(TMP_DIR):
-        tmp_file_list = os.listdir(TMP_DIR)
-        for tmp_file in tmp_file_list:
-            tmp_file_path = os.path.join(TMP_DIR, tmp_file)
-            os.remove(tmp_file_path)
+    TMP_DIR = Path(MODULE_DIR, "tmp")
+    if TMP_DIR.is_dir():
+        for tmp_file in TMP_DIR.iterdir():
+            tmp_file.unlink()
     else:
-        os.mkdir(TMP_DIR)
+        TMP_DIR.mkdir()
     log.info("The /tmp directory has been cleared.")
 
     # Copy CPACS input file (.xml) in /tmp directory
-    cpacs_tmp = os.path.join(MODULE_DIR, "tmp", "cpacsTMP.xml")
-    if os.path.isfile(cpacs_path):
+    cpacs_tmp = Path(MODULE_DIR, "tmp", "cpacsTMP.xml")
+    if cpacs_path.is_file():
         shutil.copy(cpacs_path, cpacs_tmp)
         log.info("The input CPACS file has been copied in /tmp ")
     else:
@@ -104,19 +103,19 @@ def launch_cpacscreator(cpacs_path, cpacs_out_path):
 
     # Run 'cpacscreator' with CPACS input
     if current_os == "Darwin":
-        os.system("CPACS-Creator " + cpacs_tmp)
+        os.system("CPACS-Creator " + str(cpacs_tmp))
 
     elif current_os == "Linux":
-        os.system("cpacscreator " + cpacs_tmp)
+        os.system("cpacscreator " + str(cpacs_tmp))
 
     elif current_os == "Windows":
-        os.system("CPACSCreator " + cpacs_tmp)
+        os.system("CPACSCreator " + str(cpacs_tmp))
 
     else:
         raise OSError("OS not recognize!")
 
     # Copy CPACS temp file (.xml) from the temp directory to /ToolOutput
-    if os.path.isfile(cpacs_tmp):
+    if cpacs_tmp.is_file():
         shutil.copy(cpacs_tmp, cpacs_out_path)
         log.info("The output CPACS file has been copied in /ToolOutput")
     else:
@@ -136,16 +135,16 @@ def launch_cpacscreator(cpacs_path, cpacs_out_path):
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
     launch_cpacscreator(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

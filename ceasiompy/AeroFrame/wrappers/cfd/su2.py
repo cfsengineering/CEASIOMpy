@@ -8,14 +8,11 @@ AeroFrame wrapper for SU2
 # Author: Aaron Dettmann
 
 from collections import defaultdict
-from os.path import join
-import os
 from pathlib import Path
 
 import numpy as np
-from aeroframe.templates.wrappers import AeroWrapper
 from aeroframe.interpol.translate import get_deformed_mesh
-
+from aeroframe.templates.wrappers import AeroWrapper
 from ceasiompy.SU2Run.su2run import run_SU2_fsi
 
 
@@ -25,11 +22,11 @@ class Wrapper(AeroWrapper):
 
         # SU2 specific files
         self.paths = {}
-        self.paths["d_calc"] = join(self.root_path, "..", "temp")
-        self.paths["f_config"] = join(self.paths["d_calc"], "ToolInput.cfg")
-        self.paths["f_loads"] = join(self.paths["d_calc"], "force.csv")
-        self.paths["f_mesh"] = join(self.paths["d_calc"], "ToolInput.su2")
-        self.paths["f_disp"] = join(self.paths["d_calc"], "disp.dat")
+        self.paths["d_calc"] = Path(self.root_path, "..", "temp")
+        self.paths["f_config"] = Path(self.paths["d_calc"], "ToolInput.cfg")
+        self.paths["f_loads"] = Path(self.paths["d_calc"], "force.csv")
+        self.paths["f_mesh"] = Path(self.paths["d_calc"], "ToolInput.su2")
+        self.paths["f_disp"] = Path(self.paths["d_calc"], "disp.dat")
 
         # Make the working directory if it does not exist
         Path(self.paths["d_calc"]).mkdir(parents=True, exist_ok=True)
@@ -109,15 +106,16 @@ class Wrapper(AeroWrapper):
         # Hint: If there is no displacement file, no deformation will be
         # taken into account
         if turn_off_deform:
-            if os.path.exists(self.paths["f_disp"]):
+            if self.paths["f_disp"].exists():
                 pass
-                # os.remove(self.paths['f_disp'])
+
         else:
             self._write_su2_disp_file()
 
         # ----- Run the SU2 analysis -----
         run_SU2_fsi(
-            config_path=self.paths["f_config"], wkdir=self.paths["d_calc"],
+            config_path=self.paths["f_config"],
+            wkdir=self.paths["d_calc"],
         )
 
         # Get the undeformed mesh in the first

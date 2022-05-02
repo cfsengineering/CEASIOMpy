@@ -17,30 +17,29 @@ Python version: >=3.7
 #   IMPORTS
 # ==============================================================================
 
-import os
-import pytest
 from pathlib import Path
 
+import pytest
 from ceasiompy.utils.configfiles import ConfigFile
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODULE_DIR = Path(__file__).parent
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def test_configfiles():
     """Test the class 'ConfigFile'"""
 
     # Test Simple ConfigFile class not from a file
-    CONFIG_0 = os.path.join(MODULE_DIR, "config_test0.cfg")
-    CONFIG_OUT_0 = os.path.join(MODULE_DIR, "config_test0_out.cfg")
+    CONFIG_0 = Path(MODULE_DIR, "config_test0.cfg")
+    CONFIG_OUT_0 = Path(MODULE_DIR, "config_test0_out.cfg")
 
     config0 = ConfigFile()
     config0["TEXT"] = "text"
@@ -60,15 +59,15 @@ def test_configfiles():
 
     # Check if ValueError is raised when trying read a file with wrong extension
     with pytest.raises(ValueError):
-        ConfigFile("config_test0.wrong")
+        ConfigFile(Path("config_test0.wrong"))
 
     # Check if ValueError is raised when trying read a non existing file
     with pytest.raises(FileNotFoundError):
-        ConfigFile("config_test1000.cfg")
+        ConfigFile(Path("config_test1000.cfg"))
 
     # Read a config file modifing it and write it back
-    CONFIG_1 = os.path.join(MODULE_DIR, "config_test1.cfg")
-    CONFIG_OUT_1 = os.path.join(MODULE_DIR, "config_test1_out.cfg")
+    CONFIG_1 = Path(MODULE_DIR, "config_test1.cfg")
+    CONFIG_OUT_1 = Path(MODULE_DIR, "config_test1_out.cfg")
 
     config1 = ConfigFile(CONFIG_1)
     config1["NEWLINE"] = "text"
@@ -98,22 +97,22 @@ def test_configfiles():
     with pytest.raises(FileExistsError):
         config1.write_file(CONFIG_OUT_1, overwrite=False)
 
-    CONFIG_2 = os.path.join(MODULE_DIR, "config_test2.cfg")
+    CONFIG_2 = Path(MODULE_DIR, "config_test2.cfg")
 
     with pytest.raises(ValueError):
         ConfigFile(CONFIG_2)
 
     # Remove output files
-    if os.path.isfile(CONFIG_OUT_0):
-        os.remove(CONFIG_OUT_0)
+    if CONFIG_OUT_0.exists():
+        CONFIG_OUT_0.unlink()
 
-    if os.path.isfile(CONFIG_OUT_1):
-        os.remove(CONFIG_OUT_1)
+    if CONFIG_OUT_1.exists():
+        CONFIG_OUT_1.unlink()
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 

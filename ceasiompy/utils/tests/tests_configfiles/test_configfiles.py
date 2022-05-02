@@ -59,11 +59,11 @@ def test_configfiles():
 
     # Check if ValueError is raised when trying read a file with wrong extension
     with pytest.raises(ValueError):
-        ConfigFile("config_test0.wrong")
+        ConfigFile(Path("config_test0.wrong"))
 
     # Check if ValueError is raised when trying read a non existing file
     with pytest.raises(FileNotFoundError):
-        ConfigFile("config_test1000.cfg")
+        ConfigFile(Path("config_test1000.cfg"))
 
     # Read a config file modifing it and write it back
     CONFIG_1 = Path(MODULE_DIR, "config_test1.cfg")

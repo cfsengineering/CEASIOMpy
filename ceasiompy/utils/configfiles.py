@@ -20,7 +20,6 @@ TODO:
 #   IMPORTS
 # ==============================================================================
 
-import os
 from collections import OrderedDict
 from pathlib import Path
 
@@ -37,16 +36,12 @@ log = get_logger(__file__.split(".")[0])
 class ConfigFile:
     """Class to read/write and modify a configuration file."""
 
-    def __init__(self, filename=""):
+    def __init__(self, filename=None):
         """Initialize the ConfigFile class.
 
         Args:
-            filename (str or Path, optional): path to the configuration file.
+            filename (Path): path to the configuration file.
         """
-
-        # Convert Path object to string
-        if isinstance(filename, Path):
-            filename = str(filename)
 
         self.filename = filename
 
@@ -59,10 +54,10 @@ class ConfigFile:
     def read_file(self, file):
         """Read a .cfg or .txt configuration file."""
 
-        if not file.endswith(".cfg") and not file.endswith(".txt"):
+        if file.suffix not in [".cfg", ".txt"]:
             raise ValueError("File must be a .cfg or .txt file")
 
-        if not os.path.isfile(file):
+        if not file.is_file():
             raise FileNotFoundError(f"File {file} not found")
 
         with open(file, "r") as lines:
@@ -110,9 +105,9 @@ class ConfigFile:
     def write_file(self, file, overwrite=False):
         """Write a .cfg configuration file."""
 
-        if os.path.isfile(file):
+        if file.is_file():
             if overwrite:
-                os.remove(file)
+                file.unlink()
             else:
                 raise FileExistsError(
                     f"File {file} already exists. Use overwrite=True to overwrite"

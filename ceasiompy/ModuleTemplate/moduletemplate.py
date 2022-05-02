@@ -21,12 +21,24 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import os
-import sys
-import math
-import numpy
-import matplotlib
 
+import math
+import sys
+from pathlib import Path
+
+import matplotlib
+import numpy
+from ambiance import Atmosphere
+from ceasiompy.ModuleTemplate.func.subfunc import my_subfunc
+from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
+from ceasiompy.utils.moduleinterfaces import (
+    check_cpacs_input_requirements,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+)
+from ceasiompy.utils.xpath import ENGINES_XPATH, FUSELAGES_XPATH, PYLONS_XPATH, WINGS_XPATH
 from cpacspy.cpacsfunctions import (
     add_float_vector,
     add_string_vector,
@@ -44,21 +56,10 @@ from cpacspy.cpacsfunctions import (
     open_tixi,
 )
 
-from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
-import ceasiompy.utils.moduleinterfaces as mi
-
-from ambiance import Atmosphere
-from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
-from ceasiompy.utils.xpath import FUSELAGES_XPATH, WINGS_XPATH, PYLONS_XPATH, ENGINES_XPATH
-
-from ceasiompy.ModuleTemplate.func.subfunc import my_subfunc
-
-from ceasiompy.utils.ceasiomlogger import get_logger
-
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
 
 # =================================================================================================
@@ -184,8 +185,7 @@ def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + MODULE_NAME + " -----")
 
-    # Call the function which check if imputs are well define
-    mi.check_cpacs_input_requirements(cpacs_path)
+    check_cpacs_input_requirements(cpacs_path)
 
     # Define other inputs value
     my_value1 = 6
@@ -207,7 +207,7 @@ def main(cpacs_path, cpacs_out_path):
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

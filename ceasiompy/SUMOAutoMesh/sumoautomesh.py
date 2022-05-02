@@ -220,12 +220,12 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
         * sumo help, tetgen help (in the folder /doc)
 
     Args:
-        cpacs_path (str): Path to the CPACS file
-        cpacs_out_path (str): Path to the output CPACS file
+        cpacs_path (Path): Path to the CPACS file
+        cpacs_out_path (Path): Path to the output CPACS file
 
     """
 
-    tixi = open_tixi(cpacs_path)
+    tixi = open_tixi(str(cpacs_path))
 
     sumo_dir = get_results_directory("SUMOAutoMesh")
     su2_mesh_path = Path(sumo_dir, "ToolOutput.su2")
@@ -314,7 +314,7 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
     else:
         raise ValueError("No SU2 Mesh file has been generated!")
 
-    tixi.save(cpacs_out_path)
+    tixi.save(str(cpacs_out_path))
 
 
 # =================================================================================================

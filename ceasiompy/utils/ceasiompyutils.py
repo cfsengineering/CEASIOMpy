@@ -112,7 +112,7 @@ def run_module(module, wkdir=Path.cwd(), iter=0):
 
         # Run the module
         with change_working_dir(wkdir):
-            my_module.main(str(module.cpacs_in), str(module.cpacs_out))
+            my_module.main(module.cpacs_in, module.cpacs_out)
 
 
 def get_install_path(soft_check_list):

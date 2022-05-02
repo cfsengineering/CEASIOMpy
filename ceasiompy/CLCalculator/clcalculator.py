@@ -96,11 +96,11 @@ def get_cl(cpacs_path, cpacs_out_path):
     CPACS file.
 
     Args:
-        cpacs_path (str):  Path to CPACS file
-        cpacs_out_path (str): Path to CPACS output file
+        cpacs_path (Path):  Path to CPACS file
+        cpacs_out_path (Path): Path to CPACS output file
     """
 
-    cpacs = CPACS(cpacs_path)
+    cpacs = CPACS(str(cpacs_path))
     tixi = cpacs.tixi
 
     # XPath definition

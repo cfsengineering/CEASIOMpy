@@ -176,7 +176,7 @@ def check_cpacs_input_requirements(
         ==> check_cpacs_input_requirements(cpacs_file)
 
     Args:
-        cpacs_file (str): Path to the CPACS file to check
+        cpacs_file (Path): Path to the CPACS file to check
         submod_name (str): Name of the submod_name (if None, determined from caller)
         submodule_level (int): Levels up where the CEASIOMpy submodule is located
         cpacs_inout (obj): CPACSInOut() instance
@@ -208,7 +208,7 @@ def check_cpacs_input_requirements(
         specs_module = get_specs_for_module(submod_name, raise_error=True)
         cpacs_inout = specs_module.cpacs_inout
 
-    tixi = open_tixi(cpacs_file)
+    tixi = open_tixi(str(cpacs_file))
     missing_nodes = []
     for entry in cpacs_inout.inputs:
 

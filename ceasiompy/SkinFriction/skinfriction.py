@@ -133,12 +133,12 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
     the skin friction drag coefficient is added with the correct projections.
 
     Args:
-        cpacs_path (str):  Path to CPACS file
-        cpacs_out_path (str): Path to CPACS output file
+        cpacs_path (Path):  Path to CPACS file
+        cpacs_out_path (Path): Path to CPACS output file
     """
 
     # Load a CPACS file
-    cpacs = CPACS(cpacs_path)
+    cpacs = CPACS(str(cpacs_path))
 
     analyses_xpath = "/cpacs/toolspecific/CEASIOMpy/geometry/analysis"
 
@@ -233,7 +233,7 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
 
     log.info('AeroMap "' + aeromap_uid + '" has been added to the CPACS file')
 
-    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
+    cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
 
 
 def main(cpacs_path, cpacs_out_path):

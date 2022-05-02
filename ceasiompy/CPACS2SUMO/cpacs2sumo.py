@@ -81,17 +81,18 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
         * CPACS documentation: https://www.cpacs.de/pages/documentation.html
 
     Args:
-        cpacs_path (str): Path to the CPACS file
+        cpacs_path (Path): Path to the CPACS file
+        cpacs_out_path (Path): Path to the CPACS file
 
     Returns:
         sumo_output_path (str): Path to the SUMO file
 
     """
 
-    EMPTY_SMX = MODULE_DIR + "/files/sumo_empty.smx"
+    EMPTY_SMX = Path(MODULE_DIR, "files", "sumo_empty.smx")
 
-    tixi = open_tixi(cpacs_path)
-    sumo = open_tixi(EMPTY_SMX)
+    tixi = open_tixi(str(cpacs_path))
+    sumo = open_tixi(str(EMPTY_SMX))
 
     # Fuslage(s) ---------------------------------------------------------------
 
@@ -1106,7 +1107,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
     tixi.updateTextElement(SUMOFILE_XPATH, str(sumo_file_path))
 
     # Save CPACS and SMX file
-    tixi.save(cpacs_out_path)
+    tixi.save(str(cpacs_out_path))
     sumo.save(str(sumo_file_path))
 
 

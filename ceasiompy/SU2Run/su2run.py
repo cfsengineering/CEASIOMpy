@@ -139,13 +139,13 @@ def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + MODULE_NAME + " -----")
 
-    tixi = open_tixi(cpacs_path)
+    tixi = open_tixi(str(cpacs_path))
     nb_proc = get_value_or_default(tixi, SU2_XPATH + "/settings/nbProc", 1)
 
     results_dir = get_results_directory("SU2Run")
 
     # Temporary CPACS to be stored after "generate_su2_cfd_config"
-    cpacs_tmp_cfg = Path(Path(cpacs_out_path).parent, "ConfigTMP.xml")
+    cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")
 
     # Execute SU2 functions
     generate_su2_cfd_config(cpacs_path, cpacs_tmp_cfg, results_dir)

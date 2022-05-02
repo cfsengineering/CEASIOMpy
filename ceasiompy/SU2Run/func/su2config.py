@@ -123,8 +123,8 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         * SU2 config template: https://github.com/su2code/SU2/blob/master/config_template.cfg
 
     Args:
-        cpacs_path (str): Path to CPACS file
-        cpacs_out_path (str):Path to CPACS output file
+        cpacs_path (Path): Path to CPACS file
+        cpacs_out_path (Path):Path to CPACS output file
         wkdir (str): Path to the working directory
 
     """

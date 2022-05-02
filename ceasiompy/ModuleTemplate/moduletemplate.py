@@ -139,8 +139,8 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
         * Reference paper or book, with author and date
 
     Args:
-        cpacs_path (str): Path to CPACS file
-        cpacs_out_path (str):Path to CPACS output file
+        cpacs_path (Path): Path to CPACS file
+        cpacs_out_path (Path):Path to CPACS output file
 
     Returns:
         Tuple with fuselage scaling
@@ -151,7 +151,7 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
     """
 
     # Open TIXI handle
-    tixi = open_tixi(cpacs_path)
+    tixi = open_tixi(str(cpacs_path))
 
     # Create xpaths
     SCALING_XPATH = "/fuselage/transformation/scaling"
@@ -171,7 +171,7 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
     log.info("Fuselage z scaling is : " + str(z))
 
     # Close TIXI handle and save the CPACS file
-    tixi.save(cpacs_out_path)
+    tixi.save(str(cpacs_out_path))
 
     return (x, y, z)
 

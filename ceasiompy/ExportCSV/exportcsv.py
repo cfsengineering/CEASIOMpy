@@ -52,7 +52,7 @@ MODULE_NAME = MODULE_DIR.name
 
 def export_aeromaps(cpacs_path, cpacs_out_path):
 
-    cpacs = CPACS(cpacs_path)
+    cpacs = CPACS(str(cpacs_path))
 
     aeromap_to_export_xpath = CEASIOMPY_XPATH + "/export/aeroMapToExport"
 
@@ -69,7 +69,7 @@ def export_aeromaps(cpacs_path, cpacs_out_path):
 
         log.info(f"Aeromap(s) has been saved to {csv_path}")
 
-    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
+    cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
 
 
 # =================================================================================================

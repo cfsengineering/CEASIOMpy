@@ -9,6 +9,9 @@ Output text and plot generation functions.
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
 
+TODO:
+    * Use Pathlib and asolute path when refactor this module
+
 """
 
 
@@ -34,23 +37,23 @@ from matplotlib.ticker import MultipleLocator
 
 
 def output_txt(LDloi, LDcru, mw, ri, out, NAME):
-    """ The function that generats the output text file for the range analysis.
+    """The function that generats the output text file for the range analysis.
 
-        INPUT
-        (float) LDloi         --Att.: Lift over drag during loiter [-].
-        (float) LDcru         --Att.: Lift over drag duing cruise [-].
-        (class) mw            --Arg.: MassesWeights class.
-        (class) ri            --Arg.: RangeInputs class.
-        ##======= Classes are defined in the InputClasses folder =======##
+    INPUT
+    (float) LDloi         --Att.: Lift over drag during loiter [-].
+    (float) LDcru         --Att.: Lift over drag duing cruise [-].
+    (class) mw            --Arg.: MassesWeights class.
+    (class) ri            --Arg.: RangeInputs class.
+    ##======= Classes are defined in the InputClasses folder =======##
 
-        (class) out               --Arg.: RangeOutput class.
-        ##========= Class is defined in the InputClasses folder ========##
-        (char) NAME               --Arg.: Name of the aircraft
+    (class) out               --Arg.: RangeOutput class.
+    ##========= Class is defined in the InputClasses folder ========##
+    (char) NAME               --Arg.: Name of the aircraft
 
-        OUTPUT
-        (file) Range_module.out --Out.: Text file containing all the
-                                              informations estimated from the
-                                              code.
+    OUTPUT
+    (file) Range_module.out --Out.: Text file containing all the
+                                          informations estimated from the
+                                          code.
     """
     OUT_NAME = "ToolOutput/" + NAME + "/" + NAME + "_Range_module.out"
     OutputTextFile = open(OUT_NAME, "w+")
@@ -141,25 +144,25 @@ def output_txt(LDloi, LDcru, mw, ri, out, NAME):
 
 
 def payload_range_plot(ranges, ranges_cru, payloads, mw, NAME):
-    """ The function that generate the plot of the payload vs range.
+    """The function that generate the plot of the payload vs range.
 
-        INPUT
-        (float_array) ranges      --Arg.: Array containing the ranges [km]
-                                         evaluated in the
-                                         breguet_cruise_range.py script.
-        (float_array) ranges_cru  --Arg.: Array containing the cruise
-                                          ranges [km] evaluated in the
-                                          breguet_cruise_range.py script.
-        (float_array) payloads    --Arg.: Array containing the payload [kg]
-                                         corresponfing to the ranges in the
-                                         ranges array.
-        (class) mw                --Arg.: Mass and weight class.
-        (char) NAME               --Arg.: Name of the aircraft.
-        ##====== Class is defined in the InputClasses folder =======##
+    INPUT
+    (float_array) ranges      --Arg.: Array containing the ranges [km]
+                                     evaluated in the
+                                     breguet_cruise_range.py script.
+    (float_array) ranges_cru  --Arg.: Array containing the cruise
+                                      ranges [km] evaluated in the
+                                      breguet_cruise_range.py script.
+    (float_array) payloads    --Arg.: Array containing the payload [kg]
+                                     corresponfing to the ranges in the
+                                     ranges array.
+    (class) mw                --Arg.: Mass and weight class.
+    (char) NAME               --Arg.: Name of the aircraft.
+    ##====== Class is defined in the InputClasses folder =======##
 
-        OUTPUT
-        (file)Payload_vs_Range.png --Out.: Png file containing all the
-                                          range versus payload plot.
+    OUTPUT
+    (file)Payload_vs_Range.png --Out.: Png file containing all the
+                                      range versus payload plot.
     """
     # ----------------------------------------------------------------------
     fig, (ax) = plt.subplots(1, 1, sharey=True, figsize=(9, 9))

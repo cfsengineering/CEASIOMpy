@@ -20,6 +20,9 @@ Python version: >=3.7
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
 
+TODO:
+    * Use Pathlib and asolute path when refactor this module
+
 """
 
 # =================================================================================================

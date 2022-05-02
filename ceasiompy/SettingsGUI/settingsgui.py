@@ -19,39 +19,41 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
 import re
-import os
-
-from datetime import datetime
 import tkinter as tk
-from tkinter import ttk
-from tkinter import messagebox, filedialog
+from datetime import datetime
+from pathlib import Path
+from tkinter import filedialog, messagebox, ttk
 
-from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.moduleinterfaces import (
+    check_cpacs_input_requirements,
+    get_specs_for_module,
+    get_submodule_list,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+)
 from cpacspy.cpacsfunctions import (
     create_branch,
     get_string_vector,
     get_value,
     get_value_or_default,
 )
-
-import ceasiompy.utils.moduleinterfaces as mi
-
-from ceasiompy.utils.ceasiomlogger import get_logger
+from cpacspy.cpacspy import CPACS
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
 class AeroMapTab:
@@ -198,11 +200,12 @@ class AeroMapTab:
         self._update()
 
     def _import_csv(self, event=None):
-        template_csv_dir = os.path.join(MODULE_DIR, "..", "..", "test_files", "AeroMaps")
-        csv_path = self.filename = filedialog.askopenfilename(
-            initialdir=template_csv_dir, title="Select a CSV file"
+        template_csv_dir = Path(MODULE_DIR.parents[1], "test_files", "AeroMaps")
+        csv_path = Path(
+            filedialog.askopenfilename(initialdir=template_csv_dir, title="Select a CSV file")
         )
-        aeromap_uid = os.path.splitext(os.path.basename(csv_path))[0]
+
+        aeromap_uid = csv_path.name
 
         if aeromap_uid in self.list:
             messagebox.showwarning("Warning", "AeroMap with this name already exists!")
@@ -211,7 +214,7 @@ class AeroMapTab:
         aeromap = self.cpacs.create_aeromap_from_csv(csv_path, aeromap_uid)
         aeromap.description = (
             f"Created with CEASIOMpy SettingGui, "
-            f"imported from '{os.path.basename(csv_path)}' on {date_time_str()}"
+            f"imported from '{csv_path}' on {date_time_str()}"
         )
         aeromap.save()
 
@@ -221,7 +224,7 @@ class AeroMapTab:
     def _export_csv(self, event=None):
 
         aeromap_uid_list = [self.listBox.get(i) for i in self.listBox.curselection()]
-        csv_path = self.filename = filedialog.asksaveasfilename(
+        csv_path = filedialog.asksaveasfilename(
             initialdir=MODULE_DIR, title="Save CSV file", defaultextension=".csv"
         )
 
@@ -285,7 +288,7 @@ class AutoTab:
         tabs.add(self.tab, text=module_name)
 
         # Get GUI dict from specs
-        specs = mi.get_specs_for_module(module_name)
+        specs = get_specs_for_module(module_name)
 
         self.gui_dict = specs.cpacs_inout.get_gui_dict()
 
@@ -465,9 +468,7 @@ class SettingGUI(tk.Frame):
 
         aeromap_uid_list = self.cpacs.get_aeromap_uid_list()
         if not aeromap_uid_list:
-            csv_path = os.path.join(
-                MODULE_DIR, "..", "..", "test_files", "AeroMaps", "Aeromap_1point.csv"
-            )
+            csv_path = Path(MODULE_DIR.parents[1], "test_files", "AeroMaps", "Aeromap_1point.csv")
             new_aeromap = self.cpacs.create_aeromap_from_csv(csv_path, "AeroMap_1point")
             new_aeromap.save()
             aeromap_uid_list = self.cpacs.get_aeromap_uid_list()
@@ -503,7 +504,7 @@ class SettingGUI(tk.Frame):
         # Generate new Auto Tab
         for module_name in self.submodule_list:
 
-            specs = mi.get_specs_for_module(module_name)
+            specs = get_specs_for_module(module_name)
             if specs is None:  # Specs does not exist
                 continue
             self.gui_dict = specs.cpacs_inout.get_gui_dict()
@@ -573,9 +574,9 @@ class SettingGUI(tk.Frame):
         self.quit()
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def date_time_str():
@@ -671,7 +672,7 @@ def create_settings_gui(cpacs_path, cpacs_out_path, submodule_list):
     gui_modules = 1
     max_inputs = 0
     for module_name in submodule_list:
-        specs = mi.get_specs_for_module(module_name)
+        specs = get_specs_for_module(module_name)
         if specs:
             inputs = specs.cpacs_inout.get_gui_dict()
             if inputs:
@@ -688,23 +689,18 @@ def create_settings_gui(cpacs_path, cpacs_out_path, submodule_list):
     root.destroy()
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
-    # Call the function which check if imputs are well define
-    mi.check_cpacs_input_requirements(cpacs_path)
+    check_cpacs_input_requirements(cpacs_path)
+    create_settings_gui(cpacs_path, cpacs_out_path, get_submodule_list())
 
-    # Get the complete submodule
-    submodule_list = mi.get_submodule_list()
-
-    create_settings_gui(cpacs_path, cpacs_out_path, submodule_list)
-
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")

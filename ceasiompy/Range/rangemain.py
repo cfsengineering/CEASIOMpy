@@ -23,15 +23,19 @@ Python version: >=3.7
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
 
+TODO:
+    * Use Pathlib and absolute path when refactor this module
+
 """
 
 
-# =============================================================================
+# =================================================================================================
 #   IMPORTS
-# =============================================================================
+# =================================================================================================
 
 import os
 import shutil
+from pathlib import Path
 
 from ceasiompy.Range.func import rangeclass
 from ceasiompy.Range.func.Crew.crewmembers import crew_check
@@ -42,28 +46,31 @@ from ceasiompy.Range.func.AoutFunc import cpacsrangeupdate
 from ceasiompy.Range.func.AinFunc import getdatafromcpacs
 
 from ceasiompy.utils.ceasiompyutils import aircraft_name
-import ceasiompy.utils.moduleinterfaces as mi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.moduleinterfaces import (
+    check_cpacs_input_requirements,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+)
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
-
-# =============================================================================
+# =================================================================================================
 #   CLASSES
-# =============================================================================
+# =================================================================================================
 
 """All classes are defined inside the classes folder in the
    range_output_class script and into the Input_classes/Conventional
    folder inside the range_user_input.py script."""
 
 
-# =============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# =============================================================================
+# =================================================================================================
 
 
 def get_range_estimation(cpacs_path, cpacs_out_path):
@@ -224,22 +231,22 @@ def get_range_estimation(cpacs_path, cpacs_out_path):
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
-    mi.check_cpacs_input_requirements(cpacs_path)
+    check_cpacs_input_requirements(cpacs_path)
 
     get_range_estimation(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
-# =============================================================================
+# =================================================================================================
 #    MAIN
-# =============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

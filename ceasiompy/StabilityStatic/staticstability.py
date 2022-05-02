@@ -17,44 +17,43 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
-import os
+from pathlib import Path
 
 import matplotlib.pyplot as plt
-
-from cpacspy.cpacspy import CPACS
-from cpacspy.cpacsfunctions import add_float_vector, create_branch, get_value, get_value_or_default
-
-import ceasiompy.utils.moduleinterfaces as mi
-from ceasiompy.utils.xpath import MASSBREAKDOWN_XPATH, STABILITY_STATIC_XPATH
-
 from ambiance import Atmosphere
-
 from ceasiompy.StabilityStatic.func.func_static import (
-    get_unic,
-    get_index,
     extract_subelements,
+    get_index,
+    get_unic,
+    interpolation,
     order_correctly,
-    trim_derivative,
     plot_multicurve,
     trim_condition,
-    interpolation,
+    trim_derivative,
 )
-
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.moduleinterfaces import (
+    check_cpacs_input_requirements,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+)
+from ceasiompy.utils.xpath import MASSBREAKDOWN_XPATH, STABILITY_STATIC_XPATH
+from cpacspy.cpacsfunctions import add_float_vector, create_branch, get_value, get_value_or_default
+from cpacspy.cpacspy import CPACS
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
 
-# ===========================================================
+# =================================================================================================
 #   FUNCTIONS
-# ===========================================================
+# =================================================================================================
 
 
 def static_stability_analysis(cpacs_path, cpacs_out_path):
@@ -64,8 +63,8 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     stability and directional static.
 
     Args:
-        cpacs_path (str): Path to CPACS file
-        cpacs_out_path (str):Path to CPACS output file
+        cpacs_path (Path): Path to CPACS file
+        cpacs_out_path (Path):Path to CPACS output file
 
     Returns:
         *   Advertisements certifying if the aircraft is stable or Not
@@ -91,7 +90,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 -   If there one aos value which is repeated for a given altitude, mach, aoa
     """
 
-    cpacs = CPACS(cpacs_path)
+    cpacs = CPACS(str(cpacs_path))
 
     # TODO: add as CPACS option
     plot_for_different_mach = False  # To check Mach influence
@@ -296,7 +295,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
                 if aoa_good:
                     # Required lift for level flight
-                    cl_required = (m * g) / (0.5 * rho * u0 ** 2 * s)
+                    cl_required = (m * g) / (0.5 * rho * u0**2 * s)
                     (trim_aoa, idx_trim_before, idx_trim_after, ratio) = trim_condition(
                         alt, mach, cl_required, cl, aoa
                     )
@@ -1160,22 +1159,20 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
         add_float_vector(cpacs.tixi, direc_trim_xpath + "/angleOfAttack", trim_aoa_direc_list)
         add_float_vector(cpacs.tixi, direc_trim_xpath + "/angleOfSideslip", trim_aos_direc_list)
 
-    cpacs.tixi.save(cpacs_out_path)
+    cpacs.tixi.save(str(cpacs_out_path))
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 
 def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + MODULE_NAME + " -----")
 
-    # Call the function which check if imputs are well define
-    mi.check_cpacs_input_requirements(cpacs_path)
+    check_cpacs_input_requirements(cpacs_path)
 
-    # Call the main function for static stability analysis
     static_stability_analysis(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + MODULE_NAME + " -----")
@@ -1183,7 +1180,7 @@ def main(cpacs_path, cpacs_out_path):
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

@@ -18,39 +18,33 @@ TODO:
 
 """
 
-# =============================================================================
+# =================================================================================================
 #   IMPORTS
-# =============================================================================
+# =================================================================================================
 
-import os
-import sys
 import pickle
+import sys
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
 import smt.surrogate_models as sms  # Use after loading the model
-
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
+from ceasiompy.utils.xpath import SMTRAIN_XPATH, SMUSE_XPATH
+from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
-from cpacspy.cpacsfunctions import create_branch, get_value_or_default
-
-import ceasiompy.utils.moduleinterfaces as mi
-from ceasiompy.utils.xpath import SMTRAIN_XPATH, SMUSE_XPATH
-
-from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger(__file__.split(".")[0])
 
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
-# =============================================================================
-#   GLOBALS
-# =============================================================================
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
-
-# =============================================================================
+# =================================================================================================
 #   ClASSES
-# =============================================================================
+# =================================================================================================
 
 
 class Surrogate_model:
@@ -66,9 +60,9 @@ class Surrogate_model:
         self.sm = sms.surrogate_model.SurrogateModel()
 
 
-# =============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# =============================================================================
+# =================================================================================================
 
 
 def load_surrogate(tixi):
@@ -253,14 +247,14 @@ def check_aeromap(tixi):
         sys.exit("Same aeromap that was used to create the model")
 
 
-# ==============================================================================
+# ==================================================================================================
 #    MAIN
-# ==============================================================================
+# ==================================================================================================
 
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
     # Load the model
     cpacs = CPACS(cpacs_path)
@@ -275,12 +269,12 @@ def main(cpacs_path, cpacs_out_path):
 
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path("SMUse")
-    cpacs_out_path = mi.get_tooloutput_file_path("SMUse")
+    cpacs_path = get_toolinput_file_path("SMUse")
+    cpacs_out_path = get_tooloutput_file_path("SMUse")
 
     main(cpacs_path, cpacs_out_path)

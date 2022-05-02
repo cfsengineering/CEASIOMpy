@@ -24,6 +24,8 @@ import pytest
 from ceasiompy.utils.ceasiompyutils import aircraft_name, change_working_dir, get_results_directory
 from cpacspy.cpacsfunctions import open_tixi
 
+from ceasiompy.utils.paths import CPACS_FILES_PATH
+
 MODULE_DIR = Path(__file__).parent
 
 # =================================================================================================
@@ -87,11 +89,11 @@ def test_aircraft_name():
     """Test the function aircraft_name."""
 
     # Get name form the CPACS file path
-    cpacs_in = str(Path(Path(__file__).parents[4], "test_files/CPACSfiles/D150_simple.xml"))
+    cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml")
     assert aircraft_name(cpacs_in) == "D150"
 
     # Get name form TIXI handle
-    tixi = open_tixi(cpacs_in)
+    tixi = open_tixi(str(cpacs_in))
     assert aircraft_name(tixi) == "D150"
 
 

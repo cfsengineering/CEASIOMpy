@@ -24,26 +24,22 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import os
-import sys
+from pathlib import Path
 
-from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
-
-from ceasiompy.utils.ceasiompyutils import get_results_directory, run_soft
-import ceasiompy.utils.moduleinterfaces as mi
-
-from ceasiompy.SU2Run.func.su2config import generate_su2_cfd_config
 from ceasiompy.SU2Run.func.extractloads import extract_loads
+from ceasiompy.SU2Run.func.su2config import generate_su2_cfd_config
 from ceasiompy.SU2Run.func.su2results import get_su2_results
-from ceasiompy.utils.configfiles import ConfigFile
-from ceasiompy.utils.xpath import SU2_XPATH
-
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import get_results_directory, run_soft
+from ceasiompy.utils.configfiles import ConfigFile
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
+from ceasiompy.utils.xpath import SU2_XPATH
+from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
 # =================================================================================================
 #   CLASSES
@@ -55,25 +51,6 @@ MODULE_NAME = os.path.basename(os.getcwd())
 # =================================================================================================
 
 
-def run_SU2_single(config_path, wkdir, nb_proc):
-    """Function to run a single SU2 calculation.
-
-    Function 'run_SU2_single' will run in the given working directory a SU2
-    calculation (SU2_CFD then SU2_SOL) with the given config_path.
-
-    Args:
-        config_path (str): Path to the configuration file
-        wkdir (str): Path to the working directory
-
-    """
-
-    if not os.path.exists(wkdir):
-        raise OSError("The working directory : " + wkdir + "does not exit!")
-
-    run_soft("SU2_CFD", config_path, wkdir, nb_proc)
-    run_soft("SU2_SOL", config_path, wkdir, nb_proc)
-
-
 def run_SU2_multi(wkdir, nb_proc):
     """Function to run a multiple SU2 calculation.
 
@@ -82,34 +59,29 @@ def run_SU2_multi(wkdir, nb_proc):
     folder structure created by 'SU2Config' module.
 
     Args:
-        wkdir (str): Path to the working directory
+        wkdir (Path): Path to the working directory
 
     """
 
-    if not os.path.exists(wkdir):
-        raise OSError("The working directory : " + wkdir + "does not exit!")
+    if not wkdir.exists():
+        raise OSError(f"The working directory : {wkdir} does not exit!")
 
     # Check if there is some case directory
-    case_dir_list = [dir for dir in os.listdir(wkdir) if "Case" in dir]
-    if case_dir_list == []:
-        raise OSError("No folder has been found in the working directory: " + wkdir)
+    case_dir_list = [dir for dir in wkdir.iterdir() if "Case" in dir.name]
+    if not case_dir_list:
+        raise OSError(f"No folder has been found in the working directory: {wkdir}")
 
-    for dir in sorted(case_dir_list):
-        config_dir = os.path.join(wkdir, dir)
+    for config_dir in sorted(case_dir_list):
 
-        find_config_cfd = False
+        config_cfd = [c for c in config_dir.iterdir() if c.name == "ConfigCFD.cfg"]
 
-        for file in os.listdir(config_dir):
-            if file == "ConfigCFD.cfg":
-                if find_config_cfd:
-                    raise ValueError('More than one "ConfigCFD.cfg" file in this directory!')
-                config_cfd_path = os.path.join(config_dir, file)
-                find_config_cfd = True
-
-        if not find_config_cfd:
+        if not config_cfd:
             raise ValueError('No "ConfigCFD.cfg" file has been found in this directory!')
 
-        run_soft("SU2_CFD", config_cfd_path, config_dir, nb_proc)
+        if len(config_cfd) > 1:
+            raise ValueError('More than one "ConfigCFD.cfg" file in this directory!')
+
+        run_soft("SU2_CFD", config_cfd[0], config_dir, nb_proc)
 
         # run_soft('SU2_SOL',config_file_path,config_dir,nb_proc)
         # Only useful if you need surface/volume flow file,
@@ -130,12 +102,11 @@ def run_SU2_fsi(config_path, wkdir, nb_proc):
         wkdir (str): Path to the working directory
 
     """
-
-    if not os.path.exists(wkdir):
-        raise OSError("The working directory : " + wkdir + "does not exit!")
+    if not wkdir.exists():
+        raise OSError(f"The working directory : {wkdir} does not exit!")
 
     # Modify config file for SU2_DEF
-    config_def_path = os.path.join(wkdir, "ConfigDEF.cfg")
+    config_def_path = Path(wkdir, "ConfigDEF.cfg")
     cfg_def = ConfigFile(config_path)
 
     cfg_def["DV_KIND"] = "SURFACE_FILE"
@@ -147,7 +118,7 @@ def run_SU2_fsi(config_path, wkdir, nb_proc):
     cfg_def.write_file(config_def_path, overwrite=True)
 
     # Modify config file for SU2_CFD
-    config_cfd_path = os.path.join(wkdir, "ConfigCFD.cfg")
+    config_cfd_path = Path(wkdir, "ConfigCFD.cfg")
     cfg_cfd = ConfigFile(config_path)
     cfg_cfd["MESH_FILENAME"] = "mesh_out.su2"
     cfg_cfd.write_file(config_cfd_path, overwrite=True)
@@ -166,29 +137,27 @@ def run_SU2_fsi(config_path, wkdir, nb_proc):
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
-    # Get number of proc to use
-    tixi = open_tixi(cpacs_path)
+    tixi = open_tixi(str(cpacs_path))
     nb_proc = get_value_or_default(tixi, SU2_XPATH + "/settings/nbProc", 1)
 
-    # Get results directory
     results_dir = get_results_directory("SU2Run")
 
     # Temporary CPACS to be stored after "generate_su2_cfd_config"
-    cpacs_tmp_cfg = os.path.join(os.path.dirname(cpacs_out_path), "ConfigTMP.xml")
+    cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")
 
     # Execute SU2 functions
     generate_su2_cfd_config(cpacs_path, cpacs_tmp_cfg, results_dir)
     run_SU2_multi(results_dir, nb_proc)
     get_su2_results(cpacs_tmp_cfg, cpacs_out_path, results_dir)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

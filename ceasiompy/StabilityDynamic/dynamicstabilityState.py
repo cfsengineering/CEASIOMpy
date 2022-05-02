@@ -18,67 +18,66 @@ TODO:
     * Should we also save results as report (text file)
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
-import os
+from pathlib import Path
 
 import numpy as np
-
-from cpacspy.cpacspy import CPACS
-from cpacspy.cpacsfunctions import get_string_vector, get_value, get_value_or_default
-
-import ceasiompy.utils.moduleinterfaces as mi
-
+from ambiance import Atmosphere
 from ceasiompy.StabilityDynamic.func.func_dynamic import (
+    adimensionalise,
+    cap_rating,
+    check_sign_lat,
+    check_sign_longi,
+    concise_derivative_lat,
+    concise_derivative_longi,
+    direc_mode_characteristic,
+    direc_root_identification,
+    dutch_roll_rating,
+    get_index,
+    get_unic,
+    interpolation,
+    longi_mode_characteristic,
+    longi_root_identification,
+    phugoid_rating,
     plot_sp_level_a,
     plot_sp_level_b,
     plot_sp_level_c,
-    get_unic,
-    interpolation,
-    get_index,
-    speed_derivative_at_trim,
-    adimensionalise,
-    speed_derivative_at_trim_lat,
-    concise_derivative_longi,
-    concise_derivative_lat,
-    longi_root_identification,
-    direc_root_identification,
-    check_sign_longi,
-    check_sign_lat,
+    plot_splane,
+    roll_rating,
     short_period_damping_rating,
     short_period_frequency_rating,
-    cap_rating,
-    phugoid_rating,
-    roll_rating,
+    speed_derivative_at_trim,
+    speed_derivative_at_trim_lat,
     spiral_rating,
-    dutch_roll_rating,
-    plot_splane,
-    longi_mode_characteristic,
-    direc_mode_characteristic,
     trim_condition,
 )
-
-from ambiance import Atmosphere
-from ceasiompy.utils.xpath import STABILITY_DYNAMIC_XPATH
-
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.moduleinterfaces import (
+    check_cpacs_input_requirements,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+)
+from ceasiompy.utils.xpath import STABILITY_DYNAMIC_XPATH
+from cpacspy.cpacsfunctions import get_string_vector, get_value, get_value_or_default
+from cpacspy.cpacspy import CPACS
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
 
-# ==============================================================================
+# =================================================================================================
 #   Classes
 # ========================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
     """Function to analyse a full Aeromap
 
@@ -1022,19 +1021,17 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                         # den_tf_latdir_xpath = flight_qualities_case_xpath + '/lateral/denLat' # denominator of longitudinal motion
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 
 def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + MODULE_NAME + " -----")
 
-    # Call the function which check if imputs are well define
-    mi.check_cpacs_input_requirements(cpacs_path)
+    check_cpacs_input_requirements(cpacs_path)
 
-    # Call the main function for static stability analysis
     dynamic_stability_analysis(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + MODULE_NAME + " -----")
@@ -1042,7 +1039,7 @@ def main(cpacs_path, cpacs_out_path):
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

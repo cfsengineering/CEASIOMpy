@@ -20,17 +20,10 @@ TODO:
 #   IMPORTS
 # ==============================================================================
 
-import os
-
-from cpacspy.cpacsfunctions import open_tixi, open_tigl, get_tigl_configuration
-import ceasiompy.utils.moduleinterfaces as mi
-
 from ceasiompy.utils.ceasiomlogger import get_logger
+from cpacspy.cpacsfunctions import get_tigl_configuration, open_tigl, open_tixi
 
 log = get_logger(__file__.split(".")[0])
-
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
 
 
 # ==============================================================================
@@ -63,7 +56,7 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
     log.info("----- Start of CPACSUpdater -----")
     log.info(f"{cpacs_path} will be updated.")
 
-    tixi = open_tixi(cpacs_path)
+    tixi = open_tixi(str(cpacs_path))
     tigl = open_tigl(tixi)
 
     # Object seems to be unused, but are use in "eval" function
@@ -99,7 +92,7 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
 
     aircraft.write_cpacs(aircraft.get_uid())
     tigl.close()
-    tixi.save(cpacs_out_path)
+    tixi.save(str(cpacs_out_path))
 
     log.info(f"{cpacs_out_path} has been saved.")
     log.info("----- Start of CPACSUpdater -----")

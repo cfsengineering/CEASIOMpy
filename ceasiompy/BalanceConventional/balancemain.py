@@ -20,48 +20,50 @@ Python version: >=3.7
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
 
+TODO:
+    * Use Pathlib and asolute path when refactor this module
+
 """
 
-# =============================================================================
+# =================================================================================================
 #   IMPORTS
-# =============================================================================
+# =================================================================================================
 
 import os
 import shutil
+from pathlib import Path
 
-import numpy as np
 import matplotlib.pyplot as plt
-
-from ceasiompy.utils.InputClasses.Conventional import balanceconvclass
-
+import numpy as np
+from ceasiompy.BalanceConventional.func.AinFunc import getdatafromcpacs
+from ceasiompy.BalanceConventional.func.AoutFunc import cpacsbalanceupdate, outputbalancegen
 from ceasiompy.BalanceConventional.func.Cog.centerofgravity import center_of_gravity_evaluation
 from ceasiompy.BalanceConventional.func.Inertia import lumpedmassesinertia
-from ceasiompy.BalanceConventional.func.AoutFunc import outputbalancegen
-from ceasiompy.BalanceConventional.func.AoutFunc import cpacsbalanceupdate
-from ceasiompy.BalanceConventional.func.AinFunc import getdatafromcpacs
-
-
-from ceasiompy.utils.ceasiompyutils import aircraft_name
-from ceasiompy.utils.WB.ConvGeometry import geometry
-import ceasiompy.utils.moduleinterfaces as mi
-
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import aircraft_name
+from ceasiompy.utils.InputClasses.Conventional import balanceconvclass
+from ceasiompy.utils.moduleinterfaces import (
+    check_cpacs_input_requirements,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+)
+from ceasiompy.utils.WB.ConvGeometry import geometry
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
-# =============================================================================
+# =================================================================================================
 #   CLASSES
-# =============================================================================
+# =================================================================================================
 
 # All classes are defined inside the InputClasses/Conventional
 
 
-# =============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# =============================================================================
+# =================================================================================================
 
 
 def check_rounding(I1, I2):
@@ -105,6 +107,7 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
 
     """
 
+    # TODO: when refactor, use Pathlib and absolute path
     # Removing and recreating the ToolOutput folder.
     if os.path.exists("ToolOutput"):
         shutil.rmtree("ToolOutput")
@@ -352,24 +355,24 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
     log.info("############## Balance estimation completed ##############")
 
 
-# =============================================================================
+# =================================================================================================
 #    MAIN
-# =============================================================================
+# =================================================================================================
 
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
-    mi.check_cpacs_input_requirements(cpacs_path)
+    check_cpacs_input_requirements(cpacs_path)
     get_balance_estimations(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

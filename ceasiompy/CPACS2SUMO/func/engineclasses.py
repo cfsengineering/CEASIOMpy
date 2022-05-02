@@ -16,25 +16,21 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
-import os
 
-from cpacspy.cpacsfunctions import get_float_vector
-
-from ceasiompy.utils.generalclasses import Transformation
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.generalclasses import Transformation
+from cpacspy.cpacsfunctions import get_float_vector
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
 class Engine:
@@ -74,7 +70,7 @@ class Engine:
 
 class Nacelle:
     """
-    The Class "Nacelle" saves all the parameter to create the entiere nacelle in SUMO.
+    The Class "Nacelle" saves all the parameter to create the entire nacelle in SUMO.
 
     Attributes:
         TODO
@@ -187,3 +183,12 @@ class PointList(object):
 
         self.xlist = get_float_vector(tixi, self.xpath + "/x")
         self.ylist = get_float_vector(tixi, self.xpath + "/y")
+
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+
+    print("Nothing to execute!")

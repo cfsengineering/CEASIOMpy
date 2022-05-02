@@ -25,50 +25,46 @@ TODO:
 #   IMPORTS
 # ==============================================================================
 
-import os
 import math
-import matplotlib.pyplot as plt
 from pathlib import Path
 
-from cpacspy.cpacsfunctions import open_tixi, get_value_or_default, create_branch
-
+import matplotlib.pyplot as plt
+from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
+from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
+from ceasiompy.CPACS2SUMO.func.sumofunctions import (
+    add_wing_cap,
+    sumo_add_engine_bc,
+    sumo_add_nacelle_lip,
+    sumo_mirror_copy,
+    sumo_str_format,
+)
+from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
-import ceasiompy.utils.moduleinterfaces as mi
 from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
 from ceasiompy.utils.mathfunctions import euler2fix
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.utils.xpath import (
+    ENGINES_XPATH,
     FUSELAGES_XPATH,
+    PYLONS_XPATH,
     SUMOFILE_XPATH,
     WINGS_XPATH,
-    PYLONS_XPATH,
-    ENGINES_XPATH,
 )
-
-from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
-from ceasiompy.CPACS2SUMO.func.sumofunctions import (
-    sumo_str_format,
-    sumo_add_nacelle_lip,
-    sumo_add_engine_bc,
-    add_wing_cap,
-    sumo_mirror_copy,
-)
-from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
-
-from ceasiompy.utils.ceasiomlogger import get_logger
+from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
-MODULE_NAME = os.path.basename(os.getcwd())
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
@@ -85,17 +81,18 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
         * CPACS documentation: https://www.cpacs.de/pages/documentation.html
 
     Args:
-        cpacs_path (str): Path to the CPACS file
+        cpacs_path (Path): Path to the CPACS file
+        cpacs_out_path (Path): Path to the CPACS file
 
     Returns:
         sumo_output_path (str): Path to the SUMO file
 
     """
 
-    EMPTY_SMX = MODULE_DIR + "/files/sumo_empty.smx"
+    EMPTY_SMX = Path(MODULE_DIR, "files", "sumo_empty.smx")
 
-    tixi = open_tixi(cpacs_path)
-    sumo = open_tixi(EMPTY_SMX)
+    tixi = open_tixi(str(cpacs_path))
+    sumo = open_tixi(str(EMPTY_SMX))
 
     # Fuslage(s) ---------------------------------------------------------------
 
@@ -1110,27 +1107,27 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
     tixi.updateTextElement(SUMOFILE_XPATH, str(sumo_file_path))
 
     # Save CPACS and SMX file
-    tixi.save(cpacs_out_path)
+    tixi.save(str(cpacs_out_path))
     sumo.save(str(sumo_file_path))
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 
 def main(cpacs_path, cpacs_out_path):
 
-    log.info("----- Start of " + os.path.basename(__file__) + " -----")
+    log.info("----- Start of " + MODULE_NAME + " -----")
 
     convert_cpacs_to_sumo(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + os.path.basename(__file__) + " -----")
+    log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
 
-    cpacs_path = mi.get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = mi.get_tooloutput_file_path(MODULE_NAME)
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)

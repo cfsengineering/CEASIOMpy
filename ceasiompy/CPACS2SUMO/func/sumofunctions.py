@@ -16,34 +16,30 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
-import os
 import json
 
-from cpacspy.cpacsfunctions import copy_branch
-
 from ceasiompy.utils.ceasiomlogger import get_logger
+from cpacspy.cpacsfunctions import copy_branch
 
 log = get_logger(__file__.split(".")[0])
 
-MODULE_DIR = os.path.dirname(os.path.abspath(__file__))
 
-
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def sumo_str_format(x, y, z):
-    """ Function to get coordinate x,y,z into the string format which is use by SUMO.
+    """Function to get coordinate x,y,z into the string format which is use by SUMO.
 
     Args:
         x (float): x coordinate
@@ -61,7 +57,7 @@ def sumo_str_format(x, y, z):
 
 
 def sumo_add_nacelle_lip(sumo, xpath, ax_offset=1.2, rad_offset=0.15, shape_coef=0.3):
-    """ Function to add nacelle lips option in SUMO.
+    """Function to add nacelle lips option in SUMO.
 
     Args:
         sumo (obj): Tixi handle for SUMO
@@ -79,7 +75,7 @@ def sumo_add_nacelle_lip(sumo, xpath, ax_offset=1.2, rad_offset=0.15, shape_coef
 
 
 def sumo_add_engine_bc(sumo, eng_name, part_uid):
-    """ Function to add engine boundary conditions in SUMO.
+    """Function to add engine boundary conditions in SUMO.
 
     Args:
         sumo (obj): Tixi handle for SUMO
@@ -187,3 +183,12 @@ def sumo_mirror_copy(sumo, xpath, uid, is_wing=True):
             sumo.addTextAttribute(xpath_sec, "reversed", str(not rev_attr).lower())
 
         add_wing_cap(sumo, xpath_sym)
+
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+
+    print("Nothing to execute!")

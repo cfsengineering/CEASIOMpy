@@ -8,12 +8,9 @@ import platform
 import setuptools
 from pathlib import Path
 
-
-from ceasiompy.__version__ import __version__
-
 NAME = "ceasiompy"
 EXCLUDE_DIRS = ["test_cases", "test_files", "installation"]
-VERSION = __version__
+VERSION = "0.2.0"
 AUTHOR = "CFS Engineering"
 EMAIL = "aidan.jungo@cfse.ch"
 DESCRIPTION = "A conceptual aircraft design environment"

@@ -151,6 +151,9 @@ install_dir/
 CrashInfo/
 failure.xml
 
+# CEASIOMpy settings and history
+.ceasiompy
+
 # Ignore all SU2 meshes (.su2)
 *.su2
 forces_breakdown.dat

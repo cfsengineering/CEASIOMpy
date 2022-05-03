@@ -18,20 +18,23 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import datetime
 import os
 import shutil
+from datetime import datetime
 from pathlib import Path
 
 from ceasiompy.Optimisation.optimisation import routine_launcher
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module
+from ceasiompy.utils.ceasiompyutils import (
+    add_to_runworkflow_history,
+    change_working_dir,
+    run_module,
+)
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
 from ceasiompy.utils.paths import CPACS_FILES_PATH, MODULES_DIR_PATH
 
 log = get_logger(__file__.split(".")[0])
-
 
 OPTIM_METHOD = ["OPTIM", "DOE"]
 
@@ -199,7 +202,7 @@ class Workflow:
         """Write the workflow configuration file in the working directory."""
 
         cfg = ConfigFile()
-        cfg["comment_1"] = f"File written {datetime.datetime.now()}"
+        cfg["comment_1"] = f"File written {datetime.now()}"
         cfg["CPACS_TOOLINPUT"] = self.cpacs_in
 
         if self.modules_list:
@@ -320,6 +323,8 @@ class Workflow:
 
     def run_workflow(self) -> None:
         """Run the complete Worflow"""
+
+        add_to_runworkflow_history(self.working_dir)
 
         log.info("#" * 99)
         log.info(f"The workflow will be run in {self.current_wkflow_dir}")

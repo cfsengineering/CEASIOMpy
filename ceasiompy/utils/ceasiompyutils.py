@@ -290,9 +290,11 @@ def get_part_type(cpacs_path, part_uid):
         log.info(f"'{part_uid}' is a fuselage")
         return "fuselage"
 
-    # TODO: complete with other required parts
+    if "enginePylons/enginePylon" in part_xpath:
+        log.info(f"'{part_uid}' is a pylon")
+        return "pylon"
 
-    # TODO: add a test function
+    # TODO: complete when engine/flaps are available with TiGL
 
     log.warning(f"'{part_uid}' cannot be categorized!")
     return None

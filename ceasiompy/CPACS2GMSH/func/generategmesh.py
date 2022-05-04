@@ -36,7 +36,7 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
 from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =================================================================================================

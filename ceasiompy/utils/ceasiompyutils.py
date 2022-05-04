@@ -32,7 +32,7 @@ from ceasiompy.utils.moduleinterfaces import get_submodule_list
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 SOFT_LIST = ["SU2_DEF", "SU2_CFD", "SU2_SOL", "mpirun.mpich", "mpirun"]
 
@@ -76,10 +76,10 @@ def get_results_directory(module_name: str) -> Path:
 
 
 def run_module(module, wkdir=Path.cwd(), iter=0):
-    """Run a 'ModuleToRun' ojbect in a specific wkdir.
+    """Run a 'ModuleToRun' object in a specific wkdir.
 
     Args:
-        module (ModuleToRun): 'ModuleToRun' ojbect (define in workflowclasses.py)
+        module (ModuleToRun): 'ModuleToRun' object (define in workflowclasses.py)
         wkdir (Path, optional): Path of the working directory. Defaults to Path.cwd().
     """
 
@@ -116,10 +116,10 @@ def run_module(module, wkdir=Path.cwd(), iter=0):
 
 
 def get_install_path(soft_check_list):
-    """Function to get installation paths a sorfware used in SU2
+    """Function to get installation paths a software used in SU2
 
     Function 'get_instal_path' check if the given list of software is installed,
-    it retruns a dictionnay of software with thier intallation paths.
+    it retruns a dictionnay of software with their installation paths.
 
     Args:
         soft_check_list (list): List of software to check installation path
@@ -138,7 +138,7 @@ def get_install_path(soft_check_list):
         # TODO: Check more and improve
         if current_os == "Darwin":
             log.info("Your OS is Mac")
-            # Run with MPICH not implemeted yet on mac
+            # Run with MPICH not implemented yet on mac
             if "mpi" in soft:
                 install_path = ""
             else:
@@ -218,7 +218,7 @@ def run_soft(soft, config_path, wkdir, nb_proc):
     log.info(f"    from {wkdir}")
 
     with change_working_dir(wkdir):
-        os.system(" ".join(command_line))
+        os.system(" ".join(map(str, command_line)))
 
     log.info(f">>> {soft} End")
 
@@ -261,7 +261,7 @@ def aircraft_name(tixi_or_cpacs):
         name = get_value_or_default(tixi_or_cpacs, aircraft_name_xpath, "Aircraft")
 
     name = name.replace(" ", "_")
-    log.info("The name of the aircraft is : " + name)
+    log.info(f"The name of the aircraft is : {name}")
 
     return name
 

@@ -19,7 +19,7 @@ from cpacspy.cpacsfunctions import add_uid, create_branch, open_tixi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =============================================================================
@@ -33,21 +33,21 @@ log = get_logger(__file__.split(".")[0])
 
 
 def cpacs_update(mass_pass, out, mw, out_xml):
-    """ The function updates the cpacs file after the range analysis.
+    """The function updates the cpacs file after the range analysis.
 
-        INPUT
-        (float) mass_pass         --Arg.: Passenger mass, countig also the
-                                          extra mass.
-        (class) out               --Arg.: RangeOutput class.
-        ##======== Class is defined in the InputClasses folder =======##
+    INPUT
+    (float) mass_pass         --Arg.: Passenger mass, countig also the
+                                      extra mass.
+    (class) out               --Arg.: RangeOutput class.
+    ##======== Class is defined in the InputClasses folder =======##
 
-        (class) mw                --Arg.: MassesWeights class.
-        ##======= Class is defined in the InputClasses folder =======##
-        (char) out_xml             --Arg.: Path of the output file.
+    (class) mw                --Arg.: MassesWeights class.
+    ##======= Class is defined in the InputClasses folder =======##
+    (char) out_xml             --Arg.: Path of the output file.
 
 
-        OUTPUT
-        (file) cpacs.xml --Out.: Updated cpacs file.
+    OUTPUT
+    (file) cpacs.xml --Out.: Updated cpacs file.
     """
     tixi = open_tixi(out_xml)
 

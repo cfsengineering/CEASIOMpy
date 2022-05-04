@@ -16,18 +16,9 @@ Python version: >=3.7
 #   IMPORTS
 # =================================================================================================
 
-from pathlib import Path
-
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.paths import LOGFILE
 
-# Delete the log file if exist, to simplify the test
-if Path("testlogger.log").exists():
-    Path("testlogger.log").unlink()
-
-# Set logger name and create a logger with this name
-logger_name = __file__.split(".")[0]
-log = get_logger(logger_name)
-logger_file_name = logger_name + ".log"
 
 # =================================================================================================
 #   CLASSES
@@ -44,6 +35,9 @@ def test_logger():
     log file.
     """
 
+    # Set logger name and create a logger with this name
+    log = get_logger()
+
     # Use the 5 log level
     log.debug("Test debug")
     log.info("Test info")
@@ -52,16 +46,16 @@ def test_logger():
     log.critical("Test critical")
 
     # Open and read (last five line of) the logfile
-    with open(logger_file_name) as file:
+    with open(LOGFILE) as file:
         data = file.readlines()
     last_lines = data[-5:]
 
     # Set default line for each level
-    debug_line_default = "DEBUG - Test debug"
-    info_line_default = "INFO - Test info"
-    warning_line_default = "WARNING - Test warning"
-    error_line_default = "ERROR - Test error"
-    critical_line_default = "CRITICAL - Test critical"
+    debug_line_default = "-    DEBUG - test_ceasiomlogger - Test debug"
+    info_line_default = "-     INFO - test_ceasiomlogger - Test info"
+    warning_line_default = "-  WARNING - test_ceasiomlogger - Test warning"
+    error_line_default = "-    ERROR - test_ceasiomlogger - Test error"
+    critical_line_default = "- CRITICAL - test_ceasiomlogger - Test critical"
 
     # Check if default line of each level are in the logfile
     assert debug_line_default in last_lines[0]

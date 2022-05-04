@@ -28,7 +28,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from cpacspy.cpacsfunctions import get_tigl_configuration, open_tigl
 from cpacspy.utils import COEFS, PARAMS_COEFS
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 # Contains the geometric design variables
 geom_var_dict = {}

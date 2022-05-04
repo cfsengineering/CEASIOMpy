@@ -52,7 +52,7 @@ from ceasiompy.utils.xpath import (
 )
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name

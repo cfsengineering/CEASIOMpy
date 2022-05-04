@@ -19,7 +19,7 @@ Python version: >=3.7
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # ==============================================================================

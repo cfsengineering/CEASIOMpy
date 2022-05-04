@@ -28,7 +28,7 @@ from sklearn.linear_model import LinearRegression
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.paths import MODULES_DIR_PATH
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 # ==============================================================================
 #   CLASSES

@@ -18,20 +18,19 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import datetime
 import os
 import shutil
+from datetime import datetime
 from pathlib import Path
 
 from ceasiompy.Optimisation.optimisation import routine_launcher
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiomlogger import add_to_runworkflow_history, get_logger
 from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
-from ceasiompy.utils.paths import CPACS_FILES_PATH, MODULES_DIR_PATH
+from ceasiompy.utils.paths import CPACS_FILES_PATH, LOGFILE, MODULES_DIR_PATH
 
-log = get_logger(__file__.split(".")[0])
-
+log = get_logger()
 
 OPTIM_METHOD = ["OPTIM", "DOE"]
 
@@ -199,7 +198,7 @@ class Workflow:
         """Write the workflow configuration file in the working directory."""
 
         cfg = ConfigFile()
-        cfg["comment_1"] = f"File written {datetime.datetime.now()}"
+        cfg["comment_1"] = f"File written {datetime.now()}"
         cfg["CPACS_TOOLINPUT"] = self.cpacs_in
 
         if self.modules_list:
@@ -321,18 +320,30 @@ class Workflow:
     def run_workflow(self) -> None:
         """Run the complete Worflow"""
 
+        add_to_runworkflow_history(self.current_wkflow_dir)
+
+        log.info("#" * 99)
+        log.info("###  Starting the workflow")
         log.info("#" * 99)
         log.info(f"The workflow will be run in {self.current_wkflow_dir}")
         log.info(f"Input CPACS file: {self.cpacs_in}")
         log.info("The following modules with be run:")
+
         for module in self.modules:
-            log.info(f"  * {module.name}")
+            log.info(f"  -> {module.name}")
 
         for module in self.modules:
             if module.is_optim_module:
                 self.subworkflow.run_subworkflow()
             else:
                 run_module(module, self.current_wkflow_dir)
+
+        log.info("#" * 99)
+        log.info("###  End of the workflow")
+        log.info("#" * 99)
+
+        # Copy logfile in the Workflow directory
+        shutil.copy(LOGFILE, self.current_wkflow_dir)
 
 
 # =================================================================================================

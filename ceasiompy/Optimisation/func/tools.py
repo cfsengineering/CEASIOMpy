@@ -33,7 +33,7 @@ import pandas as pd
 import tigl3.configuration  # used within eval
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # Not an exhaustive list

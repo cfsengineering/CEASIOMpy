@@ -91,11 +91,11 @@ These guidelines have been adapted from:
 
 #### Logging
 
-Create a logfle for a module can be very useful to understand what happens during its execution or debugging it.  The CEASIOMpy logger can be imported and used as following:
+Logging the output of a module can be very useful to understand what happens during its execution or debugging it.  The CEASIOMpy logger can be imported and used as following:
 
 ```python
 from lib.utils.ceasiomlogger import get_logger
-log = get_logger(__file__.split('.')[0])
+log = get_logger()
 ```
 
 Then, you can use the following logging function anywhere in the code of the module:
@@ -108,8 +108,7 @@ log.error('This is for error messages')
 log.critical('This is for critical error messages')
 ```
 
-They will be saved in a log file with the same name as your module (.log)
-and printed in the console during the execution.
+The log file is saved at the root of CEASIOMpy (CEASIOMpy/ceasiompy.log) and printed in the console during the execution. In the log file, the second column is the level of the message and the third column is the module from which the message comes from.
 
 #### Testing and coverage
 

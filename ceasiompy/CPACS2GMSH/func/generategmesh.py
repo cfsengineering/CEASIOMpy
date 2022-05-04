@@ -43,7 +43,13 @@ log = get_logger(__file__.split(".")[0])
 #   CONSTANT
 # =================================================================================================
 
-MESH_COLORS = {"wing": (0, 200, 200), "fuselage": (255, 215, 0), "pylon": (255, 0, 0)}
+MESH_COLORS = {
+    "farfield": (255, 200, 0),
+    "symmetry": (200, 255, 0),
+    "wing": (0, 200, 200),
+    "fuselage": (255, 215, 0),
+    "pylon": (255, 0, 0),
+}
 
 # =================================================================================================
 #   CLASSES
@@ -165,6 +171,7 @@ def get_entities_from_volume(volume_dimtag):
     points_dimtags : list(tuple)
         a list of tuples containing the dimtag of the points
     """
+
     surfaces_dimtags = gmsh.model.getBoundary(
         volume_dimtag, combined=True, oriented=False, recursive=False
     )
@@ -216,7 +223,7 @@ def generate_gmsh(
     ----------
     cpacs_path : str
         path to the cpacs file
-    brep_dir_path : (path)
+    brep_dir_path : (Path)
         Path to the directory containing the brep files
     results_dir : (path)
         Path to the directory containing the result (mesh) files
@@ -239,36 +246,33 @@ def generate_gmsh(
         refine factor for the mesh le and te edge
 
     """
+
     brep_files = list(brep_dir_path.glob("*.brep"))
     brep_files.sort()
 
     gmsh.initialize()
+
     # import each aircraft original parts / parent parts
     aircraft_parts = []
     parts_parent_dimtag = []
     log.info(f"Importing files from {brep_dir_path}")
-    for file in brep_files:
+    for brep_file in brep_files:
 
         # Import the part and create the aircraft part object
-        part_entities = gmsh.model.occ.importShapes(str(file), highestDimOnly=False)
+        part_entities = gmsh.model.occ.importShapes(str(brep_file), highestDimOnly=False)
         gmsh.model.occ.synchronize()
 
         # Create the aircraft part object
-        part_uid = f"{Path(file).stem}"
-
-        part_obj = ModelPart(part_uid)
-        part_obj.part_type = get_part_type(cpacs_path, part_uid)
+        part_obj = ModelPart(uid=brep_file.stem)
+        part_obj.part_type = get_part_type(cpacs_path, part_obj.uid)
 
         # Add to the list of aircraft parts
         aircraft_parts.append(part_obj)
         parts_parent_dimtag.append(part_entities[0])
 
-    gmsh.model.occ.synchronize()
+        log.info(f"Part : {part_obj.uid} imported")
 
-    # info the imported parts
-    for part in aircraft_parts:
-        log.info(f"Part : {part.uid} imported")
-    log.info(f"Total number of part in the model : {len(aircraft_parts)}")
+    gmsh.model.occ.synchronize()
 
     # create external domain for the farfield
     model_bb = gmsh.model.getBoundingBox(-1, -1)
@@ -391,7 +395,6 @@ def generate_gmsh(
                 unwanted_children.extend(list(shared_children))
 
     # remove duplicated from the unwanted child list
-
     unwanted_children = list(set(unwanted_children))
 
     # and remove them from the model
@@ -434,16 +437,11 @@ def generate_gmsh(
     # associate_child_to_parent() by comparing them with the entities of the
     # final domain
 
-    for parent in aircraft_parts:
-        parent.clean_inside_entities(final_domain)
-
-    log.info("Model cleaned")
-
     # Create an aircraft part containing all the parts of the aircraft
-
     aircraft = ModelPart("aircraft")
 
     for part in aircraft_parts:
+        part.clean_inside_entities(final_domain)
 
         aircraft.points.extend(part.points)
         aircraft.lines.extend(part.lines)
@@ -454,26 +452,18 @@ def generate_gmsh(
         aircraft.surfaces_tags.extend(part.surfaces_tags)
         aircraft.volume_tag.extend(part.volume_tag)
 
-    # Form physical groups for SU2
-
-    # bc_aircraft = gmsh.model.addPhysicalGroup(2, aircraft.surfaces_tags)
-    # gmsh.model.setPhysicalName(2, bc_aircraft, "aircraft")
-
-    for part in aircraft_parts:
         surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
         gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
+
+    log.info("Model has been cleaned")
 
     # Farfield
     # farfield entities are simply the entities left in the final domain
     # that don't belong to the aircraft
 
     farfield_surfaces = list(set(final_domain.surfaces) - set(aircraft.surfaces))
-    # farfield_lines = list(set(final_domain.lines) - set(aircraft.lines))
     farfield_points = list(set(final_domain.points) - set(aircraft.points))
-
     farfield_surfaces_tags = list(set(final_domain.surfaces_tags) - set(aircraft.surfaces_tags))
-    # farfield_lines_tags = list(set(final_domain.surfaces_tags) - set(aircraft.lines_tags))
-    # farfield_points_tags = list(set(final_domain.points_tags) - set(aircraft.points_tags))
 
     if symmetry:
 
@@ -534,10 +524,10 @@ def generate_gmsh(
 
     # Set mesh size and color of the farfield
     gmsh.model.mesh.setSize(farfield_points, mesh_size_farfield)
-    gmsh.model.setColor(farfield_surfaces, *(255, 200, 0), a=255, recursive=False)
+    gmsh.model.setColor(farfield_surfaces, *MESH_COLORS["farfield"], a=255, recursive=False)
 
     if symmetry:
-        gmsh.model.setColor(symmetry_surfaces, *(200, 255, 0), a=150, recursive=False)
+        gmsh.model.setColor(symmetry_surfaces, *MESH_COLORS["symmetry"], a=150, recursive=False)
 
     # Generate advance meshing features
     if refine_factor != 1:

@@ -35,6 +35,7 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
 )
 from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import get_part_type
 
 log = get_logger(__file__.split(".")[0])
 
@@ -50,16 +51,16 @@ class ModelPart:
 
     Attributes
     ----------
-    name : str
+    uid : str
         name of the part which correspond to its .brep file name for aircraft parts
         or a simple name describing the part function in the model
 
     """
 
-    def __init__(self, name):
+    def __init__(self, uid):
 
-        self.name = name
-        self.uid = ""
+        self.uid = uid
+        self.part_type = ""
 
         # dimtag
         self.points = []
@@ -134,16 +135,16 @@ class ModelPart:
         """
         Function to set the mesh color of the model part.
         """
-        if "wing" in self.name:
+        if "wing" in self.part_type:
             color = (0, 200, 200)
 
-        if "fuselage" in self.name:
+        if "fuselage" in self.part_type:
             color = (255, 215, 0)
-        if "pylon" in self.name:
+        if "pylon" in self.part_type:
             color = (255, 0, 0)
-        if "nacelle" in self.name:
+        if "nacelle" in self.part_type:
             color = (0, 100, 255)
-        if "engine" in self.name:
+        if "engine" in self.part_type:
             color = (0, 100, 255)
         gmsh.model.setColor(self.surfaces, *color, a=150, recursive=False)
 
@@ -151,34 +152,6 @@ class ModelPart:
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
-
-
-def associate_uid(brep_dir_path, aircraft_parts):
-    """
-    Function to associate the TiGL uid of the brep file to the corresponding part
-
-    Args:
-    ----------
-    brep_dir_path : Path
-        path to the brep files
-    aircraft_parts : list of ModelPart
-        list of parts of the aircraft
-
-    """
-
-    # retrieve the uid setting file
-    uid_file_path = Path(brep_dir_path, "setting_uid.txt")
-    with open(uid_file_path, "r") as uid_file:
-        names_uids = uid_file.read().splitlines()
-
-    # associate the uid to the part
-    for name_uid in names_uids:
-        name_uid = name_uid.split(",")
-
-        for part in aircraft_parts:
-
-            if part.name == name_uid[0]:
-                part.uid = name_uid[1]
 
 
 def get_entities_from_volume(volume_dimtag):
@@ -231,6 +204,7 @@ def get_entities_from_volume(volume_dimtag):
 
 
 def generate_gmsh(
+    cpacs_path,
     brep_dir_path,
     results_dir,
     open_gmsh=False,
@@ -252,6 +226,8 @@ def generate_gmsh(
     file.
     Args:
     ----------
+    cpacs_path : str
+        path to the cpacs file
     brep_dir_path : (path)
         Path to the directory containing the brep files
     results_dir : (path)
@@ -276,10 +252,6 @@ def generate_gmsh(
 
     """
     brep_files = list(brep_dir_path.glob("*.brep"))
-
-    # TODO: Remove when nacelle will be supported
-    # for now suppress nacelle parts since they are not supported
-    brep_files = [file for file in brep_files if "nacelle" not in file.name]
     brep_files.sort()
 
     gmsh.initialize()
@@ -292,12 +264,17 @@ def generate_gmsh(
         # Import the part and create the aircraft part object
         part_entities = gmsh.model.occ.importShapes(str(file), highestDimOnly=False)
         gmsh.model.occ.synchronize()
-        part_obj = ModelPart(f"{Path(file).stem}")
+
+        # Create the aircraft part object
+        part_uid = f"{Path(file).stem}"
+
+        part_obj = ModelPart(part_uid)
+        part_obj.part_type = get_part_type(cpacs_path, part_uid)
+
+        # Add to the list of aircraft parts
         aircraft_parts.append(part_obj)
         parts_parent_dimtag.append(part_entities[0])
 
-    # associate the uid to the part
-    associate_uid(brep_dir_path, aircraft_parts)
     gmsh.model.occ.synchronize()
 
     # info the imported parts
@@ -541,7 +518,7 @@ def generate_gmsh(
 
     # Fluid domain
     ps = gmsh.model.addPhysicalGroup(3, final_domain.volume_tag)
-    gmsh.model.setPhysicalName(3, ps, final_domain.name)
+    gmsh.model.setPhysicalName(3, ps, final_domain.uid)
 
     gmsh.model.occ.synchronize()
     log.info("Markers for SU2 generated")
@@ -556,13 +533,13 @@ def generate_gmsh(
     # the size of the points on boundaries.
 
     for part in aircraft_parts:
-        if "fuselage" in part.name:
+        if "fuselage" in part.part_type:
             gmsh.model.mesh.setSize(part.points, mesh_size_fuselage)
         if (
-            "wing" in part.name
-            or "pylon" in part.name
-            or "nacelle" in part.name
-            or "engine" in part.name
+            "wing" in part.part_type
+            or "pylon" in part.part_type
+            or "nacelle" in part.part_type
+            or "engine" in part.part_type
         ):
             gmsh.model.mesh.setSize(part.points, mesh_size_wings)
 
@@ -583,7 +560,7 @@ def generate_gmsh(
     if refine_factor != 1:
         mesh_fields = {"nbfields": 0, "restrict_fields": []}
         for part in aircraft_parts:
-            if "wing" in part.name:
+            if "wing" in part.part_type:
 
                 # wing classifications
                 classify_wing(part)
@@ -599,7 +576,7 @@ def generate_gmsh(
                     refine=refine_factor,
                     chord_percent=0.15,
                 )
-            if "fuselage" in part.name:
+            if "fuselage" in part.part_type:
                 log.info(f"Set mesh refinement of {part.uid}")
                 set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
 

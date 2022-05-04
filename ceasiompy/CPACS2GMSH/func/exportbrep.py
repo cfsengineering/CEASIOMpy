@@ -33,7 +33,7 @@ log = get_logger(__file__.split(".")[0])
 # =================================================================================================
 
 
-def export(shape, brep_dir_path, UID, name):
+def export(shape, brep_dir_path, uid):
     """
     Export a shape to a brep file and store its UID
 
@@ -43,20 +43,15 @@ def export(shape, brep_dir_path, UID, name):
         The shape to be exported
     brep_dir_path (obj): Path object
         Path object to the directory where the brep files are saved
-    UID: str
-        The UID of the shape
-    name: str
-        The name of the shape
+    uid: str
+        The uID of the shape
 
     Returns
     -------
     None
 
     """
-    uid_file_path = Path(brep_dir_path, "setting_uid.txt")
-    with open(uid_file_path, "a") as uid_file:
-        uid_file.write(f"{name},{UID}\n")
-    brep_file = Path(brep_dir_path, f"{name}.brep")
+    brep_file = Path(brep_dir_path, f"{uid}.brep")
     export_shapes([shape], str(brep_file))
 
 
@@ -128,11 +123,6 @@ def export_brep(cpacs, brep_dir_path):
     None
 
     """
-    # generate the uid file
-    uid_file_path = Path(brep_dir_path, "setting_uid.txt")
-    with open(uid_file_path, "w") as _:
-        pass
-
     # get the aircraft configuration
 
     aircraft_config = cpacs.aircraft.configuration
@@ -153,17 +143,17 @@ def export_brep(cpacs, brep_dir_path):
         fuselage = aircraft_config.get_fuselage(k)
         fuselage_uid = fuselage.get_uid()
         fuselage_geom = fuselage.get_loft()
-        export(fuselage_geom, brep_dir_path, fuselage_uid, f"fuselage{k}")
+        export(fuselage_geom, brep_dir_path, fuselage_uid)
     # Wing
     for k in range(1, wing_cnt + 1):
         wing = aircraft_config.get_wing(k)
         wing_uid = wing.get_uid()
         wing_geom = wing.get_loft()
-        export(wing_geom, brep_dir_path, wing_uid, f"wing{k}")
+        export(wing_geom, brep_dir_path, wing_uid)
 
         wing_m_geom = aircraft_config.get_wing(k).get_mirrored_loft()
         if wing_m_geom is not None:
-            export(wing_m_geom, brep_dir_path, wing_uid + "_mirrored", f"wing{k}_m")
+            export(wing_m_geom, brep_dir_path, wing_uid + "_mirrored")
 
     # symmetric_engine = False
 
@@ -174,11 +164,11 @@ def export_brep(cpacs, brep_dir_path):
             pylon = pylons_config.get_engine_pylon(k)
             pylon_uid = pylon.get_uid()
             pylon_geom = pylon.get_loft()
-            export(pylon_geom, brep_dir_path, pylon_uid, f"pylon{k}")
+            export(pylon_geom, brep_dir_path, pylon_uid)
 
             pylon_m_geom = pylons_config.get_engine_pylon(k).get_mirrored_loft()
             if pylon_m_geom is not None:
-                export(pylon_m_geom, brep_dir_path, pylon_uid + "_mirrored", f"pylon{k}_m")
+                export(pylon_m_geom, brep_dir_path, pylon_uid + "_mirrored")
                 # symmetric_engine = True
 
     # Engine position

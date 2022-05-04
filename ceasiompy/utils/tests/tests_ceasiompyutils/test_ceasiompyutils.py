@@ -21,7 +21,12 @@ import shutil
 from pathlib import Path
 
 import pytest
-from ceasiompy.utils.ceasiompyutils import aircraft_name, change_working_dir, get_results_directory
+from ceasiompy.utils.ceasiompyutils import (
+    aircraft_name,
+    change_working_dir,
+    get_results_directory,
+    get_part_type,
+)
 from cpacspy.cpacsfunctions import open_tixi
 
 from ceasiompy.utils.paths import CPACS_FILES_PATH
@@ -95,6 +100,20 @@ def test_aircraft_name():
     # Get name form TIXI handle
     tixi = open_tixi(str(cpacs_in))
     assert aircraft_name(tixi) == "D150"
+
+
+def test_get_part_type():
+    """Test the function get_part_type on the D150"""
+
+    # CPACS file path
+    cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml")
+
+    assert get_part_type(cpacs_in, "Wing1") == "wing"
+    assert get_part_type(cpacs_in, "Wing1_mirrored") == "wing"
+    assert get_part_type(cpacs_in, "Wing2H") == "wing"
+    assert get_part_type(cpacs_in, "Wing2H_mirrored") == "wing"
+    assert get_part_type(cpacs_in, "Wing3V") == "wing"
+    assert get_part_type(cpacs_in, "Fuselage1") == "fuselage"
 
 
 # =================================================================================================

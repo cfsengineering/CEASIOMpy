@@ -19,7 +19,7 @@ Python version: >=3.7
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =============================================================================
@@ -38,7 +38,7 @@ log = get_logger(__file__.split(".")[0])
 def estimate_fuse_passengers(
     fus_nb, FLOORS_NB, PASS_PER_TOILET, cabin_area, MASS_PASS, pass_density
 ):
-    """ The function evaluates the number of passengers members on board in
+    """The function evaluates the number of passengers members on board in
         case of an unconventional aircraft with fuselage.
 
     Source : passengers density is defined averaging the ratio between
@@ -74,7 +74,7 @@ def estimate_fuse_passengers(
 
 
 def estimate_wing_passengers(FLOORS_NB, PASS_PER_TOILET, cabin_area, MASS_PASS, pass_density):
-    """ The function evaluates the number of passengers members on board in
+    """The function evaluates the number of passengers members on board in
         case of an unconventional aircraft without fuselage.
 
     Source : passengers density is defined averaging the ratio between

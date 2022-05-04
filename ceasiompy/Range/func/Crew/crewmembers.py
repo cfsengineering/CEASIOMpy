@@ -18,7 +18,7 @@ The script suggests the crew member number in relation with the range.
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =============================================================================
@@ -32,7 +32,7 @@ log = get_logger(__file__.split(".")[0])
 
 
 def crew_check(range_maxpass, ri):
-    """ The function evaluates the number of crew members on board.
+    """The function evaluates the number of crew members on board.
     Source :https://www.ecfr.gov/cgi-bin/text-idx?SID=3106877474
             ac09000d0514ac960925c7&node=14:3.0.1.1.7.18&rgn=div6
 

@@ -25,7 +25,7 @@ import json
 from ceasiompy.utils.ceasiomlogger import get_logger
 from cpacspy.cpacsfunctions import copy_branch
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =================================================================================================

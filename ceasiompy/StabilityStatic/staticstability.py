@@ -45,7 +45,7 @@ from ceasiompy.utils.xpath import MASSBREAKDOWN_XPATH, STABILITY_STATIC_XPATH
 from cpacspy.cpacsfunctions import add_float_vector, create_branch, get_value, get_value_or_default
 from cpacspy.cpacspy import CPACS
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name

@@ -26,7 +26,7 @@ from .bwbcog import center_of_gravity_evaluation_bwb
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =============================================================================
@@ -41,28 +41,28 @@ log = get_logger(__file__.split(".")[0])
 #   FUNCTIONS
 # =============================================================================
 def unc_center_of_gravity(awg, afg, bout, ui, bi, mw, ed):
-    """ Unconventional aircraft center of gravity analysis main function.
-        It dvides the cases defined and evaluates them calling the
-        function in the with_fuse_geom subfolder.
+    """Unconventional aircraft center of gravity analysis main function.
+    It dvides the cases defined and evaluates them calling the
+    function in the with_fuse_geom subfolder.
 
-        Source: An introduction to mechanics, 2nd ed., D. Kleppner
-                and R. Kolenkow, Cambridge University Press.
+    Source: An introduction to mechanics, 2nd ed., D. Kleppner
+            and R. Kolenkow, Cambridge University Press.
 
-        ARGUMENTS
-        (class) awg  --Arg.: AircraftWingGeometry class.
-        (class) afg  --Arg.: AircraftFuseGeometry class.
-        (class) bout --Arg.: BalanceOutputs class.
-        (class) ui    --Arg.: UserInputs class.
-        (class) bi    --Arg.: BalanceInputs class.
-        (class) mw    --Arg.: MassesWeights class.
-        (class) ed    --Arg.: EngineData class.
-        ##======= Classes are defined in the InputClasses folder =======##
+    ARGUMENTS
+    (class) awg  --Arg.: AircraftWingGeometry class.
+    (class) afg  --Arg.: AircraftFuseGeometry class.
+    (class) bout --Arg.: BalanceOutputs class.
+    (class) ui    --Arg.: UserInputs class.
+    (class) bi    --Arg.: BalanceInputs class.
+    (class) mw    --Arg.: MassesWeights class.
+    (class) ed    --Arg.: EngineData class.
+    ##======= Classes are defined in the InputClasses folder =======##
 
-        RETURN
-        (float_array) airplane_centers_segs --Out.: point at the center of
-                                                    each segment of the
-                                                    aircraft.
-        (class) bout  --Out.: Updated BalanceOutputs class.
+    RETURN
+    (float_array) airplane_centers_segs --Out.: point at the center of
+                                                each segment of the
+                                                aircraft.
+    (class) bout  --Out.: Updated BalanceOutputs class.
     """
 
     # Fuel amount inside fuselage check
@@ -130,26 +130,26 @@ def unc_center_of_gravity(awg, afg, bout, ui, bi, mw, ed):
 
 
 def bwb_center_of_gravity(awg, bout, ui, bi, mw, ed):
-    """ Blended wing Body aircraft center of gravity analysis main function.
-        It dvides the cases defined and evaluates them calling the
-        function in the no_fuse_geom subfolder.
+    """Blended wing Body aircraft center of gravity analysis main function.
+    It dvides the cases defined and evaluates them calling the
+    function in the no_fuse_geom subfolder.
 
-        Source: An introduction to mechanics, 2nd ed., D. Kleppner
-                and R. Kolenkow, Cambridge University Press.
+    Source: An introduction to mechanics, 2nd ed., D. Kleppner
+            and R. Kolenkow, Cambridge University Press.
 
-        ARGUMENTS
-        (class) awg  --Arg.: AircraftWingGeometry class.
-        (class) bout --Arg.: BalanceOutputs class.
-        (class) bi       --Arg.: BalanceInputs class.
-        (class) mw       --Arg.: MassesWeights class.
-        (class) ed    --Arg.: EnfineData class.
-        ##======= Classes are defined in the InputClasses folder =======##
+    ARGUMENTS
+    (class) awg  --Arg.: AircraftWingGeometry class.
+    (class) bout --Arg.: BalanceOutputs class.
+    (class) bi       --Arg.: BalanceInputs class.
+    (class) mw       --Arg.: MassesWeights class.
+    (class) ed    --Arg.: EnfineData class.
+    ##======= Classes are defined in the InputClasses folder =======##
 
-        RETURN
-        (float_array) airplane_centers_segs --Out.: point at the center of
-                                                    each segment of the
-                                                    aircraft.
-        (class) bout  --Out.: Updated BalanceOutputs class.
+    RETURN
+    (float_array) airplane_centers_segs --Out.: point at the center of
+                                                each segment of the
+                                                aircraft.
+    (class) bout  --Out.: Updated BalanceOutputs class.
     """
     F_PERC_MAXPASS = (mw.mass_fuel_maxpass / mw.mass_fuel_tot) * 100
 

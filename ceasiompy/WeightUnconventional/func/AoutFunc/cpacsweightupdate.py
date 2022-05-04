@@ -21,7 +21,7 @@ from cpacspy.cpacsfunctions import add_uid, create_branch, open_tixi
 from ceasiompy.utils.xpath import CREW_XPATH, PASS_XPATH
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =============================================================================
@@ -39,15 +39,15 @@ log = get_logger(__file__.split(".")[0])
 
 
 def toolspecific_update(fus_nb, awg, mw, out, cpacs_out_path):
-    """ The function that update the cpacs file after the Weight_unc_main
-        program.
+    """The function that update the cpacs file after the Weight_unc_main
+    program.
 
-        Args:
-            fus_nb (integer): Number of fuselage [-].
-            awg (class): AircraftWingGeometry class.
-            mw (class): Masses and Weights class.
-            out (class): Output class.
-            cpacs_out_path (str): Path of the output file.
+    Args:
+        fus_nb (integer): Number of fuselage [-].
+        awg (class): AircraftWingGeometry class.
+        mw (class): Masses and Weights class.
+        out (class): Output class.
+        cpacs_out_path (str): Path of the output file.
 
 
     """
@@ -102,7 +102,7 @@ def toolspecific_update(fus_nb, awg, mw, out, cpacs_out_path):
 
 
 def cpacs_weight_update(out, mw, ui, cpacs_out_path):
-    """ The function that update the cpacs file after the Weight_unc_main
+    """The function that update the cpacs file after the Weight_unc_main
         program.
 
     Args:
@@ -218,7 +218,7 @@ def cpacs_weight_update(out, mw, ui, cpacs_out_path):
 
 
 def cpacs_engine_update(ui, ed, mw, cpacs_out_path):
-    """ The function that update the cpacs file after the Weight_unc_main
+    """The function that update the cpacs file after the Weight_unc_main
         program.
 
     Args:

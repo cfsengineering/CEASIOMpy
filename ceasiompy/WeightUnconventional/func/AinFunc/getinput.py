@@ -39,7 +39,7 @@ from ceasiompy.utils.xpath import (
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =============================================================================
@@ -249,20 +249,20 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
 
 
 def get_engine_inputs(ui, ed, cpacs_in):
-    """ Function to extract from the xml file the required input data,
-        the code will use the default value when they are missing.
+    """Function to extract from the xml file the required input data,
+    the code will use the default value when they are missing.
 
-        INPUT
-        (class) ui     --Arg.: UserInputs class.
-        (class) ed     --Arg.: EngineData class.
-        ##======= Class ares defined in the InputClasses folder =======##
-        (char) cpacs_in  --Arg.: Relative location of the xml file in the
-                                 ToolInput folder (cpacs option) or
-                                 relative location of the temp. xml file in
-                                 the ToolOutput folder (input option).
-        OUTPUT
-        (class) ed       --Out.: EngineData class.
-        (file) cpacs_in  --Out.: Updated cpasc file
+    INPUT
+    (class) ui     --Arg.: UserInputs class.
+    (class) ed     --Arg.: EngineData class.
+    ##======= Class ares defined in the InputClasses folder =======##
+    (char) cpacs_in  --Arg.: Relative location of the xml file in the
+                             ToolInput folder (cpacs option) or
+                             relative location of the temp. xml file in
+                             the ToolOutput folder (input option).
+    OUTPUT
+    (class) ed       --Out.: EngineData class.
+    (file) cpacs_in  --Out.: Updated cpasc file
     """
 
     log.info("Starting engine data extraction from CPACS file")

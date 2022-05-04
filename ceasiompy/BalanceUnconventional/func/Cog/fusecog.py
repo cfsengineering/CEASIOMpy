@@ -22,7 +22,7 @@ import numpy as np
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =============================================================================
@@ -39,7 +39,7 @@ log = get_logger(__file__.split(".")[0])
 
 
 def center_of_gravity_evaluation(F_PERC, P_PERC, afg, awg, mw, ed, ui, bi):
-    """ Function to evaluate the center of gravity of airplanes given the
+    """Function to evaluate the center of gravity of airplanes given the
     geometry from cpacs file and masses from weight_unc_main.py.
 
     Source: An introduction to mechanics, 2nd ed., D. Kleppner

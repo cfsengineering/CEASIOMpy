@@ -36,7 +36,7 @@ from cpacspy.cpacsfunctions import create_branch, open_tixi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =============================================================================
@@ -53,21 +53,21 @@ log = get_logger(__file__.split(".")[0])
 
 
 def get_user_fuel(fus_nb, ui, cpacs_in):
-    """ Function to extract from the xml file the required input data,
-        the code will use the default value when they are missing.
+    """Function to extract from the xml file the required input data,
+    the code will use the default value when they are missing.
 
-        INPUT
-        (int) fus_nb     --Arg.: Number of fuselage.
-        (class) ui     --Arg.: UserInputs class.
-        ##======= Classes are defined in the InputClasses folder =======##
+    INPUT
+    (int) fus_nb     --Arg.: Number of fuselage.
+    (class) ui     --Arg.: UserInputs class.
+    ##======= Classes are defined in the InputClasses folder =======##
 
-        (char) cpacs_in  --Arg.: Relative location of the xml file in the
-                                 ToolInput folder (cpacs option) or
-                                 relative location of the temp. xml file in
-                                 the ToolOutput folder (input option).
-        OUTPUT
-        (class) ui       --Out.: UserInputs class.
-        (file) cpacs_in  --Out.: Updated cpasc file
+    (char) cpacs_in  --Arg.: Relative location of the xml file in the
+                             ToolInput folder (cpacs option) or
+                             relative location of the temp. xml file in
+                             the ToolOutput folder (input option).
+    OUTPUT
+    (class) ui       --Out.: UserInputs class.
+    (file) cpacs_in  --Out.: Updated cpasc file
     """
 
     log.info("Starting data extraction from CPACS file")
@@ -109,24 +109,24 @@ def get_user_fuel(fus_nb, ui, cpacs_in):
 
 
 def get_data(ui, bi, mw, ed, cpacs_in):
-    """ The function extracts from the xml file the required input data,
-        the code will use the default value when they are missing.
+    """The function extracts from the xml file the required input data,
+    the code will use the default value when they are missing.
 
-        INPUT
-        (class) ui       --Arg.: UserInputs class.
-        (class) bi       --Arg.: BalanceInputs class.
-        (class) mw       --Arg.: MassesWeight class.
-        (class) ed       --Arg.: EngineData class.
-        ##======= Classes are defined in the InputClasses folder =======##
+    INPUT
+    (class) ui       --Arg.: UserInputs class.
+    (class) bi       --Arg.: BalanceInputs class.
+    (class) mw       --Arg.: MassesWeight class.
+    (class) ed       --Arg.: EngineData class.
+    ##======= Classes are defined in the InputClasses folder =======##
 
-        (char) cpacs_in  --Arg.: Relative location of the xml file in the
-                                 ToolInput folder (cpacs option) or
-                                 relative location of the temp. xml file in
-                                 the ToolOutput folder (input option).
-        OUTPUT
-        (class) mw       --Out.: MassesWeight class updated.
-        (class) ed       --Out.: EngineData class updated.
-        (file) cpacs_in  --Out.: Updated cpasc file.
+    (char) cpacs_in  --Arg.: Relative location of the xml file in the
+                             ToolInput folder (cpacs option) or
+                             relative location of the temp. xml file in
+                             the ToolOutput folder (input option).
+    OUTPUT
+    (class) mw       --Out.: MassesWeight class updated.
+    (class) ed       --Out.: EngineData class updated.
+    (file) cpacs_in  --Out.: Updated cpasc file.
     """
     log.info("CPACS file path check")
 

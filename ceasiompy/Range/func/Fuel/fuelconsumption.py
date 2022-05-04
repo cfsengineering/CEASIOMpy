@@ -20,7 +20,7 @@ import math
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =============================================================================
@@ -34,7 +34,7 @@ log = get_logger(__file__.split(".")[0])
 
 
 def fuel_consumption(LDloi, mw, ri, RES_FUEL_PERC):
-    """ Function that estimate the fuel used for each flight phases.
+    """Function that estimate the fuel used for each flight phases.
 
     Source: Raymer, D.P. "Aircraft design: a conceptual approach"
             AIAA educational Series, Fourth edition (2006)

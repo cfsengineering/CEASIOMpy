@@ -32,7 +32,7 @@ from scipy.sparse import csr_matrix
 from six import iteritems
 from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =================================================================================================
@@ -192,7 +192,7 @@ def dimensionalize_pressure(p, config_dict):
     elif ref_dim == "FREESTREAM_VEL_EQ_MACH":
         return (p * gamma - 1) * p_inf
     elif ref_dim == "FREESTREAM_VEL_EQ_ONE":
-        return (p * gamma * ma ** 2 - 1) * p_inf
+        return (p * gamma * ma**2 - 1) * p_inf
 
 
 def write_updated_mesh(mesh, new_vtu_file_path):

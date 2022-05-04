@@ -21,7 +21,7 @@ import numpy as np
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =============================================================================
@@ -38,7 +38,7 @@ log = get_logger(__file__.split(".")[0])
 
 
 def center_of_gravity_evaluation_bwb(F_PERC, P_PERC, awg, mw, ed, ui, bi):
-    """ The function evaluates the center of gravity of airplanes given the
+    """The function evaluates the center of gravity of airplanes given the
         geometry from cpacs file and masses from weight_unc_main.py.
 
     Source: An introduction to mechanics, 2nd ed., D. Kleppner
@@ -128,7 +128,7 @@ def center_of_gravity_evaluation_bwb(F_PERC, P_PERC, awg, mw, ed, ui, bi):
             mass = (round(mtom, 3) - round(np.sum(mass_seg_i), 3)) / 2
             a = wg.index(awg.main_wing_index)
             mass /= awg.wing_seg_nb[a] * 2
-            mass_seg_i[:][a:a + 1] += mass
+            mass_seg_i[:][a : a + 1] += mass
 
     awg.wing_center_seg_point.resize(max_seg_n, awg.wing_nb, 3)
     airplane_centers_segs = awg.wing_center_seg_point

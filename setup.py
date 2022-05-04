@@ -35,8 +35,7 @@ AUTHOR = "CFS Engineering"
 EMAIL = "aidan.jungo@cfse.ch"
 DESCRIPTION = "A conceptual aircraft design environment"
 URL = "https://github.com/cfsengineering/CEASIOMpy"
-REQUIRES_PYTHON = ">=3.7.0"
-REQUIRED = ["numpy"]
+REQUIRES_PYTHON = "=3.7.0"
 README = "README.md"
 PACKAGE_DIR = "."
 LICENSE = "LICENSE"
@@ -63,7 +62,7 @@ setuptools.setup(
     license=license,
     packages=setuptools.find_packages(exclude=EXCLUDE_DIRS),
     python_requires=REQUIRES_PYTHON,
-    install_requires=REQUIRED,
+    install_requires=[],
     # See: https://pypi.org/classifiers/
     classifiers=[
         "Programming Language :: Python :: 3",

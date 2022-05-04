@@ -51,8 +51,12 @@ def export(shape, brep_dir_path, uid):
     None
 
     """
+    brep_dir_path.mkdir(exist_ok=True)
     brep_file = Path(brep_dir_path, f"{uid}.brep")
     export_shapes([shape], str(brep_file))
+    if not brep_file.exists():
+        log.error(f"Failed to export {uid}")
+        raise FileNotFoundError(f"Failed to export {uid}")
 
 
 def engine_export(aircraft_config, brep_dir_path, symmetric_engine):

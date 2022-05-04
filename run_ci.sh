@@ -7,7 +7,6 @@ echo -e "\n######### Running CI #########"
 
 echo -e "\n## Running Black ## \n"
 black .
-TODO uncomment when some files will be cleaned
 
 echo -e "\n## Running Flake8 ## \n"
 flake8

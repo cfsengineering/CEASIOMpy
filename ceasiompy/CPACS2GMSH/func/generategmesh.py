@@ -39,6 +39,11 @@ from ceasiompy.utils.ceasiompyutils import get_part_type
 
 log = get_logger(__file__.split(".")[0])
 
+# =================================================================================================
+#   CONSTANT
+# =================================================================================================
+
+MESH_COLORS = {"wing": (0, 200, 200), "fuselage": (255, 215, 0), "pylon": (255, 0, 0)}
 
 # =================================================================================================
 #   CLASSES
@@ -130,23 +135,6 @@ class ModelPart:
         )
         self.lines_tags = list(set(self.lines_tags).intersection(set(final_domain.lines_tags)))
         self.points_tags = list(set(self.points_tags).intersection(set(final_domain.points_tags)))
-
-    def set_mesh_color(self):
-        """
-        Function to set the mesh color of the model part.
-        """
-        if "wing" in self.part_type:
-            color = (0, 200, 200)
-
-        if "fuselage" in self.part_type:
-            color = (255, 215, 0)
-        if "pylon" in self.part_type:
-            color = (255, 0, 0)
-        if "nacelle" in self.part_type:
-            color = (0, 100, 255)
-        if "engine" in self.part_type:
-            color = (0, 100, 255)
-        gmsh.model.setColor(self.surfaces, *color, a=150, recursive=False)
 
 
 # =================================================================================================
@@ -535,26 +523,21 @@ def generate_gmsh(
     for part in aircraft_parts:
         if "fuselage" in part.part_type:
             gmsh.model.mesh.setSize(part.points, mesh_size_fuselage)
-        if (
-            "wing" in part.part_type
-            or "pylon" in part.part_type
-            or "nacelle" in part.part_type
-            or "engine" in part.part_type
-        ):
+            gmsh.model.setColor(
+                part.surfaces, *MESH_COLORS[part.part_type], a=150, recursive=False
+            )
+        elif part.part_type in ["wing", "pylon", "nacelle", "engine"]:
             gmsh.model.mesh.setSize(part.points, mesh_size_wings)
+            gmsh.model.setColor(
+                part.surfaces, *MESH_COLORS[part.part_type], a=150, recursive=False
+            )
 
-    # Set mesh size of the farfield
+    # Set mesh size and color of the farfield
     gmsh.model.mesh.setSize(farfield_points, mesh_size_farfield)
+    gmsh.model.setColor(farfield_surfaces, *(255, 200, 0), a=255, recursive=False)
 
-    # Color the mesh
-    for part in aircraft_parts:
-        part.set_mesh_color()
-
-    mesh_color_farfield = (255, 200, 0)
-    mesh_color_symmetry = (200, 255, 0)
-    gmsh.model.setColor(farfield_surfaces, *mesh_color_farfield, a=255, recursive=False)
     if symmetry:
-        gmsh.model.setColor(symmetry_surfaces, *mesh_color_symmetry, a=150, recursive=False)
+        gmsh.model.setColor(symmetry_surfaces, *(200, 255, 0), a=150, recursive=False)
 
     # Generate advance meshing features
     if refine_factor != 1:
@@ -576,7 +559,7 @@ def generate_gmsh(
                     refine=refine_factor,
                     chord_percent=0.15,
                 )
-            if "fuselage" in part.part_type:
+            elif "fuselage" in part.part_type:
                 log.info(f"Set mesh refinement of {part.uid}")
                 set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
 

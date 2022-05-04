@@ -25,9 +25,11 @@ Todo:
 import argparse
 from pathlib import Path
 from ceasiompy.WorkflowCreator.workflowcreator import create_wf_gui
+from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.paths import CPACS_FILES_PATH, TEST_CASES_PATH
 from ceasiompy.utils.workflowclasses import Workflow
 
+log = get_logger()
 
 # =================================================================================================
 #   CLASSES
@@ -41,6 +43,8 @@ from ceasiompy.utils.workflowclasses import Workflow
 
 def testcase_message(testcase_nb):
     """Top message to show when a test case is run."""
+
+    log.info(f"CEASIOMpy as been started from test case {testcase_nb}")
 
     print("\n")
     print("#" * 30)
@@ -71,11 +75,13 @@ def run_testcase(testcase_nb):
         print(f"\nYou can check your results in: {workflow.current_wkflow_dir}/Results")
 
     elif testcase_nb == 2:
+
         testcase_message(2)
 
         print("Sorry, this test case is not implemented yet!")
 
     elif testcase_nb == 3:
+
         testcase_message(3)
 
         print("Sorry, this test case is not implemented yet!")
@@ -108,6 +114,8 @@ def run_modules_list(args_list):
 
     modules_list = args_list[1:]
 
+    log.info("CEASIOMpy as been started from a command line")
+
     workflow = Workflow()
     workflow.cpacs_in = cpacs_path
     workflow.modules_list = modules_list
@@ -120,6 +128,8 @@ def run_modules_list(args_list):
 
 def run_config_file(config_file):
     """Run a workflow from a config file"""
+
+    log.info("CEASIOMpy as been started from a config file")
 
     config_file_path = Path(config_file)
 
@@ -136,6 +146,8 @@ def run_config_file(config_file):
 
 def run_gui():
     """Create an run a workflow from a GUI."""
+
+    log.info("CEASIOMpy as been started from the GUI")
 
     workflow = create_wf_gui()
     workflow.write_config_file()

@@ -48,7 +48,7 @@ from cpacspy.cpacsfunctions import add_uid, create_branch, open_tixi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =============================================================================
@@ -66,24 +66,24 @@ log = get_logger(__file__.split(".")[0])
 
 
 def get_data(mw, ri, cpacs_in):
-    """ The function extracts from the xml file the required input data,
-        the code will use the default value when they are missing.
+    """The function extracts from the xml file the required input data,
+    the code will use the default value when they are missing.
 
-        INPUT
-        (class) mw       --Arg.: MassesWeight class updated
-        (class) ri       --Arg.: RangeInput class updated
-        ##======= Classes are defined in the Input_classes folder =======##
+    INPUT
+    (class) mw       --Arg.: MassesWeight class updated
+    (class) ri       --Arg.: RangeInput class updated
+    ##======= Classes are defined in the Input_classes folder =======##
 
-        (char) opt       --Arg.: Cpacs or input option
-        (char) cpacs_in  --Arg.: Relative location of the xml file in the
-                                 ToolInput folder (cpacs option) or
-                                 relative location of the temp. xml file in
-                                 the ToolOutput folder (input option).
+    (char) opt       --Arg.: Cpacs or input option
+    (char) cpacs_in  --Arg.: Relative location of the xml file in the
+                             ToolInput folder (cpacs option) or
+                             relative location of the temp. xml file in
+                             the ToolOutput folder (input option).
 
-        OUTPUT
-        (class) mw       --Out.: MassesWeight class updated.
-        (class) ri       --Out.: RangeInput class updated.
-        (file) cpacs_in  --Out.: Updated cpasc file.
+    OUTPUT
+    (class) mw       --Out.: MassesWeight class updated.
+    (class) ri       --Out.: RangeInput class updated.
+    (file) cpacs_in  --Out.: Updated cpasc file.
     """
     log.info("CPACS file path check")
 

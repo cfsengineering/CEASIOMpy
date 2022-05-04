@@ -25,7 +25,7 @@ from pathlib import Path
 from ceasiompy.utils.ceasiomlogger import get_logger
 from tixi3.tixi3wrapper import Tixi3Exception
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 

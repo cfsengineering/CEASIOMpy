@@ -30,7 +30,7 @@ from ceasiompy.utils.moduleinterfaces import get_submodule_list
 from ceasiompy.utils.paths import CPACS_FILES_PATH, WKDIR_PATH
 from ceasiompy.utils.workflowclasses import Workflow
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 

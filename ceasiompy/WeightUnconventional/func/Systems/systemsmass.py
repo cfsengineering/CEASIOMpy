@@ -21,7 +21,7 @@ import numpy as np
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =============================================================================
@@ -40,7 +40,7 @@ log = get_logger(__file__.split(".")[0])
 def estimate_system_mass(
     pass_nb, main_wing_surface, tail_wings_surface, SINGLE_HYDRAULICS, mw, ed
 ):
-    """ The function evaluates the number of crew members on board.
+    """The function evaluates the number of crew members on board.
 
     Source :
      - https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19770019162.pdf
@@ -83,7 +83,7 @@ def estimate_system_mass(
         sw.append(13.6 * pass_nb)
         s_n.append("Pnew+Air")
     else:
-        sw.append(26.2 * pass_nb ** 0.944)
+        sw.append(26.2 * pass_nb**0.944)
         s_n.append("APU+Pnew+Air")
 
     # Anti-Icing weight
@@ -98,7 +98,7 @@ def estimate_system_mass(
 
     # Furnishings and Equipment
     s_n.append("F&E")
-    sw.append((0.196 * (zfm ** 0.91)))
+    sw.append((0.196 * (zfm**0.91)))
 
     # Instruments
     s_n.append("Instr")

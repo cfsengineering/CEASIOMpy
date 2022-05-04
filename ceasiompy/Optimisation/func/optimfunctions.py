@@ -41,7 +41,7 @@ from ceasiompy.utils.xpath import OPTIM_XPATH, SMUSE_XPATH
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.utils import COEFS, PARAMS_COEFS
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 CSV_PATH = Path(MODULE_DIR, "Variable_library.csv")

@@ -26,7 +26,7 @@ from ceasiompy.CPACS2SUMO.func.cst2coord import CST_shape
 from ceasiompy.utils.ceasiomlogger import get_logger
 from cpacspy.cpacsfunctions import get_float_vector
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =================================================================================================

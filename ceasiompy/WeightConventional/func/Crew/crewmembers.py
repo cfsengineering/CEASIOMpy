@@ -18,7 +18,7 @@ Python version: >=3.7
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =============================================================================
@@ -27,7 +27,7 @@ log = get_logger(__file__.split(".")[0])
 
 
 def estimate_crew(pass_nb, mass_pilot, mass_cabin_crew, mtom, pilot_nb=2):
-    """ Function to evaluate the number of crew members on board.
+    """Function to evaluate the number of crew members on board.
 
     Source : https://www.gpo.gov/fdsys/pkg/CFR-2011-title14-vol3/xml/CFR-2011
              -title14-vol3-sec121-391.xml

@@ -25,7 +25,6 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-
 from ceasiompy.utils.paths import LOGFILE, RUNWORKFLOW_HISTORY_PATH
 
 # =================================================================================================
@@ -33,14 +32,11 @@ from ceasiompy.utils.paths import LOGFILE, RUNWORKFLOW_HISTORY_PATH
 # =================================================================================================
 
 
-def get_logger(name="CEASIOMpy"):
+def get_logger():
     """Function to create a logger
 
     Function 'get_logger' create a logger, it sets the format and the level of
     the logfile and console log.
-
-    Args:
-        name (str): Logger name
 
     Returns:
         logger (logger): Logger

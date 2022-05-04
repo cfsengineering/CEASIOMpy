@@ -31,7 +31,7 @@ from cpacspy.cpacsfunctions import create_branch, get_value, get_value_or_defaul
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import COEFS
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =================================================================================================

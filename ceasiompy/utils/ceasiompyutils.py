@@ -32,7 +32,7 @@ from ceasiompy.utils.moduleinterfaces import get_submodule_list
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 SOFT_LIST = ["SU2_DEF", "SU2_CFD", "SU2_SOL", "mpirun.mpich", "mpirun"]
 

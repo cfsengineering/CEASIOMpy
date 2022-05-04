@@ -23,7 +23,7 @@ TODO:
 from ceasiompy.utils.ceasiomlogger import get_logger
 from cpacspy.cpacsfunctions import get_tigl_configuration, open_tigl, open_tixi
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # ==============================================================================

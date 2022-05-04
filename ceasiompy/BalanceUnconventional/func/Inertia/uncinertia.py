@@ -26,7 +26,7 @@ from . import lumpedmassesinertia
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =============================================================================
@@ -43,12 +43,12 @@ log = get_logger(__file__.split(".")[0])
 def check_rounding(I1, I2):
     """Evaluation of the rounding digit for the inertia evaluation
 
-       ARGUMENTS
-       (float) I1 --Arg.: Yaw moment of inertia with Max Payload.
-       (float) I2 --Arg.: Ixy moment of inertia with Max Payload.
+    ARGUMENTS
+    (float) I1 --Arg.: Yaw moment of inertia with Max Payload.
+    (float) I2 --Arg.: Ixy moment of inertia with Max Payload.
 
-       RETURN
-       (int) rd  --Out.: Number of rounded digits.
+    RETURN
+    (int) rd  --Out.: Number of rounded digits.
     """
     ex = False
     rd = 0
@@ -68,36 +68,36 @@ def check_rounding(I1, I2):
 
 
 def unc_inertia_eval(awg, afg, bout, bi, mw, ed, out_xml):
-    """ Unconventional aircraft Moment of Inertia analysis main function.
-        It dvides the cases defined and evaluates them calling the
-        function in the with_fuse_geom subfolder.
+    """Unconventional aircraft Moment of Inertia analysis main function.
+    It dvides the cases defined and evaluates them calling the
+    function in the with_fuse_geom subfolder.
 
-        Source: An introduction to mechanics, 2nd ed., D. Kleppner
-                and R. Kolenkow, Cambridge University Press.
+    Source: An introduction to mechanics, 2nd ed., D. Kleppner
+            and R. Kolenkow, Cambridge University Press.
 
-        ARGUMENTS
-        (class) awg  --Arg.: AircraftWingGeometry class.
-        (class) afg  --Arg.: AircraftFuseGeometry class.
-        (class) bout --Arg.: BalanceOutputs class.
-        (class) bi   --Arg.: BalanceInputs class.
-        (class) mw   --Arg.: MassesWeights class.
-        (class) ed   --Arg.: EngineData class.
-        ##======= Classes are defined in the InputClasses folder =======##
+    ARGUMENTS
+    (class) awg  --Arg.: AircraftWingGeometry class.
+    (class) afg  --Arg.: AircraftFuseGeometry class.
+    (class) bout --Arg.: BalanceOutputs class.
+    (class) bi   --Arg.: BalanceInputs class.
+    (class) mw   --Arg.: MassesWeights class.
+    (class) ed   --Arg.: EngineData class.
+    ##======= Classes are defined in the InputClasses folder =======##
 
-        RETURN
-        (float_array) fx      --Out.: Array containing the x-coordinates
-                                      of the fuselage nodes.
-        (float_array) fy      --Out.: Array containing the y-coordinates
-                                      of the fuselage nodes.
-        (float_array) fz      --Out.: Array containing the z-coordinates
-                                      of the fuselage nodes.
-        (float_array) wx      --Out.: Array containing the x-coordinates
-                                      of the wing nodes.
-        (float_array) wy      --Out.: Array containing the y-coordinates
-                                      of the wing nodes.
-        (float_array) wz      --Out.: Array containing the z-coordinates
-                                      of the wing nodes.
-        (class) bout  --Out.: Updated BalanceOutputs class.
+    RETURN
+    (float_array) fx      --Out.: Array containing the x-coordinates
+                                  of the fuselage nodes.
+    (float_array) fy      --Out.: Array containing the y-coordinates
+                                  of the fuselage nodes.
+    (float_array) fz      --Out.: Array containing the z-coordinates
+                                  of the fuselage nodes.
+    (float_array) wx      --Out.: Array containing the x-coordinates
+                                  of the wing nodes.
+    (float_array) wy      --Out.: Array containing the y-coordinates
+                                  of the wing nodes.
+    (float_array) wz      --Out.: Array containing the z-coordinates
+                                  of the wing nodes.
+    (class) bout  --Out.: Updated BalanceOutputs class.
 
     """
 
@@ -226,29 +226,29 @@ def unc_inertia_eval(awg, afg, bout, bi, mw, ed, out_xml):
 
 
 def bwb_inertia_eval(awg, bout, bi, mw, ed, out_xml):
-    """ Blended wing Body aircraft Moment of Inertia analysis main function.
-        It dvides the cases defined and evaluates them calling the
-        function in the no_fuse_geom subfolder.
+    """Blended wing Body aircraft Moment of Inertia analysis main function.
+    It dvides the cases defined and evaluates them calling the
+    function in the no_fuse_geom subfolder.
 
-        Source: An introduction to mechanics, 2nd ed., D. Kleppner
-                and R. Kolenkow, Cambridge University Press.
+    Source: An introduction to mechanics, 2nd ed., D. Kleppner
+            and R. Kolenkow, Cambridge University Press.
 
-        ARGUMENTS
-        (class) awg  --Arg.: AircraftWingGeometry class.
-        (class) bout --Arg.: BalanceOutputs class.
-        (class) bi   --Arg.: BalanceInputs class.
-        (class) mw   --Arg.: MassesWeights class.
-        (class) ed   --Arg.: EnfineData class.
-        ##======= Classes are defined in the InputClasses folder =======##
+    ARGUMENTS
+    (class) awg  --Arg.: AircraftWingGeometry class.
+    (class) bout --Arg.: BalanceOutputs class.
+    (class) bi   --Arg.: BalanceInputs class.
+    (class) mw   --Arg.: MassesWeights class.
+    (class) ed   --Arg.: EnfineData class.
+    ##======= Classes are defined in the InputClasses folder =======##
 
-        RETURN
-        (float_array) wx  --Out.: Array containing the x-coordinates
-                                  of the wing nodes.
-        (float_array) wy  --Out.: Array containing the y-coordinates
-                                  of the wing nodes.
-        (float_array) wz  --Out.: Array containing the z-coordinates
-                                  of the wing nodes.
-        (class) bout  --Out.: Updated BalanceOutputs class.
+    RETURN
+    (float_array) wx  --Out.: Array containing the x-coordinates
+                              of the wing nodes.
+    (float_array) wy  --Out.: Array containing the y-coordinates
+                              of the wing nodes.
+    (float_array) wz  --Out.: Array containing the z-coordinates
+                              of the wing nodes.
+    (class) bout  --Out.: Updated BalanceOutputs class.
     """
 
     log.info("---------- Inertia Evaluation ---------")

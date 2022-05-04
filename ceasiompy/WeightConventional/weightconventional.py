@@ -42,7 +42,7 @@ from ceasiompy.WeightConventional.func.Masses.oem import estimate_operating_empt
 from ceasiompy.WeightConventional.func.Passengers.passengers import estimate_passengers
 from ceasiompy.WeightConventional.func.Passengers.seatsconfig import get_seat_config
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name

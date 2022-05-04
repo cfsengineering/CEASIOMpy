@@ -20,7 +20,7 @@ import math
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 
 # =============================================================================
@@ -35,7 +35,7 @@ log = get_logger(__file__.split(".")[0])
 
 def breguet_cruise_range(LDcru, ri, mw, RES_FUEL_PERC=0.06):
 
-    """ The function estimates the maximum range using the Breguet equation.
+    """The function estimates the maximum range using the Breguet equation.
 
     Source: Raymer, D.P. "Aircraft design: a conceptual approach"
     AIAA educational Series, Fourth edition (2006)

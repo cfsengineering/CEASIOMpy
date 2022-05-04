@@ -30,7 +30,7 @@ from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
 from ceasiompy.utils.paths import CPACS_FILES_PATH, MODULES_DIR_PATH
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 OPTIM_METHOD = ["OPTIM", "DOE"]
 

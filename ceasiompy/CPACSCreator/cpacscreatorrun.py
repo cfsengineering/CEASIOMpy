@@ -29,7 +29,7 @@ import platform
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name

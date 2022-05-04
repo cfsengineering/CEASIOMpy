@@ -56,7 +56,7 @@ from cpacspy.cpacsfunctions import (
     open_tixi,
 )
 
-log = get_logger(__file__.split(".")[0])
+log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name

@@ -82,6 +82,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     # Run mesh generation
     export_brep(cpacs, brep_dir_path)
     mesh_path, _ = generate_gmsh(
+        cpacs_path,
         brep_dir_path,
         results_dir,
         open_gmsh=open_gmsh,

@@ -240,6 +240,7 @@ def test_classify_special_section():
     ]
     wing_sections = []
     wing_part = ModelPart("testwing")
+    wing_part.part_type = "wing"
     wing_part.lines_tags = [
         sq_line1,
         sq_line2,
@@ -273,6 +274,7 @@ def test_classify_wing():
 
     export_brep(cpacs, TEST_OUT_PATH)
     _, aircraft_parts = generate_gmsh(
+        CPACS_IN_PATH,
         TEST_OUT_PATH,
         TEST_OUT_PATH,
         open_gmsh=False,
@@ -284,7 +286,7 @@ def test_classify_wing():
     )
 
     for part in aircraft_parts:
-        if "wing1_m" in part.name:
+        if "Wing_mirrored" == part.uid:
             test_wingsection = part.wing_sections
 
     # Test if the wing1_m is correctly classified

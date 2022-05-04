@@ -1,3 +1,4 @@
 #Ignore the brep files and the su2 mesh generated with the tests
 .su2
 .brep
+/ToolOutput

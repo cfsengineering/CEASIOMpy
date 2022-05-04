@@ -59,6 +59,7 @@ class ModelPart:
     def __init__(self, name):
 
         self.name = name
+        self.uid = ""
 
         # dimtag
         self.points = []
@@ -150,6 +151,34 @@ class ModelPart:
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def associate_uid(brep_dir_path, aircraft_parts):
+    """
+    Function to associate the TiGL uid of the brep file to the corresponding part
+
+    Args:
+    ----------
+    brep_dir_path : Path
+        path to the brep files
+    aircraft_parts : list of ModelPart
+        list of parts of the aircraft
+
+    """
+
+    # retrieve the uid setting file
+    uid_file_path = Path(brep_dir_path, "setting_uid.txt")
+    with open(uid_file_path, "r") as uid_file:
+        names_uids = uid_file.read().splitlines()
+
+    # associate the uid to the part
+    for name_uid in names_uids:
+        name_uid = name_uid.split(",")
+
+        for part in aircraft_parts:
+
+            if part.name == name_uid[0]:
+                part.uid = name_uid[1]
 
 
 def get_entities_from_volume(volume_dimtag):
@@ -257,19 +286,24 @@ def generate_gmsh(
     # import each aircraft original parts / parent parts
     aircraft_parts = []
     parts_parent_dimtag = []
-
+    log.info(f"Importing files from {brep_dir_path}")
     for file in brep_files:
-
-        log.info(f"Importing :{file.name}")
 
         # Import the part and create the aircraft part object
         part_entities = gmsh.model.occ.importShapes(str(file), highestDimOnly=False)
         gmsh.model.occ.synchronize()
-        part_obj = ModelPart(f"{file.name}")
+        part_obj = ModelPart(f"{Path(file).stem}")
         aircraft_parts.append(part_obj)
         parts_parent_dimtag.append(part_entities[0])
 
+    # associate the uid to the part
+    associate_uid(brep_dir_path, aircraft_parts)
     gmsh.model.occ.synchronize()
+
+    # info the imported parts
+    for part in aircraft_parts:
+        log.info(f"Part : {part.uid} imported")
+    log.info(f"Total number of part in the model : {len(aircraft_parts)}")
 
     # create external domain for the farfield
     model_bb = gmsh.model.getBoundingBox(-1, -1)
@@ -365,13 +399,13 @@ def generate_gmsh(
 
         children = [child for child in children if child not in unwanted_children]
 
-        log.info(f"{parent.name} has generated {children} children")
+        log.info(f"{parent.uid} has generated {children} children")
         parent.children_dimtag = set(children)
 
     # Some parent may have no children (due to symmetry), we need to remove them
     for parent in aircraft_parts:
         if not parent.children_dimtag:
-            log.info(f"{parent.name} has no more children due to symmetry, it will be deleted")
+            log.info(f"{parent.uid} has no more children due to symmetry, it will be deleted")
             aircraft_parts.remove(parent)
 
     # Process and add children that are shared by two parent parts in the shared children list
@@ -408,7 +442,7 @@ def generate_gmsh(
             if child_dimtag not in unwanted_children:
 
                 good_children.append(child_dimtag)
-                log.info(f"Associating child {child_dimtag} to parent {parent.name}")
+                log.info(f"Associating child {child_dimtag} to parent {parent.uid}")
                 parent.associate_child_to_parent(child_dimtag)
 
     # Now that its clear which child entities in the model are from which parent part,
@@ -462,7 +496,7 @@ def generate_gmsh(
 
     for part in aircraft_parts:
         surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
-        gmsh.model.setPhysicalName(2, surfaces_group, f"{part.name}")
+        gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
 
     # Farfield
     # farfield entities are simply the entities left in the final domain
@@ -554,10 +588,10 @@ def generate_gmsh(
                 # wing classifications
                 classify_wing(part)
                 nb_sect = len(part.wing_sections)
-                log.info(f"Classification of {part.name} done, {nb_sect} section(s) found ")
+                log.info(f"Classification of {part.uid} done, {nb_sect} section(s) found ")
 
                 # wing refinement
-                log.info(f"Set mesh refinement of {part.name}")
+                log.info(f"Set mesh refinement of {part.uid}")
                 refine_wing_section(
                     mesh_fields,
                     part,
@@ -566,7 +600,7 @@ def generate_gmsh(
                     chord_percent=0.15,
                 )
             if "fuselage" in part.name:
-                log.info(f"Set mesh refinement of {part.name}")
+                log.info(f"Set mesh refinement of {part.uid}")
                 set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
 
         max_size_mesh_aircraft = max(mesh_size_wings, mesh_size_fuselage)

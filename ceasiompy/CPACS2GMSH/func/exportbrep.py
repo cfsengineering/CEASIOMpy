@@ -33,9 +33,9 @@ log = get_logger(__file__.split(".")[0])
 # =================================================================================================
 
 
-def export(shape, brep_dir_path, name):
+def export(shape, brep_dir_path, UID, name):
     """
-    Export a shape to a brep file
+    Export a shape to a brep file and store its UID
 
     Parameters
     ----------
@@ -43,6 +43,8 @@ def export(shape, brep_dir_path, name):
         The shape to be exported
     brep_dir_path (obj): Path object
         Path object to the directory where the brep files are saved
+    UID: str
+        The UID of the shape
     name: str
         The name of the shape
 
@@ -51,6 +53,9 @@ def export(shape, brep_dir_path, name):
     None
 
     """
+    uid_file_path = Path(brep_dir_path, "setting_uid.txt")
+    with open(uid_file_path, "a") as uid_file:
+        uid_file.write(f"{name},{UID}\n")
     brep_file = Path(brep_dir_path, f"{name}.brep")
     export_shapes([shape], str(brep_file))
 
@@ -112,6 +117,8 @@ def export_brep(cpacs, brep_dir_path):
     fuselage.brep, wing1.brep, ...
     mirrored element of the airplane have the subscript _m : wing1_m.brep
 
+    each part UID is store with its corresponding partname.brep in setting_uid.txt
+
     Args:
         cpacs (obj): CPACS object (from cpacspy)
         brep_dir_path (obj): Path object to the directory where the brep files are saved
@@ -121,54 +128,65 @@ def export_brep(cpacs, brep_dir_path):
     None
 
     """
+    # generate the uid file
+    uid_file_path = Path(brep_dir_path, "setting_uid.txt")
+    with open(uid_file_path, "w") as _:
+        pass
+
+    # get the aircraft configuration
 
     aircraft_config = cpacs.aircraft.configuration
 
     # Retrieve aircraft parts
-
-    # aircraft configuration
     fuselage_cnt = aircraft_config.get_fuselage_count()
     wing_cnt = aircraft_config.get_wing_count()
     # rotor_cnt = aircraft_config.get_rotor_count()
     # rotor_blade_cnt = aircraft_config.get_rotor_blade_count()
+
+    # Pylon configuration
     pylons_config = aircraft_config.get_engine_pylons()
 
     # Export into brep
 
     # Fuselage
     for k in range(1, fuselage_cnt + 1):
-        fuselage = aircraft_config.get_fuselage(k).get_loft()
-        export(fuselage, brep_dir_path, f"fuselage{k}")
-
+        fuselage = aircraft_config.get_fuselage(k)
+        fuselage_uid = fuselage.get_uid()
+        fuselage_geom = fuselage.get_loft()
+        export(fuselage_geom, brep_dir_path, fuselage_uid, f"fuselage{k}")
     # Wing
     for k in range(1, wing_cnt + 1):
-        wing = aircraft_config.get_wing(k).get_loft()
-        export(wing, brep_dir_path, f"wing{k}")
+        wing = aircraft_config.get_wing(k)
+        wing_uid = wing.get_uid()
+        wing_geom = wing.get_loft()
+        export(wing_geom, brep_dir_path, wing_uid, f"wing{k}")
 
-        wing_m = aircraft_config.get_wing(k).get_mirrored_loft()
-        if wing_m is not None:
-            export(wing_m, brep_dir_path, f"wing{k}_m")
+        wing_m_geom = aircraft_config.get_wing(k).get_mirrored_loft()
+        if wing_m_geom is not None:
+            export(wing_m_geom, brep_dir_path, wing_uid + "_mirrored", f"wing{k}_m")
 
-    symmetric_engine = False
+    # symmetric_engine = False
 
     # Pylon
     if pylons_config:
         pylon_cnt = pylons_config.get_pylon_count()
         for k in range(1, pylon_cnt + 1):
-            pylon = pylons_config.get_engine_pylon(k).get_loft()
-            export(pylon, brep_dir_path, f"pylon{k}")
+            pylon = pylons_config.get_engine_pylon(k)
+            pylon_uid = pylon.get_uid()
+            pylon_geom = pylon.get_loft()
+            export(pylon_geom, brep_dir_path, pylon_uid, f"pylon{k}")
 
-            pylon_m = pylons_config.get_engine_pylon(k).get_mirrored_loft()
-            if pylon_m is not None:
-                export(pylon_m, brep_dir_path, f"pylon{k}_m")
-                symmetric_engine = True
+            pylon_m_geom = pylons_config.get_engine_pylon(k).get_mirrored_loft()
+            if pylon_m_geom is not None:
+                export(pylon_m_geom, brep_dir_path, pylon_uid + "_mirrored", f"pylon{k}_m")
+                # symmetric_engine = True
 
     # Engine position
 
     # The following must be done in a cleaner way using the cpacs.xml file
     # or upgrading TiGL version
     # There also must be a better way to do this and the engine symmetry
-    engine_export(aircraft_config, brep_dir_path, symmetric_engine)
+    # engine_export(aircraft_config, brep_dir_path, symmetric_engine)
 
 
 # =================================================================================================

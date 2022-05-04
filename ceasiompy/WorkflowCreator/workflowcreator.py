@@ -13,6 +13,7 @@ Python version: >=3.7
 TODO:
 
     * Modifiy Opimisation Tab to restrict selection to only Module to run
+    * Add logs in this file
 
 """
 
@@ -58,12 +59,6 @@ class Tab(tk.Frame):
         self.modules_list.remove("CPACSUpdater")
         self.modules_list.remove("WorkflowCreator")
         self.modules_list.remove("utils")
-
-        # TODO: remove that when WKDIR is completly out of /ceasiompy/
-        try:
-            self.modules_list.remove("WKDIR")
-        except:
-            log.info("No WKDIR yet.")
 
         self.selected_list = []
 

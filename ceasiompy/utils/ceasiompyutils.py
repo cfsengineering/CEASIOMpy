@@ -266,6 +266,35 @@ def aircraft_name(tixi_or_cpacs):
     return name
 
 
+def get_part_type(tixi, part_uid):
+    """The function get the type of the aircraft from the cpacs file.
+
+    Args:
+        tixi (str): Path to the CPACS file
+        part_uid (str): UID of the part
+
+    Returns:
+        part_type (str): Type of the part.
+    """
+
+    part_xpath = tixi.uIDGetXPath(part_uid)
+
+    if "wings/wing" in part_xpath:
+        log.info(f"'{part_uid}' is a wing")
+        return "wing"
+
+    if "fuselages/fuselage" in part_xpath:
+        log.info(f"'{part_uid}' is a fuselage")
+        return "fuselage"
+
+    # TODO: complete with other required parts
+
+    # TODO: add a test function
+
+    log.warning(f"'{part_uid}' cannot be categorized!")
+    return None
+
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================

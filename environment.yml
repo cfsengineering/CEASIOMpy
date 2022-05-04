@@ -45,7 +45,7 @@ dependencies:
   - pip:
     - smt==0.7.1
     - cpacspy==0.0.8
-    - gmsh >= 4.9.5
+    - gmsh >= 4.10.1
     #- aeroframe  # See: https://github.com/airinnova/aeroframe
     #- framat  # See: https://github.com/airinnova/framat
     # - mpi4py # issue at installation of environment

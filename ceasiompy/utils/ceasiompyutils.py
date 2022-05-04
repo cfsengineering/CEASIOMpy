@@ -212,7 +212,7 @@ def run_soft(soft, config_path, wkdir, nb_proc):
         ]
     # elif soft == 'SU2_DEF' a disp.dat must be there to run with MPI
     else:
-        command_line = [soft_install_path, str(config_path), ">", logfile_path]
+        command_line = [soft_install_path, config_path, ">", logfile_path]
 
     log.info(f">>> Running {soft} on {nb_proc} proc")
     log.info(f"    from {wkdir}")
@@ -264,6 +264,40 @@ def aircraft_name(tixi_or_cpacs):
     log.info(f"The name of the aircraft is : {name}")
 
     return name
+
+
+def get_part_type(cpacs_path, part_uid):
+    """The function get the type of the aircraft from the cpacs file.
+
+    Args:
+        cpacs_path (str): Path to the CPACS file
+        part_uid (str): UID of the part
+
+    Returns:
+        part_type (str): Type of the part.
+    """
+    tixi = open_tixi(str(cpacs_path))
+
+    # split uid if mirrored part
+    part_uid = part_uid.split("_mirrored")[0]
+    part_xpath = tixi.uIDGetXPath(part_uid)
+
+    if "wings/wing" in part_xpath:
+        log.info(f"'{part_uid}' is a wing")
+        return "wing"
+
+    if "fuselages/fuselage" in part_xpath:
+        log.info(f"'{part_uid}' is a fuselage")
+        return "fuselage"
+
+    if "enginePylons/enginePylon" in part_xpath:
+        log.info(f"'{part_uid}' is a pylon")
+        return "pylon"
+
+    # TODO: complete when engine/flaps are available with TiGL
+
+    log.warning(f"'{part_uid}' cannot be categorized!")
+    return None
 
 
 # =================================================================================================

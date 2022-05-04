@@ -35,13 +35,23 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
 )
 from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import get_part_type
 
 log = get_logger()
 
+MESH_COLORS = {
+    "farfield": (255, 200, 0),
+    "symmetry": (200, 255, 0),
+    "wing": (0, 200, 200),
+    "fuselage": (255, 215, 0),
+    "pylon": (255, 0, 0),
+}
 
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
+
+
 class ModelPart:
     """
     A class to represent part of the aircraft or other part of the gmsh model
@@ -50,15 +60,16 @@ class ModelPart:
 
     Attributes
     ----------
-    name : str
+    uid : str
         name of the part which correspond to its .brep file name for aircraft parts
         or a simple name describing the part function in the model
 
     """
 
-    def __init__(self, name):
+    def __init__(self, uid):
 
-        self.name = name
+        self.uid = uid
+        self.part_type = ""
 
         # dimtag
         self.points = []
@@ -129,23 +140,6 @@ class ModelPart:
         self.lines_tags = list(set(self.lines_tags).intersection(set(final_domain.lines_tags)))
         self.points_tags = list(set(self.points_tags).intersection(set(final_domain.points_tags)))
 
-    def set_mesh_color(self):
-        """
-        Function to set the mesh color of the model part.
-        """
-        if "wing" in self.name:
-            color = (0, 200, 200)
-
-        if "fuselage" in self.name:
-            color = (255, 215, 0)
-        if "pylon" in self.name:
-            color = (255, 0, 0)
-        if "nacelle" in self.name:
-            color = (0, 100, 255)
-        if "engine" in self.name:
-            color = (0, 100, 255)
-        gmsh.model.setColor(self.surfaces, *color, a=150, recursive=False)
-
 
 # =================================================================================================
 #   FUNCTIONS
@@ -175,6 +169,7 @@ def get_entities_from_volume(volume_dimtag):
     points_dimtags : list(tuple)
         a list of tuples containing the dimtag of the points
     """
+
     surfaces_dimtags = gmsh.model.getBoundary(
         volume_dimtag, combined=True, oriented=False, recursive=False
     )
@@ -202,6 +197,7 @@ def get_entities_from_volume(volume_dimtag):
 
 
 def generate_gmsh(
+    cpacs_path,
     brep_dir_path,
     results_dir,
     open_gmsh=False,
@@ -223,7 +219,9 @@ def generate_gmsh(
     file.
     Args:
     ----------
-    brep_dir_path : (path)
+    cpacs_path : str
+        path to the cpacs file
+    brep_dir_path : (Path)
         Path to the directory containing the brep files
     results_dir : (path)
         Path to the directory containing the result (mesh) files
@@ -246,28 +244,31 @@ def generate_gmsh(
         refine factor for the mesh le and te edge
 
     """
-    brep_files = list(brep_dir_path.glob("*.brep"))
 
-    # TODO: Remove when nacelle will be supported
-    # for now suppress nacelle parts since they are not supported
-    brep_files = [file for file in brep_files if "nacelle" not in file.name]
+    brep_files = list(brep_dir_path.glob("*.brep"))
     brep_files.sort()
 
     gmsh.initialize()
+
     # import each aircraft original parts / parent parts
     aircraft_parts = []
     parts_parent_dimtag = []
-
-    for file in brep_files:
-
-        log.info(f"Importing :{file.name}")
+    log.info(f"Importing files from {brep_dir_path}")
+    for brep_file in brep_files:
 
         # Import the part and create the aircraft part object
-        part_entities = gmsh.model.occ.importShapes(str(file), highestDimOnly=False)
+        part_entities = gmsh.model.occ.importShapes(str(brep_file), highestDimOnly=False)
         gmsh.model.occ.synchronize()
-        part_obj = ModelPart(f"{file.name}")
+
+        # Create the aircraft part object
+        part_obj = ModelPart(uid=brep_file.stem)
+        part_obj.part_type = get_part_type(cpacs_path, part_obj.uid)
+
+        # Add to the list of aircraft parts
         aircraft_parts.append(part_obj)
         parts_parent_dimtag.append(part_entities[0])
+
+        log.info(f"Part : {part_obj.uid} imported")
 
     gmsh.model.occ.synchronize()
 
@@ -365,13 +366,13 @@ def generate_gmsh(
 
         children = [child for child in children if child not in unwanted_children]
 
-        log.info(f"{parent.name} has generated {children} children")
+        log.info(f"{parent.uid} has generated {children} children")
         parent.children_dimtag = set(children)
 
     # Some parent may have no children (due to symmetry), we need to remove them
     for parent in aircraft_parts:
         if not parent.children_dimtag:
-            log.info(f"{parent.name} has no more children due to symmetry, it will be deleted")
+            log.info(f"{parent.uid} has no more children due to symmetry, it will be deleted")
             aircraft_parts.remove(parent)
 
     # Process and add children that are shared by two parent parts in the shared children list
@@ -392,7 +393,6 @@ def generate_gmsh(
                 unwanted_children.extend(list(shared_children))
 
     # remove duplicated from the unwanted child list
-
     unwanted_children = list(set(unwanted_children))
 
     # and remove them from the model
@@ -408,7 +408,7 @@ def generate_gmsh(
             if child_dimtag not in unwanted_children:
 
                 good_children.append(child_dimtag)
-                log.info(f"Associating child {child_dimtag} to parent {parent.name}")
+                log.info(f"Associating child {child_dimtag} to parent {parent.uid}")
                 parent.associate_child_to_parent(child_dimtag)
 
     # Now that its clear which child entities in the model are from which parent part,
@@ -435,16 +435,11 @@ def generate_gmsh(
     # associate_child_to_parent() by comparing them with the entities of the
     # final domain
 
-    for parent in aircraft_parts:
-        parent.clean_inside_entities(final_domain)
-
-    log.info("Model cleaned")
-
     # Create an aircraft part containing all the parts of the aircraft
-
     aircraft = ModelPart("aircraft")
 
     for part in aircraft_parts:
+        part.clean_inside_entities(final_domain)
 
         aircraft.points.extend(part.points)
         aircraft.lines.extend(part.lines)
@@ -455,26 +450,18 @@ def generate_gmsh(
         aircraft.surfaces_tags.extend(part.surfaces_tags)
         aircraft.volume_tag.extend(part.volume_tag)
 
-    # Form physical groups for SU2
-
-    # bc_aircraft = gmsh.model.addPhysicalGroup(2, aircraft.surfaces_tags)
-    # gmsh.model.setPhysicalName(2, bc_aircraft, "aircraft")
-
-    for part in aircraft_parts:
         surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
-        gmsh.model.setPhysicalName(2, surfaces_group, f"{part.name}")
+        gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
+
+    log.info("Model has been cleaned")
 
     # Farfield
     # farfield entities are simply the entities left in the final domain
     # that don't belong to the aircraft
 
     farfield_surfaces = list(set(final_domain.surfaces) - set(aircraft.surfaces))
-    # farfield_lines = list(set(final_domain.lines) - set(aircraft.lines))
     farfield_points = list(set(final_domain.points) - set(aircraft.points))
-
     farfield_surfaces_tags = list(set(final_domain.surfaces_tags) - set(aircraft.surfaces_tags))
-    # farfield_lines_tags = list(set(final_domain.surfaces_tags) - set(aircraft.lines_tags))
-    # farfield_points_tags = list(set(final_domain.points_tags) - set(aircraft.points_tags))
 
     if symmetry:
 
@@ -507,7 +494,7 @@ def generate_gmsh(
 
     # Fluid domain
     ps = gmsh.model.addPhysicalGroup(3, final_domain.volume_tag)
-    gmsh.model.setPhysicalName(3, ps, final_domain.name)
+    gmsh.model.setPhysicalName(3, ps, final_domain.uid)
 
     gmsh.model.occ.synchronize()
     log.info("Markers for SU2 generated")
@@ -522,42 +509,37 @@ def generate_gmsh(
     # the size of the points on boundaries.
 
     for part in aircraft_parts:
-        if "fuselage" in part.name:
+        if "fuselage" in part.part_type:
             gmsh.model.mesh.setSize(part.points, mesh_size_fuselage)
-        if (
-            "wing" in part.name
-            or "pylon" in part.name
-            or "nacelle" in part.name
-            or "engine" in part.name
-        ):
+            gmsh.model.setColor(
+                part.surfaces, *MESH_COLORS[part.part_type], a=150, recursive=False
+            )
+        elif part.part_type in ["wing", "pylon", "nacelle", "engine"]:
             gmsh.model.mesh.setSize(part.points, mesh_size_wings)
+            gmsh.model.setColor(
+                part.surfaces, *MESH_COLORS[part.part_type], a=150, recursive=False
+            )
 
-    # Set mesh size of the farfield
+    # Set mesh size and color of the farfield
     gmsh.model.mesh.setSize(farfield_points, mesh_size_farfield)
+    gmsh.model.setColor(farfield_surfaces, *MESH_COLORS["farfield"], a=255, recursive=False)
 
-    # Color the mesh
-    for part in aircraft_parts:
-        part.set_mesh_color()
-
-    mesh_color_farfield = (255, 200, 0)
-    mesh_color_symmetry = (200, 255, 0)
-    gmsh.model.setColor(farfield_surfaces, *mesh_color_farfield, a=255, recursive=False)
     if symmetry:
-        gmsh.model.setColor(symmetry_surfaces, *mesh_color_symmetry, a=150, recursive=False)
+        gmsh.model.setColor(symmetry_surfaces, *MESH_COLORS["symmetry"], a=150, recursive=False)
 
     # Generate advance meshing features
     if refine_factor != 1:
         mesh_fields = {"nbfields": 0, "restrict_fields": []}
         for part in aircraft_parts:
-            if "wing" in part.name:
+            if "wing" in part.part_type:
 
                 # wing classifications
                 classify_wing(part)
                 nb_sect = len(part.wing_sections)
-                log.info(f"Classification of {part.name} done, {nb_sect} section(s) found ")
+                log.info(f"Classification of {part.uid} done, {nb_sect} section(s) found ")
 
                 # wing refinement
-                log.info(f"Set mesh refinement of {part.name}")
+                log.info(f"Set mesh refinement of {part.uid}")
                 refine_wing_section(
                     mesh_fields,
                     part,
@@ -565,8 +547,8 @@ def generate_gmsh(
                     refine=refine_factor,
                     chord_percent=0.15,
                 )
-            if "fuselage" in part.name:
-                log.info(f"Set mesh refinement of {part.name}")
+            elif "fuselage" in part.part_type:
+                log.info(f"Set mesh refinement of {part.uid}")
                 set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
 
         max_size_mesh_aircraft = max(mesh_size_wings, mesh_size_fuselage)

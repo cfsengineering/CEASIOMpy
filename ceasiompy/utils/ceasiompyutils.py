@@ -212,13 +212,13 @@ def run_soft(soft, config_path, wkdir, nb_proc):
         ]
     # elif soft == 'SU2_DEF' a disp.dat must be there to run with MPI
     else:
-        command_line = [soft_install_path, str(config_path), ">", logfile_path]
+        command_line = [soft_install_path, config_path, ">", logfile_path]
 
     log.info(f">>> Running {soft} on {nb_proc} proc")
     log.info(f"    from {wkdir}")
 
     with change_working_dir(wkdir):
-        os.system(" ".join(command_line))
+        os.system(" ".join(map(str, command_line)))
 
     log.info(f">>> {soft} End")
 

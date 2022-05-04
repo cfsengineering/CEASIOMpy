@@ -18,7 +18,6 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-from datetime import datetime
 import platform
 
 import os
@@ -32,7 +31,6 @@ from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.paths import RUNWORKFLOW_HISTORY_PATH
 
 log = get_logger(__file__.split(".")[0])
 
@@ -78,10 +76,10 @@ def get_results_directory(module_name: str) -> Path:
 
 
 def run_module(module, wkdir=Path.cwd(), iter=0):
-    """Run a 'ModuleToRun' ojbect in a specific wkdir.
+    """Run a 'ModuleToRun' object in a specific wkdir.
 
     Args:
-        module (ModuleToRun): 'ModuleToRun' ojbect (define in workflowclasses.py)
+        module (ModuleToRun): 'ModuleToRun' object (define in workflowclasses.py)
         wkdir (Path, optional): Path of the working directory. Defaults to Path.cwd().
     """
 
@@ -118,10 +116,10 @@ def run_module(module, wkdir=Path.cwd(), iter=0):
 
 
 def get_install_path(soft_check_list):
-    """Function to get installation paths a sorfware used in SU2
+    """Function to get installation paths a software used in SU2
 
     Function 'get_instal_path' check if the given list of software is installed,
-    it retruns a dictionnay of software with thier intallation paths.
+    it retruns a dictionnay of software with their installation paths.
 
     Args:
         soft_check_list (list): List of software to check installation path
@@ -140,7 +138,7 @@ def get_install_path(soft_check_list):
         # TODO: Check more and improve
         if current_os == "Darwin":
             log.info("Your OS is Mac")
-            # Run with MPICH not implemeted yet on mac
+            # Run with MPICH not implemented yet on mac
             if "mpi" in soft:
                 install_path = ""
             else:
@@ -220,7 +218,7 @@ def run_soft(soft, config_path, wkdir, nb_proc):
     log.info(f"    from {wkdir}")
 
     with change_working_dir(wkdir):
-        os.system(" ".join(command_line))
+        os.system(" ".join(map(str, command_line)))
 
     log.info(f">>> {soft} End")
 
@@ -263,37 +261,9 @@ def aircraft_name(tixi_or_cpacs):
         name = get_value_or_default(tixi_or_cpacs, aircraft_name_xpath, "Aircraft")
 
     name = name.replace(" ", "_")
-    log.info("The name of the aircraft is : " + name)
+    log.info(f"The name of the aircraft is : {name}")
 
     return name
-
-
-def add_to_runworkflow_history(working_dir: Path, comment: str = "") -> None:
-    """Add a line to the runworkflow history"""
-
-    RUNWORKFLOW_HISTORY_PATH.parent.mkdir(exist_ok=True)
-    RUNWORKFLOW_HISTORY_PATH.touch(exist_ok=True)
-
-    if comment:
-        comment = " - " + comment
-
-    with open(RUNWORKFLOW_HISTORY_PATH, "a") as f:
-        f.write(f"{datetime.now():%Y-%m-%d %H:%M:%S} - {working_dir}{comment}\n")
-
-
-def get_last_runworkflow() -> Path:
-    """Return the last working directory used"""
-
-    if not RUNWORKFLOW_HISTORY_PATH.exists():
-        return None
-
-    with open(RUNWORKFLOW_HISTORY_PATH, "r") as f:
-        lines = f.readlines()
-
-    if not lines:
-        return None
-
-    return Path(lines[-1].split(" - ")[1].strip())
 
 
 # =================================================================================================

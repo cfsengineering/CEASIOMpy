@@ -186,8 +186,6 @@ def check_cpacs_input_requirements(
                                module but not available in CPACS file
     """
 
-    # log = get_logger(module_file_name.split('.')[0])
-
     if not isinstance(submodule_level, int) and submodule_level < 1:
         ValueError("'submodule_level' must be a positive integer")
 
@@ -218,15 +216,10 @@ def check_cpacs_input_requirements(
             missing_nodes.append(entry.xpath)
 
     if missing_nodes:
-        missing_str = ""
         for missing in missing_nodes:
-            missing_str += "==> " + missing + "\n"
+            log.error("The following xpath cannot be found: " + missing)
 
-        msg = f"CPACS path required but does not exist\n{missing_str}"
-        # log.error(msg)
-        raise CPACSRequirementError(msg)
-
-    # TODO: close tixi handle?
+        raise CPACSRequirementError("CPACS xpath(s) required but does not exist!")
 
 
 def get_submodule_list():
@@ -430,7 +423,7 @@ def check_workflow(cpacs_path, submodule_list):
 
     tixi = open_tixi(str(cpacs_path))
     xpaths_from_workflow = set()
-    err_msg = ""
+    err_msg = False
     for i, submod_name in enumerate(submodule_list, start=1):
         specs = get_specs_for_module(submod_name)
         if specs is None or not specs.cpacs_inout:
@@ -441,18 +434,17 @@ def check_workflow(cpacs_path, submodule_list):
             # The required xpath can either be in the original CPACS file
             # OR in the xpaths produced during the workflow exectution
             if not tixi.checkElement(entry.xpath) and entry.xpath not in xpaths_from_workflow:
-                err_msg += (
-                    f"==> XPath '{entry.xpath}' required by "
-                    f"module '{submod_name}' ({i}/{len(submodule_list)}), "
-                    "but not found\n"
+                err_msg = True
+                log.warning(
+                    f"xpath '{entry.xpath}' required by module '{submod_name}' but not found!"
                 )
             xpaths_from_workflow.add(entry.xpath)
+
         # ----- Generated output -----
         for entry in specs.cpacs_inout.outputs:
             xpaths_from_workflow.add(entry.xpath)
 
     if err_msg:
-        log.error(err_msg)
         raise ValueError(err_msg)
 
 

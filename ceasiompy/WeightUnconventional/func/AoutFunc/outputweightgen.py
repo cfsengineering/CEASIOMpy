@@ -33,7 +33,7 @@ Python version: >=3.7
 
 
 def output_fuse_txt(fus_nb, FLOORS_NB, ed, out, mw, adui, awg, afg, NAME):
-    """ The function generates the output text file for the
+    """The function generates the output text file for the
         Weight_unc_main program in case of geometry with
         fuselages.
 
@@ -127,7 +127,7 @@ def output_fuse_txt(fus_nb, FLOORS_NB, ed, out, mw, adui, awg, afg, NAME):
 
 
 def output_bwb_txt(FLOORS_NB, ed, out, mw, adui, awg, NAME):
-    """ The function generates the output text file for the
+    """The function generates the output text file for the
         Weight_unc_main program in case of geometry without
         fuselage.
 

@@ -112,11 +112,8 @@ def export_brep(cpacs, brep_dir_path):
 
     Function 'export_brep' is a subfunction of CPACS2GMSH that generate with TiGL
     the airplane geometry of the .xml file. Then all the airplane parts are
-    exported in .brep format with a name corresponding to the element function :
-    fuselage.brep, wing1.brep, ...
-    mirrored element of the airplane have the subscript _m : wing1_m.brep
-
-    each part UID is store with its corresponding partname.brep in setting_uid.txt
+    exported in .brep format with their uid name
+    mirrored element of the airplane have the subscript _mirrored : Wing1_mirrored.brep
 
     Args:
         cpacs (obj): CPACS object (from cpacspy)
@@ -159,8 +156,6 @@ def export_brep(cpacs, brep_dir_path):
         if wing_m_geom is not None:
             export(wing_m_geom, brep_dir_path, wing_uid + "_mirrored")
 
-    # symmetric_engine = False
-
     # Pylon
     if pylons_config:
         pylon_cnt = pylons_config.get_pylon_count()
@@ -173,7 +168,6 @@ def export_brep(cpacs, brep_dir_path):
             pylon_m_geom = pylons_config.get_engine_pylon(k).get_mirrored_loft()
             if pylon_m_geom is not None:
                 export(pylon_m_geom, brep_dir_path, pylon_uid + "_mirrored")
-                # symmetric_engine = True
 
     # Engine position
 

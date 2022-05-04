@@ -25,11 +25,7 @@ from pathlib import Path
 
 from ceasiompy.Optimisation.optimisation import routine_launcher
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import (
-    add_to_runworkflow_history,
-    change_working_dir,
-    run_module,
-)
+from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
 from ceasiompy.utils.paths import CPACS_FILES_PATH, MODULES_DIR_PATH
@@ -324,20 +320,25 @@ class Workflow:
     def run_workflow(self) -> None:
         """Run the complete Worflow"""
 
-        add_to_runworkflow_history(self.working_dir)
-
+        log.info("#" * 99)
+        log.info("###  Starting the workflow")
         log.info("#" * 99)
         log.info(f"The workflow will be run in {self.current_wkflow_dir}")
         log.info(f"Input CPACS file: {self.cpacs_in}")
         log.info("The following modules with be run:")
+
         for module in self.modules:
-            log.info(f"  * {module.name}")
+            log.info(f"  -> {module.name}")
 
         for module in self.modules:
             if module.is_optim_module:
                 self.subworkflow.run_subworkflow()
             else:
                 run_module(module, self.current_wkflow_dir)
+
+        log.info("#" * 99)
+        log.info("###  End of the workflow")
+        log.info("#" * 99)
 
 
 # =================================================================================================

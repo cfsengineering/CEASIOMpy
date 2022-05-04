@@ -61,7 +61,10 @@ def run_module_test_locally(module_name, test_dir):
 
 
 @pytest.mark.skip(
-    reason="It erase the log file for unknown reasons. Skip for know, will be implemented in integration tests"
+    reason=(
+        "It erase the log file for unknown reasons."
+        "Skip for know, will be implemented in integration tests"
+    )
 )
 def test_basic_run():
     """Make sure that the PyTornado run successfully"""

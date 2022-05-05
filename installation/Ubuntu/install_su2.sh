@@ -15,7 +15,7 @@ fi
 
 echo "Creating install directory..."
 mkdir -p "$install_dir"
-cd $install_dir
+cd "$install_dir"
 
 echo "Downloading SU2..."
 wget https://github.com/su2code/SU2/releases/download/v"$su2_version"/SU2-v"$su2_version"-linux64-mpi.zip
@@ -35,4 +35,4 @@ echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
 echo "Installing MPICH..."
 sudo apt install -y mpich
 
-cd $current_dir
+cd "$current_dir"

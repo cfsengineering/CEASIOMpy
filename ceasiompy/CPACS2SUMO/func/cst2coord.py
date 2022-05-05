@@ -38,6 +38,8 @@ from pathlib import Path
 import matplotlib.pylab as plt
 import numpy as np
 
+MODULE_DIR = Path(__file__).parent
+
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
@@ -142,7 +144,7 @@ class CST_shape(object):
     @staticmethod
     def __writeToFile(x, y):
 
-        airfoil_shape_file = Path(Path(__file__).parent, "airfoil_shape.dat")
+        airfoil_shape_file = Path(MODULE_DIR, "airfoil_shape.dat")
 
         coord_file = open(airfoil_shape_file, "w")
         print("airfoil_shape.dat", file=coord_file)

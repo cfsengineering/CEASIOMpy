@@ -47,8 +47,6 @@ class CPACSRequirementError(Exception):
 
 class _Entry:
 
-    # TODO: Use a dict instead of class?
-
     ONLY_INPUT = [
         "default_value",
         "gui",
@@ -83,7 +81,7 @@ class _Entry:
             gui_group       (str): Group name for GUI generation
         """
 
-        # ----- General information -----
+        # General information
         self.var_name = var_name
         self.var_type = var_type
         self.default_value = default_value
@@ -91,7 +89,7 @@ class _Entry:
         self.descr = descr
         self.xpath = xpath
 
-        # ----- GUI specific -----
+        # GUI specific
         self.gui = gui
         self.gui_name = gui_name
         self.gui_group = gui_group
@@ -128,8 +126,6 @@ class CPACSInOut:
 
     def get_gui_dict(self):
         """Return a dictionary which can be processed by the GUI engine"""
-
-        # TODO: process groups
 
         gui_settings_dict = {}
         for entry in self.inputs:
@@ -360,7 +356,7 @@ def create_default_toolspecific():
     tixi_in = open_tixi(str(EMPTY_CPACS_PATH))
     tixi_out = open_tixi(str(EMPTY_CPACS_PATH))
 
-    for mod_name, specs in get_all_module_specs().items():
+    for _, specs in get_all_module_specs().items():
         if specs is not None:
             # Inputs
             for entry in specs.cpacs_inout.inputs:
@@ -393,7 +389,7 @@ def create_default_toolspecific():
 
 
 def check_workflow(cpacs_path, submodule_list):
-    """Check if a linear workflow can be exectuted based on given CPACS file
+    """Check if a linear workflow can be executed based on given CPACS file
 
     Note:
         * 'submodule_list' is a list of CEASIOMpy modules to run, example:
@@ -412,7 +408,7 @@ def check_workflow(cpacs_path, submodule_list):
 
     Raises:
         TypeError: If input data has invalid type
-        ValueError: If a workflow cannot be exectued from start to end
+        ValueError: If a workflow cannot be executed from start to end
     """
 
     if not isinstance(cpacs_path, Path):
@@ -424,12 +420,12 @@ def check_workflow(cpacs_path, submodule_list):
     tixi = open_tixi(str(cpacs_path))
     xpaths_from_workflow = set()
     err_msg = False
-    for i, submod_name in enumerate(submodule_list, start=1):
+    for submod_name in submodule_list:
         specs = get_specs_for_module(submod_name)
         if specs is None or not specs.cpacs_inout:
             log.warning(f"No specs found for {submod_name}")
             continue
-        # ----- Required inputs -----
+        # Required inputs
         for entry in specs.cpacs_inout.inputs:
             # The required xpath can either be in the original CPACS file
             # OR in the xpaths produced during the workflow exectution
@@ -440,7 +436,7 @@ def check_workflow(cpacs_path, submodule_list):
                 )
             xpaths_from_workflow.add(entry.xpath)
 
-        # ----- Generated output -----
+        # Generated output
         for entry in specs.cpacs_inout.outputs:
             xpaths_from_workflow.add(entry.xpath)
 

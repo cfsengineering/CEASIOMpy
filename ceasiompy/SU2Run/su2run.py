@@ -24,13 +24,15 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+import math
+import os
 from pathlib import Path
 
 from ceasiompy.SU2Run.func.extractloads import extract_loads
 from ceasiompy.SU2Run.func.su2config import generate_su2_cfd_config
 from ceasiompy.SU2Run.func.su2results import get_su2_results
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_results_directory, run_soft
+from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_proc, get_results_directory, run_soft
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.utils.xpath import SU2_XPATH
@@ -140,7 +142,9 @@ def main(cpacs_path, cpacs_out_path):
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     tixi = open_tixi(str(cpacs_path))
-    nb_proc = get_value_or_default(tixi, SU2_XPATH + "/settings/nbProc", 1)
+
+    # Get number of proc to use from the CPACS file
+    nb_proc = get_value_or_default(tixi, SU2_XPATH + "/settings/nbProc", get_reasonable_nb_proc())
 
     results_dir = get_results_directory("SU2Run")
 

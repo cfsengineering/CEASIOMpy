@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_proc
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.xpath import CEASIOMPY_XPATH, REF_XPATH, SU2_XPATH
 
@@ -14,7 +15,7 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="nb_proc",
     var_type=int,
-    default_value=1,
+    default_value=get_reasonable_nb_proc(),
     unit="1",
     descr="Number of proc to use to run SU2",
     xpath=SU2_XPATH + "/settings/nbProc",

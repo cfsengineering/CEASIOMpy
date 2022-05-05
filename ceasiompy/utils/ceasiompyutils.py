@@ -18,20 +18,19 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import platform
-
-import os
-import shutil
 import importlib
-from pathlib import Path
+import math
+import os
+import platform
+import shutil
 from contextlib import contextmanager
+from pathlib import Path
 
-from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
-from ceasiompy.utils.moduleinterfaces import get_submodule_list
-
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.moduleinterfaces import get_submodule_list
 from ceasiompy.utils.xpath import AIRCRAFT_NAME_XPATH
+from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
 log = get_logger()
 
@@ -215,7 +214,7 @@ def run_soft(soft, config_path, wkdir, nb_proc):
     else:
         command_line = [soft_install_path, config_path, ">", logfile_path]
 
-    log.info(f">>> Running {soft} on {nb_proc} proc")
+    log.info(f">>> Running {soft} on {nb_proc} cpu(s)")
     log.info(f"    from {wkdir}")
 
     with change_working_dir(wkdir):
@@ -292,6 +291,18 @@ def get_part_type(cpacs_path, part_uid):
 
     log.warning(f"'{part_uid}' cannot be categorized!")
     return None
+
+
+def get_reasonable_nb_proc():
+    """Get a reasonable number of processors depending on the total number of processors on
+    the host machine. Approximately 1/4 of the total number of processors will be used."""
+
+    cpu_count = os.cpu_count()
+
+    if cpu_count is None:
+        return 1
+
+    return math.ceil(cpu_count / 4)
 
 
 # =================================================================================================

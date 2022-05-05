@@ -29,14 +29,23 @@ TODO:
 # =================================================================================================
 
 import os
-from pathlib import Path
-import sys
 import shutil
+import sys
+from pathlib import Path
+
 import numpy as np
 import pandas as pd
-
-from ceasiompy.utils.ceasiompyutils import get_results_directory, run_soft, aircraft_name
-
+from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import (
+    aircraft_name,
+    get_reasonable_nb_proc,
+    get_results_directory,
+    run_soft,
+)
+from ceasiompy.utils.configfiles import ConfigFile
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
+from ceasiompy.utils.xpath import REF_XPATH, SU2_XPATH, WINGS_XPATH
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     get_uid,
@@ -45,12 +54,6 @@ from cpacspy.cpacsfunctions import (
     open_tigl,
     open_tixi,
 )
-from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
-from ceasiompy.utils.configfiles import ConfigFile
-from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from ceasiompy.utils.xpath import REF_XPATH, WINGS_XPATH, SU2_XPATH
-
-from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()
 
@@ -744,8 +747,8 @@ def run_mesh_deformation(tixi, wkdir):
 
     ted_dir_list = [dir for dir in os.listdir(mesh_dir) if "_TED_" in dir]
 
-    # Get number of proc to use
-    nb_proc = get_value_or_default(tixi, SU2_XPATH + "/settings/nbProc", 1)
+    # Get number of proc to use from the CPACS file
+    nb_proc = get_value_or_default(tixi, SU2_XPATH + "/settings/nbProc", get_reasonable_nb_proc())
 
     # Iterate in all TED directory
     for dir in sorted(ted_dir_list):

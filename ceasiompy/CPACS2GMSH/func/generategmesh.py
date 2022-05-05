@@ -638,16 +638,4 @@ def generate_gmsh(
 # =================================================================================================
 
 if __name__ == "__main__":
-    generate_gmsh(
-        Path("test_files", "simple", "simpletest_cpacs.xml"),
-        Path("test_files", "simple"),
-        "",
-        open_gmsh=False,
-        farfield_factor=5,
-        symmetry=False,
-        mesh_size_farfield=12,
-        mesh_size_fuselage=0.2,
-        mesh_size_wings=0.2,
-        refine_factor=4,
-    )
     print("Nothing to execute!")

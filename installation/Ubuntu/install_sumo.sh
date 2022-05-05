@@ -13,10 +13,10 @@ fi
 
 echo "Creating install directory..."
 mkdir -p "$install_dir"
-cd $install_dir
+cd "$install_dir"
 
 echo "Downloading SUMO from larosterna website..."
-if [ ! -e $install_dir/sumo-standalone-Qt4-2.7.9.tgz ]; then
+if [ ! -e "$install_dir/sumo-standalone-Qt4-2.7.9.tgz" ]; then
     wget https://www.larosterna.com/packages/sumo-standalone-Qt4-2.7.9.tgz
 fi
 tar zxvf sumo-standalone-Qt4-2.7.9.tgz
@@ -37,6 +37,6 @@ sudo apt update
 sudo apt install libpng12-0
 
 echo "Creating a symlink for sumo..."
-sudo ln -s $install_dir/sumo-2.7.9/bin/dwfsumo /usr/bin/sumo
+sudo ln -s "$install_dir/sumo-2.7.9/bin/dwfsumo" /usr/bin/sumo
 
-cd $current_dir
+cd "$current_dir"

@@ -65,10 +65,10 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
     fuselage = aircraft.get_fuselages().get_fuselage(1)
 
     # Perform update of all the variable contained in 'optim_var_dict'
-    for name, vars in optim_var_dict.items():
+    for name, variables in optim_var_dict.items():
 
         # Unpack the variables
-        val_type, listval, _, _, getcommand, setcommand = vars
+        val_type, listval, _, _, getcommand, setcommand = variables
 
         if val_type == "des" and listval[0] not in ["-", "True", "False"]:
 

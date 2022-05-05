@@ -76,7 +76,7 @@ def get_results_directory(module_name: str) -> Path:
     return results_dir
 
 
-def run_module(module, wkdir=Path.cwd(), iter=0):
+def run_module(module, wkdir=Path.cwd(), iteration=0):
     """Run a 'ModuleToRun' object in a specific wkdir.
 
     Args:
@@ -98,7 +98,7 @@ def run_module(module, wkdir=Path.cwd(), iter=0):
             str(module.cpacs_in), str(module.cpacs_out), module.gui_related_modules
         )
 
-    elif module.name == "Optimisation" and iter > 0:
+    elif module.name == "Optimisation" and iteration > 0:
 
         log.info("Optimisation module is only run at first iteration!")
 

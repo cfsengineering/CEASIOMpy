@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 
 # Color for output
 RED='\033[1;31m'
@@ -23,7 +24,7 @@ function get_test_result {
         result="FAILED"
         color="$RED"
     fi
-    echo $result $color
+    echo "$result" "$color"
 }
 
 

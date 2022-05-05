@@ -24,8 +24,6 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import math
-import os
 from pathlib import Path
 
 from ceasiompy.SU2Run.func.extractloads import extract_loads

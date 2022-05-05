@@ -12,45 +12,25 @@ Python version: >=3.7
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
-
-from pytest import approx
+# =================================================================================================
 
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.generalclasses import SimpleNamespace
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
+from pytest import approx
 
-# ==============================================================================
+log = get_logger()
+
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-class SimpleNamespace(object):
-    """Rudimentary SimpleNamespace clone.
-
-    Works as a record-type object, or 'struct'. Attributes can be added
-    on-the-fly by assignment. Attributes are accesed using point-notation.
-
-    Source:
-        * https://docs.python.org/3.5/library/types.html
-    """
-
-    def __init__(self, **kwargs):
-        self.__dict__.update(kwargs)
-
-    def __repr__(self):
-        keys = sorted(self.__dict__)
-        items = ("{}={!r}".format(k, self.__dict__[k]) for k in keys)
-        return "{}({})".format(type(self).__name__, ", ".join(items))
-
-    def __eq__(self, other):
-        return self.__dict__ == other.__dict__
-
-
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def test_euler2fix():
@@ -121,12 +101,12 @@ def test_fix2euler():
     assert fix_angle == fix_angle2
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 
-    print("Running Test Math Functions")
-    print("To run test use the following command:")
-    print(">> pytest -v")
+    log.info("Running Test Math Functions")
+    log.info("To run test use the following command:")
+    log.info(">> pytest -v")

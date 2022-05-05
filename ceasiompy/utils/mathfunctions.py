@@ -12,14 +12,14 @@ Python version: >=3.7
 
 TODO:
 
-    * Angle naming could be imporve to respect coding guidelines
+    * Angle naming could be improve to respect coding guidelines
     * Add Source and documentation
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
 import copy
 import math
@@ -29,40 +29,18 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()
 
-# ==============================================================================
+
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
-def euler2fix(rotation_euler):
-    """Function to convert Euler angles into fix angles.
-
-    Function to convert an Euler angle roation into a fix angle rotation
-    Euler angle (CPACS): First rotation around Ox, then rotation around
-    already rotated Oy and finally rotation around already rotated Oz (x,y',z")
-    Fix angle (SUMO): Rotation around the axis are done independently (x,y,x)
-
-    Source :
-        * TODO: add math documentation
-
-    Args:
-        rotation_euler (object): Object containing Euler rotation in x,y,z [deg]
-
-    Returns:
-        rotation_fix (object): Object containing Fixed angle rotation
-                               in x,y,z [degree]
-
-    """
-
-    # Angle of rotation (Euler angle)
-    RaX = math.radians(rotation_euler.x)
-    RaY = math.radians(rotation_euler.y)
-    RaZ = math.radians(rotation_euler.z)
+def get_rotation_matrix(RaX, RaY, RaZ):
 
     # Rotation matrices
     Rx = np.array(
@@ -86,6 +64,37 @@ def euler2fix(rotation_euler):
             [0.0, 0.0, 1.0],
         ]
     )
+
+    return Rx, Ry, Rz
+
+
+def euler2fix(rotation_euler):
+    """Function to convert Euler angles into fix angles.
+
+    Function to convert an Euler angle rotation into a fix angle rotation
+    Euler angle (CPACS): First rotation around Ox, then rotation around
+    already rotated Oy and finally rotation around already rotated Oz (x,y',z")
+    Fix angle (SUMO): Rotation around the axis are done independently (x,y,x)
+
+    Source :
+        * TODO: add math documentation
+
+    Args:
+        rotation_euler (object): Object containing Euler rotation in x,y,z [deg]
+
+    Returns:
+        rotation_fix (object): Object containing Fixed angle rotation
+                               in x,y,z [degree]
+
+    """
+
+    # Angle of rotation (Euler angle)
+    RaX = math.radians(rotation_euler.x)
+    RaY = math.radians(rotation_euler.y)
+    RaZ = math.radians(rotation_euler.z)
+
+    # Rotation matrices
+    Rx, Ry, Rz = get_rotation_matrix(RaX, RaY, RaZ)
 
     # Identity matrices
     I1 = np.eye(3)
@@ -137,7 +146,7 @@ def euler2fix(rotation_euler):
 def fix2euler(rotation_fix):
     """Function to convert fix angles into Euler angles.
 
-    Function to convert a fix angle rotation into an Euler angle roation
+    Function to convert a fix angle rotation into an Euler angle rotation
     Fix angle (for SUMO): Rotation around the tree axe are done independently
     (x,y,x)
     Euler angle (CPACS): First rotation around Ox, then rotation around
@@ -163,27 +172,7 @@ def fix2euler(rotation_fix):
     RaZ = math.radians(rotation_fix.z)
 
     # Rotation matrices
-    Rx = np.array(
-        [
-            [1.0, 0.0, 0.0],
-            [0.0, math.cos(RaX), -math.sin(RaX)],
-            [0.0, math.sin(RaX), math.cos(RaX)],
-        ]
-    )
-    Ry = np.array(
-        [
-            [math.cos(RaY), 0.0, -math.sin(RaY)],
-            [0.0, 1.0, 0.0],
-            [math.sin(RaY), 0.0, math.cos(RaY)],
-        ]
-    )
-    Rz = np.array(
-        [
-            [math.cos(RaZ), -math.sin(RaZ), 0.0],
-            [math.sin(RaZ), math.cos(RaZ), 0.0],
-            [0.0, 0.0, 1.0],
-        ]
-    )
+    Rx, Ry, Rz = get_rotation_matrix(RaX, RaY, RaZ)
 
     # Direction cosine matrix
     DirCos = Rx @ Ry @ Rz
@@ -207,9 +196,9 @@ def fix2euler(rotation_fix):
     return rotation_euler
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 

@@ -5229,7 +5229,7 @@
         </skinFriction>
         <su2>
           <settings>
-            <maxIter>500</maxIter>
+            <maxIter>100</maxIter>
             <cflNumber>1</cflNumber>
             <multigridLevel>0</multigridLevel>
           </settings>

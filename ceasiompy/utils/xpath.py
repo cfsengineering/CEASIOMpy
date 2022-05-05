@@ -17,6 +17,8 @@ TODO:
 
 """
 
+# Header
+AIRCRAFT_NAME_XPATH = "/cpacs/header/name"
 
 # model
 REF_XPATH = "/cpacs/vehicles/aircraft/model/reference"

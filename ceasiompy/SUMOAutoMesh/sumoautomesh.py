@@ -97,7 +97,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
         circ_list = []
         min_radius = 10e6
 
-        # Go throught every Boby frame (fuselage sections)
+        # Go through every Boby frame (fuselage sections)
         frame_cnt = sumo.getNamedChildrenCount(body_xpath, "BodyFrame")
         for i_sec in range(frame_cnt):
             frame_xpath = body_xpath + "/BodyFrame[" + str(i_sec + 1) + "]"
@@ -108,7 +108,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
             circ = 2 * math.pi * math.sqrt((height**2 + width**2) / 2)
             circ_list.append(circ)
 
-            # Get overall min radius (semi-minor axi for elipse)
+            # Get overall min radius (semi-minor axi for ellipse)
             min_radius = min(min_radius, height, width)
 
         mean_circ = sum(circ_list) / len(circ_list)
@@ -132,10 +132,10 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
         sumo.addTextAttribute(meshcrit_xpath, "nvmax", "1073741824")
         sumo.addTextAttribute(meshcrit_xpath, "xcoarse", "false")
 
-        # Chage fusage caps
+        # Change fuselage caps
         cap_cnt = sumo.getNamedChildrenCount(body_xpath, "Cap")
 
-        for i_cap in range(cap_cnt):
+        for _ in range(cap_cnt):
             cap_xpath = body_xpath + "/Cap[1]"
             sumo.removeElement(cap_xpath)
 
@@ -164,7 +164,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
 
         chord_list = []
 
-        # Go throught every WingSection
+        # Go through every WingSection
         section_cnt = sumo.getNamedChildrenCount(wing_xpath, "WingSection")
         for i_sec in range(section_cnt):
             section_xpath = wing_xpath + "/WingSection[" + str(i_sec + 1) + "]"
@@ -212,7 +212,7 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
     """Function to create a simple SU2 mesh form an SUMO file (.smx)
 
     Function 'create_mesh' is used to generate an unstructured mesh with  SUMO
-    (which integrage Tetgen for the volume mesh) using a SUMO (.smx) geometry
+    (which integrate Tetgen for the volume mesh) using a SUMO (.smx) geometry
     file as input.
     Meshing option could be change manually (only in the script for now)
 

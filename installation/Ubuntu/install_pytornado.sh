@@ -13,11 +13,11 @@ fi
 
 echo "Creating install directory..."
 mkdir -p "$install_dir"
-cd $install_dir
+cd "$install_dir"
 
 # Activate conda environment to install PyTornado in it
 CONDA_BASE=$(conda info --base)
-source $CONDA_BASE/etc/profile.d/conda.sh
+source "$CONDA_BASE/etc/profile.d/conda.sh"
 conda activate ceasiompy
 
 # Download PyTornado from GitHub and install it
@@ -25,4 +25,4 @@ git clone https://github.com/airinnova/pytornado.git
 cd pytornado
 pip install -e .
 
-cd $current_dir
+cd "$current_dir"

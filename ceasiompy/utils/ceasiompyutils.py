@@ -31,6 +31,7 @@ from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
 
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.xpath import AIRCRAFT_NAME_XPATH
 
 log = get_logger()
 
@@ -75,7 +76,7 @@ def get_results_directory(module_name: str) -> Path:
     return results_dir
 
 
-def run_module(module, wkdir=Path.cwd(), iter=0):
+def run_module(module, wkdir=Path.cwd(), iteration=0):
     """Run a 'ModuleToRun' object in a specific wkdir.
 
     Args:
@@ -97,7 +98,7 @@ def run_module(module, wkdir=Path.cwd(), iter=0):
             str(module.cpacs_in), str(module.cpacs_out), module.gui_related_modules
         )
 
-    elif module.name == "Optimisation" and iter > 0:
+    elif module.name == "Optimisation" and iteration > 0:
 
         log.info("Optimisation module is only run at first iteration!")
 
@@ -247,18 +248,11 @@ def aircraft_name(tixi_or_cpacs):
     # *modify corresponding test
 
     if isinstance(tixi_or_cpacs, Path):
-
         tixi = open_tixi(str(tixi_or_cpacs))
-
-        aircraft_name_xpath = "/cpacs/header/name"
-        name = get_value_or_default(tixi, aircraft_name_xpath, "Aircraft")
-
-        tixi.save(str(tixi_or_cpacs))
-
     else:
+        tixi = tixi_or_cpacs
 
-        aircraft_name_xpath = "/cpacs/header/name"
-        name = get_value_or_default(tixi_or_cpacs, aircraft_name_xpath, "Aircraft")
+    name = get_value_or_default(tixi, AIRCRAFT_NAME_XPATH, "Aircraft")
 
     name = name.replace(" ", "_")
     log.info(f"The name of the aircraft is : {name}")

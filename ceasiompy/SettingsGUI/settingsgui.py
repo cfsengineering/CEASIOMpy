@@ -363,7 +363,7 @@ class AutoTab:
                     try:
                         selected_aeromap = get_value(self.cpacs.tixi, xpath)
                         selected_aeromap_index = self.aeromap_uid_list.index(selected_aeromap)
-                    except:
+                    except ValueError:
                         selected_aeromap = ""
                         selected_aeromap_index = 0
 
@@ -372,7 +372,7 @@ class AutoTab:
                         column=0, row=row_pos, columnspan=3, sticky=tk.W, padx=15, pady=5
                     )
 
-                    # The Combobox is directly use as the varaible
+                    # The Combobox is directly use as the variable
                     self.var_dict[key] = ttk.Combobox(
                         self.labelframe, values=self.aeromap_uid_list
                     )
@@ -414,7 +414,7 @@ class AutoTab:
 
                 else:  # Other kind of list (not aeroMap)
 
-                    # 'def_value' will be the list of possibilies in this case
+                    # 'def_value' will be the list of possibilities in this case
 
                     # Try to get the pre-selected AeroMap from the xpath
                     try:  # TODO Should be retested...
@@ -424,7 +424,7 @@ class AutoTab:
                         selected_value = ""
                         selected_value_index = 0
 
-                    # The Combobox is directly use as the varaible
+                    # The Combobox is directly use as the variable
                     self.var_dict[key] = ttk.Combobox(parent, width=12, values=def_value)
                     self.var_dict[key].current(selected_value_index)
                     self.var_dict[key].grid(column=1, row=row_pos, padx=5, pady=5)
@@ -661,7 +661,7 @@ def create_settings_gui(cpacs_path, cpacs_out_path, submodule_list):
     Args:
         cpacs_path (str): Path to the CPACS file
         cpacs_out_path (str): Path to the output CPACS file
-        submodule_list (list): List of module to inclue in the GUI
+        submodule_list (list): List of module to include in the GUI
 
     """
 

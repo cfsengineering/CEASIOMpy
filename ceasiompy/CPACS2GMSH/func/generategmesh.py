@@ -120,7 +120,7 @@ class ModelPart:
 
     def clean_inside_entities(self, final_domain):
         """
-        Function to clean the inside entities of the part.
+        Function to clean edge swaps, 68 node relocations nside entities of the part.
         Inside entities are entities that are not part of the final domain.
 
         Args:
@@ -196,6 +196,30 @@ def get_entities_from_volume(volume_dimtag):
     return surfaces_dimtags, lines_dimtags, points_dimtags
 
 
+def process_gmsh_log(gmsh_log):
+    """
+    Function to process the gmsh log file.
+    It is used to retrieve the mesh quality
+    ...
+
+    Args:
+    ----------
+    gmsh_log : list(str)
+        list of gmsh log events
+    """
+
+    # find log about mesh quality
+    quality_log = [log for log in gmsh_log if "quality" in log]
+
+    # get only the last then quality log
+    final_quality_log = quality_log[-10:]
+
+    # print log with ceasiompy logger
+    log.info("Final mesh quality :")
+    for log_line in final_quality_log:
+        log.info(log_line)
+
+
 def generate_gmsh(
     cpacs_path,
     brep_dir_path,
@@ -228,7 +252,7 @@ def generate_gmsh(
     open_gmsh : bool
         Open gmsh GUI after the mesh generation if set to true
     farfield_factor = float
-        Factor to enlarge the farfield : factor times the largest dimension(x,y,z)
+        Factor to enlarge the farfield : factotimes the largest dimension(x,y,z)
         of the aircraft
     symmetry : bool
         If set to true, the mesh will be generated with symmetry wrt the x,z plane
@@ -249,6 +273,7 @@ def generate_gmsh(
     brep_files.sort()
 
     gmsh.initialize()
+    gmsh.option.setNumber("General.Terminal", 0)
 
     # import each aircraft original parts / parent parts
     aircraft_parts = []
@@ -331,7 +356,7 @@ def generate_gmsh(
     # When two parents part ex. a fuselage and a wing intersect each other
     # two children are generated for both parts, thus if a child is shared by
     # two parent parts (or more), then this child is a volume given
-    # by the intersection of the two parent parts, we don't need them and some
+    # by edge swaps, 68 node relocations ntersection of the two parent parts, we don't need them and some
     # of its surfaces, lines and point in the final models
 
     # Thus we need to find those unwanted child and their entities that don't belong
@@ -578,6 +603,7 @@ def generate_gmsh(
         gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
 
     # Mesh generation
+    log.info("Start of gmsh 2D surface meshing process")
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
@@ -590,16 +616,18 @@ def generate_gmsh(
         log.info("Result of 2D surface mesh")
         gmsh.fltk.run()
 
+    log.info("Start of gmsh 3D volume meshing process")
+    gmsh.logger.start()
     gmsh.model.mesh.generate(3)
     gmsh.model.occ.synchronize()
 
     su2mesh_path = Path(results_dir, "mesh.su2")
     gmsh.write(str(su2mesh_path))
 
+    process_gmsh_log(gmsh.logger.get())
     if open_gmsh:
-        log.info("Result of the 3D mesh")
+        log.info("Result of the 3D volume mesh")
         gmsh.fltk.run()
-
     gmsh.clear()
     gmsh.finalize()
     return su2mesh_path, aircraft_parts
@@ -610,5 +638,16 @@ def generate_gmsh(
 # =================================================================================================
 
 if __name__ == "__main__":
-
+    generate_gmsh(
+        Path("test_files", "simple", "simpletest_cpacs.xml"),
+        Path("test_files", "simple"),
+        "",
+        open_gmsh=False,
+        farfield_factor=5,
+        symmetry=False,
+        mesh_size_farfield=12,
+        mesh_size_fuselage=0.2,
+        mesh_size_wings=0.2,
+        refine_factor=4,
+    )
     print("Nothing to execute!")

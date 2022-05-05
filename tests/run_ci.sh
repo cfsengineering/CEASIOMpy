@@ -6,10 +6,10 @@
 echo -e "\n######### Running CI #########"
 
 echo -e "\n## Running Black ## \n"
-black .
+black ../
 
 echo -e "\n## Running Flake8 ## \n"
-flake8
+flake8 ../
 
 echo -e "\n## Running Pytest ## \n"
-pytest -v --cov=ceasiompy
+pytest -v ../ceasiompy --cov=../ceasiompy

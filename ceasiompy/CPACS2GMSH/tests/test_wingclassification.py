@@ -22,12 +22,10 @@ from pathlib import Path
 import gmsh
 import pytest
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.CPACS2GMSH.func.generategmesh import ModelPart, generate_gmsh
+from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
-    classify_profile,
-    classify_special_section,
-    classify_trunc_profile,
-    classify_wing_section,
+    detect_normal_profile,
+    detect_truncated_profile,
 )
 from cpacspy.cpacspy import CPACS
 
@@ -48,90 +46,7 @@ TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 @pytest.mark.skipif(
     sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
 )
-def test_classify_profile():
-    """
-    Test if a simple 2 bspline profile is correctly classified
-
-    This test create a profile in gmsh and check if it is correctly classified
-    """
-
-    gmsh.initialize()
-
-    le_point_tag = gmsh.model.occ.addPoint(0, 0, 0, 1)
-    te_point_tag = gmsh.model.occ.addPoint(1, 0, 0, 1)
-    up_profile_point_tag = gmsh.model.occ.addPoint(0.2, 0.1, 0, 1)
-    lo_profile_point_tag = gmsh.model.occ.addPoint(0.2, -0.1, 0, 1)
-
-    gmsh.model.occ.synchronize()
-    up_bspline = gmsh.model.occ.addBSpline([le_point_tag, up_profile_point_tag, te_point_tag])
-    lo_bspline = gmsh.model.occ.addBSpline([te_point_tag, lo_profile_point_tag, le_point_tag])
-    bad_bspline = gmsh.model.occ.addBSpline([le_point_tag, lo_profile_point_tag])
-    gmsh.model.occ.synchronize()
-
-    # try to classify this profile
-    profiles = []
-    line_comp_up = {"line_dimtag": up_bspline, "points_tags": [le_point_tag, te_point_tag]}
-    line_comp_lo = {"line_dimtag": lo_bspline, "points_tags": [te_point_tag, le_point_tag]}
-    bad_line_comp = {
-        "line_dimtag": bad_bspline,
-        "points_tags": [le_point_tag, lo_profile_point_tag],
-    }
-    # Test if the profile is correctly classified
-    profile_found = classify_profile(profiles, line_comp_up, line_comp_lo)
-    assert profile_found == True
-
-    # Test if two line that doesn't form a profile are not classified
-    profile_found = classify_profile(profiles, line_comp_up, bad_line_comp)
-    assert profile_found == False
-    gmsh.clear()
-    gmsh.finalize()
-
-
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
-def test_classify_trunc_profile():
-    """
-    Test if a simple 2 bspline truncated profile is correctly classified
-
-    This test create a truncated profile in gmsh and check if it is correctly classified
-    """
-
-    gmsh.initialize()
-
-    le_point_tag = gmsh.model.occ.addPoint(0, 0, 0, 1)
-    up_te_point_tag = gmsh.model.occ.addPoint(1, 0, 0.01, 1)
-    lo_te_point_tag = gmsh.model.occ.addPoint(1, 0, -0.01, 1)
-    up_profile_point_tag = gmsh.model.occ.addPoint(0.2, 0.1, 0, 1)
-    lo_profile_point_tag = gmsh.model.occ.addPoint(0.2, -0.1, 0, 1)
-
-    gmsh.model.occ.synchronize()
-    up_bspline = gmsh.model.occ.addBSpline([le_point_tag, up_profile_point_tag, up_te_point_tag])
-    lo_bspline = gmsh.model.occ.addBSpline([lo_te_point_tag, lo_profile_point_tag, le_point_tag])
-    gmsh.model.occ.addBSpline([up_te_point_tag, lo_te_point_tag])
-    gmsh.model.occ.synchronize()
-
-    # try to classify this profile
-    profile_list = []
-    profile_lines = []
-    line_comp_up = {"line_dimtag": up_bspline, "points_tags": [le_point_tag, up_te_point_tag]}
-    line_comp_lo = {"line_dimtag": lo_bspline, "points_tags": [lo_te_point_tag, le_point_tag]}
-
-    # Test if the profile is correctly classified
-    profile_found = classify_trunc_profile(profile_list, profile_lines, line_comp_up, line_comp_lo)
-    assert profile_found == True
-
-    # Test if the profile is not two times classified
-    profile_found = classify_trunc_profile(profile_list, profile_lines, line_comp_up, line_comp_lo)
-    assert profile_found == False
-    gmsh.clear()
-    gmsh.finalize()
-
-
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
-def test_classify_wing_section():
+def test_detect_normal_profile():
     """
     Test if a simple 2 bspline  profile wing section is correctly classified
 
@@ -162,32 +77,40 @@ def test_classify_wing_section():
     le_line = gmsh.model.occ.addLine(le_pt_1, le_pt_2)
     te_line = gmsh.model.occ.addLine(te_pt_1, te_pt_2)
     gmsh.model.occ.synchronize()
-    profiles = [
-        {
-            "truncated": False,
-            "lines_dimtag": [up_bspline_1, lo_bspline_1],
-            "points_tag": [le_pt_1, te_pt_1],
-            "adj_le_lines": [up_bspline_1, lo_bspline_1, le_line],
-            "adj_te_lines": [up_bspline_1, lo_bspline_1, te_line],
-            "chord_length": 1.0,
-        },
-        {
-            "truncated": False,
-            "lines_dimtag": [up_bspline_2, lo_bspline_2],
-            "points_tag": [le_pt_2, te_pt_2],
-            "adj_le_lines": [up_pr_pt_2, lo_bspline_2, le_line],
-            "adj_te_lines": [up_pr_pt_2, lo_bspline_2, te_line],
-            "chord_length": 1.0,
-        },
-    ]
-    wing_sections = []
-    # Test if the profile is correctly classified
-    assert classify_wing_section(wing_sections, profiles[0], profiles[1]) == True
-    # Test if the profile is not two times classified
-    assert classify_wing_section(wing_sections, profiles[0], profiles[1]) == False
-    # Test if wrong profile is not classified
-    assert classify_wing_section(wing_sections, profiles[0], profiles[0]) == False
 
+    # create curve loop for generating the surfaces
+    up_curveloop = gmsh.model.occ.addCurveLoop([up_bspline_2, te_line, up_bspline_1, le_line])
+    lo_curveloop = gmsh.model.occ.addCurveLoop([lo_bspline_2, te_line, lo_bspline_1, le_line])
+    profile1_curveloop = gmsh.model.occ.addCurveLoop([up_bspline_1, lo_bspline_1])
+    profile2_curveloop = gmsh.model.occ.addCurveLoop([up_bspline_2, lo_bspline_2])
+    gmsh.model.occ.synchronize()
+
+    # Generate surfaces
+    gmsh.model.occ.addSurfaceFilling(up_curveloop)
+    gmsh.model.occ.addSurfaceFilling(lo_curveloop)
+    gmsh.model.occ.addSurfaceFilling(profile1_curveloop)
+    gmsh.model.occ.addSurfaceFilling(profile2_curveloop)
+    gmsh.model.occ.synchronize()
+
+    profile_lines = [up_bspline_1, lo_bspline_1, up_bspline_2, lo_bspline_2, le_line, te_line]
+    lines_composition = []
+    for line in profile_lines:
+        adj_surfs, _ = gmsh.model.getAdjacencies(1, line)
+        lines_composition.append({"line_tag": line, "surf_tags": set(adj_surfs)})
+
+    # Find the pair of le/te lines with all the lines of the wing part
+    le_te_pair = []
+
+    for index, line_comp1 in enumerate(lines_composition):
+        for line_comp2 in lines_composition[index:]:
+            # try to detect if two line form a normal profile
+            le_te_pair, _ = detect_normal_profile(le_te_pair, line_comp1, line_comp2)
+
+    # test if only one te_le_pair is detected in the profile
+
+    assert len(le_te_pair) == 1
+    # test if the correct le_te_pair is detected
+    assert sorted(le_te_pair[0]) == sorted([le_line, te_line])
     gmsh.clear()
     gmsh.finalize()
 
@@ -195,66 +118,96 @@ def test_classify_wing_section():
 @pytest.mark.skipif(
     sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
 )
-def test_classify_special_section():
+def test_detect_truncated_profile():
     """
-    Test if a wing section composed of a bspline profile linked to a fake fuselage is
-    correctly classified.
+    Test if a simple 2 bspline truncated profile wing section is correctly classified
 
-    This test create one profile in gmsh and link it to a non profile shapewith a
-    leading edge line and a trailing edge line,check if it is correctly classified
+    This test create two profile in gmsh and link them with a leading edge line and
+    and two trailing edge line.
+    Then we check if it is correctly classified
     """
     gmsh.initialize()
     # profile1
     le_pt_1 = gmsh.model.occ.addPoint(0, 0, 0, 1)
-    te_pt_1 = gmsh.model.occ.addPoint(1, 0, 0, 1)
+    te_pt1_1 = gmsh.model.occ.addPoint(1, 0.01, 0, 1)
+    te_pt2_1 = gmsh.model.occ.addPoint(1, -0.01, 0, 1)
+
     up_pr_pt_1 = gmsh.model.occ.addPoint(0.2, 0.1, 0, 1)
     lo_pr_pt_1 = gmsh.model.occ.addPoint(0.2, -0.1, 0, 1)
     gmsh.model.occ.synchronize()
-    up_bspline_1 = gmsh.model.occ.addBSpline([le_pt_1, up_pr_pt_1, te_pt_1])
-    lo_bspline_1 = gmsh.model.occ.addBSpline([te_pt_1, lo_pr_pt_1, le_pt_1])
+    up_bspline_1 = gmsh.model.occ.addBSpline([le_pt_1, up_pr_pt_1, te_pt1_1])
+    lo_bspline_1 = gmsh.model.occ.addBSpline([te_pt2_1, lo_pr_pt_1, le_pt_1])
+    trunc_line_1 = gmsh.model.occ.addBSpline([te_pt1_1, te_pt2_1])
 
-    # square fuselage
-    sq_pt1 = gmsh.model.occ.addPoint(0, 0, 1, 1)
-    sq_pt2 = gmsh.model.occ.addPoint(0.5, -0.5, 1, 1)
-    sq_pt3 = gmsh.model.occ.addPoint(1, 0, 1, 1)
-    sq_pt4 = gmsh.model.occ.addPoint(0.5, -0.5, 1, 1)
+    # profile2
+    le_pt_2 = gmsh.model.occ.addPoint(0, 0, 1, 1)
+    te_pt1_2 = gmsh.model.occ.addPoint(1, 0.01, 1, 1)
+    te_pt2_2 = gmsh.model.occ.addPoint(1, -0.01, 1, 1)
+
+    up_pr_pt_2 = gmsh.model.occ.addPoint(0.2, 0.1, 1, 1)
+    lo_pr_pt_2 = gmsh.model.occ.addPoint(0.2, -0.1, 1, 1)
     gmsh.model.occ.synchronize()
-    sq_line1 = gmsh.model.occ.addLine(sq_pt1, sq_pt2)
-    sq_line2 = gmsh.model.occ.addLine(sq_pt2, sq_pt3)
-    sq_line3 = gmsh.model.occ.addLine(sq_pt3, sq_pt4)
-    sq_line4 = gmsh.model.occ.addLine(sq_pt4, sq_pt1)
+    up_bspline_2 = gmsh.model.occ.addBSpline([le_pt_2, up_pr_pt_2, te_pt1_2])
+    lo_bspline_2 = gmsh.model.occ.addBSpline([te_pt2_2, lo_pr_pt_2, le_pt_2])
+    trunc_line_2 = gmsh.model.occ.addBSpline([te_pt1_2, te_pt2_2])
+    gmsh.model.occ.synchronize()
 
     # le/te line
-    le_line = gmsh.model.occ.addLine(le_pt_1, sq_pt1)
-    te_line = gmsh.model.occ.addLine(te_pt_1, sq_pt3)
+    le_line = gmsh.model.occ.addLine(le_pt_1, le_pt_2)
+    te_line_up = gmsh.model.occ.addLine(te_pt1_1, te_pt1_2)
+    te_line_lo = gmsh.model.occ.addLine(te_pt2_1, te_pt2_2)
     gmsh.model.occ.synchronize()
-    profiles = [
-        {
-            "truncated": False,
-            "lines_dimtag": [up_bspline_1, lo_bspline_1],
-            "points_tag": [le_pt_1, te_pt_1],
-            "adj_le_lines": [up_bspline_1, lo_bspline_1, le_line],
-            "adj_te_lines": [up_bspline_1, lo_bspline_1, te_line],
-            "chord_length": 1.0,
-        }
-    ]
-    wing_sections = []
-    wing_part = ModelPart("testwing")
-    wing_part.part_type = "wing"
-    wing_part.lines_tags = [
-        sq_line1,
-        sq_line2,
-        sq_line3,
-        sq_line4,
+
+    # create curve loop for generating the surfaces
+    up_curveloop = gmsh.model.occ.addCurveLoop([up_bspline_2, te_line_up, up_bspline_1, le_line])
+    lo_curveloop = gmsh.model.occ.addCurveLoop([lo_bspline_2, te_line_lo, lo_bspline_1, le_line])
+    trunc_curveloop = gmsh.model.occ.addCurveLoop(
+        [trunc_line_1, te_line_lo, trunc_line_2, te_line_up]
+    )
+    profile1_curveloop = gmsh.model.occ.addCurveLoop([up_bspline_1, trunc_line_1, lo_bspline_1])
+    profile2_curveloop = gmsh.model.occ.addCurveLoop([up_bspline_2, trunc_line_2, lo_bspline_2])
+    gmsh.model.occ.synchronize()
+
+    # Generate surfaces
+    _ = gmsh.model.occ.addSurfaceFilling(up_curveloop)
+    _ = gmsh.model.occ.addSurfaceFilling(lo_curveloop)
+    _ = gmsh.model.occ.addSurfaceFilling(trunc_curveloop)
+    _ = gmsh.model.occ.addSurfaceFilling(profile1_curveloop)
+    _ = gmsh.model.occ.addSurfaceFilling(profile2_curveloop)
+    gmsh.model.occ.synchronize()
+
+    profile_lines = [
         up_bspline_1,
         lo_bspline_1,
-        te_line,
+        up_bspline_2,
+        lo_bspline_2,
         le_line,
+        te_line_up,
+        te_line_lo,
     ]
-    wing_part.points_tags = [le_pt_1, te_pt_1, sq_pt1, sq_pt2, sq_pt3, sq_pt4]
-    # Test if the profile is correctly classified
-    assert classify_special_section(wing_part, wing_sections, profiles) == True
+    lines_composition = []
+    for line in profile_lines:
+        adj_surfs, _ = gmsh.model.getAdjacencies(1, line)
+        lines_composition.append({"line_tag": line, "surf_tags": set(adj_surfs)})
 
+    # Find the pair of le/te lines with all the lines of the wing part
+    le_te_pair = []
+
+    for index, line_comp1 in enumerate(lines_composition):
+        for line_comp2 in lines_composition[index:]:
+            # try to detect if two line form a normal profile
+            le_te_pair, found_normal = detect_normal_profile(le_te_pair, line_comp1, line_comp2)
+            if not found_normal:
+                for line_comp3 in lines_composition:
+                    # try to detect if three line form a truncated profile
+                    le_te_pair, _ = detect_truncated_profile(
+                        le_te_pair, line_comp1, line_comp2, line_comp3
+                    )
+
+    # test if only one te_le_pair is detected in the profile
+    assert len(le_te_pair) == 1
+    # test if the correct le_te_pair is detected
+    assert sorted(le_te_pair[0]) == sorted([le_line, te_line_up, te_line_lo])
     gmsh.clear()
     gmsh.finalize()
 
@@ -290,27 +243,15 @@ def test_classify_wing():
             test_wingsection = part.wing_sections
 
     # Test if the wing1_m is correctly classified
-
     assert len(test_wingsection) == 2
 
-    # Test if the first wing section is correctly classified
+    # Test if the wing1_m section 1 is correctly classified
 
-    wing_sec1 = test_wingsection[0]
+    section1 = test_wingsection[0]
 
-    truncated = wing_sec1["truncated"]
-    assert truncated == True
+    assert section1["lines_tags"] == [21, 23, 25]
 
-    profile_1_sec1 = wing_sec1["profiles"][0]
-    assert profile_1_sec1 == [22, 24, 26]
-
-    profile_2_sec1 = wing_sec1["profiles"][1]
-    assert profile_2_sec1 == [10, 11, 12]
-
-    le_line_sec1 = wing_sec1["le_line"]
-    assert le_line_sec1 == [23]
-
-    te_line_sec1 = wing_sec1["te_line"]
-    assert te_line_sec1 == [25, 21]
+    assert pytest.approx(section1["mean_chord"], 0.01) == 1
 
     # Delete files generated by the test
     files_to_delete = [p for p in TEST_OUT_PATH.iterdir() if p.suffix in [".brep", ".su2"]]

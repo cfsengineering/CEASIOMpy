@@ -59,6 +59,7 @@ def workflow_ends():
     return False
 
 
+@pytest.mark.skipif(not shutil.which("pytornado"), reason="PyTornado not installed")
 def test_integration_1():
 
     modules_to_run = ["PyTornado", "SkinFriction", "ExportCSV"]
@@ -74,7 +75,7 @@ def test_integration_1():
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_2():
 
-    modules_to_run = ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run"]
+    modules_to_run = ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(CPACS_IN_PATH), *modules_to_run])

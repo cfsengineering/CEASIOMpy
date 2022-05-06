@@ -86,10 +86,10 @@ def test_detect_normal_profile():
     gmsh.model.occ.synchronize()
 
     # Generate surfaces
-    _ = gmsh.model.occ.addSurfaceFilling(up_curveloop)
-    _ = gmsh.model.occ.addSurfaceFilling(lo_curveloop)
-    _ = gmsh.model.occ.addSurfaceFilling(profile1_curveloop)
-    _ = gmsh.model.occ.addSurfaceFilling(profile2_curveloop)
+    gmsh.model.occ.addSurfaceFilling(up_curveloop)
+    gmsh.model.occ.addSurfaceFilling(lo_curveloop)
+    gmsh.model.occ.addSurfaceFilling(profile1_curveloop)
+    gmsh.model.occ.addSurfaceFilling(profile2_curveloop)
     gmsh.model.occ.synchronize()
 
     profile_lines = [up_bspline_1, lo_bspline_1, up_bspline_2, lo_bspline_2, le_line, te_line]

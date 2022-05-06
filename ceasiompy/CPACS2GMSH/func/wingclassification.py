@@ -263,11 +263,6 @@ def classify_wing(wing_part, aircraft_parts):
                         le_te_pair, line_comp1, line_comp2, line_comp3
                     )
 
-    # apply a green flash mesh color to the le/te lines
-    for line_pair in le_te_pair:
-        for line in line_pair:
-            gmsh.model.setColor([(1, line)], *(0, 255, 0), a=255, recursive=False)
-
     wing_part.wing_sections = []
     # classify pair of lea/te lines in the wing part
     for le_te in le_te_pair:

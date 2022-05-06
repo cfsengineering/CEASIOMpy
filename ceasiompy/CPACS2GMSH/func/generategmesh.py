@@ -209,9 +209,9 @@ def process_gmsh_log(gmsh_log):
     """
 
     # find log about mesh quality
-    quality_log = [log for log in gmsh_log if "quality" in log]
+    quality_log = [log for log in gmsh_log if "< quality <" in log]
 
-    # get only the last then quality log
+    # get only the last ten quality log
     final_quality_log = quality_log[-10:]
 
     # print log with ceasiompy logger
@@ -273,7 +273,8 @@ def generate_gmsh(
     brep_files.sort()
 
     gmsh.initialize()
-    gmsh.option.setNumber("General.Terminal", 0)
+    # Stop gmsh output log in the terminal
+    gmsh.option.setNumber("General.Terminal", 1)
 
     # import each aircraft original parts / parent parts
     aircraft_parts = []
@@ -560,8 +561,9 @@ def generate_gmsh(
 
                 # wing classifications
                 classify_wing(part, aircraft_parts)
-                nb_sect = len(part.wing_sections)
-                log.info(f"Classification of {part.uid} done, {nb_sect} section(s) found ")
+                log.info(
+                    f"Classification of {part.uid} done, {len(part.wing_sections)} section(s) found "
+                )
 
                 # wing refinement
                 log.info(f"Set mesh refinement of {part.uid}")

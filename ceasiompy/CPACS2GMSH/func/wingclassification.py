@@ -48,8 +48,8 @@ def detect_normal_profile(le_te_pair, line_comp1, line_comp2):
 
     Returns:
     ----------
-    True : if le/te pair found
-    False : otherwise
+    le_te_pair : list (tag)
+    True/False : if le/te pair found
     """
     lines = sorted(
         list(
@@ -62,19 +62,15 @@ def detect_normal_profile(le_te_pair, line_comp1, line_comp2):
         )
     )
     # lines check :
-    # check if the line ar not the same
-    if len(lines) != 2:
-        return False
-
     # check if lines are not already in the founded list
     if lines in le_te_pair:
-        return False
+        return le_te_pair, False
 
     # surface check :
     # check if the surfaces are the same
     surfaces = list(line_comp1["surf_tags"].intersection(line_comp2["surf_tags"]))
     if len(surfaces) != 2:
-        return False
+        return le_te_pair, False
 
     # check if the le and te line are not connected i.e. 4 distinct points
     points = []
@@ -82,11 +78,11 @@ def detect_normal_profile(le_te_pair, line_comp1, line_comp2):
         _, adj_points = gmsh.model.getAdjacencies(1, line)
         points.extend(list(adj_points))
     if len(set(points)) != 4:
-        return False
+        return le_te_pair, False
 
     # add the le/te pair to the list
     le_te_pair.append(lines)
-    return True
+    return le_te_pair, True
 
 
 def detect_truncated_profile(le_te_pair, line_comp1, line_comp2, line_comp3):
@@ -125,29 +121,29 @@ def detect_truncated_profile(le_te_pair, line_comp1, line_comp2, line_comp3):
     # check if the line ar not the same
 
     if len(lines) != 3:
-        return False
+        return le_te_pair, False
 
     # check if lines are not already in the founded list
 
     if lines in le_te_pair:
-        return False
+        return le_te_pair, False
 
     # surface check :
     # check if each line share only one common surface with the other two lines
 
     if len(line_comp1["surf_tags"].intersection(line_comp2["surf_tags"])) != 1:
-        return False
+        return le_te_pair, False
     if len(line_comp2["surf_tags"].intersection(line_comp3["surf_tags"])) != 1:
-        return False
+        return le_te_pair, False
     if len(line_comp1["surf_tags"].intersection(line_comp3["surf_tags"])) != 1:
-        return False
+        return le_te_pair, False
 
     surfaces = sorted(
         list(line_comp1["surf_tags"].union(line_comp2["surf_tags"], line_comp3["surf_tags"]))
     )
     # check nb of surface:
     if len(surfaces) != 3:
-        return False
+        return le_te_pair, False
 
     # check if the le and te line are not connected i.e. 6 distinct points
     points = []
@@ -155,11 +151,11 @@ def detect_truncated_profile(le_te_pair, line_comp1, line_comp2, line_comp3):
         _, adj_points = gmsh.model.getAdjacencies(1, line)
         points.extend(list(adj_points))
     if len(set(points)) != 6:
-        return False
+        return le_te_pair, False
 
     # add the le/te pair to the list
     le_te_pair.append(lines)
-    return True
+    return le_te_pair, True
 
 
 def find_chord_length(le_te_pair):
@@ -256,13 +252,16 @@ def classify_wing(wing_part, aircraft_parts):
     # Find the pair of le/te lines with all the lines of the wing part
     le_te_pair = []
 
-    for line_comp1 in lines_composition:
-        for line_comp2 in lines_composition:
+    for index, line_comp1 in enumerate(lines_composition):
+        for line_comp2 in lines_composition[index:]:
             # try to detect if two line form a normal profile
-            detect_normal_profile(le_te_pair, line_comp1, line_comp2)
-            for line_comp3 in lines_composition:
-                # try to detect if three line form a truncated profile
-                detect_truncated_profile(le_te_pair, line_comp1, line_comp2, line_comp3)
+            le_te_pair, found_normal = detect_normal_profile(le_te_pair, line_comp1, line_comp2)
+            if not found_normal:
+                for line_comp3 in lines_composition:
+                    # try to detect if three line form a truncated profile
+                    le_te_pair, _ = detect_truncated_profile(
+                        le_te_pair, line_comp1, line_comp2, line_comp3
+                    )
 
     # apply a green flash mesh color to the le/te lines
     for line_pair in le_te_pair:

@@ -252,7 +252,7 @@ def generate_gmsh(
     open_gmsh : bool
         Open gmsh GUI after the mesh generation if set to true
     farfield_factor = float
-        Factor to enlarge the farfield : factotimes the largest dimension(x,y,z)
+        Factor to enlarge the farfield : factor times the largest dimension(x,y,z)
         of the aircraft
     symmetry : bool
         If set to true, the mesh will be generated with symmetry wrt the x,z plane
@@ -356,7 +356,7 @@ def generate_gmsh(
     # When two parents part ex. a fuselage and a wing intersect each other
     # two children are generated for both parts, thus if a child is shared by
     # two parent parts (or more), then this child is a volume given
-    # by intersection of the two parent parts, we don't need them and some
+    # by the intersection of the two parent parts, we don't need them and some
     # of its surfaces, lines and point in the final models
 
     # Thus we need to find those unwanted child and their entities that don't belong
@@ -638,17 +638,4 @@ def generate_gmsh(
 # =================================================================================================
 
 if __name__ == "__main__":
-    plane = "simple"
-    generate_gmsh(
-        Path("test_files", plane, f"{plane}.xml"),
-        Path("test_files", plane),
-        "",
-        open_gmsh=True,
-        farfield_factor=5,
-        symmetry=False,
-        mesh_size_farfield=12,
-        mesh_size_fuselage=0.1,
-        mesh_size_wings=0.1,
-        refine_factor=4,
-    )
     print("Nothing to execute!")

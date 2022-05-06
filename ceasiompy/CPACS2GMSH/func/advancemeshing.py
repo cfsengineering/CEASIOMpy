@@ -93,9 +93,7 @@ def refine_wing_section(
     for wing_section in wing_part.wing_sections:
 
         chord_mean = wing_section["mean_chord"]
-        le_line = wing_section["le_line"]
-        te_line = wing_section["te_line"]
-        lines_to_refine = [*le_line, *te_line]
+        lines_to_refine = wing_section["lines_tags"]
 
         # create new distance field
         mesh_fields["nbfields"] += 1

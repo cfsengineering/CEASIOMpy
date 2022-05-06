@@ -120,7 +120,7 @@ class ModelPart:
 
     def clean_inside_entities(self, final_domain):
         """
-        Function to clean edge swaps, 68 node relocations nside entities of the part.
+        Function to clean inside entities of the part.
         Inside entities are entities that are not part of the final domain.
 
         Args:
@@ -356,7 +356,7 @@ def generate_gmsh(
     # When two parents part ex. a fuselage and a wing intersect each other
     # two children are generated for both parts, thus if a child is shared by
     # two parent parts (or more), then this child is a volume given
-    # by edge swaps, 68 node relocations ntersection of the two parent parts, we don't need them and some
+    # by intersection of the two parent parts, we don't need them and some
     # of its surfaces, lines and point in the final models
 
     # Thus we need to find those unwanted child and their entities that don't belong
@@ -559,7 +559,7 @@ def generate_gmsh(
             if "wing" in part.part_type:
 
                 # wing classifications
-                classify_wing(part)
+                classify_wing(part, aircraft_parts)
                 nb_sect = len(part.wing_sections)
                 log.info(f"Classification of {part.uid} done, {nb_sect} section(s) found ")
 
@@ -638,4 +638,17 @@ def generate_gmsh(
 # =================================================================================================
 
 if __name__ == "__main__":
+    plane = "simple"
+    generate_gmsh(
+        Path("test_files", plane, f"{plane}.xml"),
+        Path("test_files", plane),
+        "",
+        open_gmsh=True,
+        farfield_factor=5,
+        symmetry=False,
+        mesh_size_farfield=12,
+        mesh_size_fuselage=0.1,
+        mesh_size_wings=0.1,
+        refine_factor=4,
+    )
     print("Nothing to execute!")

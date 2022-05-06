@@ -274,7 +274,7 @@ def generate_gmsh(
 
     gmsh.initialize()
     # Stop gmsh output log in the terminal
-    gmsh.option.setNumber("General.Terminal", 1)
+    gmsh.option.setNumber("General.Terminal", 0)
 
     # import each aircraft original parts / parent parts
     aircraft_parts = []

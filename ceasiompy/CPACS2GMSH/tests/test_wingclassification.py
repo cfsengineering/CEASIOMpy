@@ -80,14 +80,18 @@ def test_detect_normal_profile():
     te_line = gmsh.model.occ.addLine(te_pt_1, te_pt_2)
     gmsh.model.occ.synchronize()
 
-    # link surfaces
+    # create curve loop for generating the surfaces
     up_curveloop = gmsh.model.occ.addCurveLoop([up_bspline_2, te_line, up_bspline_1, le_line])
     lo_curveloop = gmsh.model.occ.addCurveLoop([lo_bspline_2, te_line, lo_bspline_1, le_line])
-
+    profile1_curveloop = gmsh.model.occ.addCurveLoop([up_bspline_1, lo_bspline_1])
+    profile2_curveloop = gmsh.model.occ.addCurveLoop([up_bspline_2, lo_bspline_2])
     gmsh.model.occ.synchronize()
-    # add up and lo surfaces of the profile
+
+    # Generate surfaces
     _ = gmsh.model.occ.addSurfaceFilling(up_curveloop)
     _ = gmsh.model.occ.addSurfaceFilling(lo_curveloop)
+    _ = gmsh.model.occ.addSurfaceFilling(profile1_curveloop)
+    _ = gmsh.model.occ.addSurfaceFilling(profile2_curveloop)
     gmsh.model.occ.synchronize()
 
     profile_lines = [up_bspline_1, lo_bspline_1, up_bspline_2, lo_bspline_2, le_line, te_line]
@@ -99,10 +103,10 @@ def test_detect_normal_profile():
     # Find the pair of le/te lines with all the lines of the wing part
     le_te_pair = []
 
-    for line_comp1 in lines_composition:
-        for line_comp2 in lines_composition:
+    for index, line_comp1 in enumerate(lines_composition):
+        for line_comp2 in lines_composition[index:]:
             # try to detect if two line form a normal profile
-            detect_normal_profile(le_te_pair, line_comp1, line_comp2)
+            le_te_pair, found_normal = detect_normal_profile(le_te_pair, line_comp1, line_comp2)
 
     # test if only one te_le_pair is detected in the profile
     assert len(le_te_pair) == 1
@@ -155,17 +159,22 @@ def test_detect_truncated_profile():
     te_line_lo = gmsh.model.occ.addLine(te_pt2_1, te_pt2_2)
     gmsh.model.occ.synchronize()
 
-    # link surfaces
+    # create curve loop for generating the surfaces
     up_curveloop = gmsh.model.occ.addCurveLoop([up_bspline_2, te_line_up, up_bspline_1, le_line])
     lo_curveloop = gmsh.model.occ.addCurveLoop([lo_bspline_2, te_line_lo, lo_bspline_1, le_line])
     trunc_curveloop = gmsh.model.occ.addCurveLoop(
         [trunc_line_1, te_line_lo, trunc_line_2, te_line_up]
     )
+    profile1_curveloop = gmsh.model.occ.addCurveLoop([up_bspline_1, trunc_line_1, lo_bspline_1])
+    profile2_curveloop = gmsh.model.occ.addCurveLoop([up_bspline_2, trunc_line_2, lo_bspline_2])
     gmsh.model.occ.synchronize()
-    # add up and lo surfaces of the profile and the truncated surface
+
+    # Generate surfaces
     _ = gmsh.model.occ.addSurfaceFilling(up_curveloop)
     _ = gmsh.model.occ.addSurfaceFilling(lo_curveloop)
     _ = gmsh.model.occ.addSurfaceFilling(trunc_curveloop)
+    _ = gmsh.model.occ.addSurfaceFilling(profile1_curveloop)
+    _ = gmsh.model.occ.addSurfaceFilling(profile2_curveloop)
     gmsh.model.occ.synchronize()
 
     profile_lines = [
@@ -185,10 +194,16 @@ def test_detect_truncated_profile():
     # Find the pair of le/te lines with all the lines of the wing part
     le_te_pair = []
 
-    for line_comp1 in lines_composition:
-        for line_comp2 in lines_composition:
-            for line_comp3 in lines_composition:
-                detect_truncated_profile(le_te_pair, line_comp1, line_comp2, line_comp3)
+    for index, line_comp1 in enumerate(lines_composition):
+        for line_comp2 in lines_composition[index:]:
+            # try to detect if two line form a normal profile
+            le_te_pair, found_normal = detect_normal_profile(le_te_pair, line_comp1, line_comp2)
+            if not found_normal:
+                for line_comp3 in lines_composition:
+                    # try to detect if three line form a truncated profile
+                    le_te_pair, _ = detect_truncated_profile(
+                        le_te_pair, line_comp1, line_comp2, line_comp3
+                    )
 
     # test if only one te_le_pair is detected in the profile
     assert len(le_te_pair) == 1

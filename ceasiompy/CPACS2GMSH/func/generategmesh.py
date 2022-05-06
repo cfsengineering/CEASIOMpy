@@ -562,7 +562,8 @@ def generate_gmsh(
                 # wing classifications
                 classify_wing(part, aircraft_parts)
                 log.info(
-                    f"Classification of {part.uid} done, {len(part.wing_sections)} section(s) found "
+                    f"Classification of {part.uid} done"
+                    f"{len(part.wing_sections)} section(s) found "
                 )
 
                 # wing refinement

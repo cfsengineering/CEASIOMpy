@@ -85,8 +85,9 @@ def test_detect_normal_profile():
     lo_curveloop = gmsh.model.occ.addCurveLoop([lo_bspline_2, te_line, lo_bspline_1, le_line])
 
     gmsh.model.occ.synchronize()
-    up_surface = gmsh.model.occ.addSurfaceFilling(up_curveloop)
-    lo_surface = gmsh.model.occ.addSurfaceFilling(lo_curveloop)
+    # add up and lo surfaces of the profile
+    _ = gmsh.model.occ.addSurfaceFilling(up_curveloop)
+    _ = gmsh.model.occ.addSurfaceFilling(lo_curveloop)
     gmsh.model.occ.synchronize()
 
     profile_lines = [up_bspline_1, lo_bspline_1, up_bspline_2, lo_bspline_2, le_line, te_line]
@@ -161,9 +162,10 @@ def test_detect_truncated_profile():
         [trunc_line_1, te_line_lo, trunc_line_2, te_line_up]
     )
     gmsh.model.occ.synchronize()
-    up_surface = gmsh.model.occ.addSurfaceFilling(up_curveloop)
-    lo_surface = gmsh.model.occ.addSurfaceFilling(lo_curveloop)
-    trunc_surface = gmsh.model.occ.addSurfaceFilling(trunc_curveloop)
+    # add up and lo surfaces of the profile and the truncated surface
+    _ = gmsh.model.occ.addSurfaceFilling(up_curveloop)
+    _ = gmsh.model.occ.addSurfaceFilling(lo_curveloop)
+    _ = gmsh.model.occ.addSurfaceFilling(trunc_curveloop)
     gmsh.model.occ.synchronize()
 
     profile_lines = [

@@ -22,12 +22,10 @@ from pathlib import Path
 import gmsh
 import pytest
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.CPACS2GMSH.func.generategmesh import ModelPart, generate_gmsh
+from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
     detect_normal_profile,
     detect_truncated_profile,
-    exclude_lines,
-    classify_wing,
 )
 from cpacspy.cpacspy import CPACS
 
@@ -106,9 +104,10 @@ def test_detect_normal_profile():
     for index, line_comp1 in enumerate(lines_composition):
         for line_comp2 in lines_composition[index:]:
             # try to detect if two line form a normal profile
-            le_te_pair, found_normal = detect_normal_profile(le_te_pair, line_comp1, line_comp2)
+            le_te_pair, _ = detect_normal_profile(le_te_pair, line_comp1, line_comp2)
 
     # test if only one te_le_pair is detected in the profile
+
     assert len(le_te_pair) == 1
     # test if the correct le_te_pair is detected
     assert sorted(le_te_pair[0]) == sorted([le_line, te_line])

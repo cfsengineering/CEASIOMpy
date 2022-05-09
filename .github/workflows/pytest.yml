@@ -47,10 +47,11 @@ jobs:
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         echo $CONDA/bin/ >> $GITHUB_PATH
         
-    - name: Install ceasiompy with pip
-      run: pip install -e .
-        # conda env update --file environment.yml --name base
-        
+    - name: Install dependencies
+      run: |
+        conda activate ceasiompy
+        pip install -e .
+
     # - name: Run flake8
     #   run: flake8
 

@@ -163,8 +163,12 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     target_cl = get_value_or_default(cpacs.tixi, target_cl_xpath, 1.0)
 
     if fixed_cl == "NO":
+
+        # Get the first aeroMap as default one
+        aeromap_default = cpacs.get_aeromap_uid_list()[0]
+
         active_aeroMap_xpath = SU2_XPATH + "/aeroMapUID"
-        aeromap_uid = get_value(cpacs.tixi, active_aeroMap_xpath)
+        aeromap_uid = get_value_or_default(cpacs.tixi, active_aeroMap_xpath, aeromap_default)
 
         log.info(f'Configuration file for "{aeromap_uid}" calculation will be created.')
 
@@ -343,7 +347,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
                 config_output_path = Path(wkdir, config_dir_path, config_file_name)
                 cfg.write_file(config_output_path, overwrite=True)
 
-    # TODO: change that, but if it is save in tooloutput it will be erease by results...
+    # TODO: change that, but if it is save in tooloutput it will be erase by results...
     cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
 
 

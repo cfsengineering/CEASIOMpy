@@ -37,7 +37,7 @@ from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
 )
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from ceasiompy.utils.xpath import SU2MESH_XPATH
+from ceasiompy.utils.xpath import MESH_XPATH, SU2MESH_XPATH, SUMOFILE_XPATH
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
 
 log = get_logger()
@@ -230,15 +230,14 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
     sumo_dir = get_results_directory("SUMOAutoMesh")
     su2_mesh_path = Path(sumo_dir, "ToolOutput.su2")
 
-    sumo_file_xpath = "/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath"
-    sumo_file_path = get_value_or_default(tixi, sumo_file_xpath, "")
+    sumo_file_path = get_value_or_default(tixi, SUMOFILE_XPATH, "")
     if sumo_file_path == "":
         raise ValueError("No SUMO file to use to create a mesh")
 
     # Set mesh parameters
     log.info("Mesh parameter will be set")
-    refine_level_xpath = "/cpacs/toolspecific/CEASIOMpy/mesh/sumoOptions/refinementLevel"
-    refine_level = get_value_or_default(tixi, refine_level_xpath, 0.0)
+    refine_level_xpath = MESH_XPATH + "/sumoOptions/refinementLevel"
+    refine_level = get_value_or_default(tixi, refine_level_xpath, 1.0)
     log.info("Refinement level is {}".format(refine_level))
     add_mesh_parameters(sumo_file_path, refine_level)
 

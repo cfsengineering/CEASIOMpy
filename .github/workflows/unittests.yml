@@ -48,11 +48,6 @@ jobs:
       run: mamba env update -n ceasiompy -f environment.yml
       if: steps.cache.outputs.cache-hit != 'true'
 
-    # - name: Add conda to system path
-    #   run: |
-    #     # $CONDA is an environment variable pointing to the root of the miniconda directory
-    #     echo $CONDA/bin/ >> $GITHUB_PATH
-
     - name: Install ceasiompy with pip
       shell: bash -l {0}
       run: pip install -e .

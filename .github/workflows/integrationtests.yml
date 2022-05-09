@@ -57,6 +57,7 @@ jobs:
       run: |
         installation/Ubuntu/install_su2.sh
         source ~/.bashrc
+        python -c "import shutil;print(shutil.which('SU2_CFD'))"
     
     - name: Run integration tests
       shell: bash -l {0}

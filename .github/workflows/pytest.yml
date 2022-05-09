@@ -51,8 +51,8 @@ jobs:
       run: pip install -e .
         # conda env update --file environment.yml --name base
         
-    - name: Run flake8
-      run: flake8
+    # - name: Run flake8
+    #   run: flake8
 
     - name: Run unit tests
       run: pytest -v ./ceasiompy --cov=ceasiompy/ --cov-report xml:coverage.xml

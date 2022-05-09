@@ -542,13 +542,13 @@ def generate_gmsh(
             part.mesh_size = mesh_size_fuselage
             gmsh.model.mesh.setSize(part.points, part.mesh_size)
             gmsh.model.setColor(
-                part.surfaces, *MESH_COLORS[part.part_type], a=150, recursive=False
+                part.surfaces, *MESH_COLORS[part.part_type], a=100, recursive=False
             )
         elif part.part_type in ["wing", "pylon", "nacelle", "engine"]:
             part.mesh_size = mesh_size_wings
             gmsh.model.mesh.setSize(part.points, part.mesh_size)
             gmsh.model.setColor(
-                part.surfaces, *MESH_COLORS[part.part_type], a=150, recursive=False
+                part.surfaces, *MESH_COLORS[part.part_type], a=100, recursive=False
             )
 
     # Set mesh size and color of the farfield
@@ -645,5 +645,17 @@ def generate_gmsh(
 # =================================================================================================
 
 if __name__ == "__main__":
-
+    plane = "d150"
+    generate_gmsh(
+        Path("test_files", plane, f"{plane}.xml"),
+        Path("test_files", plane),
+        "",
+        open_gmsh=True,
+        farfield_factor=6,
+        symmetry=True,
+        mesh_size_farfield=25,
+        mesh_size_fuselage=0.4,
+        mesh_size_wings=0.23,
+        refine_factor=7,
+    )
     print("Nothing to execute!")

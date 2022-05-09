@@ -165,20 +165,13 @@ def refine_wing_section(
         # create a mesh function for the leading edge
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
+        distance_field_tag = mesh_fields["nbfields"] - 1
         gmsh.model.mesh.field.setString(
             mesh_fields["nbfields"],
             "F",
-            str(mesh_size_wings / refine)
-            + " + "
-            + str(mesh_size_wings)
-            + "*(1-"
-            + str(1 / refine)
-            + ")*(F"
-            + str(mesh_fields["nbfields"] - 1)
-            + "/"
-            + str(x_chord)
-            + ")^"
-            + str(n_power),
+            f"({mesh_size_wings}/{refine}) + "
+            f"{mesh_size_wings}*(1-(1/{refine}))*"
+            f"(F{distance_field_tag}/{x_chord})^{n_power}",
         )
         # restrict field
         mesh_fields = restrict_fields(mesh_fields, 2, aircraft.surfaces_tags)
@@ -282,18 +275,12 @@ def set_farfield_mesh(
         # create a mesh function
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
+        distance_field_tag = mesh_fields["nbfields"] - 1
         gmsh.model.mesh.field.setString(
             mesh_fields["nbfields"],
             "F",
-            str(part.mesh_size)
-            + " + ("
-            + str(mesh_size_farfield - part.mesh_size)
-            + ")*(F"
-            + str(mesh_fields["nbfields"] - 1)
-            + "/"
-            + str(aircraft_charact_length)
-            + ")^"
-            + str(n_power),
+            f"{part.mesh_size} + ({mesh_size_farfield} - {part.mesh_size})*"
+            f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power}",
         )
         # restrict field
         mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)

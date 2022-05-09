@@ -21,19 +21,19 @@ fast=false
 unit=true
 for i in "$@" 
 do
-    if [ $i == "-g" ]; then
+    if [ "$i" == "-g" ]; then
         gui=true;
     fi
-    if [ $i == "-f" ]; then
+    if [ "$i" == "-f" ]; then
         fast=true;
     fi
-    if [ $i == "-i" ]; then
+    if [ "$i" == "-i" ]; then
         integration=false;
     fi
-    if [ $i == "-u" ]; then
+    if [ "$i" == "-u" ]; then
         unit=false;
     fi
-    if [ $i == "-h" ] || [ $i == "--help" ]; then
+    if [ "$i" == "-h" ] || [ $i == "--help" ]; then
         Help
         exit
     fi

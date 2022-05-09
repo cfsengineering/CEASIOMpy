@@ -26,21 +26,21 @@ Domain:
 * `Use Symmetry : False`
 Apply a symmetry operation to the model with a xz symmetry plane in the center of the aircraft. The resulting mesh will only be generated in the y positive domain.
 
-* `Farfield size factor : 5.0`
+* `Farfield size factor : 6.0`
 Enable to control the spherical domain size. The fluid domain surrounding the aircraft is defined with a radius equivalent to the largest xyz aircraft dimension times the `Farfield size factor`
 
 Mesh size:
 
-* `Farfield mesh size : 12.0` Mesh size of the farfield surface
-* `Fuselage mesh size : 0.2` Mesh size of the fuselage surface
-* `Wings mesh size : 0.2` Mesh size of the wings surface
+* `Farfield mesh size : 25.0` Mesh size of the farfield surface
+* `Fuselage mesh size : 0.4` Mesh size of the fuselage surface
+* `Wings mesh size : 0.23` Mesh size of the wings surface
 
 :warning: The mesh size values are unitless. They are consistent with the aircraft dimensions units
 
 Advanced mesh parameters :
 
-* `Le/Te refinement factor : 2.0`
-Apply a refinement on the leading and trailing edge of the aircraft wings. Apply also a box refinement around the aircraft. This option can be disabled if set to `1.0`
+* `Le/Te refinement factor : 7.0`
+Apply a refinement on the leading and trailing edge of the aircraft wings. the element size at the le/te will be set to the wing mesh size divided by the refinement factor. This refinement decay according to a power law from the edge to 30% of the wing section cord length, where the mesh size is the wing's one.`
 
 :warning: It is recommended to check the mesh convergence to know which value gives the best trade-off between the results accuracy and computation time, for your application case.
 

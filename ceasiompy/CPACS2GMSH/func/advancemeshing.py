@@ -25,6 +25,10 @@ TODO:
 # =================================================================================================
 
 import gmsh
+import numpy as np
+from ceasiompy.utils.ceasiomlogger import get_logger
+
+log = get_logger()
 
 # =================================================================================================
 #   FUNCTIONS
@@ -65,7 +69,7 @@ def distance_field(mesh_fields, dim, object_tags):
     return mesh_fields
 
 
-def restrict_fields(mesh_fields, dim, object_tags):
+def restrict_fields(mesh_fields, dim, object_tags, infield=None):
     """
     This function creates a restrict field on the last field in mesh_fields
 
@@ -79,6 +83,8 @@ def restrict_fields(mesh_fields, dim, object_tags):
         dimension of the object to apply the restrict field on
     object_tags : list
         list of the tags of the object to apply the restrict field on
+    infield : int
+        index of the field to restrict if needed to be specified
 
     Returns:
     ----------
@@ -87,9 +93,11 @@ def restrict_fields(mesh_fields, dim, object_tags):
     # create new Restrict field
     mesh_fields["nbfields"] += 1
     gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
-    gmsh.model.mesh.field.setNumber(
-        mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
-    )
+
+    if infield is None:
+        infield = mesh_fields["nbfields"] - 1
+
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", infield)
     if dim == 2:
         dim_list = "SurfacesList"
     elif dim == 3:
@@ -104,7 +112,14 @@ def restrict_fields(mesh_fields, dim, object_tags):
 
 
 def refine_wing_section(
-    mesh_fields, aircraft, wing_part, mesh_size_wings, refine, chord_percent=0.3, n_power=1.25
+    mesh_fields,
+    final_domain_volume_tag,
+    aircraft,
+    wing_part,
+    mesh_size_wings,
+    refine,
+    chord_percent=0.3,
+    n_power=1.25,
 ):
     """
     Function to refine the trailling and leading edge of an wing section,
@@ -126,7 +141,8 @@ def refine_wing_section(
         x_le is computed automatically by a distance field F, and give the distance (x,y,z)
         from the leading edge curve
 
-
+    If the profile is truncated, the refinement for the trailing edge will be set such that the value
+    of the mesh size will match the distance between the two trailing edge curves.
 
     Args:
     ----------
@@ -149,6 +165,10 @@ def refine_wing_section(
         percentage of the chord to refine from le/te edge
     ...
     """
+
+    log.info(f"Set mesh refinement of {wing_part.uid}")
+
+    original_refine = refine
     # get the wing section chord, le and te lines and the surface of the wing
     surfaces_wing = wing_part.surfaces_tags
 
@@ -159,11 +179,29 @@ def refine_wing_section(
         x_chord = chord_mean * chord_percent
         lines_to_refine = wing_section["lines_tags"]
 
+        if len(lines_to_refine) == 3:
+            # if the wing is truncated:
+            # first find the trailing edge thinkness
+            x1, y1, z1 = gmsh.model.occ.getCenterOfMass(1, lines_to_refine[0])
+            x2, y2, z2 = gmsh.model.occ.getCenterOfMass(1, lines_to_refine[1])
+            x3, y3, z3 = gmsh.model.occ.getCenterOfMass(1, lines_to_refine[2])
+
+            d12 = np.linalg.norm([x2 - x1, y2 - y1, z2 - z1])
+            d13 = np.linalg.norm([x3 - x1, y3 - y1, z3 - z1])
+            d23 = np.linalg.norm([x3 - x2, y3 - y2, z3 - z2])
+
+            te_thickness = min(d12, d13, d23)
+
+            # then overwrite the trailing edge refinement
+            if mesh_size_wings / te_thickness > refine:
+                refine = mesh_size_wings / te_thickness
+
         # 1 : Math eval field
         # distance field
         mesh_fields = distance_field(mesh_fields, 1, lines_to_refine)
         # create a mesh function for the leading edge
         mesh_fields["nbfields"] += 1
+        math_eval_field = mesh_fields["nbfields"]
         gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
         distance_field_tag = mesh_fields["nbfields"] - 1
         gmsh.model.mesh.field.setString(
@@ -175,6 +213,9 @@ def refine_wing_section(
         )
         # restrict field
         mesh_fields = restrict_fields(mesh_fields, 2, aircraft.surfaces_tags)
+        mesh_fields = restrict_fields(
+            mesh_fields, 3, final_domain_volume_tag, infield=math_eval_field
+        )
 
         # 2 : Treshold field
         # distance field
@@ -189,6 +230,18 @@ def refine_wing_section(
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_wings)
         # restrict field
         mesh_fields = restrict_fields(mesh_fields, 2, surfaces_wing)
+
+    if original_refine != refine:
+        log.info(
+            f"{wing_part.uid} is truncated : refinement factor was increase from "
+            f"{original_refine} to " + str(round(refine, 2))
+        )
+    if refine > 20:
+        log.warning(f"Refinement factor is high !")
+        log.info(
+            f"Consider reducing the wing mesh size from {mesh_size_wings} to "
+            "{:.2e}".format(mesh_size_wings * 20 / refine)
+        )
 
 
 def set_fuselage_mesh(mesh_fields, fuselage_part, mesh_size_fuselage):
@@ -208,6 +261,9 @@ def set_fuselage_mesh(mesh_fields, fuselage_part, mesh_size_fuselage):
         mesh size of the fuselage
     ...
     """
+
+    log.info(f"Set mesh refinement of {fuselage_part.uid}")
+
     # create new distance field
     mesh_fields = distance_field(mesh_fields, 2, fuselage_part.surfaces_tags)
 
@@ -267,6 +323,9 @@ def set_farfield_mesh(
         tag of the final domain volume
     ...
     """
+
+    log.info("Set mesh refinement of fluid domain")
+
     for part in aircraft_parts:
 
         # 1 : Math eval field

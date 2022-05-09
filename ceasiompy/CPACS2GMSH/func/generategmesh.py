@@ -572,19 +572,17 @@ def generate_gmsh(
                 )
 
                 # wing refinement
-                log.info(f"Set mesh refinement of {part.uid}")
                 refine_wing_section(
                     mesh_fields,
+                    final_domain.volume_tag,
                     aircraft,
                     part,
                     mesh_size_wings,
                     refine=refine_factor,
                 )
             elif "fuselage" in part.part_type:
-                log.info(f"Set mesh refinement of {part.uid}")
                 set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
 
-        log.info("Set mesh refinement of fluid domain")
         set_farfield_mesh(
             mesh_fields,
             aircraft_parts,
@@ -608,7 +606,7 @@ def generate_gmsh(
 
     # Mesh generation
     log.info("Start of gmsh 2D surface meshing process")
-
+    gmsh.fltk.run()
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
@@ -645,17 +643,17 @@ def generate_gmsh(
 # =================================================================================================
 
 if __name__ == "__main__":
-    plane = "d150"
+    plane = "simple"
     generate_gmsh(
         Path("test_files", plane, f"{plane}.xml"),
         Path("test_files", plane),
         "",
         open_gmsh=True,
         farfield_factor=6,
-        symmetry=True,
-        mesh_size_farfield=25,
-        mesh_size_fuselage=0.4,
-        mesh_size_wings=0.23,
+        symmetry=False,
+        mesh_size_farfield=12,
+        mesh_size_fuselage=0.1,
+        mesh_size_wings=2e-2,
         refine_factor=7,
     )
     print("Nothing to execute!")

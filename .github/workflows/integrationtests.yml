@@ -56,6 +56,10 @@ jobs:
       shell: bash -l {0}
       run: installation/Ubuntu/install_pytornado.sh
 
+    - name: Install SUMO
+      shell: bash -l {0}
+      run: installation/Ubuntu/install_sumo.sh
+
     - name: Install SU2
       shell: bash -l {0}
       run: installation/Ubuntu/install_su2.sh
@@ -65,7 +69,7 @@ jobs:
       run: |
         source ~/.bashrc
         python -c "import shutil;print(shutil.which('SU2_CFD'))"
-        pytest -v ./tests --cov=ceasiompy/ --cov-report xml:coverage.xml
+        pytest -v ./tests --cov=ceasiompy/ --cov-report xml:coverage.xml -m "not gui"
 
     # - name: Upload coverage to Codecov
     #   uses: codecov/codecov-action@v3.1.0

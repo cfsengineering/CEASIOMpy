@@ -38,7 +38,7 @@ jobs:
     - name: Set cache date # With that, cache will be updated every day
       run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
-    - uses: actions/cache@v2
+    - uses: actions/cache@v3
       with:
         path: /usr/share/miniconda3/envs/ceasiompy
         key: ubuntu-latest-conda-${{ env.DATE }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}
@@ -68,13 +68,13 @@ jobs:
       shell: bash -l {0}
       run: |
         source ~/.bashrc
-        pytest -v ./tests --cov=ceasiompy/ --cov-report xml:coverage.xml -m "not gui"
+        pytest -v ./tests --cov=ceasiompy/ --cov-report xml:coverage_integration.xml -m "not gui"
 
-    # - name: Upload coverage to Codecov
-    #   uses: codecov/codecov-action@v3.1.0
-    #   with:
-    #     token: ${{ secrets.CODECOV_TOKEN }}
-    #     files: ./coverage.xml
-    #     fail_ci_if_error: true
-    #     verbose: true
+    - name: Upload coverage to Codecov
+      uses: codecov/codecov-action@v3.1.0
+      with:
+        token: ${{ secrets.CODECOV_TOKEN }}
+        files: ./coverage_integration.xml
+        fail_ci_if_error: true
+        verbose: true
 

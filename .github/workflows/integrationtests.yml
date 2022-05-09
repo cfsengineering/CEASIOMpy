@@ -21,7 +21,7 @@ jobs:
       max-parallel: 5
 
     steps:
-    - uses: actions/checkout@v2
+    - uses: actions/checkout@v3
     - name: Set up Python 3.7
       uses: actions/setup-python@v2
       with:
@@ -56,9 +56,9 @@ jobs:
       shell: bash -l {0}
       run: installation/Ubuntu/install_pytornado.sh
 
-    - name: Install SUMO
-      shell: bash -l {0}
-      run: installation/Ubuntu/install_sumo.sh
+    # - name: Install SUMO
+    #   shell: bash -l {0}
+    #   run: installation/Ubuntu/install_sumo.sh
 
     - name: Install SU2
       shell: bash -l {0}
@@ -68,10 +68,7 @@ jobs:
       shell: bash -l {0}
       run: |
         source ~/.bashrc
-        python -c "import shutil;print(shutil.which('sumo'))"
-        python -c "import shutil;print(shutil.which('SU2_CFD'))"
         pytest -v ./tests --cov=ceasiompy/ --cov-report xml:coverage.xml -m "not gui"
-        cat tests/workflow_tests/Workflow_002/Results/SUMO/ToolOutput_sumolog.txt
 
     # - name: Upload coverage to Codecov
     #   uses: codecov/codecov-action@v3.1.0

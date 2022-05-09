@@ -6,9 +6,10 @@ coverage:
         threshold: 0%
         base: auto 
         flags: 
-          - unit
+          - unittests
+          - integrationtests
         paths: 
-          - "src"
+          - "ceasiompy"
         branches: 
           - main
         if_ci_failed: error #success, failure, error, ignore

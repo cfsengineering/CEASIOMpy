@@ -491,7 +491,6 @@ def generate_gmsh(
     farfield_points = list(set(final_domain.points) - set(aircraft.points))
     farfield_surfaces_tags = list(set(final_domain.surfaces_tags) - set(aircraft.surfaces_tags))
 
-    # Symmetry
     if symmetry:
 
         symmetry_surfaces = []

@@ -65,6 +65,7 @@ def test_generate_gmsh():
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
+        refine_factor=1.0,
     )
 
     with open(Path(TEST_OUT_PATH, "mesh.su2"), "r") as f:
@@ -101,6 +102,7 @@ def test_generate_gmsh_symm():
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
+        refine_factor=1.0,
         symmetry=True,
     )
 
@@ -138,6 +140,7 @@ def test_symm_part_removed():
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
+        refine_factor=1.0,
         symmetry=True,
     )
 
@@ -262,6 +265,7 @@ def test_assignation():
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
+        refine_factor=1.0,
         symmetry=False,
     )
     fuselage1_child = set([(3, 2)])

@@ -546,6 +546,7 @@ def generate_gmsh(
             )
         elif part.part_type in ["wing", "pylon", "nacelle", "engine"]:
             part.mesh_size = mesh_size_wings
+            if part.part_type == "wing":
             gmsh.model.mesh.setSize(part.points, part.mesh_size)
             gmsh.model.setColor(
                 part.surfaces, *MESH_COLORS[part.part_type], a=100, recursive=False
@@ -606,7 +607,6 @@ def generate_gmsh(
 
     # Mesh generation
     log.info("Start of gmsh 2D surface meshing process")
-    gmsh.fltk.run()
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
@@ -643,17 +643,5 @@ def generate_gmsh(
 # =================================================================================================
 
 if __name__ == "__main__":
-    plane = "simple"
-    generate_gmsh(
-        Path("test_files", plane, f"{plane}.xml"),
-        Path("test_files", plane),
-        "",
-        open_gmsh=True,
-        farfield_factor=6,
-        symmetry=False,
-        mesh_size_farfield=12,
-        mesh_size_fuselage=0.1,
-        mesh_size_wings=2e-2,
-        refine_factor=7,
-    )
+
     print("Nothing to execute!")

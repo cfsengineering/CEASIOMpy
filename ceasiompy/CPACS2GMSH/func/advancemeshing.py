@@ -141,8 +141,8 @@ def refine_wing_section(
         x_le is computed automatically by a distance field F, and give the distance (x,y,z)
         from the leading edge curve
 
-    If the profile is truncated, the refinement for the trailing edge will be set such that the value
-    of the mesh size will match the distance between the two trailing edge curves.
+    If the profile is truncated, the refinement for the trailing edge will be set such that
+    the value of the mesh size will match the distance between the two trailing edge curves
 
     Args:
     ----------
@@ -237,7 +237,7 @@ def refine_wing_section(
             f"{original_refine} to " + str(round(refine, 2))
         )
     if refine > 20:
-        log.warning(f"Refinement factor is high !")
+        log.warning("Refinement factor is high !")
         log.info(
             f"Consider reducing the wing mesh size from {mesh_size_wings} to "
             "{:.2e}".format(mesh_size_wings * 20 / refine)

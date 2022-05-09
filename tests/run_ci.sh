@@ -2,7 +2,7 @@
 
 Help()
 {
-   echo "CEASIOMpy run continuous integration tests (Unit and Integration)"
+   echo "CEASIOMpy run Continuous Integration tests (Unit and Integration)"
    echo
    echo "Syntax: ./run_ci [-f|g|h|i|u]"
    echo "options:"
@@ -33,7 +33,7 @@ do
     if [ $i == "-u" ]; then
         unit=false;
     fi
-    if [ $i == "-h" ]; then
+    if [ $i == "-h" ] || [ $i == "--help" ]; then
         Help
         exit
     fi

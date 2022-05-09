@@ -112,15 +112,30 @@ The log file is saved at the root of CEASIOMpy (CEASIOMpy/ceasiompy.log) and pri
 
 #### Testing and coverage
 
-If possible, new functions should have corresponding [pytest](https://docs.pytest.org/en/latest/getting-started.html).
+If possible, new functions should be tested with [pytest](https://docs.pytest.org/en/latest/getting-started.html).
 
 Pytest, [flake8](https://flake8.pycqa.org/en/latest/) and [codecov](https://about.codecov.io/) are included in our [Github action CI](https://github.com/cfsengineering/CEASIOMpy/blob/main/.github/workflows/pytest.yml) and will run automatically for each push and pull request to the main branch.
 
-You could also run the CI manually with on your machine with:
+You can also run the CI manually with on your machine with:
 
 ```bash
-cd CEASIOMpy
+cd CEASIOMpy/tests
 ./run_ci.sh
+```
+
+The CI will run [Black](https://black.readthedocs.io/en/stable/), Flake8, Unit tests, Integration tests and Coverage. You can also use options to run only a part of the CI. Use the help to see the available options.
+
+```bash
+>> ./run_ci.sh --help
+CEASIOMpy run Continuous Integration tests (Unit and Integration)
+
+Syntax: ./run_ci [-f|g|h|i|u]
+options:
+-f     Fast mode (skip tests marked as 'slow')
+-g     Run GUI tests, requiring a user interaction (not active by default).
+-h     Print this help message.
+-i     Skip integration tests.
+-u     Skip unit tests.
 ```
 
 #### Learn Python

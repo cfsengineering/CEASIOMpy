@@ -54,12 +54,10 @@ def distance_field(mesh_fields, dim, object_tags):
     # create new distance field
     mesh_fields["nbfields"] += 1
     gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
-    
     if dim == 1:
         dim_list = "CurvesList"
     elif dim == 2:
         dim_list = "SurfacesList"
-    
     gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], dim_list, object_tags)
 
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sampling", 100)
@@ -96,7 +94,7 @@ def restrict_fields(mesh_fields, dim, object_tags):
         dim_list = "SurfacesList"
     elif dim == 3:
         dim_list = "VolumesList"
-     
+
     gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], dim_list, object_tags)
 
     # add the new field to the list of restrict fields

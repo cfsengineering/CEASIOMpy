@@ -33,7 +33,7 @@ do
     if [ "$i" == "-u" ]; then
         unit=false;
     fi
-    if [ "$i" == "-h" ] || [ $i == "--help" ]; then
+    if [ "$i" == "-h" ] || [ "$i" == "--help" ]; then
         Help
         exit
     fi

@@ -56,9 +56,11 @@ jobs:
       shell: bash -l {0}
       run: installation/Ubuntu/install_su2.sh
     
-    - name: Check bashrc
+    - name: load bashrc
       shell: bash -l {0}
-      run: cat ~/.bashrc
+      run: |
+        source ~/.bashrc
+        SU2_CFD
 
     - name: Run integration tests
       shell: bash -l {0}

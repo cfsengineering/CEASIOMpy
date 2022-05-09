@@ -53,9 +53,14 @@ jobs:
       run: pip install -e .
 
     - name: Install SU2
+      shell: bash -l {0}
       run: installation/Ubuntu/install_su2.sh
+    
+    - name: Check bashrc
+      shell: bash -l {0}
+      run: cat ~/.bashrc
 
-    - name: Run unit tests
+    - name: Run integration tests
       shell: bash -l {0}
       run: pytest -v ./tests --cov=ceasiompy/ --cov-report xml:coverage.xml
 

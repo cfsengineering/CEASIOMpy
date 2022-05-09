@@ -53,10 +53,8 @@ jobs:
       run: pip install -e .
 
     - name: Install SU2
-      run: |
-        installation/Ubuntu/install_su2.sh
-        SU2_CFD
-    
+      run: installation/Ubuntu/install_su2.sh
+
     - name: Run unit tests
       shell: bash -l {0}
       run: pytest -v ./tests --cov=ceasiompy/ --cov-report xml:coverage.xml

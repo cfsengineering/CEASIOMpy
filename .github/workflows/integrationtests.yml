@@ -54,7 +54,7 @@ jobs:
 
     - name: Install SU2
       run: |
-        /home/jungo/github/CEASIOMpy/installation/Ubuntu/install_su2.sh
+        installation/Ubuntu/install_su2.sh
         SU2_CFD
     
     - name: Run unit tests

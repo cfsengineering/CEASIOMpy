@@ -44,7 +44,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="farfield_factor",
     var_type=float,
-    default_value=5,
+    default_value=6,
     unit="[-]",
     descr="Farfiled size factor compaire to the aircraft largest dimension",
     xpath=CEASIOMPY_XPATH + "/gmsh/farfield_factor",
@@ -56,7 +56,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="farfield_mesh_size",
     var_type=float,
-    default_value=12,
+    default_value=25,
     unit="[m]",
     descr="Value assigned for the farfield surface mesh size",
     xpath=CEASIOMPY_XPATH + "/gmsh/mesh_size/farfield",
@@ -68,7 +68,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="fuselage_mesh_size",
     var_type=float,
-    default_value=0.2,
+    default_value=0.4,
     unit="[m]",
     descr="Value assigned for the fuselage surface mesh size",
     xpath=CEASIOMPY_XPATH + "/gmsh/mesh_size/fuselage",
@@ -81,7 +81,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="wing_mesh_size",
     var_type=float,
-    default_value=0.2,
+    default_value=0.23,
     unit="[m]",
     descr="Value assigned for the wings surface mesh size",
     xpath=CEASIOMPY_XPATH + "/gmsh/mesh_size/wings",
@@ -93,7 +93,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="refine_factor",
     var_type=float,
-    default_value=2.0,
+    default_value=7.0,
     unit="1",
     descr="Refinement factor of wing leading/trailing edge mesh",
     xpath=CEASIOMPY_XPATH + "/gmsh/refine_factor",

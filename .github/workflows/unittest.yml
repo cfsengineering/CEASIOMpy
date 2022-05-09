@@ -8,6 +8,12 @@ on:
     branches:
       - main
 
+  schedule:
+    - cron: '0 2 * * 1'  # every Monday at 2:00am
+
+env:
+  CACHE_NUMBER: 0  # increase to reset cache manually
+
 jobs:
   build-linux:
     runs-on: ubuntu-latest
@@ -29,36 +35,28 @@ jobs:
         activate-environment: ceasiompy
         use-mamba: true
 
-    - name: Set cache date
+    - name: Set cache date # With that, cache will be updated every day
       run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
     - uses: actions/cache@v2
       with:
         path: /usr/share/miniconda3/envs/ceasiompy
-        key: ubuntu-latest-conda-${{ hashFiles('environment.yml') }}-${{ env.DATE }}-${{ env.CACHE_NUMBER }}
+        key: ubuntu-latest-conda-${{ env.DATE }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}
       id: cache
 
     - name: Update environment
       run: mamba env update -n ceasiompy -f environment.yml
       if: steps.cache.outputs.cache-hit != 'true'
 
-    - name: Add conda to system path
-      run: |
-        # $CONDA is an environment variable pointing to the root of the miniconda directory
-        echo $CONDA/bin/ >> $GITHUB_PATH
+    # - name: Add conda to system path
+    #   run: |
+    #     # $CONDA is an environment variable pointing to the root of the miniconda directory
+    #     echo $CONDA/bin/ >> $GITHUB_PATH
 
-    - name: Install dependencies
+    - name: Install ceasiompy with pip
       shell: bash -l {0}
       run: pip install -e .
       
-    # - name: Install dependencies
-    #   run: |
-    #     conda activate ceasiompy
-    #     pip install -e .
-
-    # - name: Run flake8
-    #   run: flake8
-
     - name: Run unit tests
       shell: bash -l {0}
       run: pytest -v ./ceasiompy --cov=ceasiompy/ --cov-report xml:coverage.xml

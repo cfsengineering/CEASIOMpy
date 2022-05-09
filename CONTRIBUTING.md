@@ -126,7 +126,7 @@ cd CEASIOMpy/tests
 The CI will run [Black](https://black.readthedocs.io/en/stable/), Flake8, Unit tests, Integration tests and Coverage. You can also use options to run only a part of the CI. Use the help to see the available options.
 
 ```bash
->> ./run_ci.sh --help
+./run_ci.sh --help
 CEASIOMpy run Continuous Integration tests (Unit and Integration)
 
 Syntax: ./run_ci [-f|g|h|i|u]

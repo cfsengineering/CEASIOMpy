@@ -41,7 +41,7 @@ log = get_logger()
 
 MESH_COLORS = {
     "farfield": (255, 200, 0),
-    "symmetry": (200, 255, 0),
+    "symmetry": (138, 43, 226),
     "wing": (0, 200, 200),
     "fuselage": (255, 215, 0),
     "pylon": (255, 0, 0),
@@ -275,6 +275,8 @@ def generate_gmsh(
     gmsh.initialize()
     # Stop gmsh output log in the terminal
     gmsh.option.setNumber("General.Terminal", 0)
+    # Log complexity
+    gmsh.option.setNumber("General.Verbosity", 5)
 
     # import each aircraft original parts / parent parts
     aircraft_parts = []
@@ -536,14 +538,16 @@ def generate_gmsh(
 
     for part in aircraft_parts:
         if "fuselage" in part.part_type:
-            gmsh.model.mesh.setSize(part.points, mesh_size_fuselage)
+            part.mesh_size = mesh_size_fuselage
+            gmsh.model.mesh.setSize(part.points, part.mesh_size)
             gmsh.model.setColor(
-                part.surfaces, *MESH_COLORS[part.part_type], a=150, recursive=False
+                part.surfaces, *MESH_COLORS[part.part_type], a=100, recursive=False
             )
         elif part.part_type in ["wing", "pylon", "nacelle", "engine"]:
-            gmsh.model.mesh.setSize(part.points, mesh_size_wings)
+            part.mesh_size = mesh_size_wings
+            gmsh.model.mesh.setSize(part.points, part.mesh_size)
             gmsh.model.setColor(
-                part.surfaces, *MESH_COLORS[part.part_type], a=150, recursive=False
+                part.surfaces, *MESH_COLORS[part.part_type], a=100, recursive=False
             )
 
     # Set mesh size and color of the farfield
@@ -567,33 +571,26 @@ def generate_gmsh(
                 )
 
                 # wing refinement
-                log.info(f"Set mesh refinement of {part.uid}")
                 refine_wing_section(
                     mesh_fields,
+                    final_domain.volume_tag,
+                    aircraft,
                     part,
                     mesh_size_wings,
                     refine=refine_factor,
-                    chord_percent=0.15,
                 )
             elif "fuselage" in part.part_type:
-                log.info(f"Set mesh refinement of {part.uid}")
                 set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
 
-        max_size_mesh_aircraft = max(mesh_size_wings, mesh_size_fuselage)
-
-        skin_thickness = 0.5
-        log.info("Set mesh refinement of fluid domain")
         set_farfield_mesh(
             mesh_fields,
-            max_size_mesh_aircraft,
-            aircraft.surfaces_tags,
-            skin_thickness,
+            aircraft_parts,
             mesh_size_farfield,
-            model_bb,
-            domain_length,
+            max(model_dimensions),
             final_domain.volume_tag,
         )
 
+        # Generate the minimal background mesh field
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Min", mesh_fields["nbfields"])
         gmsh.model.mesh.field.setNumbers(
@@ -601,6 +598,7 @@ def generate_gmsh(
         )
         gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
 
+        # When background mesh is used those options must be set to zero
         gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
         gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
         gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
@@ -617,6 +615,7 @@ def generate_gmsh(
 
     if open_gmsh:
         log.info("Result of 2D surface mesh")
+        log.info("GMSH GUI is open, close it to continue...")
         gmsh.fltk.run()
 
     log.info("Start of gmsh 3D volume meshing process")
@@ -630,6 +629,7 @@ def generate_gmsh(
     process_gmsh_log(gmsh.logger.get())
     if open_gmsh:
         log.info("Result of the 3D volume mesh")
+        log.info("GMSH GUI is open, close it to continue...")
         gmsh.fltk.run()
     gmsh.clear()
     gmsh.finalize()
@@ -641,4 +641,5 @@ def generate_gmsh(
 # =================================================================================================
 
 if __name__ == "__main__":
+
     print("Nothing to execute!")

@@ -65,19 +65,19 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     open_gmsh = get_value_or_default(cpacs.tixi, open_gui_xpath, False)
 
     farfield_factor_xpath = CEASIOMPY_XPATH + "/gmsh/farfield_factor"
-    farfield_factor = get_value_or_default(cpacs.tixi, farfield_factor_xpath, 5)
+    farfield_factor = get_value_or_default(cpacs.tixi, farfield_factor_xpath, 6)
     symmetry_xpath = CEASIOMPY_XPATH + "/gmsh/symmetry"
     symmetry = get_value_or_default(cpacs.tixi, symmetry_xpath, False)
 
     mesh_size_farfield_xpath = CEASIOMPY_XPATH + "/gmsh/mesh_size/farfield"
-    mesh_size_farfield = get_value_or_default(cpacs.tixi, mesh_size_farfield_xpath, 12)
+    mesh_size_farfield = get_value_or_default(cpacs.tixi, mesh_size_farfield_xpath, 25)
     mesh_size_fuselage_xpath = CEASIOMPY_XPATH + "/gmsh/mesh_size/fuselage"
-    mesh_size_fuselage = get_value_or_default(cpacs.tixi, mesh_size_fuselage_xpath, 0.2)
+    mesh_size_fuselage = get_value_or_default(cpacs.tixi, mesh_size_fuselage_xpath, 0.4)
     mesh_size_wings_xpath = CEASIOMPY_XPATH + "/gmsh/mesh_size/wings"
-    mesh_size_wings = get_value_or_default(cpacs.tixi, mesh_size_wings_xpath, 0.2)
+    mesh_size_wings = get_value_or_default(cpacs.tixi, mesh_size_wings_xpath, 0.23)
 
     refine_factor_xpath = CEASIOMPY_XPATH + "/gmsh/refine_factor"
-    refine_factor = get_value_or_default(cpacs.tixi, refine_factor_xpath, 2)
+    refine_factor = get_value_or_default(cpacs.tixi, refine_factor_xpath, 7.0)
 
     # Run mesh generation
     export_brep(cpacs, brep_dir_path)

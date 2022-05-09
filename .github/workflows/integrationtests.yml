@@ -68,13 +68,14 @@ jobs:
       shell: bash -l {0}
       run: |
         source ~/.bashrc
-        pytest -v ./tests --cov=ceasiompy/ --cov-report xml:coverage_integration.xml -m "not gui"
+        pytest -v ./tests --cov=ceasiompy/ --cov-report xml:coverage.xml -m "not gui"
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3.1.0
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./coverage_integration.xml
+        files: ./coverage.xml
+        flags: integrationtests
         fail_ci_if_error: true
         verbose: true
 

@@ -54,12 +54,13 @@ jobs:
       
     - name: Run unit tests
       shell: bash -l {0}
-      run: pytest -v ./ceasiompy --cov=ceasiompy/ --cov-report xml:coverage_unit.xml
+      run: pytest -v ./ceasiompy --cov=ceasiompy/ --cov-report xml:coverage.xml
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3.1.0
       with:
         token: ${{ secrets.CODECOV_TOKEN }}
-        files: ./coverage_unit.xml
+        files: ./coverage.xml
+        flags: unittests
         fail_ci_if_error: true
         verbose: true

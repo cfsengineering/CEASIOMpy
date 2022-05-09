@@ -110,7 +110,6 @@ def test_integration_4():
 
 
 @pytest.mark.gui
-@pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("pytornado"), reason="PyTornado not installed")
 def test_integration_5():
     """Integration test for module with GUI, requiring a user interaction"""

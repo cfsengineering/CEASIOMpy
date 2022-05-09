@@ -1,4 +1,4 @@
-name: Pytest
+name: Unittest
 
 on:
   push:
@@ -46,16 +46,21 @@ jobs:
       run: |
         # $CONDA is an environment variable pointing to the root of the miniconda directory
         echo $CONDA/bin/ >> $GITHUB_PATH
-        
+
     - name: Install dependencies
-      run: |
-        conda activate ceasiompy
-        pip install -e .
+      shell: bash -l {0}
+      run: pip install -e .
+      
+    # - name: Install dependencies
+    #   run: |
+    #     conda activate ceasiompy
+    #     pip install -e .
 
     # - name: Run flake8
     #   run: flake8
 
     - name: Run unit tests
+      shell: bash -l {0}
       run: pytest -v ./ceasiompy --cov=ceasiompy/ --cov-report xml:coverage.xml
 
     - name: Upload coverage to Codecov

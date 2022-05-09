@@ -54,10 +54,13 @@ def distance_field(mesh_fields, dim, object_tags):
     # create new distance field
     mesh_fields["nbfields"] += 1
     gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
+    
     if dim == 1:
-        gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "CurvesList", object_tags)
+        dim_list = "CurvesList"
     elif dim == 2:
-        gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", object_tags)
+        dim_list = "SurfacesList"
+    
+    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], dim_list, object_tags)
 
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sampling", 100)
 
@@ -77,7 +80,7 @@ def restrict_fields(mesh_fields, dim, object_tags):
     dim : int
         dimension of the object to apply the restrict field on
     object_tags : list
-        list of the tags of the object ti apply the restrict field on
+        list of the tags of the object to apply the restrict field on
 
     Returns:
     ----------
@@ -90,10 +93,11 @@ def restrict_fields(mesh_fields, dim, object_tags):
         mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
     )
     if dim == 2:
-        gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "SurfacesList", object_tags)
-
-    if dim == 3:
-        gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "VolumesList", object_tags)
+        dim_list = "SurfacesList"
+    elif dim == 3:
+        dim_list = "VolumesList"
+     
+    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], dim_list, object_tags)
 
     # add the new field to the list of restrict fields
 
@@ -273,24 +277,6 @@ def set_farfield_mesh(
     ...
     """
     for part in aircraft_parts:
-
-        # # create new distance field
-        # mesh_fields = distance_field(mesh_fields, 2, part.surfaces_tags)
-
-        # # create new threshold field
-        # mesh_fields["nbfields"] += 1
-        # gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-        # gmsh.model.mesh.field.setNumber(
-        #     mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
-        # )
-        # gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", part.mesh_size)
-        # gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_farfield)
-        # gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "DistMin", part.mesh_size)
-        # gmsh.model.mesh.field.setNumber(
-        #     mesh_fields["nbfields"], "DistMax", aircraft_charact_length * 1.5
-        # )
-        # # create new Restrict field
-        # mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
 
         # 1 : Math eval field
         # distance field

@@ -15,6 +15,7 @@ TODO:
     * Find a way to execute SUMO in batch on MacOS
     * Add support on WindowsOS
     * Add multi-pass mesh with tetgen option...
+    * Raise an error if the mesh is not created
     * Add automatic refine mesh if error ? (increasing refine_level)
 
 """
@@ -24,18 +25,12 @@ TODO:
 # =================================================================================================
 
 import math
-import os
 import platform
 import shutil
 from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import (
-    aircraft_name,
-    change_working_dir,
-    get_install_path,
-    get_results_directory,
-)
+from ceasiompy.utils.ceasiompyutils import aircraft_name, get_results_directory, run_software
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.utils.xpath import MESH_XPATH, SU2MESH_XPATH, SUMOFILE_XPATH
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
@@ -56,6 +51,35 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 
 
+def create_mesh_manually_instructions(sumo_file_path, su2_mesh_path):
+    """Instructions to create a mesh manually, if SUMO is not available to run in batch.
+
+    Args:
+        sumo_file_path (str): Path to the SUMO file.
+        su2_mesh_path (str): Path to the SU2 mesh.
+
+    """
+
+    log.info("Your OS is Mac\n\n")
+    log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
+    log.info("On MacOS the mesh has to be generated manually.")
+    log.info("To create a SU2Mesh you have to :")
+    log.info("Open the .smx geometry that you will find there:")
+    log.info(sumo_file_path)
+    log.info('Click on the button "Mesh"')
+    log.info('Click on "Create Mesh"')
+    log.info('Click on "Volume Mesh"')
+    log.info('Click on "Run"')
+    log.info('When the mesh generation is completed, click on "Close"')
+    log.info('Go to the Menu "Mesh" -> "Save volume mesh..."')
+    log.info('Chose "SU2 (*.su2)" as File Type"')
+    log.info("Copy/Paste the following line as File Name")
+    log.info(su2_mesh_path)
+    log.info('Click on "Save"')
+    log.info("You can now close SUMO, your workflow will continue.")
+    log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n")
+
+
 def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     """Function to add mesh parameter options in SUMO geometry (.smx file)
 
@@ -70,8 +94,8 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
         * sumo source code
 
     Args:
-        sumo_file_path (str): Path to the SUMO geometry (.smx)
-        cpacs_out_path (str): Path to the output CPACS file
+        sumo_file_path (Path): Path to the SUMO geometry (.smx)
+        refine_level (float): Refinement level of the mesh. Default is 1.0.
 
     """
 
@@ -80,7 +104,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     log.info("Refinement factor is {}".format(refine_factor))
 
     # Open SUMO (.smx) with tixi library
-    sumo = open_tixi(sumo_file_path)
+    sumo = open_tixi(str(sumo_file_path))
     ROOT_XPATH = "/Assembly"
 
     # Get all Body (fuselage) and apply mesh parameters
@@ -92,7 +116,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
         log.warning("No Fuselage has been found in this SUMO file!")
 
     for i_body in range(body_cnt):
-        body_xpath = ROOT_XPATH + "/BodySkeleton[" + str(i_body + 1) + "]"
+        body_xpath = ROOT_XPATH + f"/BodySkeleton[{i_body+1}]"
 
         circ_list = []
         min_radius = 10e6
@@ -100,7 +124,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
         # Go through every Boby frame (fuselage sections)
         frame_cnt = sumo.getNamedChildrenCount(body_xpath, "BodyFrame")
         for i_sec in range(frame_cnt):
-            frame_xpath = body_xpath + "/BodyFrame[" + str(i_sec + 1) + "]"
+            frame_xpath = body_xpath + f"/BodyFrame[{i_sec+1}]"
 
             # Estimate circumference and add to the list
             height = sumo.getDoubleAttribute(frame_xpath, "height")
@@ -154,20 +178,20 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     # Go through every Wing and apply mesh parameters
     if sumo.checkElement(ROOT_XPATH):
         wing_cnt = sumo.getNamedChildrenCount(ROOT_XPATH, "WingSkeleton")
-        log.info(str(wing_cnt) + " wing(s) has been found.")
+        log.info(f"{wing_cnt} wing(s) has been found.")
     else:
         wing_cnt = 0
         log.warning("No wing has been found in this CPACS file!")
 
     for i_wing in range(wing_cnt):
-        wing_xpath = ROOT_XPATH + "/WingSkeleton[" + str(i_wing + 1) + "]"
+        wing_xpath = ROOT_XPATH + f"/WingSkeleton[{i_wing+1}]"
 
         chord_list = []
 
         # Go through every WingSection
         section_cnt = sumo.getNamedChildrenCount(wing_xpath, "WingSection")
         for i_sec in range(section_cnt):
-            section_xpath = wing_xpath + "/WingSection[" + str(i_sec + 1) + "]"
+            section_xpath = wing_xpath + f"/WingSection[{i_sec+1}]"
 
             chord_length = sumo.getDoubleAttribute(section_xpath, "chord")
             chord_list.append(chord_length)
@@ -178,9 +202,8 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
 
         # Calculate mesh parameter from inputs and geometry
         maxlen = (0.15 * ref_chord) * refine_factor
-        minlen = (
-            0.08 * maxlen
-        ) * refine_factor  # in sumo it is 0.08*maxlen or 0.7*min leading edge radius...?
+        minlen = (0.08 * maxlen) * refine_factor
+        # in sumo it is 0.08*maxlen or 0.7*min leading edge radius...?
 
         if refine_level > 1:
             lerfactor = 1 / (2.0 + 0.5 * (refine_level - 1))
@@ -205,7 +228,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
         sumo.addTextAttribute(meshcrit_xpath, "nvmax", "1073741824")
         sumo.addTextAttribute(meshcrit_xpath, "xcoarse", "false")
 
-    sumo.save(sumo_file_path)
+    sumo.save(str(sumo_file_path))
 
 
 def create_SU2_mesh(cpacs_path, cpacs_out_path):
@@ -227,68 +250,50 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 
     tixi = open_tixi(str(cpacs_path))
 
-    sumo_dir = get_results_directory("SUMOAutoMesh")
-    su2_mesh_path = Path(sumo_dir, "ToolOutput.su2")
+    sumo_results_dir = get_results_directory("SUMOAutoMesh")
+    su2_mesh_path = Path(sumo_results_dir, "ToolOutput.su2")
 
-    sumo_file_path = get_value_or_default(tixi, SUMOFILE_XPATH, "")
-    if sumo_file_path == "":
-        raise ValueError("No SUMO file to use to create a mesh")
+    sumo_file_path = Path(get_value_or_default(tixi, SUMOFILE_XPATH, ""))
+    if not sumo_file_path.exists():
+        raise FileNotFoundError(f"No SUMO file has been found at: {sumo_file_path}")
 
     # Set mesh parameters
-    log.info("Mesh parameter will be set")
+    log.info("Setting mesh parameters...")
     refine_level_xpath = MESH_XPATH + "/sumoOptions/refinementLevel"
     refine_level = get_value_or_default(tixi, refine_level_xpath, 1.0)
-    log.info("Refinement level is {}".format(refine_level))
+    log.info(f"Mesh refinement level: {refine_level}")
     add_mesh_parameters(sumo_file_path, refine_level)
 
     # Check current Operating System
     current_os = platform.system()
 
     if current_os == "Darwin":
-        log.info("Your OS is Mac\n\n")
-        log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-        log.info("On MacOS the mesh has to be generated manually.")
-        log.info("To create a SU2Mesh you have to :")
-        log.info("Open the .smx geometry that you will find there:")
-        log.info(sumo_file_path)
-        log.info('Click on the button "Mesh"')
-        log.info('Click on "Create Mesh"')
-        log.info('Click on "Volume Mesh"')
-        log.info('Click on "Run"')
-        log.info('When the mesh generation is completed, click on "Close"')
-        log.info('Go to the Menu "Mesh" -> "Save volume mesh..."')
-        log.info('Chose "SU2 (*.su2)" as File Type"')
-        log.info("Copy/Paste the following line as File Name")
-        log.info(su2_mesh_path)
-        log.info('Click on "Save"')
-        log.info("You can now close SUMO, your workflow will continue.")
-        log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n")
+        log.info("Your OS is MacOS")
 
-        # For now, I did not find a way to run "sumo -batch" on Mac...
-        # The command just open SUMO GUI, the mesh has to be generate and save manually
-        with change_working_dir(sumo_dir):
-            command = ["open", "/Applications/SUMO/dwfsumo.app/"]
+        create_mesh_manually_instructions(sumo_file_path, su2_mesh_path)
 
+        run_software("open", "/Applications/SUMO/dwfsumo.app/", sumo_results_dir)
+        input("Press ENTER to continue...")
+
+        # TODO: try that to run in batch on MacOS
         # /Applications/SUMO/dwfsumo.app/Contents/MacOS/dwfsumo
         # -batch output=su2 -tetgen-options=pq1.16VY ToolOutput.smx
-        os.system(" ".join(command))
-        input("Press ENTER to continue...")
 
     elif current_os == "Linux":
         log.info("Your OS is Linux")
 
-        # Run SUMO in batch
-        output = "-output=su2"
-        options = "-tetgen-options=pq1.16VY"  # See Tetgen help for more options
-        # Command line to run: sumo -batch -output=su2 -tetgen-options=pq1.16VY ToolOutput.smx
-        command = [str(get_install_path("sumo", True)), "-batch", output, options, sumo_file_path]
+        # The complete command line to run is:
+        # sumo -batch -output=su2 -tetgen-options=pq1.16VY ToolOutput.smx
 
-        with change_working_dir(sumo_dir):
-            os.system(" ".join(command))
+        output = "su2"
+        options = "pq1.16VY"  # See Tetgen help for more options
+        args = f"-batch -output={output} -tetgen-options={options} {sumo_file_path}"
+
+        run_software("sumo", args, sumo_results_dir)
 
     elif current_os == "Windows":
         log.info("Your OS is Windows")
-        # TODO: implement this part
+        # TODO: implement this part and test on Windows
 
         log.warning("OS not supported yet by SUMOAutoMesh!")
         raise NotImplementedError("OS not supported yet!")
@@ -298,13 +303,13 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 
     # Copy the mesh in the MESH directory
     su2_mesh_name = aircraft_name(tixi) + "_baseline.su2"
-    su2_mesh_new_path = Path(sumo_dir, su2_mesh_name)
-    shutil.copyfile(su2_mesh_path, su2_mesh_new_path)
+    su2_mesh_out_path = Path(sumo_results_dir, su2_mesh_name)
+    shutil.copyfile(su2_mesh_path, su2_mesh_out_path)
 
-    if su2_mesh_new_path.exists():
+    if su2_mesh_out_path.exists():
         log.info("An SU2 Mesh has been correctly generated.")
         create_branch(tixi, SU2MESH_XPATH)
-        tixi.updateTextElement(SU2MESH_XPATH, str(su2_mesh_new_path))
+        tixi.updateTextElement(SU2MESH_XPATH, str(su2_mesh_out_path))
         su2_mesh_path.unlink()
 
     else:

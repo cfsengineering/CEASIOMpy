@@ -42,6 +42,12 @@ SOFT_LIST = ["SU2_DEF", "SU2_CFD", "SU2_SOL", "mpirun.mpich", "mpirun"]
 # =================================================================================================
 
 
+class SoftwareNotInstalled(Exception):
+    """Raised when the a required software is not installed"""
+
+    pass
+
+
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
@@ -115,112 +121,62 @@ def run_module(module, wkdir=Path.cwd(), iteration=0):
             my_module.main(module.cpacs_in, module.cpacs_out)
 
 
-def get_install_path(soft_check_list):
-    """Function to get installation paths a software used in SU2
-
-    Function 'get_instal_path' check if the given list of software is installed,
-    it retruns a dictionnay of software with their installation paths.
+def get_install_path(software_name: str, raise_error: bool = False) -> Path:
+    """Return the installation path of a software.
 
     Args:
-        soft_check_list (list): List of software to check installation path
-
-    Returns:
-        soft_dict (dict): Dictionary of software with their installation path
+        software_name (str): Name of the software.
+        raise_error (bool, optional): If True, raise an error if the software is not installed.
 
     """
 
-    current_os = platform.system()
+    install_path = shutil.which(software_name)
 
-    soft_dict = {}
+    if install_path is not None:
+        log.info(f"{software_name} is installed at: {install_path}")
+        return Path(install_path)
 
-    for soft in soft_check_list:
+    log.warning(f"{software_name} is not installed on your computer!")
 
-        # TODO: Check more and improve
-        if current_os == "Darwin":
-            log.info("Your OS is Mac")
-            # Run with MPICH not implemented yet on mac
-            if "mpi" in soft:
-                install_path = ""
-            else:
-                install_path = "/Applications/SU2/" + soft
-
-        elif current_os == "Linux":
-            log.info("Your OS is Linux")
-            install_path = shutil.which(soft)
-
-        elif current_os == "Windows":
-            log.info("Your OS is Windows")
-            # TODO
-
-        else:
-            raise OSError("OS not recognized!")
-
-        if install_path:
-            log.info(soft + " is installed at: " + install_path)
-            soft_dict[soft] = install_path
-        elif "mpi" in soft:
-            log.warning(soft + " is not installed on your computer!")
-            log.warning("Calculations will be run on 1 proc only")
-            soft_dict[soft] = None
-        else:
-            raise RuntimeError(soft + " is not installed on your computer!")
-
-    return soft_dict
+    if raise_error:
+        raise SoftwareNotInstalled(f"{software_name} is not installed on your computer!")
+    else:
+        return None
 
 
 # TODO make it more genearl, also for sumo and other
-def run_soft(soft, config_path, wkdir, nb_proc):
+def run_soft(software, config_path, wkdir, nb_cpu=1):
     """Function run one of the existing SU2 software
 
-    Function 'run_soft' create the comment line to run correctly a SU2 software
-    (SU2_DEF, SU2_CFD, SU2_SOL) with MPI (if installed). The SOFT_DICT is
-    create from the SOFT_LIST define at the top of this script.
+    Function 'run_soft' create the command line to run correctly a SU2 software
+    (SU2_DEF, SU2_CFD, SU2_SOL) with MPI (if installed).
 
     Args:
-        soft (str): Software to execute (SU2_DEF, SU2_CFD, SU2_SOL)
+        software (str): Software to execute (SU2_DEF, SU2_CFD, SU2_SOL)
         config_path (str): Path to the configuration file
         wkdir (str): Path to the working directory
 
     """
 
-    # Get installation path for the following softwares
-    SOFT_DICT = get_install_path(SOFT_LIST)
+    mpi_install_path = get_install_path("mpirun")  # "mpirun.mpich"
+    soft_install_path = get_install_path(software)
 
-    # mpi_install_path = SOFT_DICT['mpirun.mpich']
-    mpi_install_path = SOFT_DICT["mpirun"]
+    log.info(f"{nb_cpu} cpu over {str(os.cpu_count())} will be used for this calculation.")
 
-    soft_install_path = SOFT_DICT[soft]
+    logfile_path = Path(wkdir, f"logfile{software}.log")
 
-    log.info("Number of proc available: " + str(os.cpu_count()))
-    log.info(str(nb_proc) + " will be used for this calculation.")
-
-    logfile_path = Path(wkdir, f"logfile{soft}.log")
-
-    # if mpi_install_path is not None:
-    #     command_line =  [mpi_install_path,'-np',str(nb_proc),
-    #                      soft_install_path,config_path,'>',logfile_path]
+    command_line = [soft_install_path, config_path, ">", logfile_path]
 
     if mpi_install_path is not None:
-        command_line = [
-            mpi_install_path,
-            "-np",
-            str(int(nb_proc)),
-            soft_install_path,
-            str(config_path),
-            ">",
-            logfile_path,
-        ]
-    # elif soft == 'SU2_DEF' a disp.dat must be there to run with MPI
-    else:
-        command_line = [soft_install_path, config_path, ">", logfile_path]
+        command_line = [mpi_install_path, "-np", str(int(nb_cpu))] + command_line
 
-    log.info(f">>> Running {soft} on {nb_proc} cpu(s)")
+    log.info(f">>> Running {software} on {nb_cpu} cpu(s)")
     log.info(f"    from {wkdir}")
 
     with change_working_dir(wkdir):
         os.system(" ".join(map(str, command_line)))
 
-    log.info(f">>> {soft} End")
+    log.info(f">>> {software} End")
 
     # TODO: try to use subprocess instead of os.system, how to deal with log file...?
     # import subprocess
@@ -293,9 +249,11 @@ def get_part_type(cpacs_path, part_uid):
     return None
 
 
-def get_reasonable_nb_proc():
+def get_reasonable_nb_cpu():
     """Get a reasonable number of processors depending on the total number of processors on
-    the host machine. Approximately 1/4 of the total number of processors will be used."""
+    the host machine. Approximately 1/4 of the total number of processors will be used.
+    This function is generally used to set up a default value for the number of processors,
+    the user can then override this value with the settings."""
 
     cpu_count = os.cpu_count()
 

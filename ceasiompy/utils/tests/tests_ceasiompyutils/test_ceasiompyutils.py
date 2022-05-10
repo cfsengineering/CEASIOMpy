@@ -22,8 +22,10 @@ from pathlib import Path
 
 import pytest
 from ceasiompy.utils.ceasiompyutils import (
+    SoftwareNotInstalled,
     aircraft_name,
     change_working_dir,
+    get_install_path,
     get_results_directory,
     get_part_type,
 )
@@ -83,11 +85,15 @@ def test_run_module():
     # TODO: how to test this function?
 
 
-@pytest.mark.skip(reason="Not implemented yet")
 def test_get_install_path():
-    """Test the function get_install_path."""
+    """Test the function 'get_install_path'."""
 
-    # TODO: how to test this function? (on different OS..)
+    assert isinstance(get_install_path("python"), Path)
+
+    assert get_install_path("NotExistingSoftware") is None
+
+    with pytest.raises(SoftwareNotInstalled):
+        get_install_path("NotExistingSoftware", raise_error=True)
 
 
 def test_aircraft_name():

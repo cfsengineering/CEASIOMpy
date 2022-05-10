@@ -111,7 +111,7 @@ def run_module(module, wkdir=Path.cwd(), iteration=0):
             if file.name.endswith(".py") and not file.name.startswith("__"):
                 python_file = file.stem
 
-        # Import the main function of the module
+        # Import the main function from the module
         my_module = importlib.import_module(f"ceasiompy.{module.name}.{python_file}")
 
         # Run the module
@@ -185,7 +185,7 @@ def run_software(
     log.info(f">>> {software_name} End")
 
 
-def get_reasonable_nb_cpu():
+def get_reasonable_nb_cpu() -> int:
     """Get a reasonable number of processors depending on the total number of processors on
     the host machine. Approximately 1/4 of the total number of processors will be used.
     This function is generally used to set up a default value for the number of processors,
@@ -227,16 +227,18 @@ def aircraft_name(tixi_or_cpacs):
     return name
 
 
-def get_part_type(cpacs_path, part_uid):
+def get_part_type(cpacs_path: Path, part_uid: str) -> str:
     """The function get the type of the aircraft from the cpacs file.
 
     Args:
-        cpacs_path (str): Path to the CPACS file
+        cpacs_path (Path): Path to the CPACS file
         part_uid (str): UID of the part
 
     Returns:
         part_type (str): Type of the part.
+
     """
+
     tixi = open_tixi(str(cpacs_path))
 
     # split uid if mirrored part

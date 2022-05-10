@@ -243,11 +243,11 @@ def generate_gmsh(
     file.
     Args:
     ----------
-    cpacs_path : str
+    cpacs_path : Path
         path to the cpacs file
-    brep_dir_path : (Path)
+    brep_dir_path : Path
         Path to the directory containing the brep files
-    results_dir : (path)
+    results_dir : Path
         Path to the directory containing the result (mesh) files
     open_gmsh : bool
         Open gmsh GUI after the mesh generation if set to true

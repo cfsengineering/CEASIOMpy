@@ -90,7 +90,7 @@ def launch_cpacscreator(cpacs_path, cpacs_out_path):
     log.info("The input CPACS file has been copied in tmp directory")
 
     # Run CPACSCreator
-    run_software(software_name, str(cpacs_tmp), Path().cwd())
+    run_software(software_name=software_name, arguments=[str(cpacs_tmp)], wkdir=tmp_dir)
 
     # Copy CPACS tmp file (.xml) from the temp directory to /ToolOutput
     if cpacs_tmp.is_file():

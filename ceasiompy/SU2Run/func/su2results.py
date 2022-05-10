@@ -64,7 +64,7 @@ def get_wetted_area(wkdir):
     # Find a logfile in wkdir
     for (root, _, files) in os.walk(wkdir):
         for file in files:
-            if file == "logfileSU2_CFD.log":
+            if file == "logfile_SU2_CFD.log":
                 su2_logfile_path = Path(root, file)
                 break
 

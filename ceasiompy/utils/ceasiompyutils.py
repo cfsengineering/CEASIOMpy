@@ -22,8 +22,10 @@ import importlib
 import math
 import os
 import shutil
+import subprocess
 from contextlib import contextmanager
 from pathlib import Path
+from typing import List
 
 from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -141,45 +143,46 @@ def get_install_path(software_name: str, raise_error: bool = False) -> Path:
 
 
 def run_software(
-    software_name: str, args: str, wkdir: Path, with_mpi: bool = False, nb_cpu: int = 1
+    software_name: str, arguments: List[str], wkdir: Path, with_mpi: bool = False, nb_cpu: int = 1
 ) -> None:
-    """_summary_
+    """Run a software with the given arguments in a specific wkdir. If the software is compatible
+    with MPI, 'with_mpi' can be set to True and the number of processors can be specified. A
+    logfile will be created in the wkdir.
 
     Args:
         software_name (str): Name of the software to run.
-        agrs (str): Arguments to pass to the software.
+        arguments (str): Arguments to pass to the software.
         wkdir (Path): Working directory where the software will be run.
         with_mpi (bool, optional): If True, run the software with MPI. Defaults to False.
         nb_cpu (int, optional): Number of processors to use. Defaults to 1. If with_mpi is True,
 
     """
 
-    log.info(f"{nb_cpu} cpu over {str(os.cpu_count())} will be used for this calculation.")
+    log.info(f"{int(nb_cpu)} cpu over {os.cpu_count()} will be used for this calculation.")
 
-    logfile_path = Path(wkdir, f"logfile{software_name}.log")
+    logfile_path = Path(wkdir, f"logfile_{software_name}.log")
     install_path = get_install_path(software_name)
 
-    command_line = [install_path, args, ">", logfile_path]
+    command_line = []
     if with_mpi:
         mpi_install_path = get_install_path("mpirun")  # "mpirun.mpich"
         if mpi_install_path is not None:
-            command_line = [mpi_install_path, "-np", str(int(nb_cpu))] + command_line
+            command_line += [mpi_install_path, "-np", str(int(nb_cpu))]
 
-    log.info(f">>> Running {software_name} on {nb_cpu} cpu(s)")
-    log.info(f"    from {wkdir}")
+    command_line += [install_path]
+    command_line += arguments
+
+    log.info(f">>> Running {software_name} on {int(nb_cpu)} cpu(s)")
+    log.info(f"Working directory: {wkdir}")
+    log.info(f"Logfile: {logfile_path}")
+    log.info("Command line that will be run is:")
+    log.info(" ".join(map(str, command_line)))
 
     with change_working_dir(wkdir):
-        os.system(" ".join(map(str, command_line)))
+        with open(logfile_path, "w") as logfile:
+            subprocess.call(command_line, stdout=logfile)
 
     log.info(f">>> {software_name} End")
-
-    # TODO: try to use subprocess instead of os.system, how to deal with log file...?
-    # import subprocess
-    # p = subprocess.Popen(command_line, stdout=subprocess.PIPE)
-    # log_lines = p.communicate()[0]
-    # logfile = open(logfile_path, 'w')
-    # logfile.writelines(log_lines)
-    # logfile.close()
 
 
 def get_reasonable_nb_cpu():

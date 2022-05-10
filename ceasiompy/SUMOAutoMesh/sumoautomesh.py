@@ -55,8 +55,8 @@ def create_mesh_manually_instructions(sumo_file_path, su2_mesh_path):
     """Instructions to create a mesh manually, if SUMO is not available to run in batch.
 
     Args:
-        sumo_file_path (str): Path to the SUMO file.
-        su2_mesh_path (str): Path to the SU2 mesh.
+        sumo_file_path (Path): Path to the SUMO file.
+        su2_mesh_path (Path): Path to the SU2 mesh.
 
     """
 
@@ -272,7 +272,7 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 
         create_mesh_manually_instructions(sumo_file_path, su2_mesh_path)
 
-        run_software("open", "/Applications/SUMO/dwfsumo.app/", sumo_results_dir)
+        run_software("open", ["/Applications/SUMO/dwfsumo.app/"], sumo_results_dir)
         input("Press ENTER to continue...")
 
         # TODO: try that to run in batch on MacOS
@@ -287,9 +287,14 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 
         output = "su2"
         options = "pq1.16VY"  # See Tetgen help for more options
-        args = f"-batch -output={output} -tetgen-options={options} {sumo_file_path}"
+        arguments = [
+            "-batch",
+            f"-output={output}",
+            f"-tetgen-options={options}",
+            str(sumo_file_path),
+        ]
 
-        run_software("sumo", args, sumo_results_dir)
+        run_software("sumo", arguments, sumo_results_dir)
 
     elif current_os == "Windows":
         log.info("Your OS is Windows")

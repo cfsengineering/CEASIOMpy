@@ -87,7 +87,7 @@ def run_SU2_multi(wkdir, nb_proc):
 
         run_software(
             software_name="SU2_CFD",
-            args=config_cfd[0],
+            arguments=[config_cfd[0]],
             wkdir=config_dir,
             with_mpi=True,
             nb_cpu=nb_proc,

@@ -21,7 +21,6 @@ TODO:
 import importlib
 import math
 import os
-import platform
 import shutil
 from contextlib import contextmanager
 from pathlib import Path
@@ -33,9 +32,6 @@ from ceasiompy.utils.xpath import AIRCRAFT_NAME_XPATH
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
 log = get_logger()
-
-SOFT_LIST = ["SU2_DEF", "SU2_CFD", "SU2_SOL", "mpirun.mpich", "mpirun"]
-
 
 # =================================================================================================
 #   CLASSES
@@ -144,39 +140,38 @@ def get_install_path(software_name: str, raise_error: bool = False) -> Path:
         return None
 
 
-# TODO make it more genearl, also for sumo and other
-def run_soft(software, config_path, wkdir, nb_cpu=1):
-    """Function run one of the existing SU2 software
-
-    Function 'run_soft' create the command line to run correctly a SU2 software
-    (SU2_DEF, SU2_CFD, SU2_SOL) with MPI (if installed).
+def run_software(
+    software_name: str, args: str, wkdir: Path, with_mpi: bool = False, nb_cpu: int = 1
+) -> None:
+    """_summary_
 
     Args:
-        software (str): Software to execute (SU2_DEF, SU2_CFD, SU2_SOL)
-        config_path (str): Path to the configuration file
-        wkdir (str): Path to the working directory
+        software_name (str): Name of the software to run.
+        agrs (str): Arguments to pass to the software.
+        wkdir (Path): Working directory where the software will be run.
+        with_mpi (bool, optional): If True, run the software with MPI. Defaults to False.
+        nb_cpu (int, optional): Number of processors to use. Defaults to 1. If with_mpi is True,
 
     """
 
-    mpi_install_path = get_install_path("mpirun")  # "mpirun.mpich"
-    soft_install_path = get_install_path(software)
-
     log.info(f"{nb_cpu} cpu over {str(os.cpu_count())} will be used for this calculation.")
 
-    logfile_path = Path(wkdir, f"logfile{software}.log")
+    logfile_path = Path(wkdir, f"logfile{software_name}.log")
+    install_path = get_install_path(software_name)
 
-    command_line = [soft_install_path, config_path, ">", logfile_path]
+    command_line = [install_path, args, ">", logfile_path]
+    if with_mpi:
+        mpi_install_path = get_install_path("mpirun")  # "mpirun.mpich"
+        if mpi_install_path is not None:
+            command_line = [mpi_install_path, "-np", str(int(nb_cpu))] + command_line
 
-    if mpi_install_path is not None:
-        command_line = [mpi_install_path, "-np", str(int(nb_cpu))] + command_line
-
-    log.info(f">>> Running {software} on {nb_cpu} cpu(s)")
+    log.info(f">>> Running {software_name} on {nb_cpu} cpu(s)")
     log.info(f"    from {wkdir}")
 
     with change_working_dir(wkdir):
         os.system(" ".join(map(str, command_line)))
 
-    log.info(f">>> {software} End")
+    log.info(f">>> {software_name} End")
 
     # TODO: try to use subprocess instead of os.system, how to deal with log file...?
     # import subprocess
@@ -185,6 +180,20 @@ def run_soft(software, config_path, wkdir, nb_cpu=1):
     # logfile = open(logfile_path, 'w')
     # logfile.writelines(log_lines)
     # logfile.close()
+
+
+def get_reasonable_nb_cpu():
+    """Get a reasonable number of processors depending on the total number of processors on
+    the host machine. Approximately 1/4 of the total number of processors will be used.
+    This function is generally used to set up a default value for the number of processors,
+    the user can then override this value with the settings."""
+
+    cpu_count = os.cpu_count()
+
+    if cpu_count is None:
+        return 1
+
+    return math.ceil(cpu_count / 4)
 
 
 def aircraft_name(tixi_or_cpacs):
@@ -247,20 +256,6 @@ def get_part_type(cpacs_path, part_uid):
 
     log.warning(f"'{part_uid}' cannot be categorized!")
     return None
-
-
-def get_reasonable_nb_cpu():
-    """Get a reasonable number of processors depending on the total number of processors on
-    the host machine. Approximately 1/4 of the total number of processors will be used.
-    This function is generally used to set up a default value for the number of processors,
-    the user can then override this value with the settings."""
-
-    cpu_count = os.cpu_count()
-
-    if cpu_count is None:
-        return 1
-
-    return math.ceil(cpu_count / 4)
 
 
 # =================================================================================================

@@ -75,7 +75,7 @@ def launch_cpacscreator(cpacs_path, cpacs_out_path):
             break
 
     if install_path is None:
-        raise SoftwareNotInstalled(f"CPACSCreator is not installed on your computer")
+        raise SoftwareNotInstalled("CPACSCreator is not installed on your computer")
 
     # Create a temporary directory to run CPACSCreator
     results_dir = get_results_directory(MODULE_NAME)

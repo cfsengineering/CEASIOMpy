@@ -21,6 +21,7 @@ TODO:
     * Create the doc for this module
     * Create test functions
     * Use Pathlib and asolute path when refactor this module
+    * Use 'run_software' function to run SU2
 
 """
 

@@ -113,32 +113,35 @@ def run_SU2_fsi(config_path, wkdir, nb_proc):
         wkdir (str): Path to the working directory
 
     """
-    if not wkdir.exists():
-        raise OSError(f"The working directory : {wkdir} does not exit!")
 
-    # Modify config file for SU2_DEF
-    config_def_path = Path(wkdir, "ConfigDEF.cfg")
-    cfg_def = ConfigFile(config_path)
+    raise NotImplementedError
 
-    cfg_def["DV_KIND"] = "SURFACE_FILE"
-    cfg_def["DV_MARKER"] = "Wing"
-    cfg_def["DV_FILENAME"] = "disp.dat"  # TODO: Should be a constant or find in CPACS ?
-    # TODO: Do we need that? if yes, find 'WING' in CPACS
-    cfg_def["DV_PARAM"] = ["WING", "0", "0", "1", "0.0", "0.0", "1.0"]
-    cfg_def["DV_VALUE"] = 0.01
-    cfg_def.write_file(config_def_path, overwrite=True)
+    # if not wkdir.exists():
+    #     raise OSError(f"The working directory : {wkdir} does not exit!")
 
-    # Modify config file for SU2_CFD
-    config_cfd_path = Path(wkdir, "ConfigCFD.cfg")
-    cfg_cfd = ConfigFile(config_path)
-    cfg_cfd["MESH_FILENAME"] = "mesh_out.su2"
-    cfg_cfd.write_file(config_cfd_path, overwrite=True)
+    # # Modify config file for SU2_DEF
+    # config_def_path = Path(wkdir, "ConfigDEF.cfg")
+    # cfg_def = ConfigFile(config_path)
 
-    run_soft("SU2_DEF", config_def_path, wkdir, nb_proc)
-    run_soft("SU2_CFD", config_cfd_path, wkdir, nb_proc)
-    run_soft("SU2_SOL", config_cfd_path, wkdir, nb_proc)
+    # cfg_def["DV_KIND"] = "SURFACE_FILE"
+    # cfg_def["DV_MARKER"] = "Wing"
+    # cfg_def["DV_FILENAME"] = "disp.dat"  # TODO: Should be a constant or find in CPACS ?
+    # # TODO: Do we need that? if yes, find 'WING' in CPACS
+    # cfg_def["DV_PARAM"] = ["WING", "0", "0", "1", "0.0", "0.0", "1.0"]
+    # cfg_def["DV_VALUE"] = 0.01
+    # cfg_def.write_file(config_def_path, overwrite=True)
 
-    extract_loads(wkdir)
+    # # Modify config file for SU2_CFD
+    # config_cfd_path = Path(wkdir, "ConfigCFD.cfg")
+    # cfg_cfd = ConfigFile(config_path)
+    # cfg_cfd["MESH_FILENAME"] = "mesh_out.su2"
+    # cfg_cfd.write_file(config_cfd_path, overwrite=True)
+
+    # # run_soft("SU2_DEF", config_def_path, wkdir, nb_proc)
+    # # run_soft("SU2_CFD", config_cfd_path, wkdir, nb_proc)
+    # # run_soft("SU2_SOL", config_cfd_path, wkdir, nb_proc)
+
+    # extract_loads(wkdir)
 
 
 # =================================================================================================

@@ -96,6 +96,14 @@ def test_get_install_path():
         get_install_path("NotExistingSoftware", raise_error=True)
 
 
+@pytest.mark.skip(reason="Not implemented yet")
+def test_run_software():
+    """Test the function 'run_software'."""
+
+    pass
+    # TODO: Implement when subprocess is used, or decide to no be used
+
+
 def test_aircraft_name():
     """Test the function aircraft_name."""
 

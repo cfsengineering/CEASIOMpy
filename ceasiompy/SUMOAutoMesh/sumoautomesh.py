@@ -277,14 +277,11 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
     elif current_os == "Linux":
         log.info("Your OS is Linux")
 
-        # Check if SUMO is installed
-        soft_dict = get_install_path(["sumo"])
-
         # Run SUMO in batch
         output = "-output=su2"
         options = "-tetgen-options=pq1.16VY"  # See Tetgen help for more options
         # Command line to run: sumo -batch -output=su2 -tetgen-options=pq1.16VY ToolOutput.smx
-        command = [soft_dict["sumo"], "-batch", output, options, sumo_file_path]
+        command = [str(get_install_path("sumo", True)), "-batch", output, options, sumo_file_path]
 
         with change_working_dir(sumo_dir):
             os.system(" ".join(command))

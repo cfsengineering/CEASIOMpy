@@ -26,7 +26,6 @@ TODO:
 
 from pathlib import Path
 
-from ceasiompy.SU2Run.func.extractloads import extract_loads
 from ceasiompy.SU2Run.func.su2config import generate_su2_cfd_config
 from ceasiompy.SU2Run.func.su2results import get_su2_results
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -35,7 +34,6 @@ from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
     run_software,
 )
-from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.utils.xpath import SU2_XPATH
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
@@ -115,6 +113,9 @@ def run_SU2_fsi(config_path, wkdir, nb_proc):
     """
 
     raise NotImplementedError
+
+    # from ceasiompy.utils.configfiles import ConfigFile
+    # from ceasiompy.SU2Run.func.extractloads import extract_loads
 
     # if not wkdir.exists():
     #     raise OSError(f"The working directory : {wkdir} does not exit!")

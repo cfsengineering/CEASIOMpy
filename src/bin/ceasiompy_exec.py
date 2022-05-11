@@ -71,14 +71,21 @@ def run_testcase(testcase_nb):
         workflow.set_workflow()
         workflow.run_workflow()
 
-        print("\nCongratulation, Test case is done!")
+        print("\nCongratulation, this Test case is now finished!")
         print(f"\nYou can check your results in: {workflow.current_wkflow_dir}/Results")
 
     elif testcase_nb == 2:
 
         testcase_message(2)
 
-        print("Sorry, this test case is not implemented yet!")
+        workflow = create_wf_gui()
+        workflow.write_config_file()
+
+        workflow.set_workflow()
+        workflow.run_workflow()
+
+        print("\nCongratulation, this Test case is now finished!")
+        print(f"\nYou can check your results in: {workflow.current_wkflow_dir}/Results")
 
     elif testcase_nb == 3:
 

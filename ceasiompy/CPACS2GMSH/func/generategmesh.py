@@ -234,6 +234,7 @@ def generate_gmsh(
     mesh_size_wings=0.2,
     refine_factor=4,
     check_mesh=True,
+    testing_gmsh=False,
 ):
     """
     Function to generate a mesh from brep files forming an airplane
@@ -673,8 +674,10 @@ def generate_gmsh(
         log.info("Result of the 3D volume mesh")
         log.info("GMSH GUI is open, close it to continue...")
         gmsh.fltk.run()
-    gmsh.clear()
-    gmsh.finalize()
+
+    if not testing_gmsh:
+        gmsh.clear()
+        gmsh.finalize()
     return su2mesh_path, aircraft_parts
 
 

@@ -234,11 +234,14 @@ def test_classify_wing():
         TEST_OUT_PATH,
         TEST_OUT_PATH,
         open_gmsh=False,
+        farfield_factor=5,
+        symmetry=False,
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
-        symmetry=False,
         refine_factor=1.0,
+        check_mesh=False,
+        testing_gmsh=False,
     )
 
     for part in aircraft_parts:

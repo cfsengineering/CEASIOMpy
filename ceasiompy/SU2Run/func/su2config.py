@@ -59,24 +59,19 @@ def get_su2_version():
     Return the version of the installed SU2
     """
 
-    soft_dict = get_install_path(["SU2_CFD"])
-    su2_path = Path(soft_dict["SU2_CFD"]).with_suffix(".py")
+    su2py_path = get_install_path("SU2_CFD.py")
 
-    if not su2_path.exists():
-        return None
+    if su2py_path:
+        with open(su2py_path, "r") as f:
+            for line in f.readlines():
+                try:
+                    version = re.search(r"version\s*([\d.]+)", line).group(1)
+                except AttributeError:
+                    version = None
 
-    with open(su2_path, "r") as f:
-        lines = f.readlines()
-
-    for line in lines:
-        try:
-            version = re.search(r"version\s*([\d.]+)", line).group(1)
-        except AttributeError:
-            version = None
-
-        if version is not None:
-            log.info(f"Version of SU2 detected: {version}")
-            return version
+                if version is not None:
+                    log.info(f"Version of SU2 detected: {version}")
+                    return version
 
     return None
 

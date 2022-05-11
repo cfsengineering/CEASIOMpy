@@ -20,13 +20,17 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import os
-from pathlib import Path
-import shutil
-import platform
 
+import shutil
+from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import (
+    SoftwareNotInstalled,
+    get_install_path,
+    get_results_directory,
+    run_software,
+)
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 
 log = get_logger()
@@ -45,11 +49,11 @@ MODULE_NAME = MODULE_DIR.name
 
 
 def launch_cpacscreator(cpacs_path, cpacs_out_path):
-    """Function to run CPACSCrator with an imput CPACS file
+    """Function to run CPACSCrator with an input CPACS file
 
-    Function 'launch_cpacscreator' run CPACSCrator with an imput CPACS file and
+    Function 'launch_cpacscreator' run CPACSCrator with an input CPACS file and
     put the output CPACS file in the folder /ToolInput. CPACSCreator must be
-    installed on your computre to run this function. (If you install CEASIOMpy
+    installed on your computer to run this function. (If you install CEASIOMpy
     with Conda it should be installed automatically)
 
     Source :
@@ -61,60 +65,34 @@ def launch_cpacscreator(cpacs_path, cpacs_out_path):
 
     """
 
-    current_os = platform.system()
-    log.info("Your current OS is: " + current_os)
+    # Get the name of CPACSCreator (several names exists, depending on the OS and the version)
+    cpacscreator_names = ["cpacscreator", "CPACS-Creator", "CPACSCreator"]
 
-    if current_os == "Darwin":
-        install_path = shutil.which("CPACS-Creator")
+    for name in cpacscreator_names:
+        install_path = get_install_path(name)
+        if install_path is not None:
+            software_name = name
+            break
 
-    elif current_os == "Linux":
-        install_path = shutil.which("cpacscreator")
+    if install_path is None:
+        raise SoftwareNotInstalled("CPACSCreator is not installed on your computer")
 
-    elif current_os == "Windows":
-        install_path = shutil.which("CPACSCreator")
-
-    else:
-        raise OSError("OS not recognize!")
-
-    # Check if CPACSCreator is installed
-    if install_path:
-        log.info('"CPACSCreator" is intall at: ' + install_path)
-    else:
-        raise RuntimeError(
-            "'CPACSCreator' is not install on your computer or in your Conda environment!"
-        )
-
-    # Empty /tmp directory
-    TMP_DIR = Path(MODULE_DIR, "tmp")
-    if TMP_DIR.is_dir():
-        for tmp_file in TMP_DIR.iterdir():
-            tmp_file.unlink()
-    else:
-        TMP_DIR.mkdir()
-    log.info("The /tmp directory has been cleared.")
+    # Create a temporary directory to run CPACSCreator
+    results_dir = get_results_directory(MODULE_NAME)
+    results_dir.mkdir(parents=True, exist_ok=True)
+    tmp_dir = Path(results_dir, "tmp")
+    tmp_dir.mkdir()
+    log.info(f"A tmp directory has been create at: {tmp_dir}")
 
     # Copy CPACS input file (.xml) in /tmp directory
-    cpacs_tmp = Path(MODULE_DIR, "tmp", "cpacsTMP.xml")
-    if cpacs_path.is_file():
-        shutil.copy(cpacs_path, cpacs_tmp)
-        log.info("The input CPACS file has been copied in /tmp ")
-    else:
-        log.error("The ToolInput (.xml file) cannot be found!")
+    cpacs_tmp = Path(tmp_dir, "cpacsTMP.xml")
+    shutil.copy(cpacs_path, cpacs_tmp)
+    log.info("The input CPACS file has been copied in tmp directory")
 
-    # Run 'cpacscreator' with CPACS input
-    if current_os == "Darwin":
-        os.system("CPACS-Creator " + str(cpacs_tmp))
+    # Run CPACSCreator
+    run_software(software_name=software_name, arguments=[str(cpacs_tmp)], wkdir=tmp_dir)
 
-    elif current_os == "Linux":
-        os.system("cpacscreator " + str(cpacs_tmp))
-
-    elif current_os == "Windows":
-        os.system("CPACSCreator " + str(cpacs_tmp))
-
-    else:
-        raise OSError("OS not recognize!")
-
-    # Copy CPACS temp file (.xml) from the temp directory to /ToolOutput
+    # Copy CPACS tmp file (.xml) from the temp directory to /ToolOutput
     if cpacs_tmp.is_file():
         shutil.copy(cpacs_tmp, cpacs_out_path)
         log.info("The output CPACS file has been copied in /ToolOutput")
@@ -126,7 +104,6 @@ def launch_cpacscreator(cpacs_path, cpacs_out_path):
 # # Run cpacscreator with a script to save a screenshot
 # # Problem: TIGLViewer in not close after the script in the shell
 # os.system('cpacscreator ' + cpacs_tmp + ' --script test_script.js')
-
 
 # =================================================================================================
 #    MAIN

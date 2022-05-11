@@ -22,16 +22,19 @@ from pathlib import Path
 
 import pytest
 from ceasiompy.utils.ceasiompyutils import (
+    SoftwareNotInstalled,
     aircraft_name,
     change_working_dir,
-    get_results_directory,
+    get_install_path,
     get_part_type,
+    get_results_directory,
+    run_software,
 )
+from ceasiompy.utils.paths import CPACS_FILES_PATH
 from cpacspy.cpacsfunctions import open_tixi
 
-from ceasiompy.utils.paths import CPACS_FILES_PATH
-
 MODULE_DIR = Path(__file__).parent
+TMP_DIR = Path(MODULE_DIR, "tmp")
 
 # =================================================================================================
 #   CLASSES
@@ -50,8 +53,8 @@ def test_change_working_dir():
 
     os.chdir(str(MODULE_DIR))
 
-    with change_working_dir(Path(MODULE_DIR, "tmp")):
-        assert Path.cwd() == Path(MODULE_DIR, "tmp")
+    with change_working_dir(TMP_DIR):
+        assert Path.cwd() == TMP_DIR
 
     assert Path.cwd() == MODULE_DIR
 
@@ -60,7 +63,7 @@ def test_change_working_dir():
 
 def test_get_results_directory():
 
-    with change_working_dir(Path(MODULE_DIR, "tmp")):
+    with change_working_dir(TMP_DIR):
 
         results_dir = get_results_directory("ExportCSV")
         assert results_dir == Path(Path.cwd(), "Results", "Aeromaps")
@@ -68,7 +71,6 @@ def test_get_results_directory():
         results_dir = get_results_directory("CPACS2SUMO")
         assert results_dir == Path(Path.cwd(), "Results", "SUMO")
 
-        # Remove the results directory
         if results_dir.parent.exists():
             shutil.rmtree(results_dir.parent)
 
@@ -83,11 +85,28 @@ def test_run_module():
     # TODO: how to test this function?
 
 
-@pytest.mark.skip(reason="Not implemented yet")
 def test_get_install_path():
-    """Test the function get_install_path."""
+    """Test the function 'get_install_path'."""
 
-    # TODO: how to test this function? (on different OS..)
+    assert isinstance(get_install_path("python"), Path)
+
+    assert get_install_path("NotExistingSoftware") is None
+
+    with pytest.raises(SoftwareNotInstalled):
+        get_install_path("NotExistingSoftware", raise_error=True)
+
+
+def test_run_software():
+    """Test the function 'run_software'."""
+
+    run_software("python", ["-c", "print('Hello World!')"], TMP_DIR)
+
+    logfile = Path(TMP_DIR, "logfile_python.log")
+
+    assert logfile.exists()
+
+    with open(logfile, "r") as f:
+        assert "Hello World!" in f.readlines()[0]
 
 
 def test_aircraft_name():
@@ -105,7 +124,6 @@ def test_aircraft_name():
 def test_get_part_type():
     """Test the function get_part_type on the D150"""
 
-    # CPACS file path
     cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml")
 
     assert get_part_type(cpacs_in, "Wing1") == "wing"

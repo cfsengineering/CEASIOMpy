@@ -21,6 +21,7 @@ TODO:
     * Create the doc for this module
     * Create test functions
     * Use Pathlib and asolute path when refactor this module
+    * Use 'run_software' function to run SU2
 
 """
 
@@ -39,7 +40,7 @@ from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
-    get_reasonable_nb_proc,
+    get_reasonable_nb_cpu,
     get_results_directory,
     run_soft,
 )
@@ -748,7 +749,7 @@ def run_mesh_deformation(tixi, wkdir):
     ted_dir_list = [dir for dir in os.listdir(mesh_dir) if "_TED_" in dir]
 
     # Get number of proc to use from the CPACS file
-    nb_proc = get_value_or_default(tixi, SU2_XPATH + "/settings/nbProc", get_reasonable_nb_proc())
+    nb_proc = get_value_or_default(tixi, SU2_XPATH + "/settings/nbProc", get_reasonable_nb_cpu())
 
     # Iterate in all TED directory
     for dir in sorted(ted_dir_list):

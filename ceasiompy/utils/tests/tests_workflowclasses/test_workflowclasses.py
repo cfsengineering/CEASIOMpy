@@ -149,7 +149,7 @@ class TestWorkflow:
 
         for wkflow_dir in Path(MODULE_DIR, "WKFLOW_test").iterdir():
             if wkflow_dir.is_dir():
-                shutil.rmtree(dir, ignore_errors=True)
+                shutil.rmtree(wkflow_dir, ignore_errors=True)
 
         # Test all raising errors
         self.workflow.optim_method = "notValidMethod"

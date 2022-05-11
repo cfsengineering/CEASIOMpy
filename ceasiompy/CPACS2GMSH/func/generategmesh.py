@@ -25,7 +25,6 @@ TODO:
 # =================================================================================================
 
 from pathlib import Path
-
 import gmsh
 import numpy as np
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
@@ -202,6 +201,7 @@ def process_gmsh_log(gmsh_log):
     """
     Function to process the gmsh log file.
     It is used to retrieve the mesh quality
+    and the time needed to mesh the model
     ...
 
     Args:
@@ -220,6 +220,14 @@ def process_gmsh_log(gmsh_log):
     log.info("Final mesh quality :")
     for log_line in final_quality_log:
         log.info(log_line)
+
+    # get meshing time log
+    total_time = 0
+    time_log = [log for log in gmsh_log if "CPU" in log]
+    for message in time_log:
+        total_time += float(message.split("CPU")[1].split("s")[0])
+
+    log.info("Total meshing time : {}s".format(round(total_time, 2)))
 
 
 def generate_gmsh(
@@ -608,7 +616,12 @@ def generate_gmsh(
     # Mesh generation
     log.info("Start of gmsh 2D surface meshing process")
 
+    gmsh.option.setNumber("Mesh.Algorithm", 6)
+    gmsh.option.setNumber("Mesh.LcIntegrationPrecision", 1e-6)
+
     gmsh.model.occ.synchronize()
+    gmsh.logger.start()
+
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
 
@@ -658,13 +671,13 @@ def generate_gmsh(
     log.info("2D mesh smoothing process started")
     gmsh.model.mesh.optimize("Laplace2D", niter=1)
     log.info("Smoothing process finished")
+
     if open_gmsh:
         log.info("Result of 2D surface mesh")
         log.info("GMSH GUI is open, close it to continue...")
         gmsh.fltk.run()
 
     log.info("Start of gmsh 3D volume meshing process")
-    gmsh.logger.start()
     gmsh.model.mesh.generate(3)
     gmsh.model.occ.synchronize()
 
@@ -672,6 +685,7 @@ def generate_gmsh(
     gmsh.write(str(su2mesh_path))
 
     process_gmsh_log(gmsh.logger.get())
+
     if open_gmsh:
         log.info("Result of the 3D volume mesh")
         log.info("GMSH GUI is open, close it to continue...")

@@ -434,7 +434,7 @@ def refine_small_surfaces(
     aircraft_charact_length,
     final_domain_volume_tag,
     n_power=1.5,
-    nb_min_triangle=200,
+    nb_min_triangle=150,
 ):
     """
     Function to refine the mesh

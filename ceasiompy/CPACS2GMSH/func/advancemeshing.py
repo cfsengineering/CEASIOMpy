@@ -430,11 +430,11 @@ def set_farfield_mesh(
 def refine_small_surfaces(
     mesh_fields,
     part,
-    mesh_size_part,
     mesh_size_farfield,
     aircraft_charact_length,
     final_domain_volume_tag,
     n_power=1.5,
+    nb_min_triangle=200,
 ):
     """
     Function to refine the mesh
@@ -454,21 +454,28 @@ def refine_small_surfaces(
         this is the list to be use for the final "Min" background field
     part : ModelPart
         part inspect
-    mesh_size : float
-        mesh size of the part
+    mesh_size_farfield : float
+        mesh size of the farfield
+    aircraft_charact_length : float
+        characteristic length of the aircraft : max(x_length, y_length, z_length) of the aircraft
+    final_domain_volume_tag : int
+        tag of the final domain volume
+    n_power : float
+        power of the power law for the mesh extend function
+    nb_min_triangle : int
+        number of minimum triangle in a mesh surface to trigger the mesh refinement
     ...
     Returns:
     ----------
-    refined_surfaces : list(int)
-        list of the surfaces that have been refined
     mesh_fields : dict
-        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        mesh_fields["nbfields"] : number of existing mesh field in the model
+    part : ModelPart
+        part to check and refine if necessary
+
 
     """
     # area and equilateral triangle of mesh size fuselage
-    mesh_triangle_surf = 0.43301270 * (mesh_size_part**2)
-
-    nb_min_triangle = 200
+    mesh_triangle_surf = 0.43301270 * (part.mesh_size**2)
 
     refined_surfaces = []
 

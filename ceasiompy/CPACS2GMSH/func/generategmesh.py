@@ -622,7 +622,6 @@ def generate_gmsh(
             refined_surfaces, mesh_fields = refine_small_surfaces(
                 mesh_fields,
                 part,
-                part.mesh_size,
                 mesh_size_farfield,
                 max(model_dimensions),
                 final_domain.volume_tag,

@@ -21,13 +21,20 @@ from pathlib import Path
 
 import gmsh
 import pytest
-from ceasiompy.CPACS2GMSH.func.advancemeshing import distance_field, restrict_fields, min_fields
+from ceasiompy.CPACS2GMSH.func.advancemeshing import (
+    distance_field,
+    restrict_fields,
+    min_fields,
+    compute_area,
+    refine_wing_section,
+    set_fuselage_mesh,
+    set_farfield_mesh,
+    refine_small_surfaces,
+)
 
 from cpacspy.cpacspy import CPACS
-from ceasiompy.utils.paths import CPACS_FILES_PATH
 
 MODULE_DIR = Path(__file__).parent
-
 from ceasiompy.utils.paths import CPACS_FILES_PATH
 
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
@@ -172,6 +179,33 @@ def test_min_fields():
     assert gmsh.model.mesh.field.getType(2) == "MathEval"
     assert gmsh.model.mesh.field.getType(3) == "Restrict"
     assert gmsh.model.mesh.field.getType(4) == "Min"
+
+    gmsh.clear()
+    gmsh.finalize()
+
+
+@pytest.mark.skipif(
+    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
+)
+def test_compute_area():
+    """
+    Test if the area of a surface is correctly computed
+    """
+    gmsh.initialize()
+
+    # create a square with gmsh
+
+    square = gmsh.model.occ.addRectangle(0, 0, 0, 1, 1)
+    gmsh.model.occ.synchronize()
+    gmsh.model.mesh.generate(2)
+
+    # compute the meshed area
+
+    area = compute_area(square)
+
+    # Check the area is correct
+
+    assert pytest.approx(area, 0.01) == 1
 
     gmsh.clear()
     gmsh.finalize()

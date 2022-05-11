@@ -15,16 +15,15 @@ Python version: >=3.7
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
-import pytest
 from pathlib import Path
 from unittest.mock import patch
+import pytest
+from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-
-MODULE_DIR = Path(__file__).parent
 from ceasiompy.utils.paths import CPACS_FILES_PATH
 
+MODULE_DIR = Path(__file__).parent
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 

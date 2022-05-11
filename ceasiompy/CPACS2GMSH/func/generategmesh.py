@@ -272,6 +272,9 @@ def generate_gmsh(
         refine factor for the mesh le and te edge
     check_mesh : bool
         If set to true, the mesh will be checked for quality
+    testing_gmsh : bool
+        If set to true, the gmsh sessions will not be clear and killed at the end of
+        the function
 
     """
 

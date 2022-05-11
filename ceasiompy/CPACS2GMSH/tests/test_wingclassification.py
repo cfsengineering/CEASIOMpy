@@ -29,9 +29,9 @@ from ceasiompy.CPACS2GMSH.func.wingclassification import (
 )
 from cpacspy.cpacspy import CPACS
 
-MODULE_DIR = Path(__file__).parent
 from ceasiompy.utils.paths import CPACS_FILES_PATH
 
+MODULE_DIR = Path(__file__).parent
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # ==============================================================================

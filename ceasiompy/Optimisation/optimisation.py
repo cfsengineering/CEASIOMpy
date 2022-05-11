@@ -425,16 +425,13 @@ def add_parameters(prob, ivc):
     """
 
     # Defining constraints and linking design variables to the ivc
-    for (
-        name,
-        (
-            val_type,
-            listval,
-            minval,
-            maxval,
-            getcommand,
-            setcommand,
-        ),
+    for name, (
+        val_type,
+        listval,
+        minval,
+        maxval,
+        getcommand,
+        setcommand,
     ) in Rt.optim_var_dict.items():
         if val_type == "des" and listval[-1] not in ["True", "False", "-"]:
             if is_digit(minval) and is_digit(maxval):

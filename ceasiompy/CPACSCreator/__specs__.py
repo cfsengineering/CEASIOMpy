@@ -1,8 +1,12 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
+# ===== Results directory path =====
+
+RESULTS_DIR = Path("Results", "CPACSCreator")
 
 # ===== CPACS inputs and outputs =====
 

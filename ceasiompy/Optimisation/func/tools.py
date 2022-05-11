@@ -68,6 +68,7 @@ def launch_external_program(path):
 
     """
 
+    # TODO: Use function 'run_software' when this module will be refactore
     OS = sys.platform
     log.info("Identified OS : " + OS)
     if OS == "linux":

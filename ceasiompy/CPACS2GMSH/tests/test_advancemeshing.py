@@ -24,9 +24,12 @@ import pytest
 from ceasiompy.CPACS2GMSH.func.advancemeshing import distance_field, restrict_fields, min_fields
 
 from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.paths import CPACS_FILES_PATH
 
 MODULE_DIR = Path(__file__).parent
-CPACS_IN_PATH = Path(MODULE_DIR, "ToolInput", "simpletest_cpacs.xml")
+
+from ceasiompy.utils.paths import CPACS_FILES_PATH
+
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # ==============================================================================

@@ -23,7 +23,8 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 
 MODULE_DIR = Path(__file__).parent
-CPACS_IN_PATH = Path(MODULE_DIR, "ToolInput", "simpletest_cpacs.xml")
+from ceasiompy.utils.paths import CPACS_FILES_PATH
+
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 
@@ -40,6 +41,7 @@ TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 def test_export_brep():
     """Test function for 'export_brep'"""
 
+    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)

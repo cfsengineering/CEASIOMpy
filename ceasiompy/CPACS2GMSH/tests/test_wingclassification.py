@@ -30,7 +30,8 @@ from ceasiompy.CPACS2GMSH.func.wingclassification import (
 from cpacspy.cpacspy import CPACS
 
 MODULE_DIR = Path(__file__).parent
-CPACS_IN_PATH = Path(MODULE_DIR, "ToolInput", "simpletest_cpacs.xml")
+from ceasiompy.utils.paths import CPACS_FILES_PATH
+
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # ==============================================================================
@@ -223,9 +224,11 @@ def test_classify_wing():
     classified
     """
 
+    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)
+
     _, aircraft_parts = generate_gmsh(
         CPACS_IN_PATH,
         TEST_OUT_PATH,

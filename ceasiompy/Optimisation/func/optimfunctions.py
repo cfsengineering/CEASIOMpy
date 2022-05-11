@@ -451,16 +451,13 @@ def add_geometric_vars(tixi, df):
     """
 
     geom_var = init_geom_var_dict(tixi)
-    for (
-        key,
-        (
-            var_name,
-            [init_value],
-            lower_bound,
-            upper_bound,
-            setcmd,
-            getcmd,
-        ),
+    for key, (
+        var_name,
+        [init_value],
+        lower_bound,
+        upper_bound,
+        setcmd,
+        getcmd,
     ) in geom_var.items():
         new_row = {
             "Name": var_name,

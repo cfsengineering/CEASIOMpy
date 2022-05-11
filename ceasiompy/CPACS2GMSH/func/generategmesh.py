@@ -32,6 +32,8 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
     set_farfield_mesh,
     set_fuselage_mesh,
+    refine_small_surfaces,
+    min_fields,
 )
 from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -231,6 +233,7 @@ def generate_gmsh(
     mesh_size_fuselage=0.2,
     mesh_size_wings=0.2,
     refine_factor=4,
+    check_mesh=True,
 ):
     """
     Function to generate a mesh from brep files forming an airplane
@@ -266,6 +269,8 @@ def generate_gmsh(
         If set to true, the mesh will be generated with advanced meshing options
     refine_factor : int
         refine factor for the mesh le and te edge
+    check_mesh : bool
+        If set to true, the mesh will be checked for quality
 
     """
 
@@ -557,19 +562,20 @@ def generate_gmsh(
     if symmetry:
         gmsh.model.setColor(symmetry_surfaces, *MESH_COLORS["symmetry"], a=150, recursive=False)
 
+    # Wing leading edge and trailing edge detection
+    for part in aircraft_parts:
+        if "wing" in part.part_type:
+            # wing classifications
+            classify_wing(part, aircraft_parts)
+            log.info(
+                f"Classification of {part.uid} done" f"{len(part.wing_sections)} section(s) found "
+            )
+
     # Generate advance meshing features
     if refine_factor != 1:
         mesh_fields = {"nbfields": 0, "restrict_fields": []}
         for part in aircraft_parts:
             if "wing" in part.part_type:
-
-                # wing classifications
-                classify_wing(part, aircraft_parts)
-                log.info(
-                    f"Classification of {part.uid} done"
-                    f"{len(part.wing_sections)} section(s) found "
-                )
-
                 # wing refinement
                 refine_wing_section(
                     mesh_fields,
@@ -580,8 +586,10 @@ def generate_gmsh(
                     refine=refine_factor,
                 )
             elif "fuselage" in part.part_type:
+                # fuselage refinement
                 set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
 
+        # Farfield and domain refinement
         set_farfield_mesh(
             mesh_fields,
             aircraft_parts,
@@ -591,28 +599,62 @@ def generate_gmsh(
         )
 
         # Generate the minimal background mesh field
-        mesh_fields["nbfields"] += 1
-        gmsh.model.mesh.field.add("Min", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumbers(
-            mesh_fields["nbfields"], "FieldsList", mesh_fields["restrict_fields"]
-        )
-        gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
-
-        # When background mesh is used those options must be set to zero
-        gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
-        gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
-        gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
+        mesh_fields = min_fields(mesh_fields)
 
     # Mesh generation
     log.info("Start of gmsh 2D surface meshing process")
+
     gmsh.model.occ.synchronize()
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
 
+    # Control of the mesh quality
+    if refine_factor != 1 and check_mesh == True:
+
+        bad_surfaces = []
+
+        for part in aircraft_parts:
+
+            refined_surfaces, mesh_fields = refine_small_surfaces(
+                mesh_fields,
+                part,
+                part.mesh_size,
+                mesh_size_farfield,
+                max(model_dimensions),
+                final_domain.volume_tag,
+            )
+            bad_surfaces.extend(refined_surfaces)
+
+        if bad_surfaces:
+
+            log.info(f"{len(bad_surfaces)} surface(s) need to be refined")
+
+            # reset the background mesh
+            mesh_fields = min_fields(mesh_fields)
+
+            if open_gmsh:
+
+                log.info("Insufficient mesh size surfaces are displayed in red")
+                log.info("GMSH GUI is open, close it to continue...")
+                gmsh.fltk.run()
+
+            log.info("Start of gmsh 2D surface remeshing process")
+
+            gmsh.model.mesh.generate(1)
+            gmsh.model.mesh.generate(2)
+
+            for surface in bad_surfaces:
+
+                gmsh.model.setColor([(2, surface)], *(0, 255, 0), a=255, recursive=False)
+
+            log.info("Remeshing process finished")
+            if open_gmsh:
+                log.info("Corrected mesh surfaces are displayed in green")
+
     # Apply smoothing
-
+    log.info("2D mesh smoothing process started")
     gmsh.model.mesh.optimize("Laplace2D", niter=1)
-
+    log.info("Smoothing process finished")
     if open_gmsh:
         log.info("Result of 2D surface mesh")
         log.info("GMSH GUI is open, close it to continue...")

@@ -21,7 +21,7 @@ from pathlib import Path
 
 import gmsh
 import pytest
-from ceasiompy.CPACS2GMSH.func.advancemeshing import distance_field, restrict_fields
+from ceasiompy.CPACS2GMSH.func.advancemeshing import distance_field, restrict_fields, min_fields
 
 from cpacspy.cpacspy import CPACS
 
@@ -132,6 +132,43 @@ def test_restrict_fields():
     assert gmsh.model.mesh.field.getType(3) == "Restrict"
     assert gmsh.model.mesh.field.getType(4) == "MathEval"
     assert gmsh.model.mesh.field.getType(5) == "Restrict"
+
+    gmsh.clear()
+    gmsh.finalize()
+
+
+def test_min_fields():
+    """
+    Test if a simple min field can be generate for a restrict field
+    """
+    gmsh.initialize()
+    # create a sphere with gmsh
+
+    gmsh.model.occ.addSphere(0, 0, 0, 1)
+    # Create a distance fields on the first line of the sphere
+    mesh_fields = {"nbfields": 0, "restrict_fields": []}
+
+    mesh_fields = distance_field(mesh_fields, 1, [1])
+
+    # create a simple matheval field on the previous distance_field
+    mesh_fields["nbfields"] += 1
+    gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
+    gmsh.model.mesh.field.setString(mesh_fields["nbfields"], "F", "(F1 /2)")
+    # Create a restrict field on one of the sphere surface
+    mesh_fields = restrict_fields(mesh_fields, 2, [1])
+
+    # create the min field
+    mesh_fields = min_fields(mesh_fields)
+
+    # Check mesh field are created
+    assert mesh_fields["nbfields"] == 4
+
+    # Check mesh field tags are correct
+
+    assert gmsh.model.mesh.field.getType(1) == "Distance"
+    assert gmsh.model.mesh.field.getType(2) == "MathEval"
+    assert gmsh.model.mesh.field.getType(3) == "Restrict"
+    assert gmsh.model.mesh.field.getType(4) == "Min"
 
     gmsh.clear()
     gmsh.finalize()

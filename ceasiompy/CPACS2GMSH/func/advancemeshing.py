@@ -114,6 +114,68 @@ def restrict_fields(mesh_fields, dim, object_tags, infield=None):
     return mesh_fields
 
 
+def min_fields(mesh_fields):
+    """
+    This function creates a min field with all the current restrict fields
+
+    Args:
+    ----------
+    mesh_fields : dict
+        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        each field must be created with a different index !!!
+
+    Returns:
+    ----------
+    mesh_fields : dict
+    """
+
+    # Add a minimal background mesh field
+    mesh_fields["nbfields"] += 1
+    gmsh.model.mesh.field.add("Min", mesh_fields["nbfields"])
+    gmsh.model.mesh.field.setNumbers(
+        mesh_fields["nbfields"], "FieldsList", mesh_fields["restrict_fields"]
+    )
+    gmsh.model.mesh.field.setAsBackgroundMesh(mesh_fields["nbfields"])
+
+    # When background mesh is used those options must be set to zero
+    gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
+    gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
+    gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
+
+    return mesh_fields
+
+
+def compute_area(surface_tag):
+    """
+    Function to compute the area of a surface using gmsh plugin
+
+    first create a physical group with the surface, its mandatory to have a physical group
+    to compute the area since its the input for the plugin function
+
+    Args:
+    ----------
+    surface_tag : int
+        tag of the surface to compute the area
+    """
+
+    # create a physical group with the surface
+    surface_groupe = gmsh.model.addPhysicalGroup(2, [surface_tag])
+
+    # call the plugin
+    gmsh.plugin.setNumber("MeshVolume", "Dimension", 2)
+    gmsh.plugin.setNumber("MeshVolume", "PhysicalGroup", surface_groupe)
+    gmsh.plugin.run("MeshVolume")
+    # retrieve the area in the views data
+    views = gmsh.view.getTags()
+    _, _, data = gmsh.view.getListData(views[-1])
+    area = data[-1][-1]
+    # clean the views
+    gmsh.view.remove(views)
+    # clean the physical group
+    gmsh.model.removePhysicalGroups([(2, surface_groupe)])
+    return area
+
+
 def refine_wing_section(
     mesh_fields,
     final_domain_volume_tag,
@@ -277,6 +339,7 @@ def set_fuselage_mesh(mesh_fields, fuselage_part, mesh_size_fuselage):
         mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
     )
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_fuselage)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_fuselage)
 
     # restrict field
     mesh_fields = restrict_fields(mesh_fields, 2, fuselage_part.surfaces_tags)
@@ -334,16 +397,18 @@ def set_farfield_mesh(
         # 1 : Math eval field
         # distance field
         mesh_fields = distance_field(mesh_fields, 2, part.surfaces_tags)
+        distance_field_tag = mesh_fields["nbfields"]
+
         # create a mesh function
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
-        distance_field_tag = mesh_fields["nbfields"] - 1
         gmsh.model.mesh.field.setString(
             mesh_fields["nbfields"],
             "F",
             f"{part.mesh_size} + ({mesh_size_farfield} - {part.mesh_size})*"
             f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power}",
         )
+
         # restrict field
         mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
 
@@ -360,6 +425,95 @@ def set_farfield_mesh(
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_farfield)
         # restrict field
         mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
+
+
+def refine_small_surfaces(
+    mesh_fields,
+    part,
+    mesh_size_part,
+    mesh_size_farfield,
+    aircraft_charact_length,
+    final_domain_volume_tag,
+    n_power=1.5,
+):
+    """
+    Function to refine the mesh
+
+    Each surface of the part is inspected :
+
+    - if the surface area is very small compare to the mesh size of the part mesh
+    the surface is remeshed with a smaller mesh size
+
+
+    Args:
+    ----------
+    mesh_fields : dict
+        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        each field must be created with a different index !!!
+        mesh_fields["restrict_fields"] : list of the restrict fields,
+        this is the list to be use for the final "Min" background field
+    part : ModelPart
+        part inspect
+    mesh_size : float
+        mesh size of the part
+    ...
+    Returns:
+    ----------
+    refined_surfaces : list(int)
+        list of the surfaces that have been refined
+    mesh_fields : dict
+        mesh_fields["nbfields"] : number of existing mesh field in the model,
+
+    """
+    # area and equilateral triangle of mesh size fuselage
+    mesh_triangle_surf = 0.43301270 * (mesh_size_part**2)
+
+    nb_min_triangle = 200
+
+    refined_surfaces = []
+
+    for surface_tag in part.surfaces_tags:
+        area = compute_area(surface_tag)
+
+        if area < nb_min_triangle * mesh_triangle_surf:
+            refined_surfaces.append(surface_tag)
+            # refine the surface
+            new_mesh_size = ((area / (nb_min_triangle)) / 0.43301270) ** 0.5
+
+            # set the color to indicate the bad surfaces
+            gmsh.model.setColor([(2, surface_tag)], *(255, 0, 0), a=255, recursive=False)
+
+            # create new distance field
+            mesh_fields = distance_field(mesh_fields, 2, [surface_tag])
+            distance_field_tag = mesh_fields["nbfields"]
+
+            # create new threshold field
+            mesh_fields["nbfields"] += 1
+            gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
+            gmsh.model.mesh.field.setNumber(
+                mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
+            )
+            gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", new_mesh_size)
+            gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", new_mesh_size)
+
+            # restrict field
+            mesh_fields = restrict_fields(mesh_fields, 2, [surface_tag])
+
+            # Math eval field
+            mesh_fields["nbfields"] += 1
+            gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
+            gmsh.model.mesh.field.setString(
+                mesh_fields["nbfields"],
+                "F",
+                f"{new_mesh_size} + ({mesh_size_farfield} - {new_mesh_size})*"
+                f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power}",
+            )
+            # restrict field
+            mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
+
+    log.info(f"Surface mesh of {part.uid} was insufficient")
+
+    return refined_surfaces, mesh_fields
 
 
 # =================================================================================================

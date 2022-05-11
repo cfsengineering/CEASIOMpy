@@ -235,7 +235,7 @@ def test_classify_wing():
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
         symmetry=False,
-        refine_factor=1.2,
+        refine_factor=1.0,
     )
 
     for part in aircraft_parts:

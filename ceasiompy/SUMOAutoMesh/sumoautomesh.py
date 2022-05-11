@@ -51,35 +51,6 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 
 
-def create_mesh_manually_instructions(sumo_file_path, su2_mesh_path):
-    """Instructions to create a mesh manually, if SUMO is not available to run in batch.
-
-    Args:
-        sumo_file_path (Path): Path to the SUMO file.
-        su2_mesh_path (Path): Path to the SU2 mesh.
-
-    """
-
-    log.info("Your OS is Mac\n\n")
-    log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!")
-    log.info("On MacOS the mesh has to be generated manually.")
-    log.info("To create a SU2Mesh you have to :")
-    log.info("Open the .smx geometry that you will find there:")
-    log.info(sumo_file_path)
-    log.info('Click on the button "Mesh"')
-    log.info('Click on "Create Mesh"')
-    log.info('Click on "Volume Mesh"')
-    log.info('Click on "Run"')
-    log.info('When the mesh generation is completed, click on "Close"')
-    log.info('Go to the Menu "Mesh" -> "Save volume mesh..."')
-    log.info('Chose "SU2 (*.su2)" as File Type"')
-    log.info("Copy/Paste the following line as File Name")
-    log.info(su2_mesh_path)
-    log.info('Click on "Save"')
-    log.info("You can now close SUMO, your workflow will continue.")
-    log.info("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!\n\n")
-
-
 def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     """Function to add mesh parameter options in SUMO geometry (.smx file)
 
@@ -99,8 +70,8 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
 
     """
 
-    refine_ratio = 0.6  # to get approx. double mesh cell when +1 on "refine_level"
-    refine_factor = refine_ratio**refine_level
+    REFINE_RATIO = 0.6  # to get approx. double mesh cell when +1 on "refine_level"
+    refine_factor = REFINE_RATIO ** refine_level
     log.info("Refinement factor is {}".format(refine_factor))
 
     # Open SUMO (.smx) with tixi library
@@ -129,7 +100,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
             # Estimate circumference and add to the list
             height = sumo.getDoubleAttribute(frame_xpath, "height")
             width = sumo.getDoubleAttribute(frame_xpath, "width")
-            circ = 2 * math.pi * math.sqrt((height**2 + width**2) / 2)
+            circ = 2 * math.pi * math.sqrt((height ** 2 + width ** 2) / 2)
             circ_list.append(circ)
 
             # Get overall min radius (semi-minor axi for ellipse)
@@ -264,35 +235,36 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
     log.info(f"Mesh refinement level: {refine_level}")
     add_mesh_parameters(sumo_file_path, refine_level)
 
-    # Check current Operating System
+    # Tetgen option, see help for more options
+    output = "su2"
+    options = "pq1.16VY"
+    arguments = [
+        "-batch",
+        f"-output={output}",
+        f"-tetgen-options={options}",
+        str(sumo_file_path),
+    ]
+
     current_os = platform.system()
 
     if current_os == "Darwin":
         log.info("Your OS is MacOS")
 
-        create_mesh_manually_instructions(sumo_file_path, su2_mesh_path)
-
-        run_software("open", ["/Applications/SUMO/dwfsumo.app/"], sumo_results_dir)
-        input("Press ENTER to continue...")
-
-        # TODO: try that to run in batch on MacOS
+        # The complete command line to run is:
         # /Applications/SUMO/dwfsumo.app/Contents/MacOS/dwfsumo
         # -batch output=su2 -tetgen-options=pq1.16VY ToolOutput.smx
+
+        # On MacOS, the symbolic link to "sumo" as it is done on Linux is not working, an error
+        # with QT occurs when trying to run the command.
+        # The folder which contains the 'dwfsumo' executable must be in the PATH
+
+        run_software("dwfsumo", arguments, sumo_results_dir)
 
     elif current_os == "Linux":
         log.info("Your OS is Linux")
 
         # The complete command line to run is:
         # sumo -batch -output=su2 -tetgen-options=pq1.16VY ToolOutput.smx
-
-        output = "su2"
-        options = "pq1.16VY"  # See Tetgen help for more options
-        arguments = [
-            "-batch",
-            f"-output={output}",
-            f"-tetgen-options={options}",
-            str(sumo_file_path),
-        ]
 
         run_software("sumo", arguments, sumo_results_dir)
 

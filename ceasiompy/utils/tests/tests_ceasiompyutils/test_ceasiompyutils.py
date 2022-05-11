@@ -16,7 +16,6 @@ Python version: >=3.7
 #   IMPORTS
 # =================================================================================================
 
-from cProfile import run
 import os
 import shutil
 from pathlib import Path
@@ -27,13 +26,12 @@ from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
     change_working_dir,
     get_install_path,
-    get_results_directory,
     get_part_type,
+    get_results_directory,
     run_software,
 )
-from cpacspy.cpacsfunctions import open_tixi
-
 from ceasiompy.utils.paths import CPACS_FILES_PATH
+from cpacspy.cpacsfunctions import open_tixi
 
 MODULE_DIR = Path(__file__).parent
 TMP_DIR = Path(MODULE_DIR, "tmp")

@@ -92,6 +92,8 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         mesh_size_fuselage=mesh_size_fuselage,
         mesh_size_wings=mesh_size_wings,
         refine_factor=refine_factor,
+        check_mesh=True,
+        testing_gmsh=False,
     )
 
     if mesh_path.exists():

@@ -25,8 +25,10 @@ TODO:
 # =================================================================================================
 
 from pathlib import Path
+from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
 import gmsh
 import numpy as np
+
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
     set_farfield_mesh,
@@ -40,15 +42,6 @@ from ceasiompy.utils.ceasiompyutils import get_part_type
 
 log = get_logger()
 
-MESH_COLORS = {
-    "farfield": (255, 200, 0),
-    "symmetry": (138, 43, 226),
-    "wing": (0, 200, 200),
-    "fuselage": (255, 215, 0),
-    "pylon": (255, 15, 255),
-    "bad_surface": (255, 0, 0),
-    "good_surface": (0, 255, 0),
-}
 
 # =================================================================================================
 #   CLASSES

@@ -16,6 +16,7 @@ Python version: >=3.7
 #   IMPORTS
 # ==============================================================================
 
+import shutil
 import sys
 from pathlib import Path
 
@@ -217,10 +218,9 @@ def test_refine_wing_section():
     Test if the wing section is correctly refined by the advancemeshing algorithm
     """
 
-    # Clean possible previous files
-    files_to_delete = [p for p in TEST_OUT_PATH.iterdir() if p.suffix in [".brep", ".su2"]]
-    for file in files_to_delete:
-        file.unlink()
+    if TEST_OUT_PATH.exists():
+        shutil.rmtree(TEST_OUT_PATH)
+    TEST_OUT_PATH.mkdir()
 
     cpacs = CPACS(str(CPACS_IN_PATH))
 
@@ -284,10 +284,9 @@ def test_check_mesh():
     Test if the wing section is correctly remeshed when the area is too small
     """
 
-    # Clean possible previous files
-    files_to_delete = [p for p in TEST_OUT_PATH.iterdir() if p.suffix in [".brep", ".su2"]]
-    for file in files_to_delete:
-        file.unlink()
+    if TEST_OUT_PATH.exists():
+        shutil.rmtree(TEST_OUT_PATH)
+    TEST_OUT_PATH.mkdir()
 
     cpacs = CPACS(str(CPACS_IN_PATH))
 

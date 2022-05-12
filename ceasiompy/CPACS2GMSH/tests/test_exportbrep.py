@@ -16,6 +16,7 @@ Python version: >=3.7
 #   IMPORTS
 # ==============================================================================
 from pathlib import Path
+import shutil
 from unittest.mock import patch
 import pytest
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
@@ -41,10 +42,9 @@ TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 def test_export_brep():
     """Test function for 'export_brep'"""
 
-    # Clean possible previous files in TEST_OUT_PATH
-    files_to_delete = [p for p in TEST_OUT_PATH.iterdir() if p.suffix in [".brep", ".su2"]]
-    for file in files_to_delete:
-        file.unlink()
+    if TEST_OUT_PATH.exists():
+        shutil.rmtree(TEST_OUT_PATH)
+    TEST_OUT_PATH.mkdir()
 
     cpacs = CPACS(str(CPACS_IN_PATH))
 

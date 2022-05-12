@@ -16,6 +16,7 @@ Python version: >=3.7
 #   IMPORTS
 # ==============================================================================
 
+import shutil
 import sys
 from pathlib import Path
 
@@ -27,9 +28,8 @@ from ceasiompy.CPACS2GMSH.func.wingclassification import (
     detect_normal_profile,
     detect_truncated_profile,
 )
-from cpacspy.cpacspy import CPACS
-
 from ceasiompy.utils.paths import CPACS_FILES_PATH
+from cpacspy.cpacspy import CPACS
 
 MODULE_DIR = Path(__file__).parent
 CPACS_SIMPLE = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
@@ -225,10 +225,9 @@ def test_classify_wing():
     classified
     """
 
-    # Clean possible previous files in TEST_OUT_PATH
-    files_to_delete = [p for p in TEST_OUT_PATH.iterdir() if p.suffix in [".brep", ".su2"]]
-    for file in files_to_delete:
-        file.unlink()
+    if TEST_OUT_PATH.exists():
+        shutil.rmtree(TEST_OUT_PATH)
+    TEST_OUT_PATH.mkdir()
 
     cpacs = CPACS(str(CPACS_SIMPLE))
 

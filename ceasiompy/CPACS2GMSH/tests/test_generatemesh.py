@@ -16,6 +16,7 @@ Python version: >=3.7
 #   IMPORTS
 # ==============================================================================
 
+import shutil
 import sys
 from pathlib import Path
 
@@ -55,10 +56,9 @@ def test_generate_gmsh():
 
     """
 
-    # Clean possible previous files in TEST_OUT_PATH
-    files_to_delete = [p for p in TEST_OUT_PATH.iterdir() if p.suffix in [".brep", ".su2"]]
-    for file in files_to_delete:
-        file.unlink()
+    if TEST_OUT_PATH.exists():
+        shutil.rmtree(TEST_OUT_PATH)
+    TEST_OUT_PATH.mkdir()
 
     cpacs = CPACS(str(CPACS_IN_PATH))
 
@@ -104,10 +104,9 @@ def test_generate_gmsh_symm():
 
     """
 
-    # Clean possible previous files in TEST_OUT_PATH
-    files_to_delete = [p for p in TEST_OUT_PATH.iterdir() if p.suffix in [".brep", ".su2"]]
-    for file in files_to_delete:
-        file.unlink()
+    if TEST_OUT_PATH.exists():
+        shutil.rmtree(TEST_OUT_PATH)
+    TEST_OUT_PATH.mkdir()
 
     cpacs = CPACS(str(CPACS_IN_PATH))
 
@@ -151,10 +150,9 @@ def test_symm_part_removed():
 
     """
 
-    # Clean possible previous files in TEST_OUT_PATH
-    files_to_delete = [p for p in TEST_OUT_PATH.iterdir() if p.suffix in [".brep", ".su2"]]
-    for file in files_to_delete:
-        file.unlink()
+    if TEST_OUT_PATH.exists():
+        shutil.rmtree(TEST_OUT_PATH)
+    TEST_OUT_PATH.mkdir()
 
     cpacs = CPACS(str(CPACS_IN_PATH))
 
@@ -286,10 +284,9 @@ def test_assignation():
 
     """
 
-    # Clean possible previous files in TEST_OUT_PATH
-    files_to_delete = [p for p in TEST_OUT_PATH.iterdir() if p.suffix in [".brep", ".su2"]]
-    for file in files_to_delete:
-        file.unlink()
+    if TEST_OUT_PATH.exists():
+        shutil.rmtree(TEST_OUT_PATH)
+    TEST_OUT_PATH.mkdir()
 
     cpacs = CPACS(str(CPACS_IN_PATH))
 

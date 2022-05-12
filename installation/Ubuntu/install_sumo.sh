@@ -42,8 +42,8 @@ sudo apt install libglu1-mesa
 echo "--> xvfb"
 sudo apt install xvfb
 
-echo "Creating a symlink for sumo..."
-sudo ln -s "$install_dir/sumo-2.7.9/bin/dwfsumo" /usr/bin/sumo
+# echo "Creating a symlink for sumo..."
+# sudo ln -s "$install_dir/sumo-2.7.9/bin/dwfsumo" /usr/bin/sumo
 
 echo "Set Tetgen path in dwfsumo.conf..."
 if [ ! -e "~/.config/larosterna/dwfsumo.conf" ]; then

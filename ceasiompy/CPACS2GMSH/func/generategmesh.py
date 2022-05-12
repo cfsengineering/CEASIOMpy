@@ -257,11 +257,11 @@ def generate_gmsh(
     file.
     Args:
     ----------
-    cpacs_path : str
+    cpacs_path : Path
         path to the cpacs file
-    brep_dir_path : (Path)
+    brep_dir_path : Path
         Path to the directory containing the brep files
-    results_dir : (path)
+    results_dir : Path
         Path to the directory containing the result (mesh) files
     open_gmsh : bool
         Open gmsh GUI after the mesh generation if set to true
@@ -556,7 +556,7 @@ def generate_gmsh(
     # the size of the points on boundaries.
 
     for part in aircraft_parts:
-        if "fuselage" in part.part_type:
+        if part.part_type == "fuselage":
             part.mesh_size = mesh_size_fuselage
             gmsh.model.mesh.setSize(part.points, part.mesh_size)
             gmsh.model.setColor(
@@ -578,7 +578,7 @@ def generate_gmsh(
 
     # Wing leading edge and trailing edge detection
     for part in aircraft_parts:
-        if "wing" == part.part_type:
+        if part.part_type == "wing":
             # wing classifications
             classify_wing(part, aircraft_parts)
             log.info(
@@ -589,7 +589,7 @@ def generate_gmsh(
     if refine_factor != 1:
         mesh_fields = {"nbfields": 0, "restrict_fields": []}
         for part in aircraft_parts:
-            if "wing" == part.part_type:
+            if part.part_type == "wing":
                 # wing refinement
                 refine_wing_section(
                     mesh_fields,
@@ -599,7 +599,7 @@ def generate_gmsh(
                     mesh_size_wings,
                     refine=refine_factor,
                 )
-            elif "fuselage" == part.part_type:
+            elif part.part_type == "fuselage":
                 # fuselage refinement
                 set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
 
@@ -640,7 +640,6 @@ def generate_gmsh(
                 mesh_size_farfield,
                 max(model_dimensions),
                 final_domain.volume_tag,
-                MESH_COLORS=MESH_COLORS,
             )
             bad_surfaces.extend(refined_surfaces)
 

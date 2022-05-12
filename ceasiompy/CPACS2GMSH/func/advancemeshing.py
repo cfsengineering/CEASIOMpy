@@ -24,9 +24,11 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+from ceasiompy.CPACS2GMSH.func.generategmesh import MESH_COLORS
 import gmsh
 import numpy as np
 from ceasiompy.utils.ceasiomlogger import get_logger
+
 
 log = get_logger()
 
@@ -438,7 +440,6 @@ def refine_small_surfaces(
     mesh_size_farfield,
     aircraft_charact_length,
     final_domain_volume_tag,
-    MESH_COLORS,
     n_power=1.5,
     nb_min_triangle=150,
 ):
@@ -466,8 +467,6 @@ def refine_small_surfaces(
         characteristic length of the aircraft : max(x_length, y_length, z_length) of the aircraft
     final_domain_volume_tag : int
         tag of the final domain volume
-    MESH_COLORS : dict
-        dictionary of the mesh colors
     n_power : float
         power of the power law for the mesh extend function
     nb_min_triangle : int

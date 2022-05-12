@@ -85,7 +85,7 @@ def test_integration_2():
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(not shutil.which("sumo"), reason="SUMO not installed")
+@pytest.mark.skipif(not shutil.which("dwfsumo"), reason="SUMO not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_3():
 

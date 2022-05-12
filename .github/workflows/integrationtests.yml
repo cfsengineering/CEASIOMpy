@@ -60,6 +60,12 @@ jobs:
       shell: bash -l {0}
       run: installation/Ubuntu/install_sumo.sh
 
+    - name: Check installation
+      shell: bash -l {0}
+      run: |
+        which sumo
+        which dwfsumo
+
     - name: Install SU2
       shell: bash -l {0}
       run: installation/Ubuntu/install_su2.sh

@@ -60,17 +60,12 @@ jobs:
       shell: bash -l {0}
       run: installation/Ubuntu/install_sumo.sh
 
-    - name: Check installation
-      shell: bash -l {0}
-      run: |
-        which sumo | echo
-        which dwfsumo | echo
-        tail ~/.bashrc
-
-    - name: Setup tmate session
-      if: ${{ failure() }}
-      uses: mxschmitt/action-tmate@v3
-      timeout-minutes: 10
+    # - name: Check installation
+    #   shell: bash -l {0}
+    #   run: |
+    #     which sumo | echo
+    #     which dwfsumo | echo
+    #     tail ~/.bashrc
 
     - name: Install SU2
       shell: bash -l {0}
@@ -90,4 +85,9 @@ jobs:
         flags: integrationtests
         fail_ci_if_error: true
         verbose: true
+      
+    - name: Setup tmate session to SSH to the remote machine
+      if: ${{ failure() }}
+      uses: mxschmitt/action-tmate@v3
+      timeout-minutes: 15
 

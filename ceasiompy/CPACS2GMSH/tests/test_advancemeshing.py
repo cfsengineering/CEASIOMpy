@@ -34,6 +34,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.paths import CPACS_FILES_PATH
 
 MODULE_DIR = Path(__file__).parent
+CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simple_sharp_airfoil.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # ==============================================================================
@@ -215,8 +216,11 @@ def test_refine_wing_section():
     """
     Test if the wing section is correctly refined by the advancemeshing algorithm
     """
+    # Clean possible previous files in TEST_OUT_PATH
+    files_to_delete = [p for p in TEST_OUT_PATH.iterdir() if p.suffix in [".brep", ".su2"]]
+    for file in files_to_delete:
+        file.unlink()
 
-    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simple_untruncated.xml")
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)
@@ -237,8 +241,7 @@ def test_refine_wing_section():
 
     # Check if the meshfields were generated
 
-    gmsh_field_list = gmsh.model.mesh.field.list()
-    assert len(gmsh_field_list) == 36
+    assert len(gmsh.model.mesh.field.list()) == 36
 
     # Check if a distance field was generated on the wing le and te
     assert gmsh.model.mesh.field.getType(4) == "Distance"
@@ -246,21 +249,16 @@ def test_refine_wing_section():
         [a == b for a, b in zip(gmsh.model.mesh.field.getNumbers(4, "CurvesList"), [19, 21])]
     )
     # Check if a Matheval field was generated with the correct formula
-    assert gmsh.model.mesh.field.getString(5, "F") == "(0.5/2.0) + 0.5*(1-(1/2.0))*(F4/0.3)^1.25"
+    assert gmsh.model.mesh.field.getString(5, "F") == "(0.5/2.0) + 0.5*(1-(1/2.0))*(F4/0.25)^2"
     assert gmsh.model.mesh.field.getType(5) == "MathEval"
 
     # Check if the restrict field was applied on the wing
     assert gmsh.model.mesh.field.getType(6) == "Restrict"
+
     # Check the restrict field is applied on the wing surfaces
-    assert all(
-        [
-            a == b
-            for a, b in zip(
-                gmsh.model.mesh.field.getNumbers(6, "SurfacesList"),
-                [9, 2, 3, 4, 10, 5, 6, 8, 11, 7],
-            )
-        ]
-    )
+
+    list_result = [9, 2, 3, 4, 10, 5, 6, 8, 11, 7]
+    assert list(gmsh.model.mesh.field.getNumbers(6, "SurfacesList")) == list_result
 
     gmsh.clear()
     gmsh.finalize()
@@ -279,7 +277,6 @@ def test_check_mesh():
     Test if the wing section is correctly remeshed when the area is too small
     """
 
-    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simple_untruncated.xml")
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)
@@ -300,8 +297,7 @@ def test_check_mesh():
 
     # Check if meshfields were generated (more than 36 == without check_mesh)
 
-    gmsh_field_list = gmsh.model.mesh.field.list()
-    assert len(gmsh_field_list) == 87
+    assert len(gmsh.model.mesh.field.list()) == 87
 
     gmsh.clear()
     gmsh.finalize()

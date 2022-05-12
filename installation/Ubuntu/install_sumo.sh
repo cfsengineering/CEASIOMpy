@@ -36,6 +36,9 @@ sudo add-apt-repository ppa:linuxuprising/libpng12
 sudo apt update -y
 sudo apt install -y libpng12-0
 
+echo "--> libglu"
+sudo apt install libglu1-mesa
+
 echo "Creating a symlink for sumo..."
 sudo ln -s "$install_dir/sumo-2.7.9/bin/dwfsumo" /usr/bin/sumo
 
@@ -48,7 +51,7 @@ else
     if ! grep "tetgenpath" ~/.config/larosterna/dwfsumo.conf ; then
         echo "tetgenpath=$install_dir/sumo-2.7.9/bin/tetgen" >> ~/.config/larosterna/dwfsumo.conf
     else
-        sed -i "s/tetgenpath.*/tetgenpath=$install_dir/sumo-2.7.9/bin/tetgen/" ~/.config/larosterna/dwfsumo.conf
+        sed -i "s|tetgenpath.*|tetgenpath=$install_dir/sumo-2.7.9/bin/tetgen|" ~/.config/larosterna/dwfsumo.conf
     fi
 fi
 

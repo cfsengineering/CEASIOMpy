@@ -284,7 +284,7 @@ def generate_gmsh(
         If set to true, the mesh will be checked for quality
     testing_gmsh : bool
         If set to true, the gmsh sessions will not be clear and killed at the end of
-        the function
+        the function, this allow to test the gmsh feature after the call of generate_gmsh()
 
     """
 

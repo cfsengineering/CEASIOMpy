@@ -25,8 +25,10 @@ TODO:
 # =================================================================================================
 
 from pathlib import Path
+from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
 import gmsh
 import numpy as np
+
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
     set_farfield_mesh,
@@ -40,13 +42,6 @@ from ceasiompy.utils.ceasiompyutils import get_part_type
 
 log = get_logger()
 
-MESH_COLORS = {
-    "farfield": (255, 200, 0),
-    "symmetry": (138, 43, 226),
-    "wing": (0, 200, 200),
-    "fuselage": (255, 215, 0),
-    "pylon": (255, 0, 0),
-}
 
 # =================================================================================================
 #   CLASSES
@@ -282,7 +277,7 @@ def generate_gmsh(
         If set to true, the mesh will be checked for quality
     testing_gmsh : bool
         If set to true, the gmsh sessions will not be clear and killed at the end of
-        the function
+        the function, this allow to test the gmsh feature after the call of generate_gmsh()
 
     """
 
@@ -554,7 +549,7 @@ def generate_gmsh(
     # the size of the points on boundaries.
 
     for part in aircraft_parts:
-        if "fuselage" in part.part_type:
+        if part.part_type == "fuselage":
             part.mesh_size = mesh_size_fuselage
             gmsh.model.mesh.setSize(part.points, part.mesh_size)
             gmsh.model.setColor(
@@ -576,7 +571,7 @@ def generate_gmsh(
 
     # Wing leading edge and trailing edge detection
     for part in aircraft_parts:
-        if "wing" in part.part_type:
+        if part.part_type == "wing":
             # wing classifications
             classify_wing(part, aircraft_parts)
             log.info(
@@ -587,7 +582,7 @@ def generate_gmsh(
     if refine_factor != 1:
         mesh_fields = {"nbfields": 0, "restrict_fields": []}
         for part in aircraft_parts:
-            if "wing" in part.part_type:
+            if part.part_type == "wing":
                 # wing refinement
                 refine_wing_section(
                     mesh_fields,
@@ -597,7 +592,7 @@ def generate_gmsh(
                     mesh_size_wings,
                     refine=refine_factor,
                 )
-            elif "fuselage" in part.part_type:
+            elif part.part_type == "fuselage":
                 # fuselage refinement
                 set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
 
@@ -661,7 +656,9 @@ def generate_gmsh(
 
             for surface in bad_surfaces:
 
-                gmsh.model.setColor([(2, surface)], *(0, 255, 0), a=255, recursive=False)
+                gmsh.model.setColor(
+                    [(2, surface)], *MESH_COLORS["good_surface"], a=255, recursive=False
+                )
 
             log.info("Remeshing process finished")
             if open_gmsh:

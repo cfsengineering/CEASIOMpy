@@ -8,7 +8,7 @@ Test functions for 'ceasiompy/CPACS2GMSH/wingclassification.py'
 Python version: >=3.7
 
 | Author : Tony Govoni
-| Creation: 2019-05-09
+| Creation: 2022-04-09
 
 """
 
@@ -16,6 +16,7 @@ Python version: >=3.7
 #   IMPORTS
 # ==============================================================================
 
+import shutil
 import sys
 from pathlib import Path
 
@@ -34,6 +35,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.paths import CPACS_FILES_PATH
 
 MODULE_DIR = Path(__file__).parent
+CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simple_sharp_airfoil.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # ==============================================================================
@@ -216,7 +218,10 @@ def test_refine_wing_section():
     Test if the wing section is correctly refined by the advancemeshing algorithm
     """
 
-    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simple_untruncated.xml")
+    if TEST_OUT_PATH.exists():
+        shutil.rmtree(TEST_OUT_PATH)
+    TEST_OUT_PATH.mkdir()
+
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)
@@ -246,7 +251,7 @@ def test_refine_wing_section():
         [a == b for a, b in zip(gmsh.model.mesh.field.getNumbers(4, "CurvesList"), [19, 21])]
     )
     # Check if a Matheval field was generated with the correct formula
-    assert gmsh.model.mesh.field.getString(5, "F") == "(0.5/2.0) + 0.5*(1-(1/2.0))*(F4/0.3)^1.25"
+    assert gmsh.model.mesh.field.getString(5, "F") == "(0.5/2.0) + 0.5*(1-(1/2.0))*(F4/0.25)^2"
     assert gmsh.model.mesh.field.getType(5) == "MathEval"
 
     # Check if the restrict field was applied on the wing
@@ -279,7 +284,10 @@ def test_check_mesh():
     Test if the wing section is correctly remeshed when the area is too small
     """
 
-    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simple_untruncated.xml")
+    if TEST_OUT_PATH.exists():
+        shutil.rmtree(TEST_OUT_PATH)
+    TEST_OUT_PATH.mkdir()
+
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)

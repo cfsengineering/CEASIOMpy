@@ -16,6 +16,7 @@ Python version: >=3.7
 #   IMPORTS
 # ==============================================================================
 from pathlib import Path
+import shutil
 from unittest.mock import patch
 import pytest
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
@@ -24,6 +25,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.paths import CPACS_FILES_PATH
 
 MODULE_DIR = Path(__file__).parent
+CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 
@@ -40,7 +42,10 @@ TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 def test_export_brep():
     """Test function for 'export_brep'"""
 
-    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
+    if TEST_OUT_PATH.exists():
+        shutil.rmtree(TEST_OUT_PATH)
+    TEST_OUT_PATH.mkdir()
+
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)

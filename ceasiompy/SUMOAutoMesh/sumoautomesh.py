@@ -71,7 +71,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     """
 
     REFINE_RATIO = 0.6  # to get approx. double mesh cell when +1 on "refine_level"
-    refine_factor = REFINE_RATIO ** refine_level
+    refine_factor = REFINE_RATIO**refine_level
     log.info("Refinement factor is {}".format(refine_factor))
 
     # Open SUMO (.smx) with tixi library
@@ -100,7 +100,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
             # Estimate circumference and add to the list
             height = sumo.getDoubleAttribute(frame_xpath, "height")
             width = sumo.getDoubleAttribute(frame_xpath, "width")
-            circ = 2 * math.pi * math.sqrt((height ** 2 + width ** 2) / 2)
+            circ = 2 * math.pi * math.sqrt((height**2 + width**2) / 2)
             circ_list.append(circ)
 
             # Get overall min radius (semi-minor axi for ellipse)

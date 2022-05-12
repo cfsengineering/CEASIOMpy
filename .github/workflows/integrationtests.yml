@@ -56,9 +56,9 @@ jobs:
       shell: bash -l {0}
       run: installation/Ubuntu/install_pytornado.sh
 
-    # - name: Install SUMO
-    #   shell: bash -l {0}
-    #   run: installation/Ubuntu/install_sumo.sh
+    - name: Install SUMO
+      shell: bash -l {0}
+      run: installation/Ubuntu/install_sumo.sh
 
     - name: Install SU2
       shell: bash -l {0}

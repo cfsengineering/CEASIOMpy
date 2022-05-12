@@ -2,6 +2,8 @@
 
 # CEASIOMpy - Test case 1
 
+## Run a simple workflow
+
 For the first test case, we will run a simple workflow which is already set up, you will just run it and observe the results. For this workflow, we will use the D150 aircraft (D150_simple.xml) which is a A320-like aircraft.
 
 <p align="center">

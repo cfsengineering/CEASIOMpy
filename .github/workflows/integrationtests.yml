@@ -67,6 +67,11 @@ jobs:
         which dwfsumo | echo
         tail ~/.bashrc
 
+    - name: Setup tmate session
+      if: ${{ failure() }}
+      uses: mxschmitt/action-tmate@v3
+      timeout-minutes: 10
+
     - name: Install SU2
       shell: bash -l {0}
       run: installation/Ubuntu/install_su2.sh

@@ -217,7 +217,6 @@ def test_refine_wing_section():
     Test if the wing section is correctly refined by the advancemeshing algorithm
     """
 
-    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simple_untruncated.xml")
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)

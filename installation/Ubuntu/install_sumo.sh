@@ -39,6 +39,9 @@ sudo apt install -y libpng12-0
 echo "--> libglu"
 sudo apt install libglu1-mesa
 
+echo "--> xvfb"
+sudo apt install xvfb
+
 echo "Creating a symlink for sumo..."
 sudo ln -s "$install_dir/sumo-2.7.9/bin/dwfsumo" /usr/bin/sumo
 
@@ -60,7 +63,8 @@ sumo_run_path="$install_dir"/sumo-2.7.9/bin
 echo \# SUMO Path >> ~/.bashrc
 echo export SUMO_RUN=\""$sumo_run_path"\" >> ~/.bashrc
 echo export PATH=\"\$PATH:\$SUMO_RUN\" >> ~/.bashrc
-
+echo alias sumo='xvfb-run dwfsumo' >> ~/.bashrc
+alias py38='source activate py38'
 source ~/.bashrc
 
 cd "$current_dir"

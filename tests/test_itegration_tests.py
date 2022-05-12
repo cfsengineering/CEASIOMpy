@@ -98,7 +98,7 @@ def test_integration_3():
 
 
 @pytest.mark.slow
-@pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
+@pytest.mark.skipif(not shutil.which("gmshNOTRUN"), reason="GMSH not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 @pytest.mark.skipif(
     sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"

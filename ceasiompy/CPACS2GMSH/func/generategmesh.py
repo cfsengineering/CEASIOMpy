@@ -45,7 +45,9 @@ MESH_COLORS = {
     "symmetry": (138, 43, 226),
     "wing": (0, 200, 200),
     "fuselage": (255, 215, 0),
-    "pylon": (255, 0, 0),
+    "pylon": (255, 15, 255),
+    "bad_surface": (255, 0, 0),
+    "good_surface": (0, 255, 0),
 }
 
 # =================================================================================================
@@ -255,11 +257,11 @@ def generate_gmsh(
     file.
     Args:
     ----------
-    cpacs_path : Path
+    cpacs_path : str
         path to the cpacs file
-    brep_dir_path : Path
+    brep_dir_path : (Path)
         Path to the directory containing the brep files
-    results_dir : Path
+    results_dir : (path)
         Path to the directory containing the result (mesh) files
     open_gmsh : bool
         Open gmsh GUI after the mesh generation if set to true
@@ -576,7 +578,7 @@ def generate_gmsh(
 
     # Wing leading edge and trailing edge detection
     for part in aircraft_parts:
-        if "wing" in part.part_type:
+        if "wing" == part.part_type:
             # wing classifications
             classify_wing(part, aircraft_parts)
             log.info(
@@ -587,7 +589,7 @@ def generate_gmsh(
     if refine_factor != 1:
         mesh_fields = {"nbfields": 0, "restrict_fields": []}
         for part in aircraft_parts:
-            if "wing" in part.part_type:
+            if "wing" == part.part_type:
                 # wing refinement
                 refine_wing_section(
                     mesh_fields,
@@ -597,7 +599,7 @@ def generate_gmsh(
                     mesh_size_wings,
                     refine=refine_factor,
                 )
-            elif "fuselage" in part.part_type:
+            elif "fuselage" == part.part_type:
                 # fuselage refinement
                 set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
 
@@ -638,6 +640,7 @@ def generate_gmsh(
                 mesh_size_farfield,
                 max(model_dimensions),
                 final_domain.volume_tag,
+                MESH_COLORS=MESH_COLORS,
             )
             bad_surfaces.extend(refined_surfaces)
 
@@ -661,7 +664,9 @@ def generate_gmsh(
 
             for surface in bad_surfaces:
 
-                gmsh.model.setColor([(2, surface)], *(0, 255, 0), a=255, recursive=False)
+                gmsh.model.setColor(
+                    [(2, surface)], *MESH_COLORS["good_surface"], a=255, recursive=False
+                )
 
             log.info("Remeshing process finished")
             if open_gmsh:
@@ -702,5 +707,19 @@ def generate_gmsh(
 # =================================================================================================
 
 if __name__ == "__main__":
-
+    plane = "d150"
+    generate_gmsh(
+        Path("test_files", plane, f"{plane}.xml"),
+        Path("test_files", plane),
+        "",
+        open_gmsh=True,
+        farfield_factor=6,
+        symmetry=False,
+        mesh_size_farfield=25,
+        mesh_size_fuselage=0.2,
+        mesh_size_wings=0.23,
+        refine_factor=7,
+        check_mesh=True,
+        testing_gmsh=False,
+    )
     print("Nothing to execute!")

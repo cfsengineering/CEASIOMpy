@@ -32,6 +32,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.paths import CPACS_FILES_PATH
 
 MODULE_DIR = Path(__file__).parent
+CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # ==============================================================================
@@ -53,7 +54,12 @@ def test_generate_gmsh():
     are correctly assigned for simpletest_cpacs.xml
 
     """
-    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
+
+    # Clean possible previous files in TEST_OUT_PATH
+    files_to_delete = [p for p in TEST_OUT_PATH.iterdir() if p.suffix in [".brep", ".su2"]]
+    for file in files_to_delete:
+        file.unlink()
+
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)
@@ -97,7 +103,12 @@ def test_generate_gmsh_symm():
     are correctly assigned for simpletest_cpacs.xml
 
     """
-    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
+
+    # Clean possible previous files in TEST_OUT_PATH
+    files_to_delete = [p for p in TEST_OUT_PATH.iterdir() if p.suffix in [".brep", ".su2"]]
+    for file in files_to_delete:
+        file.unlink()
+
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)
@@ -140,7 +151,11 @@ def test_symm_part_removed():
 
     """
 
-    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
+    # Clean possible previous files in TEST_OUT_PATH
+    files_to_delete = [p for p in TEST_OUT_PATH.iterdir() if p.suffix in [".brep", ".su2"]]
+    for file in files_to_delete:
+        file.unlink()
+
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)
@@ -270,7 +285,12 @@ def test_assignation():
     test if the assignation of the entities of wing1 is correct
 
     """
-    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
+
+    # Clean possible previous files in TEST_OUT_PATH
+    files_to_delete = [p for p in TEST_OUT_PATH.iterdir() if p.suffix in [".brep", ".su2"]]
+    for file in files_to_delete:
+        file.unlink()
+
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)

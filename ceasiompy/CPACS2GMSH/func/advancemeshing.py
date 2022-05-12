@@ -116,7 +116,12 @@ def restrict_fields(mesh_fields, dim, object_tags, infield=None):
 
 def min_fields(mesh_fields):
     """
-    This function creates a min field with all the current restrict fields
+    This function creates a Min field:
+
+    A min field take a FieldsList of all the restrict field
+    Then it compute the minimum mesh constraint of all the different fields
+    This field is set as the background field for the model and it is the "final"
+    field that is used by gmsh to compute the mesh
 
     Args:
     ----------
@@ -183,8 +188,8 @@ def refine_wing_section(
     wing_part,
     mesh_size_wings,
     refine,
-    chord_percent=0.3,
-    n_power=1.25,
+    chord_percent=0.25,
+    n_power=2,
 ):
     """
     Function to refine the trailling and leading edge of an wing section,
@@ -433,6 +438,7 @@ def refine_small_surfaces(
     mesh_size_farfield,
     aircraft_charact_length,
     final_domain_volume_tag,
+    MESH_COLORS,
     n_power=1.5,
     nb_min_triangle=150,
 ):
@@ -460,6 +466,8 @@ def refine_small_surfaces(
         characteristic length of the aircraft : max(x_length, y_length, z_length) of the aircraft
     final_domain_volume_tag : int
         tag of the final domain volume
+    MESH_COLORS : dict
+        dictionary of the mesh colors
     n_power : float
         power of the power law for the mesh extend function
     nb_min_triangle : int
@@ -475,7 +483,7 @@ def refine_small_surfaces(
 
     """
     # area and equilateral triangle of mesh size fuselage
-    mesh_triangle_surf = 0.43301270 * (part.mesh_size**2)
+    mesh_triangle_surf = (3**0.5 / 4) * (part.mesh_size**2)
 
     refined_surfaces = []
 
@@ -488,7 +496,9 @@ def refine_small_surfaces(
             new_mesh_size = ((area / (nb_min_triangle)) / 0.43301270) ** 0.5
 
             # set the color to indicate the bad surfaces
-            gmsh.model.setColor([(2, surface_tag)], *(255, 0, 0), a=255, recursive=False)
+            gmsh.model.setColor(
+                [(2, surface_tag)], *MESH_COLORS["bad_surface"], a=255, recursive=False
+            )
 
             # create new distance field
             mesh_fields = distance_field(mesh_fields, 2, [surface_tag])

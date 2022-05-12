@@ -27,7 +27,7 @@ This workflow will take as input the CPACS file of the aircraft (D150_simple.xml
 
 ```mermaid
   graph LR;
-      D150(D150 CPACS file)-->PyTornado;
+      D150([D150 CPACS file])-->PyTornado;
       PyTornado-->ExportCSV;
 ```
 

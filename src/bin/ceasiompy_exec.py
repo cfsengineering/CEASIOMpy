@@ -50,6 +50,11 @@ def testcase_message(testcase_nb):
     print("#" * 30)
     print(f"### CEASIOMpy: Test case {testcase_nb} ###")
     print("#" * 30)
+    print("More inforation about this test case at:")
+    print(
+        "https://github.com/cfsengineering/CEASIOMpy/blob/main/"
+        f"test_cases/test_case_{testcase_nb}/README.md"
+    )
     print("\n")
 
 
@@ -77,6 +82,8 @@ def run_testcase(testcase_nb):
     elif testcase_nb == 2:
 
         testcase_message(2)
+
+        print("\nUse the GUI to create your workflow.")
 
         workflow = create_wf_gui()
         workflow.write_config_file()

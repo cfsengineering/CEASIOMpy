@@ -24,7 +24,7 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy.CPACS2GMSH.func.generategmesh import MESH_COLORS
+from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
 import gmsh
 import numpy as np
 from ceasiompy.utils.ceasiomlogger import get_logger

@@ -8,7 +8,7 @@ Test functions for 'ceasiompy/CPACS2GMSH/wingclassification.py'
 Python version: >=3.7
 
 | Author : Tony Govoni
-| Creation: 2019-05-09
+| Creation: 2022-04-09
 
 """
 

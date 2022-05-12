@@ -29,8 +29,9 @@ from ceasiompy.CPACS2GMSH.func.generategmesh import (
 )
 from cpacspy.cpacspy import CPACS
 
+from ceasiompy.utils.paths import CPACS_FILES_PATH
+
 MODULE_DIR = Path(__file__).parent
-CPACS_IN_PATH = Path(MODULE_DIR, "ToolInput", "simpletest_cpacs.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # ==============================================================================
@@ -52,7 +53,7 @@ def test_generate_gmsh():
     are correctly assigned for simpletest_cpacs.xml
 
     """
-
+    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)
@@ -62,10 +63,14 @@ def test_generate_gmsh():
         TEST_OUT_PATH,
         TEST_OUT_PATH,
         open_gmsh=False,
+        farfield_factor=5,
+        symmetry=False,
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
         refine_factor=1.0,
+        check_mesh=False,
+        testing_gmsh=False,
     )
 
     with open(Path(TEST_OUT_PATH, "mesh.su2"), "r") as f:
@@ -92,18 +97,24 @@ def test_generate_gmsh_symm():
     are correctly assigned for simpletest_cpacs.xml
 
     """
+    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
     cpacs = CPACS(str(CPACS_IN_PATH))
+
     export_brep(cpacs, TEST_OUT_PATH)
+
     generate_gmsh(
         CPACS_IN_PATH,
         TEST_OUT_PATH,
         TEST_OUT_PATH,
         open_gmsh=False,
+        farfield_factor=5,
+        symmetry=True,
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
         refine_factor=1.0,
-        symmetry=True,
+        check_mesh=False,
+        testing_gmsh=False,
     )
 
     with open(Path(TEST_OUT_PATH, "mesh.su2"), "r") as f:
@@ -129,19 +140,24 @@ def test_symm_part_removed():
 
     """
 
+    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)
+
     generate_gmsh(
         CPACS_IN_PATH,
         TEST_OUT_PATH,
         TEST_OUT_PATH,
         open_gmsh=False,
+        farfield_factor=5,
+        symmetry=True,
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
         refine_factor=1.0,
-        symmetry=True,
+        check_mesh=False,
+        testing_gmsh=False,
     )
 
     with open(Path(TEST_OUT_PATH, "mesh.su2"), "r") as f:
@@ -254,20 +270,26 @@ def test_assignation():
     test if the assignation of the entities of wing1 is correct
 
     """
+    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)
+
     _, aircraft_parts = generate_gmsh(
         CPACS_IN_PATH,
         TEST_OUT_PATH,
         TEST_OUT_PATH,
         open_gmsh=False,
+        farfield_factor=5,
+        symmetry=False,
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
         refine_factor=1.0,
-        symmetry=False,
+        check_mesh=False,
+        testing_gmsh=False,
     )
+
     fuselage1_child = set([(3, 2)])
     wing1_m_child = set([(3, 5)])
 

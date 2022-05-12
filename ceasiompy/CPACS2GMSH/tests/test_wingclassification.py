@@ -29,8 +29,9 @@ from ceasiompy.CPACS2GMSH.func.wingclassification import (
 )
 from cpacspy.cpacspy import CPACS
 
+from ceasiompy.utils.paths import CPACS_FILES_PATH
+
 MODULE_DIR = Path(__file__).parent
-CPACS_IN_PATH = Path(MODULE_DIR, "ToolInput", "simpletest_cpacs.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # ==============================================================================
@@ -223,19 +224,24 @@ def test_classify_wing():
     classified
     """
 
+    CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
     cpacs = CPACS(str(CPACS_IN_PATH))
 
     export_brep(cpacs, TEST_OUT_PATH)
+
     _, aircraft_parts = generate_gmsh(
         CPACS_IN_PATH,
         TEST_OUT_PATH,
         TEST_OUT_PATH,
         open_gmsh=False,
+        farfield_factor=5,
+        symmetry=False,
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
-        symmetry=False,
-        refine_factor=1.2,
+        refine_factor=1.0,
+        check_mesh=False,
+        testing_gmsh=False,
     )
 
     for part in aircraft_parts:

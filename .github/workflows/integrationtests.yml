@@ -63,8 +63,9 @@ jobs:
     - name: Check installation
       shell: bash -l {0}
       run: |
-        which sumo
-        which dwfsumo
+        which sumo | echo
+        which dwfsumo | echo
+        tail ~/.bashrc
 
     - name: Install SU2
       shell: bash -l {0}

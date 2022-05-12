@@ -52,9 +52,9 @@ else
     fi
 fi
 
-sumo_run_path=/"$install_dir"/sumo-2.7.9/bin
+sumo_run_path="$install_dir"/sumo-2.7.9/bin
 
-echo \# SU2 Path >> ~/.bashrc
+echo \# SUMO Path >> ~/.bashrc
 echo export SUMO_RUN=\""$sumo_run_path"\" >> ~/.bashrc
 echo export PATH=\"\$PATH:\$SUMO_RUN\" >> ~/.bashrc
 

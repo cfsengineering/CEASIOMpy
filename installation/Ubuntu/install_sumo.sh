@@ -58,4 +58,6 @@ echo \# SUMO Path >> ~/.bashrc
 echo export SUMO_RUN=\""$sumo_run_path"\" >> ~/.bashrc
 echo export PATH=\"\$PATH:\$SUMO_RUN\" >> ~/.bashrc
 
+source ~/.bashrc
+
 cd "$current_dir"

@@ -707,19 +707,5 @@ def generate_gmsh(
 # =================================================================================================
 
 if __name__ == "__main__":
-    plane = "d150"
-    generate_gmsh(
-        Path("test_files", plane, f"{plane}.xml"),
-        Path("test_files", plane),
-        "",
-        open_gmsh=True,
-        farfield_factor=6,
-        symmetry=False,
-        mesh_size_farfield=25,
-        mesh_size_fuselage=0.2,
-        mesh_size_wings=0.23,
-        refine_factor=7,
-        check_mesh=True,
-        testing_gmsh=False,
-    )
+
     print("Nothing to execute!")

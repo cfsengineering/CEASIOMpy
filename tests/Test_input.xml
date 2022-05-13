@@ -5229,7 +5229,7 @@
         </skinFriction>
         <su2>
           <settings>
-            <maxIter>100</maxIter>
+            <maxIter>50</maxIter>
             <cflNumber>1</cflNumber>
             <multigridLevel>0</multigridLevel>
           </settings>
@@ -5260,12 +5260,12 @@
       <!-- TODO: Move when xpath are changed in cpacs2gmsh.py and __specs__.py -->
       <gmsh>
         <open_gui>False</open_gui>
-        <farfield_factor>6</farfield_factor>
+        <farfield_factor>4</farfield_factor>
         <symmetry>False</symmetry>
         <mesh_size>
-          <farfield>22</farfield>
-          <fuselage>0.4</fuselage>
-          <wings>0.22</wings>
+          <farfield>25</farfield>
+          <fuselage>0.45</fuselage>
+          <wings>0.3</wings>
         </mesh_size>
         <refine_factor>1.6</refine_factor>
       </gmsh>

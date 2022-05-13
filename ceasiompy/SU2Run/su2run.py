@@ -34,7 +34,7 @@ from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
     run_software,
 )
-from ceasiompy.utils.commonnames import SU2_FORCES_BREAKDOWN_NAME
+from ceasiompy.utils.commonnames import CONFIG_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.utils.commonxpath import SU2_XPATH
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
@@ -76,13 +76,13 @@ def run_SU2_multi(wkdir, nb_proc):
 
     for config_dir in sorted(case_dir_list):
 
-        config_cfd = [c for c in config_dir.iterdir() if c.name == "ConfigCFD.cfg"]
+        config_cfd = [c for c in config_dir.iterdir() if c.name == CONFIG_CFD_NAME]
 
         if not config_cfd:
-            raise ValueError('No "ConfigCFD.cfg" file has been found in this directory!')
+            raise ValueError(f"No '{CONFIG_CFD_NAME}' file has been found in this directory!")
 
         if len(config_cfd) > 1:
-            raise ValueError('More than one "ConfigCFD.cfg" file in this directory!')
+            raise ValueError(f"More than one '{CONFIG_CFD_NAME}' file in this directory!")
 
         run_software(
             software_name="SU2_CFD",
@@ -137,7 +137,7 @@ def run_SU2_fsi(config_path, wkdir, nb_proc):
     # cfg_def.write_file(config_def_path, overwrite=True)
 
     # # Modify config file for SU2_CFD
-    # config_cfd_path = Path(wkdir, "ConfigCFD.cfg")
+    # config_cfd_path = Path(wkdir, CONFIG_CFD_NAME)
     # cfg_cfd = ConfigFile(config_path)
     # cfg_cfd["MESH_FILENAME"] = "mesh_out.su2"
     # cfg_cfd.write_file(config_cfd_path, overwrite=True)

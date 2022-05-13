@@ -28,10 +28,10 @@ from ambiance import Atmosphere
 from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_install_path
-from ceasiompy.utils.commonnames import SU2_FORCES_BREAKDOWN_NAME
+from ceasiompy.utils.commonnames import CONFIG_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
+from ceasiompy.utils.commonxpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_module_path
-from ceasiompy.utils.commonxpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
 from cpacspy.cpacsfunctions import (
     create_branch,
     get_string_vector,
@@ -263,8 +263,6 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         cfg["FREESTREAM_TEMPERATURE"] = Atm.temperature[0]
         cfg["ROTATION_RATE"] = "0.0 0.0 0.0"
 
-        config_file_name = "ConfigCFD.cfg"
-
         case_dir_name = "".join(
             [
                 "Case",
@@ -284,7 +282,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         if not case_dir_path.exists():
             case_dir_path.mkdir()
 
-        config_output_path = Path(case_dir_path, config_file_name)
+        config_output_path = Path(case_dir_path, CONFIG_CFD_NAME)
         cfg.write_file(config_output_path, overwrite=True)
 
         # Damping derivatives
@@ -301,19 +299,19 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             cfg["ROTATION_RATE"] = str(rotation_rate) + " 0.0 0.0"
             case_dir = Path(wkdir, f"{case_dir_name}_dp")
             case_dir.mkdir()
-            config_output_path = Path(case_dir, config_file_name)
+            config_output_path = Path(case_dir, CONFIG_CFD_NAME)
             cfg.write_file(config_output_path, overwrite=True)
 
             cfg["ROTATION_RATE"] = "0.0 " + str(rotation_rate) + " 0.0"
             case_dir = Path(wkdir, f"{case_dir_name}_dq")
             case_dir.mkdir()
-            config_output_path = Path(case_dir, config_file_name)
+            config_output_path = Path(case_dir, CONFIG_CFD_NAME)
             cfg.write_file(config_output_path, overwrite=True)
 
             cfg["ROTATION_RATE"] = "0.0 0.0 " + str(rotation_rate)
             case_dir = Path(wkdir, f"{case_dir_name}_dr")
             case_dir.mkdir()
-            config_output_path = Path(case_dir, config_file_name)
+            config_output_path = Path(case_dir, CONFIG_CFD_NAME)
             cfg.write_file(config_output_path, overwrite=True)
 
             log.info("Damping derivatives cases directory has been created.")
@@ -339,8 +337,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
                 config_dir_path.mkdir()
                 cfg["MESH_FILENAME"] = mesh_path
 
-                config_file_name = "ConfigCFD.cfg"
-                config_output_path = Path(wkdir, config_dir_path, config_file_name)
+                config_output_path = Path(wkdir, config_dir_path, CONFIG_CFD_NAME)
                 cfg.write_file(config_output_path, overwrite=True)
 
     # TODO: change that, but if it is save in tooloutput it will be erase by results...

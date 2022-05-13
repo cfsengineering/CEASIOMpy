@@ -27,6 +27,12 @@ import numpy as np
 import pandas as pd
 import vtk
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.commonnames import (
+    CONFIG_CFD_NAME,
+    FORCE_FILE_NAME,
+    SURFACE_FLOW_FILE_NAME,
+    SURFACE_FLOW_FORCE_FILE_NAME,
+)
 from ceasiompy.utils.configfiles import ConfigFile
 from scipy.sparse import csr_matrix
 from six import iteritems
@@ -286,11 +292,11 @@ def extract_loads(results_files_dir):
 
     """
 
-    # Path definitons
-    config_file_path = Path(results_files_dir, "ConfigCFD.cfg")
-    surface_flow_file_path = Path(results_files_dir, "surface_flow.vtu")
-    surface_flow_force_file_path = Path(results_files_dir, "surface_flow_forces.vtu")
-    force_file_path = Path(results_files_dir, "forces.csv")
+    # Path definitions
+    config_file_path = Path(results_files_dir, CONFIG_CFD_NAME)
+    surface_flow_file_path = Path(results_files_dir, SURFACE_FLOW_FILE_NAME)
+    surface_flow_force_file_path = Path(results_files_dir, SURFACE_FLOW_FORCE_FILE_NAME)
+    force_file_path = Path(results_files_dir, FORCE_FILE_NAME)
 
     config_dict = ConfigFile(config_file_path).data
     updated_mesh = compute_forces(surface_flow_file_path, force_file_path, config_dict)

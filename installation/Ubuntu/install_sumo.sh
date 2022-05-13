@@ -8,7 +8,7 @@ current_dir="$(pwd)"
 if [ $# -gt 0 ]; then
     install_dir="$1/INSTALLDIR"
 else
-    install_dir="$(pwd)/../../INSTALLDIR"
+    install_dir="$(pwd)/INSTALLDIR"
 fi
 
 echo "Creating install directory..."
@@ -36,8 +36,11 @@ sudo add-apt-repository ppa:linuxuprising/libpng12
 sudo apt update -y
 sudo apt install -y libpng12-0
 
-echo "Creating a symlink for sumo..."
-sudo ln -s "$install_dir/sumo-2.7.9/bin/dwfsumo" /usr/bin/sumo
+echo "--> libglu"
+sudo apt install -y libglu1-mesa
+
+echo "--> xvfb"
+sudo apt install -y xvfb
 
 echo "Set Tetgen path in dwfsumo.conf..."
 if [ ! -e "~/.config/larosterna/dwfsumo.conf" ]; then
@@ -48,8 +51,16 @@ else
     if ! grep "tetgenpath" ~/.config/larosterna/dwfsumo.conf ; then
         echo "tetgenpath=$install_dir/sumo-2.7.9/bin/tetgen" >> ~/.config/larosterna/dwfsumo.conf
     else
-        sed -i "s/tetgenpath.*/tetgenpath=$install_dir/sumo-2.7.9/bin/tetgen/" ~/.config/larosterna/dwfsumo.conf
+        sed -i "s|tetgenpath.*|tetgenpath=$install_dir/sumo-2.7.9/bin/tetgen|" ~/.config/larosterna/dwfsumo.conf
     fi
 fi
+
+# Add sumo to PATH in bashrc
+sumo_run_path="$install_dir"/sumo-2.7.9/bin
+echo \# SUMO Path >> ~/.bashrc
+echo export SUMO_RUN=\""$sumo_run_path"\" >> ~/.bashrc
+echo export PATH=\"\$PATH:\$SUMO_RUN\" >> ~/.bashrc
+
+source ~/.bashrc
 
 cd "$current_dir"

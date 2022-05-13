@@ -266,7 +266,7 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
         # The complete command line to run is:
         # sumo -batch -output=su2 -tetgen-options=pq1.16VY ToolOutput.smx
 
-        run_software("sumo", arguments, sumo_results_dir)
+        run_software("dwfsumo", arguments, sumo_results_dir)
 
     elif current_os == "Windows":
         log.info("Your OS is Windows")

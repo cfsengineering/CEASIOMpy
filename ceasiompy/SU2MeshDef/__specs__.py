@@ -3,7 +3,7 @@
 
 from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.xpath import CEASIOMPY_XPATH, REF_XPATH, SU2_XPATH
+from ceasiompy.utils.commonxpath import CEASIOMPY_XPATH, REF_XPATH, SU2_XPATH
 
 
 # ===== CPACS inputs and outputs =====

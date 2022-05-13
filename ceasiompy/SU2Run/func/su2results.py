@@ -26,7 +26,8 @@ from pathlib import Path
 
 from ceasiompy.SU2Run.func.extractloads import extract_loads
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.xpath import SU2_XPATH, WETTED_AREA_XPATH
+from ceasiompy.utils.commonnames import SU2_FORCES_BREAKDOWN_NAME
+from ceasiompy.utils.commonxpath import SU2_XPATH, WETTED_AREA_XPATH
 from cpacspy.cpacsfunctions import create_branch, get_value, get_value_or_default
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import COEFS
@@ -191,7 +192,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
 
         if config_dir.is_dir():
 
-            force_file_path = Path(config_dir, "forces_breakdown.dat")
+            force_file_path = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
 
             if not force_file_path.exists():
                 raise OSError("No result force file have been found!")

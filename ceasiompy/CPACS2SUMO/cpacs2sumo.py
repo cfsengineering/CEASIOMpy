@@ -43,7 +43,7 @@ from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
 from ceasiompy.utils.mathfunctions import euler2fix
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from ceasiompy.utils.xpath import (
+from ceasiompy.utils.commonxpath import (
     ENGINES_XPATH,
     FUSELAGES_XPATH,
     PYLONS_XPATH,

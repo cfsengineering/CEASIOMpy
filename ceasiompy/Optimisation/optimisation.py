@@ -45,7 +45,7 @@ from ceasiompy.utils.moduleinterfaces import (
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from ceasiompy.utils.xpath import OPTIM_XPATH
+from ceasiompy.utils.commonxpath import OPTIM_XPATH
 from cpacspy.cpacsfunctions import add_float_vector, get_value, open_tixi
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import COEFS, PARAMS

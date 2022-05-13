@@ -32,7 +32,7 @@ from ceasiompy.utils.moduleinterfaces import (
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from ceasiompy.utils.xpath import SF_XPATH
+from ceasiompy.utils.commonxpath import SF_XPATH
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     create_branch,

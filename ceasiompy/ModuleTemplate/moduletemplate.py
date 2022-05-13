@@ -38,7 +38,7 @@ from ceasiompy.utils.moduleinterfaces import (
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from ceasiompy.utils.xpath import ENGINES_XPATH, FUSELAGES_XPATH, PYLONS_XPATH, WINGS_XPATH
+from ceasiompy.utils.commonxpath import ENGINES_XPATH, FUSELAGES_XPATH, PYLONS_XPATH, WINGS_XPATH
 from cpacspy.cpacsfunctions import (
     add_float_vector,
     add_string_vector,

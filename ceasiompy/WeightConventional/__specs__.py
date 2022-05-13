@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.xpath import (
+from ceasiompy.utils.commonxpath import (
     CAB_CREW_XPATH,
     FUEL_XPATH,
     GEOM_XPATH,

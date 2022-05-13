@@ -28,7 +28,7 @@ from ceasiompy.utils.ceasiomlogger import add_to_runworkflow_history, get_logger
 from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
-from ceasiompy.utils.paths import CPACS_FILES_PATH, LOGFILE, MODULES_DIR_PATH
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH, LOGFILE, MODULES_DIR_PATH
 
 log = get_logger()
 

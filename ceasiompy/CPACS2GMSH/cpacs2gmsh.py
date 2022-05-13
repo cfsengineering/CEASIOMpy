@@ -29,7 +29,7 @@ from ceasiompy.utils.moduleinterfaces import (
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from ceasiompy.utils.xpath import CEASIOMPY_XPATH, SU2MESH_XPATH
+from ceasiompy.utils.commonxpath import CEASIOMPY_XPATH, SU2MESH_XPATH
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from cpacspy.cpacspy import CPACS
 

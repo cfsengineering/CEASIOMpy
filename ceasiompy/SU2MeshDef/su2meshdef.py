@@ -46,7 +46,7 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from ceasiompy.utils.xpath import REF_XPATH, SU2_XPATH, WINGS_XPATH
+from ceasiompy.utils.commonxpath import REF_XPATH, SU2_XPATH, WINGS_XPATH
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     get_uid,

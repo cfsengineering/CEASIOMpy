@@ -30,7 +30,7 @@ from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
     run_software,
 )
-from ceasiompy.utils.paths import CPACS_FILES_PATH
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from cpacspy.cpacsfunctions import open_tixi
 
 MODULE_DIR = Path(__file__).parent

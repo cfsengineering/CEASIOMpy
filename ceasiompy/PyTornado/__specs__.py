@@ -4,7 +4,12 @@
 from pathlib import Path
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.xpath import REF_XPATH, WINGS_XPATH, PYTORNADO_XPATH, AEROPERFORMANCE_XPATH
+from ceasiompy.utils.commonxpath import (
+    REF_XPATH,
+    WINGS_XPATH,
+    PYTORNADO_XPATH,
+    AEROPERFORMANCE_XPATH,
+)
 
 
 # ===== Results directory path =====

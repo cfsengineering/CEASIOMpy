@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.xpath import GEOM_XPATH, RANGE_XPATH, SF_XPATH, PLOT_XPATH
+from ceasiompy.utils.commonxpath import GEOM_XPATH, RANGE_XPATH, SF_XPATH, PLOT_XPATH
 
 
 cpacs_inout = CPACSInOut()

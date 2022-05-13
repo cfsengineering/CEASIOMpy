@@ -28,7 +28,7 @@ from ceasiompy.CPACS2GMSH.func.wingclassification import (
     detect_normal_profile,
     detect_truncated_profile,
 )
-from ceasiompy.utils.paths import CPACS_FILES_PATH
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from cpacspy.cpacspy import CPACS
 
 MODULE_DIR = Path(__file__).parent

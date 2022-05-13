@@ -34,8 +34,8 @@ from ceasiompy.utils.moduleinterfaces import (
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from ceasiompy.utils.paths import MODULES_DIR_PATH
-from ceasiompy.utils.xpath import RANGE_XPATH
+from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
+from ceasiompy.utils.commonxpath import RANGE_XPATH
 
 MODULE_DIR = Path(__file__).parent
 CPACS_TEST_FILE = Path(MODULE_DIR, "ToolInput", "cpacs_test_file.xml")

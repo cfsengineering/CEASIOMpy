@@ -24,7 +24,7 @@ TODO:
 # =============================================================================
 
 from cpacspy.cpacsfunctions import add_uid, create_branch, get_value_or_default, open_tixi
-from ceasiompy.utils.xpath import (
+from ceasiompy.utils.commonxpath import (
     CAB_CREW_XPATH,
     F_XPATH,
     FUEL_XPATH,

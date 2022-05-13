@@ -15,8 +15,6 @@ Python version: >=3.7
 
 import os
 from pathlib import Path
-from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
-import numpy as np
 
 # ==============================================================================
 #   IMPORTS
@@ -24,9 +22,9 @@ import numpy as np
 import gmsh
 import numpy as np
 from ceasiompy.CPACS2GMSH.func.generategmesh import ModelPart, get_entities_from_volume
+from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_part_type
-from ceasiompy.utils.generalclasses import Transformation
 from cpacspy.cpacspy import CPACS
 
 log = get_logger()
@@ -179,9 +177,8 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path):
     fragments_dimtag, _ = gmsh.model.occ.fragment(parts_to_fragment, [cylinder[1]])
     gmsh.model.occ.synchronize()
 
-    """
-    find the volume with the largest bounding box, it is the external part of the cylinder
-    """
+    # find the volume with the largest bounding box, it is the external part of the cylinder
+
     largest_volume = [(0, 0), 0]
     for fragment in fragments_dimtag:
         bb = gmsh.model.occ.getBoundingBox(*fragment)

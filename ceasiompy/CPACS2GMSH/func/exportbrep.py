@@ -24,7 +24,7 @@ TODO:
 from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.engineconversion import engine_conversion
 from ceasiompy.utils.ceasiomlogger import get_logger
-from cpacspy.cpacspy import CPACS
+
 from tigl3.import_export_helper import export_shapes
 
 log = get_logger()

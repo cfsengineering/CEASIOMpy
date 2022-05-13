@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.xpath import SMTRAIN_XPATH
+from ceasiompy.utils.commonxpath import SMTRAIN_XPATH
 
 
 # ===== Results directory path =====

@@ -60,7 +60,7 @@ from ceasiompy.utils.moduleinterfaces import (
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from ceasiompy.utils.xpath import STABILITY_DYNAMIC_XPATH
+from ceasiompy.utils.commonxpath import STABILITY_DYNAMIC_XPATH
 from cpacspy.cpacsfunctions import get_string_vector, get_value, get_value_or_default
 from cpacspy.cpacspy import CPACS
 

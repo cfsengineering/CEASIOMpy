@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.xpath import PLOT_XPATH
+from ceasiompy.utils.commonxpath import PLOT_XPATH
 
 
 # ===== CPACS inputs and outputs =====

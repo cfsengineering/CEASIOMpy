@@ -36,7 +36,7 @@ from ceasiompy.SMUse.smuse import Surrogate_model
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from ceasiompy.utils.xpath import OPTWKDIR_XPATH, SMFILE_XPATH, SMTRAIN_XPATH
+from ceasiompy.utils.commonxpath import OPTWKDIR_XPATH, SMFILE_XPATH, SMTRAIN_XPATH
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import COEFS, PARAMS

@@ -26,7 +26,7 @@ import argparse
 from pathlib import Path
 from ceasiompy.WorkflowCreator.workflowcreator import create_wf_gui
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.paths import CPACS_FILES_PATH, TEST_CASES_PATH
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH, TEST_CASES_PATH
 from ceasiompy.utils.workflowclasses import Workflow
 
 log = get_logger()

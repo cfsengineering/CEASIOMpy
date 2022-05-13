@@ -41,7 +41,7 @@ from ceasiompy.utils.moduleinterfaces import (
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from ceasiompy.utils.xpath import MASSBREAKDOWN_XPATH, STABILITY_STATIC_XPATH
+from ceasiompy.utils.commonxpath import MASSBREAKDOWN_XPATH, STABILITY_STATIC_XPATH
 from cpacspy.cpacsfunctions import add_float_vector, create_branch, get_value, get_value_or_default
 from cpacspy.cpacspy import CPACS
 

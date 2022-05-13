@@ -22,7 +22,7 @@ import pytest
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy.utils.paths import CPACS_FILES_PATH
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")

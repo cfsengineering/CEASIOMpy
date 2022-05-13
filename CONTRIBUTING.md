@@ -226,7 +226,7 @@ The `__specs__.py` file should look like this:
 
 ```python
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.xpath import FUSELAGES_XPATH, WINGS_XPATH
+from ceasiompy.utils.commonxpath import FUSELAGES_XPATH, WINGS_XPATH
 # Hint: you can check the file /ceasiompy/utils/xpath.py to find all the XPath which are already defined. If you use a new XPath, you can add it in the file.
 
 # ===== CPACS inputs and outputs =====

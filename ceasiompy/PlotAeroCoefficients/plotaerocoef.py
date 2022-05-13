@@ -28,7 +28,7 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from ceasiompy.utils.xpath import PLOT_XPATH
+from ceasiompy.utils.commonxpath import PLOT_XPATH
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     create_branch,

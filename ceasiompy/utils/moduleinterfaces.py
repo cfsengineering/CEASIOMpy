@@ -26,7 +26,7 @@ import uuid
 from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.paths import MODULES_DIR_PATH
+from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
 from cpacspy.cpacsfunctions import create_branch, open_tixi
 
 log = get_logger()

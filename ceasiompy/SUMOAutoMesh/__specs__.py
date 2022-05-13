@@ -3,7 +3,7 @@
 from pathlib import Path
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.xpath import MESH_XPATH, SU2MESH_XPATH, SUMOFILE_XPATH
+from ceasiompy.utils.commonxpath import MESH_XPATH, SU2MESH_XPATH, SUMOFILE_XPATH
 
 
 # ===== Results directory path =====

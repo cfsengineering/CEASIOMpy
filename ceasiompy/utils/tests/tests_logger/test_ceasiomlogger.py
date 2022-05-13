@@ -17,7 +17,7 @@ Python version: >=3.7
 # =================================================================================================
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.paths import LOGFILE
+from ceasiompy.utils.commonpaths import LOGFILE
 
 
 # =================================================================================================

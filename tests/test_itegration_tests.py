@@ -27,7 +27,7 @@ from pathlib import Path
 
 import pytest
 from ceasiompy.utils.ceasiompyutils import change_working_dir
-from ceasiompy.utils.paths import LOGFILE
+from ceasiompy.utils.commonpaths import LOGFILE
 from src.bin.ceasiompy_exec import run_modules_list
 
 MODULE_DIR = Path(__file__).parent

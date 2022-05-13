@@ -4,7 +4,13 @@ from pathlib import Path
 from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.xpath import CEASIOMPY_XPATH, GEOM_XPATH, RANGE_XPATH, REF_XPATH, SU2_XPATH
+from ceasiompy.utils.commonxpath import (
+    CEASIOMPY_XPATH,
+    GEOM_XPATH,
+    RANGE_XPATH,
+    REF_XPATH,
+    SU2_XPATH,
+)
 
 
 # ===== Results directory path =====

@@ -8,7 +8,7 @@ current_dir="$(pwd)"
 if [ $# -gt 0 ]; then
     install_dir="$1/INSTALLDIR"
 else
-    install_dir="$(pwd)/../../INSTALLDIR"
+    install_dir="$(pwd)/INSTALLDIR"
 fi
 
 echo "Creating install directory..."
@@ -37,13 +37,10 @@ sudo apt update -y
 sudo apt install -y libpng12-0
 
 echo "--> libglu"
-sudo apt install libglu1-mesa
+sudo apt install -y libglu1-mesa
 
 echo "--> xvfb"
-sudo apt install xvfb
-
-# echo "Creating a symlink for sumo..."
-# sudo ln -s "$install_dir/sumo-2.7.9/bin/dwfsumo" /usr/bin/sumo
+sudo apt install -y xvfb
 
 echo "Set Tetgen path in dwfsumo.conf..."
 if [ ! -e "~/.config/larosterna/dwfsumo.conf" ]; then
@@ -58,13 +55,12 @@ else
     fi
 fi
 
+# Add sumo to PATH in bashrc
 sumo_run_path="$install_dir"/sumo-2.7.9/bin
-
 echo \# SUMO Path >> ~/.bashrc
 echo export SUMO_RUN=\""$sumo_run_path"\" >> ~/.bashrc
 echo export PATH=\"\$PATH:\$SUMO_RUN\" >> ~/.bashrc
-echo "alias sumo=\"xvfb-run dwfsumo\"" >> ~/.bashrc
-alias py38='source activate py38'
+
 source ~/.bashrc
 
 cd "$current_dir"

@@ -28,6 +28,7 @@ from ambiance import Atmosphere
 from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_install_path
+from ceasiompy.utils.commonnames import SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_module_path
 from ceasiompy.utils.xpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
@@ -240,7 +241,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
     # Output
     cfg["WRT_FORCES_BREAKDOWN"] = "YES"
-    cfg["BREAKDOWN_FILENAME"] = "forces_breakdown.dat"
+    cfg["BREAKDOWN_FILENAME"] = SU2_FORCES_BREAKDOWN_NAME
     cfg["OUTPUT_FILES"] = "(RESTART, PARAVIEW, SURFACE_PARAVIEW)"
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)

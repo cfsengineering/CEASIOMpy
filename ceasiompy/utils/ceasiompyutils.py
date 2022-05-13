@@ -160,7 +160,7 @@ def run_software(
 
     log.info(f"{int(nb_cpu)} cpu over {os.cpu_count()} will be used for this calculation.")
 
-    logfile_path = Path(wkdir, f"logfile_{software_name}.log")
+    logfile = Path(wkdir, f"logfile_{software_name}.log")
     install_path = get_install_path(software_name)
 
     command_line = []
@@ -178,12 +178,12 @@ def run_software(
 
     log.info(f">>> Running {software_name} on {int(nb_cpu)} cpu(s)")
     log.info(f"Working directory: {wkdir}")
-    log.info(f"Logfile: {logfile_path}")
+    log.info(f"Logfile: {logfile}")
     log.info("Command line that will be run is:")
     log.info(" ".join(map(str, command_line)))
 
     with change_working_dir(wkdir):
-        with open(logfile_path, "w") as logfile:
+        with open(logfile, "w") as logfile:
             subprocess.call(command_line, stdout=logfile)
 
     log.info(f">>> {software_name} End")

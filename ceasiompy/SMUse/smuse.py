@@ -31,7 +31,7 @@ import pandas as pd
 import smt.surrogate_models as sms  # Use after loading the model
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from ceasiompy.utils.xpath import SMTRAIN_XPATH, SMUSE_XPATH
+from ceasiompy.utils.commonxpath import SMTRAIN_XPATH, SMUSE_XPATH
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS

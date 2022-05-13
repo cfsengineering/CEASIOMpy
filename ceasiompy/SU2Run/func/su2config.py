@@ -31,7 +31,7 @@ from ceasiompy.utils.ceasiompyutils import get_install_path
 from ceasiompy.utils.commonnames import SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_module_path
-from ceasiompy.utils.xpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
+from ceasiompy.utils.commonxpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
 from cpacspy.cpacsfunctions import (
     create_branch,
     get_string_vector,

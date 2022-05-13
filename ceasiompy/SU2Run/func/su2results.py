@@ -27,7 +27,7 @@ from pathlib import Path
 from ceasiompy.SU2Run.func.extractloads import extract_loads
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import SU2_FORCES_BREAKDOWN_NAME
-from ceasiompy.utils.xpath import SU2_XPATH, WETTED_AREA_XPATH
+from ceasiompy.utils.commonxpath import SU2_XPATH, WETTED_AREA_XPATH
 from cpacspy.cpacsfunctions import create_branch, get_value, get_value_or_default
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import COEFS

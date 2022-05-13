@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.paths import MODULES_DIR_PATH
+from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
 
 log = get_logger()
 

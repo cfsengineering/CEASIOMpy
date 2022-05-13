@@ -27,7 +27,7 @@ from tkinter import filedialog, messagebox, ttk
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
-from ceasiompy.utils.paths import CPACS_FILES_PATH, WKDIR_PATH
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH, WKDIR_PATH
 from ceasiompy.utils.workflowclasses import Workflow
 
 log = get_logger()

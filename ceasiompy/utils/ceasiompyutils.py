@@ -30,7 +30,7 @@ from typing import List
 from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
-from ceasiompy.utils.xpath import AIRCRAFT_NAME_XPATH
+from ceasiompy.utils.commonxpath import AIRCRAFT_NAME_XPATH
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
 log = get_logger()

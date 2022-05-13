@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.xpath import OPTIM_XPATH
+from ceasiompy.utils.commonxpath import OPTIM_XPATH
 
 
 # ===== Results directory path =====

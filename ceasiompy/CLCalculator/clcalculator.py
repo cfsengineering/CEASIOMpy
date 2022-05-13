@@ -32,7 +32,7 @@ from ceasiompy.utils.moduleinterfaces import (
 
 from ambiance import Atmosphere
 
-from ceasiompy.utils.xpath import CLCALC_XPATH, MASSBREAKDOWN_XPATH, REF_XPATH, SU2_XPATH
+from ceasiompy.utils.commonxpath import CLCALC_XPATH, MASSBREAKDOWN_XPATH, REF_XPATH, SU2_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 

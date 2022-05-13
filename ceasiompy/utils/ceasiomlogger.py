@@ -25,7 +25,7 @@ import logging
 from datetime import datetime
 from pathlib import Path
 
-from ceasiompy.utils.paths import LOGFILE, RUNWORKFLOW_HISTORY_PATH
+from ceasiompy.utils.commonpaths import LOGFILE, RUNWORKFLOW_HISTORY_PATH
 
 # =================================================================================================
 #   FUNCTIONS

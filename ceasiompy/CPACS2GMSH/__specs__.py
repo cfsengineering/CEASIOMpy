@@ -4,7 +4,7 @@
 from pathlib import Path
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.xpath import CEASIOMPY_XPATH, MESH_XPATH
+from ceasiompy.utils.commonxpath import CEASIOMPY_XPATH, MESH_XPATH
 
 # ===== Results directory path =====
 

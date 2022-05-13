@@ -36,7 +36,7 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 from ceasiompy.utils.commonnames import SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from ceasiompy.utils.xpath import SU2_XPATH
+from ceasiompy.utils.commonxpath import SU2_XPATH
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
 log = get_logger()

@@ -22,8 +22,9 @@ TODO:
 # =================================================================================================
 
 from pathlib import Path
-
+from ceasiompy.CPACS2GMSH.func.engineconversion import engine_conversion
 from ceasiompy.utils.ceasiomlogger import get_logger
+from cpacspy.cpacspy import CPACS
 from tigl3.import_export_helper import export_shapes
 
 log = get_logger()
@@ -59,55 +60,52 @@ def export(shape, brep_dir_path, uid):
         raise FileNotFoundError(f"Failed to export {uid}")
 
 
-def engine_export(aircraft_config, brep_dir_path, symmetric_engine):
+def engine_export(cpacs_path, engine, brep_dir_path):
     """
     Export the engine to a brep file
 
     Parameters
     ----------
-    aircraft_config: TiGL AircraftConfiguration
-        The aircraft configuration
+    cpacs_path : Path
+        path to the cpacs of the aircraft
+    engine: TiGL engine
+        Engine part to be exported
     brep_dir_path (obj):
         Path object to the directory where the brep files are saved
-    symmetric_engine: bool
-        True if a second symmetric engine is needed
 
 
     """
-    engines_config = aircraft_config.get_engines()
-    if engines_config:
-        nb_engine = engines_config.get_engine_count()
+    engine_uids = []
+    engine_uid = engine.get_uid()
+    engine_uids.append(engine_uid)
+    nacelle = engine.get_nacelle()
 
-        for k in range(1, nb_engine + 1):
+    if nacelle:
+        center_cowl = nacelle.get_center_cowl()
+        if center_cowl:
+            center_cowl_uid = center_cowl.get_uid()
+            engine_uids.append(center_cowl_uid)
+            center_cowl_shape = center_cowl.build_loft()
+            export(center_cowl_shape, brep_dir_path, center_cowl_uid)
 
-            engine = engines_config.get_engine(k)
-            nacelle = engine.get_nacelle()
+        core_cowl = nacelle.get_core_cowl()
+        if core_cowl:
+            core_cowl_uid = core_cowl.get_uid()
+            engine_uids.append(core_cowl_uid)
+            core_cowl_shape = core_cowl.build_loft()
+            export(core_cowl_shape, brep_dir_path, core_cowl_uid)
 
-            if nacelle:
+        fan_cowl = nacelle.get_fan_cowl()
+        if fan_cowl:
+            fan_cowl_uid = fan_cowl.get_uid()
+            engine_uids.append(fan_cowl_uid)
+            fan_cowl_shape = fan_cowl.build_loft()
+            export(fan_cowl_shape, brep_dir_path, fan_cowl_uid)
 
-                center_cowl = nacelle.get_center_cowl()
-                if center_cowl:
-                    center_cowl_shape = center_cowl.build_loft()
-                    export(center_cowl_shape, brep_dir_path, f"nacelle_center_cowl{k}")
-                    if symmetric_engine:
-                        export(center_cowl_shape, brep_dir_path, f"nacelle_center_cowl{k}_m")
-
-                core_cowl = nacelle.get_core_cowl()
-                if core_cowl:
-                    core_cowl_shape = core_cowl.build_loft()
-                    export(core_cowl_shape, brep_dir_path, f"nacelle_core_cowl{k}")
-                    if symmetric_engine:
-                        export(core_cowl_shape, brep_dir_path, f"nacelle_core_cowl{k}_m")
-
-                fan_cowl = nacelle.get_fan_cowl()
-                if fan_cowl:
-                    fan_cowl_shape = fan_cowl.build_loft()
-                    export(fan_cowl_shape, brep_dir_path, f"nacelle_fan_cowl{k}")
-                    if symmetric_engine:
-                        export(fan_cowl_shape, brep_dir_path, f"nacelle_fan_cowl{k}_m")
+    engine_conversion(cpacs_path, engine_uids, brep_dir_path)
 
 
-def export_brep(cpacs, brep_dir_path):
+def export_brep(cpacs, cpacs_path, brep_dir_path):
     """Function to generate and export the geometries of a .xml file
 
     Function 'export_brep' is a subfunction of CPACS2GMSH that generate with TiGL
@@ -116,8 +114,12 @@ def export_brep(cpacs, brep_dir_path):
     mirrored element of the airplane have the subscript _mirrored : Wing1_mirrored.brep
 
     Args:
-        cpacs (obj): CPACS object (from cpacspy)
-        brep_dir_path (obj): Path object to the directory where the brep files are saved
+    cpacs : CPACS object (from cpacspy)
+        CPACS object (from cpacspy)
+    cpacs_path : Path
+        path to the cpacs of the aircraft
+    brep_dir_path : Path
+        Path object to the directory where the brep files are saved
 
     Returns
     -------
@@ -129,6 +131,7 @@ def export_brep(cpacs, brep_dir_path):
     aircraft_config = cpacs.aircraft.configuration
 
     # Retrieve aircraft parts
+
     fuselage_cnt = aircraft_config.get_fuselage_count()
     wing_cnt = aircraft_config.get_wing_count()
     # rotor_cnt = aircraft_config.get_rotor_count()
@@ -169,12 +172,15 @@ def export_brep(cpacs, brep_dir_path):
             if pylon_m_geom is not None:
                 export(pylon_m_geom, brep_dir_path, pylon_uid + "_mirrored")
 
-    # Engine position
+    # Engine
 
-    # The following must be done in a cleaner way using the cpacs.xml file
-    # or upgrading TiGL version
-    # There also must be a better way to do this and the engine symmetry
-    # engine_export(aircraft_config, brep_dir_path, symmetric_engine)
+    engines_config = aircraft_config.get_engines()
+    if engines_config:
+        nb_engine = engines_config.get_engine_count()
+
+        for k in range(1, nb_engine + 1):
+            engine = engines_config.get_engine(k)
+            engine_export(cpacs_path, engine, brep_dir_path)
 
 
 # =================================================================================================

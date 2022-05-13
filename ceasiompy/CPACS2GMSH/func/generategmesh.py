@@ -345,7 +345,6 @@ def generate_gmsh(
         parts_parent_dimtag.append(sym_box[1])
 
     # Generate fragment between the aircraft and the farfield
-
     log.info("Start fragment operation")
 
     _, children_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)

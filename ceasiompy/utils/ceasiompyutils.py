@@ -253,15 +253,29 @@ def get_part_type(cpacs_path: Path, part_uid: str) -> str:
         log.info(f"'{part_uid}' is a wing")
         return "wing"
 
-    if "fuselages/fuselage" in part_xpath:
+    elif "fuselages/fuselage" in part_xpath:
         log.info(f"'{part_uid}' is a fuselage")
         return "fuselage"
 
-    if "enginePylons/enginePylon" in part_xpath:
+    elif "enginePylons/enginePylon" in part_xpath:
         log.info(f"'{part_uid}' is a pylon")
         return "pylon"
 
-    # TODO: complete when engine/flaps are available with TiGL
+    elif "engine/nacelle/fanCowl" in part_xpath:
+        log.info(f"'{part_uid}' is a fanCowl")
+        return "fanCowl"
+
+    elif "engine/nacelle/centerCowl" in part_xpath:
+        log.info(f"'{part_uid}' is a centerCowl")
+        return "centerCowl"
+
+    elif "engine/nacelle/coreCowl" in part_xpath:
+        log.info(f"'{part_uid}' is a coreCowl")
+        return "coreCowl"
+
+    elif "vehicles/engines/engine" in part_xpath:
+        log.info(f"'{part_uid}' is an engine")
+        return "engine"
 
     log.warning(f"'{part_uid}' cannot be categorized!")
     return None

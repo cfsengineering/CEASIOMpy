@@ -224,7 +224,7 @@ def test_refine_wing_section():
 
     cpacs = CPACS(str(CPACS_IN_PATH))
 
-    export_brep(cpacs, TEST_OUT_PATH)
+    export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 
     generate_gmsh(
         CPACS_IN_PATH,
@@ -290,7 +290,7 @@ def test_check_mesh():
 
     cpacs = CPACS(str(CPACS_IN_PATH))
 
-    export_brep(cpacs, TEST_OUT_PATH)
+    export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 
     generate_gmsh(
         CPACS_IN_PATH,

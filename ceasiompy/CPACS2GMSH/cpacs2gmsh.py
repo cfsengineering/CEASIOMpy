@@ -80,7 +80,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     refine_factor = get_value_or_default(cpacs.tixi, refine_factor_xpath, 7.0)
 
     # Run mesh generation
-    export_brep(cpacs, brep_dir_path)
+    export_brep(cpacs, cpacs_path, brep_dir_path)
     mesh_path, _ = generate_gmsh(
         cpacs_path,
         brep_dir_path,

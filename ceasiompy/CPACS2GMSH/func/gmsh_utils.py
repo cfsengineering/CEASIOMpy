@@ -20,6 +20,7 @@ MESH_COLORS = {
     "wing": (0, 200, 200),
     "fuselage": (255, 215, 0),
     "pylon": (255, 15, 255),
+    "engine": (0, 200, 100),
     "bad_surface": (255, 0, 0),
     "good_surface": (0, 255, 0),
 }

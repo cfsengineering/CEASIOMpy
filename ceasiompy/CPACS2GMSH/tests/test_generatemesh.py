@@ -62,7 +62,7 @@ def test_generate_gmsh():
 
     cpacs = CPACS(str(CPACS_IN_PATH))
 
-    export_brep(cpacs, TEST_OUT_PATH)
+    export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 
     generate_gmsh(
         CPACS_IN_PATH,
@@ -82,7 +82,6 @@ def test_generate_gmsh():
     with open(Path(TEST_OUT_PATH, "mesh.su2"), "r") as f:
         content = f.read()
 
-    # assert "NMARK= 4" in content
     assert "MARKER_TAG= Wing" in content
     assert "MARKER_TAG= Wing_mirrored" in content
     assert "MARKER_TAG= SimpleFuselage" in content
@@ -110,7 +109,7 @@ def test_generate_gmsh_symm():
 
     cpacs = CPACS(str(CPACS_IN_PATH))
 
-    export_brep(cpacs, TEST_OUT_PATH)
+    export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 
     generate_gmsh(
         CPACS_IN_PATH,
@@ -156,7 +155,7 @@ def test_symm_part_removed():
 
     cpacs = CPACS(str(CPACS_IN_PATH))
 
-    export_brep(cpacs, TEST_OUT_PATH)
+    export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 
     generate_gmsh(
         CPACS_IN_PATH,
@@ -290,7 +289,7 @@ def test_assignation():
 
     cpacs = CPACS(str(CPACS_IN_PATH))
 
-    export_brep(cpacs, TEST_OUT_PATH)
+    export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 
     _, aircraft_parts = generate_gmsh(
         CPACS_IN_PATH,

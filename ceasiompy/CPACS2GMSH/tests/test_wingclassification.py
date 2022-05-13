@@ -32,7 +32,7 @@ from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from cpacspy.cpacspy import CPACS
 
 MODULE_DIR = Path(__file__).parent
-CPACS_SIMPLE = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
+CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # ==============================================================================
@@ -229,12 +229,12 @@ def test_classify_wing():
         shutil.rmtree(TEST_OUT_PATH)
     TEST_OUT_PATH.mkdir()
 
-    cpacs = CPACS(str(CPACS_SIMPLE))
+    cpacs = CPACS(str(CPACS_IN_PATH))
 
-    export_brep(cpacs, TEST_OUT_PATH)
+    export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 
     _, aircraft_parts = generate_gmsh(
-        CPACS_SIMPLE,
+        CPACS_IN_PATH,
         TEST_OUT_PATH,
         TEST_OUT_PATH,
         open_gmsh=False,

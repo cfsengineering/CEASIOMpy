@@ -48,7 +48,7 @@ def test_export_brep():
 
     cpacs = CPACS(str(CPACS_IN_PATH))
 
-    export_brep(cpacs, TEST_OUT_PATH)
+    export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 
     brep_files = list(TEST_OUT_PATH.glob("*.brep"))
     brep_file_names = [brep_file.name for brep_file in brep_files]
@@ -64,7 +64,7 @@ def test_export_brep():
 
     with pytest.raises(FileNotFoundError):
         with patch("ceasiompy.CPACS2GMSH.func.exportbrep.export_shapes", return_value=True):
-            export_brep(cpacs, TEST_OUT_PATH)
+            export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 
 
 # ==============================================================================

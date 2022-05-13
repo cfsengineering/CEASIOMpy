@@ -167,6 +167,9 @@ forces_breakdown.dat
 /WKDIR/*
 !/WKDIR/.keep
 
+# Ignore the installation folder
+installation/
+
 # Ignore ToolInput and ToolOutput
 ToolInput.xml
 ToolInput*.xml

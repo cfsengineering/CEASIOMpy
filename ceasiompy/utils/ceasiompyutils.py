@@ -172,6 +172,10 @@ def run_software(
     command_line += [install_path]
     command_line += arguments
 
+    # Use xvfb to run sumo to avoid problems with X11 on servers
+    if software_name in ["sumo", "dwfsumo"]:
+        command_line = ["xvfb-run"] + command_line
+
     log.info(f">>> Running {software_name} on {int(nb_cpu)} cpu(s)")
     log.info(f"Working directory: {wkdir}")
     log.info(f"Logfile: {logfile_path}")

@@ -56,9 +56,9 @@ jobs:
       shell: bash -l {0}
       run: installation/Ubuntu/install_pytornado.sh
 
-    # - name: Install SUMO
-    #   shell: bash -l {0}
-    #   run: installation/Ubuntu/install_sumo.sh
+    - name: Install SUMO
+      shell: bash -l {0}
+      run: installation/Ubuntu/install_sumo.sh
 
     - name: Install SU2
       shell: bash -l {0}
@@ -78,4 +78,8 @@ jobs:
         flags: integrationtests
         fail_ci_if_error: true
         verbose: true
-
+      
+    # - name: Setup tmate session to SSH to the remote machine (for debugging)
+    #   if: ${{ failure() }}
+    #   uses: mxschmitt/action-tmate@v3
+    #   timeout-minutes: 15

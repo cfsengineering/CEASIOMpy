@@ -21,6 +21,7 @@ TODO:
 
 import re
 from pathlib import Path
+
 import requests
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_install_path
@@ -137,6 +138,119 @@ def get_su2_config_template():
             f.write(r.content)
 
     return su2_config_template_path
+
+
+def get_su2_aerocoefs(force_file):
+    """Get aerodynamic coefficients and velocity from SU2 forces file (forces_breakdown.dat)
+
+    Args:
+        force_file (Path): Path to the SU2 forces file
+
+    Returns:
+        cl, cd, cs, cmd, cms, cml, velocity: Aerodynamic coefficients and velocity
+    """
+
+    if not force_file.is_file():
+        raise FileNotFoundError(f"The SU2 forces file '{force_file}' has not been found!")
+
+    cl, cd, cs, cmd, cms, cml, velocity = None, None, None, None, None, None, None
+
+    with open(force_file) as f:
+        for line in f.readlines():
+            if "Total CL:" in line:
+                cl = float(line.split(":")[1].split("|")[0])
+            if "Total CD:" in line:
+                cd = float(line.split(":")[1].split("|")[0])
+            if "Total CSF:" in line:
+                cs = float(line.split(":")[1].split("|")[0])
+            # TODO: Check which axis name corespond to that: cml, cmd, cms
+            if "Total CMx:" in line:
+                cmd = float(line.split(":")[1].split("|")[0])
+            if "Total CMy:" in line:
+                cms = float(line.split(":")[1].split("|")[0])
+            if "Total CMz:" in line:
+                cml = float(line.split(":")[1].split("|")[0])
+            if "Free-stream velocity" in line and "m/s" in line:
+                velocity = float(line.split(" ")[7])
+
+    return cl, cd, cs, cmd, cms, cml, velocity
+
+
+def get_efficiency_and_aoa(force_file):
+    """Function to get efficiency (CL/CD) and angle of attack (AoA)
+
+    Function 'get_efficiency_and_aoa' search for the efficiency (CL/CD) and
+    the Angle of Attack (AoA) in the results file (forces_breakdown.dat)
+
+    Args:
+        force_file (Path): Path to the SU2 forces file
+
+    Returns:
+        cl_cd (float):  CL/CD ratio [-]
+        aoa (float):    Angle of Attack [deg]
+
+    """
+
+    if not force_file.is_file():
+        raise FileNotFoundError(f"The SU2 forces file '{force_file}' has not been found!")
+
+    cl_cd = None
+    aoa = None
+
+    with open(force_file) as f:
+        for line in f.readlines():
+            if "CL/CD" in line:
+                cl_cd = float(line.split(":")[1].split("|")[0])
+                continue
+
+            if "Angle of attack (AoA):" in line:
+                aoa = float(line.split("Angle of attack (AoA):")[1].split("deg,")[0].strip())
+                continue
+
+            if cl_cd and aoa:
+                break
+
+    if cl_cd is None:
+        raise ValueError(f"No value has been found for the CL/CD ratio in {force_file}")
+    else:
+        log.info("CL/CD ratio has been found and is equal to: " + str(cl_cd) + "[-]")
+
+    if aoa is None:
+        raise ValueError(f"No value has been found for the AoA in {force_file}")
+    else:
+        log.info("AoA has been found and is equal to: " + str(aoa) + "[-]")
+
+    return cl_cd, aoa
+
+
+def get_wetted_area(su2_logfile):
+    """Function get the wetted area calculated by SU2
+
+    Function 'get_wetted_area' finds the SU2 logfile and returns the wetted
+    area value previously calculated by SU2.
+
+    Args:
+        su2_logfile (Path): Path to the working directory
+
+    Returns:
+        wetted_area (float): Wetted area calculated by SU2 [m^2]
+
+    """
+
+    if not su2_logfile.is_file():
+        raise FileNotFoundError(f"The SU2 logfile '{su2_logfile}' has not been found!")
+
+    with open(su2_logfile) as f:
+        for line in f.readlines():
+            if "Wetted area =" not in line:
+                continue
+
+            wetted_area = float(line.split(" ")[3])
+            log.info(f"Wetted area value has been found : {wetted_area} [m^2]")
+            return wetted_area
+
+    log.warning("No value has been found for the wetted area!, returning 0 [m^2]")
+    return 0
 
 
 # ==============================================================================

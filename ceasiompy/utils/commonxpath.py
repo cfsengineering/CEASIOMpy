@@ -101,5 +101,9 @@ SU2_CONTROL_SURF_XPATH = SU2_XPATH + "/options/calculateControlSurfacesDeflectio
 SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
 
 
+# RANGE
+RANGE_LD_RATIO_XPATH = "/cpacs/toolspecific/CEASIOMpy/ranges/lDRatio"
+
+
 # pytornado
 PYTORNADO_XPATH = "/cpacs/toolspecific/pytornado"

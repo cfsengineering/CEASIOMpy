@@ -11,6 +11,7 @@ from ceasiompy.utils.commonxpath import (
     MASSBREAKDOWN_XPATH,
     PILOTS_XPATH,
     PROP_XPATH,
+    RANGE_LD_RATIO_XPATH,
     RANGE_XPATH,
     WEIGHT_XPATH,
 )
@@ -199,7 +200,7 @@ cpacs_inout.add_input(
     default_value=17.0,
     unit="-",
     descr="On cruise efficiency, CL/CD ratio",
-    xpath=RANGE_XPATH + "/lDRatio",
+    xpath=RANGE_LD_RATIO_XPATH,
     gui=True,
     gui_name="CL/CD",
     gui_group="Cruise",

@@ -32,6 +32,7 @@ from ceasiompy.SU2Run.func.su2utils import (
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.commonxpath import (
+    RANGE_LD_RATIO_XPATH,
     SU2_AEROMAP_UID_XPATH,
     SU2_EXTRACT_LOAD_XPATH,
     SU2_FIXED_CL_XPATH,
@@ -59,7 +60,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
     """Function to write SU2 results in a CPACS file.
 
     Function 'get_su2_results' gets available results from the latest SU2
-    calculation and put it at the correct place in the CPACS file.
+    calculation and put them at the correct place in the CPACS file.
 
     '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[n]/aeroPerformanceMap'
 
@@ -119,11 +120,9 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
             # Replace aoa with the with the value from fixed cl calculation
             aeromap.df.loc[0, ["angleOfAttack"]] = aoa
 
-            # Save cl/cd found during the fixed CL calculation
-            # TODO: maybe save cl/cd somewhere else
-            lDRatio_xpath = "/cpacs/toolspecific/CEASIOMpy/ranges/lDRatio"
-            create_branch(cpacs.tixi, lDRatio_xpath)
-            cpacs.tixi.updateDoubleElement(lDRatio_xpath, cl_cd, "%g")
+            # Save cl/cd found during the fixed CL calculation (useful for range analysis)
+            create_branch(cpacs.tixi, RANGE_LD_RATIO_XPATH)
+            cpacs.tixi.updateDoubleElement(RANGE_LD_RATIO_XPATH, cl_cd, "%g")
 
         cl, cd, cs, cmd, cms, cml, velocity = get_su2_aerocoefs(force_file_path)
 

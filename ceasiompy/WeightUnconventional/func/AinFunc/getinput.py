@@ -34,6 +34,7 @@ from ceasiompy.utils.commonxpath import (
     PASS_XPATH,
     PILOTS_XPATH,
     PROP_XPATH,
+    RANGE_LD_RATIO_XPATH,
     RANGE_XPATH,
 )
 
@@ -195,11 +196,11 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
     ed.TSFC_CRUISE = get_value_or_default(tixi, PROP_XPATH + "/tSFC", 0.5)
 
     # TODO: These data should be taken from aeroMaps...
-    if not tixi.checkElement(RANGE_XPATH + "/lDRatio"):
+    if not tixi.checkElement(RANGE_LD_RATIO_XPATH):
         tixi.createElement(RANGE_XPATH, "lDRatio")
-        tixi.updateDoubleElement(RANGE_XPATH + "/lDRatio", ui.LD, "%g")
+        tixi.updateDoubleElement(RANGE_LD_RATIO_XPATH, ui.LD, "%g")
     else:
-        temp = tixi.getIntegerElement(RANGE_XPATH + "/lDRatio")
+        temp = tixi.getIntegerElement(RANGE_LD_RATIO_XPATH)
         if temp != ui.LD and temp > 0:
             ui.LD = temp
 
@@ -238,7 +239,7 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
         else:
             adui.SINGLE_HYDRAULICS = True
 
-    log.info("Data from CPACS file succesfully extracted")
+    log.info("Data from CPACS file successfully extracted")
 
     tixi.save(cpacs_in)
 
@@ -262,7 +263,7 @@ def get_engine_inputs(ui, ed, cpacs_in):
                              the ToolOutput folder (input option).
     OUTPUT
     (class) ed       --Out.: EngineData class.
-    (file) cpacs_in  --Out.: Updated cpasc file
+    (file) cpacs_in  --Out.: Updated cpacs file
     """
 
     log.info("Starting engine data extraction from CPACS file")
@@ -314,7 +315,7 @@ def get_engine_inputs(ui, ed, cpacs_in):
                 EN_XPATH += "/engine"
             if not tixi.checkElement(EN_XPATH):
                 raise Exception(
-                    "Engine definition inclomplete, missing"
+                    "Engine definition incomplete, missing"
                     + " one or more engines in the cpacs file"
                 )
             if not tixi.checkElement(EN_XPATH + "/name"):
@@ -338,7 +339,7 @@ def get_engine_inputs(ui, ed, cpacs_in):
                 tixi.updateDoubleElement(ENA_XPATH + "/mass", ed.en_mass, "%g")
             else:
                 raise Exception(
-                    "Engine definition inclomplete, missing" + " engine mass in the cpacs file"
+                    "Engine definition incomplete, missing" + " engine mass in the cpacs file"
                 )
 
             if tixi.checkElement(EN_XPATH + "/analysis/thrust00"):
@@ -352,9 +353,9 @@ def get_engine_inputs(ui, ed, cpacs_in):
                 tixi.updateDoubleElement(EN_XPATH + "/analysis/thrust00", ed.max_thrust, "%g")
             else:
                 raise Exception(
-                    "Engine definition inclomplete, missing" + " engine thrust in the cpacs file"
+                    "Engine definition incomplete, missing" + " engine thrust in the cpacs file"
                 )
-    log.info("Data from CPACS file succesfully extracted")
+    log.info("Data from CPACS file successfully extracted")
 
     tixi.save(cpacs_in)
 

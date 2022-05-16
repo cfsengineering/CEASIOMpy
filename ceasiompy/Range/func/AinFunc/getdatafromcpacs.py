@@ -47,6 +47,7 @@ The cpacs file should also contain:
 from cpacspy.cpacsfunctions import add_uid, create_branch, open_tixi
 
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.commonxpath import RANGE_LD_RATIO_XPATH
 
 log = get_logger()
 
@@ -141,17 +142,16 @@ def get_data(mw, ri, cpacs_in):
         raise Exception("Missing required payload/massDescription/mass path.")
     else:
         log.info(
-            "All path correctly defined in the toolinput.xml file, "
-            + "beginning data extracction."
+            "All path correctly defined in the toolinput.xml file, " + "beginning data extraction."
         )
 
     # Gathering data =========================================================
     #  TOOLSPECIFIC ----------------------------------------------------------
-    if not tixi.checkElement(RANGE_PATH + "/lDRatio"):
+    if not tixi.checkElement(RANGE_LD_RATIO_XPATH):
         tixi.createElement(RANGE_PATH, "lDRatio")
-        tixi.updateDoubleElement(RANGE_PATH + "/lDRatio", ri.LD, "%g")
+        tixi.updateDoubleElement(RANGE_LD_RATIO_XPATH, ri.LD, "%g")
     else:
-        temp = tixi.getIntegerElement(RANGE_PATH + "/lDRatio")
+        temp = tixi.getIntegerElement(RANGE_LD_RATIO_XPATH)
         if temp != ri.LD and temp > 0:
             ri.LD = temp
 
@@ -254,20 +254,20 @@ def get_data(mw, ri, cpacs_in):
         if temp != ri.TSFC_LOITER and temp > 0:
             ri.TSFC_LOITER = temp
 
-    #  REQUIRED DATA =========================================================
+    # REQUIRED DATA =========================================================
     # Cabin Crew
     ri.cabin_crew_nb = tixi.getIntegerElement(CC_PATH + "/cabinCrewMemberNb")
 
     # Fuel
     mw.mass_fuel_maxpass = tixi.getDoubleElement(FMP_PATH)
 
-    #  REQUIRED MASSBREAKDOWN DATA ===========================================
+    # REQUIRED MASSBREAKDOWN DATA ===========================================
     mw.maximum_take_off_mass = tixi.getDoubleElement(MTOM_PATH)
     mw.operating_empty_mass = tixi.getDoubleElement(OEM_PATH)
     mw.mass_payload = tixi.getDoubleElement(PAY_PATH)
     mw.mass_fuel_max = tixi.getDoubleElement(F_PATH)
 
-    log.info("Data from CPACS file succesfully extracted")
+    log.info("Data from CPACS file successfully extracted")
 
     # Saving and closing the cpacs file ======================================
     tixi.save(cpacs_in)

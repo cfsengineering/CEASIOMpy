@@ -242,7 +242,8 @@ def define_engine_bc(engine_part, brep_dir_path):
             else:
                 possible_inlet.append(dimtag)
 
-    # Determine which surfaces are possible engine inlet and outlet by their respective distance
+    # Determine which surfaces are possible engine inlet and outlet by their
+    # respective distance
 
     for inlet in possible_inlet:
         for outlet in possible_outlet:

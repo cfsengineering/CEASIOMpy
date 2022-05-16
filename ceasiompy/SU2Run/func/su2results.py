@@ -180,9 +180,14 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
     aoa_list = aeromap.get("angleOfAttack").tolist()
     aos_list = aeromap.get("angleOfSideslip").tolist()
 
-    case_dir_list = [dir for dir in wkdir.iterdir() if "Case" in dir.name]
+    case_dir_list = [case_dir for case_dir in wkdir.iterdir() if "Case" in case_dir.name]
 
     for config_dir in sorted(case_dir_list):
+
+        if not config_dir.is_dir():
+            continue
+
+        baseline_coef = True
 
         case_nb = int(config_dir.name.split("_")[0].split("Case")[1])
 
@@ -191,126 +196,99 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
         mach = mach_list[case_nb]
         alt = alt_list[case_nb]
 
-        if config_dir.is_dir():
+        force_file_path = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
+        if not force_file_path.exists():
+            raise OSError("No result force file have been found!")
 
-            force_file_path = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
+        if fixed_cl == "YES":
+            cl_cd, aoa = get_efficiency_and_aoa(force_file_path)
 
-            if not force_file_path.exists():
-                raise OSError("No result force file have been found!")
+            # Replace aoa with the with the value from fixed cl calculation
+            aeromap.df.loc[0, ["angleOfAttack"]] = aoa
 
-            if fixed_cl == "YES":
-                cl_cd, aoa = get_efficiency_and_aoa(force_file_path)
+            # Save cl/cd found during the fixed CL calculation
+            # TODO: maybe save cl/cd somewhere else
+            lDRatio_xpath = "/cpacs/toolspecific/CEASIOMpy/ranges/lDRatio"
+            create_branch(cpacs.tixi, lDRatio_xpath)
+            cpacs.tixi.updateDoubleElement(lDRatio_xpath, cl_cd, "%g")
 
-                # Replace aoa with the with the value from fixed cl calculation
-                aeromap.df.loc[0, ["angleOfAttack"]] = aoa
+        cl, cd, cs, cmd, cms, cml, velocity = get_su2_forces(force_file_path)
 
-                # Save cl/cd found during the fixed CL calculation
-                # TODO: maybe save cl/cd somewhere else
-                lDRatio_xpath = "/cpacs/toolspecific/CEASIOMpy/ranges/lDRatio"
-                create_branch(cpacs.tixi, lDRatio_xpath)
-                cpacs.tixi.updateDoubleElement(lDRatio_xpath, cl_cd, "%g")
+        # Damping derivatives
+        rotation_rate = get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, -1.0)
+        ref_len = cpacs.aircraft.ref_lenght
+        adim_rot_rate = rotation_rate * ref_len / velocity
 
-            cl, cd, cs, cmd, cms, cml, velocity = get_su2_forces(force_file_path)
+        coefs = {"cl": cl, "cd": cd, "cs": cs, "cmd": cmd, "cms": cms, "cml": cml}
 
-            # Damping derivatives
-            rotation_rate = get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, -1.0)
-            ref_len = cpacs.aircraft.ref_lenght
-            adim_rot_rate = rotation_rate * ref_len / velocity
+        for axis in ["dp, dq, dr"]:
 
-            coefs = {"cl": cl, "cd": cd, "cs": cs, "cmd": cmd, "cms": cms, "cml": cml}
+            if not f"_{axis}" in config_dir.name:
+                continue
 
-            if "_dp" in config_dir.name:
-                for coef in COEFS:
-                    coef_baseline = aeromap.get(coef, alt=alt, mach=mach, aoa=aoa, aos=aos)
-                    dcoef = (coefs[coef] - coef_baseline) / adim_rot_rate
-                    aeromap.add_damping_derivatives(
-                        alt=alt,
-                        mach=mach,
-                        aos=aos,
-                        aoa=aoa,
-                        coef=coef,
-                        axis="dp",
-                        value=dcoef,
-                        rate=rotation_rate,
-                    )
+            baseline_coef = False
 
-            elif "_dq" in config_dir.name:
-                for coef in COEFS:
-                    coef_baseline = aeromap.get(coef, alt=alt, mach=mach, aoa=aoa, aos=aos)
-                    dcoef = (coefs[coef] - coef_baseline) / adim_rot_rate
-                    aeromap.add_damping_derivatives(
-                        alt=alt,
-                        mach=mach,
-                        aos=aos,
-                        aoa=aoa,
-                        coef=coef,
-                        axis="dq",
-                        value=dcoef,
-                        rate=rotation_rate,
-                    )
-
-            elif "_dr" in config_dir.name:
-                for coef in COEFS:
-                    coef_baseline = aeromap.get(coef, alt=alt, mach=mach, aoa=aoa, aos=aos)
-                    dcoef = (coefs[coef] - coef_baseline) / adim_rot_rate
-                    aeromap.add_damping_derivatives(
-                        alt=alt,
-                        mach=mach,
-                        aos=aos,
-                        aoa=aoa,
-                        coef=coef,
-                        axis="dr",
-                        value=dcoef,
-                        rate=rotation_rate,
-                    )
-
-            elif "_TED_" in config_dir.name:
-
-                # TODO: convert when it is possible to save TED in cpacspy
-                raise NotImplementedError("TED not implemented yet")
-
-                # config_dir_split = config_dir.split('_')
-                # ted_idx = config_dir_split.index('TED')
-                # ted_uid = config_dir_split[ted_idx+1]
-                # defl_angle = float(config_dir.split('_defl')[1])
-
-                # try:
-                #     print(Coef.IncrMap.dcl)
-                # except AttributeError:
-                #     Coef.IncrMap = a.p.m.f.IncrementMap(ted_uid)
-
-                # dcl = (cl-Coef.cl[-1])
-                # dcd = (cd-Coef.cd[-1])
-                # dcs = (cs-Coef.cs[-1])
-                # dcml = (cml-Coef.cml[-1])
-                # dcmd = (cmd-Coef.cmd[-1])
-                # dcms = (cms-Coef.cms[-1])
-
-                # control_parameter = -1
-
-                # Coef.IncrMap.add_cs_coef(dcl,dcd,dcs,dcml,dcmd,dcms,ted_uid,control_parameter)
-
-            else:  # Baseline coefficients, (no damping derivative or control surfaces case)
-                aeromap.add_coefficients(
+            for coef in COEFS:
+                coef_baseline = aeromap.get(coef, alt=alt, mach=mach, aoa=aoa, aos=aos)
+                dcoef = (coefs[coef] - coef_baseline) / adim_rot_rate
+                aeromap.add_damping_derivatives(
                     alt=alt,
                     mach=mach,
                     aos=aos,
                     aoa=aoa,
-                    cd=cd,
-                    cl=cl,
-                    cs=cs,
-                    cml=cml,
-                    cmd=cmd,
-                    cms=cms,
+                    coef=coef,
+                    axis=axis,
+                    value=dcoef,
+                    rate=rotation_rate,
                 )
 
-            if get_value_or_default(cpacs.tixi, SU2_EXTRACT_LOAD_XPATH, False):
-                extract_loads(config_dir)
+        if "_TED_" in config_dir.name:
 
-    # Save object Coef in the CPACS file
+            # TODO: convert when it is possible to save TED in cpacspy
+            raise NotImplementedError("TED not implemented yet")
+
+            # baseline_coef = False
+
+            # config_dir_split = config_dir.split('_')
+            # ted_idx = config_dir_split.index('TED')
+            # ted_uid = config_dir_split[ted_idx+1]
+            # defl_angle = float(config_dir.split('_defl')[1])
+
+            # try:
+            #     print(Coef.IncrMap.dcl)
+            # except AttributeError:
+            #     Coef.IncrMap = a.p.m.f.IncrementMap(ted_uid)
+
+            # dcl = (cl-Coef.cl[-1])
+            # dcd = (cd-Coef.cd[-1])
+            # dcs = (cs-Coef.cs[-1])
+            # dcml = (cml-Coef.cml[-1])
+            # dcmd = (cmd-Coef.cmd[-1])
+            # dcms = (cms-Coef.cms[-1])
+
+            # control_parameter = -1
+
+            # Coef.IncrMap.add_cs_coef(dcl,dcd,dcs,dcml,dcmd,dcms,ted_uid,control_parameter)
+
+        # Baseline coefficients (no damping derivative or control surfaces case)
+        if baseline_coef:
+            aeromap.add_coefficients(
+                alt=alt,
+                mach=mach,
+                aos=aos,
+                aoa=aoa,
+                cd=cd,
+                cl=cl,
+                cs=cs,
+                cml=cml,
+                cmd=cmd,
+                cms=cms,
+            )
+
+        if get_value_or_default(cpacs.tixi, SU2_EXTRACT_LOAD_XPATH, False):
+            extract_loads(config_dir)
+
     aeromap.save()
-
-    # Save the CPACS file
     cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
 
 

@@ -24,8 +24,9 @@ import pytest
 from ceasiompy.SU2Run.func.su2utils import (
     get_mesh_marker,
     get_su2_config_template,
-    get_su2_forces,
+    get_su2_aerocoefs,
     get_su2_version,
+    get_wetted_area,
 )
 from ceasiompy.utils.moduleinterfaces import get_module_path
 from pytest import approx
@@ -130,15 +131,28 @@ def test_get_su2_forces():
     """Test function 'get_su2_forces'"""
 
     with pytest.raises(FileNotFoundError):
-        get_su2_forces(Path(MODULE_DIR, "This_file_do_not_exist.dat"))
+        get_su2_aerocoefs(Path(MODULE_DIR, "This_file_do_not_exist.dat"))
 
     FORCES_BREAKDOWN = Path(MODULE_DIR, "forces_breakdown.dat")
 
-    results = get_su2_forces(FORCES_BREAKDOWN)
+    results = get_su2_aerocoefs(FORCES_BREAKDOWN)
     correct_results = [0.132688, 0.199127, 0.010327, None, -0.392577, 0.076315, 102.089]
 
     for r, res in enumerate(results):
         assert res == approx(correct_results[r], rel=1e-4)
+
+
+def test_get_wetted_area():
+    """Test function 'get_wetted_area'"""
+
+    with pytest.raises(FileNotFoundError):
+        get_wetted_area(Path(MODULE_DIR, "This_file_do_not_exist.log"))
+
+    SU2_LOGFILE = Path(MODULE_DIR, "logfile_SU2_CFD.log")
+    assert get_wetted_area(SU2_LOGFILE) == approx(702.04, rel=1e-4)
+
+    SU2_LOGFILE_NO_WETTED_AREA = Path(MODULE_DIR, "logfile_SU2_CFD_no_wetted_area.log")
+    assert get_wetted_area(SU2_LOGFILE_NO_WETTED_AREA) == 0
 
 
 # =================================================================================================

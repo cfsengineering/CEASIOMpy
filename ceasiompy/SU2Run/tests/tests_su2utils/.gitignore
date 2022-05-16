@@ -2,3 +2,4 @@
 !test_mesh0.su2
 !test_mesh1.su2
 !forces_breakdown.dat
+!*.log

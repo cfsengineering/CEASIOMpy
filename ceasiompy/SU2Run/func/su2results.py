@@ -21,11 +21,10 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import os
 from pathlib import Path
 
 from ceasiompy.SU2Run.func.extractloads import extract_loads
-from ceasiompy.SU2Run.func.su2utils import get_su2_forces
+from ceasiompy.SU2Run.func.su2utils import get_su2_aerocoefs, get_wetted_area
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.commonxpath import (
@@ -50,50 +49,6 @@ log = get_logger()
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
-
-
-def get_wetted_area(wkdir):
-    """Function get the wetted area calculated by SU2
-
-    Function 'get_wetted_area' finds the SU2 logfile and returns the wetted
-    area value previously calculated by SU2.
-
-    Args:
-        wkdir (str): Path to the working directory
-
-    Returns:
-        wetted_area (float): Wetted area calculated by SU2 [m^2]
-
-    """
-
-    wetted_area = None
-    su2_logfile_path = None
-
-    # Find a logfile in wkdir
-    for (root, _, files) in os.walk(wkdir):
-        for file in files:
-            if file == "logfile_SU2_CFD.log":
-                su2_logfile_path = Path(root, file)
-                break
-
-    if su2_logfile_path is None:
-        log.warning("No logfile has been found for working directory!")
-
-    # Read the logfile
-    with open(su2_logfile_path) as f:
-        for line in f.readlines():
-            if "Wetted area =" in line:
-                wetted_area = float(line.split(" ")[3])
-                break
-
-    if wetted_area is None:
-        # raise ValueError('No value has been found for the wetted area!')
-        log.warning("No value has been found for the wetted area!")
-        return 0
-
-    else:
-        log.info("Wetted area value has been found and is equal to " + str(wetted_area) + " [m^2]")
-        return wetted_area
 
 
 # This function should be modified maybe merge with get_aoa
@@ -157,15 +112,8 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
     if not wkdir.exists():
         raise OSError(f"The working directory : {wkdir} does not exit!")
 
-    # Get and save Wetted area
-    wetted_area = get_wetted_area(wkdir)
-    create_branch(cpacs.tixi, WETTED_AREA_XPATH)
-    cpacs.tixi.updateDoubleElement(WETTED_AREA_XPATH, wetted_area, "%g")
-
-    # Get fixed_cl option
     fixed_cl = get_value_or_default(cpacs.tixi, SU2_FIXED_CL_XPATH, "NO")
 
-    # Get aeroMap uid
     if fixed_cl == "YES":
         aeromap_uid = "aeroMap_fixedCL_SU2"
     elif fixed_cl == "NO":
@@ -173,6 +121,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
     else:
         raise ValueError("The value for fixed_cl is not valid! Should be YES or NO")
 
+    log.info(f"The aeromap uid is: {aeromap_uid}")
     aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
     alt_list = aeromap.get("altitude").tolist()
@@ -188,6 +137,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
             continue
 
         baseline_coef = True
+        found_wetted_area = False
 
         case_nb = int(config_dir.name.split("_")[0].split("Case")[1])
 
@@ -212,7 +162,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
             create_branch(cpacs.tixi, lDRatio_xpath)
             cpacs.tixi.updateDoubleElement(lDRatio_xpath, cl_cd, "%g")
 
-        cl, cd, cs, cmd, cms, cml, velocity = get_su2_forces(force_file_path)
+        cl, cd, cs, cmd, cms, cml, velocity = get_su2_aerocoefs(force_file_path)
 
         # Damping derivatives
         rotation_rate = get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, -1.0)
@@ -223,7 +173,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
 
         for axis in ["dp, dq, dr"]:
 
-            if not f"_{axis}" in config_dir.name:
+            if f"_{axis}" not in config_dir.name:
                 continue
 
             baseline_coef = False
@@ -284,6 +234,12 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
                 cmd=cmd,
                 cms=cms,
             )
+
+        if not found_wetted_area:
+            wetted_area = get_wetted_area(Path(config_dir, "logfile_SU2_CFD.log"))
+            create_branch(cpacs.tixi, WETTED_AREA_XPATH)
+            cpacs.tixi.updateDoubleElement(WETTED_AREA_XPATH, wetted_area, "%g")
+            found_wetted_area = True
 
         if get_value_or_default(cpacs.tixi, SU2_EXTRACT_LOAD_XPATH, False):
             extract_loads(config_dir)

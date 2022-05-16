@@ -140,7 +140,15 @@ def get_su2_config_template():
     return su2_config_template_path
 
 
-def get_su2_forces(force_file_path):
+def get_su2_aerocoefs(force_file_path):
+    """Get aerodynamic coefficients and velocity from SU2 forces file (forces_breakdown.dat)
+
+    Args:
+        force_file_path (Path): Path to the SU2 forces file
+
+    Returns:
+        cl, cd, cs, cmd, cms, cml, velocity: Aerodynamic coefficients and velocity
+    """
 
     if not force_file_path.is_file():
         raise FileNotFoundError(f"The SU2 forces file '{force_file_path}' has not been found!")
@@ -166,6 +174,36 @@ def get_su2_forces(force_file_path):
                 velocity = float(line.split(" ")[7])
 
     return cl, cd, cs, cmd, cms, cml, velocity
+
+
+def get_wetted_area(su2_logfile):
+    """Function get the wetted area calculated by SU2
+
+    Function 'get_wetted_area' finds the SU2 logfile and returns the wetted
+    area value previously calculated by SU2.
+
+    Args:
+        su2_logfile (Path): Path to the working directory
+
+    Returns:
+        wetted_area (float): Wetted area calculated by SU2 [m^2]
+
+    """
+
+    if not su2_logfile.is_file():
+        raise FileNotFoundError(f"The SU2 logfile '{su2_logfile}' has not been found!")
+
+    with open(su2_logfile) as f:
+        for line in f.readlines():
+            if "Wetted area =" not in line:
+                continue
+
+            wetted_area = float(line.split(" ")[3])
+            log.info(f"Wetted area value has been found : {wetted_area} [m^2]")
+            return wetted_area
+
+    log.warning("No value has been found for the wetted area!, returning 0 [m^2]")
+    return 0
 
 
 # ==============================================================================

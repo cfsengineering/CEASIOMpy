@@ -26,6 +26,7 @@ TODO:
 
 from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
+from ceasiompy.utils.configfiles import ConfigFile
 import gmsh
 import numpy as np
 
@@ -37,6 +38,7 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     min_fields,
 )
 from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
+
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_part_type
 
@@ -190,6 +192,84 @@ def get_entities_from_volume(volume_dimtag):
     points_dimtags.sort()
 
     return surfaces_dimtags, lines_dimtags, points_dimtags
+
+
+def define_engine_bc(engine_part, brep_dir_path):
+    """
+    Function to define the boundary conditions for the engine part.
+    The engine is defined as a volume and the boundary conditions inlet outlet
+    are set to be fixed.
+
+    Args:
+    ----------
+    engine_part : ModelPart
+        engine part of the aircraft to set the bc on
+    brep_dir_path : Path
+        path to the brep files of the aircraft that also containt the engine config file
+
+    """
+    # open the engine config file and find the engine normal and distance between the inlet and outlet
+    config_file_path = Path(brep_dir_path, "config_engines.cfg")
+    config_file = ConfigFile(config_file_path)
+    engine_normal = [0, 0, 0]
+    engine_normal[0] = float(config_file[f"{engine_part.uid}_NORMAL_X"])
+    engine_normal[1] = float(config_file[f"{engine_part.uid}_NORMAL_Y"])
+    engine_normal[2] = float(config_file[f"{engine_part.uid}_NORMAL_Z"])
+
+    engine_in_out_dist = float(config_file[f"{engine_part.uid}_DISTANCE_SCALED"])
+
+    # Determine which surfaces are possible engine inlet and outlet by their normal orientation
+    possible_inlet = []
+    possible_outlet = []
+
+    for dimtag in engine_part.surfaces:
+
+        surface_center = gmsh.model.occ.getCenterOfMass(*dimtag)
+        parametric_coord = gmsh.model.getParametrization(*dimtag, list(surface_center))
+
+        # GMSH normal is defined exiting the volume
+        # note here that the volume is the fluide, so the inside of the engine is the outside
+        # of the volume, so inlet normal is opposite to engine normal
+        normal = gmsh.model.getNormal(dimtag[1], parametric_coord)
+        absolute_same = np.isclose(
+            np.absolute(engine_normal), np.absolute(normal), atol=1e-04, equal_nan=False
+        )
+        same = np.isclose(engine_normal, normal, atol=1e-04, equal_nan=False)
+
+        if absolute_same.all():
+            if same.all():
+                possible_outlet.append(dimtag)
+            else:
+                possible_inlet.append(dimtag)
+
+    # Determine which surfaces are possible engine inlet and outlet by their respective distance
+
+    for inlet in possible_inlet:
+        for outlet in possible_outlet:
+            pos_intlet = gmsh.model.occ.getCenterOfMass(*inlet)
+            pos_outlet = gmsh.model.occ.getCenterOfMass(*outlet)
+            distance = np.linalg.norm(np.subtract(pos_intlet, pos_outlet))
+            if np.isclose(distance, engine_in_out_dist, atol=1e-04, equal_nan=False):
+                inlet_tag = inlet[1]
+                outlet_tag = outlet[1]
+                break
+
+    # Set the boundary conditions
+
+    log.info(f"Inlet of {engine_part.uid} detected as surface {inlet_tag} ")
+    log.info(f"Outlet of {engine_part.uid} detected as surface {outlet_tag} ")
+    engine_part.other_surfaces_tags = list(
+        set(engine_part.surfaces_tags).difference(set([inlet_tag, outlet_tag]))
+    )
+    engine_part.inlet_tag = [inlet_tag]
+    engine_part.outlet_tag = [outlet_tag]
+
+    surfaces_group = gmsh.model.addPhysicalGroup(2, engine_part.other_surfaces_tags)
+    gmsh.model.setPhysicalName(2, surfaces_group, f"{engine_part.uid}")
+    inlet_group = gmsh.model.addPhysicalGroup(2, engine_part.inlet_tag)
+    gmsh.model.setPhysicalName(2, inlet_group, f"inlet_{engine_part.uid}")
+    outlet_group = gmsh.model.addPhysicalGroup(2, engine_part.outlet_tag)
+    gmsh.model.setPhysicalName(2, outlet_group, f"outlet_{engine_part.uid}")
 
 
 def process_gmsh_log(gmsh_log):
@@ -489,8 +569,13 @@ def generate_gmsh(
         aircraft.surfaces_tags.extend(part.surfaces_tags)
         aircraft.volume_tag.extend(part.volume_tag)
 
-        surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
-        gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
+        # Set surface BC for each part of the aircraft
+
+        if part.part_type == "engine":
+            define_engine_bc(part, brep_dir_path)
+        else:
+            surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
+            gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
 
     log.info("Model has been cleaned")
 

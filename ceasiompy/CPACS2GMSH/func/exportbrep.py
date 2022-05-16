@@ -24,6 +24,7 @@ TODO:
 from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.engineconversion import engine_conversion
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.configfiles import ConfigFile
 
 from tigl3.import_export_helper import export_shapes
 
@@ -60,7 +61,7 @@ def export(shape, brep_dir_path, uid):
         raise FileNotFoundError(f"Failed to export {uid}")
 
 
-def engine_export(cpacs_path, engine, brep_dir_path):
+def engine_export(cpacs_path, engine, brep_dir_path, engines_cfg_file_path):
     """
     Export the engine to a brep file
 
@@ -70,11 +71,14 @@ def engine_export(cpacs_path, engine, brep_dir_path):
         path to the cpacs of the aircraft
     engine: TiGL engine
         Engine part to be exported
-    brep_dir_path (obj):
+    brep_dir_path : Path
         Path object to the directory where the brep files are saved
+    engines_cfg_file_path : Path
+        Path object to the config file for the engines
 
 
     """
+
     engine_uids = []
     engine_uid = engine.get_uid()
     engine_uids.append(engine_uid)
@@ -102,7 +106,7 @@ def engine_export(cpacs_path, engine, brep_dir_path):
             fan_cowl_shape = fan_cowl.build_loft()
             export(fan_cowl_shape, brep_dir_path, fan_cowl_uid)
 
-    engine_conversion(cpacs_path, engine_uids, brep_dir_path)
+    engine_conversion(cpacs_path, engine_uids, brep_dir_path, engines_cfg_file_path)
 
 
 def export_brep(cpacs, cpacs_path, brep_dir_path):
@@ -175,12 +179,22 @@ def export_brep(cpacs, cpacs_path, brep_dir_path):
     # Engine
 
     engines_config = aircraft_config.get_engines()
+
     if engines_config:
         nb_engine = engines_config.get_engine_count()
 
+        # create config file for the engine conversion
+        engines_cfg_file_path = Path(brep_dir_path, "config_engines.cfg")
+        config_file = ConfigFile()
+
+        # write config file
+        config_file.write_file(engines_cfg_file_path, overwrite=True)
+
+        # export each engine
         for k in range(1, nb_engine + 1):
+
             engine = engines_config.get_engine(k)
-            engine_export(cpacs_path, engine, brep_dir_path)
+            engine_export(cpacs_path, engine, brep_dir_path, engines_cfg_file_path)
 
 
 # =================================================================================================

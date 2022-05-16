@@ -21,10 +21,12 @@ from pathlib import Path
 # ==============================================================================
 import gmsh
 import numpy as np
+import math
 from ceasiompy.CPACS2GMSH.func.generategmesh import ModelPart, get_entities_from_volume
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_part_type
+from ceasiompy.utils.ceasiompyutils import get_part_type, rotate_vector
+from ceasiompy.utils.configfiles import ConfigFile
 from cpacspy.cpacspy import CPACS
 
 log = get_logger()
@@ -33,7 +35,7 @@ log = get_logger()
 # ==============================================================================
 
 
-def engine_conversion(cpacs_path, engine_uids, brep_dir_path):
+def engine_conversion(cpacs_path, engine_uids, brep_dir_path, engines_cfg_file_path):
     """
     Function to convert the nacelle part in one engine
 
@@ -45,6 +47,8 @@ def engine_conversion(cpacs_path, engine_uids, brep_dir_path):
         engine uids : engine uid + all the nacelle uids
     brep_dir_path : Path
         Path to the directory containing the brep files
+    engines_cfg_file_path : Path
+        Path to the engines configuration file
     """
 
     # Find the brep files associated with the engine:
@@ -55,7 +59,11 @@ def engine_conversion(cpacs_path, engine_uids, brep_dir_path):
             engine_files_path.append(Path(brep_dir_path, file))
 
     # Create a new engine with all the nacelle parts
-    closed_engine_path = close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path)
+
+    # Create a new engine that is closed with an inlet and an outlet
+    closed_engine_path = close_engine(
+        cpacs_path, engine_uids, engine_files_path, brep_dir_path, engines_cfg_file_path
+    )
 
     # clean brep files from the nacelle that are no more used
     for file in brep_dir_path.iterdir():
@@ -64,11 +72,11 @@ def engine_conversion(cpacs_path, engine_uids, brep_dir_path):
         if part_uid in engine_uids[1:]:
             file.unlink()
 
-    # Move the engine to the correct location
-    reposition_engine(cpacs_path, closed_engine_path, brep_dir_path)
+    # Move the new engine to the correct location
+    reposition_engine(cpacs_path, closed_engine_path, engine_uids, engines_cfg_file_path)
 
 
-def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path):
+def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engines_cfg_file_path):
     """
     Function to close the engine nacelle fan by adding an inlet and outlet inside of the engine.
     Then the nacelle part are fused together to form only one engine that is saved as .brep file
@@ -83,6 +91,10 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path):
         engine uid
     engine_files : list
         list of brep files associated with the engine
+    brep_dir_path : Path
+        Path to the directory containing the brep files
+    engines_cfg_file_path : Path
+        Path to the engines configuration file
     """
     gmsh.initialize()
 
@@ -101,7 +113,8 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path):
         part_obj.part_type = get_part_type(cpacs_path, part_obj.uid)
         part_obj.volume = [part_dimtag[0]]
 
-        # Heal Fancowl : sometimes gmsh is not able to mesh correctly those type of part
+        # Heal Fancowl : sometimes gmsh is not able to mesh correctly those
+        # of part
         if part_obj.part_type == "fanCowl":
             gmsh.model.occ.healShapes(
                 dimTags=[part_dimtag[0]],
@@ -162,11 +175,25 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path):
         rotation_axis = np.cross(fancowl_part_axis, xy_vector)
         gmsh.model.occ.rotate([disk_inlet], *disk_inlet_center, *rotation_axis, np.pi / 2)
         gmsh.model.occ.synchronize()
-    cylinder = gmsh.model.occ.extrude(
-        [disk_inlet],
+
+    extrusion_vector = [
         -fancowl_part_axis[0] * (1 - (percent_forward + percent_backward)),
         -fancowl_part_axis[1] * (1 - (percent_forward + percent_backward)),
         -fancowl_part_axis[2] * (1 - (percent_forward + percent_backward)),
+    ]
+
+    # at this point we will save the distance between the inlet and the outlet of the engine
+    # this data will be used to find the correct inlet and outlet surface
+    # in the final model
+    distance = np.linalg.norm(np.array(extrusion_vector))
+    config_file = ConfigFile(engines_cfg_file_path)
+    config_file[f"{engine_uids[0]}_DISTANCE"] = f"{distance}"
+    # save this info in the engines config file
+    config_file.write_file(engines_cfg_file_path, overwrite=True)
+
+    cylinder = gmsh.model.occ.extrude(
+        [disk_inlet],
+        *extrusion_vector,
         numElements=[],
         heights=[],
         recombine=True,
@@ -194,7 +221,7 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path):
     gmsh.model.occ.synchronize()
 
     # fuse everything together
-    fused_dimtag = gmsh.model.occ.fuse(
+    _ = gmsh.model.occ.fuse(
         fragments_dimtag[:1], fragments_dimtag[1:], removeObject=True, removeTool=True
     )
 
@@ -227,7 +254,7 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path):
     return closed_engine_path
 
 
-def reposition_engine(cpacs_path, engine_path, brep_dir_path):
+def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_path):
     """
     Function to move the engines to their correct position relative to the aircraft
     by using the cpacs file translation, rotation and scaling data
@@ -243,15 +270,28 @@ def reposition_engine(cpacs_path, engine_path, brep_dir_path):
         path to the cpacs of the aircraft
     engine_path : Path
         Path of the engine to reposition
+    engine_uids : list
+        list of the uids of the engine parts
+    engines_cfg_file_path : Path
+        Path to the engines config file
     """
     # first retrieve the transformation data from the cpacs file
     cpacs = CPACS(str(cpacs_path))
     tixi = cpacs.tixi
     gmsh.initialize()
+    xpath_engines_position = "/cpacs/vehicles/aircraft/model/engines"
 
-    xpath = "/cpacs/vehicles/aircraft/model/engines/engine"
+    # get the engine transformation for the correct engine in the cpacs file
+    engine_nb = tixi.getNamedChildrenCount(xpath_engines_position, "engine")
 
-    engine = Engine(tixi, xpath)
+    for engine_index in range(engine_nb):
+
+        xpath_engine_postition = xpath_engines_position + "/engine[" + str(engine_index + 1) + "]"
+        engine = Engine(tixi, xpath_engine_postition)
+
+        if engine_path.stem in engine.uid:
+            # if it is the correct engine we can break the loop
+            break
 
     # import the engine
 
@@ -298,6 +338,22 @@ def reposition_engine(cpacs_path, engine_path, brep_dir_path):
     gmsh.clear()
     gmsh.finalize()
 
+    # save the engine axis in the engines config file
+    original_gmsh_axis = [-1, 0, 0]
+
+    r1 = rotate_vector(original_gmsh_axis, [1, 0, 0], np.radians(engine.transf.rotation.x))
+    r2 = rotate_vector(r1, [0, 1, 0], np.radians(engine.transf.rotation.y))
+    r3 = rotate_vector(r2, [0, 0, 1], np.radians(engine.transf.rotation.z))
+    config_file = ConfigFile(engines_cfg_file_path)
+
+    config_file[f"{engine_uids[0]}_NORMAL_X"] = f"{r3[0]}"
+    config_file[f"{engine_uids[0]}_NORMAL_Y"] = f"{r3[1]}"
+    config_file[f"{engine_uids[0]}_NORMAL_Z"] = f"{r3[2]}"
+
+    # addapt the distance with the scaling of the x axis
+    distance = float(config_file[f"{engine_uids[0]}_DISTANCE"])
+    config_file[f"{engine_uids[0]}_DISTANCE_SCALED"] = str(distance * engine.transf.scaling.x)
+
     # Search for a possible mirrored engine
 
     if engine.sym:
@@ -317,6 +373,21 @@ def reposition_engine(cpacs_path, engine_path, brep_dir_path):
 
         gmsh.clear()
         gmsh.finalize()
+
+        # complete the config file with the mirrored engine
+        # TODO: add mirror operation as a function of the plane of symmetry
+        # if xz : inverse y comp. if yz : inverse x comp. if xy : inverse z comp.
+
+        config_file[f"{engine_uids[0]}_mirrored_NORMAL_X"] = f"{r3[0]}"
+        config_file[f"{engine_uids[0]}_mirrored_NORMAL_Y"] = f"{-r3[1]}"
+        config_file[f"{engine_uids[0]}_mirrored_NORMAL_Z"] = f"{r3[2]}"
+        # with the scaling of the x axis
+        config_file[f"{engine_uids[0]}_mirrored_DISTANCE_SCALED"] = str(
+            distance * engine.transf.scaling.x
+        )
+
+    # save this info in the engines config file
+    config_file.write_file(engines_cfg_file_path, overwrite=True)
 
 
 # =================================================================================================

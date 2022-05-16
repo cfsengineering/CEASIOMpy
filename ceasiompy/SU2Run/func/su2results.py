@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Extract results from SU2 calculations
+Extract results from SU2 calculations and save them in a CPACS file.
 
 Python version: >=3.7
 
@@ -13,7 +13,6 @@ Python version: >=3.7
 TODO:
 
     * Saving for Control surface deflections
-    * Solve other small issues (see TODO)
 
 """
 
@@ -95,13 +94,18 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
 
     case_dir_list = [case_dir for case_dir in wkdir.iterdir() if "Case" in case_dir.name]
 
+    found_wetted_area = False
+
     for config_dir in sorted(case_dir_list):
 
         if not config_dir.is_dir():
             continue
 
+        force_file_path = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
+        if not force_file_path.exists():
+            raise OSError("No result force file have been found!")
+
         baseline_coef = True
-        found_wetted_area = False
 
         case_nb = int(config_dir.name.split("_")[0].split("Case")[1])
 
@@ -109,10 +113,6 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
         aos = aos_list[case_nb]
         mach = mach_list[case_nb]
         alt = alt_list[case_nb]
-
-        force_file_path = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
-        if not force_file_path.exists():
-            raise OSError("No result force file have been found!")
 
         if fixed_cl == "YES":
             cl_cd, aoa = get_efficiency_and_aoa(force_file_path)
@@ -133,7 +133,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
 
         coefs = {"cl": cl, "cd": cd, "cs": cs, "cmd": cmd, "cms": cms, "cml": cml}
 
-        for axis in ["dp, dq, dr"]:
+        for axis in ["dp", "dq", "dr"]:
 
             if f"_{axis}" not in config_dir.name:
                 continue
@@ -160,26 +160,21 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
             raise NotImplementedError("TED not implemented yet")
 
             # baseline_coef = False
-
             # config_dir_split = config_dir.split('_')
             # ted_idx = config_dir_split.index('TED')
             # ted_uid = config_dir_split[ted_idx+1]
             # defl_angle = float(config_dir.split('_defl')[1])
-
             # try:
             #     print(Coef.IncrMap.dcl)
             # except AttributeError:
             #     Coef.IncrMap = a.p.m.f.IncrementMap(ted_uid)
-
             # dcl = (cl-Coef.cl[-1])
             # dcd = (cd-Coef.cd[-1])
             # dcs = (cs-Coef.cs[-1])
             # dcml = (cml-Coef.cml[-1])
             # dcmd = (cmd-Coef.cmd[-1])
             # dcms = (cms-Coef.cms[-1])
-
             # control_parameter = -1
-
             # Coef.IncrMap.add_cs_coef(dcl,dcd,dcs,dcml,dcmd,dcms,ted_uid,control_parameter)
 
         # Baseline coefficients (no damping derivative or control surfaces case)

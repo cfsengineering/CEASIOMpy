@@ -24,7 +24,11 @@ TODO:
 from pathlib import Path
 
 from ceasiompy.SU2Run.func.extractloads import extract_loads
-from ceasiompy.SU2Run.func.su2utils import get_su2_aerocoefs, get_wetted_area
+from ceasiompy.SU2Run.func.su2utils import (
+    get_efficiency_and_aoa,
+    get_su2_aerocoefs,
+    get_wetted_area,
+)
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.commonxpath import (
@@ -51,54 +55,13 @@ log = get_logger()
 # =================================================================================================
 
 
-# This function should be modified maybe merge with get_aoa
-def get_efficiency_and_aoa(force_path):
-    """Function to get efficiency (CL/CD) and angle of attack (AoA)
-
-    Function 'get_efficiency_and_aoa' search fot the efficiency (CL/CD) and
-    the Angle of Attack (AoA) in the results file (forces_breakdown.dat)
-
-    Args:
-        force_path (str): Path to the Force Breakdown result file
-
-    Returns:
-        cl_cd (float):  CL/CD ratio [-]
-        aoa (float):    Angle of Attack [deg]
-
-    """
-
-    cl_cd = None
-    aoa = None
-
-    with open(force_path) as f:
-        for line in f.readlines():
-            if "CL/CD" in line:
-                cl_cd = float(line.split(":")[1].split("|")[0])
-                continue
-
-            if "Angle of attack (AoA):" in line:
-                aoa = float(line.split("Angle of attack (AoA):")[1].split("deg,")[0].strip())
-                continue
-
-            if cl_cd and aoa:
-                break
-
-    if cl_cd is None or aoa is None:
-        raise ValueError("No value has been found for the CL/CD ratio or AoA!")
-    else:
-        log.info("CL/CD ratio has been found and is equal to: " + str(cl_cd) + "[-]")
-        log.info("AoA has been found and is equal to: " + str(aoa) + "[-]")
-
-        return cl_cd, aoa
-
-
 def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
     """Function to write SU2 results in a CPACS file.
 
-    Function 'get_su2_results' get available results from the latest SU2
+    Function 'get_su2_results' gets available results from the latest SU2
     calculation and put it at the correct place in the CPACS file.
 
-    '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aerpMap[n]/aeroPerformanceMap'
+    '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[n]/aeroPerformanceMap'
 
     Args:
         cpacs_path (Path): Path to input CPACS file

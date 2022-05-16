@@ -22,9 +22,10 @@ from unittest.mock import mock_open, patch
 
 import pytest
 from ceasiompy.SU2Run.func.su2utils import (
+    get_efficiency_and_aoa,
     get_mesh_marker,
-    get_su2_config_template,
     get_su2_aerocoefs,
+    get_su2_config_template,
     get_su2_version,
     get_wetted_area,
 )
@@ -32,6 +33,10 @@ from ceasiompy.utils.moduleinterfaces import get_module_path
 from pytest import approx
 
 MODULE_DIR = Path(__file__).parent
+FORCES_BREAKDOWN = Path(MODULE_DIR, "forces_breakdown.dat")
+FORCES_BREAKDOWN_NO_VALUE = Path(MODULE_DIR, "forces_breakdown_no_value.dat")
+SU2_LOGFILE = Path(MODULE_DIR, "logfile_SU2_CFD.log")
+SU2_LOGFILE_NO_WETTED_AREA = Path(MODULE_DIR, "logfile_SU2_CFD_no_wetted_area.log")
 
 # =================================================================================================
 #   CLASSES
@@ -127,19 +132,34 @@ def test_get_su2_config_template():
             assert get_su2_config_template() == config_template_path
 
 
-def test_get_su2_forces():
-    """Test function 'get_su2_forces'"""
+def test_get_su2_aerocoefs():
+    """Test function 'get_su2_aerocoefs'"""
 
     with pytest.raises(FileNotFoundError):
         get_su2_aerocoefs(Path(MODULE_DIR, "This_file_do_not_exist.dat"))
 
-    FORCES_BREAKDOWN = Path(MODULE_DIR, "forces_breakdown.dat")
-
     results = get_su2_aerocoefs(FORCES_BREAKDOWN)
     correct_results = [0.132688, 0.199127, 0.010327, None, -0.392577, 0.076315, 102.089]
-
     for r, res in enumerate(results):
         assert res == approx(correct_results[r], rel=1e-4)
+
+    results_no_value = get_su2_aerocoefs(FORCES_BREAKDOWN_NO_VALUE)
+    for res in results_no_value:
+        assert res is None
+
+
+def test_get_efficiency_and_aoa():
+    """Test function 'get_efficiency_and_aoa'"""
+
+    with pytest.raises(FileNotFoundError):
+        get_efficiency_and_aoa(Path(MODULE_DIR, "This_file_do_not_exist.dat"))
+
+    cl_cd, aoa = get_efficiency_and_aoa(FORCES_BREAKDOWN)
+    assert cl_cd == approx(0.666351, rel=1e-4)
+    assert aoa == approx(0.5, rel=1e-4)
+
+    with pytest.raises(ValueError):
+        get_efficiency_and_aoa(FORCES_BREAKDOWN_NO_VALUE)
 
 
 def test_get_wetted_area():
@@ -148,10 +168,8 @@ def test_get_wetted_area():
     with pytest.raises(FileNotFoundError):
         get_wetted_area(Path(MODULE_DIR, "This_file_do_not_exist.log"))
 
-    SU2_LOGFILE = Path(MODULE_DIR, "logfile_SU2_CFD.log")
     assert get_wetted_area(SU2_LOGFILE) == approx(702.04, rel=1e-4)
 
-    SU2_LOGFILE_NO_WETTED_AREA = Path(MODULE_DIR, "logfile_SU2_CFD_no_wetted_area.log")
     assert get_wetted_area(SU2_LOGFILE_NO_WETTED_AREA) == 0
 
 

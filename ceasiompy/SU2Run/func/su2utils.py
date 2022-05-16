@@ -140,22 +140,22 @@ def get_su2_config_template():
     return su2_config_template_path
 
 
-def get_su2_aerocoefs(force_file_path):
+def get_su2_aerocoefs(force_file):
     """Get aerodynamic coefficients and velocity from SU2 forces file (forces_breakdown.dat)
 
     Args:
-        force_file_path (Path): Path to the SU2 forces file
+        force_file (Path): Path to the SU2 forces file
 
     Returns:
         cl, cd, cs, cmd, cms, cml, velocity: Aerodynamic coefficients and velocity
     """
 
-    if not force_file_path.is_file():
-        raise FileNotFoundError(f"The SU2 forces file '{force_file_path}' has not been found!")
+    if not force_file.is_file():
+        raise FileNotFoundError(f"The SU2 forces file '{force_file}' has not been found!")
 
     cl, cd, cs, cmd, cms, cml, velocity = None, None, None, None, None, None, None
 
-    with open(force_file_path) as f:
+    with open(force_file) as f:
         for line in f.readlines():
             if "Total CL:" in line:
                 cl = float(line.split(":")[1].split("|")[0])
@@ -174,6 +174,53 @@ def get_su2_aerocoefs(force_file_path):
                 velocity = float(line.split(" ")[7])
 
     return cl, cd, cs, cmd, cms, cml, velocity
+
+
+def get_efficiency_and_aoa(force_file):
+    """Function to get efficiency (CL/CD) and angle of attack (AoA)
+
+    Function 'get_efficiency_and_aoa' search for the efficiency (CL/CD) and
+    the Angle of Attack (AoA) in the results file (forces_breakdown.dat)
+
+    Args:
+        force_file (Path): Path to the SU2 forces file
+
+    Returns:
+        cl_cd (float):  CL/CD ratio [-]
+        aoa (float):    Angle of Attack [deg]
+
+    """
+
+    if not force_file.is_file():
+        raise FileNotFoundError(f"The SU2 forces file '{force_file}' has not been found!")
+
+    cl_cd = None
+    aoa = None
+
+    with open(force_file) as f:
+        for line in f.readlines():
+            if "CL/CD" in line:
+                cl_cd = float(line.split(":")[1].split("|")[0])
+                continue
+
+            if "Angle of attack (AoA):" in line:
+                aoa = float(line.split("Angle of attack (AoA):")[1].split("deg,")[0].strip())
+                continue
+
+            if cl_cd and aoa:
+                break
+
+    if cl_cd is None:
+        raise ValueError(f"No value has been found for the CL/CD ratio in {force_file}")
+    else:
+        log.info("CL/CD ratio has been found and is equal to: " + str(cl_cd) + "[-]")
+
+    if aoa is None:
+        raise ValueError(f"No value has been found for the AoA in {force_file}")
+    else:
+        log.info("AoA has been found and is equal to: " + str(aoa) + "[-]")
+
+    return cl_cd, aoa
 
 
 def get_wetted_area(su2_logfile):

@@ -27,6 +27,15 @@
 | License along with SU2. If not, see <http://www.gnu.org/licenses/>.   |
 -------------------------------------------------------------------------
 
+Problem definition:
+
+Compressible Euler equations.
+Mach number: 0.3.
+Angle of attack (AoA): 0.5 deg, and angle of sideslip (AoS): 0 deg.
+Non-Dimensional simulation (V=1.0, Rho=1.0, T=1.0 at the farfield).
+The reference area is 122.4 m^2.
+The reference length is 4.193 m.
+
 
 Inviscid flow: Computing density based on free-stream
 temperature and pressure using the ideal gas law.

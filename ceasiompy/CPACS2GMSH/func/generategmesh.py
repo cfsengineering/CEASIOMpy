@@ -208,7 +208,8 @@ def define_engine_bc(engine_part, brep_dir_path):
         path to the brep files of the aircraft that also containt the engine config file
 
     """
-    # open the engine config file and find the engine normal and distance between the inlet and outlet
+    # open the engine config file and find the engine normal and distance between
+    # the inlet and outlet
     config_file_path = Path(brep_dir_path, "config_engines.cfg")
     config_file = ConfigFile(config_file_path)
     engine_normal = [0, 0, 0]

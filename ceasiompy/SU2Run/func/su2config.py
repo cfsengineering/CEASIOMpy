@@ -20,18 +20,14 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import re
 from pathlib import Path
 
-import requests
 from ambiance import Atmosphere
-from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
+from ceasiompy.SU2Run.func.su2utils import get_mesh_marker, get_su2_config_template
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_install_path
 from ceasiompy.utils.commonnames import CONFIG_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.commonxpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
 from ceasiompy.utils.configfiles import ConfigFile
-from ceasiompy.utils.moduleinterfaces import get_module_path
 from cpacspy.cpacsfunctions import (
     create_branch,
     get_string_vector,
@@ -53,60 +49,6 @@ MODULE_DIR = Path(__file__).parent
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
-
-
-def get_su2_version():
-    """
-    Return the version of the installed SU2
-    """
-
-    su2py_path = get_install_path("SU2_CFD.py")
-
-    if su2py_path:
-        with open(su2py_path, "r") as f:
-            for line in f.readlines():
-                try:
-                    version = re.search(r"version\s*([\d.]+)", line).group(1)
-                except AttributeError:
-                    version = None
-
-                if version is not None:
-                    log.info(f"Version of SU2 detected: {version}")
-                    return version
-
-    return None
-
-
-def get_su2_config_template():
-    """Return path of the SU2 config template coresponding to the SU2 version."""
-
-    su2_version = get_su2_version()
-    su2_dir = get_module_path("SU2Run")
-    su2_config_template_path = Path(su2_dir, "files", f"config_template_v{su2_version}.cfg")
-
-    if not su2_config_template_path.exists():
-
-        # Use the Euler Onera M6 config as template
-        url = (
-            f"https://raw.githubusercontent.com/su2code/SU2/v{su2_version}"
-            "/TestCases/euler/oneram6/inv_ONERAM6.cfg"
-        )
-        r = requests.get(url)
-
-        if r.status_code == 404:
-            raise FileNotFoundError(
-                f"The SU2 config template for SU2 version {su2_version} does not exist."
-            )
-
-        if not r.status_code == 200:
-            raise ConnectionError(
-                f"Cannot download the template file for SU2 version {su2_version} at {url}"
-            )
-
-        with open(su2_config_template_path, "wb") as f:
-            f.write(r.content)
-
-    return su2_config_template_path
 
 
 def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
@@ -181,7 +123,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     else:  # if fixed_cl == 'YES':
         log.info("Configuration file for fixed CL calculation will be created.")
 
-        # Parameters fixed CL calulation
+        # Parameters fixed CL calculation
         param_count = 1
 
         # Create a new aeroMap
@@ -286,7 +228,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         cfg.write_file(config_output_path, overwrite=True)
 
         # Damping derivatives
-        damping_der_xpath = SU2_XPATH + "/options/clalculateDampingDerivatives"
+        damping_der_xpath = SU2_XPATH + "/options/calculateDampingDerivatives"
         damping_der = get_value_or_default(cpacs.tixi, damping_der_xpath, False)
 
         if damping_der:
@@ -317,7 +259,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             log.info("Damping derivatives cases directory has been created.")
 
         # Control surfaces deflections
-        control_surf_xpath = SU2_XPATH + "/options/clalculateCotrolSurfacesDeflections"
+        control_surf_xpath = SU2_XPATH + "/options/calculateControlSurfacesDeflections"
         control_surf = get_value_or_default(cpacs.tixi, control_surf_xpath, False)
 
         if control_surf:

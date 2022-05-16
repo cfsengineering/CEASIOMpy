@@ -41,9 +41,9 @@
           <targetCL>1.0</targetCL>
           <fixedCL>NO</fixedCL>
           <options>
-            <clalculateDampingDerivatives>False</clalculateDampingDerivatives>
+            <calculateDampingDerivatives>False</calculateDampingDerivatives>
             <rotationRate>1.0</rotationRate>
-            <clalculateCotrolSurfacesDeflections>False</clalculateCotrolSurfacesDeflections>
+            <calculateControlSurfacesDeflections>False</calculateControlSurfacesDeflections>
           </options>
           <settings>
             <nbProc>1</nbProc>
@@ -136,7 +136,9 @@
         <fuelOnCabin>0.0</fuelOnCabin>
       </fuels>
       <propulsion>
-        <tSFC>0.5<tsfcCruise>0.5</tsfcCruise><tsfcLoiter>0.4</tsfcLoiter></tSFC>
+        <tSFC>0.5<tsfcCruise>0.5</tsfcCruise>
+          <tsfcLoiter>0.4</tsfcLoiter>
+        </tSFC>
         <turboprop>False</turboprop>
       </propulsion>
       <optimisation>

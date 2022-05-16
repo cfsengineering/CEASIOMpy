@@ -30,7 +30,7 @@ import matplotlib
 import numpy
 from ambiance import Atmosphere
 from ceasiompy.ModuleTemplate.func.subfunc import my_subfunc
-from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
+from ceasiompy.SU2Run.func.su2utils import get_mesh_marker
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 from ceasiompy.utils.moduleinterfaces import (

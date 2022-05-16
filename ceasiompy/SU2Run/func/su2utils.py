@@ -21,6 +21,7 @@ TODO:
 
 import re
 from pathlib import Path
+
 import requests
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_install_path
@@ -137,6 +138,34 @@ def get_su2_config_template():
             f.write(r.content)
 
     return su2_config_template_path
+
+
+def get_su2_forces(force_file_path):
+
+    if not force_file_path.is_file():
+        raise FileNotFoundError(f"The SU2 forces file '{force_file_path}' has not been found!")
+
+    cl, cd, cs, cmd, cms, cml, velocity = None, None, None, None, None, None, None
+
+    with open(force_file_path) as f:
+        for line in f.readlines():
+            if "Total CL:" in line:
+                cl = float(line.split(":")[1].split("|")[0])
+            if "Total CD:" in line:
+                cd = float(line.split(":")[1].split("|")[0])
+            if "Total CSF:" in line:
+                cs = float(line.split(":")[1].split("|")[0])
+            # TODO: Check which axis name corespond to that: cml, cmd, cms
+            if "Total CMx:" in line:
+                cmd = float(line.split(":")[1].split("|")[0])
+            if "Total CMy:" in line:
+                cms = float(line.split(":")[1].split("|")[0])
+            if "Total CMz:" in line:
+                cml = float(line.split(":")[1].split("|")[0])
+            if "Free-stream velocity" in line and "m/s" in line:
+                velocity = float(line.split(" ")[7])
+
+    return cl, cd, cs, cmd, cms, cml, velocity
 
 
 # ==============================================================================

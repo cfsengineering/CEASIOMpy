@@ -25,6 +25,7 @@ import os
 from pathlib import Path
 
 from ceasiompy.SU2Run.func.extractloads import extract_loads
+from ceasiompy.SU2Run.func.su2utils import get_su2_forces
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.commonxpath import (
@@ -209,24 +210,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
                 create_branch(cpacs.tixi, lDRatio_xpath)
                 cpacs.tixi.updateDoubleElement(lDRatio_xpath, cl_cd, "%g")
 
-            # Read result file
-            with open(force_file_path) as f:
-                for line in f.readlines():
-                    if "Total CL:" in line:
-                        cl = float(line.split(":")[1].split("|")[0])
-                    if "Total CD:" in line:
-                        cd = float(line.split(":")[1].split("|")[0])
-                    if "Total CSF:" in line:
-                        cs = float(line.split(":")[1].split("|")[0])
-                    # TODO: Check which axis name corespond to waht: cml, cmd, cms
-                    if "Total CMx:" in line:
-                        cmd = float(line.split(":")[1].split("|")[0])
-                    if "Total CMy:" in line:
-                        cms = float(line.split(":")[1].split("|")[0])
-                    if "Total CMz:" in line:
-                        cml = float(line.split(":")[1].split("|")[0])
-                    if "Free-stream velocity" in line and "m/s" in line:
-                        velocity = float(line.split(" ")[7])
+            cl, cd, cs, cmd, cms, cml, velocity = get_su2_forces(force_file_path)
 
             # Damping derivatives
             rotation_rate = get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, -1.0)

@@ -18,15 +18,17 @@ Python version: >=3.7
 # =================================================================================================
 
 from pathlib import Path
-import pytest
 from unittest.mock import mock_open, patch
 
+import pytest
 from ceasiompy.SU2Run.func.su2utils import (
     get_mesh_marker,
     get_su2_config_template,
+    get_su2_forces,
     get_su2_version,
 )
 from ceasiompy.utils.moduleinterfaces import get_module_path
+from pytest import approx
 
 MODULE_DIR = Path(__file__).parent
 
@@ -122,6 +124,21 @@ def test_get_su2_config_template():
     with patch("ceasiompy.SU2Run.func.su2utils.get_su2_version", return_value="9.9.99"):
         with pytest.raises(FileNotFoundError):
             assert get_su2_config_template() == config_template_path
+
+
+def test_get_su2_forces():
+    """Test function 'get_su2_forces'"""
+
+    with pytest.raises(FileNotFoundError):
+        get_su2_forces(Path(MODULE_DIR, "This_file_do_not_exist.dat"))
+
+    FORCES_BREAKDOWN = Path(MODULE_DIR, "forces_breakdown.dat")
+
+    results = get_su2_forces(FORCES_BREAKDOWN)
+    correct_results = [0.132688, 0.199127, 0.010327, None, -0.392577, 0.076315, 102.089]
+
+    for r, res in enumerate(results):
+        assert res == approx(correct_results[r], rel=1e-4)
 
 
 # =================================================================================================

@@ -12,7 +12,7 @@ Python version: >=3.7
 
 Todo:
 
-    *
+    * Save XPATH in the commonxpath.py file
 
 """
 
@@ -37,7 +37,7 @@ from ceasiompy.Optimisation.func.tools import (
 from ceasiompy.SMUse.smuse import load_surrogate
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import get_all_module_specs
-from ceasiompy.utils.commonxpath import OPTIM_XPATH, SMUSE_XPATH
+from ceasiompy.utils.commonxpath import OPTIM_XPATH, SMUSE_XPATH, SU2_FIXED_CL_XPATH
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.utils import COEFS, PARAMS_COEFS
 
@@ -137,9 +137,8 @@ class Routine:
         # User specified configuration file path
         self.user_config = str(get_value_or_default(tixi, OPTIM_XPATH + "/Config/filepath", "-"))
 
-        fix_cl = get_value_or_default(
-            tixi, "/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/fixedCL", "no"
-        )
+        fix_cl = get_value_or_default(tixi, SU2_FIXED_CL_XPATH, "no")
+
         if fix_cl == "YES":
             tixi.updateTextElement(OPTIM_XPATH + "/aeroMapUID", "aeroMap_fixedCL_SU2")
             self.aeromap_uid = "aeroMap_fixedCL_SU2"

@@ -21,20 +21,24 @@ TODO:
 # =================================================================================================
 
 from pathlib import Path
-from cpacspy.cpacspy import CPACS
-from cpacspy.cpacsfunctions import get_value, get_value_or_default, create_branch
 
+from ambiance import Atmosphere
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.commonxpath import (
+    CLCALC_XPATH,
+    MASSBREAKDOWN_XPATH,
+    REF_XPATH,
+    SU2_FIXED_CL_XPATH,
+    SU2_TARGET_CL_XPATH,
+    SU2_XPATH,
+)
 from ceasiompy.utils.moduleinterfaces import (
     check_cpacs_input_requirements,
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-
-from ambiance import Atmosphere
-
-from ceasiompy.utils.commonxpath import CLCALC_XPATH, MASSBREAKDOWN_XPATH, REF_XPATH, SU2_XPATH
-
-from ceasiompy.utils.ceasiomlogger import get_logger
+from cpacspy.cpacsfunctions import create_branch, get_value, get_value_or_default
+from cpacspy.cpacspy import CPACS
 
 log = get_logger()
 
@@ -150,10 +154,10 @@ def get_cl(cpacs_path, cpacs_out_path):
 
     # Save TargetCL and fixedCL option
     create_branch(tixi, SU2_XPATH)
-    create_branch(tixi, SU2_XPATH + "/targetCL")
-    create_branch(tixi, SU2_XPATH + "/fixedCL")
-    tixi.updateDoubleElement(SU2_XPATH + "/targetCL", target_cl, "%g")
-    tixi.updateTextElement(SU2_XPATH + "/fixedCL", "YES")
+    create_branch(tixi, SU2_TARGET_CL_XPATH)
+    create_branch(tixi, SU2_FIXED_CL_XPATH)
+    tixi.updateDoubleElement(SU2_TARGET_CL_XPATH, target_cl, "%g")
+    tixi.updateTextElement(SU2_FIXED_CL_XPATH, "YES")
     log.info("Target CL has been saved in the CPACS file")
 
     cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)

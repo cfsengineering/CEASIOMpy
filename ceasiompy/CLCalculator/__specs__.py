@@ -2,7 +2,12 @@
 # -*- coding: utf-8 -*-
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import REF_XPATH, CLCALC_XPATH, SU2_XPATH
+from ceasiompy.utils.commonxpath import (
+    REF_XPATH,
+    CLCALC_XPATH,
+    SU2_FIXED_CL_XPATH,
+    SU2_TARGET_CL_XPATH,
+)
 
 
 # ===== CPACS inputs and outputs =====
@@ -103,7 +108,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit="1",
     descr="Value of CL to achieve to have a level flight with the given conditions",
-    xpath=SU2_XPATH + "/targetCL",
+    xpath=SU2_TARGET_CL_XPATH,
 )
 
 cpacs_inout.add_output(
@@ -111,5 +116,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit="-",
     descr="FIXED_CL_MODE parameter for SU2",
-    xpath=SU2_XPATH + "/fixedCL",
+    xpath=SU2_FIXED_CL_XPATH,
 )

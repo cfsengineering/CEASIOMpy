@@ -5,6 +5,8 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 List of CPACS xpath which are used in CEASIOMpy, if possible base xpath must be
 called only from here to avoid mistakes.
+XPath may be changed from here to avoid mistakes, but if it is the case, be careful to also change 
+xpath and field name in all the test CPACS files, which are in the CEASIOMpy repository.
 
 Python version: >=3.7
 
@@ -49,7 +51,6 @@ WEIGHT_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight"
 
 CLCALC_XPATH = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/clCalculation"
 PLOT_XPATH = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/plotAeroCoefficient"
-SU2_XPATH = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2"
 
 SF_XPATH = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction"
 
@@ -73,7 +74,32 @@ SU2MESH_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh"
 SUMOFILE_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath"
 WKDIR_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath"
 
-# pytornado
-PYTORNADO_XPATH = "/cpacs/toolspecific/pytornado"
 
 # GMSH
+
+
+# SU2
+SU2_XPATH = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2"
+SU2_AEROMAP_UID_XPATH = SU2_XPATH + "/aeroMapUID"
+SU2_NB_CPU_XPATH = SU2_XPATH + "/settings/nbCPU"
+SU2_EXTRACT_LOAD_XPATH = SU2_XPATH + "/results/extractLoads"
+
+SU2_MAX_ITER_XPATH = SU2_XPATH + "/settings/maxIter"
+SU2_CFL_NB_XPATH = SU2_XPATH + "/settings/cflNumber"
+SU2_MG_LEVEL_XPATH = SU2_XPATH + "/settings/multigridLevel"
+
+SU2_BC_WALL_XPATH = SU2_XPATH + "/boundaryConditions/wall"
+SU2_BC_FARFIELD_XPATH = SU2_XPATH + "/boundaryConditions/farfield"
+
+SU2_FIXED_CL_XPATH = SU2_XPATH + "/fixedCL"
+SU2_TARGET_CL_XPATH = SU2_XPATH + "/targetCL"
+
+SU2_DAMPING_DER_XPATH = SU2_XPATH + "/options/calculateDampingDerivatives"
+SU2_ROTATION_RATE_XPATH = SU2_XPATH + "/options/rotationRate"
+
+SU2_CONTROL_SURF_XPATH = SU2_XPATH + "/options/calculateControlSurfacesDeflections"
+SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
+
+
+# pytornado
+PYTORNADO_XPATH = "/cpacs/toolspecific/pytornado"

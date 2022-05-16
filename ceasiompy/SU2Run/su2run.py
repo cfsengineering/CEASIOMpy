@@ -36,7 +36,7 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 from ceasiompy.utils.commonnames import CONFIG_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from ceasiompy.utils.commonxpath import SU2_XPATH
+from ceasiompy.utils.commonxpath import SU2_NB_CPU_XPATH
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
 log = get_logger()
@@ -161,7 +161,7 @@ def main(cpacs_path, cpacs_out_path):
     tixi = open_tixi(str(cpacs_path))
 
     # Get number of proc to use from the CPACS file
-    nb_proc = get_value_or_default(tixi, SU2_XPATH + "/settings/nbProc", get_reasonable_nb_cpu())
+    nb_proc = get_value_or_default(tixi, SU2_NB_CPU_XPATH, get_reasonable_nb_cpu())
 
     results_dir = get_results_directory("SU2Run")
 

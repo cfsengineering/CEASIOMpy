@@ -5241,8 +5241,8 @@
           <targetCL>1</targetCL>
           <aeroMapUID>aeromap_empty</aeroMapUID>
           <options>
-            <clalculateDampingDerivatives>False</clalculateDampingDerivatives>
-            <clalculateCotrolSurfacesDeflections>False</clalculateCotrolSurfacesDeflections>
+            <calculateDampingDerivatives>False</calculateDampingDerivatives>
+            <calculateControlSurfacesDeflections>False</calculateControlSurfacesDeflections>
             <rotationRate>-1</rotationRate>
           </options>
           <results>

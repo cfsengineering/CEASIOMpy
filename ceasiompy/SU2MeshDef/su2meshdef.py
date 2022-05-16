@@ -36,7 +36,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker
+from ceasiompy.SU2Run.func.su2utils import get_mesh_marker
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
@@ -688,7 +688,7 @@ def generate_config_deformed_mesh(cpacs_path, cpacs_out_path, skip_config=False,
     if not skip_config:
 
         # Control surfaces deflections
-        control_surf_xpath = SU2_XPATH + "/options/clalculateCotrolSurfacesDeflections"
+        control_surf_xpath = SU2_XPATH + "/options/calculateControlSurfacesDeflections"
         control_surf = get_value_or_default(tixi, control_surf_xpath, False)
 
         if not control_surf:

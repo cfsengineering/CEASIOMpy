@@ -42,7 +42,7 @@ cpacs_inout.add_input(
     default_value=False,
     unit="1",
     descr="To check if control surfaces deflections should be calculated or not",
-    xpath=SU2_XPATH + "/options/clalculateCotrolSurfacesDeflections",
+    xpath=SU2_XPATH + "/options/calculateControlSurfacesDeflections",
     gui=True,
     gui_name="Control Surfaces",
     gui_group="Inputs",

@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Test functions for 'ceasiompy/SU2Run/func/meshutils.py'  
+Test functions for 'ceasiompy/SU2Run/func/meshutils.py'
 
 Python version: >=3.7
 

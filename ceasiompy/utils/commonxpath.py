@@ -5,7 +5,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 List of CPACS xpath which are used in CEASIOMpy, if possible base xpath must be
 called only from here to avoid mistakes.
-XPath may be changed from here to avoid mistakes, but if it is the case, be careful to also change 
+XPath may be changed from here to avoid mistakes, but if it is the case, be careful to also change
 xpath and field name in all the test CPACS files, which are in the CEASIOMpy repository.
 
 Python version: >=3.7

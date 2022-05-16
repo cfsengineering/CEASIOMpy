@@ -46,7 +46,7 @@
             <calculateControlSurfacesDeflections>False</calculateControlSurfacesDeflections>
           </options>
           <settings>
-            <nbProc>1</nbProc>
+            <nbCPU>1</nbCPU>
             <maxIter>200</maxIter>
             <cflNumber>1.0</cflNumber>
             <multigridLevel>3</multigridLevel>

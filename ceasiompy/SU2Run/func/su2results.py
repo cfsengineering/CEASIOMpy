@@ -27,7 +27,13 @@ from pathlib import Path
 from ceasiompy.SU2Run.func.extractloads import extract_loads
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import SU2_FORCES_BREAKDOWN_NAME
-from ceasiompy.utils.commonxpath import SU2_XPATH, WETTED_AREA_XPATH
+from ceasiompy.utils.commonxpath import (
+    SU2_AEROMAP_UID_XPATH,
+    SU2_EXTRACT_LOAD_XPATH,
+    SU2_FIXED_CL_XPATH,
+    SU2_ROTATION_RATE_XPATH,
+    WETTED_AREA_XPATH,
+)
 from cpacspy.cpacsfunctions import create_branch, get_value, get_value_or_default
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import COEFS
@@ -155,20 +161,14 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
     create_branch(cpacs.tixi, WETTED_AREA_XPATH)
     cpacs.tixi.updateDoubleElement(WETTED_AREA_XPATH, wetted_area, "%g")
 
-    # Check if loads shoud be extracted
-    check_extract_loads_xpath = SU2_XPATH + "/results/extractLoads"
-    check_extract_loads = get_value_or_default(cpacs.tixi, check_extract_loads_xpath, False)
-
     # Get fixed_cl option
-    fixed_cl_xpath = SU2_XPATH + "/fixedCL"
-    fixed_cl = get_value_or_default(cpacs.tixi, fixed_cl_xpath, "NO")
+    fixed_cl = get_value_or_default(cpacs.tixi, SU2_FIXED_CL_XPATH, "NO")
 
     # Get aeroMap uid
     if fixed_cl == "YES":
         aeromap_uid = "aeroMap_fixedCL_SU2"
     elif fixed_cl == "NO":
-        su2_aeromap_xpath = SU2_XPATH + "/aeroMapUID"
-        aeromap_uid = get_value(cpacs.tixi, su2_aeromap_xpath)
+        aeromap_uid = get_value(cpacs.tixi, SU2_AEROMAP_UID_XPATH)
     else:
         raise ValueError("The value for fixed_cl is not valid! Should be YES or NO")
 
@@ -229,8 +229,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
                         velocity = float(line.split(" ")[7])
 
             # Damping derivatives
-            rotation_rate_xpath = SU2_XPATH + "/options/rotationRate"
-            rotation_rate = get_value_or_default(cpacs.tixi, rotation_rate_xpath, -1.0)
+            rotation_rate = get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, -1.0)
             ref_len = cpacs.aircraft.ref_lenght
             adim_rot_rate = rotation_rate * ref_len / velocity
 
@@ -321,7 +320,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
                     cms=cms,
                 )
 
-            if check_extract_loads:
+            if get_value_or_default(cpacs.tixi, SU2_EXTRACT_LOAD_XPATH, False):
                 extract_loads(config_dir)
 
     # Save object Coef in the CPACS file

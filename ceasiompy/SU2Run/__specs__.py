@@ -1,17 +1,30 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 from pathlib import Path
-from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
 
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
 from ceasiompy.utils.commonxpath import (
-    CEASIOMPY_XPATH,
+    AEROPERFORMANCE_XPATH,
     GEOM_XPATH,
     RANGE_XPATH,
     REF_XPATH,
+    SU2_AEROMAP_UID_XPATH,
+    SU2_BC_FARFIELD_XPATH,
+    SU2_BC_WALL_XPATH,
+    SU2_CFL_NB_XPATH,
+    SU2_CONTROL_SURF_XPATH,
+    SU2_DAMPING_DER_XPATH,
+    SU2_EXTRACT_LOAD_XPATH,
+    SU2_FIXED_CL_XPATH,
+    SU2_MAX_ITER_XPATH,
+    SU2_MG_LEVEL_XPATH,
+    SU2_NB_CPU_XPATH,
+    SU2_ROTATION_RATE_XPATH,
+    SU2_TARGET_CL_XPATH,
     SU2_XPATH,
+    SU2MESH_XPATH,
 )
-
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 # ===== Results directory path =====
 
@@ -29,7 +42,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit=None,
     descr="Name of the aero map to calculate",
-    xpath=SU2_XPATH + "/aeroMapUID",
+    xpath=SU2_AEROMAP_UID_XPATH,
     gui=True,
     gui_name="__AEROMAP_SELECTION",
     gui_group=None,
@@ -104,7 +117,7 @@ cpacs_inout.add_input(
     default_value=1.0,
     unit="1",
     descr="Value of CL to achieve to have a level flight with the given conditions",
-    xpath=SU2_XPATH + "/targetCL",
+    xpath=SU2_TARGET_CL_XPATH,
     gui=False,
     gui_name=None,
     gui_group=None,
@@ -116,7 +129,7 @@ cpacs_inout.add_input(
     default_value="NO",
     unit="-",
     descr="FIXED_CL_MODE parameter for SU2",
-    xpath=SU2_XPATH + "/fixedCL",
+    xpath=SU2_FIXED_CL_XPATH,
     gui=False,
     gui_name=None,
     gui_group=None,
@@ -128,7 +141,7 @@ cpacs_inout.add_input(
     default_value=False,
     unit="1",
     descr="To check if damping derivatives should be calculated or not",
-    xpath=SU2_XPATH + "/options/calculateDampingDerivatives",
+    xpath=SU2_DAMPING_DER_XPATH,
     gui=True,
     gui_name="Damping Derivatives",
     gui_group="Aeromap Options",
@@ -140,7 +153,7 @@ cpacs_inout.add_input(
     default_value=1.0,
     unit="rad/s",
     descr="Rotation rate use to calculate damping derivatives",
-    xpath=SU2_XPATH + "/options/rotationRate",
+    xpath=SU2_ROTATION_RATE_XPATH,
     gui=True,
     gui_name="Rotation Rate",
     gui_group="Aeromap Options",
@@ -152,7 +165,7 @@ cpacs_inout.add_input(
     default_value=False,
     unit="1",
     descr="To check if control surfaces deflections should be calculated or not",
-    xpath=SU2_XPATH + "/options/calculateControlSurfacesDeflections",
+    xpath=SU2_CONTROL_SURF_XPATH,
     gui=True,
     gui_name="Control Surfaces",
     gui_group="Aeromap Options",
@@ -164,7 +177,7 @@ cpacs_inout.add_input(
     default_value=get_reasonable_nb_cpu(),
     unit="1",
     descr="Number of proc to use to run SU2",
-    xpath=SU2_XPATH + "/settings/nbProc",
+    xpath=SU2_NB_CPU_XPATH,
     gui=True,
     gui_name="Nb of processor",
     gui_group="CPU",
@@ -176,7 +189,7 @@ cpacs_inout.add_input(
     default_value=200,
     unit="1",
     descr="Maximum number of iterations performed by SU2",
-    xpath=SU2_XPATH + "/settings/maxIter",
+    xpath=SU2_MAX_ITER_XPATH,
     gui=True,
     gui_name="Maximum iterations",
     gui_group="SU2 Parameters",
@@ -188,7 +201,7 @@ cpacs_inout.add_input(
     default_value=1.0,
     unit="1",
     descr="CFL Number, Courant–Friedrichs–Lewy condition",
-    xpath=SU2_XPATH + "/settings/cflNumber",
+    xpath=SU2_CFL_NB_XPATH,
     gui=True,
     gui_name="CFL Number",
     gui_group="SU2 Parameters",
@@ -198,9 +211,9 @@ cpacs_inout.add_input(
     var_name="mg_level",
     var_type=int,
     default_value=3,
-    unit="1",
-    descr="CFL Number, Courant–Friedrichs–Lewy condition",
-    xpath=SU2_XPATH + "/settings/multigridLevel",
+    unit="3",
+    descr="Multi-grid level (0 = no multigrid)",
+    xpath=SU2_MG_LEVEL_XPATH,
     gui=True,
     gui_name="Multigrid Level",
     gui_group="SU2 Parameters",
@@ -212,7 +225,7 @@ cpacs_inout.add_input(
     default_value="-",
     unit="1",
     descr="Absolute path of the SU2 mesh",
-    xpath=CEASIOMPY_XPATH + "/filesPath/su2Mesh",
+    xpath=SU2MESH_XPATH,
     gui=True,
     gui_name="SU2 Mesh",
     gui_group="Inputs",
@@ -223,8 +236,8 @@ cpacs_inout.add_input(
     var_type=bool,
     default_value=False,
     unit="1",
-    descr="Option to extract loads from results",
-    xpath=SU2_XPATH + "/results/extractLoads",
+    descr="Option to extract loads (forces in each point) from results",
+    xpath=SU2_EXTRACT_LOAD_XPATH,
     gui=True,
     gui_name="Extract loads",
     gui_group="Results",
@@ -266,7 +279,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit="1",
     descr="Wall boundary conditions found in the SU2 mesh",
-    xpath=SU2_XPATH + "/boundaryConditions/wall",
+    xpath=SU2_BC_WALL_XPATH,
 )
 
 cpacs_inout.add_output(
@@ -275,7 +288,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit="1",
     descr="Farfield boundary conditions found in the SU2 mesh (for off engines)",
-    xpath=SU2_XPATH + "/boundaryConditions/farfield",
+    xpath=SU2_BC_FARFIELD_XPATH,
 )
 
 cpacs_inout.add_output(
@@ -284,5 +297,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit="-",
     descr="aeroMap with aero coefficients calculated by SU2",
-    xpath="/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap/aeroPerformanceMap",
+    xpath=AEROPERFORMANCE_XPATH + "/aeroMap/aeroPerformanceMap",
 )

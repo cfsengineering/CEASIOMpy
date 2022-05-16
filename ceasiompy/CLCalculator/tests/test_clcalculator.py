@@ -19,6 +19,7 @@ Python version: >=3.7
 from pathlib import Path
 
 from ceasiompy.CLCalculator.clcalculator import calculate_cl, get_cl
+from ceasiompy.utils.commonxpath import SU2_TARGET_CL_XPATH
 from cpacspy.cpacsfunctions import open_tixi
 from pytest import approx
 
@@ -56,9 +57,8 @@ def test_get_cl():
     get_cl(str(CPACS_IN_PATH), str(CPACS_OUT_PATH))
 
     tixi = open_tixi(str(CPACS_OUT_PATH))
-    cl_xpath = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/targetCL"
 
-    cl_to_check = tixi.getDoubleElement(cl_xpath)
+    cl_to_check = tixi.getDoubleElement(SU2_TARGET_CL_XPATH)
     assert cl_to_check == approx(0.791955)
 
     if CPACS_OUT_PATH.exists():

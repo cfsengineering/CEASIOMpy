@@ -46,7 +46,13 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from ceasiompy.utils.commonxpath import REF_XPATH, SU2_XPATH, WINGS_XPATH
+from ceasiompy.utils.commonxpath import (
+    REF_XPATH,
+    SU2_CONTROL_SURF_XPATH,
+    SU2_DEF_MESH_XPATH,
+    SU2_NB_CPU_XPATH,
+    WINGS_XPATH,
+)
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     get_uid,
@@ -688,10 +694,7 @@ def generate_config_deformed_mesh(cpacs_path, cpacs_out_path, skip_config=False,
     if not skip_config:
 
         # Control surfaces deflections
-        control_surf_xpath = SU2_XPATH + "/options/calculateControlSurfacesDeflections"
-        control_surf = get_value_or_default(tixi, control_surf_xpath, False)
-
-        if not control_surf:
+        if not get_value_or_default(tixi, SU2_CONTROL_SURF_XPATH, False):
             log.warning(
                 "The CPACS file indicate that Control surface deflection should not be calculated!"
             )
@@ -749,7 +752,7 @@ def run_mesh_deformation(tixi, wkdir):
     ted_dir_list = [dir for dir in os.listdir(mesh_dir) if "_TED_" in dir]
 
     # Get number of proc to use from the CPACS file
-    nb_proc = get_value_or_default(tixi, SU2_XPATH + "/settings/nbProc", get_reasonable_nb_cpu())
+    nb_proc = get_value_or_default(tixi, SU2_NB_CPU_XPATH, get_reasonable_nb_cpu())
 
     # Iterate in all TED directory
     for dir in sorted(ted_dir_list):
@@ -781,8 +784,7 @@ def run_mesh_deformation(tixi, wkdir):
             log.info(su2_mesh + " mesh has been deleted from the temp mesh.")
 
     # Add the list of available SU2 deformed mesh in the CPACS file
-    su2_def_mesh_xpath = SU2_XPATH + "/availableDeformedMesh"
-    add_string_vector(tixi, su2_def_mesh_xpath, su2_def_mesh_list)
+    add_string_vector(tixi, SU2_DEF_MESH_XPATH, su2_def_mesh_list)
 
 
 # =================================================================================================
@@ -800,7 +802,7 @@ def main(cpacs_path, cpacs_out_path):
         elif sys.argv[1] == "-r":
             generate_config_deformed_mesh(cpacs_path, cpacs_out_path, True, False)
         else:
-            print("This arugment is not a valid option!")
+            print("This argument is not a valid option!")
     else:  # if no argument given
         generate_config_deformed_mesh(cpacs_path, cpacs_out_path)
 

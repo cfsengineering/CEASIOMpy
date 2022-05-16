@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import FUSELAGES_XPATH
+from ceasiompy.utils.commonxpath import CEASIOMPY_XPATH, FUSELAGES_XPATH
 
 
 # ===== CPACS inputs and outputs =====
@@ -34,36 +34,18 @@ cpacs_inout.add_input(
     default_value="This is a test",
     unit=None,
     descr="This is a test of description",
-    xpath="/cpacs/toolspecific/CEASIOMpy/test/myTest",
+    xpath=CEASIOMPY_XPATH + "/test/myTest",
     gui=include_gui,
     gui_name="My test",
     gui_group="Group Test",
 )
-
-# cpacs_inout.add_input(
-#     var_name='aeromap_uid',
-#     var_type=list,
-#     default_value=None,
-#     xpath='/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2/aeroMapUID',
-#     gui=include_gui,
-#     gui_name='__AEROMAP_SELECTION',
-# )
-#
-# cpacs_inout.add_input(
-#     var_name='aeromap_uid',
-#     var_type=list,
-#     default_value=None,
-#     xpath='/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction/aeroMapToCalculate',
-#     gui=include_gui,
-#     gui_name='__AEROMAP_CHECHBOX',
-# )
 
 cpacs_inout.add_input(
     var_name="other_var",
     var_type=list,
     default_value=[2, 33, 444],
     unit="[unit]",
-    xpath="/cpacs/toolspecific/CEASIOMpy/test/myList",
+    xpath=CEASIOMPY_XPATH + "/test/myList",
     gui=include_gui,
     gui_name="Choice",
     gui_group="My Selection",
@@ -76,5 +58,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit="1",
     descr="Description of the output",
-    xpath="/cpacs/toolspecific/CEASIOMpy/test/myOutput",
+    xpath=CEASIOMPY_XPATH + "/test/myOutput",
 )

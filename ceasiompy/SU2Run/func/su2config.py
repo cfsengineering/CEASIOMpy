@@ -26,7 +26,22 @@ from ambiance import Atmosphere
 from ceasiompy.SU2Run.func.su2utils import get_mesh_marker, get_su2_config_template
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import CONFIG_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
-from ceasiompy.utils.commonxpath import RANGE_XPATH, SU2_XPATH, SU2MESH_XPATH
+from ceasiompy.utils.commonxpath import (
+    RANGE_XPATH,
+    SU2_AEROMAP_UID_XPATH,
+    SU2_BC_FARFIELD_XPATH,
+    SU2_BC_WALL_XPATH,
+    SU2_CFL_NB_XPATH,
+    SU2_CONTROL_SURF_XPATH,
+    SU2_DAMPING_DER_XPATH,
+    SU2_DEF_MESH_XPATH,
+    SU2_FIXED_CL_XPATH,
+    SU2_MAX_ITER_XPATH,
+    SU2_MG_LEVEL_XPATH,
+    SU2_ROTATION_RATE_XPATH,
+    SU2_TARGET_CL_XPATH,
+    SU2MESH_XPATH,
+)
 from ceasiompy.utils.configfiles import ConfigFile
 from cpacspy.cpacsfunctions import (
     create_branch,
@@ -52,10 +67,10 @@ MODULE_DIR = Path(__file__).parent
 
 
 def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
-    """Function to create SU2 confif file.
+    """Function to create SU2 config file.
 
     Function 'generate_su2_cfd_config' reads data in the CPACS file and generate
-    configuration files for one or multible flight conditions (alt,mach,aoa,aos)
+    configuration files for one or multiple flight conditions (alt,mach,aoa,aos)
 
     Source:
         * SU2 config template: https://github.com/su2code/SU2/blob/master/config_template.cfg
@@ -63,51 +78,37 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     Args:
         cpacs_path (Path): Path to CPACS file
         cpacs_out_path (Path):Path to CPACS output file
-        wkdir (str): Path to the working directory
+        wkdir (Path): Path to the working directory
 
     """
 
-    # Get value from CPACS
     cpacs = CPACS(str(cpacs_path))
 
-    # Get SU2 mesh path
+    # Get the SU2 Mesh
     su2_mesh_path = Path(get_value(cpacs.tixi, SU2MESH_XPATH))
+    if not su2_mesh_path.is_file():
+        raise FileNotFoundError(f"SU2 mesh file {su2_mesh_path} not found")
 
-    # Get SU2 settings
-    max_iter_xpath = SU2_XPATH + "/settings/maxIter"
-    max_iter = get_value_or_default(cpacs.tixi, max_iter_xpath, 200)
-    cfl_nb_xpath = SU2_XPATH + "/settings/cflNumber"
-    cfl_nb = get_value_or_default(cpacs.tixi, cfl_nb_xpath, 1.0)
-    mg_level_xpath = SU2_XPATH + "/settings/multigridLevel"
-    mg_level = get_value_or_default(cpacs.tixi, mg_level_xpath, 3)
-
-    # Mesh Marker
-    bc_wall_xpath = SU2_XPATH + "/boundaryConditions/wall"
-    bc_farfield_xpath = SU2_XPATH + "/boundaryConditions/farfield"
+    # Get Mesh Marker and save them in the CPACS file
     bc_wall_list, engine_bc_list = get_mesh_marker(su2_mesh_path)
 
-    create_branch(cpacs.tixi, bc_wall_xpath)
+    create_branch(cpacs.tixi, SU2_BC_WALL_XPATH)
     bc_wall_str = ";".join(bc_wall_list)
-    cpacs.tixi.updateTextElement(bc_wall_xpath, bc_wall_str)
+    cpacs.tixi.updateTextElement(SU2_BC_WALL_XPATH, bc_wall_str)
 
-    create_branch(cpacs.tixi, bc_farfield_xpath)
+    create_branch(cpacs.tixi, SU2_BC_FARFIELD_XPATH)
     bc_farfiled_str = ";".join(engine_bc_list)
-    cpacs.tixi.updateTextElement(bc_farfield_xpath, bc_farfiled_str)
+    cpacs.tixi.updateTextElement(SU2_BC_FARFIELD_XPATH, bc_farfiled_str)
 
     # Fixed CL parameters
-    fixed_cl_xpath = SU2_XPATH + "/fixedCL"
-    fixed_cl = get_value_or_default(cpacs.tixi, fixed_cl_xpath, "NO")
-    target_cl_xpath = SU2_XPATH + "/targetCL"
-    target_cl = get_value_or_default(cpacs.tixi, target_cl_xpath, 1.0)
+    fixed_cl = get_value_or_default(cpacs.tixi, SU2_FIXED_CL_XPATH, "NO")
+    target_cl = get_value_or_default(cpacs.tixi, SU2_TARGET_CL_XPATH, 1.0)
 
     if fixed_cl == "NO":
 
         # Get the first aeroMap as default one
         aeromap_default = cpacs.get_aeromap_uid_list()[0]
-
-        active_aeroMap_xpath = SU2_XPATH + "/aeroMapUID"
-        aeromap_uid = get_value_or_default(cpacs.tixi, active_aeroMap_xpath, aeromap_default)
-
+        aeromap_uid = get_value_or_default(cpacs.tixi, SU2_AEROMAP_UID_XPATH, aeromap_default)
         log.info(f'Configuration file for "{aeromap_uid}" calculation will be created.')
 
         active_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
@@ -159,9 +160,9 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     cfg["REF_ORIGIN_MOMENT_Z"] = cpacs.aircraft.ref_point_z
 
     # Settings
-    cfg["INNER_ITER"] = int(max_iter)
-    cfg["CFL_NUMBER"] = cfl_nb
-    cfg["MGLEVEL"] = int(mg_level)
+    cfg["INNER_ITER"] = int(get_value_or_default(cpacs.tixi, SU2_MAX_ITER_XPATH, 200))
+    cfg["CFL_NUMBER"] = get_value_or_default(cpacs.tixi, SU2_CFL_NB_XPATH, 1.0)
+    cfg["MGLEVEL"] = int(get_value_or_default(cpacs.tixi, SU2_MG_LEVEL_XPATH, 3))
 
     # Fixed CL mode (AOA will not be taken into account)
     cfg["FIXED_CL_MODE"] = fixed_cl
@@ -228,29 +229,25 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         cfg.write_file(config_output_path, overwrite=True)
 
         # Damping derivatives
-        damping_der_xpath = SU2_XPATH + "/options/calculateDampingDerivatives"
-        damping_der = get_value_or_default(cpacs.tixi, damping_der_xpath, False)
+        if get_value_or_default(cpacs.tixi, SU2_DAMPING_DER_XPATH, False):
 
-        if damping_der:
-
-            rotation_rate_xpath = SU2_XPATH + "/options/rotationRate"
-            rotation_rate = get_value_or_default(cpacs.tixi, rotation_rate_xpath, 1.0)
+            rotation_rate = str(get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, 1.0))
 
             cfg["GRID_MOVEMENT"] = "ROTATING_FRAME"
 
-            cfg["ROTATION_RATE"] = str(rotation_rate) + " 0.0 0.0"
+            cfg["ROTATION_RATE"] = f"{rotation_rate} 0.0 0.0"
             case_dir = Path(wkdir, f"{case_dir_name}_dp")
             case_dir.mkdir()
             config_output_path = Path(case_dir, CONFIG_CFD_NAME)
             cfg.write_file(config_output_path, overwrite=True)
 
-            cfg["ROTATION_RATE"] = "0.0 " + str(rotation_rate) + " 0.0"
+            cfg["ROTATION_RATE"] = f"0.0 {rotation_rate} 0.0"
             case_dir = Path(wkdir, f"{case_dir_name}_dq")
             case_dir.mkdir()
             config_output_path = Path(case_dir, CONFIG_CFD_NAME)
             cfg.write_file(config_output_path, overwrite=True)
 
-            cfg["ROTATION_RATE"] = "0.0 0.0 " + str(rotation_rate)
+            cfg["ROTATION_RATE"] = f"0.0 0.0 {rotation_rate}"
             case_dir = Path(wkdir, f"{case_dir_name}_dr")
             case_dir.mkdir()
             config_output_path = Path(case_dir, CONFIG_CFD_NAME)
@@ -259,15 +256,11 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             log.info("Damping derivatives cases directory has been created.")
 
         # Control surfaces deflections
-        control_surf_xpath = SU2_XPATH + "/options/calculateControlSurfacesDeflections"
-        control_surf = get_value_or_default(cpacs.tixi, control_surf_xpath, False)
-
-        if control_surf:
+        if get_value_or_default(cpacs.tixi, SU2_CONTROL_SURF_XPATH, False):
 
             # Get deformed mesh list
-            su2_def_mesh_xpath = SU2_XPATH + "/availableDeformedMesh"
-            if cpacs.tixi.checkElement(su2_def_mesh_xpath):
-                su2_def_mesh_list = get_string_vector(cpacs.tixi, su2_def_mesh_xpath)
+            if cpacs.tixi.checkElement(SU2_DEF_MESH_XPATH):
+                su2_def_mesh_list = get_string_vector(cpacs.tixi, SU2_DEF_MESH_XPATH)
             else:
                 log.warning("No SU2 deformed mesh has been found!")
                 su2_def_mesh_list = []
@@ -282,7 +275,6 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
                 config_output_path = Path(wkdir, config_dir_path, CONFIG_CFD_NAME)
                 cfg.write_file(config_output_path, overwrite=True)
 
-    # TODO: change that, but if it is save in tooloutput it will be erase by results...
     cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
 
 

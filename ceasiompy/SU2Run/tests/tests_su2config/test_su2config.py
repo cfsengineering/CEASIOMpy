@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Test functions for 'SU2Run/func/su2config.py'
+Test functions of 'ceasiompy/SU2Run/func/su2config.py'
 
 Python version: >=3.7
 

@@ -54,7 +54,7 @@ def test_calculate_cl():
 def test_get_cl():
     """Test function 'get_cl'"""
 
-    get_cl(str(CPACS_IN_PATH), str(CPACS_OUT_PATH))
+    get_cl(CPACS_IN_PATH, CPACS_OUT_PATH)
 
     tixi = open_tixi(str(CPACS_OUT_PATH))
 

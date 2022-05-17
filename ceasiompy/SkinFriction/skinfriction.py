@@ -138,7 +138,7 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
     """
 
     # Load a CPACS file
-    cpacs = CPACS(str(cpacs_path))
+    cpacs = CPACS(cpacs_path)
 
     analyses_xpath = "/cpacs/toolspecific/CEASIOMpy/geometry/analysis"
 
@@ -233,7 +233,7 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
 
     log.info('AeroMap "' + aeromap_uid + '" has been added to the CPACS file')
 
-    cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
+    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
 
 def main(cpacs_path, cpacs_out_path):

@@ -104,7 +104,7 @@ def get_cl(cpacs_path, cpacs_out_path):
         cpacs_out_path (Path): Path to CPACS output file
     """
 
-    cpacs = CPACS(str(cpacs_path))
+    cpacs = CPACS(cpacs_path)
     tixi = cpacs.tixi
 
     # XPath definition
@@ -160,7 +160,7 @@ def get_cl(cpacs_path, cpacs_out_path):
     tixi.updateTextElement(SU2_FIXED_CL_XPATH, "YES")
     log.info("Target CL has been saved in the CPACS file")
 
-    cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
+    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
 
 # =================================================================================================

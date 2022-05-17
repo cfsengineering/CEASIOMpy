@@ -201,7 +201,7 @@ def plot_aero_coef(cpacs_path, cpacs_out_path):
     """
 
     # Open TIXI handle
-    cpacs = CPACS(str(cpacs_path))
+    cpacs = CPACS(cpacs_path)
 
     # Get aeroMap list to plot
     aeromap_to_plot_xpath = PLOT_XPATH + "/aeroMapToPlot"
@@ -248,7 +248,7 @@ def plot_aero_coef(cpacs_path, cpacs_out_path):
     mach_crit = get_value_or_default(cpacs.tixi, crit_xpath + "/mach", "None")
     aos_crit = get_value_or_default(cpacs.tixi, crit_xpath + "/aos", "None")
 
-    cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
+    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
     # Modify criterion and title according to user option
     if len(aeromap["altitude"].unique()) == 1:

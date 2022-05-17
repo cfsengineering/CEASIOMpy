@@ -275,7 +275,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
                 config_output_path = Path(wkdir, config_dir_path, CONFIG_CFD_NAME)
                 cfg.write_file(config_output_path, overwrite=True)
 
-    cpacs.save_cpacs(cpacs_out_path), overwrite=True)
+    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
 
 # =================================================================================================

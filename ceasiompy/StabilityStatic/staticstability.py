@@ -90,7 +90,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 -   If there one aos value which is repeated for a given altitude, mach, aoa
     """
 
-    cpacs = CPACS(str(cpacs_path))
+    cpacs = CPACS(cpacs_path)
 
     # TODO: add as CPACS option
     plot_for_different_mach = False  # To check Mach influence

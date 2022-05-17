@@ -417,7 +417,7 @@ def check_workflow(cpacs_path, submodule_list):
     if not isinstance(submodule_list, (list, tuple)):
         raise TypeError("'submodule_list' must be of type list or tuple")
 
-    tixi = open_tixi(str(cpacs_path))
+    tixi = open_tixi(cpacs_path)
     xpaths_from_workflow = set()
     err_msg = False
     for submod_name in submodule_list:

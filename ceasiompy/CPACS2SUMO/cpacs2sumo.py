@@ -91,7 +91,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
     EMPTY_SMX = Path(MODULE_DIR, "files", "sumo_empty.smx")
 
-    tixi = open_tixi(str(cpacs_path))
+    tixi = open_tixi(cpacs_path)
     sumo = open_tixi(str(EMPTY_SMX))
 
     # Fuslage(s) ---------------------------------------------------------------

@@ -219,7 +219,7 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 
     """
 
-    tixi = open_tixi(str(cpacs_path))
+    tixi = open_tixi(cpacs_path)
 
     sumo_results_dir = get_results_directory("SUMOAutoMesh")
     su2_mesh_path = Path(sumo_results_dir, "ToolOutput.su2")

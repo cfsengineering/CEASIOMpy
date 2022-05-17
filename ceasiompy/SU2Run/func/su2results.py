@@ -202,7 +202,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
             extract_loads(config_dir)
 
     aeromap.save()
-    cpacs.save_cpacs(cpacs_out_path), overwrite=True)
+    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
 
 # =================================================================================================

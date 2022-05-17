@@ -56,7 +56,7 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
     log.info("----- Start of CPACSUpdater -----")
     log.info(f"{cpacs_path} will be updated.")
 
-    tixi = open_tixi(str(cpacs_path))
+    tixi = open_tixi(cpacs_path)
     tigl = open_tigl(tixi)
 
     # Object seems to be unused, but are use in "eval" function

@@ -141,7 +141,7 @@ def test_static_stability_analysis():
     cpacs_path = Path(MODULE_DIR, "ToolInput", "CPACSTestStability.xml")
     cpacs_out_path = Path(MODULE_DIR, "ToolOutput", "CPACSTestStability.xml")
 
-    tixi = open_tixi(str(cpacs_path))
+    tixi = open_tixi(cpacs_path)
 
     # Get Aeromap UID list
 

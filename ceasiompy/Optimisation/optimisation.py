@@ -295,7 +295,7 @@ class Objective(om.ExplicitComponent):
         """Compute the objective expression"""
 
         # Add new variables to dictionnary
-        cpacs = CPACS(str(Rt.modules[-1].cpacs_out))
+        cpacs = CPACS(Rt.modules[-1].cpacs_out)
 
         update_dict(cpacs.tixi, Rt.optim_var_dict)
 

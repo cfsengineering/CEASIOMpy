@@ -50,7 +50,7 @@ def change_test_dir(request, monkeypatch):
 def test_export_aeromaps():
     """Test function 'exportcsv' function."""
 
-    export_aeromaps(str(CPACS_IN_PATH), str(CPACS_IN_PATH))
+    export_aeromaps(CPACS_IN_PATH, CPACS_IN_PATH)
 
     # Read and check csv file
     with open(CSV_FILE_PATH, "r") as csv_file:

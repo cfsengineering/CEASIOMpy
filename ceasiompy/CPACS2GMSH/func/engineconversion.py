@@ -277,7 +277,7 @@ def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_pat
 
     TODO: If TiGL in newer version fix the engine export issue (i.e. it is possible to export an
     engine like a wing or a pylon, without doing manually the translation, rotation,
-    scaling and mirror of the engine) this function can be removed without
+    scaling and mirror of the engine) this function can be removed
     ...
 
     Args:

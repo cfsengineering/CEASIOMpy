@@ -66,7 +66,7 @@ def test_sum_funcion():
 def test_get_fuselage_scaling():
     """Test function 'get_fuselage_scaling'"""
 
-    x, y, z = get_fuselage_scaling(str(CPACS_IN_PATH), str(CPACS_OUT_PATH))
+    x, y, z = get_fuselage_scaling(CPACS_IN_PATH, CPACS_OUT_PATH)
 
     assert x == approx(1)
     assert y == approx(0.5)

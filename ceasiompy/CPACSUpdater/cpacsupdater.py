@@ -46,8 +46,8 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
         * See CPACSCreator api function,
 
     Args:
-        cpacs_path (str): Path to CPACS file to update
-        cpacs_out_path (str):Path to the updated CPACS file
+        cpacs_path (Path): Path to CPACS file to update
+        cpacs_out_path (Path):Path to the updated CPACS file
         optim_var_dict (dict): Dictionary containing all the variable
                                value/min/max and command to modify a CPACS file
 
@@ -56,7 +56,7 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
     log.info("----- Start of CPACSUpdater -----")
     log.info(f"{cpacs_path} will be updated.")
 
-    tixi = open_tixi(str(cpacs_path))
+    tixi = open_tixi(cpacs_path)
     tigl = open_tigl(tixi)
 
     # Object seems to be unused, but are use in "eval" function

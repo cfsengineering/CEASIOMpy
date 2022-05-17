@@ -82,12 +82,12 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
     """Function to analyse a full Aeromap
 
     Function 'dynamic_stability_analysis' analyses longitudinal dynamic
-    stability and directionnal dynamic.
+    stability and directional dynamic.
 
     Args:
         cpacs_path (str): Path to CPACS file
         cpacs_out_path (str):Path to CPACS output file
-        plot (boolean): Choise to plot graph or not
+        plot (boolean): Choice to plot graph or not
 
     Returns:  (#TODO put that in the documentation)
         *   Adrvertisements certifying if the aircraft is stable or Not
@@ -95,7 +95,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
                 -	Plot cms VS aoa for constant Alt, Mach and different aos
                 -	Plot cms VS aoa for const alt and aos and different mach
                 -	plot cms VS aoa for constant mach, AOS and different altitudes
-        *  In case of directionnal dynamic UNstability or unvalid test on data:
+        *  In case of directional dynamic UNstability or unvalid test on data:
                 -	Pcot cml VS aos for constant Alt, Mach and different aoa
                 -	Plot cml VS aos for const alt and aoa and different mach
                 -	plot cml VS aos for constant mach, AOA and different altitudes
@@ -173,7 +173,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
 
     s = cpacs.aircraft.ref_area  # Wing area : s  for non-dimonsionalisation of aero data.
     mac = (
-        cpacs.aircraft.ref_lenght
+        cpacs.aircraft.ref_length
     )  # ref length for non dimensionalisation, Mean aerodynamic chord: mac,
 
     # TODO: check that

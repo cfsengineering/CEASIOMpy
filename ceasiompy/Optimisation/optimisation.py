@@ -88,8 +88,8 @@ class Geom_param(om.ExplicitComponent):
         if Rt.counter == 0:
 
             # For the first iteration, update the CPACS file from previous module
-            cpacs_in = str(Rt.modules[0].cpacs_in)
-            cpacs_out = str(Rt.modules[0].cpacs_out)
+            cpacs_in = Rt.modules[0].cpacs_in
+            cpacs_out = Rt.modules[0].cpacs_out
             update_cpacs_file(cpacs_in, cpacs_out, Rt.geom_dict)
 
         else:
@@ -108,8 +108,8 @@ class Geom_param(om.ExplicitComponent):
                     Rt.modules[m].cpacs_in = Rt.modules[-1].cpacs_out
 
                     # Update the geometry of the CPACS file
-                    cpacs_in = str(Rt.modules[m].cpacs_in)
-                    cpacs_out = str(Rt.modules[m].cpacs_out)
+                    cpacs_in = Rt.modules[m].cpacs_in
+                    cpacs_out = Rt.modules[m].cpacs_out
                     update_cpacs_file(cpacs_in, cpacs_out, Rt.geom_dict)
 
                     # # The first module of the loop must update its output where the input
@@ -191,8 +191,7 @@ class ModuleComp(om.ExplicitComponent):
         module = [m for m in Rt.modules if m.name == self.module_name][0]
 
         # Updating inputs in CPACS file
-        cpacs_path = str(module.cpacs_in)
-        tixi = open_tixi(cpacs_path)
+        tixi = open_tixi(module.cpacs_in)
         for name in inputs:
             if name in Rt.optim_var_dict:
                 xpath = Rt.optim_var_dict[name][4]
@@ -205,13 +204,13 @@ class ModuleComp(om.ExplicitComponent):
                     tixi.updateFloatVector(xpath, v, size, "%g")
                 else:
                     add_float_vector(tixi, xpath, inputs[name])
-        tixi.save(cpacs_path)
+        tixi.save(module.cpacs_in)
 
         # Running the module
         run_module(module, Rt.wkflow_dir, Rt.counter)
 
         # Feeding CPACS file results to outputs
-        tixi = open_tixi(str(module.cpacs_out))
+        tixi = open_tixi(module.cpacs_out)
         for name in outputs:
             if name in Rt.optim_var_dict:
                 xpath = Rt.optim_var_dict[name][4]
@@ -240,7 +239,7 @@ class SmComp(om.ExplicitComponent):
         module = [m for m in Rt.modules if m.name == self.module_name][0]
 
         # Take CPACS file from the optimisation
-        cpacs_path = str(module.cpacs_in)
+        cpacs_path = module.cpacs_in
         tixi = open_tixi(cpacs_path)
         self.Model = load_surrogate(tixi)
         tixi.save(cpacs_path)
@@ -271,7 +270,7 @@ class SmComp(om.ExplicitComponent):
         module = [m for m in Rt.modules if m.name == self.module_name][0]
 
         # Write the inouts to the CPACS
-        tixi = open_tixi(str(module.cpacs_in))
+        tixi = open_tixi(module.cpacs_in)
         write_inouts(self.xd, xp, tixi)
         write_inouts(self.yd, yp, tixi)
         tixi.save(str(module.cpacs_out))
@@ -295,7 +294,7 @@ class Objective(om.ExplicitComponent):
         """Compute the objective expression"""
 
         # Add new variables to dictionnary
-        cpacs = CPACS(str(Rt.modules[-1].cpacs_out))
+        cpacs = CPACS(Rt.modules[-1].cpacs_out)
 
         update_dict(cpacs.tixi, Rt.optim_var_dict)
 
@@ -531,7 +530,7 @@ def routine_launcher(optim_method, module_optim, wkflow_dir):
     Rt.wkflow_dir = wkflow_dir
 
     # Cpacs from the ouput of the last module
-    cpacs_path = str(Rt.modules[0].cpacs_in)
+    cpacs_path = Rt.modules[0].cpacs_in
 
     cpacs = CPACS(cpacs_path)
 

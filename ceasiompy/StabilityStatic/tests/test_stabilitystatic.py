@@ -141,7 +141,7 @@ def test_static_stability_analysis():
     cpacs_path = Path(MODULE_DIR, "ToolInput", "CPACSTestStability.xml")
     cpacs_out_path = Path(MODULE_DIR, "ToolOutput", "CPACSTestStability.xml")
 
-    tixi = open_tixi(str(cpacs_path))
+    tixi = open_tixi(cpacs_path)
 
     # Get Aeromap UID list
 
@@ -153,7 +153,7 @@ def test_static_stability_analysis():
     # Make the static stability analysis, on the modified xml file
     static_stability_analysis(cpacs_path, cpacs_out_path)
 
-    tixi = open_tixi(str(cpacs_out_path))
+    tixi = open_tixi(cpacs_out_path)
     static_xpath = "/cpacs/toolspecific/CEASIOMpy/stability/static"
     long_static_stable = get_value(tixi, static_xpath + "/results/longitudinalStaticStable")
     lat_static_stable = get_value(tixi, static_xpath + "/results/lateralStaticStable")

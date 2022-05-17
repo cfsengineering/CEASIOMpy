@@ -219,7 +219,7 @@ def aircraft_name(tixi_or_cpacs):
     # *modify corresponding test
 
     if isinstance(tixi_or_cpacs, Path):
-        tixi = open_tixi(str(tixi_or_cpacs))
+        tixi = open_tixi(tixi_or_cpacs)
     else:
         tixi = tixi_or_cpacs
 
@@ -243,7 +243,7 @@ def get_part_type(cpacs_path: Path, part_uid: str) -> str:
 
     """
 
-    tixi = open_tixi(str(cpacs_path))
+    tixi = open_tixi(cpacs_path)
 
     # split uid if mirrored part
     part_uid = part_uid.split("_mirrored")[0]

@@ -29,7 +29,6 @@ from ceasiompy.utils.ceasiompyutils import (
     get_part_type,
     get_results_directory,
     run_software,
-    rotate_vector,
 )
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from cpacspy.cpacsfunctions import open_tixi

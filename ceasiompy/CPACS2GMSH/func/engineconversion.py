@@ -83,9 +83,10 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
     the engine inlet will be placed at 20% of the total engine length, same for outlet
 
     TODO: If TiGL in newer version fix the engine export issue (i.e. it is possible to export an
-    engine like a wing or a pylon, without doing manually the translation and rotation scaling mirror
-    of the engine) this function needs to be modified since it assume that the engine is oriented along
-    the x axis and it may no more be the case
+    engine like a wing or a pylon, without doing manually the translation, rotation,
+    scaling and mirror of the engine) this function needs to be modified since it assume that
+    the engine is oriented along the x axis and it may no more be the case since the brep files
+    of the nacelle are imported as they are on the cpacs model
 
     ...
     Args:
@@ -277,8 +278,8 @@ def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_pat
     at the mirrored location
 
     TODO: If TiGL in newer version fix the engine export issue (i.e. it is possible to export an
-    engine like a wing or a pylon, without doing manually the translation and rotation scaling mirror
-    of the engine) this function can be removed without
+    engine like a wing or a pylon, without doing manually the translation, rotation,
+    scaling and mirror of the engine) this function can be removed without
     ...
 
     Args:

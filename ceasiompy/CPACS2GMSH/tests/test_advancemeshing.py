@@ -102,9 +102,7 @@ def test_restrict_fields():
     """
     Test if a simple restrict field can be generate for a surface and a volume
     """
-    """
-    Test if a simple distance field can be generate for a line and a surface
-    """
+
     gmsh.initialize()
     # create a cube with gmsh
 

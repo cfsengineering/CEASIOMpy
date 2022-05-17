@@ -281,33 +281,6 @@ def get_part_type(cpacs_path: Path, part_uid: str) -> str:
     return None
 
 
-def rotate_vector(vector, axis, theta):
-    """
-    Rotate a vector with a counterclockwise rotation about
-    the given axis by theta radians.
-
-    Args:
-        vector (list): Vector to rotate
-        axis (list): Axis to rotate around
-        theta (float): Angle to rotate by in radian
-    """
-    axis = np.asarray(axis)
-    axis = axis / math.sqrt(np.dot(axis, axis))
-    a = math.cos(theta / 2.0)
-    b, c, d = -axis * math.sin(theta / 2.0)
-    aa, bb, cc, dd = a * a, b * b, c * c, d * d
-    bc, ad, ac, ab, bd, cd = b * c, a * d, a * c, a * b, b * d, c * d
-    rotation_matrix = np.array(
-        [
-            [aa + bb - cc - dd, 2 * (bc + ad), 2 * (bd - ac)],
-            [2 * (bc - ad), aa + cc - bb - dd, 2 * (cd + ab)],
-            [2 * (bd + ac), 2 * (cd - ab), aa + dd - bb - cc],
-        ]
-    )
-
-    return np.dot(rotation_matrix, vector)
-
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================

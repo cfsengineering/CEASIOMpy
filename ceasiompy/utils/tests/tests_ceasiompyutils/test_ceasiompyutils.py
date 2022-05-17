@@ -136,40 +136,6 @@ def test_get_part_type():
     assert get_part_type(cpacs_in, "Pylon_mirrored") == "pylon"
 
 
-def test_rotate_vector():
-    """Test the function rotate_vector."""
-    x_vector = [1, 0, 0]
-    y_vector = [0, 1, 0]
-    z_vector = [0, 0, 1]
-    angle1 = np.radians(90)
-    angle2 = -angle1
-
-    assert all(
-        [
-            pytest.approx(a, 0.001) == b
-            for a, b in zip(rotate_vector(x_vector, z_vector, angle1), y_vector)
-        ]
-    )
-    assert all(
-        [
-            pytest.approx(a, 0.001) == b
-            for a, b in zip(rotate_vector(x_vector, z_vector, angle2), [0, -1, 0])
-        ]
-    )
-    assert all(
-        [
-            pytest.approx(a, 0.001) == b
-            for a, b in zip(rotate_vector(z_vector, y_vector, angle1), [1, 0, 0])
-        ]
-    )
-    assert all(
-        [
-            pytest.approx(a, 0.001) == b
-            for a, b in zip(rotate_vector(z_vector, y_vector, angle2), [-1, 0, 0])
-        ]
-    )
-
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================

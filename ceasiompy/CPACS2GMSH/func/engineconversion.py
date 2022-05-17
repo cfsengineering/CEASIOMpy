@@ -21,11 +21,11 @@ from pathlib import Path
 # ==============================================================================
 import gmsh
 import numpy as np
-import math
+from scipy.spatial.transform import Rotation as R
 from ceasiompy.CPACS2GMSH.func.generategmesh import ModelPart, get_entities_from_volume
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_part_type, rotate_vector
+from ceasiompy.utils.ceasiompyutils import get_part_type
 from ceasiompy.utils.configfiles import ConfigFile
 from cpacspy.cpacspy import CPACS
 
@@ -341,14 +341,19 @@ def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_pat
     # save the engine axis in the engines config file
     original_gmsh_axis = [-1, 0, 0]
 
-    r1 = rotate_vector(original_gmsh_axis, [1, 0, 0], np.radians(engine.transf.rotation.x))
-    r2 = rotate_vector(r1, [0, 1, 0], np.radians(engine.transf.rotation.y))
-    r3 = rotate_vector(r2, [0, 0, 1], np.radians(engine.transf.rotation.z))
+    rx = R.from_euler("x", engine.transf.rotation.x, degrees=True)
+    ry = R.from_euler("y", engine.transf.rotation.y, degrees=True)
+    rz = R.from_euler("z", engine.transf.rotation.z, degrees=True)
+
+    rotation = rx.apply(original_gmsh_axis)
+    rotation = ry.apply(rotation)
+    rotation = rz.apply(rotation)
+
     config_file = ConfigFile(engines_cfg_file_path)
 
-    config_file[f"{engine_uids[0]}_NORMAL_X"] = f"{r3[0]}"
-    config_file[f"{engine_uids[0]}_NORMAL_Y"] = f"{r3[1]}"
-    config_file[f"{engine_uids[0]}_NORMAL_Z"] = f"{r3[2]}"
+    config_file[f"{engine_uids[0]}_NORMAL_X"] = f"{rotation[0]}"
+    config_file[f"{engine_uids[0]}_NORMAL_Y"] = f"{rotation[1]}"
+    config_file[f"{engine_uids[0]}_NORMAL_Z"] = f"{rotation[2]}"
 
     # addapt the distance with the scaling of the x axis
     distance = float(config_file[f"{engine_uids[0]}_DISTANCE"])
@@ -378,9 +383,9 @@ def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_pat
         # TODO: add mirror operation as a function of the plane of symmetry
         # if xz : inverse y comp. if yz : inverse x comp. if xy : inverse z comp.
 
-        config_file[f"{engine_uids[0]}_mirrored_NORMAL_X"] = f"{r3[0]}"
-        config_file[f"{engine_uids[0]}_mirrored_NORMAL_Y"] = f"{-r3[1]}"
-        config_file[f"{engine_uids[0]}_mirrored_NORMAL_Z"] = f"{r3[2]}"
+        config_file[f"{engine_uids[0]}_mirrored_NORMAL_X"] = f"{rotation[0]}"
+        config_file[f"{engine_uids[0]}_mirrored_NORMAL_Y"] = f"{-rotation[1]}"
+        config_file[f"{engine_uids[0]}_mirrored_NORMAL_Z"] = f"{rotation[2]}"
         # with the scaling of the x axis
         config_file[f"{engine_uids[0]}_mirrored_DISTANCE_SCALED"] = str(
             distance * engine.transf.scaling.x

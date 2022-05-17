@@ -229,7 +229,7 @@ def test_classify_wing():
         shutil.rmtree(TEST_OUT_PATH)
     TEST_OUT_PATH.mkdir()
 
-    cpacs = CPACS(str(CPACS_IN_PATH))
+    cpacs = CPACS(CPACS_SIMPLE)
 
     export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 

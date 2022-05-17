@@ -117,7 +117,7 @@ def test_aircraft_name():
     assert aircraft_name(cpacs_in) == "D150"
 
     # Get name form TIXI handle
-    tixi = open_tixi(str(cpacs_in))
+    tixi = open_tixi(cpacs_in)
     assert aircraft_name(tixi) == "D150"
 
 

@@ -220,7 +220,7 @@ def test_refine_wing_section():
         shutil.rmtree(TEST_OUT_PATH)
     TEST_OUT_PATH.mkdir()
 
-    cpacs = CPACS(str(CPACS_IN_PATH))
+    cpacs = CPACS(CPACS_IN_PATH)
 
     export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 
@@ -286,7 +286,7 @@ def test_check_mesh():
         shutil.rmtree(TEST_OUT_PATH)
     TEST_OUT_PATH.mkdir()
 
-    cpacs = CPACS(str(CPACS_IN_PATH))
+    cpacs = CPACS(CPACS_IN_PATH)
 
     export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 

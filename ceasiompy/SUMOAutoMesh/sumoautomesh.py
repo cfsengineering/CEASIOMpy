@@ -75,7 +75,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     log.info("Refinement factor is {}".format(refine_factor))
 
     # Open SUMO (.smx) with tixi library
-    sumo = open_tixi(str(sumo_file_path))
+    sumo = open_tixi(sumo_file_path)
     ROOT_XPATH = "/Assembly"
 
     # Get all Body (fuselage) and apply mesh parameters
@@ -219,7 +219,7 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 
     """
 
-    tixi = open_tixi(str(cpacs_path))
+    tixi = open_tixi(cpacs_path)
 
     sumo_results_dir = get_results_directory("SUMOAutoMesh")
     su2_mesh_path = Path(sumo_results_dir, "ToolOutput.su2")

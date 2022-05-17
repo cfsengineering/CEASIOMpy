@@ -61,7 +61,7 @@ def test_generate_gmsh():
         shutil.rmtree(TEST_OUT_PATH)
     TEST_OUT_PATH.mkdir()
 
-    cpacs = CPACS(str(CPACS_IN_PATH))
+    cpacs = CPACS(CPACS_IN_PATH)
 
     export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 
@@ -108,7 +108,7 @@ def test_generate_gmsh_symm():
         shutil.rmtree(TEST_OUT_PATH)
     TEST_OUT_PATH.mkdir()
 
-    cpacs = CPACS(str(CPACS_IN_PATH))
+    cpacs = CPACS(CPACS_IN_PATH)
 
     export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 
@@ -154,7 +154,7 @@ def test_symm_part_removed():
         shutil.rmtree(TEST_OUT_PATH)
     TEST_OUT_PATH.mkdir()
 
-    cpacs = CPACS(str(CPACS_IN_PATH))
+    cpacs = CPACS(CPACS_IN_PATH)
 
     export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 
@@ -288,7 +288,7 @@ def test_assignation():
         shutil.rmtree(TEST_OUT_PATH)
     TEST_OUT_PATH.mkdir()
 
-    cpacs = CPACS(str(CPACS_IN_PATH))
+    cpacs = CPACS(CPACS_IN_PATH)
 
     export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
 

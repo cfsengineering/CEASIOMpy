@@ -52,7 +52,7 @@ MODULE_NAME = MODULE_DIR.name
 def cpacs2gmsh(cpacs_path, cpacs_out_path):
 
     # Get option from the CPACS file
-    cpacs = CPACS(str(cpacs_path))
+    cpacs = CPACS(cpacs_path)
 
     # Create results directory
     results_dir = get_results_directory("CPACS2GMSH")
@@ -102,7 +102,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         log.info("SU2 Mesh has been correctly generated.")
 
     # Save CPACS
-    cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
+    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
 
 # =================================================================================================

@@ -78,6 +78,10 @@ WKDIR_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath"
 # GMSH
 
 
+# SUMO
+SUMO_INCLUDE_PYLON_XPATH = "/cpacs/toolspecific/CEASIOMpy/engine/includePylon"
+SUMO_INCLUDE_ENGINE_XPATH = "/cpacs/toolspecific/CEASIOMpy/engine/includeEngine"
+
 # SU2
 SU2_XPATH = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2"
 SU2_AEROMAP_UID_XPATH = SU2_XPATH + "/aeroMapUID"

@@ -25,6 +25,8 @@ import pytest
 from ceasiompy.CPACS2GMSH.func.engineconversion import close_engine
 from ceasiompy.utils.paths import CPACS_FILES_PATH
 
+from ceasiompy.utils.paths import CPACS_FILES_PATH
+
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_SIMPLE_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_engine.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")

@@ -75,10 +75,10 @@ def test_add_skin_friction():
     """Test function 'add_skin_friction'"""
 
     # User the function to add skin frictions
-    add_skin_friction(str(CPACS_IN_PATH), str(CPACS_OUT_PATH))
+    add_skin_friction(CPACS_IN_PATH, CPACS_OUT_PATH)
 
     # Read the aeromap with the skin friction added in the output cpacs file
-    cpacs = CPACS(str(CPACS_OUT_PATH))
+    cpacs = CPACS(CPACS_OUT_PATH)
     apm_sf = cpacs.get_aeromap_by_uid("test_apm_SkinFriction")
 
     # Expected values

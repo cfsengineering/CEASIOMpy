@@ -151,7 +151,7 @@ def get_fuselage_scaling(cpacs_path, cpacs_out_path):
     """
 
     # Open TIXI handle
-    tixi = open_tixi(str(cpacs_path))
+    tixi = open_tixi(cpacs_path)
 
     # Create xpaths
     SCALING_XPATH = "/fuselage/transformation/scaling"

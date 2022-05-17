@@ -59,7 +59,7 @@ def test_SimpleNamespace():
 def test_Point():
     """Test the class 'Point'"""
 
-    cpacs = CPACS(str(CPACS_PATH))
+    cpacs = CPACS(CPACS_PATH)
     tixi = cpacs.tixi
 
     point1 = Point()
@@ -76,10 +76,10 @@ def test_Point():
     assert point1.z == 0.5
 
 
-def test_Transfomation():
+def test_Transformation():
     """Test the class 'Point'"""
 
-    cpacs = CPACS(str(CPACS_PATH))
+    cpacs = CPACS(CPACS_PATH)
     tixi = cpacs.tixi
 
     trans1 = Transformation()

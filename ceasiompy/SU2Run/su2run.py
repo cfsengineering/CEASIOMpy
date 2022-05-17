@@ -158,7 +158,7 @@ def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + MODULE_NAME + " -----")
 
-    tixi = open_tixi(str(cpacs_path))
+    tixi = open_tixi(cpacs_path)
 
     # Get number of proc to use from the CPACS file
     nb_proc = get_value_or_default(tixi, SU2_NB_CPU_XPATH, get_reasonable_nb_cpu())

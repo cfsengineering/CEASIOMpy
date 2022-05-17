@@ -83,8 +83,12 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
     TODO: If TiGL in newer version fix the engine export issue (i.e. it is possible to export an
     engine like a wing or a pylon, without doing manually the translation, rotation,
     scaling and mirror of the engine) this function needs to be modified since it assume that
-    the engine is oriented along the x axis and it may no more be the case since the brep files
-    of the nacelle are imported as they are on the cpacs model
+    the all the part are oriented along the x axis and it may no more be the case if the TiGL
+    exportshape function will apply the rotation/translation/scaling operation
+
+    In order to fix this, the part will need to be rotated back in gmsh to be again aligned with
+    the x axis before to performe engine_closing operation, then it can be rotated back in the final
+    correct configuration§
 
     ...
     Args:
@@ -105,119 +109,148 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
     closed_engine_path : Path
         Path to the closed engine
     """
-    gmsh.initialize()
 
-    # Import the part and create the Modelpart object
-    print("engine_uids", engine_uids)
-    print("engine_files_path", engine_files_path)
-    print("brep_dir_path", brep_dir_path)
-    print("engines_cfg_file_path", engines_cfg_file_path)
-    engine_parts = []
+    percent_forward = 0.45
+    percent_backward = 0.45
 
+    # first close the FanCowl
     for brep_file in engine_files_path:
 
-        # Import the part and create the aircraft part object
-        part_dimtag = gmsh.model.occ.importShapes(str(brep_file), highestDimOnly=False)
-        gmsh.model.occ.synchronize()
-
-        # Create the aircraft part object
-        part_obj = ModelPart(uid=brep_file.stem)
-        part_obj.part_type = get_part_type(cpacs_path, part_obj.uid)
-        part_obj.volume = [part_dimtag[0]]
-
-        # Heal Fancowl : sometimes gmsh is not able to mesh correctly those
-        # of part
-        if part_obj.part_type == "fanCowl":
-            gmsh.model.occ.healShapes(
-                dimTags=[part_dimtag[0]],
-                tolerance=1e-8,
-                fixDegenerated=True,
-                fixSmallEdges=True,
-                fixSmallFaces=True,
-                sewFaces=True,
-                makeSolids=True,
+        # close the fan cowl first
+        part_uid = brep_file.stem
+        part_type = get_part_type(cpacs_path, part_uid)
+        print(part_type)
+        if part_type in ["fanCowl"]:
+            intake_x, exhaust_x = close_part(
+                brep_file, part_type, percent_forward, percent_backward
             )
-            gmsh.model.occ.synchronize()
+            config_file = ConfigFile(engines_cfg_file_path)
+            # save the information of the future intake and exhaust position
+            config_file[f"{engine_uids[0]}_{part_type}_INTAKE_X"] = f"{intake_x}"
+            config_file[f"{engine_uids[0]}_{part_type}_EXHAUST_X"] = f"{exhaust_x}"
+            config_file.write_file(engines_cfg_file_path, overwrite=True)
 
-        # Add to the list of engine_parts
-        engine_parts.append(part_obj)
+    # Second close the core cowl
+    for brep_file in engine_files_path:
 
-    for part in engine_parts:
-        if part.part_type == "fanCowl":
-            fancowl_part = part
+        # close the fan cowl first
+        part_uid = brep_file.stem
+        part_type = get_part_type(cpacs_path, part_uid)
+        print(part_type)
+        if part_type in ["fanCowl"]:
+            intake_x, exhaust_x = close_part(
+                brep_file, part_type, percent_forward, percent_backward
+            )
+            config_file = ConfigFile(engines_cfg_file_path)
+            # save the information of the future intake and exhaust position
+            config_file[f"{engine_uids[0]}_{part_type}_INTAKE_X"] = f"{intake_x}"
+            config_file[f"{engine_uids[0]}_{part_type}_EXHAUST_X"] = f"{exhaust_x}"
+            config_file.write_file(engines_cfg_file_path, overwrite=True)
 
-    # find the first point and last point x wise of the nacelle_center
-    surfaces_dimtags, lines_dimtags, points_dimtags = get_entities_from_volume(fancowl_part.volume)
-    fancowl_part.surfaces = surfaces_dimtags
-    fancowl_part.lines = lines_dimtags
-    fancowl_part.points = points_dimtags
+    # Now that all the part are closed, fuse them together
+    gmsh.initialize()
 
-    points_pos = [gmsh.model.occ.getBoundingBox(*dimtag) for dimtag in fancowl_part.points]
-    point_x_pos = [pos[0] for pos in points_pos]
+    part_to_fuse = []
+    for brep_file in engine_files_path:
+        part_entities = gmsh.model.occ.importShapes(str(brep_file), highestDimOnly=False)
+        gmsh.model.occ.synchronize()
+        part_to_fuse.append(part_entities[0])
 
-    p1 = fancowl_part.points[point_x_pos.index(min(point_x_pos))]
-    p2 = fancowl_part.points[point_x_pos.index(max(point_x_pos))]
-    p1_x, p1_y, p1_z, _, _, _ = gmsh.model.occ.getBoundingBox(*p1)
-    p2_x, p2_y, p2_z, _, _, _ = gmsh.model.occ.getBoundingBox(*p2)
-    fancowl_part_axis = [p1_x - p2_x, p1_y - p2_y, p1_z - p2_z]
-
-    percent_forward = 0.2
-    percent_backward = 0.2
-
-    disk_inlet_center = [
-        p1_x - fancowl_part_axis[0] * percent_forward,
-        p1_y - fancowl_part_axis[1] * percent_forward,
-        p1_z - fancowl_part_axis[2] * percent_forward,
-    ]
-
-    bb = gmsh.model.getBoundingBox(-1, -1)
-    model_dimensions = [abs(bb[0] - bb[3]), abs(bb[1] - bb[4]), abs(bb[2] - bb[5])]
-
-    domain_length = max(model_dimensions)
-    # create a cylinder from 45% to 55% of the nacelle_center to cut the nacelle volume
-    disk_inlet = gmsh.model.occ.addDisk(*disk_inlet_center, domain_length, domain_length)
+    # fuse
+    gmsh.model.occ.fuse(part_to_fuse[:1], part_to_fuse[1:], removeObject=True, removeTool=True)
     gmsh.model.occ.synchronize()
 
-    disk_inlet = (2, disk_inlet)
+    closed_engine_path = Path(brep_dir_path, f"{engine_uids[0]}.brep")
 
-    # generate the disk (gmsh always create a disk in the xy plane)
-    xy_vector = [0, 0, 1]
+    gmsh.write(str(closed_engine_path))
+    print()
+    print("final engine")
+    print()
+    gmsh.fltk.run()
 
-    if fancowl_part_axis != xy_vector:
-        rotation_axis = np.cross(fancowl_part_axis, xy_vector)
-        gmsh.model.occ.rotate([disk_inlet], *disk_inlet_center, *rotation_axis, np.pi / 2)
-        gmsh.model.occ.synchronize()
+    gmsh.clear()
+    gmsh.finalize()
 
-    extrusion_vector = [
-        -fancowl_part_axis[0] * (1 - (percent_forward + percent_backward)),
-        -fancowl_part_axis[1] * (1 - (percent_forward + percent_backward)),
-        -fancowl_part_axis[2] * (1 - (percent_forward + percent_backward)),
-    ]
+    return closed_engine_path
 
-    # at this point we will save the distance between the inlet and the outlet of the engine
-    # this data will be used to find the correct inlet and outlet surface
-    # in the final model
-    distance = np.linalg.norm(np.array(extrusion_vector))
-    config_file = ConfigFile(engines_cfg_file_path)
-    config_file[f"{engine_uids[0]}_DISTANCE"] = f"{distance}"
-    # save this info in the engines config file
-    config_file.write_file(engines_cfg_file_path, overwrite=True)
+
+def close_part(part_path, part_type, percent_forward, percent_backward):
+    """
+    Function to close the nacelle part by adding an inlet and outlet inside of the nacelle.
+    A large cylinder is created to fill the part
+    the inlet or intake will be placed at percent_forward of the total engine length
+    same for outlet or exhaust with percent_backward
+
+    Args:
+    ----------
+    part_path : Path
+        Path to the brep file of the nacelle part
+    percent_forward : float
+        percentage of the total length of the nacelle part to place the inlet
+    percent_backward : float
+        percentage of the total length of the nacelle part to place the outlet
+    """
+
+    # Import the part
+    gmsh.initialize()
+
+    part_dimtag = gmsh.model.occ.importShapes(str(part_path), highestDimOnly=False)
+    gmsh.model.occ.synchronize()
+
+    # Heal part : sometimes gmsh is not able to mesh correctly the fan cowl
+    # and the core cowl part of the engine
+    # a small heal shape is applied
+    gmsh.model.occ.healShapes(
+        dimTags=[part_dimtag[0]],
+        tolerance=1e-8,
+        fixDegenerated=True,
+        fixSmallEdges=True,
+        fixSmallFaces=True,
+        sewFaces=True,
+        makeSolids=True,
+    )
+    gmsh.model.occ.synchronize()
+
+    # find the first point and last point x wise of the part are found
+    part_bb = gmsh.model.occ.getBoundingBox(*part_dimtag[0])
+    part_min_x = part_bb[0]
+    part_max_x = part_bb[3]
+
+    intake_x = part_min_x + percent_forward * (part_max_x - part_min_x)
+    exhaust_x = part_min_x + (1 - percent_backward) * (part_max_x - part_min_x)
+
+    # find how large may the part be
+    bb = gmsh.model.getBoundingBox(-1, -1)
+    model_dimensions = [abs(bb[0] - bb[3]), abs(bb[1] - bb[4]), abs(bb[2] - bb[5])]
+    domain_length = max(model_dimensions)
+
+    # create a cylinder from disk_intake to disk_exhaust for the fan cowl
+    disk_intake_tag = gmsh.model.occ.addDisk(*(intake_x, 0, 0), domain_length, domain_length)
+    gmsh.model.occ.synchronize()
+    disk_intake = (2, disk_intake_tag)
+
+    # gmsh always create a disk in the xy plane, so we need to rotate it to the x axis
+    # rotation of the disk in the right plane (y_z plane)
+
+    gmsh.model.occ.rotate([disk_intake], *(intake_x, 0, 0), *(0, 1, 0), np.pi / 2)
+    gmsh.model.occ.synchronize()
+
+    cylinder_length = exhaust_x - intake_x
 
     cylinder = gmsh.model.occ.extrude(
-        [disk_inlet],
-        *extrusion_vector,
+        [disk_intake],
+        *(cylinder_length, 0, 0),
         numElements=[],
         heights=[],
         recombine=True,
     )
     gmsh.model.occ.synchronize()
 
-    parts_to_fragment = [part.volume[0] for part in engine_parts]
-    fragments_dimtag, _ = gmsh.model.occ.fragment(parts_to_fragment, [cylinder[1]])
+    fragments_dimtag, _ = gmsh.model.occ.fragment([part_dimtag[0]], [cylinder[1]])
     gmsh.model.occ.synchronize()
 
     # find the volume with the largest bounding box, it is the external part of the cylinder
-
+    # that we want to remove
     largest_volume = [(0, 0), 0]
     for fragment in fragments_dimtag:
         bb = gmsh.model.occ.getBoundingBox(*fragment)
@@ -227,7 +260,6 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
             largest_volume = [fragment, fragment_length]
 
     # remove the extra part of the cylinder
-
     gmsh.model.occ.remove([largest_volume[0]], recursive=True)
     fragments_dimtag.remove(largest_volume[0])
     gmsh.model.occ.synchronize()
@@ -239,31 +271,25 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
 
     gmsh.model.occ.synchronize()
 
-    # clean engine from remaining surfaces
+    # clean part from remaining extra surfaces,lines and points
 
-    domain_points = gmsh.model.getEntities(dim=0)
-    domain_lines = gmsh.model.getEntities(dim=1)
-    domain_surfaces = gmsh.model.getEntities(dim=2)
-
-    for point in domain_points:
+    for point in gmsh.model.getEntities(dim=0):
         gmsh.model.occ.remove([point], recursive=True)
 
-    for line in domain_lines:
+    for line in gmsh.model.getEntities(dim=1):
         gmsh.model.occ.remove([line], recursive=True)
 
-    for surface in domain_surfaces:
+    for surface in gmsh.model.getEntities(dim=2):
         gmsh.model.occ.remove([surface], recursive=True)
 
     gmsh.model.occ.synchronize()
 
-    closed_engine_path = Path(brep_dir_path, f"{engine_uids[0]}.brep")
-
-    gmsh.write(str(closed_engine_path))
-
+    gmsh.write(str(part_path))
+    gmsh.fltk.run()
     gmsh.clear()
     gmsh.finalize()
 
-    return closed_engine_path
+    return intake_x, exhaust_x
 
 
 def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_path):
@@ -277,7 +303,8 @@ def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_pat
 
     TODO: If TiGL in newer version fix the engine export issue (i.e. it is possible to export an
     engine like a wing or a pylon, without doing manually the translation, rotation,
-    scaling and mirror of the engine) this function can be removed
+    scaling and mirror of the engine) this function can be removed since normally it
+    will become useless
     ...
 
     Args:

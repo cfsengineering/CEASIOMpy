@@ -269,9 +269,9 @@ def define_engine_bc(engine_part, brep_dir_path):
     surfaces_group = gmsh.model.addPhysicalGroup(2, engine_part.other_surfaces_tags)
     gmsh.model.setPhysicalName(2, surfaces_group, f"{engine_part.uid}")
     inlet_group = gmsh.model.addPhysicalGroup(2, engine_part.inlet_tag)
-    gmsh.model.setPhysicalName(2, inlet_group, f"inlet_{engine_part.uid}")
+    gmsh.model.setPhysicalName(2, inlet_group, f"{engine_part.uid}_Intake")
     outlet_group = gmsh.model.addPhysicalGroup(2, engine_part.outlet_tag)
-    gmsh.model.setPhysicalName(2, outlet_group, f"outlet_{engine_part.uid}")
+    gmsh.model.setPhysicalName(2, outlet_group, f"{engine_part.uid}_Exhaust")
 
 
 def process_gmsh_log(gmsh_log):

@@ -19,7 +19,7 @@ Python version: >=3.7
 import os
 import shutil
 from pathlib import Path
-
+import numpy as np
 import pytest
 from ceasiompy.utils.ceasiompyutils import (
     SoftwareNotInstalled,
@@ -29,6 +29,7 @@ from ceasiompy.utils.ceasiompyutils import (
     get_part_type,
     get_results_directory,
     run_software,
+    rotate_vector,
 )
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from cpacspy.cpacsfunctions import open_tixi
@@ -124,14 +125,49 @@ def test_aircraft_name():
 def test_get_part_type():
     """Test the function get_part_type on the D150"""
 
-    cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml")
+    cpacs_in = Path(CPACS_FILES_PATH, "simple_engine.xml")
 
-    assert get_part_type(cpacs_in, "Wing1") == "wing"
-    assert get_part_type(cpacs_in, "Wing1_mirrored") == "wing"
-    assert get_part_type(cpacs_in, "Wing2H") == "wing"
-    assert get_part_type(cpacs_in, "Wing2H_mirrored") == "wing"
-    assert get_part_type(cpacs_in, "Wing3V") == "wing"
-    assert get_part_type(cpacs_in, "Fuselage1") == "fuselage"
+    assert get_part_type(cpacs_in, "Wing") == "wing"
+    assert get_part_type(cpacs_in, "Wing_mirrored") == "wing"
+    assert get_part_type(cpacs_in, "SimpleFuselage") == "fuselage"
+    assert get_part_type(cpacs_in, "SimpleEngine") == "engine"
+    assert get_part_type(cpacs_in, "SimpleEngine_mirrored") == "engine"
+    assert get_part_type(cpacs_in, "Pylon") == "pylon"
+    assert get_part_type(cpacs_in, "Pylon_mirrored") == "pylon"
+
+
+def test_rotate_vector():
+    """Test the function rotate_vector."""
+    x_vector = [1, 0, 0]
+    y_vector = [0, 1, 0]
+    z_vector = [0, 0, 1]
+    angle1 = np.radians(90)
+    angle2 = -angle1
+
+    assert all(
+        [
+            pytest.approx(a, 0.001) == b
+            for a, b in zip(rotate_vector(x_vector, z_vector, angle1), y_vector)
+        ]
+    )
+    assert all(
+        [
+            pytest.approx(a, 0.001) == b
+            for a, b in zip(rotate_vector(x_vector, z_vector, angle2), [0, -1, 0])
+        ]
+    )
+    assert all(
+        [
+            pytest.approx(a, 0.001) == b
+            for a, b in zip(rotate_vector(z_vector, y_vector, angle1), [1, 0, 0])
+        ]
+    )
+    assert all(
+        [
+            pytest.approx(a, 0.001) == b
+            for a, b in zip(rotate_vector(z_vector, y_vector, angle2), [-1, 0, 0])
+        ]
+    )
 
 
 # =================================================================================================

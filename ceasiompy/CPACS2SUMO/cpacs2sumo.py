@@ -14,10 +14,10 @@ TODO:
 
     * Write some documentation and tutorial
     * Improve testing script
-    * Use <segements> both for wing and fuselage, as they define which
+    * Use <segments> both for wing and fuselage, as they define which
       part of the fuselage/wing should be built
     * Use 'sumo_str_format' function everywhere
-    * Impove the class data structure of Engine
+    * Improve the class data structure of Engine
     * Use class data structure for fuselage and wings
 """
 
@@ -40,16 +40,18 @@ from ceasiompy.CPACS2SUMO.func.sumofunctions import (
 )
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
-from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
-from ceasiompy.utils.mathfunctions import euler2fix
-from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.utils.commonxpath import (
     ENGINES_XPATH,
     FUSELAGES_XPATH,
     PYLONS_XPATH,
+    SUMO_INCLUDE_ENGINE_XPATH,
+    SUMO_INCLUDE_PYLON_XPATH,
     SUMOFILE_XPATH,
     WINGS_XPATH,
 )
+from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
+from ceasiompy.utils.mathfunctions import euler2fix
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
 
 log = get_logger()
@@ -89,12 +91,10 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
     """
 
-    EMPTY_SMX = Path(MODULE_DIR, "files", "sumo_empty.smx")
-
     tixi = open_tixi(cpacs_path)
-    sumo = open_tixi(EMPTY_SMX)
+    sumo = open_tixi(Path(MODULE_DIR, "files", "sumo_empty.smx"))
 
-    # Fuslage(s) ---------------------------------------------------------------
+    # Fuselage(s) ---------------------------------------------------------------
 
     if tixi.checkElement(FUSELAGES_XPATH):
         fus_cnt = tixi.getNamedChildrenCount(FUSELAGES_XPATH, "fuselage")
@@ -145,7 +145,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
         # Positionings
         if tixi.checkElement(fus_xpath + "/positionings"):
             pos_cnt = tixi.getNamedChildrenCount(fus_xpath + "/positionings", "positioning")
-            log.info(str(fus_cnt) + ' "Positionning" has been found : ')
+            log.info(str(fus_cnt) + ' "Positioning" has been found : ')
 
             pos_x_list = []
             pos_y_list = []
@@ -162,12 +162,12 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 dihedral_deg = tixi.getDoubleElement(pos_xpath + "/dihedralAngle")
                 dihedral = math.radians(dihedral_deg)
 
-                # Get the corresponding translation of each positionning
+                # Get the corresponding translation of each positioning
                 pos_x_list.append(length * math.sin(sweep))
                 pos_y_list.append(length * math.cos(dihedral) * math.cos(sweep))
                 pos_z_list.append(length * math.sin(dihedral) * math.cos(sweep))
 
-                # Get which section are connected by the positionning
+                # Get which section are connected by the positioning
                 if tixi.checkElement(pos_xpath + "/fromSectionUID"):
                     from_sec = tixi.getTextElement(pos_xpath + "/fromSectionUID")
                 else:
@@ -180,7 +180,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     to_sec = ""
                 to_sec_list.append(to_sec)
 
-            # Re-loop though the positionning to re-order them
+            # Re-loop though the positioning to re-order them
             for j_pos in range(pos_cnt):
                 if from_sec_list[j_pos] == "":
                     prev_pos_x = 0
@@ -225,10 +225,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
             if sec_transf.rotation.x or sec_transf.rotation.y or sec_transf.rotation.z:
 
                 log.warning(
-                    'Sections "'
-                    + sec_uid
-                    + '" is rotated, it is \
-                            not possible to take that into acount in SUMO !'
+                    f"Sections '{sec_uid}' is rotated, it is"
+                    "not possible to take that into account in SUMO !"
                 )
 
             # Elements
@@ -252,11 +250,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
                 if elem_transf.rotation.x or elem_transf.rotation.y or elem_transf.rotation.z:
                     log.warning(
-                        'Element "'
-                        + elem_uid
-                        + '" is rotated, it \
-                                 is not possible to take that into acount in \
-                                 SUMO !'
+                        f"Element '{elem_uid}' is rotated, it is"
+                        "not possible to take that into account in SUMO !"
                     )
 
                 # Fuselage profiles
@@ -467,7 +462,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
         # Positionings
         if tixi.checkElement(wing_xpath + "/positionings"):
             pos_cnt = tixi.getNamedChildrenCount(wing_xpath + "/positionings", "positioning")
-            log.info(str(wing_cnt) + ' "positionning" has been found : ')
+            log.info(str(wing_cnt) + ' "positioning" has been found : ')
 
             pos_x_list = []
             pos_y_list = []
@@ -484,12 +479,12 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 dihedral_deg = tixi.getDoubleElement(pos_xpath + "/dihedralAngle")
                 dihedral = math.radians(dihedral_deg)
 
-                # Get the corresponding translation of each positionning
+                # Get the corresponding translation of each positioning
                 pos_x_list.append(length * math.sin(sweep))
                 pos_y_list.append(length * math.cos(dihedral) * math.cos(sweep))
                 pos_z_list.append(length * math.sin(dihedral) * math.cos(sweep))
 
-                # Get which section are connected by the positionning
+                # Get which section are connected by the positioning
                 if tixi.checkElement(pos_xpath + "/fromSectionUID"):
                     from_sec = tixi.getTextElement(pos_xpath + "/fromSectionUID")
                 else:
@@ -502,7 +497,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     to_sec = ""
                 to_sec_list.append(to_sec)
 
-            # Re-loop though the positionning to re-order them
+            # Re-loop though the positioning to re-order them
             for j_pos in range(pos_cnt):
                 if from_sec_list[j_pos] == "":
                     prev_pos_x = 0
@@ -547,11 +542,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
             if elem_cnt > 1:
                 log.warning(
-                    "Sections "
-                    + sec_uid
-                    + "  contains multiple \
-                             element, it could be an issue for the conversion \
-                             to SUMO!"
+                    f"Sections {sec_uid} contains multiple element,"
+                    " it could be an issue for the conversion to SUMO!"
                 )
 
             for i_elem in range(elem_cnt):
@@ -630,7 +622,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 # Convert point list into string
                 prof_str = ""
 
-                # Airfoil points order : shoud be from TE (1 0) to LE (0 0)
+                # Airfoil points order : should be from TE (1 0) to LE (0 0)
                 # then TE(1 0), but not reverse way.
 
                 # to avoid double zero, not accepted by SUMO
@@ -666,10 +658,9 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
         # Add Wing caps
         add_wing_cap(sumo, wg_sk_xpath)
 
-    # Engyine pylon(s) ---------------------------------------------------------
+    # Engine pylon(s) ---------------------------------------------------------
 
-    inc_pylon_xpath = "/cpacs/toolspecific/CEASIOMpy/engine/includePylon"
-    include_pylon = get_value_or_default(tixi, inc_pylon_xpath, False)
+    include_pylon = get_value_or_default(tixi, SUMO_INCLUDE_PYLON_XPATH, False)
 
     if tixi.checkElement(PYLONS_XPATH) and include_pylon:
         pylon_cnt = tixi.getNamedChildrenCount(PYLONS_XPATH, "enginePylon")
@@ -719,7 +710,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
         # Positionings
         if tixi.checkElement(pylon_xpath + "/positionings"):
             pos_cnt = tixi.getNamedChildrenCount(pylon_xpath + "/positionings", "positioning")
-            log.info(str(pylon_cnt) + ' "positionning" has been found : ')
+            log.info(str(pylon_cnt) + ' "positioning" has been found : ')
 
             pos_x_list = []
             pos_y_list = []
@@ -736,12 +727,12 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 dihedral_deg = tixi.getDoubleElement(pos_xpath + "/dihedralAngle")
                 dihedral = math.radians(dihedral_deg)
 
-                # Get the corresponding translation of each positionning
+                # Get the corresponding translation of each positioning
                 pos_x_list.append(length * math.sin(sweep))
                 pos_y_list.append(length * math.cos(dihedral) * math.cos(sweep))
                 pos_z_list.append(length * math.sin(dihedral) * math.cos(sweep))
 
-                # Get which section are connected by the positionning
+                # Get which section are connected by the positioning
                 if tixi.checkElement(pos_xpath + "/fromSectionUID"):
                     from_sec = tixi.getTextElement(pos_xpath + "/fromSectionUID")
                 else:
@@ -754,7 +745,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     to_sec = ""
                 to_sec_list.append(to_sec)
 
-            # Re-loop though the positionning to re-order them
+            # Re-loop though the positioning to re-order them
             for j_pos in range(pos_cnt):
                 if from_sec_list[j_pos] == "":
                     prev_pos_x = 0
@@ -872,7 +863,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
                 check_reversed_wing.append(wg_sec_center_y)
 
-                # Add roation from element and sections
+                # Add rotation from element and sections
                 # Adding the two angles: Maybe not work in every case!!!
                 add_rotation = SimpleNamespace()
                 add_rotation.x = elem_transf.rotation.x + sec_transf.rotation.x
@@ -939,8 +930,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
     # Engine(s) ----------------------------------------------------------------
 
-    inc_engine_xpath = "/cpacs/toolspecific/CEASIOMpy/engine/includeEngine"
-    include_engine = get_value_or_default(tixi, inc_engine_xpath, False)
+    include_engine = get_value_or_default(tixi, SUMO_INCLUDE_ENGINE_XPATH, False)
 
     if tixi.checkElement(ENGINES_XPATH) and include_engine:
         engine_cnt = tixi.getNamedChildrenCount(ENGINES_XPATH, "engine")

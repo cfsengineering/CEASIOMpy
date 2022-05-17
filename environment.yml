@@ -44,7 +44,7 @@ dependencies:
 
   - pip:
     - smt==0.7.1
-    - cpacspy==0.0.10
+    - cpacspy==0.0.11
     - gmsh >= 4.10.1
     #- aeroframe  # See: https://github.com/airinnova/aeroframe
     #- framat  # See: https://github.com/airinnova/framat

@@ -351,7 +351,7 @@ def test_define_engine_bc():
 
     export_brep(cpacs, CPACS_IN_SIMPLE_ENGINE_PATH, TEST_OUT_PATH)
 
-    _, aircraft_parts = generate_gmsh(
+    generate_gmsh(
         CPACS_IN_SIMPLE_ENGINE_PATH,
         TEST_OUT_PATH,
         TEST_OUT_PATH,

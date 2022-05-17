@@ -52,11 +52,9 @@ def engine_conversion(cpacs_path, engine_uids, brep_dir_path, engines_cfg_file_p
     """
 
     # Find the brep files associated with the engine:
-    engine_files_path = []
-    for file in os.listdir(brep_dir_path):
-        part_uid = file.split(".")[0]
-        if part_uid in engine_uids:
-            engine_files_path.append(Path(brep_dir_path, file))
+    engine_files_path = [
+        file for file in list(brep_dir_path.glob("*.brep")) if file.stem in engine_uids
+    ]
 
     # Create a new engine with all the nacelle parts
 

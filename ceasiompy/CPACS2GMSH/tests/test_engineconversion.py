@@ -24,12 +24,10 @@ import sys
 import pytest
 from ceasiompy.CPACS2GMSH.func.engineconversion import (
     close_engine,
-    engine_conversion,
-    reposition_engine,
 )
-from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
+
 from ceasiompy.utils.paths import CPACS_FILES_PATH
-from cpacspy.cpacspy import CPACS
+
 
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_SIMPLE_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_engine.xml")

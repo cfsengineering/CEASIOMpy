@@ -82,6 +82,11 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
     Then the nacelle part are fused together to form only one engine that is saved as .brep file
     the engine inlet will be placed at 20% of the total engine length, same for outlet
 
+    TODO: If TiGL in newer version fix the engine export issue (i.e. it is possible to export an
+    engine like a wing or a pylon, without doing manually the translation and rotation scaling mirror
+    of the engine) this function needs to be modified since it assume that the engine is oriented along
+    the x axis and it may no more be the case
+
     ...
     Args:
     ----------
@@ -95,11 +100,19 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
         Path to the directory containing the brep files
     engines_cfg_file_path : Path
         Path to the engines configuration file
+    ...
+    Returns:
+    ----------
+    closed_engine_path : Path
+        Path to the closed engine
     """
     gmsh.initialize()
 
     # Import the part and create the Modelpart object
-
+    print("engine_uids", engine_uids)
+    print("engine_files_path", engine_files_path)
+    print("brep_dir_path", brep_dir_path)
+    print("engines_cfg_file_path", engines_cfg_file_path)
     engine_parts = []
 
     for brep_file in engine_files_path:
@@ -262,6 +275,10 @@ def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_pat
     the engine is imported in gmsh, moved to the correct position and then saved.
     if a mirrored version of the engine is needed, another engine is created and saved
     at the mirrored location
+
+    TODO: If TiGL in newer version fix the engine export issue (i.e. it is possible to export an
+    engine like a wing or a pylon, without doing manually the translation and rotation scaling mirror
+    of the engine) this function can be removed without
     ...
 
     Args:

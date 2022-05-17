@@ -219,7 +219,7 @@ def aircraft_name(tixi_or_cpacs):
     # *modify corresponding test
 
     if isinstance(tixi_or_cpacs, Path):
-        tixi = open_tixi(str(tixi_or_cpacs))
+        tixi = open_tixi(tixi_or_cpacs)
     else:
         tixi = tixi_or_cpacs
 

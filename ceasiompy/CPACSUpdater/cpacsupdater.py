@@ -46,8 +46,8 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
         * See CPACSCreator api function,
 
     Args:
-        cpacs_path (str): Path to CPACS file to update
-        cpacs_out_path (str):Path to the updated CPACS file
+        cpacs_path (Path): Path to CPACS file to update
+        cpacs_out_path (Path):Path to the updated CPACS file
         optim_var_dict (dict): Dictionary containing all the variable
                                value/min/max and command to modify a CPACS file
 

@@ -56,7 +56,7 @@ def test_get_cl():
 
     get_cl(CPACS_IN_PATH, CPACS_OUT_PATH)
 
-    tixi = open_tixi(str(CPACS_OUT_PATH))
+    tixi = open_tixi(CPACS_OUT_PATH)
 
     cl_to_check = tixi.getDoubleElement(SU2_TARGET_CL_XPATH)
     assert cl_to_check == approx(0.791955)

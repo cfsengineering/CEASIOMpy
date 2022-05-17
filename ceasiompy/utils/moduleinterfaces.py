@@ -202,7 +202,7 @@ def check_cpacs_input_requirements(
         specs_module = get_specs_for_module(submod_name, raise_error=True)
         cpacs_inout = specs_module.cpacs_inout
 
-    tixi = open_tixi(str(cpacs_file))
+    tixi = open_tixi(cpacs_file)
     missing_nodes = []
     for entry in cpacs_inout.inputs:
 
@@ -353,8 +353,8 @@ def create_default_toolspecific():
 
     EMPTY_CPACS_PATH = Path(MODULE_DIR, "doc", "empty_cpacs.xml")
 
-    tixi_in = open_tixi(str(EMPTY_CPACS_PATH))
-    tixi_out = open_tixi(str(EMPTY_CPACS_PATH))
+    tixi_in = open_tixi(EMPTY_CPACS_PATH)
+    tixi_out = open_tixi(EMPTY_CPACS_PATH)
 
     for _, specs in get_all_module_specs().items():
         if specs is not None:

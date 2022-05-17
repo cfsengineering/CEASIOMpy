@@ -334,7 +334,7 @@ def main(cpacs_in_path, cpacs_out_path):
     )
 
     # ===== Extract load =====
-    tixi = open_tixi(str(cpacs_in_path))
+    tixi = open_tixi(cpacs_in_path)
     extract_loads_xpath = "/cpacs/toolspecific/pytornado/save_results/extractLoads"
     extract_loads = get_value_or_default(tixi, extract_loads_xpath, False)
 

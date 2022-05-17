@@ -70,7 +70,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
 
     """
 
-    cpacs = CPACS(str(cpacs_path))
+    cpacs = CPACS(cpacs_path)
 
     if not wkdir.exists():
         raise OSError(f"The working directory : {wkdir} does not exit!")
@@ -128,7 +128,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
 
         # Damping derivatives
         rotation_rate = get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, -1.0)
-        ref_len = cpacs.aircraft.ref_lenght
+        ref_len = cpacs.aircraft.ref_length
         adim_rot_rate = rotation_rate * ref_len / velocity
 
         coefs = {"cl": cl, "cd": cd, "cs": cs, "cmd": cmd, "cms": cms, "cml": cml}
@@ -202,7 +202,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
             extract_loads(config_dir)
 
     aeromap.save()
-    cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
+    cpacs.save_cpacs(cpacs_out_path), overwrite=True)
 
 
 # =================================================================================================

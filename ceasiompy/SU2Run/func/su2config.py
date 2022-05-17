@@ -82,7 +82,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
     """
 
-    cpacs = CPACS(str(cpacs_path))
+    cpacs = CPACS(cpacs_path)
 
     # Get the SU2 Mesh
     su2_mesh_path = Path(get_value(cpacs.tixi, SU2MESH_XPATH))
@@ -153,7 +153,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
     # General parmeters
     cfg["RESTART_SOL"] = "NO"
-    cfg["REF_LENGTH"] = cpacs.aircraft.ref_lenght
+    cfg["REF_LENGTH"] = cpacs.aircraft.ref_length
     cfg["REF_AREA"] = cpacs.aircraft.ref_area
     cfg["REF_ORIGIN_MOMENT_X"] = cpacs.aircraft.ref_point_x
     cfg["REF_ORIGIN_MOMENT_Y"] = cpacs.aircraft.ref_point_y
@@ -275,7 +275,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
                 config_output_path = Path(wkdir, config_dir_path, CONFIG_CFD_NAME)
                 cfg.write_file(config_output_path, overwrite=True)
 
-    cpacs.save_cpacs(str(cpacs_out_path), overwrite=True)
+    cpacs.save_cpacs(cpacs_out_path), overwrite=True)
 
 
 # =================================================================================================

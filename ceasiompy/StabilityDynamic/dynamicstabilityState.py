@@ -173,7 +173,7 @@ def dynamic_stability_analysis(cpacs_path, cpacs_out_path):
 
     s = cpacs.aircraft.ref_area  # Wing area : s  for non-dimonsionalisation of aero data.
     mac = (
-        cpacs.aircraft.ref_lenght
+        cpacs.aircraft.ref_length
     )  # ref length for non dimensionalisation, Mean aerodynamic chord: mac,
 
     # TODO: check that

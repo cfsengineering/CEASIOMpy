@@ -91,6 +91,9 @@ def test_close_engine():
     gmsh.clear()
     gmsh.finalize()
 
+    # Delete the closed engine file
+    closed_engine_path.unlink()
+
 
 # ==============================================================================
 #    MAIN

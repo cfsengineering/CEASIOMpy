@@ -99,7 +99,7 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
     exportshape function will apply the rotation/translation/scaling operation
 
     In order to fix this, the part will need to be rotated back in gmsh to be again aligned with
-    the x axis before to performe engine_closing operation, then it can be rotated back in the final
+    the x axis before to preforms engine_closing operation, then it can be rotated back in the final
     correct configuration§
 
     ...
@@ -122,8 +122,8 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
         Path to the closed engine
     """
 
-    percent_forward = 0.25
-    percent_backward = 0.25
+    percent_forward = 0.20
+    percent_backward = 0.20
 
     # first close the FanCowl
     for brep_file in engine_files_path:
@@ -468,6 +468,10 @@ def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_pat
         config_file[f"{engine_uids[0]}_mirrored_fanCowl_EXHAUST_X"] = config_file[
             f"{engine_uids[0]}_fanCowl_EXHAUST_X"
         ]
+        if bool(int(config_file[f"{engine_uids[0]}_mirrored_DOUBLE_FLUX"])):
+            config_file[f"{engine_uids[0]}_mirrored_coreCowl_EXHAUST_X"] = config_file[
+                f"{engine_uids[0]}_coreCowl_EXHAUST_X"
+            ]
         # TODO: add mirror operation as a function of the plane of symmetry
         # if xz : inverse y comp. if yz : inverse x comp. if xy : inverse z comp.
 

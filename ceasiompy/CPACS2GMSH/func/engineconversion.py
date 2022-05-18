@@ -51,6 +51,8 @@ def engine_conversion(cpacs_path, engine_uids, brep_dir_path, engines_cfg_file_p
         Path to the engines configuration file
     """
 
+    log.info(f"Converting engine : {engine_uids[0]}")
+
     # Find the brep files associated with the engine:
     engine_files_path = [
         file for file in list(brep_dir_path.glob("*.brep")) if file.stem in engine_uids
@@ -72,6 +74,8 @@ def engine_conversion(cpacs_path, engine_uids, brep_dir_path, engines_cfg_file_p
 
     # Move the new engine to the correct location
     reposition_engine(cpacs_path, closed_engine_path, engine_uids, engines_cfg_file_path)
+
+    log.info(f"Engine {engine_uids[0]} converted")
 
 
 def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engines_cfg_file_path):
@@ -110,8 +114,8 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
         Path to the closed engine
     """
 
-    percent_forward = 0.45
-    percent_backward = 0.45
+    percent_forward = 0.40
+    percent_backward = 0.40
 
     # first close the FanCowl
     for brep_file in engine_files_path:
@@ -122,7 +126,12 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
         print(part_type)
         if part_type in ["fanCowl"]:
             intake_x, exhaust_x = close_part(
-                brep_file, part_type, percent_forward, percent_backward
+                engine_uids,
+                brep_file,
+                part_type,
+                percent_forward,
+                percent_backward,
+                engines_cfg_file_path,
             )
             config_file = ConfigFile(engines_cfg_file_path)
             # save the information of the future intake and exhaust position
@@ -133,13 +142,18 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
     # Second close the core cowl
     for brep_file in engine_files_path:
 
-        # close the fan cowl first
+        # close the core cowl
         part_uid = brep_file.stem
         part_type = get_part_type(cpacs_path, part_uid)
-        print(part_type)
-        if part_type in ["fanCowl"]:
+
+        if part_type in ["coreCowl"]:
             intake_x, exhaust_x = close_part(
-                brep_file, part_type, percent_forward, percent_backward
+                engine_uids,
+                brep_file,
+                part_type,
+                percent_forward,
+                percent_backward,
+                engines_cfg_file_path,
             )
             config_file = ConfigFile(engines_cfg_file_path)
             # save the information of the future intake and exhaust position
@@ -233,6 +247,11 @@ def close_part(
         if fancowl_exhaust_x < intake_x:
             intake_x = fancowl_exhaust_x
 
+        # raise warning if the fan cowl intake is after the core cowl part
+        if float(config_file[f"{engine_uids[0]}_fanCowl_INTAKE_X"]) > part_min_x:
+            log.warning("The intake position of the fan cowl is inside core cowl part")
+            log.error("Change the fan cowl intake position upstream")
+
     # find how large may the part be
     bb = gmsh.model.getBoundingBox(-1, -1)
     model_dimensions = [abs(bb[0] - bb[3]), abs(bb[1] - bb[4]), abs(bb[2] - bb[5])]
@@ -296,10 +315,9 @@ def close_part(
     for surface in gmsh.model.getEntities(dim=2):
         gmsh.model.occ.remove([surface], recursive=True)
 
+    # save and close gmsh
     gmsh.model.occ.synchronize()
-
     gmsh.write(str(part_path))
-    gmsh.fltk.run()
     gmsh.clear()
     gmsh.finalize()
 
@@ -412,9 +430,8 @@ def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_pat
     config_file[f"{engine_uids[0]}_NORMAL_Y"] = f"{rotation[1]}"
     config_file[f"{engine_uids[0]}_NORMAL_Z"] = f"{rotation[2]}"
 
-    # addapt the distance with the scaling of the x axis
-    distance = float(config_file[f"{engine_uids[0]}_DISTANCE"])
-    config_file[f"{engine_uids[0]}_DISTANCE_SCALED"] = str(distance * engine.transf.scaling.x)
+    # adapt the distance with the scaling of the x axis
+    config_file[f"{engine_uids[0]}_SCALING_X"] = str(engine.transf.scaling.x)
 
     # Search for a possible mirrored engine
 
@@ -444,9 +461,7 @@ def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_pat
         config_file[f"{engine_uids[0]}_mirrored_NORMAL_Y"] = f"{-rotation[1]}"
         config_file[f"{engine_uids[0]}_mirrored_NORMAL_Z"] = f"{rotation[2]}"
         # with the scaling of the x axis
-        config_file[f"{engine_uids[0]}_mirrored_DISTANCE_SCALED"] = str(
-            distance * engine.transf.scaling.x
-        )
+        config_file[f"{engine_uids[0]}_SCALING_X"] = str(engine.transf.scaling.x)
 
     # save this info in the engines config file
     config_file.write_file(engines_cfg_file_path, overwrite=True)

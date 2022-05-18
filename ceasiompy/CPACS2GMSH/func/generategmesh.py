@@ -229,7 +229,7 @@ def define_engine_bc(engine_part, brep_dir_path):
         parametric_coord = gmsh.model.getParametrization(*dimtag, list(surface_center))
 
         # GMSH normal is defined exiting the volume
-        # note here that the volume is the fluide, so the inside of the engine is the outside
+        # note here that the volume is the fluid, so the inside of the engine is the outside
         # of the volume, so inlet normal is opposite to engine normal
         normal = gmsh.model.getNormal(dimtag[1], parametric_coord)
         absolute_same = np.isclose(

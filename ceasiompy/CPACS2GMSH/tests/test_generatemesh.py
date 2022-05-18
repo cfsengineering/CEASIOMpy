@@ -347,7 +347,7 @@ def test_define_engine_bc():
         shutil.rmtree(TEST_OUT_PATH)
     TEST_OUT_PATH.mkdir()
 
-    cpacs = CPACS(str(CPACS_IN_SIMPLE_ENGINE_PATH))
+    cpacs = CPACS(CPACS_IN_SIMPLE_ENGINE_PATH)
 
     export_brep(cpacs, CPACS_IN_SIMPLE_ENGINE_PATH, TEST_OUT_PATH)
 

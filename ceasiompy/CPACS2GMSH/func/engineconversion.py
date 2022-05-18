@@ -333,7 +333,7 @@ def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_pat
         Path to the engines config file
     """
     # first retrieve the transformation data from the cpacs file
-    cpacs = CPACS(str(cpacs_path))
+    cpacs = CPACS(cpacs_path)
     tixi = cpacs.tixi
     gmsh.initialize()
     xpath_engines_position = "/cpacs/vehicles/aircraft/model/engines"

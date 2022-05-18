@@ -58,7 +58,15 @@ def engine_conversion(cpacs_path, engine_uids, brep_dir_path, engines_cfg_file_p
         file for file in list(brep_dir_path.glob("*.brep")) if file.stem in engine_uids
     ]
 
-    # Create a new engine with all the nacelle parts
+    # determine engine type
+    config_file = ConfigFile(engines_cfg_file_path)
+    if len(engine_files_path) == 3:
+        # the engine is a doubleflux
+        config_file[f"{engine_uids[0]}_DOUBLE_FLUX"] = "1"
+    else:
+        config_file[f"{engine_uids[0]}_DOUBLE_FLUX"] = "0"
+
+    config_file.write_file(engines_cfg_file_path, overwrite=True)
 
     # Create a new engine that is closed with an inlet and an outlet
     closed_engine_path = close_engine(
@@ -114,8 +122,8 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
         Path to the closed engine
     """
 
-    percent_forward = 0.40
-    percent_backward = 0.40
+    percent_forward = 0.25
+    percent_backward = 0.25
 
     # first close the FanCowl
     for brep_file in engine_files_path:
@@ -123,7 +131,7 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
         # close the fan cowl first
         part_uid = brep_file.stem
         part_type = get_part_type(cpacs_path, part_uid)
-        print(part_type)
+
         if part_type in ["fanCowl"]:
             intake_x, exhaust_x = close_part(
                 engine_uids,
@@ -176,12 +184,8 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
 
     closed_engine_path = Path(brep_dir_path, f"{engine_uids[0]}.brep")
 
+    # save engine and close gmsh
     gmsh.write(str(closed_engine_path))
-    print()
-    print("final engine")
-    print()
-    gmsh.fltk.run()
-
     gmsh.clear()
     gmsh.finalize()
 
@@ -453,7 +457,17 @@ def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_pat
         gmsh.clear()
         gmsh.finalize()
 
-        # complete the config file with the mirrored engine
+        # complete the config file with the mirrored engine config
+
+        config_file[f"{engine_uids[0]}_mirrored_DOUBLE_FLUX"] = config_file[
+            f"{engine_uids[0]}_DOUBLE_FLUX"
+        ]
+        config_file[f"{engine_uids[0]}_mirrored_fanCowl_INTAKE_X"] = config_file[
+            f"{engine_uids[0]}_fanCowl_INTAKE_X"
+        ]
+        config_file[f"{engine_uids[0]}_mirrored_fanCowl_EXHAUST_X"] = config_file[
+            f"{engine_uids[0]}_fanCowl_EXHAUST_X"
+        ]
         # TODO: add mirror operation as a function of the plane of symmetry
         # if xz : inverse y comp. if yz : inverse x comp. if xy : inverse z comp.
 
@@ -461,7 +475,7 @@ def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_pat
         config_file[f"{engine_uids[0]}_mirrored_NORMAL_Y"] = f"{-rotation[1]}"
         config_file[f"{engine_uids[0]}_mirrored_NORMAL_Z"] = f"{rotation[2]}"
         # with the scaling of the x axis
-        config_file[f"{engine_uids[0]}_SCALING_X"] = str(engine.transf.scaling.x)
+        config_file[f"{engine_uids[0]}_mirrored_SCALING_X"] = str(engine.transf.scaling.x)
 
     # save this info in the engines config file
     config_file.write_file(engines_cfg_file_path, overwrite=True)

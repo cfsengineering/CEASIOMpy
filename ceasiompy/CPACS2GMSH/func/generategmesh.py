@@ -197,7 +197,7 @@ def get_entities_from_volume(volume_dimtag):
 def define_engine_bc(engine_part, brep_dir_path):
     """
     Function to define the boundary conditions for the engine part.
-    The engine is defined as a volume and the boundary conditions inlet outlet
+    The engine is defined as a volume and the boundary conditions intake exhaust
     are set to be fixed.
 
     Args:
@@ -205,73 +205,80 @@ def define_engine_bc(engine_part, brep_dir_path):
     engine_part : ModelPart
         engine part of the aircraft to set the bc on
     brep_dir_path : Path
-        path to the brep files of the aircraft that also containt the engine config file
+        path to the brep files of the aircraft that also contains the engine config file
 
     """
-    # open the engine config file and find the engine normal and distance between
-    # the inlet and outlet
+    # open the engine config file and find :
+    # if the engine is double or simple flux
+    # the engine normal and distance between
+    # the intake and exhaust
     config_file_path = Path(brep_dir_path, "config_engines.cfg")
     config_file = ConfigFile(config_file_path)
+
+    doubleflux = bool(int(config_file[f"{engine_part.uid}_DOUBLE_FLUX"]))
     engine_normal = [0, 0, 0]
     engine_normal[0] = float(config_file[f"{engine_part.uid}_NORMAL_X"])
     engine_normal[1] = float(config_file[f"{engine_part.uid}_NORMAL_Y"])
     engine_normal[2] = float(config_file[f"{engine_part.uid}_NORMAL_Z"])
 
-    engine_in_out_dist = float(config_file[f"{engine_part.uid}_DISTANCE_SCALED"])
+    if not doubleflux:
+        intake_x = float(config_file[f"{engine_part.uid}_fanCowl_INTAKE_X"])
+        exhaust_x = float(config_file[f"{engine_part.uid}_fanCowl_EXHAUST_X"])
+        scaling_x = float(config_file[f"{engine_part.uid}_SCALING_X"])
+        engine_distance = (exhaust_x - intake_x) * scaling_x
 
-    # Determine which surfaces are possible engine inlet and outlet by their normal orientation
-    possible_inlet = []
-    possible_outlet = []
+        # Determine which surfaces are possible engine intake and exhaust by their normal orientation
+        possible_intake = []
+        possible_exhaust = []
 
-    for dimtag in engine_part.surfaces:
+        for dimtag in engine_part.surfaces:
+            surface_center = gmsh.model.occ.getCenterOfMass(*dimtag)
+            parametric_coord = gmsh.model.getParametrization(*dimtag, list(surface_center))
 
-        surface_center = gmsh.model.occ.getCenterOfMass(*dimtag)
-        parametric_coord = gmsh.model.getParametrization(*dimtag, list(surface_center))
+            # GMSH normal is defined exiting the volume
+            # note here that the volume is the fluid, so the inside of the engine is the outside
+            # of the volume, so intake normal is opposite to engine normal
+            normal = gmsh.model.getNormal(dimtag[1], parametric_coord)
+            absolute_same = np.isclose(
+                np.absolute(engine_normal), np.absolute(normal), atol=1e-04, equal_nan=False
+            )
+            same = np.isclose(engine_normal, normal, atol=1e-04, equal_nan=False)
 
-        # GMSH normal is defined exiting the volume
-        # note here that the volume is the fluid, so the inside of the engine is the outside
-        # of the volume, so inlet normal is opposite to engine normal
-        normal = gmsh.model.getNormal(dimtag[1], parametric_coord)
-        absolute_same = np.isclose(
-            np.absolute(engine_normal), np.absolute(normal), atol=1e-04, equal_nan=False
+            if absolute_same.all():
+                if same.all():
+                    possible_exhaust.append(dimtag)
+                else:
+                    possible_intake.append(dimtag)
+
+        # Determine which surfaces are possible engine intake and exhaust by their
+        # respective distance
+
+        for intake in possible_intake:
+            for exhaust in possible_exhaust:
+                pos_intake = gmsh.model.occ.getCenterOfMass(*intake)
+                pos_exhaust = gmsh.model.occ.getCenterOfMass(*exhaust)
+                distance = np.linalg.norm(np.subtract(pos_intake, pos_exhaust))
+                if np.isclose(distance, engine_distance, atol=1e-04, equal_nan=False):
+                    intake_tag = intake[1]
+                    exhaust_tag = exhaust[1]
+                    break
+
+        # Set the boundary conditions
+
+        log.info(f"Intake of {engine_part.uid} detected as surface {intake_tag} ")
+        log.info(f"Exhaust of {engine_part.uid} detected as surface {exhaust_tag} ")
+        engine_part.other_surfaces_tags = list(
+            set(engine_part.surfaces_tags).difference(set([intake_tag, exhaust_tag]))
         )
-        same = np.isclose(engine_normal, normal, atol=1e-04, equal_nan=False)
+        engine_part.intake_tag = [intake_tag]
+        engine_part.exhaust_tag = [exhaust_tag]
 
-        if absolute_same.all():
-            if same.all():
-                possible_outlet.append(dimtag)
-            else:
-                possible_inlet.append(dimtag)
-
-    # Determine which surfaces are possible engine inlet and outlet by their
-    # respective distance
-
-    for inlet in possible_inlet:
-        for outlet in possible_outlet:
-            pos_intlet = gmsh.model.occ.getCenterOfMass(*inlet)
-            pos_outlet = gmsh.model.occ.getCenterOfMass(*outlet)
-            distance = np.linalg.norm(np.subtract(pos_intlet, pos_outlet))
-            if np.isclose(distance, engine_in_out_dist, atol=1e-04, equal_nan=False):
-                inlet_tag = inlet[1]
-                outlet_tag = outlet[1]
-                break
-
-    # Set the boundary conditions
-
-    log.info(f"Inlet of {engine_part.uid} detected as surface {inlet_tag} ")
-    log.info(f"Outlet of {engine_part.uid} detected as surface {outlet_tag} ")
-    engine_part.other_surfaces_tags = list(
-        set(engine_part.surfaces_tags).difference(set([inlet_tag, outlet_tag]))
-    )
-    engine_part.inlet_tag = [inlet_tag]
-    engine_part.outlet_tag = [outlet_tag]
-
-    surfaces_group = gmsh.model.addPhysicalGroup(2, engine_part.other_surfaces_tags)
-    gmsh.model.setPhysicalName(2, surfaces_group, f"{engine_part.uid}")
-    inlet_group = gmsh.model.addPhysicalGroup(2, engine_part.inlet_tag)
-    gmsh.model.setPhysicalName(2, inlet_group, f"{engine_part.uid}_Intake")
-    outlet_group = gmsh.model.addPhysicalGroup(2, engine_part.outlet_tag)
-    gmsh.model.setPhysicalName(2, outlet_group, f"{engine_part.uid}_Exhaust")
+        surfaces_group = gmsh.model.addPhysicalGroup(2, engine_part.other_surfaces_tags)
+        gmsh.model.setPhysicalName(2, surfaces_group, f"{engine_part.uid}")
+        intake_group = gmsh.model.addPhysicalGroup(2, engine_part.intake_tag)
+        gmsh.model.setPhysicalName(2, intake_group, f"{engine_part.uid}_Intake")
+        exhaust_group = gmsh.model.addPhysicalGroup(2, engine_part.exhaust_tag)
+        gmsh.model.setPhysicalName(2, exhaust_group, f"{engine_part.uid}_Exhaust")
 
 
 def process_gmsh_log(gmsh_log):

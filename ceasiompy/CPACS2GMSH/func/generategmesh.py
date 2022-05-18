@@ -788,7 +788,6 @@ def generate_gmsh(
         log.info("GMSH GUI is open, close it to continue...")
         gmsh.fltk.run()
 
-    gmsh.fltk.run()
     log.info("Start of gmsh 3D volume meshing process")
     gmsh.model.mesh.generate(3)
     gmsh.model.occ.synchronize()

@@ -174,7 +174,9 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
     return closed_engine_path
 
 
-def close_part(part_path, part_type, percent_forward, percent_backward):
+def close_part(
+    engine_uids, part_path, part_type, percent_forward, percent_backward, engines_cfg_file_path
+):
     """
     Function to close the nacelle part by adding an inlet and outlet inside of the nacelle.
     A large cylinder is created to fill the part
@@ -218,6 +220,18 @@ def close_part(part_path, part_type, percent_forward, percent_backward):
 
     intake_x = part_min_x + percent_forward * (part_max_x - part_min_x)
     exhaust_x = part_min_x + (1 - percent_backward) * (part_max_x - part_min_x)
+
+    # If the part is a core cowl, the intake must be placed before the exhaust
+    # of the fan cowl other wise they will be internal volumes inside of the engine
+    # between the fan cowl exhaust and the core cowl intake
+
+    if part_type == "coreCowl":
+        # check the position of the fan cowl exhaust
+        config_file = ConfigFile(engines_cfg_file_path)
+        engine_normal = [0, 0, 0]
+        fancowl_exhaust_x = float(config_file[f"{engine_uids[0]}_fanCowl_EXHAUST_X"])
+        if fancowl_exhaust_x < intake_x:
+            intake_x = fancowl_exhaust_x
 
     # find how large may the part be
     bb = gmsh.model.getBoundingBox(-1, -1)

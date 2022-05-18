@@ -99,8 +99,8 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
     exportshape function will apply the rotation/translation/scaling operation
 
     In order to fix this, the part will need to be rotated back in gmsh to be again aligned with
-    the x axis before to preforms engine_closing operation, then it can be rotated back in the final
-    correct configuration§
+    the x axis before to preforms engine_closing operation, then it can be rotated back in the
+    final correct configuration
 
     ...
     Args:

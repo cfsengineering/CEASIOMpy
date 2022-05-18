@@ -25,6 +25,7 @@ import shutil
 import subprocess
 from contextlib import contextmanager
 from pathlib import Path
+import sys
 from typing import List
 
 from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
@@ -172,8 +173,8 @@ def run_software(
     command_line += [install_path]
     command_line += arguments
 
-    # Use xvfb to run sumo to avoid problems with X11 on servers
-    if software_name in ["sumo", "dwfsumo"]:
+    # Use xvfb to run sumo to avoid problems with X11 (e.g. when running test on Github actions)
+    if software_name in ["sumo", "dwfsumo"] and sys.platform == "linux":
         command_line = ["xvfb-run"] + command_line
 
     log.info(f">>> Running {software_name} on {int(nb_cpu)} cpu(s)")

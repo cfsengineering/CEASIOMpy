@@ -1,60 +1,32 @@
-# This file lists external packages required to run and develop CEASIOMpy.
-#
-# * Only top-level requirements are listed here.
-# * You can use this file to set up a Conda environment:
-#
-#       conda env create -f environment.yml
-#
-# See also: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
-
 name: ceasiompy
-
 channels:
+  - dlr-sc
   - conda-forge
   - defaults
-  - dlr-sc
-
 dependencies:
-  - python=3.7
-  - numpy>=1.21.4
-  - cpacscreator>=0.1
-  # - tigl3>=3.2.1
+  - python=3.7.12
+  - clang=13.0.0
+  - codecov=2.0.15
+  - coverage=6.2
+  - cpacscreator=0.1
+  - flake8=4.0.1
+  - matplotlib-base=3.2.2
+  - numpy=1.21.4
+  - openmdao=3.15.0
+  - pandas=1.3.4
+  - pip=21.3.1
+  - pytest-cov=3.0.0
+  - scipy=1.7.3
   - tixi3=3.0.3
-  - matplotlib>=3.5.0
-  - scipy>=1.7.3
-  - pandas>=1.3.4
-  - vtk>=9.1.0
-  - xmltodict>=0.12.0
-  - openmdao >=2.9.1
-  - ambiance >= 1.3.0
-
-
-  # Testing
-  - flake8>=4.0.1
-  - black>=22.1.0
-  - pytest>=6.2.5
-  - pytest-cov>=3.0.0
-  - codecov>=2.0.15
-
-  # To compile PyTornado on Mac
-  - clang>=13.0.0
-
-  # Misc
-  - pip>=21.2.4
+  - vtk=9.0.1
+  - xmltodict=0.12.0
 
   - pip:
-    - smt==0.7.1
+    - ambiance==1.3.0
+    - black==22.3
     - cpacspy==0.0.11
-    - gmsh >= 4.10.1
-    #- aeroframe  # See: https://github.com/airinnova/aeroframe
-    #- framat  # See: https://github.com/airinnova/framat
-    # - mpi4py # issue at installation of environment
-
-
-# Other packages
-# ==============
-#
-# PyTornado (automated installation from PyPi or Conda is not yet available)
-# https://github.com/airinnova/pytornado
-#   - pytornado>=0.5.0
-#
+    - cython==0.29.24
+    - gmsh==4.10.2
+    - matplotlib==3.5.2
+    - pytest==7.1.2
+    - smt==0.7.1

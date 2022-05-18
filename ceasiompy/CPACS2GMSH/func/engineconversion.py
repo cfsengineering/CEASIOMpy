@@ -13,21 +13,21 @@ Python version: >=3.7
 """
 
 
-import os
-from pathlib import Path
-
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
+import os
+from pathlib import Path
+
 import gmsh
 import numpy as np
-from scipy.spatial.transform import Rotation as R
 from ceasiompy.CPACS2GMSH.func.generategmesh import ModelPart, get_entities_from_volume
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_part_type
 from ceasiompy.utils.configfiles import ConfigFile
 from cpacspy.cpacspy import CPACS
+from scipy.spatial.transform import Rotation as R
 
 log = get_logger()
 # ==============================================================================
@@ -37,7 +37,9 @@ log = get_logger()
 
 def engine_conversion(cpacs_path, engine_uids, brep_dir_path, engines_cfg_file_path):
     """
-    Function to convert the nacelle part in one engine
+    Function to convert the nacelle part in one engine by closing it and positioning it
+    at the correct location, when the engine is ready it is saved as a new part with
+    the cpacs uid of the engine. After the conversion the nacelle file are deleted
 
     Args:
     ----------
@@ -49,6 +51,8 @@ def engine_conversion(cpacs_path, engine_uids, brep_dir_path, engines_cfg_file_p
         Path to the directory containing the brep files
     engines_cfg_file_path : Path
         Path to the engines configuration file
+    double_flux : bool
+        True if the engine is double flux, False if the engine is single flux
     """
 
     log.info(f"Converting engine : {engine_uids[0]}")
@@ -57,16 +61,6 @@ def engine_conversion(cpacs_path, engine_uids, brep_dir_path, engines_cfg_file_p
     engine_files_path = [
         file for file in list(brep_dir_path.glob("*.brep")) if file.stem in engine_uids
     ]
-
-    # determine engine type
-    config_file = ConfigFile(engines_cfg_file_path)
-    if len(engine_files_path) == 3:
-        # the engine is a doubleflux
-        config_file[f"{engine_uids[0]}_DOUBLE_FLUX"] = "1"
-    else:
-        config_file[f"{engine_uids[0]}_DOUBLE_FLUX"] = "0"
-
-    config_file.write_file(engines_cfg_file_path, overwrite=True)
 
     # Create a new engine that is closed with an inlet and an outlet
     closed_engine_path = close_engine(
@@ -107,9 +101,9 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
     ----------
     cpacs_path : Path
         path to the cpacs of the aircraft
-    engine_uid : str
-        engine uid
-    engine_files : list
+    engine_uids : list
+        engine uids : engine uid + all the nacelle uids
+    engine_files_path : list
         list of brep files associated with the engine
     brep_dir_path : Path
         Path to the directory containing the brep files
@@ -128,7 +122,7 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
     # first close the FanCowl
     for brep_file in engine_files_path:
 
-        # close the fan cowl first
+        # find which file is the fan cowl
         part_uid = brep_file.stem
         part_type = get_part_type(cpacs_path, part_uid)
 
@@ -150,7 +144,7 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
     # Second close the core cowl
     for brep_file in engine_files_path:
 
-        # close the core cowl
+        # find which file is the core cowl
         part_uid = brep_file.stem
         part_type = get_part_type(cpacs_path, part_uid)
 
@@ -173,22 +167,25 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
     gmsh.initialize()
 
     part_to_fuse = []
+
+    # import all the parts
     for brep_file in engine_files_path:
         part_entities = gmsh.model.occ.importShapes(str(brep_file), highestDimOnly=False)
         gmsh.model.occ.synchronize()
         part_to_fuse.append(part_entities[0])
 
-    # fuse
+    # fuse them
     gmsh.model.occ.fuse(part_to_fuse[:1], part_to_fuse[1:], removeObject=True, removeTool=True)
     gmsh.model.occ.synchronize()
 
     closed_engine_path = Path(brep_dir_path, f"{engine_uids[0]}.brep")
 
-    # save engine and close gmsh
+    # save engine and close gmsh session
     gmsh.write(str(closed_engine_path))
     gmsh.clear()
     gmsh.finalize()
 
+    # return the new closed engine path
     return closed_engine_path
 
 
@@ -201,14 +198,30 @@ def close_part(
     the inlet or intake will be placed at percent_forward of the total engine length
     same for outlet or exhaust with percent_backward
 
+    Attention it is assumed that the part that will be closed is imported aligned with
+    the x axis and it will close the part with surfaces normal to the x axis
+
     Args:
     ----------
+    engine_uids : list
+        engine uids : engine uid + all the nacelle uids
     part_path : Path
         Path to the brep file of the nacelle part
+    part_type : str
+        Type of the part (fanCowl, coreCowl)
     percent_forward : float
         percentage of the total length of the nacelle part to place the inlet
     percent_backward : float
         percentage of the total length of the nacelle part to place the outlet
+    engines_cfg_file_path : Path
+        Path to the engines configuration file
+    ...
+    Returns:
+    ----------
+    intake_x : float
+        x position of the intake
+    exhaust_x : float
+        x position of the exhaust
     """
 
     # Import the part
@@ -236,6 +249,7 @@ def close_part(
     part_min_x = part_bb[0]
     part_max_x = part_bb[3]
 
+    # calculate intake and exhaust position
     intake_x = part_min_x + percent_forward * (part_max_x - part_min_x)
     exhaust_x = part_min_x + (1 - percent_backward) * (part_max_x - part_min_x)
 
@@ -246,7 +260,7 @@ def close_part(
     if part_type == "coreCowl":
         # check the position of the fan cowl exhaust
         config_file = ConfigFile(engines_cfg_file_path)
-        engine_normal = [0, 0, 0]
+
         fancowl_exhaust_x = float(config_file[f"{engine_uids[0]}_fanCowl_EXHAUST_X"])
         if fancowl_exhaust_x < intake_x:
             intake_x = fancowl_exhaust_x
@@ -290,9 +304,11 @@ def close_part(
     # that we want to remove
     largest_volume = [(0, 0), 0]
     for fragment in fragments_dimtag:
+        # check for the largest volume (not x wise)
         bb = gmsh.model.occ.getBoundingBox(*fragment)
-        fragment_dimensions = [abs(bb[0] - bb[3]), abs(bb[1] - bb[4]), abs(bb[2] - bb[5])]
+        fragment_dimensions = [abs(bb[1] - bb[4]), abs(bb[2] - bb[5])]
         fragment_length = max(fragment_dimensions)
+
         if fragment_length > largest_volume[1]:
             largest_volume = [fragment, fragment_length]
 
@@ -308,7 +324,8 @@ def close_part(
 
     gmsh.model.occ.synchronize()
 
-    # clean part from remaining extra surfaces,lines and points
+    # clean the fresh closed engine from remaining extra surfaces,lines and points
+    # that may have been created with all the boolean operation
 
     for point in gmsh.model.getEntities(dim=0):
         gmsh.model.occ.remove([point], recursive=True)
@@ -319,7 +336,7 @@ def close_part(
     for surface in gmsh.model.getEntities(dim=2):
         gmsh.model.occ.remove([surface], recursive=True)
 
-    # save and close gmsh
+    # save and close gmsh sessions
     gmsh.model.occ.synchronize()
     gmsh.write(str(part_path))
     gmsh.clear()
@@ -434,11 +451,10 @@ def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_pat
     config_file[f"{engine_uids[0]}_NORMAL_Y"] = f"{rotation[1]}"
     config_file[f"{engine_uids[0]}_NORMAL_Z"] = f"{rotation[2]}"
 
-    # adapt the distance with the scaling of the x axis
+    # Save the scaling of the x axis
     config_file[f"{engine_uids[0]}_SCALING_X"] = str(engine.transf.scaling.x)
 
     # Search for a possible mirrored engine
-
     if engine.sym:
         gmsh.initialize()
         # create a new engine and make a mirror transformation

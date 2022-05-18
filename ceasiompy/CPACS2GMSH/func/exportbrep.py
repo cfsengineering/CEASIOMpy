@@ -106,6 +106,17 @@ def engine_export(cpacs_path, engine, brep_dir_path, engines_cfg_file_path):
             fan_cowl_shape = fan_cowl.build_loft()
             export(fan_cowl_shape, brep_dir_path, fan_cowl_uid)
 
+        # determine engine type and save it in the engine config files
+        config_file = ConfigFile(engines_cfg_file_path)
+
+        if fan_cowl and core_cowl:
+
+            config_file[f"{engine_uid}_DOUBLE_FLUX"] = "1"
+        else:
+            config_file[f"{engine_uid}_DOUBLE_FLUX"] = "0"
+
+        config_file.write_file(engines_cfg_file_path, overwrite=True)
+
     engine_conversion(cpacs_path, engine_uids, brep_dir_path, engines_cfg_file_path)
 
 

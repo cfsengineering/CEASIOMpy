@@ -30,7 +30,7 @@ The different important parts of this window are:
 1. Selection of the input CPACS file
 1. List of all the available modules that could be used to create the workflow
 1. Button to add/remove/move modules in your workflow
-1. List of all the modules in your workflow (the order is important)
+1. List of all the modules in your workflow (:warning: the order is important)
 
 With this GUI, you will try to build the following workflow:
 

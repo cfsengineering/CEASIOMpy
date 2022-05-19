@@ -21,24 +21,18 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-
-import math
-import sys
 from pathlib import Path
 
-import matplotlib
-import numpy
+
 from ambiance import Atmosphere
 from ceasiompy.ModuleTemplate.func.subfunc import my_subfunc
-from ceasiompy.SU2Run.func.su2utils import get_mesh_marker
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
 from ceasiompy.utils.moduleinterfaces import (
     check_cpacs_input_requirements,
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from ceasiompy.utils.commonxpath import ENGINES_XPATH, FUSELAGES_XPATH, PYLONS_XPATH, WINGS_XPATH
+from ceasiompy.utils.commonxpath import FUSELAGES_XPATH
 from cpacspy.cpacsfunctions import (
     add_float_vector,
     add_string_vector,

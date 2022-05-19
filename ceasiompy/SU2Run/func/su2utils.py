@@ -15,9 +15,9 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
 import re
 from pathlib import Path
@@ -30,24 +30,27 @@ from ceasiompy.utils.moduleinterfaces import get_module_path
 log = get_logger()
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def get_mesh_markers(su2_mesh_path):
     """Function to get the name of all the SU2 mesh marker
 
-    Function 'get_mesh_markers' return all the SU2 mesh marker (except Farfield)
-    found in the SU2 mesh file.
+    Function 'get_mesh_markers' return a dictionary of the mesh markers found in the SU2 mesh file
+    sorted as farfield, symmetry, engine_intake, engine_exhaust, wall.
 
     Args:
         su2_mesh_path (Path):  Path to the SU2 mesh
+
+    Returns:
+        mesh_markers (dict): Dictionary of the mesh markers found in the SU2 mesh file
 
     """
 
@@ -77,14 +80,19 @@ def get_mesh_markers(su2_mesh_path):
 
         if "farfield" in marker.lower():
             mesh_markers["farfield"].append(marker)
+            log.info(f"'{marker}' marker has been marked as farfield.")
         elif "symmetry" in marker.lower():
             mesh_markers["symmetry"].append(marker)
+            log.info(f"'{marker}' marker has been marked as symmetry.")
         elif marker.endswith("_Intake"):
             mesh_markers["engine_intake"].append(marker)
+            log.info(f"'{marker}' marker has been marked as engine_intake.")
         elif marker.endswith("_Exhaust"):
             mesh_markers["engine_exhaust"].append(marker)
+            log.info(f"'{marker}' marker has been marked as engine_exhaust.")
         else:
             mesh_markers["wall"].append(marker)
+            log.info(f"'{marker}' marker has been marked as wall.")
 
     if not any(mesh_markers.values()):
         raise ValueError("No mesh markers found!")
@@ -263,9 +271,9 @@ def get_wetted_area(su2_logfile):
     return 0
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 

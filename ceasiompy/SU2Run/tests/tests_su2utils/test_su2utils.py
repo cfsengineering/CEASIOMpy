@@ -186,6 +186,4 @@ def test_get_wetted_area():
 
 if __name__ == "__main__":
 
-    print("Test configfile.py")
-    print("To run test use the following command:")
-    print(">> pytest -v")
+    print("Nothing to execute!")

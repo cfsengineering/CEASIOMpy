@@ -2,7 +2,9 @@
 
 # CEASIOMpy - Test case 1
 
-For the first test case, we will run a simple workflow which is already set up, you will just run it and observe the results. For this workflow, we will use the D150 aircraft (D150_simple.xml) which is a A320-like aircraft.
+## Run a simple workflow
+
+For the first test case, we will run a simple workflow which is already set up, you will just run it and observe the results. For this workflow, we will use the D150 aircraft (D150_simple.xml) which is an A320-like aircraft.
 
 <p align="center">
 <img height="300" src="../../documents/figures/D150.png">
@@ -25,7 +27,7 @@ This workflow will take as input the CPACS file of the aircraft (D150_simple.xml
 
 ```mermaid
   graph LR;
-      D150(D150 CPACS file)-->PyTornado;
+      D150([D150 CPACS file])-->PyTornado;
       PyTornado-->ExportCSV;
 ```
 
@@ -39,7 +41,7 @@ altitude,machNumber,angleOfSideslip,angleOfAttack,cd,cl,cs,cmd,cml,cms
 0,0.3,10,10,0.0545719,1.08554,-0.100854,0.249796,-0.84655,-4.65115
 ```
 
-You can see than PyTornado ran four calculations with different angles of attack and sideslip, but the same altitude and Mach number. On the next test case, you will learn how to define your own flight parameters.
+You can see than PyTornado ran four calculations with different angles of attack and sideslip, but at the same altitude and Mach number. On the next test case, you will learn how to define your own flight parameters.
 
 These results have also been written in the last output CPACS file that you can find at : `/Workflow_001/02_ExportCSV/ToolOutput.xml`. It is a big file, because it contains all the geometric description of the aircraft. However, if you open it in a text editor and look for `test_apm`, you should find the following:
 

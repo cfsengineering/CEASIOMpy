@@ -53,14 +53,20 @@ def engine_conversion(cpacs, engine_uids, brep_dir_path, engines_cfg_file_path):
 
     log.info(f"Converting engine : {engine_uids[0]}")
 
-    # Find the brep files associated with the engine:
+    # Find the brep files associated with the engine uid:
     engine_files_path = [
         file for file in list(brep_dir_path.glob("*.brep")) if file.stem in engine_uids
     ]
+    # Class the brep with their respective part type
+    nacelle_parts = {}
+    for engine_file_path in engine_files_path:
+        part_uid = engine_file_path.stem
+        part_type = get_part_type(cpacs.tixi, part_uid)
+        nacelle_parts[part_type] = engine_file_path
 
     # Create a new engine that is closed with an inlet and an outlet
     closed_engine_path = close_engine(
-        cpacs, engine_uids, engine_files_path, brep_dir_path, engines_cfg_file_path
+        nacelle_parts, engine_uids, engine_files_path, brep_dir_path, engines_cfg_file_path
     )
 
     # clean brep files from the nacelle that are no more used
@@ -76,7 +82,9 @@ def engine_conversion(cpacs, engine_uids, brep_dir_path, engines_cfg_file_path):
     log.info(f"Engine {engine_uids[0]} converted")
 
 
-def close_engine(cpacs, engine_uids, engine_files_path, brep_dir_path, engines_cfg_file_path):
+def close_engine(
+    nacelle_parts, engine_uids, engine_files_path, brep_dir_path, engines_cfg_file_path
+):
     """
     Function to close the engine nacelle fan by adding an inlet and outlet inside of the engine.
     Then the nacelle part are fused together to form only one engine that is saved as .brep file
@@ -116,48 +124,35 @@ def close_engine(cpacs, engine_uids, engine_files_path, brep_dir_path, engines_c
     percent_backward = 0.20
 
     # first close the FanCowl
-    for brep_file in engine_files_path:
-
-        # find which file is the fan cowl
-        part_uid = brep_file.stem
-        part_type = get_part_type(cpacs.tixi, part_uid)
-
-        if part_type in ["fanCowl"]:
-            intake_x, exhaust_x = close_part(
-                engine_uids,
-                brep_file,
-                part_type,
-                percent_forward,
-                percent_backward,
-                engines_cfg_file_path,
-            )
-            config_file = ConfigFile(engines_cfg_file_path)
-            # save the information of the future intake and exhaust position
-            config_file[f"{engine_uids[0]}_{part_type}_INTAKE_X"] = f"{intake_x}"
-            config_file[f"{engine_uids[0]}_{part_type}_EXHAUST_X"] = f"{exhaust_x}"
-            config_file.write_file(engines_cfg_file_path, overwrite=True)
+    intake_x, exhaust_x = close_part(
+        nacelle_parts["fanCowl"],
+        engine_uids,
+        "fanCowl",
+        percent_forward,
+        percent_backward,
+        engines_cfg_file_path,
+    )
+    config_file = ConfigFile(engines_cfg_file_path)
+    # save the information of the future intake and exhaust position
+    config_file[f"{engine_uids[0]}_fanCowl_INTAKE_X"] = f"{intake_x}"
+    config_file[f"{engine_uids[0]}_fanCowl_EXHAUST_X"] = f"{exhaust_x}"
+    config_file.write_file(engines_cfg_file_path, overwrite=True)
 
     # Second close the core cowl
-    for brep_file in engine_files_path:
-
-        # find which file is the core cowl
-        part_uid = brep_file.stem
-        part_type = get_part_type(cpacs.tixi, part_uid)
-
-        if part_type in ["coreCowl"]:
-            intake_x, exhaust_x = close_part(
-                engine_uids,
-                brep_file,
-                part_type,
-                percent_forward,
-                percent_backward,
-                engines_cfg_file_path,
-            )
-            config_file = ConfigFile(engines_cfg_file_path)
-            # save the information of the future intake and exhaust position
-            config_file[f"{engine_uids[0]}_{part_type}_INTAKE_X"] = f"{intake_x}"
-            config_file[f"{engine_uids[0]}_{part_type}_EXHAUST_X"] = f"{exhaust_x}"
-            config_file.write_file(engines_cfg_file_path, overwrite=True)
+    if "coreCowl" in nacelle_parts:
+        intake_x, exhaust_x = close_part(
+            nacelle_parts["coreCowl"],
+            engine_uids,
+            "coreCowl",
+            percent_forward,
+            percent_backward,
+            engines_cfg_file_path,
+        )
+        config_file = ConfigFile(engines_cfg_file_path)
+        # save the information of the future intake and exhaust position
+        config_file[f"{engine_uids[0]}_coreCowl_INTAKE_X"] = f"{intake_x}"
+        config_file[f"{engine_uids[0]}_coreCowl_EXHAUST_X"] = f"{exhaust_x}"
+        config_file.write_file(engines_cfg_file_path, overwrite=True)
 
     # Now that all the part are closed, fuse them together
     gmsh.initialize()
@@ -186,7 +181,12 @@ def close_engine(cpacs, engine_uids, engine_files_path, brep_dir_path, engines_c
 
 
 def close_part(
-    engine_uids, part_path, part_type, percent_forward, percent_backward, engines_cfg_file_path
+    part_path,
+    engine_uids,
+    part_type,
+    percent_forward,
+    percent_backward,
+    engines_cfg_file_path,
 ):
     """
     Function to close the nacelle part by adding an inlet and outlet inside of the nacelle.

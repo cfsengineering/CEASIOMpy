@@ -91,7 +91,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 
     name = aircraft_name(cpacs_path)
 
-    shutil.copyfile(cpacs_path, cpacs_out_path)  # TODO: shoud not be like that
+    shutil.copyfile(cpacs_path, cpacs_out_path)  # TODO: should not be like that
     newpath = "ToolOutput/" + name
     if not os.path.exists(newpath):
         os.makedirs(newpath)

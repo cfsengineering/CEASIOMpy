@@ -397,33 +397,31 @@ def fuse_geom_eval(ag, cpacs_in):
     ag.cabin_seg = cabin_seg
     ag.fuse_mean_width = ag.fuse_mean_width[0]
 
-    tixi.save(cpacs_in)
+    tixi.save(str(cpacs_in))
 
     # log info display ------------------------------------------------------------
 
     log.info("---------------------------------------------")
     log.info("---------- Geometry Evaluations -------------")
-    log.info(
-        "---------- USEFUL INFO ----------------------\n"
-        "If fuselage or wing number is greater than 1 the "
-        "informations\nof each part is listed in an "
-        "array ordered per column progressively"
-    )
+    log.info("---------- USEFUL INFO ----------------------")
+    log.info("If fuselage or wing number is greater than 1 the ")
+    log.info("information of each part is listed in an ")
+    log.info("array ordered per column progressively")
     log.info("Symmetry output: 0 = no symmetry, 1 =  x-y, " + "2 = x-z, 3 = y-z planes")
     log.info("---------------------------------------------")
     log.info("---------- Fuselage Results -----------------")
-    log.info("Number of fuselage [-]: " + str(ag.fuse_nb))
-    log.info("Fuselage symmetry plane [-]: " + str(ag.fuse_sym))
-    log.info("Number of fuselage sections (not counting symmetry) [-]: " + str(ag.fuse_sec_nb))
-    log.info("Number of fuselage segments (not counting symmetry) [-]: " + str(ag.fuse_seg_nb))
-    log.info("Fuse Length [m]: " + str(ag.fuse_length))
-    log.info("Fuse nose Length [m]: " + str(ag.fuse_nose_length))
-    log.info("Fuse cabin Length [m]: " + str(ag.fuse_cabin_length))
-    log.info("Fuse tail Length [m]: " + str(ag.fuse_tail_length))
-    log.info("Aircraft Length [m]: " + str(ag.tot_length))
-    log.info("Mean fuselage width [m]: " + str(ag.fuse_mean_width))
-    log.info("Volume of each cabin [m^3]: " + str(ag.fuse_cabin_vol))
-    log.info("Volume of each fuselage [m^3]: " + str(ag.fuse_vol))
+    log.info(f"Number of fuselage [-]: {ag.fuse_nb}")
+    log.info(f"Fuselage symmetry plane [-]: {ag.fuse_sym}")
+    log.info(f"Number of fuselage sections (not counting symmetry) [-]: {ag.fuse_sec_nb}")
+    log.info(f"Number of fuselage segments (not counting symmetry) [-]: {ag.fuse_seg_nb}")
+    log.info(f"Fuse Length [m]: {ag.fuse_length}")
+    log.info(f"Fuse nose Length [m]: {ag.fuse_nose_length}")
+    log.info(f"Fuse cabin Length [m]: {ag.fuse_cabin_length}")
+    log.info(f"Fuse tail Length [m]: {ag.fuse_tail_length}")
+    log.info(f"Aircraft Length [m]: {ag.tot_length}")
+    log.info(f"Mean fuselage width [m]: {ag.fuse_mean_width}")
+    log.info(f"Volume of each cabin [m^3]: {ag.fuse_cabin_vol}")
+    log.info(f"Volume of each fuselage [m^3]: {ag.fuse_vol}")
     log.info("---------------------------------------------")
 
     return ag

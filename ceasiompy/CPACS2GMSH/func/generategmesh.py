@@ -341,7 +341,7 @@ def process_gmsh_log(gmsh_log):
 
 
 def generate_gmsh(
-    cpacs_path,
+    cpacs,
     brep_dir_path,
     results_dir,
     open_gmsh=False,
@@ -365,8 +365,8 @@ def generate_gmsh(
     file.
     Args:
     ----------
-    cpacs_path : Path
-        path to the cpacs file
+    cpacs : CPACS
+        CPACS object
     brep_dir_path : Path
         Path to the directory containing the brep files
     results_dir : Path
@@ -424,7 +424,7 @@ def generate_gmsh(
 
         # Create the aircraft part object
         part_obj = ModelPart(uid=brep_file.stem)
-        part_obj.part_type = get_part_type(cpacs_path, part_obj.uid)
+        part_obj.part_type = get_part_type(cpacs.tixi, part_obj.uid)
 
         # Add to the list of aircraft parts
         aircraft_parts.append(part_obj)
@@ -477,7 +477,7 @@ def generate_gmsh(
     # fragment produce fragments_dimtag and children_dimtag
 
     # fragments_dimtag is a list of tuples (dimtag, tag) of all the volumes in the model
-    # the first fragment is the entire domain, each other fragment are subvolume of the domain
+    # the first fragment is the entire domain, each other fragment are sub volume of the domain
 
     # children_dimtag is a list list of tuples (dimtag, tag)
     # the first list is associated to the entire domain as for fragments_dimtag, we don't need it

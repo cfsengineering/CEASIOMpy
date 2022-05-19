@@ -24,6 +24,7 @@ import gmsh
 import pytest
 from ceasiompy.CPACS2GMSH.func.engineconversion import close_engine
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from cpacspy.cpacspy import CPACS
 
 CPACS_IN_SIMPLE_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_engine.xml")
 
@@ -54,10 +55,10 @@ def test_close_engine():
         Path(TEST_IN_PATH, "SimpleNacelle_centerCowl.brep"),
     ]
     engines_cfg_file_path = Path(TEST_IN_PATH, "config_engines.cfg")
-
+    cpacs = CPACS(CPACS_IN_SIMPLE_ENGINE_PATH)
     # Test the function
     closed_engine_path = close_engine(
-        CPACS_IN_SIMPLE_ENGINE_PATH,
+        cpacs,
         engine_uids,
         engine_files_path,
         TEST_IN_PATH,

@@ -61,14 +61,14 @@ def export(shape, brep_dir_path, uid):
         raise FileNotFoundError(f"Failed to export {uid}")
 
 
-def engine_export(cpacs_path, engine, brep_dir_path, engines_cfg_file_path):
+def engine_export(cpacs, engine, brep_dir_path, engines_cfg_file_path):
     """
     Export the engine to a brep file
 
     Parameters
     ----------
-    cpacs_path : Path
-        path to the cpacs of the aircraft
+    cpacs : CPACS object
+        CPACS object (from cpacspy)
     engine: TiGL engine
         Engine part to be exported
     brep_dir_path : Path
@@ -117,10 +117,10 @@ def engine_export(cpacs_path, engine, brep_dir_path, engines_cfg_file_path):
 
         config_file.write_file(engines_cfg_file_path, overwrite=True)
 
-    engine_conversion(cpacs_path, engine_uids, brep_dir_path, engines_cfg_file_path)
+    engine_conversion(cpacs, engine_uids, brep_dir_path, engines_cfg_file_path)
 
 
-def export_brep(cpacs, cpacs_path, brep_dir_path):
+def export_brep(cpacs, brep_dir_path):
     """Function to generate and export the geometries of a .xml file
 
     Function 'export_brep' is a subfunction of CPACS2GMSH that generate with TiGL
@@ -131,8 +131,6 @@ def export_brep(cpacs, cpacs_path, brep_dir_path):
     Args:
     cpacs : CPACS object (from cpacspy)
         CPACS object (from cpacspy)
-    cpacs_path : Path
-        path to the cpacs of the aircraft
     brep_dir_path : Path
         Path object to the directory where the brep files are saved
 
@@ -205,7 +203,7 @@ def export_brep(cpacs, cpacs_path, brep_dir_path):
         for k in range(1, nb_engine + 1):
 
             engine = engines_config.get_engine(k)
-            engine_export(cpacs_path, engine, brep_dir_path, engines_cfg_file_path)
+            engine_export(cpacs, engine, brep_dir_path, engines_cfg_file_path)
 
 
 # =================================================================================================

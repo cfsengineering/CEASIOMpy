@@ -35,7 +35,7 @@ log = get_logger()
 # ==============================================================================
 
 
-def engine_conversion(cpacs_path, engine_uids, brep_dir_path, engines_cfg_file_path):
+def engine_conversion(cpacs, engine_uids, brep_dir_path, engines_cfg_file_path):
     """
     Function to convert the nacelle part in one engine by closing it and positioning it
     at the correct location, when the engine is ready it is saved as a new part with
@@ -43,8 +43,8 @@ def engine_conversion(cpacs_path, engine_uids, brep_dir_path, engines_cfg_file_p
 
     Args:
     ----------
-    cpacs_path : Path
-        path to the cpacs of the aircraft
+    cpacs : CPACS object
+        The cpacs object from cpacspy
     engine_uids : str
         engine uids : engine uid + all the nacelle uids
     brep_dir_path : Path
@@ -64,7 +64,7 @@ def engine_conversion(cpacs_path, engine_uids, brep_dir_path, engines_cfg_file_p
 
     # Create a new engine that is closed with an inlet and an outlet
     closed_engine_path = close_engine(
-        cpacs_path, engine_uids, engine_files_path, brep_dir_path, engines_cfg_file_path
+        cpacs, engine_uids, engine_files_path, brep_dir_path, engines_cfg_file_path
     )
 
     # clean brep files from the nacelle that are no more used
@@ -75,12 +75,12 @@ def engine_conversion(cpacs_path, engine_uids, brep_dir_path, engines_cfg_file_p
             file.unlink()
 
     # Move the new engine to the correct location
-    reposition_engine(cpacs_path, closed_engine_path, engine_uids, engines_cfg_file_path)
+    reposition_engine(cpacs, closed_engine_path, engine_uids, engines_cfg_file_path)
 
     log.info(f"Engine {engine_uids[0]} converted")
 
 
-def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engines_cfg_file_path):
+def close_engine(cpacs, engine_uids, engine_files_path, brep_dir_path, engines_cfg_file_path):
     """
     Function to close the engine nacelle fan by adding an inlet and outlet inside of the engine.
     Then the nacelle part are fused together to form only one engine that is saved as .brep file
@@ -99,8 +99,8 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
     ...
     Args:
     ----------
-    cpacs_path : Path
-        path to the cpacs of the aircraft
+    cpacs : CPACS object
+        The cpacs object from cpacspy
     engine_uids : list
         engine uids : engine uid + all the nacelle uids
     engine_files_path : list
@@ -124,7 +124,7 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
 
         # find which file is the fan cowl
         part_uid = brep_file.stem
-        part_type = get_part_type(cpacs_path, part_uid)
+        part_type = get_part_type(cpacs.tixi, part_uid)
 
         if part_type in ["fanCowl"]:
             intake_x, exhaust_x = close_part(
@@ -146,7 +146,7 @@ def close_engine(cpacs_path, engine_uids, engine_files_path, brep_dir_path, engi
 
         # find which file is the core cowl
         part_uid = brep_file.stem
-        part_type = get_part_type(cpacs_path, part_uid)
+        part_type = get_part_type(cpacs.tixi, part_uid)
 
         if part_type in ["coreCowl"]:
             intake_x, exhaust_x = close_part(
@@ -345,7 +345,7 @@ def close_part(
     return intake_x, exhaust_x
 
 
-def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_path):
+def reposition_engine(cpacs, engine_path, engine_uids, engines_cfg_file_path):
     """
     Function to move the engines to their correct position relative to the aircraft
     by using the cpacs file translation, rotation and scaling data
@@ -362,8 +362,8 @@ def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_pat
 
     Args:
     ----------
-    cpacs_path : Path
-        path to the cpacs of the aircraft
+    cpacs : CPACS object
+        CPACS object of the aircraft
     engine_path : Path
         Path of the engine to reposition
     engine_uids : list
@@ -372,7 +372,6 @@ def reposition_engine(cpacs_path, engine_path, engine_uids, engines_cfg_file_pat
         Path to the engines config file
     """
     # first retrieve the transformation data from the cpacs file
-    cpacs = CPACS(cpacs_path)
     tixi = cpacs.tixi
     gmsh.initialize()
     xpath_engines_position = "/cpacs/vehicles/aircraft/model/engines"

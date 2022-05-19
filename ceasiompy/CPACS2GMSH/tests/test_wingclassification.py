@@ -231,12 +231,12 @@ def test_classify_wing():
 
     cpacs = CPACS(CPACS_IN_PATH)
 
-    export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
+    export_brep(cpacs, TEST_OUT_PATH)
 
     _, aircraft_parts = generate_gmsh(
-        CPACS_IN_PATH,
-        TEST_OUT_PATH,
-        TEST_OUT_PATH,
+        cpacs=cpacs,
+        brep_dir_path=TEST_OUT_PATH,
+        results_dir=TEST_OUT_PATH,
         open_gmsh=False,
         farfield_factor=5,
         symmetry=False,

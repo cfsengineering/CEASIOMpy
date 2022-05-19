@@ -222,12 +222,12 @@ def test_refine_wing_section():
 
     cpacs = CPACS(CPACS_IN_PATH)
 
-    export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
+    export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        CPACS_IN_PATH,
-        TEST_OUT_PATH,
-        TEST_OUT_PATH,
+        cpacs=cpacs,
+        brep_dir_path=TEST_OUT_PATH,
+        results_dir=TEST_OUT_PATH,
         open_gmsh=False,
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
@@ -288,12 +288,12 @@ def test_check_mesh():
 
     cpacs = CPACS(CPACS_IN_PATH)
 
-    export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
+    export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        CPACS_IN_PATH,
-        TEST_OUT_PATH,
-        TEST_OUT_PATH,
+        cpacs=cpacs,
+        brep_dir_path=TEST_OUT_PATH,
+        results_dir=TEST_OUT_PATH,
         open_gmsh=False,
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,

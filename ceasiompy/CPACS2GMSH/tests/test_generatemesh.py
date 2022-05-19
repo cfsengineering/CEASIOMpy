@@ -64,12 +64,12 @@ def test_generate_gmsh():
 
     cpacs = CPACS(CPACS_IN_PATH)
 
-    export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
+    export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        CPACS_IN_PATH,
-        TEST_OUT_PATH,
-        TEST_OUT_PATH,
+        cpacs=cpacs,
+        brep_dir_path=TEST_OUT_PATH,
+        results_dir=TEST_OUT_PATH,
         open_gmsh=False,
         farfield_factor=5,
         symmetry=False,
@@ -111,12 +111,12 @@ def test_generate_gmsh_symm():
 
     cpacs = CPACS(CPACS_IN_PATH)
 
-    export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
+    export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        CPACS_IN_PATH,
-        TEST_OUT_PATH,
-        TEST_OUT_PATH,
+        cpacs=cpacs,
+        brep_dir_path=TEST_OUT_PATH,
+        results_dir=TEST_OUT_PATH,
         open_gmsh=False,
         farfield_factor=5,
         symmetry=True,
@@ -157,12 +157,12 @@ def test_symm_part_removed():
 
     cpacs = CPACS(CPACS_IN_PATH)
 
-    export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
+    export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        CPACS_IN_PATH,
-        TEST_OUT_PATH,
-        TEST_OUT_PATH,
+        cpacs=cpacs,
+        brep_dir_path=TEST_OUT_PATH,
+        results_dir=TEST_OUT_PATH,
         open_gmsh=False,
         farfield_factor=5,
         symmetry=True,
@@ -291,12 +291,12 @@ def test_assignation():
 
     cpacs = CPACS(CPACS_IN_PATH)
 
-    export_brep(cpacs, CPACS_IN_PATH, TEST_OUT_PATH)
+    export_brep(cpacs, TEST_OUT_PATH)
 
     _, aircraft_parts = generate_gmsh(
-        CPACS_IN_PATH,
-        TEST_OUT_PATH,
-        TEST_OUT_PATH,
+        cpacs=cpacs,
+        brep_dir_path=TEST_OUT_PATH,
+        results_dir=TEST_OUT_PATH,
         open_gmsh=False,
         farfield_factor=5,
         symmetry=False,
@@ -350,12 +350,12 @@ def test_define_engine_bc():
 
     cpacs = CPACS(CPACS_IN_SIMPLE_ENGINE_PATH)
 
-    export_brep(cpacs, CPACS_IN_SIMPLE_ENGINE_PATH, TEST_OUT_PATH)
+    export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        CPACS_IN_SIMPLE_ENGINE_PATH,
-        TEST_OUT_PATH,
-        TEST_OUT_PATH,
+        cpacs=cpacs,
+        brep_dir_path=TEST_OUT_PATH,
+        results_dir=TEST_OUT_PATH,
         open_gmsh=False,
         farfield_factor=2,
         symmetry=False,
@@ -412,12 +412,12 @@ def test_define_doubleflux_engine_bc():
 
     cpacs = CPACS(CPACS_IN_SIMPLE_DOUBLEFLUX_ENGINE_PATH)
 
-    export_brep(cpacs, CPACS_IN_SIMPLE_DOUBLEFLUX_ENGINE_PATH, TEST_OUT_PATH)
+    export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        CPACS_IN_SIMPLE_DOUBLEFLUX_ENGINE_PATH,
-        TEST_OUT_PATH,
-        TEST_OUT_PATH,
+        cpacs=cpacs,
+        brep_dir_path=TEST_OUT_PATH,
+        results_dir=TEST_OUT_PATH,
         open_gmsh=False,
         farfield_factor=2,
         symmetry=False,

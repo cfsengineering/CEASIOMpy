@@ -230,7 +230,7 @@ def aircraft_name(tixi_or_cpacs):
     return name
 
 
-def get_part_type(cpacs_path: Path, part_uid: str) -> str:
+def get_part_type(tixi, part_uid: str) -> str:
     """The function get the type of the aircraft from the cpacs file.
 
     Args:
@@ -241,8 +241,6 @@ def get_part_type(cpacs_path: Path, part_uid: str) -> str:
         part_type (str): Type of the part.
 
     """
-
-    tixi = open_tixi(cpacs_path)
 
     # split uid if mirrored part
     part_uid = part_uid.split("_mirrored")[0]

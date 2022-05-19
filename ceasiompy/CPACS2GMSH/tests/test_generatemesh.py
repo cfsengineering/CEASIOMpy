@@ -443,11 +443,11 @@ def test_define_doubleflux_engine_bc():
     # Check that the correct surfaces were assigned to the engine inlet outlet bc
     assert gmsh.model.getEntitiesForPhysicalGroup(*physical_groups[3]) == [22]
     assert gmsh.model.getEntitiesForPhysicalGroup(*physical_groups[4]) == [21]
-    assert gmsh.model.getEntitiesForPhysicalGroup(*physical_groups[5]) == [38]
+    assert gmsh.model.getEntitiesForPhysicalGroup(*physical_groups[5]) == [39]
 
-    assert gmsh.model.getEntitiesForPhysicalGroup(*physical_groups[7]) == [46]
-    assert gmsh.model.getEntitiesForPhysicalGroup(*physical_groups[8]) == [45]
-    assert gmsh.model.getEntitiesForPhysicalGroup(*physical_groups[9]) == [49]
+    assert gmsh.model.getEntitiesForPhysicalGroup(*physical_groups[7]) == [47]
+    assert gmsh.model.getEntitiesForPhysicalGroup(*physical_groups[8]) == [46]
+    assert gmsh.model.getEntitiesForPhysicalGroup(*physical_groups[9]) == [51]
 
     # End gmsh api
     gmsh.clear()

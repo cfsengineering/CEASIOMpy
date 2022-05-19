@@ -36,7 +36,7 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from ceasiompy.SU2Run.func.su2utils import get_mesh_marker
+from ceasiompy.SU2Run.func.su2utils import get_mesh_markers
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
@@ -593,9 +593,9 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
     cfg["MESH_FILENAME"] = "../" + ac_name + "_baseline.su2"
 
     # Mesh Marker
-    bc_wall_list, engine_bc_list = get_mesh_marker(su2_mesh_path)
+    mesh_markers = get_mesh_markers(su2_mesh_path)
 
-    bc_wall_str = "(" + ",".join(bc_wall_list) + ")"
+    bc_wall_str = "(" + ",".join(mesh_markers["wall"]) + ")"
     cfg["MARKER_EULER"] = bc_wall_str
     cfg["MARKER_FAR"] = " (Farfield)"
     cfg["MARKER_SYM"] = " (0)"

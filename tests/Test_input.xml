@@ -5261,7 +5261,7 @@
       <gmsh>
         <open_gui>False</open_gui>
         <farfield_factor>4</farfield_factor>
-        <symmetry>False</symmetry>
+        <symmetry>True</symmetry>
         <mesh_size>
           <farfield>25</farfield>
           <fuselage>0.45</fuselage>
@@ -5271,7 +5271,7 @@
       </gmsh>
       <mesh>
         <sumoOptions>
-          <refinementLevel>1</refinementLevel>
+          <refinementLevel>0.6</refinementLevel>
         </sumoOptions>
       </mesh>
     </CEASIOMpy>

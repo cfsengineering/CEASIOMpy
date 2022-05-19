@@ -16,17 +16,13 @@ Python version: >=3.7
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
-import os
 from pathlib import Path
-
 import gmsh
 import numpy as np
-from ceasiompy.CPACS2GMSH.func.generategmesh import ModelPart, get_entities_from_volume
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_part_type
 from ceasiompy.utils.configfiles import ConfigFile
-from cpacspy.cpacspy import CPACS
 from scipy.spatial.transform import Rotation as R
 
 log = get_logger()

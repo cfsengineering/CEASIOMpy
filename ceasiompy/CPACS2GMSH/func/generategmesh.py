@@ -23,8 +23,6 @@ TODO:
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
-
-from doctest import ELLIPSIS_MARKER
 from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
 from ceasiompy.utils.configfiles import ConfigFile

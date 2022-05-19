@@ -19,7 +19,6 @@ Python version: >=3.7
 import os
 import shutil
 from pathlib import Path
-import numpy as np
 import pytest
 from ceasiompy.utils.ceasiompyutils import (
     SoftwareNotInstalled,

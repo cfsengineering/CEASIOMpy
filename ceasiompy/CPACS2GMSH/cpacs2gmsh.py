@@ -64,6 +64,11 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     open_gui_xpath = CEASIOMPY_XPATH + "/gmsh/open_gui"
     open_gmsh = get_value_or_default(cpacs.tixi, open_gui_xpath, False)
 
+    intake_percent_xpath = CEASIOMPY_XPATH + "/gmsh/intake_percent"
+    intake_percent = get_value_or_default(cpacs.tixi, intake_percent_xpath, 20)
+    exhaust_percent_xpath = CEASIOMPY_XPATH + "/gmsh/exhaust_percent"
+    exhaust_percent = get_value_or_default(cpacs.tixi, exhaust_percent_xpath, 20)
+
     farfield_factor_xpath = CEASIOMPY_XPATH + "/gmsh/farfield_factor"
     farfield_factor = get_value_or_default(cpacs.tixi, farfield_factor_xpath, 6)
     symmetry_xpath = CEASIOMPY_XPATH + "/gmsh/symmetry"
@@ -80,7 +85,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     refine_factor = get_value_or_default(cpacs.tixi, refine_factor_xpath, 7.0)
 
     # Run mesh generation
-    export_brep(cpacs, brep_dir_path)
+    export_brep(cpacs, brep_dir_path, (intake_percent, exhaust_percent))
     mesh_path, _ = generate_gmsh(
         cpacs,
         brep_dir_path,

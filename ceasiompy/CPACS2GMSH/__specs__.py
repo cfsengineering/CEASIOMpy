@@ -101,6 +101,31 @@ cpacs_inout.add_input(
     gui_name="Le/Te refinement factor",
     gui_group="Advanced mesh parameters",
 )
+
+cpacs_inout.add_input(
+    var_name="intake_percent",
+    var_type=float,
+    default_value=20,
+    unit="1",
+    descr="Position of the intake surface boundary condition in percentage of"
+    " the engine length from the beginning of the engine",
+    xpath=CEASIOMPY_XPATH + "/gmsh/intake_percent",
+    gui=True,
+    gui_name="Engine intake position [%]",
+    gui_group="Engines",
+)
+cpacs_inout.add_input(
+    var_name="Exhaust_percent",
+    var_type=float,
+    default_value=20,
+    unit="1",
+    descr="Position of the exhaust surface boundary condition in percentage of"
+    " the engine length from the end of the engine",
+    xpath=CEASIOMPY_XPATH + "/gmsh/intake_percent",
+    gui=True,
+    gui_name="Engine exhaust position [%]",
+    gui_group="Engines",
+)
 # ----- Output -----
 
 cpacs_inout.add_output(

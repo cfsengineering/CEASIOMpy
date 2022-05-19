@@ -65,6 +65,7 @@ def test_close_engine():
         engine_uids,
         TEST_IN_PATH,
         engines_cfg_file_path,
+        engine_surface_percent=(0.2, 0.2),
     )
 
     # Check the output file was generated

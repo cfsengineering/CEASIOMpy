@@ -61,7 +61,7 @@ def export(shape, brep_dir_path, uid):
         raise FileNotFoundError(f"Failed to export {uid}")
 
 
-def engine_export(cpacs, engine, brep_dir_path, engines_cfg_file_path):
+def engine_export(cpacs, engine, brep_dir_path, engines_cfg_file_path, engine_surface_percent):
     """
     Export the engine to a brep file
 
@@ -75,6 +75,10 @@ def engine_export(cpacs, engine, brep_dir_path, engines_cfg_file_path):
         Path object to the directory where the brep files are saved
     engines_cfg_file_path : Path
         Path object to the config file for the engines
+    engine_surface_percent : tuple
+        Tuple containing the position percentage of the surface intake and exhaust bc
+        for the engine
+
 
 
     """
@@ -117,10 +121,12 @@ def engine_export(cpacs, engine, brep_dir_path, engines_cfg_file_path):
 
         config_file.write_file(engines_cfg_file_path, overwrite=True)
 
-    engine_conversion(cpacs, engine_uids, brep_dir_path, engines_cfg_file_path)
+    engine_conversion(
+        cpacs, engine_uids, brep_dir_path, engines_cfg_file_path, engine_surface_percent
+    )
 
 
-def export_brep(cpacs, brep_dir_path):
+def export_brep(cpacs, brep_dir_path, engine_surface_percent=(20, 20)):
     """Function to generate and export the geometries of a .xml file
 
     Function 'export_brep' is a subfunction of CPACS2GMSH that generate with TiGL
@@ -133,6 +139,9 @@ def export_brep(cpacs, brep_dir_path):
         CPACS object (from cpacspy)
     brep_dir_path : Path
         Path object to the directory where the brep files are saved
+    engine_surface_percent : tuple
+        Tuple containing the position percentage of the surface intake and exhaust bc
+        for the engine
 
     Returns
     -------
@@ -203,7 +212,9 @@ def export_brep(cpacs, brep_dir_path):
         for k in range(1, nb_engine + 1):
 
             engine = engines_config.get_engine(k)
-            engine_export(cpacs, engine, brep_dir_path, engines_cfg_file_path)
+            engine_export(
+                cpacs, engine, brep_dir_path, engines_cfg_file_path, engine_surface_percent
+            )
 
 
 # =================================================================================================

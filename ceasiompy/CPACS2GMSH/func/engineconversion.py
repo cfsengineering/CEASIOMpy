@@ -370,10 +370,9 @@ def reposition_engine(cpacs, engine_path, engine_uids, engines_cfg_file_path):
     # get the engine transformation for the correct engine in the cpacs file
     engine_nb = tixi.getNamedChildrenCount(xpath_engines_position, "engine")
 
-    for engine_index in range(engine_nb):
-
-        xpath_engine_postition = xpath_engines_position + "/engine[" + str(engine_index + 1) + "]"
-        engine = Engine(tixi, xpath_engine_postition)
+    for engine_idx in range(1,engine_nb+1):
+        engine_xpath = xpath_engines_position + f"/engine[{engine_idx}]"
+        engine = Engine(tixi, engine_xpath)
 
         if engine_path.stem in engine.uid:
             # if it is the correct engine we can break the loop

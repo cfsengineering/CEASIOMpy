@@ -5229,6 +5229,7 @@
         </skinFriction>
         <su2>
           <settings>
+            <nbCPU>2</nbCPU>
             <maxIter>50</maxIter>
             <cflNumber>1</cflNumber>
             <multigridLevel>0</multigridLevel>
@@ -5261,17 +5262,18 @@
       <gmsh>
         <open_gui>False</open_gui>
         <farfield_factor>4</farfield_factor>
-        <symmetry>False</symmetry>
+        <symmetry>True</symmetry>
         <mesh_size>
           <farfield>25</farfield>
           <fuselage>0.45</fuselage>
           <wings>0.3</wings>
         </mesh_size>
         <refine_factor>1.6</refine_factor>
+        <auto_refine>False</auto_refine>
       </gmsh>
       <mesh>
         <sumoOptions>
-          <refinementLevel>1</refinementLevel>
+          <refinementLevel>0.6</refinementLevel>
         </sumoOptions>
       </mesh>
     </CEASIOMpy>

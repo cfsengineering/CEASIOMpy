@@ -17,6 +17,7 @@ Python version: >=3.7
 # ==============================================================================
 
 
+import os
 import sys
 from pathlib import Path
 
@@ -25,7 +26,6 @@ import pytest
 from ceasiompy.CPACS2GMSH.func.engineconversion import close_engine
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from cpacspy.cpacspy import CPACS
-
 
 MODULE_DIR = Path(__file__).parent
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
@@ -90,7 +90,8 @@ def test_close_engine():
     gmsh.finalize()
 
     # Delete the closed engine file
-    closed_engine_path.unlink()
+    if os.path.exists(str(closed_engine_path)):
+        closed_engine_path.unlink()
 
 
 # ==============================================================================

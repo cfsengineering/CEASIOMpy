@@ -5229,6 +5229,7 @@
         </skinFriction>
         <su2>
           <settings>
+            <nbCPU>2</nbCPU>
             <maxIter>50</maxIter>
             <cflNumber>1</cflNumber>
             <multigridLevel>0</multigridLevel>

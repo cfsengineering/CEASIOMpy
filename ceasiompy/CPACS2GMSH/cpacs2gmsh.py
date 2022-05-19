@@ -79,6 +79,9 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     refine_factor_xpath = CEASIOMPY_XPATH + "/gmsh/refine_factor"
     refine_factor = get_value_or_default(cpacs.tixi, refine_factor_xpath, 7.0)
 
+    auto_refine_xpath = CEASIOMPY_XPATH + "/gmsh/auto_refine"
+    auto_refine = get_value_or_default(cpacs.tixi, auto_refine_xpath, True)
+
     # Run mesh generation
     export_brep(cpacs, brep_dir_path)
     mesh_path, _ = generate_gmsh(
@@ -92,7 +95,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         mesh_size_fuselage=mesh_size_fuselage,
         mesh_size_wings=mesh_size_wings,
         refine_factor=refine_factor,
-        check_mesh=True,
+        auto_refine=auto_refine,
         testing_gmsh=False,
     )
 

@@ -47,8 +47,6 @@ def engine_conversion(cpacs, engine_uids, brep_dir_path, engines_cfg_file_path):
         Path to the directory containing the brep files
     engines_cfg_file_path : Path
         Path to the engines configuration file
-    double_flux : bool
-        True if the engine is double flux, False if the engine is single flux
     """
 
     log.info(f"Converting engine : {engine_uids[0]}")
@@ -66,7 +64,7 @@ def engine_conversion(cpacs, engine_uids, brep_dir_path, engines_cfg_file_path):
 
     # Create a new engine that is closed with an inlet and an outlet
     closed_engine_path = close_engine(
-        nacelle_parts, engine_uids, engine_files_path, brep_dir_path, engines_cfg_file_path
+        nacelle_parts, engine_uids, brep_dir_path, engines_cfg_file_path
     )
 
     # clean brep files from the nacelle that are no more used
@@ -82,9 +80,7 @@ def engine_conversion(cpacs, engine_uids, brep_dir_path, engines_cfg_file_path):
     log.info(f"Engine {engine_uids[0]} converted")
 
 
-def close_engine(
-    nacelle_parts, engine_uids, engine_files_path, brep_dir_path, engines_cfg_file_path
-):
+def close_engine(nacelle_parts, engine_uids, brep_dir_path, engines_cfg_file_path):
     """
     Function to close the engine nacelle fan by adding an inlet and outlet inside of the engine.
     Then the nacelle part are fused together to form only one engine that is saved as .brep file
@@ -103,12 +99,10 @@ def close_engine(
     ...
     Args:
     ----------
-    cpacs : CPACS object
-        The cpacs object from cpacspy
+    nacelle_parts : dict
+        Dictionary containing the nacelle parts part type and PATH
     engine_uids : list
         engine uids : engine uid + all the nacelle uids
-    engine_files_path : list
-        list of brep files associated with the engine
     brep_dir_path : Path
         Path to the directory containing the brep files
     engines_cfg_file_path : Path
@@ -158,7 +152,7 @@ def close_engine(
     gmsh.initialize()
 
     part_to_fuse = []
-
+    engine_files_path = [nacelle_parts[key] for key in nacelle_parts]
     # import all the parts
     for brep_file in engine_files_path:
         part_entities = gmsh.model.occ.importShapes(str(brep_file), highestDimOnly=False)

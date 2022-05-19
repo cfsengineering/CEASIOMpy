@@ -108,8 +108,8 @@ cpacs_inout.add_input(
     var_type=bool,
     default_value=True,
     unit="1",
-    descr="Automatically refine the mesh on surfaces that are small compare to the chosen mesh size"
-    ", this option increase the mesh generation time",
+    descr="Automatically refine the mesh on surfaces that are small compare to the chosen mesh"
+    "size, this option increase the mesh generation time",
     xpath=CEASIOMPY_XPATH + "/gmsh/auto_refine",
     gui=True,
     gui_name="Auto refine",

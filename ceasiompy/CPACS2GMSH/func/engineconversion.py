@@ -17,6 +17,7 @@ Python version: >=3.7
 #   IMPORTS
 # ==============================================================================
 from pathlib import Path
+from ceasiompy.utils.commonxpath import XPATH_ENGINES_POSITION
 import gmsh
 import numpy as np
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
@@ -24,6 +25,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_part_type
 from ceasiompy.utils.configfiles import ConfigFile
 from scipy.spatial.transform import Rotation as R
+
 
 log = get_logger()
 
@@ -81,7 +83,9 @@ def engine_conversion(cpacs, engine_uids, brep_dir_path, engines_cfg_file_path):
     log.info(f"Engine {engine_uids[0]} converted")
 
 
-def close_engine(nacelle_parts, engine_uids, brep_dir_path, engines_cfg_file_path):
+def close_engine(
+    nacelle_parts, engine_uids, brep_dir_path, engines_cfg_file_path, pos_percent=(0.2, 0.2)
+):
     """
     Function to close the engine nacelle fan by adding an inlet and outlet inside of the engine.
     Then the nacelle part are fused together to form only one engine that is saved as .brep file
@@ -108,6 +112,9 @@ def close_engine(nacelle_parts, engine_uids, brep_dir_path, engines_cfg_file_pat
         Path to the directory containing the brep files
     engines_cfg_file_path : Path
         Path to the engines configuration file
+    pos_percent : tuple
+        percentage of the engine length to place the inlet and outlet
+
     ...
     Returns:
     ----------
@@ -115,17 +122,13 @@ def close_engine(nacelle_parts, engine_uids, brep_dir_path, engines_cfg_file_pat
         Path to the closed engine
     """
 
-    percent_forward = 0.20
-    percent_backward = 0.20
-
     # first close the FanCowl
     intake_x, exhaust_x = close_part(
         nacelle_parts["fanCowl"],
         engine_uids,
         "fanCowl",
-        percent_forward,
-        percent_backward,
         engines_cfg_file_path,
+        pos_percent,
     )
     config_file = ConfigFile(engines_cfg_file_path)
     # save the information of the future intake and exhaust position
@@ -139,9 +142,8 @@ def close_engine(nacelle_parts, engine_uids, brep_dir_path, engines_cfg_file_pat
             nacelle_parts["coreCowl"],
             engine_uids,
             "coreCowl",
-            percent_forward,
-            percent_backward,
             engines_cfg_file_path,
+            pos_percent,
         )
         config_file = ConfigFile(engines_cfg_file_path)
         # save the information of the future intake and exhaust position
@@ -179,9 +181,8 @@ def close_part(
     part_path,
     engine_uids,
     part_type,
-    percent_forward,
-    percent_backward,
     engines_cfg_file_path,
+    pos_percent,
 ):
     """
     Function to close the nacelle part by adding an inlet and outlet inside of the nacelle.
@@ -206,6 +207,8 @@ def close_part(
         percentage of the total length of the nacelle part to place the outlet
     engines_cfg_file_path : Path
         Path to the engines configuration file
+    pos_percent : tuple
+        percentage of the engine length to place the inlet and outlet
     ...
     Returns:
     ----------
@@ -241,8 +244,8 @@ def close_part(
     part_max_x = part_bb[3]
 
     # calculate intake and exhaust position
-    intake_x = part_min_x + percent_forward * (part_max_x - part_min_x)
-    exhaust_x = part_min_x + (1 - percent_backward) * (part_max_x - part_min_x)
+    intake_x = part_min_x + pos_percent[0] * (part_max_x - part_min_x)
+    exhaust_x = part_min_x + (1 - pos_percent[1]) * (part_max_x - part_min_x)
 
     # If the part is a core cowl, the intake must be placed before the exhaust
     # of the fan cowl other wise they will be internal volumes inside of the engine
@@ -280,8 +283,10 @@ def close_part(
     cylinder_length = exhaust_x - intake_x
 
     cylinder = gmsh.model.occ.extrude(
-        [disk_intake],
-        *(cylinder_length, 0, 0),
+        dimTags=[disk_intake],
+        dx=cylinder_length,
+        dy=0,
+        dz=0,
         numElements=[],
         heights=[],
         recombine=True,
@@ -365,13 +370,12 @@ def reposition_engine(cpacs, engine_path, engine_uids, engines_cfg_file_path):
     # first retrieve the transformation data from the cpacs file
     tixi = cpacs.tixi
     gmsh.initialize()
-    xpath_engines_position = "/cpacs/vehicles/aircraft/model/engines"
 
     # get the engine transformation for the correct engine in the cpacs file
-    engine_nb = tixi.getNamedChildrenCount(xpath_engines_position, "engine")
+    engine_nb = tixi.getNamedChildrenCount(XPATH_ENGINES_POSITION, "engine")
 
-    for engine_idx in range(1,engine_nb+1):
-        engine_xpath = xpath_engines_position + f"/engine[{engine_idx}]"
+    for engine_idx in range(1, engine_nb + 1):
+        engine_xpath = XPATH_ENGINES_POSITION + f"/engine[{engine_idx}]"
         engine = Engine(tixi, engine_xpath)
 
         if engine_path.stem in engine.uid:

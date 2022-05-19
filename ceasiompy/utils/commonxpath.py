@@ -76,7 +76,7 @@ WKDIR_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath"
 
 
 # GMSH
-
+XPATH_ENGINES_POSITION = "/cpacs/vehicles/aircraft/model/engines"
 
 # SUMO
 SUMO_INCLUDE_PYLON_XPATH = "/cpacs/toolspecific/CEASIOMpy/engine/includePylon"

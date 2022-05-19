@@ -5268,6 +5268,7 @@
           <wings>0.3</wings>
         </mesh_size>
         <refine_factor>1.6</refine_factor>
+        <auto_refine>False</auto_refine>
       </gmsh>
       <mesh>
         <sumoOptions>

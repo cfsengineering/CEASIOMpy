@@ -45,9 +45,6 @@ TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 # ==============================================================================
 
 
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
 def test_detect_normal_profile():
     """
     Test if a simple 2 bspline  profile wing section is correctly classified
@@ -117,9 +114,6 @@ def test_detect_normal_profile():
     gmsh.finalize()
 
 
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
 def test_detect_truncated_profile():
     """
     Test if a simple 2 bspline truncated profile wing section is correctly classified
@@ -214,9 +208,6 @@ def test_detect_truncated_profile():
     gmsh.finalize()
 
 
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
 def test_classify_wing():
     """
     Test if one of the wing of the simple test model is correctly classified

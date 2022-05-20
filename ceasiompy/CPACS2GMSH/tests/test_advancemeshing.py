@@ -227,7 +227,7 @@ def test_refine_wing_section():
         mesh_size_wings=0.5,
         symmetry=False,
         refine_factor=2.0,
-        check_mesh=False,
+        auto_refine=False,
         testing_gmsh=True,
     )
 
@@ -267,7 +267,7 @@ def test_refine_wing_section():
         file.unlink()
 
 
-def test_check_mesh():
+def test_auto_refine():
     """
     Test if the wing section is correctly remeshed when the area is too small
     """
@@ -290,11 +290,11 @@ def test_check_mesh():
         mesh_size_wings=0.5,
         symmetry=False,
         refine_factor=2.0,
-        check_mesh=True,
+        auto_refine=True,
         testing_gmsh=True,
     )
 
-    # Check if meshfields were generated (more than 36 == without check_mesh)
+    # Check if meshfields were generated (more than 36 == without auto_refine)
 
     gmsh_field_list = gmsh.model.mesh.field.list()
     assert len(gmsh_field_list) == 87

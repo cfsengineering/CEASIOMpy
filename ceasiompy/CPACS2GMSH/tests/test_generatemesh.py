@@ -72,7 +72,7 @@ def test_generate_gmsh():
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
         refine_factor=1.0,
-        check_mesh=False,
+        auto_refine=False,
         testing_gmsh=False,
     )
 
@@ -117,7 +117,7 @@ def test_generate_gmsh_symm():
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
         refine_factor=1.0,
-        check_mesh=False,
+        auto_refine=False,
         testing_gmsh=False,
     )
 
@@ -160,7 +160,7 @@ def test_symm_part_removed():
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
         refine_factor=1.0,
-        check_mesh=False,
+        auto_refine=False,
         testing_gmsh=False,
     )
 
@@ -282,7 +282,7 @@ def test_assignation():
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
         refine_factor=1.0,
-        check_mesh=False,
+        auto_refine=False,
         testing_gmsh=False,
     )
 

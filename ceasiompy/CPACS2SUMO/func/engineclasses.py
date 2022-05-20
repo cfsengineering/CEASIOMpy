@@ -44,7 +44,7 @@ class Engine:
         self.transf = Transformation()
         self.transf.get_cpacs_transf(tixi, self.xpath)
 
-        self.sym = False
+        self.sym = True  # TODO: Should take the symmetry of the parrent wing
         if tixi.checkAttribute(self.xpath, "symmetry"):
             if tixi.getTextAttribute(self.xpath, "symmetry") == "x-z-plane":
                 self.sym = True
@@ -61,7 +61,7 @@ class Engine:
 
         # In cpacs engine are "stored" at two different place
         # The main at /cpacs/vehicles/aircraft/model/engines
-        # It contains symetry and translation and the UID to the engine definition
+        # It contains symmetry and translation and the UID to the engine definition
         # stored at /cpacs/vehicles/engines/ with all the carateristic of the nacelle
         nacelle_xpath = tixi.uIDGetXPath(engine_uid) + "/nacelle"
 

@@ -16,10 +16,11 @@ TODO:
 
 MESH_COLORS = {
     "farfield": (255, 200, 0),
-    "symmetry": (138, 43, 226),
+    "symmetry": (153, 255, 255),
     "wing": (0, 200, 200),
     "fuselage": (255, 215, 0),
     "pylon": (255, 15, 255),
+    "engine": (127, 0, 255),
     "bad_surface": (255, 0, 0),
     "good_surface": (0, 255, 0),
 }

@@ -23,9 +23,9 @@ TODO:
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
-
 from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
+from ceasiompy.utils.configfiles import ConfigFile
 import gmsh
 import numpy as np
 
@@ -37,6 +37,7 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     min_fields,
 )
 from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
+
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_part_type
 
@@ -192,6 +193,118 @@ def get_entities_from_volume(volume_dimtag):
     return surfaces_dimtags, lines_dimtags, points_dimtags
 
 
+def define_engine_bc(engine_part, brep_dir_path):
+    """
+    Function to define the boundary conditions for the engine part.
+    The engine is defined as a volume and the boundary conditions intake exhaust
+    are set to be fixed.
+
+    Args:
+    ----------
+    engine_part : ModelPart
+        engine part of the aircraft to set the bc on
+    brep_dir_path : Path
+        path to the brep files of the aircraft that also contains the engine config file
+
+    """
+    # open the engine config file and find :
+    # if the engine is double or simple flux
+    # the engine normal and distance between the intake and exhaust
+
+    config_file_path = Path(brep_dir_path, "config_engines.cfg")
+    config_file = ConfigFile(config_file_path)
+
+    doubleflux = bool(int(config_file[f"{engine_part.uid}_DOUBLE_FLUX"]))
+    engine_normal = [0, 0, 0]
+    engine_normal[0] = float(config_file[f"{engine_part.uid}_NORMAL_X"])
+    engine_normal[1] = float(config_file[f"{engine_part.uid}_NORMAL_Y"])
+    engine_normal[2] = float(config_file[f"{engine_part.uid}_NORMAL_Z"])
+    scaling_x = float(config_file[f"{engine_part.uid}_SCALING_X"])
+
+    # Determine which surfaces are possible engine intake and exhaust by their normal orientation
+    possible_intake = []
+    possible_exhaust = []
+    # and which surface tag will be excluded from the engine surfaces
+    int_exh_surf_tag = []
+
+    # Loop all the engine surfaces to seek for potential right placed surfaces
+    for dimtag in engine_part.surfaces:
+        surface_center = gmsh.model.occ.getCenterOfMass(*dimtag)
+        parametric_coord = gmsh.model.getParametrization(*dimtag, list(surface_center))
+
+        # GMSH normal is defined exiting the volume
+        # note here that the volume is the fluid, so the inside of the engine is the outside
+        # of the volume, so intake normal is opposite to engine normal
+        normal = gmsh.model.getNormal(dimtag[1], parametric_coord)
+        absolute_same = np.isclose(
+            np.absolute(engine_normal), np.absolute(normal), atol=1e-04, equal_nan=False
+        )
+        same = np.isclose(engine_normal, normal, atol=1e-04, equal_nan=False)
+
+        if absolute_same.all():
+            if same.all():
+                possible_exhaust.append(dimtag)
+            else:
+                possible_intake.append(dimtag)
+
+    # Retrieve the distance between the inlet and the outlet when the engine was converted
+    intake_x = float(config_file[f"{engine_part.uid}_fanCowl_INTAKE_X"])
+    exhaust_x = float(config_file[f"{engine_part.uid}_fanCowl_EXHAUST_X"])
+    engine_distance = (exhaust_x - intake_x) * scaling_x
+
+    # Determine which surfaces are possible engine intake and exhaust by their
+    # respective distance is the same as the one when the engine was converted
+    for intake in possible_intake:
+        for exhaust in possible_exhaust:
+
+            pos_intake = gmsh.model.occ.getCenterOfMass(*intake)
+            pos_exhaust = gmsh.model.occ.getCenterOfMass(*exhaust)
+            distance = np.linalg.norm(np.subtract(pos_intake, pos_exhaust))
+
+            if np.isclose(distance, engine_distance, atol=1e-04, equal_nan=False):
+                engine_part.intake_tag = [intake[1]]
+                engine_part.exhaust_fan_tag = [exhaust[1]]
+                int_exh_surf_tag.extend(engine_part.intake_tag)
+                int_exh_surf_tag.extend(engine_part.exhaust_fan_tag)
+                break
+
+    if doubleflux:
+        # doubleflux engine has one more exhaust surface
+        intake_x = float(config_file[f"{engine_part.uid}_fanCowl_INTAKE_X"])
+        exhaust_core_x = float(config_file[f"{engine_part.uid}_coreCowl_EXHAUST_X"])
+        core_distance = (exhaust_core_x - intake_x) * scaling_x
+
+        # Determine which exhaust goes with the intake by their respective distance
+        for intake in possible_intake:
+            for exhaust in possible_exhaust:
+                pos_intake = gmsh.model.occ.getCenterOfMass(*intake)
+                pos_exhaust = gmsh.model.occ.getCenterOfMass(*exhaust)
+                distance = np.linalg.norm(np.subtract(pos_intake, pos_exhaust))
+                if np.isclose(distance, core_distance, atol=1e-04, equal_nan=False):
+                    engine_part.exhaust_core_tag = [exhaust[1]]
+                    int_exh_surf_tag.extend(engine_part.exhaust_core_tag)
+                    break
+
+    # Set the boundary conditions
+    # Engine_normal_surface
+    engine_part.other_surfaces_tags = list(
+        set(engine_part.surfaces_tags).difference(set(int_exh_surf_tag))
+    )
+    surfaces_group = gmsh.model.addPhysicalGroup(2, engine_part.other_surfaces_tags)
+    gmsh.model.setPhysicalName(2, surfaces_group, f"{engine_part.uid}")
+
+    # Intake
+    intake_fan_group = gmsh.model.addPhysicalGroup(2, engine_part.intake_tag)
+    gmsh.model.setPhysicalName(2, intake_fan_group, f"{engine_part.uid}_fan_Intake")
+
+    # Exhaust
+    exhaust_fan_group = gmsh.model.addPhysicalGroup(2, engine_part.exhaust_fan_tag)
+    gmsh.model.setPhysicalName(2, exhaust_fan_group, f"{engine_part.uid}_fan_Exhaust")
+    if doubleflux:
+        exhaust_core_group = gmsh.model.addPhysicalGroup(2, engine_part.exhaust_core_tag)
+        gmsh.model.setPhysicalName(2, exhaust_core_group, f"{engine_part.uid}_core_Exhaust")
+
+
 def process_gmsh_log(gmsh_log):
     """
     Function to process the gmsh log file.
@@ -226,7 +339,7 @@ def process_gmsh_log(gmsh_log):
 
 
 def generate_gmsh(
-    cpacs_path,
+    cpacs,
     brep_dir_path,
     results_dir,
     open_gmsh=False,
@@ -245,13 +358,13 @@ def generate_gmsh(
     mesh file.
     The airplane is fused with the different brep files : fuselage, wings and
     other parts are identified anf fused together, then a farfield is generated
-    and the airplane is substracted to him to generate the final fluid domain
+    and the airplane is subtracted to him to generate the final fluid domain
     marker of each airplane part and farfield surfaces is reported in the mesh
     file.
     Args:
     ----------
-    cpacs_path : Path
-        path to the cpacs file
+    cpacs : CPACS
+        CPACS object
     brep_dir_path : Path
         Path to the directory containing the brep files
     results_dir : Path
@@ -278,6 +391,13 @@ def generate_gmsh(
     testing_gmsh : bool
         If set to true, the gmsh sessions will not be clear and killed at the end of
         the function, this allow to test the gmsh feature after the call of generate_gmsh()
+    ...
+    Returns:
+    ----------
+    mesh_file : Path
+        Path to the mesh file generated by gmsh
+    aircraft_parts : list(ModelPart)
+        List of the aircraft parts in the model
 
     """
 
@@ -302,7 +422,7 @@ def generate_gmsh(
 
         # Create the aircraft part object
         part_obj = ModelPart(uid=brep_file.stem)
-        part_obj.part_type = get_part_type(cpacs_path, part_obj.uid)
+        part_obj.part_type = get_part_type(cpacs.tixi, part_obj.uid)
 
         # Add to the list of aircraft parts
         aircraft_parts.append(part_obj)
@@ -345,7 +465,6 @@ def generate_gmsh(
         parts_parent_dimtag.append(sym_box[1])
 
     # Generate fragment between the aircraft and the farfield
-
     log.info("Start fragment operation")
 
     _, children_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)
@@ -356,7 +475,7 @@ def generate_gmsh(
     # fragment produce fragments_dimtag and children_dimtag
 
     # fragments_dimtag is a list of tuples (dimtag, tag) of all the volumes in the model
-    # the first fragment is the entire domain, each other fragment are subvolume of the domain
+    # the first fragment is the entire domain, each other fragment are sub volume of the domain
 
     # children_dimtag is a list list of tuples (dimtag, tag)
     # the first list is associated to the entire domain as for fragments_dimtag, we don't need it
@@ -463,7 +582,7 @@ def generate_gmsh(
     final_domain.associate_child_to_parent(*left_volume)
 
     # As already discussed, it is often that two parts intersect each other,
-    # it can also happend that some parts create holes inside other parts
+    # it can also happened that some parts create holes inside other parts
     # for example a fuselage and 2 wings defined in the center of the fuselage
     # will create a holed fragment of the fuselage
     # This is not a problem since this hole is not in the final domain volume
@@ -490,8 +609,13 @@ def generate_gmsh(
         aircraft.surfaces_tags.extend(part.surfaces_tags)
         aircraft.volume_tag.extend(part.volume_tag)
 
-        surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
-        gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
+        # Set surface BC for each part of the aircraft
+
+        if part.part_type == "engine":
+            define_engine_bc(part, brep_dir_path)
+        else:
+            surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
+            gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
 
     log.info("Model has been cleaned")
 

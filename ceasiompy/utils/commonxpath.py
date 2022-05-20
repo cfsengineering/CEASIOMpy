@@ -29,6 +29,7 @@ WINGS_XPATH = "/cpacs/vehicles/aircraft/model/wings"
 PYLONS_XPATH = "/cpacs/vehicles/aircraft/model/enginePylons"
 ENGINES_XPATH = "/cpacs/vehicles/aircraft/model/engines"
 
+
 # analyses
 AEROPERFORMANCE_XPATH = "/cpacs/vehicles/aircraft/model/analyses/aeroPerformance"
 AEROMAP_XPATH = "/cpacs/vehicles/aircraft/model/analyses/aeroPerformance"  # To remove
@@ -73,9 +74,6 @@ SMFILE_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/SMpath"
 SU2MESH_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh"
 SUMOFILE_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath"
 WKDIR_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath"
-
-
-# GMSH
 
 
 # SUMO

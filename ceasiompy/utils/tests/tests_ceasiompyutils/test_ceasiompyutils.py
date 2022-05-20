@@ -19,7 +19,6 @@ Python version: >=3.7
 import os
 import shutil
 from pathlib import Path
-
 import pytest
 from ceasiompy.utils.ceasiompyutils import (
     SoftwareNotInstalled,
@@ -32,6 +31,7 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from cpacspy.cpacsfunctions import open_tixi
+from cpacspy.cpacspy import CPACS
 
 MODULE_DIR = Path(__file__).parent
 TMP_DIR = Path(MODULE_DIR, "tmp")
@@ -124,14 +124,18 @@ def test_aircraft_name():
 def test_get_part_type():
     """Test the function get_part_type on the D150"""
 
-    cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml")
+    cpacs_in = Path(CPACS_FILES_PATH, "simple_engine.xml")
+    cpacs = CPACS(cpacs_in)
 
-    assert get_part_type(cpacs_in, "Wing1") == "wing"
-    assert get_part_type(cpacs_in, "Wing1_mirrored") == "wing"
-    assert get_part_type(cpacs_in, "Wing2H") == "wing"
-    assert get_part_type(cpacs_in, "Wing2H_mirrored") == "wing"
-    assert get_part_type(cpacs_in, "Wing3V") == "wing"
-    assert get_part_type(cpacs_in, "Fuselage1") == "fuselage"
+    tixi = cpacs.tixi
+
+    assert get_part_type(tixi, "Wing") == "wing"
+    assert get_part_type(tixi, "Wing_mirrored") == "wing"
+    assert get_part_type(tixi, "SimpleFuselage") == "fuselage"
+    assert get_part_type(tixi, "SimpleEngine") == "engine"
+    assert get_part_type(tixi, "SimpleEngine_mirrored") == "engine"
+    assert get_part_type(tixi, "Pylon") == "pylon"
+    assert get_part_type(tixi, "Pylon_mirrored") == "pylon"
 
 
 # =================================================================================================

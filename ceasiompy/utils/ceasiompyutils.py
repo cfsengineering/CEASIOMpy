@@ -27,7 +27,6 @@ from contextlib import contextmanager
 from pathlib import Path
 import sys
 from typing import List
-
 from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
@@ -232,7 +231,7 @@ def aircraft_name(tixi_or_cpacs):
     return name
 
 
-def get_part_type(cpacs_path: Path, part_uid: str) -> str:
+def get_part_type(tixi, part_uid: str) -> str:
     """The function get the type of the aircraft from the cpacs file.
 
     Args:
@@ -244,8 +243,6 @@ def get_part_type(cpacs_path: Path, part_uid: str) -> str:
 
     """
 
-    tixi = open_tixi(cpacs_path)
-
     # split uid if mirrored part
     part_uid = part_uid.split("_mirrored")[0]
     part_xpath = tixi.uIDGetXPath(part_uid)
@@ -254,15 +251,29 @@ def get_part_type(cpacs_path: Path, part_uid: str) -> str:
         log.info(f"'{part_uid}' is a wing")
         return "wing"
 
-    if "fuselages/fuselage" in part_xpath:
+    elif "fuselages/fuselage" in part_xpath:
         log.info(f"'{part_uid}' is a fuselage")
         return "fuselage"
 
-    if "enginePylons/enginePylon" in part_xpath:
+    elif "enginePylons/enginePylon" in part_xpath:
         log.info(f"'{part_uid}' is a pylon")
         return "pylon"
 
-    # TODO: complete when engine/flaps are available with TiGL
+    elif "engine/nacelle/fanCowl" in part_xpath:
+        log.info(f"'{part_uid}' is a fanCowl")
+        return "fanCowl"
+
+    elif "engine/nacelle/centerCowl" in part_xpath:
+        log.info(f"'{part_uid}' is a centerCowl")
+        return "centerCowl"
+
+    elif "engine/nacelle/coreCowl" in part_xpath:
+        log.info(f"'{part_uid}' is a coreCowl")
+        return "coreCowl"
+
+    elif "vehicles/engines/engine" in part_xpath:
+        log.info(f"'{part_uid}' is an engine")
+        return "engine"
 
     log.warning(f"'{part_uid}' cannot be categorized!")
     return None

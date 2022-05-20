@@ -48,9 +48,6 @@ TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 # ==============================================================================
 
 
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
 def test_distance_field():
     """
     Test if a simple distance field can be generate for a line and a surface
@@ -183,9 +180,6 @@ def test_min_fields():
     gmsh.finalize()
 
 
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
 def test_compute_area():
     """
     Test if the area of a surface is correctly computed
@@ -210,9 +204,6 @@ def test_compute_area():
     gmsh.finalize()
 
 
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
 def test_refine_wing_section():
     """
     Test if the wing section is correctly refined by the advancemeshing algorithm
@@ -276,9 +267,6 @@ def test_refine_wing_section():
         file.unlink()
 
 
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
 def test_check_mesh():
     """
     Test if the wing section is correctly remeshed when the area is too small

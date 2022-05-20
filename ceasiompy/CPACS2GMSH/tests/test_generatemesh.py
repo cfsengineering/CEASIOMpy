@@ -342,7 +342,7 @@ def test_define_engine_bc():
         mesh_size_fuselage=0.2,
         mesh_size_wings=0.2,
         refine_factor=1.0,
-        check_mesh=False,
+        auto_refine=False,
         testing_gmsh=True,
     )
     physical_groups = gmsh.model.getPhysicalGroups(dim=-1)
@@ -404,7 +404,7 @@ def test_define_doubleflux_engine_bc():
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.05,
         refine_factor=1.0,
-        check_mesh=False,
+        auto_refine=False,
         testing_gmsh=True,
     )
     physical_groups = gmsh.model.getPhysicalGroups(dim=-1)

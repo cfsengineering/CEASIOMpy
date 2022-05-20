@@ -23,7 +23,7 @@ TODO:
 from pathlib import Path
 
 from ambiance import Atmosphere
-from ceasiompy.SU2Run.func.su2utils import get_mesh_marker, get_su2_config_template
+from ceasiompy.SU2Run.func.su2utils import get_mesh_markers, get_su2_config_template
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import CONFIG_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.commonxpath import (
@@ -90,14 +90,14 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         raise FileNotFoundError(f"SU2 mesh file {su2_mesh_path} not found")
 
     # Get Mesh Marker and save them in the CPACS file
-    bc_wall_list, engine_bc_list = get_mesh_marker(su2_mesh_path)
+    mesh_markers = get_mesh_markers(su2_mesh_path)
 
     create_branch(cpacs.tixi, SU2_BC_WALL_XPATH)
-    bc_wall_str = ";".join(bc_wall_list)
+    bc_wall_str = ";".join(mesh_markers["wall"])
     cpacs.tixi.updateTextElement(SU2_BC_WALL_XPATH, bc_wall_str)
 
     create_branch(cpacs.tixi, SU2_BC_FARFIELD_XPATH)
-    bc_farfiled_str = ";".join(engine_bc_list)
+    bc_farfiled_str = ";".join(mesh_markers["engine_intake"] + mesh_markers["engine_exhaust"])
     cpacs.tixi.updateTextElement(SU2_BC_FARFIELD_XPATH, bc_farfiled_str)
 
     # Fixed CL parameters
@@ -173,10 +173,13 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     # TODO: correct value for the 3 previous parameters ??
 
     # Mesh Marker
-    bc_wall_str = "(" + ",".join(bc_wall_list) + ")"
+    bc_wall_str = f"( {','.join(mesh_markers['wall'])} )"
     cfg["MARKER_EULER"] = bc_wall_str
-    cfg["MARKER_FAR"] = " (Farfield, " + ",".join(engine_bc_list) + ")"
-    cfg["MARKER_SYM"] = " (0)"  # TODO: maybe make that a variable?
+    farfield_bc = (
+        mesh_markers["farfield"] + mesh_markers["engine_intake"] + mesh_markers["engine_exhaust"]
+    )
+    cfg["MARKER_FAR"] = f"( {','.join(farfield_bc)} )"
+    cfg["MARKER_SYM"] = f"( {','.join(mesh_markers['symmetry'])} )"
     cfg["MARKER_PLOTTING"] = bc_wall_str
     cfg["MARKER_MONITORING"] = bc_wall_str
     cfg["MARKER_MOVING"] = "( NONE )"  # TODO: when do we need to define MARKER_MOVING?

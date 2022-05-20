@@ -207,9 +207,9 @@ def plot_aero_coef(cpacs_path, cpacs_out_path):
     aeromap_to_plot_xpath = PLOT_XPATH + "/aeroMapToPlot"
     aeromap_uid_list = []
 
-    # Option to select aeromap manualy
-    manual_selct = get_value_or_default(cpacs.tixi, PLOT_XPATH + "/manualSelection", False)
-    if manual_selct:
+    # Option to select aeromap manually
+    manual_selection = get_value_or_default(cpacs.tixi, PLOT_XPATH + "/manualSelection", False)
+    if manual_selection:
         aeromap_uid_list = open_select_aeromap_gui(cpacs)
         create_branch(cpacs.tixi, aeromap_to_plot_xpath)
         add_string_vector(cpacs.tixi, aeromap_to_plot_xpath, aeromap_uid_list)
@@ -218,7 +218,7 @@ def plot_aero_coef(cpacs_path, cpacs_out_path):
         try:
             aeromap_uid_list = get_string_vector(cpacs.tixi, aeromap_to_plot_xpath)
         except ValueError:
-            # If aeroMapToPlot is not define, select manualy anyway
+            # If aeroMapToPlot is not define, select manually anyway
             aeromap_uid_list = open_select_aeromap_gui(cpacs)
             create_branch(cpacs.tixi, aeromap_to_plot_xpath)
             add_string_vector(cpacs.tixi, aeromap_to_plot_xpath, aeromap_uid_list)

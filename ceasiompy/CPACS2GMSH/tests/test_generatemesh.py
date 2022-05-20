@@ -48,9 +48,6 @@ TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 # ==============================================================================
 
 
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
 def test_generate_gmsh():
     """
     This test try to generate a simple mesh and test if the SU2 markers
@@ -77,7 +74,7 @@ def test_generate_gmsh():
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
         refine_factor=1.0,
-        check_mesh=False,
+        auto_refine=False,
         testing_gmsh=False,
     )
 
@@ -95,9 +92,6 @@ def test_generate_gmsh():
         file.unlink()
 
 
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
 def test_generate_gmsh_symm():
     """
     This test try to generate a simple symmetric mesh and test if the SU2 markers
@@ -124,7 +118,7 @@ def test_generate_gmsh_symm():
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
         refine_factor=1.0,
-        check_mesh=False,
+        auto_refine=False,
         testing_gmsh=False,
     )
 
@@ -142,9 +136,6 @@ def test_generate_gmsh_symm():
         file.unlink()
 
 
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
 def test_symm_part_removed():
     """
     Test if when symmetry is used, symmetry part are removed
@@ -170,7 +161,7 @@ def test_symm_part_removed():
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
         refine_factor=1.0,
-        check_mesh=False,
+        auto_refine=False,
         testing_gmsh=False,
     )
 
@@ -186,9 +177,6 @@ def test_symm_part_removed():
         file.unlink()
 
 
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
 def test_get_entities_from_volume():
     """
     Test on a simple cube if the lower dimensions entities are correctly found.
@@ -221,9 +209,6 @@ def test_get_entities_from_volume():
     gmsh.finalize()
 
 
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
 def test_ModelPart_associate_child_to_parent():
     """
     Test if the ModelPart associate_child_to_parent function works correctly.
@@ -245,9 +230,6 @@ def test_ModelPart_associate_child_to_parent():
     gmsh.finalize()
 
 
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
 def test_ModelPart_clean_inside_entities():
     """
     Test if the ModelPart clean_inside_entities function works correctly.
@@ -275,9 +257,6 @@ def test_ModelPart_clean_inside_entities():
     gmsh.finalize()
 
 
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
 def test_assignation():
     """
     Test if the assignation mechanism is correct on all parts
@@ -304,7 +283,7 @@ def test_assignation():
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
         refine_factor=1.0,
-        check_mesh=False,
+        auto_refine=False,
         testing_gmsh=False,
     )
 

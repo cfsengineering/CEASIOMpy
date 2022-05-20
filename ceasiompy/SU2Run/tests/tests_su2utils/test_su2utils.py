@@ -23,7 +23,7 @@ from unittest.mock import mock_open, patch
 import pytest
 from ceasiompy.SU2Run.func.su2utils import (
     get_efficiency_and_aoa,
-    get_mesh_marker,
+    get_mesh_markers,
     get_su2_aerocoefs,
     get_su2_config_template,
     get_su2_version,
@@ -49,25 +49,32 @@ SU2_LOGFILE_NO_WETTED_AREA = Path(MODULE_DIR, "logfile_SU2_CFD_no_wetted_area.lo
 
 
 def test_get_mesh_marker():
-    """Test the class 'get_mesh_marker'"""
+    """Test the class 'get_mesh_markers'"""
 
     NOT_SU2_MESH = Path(MODULE_DIR, "not_su2_mesh.txt")
-    SU2_MESH_0 = Path(MODULE_DIR, "test_mesh0.su2")
+    SU2_MESH_NO_MARKER = Path(MODULE_DIR, "test_mesh0.su2")
     SU2_MESH_1 = Path(MODULE_DIR, "test_mesh1.su2")
 
     with pytest.raises(FileNotFoundError):
-        get_mesh_marker(Path("This_file_do_not_exist.su2"))
+        get_mesh_markers(Path("This_file_do_not_exist.su2"))
 
     with pytest.raises(ValueError):
-        get_mesh_marker(NOT_SU2_MESH)
+        get_mesh_markers(NOT_SU2_MESH)
 
-    # Check if ValueError is raised when no MARKER_TAG in the SU2 mesh
     with pytest.raises(ValueError):
-        get_mesh_marker(SU2_MESH_0)
+        get_mesh_markers(SU2_MESH_NO_MARKER)
 
-    wall_marker_list, eng_bc_marker_list = get_mesh_marker(SU2_MESH_1)
-    assert wall_marker_list == ["D150_VAMP_SL1", "D150_VAMP_FL1", "D150_VAMP_HL1", "D150_VAMP_W1"]
-    assert eng_bc_marker_list == ["D150_ENGINE1_Intake", "D150_ENGINE1_Exhaust"]
+    mesh_markers = get_mesh_markers(SU2_MESH_1)
+    assert mesh_markers["wall"] == [
+        "D150_VAMP_SL1",
+        "D150_VAMP_FL1",
+        "D150_VAMP_HL1",
+        "D150_VAMP_W1",
+    ]
+    assert mesh_markers["engine_intake"] == ["D150_ENGINE1_Intake"]
+    assert mesh_markers["engine_exhaust"] == ["D150_ENGINE1_Exhaust"]
+    assert mesh_markers["farfield"] == ["Farfield"]
+    assert mesh_markers["symmetry"] == ["None"]
 
 
 def test_get_su2_version():
@@ -179,6 +186,4 @@ def test_get_wetted_area():
 
 if __name__ == "__main__":
 
-    print("Test configfile.py")
-    print("To run test use the following command:")
-    print(">> pytest -v")
+    print("Nothing to execute!")

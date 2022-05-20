@@ -90,6 +90,7 @@ cpacs_inout.add_input(
     gui_group="Mesh size",
 )
 
+
 cpacs_inout.add_input(
     var_name="refine_factor",
     var_type=float,
@@ -99,6 +100,19 @@ cpacs_inout.add_input(
     xpath=CEASIOMPY_XPATH + "/gmsh/refine_factor",
     gui=True,
     gui_name="Le/Te refinement factor",
+    gui_group="Advanced mesh parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="auto_refine",
+    var_type=bool,
+    default_value=True,
+    unit="1",
+    descr="Automatically refine the mesh on surfaces that are small compare to the chosen mesh"
+    "size, this option increase the mesh generation time",
+    xpath=CEASIOMPY_XPATH + "/gmsh/auto_refine",
+    gui=True,
+    gui_name="Auto refine",
     gui_group="Advanced mesh parameters",
 )
 
@@ -115,13 +129,13 @@ cpacs_inout.add_input(
     gui_group="Engines",
 )
 cpacs_inout.add_input(
-    var_name="Exhaust_percent",
+    var_name="exhaust_percent",
     var_type=float,
     default_value=20,
     unit="1",
     descr="Position of the exhaust surface boundary condition in percentage of"
     " the engine length from the end of the engine",
-    xpath=CEASIOMPY_XPATH + "/gmsh/intake_percent",
+    xpath=CEASIOMPY_XPATH + "/gmsh/exhaust_percent",
     gui=True,
     gui_name="Engine exhaust position [%]",
     gui_group="Engines",

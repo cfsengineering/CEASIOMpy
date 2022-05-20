@@ -349,7 +349,7 @@ def generate_gmsh(
     mesh_size_fuselage=0.2,
     mesh_size_wings=0.2,
     refine_factor=4,
-    check_mesh=True,
+    auto_refine=True,
     testing_gmsh=False,
 ):
     """
@@ -386,7 +386,7 @@ def generate_gmsh(
         If set to true, the mesh will be generated with advanced meshing options
     refine_factor : int
         refine factor for the mesh le and te edge
-    check_mesh : bool
+    auto_refine : bool
         If set to true, the mesh will be checked for quality
     testing_gmsh : bool
         If set to true, the gmsh sessions will not be clear and killed at the end of
@@ -745,7 +745,7 @@ def generate_gmsh(
     gmsh.model.mesh.generate(2)
 
     # Control of the mesh quality
-    if refine_factor != 1 and check_mesh == True:
+    if refine_factor != 1 and auto_refine == True:
 
         bad_surfaces = []
 

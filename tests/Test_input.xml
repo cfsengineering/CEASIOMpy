@@ -5258,20 +5258,19 @@
         <includePylon>False</includePylon>
         <includeEngine>False</includeEngine>
       </engine>
-      <!-- TODO: Move when xpath are changed in cpacs2gmsh.py and __specs__.py -->
-      <gmsh>
-        <open_gui>False</open_gui>
-        <farfield_factor>4</farfield_factor>
-        <symmetry>True</symmetry>
-        <mesh_size>
-          <farfield>25</farfield>
-          <fuselage>0.45</fuselage>
-          <wings>0.3</wings>
-        </mesh_size>
-        <refine_factor>1.6</refine_factor>
-        <auto_refine>False</auto_refine>
-      </gmsh>
       <mesh>
+        <gmshOptions>
+          <open_gui>False</open_gui>
+          <farfield_factor>4</farfield_factor>
+          <symmetry>True</symmetry>
+          <mesh_size>
+            <farfield>25</farfield>
+            <fuselage>0.45</fuselage>
+            <wings>0.3</wings>
+          </mesh_size>
+          <refine_factor>1.6</refine_factor>
+          <auto_refine>False</auto_refine>
+        </gmshOptions>
         <sumoOptions>
           <refinementLevel>0.6</refinementLevel>
         </sumoOptions>

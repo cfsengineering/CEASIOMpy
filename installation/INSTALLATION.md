@@ -55,11 +55,13 @@ If everything is working correctly, you can try the first [test case](../test_ca
 
 ## Windows
 
+:x: **For now it seems there are some issues with some packages (TiGL, smt) in the Conda environment. If you are familiar with Windows and you want to help us to create an installation script, please contact us.**
+
+An alternative solution is to install Ubuntu with [VirtualBox](https://www.virtualbox.org) and install CEASIOMpy in it.
+
 :x: No automatic installation script are available yet.
 
 You can try to install it manually, the basic steps are the following:
-
-:warning: For now it seems there are some issues with some packages (TiGL, smt) in the Conda environment. We are working on it.
 
 - Install [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
 - Clone the [CEASIOMpy](https://github.com/cfsengineering/CEASIOMpy) repository

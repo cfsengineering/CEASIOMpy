@@ -77,8 +77,23 @@ WKDIR_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath"
 
 
 # SUMO
+SUMO_REFINE_LEVEL_XPATH = MESH_XPATH + "/sumoOptions/refinementLevel"
 SUMO_INCLUDE_PYLON_XPATH = "/cpacs/toolspecific/CEASIOMpy/engine/includePylon"
 SUMO_INCLUDE_ENGINE_XPATH = "/cpacs/toolspecific/CEASIOMpy/engine/includeEngine"
+
+# GMSH
+GMSH_XPATH = MESH_XPATH + "/gmshOptions"
+GMSH_OPEN_GUI_XPATH = GMSH_XPATH + "/open_gui"
+GMSH_SYMMETRY_XPATH = GMSH_XPATH + "/symmetry"
+GMSH_FARFIELD_FACTOR_XPATH = GMSH_XPATH + "/farfield_factor"
+GMSH_MESH_SIZE_FARFIELD_XPATH = GMSH_XPATH + "/mesh_size/farfield"
+GMSH_MESH_SIZE_FUSELAGE_XPATH = GMSH_XPATH + "/mesh_size/fuselage"
+GMSH_MESH_SIZE_WINGS_XPATH = GMSH_XPATH + "/mesh_size/wings"
+GMSH_REFINE_FACTOR_XPATH = GMSH_XPATH + "/refine_factor"
+GMSH_AUTO_REFINE_XPATH = GMSH_XPATH + "/auto_refine"
+GMSH_INTAKE_PERCENT_XPATH = GMSH_XPATH + "/intake_percent"
+GMSH_EXHAUST_PERCENT_XPATH = GMSH_XPATH + "/exhaust_percent"
+
 
 # SU2
 SU2_XPATH = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2"

@@ -27,6 +27,7 @@ from ceasiompy.utils.ceasiompyutils import (
     get_install_path,
     get_part_type,
     get_results_directory,
+    remove_file_type_in_dir,
     run_software,
 )
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
@@ -35,6 +36,7 @@ from cpacspy.cpacspy import CPACS
 
 MODULE_DIR = Path(__file__).parent
 TMP_DIR = Path(MODULE_DIR, "tmp")
+LOGFILE = Path(TMP_DIR, "logfile_python.log")
 
 # =================================================================================================
 #   CLASSES
@@ -101,11 +103,9 @@ def test_run_software():
 
     run_software("python", ["-c", "print('Hello World!')"], TMP_DIR)
 
-    logfile = Path(TMP_DIR, "logfile_python.log")
+    assert LOGFILE.exists()
 
-    assert logfile.exists()
-
-    with open(logfile, "r") as f:
+    with open(LOGFILE, "r") as f:
         assert "Hello World!" in f.readlines()[0]
 
 
@@ -136,6 +136,25 @@ def test_get_part_type():
     assert get_part_type(tixi, "SimpleEngine_mirrored") == "engine"
     assert get_part_type(tixi, "Pylon") == "pylon"
     assert get_part_type(tixi, "Pylon_mirrored") == "pylon"
+
+
+def test_remove_file_type_in_dir():
+    """Test the function 'remove_file_type_in_dir'"""
+
+    with pytest.raises(FileNotFoundError):
+        remove_file_type_in_dir(Path("ThisDirectoryDoesNotExist"), ".txt")
+
+    test_file_1 = Path(TMP_DIR, "test_file.txt")
+    test_file_1.touch()
+
+    test_file_2 = Path(TMP_DIR, "test_file.brep")
+    test_file_2.touch()
+
+    remove_file_type_in_dir(TMP_DIR, [".txt", ".brep"])
+
+    assert not test_file_1.exists()
+    assert not test_file_2.exists()
+    assert LOGFILE.exists()
 
 
 # =================================================================================================

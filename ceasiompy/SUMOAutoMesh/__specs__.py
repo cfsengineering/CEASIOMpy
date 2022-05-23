@@ -3,7 +3,6 @@
 from pathlib import Path
 
 from ceasiompy.utils.commonxpath import (
-    MESH_XPATH,
     SU2MESH_XPATH,
     SUMO_REFINE_LEVEL_XPATH,
     SUMOFILE_XPATH,

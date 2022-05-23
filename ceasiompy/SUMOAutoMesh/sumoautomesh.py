@@ -31,12 +31,7 @@ from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import aircraft_name, get_results_directory, run_software
-from ceasiompy.utils.commonxpath import (
-    MESH_XPATH,
-    SU2MESH_XPATH,
-    SUMO_REFINE_LEVEL_XPATH,
-    SUMOFILE_XPATH,
-)
+from ceasiompy.utils.commonxpath import SU2MESH_XPATH, SUMO_REFINE_LEVEL_XPATH, SUMOFILE_XPATH
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
 

@@ -2,9 +2,12 @@
 # -*- coding: utf-8 -*-
 from pathlib import Path
 
+from ceasiompy.utils.commonxpath import (
+    SUMO_INCLUDE_ENGINE_XPATH,
+    SUMO_INCLUDE_PYLON_XPATH,
+    SUMOFILE_XPATH,
+)
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import CEASIOMPY_XPATH, SUMOFILE_XPATH
-
 
 # ===== Results directory path =====
 
@@ -23,7 +26,7 @@ cpacs_inout.add_input(
     default_value=False,
     unit="1",
     descr="Convert engine from CEASIOMpy",
-    xpath=CEASIOMPY_XPATH + "/engine/includeEngine",
+    xpath=SUMO_INCLUDE_ENGINE_XPATH,
     gui=True,
     gui_name="Include engine",
     gui_group="Option",
@@ -35,7 +38,7 @@ cpacs_inout.add_input(
     default_value=False,
     unit="1",
     descr="Convert engine from CEASIOMpy",
-    xpath=CEASIOMPY_XPATH + "/engine/includePylon",
+    xpath=SUMO_INCLUDE_PYLON_XPATH,
     gui=True,
     gui_name="Include pylon",
     gui_group="Option",

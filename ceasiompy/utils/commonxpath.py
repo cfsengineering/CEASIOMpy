@@ -77,8 +77,10 @@ WKDIR_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath"
 
 
 # SUMO
+SUMO_REFINE_LEVEL_XPATH = MESH_XPATH + "/sumoOptions/refinementLevel"
 SUMO_INCLUDE_PYLON_XPATH = "/cpacs/toolspecific/CEASIOMpy/engine/includePylon"
 SUMO_INCLUDE_ENGINE_XPATH = "/cpacs/toolspecific/CEASIOMpy/engine/includeEngine"
+
 
 # SU2
 SU2_XPATH = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2"

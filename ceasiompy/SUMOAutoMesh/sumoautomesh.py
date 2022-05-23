@@ -31,8 +31,13 @@ from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import aircraft_name, get_results_directory, run_software
+from ceasiompy.utils.commonxpath import (
+    MESH_XPATH,
+    SU2MESH_XPATH,
+    SUMO_REFINE_LEVEL_XPATH,
+    SUMOFILE_XPATH,
+)
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from ceasiompy.utils.commonxpath import MESH_XPATH, SU2MESH_XPATH, SUMOFILE_XPATH
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
 
 log = get_logger()
@@ -230,8 +235,7 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 
     # Set mesh parameters
     log.info("Setting mesh parameters...")
-    refine_level_xpath = MESH_XPATH + "/sumoOptions/refinementLevel"
-    refine_level = get_value_or_default(tixi, refine_level_xpath, 1.0)
+    refine_level = get_value_or_default(tixi, SUMO_REFINE_LEVEL_XPATH, 1.0)
     log.info(f"Mesh refinement level: {refine_level}")
     add_mesh_parameters(sumo_file_path, refine_level)
 

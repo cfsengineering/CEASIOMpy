@@ -12,19 +12,18 @@ Python version: >=3.7
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
 
 import os
 import shutil
-import sys
 from pathlib import Path
 
 import gmsh
-import pytest
 from ceasiompy.CPACS2GMSH.func.engineconversion import close_engine
+from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from cpacspy.cpacspy import CPACS
 
@@ -33,39 +32,35 @@ TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 TEST_IN_PATH = Path(MODULE_DIR, "ToolInput")
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
-@pytest.mark.skipif(
-    sys.platform == "darwin", reason="'synchronize' function causes segmentation fault on macOS"
-)
 def test_close_engine():
     """Test the close_engine function with a simple engine"""
 
-    # create a a new file where the test will be made
+    # Create a a new file where the test will be made
     if not (Path(TEST_IN_PATH, "test_close_engine")).exists():
         os.mkdir(Path(TEST_IN_PATH, "test_close_engine"))
     TEST_DIR_PATH = Path(TEST_IN_PATH, "test_close_engine")
 
-    # copy nacelle brep files and cfg file in the test dir
+    # Copy nacelle brep files and cfg file in the test dir
     shutil.copy(Path(TEST_IN_PATH, "SimpleNacelle_fanCowl.brep"), TEST_DIR_PATH)
     shutil.copy(Path(TEST_IN_PATH, "SimpleNacelle_centerCowl.brep"), TEST_DIR_PATH)
-    shutil.copy(Path(TEST_IN_PATH, "config_engines.cfg"), TEST_DIR_PATH)
+    shutil.copy(Path(TEST_IN_PATH, GMSH_ENGINE_CONFIG_NAME), TEST_DIR_PATH)
 
-    # test function
     engine_uids = ["SimpleEngine", "SimpleNacelle_centerCowl", "SimpleNacelle_fanCowl"]
     engine_files_path = [
         Path(TEST_DIR_PATH, "SimpleNacelle_fanCowl.brep"),
         Path(TEST_DIR_PATH, "SimpleNacelle_centerCowl.brep"),
     ]
-    engines_cfg_file_path = Path(TEST_DIR_PATH, "config_engines.cfg")
+    engines_cfg_file = Path(TEST_DIR_PATH, GMSH_ENGINE_CONFIG_NAME)
 
     nacelle_parts = {
         "fanCowl": engine_files_path[0],
@@ -76,16 +71,14 @@ def test_close_engine():
         nacelle_parts,
         engine_uids,
         TEST_DIR_PATH,
-        engines_cfg_file_path,
+        engines_cfg_file,
         engine_surface_percent=(0.2, 0.2),
     )
 
     # Check the output file was generated
-
     assert closed_engine_path == Path(TEST_DIR_PATH, "SimpleEngine.brep")
 
     # Check the output file with gmsh
-
     gmsh.initialize()
 
     # Import the closed engine
@@ -107,9 +100,9 @@ def test_close_engine():
         shutil.rmtree(TEST_DIR_PATH)
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 

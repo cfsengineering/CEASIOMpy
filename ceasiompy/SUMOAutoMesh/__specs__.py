@@ -1,10 +1,11 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from pathlib import Path
 
+from ceasiompy.utils.commonxpath import (
+    SU2MESH_XPATH,
+    SUMO_REFINE_LEVEL_XPATH,
+    SUMOFILE_XPATH,
+)
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import MESH_XPATH, SU2MESH_XPATH, SUMOFILE_XPATH
-
 
 # ===== Results directory path =====
 
@@ -36,7 +37,7 @@ cpacs_inout.add_input(
     default_value=1.0,
     unit="1",
     descr="0 is baseline, +1 env. equal double mesh points",
-    xpath=MESH_XPATH + "/sumoOptions/refinementLevel",
+    xpath=SUMO_REFINE_LEVEL_XPATH,
     gui=True,
     gui_name="Refinement Level",
     gui_group="SUMO options",

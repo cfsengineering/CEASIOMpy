@@ -23,8 +23,10 @@ TODO:
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
+
 from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
+from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
 from ceasiompy.utils.configfiles import ConfigFile
 import gmsh
 import numpy as np
@@ -91,25 +93,23 @@ class ModelPart:
         ----------
         child_dimtag : tuple (dim,tag)
             dimtag of the child volume
-
         """
 
         child_volume = [child_dimtag]
 
         child_surfaces, child_lines, child_points = get_entities_from_volume(child_volume)
 
-        # first get the dimtags
+        # Get the dimtags
         child_volume_tag = [dimtag[1] for dimtag in child_volume]
         child_surfaces_tags = [dimtag[1] for dimtag in child_surfaces]
         child_lines_tags = [dimtag[1] for dimtag in child_lines]
         child_points_tags = [dimtag[1] for dimtag in child_points]
 
-        # store in parent parts for latter use
+        # Store in parent parts for latter use
         self.points.extend(child_points)
         self.lines.extend(child_lines)
         self.surfaces.extend(child_surfaces)
         self.volume.extend(child_volume)
-
         self.points_tags.extend(child_points_tags)
         self.lines_tags.extend(child_lines_tags)
         self.surfaces_tags.extend(child_surfaces_tags)
@@ -125,8 +125,8 @@ class ModelPart:
         final_domain : ModelPart
             final_domain part
         """
-        # detect only shared entities with the final domain
 
+        # Detect only shared entities with the final domain
         self.surfaces = list(set(self.surfaces).intersection(set(final_domain.surfaces)))
         self.lines = list(set(self.lines).intersection(set(final_domain.lines)))
         self.points = list(set(self.points).intersection(set(final_domain.points)))
@@ -180,6 +180,7 @@ def get_entities_from_volume(volume_dimtag):
         )
     )
     lines_dimtags.sort()
+
     points_dimtags = list(
         set().union(
             *[
@@ -193,7 +194,7 @@ def get_entities_from_volume(volume_dimtag):
     return surfaces_dimtags, lines_dimtags, points_dimtags
 
 
-def define_engine_bc(engine_part, brep_dir_path):
+def define_engine_bc(engine_part, brep_dir):
     """
     Function to define the boundary conditions for the engine part.
     The engine is defined as a volume and the boundary conditions intake exhaust
@@ -203,15 +204,15 @@ def define_engine_bc(engine_part, brep_dir_path):
     ----------
     engine_part : ModelPart
         engine part of the aircraft to set the bc on
-    brep_dir_path : Path
+    brep_dir : Path
         path to the brep files of the aircraft that also contains the engine config file
 
     """
-    # open the engine config file and find :
-    # if the engine is double or simple flux
+
+    # Check if the engine is double or simple flux and
     # the engine normal and distance between the intake and exhaust
 
-    config_file_path = Path(brep_dir_path, "config_engines.cfg")
+    config_file_path = Path(brep_dir, GMSH_ENGINE_CONFIG_NAME)
     config_file = ConfigFile(config_file_path)
 
     doubleflux = bool(int(config_file[f"{engine_part.uid}_DOUBLE_FLUX"]))
@@ -247,7 +248,6 @@ def define_engine_bc(engine_part, brep_dir_path):
             else:
                 possible_intake.append(dimtag)
 
-    # Retrieve the distance between the inlet and the outlet when the engine was converted
     intake_x = float(config_file[f"{engine_part.uid}_fanCowl_INTAKE_X"])
     exhaust_x = float(config_file[f"{engine_part.uid}_fanCowl_EXHAUST_X"])
     engine_distance = (exhaust_x - intake_x) * scaling_x
@@ -256,7 +256,6 @@ def define_engine_bc(engine_part, brep_dir_path):
     # respective distance is the same as the one when the engine was converted
     for intake in possible_intake:
         for exhaust in possible_exhaust:
-
             pos_intake = gmsh.model.occ.getCenterOfMass(*intake)
             pos_exhaust = gmsh.model.occ.getCenterOfMass(*exhaust)
             distance = np.linalg.norm(np.subtract(pos_intake, pos_exhaust))
@@ -269,7 +268,6 @@ def define_engine_bc(engine_part, brep_dir_path):
                 break
 
     if doubleflux:
-        # doubleflux engine has one more exhaust surface
         intake_x = float(config_file[f"{engine_part.uid}_fanCowl_INTAKE_X"])
         exhaust_core_x = float(config_file[f"{engine_part.uid}_coreCowl_EXHAUST_X"])
         core_distance = (exhaust_core_x - intake_x) * scaling_x
@@ -318,29 +316,25 @@ def process_gmsh_log(gmsh_log):
         list of gmsh log events
     """
 
-    # find log about mesh quality
+    # Find last logs about mesh quality
     quality_log = [log for log in gmsh_log if "< quality <" in log]
-
-    # get only the last ten quality log
     final_quality_log = quality_log[-10:]
 
-    # print log with ceasiompy logger
     log.info("Final mesh quality :")
     for log_line in final_quality_log:
         log.info(log_line)
 
-    # get meshing time log
     total_time = 0
     time_log = [log for log in gmsh_log if "CPU" in log]
     for message in time_log:
         total_time += float(message.split("CPU")[1].split("s")[0])
 
-    log.info("Total meshing time : {}s".format(round(total_time, 2)))
+    log.info(f"Total meshing time : {round(total_time, 2)}s")
 
 
 def generate_gmsh(
     cpacs,
-    brep_dir_path,
+    brep_dir,
     results_dir,
     open_gmsh=False,
     farfield_factor=5,
@@ -365,7 +359,7 @@ def generate_gmsh(
     ----------
     cpacs : CPACS
         CPACS object
-    brep_dir_path : Path
+    brep_dir : Path
         Path to the directory containing the brep files
     results_dir : Path
         Path to the directory containing the result (mesh) files
@@ -401,7 +395,7 @@ def generate_gmsh(
 
     """
 
-    brep_files = list(brep_dir_path.glob("*.brep"))
+    brep_files = list(brep_dir.glob("*.brep"))
     brep_files.sort()
 
     gmsh.initialize()
@@ -410,10 +404,10 @@ def generate_gmsh(
     # Log complexity
     gmsh.option.setNumber("General.Verbosity", 5)
 
-    # import each aircraft original parts / parent parts
+    # Import each aircraft original parts / parent parts
     aircraft_parts = []
     parts_parent_dimtag = []
-    log.info(f"Importing files from {brep_dir_path}")
+    log.info(f"Importing files from {brep_dir}")
     for brep_file in brep_files:
 
         # Import the part and create the aircraft part object
@@ -432,7 +426,7 @@ def generate_gmsh(
 
     gmsh.model.occ.synchronize()
 
-    # create external domain for the farfield
+    # Create external domain for the farfield
     model_bb = gmsh.model.getBoundingBox(-1, -1)
     model_dimensions = [
         abs(model_bb[0] - model_bb[3]),
@@ -464,8 +458,7 @@ def generate_gmsh(
             )
         parts_parent_dimtag.append(sym_box[1])
 
-    # Generate fragment between the aircraft and the farfield
-    log.info("Start fragment operation")
+    log.info("Start fragment operation between the aircraft and the farfield")
 
     _, children_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)
     gmsh.model.occ.synchronize()
@@ -515,16 +508,12 @@ def generate_gmsh(
         gmsh.model.occ.synchronize()
 
     # Get the children of the aircraft parts
-
     aircraft_parts_children_dimtag = children_dimtag[1:]
 
     log.info("Before/after fragment operation relations:")
     for parent, children in zip(aircraft_parts, aircraft_parts_children_dimtag):
-
         # don't assign unwanted children if symmetry was used
-
         children = [child for child in children if child not in unwanted_children]
-
         log.info(f"{parent.uid} has generated {children} children")
         parent.children_dimtag = set(children)
 
@@ -537,24 +526,23 @@ def generate_gmsh(
     # Process and add children that are shared by two parent parts in the shared children list
     # and put them in a new unwanted children list
 
-    unwanted_children = []
+    unwanted_children = set()
 
-    for part in aircraft_parts:
-        for other_part in aircraft_parts:
+    if len(aircraft_parts) > 1:
+        for p, part in enumerate(aircraft_parts):
+            for other_part in aircraft_parts[(p + 1) :]:
 
-            if part != other_part:
                 shared_children = part.children_dimtag.intersection(other_part.children_dimtag)
 
-                if part.children_dimtag.intersection(other_part.children_dimtag):
+                if shared_children:
                     part.children_dimtag = part.children_dimtag - shared_children
                     other_part.children_dimtag = other_part.children_dimtag - shared_children
 
-                unwanted_children.extend(list(shared_children))
+                unwanted_children = unwanted_children.union(shared_children)
 
-    # remove duplicated from the unwanted child list
-    unwanted_children = list(set(unwanted_children))
+    unwanted_children = list(unwanted_children)
 
-    # and remove them from the model
+    # Remove unwanted children from the model
     gmsh.model.occ.remove(unwanted_children, recursive=True)
     gmsh.model.occ.synchronize()
     log.info(f"Unwanted children {unwanted_children} removed from model")
@@ -610,9 +598,8 @@ def generate_gmsh(
         aircraft.volume_tag.extend(part.volume_tag)
 
         # Set surface BC for each part of the aircraft
-
         if part.part_type == "engine":
-            define_engine_bc(part, brep_dir_path)
+            define_engine_bc(part, brep_dir)
         else:
             surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
             gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
@@ -676,27 +663,22 @@ def generate_gmsh(
         if part.part_type == "fuselage":
             part.mesh_size = mesh_size_fuselage
             gmsh.model.mesh.setSize(part.points, part.mesh_size)
-            gmsh.model.setColor(
-                part.surfaces, *MESH_COLORS[part.part_type], a=100, recursive=False
-            )
+            gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
         elif part.part_type in ["wing", "pylon", "nacelle", "engine"]:
             part.mesh_size = mesh_size_wings
             gmsh.model.mesh.setSize(part.points, part.mesh_size)
-            gmsh.model.setColor(
-                part.surfaces, *MESH_COLORS[part.part_type], a=100, recursive=False
-            )
+            gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
 
     # Set mesh size and color of the farfield
     gmsh.model.mesh.setSize(farfield_points, mesh_size_farfield)
-    gmsh.model.setColor(farfield_surfaces, *MESH_COLORS["farfield"], a=255, recursive=False)
+    gmsh.model.setColor(farfield_surfaces, *MESH_COLORS["farfield"], recursive=False)
 
     if symmetry:
-        gmsh.model.setColor(symmetry_surfaces, *MESH_COLORS["symmetry"], a=150, recursive=False)
+        gmsh.model.setColor(symmetry_surfaces, *MESH_COLORS["symmetry"], recursive=False)
 
     # Wing leading edge and trailing edge detection
     for part in aircraft_parts:
         if part.part_type == "wing":
-            # wing classifications
             classify_wing(part, aircraft_parts)
             log.info(
                 f"Classification of {part.uid} done" f"{len(part.wing_sections)} section(s) found "
@@ -707,7 +689,6 @@ def generate_gmsh(
         mesh_fields = {"nbfields": 0, "restrict_fields": []}
         for part in aircraft_parts:
             if part.part_type == "wing":
-                # wing refinement
                 refine_wing_section(
                     mesh_fields,
                     final_domain.volume_tag,
@@ -717,7 +698,6 @@ def generate_gmsh(
                     refine=refine_factor,
                 )
             elif part.part_type == "fuselage":
-                # fuselage refinement
                 set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
 
         # Farfield and domain refinement
@@ -750,7 +730,6 @@ def generate_gmsh(
         bad_surfaces = []
 
         for part in aircraft_parts:
-
             refined_surfaces, mesh_fields = refine_small_surfaces(
                 mesh_fields,
                 part,
@@ -761,10 +740,9 @@ def generate_gmsh(
             bad_surfaces.extend(refined_surfaces)
 
         if bad_surfaces:
-
             log.info(f"{len(bad_surfaces)} surface(s) need to be refined")
 
-            # reset the background mesh
+            # Reset the background mesh
             mesh_fields = min_fields(mesh_fields)
 
             if open_gmsh:
@@ -780,9 +758,7 @@ def generate_gmsh(
 
             for surface in bad_surfaces:
 
-                gmsh.model.setColor(
-                    [(2, surface)], *MESH_COLORS["good_surface"], a=255, recursive=False
-                )
+                gmsh.model.setColor([(2, surface)], *MESH_COLORS["good_surface"], recursive=False)
 
             log.info("Remeshing process finished")
             if open_gmsh:

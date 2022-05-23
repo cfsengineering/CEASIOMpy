@@ -279,6 +279,25 @@ def get_part_type(tixi, part_uid: str) -> str:
     return None
 
 
+def remove_file_type_in_dir(directory: Path, file_type_list: List[str]) -> None:
+    """Remove all files of a given type in a directory.
+
+    Args:
+        directory (Path): Path to the directory
+        file_type_list (List[str]): List of file types to remove.
+
+    """
+
+    if not directory.exists():
+        raise FileNotFoundError(f"The directory {directory} does not exist!")
+
+    for file in directory.iterdir():
+        if not file.is_file():
+            continue
+        if file.suffix in file_type_list:
+            file.unlink()
+
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================

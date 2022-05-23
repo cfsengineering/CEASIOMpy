@@ -16,6 +16,9 @@ TODO:
 
 """
 
+# GMSH
+GMSH_ENGINE_CONFIG_NAME = "config_engines.cfg"
+
 
 # SU2
 CONFIG_CFD_NAME = "ConfigCFD.cfg"

@@ -29,7 +29,19 @@ from ceasiompy.utils.moduleinterfaces import (
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from ceasiompy.utils.commonxpath import CEASIOMPY_XPATH, SU2MESH_XPATH
+from ceasiompy.utils.commonxpath import (
+    GMSH_AUTO_REFINE_XPATH,
+    GMSH_EXHAUST_PERCENT_XPATH,
+    GMSH_FARFIELD_FACTOR_XPATH,
+    GMSH_INTAKE_PERCENT_XPATH,
+    GMSH_MESH_SIZE_FARFIELD_XPATH,
+    GMSH_MESH_SIZE_FUSELAGE_XPATH,
+    GMSH_MESH_SIZE_WINGS_XPATH,
+    GMSH_OPEN_GUI_XPATH,
+    GMSH_REFINE_FACTOR_XPATH,
+    GMSH_SYMMETRY_XPATH,
+    SU2MESH_XPATH,
+)
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from cpacspy.cpacspy import CPACS
 
@@ -56,42 +68,26 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
 
     # Create results directory
     results_dir = get_results_directory("CPACS2GMSH")
-    brep_dir_path = Path(results_dir, "brep_files")
-    brep_dir_path.mkdir()
+    brep_dir = Path(results_dir, "brep_files")
+    brep_dir.mkdir()
 
     # Retrieve value from the GUI Setting
-
-    open_gui_xpath = CEASIOMPY_XPATH + "/gmsh/open_gui"
-    open_gmsh = get_value_or_default(cpacs.tixi, open_gui_xpath, False)
-
-    intake_percent_xpath = CEASIOMPY_XPATH + "/gmsh/intake_percent"
-    intake_percent = get_value_or_default(cpacs.tixi, intake_percent_xpath, 20)
-    exhaust_percent_xpath = CEASIOMPY_XPATH + "/gmsh/exhaust_percent"
-    exhaust_percent = get_value_or_default(cpacs.tixi, exhaust_percent_xpath, 20)
-
-    farfield_factor_xpath = CEASIOMPY_XPATH + "/gmsh/farfield_factor"
-    farfield_factor = get_value_or_default(cpacs.tixi, farfield_factor_xpath, 6)
-    symmetry_xpath = CEASIOMPY_XPATH + "/gmsh/symmetry"
-    symmetry = get_value_or_default(cpacs.tixi, symmetry_xpath, False)
-
-    mesh_size_farfield_xpath = CEASIOMPY_XPATH + "/gmsh/mesh_size/farfield"
-    mesh_size_farfield = get_value_or_default(cpacs.tixi, mesh_size_farfield_xpath, 25)
-    mesh_size_fuselage_xpath = CEASIOMPY_XPATH + "/gmsh/mesh_size/fuselage"
-    mesh_size_fuselage = get_value_or_default(cpacs.tixi, mesh_size_fuselage_xpath, 0.4)
-    mesh_size_wings_xpath = CEASIOMPY_XPATH + "/gmsh/mesh_size/wings"
-    mesh_size_wings = get_value_or_default(cpacs.tixi, mesh_size_wings_xpath, 0.23)
-
-    refine_factor_xpath = CEASIOMPY_XPATH + "/gmsh/refine_factor"
-    refine_factor = get_value_or_default(cpacs.tixi, refine_factor_xpath, 7.0)
-
-    auto_refine_xpath = CEASIOMPY_XPATH + "/gmsh/auto_refine"
-    auto_refine = get_value_or_default(cpacs.tixi, auto_refine_xpath, True)
+    open_gmsh = get_value_or_default(cpacs.tixi, GMSH_OPEN_GUI_XPATH, False)
+    farfield_factor = get_value_or_default(cpacs.tixi, GMSH_FARFIELD_FACTOR_XPATH, 6)
+    symmetry = get_value_or_default(cpacs.tixi, GMSH_SYMMETRY_XPATH, False)
+    mesh_size_farfield = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FARFIELD_XPATH, 25)
+    mesh_size_fuselage = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH, 0.4)
+    mesh_size_wings = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_WINGS_XPATH, 0.23)
+    refine_factor = get_value_or_default(cpacs.tixi, GMSH_REFINE_FACTOR_XPATH, 7.0)
+    auto_refine = get_value_or_default(cpacs.tixi, GMSH_AUTO_REFINE_XPATH, True)
+    intake_percent = get_value_or_default(cpacs.tixi, GMSH_INTAKE_PERCENT_XPATH, 20)
+    exhaust_percent = get_value_or_default(cpacs.tixi, GMSH_EXHAUST_PERCENT_XPATH, 20)
 
     # Run mesh generation
-    export_brep(cpacs, brep_dir_path, (intake_percent, exhaust_percent))
+    export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
     mesh_path, _ = generate_gmsh(
         cpacs,
-        brep_dir_path,
+        brep_dir,
         results_dir,
         open_gmsh=open_gmsh,
         farfield_factor=farfield_factor,

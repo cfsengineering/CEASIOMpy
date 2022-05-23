@@ -57,7 +57,7 @@ def distance_field(mesh_fields, dim, object_tags):
     mesh_fields : dict
     """
 
-    # create new distance field
+    # Create new distance field
     mesh_fields["nbfields"] += 1
     gmsh.model.mesh.field.add("Distance", mesh_fields["nbfields"])
     if dim == 1:
@@ -94,7 +94,8 @@ def restrict_fields(mesh_fields, dim, object_tags, infield=None):
     ----------
     mesh_fields : dict
     """
-    # create new Restrict field
+
+    # Create new Restrict field
     mesh_fields["nbfields"] += 1
     gmsh.model.mesh.field.add("Restrict", mesh_fields["nbfields"])
 
@@ -108,11 +109,12 @@ def restrict_fields(mesh_fields, dim, object_tags, infield=None):
         dim_list = "VolumesList"
     else:
         raise ValueError("Dimension must be 2 or 3")
+
     gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], dim_list, object_tags)
 
-    # add the new field to the list of restrict fields
-
+    # Add the new field to the list of restrict fields
     mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
+
     return mesh_fields
 
 
@@ -165,21 +167,23 @@ def compute_area(surface_tag):
         tag of the surface to compute the area
     """
 
-    # create a physical group with the surface
+    # Create a physical group with the surface
     surface_groupe = gmsh.model.addPhysicalGroup(2, [surface_tag])
 
-    # call the plugin
+    # Call the plugin
     gmsh.plugin.setNumber("MeshVolume", "Dimension", 2)
     gmsh.plugin.setNumber("MeshVolume", "PhysicalGroup", surface_groupe)
     gmsh.plugin.run("MeshVolume")
-    # retrieve the area in the views data
+
+    # Retrieve the area in the views data
     views = gmsh.view.getTags()
     _, _, data = gmsh.view.getListData(views[-1])
     area = data[-1][-1]
-    # clean the views
+
+    # clean the views and the physical group
     gmsh.view.remove(views)
-    # clean the physical group
     gmsh.model.removePhysicalGroups([(2, surface_groupe)])
+
     return area
 
 
@@ -241,19 +245,21 @@ def refine_wing_section(
     log.info(f"Set mesh refinement of {wing_part.uid}")
 
     original_refine = refine
-    # get the wing section chord, le and te lines and the surface of the wing
+
+    # Get the wing section chord, le and te lines and the surface of the wing
     surfaces_wing = wing_part.surfaces_tags
 
-    # for each wing section get the mean chord and le/te lines
+    # For each wing section get the mean chord and le/te lines
     for wing_section in wing_part.wing_sections:
 
         chord_mean = wing_section["mean_chord"]
         x_chord = chord_mean * chord_percent
         lines_to_refine = wing_section["lines_tags"]
 
+        # If the wing is truncated:
         if len(lines_to_refine) == 3:
-            # if the wing is truncated:
-            # first find the trailing edge thinkness
+
+            # Find the trailing edge thinkness
             x1, y1, z1 = gmsh.model.occ.getCenterOfMass(1, lines_to_refine[0])
             x2, y2, z2 = gmsh.model.occ.getCenterOfMass(1, lines_to_refine[1])
             x3, y3, z3 = gmsh.model.occ.getCenterOfMass(1, lines_to_refine[2])
@@ -264,14 +270,15 @@ def refine_wing_section(
 
             te_thickness = min(d12, d13, d23)
 
-            # then overwrite the trailing edge refinement
+            # Overwrite the trailing edge refinement
             if mesh_size_wings / te_thickness > refine:
                 refine = mesh_size_wings / te_thickness
 
         # 1 : Math eval field
-        # distance field
+
         mesh_fields = distance_field(mesh_fields, 1, lines_to_refine)
-        # create a mesh function for the leading edge
+
+        # Create a mesh function for the leading edge
         mesh_fields["nbfields"] += 1
         math_eval_field = mesh_fields["nbfields"]
         gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
@@ -283,16 +290,17 @@ def refine_wing_section(
             f"{mesh_size_wings}*(1-(1/{refine}))*"
             f"(F{distance_field_tag}/{x_chord})^{n_power}",
         )
-        # restrict field
+
         mesh_fields = restrict_fields(mesh_fields, 2, aircraft.surfaces_tags)
         mesh_fields = restrict_fields(
             mesh_fields, 3, final_domain_volume_tag, infield=math_eval_field
         )
 
         # 2 : Treshold field
-        # distance field
+
         mesh_fields = distance_field(mesh_fields, 1, lines_to_refine)
-        # create the treshold field
+
+        # Create the treshold field
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
         gmsh.model.mesh.field.setNumber(
@@ -300,7 +308,7 @@ def refine_wing_section(
         )
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_wings)
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_wings)
-        # restrict field
+
         mesh_fields = restrict_fields(mesh_fields, 2, surfaces_wing)
 
     if original_refine != refine:
@@ -308,6 +316,7 @@ def refine_wing_section(
             f"{wing_part.uid} is truncated : refinement factor was increase from "
             f"{original_refine} to " + str(round(refine, 2))
         )
+
     if refine > 20:
         log.warning("Refinement factor is high !")
         log.info(
@@ -336,10 +345,9 @@ def set_fuselage_mesh(mesh_fields, fuselage_part, mesh_size_fuselage):
 
     log.info(f"Set mesh refinement of {fuselage_part.uid}")
 
-    # create new distance field
     mesh_fields = distance_field(mesh_fields, 2, fuselage_part.surfaces_tags)
 
-    # create new threshold field
+    # Create new threshold field
     mesh_fields["nbfields"] += 1
     gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
     gmsh.model.mesh.field.setNumber(
@@ -348,7 +356,7 @@ def set_fuselage_mesh(mesh_fields, fuselage_part, mesh_size_fuselage):
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_fuselage)
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_fuselage)
 
-    # restrict field
+    # Restrict field
     mesh_fields = restrict_fields(mesh_fields, 2, fuselage_part.surfaces_tags)
 
 
@@ -402,11 +410,11 @@ def set_farfield_mesh(
     for part in aircraft_parts:
 
         # 1 : Math eval field
-        # distance field
+
         mesh_fields = distance_field(mesh_fields, 2, part.surfaces_tags)
         distance_field_tag = mesh_fields["nbfields"]
 
-        # create a mesh function
+        # Create a mesh function
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
         gmsh.model.mesh.field.setString(
@@ -416,13 +424,13 @@ def set_farfield_mesh(
             f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power}",
         )
 
-        # restrict field
         mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
 
         # 2 : Treshold field
-        # distance field
+
         mesh_fields = distance_field(mesh_fields, 2, part.surfaces_tags)
-        # create the treshold field
+
+        # Create the treshold field
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
         gmsh.model.mesh.field.setNumber(
@@ -430,7 +438,7 @@ def set_farfield_mesh(
         )
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_farfield)
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_farfield)
-        # restrict field
+
         mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
 
 
@@ -481,7 +489,8 @@ def refine_small_surfaces(
 
 
     """
-    # area and equilateral triangle of mesh size fuselage
+
+    # Get the area of an equilateral triangle with mesh size fuselage
     mesh_triangle_surf = (3**0.5 / 4) * (part.mesh_size**2)
 
     refined_surfaces = []
@@ -491,19 +500,17 @@ def refine_small_surfaces(
 
         if area < nb_min_triangle * mesh_triangle_surf:
             refined_surfaces.append(surface_tag)
-            # refine the surface
+
+            # Refine the surface
             new_mesh_size = ((area / (nb_min_triangle)) / 0.43301270) ** 0.5
 
-            # set the color to indicate the bad surfaces
-            gmsh.model.setColor(
-                [(2, surface_tag)], *MESH_COLORS["bad_surface"], a=255, recursive=False
-            )
+            # Set the color to indicate the bad surfaces
+            gmsh.model.setColor([(2, surface_tag)], *MESH_COLORS["bad_surface"], recursive=False)
 
-            # create new distance field
             mesh_fields = distance_field(mesh_fields, 2, [surface_tag])
             distance_field_tag = mesh_fields["nbfields"]
 
-            # create new threshold field
+            # Create new threshold field
             mesh_fields["nbfields"] += 1
             gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
             gmsh.model.mesh.field.setNumber(
@@ -512,7 +519,6 @@ def refine_small_surfaces(
             gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", new_mesh_size)
             gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", new_mesh_size)
 
-            # restrict field
             mesh_fields = restrict_fields(mesh_fields, 2, [surface_tag])
 
             # Math eval field
@@ -524,7 +530,7 @@ def refine_small_surfaces(
                 f"{new_mesh_size} + ({mesh_size_farfield} - {new_mesh_size})*"
                 f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power}",
             )
-            # restrict field
+
             mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
 
     log.info(f"Surface mesh of {part.uid} was insufficient")

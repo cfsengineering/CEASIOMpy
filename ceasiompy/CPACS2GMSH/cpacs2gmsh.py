@@ -68,14 +68,11 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
 
     # Create results directory
     results_dir = get_results_directory("CPACS2GMSH")
-    brep_dir_path = Path(results_dir, "brep_files")
-    brep_dir_path.mkdir()
+    brep_dir = Path(results_dir, "brep_files")
+    brep_dir.mkdir()
 
     # Retrieve value from the GUI Setting
     open_gmsh = get_value_or_default(cpacs.tixi, GMSH_OPEN_GUI_XPATH, False)
-
-    intake_percent = get_value_or_default(cpacs.tixi, GMSH_INTAKE_PERCENT_XPATH, 20)
-    exhaust_percent = get_value_or_default(cpacs.tixi, GMSH_EXHAUST_PERCENT_XPATH, 20)
     farfield_factor = get_value_or_default(cpacs.tixi, GMSH_FARFIELD_FACTOR_XPATH, 6)
     symmetry = get_value_or_default(cpacs.tixi, GMSH_SYMMETRY_XPATH, False)
     mesh_size_farfield = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FARFIELD_XPATH, 25)
@@ -83,12 +80,14 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     mesh_size_wings = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_WINGS_XPATH, 0.23)
     refine_factor = get_value_or_default(cpacs.tixi, GMSH_REFINE_FACTOR_XPATH, 7.0)
     auto_refine = get_value_or_default(cpacs.tixi, GMSH_AUTO_REFINE_XPATH, True)
+    intake_percent = get_value_or_default(cpacs.tixi, GMSH_INTAKE_PERCENT_XPATH, 20)
+    exhaust_percent = get_value_or_default(cpacs.tixi, GMSH_EXHAUST_PERCENT_XPATH, 20)
 
     # Run mesh generation
-    export_brep(cpacs, brep_dir_path, (intake_percent, exhaust_percent))
+    export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
     mesh_path, _ = generate_gmsh(
         cpacs,
-        brep_dir_path,
+        brep_dir,
         results_dir,
         open_gmsh=open_gmsh,
         farfield_factor=farfield_factor,

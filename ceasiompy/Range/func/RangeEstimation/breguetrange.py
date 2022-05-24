@@ -17,6 +17,7 @@ This script evaluates the range of the aircraft with the Breguet equation.
 # =============================================================================
 
 import math
+from ceasiompy.WeightConventional.func.weight_utils import UNUSABLE_FUEL_RATIO
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -33,7 +34,7 @@ log = get_logger()
 # =============================================================================
 
 
-def breguet_cruise_range(LDcru, ri, mw, RES_FUEL_PERC=0.06):
+def breguet_cruise_range(LDcru, ri, mw):
 
     """The function estimates the maximum range using the Breguet equation.
 
@@ -46,11 +47,10 @@ def breguet_cruise_range(LDcru, ri, mw, RES_FUEL_PERC=0.06):
     (class) ri       --Arg.: RangeInputs class.
     (class) mw       --Arg.: MassesWeights class.
     ##======= Class is defined in the InputClasses folder =======##
-    (float) RES_FUEL_PERC  --Arg.: Reserve fuel percentage [-] (default=0.06).
 
     OUTPUT
     (float_array) ranges  --Out.: Array containing zero, the range at
-                                  maximum paload, the range at maxium fuel
+                                  maximum payload, the range at maximum fuel
                                   and some payload, the range at maximum fuel
                                   and no payload [km].
     (float_array) ranges_cru  --Out.: Array containing the cruise ranges
@@ -99,7 +99,7 @@ def breguet_cruise_range(LDcru, ri, mw, RES_FUEL_PERC=0.06):
     else:
         w_g2 = w_fuel_max + mw.operating_empty_mass * G + m_pass_middle * G
         w_g2_cru = w_g2 * 0.970 * 0.985
-        w_al_middle = (1 - (w_fuel_max) / (w_g2 * (RES_FUEL_PERC + 1))) * w_g2
+        w_al_middle = (1 - (w_fuel_max) / (w_g2 * (UNUSABLE_FUEL_RATIO + 1))) * w_g2
         ranges.append(
             round(
                 ((ri.CRUISE_SPEED * 3.6) / (ri.TSFC_CRUISE))
@@ -122,7 +122,7 @@ def breguet_cruise_range(LDcru, ri, mw, RES_FUEL_PERC=0.06):
         )
 
     w_g3 = w_fuel_max + mw.operating_empty_mass * G
-    w_al_maxfuel = (1 - (w_fuel_max) / (w_g3 * (RES_FUEL_PERC + 1))) * w_g3
+    w_al_maxfuel = (1 - (w_fuel_max) / (w_g3 * (UNUSABLE_FUEL_RATIO + 1))) * w_g3
     w_g3_cru = w_g3 * 0.970 * 0.985
 
     ranges.append(

@@ -36,16 +36,11 @@ class RangeInputs:
     Attributes:
         WINGLET         (int): Winglet option (0 = no winglets, 1 = normale winglets,
                                 2 = high efficiency winglet for cruise).
-        PILOT_NB        (int): Pilot number [-].
         CRUISE_SPEED    (float): Aircraft speed during cruise [m/s].
         LD              (float): Lift over drag coefficient [-].
         LOITER_TIME     (float): Loiter length [min]
-        MASS_PILOT      (float): Pilot mass [kg].
-        MASS_CABIN_CREW (float):Cabin crew member mass [kg].
-        MASS_PASS       (float): Passenger mass [kg].
         TSFC_CRUISE     (float): Thrust specific fuel consumption for cruise [1/hr].
         TSFC_LOITER     (float): Thrust specific fuel consumption for Loiter [1/hr].
-        RES_FUEL_PERC   (float): Unusable fuel percentage (0.01<value<0.2).
         TURBOPROP       (bool): Turboprop option.
 
     """
@@ -58,14 +53,9 @@ class RangeInputs:
         self.CRUISE_SPEED = 272.0
         self.LD = 17  # A319 17, ATR72 15
         self.LOITER_TIME = 30.00
-        self.MASS_PILOT = 102.0
-        self.MASS_CABIN_CREW = 68.0
-        self.MASS_PASS = 105.0
         # TURBOPROP and TURBOFAN and CONCORDE
         self.TSFC_CRUISE = 0.5  # 0.6         0.5          0.8
         self.TSFC_LOITER = 0.4  # 0.7         0.4          0.9
-        self.RES_FUEL_PERC = 0.06
-
         self.TURBOPROP = False
 
 

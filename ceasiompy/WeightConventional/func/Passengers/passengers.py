@@ -19,6 +19,7 @@ Python version: >=3.7
 # =============================================================================
 
 import math
+from ceasiompy.WeightConventional.func.weight_utils import PASSENGER_PER_TOILET
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -38,14 +39,13 @@ log = get_logger()
 # =============================================================================
 
 
-def estimate_passengers(PASS_PER_TOILET, cabin_length, fuse_width, ind):
+def estimate_passengers(cabin_length, fuse_width, ind):
     """The function evaluates the maximum number of passengers that can sit in
     the airplane, taking into account also the necessity of common space for
     big airplanes and a number of toilets in relation with the number
     of passengers.
 
     Args:
-        PASS_PER_TOILET(int): Number of passengers per toilet [-]
         cabin_length (float): Cabin length [m]
         fuse_width (float): Fuselage width [m]
         ind (class): InsideDimensions class [-]
@@ -131,25 +131,31 @@ def estimate_passengers(PASS_PER_TOILET, cabin_length, fuse_width, ind):
     while control == 0:
         count += 1
         if a != 1:
-            toilet_nb = round(pass_nb / PASS_PER_TOILET, 1)
+            toilet_nb = round(pass_nb / PASSENGER_PER_TOILET, 1)
             a = 0
             Tot_T_L = int(round((toilet_nb / 2.0), 0))
             row_nb = round((cabin_length - Tot_T_L * ind.toilet_length) / ind.seat_length, 0)
             pass_nb = abreast_nb * row_nb
-        if abs(int(toilet_nb) - int(round(pass_nb / PASS_PER_TOILET, 0))) == 0:
+        if abs(int(toilet_nb) - int(round(pass_nb / PASSENGER_PER_TOILET, 0))) == 0:
             control = 1
-        elif abs(int(toilet_nb) - int(round(pass_nb / PASS_PER_TOILET, 0))) <= 1:
-            if int(toilet_nb) % 2 == 0 & int(toilet_nb) > int(round(pass_nb / PASS_PER_TOILET, 0)):
+        elif abs(int(toilet_nb) - int(round(pass_nb / PASSENGER_PER_TOILET, 0))) <= 1:
+            if (
+                int(toilet_nb) % 2
+                == 0 & int(toilet_nb)
+                > int(round(pass_nb / PASSENGER_PER_TOILET, 0))
+            ):
                 control = 2
             elif (
-                int(toilet_nb) % 2 != 0 & int(toilet_nb) < int(round(pass_nb / PASS_PER_TOILET, 0))
+                int(toilet_nb) % 2
+                != 0 & int(toilet_nb)
+                < int(round(pass_nb / PASSENGER_PER_TOILET, 0))
             ):
-                toilet_nb = int(round(pass_nb / PASS_PER_TOILET, 0))
+                toilet_nb = int(round(pass_nb / PASSENGER_PER_TOILET, 0))
                 control = 3
             elif count > 5:
                 control = 4
-            elif abs(int(toilet_nb) - int(round(pass_nb / PASS_PER_TOILET, 0))) % 2 == 0:
-                toilet_nb = abs(int(toilet_nb) + int(round(pass_nb / PASS_PER_TOILET, 0))) / 2
+            elif abs(int(toilet_nb) - int(round(pass_nb / PASSENGER_PER_TOILET, 0))) % 2 == 0:
+                toilet_nb = abs(int(toilet_nb) + int(round(pass_nb / PASSENGER_PER_TOILET, 0))) / 2
                 a = 1
         elif count > 10:
             control = 5

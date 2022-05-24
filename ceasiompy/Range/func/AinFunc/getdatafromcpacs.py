@@ -26,12 +26,8 @@ The cpacs file should also contain:
 * TURBOPROP      --In.: Turboprop option ('True', 'False').
 * CRUISE_SPEED   --In.: Cruise speed [m/s].
 * LOITER_TIME    --In.: Loiter duration [min].
-* LD             --In.: Lift over drag voefficient [-].
-* MASS_PILOT     --In.: Pilot mass [kg].
-* MASS_PASS      --In.: Passenger mass [kg].
+* LD             --In.: Lift over drag coefficient [-].
 * FUEL_DENSITY   --In.: Fuel density [kg/m^3].
-* RES_FUEL_PERC  --In.: Unusable fuel percentage [-].
-* MASS_CABIN_CREW  --In.: Mass of a cabin crew member [kg].
 
 | Works with Python 2.7
 | Author : Stefano Piccini
@@ -187,33 +183,6 @@ def get_data(mw, ri, cpacs_in):
         if temp != ri.pilot_nb and temp > 0:
             ri.pilot_nb = temp
 
-    # Pilots user input data
-    if not tixi.checkElement(P_PATH + "/pilotMass"):
-        tixi.createElement(P_PATH, "pilotMass")
-        tixi.updateDoubleElement(P_PATH + "/pilotMass", ri.MASS_PILOT, "%g")
-    else:
-        temp = tixi.getDoubleElement(P_PATH + "/pilotMass")
-        if temp != ri.MASS_PILOT and temp > 0:
-            ri.MASS_PILOT = temp
-
-    # Cabin crew user input data
-    if not tixi.checkElement(CC_PATH + "/cabinCrewMemberMass"):
-        tixi.createElement(CC_PATH, "cabinCrewMemberMass")
-        tixi.updateDoubleElement(CC_PATH + "/cabinCrewMemberMass", ri.MASS_CABIN_CREW, "%g")
-    else:
-        temp = tixi.getDoubleElement(CC_PATH + "/cabinCrewMemberMass")
-        if temp != ri.MASS_CABIN_CREW and temp > 0:
-            ri.MASS_CABIN_CREW = temp
-
-    # Passengers input
-    if not tixi.checkElement(PASS_PATH + "/passMass"):
-        tixi.createElement(PASS_PATH, "passMass")
-        tixi.updateDoubleElement(PASS_PATH + "/passMass", ri.MASS_PASS, "%g")
-    else:
-        temp = tixi.getDoubleElement(PASS_PATH + "/passMass")
-        if temp != ri.MASS_PASS and temp > 0:
-            ri.MASS_PASS = temp
-
     # Propulsion and Fuel
 
     if not tixi.checkElement(PROP_PATH + "/turboprop"):
@@ -229,14 +198,6 @@ def get_data(mw, ri, cpacs_in):
             ri.TURBOPROP = False
         else:
             ri.TURBOPROP = True
-
-    if not tixi.checkElement(F2_PATH + "/resFuelPerc"):
-        tixi.createElement(F2_PATH, "resFuelPerc")
-        tixi.updateDoubleElement(F2_PATH + "/resFuelPerc", ri.RES_FUEL_PERC, "%g")
-    else:
-        temp = tixi.getDoubleElement(F2_PATH + "/resFuelPerc")
-        if temp != ri.RES_FUEL_PERC and temp > 0:
-            ri.RES_FUEL_PERC = temp
 
     if not tixi.checkElement(TSFC_PATH + "/tsfcCruise"):
         tixi.createElement(TSFC_PATH, "tsfcCruise")

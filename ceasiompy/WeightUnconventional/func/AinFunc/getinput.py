@@ -157,15 +157,7 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
 
     # People =================================================================
     # Pilots user input data
-
-    adui.PILOT_NB = get_value_or_default(tixi, PILOTS_XPATH + "/pilotNb", 2)
-    adui.MASS_PILOT = get_value_or_default(tixi, PILOTS_XPATH + "/pilotMass", 102.0)
-    adui.MASS_CABIN_CREW = get_value_or_default(
-        tixi, CAB_CREW_XPATH + "/cabinCrewMemberMass", 68.0
-    )
-    adui.MASS_PASS = get_value_or_default(tixi, PASS_XPATH + "/passMass", 105.0)
     adui.PASS_BASE_DENSITY = get_value_or_default(tixi, PASS_XPATH + "/passDensity", 1.66)
-    adui.PASS_PER_TOILET = get_value_or_default(tixi, PASS_XPATH + "/passPerToilet", 50)
 
     # what to to with this input
     if tixi.checkElement(PASS_XPATH + "/passNb"):
@@ -175,7 +167,6 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
 
     # Fuel ===================================================================
     adui.FUEL_DENSITY = get_value_or_default(tixi, F_XPATH + "/density", 800)
-    adui.RES_FUEL_PERC = get_value_or_default(tixi, F_XPATH + "/resFuelPerc", 0.06)
 
     # Weight =================================================================
     # Mass limits data

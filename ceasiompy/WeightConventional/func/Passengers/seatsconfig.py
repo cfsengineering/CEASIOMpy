@@ -18,6 +18,7 @@ Python version: >=3.7
 #   IMPORTS
 # =============================================================================
 
+from ceasiompy.WeightConventional.func.weight_utils import PASSENGER_PER_TOILET
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()
@@ -42,7 +43,6 @@ def get_seat_config(
     aisle_nb,
     IS_DOUBLE_FLOOR,
     toilet_nb,
-    PASS_PER_TOILET,
     fuse_length,
     ind,
     NAME,
@@ -57,7 +57,6 @@ def get_seat_config(
         aisle_nb (int): Number of aisles [-]
         toilet_nb (int): Number of toilets [-]
         IS_DOUBLE_FLOOR (int): Double floor option [-]
-        PASS_PER_TOILET (int): Number of passengers per toilet [-]
         fuse_length (float): Fuselage_length [m]
         ind (class): InsideDimensions class [-]
         NAME  (str): Name of the aircraft
@@ -95,7 +94,7 @@ def get_seat_config(
         if IS_DOUBLE_FLOOR != 0:
             f += ind.seat_length
             if t > 0:
-                if (r * abreast_nb) % (PASS_PER_TOILET * 2) == 0:
+                if (r * abreast_nb) % (PASSENGER_PER_TOILET * 2) == 0:
                     f += ind.toilet_length
                     t -= 2
             if not snd and round((fuse_length - f), 1) <= 0.1:

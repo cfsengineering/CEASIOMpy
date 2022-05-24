@@ -16,6 +16,7 @@ Python version: >=3.7
 #   IMPORTS
 # =============================================================================
 
+from ceasiompy.WeightConventional.func.weight_utils import CABIN_CREW_MASS, PILOT_MASS
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()
@@ -26,7 +27,7 @@ log = get_logger()
 # =============================================================================
 
 
-def estimate_crew(pass_nb, mass_pilot, mass_cabin_crew, mtom, pilot_nb=2):
+def estimate_crew(pass_nb, mtom, pilot_nb=2):
     """Function to evaluate the number of crew members on board.
 
     Source : https://www.gpo.gov/fdsys/pkg/CFR-2011-title14-vol3/xml/CFR-2011
@@ -35,8 +36,6 @@ def estimate_crew(pass_nb, mass_pilot, mass_cabin_crew, mtom, pilot_nb=2):
     Args:
         pass_nb (integer) : Number of passengers [-]
         pilot_nb (integer) : Number of pilot, default set to 2 [-]
-        mass_pilot (float): Mass of single pilot pilots [kg]
-        mass_cabin_crew (float): Mass of a cabin crew member [kg]
         mtom (float): Maximum take-off mass [kg]
 
     Retrurns:
@@ -62,7 +61,7 @@ def estimate_crew(pass_nb, mass_pilot, mass_cabin_crew, mtom, pilot_nb=2):
     log.info(str(pilot_nb) + " pilots")
     log.info(str(cabin_crew_nb) + " cabin crew members")
 
-    mass_crew = round((pilot_nb * mass_pilot + cabin_crew_nb * mass_cabin_crew), 3)
+    mass_crew = round((pilot_nb * PILOT_MASS + cabin_crew_nb * CABIN_CREW_MASS), 3)
 
     return (crew_nb, cabin_crew_nb, mass_crew)
 

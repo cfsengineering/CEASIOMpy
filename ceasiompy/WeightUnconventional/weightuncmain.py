@@ -26,6 +26,11 @@ import shutil
 from pathlib import Path
 
 import numpy as np
+from ceasiompy.WeightConventional.func.weight_utils import (
+    PASSENGER_MASS,
+    PILOT_NB,
+    UNUSABLE_FUEL_RATIO,
+)
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import aircraft_name
 from ceasiompy.utils.InputClasses.Unconventional.engineclass import EngineData
@@ -149,9 +154,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         (out.pass_nb, out.toilet_nb, mw.mass_pass) = estimate_fuse_passengers(
             fus_nb,
             ui.FLOORS_NB,
-            adui.PASS_PER_TOILET,
             afg.cabin_area,
-            adui.MASS_PASS,
             ui.PASS_BASE_DENSITY,
         )
         cabin_area = np.sum(afg.cabin_area)
@@ -165,9 +168,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         # Passengers mass
         (out.pass_nb, out.toilet_nb, mw.mass_pass) = estimate_wing_passengers(
             ui.FLOORS_NB,
-            adui.PASS_PER_TOILET,
             awg.cabin_area,
-            adui.MASS_PASS,
             ui.PASS_BASE_DENSITY,
         )
         cabin_area = awg.cabin_area
@@ -181,7 +182,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         out.pass_nb = ui.MAX_PASS
         pass_limit = True
         pass_density = round(out.pass_nb / cabin_area, 2)
-        mw.mass_pass = adui.MASS_PASS * out.pass_nb
+        mw.mass_pass = PASSENGER_MASS * out.pass_nb
         log.warning("With the defined maximum number of passengers,")
         log.warning("the number of passengers is reduced to : " + str(out.pass_nb))
         log.warning("and the passenger density is: " + str(pass_density))
@@ -207,10 +208,10 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
                 + " user passenger number."
             )
             mw.mass_pass = ui.MAX_PAYLOAD - ui.MASS_CARGO
-            out.pass_nb = int(round(mw.mass_pass / adui.MASS_PASS, 0))
+            out.pass_nb = int(round(mw.mass_pass / PASSENGER_MASS, 0))
         else:
             mw.mass_pass = ui.MAX_PAYLOAD - ui.MASS_CARGO
-            out.pass_nb = int(round(mw.mass_pass / adui.MASS_PASS, 0))
+            out.pass_nb = int(round(mw.mass_pass / PASSENGER_MASS, 0))
         pass_density = round(out.pass_nb / cabin_area, 2)
         log.warning("With the defined maximum payload and cargo masses,")
         log.warning("the number of passengers is: " + str(out.pass_nb))
@@ -228,7 +229,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         mw.mass_fuel_max = (ui.MAX_FUEL_VOL * adui.FUEL_DENSITY) / 1000.0
 
     # Mass Reserve and Unusable Fuel
-    mw.mass_fuel_unusable = mw.mass_fuel_max * (adui.RES_FUEL_PERC)
+    mw.mass_fuel_unusable = mw.mass_fuel_max * UNUSABLE_FUEL_RATIO
 
     # Mass Fuel Maxpass
     if not out.pass_nb:
@@ -262,12 +263,9 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
             (mw.mass_engines, ed) = engine_definition(mw, ui, ed)
 
         # Crew mass
-        (out.crew_nb, out.cabin_crew_nb, mw.mass_crew) = estimate_crew(
+        out.crew_nb, out.cabin_crew_nb, mw.mass_crew = estimate_crew(
             out.pass_nb,
-            adui.MASS_PILOT,
-            adui.MASS_CABIN_CREW,
             mw.maximum_take_off_mass,
-            adui.PILOT_NB,
         )
 
         # Total people and payload mass on the aircraft
@@ -330,12 +328,12 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
     log.info("Passengers: " + str(out.pass_nb))
     log.info("Toilet: " + str(int(out.toilet_nb)))
     log.info("------- Crew members evaluated: --------")
-    log.info("Pilots: " + str(adui.PILOT_NB))
+    log.info("Pilots: " + str(PILOT_NB))
     log.info("Cabin crew members: " + str(out.cabin_crew_nb))
     log.info("---------------------------------------")
     log.info("Number of iterations: " + str(it))
     log.info("---------------------------------------")
-    log.info("### Uconventional Weight analysis succesfuly completed ###")
+    log.info("### Unconventional Weight analysis successfully completed ###")
 
     # Outptu writting
     log.info("----- Generating output text file -----")

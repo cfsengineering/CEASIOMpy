@@ -35,66 +35,6 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="PILOT_NB",
-    var_type=int,
-    default_value=2,
-    unit=None,
-    descr="Number of pilot",
-    xpath=PILOTS_XPATH + "/pilotNb",
-    gui=True,
-    gui_name="Number of pilot",
-    gui_group="User inputs",
-)
-
-cpacs_inout.add_input(
-    var_name="MASS_PILOT",
-    var_type=int,
-    default_value=102,
-    unit="[kg]",
-    descr="Pilot mass",
-    xpath=PILOTS_XPATH + "/pilotMass",
-    gui=False,
-    gui_name="Pilot mass",
-    gui_group="User inputs",
-)
-
-cpacs_inout.add_input(
-    var_name="MASS_CABIN_CREW",
-    var_type=int,
-    default_value=68,
-    unit="[kg]",
-    descr="Cabin crew mass",
-    xpath=CAB_CREW_XPATH + "/cabinCrewMemberMass",
-    gui=True,
-    gui_name="Cabin crew mass",
-    gui_group="User inputs",
-)
-
-cpacs_inout.add_input(
-    var_name="MASS_PASS",
-    var_type=int,
-    default_value=105,
-    unit="[kg]",
-    descr="Passenger mass",
-    xpath=PASS_XPATH + "/passMass",
-    gui=True,
-    gui_name="Passenger mass",
-    gui_group="User inputs",
-)
-
-cpacs_inout.add_input(
-    var_name="PASS_PER_TOILET",
-    var_type=int,
-    default_value=50,
-    unit="[pax/toilet]",
-    descr="Number of passenger per toilet",
-    xpath=PASS_XPATH + "/passPerToilet",
-    gui=True,
-    gui_name="Passenger/toilet",
-    gui_group="User inputs",
-)
-
-cpacs_inout.add_input(
     var_name="MAX_PAYLOAD",
     var_type=float,
     default_value=0,
@@ -151,18 +91,6 @@ cpacs_inout.add_input(
     xpath=PROP_XPATH + "/turboprop",
     gui=True,
     gui_name="Turboprop",
-    gui_group="User inputs",
-)
-
-cpacs_inout.add_input(
-    var_name="RES_FUEL_PERC",
-    var_type=float,
-    default_value=0.06,
-    unit="[-]",
-    descr="percentage of the total fuel, unusable fuel_consumption (0 to 1)",
-    xpath=FUEL_XPATH + "/resFuelPerc",
-    gui=True,
-    gui_name="RES_FUEL_PERC",
     gui_group="User inputs",
 )
 

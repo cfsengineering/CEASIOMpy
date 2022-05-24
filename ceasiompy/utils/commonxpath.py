@@ -31,7 +31,6 @@ ENGINES_XPATH = "/cpacs/vehicles/aircraft/model/engines"
 
 # analyses
 AEROPERFORMANCE_XPATH = "/cpacs/vehicles/aircraft/model/analyses/aeroPerformance"
-AEROMAP_XPATH = "/cpacs/vehicles/aircraft/model/analyses/aeroPerformance"  # To remove
 MASSBREAKDOWN_XPATH = "/cpacs/vehicles/aircraft/model/analyses/massBreakdown"
 
 # fuel
@@ -61,12 +60,6 @@ SMUSE_XPATH = "/cpacs/toolspecific/CEASIOMpy/surrogateModelUse"
 
 STABILITY_STATIC_XPATH = "/cpacs/toolspecific/CEASIOMpy/stability/static"
 STABILITY_DYNAMIC_XPATH = "/cpacs/toolspecific/CEASIOMpy/stability/dynamic"
-
-PASS_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/passengers"
-ML_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/massLimits"
-CREW_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/crew"
-PILOTS_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/crew/pilots"
-CAB_CREW_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/crew/cabinCrewMembers"
 
 OPTWKDIR_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/optimPath"
 SMFILE_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/SMpath"
@@ -107,6 +100,15 @@ SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
 
 # RANGE
 RANGE_LD_RATIO_XPATH = "/cpacs/toolspecific/CEASIOMpy/ranges/lDRatio"
+
+
+# WEIGHT
+
+PASS_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/passengers"
+ML_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/massLimits"
+CREW_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/crew"
+PILOTS_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/crew/pilots"
+CAB_CREW_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/crew/cabinCrewMembers"
 
 
 # pytornado

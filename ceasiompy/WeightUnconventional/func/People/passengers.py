@@ -17,6 +17,7 @@ Python version: >=3.7
 #   IMPORTS
 # =============================================================================
 
+from ceasiompy.WeightConventional.func.weight_utils import PASSENGER_MASS, PASSENGER_PER_TOILET
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()
@@ -35,9 +36,7 @@ log = get_logger()
 # =============================================================================
 
 
-def estimate_fuse_passengers(
-    fus_nb, FLOORS_NB, PASS_PER_TOILET, cabin_area, MASS_PASS, pass_density
-):
+def estimate_fuse_passengers(fus_nb, FLOORS_NB, cabin_area, pass_density):
     """The function evaluates the number of passengers members on board in
         case of an unconventional aircraft with fuselage.
 
@@ -48,9 +47,7 @@ def estimate_fuse_passengers(
     Args:
         fus_nb          (int): Number of fuselages.
         FLOORS_NB       (int): Number of floors.
-        PASS_PER_TOILET (int): Number of passengers per toilet.
         cabin_area    (float): Cabin Area [m^2].
-        MASS_PASS     (float): Passenger mass [kg].
         pass_density  (float): Base passengers density [pass/m^2].
 
     Returns:
@@ -67,13 +64,13 @@ def estimate_fuse_passengers(
         pass_nb += cabin_area[i - 1] * pass_density
 
     pass_nb = int(round(pass_nb * MF, 0))
-    mass_pass_tot = round(pass_nb * MASS_PASS, 3)
-    toilet_nb = round(pass_nb / PASS_PER_TOILET, 0)
+    mass_pass_tot = round(pass_nb * PASSENGER_MASS, 3)
+    toilet_nb = round(pass_nb / PASSENGER_PER_TOILET, 0)
 
     return (pass_nb, toilet_nb, mass_pass_tot)
 
 
-def estimate_wing_passengers(FLOORS_NB, PASS_PER_TOILET, cabin_area, MASS_PASS, pass_density):
+def estimate_wing_passengers(FLOORS_NB, cabin_area, pass_density):
     """The function evaluates the number of passengers members on board in
         case of an unconventional aircraft without fuselage.
 
@@ -83,9 +80,7 @@ def estimate_wing_passengers(FLOORS_NB, PASS_PER_TOILET, cabin_area, MASS_PASS, 
 
     Args:
         FLOORS_NB       (int): Number of floors.
-        PASS_PER_TOILET (int): Number of passengers per toilet.
         cabin_area    (float): Cabin Area [m^2].
-        MASS_PASS     (float): Passenger mass [kg].
         pass_density  (float): Base passengers density [pass/m^2].
 
     Returns:
@@ -100,8 +95,8 @@ def estimate_wing_passengers(FLOORS_NB, PASS_PER_TOILET, cabin_area, MASS_PASS, 
     MF = FLOORS_NB * 0.5 + 0.5
 
     pass_nb = int(round((cabin_area * (pass_density)) * MF, 0))
-    mass_pass_tot = round(pass_nb * MASS_PASS, 3)
-    toilet_nb = int(round(pass_nb / PASS_PER_TOILET, 0))
+    mass_pass_tot = round(pass_nb * PASSENGER_MASS, 3)
+    toilet_nb = int(round(pass_nb / PASSENGER_PER_TOILET, 0))
 
     return (pass_nb, toilet_nb, mass_pass_tot)
 

@@ -46,18 +46,6 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="PASS_PER_TOILET",
-    var_type=int,
-    default_value=50,
-    unit="[pax/toilet]",
-    descr="Number of passenger per toilet",
-    xpath=PASS_XPATH + "/passPerToilet",
-    gui=True,
-    gui_name="Passenger/toilet",
-    gui_group="Cabin",
-)
-
-cpacs_inout.add_input(
     var_name="VRT_THICK",
     var_type=float,
     default_value=0.00014263,
@@ -82,54 +70,6 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="PILOT_NB",
-    var_type=int,
-    default_value=2,
-    unit="-",
-    descr="Number of pilots",
-    xpath=PILOTS_XPATH + "/pilotNb",
-    gui=False,
-    gui_name="Pilots",
-    gui_group="Crew",
-)
-
-cpacs_inout.add_input(
-    var_name="MASS_PILOT",
-    var_type=float,
-    default_value=102.0,
-    unit="kg",
-    descr="Mass of each pilots + its suitcase",
-    xpath=PILOTS_XPATH + "/pilotMass",
-    gui=True,
-    gui_name="Pilots mass",
-    gui_group="Crew",
-)
-
-cpacs_inout.add_input(
-    var_name="MASS_CABIN_CREW",
-    var_type=float,
-    default_value=68.0,
-    unit="kg",
-    descr="Mass of cabin crew members",
-    xpath=CAB_CREW_XPATH + "/cabinCrewMemberMass",
-    gui=True,
-    gui_name="Cabin crew mass",
-    gui_group="Crew",
-)
-
-cpacs_inout.add_input(
-    var_name="MASS_PASS",
-    var_type=float,
-    default_value=105.0,
-    unit="[kg]",
-    descr="Passenger mass",
-    xpath=PASS_XPATH + "/passMass",
-    gui=True,
-    gui_name="Passenger mass",
-    gui_group="Passengers",
-)
-
-cpacs_inout.add_input(
     var_name="PASS_BASE_DENSITY",
     var_type=float,
     default_value=1.66,
@@ -150,18 +90,6 @@ cpacs_inout.add_input(
     xpath=FUEL_XPATH + "/density",
     gui=True,
     gui_name="Fuel density",
-    gui_group="Fuel",
-)
-
-cpacs_inout.add_input(
-    var_name="RES_FUEL_PERC",
-    var_type=float,
-    default_value=0.06,
-    unit="[-]",
-    descr=" % of the total fuel, unusable fuel_consumption",
-    xpath=FUEL_XPATH + "/resFuelPerc",
-    gui=True,
-    gui_name="% unusable fuel",
     gui_group="Fuel",
 )
 

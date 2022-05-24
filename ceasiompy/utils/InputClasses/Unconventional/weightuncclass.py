@@ -37,15 +37,8 @@ class AdvancedInputs:
 
     Attributes:
 
-        #People
-        PILOT_NB (int): Number of pilots.
-        PASS_PER_TOILET (int): Number of passengers per each toilet.
-        MASS_PILOT (float): Pilot mass  [kg].
-        MASS_CABIN_CREW (float): Cabin crew mass  [kg].
-        MASS_PASS (float): Passenger mass_cabin_crew  [kg].
         #Fuel
         FUEL_DENSITY (float): Fuel density [kg/m^3].
-        RES_FUEL_PERC (float): % of the total fuel, unusable fuel_consumption.
         FMP (float): Percentage of the total fuel expected with maximum payload
                      for turbofan aircraft.
         FMP_tp (float): Percentage of the total fuel expected with maximum
@@ -64,16 +57,9 @@ class AdvancedInputs:
     """
 
     def __init__(self):
-        # People
-        self.PILOT_NB = 2
-        self.PASS_PER_TOILET = 50
-        self.MASS_PILOT = 102.0
-        self.MASS_CABIN_CREW = 68.0
-        self.MASS_PASS = 105.0
 
         # Fuel
         self.FUEL_DENSITY = 800
-        self.RES_FUEL_PERC = 0.06
         self.FPM = 80  # |80 all // 95 for the B777 or Concorde
         self.FPM_TP = 50
 

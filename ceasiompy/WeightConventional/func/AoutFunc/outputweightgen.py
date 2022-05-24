@@ -33,6 +33,9 @@ Python version: >=3.7
 # =============================================================================
 
 
+from ceasiompy.WeightConventional.func.weight_utils import PASSENGER_MASS, PILOT_NB
+
+
 def output_txt(out, mw, ind, ui, NAME):
     """The function generates the output text file for the Weight analysis.
 
@@ -97,12 +100,12 @@ def output_txt(out, mw, ind, ui, NAME):
     out_txt_file.write("\nCrew estimation -------------------------------")
     out_txt_file.write("\nTotal crew members: " + str(out.crew_nb))
     out_txt_file.write("\nNumber of cabin crew members: " + str(out.cabin_crew_nb))
-    out_txt_file.write("\nNumber of pilots: " + str(out.PILOT_NB))
+    out_txt_file.write("\nNumber of pilots: " + str(PILOT_NB))
     out_txt_file.write("\n-----------------------------------------------")
     out_txt_file.write("\nMasses estimation -----------------------------")
     out_txt_file.write("\nMaximum payload mass [kg]: " + str(int(round(mw.mass_payload, 0))))
     out_txt_file.write(
-        "\nMaximum passengers mass [kg]: " + str(int(round(out.pass_nb * ui.MASS_PASS, 0)))
+        "\nMaximum passengers mass [kg]: " + str(int(round(out.pass_nb * PASSENGER_MASS, 0)))
     )
     if mw.mass_cargo:
         out_txt_file.write("\nMaximum extra payload mass [kg]: " + str(int(round(mw.cargo, 0))))

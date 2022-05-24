@@ -57,30 +57,19 @@ class UserInputs:
                             1 = full 2nd floor (A380),
                             2 = half 2nd floor (B747)
     pilot_nb (int):         Number of pilots[-].
-    MASS_PILOT (int):       Pilot mass [kg] .
-    MASS_CABIN_CREW (int):  Cabin crew mass[kg].
-    MASS_PASS (int):        Passenger mass_cabin_crew [kg].
     MAX_PAYLOAD (int):      Maximum payload allowed, set 0 if equal to max passenger mass.
     MAX_FUEL_VOL (int):     Maximum fuel volume allowed [l].
-    PASS_PER_TOILET (int):  Min 1 toilette per 50 passenger.
     FUEL_DENSITY (float) :  Fuel density [kg/m^3].
-    RES_FUEL_PERC (float):  % of the total fuel, unusable fuel_consumption.
     TURBOPROP (bool):       Set True if the engine is a turboprop.
 
     """
 
     def __init__(self):
         self.IS_DOUBLE_FLOOR = 0
-        self.PILOT_NB = 2
-        self.MASS_PILOT = 102
-        self.MASS_CABIN_CREW = 68
-        self.MASS_PASS = 105
         self.MASS_CARGO = 0.0
         self.MAX_PAYLOAD = 0
         self.MAX_FUEL_VOL = 0
-        self.PASS_PER_TOILET = 50
         self.FUEL_DENSITY = 800
-        self.RES_FUEL_PERC = 0.06
         self.TURBOPROP = False
 
     def get_user_inputs(self, cpacs_path):
@@ -100,13 +89,6 @@ class UserInputs:
         get_value_or_default(tixi, GEOM_XPATH + "/description", description)
 
         self.IS_DOUBLE_FLOOR = get_value_or_default(tixi, GEOM_XPATH + "/isDoubleFloor", 0)
-        self.PILOT_NB = get_value_or_default(tixi, PILOTS_XPATH + "/pilotNb", 2)
-        self.MASS_PILOT = get_value_or_default(tixi, PILOTS_XPATH + "/pilotMass", 102)
-        self.MASS_CABIN_CREW = get_value_or_default(
-            tixi, CAB_CREW_XPATH + "/cabinCrewMemberMass", 68
-        )
-        self.MASS_PASS = get_value_or_default(tixi, PASS_XPATH + "/passMass", 105)
-        self.PASS_PER_TOILET = get_value_or_default(tixi, PASS_XPATH + "/passPerToilet", 50)
 
         description = "Desired max fuel volume [m^3] and payload mass [kg]"
         get_value_or_default(tixi, ML_XPATH + "/description", description)
@@ -120,7 +102,6 @@ class UserInputs:
         add_uid(tixi, F_XPATH, "kerosene")
 
         self.TURBOPROP = get_value_or_default(tixi, PROP_XPATH + "/turboprop", False)
-        self.RES_FUEL_PERC = get_value_or_default(tixi, FUEL_XPATH + "/resFuelPerc", 0.06)
 
         tixi.save(cpacs_path)
 
@@ -241,10 +222,9 @@ class WeightOutput:
     abreast_nb (int): Number of abreasts.
     row_nb (int): Number of rows.
     pass_nb (int): Number of passengers.
-    toilet_nb (int): Numbre of toilets.
+    toilet_nb (int): Number of toilets.
     crew_nb (int): Number of total crew members.
     cabin_crew_nb (int): Number of cabin crew members.
-    PILOT_NB (int): Number of pilots.
     wing_loading (float): Wing loading [kg/m^2].
 
     """
@@ -256,7 +236,6 @@ class WeightOutput:
         self.toilet_nb = 0
         self.crew_nb = 0
         self.cabin_crew_nb = 0
-        self.PILOT_NB = 0
         self.wing_loading = 0
 
 

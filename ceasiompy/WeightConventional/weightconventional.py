@@ -26,6 +26,11 @@ import shutil
 from pathlib import Path
 
 import numpy as np
+from ceasiompy.WeightConventional.func.weight_utils import (
+    PASSENGER_MASS,
+    PILOT_NB,
+    UNUSABLE_FUEL_RATIO,
+)
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import aircraft_name
 from ceasiompy.utils.InputClasses.Conventional import weightconvclass
@@ -117,8 +122,6 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     else:
         max_fuel_vol = ag.wing_fuel_vol
 
-    out.PILOT_NB = ui.PILOT_NB  # Number of pilot [-].
-
     # Massimum payload allowed, set 0 if equal to max passenger mass.
     mw.MAX_PAYLOAD = ui.MAX_PAYLOAD
 
@@ -157,7 +160,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
             out.aisle_nb,
             out.toilet_nb,
             ind,
-        ) = estimate_passengers(ui.PASS_PER_TOILET, cabin_length2, fuse_width, ind)
+        ) = estimate_passengers(cabin_length2, fuse_width, ind)
 
         get_seat_config(
             out.pass_nb,
@@ -166,7 +169,6 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
             out.aisle_nb,
             ui.IS_DOUBLE_FLOOR,
             out.toilet_nb,
-            ui.PASS_PER_TOILET,
             fuse_length,
             ind,
             name,
@@ -183,13 +185,13 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
             + str(ind.seat_width + ind.aisle_width)
         )
 
-    (out.crew_nb, out.cabin_crew_nb, mw.mass_crew) = estimate_crew(
-        out.pass_nb, ui.MASS_PILOT, ui.MASS_CABIN_CREW, mw.maximum_take_off_mass, out.PILOT_NB
+    out.crew_nb, out.cabin_crew_nb, mw.mass_crew = estimate_crew(
+        out.pass_nb, mw.maximum_take_off_mass
     )
 
-    mw.mass_payload = out.pass_nb * ui.MASS_PASS + ui.MASS_CARGO
+    mw.mass_payload = out.pass_nb * PASSENGER_MASS + ui.MASS_CARGO
 
-    mw.mass_people = mw.mass_crew + out.pass_nb * ui.MASS_PASS
+    mw.mass_people = mw.mass_crew + out.pass_nb * PASSENGER_MASS
 
     maxp = False
     if mw.MAX_PAYLOAD > 0 and mw.mass_payload > mw.MAX_PAYLOAD:
@@ -197,7 +199,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
         maxp = True
         log.info(
             "With the fixed payload, passenger nb reduced to: "
-            + str(round(mw.MAX_PAYLOAD / (ui.MASS_PASS), 0))
+            + str(round(mw.MAX_PAYLOAD / (PASSENGER_MASS), 0))
         )
 
     # Fuel Mass evaluation
@@ -260,7 +262,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 
     # Zero Fuel Mass evaluation
     mw.zero_fuel_mass = (
-        mw.maximum_take_off_mass - mw.mass_fuel_maxpass + (ui.RES_FUEL_PERC) * mw.mass_fuel_max
+        mw.maximum_take_off_mass - mw.mass_fuel_maxpass + UNUSABLE_FUEL_RATIO * mw.mass_fuel_max
     )
 
     # Log writting  (TODO: maybe create a separate function)
@@ -288,11 +290,11 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     log.info("Lavatory: " + str(out.toilet_nb))
     log.info("Payload mass [kg]: " + str(mw.mass_payload))
     log.info("------- Crew members evaluated: --------")
-    log.info("Pilots: " + str(out.PILOT_NB))
+    log.info("Pilots: " + str(PILOT_NB))
     log.info("Cabin crew members: " + str(out.cabin_crew_nb))
     log.info("############### Weight estimation completed ###############")
 
-    # Outptu writting
+    # Output writting
     log.info("-------- Generating output text file --------")
     outputweightgen.output_txt(out, mw, ind, ui, name)
 

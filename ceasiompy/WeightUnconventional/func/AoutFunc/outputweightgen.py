@@ -32,6 +32,9 @@ Python version: >=3.7
 # =============================================================================
 
 
+from ceasiompy.WeightConventional.func.weight_utils import PILOT_NB
+
+
 def output_fuse_txt(fus_nb, FLOORS_NB, ed, out, mw, adui, awg, afg, NAME):
     """The function generates the output text file for the
         Weight_unc_main program in case of geometry with
@@ -84,7 +87,7 @@ def output_fuse_txt(fus_nb, FLOORS_NB, ed, out, mw, adui, awg, afg, NAME):
     out_txt_file.write("\nSuggested crew members ------------------------")
     out_txt_file.write("\nTotal crew members: " + str(out.crew_nb))
     out_txt_file.write("\nNumber of cabin crew members: " + str(out.cabin_crew_nb))
-    out_txt_file.write("\nNumber of pilots: " + str(adui.PILOT_NB))
+    out_txt_file.write("\nNumber of pilots: " + str(PILOT_NB))
     out_txt_file.write("\n-----------------------------------------------")
     out_txt_file.write("\nEngine estimation -----------------------------")
     out_txt_file.write("\nNumber of engines: " + str(ed.NE))
@@ -173,7 +176,7 @@ def output_bwb_txt(FLOORS_NB, ed, out, mw, adui, awg, NAME):
     out_txt_file.write("\nSuggested crew members ------------------------")
     out_txt_file.write("\nTotal crew members: " + str(out.crew_nb))
     out_txt_file.write("\nNumber of cabin crew members: " + str(out.cabin_crew_nb))
-    out_txt_file.write("\nNumber of pilots: " + str(adui.PILOT_NB))
+    out_txt_file.write("\nNumber of pilots: " + str(PILOT_NB))
     out_txt_file.write("\n-----------------------------------------------")
     out_txt_file.write("\nEngine estimation -----------------------------")
     out_txt_file.write("\nNumber of engines: " + str(ed.NE))

@@ -17,6 +17,7 @@ The script evaluates the fuel consumption during the different flight phases.
 # =============================================================================
 
 import math
+from ceasiompy.WeightConventional.func.weight_utils import UNUSABLE_FUEL_RATIO
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -33,7 +34,7 @@ log = get_logger()
 # =============================================================================
 
 
-def fuel_consumption(LDloi, mw, ri, RES_FUEL_PERC):
+def fuel_consumption(LDloi, mw, ri):
     """Function that estimate the fuel used for each flight phases.
 
     Source: Raymer, D.P. "Aircraft design: a conceptual approach"
@@ -45,8 +46,6 @@ def fuel_consumption(LDloi, mw, ri, RES_FUEL_PERC):
     (class) mw       --Arg.: MassesWeights class.
     ##======= Class is defined in the InputClasses folder =======##
 
-    (float) RES_FUEL_PERC  --Arg.:Unusable fuel percentage [-] (0.06 Default).
-
     OUTPUT
     (class) mw  --Out.: Updated MassesWeights class.
     ##======= Class is defined in the InputClasses folder =======##
@@ -55,10 +54,10 @@ def fuel_consumption(LDloi, mw, ri, RES_FUEL_PERC):
     G = 9.81  # [m/s] acceleration of gravity
     mw.w_g = mw.maximum_take_off_mass * G
     mw.wf_tot = mw.mass_fuel_maxpass * G
-    mw.w_after_land = (1 - mw.wf_tot / (mw.w_g * (RES_FUEL_PERC + 1))) * mw.w_g
+    mw.w_after_land = (1 - mw.wf_tot / (mw.w_g * (UNUSABLE_FUEL_RATIO + 1))) * mw.w_g
     mw.mf_after_land = round((mw.w_after_land / G - mw.operating_empty_mass - mw.mass_payload), 3)
-    if mw.mf_after_land != mw.mass_fuel_maxpass * RES_FUEL_PERC:
-        mw.mf_after_land = mw.mass_fuel_maxpass * RES_FUEL_PERC
+    if mw.mf_after_land != mw.mass_fuel_maxpass * UNUSABLE_FUEL_RATIO:
+        mw.mf_after_land = mw.mass_fuel_maxpass * UNUSABLE_FUEL_RATIO
         mw.w_after_land = (mw.mf_after_land + mw.operating_empty_mass + mw.mass_payload) * G
 
     mw.w_after_loiter = mw.w_after_land / 0.995

@@ -44,6 +44,7 @@ from ceasiompy.Range.func.RangeEstimation.breguetrange import breguet_cruise_ran
 from ceasiompy.Range.func.AoutFunc import outputrangegen
 from ceasiompy.Range.func.AoutFunc import cpacsrangeupdate
 from ceasiompy.Range.func.AinFunc import getdatafromcpacs
+from ceasiompy.WeightConventional.func.weight_utils import PASSENGER_MASS
 
 from ceasiompy.utils.ceasiompyutils import aircraft_name
 
@@ -118,11 +119,9 @@ def get_range_estimation(cpacs_path, cpacs_out_path):
     log.info("---------- Aircraft: " + name + " -----------")
 
     # RANGE AND FUEL CONSUMPTION
-    mw = fuel_consumption(LDloi, mw, ri, ri.RES_FUEL_PERC)
+    mw = fuel_consumption(LDloi, mw, ri)
 
-    (out.ranges, out.ranges_cru, mw.m_pass_middle) = breguet_cruise_range(
-        LDcru, ri, mw, ri.RES_FUEL_PERC
-    )
+    out.ranges, out.ranges_cru, mw.m_pass_middle = breguet_cruise_range(LDcru, ri, mw)
 
     if mw.m_pass_middle:
         out.payloads = [
@@ -156,7 +155,7 @@ def get_range_estimation(cpacs_path, cpacs_out_path):
 
     # CPACS WRITING
 
-    cpacsrangeupdate.cpacs_update(ri.MASS_PASS, out, mw, cpacs_out_path)
+    cpacsrangeupdate.cpacs_update(PASSENGER_MASS, out, mw, cpacs_out_path)
 
     if os.path.exists("ToolInput/conv.temp"):
         B = "BalanceConventional/ToolInput"

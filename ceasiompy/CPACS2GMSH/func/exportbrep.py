@@ -126,6 +126,43 @@ def engine_export(cpacs, engine, brep_dir_path, engines_cfg_file_path, engine_su
         )
 
 
+def rotor_config(rotorcraft_config, brep_dir_path):
+    """
+    Store the rotor configuration of the aircraft in a .cfg file in order to
+    replace in gmsh the rotor by disk for the disk actuator modeling
+
+    Args:
+    rotorcraft_config : tixi
+        rotor configuration of the aircraft
+    brep_dir_path : Path
+        Path object to the directory where the brep files are saved
+    """
+    rotor_cnt = rotorcraft_config.get_rotor_count()
+    # create config file for the engine conversion
+    rotors_cfg_file_path = Path(brep_dir_path, "config_rotors.cfg")
+    config_file = ConfigFile()
+    config_file[f"NB_ROTOR"] = f"{rotor_cnt}"
+    for k in range(1, rotor_cnt + 1):
+        rotor = rotorcraft_config.get_rotor(k)
+        config_file[f"UID_{k}"] = f"{rotor.get_uid()}"
+        config_file[f"{rotor.get_uid()}_ROTOR_RADIUS"] = f"{rotor.get_radius()}"
+
+        symmetric = rotor.get_symmetry()
+        config_file[f"{rotor.get_uid()}_SYMMETRIC"] = f"{symmetric}"
+
+        config_file[f"{rotor.get_uid()}_TRANS_X"] = f"{rotor.get_translation().x}"
+        config_file[f"{rotor.get_uid()}_TRANS_Y"] = f"{rotor.get_translation().y}"
+        config_file[f"{rotor.get_uid()}_TRANS_Z"] = f"{rotor.get_translation().z}"
+
+        config_file[f"{rotor.get_uid()}_ROT_X"] = f"{rotor.get_rotation().x}"
+        config_file[f"{rotor.get_uid()}_ROT_Y"] = f"{rotor.get_rotation().y}"
+        config_file[f"{rotor.get_uid()}_ROT_Z"] = f"{rotor.get_rotation().z}"
+
+        # Note that scaling is not used and needed since the
+        # rotor.get_radius() is already scaled correctly
+    config_file.write_file(rotors_cfg_file_path, overwrite=True)
+
+
 def export_brep(cpacs, brep_dir_path, engine_surface_percent=(20, 20)):
     """Function to generate and export the geometries of a .xml file
 
@@ -150,7 +187,11 @@ def export_brep(cpacs, brep_dir_path, engine_surface_percent=(20, 20)):
     """
 
     # Get rotor config
-    rotorcraft_config = cpacs.rotorcraft.configuration
+    try:
+        rotorcraft_config = cpacs.rotorcraft.configuration
+        rotor_config(rotorcraft_config, brep_dir_path)
+    except AttributeError:
+        pass
 
     # get the aircraft configuration
     aircraft_config = cpacs.aircraft.configuration
@@ -158,8 +199,6 @@ def export_brep(cpacs, brep_dir_path, engine_surface_percent=(20, 20)):
     # Retrieve aircraft parts
     fuselage_cnt = aircraft_config.get_fuselage_count()
     wing_cnt = aircraft_config.get_wing_count()
-    rotor_cnt = rotorcraft_config.get_rotor_count()
-    # rotor_blade_cnt = rotorcraft_config.get_rotor_blade_count()
 
     # Pylon configuration
     pylons_config = aircraft_config.get_engine_pylons()
@@ -197,32 +236,6 @@ def export_brep(cpacs, brep_dir_path, engine_surface_percent=(20, 20)):
             pylon_m_geom = pylons_config.get_engine_pylon(k).get_mirrored_loft()
             if pylon_m_geom is not None:
                 export(pylon_m_geom, brep_dir_path, pylon_uid + "_mirrored")
-
-    # Rotor
-    if rotor_cnt > 0:
-        # create config file for the engine conversion
-        rotors_cfg_file_path = Path(brep_dir_path, "config_rotors.cfg")
-        config_file = ConfigFile()
-        config_file[f"NB_ROTOR"] = f"{rotor_cnt}"
-        for k in range(1, rotor_cnt + 1):
-            rotor = rotorcraft_config.get_rotor(k)
-            config_file[f"UID_{k}"] = f"{rotor.get_uid()}"
-            config_file[f"{rotor.get_uid()}_ROTOR_RADIUS"] = f"{rotor.get_radius()}"
-
-            symmetric = rotor.get_symmetry()
-            config_file[f"{rotor.get_uid()}_SYMMETRIC"] = f"{symmetric}"
-
-            config_file[f"{rotor.get_uid()}_TRANS_X"] = f"{rotor.get_translation().x}"
-            config_file[f"{rotor.get_uid()}_TRANS_Y"] = f"{rotor.get_translation().y}"
-            config_file[f"{rotor.get_uid()}_TRANS_Z"] = f"{rotor.get_translation().z}"
-
-            config_file[f"{rotor.get_uid()}_ROT_X"] = f"{rotor.get_rotation().x}"
-            config_file[f"{rotor.get_uid()}_ROT_Y"] = f"{rotor.get_rotation().y}"
-            config_file[f"{rotor.get_uid()}_ROT_Z"] = f"{rotor.get_rotation().z}"
-
-            # Note that scaling is not used and needed since the
-            # rotor.get_radius() is already scaled correctly
-        config_file.write_file(rotors_cfg_file_path, overwrite=True)
 
     # Engine
     if engines_config:

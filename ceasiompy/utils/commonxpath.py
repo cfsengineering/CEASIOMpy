@@ -81,6 +81,7 @@ SUMO_REFINE_LEVEL_XPATH = MESH_XPATH + "/sumoOptions/refinementLevel"
 SUMO_INCLUDE_PYLON_XPATH = "/cpacs/toolspecific/CEASIOMpy/engine/includePylon"
 SUMO_INCLUDE_ENGINE_XPATH = "/cpacs/toolspecific/CEASIOMpy/engine/includeEngine"
 
+
 # GMSH
 GMSH_XPATH = MESH_XPATH + "/gmshOptions"
 GMSH_OPEN_GUI_XPATH = GMSH_XPATH + "/open_gui"
@@ -100,6 +101,7 @@ SU2_XPATH = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2"
 SU2_AEROMAP_UID_XPATH = SU2_XPATH + "/aeroMapUID"
 SU2_NB_CPU_XPATH = SU2_XPATH + "/settings/nbCPU"
 SU2_EXTRACT_LOAD_XPATH = SU2_XPATH + "/results/extractLoads"
+SU2_UPDATE_WETTED_AREA_XPATH = SU2_XPATH + "/results/updateWettedArea"
 
 SU2_MAX_ITER_XPATH = SU2_XPATH + "/settings/maxIter"
 SU2_CFL_NB_XPATH = SU2_XPATH + "/settings/cflNumber"

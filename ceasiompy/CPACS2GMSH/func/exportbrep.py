@@ -27,6 +27,8 @@ from ceasiompy.CPACS2GMSH.func.engineconversion import engine_conversion
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
 from ceasiompy.utils.configfiles import ConfigFile
+import tigl3.configuration
+from tigl3 import tigl3wrapper
 from tigl3.import_export_helper import export_shapes
 
 log = get_logger()
@@ -88,7 +90,6 @@ def engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_perc
     engine_uid = engine.get_uid()
     engine_uids.append(engine_uid)
     nacelle = engine.get_nacelle()
-
     if nacelle:
         center_cowl = nacelle.get_center_cowl()
         if center_cowl:
@@ -120,7 +121,9 @@ def engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_perc
 
         config_file.write_file(engines_cfg_file, overwrite=True)
 
-    engine_conversion(cpacs, engine_uids, brep_dir, engines_cfg_file, engine_surface_percent)
+        engine_conversion(
+            cpacs, engine_uids, brep_dir_path, engines_cfg_file_path, engine_surface_percent
+        )
 
 
 def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
@@ -146,13 +149,19 @@ def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
 
     """
 
+    # Get rotor config
+    rotorcraft_config = cpacs.rotorcraft.configuration
+
+    # get the aircraft configuration
     aircraft_config = cpacs.aircraft.configuration
 
     # Retrieve aircraft parts
     fuselage_cnt = aircraft_config.get_fuselage_count()
     wing_cnt = aircraft_config.get_wing_count()
-    # rotor_cnt = aircraft_config.get_rotor_count()
-    # rotor_blade_cnt = aircraft_config.get_rotor_blade_count()
+    rotor_cnt = rotorcraft_config.get_rotor_count()
+    # rotor_blade_cnt = rotorcraft_config.get_rotor_blade_count()
+
+    # Pylon configuration
     pylons_config = aircraft_config.get_engine_pylons()
     engines_config = aircraft_config.get_engines()
 
@@ -188,6 +197,32 @@ def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
             pylon_m_geom = pylons_config.get_engine_pylon(k).get_mirrored_loft()
             if pylon_m_geom is not None:
                 export(pylon_m_geom, brep_dir, pylon_uid + "_mirrored")
+
+    # Rotor
+    if rotor_cnt > 0:
+        # create config file for the engine conversion
+        rotors_cfg_file_path = Path(brep_dir_path, "config_rotors.cfg")
+        config_file = ConfigFile()
+        config_file[f"NB_ROTOR"] = f"{rotor_cnt}"
+        for k in range(1, rotor_cnt + 1):
+            rotor = rotorcraft_config.get_rotor(k)
+            config_file[f"UID_{k}"] = f"{rotor.get_uid()}"
+            config_file[f"{rotor.get_uid()}_ROTOR_RADIUS"] = f"{rotor.get_radius()}"
+
+            symmetric = rotor.get_symmetry()
+            config_file[f"{rotor.get_uid()}_SYMMETRIC"] = f"{symmetric}"
+
+            config_file[f"{rotor.get_uid()}_TRANS_X"] = f"{rotor.get_translation().x}"
+            config_file[f"{rotor.get_uid()}_TRANS_Y"] = f"{rotor.get_translation().y}"
+            config_file[f"{rotor.get_uid()}_TRANS_Z"] = f"{rotor.get_translation().z}"
+
+            config_file[f"{rotor.get_uid()}_ROT_X"] = f"{rotor.get_rotation().x}"
+            config_file[f"{rotor.get_uid()}_ROT_Y"] = f"{rotor.get_rotation().y}"
+            config_file[f"{rotor.get_uid()}_ROT_Z"] = f"{rotor.get_rotation().z}"
+
+            # Note that scaling is not used and needed since the
+            # rotor.get_radius() is already scaled correctly
+        config_file.write_file(rotors_cfg_file_path, overwrite=True)
 
     # Engine
     if engines_config:

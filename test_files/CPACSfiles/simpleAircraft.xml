@@ -1,0 +1,1727 @@
+<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="../schema/cpacs_schema.xsd">
+    <header>
+        <name>Simple aircraft template</name>
+        <creator>DLR-SL</creator>
+        <timestamp>2021-10-29T11:56:46.259694</timestamp>
+        <version>1.0</version>
+        <cpacsVersion>3.4</cpacsVersion>
+    </header>
+    <vehicles>
+        <rotorcraft>
+            <model uID="rotorModel">
+                <name>Rotor models</name>
+                <reference>
+                    <area>1</area>
+                    <length>1</length>
+                    <point uID="rotorRefPoint">
+                        <x>0.0</x>
+                        <y>0.0</y>
+                        <z>0.0</z>
+                    </point>
+                </reference>
+                <rotors>
+                    <rotor uID="Propeller" symmetry="x-z-plane">
+                        <name>Propeller</name>
+                        <type>propeller</type>
+                        <transformation>
+                            <scaling>
+                                <x>1</x>
+                                <y>1</y>
+                                <z>1</z>
+                            </scaling>
+                            <rotation>
+                                <x>0</x>
+                                <y>-90</y>
+                                <z>0</z>
+                            </rotation>
+                            <translation>
+                                <x>2.5</x>
+                                <y>1</y>
+                                <z>0.5</z>
+                            </translation>
+                        </transformation>
+                        <rotorHub uID="PropellerHub">
+                            <name>PropellerHub</name>
+                            <type>rigid</type>
+                            <rotorBladeAttachments>
+                                <rotorBladeAttachment uID="PropellerHub_rotorBladeAttachment1">
+                                    <numberOfBlades>5</numberOfBlades>
+                                    <hinges>
+                                        <hinge uID="Propeller_pitchHinge">
+                                            <name>Propeller_pitchHinge</name>
+                                            <transformation>
+                                                <translation>
+                                                    <x>0.10</x>
+                                                    <y>0</y>
+                                                    <z>0</z>
+                                                </translation>
+                                            </transformation>
+                                            <type>pitch</type>
+                                            <neutralPosition>10</neutralPosition>
+                                        </hinge>
+                                    </hinges>
+                                    <rotorBladeUID>Propeller_blade</rotorBladeUID>
+                                </rotorBladeAttachment>
+                            </rotorBladeAttachments>
+                        </rotorHub>
+                        <nominalRotationsPerMinute>3300</nominalRotationsPerMinute>
+                    </rotor>
+                    <rotor uID="Propeller2" symmetry="x-z-plane">
+                        <name>Propeller 2</name>
+                        <type>propeller</type>
+                        <transformation>
+                            <scaling>
+                                <x>0.5</x>
+                                <y>0.5</y>
+                                <z>0.5</z>
+                            </scaling>
+                            <rotation>
+                                <x>0</x>
+                                <y>-90</y>
+                                <z>0</z>
+                            </rotation>
+                            <translation>
+                                <x>2.9</x>
+                                <y>3.5</y>
+                                <z>0.5</z>
+                            </translation>
+                        </transformation>
+                        <rotorHub uID="Propeller2Hub">
+                            <name>PropellerHub</name>
+                            <type>rigid</type>
+                            <rotorBladeAttachments>
+                                <rotorBladeAttachment uID="Propeller2Hub_rotorBladeAttachment1">
+                                    <numberOfBlades>5</numberOfBlades>
+                                    <hinges>
+                                        <hinge uID="Propeller2_pitchHinge">
+                                            <name>Propeller_pitchHinge</name>
+                                            <transformation>
+                                                <translation>
+                                                    <x>0.10</x>
+                                                    <y>0</y>
+                                                    <z>0</z>
+                                                </translation>
+                                            </transformation>
+                                            <type>pitch</type>
+                                            <neutralPosition>10</neutralPosition>
+                                        </hinge>
+                                    </hinges>
+                                    <rotorBladeUID>Propeller_blade</rotorBladeUID>
+                                </rotorBladeAttachment>
+                            </rotorBladeAttachments>
+                        </rotorHub>
+                        <nominalRotationsPerMinute>3300</nominalRotationsPerMinute>
+                    </rotor>
+                </rotors>
+                <rotorBlades>
+                    <rotorBlade uID="Propeller_blade">
+                        <name>Propeller_blade</name>
+                        <transformation uID="Propeller_blade_transformation1">
+                            <scaling uID="Propeller_blade_transformation1_scaling1">
+                                <x>1</x>
+                                <y>1</y>
+                                <z>1</z>
+                            </scaling>
+                            <rotation uID="Propeller_blade_transformation1_rotation1">
+                                <x>0</x>
+                                <y>0</y>
+                                <z>0</z>
+                            </rotation>
+                            <translation refType="absLocal" uID="Propeller_blade_transformation1_translation1">
+                                <x>0</x>
+                                <y>0</y>
+                                <z>0</z>
+                            </translation>
+                        </transformation>
+                        <sections>
+                            <section uID="Propeller_blade_section1">
+                                <name>Propeller_blade_section1</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>0.07</x>
+                                        <y>0.07</y>
+                                        <z>0.07</z>
+                                    </scaling>
+                                    <rotation>
+                                        <x>14.56</x>
+                                        <y>0</y>
+                                        <z>10</z>
+                                    </rotation>
+                                    <translation>
+                                        <x>0</x>
+                                        <y>0</y>
+                                        <z>0</z>
+                                    </translation>
+                                </transformation>
+                                <elements>
+                                    <element uID="Propeller_blade_section1_element1">
+                                        <name>Propeller_blade_section1_element_1</name>
+                                        <airfoilUID>NACA0010</airfoilUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>1</x>
+                                                <y>1</y>
+                                                <z>1.75</z>
+                                            </scaling>
+                                            <rotation>
+                                                <x>0</x>
+                                                <y>0</y>
+                                                <z>-90</z>
+                                            </rotation>
+                                            <translation>
+                                                <x>0</x>
+                                                <y>0.5</y>
+                                                <z>0</z>
+                                            </translation>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                            <section uID="Propeller_blade_section5">
+                                <name>Propeller_blade_section5</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>0.1</x>
+                                        <y>0.1</y>
+                                        <z>0.1</z>
+                                    </scaling>
+                                    <rotation>
+                                        <x>5.97</x>
+                                        <y>0</y>
+                                        <z>-11.42</z>
+                                    </rotation>
+                                </transformation>
+                                <elements>
+                                    <element uID="Propeller_blade_section5_element1">
+                                        <name>Propeller_blade_section5_element1</name>
+                                        <airfoilUID>NACA0010</airfoilUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>1</x>
+                                                <y>1</y>
+                                                <z>0.39</z>
+                                            </scaling>
+                                            <rotation>
+                                                <x>0</x>
+                                                <y>0</y>
+                                                <z>-90</z>
+                                            </rotation>
+                                            <translation>
+                                                <x>0</x>
+                                                <y>0.5</y>
+                                                <z>0</z>
+                                            </translation>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                            <section uID="Propeller_blade_section10">
+                                <name>Propeller_blade_section10</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>0.03</x>
+                                        <y>0.03</y>
+                                        <z>0.03</z>
+                                    </scaling>
+                                    <rotation>
+                                        <x>-9.18</x>
+                                        <y>0</y>
+                                        <z>0</z>
+                                    </rotation>
+                                    <translation>
+                                        <x>0</x>
+                                        <y>0</y>
+                                        <z>0</z>
+                                    </translation>
+                                </transformation>
+                                <elements>
+                                    <element uID="Propeller_blade_section10_element1">
+                                        <name>Propeller_blade_section10_element1</name>
+                                        <airfoilUID>NACA0010</airfoilUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>1</x>
+                                                <y>1</y>
+                                                <z>0.18</z>
+                                            </scaling>
+                                            <rotation>
+                                                <x>0</x>
+                                                <y>0</y>
+                                                <z>-90</z>
+                                            </rotation>
+                                            <translation>
+                                                <x>0</x>
+                                                <y>0.5</y>
+                                                <z>0</z>
+                                            </translation>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                        </sections>
+                        <positionings>
+                            <positioning uID="Propeller_blade_positioning1">
+                                <name>Propeller_blade_positioning1</name>
+                                <length>0.05</length>
+                                <sweepAngle>90</sweepAngle>
+                                <dihedralAngle>0</dihedralAngle>
+                                <toSectionUID>Propeller_blade_section1</toSectionUID>
+                            </positioning>
+                            <positioning uID="Propeller_blade_positioning2">
+                                <name>Propeller_blade_positioning2</name>
+                                <length>0.2</length>
+                                <sweepAngle>90</sweepAngle>
+                                <dihedralAngle>0</dihedralAngle>
+                                <fromSectionUID>Propeller_blade_section1</fromSectionUID>
+                                <toSectionUID>Propeller_blade_section5</toSectionUID>
+                            </positioning>
+                            <positioning uID="Propeller_blade_positioning3">
+                                <name>Propeller_blade_positioning3</name>
+                                <length>0.3</length>
+                                <sweepAngle>90</sweepAngle>
+                                <dihedralAngle>0</dihedralAngle>
+                                <fromSectionUID>Propeller_blade_section5</fromSectionUID>
+                                <toSectionUID>Propeller_blade_section10</toSectionUID>
+                            </positioning>
+                        </positionings>
+                        <segments>
+                            <segment uID="Propeller_blade_segment1">
+                                <name>Propeller_blade_segment1</name>
+                                <fromElementUID>Propeller_blade_section1_element1</fromElementUID>
+                                <toElementUID>Propeller_blade_section5_element1</toElementUID>
+                            </segment>
+                            <segment uID="Propeller_blade_segment2">
+                                <name>Propeller_blade_segment2</name>
+                                <fromElementUID>Propeller_blade_section5_element1</fromElementUID>
+                                <toElementUID>Propeller_blade_section10_element1</toElementUID>
+                            </segment>
+                        </segments>
+                    </rotorBlade>
+                </rotorBlades>
+            </model>
+        </rotorcraft>
+        <aircraft>
+            <model uID="aircraftModel">
+                <name>Aircraft model</name>
+                <description>The "model" is the singular form of aircraft.</description>
+                <reference>
+                    <area>1</area>
+                    <length>1</length>
+                    <point>
+                        <x>0</x>
+                        <y>0</y>
+                        <z>0</z>
+                    </point>
+                </reference>
+                <genericGeometryComponents>
+                    <genericGeometryComponent uID="seat">
+                        <name>Seat</name>
+                        <parentUID>fuselage</parentUID>
+                        <transformation>
+                            <scaling>
+                                <x>0.4</x>
+                                <y>0.4</y>
+                                <z>0.4</z>
+                            </scaling>
+                            <translation>
+                                <x>6</x>
+                                <y>2.2</y>
+                            </translation>
+                            <rotation>
+                                <x>90</x>
+                                <y>-90</y>
+                            </rotation>
+                        </transformation>
+                        <linkToFile format="Step">seat.stp</linkToFile>
+                    </genericGeometryComponent>
+                </genericGeometryComponents>
+                <fuselages>
+                    <fuselage uID="fuselage">
+                        <name>Fuselage</name>
+                        <description>In this example, the aircraft fuselage represents the hierarchically topmost element. This can be seen from the fact that the fuselage does not have an element called parentUID.</description>
+                        <transformation>
+                            <scaling>
+                                <x>1.0</x>
+                                <y>1.0</y>
+                                <z>1.0</z>
+                            </scaling>
+                            <translation>
+                                <x>0.0</x>
+                                <y>0.0</y>
+                                <z>0.0</z>
+                            </translation>
+                        </transformation>
+                        <sections>
+                            <section uID="Section1ID">
+                                <name>Section1</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>1.0</x>
+                                        <y>1.0</y>
+                                        <z>1.0</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="Section1IDElement1">
+                                        <name>Section 1</name>
+                                        <profileUID>fuselageCircleProfile</profileUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>0.01</x>
+                                                <y>0.01</y>
+                                                <z>0.01</z>
+                                            </scaling>
+                                            <translation>
+                                                <z>-0.2</z>
+                                            </translation>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                            <section uID="Section2ID">
+                                <name>Section2</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>1.0</x>
+                                        <y>1.0</y>
+                                        <z>1.0</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="Section2IDElement1">
+                                        <name>Section 2</name>
+                                        <profileUID>fuselageCircleProfile</profileUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>0.5</x>
+                                                <y>0.5</y>
+                                                <z>0.5</z>
+                                            </scaling>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                            <section uID="Section3ID">
+                                <name>Section3</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>1.0</x>
+                                        <y>1.0</y>
+                                        <z>1.0</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="Section3IDElement1">
+                                        <name>Section 3</name>
+                                        <profileUID>fuselageCircleProfile</profileUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>0.5</x>
+                                                <y>0.5</y>
+                                                <z>0.5</z>
+                                            </scaling>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                            <section uID="Section4ID">
+                                <name>Section 4</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>1.0</x>
+                                        <y>1.0</y>
+                                        <z>1.0</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="Section4IDElement1">
+                                        <name>Section4</name>
+                                        <profileUID>fuselageCircleProfile</profileUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>0.1</x>
+                                                <y>0.1</y>
+                                                <z>0.1</z>
+                                            </scaling>
+                                            <translation>
+                                                <z>0.4</z>
+                                            </translation>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                        </sections>
+                        <positionings>
+                            <positioning uID="Positioning1ID">
+                                <name>Positioning2</name>
+                                <length>1</length>
+                                <sweepAngle>90</sweepAngle>
+                                <dihedralAngle>0</dihedralAngle>
+                                <toSectionUID>Section2ID</toSectionUID>
+                            </positioning>
+                            <positioning uID="Positioning2ID">
+                                <name>Positioning3</name>
+                                <length>3</length>
+                                <sweepAngle>90</sweepAngle>
+                                <dihedralAngle>0</dihedralAngle>
+                                <fromSectionUID>Section2ID</fromSectionUID>
+                                <toSectionUID>Section3ID</toSectionUID>
+                            </positioning>
+                            <positioning uID="Positioning3ID">
+                                <name>Positioning4</name>
+                                <length>2.5</length>
+                                <sweepAngle>90</sweepAngle>
+                                <dihedralAngle>0</dihedralAngle>
+                                <fromSectionUID>Section3ID</fromSectionUID>
+                                <toSectionUID>Section4ID</toSectionUID>
+                            </positioning>
+                        </positionings>
+                        <segments>
+                            <segment uID="segmentSegment1ID">
+                                <name>Segment1</name>
+                                <fromElementUID>Section1IDElement1</fromElementUID>
+                                <toElementUID>Section2IDElement1</toElementUID>
+                                <guideCurves>
+                                    <guideCurve uID="guideCurveSegment1_1">
+                                        <name>Guide Curve 1</name>
+                                        <guideCurveProfileUID>guideCurveUpperSegment1_gcp</guideCurveProfileUID>
+                                        <fromRelativeCircumference>0.0</fromRelativeCircumference>
+                                        <toRelativeCircumference>0</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="guideCurveSegment1_2">
+                                        <name>Guide Curve 1</name>
+                                        <guideCurveProfileUID>guideCurveBBSegment1_gcp</guideCurveProfileUID>
+                                        <fromRelativeCircumference>0.25</fromRelativeCircumference>
+                                        <toRelativeCircumference>0.25</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="guideCurveSegment1_3">
+                                        <name>Guide Curve 1</name>
+                                        <guideCurveProfileUID>guideCurveLowerSegment1_gcp</guideCurveProfileUID>
+                                        <fromRelativeCircumference>0.5</fromRelativeCircumference>
+                                        <toRelativeCircumference>0.5</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="guideCurveSegment1_4">
+                                        <name>Guide Curve 1</name>
+                                        <guideCurveProfileUID>guideCurveRBSegment1_gcp</guideCurveProfileUID>
+                                        <fromRelativeCircumference>0.75</fromRelativeCircumference>
+                                        <toRelativeCircumference>0.75</toRelativeCircumference>
+                                    </guideCurve>
+                                </guideCurves>
+                            </segment>
+                            <segment uID="segmentSegment2ID">
+                                <name>Segment2</name>
+                                <fromElementUID>Section2IDElement1</fromElementUID>
+                                <toElementUID>Section3IDElement1</toElementUID>
+                                <guideCurves>
+                                    <guideCurve uID="guideCurveSegment2_1">
+                                        <name>Guide Curve 1</name>
+                                        <guideCurveProfileUID>guideCurveUpperSegment2_gcp</guideCurveProfileUID>
+                                        <fromGuideCurveUID>guideCurveSegment1_1</fromGuideCurveUID>
+                                        <toRelativeCircumference>0</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="guideCurveSegment2_2">
+                                        <name>Guide Curve 1</name>
+                                        <guideCurveProfileUID>guideCurveBBSegment2_gcp</guideCurveProfileUID>
+                                        <fromGuideCurveUID>guideCurveSegment1_2</fromGuideCurveUID>
+                                        <toRelativeCircumference>0.25</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="guideCurveSegment2_3">
+                                        <name>Guide Curve 1</name>
+                                        <guideCurveProfileUID>guideCurveLowerSegment2_gcp</guideCurveProfileUID>
+                                        <fromGuideCurveUID>guideCurveSegment1_3</fromGuideCurveUID>
+                                        <toRelativeCircumference>0.5</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="guideCurveSegment2_4">
+                                        <name>Guide Curve 1</name>
+                                        <guideCurveProfileUID>guideCurveRBSegment2_gcp</guideCurveProfileUID>
+                                        <fromGuideCurveUID>guideCurveSegment1_4</fromGuideCurveUID>
+                                        <toRelativeCircumference>0.75</toRelativeCircumference>
+                                    </guideCurve>
+                                </guideCurves>
+                            </segment>
+                            <segment uID="segmentSegment3ID">
+                                <name>Segment3</name>
+                                <fromElementUID>Section3IDElement1</fromElementUID>
+                                <toElementUID>Section4IDElement1</toElementUID>
+                                <guideCurves>
+                                    <guideCurve uID="guideCurveSegment3_1">
+                                        <name>Guide Curve 1</name>
+                                        <guideCurveProfileUID>guideCurveUpperSegment3_gcp</guideCurveProfileUID>
+                                        <fromGuideCurveUID>guideCurveSegment2_1</fromGuideCurveUID>
+                                        <toRelativeCircumference>0.0</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="guideCurveSegment3_2">
+                                        <name>Guide Curve 1</name>
+                                        <guideCurveProfileUID>guideCurveBBSegment3_gcp</guideCurveProfileUID>
+                                        <fromGuideCurveUID>guideCurveSegment2_2</fromGuideCurveUID>
+                                        <continuity>C1 from previous</continuity>
+                                        <toRelativeCircumference>0.25</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="guideCurveSegment3_3">
+                                        <name>Guide Curve 1</name>
+                                        <guideCurveProfileUID>guideCurveLowerSegment3_gcp</guideCurveProfileUID>
+                                        <fromGuideCurveUID>guideCurveSegment2_3</fromGuideCurveUID>
+                                        <continuity>C1 from previous</continuity>
+                                        <toRelativeCircumference>0.5</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="guideCurveSegment3_4">
+                                        <name>Guide Curve 1</name>
+                                        <guideCurveProfileUID>guideCurveRBSegment3_gcp</guideCurveProfileUID>
+                                        <fromGuideCurveUID>guideCurveSegment2_4</fromGuideCurveUID>
+                                        <continuity>C1 from previous</continuity>
+                                        <toRelativeCircumference>0.75</toRelativeCircumference>
+                                    </guideCurve>
+                                </guideCurves>
+                            </segment>
+                        </segments>
+                    </fuselage>
+                    <fuselage uID="fairing" symmetry="none">
+                        <name>Fairing</name>
+                        <parentUID>Wing</parentUID>
+                        <transformation>
+                            <scaling>
+                                <x>1</x>
+                                <y>1</y>
+                                <z>1</z>
+                            </scaling>
+                            <translation refType="absLocal">
+                                <x>-0.25</x>
+                                <z>-0.1</z>
+                            </translation>
+                        </transformation>
+                        <sections>
+                            <section uID="fairing_sec1">
+                                <name>Fairing section 1</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>1</x>
+                                        <y>1</y>
+                                        <z>1</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="fairing_sec1_el1">
+                                        <name>Fairing section 1 element 1</name>
+                                        <profileUID>fairingProfile</profileUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>1</x>
+                                                <y>0.25</y>
+                                                <z>0.1</z>
+                                            </scaling>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                            <section uID="fairing_sec2">
+                                <name>Fairing section 2</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>1</x>
+                                        <y>1</y>
+                                        <z>1</z>
+                                    </scaling>
+                                    <translation>
+                                        <x>1.5</x>
+                                    </translation>
+                                </transformation>
+                                <elements>
+                                    <element uID="fairing_sec2_el1">
+                                        <name>Fairing section 2 element 1</name>
+                                        <profileUID>fairingProfile</profileUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>1</x>
+                                                <y>0.25</y>
+                                                <z>0.1</z>
+                                            </scaling>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                        </sections>
+                        <segments>
+                            <segment uID="fairing_seg1">
+                                <name>Fairing segment</name>
+                                <fromElementUID>fairing_sec1_el1</fromElementUID>
+                                <toElementUID>fairing_sec2_el1</toElementUID>
+                                <guideCurves>
+                                    <guideCurve uID="fairing_gc1">
+                                        <name>Fairing guide curve 1</name>
+                                        <guideCurveProfileUID>fairing_gc1_profile</guideCurveProfileUID>
+                                        <fromRelativeCircumference>0</fromRelativeCircumference>
+                                        <toRelativeCircumference>0</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="fairing_gc2">
+                                        <name>Fairing guide curve 1</name>
+                                        <guideCurveProfileUID>fairing_gc2_profile</guideCurveProfileUID>
+                                        <fromRelativeCircumference>0.15</fromRelativeCircumference>
+                                        <toRelativeCircumference>0.15</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="fairing_gc3">
+                                        <name>Fairing guide curve 1</name>
+                                        <guideCurveProfileUID>fairing_gc3_profile</guideCurveProfileUID>
+                                        <fromRelativeCircumference>0.25</fromRelativeCircumference>
+                                        <toRelativeCircumference>0.25</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="fairing_gc4">
+                                        <name>Fairing guide curve 1</name>
+                                        <guideCurveProfileUID>fairing_gc4_profile</guideCurveProfileUID>
+                                        <fromRelativeCircumference>0.5</fromRelativeCircumference>
+                                        <toRelativeCircumference>0.5</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="fairing_gc5">
+                                        <name>Fairing guide curve 1</name>
+                                        <guideCurveProfileUID>fairing_gc5_profile</guideCurveProfileUID>
+                                        <fromRelativeCircumference>0.75</fromRelativeCircumference>
+                                        <toRelativeCircumference>0.75</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="fairing_gc6">
+                                        <name>Fairing guide curve 1</name>
+                                        <guideCurveProfileUID>fairing_gc6_profile</guideCurveProfileUID>
+                                        <fromRelativeCircumference>0.85</fromRelativeCircumference>
+                                        <toRelativeCircumference>0.85</toRelativeCircumference>
+                                    </guideCurve>
+                                </guideCurves>
+                            </segment>
+                        </segments>
+                    </fuselage>
+                </fuselages>
+                <wings>
+                    <wing uID="Wing" symmetry="x-z-plane">
+                        <name>Wing</name>
+                        <parentUID>fuselage</parentUID>
+                        <transformation>
+                            <scaling>
+                                <x>1</x>
+                                <y>1</y>
+                                <z>1</z>
+                            </scaling>
+                            <translation refType="absLocal">
+                                <x>2.8</x>
+                                <y>0</y>
+                                <z>0.5</z>
+                            </translation>
+                        </transformation>
+                        <sections>
+                            <section uID="Wing_Sec1">
+                                <name>Wing Section 1</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>1</x>
+                                        <y>1</y>
+                                        <z>1</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="Wing_Sec1_El1">
+                                        <name>Wing Section 1 Main Element</name>
+                                        <airfoilUID>NACA0012</airfoilUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>1</x>
+                                                <y>1</y>
+                                                <z>1</z>
+                                            </scaling>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                            <section uID="Wing_Sec2">
+                                <name>Wing Section 2</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>1</x>
+                                        <y>1</y>
+                                        <z>1</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="Wing_Sec2_El1">
+                                        <name>Wing Section 2 Main Element</name>
+                                        <airfoilUID>NACA0012</airfoilUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>1</x>
+                                                <y>1</y>
+                                                <z>1</z>
+                                            </scaling>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                            <section uID="Wing_Sec3">
+                                <name>Wing Section 3</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>1</x>
+                                        <y>1</y>
+                                        <z>1</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="Wing_Sec3_El1">
+                                        <name>Wing Section 3 Main Element</name>
+                                        <airfoilUID>NACA0012</airfoilUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>0.5</x>
+                                                <y>0.5</y>
+                                                <z>0.5</z>
+                                            </scaling>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                        </sections>
+                        <positionings>
+                            <positioning uID="Wing_positioning1">
+                                <name>Wing Section 2 Positioning</name>
+                                <length>0.5</length>
+                                <sweepAngle>2</sweepAngle>
+                                <dihedralAngle>0</dihedralAngle>
+                                <toSectionUID>Wing_Sec2</toSectionUID>
+                            </positioning>
+                            <positioning uID="Wing_positioning2">
+                                <name>Wing Section 3 Positioning</name>
+                                <length>3</length>
+                                <sweepAngle>5</sweepAngle>
+                                <dihedralAngle>0</dihedralAngle>
+                                <fromSectionUID>Wing_Sec2</fromSectionUID>
+                                <toSectionUID>Wing_Sec3</toSectionUID>
+                            </positioning>
+                        </positionings>
+                        <segments>
+                            <segment uID="Wing_Seg_1">
+                                <name>Wing segment 1</name>
+                                <description>Segment from Wing Section 1 Main Element to Wing Section 2 Main Element</description>
+                                <fromElementUID>Wing_Sec1_El1</fromElementUID>
+                                <toElementUID>Wing_Sec2_El1</toElementUID>
+                            </segment>
+                            <segment uID="Wing_Seg_2">
+                                <name>Wing segment 2</name>
+                                <description>Segment from Wing Section 2 Main Element to Wing Section 3 Main Element</description>
+                                <fromElementUID>Wing_Sec2_El1</fromElementUID>
+                                <toElementUID>Wing_Sec3_El1</toElementUID>
+                            </segment>
+                        </segments>
+                        <componentSegments>
+                            <componentSegment uID="Wing_CompSeg">
+                                <name>Wing segment</name>
+                                <description>This is a segment within the wing to specify internal structures and control surfaces. It was introduced to allow a different view on the wing from an aerodynamics and structures perspective.</description>
+                                <fromElementUID>Wing_Sec1_El1</fromElementUID>
+                                <toElementUID>Wing_Sec3_El1</toElementUID>
+                                <structure>
+                                    <upperShell uID="Wing_CompSeg_upperShell1">
+                                        <skin>
+                                            <material>
+                                                <materialUID isLink="True">aluminium7150</materialUID>
+                                                <thickness>0.003</thickness>
+                                            </material>
+                                        </skin>
+                                    </upperShell>
+                                    <lowerShell uID="W1_CompSeg_lowerShell1">
+                                        <skin>
+                                            <material>
+                                                <materialUID isLink="True">aluminium2024</materialUID>
+                                                <thickness>0.003</thickness>
+                                            </material>
+                                        </skin>
+                                    </lowerShell>
+                                    <spars>
+                                        <sparPositions>
+                                            <sparPosition uID="Wing_CS_spar1_Pos1">
+                                                <sparPositionEtaXsi>
+                                                    <eta>0.0</eta>
+                                                    <xsi>0.2</xsi>
+                                                    <referenceUID>Wing_CompSeg</referenceUID>
+                                                </sparPositionEtaXsi>
+                                            </sparPosition>
+                                            <sparPosition uID="Wing_CS_spar1_Pos2">
+                                                <sparPositionEtaXsi>
+                                                    <eta>0.2</eta>
+                                                    <xsi>0.17</xsi>
+                                                    <referenceUID>Wing_CompSeg</referenceUID>
+                                                </sparPositionEtaXsi>
+                                            </sparPosition>
+                                            <sparPosition uID="Wing_CS_spar1_Pos3">
+                                                <sparPositionEtaXsi>
+                                                    <eta>1.0</eta>
+                                                    <xsi>0.2</xsi>
+                                                    <referenceUID>Wing_CompSeg</referenceUID>
+                                                </sparPositionEtaXsi>
+                                            </sparPosition>
+                                            <sparPosition uID="Wing_CS_spar2_Pos1">
+                                                <sparPositionEtaXsi>
+                                                    <eta>0.0</eta>
+                                                    <xsi>0.6</xsi>
+                                                    <referenceUID>Wing_CompSeg</referenceUID>
+                                                </sparPositionEtaXsi>
+                                            </sparPosition>
+                                            <sparPosition uID="Wing_CS_spar2_Pos2">
+                                                <sparPositionEtaXsi>
+                                                    <eta>0.2</eta>
+                                                    <xsi>0.59</xsi>
+                                                    <referenceUID>Wing_CompSeg</referenceUID>
+                                                </sparPositionEtaXsi>
+                                            </sparPosition>
+                                            <sparPosition uID="Wing_CS_spar2_Pos3">
+                                                <sparPositionEtaXsi>
+                                                    <eta>1.0</eta>
+                                                    <xsi>0.6</xsi>
+                                                    <referenceUID>Wing_CompSeg</referenceUID>
+                                                </sparPositionEtaXsi>
+                                            </sparPosition>
+                                        </sparPositions>
+                                        <sparSegments>
+                                            <sparSegment uID="Wing_CS_spar1">
+                                                <name>Front spar</name>
+                                                <sparPositionUIDs>
+                                                    <sparPositionUID>Wing_CS_spar1_Pos1</sparPositionUID>
+                                                    <sparPositionUID>Wing_CS_spar1_Pos2</sparPositionUID>
+                                                    <sparPositionUID>Wing_CS_spar1_Pos3</sparPositionUID>
+                                                </sparPositionUIDs>
+                                                <sparCrossSection>
+                                                    <web1>
+                                                        <material>
+                                                            <materialUID>aluminium2024</materialUID>
+                                                        </material>
+                                                        <relPos>0.0</relPos>
+                                                    </web1>
+                                                    <rotation>0.0</rotation>
+                                                </sparCrossSection>
+                                            </sparSegment>
+                                            <sparSegment uID="Wing_CS_spar2">
+                                                <name>Rear spar</name>
+                                                <sparPositionUIDs>
+                                                    <sparPositionUID>Wing_CS_spar2_Pos1</sparPositionUID>
+                                                    <sparPositionUID>Wing_CS_spar2_Pos2</sparPositionUID>
+                                                    <sparPositionUID>Wing_CS_spar2_Pos3</sparPositionUID>
+                                                </sparPositionUIDs>
+                                                <sparCrossSection>
+                                                    <web1>
+                                                        <material>
+                                                            <materialUID>aluminium2024</materialUID>
+                                                        </material>
+                                                        <relPos>0.0</relPos>
+                                                    </web1>
+                                                    <rotation>0.0</rotation>
+                                                </sparCrossSection>
+                                            </sparSegment>
+                                        </sparSegments>
+                                    </spars>
+                                    <ribsDefinitions>
+                                        <ribsDefinition uID="Wing_CS_RibDef1">
+                                            <name>Wing_CS_RibDef1</name>
+                                            <ribsPositioning>
+                                                <startCurvePoint>
+                                                    <eta>0.05</eta>
+                                                    <referenceUID>leadingEdge</referenceUID>
+                                                </startCurvePoint>
+                                                <endCurvePoint>
+                                                    <eta>0.95</eta>
+                                                    <referenceUID>leadingEdge</referenceUID>
+                                                </endCurvePoint>
+                                                <ribStart>Wing_CS_spar1</ribStart>
+                                                <ribEnd>Wing_CS_spar2</ribEnd>
+                                                <numberOfRibs>10</numberOfRibs>
+                                                <ribReference>leadingEdge</ribReference>
+                                                <ribCrossingBehaviour>cross</ribCrossingBehaviour>
+                                                <ribRotation>
+                                                    <z>90</z>
+                                                </ribRotation>
+                                            </ribsPositioning>
+                                            <ribCrossSection>
+                                                <material>
+                                                    <materialUID>aluminium2024</materialUID>
+                                                </material>
+                                            </ribCrossSection>
+                                        </ribsDefinition>
+                                        <ribsDefinition uID="Wing_CS_RibDef2">
+                                            <name>Wing_CS_RibDef2</name>
+                                            <ribExplicitPositioning>
+                                                <startEtaXsiPoint>
+                                                    <eta>0.5</eta>
+                                                    <xsi>0.0</xsi>
+                                                    <referenceUID>Wing_CompSeg</referenceUID>
+                                                </startEtaXsiPoint>
+                                                <endCurvePoint>
+                                                    <eta>0.5</eta>
+                                                    <referenceUID>trailingEdge</referenceUID>
+                                                </endCurvePoint>
+                                                <ribStart>leadingEdge</ribStart>
+                                                <ribEnd>trailingEdge</ribEnd>
+                                            </ribExplicitPositioning>
+                                            <ribCrossSection>
+                                                <material>
+                                                    <materialUID>aluminium2024</materialUID>
+                                                </material>
+                                            </ribCrossSection>
+                                        </ribsDefinition>
+                                    </ribsDefinitions>
+                                </structure>
+                                <controlSurfaces>
+                                    <trailingEdgeDevices>
+                                        <trailingEdgeDevice uID="aileronUID">
+                                            <name>Aileron</name>
+                                            <parentUID>Wing_CompSeg</parentUID>
+                                            <outerShape>
+                                                <innerBorder>
+                                                    <etaLE>
+                                                        <eta>0.7</eta>
+                                                        <referenceUID>Wing_CompSeg</referenceUID>
+                                                    </etaLE>
+                                                    <etaTE>
+                                                        <eta>0.7</eta>
+                                                        <referenceUID>Wing_CompSeg</referenceUID>
+                                                    </etaTE>
+                                                    <xsiLE>
+                                                        <xsi>0.8</xsi>
+                                                        <referenceUID>Wing_CompSeg</referenceUID>
+                                                    </xsiLE>
+                                                </innerBorder>
+                                                <outerBorder>
+                                                    <etaLE>
+                                                        <eta>0.96</eta>
+                                                        <referenceUID>Wing_CompSeg</referenceUID>
+                                                    </etaLE>
+                                                    <etaTE>
+                                                        <eta>0.96</eta>
+                                                        <referenceUID>Wing_CompSeg</referenceUID>
+                                                    </etaTE>
+                                                    <xsiLE>
+                                                        <xsi>0.8</xsi>
+                                                        <referenceUID>Wing_CompSeg</referenceUID>
+                                                    </xsiLE>
+                                                </outerBorder>
+                                            </outerShape>
+                                            <path>
+                                                <innerHingePoint>
+                                                    <hingeXsi>0.8</hingeXsi>
+                                                    <hingeRelHeight>0.5</hingeRelHeight>
+                                                </innerHingePoint>
+                                                <outerHingePoint>
+                                                    <hingeXsi>0.8</hingeXsi>
+                                                    <hingeRelHeight>0.5</hingeRelHeight>
+                                                </outerHingePoint>
+                                                <steps>
+                                                    <step>
+                                                        <controlParameter>-1</controlParameter>
+                                                        <hingeLineRotation>-25</hingeLineRotation>
+                                                    </step>
+                                                    <step>
+                                                        <controlParameter>0</controlParameter>
+                                                        <hingeLineRotation>0</hingeLineRotation>
+                                                    </step>
+                                                    <step>
+                                                        <controlParameter>1</controlParameter>
+                                                        <hingeLineRotation>15</hingeLineRotation>
+                                                    </step>
+                                                </steps>
+                                            </path>
+                                        </trailingEdgeDevice>
+                                    </trailingEdgeDevices>
+                                </controlSurfaces>
+                            </componentSegment>
+                        </componentSegments>
+                    </wing>
+                    <wing uID="verticalTailplane">
+                        <name>Vertical tailplane</name>
+                        <parentUID>fuselage</parentUID>
+                        <transformation>
+                            <scaling>
+                                <x>1</x>
+                                <y>1</y>
+                                <z>1</z>
+                            </scaling>
+                            <translation refType="absLocal">
+                                <x>5.2</x>
+                                <y>0.02</y>
+                                <z>0.46</z>
+                            </translation>
+                            <rotation>
+                                <x>90</x>
+                            </rotation>
+                        </transformation>
+                        <sections>
+                            <section uID="vTP_Sec1">
+                                <name>Vertical Tailplane Section 1</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>1</x>
+                                        <y>1</y>
+                                        <z>1</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="vTP_Sec1_El1">
+                                        <name>Vertical Tailplane Section 1 Main Element</name>
+                                        <airfoilUID>NACA0012</airfoilUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>1</x>
+                                                <y>1</y>
+                                                <z>1</z>
+                                            </scaling>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                            <section uID="vTP_Sec2">
+                                <name>Vertical Tailplane Section 2</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>1</x>
+                                        <y>1</y>
+                                        <z>1</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="vTP_Sec2_El1">
+                                        <name>Vertical Tailplane Section 2 Main Element</name>
+                                        <airfoilUID>NACA0012</airfoilUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>0.5</x>
+                                                <y>0.5</y>
+                                                <z>0.5</z>
+                                            </scaling>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                        </sections>
+                        <positionings>
+                            <positioning uID="vTP_positioning">
+                                <name>Vertical Tailplane Section Positioning</name>
+                                <length>1.5</length>
+                                <sweepAngle>45</sweepAngle>
+                                <dihedralAngle>5</dihedralAngle>
+                                <toSectionUID>vTP_Sec2</toSectionUID>
+                            </positioning>
+                        </positionings>
+                        <segments>
+                            <segment uID="vTP_Seg">
+                                <name>Segment from TP Section 1 Main Element to TP Section 2 Main Element</name>
+                                <fromElementUID>vTP_Sec1_El1</fromElementUID>
+                                <toElementUID>vTP_Sec2_El1</toElementUID>
+                                <guideCurves>
+                                    <guideCurve uID="vTP_trailingEdgeUpper">
+                                        <name>TP leading edge guide curve 1</name>
+                                        <guideCurveProfileUID>TP_trailingEdge_gcp</guideCurveProfileUID>
+                                        <fromRelativeCircumference>-1.0</fromRelativeCircumference>
+                                        <toRelativeCircumference>-1.0</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="vTP_leadingEdge">
+                                        <name>TP leading edge guide curve 1</name>
+                                        <guideCurveProfileUID>TP_leadingEdge_gcp</guideCurveProfileUID>
+                                        <fromRelativeCircumference>0.0</fromRelativeCircumference>
+                                        <toRelativeCircumference>0</toRelativeCircumference>
+                                    </guideCurve>
+                                    <guideCurve uID="vTP_trailingEdgeLower">
+                                        <name>TP trailing edge guide curve 1</name>
+                                        <guideCurveProfileUID>TP_trailingEdge_gcp</guideCurveProfileUID>
+                                        <fromRelativeCircumference>1</fromRelativeCircumference>
+                                        <toRelativeCircumference>1</toRelativeCircumference>
+                                    </guideCurve>
+                                </guideCurves>
+                            </segment>
+                        </segments>
+                    </wing>
+                    <wing uID="horizontalTailplane" symmetry="x-z-plane">
+                        <name>Tailplane</name>
+                        <parentUID>verticalTailplane</parentUID>
+                        <transformation>
+                            <scaling>
+                                <x>1</x>
+                                <y>1</y>
+                                <z>1</z>
+                            </scaling>
+                            <translation refType="absLocal">
+                                <x>0.7</x>
+                                <z>0.4</z>
+                            </translation>
+                        </transformation>
+                        <sections>
+                            <section uID="hTP_Sec1">
+                                <name>TP Section 1</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>1</x>
+                                        <y>1</y>
+                                        <z>1</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="hTP_Sec1_El1">
+                                        <name>TP Section 1 Main Element</name>
+                                        <airfoilUID>NACA0012</airfoilUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>0.5</x>
+                                                <y>0.5</y>
+                                                <z>0.5</z>
+                                            </scaling>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                            <section uID="hTP_Sec2">
+                                <name>TP Section 2</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>1</x>
+                                        <y>1</y>
+                                        <z>1</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="hTP_Sec2_El1">
+                                        <name>TP Section 2 Main Element</name>
+                                        <airfoilUID>NACA0012</airfoilUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>0.25</x>
+                                                <y>0.25</y>
+                                                <z>0.25</z>
+                                            </scaling>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                        </sections>
+                        <positionings>
+                            <positioning uID="hTP_positioning">
+                                <name>TP Section Positioning</name>
+                                <length>1</length>
+                                <sweepAngle>22</sweepAngle>
+                                <dihedralAngle>5</dihedralAngle>
+                                <toSectionUID>hTP_Sec2</toSectionUID>
+                            </positioning>
+                        </positionings>
+                        <segments>
+                            <segment uID="hTP_Seg">
+                                <name>Segment from TP Section 1 Main Element to TP Section 2 Main Element</name>
+                                <fromElementUID>hTP_Sec1_El1</fromElementUID>
+                                <toElementUID>hTP_Sec2_El1</toElementUID>
+                            </segment>
+                        </segments>
+                    </wing>
+                </wings>
+                <enginePylons>
+                    <enginePylon uID="Pylon">
+                        <parentUID>Wing</parentUID>
+                        <transformation>
+                            <rotation>
+                                <x>90</x>
+                                <y>0</y>
+                                <z>-90</z>
+                            </rotation>
+                            <translation refType="absLocal">
+                                <x>-0.4</x>
+                                <y>1.0</y>
+                                <z>0</z>
+                            </translation>
+                        </transformation>
+                        <sections>
+                            <section uID="Pylon_Sec1">
+                                <name>Pylon section 1</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>0.0</x>
+                                        <y>0.0</y>
+                                        <z>0.0</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="Pylon_Sec1_El1">
+                                        <name>Pylon section 1 element 1</name>
+                                        <airfoilUID>PylonProfile</airfoilUID>
+                                        <transformation/>
+                                    </element>
+                                </elements>
+                            </section>
+                            <section uID="Pylon_Sec2">
+                                <name>Pylon Section 2</name>
+                                <transformation uID="Pylon_Sec2_transformation1">
+                                    <scaling uID="Pylon_Sec2_transformation1_scaling1">
+                                        <x>0.15</x>
+                                        <y>0.15</y>
+                                        <z>0.15</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="Pylon_Sec2_El1">
+                                        <name>Pylon section 2 element 1</name>
+                                        <airfoilUID>PylonProfile</airfoilUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>1</x>
+                                                <y>1</y>
+                                                <z>1</z>
+                                            </scaling>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                            <section uID="Pylon_Sec3">
+                                <name>Pylon Section 3</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>0.02</x>
+                                        <y>0.02</y>
+                                        <z>0.02</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="Pylon_Sec3_El1">
+                                        <name>Pylon section 3 element 1</name>
+                                        <airfoilUID>PylonProfile</airfoilUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>1</x>
+                                                <y>1</y>
+                                                <z>1</z>
+                                            </scaling>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                        </sections>
+                        <positionings>
+                            <positioning uID="Pylon_position1">
+                                <name>Pylon Position 1</name>
+                                <length>0</length>
+                                <sweepAngle>0</sweepAngle>
+                                <dihedralAngle>0</dihedralAngle>
+                                <toSectionUID>Pylon_Sec1</toSectionUID>
+                            </positioning>
+                            <positioning uID="Pylon_position2">
+                                <name>Pylon Position 2</name>
+                                <length>0.2</length>
+                                <sweepAngle>0</sweepAngle>
+                                <dihedralAngle>0</dihedralAngle>
+                                <fromSectionUID>Pylon_Sec1</fromSectionUID>
+                                <toSectionUID>Pylon_Sec2</toSectionUID>
+                            </positioning>
+                            <positioning uID="Pylon_position3">
+                                <name>Pylon Position 3</name>
+                                <length>1</length>
+                                <sweepAngle>0</sweepAngle>
+                                <dihedralAngle>0</dihedralAngle>
+                                <fromSectionUID>Pylon_Sec2</fromSectionUID>
+                                <toSectionUID>Pylon_Sec3</toSectionUID>
+                            </positioning>
+                        </positionings>
+                        <segments>
+                            <segment uID="Pylon_Seg1">
+                                <name>Pylon Segment 1</name>
+                                <fromElementUID>Pylon_Sec1_El1</fromElementUID>
+                                <toElementUID>Pylon_Sec2_El1</toElementUID>
+                            </segment>
+                            <segment uID="Pylon_Seg2">
+                                <name>Pylon Segment 2</name>
+                                <fromElementUID>Pylon_Sec2_El1</fromElementUID>
+                                <toElementUID>Pylon_Sec3_El1</toElementUID>
+                            </segment>
+                        </segments>
+                    </enginePylon>
+                    <enginePylon uID="Pylon2">
+                        <parentUID>Wing</parentUID>
+                        <transformation>
+                            <rotation>
+                                <x>90</x>
+                                <y>0</y>
+                                <z>-90</z>
+                            </rotation>
+                            <translation refType="absLocal">
+                                <x>0</x>
+                                <y>3.5</y>
+                                <z>0</z>
+                            </translation>
+                            <scaling>
+                                <x>0.5</x>
+                                <y>0.5</y>
+                                <z>0.5</z>
+                            </scaling>
+                        </transformation>
+                        <sections>
+                            <section uID="Pylon2_Sec1">
+                                <name>Pylon 2 section 1</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>0.0</x>
+                                        <y>0.0</y>
+                                        <z>0.0</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="Pylon2_Sec1_El1">
+                                        <name>Pylon 2 Section 1 Main Element</name>
+                                        <airfoilUID>PylonProfile</airfoilUID>
+                                        <transformation/>
+                                    </element>
+                                </elements>
+                            </section>
+                            <section uID="Pylon2_Sec2">
+                                <name>Pylon 2 Section 2</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>0.15</x>
+                                        <y>0.15</y>
+                                        <z>0.15</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="Pylon2_Sec2_El1">
+                                        <name>Pylon 2 Section 2 Main Element</name>
+                                        <airfoilUID>PylonProfile</airfoilUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>1</x>
+                                                <y>1</y>
+                                                <z>1</z>
+                                            </scaling>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                            <section uID="Pylon2_Sec3">
+                                <name>Pylon 2 Section 3</name>
+                                <transformation>
+                                    <scaling>
+                                        <x>0.02</x>
+                                        <y>0.02</y>
+                                        <z>0.02</z>
+                                    </scaling>
+                                </transformation>
+                                <elements>
+                                    <element uID="Pylon2_Sec3_El1">
+                                        <name>Pylon 2 Section 3 Main Element</name>
+                                        <airfoilUID>PylonProfile</airfoilUID>
+                                        <transformation>
+                                            <scaling>
+                                                <x>1</x>
+                                                <y>1</y>
+                                                <z>1</z>
+                                            </scaling>
+                                        </transformation>
+                                    </element>
+                                </elements>
+                            </section>
+                        </sections>
+                        <positionings>
+                            <positioning uID="Pylon2_position1">
+                                <name>Pylon 2 Position 1</name>
+                                <length>0</length>
+                                <sweepAngle>0</sweepAngle>
+                                <dihedralAngle>0</dihedralAngle>
+                                <toSectionUID>Pylon2_Sec1</toSectionUID>
+                            </positioning>
+                            <positioning uID="Pylon2_position2">
+                                <name>Pylon 2 Position 2</name>
+                                <length>0.2</length>
+                                <sweepAngle>0</sweepAngle>
+                                <dihedralAngle>0</dihedralAngle>
+                                <fromSectionUID>Pylon2_Sec1</fromSectionUID>
+                                <toSectionUID>Pylon2_Sec2</toSectionUID>
+                            </positioning>
+                            <positioning uID="Pylon2_position3">
+                                <name>Pylon 2 Position 3</name>
+                                <length>1</length>
+                                <sweepAngle>0</sweepAngle>
+                                <dihedralAngle>0</dihedralAngle>
+                                <fromSectionUID>Pylon2_Sec2</fromSectionUID>
+                                <toSectionUID>Pylon2_Sec3</toSectionUID>
+                            </positioning>
+                        </positionings>
+                        <segments>
+                            <segment uID="Pylon2_Seg1">
+                                <name>Pylon 2 Segment 1</name>
+                                <fromElementUID>Pylon2_Sec1_El1</fromElementUID>
+                                <toElementUID>Pylon2_Sec2_El1</toElementUID>
+                            </segment>
+                            <segment uID="Pylon2_Seg2">
+                                <name>Pylon 2 Segment 2</name>
+                                <fromElementUID>Pylon2_Sec2_El1</fromElementUID>
+                                <toElementUID>Pylon2_Sec3_El1</toElementUID>
+                            </segment>
+                        </segments>
+                    </enginePylon>
+                </enginePylons>
+                <systems>
+                    <genericSystems>
+                        <genericSystem uID="cubeSystem">
+                            <name>Generic System</name>
+                            <transformation>
+                                <translation>
+                                    <x>4.5</x>
+                                    <z>0.3</z>
+                                </translation>
+                                <scaling>
+                                    <x>0.4</x>
+                                    <y>0.3</y>
+                                    <z>0.2</z>
+                                </scaling>
+                            </transformation>
+                            <geometricBaseType>cube</geometricBaseType>
+                        </genericSystem>
+                    </genericSystems>
+                </systems>
+                <engines>
+                    <engine uID="installedEngine1">
+                        <parentUID>Pylon</parentUID>
+                        <engineUID>engine</engineUID>
+                        <name>myInstalledEngine</name>
+                        <transformation>
+                            <scaling>
+                                <x>1</x>
+                                <y>1</y>
+                                <z>1</z>
+                            </scaling>
+                        </transformation>
+                    </engine>
+                </engines>
+            </model>
+        </aircraft>
+        <engines>
+            <engine uID="engine">
+                <name>myEngine</name>
+            </engine>
+        </engines>
+        <profiles>
+            <wingAirfoils>
+                <wingAirfoil uID="NACA0012">
+                    <name>NACA0.00.00.12</name>
+                    <description>NACA 4 Series Profile</description>
+                    <pointList>
+                        <x mapType="vector">1.0;0.9875;0.975;0.9625;0.95;0.9375;0.925;0.9125;0.9;0.8875;0.875;0.8625;0.85;0.8375;0.825;0.8125;0.8;0.7875;0.775;0.7625;0.75;0.7375;0.725;0.7125;0.7;0.6875;0.675;0.6625;0.65;0.6375;0.625;0.6125;0.6;0.5875;0.575;0.5625;0.55;0.5375;0.525;0.5125;0.5;0.4875;0.475;0.4625;0.45;0.4375;0.425;0.4125;0.4;0.3875;0.375;0.3625;0.35;0.3375;0.325;0.3125;0.3;0.2875;0.275;0.2625;0.25;0.2375;0.225;0.2125;0.2;0.1875;0.175;0.1625;0.15;0.1375;0.125;0.1125;0.1;0.0875;0.075;0.0625;0.05;0.0375;0.025;0.0125;0.0;0.0125;0.025;0.0375;0.05;0.0625;0.075;0.0875;0.1;0.1125;0.125;0.1375;0.15;0.1625;0.175;0.1875;0.2;0.2125;0.225;0.2375;0.25;0.2625;0.275;0.2875;0.3;0.3125;0.325;0.3375;0.35;0.3625;0.375;0.3875;0.4;0.4125;0.425;0.4375;0.45;0.4625;0.475;0.4875;0.5;0.5125;0.525;0.5375;0.55;0.5625;0.575;0.5875;0.6;0.6125;0.625;0.6375;0.65;0.6625;0.675;0.6875;0.7;0.7125;0.725;0.7375;0.75;0.7625;0.775;0.7875;0.8;0.8125;0.825;0.8375;0.85;0.8625;0.875;0.8875;0.9;0.9125;0.925;0.9375;0.95;0.9625;0.975;0.9875;1.0</x>
+                        <y mapType="vector">0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0</y>
+                        <z mapType="vector">-0.00126;-0.0030004180415;-0.00471438572941;-0.00640256842113;-0.00806559133343;-0.00970403933653;-0.0113184567357;-0.0129093470398;-0.0144771727147;-0.0160223549226;-0.0175452732434;-0.0190462653789;-0.0205256268372;-0.0219836105968;-0.0234204267471;-0.024836242105;-0.0262311798047;-0.0276053188583;-0.0289586936852;-0.0302912936071;-0.0316030623052;-0.0328938972373;-0.0341636490097;-0.0354121207001;-0.0366390671268;-0.0378441940595;-0.0390271573644;-0.0401875620783;-0.0413249614032;-0.042438855614;-0.043528690869;-0.0445938579126;-0.0456336906587;-0.04664746464;-0.0476343953088;-0.0485936361694;-0.0495242767241;-0.0504253402064;-0.0512957810767;-0.0521344822472;-0.0529402520006;-0.0537118205596;-0.0544478362583;-0.0551468612564;-0.0558073667285;-0.0564277274483;-0.0570062156697;-0.0575409941929;-0.0580301084765;-0.0584714776309;-0.0588628840933;-0.059201961739;-0.0594861821311;-0.0597128385384;-0.059879027262;-0.0599816256958;-0.060017266394;-0.059982306219;-0.05987278938;-0.0596844028137;-0.059412421875;-0.059051643633;-0.0585963041308;-0.0580399746271;-0.0573754299024;-0.0565944788455;-0.0556877432118;-0.054644363746;-0.0534516022043;-0.0520942903127;-0.0505540468987;-0.0488081315259;-0.0468277042382;-0.0445750655553;-0.0419990347204;-0.0390266537476;-0.0355468568262;-0.0313738751622;-0.0261471986426;-0.0189390266528;0.0;0.0189390266528;0.0261471986426;0.0313738751622;0.0355468568262;0.0390266537476;0.0419990347204;0.0445750655553;0.0468277042382;0.0488081315259;0.0505540468987;0.0520942903127;0.0534516022043;0.054644363746;0.0556877432118;0.0565944788455;0.0573754299024;0.0580399746271;0.0585963041308;0.059051643633;0.059412421875;0.0596844028137;0.05987278938;0.059982306219;0.060017266394;0.0599816256958;0.059879027262;0.0597128385384;0.0594861821311;0.059201961739;0.0588628840933;0.0584714776309;0.0580301084765;0.0575409941929;0.0570062156697;0.0564277274483;0.0558073667285;0.0551468612564;0.0544478362583;0.0537118205596;0.0529402520006;0.0521344822472;0.0512957810767;0.0504253402064;0.0495242767241;0.0485936361694;0.0476343953088;0.04664746464;0.0456336906587;0.0445938579126;0.043528690869;0.042438855614;0.0413249614032;0.0401875620783;0.0390271573644;0.0378441940595;0.0366390671268;0.0354121207001;0.0341636490097;0.0328938972373;0.0316030623052;0.0302912936071;0.0289586936852;0.0276053188583;0.0262311798047;0.024836242105;0.0234204267471;0.0219836105968;0.0205256268372;0.0190462653789;0.0175452732434;0.0160223549226;0.0144771727147;0.0129093470398;0.0113184567357;0.00970403933653;0.00806559133343;0.00640256842113;0.00471438572941;0.0030004180415;0.00126</z>
+                    </pointList>
+                </wingAirfoil>
+                <wingAirfoil uID="PylonProfile">
+                    <name>Engine pylon circle profile</name>
+                    <pointList>
+                        <x mapType="vector">0.5;0.4;0.3;0.2;0.1;0;-0.1;-0.2;-0.3;-0.4;-0.5;-0.4;-0.3;-0.2;-0.1;0;0.1;0.2;0.3;0.4;0.5</x>
+                        <y mapType="vector">0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0</y>
+                        <z mapType="vector">0;-0.3;-0.4;-0.458257569;-0.489897949;-0.5;-0.489897949;-0.458257569;-0.4;-0.3;0;0.3;0.4;0.458257569;0.489897949;0.5;0.489897949;0.458257569;0.4;0.3;0</z>
+                    </pointList>
+                </wingAirfoil>
+            </wingAirfoils>
+            <fuselageProfiles>
+                <fuselageProfile uID="fuselageCircleProfile">
+                    <name>Circle</name>
+                    <description>Profile build up from set of Points on Circle where may Dimensions are 1..-1</description>
+                    <pointList>
+                        <x mapType="vector">0.0;0.0;0.0;0.0;0.0</x>
+                        <y mapType="vector">0.0;1.0;0.0;-1.0;0.0</y>
+                        <z mapType="vector">1.0;0.0;-1.0;0.0;1.0</z>
+                    </pointList>
+                </fuselageProfile>
+                <fuselageProfile uID="fairingProfile">
+                    <name>Fairing profile</name>
+                    <description>Profile build up from set of Points on Circle where may Dimensions are 1..-1</description>
+                    <pointList>
+                        <x mapType="vector">0.0;0.0;0.0;0.0;0.0</x>
+                        <y mapType="vector">0.0;1.0;0.0;-1.0;0.0</y>
+                        <z mapType="vector">0.1;-0.5;0.0;-0.5;0.1</z>
+                    </pointList>
+                </fuselageProfile>
+            </fuselageProfiles>
+            <guideCurves>
+                <guideCurveProfile uID="guideCurveLowerSegment1_gcp">
+                    <name>Lower guide curve</name>
+                    <pointList>
+                        <rX mapType="vector">-0.8;-0.15</rX>
+                        <rY mapType="vector">0.05;0.5</rY>
+                        <rZ mapType="vector">0.0;0.0</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="guideCurveLowerSegment2_gcp">
+                    <name>Lower guide curve</name>
+                    <pointList>
+                        <rX mapType="vector">0.0</rX>
+                        <rY mapType="vector">0.5</rY>
+                        <rZ mapType="vector">0.0</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="guideCurveLowerSegment3_gcp">
+                    <name>Lower guide curve</name>
+                    <pointList>
+                        <rX mapType="vector">-0.4;-0.1</rX>
+                        <rY mapType="vector">0.5;0.9</rY>
+                        <rZ mapType="vector">0.0;0.0</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="guideCurveBBSegment1_gcp">
+                    <name>Lower guide curve</name>
+                    <pointList>
+                        <rX mapType="vector">0.0;0.0</rX>
+                        <rY mapType="vector">0.1;0.5</rY>
+                        <rZ mapType="vector">0.9;0.3</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="guideCurveBBSegment2_gcp">
+                    <name>Lower guide curve</name>
+                    <pointList>
+                        <rX mapType="vector">0.0</rX>
+                        <rY mapType="vector">0.5</rY>
+                        <rZ mapType="vector">0.0</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="guideCurveBBSegment3_gcp">
+                    <name>Lower guide curve</name>
+                    <pointList>
+                        <rX mapType="vector">0.0;0.0</rX>
+                        <rY mapType="vector">0.5;0.75</rY>
+                        <rZ mapType="vector">0.1;0.1</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="guideCurveRBSegment1_gcp">
+                    <name>Lower guide curve</name>
+                    <pointList>
+                        <rX mapType="vector">0.0;0.0</rX>
+                        <rY mapType="vector">0.1;0.5</rY>
+                        <rZ mapType="vector">-0.9;-0.3</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="guideCurveRBSegment2_gcp">
+                    <name>Lower guide curve</name>
+                    <pointList>
+                        <rX mapType="vector">0.0</rX>
+                        <rY mapType="vector">0.5</rY>
+                        <rZ mapType="vector">0.0</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="guideCurveRBSegment3_gcp">
+                    <name>Lower guide curve</name>
+                    <pointList>
+                        <rX mapType="vector">0.0;0.0</rX>
+                        <rY mapType="vector">0.5;0.75</rY>
+                        <rZ mapType="vector">-0.1;-0.1</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="guideCurveUpperSegment1_gcp">
+                    <name>Lower guide curve</name>
+                    <pointList>
+                        <rX mapType="vector">0.5;0.1</rX>
+                        <rY mapType="vector">0.2;0.75</rY>
+                        <rZ mapType="vector">0.0;0.0</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="guideCurveUpperSegment2_gcp">
+                    <name>Lower guide curve</name>
+                    <pointList>
+                        <rX mapType="vector">0.0;0.0;0.0;0.0;0.0;0.0;0.0</rX>
+                        <rY mapType="vector">0.05;0.1;0.2;0.5;0.8;0.9;0.95</rY>
+                        <rZ mapType="vector">0.0;0.0;0.0;0.0;0.0;0.0;0.0</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="guideCurveUpperSegment3_gcp">
+                    <name>Lower guide curve</name>
+                    <pointList>
+                        <rX mapType="vector">0.0;0.0;0.0;0.0;0.0;0.0;0.0</rX>
+                        <rY mapType="vector">0.05;0.1;0.2;0.5;0.8;0.9;0.95</rY>
+                        <rZ mapType="vector">0.0;0.0;0.0;0.0;0.0;0.0;0.0</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="TP_leadingEdge_gcp">
+                    <name>Tailplane leading edge profile</name>
+                    <pointList>
+                        <rX mapType="vector">0.15</rX>
+                        <rY mapType="vector">0.2</rY>
+                        <rZ mapType="vector">0.0</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="TP_trailingEdge_gcp">
+                    <name>Tailplane trailing edge profile</name>
+                    <pointList>
+                        <rX mapType="vector">0.1;-0.05</rX>
+                        <rY mapType="vector">0.2;0.8</rY>
+                        <rZ mapType="vector">0.0;0.0</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="fairing_gc1_profile">
+                    <name>Fairing guide curve 1 profile</name>
+                    <pointList>
+                        <rX mapType="vector">0.5;0.65;0.4</rX>
+                        <rY mapType="vector">0.05;0.5;0.9</rY>
+                        <rZ mapType="vector">0.0;0.0;0.0</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="fairing_gc2_profile">
+                    <name>Fairing guide curve 1 profile</name>
+                    <pointList>
+                        <rX mapType="vector">0.55;0.65;0.4</rX>
+                        <rY mapType="vector">0.1;0.5;0.9</rY>
+                        <rZ mapType="vector">0.1;0.1;0.1</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="fairing_gc3_profile">
+                    <name>Fairing guide curve 2 profile</name>
+                    <pointList>
+                        <rX mapType="vector">0.0;0.0;0.0</rX>
+                        <rY mapType="vector">0.1;0.5;0.9</rY>
+                        <rZ mapType="vector">0.0;0.0;0.0</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="fairing_gc4_profile">
+                    <name>Fairing guide curve 3 profile</name>
+                    <pointList>
+                        <rX mapType="vector">0.0;0.0;0.0;0.0;0.0;0.0;0.0</rX>
+                        <rY mapType="vector">0.05;0.1;0.2;0.5;0.8;0.9;0.95</rY>
+                        <rZ mapType="vector">0.0;0.0;0.0;0.0;0.0;0.0;0.0</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="fairing_gc5_profile">
+                    <name>Fairing guide curve 4 profile</name>
+                    <pointList>
+                        <rX mapType="vector">0.0;0.0;0.0</rX>
+                        <rY mapType="vector">0.05;0.5;0.95</rY>
+                        <rZ mapType="vector">0.0;0.0;0.0</rZ>
+                    </pointList>
+                </guideCurveProfile>
+                <guideCurveProfile uID="fairing_gc6_profile">
+                    <name>Fairing guide curve 4 profile</name>
+                    <pointList>
+                        <rX mapType="vector">0.55;0.65;0.4</rX>
+                        <rY mapType="vector">0.1;0.5;0.9</rY>
+                        <rZ mapType="vector">-0.1;-0.1;-0.1</rZ>
+                    </pointList>
+                </guideCurveProfile>
+            </guideCurves>
+            <rotorAirfoils>
+                <rotorAirfoil uID="NACA0010">
+                    <name>NACA0.00.00.10</name>
+                    <description>NACA 4 Series Profile</description>
+                    <pointList>
+                        <x mapType="vector">1.0;0.9875;0.975;0.9625;0.95;0.9375;0.925;0.9125;0.9;0.8875;0.875;0.8625;0.85;0.8375;0.825;0.8125;0.8;0.7875;0.775;0.7625;0.75;0.7375;0.725;0.7125;0.7;0.6875;0.675;0.6625;0.65;0.6375;0.625;0.6125;0.6;0.5875;0.575;0.5625;0.55;0.5375;0.525;0.5125;0.5;0.4875;0.475;0.4625;0.45;0.4375;0.425;0.4125;0.4;0.3875;0.375;0.3625;0.35;0.3375;0.325;0.3125;0.3;0.2875;0.275;0.2625;0.25;0.2375;0.225;0.2125;0.2;0.1875;0.175;0.1625;0.15;0.1375;0.125;0.1125;0.1;0.0875;0.075;0.0625;0.05;0.0375;0.025;0.0125;0.0;0.0125;0.025;0.0375;0.05;0.0625;0.075;0.0875;0.1;0.1125;0.125;0.1375;0.15;0.1625;0.175;0.1875;0.2;0.2125;0.225;0.2375;0.25;0.2625;0.275;0.2875;0.3;0.3125;0.325;0.3375;0.35;0.3625;0.375;0.3875;0.4;0.4125;0.425;0.4375;0.45;0.4625;0.475;0.4875;0.5;0.5125;0.525;0.5375;0.55;0.5625;0.575;0.5875;0.6;0.6125;0.625;0.6375;0.65;0.6625;0.675;0.6875;0.7;0.7125;0.725;0.7375;0.75;0.7625;0.775;0.7875;0.8;0.8125;0.825;0.8375;0.85;0.8625;0.875;0.8875;0.9;0.9125;0.925;0.9375;0.95;0.9625;0.975;0.9875;1.0</x>
+                        <y mapType="vector">0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0;0.0</y>
+                        <z mapType="vector">0.00105;0.002500348;0.003928655;0.005335474;0.006721326;0.008086699;0.009432047;0.010757789;0.012064311;0.013351962;0.014621061;0.015871888;0.017104689;0.018319675;0.019517022;0.020696868;0.021859317;0.023004432;0.024132245;0.025242745;0.026335885;0.027411581;0.028469708;0.029510101;0.030532556;0.031536828;0.032522631;0.033489635;0.034437468;0.035365713;0.036273909;0.037161548;0.038028076;0.038872887;0.039695329;0.040494697;0.041270231;0.042021117;0.042746484;0.043445402;0.044116877;0.04475985;0.045373197;0.045955718;0.046506139;0.047023106;0.04750518;0.047950828;0.048358424;0.048726231;0.049052403;0.049334968;0.049571818;0.049760699;0.049899189;0.049984688;0.050014389;0.049985255;0.049893991;0.049737002;0.049510352;0.049209703;0.048830253;0.048366646;0.047812858;0.047162066;0.046406453;0.04553697;0.044543002;0.043411909;0.042128372;0.040673443;0.039023087;0.037145888;0.034999196;0.032522211;0.029622381;0.026144896;0.021789332;0.015782522;0;-0.015782522;-0.021789332;-0.026144896;-0.029622381;-0.032522211;-0.034999196;-0.037145888;-0.039023087;-0.040673443;-0.042128372;-0.043411909;-0.044543002;-0.04553697;-0.046406453;-0.047162066;-0.047812858;-0.048366646;-0.048830253;-0.049209703;-0.049510352;-0.049737002;-0.049893991;-0.049985255;-0.050014389;-0.049984688;-0.049899189;-0.049760699;-0.049571818;-0.049334968;-0.049052403;-0.048726231;-0.048358424;-0.047950828;-0.04750518;-0.047023106;-0.046506139;-0.045955718;-0.045373197;-0.04475985;-0.044116877;-0.043445402;-0.042746484;-0.042021117;-0.041270231;-0.040494697;-0.039695329;-0.038872887;-0.038028076;-0.037161548;-0.036273909;-0.035365713;-0.034437468;-0.033489635;-0.032522631;-0.031536828;-0.030532556;-0.029510101;-0.028469708;-0.027411581;-0.026335885;-0.025242745;-0.024132245;-0.023004432;-0.021859317;-0.020696868;-0.019517022;-0.018319675;-0.017104689;-0.015871888;-0.014621061;-0.013351962;-0.012064311;-0.010757789;-0.009432047;-0.008086699;-0.006721326;-0.005335474;-0.003928655;-0.002500348;-0.00105</z>
+                    </pointList>
+                </rotorAirfoil>
+            </rotorAirfoils>
+        </profiles>
+        <materials>
+            <material uID="aluminium2024">
+                <name>Aluminium 2024</name>
+                <rho>2.8e3</rho>
+                <isotropicProperties>
+                    <E>73.1e9</E>
+                    <fatigueFactor>0.25574</fatigueFactor>
+                </isotropicProperties>
+            </material>
+            <material uID="aluminium7150">
+                <name>Aluminium 7150</name>
+                <rho>2.8e3</rho>
+                <isotropicProperties>
+                    <E>1.0520897e11</E>
+                    <fatigueFactor>0.3435</fatigueFactor>
+                    <sigt>1.0520897e11</sigt>
+                    <tau12>303336000</tau12>
+                </isotropicProperties>
+            </material>
+        </materials>
+    </vehicles>
+</cpacs>

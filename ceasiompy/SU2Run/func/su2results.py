@@ -31,11 +31,13 @@ from ceasiompy.SU2Run.func.su2utils import (
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.commonxpath import (
+    GMSH_SYMMETRY_XPATH,
     RANGE_LD_RATIO_XPATH,
     SU2_AEROMAP_UID_XPATH,
     SU2_EXTRACT_LOAD_XPATH,
     SU2_FIXED_CL_XPATH,
     SU2_ROTATION_RATE_XPATH,
+    SU2_UPDATE_WETTED_AREA_XPATH,
     WETTED_AREA_XPATH,
 )
 from cpacspy.cpacsfunctions import create_branch, get_value, get_value_or_default
@@ -192,10 +194,18 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
                 cms=cms,
             )
 
-        if not found_wetted_area:
+        update_wetted_area = get_value_or_default(cpacs.tixi, SU2_UPDATE_WETTED_AREA_XPATH, False)
+        if not found_wetted_area and update_wetted_area:
             wetted_area = get_wetted_area(Path(config_dir, "logfile_SU2_CFD.log"))
+
+            # Check if symmetry plane is defined (Default: False)
+            sym_factor = 1.0
+            if get_value_or_default(cpacs.tixi, GMSH_SYMMETRY_XPATH, False):
+                log.info("Symmetry plane is defined. The wetted area will be multiplied by 2.")
+                sym_factor = 2.0
+
             create_branch(cpacs.tixi, WETTED_AREA_XPATH)
-            cpacs.tixi.updateDoubleElement(WETTED_AREA_XPATH, wetted_area, "%g")
+            cpacs.tixi.updateDoubleElement(WETTED_AREA_XPATH, wetted_area * sym_factor, "%g")
             found_wetted_area = True
 
         if get_value_or_default(cpacs.tixi, SU2_EXTRACT_LOAD_XPATH, False):

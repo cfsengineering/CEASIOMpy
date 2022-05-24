@@ -27,6 +27,7 @@ from ceasiompy.SU2Run.func.su2utils import get_mesh_markers, get_su2_config_temp
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import CONFIG_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.commonxpath import (
+    GMSH_SYMMETRY_XPATH,
     RANGE_XPATH,
     SU2_AEROMAP_UID_XPATH,
     SU2_BC_FARFIELD_XPATH,
@@ -151,10 +152,16 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     su2_congig_template_path = get_su2_config_template()
     cfg = ConfigFile(su2_congig_template_path)
 
+    # Check if symmetry plane is defined (Default: False)
+    sym_factor = 1.0
+    if get_value_or_default(cpacs.tixi, GMSH_SYMMETRY_XPATH, False):
+        log.info("Symmetry plane is defined. The reference area will be divided by 2.")
+        sym_factor = 2.0
+
     # General parmeters
     cfg["RESTART_SOL"] = "NO"
     cfg["REF_LENGTH"] = cpacs.aircraft.ref_length
-    cfg["REF_AREA"] = cpacs.aircraft.ref_area
+    cfg["REF_AREA"] = cpacs.aircraft.ref_area / sym_factor
     cfg["REF_ORIGIN_MOMENT_X"] = cpacs.aircraft.ref_point_x
     cfg["REF_ORIGIN_MOMENT_Y"] = cpacs.aircraft.ref_point_y
     cfg["REF_ORIGIN_MOMENT_Z"] = cpacs.aircraft.ref_point_z

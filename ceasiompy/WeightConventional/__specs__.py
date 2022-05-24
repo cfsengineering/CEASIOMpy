@@ -9,7 +9,6 @@ from ceasiompy.utils.commonxpath import (
     MASSBREAKDOWN_XPATH,
     ML_XPATH,
     PASS_XPATH,
-    PILOTS_XPATH,
     PROP_XPATH,
 )
 

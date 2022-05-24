@@ -47,7 +47,7 @@ def output_txt(out, mw, ind, ui, NAME):
         NAME (str): Aircraft name.
 
     Output:
-        NAME_Weight_module.out (file) : Text file containing all the informations
+        NAME_Weight_module.out (file) : Text file containing all the information
                                         estimated from the code.
     """
 
@@ -59,17 +59,17 @@ def output_txt(out, mw, ind, ui, NAME):
     out_txt_file.write("\n#####               OUTPUTS               #####")
     out_txt_file.write("\n###############################################")
     out_txt_file.write("\n-----------------------------------------------")
-    out_txt_file.write("\nAircraft: " + NAME)
+    out_txt_file.write("\nAircraft: {NAME}")
     out_txt_file.write("\n-----------------------------------------------")
     out_txt_file.write("\n")
     out_txt_file.write("\n-----------------------------------------------")
     out_txt_file.write("\nAircraft Geometry Evaluated -------------------")
     out_txt_file.write("\n-----------------------------------------------")
-    out_txt_file.write("\nNose length [m]: " + str(round(ind.nose_length, 3)))
-    out_txt_file.write("\nTail length [m]: " + str(round(ind.tail_length, 3)))
-    out_txt_file.write("\nCabin length [m]: " + str(round(ind.cabin_length, 3)))
-    out_txt_file.write("\nCabin width [m]: " + str(round(ind.cabin_width, 3)))
-    out_txt_file.write("\nCabin Area [m^2]: " + str(round(ind.cabin_area, 3)))
+    out_txt_file.write(f"\nNose length [m]: {round(ind.nose_length, 3)}")
+    out_txt_file.write(f"\nTail length [m]: {round(ind.tail_length, 3)}")
+    out_txt_file.write(f"\nCabin length [m]: {round(ind.cabin_length, 3)}")
+    out_txt_file.write(f"\nCabin width [m]: {round(ind.cabin_width, 3)}")
+    out_txt_file.write(f"\nCabin Area [m^2]: {round(ind.cabin_area, 3)}")
     if ui.IS_DOUBLE_FLOOR == 1:
         out_txt_file.write("\nThe aircraft has a full 2nd floor")
     elif ui.IS_DOUBLE_FLOOR == 2:
@@ -79,65 +79,45 @@ def output_txt(out, mw, ind, ui, NAME):
     out_txt_file.write("\n-----------------------------------------------")
     out_txt_file.write("\nUser Input and Default Values -----------------")
     out_txt_file.write("\n-----------------------------------------------")
-    out_txt_file.write("\nseat length [m]: " + str(ind.seat_length))
-    out_txt_file.write("\nseat width [m]: " + str(ind.seat_width))
-    out_txt_file.write("\naisle width [m]: " + str(ind.aisle_width))
+    out_txt_file.write(f"\nseat length [m]: {ind.seat_length}")
+    out_txt_file.write(f"\nseat width [m]: {ind.seat_width}")
+    out_txt_file.write(f"\naisle width [m]: {ind.aisle_width}")
     if ui.MAX_PAYLOAD > 0:
-        out_txt_file.write("\nMaximum payload allowed [kg]: " + str(ui.MAX_PAYLOAD))
+        out_txt_file.write(f"\nMaximum payload allowed [kg]: {ui.MAX_PAYLOAD}")
     if ui.MAX_FUEL_VOL > 0:
-        out_txt_file.write(
-            "\nMaximum amount of fuel [kg]: " + str(ui.MAX_FUEL_VOL * ui.FUEL_DENSITY)
-        )
+        out_txt_file.write(f"\nMaximum amount of fuel [kg]: {ui.MAX_FUEL_VOL * ui.FUEL_DENSITY}")
     out_txt_file.write("\n-----------------------------------------------")
     out_txt_file.write("\nResults ---------------------------------------")
     out_txt_file.write("\n-----------------------------------------------")
     out_txt_file.write("\nSeating estimation ----------------------------")
-    out_txt_file.write("\nNumber of abreasts: " + str(out.abreast_nb))
-    out_txt_file.write("\nNumber of row: " + str(out.row_nb))
-    out_txt_file.write("\nNumber of passengers: " + str(out.pass_nb))
-    out_txt_file.write("\nNumber of lavatory: " + str(int(out.toilet_nb)))
+    out_txt_file.write(f"\nNumber of abreasts: {out.abreast_nb}")
+    out_txt_file.write(f"\nNumber of row: {out.row_nb}")
+    out_txt_file.write(f"\nNumber of passengers: {out.pass_nb}")
+    out_txt_file.write(f"\nNumber of lavatory: {int(out.toilet_nb)}")
     out_txt_file.write("\n-----------------------------------------------")
     out_txt_file.write("\nCrew estimation -------------------------------")
-    out_txt_file.write("\nTotal crew members: " + str(out.crew_nb))
-    out_txt_file.write("\nNumber of cabin crew members: " + str(out.cabin_crew_nb))
-    out_txt_file.write("\nNumber of pilots: " + str(PILOT_NB))
+    out_txt_file.write(f"\nTotal crew members: {out.crew_nb}")
+    out_txt_file.write(f"\nNumber of cabin crew members: {out.cabin_crew_nb}")
+    out_txt_file.write(f"\nNumber of pilots: {PILOT_NB}")
     out_txt_file.write("\n-----------------------------------------------")
     out_txt_file.write("\nMasses estimation -----------------------------")
-    out_txt_file.write("\nMaximum payload mass [kg]: " + str(int(round(mw.mass_payload, 0))))
-    out_txt_file.write(
-        "\nMaximum passengers mass [kg]: " + str(int(round(out.pass_nb * PASSENGER_MASS, 0)))
-    )
+    out_txt_file.write(f"\nMaximum payload mass [kg]: {int(mw.mass_payload)}")
+    out_txt_file.write(f"\nMaximum passengers mass [kg]: {int(out.pass_nb * PASSENGER_MASS)}")
     if mw.mass_cargo:
-        out_txt_file.write("\nMaximum extra payload mass [kg]: " + str(int(round(mw.cargo, 0))))
+        out_txt_file.write("\nMaximum extra payload mass [kg]: " + str(int(mw.cargo)))
     out_txt_file.write(
-        "\nMaximum fuel mass with max passengers [kg]: " + str(int(round(mw.mass_fuel_maxpass, 0)))
+        f"\nMaximum fuel mass with max passengers [kg]: {int(mw.mass_fuel_maxpass)}"
     )
+    out_txt_file.write(f"\nMaximum fuel mass with no passengers [kg]: {int(mw.mass_fuel_max)}")
     out_txt_file.write(
-        "\nMaximum fuel mass with no passengers [kg]: "
-        + str(
-            int(
-                round(
-                    mw.mass_fuel_max,
-                )
-            )
-        )
+        f"\nMaximum fuel volume with no passengers [l]: {int(mw.mass_fuel_max / ui.FUEL_DENSITY)}"
     )
-    out_txt_file.write(
-        "\nMaximum fuel volume with no passengers [l]: "
-        + str(int(round(mw.mass_fuel_max / ui.FUEL_DENSITY, 0)))
-    )
-    out_txt_file.write(
-        "\nMaximum take off mass [kg]: " + str(int(round(mw.maximum_take_off_mass, 0)))
-    )
-    out_txt_file.write(
-        "\nOperating empty mass [kg]: " + str(int(round(mw.operating_empty_mass, 0)))
-    )
-    out_txt_file.write("\nZero fuel mass [kg]: " + str(int(round(mw.zero_fuel_mass, 0))))
-    out_txt_file.write("\nWing loading [kg/m^2]: " + str(int(round(out.wing_loading))))
+    out_txt_file.write("\nMaximum take off mass [kg]: {int(mw.maximum_take_off_mass)}")
+    out_txt_file.write(f"\nOperating empty mass [kg]: {int(mw.operating_empty_mass)}")
+    out_txt_file.write(f"\nZero fuel mass [kg]: {int(mw.zero_fuel_mass)}")
+    out_txt_file.write(f"\nWing loading [kg/m^2]: {int(out.wing_loading)}")
 
     out_txt_file.close()
-
-    return ()
 
 
 # =============================================================================

@@ -141,6 +141,7 @@ def rotor_config(rotorcraft_config, brep_dir_path):
     # create config file for the engine conversion
     rotors_cfg_file_path = Path(brep_dir_path, "config_rotors.cfg")
     config_file = ConfigFile()
+
     config_file[f"NB_ROTOR"] = f"{rotor_cnt}"
     for k in range(1, rotor_cnt + 1):
         rotor = rotorcraft_config.get_rotor(k)

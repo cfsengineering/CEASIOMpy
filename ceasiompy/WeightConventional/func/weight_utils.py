@@ -16,7 +16,7 @@ TODO:
 
 
 # The following are quite standard values (found in ...)
-# TODO: ref
+# Source: https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20000023189.pdf
 
 PILOT_NB = 2
 PILOT_MASS = 102  # kg

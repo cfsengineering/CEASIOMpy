@@ -1,6 +1,4 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-
+from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpath import (
     CAB_CREW_XPATH,
@@ -12,6 +10,9 @@ from ceasiompy.utils.commonxpath import (
     PROP_XPATH,
 )
 
+# ===== Results directory path =====
+
+RESULTS_DIR = Path("Results", "WeightAndBalance")
 
 # ===== CPACS inputs and outputs =====
 

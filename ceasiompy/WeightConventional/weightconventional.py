@@ -21,18 +21,13 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import os
-import shutil
+
 from pathlib import Path
 
 import numpy as np
-from ceasiompy.WeightConventional.func.weight_utils import (
-    PASSENGER_MASS,
-    PILOT_NB,
-    UNUSABLE_FUEL_RATIO,
-)
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import aircraft_name
+from ceasiompy.utils.commonxpath import F_XPATH, GEOM_XPATH, MASS_CARGO, ML_XPATH, PROP_XPATH
 from ceasiompy.utils.InputClasses.Conventional import weightconvclass
 from ceasiompy.utils.moduleinterfaces import (
     check_cpacs_input_requirements,
@@ -46,6 +41,13 @@ from ceasiompy.WeightConventional.func.Masses.mtom import estimate_mtom
 from ceasiompy.WeightConventional.func.Masses.oem import estimate_operating_empty_mass
 from ceasiompy.WeightConventional.func.Passengers.passengers import estimate_passengers
 from ceasiompy.WeightConventional.func.Passengers.seatsconfig import get_seat_config
+from ceasiompy.WeightConventional.func.weight_utils import (
+    PASSENGER_MASS,
+    PILOT_NB,
+    UNUSABLE_FUEL_RATIO,
+)
+from cpacspy.cpacsfunctions import add_uid, get_value_or_default
+from cpacspy.cpacspy import CPACS
 
 log = get_logger()
 
@@ -75,31 +77,41 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
         * Reference paper or book, with author and date, see ...
 
     Args:
-        cpacs_path (str): Path to CPACS file
-        cpacs_out_path (str):Path to CPACS output file
+        cpacs_path (Path): Path to CPACS file
+        cpacs_out_path (Path):Path to CPACS output file
 
     """
 
-    # Removing and recreating the ToolOutput folder.
-    if os.path.exists("ToolOutput"):
-        shutil.rmtree("ToolOutput")
-    os.makedirs("ToolOutput")
+    cpacs = CPACS(cpacs_path)
+
+    # Get user input
+
+    # has been remove:
+    # self.IS_DOUBLE_FLOOR
+    # self.MAX_PAYLOAD
+    # self.MAX_FUEL_VOL
+    # self.MASS_CARGO
+    # self.FUEL_DENSITY
+    # self.TURBOPROP
+
+    description = "Desired max fuel volume [m^3] and payload mass [kg]"
+    get_value_or_default(cpacs.tixi, ML_XPATH + "/description", description)
+
+    max_payload = get_value_or_default(cpacs.tixi, ML_XPATH + "/maxPayload", 0)
+    max_fuel_vol = get_value_or_default(cpacs.tixi, ML_XPATH + "/maxFuelVol", 0)
+    mass_cargo = get_value_or_default(cpacs.tixi, MASS_CARGO, 0.0)
+    fuel_density = get_value_or_default(cpacs.tixi, F_XPATH + "/density", 800)
+    add_uid(cpacs.tixi, F_XPATH, "kerosene")
+    turboprop = get_value_or_default(cpacs.tixi, PROP_XPATH + "/turboprop", False)
+    is_double_floor = get_value_or_default(cpacs.tixi, GEOM_XPATH + "/isDoubleFloor", 0)
 
     # Classes
-    # TODO: Use only one class or subclasses
-    ui = weightconvclass.UserInputs()
+    # TODO: REmove class or subclasses
+
     mw = weightconvclass.MassesWeights()
     out = weightconvclass.WeightOutput()
 
-    if not os.path.exists(cpacs_path):
-        raise ValueError('No "ToolInput.xml" file in the ToolInput folder.')
-
     name = aircraft_name(cpacs_path)
-
-    shutil.copyfile(cpacs_path, cpacs_out_path)  # TODO: should not be like that
-    newpath = "ToolOutput/" + name
-    if not os.path.exists(newpath):
-        os.makedirs(newpath)
 
     ag = geometry.geometry_eval(cpacs_path, name)
     fuse_length = round(ag.fuse_length[0], 3)
@@ -114,23 +126,20 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 
     # Has been replace by classes function
     # (ind, ui) = getinput.get_user_inputs(ind, ui, ag, cpacs_out_path)
-    ui.get_user_inputs(cpacs_out_path)
     ind.get_inside_dim(cpacs_out_path)
 
-    if ui.MAX_FUEL_VOL > 0 and ui.MAX_FUEL_VOL < ag.wing_fuel_vol:
-        max_fuel_vol = ui.MAX_FUEL_VOL
-    else:
+    if max_fuel_vol >= ag.wing_fuel_vol:
         max_fuel_vol = ag.wing_fuel_vol
 
-    # Massimum payload allowed, set 0 if equal to max passenger mass.
-    mw.MAX_PAYLOAD = ui.MAX_PAYLOAD
+    # Maximum payload allowed, set 0 if equal to max passenger mass.
+    mw.MAX_PAYLOAD = max_payload
 
     # Adding extra length in case of aircraft with second floor [m].
-    if ui.IS_DOUBLE_FLOOR == 1:
+    if is_double_floor == 1:
         cabin_length2 = ind.cabin_length * 1.91
-    elif ui.IS_DOUBLE_FLOOR == 2:
+    elif is_double_floor == 2:
         cabin_length2 = ind.cabin_length * 1.20
-    elif ui.IS_DOUBLE_FLOOR == 0:
+    elif is_double_floor == 0:
         cabin_length2 = ind.cabin_length
     else:
         log.warning(
@@ -148,7 +157,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 
     # Operating Empty Mass evaluation
     mw.operating_empty_mass = estimate_operating_empty_mass(
-        mw.maximum_take_off_mass, fuse_length, fuse_width, wing_area, wing_span, ui.TURBOPROP
+        mw.maximum_take_off_mass, fuse_length, fuse_width, wing_area, wing_span, turboprop
     )
 
     # Passengers and Crew mass evaluation
@@ -167,7 +176,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
             out.row_nb,
             out.abreast_nb,
             out.aisle_nb,
-            ui.IS_DOUBLE_FLOOR,
+            is_double_floor,
             out.toilet_nb,
             fuse_length,
             ind,
@@ -189,7 +198,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
         out.pass_nb, mw.maximum_take_off_mass
     )
 
-    mw.mass_payload = out.pass_nb * PASSENGER_MASS + ui.MASS_CARGO
+    mw.mass_payload = out.pass_nb * PASSENGER_MASS + mass_cargo
 
     mw.mass_people = mw.mass_crew + out.pass_nb * PASSENGER_MASS
 
@@ -205,8 +214,8 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     # Fuel Mass evaluation
     # Maximum fuel that can be stored with maximum number of passengers.
 
-    if not ui.MAX_FUEL_VOL:  # TODO while retesting, redo fitting
-        if ui.TURBOPROP:
+    if not max_fuel_vol:  # TODO while retesting, redo fitting
+        if turboprop:
             if wing_area > 55.00:
                 mw.mass_fuel_max = round(mw.maximum_take_off_mass / 4.6, 3)
             else:
@@ -228,7 +237,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
         else:
             mw.mass_fuel_max = round(mw.maximum_take_off_mass / 2.8, 3)
     else:
-        mw.mass_fuel_max = round(max_fuel_vol * ui.FUEL_DENSITY, 3)
+        mw.mass_fuel_max = round(max_fuel_vol * fuel_density, 3)
 
     mw.mass_fuel_maxpass = round(
         mw.maximum_take_off_mass - mw.operating_empty_mass - mw.mass_payload, 3
@@ -236,7 +245,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 
     if mw.MAX_FUEL_MASS > 0 and mw.mass_fuel_maxpass > mw.MAX_FUEL_MASS:
         mw.mass_fuel_maxpass = mw.MAX_FUEL_MASS
-        log.info("Maximum fuel ammount allowed reached [kg]: " + str(mw.mass_fuel_maxpass))
+        log.info("Maximum fuel amount allowed reached [kg]: " + str(mw.mass_fuel_maxpass))
         if mw.maximum_take_off_mass > (
             mw.mass_fuel_maxpass + mw.operating_empty_mass + mw.mass_payload
         ):
@@ -278,12 +287,12 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     log.info("Zero Fuel Mass [kg]: " + str(int(round(mw.zero_fuel_mass))))
     log.info("Wing loading [kg/m^2]: " + str(int(round(out.wing_loading))))
     log.info(
-        "Maximum ammount of fuel allowed with no passengers [kg]: "
+        "Maximum amount of fuel allowed with no passengers [kg]: "
         + str(int(round(mw.mass_fuel_max)))
     )
     log.info(
         "Maximum ammount of fuel allowed with no passengers [l]: "
-        + str(int(round(mw.mass_fuel_max / ui.FUEL_DENSITY)))
+        + str(int(round(mw.mass_fuel_max / fuel_density)))
     )
     log.info("--------- Passegers evaluated: ---------")
     log.info("Passengers: " + str(out.pass_nb))
@@ -298,7 +307,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     log.info("-------- Generating output text file --------")
     outputweightgen.output_txt(out, mw, ind, ui, name)
 
-    # CPACS writting
+    # CPACS writting (TODO: save directly in cpacs_out_path)
     cpacsweightupdate.cpacs_update(mw, out, cpacs_path, cpacs_out_path)
 
 

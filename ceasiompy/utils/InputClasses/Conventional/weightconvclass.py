@@ -23,14 +23,10 @@ TODO:
 
 from cpacspy.cpacsfunctions import add_uid, get_value_or_default, open_tixi
 from ceasiompy.utils.commonxpath import (
-    CAB_CREW_XPATH,
     F_XPATH,
-    FUEL_XPATH,
     GEOM_XPATH,
     MASSBREAKDOWN_XPATH,
     ML_XPATH,
-    PASS_XPATH,
-    PILOTS_XPATH,
     PROP_XPATH,
 )
 
@@ -72,7 +68,7 @@ class UserInputs:
         self.FUEL_DENSITY = 800
         self.TURBOPROP = False
 
-    def get_user_inputs(self, cpacs_path):
+    def get_user_inputs(self, cpacs):
         """Get user input from the CPACS file
 
         The function 'get_user_inputs' extracts from the CPACS file the required
@@ -83,7 +79,7 @@ class UserInputs:
 
         """
 
-        tixi = open_tixi(cpacs_path)
+        tixi = cpacs.tixi
 
         description = "User geometry input"
         get_value_or_default(tixi, GEOM_XPATH + "/description", description)
@@ -103,7 +99,7 @@ class UserInputs:
 
         self.TURBOPROP = get_value_or_default(tixi, PROP_XPATH + "/turboprop", False)
 
-        tixi.save(cpacs_path)
+        return cpacs
 
 
 class InsideDimensions:

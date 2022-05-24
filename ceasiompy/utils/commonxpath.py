@@ -33,9 +33,6 @@ ENGINES_XPATH = "/cpacs/vehicles/aircraft/model/engines"
 AEROPERFORMANCE_XPATH = "/cpacs/vehicles/aircraft/model/analyses/aeroPerformance"
 MASSBREAKDOWN_XPATH = "/cpacs/vehicles/aircraft/model/analyses/massBreakdown"
 
-# fuel
-F_XPATH = "/cpacs/vehicles/fuels/fuel"
-
 # CEASIOMpy
 CEASIOMPY_XPATH = "/cpacs/toolspecific/CEASIOMpy"
 EXPORT_XPATH = "/cpacs/toolspecific/CEASIOMpy/export"
@@ -103,12 +100,13 @@ RANGE_LD_RATIO_XPATH = "/cpacs/toolspecific/CEASIOMpy/ranges/lDRatio"
 
 
 # WEIGHT
-
+F_XPATH = "/cpacs/vehicles/fuels/fuel"  # TODO RENAME
 PASS_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/passengers"
-ML_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/massLimits"
+ML_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/massLimits"  # TODO RENAME
 CREW_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/crew"
 PILOTS_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/crew/pilots"
 CAB_CREW_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/crew/cabinCrewMembers"
+MASS_CARGO = MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass"
 
 
 # pytornado

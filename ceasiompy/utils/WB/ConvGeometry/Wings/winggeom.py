@@ -397,7 +397,7 @@ def wing_geom_eval(ag, cpacs_in):
             a += 1
 
     ag.w_seg_sec = seg_sec
-    tixi.save(cpacs_in)
+    tixi.save(str(cpacs_in))
 
     # log info display ------------------------------------------------------------
     log.info("---------------------------------------------")

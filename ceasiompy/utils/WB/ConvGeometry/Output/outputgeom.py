@@ -17,6 +17,8 @@ This file will generate the output.txt for the geometry analysis.
 # =============================================================================
 
 import numpy as np
+from pathlib import Path
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 
 # =============================================================================
@@ -43,8 +45,11 @@ def produce_output_txt(ag, NAME):
     (file) OutputTextFile --Out.: Output txt file
     """
 
-    out_name = "ToolOutput/" + NAME + "/" + NAME + "_Aircraft_Geometry.out"
-    OutputTextFile = open(out_name, "w")
+    result_dir = get_results_directory("WeightConventional")
+
+    output_file = Path(result_dir, "Aircraft_Geometry.out")
+
+    OutputTextFile = open(output_file, "w")
 
     OutputTextFile.write("\n#################################################")
     OutputTextFile.write("\n###### AIRCRAFT GEOMETRY EVALUATION MODULE ######")
@@ -60,7 +65,7 @@ def produce_output_txt(ag, NAME):
     OutputTextFile.write("\n-------------------------------------------------")
     OutputTextFile.write(
         "\nIf fuselage or wing number is greater than 1 the\n"
-        "informations of each obj are listed in an "
+        "information of each obj are listed in an "
         "array ordered\nprogressively"
     )
     OutputTextFile.write(
@@ -133,10 +138,10 @@ def produce_output_txt(ag, NAME):
         )
     )
     OutputTextFile.write(
-        "\nWings sections thicknes [m]: \n" + str(np.around(ag.wing_sec_thicknes, 5))
+        "\nWings sections thickness [m]: \n" + str(np.around(ag.wing_sec_thicknes, 5))
     )
     OutputTextFile.write(
-        "\nWings sections mean thicknes [m]: \n" + str(np.around(ag.wing_sec_mean_thick, 5))
+        "\nWings sections mean thickness [m]: \n" + str(np.around(ag.wing_sec_mean_thick, 5))
     )
     OutputTextFile.write("\nWing segments length [m]: \n" + str(np.around(ag.wing_seg_length, 5)))
     OutputTextFile.write("\nWing max chord length [m]: \n" + str(np.around(ag.wing_max_chord, 5)))
@@ -151,8 +156,6 @@ def produce_output_txt(ag, NAME):
 
     # Close Text File
     OutputTextFile.close()
-
-    return ()
 
 
 # =============================================================================

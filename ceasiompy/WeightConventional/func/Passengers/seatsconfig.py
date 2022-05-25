@@ -39,69 +39,66 @@ log = get_logger()
 
 
 def get_seat_config(
+    fuse_length,
     row_nb,
     abreast_nb,
     aisle_nb,
-    IS_DOUBLE_FLOOR,
+    is_double_floor,
+    seat_length,
     toilet_nb,
-    fuse_length,
-    ind,
-    NAME,
+    toilet_length,
 ):
 
     """The function to proposes a sit disposition.
 
     Args:
+        fuse_length (float): Fuselage_length [m]
         row_nb (int): Number of seat rows [-]
         abreast_nb (int): Number of seat abreasts [-]
         aisle_nb (int): Number of aisles [-]
+        is_double_floor (int): Double floor option [-]
+        seat_length (float): Seat length [m]
+        toilet_length (float): Toilet length [m]
         toilet_nb (int): Number of toilets [-]
-        IS_DOUBLE_FLOOR (int): Double floor option [-]
-        fuse_length (float): Fuselage_length [m]
-        ind (class): InsideDimensions class [-]
-        NAME  (str): Name of the aircraft
 
-    Returns:
-        NAME_Seats_disposition.out (file) : Print of the possible sets
-                                               disposition per each rows.
     """
 
     result_dir = get_results_directory("WeightConventional")
     output_file = Path(result_dir, "Seats_disposition.out")
 
-    out_txt_file = open(output_file, "w")
-    out_txt_file.write("---------------------------------------------")
-    out_txt_file.write("\nPossible seat configuration -----------------")
-    out_txt_file.write("\nSeat = 1 and Aisle = 0 ----------------------")
-    out_txt_file.write("\n---------------------------------------------")
-    out_txt_file.write("\nAbreast nb.: " + str(abreast_nb))
-    out_txt_file.write("\nRow nb.: " + str(row_nb))
-    out_txt_file.write("\nSeats_nb : " + str(abreast_nb * row_nb))
-    out_txt_file.write("\n---------------------------------------------")
+    lines = open(output_file, "w")
+    lines.write("---------------------------------------------")
+    lines.write("\nPossible seat configuration -----------------")
+    lines.write("\nSeat = 1 and Aisle = 0 ----------------------")
+    lines.write("\n---------------------------------------------")
+    lines.write(f"\nAbreast nb.: {abreast_nb}")
+    lines.write(f"\nRow nb.: {row_nb}")
+    lines.write(f"\nSeats_nb : {abreast_nb * row_nb}")
+    lines.write("\n---------------------------------------------")
 
-    log.info("-------- Possible seat configuration --------")
-    log.info("----------- Seat = 1 and Aisle = 0 ----------")
+    lines.write("\n-------- Possible seat configuration --------")
+    lines.write("\n----------- Seat = 1 and Aisle = 0 ----------")
     warn = 0
     snd = False
-    if IS_DOUBLE_FLOOR != 0:
-        out_txt_file.write("\n---------------- First Floor ----------------")
+    if is_double_floor != 0:
+        lines.write("\n---------------- First Floor ----------------")
         if toilet_nb >= 1:
-            f = ind.toilet_length
+            f = toilet_length
             t = toilet_nb - 2
         else:
             f = 0
             t = 0
     seat = list(range(1, int(abreast_nb + aisle_nb) + 1))
     for r in range(1, int(row_nb) + 1):
-        if IS_DOUBLE_FLOOR != 0:
-            f += ind.seat_length
+        if is_double_floor != 0:
+            f += seat_length
             if t > 0:
                 if (r * abreast_nb) % (PASSENGER_PER_TOILET * 2) == 0:
-                    f += ind.toilet_length
+                    f += toilet_length
                     t -= 2
             if not snd and round((fuse_length - f), 1) <= 0.1:
                 snd = True
-                out_txt_file.write("\n---------------- Second Floor" + " ---------------")
+                lines.write("\n---------------- Second Floor" + " ---------------")
         for i in range(int(abreast_nb + aisle_nb)):
             seat[i] = 1
             if aisle_nb == 1:
@@ -115,7 +112,7 @@ def get_seat_config(
                     seat[s] = 0
                     seat[-s - 1] = 0
 
-        out_txt_file.write("\n" + str(seat))
+        lines.write("\n" + str(seat))
         e = int(round((abreast_nb + aisle_nb) // 2.0, 0))
         a = seat[0 : e + 1]
 
@@ -129,12 +126,10 @@ def get_seat_config(
             warn += 1
 
     if warn >= 1:
-        log.warning("Asymmetric passengers disposition in " + str(warn) + " rows")
-        out_txt_file.write("\nAsymmetric passengers disposition in " + str(warn) + " rows")
+        log.warning(f"Asymmetric passengers disposition in {warn} rows")
+        lines.write(f"\nAsymmetric passengers disposition in {warn} rows")
 
-    out_txt_file.close()
-
-    return ()
+    lines.close()
 
 
 # ==============================================================================

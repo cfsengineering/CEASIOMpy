@@ -35,7 +35,7 @@ log = get_logger()
 # =============================================================================
 
 
-def estimate_operating_empty_mass(mtom, fuse_length, wing_span, TURBOPROP):
+def estimate_operating_empty_mass(mtom, fuse_length, wing_span, turboprop):
     """The function estimates the operating empty mass (OEM)
 
     Source: Raymer, D.P. "Aircraft design: a conceptual approach"
@@ -45,7 +45,7 @@ def estimate_operating_empty_mass(mtom, fuse_length, wing_span, TURBOPROP):
         mtom (float): Maximum take off mass [kg]
         fuse_length (float): Fuselage length [m]
         wing_span (float): Wing span [m]
-        TURBOPROP (bool): True if the the engines are turboprop False otherwise.
+        turboprop (bool): True if the the engines are turboprop False otherwise.
 
     Returns:
         oem (float): Operating empty mass [kg]
@@ -54,7 +54,7 @@ def estimate_operating_empty_mass(mtom, fuse_length, wing_span, TURBOPROP):
     G = 9.81  # [m/s^2] Acceleration of gravity.
     KC = 1.04  # [-] Wing with variable sweep (1.0 otherwise).
 
-    if TURBOPROP:
+    if turboprop:
         C = -0.05  # [-] General aviation twin turboprop
         if fuse_length < 15.00:
             A = 0.96

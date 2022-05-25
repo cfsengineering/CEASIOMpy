@@ -90,7 +90,7 @@ class AircraftGeometry:
         self.wing_seg_nb = []  # (int_array) Number of fuselage segments [-]
         self.wing_span = []  # (float_array) Wing span [m]
         self.wing_seg_length = 0  # (floar_array) Wings sements length [m].
-        self.wing_sec_thicknes = 0  # (float) Wing sections thicknes [m]
+        self.wing_sec_thickness = 0  # (float) Wing sections thicknes [m]
         self.wing_sec_mean_thick = []  # (float) Wing sections mean thicknes [m]
         self.wing_max_chord = []  # (float_array) Wing chord in the connection with fuselage [m]
         self.wing_min_chord = []  # (float_array) Wing tip chord [m]
@@ -412,14 +412,14 @@ class AircraftGeometry:
         self.wing_fuel_seg_vol = np.zeros((max_wing_seg_nb, w_nb))
         self.wing_fuel_vol = 0
         self.wing_mac = np.zeros((4, w_nb))
-        self.wing_sec_thicknes = np.zeros((max_wing_sec_nb + 1, w_nb))
+        self.wing_sec_thickness = np.zeros((max_wing_sec_nb + 1, w_nb))
 
         #  WING ANALYSIS --------------------------------------------------------------
 
         # Main wing plantform area
         self.wing_plt_area_main = self.wing_plt_area[self.main_wing_index - 1]
 
-        #  Wing: MAC,chords,thicknes,span,plantform area ------------------------------
+        #  Wing: MAC,chords,thickness,span,plantform area ------------------------------
 
         for i in range(1, w_nb + 1):
             mac = tigl.wingGetMAC(wingUID[i - 1])
@@ -454,20 +454,20 @@ class AircraftGeometry:
                 wing_center_section_point[j - 1][i - 1][0] = (wplx + wpux) / 2
                 wing_center_section_point[j - 1][i - 1][1] = (wply + wpuy) / 2
                 wing_center_section_point[j - 1][i - 1][2] = (wplz + wpuz) / 2
-                self.wing_sec_thicknes[j - 1][i - 1] = np.sqrt(
+                self.wing_sec_thickness[j - 1][i - 1] = np.sqrt(
                     (wpux - wplx) ** 2 + (wpuy - wply) ** 2 + (wpuz - wplz) ** 2
                 )
             j = int(seg_sec[self.wing_seg_nb[i - 1] - 1, i - 1, 2])
             wplx, wply, wplz = tigl.wingGetLowerPoint(i, self.wing_seg_nb[i - 1], 1.0, L)
             wpux, wpuy, wpuz = tigl.wingGetUpperPoint(i, self.wing_seg_nb[i - 1], 1.0, U)
-            self.wing_sec_thicknes[j][i - 1] = np.sqrt(
+            self.wing_sec_thickness[j][i - 1] = np.sqrt(
                 (wpux - wplx) ** 2 + (wpuy - wply) ** 2 + (wpuz - wplz) ** 2
             )
             wing_center_section_point[self.wing_seg_nb[i - 1]][i - 1][0] = (wplx + wpux) / 2
             wing_center_section_point[self.wing_seg_nb[i - 1]][i - 1][1] = (wply + wpuy) / 2
             wing_center_section_point[self.wing_seg_nb[i - 1]][i - 1][2] = (wplz + wpuz) / 2
             self.wing_sec_mean_thick.append(
-                np.mean(self.wing_sec_thicknes[0 : self.wing_seg_nb[i - 1] + 1, i - 1])
+                np.mean(self.wing_sec_thickness[0 : self.wing_seg_nb[i - 1] + 1, i - 1])
             )
             # Evaluating wing fuel tank volume in the main wings
             if abs(round(self.wing_plt_area[i - 1], 3) - self.wing_plt_area_main) < 0.001:
@@ -499,7 +499,7 @@ class AircraftGeometry:
                 if self.wing_sym[i - 1] != 0:
                     self.is_horiz.append(False)
 
-        # Wing segment length evaluatin function
+        # Wing segment length evaluating function
         self.get_wing_segment_length(wing_center_section_point)
 
         # Evaluating the point at the center of each segment, the center
@@ -562,10 +562,6 @@ class AircraftGeometry:
         log.info(f"Number of wing segments (not counting symmetry) [-]: {self.wing_seg_nb}")
         log.info(f"Wing Span [m]: {self.wing_span}")
         log.info(f"Wing MAC length [m]: {self.wing_mac[0,]}")
-        log.info(f"Wing MAC x,y,z coordinate [m]: \n {self.wing_mac[1:4,]}")
-        log.info(f"Wings sections thicknes [m]: {self.wing_sec_thicknes}")
-        log.info(f"Wings sections mean thicknes [m]: {self.wing_sec_mean_thick}")
-        log.info(f"Wing segments length [m]: {self.wing_seg_length}")
         log.info(f"Wing max chord length [m]: {self.wing_max_chord}")
         log.info(f"Wing min chord length [m]: {self.wing_min_chord}")
         log.info(f"Main wing plantform area [m^2]: {self.wing_plt_area_main}")
@@ -598,7 +594,7 @@ class AircraftGeometry:
 
         log.info("Checking wings segments connection")
 
-        # Initialising arrays
+        # Initializing arrays
         nbmax = np.amax(self.wing_seg_nb)
         seg_sec = np.zeros((nbmax, self.w_nb, 3))
         seg_sec_reordered = np.zeros(np.shape(seg_sec))
@@ -794,7 +790,7 @@ class AircraftGeometry:
             )
         )
         OutputTextFile.write(
-            "\nWings sections thickness [m]: \n" + str(np.around(self.wing_sec_thicknes, 5))
+            "\nWings sections thickness [m]: \n" + str(np.around(self.wing_sec_thickness, 5))
         )
         OutputTextFile.write(
             "\nWings sections mean thickness [m]: \n" + str(np.around(self.wing_sec_mean_thick, 5))

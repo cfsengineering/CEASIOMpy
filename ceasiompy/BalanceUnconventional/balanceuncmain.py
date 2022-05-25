@@ -139,9 +139,9 @@ def get_balance_unc_estimations(cpacs_path, cpacs_out_path):
 
     # BALANCE ANALYSIS
 
-    log.info("----- Generating output text file -----")
-    log.info("---- Starting the balance analysis ----")
-    log.info("---- Aircraft: " + name)
+    log.info("Generating output text file")
+    log.info("Starting the balance analysis")
+    log.info("Aircraft: " + name)
 
     # CENTER OF GRAVITY
 
@@ -161,7 +161,7 @@ def get_balance_unc_estimations(cpacs_path, cpacs_out_path):
 
     # OUTPUT WRITING
 
-    log.info("----- Generating output text file -----")
+    log.info("Generating output text file")
     outputbalancegen.output_txt(bout, mw, bi, ed, name)
 
     # CPACS WRITING
@@ -169,7 +169,7 @@ def get_balance_unc_estimations(cpacs_path, cpacs_out_path):
 
     # PLOTS
 
-    log.info("--- Generating aircraft center of gravity plot (.png) ---")
+    log.info("Generating aircraft center of gravity plot (.png)")
     if not fus_nb:
         outputbalancegen.aircraft_cog_bwb_plot(bout.center_of_gravity, bi, ed, awg, name)
     else:

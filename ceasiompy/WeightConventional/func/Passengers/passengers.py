@@ -102,7 +102,7 @@ def estimate_passengers(cabin_length, fuse_width, ind):
     check_width = ind.aisle_width * aisle_nb + ind.seat_width * abreast_nb
     if round(abs(cabin_width - check_width), 1) > 0.01:
         if check_width > cabin_width:
-            log.warning("Not enought lateral space")
+            log.warning("Not enough lateral space")
         log.info(
             "It is possible to modify the sits width by: "
             + str(round((cabin_width - check_width) / (abreast_nb), 2) - 0.01)
@@ -164,7 +164,7 @@ def estimate_passengers(cabin_length, fuse_width, ind):
     if round(abs((cabin_length) - (check_length)) / (row_nb), 2) > 0.01:
         if check_length > cabin_length:
             log.warning("------------------- Warning -----------------")
-            log.warning(" Not enought longitudinal space -------------")
+            log.warning(" Not enough longitudinal space -------------")
             log.warning(" Reduce seats length ------------------------")
         log.info(
             "It is possible to modify the sits length by: "
@@ -173,10 +173,10 @@ def estimate_passengers(cabin_length, fuse_width, ind):
         )
 
     log.info("------------ Seating estimation -------------")
-    log.info("  Nb of abreasts: " + str(abreast_nb))
-    log.info("  Nb of row: " + str(row_nb))
-    log.info("  Nb of passengers: " + str(pass_nb))
-    log.info("  Nb of Toilets: " + str(int(toilet_nb)))
+    log.info(f"Nb of abreasts: {abreast_nb}")
+    log.info(f"Nb of row: {row_nb}")
+    log.info(f"Nb of passengers: {pass_nb}")
+    log.info(f"Nb of Toilets: {int(toilet_nb)}")
 
     ind.cabin_width = cabin_width
     ind.cabin_area = cabin_length * cabin_width

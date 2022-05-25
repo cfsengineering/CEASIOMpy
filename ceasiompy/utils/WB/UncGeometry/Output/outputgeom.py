@@ -95,7 +95,7 @@ def produce_wing_output_txt(awg, NAME):
             ]
         )
     )
-    OutputTextFile.write("\nWings sections thickness [m]:\n" + str(awg.wing_sec_thicknes))
+    OutputTextFile.write("\nWings sections thickness [m]:\n" + str(awg.wing_sec_thickness))
     OutputTextFile.write("\nWings sections mean thickness [m]:\n" + str(awg.wing_sec_mean_thick))
     OutputTextFile.write("\nWing segments length [m]:\n " + str(awg.wing_seg_length))
     OutputTextFile.write("\nWing max chord length [m]: " + str(awg.wing_max_chord))
@@ -230,7 +230,7 @@ def produce_geom_output_txt(afg, awg, NAME):
             ]
         )
     )
-    OutputTextFile.write("\nWings sections thickness [m]:\n" + str(awg.wing_sec_thicknes))
+    OutputTextFile.write("\nWings sections thickness [m]:\n" + str(awg.wing_sec_thickness))
     OutputTextFile.write("\nWings sections mean thickness [m]:\n" + str(awg.wing_sec_mean_thick))
     OutputTextFile.write("\nWing segments length [m]:\n " + str(awg.wing_seg_length))
     OutputTextFile.write("\nWing max chord length [m]: " + str(awg.wing_max_chord))

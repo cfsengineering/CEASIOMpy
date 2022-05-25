@@ -136,7 +136,7 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
     F_PERC_MAXPASS = (mw.mass_fuel_maxpass / mw.mass_fuel_max) * 100
 
     # CENTER OF GRAVITY---------------------------------------------------------
-    # ag = geometry.geometry_eval(cpacs_out_path, name) 
+    # ag = geometry.geometry_eval(cpacs_out_path, name)
     # TODO: get CPACS object
     ag = geometry.AircraftGeometry()
     ag.fuse_geom_eval(cpacs)
@@ -274,7 +274,7 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
 
     # OUTPUT WRITING
 
-    log.info("-------- Generating output text file --------")
+    log.info("Generating output text file")
     outputbalancegen.output_txt(out, mw, bi, name)
 
     # CPACS WRITING
@@ -282,7 +282,7 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
 
     # PLOTS
     # Aircraft Cog Plot
-    log.info("--- Generating aircraft center of gravity plot (.png) ---")
+    log.info("Generating aircraft center of gravity plot (.png)")
     outputbalancegen.aircraft_cog_plot(out.center_of_gravity, ag, name)
 
     # Aircraft Nodes

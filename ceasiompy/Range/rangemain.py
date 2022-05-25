@@ -150,7 +150,7 @@ def get_range_estimation(cpacs_path, cpacs_out_path):
 
     # OUTPUT WRITING
 
-    log.info("-------- Generating output text file --------")
+    log.info("Generating output text file")
     outputrangegen.output_txt(LDloi, LDcru, mw, ri, out, name)
 
     # CPACS WRITING

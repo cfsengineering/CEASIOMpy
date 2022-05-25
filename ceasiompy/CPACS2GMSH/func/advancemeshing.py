@@ -201,7 +201,7 @@ def refine_wing_section(
     Function to refine the trailing and leading edge of an wing section,
     2 field are created, a threshold and matheval field
 
-    The threshold field is used to keep the element on the wing to a maximum size of mesh_size_wings
+    The threshold field is used to keep the element on the wing to a maximum size of mesh_size_wing
 
     A Math eval field is used to define a refinement from the leading /or trailing edge of the wing
     with the following function:

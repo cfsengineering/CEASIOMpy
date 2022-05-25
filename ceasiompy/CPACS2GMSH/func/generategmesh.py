@@ -383,6 +383,18 @@ def add_disk_actuator(brep_dir_path, rotor_uid, radius, symmetry, trans_vector, 
 
     Args:
     ----------
+    brep_dir_path : Path
+        path to the brep files of the aircraft that also contains the rotor config file
+    rotor_uid : str
+        uid of the rotor
+    radius : float
+        radius of the disk
+    symmetry : int
+        symmetry plane of the disk (2 = xz plane)
+    trans_vector : list
+        absolute position of the rotor
+    rot_vector : list
+        rotation to apply to the rotor in order to obtain the correct axis w.r.t the cpacs
 
     """
     # Adding rotating disk
@@ -540,7 +552,7 @@ def generate_gmsh(
     if rotor_model:
         log.info("Adding disk actuator")
         config_file = ConfigFile(Path(brep_dir_path, "config_rotors.cfg"))
-        nb_rotor = int(config_file[f"NB_ROTOR"])
+        nb_rotor = int(config_file["NB_ROTOR"])
 
         for k in range(1, nb_rotor + 1):
             # get the rotor configuration from cfg file
@@ -629,7 +641,7 @@ def generate_gmsh(
         parts_parent_dimtag.append(sym_box[1])
 
     log.info("Start fragment operation between the aircraft and the farfield")
-    gmsh.fltk.run()
+
     _, children_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)
     gmsh.model.occ.synchronize()
 

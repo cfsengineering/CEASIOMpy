@@ -38,7 +38,7 @@ log = get_logger()
 # =================================================================================================
 
 
-def export(shape, brep_dir_path, uid):
+def export(shape, brep_dir, uid):
     """
     Export a shape to a brep file and store its UID
 
@@ -46,7 +46,7 @@ def export(shape, brep_dir_path, uid):
     ----------
     shape: TiGL Cshape
         The shape to be exported
-    brep_dir_path (Path): Path to the brep directory
+    brep_dir (Path): Path to the brep directory
         Path object to the directory where the brep files are saved
     uid: str
         The uID of the shape
@@ -57,8 +57,8 @@ def export(shape, brep_dir_path, uid):
 
     """
 
-    brep_dir_path.mkdir(exist_ok=True)
-    brep_file = Path(brep_dir_path, f"{uid}.brep")
+    brep_dir.mkdir(exist_ok=True)
+    brep_file = Path(brep_dir, f"{uid}.brep")
 
     export_shapes([shape], str(brep_file))
 
@@ -67,7 +67,7 @@ def export(shape, brep_dir_path, uid):
         raise FileNotFoundError(f"Failed to export {uid}")
 
 
-def engine_export(cpacs, engine, brep_dir_path, engines_cfg_file_path, engine_surface_percent):
+def engine_export(cpacs, engine, brep_dir, engines_cfg_file_path, engine_surface_percent):
     """
     Export the engine to a brep file
 
@@ -77,7 +77,7 @@ def engine_export(cpacs, engine, brep_dir_path, engines_cfg_file_path, engine_su
         CPACS object (from cpacspy)
     engine: TiGL engine
         Engine part to be exported
-    brep_dir_path : Path
+    brep_dir : Path
         Path object to the directory where the brep files are saved
     engines_cfg_file : Path
         Path object to the config file for the engines
@@ -96,21 +96,21 @@ def engine_export(cpacs, engine, brep_dir_path, engines_cfg_file_path, engine_su
             center_cowl_uid = center_cowl.get_uid()
             engine_uids.append(center_cowl_uid)
             center_cowl_shape = center_cowl.build_loft()
-            export(center_cowl_shape, brep_dir_path, center_cowl_uid)
+            export(center_cowl_shape, brep_dir, center_cowl_uid)
 
         core_cowl = nacelle.get_core_cowl()
         if core_cowl:
             core_cowl_uid = core_cowl.get_uid()
             engine_uids.append(core_cowl_uid)
             core_cowl_shape = core_cowl.build_loft()
-            export(core_cowl_shape, brep_dir_path, core_cowl_uid)
+            export(core_cowl_shape, brep_dir, core_cowl_uid)
 
         fan_cowl = nacelle.get_fan_cowl()
         if fan_cowl:
             fan_cowl_uid = fan_cowl.get_uid()
             engine_uids.append(fan_cowl_uid)
             fan_cowl_shape = fan_cowl.build_loft()
-            export(fan_cowl_shape, brep_dir_path, fan_cowl_uid)
+            export(fan_cowl_shape, brep_dir, fan_cowl_uid)
 
         # Determine engine type and save it in the engine config files
         config_file = ConfigFile(engines_cfg_file_path)
@@ -122,11 +122,11 @@ def engine_export(cpacs, engine, brep_dir_path, engines_cfg_file_path, engine_su
         config_file.write_file(engines_cfg_file_path, overwrite=True)
 
         engine_conversion(
-            cpacs, engine_uids, brep_dir_path, engines_cfg_file_path, engine_surface_percent
+            cpacs, engine_uids, brep_dir, engines_cfg_file_path, engine_surface_percent
         )
 
 
-def rotor_config(rotorcraft_config, brep_dir_path):
+def rotor_config(rotorcraft_config, brep_dir):
     """
     Store the rotor configuration of the aircraft in a .cfg file in order to
     replace in gmsh the rotor by disk for the disk actuator modeling
@@ -134,12 +134,12 @@ def rotor_config(rotorcraft_config, brep_dir_path):
     Args:
     rotorcraft_config : tixi
         rotor configuration of the aircraft
-    brep_dir_path : Path
+    brep_dir : Path
         Path object to the directory where the brep files are saved
     """
     rotor_cnt = rotorcraft_config.get_rotor_count()
     # create config file for the engine conversion
-    rotors_cfg_file_path = Path(brep_dir_path, "config_rotors.cfg")
+    rotors_cfg_file_path = Path(brep_dir, "config_rotors.cfg")
     config_file = ConfigFile()
 
     config_file["NB_ROTOR"] = f"{rotor_cnt}"
@@ -164,7 +164,7 @@ def rotor_config(rotorcraft_config, brep_dir_path):
     config_file.write_file(rotors_cfg_file_path, overwrite=True)
 
 
-def export_brep(cpacs, brep_dir_path, engine_surface_percent=(20, 20)):
+def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
     """Function to generate and export the geometries of a .xml file
 
     Function 'export_brep' is a subfunction of CPACS2GMSH that generate with TiGL
@@ -175,7 +175,7 @@ def export_brep(cpacs, brep_dir_path, engine_surface_percent=(20, 20)):
     Args:
     cpacs : CPACS object (from cpacspy)
         CPACS object (from cpacspy)
-    brep_dir_path : Path
+    brep_dir : Path
         Path object to the directory where the brep files are saved
     engine_surface_percent : tuple
         Tuple containing the position percentage of the surface intake and exhaust bc
@@ -190,7 +190,7 @@ def export_brep(cpacs, brep_dir_path, engine_surface_percent=(20, 20)):
     # Get rotor config
     try:
         rotorcraft_config = cpacs.rotorcraft.configuration
-        rotor_config(rotorcraft_config, brep_dir_path)
+        rotor_config(rotorcraft_config, brep_dir)
     except AttributeError:
         pass
 
@@ -212,18 +212,18 @@ def export_brep(cpacs, brep_dir_path, engine_surface_percent=(20, 20)):
         fuselage = aircraft_config.get_fuselage(k)
         fuselage_uid = fuselage.get_uid()
         fuselage_geom = fuselage.get_loft()
-        export(fuselage_geom, brep_dir_path, fuselage_uid)
+        export(fuselage_geom, brep_dir, fuselage_uid)
 
     # Wing
     for k in range(1, wing_cnt + 1):
         wing = aircraft_config.get_wing(k)
         wing_uid = wing.get_uid()
         wing_geom = wing.get_loft()
-        export(wing_geom, brep_dir_path, wing_uid)
+        export(wing_geom, brep_dir, wing_uid)
 
         wing_m_geom = aircraft_config.get_wing(k).get_mirrored_loft()
         if wing_m_geom is not None:
-            export(wing_m_geom, brep_dir_path, wing_uid + "_mirrored")
+            export(wing_m_geom, brep_dir, wing_uid + "_mirrored")
 
     # Pylon
     if pylons_config:
@@ -232,27 +232,25 @@ def export_brep(cpacs, brep_dir_path, engine_surface_percent=(20, 20)):
             pylon = pylons_config.get_engine_pylon(k)
             pylon_uid = pylon.get_uid()
             pylon_geom = pylon.get_loft()
-            export(pylon_geom, brep_dir_path, pylon_uid)
+            export(pylon_geom, brep_dir, pylon_uid)
 
             pylon_m_geom = pylons_config.get_engine_pylon(k).get_mirrored_loft()
             if pylon_m_geom is not None:
-                export(pylon_m_geom, brep_dir_path, pylon_uid + "_mirrored")
+                export(pylon_m_geom, brep_dir, pylon_uid + "_mirrored")
 
     # Engine
     if engines_config:
         nb_engine = engines_config.get_engine_count()
 
         # Create config file for the engine conversion
-        engines_cfg_file_path = Path(brep_dir_path, GMSH_ENGINE_CONFIG_NAME)
+        engines_cfg_file_path = Path(brep_dir, GMSH_ENGINE_CONFIG_NAME)
         config_file = ConfigFile()
         config_file.write_file(engines_cfg_file_path, overwrite=True)
 
         # Export each engine
         for k in range(1, nb_engine + 1):
             engine = engines_config.get_engine(k)
-            engine_export(
-                cpacs, engine, brep_dir_path, engines_cfg_file_path, engine_surface_percent
-            )
+            engine_export(cpacs, engine, brep_dir, engines_cfg_file_path, engine_surface_percent)
 
 
 # =================================================================================================

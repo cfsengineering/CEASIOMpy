@@ -34,7 +34,7 @@ log = get_logger()
 # ==============================================================================
 
 
-def engine_conversion(cpacs, engine_uids, brep_dir_path, engines_cfg_file, engine_surface_percent):
+def engine_conversion(cpacs, engine_uids, brep_dir, engines_cfg_file, engine_surface_percent):
     """
     Function to convert the nacelle part in one engine by closing it and positioning it
     at the correct location, when the engine is ready it is saved as a new part with
@@ -46,7 +46,7 @@ def engine_conversion(cpacs, engine_uids, brep_dir_path, engines_cfg_file, engin
         The cpacs object from cpacspy
     engine_uids : str
         engine uids : engine uid + all the nacelle uids
-    brep_dir_path : Path
+    brep_dir : Path
         Path to the directory containing the brep files
     engines_cfg_file : Path
         Path to the engines configuration file
@@ -59,7 +59,7 @@ def engine_conversion(cpacs, engine_uids, brep_dir_path, engines_cfg_file, engin
 
     # Find the brep files associated with the engine uid:
     engine_files_path = [
-        file for file in list(brep_dir_path.glob("*.brep")) if file.stem in engine_uids
+        file for file in list(brep_dir.glob("*.brep")) if file.stem in engine_uids
     ]
 
     # Class the brep with their respective part type
@@ -71,11 +71,11 @@ def engine_conversion(cpacs, engine_uids, brep_dir_path, engines_cfg_file, engin
 
     # Create a new engine that is closed with an inlet and an outlet
     closed_engine_path = close_engine(
-        nacelle_parts, engine_uids, brep_dir_path, engines_cfg_file, engine_surface_percent
+        nacelle_parts, engine_uids, brep_dir, engines_cfg_file, engine_surface_percent
     )
 
     # clean brep files from the nacelle that are no more used
-    for file in brep_dir_path.iterdir():
+    for file in brep_dir.iterdir():
         part_uid = (str(file)).split(".")[0].split("/")[-1]
 
         if part_uid in engine_uids[1:]:
@@ -87,9 +87,7 @@ def engine_conversion(cpacs, engine_uids, brep_dir_path, engines_cfg_file, engin
     log.info(f"Engine {engine_uids[0]} converted")
 
 
-def close_engine(
-    nacelle_parts, engine_uids, brep_dir_path, engines_cfg_file, engine_surface_percent
-):
+def close_engine(nacelle_parts, engine_uids, brep_dir, engines_cfg_file, engine_surface_percent):
     """
     Function to close the engine nacelle fan by adding an inlet and outlet inside of the engine.
     Then the nacelle part are fused together to form only one engine that is saved as .brep file
@@ -112,7 +110,7 @@ def close_engine(
         Dictionary containing the nacelle parts part type and PATH
     engine_uids : list
         engine uids : engine uid + all the nacelle uids
-    brep_dir_path : Path
+    brep_dir : Path
         Path to the directory containing the brep files
     engines_cfg_file : Path
         Path to the engines configuration file
@@ -174,7 +172,7 @@ def close_engine(
     gmsh.model.occ.fuse(part_to_fuse[:1], part_to_fuse[1:], removeObject=True, removeTool=True)
     gmsh.model.occ.synchronize()
 
-    closed_engine_path = Path(brep_dir_path, f"{engine_uids[0]}.brep")
+    closed_engine_path = Path(brep_dir, f"{engine_uids[0]}.brep")
 
     # Save engine and close gmsh session
     gmsh.write(str(closed_engine_path))

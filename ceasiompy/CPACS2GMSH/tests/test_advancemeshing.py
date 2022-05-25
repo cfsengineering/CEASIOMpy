@@ -219,7 +219,7 @@ def test_refine_wing_section():
 
     generate_gmsh(
         cpacs=cpacs,
-        brep_dir_path=TEST_OUT_PATH,
+        brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
         mesh_size_farfield=5,
@@ -274,7 +274,7 @@ def test_auto_refine():
 
     generate_gmsh(
         cpacs=cpacs,
-        brep_dir_path=TEST_OUT_PATH,
+        brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
         mesh_size_farfield=5,

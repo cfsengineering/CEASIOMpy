@@ -237,7 +237,7 @@ def get_entities_from_volume(volume_dimtag):
     return surfaces_dimtags, lines_dimtags, points_dimtags
 
 
-def define_engine_bc(engine_part, brep_dir_path):
+def define_engine_bc(engine_part, brep_dir):
     """
     Function to define the boundary conditions for the engine part.
     The engine is defined as a volume and the boundary conditions intake exhaust
@@ -247,7 +247,7 @@ def define_engine_bc(engine_part, brep_dir_path):
     ----------
     engine_part : ModelPart
         engine part of the aircraft to set the bc on
-    brep_dir_path : Path
+    brep_dir : Path
         path to the brep files of the aircraft that also contains the engine config file
 
     """
@@ -255,7 +255,7 @@ def define_engine_bc(engine_part, brep_dir_path):
     # Check if the engine is double or simple flux and
     # the engine normal and distance between the intake and exhaust
 
-    config_file_path = Path(brep_dir_path, GMSH_ENGINE_CONFIG_NAME)
+    config_file_path = Path(brep_dir, GMSH_ENGINE_CONFIG_NAME)
     config_file = ConfigFile(config_file_path)
 
     doubleflux = bool(int(config_file[f"{engine_part.uid}_DOUBLE_FLUX"]))
@@ -375,7 +375,7 @@ def process_gmsh_log(gmsh_log):
     log.info(f"Total meshing time : {round(total_time, 2)}s")
 
 
-def add_disk_actuator(brep_dir_path, rotor_uid, radius, symmetry, trans_vector, rot_vector):
+def add_disk_actuator(brep_dir, rotor_uid, radius, symmetry, trans_vector, rot_vector):
     """
     Function to create a 2D disk in a given location to represent a rotor as a
     disk actuator
@@ -383,7 +383,7 @@ def add_disk_actuator(brep_dir_path, rotor_uid, radius, symmetry, trans_vector, 
 
     Args:
     ----------
-    brep_dir_path : Path
+    brep_dir : Path
         path to the brep files of the aircraft that also contains the rotor config file
     rotor_uid : str
         uid of the rotor
@@ -417,7 +417,7 @@ def add_disk_actuator(brep_dir_path, rotor_uid, radius, symmetry, trans_vector, 
 
     gmsh.model.occ.synchronize()
 
-    path_disk = Path(brep_dir_path, f"{rotor_uid}.brep")
+    path_disk = Path(brep_dir, f"{rotor_uid}.brep")
     gmsh.write(str(path_disk))
 
     gmsh.clear()
@@ -449,7 +449,7 @@ def add_disk_actuator(brep_dir_path, rotor_uid, radius, symmetry, trans_vector, 
 
         gmsh.model.occ.mirror([disk_dimtag], 0, 1, 0, 0)
         gmsh.model.occ.synchronize()
-        path_disk = Path(brep_dir_path, f"{rotor_uid}_mirrored.brep")
+        path_disk = Path(brep_dir, f"{rotor_uid}_mirrored.brep")
         gmsh.write(str(path_disk))
 
         gmsh.clear()
@@ -483,7 +483,7 @@ def duplicate_disk_actuator_surfaces(part):
 
 def generate_gmsh(
     cpacs,
-    brep_dir_path,
+    brep_dir,
     results_dir,
     open_gmsh=False,
     farfield_factor=5,
@@ -508,7 +508,7 @@ def generate_gmsh(
     ----------
     cpacs : CPACS
         CPACS object
-    brep_dir_path : Path
+    brep_dir : Path
         Path to the directory containing the brep files
     results_dir : Path
         Path to the directory containing the result (mesh) files
@@ -546,12 +546,12 @@ def generate_gmsh(
 
     # Determine if rotor are present in the aircraft model
     rotor_model = False
-    if Path(brep_dir_path, "config_rotors.cfg").exists():
+    if Path(brep_dir, "config_rotors.cfg").exists():
         rotor_model = True
 
     if rotor_model:
         log.info("Adding disk actuator")
-        config_file = ConfigFile(Path(brep_dir_path, "config_rotors.cfg"))
+        config_file = ConfigFile(Path(brep_dir, "config_rotors.cfg"))
         nb_rotor = int(config_file["NB_ROTOR"])
 
         for k in range(1, nb_rotor + 1):
@@ -568,7 +568,7 @@ def generate_gmsh(
 
             # add disk actuator
             add_disk_actuator(
-                brep_dir_path,
+                brep_dir,
                 rotor_uid,
                 radius,
                 sym,
@@ -577,7 +577,7 @@ def generate_gmsh(
             )
 
     # Retrieve all brep
-    brep_files = list(brep_dir_path.glob("*.brep"))
+    brep_files = list(brep_dir.glob("*.brep"))
     brep_files.sort()
 
     gmsh.initialize()
@@ -589,7 +589,7 @@ def generate_gmsh(
     # Import each aircraft original parts / parent parts
     aircraft_parts = []
     parts_parent_dimtag = []
-    log.info(f"Importing files from {brep_dir_path}")
+    log.info(f"Importing files from {brep_dir}")
     for brep_file in brep_files:
 
         # Import the part and create the aircraft part object
@@ -782,7 +782,7 @@ def generate_gmsh(
 
         # Set surface BC for each part of the aircraft
         if part.part_type == "engine":
-            define_engine_bc(part, brep_dir_path)
+            define_engine_bc(part, brep_dir)
         else:
             surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
             gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")

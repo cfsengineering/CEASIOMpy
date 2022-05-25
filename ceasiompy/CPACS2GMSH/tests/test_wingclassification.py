@@ -233,7 +233,7 @@ def test_classify_wing():
 
     _, aircraft_parts = generate_gmsh(
         cpacs=cpacs,
-        brep_dir_path=TEST_OUT_PATH,
+        brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
         farfield_factor=5,

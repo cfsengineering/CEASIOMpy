@@ -32,11 +32,12 @@ Python version: >=3.7
 #   FUNCTIONS
 # =============================================================================
 
-
+from pathlib import Path
 from ceasiompy.WeightConventional.func.weight_utils import PASSENGER_MASS, PILOT_NB
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 
-
-def output_txt(out, mw, ind, ui, NAME):
+# TODO: should be done in a better way
+def output_txt(out, mw, ind, is_double_floor, max_payload, max_fuel_vol, fuel_density):
     """The function generates the output text file for the Weight analysis.
 
     Args:
@@ -51,9 +52,10 @@ def output_txt(out, mw, ind, ui, NAME):
                                         estimated from the code.
     """
 
-    out_name = "ToolOutput/" + NAME + "/" + NAME + "_Weight_module.out"
+    result_dir = get_results_directory("WeightConventional")
+    output_file = Path(result_dir, "Weight_module.out")
 
-    out_txt_file = open(out_name, "w")
+    out_txt_file = open(output_file, "w")
     out_txt_file.write("\n###############################################")
     out_txt_file.write("\n###### AIRCRAFT WEIGHT ESTIMATION MODULE ######")
     out_txt_file.write("\n#####               OUTPUTS               #####")
@@ -70,9 +72,9 @@ def output_txt(out, mw, ind, ui, NAME):
     out_txt_file.write(f"\nCabin length [m]: {round(ind.cabin_length, 3)}")
     out_txt_file.write(f"\nCabin width [m]: {round(ind.cabin_width, 3)}")
     out_txt_file.write(f"\nCabin Area [m^2]: {round(ind.cabin_area, 3)}")
-    if ui.IS_DOUBLE_FLOOR == 1:
+    if is_double_floor == 1:
         out_txt_file.write("\nThe aircraft has a full 2nd floor")
-    elif ui.IS_DOUBLE_FLOOR == 2:
+    elif is_double_floor == 2:
         out_txt_file.write("\nThe aircraft has a reduced 2nd floor")
     else:
         out_txt_file.write("\nThe aircraft has 1 floor")
@@ -82,10 +84,10 @@ def output_txt(out, mw, ind, ui, NAME):
     out_txt_file.write(f"\nseat length [m]: {ind.seat_length}")
     out_txt_file.write(f"\nseat width [m]: {ind.seat_width}")
     out_txt_file.write(f"\naisle width [m]: {ind.aisle_width}")
-    if ui.MAX_PAYLOAD > 0:
-        out_txt_file.write(f"\nMaximum payload allowed [kg]: {ui.MAX_PAYLOAD}")
-    if ui.MAX_FUEL_VOL > 0:
-        out_txt_file.write(f"\nMaximum amount of fuel [kg]: {ui.MAX_FUEL_VOL * ui.FUEL_DENSITY}")
+    if max_payload > 0:
+        out_txt_file.write(f"\nMaximum payload allowed [kg]: {max_payload}")
+    if max_fuel_vol > 0:
+        out_txt_file.write(f"\nMaximum amount of fuel [kg]: {max_fuel_vol * fuel_density}")
     out_txt_file.write("\n-----------------------------------------------")
     out_txt_file.write("\nResults ---------------------------------------")
     out_txt_file.write("\n-----------------------------------------------")
@@ -110,9 +112,9 @@ def output_txt(out, mw, ind, ui, NAME):
     )
     out_txt_file.write(f"\nMaximum fuel mass with no passengers [kg]: {int(mw.mass_fuel_max)}")
     out_txt_file.write(
-        f"\nMaximum fuel volume with no passengers [l]: {int(mw.mass_fuel_max / ui.FUEL_DENSITY)}"
+        f"\nMaximum fuel volume with no passengers [l]: {int(mw.mass_fuel_max / fuel_density)}"
     )
-    out_txt_file.write("\nMaximum take off mass [kg]: {int(mw.maximum_take_off_mass)}")
+    out_txt_file.write(f"\nMaximum take off mass [kg]: {int(mw.maximum_take_off_mass)}")
     out_txt_file.write(f"\nOperating empty mass [kg]: {int(mw.operating_empty_mass)}")
     out_txt_file.write(f"\nZero fuel mass [kg]: {int(mw.zero_fuel_mass)}")
     out_txt_file.write(f"\nWing loading [kg/m^2]: {int(out.wing_loading)}")

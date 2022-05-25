@@ -22,12 +22,18 @@ TODO:
 
 
 from cpacspy.cpacsfunctions import add_uid, get_value_or_default, open_tixi
+import numpy as np
 from ceasiompy.utils.commonxpath import (
     F_XPATH,
     GEOM_XPATH,
     MASSBREAKDOWN_XPATH,
     ML_XPATH,
     PROP_XPATH,
+    WB_AISLE_WIDTH_XPATH,
+    WB_FUSELAGE_THICK_XPATH,
+    WB_SEAT_LENGTH_XPATH,
+    WB_SEAT_WIDTH_XPATH,
+    WB_TOILET_LENGTH_XPATH,
 )
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -123,7 +129,9 @@ class InsideDimensions:
 
     """
 
-    def __init__(self, fuse_length, fuse_width):
+    def __init__(self, ag):
+
+        fuse_length = round(ag.fuse_length[0], 3)
 
         if fuse_length < 15.00:
             self.seat_length = 1.4
@@ -144,13 +152,19 @@ class InsideDimensions:
             self.toilet_length = 2.7
         else:
             self.toilet_length = 1.9
-        # [m] Common space dimension
-        # in longitudinal direction.
+
+        # [m] Common space dimension in longitudinal direction.
         # --- Value to be evaluated ---
+        self.cabin_length = 0
         self.cabin_width = 0
         self.cabin_area = 0
 
-    def get_inside_dim(self, cpacs_path):
+        # Value from the aircraft geometry (TODO: could be simplified)
+        self.nose_length = round(ag.fuse_nose_length[0], 3)
+        self.tail_length = round(ag.fuse_tail_length[0], 3)
+        self.cabin_length = round(ag.fuse_cabin_length[0], 3)
+
+    def get_inside_dim(self, cpacs):
         """Get user input from the CPACS file
 
         The function 'get_inside_dim' extracts from the CPACS file the required
@@ -158,22 +172,18 @@ class InsideDimensions:
         missing.
 
         Args:
-            cpacs_path (str): Path to CPACS file
+            cpacs (obj): Path to CPACS object
 
         """
 
-        tixi = open_tixi(cpacs_path)
+        tixi = cpacs.tixi
 
         # Get inside dimension from the CPACS file if exit
-        self.seat_width = get_value_or_default(tixi, GEOM_XPATH + "/seatWidth", 0.525)
-        self.seat_length = get_value_or_default(tixi, GEOM_XPATH + "/seatLength", self.seat_length)
-        self.aisle_width = get_value_or_default(tixi, GEOM_XPATH + "/aisleWidth", 0.42)
-        self.fuse_thick = get_value_or_default(tixi, GEOM_XPATH + "/fuseThick", 6.63)
-        self.toilet_length = get_value_or_default(
-            tixi, GEOM_XPATH + "/toiletLength", self.toilet_length
-        )
-
-        tixi.save(cpacs_path)
+        self.seat_width = get_value_or_default(tixi, WB_SEAT_WIDTH_XPATH, 0.525)
+        self.seat_length = get_value_or_default(tixi, WB_SEAT_LENGTH_XPATH, self.seat_length)
+        self.aisle_width = get_value_or_default(tixi, WB_AISLE_WIDTH_XPATH, 0.42)
+        self.fuse_thick = get_value_or_default(tixi, WB_FUSELAGE_THICK_XPATH, 6.63)
+        self.toilet_length = get_value_or_default(tixi, WB_TOILET_LENGTH_XPATH, self.toilet_length)
 
 
 class MassesWeights:

@@ -68,10 +68,11 @@ class AircraftGeometry:
         self.fuse_cabin_length = []  # (float_array) Length of each fuselage cabin [m].
         self.fuse_tail_length = []  # (float_array) Length of each fuselage tail [m].
         self.fuse_mean_width = []  # (float_array) Mean fuselage width [m].
-        self.fuse_center_seg_point = 0  # (floar_array) 3D array containing the position of the
+        self.fuse_width = 0  # (float) Fuselage width [m].
+        self.fuse_center_seg_point = 0  # (float_array) 3D array containing the position of the
         # point at the center of each segment of the fuselage (x,y,z - coord.) [m,m,m].
         # Balance Analysis Only
-        self.fuse_center_sec_point = 0  # (floar_array) 3D array containing the position of the
+        self.fuse_center_sec_point = 0  # (float_array) 3D array containing the position of the
         # point at the center of each section of th fuselage (x,y,z - coord.) [m,m,m].
         # Balance Analysis Only
         self.fuse_seg_vol = 0  # (float_array) Volume of fuselage segments [m^3]
@@ -108,6 +109,7 @@ class AircraftGeometry:
         self.w_seg_sec = 0  # (float_array) Reordered segments with respective start and end
         # sections for each wing
         self.is_horiz = []  # (boolean_array) Define if a wing is horizontal [-]
+        self.wing_area = 0  # (float) Wing area [m^2]
 
     def fuse_geom_eval(self, cpacs):
         """Get the full fuselage geometry from a CPACS file."""
@@ -319,6 +321,8 @@ class AircraftGeometry:
         self.cabin_nb = cabin_nb
         self.cabin_seg = cabin_seg
         self.fuse_mean_width = self.fuse_mean_width[0]
+
+        self.fuse_width = round(np.amax(self.fuse_sec_width[:, 0]), 3)
 
         # log info display ------------------------------------------------------------
 
@@ -547,6 +551,8 @@ class AircraftGeometry:
                 a += 1
 
         self.w_seg_sec = seg_sec
+
+        self.wing_area = round(self.wing_plt_area_main, 3)
 
         log.info("---------------------------------------------")
         log.info("--------------- Wing Results ----------------")

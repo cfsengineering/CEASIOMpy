@@ -25,10 +25,14 @@ TODO:
 from pathlib import Path
 
 import numpy as np
+from ceasiompy.utils.InputClasses.Conventional.weightconvclass import (
+    InsideDimensions,
+    MassesWeights,
+    WeightOutput,
+)
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import aircraft_name
 from ceasiompy.utils.commonxpath import F_XPATH, GEOM_XPATH, MASS_CARGO, ML_XPATH, PROP_XPATH
-from ceasiompy.utils.InputClasses.Conventional import weightconvclass
 from ceasiompy.utils.moduleinterfaces import (
     check_cpacs_input_requirements,
     get_toolinput_file_path,
@@ -86,14 +90,6 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 
     # Get user input
 
-    # has been remove:
-    # self.IS_DOUBLE_FLOOR
-    # self.MAX_PAYLOAD
-    # self.MAX_FUEL_VOL
-    # self.MASS_CARGO
-    # self.FUEL_DENSITY
-    # self.TURBOPROP
-
     description = "Desired max fuel volume [m^3] and payload mass [kg]"
     get_value_or_default(cpacs.tixi, ML_XPATH + "/description", description)
 
@@ -106,10 +102,9 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     is_double_floor = get_value_or_default(cpacs.tixi, GEOM_XPATH + "/isDoubleFloor", 0)
 
     # Classes
-    # TODO: REmove class or subclasses
 
-    masses = weightconvclass.MassesWeights()
-    out = weightconvclass.WeightOutput()
+    masses = MassesWeights()
+    out = WeightOutput()
 
     name = aircraft_name(cpacs_path)
 
@@ -119,20 +114,8 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     ag.wing_geom_eval(cpacs)
     ag.produce_output_txt()
 
-    fuse_length = round(ag.fuse_length[0], 3)
-    fuse_width = round(np.amax(ag.fuse_sec_width[:, 0]), 3)
-    ind = weightconvclass.InsideDimensions(fuse_length, fuse_width)
-    ind.nose_length = round(ag.fuse_nose_length[0], 3)
-    ind.tail_length = round(ag.fuse_tail_length[0], 3)
-    ind.cabin_length = round(ag.fuse_cabin_length[0], 3)
-    wing_area = round(ag.wing_plt_area_main, 3)
-    wing_span = round(ag.wing_span[ag.main_wing_index - 1], 3)
-    wing_area_tot = np.sum(ag.wing_plt_area)
-
-    # Has been replace by classes function
-    # (ind, ui) = getinput.get_user_inputs(ind, ui, ag, cpacs_out_path)
-    # TODO: from here
-    ind.get_inside_dim(cpacs_out_path)
+    inside_dim = InsideDimensions(ag)
+    inside_dim.get_inside_dim(cpacs)
 
     if max_fuel_vol >= ag.wing_fuel_vol:
         max_fuel_vol = ag.wing_fuel_vol
@@ -142,52 +125,59 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 
     # Adding extra length in case of aircraft with second floor [m].
     if is_double_floor == 1:
-        cabin_length2 = ind.cabin_length * 1.91
+        cabin_length2 = inside_dim.cabin_length * 1.91
     elif is_double_floor == 2:
-        cabin_length2 = ind.cabin_length * 1.20
+        cabin_length2 = inside_dim.cabin_length * 1.20
     elif is_double_floor == 0:
-        cabin_length2 = ind.cabin_length
+        cabin_length2 = inside_dim.cabin_length
     else:
         log.warning(
             "Warning, double floor index can be only 0 (1 floor),\
                     2 (B747-2nd floor type) or 3 (A380-2nd floor type).\
                     Set Default value (0)"
         )
-        cabin_length2 = ind.cabin_length
+        cabin_length2 = inside_dim.cabin_length
 
     # Maximum Take Off Mass Evaluation
     masses.maximum_take_off_mass = estimate_mtom(
-        fuse_length, fuse_width, wing_area, wing_span, name
+        fuselage_length=ag.fuse_length[0],
+        fuselage_width=ag.fuse_width,
+        wing_area=ag.wing_area,
+        wing_span=ag.wing_span[0],
     )
 
     # Wing loading
-    out.wing_loading = masses.maximum_take_off_mass / wing_area_tot
+    out.wing_loading = masses.maximum_take_off_mass / np.sum(ag.wing_plt_area)
 
     # Operating Empty Mass evaluation
     masses.operating_empty_mass = estimate_operating_empty_mass(
-        masses.maximum_take_off_mass, fuse_length, fuse_width, wing_area, wing_span, turboprop
+        masses.maximum_take_off_mass,
+        ag.fuse_length[0],
+        ag.wing_span[0],
+        turboprop,
     )
 
     # Passengers and Crew mass evaluation
-    if (fuse_width / (1 + (ind.fuse_thick / 100))) > (ind.seat_width + ind.aisle_width):
+    if (ag.fuse_width / (1 + (inside_dim.fuse_thick / 100))) > (
+        inside_dim.seat_width + inside_dim.aisle_width
+    ):
         (
             out.pass_nb,
             out.row_nb,
             out.abreast_nb,
             out.aisle_nb,
             out.toilet_nb,
-            ind,
-        ) = estimate_passengers(cabin_length2, fuse_width, ind)
+            inside_dim,
+        ) = estimate_passengers(cabin_length2, ag.fuse_width, inside_dim)
 
         get_seat_config(
-            out.pass_nb,
             out.row_nb,
             out.abreast_nb,
             out.aisle_nb,
             is_double_floor,
             out.toilet_nb,
-            fuse_length,
-            ind,
+            ag.fuse_length,
+            inside_dim,
             name,
         )
     else:
@@ -196,10 +186,10 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
             "The aircraft can not transport passengers, increase"
             + " fuselage width."
             + "\nCabin Width [m] = "
-            + str((fuse_width / (1 + ind.fuse_thick)))
+            + str((ag.fuse_width / (1 + inside_dim.fuse_thick)))
             + " is less than seat width [m]"
             + " + aisle width [m] = "
-            + str(ind.seat_width + ind.aisle_width)
+            + str(inside_dim.seat_width + inside_dim.aisle_width)
         )
 
     out.crew_nb, out.cabin_crew_nb, masses.mass_crew = estimate_crew(
@@ -224,23 +214,23 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 
     if not max_fuel_vol:  # TODO while retesting, redo fitting
         if turboprop:
-            if wing_area > 55.00:
+            if ag.wing_area > 55.00:
                 masses.mass_fuel_max = round(masses.maximum_take_off_mass / 4.6, 3)
             else:
                 masses.mass_fuel_max = round(masses.maximum_take_off_mass / 3.6, 3)
-        elif wing_area < 90.00:
-            if fuse_length < 60.00:
+        elif ag.wing_area < 90.00:
+            if ag.fuse_length[0] < 60.00:
                 masses.mass_fuel_max = round(masses.maximum_take_off_mass / 4.3, 3)
             else:
                 masses.mass_fuel_max = round(masses.maximum_take_off_mass / 4.0, 3)
-        elif wing_area < 300.00:
-            if fuse_length < 35.00:
+        elif ag.wing_area < 300.00:
+            if ag.fuse_length[0] < 35.00:
                 masses.mass_fuel_max = round(masses.maximum_take_off_mass / 3.6, 3)
             else:
                 masses.mass_fuel_max = round(masses.maximum_take_off_mass / 3.8, 3)
-        elif wing_area < 400.00:
+        elif ag.wing_area < 400.00:
             masses.mass_fuel_max = round(masses.maximum_take_off_mass / 2.2, 3)
-        elif wing_area < 600.00:
+        elif ag.wing_area < 600.00:
             masses.mass_fuel_max = round(masses.maximum_take_off_mass / 2.35, 3)
         else:
             masses.mass_fuel_max = round(masses.maximum_take_off_mass / 2.8, 3)
@@ -286,39 +276,42 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 
     # Log writting  (TODO: maybe create a separate function)
     log.info("---- Geometry evaluation from CPACS file ----")
-    log.info("Fuselage length [m]: " + str(round(fuse_length, 3)))
-    log.info("Fuselage width [m]: " + str(round(fuse_width, 3)))
-    log.info("Fuselage mean width [m]: " + str(round(ag.fuse_mean_width, 3)))
-    log.info("Wing Span [m]: " + str(round(wing_span, 3)))
+    log.info(f"Fuselage length [m]: {round(ag.fuse_length[0], 3)}")
+    log.info(f"Fuselage width [m]: {round(ag.fuse_width, 3)}")
+    log.info(f"Fuselage mean width [m]: {round(ag.fuse_mean_width, 3)}")
+    log.info(f"Wing Span [m]: {round(ag.wing_span[0], 3)}")
 
     log.info("--------- Masses evaluated: -----------")
-    log.info("Maximum Take Off Mass [kg]: " + str(int(round(masses.maximum_take_off_mass))))
-    log.info("Operating Empty Mass [kg]: " + str(int(round(masses.operating_empty_mass))))
-    log.info("Zero Fuel Mass [kg]: " + str(int(round(masses.zero_fuel_mass))))
-    log.info("Wing loading [kg/m^2]: " + str(int(round(out.wing_loading))))
+    log.info(f"Maximum Take Off Mass [kg]: {int(round(masses.maximum_take_off_mass))}")
+    log.info(f"Operating Empty Mass [kg]: {int(round(masses.operating_empty_mass))}")
+    log.info(f"Zero Fuel Mass [kg]: {int(round(masses.zero_fuel_mass))}")
+    log.info(f"Wing loading [kg/m^2]: {int(round(out.wing_loading))}")
     log.info(
-        "Maximum amount of fuel allowed with no passengers [kg]: "
-        + str(int(round(masses.mass_fuel_max)))
+        f"Maximum amount of fuel allowed with no passengers [kg]: {int(masses.mass_fuel_max)}"
     )
     log.info(
-        "Maximum ammount of fuel allowed with no passengers [l]: "
-        + str(int(round(masses.mass_fuel_max / fuel_density)))
+        f"Maximum amount of fuel allowed with no passengers [l]: {int(masses.mass_fuel_max / fuel_density)}"
     )
     log.info("--------- Passegers evaluated: ---------")
-    log.info("Passengers: " + str(out.pass_nb))
-    log.info("Lavatory: " + str(out.toilet_nb))
-    log.info("Payload mass [kg]: " + str(masses.mass_payload))
+    log.info(f"Passengers: {out.pass_nb}")
+    log.info(f"Lavatory: {out.toilet_nb}")
+    log.info(f"Payload mass [kg]: {masses.mass_payload}")
     log.info("------- Crew members evaluated: --------")
-    log.info("Pilots: " + str(PILOT_NB))
-    log.info("Cabin crew members: " + str(out.cabin_crew_nb))
+    log.info(f"Pilots: {PILOT_NB}")
+    log.info(f"Cabin crew members: {out.cabin_crew_nb}")
     log.info("############### Weight estimation completed ###############")
 
     # Output writting
     log.info("-------- Generating output text file --------")
-    outputweightgen.output_txt(out, masses, ind, ui, name)
+    # TODO: should be do completely differently
+    outputweightgen.output_txt(
+        out, masses, inside_dim, is_double_floor, max_payload, max_fuel_vol, fuel_density
+    )
 
-    # CPACS writting (TODO: save directly in cpacs_out_path)
-    cpacsweightupdate.cpacs_update(masses, out, cpacs_path, cpacs_out_path)
+    # Update and save CPACS file
+    cpacsweightupdate.cpacs_update(masses, out, cpacs)
+    
+    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
 
 # =================================================================================================

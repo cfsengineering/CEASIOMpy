@@ -18,8 +18,10 @@ Python version: >=3.7
 #   IMPORTS
 # =============================================================================
 
+from pathlib import Path
 from ceasiompy.WeightConventional.func.weight_utils import PASSENGER_PER_TOILET
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 log = get_logger()
 
@@ -37,7 +39,6 @@ log = get_logger()
 
 
 def get_seat_config(
-    pass_nb,
     row_nb,
     abreast_nb,
     aisle_nb,
@@ -51,8 +52,7 @@ def get_seat_config(
     """The function to proposes a sit disposition.
 
     Args:
-        pass_nb (int): Number of passengers [-]
-        row_nb (int): Nmber of seat rows [-]
+        row_nb (int): Number of seat rows [-]
         abreast_nb (int): Number of seat abreasts [-]
         aisle_nb (int): Number of aisles [-]
         toilet_nb (int): Number of toilets [-]
@@ -66,8 +66,10 @@ def get_seat_config(
                                                disposition per each rows.
     """
 
-    out_name = "ToolOutput/" + NAME + "/" + NAME + "_Seats_disposition.out"
-    out_txt_file = open(out_name, "w")
+    result_dir = get_results_directory("WeightConventional")
+    output_file = Path(result_dir, "Seats_disposition.out")
+
+    out_txt_file = open(output_file, "w")
     out_txt_file.write("---------------------------------------------")
     out_txt_file.write("\nPossible seat configuration -----------------")
     out_txt_file.write("\nSeat = 1 and Aisle = 0 ----------------------")

@@ -40,7 +40,7 @@ log = get_logger()
 # =============================================================================
 
 
-def cpacs_update(mw, out, cpacs_path, cpacs_out_path):
+def cpacs_update(mw, out, cpacs):
     """The function updates the cpacs file after the Weight analysis.
 
     Args:
@@ -51,9 +51,7 @@ def cpacs_update(mw, out, cpacs_path, cpacs_out_path):
 
     """
 
-    tixi = open_tixi(
-        cpacs_out_path
-    )  # (because it has been modifed somewre else, TODO: change that)
+    tixi = cpacs.tixi
 
     # Path update
     if not tixi.checkElement(CREW_XPATH + "/cabinCrewMembers/cabinCrewMemberNb"):
@@ -61,6 +59,8 @@ def cpacs_update(mw, out, cpacs_path, cpacs_out_path):
     tixi.updateDoubleElement(
         CREW_XPATH + "/cabinCrewMembers/cabinCrewMemberNb", out.cabin_crew_nb, "%g"
     )
+
+    create_branch(tixi, PASS_XPATH, False)
 
     if not tixi.checkElement(PASS_XPATH + "/passNb"):
         tixi.createElement(PASS_XPATH, "passNb")
@@ -169,7 +169,7 @@ def cpacs_update(mw, out, cpacs_path, cpacs_out_path):
         tixi.createElement(MC_XPATH, "massCargo")
         tixi.updateDoubleElement(MC_XPATH + "/massCargo", mw.mass_cargo, "%g")
 
-    tixi.save(cpacs_out_path)
+    return cpacs
 
 
 # =============================================================================

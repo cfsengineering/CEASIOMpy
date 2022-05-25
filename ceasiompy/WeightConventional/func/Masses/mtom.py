@@ -26,6 +26,7 @@ import matplotlib.pyplot as plt
 from sklearn.linear_model import LinearRegression
 
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
 
 log = get_logger()
@@ -34,8 +35,6 @@ log = get_logger()
 #   CLASSES
 # ==============================================================================
 
-#  InsideDimensions class, can be found on the InputClasses folder inside the
-#  weightconvclass.py script.
 
 # ==============================================================================
 #   FUNCTIONS
@@ -43,15 +42,15 @@ log = get_logger()
 
 
 def estimate_limits(input_data, OBJ, fuse_length, wing_area):
-    """The funtion adjusts the upper and lower limits used for the linear
+    """The function adjusts the upper and lower limits used for the linear
         regression method.
 
     Args:
         input_data (float_array) : Array containing all the geometrical data of
                                    the aircraft in the database (fuse_length,
-                                   fuse_width, wing_area, wing_span)
+                                   fuselage_width, wing_area, wing_span)
         OBJ (float_array) : Array containing the geometrical data of the aircraft
-                            studied (fuse_length, fuse_width, wing_area, wing_span)
+                            studied (fuse_length, fuselage_width, wing_area, wing_span)
         fuse_length (float): Fuselage length [m]
         wing_area (float): Main wing area [m^2]
 
@@ -133,26 +132,25 @@ def estimate_limits(input_data, OBJ, fuse_length, wing_area):
     return (upper_limit_out, lower_limit_out)
 
 
-def estimate_mtom(fuse_length, fuse_width, wing_area, wing_span, NAME):
+def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span):
     """Function that estimates the Maximum Take-Off Mass
         from statistical regression based on geometric parameters.
 
     Args:
-        fuse_length (str): Fuselage length [m]
-        fuse_width (str): Fuselage width [m]
+        fuselage_length (str): Fuselage length [m]
+        fuselage_width (str): Fuselage width [m]
         wing_area (str): Main wing area [m^2]
         wing_span (str): Main wing span [m]
-        NAME (str): Name of the aircraft studied
 
     Returns:
         mtom (float): Maximum Take-Off Mass [kg].
 
     """
 
-    log.info("-------------- mtom regression --------------")
+    log.info("MTOM regression")
 
     aircraft_data_file_name = Path(
-        MODULES_DIR_PATH, "WeightConventional", "ToolInput", "AircraftData2018_v1_ste.csv"
+        MODULES_DIR_PATH, "WeightConventional", "files", "AircraftData2018_v1_ste.csv"
     )
     log.info("Open " + str(aircraft_data_file_name))
     aircraft_data = pd.read_csv(aircraft_data_file_name)
@@ -166,18 +164,18 @@ def estimate_mtom(fuse_length, fuse_width, wing_area, wing_span, NAME):
     # Input: 12=Fuselage Length, 13=Fuselage Width, 15=Wing area, 16=Wing span
     # Ouput: mtom --> Maximu Take Off Mass
 
-    input_new_aircraft = np.array([[fuse_length, fuse_width, wing_area, wing_span]])
+    input_new_aircraft = np.array([[fuselage_length, fuselage_width, wing_area, wing_span]])
 
     # Choose 0 for fuselarge_length, 1 for fuselarge_width,
     # 2 for wing_area (best), 3 for wing_span
 
-    if fuse_length < 40.00:
+    if fuselage_length < 40.00:
         ID = 3
     else:
         ID = 2
 
     u_limit, l_limit = estimate_limits(
-        input_data[:, ID], input_new_aircraft[0, ID], fuse_length, wing_area
+        input_data[:, ID], input_new_aircraft[0, ID], fuselage_length, wing_area
     )
 
     upper_limit = input_new_aircraft[0, ID] + u_limit
@@ -334,8 +332,9 @@ def estimate_mtom(fuse_length, fuse_width, wing_area, wing_span, NAME):
             numpoints=1,
         )
 
-    namefig = NAME + "_mtomPrediction.png"
-    fig.savefig("ToolOutput/" + NAME + "/" + namefig)
+    result_dir = get_results_directory("WeightConventional")
+    figure_path = Path(result_dir, "mtomPrediction.png")
+    fig.savefig(figure_path)
 
     # Return mtom of the aircraft given in input
     mtom = round(output_new_aircraft[0], 3)

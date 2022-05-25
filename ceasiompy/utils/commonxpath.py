@@ -108,6 +108,11 @@ PILOTS_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/crew/pilots"
 CAB_CREW_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/crew/cabinCrewMembers"
 MASS_CARGO = MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass"
 
+WB_SEAT_WIDTH_XPATH = GEOM_XPATH + "/seatWidth"
+WB_SEAT_LENGTH_XPATH = GEOM_XPATH + "/seatLength"
+WB_AISLE_WIDTH_XPATH = GEOM_XPATH + "/aisleWidth"
+WB_FUSELAGE_THICK_XPATH = GEOM_XPATH + "/fuseThick"
+WB_TOILET_LENGTH_XPATH = GEOM_XPATH + "/toiletLength"
 
 # pytornado
 PYTORNADO_XPATH = "/cpacs/toolspecific/pytornado"

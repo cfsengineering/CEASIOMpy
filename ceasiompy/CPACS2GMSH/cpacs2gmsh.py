@@ -68,8 +68,8 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
 
     # Create results directory
     results_dir = get_results_directory("CPACS2GMSH")
-    brep_dir = Path(results_dir, "brep_files")
-    brep_dir.mkdir()
+    brep_dir_path = Path(results_dir, "brep_files")
+    brep_dir_path.mkdir()
 
     # Retrieve value from the GUI Setting
     open_gmsh = get_value_or_default(cpacs.tixi, GMSH_OPEN_GUI_XPATH, False)
@@ -84,10 +84,10 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     exhaust_percent = get_value_or_default(cpacs.tixi, GMSH_EXHAUST_PERCENT_XPATH, 20)
 
     # Run mesh generation
-    export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
+    export_brep(cpacs, brep_dir_path, (intake_percent, exhaust_percent))
     mesh_path, _ = generate_gmsh(
         cpacs,
-        brep_dir,
+        brep_dir_path,
         results_dir,
         open_gmsh=open_gmsh,
         farfield_factor=farfield_factor,

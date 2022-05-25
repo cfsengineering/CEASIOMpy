@@ -546,7 +546,7 @@ def generate_gmsh(
 
     # Determine if rotor are present in the aircraft model
     rotor_model = False
-    if Path(brep_dir_path, "config_engines.cfg").exists():
+    if Path(brep_dir_path, "config_rotors.cfg").exists():
         rotor_model = True
 
     if rotor_model:

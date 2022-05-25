@@ -38,7 +38,7 @@ log = get_logger()
 # =================================================================================================
 
 
-def export(shape, brep_dir, uid):
+def export(shape, brep_dir_path, uid):
     """
     Export a shape to a brep file and store its UID
 
@@ -46,7 +46,7 @@ def export(shape, brep_dir, uid):
     ----------
     shape: TiGL Cshape
         The shape to be exported
-    brep_dir (Paht): Path to the brep directory
+    brep_dir_path (Path): Path to the brep directory
         Path object to the directory where the brep files are saved
     uid: str
         The uID of the shape
@@ -57,8 +57,8 @@ def export(shape, brep_dir, uid):
 
     """
 
-    brep_dir.mkdir(exist_ok=True)
-    brep_file = Path(brep_dir, f"{uid}.brep")
+    brep_dir_path.mkdir(exist_ok=True)
+    brep_file = Path(brep_dir_path, f"{uid}.brep")
 
     export_shapes([shape], str(brep_file))
 
@@ -77,7 +77,7 @@ def engine_export(cpacs, engine, brep_dir_path, engines_cfg_file_path, engine_su
         CPACS object (from cpacspy)
     engine: TiGL engine
         Engine part to be exported
-    brep_dir : Path
+    brep_dir_path : Path
         Path object to the directory where the brep files are saved
     engines_cfg_file : Path
         Path object to the config file for the engines
@@ -175,7 +175,7 @@ def export_brep(cpacs, brep_dir_path, engine_surface_percent=(20, 20)):
     Args:
     cpacs : CPACS object (from cpacspy)
         CPACS object (from cpacspy)
-    brep_dir : Path
+    brep_dir_path : Path
         Path object to the directory where the brep files are saved
     engine_surface_percent : tuple
         Tuple containing the position percentage of the surface intake and exhaust bc

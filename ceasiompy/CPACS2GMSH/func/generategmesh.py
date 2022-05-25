@@ -168,7 +168,7 @@ class ModelPart:
 
         elif self.part_type == "rotor":
 
-            # Detect all the entites in the domain with gmsh functions
+            # Detect all the entities in the domain with gmsh functions
             self.surfaces = list(
                 set(self.surfaces).intersection(set(gmsh.model.getEntities(dim=2)))
             )
@@ -390,7 +390,12 @@ def add_disk_actuator(brep_dir_path, rotor_uid, radius, symmetry, trans_vector, 
     # generate the inlet_disk (gmsh always create a disk in the xy plane)
     disk_tag = gmsh.model.occ.addDisk(*trans_vector, radius, radius)
     disk_dimtag = (2, disk_tag)
-    # rotation
+
+    # y axis 180deg flip to make the inlet of the disk face forward
+    gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 1, 0, np.radians(180))
+    gmsh.model.occ.synchronize()
+
+    # rotation given in the cpacs file
     # x axis
     gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 1, 0, 0, np.radians(rot_vector[0]))
     # y axis
@@ -406,13 +411,21 @@ def add_disk_actuator(brep_dir_path, rotor_uid, radius, symmetry, trans_vector, 
     gmsh.clear()
     gmsh.finalize()
 
-    if symmetry == 3:
+    if symmetry == 2:
         # Adding the symmetric
         gmsh.initialize()
         # generate the inlet_disk (gmsh always create a disk in the xy plane)
         disk_tag = gmsh.model.occ.addDisk(*trans_vector, radius, radius)
         disk_dimtag = (2, disk_tag)
-        # rotation
+
+        # y axis 180deg flip to make the inlet of the disk face forward is not necessary for
+        # the mirrored part, and for now the symmetry is not implemented correctly since
+        # the symmetry does not take into account the orientation of the rotor and the plane
+        # of symmetry is assume to be the xz plane
+        # When the face of the disk actuator are not oriented well the simulation shows
+        # increasing cd and will probably diverge
+
+        # rotation given in the cpacs file
         # x axis
         gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 1, 0, 0, np.radians(rot_vector[0]))
         # y axis
@@ -518,15 +531,6 @@ def generate_gmsh(
         List of the aircraft parts in the model
 
     """
-    open_gmsh = True
-    farfield_factor = 5
-    symmetry = False
-    mesh_size_farfield = 10
-    mesh_size_fuselage = 0.1
-    mesh_size_wings = 0.05
-    refine_factor = 1
-    auto_refine = False
-    testing_gmsh = False
 
     # Determine if rotor are present in the aircraft model
     rotor_model = False
@@ -625,7 +629,7 @@ def generate_gmsh(
         parts_parent_dimtag.append(sym_box[1])
 
     log.info("Start fragment operation between the aircraft and the farfield")
-
+    gmsh.fltk.run()
     _, children_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)
     gmsh.model.occ.synchronize()
 

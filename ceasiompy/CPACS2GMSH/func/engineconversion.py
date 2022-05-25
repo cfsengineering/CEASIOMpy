@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This script contains diffrent functions to convert engine
+This script contains different functions to convert engine
 
 Python version: >=3.7
 

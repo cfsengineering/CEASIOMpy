@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This script contains diffrent functions to classify and manipulate wing elements
+This script contains different functions to classify and manipulate wing elements
 
 Python version: >=3.7
 
@@ -15,7 +15,7 @@ TODO:
     -Do something better with the background field for the farfield volume
     -Add all the box /farfield/ skin parameter tunable in an advance mesh GUI?
     -get each part its bounding box and use it to define field box for each part
-    -add a function to define many boxes with a deacreasing mesh size
+    -add a function to define many boxes with a decreasing mesh size
 
 """
 
@@ -198,13 +198,13 @@ def refine_wing_section(
     n_power=2,
 ):
     """
-    Function to refine the trailling and leading edge of an wing section,
-    2 field are created, a treshold and matheval field
+    Function to refine the trailing and leading edge of an wing section,
+    2 field are created, a threshold and matheval field
 
-    The treshold field is used to keep the element on the wing to a maximum size of mesh_size_wings
+    The threshold field is used to keep the element on the wing to a maximum size of mesh_size_wings
 
     A Math eval field is used to define a refinement from the leading /or trailing edge of the wing
-    with the folowing function:
+    with the following function:
 
         MeshSize (x_le) = mesh_w/r + mesh_w"(1-1/r)*(x_le/x_chord)^n_power
 
@@ -259,7 +259,7 @@ def refine_wing_section(
         # If the wing is truncated:
         if len(lines_to_refine) == 3:
 
-            # Find the trailing edge thinkness
+            # Find the trailing edge thickness
             x1, y1, z1 = gmsh.model.occ.getCenterOfMass(1, lines_to_refine[0])
             x2, y2, z2 = gmsh.model.occ.getCenterOfMass(1, lines_to_refine[1])
             x3, y3, z3 = gmsh.model.occ.getCenterOfMass(1, lines_to_refine[2])
@@ -272,6 +272,10 @@ def refine_wing_section(
 
             # Overwrite the trailing edge refinement
             if mesh_size_wings / te_thickness > refine:
+
+                # Note this option is a lot of time giving a very high refinement
+                # factor , maybe only apply a small refinement on the te surface
+                # maybe a better idea  that change all the wing refinement factor
                 refine = mesh_size_wings / te_thickness
 
         # 1 : Math eval field
@@ -296,11 +300,11 @@ def refine_wing_section(
             mesh_fields, 3, final_domain_volume_tag, infield=math_eval_field
         )
 
-        # 2 : Treshold field
+        # 2 : Threshold field
 
         mesh_fields = distance_field(mesh_fields, 1, lines_to_refine)
 
-        # Create the treshold field
+        # Create the threshold field
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
         gmsh.model.mesh.field.setNumber(
@@ -369,13 +373,13 @@ def set_farfield_mesh(
     n_power=1.5,
 ):
     """
-    Function to define the farfield mesh with a treshold and matheval field
+    Function to define the farfield mesh with a threshold and matheval field
 
-    The treshold field is used to keep the element in the farfield to a maximum size
+    The threshold field is used to keep the element in the farfield to a maximum size
     of mesh_size_farfield.
 
     A Math eval field is used to extend the mesh of each part of the aircraft in the fluid domain
-    with the folowing function:
+    with the following function:
 
         MeshSize (x) = mesh_p + (mesh_f - mesh_p)*(x/d_char)^n_power
 
@@ -426,11 +430,11 @@ def set_farfield_mesh(
 
         mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
 
-        # 2 : Treshold field
+        # 2 : Threshold field
 
         mesh_fields = distance_field(mesh_fields, 2, part.surfaces_tags)
 
-        # Create the treshold field
+        # Create the threshold field
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
         gmsh.model.mesh.field.setNumber(

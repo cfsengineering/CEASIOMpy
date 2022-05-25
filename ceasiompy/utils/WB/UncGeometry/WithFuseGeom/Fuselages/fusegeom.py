@@ -39,7 +39,7 @@ log = get_logger()
 #   FUNCTIONS
 # ==============================================================================
 
-
+# TODO: change name and maybe reuse conventional aircraft function
 def check_segment_connection(fus_nb, fuse_seg_nb, fuse_sec_nb, tigl):
     """The function checks for each segment the start and end section index
         and to reorder them.

@@ -39,7 +39,7 @@ log = get_logger()
 #   FUNCTIONS
 # =============================================================================
 
-
+# TODO: change function name
 def check_segment_connection(wing_plt_area_xz, wing_plt_area_yz, awg, tigl):
     """The function checks for each segment the start and end section index
         and to reorder them.

@@ -136,7 +136,12 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
     F_PERC_MAXPASS = (mw.mass_fuel_maxpass / mw.mass_fuel_max) * 100
 
     # CENTER OF GRAVITY---------------------------------------------------------
-    ag = geometry.geometry_eval(cpacs_out_path, name)
+    # ag = geometry.geometry_eval(cpacs_out_path, name) 
+    # TODO: get CPACS object
+    ag = geometry.AircraftGeometry()
+    ag.fuse_geom_eval(cpacs)
+    ag.wing_geom_eval(cpacs)
+    ag.produce_output_txt()
 
     log.info("------- Center of Gravity coordinates -------")
     log.info("--------- Max Payload configuration ---------")

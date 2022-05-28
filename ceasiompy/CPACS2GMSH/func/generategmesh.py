@@ -154,31 +154,34 @@ class ModelPart:
         final_domain : ModelPart
             final_domain part
         """
-
-        if self.part_type != "rotor":
-            # Detect only shared entities with the final domain
-            self.surfaces = list(set(self.surfaces).intersection(set(final_domain.surfaces)))
-            self.lines = list(set(self.lines).intersection(set(final_domain.lines)))
-            self.points = list(set(self.points).intersection(set(final_domain.points)))
-
-            # Update the dimtags
-            self.surfaces_tags = [dimtag[1] for dimtag in self.surfaces]
-            self.lines_tags = [dimtag[1] for dimtag in self.lines]
-            self.points_tags = [dimtag[1] for dimtag in self.points]
-
-        elif self.part_type == "rotor":
+        if self.part_type == "rotor":
 
             # Detect all the entities in the domain with gmsh functions
-            self.surfaces = list(
-                set(self.surfaces).intersection(set(gmsh.model.getEntities(dim=2)))
+            self.surfaces = sorted(
+                list(set(self.surfaces).intersection(set(gmsh.model.getEntities(dim=2))))
             )
-            self.lines = list(set(self.lines).intersection(set(gmsh.model.getEntities(dim=1))))
-            self.points = list(set(self.points).intersection(set(gmsh.model.getEntities(dim=0))))
+            self.lines = sorted(
+                list(set(self.lines).intersection(set(gmsh.model.getEntities(dim=1))))
+            )
+            self.points = sorted(
+                list(set(self.points).intersection(set(gmsh.model.getEntities(dim=0))))
+            )
 
             # Update the dimtags
             self.surfaces_tags = [dimtag[1] for dimtag in self.surfaces]
             self.lines_tags = [dimtag[1] for dimtag in self.lines]
             self.points_tags = [dimtag[1] for dimtag in self.points]
+            return
+        # if not rotor part
+        # Detect only shared entities with the final domain
+        self.surfaces = sorted(list(set(self.surfaces).intersection(set(final_domain.surfaces))))
+        self.lines = sorted(list(set(self.lines).intersection(set(final_domain.lines))))
+        self.points = sorted(list(set(self.points).intersection(set(final_domain.points))))
+
+        # Update the dimtags
+        self.surfaces_tags = sorted([dimtag[1] for dimtag in self.surfaces])
+        self.lines_tags = sorted([dimtag[1] for dimtag in self.lines])
+        self.points_tags = sorted([dimtag[1] for dimtag in self.points])
 
 
 # =================================================================================================
@@ -833,7 +836,6 @@ def generate_gmsh(
 
     gmsh.model.occ.synchronize()
     log.info("Markers for SU2 generated")
-
     # Mesh Generation
 
     # Set mesh size of the aircraft parts

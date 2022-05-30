@@ -66,7 +66,7 @@ def export(shape, brep_dir, uid):
         raise FileNotFoundError(f"Failed to export {uid}")
 
 
-def engine_export(cpacs, engine, brep_dir, engines_cfg_file_path, engine_surface_percent):
+def engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_percent):
     """
     Export the engine to a brep file
 
@@ -112,17 +112,15 @@ def engine_export(cpacs, engine, brep_dir, engines_cfg_file_path, engine_surface
             export(fan_cowl_shape, brep_dir, fan_cowl_uid)
 
         # Determine engine type and save it in the engine config files
-        config_file = ConfigFile(engines_cfg_file_path)
+        config_file = ConfigFile(engines_cfg_file)
 
         config_file[f"{engine_uid}_DOUBLE_FLUX"] = "0"
         if fan_cowl and core_cowl:
             config_file[f"{engine_uid}_DOUBLE_FLUX"] = "1"
 
-        config_file.write_file(engines_cfg_file_path, overwrite=True)
+        config_file.write_file(engines_cfg_file, overwrite=True)
 
-        engine_conversion(
-            cpacs, engine_uids, brep_dir, engines_cfg_file_path, engine_surface_percent
-        )
+        engine_conversion(cpacs, engine_uids, brep_dir, engines_cfg_file, engine_surface_percent)
 
 
 def rotor_config(rotorcraft_config, brep_dir):
@@ -242,14 +240,14 @@ def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
         nb_engine = engines_config.get_engine_count()
 
         # Create config file for the engine conversion
-        engines_cfg_file_path = Path(brep_dir, GMSH_ENGINE_CONFIG_NAME)
+        engines_cfg_file = Path(brep_dir, GMSH_ENGINE_CONFIG_NAME)
         config_file = ConfigFile()
-        config_file.write_file(engines_cfg_file_path, overwrite=True)
+        config_file.write_file(engines_cfg_file, overwrite=True)
 
         # Export each engine
         for k in range(1, nb_engine + 1):
             engine = engines_config.get_engine(k)
-            engine_export(cpacs, engine, brep_dir, engines_cfg_file_path, engine_surface_percent)
+            engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_percent)
 
 
 # =================================================================================================

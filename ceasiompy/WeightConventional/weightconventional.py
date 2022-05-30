@@ -130,18 +130,18 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 
     # Adding extra length in case of aircraft with second floor [m].
     if is_double_floor == 1:
-        cabin_length2 = inside_dim.cabin_length * 1.91
+        cabin_length_tot = inside_dim.cabin_length * 1.91
     elif is_double_floor == 2:
-        cabin_length2 = inside_dim.cabin_length * 1.20
+        cabin_length_tot = inside_dim.cabin_length * 1.20
     elif is_double_floor == 0:
-        cabin_length2 = inside_dim.cabin_length
+        cabin_length_tot = inside_dim.cabin_length
     else:
         log.warning(
             "Warning, double floor index can be only 0 (1 floor),\
                     2 (B747-2nd floor type) or 3 (A380-2nd floor type).\
                     Set Default value (0)"
         )
-        cabin_length2 = inside_dim.cabin_length
+        cabin_length_tot = inside_dim.cabin_length
 
     # Maximum Take Off Mass Evaluation
     masses.maximum_take_off_mass = estimate_mtom(
@@ -172,7 +172,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
             out.aisle_nb,
             out.toilet_nb,
             inside_dim,
-        ) = estimate_passengers(cabin_length2, ag.fuse_width, inside_dim)
+        ) = estimate_passengers(cabin_length_tot, ag.fuse_width, inside_dim)
 
         get_seat_config(
             ag.fuse_length,

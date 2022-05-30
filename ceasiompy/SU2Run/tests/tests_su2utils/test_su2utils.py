@@ -73,8 +73,8 @@ def test_get_mesh_marker():
     ]
     assert mesh_markers["engine_intake"] == ["D150_ENGINE1_Intake"]
     assert mesh_markers["engine_exhaust"] == ["D150_ENGINE1_Exhaust"]
-    assert mesh_markers["actuator_disk_inlet"] == ["D150_PROPELER1_AD_Inlet"]
-    assert mesh_markers["actuator_disk_outlet"] == ["D150_PROPELER1_AD_Outlet"]
+    assert mesh_markers["actuator_disk_inlet"] == ["D150_PROPELLER1_AD_Inlet"]
+    assert mesh_markers["actuator_disk_outlet"] == ["D150_PROPELLER1_AD_Outlet"]
     assert mesh_markers["farfield"] == ["Farfield"]
     assert mesh_markers["symmetry"] == ["None"]
 

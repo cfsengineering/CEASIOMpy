@@ -273,7 +273,7 @@ def refine_wing_section(
             # Overwrite the trailing edge refinement
             if mesh_size_wings / te_thickness > refine:
 
-                # Note this option is a lot of time giving a very high refinement
+                # Note this option in a lot of case gives a very high refinement
                 # factor , maybe only apply a small refinement on the te surface
                 # maybe a better idea  that change all the wing refinement factor
                 refine = mesh_size_wings / te_thickness

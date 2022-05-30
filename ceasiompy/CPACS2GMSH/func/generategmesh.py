@@ -547,6 +547,16 @@ def generate_gmsh(
 
     """
 
+    open_gmsh = True
+    farfield_factor = 5
+    symmetry = True
+    mesh_size_farfield = 12
+    mesh_size_fuselage = 0.2
+    mesh_size_wings = 0.2
+    refine_factor = 1
+    auto_refine = False
+    testing_gmsh = False
+
     # Determine if rotor are present in the aircraft model
     rotor_model = False
     if Path(brep_dir, "config_rotors.cfg").exists():
@@ -583,11 +593,14 @@ def generate_gmsh(
     brep_files = list(brep_dir.glob("*.brep"))
     brep_files.sort()
 
+    # initialize gmsh
     gmsh.initialize()
     # Stop gmsh output log in the terminal
     gmsh.option.setNumber("General.Terminal", 0)
     # Log complexity
     gmsh.option.setNumber("General.Verbosity", 5)
+    # use better precision for occ bounds
+    gmsh.option.setNumber("Geometry.OCCBoundsUseStl", 1)
 
     # Import each aircraft original parts / parent parts
     aircraft_parts = []
@@ -687,6 +700,9 @@ def generate_gmsh(
     if symmetry:
         # take the unwanted children from symmetry
         unwanted_children = children_dimtag[-1]
+        # Attention this only take into account volumes elements in the symmetry
+        # Disk actuator that are 2D element are not taken into account
+        # and will be removed latter
 
         # remove them from the model
         gmsh.model.occ.remove(unwanted_children, recursive=True)
@@ -703,10 +719,26 @@ def generate_gmsh(
         parent.children_dimtag = set(children)
 
     # Some parent may have no children (due to symmetry), we need to remove them
+    unwanted_parents = []
+
     for parent in aircraft_parts:
+
+        if parent.part_type == "rotor":
+            # Control possible 2D children not removed by the fragment symmetry unwanted_children
+            for dimtag in list(parent.children_dimtag):
+                try:  # check if the child exists in the model
+                    gmsh.model.getBoundingBox(*dimtag)
+                except:
+                    # if not remove it from the parent
+                    parent.children_dimtag.remove(dimtag)
+
         if not parent.children_dimtag:
             log.info(f"{parent.uid} has no more children due to symmetry, it will be deleted")
-            aircraft_parts.remove(parent)
+            unwanted_parents.append(parent)
+
+    # Remove unwanted parents
+    if unwanted_parents:
+        aircraft_parts = [part for part in aircraft_parts if part not in unwanted_parents]
 
     # Process and add children that are shared by two parent parts in the shared children list
     # and put them in a new unwanted children list

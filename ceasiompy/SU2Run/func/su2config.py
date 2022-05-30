@@ -25,7 +25,11 @@ from pathlib import Path
 from ambiance import Atmosphere
 from ceasiompy.SU2Run.func.su2utils import get_mesh_markers, get_su2_config_template
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonnames import CONFIG_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
+from ceasiompy.utils.commonnames import (
+    ACTUATOR_DISK_FILE_NAME,
+    CONFIG_CFD_NAME,
+    SU2_FORCES_BREAKDOWN_NAME,
+)
 from ceasiompy.utils.commonxpath import (
     GMSH_SYMMETRY_XPATH,
     RANGE_XPATH,
@@ -192,6 +196,46 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     cfg["MARKER_MOVING"] = "( NONE )"  # TODO: when do we need to define MARKER_MOVING?
     cfg["DV_MARKER"] = bc_wall_str
 
+    # Actuator disk (TODO: create a subfunction)
+    ad_inlet_marker = sorted(mesh_markers["actuator_disk_inlet"])
+    ad_outlet_marker = sorted(mesh_markers["actuator_disk_outlet"])
+
+    if ad_inlet_marker and ad_outlet_marker:
+
+        if len(ad_inlet_marker) != len(ad_outlet_marker):
+            raise ValueError(
+                "The number of inlet and outlet markers of the actuator disk must be the same."
+            )
+
+        # try:
+        #     rotorcraft_config = cpacs.rotorcraft.configuration
+        #     rotor = rotorcraft_config.get_rotor(k)
+        # except AttributeError:
+        #     pass
+
+        cfg["ACTDISK_DOUBLE_SURFACE"] = "YES"
+        cfg["ACTDISK_TYPE"] = "VARIABLE_LOAD"
+        cfg["ACTDISK_FILENAME"] = ACTUATOR_DISK_FILE_NAME
+
+        actdisk_markers = []
+
+        for maker_inlet, marker_outlet in zip(ad_inlet_marker, ad_outlet_marker):
+            inlet_uid = maker_inlet.split("_AD_Inlet")[0]
+            outlet_uid = marker_outlet.split("_AD_Outlet")[0]
+
+            x_inlet, y_inlet, z_inlet, x_outlet, y_outlet, z_outlet = 0, 0, 0, 0, 0, 0
+
+            actdisk_markers.append(inlet_uid)
+            actdisk_markers.append(outlet_uid)
+            actdisk_markers.append(x_inlet)
+            actdisk_markers.append(y_inlet)
+            actdisk_markers.append(z_inlet)
+            actdisk_markers.append(x_outlet)
+            actdisk_markers.append(y_outlet)
+            actdisk_markers.append(z_outlet)
+
+        cfg["MARKER_ACTDISK"] = "".join(actdisk_markers)
+
     # Output
     cfg["WRT_FORCES_BREAKDOWN"] = "YES"
     cfg["BREAKDOWN_FILENAME"] = SU2_FORCES_BREAKDOWN_NAME
@@ -216,19 +260,9 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         cfg["FREESTREAM_TEMPERATURE"] = Atm.temperature[0]
         cfg["ROTATION_RATE"] = "0.0 0.0 0.0"
 
-        case_dir_name = "".join(
-            [
-                "Case",
-                str(case_nb).zfill(2),
-                "_alt",
-                str(alt),
-                "_mach",
-                str(round(mach, 2)),
-                "_aoa",
-                str(round(aoa, 1)),
-                "_aos",
-                str(round(aos, 1)),
-            ]
+        case_dir_name = (
+            f"Case{str(case_nb).zfill(2)}_alt{alt}_mach{round(mach, 2)}"
+            f"_aoa{round(aoa, 1)}_aos{round(aos, 1)}"
         )
 
         case_dir_path = Path(wkdir, case_dir_name)
@@ -238,7 +272,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         config_output_path = Path(case_dir_path, CONFIG_CFD_NAME)
         cfg.write_file(config_output_path, overwrite=True)
 
-        # Damping derivatives
+        # Damping derivatives  (TODO: create a subfunctions)
         if get_value_or_default(cpacs.tixi, SU2_DAMPING_DER_XPATH, False):
 
             rotation_rate = str(get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, 1.0))
@@ -265,7 +299,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
             log.info("Damping derivatives cases directory has been created.")
 
-        # Control surfaces deflections
+        # Control surfaces deflections (TODO: create a subfunctions)
         if get_value_or_default(cpacs.tixi, SU2_CONTROL_SURF_XPATH, False):
 
             # Get deformed mesh list

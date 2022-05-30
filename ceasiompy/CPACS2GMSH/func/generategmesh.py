@@ -547,16 +547,6 @@ def generate_gmsh(
 
     """
 
-    open_gmsh = True
-    farfield_factor = 5
-    symmetry = True
-    mesh_size_farfield = 12
-    mesh_size_fuselage = 0.2
-    mesh_size_wings = 0.2
-    refine_factor = 1
-    auto_refine = False
-    testing_gmsh = False
-
     # Determine if rotor are present in the aircraft model
     rotor_model = False
     if Path(brep_dir, "config_rotors.cfg").exists():

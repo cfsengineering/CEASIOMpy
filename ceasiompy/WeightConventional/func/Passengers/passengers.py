@@ -18,6 +18,7 @@ Python version: >=3.7
 #   IMPORTS
 # =================================================================================================
 
+import math
 from ceasiompy.WeightConventional.func.weight_utils import PASSENGER_PER_TOILET
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -95,7 +96,7 @@ def get_toilet_number(pass_nb, cabin_length, abreast_nb, seat_length, toilet_len
     while control == 0:
         count += 1
         if a != 1:
-            toilet_nb = int(round(pass_nb / PASSENGER_PER_TOILET, 1))
+            toilet_nb = int(math.ceil(pass_nb / PASSENGER_PER_TOILET))
             a = 0
             all_toilet_length = round((toilet_nb / 2.0), 0) * toilet_length
             row_nb = round((cabin_length - all_toilet_length) / seat_length, 0)

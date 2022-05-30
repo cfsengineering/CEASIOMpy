@@ -31,7 +31,7 @@ Domain:
 Apply a symmetry operation to the model with a xz symmetry plane in the center of the aircraft. The resulting mesh will only be generated in the y positive domain.
 
 * `Farfield size factor : 6.0`
-Enable to control the spherical domain size. The fluid domain surrounding the aircraft is defined with a radius equivalent to the largest xyz aircraft dimension times the `Farfield size factor`
+Enable to control the spherical domain size. The fluid domain surrounding the aircraft is defined with a radius equivalent to the largest xyz aircraft dimension times the `Farfield size factor
 
 Mesh size:
 
@@ -44,15 +44,15 @@ Mesh size:
 Advanced mesh parameters :
 
 * `Le/Te refinement factor : 7.0`
-Apply a refinement on the leading and trailing edge of the aircraft wings. the element size at the le/te will be set to the wing mesh size divided by the refinement factor. This refinement decay according to a power law from the edge to 30% of the wing section cord length, where the mesh size is the wing's one.`
+Apply a refinement on the leading and trailing edge of the aircraft wings. the element size at the le/te will be set to the wing mesh size divided by the refinement factor. This refinement decay according to a power law from the edge to 30% of the wing section cord length, where the mesh size is the wing's one.
 * `Auto refine : True`
-Apply an automatic refinement of surfaces which are small compare to a mesh element. :warning: With this option activated, the surface mesh generation maybe done two times, which increasing the total meshing time. `
+Apply an automatic refinement of surfaces which are small compare to a mesh element. :warning: With this option activated, the surface mesh generation maybe done two times, which increasing the total meshing time.
 
 Engines :
 * `Engine intake position [%] : 20.0`
-Position of the engine intake surface w.r.t the fan or center cowl length, from the front of the fan or center cowl`
+Engine intake surface position from the front of the engine fan cowl in percent of the fan cowl length
 * `Engine exhaust position [%] : 20.0`
-Position of the engine exhaust surface w.r.t the fan or center cowl length, from the back of the fan or center cowl`
+Engine exhaust surface position from the back of the engine fan cowl in percent of the fan cowl length, if the engine is doubleflux, and exhaust surface is similarly generated for the center cowl part of the engine.
 
 
 

@@ -14,9 +14,9 @@ Python version: >=3.7
 """
 
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORT
-# ==============================================================================
+# =================================================================================================
 
 from pathlib import Path
 import pandas as pd
@@ -27,18 +27,19 @@ from sklearn.linear_model import LinearRegression
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.commonnames import MTOM_FIGURE_NAME
 from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
 
 log = get_logger()
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def estimate_limits(input_data, OBJ, fuse_length, wing_area):
@@ -132,7 +133,7 @@ def estimate_limits(input_data, OBJ, fuse_length, wing_area):
     return (upper_limit_out, lower_limit_out)
 
 
-def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span):
+def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span, results_dir):
     """Function that estimates the Maximum Take-Off Mass
         from statistical regression based on geometric parameters.
 
@@ -141,6 +142,7 @@ def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span):
         fuselage_width (str): Fuselage width [m]
         wing_area (str): Main wing area [m^2]
         wing_span (str): Main wing span [m]
+        results_dir (Path): Path to the directory where the results will be saved
 
     Returns:
         mtom (float): Maximum Take-Off Mass [kg].
@@ -332,8 +334,7 @@ def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span):
             numpoints=1,
         )
 
-    result_dir = get_results_directory("WeightConventional")
-    figure_path = Path(result_dir, "mtomPrediction.png")
+    figure_path = Path(results_dir, MTOM_FIGURE_NAME)
     fig.savefig(figure_path)
 
     # Return mtom of the aircraft given in input
@@ -348,12 +349,10 @@ def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span):
     return mtom
 
 
-# =============================================================================
+# =================================================================================================
 #   MAIN
-# =============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 
-    log.warning("###########################################################")
-    log.warning("#### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ####")
-    log.warning("###########################################################")
+    print("Nothing to execute!")

@@ -32,6 +32,7 @@ from ceasiompy.utils.InputClasses.Conventional.weightconvclass import (
     WeightOutput,
 )
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.commonxpath import (
     F_XPATH,
     MASS_CARGO_XPATH,
@@ -49,8 +50,8 @@ from ceasiompy.utils.moduleinterfaces import (
 from ceasiompy.utils.WB.ConvGeometry import geometry
 from ceasiompy.WeightConventional.func.AoutFunc import cpacsweightupdate, outputweightgen
 
-from ceasiompy.WeightConventional.func.Masses.mtom import estimate_mtom
-from ceasiompy.WeightConventional.func.Masses.oem import estimate_operating_empty_mass
+from ceasiompy.WeightConventional.func.mtom import estimate_mtom
+from ceasiompy.WeightConventional.func.oem import estimate_oem
 from ceasiompy.WeightConventional.func.Passengers.passengers import estimate_passengers
 from ceasiompy.WeightConventional.func.Passengers.seatsconfig import get_seat_config
 from ceasiompy.WeightConventional.func.weight_utils import (
@@ -95,6 +96,8 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     """
 
     cpacs = CPACS(cpacs_path)
+
+    result_dir = get_results_directory("WeightConventional")
 
     # Get user input
 
@@ -149,13 +152,14 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
         fuselage_width=ag.fuse_width,
         wing_area=ag.wing_area,
         wing_span=ag.wing_span[0],
+        results_dir=result_dir,
     )
 
     # Wing loading
     out.wing_loading = masses.maximum_take_off_mass / np.sum(ag.wing_plt_area)
 
     # Operating Empty Mass evaluation
-    masses.operating_empty_mass = estimate_operating_empty_mass(
+    masses.operating_empty_mass = estimate_oem(
         masses.maximum_take_off_mass,
         ag.fuse_length[0],
         ag.wing_span[0],

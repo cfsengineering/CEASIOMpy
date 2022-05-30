@@ -22,20 +22,17 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger()
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
-
-#  InsideDimensions class, can be found on the InputClasses folder inside the
-#  weightconvclass.py script.
+# =================================================================================================
 
 
-# =============================================================================
+# ================================================================================================
 #   FUNCTIONS
-# =============================================================================
+# ================================================================================================
 
 
-def estimate_operating_empty_mass(mtom, fuse_length, wing_span, turboprop):
+def estimate_oem(mtom, fuse_length, wing_span, turboprop):
     """The function estimates the operating empty mass (OEM)
 
     Source: Raymer, D.P. "Aircraft design: a conceptual approach"
@@ -49,6 +46,7 @@ def estimate_operating_empty_mass(mtom, fuse_length, wing_span, turboprop):
 
     Returns:
         oem (float): Operating empty mass [kg]
+
     """
 
     G = 9.81  # [m/s^2] Acceleration of gravity.
@@ -56,37 +54,35 @@ def estimate_operating_empty_mass(mtom, fuse_length, wing_span, turboprop):
 
     if turboprop:
         C = -0.05  # [-] General aviation twin turboprop
-        if fuse_length < 15.00:
+        if fuse_length < 15.0:
             A = 0.96
-        elif fuse_length < 30.00:
+        elif fuse_length < 30.0:
             A = 1.07
         else:
             A = 1.0
     else:
         C = -0.08  # [-] General aviation twin engines
-        if fuse_length < 30.00:
+        if fuse_length < 30.0:
             A = 1.45
-        elif fuse_length < 35.00:
+        elif fuse_length < 35.0:
             A = 1.63
-        elif fuse_length < 60.00:
-            if wing_span > 61:
+        elif fuse_length < 60.0:
+            if wing_span > 61.0:
                 A = 1.63
             else:
                 A = 1.57
         else:
             A = 1.63
 
-    oem = round((A * KC * (mtom * G) ** (C)) * mtom, 3)
+    oem = mtom * (A * KC * (mtom * G) ** C)
 
     return oem
 
 
-# =============================================================================
+# =================================================================================================
 #   MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 
-    print("###########################################################")
-    print("#### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ####")
-    print("###########################################################")
+    print("Nothing to execute!")

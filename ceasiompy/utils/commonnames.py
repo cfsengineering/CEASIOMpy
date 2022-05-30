@@ -26,3 +26,6 @@ SU2_FORCES_BREAKDOWN_NAME = "forces_breakdown.dat"
 SURFACE_FLOW_FILE_NAME = "surface_flow.vtu"
 SURFACE_FLOW_FORCE_FILE_NAME = "surface_flow_forces.vtu"
 FORCE_FILE_NAME = "forces.csv"
+
+# WEIGHT & BALANCE
+MTOM_FIGURE_NAME = "mtomPrediction.png"

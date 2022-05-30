@@ -21,16 +21,20 @@ TODO:
 # =============================================================================
 
 
-from cpacspy.cpacsfunctions import add_uid, get_value_or_default, open_tixi
-import numpy as np
+from cpacspy.cpacsfunctions import add_uid, get_value_or_default
 from ceasiompy.utils.commonxpath import (
     F_XPATH,
     GEOM_XPATH,
+    MASS_CARGO_XPATH,
     MASSBREAKDOWN_XPATH,
-    ML_XPATH,
+    TURBOPROP_XPATH,
+    WB_MASS_LIMIT_XPATH,
     PROP_XPATH,
     WB_AISLE_WIDTH_XPATH,
+    WB_DOUBLE_FLOOR_XPATH,
     WB_FUSELAGE_THICK_XPATH,
+    WB_MAX_FUEL_VOL_XPATH,
+    WB_MAX_PAYLOAD_XPATH,
     WB_SEAT_LENGTH_XPATH,
     WB_SEAT_WIDTH_XPATH,
     WB_TOILET_LENGTH_XPATH,
@@ -55,24 +59,24 @@ class UserInputs:
     https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20000023189.pdf
 
     Attributes:
-    IS_DOUBLE_FLOOR (int):  0 = no 2nd floor.
+    is_double_floor (int):  0 = no 2nd floor.
                             1 = full 2nd floor (A380),
                             2 = half 2nd floor (B747)
     pilot_nb (int):         Number of pilots[-].
-    MAX_PAYLOAD (int):      Maximum payload allowed, set 0 if equal to max passenger mass.
-    MAX_FUEL_VOL (int):     Maximum fuel volume allowed [l].
-    FUEL_DENSITY (float) :  Fuel density [kg/m^3].
-    TURBOPROP (bool):       Set True if the engine is a turboprop.
+    max_payload (int):      Maximum payload allowed, set 0 if equal to max passenger mass.
+    max_fuel_volume (int):     Maximum fuel volume allowed [l].
+    fuel_density (float) :  Fuel density [kg/m^3].
+    turboprop (bool):       Set True if the engine is a turboprop.
 
     """
 
     def __init__(self):
-        self.IS_DOUBLE_FLOOR = 0
-        self.MASS_CARGO = 0.0
-        self.MAX_PAYLOAD = 0
-        self.MAX_FUEL_VOL = 0
-        self.FUEL_DENSITY = 800
-        self.TURBOPROP = False
+        self.is_double_floor = 0
+        self.mass_cargo = 0.0
+        self.max_payload = 0
+        self.max_fuel_volume = 0
+        self.fuel_density = 800
+        self.turboprop = False
 
     def get_user_inputs(self, cpacs):
         """Get user input from the CPACS file
@@ -90,20 +94,18 @@ class UserInputs:
         description = "User geometry input"
         get_value_or_default(tixi, GEOM_XPATH + "/description", description)
 
-        self.IS_DOUBLE_FLOOR = get_value_or_default(tixi, GEOM_XPATH + "/isDoubleFloor", 0)
+        self.is_double_floor = get_value_or_default(tixi, WB_DOUBLE_FLOOR_XPATH, 0)
 
         description = "Desired max fuel volume [m^3] and payload mass [kg]"
-        get_value_or_default(tixi, ML_XPATH + "/description", description)
+        get_value_or_default(tixi, WB_MASS_LIMIT_XPATH + "/description", description)
 
-        self.MAX_PAYLOAD = get_value_or_default(tixi, ML_XPATH + "/maxPayload", 0)
-        self.MAX_FUEL_VOL = get_value_or_default(tixi, ML_XPATH + "/maxFuelVol", 0)
-        self.MASS_CARGO = get_value_or_default(
-            tixi, MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass", 0.0
-        )
-        self.FUEL_DENSITY = get_value_or_default(tixi, F_XPATH + "/density", 800)
+        self.max_payload = get_value_or_default(tixi, WB_MAX_PAYLOAD_XPATH, 0)
+        self.max_fuel_volume = get_value_or_default(tixi, WB_MAX_FUEL_VOL_XPATH, 0)
+        self.mass_cargo = get_value_or_default(tixi, MASS_CARGO_XPATH, 0.0)
+        self.fuel_density = get_value_or_default(tixi, F_XPATH + "/density", 800)
         add_uid(tixi, F_XPATH, "kerosene")
 
-        self.TURBOPROP = get_value_or_default(tixi, PROP_XPATH + "/turboprop", False)
+        self.turboprop = get_value_or_default(tixi, TURBOPROP_XPATH, False)
 
         return cpacs
 
@@ -198,7 +200,7 @@ class MassesWeights:
     operating_empty_mass (float): Operating empty mass [kg]
     mass_payload (float): Payload mass [kg]
     MAX_FUEL_MASS (float): Maximum fuel mass allowed (chosen) [kg]
-    MAX_PAYLOAD (float): Maximum payload mass allowed [kg]
+    max_payload (float): Maximum payload mass allowed [kg]
     mass_people (float): Mass of people inside the aircraft [kg]
     mass_cargo (float): Extra possible payload [kg]
     zero_fuel_mass (float): Zero fuel mass [kg]
@@ -213,7 +215,7 @@ class MassesWeights:
         self.operating_empty_mass = 0
         self.mass_payload = 0
         self.MAX_FUEL_MASS = 0
-        self.MAX_PAYLOAD = 0
+        self.max_payload = 0
         self.mass_people = 0
         self.mass_cargo = 0
         self.zero_fuel_mass = 0

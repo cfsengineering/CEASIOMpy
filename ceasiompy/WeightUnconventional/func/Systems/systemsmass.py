@@ -89,7 +89,7 @@ def estimate_system_mass(
     # Anti-Icing weight
     s_n.append("De_ice")
     if ed.WING_MOUNTED:
-        if ed.TURBOPROP:
+        if ed.turboprop:
             sw.append(0.520 * s_main_wing)
         else:
             sw.append(0.238 * s_main_wing)

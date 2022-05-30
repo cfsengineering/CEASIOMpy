@@ -18,7 +18,7 @@ Python version: >=3.7
 # =============================================================================
 
 from cpacspy.cpacsfunctions import add_uid, create_branch, open_tixi
-from ceasiompy.utils.commonxpath import CREW_XPATH, PASS_XPATH
+from ceasiompy.utils.commonxpath import CREW_XPATH, MASSBREAKDOWN_XPATH, PASS_XPATH
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()
@@ -115,21 +115,18 @@ def cpacs_weight_update(out, mw, ui, cpacs_out_path):
 
     tixi = open_tixi(cpacs_out_path)
 
-    # Path definition
-    MB_PATH = "/cpacs/vehicles/aircraft/model/analyses/massBreakdown"
+    if tixi.checkElement(MASSBREAKDOWN_XPATH):
+        tixi.removeElement(MASSBREAKDOWN_XPATH)
 
-    if tixi.checkElement(MB_PATH):
-        tixi.removeElement(MB_PATH)
-
-    MD_PATH = MB_PATH + "/designMasses"
+    MD_PATH = MASSBREAKDOWN_XPATH + "/designMasses"
     MTOM_PATH = MD_PATH + "/mTOM"
     MZFM_PATH = MD_PATH + "/mZFM"
-    MF_PATH = MB_PATH + "/fuel/massDescription"
-    OEM_PATH = MB_PATH + "/mOEM/massDescription"
-    PAY_PATH = MB_PATH + "/payload/massDescription"
-    MC_PATH = MB_PATH + "/payload/mCargo"
-    EM_PATH = MB_PATH + "/mOEM/mEM"
-    OIM_PATH = MB_PATH + "/mOEM/mOperatorItems/mCrewMembers/massDescription"
+    MF_PATH = MASSBREAKDOWN_XPATH + "/fuel/massDescription"
+    OEM_PATH = MASSBREAKDOWN_XPATH + "/mOEM/massDescription"
+    PAY_PATH = MASSBREAKDOWN_XPATH + "/payload/massDescription"
+    MC_PATH = MASSBREAKDOWN_XPATH + "/payload/mCargo"
+    EM_PATH = MASSBREAKDOWN_XPATH + "/mOEM/mEM"
+    OIM_PATH = MASSBREAKDOWN_XPATH + "/mOEM/mOperatorItems/mCrewMembers/massDescription"
     MSYS_PATH = EM_PATH + "/mSystems/massDescription/mass"
     MSTR_PATH = EM_PATH + "/mStructure/massDescription/mass"
     MEN_PATH = EM_PATH + "/mPowerUnits/massDescription/mass"
@@ -205,7 +202,7 @@ def cpacs_weight_update(out, mw, ui, cpacs_out_path):
     tixi.updateTextElement(PAY_PATH + "/description", "Maximum payload mass [kg].")
     tixi.updateDoubleElement(PAY_PATH + "/mass", mw.mass_payload, "%g")
     tixi.createElement(MC_PATH, "massCargo")
-    tixi.updateDoubleElement(MC_PATH + "/massCargo", ui.MASS_CARGO, "%g")
+    tixi.updateDoubleElement(MC_PATH + "/massCargo", ui.mass_cargo, "%g")
 
     tixi.save(cpacs_out_path)
 

@@ -31,8 +31,16 @@ from ceasiompy.utils.InputClasses.Conventional.weightconvclass import (
     WeightOutput,
 )
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import aircraft_name
-from ceasiompy.utils.commonxpath import F_XPATH, GEOM_XPATH, MASS_CARGO, ML_XPATH, PROP_XPATH
+from ceasiompy.utils.commonxpath import (
+    F_XPATH,
+    MASS_CARGO_XPATH,
+    MASS_CARGO_XPATH,
+    TURBOPROP_XPATH,
+    WB_MASS_LIMIT_XPATH,
+    WB_DOUBLE_FLOOR_XPATH,
+    WB_MAX_FUEL_VOL_XPATH,
+    WB_MAX_PAYLOAD_XPATH,
+)
 from ceasiompy.utils.moduleinterfaces import (
     check_cpacs_input_requirements,
     get_toolinput_file_path,
@@ -91,15 +99,15 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     # Get user input
 
     description = "Desired max fuel volume [m^3] and payload mass [kg]"
-    get_value_or_default(cpacs.tixi, ML_XPATH + "/description", description)
+    get_value_or_default(cpacs.tixi, WB_MASS_LIMIT_XPATH + "/description", description)
 
-    max_payload = get_value_or_default(cpacs.tixi, ML_XPATH + "/maxPayload", 0)
-    max_fuel_vol = get_value_or_default(cpacs.tixi, ML_XPATH + "/maxFuelVol", 0)
-    mass_cargo = get_value_or_default(cpacs.tixi, MASS_CARGO, 0.0)
+    max_payload = get_value_or_default(cpacs.tixi, WB_MAX_PAYLOAD_XPATH, 0)
+    max_fuel_vol = get_value_or_default(cpacs.tixi, WB_MAX_FUEL_VOL_XPATH, 0)
+    mass_cargo = get_value_or_default(cpacs.tixi, MASS_CARGO_XPATH, 0.0)
     fuel_density = get_value_or_default(cpacs.tixi, F_XPATH + "/density", 800)
     add_uid(cpacs.tixi, F_XPATH, "kerosene")
-    turboprop = get_value_or_default(cpacs.tixi, PROP_XPATH + "/turboprop", False)
-    is_double_floor = get_value_or_default(cpacs.tixi, GEOM_XPATH + "/isDoubleFloor", 0)
+    turboprop = get_value_or_default(cpacs.tixi, TURBOPROP_XPATH, False)
+    is_double_floor = get_value_or_default(cpacs.tixi, WB_DOUBLE_FLOOR_XPATH, 0)
 
     # Classes
     masses = MassesWeights()
@@ -118,7 +126,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
         max_fuel_vol = ag.wing_fuel_vol
 
     # Maximum payload allowed, set 0 if equal to max passenger mass.
-    masses.MAX_PAYLOAD = max_payload
+    masses.max_payload = max_payload
 
     # Adding extra length in case of aircraft with second floor [m].
     if is_double_floor == 1:
@@ -197,10 +205,10 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     masses.mass_people = masses.mass_crew + out.pass_nb * PASSENGER_MASS
 
     maxp = False
-    if masses.MAX_PAYLOAD > 0 and masses.mass_payload > masses.MAX_PAYLOAD:
-        masses.mass_payload = masses.MAX_PAYLOAD
+    if masses.max_payload > 0 and masses.mass_payload > masses.max_payload:
+        masses.mass_payload = masses.max_payload
         maxp = True
-        new_passenger_nb = masses.MAX_PAYLOAD / (PASSENGER_MASS)
+        new_passenger_nb = masses.max_payload / (PASSENGER_MASS)
         log.info(f"With the fixed payload, passenger nb reduced to: {new_passenger_nb}")
 
     # Fuel Mass evaluation

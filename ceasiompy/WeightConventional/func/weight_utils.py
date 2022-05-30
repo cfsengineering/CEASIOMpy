@@ -29,4 +29,4 @@ PASSENGER_PER_TOILET = 50
 UNUSABLE_FUEL_RATIO = 0.06  #  6% of the total fuel is unusable.
 
 # a bit more tricky, it is an "official" CPACS value
-FUEL_DENSITY = 800  # kg/m^3
+fuel_density = 800  # kg/m^3

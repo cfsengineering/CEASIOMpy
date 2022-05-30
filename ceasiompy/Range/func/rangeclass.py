@@ -41,7 +41,7 @@ class RangeInputs:
         LOITER_TIME     (float): Loiter length [min]
         TSFC_CRUISE     (float): Thrust specific fuel consumption for cruise [1/hr].
         TSFC_LOITER     (float): Thrust specific fuel consumption for Loiter [1/hr].
-        TURBOPROP       (bool): Turboprop option.
+        turboprop       (bool): Turboprop option.
 
     """
 
@@ -53,10 +53,10 @@ class RangeInputs:
         self.CRUISE_SPEED = 272.0
         self.LD = 17  # A319 17, ATR72 15
         self.LOITER_TIME = 30.00
-        # TURBOPROP and TURBOFAN and CONCORDE
+        # turboprop and TURBOFAN and CONCORDE
         self.TSFC_CRUISE = 0.5  # 0.6         0.5          0.8
         self.TSFC_LOITER = 0.4  # 0.7         0.4          0.9
-        self.TURBOPROP = False
+        self.turboprop = False
 
 
 class MassesWeights:

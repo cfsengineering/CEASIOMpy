@@ -98,7 +98,7 @@ def get_range_estimation(cpacs_path, cpacs_out_path):
 
     (mw, ri) = getdatafromcpacs.get_data(mw, ri, cpacs_out_path)
 
-    if ri.TURBOPROP:
+    if ri.turboprop:
         LDcru = ri.LD
         LDloi = ri.LD * 0.866
     else:

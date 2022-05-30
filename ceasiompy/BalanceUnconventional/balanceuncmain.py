@@ -124,7 +124,7 @@ def get_balance_unc_estimations(cpacs_path, cpacs_out_path):
         raise Exception("Aircraft does not have wings")
     elif not fus_nb:
         (awg, wing_nodes) = uncgeomanalysis.no_fuse_geom_analysis(
-            cpacs_path, ui.FLOORS_NB, w_nb, ui.H_LIM_CABIN, ui.FUEL_ON_CABIN, name, ed.TURBOPROP
+            cpacs_path, ui.FLOORS_NB, w_nb, ui.H_LIM_CABIN, ui.FUEL_ON_CABIN, name, ed.turboprop
         )
     else:
         log.info("Fuselage detected")
@@ -132,7 +132,7 @@ def get_balance_unc_estimations(cpacs_path, cpacs_out_path):
         # Minimum fuselage segment height to be a cabin segment.
         h_min = ui.FLOORS_NB * ui.H_LIM_CABIN
         (afg, awg) = uncgeomanalysis.with_fuse_geom_analysis(
-            cpacs_path, fus_nb, w_nb, h_min, adui, ed.TURBOPROP, ui.F_FUEL, name
+            cpacs_path, fus_nb, w_nb, h_min, adui, ed.turboprop, ui.F_FUEL, name
         )
 
     ui = getdatafromcpacs.get_user_fuel(fus_nb, ui, cpacs_out_path)

@@ -23,11 +23,11 @@ The cpacs file should also contain:
 * WINGLET        --In.: Winglet option (0 = no winglets, 1 = normale
                             winglets, 2 = high efficiency
                             winglet for cruise).
-* TURBOPROP      --In.: Turboprop option ('True', 'False').
+* turboprop      --In.: Turboprop option ('True', 'False').
 * CRUISE_SPEED   --In.: Cruise speed [m/s].
 * LOITER_TIME    --In.: Loiter duration [min].
 * LD             --In.: Lift over drag coefficient [-].
-* FUEL_DENSITY   --In.: Fuel density [kg/m^3].
+* fuel_density   --In.: Fuel density [kg/m^3].
 
 | Works with Python 2.7
 | Author : Stefano Piccini
@@ -42,8 +42,9 @@ The cpacs file should also contain:
 
 from cpacspy.cpacsfunctions import add_uid, create_branch, open_tixi
 
+from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import RANGE_LD_RATIO_XPATH
+from ceasiompy.utils.commonxpath import RANGE_LD_RATIO_XPATH, TURBOPROP_XPATH
 
 log = get_logger()
 
@@ -143,6 +144,8 @@ def get_data(mw, ri, cpacs_in):
 
     # Gathering data =========================================================
     #  TOOLSPECIFIC ----------------------------------------------------------
+    # TODO: replace by "get_value_or_default"
+
     if not tixi.checkElement(RANGE_LD_RATIO_XPATH):
         tixi.createElement(RANGE_PATH, "lDRatio")
         tixi.updateDoubleElement(RANGE_LD_RATIO_XPATH, ri.LD, "%g")
@@ -184,36 +187,9 @@ def get_data(mw, ri, cpacs_in):
             ri.pilot_nb = temp
 
     # Propulsion and Fuel
-
-    if not tixi.checkElement(PROP_PATH + "/turboprop"):
-        create_branch(tixi, PROP_PATH, False)
-        tixi.createElement(PROP_PATH, "turboprop")
-        if ri.TURBOPROP:
-            tixi.updateTextElement(PROP_PATH + "/turboprop", "True")
-        else:
-            tixi.updateTextElement(PROP_PATH + "/turboprop", "False")
-    else:
-        temp = tixi.getTextElement(PROP_PATH + "/turboprop")
-        if temp == "False":
-            ri.TURBOPROP = False
-        else:
-            ri.TURBOPROP = True
-
-    if not tixi.checkElement(TSFC_PATH + "/tsfcCruise"):
-        tixi.createElement(TSFC_PATH, "tsfcCruise")
-        tixi.updateDoubleElement(TSFC_PATH + "/tsfcCruise", ri.TSFC_CRUISE, "%g")
-    else:
-        temp = tixi.getDoubleElement(TSFC_PATH + "/tsfcCruise")
-        if temp != ri.TSFC_CRUISE and temp > 0:
-            ri.TSFC_CRUISE = temp
-
-    if not tixi.checkElement(TSFC_PATH + "/tsfcLoiter"):
-        tixi.createElement(TSFC_PATH, "tsfcLoiter")
-        tixi.updateDoubleElement(TSFC_PATH + "/tsfcLoiter", ri.TSFC_LOITER, "%g")
-    else:
-        temp = tixi.getDoubleElement(TSFC_PATH + "/tsfcLoiter")
-        if temp != ri.TSFC_LOITER and temp > 0:
-            ri.TSFC_LOITER = temp
+    ri.turboprop = get_value_or_default(tixi, TURBOPROP_XPATH, False)
+    ri.TSFC_CRUISE = get_value_or_default(tixi, TSFC_PATH + "/tsfcCruise", 0.5)
+    ri.TSFC_LOITER = get_value_or_default(tixi, TSFC_PATH + "/tsfcLoiter", 0.4)
 
     # REQUIRED DATA =========================================================
     # Cabin Crew

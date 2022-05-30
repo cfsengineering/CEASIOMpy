@@ -13,6 +13,7 @@ from ceasiompy.utils.commonxpath import (
     PROP_XPATH,
     RANGE_LD_RATIO_XPATH,
     RANGE_XPATH,
+    TURBOPROP_XPATH,
     WEIGHT_XPATH,
 )
 
@@ -120,12 +121,12 @@ cpacs_inout.add_input(
 # Options
 
 cpacs_inout.add_input(
-    var_name="TURBOPROP",
+    var_name="turboprop",
     var_type=bool,
     default_value=False,
     unit=None,
     descr='"True" only if the aircraft is a turboprop',
-    xpath=PROP_XPATH + "/turboprop",
+    xpath=TURBOPROP_XPATH,
     gui=True,
     gui_name="Turboprop",
     gui_group="Options",
@@ -212,7 +213,7 @@ cpacs_inout.add_input(
 
 # Define at two differnt xpath in the weight & balance modules
 cpacs_inout.add_input(
-    var_name="FUEL_DENSITY",
+    var_name="fuel_density",
     var_type=float,
     default_value=0.8,
     unit="kg/m^3",

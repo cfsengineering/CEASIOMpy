@@ -82,6 +82,8 @@ class ModelPart:
         self.volume_tag = []
         # children
         self.children_dimtag = set()
+        # Physical groups
+        self.physical_groups = []
 
     def associate_child_to_parent(self, child_dimtag):
         """
@@ -95,12 +97,41 @@ class ModelPart:
             dimtag of the child volume
         """
 
-        child_volume = [child_dimtag]
+        # Detect 2D or 3D child
+        if child_dimtag[0] == 3:
+            # Associate a 3D the child to the parent
+            child_volume = [child_dimtag]
 
-        child_surfaces, child_lines, child_points = get_entities_from_volume(child_volume)
+            child_surfaces, child_lines, child_points = get_entities_from_volume(child_volume)
+
+            # Get the dimtags (3D only)
+            child_volume_tag = [dimtag[1] for dimtag in child_volume]
+            # Store in parent parts for latter use (3D only)
+            self.volume.extend(child_volume)
+            self.volume_tag.extend(child_volume_tag)
+
+        # 2D child and parent
+        elif child_dimtag[0] == 2:
+
+            child_surfaces = [child_dimtag]
+            child_lines = list(
+                gmsh.model.getBoundary(
+                    child_surfaces, combined=True, oriented=False, recursive=False
+                )
+            )
+            child_lines.sort()
+
+            child_points = list(
+                gmsh.model.getBoundary(
+                    child_surfaces, combined=True, oriented=False, recursive=True
+                )
+            )
+            child_points.sort()
+
+        elif child_dimtag[0] != 2 and child_dimtag[0] != 3:
+            raise ValueError("Dimension of the child is not 2 or 3")
 
         # Get the dimtags
-        child_volume_tag = [dimtag[1] for dimtag in child_volume]
         child_surfaces_tags = [dimtag[1] for dimtag in child_surfaces]
         child_lines_tags = [dimtag[1] for dimtag in child_lines]
         child_points_tags = [dimtag[1] for dimtag in child_points]
@@ -109,11 +140,9 @@ class ModelPart:
         self.points.extend(child_points)
         self.lines.extend(child_lines)
         self.surfaces.extend(child_surfaces)
-        self.volume.extend(child_volume)
         self.points_tags.extend(child_points_tags)
         self.lines_tags.extend(child_lines_tags)
         self.surfaces_tags.extend(child_surfaces_tags)
-        self.volume_tag.extend(child_volume_tag)
 
     def clean_inside_entities(self, final_domain):
         """
@@ -125,17 +154,34 @@ class ModelPart:
         final_domain : ModelPart
             final_domain part
         """
+        if self.part_type == "rotor":
 
+            # Detect all the entities in the domain with gmsh functions
+            self.surfaces = sorted(
+                list(set(self.surfaces).intersection(set(gmsh.model.getEntities(dim=2))))
+            )
+            self.lines = sorted(
+                list(set(self.lines).intersection(set(gmsh.model.getEntities(dim=1))))
+            )
+            self.points = sorted(
+                list(set(self.points).intersection(set(gmsh.model.getEntities(dim=0))))
+            )
+
+            # Update the dimtags
+            self.surfaces_tags = [dimtag[1] for dimtag in self.surfaces]
+            self.lines_tags = [dimtag[1] for dimtag in self.lines]
+            self.points_tags = [dimtag[1] for dimtag in self.points]
+            return
+        # if not rotor part
         # Detect only shared entities with the final domain
-        self.surfaces = list(set(self.surfaces).intersection(set(final_domain.surfaces)))
-        self.lines = list(set(self.lines).intersection(set(final_domain.lines)))
-        self.points = list(set(self.points).intersection(set(final_domain.points)))
+        self.surfaces = sorted(list(set(self.surfaces).intersection(set(final_domain.surfaces))))
+        self.lines = sorted(list(set(self.lines).intersection(set(final_domain.lines))))
+        self.points = sorted(list(set(self.points).intersection(set(final_domain.points))))
 
-        self.surfaces_tags = list(
-            set(self.surfaces_tags).intersection(set(final_domain.surfaces_tags))
-        )
-        self.lines_tags = list(set(self.lines_tags).intersection(set(final_domain.lines_tags)))
-        self.points_tags = list(set(self.points_tags).intersection(set(final_domain.points_tags)))
+        # Update the dimtags
+        self.surfaces_tags = sorted([dimtag[1] for dimtag in self.surfaces])
+        self.lines_tags = sorted([dimtag[1] for dimtag in self.lines])
+        self.points_tags = sorted([dimtag[1] for dimtag in self.points])
 
 
 # =================================================================================================
@@ -332,6 +378,124 @@ def process_gmsh_log(gmsh_log):
     log.info(f"Total meshing time : {round(total_time, 2)}s")
 
 
+def add_disk_actuator(brep_dir, config_file):
+    """
+    Function to create a 2D disk in a given location to represent a rotor as a
+    disk actuator
+    ...
+
+    Args:
+    ----------
+    brep_dir : Path
+        path to the brep files of the aircraft that also contains the rotor config file
+    config_file : Configfile
+        config file of the propellers configuration on the aircraft
+
+    """
+
+    nb_rotor = int(config_file["NB_ROTOR"])
+
+    for k in range(1, nb_rotor + 1):
+        # get the rotor configuration from cfg file
+        rotor_uid = config_file[f"UID_{k}"]
+        radius = float(config_file[f"{rotor_uid}_ROTOR_RADIUS"])
+        sym = int(config_file[f"{rotor_uid}_SYMMETRIC"])
+        trans_vector = (
+            float(config_file[f"{rotor_uid}_TRANS_X"]),
+            float(config_file[f"{rotor_uid}_TRANS_Y"]),
+            float(config_file[f"{rotor_uid}_TRANS_Z"]),
+        )
+        rot_vector = (
+            float(config_file[f"{rotor_uid}_ROT_X"]),
+            float(config_file[f"{rotor_uid}_ROT_Y"]),
+            float(config_file[f"{rotor_uid}_ROT_Z"]),
+        )
+
+        # Adding rotating disk
+        gmsh.initialize()
+        # generate the inlet_disk (gmsh always create a disk in the xy plane)
+        disk_tag = gmsh.model.occ.addDisk(*trans_vector, radius, radius)
+        disk_dimtag = (2, disk_tag)
+
+        # y axis 180deg flip to make the inlet of the disk face forward
+        gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 1, 0, np.radians(180))
+        gmsh.model.occ.synchronize()
+
+        # rotation given in the cpacs file
+        # x axis
+        gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 1, 0, 0, np.radians(rot_vector[0]))
+        # y axis
+        gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 1, 0, np.radians(rot_vector[1]))
+        # z axis
+        gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 0, 1, np.radians(rot_vector[2]))
+
+        gmsh.model.occ.synchronize()
+
+        path_disk = Path(brep_dir, f"{rotor_uid}.brep")
+        gmsh.write(str(path_disk))
+
+        gmsh.clear()
+        gmsh.finalize()
+
+        if sym == 2:
+            # Adding the symmetric
+            gmsh.initialize()
+            # generate the inlet_disk (gmsh always create a disk in the xy plane)
+            disk_tag = gmsh.model.occ.addDisk(*trans_vector, radius, radius)
+            disk_dimtag = (2, disk_tag)
+
+            # y axis 180deg flip to make the inlet of the disk face forward is not necessary for
+            # the mirrored part, and for now the symmetry is not implemented correctly since
+            # the symmetry does not take into account the orientation of the rotor and the plane
+            # of symmetry is assume to be the xz plane
+            # When the face of the disk actuator are not oriented well the simulation shows
+            # increasing cd and will probably diverge
+
+            # rotation given in the cpacs file
+            # x axis
+            gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 1, 0, 0, np.radians(rot_vector[0]))
+            # y axis
+            gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 1, 0, np.radians(rot_vector[1]))
+            # z axis
+            gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 0, 1, np.radians(rot_vector[2]))
+
+            gmsh.model.occ.synchronize()
+
+            gmsh.model.occ.mirror([disk_dimtag], 0, 1, 0, 0)
+            gmsh.model.occ.synchronize()
+            path_disk = Path(brep_dir, f"{rotor_uid}_mirrored.brep")
+            gmsh.write(str(path_disk))
+
+            gmsh.clear()
+            gmsh.finalize()
+
+
+def duplicate_disk_actuator_surfaces(part):
+    """
+    Function to duplicate the surfaces of a disk actuator
+    ...
+
+    Args:
+    ----------
+    part : ModelPart
+        Part object of the rotor modeled as a disk actuator
+    """
+    # "crack" the mesh by duplicating the elements and nodes on the disk surface
+    if len(part.physical_groups) > 1:
+        # raise error since disk actuator can only have one surface before duplicating
+        raise ValueError("Disk actuator can only have one surface")
+
+    gmsh.plugin.setNumber("Crack", "Dimension", 2)
+    gmsh.plugin.setNumber("Crack", "PhysicalGroup", part.physical_groups[0])
+    # find the last physical group tag
+    new_tag = 1 + len(gmsh.model.getPhysicalGroups(dim=-1))
+    gmsh.plugin.setNumber("Crack", "NewPhysicalGroup", new_tag)
+
+    # Set the new physical group for the back surface
+    gmsh.model.setPhysicalName(2, new_tag, f"{part.uid}_AD_Outlet")
+    gmsh.plugin.run("Crack")
+
+
 def generate_gmsh(
     cpacs,
     brep_dir,
@@ -395,14 +559,28 @@ def generate_gmsh(
 
     """
 
+    # Determine if rotor are present in the aircraft model
+    rotor_model = False
+    if Path(brep_dir, "config_rotors.cfg").exists():
+        rotor_model = True
+
+    if rotor_model:
+        log.info("Adding disk actuator")
+        config_file = ConfigFile(Path(brep_dir, "config_rotors.cfg"))
+        add_disk_actuator(brep_dir, config_file)
+
+    # Retrieve all brep
     brep_files = list(brep_dir.glob("*.brep"))
     brep_files.sort()
 
+    # initialize gmsh
     gmsh.initialize()
     # Stop gmsh output log in the terminal
     gmsh.option.setNumber("General.Terminal", 0)
     # Log complexity
     gmsh.option.setNumber("General.Verbosity", 5)
+    # use better precision for occ bounds
+    gmsh.option.setNumber("Geometry.OCCBoundsUseStl", 1)
 
     # Import each aircraft original parts / parent parts
     aircraft_parts = []
@@ -502,6 +680,9 @@ def generate_gmsh(
     if symmetry:
         # take the unwanted children from symmetry
         unwanted_children = children_dimtag[-1]
+        # Attention this only take into account volumes elements in the symmetry
+        # Disk actuator that are 2D element are not taken into account
+        # and will be removed latter
 
         # remove them from the model
         gmsh.model.occ.remove(unwanted_children, recursive=True)
@@ -518,10 +699,28 @@ def generate_gmsh(
         parent.children_dimtag = set(children)
 
     # Some parent may have no children (due to symmetry), we need to remove them
+    unwanted_parents = []
     for parent in aircraft_parts:
+
+        if parent.part_type == "rotor":
+            # Control possible 2D children not removed by the fragment symmetry unwanted_children
+            for dimtag in list(parent.children_dimtag):
+                try:  # check if the child exists in the model
+
+                    gmsh.model.getType(*dimtag)
+
+                except Exception:
+
+                    # if not remove it from the parent
+                    parent.children_dimtag.remove(dimtag)
+
         if not parent.children_dimtag:
             log.info(f"{parent.uid} has no more children due to symmetry, it will be deleted")
-            aircraft_parts.remove(parent)
+            unwanted_parents.append(parent)
+
+    # Remove unwanted parents
+    if unwanted_parents:
+        aircraft_parts = [part for part in aircraft_parts if part not in unwanted_parents]
 
     # Process and add children that are shared by two parent parts in the shared children list
     # and put them in a new unwanted children list
@@ -586,6 +785,7 @@ def generate_gmsh(
     aircraft = ModelPart("aircraft")
 
     for part in aircraft_parts:
+
         part.clean_inside_entities(final_domain)
 
         aircraft.points.extend(part.points)
@@ -602,7 +802,11 @@ def generate_gmsh(
             define_engine_bc(part, brep_dir)
         else:
             surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
-            gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
+            if part.part_type == "rotor":
+                gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}_AD_Inlet")
+            else:
+                gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
+            part.physical_groups.append(surfaces_group)
 
     log.info("Model has been cleaned")
 
@@ -649,7 +853,6 @@ def generate_gmsh(
 
     gmsh.model.occ.synchronize()
     log.info("Markers for SU2 generated")
-
     # Mesh Generation
 
     # Set mesh size of the aircraft parts
@@ -664,7 +867,7 @@ def generate_gmsh(
             part.mesh_size = mesh_size_fuselage
             gmsh.model.mesh.setSize(part.points, part.mesh_size)
             gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
-        elif part.part_type in ["wing", "pylon", "nacelle", "engine"]:
+        elif part.part_type in ["wing", "pylon", "nacelle", "engine", "rotor"]:
             part.mesh_size = mesh_size_wings
             gmsh.model.mesh.setSize(part.points, part.mesh_size)
             gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
@@ -778,6 +981,15 @@ def generate_gmsh(
     gmsh.model.mesh.generate(3)
     gmsh.model.occ.synchronize()
 
+    if rotor_model:
+        log.info("Duplicating disk actuator mesh surfaces")
+        for part in aircraft_parts:
+            if part.part_type == "rotor":
+                duplicate_disk_actuator_surfaces(part)
+
+        # option to use when duplicating disk actuator surfaces
+        gmsh.option.setNumber("Mesh.SaveAll", 1)
+
     su2mesh_path = Path(results_dir, "mesh.su2")
     gmsh.write(str(su2mesh_path))
 
@@ -787,6 +999,9 @@ def generate_gmsh(
         log.info("Result of the 3D volume mesh")
         log.info("GMSH GUI is open, close it to continue...")
         gmsh.fltk.run()
+
+    log.info("Mesh generation finished")
+    # Create duplicated mesh surface for disk actuator
 
     if not testing_gmsh:
         gmsh.clear()

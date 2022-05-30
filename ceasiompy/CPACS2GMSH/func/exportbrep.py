@@ -27,6 +27,7 @@ from ceasiompy.CPACS2GMSH.func.engineconversion import engine_conversion
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
 from ceasiompy.utils.configfiles import ConfigFile
+
 from tigl3.import_export_helper import export_shapes
 
 log = get_logger()
@@ -44,7 +45,7 @@ def export(shape, brep_dir, uid):
     ----------
     shape: TiGL Cshape
         The shape to be exported
-    brep_dir (Paht): Path to the brep directory
+    brep_dir (Path): Path to the brep directory
         Path object to the directory where the brep files are saved
     uid: str
         The uID of the shape
@@ -88,7 +89,6 @@ def engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_perc
     engine_uid = engine.get_uid()
     engine_uids.append(engine_uid)
     nacelle = engine.get_nacelle()
-
     if nacelle:
         center_cowl = nacelle.get_center_cowl()
         if center_cowl:
@@ -120,7 +120,45 @@ def engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_perc
 
         config_file.write_file(engines_cfg_file, overwrite=True)
 
-    engine_conversion(cpacs, engine_uids, brep_dir, engines_cfg_file, engine_surface_percent)
+        engine_conversion(cpacs, engine_uids, brep_dir, engines_cfg_file, engine_surface_percent)
+
+
+def rotor_config(rotorcraft_config, brep_dir):
+    """
+    Store the rotor configuration of the aircraft in a .cfg file in order to
+    replace in gmsh the rotor by disk for the disk actuator modeling
+
+    Args:
+    rotorcraft_config : tixi
+        rotor configuration of the aircraft
+    brep_dir : Path
+        Path object to the directory where the brep files are saved
+    """
+    rotor_cnt = rotorcraft_config.get_rotor_count()
+    # create config file for the engine conversion
+    rotors_cfg_file_path = Path(brep_dir, "config_rotors.cfg")
+    config_file = ConfigFile()
+
+    config_file["NB_ROTOR"] = f"{rotor_cnt}"
+    for k in range(1, rotor_cnt + 1):
+        rotor = rotorcraft_config.get_rotor(k)
+        config_file[f"UID_{k}"] = f"{rotor.get_uid()}"
+        config_file[f"{rotor.get_uid()}_ROTOR_RADIUS"] = f"{rotor.get_radius()}"
+
+        symmetric = rotor.get_symmetry()
+        config_file[f"{rotor.get_uid()}_SYMMETRIC"] = f"{symmetric}"
+
+        config_file[f"{rotor.get_uid()}_TRANS_X"] = f"{rotor.get_translation().x}"
+        config_file[f"{rotor.get_uid()}_TRANS_Y"] = f"{rotor.get_translation().y}"
+        config_file[f"{rotor.get_uid()}_TRANS_Z"] = f"{rotor.get_translation().z}"
+
+        config_file[f"{rotor.get_uid()}_ROT_X"] = f"{rotor.get_rotation().x}"
+        config_file[f"{rotor.get_uid()}_ROT_Y"] = f"{rotor.get_rotation().y}"
+        config_file[f"{rotor.get_uid()}_ROT_Z"] = f"{rotor.get_rotation().z}"
+
+        # Note that scaling is not used and needed since the
+        # rotor.get_radius() is already scaled correctly
+    config_file.write_file(rotors_cfg_file_path, overwrite=True)
 
 
 def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
@@ -146,13 +184,21 @@ def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
 
     """
 
+    # Get rotor config
+    try:
+        rotorcraft_config = cpacs.rotorcraft.configuration
+        rotor_config(rotorcraft_config, brep_dir)
+    except AttributeError:
+        pass
+
+    # get the aircraft configuration
     aircraft_config = cpacs.aircraft.configuration
 
     # Retrieve aircraft parts
     fuselage_cnt = aircraft_config.get_fuselage_count()
     wing_cnt = aircraft_config.get_wing_count()
-    # rotor_cnt = aircraft_config.get_rotor_count()
-    # rotor_blade_cnt = aircraft_config.get_rotor_blade_count()
+
+    # Pylon configuration
     pylons_config = aircraft_config.get_engine_pylons()
     engines_config = aircraft_config.get_engines()
 

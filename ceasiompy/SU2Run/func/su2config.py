@@ -207,11 +207,23 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
                 "The number of inlet and outlet markers of the actuator disk must be the same."
             )
 
-        # try:
-        #     rotorcraft_config = cpacs.rotorcraft.configuration
-        #     rotor = rotorcraft_config.get_rotor(k)
-        # except AttributeError:
-        #     pass
+        try:
+            rotorcraft_config = cpacs.rotorcraft.configuration
+        except AttributeError:
+            pass
+
+        rotor_uid_pos = {}
+        for i in range(1, rotorcraft_config.get_rotor_count() + 1):
+
+            rotor = rotorcraft_config.get_rotor(i)
+
+            rotor_uid = rotor.get_uid()
+            pos_x = rotor.get_translation().x
+            pos_y = rotor.get_translation().y
+            pos_z = rotor.get_translation().z
+            radius = rotor.get_radius()
+
+            rotor_uid_pos[rotor_uid] = (pos_x, pos_y, pos_z, radius)
 
         cfg["ACTDISK_DOUBLE_SURFACE"] = "YES"
         cfg["ACTDISK_TYPE"] = "VARIABLE_LOAD"
@@ -223,18 +235,26 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             inlet_uid = maker_inlet.split("_AD_Inlet")[0]
             outlet_uid = marker_outlet.split("_AD_Outlet")[0]
 
-            x_inlet, y_inlet, z_inlet, x_outlet, y_outlet, z_outlet = 0, 0, 0, 0, 0, 0
+            if inlet_uid != outlet_uid:
+                raise ValueError(
+                    "The inlet and outlet markers of the actuator disk must be the same."
+                )
 
-            actdisk_markers.append(inlet_uid)
-            actdisk_markers.append(outlet_uid)
-            actdisk_markers.append(x_inlet)
-            actdisk_markers.append(y_inlet)
-            actdisk_markers.append(z_inlet)
-            actdisk_markers.append(x_outlet)
-            actdisk_markers.append(y_outlet)
-            actdisk_markers.append(z_outlet)
+            if "_mirrored" in maker_inlet:
+                uid = inlet_uid.split("_mirrored")[0]
+            else:
+                uid = inlet_uid
 
-        cfg["MARKER_ACTDISK"] = "".join(actdisk_markers)
+            actdisk_markers.append(maker_inlet)
+            actdisk_markers.append(marker_outlet)
+            actdisk_markers.append(str(rotor_uid_pos[uid][0]))
+            actdisk_markers.append(str(rotor_uid_pos[uid][1]))
+            actdisk_markers.append(str(rotor_uid_pos[uid][2]))
+            actdisk_markers.append(str(rotor_uid_pos[uid][0]))
+            actdisk_markers.append(str(rotor_uid_pos[uid][1]))
+            actdisk_markers.append(str(rotor_uid_pos[uid][2]))
+
+        cfg["MARKER_ACTDISK"] = " (" + ", ".join(actdisk_markers) + " )"
 
     # Output
     cfg["WRT_FORCES_BREAKDOWN"] = "YES"

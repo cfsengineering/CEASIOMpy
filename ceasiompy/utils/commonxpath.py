@@ -29,6 +29,7 @@ WINGS_XPATH = "/cpacs/vehicles/aircraft/model/wings"
 PYLONS_XPATH = "/cpacs/vehicles/aircraft/model/enginePylons"
 ENGINES_XPATH = "/cpacs/vehicles/aircraft/model/engines"
 
+
 # analyses
 AEROPERFORMANCE_XPATH = "/cpacs/vehicles/aircraft/model/analyses/aeroPerformance"
 MASSBREAKDOWN_XPATH = "/cpacs/vehicles/aircraft/model/analyses/massBreakdown"
@@ -64,21 +65,35 @@ SU2MESH_XPATH = CEASIOMPY_XPATH + "/filesPath/su2Mesh"
 SUMOFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/sumoFilePath"
 WKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/wkdirPath"
 
-
 # GMSH
 
 # Propulsion
 TURBOPROP_XPATH = PROP_XPATH + "/turboprop"
 
 # SUMO
+SUMO_REFINE_LEVEL_XPATH = MESH_XPATH + "/sumoOptions/refinementLevel"
 SUMO_INCLUDE_PYLON_XPATH = CEASIOMPY_XPATH + "/engine/includePylon"
 SUMO_INCLUDE_ENGINE_XPATH = CEASIOMPY_XPATH + "/engine/includeEngine"
+
+# GMSH
+GMSH_XPATH = MESH_XPATH + "/gmshOptions"
+GMSH_OPEN_GUI_XPATH = GMSH_XPATH + "/open_gui"
+GMSH_SYMMETRY_XPATH = GMSH_XPATH + "/symmetry"
+GMSH_FARFIELD_FACTOR_XPATH = GMSH_XPATH + "/farfield_factor"
+GMSH_MESH_SIZE_FARFIELD_XPATH = GMSH_XPATH + "/mesh_size/farfield"
+GMSH_MESH_SIZE_FUSELAGE_XPATH = GMSH_XPATH + "/mesh_size/fuselage"
+GMSH_MESH_SIZE_WINGS_XPATH = GMSH_XPATH + "/mesh_size/wings"
+GMSH_REFINE_FACTOR_XPATH = GMSH_XPATH + "/refine_factor"
+GMSH_AUTO_REFINE_XPATH = GMSH_XPATH + "/auto_refine"
+GMSH_INTAKE_PERCENT_XPATH = GMSH_XPATH + "/intake_percent"
+GMSH_EXHAUST_PERCENT_XPATH = GMSH_XPATH + "/exhaust_percent"
 
 # SU2
 SU2_XPATH = CEASIOMPY_XPATH + "/aerodynamics/su2"
 SU2_AEROMAP_UID_XPATH = SU2_XPATH + "/aeroMapUID"
 SU2_NB_CPU_XPATH = SU2_XPATH + "/settings/nbCPU"
 SU2_EXTRACT_LOAD_XPATH = SU2_XPATH + "/results/extractLoads"
+SU2_UPDATE_WETTED_AREA_XPATH = SU2_XPATH + "/results/updateWettedArea"
 
 SU2_MAX_ITER_XPATH = SU2_XPATH + "/settings/maxIter"
 SU2_CFL_NB_XPATH = SU2_XPATH + "/settings/cflNumber"
@@ -96,10 +111,8 @@ SU2_ROTATION_RATE_XPATH = SU2_XPATH + "/options/rotationRate"
 SU2_CONTROL_SURF_XPATH = SU2_XPATH + "/options/calculateControlSurfacesDeflections"
 SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
 
-
 # RANGE
 RANGE_LD_RATIO_XPATH = CEASIOMPY_XPATH + "/ranges/lDRatio"
-
 
 # WEIGHT
 F_XPATH = "/cpacs/vehicles/fuels/fuel"  # TODO RENAME

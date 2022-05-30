@@ -23,10 +23,11 @@ TODO:
 from pathlib import Path
 
 from ambiance import Atmosphere
-from ceasiompy.SU2Run.func.su2utils import get_mesh_marker, get_su2_config_template
+from ceasiompy.SU2Run.func.su2utils import get_mesh_markers, get_su2_config_template
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import CONFIG_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.commonxpath import (
+    GMSH_SYMMETRY_XPATH,
     RANGE_XPATH,
     SU2_AEROMAP_UID_XPATH,
     SU2_BC_FARFIELD_XPATH,
@@ -90,14 +91,14 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         raise FileNotFoundError(f"SU2 mesh file {su2_mesh_path} not found")
 
     # Get Mesh Marker and save them in the CPACS file
-    bc_wall_list, engine_bc_list = get_mesh_marker(su2_mesh_path)
+    mesh_markers = get_mesh_markers(su2_mesh_path)
 
     create_branch(cpacs.tixi, SU2_BC_WALL_XPATH)
-    bc_wall_str = ";".join(bc_wall_list)
+    bc_wall_str = ";".join(mesh_markers["wall"])
     cpacs.tixi.updateTextElement(SU2_BC_WALL_XPATH, bc_wall_str)
 
     create_branch(cpacs.tixi, SU2_BC_FARFIELD_XPATH)
-    bc_farfiled_str = ";".join(engine_bc_list)
+    bc_farfiled_str = ";".join(mesh_markers["engine_intake"] + mesh_markers["engine_exhaust"])
     cpacs.tixi.updateTextElement(SU2_BC_FARFIELD_XPATH, bc_farfiled_str)
 
     # Fixed CL parameters
@@ -151,10 +152,16 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     su2_congig_template_path = get_su2_config_template()
     cfg = ConfigFile(su2_congig_template_path)
 
+    # Check if symmetry plane is defined (Default: False)
+    sym_factor = 1.0
+    if get_value_or_default(cpacs.tixi, GMSH_SYMMETRY_XPATH, False):
+        log.info("Symmetry plane is defined. The reference area will be divided by 2.")
+        sym_factor = 2.0
+
     # General parmeters
     cfg["RESTART_SOL"] = "NO"
     cfg["REF_LENGTH"] = cpacs.aircraft.ref_length
-    cfg["REF_AREA"] = cpacs.aircraft.ref_area
+    cfg["REF_AREA"] = cpacs.aircraft.ref_area / sym_factor
     cfg["REF_ORIGIN_MOMENT_X"] = cpacs.aircraft.ref_point_x
     cfg["REF_ORIGIN_MOMENT_Y"] = cpacs.aircraft.ref_point_y
     cfg["REF_ORIGIN_MOMENT_Z"] = cpacs.aircraft.ref_point_z
@@ -173,10 +180,13 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     # TODO: correct value for the 3 previous parameters ??
 
     # Mesh Marker
-    bc_wall_str = "(" + ",".join(bc_wall_list) + ")"
+    bc_wall_str = f"( {','.join(mesh_markers['wall'])} )"
     cfg["MARKER_EULER"] = bc_wall_str
-    cfg["MARKER_FAR"] = " (Farfield, " + ",".join(engine_bc_list) + ")"
-    cfg["MARKER_SYM"] = " (0)"  # TODO: maybe make that a variable?
+    farfield_bc = (
+        mesh_markers["farfield"] + mesh_markers["engine_intake"] + mesh_markers["engine_exhaust"]
+    )
+    cfg["MARKER_FAR"] = f"( {','.join(farfield_bc)} )"
+    cfg["MARKER_SYM"] = f"( {','.join(mesh_markers['symmetry'])} )"
     cfg["MARKER_PLOTTING"] = bc_wall_str
     cfg["MARKER_MONITORING"] = bc_wall_str
     cfg["MARKER_MOVING"] = "( NONE )"  # TODO: when do we need to define MARKER_MOVING?

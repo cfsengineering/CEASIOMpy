@@ -25,8 +25,8 @@ import shutil
 import subprocess
 from contextlib import contextmanager
 from pathlib import Path
+import sys
 from typing import List
-
 from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
@@ -172,8 +172,8 @@ def run_software(
     command_line += [install_path]
     command_line += arguments
 
-    # Use xvfb to run sumo to avoid problems with X11 on servers
-    if software_name in ["sumo", "dwfsumo"]:
+    # Use xvfb to run sumo to avoid problems with X11 (e.g. when running test on Github actions)
+    if software_name in ["sumo", "dwfsumo"] and sys.platform == "linux":
         command_line = ["xvfb-run"] + command_line
 
     log.info(f">>> Running {software_name} on {int(nb_cpu)} cpu(s)")
@@ -231,7 +231,7 @@ def aircraft_name(tixi_or_cpacs):
     return name
 
 
-def get_part_type(cpacs_path: Path, part_uid: str) -> str:
+def get_part_type(tixi, part_uid: str) -> str:
     """The function get the type of the aircraft from the cpacs file.
 
     Args:
@@ -243,8 +243,6 @@ def get_part_type(cpacs_path: Path, part_uid: str) -> str:
 
     """
 
-    tixi = open_tixi(cpacs_path)
-
     # split uid if mirrored part
     part_uid = part_uid.split("_mirrored")[0]
     part_xpath = tixi.uIDGetXPath(part_uid)
@@ -253,18 +251,51 @@ def get_part_type(cpacs_path: Path, part_uid: str) -> str:
         log.info(f"'{part_uid}' is a wing")
         return "wing"
 
-    if "fuselages/fuselage" in part_xpath:
+    elif "fuselages/fuselage" in part_xpath:
         log.info(f"'{part_uid}' is a fuselage")
         return "fuselage"
 
-    if "enginePylons/enginePylon" in part_xpath:
+    elif "enginePylons/enginePylon" in part_xpath:
         log.info(f"'{part_uid}' is a pylon")
         return "pylon"
 
-    # TODO: complete when engine/flaps are available with TiGL
+    elif "engine/nacelle/fanCowl" in part_xpath:
+        log.info(f"'{part_uid}' is a fanCowl")
+        return "fanCowl"
+
+    elif "engine/nacelle/centerCowl" in part_xpath:
+        log.info(f"'{part_uid}' is a centerCowl")
+        return "centerCowl"
+
+    elif "engine/nacelle/coreCowl" in part_xpath:
+        log.info(f"'{part_uid}' is a coreCowl")
+        return "coreCowl"
+
+    elif "vehicles/engines/engine" in part_xpath:
+        log.info(f"'{part_uid}' is an engine")
+        return "engine"
 
     log.warning(f"'{part_uid}' cannot be categorized!")
     return None
+
+
+def remove_file_type_in_dir(directory: Path, file_type_list: List[str]) -> None:
+    """Remove all files of a given type in a directory.
+
+    Args:
+        directory (Path): Path to the directory
+        file_type_list (List[str]): List of file types to remove.
+
+    """
+
+    if not directory.exists():
+        raise FileNotFoundError(f"The directory {directory} does not exist!")
+
+    for file in directory.iterdir():
+        if not file.is_file():
+            continue
+        if file.suffix in file_type_list:
+            file.unlink()
 
 
 # =================================================================================================

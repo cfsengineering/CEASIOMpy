@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
 from pathlib import Path
 
 from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
@@ -21,6 +19,7 @@ from ceasiompy.utils.commonxpath import (
     SU2_NB_CPU_XPATH,
     SU2_ROTATION_RATE_XPATH,
     SU2_TARGET_CL_XPATH,
+    SU2_UPDATE_WETTED_AREA_XPATH,
     SU2_XPATH,
     SU2MESH_XPATH,
 )
@@ -229,6 +228,18 @@ cpacs_inout.add_input(
     gui=True,
     gui_name="SU2 Mesh",
     gui_group="Inputs",
+)
+
+cpacs_inout.add_input(
+    var_name="update_wetted_area",
+    var_type=bool,
+    default_value=False,
+    unit="1",
+    descr="Option to update the wetted area from the latest SU2 result.",
+    xpath=SU2_UPDATE_WETTED_AREA_XPATH,
+    gui=True,
+    gui_name="Update Wetted Area",
+    gui_group="Results",
 )
 
 cpacs_inout.add_input(

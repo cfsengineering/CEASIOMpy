@@ -15,9 +15,9 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
 import re
 from pathlib import Path
@@ -30,24 +30,27 @@ from ceasiompy.utils.moduleinterfaces import get_module_path
 log = get_logger()
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
-def get_mesh_marker(su2_mesh_path):
+def get_mesh_markers(su2_mesh_path):
     """Function to get the name of all the SU2 mesh marker
 
-    Function 'get_mesh_marker' return all the SU2 mesh marker (except Farfield)
-    found in the SU2 mesh file.
+    Function 'get_mesh_markers' return a dictionary of the mesh markers found in the SU2 mesh file
+    sorted as farfield, symmetry, engine_intake, engine_exhaust, wall.
 
     Args:
         su2_mesh_path (Path):  Path to the SU2 mesh
+
+    Returns:
+        mesh_markers (dict): Dictionary of the mesh markers found in the SU2 mesh file
 
     """
 
@@ -57,33 +60,48 @@ def get_mesh_marker(su2_mesh_path):
     if not su2_mesh_path.suffix == ".su2":
         raise ValueError("The input must be SU2 mesh (*.su2)!")
 
+    mesh_markers = {
+        "farfield": [],
+        "symmetry": [],
+        "engine_intake": [],
+        "engine_exhaust": [],
+        "wall": [],
+    }
+
     with open(su2_mesh_path) as f:
         lines = f.readlines()
 
-    wall_marker_list = []
-    eng_bc_marker_list = []
-
     for line in lines:
-        if "MARKER_TAG" in line and "Farfield" not in line:
-            marker = line.split("=")[1].strip("\n").strip()
 
-            if marker.endswith("Intake") or marker.endswith("Exhaust"):
-                eng_bc_marker_list.append(marker)
-            else:
-                wall_marker_list.append(marker)
+        if "MARKER_TAG" not in line:
+            continue
 
-    if not wall_marker_list and not eng_bc_marker_list:
-        raise ValueError('No "MARKER_TAG" has been found in the mesh!')
+        marker = line.split("=")[1].strip()
 
-    log.info(f"{len(wall_marker_list)} wall BC have bend found:")
-    for marker in wall_marker_list:
-        log.info(f"  - {marker}")
+        if "farfield" in marker.lower():
+            mesh_markers["farfield"].append(marker)
+            log.info(f"'{marker}' marker has been marked as farfield.")
+        elif "symmetry" in marker.lower():
+            mesh_markers["symmetry"].append(marker)
+            log.info(f"'{marker}' marker has been marked as symmetry.")
+        elif marker.endswith("_Intake"):
+            mesh_markers["engine_intake"].append(marker)
+            log.info(f"'{marker}' marker has been marked as engine_intake.")
+        elif marker.endswith("_Exhaust"):
+            mesh_markers["engine_exhaust"].append(marker)
+            log.info(f"'{marker}' marker has been marked as engine_exhaust.")
+        else:
+            mesh_markers["wall"].append(marker)
+            log.info(f"'{marker}' marker has been marked as wall.")
 
-    log.info(f"{len(eng_bc_marker_list)} engine BC have bend found:")
-    for eng_marker in eng_bc_marker_list:
-        log.info(f"  - {eng_marker}")
+    if not any(mesh_markers.values()):
+        raise ValueError("No mesh markers found!")
 
-    return wall_marker_list, eng_bc_marker_list
+    for key, value in mesh_markers.items():
+        if not value:
+            mesh_markers[key] = ["None"]
+
+    return mesh_markers
 
 
 def get_su2_version():
@@ -253,12 +271,12 @@ def get_wetted_area(su2_logfile):
     return 0
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 
     print("Nothing to execute!")
-    print("You can use this module by importing:")
-    print("from ceasiompy.SU2Run.func.su2meshutils import get_mesh_marker")
+    print("You can use this module by importing for example:")
+    print("from ceasiompy.SU2Run.func.su2meshutils import get_mesh_markers")

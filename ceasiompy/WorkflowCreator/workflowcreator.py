@@ -69,7 +69,7 @@ class Tab(tk.Frame):
             label_optim = tk.Label(self, text="Optimisation method")
             label_optim.grid(column=0, row=0, columnspan=1, pady=10)
 
-            # The Combobox is directly use as the varaible
+            # The Combobox is directly use as the variable
             optim_choice = ["None", "DOE", "OPTIM"]
             self.optim_choice_CB = ttk.Combobox(self, values=optim_choice, width=15)
             self.optim_choice_CB.grid(column=4, row=row_pos)
@@ -215,7 +215,9 @@ class WorkFlowGUI(tk.Frame):
 
     def _browse_dir(self):
 
-        self.wkdir = filedialog.askdirectory(initialdir=WKDIR_PATH, title="Select a CPACS file")
+        self.wkdir = filedialog.askdirectory(
+            initialdir=WKDIR_PATH, title="Select a Working Directory"
+        )
         self.wkdir_path_var.set(self.wkdir)
 
     def _save_quit(self):
@@ -252,8 +254,8 @@ class WorkFlowGUI(tk.Frame):
 
             answer = messagebox.askokcancel(
                 title="Confirmation",
-                message="Be carefule a CEASIOMpy configuration file (.cfg) already exist in this"
-                " working directory, it will be overwriten!",
+                message="Be careful a CEASIOMpy configuration file (.cfg) already exist in this"
+                " working directory, it will be overwritten!",
                 icon=messagebox.WARNING,
             )
 

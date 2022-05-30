@@ -58,8 +58,7 @@ Apply a refinement on the leading and trailing edge of the aircraft wings. the e
 
 ## Limitations
 
-At the time of writing, this module is not able to handle aircraft with engine and control surfaces (they will not be modelled and thus appear in the final mesh).
-If the wing geometry of the CPACS model is not well defined or altered by the intersection of other aircraft parts, the leading and trailing edge refinement may not work completely. This can be avoided when the geometry of the aircraft is created by making sure that the wings profiles do not intersect other aircraft parts
+At the time of writing, this module is not able to handle aircraft with control surfaces (they will not be modelled and thus appear in the final mesh).
 
 ## More information
 

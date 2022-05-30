@@ -48,6 +48,7 @@ from ceasiompy.utils.moduleinterfaces import (
     get_tooloutput_file_path,
 )
 from ceasiompy.utils.WB.ConvGeometry import geometry
+from cpacspy.cpacspy import CPACS
 
 log = get_logger()
 
@@ -106,6 +107,8 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
         cpacs_out_path (str):Path to CPACS output file
 
     """
+
+    cpacs = CPACS(cpacs_path)
 
     # TODO: when refactor, use Pathlib and absolute path
     # Removing and recreating the ToolOutput folder.

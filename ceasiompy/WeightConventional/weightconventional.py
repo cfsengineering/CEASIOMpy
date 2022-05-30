@@ -35,7 +35,6 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonxpath import (
     F_XPATH,
     MASS_CARGO_XPATH,
-    MASS_CARGO_XPATH,
     TURBOPROP_XPATH,
     WB_MASS_LIMIT_XPATH,
     WB_DOUBLE_FLOOR_XPATH,

@@ -36,6 +36,7 @@ from pathlib import Path
 from ceasiompy.WeightConventional.func.weight_utils import PASSENGER_MASS, PILOT_NB
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 
+
 # TODO: should be done in a better way
 def output_txt(out, mw, ind, is_double_floor, max_payload, max_fuel_vol, fuel_density):
     """The function generates the output text file for the Weight analysis.

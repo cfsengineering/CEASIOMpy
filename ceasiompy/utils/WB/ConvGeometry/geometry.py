@@ -732,7 +732,8 @@ class AircraftGeometry:
         OutputTextFile.write(f"\nFuse tail Length [m]: {np.around(self.fuse_tail_length, 5)}")
         OutputTextFile.write(f"\nAircraft Length [m]: {np.around(self.tot_length, 5)}")
         OutputTextFile.write(
-            f"\nCircumference of each section of the fuselage [m]: \n{np.around(self.fuse_sec_circ, 5)}"
+            "\nCircumference of each section of the fuselage [m]:"
+            f"\n{np.around(self.fuse_sec_circ, 5)}"
         )
         OutputTextFile.write(
             "\nRelative distance of each section of the"

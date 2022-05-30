@@ -16,7 +16,7 @@ Python version: >=3.7
 #   IMPORTS
 # =============================================================================
 
-""" No imports """
+from ceasiompy.WeightConventional.func.weight_utils import PILOT_NB
 
 
 # =============================================================================
@@ -30,9 +30,6 @@ Python version: >=3.7
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
-
-
-from ceasiompy.WeightConventional.func.weight_utils import PILOT_NB
 
 
 def output_fuse_txt(fus_nb, FLOORS_NB, ed, out, mw, adui, awg, afg, NAME):

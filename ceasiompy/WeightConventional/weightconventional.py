@@ -25,6 +25,7 @@ TODO:
 from pathlib import Path
 
 import numpy as np
+from ceasiompy.WeightConventional.func.crewmembers import estimate_crew
 from ceasiompy.utils.InputClasses.Conventional.weightconvclass import (
     InsideDimensions,
     MassesWeights,
@@ -48,7 +49,7 @@ from ceasiompy.utils.moduleinterfaces import (
 )
 from ceasiompy.utils.WB.ConvGeometry import geometry
 from ceasiompy.WeightConventional.func.AoutFunc import cpacsweightupdate, outputweightgen
-from ceasiompy.WeightConventional.func.Crew.crewmembers import estimate_crew
+
 from ceasiompy.WeightConventional.func.Masses.mtom import estimate_mtom
 from ceasiompy.WeightConventional.func.Masses.oem import estimate_operating_empty_mass
 from ceasiompy.WeightConventional.func.Passengers.passengers import estimate_passengers
@@ -197,7 +198,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
         )
 
     out.crew_nb, out.cabin_crew_nb, masses.mass_crew = estimate_crew(
-        out.pass_nb, masses.maximum_take_off_mass
+        out.pass_nb, masses.mass_payload
     )
 
     masses.mass_payload = out.pass_nb * PASSENGER_MASS + mass_cargo

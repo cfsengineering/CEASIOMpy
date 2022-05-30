@@ -12,9 +12,9 @@ Python version: >=3.7
 
 """
 
-# =============================================================================
+# =================================================================================================
 #   IMPORTS
-# =============================================================================
+# =================================================================================================
 
 from ceasiompy.WeightConventional.func.weight_utils import CABIN_CREW_MASS, PILOT_MASS
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -22,12 +22,12 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger()
 
 
-# =============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# =============================================================================
+# =================================================================================================
 
 
-def estimate_crew(pass_nb, mtom, pilot_nb=2):
+def estimate_crew(pass_nb, payload, pilot_nb=2):
     """Function to evaluate the number of crew members on board.
 
     Source : https://www.gpo.gov/fdsys/pkg/CFR-2011-title14-vol3/xml/CFR-2011
@@ -36,9 +36,9 @@ def estimate_crew(pass_nb, mtom, pilot_nb=2):
     Args:
         pass_nb (integer) : Number of passengers [-]
         pilot_nb (integer) : Number of pilot, default set to 2 [-]
-        mtom (float): Maximum take-off mass [kg]
+        payload (float): Payload mass [kg]
 
-    Retrurns:
+    Returns:
         crew_nb (integer) : Number of total crew members [-]
         cabin_crew_nb (integer) : Number of cabin crew members [-]
         mass_crew (float): Total mass of crew members [kg]
@@ -49,29 +49,30 @@ def estimate_crew(pass_nb, mtom, pilot_nb=2):
         cabin_crew_nb = int(pass_nb / 50) + 1
     elif pass_nb >= 51:
         cabin_crew_nb = 2
-    elif pass_nb >= 19 and mtom <= 3400:
+    elif pass_nb >= 19 and payload <= 3400:
         cabin_crew_nb = 1
-    elif pass_nb >= 9 and mtom > 3400:
+    elif pass_nb >= 9 and payload > 3400:
         cabin_crew_nb = 1
     else:
         cabin_crew_nb = 0
 
     crew_nb = pilot_nb + cabin_crew_nb
-    log.info(" Crew members: " + str(crew_nb))
-    log.info(str(pilot_nb) + " pilots")
-    log.info(str(cabin_crew_nb) + " cabin crew members")
+
+    log.info(f"Crew members: {crew_nb}")
+    log.info(f"{pilot_nb} pilots")
+    log.info(f"{cabin_crew_nb} cabin crew members")
 
     mass_crew = round((pilot_nb * PILOT_MASS + cabin_crew_nb * CABIN_CREW_MASS), 3)
 
-    return (crew_nb, cabin_crew_nb, mass_crew)
+    log.info(f"Total mass of crew members: {mass_crew} [kg]")
+
+    return crew_nb, cabin_crew_nb, mass_crew
 
 
-# =============================================================================
+# =================================================================================================
 #   MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
 
-    print("###########################################################")
-    print("#### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ####")
-    print("###########################################################")
+    print("Nothing to execute!")

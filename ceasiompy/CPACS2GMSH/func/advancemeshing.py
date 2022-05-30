@@ -201,7 +201,7 @@ def refine_wing_section(
     Function to refine the trailing and leading edge of an wing section,
     2 field are created, a threshold and matheval field
 
-    The threshold field is used to keep the element on the wing to a maximum size of mesh_size_wing
+    The threshold field is used to keep the element on the wing to a maximum size of mesh_size_wings
 
     A Math eval field is used to define a refinement from the leading /or trailing edge of the wing
     with the following function:
@@ -218,7 +218,7 @@ def refine_wing_section(
         from the leading edge curve
 
     If the profile is truncated, the refinement for the trailing edge will be set such that
-    the value of the mesh size will match the distance between the two trailing edge curves
+    the value of the mesh size will match the 2 times distance between the two trailing edge curves
 
     Args:
     ----------
@@ -276,7 +276,8 @@ def refine_wing_section(
                 # Note this option in a lot of case gives a very high refinement
                 # factor , maybe only apply a small refinement on the te surface
                 # maybe a better idea  that change all the wing refinement factor
-                refine = mesh_size_wings / te_thickness
+
+                refine = 2 * mesh_size_wings / te_thickness
 
         # 1 : Math eval field
 

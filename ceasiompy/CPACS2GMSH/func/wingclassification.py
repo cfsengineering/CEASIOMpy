@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This script contains different functions to classify and manipulate wing elements
+This script contains diffrent functions to classify and manipulate wing elements
 
 Python version: >=3.7
 
@@ -101,7 +101,7 @@ def detect_truncated_profile(le_te_pair, line_comp1, line_comp2, line_comp3):
         list(set([line_comp1["line_tag"], line_comp2["line_tag"], line_comp3["line_tag"]]))
     )
 
-    # Check if the line ar not the same
+    # Check if the line are not the same
 
     if len(lines) != 3:
         return le_te_pair, False
@@ -239,7 +239,8 @@ def classify_wing(wing_part, aircraft_parts):
                     le_te_pair, _ = detect_truncated_profile(
                         le_te_pair, line_comp1, line_comp2, line_comp3
                     )
-
+    print(le_te_pair)
+    gmsh.fltk.run()
     # Classify pair of le/te lines in the wing part
     wing_part.wing_sections = []
     for le_te in le_te_pair:

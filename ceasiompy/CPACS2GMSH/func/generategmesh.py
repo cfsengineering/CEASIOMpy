@@ -710,15 +710,17 @@ def generate_gmsh(
 
     # Some parent may have no children (due to symmetry), we need to remove them
     unwanted_parents = []
-
     for parent in aircraft_parts:
 
         if parent.part_type == "rotor":
             # Control possible 2D children not removed by the fragment symmetry unwanted_children
             for dimtag in list(parent.children_dimtag):
                 try:  # check if the child exists in the model
-                    gmsh.model.getBoundingBox(*dimtag)
-                except:
+
+                    gmsh.model.getType(*dimtag)
+
+                except Exception:
+
                     # if not remove it from the parent
                     parent.children_dimtag.remove(dimtag)
 

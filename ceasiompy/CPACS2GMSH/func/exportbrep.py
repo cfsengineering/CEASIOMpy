@@ -27,8 +27,7 @@ from ceasiompy.CPACS2GMSH.func.engineconversion import engine_conversion
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
 from ceasiompy.utils.configfiles import ConfigFile
-import tigl3.configuration
-from tigl3 import tigl3wrapper
+
 from tigl3.import_export_helper import export_shapes
 
 log = get_logger()

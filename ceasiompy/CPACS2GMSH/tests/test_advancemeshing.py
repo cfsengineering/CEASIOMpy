@@ -249,9 +249,8 @@ def test_refine_wing_section():
     assert gmsh.model.mesh.field.getType(6) == "Restrict"
 
     # Check the restrict field is applied on the wing surfaces
-    surface_in_field = gmsh.model.mesh.field.getNumbers(6, "SurfacesList")
+    surface_in_field = sorted(gmsh.model.mesh.field.getNumbers(6, "SurfacesList"))
     correct_surface_in_field = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
-    print(surface_in_field)
     assert all(a == b for a, b in zip(surface_in_field, correct_surface_in_field))
 
     gmsh.clear()

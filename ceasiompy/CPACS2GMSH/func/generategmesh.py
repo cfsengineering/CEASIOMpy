@@ -378,7 +378,7 @@ def process_gmsh_log(gmsh_log):
     log.info(f"Total meshing time : {round(total_time, 2)}s")
 
 
-def add_disk_actuator(brep_dir, rotor_uid, radius, symmetry, trans_vector, rot_vector):
+def add_disk_actuator(brep_dir, config_file):
     """
     Function to create a 2D disk in a given location to represent a rotor as a
     disk actuator
@@ -388,57 +388,38 @@ def add_disk_actuator(brep_dir, rotor_uid, radius, symmetry, trans_vector, rot_v
     ----------
     brep_dir : Path
         path to the brep files of the aircraft that also contains the rotor config file
-    rotor_uid : str
-        uid of the rotor
-    radius : float
-        radius of the disk
-    symmetry : int
-        symmetry plane of the disk (2 = xz plane)
-    trans_vector : list
-        absolute position of the rotor
-    rot_vector : list
-        rotation to apply to the rotor in order to obtain the correct axis w.r.t the cpacs
+    config_file : Configfile
+        config file of the propellers configuration on the aircraft
 
     """
-    # Adding rotating disk
-    gmsh.initialize()
-    # generate the inlet_disk (gmsh always create a disk in the xy plane)
-    disk_tag = gmsh.model.occ.addDisk(*trans_vector, radius, radius)
-    disk_dimtag = (2, disk_tag)
 
-    # y axis 180deg flip to make the inlet of the disk face forward
-    gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 1, 0, np.radians(180))
-    gmsh.model.occ.synchronize()
+    nb_rotor = int(config_file["NB_ROTOR"])
 
-    # rotation given in the cpacs file
-    # x axis
-    gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 1, 0, 0, np.radians(rot_vector[0]))
-    # y axis
-    gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 1, 0, np.radians(rot_vector[1]))
-    # z axis
-    gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 0, 1, np.radians(rot_vector[2]))
+    for k in range(1, nb_rotor + 1):
+        # get the rotor configuration from cfg file
+        rotor_uid = config_file[f"UID_{k}"]
+        radius = float(config_file[f"{rotor_uid}_ROTOR_RADIUS"])
+        sym = int(config_file[f"{rotor_uid}_SYMMETRIC"])
+        trans_vector = (
+            float(config_file[f"{rotor_uid}_TRANS_X"]),
+            float(config_file[f"{rotor_uid}_TRANS_Y"]),
+            float(config_file[f"{rotor_uid}_TRANS_Z"]),
+        )
+        rot_vector = (
+            float(config_file[f"{rotor_uid}_ROT_X"]),
+            float(config_file[f"{rotor_uid}_ROT_Y"]),
+            float(config_file[f"{rotor_uid}_ROT_Z"]),
+        )
 
-    gmsh.model.occ.synchronize()
-
-    path_disk = Path(brep_dir, f"{rotor_uid}.brep")
-    gmsh.write(str(path_disk))
-
-    gmsh.clear()
-    gmsh.finalize()
-
-    if symmetry == 2:
-        # Adding the symmetric
+        # Adding rotating disk
         gmsh.initialize()
         # generate the inlet_disk (gmsh always create a disk in the xy plane)
         disk_tag = gmsh.model.occ.addDisk(*trans_vector, radius, radius)
         disk_dimtag = (2, disk_tag)
 
-        # y axis 180deg flip to make the inlet of the disk face forward is not necessary for
-        # the mirrored part, and for now the symmetry is not implemented correctly since
-        # the symmetry does not take into account the orientation of the rotor and the plane
-        # of symmetry is assume to be the xz plane
-        # When the face of the disk actuator are not oriented well the simulation shows
-        # increasing cd and will probably diverge
+        # y axis 180deg flip to make the inlet of the disk face forward
+        gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 1, 0, np.radians(180))
+        gmsh.model.occ.synchronize()
 
         # rotation given in the cpacs file
         # x axis
@@ -450,13 +431,43 @@ def add_disk_actuator(brep_dir, rotor_uid, radius, symmetry, trans_vector, rot_v
 
         gmsh.model.occ.synchronize()
 
-        gmsh.model.occ.mirror([disk_dimtag], 0, 1, 0, 0)
-        gmsh.model.occ.synchronize()
-        path_disk = Path(brep_dir, f"{rotor_uid}_mirrored.brep")
+        path_disk = Path(brep_dir, f"{rotor_uid}.brep")
         gmsh.write(str(path_disk))
 
         gmsh.clear()
         gmsh.finalize()
+
+        if sym == 2:
+            # Adding the symmetric
+            gmsh.initialize()
+            # generate the inlet_disk (gmsh always create a disk in the xy plane)
+            disk_tag = gmsh.model.occ.addDisk(*trans_vector, radius, radius)
+            disk_dimtag = (2, disk_tag)
+
+            # y axis 180deg flip to make the inlet of the disk face forward is not necessary for
+            # the mirrored part, and for now the symmetry is not implemented correctly since
+            # the symmetry does not take into account the orientation of the rotor and the plane
+            # of symmetry is assume to be the xz plane
+            # When the face of the disk actuator are not oriented well the simulation shows
+            # increasing cd and will probably diverge
+
+            # rotation given in the cpacs file
+            # x axis
+            gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 1, 0, 0, np.radians(rot_vector[0]))
+            # y axis
+            gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 1, 0, np.radians(rot_vector[1]))
+            # z axis
+            gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 0, 1, np.radians(rot_vector[2]))
+
+            gmsh.model.occ.synchronize()
+
+            gmsh.model.occ.mirror([disk_dimtag], 0, 1, 0, 0)
+            gmsh.model.occ.synchronize()
+            path_disk = Path(brep_dir, f"{rotor_uid}_mirrored.brep")
+            gmsh.write(str(path_disk))
+
+            gmsh.clear()
+            gmsh.finalize()
 
 
 def duplicate_disk_actuator_surfaces(part):
@@ -473,6 +484,7 @@ def duplicate_disk_actuator_surfaces(part):
     if len(part.physical_groups) > 1:
         # raise error since disk actuator can only have one surface before duplicating
         raise ValueError("Disk actuator can only have one surface")
+
     gmsh.plugin.setNumber("Crack", "Dimension", 2)
     gmsh.plugin.setNumber("Crack", "PhysicalGroup", part.physical_groups[0])
     # find the last physical group tag
@@ -480,7 +492,7 @@ def duplicate_disk_actuator_surfaces(part):
     gmsh.plugin.setNumber("Crack", "NewPhysicalGroup", new_tag)
 
     # Set the new physical group for the back surface
-    gmsh.model.setPhysicalName(2, new_tag, f"{part.uid}_back")
+    gmsh.model.setPhysicalName(2, new_tag, f"{part.uid}_AD_Outlet")
     gmsh.plugin.run("Crack")
 
 
@@ -555,29 +567,7 @@ def generate_gmsh(
     if rotor_model:
         log.info("Adding disk actuator")
         config_file = ConfigFile(Path(brep_dir, "config_rotors.cfg"))
-        nb_rotor = int(config_file["NB_ROTOR"])
-
-        for k in range(1, nb_rotor + 1):
-            # get the rotor configuration from cfg file
-            rotor_uid = config_file[f"UID_{k}"]
-            radius = float(config_file[f"{rotor_uid}_ROTOR_RADIUS"])
-            sym = int(config_file[f"{rotor_uid}_SYMMETRIC"])
-            trans_x = float(config_file[f"{rotor_uid}_TRANS_X"])
-            trans_y = float(config_file[f"{rotor_uid}_TRANS_Y"])
-            trans_z = float(config_file[f"{rotor_uid}_TRANS_Z"])
-            rot_x = float(config_file[f"{rotor_uid}_ROT_X"])
-            rot_y = float(config_file[f"{rotor_uid}_ROT_Y"])
-            rot_z = float(config_file[f"{rotor_uid}_ROT_Z"])
-
-            # add disk actuator
-            add_disk_actuator(
-                brep_dir,
-                rotor_uid,
-                radius,
-                sym,
-                (trans_x, trans_y, trans_z),
-                (rot_x, rot_y, rot_z),
-            )
+        add_disk_actuator(brep_dir, config_file)
 
     # Retrieve all brep
     brep_files = list(brep_dir.glob("*.brep"))
@@ -812,7 +802,10 @@ def generate_gmsh(
             define_engine_bc(part, brep_dir)
         else:
             surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
-            gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
+            if part.part_type == "rotor":
+                gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}_AD_Inlet")
+            else:
+                gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
             part.physical_groups.append(surfaces_group)
 
     log.info("Model has been cleaned")

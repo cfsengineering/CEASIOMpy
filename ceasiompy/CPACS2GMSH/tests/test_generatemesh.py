@@ -223,7 +223,7 @@ def test_assignation():
     wing1_child = set([(3, 3)])
     wing1_volume_tag = [3]
     wing1_surfaces_tags = [5, 6, 7, 12, 13, 14, 19]
-    wing1_lines_tags = [32, 33, 34, 7, 8, 9, 15, 16, 17, 18, 19, 20, 29, 30, 31]
+    wing1_lines_tags = [7, 8, 9, 15, 16, 17, 18, 19, 20, 29, 30, 31, 32, 33, 34]
     wing1_points_tags = [5, 6, 7, 12, 13, 14, 19, 20, 21]
 
     for part in aircraft_parts:

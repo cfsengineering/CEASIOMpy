@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This script contains diffrent functions to classify and manipulate wing elements
+This script contains different functions to classify and manipulate wing elements
 
 Python version: >=3.7
 
@@ -32,7 +32,7 @@ import numpy as np
 
 def detect_normal_profile(le_te_pair, line_comp1, line_comp2):
     """
-    Function to detect leadind and trailing edge lines for normal profile (not truncated)
+    Function to detect leading and trailing edge lines for normal profile (not truncated)
     le/te lines are linked by the two same surfaces
     ...
 
@@ -78,7 +78,7 @@ def detect_normal_profile(le_te_pair, line_comp1, line_comp2):
 
 def detect_truncated_profile(le_te_pair, line_comp1, line_comp2, line_comp3):
     """
-    Function to detect leadind and trailing edge lines for truncated profile
+    Function to detect leading and trailing edge lines for truncated profile
     le/te lines are linked by shared surfaces
     ...
 
@@ -101,7 +101,7 @@ def detect_truncated_profile(le_te_pair, line_comp1, line_comp2, line_comp3):
         list(set([line_comp1["line_tag"], line_comp2["line_tag"], line_comp3["line_tag"]]))
     )
 
-    # Check if the line ar not the same
+    # Check if the line are not the same
 
     if len(lines) != 3:
         return le_te_pair, False

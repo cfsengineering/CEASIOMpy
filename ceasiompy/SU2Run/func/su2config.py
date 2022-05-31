@@ -236,6 +236,9 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         cfg["ACTDISK_TYPE"] = "VARIABLE_LOAD"
         cfg["ACTDISK_FILENAME"] = ACTUATOR_DISK_FILE_NAME
 
+        # Multi grid diverges when there is a disk actuator
+        cfg["MGLEVEL"] = 0
+
         actdisk_markers = []
 
         f = open(actuator_disk_file, "w")
@@ -263,7 +266,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             center.append(rotor_uid_pos[uid][2])
 
             # TODO: get the axis by applying the rotation matrix
-            axis = (sym * 1.0, 0.0, 0.0)
+            axis = (1.0, 0.0, 0.0)
             radius = rotor_uid_pos[uid][3]
 
             actdisk_markers.append(maker_inlet)

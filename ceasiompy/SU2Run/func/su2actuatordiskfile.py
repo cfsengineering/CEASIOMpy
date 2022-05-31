@@ -5,6 +5,9 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Functions to generate the actuator disk file for SU2.
 
+Source: https://github.com/su2code/SU2/blob/master/TestCases/rans/
+        actuatordisk_variable_load/ActuatorDisk.dat
+
 Python version: >=3.7
 
 | Author : Aidan Jungo

@@ -261,13 +261,13 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
                 sym = 1
 
             center = [] * 3
-            center.append(rotor_uid_pos[uid][0])
-            center.append(sym * rotor_uid_pos[uid][1])
-            center.append(rotor_uid_pos[uid][2])
+            center.append(round(rotor_uid_pos[uid][0], 5))
+            center.append(round(sym * rotor_uid_pos[uid][1], 5))
+            center.append(round(rotor_uid_pos[uid][2], 5))
 
             # TODO: get the axis by applying the rotation matrix
             axis = (1.0, 0.0, 0.0)
-            radius = rotor_uid_pos[uid][3]
+            radius = round(rotor_uid_pos[uid][3],5)
 
             actdisk_markers.append(maker_inlet)
             actdisk_markers.append(marker_outlet)

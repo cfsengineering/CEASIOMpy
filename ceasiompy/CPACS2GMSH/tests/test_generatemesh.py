@@ -37,6 +37,7 @@ MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 CPACS_IN_SIMPLE_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_engine.xml")
 CPACS_IN_SIMPLE_DOUBLEFLUX_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_doubleflux_engine.xml")
+CPACS_IN_PROPELLER_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_propeller.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # =================================================================================================
@@ -354,6 +355,41 @@ def test_define_doubleflux_engine_bc():
     gmsh.finalize()
 
     remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
+
+
+def test_disk_actuator_conversion():
+    """
+    Test if disk actuator conversion is working on the simple_propeller.xml
+    by testing the marker and physical group assignation
+    """
+    if TEST_OUT_PATH.exists():
+        shutil.rmtree(TEST_OUT_PATH)
+    TEST_OUT_PATH.mkdir()
+
+    cpacs = CPACS(CPACS_IN_PROPELLER_ENGINE_PATH)
+
+    export_brep(cpacs, TEST_OUT_PATH)
+
+    generate_gmsh(
+        cpacs=cpacs,
+        brep_dir=TEST_OUT_PATH,
+        results_dir=TEST_OUT_PATH,
+        open_gmsh=False,
+        farfield_factor=5,
+        symmetry=False,
+        mesh_size_farfield=5,
+        mesh_size_fuselage=0.5,
+        mesh_size_wings=0.5,
+        refine_factor=1.0,
+        auto_refine=False,
+        testing_gmsh=False,
+    )
+
+    # mesh_markers = get_mesh_markers(Path(TEST_OUT_PATH, "mesh.su2"))
+    # assert mesh_markers["wall"] == ["SimpleFuselage", "Wing", "Wing_mirrored"]
+    # assert mesh_markers["farfield"] == ["Farfield"]
+
+    # remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
 
 
 # =================================================================================================

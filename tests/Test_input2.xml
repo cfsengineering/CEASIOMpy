@@ -1303,11 +1303,13 @@
                 <gmshOptions>
                     <open_gui>False</open_gui>
                     <symmetry>True</symmetry>
-                    <farfield_factor>6.0</farfield_factor>
+                    <farfield_factor>8.0</farfield_factor>
                     <mesh_size>
-                        <farfield>25.0</farfield>
+                        <farfield>6.0</farfield>
                         <fuselage>0.12</fuselage>
                         <wings>0.08</wings>
+                        <engines>0.06</engines>
+                        <propellers>0.05</propellers>
                     </mesh_size>
                     <refine_factor>3.0</refine_factor>
                     <auto_refine>True</auto_refine>

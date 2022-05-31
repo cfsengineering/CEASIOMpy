@@ -22,7 +22,6 @@ TODO:
 # ====================================================================================================================
 
 import shutil
-import sys
 from pathlib import Path
 
 import pytest
@@ -98,23 +97,10 @@ def test_integration_3():
     assert workflow_ends()
 
 
-# @pytest.mark.slow
-# @pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
-# @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
-# def test_integration_4():
-
-#     modules_to_run = ["CPACS2GMSH", "SU2Run"]
-
-#     with change_working_dir(WORKFLOW_TEST_DIR):
-#         run_modules_list([str(CPACS_IN_PATH), *modules_to_run])
-
-#     assert workflow_ends()
-
-
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
-def test_integration_5():
+def test_integration_4():
 
     modules_to_run = ["CPACS2GMSH", "SU2Run"]
 
@@ -126,7 +112,7 @@ def test_integration_5():
 
 @pytest.mark.gui
 @pytest.mark.skipif(not shutil.which("pytornado"), reason="PyTornado not installed")
-def test_integration_6():
+def test_integration_5():
     """Integration test for module with GUI, requiring a user interaction"""
 
     modules_to_run = ["CPACSCreator", "SettingsGUI", "PyTornado", "PlotAeroCoefficients"]

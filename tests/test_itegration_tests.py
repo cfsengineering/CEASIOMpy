@@ -98,17 +98,17 @@ def test_integration_3():
     assert workflow_ends()
 
 
-@pytest.mark.slow
-@pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
-@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
-def test_integration_4():
+# @pytest.mark.slow
+# @pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
+# @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
+# def test_integration_4():
 
-    modules_to_run = ["CPACS2GMSH", "SU2Run"]
+#     modules_to_run = ["CPACS2GMSH", "SU2Run"]
 
-    with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_PATH), *modules_to_run])
+#     with change_working_dir(WORKFLOW_TEST_DIR):
+#         run_modules_list([str(CPACS_IN_PATH), *modules_to_run])
 
-    assert workflow_ends()
+#     assert workflow_ends()
 
 
 @pytest.mark.slow

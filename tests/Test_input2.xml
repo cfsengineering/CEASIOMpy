@@ -1302,15 +1302,17 @@
             <mesh>
                 <gmshOptions>
                     <open_gui>False</open_gui>
-                    <farfield_factor>5</farfield_factor>
-                    <symmetry>False</symmetry>
+                    <symmetry>True</symmetry>
+                    <farfield_factor>6.0</farfield_factor>
                     <mesh_size>
-                        <farfield>20</farfield>
+                        <farfield>25.0</farfield>
                         <fuselage>0.12</fuselage>
                         <wings>0.08</wings>
                     </mesh_size>
                     <refine_factor>3.0</refine_factor>
-                    <auto_refine>False</auto_refine>
+                    <auto_refine>True</auto_refine>
+                    <intake_percent>20.0</intake_percent>
+                    <exhaust_percent>25.0</exhaust_percent>
                 </gmshOptions>
             </mesh>
         </CEASIOMpy>

@@ -565,15 +565,6 @@ def generate_gmsh(
         List of the aircraft parts in the model
 
     """
-    open_gmsh = True
-    farfield_factor = 5
-    symmetry = True
-    mesh_size_farfield = 5
-    mesh_size_fuselage = 0.01
-    mesh_size_wings = 0.01
-    refine_factor = 1
-    auto_refine = False
-    testing_gmsh = False
 
     # Determine if rotor are present in the aircraft model
     rotor_model = False

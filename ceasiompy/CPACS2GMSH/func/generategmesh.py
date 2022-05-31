@@ -14,8 +14,15 @@ Python version: >=3.7
 
 TODO:
 
-    - Make add to ModelPart the mesh size and mesh color
-    - Add the possibility to change the symmetry plane orientation
+    - It may be good to move all the function and some of the code in generategmsh()
+    that are related to disk actuator to another python script and import it here
+
+    - It may be better to propose more options for the mesh size of the different
+    part (pylon,engine,rotor)
+
+    - Add a boolean to deactivate the refinement factor according to the thickness of the
+    truncated te of the wings. This options often create very small meshes and is not
+    always required.
 
 """
 
@@ -33,8 +40,7 @@ import numpy as np
 
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
-    set_farfield_mesh,
-    set_fuselage_mesh,
+    set_domain_mesh,
     refine_small_surfaces,
     min_fields,
 )
@@ -579,8 +585,6 @@ def generate_gmsh(
     gmsh.option.setNumber("General.Terminal", 0)
     # Log complexity
     gmsh.option.setNumber("General.Verbosity", 5)
-    # use better precision for occ bounds
-    gmsh.option.setNumber("Geometry.OCCBoundsUseStl", 1)
 
     # Import each aircraft original parts / parent parts
     aircraft_parts = []
@@ -613,7 +617,8 @@ def generate_gmsh(
     ]
     model_center = [
         model_bb[0] + model_dimensions[0] / 2,
-        model_bb[1] + model_dimensions[1] / 2,
+        0,  # the y coordinate is set to zero because sometimes (when act disk
+        # actuator is present) the coordinate of the model is not exact
         model_bb[2] + model_dimensions[2] / 2,
     ]
 
@@ -900,11 +905,9 @@ def generate_gmsh(
                     mesh_size_wings,
                     refine=refine_factor,
                 )
-            elif part.part_type == "fuselage":
-                set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
 
-        # Farfield and domain refinement
-        set_farfield_mesh(
+        # Domain mesh
+        set_domain_mesh(
             mesh_fields,
             aircraft_parts,
             mesh_size_farfield,

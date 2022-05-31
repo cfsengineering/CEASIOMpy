@@ -11,10 +11,10 @@ Python version: >=3.7
 | Creation: 2022-04-05
 
 TODO:
-    - Add for a a wing the surfaces of the fuselage that are touching the wing
-    thus a refinement of the fuselage near the wing can be done
-    by making extra fields restricted to those surfaces with the maxmeshsize of
-    the fuselage
+    - The wing classification of untruncated profile may sometimes detect the wrong le/te
+    This is due to other parts (like pylon) cutting the wing geometry, this lead to over-
+    refinement of some part of the wings. It may be possible to add more constraint to the
+    function detect_normal_profile() in order to prevent this.
 """
 
 

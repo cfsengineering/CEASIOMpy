@@ -507,12 +507,15 @@ def generate_gmsh(
     brep_dir,
     results_dir,
     open_gmsh=False,
-    farfield_factor=5,
+    farfield_factor=6,
     symmetry=False,
-    mesh_size_farfield=12,
-    mesh_size_fuselage=0.2,
-    mesh_size_wings=0.2,
-    refine_factor=4,
+    mesh_size_farfield=25,
+    mesh_size_fuselage=0.4,
+    mesh_size_wings=0.23,
+    mesh_size_engines=0.23,
+    mesh_size_propellers=0.23,
+    refine_factor=7,
+    refine_truncated=False,
     auto_refine=True,
     testing_gmsh=False,
 ):
@@ -546,10 +549,16 @@ def generate_gmsh(
         Size of the fuselage mesh
     mesh_size_wings : float
         Size of the wing mesh
+    mesh_size_engines : float
+        Size of the engine mesh
+    mesh_size_propellers : float
+        Size of the propeller mesh
     advance_mesh : bool
         If set to true, the mesh will be generated with advanced meshing options
-    refine_factor : int
+    refine_factor : float
         refine factor for the mesh le and te edge
+    refine_truncated : bool
+        If set to true, the refinement can change to match the truncated te thickness
     auto_refine : bool
         If set to true, the mesh will be checked for quality
     testing_gmsh : bool
@@ -872,8 +881,16 @@ def generate_gmsh(
             part.mesh_size = mesh_size_fuselage
             gmsh.model.mesh.setSize(part.points, part.mesh_size)
             gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
-        elif part.part_type in ["wing", "pylon", "nacelle", "engine", "rotor"]:
+        elif part.part_type in ["wing", "pylon"]:
             part.mesh_size = mesh_size_wings
+            gmsh.model.mesh.setSize(part.points, part.mesh_size)
+            gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
+        elif part.part_type == "engine":
+            part.mesh_size = mesh_size_engines
+            gmsh.model.mesh.setSize(part.points, part.mesh_size)
+            gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
+        elif part.part_type == "rotor":
+            part.mesh_size = mesh_size_propellers
             gmsh.model.mesh.setSize(part.points, part.mesh_size)
             gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
 
@@ -904,6 +921,7 @@ def generate_gmsh(
                     part,
                     mesh_size_wings,
                     refine=refine_factor,
+                    refine_truncated=refine_truncated,
                 )
 
         # Domain mesh

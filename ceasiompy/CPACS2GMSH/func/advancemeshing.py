@@ -192,6 +192,7 @@ def refine_wing_section(
     wing_part,
     mesh_size_wings,
     refine,
+    refine_truncated,
     chord_percent=0.25,
     n_power=2,
 ):
@@ -235,6 +236,8 @@ def refine_wing_section(
         wing_section to refine
     refine : float
         refinement factor for the le/te edge
+    refine_truncated : bool
+        if the wing is truncated, the trailing edge will be refined to match the te thickness
     chord_percent : float
         percentage of the chord to refine from le/te edge
     ...
@@ -269,13 +272,9 @@ def refine_wing_section(
             te_thickness = min(d12, d13, d23)
 
             # Overwrite the trailing edge refinement
-            if mesh_size_wings / te_thickness > refine:
+            if (mesh_size_wings / te_thickness > refine) and refine_truncated:
 
-                # Note this option in a lot of case gives a very high refinement
-                # factor , maybe only apply a small refinement on the te surface
-                # maybe a better idea  that change all the wing refinement factor
-
-                refine = 2 * mesh_size_wings / te_thickness
+                refine = mesh_size_wings / te_thickness
 
         # 1 : Math eval field
 
@@ -390,6 +389,7 @@ def set_domain_mesh(
             f"{part.mesh_size} + ({mesh_size_farfield} - {part.mesh_size})*"
             f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power}",
         )
+        mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
 
         # 2 : Threshold field for constant mesh on the part surface
 
@@ -398,21 +398,23 @@ def set_domain_mesh(
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", part.mesh_size)
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", part.mesh_size)
+        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", part.mesh_size * 0.9)
 
         mesh_fields = restrict_fields(mesh_fields, 2, part.surfaces_tags)
 
-    # 3 : Threshold field for the farfield surface
+        # 3 : Threshold field for the farfield surface
 
-    # Create the threshold field
-    mesh_fields["nbfields"] += 1
-    gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
+        # Create the threshold field
+        mesh_fields["nbfields"] += 1
+        gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
+        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
 
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_farfield)
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_farfield)
+        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_farfield)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "SizeMin", mesh_size_farfield * 0.9
+        )
 
-    mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
+        mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
 
 
 def refine_small_surfaces(

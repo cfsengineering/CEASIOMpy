@@ -35,16 +35,20 @@ Enable to control the spherical domain size. The fluid domain surrounding the ai
 
 Mesh size:
 
-* `Farfield mesh size : 25.0` Mesh size of the farfield surface
-* `Fuselage mesh size : 0.4` Mesh size of the fuselage surface
-* `Wings mesh size : 0.23` Mesh size of the wings surface
+* `Farfield : 25.0` Mesh size of the farfield surfaces
+* `Fuselage : 0.4` Mesh size of the fuselage surfaces
+* `Wings : 0.23` Mesh size of the wings surfaces
+* `Engines : 0.23` Mesh size of the engines surfaces
+* `Propellers : 0.23` Mesh size of the propellers surfaces
 
 :warning: The mesh size values are unitless. They are consistent with the aircraft dimensions units
 
 Advanced mesh parameters :
 
-* `Le/Te refinement factor : 7.0`
+* `LE/TE refinement factor : 7.0`
 Apply a refinement on the leading and trailing edge of the aircraft wings. the element size at the le/te will be set to the wing mesh size divided by the refinement factor. This refinement decay according to a power law from the edge to 30% of the wing section cord length, where the mesh size is the wing's one.
+* `Refine truncated TE : False`
+For truncated wing profile, automatically adjust the LE/TE refinement factor such that the mesh size at the TE match the truncated TE thickness .
 * `Auto refine : True`
 Apply an automatic refinement of surfaces which are small compare to a mesh element. :warning: With this option activated, the surface mesh generation maybe done two times, which increasing the total meshing time.
 

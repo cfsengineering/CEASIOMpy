@@ -10,6 +10,9 @@ Python version: >=3.7
 | Author: Tony Govoni
 | Creation: 2022-05-12
 
+TODO:
+    - When TIGL new version is incorporated, check all the function of this script
+    and make the modification written in the function docstring
 """
 
 

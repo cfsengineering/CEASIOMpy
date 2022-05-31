@@ -12,10 +12,9 @@ Python version: >=3.7
 
 TODO:
 
-    -Do something better with the background field for the farfield volume
-    -Add all the box /farfield/ skin parameter tunable in an advance mesh GUI?
-    -get each part its bounding box and use it to define field box for each part
-    -add a function to define many boxes with a decreasing mesh size
+    -Add a parameter to let the user tune the powerlaw governing the mesh
+    in the fluid domaine and the powerlaw for the wing surface mesh
+
 
 """
 

@@ -12,8 +12,8 @@ Python version: >=3.7
 
 TODO:
 
-    - Handle engine position correctly
-
+    - When TIGL new version is incorporated, function like get_uid may change for
+    get_object_uid
 """
 
 

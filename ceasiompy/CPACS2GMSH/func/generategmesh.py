@@ -14,8 +14,15 @@ Python version: >=3.7
 
 TODO:
 
-    - Make add to ModelPart the mesh size and mesh color
-    - Add the possibility to change the symmetry plane orientation
+    - It may be good to move all the function and some of the code in generategmsh()
+    that are related to disk actuator to another python script and import it here
+
+    - It may be better to propose more options for the mesh size of the different
+    part (pylon,engine,rotor)
+
+    - Add a boolean to deactivate the refinement factor according to the thickness of the
+    truncated te of the wings. This options often create very small meshes and is not
+    always required.
 
 """
 
@@ -558,6 +565,15 @@ def generate_gmsh(
         List of the aircraft parts in the model
 
     """
+    open_gmsh = True
+    farfield_factor = 5
+    symmetry = True
+    mesh_size_farfield = 5
+    mesh_size_fuselage = 0.01
+    mesh_size_wings = 0.01
+    refine_factor = 1
+    auto_refine = False
+    testing_gmsh = False
 
     # Determine if rotor are present in the aircraft model
     rotor_model = False
@@ -579,8 +595,6 @@ def generate_gmsh(
     gmsh.option.setNumber("General.Terminal", 0)
     # Log complexity
     gmsh.option.setNumber("General.Verbosity", 5)
-    # use better precision for occ bounds
-    gmsh.option.setNumber("Geometry.OCCBoundsUseStl", 1)
 
     # Import each aircraft original parts / parent parts
     aircraft_parts = []
@@ -613,7 +627,8 @@ def generate_gmsh(
     ]
     model_center = [
         model_bb[0] + model_dimensions[0] / 2,
-        model_bb[1] + model_dimensions[1] / 2,
+        0,  # the y coordinate is set to zero because sometimes (when act disk
+        # actuator is present) the coordinate of the model is not exact
         model_bb[2] + model_dimensions[2] / 2,
     ]
 

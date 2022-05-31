@@ -502,6 +502,42 @@ def duplicate_disk_actuator_surfaces(part):
     gmsh.plugin.run("Crack")
 
 
+def control_disk_act_normal():
+    """
+    Function to control the surface orientation of disk actuator in the model
+    ...
+
+    """
+
+    # get the physical groups list
+    physical_groups = gmsh.model.getPhysicalGroups(dim=2)
+    physical_groups_name = [gmsh.model.getPhysicalName(*group) for group in physical_groups]
+
+    inlet_group = [
+        group for group in physical_groups if "_AD_Inlet" in gmsh.model.getPhysicalName(*group)
+    ]
+
+    # check normal orientation of the surface
+    for group in inlet_group:
+        surface_tag = gmsh.model.getEntitiesForPhysicalGroup(*group)
+        surface_dimtag = (2, *surface_tag)
+        surface_center = gmsh.model.occ.getCenterOfMass(*surface_dimtag)
+        parametric_coord = gmsh.model.getParametrization(*surface_dimtag, list(surface_center))
+
+        normal = gmsh.model.getNormal(surface_dimtag[1], parametric_coord)
+
+        print("inlet x", normal)
+
+        if normal[0] < 0:
+            # reverse the group inlet and outlet
+            group_name = gmsh.model.getPhysicalName(*group).split("_AD_Inlet")[0]
+            outlet_group = physical_groups[physical_groups_name.index(group_name + "_AD_Outlet")]
+
+            # inverse
+            gmsh.model.setPhysicalName(*group, group_name + "_AD_Outlet")
+            gmsh.model.setPhysicalName(*outlet_group, group_name + "_AD_Inlet")
+
+
 def generate_gmsh(
     cpacs,
     brep_dir,
@@ -1010,6 +1046,9 @@ def generate_gmsh(
 
         # option to use when duplicating disk actuator surfaces
         gmsh.option.setNumber("Mesh.SaveAll", 1)
+
+        # Control surface orientation
+        control_disk_act_normal()
 
     su2mesh_path = Path(results_dir, "mesh.su2")
     gmsh.write(str(su2mesh_path))

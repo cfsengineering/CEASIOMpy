@@ -225,8 +225,11 @@ def test_refine_wing_section():
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
+        mesh_size_engines=0.5,
+        mesh_size_propellers=0.5,
         symmetry=False,
         refine_factor=2.0,
+        refine_truncated=False,
         auto_refine=False,
         testing_gmsh=True,
     )
@@ -280,8 +283,11 @@ def test_auto_refine():
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
+        mesh_size_engines=0.5,
+        mesh_size_propellers=0.5,
         symmetry=False,
         refine_factor=2.0,
+        refine_truncated=False,
         auto_refine=True,
         testing_gmsh=True,
     )

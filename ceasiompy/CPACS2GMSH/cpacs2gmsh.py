@@ -37,8 +37,11 @@ from ceasiompy.utils.commonxpath import (
     GMSH_MESH_SIZE_FARFIELD_XPATH,
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_WINGS_XPATH,
+    GMSH_MESH_SIZE_ENGINES_XPATH,
+    GMSH_MESH_SIZE_PROPELLERS_XPATH,
     GMSH_OPEN_GUI_XPATH,
     GMSH_REFINE_FACTOR_XPATH,
+    GMSH_REFINE_TRUNCATED_XPATH,
     GMSH_SYMMETRY_XPATH,
     SU2MESH_XPATH,
 )
@@ -78,7 +81,10 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     mesh_size_farfield = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FARFIELD_XPATH, 25)
     mesh_size_fuselage = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH, 0.4)
     mesh_size_wings = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_WINGS_XPATH, 0.23)
+    mesh_size_engines = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_ENGINES_XPATH, 0.23)
+    mesh_size_propellers = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_PROPELLERS_XPATH, 0.23)
     refine_factor = get_value_or_default(cpacs.tixi, GMSH_REFINE_FACTOR_XPATH, 7.0)
+    refine_truncated = get_value_or_default(cpacs.tixi, GMSH_REFINE_TRUNCATED_XPATH, False)
     auto_refine = get_value_or_default(cpacs.tixi, GMSH_AUTO_REFINE_XPATH, True)
     intake_percent = get_value_or_default(cpacs.tixi, GMSH_INTAKE_PERCENT_XPATH, 20)
     exhaust_percent = get_value_or_default(cpacs.tixi, GMSH_EXHAUST_PERCENT_XPATH, 20)
@@ -95,7 +101,10 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         mesh_size_farfield=mesh_size_farfield,
         mesh_size_fuselage=mesh_size_fuselage,
         mesh_size_wings=mesh_size_wings,
+        mesh_size_engines=mesh_size_engines,
+        mesh_size_propellers=mesh_size_propellers,
         refine_factor=refine_factor,
+        refine_truncated=refine_truncated,
         auto_refine=auto_refine,
         testing_gmsh=False,
     )

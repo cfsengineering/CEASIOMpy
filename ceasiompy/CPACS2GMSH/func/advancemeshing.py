@@ -192,6 +192,7 @@ def refine_wing_section(
     wing_part,
     mesh_size_wings,
     refine,
+    refine_truncated,
     chord_percent=0.25,
     n_power=2,
 ):
@@ -235,6 +236,8 @@ def refine_wing_section(
         wing_section to refine
     refine : float
         refinement factor for the le/te edge
+    refine_truncated : bool
+        if the wing is truncated, the trailing edge will be refined to match the te thickness
     chord_percent : float
         percentage of the chord to refine from le/te edge
     ...
@@ -269,13 +272,9 @@ def refine_wing_section(
             te_thickness = min(d12, d13, d23)
 
             # Overwrite the trailing edge refinement
-            if mesh_size_wings / te_thickness > refine:
+            if (mesh_size_wings / te_thickness > refine) and refine_truncated:
 
-                # Note this option in a lot of case gives a very high refinement
-                # factor , maybe only apply a small refinement on the te surface
-                # maybe a better idea  that change all the wing refinement factor
-
-                refine = 2 * mesh_size_wings / te_thickness
+                refine = mesh_size_wings / te_thickness
 
         # 1 : Math eval field
 

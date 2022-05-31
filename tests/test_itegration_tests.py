@@ -22,7 +22,6 @@ TODO:
 # ====================================================================================================================
 
 import shutil
-import sys
 from pathlib import Path
 
 import pytest
@@ -33,6 +32,7 @@ from src.bin.ceasiompy_exec import run_modules_list
 MODULE_DIR = Path(__file__).parent
 WORKFLOW_TEST_DIR = Path(MODULE_DIR, "workflow_tests")
 CPACS_IN_PATH = Path(MODULE_DIR, "Test_input.xml")
+CPACS_IN_2_PATH = Path(MODULE_DIR, "Test_input2.xml")
 
 # Remove previous workflow directory and create new one
 if WORKFLOW_TEST_DIR.exists():
@@ -105,7 +105,7 @@ def test_integration_4():
     modules_to_run = ["CPACS2GMSH", "SU2Run"]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_PATH), *modules_to_run])
+        run_modules_list([str(CPACS_IN_2_PATH), *modules_to_run])
 
     assert workflow_ends()
 

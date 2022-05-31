@@ -65,6 +65,8 @@ def get_mesh_markers(su2_mesh_path):
         "symmetry": [],
         "engine_intake": [],
         "engine_exhaust": [],
+        "actuator_disk_inlet": [],
+        "actuator_disk_outlet": [],
         "wall": [],
     }
 
@@ -90,6 +92,12 @@ def get_mesh_markers(su2_mesh_path):
         elif marker.endswith("_Exhaust"):
             mesh_markers["engine_exhaust"].append(marker)
             log.info(f"'{marker}' marker has been marked as engine_exhaust.")
+        elif marker.endswith("_AD_Inlet"):
+            mesh_markers["actuator_disk_inlet"].append(marker)
+            log.info(f"'{marker}' marker has been marked as actuator_disk_inlet.")
+        elif marker.endswith("_AD_Outlet"):
+            mesh_markers["actuator_disk_outlet"].append(marker)
+            log.info(f"'{marker}' marker has been marked as actuator_disk_outlet.")
         else:
             mesh_markers["wall"].append(marker)
             log.info(f"'{marker}' marker has been marked as wall.")

@@ -12,8 +12,8 @@ Python version: >=3.7
 
 TODO:
 
-    - Handle engine position correctly
-
+    - When TIGL new version is incorporated, function like get_uid may change for
+    get_object_uid
 """
 
 
@@ -211,6 +211,10 @@ def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
         fuselage_geom = fuselage.get_loft()
         export(fuselage_geom, brep_dir, fuselage_uid)
 
+        fuse_m_geom = fuselage.get_mirrored_loft()
+        if fuse_m_geom is not None:
+            export(fuse_m_geom, brep_dir, fuselage_uid + "_mirrored")
+
     # Wing
     for k in range(1, wing_cnt + 1):
         wing = aircraft_config.get_wing(k)
@@ -218,7 +222,7 @@ def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
         wing_geom = wing.get_loft()
         export(wing_geom, brep_dir, wing_uid)
 
-        wing_m_geom = aircraft_config.get_wing(k).get_mirrored_loft()
+        wing_m_geom = wing.get_mirrored_loft()
         if wing_m_geom is not None:
             export(wing_m_geom, brep_dir, wing_uid + "_mirrored")
 
@@ -231,7 +235,7 @@ def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
             pylon_geom = pylon.get_loft()
             export(pylon_geom, brep_dir, pylon_uid)
 
-            pylon_m_geom = pylons_config.get_engine_pylon(k).get_mirrored_loft()
+            pylon_m_geom = pylon.get_mirrored_loft()
             if pylon_m_geom is not None:
                 export(pylon_m_geom, brep_dir, pylon_uid + "_mirrored")
 

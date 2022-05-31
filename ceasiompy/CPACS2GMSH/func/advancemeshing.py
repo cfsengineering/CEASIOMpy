@@ -389,6 +389,7 @@ def set_domain_mesh(
             f"{part.mesh_size} + ({mesh_size_farfield} - {part.mesh_size})*"
             f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power}",
         )
+        mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
 
         # 2 : Threshold field for constant mesh on the part surface
 
@@ -397,21 +398,23 @@ def set_domain_mesh(
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", part.mesh_size)
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", part.mesh_size)
+        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", part.mesh_size * 0.9)
 
         mesh_fields = restrict_fields(mesh_fields, 2, part.surfaces_tags)
 
-    # 3 : Threshold field for the farfield surface
+        # 3 : Threshold field for the farfield surface
 
-    # Create the threshold field
-    mesh_fields["nbfields"] += 1
-    gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
+        # Create the threshold field
+        mesh_fields["nbfields"] += 1
+        gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
+        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
 
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_farfield)
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_farfield)
+        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_farfield)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "SizeMin", mesh_size_farfield * 0.9
+        )
 
-    mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
+        mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
 
 
 def refine_small_surfaces(

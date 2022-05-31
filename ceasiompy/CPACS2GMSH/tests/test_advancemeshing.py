@@ -236,7 +236,7 @@ def test_refine_wing_section():
 
     # Check if the meshfields were generated
     gmsh_field_list = gmsh.model.mesh.field.list()
-    assert len(gmsh_field_list) == 27
+    assert len(gmsh_field_list) == 34
 
     # Check if a distance field was generated on the wing le and te
     assert gmsh.model.mesh.field.getType(1) == "Distance"
@@ -252,7 +252,7 @@ def test_refine_wing_section():
     assert gmsh.model.mesh.field.getType(3) == "Restrict"
 
     # Check the restrict field is applied on the wing surfaces
-    surface_in_field = sorted(gmsh.model.mesh.field.getNumbers(3, "SurfacesList"))
+    surface_in_field = sorted(gmsh.model.mesh.field.getNumbers(7, "SurfacesList"))
     correct_surface_in_field = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
     assert all(a == b for a, b in zip(surface_in_field, correct_surface_in_field))
 
@@ -291,9 +291,9 @@ def test_auto_refine():
         auto_refine=True,
         testing_gmsh=True,
     )
-    # Check if meshfields were generated (more than 27 == without auto_refine)
+    # Check if meshfields were generated (more than 34 == without auto_refine)
     gmsh_field_list = gmsh.model.mesh.field.list()
-    assert len(gmsh_field_list) == 78
+    assert len(gmsh_field_list) == 85
 
     gmsh.clear()
     gmsh.finalize()

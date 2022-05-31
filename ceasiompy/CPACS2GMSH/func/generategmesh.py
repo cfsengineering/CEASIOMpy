@@ -881,7 +881,7 @@ def generate_gmsh(
             part.mesh_size = mesh_size_fuselage
             gmsh.model.mesh.setSize(part.points, part.mesh_size)
             gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
-        elif part.part_type in ["wing", "pylon", "engine", "rotor"]:
+        elif part.part_type in ["wing", "pylon"]:
             part.mesh_size = mesh_size_wings
             gmsh.model.mesh.setSize(part.points, part.mesh_size)
             gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)

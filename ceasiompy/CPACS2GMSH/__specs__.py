@@ -8,7 +8,10 @@ from ceasiompy.utils.commonxpath import (
     GMSH_MESH_SIZE_FARFIELD_XPATH,
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_WINGS_XPATH,
+    GMSH_MESH_SIZE_ENGINES_XPATH,
+    GMSH_MESH_SIZE_PROPELLERS_XPATH,
     GMSH_OPEN_GUI_XPATH,
+    GMSH_REFINE_TRUNCATED_XPATH,
     GMSH_REFINE_FACTOR_XPATH,
     GMSH_SYMMETRY_XPATH,
     SU2MESH_XPATH,
@@ -34,7 +37,7 @@ cpacs_inout.add_input(
     descr="Open GMSH GUI when the mesh is created",
     xpath=GMSH_OPEN_GUI_XPATH,
     gui=True,
-    gui_name="Display mesh with GMSH",
+    gui_name="Open GMSH GUI",
     gui_group="General options",
 )
 
@@ -55,7 +58,7 @@ cpacs_inout.add_input(
     var_type=float,
     default_value=6,
     unit="[-]",
-    descr="Farfiled size factor compare to the aircraft largest dimension",
+    descr="Farfield size factor compare to the aircraft largest dimension",
     xpath=GMSH_FARFIELD_FACTOR_XPATH,
     gui=True,
     gui_name="Farfield size factor",
@@ -70,7 +73,7 @@ cpacs_inout.add_input(
     descr="Value assigned for the farfield surface mesh size",
     xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
     gui=True,
-    gui_name="Farfield mesh size",
+    gui_name="Farfield",
     gui_group="Mesh size",
 )
 
@@ -79,26 +82,47 @@ cpacs_inout.add_input(
     var_type=float,
     default_value=0.4,
     unit="[m]",
-    descr="Value assigned for the fuselage surface mesh size",
+    descr="Value assigned for the fuselage surfaces mesh size",
     xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH,
     gui=True,
-    gui_name="Fuselage mesh size",
+    gui_name="Fuselage",
     gui_group="Mesh size",
 )
-
 
 cpacs_inout.add_input(
     var_name="wing_mesh_size",
     var_type=float,
     default_value=0.23,
     unit="[m]",
-    descr="Value assigned for the wings surface mesh size",
+    descr="Value assigned for the wings surfaces mesh size",
     xpath=GMSH_MESH_SIZE_WINGS_XPATH,
     gui=True,
-    gui_name="Wings mesh size",
+    gui_name="Wings",
     gui_group="Mesh size",
 )
 
+cpacs_inout.add_input(
+    var_name="engine_mesh_size",
+    var_type=float,
+    default_value=0.23,
+    unit="[m]",
+    descr="Value assigned for the engine surfaces mesh size",
+    xpath=GMSH_MESH_SIZE_ENGINES_XPATH,
+    gui=True,
+    gui_name="Engines",
+    gui_group="Mesh size",
+)
+cpacs_inout.add_input(
+    var_name="propeller_mesh_size",
+    var_type=float,
+    default_value=0.23,
+    unit="[m]",
+    descr="Value assigned for the propeller surfaces mesh size",
+    xpath=GMSH_MESH_SIZE_PROPELLERS_XPATH,
+    gui=True,
+    gui_name="Propellers",
+    gui_group="Mesh size",
+)
 
 cpacs_inout.add_input(
     var_name="refine_factor",
@@ -108,7 +132,18 @@ cpacs_inout.add_input(
     descr="Refinement factor of wing leading/trailing edge mesh",
     xpath=GMSH_REFINE_FACTOR_XPATH,
     gui=True,
-    gui_name="Le/Te refinement factor",
+    gui_name="LE/TE refinement factor",
+    gui_group="Advanced mesh parameters",
+)
+cpacs_inout.add_input(
+    var_name="refine_truncated",
+    var_type=bool,
+    default_value=False,
+    unit="1",
+    descr="Enable the refinement of truncated trailing edge",
+    xpath=GMSH_REFINE_TRUNCATED_XPATH,
+    gui=True,
+    gui_name="Refine truncated TE",
     gui_group="Advanced mesh parameters",
 )
 
@@ -129,24 +164,24 @@ cpacs_inout.add_input(
     var_name="intake_percent",
     var_type=float,
     default_value=20,
-    unit="1",
+    unit="[%]",
     descr="Position of the intake surface boundary condition in percentage of"
     " the engine length from the beginning of the engine",
     xpath=GMSH_INTAKE_PERCENT_XPATH,
     gui=True,
-    gui_name="Engine intake position [%]",
+    gui_name="Engine intake position",
     gui_group="Engines",
 )
 cpacs_inout.add_input(
     var_name="exhaust_percent",
     var_type=float,
     default_value=20,
-    unit="1",
+    unit="[%]",
     descr="Position of the exhaust surface boundary condition in percentage of"
     " the engine length from the end of the engine",
     xpath=GMSH_EXHAUST_PERCENT_XPATH,
     gui=True,
-    gui_name="Engine exhaust position [%]",
+    gui_name="Engine exhaust position",
     gui_group="Engines",
 )
 

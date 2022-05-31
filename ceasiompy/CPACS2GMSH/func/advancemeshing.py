@@ -375,9 +375,6 @@ def set_domain_mesh(
     log.info("Set mesh refinement of fluid domain")
 
     for part in aircraft_parts:
-        print("part", part.uid, " is refined for farfield")
-        print("mesh size :", part.mesh_size)
-        print("surface", part.surfaces_tags)
 
         # 1 : Math eval field between the part surface and the farfield
 

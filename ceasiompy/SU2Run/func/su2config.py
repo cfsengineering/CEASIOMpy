@@ -21,8 +21,10 @@ TODO:
 # =================================================================================================
 
 from pathlib import Path
+from shutil import copyfile
 
 from ambiance import Atmosphere
+from ceasiompy.SU2Run.func.su2actuatordiskfile import write_actuator_disk_data, write_header
 from ceasiompy.SU2Run.func.su2utils import get_mesh_markers, get_su2_config_template
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import (
@@ -199,18 +201,23 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     # Actuator disk (TODO: create a subfunction)
     ad_inlet_marker = sorted(mesh_markers["actuator_disk_inlet"])
     ad_outlet_marker = sorted(mesh_markers["actuator_disk_outlet"])
+    actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
 
-    if ad_inlet_marker and ad_outlet_marker:
+    if "None" not in ad_inlet_marker and "None" not in ad_outlet_marker:
 
         if len(ad_inlet_marker) != len(ad_outlet_marker):
             raise ValueError(
                 "The number of inlet and outlet markers of the actuator disk must be the same."
             )
 
+        # Get rotorcraft configuration (propeller)
         try:
             rotorcraft_config = cpacs.rotorcraft.configuration
         except AttributeError:
-            pass
+            raise ValueError(
+                "The actuator disk is defined but no rotorcraft configuration is defined in "
+                "the CPACS file."
+            )
 
         rotor_uid_pos = {}
         for i in range(1, rotorcraft_config.get_rotor_count() + 1):
@@ -231,6 +238,9 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
         actdisk_markers = []
 
+        f = open(actuator_disk_file, "w")
+        f = write_header(f)
+
         for maker_inlet, marker_outlet in zip(ad_inlet_marker, ad_outlet_marker):
             inlet_uid = maker_inlet.split("_AD_Inlet")[0]
             outlet_uid = marker_outlet.split("_AD_Outlet")[0]
@@ -242,19 +252,34 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
             if "_mirrored" in maker_inlet:
                 uid = inlet_uid.split("_mirrored")[0]
+                sym = -1
             else:
                 uid = inlet_uid
+                sym = 1
+
+            center = [] * 3
+            center.append(rotor_uid_pos[uid][0])
+            center.append(sym * rotor_uid_pos[uid][1])
+            center.append(rotor_uid_pos[uid][2])
+
+            # TODO: get the axis by applying the rotation matrix
+            axis = (sym * 1.0, 0.0, 0.0)
+            radius = rotor_uid_pos[uid][3]
 
             actdisk_markers.append(maker_inlet)
             actdisk_markers.append(marker_outlet)
-            actdisk_markers.append(str(rotor_uid_pos[uid][0]))
-            actdisk_markers.append(str(rotor_uid_pos[uid][1]))
-            actdisk_markers.append(str(rotor_uid_pos[uid][2]))
-            actdisk_markers.append(str(rotor_uid_pos[uid][0]))
-            actdisk_markers.append(str(rotor_uid_pos[uid][1]))
-            actdisk_markers.append(str(rotor_uid_pos[uid][2]))
+            actdisk_markers.append(str(center[0]))
+            actdisk_markers.append(str(center[1]))
+            actdisk_markers.append(str(center[2]))
+            actdisk_markers.append(str(center[0]))
+            actdisk_markers.append(str(center[1]))
+            actdisk_markers.append(str(center[2]))
+
+            f = write_actuator_disk_data(f, maker_inlet, marker_outlet, center, axis, radius)
 
         cfg["MARKER_ACTDISK"] = " (" + ", ".join(actdisk_markers) + " )"
+
+        f.close()
 
     # Output
     cfg["WRT_FORCES_BREAKDOWN"] = "YES"
@@ -291,6 +316,10 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
         config_output_path = Path(case_dir_path, CONFIG_CFD_NAME)
         cfg.write_file(config_output_path, overwrite=True)
+
+        if actuator_disk_file.exists():
+            case_actuator_disk_file = Path(case_dir_path, ACTUATOR_DISK_FILE_NAME)
+            copyfile(actuator_disk_file, case_actuator_disk_file)
 
         # Damping derivatives  (TODO: create a subfunctions)
         if get_value_or_default(cpacs.tixi, SU2_DAMPING_DER_XPATH, False):

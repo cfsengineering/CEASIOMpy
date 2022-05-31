@@ -15,7 +15,6 @@ TODO:
     -Add a parameter to let the user tune the powerlaw governing the mesh
     in the fluid domaine and the powerlaw for the wing surface mesh
 
-
 """
 
 
@@ -281,12 +280,13 @@ def refine_wing_section(
         # 1 : Math eval field
 
         mesh_fields = distance_field(mesh_fields, 1, lines_to_refine)
+        distance_field_tag = mesh_fields["nbfields"]
 
         # Create a mesh function for the leading edge
         mesh_fields["nbfields"] += 1
         math_eval_field = mesh_fields["nbfields"]
         gmsh.model.mesh.field.add("MathEval", mesh_fields["nbfields"])
-        distance_field_tag = mesh_fields["nbfields"] - 1
+
         gmsh.model.mesh.field.setString(
             mesh_fields["nbfields"],
             "F",
@@ -302,14 +302,10 @@ def refine_wing_section(
 
         # 2 : Threshold field
 
-        mesh_fields = distance_field(mesh_fields, 1, lines_to_refine)
-
         # Create the threshold field
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumber(
-            mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
-        )
+        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_wings)
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_wings)
 
@@ -329,42 +325,7 @@ def refine_wing_section(
         )
 
 
-def set_fuselage_mesh(mesh_fields, fuselage_part, mesh_size_fuselage):
-    """
-    Function to refine the fuselage mesh, apply a constant mesh size to the fuselage
-
-    Args:
-    ----------
-    mesh_fields : dict
-        mesh_fields["nbfields"] : number of existing mesh field in the model,
-        each field must be created with a different index !!!
-        mesh_fields["restrict_fields"] : list of the restrict fields,
-        this is the list to be use for the final "Min" background field
-    fuselage_part : ModelPart
-        fuselage part to set mesh size
-    mesh_size_fuselage : float
-        mesh size of the fuselage
-    ...
-    """
-
-    log.info(f"Set mesh refinement of {fuselage_part.uid}")
-
-    mesh_fields = distance_field(mesh_fields, 2, fuselage_part.surfaces_tags)
-
-    # Create new threshold field
-    mesh_fields["nbfields"] += 1
-    gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-    gmsh.model.mesh.field.setNumber(
-        mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
-    )
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_fuselage)
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_fuselage)
-
-    # Restrict field
-    mesh_fields = restrict_fields(mesh_fields, 2, fuselage_part.surfaces_tags)
-
-
-def set_farfield_mesh(
+def set_domain_mesh(
     mesh_fields,
     aircraft_parts,
     mesh_size_farfield,
@@ -373,10 +334,12 @@ def set_farfield_mesh(
     n_power=1.5,
 ):
     """
-    Function to define the farfield mesh with a threshold and matheval field
+    Function to define the domain mesh between the farfield and the aircraft
 
-    The threshold field is used to keep the element in the farfield to a maximum size
+    A threshold field is used to keep the element on the farfield to a maximum size
     of mesh_size_farfield.
+
+    Each part get a threshold field with the part mesh size on its surface
 
     A Math eval field is used to extend the mesh of each part of the aircraft in the fluid domain
     with the following function:
@@ -412,8 +375,11 @@ def set_farfield_mesh(
     log.info("Set mesh refinement of fluid domain")
 
     for part in aircraft_parts:
+        print("part", part.uid, " is refined for farfield")
+        print("mesh size :", part.mesh_size)
+        print("surface", part.surfaces_tags)
 
-        # 1 : Math eval field
+        # 1 : Math eval field between the part surface and the farfield
 
         mesh_fields = distance_field(mesh_fields, 2, part.surfaces_tags)
         distance_field_tag = mesh_fields["nbfields"]
@@ -428,22 +394,28 @@ def set_farfield_mesh(
             f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power}",
         )
 
-        mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
-
-        # 2 : Threshold field
-
-        mesh_fields = distance_field(mesh_fields, 2, part.surfaces_tags)
+        # 2 : Threshold field for constant mesh on the part surface
 
         # Create the threshold field
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumber(
-            mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
-        )
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_farfield)
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_farfield)
+        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
+        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", part.mesh_size)
+        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", part.mesh_size)
 
-        mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
+        mesh_fields = restrict_fields(mesh_fields, 2, part.surfaces_tags)
+
+    # 3 : Threshold field for the farfield surface
+
+    # Create the threshold field
+    mesh_fields["nbfields"] += 1
+    gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
+
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_farfield)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_farfield)
+
+    mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
 
 
 def refine_small_surfaces(

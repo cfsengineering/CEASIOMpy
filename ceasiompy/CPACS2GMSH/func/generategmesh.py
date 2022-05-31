@@ -40,8 +40,7 @@ import numpy as np
 
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
-    set_farfield_mesh,
-    set_fuselage_mesh,
+    set_domain_mesh,
     refine_small_surfaces,
     min_fields,
 )
@@ -906,11 +905,9 @@ def generate_gmsh(
                     mesh_size_wings,
                     refine=refine_factor,
                 )
-            elif part.part_type == "fuselage":
-                set_fuselage_mesh(mesh_fields, part, mesh_size_fuselage)
 
-        # Farfield and domain refinement
-        set_farfield_mesh(
+        # Domain mesh
+        set_domain_mesh(
             mesh_fields,
             aircraft_parts,
             mesh_size_farfield,

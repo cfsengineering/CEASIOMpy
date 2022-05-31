@@ -360,7 +360,7 @@ def test_define_doubleflux_engine_bc():
 def test_disk_actuator_conversion():
     """
     Test if disk actuator conversion is working on the simple_propeller.xml
-    by testing the marker and physical group assignation
+    by testing the physical groups
     """
     if TEST_OUT_PATH.exists():
         shutil.rmtree(TEST_OUT_PATH)
@@ -382,14 +382,24 @@ def test_disk_actuator_conversion():
         mesh_size_wings=0.5,
         refine_factor=1.0,
         auto_refine=False,
-        testing_gmsh=False,
+        testing_gmsh=True,
     )
 
-    # mesh_markers = get_mesh_markers(Path(TEST_OUT_PATH, "mesh.su2"))
-    # assert mesh_markers["wall"] == ["SimpleFuselage", "Wing", "Wing_mirrored"]
-    # assert mesh_markers["farfield"] == ["Farfield"]
+    physical_groups = gmsh.model.getPhysicalGroups(dim=-1)
 
-    # remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
+    # Check if the disk actuator integration was correct
+    assert len(physical_groups) == 11
+
+    assert gmsh.model.getPhysicalName(*physical_groups[0]) == "Propeller_AD_Inlet"
+    assert gmsh.model.getPhysicalName(*physical_groups[1]) == "Propeller_mirrored_AD_Inlet"
+    assert gmsh.model.getPhysicalName(*physical_groups[8]) == "Propeller_AD_Outlet"
+    assert gmsh.model.getPhysicalName(*physical_groups[9]) == "Propeller_mirrored_AD_Outlet"
+
+    # End gmsh api
+    gmsh.clear()
+    gmsh.finalize()
+
+    remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
 
 
 # =================================================================================================

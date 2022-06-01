@@ -505,6 +505,9 @@ def duplicate_disk_actuator_surfaces(part):
 def control_disk_act_normal():
     """
     Function to control the surface orientation of disk actuator in the model
+    sometimes the crack plugin change the surface orientation of the inlet and outlet
+    of disk actuator, thus we need to control if the inlet and outlet surface are
+    well oriented, if not we flip the physical groups names of the inlet and outlet
     ...
 
     """

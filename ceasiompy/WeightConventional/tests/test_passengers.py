@@ -3,12 +3,12 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Test functions for 'ceasiompy/WeightConventional/func/mtom.py'
+Test functions for 'ceasiompy/WeightConventional/func/passengers.py'
 
 Python version: >=3.7
 
 | Author : Aidan Jungo
-| Creation: 2022-05-30
+| Creation: 2022-06-01
 
 """
 
@@ -16,14 +16,13 @@ Python version: >=3.7
 #   IMPORTS
 # =================================================================================================
 
-import shutil
 from pathlib import Path
 
-from ceasiompy.WeightConventional.func.oem import estimate_oem
-from pytest import approx
+import pytest
+
+from ceasiompy.WeightConventional.func.passengers import stringed_seat_row
 
 MODULE_DIR = Path(__file__).parent
-TEST_RESULTS_PATH = Path(MODULE_DIR, "ToolOutput")
 
 
 # =================================================================================================
@@ -36,20 +35,16 @@ TEST_RESULTS_PATH = Path(MODULE_DIR, "ToolOutput")
 # =================================================================================================
 
 
-def test_estimate_oem():
-    """Test function 'estimate_oem'"""
+def test_stringed_seat_row():
+    """Test function 'stringed_seat_row'"""
 
-    if TEST_RESULTS_PATH.exists():
-        shutil.rmtree(TEST_RESULTS_PATH)
-    TEST_RESULTS_PATH.mkdir()
+    assert stringed_seat_row([1, 0]) == "\nX || "
+    assert stringed_seat_row([1, 0, 1]) == "\nX || X "
+    assert stringed_seat_row([1, 1, 0, 1, 1]) == "\nX X || X X "
+    assert stringed_seat_row([1, 1, 0, 1, 1, 1, 0, 1, 1]) == "\nX X || X X X || X X "
 
-    # estimate_oem(mtom, fuse_length, wing_span, turboprop)
-    assert estimate_oem(350_000, 58, 61, False) == approx(171_452, rel=1e-2)
-    assert estimate_oem(250_000, 48, 51, False) == approx(125_807, rel=1e-2)
-    assert estimate_oem(150_000, 38, 44, False) == approx(78_633, rel=1e-2)
-    assert estimate_oem(150_000, 38, 44, True) == approx(76_690, rel=1e-2)
-    assert estimate_oem(50_000, 24, 34, False) == approx(26_431, rel=1e-2)
-    assert estimate_oem(50_000, 24, 34, True) == approx(28_897, rel=1e-2)
+    with pytest.raises(ValueError):
+        stringed_seat_row([1, 7, 1])
 
 
 # =================================================================================================

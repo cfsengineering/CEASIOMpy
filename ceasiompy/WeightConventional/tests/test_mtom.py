@@ -8,7 +8,7 @@ Test functions for 'ceasiompy/WeightConventional/func/mtom.py'
 Python version: >=3.7
 
 | Author : Aidan Jungo
-| Creation: 2019-07-24
+| Creation: 2022-05-30
 
 """
 

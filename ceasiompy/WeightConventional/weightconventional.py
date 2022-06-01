@@ -52,8 +52,8 @@ from ceasiompy.WeightConventional.func.AoutFunc import cpacsweightupdate, output
 
 from ceasiompy.WeightConventional.func.mtom import estimate_mtom
 from ceasiompy.WeightConventional.func.oem import estimate_oem
-from ceasiompy.WeightConventional.func.Passengers.passengers import estimate_passengers
-from ceasiompy.WeightConventional.func.Passengers.seatsconfig import get_seat_config
+from ceasiompy.WeightConventional.func.passengers import estimate_passengers, write_seat_config
+
 from ceasiompy.WeightConventional.func.weight_utils import (
     PASSENGER_MASS,
     PILOT_NB,
@@ -178,7 +178,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
             inside_dim,
         ) = estimate_passengers(cabin_length_tot, ag.fuse_width, inside_dim)
 
-        get_seat_config(
+        write_seat_config(
             ag.fuse_length,
             out.row_nb,
             out.abreast_nb,

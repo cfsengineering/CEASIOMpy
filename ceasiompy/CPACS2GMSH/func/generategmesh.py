@@ -519,6 +519,8 @@ def control_disk_act_normal():
 
     # check normal orientation of the surface
     for inlet_group in inlet_groups:
+
+        # get the surface normal
         surface_tag = gmsh.model.getEntitiesForPhysicalGroup(*inlet_group)
         surface_dimtag = (2, *surface_tag)
         surface_center = gmsh.model.occ.getCenterOfMass(*surface_dimtag)
@@ -526,19 +528,24 @@ def control_disk_act_normal():
 
         normal = gmsh.model.getNormal(surface_dimtag[1], parametric_coord)
 
-        log.debug("inlet x", normal)
+        # check if the normal is oriented forward
 
         if normal[0] < 0:
             # reverse the group inlet and outlet
             uid = gmsh.model.getPhysicalName(*inlet_group).split("_AD_Inlet")[0]
+
+            log.debug(f"{uid} is not correctly oriented, surface normal :{normal}")
+
             outlet_group = physical_groups[physical_groups_name.index(uid + "_AD_Outlet")]
 
             # inverse
-            gmsh.model.setPhysicalName(*outlet_group, uid + "_tmp")
+            # first delete the physical group name
+            gmsh.model.removePhysicalName(uid + "_AD_Inlet")
+            gmsh.model.removePhysicalName(uid + "_AD_Outlet")
+
+            # then rename by swapping inlet outlet
             gmsh.model.setPhysicalName(*inlet_group, uid + "_AD_Outlet")
             gmsh.model.setPhysicalName(*outlet_group, uid + "_AD_Inlet")
-
-    gmsh.model.occ.synchronize()
 
 
 def generate_gmsh(

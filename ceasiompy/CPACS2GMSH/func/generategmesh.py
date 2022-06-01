@@ -531,7 +531,7 @@ def control_disk_act_normal():
 
         normal = gmsh.model.getNormal(surface_dimtag[1], parametric_coord)
 
-        # check if the normal is oriented forward
+        log.debug(f"inlet x {normal}")
 
         if normal[0] < 0:
             # reverse the group inlet and outlet
@@ -563,7 +563,7 @@ def generate_gmsh(
     mesh_size_wings=0.23,
     mesh_size_engines=0.23,
     mesh_size_propellers=0.23,
-    refine_factor=7,
+    refine_factor=7.0,
     refine_truncated=False,
     auto_refine=True,
     testing_gmsh=False,

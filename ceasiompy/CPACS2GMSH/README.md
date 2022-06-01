@@ -11,6 +11,8 @@
 
 <p align="center">
 <img height="460" src="files/GMSH_D150_sym.png">
+</p>
+<p align="center">
 Surface mesh of the D150 aircraft, with a symmetry plane
 </p>
 
@@ -20,6 +22,8 @@ If the aircraft geometry contains propeller engines, their blades will be replac
 
 <p align="center">
 <img height="460" src="files/GMSH_propeller_aircraft.png">
+</p>
+<p align="center">
 Surface mesh of an aircraft with propeller engines 
 </p>
 

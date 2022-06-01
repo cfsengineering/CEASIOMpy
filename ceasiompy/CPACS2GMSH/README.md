@@ -9,9 +9,19 @@
 
 `CPACS2GMSH` is an automatic mesh generator module for a [CPACS](https://www.cpacs.de) aircraft geometry [[1]](#Alder20) using [GMSH](https://gmsh.info/) ,a finite element mesh generator. An unstructured mesh is automatically generated in a spherical domain surrounding the aircraft. The resulting mesh can be used for a CFD calculation by connecting the `SU2Run` module after `CPACS2GMSH` module.
 
+<p align="center">
+<img height="460" src="files/GMSH_D150_sym.png">
+Surface mesh of the D150 aircraft, with a symmetry plane
+</p>
+
 If an engine (simple or doubleflux) is part of the aircraft geometry, CPACS2GMSH will combine the different nacelle parts in one engine and  will add an intake and exhaust surface that can be used by SU2Run to simulate the engine operation. For doubleflux engines, only one intake surface will be placed on the fan cowl and two exhaust surfaces will be placed on the fan and center cowl.
 
 If the aircraft geometry contains propeller engines, their blades will be replaced by 2D disk surfaces in order to simulate the propeller engines with SU2 disk actuator model.
+
+<p align="center">
+<img height="460" src="files/GMSH_propeller_aircraft.png">
+Surface mesh of an aircraft with propeller engines 
+</p>
 
 ## Inputs
 

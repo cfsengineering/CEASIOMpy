@@ -275,6 +275,10 @@ def get_part_type(tixi, part_uid: str) -> str:
         log.info(f"'{part_uid}' is an engine")
         return "engine"
 
+    elif "vehicles/rotorcraft/model/rotors/rotor" in part_xpath:
+        log.info(f"'{part_uid}' is an rotor")
+        return "rotor"
+
     log.warning(f"'{part_uid}' cannot be categorized!")
     return None
 

@@ -19,13 +19,14 @@ TODO:
 # GMSH
 GMSH_ENGINE_CONFIG_NAME = "config_engines.cfg"
 
-
 # SU2
 CONFIG_CFD_NAME = "ConfigCFD.cfg"
 SU2_FORCES_BREAKDOWN_NAME = "forces_breakdown.dat"
 SURFACE_FLOW_FILE_NAME = "surface_flow.vtu"
 SURFACE_FLOW_FORCE_FILE_NAME = "surface_flow_forces.vtu"
 FORCE_FILE_NAME = "forces.csv"
+ACTUATOR_DISK_FILE_NAME = "ActuatorDisk.dat"
 
 # WEIGHT & BALANCE
 MTOM_FIGURE_NAME = "mtomPrediction.png"
+

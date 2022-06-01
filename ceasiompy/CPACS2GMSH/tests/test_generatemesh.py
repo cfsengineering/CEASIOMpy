@@ -37,6 +37,7 @@ MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 CPACS_IN_SIMPLE_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_engine.xml")
 CPACS_IN_SIMPLE_DOUBLEFLUX_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_doubleflux_engine.xml")
+CPACS_IN_PROPELLER_ENGINE_PATH = Path(CPACS_FILES_PATH, "simple_propeller.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # =================================================================================================
@@ -73,7 +74,10 @@ def test_generate_gmsh():
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
+        mesh_size_engines=0.5,
+        mesh_size_propellers=0.5,
         refine_factor=1.0,
+        refine_truncated=False,
         auto_refine=False,
         testing_gmsh=False,
     )
@@ -110,7 +114,10 @@ def test_generate_gmsh_symm():
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
+        mesh_size_engines=0.5,
+        mesh_size_propellers=0.5,
         refine_factor=1.0,
+        refine_truncated=False,
         auto_refine=False,
         testing_gmsh=False,
     )
@@ -212,7 +219,10 @@ def test_assignation():
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
+        mesh_size_engines=0.5,
+        mesh_size_propellers=0.5,
         refine_factor=1.0,
+        refine_truncated=False,
         auto_refine=False,
         testing_gmsh=False,
     )
@@ -223,7 +233,7 @@ def test_assignation():
     wing1_child = set([(3, 3)])
     wing1_volume_tag = [3]
     wing1_surfaces_tags = [5, 6, 7, 12, 13, 14, 19]
-    wing1_lines_tags = [32, 33, 34, 7, 8, 9, 15, 16, 17, 18, 19, 20, 29, 30, 31]
+    wing1_lines_tags = [7, 8, 9, 15, 16, 17, 18, 19, 20, 29, 30, 31, 32, 33, 34]
     wing1_points_tags = [5, 6, 7, 12, 13, 14, 19, 20, 21]
 
     for part in aircraft_parts:
@@ -265,7 +275,10 @@ def test_define_engine_bc():
         mesh_size_farfield=2,
         mesh_size_fuselage=0.2,
         mesh_size_wings=0.2,
+        mesh_size_engines=0.2,
+        mesh_size_propellers=0.2,
         refine_factor=1.0,
+        refine_truncated=False,
         auto_refine=False,
         testing_gmsh=True,
     )
@@ -324,7 +337,10 @@ def test_define_doubleflux_engine_bc():
         mesh_size_farfield=2,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.05,
+        mesh_size_engines=0.05,
+        mesh_size_propellers=0.05,
         refine_factor=1.0,
+        refine_truncated=False,
         auto_refine=False,
         testing_gmsh=True,
     )
@@ -348,6 +364,54 @@ def test_define_doubleflux_engine_bc():
     assert gmsh.model.getEntitiesForPhysicalGroup(*physical_groups[7]) == [47]
     assert gmsh.model.getEntitiesForPhysicalGroup(*physical_groups[8]) == [46]
     assert gmsh.model.getEntitiesForPhysicalGroup(*physical_groups[9]) == [51]
+
+    # End gmsh api
+    gmsh.clear()
+    gmsh.finalize()
+
+    remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
+
+
+def test_disk_actuator_conversion():
+    """
+    Test if disk actuator conversion is working on the simple_propeller.xml
+    by testing the physical groups
+    """
+    if TEST_OUT_PATH.exists():
+        shutil.rmtree(TEST_OUT_PATH)
+    TEST_OUT_PATH.mkdir()
+
+    cpacs = CPACS(CPACS_IN_PROPELLER_ENGINE_PATH)
+
+    export_brep(cpacs, TEST_OUT_PATH)
+
+    generate_gmsh(
+        cpacs=cpacs,
+        brep_dir=TEST_OUT_PATH,
+        results_dir=TEST_OUT_PATH,
+        open_gmsh=False,
+        farfield_factor=5,
+        symmetry=False,
+        mesh_size_farfield=5,
+        mesh_size_fuselage=0.5,
+        mesh_size_wings=0.5,
+        mesh_size_engines=0.5,
+        mesh_size_propellers=0.5,
+        refine_factor=1.0,
+        refine_truncated=False,
+        auto_refine=False,
+        testing_gmsh=True,
+    )
+
+    physical_groups = gmsh.model.getPhysicalGroups(dim=-1)
+
+    # Check if the disk actuator integration was correct
+    assert len(physical_groups) == 11
+
+    assert gmsh.model.getPhysicalName(*physical_groups[0]) == "Propeller_AD_Inlet"
+    assert gmsh.model.getPhysicalName(*physical_groups[1]) == "Propeller_mirrored_AD_Inlet"
+    assert gmsh.model.getPhysicalName(*physical_groups[8]) == "Propeller_AD_Outlet"
+    assert gmsh.model.getPhysicalName(*physical_groups[9]) == "Propeller_mirrored_AD_Outlet"
 
     # End gmsh api
     gmsh.clear()

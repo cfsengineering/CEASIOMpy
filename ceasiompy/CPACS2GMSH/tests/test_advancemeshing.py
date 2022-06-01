@@ -225,32 +225,35 @@ def test_refine_wing_section():
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
+        mesh_size_engines=0.5,
+        mesh_size_propellers=0.5,
         symmetry=False,
         refine_factor=2.0,
+        refine_truncated=False,
         auto_refine=False,
         testing_gmsh=True,
     )
 
     # Check if the meshfields were generated
     gmsh_field_list = gmsh.model.mesh.field.list()
-    assert len(gmsh_field_list) == 36
+    assert len(gmsh_field_list) == 34
 
     # Check if a distance field was generated on the wing le and te
-    assert gmsh.model.mesh.field.getType(4) == "Distance"
+    assert gmsh.model.mesh.field.getType(1) == "Distance"
     assert all(
-        [a == b for a, b in zip(gmsh.model.mesh.field.getNumbers(4, "CurvesList"), [19, 21])]
+        [a == b for a, b in zip(gmsh.model.mesh.field.getNumbers(1, "CurvesList"), [19, 21])]
     )
 
     # Check if a Matheval field was generated with the correct formula
-    assert gmsh.model.mesh.field.getString(5, "F") == "(0.5/2.0) + 0.5*(1-(1/2.0))*(F4/0.25)^2"
-    assert gmsh.model.mesh.field.getType(5) == "MathEval"
+    assert gmsh.model.mesh.field.getString(2, "F") == "(0.5/2.0) + 0.5*(1-(1/2.0))*(F1/0.25)^2"
+    assert gmsh.model.mesh.field.getType(2) == "MathEval"
 
     # Check if the restrict field was applied on the wing
-    assert gmsh.model.mesh.field.getType(6) == "Restrict"
+    assert gmsh.model.mesh.field.getType(3) == "Restrict"
 
     # Check the restrict field is applied on the wing surfaces
-    surface_in_field = gmsh.model.mesh.field.getNumbers(6, "SurfacesList")
-    correct_surface_in_field = [9, 2, 3, 4, 10, 5, 6, 8, 11, 7]
+    surface_in_field = sorted(gmsh.model.mesh.field.getNumbers(7, "SurfacesList"))
+    correct_surface_in_field = [2, 3, 4, 5, 6, 7, 8, 9, 10, 11]
     assert all(a == b for a, b in zip(surface_in_field, correct_surface_in_field))
 
     gmsh.clear()
@@ -280,15 +283,17 @@ def test_auto_refine():
         mesh_size_farfield=5,
         mesh_size_fuselage=0.5,
         mesh_size_wings=0.5,
+        mesh_size_engines=0.5,
+        mesh_size_propellers=0.5,
         symmetry=False,
         refine_factor=2.0,
+        refine_truncated=False,
         auto_refine=True,
         testing_gmsh=True,
     )
-
-    # Check if meshfields were generated (more than 36 == without auto_refine)
+    # Check if meshfields were generated (more than 34 == without auto_refine)
     gmsh_field_list = gmsh.model.mesh.field.list()
-    assert len(gmsh_field_list) == 87
+    assert len(gmsh_field_list) == 85
 
     gmsh.clear()
     gmsh.finalize()

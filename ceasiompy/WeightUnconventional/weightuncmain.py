@@ -26,7 +26,7 @@ import shutil
 from pathlib import Path
 
 import numpy as np
-from ceasiompy.WeightConventional.func.weight_utils import (
+from ceasiompy.WeightConventional.func.weightutils import (
     PASSENGER_MASS,
     PILOT_NB,
     UNUSABLE_FUEL_RATIO,

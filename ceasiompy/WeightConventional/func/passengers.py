@@ -20,7 +20,7 @@ Python version: >=3.7
 
 import math
 from pathlib import Path
-from ceasiompy.WeightConventional.func.weight_utils import PASSENGER_PER_TOILET
+from ceasiompy.WeightConventional.func.weightutils import PASSENGER_PER_TOILET
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory

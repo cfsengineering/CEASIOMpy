@@ -54,7 +54,7 @@ from ceasiompy.WeightConventional.func.mtom import estimate_mtom
 from ceasiompy.WeightConventional.func.oem import estimate_oem
 from ceasiompy.WeightConventional.func.passengers import estimate_passengers, write_seat_config
 
-from ceasiompy.WeightConventional.func.weight_utils import (
+from ceasiompy.WeightConventional.func.weightutils import (
     PASSENGER_MASS,
     PILOT_NB,
     UNUSABLE_FUEL_RATIO,

@@ -44,7 +44,7 @@ from ceasiompy.Range.func.RangeEstimation.breguetrange import breguet_cruise_ran
 from ceasiompy.Range.func.AoutFunc import outputrangegen
 from ceasiompy.Range.func.AoutFunc import cpacsrangeupdate
 from ceasiompy.Range.func.AinFunc import getdatafromcpacs
-from ceasiompy.WeightConventional.func.weight_utils import PASSENGER_MASS
+from ceasiompy.WeightConventional.func.weightutils import PASSENGER_MASS
 
 from ceasiompy.utils.ceasiompyutils import aircraft_name
 

@@ -17,7 +17,7 @@ Python version: >=3.7
 #   IMPORTS
 # =============================================================================
 
-from ceasiompy.WeightConventional.func.weight_utils import CABIN_CREW_MASS, PILOT_MASS, PILOT_NB
+from ceasiompy.WeightConventional.func.weightutils import CABIN_CREW_MASS, PILOT_MASS, PILOT_NB
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()

@@ -16,7 +16,7 @@ The script suggests the crew member number in relation with the range.
 #   IMPORTS
 # =============================================================================
 
-from ceasiompy.WeightConventional.func.weight_utils import CABIN_CREW_MASS, PILOT_MASS
+from ceasiompy.WeightConventional.func.weightutils import CABIN_CREW_MASS, PILOT_MASS
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()

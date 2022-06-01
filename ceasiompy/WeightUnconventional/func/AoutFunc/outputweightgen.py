@@ -16,7 +16,7 @@ Python version: >=3.7
 #   IMPORTS
 # =============================================================================
 
-from ceasiompy.WeightConventional.func.weight_utils import PILOT_NB
+from ceasiompy.WeightConventional.func.weightutils import PILOT_NB
 
 
 # =============================================================================

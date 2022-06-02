@@ -33,7 +33,13 @@ TODO:
 
 from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
-from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
+from ceasiompy.utils.commonnames import (
+    ACTUATOR_DISK_INLET_SUFFIX,
+    ACTUATOR_DISK_OUTLET_SUFFIX,
+    ENGINE_EXHAUST_SUFFIX,
+    ENGINE_INTAKE_SUFFIX,
+    GMSH_ENGINE_CONFIG_NAME,
+)
 from ceasiompy.utils.configfiles import ConfigFile
 import gmsh
 import numpy as np
@@ -345,14 +351,18 @@ def define_engine_bc(engine_part, brep_dir):
 
     # Intake
     intake_fan_group = gmsh.model.addPhysicalGroup(2, engine_part.intake_tag)
-    gmsh.model.setPhysicalName(2, intake_fan_group, f"{engine_part.uid}_fan_Intake")
+    gmsh.model.setPhysicalName(2, intake_fan_group, f"{engine_part.uid}_fan{ENGINE_INTAKE_SUFFIX}")
 
     # Exhaust
     exhaust_fan_group = gmsh.model.addPhysicalGroup(2, engine_part.exhaust_fan_tag)
-    gmsh.model.setPhysicalName(2, exhaust_fan_group, f"{engine_part.uid}_fan_Exhaust")
+    gmsh.model.setPhysicalName(
+        2, exhaust_fan_group, f"{engine_part.uid}_fan{ENGINE_EXHAUST_SUFFIX}"
+    )
     if doubleflux:
         exhaust_core_group = gmsh.model.addPhysicalGroup(2, engine_part.exhaust_core_tag)
-        gmsh.model.setPhysicalName(2, exhaust_core_group, f"{engine_part.uid}_core_Exhaust")
+        gmsh.model.setPhysicalName(
+            2, exhaust_core_group, f"{engine_part.uid}_core{ENGINE_EXHAUST_SUFFIX}"
+        )
 
 
 def process_gmsh_log(gmsh_log):
@@ -498,57 +508,55 @@ def duplicate_disk_actuator_surfaces(part):
     gmsh.plugin.setNumber("Crack", "NewPhysicalGroup", new_tag)
 
     # Set the new physical group for the back surface
-    gmsh.model.setPhysicalName(2, new_tag, f"{part.uid}_AD_Outlet")
+    gmsh.model.setPhysicalName(2, new_tag, f"{part.uid}{ACTUATOR_DISK_OUTLET_SUFFIX}")
     gmsh.plugin.run("Crack")
 
 
-def control_disk_act_normal():
+def control_disk_actuator_normal():
     """
     Function to control the surface orientation of disk actuator in the model
-    sometimes the crack plugin change the surface orientation of the inlet and outlet
+    sometimes the 'crack' plugin change the surface orientation of the inlet and outlet
     of disk actuator, thus we need to control if the inlet and outlet surface are
-    well oriented, if not we flip the physical groups names of the inlet and outlet
-    ...
+    well oriented, if not we switch the physical groups names of the inlet and outlet.
 
     """
 
-    # get the physical groups list
+    # Get the physical groups list
     physical_groups = gmsh.model.getPhysicalGroups(dim=2)
     physical_groups_name = [gmsh.model.getPhysicalName(*group) for group in physical_groups]
 
     inlet_groups = [
-        group for group in physical_groups if "_AD_Inlet" in gmsh.model.getPhysicalName(*group)
+        group
+        for group in physical_groups
+        if ACTUATOR_DISK_INLET_SUFFIX in gmsh.model.getPhysicalName(*group)
     ]
 
-    # check normal orientation of the surface
+    # Check the disk actuator  inlet normal, should point forward (x>0))
     for inlet_group in inlet_groups:
 
-        # get the surface normal
+        # Get the normal
         surface_tag = gmsh.model.getEntitiesForPhysicalGroup(*inlet_group)
         surface_dimtag = (2, *surface_tag)
         surface_center = gmsh.model.occ.getCenterOfMass(*surface_dimtag)
         parametric_coord = gmsh.model.getParametrization(*surface_dimtag, list(surface_center))
+        normal_x = gmsh.model.getNormal(surface_dimtag[1], parametric_coord)[0]
 
-        normal = gmsh.model.getNormal(surface_dimtag[1], parametric_coord)
+        if normal_x >= 0.0:
+            continue
 
-        log.debug(f"inlet x {normal}")
+        # Switch the physical group name
+        inlet_name = gmsh.model.getPhysicalName(*inlet_group)
+        outlet_name = inlet_name.replace(ACTUATOR_DISK_INLET_SUFFIX, ACTUATOR_DISK_OUTLET_SUFFIX)
 
-        if normal[0] < 0:
-            # reverse the group inlet and outlet
-            uid = gmsh.model.getPhysicalName(*inlet_group).split("_AD_Inlet")[0]
+        outlet_group = physical_groups[physical_groups_name.index(outlet_name)]
 
-            log.debug(f"{uid} is not correctly oriented, surface normal :{normal}")
+        # Delete the physical group name
+        gmsh.model.removePhysicalName(inlet_name)
+        gmsh.model.removePhysicalName(outlet_name)
 
-            outlet_group = physical_groups[physical_groups_name.index(uid + "_AD_Outlet")]
-
-            # inverse
-            # first delete the physical group name
-            gmsh.model.removePhysicalName(uid + "_AD_Inlet")
-            gmsh.model.removePhysicalName(uid + "_AD_Outlet")
-
-            # then rename by swapping inlet outlet
-            gmsh.model.setPhysicalName(*inlet_group, uid + "_AD_Outlet")
-            gmsh.model.setPhysicalName(*outlet_group, uid + "_AD_Inlet")
+        # Rename by swapping inlet outlet
+        gmsh.model.setPhysicalName(*inlet_group, outlet_name)
+        gmsh.model.setPhysicalName(*outlet_group, inlet_name)
 
 
 def generate_gmsh(
@@ -866,7 +874,9 @@ def generate_gmsh(
         else:
             surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
             if part.part_type == "rotor":
-                gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}_AD_Inlet")
+                gmsh.model.setPhysicalName(
+                    2, surfaces_group, f"{part.uid}{ACTUATOR_DISK_INLET_SUFFIX}"
+                )
             else:
                 gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
             part.physical_groups.append(surfaces_group)
@@ -1061,7 +1071,7 @@ def generate_gmsh(
         gmsh.option.setNumber("Mesh.SaveAll", 1)
 
         # Control surface orientation
-        control_disk_act_normal()
+        control_disk_actuator_normal()
 
     su2mesh_path = Path(results_dir, "mesh.su2")
     gmsh.write(str(su2mesh_path))

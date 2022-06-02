@@ -26,4 +26,10 @@ SU2_FORCES_BREAKDOWN_NAME = "forces_breakdown.dat"
 SURFACE_FLOW_FILE_NAME = "surface_flow.vtu"
 SURFACE_FLOW_FORCE_FILE_NAME = "surface_flow_forces.vtu"
 FORCE_FILE_NAME = "forces.csv"
+
+ENGINE_INTAKE_SUFFIX = "_Intake"
+ENGINE_EXHAUST_SUFFIX = "_Exhaust"
+
 ACTUATOR_DISK_FILE_NAME = "ActuatorDisk.dat"
+ACTUATOR_DISK_INLET_SUFFIX = "_AD_Inlet"
+ACTUATOR_DISK_OUTLET_SUFFIX = "_AD_Outlet"

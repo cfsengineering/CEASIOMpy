@@ -29,6 +29,8 @@ from ceasiompy.SU2Run.func.su2utils import get_mesh_markers, get_su2_config_temp
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import (
     ACTUATOR_DISK_FILE_NAME,
+    ACTUATOR_DISK_INLET_SUFFIX,
+    ACTUATOR_DISK_OUTLET_SUFFIX,
     CONFIG_CFD_NAME,
     SU2_FORCES_BREAKDOWN_NAME,
 )
@@ -245,8 +247,8 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         f = write_header(f)
 
         for maker_inlet, marker_outlet in zip(ad_inlet_marker, ad_outlet_marker):
-            inlet_uid = maker_inlet.split("_AD_Inlet")[0]
-            outlet_uid = marker_outlet.split("_AD_Outlet")[0]
+            inlet_uid = maker_inlet.split(ACTUATOR_DISK_INLET_SUFFIX)[0]
+            outlet_uid = marker_outlet.split(ACTUATOR_DISK_OUTLET_SUFFIX)[0]
 
             if inlet_uid != outlet_uid:
                 raise ValueError(

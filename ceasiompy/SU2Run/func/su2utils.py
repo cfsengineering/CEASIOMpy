@@ -25,6 +25,12 @@ from pathlib import Path
 import requests
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_install_path
+from ceasiompy.utils.commonnames import (
+    ACTUATOR_DISK_INLET_SUFFIX,
+    ACTUATOR_DISK_OUTLET_SUFFIX,
+    ENGINE_EXHAUST_SUFFIX,
+    ENGINE_INTAKE_SUFFIX,
+)
 from ceasiompy.utils.moduleinterfaces import get_module_path
 
 log = get_logger()
@@ -86,16 +92,16 @@ def get_mesh_markers(su2_mesh_path):
         elif "symmetry" in marker.lower():
             mesh_markers["symmetry"].append(marker)
             log.info(f"'{marker}' marker has been marked as symmetry.")
-        elif marker.endswith("_Intake"):
+        elif marker.endswith(ENGINE_INTAKE_SUFFIX):
             mesh_markers["engine_intake"].append(marker)
             log.info(f"'{marker}' marker has been marked as engine_intake.")
-        elif marker.endswith("_Exhaust"):
+        elif marker.endswith(ENGINE_EXHAUST_SUFFIX):
             mesh_markers["engine_exhaust"].append(marker)
             log.info(f"'{marker}' marker has been marked as engine_exhaust.")
-        elif marker.endswith("_AD_Inlet"):
+        elif marker.endswith(ACTUATOR_DISK_INLET_SUFFIX):
             mesh_markers["actuator_disk_inlet"].append(marker)
             log.info(f"'{marker}' marker has been marked as actuator_disk_inlet.")
-        elif marker.endswith("_AD_Outlet"):
+        elif marker.endswith(ACTUATOR_DISK_OUTLET_SUFFIX):
             mesh_markers["actuator_disk_outlet"].append(marker)
             log.info(f"'{marker}' marker has been marked as actuator_disk_outlet.")
         else:

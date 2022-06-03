@@ -24,8 +24,6 @@ from pathlib import Path
 import gmsh
 from ceasiompy.CPACS2GMSH.func.engineconversion import close_engine
 from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
-from cpacspy.cpacspy import CPACS
 
 MODULE_DIR = Path(__file__).parent
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")

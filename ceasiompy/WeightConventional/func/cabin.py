@@ -1,7 +1,7 @@
 import math
 from pathlib import Path
 
-from cpacspy.cpacsfunctions import get_value_or_default
+from cpacspy.cpacsfunctions import add_value, get_value_or_default
 from ceasiompy.WeightConventional.func.weightutils import (
     CABIN_CREW_MASS,
     PASSENGER_MASS,
@@ -12,38 +12,25 @@ from ceasiompy.WeightConventional.func.weightutils import (
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.commonxpath import (
+    WB_ABREAST_NB_XPATH,
     WB_AISLE_WIDTH_XPATH,
+    WB_CAB_CREW_NB_XPATH,
+    WB_CREW_MASS_XPATH,
+    WB_CREW_NB_XPATH,
+    WB_PASSENGER_MASS_XPATH,
+    WB_PASSENGER_NB_XPATH,
+    WB_PEOPLE_MASS_XPATH,
+    WB_ROW_NB_XPATH,
     WB_SEAT_LENGTH_XPATH,
     WB_SEAT_WIDTH_XPATH,
+    WB_TOILET_NB_XPATH,
 )
 
 log = get_logger()
 
 
-# @property
-# def fuselage_thickness_ratio(self):
-#     return get_value_or_default(self.cpacs.tixi, WB_FUSELAGE_THICK_XPATH, 6.63)
-
-# @property
-# def cabin_width(self):
-
-#     return self.fuselage_width * (1 - self.fuselage_thickness_ratio / 100)
-
-
 def check_aisle_nb(abreast_nb):
     """It is a static method and not property to avoid circular dependency."""
-
-    if abreast_nb > 10:
-        log.warning(
-            "Aisle number is greater than 10. It is outside the range of value define for"
-            "the WeightConventional module, try to use the WeightUnconventional module."
-        )
-
-    if abreast_nb < 1:
-        log.warning(
-            "Aisle number is less than 1. It is outside the range of value define for"
-            "the WeightConventional module, try to use the WeightUnconventional module."
-        )
 
     if abreast_nb < 1:
         return 0
@@ -80,51 +67,23 @@ def stringed_seat_row(abreast_nb):
 
 class Cabin:
     """
-    The class contains all the aircraft mass and weight value relative to the
-    weight analysis.
+    Class to store and calculate the equipments/people mass and count related to the cabin.
 
     Attributes:
-    mass_fuel_maxpass (float): Max fuel mass with max payload [kg]
-    mass_fuel_mass (float): Max fuel mass allowed (evaluated) [kg]
-    maximum_take_off_mass (float): Maximum take off mass [kg]
-    operating_empty_mass (float): Operating empty mass [kg]
-    mass_payload (float): Payload mass [kg]
-    MAX_FUEL_MASS (float): Maximum fuel mass allowed (chosen) [kg]
-    max_payload (float): Maximum payload mass allowed [kg]
-    people_mass (float): Mass of people inside the aircraft [kg]
-    mass_cargo (float): Extra possible payload [kg]
-    zero_fuel_mass (float): Zero fuel mass [kg]
-    crew_mass (float): Crew members total mass [kg]
-    abreast_nb (int): Number of abreast.
-    row_nb (int): Number of rows.
-    passenger_nb (int): Number of passengers.
-    toilet_nb (int): Number of toilets.
-    crew_nb (int): Number of total crew members.
-    cabin_crew_nb (int): Number of cabin crew members.
-    wing_loading (float): Wing loading [kg/m^2].
-    passenger_mass ...
+        cpacs (Cpacs): The Cpacs object.
+        cabin_length (float): Length of the cabin.
+        cabin_width (float): Width of the cabin.
+        mass_payload (float): Mass of the payload.
 
     """
 
-    def __init__(self, cpacs, cabin_length, cabin_width):
+    def __init__(self, cpacs, cabin_length, cabin_width, payload_mass=0):
 
         self.cpacs = cpacs
         self.cabin_length = cabin_length
         self.cabin_width = cabin_width
+        self.mass_payload = payload_mass
 
-        self.wing_loading = 0
-
-        self.mass_fuel_maxpass = 0
-        self.mass_fuel_max = 0
-        self.maximum_take_off_mass = 0
-        self.operating_empty_mass = 0
-        self.mass_payload = 0
-        self.MAX_FUEL_MASS = 0
-        self.max_payload = 0
-        self.mass_cargo = 0
-        self.zero_fuel_mass = 0
-
-        # People
         self.pilot_nb = 2
 
     @property
@@ -196,6 +155,24 @@ class Cabin:
     @property
     def toilet_nb(self):
         return math.ceil(self.passenger_nb / PASSENGER_PER_TOILET)
+
+    def save_to_cpacs(self):
+        """Save calculated value in the CPACS object."""
+
+        attr_to_xpath = {
+            "abreast_nb": WB_ABREAST_NB_XPATH,
+            "row_nb": WB_ROW_NB_XPATH,
+            "passenger_nb": WB_PASSENGER_NB_XPATH,
+            "passenger_mass": WB_PASSENGER_MASS_XPATH,
+            "cabin_crew_nb": WB_CAB_CREW_NB_XPATH,
+            "crew_nb": WB_CREW_NB_XPATH,
+            "crew_mass": WB_CREW_MASS_XPATH,
+            "people_mass": WB_PEOPLE_MASS_XPATH,
+            "toilet_nb": WB_TOILET_NB_XPATH,
+        }
+
+        for attr, xpath in attr_to_xpath.items():
+            add_value(self.cpacs.tixi, xpath, getattr(self, attr))
 
     def write_seat_config(self):
         """Write the seat configuration in a file in the result directory."""

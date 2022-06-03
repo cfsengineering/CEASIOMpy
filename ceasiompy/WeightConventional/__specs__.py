@@ -7,12 +7,21 @@ from ceasiompy.utils.commonxpath import (
     GEOM_XPATH,
     MASS_CARGO_XPATH,
     MASSBREAKDOWN_XPATH,
+    WB_ABREAST_NB_XPATH,
+    WB_CAB_CREW_NB_XPATH,
+    WB_CREW_MASS_XPATH,
+    WB_CREW_NB_XPATH,
     WB_MASS_LIMIT_XPATH,
     PASS_XPATH,
     PROP_XPATH,
     WB_DOUBLE_FLOOR_XPATH,
     WB_MAX_FUEL_VOL_XPATH,
     WB_MAX_PAYLOAD_XPATH,
+    WB_PASSENGER_MASS_XPATH,
+    WB_PASSENGER_NB_XPATH,
+    WB_PEOPLE_MASS_XPATH,
+    WB_ROW_NB_XPATH,
+    WB_TOILET_NB_XPATH,
 )
 
 # ===== Results directory path =====
@@ -275,11 +284,19 @@ cpacs_inout.add_output(
 )
 
 cpacs_inout.add_output(
-    var_name="pass_nb",
+    var_name="passenger_nb",
+    default_value=None,
+    unit="[-]",
+    descr="Maximum number of passengers",
+    xpath=WB_PASSENGER_NB_XPATH,
+)
+
+cpacs_inout.add_output(
+    var_name="passenger_mass",
     default_value=None,
     unit="[kg]",
-    descr="Maximum number of passengers",
-    xpath=PASS_XPATH + "/passNb",
+    descr="Mass all of passengers",
+    xpath=WB_PASSENGER_MASS_XPATH,
 )
 
 cpacs_inout.add_output(
@@ -287,7 +304,31 @@ cpacs_inout.add_output(
     default_value=None,
     unit="[-]",
     descr="Number of cabin crew members",
-    xpath=CAB_CREW_XPATH + "/cabinCrewMemberNb",
+    xpath=WB_CAB_CREW_NB_XPATH,
+)
+
+cpacs_inout.add_output(
+    var_name="crew_nb",
+    default_value=None,
+    unit="[-]",
+    descr="Number of cabin crew members (pilot and cabin crew)",
+    xpath=WB_CREW_NB_XPATH,
+)
+
+cpacs_inout.add_output(
+    var_name="crew_mass",
+    default_value=None,
+    unit="[kg]",
+    descr="Mass of all cabin crew members (pilot and cabin crew)",
+    xpath=WB_CREW_MASS_XPATH,
+)
+
+cpacs_inout.add_output(
+    var_name="people_mass",
+    default_value=None,
+    unit="[kg]",
+    descr="Mass of all people (pilot, cabin crew and passengers)",
+    xpath=WB_PEOPLE_MASS_XPATH,
 )
 
 cpacs_inout.add_output(
@@ -295,7 +336,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit="[-]",
     descr="Number of seat rows",
-    xpath=PASS_XPATH + "/rowNb",
+    xpath=WB_ROW_NB_XPATH,
 )
 
 cpacs_inout.add_output(
@@ -303,15 +344,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit="[-]",
     descr="Number of abreasts",
-    xpath=PASS_XPATH + "/abreastNb",
-)
-
-cpacs_inout.add_output(
-    var_name="aisle_nb",
-    default_value=None,
-    unit="[-]",
-    descr="Number of aisles",
-    xpath=PASS_XPATH + "/aisleNb",
+    xpath=WB_ABREAST_NB_XPATH,
 )
 
 cpacs_inout.add_output(
@@ -319,5 +352,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit="[-]",
     descr="Number of toilets",
-    xpath=PASS_XPATH + "/toiletNb",
+    xpath=WB_TOILET_NB_XPATH,
 )

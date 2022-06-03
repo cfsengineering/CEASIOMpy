@@ -121,11 +121,22 @@ RANGE_LD_RATIO_XPATH = CEASIOMPY_XPATH + "/ranges/lDRatio"
 F_XPATH = "/cpacs/vehicles/fuels/fuel"  # TODO RENAME
 MASS_CARGO_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass"
 
-
+# TODO: remove those 4 when not use anymore
 PASS_XPATH = CEASIOMPY_XPATH + "/weight/passengers"
 CREW_XPATH = CEASIOMPY_XPATH + "/weight/crew"
 PILOTS_XPATH = CEASIOMPY_XPATH + "/weight/crew/pilots"
 CAB_CREW_XPATH = CEASIOMPY_XPATH + "/weight/crew/cabinCrewMembers"
+
+# TODO: improve xpaths maybe remove some sub xpaths
+WB_ROW_NB_XPATH = CEASIOMPY_XPATH + "/weight/passengers/rowNb"
+WB_ABREAST_NB_XPATH = CEASIOMPY_XPATH + "/weight/passengers/abreastNb"
+WB_PASSENGER_NB_XPATH = CEASIOMPY_XPATH + "/weight/passengers/passNb"
+WB_PASSENGER_MASS_XPATH = CEASIOMPY_XPATH + "/weight/passengers/passMass"
+WB_TOILET_NB_XPATH = CEASIOMPY_XPATH + "/weight/passengers/toiletNb"
+WB_PEOPLE_MASS_XPATH = CEASIOMPY_XPATH + "/weight/passengers/peopleMass"
+WB_CAB_CREW_NB_XPATH = CEASIOMPY_XPATH + "/weight/cab_crew/cabinCrewMemberNb"
+WB_CREW_NB_XPATH = CEASIOMPY_XPATH + "/weight/crew/crewMemberNb"
+WB_CREW_MASS_XPATH = CEASIOMPY_XPATH + "/weight/crew/crewMemberMass"
 
 WB_MASS_LIMIT_XPATH = CEASIOMPY_XPATH + "/weight/massLimits"
 WB_MAX_PAYLOAD_XPATH = WB_MASS_LIMIT_XPATH + "/maxPayload"

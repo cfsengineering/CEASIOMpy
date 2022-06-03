@@ -28,7 +28,6 @@ TODO:
 import math
 from pathlib import Path
 
-import matplotlib.pyplot as plt
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from ceasiompy.CPACS2SUMO.func.sumofunctions import (
@@ -270,12 +269,13 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 prof_vect_y[:] = [y - 1 - prof_min_y for y in prof_vect_y]
                 prof_vect_z[:] = [z - 1 - prof_min_z for z in prof_vect_z]
 
-                # Could be a problem if they are less positionings than secions
+                # Could be a problem if they are less positionings than sections
                 # TODO: solve that!
                 pos_y_list[i_sec] += ((1 + prof_min_y) * prof_size_y) * elem_transf.scaling.y
                 pos_z_list[i_sec] += ((1 + prof_min_z) * prof_size_z) * elem_transf.scaling.z
 
                 # #To Plot a particular section
+                # import matplotlib.pyplot as plt
                 # if i_sec==5:
                 #     plt.plot(prof_vect_z, prof_vect_y,'x')
                 #     plt.xlabel('y')
@@ -364,8 +364,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     for t in zip(*sorted(zip(teta_half, prof_vect_z_half, prof_vect_y_half)))
                 )
 
-                # Write profile as a string and add y=0 point at the begining
-                # and at the end to ensure symmmetry
+                # Write profile as a string and add y=0 point at the beginning
+                # and at the end to ensure symmetry
                 if not check_min:
                     prof_str += str(0) + " " + str(prof_vect_z_half[0]) + " "
                 for i, item in enumerate(prof_vect_z_half):
@@ -571,6 +571,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     )
 
                 # Plot setions (for tests)
+                # import matplotlib.pyplot as plt
                 # if (i_sec>8 and i_sec<=10):
                 #     plt.plot(prof_vect_x, prof_vect_z,'x')
                 #     plt.xlabel('x')
@@ -1000,6 +1001,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 zsectransl = engpart.section.transf.translation.z
 
             # # Plot
+            # import matplotlib.pyplot as plt
             # fig, ax = plt.subplots()
             # ax.plot(xlist, ylist,'x')
             # ax.plot(xcontours, ycontours,'or')

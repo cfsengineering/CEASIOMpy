@@ -171,7 +171,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 
     cabin = Cabin(cpacs, cabin_length_tot, cabin_width, masses.max_payload)
     cabin.save_to_cpacs()
-    cabin.write_seat_config()
+    cabin.write_seat_config(Path(result_dir, "Seats_disposition.out"))
 
     # TODO: tmp to test cabin function (will be removed)
     masses.mass_payload = cabin.passenger_mass + mass_cargo

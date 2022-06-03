@@ -161,13 +161,10 @@ class Cabin:
         for attr, xpath in attr_to_xpath.items():
             add_value(self.cpacs.tixi, xpath, getattr(self, attr))
 
-    def write_seat_config(self):
+    def write_seat_config(self, seat_config_file):
         """Write the seat configuration in a file in the result directory."""
 
-        result_dir = get_results_directory("WeightConventional")
-        output_file = Path(result_dir, "Seats_disposition.out")
-
-        lines = open(output_file, "w")
+        lines = open(seat_config_file, "w")
         lines.write("\n---------------------------------------")
         lines.write(f"\nAbreast nb.: {self.abreast_nb}")
         lines.write(f"\nRow nb.: {self.row_nb}")

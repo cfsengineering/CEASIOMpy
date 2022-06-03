@@ -85,9 +85,9 @@ class TestCabin:
 
     def test_write_seat_config(self):
 
-        self.cabins[0].write_seat_config()
-
         seat_config_file = Path(MODULE_DIR, "Results", "WeightAndBalance", "Seats_disposition.out")
+
+        self.cabins[0].write_seat_config(seat_config_file)
 
         assert seat_config_file.exists()
 

@@ -31,9 +31,6 @@ log = get_logger()
 #   CLASSES
 # =============================================================================
 
-#  InsideDimensions class, can be found on the InputClasses folder inside the
-#  weightconvclass.py script.
-
 
 # =============================================================================
 #   FUNCTIONS
@@ -61,22 +58,6 @@ def cpacs_update(mw, out, cpacs):
     )
 
     create_branch(tixi, PASS_XPATH, False)
-
-    if not tixi.checkElement(PASS_XPATH + "/passNb"):
-        tixi.createElement(PASS_XPATH, "passNb")
-    tixi.updateIntegerElement(PASS_XPATH + "/passNb", out.pass_nb, "%i")
-    if not tixi.checkElement(PASS_XPATH + "/rowNb"):
-        tixi.createElement(PASS_XPATH, "rowNb")
-    tixi.updateIntegerElement(PASS_XPATH + "/rowNb", out.row_nb, "%i")
-    if not tixi.checkElement(PASS_XPATH + "/aisleNb"):
-        tixi.createElement(PASS_XPATH, "aisleNb")
-    tixi.updateIntegerElement(PASS_XPATH + "/aisleNb", out.aisle_nb, "%i")
-    if not tixi.checkElement(PASS_XPATH + "/toiletNb"):
-        tixi.createElement(PASS_XPATH, "toiletNb")
-    tixi.updateIntegerElement(PASS_XPATH + "/toiletNb", out.toilet_nb, "%i")
-    if not tixi.checkElement(PASS_XPATH + "/abreastNb"):
-        tixi.createElement(PASS_XPATH, "abreastNb")
-    tixi.updateIntegerElement(PASS_XPATH + "/abreastNb", out.abreast_nb, "%i")
 
     if not tixi.checkElement(PASS_XPATH + "/fuelMassMaxpass"):
         tixi.createElement(PASS_XPATH, "fuelMassMaxpass")

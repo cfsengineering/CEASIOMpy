@@ -220,12 +220,13 @@ class MassesWeights:
         self.mass_crew = 0
 
 
+# TODO: this class will be removed
 class WeightOutput:
     """
     The class contains some of the output value of the weight analysis.
 
     Attributes:
-    abreast_nb (int): Number of abreasts.
+    abreast_nb (int): Number of abreast.
     row_nb (int): Number of rows.
     pass_nb (int): Number of passengers.
     toilet_nb (int): Number of toilets.

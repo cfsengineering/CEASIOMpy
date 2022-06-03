@@ -13,7 +13,7 @@ Python version: >=3.7
 TODO:
     * Simplify classes, use only one or use subclasses
     * Make tings compatible also with the others W&B Modules
-    * Use Pathlib and asolute path when refactor this module
+    * Use Pathlib and absolute path when refactor this module
 
 """
 
@@ -25,7 +25,8 @@ TODO:
 from pathlib import Path
 
 import numpy as np
-from ceasiompy.WeightConventional.func.crewmembers import estimate_crew
+from ceasiompy.WeightConventional.func.cabin import Cabin
+
 from ceasiompy.utils.InputClasses.Conventional.weightconvclass import (
     InsideDimensions,
     MassesWeights,
@@ -52,7 +53,7 @@ from ceasiompy.WeightConventional.func.AoutFunc import cpacsweightupdate, output
 
 from ceasiompy.WeightConventional.func.mtom import estimate_mtom
 from ceasiompy.WeightConventional.func.oem import estimate_oem
-from ceasiompy.WeightConventional.func.passengers import estimate_passengers, write_seat_config
+
 
 from ceasiompy.WeightConventional.func.weightutils import (
     PASSENGER_MASS,
@@ -100,7 +101,6 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     result_dir = get_results_directory("WeightConventional")
 
     # Get user input
-
     description = "Desired max fuel volume [m^3] and payload mass [kg]"
     get_value_or_default(cpacs.tixi, WB_MASS_LIMIT_XPATH + "/description", description)
 
@@ -116,7 +116,6 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     masses = MassesWeights()
     out = WeightOutput()
 
-    # ag = geometry.geometry_eval(cpacs_path, name)
     ag = geometry.AircraftGeometry()
     ag.fuse_geom_eval(cpacs)
     ag.wing_geom_eval(cpacs)
@@ -166,47 +165,18 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
         turboprop,
     )
 
-    # Passengers and Crew mass evaluation
-    inside_width = ag.fuse_width / (1 + (inside_dim.fuse_thick / 100))
-    if inside_width > (inside_dim.seat_width + inside_dim.aisle_width):
-        (
-            out.pass_nb,
-            out.row_nb,
-            out.abreast_nb,
-            out.aisle_nb,
-            out.toilet_nb,
-            inside_dim,
-        ) = estimate_passengers(cabin_length_tot, ag.fuse_width, inside_dim)
+    # Cabin
 
-        write_seat_config(
-            ag.fuse_length,
-            out.row_nb,
-            out.abreast_nb,
-            out.aisle_nb,
-            is_double_floor,
-            inside_dim.seat_length,
-            out.toilet_nb,
-            inside_dim.toilet_length,
-        )
-    else:
-        out.pass_nb = 0
-        raise Exception(
-            "The aircraft can not transport passengers, increase"
-            + " fuselage width."
-            + "\nCabin Width [m] = "
-            + str((ag.fuse_width / (1 + inside_dim.fuse_thick)))
-            + " is less than seat width [m]"
-            + " + aisle width [m] = "
-            + str(inside_dim.seat_width + inside_dim.aisle_width)
-        )
+    cabin_width = ag.fuse_width / (1 + (inside_dim.fuse_thick / 100))
 
-    out.crew_nb, out.cabin_crew_nb, masses.mass_crew = estimate_crew(
-        out.pass_nb, masses.mass_payload
-    )
+    cabin = Cabin(cpacs, cabin_length_tot, cabin_width, masses.max_payload)
+    cabin.save_to_cpacs()
+    cabin.write_seat_config()
 
-    masses.mass_payload = out.pass_nb * PASSENGER_MASS + mass_cargo
-
-    masses.mass_people = masses.mass_crew + out.pass_nb * PASSENGER_MASS
+    # TODO: tmp to test cabin function (will be removed)
+    masses.mass_payload = cabin.passenger_mass + mass_cargo
+    masses.mass_crew = cabin.crew_mass
+    masses.mass_people = cabin.people_mass
 
     maxp = False
     if masses.max_payload > 0 and masses.mass_payload > masses.max_payload:
@@ -295,16 +265,16 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     log.info("Maximum amount of fuel allowed with no passengers:")
     log.info(f" -> {int(masses.mass_fuel_max)} [kg]")
     log.info(f" -> {int(masses.mass_fuel_max / fuel_density * 1000)} [l]")
-    log.info("--------- Passegers evaluated: ---------")
-    log.info(f"Passengers: {out.pass_nb}")
-    log.info(f"Lavatory: {out.toilet_nb}")
+    log.info("--------- Passengers evaluated: ---------")
+    log.info(f"Passengers: {cabin.passenger_nb}")
+    log.info(f"Lavatory: {cabin.toilet_nb}")
     log.info(f"Payload mass: {masses.mass_payload} [kg]")
     log.info("------- Crew members evaluated: --------")
     log.info(f"Pilots: {PILOT_NB}")
-    log.info(f"Cabin crew members: {out.cabin_crew_nb}")
+    log.info(f"Cabin crew members: {cabin.cabin_crew_nb}")
     log.info("Weight estimation completed.")
 
-    # Output writting
+    # Output writing
     log.info("Generating output text file")
     # TODO: should be do completely differently
     outputweightgen.output_txt(
@@ -338,3 +308,15 @@ if __name__ == "__main__":
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)
+
+
+# self.wing_loading = 0
+# self.mass_fuel_maxpass = 0
+# self.mass_fuel_max = 0
+# self.maximum_take_off_mass = 0
+# self.operating_empty_mass = 0
+# self.MAX_FUEL_MASS = 0
+# self.mass_payload = 0
+# self.max_payload = 0
+# self.mass_cargo = 0
+# self.zero_fuel_mass = 0

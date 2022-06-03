@@ -1,14 +1,24 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+This script estimates all the cabin related parameters (Crew, passenger, equipment, etc.)
+
+Python version: >=3.7
+
+| Author : Aidan Jungo
+| Creation: 2022-06-01
+
+"""
+
+# =================================================================================================
+#   IMPORTS
+# =================================================================================================
+
 import math
 from pathlib import Path
 
-from cpacspy.cpacsfunctions import add_value, get_value_or_default
-from ceasiompy.WeightConventional.func.weightutils import (
-    CABIN_CREW_MASS,
-    PASSENGER_MASS,
-    PASSENGER_PER_TOILET,
-    PILOT_MASS,
-    TOILET_LENGTH,
-)
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.commonxpath import (
@@ -25,44 +35,21 @@ from ceasiompy.utils.commonxpath import (
     WB_SEAT_WIDTH_XPATH,
     WB_TOILET_NB_XPATH,
 )
+from ceasiompy.WeightConventional.func.weightutils import (
+    CABIN_CREW_MASS,
+    PASSENGER_MASS,
+    PASSENGER_PER_TOILET,
+    PILOT_MASS,
+    TOILET_LENGTH,
+)
+from cpacspy.cpacsfunctions import add_value, get_value_or_default
 
 log = get_logger()
 
 
-def check_aisle_nb(abreast_nb):
-    """It is a static method and not property to avoid circular dependency."""
-
-    if abreast_nb < 1:
-        return 0
-    elif abreast_nb <= 6:
-        return 1
-    else:
-        return 2
-
-
-def check_toilet_length(passenger_nb):
-    """It is a static method and not property to avoid circular dependency."""
-
-    toilet_nb = math.ceil(passenger_nb / PASSENGER_PER_TOILET)
-
-    return math.ceil(toilet_nb / 2) * TOILET_LENGTH
-
-
-def stringed_seat_row(abreast_nb):
-    """Return a string which represent the seat row disposition."""
-
-    if abreast_nb == 1:
-        return "X ||" + "\n"
-    elif abreast_nb <= 6:
-        return "X " * (abreast_nb // 2) + "|| " + "X " * (abreast_nb - abreast_nb // 2) + "\n"
-    elif abreast_nb == 7:
-        return "X " * 2 + "|| " + "X " * 3 + "|| " + "X " * 2 + "\n"
-    elif abreast_nb == 8:
-        return "X " * 2 + "|| " + "X " * 4 + "|| " + "X " * 2 + "\n"
-    elif abreast_nb == 9:
-        return "X " * 3 + "|| " + "X " * 3 + "|| " + "X " * 3 + "\n"
-    elif abreast_nb == 10:
-        return "X " * 3 + "|| " + "X " * 4 + "|| " + "X " * 3 + "\n"
+# =================================================================================================
+#   CLASSES
+# =================================================================================================
 
 
 class Cabin:
@@ -194,3 +181,53 @@ class Cabin:
             lines.write(stringed_seat_row(self.abreast_nb))
 
         lines.close()
+
+
+# =================================================================================================
+#   FUNCTIONS
+# =================================================================================================
+
+
+def check_aisle_nb(abreast_nb):
+    """It is a static method and not property to avoid circular dependency."""
+
+    if abreast_nb < 1:
+        return 0
+    elif abreast_nb <= 6:
+        return 1
+    else:
+        return 2
+
+
+def check_toilet_length(passenger_nb):
+    """It is a static method and not property to avoid circular dependency."""
+
+    toilet_nb = math.ceil(passenger_nb / PASSENGER_PER_TOILET)
+
+    return math.ceil(toilet_nb / 2) * TOILET_LENGTH
+
+
+def stringed_seat_row(abreast_nb):
+    """Return a string which represent the seat row disposition."""
+
+    if abreast_nb == 1:
+        return "X ||" + "\n"
+    elif abreast_nb <= 6:
+        return "X " * (abreast_nb // 2) + "|| " + "X " * (abreast_nb - abreast_nb // 2) + "\n"
+    elif abreast_nb == 7:
+        return "X " * 2 + "|| " + "X " * 3 + "|| " + "X " * 2 + "\n"
+    elif abreast_nb == 8:
+        return "X " * 2 + "|| " + "X " * 4 + "|| " + "X " * 2 + "\n"
+    elif abreast_nb == 9:
+        return "X " * 3 + "|| " + "X " * 3 + "|| " + "X " * 3 + "\n"
+    elif abreast_nb == 10:
+        return "X " * 3 + "|| " + "X " * 4 + "|| " + "X " * 3 + "\n"
+
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+
+    print("Nothing to execute!")

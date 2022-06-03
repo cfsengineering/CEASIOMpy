@@ -164,7 +164,7 @@ class Cabin:
     def write_seat_config(self, seat_config_file):
         """Write the seat configuration in a file in the result directory."""
 
-        lines = open(seat_config_file, "w+")
+        lines = open(seat_config_file, "w")
         lines.write("\n---------------------------------------")
         lines.write(f"\nAbreast nb.: {self.abreast_nb}")
         lines.write(f"\nRow nb.: {self.row_nb}")

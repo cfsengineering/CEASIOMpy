@@ -16,6 +16,7 @@ Python version: >=3.7
 #   IMPORTS
 # =================================================================================================
 
+import shutil
 from pathlib import Path
 
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
@@ -85,6 +86,10 @@ class TestCabin:
         )
 
     def test_write_seat_config(self):
+
+        if TEST_OUT_PATH.exists():
+            shutil.rmtree(TEST_OUT_PATH)
+        TEST_OUT_PATH.mkdir()
 
         seat_config_file = Path(TEST_OUT_PATH, "Seats_disposition.out")
 

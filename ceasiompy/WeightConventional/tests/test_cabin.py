@@ -31,6 +31,7 @@ from cpacspy.cpacspy import CPACS
 
 MODULE_DIR = Path(__file__).parent
 TEST_CPACS_IN = Path(CPACS_FILES_PATH, "D150_simple.xml")
+TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # =================================================================================================
 #   CLASSES
@@ -85,7 +86,7 @@ class TestCabin:
 
     def test_write_seat_config(self):
 
-        seat_config_file = Path(MODULE_DIR, "Results", "WeightAndBalance", "Seats_disposition.out")
+        seat_config_file = Path(TEST_OUT_PATH, "Seats_disposition.out")
 
         self.cabins[0].write_seat_config(seat_config_file)
 

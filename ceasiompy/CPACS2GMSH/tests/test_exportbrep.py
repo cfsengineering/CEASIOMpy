@@ -16,14 +16,14 @@ Python version: >=3.7
 #   IMPORTS
 # =================================================================================================
 
-from pathlib import Path
 import shutil
+from pathlib import Path
 from unittest.mock import patch
+
 import pytest
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from cpacspy.cpacspy import CPACS
-
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from cpacspy.cpacspy import CPACS
 
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")

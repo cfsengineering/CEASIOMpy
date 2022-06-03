@@ -17,11 +17,9 @@ Python version: >=3.7
 # =================================================================================================
 
 import shutil
-import sys
 from pathlib import Path
 
 import gmsh
-import pytest
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.generategmesh import (
     ModelPart,

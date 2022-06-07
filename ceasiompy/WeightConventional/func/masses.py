@@ -25,21 +25,8 @@ from ceasiompy.WeightConventional.func.oem import estimate_oem
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.commonxpath import (
-    FUEL_DENSITY_XPATH,
     MASS_CARGO_XPATH,
-    WB_ABREAST_NB_XPATH,
-    WB_AISLE_WIDTH_XPATH,
-    WB_CAB_CREW_NB_XPATH,
-    WB_CREW_MASS_XPATH,
-    WB_CREW_NB_XPATH,
     WB_MAX_PAYLOAD_XPATH,
-    WB_PASSENGER_MASS_XPATH,
-    WB_PASSENGER_NB_XPATH,
-    WB_PEOPLE_MASS_XPATH,
-    WB_ROW_NB_XPATH,
-    WB_SEAT_LENGTH_XPATH,
-    WB_SEAT_WIDTH_XPATH,
-    WB_TOILET_NB_XPATH,
 )
 from ceasiompy.WeightConventional.func.weightutils import UNUSABLE_FUEL_RATIO
 
@@ -105,12 +92,12 @@ class AircfaftMasses:
                 else:
                     coef = 3.6
             elif wing_area < 90.00:
-                if fuse_length[0] < 60.00:
+                if fuse_length < 60.00:
                     coef = 4.3
                 else:
                     coef = 4.0
             elif wing_area < 300.00:
-                if fuse_length[0] < 35.00:
+                if fuse_length < 35.00:
                     coef = 3.6
                 else:
                     coef = 3.8

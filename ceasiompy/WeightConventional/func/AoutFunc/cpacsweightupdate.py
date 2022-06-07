@@ -19,8 +19,8 @@ TODO:
 #   IMPORTS
 # =============================================================================
 
-from cpacspy.cpacsfunctions import add_uid, create_branch, open_tixi
-from ceasiompy.utils.commonxpath import CREW_XPATH, MASSBREAKDOWN_XPATH, PASS_XPATH
+from cpacspy.cpacsfunctions import add_uid, create_branch
+from ceasiompy.utils.commonxpath import MASSBREAKDOWN_XPATH, PASS_XPATH
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 
@@ -49,13 +49,6 @@ def cpacs_update(mw, out, cpacs):
     """
 
     tixi = cpacs.tixi
-
-    # Path update
-    if not tixi.checkElement(CREW_XPATH + "/cabinCrewMembers/cabinCrewMemberNb"):
-        create_branch(tixi, CREW_XPATH + "/cabinCrewMembers/cabinCrewMemberNb")
-    tixi.updateDoubleElement(
-        CREW_XPATH + "/cabinCrewMembers/cabinCrewMemberNb", out.cabin_crew_nb, "%g"
-    )
 
     create_branch(tixi, PASS_XPATH, False)
 

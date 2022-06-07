@@ -135,6 +135,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     cabin.write_seat_config(Path(result_dir, "Cabin.out"))
 
     ac_masses.get_payload_mass(cabin.passenger_mass)
+    ac_masses.save_to_cpacs()
     ac_masses.write_masses_output(Path(result_dir, "Masses.out"))
 
     log.info("---- Geometry evaluation from CPACS file ----")

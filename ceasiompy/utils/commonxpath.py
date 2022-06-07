@@ -32,7 +32,19 @@ ENGINES_XPATH = "/cpacs/vehicles/aircraft/model/engines"
 
 # analyses
 AEROPERFORMANCE_XPATH = "/cpacs/vehicles/aircraft/model/analyses/aeroPerformance"
+
 MASSBREAKDOWN_XPATH = "/cpacs/vehicles/aircraft/model/analyses/massBreakdown"
+
+MTOM_XPATH = MASSBREAKDOWN_XPATH + "/designMasses/mTOM/mass"
+MZFM_XPATH = MASSBREAKDOWN_XPATH + "/designMasses/mZFM/mass"
+MOEM_XPATH = MASSBREAKDOWN_XPATH + "/mOEM/massDescription"
+PAYLOAD_DESCRIPTION_XPATH = MASSBREAKDOWN_XPATH + "/payload/massDescription"
+PAYLOAD_CARGO_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo"
+# MF_XPATH = MASSBREAKDOWN_XPATH + "/fuel/massDescription"
+# OIM_XPATH = MASSBREAKDOWN_XPATH + "/mOEM/mOperatorItems/mCrewMembers/massDescription"
+F_XPATH = "/cpacs/vehicles/fuels/fuel"  # TODO remove
+FUEL_DENSITY_XPATH = "/cpacs/vehicles/fuels/fuel/density"
+MASS_CARGO_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass"
 
 # CEASIOMpy
 CEASIOMPY_XPATH = "/cpacs/toolspecific/CEASIOMpy"
@@ -116,11 +128,6 @@ SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
 
 # RANGE
 RANGE_LD_RATIO_XPATH = CEASIOMPY_XPATH + "/ranges/lDRatio"
-
-# WEIGHT
-F_XPATH = "/cpacs/vehicles/fuels/fuel"  # TODO remove
-FUEL_DENSITY_XPATH = "/cpacs/vehicles/fuels/fuel/density"
-MASS_CARGO_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass"
 
 # TODO: remove those 4 when not use anymore
 PASS_XPATH = CEASIOMPY_XPATH + "/weight/passengers"

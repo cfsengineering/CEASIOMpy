@@ -118,7 +118,7 @@ def output_txt(out, mw, ind, is_double_floor, max_payload, max_fuel_vol, fuel_de
     out_txt_file.write(f"\nMaximum take off mass [kg]: {int(mw.maximum_take_off_mass)}")
     out_txt_file.write(f"\nOperating empty mass [kg]: {int(mw.operating_empty_mass)}")
     out_txt_file.write(f"\nZero fuel mass [kg]: {int(mw.zero_fuel_mass)}")
-    out_txt_file.write(f"\nWing loading [kg/m^2]: {int(out.wing_loading)}")
+    out_txt_file.write(f"\nWing loading [kg/m^2]:")  # {int(out.wing_loading)}")
 
     out_txt_file.close()
 

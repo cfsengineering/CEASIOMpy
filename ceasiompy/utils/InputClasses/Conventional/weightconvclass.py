@@ -220,32 +220,6 @@ class MassesWeights:
         self.mass_crew = 0
 
 
-# TODO: this class will be removed
-class WeightOutput:
-    """
-    The class contains some of the output value of the weight analysis.
-
-    Attributes:
-    abreast_nb (int): Number of abreast.
-    row_nb (int): Number of rows.
-    pass_nb (int): Number of passengers.
-    toilet_nb (int): Number of toilets.
-    crew_nb (int): Number of total crew members.
-    cabin_crew_nb (int): Number of cabin crew members.
-    wing_loading (float): Wing loading [kg/m^2].
-
-    """
-
-    def __init__(self):
-        self.abreast_nb = 0
-        self.row_nb = 0
-        self.pass_nb = 0
-        self.toilet_nb = 0
-        self.crew_nb = 0
-        self.cabin_crew_nb = 0
-        self.wing_loading = 0
-
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================

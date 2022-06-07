@@ -30,7 +30,6 @@ from ceasiompy.WeightConventional.func.cabin import Cabin
 from ceasiompy.utils.InputClasses.Conventional.weightconvclass import (
     InsideDimensions,
     MassesWeights,
-    WeightOutput,
 )
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
@@ -72,10 +71,6 @@ MODULE_NAME = MODULE_DIR.name
 #   CLASSES
 # =================================================================================================
 
-"""
-    All classes are defined in the Classes and in the Input_classes folders.
-"""
-
 
 # =================================================================================================
 #   FUNCTIONS
@@ -85,7 +80,8 @@ MODULE_NAME = MODULE_DIR.name
 def get_weight_estimations(cpacs_path, cpacs_out_path):
     """Function to estimate the all weights for a conventional aircraft.
 
-    Function 'get_weight_estimations' ...
+    Function 'get_weight_estimations' use available information in the CPACS file to estimate the
+    masses of the aircraft. It also estimates some cabin dimensions and number of people.
 
     Source:
         * Reference paper or book, with author and date, see ...
@@ -97,7 +93,6 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     """
 
     cpacs = CPACS(cpacs_path)
-
     result_dir = get_results_directory("WeightConventional")
 
     # Get user input
@@ -114,7 +109,6 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 
     # Classes
     masses = MassesWeights()
-    out = WeightOutput()
 
     ag = geometry.AircraftGeometry()
     ag.fuse_geom_eval(cpacs)
@@ -155,7 +149,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     )
 
     # Wing loading
-    out.wing_loading = masses.maximum_take_off_mass / np.sum(ag.wing_plt_area)
+    wing_loading = masses.maximum_take_off_mass / np.sum(ag.wing_plt_area)
 
     # Operating Empty Mass evaluation
     masses.operating_empty_mass = estimate_oem(
@@ -261,7 +255,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     log.info(f"Maximum Take Off Mass: {int(round(masses.maximum_take_off_mass))} [kg]")
     log.info(f"Operating Empty Mass: {int(round(masses.operating_empty_mass))} [kg]")
     log.info(f"Zero Fuel Mass: {int(round(masses.zero_fuel_mass))} [kg]")
-    log.info(f"Wing loading : {int(round(out.wing_loading))} [kg/m^2]")
+    log.info(f"Wing loading : {int(round(wing_loading))} [kg/m^2]")
     log.info("Maximum amount of fuel allowed with no passengers:")
     log.info(f" -> {int(masses.mass_fuel_max)} [kg]")
     log.info(f" -> {int(masses.mass_fuel_max / fuel_density * 1000)} [l]")
@@ -277,11 +271,11 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     # Output writing
     log.info("Generating output text file")
     # TODO: should be do completely differently
-    outputweightgen.output_txt(
-        out, masses, inside_dim, is_double_floor, max_payload, max_fuel_vol, fuel_density
-    )
+    # outputweightgen.output_txt(
+    #     out, masses, inside_dim, is_double_floor, max_payload, max_fuel_vol, fuel_density
+    # )
 
-    cpacsweightupdate.cpacs_update(masses, out, cpacs)
+    # cpacsweightupdate.cpacs_update(masses, out, cpacs)
 
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 

@@ -17,10 +17,8 @@ Python version: >=3.7
 # =================================================================================================
 
 import math
-from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.commonxpath import (
     WB_ABREAST_NB_XPATH,
     WB_AISLE_WIDTH_XPATH,
@@ -161,16 +159,29 @@ class Cabin:
         for attr, xpath in attr_to_xpath.items():
             add_value(self.cpacs.tixi, xpath, getattr(self, attr))
 
-    def write_seat_config(self, seat_config_file):
+    def write_seat_config(self, cabin_output_file):
         """Write the seat configuration in a file in the result directory."""
 
-        lines = open(seat_config_file, "w")
+        lines = open(cabin_output_file, "w")
         lines.write("\n---------------------------------------")
+        lines.write("\n-------------- CABIN-------------------")
+        lines.write("\n---------------------------------------")
+        lines.write("\nCrew ----------------------------------")
+        lines.write(f"\nPilot nb: {self.pilot_nb}")
+        lines.write(f"\nCabin crew nb: {self.cabin_crew_nb}")
+        lines.write(f"\nCrew mass: {self.crew_mass} [kg]")
+        lines.write("\n---------------------------------------")
+        lines.write("\nPassengers -----------------------------")
+        lines.write(f"\nPassengers nb: {self.passenger_nb}")
+        lines.write(f"\nPassengers mass: {self.passenger_mass} [kg]")
+        lines.write("\n---------------------------------------")
+        lines.write("\nSeats----------------------------------")
         lines.write(f"\nAbreast nb.: {self.abreast_nb}")
         lines.write(f"\nRow nb.: {self.row_nb}")
         lines.write(f"\nSeats_nb : {self.passenger_nb}")
-        lines.write("-----------------------------------------")
-        lines.write("\nPossible seat configuration")
+        lines.write(f"\nNumber of lavatory: {int(self.toilet_nb)}")
+        lines.write("\n---------------------------------------")
+        lines.write("\nPossible seat configuration------------")
         lines.write("\nSeat = X and Aisle = || ")
         lines.write("\n---------------------------------------\n")
 

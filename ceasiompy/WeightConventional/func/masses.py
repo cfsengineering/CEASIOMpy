@@ -56,7 +56,7 @@ class AircfaftMasses:
         # User input
         # Maximum payload allowed, set 0 if equal to max passenger mass.
         self.max_payload_mass = get_value_or_default(cpacs.tixi, WB_MAX_PAYLOAD_XPATH, 0)
-        self.mass_cargo = get_value_or_default(cpacs.tixi, MASS_CARGO_XPATH, 0.0)
+        self.cargo_mass = get_value_or_default(cpacs.tixi, MASS_CARGO_XPATH, 0.0)
         self.fuel_density = 800  # TODO: deal with multiple fuel store in cpacs
         # self.fuel_density = get_value_or_default(cpacs.tixi, FUEL_DENSITY_XPATH, 800)
         # add_uid(cpacs.tixi, FUEL_DENSITY_XPATH, "kerosene")
@@ -79,7 +79,7 @@ class AircfaftMasses:
     def get_payload_mass(self, passenger_mass):
         """Payload Mass evaluation"""
 
-        self.payload_mass = self.mass_cargo + passenger_mass
+        self.payload_mass = self.cargo_mass + passenger_mass
 
         if self.max_payload_mass > 0 and self.payload_mass > self.max_payload_mass:
             self.payload_mass = self.max_payload_mass
@@ -132,6 +132,33 @@ class AircfaftMasses:
 
     def get_wing_loading(self, wings_area):
         self.wing_loading = self.mtom / wings_area
+
+    def write_masses_output(self, masses_output_file):
+        """Write the seat configuration in a file in the result directory."""
+
+        lines = open(masses_output_file, "w")
+        lines.write("\n---------------------------------------------")
+        lines.write("\n---------------- MASSES ---------------------")
+        lines.write("\n---------------------------------------------")
+        lines.write("\nMasses estimation ---------------------------")
+        lines.write(f"\nMaximum take off mass : {int(self.mtom)} [kg]")
+        lines.write(f"\nOperating empty mass : {int(self.oem)} [kg]")
+        lines.write(f"\nZero fuel mass : {int(self.zfm)} [kg]")
+        lines.write("\n---------------------------------------------")
+        lines.write("\nPayload and Fuel ----------------------------")
+        lines.write(f"\nMaximum payload mass : {int(self.payload_mass)} [kg]")
+        lines.write(f"\nCargo mass : {int(self.cargo_mass)} [kg]")
+        lines.write(
+            f"\nMaximum fuel mass with max passengers : {int(self.mass_fuel_max_passenger)} [kg]"
+        )
+        lines.write(f"\nMaximum fuel mass with no passengers : {int(self.mass_fuel_max)} [kg]")
+        lines.write(
+            "\nMaximum fuel volume with no passengers:"
+            f"{int(self.mass_fuel_max / self.fuel_density *1000)} [l]"
+        )
+        lines.write(f"\nWing loading: {int(self.wing_loading)} [kg/m^2]")
+
+        lines.close()
 
 
 # =================================================================================================

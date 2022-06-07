@@ -132,9 +132,10 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     cabin_width = ag.fuse_width / (1 + (inside_dim.fuse_thick / 100))
     cabin = Cabin(cpacs, cabin_length_tot, cabin_width, ac_masses.max_payload_mass)
     cabin.save_to_cpacs()
-    cabin.write_seat_config(Path(result_dir, "Seats_disposition.out"))
+    cabin.write_seat_config(Path(result_dir, "Cabin.out"))
 
     ac_masses.get_payload_mass(cabin.passenger_mass)
+    ac_masses.write_masses_output(Path(result_dir, "Masses.out"))
 
     # # TODO: tmp to test cabin function (will be removed)
     # masses.mass_payload = cabin.passenger_mass + mass_cargo

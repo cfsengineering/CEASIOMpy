@@ -118,7 +118,8 @@ SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
 RANGE_LD_RATIO_XPATH = CEASIOMPY_XPATH + "/ranges/lDRatio"
 
 # WEIGHT
-F_XPATH = "/cpacs/vehicles/fuels/fuel"  # TODO RENAME
+F_XPATH = "/cpacs/vehicles/fuels/fuel"  # TODO remove
+FUEL_DENSITY_XPATH = "/cpacs/vehicles/fuels/fuel/density"
 MASS_CARGO_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass"
 
 # TODO: remove those 4 when not use anymore

@@ -85,32 +85,29 @@ class AircfaftMasses:
         # Fuel Mass evaluation
         # Maximum fuel that can be stored with maximum number of passengers.
 
-        if not max_fuel_vol:  # TODO while retesting, redo fitting
-            if turboprop:
-                if wing_area > 55.00:
-                    coef = 4.6
-                else:
-                    coef = 3.6
-            elif wing_area < 90.00:
-                if fuse_length < 60.00:
-                    coef = 4.3
-                else:
-                    coef = 4.0
-            elif wing_area < 300.00:
-                if fuse_length < 35.00:
-                    coef = 3.6
-                else:
-                    coef = 3.8
-            elif wing_area < 400.00:
-                coef = 2.2
-            elif wing_area < 600.00:
-                coef = 2.35
+        if turboprop:
+            if wing_area > 55.00:
+                coef = 4.6
             else:
-                coef = 2.8
-
-            self.mass_fuel_max = self.mtom / coef
+                coef = 3.6
+        elif wing_area < 90.00:
+            if fuse_length < 60.00:
+                coef = 4.3
+            else:
+                coef = 4.0
+        elif wing_area < 300.00:
+            if fuse_length < 35.00:
+                coef = 3.6
+            else:
+                coef = 3.8
+        elif wing_area < 400.00:
+            coef = 2.2
+        elif wing_area < 600.00:
+            coef = 2.35
         else:
-            self.mass_fuel_max = max_fuel_vol * self.fuel_density
+            coef = 2.8
+
+        self.mass_fuel_max = self.mtom / coef
 
     @property
     def mass_fuel_maxpass(self):

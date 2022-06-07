@@ -109,10 +109,10 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
         fuselage_length=ag.fuse_length[0], wing_span=ag.wing_span[0], turboprop=turboprop
     )
     ac_masses.get_wing_loading(wings_area=np.sum(ag.wing_plt_area))
-    ac_masses.get_mass_fuel_max(ag.wing_area, ag.fuse_length[0], ag.wing_fuel_vol, turboprop)
+    ac_masses.get_mass_fuel_max(ag.wing_area, ag.fuse_length[0], turboprop)
 
-    # ----------------
-    # Adding extra length in case of aircraft with second floor [m]. (TODO)
+    # ---------------- (TODO)
+    # Adding extra length in case of aircraft with second floor [m].
     if is_double_floor == 1:
         cabin_length_tot = inside_dim.cabin_length * 1.91
     elif is_double_floor == 2:
@@ -126,12 +126,15 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
                     Set Default value (0)"
         )
         cabin_length_tot = inside_dim.cabin_length
+    # ----------------
 
     # Cabin
     cabin_width = ag.fuse_width / (1 + (inside_dim.fuse_thick / 100))
-    cabin = Cabin(cpacs, cabin_length_tot, cabin_width, ac_masses.max_payload)
+    cabin = Cabin(cpacs, cabin_length_tot, cabin_width, ac_masses.max_payload_mass)
     cabin.save_to_cpacs()
     cabin.write_seat_config(Path(result_dir, "Seats_disposition.out"))
+
+    ac_masses.get_payload_mass(cabin.passenger_mass)
 
     # # TODO: tmp to test cabin function (will be removed)
     # masses.mass_payload = cabin.passenger_mass + mass_cargo
@@ -228,7 +231,7 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     log.info("--------- Passengers evaluated: ---------")
     log.info(f"Passengers: {cabin.passenger_nb}")
     log.info(f"Lavatory: {cabin.toilet_nb}")
-    log.info(f"Payload mass: {ac_masses.mass_payload} [kg]")
+    log.info(f"Payload mass: {ac_masses.payload_mass} [kg]")
     log.info("------- Crew members evaluated: --------")
     log.info(f"Pilots: {PILOT_NB}")
     log.info(f"Cabin crew members: {cabin.cabin_crew_nb}")

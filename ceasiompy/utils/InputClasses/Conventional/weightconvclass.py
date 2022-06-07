@@ -186,40 +186,6 @@ class InsideDimensions:
         self.toilet_length = get_value_or_default(tixi, WB_TOILET_LENGTH_XPATH, self.toilet_length)
 
 
-class MassesWeights:
-    """
-    The class contains all the aircraft mass and weight value relative to the
-    weight analysis.
-
-    Attributes:
-    mass_fuel_maxpass (float): Max fuel mass with max payload [kg]
-    mass_fuel_mass (float): Max fuel mass allowed (evaluated) [kg]
-    maximum_take_off_mass (float): Maximum take off mass [kg]
-    operating_empty_mass (float): Operating empty mass [kg]
-    mass_payload (float): Payload mass [kg]
-    MAX_FUEL_MASS (float): Maximum fuel mass allowed (chosen) [kg]
-    max_payload (float): Maximum payload mass allowed [kg]
-    mass_people (float): Mass of people inside the aircraft [kg]
-    mass_cargo (float): Extra possible payload [kg]
-    zero_fuel_mass (float): Zero fuel mass [kg]
-    mass_crew (float): Crew members total mass [kg]
-
-    """
-
-    def __init__(self):
-        self.mass_fuel_maxpass = 0
-        self.mass_fuel_max = 0
-        self.maximum_take_off_mass = 0
-        self.operating_empty_mass = 0
-        self.mass_payload = 0
-        self.MAX_FUEL_MASS = 0
-        self.max_payload = 0
-        self.mass_people = 0
-        self.mass_cargo = 0
-        self.zero_fuel_mass = 0
-        self.mass_crew = 0
-
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================

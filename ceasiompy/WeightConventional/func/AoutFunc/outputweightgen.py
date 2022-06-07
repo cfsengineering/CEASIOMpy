@@ -89,36 +89,36 @@ def output_txt(out, mw, ind, is_double_floor, max_payload, max_fuel_vol, fuel_de
         out_txt_file.write(f"\nMaximum payload allowed [kg]: {max_payload}")
     if max_fuel_vol > 0:
         out_txt_file.write(f"\nMaximum amount of fuel [kg]: {max_fuel_vol * fuel_density}")
-    out_txt_file.write("\n-----------------------------------------------")
-    out_txt_file.write("\nResults ---------------------------------------")
-    out_txt_file.write("\n-----------------------------------------------")
-    out_txt_file.write("\nSeating estimation ----------------------------")
-    out_txt_file.write(f"\nNumber of abreasts: {out.abreast_nb}")
-    out_txt_file.write(f"\nNumber of row: {out.row_nb}")
-    out_txt_file.write(f"\nNumber of passengers: {out.pass_nb}")
-    out_txt_file.write(f"\nNumber of lavatory: {int(out.toilet_nb)}")
-    out_txt_file.write("\n-----------------------------------------------")
-    out_txt_file.write("\nCrew estimation -------------------------------")
-    out_txt_file.write(f"\nTotal crew members: {out.crew_nb}")
-    out_txt_file.write(f"\nNumber of cabin crew members: {out.cabin_crew_nb}")
-    out_txt_file.write(f"\nNumber of pilots: {PILOT_NB}")
-    out_txt_file.write("\n-----------------------------------------------")
-    out_txt_file.write("\nMasses estimation -----------------------------")
-    out_txt_file.write(f"\nMaximum payload mass [kg]: {int(mw.mass_payload)}")
-    out_txt_file.write(f"\nMaximum passengers mass [kg]: {int(out.pass_nb * PASSENGER_MASS)}")
-    if mw.mass_cargo:
-        out_txt_file.write("\nMaximum extra payload mass [kg]: " + str(int(mw.cargo)))
-    out_txt_file.write(
-        f"\nMaximum fuel mass with max passengers [kg]: {int(mw.mass_fuel_maxpass)}"
-    )
-    out_txt_file.write(f"\nMaximum fuel mass with no passengers [kg]: {int(mw.mass_fuel_max)}")
-    out_txt_file.write(
-        f"\nMaximum fuel volume with no passengers [l]: {int(mw.mass_fuel_max / fuel_density)}"
-    )
-    out_txt_file.write(f"\nMaximum take off mass [kg]: {int(mw.maximum_take_off_mass)}")
-    out_txt_file.write(f"\nOperating empty mass [kg]: {int(mw.operating_empty_mass)}")
-    out_txt_file.write(f"\nZero fuel mass [kg]: {int(mw.zero_fuel_mass)}")
-    out_txt_file.write(f"\nWing loading [kg/m^2]:")  # {int(out.wing_loading)}")
+    # out_txt_file.write("\n-----------------------------------------------")
+    # out_txt_file.write("\nResults ---------------------------------------")
+    # out_txt_file.write("\n-----------------------------------------------")
+    # out_txt_file.write("\nSeating estimation ----------------------------")
+    # out_txt_file.write(f"\nNumber of abreasts: {out.abreast_nb}")
+    # out_txt_file.write(f"\nNumber of row: {out.row_nb}")
+    # out_txt_file.write(f"\nNumber of passengers: {out.pass_nb}")
+    # out_txt_file.write(f"\nNumber of lavatory: {int(out.toilet_nb)}")
+    # out_txt_file.write("\n-----------------------------------------------")
+    # out_txt_file.write("\nCrew estimation -------------------------------")
+    # out_txt_file.write(f"\nTotal crew members: {out.crew_nb}")
+    # out_txt_file.write(f"\nNumber of cabin crew members: {out.cabin_crew_nb}")
+    # out_txt_file.write(f"\nNumber of pilots: {PILOT_NB}")
+    # out_txt_file.write("\n-----------------------------------------------")
+    # out_txt_file.write("\nMasses estimation -----------------------------")
+    # out_txt_file.write(f"\nMaximum payload mass [kg]: {int(mw.mass_payload)}")
+    # out_txt_file.write(f"\nMaximum passengers mass [kg]: {int(out.pass_nb * PASSENGER_MASS)}")
+    # if mw.mass_cargo:
+    #     out_txt_file.write("\nMaximum extra payload mass [kg]: " + str(int(mw.cargo)))
+    # out_txt_file.write(
+    #     f"\nMaximum fuel mass with max passengers [kg]: {int(mw.mass_fuel_maxpass)}"
+    # )
+    # out_txt_file.write(f"\nMaximum fuel mass with no passengers [kg]: {int(mw.mass_fuel_max)}")
+    # out_txt_file.write(
+    #     f"\nMaximum fuel volume with no passengers [l]: {int(mw.mass_fuel_max / fuel_density)}"
+    # )
+    # out_txt_file.write(f"\nMaximum take off mass [kg]: {int(mw.maximum_take_off_mass)}")
+    # out_txt_file.write(f"\nOperating empty mass [kg]: {int(mw.operating_empty_mass)}")
+    # out_txt_file.write(f"\nZero fuel mass [kg]: {int(mw.zero_fuel_mass)}")
+    # out_txt_file.write(f"\nWing loading [kg/m^2]:")  # {int(out.wing_loading)}")
 
     out_txt_file.close()
 

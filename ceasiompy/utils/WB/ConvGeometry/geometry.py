@@ -89,15 +89,15 @@ class AircraftGeometry:
         self.wing_sec_nb = []  # (int_array) Number of fuselage sections [-]
         self.wing_seg_nb = []  # (int_array) Number of fuselage segments [-]
         self.wing_span = []  # (float_array) Wing span [m]
-        self.wing_seg_length = 0  # (floar_array) Wings sements length [m].
-        self.wing_sec_thickness = 0  # (float) Wing sections thicknes [m]
-        self.wing_sec_mean_thick = []  # (float) Wing sections mean thicknes [m]
+        self.wing_seg_length = 0  # (float_array) Wings segments length [m].
+        self.wing_sec_thickness = 0  # (float) Wing sections thickness [m]
+        self.wing_sec_mean_thick = []  # (float) Wing sections mean thickness [m]
         self.wing_max_chord = []  # (float_array) Wing chord in the connection with fuselage [m]
         self.wing_min_chord = []  # (float_array) Wing tip chord [m]
         self.wing_mac = 0  # (float_array) Wing m.a.c. length and position (x,y,z)[m,m,m,m]
-        self.wing_center_seg_point = 0  # (floar_array) 3D array containing the position of the
-        # point at the center of each segment of the wing (x,y,zcoord.) [m]. Balance Analysis Only
-        self.wing_plt_area = []  # (float_array) Wings plantform area [m^2]
+        self.wing_center_seg_point = 0  # (float_array) 3D array containing the position of the
+        # point at the center of each segment of the wing (x,y,z coord.) [m]. Balance Analysis Only
+        self.wing_plt_area = []  # (float_array) Wings platform area [m^2]
         self.wing_plt_area_main = 0  # (float) Main wing area [m^2]
         self.wing_seg_vol = 0  # (float_array) Wing segments volume [m^3]
         self.wing_vol = []  # (float_array) Volume of each wing [m^3]
@@ -137,8 +137,8 @@ class AircraftGeometry:
         self.fuse_vol.append(tigl.fuselageGetVolume(i) * double)
 
         #  Checking segment and section connection and reordering them
-        self.fuse_sec_nb, start_index, seg_sec, fuse_sec_index = fuselage_check_segment_connection(
-            fus_nb, self.fuse_seg_nb, self.fuse_sec_nb, tigl
+        self.fuse_sec_nb, start_index, seg_sec = fuselage_check_segment_connection(
+            fus_nb, self.fuse_seg_nb, tigl
         )
 
         #  INITIALIZATION 2 -----------------------------------------------------------
@@ -830,6 +830,4 @@ class AircraftGeometry:
 
 if __name__ == "__main__":
 
-    log.warning("##########################################################")
-    log.warning("############# ERROR NOT A STANDALONE PROGRAM #############")
-    log.warning("##########################################################")
+    print("Nothing to execute!")

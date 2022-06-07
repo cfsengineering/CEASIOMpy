@@ -12,31 +12,28 @@ This file will analyse the fuselage geometry from cpacs file.
 """
 
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
 import numpy as np
 
-from cpacspy.cpacsfunctions import open_tigl, open_tixi
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()
 
 
-# ==============================================================================
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
-
-# All classes are defined inside the InputClasses/Conventional
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
-def fuselage_check_segment_connection(fus_nb, fuse_seg_nb, fuse_sec_nb, tigl):
+def fuselage_check_segment_connection(fus_nb, fuse_seg_nb, tigl):
     """The function checks for each segment the start and end section index
         and it reorders them.
 
@@ -86,13 +83,13 @@ def fuselage_check_segment_connection(fus_nb, fuse_seg_nb, fuse_sec_nb, tigl):
         seg_sec[j - 1, fus_nb - 1, 0] = s0
         seg_sec[j - 1, fus_nb - 1, 1] = s1
         seg_sec[j - 1, fus_nb - 1, 2] = j
-    (slpx, _, _) = tigl.fuselageGetPoint(fus_nb, 1, 0.0, 0.0)
+    slpx = tigl.fuselageGetPoint(fus_nb, 1, 0.0, 0.0)[0]
     seg_sec_reordered[0, fus_nb - 1, :] = seg_sec[0, fus_nb - 1, :]
     start_index.append(1)
     for j in range(2, fuse_seg_nb[fus_nb - 1] + 1):
-        (x, y, z) = tigl.fuselageGetPoint(fus_nb, j, 1.0, 0.0)
+        x = tigl.fuselageGetPoint(fus_nb, j, 1.0, 0.0)[0]
         if x < slpx:
-            (slpx, _, _) = (x, y, z)
+            slpx = x
             start_index.append(j)
             seg_sec_reordered[0, fus_nb - 1, :] = seg_sec[j - 1, fus_nb - 1, :]
     for j in range(2, fuse_seg_nb[fus_nb - 1] + 1):
@@ -112,11 +109,7 @@ def fuselage_check_segment_connection(fus_nb, fuse_seg_nb, fuse_sec_nb, tigl):
     sec_index[0 : nb[0], fus_nb - 1] = fuse_sec_index[0 : nb[0]]
     sec_nb.append(nb[0])
 
-    return (sec_nb, start_index, seg_sec_reordered, sec_index)
-
-
-# -----------------------------------------------------------------------------
-# -----------------------------------------------------------------------------
+    return sec_nb, start_index, seg_sec_reordered
 
 
 def rel_dist(fus_nb, sec_nb, seg_nb, tigl, seg_sec, start_index):
@@ -134,39 +127,38 @@ def rel_dist(fus_nb, sec_nb, seg_nb, tigl, seg_sec, start_index):
     (int) start_index   --Arg.: Start section index of the current fuselage.
 
     RETURN
-    (float-array) rel_sec_dis[:,0]   --Out.: Relative distance of each section
+    (float-array) rel_section_dist[:,0]   --Out.: Relative distance of each section
                                              from the start section of the
                                              current fuselage [m].
-    (float-array) rel_sec_dis[:,1]   --Out.: Segment index relative to the
-                                             section of rel_sec_dis[:,0].
+    (float-array) rel_section_dist[:,1]   --Out.: Segment index relative to the
+                                             section of rel_section_dist[:,0].
     """
-    log.info("---------------------------------------------")
-    log.info("---- Evaluating absolute section distance ---")
-    log.info("---------------------------------------------")
 
-    rel_sec_dis = np.zeros((sec_nb, 2))
-    # rel_sec_dist_index = np.zeros((sec_nb, 2))
+    log.info("Evaluating absolute section distance")
+
+    rel_section_dist = np.zeros((sec_nb, 2))
+    # rel_section_distt_index = np.zeros((sec_nb, 2))
 
     # Relative distance evaluated by the difference between the x position of
     # of the 1st section of the aircraft and the x position of the jth section
 
-    rel_sec_dis[0, 0] = 0.0
-    rel_sec_dis[0, 1] = 0
-    (slpx, slpy, slpz) = tigl.fuselageGetPoint(fus_nb, start_index, 0.0, 0.0)
+    rel_section_dist[0, 0] = 0.0
+    rel_section_dist[0, 1] = 0
+
+    slpx, _, _ = tigl.fuselageGetPoint(fus_nb, start_index, 0.0, 0.0)
     for j in range(1, seg_nb + 1):
         k = int(seg_sec[j - 1, 2])
-        (slpx2, slpy2, slpz2) = tigl.fuselageGetPoint(fus_nb, k, 1.0, 0.0)
-        rel_sec_dis[j, 0] = abs(slpx2 - slpx)
-        rel_sec_dis[j, 1] = k
+        slpx2, _, _ = tigl.fuselageGetPoint(fus_nb, k, 1.0, 0.0)
+        rel_section_dist[j, 0] = abs(slpx2 - slpx)
+        rel_section_dist[j, 1] = k
 
-    return (rel_sec_dis[:, 0], rel_sec_dis[:, 1])
+    return (rel_section_dist[:, 0], rel_section_dist[:, 1])
 
 
-# ==============================================================================
+# =================================================================================================
 #   MAIN
-# ==============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
-    log.warning("##########################################################")
-    log.warning("############  ERROR NOT A STANDALONE PROGRAM #############")
-    log.warning("##########################################################")
+
+    print("Nothing to execute!")

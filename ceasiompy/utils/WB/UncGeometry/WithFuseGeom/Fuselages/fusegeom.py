@@ -276,20 +276,20 @@ def fuse_geom_eval(fus_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
                         hh2 = abs(fpz - afg.fuse_center_section_point[j][i - 1][2])
                         break
             afg.fuse_sec_height[j][i - 1] = hh1 + hh2
-            (fslpx, fslpy, fslpz) = tigl.fuselageGetPoint(1, k, 0.0, 0.0)
-            (fslpx2, fslpy2, fslpz2) = tigl.fuselageGetPoint(1, k, 1.0, 0.0)
+            fslpx = tigl.fuselageGetPoint(1, k, 0.0, 0.0)[0]
+            fslpx2 = tigl.fuselageGetPoint(1, k, 1.0, 0.0)[0]
             afg.fuse_seg_length[j - 1][i - 1] = abs(fslpx2 - fslpx)
         k = int(afg.fuse_seg_index[1][i - 1])
         afg.fuse_sec_per[0][i - 1] = tigl.fuselageGetCircumference(i, k, 0.0)
-        (fpx, fpy, fpz) = tigl.fuselageGetPoint(i, k, 0.0, 0.0)
-        (fpx2, fpy2, fpz2) = tigl.fuselageGetPoint(i, k, 0.0, 0.5)
+        fpx, fpy, fpz = tigl.fuselageGetPoint(i, k, 0.0, 0.0)
+        fpx2, fpy2, fpz2 = tigl.fuselageGetPoint(i, k, 0.0, 0.5)
         afg.fuse_center_section_point[0][i - 1][0] = (fpx + fpx2) / 2
         afg.fuse_center_section_point[0][i - 1][1] = (fpy + fpy2) / 2
         afg.fuse_center_section_point[0][i - 1][2] = (fpz + fpz2) / 2
         hw1 = 0
         hw2 = 0
         for zeta in np.arange(0.0, 1.0, 0.001):
-            (fpx, fpy, fpz) = tigl.fuselageGetPoint(i, k, 0.0, zeta)
+            fpx, fpy, fpz = tigl.fuselageGetPoint(i, k, 0.0, zeta)
             if abs(fpz - afg.fuse_center_section_point[0][i - 1][2]) < 0.01:
                 if fpy > afg.fuse_center_section_point[0][i - 1][1] and hw1 == 0:
                     hw1 = abs(fpy - afg.fuse_center_section_point[0][i - 1][1])
@@ -306,7 +306,7 @@ def fuse_geom_eval(fus_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
         hh1 = 0.0
         hh2 = 0.0
         for zeta in np.arange(0.0, 1.0, 0.001):
-            (fpx, fpy, fpz) = tigl.fuselageGetPoint(i, k, 1.0, zeta)
+            fpx, fpy, fpz = tigl.fuselageGetPoint(i, k, 1.0, zeta)
             if abs(fpy - afg.fuse_center_section_point[0][i - 1][1]) < 0.01:
                 if fpz > afg.fuse_center_section_point[0][i - 1][2] and hh1 == 0.0:
                     hh1 = abs(fpz - afg.fuse_center_section_point[0][i - 1][2])
@@ -440,7 +440,7 @@ def fuse_geom_eval(fus_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
     log.info(
         "---------- USEFUL INFO ----------------------------------\n"
         + "If fuselage number is greater than 1 the\n"
-        + "informations of each obj are listed in an\n "
+        + "information of each obj are listed in an\n "
         + "array ordered progressively"
     )
     log.info("-----------------------------------------------------------")
@@ -478,6 +478,4 @@ def fuse_geom_eval(fus_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
 
 if __name__ == "__main__":
 
-    log.warning("#########################################################")
-    log.warning("# ERROR NOT A STANDALONE PROGRAM, RUN balanceuncmain.py #")
-    log.warning("#########################################################")
+    print("Nothing to execute!")

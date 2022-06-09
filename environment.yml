@@ -33,7 +33,7 @@ dependencies:
   - pip:
     - ambiance==1.3.0
     - black==22.3
-    - cpacspy==0.1.1
+    - cpacspy==0.1.2
     - cython==0.29.24
     - gmsh==4.10.2
     - pytest==7.1.2

@@ -1,8 +1,10 @@
+import os
 from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module, get_submodule_list
 import streamlit as st
 from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import add_value
+from ceasiompy.utils.commonpaths import CEASIOMPY_PATH
 from ceasiompy.utils.workflowclasses import Workflow
 
 
@@ -77,6 +79,8 @@ def add_module_expander(module):
                 st.markdown(group)
 
 
+os.chdir(Path(CEASIOMPY_PATH, "streamlit"))
+
 st.title("CEASIOMpy Workflow")
 
 # Workflow
@@ -93,7 +97,7 @@ else:
     with open(cpacs_new_path, "wb") as f:
         f.write(st.session_state.cpacs_file.getbuffer())
 
-    st.session_state.workflow.cpacs_in = cpacs_new_path
+    # st.session_state.workflow.cpacs_in = cpacs_new_path
     st.session_state.cpacs = CPACS(cpacs_new_path)
 
 
@@ -147,9 +151,9 @@ col1, col2, col3 = st.columns([3, 1, 1])
 with col2:
 
     if st.button("save CPACS"):
-        st.session_state.cpacs.save_cpacs(
-            Path(st.session_state.workflow.working_dir, "test_cpacs.xml"), overwrite=True
-        )
+        saved_cpacs_file = Path(st.session_state.workflow.working_dir, "test_cpacs.xml")
+        st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
+        st.session_state.workflow.cpacs_in = saved_cpacs_file
 
 with col3:
     if st.button("Run Workflow"):

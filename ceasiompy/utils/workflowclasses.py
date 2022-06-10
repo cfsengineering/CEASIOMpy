@@ -30,7 +30,7 @@ from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH, LOGFILE, MODULES_DIR_PATH
 
-log = get_logger()
+# log = get_logger()
 
 OPTIM_METHOD = ["OPTIM", "DOE"]
 
@@ -137,7 +137,7 @@ class OptimSubWorkflow:
     def run_subworkflow(self) -> None:
         """Run the opimisation subworflow"""
 
-        log.info(f"Running optim subworkflow in {self.subworkflow_dir}")
+        #log.info(f"Running optim subworkflow in {self.subworkflow_dir}")
 
         # First iteration
         for module in self.modules:
@@ -322,15 +322,15 @@ class Workflow:
 
         add_to_runworkflow_history(self.current_wkflow_dir)
 
-        log.info("#" * 99)
-        log.info("###  Starting the workflow")
-        log.info("#" * 99)
-        log.info(f"The workflow will be run in {self.current_wkflow_dir}")
-        log.info(f"Input CPACS file: {self.cpacs_in}")
-        log.info("The following modules with be run:")
+        #log.info("#" * 99)
+        #log.info("###  Starting the workflow")
+        #log.info("#" * 99)
+        #log.info(f"The workflow will be run in {self.current_wkflow_dir}")
+        #log.info(f"Input CPACS file: {self.cpacs_in}")
+        #log.info("The following modules with be run:")
 
-        for module in self.modules:
-            log.info(f"  -> {module.name}")
+        # for module in self.modules:
+            #log.info(f"  -> {module.name}")
 
         for module in self.modules:
             if module.is_optim_module:
@@ -338,9 +338,9 @@ class Workflow:
             else:
                 run_module(module, self.current_wkflow_dir)
 
-        log.info("#" * 99)
-        log.info("###  End of the workflow")
-        log.info("#" * 99)
+        #log.info("#" * 99)
+        #log.info("###  End of the workflow")
+        #log.info("#" * 99)
 
         # Copy logfile in the Workflow directory
         shutil.copy(LOGFILE, self.current_wkflow_dir)

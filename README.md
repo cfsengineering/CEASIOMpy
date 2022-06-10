@@ -7,7 +7,7 @@
 
 # CEASIOMpy
 
-<img align="right" width="300" height="300" src="./documents/logos/CEASIOMpy_main_logos.png">
+<img align="right" width="300" height="300" src="documents/logos/CEASIOMpy_main_logos.png">
 
 CEASIOMpy is an open source conceptual aircraft design environment. CEASIOMpy can be used to set up complex design and optimization workflows, both for conventional and unconventional aircraft configurations. Tools for various disciplines in aircraft design are provided, however, the aerodynamic tools are the most developed. They allow to automatically generate aerodynamic meshes and perform CFD calculation.
 
@@ -32,7 +32,7 @@ CEASIOMpy is based on the open-standard format [CPACS](https://www.cpacs.de/), a
 
 ## Installation
 
-To install CEASIOMpy, please refer to the [installation page](./installation/INSTALLATION.md), it will guide you through the installation process depending on your system.
+To install CEASIOMpy, please refer to the [installation page](installation/INSTALLATION.md), it will guide you through the installation process depending on your system.
 
 ## Usage
 
@@ -40,10 +40,10 @@ To install CEASIOMpy, please refer to the [installation page](./installation/INS
 
 Theses test cases are there to learn how to use CEASIOMpy. You will probably also learn a few things about the CPACS format. You can also run these tests to check that everything is installed and works as expected as they cover different possibilities of use of CEASIOMpy.
 
-- [Test case 1](./test_cases/test_case_1/README.md) : Run a simple workflow :heavy_check_mark:
-- [Test case 2](./test_cases/test_case_2/README.md) : Create and run a workflow with the Graphical User Interface :heavy_check_mark:
-- [Test case 3](./test_cases/test_case_3/README.md) : Create and run a from a command line :x:
-- [Test case 4](./test_cases/test_case_4/README.md) : Create and run a from a configuration file :x:
+- [Test case 1](test_cases/test_case_1/README.md) : Run a simple workflow :heavy_check_mark:
+- [Test case 2](test_cases/test_case_2/README.md) : Create and run a workflow with the Graphical User Interface :heavy_check_mark:
+- [Test case 3](test_cases/test_case_3/README.md) : Create and run a from a command line :x:
+- [Test case 4](test_cases/test_case_4/README.md) : Create and run a from a configuration file :x:
 
 ### Run CEASIOMpy
 
@@ -120,7 +120,7 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
 
 A lot of different modules are available in CEASIOMpy, they can be assembled in various workflows. You can find below the list of available modules. The module status is marked as follows:
 
-:heavy_check_mark: : The module should be working as expected. Some small bugs may be present, don't hesitate to report them (more details [here](./CONTRIBUTING.md#reporting-bugs)).
+:heavy_check_mark: : The module should be working as expected. Some small bugs may be present, don't hesitate to report them (more details [here](CONTRIBUTING.md#reporting-bugs)).
 
 :warning: : The module is not working fully as expected. It is not a bug, but some features or data handling are yet compatible with the new file structure. Check the [Kanban board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see planned and in progress features.
 
@@ -130,31 +130,31 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 
 #### General modules
 
-- [SettingsGUI](./ceasiompy/SettingsGUI/README.md) :heavy_check_mark:
-- [ModuleTemplate](./ceasiompy/ModuleTemplate/README.md) :heavy_check_mark:
-- [Optimisation](./ceasiompy/Optimisation/README.md) :x:
-- [SMTrain](./ceasiompy/SMTrain/README.md) :x:
-- [SMUse](./ceasiompy/SMUse/README.md) :x:
+- [SettingsGUI](ceasiompy/SettingsGUI/README.md) :heavy_check_mark:
+- [ModuleTemplate](ceasiompy/ModuleTemplate/README.md) :heavy_check_mark:
+- [Optimisation](ceasiompy/Optimisation/README.md) :x:
+- [SMTrain](ceasiompy/SMTrain/README.md) :x:
+- [SMUse](ceasiompy/SMUse/README.md) :x:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_geometry.png">
 
 #### Geometry and Mesh
 
-- [CPACSCreator](./ceasiompy/CPACSCreator/README.md) :heavy_check_mark:
-- [CPACS2GMSH](./ceasiompy/CPACS2GMSH/README.md) :heavy_check_mark:
-- [CPACS2SUMO](./ceasiompy/CPACS2SUMO/README.md) :heavy_check_mark:
-- [SUMOAutoMesh](./ceasiompy/SUMOAutoMesh/README.md) :heavy_check_mark:
+- [CPACSCreator](ceasiompy/CPACSCreator/README.md) :heavy_check_mark:
+- [CPACS2GMSH](ceasiompy/CPACS2GMSH/README.md) :heavy_check_mark:
+- [CPACS2SUMO](ceasiompy/CPACS2SUMO/README.md) :heavy_check_mark:
+- [SUMOAutoMesh](ceasiompy/SUMOAutoMesh/README.md) :heavy_check_mark:
 - SU2MeshDef :warning:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_aero.png">
 
 #### Aerodynamics
 
-- [CLCalculator](./ceasiompy/CLCalculator/README.md) :heavy_check_mark:
-- [PyTornado](./ceasiompy/PyTornado/README.md) :heavy_check_mark:
-- [SU2Run](./ceasiompy/SU2Run/README.md) :heavy_check_mark:
-- [SkinFriction](./ceasiompy/SkinFriction/README.md) :heavy_check_mark:
-- [PlotAeroCoefficients](./ceasiompy/PlotAeroCoefficients/README.md) :heavy_check_mark:
+- [CLCalculator](ceasiompy/CLCalculator/README.md) :heavy_check_mark:
+- [PyTornado](ceasiompy/PyTornado/README.md) :heavy_check_mark:
+- [SU2Run](ceasiompy/SU2Run/README.md) :heavy_check_mark:
+- [SkinFriction](ceasiompy/SkinFriction/README.md) :heavy_check_mark:
+- [PlotAeroCoefficients](ceasiompy/PlotAeroCoefficients/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_weights.png">
 
@@ -182,7 +182,7 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 ## Contributing
 
 CEASIOMpy is an open source project and we welcome contributions from everyone. Some CEASIOMpy modules have been developed by students during their internship or master thesis.
-If you want to contribute to the development of CEASIOMpy , please refer to the [CONTRIBUTING.md](./CONTRIBUTING.md) document.
+If you want to contribute to the development of CEASIOMpy , please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) document.
 
 ## More information
 

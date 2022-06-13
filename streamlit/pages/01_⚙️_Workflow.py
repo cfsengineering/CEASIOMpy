@@ -1,3 +1,4 @@
+from collections import OrderedDict
 import os
 from pathlib import Path
 
@@ -35,6 +36,7 @@ def section_predefined_workflow():
         if st.button("SUMO → SU2Run"):
             st.session_state.workflow_modules = ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run"]
 
+
 def section_add_module():
 
     st.markdown("#### Add a module")
@@ -70,8 +72,7 @@ def section_your_workflow():
     st.markdown("#### Your Workflow")
     # st.write("The module bellow will be executed in order:")
 
-    for module in st.session_state.workflow_modules:
-        add_module_expander(module)
+    add_module_expander()
 
     if not len(st.session_state.workflow_modules):
         st.warning("No module has been added to the workflow.")
@@ -108,97 +109,95 @@ def section_your_workflow():
             os.system(f"python run_workflow.py {config_path}  &")
 
 
-def add_module_expander(module):
+def add_module_expander():
 
-    with st.expander(module, expanded=False):
-        st.text("")
-        specs = get_specs_for_module(module)
-        inputs = specs.cpacs_inout.get_gui_dict()
+    for m, module in enumerate(st.session_state.workflow_modules):
 
-        if not inputs:
-            st.warning("No specs found for this module")
-            return
+        with st.expander(module, expanded=False):
+            st.text("")
+            specs = get_specs_for_module(module)
+            inputs = specs.cpacs_inout.get_gui_dict()
 
-        # TODO: how to separate groups
-        # groups = {v[6] for _, v in inputs.items()}
-        # st.table(groups)
+            if not inputs:
+                st.warning("No specs found for this module")
+                return
 
-        for name, default_value, var_type, unit, xpath, descr, group in inputs.values():
+            groups = list(OrderedDict.fromkeys([v[6] for _, v in inputs.items()]))
 
-            col1, col2, col3 = st.columns([4, 1, 2])
+            groups_container = OrderedDict()
+            for group in groups:
+                groups_container[group] = st.container()
 
-            if unit not in ["", "1", None]:
-                name = f"{name} {unit}"
+                with groups_container[group]:
+                    st.markdown(f"**{group}**")
 
-            with col1:
-                aeromap_list = st.session_state.cpacs.get_aeromap_uid_list()
+            for name, default_value, var_type, unit, xpath, descr, group in inputs.values():
 
-                import uuid
+                with groups_container[group]:
 
-                key = f"{module}-{name.replace(' ', '')}-"  # {uuid.uuid4()}"
+                    key = f"{m}_{module}_{name.replace(' ', '')}-"
 
-                if name == "__AEROMAP_SELECTION":
-                    st.selectbox(
-                        "Select an aeromap",
-                        # key=f"{module}-selec-aeromap",
-                        options=aeromap_list,
-                        on_change=update_value(xpath, key),
-                    )
-                elif name == "__AEROMAP_CHECHBOX":
-                    st.multiselect(
-                        "Select one or several aeromaps",
-                        # key=f"{module}-selec-aeromap",
-                        options=aeromap_list,
-                        on_change=update_value(xpath, key),
-                    )
+                    if unit not in ["", "1", None]:
+                        name = f"{name} {unit}"
 
-                elif var_type == int or var_type == float:
+                    if name == "__AEROMAP_SELECTION":
+                        st.selectbox(
+                            "Select an aeromap",
+                            key=key,
+                            options=st.session_state.cpacs.get_aeromap_uid_list(),
+                            help=descr,
+                            on_change=update_value(xpath, key),
+                        )
+                        
+                    elif name == "__AEROMAP_CHECHBOX":
+                        st.multiselect(
+                            "Select one or several aeromaps",
+                            key=key,
+                            options=st.session_state.cpacs.get_aeromap_uid_list(),
+                            help=descr,
+                            on_change=update_value(xpath, key),
+                        )
 
-                    st.number_input(
-                        name,
-                        value=default_value,
-                        key=key,
-                        help=descr,
-                        on_change=update_value(xpath, key),
-                    )
+                    elif var_type == int or var_type == float:
 
-                elif var_type == list:
-                    st.selectbox(
-                        name, value=default_value, help=descr, on_change=update_value(xpath, key)
-                    )
+                        st.number_input(
+                            name,
+                            value=default_value,
+                            key=key,
+                            help=descr,
+                            on_change=update_value(xpath, key),
+                        )
 
-                elif var_type == bool:
-                    # key = f"{module}-{name.replace(' ', '_')}"
-                    st.checkbox(
-                        name,
-                        value=default_value,
-                        key=key,
-                        help=descr,
-                        on_change=update_value(xpath, key),
-                    )
+                    elif var_type == list:
+                        st.selectbox(
+                            name,
+                            value=default_value,
+                            help=descr,
+                            on_change=update_value(xpath, key),
+                        )
 
-                elif var_type == "pathtype":
-                    st.error("Pathtype not implemented yet")
+                    elif var_type == bool:
+                        # key = f"{module}-{name.replace(' ', '_')}"
+                        st.checkbox(
+                            name,
+                            value=default_value,
+                            key=key,
+                            help=descr,
+                            on_change=update_value(xpath, key),
+                        )
 
-                else:
-                    # key = f"{module}-{name.replace(' ', '_')}"
-                    st.text_input(
-                        name,
-                        value=default_value,
-                        key=key,
-                        help=descr,
-                        on_change=update_value(xpath, key),
-                    )
+                    elif var_type == "pathtype":
+                        st.error("Pathtype not implemented yet")
 
-            with col2:
-                if unit not in ["", "1", None]:
-                    st.markdown("####")
-                    st.markdown("####")
-                    st.markdown(f"{unit}")
-
-            # TODO: to remove when groups are better organized
-            with col3:
-                st.markdown(group)
+                    else:
+                        # key = f"{module}-{name.replace(' ', '_')}"
+                        st.text_input(
+                            name,
+                            value=default_value,
+                            key=key,
+                            help=descr,
+                            on_change=update_value(xpath, key),
+                        )
 
 
 if not "streamlit_path" in st.session_state:

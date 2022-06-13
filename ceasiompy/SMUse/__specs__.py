@@ -48,6 +48,7 @@ cpacs_inout.add_input(
     xpath=SMUSE_XPATH + "/aeroMapUID",
     gui=True,
     gui_name="__AEROMAP_SELECTION",
+    gui_group="Aeromap settings",
 )
 
 # ----- Output -----

@@ -17,7 +17,7 @@ cpacs_inout.add_input(
     xpath=PLOT_XPATH + "/aeroMapToPlot",
     gui=True,
     gui_name="__AEROMAP_CHECHBOX",
-    # gui_group='Multipe aeromap'
+    gui_group="Aeromap settings",
 )
 
 cpacs_inout.add_input(

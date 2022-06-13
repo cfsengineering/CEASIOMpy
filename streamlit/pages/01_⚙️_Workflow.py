@@ -49,7 +49,7 @@ def section_add_module():
     if "workflow_modules" not in st.session_state:
         st.session_state["workflow_modules"] = []
 
-    col1, col2, col3 = st.columns([8, 1, 1])
+    col1, col2 = st.columns([9, 1])
 
     with col1:
         module = st.selectbox("Select Module to the workflow:", module_list)
@@ -141,14 +141,14 @@ def add_module_expander():
                         name = f"{name} {unit}"
 
                     if name == "__AEROMAP_SELECTION":
-                        st.selectbox(
+                        st.radio(
                             "Select an aeromap",
                             key=key,
                             options=st.session_state.cpacs.get_aeromap_uid_list(),
                             help=descr,
                             on_change=update_value(xpath, key),
                         )
-                        
+
                     elif name == "__AEROMAP_CHECHBOX":
                         st.multiselect(
                             "Select one or several aeromaps",
@@ -169,9 +169,9 @@ def add_module_expander():
                         )
 
                     elif var_type == list:
-                        st.selectbox(
+                        st.radio(
                             name,
-                            value=default_value,
+                            options=default_value,
                             help=descr,
                             on_change=update_value(xpath, key),
                         )

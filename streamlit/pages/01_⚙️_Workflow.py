@@ -6,7 +6,7 @@ import streamlit as st
 from ceasiompy.utils.commonpaths import CEASIOMPY_PATH
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module, get_submodule_list
 from ceasiompy.utils.workflowclasses import Workflow
-from cpacspy.cpacsfunctions import add_value
+from cpacspy.cpacsfunctions import add_value, add_string_vector
 from cpacspy.cpacspy import CPACS
 
 st.set_page_config(page_title="Workflow", page_icon="⚙️")
@@ -16,7 +16,54 @@ def update_value(xpath, key):
 
     if key in st.session_state:
         value = st.session_state[key]
+
+        if isinstance(value, list):
+            add_string_vector(st.session_state.cpacs.tixi, xpath, value)
+            return
+
         add_value(st.session_state.cpacs.tixi, xpath, value)
+
+
+def section_select_cpacs():
+
+    st.markdown("#### CPACS file")
+
+    col1, col2 = st.columns(2)
+
+    with col1:
+
+        # if st.button("Use the D150 CPACS file"):
+        #     cpacs_new_path = Path(
+        #         st.session_state.workflow.working_dir, st.session_state.cpacs_file.name
+        #     )
+
+        if "cpacs" not in st.session_state:
+            st.error("No CPACS file has been selected.")
+        else:
+            st.markdown(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
+
+    # with col2:
+
+    #     st.session_state.cpacs_file = st.file_uploader("Select a CPACS file", type=["xml"])
+
+    #     if "cpacs_file" not in st.session_state:
+    #         cpacs_new_path = Path(
+    #             st.session_state.workflow.working_dir, st.session_state.cpacs_file.name
+    #         )
+
+    #         with open(cpacs_new_path, "wb") as f:
+    #             f.write(st.session_state.cpacs_file.getbuffer())
+
+    #         st.session_state.workflow.cpacs_in = cpacs_new_path
+    #         st.session_state.cpacs = CPACS(cpacs_new_path)
+
+    #         cpacs_new_path = Path(
+    #             st.session_state.workflow.working_dir, st.session_state.cpacs_file.name
+    #         )
+
+    cpacs_new_path = Path(st.session_state.workflow.working_dir, "D150_simple.xml")
+    if "cpacs" not in st.session_state:
+        st.session_state.cpacs = CPACS(cpacs_new_path)
 
 
 def section_predefined_workflow():
@@ -212,24 +259,7 @@ st.title("Workflow")
 st.session_state.workflow = Workflow()
 st.session_state.workflow.working_dir = Path("../WKDIR/test_st").absolute()  # TODO
 
-
-# CPACS file
-# st.session_state.cpacs_file = st.sidebar.file_uploader("Select a CPACS file", type=["xml"])
-# if not st.session_state.cpacs_file:
-#     st.error("No CPACS file has been selected.")
-# else:
-#     cpacs_new_path = Path(st.session_state.workflow.working_dir, st.session_state.cpacs_file.name)
-
-#     with open(cpacs_new_path, "wb") as f:
-#         f.write(st.session_state.cpacs_file.getbuffer())
-
-#     # st.session_state.workflow.cpacs_in = cpacs_new_path
-#     st.session_state.cpacs = CPACS(cpacs_new_path)
-
-cpacs_new_path = Path("/home/jungo/github/CEASIOMpy/WKDIR/test_st/D150_simple.xml")
-if not "cpacs" in st.session_state:
-    st.session_state.cpacs = CPACS(cpacs_new_path)
-
+section_select_cpacs()
 
 section_predefined_workflow()
 

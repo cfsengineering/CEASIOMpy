@@ -1,12 +1,12 @@
-from collections import OrderedDict
 import os
+from collections import OrderedDict
 from pathlib import Path
 
 import streamlit as st
 from ceasiompy.utils.commonpaths import CEASIOMPY_PATH
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module, get_submodule_list
 from ceasiompy.utils.workflowclasses import Workflow
-from cpacspy.cpacsfunctions import add_value, add_string_vector
+from cpacspy.cpacsfunctions import add_string_vector, add_value
 from cpacspy.cpacspy import CPACS
 
 st.set_page_config(page_title="Workflow", page_icon="⚙️")
@@ -22,6 +22,24 @@ def update_value(xpath, key):
             return
 
         add_value(st.session_state.cpacs.tixi, xpath, value)
+
+
+def save_cpacs_file():
+
+    saved_cpacs_file = Path(st.session_state.workflow.working_dir, "test_cpacs.xml")
+    st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
+    st.session_state.workflow.cpacs_in = saved_cpacs_file
+    st.session_state.cpacs = CPACS(saved_cpacs_file)
+
+
+def section_select_working_dir():
+
+    st.markdown("#### Working directory")
+
+    # TODO: requiered folder picker (not implement yet in streamlit)
+    st.session_state.workflow = Workflow()
+    st.session_state.workflow.working_dir = Path("../WKDIR/test_st").absolute()
+    st.markdown(f"**Selected directory:** {st.session_state.workflow.working_dir}")
 
 
 def section_select_cpacs():
@@ -88,10 +106,9 @@ def section_add_module():
 
     st.markdown("#### Add a module")
 
-    # Get available modules
     module_list = get_submodule_list()
     module_list.remove("utils")
-    module_list = sorted(module_list)
+    available_module_list = sorted(module_list)
 
     if "workflow_modules" not in st.session_state:
         st.session_state["workflow_modules"] = []
@@ -99,20 +116,12 @@ def section_add_module():
     col1, col2 = st.columns([9, 1])
 
     with col1:
-        module = st.selectbox("Select Module to the workflow:", module_list)
+        module = st.selectbox("Select Module to the workflow:", available_module_list)
 
     with col2:
         st.markdown("#")
         if st.button("✔"):
             st.session_state.workflow_modules.append(module)
-
-
-def save_cpacs_file():
-
-    saved_cpacs_file = Path(st.session_state.workflow.working_dir, "test_cpacs.xml")
-    st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
-    st.session_state.workflow.cpacs_in = saved_cpacs_file
-    st.session_state.cpacs = CPACS(saved_cpacs_file)
 
 
 def section_your_workflow():
@@ -247,17 +256,9 @@ def add_module_expander():
                         )
 
 
-if not "streamlit_path" in st.session_state:
-    st.session_state["streamlit_path"] = Path(CEASIOMPY_PATH, "streamlit")
-
-os.chdir(st.session_state["streamlit_path"])
-# os.chdir(Path(CEASIOMPY_PATH, "streamlit"))
-
 st.title("Workflow")
 
-# Workflow
-st.session_state.workflow = Workflow()
-st.session_state.workflow.working_dir = Path("../WKDIR/test_st").absolute()  # TODO
+section_select_working_dir()
 
 section_select_cpacs()
 

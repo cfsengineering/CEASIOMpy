@@ -9,6 +9,9 @@ from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.cpacsfunctions import add_string_vector, add_value
 from cpacspy.cpacspy import CPACS
 
+from directory_picker import st_directory_picker
+
+
 st.set_page_config(page_title="Workflow", page_icon="⚙️")
 
 
@@ -36,10 +39,10 @@ def section_select_working_dir():
 
     st.markdown("#### Working directory")
 
-    # TODO: requiered folder picker (not implement yet in streamlit)
     st.session_state.workflow = Workflow()
-    st.session_state.workflow.working_dir = Path("../WKDIR/test_st").absolute()
-    st.markdown(f"**Selected directory:** {st.session_state.workflow.working_dir}")
+    st.session_state.workflow.working_dir = st_directory_picker(
+        Path("../WKDIR/test_st").absolute()
+    )
 
 
 def section_select_cpacs():

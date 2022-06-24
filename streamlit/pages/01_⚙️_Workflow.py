@@ -8,9 +8,7 @@ from ceasiompy.utils.moduleinterfaces import get_specs_for_module, get_submodule
 from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.cpacsfunctions import add_string_vector, add_value
 from cpacspy.cpacspy import CPACS
-
 from directory_picker import st_directory_picker
-
 
 st.set_page_config(page_title="Workflow", page_icon="⚙️")
 
@@ -29,7 +27,7 @@ def update_value(xpath, key):
 
 def save_cpacs_file():
 
-    saved_cpacs_file = Path(st.session_state.workflow.working_dir, "test_cpacs.xml")
+    saved_cpacs_file = Path(st.session_state.workflow.working_dir, "CPACS_selected_from_GUI.xml")
     st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
     st.session_state.workflow.cpacs_in = saved_cpacs_file
     st.session_state.cpacs = CPACS(saved_cpacs_file)
@@ -39,7 +37,8 @@ def section_select_working_dir():
 
     st.markdown("#### Working directory")
 
-    st.session_state.workflow = Workflow()
+    if "workflow" not in st.session_state:
+        st.session_state.workflow = Workflow()
     st.session_state.workflow.working_dir = st_directory_picker(
         Path("../WKDIR/test_st").absolute()
     )
@@ -49,42 +48,30 @@ def section_select_cpacs():
 
     st.markdown("#### CPACS file")
 
-    col1, col2 = st.columns(2)
+    st.session_state.cpacs_file = st.file_uploader("Select a CPACS file", type=["xml"])
 
-    with col1:
+    if st.session_state.cpacs_file:
 
-        # if st.button("Use the D150 CPACS file"):
-        #     cpacs_new_path = Path(
-        #         st.session_state.workflow.working_dir, st.session_state.cpacs_file.name
-        #     )
+        cpacs_new_path = Path(
+            st.session_state.workflow.working_dir, st.session_state.cpacs_file.name
+        )
+
+        with open(cpacs_new_path, "wb") as f:
+            f.write(st.session_state.cpacs_file.getbuffer())
+
+        st.session_state.workflow.cpacs_in = cpacs_new_path
+        st.session_state.cpacs = CPACS(cpacs_new_path)
+
+        cpacs_new_path = Path(
+            st.session_state.workflow.working_dir, st.session_state.cpacs_file.name
+        )
+        st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
 
         if "cpacs" not in st.session_state:
-            st.error("No CPACS file has been selected.")
-        else:
-            st.markdown(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
+            st.session_state.cpacs = CPACS(cpacs_new_path)
 
-    # with col2:
-
-    #     st.session_state.cpacs_file = st.file_uploader("Select a CPACS file", type=["xml"])
-
-    #     if "cpacs_file" not in st.session_state:
-    #         cpacs_new_path = Path(
-    #             st.session_state.workflow.working_dir, st.session_state.cpacs_file.name
-    #         )
-
-    #         with open(cpacs_new_path, "wb") as f:
-    #             f.write(st.session_state.cpacs_file.getbuffer())
-
-    #         st.session_state.workflow.cpacs_in = cpacs_new_path
-    #         st.session_state.cpacs = CPACS(cpacs_new_path)
-
-    #         cpacs_new_path = Path(
-    #             st.session_state.workflow.working_dir, st.session_state.cpacs_file.name
-    #         )
-
-    cpacs_new_path = Path(st.session_state.workflow.working_dir, "D150_simple.xml")
-    if "cpacs" not in st.session_state:
-        st.session_state.cpacs = CPACS(cpacs_new_path)
+    else:
+        st.warning("No CPACS file has been selected!")
 
 
 def section_predefined_workflow():
@@ -129,7 +116,6 @@ def section_add_module():
 
 def section_your_workflow():
     st.markdown("#### Your Workflow")
-    # st.write("The module bellow will be executed in order:")
 
     add_module_expander()
 
@@ -236,7 +222,6 @@ def add_module_expander():
                         )
 
                     elif var_type == bool:
-                        # key = f"{module}-{name.replace(' ', '_')}"
                         st.checkbox(
                             name,
                             value=default_value,
@@ -249,7 +234,6 @@ def add_module_expander():
                         st.error("Pathtype not implemented yet")
 
                     else:
-                        # key = f"{module}-{name.replace(' ', '_')}"
                         st.text_input(
                             name,
                             value=default_value,

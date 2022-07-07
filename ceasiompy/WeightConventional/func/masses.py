@@ -21,9 +21,12 @@ from ceasiompy.WeightConventional.func.oem import estimate_oem
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonxpath import (
+    FUEL_MASS_XPATH,
     MASS_CARGO_XPATH,
     MOEM_XPATH,
     MTOM_XPATH,
+    MZFM_XPATH,
+    PAYLOAD_MASS_XPATH,
     WB_MAX_PAYLOAD_XPATH,
 )
 from ceasiompy.WeightConventional.func.weightutils import UNUSABLE_FUEL_RATIO
@@ -137,90 +140,13 @@ class AircfaftMasses:
         attr_to_xpath = {
             "mtom": MTOM_XPATH,
             "oem": MOEM_XPATH,
+            "zfm": MZFM_XPATH,
+            "mass_fuel_max_passenger": FUEL_MASS_XPATH,
+            "payload_mass": PAYLOAD_MASS_XPATH,
         }
 
         for attr, xpath in attr_to_xpath.items():
             add_value(self.cpacs.tixi, xpath, getattr(self, attr))
-
-    # TODO: save as above
-    # if not tixi.checkElement(PASS_XPATH + "/fuelMassMaxpass"):
-    #     tixi.createElement(PASS_XPATH, "fuelMassMaxpass")
-    # FMP_XPATH = PASS_XPATH + "/fuelMassMaxpass"
-    # if not tixi.checkElement(FMP_XPATH + "/description"):
-    #     tixi.createElement(FMP_XPATH, "description")
-    # tixi.updateTextElement(
-    #     FMP_XPATH + "/description", "Maximum amount of " + "fuel with maximum payload [kg]"
-    # )
-    # if not tixi.checkElement(FMP_XPATH + "/mass"):
-    #     tixi.createElement(FMP_XPATH, "mass")
-    # tixi.updateDoubleElement(FMP_XPATH + "/mass", mw.mass_fuel_maxpass, "%g")
-
-    # # CPACS MASS BREAKDOWN UPDATE
-
-    # MD_XPATH = MASSBREAKDOWN_XPATH + "/designMasses"
-    # MTOM_XPATH = MD_XPATH + "/mTOM"
-    # MZFM_XPATH = MD_XPATH + "/mZFM"
-    # MF_XPATH = MASSBREAKDOWN_XPATH + "/fuel/massDescription"
-    # OEM_XPATH = MASSBREAKDOWN_XPATH + "/mOEM/massDescription"
-    # PAY_XPATH = MASSBREAKDOWN_XPATH + "/payload/massDescription"
-    # MC_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo"
-    # OIM_XPATH = MASSBREAKDOWN_XPATH + "/mOEM/mOperatorItems/mCrewMembers/massDescription"
-
-    # # DESIGN MASSES
-    # add_uid(tixi, MTOM_XPATH, "MTOM")
-    # tixi.createElement(MTOM_XPATH, "name")
-    # tixi.updateTextElement(MTOM_XPATH + "/name", "Maximum take-off mass")
-    # tixi.createElement(MTOM_XPATH, "description")
-    # tixi.updateTextElement(
-    #     MTOM_XPATH + "/description",
-    #     "Maximum " + "take off mass [kg], CoG coordinate [m] and " + "moment of inertia.",
-    # )
-    # tixi.updateDoubleElement(MTOM_XPATH + "/mass", mw.maximum_take_off_mass, "%g")
-
-    # # MZFM
-    # add_uid(tixi, MZFM_XPATH, "MZFM")
-    # tixi.createElement(MZFM_XPATH, "name")
-    # tixi.updateTextElement(MZFM_XPATH + "/name", "Maximum zero fuel mass")
-    # tixi.createElement(MZFM_XPATH, "description")
-    # tixi.updateTextElement(
-    #     MZFM_XPATH + "/description",
-    #     "Maximum "
-    #     + "zero fuel mass [kg] and corresponding CoG "
-    #     + "coordinate [m], moment of inertia.",
-    # )
-    # tixi.updateDoubleElement(MZFM_XPATH + "/mass", mw.zero_fuel_mass, "%g")
-
-    # # FUEL MASS
-    # add_uid(tixi, MF_XPATH, "MFM")
-    # tixi.createElement(MF_XPATH, "name")
-    # tixi.updateTextElement(MF_XPATH + "/name", "Max fuel mass")
-    # tixi.createElement(MF_XPATH, "description")
-    # tixi.updateTextElement(MF_XPATH + "/description", "Maximum fuel mass [kg]")
-    # tixi.updateDoubleElement(MF_XPATH + "/mass", mw.mass_fuel_max, "%g")
-
-    # # OEM
-    # add_uid(tixi, OEM_XPATH, "OEM")
-    # tixi.createElement(OEM_XPATH, "name")
-    # tixi.updateTextElement(OEM_XPATH + "/name", "Operating empty mass")
-    # tixi.createElement(OEM_XPATH, "description")
-    # tixi.updateTextElement(
-    #     OEM_XPATH + "/description", "Operating empty" + " mass [kg] and related inertia [kgm^2]."
-    # )
-    # tixi.updateDoubleElement(OEM_XPATH + "/mass", mw.operating_empty_mass, "%g")
-    # tixi.updateDoubleElement(OIM_XPATH + "/mass", mw.mass_crew, "%g")
-    # add_uid(tixi, OIM_XPATH, "massCrew")
-
-    # # PAYLOAD MASS AND FUEL WITH MAX PAYLOAD
-    # add_uid(tixi, PAY_XPATH, "MPM")
-    # tixi.createElement(PAY_XPATH, "name")
-    # tixi.updateTextElement(PAY_XPATH + "/name", "Max payload mass")
-    # tixi.createElement(PAY_XPATH, "description")
-    # tixi.updateTextElement(PAY_XPATH + "/description", "Maximum " + "payload mass [kg].")
-    # tixi.updateDoubleElement(PAY_XPATH + "/mass", mw.mass_payload, "%g")
-
-    # if mw.mass_cargo:
-    #     tixi.createElement(MC_XPATH, "massCargo")
-    #     tixi.updateDoubleElement(MC_XPATH + "/massCargo", mw.mass_cargo, "%g")
 
     def write_masses_output(self, masses_output_file):
         """Write the seat configuration in a file in the result directory."""

@@ -37,11 +37,12 @@ MASSBREAKDOWN_XPATH = "/cpacs/vehicles/aircraft/model/analyses/massBreakdown"
 
 MTOM_XPATH = MASSBREAKDOWN_XPATH + "/designMasses/mTOM/mass"
 MZFM_XPATH = MASSBREAKDOWN_XPATH + "/designMasses/mZFM/mass"
-MOEM_XPATH = MASSBREAKDOWN_XPATH + "/mOEM/massDescription"
+MOEM_XPATH = MASSBREAKDOWN_XPATH + "/mOEM/massDescription/mass"
+FUEL_MASS_XPATH = MASSBREAKDOWN_XPATH + "/fuel/massDescription/mass"
 PAYLOAD_DESCRIPTION_XPATH = MASSBREAKDOWN_XPATH + "/payload/massDescription"
+PAYLOAD_MASS_XPATH = MASSBREAKDOWN_XPATH + "/payload/mass"
 PAYLOAD_CARGO_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo"
-# MF_XPATH = MASSBREAKDOWN_XPATH + "/fuel/massDescription"
-# OIM_XPATH = MASSBREAKDOWN_XPATH + "/mOEM/mOperatorItems/mCrewMembers/massDescription"
+
 F_XPATH = "/cpacs/vehicles/fuels/fuel"  # TODO remove
 FUEL_DENSITY_XPATH = "/cpacs/vehicles/fuels/fuel/density"
 MASS_CARGO_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass"

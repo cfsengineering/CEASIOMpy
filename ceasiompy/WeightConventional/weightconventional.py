@@ -168,8 +168,6 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     #     out, masses, inside_dim, is_double_floor, max_payload, max_fuel_vol, fuel_density
     # )
 
-    # cpacsweightupdate.cpacs_update(masses, out, cpacs)
-
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
 

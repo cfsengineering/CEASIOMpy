@@ -2,17 +2,19 @@ from pathlib import Path
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpath import (
-    CAB_CREW_XPATH,
+    FUEL_MASS_XPATH,
     FUEL_XPATH,
     GEOM_XPATH,
     MASS_CARGO_XPATH,
     MASSBREAKDOWN_XPATH,
+    MOEM_XPATH,
+    MTOM_XPATH,
+    MZFM_XPATH,
+    PAYLOAD_MASS_XPATH,
     WB_ABREAST_NB_XPATH,
     WB_CAB_CREW_NB_XPATH,
     WB_CREW_MASS_XPATH,
     WB_CREW_NB_XPATH,
-    WB_MASS_LIMIT_XPATH,
-    PASS_XPATH,
     PROP_XPATH,
     WB_DOUBLE_FLOOR_XPATH,
     WB_MAX_FUEL_VOL_XPATH,
@@ -183,7 +185,7 @@ cpacs_inout.add_input(
     gui_group="Inside dimension",
 )
 
-# Is it relly an input?
+# Is it really an input?
 # cpacs_inout.add_input(
 #     var_name='cabin_width',
 #     var_type=float,
@@ -228,20 +230,45 @@ cpacs_inout.add_input(
 # ----- Output -----
 
 cpacs_inout.add_output(
-    var_name="maximum_take_off_mass",
+    var_name="mtom",
     default_value=None,
     unit="[kg]",
     descr="Maximum take of mass",
-    xpath=MASSBREAKDOWN_XPATH + "/designMasses/mTOM/mass",
+    xpath=MTOM_XPATH,
 )
 
 cpacs_inout.add_output(
-    var_name="zero_fuel_mass",
+    var_name="oem",
+    default_value=None,
+    unit="[kg]",
+    descr="Operating empty mass",
+    xpath=MOEM_XPATH,
+)
+
+cpacs_inout.add_output(
+    var_name="zfm",
     default_value=None,
     unit="[kg]",
     descr="Zero fuel mass",
-    xpath=MASSBREAKDOWN_XPATH + "/designMasses/mZFM/mass",
+    xpath=MZFM_XPATH,
 )
+
+cpacs_inout.add_output(
+    var_name="mass_fuel_max_passenger",
+    default_value=None,
+    unit="[kg]",
+    descr="Maximum fuel mass with maximum payload",
+    xpath=FUEL_MASS_XPATH,
+)
+
+cpacs_inout.add_output(
+    var_name="payload_mass",
+    default_value=None,
+    unit="[kg]",
+    descr="Maximum payload mass",
+    xpath=PAYLOAD_MASS_XPATH,
+)
+
 
 cpacs_inout.add_output(
     var_name="mass_fuel_max",
@@ -251,37 +278,13 @@ cpacs_inout.add_output(
     xpath=MASSBREAKDOWN_XPATH + "/fuel/massDescription/mass",
 )
 
-cpacs_inout.add_output(
-    var_name="mass_fuel_maxpass",
-    default_value=None,
-    unit="[kg]",
-    descr="Maximum fuel mass with maximum payload",
-    xpath=PASS_XPATH + "/fuelMassMaxpass/mass",
-)
-
-cpacs_inout.add_output(
-    var_name="operating_empty_mass",
-    default_value=None,
-    unit="[kg]",
-    descr="Operating empty mass",
-    xpath=MASSBREAKDOWN_XPATH + "/mOEM/massDescription/mass",
-)
-
-cpacs_inout.add_output(
-    var_name="mass_payload",
-    default_value=None,
-    unit="[kg]",
-    descr="Maximum payload mass",
-    xpath=MASSBREAKDOWN_XPATH + "/payload/massDescription/mass",
-)
-
-cpacs_inout.add_output(
-    var_name="mass_cargo",
-    default_value=None,
-    unit="[kg]",
-    descr="xtra payload mass in case of max fuel and total mass less than MTOM",
-    xpath=MASSBREAKDOWN_XPATH + "/mCargo/massDescription/massCargo",
-)
+# cpacs_inout.add_output(
+#     var_name="mass_cargo",
+#     default_value=None,
+#     unit="[kg]",
+#     descr="xtra payload mass in case of max fuel and total mass less than MTOM",
+#     xpath=MASSBREAKDOWN_XPATH + "/mCargo/massDescription/massCargo",
+# )
 
 cpacs_inout.add_output(
     var_name="passenger_nb",

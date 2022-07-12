@@ -397,9 +397,9 @@ class AircraftGeometry:
         #  Checking segment and section connection and reordering them
         (
             self.wing_sec_nb,
-            start_index,
+            _,
             seg_sec,
-            wing_sec_index,
+            _,
         ) = self.wing_check_segment_connection(wing_plt_area_xz, wing_plt_area_yz, tigl)
 
         #  INITIALIZATION 2 -----------------------------------------------------------
@@ -617,12 +617,12 @@ class AircraftGeometry:
         for i in range(1, self.w_nb + 1):
             wing_sec_index = []
             for j in range(1, self.wing_seg_nb[i - 1] + 1):
-                (s0, e) = tigl.wingGetInnerSectionAndElementIndex(i, j)
-                (s1, e) = tigl.wingGetOuterSectionAndElementIndex(i, j)
+                s0 = tigl.wingGetInnerSectionAndElementIndex(i, j)[0]
+                s1 = tigl.wingGetOuterSectionAndElementIndex(i, j)[0]
                 seg_sec[j - 1, i - 1, 0] = s0
                 seg_sec[j - 1, i - 1, 1] = s1
                 seg_sec[j - 1, i - 1, 2] = j
-            (slpx, slpy, slpz) = tigl.wingGetChordPoint(i, 1, 0.0, 0.0)
+            (_, slpy, slpz) = tigl.wingGetChordPoint(i, 1, 0.0, 0.0)
             seg_sec_reordered[0, i - 1, :] = seg_sec[0, i - 1, :]
             start_index.append(1)
             for j in range(2, self.wing_seg_nb[i - 1] + 1):

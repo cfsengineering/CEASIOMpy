@@ -39,10 +39,6 @@ from ceasiompy.utils.moduleinterfaces import (
     get_tooloutput_file_path,
 )
 from ceasiompy.utils.WB.ConvGeometry import geometry
-from ceasiompy.WeightConventional.func.AoutFunc import cpacsweightupdate, outputweightgen
-
-from ceasiompy.WeightConventional.func.mtom import estimate_mtom
-from ceasiompy.WeightConventional.func.oem import estimate_oem
 
 from ceasiompy.WeightConventional.func.weightutils import PILOT_NB
 
@@ -160,13 +156,6 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     log.info(f"Pilots: {PILOT_NB}")
     log.info(f"Cabin crew members: {cabin.cabin_crew_nb}")
     log.info("Weight estimation completed.")
-
-    # Output writing
-    log.info("Generating output text file")
-    # TODO: should be do completely differently
-    # outputweightgen.output_txt(
-    #     out, masses, inside_dim, is_double_floor, max_payload, max_fuel_vol, fuel_density
-    # )
 
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 

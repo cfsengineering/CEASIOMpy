@@ -155,7 +155,6 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     log.info("------- Crew members evaluated: --------")
     log.info(f"Pilots: {PILOT_NB}")
     log.info(f"Cabin crew members: {cabin.cabin_crew_nb}")
-    log.info("Weight estimation completed.")
 
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 

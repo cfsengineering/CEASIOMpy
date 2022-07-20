@@ -117,7 +117,7 @@ def section_add_module():
 def section_your_workflow():
     st.markdown("#### Your Workflow")
 
-    add_module_expander()
+    add_module_tab()
 
     if not len(st.session_state.workflow_modules):
         st.warning("No module has been added to the workflow.")
@@ -154,11 +154,14 @@ def section_your_workflow():
             os.system(f"python run_workflow.py {config_path}  &")
 
 
-def add_module_expander():
+def add_module_tab():
 
-    for m, module in enumerate(st.session_state.workflow_modules):
+    st.session_state.tabs = st.tabs(st.session_state.workflow_modules)
 
-        with st.expander(module, expanded=False):
+    for m, (tab, module) in enumerate(
+        zip(st.session_state.tabs, st.session_state.workflow_modules)
+    ):
+        with tab:
             st.text("")
             specs = get_specs_for_module(module)
             inputs = specs.cpacs_inout.get_gui_dict()

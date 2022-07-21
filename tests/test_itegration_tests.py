@@ -54,7 +54,7 @@ def workflow_ends():
     """Check that the workflow ends correctly"""
 
     with open(LOGFILE, "r") as f:
-        if "###  End of the workflow" in f.readlines()[-2]:
+        if "--- End of" in f.readlines()[-1]:
             return True
 
     return False

@@ -653,7 +653,7 @@ class AircraftGeometry:
             nb = np.shape(wing_sec_index)
             if nb[0] > nbmax:
                 nbmax = nb[0]
-            sec_index.resize(nbmax, self.w_nb)
+            sec_index.resize(nbmax, self.w_nb, refcheck=False)
             sec_index[0 : nb[0], i - 1] = wing_sec_index[0 : nb[0]]
             sec_nb.append(nb[0])
 

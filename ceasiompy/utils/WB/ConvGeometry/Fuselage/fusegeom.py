@@ -105,7 +105,10 @@ def fuselage_check_segment_connection(fus_nb, fuse_seg_nb, tigl):
     nb = np.shape(fuse_sec_index)
     if nb[0] > nbmax:
         nbmax = nb[0]
-    sec_index.resize(nbmax, fus_nb)
+    print(nbmax, fus_nb)
+    print("--------------========================-------")
+    sec_index.resize(nbmax, fus_nb, refcheck=False)
+
     sec_index[0 : nb[0], fus_nb - 1] = fuse_sec_index[0 : nb[0]]
     sec_nb.append(nb[0])
 

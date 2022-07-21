@@ -162,7 +162,7 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 
 - BalanceConventional :warning:
 - BalanceUnconventional :warning:
-- WeightConventional :warning:
+- [WeightConventional](./ceasiompy/WeightConventional/README.md) :heavy_check_mark:
 - WeightUnconventional :warning:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_mission.png">

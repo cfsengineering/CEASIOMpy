@@ -32,55 +32,61 @@ ENGINES_XPATH = "/cpacs/vehicles/aircraft/model/engines"
 
 # analyses
 AEROPERFORMANCE_XPATH = "/cpacs/vehicles/aircraft/model/analyses/aeroPerformance"
-AEROMAP_XPATH = "/cpacs/vehicles/aircraft/model/analyses/aeroPerformance"  # To remove
+
 MASSBREAKDOWN_XPATH = "/cpacs/vehicles/aircraft/model/analyses/massBreakdown"
 
-# fuel
-F_XPATH = "/cpacs/vehicles/fuels/fuel"
+MTOM_XPATH = MASSBREAKDOWN_XPATH + "/designMasses/mTOM/mass"
+MZFM_XPATH = MASSBREAKDOWN_XPATH + "/designMasses/mZFM/mass"
+MOEM_XPATH = MASSBREAKDOWN_XPATH + "/mOEM/massDescription/mass"
+FUEL_MASS_XPATH = MASSBREAKDOWN_XPATH + "/fuel/massDescription/mass"
+PAYLOAD_DESCRIPTION_XPATH = MASSBREAKDOWN_XPATH + "/payload/massDescription"
+PAYLOAD_MASS_XPATH = MASSBREAKDOWN_XPATH + "/payload/mass"
+PAYLOAD_CARGO_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo"
+
+F_XPATH = "/cpacs/vehicles/fuels/fuel"  # TODO remove
+FUEL_DENSITY_XPATH = "/cpacs/vehicles/fuels/fuel/density"
+MASS_CARGO_XPATH = MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass"
 
 # CEASIOMpy
 CEASIOMPY_XPATH = "/cpacs/toolspecific/CEASIOMpy"
-EXPORT_XPATH = "/cpacs/toolspecific/CEASIOMpy/export"
-FUEL_XPATH = "/cpacs/toolspecific/CEASIOMpy/fuels"
-FUEL_CONSUMPTION_XPATH = "/cpacs/toolspecific/CEASIOMpy/fuelConsumption"
-GEOM_XPATH = "/cpacs/toolspecific/CEASIOMpy/geometry"
-MESH_XPATH = "/cpacs/toolspecific/CEASIOMpy/mesh"
-OPTIM_XPATH = "/cpacs/toolspecific/CEASIOMpy/optimisation"
-PROP_XPATH = "/cpacs/toolspecific/CEASIOMpy/propulsion"
-RANGE_XPATH = "/cpacs/toolspecific/CEASIOMpy/ranges"
-WEIGHT_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight"
+EXPORT_XPATH = CEASIOMPY_XPATH + "/export"
+FUEL_XPATH = CEASIOMPY_XPATH + "/fuels"
+FUEL_CONSUMPTION_XPATH = CEASIOMPY_XPATH + "/fuelConsumption"
+GEOM_XPATH = CEASIOMPY_XPATH + "/geometry"
+MESH_XPATH = CEASIOMPY_XPATH + "/mesh"
+OPTIM_XPATH = CEASIOMPY_XPATH + "/optimisation"
+PROP_XPATH = CEASIOMPY_XPATH + "/propulsion"
+RANGE_XPATH = CEASIOMPY_XPATH + "/ranges"
+WEIGHT_XPATH = CEASIOMPY_XPATH + "/weight"
 
-CLCALC_XPATH = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/clCalculation"
-PLOT_XPATH = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/plotAeroCoefficient"
+CLCALC_XPATH = CEASIOMPY_XPATH + "/aerodynamics/clCalculation"
+PLOT_XPATH = CEASIOMPY_XPATH + "/aerodynamics/plotAeroCoefficient"
 
-SF_XPATH = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction"
+SF_XPATH = CEASIOMPY_XPATH + "/aerodynamics/skinFriction"
 
-WETTED_AREA_XPATH = "/cpacs/toolspecific/CEASIOMpy/geometry/analysis/wettedArea"
+WETTED_AREA_XPATH = CEASIOMPY_XPATH + "/geometry/analysis/wettedArea"
 
-SMTRAIN_XPATH = "/cpacs/toolspecific/CEASIOMpy/surrogateModel"
-SMUSE_XPATH = "/cpacs/toolspecific/CEASIOMpy/surrogateModelUse"
+SMTRAIN_XPATH = CEASIOMPY_XPATH + "/surrogateModel"
+SMUSE_XPATH = CEASIOMPY_XPATH + "/surrogateModelUse"
 
-STABILITY_STATIC_XPATH = "/cpacs/toolspecific/CEASIOMpy/stability/static"
-STABILITY_DYNAMIC_XPATH = "/cpacs/toolspecific/CEASIOMpy/stability/dynamic"
+STABILITY_STATIC_XPATH = CEASIOMPY_XPATH + "/stability/static"
+STABILITY_DYNAMIC_XPATH = CEASIOMPY_XPATH + "/stability/dynamic"
 
-PASS_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/passengers"
-ML_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/massLimits"
-CREW_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/crew"
-PILOTS_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/crew/pilots"
-CAB_CREW_XPATH = "/cpacs/toolspecific/CEASIOMpy/weight/crew/cabinCrewMembers"
+OPTWKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/optimPath"
+SMFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/SMpath"
+SU2MESH_XPATH = CEASIOMPY_XPATH + "/filesPath/su2Mesh"
+SUMOFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/sumoFilePath"
+WKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/wkdirPath"
 
-OPTWKDIR_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/optimPath"
-SMFILE_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/SMpath"
-SU2MESH_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh"
-SUMOFILE_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/sumoFilePath"
-WKDIR_XPATH = "/cpacs/toolspecific/CEASIOMpy/filesPath/wkdirPath"
+# GMSH
 
+# Propulsion
+TURBOPROP_XPATH = PROP_XPATH + "/turboprop"
 
 # SUMO
 SUMO_REFINE_LEVEL_XPATH = MESH_XPATH + "/sumoOptions/refinementLevel"
-SUMO_INCLUDE_PYLON_XPATH = "/cpacs/toolspecific/CEASIOMpy/engine/includePylon"
-SUMO_INCLUDE_ENGINE_XPATH = "/cpacs/toolspecific/CEASIOMpy/engine/includeEngine"
-
+SUMO_INCLUDE_PYLON_XPATH = CEASIOMPY_XPATH + "/engine/includePylon"
+SUMO_INCLUDE_ENGINE_XPATH = CEASIOMPY_XPATH + "/engine/includeEngine"
 
 # GMSH
 GMSH_XPATH = MESH_XPATH + "/gmshOptions"
@@ -98,9 +104,8 @@ GMSH_AUTO_REFINE_XPATH = GMSH_XPATH + "/auto_refine"
 GMSH_INTAKE_PERCENT_XPATH = GMSH_XPATH + "/intake_percent"
 GMSH_EXHAUST_PERCENT_XPATH = GMSH_XPATH + "/exhaust_percent"
 
-
 # SU2
-SU2_XPATH = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/su2"
+SU2_XPATH = CEASIOMPY_XPATH + "/aerodynamics/su2"
 SU2_AEROMAP_UID_XPATH = SU2_XPATH + "/aeroMapUID"
 SU2_NB_CPU_XPATH = SU2_XPATH + "/settings/nbCPU"
 SU2_EXTRACT_LOAD_XPATH = SU2_XPATH + "/results/extractLoads"
@@ -122,10 +127,36 @@ SU2_ROTATION_RATE_XPATH = SU2_XPATH + "/options/rotationRate"
 SU2_CONTROL_SURF_XPATH = SU2_XPATH + "/options/calculateControlSurfacesDeflections"
 SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
 
-
 # RANGE
-RANGE_LD_RATIO_XPATH = "/cpacs/toolspecific/CEASIOMpy/ranges/lDRatio"
+RANGE_LD_RATIO_XPATH = CEASIOMPY_XPATH + "/ranges/lDRatio"
 
+# TODO: remove those 4 when not use anymore
+PASS_XPATH = CEASIOMPY_XPATH + "/weight/passengers"
+CREW_XPATH = CEASIOMPY_XPATH + "/weight/crew"
+PILOTS_XPATH = CEASIOMPY_XPATH + "/weight/crew/pilots"
+CAB_CREW_XPATH = CEASIOMPY_XPATH + "/weight/crew/cabinCrewMembers"
+
+# TODO: improve xpaths maybe remove some sub xpaths
+WB_ROW_NB_XPATH = CEASIOMPY_XPATH + "/weight/passengers/rowNb"
+WB_ABREAST_NB_XPATH = CEASIOMPY_XPATH + "/weight/passengers/abreastNb"
+WB_PASSENGER_NB_XPATH = CEASIOMPY_XPATH + "/weight/passengers/passNb"
+WB_PASSENGER_MASS_XPATH = CEASIOMPY_XPATH + "/weight/passengers/passMass"
+WB_TOILET_NB_XPATH = CEASIOMPY_XPATH + "/weight/passengers/toiletNb"
+WB_PEOPLE_MASS_XPATH = CEASIOMPY_XPATH + "/weight/passengers/peopleMass"
+WB_CAB_CREW_NB_XPATH = CEASIOMPY_XPATH + "/weight/cab_crew/cabinCrewMemberNb"
+WB_CREW_NB_XPATH = CEASIOMPY_XPATH + "/weight/crew/crewMemberNb"
+WB_CREW_MASS_XPATH = CEASIOMPY_XPATH + "/weight/crew/crewMemberMass"
+
+WB_MASS_LIMIT_XPATH = CEASIOMPY_XPATH + "/weight/massLimits"
+WB_MAX_PAYLOAD_XPATH = WB_MASS_LIMIT_XPATH + "/maxPayload"
+WB_MAX_FUEL_VOL_XPATH = WB_MASS_LIMIT_XPATH + "/maxFuelVol"
+
+WB_SEAT_WIDTH_XPATH = GEOM_XPATH + "/seatWidth"
+WB_SEAT_LENGTH_XPATH = GEOM_XPATH + "/seatLength"
+WB_AISLE_WIDTH_XPATH = GEOM_XPATH + "/aisleWidth"
+WB_FUSELAGE_THICK_XPATH = GEOM_XPATH + "/fuseThick"
+WB_TOILET_LENGTH_XPATH = GEOM_XPATH + "/toiletLength"
+WB_DOUBLE_FLOOR_XPATH = GEOM_XPATH + "/isDoubleFloor"
 
 # pytornado
 PYTORNADO_XPATH = "/cpacs/toolspecific/pytornado"

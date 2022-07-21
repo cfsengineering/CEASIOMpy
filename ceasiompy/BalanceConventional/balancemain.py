@@ -48,6 +48,7 @@ from ceasiompy.utils.moduleinterfaces import (
     get_tooloutput_file_path,
 )
 from ceasiompy.utils.WB.ConvGeometry import geometry
+from cpacspy.cpacspy import CPACS
 
 log = get_logger()
 
@@ -107,6 +108,8 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
 
     """
 
+    cpacs = CPACS(cpacs_path)
+
     # TODO: when refactor, use Pathlib and absolute path
     # Removing and recreating the ToolOutput folder.
     if os.path.exists("ToolOutput"):
@@ -136,7 +139,12 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
     F_PERC_MAXPASS = (mw.mass_fuel_maxpass / mw.mass_fuel_max) * 100
 
     # CENTER OF GRAVITY---------------------------------------------------------
-    ag = geometry.geometry_eval(cpacs_out_path, name)
+    # ag = geometry.geometry_eval(cpacs_out_path, name)
+    # TODO: get CPACS object
+    ag = geometry.AircraftGeometry()
+    ag.fuse_geom_eval(cpacs)
+    ag.wing_geom_eval(cpacs)
+    ag.produce_output_txt()
 
     log.info("------- Center of Gravity coordinates -------")
     log.info("--------- Max Payload configuration ---------")
@@ -269,7 +277,7 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
 
     # OUTPUT WRITING
 
-    log.info("-------- Generating output text file --------")
+    log.info("Generating output text file")
     outputbalancegen.output_txt(out, mw, bi, name)
 
     # CPACS WRITING
@@ -277,7 +285,7 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
 
     # PLOTS
     # Aircraft Cog Plot
-    log.info("--- Generating aircraft center of gravity plot (.png) ---")
+    log.info("Generating aircraft center of gravity plot (.png)")
     outputbalancegen.aircraft_cog_plot(out.center_of_gravity, ag, name)
 
     # Aircraft Nodes

@@ -52,7 +52,7 @@ BANNED_ENTRIES = [
     "delete_old_wkdirs",
     "check_extract_loads",  # Not relevant
     "cabin_crew_nb",  # Is an input in range and an output in weightconv
-    "MASS_CARGO",  # Makes the programm crash for unkknown reasons
+    "mass_cargo",  # Makes the programm crash for unkknown reasons
 ]
 
 objective = []

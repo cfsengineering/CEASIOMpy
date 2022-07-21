@@ -124,7 +124,7 @@ def get_balance_unc_estimations(cpacs_path, cpacs_out_path):
         raise Exception("Aircraft does not have wings")
     elif not fus_nb:
         (awg, wing_nodes) = uncgeomanalysis.no_fuse_geom_analysis(
-            cpacs_path, ui.FLOORS_NB, w_nb, ui.H_LIM_CABIN, ui.FUEL_ON_CABIN, name, ed.TURBOPROP
+            cpacs_path, ui.FLOORS_NB, w_nb, ui.H_LIM_CABIN, ui.FUEL_ON_CABIN, name, ed.turboprop
         )
     else:
         log.info("Fuselage detected")
@@ -132,16 +132,16 @@ def get_balance_unc_estimations(cpacs_path, cpacs_out_path):
         # Minimum fuselage segment height to be a cabin segment.
         h_min = ui.FLOORS_NB * ui.H_LIM_CABIN
         (afg, awg) = uncgeomanalysis.with_fuse_geom_analysis(
-            cpacs_path, fus_nb, w_nb, h_min, adui, ed.TURBOPROP, ui.F_FUEL, name
+            cpacs_path, fus_nb, w_nb, h_min, adui, ed.turboprop, ui.F_FUEL, name
         )
 
     ui = getdatafromcpacs.get_user_fuel(fus_nb, ui, cpacs_out_path)
 
     # BALANCE ANALYSIS
 
-    log.info("----- Generating output text file -----")
-    log.info("---- Starting the balance analysis ----")
-    log.info("---- Aircraft: " + name)
+    log.info("Generating output text file")
+    log.info("Starting the balance analysis")
+    log.info("Aircraft: " + name)
 
     # CENTER OF GRAVITY
 
@@ -161,7 +161,7 @@ def get_balance_unc_estimations(cpacs_path, cpacs_out_path):
 
     # OUTPUT WRITING
 
-    log.info("----- Generating output text file -----")
+    log.info("Generating output text file")
     outputbalancegen.output_txt(bout, mw, bi, ed, name)
 
     # CPACS WRITING
@@ -169,7 +169,7 @@ def get_balance_unc_estimations(cpacs_path, cpacs_out_path):
 
     # PLOTS
 
-    log.info("--- Generating aircraft center of gravity plot (.png) ---")
+    log.info("Generating aircraft center of gravity plot (.png)")
     if not fus_nb:
         outputbalancegen.aircraft_cog_bwb_plot(bout.center_of_gravity, bi, ed, awg, name)
     else:

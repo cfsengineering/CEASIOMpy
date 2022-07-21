@@ -40,7 +40,7 @@ class AircraftWingGeometry:
         wing_seg_nb (int_array): Number of wing segments [-].
         wing_span (float_array): Wing span [m].
         wing_seg_length (floar_array): Wings sements length [m].
-        wing_sec_thicknes (float): Wing sections thicknes [m].
+        wing_sec_thickness (float): Wing sections thicknes [m].
         wing_sec_mean_thick (float): Wing sections mean thicknes [m].
         wing_max_chord (float_array): Wing chord in the connection with fuselage [m].
         wing_min_chord (float_array): Wing tip chord [m].
@@ -80,7 +80,7 @@ class AircraftWingGeometry:
         self.wing_seg_nb = []
         self.wing_span = []
         self.wing_seg_length = 0
-        self.wing_sec_thicknes = 0
+        self.wing_sec_thickness = 0
         self.wing_sec_mean_thick = []
         self.wing_max_chord = []
         self.wing_min_chord = []

@@ -37,38 +37,38 @@ log = get_logger()
 # =============================================================================
 
 
-def estimate_fuse_fuel_mass(fuse_fuel_vol, FUEL_DENSITY):
+def estimate_fuse_fuel_mass(fuse_fuel_vol, fuel_density):
     """
     The function evaluates the fuel mass in the tank inside fuselages.
 
     Args:
         fuse_fuel_vol (float): Volume of the fuselage fuel tank [m^3].
-        FUEL_DENSITY  (float): Fuel density [kg/m^3].
+        fuel_density  (float): Fuel density [kg/m^3].
 
     Returns:
         fuse_fuel(float): Fuel mass in the fuselage [kg].
 
     """
-    return round(np.sum(fuse_fuel_vol) * FUEL_DENSITY, 0)
+    return round(np.sum(fuse_fuel_vol) * fuel_density, 0)
 
 
 # =============================================================================
 
 
-def estimate_wing_fuel_mass(fuel_vol_tot, FUEL_DENSITY):
+def estimate_wing_fuel_mass(fuel_vol_tot, fuel_density):
     """
     The function evaluates the fuel mass in the tanks inside the wings.
 
     Args:
         fuel_vol_tot (float): Total wing fuel volume [m^3].
-        FUEL_DENSITY (float): Fuel density [kg/m^3].
+        fuel_density (float): Fuel density [kg/m^3].
 
     Retruns:
         wing_fuel (float): Fuel mass in the wings [kg].
 
     """
 
-    return round(np.sum(fuel_vol_tot) * FUEL_DENSITY, 0)
+    return round(np.sum(fuel_vol_tot) * fuel_density, 0)
 
 
 # =============================================================================

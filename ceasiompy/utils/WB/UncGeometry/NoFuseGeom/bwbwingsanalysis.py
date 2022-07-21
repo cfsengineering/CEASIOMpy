@@ -39,7 +39,7 @@ log = get_logger()
 #   FUNCTIONS
 # =============================================================================
 
-
+# TODO: change function name
 def check_segment_connection(wing_plt_area_xz, wing_plt_area_yz, awg, tigl):
     """The function checks for each segment the start and end section index
         and to reorder them.
@@ -241,7 +241,7 @@ def geom_eval(w_nb, awg, cpacs_in):
     awg.wing_center_seg_point = np.zeros((max_wing_seg_nb, awg.wing_nb, 3))
     awg.wing_seg_vol = np.zeros((max_wing_seg_nb, awg.w_nb))
     awg.wing_mac = np.zeros((4, awg.w_nb))
-    awg.wing_sec_thicknes = np.zeros((max_wing_sec_nb, awg.w_nb))
+    awg.wing_sec_thickness = np.zeros((max_wing_sec_nb, awg.w_nb))
 
     # WING ANALYSIS ------------------------------------------------------------
     # Wing: MAC,chords,thicknes,span,plantform area ----------------------------
@@ -281,20 +281,20 @@ def geom_eval(w_nb, awg, cpacs_in):
             wing_center_section_point[j - 1][i - 1][0] = (wplx + wpux) / 2
             wing_center_section_point[j - 1][i - 1][1] = (wply + wpuy) / 2
             wing_center_section_point[j - 1][i - 1][2] = (wplz + wpuz) / 2
-            awg.wing_sec_thicknes[j - 1][i - 1] = np.sqrt(
+            awg.wing_sec_thickness[j - 1][i - 1] = np.sqrt(
                 (wpux - wplx) ** 2 + (wpuy - wply) ** 2 + (wpuz - wplz) ** 2
             )
         j = int(seg_sec[awg.wing_seg_nb[i - 1] - 1, i - 1, 2])
         (wplx, wply, wplz) = tigl.wingGetLowerPoint(i, awg.wing_seg_nb[i - 1], 1.0, L)
         (wpux, wpuy, wpuz) = tigl.wingGetUpperPoint(i, awg.wing_seg_nb[i - 1], 1.0, U)
-        awg.wing_sec_thicknes[j][i - 1] = np.sqrt(
+        awg.wing_sec_thickness[j][i - 1] = np.sqrt(
             (wpux - wplx) ** 2 + (wpuy - wply) ** 2 + (wpuz - wplz) ** 2
         )
         wing_center_section_point[awg.wing_seg_nb[i - 1]][i - 1][0] = (wplx + wpux) / 2
         wing_center_section_point[awg.wing_seg_nb[i - 1]][i - 1][1] = (wply + wpuy) / 2
         wing_center_section_point[awg.wing_seg_nb[i - 1]][i - 1][2] = (wplz + wpuz) / 2
         awg.wing_sec_mean_thick.append(
-            np.mean(awg.wing_sec_thicknes[0 : awg.wing_seg_nb[i - 1] + 1, i - 1])
+            np.mean(awg.wing_sec_thickness[0 : awg.wing_seg_nb[i - 1] + 1, i - 1])
         )
         # Wing Span Evaluation, Considering symmetry
         awg.wing_span.append(round(tigl.wingGetSpan(wingUID[i - 1]), 3))
@@ -389,7 +389,7 @@ def geom_eval(w_nb, awg, cpacs_in):
             ]
         )
     )
-    log.info("Wings sections thicknes [m]: \n" + str(awg.wing_sec_thicknes))
+    log.info("Wings sections thicknes [m]: \n" + str(awg.wing_sec_thickness))
     log.info("Wings sections mean thicknes [m]: \n" + str(awg.wing_sec_mean_thick))
     log.info("Wing segments length [m]: \n" + str(awg.wing_seg_length))
     log.info("Wing max chord length [m]: \n" + str(awg.wing_max_chord))

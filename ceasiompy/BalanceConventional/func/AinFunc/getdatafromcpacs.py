@@ -200,10 +200,10 @@ def get_data(mw, bi, cpacs_in):
     mw.mass_payload = tixi.getDoubleElement(PAY_PATH)
     mw.mass_fuel_max = tixi.getDoubleElement(F_PATH)
 
-    log.info("Data from CPACS file succesfully extracted")
+    log.info("Data from CPACS file successfully extracted")
 
     # Saving and closing the cpacs file ======================================
-    tixi.save(cpacs_in)
+    tixi.save(str(cpacs_in))
 
     return (mw, bi)
 

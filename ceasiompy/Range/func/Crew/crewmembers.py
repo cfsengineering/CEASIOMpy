@@ -16,6 +16,7 @@ The script suggests the crew member number in relation with the range.
 #   IMPORTS
 # =============================================================================
 
+from ceasiompy.WeightConventional.func.weightutils import CABIN_CREW_MASS, PILOT_MASS
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()
@@ -79,7 +80,7 @@ def crew_check(range_maxpass, ri):
     log.info("Crew mass re-evaluation")
     log.info("Crew members: " + str(ri.crew_nb))
     log.info(str(ri.pilot_nb) + " pilots, and " + str(ri.cabin_crew_nb) + " cabin crew members")
-    mass_crew = round((ri.pilot_nb * ri.MASS_PILOT + ri.cabin_crew_nb * ri.MASS_CABIN_CREW), 3)
+    mass_crew = round((ri.pilot_nb * PILOT_MASS + ri.cabin_crew_nb * CABIN_CREW_MASS), 3)
 
     return (ri.pilot_nb, ri.cabin_crew_nb, ri.crew_nb, mass_crew, flight_time)
 

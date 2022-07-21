@@ -158,9 +158,6 @@ failure.xml
 *.su2
 forces_breakdown.dat
 
-# Ignore CSV files
-*.csv
-
 # Ignore temp folder and  and temp files
 /INSTALLDIR
 /Results

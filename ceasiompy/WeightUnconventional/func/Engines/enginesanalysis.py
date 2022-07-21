@@ -41,7 +41,7 @@ def engine_definition(mw, ui, ed):
     """
     The function evaluates the engine characteristics, the user must define
     on the engine class the following quantities:
-    - TURBOPROP True or False;
+    - turboprop True or False;
     - WING_MOUNTED True  or False;
     - EN_PLACEMENT;
     - NE.
@@ -57,7 +57,7 @@ def engine_definition(mw, ui, ed):
 
     """
 
-    if not ed.TURBOPROP:
+    if not ed.turboprop:
         LD_CRU = 0.866 * ui.LD
         # [kN] Cruise Thrust for 1 engine
         thrust = ((mw.maximum_take_off_mass * 9.81) / LD_CRU) / (1000.0 * ed.NE)

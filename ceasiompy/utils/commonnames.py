@@ -19,7 +19,6 @@ TODO:
 # GMSH
 GMSH_ENGINE_CONFIG_NAME = "config_engines.cfg"
 
-
 # SU2
 CONFIG_CFD_NAME = "ConfigCFD.cfg"
 SU2_FORCES_BREAKDOWN_NAME = "forces_breakdown.dat"
@@ -33,3 +32,6 @@ ENGINE_EXHAUST_SUFFIX = "_Exhaust"
 ACTUATOR_DISK_FILE_NAME = "ActuatorDisk.dat"
 ACTUATOR_DISK_INLET_SUFFIX = "_AD_Inlet"
 ACTUATOR_DISK_OUTLET_SUFFIX = "_AD_Outlet"
+
+# WEIGHT & BALANCE
+MTOM_FIGURE_NAME = "mtomPrediction.png"

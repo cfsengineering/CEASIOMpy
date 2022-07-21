@@ -30,12 +30,15 @@ from ceasiompy.utils.commonxpath import (
     FUEL_XPATH,
     GEOM_XPATH,
     MASSBREAKDOWN_XPATH,
-    ML_XPATH,
+    TURBOPROP_XPATH,
+    WB_MASS_LIMIT_XPATH,
     PASS_XPATH,
     PILOTS_XPATH,
     PROP_XPATH,
     RANGE_LD_RATIO_XPATH,
     RANGE_XPATH,
+    WB_MAX_FUEL_VOL_XPATH,
+    WB_MAX_PAYLOAD_XPATH,
 )
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -134,7 +137,7 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
     create_branch(tixi, PILOTS_XPATH, False)
     create_branch(tixi, CAB_CREW_XPATH, False)
     create_branch(tixi, PASS_XPATH, False)
-    create_branch(tixi, ML_XPATH, False)
+    create_branch(tixi, WB_MASS_LIMIT_XPATH, False)
     create_branch(tixi, PROP_XPATH, False)
 
     # cpacs/vehicles
@@ -157,15 +160,7 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
 
     # People =================================================================
     # Pilots user input data
-
-    adui.PILOT_NB = get_value_or_default(tixi, PILOTS_XPATH + "/pilotNb", 2)
-    adui.MASS_PILOT = get_value_or_default(tixi, PILOTS_XPATH + "/pilotMass", 102.0)
-    adui.MASS_CABIN_CREW = get_value_or_default(
-        tixi, CAB_CREW_XPATH + "/cabinCrewMemberMass", 68.0
-    )
-    adui.MASS_PASS = get_value_or_default(tixi, PASS_XPATH + "/passMass", 105.0)
     adui.PASS_BASE_DENSITY = get_value_or_default(tixi, PASS_XPATH + "/passDensity", 1.66)
-    adui.PASS_PER_TOILET = get_value_or_default(tixi, PASS_XPATH + "/passPerToilet", 50)
 
     # what to to with this input
     if tixi.checkElement(PASS_XPATH + "/passNb"):
@@ -174,20 +169,20 @@ def get_user_inputs(ed, ui, adui, cpacs_in):
             ui.MAX_PASS = temp
 
     # Fuel ===================================================================
-    adui.FUEL_DENSITY = get_value_or_default(tixi, F_XPATH + "/density", 800)
-    adui.RES_FUEL_PERC = get_value_or_default(tixi, F_XPATH + "/resFuelPerc", 0.06)
+    adui.fuel_density = get_value_or_default(tixi, F_XPATH + "/density", 800)
 
     # Weight =================================================================
     # Mass limits data
-    if not tixi.checkElement(ML_XPATH + "/description"):
-        tixi.createElement(ML_XPATH, "description")
+    if not tixi.checkElement(WB_MASS_LIMIT_XPATH + "/description"):
+        tixi.createElement(WB_MASS_LIMIT_XPATH, "description")
         tixi.updateTextElement(
-            ML_XPATH + "/description", "Desired max fuel " + "volume [m^3] and payload mass [kg]"
+            WB_MASS_LIMIT_XPATH + "/description",
+            "Desired max fuel " + "volume [m^3] and payload mass [kg]",
         )
 
-    ui.MAX_PAYLOAD = get_value_or_default(tixi, ML_XPATH + "/maxPayload", 0.0)
-    ui.MAX_FUEL_VOL = get_value_or_default(tixi, ML_XPATH + "/maxFuelVol", 0.0)
-    ui.MASS_CARGO = get_value_or_default(tixi, MC_XPATH + "/massCargo", 0.0)
+    ui.max_payload = get_value_or_default(tixi, WB_MAX_PAYLOAD_XPATH, 0.0)
+    ui.max_fuel_volume = get_value_or_default(tixi, WB_MAX_FUEL_VOL_XPATH, 0.0)
+    ui.mass_cargo = get_value_or_default(tixi, MC_XPATH + "/massCargo", 0.0)
     # If the cargo mass is defined in the UserInputs class will be added
     # in the CPACS file after the analysis.
 
@@ -271,20 +266,21 @@ def get_engine_inputs(ui, ed, cpacs_in):
     tixi = open_tixi(cpacs_in)
 
     create_branch(tixi, PROP_XPATH, False)
+
     # Propulsion =============================================================
-    if not tixi.checkElement(PROP_XPATH + "/turboprop"):
+    if not tixi.checkElement(TURBOPROP_XPATH):
         create_branch(tixi, PROP_XPATH, False)
         tixi.createElement(PROP_XPATH, "turboprop")
-        if ed.TURBOPROP:
-            tixi.updateTextElement(PROP_XPATH + "/turboprop", "True")
+        if ed.turboprop:
+            tixi.updateTextElement(TURBOPROP_XPATH, "True")
         else:
-            tixi.updateTextElement(PROP_XPATH + "/turboprop", "False")
+            tixi.updateTextElement(TURBOPROP_XPATH, "False")
     else:
-        temp = tixi.getTextElement(PROP_XPATH + "/turboprop")
+        temp = tixi.getTextElement(TURBOPROP_XPATH)
         if temp == "False":
-            ed.TURBOPROP = False
+            ed.turboprop = False
         else:
-            ed.TURBOPROP = True
+            ed.turboprop = True
     if not tixi.checkElement(PROP_XPATH + "/auxiliaryPowerUnit"):
         tixi.createElement(PROP_XPATH, "auxiliaryPowerUnit")
         if ed.APU:

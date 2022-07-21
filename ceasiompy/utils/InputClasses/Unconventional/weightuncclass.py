@@ -37,15 +37,8 @@ class AdvancedInputs:
 
     Attributes:
 
-        #People
-        PILOT_NB (int): Number of pilots.
-        PASS_PER_TOILET (int): Number of passengers per each toilet.
-        MASS_PILOT (float): Pilot mass  [kg].
-        MASS_CABIN_CREW (float): Cabin crew mass  [kg].
-        MASS_PASS (float): Passenger mass_cabin_crew  [kg].
         #Fuel
-        FUEL_DENSITY (float): Fuel density [kg/m^3].
-        RES_FUEL_PERC (float): % of the total fuel, unusable fuel_consumption.
+        fuel_density (float): Fuel density [kg/m^3].
         FMP (float): Percentage of the total fuel expected with maximum payload
                      for turbofan aircraft.
         FMP_tp (float): Percentage of the total fuel expected with maximum
@@ -64,16 +57,9 @@ class AdvancedInputs:
     """
 
     def __init__(self):
-        # People
-        self.PILOT_NB = 2
-        self.PASS_PER_TOILET = 50
-        self.MASS_PILOT = 102.0
-        self.MASS_CABIN_CREW = 68.0
-        self.MASS_PASS = 105.0
 
         # Fuel
-        self.FUEL_DENSITY = 800
-        self.RES_FUEL_PERC = 0.06
+        self.fuel_density = 800
         self.FPM = 80  # |80 all // 95 for the B777 or Concorde
         self.FPM_TP = 50
 
@@ -96,16 +82,16 @@ class UserInputs:
         FLOORS_NB (int): Number of floors.
         H_LIM_CABIN (float): Minimum height of the fuselage segments that should
                              contain the cabin [m].
-        MASS_CARGO (float): Extra cargo mass defined by the user WARNING the
+        mass_cargo (float): Extra cargo mass defined by the user WARNING the
                             code does not check if the cargo fits inside the
                             aircraft [kg].
-        MAX_PAYLOAD (float): Massimum payload allowed by the user excluding the
+        max_payload (float): Massimum payload allowed by the user excluding the
                              cargo mass [kg].
-        MAX_FUEL_VOL (float): Maximum fuel volume allowed [l].
+        max_fuel_volume (float): Maximum fuel volume allowed [l].
         MAX_PASS (int): Maximum numbre of passengers allowed [-]. WARNING if
-                        MAX PASS and MAX_PAYLOAD are defined at the same time
+                        MAX PASS and max_payload are defined at the same time
                         first the MAX_PASS limit will be taken into account
-                        and then the MAX_PAYLOAD limit.
+                        and then the max_payload limit.
         PASS_BASE_DENSITY (float): Base passengers density [pass/m^2].
         LD (float): Lift over drag coefficient [-].
         wing_loading (float): Ratio between the maximum take off mass and the
@@ -128,9 +114,9 @@ class UserInputs:
         self.H_LIM_CABIN = 2.3  # Concorde 1.5, Conventional 2.3
 
         # Payload & fuel
-        self.MASS_CARGO = 0.0
-        self.MAX_PAYLOAD = 0.0
-        self.MAX_FUEL_VOL = 0.0
+        self.mass_cargo = 0.0
+        self.max_payload = 0.0
+        self.max_fuel_volume = 0.0
         self.MAX_PASS = 0
         self.PASS_BASE_DENSITY = 1.66  # | Concorde 1.16, B777 1.66, ATR72 1.39, BWB 1.69
 

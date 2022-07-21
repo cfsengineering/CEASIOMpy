@@ -16,22 +16,26 @@ TODO:
 """
 
 
-# =============================================================================
+# =================================================================================================
 #   IMPORTS
-# =============================================================================
+# =================================================================================================
 
 
-from cpacspy.cpacsfunctions import add_uid, get_value_or_default, open_tixi
+from cpacspy.cpacsfunctions import add_uid, get_value_or_default
 from ceasiompy.utils.commonxpath import (
-    CAB_CREW_XPATH,
     F_XPATH,
-    FUEL_XPATH,
     GEOM_XPATH,
-    MASSBREAKDOWN_XPATH,
-    ML_XPATH,
-    PASS_XPATH,
-    PILOTS_XPATH,
-    PROP_XPATH,
+    MASS_CARGO_XPATH,
+    TURBOPROP_XPATH,
+    WB_MASS_LIMIT_XPATH,
+    WB_AISLE_WIDTH_XPATH,
+    WB_DOUBLE_FLOOR_XPATH,
+    WB_FUSELAGE_THICK_XPATH,
+    WB_MAX_FUEL_VOL_XPATH,
+    WB_MAX_PAYLOAD_XPATH,
+    WB_SEAT_LENGTH_XPATH,
+    WB_SEAT_WIDTH_XPATH,
+    WB_TOILET_LENGTH_XPATH,
 )
 
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -39,9 +43,9 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 log = get_logger()
 
 
-# =============================================================================
+# =================================================================================================
 #   CLASSES
-# =============================================================================
+# =================================================================================================
 
 
 class UserInputs:
@@ -53,37 +57,26 @@ class UserInputs:
     https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/20000023189.pdf
 
     Attributes:
-    IS_DOUBLE_FLOOR (int):  0 = no 2nd floor.
+    is_double_floor (int):  0 = no 2nd floor.
                             1 = full 2nd floor (A380),
                             2 = half 2nd floor (B747)
     pilot_nb (int):         Number of pilots[-].
-    MASS_PILOT (int):       Pilot mass [kg] .
-    MASS_CABIN_CREW (int):  Cabin crew mass[kg].
-    MASS_PASS (int):        Passenger mass_cabin_crew [kg].
-    MAX_PAYLOAD (int):      Maximum payload allowed, set 0 if equal to max passenger mass.
-    MAX_FUEL_VOL (int):     Maximum fuel volume allowed [l].
-    PASS_PER_TOILET (int):  Min 1 toilette per 50 passenger.
-    FUEL_DENSITY (float) :  Fuel density [kg/m^3].
-    RES_FUEL_PERC (float):  % of the total fuel, unusable fuel_consumption.
-    TURBOPROP (bool):       Set True if the engine is a turboprop.
+    max_payload (int):      Maximum payload allowed, set 0 if equal to max passenger mass.
+    max_fuel_volume (int):     Maximum fuel volume allowed [l].
+    fuel_density (float) :  Fuel density [kg/m^3].
+    turboprop (bool):       Set True if the engine is a turboprop.
 
     """
 
     def __init__(self):
-        self.IS_DOUBLE_FLOOR = 0
-        self.PILOT_NB = 2
-        self.MASS_PILOT = 102
-        self.MASS_CABIN_CREW = 68
-        self.MASS_PASS = 105
-        self.MASS_CARGO = 0.0
-        self.MAX_PAYLOAD = 0
-        self.MAX_FUEL_VOL = 0
-        self.PASS_PER_TOILET = 50
-        self.FUEL_DENSITY = 800
-        self.RES_FUEL_PERC = 0.06
-        self.TURBOPROP = False
+        self.is_double_floor = 0
+        self.mass_cargo = 0.0
+        self.max_payload = 0
+        self.max_fuel_volume = 0
+        self.fuel_density = 800
+        self.turboprop = False
 
-    def get_user_inputs(self, cpacs_path):
+    def get_user_inputs(self, cpacs):
         """Get user input from the CPACS file
 
         The function 'get_user_inputs' extracts from the CPACS file the required
@@ -94,35 +87,25 @@ class UserInputs:
 
         """
 
-        tixi = open_tixi(cpacs_path)
+        tixi = cpacs.tixi
 
         description = "User geometry input"
         get_value_or_default(tixi, GEOM_XPATH + "/description", description)
 
-        self.IS_DOUBLE_FLOOR = get_value_or_default(tixi, GEOM_XPATH + "/isDoubleFloor", 0)
-        self.PILOT_NB = get_value_or_default(tixi, PILOTS_XPATH + "/pilotNb", 2)
-        self.MASS_PILOT = get_value_or_default(tixi, PILOTS_XPATH + "/pilotMass", 102)
-        self.MASS_CABIN_CREW = get_value_or_default(
-            tixi, CAB_CREW_XPATH + "/cabinCrewMemberMass", 68
-        )
-        self.MASS_PASS = get_value_or_default(tixi, PASS_XPATH + "/passMass", 105)
-        self.PASS_PER_TOILET = get_value_or_default(tixi, PASS_XPATH + "/passPerToilet", 50)
+        self.is_double_floor = get_value_or_default(tixi, WB_DOUBLE_FLOOR_XPATH, 0)
 
         description = "Desired max fuel volume [m^3] and payload mass [kg]"
-        get_value_or_default(tixi, ML_XPATH + "/description", description)
+        get_value_or_default(tixi, WB_MASS_LIMIT_XPATH + "/description", description)
 
-        self.MAX_PAYLOAD = get_value_or_default(tixi, ML_XPATH + "/maxPayload", 0)
-        self.MAX_FUEL_VOL = get_value_or_default(tixi, ML_XPATH + "/maxFuelVol", 0)
-        self.MASS_CARGO = get_value_or_default(
-            tixi, MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass", 0.0
-        )
-        self.FUEL_DENSITY = get_value_or_default(tixi, F_XPATH + "/density", 800)
+        self.max_payload = get_value_or_default(tixi, WB_MAX_PAYLOAD_XPATH, 0)
+        self.max_fuel_volume = get_value_or_default(tixi, WB_MAX_FUEL_VOL_XPATH, 0)
+        self.mass_cargo = get_value_or_default(tixi, MASS_CARGO_XPATH, 0.0)
+        self.fuel_density = get_value_or_default(tixi, F_XPATH + "/density", 800)
         add_uid(tixi, F_XPATH, "kerosene")
 
-        self.TURBOPROP = get_value_or_default(tixi, PROP_XPATH + "/turboprop", False)
-        self.RES_FUEL_PERC = get_value_or_default(tixi, FUEL_XPATH + "/resFuelPerc", 0.06)
+        self.turboprop = get_value_or_default(tixi, TURBOPROP_XPATH, False)
 
-        tixi.save(cpacs_path)
+        return cpacs
 
 
 class InsideDimensions:
@@ -146,7 +129,9 @@ class InsideDimensions:
 
     """
 
-    def __init__(self, fuse_length, fuse_width):
+    def __init__(self, ag):
+
+        fuse_length = round(ag.fuse_length[0], 3)
 
         if fuse_length < 15.00:
             self.seat_length = 1.4
@@ -167,13 +152,19 @@ class InsideDimensions:
             self.toilet_length = 2.7
         else:
             self.toilet_length = 1.9
-        # [m] Common space dimension
-        # in longitudinal direction.
+
+        # [m] Common space dimension in longitudinal direction.
         # --- Value to be evaluated ---
+        self.cabin_length = 0
         self.cabin_width = 0
         self.cabin_area = 0
 
-    def get_inside_dim(self, cpacs_path):
+        # Value from the aircraft geometry (TODO: could be simplified)
+        self.nose_length = round(ag.fuse_nose_length[0], 3)
+        self.tail_length = round(ag.fuse_tail_length[0], 3)
+        self.cabin_length = round(ag.fuse_cabin_length[0], 3)
+
+    def get_inside_dim(self, cpacs):
         """Get user input from the CPACS file
 
         The function 'get_inside_dim' extracts from the CPACS file the required
@@ -181,90 +172,24 @@ class InsideDimensions:
         missing.
 
         Args:
-            cpacs_path (str): Path to CPACS file
+            cpacs (obj): Path to CPACS object
 
         """
 
-        tixi = open_tixi(cpacs_path)
+        tixi = cpacs.tixi
 
         # Get inside dimension from the CPACS file if exit
-        self.seat_width = get_value_or_default(tixi, GEOM_XPATH + "/seatWidth", 0.525)
-        self.seat_length = get_value_or_default(tixi, GEOM_XPATH + "/seatLength", self.seat_length)
-        self.aisle_width = get_value_or_default(tixi, GEOM_XPATH + "/aisleWidth", 0.42)
-        self.fuse_thick = get_value_or_default(tixi, GEOM_XPATH + "/fuseThick", 6.63)
-        self.toilet_length = get_value_or_default(
-            tixi, GEOM_XPATH + "/toiletLength", self.toilet_length
-        )
-
-        tixi.save(cpacs_path)
+        self.seat_width = get_value_or_default(tixi, WB_SEAT_WIDTH_XPATH, 0.525)
+        self.seat_length = get_value_or_default(tixi, WB_SEAT_LENGTH_XPATH, self.seat_length)
+        self.aisle_width = get_value_or_default(tixi, WB_AISLE_WIDTH_XPATH, 0.42)
+        self.fuse_thick = get_value_or_default(tixi, WB_FUSELAGE_THICK_XPATH, 6.63)
+        self.toilet_length = get_value_or_default(tixi, WB_TOILET_LENGTH_XPATH, self.toilet_length)
 
 
-class MassesWeights:
-    """
-    The class contains all the aircraft mass and weight value relative to the
-    weight analysis.
-
-    Attributes:
-    mass_fuel_maxpass (float): Max fuel mass with max payload [kg]
-    mass_fuel_mass (float): Max fuel mass allowed (evaluated) [kg]
-    maximum_take_off_mass (float): Maximum take off mass [kg]
-    operating_empty_mass (float): Operating empty mass [kg]
-    mass_payload (float): Payload mass [kg]
-    MAX_FUEL_MASS (float): Maximum fuel mass allowed (chosen) [kg]
-    MAX_PAYLOAD (float): Maximum payload mass allowed [kg]
-    mass_people (float): Mass of people inside the aircraft [kg]
-    mass_cargo (float): Extra possible payload [kg]
-    zero_fuel_mass (float): Zero fuel mass [kg]
-    mass_crew (float): Crew members total mass [kg]
-
-    """
-
-    def __init__(self):
-        self.mass_fuel_maxpass = 0
-        self.mass_fuel_max = 0
-        self.maximum_take_off_mass = 0
-        self.operating_empty_mass = 0
-        self.mass_payload = 0
-        self.MAX_FUEL_MASS = 0
-        self.MAX_PAYLOAD = 0
-        self.mass_people = 0
-        self.mass_cargo = 0
-        self.zero_fuel_mass = 0
-        self.mass_crew = 0
-
-
-class WeightOutput:
-    """
-    The class contains some of the output value of the weight analysis.
-
-    Attributes:
-    abreast_nb (int): Number of abreasts.
-    row_nb (int): Number of rows.
-    pass_nb (int): Number of passengers.
-    toilet_nb (int): Numbre of toilets.
-    crew_nb (int): Number of total crew members.
-    cabin_crew_nb (int): Number of cabin crew members.
-    PILOT_NB (int): Number of pilots.
-    wing_loading (float): Wing loading [kg/m^2].
-
-    """
-
-    def __init__(self):
-        self.abreast_nb = 0
-        self.row_nb = 0
-        self.pass_nb = 0
-        self.toilet_nb = 0
-        self.crew_nb = 0
-        self.cabin_crew_nb = 0
-        self.PILOT_NB = 0
-        self.wing_loading = 0
-
-
-# =============================================================================
+# =================================================================================================
 #    MAIN
-# =============================================================================
+# =================================================================================================
 
 if __name__ == "__main__":
-    log.warning("#########################################################")
-    log.warning("### ERROR NOT A STANDALONE PROGRAM, RUN weightmain.py ###")
-    log.warning("#####################1###################################")
+
+    print("Nothing to execute!")

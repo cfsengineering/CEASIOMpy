@@ -39,7 +39,7 @@ class EngineData:
                                 (x, y, z) [m, m, m], if multiple engines are
                                 define the array should contain 1 row each.
         EN_NAME (list): Name of each engine.
-        TURBOPROP (boolean): False if Turbofan, True if Truboprop.
+        turboprop (boolean): False if Turbofan, True if Truboprop.
         APU (boolean): True if the aircraft will have the APU (Auxiliary Power Unit).
         WING_MOUNTED (boolean): True if the engines are mounted on the front
                                 main wing (WARNING not for BWB aircraft).
@@ -51,7 +51,7 @@ class EngineData:
         self.NE = 2
         self.en_mass = 0  # | CONCORDE 3175
         self.max_thrust = 0  # | CONCORDE 170
-        # | TURBOPROP and TURBOFAN and CONCORDE
+        # | turboprop and TURBOFAN and CONCORDE
         self.TSFC_CRUISE = 0.5  # |    0.6          0.5          0.8
         # |Balance input
         self.EN_PLACEMENT = np.array([])
@@ -65,7 +65,7 @@ class EngineData:
         # self.EN_PLACEMENT=np.array([[26.0, 4.5, 2.0],[26.0, -4.5, 2.0]])
 
         # The name must be char tipe.
-        self.TURBOPROP = False
+        self.turboprop = False
         self.APU = True
         self.WING_MOUNTED = True  # |Balance input
 

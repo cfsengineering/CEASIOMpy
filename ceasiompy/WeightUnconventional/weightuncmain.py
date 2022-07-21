@@ -26,6 +26,11 @@ import shutil
 from pathlib import Path
 
 import numpy as np
+from ceasiompy.WeightConventional.func.weightutils import (
+    PASSENGER_MASS,
+    PILOT_NB,
+    UNUSABLE_FUEL_RATIO,
+)
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import aircraft_name
 from ceasiompy.utils.InputClasses.Unconventional.engineclass import EngineData
@@ -126,14 +131,14 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         raise Exception("Aircraft does not have wings")
     elif not fus_nb:
         (awg, wing_nodes) = uncgeomanalysis.no_fuse_geom_analysis(
-            cpacs_out_path, ui.FLOORS_NB, wing_nb, h_min, ui.FUEL_ON_CABIN, name, ed.TURBOPROP
+            cpacs_out_path, ui.FLOORS_NB, wing_nb, h_min, ui.FUEL_ON_CABIN, name, ed.turboprop
         )
     else:
         log.info("Fuselage detected")
         log.info("Number of fuselage: " + str(int(fus_nb)))
         # Minimum fuselage segment height to be a cabin segment.
         (afg, awg) = uncgeomanalysis.with_fuse_geom_analysis(
-            cpacs_out_path, fus_nb, wing_nb, h_min, adui, ed.TURBOPROP, ui.F_FUEL, name
+            cpacs_out_path, fus_nb, wing_nb, h_min, adui, ed.turboprop, ui.F_FUEL, name
         )
 
     ui = getinput.get_user_fuel(fus_nb, ui, cpacs_out_path)
@@ -149,9 +154,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         (out.pass_nb, out.toilet_nb, mw.mass_pass) = estimate_fuse_passengers(
             fus_nb,
             ui.FLOORS_NB,
-            adui.PASS_PER_TOILET,
             afg.cabin_area,
-            adui.MASS_PASS,
             ui.PASS_BASE_DENSITY,
         )
         cabin_area = np.sum(afg.cabin_area)
@@ -165,9 +168,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         # Passengers mass
         (out.pass_nb, out.toilet_nb, mw.mass_pass) = estimate_wing_passengers(
             ui.FLOORS_NB,
-            adui.PASS_PER_TOILET,
             awg.cabin_area,
-            adui.MASS_PASS,
             ui.PASS_BASE_DENSITY,
         )
         cabin_area = awg.cabin_area
@@ -181,36 +182,36 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         out.pass_nb = ui.MAX_PASS
         pass_limit = True
         pass_density = round(out.pass_nb / cabin_area, 2)
-        mw.mass_pass = adui.MASS_PASS * out.pass_nb
+        mw.mass_pass = PASSENGER_MASS * out.pass_nb
         log.warning("With the defined maximum number of passengers,")
         log.warning("the number of passengers is reduced to : " + str(out.pass_nb))
         log.warning("and the passenger density is: " + str(pass_density))
 
     # Payload masses
-    mw.mass_payload = round(ui.MASS_CARGO + mw.mass_pass, 0)
+    mw.mass_payload = round(ui.mass_cargo + mw.mass_pass, 0)
 
-    if ui.MAX_PAYLOAD > 0 and mw.mass_payload > ui.MAX_PAYLOAD:
-        mw.mass_payload = ui.MAX_PAYLOAD
-        if ui.MASS_CARGO > ui.MAX_PAYLOAD:
+    if ui.max_payload > 0 and mw.mass_payload > ui.max_payload:
+        mw.mass_payload = ui.max_payload
+        if ui.mass_cargo > ui.max_payload:
             log.warning(
                 "Mass cargo defined exceeds the chosen"
                 + " maximum payload, the code do not consider the"
                 + " user cargo mass"
             )
-            ui.MASS_CARGO = 0.0
-        if pass_limit and mw.mass_pass < ui.MAX_PAYLOAD:
-            ui.MASS_CARGO = round(ui.MAX_PAYLOAD - mw.mass_pass, 0)
-        elif pass_limit and mw.mass_pass > ui.MAX_PAYLOAD:
+            ui.mass_cargo = 0.0
+        if pass_limit and mw.mass_pass < ui.max_payload:
+            ui.mass_cargo = round(ui.max_payload - mw.mass_pass, 0)
+        elif pass_limit and mw.mass_pass > ui.max_payload:
             log.warning(
                 "Pass number defined exceeds the chosen"
                 + " maximum payload, the code do not consider the"
                 + " user passenger number."
             )
-            mw.mass_pass = ui.MAX_PAYLOAD - ui.MASS_CARGO
-            out.pass_nb = int(round(mw.mass_pass / adui.MASS_PASS, 0))
+            mw.mass_pass = ui.max_payload - ui.mass_cargo
+            out.pass_nb = int(round(mw.mass_pass / PASSENGER_MASS, 0))
         else:
-            mw.mass_pass = ui.MAX_PAYLOAD - ui.MASS_CARGO
-            out.pass_nb = int(round(mw.mass_pass / adui.MASS_PASS, 0))
+            mw.mass_pass = ui.max_payload - ui.mass_cargo
+            out.pass_nb = int(round(mw.mass_pass / PASSENGER_MASS, 0))
         pass_density = round(out.pass_nb / cabin_area, 2)
         log.warning("With the defined maximum payload and cargo masses,")
         log.warning("the number of passengers is: " + str(out.pass_nb))
@@ -218,22 +219,25 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
 
     #  Fuel mass
     if fus_nb:
-        mw.mass_fuse_fuel = estimate_fuse_fuel_mass(afg.fuse_fuel_vol, adui.FUEL_DENSITY)
-        mw.mass_wing_fuel = estimate_wing_fuel_mass(awg.wing_fuel_vol, adui.FUEL_DENSITY)
+        mw.mass_fuse_fuel = estimate_fuse_fuel_mass(afg.fuse_fuel_vol, adui.fuel_density)
+        mw.mass_wing_fuel = estimate_wing_fuel_mass(awg.wing_fuel_vol, adui.fuel_density)
         mw.mass_fuel_max = mw.mass_wing_fuel + mw.mass_fuse_fuel
     else:
-        mw.mass_fuel_max = estimate_wing_fuel_mass(awg.fuel_vol_tot, adui.FUEL_DENSITY)
+        mw.mass_fuel_max = estimate_wing_fuel_mass(awg.fuel_vol_tot, adui.fuel_density)
 
-    if ui.MAX_FUEL_VOL > 0 and (mw.mass_fuel_max / adui.FUEL_DENSITY) * 1000.0 > ui.MAX_FUEL_VOL:
-        mw.mass_fuel_max = (ui.MAX_FUEL_VOL * adui.FUEL_DENSITY) / 1000.0
+    if (
+        ui.max_fuel_volume > 0
+        and (mw.mass_fuel_max / adui.fuel_density) * 1000.0 > ui.max_fuel_volume
+    ):
+        mw.mass_fuel_max = (ui.max_fuel_volume * adui.fuel_density) / 1000.0
 
     # Mass Reserve and Unusable Fuel
-    mw.mass_fuel_unusable = mw.mass_fuel_max * (adui.RES_FUEL_PERC)
+    mw.mass_fuel_unusable = mw.mass_fuel_max * UNUSABLE_FUEL_RATIO
 
     # Mass Fuel Maxpass
     if not out.pass_nb:
         mw.mass_fuel_maxpass = mw.mass_fuel_max
-    elif ed.TURBOPROP:
+    elif ed.turboprop:
         mw.mass_fuel_maxpass = mw.mass_fuel_max * (adui.FPM_TP / 100.0)
     else:
         mw.mass_fuel_maxpass = mw.mass_fuel_max * (adui.FPM / 100.0)
@@ -262,12 +266,9 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
             (mw.mass_engines, ed) = engine_definition(mw, ui, ed)
 
         # Crew mass
-        (out.crew_nb, out.cabin_crew_nb, mw.mass_crew) = estimate_crew(
+        out.crew_nb, out.cabin_crew_nb, mw.mass_crew = estimate_crew(
             out.pass_nb,
-            adui.MASS_PILOT,
-            adui.MASS_CABIN_CREW,
             mw.maximum_take_off_mass,
-            adui.PILOT_NB,
         )
 
         # Total people and payload mass on the aircraft
@@ -313,12 +314,12 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
     log.info("Structure mass [kg]: " + str(int(round(mw.mass_structure))))
     log.info("Total fuel mass [kg]: " + str(int(round(mw.mass_fuel_max))))
     log.info(
-        "Total fuel volume [l]: " + str(int(round(mw.mass_fuel_max / adui.FUEL_DENSITY * 1000.0)))
+        "Total fuel volume [l]: " + str(int(round(mw.mass_fuel_max / adui.fuel_density * 1000.0)))
     )
     log.info("Mass of fuel with max passengers [kg]: " + str(int(round(mw.mass_fuel_maxpass))))
     log.info(
         "Volume of fuel with maximum passengers [l]: "
-        + str(int(round(mw.mass_fuel_maxpass / adui.FUEL_DENSITY * 1000.0)))
+        + str(int(round(mw.mass_fuel_maxpass / adui.fuel_density * 1000.0)))
     )
     log.info("Engines mass [kg]: " + str(int(round(mw.mass_engines))))
     log.info("---------------------------------------")
@@ -330,15 +331,15 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
     log.info("Passengers: " + str(out.pass_nb))
     log.info("Toilet: " + str(int(out.toilet_nb)))
     log.info("------- Crew members evaluated: --------")
-    log.info("Pilots: " + str(adui.PILOT_NB))
+    log.info("Pilots: " + str(PILOT_NB))
     log.info("Cabin crew members: " + str(out.cabin_crew_nb))
     log.info("---------------------------------------")
     log.info("Number of iterations: " + str(it))
     log.info("---------------------------------------")
-    log.info("### Uconventional Weight analysis succesfuly completed ###")
+    log.info("### Unconventional Weight analysis successfully completed ###")
 
     # Outptu writting
-    log.info("----- Generating output text file -----")
+    log.info("Generating output text file")
     cpacsweightupdate.cpacs_weight_update(out, mw, ui, cpacs_out_path)
     cpacsweightupdate.toolspecific_update(fus_nb, awg, mw, out, cpacs_out_path)
     cpacsweightupdate.cpacs_engine_update(ui, ed, mw, cpacs_out_path)

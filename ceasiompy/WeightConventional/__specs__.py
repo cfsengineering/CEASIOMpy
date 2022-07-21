@@ -1,15 +1,34 @@
+from pathlib import Path
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpath import (
-    CAB_CREW_XPATH,
+    FUEL_MASS_XPATH,
     FUEL_XPATH,
     GEOM_XPATH,
+    MASS_CARGO_XPATH,
     MASSBREAKDOWN_XPATH,
-    ML_XPATH,
-    PASS_XPATH,
-    PILOTS_XPATH,
+    MOEM_XPATH,
+    MTOM_XPATH,
+    MZFM_XPATH,
+    PAYLOAD_MASS_XPATH,
+    WB_ABREAST_NB_XPATH,
+    WB_CAB_CREW_NB_XPATH,
+    WB_CREW_MASS_XPATH,
+    WB_CREW_NB_XPATH,
     PROP_XPATH,
+    WB_DOUBLE_FLOOR_XPATH,
+    WB_MAX_FUEL_VOL_XPATH,
+    WB_MAX_PAYLOAD_XPATH,
+    WB_PASSENGER_MASS_XPATH,
+    WB_PASSENGER_NB_XPATH,
+    WB_PEOPLE_MASS_XPATH,
+    WB_ROW_NB_XPATH,
+    WB_TOILET_NB_XPATH,
 )
 
+# ===== Results directory path =====
+
+RESULTS_DIR = Path("Results", "WeightAndBalance")
 
 # ===== CPACS inputs and outputs =====
 
@@ -20,115 +39,55 @@ cpacs_inout = CPACSInOut()
 
 # User inputs ----
 cpacs_inout.add_input(
-    var_name="IS_DOUBLE_FLOOR",
+    var_name="is_double_floor",
     var_type=list,
     default_value=[0, 1, 2],
     unit=None,
     descr="0: no 2nd floor, 1: full 2nd floor (A380), 2: half 2nd floor (B747)",
-    xpath=GEOM_XPATH + "/isDoubleFloor",
+    xpath=WB_DOUBLE_FLOOR_XPATH,
     gui=True,
     gui_name="Double deck",
     gui_group="User inputs",
 )
 
 cpacs_inout.add_input(
-    var_name="PILOT_NB",
-    var_type=int,
-    default_value=2,
-    unit=None,
-    descr="Number of pilot",
-    xpath=PILOTS_XPATH + "/pilotNb",
-    gui=True,
-    gui_name="Number of pilot",
-    gui_group="User inputs",
-)
-
-cpacs_inout.add_input(
-    var_name="MASS_PILOT",
-    var_type=int,
-    default_value=102,
-    unit="[kg]",
-    descr="Pilot mass",
-    xpath=PILOTS_XPATH + "/pilotMass",
-    gui=False,
-    gui_name="Pilot mass",
-    gui_group="User inputs",
-)
-
-cpacs_inout.add_input(
-    var_name="MASS_CABIN_CREW",
-    var_type=int,
-    default_value=68,
-    unit="[kg]",
-    descr="Cabin crew mass",
-    xpath=CAB_CREW_XPATH + "/cabinCrewMemberMass",
-    gui=True,
-    gui_name="Cabin crew mass",
-    gui_group="User inputs",
-)
-
-cpacs_inout.add_input(
-    var_name="MASS_PASS",
-    var_type=int,
-    default_value=105,
-    unit="[kg]",
-    descr="Passenger mass",
-    xpath=PASS_XPATH + "/passMass",
-    gui=True,
-    gui_name="Passenger mass",
-    gui_group="User inputs",
-)
-
-cpacs_inout.add_input(
-    var_name="PASS_PER_TOILET",
-    var_type=int,
-    default_value=50,
-    unit="[pax/toilet]",
-    descr="Number of passenger per toilet",
-    xpath=PASS_XPATH + "/passPerToilet",
-    gui=True,
-    gui_name="Passenger/toilet",
-    gui_group="User inputs",
-)
-
-cpacs_inout.add_input(
-    var_name="MAX_PAYLOAD",
+    var_name="max_payload",
     var_type=float,
     default_value=0,
     unit="[kg]",
     descr="Maximum payload allowed, set 0 if equal to max passenger mass.",
-    xpath=ML_XPATH + "/maxPayload",
+    xpath=WB_MAX_PAYLOAD_XPATH,
     gui=True,
     gui_name="Max payload",
     gui_group="User inputs",
 )
 
 cpacs_inout.add_input(
-    var_name="MAX_FUEL_VOL",
+    var_name="max_fuel_volume",
     var_type=float,
     default_value=0,
     unit="[l]",
     descr="Maximum fuel volume allowed [l]",
-    xpath=ML_XPATH + "/maxFuelVol",
+    xpath=WB_MAX_FUEL_VOL_XPATH,
     gui=True,
     gui_name="Max Fuel volum",
     gui_group="User inputs",
 )
 
 cpacs_inout.add_input(
-    var_name="MASS_CARGO",
+    var_name="mass_cargo",
     var_type=float,
     default_value=0,
     unit="[kg]",
     descr="Cargo mass [kg]",
-    xpath=MASSBREAKDOWN_XPATH + "/payload/mCargo/massDescription/mass",
+    xpath=MASS_CARGO_XPATH,
     gui=True,
     gui_name="Mass cargo",
     gui_group="User inputs",
 )
 
 cpacs_inout.add_input(
-    var_name="FUEL_DENSITY",
+    var_name="fuel_density",
     var_type=float,
     default_value=800,
     unit="[kg/m^3]",
@@ -140,7 +99,7 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="TURBOPROP",
+    var_name="turboprop",
     var_type=bool,
     default_value=False,
     unit=None,
@@ -148,18 +107,6 @@ cpacs_inout.add_input(
     xpath=PROP_XPATH + "/turboprop",
     gui=True,
     gui_name="Turboprop",
-    gui_group="User inputs",
-)
-
-cpacs_inout.add_input(
-    var_name="RES_FUEL_PERC",
-    var_type=float,
-    default_value=0.06,
-    unit="[-]",
-    descr="percentage of the total fuel, unusable fuel_consumption (0 to 1)",
-    xpath=FUEL_XPATH + "/resFuelPerc",
-    gui=True,
-    gui_name="RES_FUEL_PERC",
     gui_group="User inputs",
 )
 
@@ -238,7 +185,7 @@ cpacs_inout.add_input(
     gui_group="Inside dimension",
 )
 
-# Is it relly an input?
+# Is it really an input?
 # cpacs_inout.add_input(
 #     var_name='cabin_width',
 #     var_type=float,
@@ -283,20 +230,45 @@ cpacs_inout.add_input(
 # ----- Output -----
 
 cpacs_inout.add_output(
-    var_name="maximum_take_off_mass",
+    var_name="mtom",
     default_value=None,
     unit="[kg]",
     descr="Maximum take of mass",
-    xpath=MASSBREAKDOWN_XPATH + "/designMasses/mTOM/mass",
+    xpath=MTOM_XPATH,
 )
 
 cpacs_inout.add_output(
-    var_name="zero_fuel_mass",
+    var_name="oem",
+    default_value=None,
+    unit="[kg]",
+    descr="Operating empty mass",
+    xpath=MOEM_XPATH,
+)
+
+cpacs_inout.add_output(
+    var_name="zfm",
     default_value=None,
     unit="[kg]",
     descr="Zero fuel mass",
-    xpath=MASSBREAKDOWN_XPATH + "/designMasses/mZFM/mass",
+    xpath=MZFM_XPATH,
 )
+
+cpacs_inout.add_output(
+    var_name="mass_fuel_max_passenger",
+    default_value=None,
+    unit="[kg]",
+    descr="Maximum fuel mass with maximum payload",
+    xpath=FUEL_MASS_XPATH,
+)
+
+cpacs_inout.add_output(
+    var_name="payload_mass",
+    default_value=None,
+    unit="[kg]",
+    descr="Maximum payload mass",
+    xpath=PAYLOAD_MASS_XPATH,
+)
+
 
 cpacs_inout.add_output(
     var_name="mass_fuel_max",
@@ -306,44 +278,28 @@ cpacs_inout.add_output(
     xpath=MASSBREAKDOWN_XPATH + "/fuel/massDescription/mass",
 )
 
-cpacs_inout.add_output(
-    var_name="mass_fuel_maxpass",
-    default_value=None,
-    unit="[kg]",
-    descr="Maximum fuel mass with maximum payload",
-    xpath=PASS_XPATH + "/fuelMassMaxpass/mass",
-)
+# cpacs_inout.add_output(
+#     var_name="mass_cargo",
+#     default_value=None,
+#     unit="[kg]",
+#     descr="xtra payload mass in case of max fuel and total mass less than MTOM",
+#     xpath=MASSBREAKDOWN_XPATH + "/mCargo/massDescription/massCargo",
+# )
 
 cpacs_inout.add_output(
-    var_name="operating_empty_mass",
+    var_name="passenger_nb",
     default_value=None,
-    unit="[kg]",
-    descr="Operating empty mass",
-    xpath=MASSBREAKDOWN_XPATH + "/mOEM/massDescription/mass",
-)
-
-cpacs_inout.add_output(
-    var_name="mass_payload",
-    default_value=None,
-    unit="[kg]",
-    descr="Maximum payload mass",
-    xpath=MASSBREAKDOWN_XPATH + "/payload/massDescription/mass",
-)
-
-cpacs_inout.add_output(
-    var_name="mass_cargo",
-    default_value=None,
-    unit="[kg]",
-    descr="xtra payload mass in case of max fuel and total mass less than MTOM",
-    xpath=MASSBREAKDOWN_XPATH + "/mCargo/massDescription/massCargo",
-)
-
-cpacs_inout.add_output(
-    var_name="pass_nb",
-    default_value=None,
-    unit="[kg]",
+    unit="[-]",
     descr="Maximum number of passengers",
-    xpath=PASS_XPATH + "/passNb",
+    xpath=WB_PASSENGER_NB_XPATH,
+)
+
+cpacs_inout.add_output(
+    var_name="passenger_mass",
+    default_value=None,
+    unit="[kg]",
+    descr="Mass all of passengers",
+    xpath=WB_PASSENGER_MASS_XPATH,
 )
 
 cpacs_inout.add_output(
@@ -351,7 +307,31 @@ cpacs_inout.add_output(
     default_value=None,
     unit="[-]",
     descr="Number of cabin crew members",
-    xpath=CAB_CREW_XPATH + "/cabinCrewMemberNb",
+    xpath=WB_CAB_CREW_NB_XPATH,
+)
+
+cpacs_inout.add_output(
+    var_name="crew_nb",
+    default_value=None,
+    unit="[-]",
+    descr="Number of cabin crew members (pilot and cabin crew)",
+    xpath=WB_CREW_NB_XPATH,
+)
+
+cpacs_inout.add_output(
+    var_name="crew_mass",
+    default_value=None,
+    unit="[kg]",
+    descr="Mass of all cabin crew members (pilot and cabin crew)",
+    xpath=WB_CREW_MASS_XPATH,
+)
+
+cpacs_inout.add_output(
+    var_name="people_mass",
+    default_value=None,
+    unit="[kg]",
+    descr="Mass of all people (pilot, cabin crew and passengers)",
+    xpath=WB_PEOPLE_MASS_XPATH,
 )
 
 cpacs_inout.add_output(
@@ -359,7 +339,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit="[-]",
     descr="Number of seat rows",
-    xpath=PASS_XPATH + "/rowNb",
+    xpath=WB_ROW_NB_XPATH,
 )
 
 cpacs_inout.add_output(
@@ -367,15 +347,7 @@ cpacs_inout.add_output(
     default_value=None,
     unit="[-]",
     descr="Number of abreasts",
-    xpath=PASS_XPATH + "/abreastNb",
-)
-
-cpacs_inout.add_output(
-    var_name="aisle_nb",
-    default_value=None,
-    unit="[-]",
-    descr="Number of aisles",
-    xpath=PASS_XPATH + "/aisleNb",
+    xpath=WB_ABREAST_NB_XPATH,
 )
 
 cpacs_inout.add_output(
@@ -383,5 +355,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit="[-]",
     descr="Number of toilets",
-    xpath=PASS_XPATH + "/toiletNb",
+    xpath=WB_TOILET_NB_XPATH,
 )

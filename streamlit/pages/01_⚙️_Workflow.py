@@ -94,7 +94,30 @@ def section_predefined_workflow():
 
 def section_add_module():
 
-    st.markdown("#### Add a module")
+    st.markdown("#### Your workflow")
+
+    if len(st.session_state.workflow_modules):
+        for i, module in enumerate(st.session_state.workflow_modules):
+            
+            col1, col2, col3, _ = st.columns([6,1,1,5])
+            
+            with col1:
+                st.markdown(f"**{module}**")
+            
+            with col2:
+                if st.button("⬆️", key=f"move{i}", help="Move up") and i !=0:
+                    st.session_state.workflow_modules.pop(i)
+                    st.session_state.workflow_modules.insert(i-1,module)
+                    st.experimental_rerun()
+        
+            with col3:
+                if st.button("❌", key=f"del{i}", help=f"Remove {module} from the workflow"):
+                    st.session_state.workflow_modules.pop(i)
+                    st.experimental_rerun()
+                    
+
+    else:
+        st.warning("No module has been added to the workflow.")
 
     module_list = get_submodule_list()
     module_list.remove("utils")
@@ -103,32 +126,29 @@ def section_add_module():
     if "workflow_modules" not in st.session_state:
         st.session_state["workflow_modules"] = []
 
-    col1, col2 = st.columns([9, 1])
+    col1, col2 = st.columns(2)
 
     with col1:
-        module = st.selectbox("Select Module to the workflow:", available_module_list)
+        module = st.selectbox("Module to add to the workflow:", available_module_list)
 
     with col2:
         st.markdown("#")
-        if st.button("✔"):
+        if st.button("✔", help="Add this module to the workflow"):
             st.session_state.workflow_modules.append(module)
+            st.experimental_rerun()
+            
 
 
 def section_your_workflow():
-    st.markdown("#### Your Workflow")
+    st.markdown("#### Settings")
 
     add_module_tab()
 
     if not len(st.session_state.workflow_modules):
         st.warning("No module has been added to the workflow.")
 
-    _, col1, col2, col3 = st.columns([9, 1, 1, 1])
+    _, col2, col3 = st.columns([10, 1, 1])
 
-    with col1:
-
-        if st.button("❌", help="Remove last module") and len(st.session_state.workflow_modules):
-            st.session_state.workflow_modules.pop()
-            st.experimental_rerun()
 
     with col2:
 
@@ -156,7 +176,8 @@ def section_your_workflow():
 
 def add_module_tab():
 
-    st.session_state.tabs = st.tabs(st.session_state.workflow_modules)
+    if st.session_state.workflow_modules:
+        st.session_state.tabs = st.tabs(st.session_state.workflow_modules)
 
     for m, (tab, module) in enumerate(
         zip(st.session_state.tabs, st.session_state.workflow_modules)
@@ -250,10 +271,16 @@ st.title("Workflow")
 
 section_select_working_dir()
 
+st.markdown("---")
+
 section_select_cpacs()
+
+st.markdown("---")
 
 section_predefined_workflow()
 
 section_add_module()
+
+st.markdown("---")
 
 section_your_workflow()

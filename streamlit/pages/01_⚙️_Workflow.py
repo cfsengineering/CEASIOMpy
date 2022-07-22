@@ -98,23 +98,22 @@ def section_add_module():
 
     if len(st.session_state.workflow_modules):
         for i, module in enumerate(st.session_state.workflow_modules):
-            
-            col1, col2, col3, _ = st.columns([6,1,1,5])
-            
+
+            col1, col2, col3, _ = st.columns([6, 1, 1, 5])
+
             with col1:
                 st.markdown(f"**{module}**")
-            
+
             with col2:
-                if st.button("⬆️", key=f"move{i}", help="Move up") and i !=0:
+                if st.button("⬆️", key=f"move{i}", help="Move up") and i != 0:
                     st.session_state.workflow_modules.pop(i)
-                    st.session_state.workflow_modules.insert(i-1,module)
+                    st.session_state.workflow_modules.insert(i - 1, module)
                     st.experimental_rerun()
-        
+
             with col3:
                 if st.button("❌", key=f"del{i}", help=f"Remove {module} from the workflow"):
                     st.session_state.workflow_modules.pop(i)
                     st.experimental_rerun()
-                    
 
     else:
         st.warning("No module has been added to the workflow.")
@@ -136,7 +135,6 @@ def section_add_module():
         if st.button("✔", help="Add this module to the workflow"):
             st.session_state.workflow_modules.append(module)
             st.experimental_rerun()
-            
 
 
 def section_your_workflow():
@@ -148,7 +146,6 @@ def section_your_workflow():
         st.warning("No module has been added to the workflow.")
 
     _, col2, col3 = st.columns([10, 1, 1])
-
 
     with col2:
 
@@ -256,6 +253,13 @@ def add_module_tab():
 
                     elif var_type == "pathtype":
                         st.error("Pathtype not implemented yet")
+                        # st.file_uploader(
+                        #     "Select a file",
+                        #     key=key,
+                        #     type=["xml"],
+                        #     help=descr,
+                        #     on_change=update_value(xpath, key),
+                        # )
 
                     else:
                         st.text_input(

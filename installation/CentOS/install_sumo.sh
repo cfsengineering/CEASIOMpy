@@ -34,7 +34,7 @@ echo "--> libglu"
 sudo dnf install -y mesa-libGLU
 
 echo "--> xvfb"
-sudo dnf install -y xvfb
+sudo dnf install -y xorg-x11-server-Xvfb
 
 echo "Set Tetgen path in dwfsumo.conf..."
 if [ ! -e "~/.config/larosterna/dwfsumo.conf" ]; then

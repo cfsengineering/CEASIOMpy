@@ -4,9 +4,13 @@
 
 current_dir="$(pwd)"
 
-sudo dnf install g++
-sudo dnf install libtbb2
+sudo dnf install gcc-c++
+sudo dnf install tbb
 
+# only in Docker?
+sudo dnf install libXrender
+sudo dnf install libXcursor
+sudo dnf install libXinerama
 cd ../..
 
 conda env create -f environment.yml

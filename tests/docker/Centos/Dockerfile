@@ -1,13 +1,12 @@
 FROM centos:8
-RUN cd /etc/yum.repos.d/
+
 RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-*
 RUN sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-*
-
 RUN dnf -y install -y git curl wget sudo unzip gcc-c++ tbb libXrender libXcursor libXinerama libXft
 
 SHELL ["/bin/bash", "--login", "-c"]
-WORKDIR /CEASIOMpy/
 
+WORKDIR /CEASIOMpy/
 RUN git clone https://github.com/cfsengineering/CEASIOMpy.git
 RUN chmod +x CEASIOMpy/installation/CentOS/install_*
 ENV CONDA_DIR /opt/conda
@@ -19,11 +18,13 @@ RUN conda init bash
 RUN source ~/.bashrc
 RUN conda update -n base -c defaults conda
 
-RUN cd CEASIOMpy/installation/CentOS && ./install_ceasiompy.sh
-RUN cd CEASIOMpy/installation/CentOS && ./install_ceasiompy.sh
-RUN cd CEASIOMpy/installation/CentOS && ./install_pytornado.sh
-RUN cd CEASIOMpy/installation/CentOS && ./install_sumo.sh
-RUN cd CEASIOMpy/installation/CentOS && ./install_su2.sh
+WORKDIR /CEASIOMpy/installation/CentOS
+RUN ./install_ceasiompy.sh
+RUN ./install_ceasiompy.sh
+RUN ./install_pytornado.sh
+RUN ./install_sumo.sh
+RUN ./install_su2.sh
 RUN source ~/.bashrc
 
-RUN conda activate ceasiompy && cd CEASIOMpy/tests && ./run_ci.sh
+WORKDIR /CEASIOMpy/tests
+RUN conda activate ceasiompy && ./run_ci.sh

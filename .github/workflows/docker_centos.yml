@@ -1,13 +1,9 @@
 
-name: Installation test on CentOS with Docker
+name: Installation and tests on CentOS with Docker
 
 on:
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  schedule:
+    - cron: '0 2 * * 1'  # every Monday at 2:00am
 
 jobs:
   build-linux:
@@ -24,13 +20,7 @@ jobs:
       with:
         python-version: 3.7
      
-    - name: Run integration tests
+    - name: Run Dockerfile installation and tests
       run: |
         cd tests/docker/Centos/
         docker build -f Dockerfile .
-
-    - name: Upload logs
-      uses: actions/upload-artifact@v3
-      with:
-        name: integration-test-logs
-        path: tests/workflow_tests/**/ceasiompy.log

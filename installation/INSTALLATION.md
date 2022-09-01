@@ -25,15 +25,32 @@ Before you run this command, you should read the following remarks:
 
 - If you want to be sure of what every script does, we encourage you to read those scripts ([Ubuntu](./Ubuntu), [CentOS](./CentOS)) in detail before you run them.
 
-
 - We offer no warranty for the correctness of the installation. These scripts have been tested only on a few Linux distro and the installation may differ because of different hardware and software configurations.
 
 If you agree with the remark above, you can start the installation by opening a terminal where you want to install CEASIOMpy and run the following commands one by one:
 
+- Ubuntu:
+
 ```bash
 sudo apt-get install git
 git clone https://github.com/cfsengineering/CEASIOMpy.git
-cd CEASIOMpy/installation/Ubuntu (or cd CEASIOMpy/installation/CentOS)
+cd CEASIOMpy/installation/Ubuntu
+./install_miniconda.sh
+source ~/.bashrc
+./install_ceasiompy.sh
+./install_pytornado.sh
+./install_sumo.sh
+./install_su2.sh
+./install_paraview.sh
+source ~/.bashrc
+```
+
+- CentOS:
+
+```bash
+sudo dnf install git
+git clone https://github.com/cfsengineering/CEASIOMpy.git
+cd CEASIOMpy/installation/CentOS
 ./install_miniconda.sh
 source ~/.bashrc
 ./install_ceasiompy.sh

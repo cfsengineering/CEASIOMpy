@@ -24,7 +24,7 @@ jobs:
      
     - name: Run integration tests
       run: |
-        cd /CEASIOMpy/tests/docker/Centos/
+        cd /tests/docker/Centos/
         docker build -f Dockerfile .
 
     - name: Upload logs

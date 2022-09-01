@@ -23,9 +23,7 @@ jobs:
         python-version: 3.7
      
     - name: Run integration tests
-      shell: bash -l {0}
       run: |
-        source ~/.bashrc
         cd /CEASIOMpy/tests/docker/Centos/
         docker build -f Dockerfile .
 

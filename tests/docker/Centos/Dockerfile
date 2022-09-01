@@ -8,6 +8,10 @@ SHELL ["/bin/bash", "--login", "-c"]
 
 WORKDIR /CEASIOMpy/
 RUN git clone https://github.com/cfsengineering/CEASIOMpy.git
+
+# TO REMOVE
+RUN cd CEASIOMpy && git checkout centos_install_script && cd ..
+
 RUN chmod +x CEASIOMpy/installation/CentOS/install_*
 ENV CONDA_DIR /opt/conda
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \

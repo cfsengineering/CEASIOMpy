@@ -67,8 +67,8 @@ def test_integration_1():
 
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(CPACS_IN_PATH), *modules_to_run])
-
-    assert workflow_ends()
+    assert False
+    # assert workflow_ends()
 
 
 @pytest.mark.slow

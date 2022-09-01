@@ -18,7 +18,7 @@ RUN conda init bash
 RUN source ~/.bashrc
 RUN conda update -n base -c defaults conda
 
-WORKDIR /CEASIOMpy/installation/CentOS
+WORKDIR /CEASIOMpy/CEASIOMpy/installation/CentOS/
 RUN ./install_ceasiompy.sh
 RUN ./install_ceasiompy.sh
 RUN ./install_pytornado.sh
@@ -26,5 +26,5 @@ RUN ./install_sumo.sh
 RUN ./install_su2.sh
 RUN source ~/.bashrc
 
-WORKDIR /CEASIOMpy/tests
+WORKDIR /CEASIOMpy/CEASIOMpy/tests
 RUN conda activate ceasiompy && ./run_ci.sh

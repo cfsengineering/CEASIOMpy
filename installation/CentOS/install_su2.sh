@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to install SU2 on Ubuntu 20.04 and  Mint 20.3
+# Script to install SU2 on Centos 8
 
 su2_version="7.3.0"
 

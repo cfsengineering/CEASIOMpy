@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to install CEASIOMpy on Ubuntu 20.04 and  Mint 20.3
+# Script to install CEASIOMpy on Centos 8
 
 current_dir="$(pwd)"
 

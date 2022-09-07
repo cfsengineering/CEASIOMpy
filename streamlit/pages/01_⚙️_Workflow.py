@@ -4,7 +4,8 @@ from pathlib import Path
 
 import streamlit as st
 from ceasiompy.utils.commonpaths import CEASIOMPY_PATH
-from ceasiompy.utils.moduleinterfaces import get_specs_for_module, get_submodule_list
+from ceasiompy.utils.moduleinterfaces import (get_specs_for_module,
+                                              get_submodule_list)
 from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.cpacsfunctions import add_string_vector, add_value
 from cpacspy.cpacspy import CPACS
@@ -96,6 +97,9 @@ def section_add_module():
 
     st.markdown("#### Your workflow")
 
+    if "workflow_modules" not in st.session_state:
+        st.session_state["workflow_modules"] = []
+
     if len(st.session_state.workflow_modules):
         for i, module in enumerate(st.session_state.workflow_modules):
 
@@ -122,9 +126,6 @@ def section_add_module():
     module_list.remove("utils")
     available_module_list = sorted(module_list)
 
-    if "workflow_modules" not in st.session_state:
-        st.session_state["workflow_modules"] = []
-
     col1, col2 = st.columns(2)
 
     with col1:
@@ -139,6 +140,9 @@ def section_add_module():
 
 def section_your_workflow():
     st.markdown("#### Settings")
+
+    if "workflow_modules" not in st.session_state:
+        st.warning("No module selected!")
 
     add_module_tab()
 
@@ -172,6 +176,9 @@ def section_your_workflow():
 
 
 def add_module_tab():
+
+    if "tabs" not in st.session_state:
+        st.session_state["tabs"] = []
 
     if st.session_state.workflow_modules:
         st.session_state.tabs = st.tabs(st.session_state.workflow_modules)

@@ -1,6 +1,8 @@
-import streamlit as st
 from pathlib import Path
+
 from ceasiompy.utils.commonpaths import CEASIOMPY_PATH
+
+import streamlit as st
 
 
 st.title("CEASIOMpy")

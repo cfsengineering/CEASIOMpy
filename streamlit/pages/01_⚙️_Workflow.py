@@ -4,14 +4,26 @@ from pathlib import Path
 
 import streamlit as st
 from ceasiompy.utils.commonpaths import CEASIOMPY_PATH
-from ceasiompy.utils.moduleinterfaces import (get_specs_for_module,
-                                              get_submodule_list)
+from ceasiompy.utils.moduleinterfaces import get_specs_for_module, get_submodule_list
 from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.cpacsfunctions import add_string_vector, add_value
 from cpacspy.cpacspy import CPACS
 from directory_picker import st_directory_picker
 
 st.set_page_config(page_title="Workflow", page_icon="⚙️")
+
+
+# Custom CSS
+st.markdown(
+    """
+    <style>
+    .stButton > button {
+        border-radius:10px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 def update_value(xpath, key):

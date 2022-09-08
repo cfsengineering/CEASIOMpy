@@ -204,8 +204,8 @@ def add_module_tab():
             inputs = specs.cpacs_inout.get_gui_dict()
 
             if not inputs:
-                st.warning("No specs found for this module")
-                return
+                st.warning("No specs required for this module")
+                continue
 
             groups = list(OrderedDict.fromkeys([v[6] for _, v in inputs.items()]))
 

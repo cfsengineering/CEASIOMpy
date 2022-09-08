@@ -13,12 +13,12 @@ for dir in results_dir.iterdir():
     if "Workflow_" in str(dir):
         last_workflow = max(last_workflow, int(str(dir).split("_")[-1]))
 
-results_dir = Path(results_dir, f"Workflow_0{last_workflow}", "Results")
+results_dir = Path(results_dir, f"Workflow_{str(last_workflow).rjust(3, '0')}", "Results")
 st.text(f"The Results dir is: {str(results_dir)}")
 for dir in results_dir.iterdir():
     if dir.is_dir():
         with st.expander(dir.name, expanded=False):
-            st.text(f"")
+            st.text("")
             for file in dir.iterdir():
                 st.markdown(file)
 

@@ -179,7 +179,8 @@ def compute_area(surface_tag):
     area = data[-1][-1]
 
     # clean the views and the physical group
-    gmsh.view.remove(views)
+    for v in views:
+        gmsh.view.remove(v)
     gmsh.model.removePhysicalGroups([(2, surface_groupe)])
 
     return area

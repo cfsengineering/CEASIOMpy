@@ -33,7 +33,7 @@ cpacs_inout.add_input(
 
 cpacs_inout.add_input(
     var_name="refine_level",
-    var_type="float",
+    var_type=float,
     default_value=1.0,
     unit="1",
     descr="0 is baseline, +1 env. equal double mesh points",

@@ -14,6 +14,7 @@ cpacs_inout.add_input(
     xpath=SF_XPATH + "/aeroMapToCalculate",
     gui=True,
     gui_name="__AEROMAP_CHECHBOX",
+    gui_group="Aeromap settings",
 )
 
 cpacs_inout.add_input(

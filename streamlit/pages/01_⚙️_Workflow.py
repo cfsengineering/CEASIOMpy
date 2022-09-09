@@ -28,6 +28,9 @@ st.markdown(
 
 def update_value(xpath, key):
 
+    if "cpacs" not in st.session_state:
+        st.warning("No CPACS file has been selected!")
+
     if key in st.session_state:
         value = st.session_state[key]
 
@@ -189,6 +192,10 @@ def section_your_workflow():
 
 def add_module_tab():
 
+    if "cpacs" not in st.session_state:
+        st.warning("No CPACS file has been selected!")
+        return
+
     if "tabs" not in st.session_state:
         st.session_state["tabs"] = []
 
@@ -220,7 +227,7 @@ def add_module_tab():
 
                 with groups_container[group]:
 
-                    key = f"{m}_{module}_{name.replace(' ', '')}-"
+                    key = f"{m}_{module}_{name.replace(' ', '')}_{group.replace(' ', '')}"
 
                     if unit not in ["", "1", None]:
                         name = f"{name} {unit}"

@@ -4,7 +4,8 @@ from pathlib import Path
 
 import streamlit as st
 from ceasiompy.utils.commonpaths import CEASIOMPY_PATH
-from ceasiompy.utils.moduleinterfaces import get_specs_for_module, get_submodule_list
+from ceasiompy.utils.moduleinterfaces import (get_specs_for_module,
+                                              get_submodule_list)
 from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.cpacsfunctions import add_string_vector, add_value
 from cpacspy.cpacspy import CPACS
@@ -55,9 +56,7 @@ def section_select_working_dir():
 
     if "workflow" not in st.session_state:
         st.session_state.workflow = Workflow()
-    st.session_state.workflow.working_dir = st_directory_picker(
-        Path("../WKDIR/test_st").absolute()
-    )
+    st.session_state.workflow.working_dir = st_directory_picker(Path("../../WKDIR").absolute())
 
 
 def section_select_cpacs():

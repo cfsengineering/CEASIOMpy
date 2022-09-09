@@ -44,7 +44,7 @@ cpacs_inout.add_input(
     xpath=SU2_AEROMAP_UID_XPATH,
     gui=True,
     gui_name="__AEROMAP_SELECTION",
-    gui_group=None,
+    gui_group="Aeromap settings",
 )
 
 cpacs_inout.add_input(

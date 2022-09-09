@@ -24,7 +24,7 @@ cpacs_inout.add_input(
     xpath=EXPORT_XPATH + "/aeroMapToExport",
     gui=True,
     gui_name="__AEROMAP_CHECHBOX",
-    # gui_group='Multipe aeromap'
+    gui_group="Aeromap settings",
 )
 
 # ----- Output -----

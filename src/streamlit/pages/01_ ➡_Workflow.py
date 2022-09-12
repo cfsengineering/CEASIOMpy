@@ -93,6 +93,10 @@ st.title("Workflow")
 
 section_predefined_workflow()
 
+st.markdown("---")
+
 section_add_module()
 
 st.markdown("---")
+
+st.info("You can use the sidebar to go to the Settings page")

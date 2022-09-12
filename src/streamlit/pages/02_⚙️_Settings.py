@@ -8,22 +8,9 @@ from ceasiompy.utils.moduleinterfaces import get_specs_for_module, get_submodule
 from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.cpacsfunctions import add_string_vector, add_value
 from cpacspy.cpacspy import CPACS
-from directory_picker import st_directory_picker
+
 
 st.set_page_config(page_title="Workflow", page_icon="⚙️")
-
-
-# Custom CSS
-st.markdown(
-    """
-    <style>
-    .stButton > button {
-        border-radius:10px;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
 
 
 def update_value(xpath, key):
@@ -47,106 +34,6 @@ def save_cpacs_file():
     st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
     st.session_state.workflow.cpacs_in = saved_cpacs_file
     st.session_state.cpacs = CPACS(saved_cpacs_file)
-
-
-def section_predefined_workflow():
-
-    st.markdown("#### Predefined Workflows")
-    col1, col2, col3 = st.columns([3, 3, 3])
-
-    with col1:
-        if st.button("PyTornado → Plots"):
-            st.session_state.workflow_modules = ["PyTornado", "PlotAeroCoefficients"]
-
-    with col2:
-        if st.button("CPACS2GMSH → SU2Run"):
-            st.session_state.workflow_modules = ["CPACS2GMSH", "SU2Run"]
-
-    with col3:
-        if st.button("SUMO → SU2Run"):
-            st.session_state.workflow_modules = ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run"]
-
-
-def section_add_module():
-
-    st.markdown("#### Your workflow")
-
-    if "workflow_modules" not in st.session_state:
-        st.session_state["workflow_modules"] = []
-
-    if len(st.session_state.workflow_modules):
-        for i, module in enumerate(st.session_state.workflow_modules):
-
-            col1, col2, col3, _ = st.columns([6, 1, 1, 5])
-
-            with col1:
-                st.markdown(f"**{module}**")
-
-            with col2:
-                if st.button("⬆️", key=f"move{i}", help="Move up") and i != 0:
-                    st.session_state.workflow_modules.pop(i)
-                    st.session_state.workflow_modules.insert(i - 1, module)
-                    st.experimental_rerun()
-
-            with col3:
-                if st.button("❌", key=f"del{i}", help=f"Remove {module} from the workflow"):
-                    st.session_state.workflow_modules.pop(i)
-                    st.experimental_rerun()
-
-    else:
-        st.warning("No module has been added to the workflow.")
-
-    module_list = get_submodule_list()
-    module_list.remove("utils")
-    available_module_list = sorted(module_list)
-
-    col1, col2 = st.columns(2)
-
-    with col1:
-        module = st.selectbox("Module to add to the workflow:", available_module_list)
-
-    with col2:
-        st.markdown("#")
-        if st.button("✔", help="Add this module to the workflow"):
-            st.session_state.workflow_modules.append(module)
-            st.experimental_rerun()
-
-
-def section_your_workflow():
-    st.markdown("#### Settings")
-
-    if "workflow_modules" not in st.session_state:
-        st.warning("No module selected!")
-
-    add_module_tab()
-
-    if not len(st.session_state.workflow_modules):
-        st.warning("No module has been added to the workflow.")
-
-    _, col2, col3 = st.columns([10, 1, 1])
-
-    with col2:
-
-        if st.button("💾", help="Save CPACS"):
-            save_cpacs_file()
-
-    with col3:
-
-        if st.button("▶️", help="Run the workflow "):
-
-            save_cpacs_file()
-
-            st.session_state.workflow.modules_list = st.session_state.workflow_modules
-            st.session_state.workflow.optim_method = "None"
-            st.session_state.workflow.module_optim = ["NO"] * len(
-                st.session_state.workflow.modules_list
-            )
-            st.session_state.workflow.write_config_file()
-
-            # Run workflow from an external script
-            config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
-            print(Path().cwd())
-            os.system(f"python run_workflow.py {config_path}  &")
 
 
 def add_module_tab():
@@ -256,12 +143,41 @@ def add_module_tab():
                         )
 
 
-st.title("Workflow")
+def section_your_workflow():
+    st.markdown("#### Settings")
 
-section_predefined_workflow()
+    if "workflow_modules" not in st.session_state:
+        st.warning("No module selected!")
 
-section_add_module()
+    add_module_tab()
 
-st.markdown("---")
+    if not len(st.session_state.workflow_modules):
+        st.warning("No module has been added to the workflow.")
+
+    _, col2, col3 = st.columns([10, 1, 1])
+
+    with col2:
+
+        if st.button("💾", help="Save CPACS"):
+            save_cpacs_file()
+
+    with col3:
+
+        if st.button("▶️", help="Run the workflow "):
+
+            save_cpacs_file()
+
+            st.session_state.workflow.modules_list = st.session_state.workflow_modules
+            st.session_state.workflow.optim_method = "None"
+            st.session_state.workflow.module_optim = ["NO"] * len(
+                st.session_state.workflow.modules_list
+            )
+            st.session_state.workflow.write_config_file()
+
+            # Run workflow from an external script
+            config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
+            print(Path().cwd())
+            os.system(f"python run_workflow.py {config_path}  &")
+
 
 section_your_workflow()

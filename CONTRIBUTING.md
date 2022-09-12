@@ -171,6 +171,11 @@ Other resources that could the useful.
 - [PyTornado website](https://pytornado.readthedocs.io/en/latest/)
 - [Github repository](https://github.com/airinnova/pytornado)
 
+#### GMSH
+
+- [GMSH website](https://gmsh.info/)
+- [Python API](https://gitlab.onelab.info/gmsh/gmsh/-/blob/master/api/gmsh.py)
+
 #### SUMO
 
 - [SUMO website](https://www.larosterna.com/products/open-source)
@@ -179,6 +184,10 @@ Other resources that could the useful.
 
 - [SU2 website](https://su2code.github.io/)
 - [SU2 Configuration template file](https://github.com/su2code/SU2/blob/master/config_template.cfg)
+
+#### Paraview
+
+- [Paraview website](https://www.paraview.org/)
 
 ## How to contribute
 

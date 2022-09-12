@@ -4,8 +4,7 @@ from pathlib import Path
 
 import streamlit as st
 from ceasiompy.utils.commonpaths import CEASIOMPY_PATH
-from ceasiompy.utils.moduleinterfaces import (get_specs_for_module,
-                                              get_submodule_list)
+from ceasiompy.utils.moduleinterfaces import get_specs_for_module, get_submodule_list
 from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.cpacsfunctions import add_string_vector, add_value
 from cpacspy.cpacspy import CPACS
@@ -48,45 +47,6 @@ def save_cpacs_file():
     st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
     st.session_state.workflow.cpacs_in = saved_cpacs_file
     st.session_state.cpacs = CPACS(saved_cpacs_file)
-
-
-def section_select_working_dir():
-
-    st.markdown("#### Working directory")
-
-    if "workflow" not in st.session_state:
-        st.session_state.workflow = Workflow()
-    st.session_state.workflow.working_dir = st_directory_picker(Path("../../WKDIR").absolute())
-
-
-def section_select_cpacs():
-
-    st.markdown("#### CPACS file")
-
-    st.session_state.cpacs_file = st.file_uploader("Select a CPACS file", type=["xml"])
-
-    if st.session_state.cpacs_file:
-
-        cpacs_new_path = Path(
-            st.session_state.workflow.working_dir, st.session_state.cpacs_file.name
-        )
-
-        with open(cpacs_new_path, "wb") as f:
-            f.write(st.session_state.cpacs_file.getbuffer())
-
-        st.session_state.workflow.cpacs_in = cpacs_new_path
-        st.session_state.cpacs = CPACS(cpacs_new_path)
-
-        cpacs_new_path = Path(
-            st.session_state.workflow.working_dir, st.session_state.cpacs_file.name
-        )
-        st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
-
-        if "cpacs" not in st.session_state:
-            st.session_state.cpacs = CPACS(cpacs_new_path)
-
-    else:
-        st.warning("No CPACS file has been selected!")
 
 
 def section_predefined_workflow():
@@ -297,14 +257,6 @@ def add_module_tab():
 
 
 st.title("Workflow")
-
-section_select_working_dir()
-
-st.markdown("---")
-
-section_select_cpacs()
-
-st.markdown("---")
 
 section_predefined_workflow()
 

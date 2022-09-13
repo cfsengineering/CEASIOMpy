@@ -2,6 +2,7 @@ from pathlib import Path
 
 import ceasiompy.__init__
 import streamlit as st
+from streamlit_autorefresh import st_autorefresh
 
 CEASIOMPY_PATH = Path(ceasiompy.__init__.__file__).parents[1]
 LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
@@ -19,9 +20,9 @@ def show_logs():
     with open(LOGFILE, "r") as f:
         lines = f.readlines()
 
-    lines_str = "\n".join(lines)
+    lines_str = "\n".join(reversed(lines))
 
-    st.text_area("logs", lines_str, height=300, disabled=True)
+    st.text_area("logs (more recent on top)", lines_str, height=300, disabled=True)
 
 
 def show_results():
@@ -51,3 +52,5 @@ def show_results():
 
 show_logs()
 show_results()
+
+st_autorefresh(interval=1000, limit=100, key="auto_refresh")

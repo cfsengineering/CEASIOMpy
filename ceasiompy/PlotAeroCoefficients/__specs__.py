@@ -57,7 +57,7 @@ cpacs_inout.add_input(
     var_name="manual_selct",
     var_type=bool,
     default_value=False,
-    descr="Angle of Sideslip (AoS) inclusion criteria",
+    descr="A window will popup to ask you to select an aeromap",
     xpath=PLOT_XPATH + "/manualSelection",
     gui=True,
     gui_name="Select AeroMaps manualy",

@@ -14,8 +14,6 @@ LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
 st.set_page_config(page_title="Results", page_icon="📈")
 st.title("Results")
 
-st.info("The results page is under construction, it can not be use yet!")
-
 
 def get_last_workflow():
 
@@ -161,6 +159,8 @@ def show_aeromap():
 def show_results():
 
     st.markdown("#### Results")
+
+    st.info("This part is under construction, it can not be use yet!")
 
     last_workflow = get_last_workflow()
 

@@ -88,23 +88,27 @@ def add_module_tab():
                         )
 
                     elif name == "__AEROMAP_CHECHBOX":
-                        st.multiselect(
-                            "Select one or several aeromaps",
-                            key=key,
-                            options=st.session_state.cpacs.get_aeromap_uid_list(),
-                            help=descr,
-                            on_change=update_value(xpath, key),
-                        )
+                        col1, _ = st.columns([1, 2])
+                        with col1:
+                            st.multiselect(
+                                "Select one or several aeromaps",
+                                key=key,
+                                options=st.session_state.cpacs.get_aeromap_uid_list(),
+                                help=descr,
+                                on_change=update_value(xpath, key),
+                            )
 
                     elif var_type == int or var_type == float:
 
-                        st.number_input(
-                            name,
-                            value=default_value,
-                            key=key,
-                            help=descr,
-                            on_change=update_value(xpath, key),
-                        )
+                        col1, _ = st.columns([1, 2])
+                        with col1:
+                            st.number_input(
+                                name,
+                                value=default_value,
+                                key=key,
+                                help=descr,
+                                on_change=update_value(xpath, key),
+                            )
 
                     elif var_type == list:
                         st.radio(
@@ -134,13 +138,15 @@ def add_module_tab():
                         # )
 
                     else:
-                        st.text_input(
-                            name,
-                            value=default_value,
-                            key=key,
-                            help=descr,
-                            on_change=update_value(xpath, key),
-                        )
+                        col1, _ = st.columns([1, 2])
+                        with col1:
+                            st.text_input(
+                                name,
+                                value=default_value,
+                                key=key,
+                                help=descr,
+                                on_change=update_value(xpath, key),
+                            )
 
 
 def section_your_workflow():
@@ -148,6 +154,7 @@ def section_your_workflow():
 
     if "workflow_modules" not in st.session_state:
         st.warning("No module selected!")
+        return
 
     add_module_tab()
 

@@ -154,16 +154,16 @@ def section_your_workflow():
     if not len(st.session_state.workflow_modules):
         st.warning("No module has been added to the workflow.")
 
-    _, col2, col3 = st.columns([10, 1, 1])
+    _, col2, col3 = st.columns([6, 1, 1])
 
     with col2:
 
-        if st.button("💾", help="Save CPACS"):
+        if st.button("Save 💾", help="Save CPACS"):
             save_cpacs_file()
 
     with col3:
 
-        if st.button("▶️", help="Run the workflow "):
+        if st.button("Run ▶️", help="Run the workflow "):
 
             save_cpacs_file()
 

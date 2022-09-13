@@ -49,18 +49,16 @@ def section_select_cpacs():
 
 st.title("CEASIOMpy")
 
-col1, col2 = st.columns(2)
+col1, col2 = st.columns([5, 3])
 
 with col1:
-    st.markdown("##")
-    st.markdown("Use the sidebar to navigate to the different pages.")
-
-    st.markdown("[Github repository](https://github.com/cfsengineering/CEASIOMpy)")
-
-    # Add button to change page when available
+    st.markdown("### How to use CEASIOMpy?")
+    st.markdown("- Select a Working directory")
+    st.markdown("- Select a CPACS file")
+    st.markdown("- Use the side bar to go to the Workflow page")
 
 with col2:
-    st.image(str(Path(CEASIOMPY_PATH, "documents/logos/CEASIOMpy_main_logos.png")), width=350)
+    st.image(str(Path(CEASIOMPY_PATH, "documents/logos/CEASIOMpy_main_logos.png")), width=220)
 
 section_select_working_dir()
 section_select_cpacs()

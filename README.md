@@ -109,8 +109,8 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
   graph LR;
       SettingsGUI-->CLCalculator
       CLCalculator-->CPACS2SUMO;
-      CPACS2SUMO-->SU2AutoMesh;
-      SU2AutoMesh-->SU2Run;
+      CPACS2SUMO-->SUMOAutoMesh;
+      SUMOAutoMesh-->SU2Run;
       SU2Run-->ExportCSV;
 ```
 

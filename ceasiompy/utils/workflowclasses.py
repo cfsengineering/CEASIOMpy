@@ -338,6 +338,8 @@ class Workflow:
             else:
                 run_module(module, self.current_wkflow_dir)
 
+        shutil.copy(module.cpacs_out, Path(self.current_wkflow_dir, "ToolOutput.xml"))
+
         # log.info("#" * 99)
         # log.info("###  End of the workflow")
         # log.info("#" * 99)

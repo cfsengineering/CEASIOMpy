@@ -36,11 +36,52 @@ def save_cpacs_file():
     st.session_state.cpacs = CPACS(saved_cpacs_file)
 
 
+def aeromap_modif():
+
+    st.markdown("**Available aeromaps**")
+
+    aeromap_list = []
+    aeromap_uid_list = st.session_state.cpacs.get_aeromap_uid_list()
+
+    for aeromap in aeromap_uid_list:
+        st.markdown(aeromap)
+
+    st.markdown("**Add new aeromap**")
+
+    st.markdown("**Add new point**")
+
+    selected_aeromap = st.selectbox(
+        "in", aeromap_uid_list, help="Choose in which aeromap you want to add the point"
+    )
+
+    col1, col2, col3, col4, col5 = st.columns([2, 2, 2, 2, 1])
+
+    with col1:
+        alt = st.number_input("Alt", value=1000, min_value=0, step=100)
+    with col2:
+        mach = st.number_input("Mach", value=0.3, min_value=0.0, step=0.1)
+    with col3:
+        aos = st.number_input("AoS", value=0, min_value=-90, max_value=90, step=1)
+    with col4:
+        aoa = st.number_input("AoA", value=0, min_value=-90, max_value=90, step=1)
+    with col5:
+        st.markdown("")
+        st.markdown("")
+        if st.button("➕"):
+            aeromap = st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap)
+            aeromap.add_row(mach=mach, alt=alt, aos=aos, aoa=aoa)
+            aeromap.save()
+            save_cpacs_file()
+
+
 def add_module_tab():
 
     if "cpacs" not in st.session_state:
         st.warning("No CPACS file has been selected!")
         return
+
+    with st.expander("Edit Aeromaps"):
+        aeromap_modif()
 
     if "tabs" not in st.session_state:
         st.session_state["tabs"] = []
@@ -51,7 +92,9 @@ def add_module_tab():
     for m, (tab, module) in enumerate(
         zip(st.session_state.tabs, st.session_state.workflow_modules)
     ):
+
         with tab:
+
             st.text("")
             specs = get_specs_for_module(module)
             inputs = specs.cpacs_inout.get_gui_dict()

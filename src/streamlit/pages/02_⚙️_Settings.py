@@ -46,8 +46,6 @@ def aeromap_modif():
     for aeromap in aeromap_uid_list:
         st.markdown(aeromap)
 
-    st.markdown("**Add new aeromap**")
-
     st.markdown("**Add new point**")
 
     selected_aeromap = st.selectbox(
@@ -73,6 +71,19 @@ def aeromap_modif():
             aeromap.save()
             save_cpacs_file()
 
+    st.markdown("**Add new aeromap**")
+
+    col1, col2 = st.columns(2)
+    with col1:
+        new_aeromap_uid = st.text_input("Aeromap uid", help="The aeromap will contain 1 point coresponding to the value above, then you can add more point to it.")
+    with col2:
+        st.markdown("")
+        st.markdown("")
+        if st.button("Create new"):
+            new_aeromap = st.session_state.cpacs.create_aeromap(new_aeromap_uid)
+            new_aeromap.description = "Created with CEASIOMpy Graphical user interface"
+            new_aeromap.add_row(mach=mach, alt=alt, aos=aos, aoa=aoa)
+            new_aeromap.save()
 
 def add_module_tab():
 

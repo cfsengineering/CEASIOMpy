@@ -17,6 +17,24 @@ st.set_page_config(page_title="Workflow", page_icon="➡")
 st.markdown(
     """
     <style>
+    .css-1awtkze {
+        border-radius:3px;
+        background-color:#1DC690;
+        padding: 6px;
+    }
+    .css-1awtkze:after {
+    content:'';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    margin-left: -20px;
+    margin-top: 2px;
+    width: 0;
+    height: 0;
+    border-top: solid 10px #9e9e93;
+    border-left: solid 10px transparent;
+    border-right: solid 10px transparent;
+    }
     .stButton > button {
         border-radius:10px;
     }

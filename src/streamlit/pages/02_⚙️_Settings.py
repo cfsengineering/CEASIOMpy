@@ -5,10 +5,11 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module
-from cpacspy.cpacsfunctions import add_string_vector, add_value
+from cpacspy.cpacsfunctions import add_string_vector, add_value, get_value, get_value_or_default
 from cpacspy.cpacspy import CPACS
 
-st.set_page_config(page_title="Workflow", page_icon="⚙️")
+st.set_page_config(page_title="Settings", page_icon="⚙️")
+st.title("Settings")
 
 # Custom CSS
 st.markdown(
@@ -40,8 +41,15 @@ def update_value(xpath, key):
         add_value(st.session_state.cpacs.tixi, xpath, value)
 
 
+def update_all_modified_value():
+
+    for xpath, key in st.session_state.xpath_to_update.items():
+        update_value(xpath, key)
+
+
 def save_cpacs_file():
 
+    update_all_modified_value()
     saved_cpacs_file = Path(st.session_state.workflow.working_dir, "CPACS_selected_from_GUI.xml")
     st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
     st.session_state.workflow.cpacs_in = saved_cpacs_file
@@ -167,6 +175,8 @@ def add_module_tab():
     if st.session_state.workflow_modules:
         st.session_state.tabs = st.tabs(st.session_state.workflow_modules)
 
+    st.session_state.xpath_to_update = {}
+
     for m, (tab, module) in enumerate(
         zip(st.session_state.tabs, st.session_state.workflow_modules)
     ):
@@ -194,58 +204,77 @@ def add_module_tab():
 
                 with groups_container[group]:
 
+                    # TODO: problem when there is no group define
                     key = f"{m}_{module}_{name.replace(' ', '')}_{group.replace(' ', '')}"
 
                     if unit not in ["", "1", None]:
                         name = f"{name} {unit}"
 
+                    # TODO: problem with this one
                     if name == "__AEROMAP_SELECTION":
                         st.radio(
                             "Select an aeromap",
                             key=key,
                             options=st.session_state.cpacs.get_aeromap_uid_list(),
                             help=descr,
-                            on_change=update_value(xpath, key),
                         )
 
                     elif name == "__AEROMAP_CHECHBOX":
-                        col1, _ = st.columns([1, 2])
-                        with col1:
+                        with st.columns([1, 2])[0]:
                             st.multiselect(
                                 "Select one or several aeromaps",
                                 key=key,
                                 options=st.session_state.cpacs.get_aeromap_uid_list(),
                                 help=descr,
-                                on_change=update_value(xpath, key),
                             )
 
-                    elif var_type == int or var_type == float:
+                    elif var_type == int:
 
-                        col1, _ = st.columns([1, 2])
-                        with col1:
+                        with st.columns([1, 2])[0]:
                             st.number_input(
                                 name,
-                                value=default_value,
+                                value=int(
+                                    get_value_or_default(
+                                        st.session_state.cpacs.tixi, xpath, default_value
+                                    )
+                                ),
                                 key=key,
                                 help=descr,
-                                on_change=update_value(xpath, key),
                             )
 
+                    elif var_type == float:
+
+                        with st.columns([1, 2])[0]:
+                            st.number_input(
+                                name,
+                                value=get_value_or_default(
+                                    st.session_state.cpacs.tixi, xpath, default_value
+                                ),
+                                key=key,
+                                help=descr,
+                            )
+
+                    # TODO: problem with this one
                     elif var_type == list:
+                        value = get_value_or_default(
+                            st.session_state.cpacs.tixi, xpath, default_value[0]
+                        )
+                        idx = default_value.index(value)
                         st.radio(
                             name,
                             options=default_value,
+                            index=idx,
                             help=descr,
-                            on_change=update_value(xpath, key),
                         )
 
                     elif var_type == bool:
                         st.checkbox(
                             name,
-                            value=default_value,
+                            value=get_value_or_default(
+                                st.session_state.cpacs.tixi, xpath, default_value
+                            ),
                             key=key,
                             help=descr,
-                            on_change=update_value(xpath, key),
                         )
 
                     elif var_type == "pathtype":
@@ -259,19 +288,20 @@ def add_module_tab():
                         # )
 
                     else:
-                        col1, _ = st.columns([1, 2])
-                        with col1:
+                        with st.columns([1, 2])[0]:
                             st.text_input(
                                 name,
-                                value=default_value,
+                                value=get_value_or_default(
+                                    st.session_state.cpacs.tixi, xpath, default_value
+                                ),
                                 key=key,
                                 help=descr,
-                                on_change=update_value(xpath, key),
                             )
+
+                    st.session_state.xpath_to_update[xpath] = key
 
 
 def section_your_workflow():
-    st.markdown("#### Settings")
 
     if "workflow_modules" not in st.session_state:
         st.warning("No module selected!")
@@ -282,30 +312,10 @@ def section_your_workflow():
     if not len(st.session_state.workflow_modules):
         st.warning("No module has been added to the workflow.")
 
-    _, col2, col3 = st.columns([6, 1, 1])
+    with st.columns([3, 2, 3])[1]:
 
-    with col2:
-
-        if st.button("Save 💾", help="Save CPACS"):
+        if st.button("Save 💾", key="save_button", help="Save CPACS"):
             save_cpacs_file()
-
-    with col3:
-        pass
-    # if st.button("Run ▶️", help="Run the workflow "):
-
-    #     save_cpacs_file()
-
-    #     st.session_state.workflow.modules_list = st.session_state.workflow_modules
-    #     st.session_state.workflow.optim_method = "None"
-    #     st.session_state.workflow.module_optim = ["NO"] * len(
-    #         st.session_state.workflow.modules_list
-    #     )
-    #     st.session_state.workflow.write_config_file()
-
-    #     # Run workflow from an external script
-    #     config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
-    #     print(Path().cwd())
-    #     os.system(f"python run_workflow.py {config_path}  &")
 
 
 section_your_workflow()

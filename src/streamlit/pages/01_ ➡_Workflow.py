@@ -19,7 +19,7 @@ st.markdown(
     <style>
     .css-1awtkze {
         border-radius:3px;
-        background-color:#1DC690;
+        background-color:#ff7f2a;
         padding: 6px;
     }
     .css-1awtkze:after {
@@ -98,9 +98,11 @@ def section_add_module():
     col1, col2 = st.columns(2)
 
     with col1:
+        st.markdown(" ")
         module = st.selectbox("Module to add to the workflow:", available_module_list)
 
     with col2:
+        st.markdown(" ")
         st.markdown("#")
         if st.button("✔", help="Add this module to the workflow"):
             st.session_state.workflow_modules.append(module)

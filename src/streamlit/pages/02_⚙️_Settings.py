@@ -2,15 +2,27 @@ import os
 from collections import OrderedDict
 from pathlib import Path
 
+import pandas as pd
 import streamlit as st
-from ceasiompy.utils.commonpaths import CEASIOMPY_PATH
-from ceasiompy.utils.moduleinterfaces import get_specs_for_module, get_submodule_list
-from ceasiompy.utils.workflowclasses import Workflow
+from ceasiompy.utils.moduleinterfaces import get_specs_for_module
 from cpacspy.cpacsfunctions import add_string_vector, add_value
 from cpacspy.cpacspy import CPACS
 
-
 st.set_page_config(page_title="Workflow", page_icon="⚙️")
+
+# Custom CSS
+st.markdown(
+    """
+    <style>
+    .css-1awtkze {
+        border-radius:3px;
+        background-color: #9e9e93;
+        padding: 6px;
+    }
+    </style>
+    """,
+    unsafe_allow_html=True,
+)
 
 
 def update_value(xpath, key):
@@ -38,15 +50,31 @@ def save_cpacs_file():
 
 def aeromap_modif():
 
-    st.markdown("**Available aeromaps**")
+    st.markdown("#### Available aeromaps")
 
     aeromap_list = []
     aeromap_uid_list = st.session_state.cpacs.get_aeromap_uid_list()
 
-    for aeromap in aeromap_uid_list:
-        st.markdown(aeromap)
+    for i, aeromap in enumerate(aeromap_uid_list):
 
-    st.markdown("**Add new point**")
+        col1, col2, col3, _ = st.columns([6, 1, 1, 5])
+
+        with col1:
+            st.markdown(f"**{aeromap}**")
+
+        with col2:
+            if st.button("⬆️", key=f"export{i}", help="Export aeromap") and i != 0:
+                csv_file_name = aeromap.replace(" ", "_") + ".csv"
+                st.session_state.cpacs.get_aeromap_by_uid(aeromap).export_csv(csv_file_name)
+                with open(csv_file_name) as f:
+                    st.download_button("Download", f, file_name=csv_file_name)
+
+        with col3:
+            if st.button("❌", key=f"del{i}", help=f"Delete this aeromap"):
+                st.session_state.cpacs.delete_aeromap(aeromap)
+                st.experimental_rerun()
+
+    st.markdown("#### Add a point")
 
     selected_aeromap = st.selectbox(
         "in", aeromap_uid_list, help="Choose in which aeromap you want to add the point"
@@ -63,27 +91,66 @@ def aeromap_modif():
     with col4:
         aoa = st.number_input("AoA", value=0, min_value=-90, max_value=90, step=1)
     with col5:
+        st.session_state.point_exist = False
         st.markdown("")
         st.markdown("")
         if st.button("➕"):
             aeromap = st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap)
-            aeromap.add_row(mach=mach, alt=alt, aos=aos, aoa=aoa)
-            aeromap.save()
-            save_cpacs_file()
 
-    st.markdown("**Add new aeromap**")
+            try:
+                aeromap.add_row(mach=mach, alt=alt, aos=aos, aoa=aoa)
+            except ValueError:
+                st.session_state.point_exist = True
 
-    col1, col2 = st.columns(2)
-    with col1:
-        new_aeromap_uid = st.text_input("Aeromap uid", help="The aeromap will contain 1 point coresponding to the value above, then you can add more point to it.")
-    with col2:
-        st.markdown("")
-        st.markdown("")
-        if st.button("Create new"):
+            if not st.session_state.point_exist:
+                aeromap.save()
+                save_cpacs_file()
+
+    if st.session_state.point_exist:
+        st.error("This point already exist in this aeromap")
+
+    st.markdown("#### Create new aeromap")
+
+    form = st.form("create_new_aeromap_form")
+
+    help_aeromap_uid = "The aeromap will contain 1 point corresponding to the value above, then \
+                        you can add more point to it."
+    new_aeromap_uid = form.text_input(
+        "Aeromap uid",
+        help=help_aeromap_uid,
+    )
+    default_description = "Created with CEASIOMpy Graphical user interface"
+    new_aeromap_description = form.text_input(
+        "Aeromap description", value=default_description, help="optional"
+    )
+
+    if form.form_submit_button("Create new"):
+        if new_aeromap_uid not in aeromap_uid_list:
             new_aeromap = st.session_state.cpacs.create_aeromap(new_aeromap_uid)
-            new_aeromap.description = "Created with CEASIOMpy Graphical user interface"
+            new_aeromap.description = new_aeromap_description
             new_aeromap.add_row(mach=mach, alt=alt, aos=aos, aoa=aoa)
             new_aeromap.save()
+            st.experimental_rerun()
+        else:
+            st.error("There is already an aeromap with this name!")
+
+    st.markdown("#### Import aeromap")
+
+    uploaded_csv = st.file_uploader("Choose a CSV file")
+    if uploaded_csv:
+        uploaded_aeromap_uid = uploaded_csv.name.split(".csv")[0]
+
+        if st.button("Add this aeromap"):
+
+            if uploaded_aeromap_uid in aeromap_uid_list:
+                st.error("There is already an aeromap with this name!")
+                return
+
+            new_aeromap = st.session_state.cpacs.create_aeromap(uploaded_aeromap_uid)
+            new_aeromap.df = pd.read_csv(uploaded_csv, keep_default_na=False)
+            new_aeromap.save()
+            st.experimental_rerun()
+
 
 def add_module_tab():
 

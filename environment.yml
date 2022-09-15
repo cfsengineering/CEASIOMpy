@@ -26,6 +26,7 @@ dependencies:
   - plotly=5.10.0
   - pip=21.3.1
   - pytest-cov=3.0.0
+  - python-kaleido=0.2.1
   - scipy=1.7.3
   - tixi3=3.0.3
   - vtk=9.0.1

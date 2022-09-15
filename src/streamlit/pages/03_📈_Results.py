@@ -60,6 +60,7 @@ def show_aeromap():
             list_of_files.append(file.stem)
     if "ToolOutput" in list_of_files:
         cpacs = CPACS(Path(last_workflow, "ToolOutput.xml"))
+        st.success("Your results are ready!")
     else:
         cpacs = st.session_state.cpacs
         st.info("No results found, these are aeromaps from the input CPACS file!")
@@ -154,6 +155,10 @@ def show_aeromap():
     )
 
     st.plotly_chart(fig)
+
+    if st.button("Save this figure 📷"):
+        fig_name = f"{y_axis}_vs_{x_axis}.png"
+        fig.write_image(Path(st.session_state.workflow.working_dir, fig_name))
 
 
 def show_results():

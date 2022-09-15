@@ -70,7 +70,7 @@ def aeromap_modif():
                     st.download_button("Download", f, file_name=csv_file_name)
 
         with col3:
-            if st.button("❌", key=f"del{i}", help=f"Delete this aeromap"):
+            if st.button("❌", key=f"del{i}", help="Delete this aeromap"):
                 st.session_state.cpacs.delete_aeromap(aeromap)
                 st.experimental_rerun()
 
@@ -290,22 +290,22 @@ def section_your_workflow():
             save_cpacs_file()
 
     with col3:
+        pass
+    # if st.button("Run ▶️", help="Run the workflow "):
 
-        if st.button("Run ▶️", help="Run the workflow "):
+    #     save_cpacs_file()
 
-            save_cpacs_file()
+    #     st.session_state.workflow.modules_list = st.session_state.workflow_modules
+    #     st.session_state.workflow.optim_method = "None"
+    #     st.session_state.workflow.module_optim = ["NO"] * len(
+    #         st.session_state.workflow.modules_list
+    #     )
+    #     st.session_state.workflow.write_config_file()
 
-            st.session_state.workflow.modules_list = st.session_state.workflow_modules
-            st.session_state.workflow.optim_method = "None"
-            st.session_state.workflow.module_optim = ["NO"] * len(
-                st.session_state.workflow.modules_list
-            )
-            st.session_state.workflow.write_config_file()
-
-            # Run workflow from an external script
-            config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
-            print(Path().cwd())
-            os.system(f"python run_workflow.py {config_path}  &")
+    #     # Run workflow from an external script
+    #     config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
+    #     print(Path().cwd())
+    #     os.system(f"python run_workflow.py {config_path}  &")
 
 
 section_your_workflow()

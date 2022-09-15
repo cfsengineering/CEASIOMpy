@@ -1,15 +1,11 @@
-from genericpath import isfile
 from pathlib import Path
 
-import ceasiompy.__init__
 import plotly.graph_objects as go
 import streamlit as st
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
+from genericpath import isfile
 from streamlit_autorefresh import st_autorefresh
-
-CEASIOMPY_PATH = Path(ceasiompy.__init__.__file__).parents[1]
-LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
 
 st.set_page_config(page_title="Results", page_icon="📈")
 st.title("Results")
@@ -31,18 +27,6 @@ def get_last_workflow():
         Path(st.session_state.workflow.working_dir),
         f"Workflow_{str(last_workflow_nb).rjust(3, '0')}",
     )
-
-
-def show_logs():
-
-    st.markdown("#### Logfile")
-
-    with open(LOGFILE, "r") as f:
-        lines = f.readlines()
-
-    lines_str = "\n".join(reversed(lines))
-
-    st.text_area("logs (more recent on top)", lines_str, height=300, disabled=True)
 
 
 def show_aeromap():
@@ -180,8 +164,7 @@ def show_results():
                     st.markdown(file)
 
 
-show_logs()
 show_aeromap()
 show_results()
 
-st_autorefresh(interval=1000, limit=100, key="auto_refresh")
+st_autorefresh(interval=3000, limit=100, key="auto_refresh")

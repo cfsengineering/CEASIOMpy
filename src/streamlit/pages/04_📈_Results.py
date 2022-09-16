@@ -10,7 +10,7 @@ from streamlit_autorefresh import st_autorefresh
 st.set_page_config(page_title="Results", page_icon="📈")
 st.title("Results")
 
-
+# TODO: make the function more general to CEASIOMpy and test it
 def get_last_workflow():
 
     if "workflow" not in st.session_state:
@@ -22,6 +22,9 @@ def get_last_workflow():
     for dir in Path(st.session_state.workflow.working_dir).iterdir():
         if "Workflow_" in str(dir):
             last_workflow_nb = max(last_workflow_nb, int(str(dir).split("_")[-1]))
+
+    if last_workflow_nb == 0:
+        return None
 
     return Path(
         Path(st.session_state.workflow.working_dir),
@@ -37,13 +40,13 @@ def show_aeromap():
         st.warning("No CPACS file has been selected!")
         return
 
-    last_workflow = get_last_workflow()
+    current_workflow = get_last_workflow()
     list_of_files = []
-    for file in last_workflow.iterdir():
+    for file in current_workflow.iterdir():
         if file.is_file():
             list_of_files.append(file.stem)
     if "ToolOutput" in list_of_files:
-        cpacs = CPACS(Path(last_workflow, "ToolOutput.xml"))
+        cpacs = CPACS(Path(current_workflow, "ToolOutput.xml"))
         st.success("Your results are ready!")
     else:
         cpacs = st.session_state.cpacs
@@ -161,12 +164,12 @@ def show_results():
 
     st.info("This part is under construction, it can not be use yet!")
 
-    last_workflow = get_last_workflow()
+    current_workflow = get_last_workflow()
 
-    if not last_workflow:
+    if not current_workflow:
         return
 
-    for dir in Path(last_workflow, "Results").iterdir():
+    for dir in Path(current_workflow, "Results").iterdir():
         if dir.is_dir():
             with st.expander(dir.name, expanded=False):
                 st.text("")

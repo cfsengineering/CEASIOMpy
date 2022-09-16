@@ -126,6 +126,8 @@ def aeromap_modif():
     if st.session_state.point_exist:
         st.error("This point already exist in this aeromap")
 
+    st.dataframe(st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap).df)
+
     st.markdown("#### Create new aeromap")
 
     form = st.form("create_new_aeromap_form")

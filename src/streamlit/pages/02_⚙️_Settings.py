@@ -5,7 +5,13 @@ from pathlib import Path
 import pandas as pd
 import streamlit as st
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module
-from cpacspy.cpacsfunctions import add_string_vector, add_value, get_value, get_value_or_default
+from cpacspy.cpacsfunctions import (
+    add_string_vector,
+    add_value,
+    get_value,
+    get_value_or_default,
+    get_string_vector,
+)
 from cpacspy.cpacspy import CPACS
 
 st.set_page_config(page_title="Settings", page_icon="⚙️")
@@ -35,8 +41,11 @@ def update_value(xpath, key):
         value = st.session_state[key]
 
         if isinstance(value, list):
-            add_string_vector(st.session_state.cpacs.tixi, xpath, value)
-            return
+            if value:
+                add_string_vector(st.session_state.cpacs.tixi, xpath, value)
+                return
+            else:
+                value = ""
 
         add_value(st.session_state.cpacs.tixi, xpath, value)
 
@@ -210,21 +219,33 @@ def add_module_tab():
                     if unit not in ["", "1", None]:
                         name = f"{name} {unit}"
 
-                    # TODO: problem with this one
                     if name == "__AEROMAP_SELECTION":
+                        aeromap_uid_list = st.session_state.cpacs.get_aeromap_uid_list()
+                        value = get_value_or_default(
+                            st.session_state.cpacs.tixi, xpath, aeromap_uid_list[0]
+                        )
+                        idx = aeromap_uid_list.index(value)
                         st.radio(
                             "Select an aeromap",
                             key=key,
-                            options=st.session_state.cpacs.get_aeromap_uid_list(),
+                            options=aeromap_uid_list,
+                            index=idx,
                             help=descr,
                         )
 
                     elif name == "__AEROMAP_CHECHBOX":
+                        aeromap_uid_list = st.session_state.cpacs.get_aeromap_uid_list()
                         with st.columns([1, 2])[0]:
+                            try:
+                                default_otp = get_string_vector(st.session_state.cpacs.tixi, xpath)
+                            except ValueError:
+                                default_otp = None
+
                             st.multiselect(
                                 "Select one or several aeromaps",
                                 key=key,
-                                options=st.session_state.cpacs.get_aeromap_uid_list(),
+                                options=aeromap_uid_list,
+                                default=default_otp,
                                 help=descr,
                             )
 
@@ -254,7 +275,6 @@ def add_module_tab():
                                 help=descr,
                             )
 
-                    # TODO: problem with this one
                     elif var_type == list:
                         value = get_value_or_default(
                             st.session_state.cpacs.tixi, xpath, default_value[0]
@@ -264,6 +284,7 @@ def add_module_tab():
                             name,
                             options=default_value,
                             index=idx,
+                            key=key,
                             help=descr,
                         )
 

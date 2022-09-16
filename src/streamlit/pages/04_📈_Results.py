@@ -168,4 +168,4 @@ def show_results():
 show_aeromap()
 show_results()
 
-st_autorefresh(interval=3000, limit=100, key="auto_refresh")
+st_autorefresh(interval=3000, limit=10000, key="auto_refresh")

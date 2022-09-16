@@ -214,8 +214,8 @@ def add_module_tab():
                 with groups_container[group]:
 
                     if not group:
-                        group="none"
-                        
+                        group = "none"
+
                     key = f"{m}_{module}_{name.replace(' ', '')}_{group.replace(' ', '')}"
 
                     if unit not in ["", "1", None]:

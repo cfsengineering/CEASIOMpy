@@ -140,9 +140,19 @@ def show_aeromap():
 
     st.plotly_chart(fig)
 
-    if st.button("Save this figure 📷"):
-        fig_name = f"{y_axis}_vs_{x_axis}.png"
-        fig.write_image(Path(st.session_state.workflow.working_dir, fig_name))
+    col1, col2, _ = st.columns([2, 2, 3])
+
+    with col1:
+        img_format = st.selectbox("Format", [".png", ".svg", ".pdf"])
+    with col2:
+        st.markdown("")
+        st.markdown("")
+        if st.button("Save this figure 📷"):
+            fig_name = f"{y_axis}_vs_{x_axis}{img_format}"
+            current_workflow = get_last_workflow()
+            fig.write_image(Path(current_workflow, "Results", fig_name))
+
+    # fig.write_html("test_file.html")
 
 
 def show_results():

@@ -4,7 +4,6 @@ import plotly.graph_objects as go
 import streamlit as st
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
-from genericpath import isfile
 from streamlit_autorefresh import st_autorefresh
 
 st.set_page_config(page_title="Results", page_icon="📈")
@@ -29,7 +28,7 @@ def get_last_workflow():
 
     return Path(
         Path(st.session_state.workflow.working_dir),
-        f"Workflow_{str(last_workflow_nb).rjust(3, '0')}",
+        f"Workflow_{last_workflow_nb:03}",
     )
 
 
@@ -66,15 +65,13 @@ def show_aeromap():
     # temp (TODO: could be improve, how to look into all df)
     df_tmp = aeromap_list[0].df
 
-    # Option choose axis
-    col1, col2, col3 = st.columns(3)
+    col1, col2, _ = st.columns(3)
 
     with col1:
         x_axis = st.selectbox("x", PARAMS_COEFS, 3)
     with col2:
         y_axis = st.selectbox("y", PARAMS_COEFS, 5)
 
-    # Option filter 1
     with st.expander("Filter 1"):
         filt1_col1, filt1_col2 = st.columns([1, 2])
 
@@ -85,7 +82,6 @@ def show_aeromap():
             value_list = df_tmp[filter1].unique()
             value_selected = st.multiselect("Filter value:", value_list, value_list[0])
 
-    # Option filter 2
     with st.expander("Filter 2"):
         filt2_col1, filt2_col2 = st.columns([1, 2])
         with filt2_col1:
@@ -97,7 +93,6 @@ def show_aeromap():
             value_list2 = df_tmp[filter2].unique()
             value_selected2 = st.multiselect("Filter2 value:", value_list2, value_list2[0])
 
-    # Plot figure
     fig = go.Figure()
     for aeromap in aeromap_list:
 
@@ -118,29 +113,22 @@ def show_aeromap():
         hovertemplate="x: %{x:.2f} \ny: %{y:.2f} ",
     )
 
-    grid_color = "rgb(188,188,188)"
-    axis_color = "rgb(0,0,0)"
-    bg_color = "rgb(255,255,255)"
-
     fig.update_layout(
         xaxis=dict(title=x_axis),
         yaxis=dict(title=y_axis),
-        plot_bgcolor=bg_color,
+        plot_bgcolor="rgb(255,255,255)",
     )
-    fig.update_xaxes(
-        showline=True,
-        linewidth=2,
-        linecolor=axis_color,
-        gridcolor=grid_color,
-        zerolinecolor=grid_color,
-    )
-    fig.update_yaxes(
-        showline=True,
-        linewidth=2,
-        linecolor=axis_color,
-        gridcolor=grid_color,
-        zerolinecolor=grid_color,
-    )
+
+    axis_options = {
+        "showline": True,
+        "linewidth": 2,
+        "linecolor": "rgb(0,0,0)",
+        "gridcolor": "rgb(188,188,188)",
+        "zerolinecolor": "rgb(188,188,188)",
+    }
+
+    fig.update_xaxes(axis_options)
+    fig.update_yaxes(axis_options)
 
     st.plotly_chart(fig)
 
@@ -162,7 +150,6 @@ def show_aeromap():
 def show_results():
 
     st.markdown("#### Results")
-
     st.info("This part is under construction, it can not be use yet!")
 
     current_workflow = get_last_workflow()

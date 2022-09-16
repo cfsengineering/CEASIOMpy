@@ -10,8 +10,9 @@ from streamlit_autorefresh import st_autorefresh
 st.set_page_config(page_title="Results", page_icon="📈")
 st.title("Results")
 
-# TODO: make the function more general to CEASIOMpy and test it
+
 def get_last_workflow():
+    # TODO: make the function more general to CEASIOMpy and test it
 
     if "workflow" not in st.session_state:
         st.warning("No workflow to show the result yet.")

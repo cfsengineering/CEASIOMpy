@@ -14,8 +14,8 @@
 
 ```mermaid
   graph LR;
-      CPACS2SUMO-->SU2AutoMesh;
-      SU2AutoMesh-->SU2Run;
+      CPACS2SUMO-->SUMOAutoMesh;
+      SUMOAutoMesh-->SU2Run;
 ```
 
 To define the size of the mesh only one option can be set by the user, it is called `refinement level`. By default it is set to `1.0`. The scale is logarithmic, that is to say:

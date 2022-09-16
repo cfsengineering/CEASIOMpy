@@ -16,8 +16,8 @@
 
 ```mermaid
   graph LR;
-      CPACS2SUMO-->SU2AutoMesh;
-      SU2AutoMesh-->SU2Run;
+      CPACS2SUMO-->SUMOAutoMesh;
+      SUMOAutoMesh-->SU2Run;
       SU2Run-->SkinFriction;
 ```
 

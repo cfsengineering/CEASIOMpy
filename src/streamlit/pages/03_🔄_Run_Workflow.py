@@ -1,5 +1,4 @@
 import os
-import subprocess
 from pathlib import Path
 
 import ceasiompy.__init__
@@ -60,4 +59,4 @@ def show_logs():
 run_workflow_button()
 show_logs()
 
-st_autorefresh(interval=1000, limit=100, key="auto_refresh")
+st_autorefresh(interval=1000, limit=10000, key="auto_refresh")

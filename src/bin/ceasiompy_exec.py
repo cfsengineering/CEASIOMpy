@@ -90,14 +90,9 @@ def run_testcase(testcase_nb):
 
         print("\nUse the GUI to create your workflow.")
 
-        workflow = create_wf_gui()
-        workflow.write_config_file()
-
-        workflow.set_workflow()
-        workflow.run_workflow()
+        run_gui()
 
         print("\nCongratulation, this Test case is now finished!")
-        print(f"\nYou can check your results in: {workflow.current_wkflow_dir}/Results")
 
     elif testcase_nb == 3:
 

@@ -23,11 +23,16 @@ Todo:
 # =================================================================================================
 
 import argparse
+import os
 from pathlib import Path
-from ceasiompy.WorkflowCreator.workflowcreator import create_wf_gui
+
+import ceasiompy.__init__
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH, TEST_CASES_PATH
 from ceasiompy.utils.workflowclasses import Workflow
+from ceasiompy.WorkflowCreator.workflowcreator import create_wf_gui
+
+CEASIOMPY_PATH = Path(ceasiompy.__init__.__file__).parents[1]
 
 log = get_logger()
 
@@ -163,11 +168,9 @@ def run_gui():
 
     log.info("CEASIOMpy as been started from the GUI")
 
-    workflow = create_wf_gui()
-    workflow.write_config_file()
+    streamlit_path = Path(CEASIOMPY_PATH, "src", "streamlit")
 
-    workflow.set_workflow()
-    workflow.run_workflow()
+    os.system(f"cd {streamlit_path} && streamlit run CEASIOMpy.py")
 
 
 # =================================================================================================

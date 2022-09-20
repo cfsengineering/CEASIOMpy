@@ -304,7 +304,8 @@ def add_module_tab():
 
                     elif var_type == "pathtype":
                         st.warning(
-                            "Pathtype not implemented yet, it should not influance your use of CEASIOMpy."
+                            "Pathtype not implemented yet, "
+                            "it should not influance your use of CEASIOMpy."
                         )
                         # st.file_uploader(
                         #     "Select a file",

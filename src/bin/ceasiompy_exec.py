@@ -28,7 +28,7 @@ from pathlib import Path
 
 import ceasiompy.__init__
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH, TEST_CASES_PATH
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH, TEST_CASES_PATH, STREAMLIT_PATH
 from ceasiompy.utils.workflowclasses import Workflow
 from ceasiompy.WorkflowCreator.workflowcreator import create_wf_gui
 
@@ -55,7 +55,7 @@ def testcase_message(testcase_nb):
     print("#" * 30)
     print(f"### CEASIOMpy: Test case {testcase_nb} ###")
     print("#" * 30)
-    print("More inforation about this test case at:")
+    print("More information about this test case at:")
     print(
         "https://github.com/cfsengineering/CEASIOMpy/blob/main/"
         f"test_cases/test_case_{testcase_nb}/README.md"

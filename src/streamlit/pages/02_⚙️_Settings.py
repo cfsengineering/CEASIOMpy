@@ -303,7 +303,10 @@ def add_module_tab():
                         )
 
                     elif var_type == "pathtype":
-                        st.error("Pathtype not implemented yet")
+                        st.warning(
+                            "Pathtype not implemented yet, "
+                            "it should not influance your use of CEASIOMpy."
+                        )
                         # st.file_uploader(
                         #     "Select a file",
                         #     key=key,
@@ -335,10 +338,9 @@ def section_your_workflow():
     add_module_tab()
 
     if not len(st.session_state.workflow_modules):
-        st.warning("No module has been added to the workflow.")
+        st.warning("You must first build a workflow in the corresponding tab.")
 
     with st.columns([3, 2, 3])[1]:
-
         if st.button("Save 💾", key="save_button", help="Save CPACS"):
             save_cpacs_file()
 

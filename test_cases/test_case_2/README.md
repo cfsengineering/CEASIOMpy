@@ -15,48 +15,32 @@ conda activate ceasiompy
 ceasiompy_run --testcase 2
 ```
 
-By running the above command, you will see the following window:
+By running the above command, a new tab should appear in your default web browser, it should look like this:
 
-<p align="center">
-<img height="600" src="testcase2_workflow_creator.png">
-</p>
-<p align="center">
-CEASIOMpy Workflow Creator GUI
-</p>
+![CEASIOMpy GUI](./testcase2_gui_main-page.png)
 
-The different important parts of this window are:
+From that page you can select a working directory,by using the arrows and the list to navigate in your folder. All your results will be saved in this directory.
 
-1. Selection of the Working Directory (where your project will be saved)
-1. Selection of the input CPACS file
-1. List of all the available modules that could be used to create the workflow
-1. Button to add/remove/move modules in your workflow
-1. List of all the modules in your workflow (:warning: the order is important)
+Then, select a CPACS file by clicking on the `Browse files` button, you can choose the `D150_simple.xml`. CPACS is a file format which contain the aircraft geometry and many other information.
 
-With this GUI, you will try to build the following workflow:
+Use now the sidebar on the left to select the next page `Workflow`.
+
+We will try to build the following workflow:
 
 ```mermaid
   graph LR;
-      D150([D150 CPACS file])-->CPACSCreator;
-      CPACSCreator-->CPACS2GMSH;
-      CPACS2GMSH-->SU2Run;
-      SU2Run-->PlotAeroCoefficients;
+      CPACSCreator-->PyTornado;
+      PyTornado-->WeightConventional;
+      WeightConventional-->PlotAeroCoefficients;
 ```
 
-To do so, you will have to:
+You can create this workflow by selecting the module in list and add them one by one.
 
-* Change the working directory, if needed.
-* Keep the CPACS file as is.
-* Add one by one, the modules to the workflow.
+TODO: add a gif of the workflow creation
 
-Your Selected modules list should now look like this:
+On the side bar you can now go to the `Run workflow` page and click on `Run`.
 
-<p align="center">
-<img height="220" src="testcase2_selected_modules.png">
-</p>
-<p align="center">
-</p>
-
-We can now click on "Save & Quit" on the bottom of the window. The window will close and the `CPACSCreator` window will open.
+A `CPACSCreator` window will open.
 
 <p align="center">
 <img height="580" src="testcase2_cpacscreator.png">
@@ -71,15 +55,10 @@ With CPACSCreator, you can modify the geometry of the aircraft. You will not do 
 
 * [CPACSCreator video tutorial](https://www.youtube.com/watch?v=M5ryc7HT3uA)
 
-In this case, you can just save the file and close the window. The next step will run automatically. It will convert the geometry and create a mesh with `GMSH` and then run a CFD calculation with `SU2`. It could take a while depending on your computer. You should be able to see what is happening in the the terminal window or by reading the log file: */CEASIOMpy/ceasiompy.txt*
+In this case, you can just save the file and close the window. The next step will run automatically. You should be able to see what is happening in the logfile section (just bellow the `Run` button) or in the the terminal window.
 
-When the calculation is over, a new window will open with some graphs of the aerodynamic coefficients. On these graphs, you can see there is only one point, it correspond to the calculation which just has been performed. In the next test case you will see how to perform calculations on a larger aerodynamic database and plot the polars.
+When the calculation is over, you can click on the `Results` page (on the sidebar). You can select the aeromap `???` and choose what you want to plot on the x and y axis of the graph. You can also use the two filter plot only some part of the results.
 
-<p align="center">
-<img height="480" src="testcase2_plotaerocoefficients.png">
-</p>
-<p align="center">
-PlotAeroCoefficients results
-</p>
+TODO: add gif of selecting results
 
 [**<<**](../test_case_1/README.md) Previous test case | [Home](../../README.md#test-cases) | Next test case [**>>**](../test_case_3/README.md)

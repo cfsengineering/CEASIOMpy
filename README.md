@@ -61,7 +61,7 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
 
     ```bash
     cd WKDIR
-    ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml SettingsGUI PyTornado PlotAeroCoefficients
+    ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml PyTornado PlotAeroCoefficients
     ```
 
 - **Run CEASIOMpy with an existing configuration file**
@@ -84,7 +84,14 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
     CPACS_TOOLINPUT = /users/disk10/jungo/github/CEASIOMpy/test_files/CPACSfiles/D150_simple.xml
 
     # Modules which will be used in the workflow (in order)
-    MODULE_TO_RUN = ( SettingsGUI, PyTornado, PlotAeroCoefficients )
+    MODULE_TO_RUN = ( PyTornado, PlotAeroCoefficients )
+    ```
+
+    You can save this file as `my_config_file.cfg` in your `WKDIR`. Then, you can run it with the following commands:
+
+    ```bash
+    cd WKDIR
+    ceasiompy_run --cfg ./my_config_file.cfg
     ```
 
 ### Examples of workflows
@@ -95,7 +102,7 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
 
 ```mermaid
   graph LR;
-      SettingsGUI-->PyTornado;
+      WeightConventional-->PyTornado;
       PyTornado-->PlotAeroCoefficients;
 ```
 
@@ -107,7 +114,6 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
 
 ```mermaid
   graph LR;
-      SettingsGUI-->CLCalculator
       CLCalculator-->CPACS2SUMO;
       CPACS2SUMO-->SUMOAutoMesh;
       SUMOAutoMesh-->SU2Run;

@@ -23,14 +23,14 @@ import math
 import os
 import shutil
 import subprocess
+import sys
 from contextlib import contextmanager
 from pathlib import Path
-import sys
 from typing import List
-from ceasiompy.SettingsGUI.settingsgui import create_settings_gui
+
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.moduleinterfaces import get_submodule_list
 from ceasiompy.utils.commonxpath import AIRCRAFT_NAME_XPATH
+from ceasiompy.utils.moduleinterfaces import get_submodule_list
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
 log = get_logger()
@@ -95,13 +95,7 @@ def run_module(module, wkdir=Path.cwd(), iteration=0):
     log.info("CPACS input file: " + str(module.cpacs_in))
     log.info("CPACS output file: " + str(module.cpacs_out))
 
-    if module.name == "SettingsGUI":
-
-        create_settings_gui(
-            str(module.cpacs_in), str(module.cpacs_out), module.gui_related_modules
-        )
-
-    elif module.name == "Optimisation" and iteration > 0:
+    if module.name == "Optimisation" and iteration > 0:
 
         log.info("Optimisation module is only run at first iteration!")
 

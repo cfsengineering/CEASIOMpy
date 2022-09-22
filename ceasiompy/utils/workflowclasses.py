@@ -63,7 +63,6 @@ class ModuleToRun:
         self.module_dir = Path(MODULES_DIR_PATH, self.name)
 
         # Set other default values
-        self.is_settinggui = False
         self.gui_related_modules = []
         self.is_optim_module = False
         self.optim_method = None
@@ -92,14 +91,9 @@ class OptimSubWorkflow:
         self.optim_method = optim_method
         self.modules_list = modules_list  # List of modules to run (str)
 
-        # If Otimisation module was not in the list add it just after the SettingsGUI
+        # If Otimisation module was not in the list add it
         if "Optimisation" not in self.modules_list:
-            if self.modules_list[0] == "SettingsGUI":
-                pos = 1
-            else:
-                pos = 0
-
-            self.modules_list.insert(pos, "Optimisation")
+            self.modules_list.insert(0, "Optimisation")
 
         self.modules = [ModuleToRun(module, subworkflow_dir) for module in modules_list]
 
@@ -129,11 +123,6 @@ class OptimSubWorkflow:
                 "iter_" + str(self.iteration).rjust(2, "0") + ".xml",
             )
 
-            # Check if module is SettingGUI
-            if module.name == "SettingsGUI":
-                self.modules[m].is_settinggui = True
-                self.modules[m].gui_related_modules = get_gui_related_modules(self.modules_list)
-
     def run_subworkflow(self) -> None:
         """Run the opimisation subworflow"""
 
@@ -150,7 +139,7 @@ class OptimSubWorkflow:
         self.iteration += 1
 
         # Other iterations
-        module_optim = [module for module in self.modules if module.name not in ["SettingsGUI"]]
+        module_optim = [module for module in self.modules]
 
         routine_launcher(self.optim_method, module_optim, self.subworkflow_dir.parent)
 
@@ -277,11 +266,6 @@ class Workflow:
             if self.module_optim[m] == "NO":
                 module = ModuleToRun(module_name, self.current_wkflow_dir, cpacs_in)
 
-                # Check if the module is SettingGUI
-                if module_name == "SettingsGUI":
-                    module.is_settinggui = True
-                    module.gui_related_modules = get_gui_related_modules(self.modules_list, m)
-
             skip_create_module = False
 
             # Check if should be included in Optim/DoE
@@ -351,16 +335,6 @@ class Workflow:
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
-
-
-def get_gui_related_modules(module_list, idx=0) -> list:
-    """Get modules list related to a specific SettingGUI module"""
-
-    if "SettingsGUI" in module_list[idx + 1 :] and idx + 1 != len(module_list):
-        idx_next = module_list.index("SettingsGUI", idx + 1)
-        return module_list[idx:idx_next]
-    else:
-        return module_list[idx:]
 
 
 # =================================================================================================

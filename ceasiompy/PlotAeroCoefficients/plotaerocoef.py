@@ -192,8 +192,8 @@ def plot_aero_coef(cpacs_path, cpacs_out_path):
     """Plot Aero coefficients from the chosen aeroMap in the CPACS file
 
     Function 'plot_aero_coef' can plot one or several aeromap from the CPACS
-    file according to some user option, these option will be shown in the the
-    SettingGUI or default values will be used.
+    file according to some user option, these option will be shown in the GUI or default
+    values will be used.
 
     Args:
         cpacs_path (Path): Path to CPACS file

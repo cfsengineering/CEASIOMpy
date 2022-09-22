@@ -6,7 +6,6 @@
 
 **State**: :heavy_check_mark:
 
-
 `CPACS2GMSH` is an automatic mesh generator module for a [CPACS](https://www.cpacs.de) aircraft geometry [[1]](#Alder20) using [GMSH](https://gmsh.info/) ,a finite element mesh generator. An unstructured mesh is automatically generated in a spherical domain surrounding the aircraft. The resulting mesh can be used for a CFD calculation by connecting the `SU2Run` module after `CPACS2GMSH` module.
 
 <p align="center">
@@ -24,15 +23,14 @@ If the aircraft geometry contains propeller engines, their blades will be replac
 <img height="460" src="files/GMSH_propeller_aircraft.png">
 </p>
 <p align="center">
-Surface mesh of an aircraft with propeller engines 
+Surface mesh of an aircraft with propeller engines
 </p>
 
 ## Inputs
 
 `CPACS2GMSH` takes as input a CPACS file. This is done automatically when it is run in workflow
 
-Multiple options are available with `CPACS2GMSH`
-They are tunable with the `SettingsGUI` module:
+Multiple options are available with `CPACS2GMSH`, you can see these options if you run this module from the GUI interface.
 
 General options:
 
@@ -67,12 +65,11 @@ For truncated wing profile, automatically adjust the LE/TE refinement factor suc
 Apply an automatic refinement of surfaces which are small compare to a mesh element. :warning: With this option activated, the surface mesh generation maybe done two times, which increasing the total meshing time.
 
 Engines :
+
 * `Engine intake position [%] : 20.0`
 Engine intake surface position from the front of the engine fan cowl in percent of the fan cowl length
 * `Engine exhaust position [%] : 20.0`
 Engine exhaust surface position from the back of the engine fan cowl in percent of the fan cowl length, if the engine is doubleflux, and exhaust surface is similarly generated for the center cowl part of the engine.
-
-
 
 :warning: It is recommended to check the mesh convergence to know which value gives the best trade-off between the results accuracy and computation time, for your application case.
 

@@ -176,7 +176,7 @@ class TestWorkflow:
         with pytest.raises(FileNotFoundError):
             self.workflow.set_workflow()
 
-        # Test nomral behaviour
+        # Test normal behavior
         self.workflow = Workflow()
         self.workflow.from_config_file(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
         self.workflow.optim_method = "OPTIM"

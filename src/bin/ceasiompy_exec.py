@@ -26,12 +26,9 @@ import argparse
 import os
 from pathlib import Path
 
-import ceasiompy.__init__
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH, TEST_CASES_PATH, STREAMLIT_PATH
 from ceasiompy.utils.workflowclasses import Workflow
-
-CEASIOMPY_PATH = Path(ceasiompy.__init__.__file__).parents[1]
 
 log = get_logger()
 
@@ -162,9 +159,7 @@ def run_gui():
 
     log.info("CEASIOMpy as been started from the GUI")
 
-    streamlit_path = Path(CEASIOMPY_PATH, "src", "streamlit")
-
-    os.system(f"cd {streamlit_path} && streamlit run CEASIOMpy.py")
+    os.system(f"cd {STREAMLIT_PATH} && streamlit run CEASIOMpy.py")
 
 
 # =================================================================================================

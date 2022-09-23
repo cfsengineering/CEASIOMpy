@@ -47,5 +47,3 @@ CPACS_FILES_PATH = Path(CEASIOMPY_PATH, "test_files", "CPACSfiles")
 
 # /CEASIOMpy/ceasiompy/WKDIR/
 WKDIR_PATH = Path(CEASIOMPY_PATH, "WKDIR")
-
-STREAMLIT_PATH = Path(CEASIOMPY_PATH, "src", "streamlit")

@@ -221,7 +221,7 @@ def save_aero_coef(cpacs_path, cpacs_out_path):
     subplot_options(axs[1, 2], "CL/CD", "CL")
     fig.legend(loc="upper right")
 
-    results_dir = get_results_directory("PlotAeroCoefficients")
+    results_dir = get_results_directory("SaveAeroCoefficients")
     fig_name = title.replace(" ", "").replace("=", "") + ".png"
     fig_path = Path(results_dir, fig_name)
     plt.savefig(fig_path)

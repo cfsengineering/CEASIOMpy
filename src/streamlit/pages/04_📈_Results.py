@@ -1,7 +1,9 @@
 from pathlib import Path
 
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+from ceasiompy.utils.ceasiompyutils import aircraft_name
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
 from streamlit_autorefresh import st_autorefresh
@@ -130,6 +132,8 @@ def show_aeromap():
     fig.update_xaxes(axis_options)
     fig.update_yaxes(axis_options)
 
+    ac_name = aircraft_name(cpacs.tixi)
+
     st.plotly_chart(fig)
 
     col1, col2, _ = st.columns([2, 2, 3])
@@ -140,7 +144,7 @@ def show_aeromap():
         st.markdown("")
         st.markdown("")
         if st.button("Save this figure 📷"):
-            fig_name = f"{y_axis}_vs_{x_axis}{img_format}"
+            fig_name = f"{ac_name}_{y_axis}_vs_{x_axis}{img_format}"
             current_workflow = get_last_workflow()
             fig.write_image(Path(current_workflow, "Results", "AeroCoefficients", fig_name))
 
@@ -163,6 +167,13 @@ def show_results():
 
                     if file.suffix == ".png":
                         st.image(str(file))
+
+                    elif file.suffix == ".csv":
+                        df = pd.read_csv(file)
+                        st.markdown(f"**{file.stem}**")
+                        st.dataframe(df)
+                    else:
+                        st.markdown(f"This file cannot be shown: {file}")
 
 
 show_aeromap()

@@ -1,6 +1,11 @@
+from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpath import PLOT_XPATH
 
+
+# ===== Results directory path =====
+
+RESULTS_DIR = Path("Results", "AeroCoefficients")
 
 # ===== CPACS inputs and outputs =====
 
@@ -51,15 +56,4 @@ cpacs_inout.add_input(
     gui=True,
     gui_name="AoS criteria",
     gui_group="Plot vs AoA",
-)
-
-cpacs_inout.add_input(
-    var_name="manual_selct",
-    var_type=bool,
-    default_value=False,
-    descr="A window will popup to ask you to select an aeromap",
-    xpath=PLOT_XPATH + "/manualSelection",
-    gui=True,
-    gui_name="Select AeroMaps manualy",
-    gui_group="Other options",
 )

@@ -115,7 +115,7 @@ class TestWorkflow:
         "CPACS2SUMO",
         "CLCalculator",
         "PyTornado",
-        "PlotAeroCoefficients",
+        "SaveAeroCoefficients",
     ]
 
     MODULE_OPTIM = ["YES", "YES", "NO", "NO"]
@@ -175,7 +175,7 @@ class TestWorkflow:
 
         assert self.workflow.modules[0].name == "OPTIM"
         assert self.workflow.modules[1].name == "PyTornado"
-        assert self.workflow.modules[2].name == "PlotAeroCoefficients"
+        assert self.workflow.modules[2].name == "SaveAeroCoefficients"
 
         assert self.workflow.modules[0].is_optim_module
         assert self.workflow.modules[0].optim_method == "OPTIM"

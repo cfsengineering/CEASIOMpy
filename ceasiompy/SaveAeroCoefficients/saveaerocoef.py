@@ -12,7 +12,6 @@ Python version: >=3.7
 
 TODO:
 
-    * Add option to save figures in ToolOutput folder
     * add plot vs Mach, vs sideslip angle, damping derivatives, CS deflections
 
 """
@@ -22,13 +21,13 @@ TODO:
 # =================================================================================================
 
 from pathlib import Path
-from tkinter import BOTH, BOTTOM, END, MULTIPLE, RIGHT, Button, Frame, Label, Listbox, Tk
 
 import matplotlib.pyplot as plt
 import pandas as pd
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.commonxpath import PLOT_XPATH
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     create_branch,
@@ -49,86 +48,16 @@ NONE_LIST = ["None", "NONE", "No", "NO", "N", "n", "-", " ", ""]
 # =================================================================================================
 
 
-class ListBoxChoice(object):
-    def __init__(self, master=None, title="Title", message="Message", list=None):
-
-        if list is None:
-            self.list = []
-        else:
-            self.list = list
-        self.selected_list = []
-        self.master = master
-        self.master.geometry("300x250")  # Width x Height
-        self.master.grab_set()
-        self.master.bind("<Return>", self._select)
-        self.master.bind("<Escape>", self._cancel)
-        self.master.title(title)
-        Label(self.master, text=message).pack(padx=5, pady=5)
-
-        self.listBox = Listbox(self.master, selectmode=MULTIPLE)
-        self.listBox.pack(fill=BOTH)
-        self.list.sort()
-        for item in self.list:
-            self.listBox.insert(END, item)
-
-        buttonFrame = Frame(self.master)
-        buttonFrame.pack(side=BOTTOM)
-
-        chooseButton = Button(buttonFrame, text="Select", command=self._select)
-        chooseButton.pack()
-
-        cancelButton = Button(buttonFrame, text="Cancel", command=self._cancel)
-        cancelButton.pack(side=RIGHT)
-
-    def _select(self, event=None):
-        try:
-            self.selected_list = [self.listBox.get(i) for i in self.listBox.curselection()]
-        except IndexError:
-            self.selected_list = None
-
-        self.master.destroy()
-
-    def _cancel(self, event=None):
-        self.listBox.selection_clear(0, END)
-
-    def returnValue(self):
-        self.master.wait_window()
-        return self.selected_list
-
-
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
 
 
-def open_select_aeromap_gui(cpacs):
-    """Function to select one or several aeroMap to plot wit a GUI
-
-    Function 'open_select_aeromap_gui' open a GUI with all the available aeroMaps
-    to plot and retruns a list of those selected by the user.
-
-    Args:
-        cpacs (oject): CPACS Object (from cpacspy)
-
-    Returns:
-        selected_aeromap_list (list) : List of selected aeroMap
-    """
-
-    aeromap_uid_list = cpacs.get_aeromap_uid_list()
-
-    root = Tk()
-    selected_aeromap_list = ListBoxChoice(
-        root, "Select aeroMap", "Select aeroMap(s) to plot \t \t", aeromap_uid_list
-    ).returnValue()
-
-    return selected_aeromap_list
-
-
 def write_legend(groupby_list, value):
-    """Write legen with the correct fromat for the plot.
+    """Write legend with the correct format for the plot.
 
     Args:
-        groupby_list (list): List of parameter whih will be use to group plot data
+        groupby_list (list): List of parameter which will be use to group plot data
         value (...): If one value (str of float), if multiple value (tuple)
     """
 
@@ -188,42 +117,30 @@ def subplot_options(ax, ylabel, xlabel):
     ax.grid()
 
 
-def plot_aero_coef(cpacs_path, cpacs_out_path):
-    """Plot Aero coefficients from the chosen aeroMap in the CPACS file
+def save_aero_coef(cpacs_path, cpacs_out_path):
+    """Save Aero coefficients from the chosen aeroMap in the CPACS file
 
-    Function 'plot_aero_coef' can plot one or several aeromap from the CPACS
-    file according to some user option, these option will be shown in the GUI or default
-    values will be used.
+    Function 'save_aero_coef' can save one or several aeromap from the CPACS
+    file according to some user defined option, these option will be shown in the the
+    GUI interface or default values will be used.
 
     Args:
         cpacs_path (Path): Path to CPACS file
         cpacs_out_path (Path):Path to CPACS output file
     """
 
-    # Open TIXI handle
     cpacs = CPACS(cpacs_path)
 
-    # Get aeroMap list to plot
     aeromap_to_plot_xpath = PLOT_XPATH + "/aeroMapToPlot"
     aeromap_uid_list = []
 
-    # Option to select aeromap manually
-    manual_selection = get_value_or_default(cpacs.tixi, PLOT_XPATH + "/manualSelection", False)
-    if manual_selection:
-        aeromap_uid_list = open_select_aeromap_gui(cpacs)
+    try:
+        aeromap_uid_list = get_string_vector(cpacs.tixi, aeromap_to_plot_xpath)
+    except ValueError:  # if aeroMapToPlot is not define, select all aeromaps
+        aeromap_uid_list = cpacs.get_aeromap_uid_list()
         create_branch(cpacs.tixi, aeromap_to_plot_xpath)
         add_string_vector(cpacs.tixi, aeromap_to_plot_xpath, aeromap_uid_list)
 
-    else:
-        try:
-            aeromap_uid_list = get_string_vector(cpacs.tixi, aeromap_to_plot_xpath)
-        except ValueError:
-            # If aeroMapToPlot is not define, select manually anyway
-            aeromap_uid_list = open_select_aeromap_gui(cpacs)
-            create_branch(cpacs.tixi, aeromap_to_plot_xpath)
-            add_string_vector(cpacs.tixi, aeromap_to_plot_xpath, aeromap_uid_list)
-
-    # Create DataFrame from aeromap(s)
     aeromap_df_list = []
     for aeromap_uid in aeromap_uid_list:
         aeromap_df = cpacs.get_aeromap_by_uid(aeromap_uid).df
@@ -237,12 +154,10 @@ def plot_aero_coef(cpacs_path, cpacs_out_path):
     else:
         uid_crit = aeromap_uid_list[0]
 
-    # Default options
     title = cpacs.ac_name
     criterion = pd.Series([True] * len(aeromap.index))
     groupby_list = ["uid", "machNumber", "altitude", "angleOfSideslip"]
 
-    # Get criterion from CPACS
     crit_xpath = PLOT_XPATH + "/criterion"
     alt_crit = get_value_or_default(cpacs.tixi, crit_xpath + "/alt", "None")
     mach_crit = get_value_or_default(cpacs.tixi, crit_xpath + "/mach", "None")
@@ -280,7 +195,6 @@ def plot_aero_coef(cpacs_path, cpacs_out_path):
         title += " - " + uid_crit
         groupby_list.remove("uid")
 
-    # Plot settings
     fig, axs = plt.subplots(2, 3)
     fig.suptitle(title, fontsize=14)
     fig.set_figheight(8)
@@ -288,7 +202,6 @@ def plot_aero_coef(cpacs_path, cpacs_out_path):
     fig.subplots_adjust(left=0.06)
     axs[0, 1].axhline(y=0.0, color="k", linestyle="-")  # Line at Cm=0
 
-    # Plot aerodynamic coerfficients
     for value, grp in aeromap.loc[criterion].groupby(groupby_list):
 
         legend = write_legend(groupby_list, value)
@@ -300,16 +213,18 @@ def plot_aero_coef(cpacs_path, cpacs_out_path):
         axs[0, 2].plot(grp["cd"], grp["cl"], "x-")
         axs[1, 2].plot(grp["cl"], grp["cl"] / grp["cd"], "x-")
 
-    # Set subplot options
     subplot_options(axs[0, 0], "CL", "AoA")
     subplot_options(axs[1, 0], "CD", "AoA")
     subplot_options(axs[0, 1], "Cm", "AoA")
     subplot_options(axs[1, 1], "CL/CD", "AoA")
     subplot_options(axs[0, 2], "CL", "CD")
     subplot_options(axs[1, 2], "CL/CD", "CL")
-
     fig.legend(loc="upper right")
-    plt.show()
+
+    results_dir = get_results_directory("SaveAeroCoefficients")
+    fig_name = title.replace(" ", "").replace("=", "") + ".png"
+    fig_path = Path(results_dir, fig_name)
+    plt.savefig(fig_path)
 
 
 # =================================================================================================
@@ -321,7 +236,7 @@ def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + MODULE_NAME + " -----")
 
-    plot_aero_coef(cpacs_path, cpacs_out_path)
+    save_aero_coef(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + MODULE_NAME + " -----")
 

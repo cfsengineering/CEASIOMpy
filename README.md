@@ -61,7 +61,7 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
 
     ```bash
     cd WKDIR
-    ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml PyTornado PlotAeroCoefficients
+    ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml PyTornado SaveAeroCoefficients
     ```
 
 - **Run CEASIOMpy with an existing configuration file**
@@ -84,7 +84,8 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
     CPACS_TOOLINPUT = /users/disk10/jungo/github/CEASIOMpy/test_files/CPACSfiles/D150_simple.xml
 
     # Modules which will be used in the workflow (in order)
-    MODULE_TO_RUN = ( PyTornado, PlotAeroCoefficients )
+
+    MODULE_TO_RUN = ( PyTornado, SaveAeroCoefficients )
     ```
 
     You can save this file as `my_config_file.cfg` in your `WKDIR`. Then, you can run it with the following commands:
@@ -102,8 +103,7 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
 
 ```mermaid
   graph LR;
-      WeightConventional-->PyTornado;
-      PyTornado-->PlotAeroCoefficients;
+      PyTornado-->SaveAeroCoefficients;
 ```
 
 </div>
@@ -159,7 +159,7 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 - [PyTornado](ceasiompy/PyTornado/README.md) :heavy_check_mark:
 - [SU2Run](ceasiompy/SU2Run/README.md) :heavy_check_mark:
 - [SkinFriction](ceasiompy/SkinFriction/README.md) :heavy_check_mark:
-- [PlotAeroCoefficients](ceasiompy/PlotAeroCoefficients/README.md) :heavy_check_mark:
+- [SaveAeroCoefficients](ceasiompy/SaveAeroCoefficients/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_weights.png">
 

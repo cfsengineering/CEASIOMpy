@@ -61,7 +61,7 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
 
     ```bash
     cd WKDIR
-    ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml SettingsGUI PyTornado SaveAeroCoefficients
+    ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml PyTornado SaveAeroCoefficients
     ```
 
 - **Run CEASIOMpy with an existing configuration file**
@@ -103,7 +103,6 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
 
 ```mermaid
   graph LR;
-      SettingsGUI-->PyTornado;
       PyTornado-->SaveAeroCoefficients;
 ```
 

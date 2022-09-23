@@ -179,14 +179,6 @@ class TestWorkflow:
 
         assert self.workflow.modules[0].is_optim_module
         assert self.workflow.modules[0].optim_method == "OPTIM"
-
-        assert self.workflow.modules[0].is_settinggui
-        assert self.workflow.modules[0].gui_related_modules == [
-            "CPACS2SUMO",
-            "CLCalculator",
-            "PyTornado",
-        ]
-
         assert self.workflow.modules[0].module_wkflow_path == Path(
             self.workflow.current_wkflow_dir, "01_OPTIM"
         )

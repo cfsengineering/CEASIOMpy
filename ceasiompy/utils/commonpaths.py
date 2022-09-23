@@ -27,11 +27,17 @@ CEASIOMPY_PATH = Path(ceasiompy.__init__.__file__).parents[1]
 # /CEASIOMpy/ceasiompy/
 MODULES_DIR_PATH = Path(ceasiompy.__init__.__file__).parent
 
+# /CEASIOMpy/documents/logos/CEASIOMpy_main_logos.png
+CEASIOMPY_LOGO_PATH = Path(CEASIOMPY_PATH, "documents", "logos", "CEASIOMpy_main_logos.png")
+
 # /CEASIOMpy/ceasiompy.log
 LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
 
 # /CEASIOMpy/.ceasiompy/.runworkflow_history
 RUNWORKFLOW_HISTORY_PATH = Path(CEASIOMPY_PATH, ".ceasiompy", ".runworkflow_history")
+
+# /CEASIOMpy/src/streamlit
+STREAMLIT_PATH = Path(CEASIOMPY_PATH, "src", "streamlit")
 
 # /CEASIOMpy/ceasiompy/test_cases/
 TEST_CASES_PATH = Path(CEASIOMPY_PATH, "test_cases")

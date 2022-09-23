@@ -23,10 +23,11 @@ Todo:
 # =================================================================================================
 
 import argparse
+import os
 from pathlib import Path
-from ceasiompy.WorkflowCreator.workflowcreator import create_wf_gui
+
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH, TEST_CASES_PATH
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH, TEST_CASES_PATH, STREAMLIT_PATH
 from ceasiompy.utils.workflowclasses import Workflow
 
 log = get_logger()
@@ -50,7 +51,7 @@ def testcase_message(testcase_nb):
     print("#" * 30)
     print(f"### CEASIOMpy: Test case {testcase_nb} ###")
     print("#" * 30)
-    print("More inforation about this test case at:")
+    print("More information about this test case at:")
     print(
         "https://github.com/cfsengineering/CEASIOMpy/blob/main/"
         f"test_cases/test_case_{testcase_nb}/README.md"
@@ -85,14 +86,9 @@ def run_testcase(testcase_nb):
 
         print("\nUse the GUI to create your workflow.")
 
-        workflow = create_wf_gui()
-        workflow.write_config_file()
-
-        workflow.set_workflow()
-        workflow.run_workflow()
+        run_gui()
 
         print("\nCongratulation, this Test case is now finished!")
-        print(f"\nYou can check your results in: {workflow.current_wkflow_dir}/Results")
 
     elif testcase_nb == 3:
 
@@ -163,11 +159,7 @@ def run_gui():
 
     log.info("CEASIOMpy as been started from the GUI")
 
-    workflow = create_wf_gui()
-    workflow.write_config_file()
-
-    workflow.set_workflow()
-    workflow.run_workflow()
+    os.system(f"cd {STREAMLIT_PATH} && streamlit run CEASIOMpy.py")
 
 
 # =================================================================================================

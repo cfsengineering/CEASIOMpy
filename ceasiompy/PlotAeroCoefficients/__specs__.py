@@ -1,6 +1,11 @@
+from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpath import PLOT_XPATH
 
+
+# ===== Results directory path =====
+
+RESULTS_DIR = Path("Results", "AeroCoefficients")
 
 # ===== CPACS inputs and outputs =====
 

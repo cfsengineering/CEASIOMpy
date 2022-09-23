@@ -26,6 +26,7 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.commonxpath import PLOT_XPATH
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import (
@@ -54,10 +55,10 @@ NONE_LIST = ["None", "NONE", "No", "NO", "N", "n", "-", " ", ""]
 
 
 def write_legend(groupby_list, value):
-    """Write legen with the correct fromat for the plot.
+    """Write legend with the correct format for the plot.
 
     Args:
-        groupby_list (list): List of parameter whih will be use to group plot data
+        groupby_list (list): List of parameter with will be use to group plot data
         value (...): If one value (str of float), if multiple value (tuple)
     """
 
@@ -238,7 +239,10 @@ def plot_aero_coef(cpacs_path, cpacs_out_path):
     subplot_options(axs[1, 2], "CL/CD", "CL")
 
     fig.legend(loc="upper right")
-    plt.show()
+
+    results_dir = get_results_directory("PlotAeroCoefficients")
+    fig_path = Path(results_dir, "test_fig.png")
+    plt.savefig(fig_path)
 
 
 # =================================================================================================

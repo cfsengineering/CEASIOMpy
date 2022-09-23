@@ -142,15 +142,13 @@ def show_aeromap():
         if st.button("Save this figure 📷"):
             fig_name = f"{y_axis}_vs_{x_axis}{img_format}"
             current_workflow = get_last_workflow()
-            fig.write_image(Path(current_workflow, "Results", fig_name))
-
-    # fig.write_html("test_file.html")
+            fig.write_image(Path(current_workflow, "Results", "AeroCoefficients", fig_name))
 
 
 def show_results():
 
     st.markdown("#### Results")
-    st.info("This part is under construction, it can not be use yet!")
+    st.info("This part is under construction, not all results are display correctly!")
 
     current_workflow = get_last_workflow()
 
@@ -162,7 +160,9 @@ def show_results():
             with st.expander(dir.name, expanded=False):
                 st.text("")
                 for file in dir.iterdir():
-                    st.markdown(file)
+
+                    if file.suffix == ".png":
+                        st.image(str(file))
 
 
 show_aeromap()

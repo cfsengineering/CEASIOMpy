@@ -15,7 +15,7 @@ st.title("Run workflow")
 st.markdown(
     """
     <style>
-    .css-148uddy  {
+    .css-4u7rgp  {
         padding: 15px;
         font-size: 20px;
         border-radius:10px;

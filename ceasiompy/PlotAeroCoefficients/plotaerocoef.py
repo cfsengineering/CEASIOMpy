@@ -22,13 +22,12 @@ TODO:
 # =================================================================================================
 
 from pathlib import Path
-from tkinter import BOTH, BOTTOM, END, MULTIPLE, RIGHT, Button, Frame, Label, Listbox, Tk
 
 import matplotlib.pyplot as plt
 import pandas as pd
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.utils.commonxpath import PLOT_XPATH
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     create_branch,
@@ -49,79 +48,9 @@ NONE_LIST = ["None", "NONE", "No", "NO", "N", "n", "-", " ", ""]
 # =================================================================================================
 
 
-class ListBoxChoice(object):
-    def __init__(self, master=None, title="Title", message="Message", list=None):
-
-        if list is None:
-            self.list = []
-        else:
-            self.list = list
-        self.selected_list = []
-        self.master = master
-        self.master.geometry("300x250")  # Width x Height
-        self.master.grab_set()
-        self.master.bind("<Return>", self._select)
-        self.master.bind("<Escape>", self._cancel)
-        self.master.title(title)
-        Label(self.master, text=message).pack(padx=5, pady=5)
-
-        self.listBox = Listbox(self.master, selectmode=MULTIPLE)
-        self.listBox.pack(fill=BOTH)
-        self.list.sort()
-        for item in self.list:
-            self.listBox.insert(END, item)
-
-        buttonFrame = Frame(self.master)
-        buttonFrame.pack(side=BOTTOM)
-
-        chooseButton = Button(buttonFrame, text="Select", command=self._select)
-        chooseButton.pack()
-
-        cancelButton = Button(buttonFrame, text="Cancel", command=self._cancel)
-        cancelButton.pack(side=RIGHT)
-
-    def _select(self, event=None):
-        try:
-            self.selected_list = [self.listBox.get(i) for i in self.listBox.curselection()]
-        except IndexError:
-            self.selected_list = None
-
-        self.master.destroy()
-
-    def _cancel(self, event=None):
-        self.listBox.selection_clear(0, END)
-
-    def returnValue(self):
-        self.master.wait_window()
-        return self.selected_list
-
-
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
-
-
-def open_select_aeromap_gui(cpacs):
-    """Function to select one or several aeroMap to plot wit a GUI
-
-    Function 'open_select_aeromap_gui' open a GUI with all the available aeroMaps
-    to plot and retruns a list of those selected by the user.
-
-    Args:
-        cpacs (oject): CPACS Object (from cpacspy)
-
-    Returns:
-        selected_aeromap_list (list) : List of selected aeroMap
-    """
-
-    aeromap_uid_list = cpacs.get_aeromap_uid_list()
-
-    root = Tk()
-    selected_aeromap_list = ListBoxChoice(
-        root, "Select aeroMap", "Select aeroMap(s) to plot \t \t", aeromap_uid_list
-    ).returnValue()
-
-    return selected_aeromap_list
 
 
 def write_legend(groupby_list, value):

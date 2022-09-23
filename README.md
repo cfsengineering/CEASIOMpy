@@ -61,13 +61,7 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
 
     ```bash
     cd WKDIR
-<<<<<<< HEAD
-    ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml PyTornado PlotAeroCoefficients
-||||||| parent of af67f93 (Replace new module name everywhere)
-    ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml SettingsGUI PyTornado PlotAeroCoefficients
-=======
     ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml SettingsGUI PyTornado SaveAeroCoefficients
->>>>>>> af67f93 (Replace new module name everywhere)
     ```
 
 - **Run CEASIOMpy with an existing configuration file**
@@ -90,8 +84,8 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
     CPACS_TOOLINPUT = /users/disk10/jungo/github/CEASIOMpy/test_files/CPACSfiles/D150_simple.xml
 
     # Modules which will be used in the workflow (in order)
-<<<<<<< HEAD
-    MODULE_TO_RUN = ( PyTornado, PlotAeroCoefficients )
+
+    MODULE_TO_RUN = ( PyTornado, SaveAeroCoefficients )
     ```
 
     You can save this file as `my_config_file.cfg` in your `WKDIR`. Then, you can run it with the following commands:
@@ -99,11 +93,6 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
     ```bash
     cd WKDIR
     ceasiompy_run --cfg ./my_config_file.cfg
-||||||| parent of af67f93 (Replace new module name everywhere)
-    MODULE_TO_RUN = ( SettingsGUI, PyTornado, PlotAeroCoefficients )
-=======
-    MODULE_TO_RUN = ( SettingsGUI, PyTornado, SaveAeroCoefficients )
->>>>>>> af67f93 (Replace new module name everywhere)
     ```
 
 ### Examples of workflows
@@ -114,16 +103,8 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
 
 ```mermaid
   graph LR;
-<<<<<<< HEAD
-      WeightConventional-->PyTornado;
-      PyTornado-->PlotAeroCoefficients;
-||||||| parent of af67f93 (Replace new module name everywhere)
-      SettingsGUI-->PyTornado;
-      PyTornado-->PlotAeroCoefficients;
-=======
       SettingsGUI-->PyTornado;
       PyTornado-->SaveAeroCoefficients;
->>>>>>> af67f93 (Replace new module name everywhere)
 ```
 
 </div>

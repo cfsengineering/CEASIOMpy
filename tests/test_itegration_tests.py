@@ -110,53 +110,6 @@ def test_integration_4():
     assert workflow_ends()
 
 
-<<<<<<< HEAD
-<<<<<<< HEAD
-||||||| parent of af67f93 (Replace new module name everywhere)
-@pytest.mark.gui
-@pytest.mark.skipif(not shutil.which("pytornado"), reason="PyTornado not installed")
-def test_integration_5():
-    """Integration test for module with GUI, requiring a user interaction"""
-
-    modules_to_run = ["CPACSCreator", "SettingsGUI", "PyTornado", "PlotAeroCoefficients"]
-
-    with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_PATH), *modules_to_run])
-
-    assert workflow_ends()
-
-
-=======
-@pytest.mark.gui
-@pytest.mark.skipif(not shutil.which("pytornado"), reason="PyTornado not installed")
-def test_integration_5():
-    """Integration test for module with GUI, requiring a user interaction"""
-
-    modules_to_run = ["CPACSCreator", "SettingsGUI", "PyTornado", "SaveAeroCoefficients"]
-
-    with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_PATH), *modules_to_run])
-
-    assert workflow_ends()
-
-
->>>>>>> af67f93 (Replace new module name everywhere)
-||||||| parent of a35ffa9 (Add SaveAeroCoef to the integration test)
-@pytest.mark.gui
-@pytest.mark.skipif(not shutil.which("pytornado"), reason="PyTornado not installed")
-def test_integration_5():
-    """Integration test for module with GUI, requiring a user interaction"""
-
-    modules_to_run = ["CPACSCreator", "SettingsGUI", "PyTornado", "SaveAeroCoefficients"]
-
-    with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_PATH), *modules_to_run])
-
-    assert workflow_ends()
-
-
-=======
->>>>>>> a35ffa9 (Add SaveAeroCoef to the integration test)
 # =================================================================================================
 #    MAIN
 # =================================================================================================

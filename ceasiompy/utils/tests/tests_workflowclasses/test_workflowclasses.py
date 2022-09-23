@@ -115,15 +115,7 @@ class TestWorkflow:
         "CPACS2SUMO",
         "CLCalculator",
         "PyTornado",
-<<<<<<< HEAD
-        "PlotAeroCoefficients",
-||||||| parent of af67f93 (Replace new module name everywhere)
-        "SettingsGUI",
-        "PlotAeroCoefficients",
-=======
-        "SettingsGUI",
         "SaveAeroCoefficients",
->>>>>>> af67f93 (Replace new module name everywhere)
     ]
 
     MODULE_OPTIM = ["YES", "YES", "NO", "NO"]
@@ -179,48 +171,22 @@ class TestWorkflow:
         assert self.workflow.current_wkflow_dir.exists()
         assert self.workflow.cpacs_in.exists()
 
-<<<<<<< HEAD
         assert len(list(self.workflow.current_wkflow_dir.iterdir())) == 5
 
         assert self.workflow.modules[0].name == "OPTIM"
         assert self.workflow.modules[1].name == "PyTornado"
-        assert self.workflow.modules[2].name == "PlotAeroCoefficients"
+        assert self.workflow.modules[2].name == "SaveAeroCoefficients"
 
         assert self.workflow.modules[0].is_optim_module
         assert self.workflow.modules[0].optim_method == "OPTIM"
-||||||| parent of af67f93 (Replace new module name everywhere)
-        assert len(list(self.workflow.current_wkflow_dir.iterdir())) == 7
-
-        assert self.workflow.modules[0].name == "SettingsGUI"
-        assert self.workflow.modules[1].name == "OPTIM"
-        assert self.workflow.modules[2].name == "PyTornado"
-        assert self.workflow.modules[3].name == "SettingsGUI"
-        assert self.workflow.modules[4].name == "PlotAeroCoefficients"
 
         assert self.workflow.modules[0].is_settinggui
         assert self.workflow.modules[0].gui_related_modules == [
-            "SettingsGUI",
             "CPACS2SUMO",
             "CLCalculator",
             "PyTornado",
         ]
-=======
-        assert len(list(self.workflow.current_wkflow_dir.iterdir())) == 7
 
-        assert self.workflow.modules[0].name == "SettingsGUI"
-        assert self.workflow.modules[1].name == "OPTIM"
-        assert self.workflow.modules[2].name == "PyTornado"
-        assert self.workflow.modules[3].name == "SettingsGUI"
-        assert self.workflow.modules[4].name == "SaveAeroCoefficients"
-
-        assert self.workflow.modules[0].is_settinggui
-        assert self.workflow.modules[0].gui_related_modules == [
-            "SettingsGUI",
-            "CPACS2SUMO",
-            "CLCalculator",
-            "PyTornado",
-        ]
->>>>>>> af67f93 (Replace new module name everywhere)
         assert self.workflow.modules[0].module_wkflow_path == Path(
             self.workflow.current_wkflow_dir, "01_OPTIM"
         )

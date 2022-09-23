@@ -102,7 +102,7 @@ def test_integration_3():
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_4():
 
-    modules_to_run = ["CPACS2GMSH", "SU2Run"]
+    modules_to_run = ["CPACS2GMSH", "SU2Run", "SaveAeroCoefficients"]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(CPACS_IN_2_PATH), *modules_to_run])

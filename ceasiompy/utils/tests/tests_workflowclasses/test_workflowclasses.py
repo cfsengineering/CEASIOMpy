@@ -19,12 +19,7 @@ Python version: >=3.7
 import pytest
 import shutil
 from pathlib import Path
-from ceasiompy.utils.workflowclasses import (
-    ModuleToRun,
-    OptimSubWorkflow,
-    Workflow,
-    get_gui_related_modules,
-)
+from ceasiompy.utils.workflowclasses import ModuleToRun, OptimSubWorkflow, Workflow
 from ceasiompy.utils.ceasiompyutils import run_module
 
 MODULE_DIR = Path(__file__).parent
@@ -65,7 +60,6 @@ class TestModuleToRun:
         assert self.module_works.cpacs_in.exists()
         assert self.module_works.cpacs_out.exists()
 
-        assert not self.module_works.is_settinggui
         assert self.module_works.gui_related_modules == []
         assert not self.module_works.is_optim_module
         assert self.module_works.optim_related_modules == []
@@ -118,16 +112,13 @@ class TestWorkflow:
     workflow = Workflow()
 
     MODULE_TO_RUN = [
-        "SettingsGUI",
         "CPACS2SUMO",
         "CLCalculator",
         "PyTornado",
-        "SettingsGUI",
         "PlotAeroCoefficients",
     ]
 
-    MODULE_OPTIM = ["NO", "YES", "YES", "NO", "NO", "NO"]
-    MODULE_OPTIM_NOT_CONTIGOUS = ["YES", "NO", "YES", "NO", "NO", "NO"]
+    MODULE_OPTIM = ["YES", "YES", "NO", "NO"]
 
     def test_from_config_file(self):
 
@@ -161,11 +152,6 @@ class TestWorkflow:
         with pytest.raises(ValueError):
             self.workflow.set_workflow()
 
-        self.workflow.optim_method = "DOE"
-        self.workflow.module_optim = self.MODULE_OPTIM_NOT_CONTIGOUS
-        with pytest.raises(ValueError):
-            self.workflow.set_workflow()
-
         self.workflow.module_optim = self.MODULE_OPTIM
         self.workflow.working_dir = ""
         with pytest.raises(ValueError):
@@ -176,7 +162,7 @@ class TestWorkflow:
         with pytest.raises(FileNotFoundError):
             self.workflow.set_workflow()
 
-        # Test nomral behaviour
+        # Test normal behavior
         self.workflow = Workflow()
         self.workflow.from_config_file(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
         self.workflow.optim_method = "OPTIM"
@@ -185,52 +171,23 @@ class TestWorkflow:
         assert self.workflow.current_wkflow_dir.exists()
         assert self.workflow.cpacs_in.exists()
 
-        assert len(list(self.workflow.current_wkflow_dir.iterdir())) == 7
+        assert len(list(self.workflow.current_wkflow_dir.iterdir())) == 5
 
-        assert self.workflow.modules[0].name == "SettingsGUI"
-        assert self.workflow.modules[1].name == "OPTIM"
-        assert self.workflow.modules[2].name == "PyTornado"
-        assert self.workflow.modules[3].name == "SettingsGUI"
-        assert self.workflow.modules[4].name == "PlotAeroCoefficients"
+        assert self.workflow.modules[0].name == "OPTIM"
+        assert self.workflow.modules[1].name == "PyTornado"
+        assert self.workflow.modules[2].name == "PlotAeroCoefficients"
 
-        assert self.workflow.modules[0].is_settinggui
-        assert self.workflow.modules[0].gui_related_modules == [
-            "SettingsGUI",
-            "CPACS2SUMO",
-            "CLCalculator",
-            "PyTornado",
-        ]
+        assert self.workflow.modules[0].is_optim_module
+        assert self.workflow.modules[0].optim_method == "OPTIM"
         assert self.workflow.modules[0].module_wkflow_path == Path(
-            self.workflow.current_wkflow_dir, "01_SettingsGUI"
+            self.workflow.current_wkflow_dir, "01_OPTIM"
         )
 
-        assert self.workflow.modules[1].is_optim_module
-        assert self.workflow.modules[1].optim_method == "OPTIM"
+        assert not self.workflow.modules[1].is_optim_module
+        assert self.workflow.modules[1].optim_method is None
         assert self.workflow.modules[1].module_wkflow_path == Path(
-            self.workflow.current_wkflow_dir, "02_OPTIM"
+            self.workflow.current_wkflow_dir, "02_PyTornado"
         )
-
-        assert not self.workflow.modules[2].is_optim_module
-        assert self.workflow.modules[2].optim_method is None
-        assert self.workflow.modules[2].module_wkflow_path == Path(
-            self.workflow.current_wkflow_dir, "03_PyTornado"
-        )
-
-
-def test_get_gui_related_modules():
-    """Test 'get_gui_related_modules' function.'"""
-
-    module_list = ["SettingsGUI"]
-    assert get_gui_related_modules(module_list) == module_list
-
-    module_list = ["SettingsGUI", "CPACS2SUMO", "CLCalculator", "PyTornado"]
-    assert get_gui_related_modules(module_list) == module_list
-
-    module_list = ["SettingsGUI", "CPACS2SUMO", "CLCalculator", "SettingsGUI"]
-    assert get_gui_related_modules(module_list) == module_list[:-1]
-
-    module_list = ["SettingsGUI", "CPACS2SUMO", "CLCalculator", "SettingsGUI", "PyTornado"]
-    assert get_gui_related_modules(module_list, 3) == module_list[-2:]
 
 
 # =================================================================================================

@@ -1,11 +1,15 @@
 from pathlib import Path
 
-from ceasiompy.utils.commonpaths import CEASIOMPY_PATH
+from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
 from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.cpacspy import CPACS
+from PIL import Image
 
 import streamlit as st
 from directory_picker import st_directory_picker
+
+im = Image.open(CEASIOMPY_LOGO_PATH)
+st.set_page_config(page_title="CEASIOMpy", page_icon=im)
 
 
 def section_select_working_dir():
@@ -58,7 +62,7 @@ with col1:
     st.markdown("- Use the side bar to go to the Workflow page")
 
 with col2:
-    st.image(str(Path(CEASIOMPY_PATH, "documents/logos/CEASIOMpy_main_logos.png")), width=220)
+    st.image(str(CEASIOMPY_LOGO_PATH), width=220)
 
 section_select_working_dir()
 section_select_cpacs()

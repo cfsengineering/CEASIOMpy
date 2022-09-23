@@ -229,7 +229,7 @@ To develop a new module you should follow the above steps.:
 
 ### Writing specs file
 
-The `__specs__.py` file is a python file that contains the specification of the module. It is used to define your module input and output. It is also used to automatically create a tab in the SettingsGUI module with the correct input and default values.
+The `__specs__.py` file is a python file that contains the specification of the module. It is used to define your module input and output. It is also used to automatically create a settings tab in the GUI interface with the correct input and default values.
 
 The `__specs__.py` file should look like this:
 
@@ -273,7 +273,7 @@ cpacs_inout.add_input(
     gui_group="Group Test",
 )
 
-# You can also provide a list of possible values for the input. In SettingsGUI, it will appear as a combobox.
+# You can also provide a list of possible values for the input. In the GUI, it will appear as a combobox.
 cpacs_inout.add_input(
     var_name="other_var",
     var_type=list,
@@ -290,7 +290,7 @@ cpacs_inout.add_input(
     var_name='aeromap_uid_select',
     var_type=list,
     default_value=None,
-    xpath='/cpacs/toolspecific/CEASIOMpy/test/aeroMapUIDSelecton',
+    xpath='/cpacs/toolspecific/CEASIOMpy/test/aeroMapUIDSelection',
     gui=True,
     gui_name='__AEROMAP_SELECTION',
 )
@@ -300,7 +300,7 @@ cpacs_inout.add_input(
     var_name='aeromap_uid_cb',
     var_type=list,
     default_value=None,
-    xpath='/cpacs/toolspecific/CEASIOMpy/test/aeroMapCheckBoxSelction',
+    xpath='/cpacs/toolspecific/CEASIOMpy/test/aeroMapCheckBoxSelection',
     gui=include_gui,
     gui_name='__AEROMAP_CHECHBOX',
 )

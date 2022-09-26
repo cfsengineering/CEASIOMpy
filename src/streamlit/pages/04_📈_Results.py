@@ -186,22 +186,7 @@ def show_results():
                         st.dataframe(df)
                     elif file.suffix == ".md":
                         st.markdown(file.read_text())
-                    elif "Case" in file.name:
 
-                        paraview_state = Path("/home/jungo/github/CEASIOMpy/WKDIR/parastate.pvsm")
-                        paraview_state_txt = paraview_state.read_text()
-
-                        my_paraview_state = Path(
-                            "/home/jungo/github/CEASIOMpy/WKDIR/my_para_state.pvsm"
-                        )
-                        my_paraview_state.write_text(
-                            paraview_state_txt.replace("result_case_path", str(file))
-                        )
-
-                        if st.button("Open with Paraview", key=file.stem):
-                            st.markdown("Paravew will be open")
-
-                            os.system(f"paraview {str(my_paraview_state)} &")
                     else:
                         st.markdown(f"This file cannot be shown: {file}")
 

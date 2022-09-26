@@ -2,18 +2,14 @@ import io
 from pathlib import Path
 
 import pyvista as pv
-from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
 from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.cpacspy import CPACS
 from createsidbar import create_sidebar
-from PIL import Image
 
 import streamlit as st
 import streamlit.components.v1 as components
 from directory_picker import st_directory_picker
 
-# im = Image.open(CEASIOMPY_LOGO_PATH)
-# st.set_page_config(page_title="CEASIOMpy", page_icon=im)
 how_to_text = (
     "### How to use CEASIOMpy?\n"
     "1. Chose your *Working directory*\n"

@@ -77,7 +77,7 @@ def show_aircraft():
     color_bkg = "#e0e0d4"
 
     ## Initialize pyvista reader and plotter
-    plotter = pv.Plotter(border=False, window_size=[800, 600])
+    plotter = pv.Plotter(border=False, window_size=[572, 600])
     plotter.background_color = color_bkg
     reader = pv.STLReader(str(stl_file))
 
@@ -90,7 +90,7 @@ def show_aircraft():
     plotter.export_html(model_html, backend="pythreejs")
 
     ## Show in webpage
-    components.html(model_html.getvalue(), height=600, width=800, scrolling=False)
+    components.html(model_html.getvalue(), height=600, width=572, scrolling=False)
 
 
 st.title("CEASIOMpy")

@@ -146,7 +146,10 @@ def show_aeromap():
         if st.button("Save this figure 📷"):
             fig_name = f"{ac_name}_{y_axis}_vs_{x_axis}{img_format}"
             current_workflow = get_last_workflow()
-            fig.write_image(Path(current_workflow, "Results", "AeroCoefficients", fig_name))
+            aerocoef_dir = Path(current_workflow, "Results", "AeroCoefficients")
+            if not aerocoef_dir.exists():
+                aerocoef_dir.mkdir(parents=True)
+            fig.write_image(Path(aerocoef_dir, fig_name))
 
 
 def show_results():
@@ -172,6 +175,8 @@ def show_results():
                         df = pd.read_csv(file)
                         st.markdown(f"**{file.stem}**")
                         st.dataframe(df)
+                    elif file.suffix == ".md":
+                        st.markdown(file.read_text())
                     else:
                         st.markdown(f"This file cannot be shown: {file}")
 

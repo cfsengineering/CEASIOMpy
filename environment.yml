@@ -21,6 +21,8 @@ dependencies:
   - codecov=2.1.11
   - coverage=6.2
   - flake8=4.0.1
+  - ipython=8.4.0
+  - ipywidgets=7.7.1
   - matplotlib=3.5.2
   - numpy=1.23.3
   - openmdao=3.18.0
@@ -29,6 +31,8 @@ dependencies:
   - pip=21.3.1
   - pytest-cov=3.0.0
   - python-kaleido=0.2.1
+  - pythreejs=2.3.0
+  - pyvista=0.36.1
   - xmltodict=0.12.0
   - vtk=9.0.1
 

@@ -5,14 +5,23 @@ import pyvista as pv
 from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
 from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.cpacspy import CPACS
+from createsidbar import create_sidebar
 from PIL import Image
 
 import streamlit as st
 import streamlit.components.v1 as components
 from directory_picker import st_directory_picker
 
-im = Image.open(CEASIOMPY_LOGO_PATH)
-st.set_page_config(page_title="CEASIOMpy", page_icon=im)
+# im = Image.open(CEASIOMPY_LOGO_PATH)
+# st.set_page_config(page_title="CEASIOMpy", page_icon=im)
+how_to_text = (
+    "### How to use CEASIOMpy?\n"
+    "1. Chose your *Working directory*\n"
+    "1. Chose a *CPACS file*\n"
+    "1. Go to the *Workflow* page (with the menu above)\n"
+)
+
+create_sidebar(how_to_text)
 
 
 def section_select_working_dir():
@@ -89,17 +98,6 @@ def show_aircraft():
 
 
 st.title("CEASIOMpy")
-
-col1, col2 = st.columns([5, 3])
-
-with col1:
-    st.markdown("### How to use CEASIOMpy?")
-    st.markdown("- Select a Working directory")
-    st.markdown("- Select a CPACS file")
-    st.markdown("- Use the side bar to go to the Workflow page")
-
-with col2:
-    st.image(str(CEASIOMPY_LOGO_PATH), width=220)
 
 section_select_working_dir()
 section_select_cpacs()

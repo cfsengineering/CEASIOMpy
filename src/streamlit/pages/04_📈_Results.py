@@ -6,10 +6,18 @@ import streamlit as st
 from ceasiompy.utils.ceasiompyutils import aircraft_name
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
+from createsidbar import create_sidebar
 from streamlit_autorefresh import st_autorefresh
 
-st.set_page_config(page_title="Results", page_icon="📈")
-st.title("Results")
+how_to_text = (
+    "### How to check your results\n"
+    "1. Select the aeromap(s) you want to show\n"
+    "1. Chose the parameter you want to plot\n"
+    "1. Save some figure if you want\n"
+    "1. Check results from each module\n"
+)
+
+create_sidebar(how_to_text)
 
 
 def get_last_workflow():
@@ -180,6 +188,8 @@ def show_results():
                     else:
                         st.markdown(f"This file cannot be shown: {file}")
 
+
+st.title("Results")
 
 show_aeromap()
 show_results()

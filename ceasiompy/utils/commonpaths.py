@@ -47,3 +47,6 @@ CPACS_FILES_PATH = Path(CEASIOMPY_PATH, "test_files", "CPACSfiles")
 
 # /CEASIOMpy/ceasiompy/WKDIR/
 WKDIR_PATH = Path(CEASIOMPY_PATH, "WKDIR")
+
+# /CEASIOMpy/ceasiompy/SU2Run/files/default_paraview_state.pvsm
+DEFAULT_PARAVIEW_STATE = Path(MODULES_DIR_PATH, "SU2Run", "files", "default_paraview_state.pvsm")

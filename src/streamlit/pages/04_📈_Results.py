@@ -5,6 +5,7 @@ import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
 from ceasiompy.utils.ceasiompyutils import aircraft_name
+from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
 from createsidbar import create_sidebar
@@ -41,6 +42,18 @@ def get_last_workflow():
         Path(st.session_state.workflow.working_dir),
         f"Workflow_{last_workflow_nb:03}",
     )
+
+
+def open_paraview(case_dir, file_to_plot):
+
+    paraview_state_txt = DEFAULT_PARAVIEW_STATE.read_text()
+
+    file_path = Path(case_dir, file_to_plot)
+    paraview_state = Path(case_dir, "paraview_state.pvsm")
+
+    paraview_state.write_text(paraview_state_txt.replace("result_case_path", str(file_path)))
+
+    os.system(f"paraview {str(paraview_state)}")
 
 
 def show_aeromap():
@@ -170,13 +183,37 @@ def show_results():
     if not current_workflow:
         return
 
-    st.info(f"All these results can be found in {str(current_workflow)}")
+    st.info(f"All these results can be found in:\n\n{str(current_workflow.resolve())}")
 
     for dir in Path(current_workflow, "Results").iterdir():
         if not dir.is_dir():
             continue
         with st.expander(dir.name, expanded=False):
             st.text("")
+
+            if dir.name == "SU2":
+                st.markdown("SU2 results")
+
+                for case_dir in dir.iterdir():
+
+                    col1, col2, col3, col4 = st.columns([4, 1.5, 1, 1])
+                    with col1:
+                        st.markdown(f"{case_dir.stem}")
+                    with col2:
+                        if st.button("Surface_flow", key=f"{case_dir.stem}_surf_flow"):
+                            open_paraview(case_dir, "surface_flow.vtu")
+                    with col3:
+                        if st.button("Flow", key=f"{case_dir.stem}_flow"):
+                            open_paraview(case_dir, "flow.vtu")
+                    with col4:
+                        if st.button("Forces", key=f"{case_dir.stem}_forces"):
+                            st.session_state.force_file = Path(case_dir, "forces_breakdown.dat")
+
+                if "force_file" in st.session_state:
+                    st.text_area(
+                        "forces_breakdown.dat", st.session_state.force_file.read_text(), height=300
+                    )
+
             for file in dir.iterdir():
 
                 if file.suffix == ".png":
@@ -191,8 +228,9 @@ def show_results():
                 elif file.suffix == ".md":
                     st.markdown(file.read_text())
 
-                # else:
-                #     st.markdown(f"This file cannot be shown: {file}")
+                # TODO add logfile
+
+                # elif "Case" in file.name:
 
 
 st.title("Results")
@@ -200,4 +238,4 @@ st.title("Results")
 show_aeromap()
 show_results()
 
-st_autorefresh(interval=3000, limit=10000, key="auto_refresh")
+# st_autorefresh(interval=3000, limit=10000, key="auto_refresh")

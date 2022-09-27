@@ -45,17 +45,28 @@ def get_last_workflow():
 
 
 def display_results(results_dir):
+    """Display results results depending which type of file they are."""
+
     for file in sorted(Path(results_dir).iterdir()):
 
-        if file.suffix == ".su2":
-            if st.button("Show mesh", key=f"{file.stem}_su2_mesh"):
+        if file.suffix == ".smx":
+            if st.button(f"Open {file.name} with SUMO", key=f"{file.stem}_sumo_geom"):
+                os.system(f"dwfsumo {str(file)}")
+
+        elif file.suffix == ".su2":
+            if st.button(f"Open {file.name} with Scope", key=f"{file.stem}_su2_mesh"):
                 os.system(f"dwfscope {str(file)}")
 
-        if file.suffix == ".png":
+        elif file.suffix == ".vtu":
+            if st.button(f"Open {file.name} with Paraview", key=f"{file.stem}_vtu"):
+                open_paraview(file)
+
+        elif file.suffix == ".png":
             st.markdown(f"#### {file.stem.replace('_',' ')}")
             st.image(str(file))
 
         elif file.name == "history.csv":
+            st.markdown(f"**Convergence**")
             df = pd.read_csv(file)
             df = df.drop(["Time_Iter", "Outer_Iter", "Inner_Iter"], axis=1)
             st.line_chart(data=df, x=None, y=None, width=0, height=0, use_container_width=True)
@@ -74,23 +85,14 @@ def display_results(results_dir):
         elif "Case" in file.name:
             with st.expander(file.stem, expanded=False):
 
-                if st.button("Surface_flow", key=f"{file.stem}_surf_flow"):
-                    open_paraview(file, "surface_flow.vtu")
-
-                if st.button("Flow", key=f"{file.stem}_flow"):
-                    open_paraview(file, "flow.vtu")
-
                 display_results(file)
 
 
-def open_paraview(case_dir, file_to_plot):
+def open_paraview(file):
 
     paraview_state_txt = DEFAULT_PARAVIEW_STATE.read_text()
-
-    file_path = Path(case_dir, file_to_plot)
-    paraview_state = Path(case_dir, "paraview_state.pvsm")
-
-    paraview_state.write_text(paraview_state_txt.replace("result_case_path", str(file_path)))
+    paraview_state = Path(file.parent, "paraview_state.pvsm")
+    paraview_state.write_text(paraview_state_txt.replace("result_case_path", str(file)))
 
     os.system(f"paraview {str(paraview_state)}")
 

@@ -66,7 +66,7 @@ def display_results(results_dir):
             st.image(str(file))
 
         elif file.name == "history.csv":
-            st.markdown(f"**Convergence**")
+            st.markdown("**Convergence**")
             df = pd.read_csv(file)
             df = df.drop(["Time_Iter", "Outer_Iter", "Inner_Iter"], axis=1)
             st.line_chart(data=df, x=None, y=None, width=0, height=0, use_container_width=True)

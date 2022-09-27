@@ -164,31 +164,35 @@ def show_aeromap():
 def show_results():
 
     st.markdown("#### Results")
-    st.info("This part is under construction, not all results are display correctly!")
 
     current_workflow = get_last_workflow()
 
     if not current_workflow:
         return
 
+    st.info(f"All these results can be found in {str(current_workflow)}")
+
     for dir in Path(current_workflow, "Results").iterdir():
-        if dir.is_dir():
-            with st.expander(dir.name, expanded=False):
-                st.text("")
-                for file in dir.iterdir():
+        if not dir.is_dir():
+            continue
+        with st.expander(dir.name, expanded=False):
+            st.text("")
+            for file in dir.iterdir():
 
-                    if file.suffix == ".png":
-                        st.image(str(file))
+                if file.suffix == ".png":
+                    st.markdown(f"#### {file.stem.replace('_',' ')}")
+                    st.image(str(file))
 
-                    elif file.suffix == ".csv":
-                        df = pd.read_csv(file)
-                        st.markdown(f"**{file.stem}**")
-                        st.dataframe(df)
-                    elif file.suffix == ".md":
-                        st.markdown(file.read_text())
+                elif file.suffix == ".csv":
+                    df = pd.read_csv(file)
+                    st.markdown(f"**{file.stem}**")
+                    st.dataframe(df)
 
-                    else:
-                        st.markdown(f"This file cannot be shown: {file}")
+                elif file.suffix == ".md":
+                    st.markdown(file.read_text())
+
+                # else:
+                #     st.markdown(f"This file cannot be shown: {file}")
 
 
 st.title("Results")

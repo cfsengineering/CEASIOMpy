@@ -172,7 +172,7 @@ ToolOutput.xml
 
 aircraft_loads.csv
 *.out
-*mtomPrediction.png
+*MTOM_Prediction.png
 *Payload_vs_Range.png
 *_Cog.png
 **/ToolOutput/*.svg

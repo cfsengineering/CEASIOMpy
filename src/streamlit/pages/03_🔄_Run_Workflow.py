@@ -12,7 +12,8 @@ LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
 how_to_text = (
     "### How to Run your workflow?\n"
     "1. Just click on the *Run* button\n"
-    "Depending your workflow it could take time to get result, you can see the logs of what's happening.\n\n"
+    "Depending your workflow it could take time to get result, you can see the logs of what's "
+    "happening.\n\n"
     "2. When it is done, go to the *Results* page\n"
 )
 

@@ -70,26 +70,26 @@ def show_aircraft():
 
     st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
 
-    ## Using pythreejs as pyvista backend
+    # Using pythreejs as pyvista backend
     pv.set_jupyter_backend("pythreejs")
 
     color_stl = "#ff7f2a"
     color_bkg = "#e0e0d4"
 
-    ## Initialize pyvista reader and plotter
+    # Initialize pyvista reader and plotter
     plotter = pv.Plotter(border=False, window_size=[572, 600])
     plotter.background_color = color_bkg
     reader = pv.STLReader(str(stl_file))
 
-    ## Read data and send to plotter
+    # Read data and send to plotter
     mesh = reader.read()
     plotter.add_mesh(mesh, color=color_stl)
 
-    ## Export to a pythreejs HTML
+    # Export to a pythreejs HTML
     model_html = io.StringIO()
     plotter.export_html(model_html, backend="pythreejs")
 
-    ## Show in webpage
+    # Show in webpage
     components.html(model_html.getvalue(), height=600, width=572, scrolling=False)
 
 

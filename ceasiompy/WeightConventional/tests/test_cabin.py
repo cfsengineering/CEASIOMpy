@@ -91,13 +91,13 @@ class TestCabin:
             shutil.rmtree(TEST_OUT_PATH)
         TEST_OUT_PATH.mkdir()
 
-        seat_config_file = Path(TEST_OUT_PATH, "Seats_disposition.out")
+        cabin_config_file = Path(TEST_OUT_PATH, "Cabin.md")
 
-        self.cabins[0].write_seat_config(seat_config_file)
+        self.cabins[0].write_seat_config(cabin_config_file)
 
-        assert seat_config_file.exists()
+        assert cabin_config_file.exists()
 
-        with open(seat_config_file, "r") as f:
+        with open(cabin_config_file, "r") as f:
             lines = f.readlines()
 
         assert any("Abreast nb.: 6" in line for line in lines)

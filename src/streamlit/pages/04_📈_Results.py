@@ -44,6 +44,45 @@ def get_last_workflow():
     )
 
 
+def display_results(results_dir):
+    for file in sorted(Path(results_dir).iterdir()):
+
+        if file.suffix == ".su2":
+            if st.button("Show mesh", key=f"{file.stem}_su2_mesh"):
+                os.system(f"dwfscope {str(file)}")
+
+        if file.suffix == ".png":
+            st.markdown(f"#### {file.stem.replace('_',' ')}")
+            st.image(str(file))
+
+        elif file.name == "history.csv":
+            df = pd.read_csv(file)
+            df = df.drop(["Time_Iter", "Outer_Iter", "Inner_Iter"], axis=1)
+            st.line_chart(data=df, x=None, y=None, width=0, height=0, use_container_width=True)
+
+        elif file.suffix == ".csv":
+            df = pd.read_csv(file)
+            st.markdown(f"**{file.name}**")
+            st.dataframe(df)
+
+        elif file.suffix == ".md":
+            st.markdown(file.read_text())
+
+        elif file.suffix == ".log" or file.suffix == ".txt":
+            st.text_area(file.stem, file.read_text(), height=200)
+
+        elif "Case" in file.name:
+            with st.expander(file.stem, expanded=False):
+
+                if st.button("Surface_flow", key=f"{file.stem}_surf_flow"):
+                    open_paraview(file, "surface_flow.vtu")
+
+                if st.button("Flow", key=f"{file.stem}_flow"):
+                    open_paraview(file, "flow.vtu")
+
+                display_results(file)
+
+
 def open_paraview(case_dir, file_to_plot):
 
     paraview_state_txt = DEFAULT_PARAVIEW_STATE.read_text()
@@ -179,58 +218,22 @@ def show_results():
     st.markdown("#### Results")
 
     current_workflow = get_last_workflow()
-
     if not current_workflow:
         return
 
+    results_dir = Path(current_workflow, "Results")
+
     st.info(f"All these results can be found in:\n\n{str(current_workflow.resolve())}")
 
-    for dir in Path(current_workflow, "Results").iterdir():
-        if not dir.is_dir():
-            continue
-        with st.expander(dir.name, expanded=False):
-            st.text("")
+    results_name = sorted([dir.stem for dir in results_dir.iterdir() if dir.is_dir()])
+    results_tabs = st.tabs(results_name)
 
-            if dir.name == "SU2":
-                st.markdown("SU2 results")
+    for tab, tab_name in zip(results_tabs, results_name):
 
-                for case_dir in dir.iterdir():
+        with tab:
+            st.markdown(f"{tab_name} res")
 
-                    col1, col2, col3, col4 = st.columns([4, 1.5, 1, 1])
-                    with col1:
-                        st.markdown(f"{case_dir.stem}")
-                    with col2:
-                        if st.button("Surface_flow", key=f"{case_dir.stem}_surf_flow"):
-                            open_paraview(case_dir, "surface_flow.vtu")
-                    with col3:
-                        if st.button("Flow", key=f"{case_dir.stem}_flow"):
-                            open_paraview(case_dir, "flow.vtu")
-                    with col4:
-                        if st.button("Forces", key=f"{case_dir.stem}_forces"):
-                            st.session_state.force_file = Path(case_dir, "forces_breakdown.dat")
-
-                if "force_file" in st.session_state:
-                    st.text_area(
-                        "forces_breakdown.dat", st.session_state.force_file.read_text(), height=300
-                    )
-
-            for file in dir.iterdir():
-
-                if file.suffix == ".png":
-                    st.markdown(f"#### {file.stem.replace('_',' ')}")
-                    st.image(str(file))
-
-                elif file.suffix == ".csv":
-                    df = pd.read_csv(file)
-                    st.markdown(f"**{file.stem}**")
-                    st.dataframe(df)
-
-                elif file.suffix == ".md":
-                    st.markdown(file.read_text())
-
-                # TODO add logfile
-
-                # elif "Case" in file.name:
+            display_results(Path(results_dir, tab_name))
 
 
 st.title("Results")
@@ -238,4 +241,4 @@ st.title("Results")
 show_aeromap()
 show_results()
 
-# st_autorefresh(interval=3000, limit=10000, key="auto_refresh")
+# st_autorefresh(interval=5000, limit=10000, key="auto_refresh")

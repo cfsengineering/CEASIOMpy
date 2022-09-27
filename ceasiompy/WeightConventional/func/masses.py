@@ -152,26 +152,23 @@ class AircfaftMasses:
         """Write the seat configuration in a file in the result directory."""
 
         lines = open(masses_output_file, "w")
-        lines.write("\n---------------------------------------------")
-        lines.write("\n---------------- MASSES ---------------------")
-        lines.write("\n---------------------------------------------")
-        lines.write("\nMasses estimation ---------------------------")
-        lines.write(f"\nMaximum take off mass : {int(self.mtom)} [kg]")
-        lines.write(f"\nOperating empty mass : {int(self.oem)} [kg]")
-        lines.write(f"\nZero fuel mass : {int(self.zfm)} [kg]")
-        lines.write("\n---------------------------------------------")
-        lines.write("\nPayload and Fuel ----------------------------")
-        lines.write(f"\nMaximum payload mass : {int(self.payload_mass)} [kg]")
-        lines.write(f"\nCargo mass : {int(self.cargo_mass)} [kg]")
+        lines.write("\n### MASSES")
+        lines.write("\n#### Masses estimation")
+        lines.write(f"\n- Maximum take off mass : {int(self.mtom)} [kg]")
+        lines.write(f"\n- Operating empty mass : {int(self.oem)} [kg]")
+        lines.write(f"\n- Zero fuel mass : {int(self.zfm)} [kg]")
+        lines.write("\n#### Payload and Fuel")
+        lines.write(f"\n- Maximum payload mass : {int(self.payload_mass)} [kg]")
+        lines.write(f"\n- Cargo mass : {int(self.cargo_mass)} [kg]")
         lines.write(
-            f"\nMaximum fuel mass with max passengers : {int(self.mass_fuel_max_passenger)} [kg]"
+            f"\n- Maximum fuel mass with max passengers : {int(self.mass_fuel_max_passenger)} [kg]"
         )
-        lines.write(f"\nMaximum fuel mass with no passengers : {int(self.mass_fuel_max)} [kg]")
+        lines.write(f"\n- Maximum fuel mass with no passengers : {int(self.mass_fuel_max)} [kg]")
         lines.write(
-            "\nMaximum fuel volume with no passengers:"
+            "\n- Maximum fuel volume with no passengers:"
             f"{int(self.mass_fuel_max / self.fuel_density *1000)} [l]"
         )
-        lines.write(f"\nWing loading: {int(self.wing_loading)} [kg/m^2]")
+        lines.write(f"\n- Wing loading: {int(self.wing_loading)} [kg/m^2]")
 
         lines.close()
 

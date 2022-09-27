@@ -128,11 +128,11 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     cabin_width = ag.fuse_width / (1 + (inside_dim.fuse_thick / 100))
     cabin = Cabin(cpacs, cabin_length_tot, cabin_width, ac_masses.max_payload_mass)
     cabin.save_to_cpacs()
-    cabin.write_seat_config(Path(result_dir, "Cabin.out"))
+    cabin.write_seat_config(Path(result_dir, "Cabin.md"))
 
     ac_masses.get_payload_mass(cabin.passenger_mass)
     ac_masses.save_to_cpacs()
-    ac_masses.write_masses_output(Path(result_dir, "Masses.out"))
+    ac_masses.write_masses_output(Path(result_dir, "Masses.md"))
 
     log.info("---- Geometry evaluation from CPACS file ----")
     log.info(f"Fuselage length: {round(ag.fuse_length[0], 3)}  [m]")

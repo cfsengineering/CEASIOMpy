@@ -154,7 +154,10 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
     # Get aeroMapToCalculate
     aeroMap_to_calculate_xpath = SF_XPATH + "/aeroMapToCalculate"
     if cpacs.tixi.checkElement(aeroMap_to_calculate_xpath):
-        aeromap_uid_list = get_string_vector(cpacs.tixi, aeroMap_to_calculate_xpath)
+        try:
+            aeromap_uid_list = get_string_vector(cpacs.tixi, aeroMap_to_calculate_xpath)
+        except ValueError:
+            aeromap_uid_list = []
     else:
         aeromap_uid_list = []
 

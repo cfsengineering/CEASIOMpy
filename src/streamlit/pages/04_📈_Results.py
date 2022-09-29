@@ -231,10 +231,7 @@ def show_results():
     results_tabs = st.tabs(results_name)
 
     for tab, tab_name in zip(results_tabs, results_name):
-
         with tab:
-            st.markdown(f"{tab_name} res")
-
             display_results(Path(results_dir, tab_name))
 
 

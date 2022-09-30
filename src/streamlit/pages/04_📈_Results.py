@@ -240,4 +240,7 @@ st.title("Results")
 show_aeromap()
 show_results()
 
+if st.button("🔄 Refresh"):
+    st.experimental_rerun()
+    
 # st_autorefresh(interval=5000, limit=10000, key="auto_refresh")

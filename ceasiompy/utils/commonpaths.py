@@ -28,7 +28,7 @@ CEASIOMPY_PATH = Path(ceasiompy.__init__.__file__).parents[1]
 MODULES_DIR_PATH = Path(ceasiompy.__init__.__file__).parent
 
 # /CEASIOMpy/documents/logos/CEASIOMpy_main_logos.png
-CEASIOMPY_LOGO_PATH = Path(CEASIOMPY_PATH, "documents", "logos", "CEASIOMpy_main_logos.png")
+CEASIOMPY_LOGO_PATH = Path(CEASIOMPY_PATH, "documents", "logos", "CEASIOMpy_512px.png")
 
 # /CEASIOMpy/ceasiompy.log
 LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
@@ -47,3 +47,6 @@ CPACS_FILES_PATH = Path(CEASIOMPY_PATH, "test_files", "CPACSfiles")
 
 # /CEASIOMpy/ceasiompy/WKDIR/
 WKDIR_PATH = Path(CEASIOMPY_PATH, "WKDIR")
+
+# /CEASIOMpy/ceasiompy/SU2Run/files/default_paraview_state.pvsm
+DEFAULT_PARAVIEW_STATE = Path(MODULES_DIR_PATH, "SU2Run", "files", "default_paraview_state.pvsm")

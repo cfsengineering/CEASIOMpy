@@ -1,8 +1,16 @@
 import streamlit as st
 from ceasiompy.utils.moduleinterfaces import get_submodule_list
+from createsidbar import create_sidebar
 
-st.set_page_config(page_title="Workflow", page_icon="➡")
+how_to_text = (
+    "### How to use Create a workflow?\n"
+    "You can either:\n"
+    "- Select a predefined workflow and modify it\n"
+    "- Build your own workflow by selecting among available modules\n"
+    "When it is done, go to the *Settings* page\n"
+)
 
+create_sidebar(how_to_text)
 
 # Custom CSS
 st.markdown(

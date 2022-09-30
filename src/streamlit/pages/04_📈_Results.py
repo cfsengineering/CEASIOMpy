@@ -1,13 +1,25 @@
+import os
 from pathlib import Path
 
+import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
+from ceasiompy.utils.ceasiompyutils import aircraft_name
+from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
+from createsidbar import create_sidebar
 from streamlit_autorefresh import st_autorefresh
 
-st.set_page_config(page_title="Results", page_icon="📈")
-st.title("Results")
+how_to_text = (
+    "### How to check your results\n"
+    "1. Select the aeromap(s) you want to show\n"
+    "1. Chose the parameter you want to plot\n"
+    "1. Save some figure if you want\n"
+    "1. Check results from each module\n"
+)
+
+create_sidebar(how_to_text)
 
 
 def get_last_workflow():
@@ -30,6 +42,59 @@ def get_last_workflow():
         Path(st.session_state.workflow.working_dir),
         f"Workflow_{last_workflow_nb:03}",
     )
+
+
+def display_results(results_dir):
+    """Display results results depending which type of file they are."""
+
+    for file in sorted(Path(results_dir).iterdir()):
+
+        if file.suffix == ".smx":
+            if st.button(f"Open {file.name} with SUMO", key=f"{file.stem}_sumo_geom"):
+                os.system(f"dwfsumo {str(file)}")
+
+        elif file.suffix == ".su2":
+            if st.button(f"Open {file.name} with Scope", key=f"{file.stem}_su2_mesh"):
+                os.system(f"dwfscope {str(file)}")
+
+        elif file.suffix == ".vtu":
+            if st.button(f"Open {file.name} with Paraview", key=f"{file.stem}_vtu"):
+                open_paraview(file)
+
+        elif file.suffix == ".png":
+            st.markdown(f"#### {file.stem.replace('_',' ')}")
+            st.image(str(file))
+
+        elif file.name == "history.csv":
+            st.markdown("**Convergence**")
+            df = pd.read_csv(file)
+            df = df.drop(["Time_Iter", "Outer_Iter", "Inner_Iter"], axis=1)
+            st.line_chart(data=df, x=None, y=None, width=0, height=0, use_container_width=True)
+
+        elif file.suffix == ".csv":
+            df = pd.read_csv(file)
+            st.markdown(f"**{file.name}**")
+            st.dataframe(df)
+
+        elif file.suffix == ".md":
+            st.markdown(file.read_text())
+
+        elif file.suffix == ".log" or file.suffix == ".txt":
+            st.text_area(file.stem, file.read_text(), height=200)
+
+        elif "Case" in file.name:
+            with st.expander(file.stem, expanded=False):
+
+                display_results(file)
+
+
+def open_paraview(file):
+
+    paraview_state_txt = DEFAULT_PARAVIEW_STATE.read_text()
+    paraview_state = Path(file.parent, "paraview_state.pvsm")
+    paraview_state.write_text(paraview_state_txt.replace("result_case_path", str(file)))
+
+    os.system(f"paraview {str(paraview_state)}")
 
 
 def show_aeromap():
@@ -130,6 +195,8 @@ def show_aeromap():
     fig.update_xaxes(axis_options)
     fig.update_yaxes(axis_options)
 
+    ac_name = aircraft_name(cpacs.tixi)
+
     st.plotly_chart(fig)
 
     col1, col2, _ = st.columns([2, 2, 3])
@@ -140,32 +207,37 @@ def show_aeromap():
         st.markdown("")
         st.markdown("")
         if st.button("Save this figure 📷"):
-            fig_name = f"{y_axis}_vs_{x_axis}{img_format}"
+            fig_name = f"{ac_name}_{y_axis}_vs_{x_axis}{img_format}"
             current_workflow = get_last_workflow()
-            fig.write_image(Path(current_workflow, "Results", fig_name))
-
-    # fig.write_html("test_file.html")
+            aerocoef_dir = Path(current_workflow, "Results", "AeroCoefficients")
+            if not aerocoef_dir.exists():
+                aerocoef_dir.mkdir(parents=True)
+            fig.write_image(Path(aerocoef_dir, fig_name))
 
 
 def show_results():
 
     st.markdown("#### Results")
-    st.info("This part is under construction, it can not be use yet!")
 
     current_workflow = get_last_workflow()
-
     if not current_workflow:
         return
 
-    for dir in Path(current_workflow, "Results").iterdir():
-        if dir.is_dir():
-            with st.expander(dir.name, expanded=False):
-                st.text("")
-                for file in dir.iterdir():
-                    st.markdown(file)
+    results_dir = Path(current_workflow, "Results")
 
+    st.info(f"All these results can be found in:\n\n{str(current_workflow.resolve())}")
+
+    results_name = sorted([dir.stem for dir in results_dir.iterdir() if dir.is_dir()])
+    results_tabs = st.tabs(results_name)
+
+    for tab, tab_name in zip(results_tabs, results_name):
+        with tab:
+            display_results(Path(results_dir, tab_name))
+
+
+st.title("Results")
 
 show_aeromap()
 show_results()
 
-st_autorefresh(interval=3000, limit=10000, key="auto_refresh")
+# st_autorefresh(interval=5000, limit=10000, key="auto_refresh")

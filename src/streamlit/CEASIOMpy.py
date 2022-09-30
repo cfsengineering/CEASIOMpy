@@ -1,15 +1,23 @@
+import io
 from pathlib import Path
 
-from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
+import pyvista as pv
 from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.cpacspy import CPACS
-from PIL import Image
+from createsidbar import create_sidebar
 
 import streamlit as st
+import streamlit.components.v1 as components
 from directory_picker import st_directory_picker
 
-im = Image.open(CEASIOMPY_LOGO_PATH)
-st.set_page_config(page_title="CEASIOMpy", page_icon=im)
+how_to_text = (
+    "### How to use CEASIOMpy?\n"
+    "1. Chose your *Working directory*\n"
+    "1. Chose a *CPACS file*\n"
+    "1. Go to the *Workflow* page (with the menu above)\n"
+)
+
+create_sidebar(how_to_text)
 
 
 def section_select_working_dir():
@@ -47,22 +55,46 @@ def section_select_cpacs():
         if "cpacs" not in st.session_state:
             st.session_state.cpacs = CPACS(cpacs_new_path)
 
-    else:
+
+def show_aircraft():
+    """Show a 3D view of the aircraft by exporting a STL file. The viewer is based on:
+    https://github.com/edsaac/streamlit-PyVista-viewer
+    """
+    st.markdown("## 3D view")
+
+    if "cpacs" not in st.session_state:
         st.warning("No CPACS file has been selected!")
+        return
+
+    stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
+
+    st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
+
+    # Using pythreejs as pyvista backend
+    pv.set_jupyter_backend("pythreejs")
+
+    color_stl = "#ff7f2a"
+    color_bkg = "#e0e0d4"
+
+    # Initialize pyvista reader and plotter
+    plotter = pv.Plotter(border=False, window_size=[572, 600])
+    plotter.background_color = color_bkg
+    reader = pv.STLReader(str(stl_file))
+
+    # Read data and send to plotter
+    mesh = reader.read()
+    plotter.add_mesh(mesh, color=color_stl)
+
+    # Export to a pythreejs HTML
+    model_html = io.StringIO()
+    plotter.export_html(model_html, backend="pythreejs")
+
+    # Show in webpage
+    components.html(model_html.getvalue(), height=600, width=572, scrolling=False)
 
 
 st.title("CEASIOMpy")
 
-col1, col2 = st.columns([5, 3])
-
-with col1:
-    st.markdown("### How to use CEASIOMpy?")
-    st.markdown("- Select a Working directory")
-    st.markdown("- Select a CPACS file")
-    st.markdown("- Use the side bar to go to the Workflow page")
-
-with col2:
-    st.image(str(CEASIOMPY_LOGO_PATH), width=220)
-
 section_select_working_dir()
 section_select_cpacs()
+show_aircraft()

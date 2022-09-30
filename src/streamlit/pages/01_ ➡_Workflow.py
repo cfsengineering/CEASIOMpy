@@ -74,7 +74,7 @@ def section_add_module():
                 st.markdown(f"**{module}**")
 
             with col2:
-                if st.button("⬆️", key=f"move{i}", help="Move up") and i != 0:
+                if st.button("⬆️", key=f"move{i}", help="Move up") and i > 0:
                     st.session_state.workflow_modules.pop(i)
                     st.session_state.workflow_modules.insert(i - 1, module)
                     st.experimental_rerun()
@@ -89,6 +89,7 @@ def section_add_module():
 
     module_list = get_submodule_list()
     module_list.remove("utils")
+    module_list.remove("ModuleTemplate")
     available_module_list = sorted(module_list)
 
     col1, col2 = st.columns(2)
@@ -114,5 +115,3 @@ st.markdown("---")
 section_add_module()
 
 st.markdown("---")
-
-st.info("You can use the sidebar to go to the Settings page")

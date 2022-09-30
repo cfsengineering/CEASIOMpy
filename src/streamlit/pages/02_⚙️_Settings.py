@@ -40,9 +40,6 @@ st.markdown(
 
 def update_value(xpath, key):
 
-    if "cpacs" not in st.session_state:
-        st.warning("No CPACS file has been selected!")
-
     if key in st.session_state:
         value = st.session_state[key]
 
@@ -71,7 +68,7 @@ def save_cpacs_file():
     st.session_state.cpacs = CPACS(saved_cpacs_file)
 
 
-def aeromap_modif():
+def section_edit_aeromap():
 
     st.markdown("#### Available aeromaps")
 
@@ -159,7 +156,7 @@ def aeromap_modif():
         else:
             st.error("There is already an aeromap with this name!")
 
-    st.markdown("#### Import aeromap")
+    st.markdown("#### Import aeromap from CSV")
 
     uploaded_csv = st.file_uploader("Choose a CSV file")
     if uploaded_csv:
@@ -184,7 +181,7 @@ def add_module_tab():
         return
 
     with st.expander("Edit Aeromaps"):
-        aeromap_modif()
+        section_edit_aeromap()
 
     if "tabs" not in st.session_state:
         st.session_state["tabs"] = []
@@ -346,9 +343,10 @@ def section_settings():
     if not len(st.session_state.workflow_modules):
         st.warning("You must first build a workflow in the corresponding tab.")
 
-    with st.columns([3, 2, 3])[1]:
-        if st.button("Save 💾", key="save_button", help="Save CPACS"):
-            save_cpacs_file()
+    if "cpacs" in st.session_state:
+        with st.columns([3, 2, 3])[1]:
+            if st.button("Save 💾", key="save_button", help="Save CPACS"):
+                save_cpacs_file()
 
 
 st.title("Settings")

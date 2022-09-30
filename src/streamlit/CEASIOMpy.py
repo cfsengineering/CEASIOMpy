@@ -27,6 +27,7 @@ def section_select_working_dir():
 
     if "workflow" not in st.session_state:
         st.session_state.workflow = Workflow()
+        
     st.session_state.workflow.working_dir = st_directory_picker(Path("../../WKDIR").absolute())
 
 

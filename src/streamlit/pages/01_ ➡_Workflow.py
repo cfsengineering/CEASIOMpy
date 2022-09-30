@@ -47,19 +47,15 @@ def section_predefined_workflow():
 
     st.markdown("#### Predefined Workflows")
 
-    if st.button("PyTornado → WeightConventional"):
-        st.session_state.workflow_modules = ["PyTornado", "WeightConventional"]
+    predefine_workflows = [
+        ["PyTornado", "WeightConventional"],
+        ["CPACS2GMSH", "SU2Run", "SkinFriction"],
+        ["SUMO", "SU2Run", "ExportCSV"],
+    ]
 
-    if st.button("CPACS2GMSH → SU2Run → SkinFriction"):
-        st.session_state.workflow_modules = ["CPACS2GMSH", "SU2Run", "SkinFriction"]
-
-    if st.button("SUMO → SU2Run → SkinFriction"):
-        st.session_state.workflow_modules = [
-            "CPACS2SUMO",
-            "SUMOAutoMesh",
-            "SU2Run",
-            "SkinFriction",
-        ]
+    for workflow in predefine_workflows:
+        if st.button(" → ".join(workflow)):
+            st.session_state.workflow_modules = workflow
 
 
 def section_add_module():

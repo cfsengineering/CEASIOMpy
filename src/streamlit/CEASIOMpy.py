@@ -27,7 +27,7 @@ def section_select_working_dir():
 
     if "workflow" not in st.session_state:
         st.session_state.workflow = Workflow()
-        
+
     st.session_state.workflow.working_dir = st_directory_picker(Path("../../WKDIR").absolute())
 
 
@@ -62,7 +62,7 @@ def section_3D_view():
     """Show a 3D view of the aircraft by exporting a STL file. The pyvista viewer is based on:
     https://github.com/edsaac/streamlit-PyVista-viewer
     """
-    
+
     st.markdown("## 3D view")
 
     if "cpacs" not in st.session_state:

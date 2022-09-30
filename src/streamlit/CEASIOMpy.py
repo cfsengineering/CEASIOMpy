@@ -2,6 +2,7 @@ import io
 from pathlib import Path
 
 import pyvista as pv
+from ceasiompy.utils.commonnames import CEASIOMPY_BEIGE, CEASIOMPY_ORANGE
 from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.cpacspy import CPACS
 
@@ -74,17 +75,14 @@ def section_3D_view():
     # Using pythreejs as pyvista backend
     pv.set_jupyter_backend("pythreejs")
 
-    color_stl = "#ff7f2a"
-    color_bkg = "#e0e0d4"
-
     # Initialize pyvista reader and plotter
     plotter = pv.Plotter(border=False, window_size=[572, 600])
-    plotter.background_color = color_bkg
+    plotter.background_color = CEASIOMPY_BEIGE
     reader = pv.STLReader(str(stl_file))
 
     # Read data and send to plotter
     mesh = reader.read()
-    plotter.add_mesh(mesh, color=color_stl)
+    plotter.add_mesh(mesh, color=CEASIOMPY_ORANGE)
 
     # Export to a pythreejs HTML
     model_html = io.StringIO()

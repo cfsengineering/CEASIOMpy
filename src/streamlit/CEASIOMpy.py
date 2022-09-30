@@ -4,10 +4,10 @@ from pathlib import Path
 import pyvista as pv
 from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.cpacspy import CPACS
-from createsidbar import create_sidebar
 
 import streamlit as st
 import streamlit.components.v1 as components
+from createsidbar import create_sidebar
 from directory_picker import st_directory_picker
 
 how_to_text = (
@@ -56,10 +56,11 @@ def section_select_cpacs():
             st.session_state.cpacs = CPACS(cpacs_new_path)
 
 
-def show_aircraft():
-    """Show a 3D view of the aircraft by exporting a STL file. The viewer is based on:
+def section_3D_view():
+    """Show a 3D view of the aircraft by exporting a STL file. The pyvista viewer is based on:
     https://github.com/edsaac/streamlit-PyVista-viewer
     """
+    
     st.markdown("## 3D view")
 
     if "cpacs" not in st.session_state:
@@ -97,4 +98,4 @@ st.title("CEASIOMpy")
 
 section_select_working_dir()
 section_select_cpacs()
-show_aircraft()
+section_3D_view()

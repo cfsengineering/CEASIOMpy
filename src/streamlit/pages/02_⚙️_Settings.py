@@ -1,4 +1,3 @@
-import os
 from collections import OrderedDict
 from pathlib import Path
 
@@ -8,14 +7,21 @@ from ceasiompy.utils.moduleinterfaces import get_specs_for_module
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     add_value,
-    get_value,
-    get_value_or_default,
     get_string_vector,
+    get_value_or_default,
 )
 from cpacspy.cpacspy import CPACS
+from createsidbar import create_sidebar
 
-st.set_page_config(page_title="Settings", page_icon="⚙️")
-st.title("Settings")
+how_to_text = (
+    "### How to use Settings?\n"
+    "1. With *Edit aeromap* you can create or modify aeromap\n"
+    "1. Then, you can go though each tab and modify the settings of each module\n"
+    "1. Click the *Save* button\n"
+    "1. Go to the *Run Workflow* page\n"
+)
+
+create_sidebar(how_to_text)
 
 # Custom CSS
 st.markdown(
@@ -329,7 +335,7 @@ def add_module_tab():
                     st.session_state.xpath_to_update[xpath] = key
 
 
-def section_your_workflow():
+def section_settings():
 
     if "workflow_modules" not in st.session_state:
         st.warning("No module selected!")
@@ -345,4 +351,6 @@ def section_your_workflow():
             save_cpacs_file()
 
 
-section_your_workflow()
+st.title("Settings")
+
+section_settings()

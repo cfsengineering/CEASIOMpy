@@ -5,7 +5,7 @@ from ceasiompy.utils.commonxpath import EXPORT_XPATH
 
 # ===== Results directory path =====
 
-RESULTS_DIR = Path("Results", "Aeromaps")
+RESULTS_DIR = Path("Results", "AeroCoefficients")
 
 
 # ===== CPACS inputs and outputs =====

@@ -1,3 +1,4 @@
+from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpath import (
     REF_XPATH,
@@ -6,6 +7,9 @@ from ceasiompy.utils.commonxpath import (
     SU2_TARGET_CL_XPATH,
 )
 
+# ===== Results directory path =====
+
+RESULTS_DIR = Path("Results", "CLCalculator")
 
 # ===== CPACS inputs and outputs =====
 

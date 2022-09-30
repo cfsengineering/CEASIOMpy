@@ -3,19 +3,27 @@ from pathlib import Path
 
 import ceasiompy.__init__
 import streamlit as st
+from createsidbar import create_sidebar
 from streamlit_autorefresh import st_autorefresh
 
 CEASIOMPY_PATH = Path(ceasiompy.__init__.__file__).parents[1]
 LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
 
-st.set_page_config(page_title="Run workflow", page_icon="🔄")
-st.title("Run workflow")
+how_to_text = (
+    "### How to Run your workflow?\n"
+    "1. Just click on the *Run* button\n"
+    "Depending your workflow it could take time to get result, you can see the logs of what's "
+    "happening.\n\n"
+    "2. When it is done, go to the *Results* page\n"
+)
+
+create_sidebar(how_to_text)
 
 # Custom CSS
 st.markdown(
     """
     <style>
-    .css-148uddy  {
+    .css-4u7rgp  {
         padding: 15px;
         font-size: 20px;
         border-radius:10px;
@@ -55,6 +63,8 @@ def show_logs():
 
     st.text_area("(more recent on top)", lines_str, height=300, disabled=True)
 
+
+st.title("Run workflow")
 
 run_workflow_button()
 show_logs()

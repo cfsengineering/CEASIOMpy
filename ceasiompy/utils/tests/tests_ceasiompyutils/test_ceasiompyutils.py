@@ -68,7 +68,7 @@ def test_get_results_directory():
     with change_working_dir(TMP_DIR):
 
         results_dir = get_results_directory("ExportCSV")
-        assert results_dir == Path(Path.cwd(), "Results", "Aeromaps")
+        assert results_dir == Path(Path.cwd(), "Results", "AeroCoefficients")
 
         results_dir = get_results_directory("CPACS2SUMO")
         assert results_dir == Path(Path.cwd(), "Results", "SUMO")

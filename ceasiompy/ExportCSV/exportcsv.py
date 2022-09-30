@@ -56,8 +56,10 @@ def export_aeromaps(cpacs_path, cpacs_out_path):
 
     aeromap_to_export_xpath = CEASIOMPY_XPATH + "/export/aeroMapToExport"
 
-    aeromap_uid_list = []
-    aeromap_uid_list = get_string_vector(cpacs.tixi, aeromap_to_export_xpath)
+    try:
+        aeromap_uid_list = get_string_vector(cpacs.tixi, aeromap_to_export_xpath)
+    except ValueError:
+        aeromap_uid_list = cpacs.get_aeromap_uid_list()
 
     results_dir = get_results_directory("ExportCSV")
 

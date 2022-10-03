@@ -136,10 +136,10 @@ def test_get_module_list():
     Test 'get_module_list()' function
     """
 
-    submodule_list = get_module_list()
-    for submod_name in submodule_list:
-        print(submod_name)
-        assert len(submod_name.split(".")) == 1
+    module_list = get_module_list()
+    for module_name in module_list:
+        print(module_name)
+        assert len(module_name.split(".")) == 1
 
 
 def test_get_toolinput_file_path():

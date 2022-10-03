@@ -55,6 +55,7 @@ MODULE_NAME = MODULE_DIR.name
 # Some of the following test should be remove
 # (bulltin function should be use instead)
 
+
 def test_get_index():
     """Test Function 'get_index'"""
     list1 = [0, 1, 3, 11, 22, 30]

@@ -240,21 +240,6 @@ def get_submodule_list():
     return submodule_list
 
 
-def get_module_list():
-    """Return a list of CEASIOMpy modules (full name)
-
-    ['ceasiompy.SkinFriction', 'ceasiompy.PyTornado', ...]
-
-    Returns:
-        A list of module names (as strings)
-    """
-
-    module_list = []
-    for submod_name in get_submodule_list():
-        module_list.append(".".join((MODNAME_TOP, submod_name)))
-    return module_list
-
-
 def get_toolinput_file_path(module_name):
     """Get the path to the ToolInput.xml CPACS file of a specific module
 

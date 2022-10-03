@@ -25,7 +25,6 @@ from ceasiompy.utils.moduleinterfaces import (
     CPACSRequirementError,
     check_cpacs_input_requirements,
     get_all_module_specs,
-    get_module_list,
     get_module_path,
     get_specs_for_module,
     get_submodule_list,
@@ -141,24 +140,6 @@ def test_get_submodule_list():
     for submod_name in submodule_list:
         print(submod_name)
         assert len(submod_name.split(".")) == 1
-
-
-def test_get_module_list():
-    """
-    Test "get_module_list()" function
-    """
-
-    module_list = get_module_list()
-
-    assert isinstance(module_list, list)
-
-    # There should be entries, otherwise something went wrong
-    assert len(module_list) > 0
-
-    # Modules should have the form 'ceasiompy.SubModule'
-    for module_name in module_list:
-        assert module_name.startswith("ceasiompy.")
-        assert len(module_name.split(".")) == 2
 
 
 def test_get_toolinput_file_path():

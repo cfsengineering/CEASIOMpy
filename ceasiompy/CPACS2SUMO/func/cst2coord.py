@@ -83,36 +83,36 @@ class CST_shape(object):
         N1 = 0.5
         N2 = 1
 
-        center_loc = np.where(x == 0)  # Used to separate upper and lower surfaces
+        # Used to separate upper and lower surfaces
+        center_loc = np.where(x == 0)
         center_loc = center_loc[0][0]
 
         xl = np.zeros(center_loc)
         xu = np.zeros(N - center_loc)
 
+        # Lower surface x-coordinates
         for i in range(len(xl)):
-            xl[i] = x[i]  # Lower surface x-coordinates
+            xl[i] = x[i]
+
+        # Upper surface x-coordinates
         for i in range(len(xu)):
-            xu[i] = x[i + center_loc]  # Upper surface x-coordinates
+            xu[i] = x[i + center_loc]
 
-        yl = self.__ClassShape(
-            wl, xl, N1, N2, -dz
-        )  # Call ClassShape function to determine lower surface y-coordinates
-        yu = self.__ClassShape(
-            wu, xu, N1, N2, dz
-        )  # Call ClassShape function to determine upper surface y-coordinates
+        # Call ClassShape function to determine lower and upper surface y-coordinates
+        yl = self.__ClassShape(wl, xl, N1, N2, -dz)
+        yu = self.__ClassShape(wu, xu, N1, N2, dz)
 
-        y = np.concatenate([yl, yu])  # Combine upper and lower y coordinates
+        # Combine upper and lower y coordinates
+        y = np.concatenate([yl, yu])
 
-        self.coord = [x, y]  # Combine x and y into single output
+        self.coord = [x, y]
 
         self.x_list = x.ravel().tolist()
         self.y_list = y.ravel().tolist()
 
         # self.plotting()
-        # self.__writeToFile(x, y)
         return self.coord
 
-    # Function to calculate class and shape function
     @staticmethod
     def __ClassShape(w, x, N1, N2, dz):
 
@@ -140,99 +140,6 @@ class CST_shape(object):
             y[i] = C[i] * S[i] + x[i] * dz
 
         return y
-
-    @staticmethod
-    def __writeToFile(x, y):
-
-        airfoil_shape_file = Path(MODULE_DIR, "airfoil_shape.dat")
-
-        coord_file = open(airfoil_shape_file, "w")
-        print("airfoil_shape.dat", file=coord_file)
-        for i in range(len(x)):
-            print("{:<10f}\t{:<10f}".format(float(x[i]), float(y[i])), file=coord_file)
-        coord_file.close()
-
-    def airfoilToPlot(self):
-        wl = self.wl
-        wu = self.wu
-        dz = self.dz
-        N = self.N
-
-        # Create x coordinate
-        x = np.ones((N, 1))
-        y = np.zeros((N, 1))
-        zeta = np.zeros((N, 1))
-
-        for i in range(0, N):
-            zeta[i] = 2 * pi / N * i
-            x[i] = 0.5 * (cos(zeta[i]) + 1)
-
-        # N1 and N2 parameters (N1 = 0.5 and N2 = 1 for airfoil shape)
-        N1 = 0.5
-        N2 = 1
-
-        center_loc = np.where(x == 0)  # Used to separate upper and lower surfaces
-        center_loc = center_loc[0][0]
-
-        xl = np.zeros(center_loc)
-        xu = np.zeros(N - center_loc)
-
-        for i in range(len(xl)):
-            xl[i] = x[i]  # Lower surface x-coordinates
-        for i in range(len(xu)):
-            xu[i] = x[i + center_loc]  # Upper surface x-coordinates
-
-        yl = self.__ClassShape(
-            wl, xl, N1, N2, -dz
-        )  # Call ClassShape function to determine lower surface y-coordinates
-        yu = self.__ClassShape(
-            wu, xu, N1, N2, dz
-        )  # Call ClassShape function to determine upper surface y-coordinates
-
-        y = np.concatenate([yl, yu])  # Combine upper and lower y coordinates
-
-        self.coord = [x, y]  # Combine x and y into single output
-
-        self.plotting()
-
-    def inv_airfoil_coor(self, x):
-        wl = self.wl
-        wu = self.wu
-        dz = self.dz
-        N = self.N
-
-        # N1 and N2 parameters (N1 = 0.5 and N2 = 1 for airfoil shape)
-        N1 = 0.5
-        N2 = 1
-
-        center_loc = np.where(x == 0)  # Used to separate upper and lower surfaces
-        center_loc = center_loc[0][0]
-
-        xl = np.zeros(center_loc)
-        xu = np.zeros(N - center_loc)
-
-        for i in range(len(xl)):
-            xl[i] = x[i]  # Lower surface x-coordinates
-        for i in range(len(xu)):
-            xu[i] = x[i + center_loc]  # Upper surface x-coordinates
-
-        yl = self.__ClassShape(
-            wl, xl, N1, N2, -dz
-        )  # Call ClassShape function to determine lower surface y-coordinates
-        yu = self.__ClassShape(
-            wu, xu, N1, N2, dz
-        )  # Call ClassShape function to determine upper surface y-coordinates
-
-        y = np.concatenate([yl, yu])  # Combine upper and lower y coordinates
-
-        self.coord = [x, y]  # Combine x and y into single output
-
-        # self.plotting()
-        # self.__writeToFile(x, y)
-        return self.coord
-
-    def getVar(self):
-        return self.wl, self.wu
 
     def plotting(self):
         x_coor = self.coord[0]

@@ -3,7 +3,7 @@ from ceasiompy.utils.commonxpath import GEOM_XPATH, RANGE_XPATH, SF_XPATH, PLOT_
 
 # ===== Module Status =====
 # True if the module is active
-# False if the module is disabled (not working of not ready)
+# False if the module is disabled (not working or not ready)
 module_status = True
 
 

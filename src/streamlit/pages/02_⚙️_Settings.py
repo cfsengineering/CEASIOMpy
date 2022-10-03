@@ -214,7 +214,7 @@ def add_module_tab():
                 with groups_container[group]:
                     st.markdown(f"**{group}**")
 
-            for name, default_value, var_type, unit, xpath, descr, group in inputs.values():
+            for name, default_value, var_type, unit, xpath, description, group in inputs.values():
 
                 with groups_container[group]:
 
@@ -231,13 +231,16 @@ def add_module_tab():
                         value = get_value_or_default(
                             st.session_state.cpacs.tixi, xpath, aeromap_uid_list[0]
                         )
-                        idx = aeromap_uid_list.index(value)
+                        if value in aeromap_uid_list:
+                            idx = aeromap_uid_list.index(value)
+                        else:
+                            idx = 0
                         st.radio(
                             "Select an aeromap",
                             key=key,
                             options=aeromap_uid_list,
                             index=idx,
-                            help=descr,
+                            help=description,
                         )
 
                     elif name == "__AEROMAP_CHECHBOX":
@@ -253,7 +256,7 @@ def add_module_tab():
                                 key=key,
                                 options=aeromap_uid_list,
                                 default=default_otp,
-                                help=descr,
+                                help=description,
                             )
 
                     elif var_type == int:
@@ -267,7 +270,7 @@ def add_module_tab():
                                     )
                                 ),
                                 key=key,
-                                help=descr,
+                                help=description,
                             )
 
                     elif var_type == float:
@@ -279,7 +282,7 @@ def add_module_tab():
                                     st.session_state.cpacs.tixi, xpath, default_value
                                 ),
                                 key=key,
-                                help=descr,
+                                help=description,
                             )
 
                     elif var_type == list:
@@ -292,7 +295,7 @@ def add_module_tab():
                             options=default_value,
                             index=idx,
                             key=key,
-                            help=descr,
+                            help=description,
                         )
 
                     elif var_type == bool:
@@ -302,7 +305,7 @@ def add_module_tab():
                                 st.session_state.cpacs.tixi, xpath, default_value
                             ),
                             key=key,
-                            help=descr,
+                            help=description,
                         )
 
                     elif var_type == "pathtype":
@@ -314,7 +317,7 @@ def add_module_tab():
                         #     "Select a file",
                         #     key=key,
                         #     type=["xml"],
-                        #     help=descr,
+                        #     help=description,
                         #     on_change=update_value(xpath, key),
                         # )
 
@@ -326,7 +329,7 @@ def add_module_tab():
                                     st.session_state.cpacs.tixi, xpath, default_value
                                 ),
                                 key=key,
-                                help=descr,
+                                help=description,
                             )
 
                     st.session_state.xpath_to_update[xpath] = key

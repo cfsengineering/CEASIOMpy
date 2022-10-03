@@ -133,12 +133,23 @@ def test_check_cpacs_input_requirements():
 
 def test_get_module_list():
     """
-    Test 'get_module_list()' function
+    Test 'get_module_list' function
     """
 
     module_list = get_module_list(only_active=False)
     for module_name in module_list:
         assert len(module_name.split(".")) == 1
+
+    assert "SU2Run" in module_list
+    assert "utils" in module_list
+    assert "NotExistingModule" not in module_list
+
+    module_list_active = get_module_list(only_active=True)
+    assert "SU2Run" in module_list_active
+    assert "utils" not in module_list_active
+    assert "NotExistingModule" not in module_list_active
+
+    assert len(module_list_active) < len(module_list)
 
 
 def test_get_toolinput_file_path():

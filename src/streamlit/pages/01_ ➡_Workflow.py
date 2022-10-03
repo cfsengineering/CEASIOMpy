@@ -87,9 +87,8 @@ def section_add_module():
     else:
         st.warning("No module has been added to the workflow.")
 
-    module_list = get_module_list()
-    module_list.remove("utils")
-    module_list.remove("ModuleTemplate")
+    module_list = get_module_list(only_active=True)
+
     available_module_list = sorted(module_list)
 
     col1, col2 = st.columns(2)

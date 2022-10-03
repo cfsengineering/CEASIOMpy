@@ -45,7 +45,7 @@ class ModuleToRun:
     ) -> None:
 
         # Check module name validity
-        accepted_names = get_module_list() + OPTIM_METHOD
+        accepted_names = get_module_list(only_active=False) + OPTIM_METHOD
         if name not in accepted_names:
             raise ValueError(f"Module '{name}' did not exit!")
 

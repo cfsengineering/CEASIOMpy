@@ -8,6 +8,10 @@ from ceasiompy.utils.commonxpath import (
     AEROPERFORMANCE_XPATH,
 )
 
+# ===== Module Status =====
+# True if the module is active
+# False if the module is disabled (not working or not ready)
+module_status = True
 
 # ===== Results directory path =====
 

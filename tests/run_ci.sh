@@ -96,4 +96,8 @@ if [ $integration == true ]; then
     fi
 else
     echo -e "Skipping...\n"
+
 fi
+
+# Generate the list of module to remove from the code coverage
+python ../ceasiompy/utils/moduleinterfaces.py

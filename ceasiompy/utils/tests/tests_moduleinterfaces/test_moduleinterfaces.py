@@ -24,7 +24,6 @@ from ceasiompy.utils.moduleinterfaces import (
     CPACSInOut,
     CPACSRequirementError,
     check_cpacs_input_requirements,
-    find_missing_specs,
     get_all_module_specs,
     get_module_list,
     get_module_path,
@@ -211,15 +210,6 @@ def test_get_all_module_specs():
 
     all_specs = get_all_module_specs()
     assert isinstance(all_specs, dict)
-
-
-def test_find_missing_specs():
-    """
-    Test that 'find_missing_specs()' runs
-    """
-
-    missing = find_missing_specs()
-    assert isinstance(missing, list)
 
 
 def test_create_default_toolspecific():

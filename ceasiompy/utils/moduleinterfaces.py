@@ -331,20 +331,6 @@ def get_all_module_specs():
     return all_specs
 
 
-def find_missing_specs():
-    """Return modules that do not have any __specs__ file
-
-    Returns:
-        missing (list): List with names of modules for which __specs__ file is missing
-    """
-
-    missing = []
-    for mod_name, specs in get_all_module_specs().items():
-        if specs is None:
-            missing.append(mod_name)
-    return missing
-
-
 def create_default_toolspecific():
     """Create a default XML /toolspecific based on all __spec__ xpath and
     default values. Two CPACS file are created and saved in /utils/doc/

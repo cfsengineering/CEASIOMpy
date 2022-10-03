@@ -34,7 +34,7 @@ log = get_logger()
 
 
 class Engine:
-    """TODO docstring for Engine."""
+    """The Class "Engine" saves all the parameter to create the entire Engine in SUMO."""
 
     def __init__(self, tixi, xpath):
 
@@ -44,7 +44,7 @@ class Engine:
         self.transf = Transformation()
         self.transf.get_cpacs_transf(tixi, self.xpath)
 
-        self.sym = True  # TODO: Should take the symmetry of the parrent wing
+        self.sym = True  # TODO: Should take the symmetry of the parent wing
         if tixi.checkAttribute(self.xpath, "symmetry"):
             if tixi.getTextAttribute(self.xpath, "symmetry") == "x-z-plane":
                 self.sym = True
@@ -62,7 +62,7 @@ class Engine:
         # In cpacs engine are "stored" at two different place
         # The main at /cpacs/vehicles/aircraft/model/engines
         # It contains symmetry and translation and the UID to the engine definition
-        # stored at /cpacs/vehicles/engines/ with all the carateristic of the nacelle
+        # stored at /cpacs/vehicles/engines/ with all the characteristic of the nacelle
         nacelle_xpath = tixi.uIDGetXPath(engine_uid) + "/nacelle"
 
         self.nacelle = Nacelle(tixi, nacelle_xpath)
@@ -71,10 +71,6 @@ class Engine:
 class Nacelle:
     """
     The Class "Nacelle" saves all the parameter to create the entire nacelle in SUMO.
-
-    Attributes:
-        TODO
-
     """
 
     def __init__(self, tixi, xpath):
@@ -93,10 +89,6 @@ class NacellePart:
     """
     The Class "NacellePart" saves all the parameter to create fan/core/center
     of and engine in SUMO.
-
-    Attributes:
-        TODO
-
     """
 
     def __init__(self, tixi, xpath):
@@ -117,10 +109,6 @@ class NacellePart:
 class Cone:
     """
     The Class "Cone" saves all the parameter to create cone of and engine in SUMO.
-
-    Attributes:
-        TODO
-
     """
 
     def __init__(self, tixi, xpath):
@@ -147,11 +135,7 @@ class Cone:
 class NacelleSection:
     """
     The Class "NacelleSection" saves information relative to the section to
-    constructuce the nacelle parts
-
-    Attributes:
-        TODO
-
+    construct the nacelle parts
     """
 
     def __init__(self, tixi, xpath):
@@ -172,10 +156,6 @@ class NacelleSection:
 class PointList(object):
     """
     The Class "PointList" saves list of points for profile/airfoil
-
-    Attributes:
-        TODO
-
     """
 
     def __init__(self, tixi, xpath):

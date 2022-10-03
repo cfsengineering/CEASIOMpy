@@ -40,24 +40,6 @@ MODULE_DIR = Path(__file__).parent
 # =================================================================================================
 
 
-def get_unic(vector):
-    """Return a vector with the same element having only one occurrence.
-
-    Args:
-        vector (list): List of element which may contains double elements
-
-    Returns:
-        vector_unic (list): List of unic values ordered in ascending way
-    """
-    vector_unic = []
-    for elem in vector:
-        if elem not in vector_unic:
-            vector_unic.append(elem)
-    vector_unic.sort()
-
-    return vector_unic
-
-
 def get_index(idx_list1, idx_list2, idx_list3):
     """Function to get index list
 

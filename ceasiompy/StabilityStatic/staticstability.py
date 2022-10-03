@@ -28,7 +28,6 @@ from ambiance import Atmosphere
 from ceasiompy.StabilityStatic.func.func_static import (
     extract_subelements,
     get_index,
-    get_unic,
     interpolation,
     order_correctly,
     plot_multicurve,
@@ -133,10 +132,10 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     cms_list = aeromap.get("cms")
     cmd_list = aeromap.get("cmd")
 
-    alt_unic = get_unic(alt_list)
-    mach_unic = get_unic(mach_list)
-    aos_unic = get_unic(aos_list)
-    aoa_unic = get_unic(aoa_list)
+    alt_unic = list(set(alt_list)).sort()
+    mach_unic = list(set(mach_list).sort()
+    aos_unic = list(set(aos_list).sort()
+    aoa_unic = list(set(aoa_list).sort()
 
     # TODO: get incremental map from CPACS
     # Incremental map elevator

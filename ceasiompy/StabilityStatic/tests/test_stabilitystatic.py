@@ -29,7 +29,6 @@ from cpacspy.cpacsfunctions import get_string_vector, get_value, open_tixi
 
 from ceasiompy.StabilityStatic.staticstability import static_stability_analysis
 from ceasiompy.StabilityStatic.func.func_static import (
-    get_unic,
     get_index,
     extract_subelements,
     order_correctly,
@@ -55,10 +54,6 @@ MODULE_NAME = MODULE_DIR.name
 
 # Some of the following test should be remove
 # (bulltin function should be use instead)
-def test_get_unic():
-    """Test function 'get_unic'"""
-    assert get_unic([1, 1, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2]) == [1, 2]
-
 
 def test_get_index():
     """Test Function 'get_index'"""

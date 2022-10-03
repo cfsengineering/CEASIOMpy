@@ -35,7 +35,6 @@ TODO:
 from math import cos, factorial, pi
 from pathlib import Path
 
-import matplotlib.pylab as plt
 import numpy as np
 
 MODULE_DIR = Path(__file__).parent

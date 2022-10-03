@@ -21,7 +21,6 @@ TODO:
 # =================================================================================================
 
 import pytest
-from pytest import approx
 from ceasiompy.CPACS2SUMO.func.cst2coord import CST_shape
 
 # =================================================================================================
@@ -46,8 +45,8 @@ def test_cst2coord():
     airfoil_CST = CST_shape(N=4)
     airfoil_CST.airfoil_coor()
 
-    assert airfoil_CST.x_list == approx([1.0, 0.5, 0.0, 0.5], rel=1e-5)
-    assert airfoil_CST.y_list == approx([0.0, -0.35355, 0.0, 0.35355], rel=1e-3)
+    assert airfoil_CST.x_list == pytest.approx([1.0, 0.5, 0.0, 0.5], rel=1e-5)
+    assert airfoil_CST.y_list == pytest.approx([0.0, -0.35355, 0.0, 0.35355], rel=1e-3)
 
     # More complex profile
 
@@ -73,8 +72,8 @@ def test_cst2coord():
         0.02447,
     ]
 
-    assert airfoil_CST.x_list == approx(x_true_values, rel=1e-3)
-    assert airfoil_CST.y_list == approx(y_true_values, rel=1e-3)
+    assert airfoil_CST.x_list == pytest.approx(x_true_values, rel=1e-3)
+    assert airfoil_CST.y_list == pytest.approx(y_true_values, rel=1e-3)
 
 
 # =================================================================================================

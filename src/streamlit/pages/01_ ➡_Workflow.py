@@ -50,7 +50,7 @@ def section_predefined_workflow():
     predefine_workflows = [
         ["PyTornado", "WeightConventional"],
         ["CPACS2GMSH", "SU2Run", "SkinFriction"],
-        ["SUMO", "SU2Run", "ExportCSV"],
+        ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
     ]
 
     for workflow in predefine_workflows:

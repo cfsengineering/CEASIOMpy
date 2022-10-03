@@ -12,7 +12,7 @@ Python version: >=3.7
 
 TODO:
 
-    * Add somefunction for input/output files
+    *
 """
 
 # =================================================================================================
@@ -154,7 +154,7 @@ class CPACSInOut:
 def get_module_path(module_name: str) -> Path:
     """Get the path to the module directory"""
 
-    if module_name not in get_module_list():
+    if module_name not in get_module_list(only_active=False):
         raise ValueError(f"Module '{module_name}' not found")
 
     return Path(MODULES_DIR_PATH, module_name)
@@ -218,7 +218,7 @@ def check_cpacs_input_requirements(
         raise CPACSRequirementError("CPACS xpath(s) required but does not exist!")
 
 
-def get_module_list():
+def get_module_list(only_active=True):
     """Return a list of CEASIOMpy modules
 
     ['SkinFriction', 'PyTornado', ...]
@@ -235,7 +235,26 @@ def get_module_list():
         if module_name.startswith("__") or module_name.startswith("."):
             continue
 
-        module_list.append(module_name)
+        specs = get_specs_for_module(module_name, raise_error=False)
+        try:
+            module_status = specs.module_status
+        except AttributeError:
+            module_status = False
+            if module_name != "utils":
+                log.warning(
+                    f"module status of {module_name} is not define in its __specs__.py file"
+                )
+
+        if only_active:
+            if module_status:
+                module_list.append(module_name)
+            else:
+                log.info(
+                    f"{module_name} has not been added to the module list because it is marked as "
+                    "deactivated (module_status = False in __specs__.py) "
+                )
+        else:
+            module_list.append(module_name)
 
     return module_list
 
@@ -310,7 +329,7 @@ def get_all_module_specs():
     """
 
     all_specs = {}
-    for module_name in get_module_list():
+    for module_name in get_module_list(only_active=False):
         specs = get_specs_for_module(module_name, raise_error=False)
         all_specs[module_name] = specs
     return all_specs
@@ -359,6 +378,25 @@ def create_default_toolspecific():
     tixi_out.save(str(TOOLSPECIFIC_OUTPUT_PATH))
 
 
+def module_to_remove_from_coverage():
+
+    active_modules = get_module_list(only_active=True)
+
+    print(
+        "\nYou can copy/paste the following lines in the file /CEASIOMpy/pyproject.toml and "
+        "replace the existing section to remove disabled module from the code coverage.\n"
+    )
+
+    print("[tool.coverage.run]")
+    print("omit = [")
+    print('  "*/__init__.py",')
+    print('  "*/__specs__.py",')
+    for module in get_module_list(only_active=False):
+        if module not in active_modules and module != "utils":
+            print(f'  "*/{module}/*",')
+    print("]")
+
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================
@@ -366,4 +404,7 @@ def create_default_toolspecific():
 if __name__ == "__main__":
 
     # The python script could be run to generate the default toolspecific file
-    create_default_toolspecific()
+    # create_default_toolspecific()
+
+    # Generate the list of module to remove from the code coverage
+    module_to_remove_from_coverage()

@@ -229,7 +229,7 @@ To develop a new module you should follow the above steps.:
 
 ### Writing specs file
 
-The `__specs__.py` file is a python file that contains the specification of the module. It is used to define your module input and output. It is also used to automatically create a settings tab in the GUI interface with the correct input and default values.
+The `__specs__.py` file is a python file that contains the specification of the module. It is used to define your module input and output. It is also used to automatically create a settings tab in the GUI interface with the correct input and default values. Don't forget to pass module status to `True` when your module is ready to by used.
 
 The `__specs__.py` file should look like this:
 
@@ -238,10 +238,14 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpath import FUSELAGES_XPATH, WINGS_XPATH
 # Hint: you can check the file /ceasiompy/utils/xpath.py to find all the XPath which are already defined. If you use a new XPath, you can add it in the file.
 
+# ===== Module Status =====
+# True if the module is active
+# False if the module is disabled (not working or not ready)
+module_status = False
+
 # ===== CPACS inputs and outputs =====
 
 cpacs_inout = CPACSInOut()
-
 
 # ----- Input -----
 

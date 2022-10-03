@@ -1,10 +1,15 @@
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpath import GEOM_XPATH, RANGE_XPATH, SF_XPATH, PLOT_XPATH
 
+# ===== Module Status =====
+# True if the module is active
+# False if the module is disabled (not working or not ready)
+module_status = True
 
-cpacs_inout = CPACSInOut()
 
 # ===== Input =====
+
+cpacs_inout = CPACSInOut()
 
 cpacs_inout.add_input(
     var_name="",

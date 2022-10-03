@@ -16,4 +16,19 @@ markers = [
 ]
 
 [tool.coverage.run]
-omit = ["*/__init__.py", "*/__specs__.py"]
+omit = [
+  "*/__init__.py",
+  "*/__specs__.py",
+  "*/AeroFrame/*",
+  "*/BalanceConventional/*",
+  "*/BalanceUnconventional/*",
+  "*/CPACSUpdater/*",
+  "*/ModuleTemplate/*",
+  "*/Optimisation/*",
+  "*/Range/*",
+  "*/SMTrain/*",
+  "*/SMUse/*",
+  "*/SU2MeshDef/*",
+  "*/StabilityStatic/*",
+  "*/WeightUnconventional/*",
+]

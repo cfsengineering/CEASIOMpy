@@ -141,22 +141,6 @@ class CST_shape(object):
 
         return y
 
-    def plotting(self):
-        x_coor = self.coord[0]
-        y_coor = self.coord[1]
-        plt.figure()
-        ax7 = plt.subplot(111)
-        ax7.plot(x_coor, y_coor, "-o")
-        plt.xlabel("x/c")
-        plt.ylabel("y/c")
-        plt.ylim(ymin=-0.75, ymax=0.75)
-        ax7.spines["right"].set_visible(False)
-        ax7.spines["top"].set_visible(False)
-        ax7.yaxis.set_ticks_position("left")
-        ax7.xaxis.set_ticks_position("bottom")
-        ax7.axis("equal")
-        plt.show()
-
 
 # =================================================================================================
 #    MAIN
@@ -164,14 +148,4 @@ class CST_shape(object):
 
 if __name__ == "__main__":
 
-    print("Test run")
-
-    # Test coef
-    wu = [0.2, 0.45, -0.12, 1.0, -0.473528, 0.95, 0.14, 0.38, 0.11, 0.38]  # Upper surface
-    wl = [-0.13, 0.044, -0.38, 0.43, -0.74, 0.54, -0.51, 0.10, -0.076, 0.062]  # Lower surface
-    dz = 0.00
-    N = 100
-
-    airfoil_CST = CST_shape(wl, wu, dz, N)
-    airfoil_CST.airfoil_coor()
-    airfoil_CST.plotting()
+    print("Nothing to execute!")

@@ -1,5 +1,9 @@
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
+# ===== Module Status =====
+# True if it is working
+# False if not working yet
+module_status = False
 
 # ===== CPACS inputs and outputs =====
 

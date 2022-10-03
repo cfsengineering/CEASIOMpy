@@ -7,6 +7,11 @@ from ceasiompy.utils.commonxpath import (
     SU2_TARGET_CL_XPATH,
 )
 
+# ===== Module Status =====
+# True if the module is active
+# False if the module is disabled (not working of not ready)
+module_status = True
+
 # ===== Results directory path =====
 
 RESULTS_DIR = Path("Results", "CLCalculator")

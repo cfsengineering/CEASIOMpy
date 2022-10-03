@@ -1,6 +1,10 @@
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpath import STABILITY_STATIC_XPATH
 
+# ===== Module Status =====
+# True if the module is active
+# False if the module is disabled (not working of not ready)
+module_status = False
 
 # ===== CPACS inputs and outputs =====
 

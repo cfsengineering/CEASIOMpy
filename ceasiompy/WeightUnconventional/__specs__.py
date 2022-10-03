@@ -14,6 +14,10 @@ from ceasiompy.utils.commonxpath import (
     WB_MAX_PAYLOAD_XPATH,
 )
 
+# ===== Module Status =====
+# True if the module is active
+# False if the module is disabled (not working of not ready)
+module_status = False
 
 # ===== CPACS inputs and outputs =====
 

@@ -3,6 +3,10 @@ from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpath import SMTRAIN_XPATH
 
+# ===== Module Status =====
+# True if the module is active
+# False if the module is disabled (not working of not ready)
+module_status = False
 
 # ===== Results directory path =====
 

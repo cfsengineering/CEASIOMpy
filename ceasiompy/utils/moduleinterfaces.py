@@ -154,14 +154,14 @@ class CPACSInOut:
 def get_module_path(module_name: str) -> Path:
     """Get the path to the module directory"""
 
-    if module_name not in get_submodule_list():
+    if module_name not in get_module_list():
         raise ValueError(f"Module '{module_name}' not found")
 
     return Path(MODULES_DIR_PATH, module_name)
 
 
 def check_cpacs_input_requirements(
-    cpacs_file, *, submod_name=None, submodule_level=1, cpacs_inout=None
+    cpacs_file, *, module_name=None, submodule_level=1, cpacs_inout=None
 ):
     """Check if the input CPACS file contains the required nodes
 
@@ -173,7 +173,7 @@ def check_cpacs_input_requirements(
 
     Args:
         cpacs_file (Path): Path to the CPACS file to check
-        submod_name (str): Name of the submod_name (if None, determined from caller)
+        module_name (str): Name of the module_name (if None, determined from caller)
         submodule_level (int): Levels up where the CEASIOMpy submodule is located
         cpacs_inout (obj): CPACSInOut() instance
 
@@ -187,19 +187,19 @@ def check_cpacs_input_requirements(
 
     # If 'cpacs_inout' not provided by caller, we try to determine it
     if cpacs_inout is None:
-        if submod_name is None:
+        if module_name is None:
             # Get the path of the caller submodule
             frm = inspect.stack()[1]
             mod = inspect.getmodule(frm[0])
             caller_module_path = Path(mod.__file__).parent
 
             # Get the CEASIOM_XPATH submodule name
-            submod_name = caller_module_path.name
+            module_name = caller_module_path.name
             for _ in range(1, submodule_level):
-                submod_name = caller_module_path.name
+                module_name = caller_module_path.name
 
         # Load the submodule specifications
-        specs_module = get_specs_for_module(submod_name, raise_error=True)
+        specs_module = get_specs_for_module(module_name, raise_error=True)
         cpacs_inout = specs_module.cpacs_inout
 
     tixi = open_tixi(cpacs_file)
@@ -218,40 +218,25 @@ def check_cpacs_input_requirements(
         raise CPACSRequirementError("CPACS xpath(s) required but does not exist!")
 
 
-def get_submodule_list():
-    """Return a list of CEASIOMpy submodules (only submodule name)
+def get_module_list():
+    """Return a list of CEASIOMpy modules
 
     ['SkinFriction', 'PyTornado', ...]
-
-    Returns:
-        A list of submodule names (as strings)
-    """
-
-    submodule_list = []
-    for module_dir in MODULES_DIR_PATH.iterdir():
-        submod_name = module_dir.name
-
-        # Ignore "dunder"-files and dot files
-        if submod_name.startswith("__") or submod_name.startswith("."):
-            continue
-
-        submodule_list.append(submod_name)
-
-    return submodule_list
-
-
-def get_module_list():
-    """Return a list of CEASIOMpy modules (full name)
-
-    ['ceasiompy.SkinFriction', 'ceasiompy.PyTornado', ...]
 
     Returns:
         A list of module names (as strings)
     """
 
     module_list = []
-    for submod_name in get_submodule_list():
-        module_list.append(".".join((MODNAME_TOP, submod_name)))
+    for module_dir in MODULES_DIR_PATH.iterdir():
+        module_name = module_dir.name
+
+        # Ignore "dunder"-files and dot files
+        if module_name.startswith("__") or module_name.startswith("."):
+            continue
+
+        module_list.append(module_name)
+
     return module_list
 
 
@@ -325,24 +310,10 @@ def get_all_module_specs():
     """
 
     all_specs = {}
-    for submod_name in get_submodule_list():
-        specs = get_specs_for_module(submod_name, raise_error=False)
-        all_specs[submod_name] = specs
+    for module_name in get_module_list():
+        specs = get_specs_for_module(module_name, raise_error=False)
+        all_specs[module_name] = specs
     return all_specs
-
-
-def find_missing_specs():
-    """Return modules that do not have any __specs__ file
-
-    Returns:
-        missing (list): List with names of modules for which __specs__ file is missing
-    """
-
-    missing = []
-    for mod_name, specs in get_all_module_specs().items():
-        if specs is None:
-            missing.append(mod_name)
-    return missing
 
 
 def create_default_toolspecific():
@@ -386,62 +357,6 @@ def create_default_toolspecific():
 
     tixi_in.save(str(TOOLSPECIFIC_INPUT_PATH))
     tixi_out.save(str(TOOLSPECIFIC_OUTPUT_PATH))
-
-
-def check_workflow(cpacs_path, submodule_list):
-    """Check if a linear workflow can be executed based on given CPACS file
-
-    Note:
-        * 'submodule_list' is a list of CEASIOMpy modules to run, example:
-
-        ('PyTornado', 'SkinFriction', 'SU2Run', 'SkinFriction')
-
-        * It is assumed that no XPaths will be deleted in between module, only
-          new ones will be created
-
-        * The full workflow will be checked from start to end. If multiple errors
-          accumulate all will be shown at the end
-
-    Args:
-        cpacs_path (Path): CPACS node path
-        submodule_list (list): List of CEASIOMpy module names (order matters!)
-
-    Raises:
-        TypeError: If input data has invalid type
-        ValueError: If a workflow cannot be executed from start to end
-    """
-
-    if not isinstance(cpacs_path, Path):
-        raise TypeError("'cpacs_path' must be of type Path")
-
-    if not isinstance(submodule_list, (list, tuple)):
-        raise TypeError("'submodule_list' must be of type list or tuple")
-
-    tixi = open_tixi(cpacs_path)
-    xpaths_from_workflow = set()
-    err_msg = False
-    for submod_name in submodule_list:
-        specs = get_specs_for_module(submod_name)
-        if specs is None or not specs.cpacs_inout:
-            log.warning(f"No specs found for {submod_name}")
-            continue
-        # Required inputs
-        for entry in specs.cpacs_inout.inputs:
-            # The required xpath can either be in the original CPACS file
-            # OR in the xpaths produced during the workflow exectution
-            if not tixi.checkElement(entry.xpath) and entry.xpath not in xpaths_from_workflow:
-                err_msg = True
-                log.warning(
-                    f"xpath '{entry.xpath}' required by module '{submod_name}' but not found!"
-                )
-            xpaths_from_workflow.add(entry.xpath)
-
-        # Generated output
-        for entry in specs.cpacs_inout.outputs:
-            xpaths_from_workflow.add(entry.xpath)
-
-    if err_msg:
-        raise ValueError(err_msg)
 
 
 # =================================================================================================

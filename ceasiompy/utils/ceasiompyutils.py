@@ -30,7 +30,7 @@ from typing import List
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonxpath import AIRCRAFT_NAME_XPATH
-from ceasiompy.utils.moduleinterfaces import get_submodule_list
+from ceasiompy.utils.moduleinterfaces import get_module_list
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
 log = get_logger()
@@ -67,7 +67,7 @@ def change_working_dir(working_dir):
 def get_results_directory(module_name: str) -> Path:
     """Create (if not exists) and return the results directory for a module"""
 
-    if module_name not in get_submodule_list():
+    if module_name not in get_module_list():
         raise ValueError(f"Module '{module_name}' did not exit!")
 
     specs = importlib.import_module(f"ceasiompy.{module_name}.__specs__")

@@ -24,13 +24,10 @@ from ceasiompy.utils.moduleinterfaces import (
     CPACSInOut,
     CPACSRequirementError,
     check_cpacs_input_requirements,
-    check_workflow,
-    find_missing_specs,
     get_all_module_specs,
-    get_module_list,
     get_module_path,
     get_specs_for_module,
-    get_submodule_list,
+    get_module_list,
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
@@ -134,33 +131,15 @@ def test_check_cpacs_input_requirements():
         check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout)
 
 
-def test_get_submodule_list():
+def test_get_module_list():
     """
-    Test 'get_submodule_list()' function
+    Test 'get_module_list()' function
     """
 
-    submodule_list = get_submodule_list()
+    submodule_list = get_module_list()
     for submod_name in submodule_list:
         print(submod_name)
         assert len(submod_name.split(".")) == 1
-
-
-def test_get_module_list():
-    """
-    Test "get_module_list()" function
-    """
-
-    module_list = get_module_list()
-
-    assert isinstance(module_list, list)
-
-    # There should be entries, otherwise something went wrong
-    assert len(module_list) > 0
-
-    # Modules should have the form 'ceasiompy.SubModule'
-    for module_name in module_list:
-        assert module_name.startswith("ceasiompy.")
-        assert len(module_name.split(".")) == 2
 
 
 def test_get_toolinput_file_path():
@@ -214,15 +193,6 @@ def test_get_all_module_specs():
     assert isinstance(all_specs, dict)
 
 
-def test_find_missing_specs():
-    """
-    Test that 'find_missing_specs()' runs
-    """
-
-    missing = find_missing_specs()
-    assert isinstance(missing, list)
-
-
 def test_create_default_toolspecific():
     """
     Test that 'create_default_toolspecific' works
@@ -230,22 +200,6 @@ def test_create_default_toolspecific():
 
     pass
     # TODO: how to test that...
-
-
-def test_check_workflow():
-    """
-    Check function 'check_workflow'
-    """
-
-    workflow = ("NON_EXISTENT_MODULE",)
-
-    with pytest.raises(ValueError):
-        workflow = ("PyTornado", "NON_EXISTENT_MODULE")
-        check_workflow(CPACS_TEST_FILE, workflow)
-
-    with pytest.raises(ValueError):
-        workflow = ("SU2Run", "PyTornado", "WeightUnconventional", "BalanceUnconventional")
-        check_workflow(CPACS_TEST_FILE, workflow)
 
 
 # =================================================================================================

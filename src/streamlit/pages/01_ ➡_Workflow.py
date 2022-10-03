@@ -1,5 +1,5 @@
 import streamlit as st
-from ceasiompy.utils.moduleinterfaces import get_submodule_list
+from ceasiompy.utils.moduleinterfaces import get_module_list
 from createsidbar import create_sidebar
 
 how_to_text = (
@@ -87,7 +87,7 @@ def section_add_module():
     else:
         st.warning("No module has been added to the workflow.")
 
-    module_list = get_submodule_list()
+    module_list = get_module_list()
     module_list.remove("utils")
     module_list.remove("ModuleTemplate")
     available_module_list = sorted(module_list)

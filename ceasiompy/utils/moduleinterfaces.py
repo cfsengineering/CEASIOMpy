@@ -12,7 +12,7 @@ Python version: >=3.7
 
 TODO:
 
-    * Add somefunction for input/output files
+    *
 """
 
 # =================================================================================================
@@ -240,7 +240,10 @@ def get_module_list(only_active=True):
             module_status = specs.module_status
         except AttributeError:
             module_status = False
-            log.warning(f"module status of {module_name} is not define in its __specs__.py file")
+            if module_name != "utils":
+                log.warning(
+                    f"module status of {module_name} is not define in its __specs__.py file"
+                )
 
         if only_active:
             if module_status:
@@ -375,6 +378,25 @@ def create_default_toolspecific():
     tixi_out.save(str(TOOLSPECIFIC_OUTPUT_PATH))
 
 
+def module_to_remove_from_coverage():
+
+    active_modules = get_module_list(only_active=True)
+
+    print(
+        "\nYou can copy/paste the following lines in the file /CEASIOMpy/pyproject.toml and "
+        "replace the existing section to remove disabled module from the code coverage.\n"
+    )
+
+    print("[tool.coverage.run]")
+    print("omit = [")
+    print('  "*/__init__.py",')
+    print('  "*/__specs__.py",')
+    for module in get_module_list(only_active=False):
+        if module not in active_modules and module != "utils":
+            print(f'  "*/{module}/*",')
+    print("]")
+
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================
@@ -382,4 +404,7 @@ def create_default_toolspecific():
 if __name__ == "__main__":
 
     # The python script could be run to generate the default toolspecific file
-    create_default_toolspecific()
+    # create_default_toolspecific()
+
+    # Generate the list of module to remove from the code coverage
+    module_to_remove_from_coverage()

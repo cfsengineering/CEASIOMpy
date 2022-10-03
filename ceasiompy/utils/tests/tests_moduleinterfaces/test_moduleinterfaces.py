@@ -136,9 +136,8 @@ def test_get_module_list():
     Test 'get_module_list()' function
     """
 
-    module_list = get_module_list()
+    module_list = get_module_list(only_active=False)
     for module_name in module_list:
-        print(module_name)
         assert len(module_name.split(".")) == 1
 
 

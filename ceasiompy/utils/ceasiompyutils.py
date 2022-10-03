@@ -67,7 +67,7 @@ def change_working_dir(working_dir):
 def get_results_directory(module_name: str) -> Path:
     """Create (if not exists) and return the results directory for a module"""
 
-    if module_name not in get_module_list():
+    if module_name not in get_module_list(only_active=False):
         raise ValueError(f"Module '{module_name}' did not exit!")
 
     specs = importlib.import_module(f"ceasiompy.{module_name}.__specs__")

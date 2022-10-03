@@ -154,7 +154,7 @@ class CPACSInOut:
 def get_module_path(module_name: str) -> Path:
     """Get the path to the module directory"""
 
-    if module_name not in get_submodule_list():
+    if module_name not in get_module_list():
         raise ValueError(f"Module '{module_name}' not found")
 
     return Path(MODULES_DIR_PATH, module_name)
@@ -218,7 +218,7 @@ def check_cpacs_input_requirements(
         raise CPACSRequirementError("CPACS xpath(s) required but does not exist!")
 
 
-def get_submodule_list():
+def get_module_list():
     """Return a list of CEASIOMpy submodules (only submodule name)
 
     ['SkinFriction', 'PyTornado', ...]
@@ -310,7 +310,7 @@ def get_all_module_specs():
     """
 
     all_specs = {}
-    for submod_name in get_submodule_list():
+    for submod_name in get_module_list():
         specs = get_specs_for_module(submod_name, raise_error=False)
         all_specs[submod_name] = specs
     return all_specs

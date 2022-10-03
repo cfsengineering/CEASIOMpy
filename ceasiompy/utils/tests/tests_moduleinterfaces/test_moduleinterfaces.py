@@ -27,7 +27,7 @@ from ceasiompy.utils.moduleinterfaces import (
     get_all_module_specs,
     get_module_path,
     get_specs_for_module,
-    get_submodule_list,
+    get_module_list,
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
@@ -131,12 +131,12 @@ def test_check_cpacs_input_requirements():
         check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout)
 
 
-def test_get_submodule_list():
+def test_get_module_list():
     """
-    Test 'get_submodule_list()' function
+    Test 'get_module_list()' function
     """
 
-    submodule_list = get_submodule_list()
+    submodule_list = get_module_list()
     for submod_name in submodule_list:
         print(submod_name)
         assert len(submod_name.split(".")) == 1

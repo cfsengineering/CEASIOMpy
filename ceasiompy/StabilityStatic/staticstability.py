@@ -28,7 +28,6 @@ from ambiance import Atmosphere
 from ceasiompy.StabilityStatic.func.func_static import (
     extract_subelements,
     get_index,
-    get_unic,
     interpolation,
     order_correctly,
     plot_multicurve,
@@ -133,10 +132,10 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     cms_list = aeromap.get("cms")
     cmd_list = aeromap.get("cmd")
 
-    alt_unic = get_unic(alt_list)
-    mach_unic = get_unic(mach_list)
-    aos_unic = get_unic(aos_list)
-    aoa_unic = get_unic(aoa_list)
+    alt_unique = sorted(list(set(alt_list)))
+    mach_unique = sorted(list(set(mach_list)))
+    aos_unique = sorted(list(set(aos_list)))
+    aoa_unique = sorted(list(set(aoa_list)))
 
     # TODO: get incremental map from CPACS
     # Incremental map elevator
@@ -187,7 +186,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     cpacs_stability_direc = "True"
 
     # Aero analyses for all given altitude, mach and aos_list, over different
-    for alt in alt_unic:
+    for alt in alt_unique:
 
         Atm = Atmosphere(alt)
         g = Atm.grav_accel[0]
@@ -221,7 +220,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
         trim_legend_direc = []
         trim_derivative_direc = []
 
-        for mach in mach_unic:
+        for mach in mach_unique:
             u0 = a * mach
             # Find index of mach which have the same value
             idx_mach = [j for j in range(len(mach_list)) if mach_list[j] == mach]
@@ -307,11 +306,11 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                         ) / (aoa[idx_trim_after] - aoa[idx_trim_before])
                         # Find incremental cms
                         if incrementalMap:
-                            for index, mach_number in enumerate(mach_unic, 0):
+                            for index, mach_number in enumerate(mach_unique, 0):
                                 if mach_number == mach:
                                     mach_index = index
-                            dcms_before = dcms_list[mach_index * len(aoa_unic) + idx_trim_before]
-                            dcms_after = dcms_list[mach_index * len(aoa_unic) + idx_trim_after]
+                            dcms_before = dcms_list[mach_index * len(aoa_unique) + idx_trim_before]
+                            dcms_after = dcms_list[mach_index * len(aoa_unique) + idx_trim_after]
                             dcms = dcms_before + ratio * (dcms_after - dcms_before)
                             trim_elevator_relative_deflection = -trim_cms / dcms
                             trim_elevator = (
@@ -411,7 +410,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             # Init for determining if it is an unstability case
             laterally_stable = True
             # Find INDEX
-            for aoa in aoa_unic:
+            for aoa in aoa_unique:
 
                 # by default, don't  cross 0 line
                 crossed = False
@@ -529,7 +528,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             # Init for determining if it is an unstability case
             dirrectionaly_stable = True
             # Find INDEX
-            for aoa in aoa_unic:
+            for aoa in aoa_unique:
                 # by default, don't  cross 0 line
                 crossed = False
                 idx_aoa = [j for j in range(len(aoa_list)) if aoa_list[j] == aoa]
@@ -675,7 +674,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             # Init for determining if it is an unstability case
             longitudinaly_stable = True
 
-            for mach in mach_unic:
+            for mach in mach_unique:
                 idx_mach = [j for j in range(len(mach_list)) if mach_list[j] == mach]
                 find_idx = get_index(idx_alt, idx_aos, idx_mach)
 
@@ -715,7 +714,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
             ## LATERAL
             # Plot cmd vs aos for const alt and aoa and different mach
-            for aoa in aoa_unic:
+            for aoa in aoa_unique:
                 idx_aoa = [k for k in range(len(aoa_list)) if aoa_list[k] == aoa]
                 plot_cmd = []
                 plot_aos = []
@@ -733,7 +732,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 # Init for determining if it is an unstability case
                 laterally_stable = True
 
-                for mach in mach_unic:
+                for mach in mach_unique:
                     idx_mach = [j for j in range(len(mach_list)) if mach_list[j] == mach]
                     find_idx = get_index(idx_alt, idx_aoa, idx_mach)
 
@@ -781,7 +780,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
             ## Directional
             # Plot cml vs aos for const alt and aoa and different mach
-            for aoa in aoa_unic:
+            for aoa in aoa_unique:
                 idx_aoa = [k for k in range(len(aoa_list)) if aoa_list[k] == aoa]
                 plot_cml = []
                 plot_aos = []
@@ -799,7 +798,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 # Init for determining if it is an unstability case
                 dirrectionaly_stable = True
 
-                for mach in mach_unic:
+                for mach in mach_unique:
                     idx_mach = [j for j in range(len(mach_list)) if mach_list[j] == mach]
                     find_idx = get_index(idx_alt, idx_aoa, idx_mach)
                     # If there is only one value in find_idx
@@ -903,7 +902,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
         # plot cms VS aoa for constant mach, aos= 0 and different altitudes:
         # Find index of altitude which have the same value
         idx_aos = [i for i in range(len(aos_list)) if aos_list[i] == 0]
-        for mach in mach_unic:
+        for mach in mach_unique:
             # Find index of mach which have the same value
             idx_mach = [j for j in range(len(mach_list)) if mach_list[j] == mach]
             # Prepare variables for plots
@@ -921,7 +920,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             longitudinaly_stable = True
 
             # Find index of slip angle which have the same value
-            for alt in alt_unic:
+            for alt in alt_unique:
                 idx_alt = [j for j in range(len(alt_list)) if alt_list[j] == alt]
                 find_idx = get_index(idx_aos, idx_mach, idx_alt)
 
@@ -966,10 +965,10 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
         ## Lateral
         # plot cmd VS aos for constant mach, aoa_list and different altitudes:
-        for aoa in aoa_unic:
+        for aoa in aoa_unique:
             # Find index of altitude which have the same value
             idx_aoa = [i for i in range(len(aoa_list)) if aoa_list[i] == aoa]
-            for mach in mach_unic:
+            for mach in mach_unique:
                 # Find index of mach which have the same value
                 idx_mach = [j for j in range(len(mach_list)) if mach_list[j] == mach]
                 # Prepare variables for plots
@@ -989,7 +988,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 laterally_stable = True
 
                 # Find index of slip angle which have the same value
-                for alt in alt_unic:
+                for alt in alt_unique:
                     idx_alt = [j for j in range(len(alt_list)) if alt_list[j] == alt]
                     find_idx = get_index(idx_aoa, idx_mach, idx_alt)
                     # If find_idx is empty an APM function would have corrected before
@@ -1037,10 +1036,10 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
         ## DIRECTIONAL
         # plot cml VS aos for constant mach, aoa_list and different altitudes:
-        for aoa in aoa_unic:
+        for aoa in aoa_unique:
             # Find index of altitude which have the same value
             idx_aoa = [i for i in range(len(aoa_list)) if aoa_list[i] == aoa]
-            for mach in mach_unic:
+            for mach in mach_unique:
                 # Find index of mach which have the same value
                 idx_mach = [j for j in range(len(mach_list)) if mach_list[j] == mach]
                 # Prepare variables for plots
@@ -1060,7 +1059,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
                 dirrectionaly_stable = True
 
                 # Find index of slip angle which have the same value
-                for alt in alt_unic:
+                for alt in alt_unique:
                     idx_alt = [j for j in range(len(alt_list)) if alt_list[j] == alt]
                     find_idx = get_index(idx_aoa, idx_mach, idx_alt)
 

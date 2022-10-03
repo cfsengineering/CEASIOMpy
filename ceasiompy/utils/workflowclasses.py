@@ -27,7 +27,7 @@ from ceasiompy.Optimisation.optimisation import routine_launcher
 from ceasiompy.utils.ceasiomlogger import add_to_runworkflow_history, get_logger
 from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module
 from ceasiompy.utils.configfiles import ConfigFile
-from ceasiompy.utils.moduleinterfaces import get_submodule_list
+from ceasiompy.utils.moduleinterfaces import get_module_list
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH, LOGFILE, MODULES_DIR_PATH
 
 # log = get_logger()
@@ -45,7 +45,7 @@ class ModuleToRun:
     ) -> None:
 
         # Check module name validity
-        accepted_names = get_submodule_list() + OPTIM_METHOD
+        accepted_names = get_module_list() + OPTIM_METHOD
         if name not in accepted_names:
             raise ValueError(f"Module '{name}' did not exit!")
 

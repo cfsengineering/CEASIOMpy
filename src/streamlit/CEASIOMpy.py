@@ -2,12 +2,13 @@ import io
 from pathlib import Path
 
 import pyvista as pv
+from ceasiompy.utils.commonnames import CEASIOMPY_BEIGE, CEASIOMPY_ORANGE
 from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.cpacspy import CPACS
-from createsidbar import create_sidebar
 
 import streamlit as st
 import streamlit.components.v1 as components
+from createsidbar import create_sidebar
 from directory_picker import st_directory_picker
 
 how_to_text = (
@@ -26,6 +27,7 @@ def section_select_working_dir():
 
     if "workflow" not in st.session_state:
         st.session_state.workflow = Workflow()
+
     st.session_state.workflow.working_dir = st_directory_picker(Path("../../WKDIR").absolute())
 
 
@@ -56,10 +58,11 @@ def section_select_cpacs():
             st.session_state.cpacs = CPACS(cpacs_new_path)
 
 
-def show_aircraft():
-    """Show a 3D view of the aircraft by exporting a STL file. The viewer is based on:
+def section_3D_view():
+    """Show a 3D view of the aircraft by exporting a STL file. The pyvista viewer is based on:
     https://github.com/edsaac/streamlit-PyVista-viewer
     """
+
     st.markdown("## 3D view")
 
     if "cpacs" not in st.session_state:
@@ -73,17 +76,14 @@ def show_aircraft():
     # Using pythreejs as pyvista backend
     pv.set_jupyter_backend("pythreejs")
 
-    color_stl = "#ff7f2a"
-    color_bkg = "#e0e0d4"
-
     # Initialize pyvista reader and plotter
     plotter = pv.Plotter(border=False, window_size=[572, 600])
-    plotter.background_color = color_bkg
+    plotter.background_color = CEASIOMPY_BEIGE
     reader = pv.STLReader(str(stl_file))
 
     # Read data and send to plotter
     mesh = reader.read()
-    plotter.add_mesh(mesh, color=color_stl)
+    plotter.add_mesh(mesh, color=CEASIOMPY_ORANGE)
 
     # Export to a pythreejs HTML
     model_html = io.StringIO()
@@ -97,4 +97,4 @@ st.title("CEASIOMpy")
 
 section_select_working_dir()
 section_select_cpacs()
-show_aircraft()
+section_3D_view()

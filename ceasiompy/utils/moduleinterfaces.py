@@ -219,25 +219,25 @@ def check_cpacs_input_requirements(
 
 
 def get_module_list():
-    """Return a list of CEASIOMpy submodules (only submodule name)
+    """Return a list of CEASIOMpy modules
 
     ['SkinFriction', 'PyTornado', ...]
 
     Returns:
-        A list of submodule names (as strings)
+        A list of module names (as strings)
     """
 
-    submodule_list = []
+    module_list = []
     for module_dir in MODULES_DIR_PATH.iterdir():
-        submod_name = module_dir.name
+        module_name = module_dir.name
 
         # Ignore "dunder"-files and dot files
-        if submod_name.startswith("__") or submod_name.startswith("."):
+        if module_name.startswith("__") or module_name.startswith("."):
             continue
 
-        submodule_list.append(submod_name)
+        module_list.append(module_name)
 
-    return submodule_list
+    return module_list
 
 
 def get_toolinput_file_path(module_name):

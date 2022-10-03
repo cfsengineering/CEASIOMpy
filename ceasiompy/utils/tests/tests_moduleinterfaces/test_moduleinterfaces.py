@@ -24,7 +24,6 @@ from ceasiompy.utils.moduleinterfaces import (
     CPACSInOut,
     CPACSRequirementError,
     check_cpacs_input_requirements,
-    check_workflow,
     find_missing_specs,
     get_all_module_specs,
     get_module_list,
@@ -230,22 +229,6 @@ def test_create_default_toolspecific():
 
     pass
     # TODO: how to test that...
-
-
-def test_check_workflow():
-    """
-    Check function 'check_workflow'
-    """
-
-    workflow = ("NON_EXISTENT_MODULE",)
-
-    with pytest.raises(ValueError):
-        workflow = ("PyTornado", "NON_EXISTENT_MODULE")
-        check_workflow(CPACS_TEST_FILE, workflow)
-
-    with pytest.raises(ValueError):
-        workflow = ("SU2Run", "PyTornado", "WeightUnconventional", "BalanceUnconventional")
-        check_workflow(CPACS_TEST_FILE, workflow)
 
 
 # =================================================================================================

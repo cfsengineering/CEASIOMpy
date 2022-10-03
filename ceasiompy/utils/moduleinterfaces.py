@@ -388,62 +388,6 @@ def create_default_toolspecific():
     tixi_out.save(str(TOOLSPECIFIC_OUTPUT_PATH))
 
 
-def check_workflow(cpacs_path, submodule_list):
-    """Check if a linear workflow can be executed based on given CPACS file
-
-    Note:
-        * 'submodule_list' is a list of CEASIOMpy modules to run, example:
-
-        ('PyTornado', 'SkinFriction', 'SU2Run', 'SkinFriction')
-
-        * It is assumed that no XPaths will be deleted in between module, only
-          new ones will be created
-
-        * The full workflow will be checked from start to end. If multiple errors
-          accumulate all will be shown at the end
-
-    Args:
-        cpacs_path (Path): CPACS node path
-        submodule_list (list): List of CEASIOMpy module names (order matters!)
-
-    Raises:
-        TypeError: If input data has invalid type
-        ValueError: If a workflow cannot be executed from start to end
-    """
-
-    if not isinstance(cpacs_path, Path):
-        raise TypeError("'cpacs_path' must be of type Path")
-
-    if not isinstance(submodule_list, (list, tuple)):
-        raise TypeError("'submodule_list' must be of type list or tuple")
-
-    tixi = open_tixi(cpacs_path)
-    xpaths_from_workflow = set()
-    err_msg = False
-    for submod_name in submodule_list:
-        specs = get_specs_for_module(submod_name)
-        if specs is None or not specs.cpacs_inout:
-            log.warning(f"No specs found for {submod_name}")
-            continue
-        # Required inputs
-        for entry in specs.cpacs_inout.inputs:
-            # The required xpath can either be in the original CPACS file
-            # OR in the xpaths produced during the workflow exectution
-            if not tixi.checkElement(entry.xpath) and entry.xpath not in xpaths_from_workflow:
-                err_msg = True
-                log.warning(
-                    f"xpath '{entry.xpath}' required by module '{submod_name}' but not found!"
-                )
-            xpaths_from_workflow.add(entry.xpath)
-
-        # Generated output
-        for entry in specs.cpacs_inout.outputs:
-            xpaths_from_workflow.add(entry.xpath)
-
-    if err_msg:
-        raise ValueError(err_msg)
-
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================

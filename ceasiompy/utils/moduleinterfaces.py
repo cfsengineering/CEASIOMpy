@@ -161,7 +161,7 @@ def get_module_path(module_name: str) -> Path:
 
 
 def check_cpacs_input_requirements(
-    cpacs_file, *, submod_name=None, submodule_level=1, cpacs_inout=None
+    cpacs_file, *, module_name=None, submodule_level=1, cpacs_inout=None
 ):
     """Check if the input CPACS file contains the required nodes
 
@@ -173,7 +173,7 @@ def check_cpacs_input_requirements(
 
     Args:
         cpacs_file (Path): Path to the CPACS file to check
-        submod_name (str): Name of the submod_name (if None, determined from caller)
+        module_name (str): Name of the module_name (if None, determined from caller)
         submodule_level (int): Levels up where the CEASIOMpy submodule is located
         cpacs_inout (obj): CPACSInOut() instance
 
@@ -187,19 +187,19 @@ def check_cpacs_input_requirements(
 
     # If 'cpacs_inout' not provided by caller, we try to determine it
     if cpacs_inout is None:
-        if submod_name is None:
+        if module_name is None:
             # Get the path of the caller submodule
             frm = inspect.stack()[1]
             mod = inspect.getmodule(frm[0])
             caller_module_path = Path(mod.__file__).parent
 
             # Get the CEASIOM_XPATH submodule name
-            submod_name = caller_module_path.name
+            module_name = caller_module_path.name
             for _ in range(1, submodule_level):
-                submod_name = caller_module_path.name
+                module_name = caller_module_path.name
 
         # Load the submodule specifications
-        specs_module = get_specs_for_module(submod_name, raise_error=True)
+        specs_module = get_specs_for_module(module_name, raise_error=True)
         cpacs_inout = specs_module.cpacs_inout
 
     tixi = open_tixi(cpacs_file)
@@ -310,9 +310,9 @@ def get_all_module_specs():
     """
 
     all_specs = {}
-    for submod_name in get_module_list():
-        specs = get_specs_for_module(submod_name, raise_error=False)
-        all_specs[submod_name] = specs
+    for module_name in get_module_list():
+        specs = get_specs_for_module(module_name, raise_error=False)
+        all_specs[module_name] = specs
     return all_specs
 
 

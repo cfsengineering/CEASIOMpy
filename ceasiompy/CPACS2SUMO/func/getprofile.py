@@ -55,11 +55,6 @@ def get_profile_coord(tixi, prof_uid):
 
     prof_xpath = tixi.uIDGetXPath(prof_uid)
 
-    # try:
-    #     tixi.checkElement(prof_xpath)
-    # except:
-    #     log.error('No profile "' + prof_uid + '" has been found!')
-
     prof_vect_x = []
     prof_vect_y = []
     prof_vect_z = []

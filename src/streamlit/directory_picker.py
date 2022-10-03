@@ -5,7 +5,7 @@ from pathlib import Path
 def st_directory_picker(initial_path=Path()):
 
     if "path" not in st.session_state:
-        st.session_state.path = initial_path.absolute()
+        st.session_state.path = initial_path.absolute().resolve()
 
     st.text_input("Selected directory:", st.session_state.path)
 

@@ -212,12 +212,12 @@ class Workflow:
         if str(self.optim_method) not in OPTIM_METHOD + ["None", "NONE"]:
             raise ValueError(f"Optimisation method {self.optim_method} not supported")
 
-        # Check coehrence of the optimisation modules from config file
+        # Check coherence of the optimisation modules from config file
         if "YES" in self.module_optim:
             if not self.optim_method:
                 raise ValueError(
-                    "Some modules are define as optimistion module but "
-                    "no optmimisation methode is defined"
+                    "Some modules are define as optimisation module but "
+                    "no optimisation method is defined"
                 )
 
             optim_idx = [i for i, val in enumerate(self.module_optim) if val == "YES"]

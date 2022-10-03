@@ -4,7 +4,6 @@ from pathlib import Path
 import pandas as pd
 import plotly.graph_objects as go
 import streamlit as st
-from ceasiompy.utils.ceasiompyutils import aircraft_name
 from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
@@ -23,7 +22,7 @@ create_sidebar(how_to_text)
 
 
 def get_last_workflow():
-    # TODO: make the function more general to CEASIOMpy and test it
+    """Get the last workflow of the working directory"""
 
     if "workflow" not in st.session_state:
         st.warning("No workflow to show the result yet.")
@@ -38,54 +37,50 @@ def get_last_workflow():
     if last_workflow_nb == 0:
         return None
 
-    return Path(
-        Path(st.session_state.workflow.working_dir),
-        f"Workflow_{last_workflow_nb:03}",
-    )
+    return Path(Path(st.session_state.workflow.working_dir), f"Workflow_{last_workflow_nb:03}")
 
 
 def display_results(results_dir):
     """Display results results depending which type of file they are."""
 
-    for file in sorted(Path(results_dir).iterdir()):
+    for child in sorted(Path(results_dir).iterdir()):
 
-        if file.suffix == ".smx":
-            if st.button(f"Open {file.name} with SUMO", key=f"{file.stem}_sumo_geom"):
-                os.system(f"dwfsumo {str(file)}")
+        if child.suffix == ".smx":
+            if st.button(f"Open {child.name} with SUMO", key=f"{child.stem}_sumo_geom"):
+                os.system(f"dwfsumo {str(child)}")
 
-        elif file.suffix == ".su2":
-            if st.button(f"Open {file.name} with Scope", key=f"{file.stem}_su2_mesh"):
-                os.system(f"dwfscope {str(file)}")
+        elif child.suffix == ".su2":
+            if st.button(f"Open {child.name} with Scope", key=f"{child.stem}_su2_mesh"):
+                os.system(f"dwfscope {str(child)}")
 
-        elif file.suffix == ".vtu":
-            if st.button(f"Open {file.name} with Paraview", key=f"{file.stem}_vtu"):
-                open_paraview(file)
+        elif child.suffix == ".vtu":
+            if st.button(f"Open {child.name} with Paraview", key=f"{child.stem}_vtu"):
+                open_paraview(child)
 
-        elif file.suffix == ".png":
-            st.markdown(f"#### {file.stem.replace('_',' ')}")
-            st.image(str(file))
+        elif child.suffix == ".png":
+            st.markdown(f"#### {child.stem.replace('_',' ')}")
+            st.image(str(child))
 
-        elif file.name == "history.csv":
+        elif child.suffix == ".md":
+            st.markdown(child.read_text())
+
+        elif child.suffix == ".log" or child.suffix == ".txt":
+            st.text_area(child.stem, child.read_text(), height=200)
+
+        elif child.name == "history.csv":
             st.markdown("**Convergence**")
-            df = pd.read_csv(file)
+            df = pd.read_csv(child)
             df = df.drop(["Time_Iter", "Outer_Iter", "Inner_Iter"], axis=1)
             st.line_chart(data=df, x=None, y=None, width=0, height=0, use_container_width=True)
 
-        elif file.suffix == ".csv":
-            df = pd.read_csv(file)
-            st.markdown(f"**{file.name}**")
+        elif child.suffix == ".csv":
+            df = pd.read_csv(child)
+            st.markdown(f"**{child.name}**")
             st.dataframe(df)
 
-        elif file.suffix == ".md":
-            st.markdown(file.read_text())
-
-        elif file.suffix == ".log" or file.suffix == ".txt":
-            st.text_area(file.stem, file.read_text(), height=200)
-
-        elif "Case" in file.name:
-            with st.expander(file.stem, expanded=False):
-
-                display_results(file)
+        elif "Case" in child.name and child.is_dir():
+            with st.expander(child.stem, expanded=False):
+                display_results(child)
 
 
 def open_paraview(file):
@@ -107,9 +102,11 @@ def show_aeromap():
 
     current_workflow = get_last_workflow()
     list_of_files = []
-    for file in current_workflow.iterdir():
-        if file.is_file():
-            list_of_files.append(file.stem)
+
+    for child in current_workflow.iterdir():
+        if child.is_file():
+            list_of_files.append(child.stem)
+
     if "ToolOutput" in list_of_files:
         cpacs = CPACS(Path(current_workflow, "ToolOutput.xml"))
         st.success("Your results are ready!")
@@ -195,8 +192,6 @@ def show_aeromap():
     fig.update_xaxes(axis_options)
     fig.update_yaxes(axis_options)
 
-    ac_name = aircraft_name(cpacs.tixi)
-
     st.plotly_chart(fig)
 
     col1, col2, _ = st.columns([2, 2, 3])
@@ -207,7 +202,7 @@ def show_aeromap():
         st.markdown("")
         st.markdown("")
         if st.button("Save this figure 📷"):
-            fig_name = f"{ac_name}_{y_axis}_vs_{x_axis}{img_format}"
+            fig_name = f"{cpacs.ac_name}_{y_axis}_vs_{x_axis}{img_format}"
             current_workflow = get_last_workflow()
             aerocoef_dir = Path(current_workflow, "Results", "AeroCoefficients")
             if not aerocoef_dir.exists():
@@ -240,4 +235,6 @@ st.title("Results")
 show_aeromap()
 show_results()
 
+if st.button("🔄 Refresh"):
+    st.experimental_rerun()
 # st_autorefresh(interval=5000, limit=10000, key="auto_refresh")

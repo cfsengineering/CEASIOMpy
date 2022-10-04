@@ -75,43 +75,84 @@ cpacs_inout.add_input(
     gui_group="Dicretisation",
 )
 
-# ----- Plots -----
-for plot_name in ["lattice", "geometry", "results", "matrix_downwash"]:
-    for action in ["save", "show"]:
-        cpacs_inout.add_input(
-            var_name="",
-            var_type=bool,
-            default_value=False,
-            unit=None,
-            descr=f"{action.capitalize()} a {plot_name.replace('_', ' ')} plot",
-            xpath=PYTORNADO_XPATH + f"/plot/{plot_name}/{action}",
-            gui=True,
-            gui_name=f"{action.capitalize()} plot",
-            gui_group=f"{plot_name.capitalize().replace('_', ' ')} plot",
-        )
+cpacs_inout.add_input(
+    var_name="",
+    var_type=bool,
+    default_value=True,
+    unit=None,
+    descr="Save plot of the aircraft geometry",
+    xpath=PYTORNADO_XPATH + "/plot/geometry/save",
+    gui=True,
+    gui_name="Save geometry plot",
+    gui_group="Plots",
+)
 
-    # TODO: add optional settings
+cpacs_inout.add_input(
+    var_name="",
+    var_type=bool,
+    default_value=True,
+    unit=None,
+    descr="Save plot of the results (pressure coefficient)",
+    xpath=PYTORNADO_XPATH + "/plot/results/save",
+    gui=True,
+    gui_name="Save results plot",
+    gui_group="Plots",
+)
 
-# ----- Save other results -----
-for save_name in ["global", "panelwise", "aeroperformance"]:
-    cpacs_inout.add_input(
-        var_name="",
-        var_type=bool,
-        default_value=False,
-        unit=None,
-        descr=f"Save PyTornado '{save_name}' results",
-        xpath=PYTORNADO_XPATH + f"/save_results/{save_name}",
-        gui=True,
-        gui_name=f"Save {save_name.capitalize()}",
-        gui_group="Save CPACS external results",
-    )
+cpacs_inout.add_input(
+    var_name="",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="Save plot of the lattices",
+    xpath=PYTORNADO_XPATH + "/plot/lattice/save",
+    gui=True,
+    gui_name="Save lattices plot",
+    gui_group="Plots",
+)
+
+cpacs_inout.add_input(
+    var_name="",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="Save the downwash matrix plot",
+    xpath=PYTORNADO_XPATH + "/plot/matrix_downwash/save",
+    gui=True,
+    gui_name="Save matrix_downwash plot",
+    gui_group="Plots",
+)
+
+cpacs_inout.add_input(
+    var_name="",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="Save PyTornado global results as a json file",
+    xpath=PYTORNADO_XPATH + "/save_results/global",
+    gui=True,
+    gui_name="Save global results",
+    gui_group="Save CPACS external results",
+)
+
+cpacs_inout.add_input(
+    var_name="",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="Save PyTornado panelwise results as a dat file",
+    xpath=PYTORNADO_XPATH + "/save_results/panelwise",
+    gui=True,
+    gui_name="Save panelwise results",
+    gui_group="Save CPACS external results",
+)
 
 cpacs_inout.add_input(
     var_name="check_extract_loads",
     var_type=bool,
     default_value=False,
     unit="1",
-    descr="Option to extract loads from results",
+    descr="Option to extract loads from results (only last calculated case)",
     xpath=PYTORNADO_XPATH + "/save_results/extractLoads",
     gui=True,
     gui_name="Extract loads",
@@ -131,7 +172,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit="m",
     descr="Centre of gravity (y-coordinate)",
-    xpath=REF_XPATH + "/point/x",
+    xpath=REF_XPATH + "/point/y",
 )
 
 cpacs_inout.add_input(
@@ -139,7 +180,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit="m",
     descr="Centre of gravity (z-coordinate)",
-    xpath=REF_XPATH + "/point/x",
+    xpath=REF_XPATH + "/point/z",
 )
 
 cpacs_inout.add_input(
@@ -171,7 +212,7 @@ cpacs_inout.add_input(
 
 cpacs_inout.add_output(
     var_name="aeromap_PyTornado",  # name to change...
-    # var_type=CPACS_aeroMap, # no type pour output, would it be useful?
+    # var_type=CPACS_aeroMap, # no type for output, would it be useful?
     default_value=None,
     unit="-",
     descr="aeroMap with aero coefficients calculated by PyTornado",

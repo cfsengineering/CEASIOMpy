@@ -46,6 +46,7 @@ import pandas as pd
 import xmltodict as xml
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.commonxpath import PYTORNADO_EXTRACT_LOAD_XPATH
 from ceasiompy.utils.moduleinterfaces import (
     check_cpacs_input_requirements,
     get_toolinput_file_path,
@@ -135,6 +136,7 @@ def get_pytornado_settings(cpacs_in_path):
     settings["state"] = "__CPACS"  # Load aeroperformance map from CPACS
     settings["plot"]["results"]["show"] = False
     settings["plot"]["results"]["save"] = False
+    settings["save_results"]["aeroperformance"] = True
 
     # ----- Try to read PyTornado settings from CPACS -----
     cpacs_settings = get_pytornado_settings_from_CPACS(cpacs_in_path)
@@ -218,18 +220,11 @@ def parse_pytornado_settings_dict(dictionary):
 
             dictionary[k] = v
 
-        # -----------
-        # Optional settings
-        # TODO: improve
-        # if k == 'opt':
-        #     dictionary[k] = (v,)
-        # -----------
-
 
 def _get_load_fields(pytornado_results, dir_pyt_results):
     """
     Return load fields from PyTornado results (only extract load from last results)
-    (TODO: Maybe this function could integrated to Tornado...?)
+    (TODO: Maybe this function could integrated to PyTornado...?)
     Args:
         :pytornado_results: (obj) PyTornado results data structure
         :dir_pyt_results: (str): Path to the results dir
@@ -256,8 +251,7 @@ def _get_load_fields(pytornado_results, dir_pyt_results):
             for entry in panellist:
                 num_pan += len(entry.pan_idx)
 
-            # Add a first row of zeros in order to use 'append' method (will be removed below)
-            load_field = np.zeros((1, 6))
+            load_field = np.empty((1, 6))
             for entry in panellist:
                 # pan_idx: Panel index in PyTornado book keeping system
                 for pan_idx in entry.pan_idx:
@@ -271,7 +265,7 @@ def _get_load_fields(pytornado_results, dir_pyt_results):
                     load_field_entry[0, 5] = vlmdata.panelwise["fz"][pan_idx]
                     load_field = np.append(load_field, load_field_entry, axis=0)
 
-            # # Write one CSV file per Wing
+            # Write one CSV file per Wing
             load_fields[wing_uid + suffix] = load_field[1:, :]
             df = pd.DataFrame(load_field[1:, :])
             df.columns = ["x", "y", "z", "fx", "fy", "fz"]
@@ -281,7 +275,6 @@ def _get_load_fields(pytornado_results, dir_pyt_results):
     # Write aircraft load in a CSV file
     df_tot = pd.concat(frames)
     csv_path = Path(dir_pyt_results, "aircraft_loads.csv")
-    print(csv_path)
     df_tot.to_csv(csv_path, sep=",", index=False)
 
 
@@ -304,14 +297,16 @@ def main(cpacs_in_path, cpacs_out_path):
 
     # ===== Paths =====
     dir_pyt_wkdir = Path(MODULE_DIR, "wkdir_temp")
-
     dir_pyt_aircraft = Path(dir_pyt_wkdir, "aircraft")
     dir_pyt_settings = Path(dir_pyt_wkdir, "settings")
     dir_pyt_results = Path(dir_pyt_wkdir, "_results")
+    dir_pyt_plots = Path(dir_pyt_wkdir, "_plots")
     file_pyt_aircraft = Path(dir_pyt_aircraft, "ToolInput.xml")
     file_pyt_settings = Path(dir_pyt_settings, "cpacs_run.json")
 
     # ===== Make directories =====
+    if dir_pyt_wkdir.exists():
+        shutil.rmtree(dir_pyt_wkdir, ignore_errors=True)
     Path(dir_pyt_wkdir).mkdir(parents=True, exist_ok=True)
     Path(dir_pyt_aircraft).mkdir(parents=True, exist_ok=True)
     Path(dir_pyt_settings).mkdir(parents=True, exist_ok=True)
@@ -328,29 +323,34 @@ def main(cpacs_in_path, cpacs_out_path):
 
     # ===== PyTornado analysis =====
     pytornado = import_pytornado("pytornado.stdfun.run")
-    # pytornado.standard_run(args=pytornado.StdRunArgs(run=file_pyt_settings, verbose=True))
     results = pytornado.standard_run(
         args=pytornado.StdRunArgs(run=file_pyt_settings, verbose=True)
     )
 
     # ===== Extract load =====
     tixi = open_tixi(cpacs_in_path)
-    extract_loads_xpath = "/cpacs/toolspecific/pytornado/save_results/extractLoads"
-    extract_loads = get_value_or_default(tixi, extract_loads_xpath, False)
-
+    extract_loads = get_value_or_default(tixi, PYTORNADO_EXTRACT_LOAD_XPATH, False)
     if extract_loads:
         _get_load_fields(results, dir_pyt_results)
 
     # ===== Clean up =====
     shutil.copy(src=file_pyt_aircraft, dst=cpacs_out_path)
 
-    # ===== Copy files in the wkflow results directory =====
-    # TODO: use dirs_exist_ok=True option when  python >=3.8 and remove "tmp"
-    dst_pyt_wkdir = Path(get_results_directory("PyTornado"), "tmp")
-    if dst_pyt_wkdir.is_dir():
-        shutil.rmtree(dst_pyt_wkdir)
-    shutil.copytree(src=dir_pyt_wkdir, dst=dst_pyt_wkdir)
-    shutil.rmtree(dir_pyt_wkdir, ignore_errors=True)
+    # ===== Copy files from `results` and `plots`in the wkflow results directory =====
+    last_file = False
+    i = 0
+    while not last_file:
+        pyt_plot_case_dir = Path(dir_pyt_results, f"cpacs_run_{i:03}")
+        pyt_res_case_dir = Path(dir_pyt_plots, f"cpacs_run_{i:03}")
+
+        wkflow_results_case_dir = Path(get_results_directory("PyTornado"), f"Case_{i:03}")
+
+        if pyt_plot_case_dir.exists() and pyt_res_case_dir.exists():
+            shutil.copytree(pyt_plot_case_dir, wkflow_results_case_dir)
+            shutil.copytree(pyt_res_case_dir, wkflow_results_case_dir, dirs_exist_ok=True)
+            i += 1
+        else:
+            last_file = True
 
     log.info("PyTornado analysis completed")
 

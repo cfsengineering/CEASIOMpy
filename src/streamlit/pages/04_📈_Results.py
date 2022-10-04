@@ -46,15 +46,15 @@ def display_results(results_dir):
     for child in sorted(Path(results_dir).iterdir()):
 
         if child.suffix == ".smx":
-            if st.button(f"Open {child.name} with SUMO", key=f"{child.stem}_sumo_geom"):
+            if st.button(f"Open {child.name} with SUMO", key=f"{child}_sumo_geom"):
                 os.system(f"dwfsumo {str(child)}")
 
         elif child.suffix == ".su2":
-            if st.button(f"Open {child.name} with Scope", key=f"{child.stem}_su2_mesh"):
+            if st.button(f"Open {child.name} with Scope", key=f"{child}_su2_mesh"):
                 os.system(f"dwfscope {str(child)}")
 
         elif child.suffix == ".vtu":
-            if st.button(f"Open {child.name} with Paraview", key=f"{child.stem}_vtu"):
+            if st.button(f"Open {child.name} with Paraview", key=f"{child}_vtu"):
                 open_paraview(child)
 
         elif child.suffix == ".png":
@@ -63,6 +63,9 @@ def display_results(results_dir):
 
         elif child.suffix == ".md":
             st.markdown(child.read_text())
+
+        elif child.suffix == ".json":
+            st.text_area(child.stem, child.read_text(), height=200)
 
         elif child.suffix == ".log" or child.suffix == ".txt":
             st.text_area(child.stem, child.read_text(), height=200)

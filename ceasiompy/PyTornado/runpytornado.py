@@ -136,6 +136,7 @@ def get_pytornado_settings(cpacs_in_path):
     settings["state"] = "__CPACS"  # Load aeroperformance map from CPACS
     settings["plot"]["results"]["show"] = False
     settings["plot"]["results"]["save"] = False
+    settings["save_results"]["aeroperformance"] = True
 
     # ----- Try to read PyTornado settings from CPACS -----
     cpacs_settings = get_pytornado_settings_from_CPACS(cpacs_in_path)

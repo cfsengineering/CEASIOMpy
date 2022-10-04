@@ -124,7 +124,7 @@ cpacs_inout.add_input(
 )
 
 
-for save_name in ["global", "panelwise", "aeroperformance"]:
+for save_name in ["global", "panelwise"]:
     cpacs_inout.add_input(
         var_name="",
         var_type=bool,

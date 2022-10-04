@@ -123,19 +123,29 @@ cpacs_inout.add_input(
     gui_group="Plots",
 )
 
+cpacs_inout.add_input(
+    var_name="",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="Save PyTornado global results as a json file",
+    xpath=PYTORNADO_XPATH + "/save_results/global",
+    gui=True,
+    gui_name=f"Save global results",
+    gui_group="Save CPACS external results",
+)
 
-for save_name in ["global", "panelwise"]:
-    cpacs_inout.add_input(
-        var_name="",
-        var_type=bool,
-        default_value=False,
-        unit=None,
-        descr=f"Save PyTornado '{save_name}' results",
-        xpath=PYTORNADO_XPATH + f"/save_results/{save_name}",
-        gui=True,
-        gui_name=f"Save {save_name.capitalize()}",
-        gui_group="Save CPACS external results",
-    )
+cpacs_inout.add_input(
+    var_name="",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr=f"Save PyTornado panelwise results as a dat file",
+    xpath=PYTORNADO_XPATH + "/save_results/panelwise",
+    gui=True,
+    gui_name=f"Save panelwise results",
+    gui_group="Save CPACS external results",
+)
 
 cpacs_inout.add_input(
     var_name="check_extract_loads",

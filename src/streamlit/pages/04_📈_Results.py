@@ -65,7 +65,6 @@ def display_results(results_dir):
             st.markdown(child.read_text())
 
         elif child.suffix == ".json":
-            st.markdown(f"**{child.name}**")
             st.text_area(child.stem, child.read_text(), height=200)
 
         elif child.suffix == ".log" or child.suffix == ".txt":

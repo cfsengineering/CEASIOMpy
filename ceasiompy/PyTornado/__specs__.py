@@ -80,10 +80,10 @@ cpacs_inout.add_input(
     var_type=bool,
     default_value=True,
     unit=None,
-    descr=f"Save plot of the aircraft geometry",
+    descr="Save plot of the aircraft geometry",
     xpath=PYTORNADO_XPATH + "/plot/geometry/save",
     gui=True,
-    gui_name=f"Save geometry plot",
+    gui_name="Save geometry plot",
     gui_group="Plots",
 )
 
@@ -92,10 +92,10 @@ cpacs_inout.add_input(
     var_type=bool,
     default_value=True,
     unit=None,
-    descr=f"Save plot of the results (pressure coefficient)",
+    descr="Save plot of the results (pressure coefficient)",
     xpath=PYTORNADO_XPATH + "/plot/results/save",
     gui=True,
-    gui_name=f"Save results plot",
+    gui_name="Save results plot",
     gui_group="Plots",
 )
 
@@ -104,10 +104,10 @@ cpacs_inout.add_input(
     var_type=bool,
     default_value=False,
     unit=None,
-    descr=f"Save plot of the lattices",
+    descr="Save plot of the lattices",
     xpath=PYTORNADO_XPATH + "/plot/lattice/save",
     gui=True,
-    gui_name=f"Save lattices plot",
+    gui_name="Save lattices plot",
     gui_group="Plots",
 )
 
@@ -116,10 +116,10 @@ cpacs_inout.add_input(
     var_type=bool,
     default_value=False,
     unit=None,
-    descr=f"Save the downwash matrix plot",
+    descr="Save the downwash matrix plot",
     xpath=PYTORNADO_XPATH + "/plot/matrix_downwash/save",
     gui=True,
-    gui_name=f"Save matrix_downwash plot",
+    gui_name="Save matrix_downwash plot",
     gui_group="Plots",
 )
 
@@ -131,7 +131,7 @@ cpacs_inout.add_input(
     descr="Save PyTornado global results as a json file",
     xpath=PYTORNADO_XPATH + "/save_results/global",
     gui=True,
-    gui_name=f"Save global results",
+    gui_name="Save global results",
     gui_group="Save CPACS external results",
 )
 
@@ -140,10 +140,10 @@ cpacs_inout.add_input(
     var_type=bool,
     default_value=False,
     unit=None,
-    descr=f"Save PyTornado panelwise results as a dat file",
+    descr="Save PyTornado panelwise results as a dat file",
     xpath=PYTORNADO_XPATH + "/save_results/panelwise",
     gui=True,
-    gui_name=f"Save panelwise results",
+    gui_name="Save panelwise results",
     gui_group="Save CPACS external results",
 )
 

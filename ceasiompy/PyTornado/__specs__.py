@@ -152,7 +152,7 @@ cpacs_inout.add_input(
     var_type=bool,
     default_value=False,
     unit="1",
-    descr="Option to extract loads from results",
+    descr="Option to extract loads from results (only last calculated case)",
     xpath=PYTORNADO_XPATH + "/save_results/extractLoads",
     gui=True,
     gui_name="Extract loads",

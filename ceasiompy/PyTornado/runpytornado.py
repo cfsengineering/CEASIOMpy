@@ -220,18 +220,11 @@ def parse_pytornado_settings_dict(dictionary):
 
             dictionary[k] = v
 
-        # -----------
-        # Optional settings
-        # TODO: improve
-        # if k == 'opt':
-        #     dictionary[k] = (v,)
-        # -----------
-
 
 def _get_load_fields(pytornado_results, dir_pyt_results):
     """
     Return load fields from PyTornado results (only extract load from last results)
-    (TODO: Maybe this function could integrated to Tornado...?)
+    (TODO: Maybe this function could integrated to PyTornado...?)
     Args:
         :pytornado_results: (obj) PyTornado results data structure
         :dir_pyt_results: (str): Path to the results dir
@@ -258,8 +251,7 @@ def _get_load_fields(pytornado_results, dir_pyt_results):
             for entry in panellist:
                 num_pan += len(entry.pan_idx)
 
-            # Add a first row of zeros in order to use 'append' method (will be removed below)
-            load_field = np.zeros((1, 6))
+            load_field = np.empty((1, 6))
             for entry in panellist:
                 # pan_idx: Panel index in PyTornado book keeping system
                 for pan_idx in entry.pan_idx:
@@ -273,7 +265,7 @@ def _get_load_fields(pytornado_results, dir_pyt_results):
                     load_field_entry[0, 5] = vlmdata.panelwise["fz"][pan_idx]
                     load_field = np.append(load_field, load_field_entry, axis=0)
 
-            # # Write one CSV file per Wing
+            # Write one CSV file per Wing
             load_fields[wing_uid + suffix] = load_field[1:, :]
             df = pd.DataFrame(load_field[1:, :])
             df.columns = ["x", "y", "z", "fx", "fy", "fz"]
@@ -283,7 +275,6 @@ def _get_load_fields(pytornado_results, dir_pyt_results):
     # Write aircraft load in a CSV file
     df_tot = pd.concat(frames)
     csv_path = Path(dir_pyt_results, "aircraft_loads.csv")
-    print(csv_path)
     df_tot.to_csv(csv_path, sep=",", index=False)
 
 
@@ -306,7 +297,6 @@ def main(cpacs_in_path, cpacs_out_path):
 
     # ===== Paths =====
     dir_pyt_wkdir = Path(MODULE_DIR, "wkdir_temp")
-
     dir_pyt_aircraft = Path(dir_pyt_wkdir, "aircraft")
     dir_pyt_settings = Path(dir_pyt_wkdir, "settings")
     dir_pyt_results = Path(dir_pyt_wkdir, "_results")
@@ -347,7 +337,6 @@ def main(cpacs_in_path, cpacs_out_path):
     shutil.copy(src=file_pyt_aircraft, dst=cpacs_out_path)
 
     # ===== Copy files from `results` and `plots`in the wkflow results directory =====
-
     last_file = False
     i = 0
     while not last_file:

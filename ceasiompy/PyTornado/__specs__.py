@@ -77,20 +77,19 @@ cpacs_inout.add_input(
 
 # ----- Plots -----
 for plot_name in ["lattice", "geometry", "results", "matrix_downwash"]:
-    for action in ["save", "show"]:
-        cpacs_inout.add_input(
-            var_name="",
-            var_type=bool,
-            default_value=False,
-            unit=None,
-            descr=f"{action.capitalize()} a {plot_name.replace('_', ' ')} plot",
-            xpath=PYTORNADO_XPATH + f"/plot/{plot_name}/{action}",
-            gui=True,
-            gui_name=f"{action.capitalize()} plot",
-            gui_group=f"{plot_name.capitalize().replace('_', ' ')} plot",
-        )
 
-    # TODO: add optional settings
+    cpacs_inout.add_input(
+        var_name="",
+        var_type=bool,
+        default_value=False,
+        unit=None,
+        descr=f"Save a {plot_name.replace('_', ' ')} plot",
+        xpath=PYTORNADO_XPATH + f"/plot/{plot_name}/save",
+        gui=True,
+        gui_name=f"Save plot",
+        gui_group=f"{plot_name.capitalize().replace('_', ' ')} plot",
+    )
+
 
 # ----- Save other results -----
 for save_name in ["global", "panelwise", "aeroperformance"]:

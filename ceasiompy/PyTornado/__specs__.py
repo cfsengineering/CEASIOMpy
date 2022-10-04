@@ -172,7 +172,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit="m",
     descr="Centre of gravity (y-coordinate)",
-    xpath=REF_XPATH + "/point/x",
+    xpath=REF_XPATH + "/point/y",
 )
 
 cpacs_inout.add_input(
@@ -180,7 +180,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit="m",
     descr="Centre of gravity (z-coordinate)",
-    xpath=REF_XPATH + "/point/x",
+    xpath=REF_XPATH + "/point/z",
 )
 
 cpacs_inout.add_input(
@@ -212,7 +212,7 @@ cpacs_inout.add_input(
 
 cpacs_inout.add_output(
     var_name="aeromap_PyTornado",  # name to change...
-    # var_type=CPACS_aeroMap, # no type pour output, would it be useful?
+    # var_type=CPACS_aeroMap, # no type for output, would it be useful?
     default_value=None,
     unit="-",
     descr="aeroMap with aero coefficients calculated by PyTornado",

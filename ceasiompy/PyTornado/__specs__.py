@@ -75,23 +75,55 @@ cpacs_inout.add_input(
     gui_group="Dicretisation",
 )
 
-# ----- Plots -----
-for plot_name in ["lattice", "geometry", "results", "matrix_downwash"]:
+cpacs_inout.add_input(
+    var_name="",
+    var_type=bool,
+    default_value=True,
+    unit=None,
+    descr=f"Save plot of the aircraft geometry",
+    xpath=PYTORNADO_XPATH + "/plot/geometry/save",
+    gui=True,
+    gui_name=f"Save geometry plot",
+    gui_group="Plots",
+)
 
-    cpacs_inout.add_input(
-        var_name="",
-        var_type=bool,
-        default_value=False,
-        unit=None,
-        descr=f"Save a {plot_name.replace('_', ' ')} plot",
-        xpath=PYTORNADO_XPATH + f"/plot/{plot_name}/save",
-        gui=True,
-        gui_name=f"Save plot",
-        gui_group=f"{plot_name.capitalize().replace('_', ' ')} plot",
-    )
+cpacs_inout.add_input(
+    var_name="",
+    var_type=bool,
+    default_value=True,
+    unit=None,
+    descr=f"Save plot of the results (pressure coefficient)",
+    xpath=PYTORNADO_XPATH + "/plot/results/save",
+    gui=True,
+    gui_name=f"Save results plot",
+    gui_group="Plots",
+)
+
+cpacs_inout.add_input(
+    var_name="",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr=f"Save plot of the lattices",
+    xpath=PYTORNADO_XPATH + "/plot/lattice/save",
+    gui=True,
+    gui_name=f"Save lattices plot",
+    gui_group="Plots",
+)
+
+cpacs_inout.add_input(
+    var_name="",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr=f"Save the downwash matrix plot",
+    xpath=PYTORNADO_XPATH + "/plot/matrix_downwash/save",
+    gui=True,
+    gui_name=f"Save matrix_downwash plot",
+    gui_group="Plots",
+)
 
 
-# ----- Save other results -----
 for save_name in ["global", "panelwise", "aeroperformance"]:
     cpacs_inout.add_input(
         var_name="",

@@ -166,7 +166,7 @@ def get_cl(cpacs_path, cpacs_out_path):
     # CL calculation
     md.h3("Target CL")
     target_cl = calculate_cl(ref_area, cruise_alt, cruise_mach, mass, load_fact)
-    md.p(f"CL: {round(target_cl,4)} [-]")
+    md.p(f"CL: {target_cl:.4f} [-]")
 
     # Save TargetCL and fixedCL option
     create_branch(tixi, SU2_XPATH)

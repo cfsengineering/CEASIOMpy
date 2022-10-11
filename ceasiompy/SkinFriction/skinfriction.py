@@ -32,7 +32,12 @@ from ceasiompy.utils.moduleinterfaces import (
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from ceasiompy.utils.commonxpath import SF_XPATH
+from ceasiompy.utils.commonxpath import (
+    SF_XPATH,
+    WETTED_AREA_XPATH,
+    WING_AREA_XPATH,
+    WING_SPAN_XPATH,
+)
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     create_branch,
@@ -140,16 +145,12 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
     # Load a CPACS file
     cpacs = CPACS(cpacs_path)
 
-    analyses_xpath = "/cpacs/toolspecific/CEASIOMpy/geometry/analysis"
-
     # Required input data from CPACS
-    wetted_area = get_value(cpacs.tixi, analyses_xpath + "/wettedArea")
+    wetted_area = get_value(cpacs.tixi, WETTED_AREA_XPATH)
 
     # Wing area/span, default values will be calculated if no value found in the CPACS file
-    wing_area_xpath = analyses_xpath + "/wingArea"
-    wing_area = get_value_or_default(cpacs.tixi, wing_area_xpath, cpacs.aircraft.wing_area)
-    wing_span_xpath = analyses_xpath + "/wingSpan"
-    wing_span = get_value_or_default(cpacs.tixi, wing_span_xpath, cpacs.aircraft.wing_span)
+    wing_area = get_value_or_default(cpacs.tixi, WING_AREA_XPATH, cpacs.aircraft.wing_area)
+    wing_span = get_value_or_default(cpacs.tixi, WING_SPAN_XPATH, cpacs.aircraft.wing_span)
 
     # Get aeroMapToCalculate
     aeroMap_to_calculate_xpath = SF_XPATH + "/aeroMapToCalculate"

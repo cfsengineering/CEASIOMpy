@@ -22,6 +22,7 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+import copy
 import math
 from pathlib import Path
 
@@ -185,15 +186,13 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
     aeromap_uid_list = list(set(aeromap_uid_list))
     new_aeromap_uid_list = []
 
-    md.h3("Aeromaps")
-    md.blist(aeromap_uid_list)
-
     # Add skin friction to all listed aeroMap
     for aeromap_uid in aeromap_uid_list:
 
         log.info("adding skin friction coefficients to: " + aeromap_uid)
 
         aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+        aeromap_ori = copy.deepcopy(aeromap)
 
         # Create new aeromap object to store coef with added skin friction
         aeromap_sf = cpacs.duplicate_aeromap(aeromap_uid, aeromap_uid + "_SkinFriction")
@@ -201,7 +200,7 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
             aeromap_sf.description + " Skin friction has been add to this AeroMap."
         )
 
-        aeromap_sf.df["coef"] = aeromap.df.apply(
+        aeromap_sf.df["cd0"] = aeromap.df.apply(
             lambda row: estimate_skin_friction_coef(
                 wetted_area, wing_area, wing_span, row["machNumber"], row["altitude"]
             ),
@@ -211,21 +210,28 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
         # Add skin friction to all force coefficient (with projections)
         aeromap_sf.df["cd"] = aeromap.df.apply(
             lambda row: row["cd"]
-            + row["coef"]
+            + row["cd0"]
             * math.cos(math.radians(row["angleOfAttack"]))
             * math.cos(math.radians(row["angleOfSideslip"])),
             axis=1,
         )
 
         aeromap_sf.df["cl"] = aeromap.df.apply(
-            lambda row: row["cl"] + row["coef"] * math.sin(math.radians(row["angleOfAttack"])),
+            lambda row: row["cl"] + row["cd0"] * math.sin(math.radians(row["angleOfAttack"])),
             axis=1,
         )
 
         aeromap_sf.df["cs"] = aeromap.df.apply(
-            lambda row: row["cs"] + row["coef"] * math.sin(math.radians(row["angleOfSideslip"])),
+            lambda row: row["cs"] + row["cd0"] * math.sin(math.radians(row["angleOfSideslip"])),
             axis=1,
         )
+
+        # Export aeromaps (with an without skin friction)
+        csv_path = Path(results_dir, f"{aeromap.uid}.csv")
+        aeromap_ori.export_csv(csv_path)
+
+        aeromap_sf_csv = Path(results_dir, f"{aeromap_sf.uid}.csv")
+        aeromap.export_csv(aeromap_sf_csv)
 
         # TODO: Should we change something in moment coef?
         # e.i. if a force is not apply at aero center...?

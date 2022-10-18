@@ -1,11 +1,15 @@
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpath import GEOM_XPATH, RANGE_XPATH, SF_XPATH, PLOT_XPATH
+from pathlib import Path
 
 # ===== Module Status =====
 # True if the module is active
 # False if the module is disabled (not working or not ready)
 module_status = True
 
+# ===== Results directory path =====
+
+RESULTS_DIR = Path("Results", "SkinFriction")
 
 # ===== Input =====
 

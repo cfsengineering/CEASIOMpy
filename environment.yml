@@ -42,6 +42,7 @@ dependencies:
     - cpacspy==0.1.2
     - cython==0.29.30
     - gmsh==4.10.3
+    - markdownpy==0.1.4
     - pytest==7.1.2
     - smt==1.2.0
     - streamlit==1.13.0

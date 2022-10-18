@@ -65,6 +65,8 @@ PLOT_XPATH = CEASIOMPY_XPATH + "/aerodynamics/plotAeroCoefficient"
 SF_XPATH = CEASIOMPY_XPATH + "/aerodynamics/skinFriction"
 
 WETTED_AREA_XPATH = CEASIOMPY_XPATH + "/geometry/analysis/wettedArea"
+WING_AREA_XPATH = CEASIOMPY_XPATH + "/geometry/analysis/wingArea"
+WING_SPAN_XPATH = CEASIOMPY_XPATH + "/geometry/analysis/wingSpan"
 
 SMTRAIN_XPATH = CEASIOMPY_XPATH + "/surrogateModel"
 SMUSE_XPATH = CEASIOMPY_XPATH + "/surrogateModelUse"

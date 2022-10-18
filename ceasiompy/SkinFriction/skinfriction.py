@@ -22,17 +22,25 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+import copy
 import math
 from pathlib import Path
 
 from ambiance import Atmosphere
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.moduleinterfaces import (
     check_cpacs_input_requirements,
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from ceasiompy.utils.commonxpath import SF_XPATH
+from ceasiompy.utils.commonxpath import (
+    PLOT_XPATH,
+    SF_XPATH,
+    WETTED_AREA_XPATH,
+    WING_AREA_XPATH,
+    WING_SPAN_XPATH,
+)
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     create_branch,
@@ -41,6 +49,7 @@ from cpacspy.cpacsfunctions import (
     get_value_or_default,
 )
 from cpacspy.cpacspy import CPACS
+from markdownpy.markdownpy import MarkdownDoc
 
 log = get_logger()
 
@@ -75,23 +84,24 @@ def estimate_skin_friction_coef(wetted_area, wing_area, wing_span, mach, alt):
         wing_span (float):  Main wing span [m]
         mach (float):  Cruise Mach number [-]
         alt (float):  Aircraft altitude [m]
+        md (MarkdownDoc): Markdown Document object
 
     Returns:
         cd0 (float): Drag coefficient due to skin friction [-]
     """
 
     # Check if the input parameters are in the correct range
-    log.info(f"Wetted area: {round(wetted_area,1)} [m^2]")
+    log.info(f"Wetted area: {wetted_area:.1f} [m^2]")
     if wetted_area < 120 or wetted_area > 3400:
         log.warning(
             "Wetted area is not in the correct range. It must be between 120 and 3400 [m^2]"
         )
 
-    log.info(f"Wing area: {round(wing_area,1)} [m^2]")
+    log.info(f"Wing area: {wing_area:.1f} [m^2]")
     if wing_area < 20 or wing_area > 580:
         log.warning("Wing area is not in the correct range. It must be between 20 and 580 [m^2]")
 
-    log.info(f"Wing span: {round(wing_span,1)} [m]")
+    log.info(f"Wing span: {wing_span:.1f} [m]")
     if wing_span < 10 or wing_span > 68:
         log.warning("Wing span is not in the correct range. It must be between 10 and 68 [m]")
 
@@ -115,11 +125,11 @@ def estimate_skin_friction_coef(wetted_area, wing_area, wing_span, mach, alt):
         + 0.00102 * math.exp(-6.28 * 1e-9 * reynolds_number)
         + 0.00295 * math.exp(-2.01 * 1e-8 * reynolds_number)
     )
-    log.info(f"Skin friction coefficient: {str(round(cfe, 5))} [-]")
+    log.info(f"Skin friction coefficient: {cfe:.5f} [-]")
 
     # Drag coefficient due to skin friction
     cd0 = cfe * wetted_area / wing_area
-    log.info(f"Skin friction drag coefficient: {str(round(cd0, 5))} [-]")
+    log.info(f"Skin friction drag coefficient: {cd0:.5f} [-]")
 
     return cd0
 
@@ -137,19 +147,19 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
         cpacs_out_path (Path): Path to CPACS output file
     """
 
-    # Load a CPACS file
     cpacs = CPACS(cpacs_path)
 
-    analyses_xpath = "/cpacs/toolspecific/CEASIOMpy/geometry/analysis"
+    results_dir = get_results_directory("SkinFriction")
+    md = MarkdownDoc(Path(results_dir, "Skin_Friction.md"))
+    md.h2("SkinFriction")
 
-    # Required input data from CPACS
-    wetted_area = get_value(cpacs.tixi, analyses_xpath + "/wettedArea")
-
-    # Wing area/span, default values will be calculated if no value found in the CPACS file
-    wing_area_xpath = analyses_xpath + "/wingArea"
-    wing_area = get_value_or_default(cpacs.tixi, wing_area_xpath, cpacs.aircraft.wing_area)
-    wing_span_xpath = analyses_xpath + "/wingSpan"
-    wing_span = get_value_or_default(cpacs.tixi, wing_span_xpath, cpacs.aircraft.wing_span)
+    md.h3("Geometry")
+    wetted_area = get_value(cpacs.tixi, WETTED_AREA_XPATH)
+    md.p(f"Wetted area: {wetted_area:.1f} [m^2]")
+    wing_area = get_value_or_default(cpacs.tixi, WING_AREA_XPATH, cpacs.aircraft.wing_area)
+    md.p(f"Wing area: {wing_area:.1f} [m^2]")
+    wing_span = get_value_or_default(cpacs.tixi, WING_SPAN_XPATH, cpacs.aircraft.wing_span)
+    md.p(f"Wing span: {wing_span:.1f} [m]")
 
     # Get aeroMapToCalculate
     aeroMap_to_calculate_xpath = SF_XPATH + "/aeroMapToCalculate"
@@ -180,6 +190,7 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
         log.info("adding skin friction coefficients to: " + aeromap_uid)
 
         aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+        aeromap_ori = copy.deepcopy(aeromap)
 
         # Create new aeromap object to store coef with added skin friction
         aeromap_sf = cpacs.duplicate_aeromap(aeromap_uid, aeromap_uid + "_SkinFriction")
@@ -187,34 +198,38 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
             aeromap_sf.description + " Skin friction has been add to this AeroMap."
         )
 
+        aeromap_sf.df["cd0"] = aeromap.df.apply(
+            lambda row: estimate_skin_friction_coef(
+                wetted_area, wing_area, wing_span, row["machNumber"], row["altitude"]
+            ),
+            axis=1,
+        )
+
         # Add skin friction to all force coefficient (with projections)
         aeromap_sf.df["cd"] = aeromap.df.apply(
             lambda row: row["cd"]
-            + estimate_skin_friction_coef(
-                wetted_area, wing_area, wing_span, row["machNumber"], row["altitude"]
-            )
+            + row["cd0"]
             * math.cos(math.radians(row["angleOfAttack"]))
             * math.cos(math.radians(row["angleOfSideslip"])),
             axis=1,
         )
 
         aeromap_sf.df["cl"] = aeromap.df.apply(
-            lambda row: row["cl"]
-            + estimate_skin_friction_coef(
-                wetted_area, wing_area, wing_span, row["machNumber"], row["altitude"]
-            )
-            * math.sin(math.radians(row["angleOfAttack"])),
+            lambda row: row["cl"] + row["cd0"] * math.sin(math.radians(row["angleOfAttack"])),
             axis=1,
         )
 
         aeromap_sf.df["cs"] = aeromap.df.apply(
-            lambda row: row["cs"]
-            + estimate_skin_friction_coef(
-                wetted_area, wing_area, wing_span, row["machNumber"], row["altitude"]
-            )
-            * math.sin(math.radians(row["angleOfSideslip"])),
+            lambda row: row["cs"] + row["cd0"] * math.sin(math.radians(row["angleOfSideslip"])),
             axis=1,
         )
+
+        # Export aeromaps (with an without skin friction)
+        csv_path = Path(results_dir, f"{aeromap.uid}.csv")
+        aeromap_ori.export_csv(csv_path)
+
+        aeromap_sf_csv = Path(results_dir, f"{aeromap_sf.uid}.csv")
+        aeromap.export_csv(aeromap_sf_csv)
 
         # TODO: Should we change something in moment coef?
         # e.i. if a force is not apply at aero center...?
@@ -222,8 +237,7 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
         aeromap_sf.save()
 
     # Get aeroMap list to plot
-    plot_xpath = "/cpacs/toolspecific/CEASIOMpy/aerodynamics/plotAeroCoefficient"
-    aeromap_to_plot_xpath = plot_xpath + "/aeroMapToPlot"
+    aeromap_to_plot_xpath = PLOT_XPATH + "/aeroMapToPlot"
 
     if cpacs.tixi.checkElement(aeromap_to_plot_xpath):
         try:
@@ -241,6 +255,7 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
     log.info('AeroMap "' + aeromap_uid + '" has been added to the CPACS file')
 
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
+    md.save()
 
 
 def main(cpacs_path, cpacs_out_path):

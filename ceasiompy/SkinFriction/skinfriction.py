@@ -147,10 +147,8 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
         cpacs_out_path (Path): Path to CPACS output file
     """
 
-    # Load a CPACS file
     cpacs = CPACS(cpacs_path)
 
-    #
     results_dir = get_results_directory("SkinFriction")
     md = MarkdownDoc(Path(results_dir, "Skin_Friction.md"))
     md.h2("SkinFriction")

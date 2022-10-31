@@ -5,7 +5,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Function generate or modify SU2 configuration files
 
-Python version: >=3.7
+Python version: >=3.8
 
 | Author: Aidan Jungo
 | Creation: 2020-02-24

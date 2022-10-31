@@ -5,7 +5,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module to run SU2 Calculation in CEASIOMpy
 
-Python version: >=3.7
+Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2018-11-06

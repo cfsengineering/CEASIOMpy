@@ -5,7 +5,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 File to store the common names of files used in CEASIOMpy.
 
-Python version: >=3.7
+Python version: >=3.8
 
 | Author: Aidan jungo
 | Creation: 2022-05-13

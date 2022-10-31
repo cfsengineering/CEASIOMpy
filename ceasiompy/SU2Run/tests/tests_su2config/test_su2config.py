@@ -5,7 +5,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions of 'ceasiompy/SU2Run/func/su2config.py'
 
-Python version: >=3.7
+Python version: >=3.8
 
 
 | Author : Aidan Jungo

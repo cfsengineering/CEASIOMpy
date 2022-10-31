@@ -8,7 +8,7 @@ called only from here to avoid mistakes.
 XPath may be changed from here to avoid mistakes, but if it is the case, be careful to also change
 xpath and field name in all the test CPACS files, which are in the CEASIOMpy repository.
 
-Python version: >=3.7
+Python version: >=3.8
 
 | Author: Aidan jungo
 | Creation: 2021-10-21

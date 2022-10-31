@@ -5,7 +5,7 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Output text and plot generation function for unconventional aircraft analysis.
 
-Python version: >=3.7
+Python version: >=3.8
 
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21

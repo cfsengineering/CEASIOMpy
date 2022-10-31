@@ -6,7 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 This module sets up and solves an optimisation problem or runs a design of
 experiement with specified inputs and outputs that are parsed from a CSV file.
 
-Python version: >=3.7
+Python version: >=3.8
 
 | Author: Vivien Riolo
 | Creation: 2020-06-15

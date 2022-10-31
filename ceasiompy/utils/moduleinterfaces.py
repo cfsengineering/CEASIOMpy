@@ -5,7 +5,7 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module interfaces functions to deal with CPACS input and output
 
-Python version: >=3.7
+Python version: >=3.8
 
 | Author : Aaron Dettmann
 | Creation: 2019-08-06

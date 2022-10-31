@@ -5,7 +5,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/WeightConventional/func/mtom.py'
 
-Python version: >=3.7
+Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2022-05-30

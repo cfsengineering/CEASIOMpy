@@ -8,7 +8,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Main module of CEASIOMpy to launch workflow by different way.
 
-Python version: >=3.7
+Python version: >=3.8
 
 | Author: Aidan Jungo
 | Creation: 2022-03-29

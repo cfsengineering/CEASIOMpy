@@ -6,7 +6,7 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 Main geometry evaluation script, it connects the wing and fuselage
 geometry analysis for unconventional aircraft.
 
-Python version: >=3.7
+Python version: >=3.8
 
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07

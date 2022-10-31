@@ -5,7 +5,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 This script contains different functions to classify and manipulate wing elements
 
-Python version: >=3.7
+Python version: >=3.8
 
 | Author: Tony Govoni
 | Creation: 2022-04-05

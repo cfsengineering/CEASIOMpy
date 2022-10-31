@@ -5,7 +5,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/CPACS2GMSH/generategmesh.py'
 
-Python version: >=3.7
+Python version: >=3.8
 
 | Author : Tony Govoni
 | Creation: 2022-03-22

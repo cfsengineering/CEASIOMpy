@@ -5,7 +5,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'lib/moduleinterfaces.py'
 
-Python version: >=3.7
+Python version: >=3.8
 
 | Author : Aaron Dettmann
 | Creation: 2019-09-09

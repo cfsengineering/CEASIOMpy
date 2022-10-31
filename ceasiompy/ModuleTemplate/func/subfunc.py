@@ -5,7 +5,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Small description of the script
 
-Python version: >=3.7
+Python version: >=3.8
 
 | Author: Name
 | Creation: YEAR-MONTH-DAY

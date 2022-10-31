@@ -15,7 +15,7 @@ AUTHOR = "CFS Engineering"
 EMAIL = "aidan.jungo@cfse.ch"
 DESCRIPTION = "A conceptual aircraft design environment"
 URL = "https://github.com/cfsengineering/CEASIOMpy"
-REQUIRES_PYTHON = ">=3.7.0"
+REQUIRES_PYTHON = ">=3.8.0"
 REQUIRED = ["numpy"]
 README = "README.md"
 PACKAGE_DIR = "."
@@ -30,15 +30,6 @@ if platform.system().lower() == "windows":
 # Linux and MacOs
 else:
     SCRIPTS.append(str(Path("src/bin/ceasiompy_run")))
-
-AUTHOR = "CFS Engineering"
-EMAIL = "aidan.jungo@cfse.ch"
-DESCRIPTION = "A conceptual aircraft design environment"
-URL = "https://github.com/cfsengineering/CEASIOMpy"
-REQUIRES_PYTHON = ">=3.7.0"
-README = "README.md"
-PACKAGE_DIR = "."
-LICENSE = "LICENSE"
 
 here = Path(__file__).parent
 

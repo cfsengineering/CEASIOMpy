@@ -57,7 +57,7 @@ def plot_vtu(vtu_file):
     mesh = pv.read(str(vtu_file))
 
     scalar_list = mesh.array_names
-    scalar_selected = st.selectbox(f"scalar_{vtu_file.stem}", scalar_list)
+    scalar_selected = st.selectbox(f"scalar_{str(vtu_file).replace('/','_')}", scalar_list)
 
     plotter.add_mesh(
         mesh,
@@ -93,10 +93,12 @@ def display_results(results_dir):
                 os.system(f"dwfscope {str(child)}")
 
         elif child.suffix == ".vtu":
-            if st.button(f"Open {child.name} with Paraview", key=f"{child}_vtu"):
-                open_paraview(child)
 
-            plot_vtu(child)
+            if child.stem == "surface_flow":
+                plot_vtu(child)
+            else:
+                if st.button(f"Open {child.name} with Paraview", key=f"{child}_vtu"):
+                    open_paraview(child)
 
         elif child.suffix == ".png":
             st.markdown(f"#### {child.stem.replace('_',' ')}")

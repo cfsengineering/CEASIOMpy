@@ -1,9 +1,13 @@
+import io
 import os
 from pathlib import Path
 
 import pandas as pd
 import plotly.graph_objects as go
+import pyvista as pv
 import streamlit as st
+import streamlit.components.v1 as components
+from ceasiompy.utils.commonnames import CEASIOMPY_BEIGE
 from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
@@ -40,6 +44,41 @@ def get_last_workflow():
     return Path(Path(st.session_state.workflow.working_dir), f"Workflow_{last_workflow_nb:03}")
 
 
+def plot_vtu(vtu_file):
+
+    # Using pythreejs as pyvista backend
+    pv.set_jupyter_backend("pythreejs")
+
+    # Initialize pyvista reader and plotter
+    plotter = pv.Plotter(border=False, window_size=[572, 600])
+    plotter.background_color = CEASIOMPY_BEIGE
+
+    # Read data and send to plotter
+    mesh = pv.read(str(vtu_file))
+
+    scalar_list = mesh.array_names
+    scalar_selected = st.selectbox(f"scalar_{vtu_file.stem}", scalar_list)
+
+    plotter.add_mesh(
+        mesh,
+        scalars=scalar_selected,
+        show_scalar_bar=True,
+        scalar_bar_args=dict(vertical=True, position_x=0.05, position_y=0.05),
+    )
+
+    # Camera
+    plotter.camera.azimuth = 110.0
+    plotter.camera.elevation = -20.0
+    plotter.camera.zoom(1.4)
+
+    # Export to a pythreejs HTML
+    model_html = io.StringIO()
+    plotter.export_html(model_html, backend="pythreejs")
+
+    # Show in webpage
+    components.html(model_html.getvalue(), height=600, width=572, scrolling=False)
+
+
 def display_results(results_dir):
     """Display results results depending which type of file they are."""
 
@@ -56,6 +95,8 @@ def display_results(results_dir):
         elif child.suffix == ".vtu":
             if st.button(f"Open {child.name} with Paraview", key=f"{child}_vtu"):
                 open_paraview(child)
+
+            plot_vtu(child)
 
         elif child.suffix == ".png":
             st.markdown(f"#### {child.stem.replace('_',' ')}")

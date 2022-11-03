@@ -73,41 +73,6 @@ def save_screenshot(vtu_file):
     # st.image(str(screenshot_name))
 
 
-def plot_vtu(vtu_file):
-
-    # Using pythreejs as pyvista backend
-    pv.set_jupyter_backend("pythreejs")
-
-    # Initialize pyvista reader and plotter
-    plotter = pv.Plotter(border=False, window_size=[572, 600])
-    plotter.background_color = CEASIOMPY_BEIGE
-
-    # Read data and send to plotter
-    mesh = pv.read(str(vtu_file))
-
-    scalar_list = mesh.array_names
-    scalar_selected = st.selectbox(f"scalar_{str(vtu_file).replace('/','_')}", scalar_list)
-
-    plotter.add_mesh(
-        mesh,
-        scalars=scalar_selected,
-        show_scalar_bar=True,
-        scalar_bar_args=dict(vertical=True, position_x=0.05, position_y=0.05),
-    )
-
-    # Camera
-    plotter.camera.azimuth = 110.0
-    plotter.camera.elevation = -20.0
-    plotter.camera.zoom(1.4)
-
-    # Export to a pythreejs HTML
-    model_html = io.StringIO()
-    plotter.export_html(model_html, backend="pythreejs")
-
-    # Show in webpage
-    components.html(model_html.getvalue(), height=600, width=572, scrolling=False)
-
-
 def display_results(results_dir):
     """Display results results depending which type of file they are."""
 
@@ -124,11 +89,10 @@ def display_results(results_dir):
         elif child.suffix == ".vtu":
 
             if child.stem == "surface_flow":
-                plot_vtu(child)
                 save_screenshot(child)
-            else:
-                if st.button(f"Open {child.name} with Paraview", key=f"{child}_vtu"):
-                    open_paraview(child)
+
+            if st.button(f"Open {child.name} with Paraview", key=f"{child}_vtu"):
+                open_paraview(child)
 
         elif child.suffix == ".png":
             st.markdown(f"#### {child.stem.replace('_',' ')}")

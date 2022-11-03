@@ -1,4 +1,4 @@
-import math
+from math import pi, sqrt, acos, exp, fabs
 import numpy as np
 import pylab as pl
 
@@ -7,17 +7,28 @@ import pylab as pl
 ##########################
 
 
-def optimal_prop(Stations, Ct, R, rhub, J, Vinf, Prandtl, N):
-    def a_distribution(w0, Chi):
+def optimal_prop(
+    stations,
+    total_thrust_coefficient,
+    radius,
+    hub_radius,
+    advanced_ratio,
+    free_stream_velocity,
+    prandtl,
+    blades_number,
+):
+    def axial_interference_factor_distribution(w0, non_dimensional_radius):
 
-        """Function used to compute the value of the axial interference factor using the inviscid theory of the optimal propeller."""
+        # Function used to compute the value of the axial interference factor using the inviscid theory of the optimal propeller
 
-        a = (w0 * pow(Chi, 2)) / (pow(Chi, 2) + pow((1 + (w0)), 2))
-        return a
+        axial_interference_factor = (w0 * non_dimensional_radius**2) / (
+            non_dimensional_radius**2 + (1 + (w0)) ** 2
+        )
+        return axial_interference_factor
 
-    def Print_external_file(CTrs, CPrs):
+    def print_external_file(CTrs, CPrs):
 
-        """Function used to write the actuator disk input data file"""
+        # Function used to write the actuator disk input data file
         file = open("ActuatorDisk.dat", "w")
         file.write(
             "# Automatic generated actuator disk input data file using the Optimal Propeller code.\n"
@@ -41,12 +52,12 @@ def optimal_prop(Stations, Ct, R, rhub, J, Vinf, Prandtl, N):
         file.write("MARKER_ACTDISK= \n")
         file.write("CENTER= \n")
         file.write("AXIS= \n")
-        file.write("RADIUS= " + str(R) + "\n")
-        file.write("ADV_RATIO= " + str(J) + "\n")
-        file.write("NROW= " + str(Stations) + "\n")
+        file.write("RADIUS= " + str(radius) + "\n")
+        file.write("ADV_RATIO= " + str(advanced_ratio) + "\n")
+        file.write("NROW= " + str(stations) + "\n")
         file.write("# rs=r/R        dCT/drs       dCP/drs       dCR/drs\n")
 
-        for i in range(0, Stations):
+        for i in range(0, stations):
             file.write(f"  {r[i]:.7f}     {CTrs[i]:.7f}     {CPrs[i]:.7f}     0.0\n")
 
         file.close()
@@ -72,121 +83,147 @@ def optimal_prop(Stations, Ct, R, rhub, J, Vinf, Prandtl, N):
     print("Warning: present version requires input in SI units.")
     print("")
 
-    dStations = float(Stations)
+    dstations = float(stations)
 
     # Resize the vectors using the number of radial stations.
-    r = np.empty(Stations)
-    chi = np.empty(Stations)
-    dCp = np.empty(Stations)
-    w = np.empty(Stations)
-    a_new = np.empty(Stations)
-    a_old = np.empty(Stations)
-    a_0 = np.empty(Stations)
-    ap_old = np.empty(Stations)
-    dCt_new = np.empty(Stations)
-    dCt_old = np.empty(Stations)
-    dCt_0 = np.empty(Stations)
-    DeltaP = np.empty(Stations)
-    F = np.empty(Stations)
-    a_optimal = np.empty(Stations)
-    ap_optimal = np.empty(Stations)
-    dCt_optimal = np.empty(Stations)
+    r = np.empty(stations)
+    non_dimensional_radius = np.empty(stations)
+    dCp = np.empty(stations)
+    induced_velocity_distribution = np.empty(stations)
+    new_axial_interference_factor = np.empty(stations)
+    old_axial_interference_factor = np.empty(stations)
+    initial_axial_interference_factor = np.empty(stations)
+    ap_old = np.empty(stations)
+    dCt_new = np.empty(stations)
+    dCt_old = np.empty(stations)
+    dCt_0 = np.empty(stations)
+    delta_pressure = np.empty(stations)
+    correction_function = np.empty(stations)
+    optimal_axial_interference_factor = np.empty(stations)
+    optimal_rotational_interference_factor = np.empty(stations)
+    dCt_optimal = np.empty(stations)
 
-    if Prandtl == True:
+    if prandtl == True:
         corr = True
 
     else:
         corr = False
 
     # Computation of the non-dimensional hub radius.
-    rs_hub = rhub / R
+    rs_hub = hub_radius / radius
 
     # Computation of the non-dimensional radial stations.
-    for i in range(1, Stations + 1):
-        r[i - 1] = i / dStations
+    for i in range(1, stations + 1):
+        r[i - 1] = i / dstations
         if r[i - 1] <= rs_hub:
             i_hub = i - 1
 
     # Computation of the propeller diameter.
-    D = 2 * R
+    diameter = 2 * radius
     # Computation of the propeller angular velocity (Rounds/s).
-    n = Vinf / (D * J)
+    n = free_stream_velocity / (diameter * advanced_ratio)
     # Computation of the propeller angular velocity (Rad/s).
-    Omega = n * 2 * math.pi
+    omega = n * 2 * pi
 
     # Computation of the tip loss Prandtl correction function F.
     if corr == True:
-        for i in range(0, Stations):
-            F[i] = (2 / math.pi) * math.acos(
-                math.exp(-0.5 * N * (1 - r[i]) * math.sqrt(1 + pow(Omega * R / Vinf, 2)))
+        for i in range(0, stations):
+            correction_function[i] = (2 / pi) * acos(
+                exp(
+                    -0.5
+                    * blades_number
+                    * (1 - r[i])
+                    * sqrt(1 + (omega * radius / free_stream_velocity) ** 2)
+                )
             )
 
     else:
-        for i in range(0, Stations):
-            F[i] = 1.0
+        for i in range(0, stations):
+            correction_function[i] = 1.0
 
-    # Computation of the non-dimensional radius chi=Omega*r/Vinf.
-    for i in range(0, Stations):
-        chi[i] = Omega * r[i] * R / Vinf
+    # Computation of the non-dimensional radius chi=Omega*r/free_stream_velocity.
+    for i in range(0, stations):
+        non_dimensional_radius[i] = omega * r[i] * radius / free_stream_velocity
 
     eps = 5e-20
     # Computation of the propeller radial stations spacing.
-    h = 1.0 / Stations
+    radial_stations_spacing = 1.0 / stations
 
     # Computation of the first try induced velocity distribution.
-    for i in range(0, Stations):
-        w[i] = (2 / math.pow(Vinf, 2)) * (
-            (-1 / Vinf)
-            + math.sqrt(
+    for i in range(0, stations):
+        induced_velocity_distribution[i] = (2 / free_stream_velocity**2) * (
+            (-1 / free_stream_velocity)
+            + sqrt(
                 1
-                + ((math.pow(D, 4) * (Ct) * math.pow(n, 2)) / (math.pow(Vinf, 2) * math.pi * r[i]))
+                + (
+                    (diameter**4 * (total_thrust_coefficient) * n**2)
+                    / (free_stream_velocity**2 * pi * r[i])
+                )
             )
         )
 
     # Computation of the first try Lagrange moltiplicator.
-    w_0 = 0.0
-    for i in range(0, Stations):
-        w_0 += w[i]
+    first_lagrange_moltiplicator = 0.0
+    for i in range(0, stations):
+        first_lagrange_moltiplicator += induced_velocity_distribution[i]
 
-    w_0 = w_0 / (Vinf * Stations)
+    first_lagrange_moltiplicator = first_lagrange_moltiplicator / (free_stream_velocity * stations)
 
     # Computation of the first try axial interference factor distribution.
-    for i in range(0, Stations):
-        a_0[i] = a_distribution(w_0 * F[i], chi[i])
+    for i in range(0, stations):
+        initial_axial_interference_factor[i] = axial_interference_factor_distribution(
+            first_lagrange_moltiplicator * correction_function[i],
+            non_dimensional_radius[i],
+        )
 
     # Computation of the thrust coefficient distribution
-    for i in range(0, Stations):
-        dCt_0[i] = math.pi * J * J * r[i] * (1 + a_0[i]) * a_0[i]
+    for i in range(0, stations):
+        dCt_0[i] = (
+            pi
+            * advanced_ratio**2
+            * r[i]
+            * (1 + initial_axial_interference_factor[i])
+            * initial_axial_interference_factor[i]
+        )
 
     # Computation of the total thrust coefficient.
-    Ct_0 = 0.0
-    for i in range(i_hub, Stations):
-        Ct_0 += h * dCt_0[i]
+    initial_total_thrust_coefficient = 0.0
+    for i in range(i_hub, stations):
+        initial_total_thrust_coefficient += radial_stations_spacing * dCt_0[i]
 
     # Compute the error with respect to the thrust coefficient given in input.
-    err_0 = Ct_0 - Ct
+    inital_error = initial_total_thrust_coefficient - total_thrust_coefficient
     print("CONVERGENCE HISTORY:")
-    print(err_0)
+    print(inital_error)
 
     # Computation of the second try Lagrange moltiplicator.
-    w_old = w_0 + 0.1
+    last_lagrange_moltiplicator = first_lagrange_moltiplicator + 0.1
 
     # Computation of the second try axial interference factor distribution.
-    for i in range(0, Stations):
-        a_old[i] = a_distribution(w_old * F[i], chi[i])
+    for i in range(0, stations):
+        old_axial_interference_factor[i] = axial_interference_factor_distribution(
+            last_lagrange_moltiplicator * correction_function[i],
+            non_dimensional_radius[i],
+        )
 
     # Computation of the thrust coefficient distribution
-    for i in range(0, Stations):
-        dCt_old[i] = math.pi * J * J * r[i] * (1 + a_old[i]) * a_old[i]
+    for i in range(0, stations):
+        dCt_old[i] = (
+            pi
+            * advanced_ratio**2
+            * r[i]
+            * (1 + old_axial_interference_factor[i])
+            * old_axial_interference_factor[i]
+        )
 
     # Computation of the total thrust coefficient.
-    Ct_old = 0.0
-    for i in range(i_hub, Stations):
-        Ct_old += h * dCt_old[i]
+    old_total_thrust_coefficient = 0.0
+    for i in range(i_hub, stations):
+        old_total_thrust_coefficient += radial_stations_spacing * dCt_old[i]
 
     # Compute the error with respect to the thrust coefficient given in input.
-    err_old = Ct_old - Ct
-    print(err_old)
+    old_error = old_total_thrust_coefficient - total_thrust_coefficient
+    print(old_error)
 
     ##########################
     ###     Iterations     ###
@@ -194,97 +231,131 @@ def optimal_prop(Stations, Ct, R, rhub, J, Vinf, Prandtl, N):
     # Iterate using the false position methods.
     # Based on the error from the thrust coefficient given in input.
     iteration = 2
-    err_new = err_old
-    while math.fabs(err_new) >= eps and err_0 != err_old:
+    new_error = old_error
+    while fabs(new_error) >= eps and inital_error != old_error:
 
         iteration += 1
 
         # Computation of the new Lagrange moltiplicator value based on the false position method.
-        w_new = (w_old * err_0 - w_0 * err_old) / (err_0 - err_old)
+        new_lagrange_moltiplicator = (
+            last_lagrange_moltiplicator * inital_error - first_lagrange_moltiplicator * old_error
+        ) / (inital_error - old_error)
 
         # Computation of the new axial interference factor distribution.
-        for i in range(0, Stations):
-            a_new[i] = a_distribution(w_new * F[i], chi[i])
+        for i in range(0, stations):
+            new_axial_interference_factor[i] = axial_interference_factor_distribution(
+                new_lagrange_moltiplicator * correction_function[i],
+                non_dimensional_radius[i],
+            )
 
         # Computation of the new thrust coefficient distribution.
-        for i in range(0, Stations):
-            dCt_new[i] = math.pi * J * J * r[i] * (1 + a_new[i]) * a_new[i]
+        for i in range(0, stations):
+            dCt_new[i] = (
+                pi
+                * advanced_ratio**2
+                * r[i]
+                * (1 + new_axial_interference_factor[i])
+                * new_axial_interference_factor[i]
+            )
 
         # Computation of the new total thrust coefficient.
-        Ct_new = 0.0
-        for i in range(i_hub, Stations):
-            Ct_new += h * dCt_new[i]
+        new_total_thrust_coefficient = 0.0
+        for i in range(i_hub, stations):
+            new_total_thrust_coefficient += radial_stations_spacing * dCt_new[i]
 
         # Computation of the total thrust coefficient error with respect to the input value.
-        err_new = Ct_new - Ct
+        new_error = new_total_thrust_coefficient - total_thrust_coefficient
 
-        print(err_new)
+        print(new_error)
 
         # Updating the stored values for the next iteration.
-        err_0 = err_old
-        err_old = err_new
+        inital_error = old_error
+        old_error = new_error
 
-        w_0 = w_old
-        w_old = w_new
+        first_lagrange_moltiplicator = last_lagrange_moltiplicator
+        last_lagrange_moltiplicator = new_lagrange_moltiplicator
 
     # Computation of the correct axial and rotational interference factors (a and ap).
-    for i in range(0, Stations):
-        a_optimal[i] = a_distribution(w_new * F[i], chi[i])
-        ap_optimal[i] = (w_new * F[i]) * (
-            (1 + w_new * F[i]) / (chi[i] * chi[i] + math.pow(1 + w_new * F[i], 2))
+    for i in range(0, stations):
+        optimal_axial_interference_factor[i] = axial_interference_factor_distribution(
+            new_lagrange_moltiplicator * correction_function[i],
+            non_dimensional_radius[i],
+        )
+        optimal_rotational_interference_factor[i] = (
+            new_lagrange_moltiplicator * correction_function[i]
+        ) * (
+            (1 + new_lagrange_moltiplicator * correction_function[i])
+            / (
+                non_dimensional_radius[i] * non_dimensional_radius[i]
+                + (1 + new_lagrange_moltiplicator * correction_function[i]) ** 2
+            )
         )
 
     # Computation of the correct thrust coefficient distribution.
-    for i in range(0, Stations):
-        dCt_optimal[i] = math.pi * J * J * r[i] * (1 + a_optimal[i]) * a_optimal[i]
+    for i in range(0, stations):
+        dCt_optimal[i] = (
+            pi
+            * advanced_ratio**2
+            * r[i]
+            * (1 + optimal_axial_interference_factor[i])
+            * optimal_axial_interference_factor[i]
+        )
 
     # Computation of the correct power coefficient distribution.
-    for i in range(0, Stations):
-        dCp[i] = (R * 4 * math.pi / (math.pow(n, 3) * math.pow(D, 5))) * (
-            math.pow(Vinf, 3) * math.pow(1 + a_optimal[i], 2) * a_optimal[i] * r[i] * R
-            + math.pow(Omega, 2)
-            * Vinf
-            * (1 + a_optimal[i])
-            * math.pow(ap_optimal[i], 2)
-            * math.pow(r[i] * R, 3)
+    for i in range(0, stations):
+        dCp[i] = (radius * 4 * pi / (n**3 * diameter**5)) * (
+            free_stream_velocity**3
+            * (1 + optimal_axial_interference_factor[i]) ** 2
+            * optimal_axial_interference_factor[i]
+            * r[i]
+            * radius
+            + omega**2
+            * free_stream_velocity
+            * (1 + optimal_axial_interference_factor[i])
+            * optimal_rotational_interference_factor[i] ** 2
+            * (r[i] * radius) ** 3
         )
 
     ##########################
     ###   Check Results    ###
     ##########################
     # Computation of the total power coefficient.
-    Cp = 0.0
-    for i in range(i_hub, Stations):
-        Cp += h * dCp[i]
+    total_power_coefficient = 0.0
+    for i in range(i_hub, stations):
+        total_power_coefficient += radial_stations_spacing * dCp[i]
 
     # Computation of the total thrust coefficient.
-    Ct_optimal = 0.0
-    for i in range(i_hub, Stations):
-        Ct_optimal += h * dCt_optimal[i]
+    optimal_total_thrust_coefficient = 0.0
+    for i in range(i_hub, stations):
+        optimal_total_thrust_coefficient += radial_stations_spacing * dCt_optimal[i]
 
     # Computation of the static pressure jump distribution.
-    for i in range(0, Stations):
-        DeltaP[i] = (dCt_optimal[i]) * (2 * Vinf * Vinf) / (J * J * math.pi * r[i])
+    for i in range(0, stations):
+        delta_pressure[i] = (
+            (dCt_optimal[i]) * (2 * free_stream_velocity**2) / (advanced_ratio**2 * pi * r[i])
+        )
 
     # Computation of the thrust over density (T) using the static pressure jump distribution.
-    T = 0.0
-    for i in range(i_hub, Stations):
-        T += 2 * math.pi * r[i] * math.pow(R, 2) * h * DeltaP[i]
+    thrust_density_ratio = 0.0
+    for i in range(i_hub, stations):
+        thrust_density_ratio += (
+            2 * pi * r[i] * radius**2 * radial_stations_spacing * delta_pressure[i]
+        )
 
     # Computation of the thrust coefficient using T.
-    Ct_Renard = (T) / (math.pow(n, 2) * math.pow(D, 4))
+    Ct_Renard = thrust_density_ratio / (n**2 * diameter**4)
 
     # Computation of the efficiency.
-    eta = J * (Ct_optimal / Cp)
+    eta = advanced_ratio * (optimal_total_thrust_coefficient / total_power_coefficient)
 
     # Screen output used to check that everything worked correcty.
     print("%%%%%%%%%%%%%%%%%%%%%%%%% CHECK OUTPUT VALUES %%%%%%%%%%%%%%%%%%%%%%%%%")
-    print(f"       dCT distribution integral: {Ct_optimal:.4f}")
+    print(f"       dCT distribution integral: {optimal_total_thrust_coefficient:.4f}")
     print(f"       dCT computed using the static pressure jump: {Ct_Renard:.4f}")
-    print(f"       dCP distribution integral: {Cp:.4f}")
-    print(f"       Thrust over Density (T/rho): {T:.4f} [N*m^3/kg]")
+    print(f"       dCP distribution integral: {total_power_coefficient:.4f}")
+    print(f"       Thrust over Density (T/rho): {thrust_density_ratio:.4f} [N*m^3/kg]")
     print(f"       Efficiency eta: {eta:.4f}")
-    print(f"       w0/Vinf: {w_new:.4f}")
+    print(f"       w0/free_stream_velocity: {new_lagrange_moltiplicator:.4f}")
     print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
 
     ##########################
@@ -311,7 +382,7 @@ def optimal_prop(Stations, Ct, R, rhub, J, Vinf, Prandtl, N):
 
     # Write the actuator disk data file.
     # This is the actuator disk input data file.
-    Print_external_file(dCt_optimal, dCp)
+    print_external_file(dCt_optimal, dCp)
 
     ##########################
     ###        Plots       ###
@@ -328,8 +399,20 @@ def optimal_prop(Stations, Ct, R, rhub, J, Vinf, Prandtl, N):
     pl.title("Load Distribution")
 
     f1 = pl.figure(2)
-    pl.plot(chi, a_optimal, "r", markersize=4, label="$a$")
-    pl.plot(chi, ap_optimal, "k", markersize=4, label="$a^1$")
+    pl.plot(
+        non_dimensional_radius,
+        optimal_axial_interference_factor,
+        "r",
+        markersize=4,
+        label="$a$",
+    )
+    pl.plot(
+        non_dimensional_radius,
+        optimal_rotational_interference_factor,
+        "k",
+        markersize=4,
+        label="$a^1$",
+    )
     pl.grid(True)
     pl.legend(numpoints=3)
     pl.xlabel("$\chi$")
@@ -338,7 +421,7 @@ def optimal_prop(Stations, Ct, R, rhub, J, Vinf, Prandtl, N):
 
     if corr == True:
         f1 = pl.figure(3)
-        pl.plot(r, F, "k", markersize=4)
+        pl.plot(r, correction_function, "k", markersize=4)
         pl.grid(True)
         pl.xlabel("$\overline{r}$")
         pl.ylabel("$F(\overline{r})$")

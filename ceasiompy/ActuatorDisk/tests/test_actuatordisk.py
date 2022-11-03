@@ -19,11 +19,11 @@ Python version: >=3.8
 
 from pathlib import Path
 
-import os
 import pytest
-from ceasiompy.ActuatorDisk.func.optimalprop import optimal_prop
-from ceasiompy.ActuatorDisk.actuatordisk import write_actuator_disk
-from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.ActuatorDisk.func.optimalprop import (
+    optimal_prop,
+    axial_interference_factor_distribution,
+)
 
 from pytest import approx
 
@@ -40,6 +40,13 @@ CPACS_OUT_PATH = Path(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def test_axial_interference():
+
+    axial_interference_factor = axial_interference_factor_distribution(0.12, 0.5)
+
+    assert axial_interference_factor == approx(0.0237)
 
 
 def test_check_output():

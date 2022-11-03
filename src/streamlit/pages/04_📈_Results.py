@@ -1,13 +1,9 @@
-import io
 import os
 from pathlib import Path
 
 import pandas as pd
 import plotly.graph_objects as go
-import pyvista as pv
 import streamlit as st
-import streamlit.components.v1 as components
-from ceasiompy.utils.commonnames import CEASIOMPY_BEIGE
 from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
@@ -50,34 +46,6 @@ def clear_containers(container_list):
         if container in st.session_state:
             del st.session_state[container]
 
-def save_screenshot(vtu_file):
-
-    # Initialize pyvista reader and plotter
-    plotter = pv.Plotter(border=False, window_size=[572, 600])
-
-    plotter = pv.Plotter(off_screen=True)
-    # plotter.background_color = CEASIOMPY_BEIGE
-
-    # Read data and send to plotter
-    mesh = pv.read(str(vtu_file))
-
-    plotter.add_mesh(
-        mesh,
-        scalars="Mach",
-        show_scalar_bar=True,
-        # scalar_bar_args=dict(vertical=True, position_x=0.05, position_y=0.05),
-    )
-
-    # Camera
-    plotter.camera.azimuth = 110.0
-    plotter.camera.elevation = -25.0
-    plotter.camera.zoom(1.6)
-
-    screenshot_name = Path(vtu_file.parent, "3dview_Mach_number.png")
-    plotter.show(screenshot=screenshot_name)
-
-    # st.image(str(screenshot_name))
-
 
 def display_results(results_dir):
     """Display results results depending which type of file they are."""
@@ -97,9 +65,6 @@ def display_results(results_dir):
             if "paraview_container" not in st.session_state:
                 st.session_state["paraview_container"] = st.container()
                 st.session_state.paraview_container.markdown("**Paraview**")
-
-            # if child.stem == "surface_flow":
-            #     save_screenshot(child)
 
             if st.session_state.paraview_container.button(
                 f"Open {child.name} with Paraview", key=f"{child}_vtu"

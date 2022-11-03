@@ -80,8 +80,10 @@ def save_screenshot(surface_flow_file, scalar="Mach"):
     plotter.camera.zoom(1.6)
 
     # Save Screenshot
-    mach_filename = Path(surface_flow_file.parent, f"3d_view_{scalar}.png")
-    plotter.show(screenshot=mach_filename)
+    screenshot_filename = Path(surface_flow_file.parent, f"3d_view_{scalar}.png")
+    plotter.show(screenshot=screenshot_filename)
+    
+    return screenshot_filename
 
 
 def get_su2_results(cpacs_path, cpacs_out_path, wkdir):

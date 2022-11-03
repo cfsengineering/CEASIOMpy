@@ -335,15 +335,15 @@ def optimal_prop(
             (dCt_optimal[i]) * (2 * free_stream_velocity**2) / (advanced_ratio**2 * pi * r[i])
         )
 
-    # Computation of the thrust over density (T) using the static pressure jump distribution.
+    # Computation of the thrust over density using the static pressure jump distribution.
     thrust_density_ratio = 0.0
     for i in range(i_hub, stations):
         thrust_density_ratio += (
             2 * pi * r[i] * radius**2 * radial_stations_spacing * delta_pressure[i]
         )
 
-    # Computation of the thrust coefficient using T.
-    Ct_Renard = thrust_density_ratio / (n**2 * diameter**4)
+    # Computation of the thrust coefficient using thrust_density_ratio.
+    computed_total_thrust_coefficient = thrust_density_ratio / (n**2 * diameter**4)
 
     # Computation of the efficiency.
     eta = advanced_ratio * (optimal_total_thrust_coefficient / total_power_coefficient)
@@ -351,7 +351,9 @@ def optimal_prop(
     # Screen output used to check that everything worked correcty.
     print("%%%%%%%%%%%%%%%%%%%%%%%%% CHECK OUTPUT VALUES %%%%%%%%%%%%%%%%%%%%%%%%%")
     print(f"       dCT distribution integral: {optimal_total_thrust_coefficient:.4f}")
-    print(f"       dCT computed using the static pressure jump: {Ct_Renard:.4f}")
+    print(
+        f"       dCT computed using the static pressure jump: {computed_total_thrust_coefficient:.4f}"
+    )
     print(f"       dCP distribution integral: {total_power_coefficient:.4f}")
     print(f"       Thrust over Density (T/rho): {thrust_density_ratio:.4f} [N*m^3/kg]")
     print(f"       Efficiency eta: {eta:.4f}")

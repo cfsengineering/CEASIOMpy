@@ -44,6 +44,12 @@ def get_last_workflow():
     return Path(Path(st.session_state.workflow.working_dir), f"Workflow_{last_workflow_nb:03}")
 
 
+def clear_containers(container_list):
+
+    for container in container_list:
+        if container in st.session_state:
+            del st.session_state[container]
+
 def save_screenshot(vtu_file):
 
     # Initialize pyvista reader and plotter
@@ -88,15 +94,26 @@ def display_results(results_dir):
 
         elif child.suffix == ".vtu":
 
-            if child.stem == "surface_flow":
-                save_screenshot(child)
+            if "paraview_container" not in st.session_state:
+                st.session_state["paraview_container"] = st.container()
+                st.session_state.paraview_container.markdown("**Paraview**")
 
-            if st.button(f"Open {child.name} with Paraview", key=f"{child}_vtu"):
+            # if child.stem == "surface_flow":
+            #     save_screenshot(child)
+
+            if st.session_state.paraview_container.button(
+                f"Open {child.name} with Paraview", key=f"{child}_vtu"
+            ):
                 open_paraview(child)
 
         elif child.suffix == ".png":
-            st.markdown(f"#### {child.stem.replace('_',' ')}")
-            st.image(str(child))
+
+            if "figures_container" not in st.session_state:
+                st.session_state["figures_container"] = st.container()
+                st.session_state.figures_container.markdown("**Figures**")
+
+            st.session_state.figures_container.markdown(f"{child.stem.replace('_',' ')}")
+            st.session_state.figures_container.image(str(child))
 
         elif child.suffix == ".md":
             st.markdown(child.read_text())
@@ -105,7 +122,10 @@ def display_results(results_dir):
             st.text_area(child.stem, child.read_text(), height=200)
 
         elif child.suffix == ".log" or child.suffix == ".txt":
-            st.text_area(child.stem, child.read_text(), height=200)
+            if "logs_container" not in st.session_state:
+                st.session_state["logs_container"] = st.container()
+                st.session_state.logs_container.markdown("**Logs**")
+            st.session_state.logs_container.text_area(child.stem, child.read_text(), height=200)
 
         elif child.name == "history.csv":
             st.markdown("**Convergence**")
@@ -266,6 +286,10 @@ def show_results():
     results_tabs = st.tabs(results_name)
 
     for tab, tab_name in zip(results_tabs, results_name):
+
+        container_list = ["logs_container", "figures_container", "paraview_container"]
+        clear_containers(container_list)
+
         with tab:
             display_results(Path(results_dir, tab_name))
 

@@ -7,8 +7,8 @@ Small description of the script
 
 Python version: >=3.8
 
-| Author: Name
-| Creation: YEAR-MONTH-DAY
+| Author: Giacomo Benedetti
+| Creation: 2022-11-03
 
 TODO:
 
@@ -23,32 +23,21 @@ TODO:
 
 from pathlib import Path
 
-
+from ceasiompy.ActuatorDisk.func.optimalprop import optimal_prop
 from ambiance import Atmosphere
-from ceasiompy.ModuleTemplate.func.subfunc import my_subfunc
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.moduleinterfaces import (
     check_cpacs_input_requirements,
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from ceasiompy.utils.commonxpath import FUSELAGES_XPATH
-from cpacspy.cpacsfunctions import (
-    add_float_vector,
-    add_string_vector,
-    add_uid,
-    copy_branch,
-    create_branch,
-    get_float_vector,
-    get_string_vector,
-    get_tigl_configuration,
-    get_uid,
-    get_value,
-    get_value_or_default,
-    get_xpath_parent,
-    open_tigl,
-    open_tixi,
+from ceasiompy.utils.commonxpath import (
+    RANGE_XPATH,
+    PROP_XPATH,
 )
+from cpacspy.cpacsfunctions import create_branch, get_value, get_value_or_default
+from cpacspy.cpacspy import CPACS
 
 log = get_logger()
 
@@ -61,15 +50,71 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 
 
-
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
 
 
 def write_actuator_disk():
-    pass
-    
+
+    cpacs = CPACS(cpacs_path)
+    tixi = cpacs.tixi
+
+    results_dir = get_results_directory("AD")
+    brep_dir = Path(results_dir, "brep_files")
+    brep_dir.mkdir()
+
+    # XPath definition
+    cruise_alt_xpath = RANGE_XPATH + "/cruiseAltitude"
+    cruise_mach_xpath = RANGE_XPATH + "/cruiseMach"
+    stations_xpath = PROP_XPATH + "/propeller/blade/discretization"
+    radius_xpath = PROP_XPATH + "/propeller/blade/discretization"
+    thrust_xpath = PROP_XPATH + "propeller/thrust"
+    n_xpath = PROP_XPATH + "propeller/rotational_velocity"
+    no_prandtl_correction_xpath = PROP_XPATH + "propeller/blade/loss"
+    prandtl_correction_xpath = PROP_XPATH + "propeller/blade/loss"
+    blades_number_xpath = PROP_XPATH + "propeller/blade"
+
+    # Required input data from CPACS
+    cruise_alt = get_value_or_default(tixi, cruise_alt_xpath, 10000)
+    cruise_mach = get_value_or_default(tixi, cruise_mach_xpath, 0.67)
+    stations = get_value_or_default(tixi, stations_xpath, 10)
+    radius = get_value_or_default(tixi, radius_xpath, 1.5)
+    thrust = get_value_or_default(tixi, thrust_xpath, 108824.367)
+    n = get_value_or_default(tixi, n_xpath, 2000)
+    no_prandtl_correction = get_value_or_default(tixi, no_prandtl_correction_xpath, False)
+    prandtl_correction = get_value_or_default(tixi, prandtl_correction_xpath, True)
+    blades_number = get_value_or_default(tixi, blades_number_xpath, 2)
+
+    Atm = Atmosphere(cruise_alt)
+    rho = Atm.density
+    sound_speed = Atm.speed_of_sound
+
+    free_stream_velocity = cruise_mach * sound_speed
+    diameter = 2 * radius
+    total_thrust_coefficient = thrust / (rho * n**2 * diameter**4)
+    hub_radius = 0.1 * radius
+    advanced_ratio = free_stream_velocity / (n * diameter)
+
+    prandtl = True
+    if prandtl_correction == True:
+        prandtl == prandtl_correction
+    else:
+        prandtl == no_prandtl_correction
+
+    optimal_prop(
+        stations,
+        total_thrust_coefficient,
+        radius,
+        hub_radius,
+        advanced_ratio,
+        free_stream_velocity,
+        prandtl,
+        blades_number,
+    )
+
+    # Save CPACS
+    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
 
 # =================================================================================================
@@ -82,7 +127,8 @@ def main(cpacs_path, cpacs_out_path):
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     check_cpacs_input_requirements(cpacs_path)
-    write_actuator_disk()
+    write_actuator_disk(cpacs_path, cpacs_out_path)
+
     log.info("----- End of " + MODULE_NAME + " -----")
 
 

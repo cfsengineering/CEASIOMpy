@@ -44,6 +44,35 @@ def get_last_workflow():
     return Path(Path(st.session_state.workflow.working_dir), f"Workflow_{last_workflow_nb:03}")
 
 
+def save_screenshot(vtu_file):
+
+    # Initialize pyvista reader and plotter
+    plotter = pv.Plotter(border=False, window_size=[572, 600])
+
+    plotter = pv.Plotter(off_screen=True)
+    # plotter.background_color = CEASIOMPY_BEIGE
+
+    # Read data and send to plotter
+    mesh = pv.read(str(vtu_file))
+
+    plotter.add_mesh(
+        mesh,
+        scalars="Mach",
+        show_scalar_bar=True,
+        # scalar_bar_args=dict(vertical=True, position_x=0.05, position_y=0.05),
+    )
+
+    # Camera
+    plotter.camera.azimuth = 110.0
+    plotter.camera.elevation = -25.0
+    plotter.camera.zoom(1.6)
+
+    screenshot_name = Path(vtu_file.parent, "3dview_Mach_number.png")
+    plotter.show(screenshot=screenshot_name)
+
+    # st.image(str(screenshot_name))
+
+
 def plot_vtu(vtu_file):
 
     # Using pythreejs as pyvista backend
@@ -96,6 +125,7 @@ def display_results(results_dir):
 
             if child.stem == "surface_flow":
                 plot_vtu(child)
+                save_screenshot(child)
             else:
                 if st.button(f"Open {child.name} with Paraview", key=f"{child}_vtu"):
                     open_paraview(child)

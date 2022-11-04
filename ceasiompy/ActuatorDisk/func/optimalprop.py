@@ -32,7 +32,51 @@ log = get_logger()
 # =================================================================================================
 
 
-def optimal_prop(
+def axial_interference_function(lagrangian_moltiplicator, non_dimensional_radius):
+    axial_interference_factor = (lagrangian_moltiplicator * non_dimensional_radius**2) / (
+        non_dimensional_radius**2 + (1 + lagrangian_moltiplicator) ** 2
+    )
+    return axial_interference_factor
+
+
+def print_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r):
+    file = open("ActuatorDisk.dat", "w")
+    file.write(
+        """# Automatic generated actuator disk input data file
+             using the Optimal Propeller code.\n"""
+    )
+    file.write("# Data file needed for the actuator disk VARIABLE_LOAD type.\n")
+    file.write(
+        """# The load distribution is obtained using
+             the inviscid theory of the optimal propeller\n"""
+    )
+    file.write("# using global data.\n")
+    file.write("#\n")
+    file.write("# The first three lines must be filled.\n")
+    file.write("# An example of this file can be found in the TestCases directory.\n")
+    file.write("#\n")
+    file.write("# Author: Ettore Saetta, Lorenzo Russo, Renato Tognaccini.\n")
+    file.write("# Theoretical and Applied Aerodynamic Research Group (TAARG),\n")
+    file.write("# University of Naples Federico II\n")
+    file.write(
+        "# ---------------------------------------------------------------------------------\n"
+    )
+    file.write("#\n")
+    file.write("MARKER_ACTDISK= \n")
+    file.write("CENTER= \n")
+    file.write("AXIS= \n")
+    file.write("RADIUS= " + str(radius) + "\n")
+    file.write("ADV_RATIO= " + str(advanced_ratio) + "\n")
+    file.write("NROW= " + str(stations) + "\n")
+    file.write("# rs=r/R        dCT/drs       dCP/drs       dCR/drs\n")
+    for i in range(0, stations):
+        file.write(f"  {r[i]:.7f}     {CTrs[i]:.7f}     {CPrs[i]:.7f}     0.0\n")
+    file.close()
+
+    log.info("Warning: present version requires input in SI units.")
+
+
+def thrust_calculator(
     stations,
     total_thrust_coefficient,
     radius,
@@ -42,51 +86,6 @@ def optimal_prop(
     prandtl,
     blades_number,
 ):
-    def axial_interference_function(lagrangian_moltiplicator, non_dimensional_radius):
-
-        axial_interference_factor = (lagrangian_moltiplicator * non_dimensional_radius**2) / (
-            non_dimensional_radius**2 + (1 + lagrangian_moltiplicator) ** 2
-        )
-        return axial_interference_factor
-
-    def print_external_file(CTrs, CPrs):
-
-        file = open("ActuatorDisk.dat", "w")
-        file.write(
-            """# Automatic generated actuator disk input data file
-                 using the Optimal Propeller code.\n"""
-        )
-        file.write("# Data file needed for the actuator disk VARIABLE_LOAD type.\n")
-        file.write(
-            """# The load distribution is obtained using
-                 the inviscid theory of the optimal propeller\n"""
-        )
-        file.write("# using global data.\n")
-        file.write("#\n")
-        file.write("# The first three lines must be filled.\n")
-        file.write("# An example of this file can be found in the TestCases directory.\n")
-        file.write("#\n")
-        file.write("# Author: Ettore Saetta, Lorenzo Russo, Renato Tognaccini.\n")
-        file.write("# Theoretical and Applied Aerodynamic Research Group (TAARG),\n")
-        file.write("# University of Naples Federico II\n")
-        file.write(
-            "# ---------------------------------------------------------------------------------\n"
-        )
-        file.write("#\n")
-        file.write("MARKER_ACTDISK= \n")
-        file.write("CENTER= \n")
-        file.write("AXIS= \n")
-        file.write("RADIUS= " + str(radius) + "\n")
-        file.write("ADV_RATIO= " + str(advanced_ratio) + "\n")
-        file.write("NROW= " + str(stations) + "\n")
-        file.write("# rs=r/R        dCT/drs       dCP/drs       dCR/drs\n")
-
-        for i in range(0, stations):
-            file.write(f"  {r[i]:.7f}     {CTrs[i]:.7f}     {CPrs[i]:.7f}     0.0\n")
-
-        file.close()
-
-    log.info("Warning: present version requires input in SI units.")
 
     dstations = float(stations)
 
@@ -371,7 +370,7 @@ def optimal_prop(
     file.close()
 
     print("SU2 file generated!")
-    print_external_file(dCt_optimal, dCp)
+    print_external_file(dCt_optimal, dCp, stations, radius, advanced_ratio, r)
 
     f1 = pl.figure(1)
     pl.plot(r, dCt_optimal, "r", markersize=4, label="$\\frac{dCT}{d\overline{r}}$")

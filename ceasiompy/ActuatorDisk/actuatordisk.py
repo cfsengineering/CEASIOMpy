@@ -23,7 +23,7 @@ TODO:
 
 from pathlib import Path
 
-from ceasiompy.ActuatorDisk.func.optimalprop import optimal_prop
+from ceasiompy.ActuatorDisk.func.optimalprop import thrust_calculator
 from ambiance import Atmosphere
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
@@ -36,7 +36,7 @@ from ceasiompy.utils.commonxpath import (
     RANGE_XPATH,
     PROP_XPATH,
 )
-from cpacspy.cpacsfunctions import create_branch, get_value, get_value_or_default
+from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacspy import CPACS
 
 log = get_logger()
@@ -102,7 +102,7 @@ def write_actuator_disk():
     else:
         prandtl == no_prandtl_correction
 
-    optimal_prop(
+    thrust_calculator(
         stations,
         total_thrust_coefficient,
         radius,

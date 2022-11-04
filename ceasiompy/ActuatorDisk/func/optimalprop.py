@@ -42,25 +42,24 @@ def optimal_prop(
     prandtl,
     blades_number,
 ):
-    def axial_interference_factor_distribution(w0, non_dimensional_radius):
+    def axial_interference_function(lagrangian_moltiplicator, non_dimensional_radius):
 
-        # Function used to compute the value of the axial interference factor using the inviscid theory of the optimal propeller
-
-        axial_interference_factor = (w0 * non_dimensional_radius**2) / (
-            non_dimensional_radius**2 + (1 + (w0)) ** 2
+        axial_interference_factor = (lagrangian_moltiplicator * non_dimensional_radius**2) / (
+            non_dimensional_radius**2 + (1 + lagrangian_moltiplicator) ** 2
         )
         return axial_interference_factor
 
     def print_external_file(CTrs, CPrs):
 
-        # Function used to write the actuator disk input data file
         file = open("ActuatorDisk.dat", "w")
         file.write(
-            "# Automatic generated actuator disk input data file using the Optimal Propeller code.\n"
+            """# Automatic generated actuator disk input data file
+                 using the Optimal Propeller code.\n"""
         )
         file.write("# Data file needed for the actuator disk VARIABLE_LOAD type.\n")
         file.write(
-            "# The load distribution is obtained using the inviscid theory of the optimal propeller\n"
+            """# The load distribution is obtained using
+                 the inviscid theory of the optimal propeller\n"""
         )
         file.write("# using global data.\n")
         file.write("#\n")
@@ -71,7 +70,7 @@ def optimal_prop(
         file.write("# Theoretical and Applied Aerodynamic Research Group (TAARG),\n")
         file.write("# University of Naples Federico II\n")
         file.write(
-            "# -------------------------------------------------------------------------------------\n"
+            "# ---------------------------------------------------------------------------------\n"
         )
         file.write("#\n")
         file.write("MARKER_ACTDISK= \n")
@@ -87,23 +86,7 @@ def optimal_prop(
 
         file.close()
 
-    # Screen output
-    print("------------------ Optimal Propeller vsn 7.0.6 ------------------")
-    print("| Computation of the optimal dCT/dr and dCP/dr distributions.   |")
-    print("| Based on the inviscid theory of the optimal propeller.        |")
-    print("|                                                               |")
-    print("| This code is used to generate the actuator disk input data    |")
-    print("| file needed for the VARIABLE_LOAD actuator disk type          |")
-    print("| implemented in SU2 7.0.6.                                     |")
-    print("|                                                               |")
-    print("| Author: Ettore Saetta, Lorenzo Russo, Renato Tognaccini.      |")
-    print("| Theoretical and Applied Aerodynamic Research Group (TAARG),   |")
-    print("| University of Naples Federico II.                             |")
-    print("-----------------------------------------------------------------")
-
-    print("")
-    print("Warning: present version requires input in SI units.")
-    print("")
+    log.info("Warning: present version requires input in SI units.")
 
     dstations = float(stations)
 
@@ -131,23 +114,19 @@ def optimal_prop(
     else:
         corr = False
 
-    # Computation of the non-dimensional hub radius.
-    rs_hub = hub_radius / radius
+    non_dimensional_hub_radius = hub_radius / radius
 
     # Computation of the non-dimensional radial stations.
     for i in range(1, stations + 1):
         r[i - 1] = i / dstations
-        if r[i - 1] <= rs_hub:
+        if r[i - 1] <= non_dimensional_hub_radius:
             i_hub = i - 1
 
-    # Computation of the propeller diameter.
     diameter = 2 * radius
-    # Computation of the propeller angular velocity (Rounds/s).
     n = free_stream_velocity / (diameter * advanced_ratio)
-    # Computation of the propeller angular velocity (Rad/s).
     omega = n * 2 * pi
 
-    # Computation of the tip loss Prandtl correction function F.
+    # Computation of the tip loss Prandtl correction function
     if corr == True:
         for i in range(0, stations):
             correction_function[i] = (2 / pi) * acos(
@@ -163,12 +142,12 @@ def optimal_prop(
         for i in range(0, stations):
             correction_function[i] = 1.0
 
-    # Computation of the non-dimensional radius chi=Omega*r/free_stream_velocity.
+    # Computation of the non-dimensional radius
     for i in range(0, stations):
         non_dimensional_radius[i] = omega * r[i] * radius / free_stream_velocity
 
-    eps = 5e-20
-    # Computation of the propeller radial stations spacing.
+    EPSILON = 5e-20
+
     radial_stations_spacing = 1.0 / stations
 
     # Computation of the first try induced velocity distribution.
@@ -193,7 +172,7 @@ def optimal_prop(
 
     # Computation of the first try axial interference factor distribution.
     for i in range(0, stations):
-        initial_axial_interference_factor[i] = axial_interference_factor_distribution(
+        initial_axial_interference_factor[i] = axial_interference_function(
             first_lagrange_moltiplicator * correction_function[i],
             non_dimensional_radius[i],
         )
@@ -223,7 +202,7 @@ def optimal_prop(
 
     # Computation of the second try axial interference factor distribution.
     for i in range(0, stations):
-        old_axial_interference_factor[i] = axial_interference_factor_distribution(
+        old_axial_interference_factor[i] = axial_interference_function(
             last_lagrange_moltiplicator * correction_function[i],
             non_dimensional_radius[i],
         )
@@ -251,7 +230,7 @@ def optimal_prop(
     # Based on the error from the thrust coefficient given in input.
     iteration = 2
     new_error = old_error
-    while fabs(new_error) >= eps and inital_error != old_error:
+    while fabs(new_error) >= EPSILON and inital_error != old_error:
 
         iteration += 1
 
@@ -262,7 +241,7 @@ def optimal_prop(
 
         # Computation of the new axial interference factor distribution.
         for i in range(0, stations):
-            new_axial_interference_factor[i] = axial_interference_factor_distribution(
+            new_axial_interference_factor[i] = axial_interference_function(
                 new_lagrange_moltiplicator * correction_function[i],
                 non_dimensional_radius[i],
             )
@@ -296,7 +275,7 @@ def optimal_prop(
 
     # Computation of the correct axial and rotational interference factors (a and ap).
     for i in range(0, stations):
-        optimal_axial_interference_factor[i] = axial_interference_factor_distribution(
+        optimal_axial_interference_factor[i] = axial_interference_function(
             new_lagrange_moltiplicator * correction_function[i],
             non_dimensional_radius[i],
         )
@@ -393,8 +372,6 @@ def optimal_prop(
 
     print("SU2 file generated!")
     print_external_file(dCt_optimal, dCp)
-
-    # Automatically plot the computed propeller performance.
 
     f1 = pl.figure(1)
     pl.plot(r, dCt_optimal, "r", markersize=4, label="$\\frac{dCT}{d\overline{r}}$")

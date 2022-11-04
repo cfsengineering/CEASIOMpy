@@ -97,7 +97,6 @@ def thrust_calculator(
     new_axial_interference_factor = np.empty(stations)
     old_axial_interference_factor = np.empty(stations)
     initial_axial_interference_factor = np.empty(stations)
-    ap_old = np.empty(stations)
     dCt_new = np.empty(stations)
     dCt_old = np.empty(stations)
     dCt_0 = np.empty(stations)
@@ -353,23 +352,6 @@ def thrust_calculator(
     log.info(f"Efficiency eta= {eta:.4f}")
     log.info(f"Lagrangian moltiplicator/free_stream_velocity= {new_lagrange_moltiplicator:.4f}")
 
-    # Write the actuator disk configuration file
-    file = open("ActuatorDisk.cfg", "w")
-
-    file.write("% Automatic generated actuator disk configuration file.\n")
-    file.write("%\n")
-    file.write("% The first two elements of MARKER_ACTDISK must be filled.\n")
-    file.write("% An example of this file can be found in the TestCases directory.\n")
-    file.write("%\n")
-    file.write("% Author: Ettore Saetta, Lorenzo Russo, Renato Tognaccini.\n")
-    file.write("% Theoretical and Applied Aerodynamic Research Group (TAARG),\n")
-    file.write("% University of Naples Federico II\n")
-    file.write("\n")
-    file.write("ACTDISK_TYPE = VARIABLE_LOAD\n")
-    file.write("ACTDISK_FILENAME = ActuatorDisk.dat\n")
-    file.write("MARKER_ACTDISK = ( , , 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)\n")
-    file.close()
-
     print("SU2 file generated!")
     print_external_file(dCt_optimal, dCp, stations, radius, advanced_ratio, r)
 
@@ -413,4 +395,19 @@ def thrust_calculator(
 
     pl.show()
 
-    return
+    # Write the actuator disk configuration file
+    file = open("ActuatorDisk.cfg", "w")
+
+    file.write("% Automatic generated actuator disk configuration file.\n")
+    file.write("%\n")
+    file.write("% The first two elements of MARKER_ACTDISK must be filled.\n")
+    file.write("% An example of this file can be found in the TestCases directory.\n")
+    file.write("%\n")
+    file.write("% Author: Ettore Saetta, Lorenzo Russo, Renato Tognaccini.\n")
+    file.write("% Theoretical and Applied Aerodynamic Research Group (TAARG),\n")
+    file.write("% University of Naples Federico II\n")
+    file.write("\n")
+    file.write("ACTDISK_TYPE = VARIABLE_LOAD\n")
+    file.write("ACTDISK_FILENAME = ActuatorDisk.dat\n")
+    file.write("MARKER_ACTDISK = ( , , 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)\n")
+    file.close()

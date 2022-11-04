@@ -7,7 +7,12 @@ def st_directory_picker(initial_path=Path()):
     if "path" not in st.session_state:
         st.session_state.path = initial_path.absolute().resolve()
 
-    st.text_input("Selected directory:", st.session_state.path)
+    manual_input = st.text_input("Selected directory:", st.session_state.path)
+
+    manual_input = Path(manual_input)
+    if manual_input != st.session_state.path:
+        st.session_state.path = manual_input
+        st.experimental_rerun()
 
     _, col1, col2, col3, _ = st.columns([3, 1, 3, 1, 3])
 

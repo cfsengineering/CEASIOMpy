@@ -85,6 +85,11 @@ def section_3D_view():
     mesh = reader.read()
     plotter.add_mesh(mesh, color=CEASIOMPY_ORANGE)
 
+    # Camera
+    plotter.camera.azimuth = 110.0
+    plotter.camera.elevation = -20.0
+    plotter.camera.zoom(1.4)
+
     # Export to a pythreejs HTML
     model_html = io.StringIO()
     plotter.export_html(model_html, backend="pythreejs")

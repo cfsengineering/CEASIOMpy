@@ -45,5 +45,5 @@ dependencies:
     - markdownpy==0.1.4
     - pytest==7.2.0
     - smt==1.2.0
-    - streamlit==1.13.0
+    - streamlit==1.14.0
     - streamlit-autorefresh

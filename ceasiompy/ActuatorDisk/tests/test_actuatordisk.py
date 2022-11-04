@@ -19,7 +19,6 @@ Python version: >=3.8
 
 from pathlib import Path
 
-import pytest
 from ceasiompy.ActuatorDisk.func.optimalprop import (
     optimal_prop,
     axial_interference_factor_distribution,
@@ -30,7 +29,7 @@ from pytest import approx
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(MODULE_DIR, "ToolInput", "simpletest_cpacs.xml")
 CPACS_OUT_PATH = Path(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
-
+ACTUATOR_DISK_PATH = Path(MODULE_DIR, "ToolOutput")
 
 # =================================================================================================
 #   CLASSES
@@ -68,36 +67,20 @@ def test_check_output():
     assert efficiency == approx(0.7699)
 
 
-# def test_sum_funcion():
-#    """Test function 'sum_funcion'"""
-#
-#    # Test Raise ValueError
-#    with pytest.raises(ValueError):
-#        sum_funcion(5.5, 4.4)
-#
-#    # Test 'sum_funcion' normal use
-#    assert sum_funcion(5, 4.4) == approx(9.4)
-#
-#
-# def test_get_fuselage_scaling():
-#    """Test function 'get_fuselage_scaling'"""
-#
-#    x, y, z = get_fuselage_scaling(CPACS_IN_PATH, CPACS_OUT_PATH)
-#
-#    assert x == approx(1)
-#    assert y == approx(0.5)
-#    assert z == approx(0.5)
-#
-#
-# def test_subfunc():
-#    """Test subfunction 'my_subfunc'"""
-#
-#    a = "a"
-#    b = "b"
-#
-#    res = my_subfunc(a, b)
-#
-#    assert res == "a and b"
+def test_file_generation():
+
+    actuator_disk_path = "ActuatorDisk.dat"
+    exist_actuator_disk_path = Path.exists(actuator_disk_path)
+    assert exist_actuator_disk_path == True
+
+    exist_actuator_disk_path = Path.exists(ACTUATOR_DISK_PATH)
+    assert exist_actuator_disk_path == True
+
+
+def test_value_generation():
+
+    a = Path.read_text(ACTUATOR_DISK_PATH)
+    assert a == a
 
 
 # =================================================================================================

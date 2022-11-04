@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Small description of the script
+This is a script to generate a file with thrust distribution along the blade
 
 Python version: >=3.8
 

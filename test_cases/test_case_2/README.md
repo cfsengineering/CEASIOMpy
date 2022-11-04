@@ -73,6 +73,11 @@ In this case, you can just save the file and close the window. The next step wil
 
 When the calculation is over, you can click on the `Results` tab (on the sidebar). In the results part there are tabs corresponding to the different module used during the workflow.
 
-[testcase2_results.webm](testcase2_results.webm)
+<p align="center">
+<img height="480" src="testcase2_results.gif">
+</p>
+<p align="center">
+Creation of a workflow with CEASIOMpy GUI
+</p>
 
 [**<<**](../test_case_1/README.md) Previous test case | [Home](../../README.md#test-cases) | Next test case [**>>**](../test_case_3/README.md)

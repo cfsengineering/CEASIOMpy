@@ -19,10 +19,9 @@ Python version: >=3.8
 
 from pathlib import Path
 
-from ceasiompy.ActuatorDisk.func.optimalprop import (
-    optimal_prop,
-    axial_interference_factor_distribution,
-)
+from ceasiompy.ActuatorDisk.func.optimalprop import optimal_prop
+from ceasiompy.ActuatorDisk.func.optimalprop import axial_interference_factor_distribution
+
 
 from pytest import approx
 
@@ -69,17 +68,15 @@ def test_check_output():
 
 def test_file_generation():
 
-    actuator_disk_path = "ActuatorDisk.dat"
+    actuator_disk_path = "../ActuatorDisk.dat"
     exist_actuator_disk_path = Path.exists(actuator_disk_path)
-    assert exist_actuator_disk_path == True
-
-    exist_actuator_disk_path = Path.exists(ACTUATOR_DISK_PATH)
     assert exist_actuator_disk_path == True
 
 
 def test_value_generation():
 
-    a = Path.read_text(ACTUATOR_DISK_PATH)
+    actuator_disk_path = "../ActuatorDisk.dat"
+    a = Path.read_text(actuator_disk_path)
     assert a == a
 
 

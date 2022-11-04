@@ -20,7 +20,7 @@ Python version: >=3.8
 from pathlib import Path
 
 from ceasiompy.ActuatorDisk.func.optimalprop import thrust_calculator
-from ceasiompy.ActuatorDisk.func.optimalprop import axial_interference_factor_distribution
+from ceasiompy.ActuatorDisk.func.optimalprop import axial_interference_function
 
 
 from pytest import approx
@@ -42,7 +42,7 @@ ACTUATOR_DISK_PATH = Path(MODULE_DIR, "ToolOutput")
 
 def test_axial_interference():
 
-    axial_interference_factor = axial_interference_factor_distribution(0.12, 0.5)
+    axial_interference_factor = axial_interference_function(0.12, 0.5)
 
     assert axial_interference_factor == approx(0.0237)
 

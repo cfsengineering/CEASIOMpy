@@ -5223,6 +5223,25 @@
           <wettedArea>701.813</wettedArea>
         </analysis>
       </geometry>
+      <mesh>
+        <gmshOptions>
+          <open_gui>False</open_gui>
+          <symmetry>False</symmetry>
+          <farfield_factor>6.0</farfield_factor>
+          <mesh_size>
+            <farfield>25.0</farfield>
+            <fuselage>0.4</fuselage>
+            <wings>0.23</wings>
+            <engines>0.23</engines>
+            <propellers>0.23</propellers>
+          </mesh_size>
+          <refine_factor>1.0</refine_factor>
+          <refine_truncated>False</refine_truncated>
+          <auto_refine>False</auto_refine>
+          <intake_percent>20.0</intake_percent>
+          <exhaust_percent>20.0</exhaust_percent>
+        </gmshOptions>
+      </mesh>
       <aerodynamics>
         <skinFriction>
           <aeroMapToCalculate>test_apm</aeroMapToCalculate>

@@ -7,7 +7,6 @@ Help()
    echo "Syntax: ./run_ci [-f|g|h|i|u]"
    echo "options:"
    echo "-f     Fast mode (skip tests marked as 'slow')"
-   echo "-g     Run GUI tests, requiring a user interaction (not active by default)."
    echo "-h     Print this help message."
    echo "-i     Skip integration tests."
    echo "-u     Skip unit tests."
@@ -21,16 +20,11 @@ run_integration_pytest()
 }
 
 
-
-gui=false
 integration=true
 fast=false
 unit=true
 for i in "$@" 
 do
-    if [ "$i" == "-g" ]; then
-        gui=true;
-    fi
     if [ "$i" == "-f" ]; then
         fast=true;
     fi
@@ -77,23 +71,14 @@ if [ $integration == true ]; then
 
     echo -e "Running..."
 
-    if [ "$gui" = true ]; then
-        if [ "$fast" = true ]; then
-            # pytest -v . --cov-report html:integration_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml -m "not slow" --disable-warnings
-            run_integration_pytest -m "not slow" --disable-warnings
-        else
-            # pytest -v . --cov-report html:integration_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml --disable-warnings
-            run_integration_pytest --disable-warnings
-        fi
+    if [ "$fast" = true ]; then
+        # pytest -v . --cov-report html:integration_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml -m "not slow" --disable-warnings
+        run_integration_pytest -m "not slow" --disable-warnings
     else
-        if [ "$fast" = true ]; then
-            # pytest -v . --cov-report html:integration_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml -m "not gui and not slow" --disable-warnings
-            run_integration_pytest -m "not gui and not slow" --disable-warnings
-        else
-            # pytest -v . --cov-report html:integration_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml -m "not gui" --disable-warnings
-            run_integration_pytest -m "not gui" --disable-warnings
-        fi
+        # pytest -v . --cov-report html:integration_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml --disable-warnings
+        run_integration_pytest --disable-warnings
     fi
+
 else
     echo -e "Skipping...\n"
 

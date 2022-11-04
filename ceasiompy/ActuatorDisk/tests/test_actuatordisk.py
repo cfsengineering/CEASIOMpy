@@ -44,7 +44,7 @@ def test_axial_interference():
 
     axial_interference_factor = axial_interference_function(0.12, 0.5)
 
-    assert axial_interference_factor == approx(0.0237)
+    assert axial_interference_factor == approx(0.01994, rel=1e-2)
 
 
 def test_check_output():
@@ -61,9 +61,9 @@ def test_check_output():
     )
 
     assert renard_thrust_coeff == 0.5
-    assert power_coeff == approx(0.974)
+    assert power_coeff == approx(0.974, rel=1e-2)
     assert thrust_over_density == 45000
-    assert efficiency == approx(0.7699)
+    assert efficiency == approx(0.7699, rel=1e-2)
 
 
 def test_file_generation():

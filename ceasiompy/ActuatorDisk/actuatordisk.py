@@ -23,18 +23,15 @@ TODO:
 
 from pathlib import Path
 
-from ceasiompy.ActuatorDisk.func.optimalprop import thrust_calculator
 from ambiance import Atmosphere
+from ceasiompy.ActuatorDisk.func.optimalprop import thrust_calculator
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.commonxpath import PROP_XPATH, RANGE_XPATH
 from ceasiompy.utils.moduleinterfaces import (
     check_cpacs_input_requirements,
     get_toolinput_file_path,
     get_tooloutput_file_path,
-)
-from ceasiompy.utils.commonxpath import (
-    RANGE_XPATH,
-    PROP_XPATH,
 )
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacspy import CPACS

@@ -343,14 +343,15 @@ def thrust_calculator(
     eta = advanced_ratio * (optimal_total_thrust_coefficient / total_power_coefficient)
 
     log.info("------- Check output values -------")
-    log.info(f"dCT distribution integral= {optimal_total_thrust_coefficient:.4f}")
+    log.info(f"Optimal total thrust coefficient= {optimal_total_thrust_coefficient:.4f}")
     log.info(
-        f"dCT computed using the static pressure jump= {computed_total_thrust_coefficient:.4f}"
+        f"""Total thrust coefficient computed 
+        using the static pressure jump= {computed_total_thrust_coefficient:.4f}"""
     )
-    log.info(f"dCP distribution integral= {total_power_coefficient:.4f}")
-    log.info(f"Thrust over Density (T/rho)= {thrust_density_ratio:.4f}")
+    log.info(f"Power coefficient distribution integral= {total_power_coefficient:.4f}")
+    log.info(f"Thrust over Density= {thrust_density_ratio:.4f}")
     log.info(f"Efficiency eta= {eta:.4f}")
-    log.info(f"w0/free_stream_velocity= {new_lagrange_moltiplicator:.4f}")
+    log.info(f"Lagrangian moltiplicator/free_stream_velocity= {new_lagrange_moltiplicator:.4f}")
 
     # Write the actuator disk configuration file
     file = open("ActuatorDisk.cfg", "w")

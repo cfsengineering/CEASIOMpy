@@ -19,7 +19,7 @@ Python version: >=3.8
 
 from pathlib import Path
 
-from ceasiompy.ActuatorDisk.func.optimalprop import optimal_prop
+from ceasiompy.ActuatorDisk.func.optimalprop import thrust_calculator
 from ceasiompy.ActuatorDisk.func.optimalprop import axial_interference_factor_distribution
 
 
@@ -49,7 +49,7 @@ def test_axial_interference():
 
 def test_check_output():
 
-    renard_thrust_coeff, power_coeff, thrust_over_density, efficiency = optimal_prop(
+    renard_thrust_coeff, power_coeff, thrust_over_density, efficiency = thrust_calculator(
         10,
         0.5,
         1.5,

@@ -1,10 +1,31 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+This the function created by UniNa and adepted for Ceasiompy to generate a file .dat with thrust coefficient distribution
+
+Python version: >=3.8
+
+| Author: Giacomo Benedetti
+| Creation: 2022-11-03
+
+TODO:
+
+"""
+
+# =================================================================================================
+#   IMPORTS
+# =================================================================================================
+
+
 from math import pi, sqrt, acos, exp, fabs
 import numpy as np
 import pylab as pl
 
-##########################
-###     Functions      ###
-##########################
+# =================================================================================================
+#   FUNCTIONS
+# =================================================================================================
 
 
 def optimal_prop(

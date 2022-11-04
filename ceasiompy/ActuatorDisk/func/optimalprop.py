@@ -3,7 +3,8 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This the function created by UniNa and adepted for Ceasiompy to generate a file .dat with thrust coefficient distribution
+This the function created by University of Naples Federico II and adepted for Ceasiompy to generate
+a file .dat with thrust coefficient distribution
 
 Python version: >=3.8
 
@@ -22,6 +23,9 @@ TODO:
 from math import pi, sqrt, acos, exp, fabs
 import numpy as np
 import pylab as pl
+from ceasiompy.utils.ceasiomlogger import get_logger
+
+log = get_logger()
 
 # =================================================================================================
 #   FUNCTIONS
@@ -83,9 +87,6 @@ def optimal_prop(
 
         file.close()
 
-    ##########################
-    ###        Main        ###
-    ##########################
     # Screen output
     print("------------------ Optimal Propeller vsn 7.0.6 ------------------")
     print("| Computation of the optimal dCT/dr and dCP/dr distributions.   |")
@@ -246,9 +247,6 @@ def optimal_prop(
     old_error = old_total_thrust_coefficient - total_thrust_coefficient
     print(old_error)
 
-    ##########################
-    ###     Iterations     ###
-    ##########################
     # Iterate using the false position methods.
     # Based on the error from the thrust coefficient given in input.
     iteration = 2
@@ -337,9 +335,6 @@ def optimal_prop(
             * (r[i] * radius) ** 3
         )
 
-    ##########################
-    ###   Check Results    ###
-    ##########################
     # Computation of the total power coefficient.
     total_power_coefficient = 0.0
     for i in range(i_hub, stations):
@@ -369,21 +364,16 @@ def optimal_prop(
     # Computation of the efficiency.
     eta = advanced_ratio * (optimal_total_thrust_coefficient / total_power_coefficient)
 
-    # Screen output used to check that everything worked correcty.
-    print("%%%%%%%%%%%%%%%%%%%%%%%%% CHECK OUTPUT VALUES %%%%%%%%%%%%%%%%%%%%%%%%%")
-    print(f"       dCT distribution integral: {optimal_total_thrust_coefficient:.4f}")
-    print(
-        f"       dCT computed using the static pressure jump: {computed_total_thrust_coefficient:.4f}"
+    log.info("------- Check output values -------")
+    log.info(f"dCT distribution integral= {optimal_total_thrust_coefficient:.4f}")
+    log.info(
+        f"dCT computed using the static pressure jump= {computed_total_thrust_coefficient:.4f}"
     )
-    print(f"       dCP distribution integral: {total_power_coefficient:.4f}")
-    print(f"       Thrust over Density (T/rho): {thrust_density_ratio:.4f} [N*m^3/kg]")
-    print(f"       Efficiency eta: {eta:.4f}")
-    print(f"       w0/free_stream_velocity: {new_lagrange_moltiplicator:.4f}")
-    print("%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%")
+    log.info(f"dCP distribution integral= {total_power_coefficient:.4f}")
+    log.info(f"Thrust over Density (T/rho)= {thrust_density_ratio:.4f}")
+    log.info(f"Efficiency eta= {eta:.4f}")
+    log.info(f"w0/free_stream_velocity= {new_lagrange_moltiplicator:.4f}")
 
-    ##########################
-    ###    File Writing    ###
-    ##########################
     # Write the actuator disk configuration file
     file = open("ActuatorDisk.cfg", "w")
 
@@ -403,13 +393,6 @@ def optimal_prop(
 
     print("SU2 file generated!")
 
-    # Write the actuator disk data file.
-    # This is the actuator disk input data file.
-    print_external_file(dCt_optimal, dCp)
-
-    ##########################
-    ###        Plots       ###
-    ##########################
     # Automatically plot the computed propeller performance.
 
     f1 = pl.figure(1)

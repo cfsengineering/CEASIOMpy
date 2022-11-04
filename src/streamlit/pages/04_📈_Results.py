@@ -8,7 +8,6 @@ from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
 from createsidbar import create_sidebar
-from streamlit_autorefresh import st_autorefresh
 
 how_to_text = (
     "### How to check your results\n"
@@ -37,7 +36,7 @@ def get_last_workflow():
     if last_workflow_nb == 0:
         return None
 
-    return Path(Path(st.session_state.workflow.working_dir), f"Workflow_{last_workflow_nb:03}")
+    return Path(st.session_state.workflow.working_dir, f"Workflow_{last_workflow_nb:03}")
 
 
 def clear_containers(container_list):
@@ -266,4 +265,3 @@ show_results()
 
 if st.button("🔄 Refresh"):
     st.experimental_rerun()
-# st_autorefresh(interval=5000, limit=10000, key="auto_refresh")

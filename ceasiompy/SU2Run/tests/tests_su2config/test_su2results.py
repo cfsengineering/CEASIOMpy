@@ -17,8 +17,10 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
+import os
 from pathlib import Path
 
+import pytest
 from ceasiompy.SU2Run.func.su2results import save_screenshot
 from ceasiompy.utils.commonpaths import TEST_RESULTS_FILES_PATH
 
@@ -35,6 +37,7 @@ MODULE_DIR = Path(__file__).parent
 # =================================================================================================
 
 
+@pytest.mark.skipif("DISPLAY" not in os.environ, reason="requires display")
 def test_save_screenshot():
     """Test the function 'save_screenshot'"""
 

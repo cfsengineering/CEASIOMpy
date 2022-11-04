@@ -20,6 +20,7 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+import os
 from pathlib import Path
 
 import pyvista as pv
@@ -82,7 +83,7 @@ def save_screenshot(surface_flow_file, scalar="Mach"):
     # Save Screenshot
     screenshot_filename = Path(surface_flow_file.parent, f"3d_view_{scalar}.png")
     plotter.show(screenshot=screenshot_filename)
-    
+
     return screenshot_filename
 
 
@@ -133,7 +134,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
             continue
 
         surface_flow_path = Path(config_dir, SURFACE_FLOW_FILE_NAME)
-        if surface_flow_path.exists():
+        if surface_flow_path.exists() and "DISPLAY" in os.environ:
             save_screenshot(surface_flow_path, "Mach")
             save_screenshot(surface_flow_path, "Pressure_Coefficient")
 

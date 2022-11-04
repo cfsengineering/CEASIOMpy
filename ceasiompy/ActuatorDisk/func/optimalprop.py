@@ -392,6 +392,7 @@ def optimal_prop(
     file.close()
 
     print("SU2 file generated!")
+    print_external_file(dCt_optimal, dCp)
 
     # Automatically plot the computed propeller performance.
 

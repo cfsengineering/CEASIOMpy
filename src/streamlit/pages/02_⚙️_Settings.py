@@ -72,7 +72,6 @@ def section_edit_aeromap():
 
     st.markdown("#### Available aeromaps")
 
-    aeromap_list = []
     aeromap_uid_list = st.session_state.cpacs.get_aeromap_uid_list()
 
     for i, aeromap in enumerate(aeromap_uid_list):

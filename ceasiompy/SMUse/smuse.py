@@ -104,8 +104,8 @@ def get_inputs(cpacs, x):
 
     # These variable will be used in eval
     aircraft = cpacs.aircraft.configuration
-    wings = aircraft.get_wings()
-    fuselage = aircraft.get_fuselages().get_fuselage(1)
+    wings = aircraft.get_wings()  # noqa: F841
+    fuselage = aircraft.get_fuselages().get_fuselage(1)  # noqa: F841
 
     inputs = []
 

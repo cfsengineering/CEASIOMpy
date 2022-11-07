@@ -14,15 +14,64 @@ Help()
 }
 
 
-run_integration_pytest()
+run_black()
 {
-    pytest -v ../ --cov-report html:integration_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml -k "integration" "$@"
+    echo -e "\n-----------"
+    echo -e "|  Black  |"
+    echo -e "-----------\n"
+    black ../
 }
 
+run_flake8()
+{
+    echo -e "\n------------"
+    echo -e "|  Flake8  |"
+    echo -e "------------\n"
+    flake8 ../
+    if [ $? == 0 ]; then
+        echo -e "Flake8 passed without error\n"
+    fi
+}
+
+run_unit_tests()
+{
+    echo -e "\n----------------"
+    echo -e "|  Unit tests  |"
+    echo -e "----------------\n"
+    if [ $unit == false ]; then
+        echo -e "Skipping...\n"
+        return 0
+    fi
+    
+    echo -e "\nRunning..."
+    pytest -v ../ --cov-report html:unittest_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml -k "not integration" --disable-warnings
+
+}
+
+run_integration_tests()
+{
+    
+    echo -e "\n-----------------------"
+    echo -e "|  Integration tests  |"
+    echo -e "-----------------------\n"
+    if [ $integration == false ]; then
+        echo -e "Skipping...\n"
+        return 0
+    fi
+
+    echo -e "Running..."
+    if [ "$fast" = true ]; then
+        pytest -v ../ --cov-report html:integration_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml -k "integration" -m "not slow" --disable-warnings 
+    else
+        pytest -v ../ --cov-report html:integration_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml -k "integration" --disable-warnings
+    fi
+
+}
 
 integration=true
 fast=false
 unit=true
+
 for i in "$@" 
 do
     if [ "$i" == "-f" ]; then
@@ -40,49 +89,14 @@ do
     fi
 done
 
+echo -e "\n################################"
+echo -e "######### CEASIOMpy CI #########"
+echo -e "################################"
 
-echo -e "\n######### CEASIOMpy CI #########"
-
-echo -e "\n## Black ## \n"
-black ../
-
-
-echo -e "\n## Flake8 ## "
-flake8 ../
-if [ $? == 0 ]; then
-    echo -e "Flake8 passed without error\n"
-fi
-
-
-echo -e "\n## Unit tests ##"
-if [ $unit == true ]; then
-    echo -e "\nRunning..."
-    # pytest -v ../ceasiompy --cov-report html:unittest_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml 
-    #--disable-warnings
-    pytest -v ../ --cov-report html:unittest_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml -k "not integration"
-
-else
-    echo -e "Skipping...\n"
-fi
-
-
-echo -e "\n## Integration tests ##"
-if [ $integration == true ]; then
-
-    echo -e "Running..."
-
-    if [ "$fast" = true ]; then
-        # pytest -v . --cov-report html:integration_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml -m "not slow" --disable-warnings
-        run_integration_pytest -m "not slow" --disable-warnings
-    else
-        # pytest -v . --cov-report html:integration_cov_html --cov-report term --cov=../ceasiompy --cov-config=../pyproject.toml --disable-warnings
-        run_integration_pytest --disable-warnings
-    fi
-
-else
-    echo -e "Skipping...\n"
-
-fi
+run_black
+run_flake8
+run_unit_tests
+run_integration_tests 
 
 # Generate the list of module to remove from the code coverage
-python ../ceasiompy/utils/moduleinterfaces.py
+python ../ceasiompy/utils/moduleinterfaces.py 

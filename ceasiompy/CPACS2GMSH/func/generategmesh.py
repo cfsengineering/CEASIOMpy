@@ -1008,7 +1008,7 @@ def generate_gmsh(
     gmsh.model.mesh.generate(2)
 
     # Control of the mesh quality
-    if refine_factor != 1 and auto_refine == True:
+    if refine_factor != 1 and auto_refine:
 
         bad_surfaces = []
 

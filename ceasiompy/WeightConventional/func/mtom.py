@@ -187,7 +187,7 @@ def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span, results
     mask_middle = np.logical_and(input_data[:, ID] < upper_limit, input_data[:, ID] > lower_limit)
     mask_over = input_data[:, ID] > upper_limit
 
-    if np.all(mask_under == False):
+    if np.all(mask_under == 0):
         upper_limit *= 2
         lower_limit = 0
         mask_under = input_data[:, ID] < lower_limit
@@ -196,7 +196,7 @@ def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span, results
         )
         mask_over = input_data[:, ID] > upper_limit
 
-    if np.all(mask_over == False):
+    if np.all(mask_over == 0):
         lower_limit /= 2
         upper_limit = 9999
         mask_under = input_data[:, ID] < lower_limit
@@ -208,7 +208,7 @@ def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span, results
     log.info("------- Calculating linear regression: ------")
     c = 0
     # UNDER
-    if not np.all(mask_under == False):
+    if not np.all(mask_under == 0):
         c += 1
         input_data_under = input_data[mask_under]
         output_data_under = output_data[mask_under]
@@ -217,7 +217,7 @@ def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span, results
         output_predicted_under = regr_under.predict(input_data_under)
 
     # MIDDLE
-    if not np.all(mask_middle == False):
+    if not np.all(mask_middle == 0):
         c += 1
         input_data_middle = input_data[mask_middle]
         output_data_middle = output_data[mask_middle]
@@ -226,7 +226,7 @@ def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span, results
         output_predicted_middle = regr_middle.predict(input_data_middle)
 
     # OVER
-    if not np.all(mask_over == False):
+    if not np.all(mask_over == 0):
         c += 1
         input_data_over = input_data[mask_over]
         output_data_over = output_data[mask_over]
@@ -242,17 +242,17 @@ def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span, results
         output_new_aircraft = regr_middle.predict(input_new_aircraft)
 
     fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, sharey=True, figsize=(12, 12))
-    if not np.all(mask_under == False):
+    if not np.all(mask_under == 0):
         ax1.plot(input_data_under[:, 2], output_data_under, "xb", label="Data")
         ax1.plot(
             input_data_under[:, 2], output_predicted_under, "oc", label="Predictions under limits"
         )
-    if not np.all(mask_over == False):
+    if not np.all(mask_over == 0):
         ax1.plot(input_data_over[:, 2], output_data_over, "xb")
         ax1.plot(
             input_data_over[:, 2], output_predicted_over, "og", label="Predictions over limits"
         )
-    if not np.all(mask_middle == False):
+    if not np.all(mask_middle == 0):
         ax1.plot(input_data_middle[:, 2], output_data_middle, "xb")
         ax1.plot(
             input_data_middle[:, 2],
@@ -266,39 +266,39 @@ def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span, results
     ax1.grid()
     mpl.rcParams.update({"font.size": 14})
 
-    if not np.all(mask_under == False):
+    if not np.all(mask_under == 0):
         ax2.plot(input_data_under[:, 0], output_data_under, "xb", markersize=7)
         ax2.plot(input_data_under[:, 0], output_predicted_under, "oc", markersize=7)
-    if not np.all(mask_over == False):
+    if not np.all(mask_over == 0):
         ax2.plot(input_data_over[:, 0], output_data_over, "xb", markersize=7)
         ax2.plot(input_data_over[:, 0], output_predicted_over, "og", markersize=7)
-    if not np.all(mask_middle == False):
+    if not np.all(mask_middle == 0):
         ax2.plot(input_data_middle[:, 0], output_data_middle, "xb", markersize=7)
         ax2.plot(input_data_middle[:, 0], output_predicted_middle, "or", markersize=7)
     ax2.plot(input_new_aircraft[:, 0], output_new_aircraft, "oy", markersize=7)
     ax2.set(xlabel="Fuselage length [m]", ylabel="MTOM [kg]")
     ax2.grid()
 
-    if not np.all(mask_under == False):
+    if not np.all(mask_under == 0):
         ax3.plot(input_data_under[:, 1], output_data_under, "xb", markersize=7)
         ax3.plot(input_data_under[:, 1], output_predicted_under, "oc", markersize=7)
-    if not np.all(mask_over == False):
+    if not np.all(mask_over == 0):
         ax3.plot(input_data_over[:, 1], output_data_over, "xb", markersize=7)
         ax3.plot(input_data_over[:, 1], output_predicted_over, "og", markersize=7)
-    if not np.all(mask_middle == False):
+    if not np.all(mask_middle == 0):
         ax3.plot(input_data_middle[:, 1], output_data_middle, "xb", markersize=7)
         ax3.plot(input_data_middle[:, 1], output_predicted_middle, "or", markersize=7)
     ax3.plot(input_new_aircraft[:, 1], output_new_aircraft, "oy", markersize=7)
     ax3.set(xlabel="Fuselage Width [m]", ylabel="MTOM [kg]")
     ax3.grid()
 
-    if not np.all(mask_under == False):
+    if not np.all(mask_under == 0):
         ax4.plot(input_data_under[:, 3], output_data_under, "xb", markersize=7)
         ax4.plot(input_data_under[:, 3], output_predicted_under, "oc", markersize=7)
-    if not np.all(mask_over == False):
+    if not np.all(mask_over == 0):
         ax4.plot(input_data_over[:, 3], output_data_over, "xb", markersize=7)
         ax4.plot(input_data_over[:, 3], output_predicted_over, "og", markersize=7)
-    if not np.all(mask_middle == False):
+    if not np.all(mask_middle == 0):
         ax4.plot(input_data_middle[:, 3], output_data_middle, "xb", markersize=7)
         ax4.plot(input_data_middle[:, 3], output_predicted_middle, "or", markersize=7)
     ax4.plot(input_new_aircraft[:, 3], output_new_aircraft, "oy", markersize=7)

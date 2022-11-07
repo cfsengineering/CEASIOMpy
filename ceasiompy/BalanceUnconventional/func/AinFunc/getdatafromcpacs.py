@@ -339,7 +339,7 @@ def get_data(ui, bi, mw, ed, cpacs_in):
     warn = False
     if not ed.NE:
         raise Exception("No engine defined for the aircraft")
-    elif s[0] < ed.NE or s[1] < 3 or np.any(ed.EN_PLACEMENT) == False:
+    elif s[0] < ed.NE or s[1] < 3 or not np.any(ed.EN_PLACEMENT):
         warn = True
     else:
         log.info("EngineData class defined correctly.")

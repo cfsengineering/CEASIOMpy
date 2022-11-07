@@ -78,14 +78,14 @@ def get_profile_coord(tixi, prof_uid):
 
     elif tixi.checkElement(prof_xpath + "/cst2D"):
 
-        psi = get_float_vector(tixi, prof_xpath + "/cst2D/psi")
+        # psi = get_float_vector(tixi, prof_xpath + "/cst2D/psi")
 
-        upperN1 = tixi.getTextElement(prof_xpath + "/cst2D/upperN1")
-        upperN2 = tixi.getTextElement(prof_xpath + "/cst2D/upperN2")
+        # upperN1 = tixi.getTextElement(prof_xpath + "/cst2D/upperN1")
+        # upperN2 = tixi.getTextElement(prof_xpath + "/cst2D/upperN2")
         upperB = get_float_vector(tixi, prof_xpath + "/cst2D/upperB")
 
-        lowerN1 = tixi.getTextElement(prof_xpath + "/cst2D/lowerN1")
-        lowerN2 = tixi.getTextElement(prof_xpath + "/cst2D/lowerN2")
+        # lowerN1 = tixi.getTextElement(prof_xpath + "/cst2D/lowerN1")
+        # lowerN2 = tixi.getTextElement(prof_xpath + "/cst2D/lowerN2")
         lowerB = get_float_vector(tixi, prof_xpath + "/cst2D/lowerB")
 
         if tixi.checkElement(prof_xpath + "/cst2D/trailingEdgeThickness"):

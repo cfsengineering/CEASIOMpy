@@ -54,6 +54,15 @@ MODULE_NAME = MODULE_DIR.name
 
 def write_actuator_disk(cpacs_path, cpacs_out_path):
 
+    """Function to call every functions in order to obtain the file with thrust and power
+    coefficients distribution in order to perform a CFD calculation with SU2
+
+    Args:
+        cpacs_path (str): Path to CPACS file
+        cpacs_out_path (str):Path to CPACS output file
+
+    """
+
     cpacs = CPACS(cpacs_path)
     tixi = cpacs.tixi
 

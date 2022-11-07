@@ -36,6 +36,13 @@ def axial_interference_function(lagrangian_moltiplicator, non_dimensional_radius
     """
     Function to calculate the axial intereference factor useful to calculate properly the thrust
     coefficient distribution
+
+    Args:
+        lagrangian_moltiplicator (float): Lagrangian moltiplicator [-]
+        non_dimensional_radius (float): Non dimensional radius [-]
+
+    Returns:
+        axial_interference_factor (float):  Axial interference factor[-]
     """
 
     axial_interference_factor = (lagrangian_moltiplicator * non_dimensional_radius**2) / (
@@ -45,10 +52,17 @@ def axial_interference_function(lagrangian_moltiplicator, non_dimensional_radius
 
 
 def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r):
-    
-    """
-    Function to write on an external file the result of the thrust and power coefficients 
-    distribution, performed by thrust calculation function
+
+    """Function to write on an external file the result of the thrust and power coefficients
+        distribution, performed by thrust calculation function
+
+    Args:
+        dCt_optimal (float): thrust coefficient at every radius [-]
+            dCp (float): power coefficient at every radius [-]
+            r (float): adimensional radius [-]
+
+    Returns:
+        file filled with thrust and power coefficient distribution
     """
 
     file = open("ActuatorDisk.dat", "w")
@@ -98,9 +112,23 @@ def thrust_calculator(
     blades_number,
 ):
 
-"""
-Performing of a calculation to obtain thrust and power coefficients distribution 
-"""
+    """Performing of a calculation to obtain thrust and power coefficients distribution
+
+    Args:
+            stations (float): Number of elements for blade discretization [-]
+            total_thrust_coefficient (float): Total thrust coefficient[-]
+            radius (float): Blade radius [m]
+            hub_radius (float): Radius of the blade at the hub [m]
+            advanced_ratio (float): Free_stream_velocity/(rotational_velocity*diameter)[-]
+            free_stream_velocity (float): Cruise velocity [m/s]
+            prandtl (bool): Correction for tip losses
+            blades_number (int): Blades propeller number[-]
+
+    Returns:
+        dCt_optimal (float): thrust coefficient at every radius [-]
+        dCp (float): power coefficient at every radius [-]
+        r (float): adimensional radius [-]
+    """
 
     # Resize the vectors using the number of radial stations.
     r = np.empty(stations)
@@ -198,7 +226,7 @@ Performing of a calculation to obtain thrust and power coefficients distribution
 
     # Compute the error with respect to the thrust coefficient given in input.
     inital_error = initial_total_thrust_coefficient - total_thrust_coefficient
-    log.info(f"Cconvergence history: {inital_error}")
+    log.info(f"Convergence history: {inital_error}")
 
     # Computation of the second try Lagrange moltiplicator.
     last_lagrange_moltiplicator = first_lagrange_moltiplicator + 0.1

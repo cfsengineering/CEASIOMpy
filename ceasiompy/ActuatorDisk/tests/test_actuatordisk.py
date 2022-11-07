@@ -68,9 +68,8 @@ def test_check_output():
 
 def test_file_generation():
 
-    actuator_disk_path = "../ActuatorDisk.dat"
-    exist_actuator_disk_path = Path.exists(actuator_disk_path)
-    assert exist_actuator_disk_path == True
+    actuator_disk_path = "ActuatorDisk/tests/ActuatorDisk.dat"
+    assert Path.exists(actuator_disk_path)
 
 
 def test_value_generation():

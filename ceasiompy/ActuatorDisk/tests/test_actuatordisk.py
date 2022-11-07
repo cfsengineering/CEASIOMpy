@@ -68,12 +68,12 @@ def test_check_output():
 
 def test_file_generation():
 
-    actuator_disk_path = "ActuatorDisk/tests/ActuatorDisk.dat"
-    assert Path.exists(actuator_disk_path)
+    actuator_disk_path = Path("ActuatorDisk.dat")
+    assert actuator_disk_path.exists()
 
-    with actuator_disk_path.open("r") as file:
-        content = file.read()
-    assert content == ""
+    with actuator_disk_path.open("r") as f:
+        lines = f.readlines()
+    assert lines[0] == "# Automatic generated actuator disk input data file\n"
 
 
 # =================================================================================================

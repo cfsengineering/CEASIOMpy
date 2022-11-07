@@ -44,8 +44,6 @@ from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
     run_soft,
 )
-from ceasiompy.utils.configfiles import ConfigFile
-from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.utils.commonxpath import (
     REF_XPATH,
     SU2_CONTROL_SURF_XPATH,
@@ -53,6 +51,8 @@ from ceasiompy.utils.commonxpath import (
     SU2_NB_CPU_XPATH,
     WINGS_XPATH,
 )
+from ceasiompy.utils.configfiles import ConfigFile
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     get_uid,
@@ -61,6 +61,7 @@ from cpacspy.cpacsfunctions import (
     open_tigl,
     open_tixi,
 )
+from tixi3.tixi3wrapper import Tixi3Exception
 
 log = get_logger()
 
@@ -306,7 +307,7 @@ def get_ted_corner(tixi, tigl, ted_uid):
             elif edge == "TE":
                 try:
                     eta = tixi.getDoubleElement(local_xpath + "/etaTE/eta")
-                except:
+                except Tixi3Exception:
                     eta = tixi.getDoubleElement(local_xpath + "/etaLE/eta")
                 xsi = 1.0
 

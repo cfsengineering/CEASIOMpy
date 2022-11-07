@@ -32,6 +32,12 @@ log = get_logger()
 
 
 def axial_interference_function(lagrangian_moltiplicator, non_dimensional_radius):
+
+    """
+    Function to calculate the axial intereference factor useful to calculate properly the thrust
+    coefficient distribution
+    """
+
     axial_interference_factor = (lagrangian_moltiplicator * non_dimensional_radius**2) / (
         non_dimensional_radius**2 + (1 + lagrangian_moltiplicator) ** 2
     )
@@ -39,6 +45,12 @@ def axial_interference_function(lagrangian_moltiplicator, non_dimensional_radius
 
 
 def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r):
+    
+    """
+    Function to write on an external file the result of the thrust and power coefficients 
+    distribution, performed by thrust calculation function
+    """
+
     file = open("ActuatorDisk.dat", "w")
     file.write(
         """# Automatic generated actuator disk input data file
@@ -86,6 +98,10 @@ def thrust_calculator(
     blades_number,
 ):
 
+"""
+Performing of a calculation to obtain thrust and power coefficients distribution 
+"""
+
     # Resize the vectors using the number of radial stations.
     r = np.empty(stations)
     non_dimensional_radius = np.empty(stations)
@@ -128,8 +144,7 @@ def thrust_calculator(
             )
 
     else:
-        for i in range(stations):
-            correction_function[i] = 1.0
+        correction_function[stations] = 1.0
 
     # Computation of the non-dimensional radius
     for i in range(stations):

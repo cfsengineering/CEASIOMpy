@@ -31,6 +31,7 @@ cpacs_inout.add_input(
     xpath=RANGE_XPATH + "/cruiseMach",
     gui=False,
     gui_name="Cruise Mach",
+    gui_group="Cruise performances",
 )
 
 cpacs_inout.add_input(
@@ -42,6 +43,7 @@ cpacs_inout.add_input(
     xpath=RANGE_XPATH + "/cruiseAltitude",
     gui=False,
     gui_name="Cruise Altitude",
+    gui_group="Cruise performances",
 )
 
 cpacs_inout.add_input(
@@ -65,7 +67,7 @@ cpacs_inout.add_input(
     xpath=PROP_XPATH + "/propeller/blade/discretization",
     gui=True,
     gui_name="radius setting",
-    gui_group="Optimal prop settings",
+    gui_group="Geometrical propeller settings",
 )
 
 cpacs_inout.add_input(
@@ -77,7 +79,7 @@ cpacs_inout.add_input(
     xpath=PROP_XPATH + "propeller/thrust",
     gui=True,
     gui_name="Thrust setting",
-    gui_group="Optimal prop settings",
+    gui_group="Operetive propeller settings",
 )
 
 cpacs_inout.add_input(
@@ -89,7 +91,7 @@ cpacs_inout.add_input(
     xpath=PROP_XPATH + "propeller/rotational_velocity",
     gui=True,
     gui_name="Rotational velocity setting",
-    gui_group="Optimal prop settings",
+    gui_group="Operative propeller settings",
 )
 
 cpacs_inout.add_input(
@@ -101,7 +103,7 @@ cpacs_inout.add_input(
     xpath=PROP_XPATH + "propeller/blade/loss",
     gui=True,
     gui_name="Tip without loss correction",
-    gui_group="Optimal prop settings",
+    gui_group="Correction settings",
 )
 
 cpacs_inout.add_input(
@@ -113,7 +115,7 @@ cpacs_inout.add_input(
     xpath=PROP_XPATH + "propeller/blade/loss",
     gui=True,
     gui_name="Tip loss correction",
-    gui_group="Optimal prop settings",
+    gui_group="Correction settings",
 )
 
 cpacs_inout.add_input(
@@ -125,7 +127,7 @@ cpacs_inout.add_input(
     xpath=PROP_XPATH + "propeller/bladeNumber",
     gui=True,
     gui_name="Propeller blades numbers",
-    gui_group="Optimal prop settings",
+    gui_group="Geometrical propeller settings",
 )
 
 # ----- Output -----

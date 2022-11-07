@@ -52,7 +52,7 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 
 
-def write_actuator_disk():
+def write_actuator_disk(cpacs_path, cpacs_out_path):
 
     cpacs = CPACS(cpacs_path)
     tixi = cpacs.tixi

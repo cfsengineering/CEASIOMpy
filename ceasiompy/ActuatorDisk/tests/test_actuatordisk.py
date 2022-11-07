@@ -71,12 +71,9 @@ def test_file_generation():
     actuator_disk_path = "ActuatorDisk/tests/ActuatorDisk.dat"
     assert Path.exists(actuator_disk_path)
 
-
-def test_value_generation():
-
-    actuator_disk_path = "../ActuatorDisk.dat"
-    a = Path.read_text(actuator_disk_path)
-    assert a == a
+    with actuator_disk_path.open("r") as file:
+        content = file.read()
+    assert content == ""
 
 
 # =================================================================================================

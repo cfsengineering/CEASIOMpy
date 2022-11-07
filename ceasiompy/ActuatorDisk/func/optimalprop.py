@@ -38,7 +38,7 @@ def axial_interference_function(lagrangian_moltiplicator, non_dimensional_radius
     return axial_interference_factor
 
 
-def print_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r):
+def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r):
     file = open("ActuatorDisk.dat", "w")
     file.write(
         """# Automatic generated actuator disk input data file
@@ -68,7 +68,7 @@ def print_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r):
     file.write("ADV_RATIO= " + str(advanced_ratio) + "\n")
     file.write("NROW= " + str(stations) + "\n")
     file.write("# rs=r/R        dCT/drs       dCP/drs       dCR/drs\n")
-    for i in range(0, stations):
+    for i in range(stations):
         file.write(f"  {r[i]:.7f}     {CTrs[i]:.7f}     {CPrs[i]:.7f}     0.0\n")
     file.close()
 
@@ -85,8 +85,6 @@ def thrust_calculator(
     prandtl,
     blades_number,
 ):
-
-    dstations = float(stations)
 
     # Resize the vectors using the number of radial stations.
     r = np.empty(stations)
@@ -109,7 +107,7 @@ def thrust_calculator(
 
     # Computation of the non-dimensional radial stations.
     for i in range(1, stations + 1):
-        r[i - 1] = i / dstations
+        r[i - 1] = i / float(stations)
         if r[i - 1] <= non_dimensional_hub_radius:
             i_hub = i - 1
 
@@ -118,8 +116,8 @@ def thrust_calculator(
     omega = n * 2 * pi
 
     # Computation of the tip loss Prandtl correction function
-    if prandtl is True:
-        for i in range(0, stations):
+    if prandtl:
+        for i in range(stations):
             correction_function[i] = (2 / pi) * acos(
                 exp(
                     -0.5
@@ -130,11 +128,11 @@ def thrust_calculator(
             )
 
     else:
-        for i in range(0, stations):
+        for i in range(stations):
             correction_function[i] = 1.0
 
     # Computation of the non-dimensional radius
-    for i in range(0, stations):
+    for i in range(stations):
         non_dimensional_radius[i] = omega * r[i] * radius / free_stream_velocity
 
     EPSILON = 5e-20
@@ -142,7 +140,7 @@ def thrust_calculator(
     radial_stations_spacing = 1.0 / stations
 
     # Computation of the first try induced velocity distribution.
-    for i in range(0, stations):
+    for i in range(stations):
         induced_velocity_distribution[i] = (2 / free_stream_velocity**2) * (
             (-1 / free_stream_velocity)
             + sqrt(
@@ -156,7 +154,7 @@ def thrust_calculator(
 
     # Computation of the first try Lagrange moltiplicator.
     first_lagrange_moltiplicator = 0.0
-    for i in range(0, stations):
+    for i in range(stations):
         first_lagrange_moltiplicator += induced_velocity_distribution[i]
 
     first_lagrange_moltiplicator = first_lagrange_moltiplicator / (free_stream_velocity * stations)
@@ -169,7 +167,7 @@ def thrust_calculator(
         )
 
     # Computation of the thrust coefficient distribution
-    for i in range(0, stations):
+    for i in range(stations):
         dCt_0[i] = (
             pi
             * advanced_ratio**2
@@ -185,21 +183,20 @@ def thrust_calculator(
 
     # Compute the error with respect to the thrust coefficient given in input.
     inital_error = initial_total_thrust_coefficient - total_thrust_coefficient
-    print("CONVERGENCE HISTORY:")
-    print(inital_error)
+    log.info(f"Cconvergence history: {inital_error}")
 
     # Computation of the second try Lagrange moltiplicator.
     last_lagrange_moltiplicator = first_lagrange_moltiplicator + 0.1
 
     # Computation of the second try axial interference factor distribution.
-    for i in range(0, stations):
+    for i in range(stations):
         old_axial_interference_factor[i] = axial_interference_function(
             last_lagrange_moltiplicator * correction_function[i],
             non_dimensional_radius[i],
         )
 
     # Computation of the thrust coefficient distribution
-    for i in range(0, stations):
+    for i in range(stations):
         dCt_old[i] = (
             pi
             * advanced_ratio**2
@@ -231,14 +228,14 @@ def thrust_calculator(
         ) / (inital_error - old_error)
 
         # Computation of the new axial interference factor distribution.
-        for i in range(0, stations):
+        for i in range(stations):
             new_axial_interference_factor[i] = axial_interference_function(
                 new_lagrange_moltiplicator * correction_function[i],
                 non_dimensional_radius[i],
             )
 
         # Computation of the new thrust coefficient distribution.
-        for i in range(0, stations):
+        for i in range(stations):
             dCt_new[i] = (
                 pi
                 * advanced_ratio**2
@@ -265,7 +262,7 @@ def thrust_calculator(
         last_lagrange_moltiplicator = new_lagrange_moltiplicator
 
     # Computation of the correct axial and rotational interference factors (a and ap).
-    for i in range(0, stations):
+    for i in range(stations):
         optimal_axial_interference_factor[i] = axial_interference_function(
             new_lagrange_moltiplicator * correction_function[i],
             non_dimensional_radius[i],
@@ -281,7 +278,7 @@ def thrust_calculator(
         )
 
     # Computation of the correct thrust coefficient distribution.
-    for i in range(0, stations):
+    for i in range(stations):
         dCt_optimal[i] = (
             pi
             * advanced_ratio**2
@@ -291,7 +288,7 @@ def thrust_calculator(
         )
 
     # Computation of the correct power coefficient distribution.
-    for i in range(0, stations):
+    for i in range(stations):
         dCp[i] = (radius * 4 * pi / (n**3 * diameter**5)) * (
             free_stream_velocity**3
             * (1 + optimal_axial_interference_factor[i]) ** 2
@@ -316,7 +313,7 @@ def thrust_calculator(
         optimal_total_thrust_coefficient += radial_stations_spacing * dCt_optimal[i]
 
     # Computation of the static pressure jump distribution.
-    for i in range(0, stations):
+    for i in range(stations):
         delta_pressure[i] = (
             (dCt_optimal[i]) * (2 * free_stream_velocity**2) / (advanced_ratio**2 * pi * r[i])
         )
@@ -346,7 +343,7 @@ def thrust_calculator(
     log.info(f"Lagrangian moltiplicator/free_stream_velocity= {new_lagrange_moltiplicator:.4f}")
 
     print("SU2 file generated!")
-    print_external_file(dCt_optimal, dCp, stations, radius, advanced_ratio, r)
+    write_external_file(dCt_optimal, dCp, stations, radius, advanced_ratio, r)
 
     # Write the actuator disk configuration file
     file = open("ActuatorDisk.cfg", "w")

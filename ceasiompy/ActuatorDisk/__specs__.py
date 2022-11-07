@@ -31,7 +31,6 @@ cpacs_inout.add_input(
     xpath=RANGE_XPATH + "/cruiseMach",
     gui=False,
     gui_name="Cruise Mach",
-    gui_group="If fixed CL",
 )
 
 cpacs_inout.add_input(
@@ -43,7 +42,6 @@ cpacs_inout.add_input(
     xpath=RANGE_XPATH + "/cruiseAltitude",
     gui=False,
     gui_name="Cruise Altitude",
-    gui_group="If fixed CL",
 )
 
 cpacs_inout.add_input(
@@ -66,7 +64,7 @@ cpacs_inout.add_input(
     descr="Propeller radius",
     xpath=PROP_XPATH + "/propeller/blade/discretization",
     gui=True,
-    gui_name="Thrust setting",
+    gui_name="radius setting",
     gui_group="Optimal prop settings",
 )
 
@@ -95,19 +93,19 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="no_prandtl_correction",
+    var_name="prandtl",
     var_type=bool,
     default_value=False,
     unit=None,
-    descr="No tip loss correction",
+    descr="No Prandtl tip loss correction",
     xpath=PROP_XPATH + "propeller/blade/loss",
     gui=True,
-    gui_name="No tip loss correction",
+    gui_name="Tip without loss correction",
     gui_group="Optimal prop settings",
 )
 
 cpacs_inout.add_input(
-    var_name="prandtl_correction",
+    var_name="prandtl",
     var_type=bool,
     default_value=True,
     unit=None,
@@ -124,9 +122,9 @@ cpacs_inout.add_input(
     default_value=2,
     unit=None,
     descr="Number of propeller blades",
-    xpath=PROP_XPATH + "propeller/blade",
+    xpath=PROP_XPATH + "propeller/bladeNumber",
     gui=True,
-    gui_name="Correction",
+    gui_name="Propeller blades numbers",
     gui_group="Optimal prop settings",
 )
 

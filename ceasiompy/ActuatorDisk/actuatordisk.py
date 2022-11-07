@@ -77,9 +77,9 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
     stations = get_value_or_default(tixi, stations_xpath, 10)
     radius = get_value_or_default(tixi, radius_xpath, 1.5)
     thrust = get_value_or_default(tixi, thrust_xpath, 108824.367)
-    n = get_value_or_default(tixi, n_xpath, 2000)
-    prandtl = get_value_or_default(tixi, prandtl_correction_xpath, True)
-    blades_number = get_value_or_default(tixi, blades_number_xpath, 2)
+    rotational_velocity = get_value_or_default(tixi, n_xpath, 2000)
+    prandtl_correction = get_value_or_default(tixi, prandtl_correction_xpath, True)
+    blades_nb = get_value_or_default(tixi, blades_number_xpath, 2)
 
     Atm = Atmosphere(cruise_alt)
     rho = Atm.density
@@ -87,9 +87,9 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
 
     free_stream_velocity = cruise_mach * sound_speed
     diameter = 2 * radius
-    total_thrust_coefficient = thrust / (rho * n**2 * diameter**4)
+    total_thrust_coefficient = thrust / (rho * rotational_velocity**2 * diameter**4)
     hub_radius = 0.1 * radius
-    advanced_ratio = free_stream_velocity / (n * diameter)
+    advanced_ratio = free_stream_velocity / (rotational_velocity * diameter)
 
     thrust_calculator(
         stations,
@@ -98,8 +98,8 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
         hub_radius,
         advanced_ratio,
         free_stream_velocity,
-        prandtl,
-        blades_number,
+        prandtl_correction,
+        blades_nb,
     )
 
     # Save CPACS

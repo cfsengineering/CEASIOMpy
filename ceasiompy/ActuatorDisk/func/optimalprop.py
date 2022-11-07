@@ -22,7 +22,6 @@ TODO:
 
 from math import pi, sqrt, acos, exp, fabs
 import numpy as np
-import pylab as pl
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()
@@ -106,12 +105,6 @@ def thrust_calculator(
     optimal_rotational_interference_factor = np.empty(stations)
     dCt_optimal = np.empty(stations)
 
-    if prandtl == True:
-        corr = True
-
-    else:
-        corr = False
-
     non_dimensional_hub_radius = hub_radius / radius
 
     # Computation of the non-dimensional radial stations.
@@ -125,7 +118,7 @@ def thrust_calculator(
     omega = n * 2 * pi
 
     # Computation of the tip loss Prandtl correction function
-    if corr == True:
+    if prandtl is True:
         for i in range(0, stations):
             correction_function[i] = (2 / pi) * acos(
                 exp(

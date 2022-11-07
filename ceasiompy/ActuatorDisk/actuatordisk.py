@@ -79,8 +79,7 @@ def write_actuator_disk():
     radius = get_value_or_default(tixi, radius_xpath, 1.5)
     thrust = get_value_or_default(tixi, thrust_xpath, 108824.367)
     n = get_value_or_default(tixi, n_xpath, 2000)
-    no_prandtl_correction = get_value_or_default(tixi, no_prandtl_correction_xpath, False)
-    prandtl_correction = get_value_or_default(tixi, prandtl_correction_xpath, True)
+    prandtl = get_value_or_default(tixi, prandtl_correction_xpath, True)
     blades_number = get_value_or_default(tixi, blades_number_xpath, 2)
 
     Atm = Atmosphere(cruise_alt)
@@ -92,12 +91,6 @@ def write_actuator_disk():
     total_thrust_coefficient = thrust / (rho * n**2 * diameter**4)
     hub_radius = 0.1 * radius
     advanced_ratio = free_stream_velocity / (n * diameter)
-
-    prandtl = True
-    if prandtl_correction == True:
-        prandtl == prandtl_correction
-    else:
-        prandtl == no_prandtl_correction
 
     thrust_calculator(
         stations,

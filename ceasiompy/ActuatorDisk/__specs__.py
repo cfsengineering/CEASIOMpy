@@ -121,7 +121,7 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="blade_numbers",
+    var_name="blades_number",
     var_type=int,
     default_value=2,
     unit=None,

@@ -344,7 +344,7 @@ def thrust_calculator(
     log.info("------- Check output values -------")
     log.info(f"Optimal total thrust coefficient= {optimal_total_thrust_coefficient:.4f}")
     log.info(
-        f"""Total thrust coefficient computed 
+        f"""Total thrust coefficient computed
         using the static pressure jump= {computed_total_thrust_coefficient:.4f}"""
     )
     log.info(f"Power coefficient distribution integral= {total_power_coefficient:.4f}")
@@ -354,46 +354,6 @@ def thrust_calculator(
 
     print("SU2 file generated!")
     print_external_file(dCt_optimal, dCp, stations, radius, advanced_ratio, r)
-
-    """ f1 = pl.figure(1)
-    pl.plot(r, dCt_optimal, "r", markersize=4, label="$\\frac{dCT}{d\overline{r}}$")
-    pl.plot(r, dCp, "k", markersize=4, label="$\\frac{dCP}{d\overline{r}}$")
-    pl.grid(True)
-    pl.legend(numpoints=3)
-    pl.xlabel("$\overline{r}$")
-    pl.ylabel("")
-    pl.title("Load Distribution")
-
-    f1 = pl.figure(2)
-    pl.plot(
-        non_dimensional_radius,
-        optimal_axial_interference_factor,
-        "r",
-        markersize=4,
-        label="$a$",
-    )
-    pl.plot(
-        non_dimensional_radius,
-        optimal_rotational_interference_factor,
-        "k",
-        markersize=4,
-        label="$a^1$",
-    )
-    pl.grid(True)
-    pl.legend(numpoints=3)
-    pl.xlabel("$\chi$")
-    pl.ylabel("")
-    pl.title("Interference Factors")
-
-    if corr == True:
-        f1 = pl.figure(3)
-        pl.plot(r, correction_function, "k", markersize=4)
-        pl.grid(True)
-        pl.xlabel("$\overline{r}$")
-        pl.ylabel("$F(\overline{r})$")
-        pl.title("Tip Loss Prandtl Correction Function")
-
-    pl.show()"""
 
     # Write the actuator disk configuration file
     file = open("ActuatorDisk.cfg", "w")

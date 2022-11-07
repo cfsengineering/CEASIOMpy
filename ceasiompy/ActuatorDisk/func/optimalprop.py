@@ -355,7 +355,7 @@ def thrust_calculator(
     print("SU2 file generated!")
     print_external_file(dCt_optimal, dCp, stations, radius, advanced_ratio, r)
 
-    f1 = pl.figure(1)
+    """ f1 = pl.figure(1)
     pl.plot(r, dCt_optimal, "r", markersize=4, label="$\\frac{dCT}{d\overline{r}}$")
     pl.plot(r, dCp, "k", markersize=4, label="$\\frac{dCP}{d\overline{r}}$")
     pl.grid(True)
@@ -393,7 +393,7 @@ def thrust_calculator(
         pl.ylabel("$F(\overline{r})$")
         pl.title("Tip Loss Prandtl Correction Function")
 
-    pl.show()
+    pl.show()"""
 
     # Write the actuator disk configuration file
     file = open("ActuatorDisk.cfg", "w")
@@ -411,3 +411,5 @@ def thrust_calculator(
     file.write("ACTDISK_FILENAME = ActuatorDisk.dat\n")
     file.write("MARKER_ACTDISK = ( , , 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)\n")
     file.close()
+
+    return optimal_total_thrust_coefficient, total_power_coefficient, thrust_density_ratio, eta

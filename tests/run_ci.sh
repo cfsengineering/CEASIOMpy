@@ -38,7 +38,7 @@ run_unit_tests()
     echo -e "\n----------------"
     echo -e "|  Unit tests  |"
     echo -e "----------------\n"
-    if [ $unit == false ]; then
+    if [ "$unit" == false ]; then
         echo -e "Skipping...\n"
         return 0
     fi
@@ -54,7 +54,7 @@ run_integration_tests()
     echo -e "\n-----------------------"
     echo -e "|  Integration tests  |"
     echo -e "-----------------------\n"
-    if [ $integration == false ]; then
+    if [ "$integration" == false ]; then
         echo -e "Skipping...\n"
         return 0
     fi

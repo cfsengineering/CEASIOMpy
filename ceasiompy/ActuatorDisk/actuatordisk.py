@@ -68,7 +68,6 @@ def write_actuator_disk():
     radius_xpath = PROP_XPATH + "/propeller/blade/discretization"
     thrust_xpath = PROP_XPATH + "propeller/thrust"
     n_xpath = PROP_XPATH + "propeller/rotational_velocity"
-    no_prandtl_correction_xpath = PROP_XPATH + "propeller/blade/loss"
     prandtl_correction_xpath = PROP_XPATH + "propeller/blade/loss"
     blades_number_xpath = PROP_XPATH + "propeller/blade"
 

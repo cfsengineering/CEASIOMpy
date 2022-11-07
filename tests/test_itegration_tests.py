@@ -118,4 +118,4 @@ if __name__ == "__main__":
 
     print("Integration tests")
     print("To run test use the following command:")
-    print('>> pytest -v . --cov=../ceasiompy --cov-report term')
+    print(">> pytest -v . --cov=../ceasiompy --cov-report term")

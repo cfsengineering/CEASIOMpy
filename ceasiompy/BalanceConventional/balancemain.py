@@ -167,7 +167,7 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
         0, 0, ag.cabin_seg, ag, mw, bi.WING_MOUNTED
     )
     log.info("[x, y, z] = " + str(out.cg_oem))
-    if bi.USER_CASE == True:
+    if bi.USER_CASE:
         if bi.P_PERC < 0 or bi.F_PERC < 0:
             raise Exception("Error, F_PERC and P_PERC can" + " not be zero or negative.")
         if (

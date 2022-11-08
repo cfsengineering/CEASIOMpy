@@ -60,8 +60,8 @@ def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r):
 
     Args:
         dCt_optimal (float): thrust coefficient at every radius [-]
-            dCp (float): power coefficient at every radius [-]
-            r (float): adimensional radius [-]
+        dCp (float): power coefficient at every radius [-]
+        r (float): adimensional radius [-]
 
     Returns:
         file filled with thrust and power coefficient distribution

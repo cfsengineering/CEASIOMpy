@@ -21,7 +21,7 @@ import shutil
 
 from pytest import approx
 
-from ceasiompy.WeightConventional.func.mtom import estimate_mtom, estimate_mtom
+from ceasiompy.WeightConventional.func.mtom import estimate_mtom
 from ceasiompy.utils.commonnames import MTOM_FIGURE_NAME
 
 MODULE_DIR = Path(__file__).parent

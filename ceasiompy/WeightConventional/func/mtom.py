@@ -40,7 +40,7 @@ log = get_logger()
 
 
 def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span, results_dir):
-    """Function that estimates the Maximum Take-Off Mass from k-nearest neighbors regression 
+    """Function that estimates the Maximum Take-Off Mass from k-nearest neighbors regression
     based on geometric parameters.
 
     Args:

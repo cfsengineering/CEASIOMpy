@@ -66,7 +66,7 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
     cpacs = CPACS(cpacs_path)
     tixi = cpacs.tixi
 
-    results_dir = get_results_directory("AD")
+    results_dir = get_results_directory("ActuatorDisk")
     brep_dir = Path(results_dir, "brep_files")
     brep_dir.mkdir()
 
@@ -82,9 +82,10 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
 
     # Required input data from CPACS
     cruise_alt = get_value_or_default(tixi, cruise_alt_xpath, 10000)
-    cruise_mach = get_value_or_default(tixi, cruise_mach_xpath, 0.67)
-    stations = get_value_or_default(tixi, stations_xpath, 10)
+    cruise_mach = get_value_or_default(tixi, cruise_mach_xpath, 0.6)
+    stations = get_value_or_default(tixi, stations_xpath, 20)
     radius = get_value_or_default(tixi, radius_xpath, 1.5)
+    hub_radius = get_value_or_default(tixi, radius_xpath, 0.15)
     thrust = get_value_or_default(tixi, thrust_xpath, 108824.367)
     rotational_velocity = get_value_or_default(tixi, n_xpath, 2000)
     prandtl_correction = get_value_or_default(tixi, prandtl_correction_xpath, True)
@@ -92,12 +93,11 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
 
     Atm = Atmosphere(cruise_alt)
     rho = Atm.density
-    sound_speed = Atm.speed_of_sound
+    sos = Atm.speed_of_sound
 
-    free_stream_velocity = cruise_mach * sound_speed
+    free_stream_velocity = cruise_mach * sos
     diameter = 2 * radius
     total_thrust_coefficient = thrust / (rho * rotational_velocity**2 * diameter**4)
-    hub_radius = 0.1 * radius
     advanced_ratio = free_stream_velocity / (rotational_velocity * diameter)
 
     thrust_calculator(

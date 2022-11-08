@@ -14,7 +14,7 @@ module_status = True
 
 # ===== Results directory path =====
 
-RESULTS_DIR = Path("Results", "AD")
+RESULTS_DIR = Path("Results", "SU2")
 
 # ===== CPACS inputs and outputs =====
 
@@ -25,7 +25,7 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="cruise_mach",
     var_type=float,
-    default_value=0.4,
+    default_value=0.6,
     unit="1",
     descr="Aircraft cruise Mach number",
     xpath=RANGE_XPATH + "/cruiseMach",
@@ -37,7 +37,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="cruise_alt",
     var_type=float,
-    default_value=9000.0,
+    default_value=10000.0,
     unit="m",
     descr="Aircraft cruise altitude",
     xpath=RANGE_XPATH + "/cruiseAltitude",
@@ -48,25 +48,37 @@ cpacs_inout.add_input(
 
 cpacs_inout.add_input(
     var_name="station",
-    var_type=float,
+    var_type=int,
     default_value=20,
     unit=None,
     descr="Number of elements for blade discretization",
     xpath=PROP_XPATH + "/propeller/blade/discretization",
     gui=True,
     gui_name="Blade discretization",
-    gui_group="Optimal prop settings",
+    gui_group="Geometrical propeller settings",
 )
 
 cpacs_inout.add_input(
     var_name="radius",
     var_type=float,
-    default_value=2,
+    default_value=1.5,
     unit="m",
     descr="Propeller radius",
-    xpath=PROP_XPATH + "/propeller/blade/discretization",
+    xpath=PROP_XPATH + "/propeller/blade/radius",
     gui=True,
     gui_name="radius setting",
+    gui_group="Geometrical propeller settings",
+)
+
+cpacs_inout.add_input(
+    var_name="hub_radius",
+    var_type=float,
+    default_value=0.15,
+    unit="m",
+    descr="Hub propeller radius",
+    xpath=PROP_XPATH + "/propeller/blade/hub_radius",
+    gui=True,
+    gui_name="hub radius setting",
     gui_group="Geometrical propeller settings",
 )
 
@@ -137,5 +149,5 @@ cpacs_inout.add_output(
     default_value=None,
     unit="1",
     descr="Distribution of thrust coefficient along the radius",
-    xpath=AEROPERFORMANCE_XPATH + "/aeroMap/aeroPerformanceMap",
+    xpath=AEROPERFORMANCE_XPATH + "/propeller/thrust/distribution",
 )

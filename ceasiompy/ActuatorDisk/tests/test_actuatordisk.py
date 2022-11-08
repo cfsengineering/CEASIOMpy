@@ -44,9 +44,14 @@ ACTUATOR_DISK_PATH = Path(MODULE_DIR, "ToolOutput")
 
 def test_axial_interference():
 
-    axial_interference_factor = axial_interference_function(0.12, 0.5)
+    lagrangian_molt = np.array([0.3, 0.12, 0.05])
+    adimensional_radius = np.array([0.25, 0.5, 0.75])
 
-    assert axial_interference_factor == approx(0.01994, rel=1e-2)
+    calc_axial_interference = np.array([0.01699, 0.01994, 0.01689])
+
+    axial_interference_factor = axial_interference_function(lagrangian_molt, adimensional_radius)
+
+    assert all(axial_interference_factor) == all(calc_axial_interference)
 
 
 def test_check_output():

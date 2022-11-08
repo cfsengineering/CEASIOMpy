@@ -98,8 +98,9 @@ def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r):
     file.write("ADV_RATIO= " + str(advanced_ratio) + "\n")
     file.write("NROW= " + str(stations) + "\n")
     file.write("# rs=r/R        dCT/drs       dCP/drs       dCR/drs\n")
-    for i in range(stations):
-        file.write(f"  {r[i]:.7f}     {CTrs[i]:.7f}     {CPrs[i]:.7f}     0.0\n")
+    for r, ctrs, cprs in zip(r, CTrs, CPrs):
+        file.write(f"  {r:.7f}     {ctrs:.7f}     {cprs:.7f}     0.0\n")
+
     file.close()
 
     log.info("Warning: present version requires input in SI units.")

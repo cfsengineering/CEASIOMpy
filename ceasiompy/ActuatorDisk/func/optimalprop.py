@@ -398,8 +398,6 @@ def thrust_calculator(
     actuator_disk_cfg_path = Path(results_dir, "ActuatorDisk.cfg")
     file = open(actuator_disk_cfg_path, "w")
 
-    file = open("ActuatorDisk.cfg", "w")
-
     file.write("% Automatic generated actuator disk configuration file.\n")
     file.write("%\n")
     file.write("% The first two elements of MARKER_ACTDISK must be filled.\n")

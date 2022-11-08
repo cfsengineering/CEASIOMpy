@@ -22,6 +22,8 @@ from pathlib import Path
 from ceasiompy.ActuatorDisk.func.optimalprop import thrust_calculator
 from ceasiompy.ActuatorDisk.func.optimalprop import axial_interference_function
 import numpy as np
+from ceasiompy.utils.ceasiompyutils import get_results_directory
+
 
 from pytest import approx
 
@@ -130,10 +132,11 @@ def test_check_output():
 
 def test_file_generation():
 
-    actuator_disk_path = Path("ActuatorDisk/ActuatorDisk.dat")
-    assert actuator_disk_path.exists()
+    results_dir = get_results_directory("ActuatorDisk")
+    actuator_disk_dat_path = Path(results_dir, "ActuatorDisk.dat")
+    assert actuator_disk_dat_path.exists()
 
-    with actuator_disk_path.open("r") as f:
+    with actuator_disk_dat_path.open("r") as f:
         lines = f.readlines()
     assert lines[0] == "# Automatic generated actuator disk input data file\n"
 

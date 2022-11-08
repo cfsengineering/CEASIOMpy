@@ -21,7 +21,7 @@ from pathlib import Path
 
 from ceasiompy.ActuatorDisk.func.optimalprop import thrust_calculator
 from ceasiompy.ActuatorDisk.func.optimalprop import axial_interference_function
-
+import numpy as np
 
 from pytest import approx
 
@@ -49,26 +49,88 @@ def test_axial_interference():
 
 def test_check_output():
 
-    renard_thrust_coeff, power_coeff, thrust_over_density, efficiency = thrust_calculator(
-        10,
-        0.5,
-        1.5,
-        0.2,
-        1.5,
-        150,
-        True,
-        2,
+    stations = np.array([20, 20, 20, 20, 20, 20, 20, 20])
+    total_thrust_coefficient = np.array([0.5, 0.8, 1, 1.2, 1.5, 0.2, 0.15])
+    radius = np.array([1.5, 1.5, 1.2, 1.4, 2, 1.4, 1.4, 1.7])
+    hub_radius = np.array([0.2, 0.15, 0.1, 0.1, 0.2, 0.1, 0.1, 0.2])
+    advanced_ratio = np.array([1.5, 2, 1.8, 1.6, 1.8, 1.4, 1.3, 1.7])
+    free_stream_velocity = np.array([150, 190, 180, 140, 190, 130, 130, 160])
+    prandtl = np.array(
+        [
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+            True,
+        ]
+    )
+    blade_nb = np.array([2, 3, 3, 2, 8, 2, 2, 6])
+
+    calc_renard_thrust_coeff = np.array(
+        [0.5, 0.8, 1, 1.2, 1.5, 0.2, (approx(0.15, rel=1e-2)), 1.3]
+    )
+    calc_power_coeff = np.array(
+        [
+            (approx(0.9621, rel=1e-2)),
+            (approx(2.1758, rel=1e-2)),
+            (approx(2.7597, rel=1e-2)),
+            (approx(3.4587, rel=1e-2)),
+            (approx(5.4348, rel=1e-2)),
+            (approx(0.313, rel=1e-2)),
+            (approx(0.2139, rel=1e-2)),
+            (approx(3.9936, rel=1e-2)),
+        ]
+    )
+    calc_thrust_over_density = np.array(
+        [
+            (approx(45000, rel=1e-2)),
+            (approx(64980, rel=1e-2)),
+            (approx(57600, rel=1e-2)),
+            (approx(72030, rel=1e-2)),
+            (approx(267407.41, rel=1e-2)),
+            (approx(13520, rel=1e-2)),
+            (approx(11760, rel=1e-2)),
+            (approx(133120, rel=1e-2)),
+        ]
+    )
+    calc_efficiency = np.array(
+        [
+            (approx(0.7794, rel=1e-2)),
+            (approx(0.7354, rel=1e-2)),
+            (approx(0.6523, rel=1e-2)),
+            (approx(0.5551, rel=1e-2)),
+            (approx(0.4968, rel=1e-2)),
+            (approx(0.8945, rel=1e-2)),
+            (approx(0.9115, rel=1e-2)),
+            (approx(0.5534, rel=1e-2)),
+        ]
     )
 
-    assert renard_thrust_coeff == 0.5
-    assert power_coeff == approx(0.974, rel=1e-2)
-    assert thrust_over_density == 45000
-    assert efficiency == approx(0.7699, rel=1e-2)
+    for i in range(7):
+
+        (renard_thrust_coeff, power_coeff, thrust_over_density, efficiency) = thrust_calculator(
+            stations[i],
+            total_thrust_coefficient[i],
+            radius[i],
+            hub_radius[i],
+            advanced_ratio[i],
+            free_stream_velocity[i],
+            prandtl[i],
+            blade_nb[i],
+        )
+
+        assert renard_thrust_coeff == calc_renard_thrust_coeff[i]
+        assert power_coeff == calc_power_coeff[i]
+        assert thrust_over_density == calc_thrust_over_density[i]
+        assert efficiency == calc_efficiency[i]
 
 
 def test_file_generation():
 
-    actuator_disk_path = Path("ActuatorDisk.dat")
+    actuator_disk_path = Path("ActuatorDisk/ActuatorDisk.dat")
     assert actuator_disk_path.exists()
 
     with actuator_disk_path.open("r") as f:

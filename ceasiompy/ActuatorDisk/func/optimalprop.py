@@ -23,6 +23,8 @@ TODO:
 from math import pi, sqrt, acos, exp, fabs
 import numpy as np
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import get_results_directory
+from pathlib import Path
 
 log = get_logger()
 
@@ -65,7 +67,9 @@ def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r):
         file filled with thrust and power coefficient distribution
     """
 
-    file = open("ActuatorDisk.dat", "w")
+    results_dir = get_results_directory("ActuatorDisk")
+    actuator_disk_dat_path = Path(results_dir, "ActuatorDisk.dat")
+    file = open(actuator_disk_dat_path, "w")
     file.write(
         """# Automatic generated actuator disk input data file
              using the Optimal Propeller code.\n"""
@@ -389,6 +393,11 @@ def thrust_calculator(
     write_external_file(dCt_optimal, dCp, stations, radius, advanced_ratio, r)
 
     # Write the actuator disk configuration file
+
+    results_dir = get_results_directory("ActuatorDisk")
+    actuator_disk_cfg_path = Path(results_dir, "ActuatorDisk.cfg")
+    file = open(actuator_disk_cfg_path, "w")
+
     file = open("ActuatorDisk.cfg", "w")
 
     file.write("% Automatic generated actuator disk configuration file.\n")

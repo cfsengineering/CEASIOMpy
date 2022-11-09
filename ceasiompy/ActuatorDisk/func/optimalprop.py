@@ -70,16 +70,11 @@ def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r):
     results_dir = get_results_directory("ActuatorDisk")
     actuator_disk_dat_path = Path(results_dir, "ActuatorDisk.dat")
     file = open(actuator_disk_dat_path, "w")
-    file.write(
-        """# Automatic generated actuator disk input data file
-             using the Optimal Propeller code.\n"""
-    )
+    file.write("# Automatic generated actuator disk input data file using\n")
+    file.write("# the Optimal Propeller code.\n")
     file.write("# Data file needed for the actuator disk VARIABLE_LOAD type.\n")
-    file.write(
-        """# The load distribution is obtained using
-             the inviscid theory of the optimal propeller\n"""
-    )
-    file.write("# using global data.\n")
+    file.write("# The load distribution is obtained using\n")
+    file.write("# the inviscid theory of the optimal propeller using global data.\n")
     file.write("#\n")
     file.write("# The first three lines must be filled.\n")
     file.write("# An example of this file can be found in the TestCases directory.\n")

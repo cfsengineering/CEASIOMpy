@@ -1,16 +1,15 @@
-# Automatic generated actuator disk input data file
-             using the Optimal Propeller code.
+# Automatic generated actuator disk input data file using
+# the Optimal Propeller code.
 # Data file needed for the actuator disk VARIABLE_LOAD type.
 # The load distribution is obtained using
-             the inviscid theory of the optimal propeller
-# using global data.
+# the inviscid theory of the optimal propeller using global data.
 #
 # The first three lines must be filled.
 # An example of this file can be found in the TestCases directory.
 #
 # This output file is generated thanks to a script created by
-University of Naples Federico II and modified by CFS Engineering
-with the aim of integrating it in CEASIOMpy
+# University of Naples Federico II and modified by CFS Engineering
+# with the aim of integrating it in CEASIOMpy
 # ---------------------------------------------------------------------------------
 #
 MARKER_ACTDISK= 

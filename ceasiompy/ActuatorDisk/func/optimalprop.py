@@ -85,8 +85,8 @@ def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r):
     file.write("# An example of this file can be found in the TestCases directory.\n")
     file.write("#\n")
     file.write("# This output file is generated thanks to a script created by\n")
-    file.write("University of Naples Federico II and modified by CFS Engineering\n")
-    file.write("with the aim of integrating it in CEASIOMpy\n")
+    file.write("# University of Naples Federico II and modified by CFS Engineering\n")
+    file.write("# with the aim of integrating it in CEASIOMpy\n")
     file.write(
         "# ---------------------------------------------------------------------------------\n"
     )

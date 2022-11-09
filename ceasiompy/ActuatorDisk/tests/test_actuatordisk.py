@@ -136,6 +136,7 @@ def test_file_generation():
         lines = f.readlines()
 
     assert lines[0] == "# Automatic generated actuator disk input data file\n"
+    assert lines[-1] == "  1.0000000     0.0000000     0.0000000     0.0\n"
 
 
 # =================================================================================================

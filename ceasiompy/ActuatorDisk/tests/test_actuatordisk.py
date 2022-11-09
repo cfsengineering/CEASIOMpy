@@ -126,12 +126,15 @@ def test_check_output():
 
 def test_file_generation():
 
+    thrust_calculator(20, 0.5, 1.5, 0.15, 1.5, 150, True, 2)
+
     results_dir = get_results_directory("ActuatorDisk")
     actuator_disk_dat_path = Path(results_dir, "ActuatorDisk.dat")
     assert actuator_disk_dat_path.exists()
 
     with actuator_disk_dat_path.open("r") as f:
         lines = f.readlines()
+
     assert lines[0] == "# Automatic generated actuator disk input data file\n"
 
 

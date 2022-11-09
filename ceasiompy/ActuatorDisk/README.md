@@ -87,3 +87,4 @@ It could be possible apply this theory to a rotorcraft engine, but not in CEASIO
 
 ## References
 
+Implementation and validation of a new actuator disk model in SU2, SU2 Conference 2020, 10/06/2020. <https://su2foundation.org/wp-content/uploads/2021/10/SU2_paper_UniNa_withHeader-1.pdf>

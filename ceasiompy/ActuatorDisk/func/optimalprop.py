@@ -84,9 +84,9 @@ def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r):
     file.write("# The first three lines must be filled.\n")
     file.write("# An example of this file can be found in the TestCases directory.\n")
     file.write("#\n")
-    file.write("# Author: Ettore Saetta, Lorenzo Russo, Renato Tognaccini.\n")
-    file.write("# Theoretical and Applied Aerodynamic Research Group (TAARG),\n")
-    file.write("# University of Naples Federico II\n")
+    file.write("# This output file is generated thanks to a script created by\n")
+    file.write("University of Naples Federico II and modified by CFS Engineering\n")
+    file.write("with the aim of integrating it in CEASIOMpy\n")
     file.write(
         "# ---------------------------------------------------------------------------------\n"
     )
@@ -158,8 +158,7 @@ def thrust_calculator(
         if r[i - 1] <= non_dimensional_hub_radius:
             i_hub = i - 1
 
-    diameter = 2 * radius
-    n = free_stream_velocity / (diameter * advanced_ratio)
+    n = free_stream_velocity / (2 * radius * advanced_ratio)
     omega = n * 2 * pi
 
     # Computation of the tip loss Prandtl correction function
@@ -178,8 +177,10 @@ def thrust_calculator(
         correction_function[stations] = 1.0
 
     # Computation of the non-dimensional radius
-    for i in range(stations):
-        non_dimensional_radius[i] = omega * r[i] * radius / free_stream_velocity
+
+    non_dimensional_radius = omega * r * radius / free_stream_velocity
+    # for i in range(stations):
+    #    non_dimensional_radius[i] = omega * r[i] * radius / free_stream_velocity
 
     EPSILON = 5e-20
 
@@ -192,7 +193,7 @@ def thrust_calculator(
             + sqrt(
                 1
                 + (
-                    (diameter**4 * (total_thrust_coefficient) * n**2)
+                    ((2 * radius) ** 4 * (total_thrust_coefficient) * n**2)
                     / (free_stream_velocity**2 * pi * r[i])
                 )
             )
@@ -335,7 +336,7 @@ def thrust_calculator(
 
     # Computation of the correct power coefficient distribution.
     for i in range(stations):
-        dCp[i] = (radius * 4 * pi / (n**3 * diameter**5)) * (
+        dCp[i] = (radius * 4 * pi / (n**3 * (2 * radius) ** 5)) * (
             free_stream_velocity**3
             * (1 + optimal_axial_interference_factor[i]) ** 2
             * optimal_axial_interference_factor[i]
@@ -372,7 +373,7 @@ def thrust_calculator(
         )
 
     # Computation of the thrust coefficient using thrust_density_ratio.
-    computed_total_thrust_coefficient = thrust_density_ratio / (n**2 * diameter**4)
+    computed_total_thrust_coefficient = thrust_density_ratio / (n**2 * (2 * radius) ** 4)
 
     # Computation of the efficiency.
     eta = advanced_ratio * (optimal_total_thrust_coefficient / total_power_coefficient)

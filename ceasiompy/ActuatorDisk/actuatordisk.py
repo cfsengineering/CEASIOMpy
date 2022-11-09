@@ -53,7 +53,6 @@ MODULE_NAME = MODULE_DIR.name
 
 
 def write_actuator_disk(cpacs_path, cpacs_out_path):
-
     """Function to call every functions in order to obtain the file with thrust and power
     coefficients distribution in order to perform a CFD calculation with SU2
 
@@ -81,8 +80,8 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
     blades_number_xpath = PROP_XPATH + "propeller/blade"
 
     # Required input data from CPACS
-    cruise_alt = get_value_or_default(tixi, cruise_alt_xpath, 10000)
-    cruise_mach = get_value_or_default(tixi, cruise_mach_xpath, 0.6)
+    cruise_alt = get_value_or_default(tixi, cruise_alt_xpath, 9000)
+    cruise_mach = get_value_or_default(tixi, cruise_mach_xpath, 0.5)
     stations = get_value_or_default(tixi, stations_xpath, 20)
     radius = get_value_or_default(tixi, radius_xpath, 1.5)
     hub_radius = get_value_or_default(tixi, radius_xpath, 0.15)
@@ -92,12 +91,10 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
     blades_nb = get_value_or_default(tixi, blades_number_xpath, 2)
 
     Atm = Atmosphere(cruise_alt)
-    rho = Atm.density
-    sos = Atm.speed_of_sound
 
-    free_stream_velocity = cruise_mach * sos
+    free_stream_velocity = cruise_mach * Atm.speed_of_sound
     diameter = 2 * radius
-    total_thrust_coefficient = thrust / (rho * rotational_velocity**2 * diameter**4)
+    total_thrust_coefficient = thrust / (Atm.density * rotational_velocity**2 * diameter**4)
     advanced_ratio = free_stream_velocity / (rotational_velocity * diameter)
 
     thrust_calculator(

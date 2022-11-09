@@ -103,8 +103,6 @@ def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r):
 
     file.close()
 
-    log.info("Warning: present version requires input in SI units.")
-
 
 def thrust_calculator(
     stations,
@@ -260,7 +258,7 @@ def thrust_calculator(
 
     # Compute the error with respect to the thrust coefficient given in input.
     old_error = old_total_thrust_coefficient - total_thrust_coefficient
-    print(old_error)
+    log.info(f"old_error= {old_error}")
 
     # Iterate using the false position methods.
     # Based on the error from the thrust coefficient given in input.
@@ -300,7 +298,7 @@ def thrust_calculator(
         # Computation of the total thrust coefficient error with respect to the input value.
         new_error = new_total_thrust_coefficient - total_thrust_coefficient
 
-        print(new_error)
+        log.info(f"new error= {new_error}")
 
         # Updating the stored values for the next iteration.
         inital_error = old_error
@@ -390,7 +388,8 @@ def thrust_calculator(
     log.info(f"Efficiency eta= {eta:.4f}")
     log.info(f"Lagrangian moltiplicator/free_stream_velocity= {new_lagrange_moltiplicator:.4f}")
 
-    print("SU2 file generated!")
+    log.info("SU2 file generated!")
+
     write_external_file(dCt_optimal, dCp, stations, radius, advanced_ratio, r)
 
     # Write the actuator disk configuration file

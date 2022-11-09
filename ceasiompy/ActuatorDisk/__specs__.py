@@ -66,7 +66,7 @@ cpacs_inout.add_input(
     descr="Propeller radius",
     xpath=PROP_XPATH + "/propeller/blade/radius",
     gui=True,
-    gui_name="radius setting",
+    gui_name="Propeller radius",
     gui_group="Geometrical propeller settings",
 )
 
@@ -90,7 +90,7 @@ cpacs_inout.add_input(
     descr="Aircraft thrust",
     xpath=PROP_XPATH + "propeller/thrust",
     gui=True,
-    gui_name="Thrust setting",
+    gui_name="Thrust",
     gui_group="Operetive propeller settings",
 )
 

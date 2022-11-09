@@ -174,7 +174,7 @@ def thrust_calculator(
             )
 
     else:
-        correction_function[stations] = 1.0
+        correction_function = np.ones(stations)
 
     # Computation of the non-dimensional radius
 

@@ -62,7 +62,7 @@ def test_check_output():
     hub_radius = np.array([0.2, 0.15, 0.1, 0.1, 0.2, 0.1, 0.1, 0.2])
     advanced_ratio = np.array([1.5, 2, 1.8, 1.6, 1.8, 1.4, 1.3, 1.7])
     free_stream_velocity = np.array([150, 190, 180, 140, 190, 130, 130, 160])
-    prandtl = np.array([True, True, True, True, True, True, True, True])
+    prandtl = np.array([True, True, False, True, True, True, True, False])
     blade_nb = np.array([2, 3, 3, 2, 8, 2, 2, 6])
 
     calc_renard_thrust_coeff = np.array(
@@ -72,7 +72,7 @@ def test_check_output():
         [
             (approx(0.9621, rel=1e-2)),
             (approx(2.1758, rel=1e-2)),
-            (approx(2.7597, rel=1e-2)),
+            (approx(2.4896, rel=1e-2)),
             (approx(3.4587, rel=1e-2)),
             (approx(5.4348, rel=1e-2)),
             (approx(0.313, rel=1e-2)),
@@ -96,7 +96,7 @@ def test_check_output():
         [
             (approx(0.7794, rel=1e-2)),
             (approx(0.7354, rel=1e-2)),
-            (approx(0.6523, rel=1e-2)),
+            (approx(0.7230, rel=1e-2)),
             (approx(0.5551, rel=1e-2)),
             (approx(0.4968, rel=1e-2)),
             (approx(0.8945, rel=1e-2)),

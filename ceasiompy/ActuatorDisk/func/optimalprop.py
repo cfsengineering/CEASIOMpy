@@ -192,14 +192,14 @@ def thrust_calculator(
             )
         )
 
-    # Computation of the first try Lagrange moltiplicator.
+    # Computation of the first try Lagrange moltiplicator
     first_lagrange_moltiplicator = 0.0
     for i in range(stations):
         first_lagrange_moltiplicator += induced_velocity_distribution[i]
 
     first_lagrange_moltiplicator = first_lagrange_moltiplicator / (free_stream_velocity * stations)
 
-    # Computation of the first try axial interference factor distribution.
+    # Computation of the first try axial interference factor distribution
     for i in range(0, stations):
         initial_axial_interference_factor[i] = axial_interference_function(
             first_lagrange_moltiplicator * correction_function[i],
@@ -214,19 +214,19 @@ def thrust_calculator(
             * initial_axial_interference_factor[i]
         )
 
-    # Computation of the total thrust coefficient.
+    # Computation of the total thrust coefficient
     initial_total_thrust_coefficient = 0.0
     for i in range(i_hub, stations):
         initial_total_thrust_coefficient += radial_stations_spacing * dCt_0[i]
 
-    # Compute the error with respect to the thrust coefficient given in input.
+    # Compute the error with respect to the thrust coefficient given in input
     inital_error = initial_total_thrust_coefficient - total_thrust_coefficient
     log.info(f"Convergence history: {inital_error}")
 
-    # Computation of the second try Lagrange moltiplicator.
+    # Computation of the second try Lagrange moltiplicator
     last_lagrange_moltiplicator = first_lagrange_moltiplicator + 0.1
 
-    # Computation of the second try axial interference factor distribution.
+    # Computation of the second try axial interference factor distribution
     for i in range(stations):
         old_axial_interference_factor[i] = axial_interference_function(
             last_lagrange_moltiplicator * correction_function[i],
@@ -241,29 +241,29 @@ def thrust_calculator(
             * old_axial_interference_factor[i]
         )
 
-    # Computation of the total thrust coefficient.
+    # Computation of the total thrust coefficient
     old_total_thrust_coefficient = 0.0
     for i in range(i_hub, stations):
         old_total_thrust_coefficient += radial_stations_spacing * dCt_old[i]
 
-    # Compute the error with respect to the thrust coefficient given in input.
+    # Compute the error with respect to the thrust coefficient given in input
     old_error = old_total_thrust_coefficient - total_thrust_coefficient
     log.info(f"old_error= {old_error}")
 
     # Iterate using the false position methods.
-    # Based on the error from the thrust coefficient given in input.
+    # Based on the error from the thrust coefficient given in input
     iteration = 2
     new_error = old_error
     while fabs(new_error) >= EPSILON and inital_error != old_error:
 
         iteration += 1
 
-        # Computation of the new Lagrange moltiplicator value based on the false position method.
+        # Computation of the new Lagrange moltiplicator value based on the false position method
         new_lagrange_moltiplicator = (
             last_lagrange_moltiplicator * inital_error - first_lagrange_moltiplicator * old_error
         ) / (inital_error - old_error)
 
-        # Computation of the new axial interference factor distribution.
+        # Computation of the new axial interference factor distribution
         for i in range(stations):
             new_axial_interference_factor[i] = axial_interference_function(
                 new_lagrange_moltiplicator * correction_function[i],
@@ -278,24 +278,24 @@ def thrust_calculator(
                 * new_axial_interference_factor[i]
             )
 
-        # Computation of the new total thrust coefficient.
+        # Computation of the new total thrust coefficient
         new_total_thrust_coefficient = 0.0
         for i in range(i_hub, stations):
             new_total_thrust_coefficient += radial_stations_spacing * dCt_new[i]
 
-        # Computation of the total thrust coefficient error with respect to the input value.
+        # Computation of the total thrust coefficient error with respect to the input value
         new_error = new_total_thrust_coefficient - total_thrust_coefficient
 
         log.info(f"new error= {new_error}")
 
-        # Updating the stored values for the next iteration.
+        # Updating the stored values for the next iteration
         inital_error = old_error
         old_error = new_error
 
         first_lagrange_moltiplicator = last_lagrange_moltiplicator
         last_lagrange_moltiplicator = new_lagrange_moltiplicator
 
-    # Computation of the correct axial and rotational interference factors (a and ap).
+    # Computation of the correct axial and rotational interference factors
     for i in range(stations):
         optimal_axial_interference_factor[i] = axial_interference_function(
             new_lagrange_moltiplicator * correction_function[i],
@@ -319,7 +319,7 @@ def thrust_calculator(
             * optimal_axial_interference_factor[i]
         )
 
-    # Computation of the correct power coefficient distribution.
+    # Computation of the correct power coefficient distribution
     for i in range(stations):
         dCp[i] = (radius * 4 * pi / (n**3 * (2 * radius) ** 5)) * (
             free_stream_velocity**3
@@ -334,7 +334,7 @@ def thrust_calculator(
             * (r[i] * radius) ** 3
         )
 
-    # Computation of the total power coefficient.
+    # Computation of the total power coefficient
     total_power_coefficient = 0.0
     optimal_total_thrust_coefficient = 0.0
     for i in range(i_hub, stations):
@@ -344,14 +344,14 @@ def thrust_calculator(
             (dCt_optimal[i]) * (2 * free_stream_velocity**2) / (advanced_ratio**2 * pi * r[i])
         )
 
-    # Computation of the thrust over density using the static pressure jump distribution.
+    # Computation of the thrust over density using the static pressure jump distribution
     thrust_density_ratio = 0.0
     for i in range(i_hub, stations):
         thrust_density_ratio += (
             2 * pi * r[i] * radius**2 * radial_stations_spacing * delta_pressure[i]
         )
 
-    # Computation of the thrust coefficient using thrust_density_ratio.
+    # Computation of the thrust coefficient using thrust_density_ratio
     computed_total_thrust_coefficient = thrust_density_ratio / (n**2 * (2 * radius) ** 4)
 
     # Computation of the efficiency.

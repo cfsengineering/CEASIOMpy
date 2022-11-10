@@ -17,6 +17,6 @@ ceasiompy_run --testcase 2
 
 By running the above command, a new tab should appear in your default web browser, from there you can follow the steps which are done in the video:
 
-![CEASIOMpy GUI Tutorial](./testcase2_startvideo.png)
+[![CEASIOMpy GUI Tutorial](./testcase2_startvideo.png)](https://www.youtube.com/watch?v=d-AaSrF5g3k)
 
 [**<<**](../test_case_1/README.md) Previous test case | [Home](../../README.md#test-cases) | Next test case [**>>**](../test_case_3/README.md)

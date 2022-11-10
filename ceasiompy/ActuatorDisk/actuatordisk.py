@@ -66,8 +66,8 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
     tixi = cpacs.tixi
 
     results_dir = get_results_directory("ActuatorDisk")
-    brep_dir = Path(results_dir, "brep_files")
-    brep_dir.mkdir()
+    actuator_disk_dir = Path(results_dir, "ActuatorDisk")
+    actuator_disk_dir.mkdir()
 
     # XPath definition
     cruise_alt_xpath = RANGE_XPATH + "/cruiseAltitude"

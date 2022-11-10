@@ -62,7 +62,13 @@ def test_axial_interference():
 
 
 def test_check_output():
+    """Test function which made different test on thrust_coefficient function, the test function
+    recive a vector with input parameter [stations, total_thrust_coefficient, radius,
+    hub radius, advanced_ratio, free_stream_velocity, prandtl, blades_number] the function will
+    give an output file to confront with given result vector
+    [renard_thrust_coeff, power_coeff, thrust_over_density, efficiency]
 
+    """
     input_values = {
         "test1": [[20, 0.5, 1.5, 0.2, 1.5, 150, True, 2], [0.5, 0.9621, 45000, 0.7794]],
         "test2": [[20, 0.8, 1.5, 0.15, 2, 190, True, 3], [0.8, 2.1758, 64980, 0.7354]],

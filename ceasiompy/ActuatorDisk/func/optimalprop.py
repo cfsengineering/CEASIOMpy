@@ -180,7 +180,7 @@ def thrust_calculator(
     radial_stations_spacing = 1.0 / stations
 
     first_lagrange_moltiplicator = 0.0
-    # Computation of the first try induced velocity distribution.
+    # Computation of the first try induced velocity distribution
     for i in range(stations):
         induced_velocity_distribution[i] = (2 / free_stream_velocity**2) * (
             (-1 / free_stream_velocity)
@@ -198,19 +198,18 @@ def thrust_calculator(
     first_lagrange_moltiplicator = first_lagrange_moltiplicator / (free_stream_velocity * stations)
 
     # Computation of the first try axial interference factor distribution
-    for i in range(0, stations):
-        initial_axial_interference_factor[i] = axial_interference_function(
-            first_lagrange_moltiplicator * correction_function[i],
-            non_dimensional_radius[i],
-        )
+    initial_axial_interference_factor = axial_interference_function(
+        first_lagrange_moltiplicator * correction_function,
+        non_dimensional_radius,
+    )
 
-        dCt_0[i] = (
-            pi
-            * advanced_ratio**2
-            * r[i]
-            * (1 + initial_axial_interference_factor[i])
-            * initial_axial_interference_factor[i]
-        )
+    dCt_0 = (
+        pi
+        * advanced_ratio**2
+        * r
+        * (1 + initial_axial_interference_factor)
+        * initial_axial_interference_factor
+    )
 
     # Computation of the total thrust coefficient
     initial_total_thrust_coefficient = 0.0
@@ -225,19 +224,19 @@ def thrust_calculator(
     last_lagrange_moltiplicator = first_lagrange_moltiplicator + 0.1
 
     # Computation of the second try axial interference factor distribution
-    for i in range(stations):
-        old_axial_interference_factor[i] = axial_interference_function(
-            last_lagrange_moltiplicator * correction_function[i],
-            non_dimensional_radius[i],
-        )
 
-        dCt_old[i] = (
-            pi
-            * advanced_ratio**2
-            * r[i]
-            * (1 + old_axial_interference_factor[i])
-            * old_axial_interference_factor[i]
-        )
+    old_axial_interference_factor = axial_interference_function(
+        last_lagrange_moltiplicator * correction_function,
+        non_dimensional_radius,
+    )
+
+    dCt_old = (
+        pi
+        * advanced_ratio**2
+        * r
+        * (1 + old_axial_interference_factor)
+        * old_axial_interference_factor
+    )
 
     # Computation of the total thrust coefficient
     old_total_thrust_coefficient = 0.0
@@ -262,24 +261,22 @@ def thrust_calculator(
         ) / (inital_error - old_error)
 
         # Computation of the new axial interference factor distribution
-        for i in range(stations):
-            new_axial_interference_factor[i] = axial_interference_function(
-                new_lagrange_moltiplicator * correction_function[i],
-                non_dimensional_radius[i],
-            )
+        new_axial_interference_factor = axial_interference_function(
+            new_lagrange_moltiplicator * correction_function,
+            non_dimensional_radius,
+        )
 
-            dCt_new[i] = (
-                pi
-                * advanced_ratio**2
-                * r[i]
-                * (1 + new_axial_interference_factor[i])
-                * new_axial_interference_factor[i]
-            )
+        dCt_new = (
+            pi
+            * advanced_ratio**2
+            * r
+            * (1 + new_axial_interference_factor)
+            * new_axial_interference_factor
+        )
 
         # Computation of the new total thrust coefficient
         new_total_thrust_coefficient = 0.0
-        for i in range(i_hub, stations):
-            new_total_thrust_coefficient += radial_stations_spacing * dCt_new[i]
+        new_total_thrust_coefficient = radial_stations_spacing * np.sum(dCt_new)
 
         # Computation of the total thrust coefficient error with respect to the input value
         new_error = new_total_thrust_coefficient - total_thrust_coefficient
@@ -295,6 +292,7 @@ def thrust_calculator(
 
     # Computation of the correct axial and rotational interference factors
     for i in range(stations):
+        # np.vectorize
         optimal_axial_interference_factor[i] = axial_interference_function(
             new_lagrange_moltiplicator * correction_function[i],
             non_dimensional_radius[i],

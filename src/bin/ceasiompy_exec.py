@@ -81,19 +81,23 @@ def run_testcase(testcase_nb):
         print(f"\nYou can check your results in: {workflow.current_wkflow_dir}/Results")
 
     elif testcase_nb == 2:
-
         testcase_message(2)
-
         print("\nUse the GUI to create your workflow.")
-
         run_gui()
-
         print("\nCongratulation, this Test case is now finished!")
 
     elif testcase_nb == 3:
-
         testcase_message(3)
+        print("\nUse the GUI to create your workflow.")
+        run_gui()
+        print("\nCongratulation, this Test case is now finished!")
 
+    elif testcase_nb == 4:
+        testcase_message(4)
+        print("Sorry, this test case is not implemented yet!")
+
+    elif testcase_nb == 5:
+        testcase_message(5)
         print("Sorry, this test case is not implemented yet!")
 
     else:

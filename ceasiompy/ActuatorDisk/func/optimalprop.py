@@ -194,7 +194,7 @@ def thrust_calculator(
             )
         )
 
-        first_lagrange_moltiplicator += induced_velocity_distribution[i]
+        first_lagrange_moltiplicator = np.sum(induced_velocity_distribution)
 
     first_lagrange_moltiplicator = first_lagrange_moltiplicator / (free_stream_velocity * stations)
 

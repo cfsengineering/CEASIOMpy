@@ -85,7 +85,7 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
     stations = get_value_or_default(tixi, stations_xpath, 20)
     radius = get_value_or_default(tixi, radius_xpath, 1.5)
     hub_radius = get_value_or_default(tixi, radius_xpath, 0.15)
-    thrust = get_value_or_default(tixi, thrust_xpath, 108824.367)
+    thrust = get_value_or_default(tixi, thrust_xpath, 6500)
     rotational_velocity = get_value_or_default(tixi, n_xpath, 2000)
     prandtl_correction = get_value_or_default(tixi, prandtl_correction_xpath, True)
     blades_nb = get_value_or_default(tixi, blades_number_xpath, 2)

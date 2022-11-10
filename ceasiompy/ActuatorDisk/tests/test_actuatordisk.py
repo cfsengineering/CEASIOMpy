@@ -58,7 +58,7 @@ def test_check_output():
     """Test function which made different test on thrust_coefficient function, the test function
     recive a vector with input parameter [stations, total_thrust_coefficient, radius,
     hub radius, advanced_ratio, free_stream_velocity, prandtl, blades_number] the function will
-    give an output file to confront with given result vector
+    give an output file to compare with given result vector
     [renard_thrust_coeff, power_coeff, thrust_over_density, efficiency]
 
     """

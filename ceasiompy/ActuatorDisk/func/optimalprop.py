@@ -179,6 +179,7 @@ def thrust_calculator(
 
     radial_stations_spacing = 1.0 / stations
 
+    first_lagrange_moltiplicator = 0.0
     # Computation of the first try induced velocity distribution.
     for i in range(stations):
         induced_velocity_distribution[i] = (2 / free_stream_velocity**2) * (
@@ -192,9 +193,6 @@ def thrust_calculator(
             )
         )
 
-    # Computation of the first try Lagrange moltiplicator
-    first_lagrange_moltiplicator = 0.0
-    for i in range(stations):
         first_lagrange_moltiplicator += induced_velocity_distribution[i]
 
     first_lagrange_moltiplicator = first_lagrange_moltiplicator / (free_stream_velocity * stations)

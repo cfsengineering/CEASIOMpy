@@ -53,7 +53,7 @@ def axial_interference_function(lagrangian_moltiplicator, non_dimensional_radius
     return axial_interference_factor
 
 
-def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r):
+def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r, Ct_total):
 
     """Function to write on an external file the result of the thrust and power coefficients
         distribution, performed by thrust calculation function
@@ -79,6 +79,7 @@ def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r):
     file.write("# The first three lines must be filled.\n")
     file.write("# An example of this file can be found in the TestCases directory.\n")
     file.write("#\n")
+    file.write(f"# It was choseen a total thrust coefficient= {Ct_total:.4f}\n")
     file.write("# This output file is generated thanks to a script created by\n")
     file.write("# University of Naples Federico II and modified by CFS Engineering\n")
     file.write("# with the aim of integrating it in CEASIOMpy\n")
@@ -365,7 +366,9 @@ def thrust_calculator(
 
     log.info("SU2 file generated!")
 
-    write_external_file(dCt_optimal, dCp, stations, radius, advanced_ratio, r)
+    write_external_file(
+        dCt_optimal, dCp, stations, radius, advanced_ratio, r, optimal_total_thrust_coefficient
+    )
 
     # Write the actuator disk configuration file
 

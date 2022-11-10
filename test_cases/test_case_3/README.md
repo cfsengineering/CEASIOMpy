@@ -1,6 +1,6 @@
 <img align="right" height="70" src="../../documents/logos/CEASIOMpy_banner_main.png">
 
-# CEASIOMpy - Test case 2
+# CEASIOMpy - Test case 3
 
 ## Create and run a workflow with the GUI
 
@@ -11,13 +11,13 @@ To run this test case, you will need to open a terminal and run the following co
 # To be in the CEASIOMpy Conda environment with all the dependencies
 conda activate ceasiompy
 
-# To run the test case 2
-ceasiompy_run --testcase 2
+# To run the test case 3
+ceasiompy_run --testcase 3
 ```
 
 By running the above command, a new tab should appear in your default web browser, it should look like this:
 
-![CEASIOMpy GUI](./testcase2_gui_main-page.png)
+![CEASIOMpy GUI](./testcase3_gui_main-page.png)
 
 From that page you can select a working directory, by using the arrows and the list to navigate in your folder. All your results will be saved in this directory.
 
@@ -38,7 +38,7 @@ We will try to build the following workflow:
 You can create this workflow by selecting the module in list and add them one by one, as demonstrate bellow.
 
 <p align="center">
-<img height="480" src="testcase2_workflow_creation.gif">
+<img height="480" src="testcase3_workflow_creation.gif">
 </p>
 <p align="center">
 Creation of a workflow with CEASIOMpy GUI
@@ -48,7 +48,7 @@ On the side bar you can now go to the `Run workflow` tab, for now we will skip t
 Once arrived on the page, you can just click on `Run` to execute the workflow.
 
 <p align="center">
-<img height="380" src="testcase2_run_workflow.png">
+<img height="380" src="testcase3_run_workflow.png">
 </p>
 <p align="center">
 Run workflow page
@@ -57,7 +57,7 @@ Run workflow page
 When the first module is executed, you should see a `CPACSCreator` window that pops up.
 
 <p align="center">
-<img height="580" src="testcase2_cpacscreator.png">
+<img height="580" src="testcase3_cpacscreator.png">
 </p>
 <p align="center">
 CPACSCreator Interface
@@ -74,7 +74,7 @@ In this case, you can just save the file and close the window. The next modules 
 When the calculation is over, you can click on the `Results` tab (on the sidebar). In the results part there are tabs corresponding to the different module used during the workflow, you can explore the results.
 
 <p align="center">
-<img height="480" src="testcase2_results.gif">
+<img height="480" src="testcase3_results.gif">
 </p>
 <p align="center">
 Creation of a workflow with CEASIOMpy GUI

@@ -82,4 +82,4 @@ Creation of a workflow with CEASIOMpy GUI
 
 All the results can also be found in the working directory you chose at the beginning of the testcase.
 
-[**<<**](../test_case_1/README.md) Previous test case | [Home](../../README.md#test-cases) | Next test case [**>>**](../test_case_3/README.md)
+[**<<**](../test_case_2/README.md) Previous test case | [Home](../../README.md#test-cases) | Next test case [**>>**](../test_case_4/README.md)

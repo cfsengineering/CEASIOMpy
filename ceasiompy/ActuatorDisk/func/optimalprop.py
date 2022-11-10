@@ -311,8 +311,6 @@ def thrust_calculator(
             )
         )
 
-    # Computation of the correct thrust coefficient distribution.
-    for i in range(stations):
         dCt_optimal[i] = (
             pi
             * advanced_ratio**2
@@ -338,16 +336,10 @@ def thrust_calculator(
 
     # Computation of the total power coefficient.
     total_power_coefficient = 0.0
-    for i in range(i_hub, stations):
-        total_power_coefficient += radial_stations_spacing * dCp[i]
-
-    # Computation of the total thrust coefficient.
     optimal_total_thrust_coefficient = 0.0
     for i in range(i_hub, stations):
+        total_power_coefficient += radial_stations_spacing * dCp[i]
         optimal_total_thrust_coefficient += radial_stations_spacing * dCt_optimal[i]
-
-    # Computation of the static pressure jump distribution.
-    for i in range(stations):
         delta_pressure[i] = (
             (dCt_optimal[i]) * (2 * free_stream_velocity**2) / (advanced_ratio**2 * pi * r[i])
         )

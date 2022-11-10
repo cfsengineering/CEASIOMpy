@@ -42,13 +42,6 @@ ACTUATOR_DISK_PATH = Path(MODULE_DIR, "ToolOutput")
 # =================================================================================================
 
 
-def test_file_not_exist():
-
-    results_dir = get_results_directory("ActuatorDisk")
-    actuator_disk_dat_path = Path(results_dir, "ActuatorDisk.dat")
-    assert actuator_disk_dat_path.exists() == False
-
-
 def test_axial_interference():
 
     lagrangian_molt = np.array([0.3, 0.12, 0.05])
@@ -94,10 +87,14 @@ def test_check_output():
 
 def test_file_exist():
 
-    thrust_calculator(20, 0.5, 1.5, 0.15, 1.5, 150, True, 2)
-
     results_dir = get_results_directory("ActuatorDisk")
     actuator_disk_dat_path = Path(results_dir, "ActuatorDisk.dat")
+
+    if actuator_disk_dat_path.exists():
+        actuator_disk_dat_path.unlink()
+
+    thrust_calculator(20, 0.5, 1.5, 0.15, 1.5, 150, True, 2)
+
     assert actuator_disk_dat_path.exists()
 
     with actuator_disk_dat_path.open("r") as f:

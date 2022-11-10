@@ -174,8 +174,6 @@ def thrust_calculator(
     # Computation of the non-dimensional radius
 
     non_dimensional_radius = omega * r * radius / free_stream_velocity
-    # for i in range(stations):
-    #    non_dimensional_radius[i] = omega * r[i] * radius / free_stream_velocity
 
     EPSILON = 5e-20
 

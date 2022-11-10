@@ -6,7 +6,7 @@
 
 **State**: :heavy_check_mark:
 
-`WeightConventional` module can make estimation of a conventional aircraft masses:
+`WeightConventional` module can make estimation of the following masses for conventional aircraft:
 
 - Maximum Take-Off Mass
 - Operating Empty Mass
@@ -33,20 +33,20 @@ Example of workflow with the `WeightConventional` module:
 
 ## Analyses
 
-To estimate the MTOM, the `WeightConventional` module uses the following value (extracted form the CPACS geometry) based on a database of conventional aircraft.
+To estimate the MTOM, the `WeightConventional` module uses the following value (extracted form the CPACS geometry) from a [database](files/AircraftData2018_v3_ste.csv) of conventional aircraft, mostly based on [[2]](#CJAD).
 
 - Wing area
 - Wing Span
 - Fuselage length
 - Fuselage width
 
-From MTOM it deduce other value from empirical relations.
+K-nearest neighbors regression from [scikit-learn](https://scikit-learn.org/stable/modules/generated/sklearn.neighbors.KNeighborsRegressor.html?highlight=kneighbors#sklearn.neighbors.KNeighborsRegressor.kneighbors) is used to predict the MTOM of a "new" aircraft. From this MTOM, it deduce other value from empirical relations.
 
 From the fuselage geometry, it estimate the cabin size and a possible seat disposition to estimate the number of passenger.
 
 ## Outputs
 
-`WeightConventional` outputs a CPACS file with the calculated masses. It also produce some text file in the result folder with more detail information.
+`WeightConventional` outputs a CPACS file with the calculated masses. It also produce some markdown files in the result folder with more detail information and a figure which shows the MTOM prediction.
 
 ## Installation or requirements
 
@@ -63,3 +63,6 @@ From the fuselage geometry, it estimate the cabin size and a possible seat dispo
 ## References
 
 <a id="Picc19">[1]</a> Piccini, S.: A Weight and Balance evaluation software for conventional and unconventional aircraft design. Master Thesis (2019). [pdf](files/Master_Thesis_report_Stefano_Piccini.pdf)
+
+<a id="CJAD">[2]</a> Jenkinson, L., Simpkin, P., Rhodes
+, D.: Civil Jet Aircraft Design. Data Set. [link](https://booksite.elsevier.com/9780340741528/appendices/data-a/default.htm)

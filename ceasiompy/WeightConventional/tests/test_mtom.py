@@ -45,21 +45,27 @@ def test_estimate_mtom():
         shutil.rmtree(TEST_RESULTS_PATH)
     TEST_RESULTS_PATH.mkdir()
 
-    # estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span)
-    # These tests are made from random value just to check if the function return the same kind of
-    # result after it will be refactored.
-    assert estimate_mtom(50, 5, 750, 60, TEST_RESULTS_PATH) == approx(223398, rel=1e-2)
-    assert estimate_mtom(55, 5, 750, 60, TEST_RESULTS_PATH) == approx(231389, rel=1e-2)
-    assert estimate_mtom(50, 5, 550, 60, TEST_RESULTS_PATH) == approx(176957, rel=1e-2)
-    assert estimate_mtom(50, 5, 550, 50, TEST_RESULTS_PATH) == approx(173153, rel=1e-2)
-    assert estimate_mtom(20, 2.5, 250, 28, TEST_RESULTS_PATH) == approx(23255, rel=1e-2)
-    assert estimate_mtom(12, 2, 65, 15, TEST_RESULTS_PATH) == approx(18900, rel=1e-2)
-    assert estimate_mtom(12, 2, 62, 15, TEST_RESULTS_PATH) == approx(17707, rel=1e-2)
+    # Tests to be sure that a 10% change of one of the input modify by less than 10% the output
+    mtom_1 = estimate_mtom(65, 6, 362, 60, TEST_RESULTS_PATH)
+    mtom_2 = estimate_mtom(71.5, 6, 362, 60, TEST_RESULTS_PATH)
+    assert abs(mtom_2 - mtom_1) / mtom_1 < 0.1
 
-    # Seems wrong, maybe out of range
-    # assert estimate_mtom(10, 1.8, 50, 11, TEST_RESULTS_PATH) == approx(17707, rel=1e-2)
-    # --> Obtained: 33795.118
+    mtom_2 = estimate_mtom(65, 6.6, 362, 60, TEST_RESULTS_PATH)
+    assert abs(mtom_2 - mtom_1) / mtom_1 < 0.1
 
+    mtom_2 = estimate_mtom(65, 6, 398, 60, TEST_RESULTS_PATH)
+    assert abs(mtom_2 - mtom_1) / mtom_1 < 0.1
+
+    mtom_2 = estimate_mtom(65, 6, 362, 66, TEST_RESULTS_PATH)
+    assert abs(mtom_2 - mtom_1) / mtom_1 < 0.1
+
+    # Test A320 like
+    assert estimate_mtom(37.5, 4, 122, 36, TEST_RESULTS_PATH) == approx(79000, rel=0.05)
+
+    # Test A350 like
+    assert estimate_mtom(70.8, 6, 443, 65, TEST_RESULTS_PATH) == approx(294000, rel=0.05)
+
+    # Test figure creation
     assert Path(TEST_RESULTS_PATH, MTOM_FIGURE_NAME).exists()
 
 

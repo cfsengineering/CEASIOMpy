@@ -198,7 +198,9 @@ def thrust_calculator(
     first_lagrange_moltiplicator = first_lagrange_moltiplicator / (free_stream_velocity * stations)
 
     # Computation of the first try axial interference factor distribution
-    initial_axial_interference_factor = axial_interference_function(
+    vectorize_axial_interf_f = np.vectorize(axial_interference_function)
+
+    initial_axial_interference_factor = vectorize_axial_interf_f(
         first_lagrange_moltiplicator * correction_function,
         non_dimensional_radius,
     )
@@ -224,8 +226,9 @@ def thrust_calculator(
     last_lagrange_moltiplicator = first_lagrange_moltiplicator + 0.1
 
     # Computation of the second try axial interference factor distribution
+    vectorize_axial_interf_f = np.vectorize(axial_interference_function)
 
-    old_axial_interference_factor = axial_interference_function(
+    old_axial_interference_factor = vectorize_axial_interf_f(
         last_lagrange_moltiplicator * correction_function,
         non_dimensional_radius,
     )
@@ -261,7 +264,8 @@ def thrust_calculator(
         ) / (inital_error - old_error)
 
         # Computation of the new axial interference factor distribution
-        new_axial_interference_factor = axial_interference_function(
+        vectorize_axial_interf_f = np.vectorize(axial_interference_function)
+        new_axial_interference_factor = vectorize_axial_interf_f(
             new_lagrange_moltiplicator * correction_function,
             non_dimensional_radius,
         )
@@ -291,31 +295,27 @@ def thrust_calculator(
         last_lagrange_moltiplicator = new_lagrange_moltiplicator
 
     # Computation of the correct axial and rotational interference factors
-    for i in range(stations):
-        # np.vectorize
-        optimal_axial_interference_factor[i] = axial_interference_function(
-            new_lagrange_moltiplicator * correction_function[i],
-            non_dimensional_radius[i],
-        )
-        optimal_rotational_interference_factor[i] = (
-            new_lagrange_moltiplicator * correction_function[i]
-        ) * (
-            (1 + new_lagrange_moltiplicator * correction_function[i])
-            / (
-                non_dimensional_radius[i] * non_dimensional_radius[i]
-                + (1 + new_lagrange_moltiplicator * correction_function[i]) ** 2
-            )
-        )
 
-        dCt_optimal[i] = (
-            pi
-            * advanced_ratio**2
-            * r[i]
-            * (1 + optimal_axial_interference_factor[i])
-            * optimal_axial_interference_factor[i]
-        )
+    vectorize_axial_interf_f = np.vectorize(axial_interference_function)
 
-    # Computation of the correct power coefficient distribution
+    optimal_axial_interference_factor = vectorize_axial_interf_f(
+        new_lagrange_moltiplicator * correction_function, non_dimensional_radius
+    )
+    optimal_rotational_interference_factor = (new_lagrange_moltiplicator * correction_function) * (
+        (1 + new_lagrange_moltiplicator * correction_function)
+        / (
+            non_dimensional_radius * non_dimensional_radius
+            + (1 + new_lagrange_moltiplicator * correction_function) ** 2
+        )
+    )
+    dCt_optimal = (
+        pi
+        * advanced_ratio**2
+        * r
+        * (1 + optimal_axial_interference_factor)
+        * optimal_axial_interference_factor
+    )
+
     for i in range(stations):
         dCp[i] = (radius * 4 * pi / (n**3 * (2 * radius) ** 5)) * (
             free_stream_velocity**3

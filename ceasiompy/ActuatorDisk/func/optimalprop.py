@@ -316,19 +316,18 @@ def thrust_calculator(
         * optimal_axial_interference_factor
     )
 
-    for i in range(stations):
-        dCp[i] = (radius * 4 * pi / (n**3 * (2 * radius) ** 5)) * (
-            free_stream_velocity**3
-            * (1 + optimal_axial_interference_factor[i]) ** 2
-            * optimal_axial_interference_factor[i]
-            * r[i]
-            * radius
-            + omega**2
-            * free_stream_velocity
-            * (1 + optimal_axial_interference_factor[i])
-            * optimal_rotational_interference_factor[i] ** 2
-            * (r[i] * radius) ** 3
-        )
+    dCp = (radius * 4 * pi / (n**3 * (2 * radius) ** 5)) * (
+        free_stream_velocity**3
+        * (1 + optimal_axial_interference_factor) ** 2
+        * optimal_axial_interference_factor
+        * r
+        * radius
+        + omega**2
+        * free_stream_velocity
+        * (1 + optimal_axial_interference_factor)
+        * optimal_rotational_interference_factor**2
+        * (r * radius) ** 3
+    )
 
     # Computation of the total power coefficient
     total_power_coefficient = 0.0

@@ -7,7 +7,7 @@
 For the first test case, we will run a simple workflow which is already set up, you will just run it and observe the results. For this workflow, we will use the D150 aircraft (D150_simple.xml) which is an A320-like aircraft.
 
 <p align="center">
-<img height="300" src="../../documents/figures/D150.png">
+<img height="300" src="./testcase1_D150.png">
 </p>
 <p align="center">
 3D view of the D150 aircraft

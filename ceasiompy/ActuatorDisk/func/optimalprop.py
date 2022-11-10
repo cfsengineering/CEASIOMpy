@@ -235,8 +235,6 @@ def thrust_calculator(
             non_dimensional_radius[i],
         )
 
-    # Computation of the thrust coefficient distribution
-    for i in range(stations):
         dCt_old[i] = (
             pi
             * advanced_ratio**2

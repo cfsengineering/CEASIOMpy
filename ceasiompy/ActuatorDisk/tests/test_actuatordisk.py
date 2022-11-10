@@ -42,6 +42,13 @@ ACTUATOR_DISK_PATH = Path(MODULE_DIR, "ToolOutput")
 # =================================================================================================
 
 
+def test_file_not_exist():
+
+    results_dir = get_results_directory("ActuatorDisk")
+    actuator_disk_dat_path = Path(results_dir, "ActuatorDisk.dat")
+    assert actuator_disk_dat_path.exists() == False
+
+
 def test_axial_interference():
 
     lagrangian_molt = np.array([0.3, 0.12, 0.05])
@@ -56,75 +63,30 @@ def test_axial_interference():
 
 def test_check_output():
 
-    stations = np.array([20, 20, 20, 20, 20, 20, 20, 20])
-    total_thrust_coefficient = np.array([0.5, 0.8, 1, 1.2, 1.5, 0.2, 0.15])
-    radius = np.array([1.5, 1.5, 1.2, 1.4, 2, 1.4, 1.4, 1.7])
-    hub_radius = np.array([0.2, 0.15, 0.1, 0.1, 0.2, 0.1, 0.1, 0.2])
-    advanced_ratio = np.array([1.5, 2, 1.8, 1.6, 1.8, 1.4, 1.3, 1.7])
-    free_stream_velocity = np.array([150, 190, 180, 140, 190, 130, 130, 160])
-    prandtl = np.array([True, True, False, True, True, True, True, False])
-    blade_nb = np.array([2, 3, 3, 2, 8, 2, 2, 6])
+    input_values = {
+        "test1": [[20, 0.5, 1.5, 0.2, 1.5, 150, True, 2], [0.5, 0.9621, 45000, 0.7794]],
+        "test2": [[20, 0.8, 1.5, 0.15, 2, 190, True, 3], [0.8, 2.1758, 64980, 0.7354]],
+        "test3": [[20, 1, 1.2, 0.1, 1.8, 180, False, 3], [1, 2.4896, 57600, 0.7230]],
+        "test4": [[20, 1.2, 1.4, 0.1, 1.6, 140, True, 2], [1.2, 3.4586, 72030, 0.5551]],
+        "test5": [[20, 1.5, 2, 0.2, 1.8, 190, True, 8], [1.5, 5.4348, 267407.41, 0.4968]],
+        "test6": [[20, 0.2, 1.4, 0.1, 1.4, 130, True, 2], [0.2, 0.313, 13520, 0.8945]],
+        "test7": [[20, 0.15, 1.4, 0.1, 1.3, 130, True, 2], [0.15, 0.2139, 11760, 0.9115]],
+        "test8": [[20, 1.3, 1.7, 0.2, 1.7, 160, False, 6], [1.3, 3.4596, 133120, 0.6387]],
+    }
 
-    calc_renard_thrust_coeff = np.array(
-        [0.5, 0.8, 1, 1.2, 1.5, 0.2, (approx(0.15, rel=1e-2)), 1.3]
-    )
-    calc_power_coeff = np.array(
-        [
-            (approx(0.9621, rel=1e-2)),
-            (approx(2.1758, rel=1e-2)),
-            (approx(2.4896, rel=1e-2)),
-            (approx(3.4587, rel=1e-2)),
-            (approx(5.4348, rel=1e-2)),
-            (approx(0.313, rel=1e-2)),
-            (approx(0.2139, rel=1e-2)),
-            (approx(3.9936, rel=1e-2)),
-        ]
-    )
-    calc_thrust_over_density = np.array(
-        [
-            (approx(45000, rel=1e-2)),
-            (approx(64980, rel=1e-2)),
-            (approx(57600, rel=1e-2)),
-            (approx(72030, rel=1e-2)),
-            (approx(267407.41, rel=1e-2)),
-            (approx(13520, rel=1e-2)),
-            (approx(11760, rel=1e-2)),
-            (approx(133120, rel=1e-2)),
-        ]
-    )
-    calc_efficiency = np.array(
-        [
-            (approx(0.7794, rel=1e-2)),
-            (approx(0.7354, rel=1e-2)),
-            (approx(0.7230, rel=1e-2)),
-            (approx(0.5551, rel=1e-2)),
-            (approx(0.4968, rel=1e-2)),
-            (approx(0.8945, rel=1e-2)),
-            (approx(0.9115, rel=1e-2)),
-            (approx(0.5534, rel=1e-2)),
-        ]
-    )
-
-    for i in range(7):
+    for test, values in input_values.items():
 
         (renard_thrust_coeff, power_coeff, thrust_over_density, efficiency) = thrust_calculator(
-            stations[i],
-            total_thrust_coefficient[i],
-            radius[i],
-            hub_radius[i],
-            advanced_ratio[i],
-            free_stream_velocity[i],
-            prandtl[i],
-            blade_nb[i],
+            *values[0]
         )
 
-        assert renard_thrust_coeff == calc_renard_thrust_coeff[i]
-        assert power_coeff == calc_power_coeff[i]
-        assert thrust_over_density == calc_thrust_over_density[i]
-        assert efficiency == calc_efficiency[i]
+        assert renard_thrust_coeff == approx(values[1][0], rel=1e-2)
+        assert power_coeff == approx(values[1][1], rel=1e-2)
+        assert thrust_over_density == approx(values[1][2], rel=1e-1)
+        assert efficiency == approx(values[1][3], rel=1e-1)
 
 
-def test_file_generation():
+def test_file_exist():
 
     thrust_calculator(20, 0.5, 1.5, 0.15, 1.5, 150, True, 2)
 

@@ -35,7 +35,7 @@ from ceasiompy.utils.moduleinterfaces import (
 )
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacspy import CPACS
-from ceasiompy.ActuatorDisk.func.optimalprop import function_plot
+from ceasiompy.ActuatorDisk.func.plot_func import function_plot
 
 log = get_logger()
 

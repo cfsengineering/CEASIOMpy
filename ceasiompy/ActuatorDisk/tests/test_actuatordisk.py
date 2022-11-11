@@ -70,7 +70,14 @@ def test_check_output():
         "test5": [[20, 1.5, 2, 0.2, 1.8, 190, True, 8], [1.5, 5.4348, 267407.41, 0.4968]],
         "test6": [[20, 0.2, 1.4, 0.1, 1.4, 130, True, 2], [0.2, 0.313, 13520, 0.8945]],
         "test7": [[20, 0.15, 1.4, 0.1, 1.3, 130, True, 2], [0.15, 0.2139, 11760, 0.9115]],
-        "test8": [[20, 1.3, 1.7, 0.2, 1.7, 160, False, 6], [1.3, 3.4596, 133120, 0.6387]],
+        "test8": [
+            [37, 1.3, 1.7, 0.5107, 1.7, 160, False, 6],
+            [1.2886, 3.4938, 131957.1617, 0.6270],
+        ],
+        "test9": [
+            [20, 0.15, 2.5146, 0.2, 2.81487, 190.5488, False, 6],
+            [0.15, 0.4359, 17385.4054, 0.9684],
+        ],
     }
 
     for test, values in input_values.items():
@@ -79,10 +86,10 @@ def test_check_output():
             *values[0]
         )
 
-        assert renard_thrust_coeff == approx(values[1][0], rel=1e-2)
-        assert power_coeff == approx(values[1][1], rel=1e-2)
-        assert thrust_over_density == approx(values[1][2], rel=1e-1)
-        assert efficiency == approx(values[1][3], rel=1e-1)
+        assert renard_thrust_coeff == approx(values[1][0], rel=1e-3)
+        assert power_coeff == approx(values[1][1], rel=1e-3)
+        assert thrust_over_density == approx(values[1][2], rel=1e-3)
+        assert efficiency == approx(values[1][3], rel=1e-3)
 
 
 def test_file_exist():

@@ -362,15 +362,13 @@ def thrust_calculator(
     eta = advanced_ratio * (optimal_total_thrust_coefficient / total_power_coefficient)
 
     log.info("------- Check output values -------")
-    log.info(f"Optimal total thrust coefficient= {optimal_total_thrust_coefficient:.4f}")
-    log.info(
-        f"""Total thrust coefficient computed
-        using the static pressure jump= {computed_total_thrust_coefficient:.4f}"""
-    )
-    log.info(f"Power coefficient distribution integral= {total_power_coefficient:.4f}")
-    log.info(f"Thrust over Density= {thrust_density_ratio:.4f}")
-    log.info(f"Efficiency eta= {eta:.4f}")
-    log.info(f"Lagrangian moltiplicator/free_stream_velocity= {new_lagrange_moltiplicator:.4f}")
+    log.info(f"Optimal total thrust coefficient= {optimal_total_thrust_coefficient}")
+    log.info("Total thrust coefficient computed")
+    log.info(f"using the static pressure jump= {computed_total_thrust_coefficient}")
+    log.info(f"Power coefficient distribution integral= {total_power_coefficient}")
+    log.info(f"Thrust over Density= {thrust_density_ratio}")
+    log.info(f"Efficiency eta= {eta}")
+    log.info(f"Lagrangian moltiplicator/free_stream_velocity= {new_lagrange_moltiplicator}")
 
     log.info("SU2 file generated!")
 

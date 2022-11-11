@@ -101,6 +101,10 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
     advanced_ratio = free_stream_velocity / (rotational_velocity * (radius * 2))
 
     (
+        renard_thrust_coeff,
+        power_coeff,
+        thrust_over_density,
+        efficiency,
         r,
         dCt_optimal,
         dCp,

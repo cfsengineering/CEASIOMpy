@@ -153,11 +153,7 @@ def test_plot_exist():
         prandtl,
         correction_function,
     )
-    # assert Path(
-    # "/home/cfse/Stage_Giacomo/myceasiompy/CEASIOMpy/ceasiompy/ActuatorDisk/tests/ct_cp_distr.png"
-    # ).exists
-    if ct_cp_distr_plot_path.parent.exists():
-        print("exist")
+
     assert ct_cp_distr_plot_path.exists()
     assert interference_plot_path.exists()
 

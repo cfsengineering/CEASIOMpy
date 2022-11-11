@@ -75,7 +75,7 @@ def function_plot(
     pl.xlabel("$\chi$")
     pl.ylabel("$a$, $a^1$")
     pl.title("Interference Factors")
-    if prandtl == True:
+    if prandtl:
         f3 = pl.figure(3)
         pl.plot(r, correction_function, "k", markersize=4)
         pl.grid(True)

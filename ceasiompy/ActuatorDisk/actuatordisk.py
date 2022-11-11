@@ -35,6 +35,7 @@ from ceasiompy.utils.moduleinterfaces import (
 )
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacspy import CPACS
+from ceasiompy.ActuatorDisk.func.optimalprop import function_plot
 
 log = get_logger()
 
@@ -82,7 +83,7 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
     # Required input data from CPACS
     cruise_alt = get_value_or_default(tixi, cruise_alt_xpath, 9000)
     cruise_mach = get_value_or_default(tixi, cruise_mach_xpath, 0.5)
-    stations = get_value_or_default(tixi, stations_xpath, 20)
+    stations = int(get_value_or_default(tixi, stations_xpath, 20))
     radius = get_value_or_default(tixi, radius_xpath, 1.5)
     hub_radius = get_value_or_default(tixi, radius_xpath, 0.15)
     thrust = get_value_or_default(tixi, thrust_xpath, 6500)
@@ -98,7 +99,16 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
     )
     advanced_ratio = free_stream_velocity / (rotational_velocity * (radius * 2))
 
-    thrust_calculator(
+    (
+        r,
+        dCt_optimal,
+        dCp,
+        non_dimensional_radius,
+        optimal_axial_interference_factor,
+        optimal_rotational_interference_factor,
+        prandtl,
+        correction_function,
+    ) = thrust_calculator(
         stations,
         total_thrust_coefficient,
         radius,
@@ -107,6 +117,17 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
         free_stream_velocity,
         prandtl_correction,
         blades_nb,
+    )
+
+    function_plot(
+        r,
+        dCt_optimal,
+        dCp,
+        non_dimensional_radius,
+        optimal_axial_interference_factor,
+        optimal_rotational_interference_factor,
+        prandtl,
+        correction_function,
     )
 
     # Save CPACS

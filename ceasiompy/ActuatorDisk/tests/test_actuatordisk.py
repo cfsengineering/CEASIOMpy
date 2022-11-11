@@ -21,6 +21,7 @@ from pathlib import Path
 
 from ceasiompy.ActuatorDisk.func.optimalprop import thrust_calculator
 from ceasiompy.ActuatorDisk.func.optimalprop import axial_interference_function
+from ceasiompy.ActuatorDisk.func.plot_func import function_plot
 import numpy as np
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 
@@ -71,20 +72,31 @@ def test_check_output():
         "test6": [[20, 0.2, 1.4, 0.1, 1.4, 130, True, 2], [0.2, 0.313, 13520, 0.8945]],
         "test7": [[20, 0.15, 1.4, 0.1, 1.3, 130, True, 2], [0.15, 0.2139, 11760, 0.9115]],
         "test8": [
-            [37, 1.3, 1.7, 0.5107, 1.7, 160, False, 6],
-            [1.2886, 3.4938, 131957.1617, 0.6270],
+            [20, 1.3, 1.7, 0.5107, 1.7, 160, False, 6],
+            [1.2902, 3.4336, 132120.9196, 0.6388],
         ],
         "test9": [
-            [20, 0.15, 2.5146, 0.2, 2.81487, 190.5488, False, 6],
-            [0.15, 0.4359, 17385.4054, 0.9684],
+            [37, 0.15, 2.5146, 0.2, 2.81487, 190.5488, False, 6],
+            [0.15, 0.4364, 17385.4054, 0.9673],
         ],
     }
 
     for values in input_values.values():
 
-        (renard_thrust_coeff, power_coeff, thrust_over_density, efficiency) = thrust_calculator(
-            *values[0]
-        )
+        (
+            renard_thrust_coeff,
+            power_coeff,
+            thrust_over_density,
+            efficiency,
+            r,
+            dCt_optimal,
+            dCp,
+            non_dimensional_radius,
+            optimal_axial_interference_factor,
+            optimal_rotational_interference_factor,
+            prandtl,
+            correction_function,
+        ) = thrust_calculator(*values[0])
 
         assert renard_thrust_coeff == approx(values[1][0], rel=1e-3)
         assert power_coeff == approx(values[1][1], rel=1e-3)
@@ -109,6 +121,45 @@ def test_file_exist():
 
     assert lines[0] == "# Automatic generated actuator disk input data file using\n"
     assert lines[-1] == "  1.0000000     0.0000000     0.0000000     0.0\n"
+
+
+def test_plot_exist():
+    results_dir = get_results_directory("ActuatorDisk")
+    interference_plot_path = Path(results_dir, "interference_plot.png")
+    ct_cp_distr_plot_path = Path(results_dir, "ct_cp_distr.png")
+
+    (
+        renard_thrust_coeff,
+        power_coeff,
+        thrust_over_density,
+        efficiency,
+        r,
+        dCt_optimal,
+        dCp,
+        non_dimensional_radius,
+        optimal_axial_interference_factor,
+        optimal_rotational_interference_factor,
+        prandtl,
+        correction_function,
+    ) = thrust_calculator(37, 0.15, 2.5146, 0.2, 2.81487, 190.5488, True, 6)
+
+    function_plot(
+        r,
+        dCt_optimal,
+        dCp,
+        non_dimensional_radius,
+        optimal_axial_interference_factor,
+        optimal_rotational_interference_factor,
+        prandtl,
+        correction_function,
+    )
+    # assert Path(
+    # "/home/cfse/Stage_Giacomo/myceasiompy/CEASIOMpy/ceasiompy/ActuatorDisk/tests/ct_cp_distr.png"
+    # ).exists
+    if ct_cp_distr_plot_path.parent.exists():
+        print("exist")
+    assert ct_cp_distr_plot_path.exists()
+    assert interference_plot_path.exists()
 
 
 # =================================================================================================

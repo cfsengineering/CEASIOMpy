@@ -20,11 +20,12 @@ TODO:
 # =================================================================================================
 
 
-from math import pi, sqrt, acos, exp, fabs
+from math import acos, exp, fabs, pi, sqrt
+from pathlib import Path
+
 import numpy as np
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
-from pathlib import Path
 
 log = get_logger()
 
@@ -34,7 +35,6 @@ log = get_logger()
 
 
 def axial_interference_function(lagrangian_moltiplicator, non_dimensional_radius):
-
     """
     Function to calculate the axial intereference factor useful to calculate properly the thrust
     coefficient distribution
@@ -381,13 +381,26 @@ def thrust_calculator(
     file.write("% The first two elements of MARKER_ACTDISK must be filled.\n")
     file.write("% An example of this file can be found in the TestCases directory.\n")
     file.write("%\n")
-    file.write("% Author: Ettore Saetta, Lorenzo Russo, Renato Tognaccini.\n")
-    file.write("% Theoretical and Applied Aerodynamic Research Group (TAARG),\n")
-    file.write("% University of Naples Federico II\n")
+    file.write("# This file is generated thanks to a script created by\n")
+    file.write("# University of Naples Federico II and modified by CFS Engineering\n")
+    file.write("# with the aim of integrating it in CEASIOMpy\n")
     file.write("\n")
     file.write("ACTDISK_TYPE = VARIABLE_LOAD\n")
     file.write("ACTDISK_FILENAME = ActuatorDisk.dat\n")
     file.write("MARKER_ACTDISK = ( , , 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)\n")
     file.close()
 
-    return optimal_total_thrust_coefficient, total_power_coefficient, thrust_density_ratio, eta
+    return (
+        optimal_total_thrust_coefficient,
+        total_power_coefficient,
+        thrust_density_ratio,
+        eta,
+        r,
+        dCt_optimal,
+        dCp,
+        non_dimensional_radius,
+        optimal_axial_interference_factor,
+        optimal_rotational_interference_factor,
+        prandtl,
+        correction_function,
+    )

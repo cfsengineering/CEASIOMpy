@@ -129,6 +129,16 @@ def thrust_calculator(
         r (float): adimensional radius [-]
     """
 
+    log.info("-------------- Check input values choseen --------------")
+    log.info(f"Number of station= {stations}")
+    log.info(f"Selected total thrust coeff= {total_thrust_coefficient}")
+    log.info(f"Radius= {radius}")
+    log.info(f"Hub radius= {hub_radius}")
+    log.info(f"Advanced ratio= {advanced_ratio}")
+    log.info(f"Free stream velocity= {free_stream_velocity}")
+    log.info(f"Prandtl correction= {prandtl}")
+    log.info(f"Number of blades= {blades_number}")
+
     # Resize the vectors using the number of radial stations.
     r = np.empty(stations)
     non_dimensional_radius = np.empty(stations)
@@ -258,7 +268,6 @@ def thrust_calculator(
     while fabs(new_error) >= EPSILON and inital_error != old_error:
 
         iteration += 1
-
         # Computation of the new Lagrange moltiplicator value based on the false position method
         new_lagrange_moltiplicator = (
             last_lagrange_moltiplicator * inital_error - first_lagrange_moltiplicator * old_error
@@ -296,7 +305,6 @@ def thrust_calculator(
         last_lagrange_moltiplicator = new_lagrange_moltiplicator
 
     # Computation of the correct axial and rotational interference factors
-
     vectorize_axial_interf_f = np.vectorize(axial_interference_function)
 
     optimal_axial_interference_factor = vectorize_axial_interf_f(

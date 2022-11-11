@@ -74,7 +74,8 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
     cruise_alt_xpath = RANGE_XPATH + "/cruiseAltitude"
     cruise_mach_xpath = RANGE_XPATH + "/cruiseMach"
     stations_xpath = PROP_XPATH + "/propeller/blade/discretization"
-    radius_xpath = PROP_XPATH + "/propeller/blade/discretization"
+    radius_xpath = PROP_XPATH + "/propeller/blade/radius"
+    hub_radius_xpath = PROP_XPATH + "/propeller/blade/hub_radius"
     thrust_xpath = PROP_XPATH + "propeller/thrust"
     n_xpath = PROP_XPATH + "propeller/rotational_velocity"
     prandtl_correction_xpath = PROP_XPATH + "propeller/blade/loss"
@@ -85,9 +86,9 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
     cruise_mach = get_value_or_default(tixi, cruise_mach_xpath, 0.5)
     stations = int(get_value_or_default(tixi, stations_xpath, 20))
     radius = get_value_or_default(tixi, radius_xpath, 1.5)
-    hub_radius = get_value_or_default(tixi, radius_xpath, 0.15)
+    hub_radius = get_value_or_default(tixi, hub_radius_xpath, 0.15)
     thrust = get_value_or_default(tixi, thrust_xpath, 6500)
-    rotational_velocity = get_value_or_default(tixi, n_xpath, 2000)
+    rotational_velocity = get_value_or_default(tixi, n_xpath, 33)
     prandtl_correction = get_value_or_default(tixi, prandtl_correction_xpath, True)
     blades_nb = get_value_or_default(tixi, blades_number_xpath, 2)
 

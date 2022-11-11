@@ -97,7 +97,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="n",
     var_type=float,
-    default_value=2000,
+    default_value=33,
     unit="1/s",
     descr="Propeller rotational velocity",
     xpath=PROP_XPATH + "propeller/rotational_velocity",

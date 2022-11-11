@@ -80,7 +80,7 @@ def test_check_output():
         ],
     }
 
-    for test, values in input_values.items():
+    for values in input_values.values():
 
         (renard_thrust_coeff, power_coeff, thrust_over_density, efficiency) = thrust_calculator(
             *values[0]

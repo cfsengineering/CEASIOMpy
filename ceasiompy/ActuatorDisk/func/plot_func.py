@@ -73,7 +73,7 @@ def function_plot(
     pl.grid(True)
     pl.legend(numpoints=3)
     pl.xlabel("$\chi$")
-    pl.ylabel("")
+    pl.ylabel("interference factors")
     pl.title("Interference Factors")
     if prandtl == True:
         f3 = pl.figure(3)

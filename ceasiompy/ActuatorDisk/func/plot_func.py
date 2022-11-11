@@ -53,7 +53,7 @@ def function_plot(
     pl.ylabel("$dC_t$,  $dC_p$")
     pl.title("Load Distribution")
 
-    f1_plot = f1.savefig(ct_cp_distr_plot_path)
+    f1.savefig(ct_cp_distr_plot_path)
 
     f2 = pl.figure(2)
     pl.plot(
@@ -82,6 +82,6 @@ def function_plot(
         pl.xlabel("$\overline{r}$")
         pl.ylabel("$F(\overline{r})$")
         pl.title("Tip Loss Prandtl Correction Function")
-        f3_plot = f3.savefig(prandtl_correction_plot_path)
+        f3.savefig(prandtl_correction_plot_path)
 
-    f2_plot = f2.savefig(interference_plot_path)
+    f2.savefig(interference_plot_path)

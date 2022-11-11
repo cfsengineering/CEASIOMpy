@@ -243,10 +243,13 @@ def show_results():
         return
 
     results_dir = Path(current_workflow, "Results")
+    results_name = sorted([dir.stem for dir in results_dir.iterdir() if dir.is_dir()])
+    if not results_name:
+        st.warning("No results have been found!")
+        return
 
     st.info(f"All these results can be found in:\n\n{str(current_workflow.resolve())}")
 
-    results_name = sorted([dir.stem for dir in results_dir.iterdir() if dir.is_dir()])
     results_tabs = st.tabs(results_name)
 
     for tab, tab_name in zip(results_tabs, results_name):

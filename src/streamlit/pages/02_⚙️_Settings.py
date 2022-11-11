@@ -128,7 +128,8 @@ def section_edit_aeromap():
     if st.session_state.point_exist:
         st.error("This point already exist in this aeromap")
 
-    st.dataframe(st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap).df)
+    if selected_aeromap:
+        st.dataframe(st.session_state.cpacs.get_aeromap_by_uid(selected_aeromap).df)
 
     st.markdown("#### Create new aeromap")
 
@@ -226,7 +227,13 @@ def add_module_tab():
                         name = f"{name} {unit}"
 
                     if name == "__AEROMAP_SELECTION":
+
                         aeromap_uid_list = st.session_state.cpacs.get_aeromap_uid_list()
+
+                        if not len(aeromap_uid_list):
+                            st.error("You must create an aeromap in order to use this module!")
+                            continue
+
                         value = get_value_or_default(
                             st.session_state.cpacs.tixi, xpath, aeromap_uid_list[0]
                         )
@@ -243,7 +250,13 @@ def add_module_tab():
                         )
 
                     elif name == "__AEROMAP_CHECHBOX":
+
                         aeromap_uid_list = st.session_state.cpacs.get_aeromap_uid_list()
+
+                        if not len(aeromap_uid_list):
+                            st.error("You must create an aeromap in order to use this module!")
+                            continue
+
                         with st.columns([1, 2])[0]:
                             try:
                                 default_otp = get_string_vector(st.session_state.cpacs.tixi, xpath)

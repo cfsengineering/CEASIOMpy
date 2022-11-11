@@ -14,7 +14,7 @@ module_status = True
 
 # ===== Results directory path =====
 
-RESULTS_DIR = Path("Results", "SU2")
+RESULTS_DIR = Path("Results", "ACTUATORDISK")
 
 # ===== CPACS inputs and outputs =====
 

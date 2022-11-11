@@ -50,7 +50,7 @@ def function_plot(
     pl.grid(True)
     pl.legend(numpoints=3)
     pl.xlabel("$\overline{r}$")
-    pl.ylabel("")
+    pl.ylabel("$dC_t$,  $dC_p$")
     pl.title("Load Distribution")
 
     f1_plot = f1.savefig(ct_cp_distr_plot_path)
@@ -73,7 +73,7 @@ def function_plot(
     pl.grid(True)
     pl.legend(numpoints=3)
     pl.xlabel("$\chi$")
-    pl.ylabel("interference factors")
+    pl.ylabel("$a$, $a^1$")
     pl.title("Interference Factors")
     if prandtl == True:
         f3 = pl.figure(3)

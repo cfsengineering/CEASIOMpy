@@ -163,3 +163,6 @@ WB_DOUBLE_FLOOR_XPATH = GEOM_XPATH + "/isDoubleFloor"
 # pytornado
 PYTORNADO_XPATH = "/cpacs/toolspecific/pytornado"
 PYTORNADO_EXTRACT_LOAD_XPATH = PYTORNADO_XPATH + "/save_results/extractLoads"
+
+# Stability
+STABILITY_XPATH = CEASIOMPY_XPATH + "/stability"

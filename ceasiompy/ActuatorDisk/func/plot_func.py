@@ -18,9 +18,10 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+from pathlib import Path
+
 import pylab as pl
 from ceasiompy.utils.ceasiompyutils import get_results_directory
-from pathlib import Path
 
 # =================================================================================================
 #   FUNCTIONS

@@ -25,6 +25,7 @@ from pathlib import Path
 
 from ambiance import Atmosphere
 from ceasiompy.ActuatorDisk.func.optimalprop import thrust_calculator
+from ceasiompy.ActuatorDisk.func.plot_func import function_plot
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.commonxpath import PROP_XPATH, RANGE_XPATH
@@ -35,7 +36,6 @@ from ceasiompy.utils.moduleinterfaces import (
 )
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacspy import CPACS
-from ceasiompy.ActuatorDisk.func.plot_func import function_plot
 
 log = get_logger()
 

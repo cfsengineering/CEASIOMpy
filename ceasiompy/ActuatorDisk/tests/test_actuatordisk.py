@@ -19,13 +19,10 @@ Python version: >=3.8
 
 from pathlib import Path
 
-from ceasiompy.ActuatorDisk.func.optimalprop import thrust_calculator
-from ceasiompy.ActuatorDisk.func.optimalprop import axial_interference_function
-from ceasiompy.ActuatorDisk.func.plot_func import function_plot
 import numpy as np
+from ceasiompy.ActuatorDisk.func.optimalprop import axial_interference_function, thrust_calculator
+from ceasiompy.ActuatorDisk.func.plot_func import function_plot
 from ceasiompy.utils.ceasiompyutils import get_results_directory
-
-
 from pytest import approx
 
 MODULE_DIR = Path(__file__).parent

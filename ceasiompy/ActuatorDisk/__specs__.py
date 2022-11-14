@@ -1,10 +1,6 @@
 from pathlib import Path
 
-from ceasiompy.utils.commonxpath import (
-    AEROPERFORMANCE_XPATH,
-    RANGE_XPATH,
-    PROP_XPATH,
-)
+from ceasiompy.utils.commonxpath import AEROPERFORMANCE_XPATH, PROP_XPATH, RANGE_XPATH
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 # ===== Module Status =====

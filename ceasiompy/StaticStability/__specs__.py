@@ -31,7 +31,7 @@ cpacs_inout.add_input(
     descr="Name of the aero map to evaluate",
     xpath=STABILITY_XPATH + "/aeroMapToAnalyze",
     gui=True,
-    gui_name="__AEROMAP_SELECTION",
+    gui_name="__AEROMAP_CHECHBOX",
     gui_group="Inputs",
 )
 

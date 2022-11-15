@@ -93,7 +93,7 @@ def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r, Ct_tota
     file.write("RADIUS= " + str(radius) + "\n")
     file.write("ADV_RATIO= " + str(advanced_ratio) + "\n")
     file.write("NROW= " + str(stations) + "\n")
-    file.write("# rs=r/R        dCT/drs       dCP/drs       dCR/drs\n")
+    file.write("#rs=r/R        dCT/drs       dCP/drs       dCR/drs\n")
     for r, ctrs, cprs in zip(r, CTrs, CPrs):
         file.write(f"{r:.7f}     {ctrs:.7f}     {cprs:.7f}     0.0\n")
 

@@ -48,6 +48,4 @@ for stability in ["longitudinal", "directional", "lateral"]:
         gui_group="Stability",
     )
 
-
-
 # ===== Output =====

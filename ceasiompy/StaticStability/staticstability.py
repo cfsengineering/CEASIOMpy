@@ -74,8 +74,6 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
         create_branch(cpacs.tixi, aeromap_to_analyze_xpath)
         add_string_vector(cpacs.tixi, aeromap_to_analyze_xpath, aeromap_uid_list)
 
-    stability_to_check_xpath = STABILITY_XPATH + "/stabilityToCheck"
-
     long_stab_xpath = STABILITY_XPATH + "/stabilityToCheck/longitudinal"
     longitudinal_stability = get_value_or_default(cpacs.tixi, long_stab_xpath, True)
 

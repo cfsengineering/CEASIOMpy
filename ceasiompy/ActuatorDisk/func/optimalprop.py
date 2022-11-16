@@ -376,26 +376,6 @@ def thrust_calculator(
         dCt_optimal, dCp, stations, radius, advanced_ratio, r, optimal_total_thrust_coefficient
     )
 
-    # Write the actuator disk configuration file
-
-    results_dir = get_results_directory("ActuatorDisk")
-    actuator_disk_cfg_path = Path(results_dir, "ActuatorDisk.cfg")
-    file = open(actuator_disk_cfg_path, "w")
-
-    file.write("% Automatic generated actuator disk configuration file.\n")
-    file.write("%\n")
-    file.write("% The first two elements of MARKER_ACTDISK must be filled.\n")
-    file.write("% An example of this file can be found in the TestCases directory.\n")
-    file.write("%\n")
-    file.write("# This file is generated thanks to a script created by\n")
-    file.write("# University of Naples Federico II and modified by CFS Engineering\n")
-    file.write("# with the aim of integrating it in CEASIOMpy\n")
-    file.write("\n")
-    file.write("ACTDISK_TYPE = VARIABLE_LOAD\n")
-    file.write("ACTDISK_FILENAME = ActuatorDisk.dat\n")
-    file.write("MARKER_ACTDISK = ( , , 0.0, 0.0, 0.0, 0.0, 0.0, 0.0)\n")
-    file.close()
-
     return (
         optimal_total_thrust_coefficient,
         total_power_coefficient,

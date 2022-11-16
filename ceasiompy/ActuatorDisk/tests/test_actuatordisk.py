@@ -117,7 +117,7 @@ def test_file_exist():
         lines = f.readlines()
 
     assert lines[0] == "# Automatic generated actuator disk input data file using\n"
-    assert lines[-1] == "  1.0000000     0.0000000     0.0000000     0.0\n"
+    assert lines[-1] == "1.0000000     0.0000000     0.0000000     0.0\n"
 
 
 def test_plot_exist():
@@ -126,10 +126,10 @@ def test_plot_exist():
     ct_cp_distr_plot_path = Path(results_dir, "ct_cp_distr.png")
 
     (
-        renard_thrust_coeff,
-        power_coeff,
-        thrust_over_density,
-        efficiency,
+        _,
+        _,
+        _,
+        _,
         r,
         dCt_optimal,
         dCp,

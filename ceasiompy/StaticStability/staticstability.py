@@ -24,11 +24,12 @@ from cpacspy.cpacsfunctions import (
     add_string_vector,
     create_branch,
     get_string_vector,
+    get_value_or_default,
 )
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from markdownpy.markdownpy import MarkdownDoc
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import CEASIOMPY_XPATH, STABILITY_XPATH
+from ceasiompy.utils.commonxpath import STABILITY_XPATH
 from ceasiompy.utils.moduleinterfaces import (
     check_cpacs_input_requirements,
     get_toolinput_file_path,
@@ -59,8 +60,8 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     cpacs = CPACS(cpacs_path)
 
     results_dir = get_results_directory("StaticStability")
-    md = MarkdownDoc(Path(results_dir, "CL_Calculator.md"))
-    md.h2("Static Stability")
+    md = MarkdownDoc(Path(results_dir, "Static_stability.md"))
+    md.h2("Static stability")
 
     aeromap_to_analyze_xpath = STABILITY_XPATH + "/aeroMapToAnalyze"
 
@@ -73,10 +74,41 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
         create_branch(cpacs.tixi, aeromap_to_analyze_xpath)
         add_string_vector(cpacs.tixi, aeromap_to_analyze_xpath, aeromap_uid_list)
 
+    stability_to_check_xpath = STABILITY_XPATH + "/stabilityToCheck"
+
+    long_stab_xpath = STABILITY_XPATH + "/stabilityToCheck/longitudinal"
+    longitudinal_stability = get_value_or_default(cpacs.tixi, long_stab_xpath, True)
+
+    dir_stab_xpath = STABILITY_XPATH + "/stabilityToCheck/directional"
+    directional_stability = get_value_or_default(cpacs.tixi, dir_stab_xpath, True)
+
+    lat_stab_xpath = STABILITY_XPATH + "/stabilityToCheck/lateral"
+    lateral_stability = get_value_or_default(cpacs.tixi, lat_stab_xpath, True)
+
+    STABILITY_DICT = {True: "Stable", False: "Unstable", None: "Not define"}
+
     for aeromap_uid in aeromap_uid_list:
-        md.h3(aeromap_uid)
-        md.p(f"Test {aeromap_uid}!!!")
+
+        md.h4(f"Static stability of '{aeromap_uid}' aeromap")
         aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+
+        df = aeromap.df.groupby(["machNumber", "altitude"])
+
+        for (mach, alt), _ in df:
+
+            md.h6(f"@ Ma={mach} and alt={alt}m")
+
+            if longitudinal_stability:
+                stable, msg = aeromap.check_longitudinal_stability(alt=alt, mach=mach)
+                md.p(f"- Longitudinal: {STABILITY_DICT[stable]}  {msg}", no_new_line=True)
+
+            if directional_stability:
+                stable, msg = aeromap.check_directional_stability(alt=alt, mach=mach)
+                md.p(f"- Directional: {STABILITY_DICT[stable]}  {msg}", no_new_line=True)
+
+            if lateral_stability:
+                stable, msg = aeromap.check_lateral_stability(alt=alt, mach=mach)
+                md.p(f"- Lateral: {STABILITY_DICT[stable]}  {msg}", no_new_line=True)
 
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
     md.save()

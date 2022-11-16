@@ -35,5 +35,19 @@ cpacs_inout.add_input(
     gui_group="Inputs",
 )
 
+for stability in ["longitudinal", "directional", "lateral"]:
+    cpacs_inout.add_input(
+        var_name=f"{stability}_stability",
+        var_type=bool,
+        default_value=True,
+        unit="1",
+        descr=f"Whether the {stability} stability should the check or not.",
+        xpath=STABILITY_XPATH + f"/stabilityToCheck/{stability}",
+        gui=True,
+        gui_name=stability,
+        gui_group="Stability",
+    )
+
+
 
 # ===== Output =====

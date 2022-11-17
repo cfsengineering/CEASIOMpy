@@ -25,7 +25,7 @@ cpacs_inout.add_input(
     unit="1",
     descr="Aircraft cruise Mach number",
     xpath=RANGE_XPATH + "/cruiseMach",
-    gui=True,
+    gui=False,
     gui_name="Cruise Mach",
     gui_group="Cruise performances",
 )
@@ -37,7 +37,7 @@ cpacs_inout.add_input(
     unit="m",
     descr="Aircraft cruise altitude",
     xpath=RANGE_XPATH + "/cruiseAltitude",
-    gui=True,
+    gui=False,
     gui_name="Cruise Altitude",
     gui_group="Cruise performances",
 )
@@ -57,7 +57,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="radius",
     var_type=float,
-    default_value=1.3,
+    default_value=0.65537,
     unit="m",
     descr="Propeller radius",
     xpath=PROP_XPATH + "/propeller/blade/radius",

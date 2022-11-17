@@ -85,14 +85,14 @@ def test_check_output():
             power_coeff,
             thrust_over_density,
             efficiency,
-            r,
-            dCt_optimal,
-            dCp,
-            non_dimensional_radius,
-            optimal_axial_interference_factor,
-            optimal_rotational_interference_factor,
-            prandtl,
-            correction_function,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
+            _,
         ) = thrust_calculator(*values[0])
 
         assert renard_thrust_coeff == approx(values[1][0], rel=1e-3)

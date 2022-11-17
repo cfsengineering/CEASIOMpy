@@ -61,7 +61,7 @@ cpacs_inout.add_input(
     unit="m",
     descr="Propeller radius",
     xpath=PROP_XPATH + "/propeller/blade/radius",
-    gui=True,
+    gui=False,
     gui_name="Propeller radius",
     gui_group="Geometrical propeller settings",
 )

@@ -21,11 +21,11 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="cruise_mach",
     var_type=float,
-    default_value=0.5,
+    default_value=0.3,
     unit="1",
     descr="Aircraft cruise Mach number",
     xpath=RANGE_XPATH + "/cruiseMach",
-    gui=False,
+    gui=True,
     gui_name="Cruise Mach",
     gui_group="Cruise performances",
 )
@@ -33,11 +33,11 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="cruise_alt",
     var_type=float,
-    default_value=9000.0,
+    default_value=0,
     unit="m",
     descr="Aircraft cruise altitude",
     xpath=RANGE_XPATH + "/cruiseAltitude",
-    gui=False,
+    gui=True,
     gui_name="Cruise Altitude",
     gui_group="Cruise performances",
 )
@@ -45,7 +45,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="station",
     var_type=int,
-    default_value=20,
+    default_value=30,
     unit=None,
     descr="Number of elements for blade discretization",
     xpath=PROP_XPATH + "/propeller/blade/discretization",
@@ -57,7 +57,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="radius",
     var_type=float,
-    default_value=1.5,
+    default_value=1.3,
     unit="m",
     descr="Propeller radius",
     xpath=PROP_XPATH + "/propeller/blade/radius",
@@ -69,7 +69,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="hub_radius",
     var_type=float,
-    default_value=0.15,
+    default_value=0.1,
     unit="m",
     descr="Hub propeller radius",
     xpath=PROP_XPATH + "/propeller/blade/hub_radius",

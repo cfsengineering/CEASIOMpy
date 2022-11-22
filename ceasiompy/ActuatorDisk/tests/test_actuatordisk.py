@@ -20,7 +20,8 @@ Python version: >=3.8
 from pathlib import Path
 
 import numpy as np
-from ceasiompy.ActuatorDisk.func.optimalprop import axial_interference_function, thrust_calculator
+from ceasiompy.ActuatorDisk.func.optimalprop import thrust_calculator
+from ceasiompy.ActuatorDisk.func.axial_interf_func import axial_interference_function
 from ceasiompy.ActuatorDisk.func.plot_func import function_plot
 from ceasiompy.ActuatorDisk.func.prandtl_correction import prandtl_corr
 from ceasiompy.utils.ceasiompyutils import get_results_directory

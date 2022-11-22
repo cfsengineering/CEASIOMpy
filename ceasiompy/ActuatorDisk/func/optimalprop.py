@@ -25,6 +25,7 @@ from pathlib import Path
 
 import numpy as np
 from ceasiompy.ActuatorDisk.func.prandtl_correction import prandtl_corr
+from ceasiompy.ActuatorDisk.func.axial_interf_func import axial_interference_function
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 
@@ -33,25 +34,6 @@ log = get_logger()
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
-
-
-def axial_interference_function(lagrangian_moltiplicator, non_dimensional_radius):
-    """
-    Function to calculate the axial intereference factor useful to calculate properly the thrust
-    coefficient distribution
-
-    Args:
-        lagrangian_moltiplicator (float): Lagrangian moltiplicator [-]
-        non_dimensional_radius (float): Non dimensional radius [-]
-
-    Returns:
-        axial_interference_factor (float):  Axial interference factor[-]
-    """
-
-    axial_interference_factor = (lagrangian_moltiplicator * non_dimensional_radius**2) / (
-        non_dimensional_radius**2 + (1 + lagrangian_moltiplicator) ** 2
-    )
-    return axial_interference_factor
 
 
 def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r, Ct_total):
@@ -91,12 +73,12 @@ def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r, Ct_tota
     file.write("MARKER_ACTDISK= \n")
     file.write("CENTER= \n")
     file.write("AXIS= \n")
-    file.write(f"RADIUS=  {radius}    \n")
-    file.write(f"ADV_RATIO=   {advanced_ratio}   \n")
-    file.write(f"NROW=   {stations}   \n")
+    file.write(f"RADIUS= {radius}    \n")
+    file.write(f"ADV_RATIO= {advanced_ratio}   \n")
+    file.write(f"NROW= {stations}   \n")
     file.write("#rs=r/R        dCT/drs       dCP/drs       dCR/drs\n")
     for r, ctrs, cprs in zip(r, CTrs, CPrs):
-        file.write(f"{r:.7f}     {ctrs:.7f}     {cprs:.7f}     0.0\n")
+        file.write(f"{r:.7f}     {ctrs:.7f}      {cprs:.7f}     0.0\n")
 
     file.close()
 

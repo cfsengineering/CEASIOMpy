@@ -94,11 +94,11 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
 
     Atm = Atmosphere(cruise_alt)
 
-    free_stream_velocity = cruise_mach * Atm.speed_of_sound
-    total_thrust_coefficient = thrust / (
-        Atm.density * rotational_velocity**2 * (radius * 2) ** 4
+    free_stream_velocity = float(cruise_mach * Atm.speed_of_sound)
+    total_thrust_coefficient = float(
+        thrust / (Atm.density * rotational_velocity**2 * (radius * 2) ** 4)
     )
-    advanced_ratio = free_stream_velocity / (rotational_velocity * (radius * 2))
+    advanced_ratio = float(free_stream_velocity / (rotational_velocity * (radius * 2)))
 
     (
         _,

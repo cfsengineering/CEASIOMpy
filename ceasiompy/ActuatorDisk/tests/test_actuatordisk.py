@@ -22,6 +22,7 @@ from pathlib import Path
 import numpy as np
 from ceasiompy.ActuatorDisk.func.optimalprop import axial_interference_function, thrust_calculator
 from ceasiompy.ActuatorDisk.func.plot_func import function_plot
+from ceasiompy.ActuatorDisk.func.prandtl_correction import prandtl_corr
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from pytest import approx
 
@@ -50,6 +51,28 @@ def test_axial_interference():
     axial_interference_factor = axial_interference_function(lagrangian_molt, adimensional_radius)
 
     assert all(axial_interference_factor) == all(calc_axial_interference)
+
+
+def test_prandtl_corr():
+
+    r = np.arange(0.1, 10, 0.09)
+    correction_values = prandtl_corr(True, 10, 2, r, 30, 0.8, 120)
+
+    output_values = np.array(
+        [
+            0.73844572,
+            0.71153049,
+            0.68137418,
+            0.64739118,
+            0.6087976,
+            0.56449233,
+            0.51282436,
+            0.45107467,
+            0.37404968,
+            0.26860365,
+        ]
+    )
+    assert correction_values == approx(output_values)
 
 
 def test_check_output():

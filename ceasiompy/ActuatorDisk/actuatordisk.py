@@ -82,12 +82,12 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
     blades_number_xpath = PROP_XPATH + "propeller/blade"
 
     # Required input data from CPACS
-    cruise_alt = get_value_or_default(tixi, cruise_alt_xpath, 0)
-    cruise_mach = get_value_or_default(tixi, cruise_mach_xpath, 0.3)
+    cruise_alt = get_value_or_default(tixi, cruise_alt_xpath, 9000)
+    cruise_mach = get_value_or_default(tixi, cruise_mach_xpath, 0.5)
     stations = int(get_value_or_default(tixi, stations_xpath, 30))
-    radius = get_value_or_default(tixi, radius_xpath, 0.65537)
+    radius = get_value_or_default(tixi, radius_xpath, 1)
     hub_radius = get_value_or_default(tixi, hub_radius_xpath, 0.1)
-    thrust = get_value_or_default(tixi, thrust_xpath, 6500)
+    thrust = get_value_or_default(tixi, thrust_xpath, 6000)
     rotational_velocity = get_value_or_default(tixi, n_xpath, 33)
     prandtl_correction = get_value_or_default(tixi, prandtl_correction_xpath, True)
     blades_nb = get_value_or_default(tixi, blades_number_xpath, 2)

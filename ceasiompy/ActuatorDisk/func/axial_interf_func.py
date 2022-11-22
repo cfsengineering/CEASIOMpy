@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This function calculate axial interference factor 
+This function calculate axial interference factor
 
 Args:
         lagrangian_moltiplicator (float): Lagrangian moltiplicator [-]

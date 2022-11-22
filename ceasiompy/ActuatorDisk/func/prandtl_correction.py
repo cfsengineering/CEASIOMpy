@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This function calculate, if it necessary, the Prandtl correction at blade's tip  
+This function calculate, if it necessary, the Prandtl correction at blade's tip
 
 Python version: >=3.8
 

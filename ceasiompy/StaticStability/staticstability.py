@@ -19,22 +19,28 @@ TODO:
 # =================================================================================================
 
 from pathlib import Path
-from cpacspy.cpacspy import CPACS
+
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.commonxpath import (
+    CHECK_DIRECTIONAL_STABILITY_XPATH,
+    CHECK_LATERAL_STABILITY_XPATH,
+    CHECK_LONGITUDINAL_STABILITY_XPATH,
+    STABILITY_AEROMAP_TO_ANALYZE_XPATH,
+)
+from ceasiompy.utils.moduleinterfaces import (
+    check_cpacs_input_requirements,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+)
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     create_branch,
     get_string_vector,
     get_value_or_default,
 )
-from ceasiompy.utils.ceasiompyutils import get_results_directory
+from cpacspy.cpacspy import CPACS
 from markdownpy.markdownpy import MarkdownDoc
-from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import STABILITY_XPATH
-from ceasiompy.utils.moduleinterfaces import (
-    check_cpacs_input_requirements,
-    get_toolinput_file_path,
-    get_tooloutput_file_path,
-)
 
 log = get_logger()
 
@@ -63,25 +69,21 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     md = MarkdownDoc(Path(results_dir, "Static_stability.md"))
     md.h2("Static stability")
 
-    aeromap_to_analyze_xpath = STABILITY_XPATH + "/aeroMapToAnalyze"
-
     aeromap_uid_list = []
-
     try:
-        aeromap_uid_list = get_string_vector(cpacs.tixi, aeromap_to_analyze_xpath)
+        aeromap_uid_list = get_string_vector(cpacs.tixi, STABILITY_AEROMAP_TO_ANALYZE_XPATH)
     except ValueError:  # if aeroMapToPlot is not define, select all aeromaps
         aeromap_uid_list = cpacs.get_aeromap_uid_list()
-        create_branch(cpacs.tixi, aeromap_to_analyze_xpath)
-        add_string_vector(cpacs.tixi, aeromap_to_analyze_xpath, aeromap_uid_list)
+        create_branch(cpacs.tixi, STABILITY_AEROMAP_TO_ANALYZE_XPATH)
+        add_string_vector(cpacs.tixi, STABILITY_AEROMAP_TO_ANALYZE_XPATH, aeromap_uid_list)
 
-    long_stab_xpath = STABILITY_XPATH + "/stabilityToCheck/longitudinal"
-    longitudinal_stability = get_value_or_default(cpacs.tixi, long_stab_xpath, True)
-
-    dir_stab_xpath = STABILITY_XPATH + "/stabilityToCheck/directional"
-    directional_stability = get_value_or_default(cpacs.tixi, dir_stab_xpath, True)
-
-    lat_stab_xpath = STABILITY_XPATH + "/stabilityToCheck/lateral"
-    lateral_stability = get_value_or_default(cpacs.tixi, lat_stab_xpath, True)
+    longitudinal_stability = get_value_or_default(
+        cpacs.tixi, CHECK_LONGITUDINAL_STABILITY_XPATH, True
+    )
+    directional_stability = get_value_or_default(
+        cpacs.tixi, CHECK_DIRECTIONAL_STABILITY_XPATH, False
+    )
+    lateral_stability = get_value_or_default(cpacs.tixi, CHECK_LATERAL_STABILITY_XPATH, False)
 
     STABILITY_DICT = {True: "Stable", False: "Unstable", None: "Not define"}
 

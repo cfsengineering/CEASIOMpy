@@ -3,7 +3,12 @@
 
 from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import STABILITY_XPATH
+from ceasiompy.utils.commonxpath import (
+    CHECK_DIRECTIONAL_STABILITY_XPATH,
+    CHECK_LATERAL_STABILITY_XPATH,
+    CHECK_LONGITUDINAL_STABILITY_XPATH,
+    STABILITY_AEROMAP_TO_ANALYZE_XPATH,
+)
 
 
 # ===== Module Status =====
@@ -29,23 +34,47 @@ cpacs_inout.add_input(
     default_value=None,
     unit=None,
     descr="Name of the aero map to evaluate",
-    xpath=STABILITY_XPATH + "/aeroMapToAnalyze",
+    xpath=STABILITY_AEROMAP_TO_ANALYZE_XPATH,
     gui=True,
     gui_name="__AEROMAP_CHECHBOX",
     gui_group="Inputs",
 )
 
-for stability in ["longitudinal", "directional", "lateral"]:
-    cpacs_inout.add_input(
-        var_name=f"{stability}_stability",
-        var_type=bool,
-        default_value=True,
-        unit="1",
-        descr=f"Whether the {stability} stability should the check or not.",
-        xpath=STABILITY_XPATH + f"/stabilityToCheck/{stability}",
-        gui=True,
-        gui_name=stability,
-        gui_group="Stability",
-    )
+cpacs_inout.add_input(
+    var_name=f"longitudinal_stability",
+    var_type=bool,
+    default_value=True,
+    unit="1",
+    descr="Whether the longitudinal stability should the check or not.",
+    xpath=CHECK_LONGITUDINAL_STABILITY_XPATH,
+    gui=True,
+    gui_name="Longitudinal",
+    gui_group="Stability",
+)
+
+cpacs_inout.add_input(
+    var_name=f"directional_stability",
+    var_type=bool,
+    default_value=False,
+    unit="1",
+    descr="Whether the directional stability should the check or not.",
+    xpath=CHECK_DIRECTIONAL_STABILITY_XPATH,
+    gui=True,
+    gui_name="Directional",
+    gui_group="Stability",
+)
+
+cpacs_inout.add_input(
+    var_name=f"lateral_stability",
+    var_type=bool,
+    default_value=False,
+    unit="1",
+    descr="Whether the lateral stability should the check or not.",
+    xpath=CHECK_LATERAL_STABILITY_XPATH,
+    gui=True,
+    gui_name="Lateral",
+    gui_group="Stability",
+)
+
 
 # ===== Output =====

@@ -41,7 +41,7 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name=f"longitudinal_stability",
+    var_name="longitudinal_stability",
     var_type=bool,
     default_value=True,
     unit="1",
@@ -53,7 +53,7 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name=f"directional_stability",
+    var_name="directional_stability",
     var_type=bool,
     default_value=False,
     unit="1",
@@ -65,7 +65,7 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name=f"lateral_stability",
+    var_name="lateral_stability",
     var_type=bool,
     default_value=False,
     unit="1",

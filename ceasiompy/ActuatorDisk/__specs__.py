@@ -21,7 +21,7 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="cruise_mach",
     var_type=float,
-    default_value=0.3,
+    default_value=0.45,
     unit="1",
     descr="Aircraft cruise Mach number",
     xpath=RANGE_XPATH + "/cruiseMach",
@@ -57,7 +57,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="radius",
     var_type=float,
-    default_value=1,
+    default_value=0.935,
     unit="m",
     descr="Propeller radius",
     xpath=PROP_XPATH + "/propeller/blade/radius",
@@ -81,7 +81,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="thrust",
     var_type=float,
-    default_value=6000,
+    default_value=10000,
     unit="N",
     descr="Aircraft thrust",
     xpath=PROP_XPATH + "propeller/thrust",

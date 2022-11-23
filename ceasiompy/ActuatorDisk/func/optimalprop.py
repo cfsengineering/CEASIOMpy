@@ -70,9 +70,9 @@ def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r, Ct_tota
         "# ---------------------------------------------------------------------------------\n"
     )
     file.write("#\n")
-    file.write("MARKER_ACTDISK= \n")
-    file.write("CENTER= \n")
-    file.write("AXIS= \n")
+    file.write("MARKER_ACTDISK= Propeller_AD_Inlet Propeller_AD_Outlet\n")
+    file.write("CENTER= 0.0 2.0 0.0\n")
+    file.write("AXIS= 1.0 0.0 0.0\n")
     file.write(f"RADIUS= {radius}    \n")
     file.write(f"ADV_RATIO= {advanced_ratio}   \n")
     file.write(f"NROW= {stations}   \n")

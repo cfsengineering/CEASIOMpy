@@ -21,7 +21,7 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="cruise_mach",
     var_type=float,
-    default_value=0.5,
+    default_value=0.3,
     unit="1",
     descr="Aircraft cruise Mach number",
     xpath=RANGE_XPATH + "/cruiseMach",

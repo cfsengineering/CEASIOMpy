@@ -73,7 +73,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="farfield_mesh_size",
     var_type=float,
-    default_value=25,
+    default_value=2,
     unit="[m]",
     descr="Value assigned for the farfield surface mesh size",
     xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
@@ -132,7 +132,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="refine_factor",
     var_type=float,
-    default_value=7.0,
+    default_value=5.0,
     unit="1",
     descr="Refinement factor of wing leading/trailing edge mesh",
     xpath=GMSH_REFINE_FACTOR_XPATH,

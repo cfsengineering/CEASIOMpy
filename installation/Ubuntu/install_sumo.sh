@@ -24,9 +24,9 @@ tar zxvf sumo-standalone-Qt4-2.7.9.tgz
 echo "Adding missing librairies..."
 
 echo "--> libgortran3"
-if ! grep "ethz.ch/ubuntu/" /etc/apt/sources.list ; then
-    sudo  -- bash -c 'echo "deb http://ubuntu.ethz.ch/ubuntu/ bionic universe" >> /etc/apt/sources.list'
-    sudo  -- bash -c 'echo "deb http://ubuntu.ethz.ch/ubuntu/ bionic-updates universe" >> /etc/apt/sources.list'
+if ! grep "http://archive.ubuntu.com/ubuntu" /etc/apt/sources.list ; then
+    sudo  -- bash -c 'echo "deb http://archive.ubuntu.com/ubuntu bionic universe" >> /etc/apt/sources.list'
+    sudo  -- bash -c 'echo "deb http://archive.ubuntu.com/ubuntu bionic-updates universe" >> /etc/apt/sources.list'
 fi
 sudo apt-get update -y
 sudo apt-get install -y libgfortran3

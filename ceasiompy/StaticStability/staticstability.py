@@ -70,14 +70,9 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     md.h2("Static stability")
 
     aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, STABILITY_AEROMAP_TO_ANALYZE_XPATH)
-
-    longitudinal_stability = get_value_or_default(
-        cpacs.tixi, CHECK_LONGITUDINAL_STABILITY_XPATH, True
-    )
-    directional_stability = get_value_or_default(
-        cpacs.tixi, CHECK_DIRECTIONAL_STABILITY_XPATH, False
-    )
-    lateral_stability = get_value_or_default(cpacs.tixi, CHECK_LATERAL_STABILITY_XPATH, False)
+    longitudinal_stab = get_value_or_default(cpacs.tixi, CHECK_LONGITUDINAL_STABILITY_XPATH, True)
+    directional_stab = get_value_or_default(cpacs.tixi, CHECK_DIRECTIONAL_STABILITY_XPATH, False)
+    lateral_stab = get_value_or_default(cpacs.tixi, CHECK_LATERAL_STABILITY_XPATH, False)
 
     STABILITY_DICT = {True: "Stable", False: "Unstable", None: "Not define"}
 
@@ -92,15 +87,15 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
 
             md.h6(f"@ Ma={mach} and alt={alt}m")
 
-            if longitudinal_stability:
+            if longitudinal_stab:
                 stable, msg = aeromap.check_longitudinal_stability(alt=alt, mach=mach)
                 md.p(f"- Longitudinal: {STABILITY_DICT[stable]}  {msg}", no_new_line=True)
 
-            if directional_stability:
+            if directional_stab:
                 stable, msg = aeromap.check_directional_stability(alt=alt, mach=mach)
                 md.p(f"- Directional: {STABILITY_DICT[stable]}  {msg}", no_new_line=True)
 
-            if lateral_stability:
+            if lateral_stab:
                 stable, msg = aeromap.check_lateral_stability(alt=alt, mach=mach)
                 md.p(f"- Lateral: {STABILITY_DICT[stable]}  {msg}", no_new_line=True)
 

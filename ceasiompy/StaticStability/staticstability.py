@@ -21,7 +21,7 @@ TODO:
 from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_results_directory, get_aeromap_list_from_xpath
+from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath, get_results_directory
 from ceasiompy.utils.commonxpath import (
     CHECK_DIRECTIONAL_STABILITY_XPATH,
     CHECK_LATERAL_STABILITY_XPATH,
@@ -33,12 +33,7 @@ from ceasiompy.utils.moduleinterfaces import (
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from cpacspy.cpacsfunctions import (
-    add_string_vector,
-    create_branch,
-    get_string_vector,
-    get_value_or_default,
-)
+from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacspy import CPACS
 from markdownpy.markdownpy import MarkdownDoc
 
@@ -112,7 +107,7 @@ def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + MODULE_NAME + " -----")
 
-    # check_cpacs_input_requirements(cpacs_path)
+    check_cpacs_input_requirements(cpacs_path)
 
     static_stability_analysis(cpacs_path, cpacs_out_path)
 

@@ -33,7 +33,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="cruise_alt",
     var_type=float,
-    default_value=9000,
+    default_value=4500,
     unit="m",
     descr="Aircraft cruise altitude",
     xpath=RANGE_XPATH + "/cruiseAltitude",
@@ -45,7 +45,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="station",
     var_type=int,
-    default_value=30,
+    default_value=40,
     unit=None,
     descr="Number of elements for blade discretization",
     xpath=PROP_XPATH + "/propeller/blade/discretization",

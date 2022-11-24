@@ -24,6 +24,7 @@ from ceasiompy.utils.ceasiompyutils import (
     SoftwareNotInstalled,
     aircraft_name,
     change_working_dir,
+    get_aeromap_list_from_xpath,
     get_install_path,
     get_part_type,
     get_results_directory,
@@ -61,6 +62,19 @@ def test_change_working_dir():
     assert Path.cwd() == MODULE_DIR
 
     os.chdir(str(default_cwd))
+
+
+def test_get_aeromap_list_from_xpath():
+
+    cpacs = CPACS(Path(CPACS_FILES_PATH, "D150_simple.xml"))
+
+    not_yet_define_xpath = "/cpacs/toolspecific/CEASIOMpy/newListOfAeromap"
+    aeromap_list = get_aeromap_list_from_xpath(cpacs, not_yet_define_xpath)
+    assert aeromap_list == ["aeromap_empty", "test_apm"]
+
+    cpacs.tixi.updateTextElement(not_yet_define_xpath, "test_apm")
+    aeromap_list = get_aeromap_list_from_xpath(cpacs, not_yet_define_xpath)
+    assert aeromap_list == ["test_apm"]
 
 
 def test_get_results_directory():

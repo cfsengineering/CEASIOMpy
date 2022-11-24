@@ -21,7 +21,7 @@ TODO:
 from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.ceasiompyutils import get_results_directory, get_aeromap_list_from_xpath
 from ceasiompy.utils.commonxpath import (
     CHECK_DIRECTIONAL_STABILITY_XPATH,
     CHECK_LATERAL_STABILITY_XPATH,
@@ -69,13 +69,7 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     md = MarkdownDoc(Path(results_dir, "Static_stability.md"))
     md.h2("Static stability")
 
-    aeromap_uid_list = []
-    try:
-        aeromap_uid_list = get_string_vector(cpacs.tixi, STABILITY_AEROMAP_TO_ANALYZE_XPATH)
-    except ValueError:  # if aeroMapToPlot is not define, select all aeromaps
-        aeromap_uid_list = cpacs.get_aeromap_uid_list()
-        create_branch(cpacs.tixi, STABILITY_AEROMAP_TO_ANALYZE_XPATH)
-        add_string_vector(cpacs.tixi, STABILITY_AEROMAP_TO_ANALYZE_XPATH, aeromap_uid_list)
+    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, STABILITY_AEROMAP_TO_ANALYZE_XPATH)
 
     longitudinal_stability = get_value_or_default(
         cpacs.tixi, CHECK_LONGITUDINAL_STABILITY_XPATH, True

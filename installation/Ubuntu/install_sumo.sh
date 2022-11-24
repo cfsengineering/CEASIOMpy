@@ -25,8 +25,6 @@ echo "Adding missing librairies..."
 
 echo "--> libgortran3"
 if ! grep "ethz.ch/ubuntu/" /etc/apt/sources.list ; then
-    sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32
-    sudo apt update
     sudo  -- bash -c 'echo "deb http://ubuntu.ethz.ch/ubuntu/ bionic universe" >> /etc/apt/sources.list'
     sudo  -- bash -c 'echo "deb http://ubuntu.ethz.ch/ubuntu/ bionic-updates universe" >> /etc/apt/sources.list'
 fi

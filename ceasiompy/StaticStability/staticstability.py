@@ -35,7 +35,7 @@ from ceasiompy.utils.moduleinterfaces import (
 )
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacspy import CPACS
-from markdownpy.markdownpy import MarkdownDoc
+from markdownpy.markdownpy import MarkdownDoc, Table
 
 log = get_logger()
 
@@ -76,23 +76,63 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
         md.h4(f"Static stability of '{aeromap_uid}' aeromap")
         aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
-        df = aeromap.df.groupby(["machNumber", "altitude"])
+        df = aeromap.df.groupby(["machNumber", "altitude", "angleOfSideslip"])
 
-        for (mach, alt), _ in df:
+        stability_table = [["mach", "alt", "aos", "Longitudinal stability", "Comment"]]
 
-            md.h6(f"@ Ma={mach} and alt={alt}m")
+        for (mach, alt, aos), _ in df:
 
             if longitudinal_stab:
-                stable, msg = aeromap.check_longitudinal_stability(alt=alt, mach=mach)
-                md.p(f"- Longitudinal: {STABILITY_DICT[stable]}  {msg}", no_new_line=True)
+                stable, msg = aeromap.check_longitudinal_stability(alt=alt, mach=mach, aos=aos)
+
+                if stable is not None:
+                    stability_table.append(
+                        [str(mach), str(alt), str(aos), STABILITY_DICT[stable], msg]
+                    )
+
+        if longitudinal_stab and len(stability_table) > 1:
+            md_table = Table(stability_table)
+            md.p(md_table.write())
+
+        # Directional
+
+        df = aeromap.df.groupby(["machNumber", "altitude", "angleOfAttack"])
+
+        stability_table = [["mach", "alt", "aoa", "Directional stability", "Comment"]]
+
+        for (mach, alt, aoa), _ in df:
 
             if directional_stab:
-                stable, msg = aeromap.check_directional_stability(alt=alt, mach=mach)
-                md.p(f"- Directional: {STABILITY_DICT[stable]}  {msg}", no_new_line=True)
+                stable, msg = aeromap.check_directional_stability(alt=alt, mach=mach, aoa=aoa)
+
+                if stable is not None:
+                    stability_table.append(
+                        [str(mach), str(alt), str(aoa), STABILITY_DICT[stable], msg]
+                    )
+
+        if directional_stab and len(stability_table) > 1:
+
+            md_table = Table(stability_table)
+            md.p(md_table.write())
+
+        # Lateral
+
+        stability_table = [["mach", "alt", "aoa", "Lateral stability", "Comment"]]
+
+        for (mach, alt, aoa), _ in df:
 
             if lateral_stab:
-                stable, msg = aeromap.check_lateral_stability(alt=alt, mach=mach)
-                md.p(f"- Lateral: {STABILITY_DICT[stable]}  {msg}", no_new_line=True)
+                stable, msg = aeromap.check_lateral_stability(alt=alt, mach=mach, aoa=aoa)
+
+                if stable is not None:
+                    stability_table.append(
+                        [str(mach), str(alt), str(aoa), STABILITY_DICT[stable], msg]
+                    )
+
+        if lateral_stab and len(stability_table) > 1:
+
+            md_table = Table(stability_table)
+            md.p(md_table.write())
 
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
     md.save()

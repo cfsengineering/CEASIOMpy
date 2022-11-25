@@ -25,7 +25,6 @@ from pathlib import Path
 
 import numpy as np
 from ceasiompy.ActuatorDisk.func.prandtl_correction import prandtl_corr
-from ceasiompy.ActuatorDisk.func.axial_interf_func import axial_interference_function
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 
@@ -36,7 +35,28 @@ log = get_logger()
 # =================================================================================================
 
 
-def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r, Ct_total):
+def adimensionalize_radius(radius, hub_radius, stations):
+
+    """TODO check minimal number of station required"""
+
+    if hub_radius >= radius:
+        raise ValueError("hub radius should be smaller than radius")
+    r = np.linspace(0, 1, stations)
+    i_hub = np.abs(r - hub_radius / radius).argmin()
+    if r[i_hub] < hub_radius:
+        i_hub += 1
+    return r[i_hub:]
+
+
+def axial_interference_function(lagrangian_moltiplicator, non_dimensional_radius):
+
+    axial_interference_factor = (lagrangian_moltiplicator * non_dimensional_radius**2) / (
+        non_dimensional_radius**2 + (1 + lagrangian_moltiplicator) ** 2
+    )
+    return axial_interference_factor
+
+
+def write_external_file(CTrs, CPrs, radius, advanced_ratio, r, Ct_total):
 
     """Function to write on an external file the result of the thrust and power coefficients
         distribution, performed by thrust calculation function
@@ -75,7 +95,7 @@ def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r, Ct_tota
     file.write("AXIS= 1.0 0.0 0.0\n")
     file.write(f"RADIUS= {radius}    \n")
     file.write(f"ADV_RATIO= {advanced_ratio}   \n")
-    file.write(f"NROW= {stations}   \n")
+    file.write(f"NROW= {r.size}   \n")
     file.write("#rs=r/R        dCT/drs       dCP/drs       dCR/drs\n")
     for r, ctrs, cprs in zip(r, CTrs, CPrs):
         file.write(f"{r:.7f}     {ctrs:.7f}      {cprs:.7f}     0.0\n")
@@ -86,7 +106,7 @@ def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r, Ct_tota
     file.write("AXIS= 1.0 0.0 0.0\n")
     file.write(f"RADIUS= {radius}    \n")
     file.write(f"ADV_RATIO= {advanced_ratio}   \n")
-    file.write(f"NROW= {stations}   \n")
+    file.write(f"NROW= {r.size}   \n")
 
     file.close()
 
@@ -130,30 +150,8 @@ def thrust_calculator(
     log.info(f"Prandtl correction= {prandtl}")
     log.info(f"Number of blades= {blades_number}")
 
-    # Resize the vectors using the number of radial stations.
-    r = np.empty(stations)
-    non_dimensional_radius = np.empty(stations)
-    dCp = np.empty(stations)
-    induced_velocity_distribution = np.empty(stations)
-    new_axial_interference_factor = np.empty(stations)
-    old_axial_interference_factor = np.empty(stations)
-    initial_axial_interference_factor = np.empty(stations)
-    dCt_new = np.empty(stations)
-    dCt_old = np.empty(stations)
-    dCt_0 = np.empty(stations)
-    delta_pressure = np.empty(stations)
-    optimal_axial_interference_factor = np.empty(stations)
-    optimal_rotational_interference_factor = np.empty(stations)
-    dCt_optimal = np.empty(stations)
-
-    non_dimensional_hub_radius = hub_radius / radius
-
-    # Computation of the non-dimensional radial stations.
-    for i in range(1, stations + 1):
-        r[i - 1] = i / float(stations)
-        if r[i - 1] <= non_dimensional_hub_radius:
-            i_hub = i - 1
-
+    r = adimensionalize_radius(radius, hub_radius, stations)
+    ################################### r chnage
     n = free_stream_velocity / (2 * radius * advanced_ratio)
     omega = n * 2 * pi
 
@@ -169,21 +167,19 @@ def thrust_calculator(
 
     radial_stations_spacing = 1.0 / stations
 
-    first_lagrange_moltiplicator = 0.0
     # Computation of the first try induced velocity distribution
-    for i in range(stations):
-        induced_velocity_distribution[i] = (2 / free_stream_velocity**2) * (
-            (-1 / free_stream_velocity)
-            + sqrt(
-                1
-                + (
-                    ((2 * radius) ** 4 * (total_thrust_coefficient) * n**2)
-                    / (free_stream_velocity**2 * pi * r[i])
-                )
+    induced_velocity_distribution = (2 / free_stream_velocity**2) * (
+        (-1 / free_stream_velocity)
+        + np.sqrt(
+            1
+            + (
+                ((2 * radius) ** 4 * (total_thrust_coefficient) * n**2)
+                / (free_stream_velocity**2 * pi * r)
             )
         )
+    )
 
-        first_lagrange_moltiplicator = np.sum(induced_velocity_distribution)
+    first_lagrange_moltiplicator = np.sum(induced_velocity_distribution)
 
     first_lagrange_moltiplicator = first_lagrange_moltiplicator / (free_stream_velocity * stations)
 
@@ -204,9 +200,7 @@ def thrust_calculator(
     )
 
     # Computation of the total thrust coefficient
-    initial_total_thrust_coefficient = 0.0
-    for i in range(i_hub, stations):
-        initial_total_thrust_coefficient += radial_stations_spacing * dCt_0[i]
+    initial_total_thrust_coefficient = np.sum(radial_stations_spacing * dCt_0)
 
     # Compute the error with respect to the thrust coefficient given in input
     inital_error = initial_total_thrust_coefficient - total_thrust_coefficient
@@ -232,9 +226,7 @@ def thrust_calculator(
     )
 
     # Computation of the total thrust coefficient
-    old_total_thrust_coefficient = 0.0
-    for i in range(i_hub, stations):
-        old_total_thrust_coefficient += radial_stations_spacing * dCt_old[i]
+    old_total_thrust_coefficient = np.sum(radial_stations_spacing * dCt_old)
 
     # Compute the error with respect to the thrust coefficient given in input
     old_error = old_total_thrust_coefficient - total_thrust_coefficient
@@ -318,21 +310,17 @@ def thrust_calculator(
     )
 
     # Computation of the total power coefficient
-    total_power_coefficient = 0.0
-    optimal_total_thrust_coefficient = 0.0
-    for i in range(i_hub, stations):
-        total_power_coefficient += radial_stations_spacing * dCp[i]
-        optimal_total_thrust_coefficient += radial_stations_spacing * dCt_optimal[i]
-        delta_pressure[i] = (
-            (dCt_optimal[i]) * (2 * free_stream_velocity**2) / (advanced_ratio**2 * pi * r[i])
-        )
+    total_power_coefficient = np.sum(radial_stations_spacing * dCp)
+    optimal_total_thrust_coefficient = np.sum(radial_stations_spacing * dCt_optimal)
+    delta_pressure = (
+        (dCt_optimal) * (2 * free_stream_velocity**2) / (advanced_ratio**2 * pi * r)
+    )
 
     # Computation of the thrust over density using the static pressure jump distribution
     thrust_density_ratio = 0.0
-    for i in range(i_hub, stations):
-        thrust_density_ratio += (
-            2 * pi * r[i] * radius**2 * radial_stations_spacing * delta_pressure[i]
-        )
+    thrust_density_ratio = np.sum(
+        2 * pi * r * radius**2 * radial_stations_spacing * delta_pressure
+    )
 
     # Computation of the thrust coefficient using thrust_density_ratio
     computed_total_thrust_coefficient = thrust_density_ratio / (n**2 * (2 * radius) ** 4)
@@ -352,7 +340,7 @@ def thrust_calculator(
     log.info("SU2 file generated!")
 
     write_external_file(
-        dCt_optimal, dCp, stations, radius, advanced_ratio, r, optimal_total_thrust_coefficient
+        dCt_optimal, dCp, radius, advanced_ratio, r, optimal_total_thrust_coefficient
     )
 
     return (

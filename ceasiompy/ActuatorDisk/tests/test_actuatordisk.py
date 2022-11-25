@@ -20,12 +20,16 @@ Python version: >=3.8
 from pathlib import Path
 
 import numpy as np
-from ceasiompy.ActuatorDisk.func.axial_interf_func import axial_interference_function
-from ceasiompy.ActuatorDisk.func.optimalprop import thrust_calculator
+from ceasiompy.ActuatorDisk.func.optimalprop import (
+    thrust_calculator,
+    adimensionalize_radius,
+    axial_interference_function,
+)
 from ceasiompy.ActuatorDisk.func.plot_func import function_plot
 from ceasiompy.ActuatorDisk.func.prandtl_correction import prandtl_corr
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from pytest import approx
+import pytest
 
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(MODULE_DIR, "ToolInput", "simpletest_cpacs.xml")
@@ -85,20 +89,17 @@ def test_check_output():
 
     """
     input_values = {
-        "test1": [[20, 0.5, 1.5, 0.2, 1.5, 150, True, 2], [0.5, 0.9621, 45000, 0.7794]],
-        "test2": [[20, 0.8, 1.5, 0.15, 2, 190, True, 3], [0.8, 2.1758, 64980, 0.7354]],
-        "test3": [[20, 1, 1.2, 0.1, 1.8, 180, False, 3], [1, 2.4896, 57600, 0.7230]],
-        "test4": [[20, 1.2, 1.4, 0.1, 1.6, 140, True, 2], [1.2, 3.4586, 72030, 0.5551]],
-        "test5": [[20, 1.5, 2, 0.2, 1.8, 190, True, 8], [1.5, 5.4348, 267407.41, 0.4968]],
-        "test6": [[20, 0.2, 1.4, 0.1, 1.4, 130, True, 2], [0.2, 0.313, 13520, 0.8945]],
-        "test7": [[20, 0.15, 1.4, 0.1, 1.3, 130, True, 2], [0.15, 0.2139, 11760, 0.9115]],
-        "test8": [
-            [20, 1.3, 1.7, 0.5107, 1.7, 160, False, 6],
-            [1.2902, 3.4336, 132120.9196, 0.6388],
-        ],
+        "test1": [[20, 0.5, 1.5, 0.2, 1.5, 150, True, 2], [0.5, 0.975, 45000, 0.7688]],
+        "test2": [[20, 0.8, 1.5, 0.15, 2, 190, True, 3], [0.8, 2.217, 64980, 0.7215]],
+        "test3": [[20, 1, 1.2, 0.1, 1.8, 180, False, 3], [1, 2.5304, 57600, 0.7113]],
+        "test4": [[20, 1.2, 1.4, 0.1, 1.6, 140, True, 2], [1.2, 3.6097, 72030, 0.5318]],
+        "test5": [[20, 1.5, 2, 0.2, 1.8, 190, True, 8], [1.5, 5.9200, 267407.41, 0.4560]],
+        "test6": [[20, 0.2, 1.4, 0.1, 1.4, 130, True, 2], [0.2, 0.3148, 13520, 0.8892]],
+        "test7": [[20, 0.15, 1.4, 0.1, 1.3, 130, True, 2], [0.15, 0.2149, 11760, 0.9071]],
+        "test8": [[20, 1.3, 1.7, 0.5107, 1.7, 160, False, 6], [1.3, 3.5762, 133120, 0.6179]],
         "test9": [
             [37, 0.15, 2.5146, 0.2, 2.81487, 190.5488, False, 6],
-            [0.15, 0.4364, 17385.4054, 0.9673],
+            [0.15, 0.4368, 17385.4054, 0.9673],
         ],
     }
 
@@ -150,10 +151,10 @@ def test_plot_exist():
     ct_cp_distr_plot_path = Path(results_dir, "ct_cp_distr.png")
 
     (
-        _,
-        _,
-        _,
-        _,
+        optimal_total_thrust_coefficient,
+        total_power_coefficient,
+        thrust_density_ratio,
+        eta,
         r,
         dCt_optimal,
         dCp,
@@ -164,19 +165,29 @@ def test_plot_exist():
         correction_function,
     ) = thrust_calculator(37, 0.15, 2.5146, 0.2, 2.81487, 190.5488, True, 6)
 
-    function_plot(
-        r,
-        dCt_optimal,
-        dCp,
-        non_dimensional_radius,
-        optimal_axial_interference_factor,
-        optimal_rotational_interference_factor,
-        prandtl,
-        correction_function,
-    )
+    # function_plot(
+    #    r,
+    #    dCt_optimal,
+    #    dCp,
+    #    non_dimensional_radius,
+    #    optimal_axial_interference_factor,
+    #    optimal_rotational_interference_factor,
+    #    prandtl,
+    #    correction_function,
+    # )
 
     assert ct_cp_distr_plot_path.exists()
     assert interference_plot_path.exists()
+
+
+def test_adimentional_radius():
+    with pytest.raises(ValueError):
+        adimensionalize_radius(1, 1.1, 11)
+    np.testing.assert_almost_equal(adimensionalize_radius(1, 0.1, 11), (np.arange(0.1, 1.1, 0.1)))
+    np.testing.assert_almost_equal(adimensionalize_radius(1, 0.5, 11), (np.arange(0.5, 1.05, 0.1)))
+    np.testing.assert_almost_equal(
+        adimensionalize_radius(1, 0.11, 11), (np.arange(0.2, 1.05, 0.1))
+    )
 
 
 # =================================================================================================

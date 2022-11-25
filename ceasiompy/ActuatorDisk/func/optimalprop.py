@@ -162,7 +162,6 @@ def thrust_calculator(
     log.info(f"Number of blades= {blades_number}")
 
     r = adimensionalize_radius(radius, hub_radius, stations)
-    ################################### r chnage
     n = free_stream_velocity / (2 * radius * advanced_ratio)
     omega = n * 2 * pi
 

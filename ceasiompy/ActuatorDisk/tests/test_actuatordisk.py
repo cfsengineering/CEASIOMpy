@@ -26,7 +26,7 @@ from ceasiompy.ActuatorDisk.func.optimalprop import (
     axial_interference_function,
 )
 from ceasiompy.ActuatorDisk.func.plot_func import function_plot
-from ceasiompy.ActuatorDisk.func.prandtl_correction import prandtl_corr
+from ceasiompy.ActuatorDisk.func.optimalprop import prandtl_corr
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from pytest import approx
 import pytest

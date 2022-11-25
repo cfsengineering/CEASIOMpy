@@ -24,7 +24,6 @@ from math import fabs, pi, sqrt
 from pathlib import Path
 
 import numpy as np
-from ceasiompy.ActuatorDisk.func.prandtl_correction import prandtl_corr
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 
@@ -54,6 +53,18 @@ def axial_interference_function(lagrangian_moltiplicator, non_dimensional_radius
         non_dimensional_radius**2 + (1 + lagrangian_moltiplicator) ** 2
     )
     return axial_interference_factor
+
+
+def prandtl_corr(prandtl, blades_number, r, omega, radius, free_stream_velocity):
+
+    if not prandtl:
+        return np.ones(len(r))
+
+    return (2 / pi) * np.arccos(
+        np.exp(
+            -0.5 * blades_number * (1 - r) * sqrt(1 + (omega * radius / free_stream_velocity) ** 2)
+        )
+    )
 
 
 def write_external_file(CTrs, CPrs, radius, advanced_ratio, r, Ct_total):

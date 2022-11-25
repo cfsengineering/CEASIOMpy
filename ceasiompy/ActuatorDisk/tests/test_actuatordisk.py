@@ -30,6 +30,7 @@ from ceasiompy.ActuatorDisk.func.prandtl_correction import prandtl_corr
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from pytest import approx
 import pytest
+from ceasiompy.utils.ceasiompyutils import remove_file_type_in_dir
 
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(MODULE_DIR, "ToolInput", "simpletest_cpacs.xml")
@@ -151,10 +152,10 @@ def test_plot_exist():
     ct_cp_distr_plot_path = Path(results_dir, "ct_cp_distr.png")
 
     (
-        optimal_total_thrust_coefficient,
-        total_power_coefficient,
-        thrust_density_ratio,
-        eta,
+        _,
+        _,
+        _,
+        _,
         r,
         dCt_optimal,
         dCp,
@@ -165,19 +166,21 @@ def test_plot_exist():
         correction_function,
     ) = thrust_calculator(37, 0.15, 2.5146, 0.2, 2.81487, 190.5488, True, 6)
 
-    # function_plot(
-    #    r,
-    #    dCt_optimal,
-    #    dCp,
-    #    non_dimensional_radius,
-    #    optimal_axial_interference_factor,
-    #    optimal_rotational_interference_factor,
-    #    prandtl,
-    #    correction_function,
-    # )
+    function_plot(
+        r,
+        dCt_optimal,
+        dCp,
+        non_dimensional_radius,
+        optimal_axial_interference_factor,
+        optimal_rotational_interference_factor,
+        prandtl,
+        correction_function,
+    )
 
     assert ct_cp_distr_plot_path.exists()
     assert interference_plot_path.exists()
+
+    remove_file_type_in_dir(results_dir, [".png"])
 
 
 def test_adimentional_radius():

@@ -13,9 +13,9 @@
 # with the aim of integrating it in CEASIOMpy
 # ---------------------------------------------------------------------------------
 #
-MARKER_ACTDISK= 
-CENTER= 
-AXIS= 
+MARKER_ACTDISK= Propeller_AD_Inlet Propeller_AD_Outlet
+CENTER= 0.0 2.0 0.0
+AXIS= 1.0 0.0 0.0
 RADIUS= 2.5146    
 ADV_RATIO= 2.81487   
 NROW= 37   
@@ -57,3 +57,10 @@ NROW= 37
 0.9459459     0.2794147      0.8043979     0.0
 0.9729730     0.2136837      0.6113617     0.0
 1.0000000     0.0000000      0.0000000     0.0
+
+MARKER_ACTDISK= Propeller_mirrored_AD_Inlet Propeller_mirrored_AD_Outlet
+CENTER= 0.0 -2.0 0.0
+AXIS= 1.0 0.0 0.0
+RADIUS= 2.5146    
+ADV_RATIO= 2.81487   
+NROW= 37   

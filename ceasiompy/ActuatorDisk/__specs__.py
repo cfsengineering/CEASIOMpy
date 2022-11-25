@@ -21,7 +21,7 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="cruise_mach",
     var_type=float,
-    default_value=0.45,
+    default_value=0.19,
     unit="1",
     descr="Aircraft cruise Mach number",
     xpath=RANGE_XPATH + "/cruiseMach",
@@ -33,7 +33,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="cruise_alt",
     var_type=float,
-    default_value=4500,
+    default_value=9000,
     unit="m",
     descr="Aircraft cruise altitude",
     xpath=RANGE_XPATH + "/cruiseAltitude",
@@ -81,7 +81,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="thrust",
     var_type=float,
-    default_value=10000,
+    default_value=10100,
     unit="N",
     descr="Aircraft thrust",
     xpath=PROP_XPATH + "propeller/thrust",
@@ -129,7 +129,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="blades_number",
     var_type=int,
-    default_value=2,
+    default_value=3,
     unit=None,
     descr="Number of propeller blades",
     xpath=PROP_XPATH + "propeller/bladeNumber",

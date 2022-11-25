@@ -56,8 +56,8 @@ def test_axial_interference():
 
 def test_prandtl_corr():
 
-    r = np.arange(0.1, 10, 0.09)
-    correction_values = prandtl_corr(True, 10, 2, r, 30, 0.8, 120)
+    r = np.arange(0.1, 1, 0.09)
+    correction_values = prandtl_corr(True, 2, r, 30, 0.8, 120)
 
     output_values = np.array(
         [

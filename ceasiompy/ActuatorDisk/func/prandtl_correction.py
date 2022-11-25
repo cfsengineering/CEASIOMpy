@@ -27,20 +27,13 @@ import numpy as np
 # =================================================================================================
 
 
-def prandtl_corr(prandtl, stations, blades_number, r, omega, radius, free_stream_velocity):
-    correction_function = np.empty(stations)
-    if prandtl:
-        for i in range(stations):
-            correction_function[i] = (2 / pi) * acos(
-                exp(
-                    -0.5
-                    * blades_number
-                    * (1 - r[i])
-                    * sqrt(1 + (omega * radius / free_stream_velocity) ** 2)
-                )
-            )
+def prandtl_corr(prandtl, blades_number, r, omega, radius, free_stream_velocity):
 
-    else:
-        correction_function = np.ones(stations)
+    if not prandtl:
+        return np.ones(len(r))
 
-    return correction_function
+    return (2 / pi) * np.arccos(
+        np.exp(
+            -0.5 * blades_number * (1 - r) * sqrt(1 + (omega * radius / free_stream_velocity) ** 2)
+        )
+    )

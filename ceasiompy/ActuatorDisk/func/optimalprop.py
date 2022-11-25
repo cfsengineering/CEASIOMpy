@@ -80,7 +80,7 @@ def write_external_file(CTrs, CPrs, stations, radius, advanced_ratio, r, Ct_tota
     for r, ctrs, cprs in zip(r, CTrs, CPrs):
         file.write(f"{r:.7f}     {ctrs:.7f}      {cprs:.7f}     0.0\n")
 
-    file.write("#\n")
+    file.write("\n")
     file.write("MARKER_ACTDISK= Propeller_mirrored_AD_Inlet Propeller_mirrored_AD_Outlet\n")
     file.write("CENTER= 0.0 -2.0 0.0\n")
     file.write("AXIS= 1.0 0.0 0.0\n")
@@ -158,7 +158,7 @@ def thrust_calculator(
     omega = n * 2 * pi
 
     correction_function = prandtl_corr(
-        prandtl, stations, blades_number, r, omega, radius, free_stream_velocity
+        prandtl, blades_number, r, omega, radius, free_stream_velocity
     )
 
     # Computation of the non-dimensional radius

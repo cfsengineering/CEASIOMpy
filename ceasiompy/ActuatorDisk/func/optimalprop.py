@@ -34,7 +34,9 @@ log = get_logger()
 # =================================================================================================
 
 
-def adimensionalize_radius(radius, hub_radius, stations):
+def adimensional_radius(radius, hub_radius, stations):
+
+    """Function to adimensionalize the radius"""
 
     """TODO check minimal number of station required"""
 
@@ -56,6 +58,13 @@ def axial_interference_function(lagrangian_moltiplicator, non_dimensional_radius
 
 
 def prandtl_corr(prandtl, blades_number, r, omega, radius, free_stream_velocity):
+
+    """Function to correct the values of thrust and power coefficients near the tip, based on
+        Prandtl formulation
+
+    Returns:
+        correction function to correct Ct and Cp
+    """
 
     if not prandtl:
         return np.ones(len(r))
@@ -161,7 +170,7 @@ def thrust_calculator(
     log.info(f"Prandtl correction= {prandtl}")
     log.info(f"Number of blades= {blades_number}")
 
-    r = adimensionalize_radius(radius, hub_radius, stations)
+    r = adimensional_radius(radius, hub_radius, stations)
     n = free_stream_velocity / (2 * radius * advanced_ratio)
     omega = n * 2 * pi
 

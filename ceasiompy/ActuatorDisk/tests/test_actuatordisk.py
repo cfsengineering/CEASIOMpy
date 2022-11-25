@@ -22,7 +22,7 @@ from pathlib import Path
 import numpy as np
 from ceasiompy.ActuatorDisk.func.optimalprop import (
     thrust_calculator,
-    adimensionalize_radius,
+    adimensional_radius,
     axial_interference_function,
 )
 from ceasiompy.ActuatorDisk.func.plot_func import function_plot
@@ -185,12 +185,10 @@ def test_plot_exist():
 
 def test_adimentional_radius():
     with pytest.raises(ValueError):
-        adimensionalize_radius(1, 1.1, 11)
-    np.testing.assert_almost_equal(adimensionalize_radius(1, 0.1, 11), (np.arange(0.1, 1.1, 0.1)))
-    np.testing.assert_almost_equal(adimensionalize_radius(1, 0.5, 11), (np.arange(0.5, 1.05, 0.1)))
-    np.testing.assert_almost_equal(
-        adimensionalize_radius(1, 0.11, 11), (np.arange(0.2, 1.05, 0.1))
-    )
+        adimensional_radius(1, 1.1, 11)
+    np.testing.assert_almost_equal(adimensional_radius(1, 0.1, 11), (np.arange(0.1, 1.1, 0.1)))
+    np.testing.assert_almost_equal(adimensional_radius(1, 0.5, 11), (np.arange(0.5, 1.05, 0.1)))
+    np.testing.assert_almost_equal(adimensional_radius(1, 0.11, 11), (np.arange(0.2, 1.05, 0.1)))
 
 
 # =================================================================================================

@@ -66,10 +66,7 @@ def generate_longitudinal_stab_table(aeromap):
 
         stability_table.append([str(mach), str(alt), str(aos), STABILITY_DICT[stable], msg])
 
-    if len(stability_table) == 1:
-        return ""
-
-    return Table(stability_table).write()
+    return stability_table
 
 
 def generate_directional_stab_table(aeromap):
@@ -89,10 +86,7 @@ def generate_directional_stab_table(aeromap):
 
         stability_table.append([str(mach), str(alt), str(aoa), STABILITY_DICT[stable], msg])
 
-    if len(stability_table) == 1:
-        return ""
-
-    return Table(stability_table).write()
+    return stability_table
 
 
 def generate_lateral_stab_table(aeromap):
@@ -112,10 +106,7 @@ def generate_lateral_stab_table(aeromap):
 
         stability_table.append([str(mach), str(alt), str(aoa), STABILITY_DICT[stable], msg])
 
-    if len(stability_table) == 1:
-        return ""
-
-    return Table(stability_table).write()
+    return stability_table
 
 
 def static_stability_analysis(cpacs_path, cpacs_out_path):
@@ -142,17 +133,20 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
         if get_value_or_default(cpacs.tixi, CHECK_LONGITUDINAL_STABILITY_XPATH, True):
 
             table = generate_longitudinal_stab_table(aeromap)
-            md.p(table)
+            if len(table) > 1:
+                md.p(Table(table).write())
 
         if get_value_or_default(cpacs.tixi, CHECK_DIRECTIONAL_STABILITY_XPATH, False):
 
             table = generate_directional_stab_table(aeromap)
-            md.p(table)
+            if len(table) > 1:
+                md.p(Table(table).write())
 
         if get_value_or_default(cpacs.tixi, CHECK_LATERAL_STABILITY_XPATH, False):
 
             table = generate_lateral_stab_table(aeromap)
-            md.p(table)
+            if len(table) > 1:
+                md.p(Table(table).write())
 
     md.save()
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)

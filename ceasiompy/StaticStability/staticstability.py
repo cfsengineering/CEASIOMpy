@@ -135,18 +135,21 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
             table = generate_longitudinal_stab_table(aeromap)
             if len(table) > 1:
                 md.p(Table(table).write())
+                md.line()
 
         if get_value_or_default(cpacs.tixi, CHECK_DIRECTIONAL_STABILITY_XPATH, False):
 
             table = generate_directional_stab_table(aeromap)
             if len(table) > 1:
                 md.p(Table(table).write())
+                md.line()
 
         if get_value_or_default(cpacs.tixi, CHECK_LATERAL_STABILITY_XPATH, False):
 
             table = generate_lateral_stab_table(aeromap)
             if len(table) > 1:
                 md.p(Table(table).write())
+                md.line()
 
     md.save()
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)

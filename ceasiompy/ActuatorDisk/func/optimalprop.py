@@ -160,19 +160,22 @@ def thrust_calculator(
         r (float): adimensional radius [-]
     """
 
+    r = adimensional_radius(radius, hub_radius, stations)
+    n = free_stream_velocity / (2 * radius * advanced_ratio)
+    omega = n * 2 * pi
+
     log.info("-------------- Check input values choseen --------------")
     log.info(f"Number of station= {stations}")
     log.info(f"Selected total thrust coeff= {total_thrust_coefficient}")
     log.info(f"Radius= {radius}")
+    log.info(f"Number of radial station= {r.size}")
     log.info(f"Hub radius= {hub_radius}")
     log.info(f"Advanced ratio= {advanced_ratio}")
     log.info(f"Free stream velocity= {free_stream_velocity}")
     log.info(f"Prandtl correction= {prandtl}")
     log.info(f"Number of blades= {blades_number}")
 
-    r = adimensional_radius(radius, hub_radius, stations)
-    n = free_stream_velocity / (2 * radius * advanced_ratio)
-    omega = n * 2 * pi
+    vectorize_axial_interf_f = np.vectorize(axial_interference_function)
 
     correction_function = prandtl_corr(
         prandtl, blades_number, r, omega, radius, free_stream_velocity
@@ -200,10 +203,9 @@ def thrust_calculator(
 
     first_lagrange_moltiplicator = np.sum(induced_velocity_distribution)
 
-    first_lagrange_moltiplicator = first_lagrange_moltiplicator / (free_stream_velocity * stations)
+    first_lagrange_moltiplicator = first_lagrange_moltiplicator / (free_stream_velocity * r.size)
 
     # Computation of the first try axial interference factor distribution
-    vectorize_axial_interf_f = np.vectorize(axial_interference_function)
 
     initial_axial_interference_factor = vectorize_axial_interf_f(
         first_lagrange_moltiplicator * correction_function,
@@ -229,8 +231,6 @@ def thrust_calculator(
     last_lagrange_moltiplicator = first_lagrange_moltiplicator + 0.1
 
     # Computation of the second try axial interference factor distribution
-    vectorize_axial_interf_f = np.vectorize(axial_interference_function)
-
     old_axial_interference_factor = vectorize_axial_interf_f(
         last_lagrange_moltiplicator * correction_function,
         non_dimensional_radius,
@@ -264,7 +264,6 @@ def thrust_calculator(
         ) / (inital_error - old_error)
 
         # Computation of the new axial interference factor distribution
-        vectorize_axial_interf_f = np.vectorize(axial_interference_function)
         new_axial_interference_factor = vectorize_axial_interf_f(
             new_lagrange_moltiplicator * correction_function,
             non_dimensional_radius,
@@ -295,7 +294,6 @@ def thrust_calculator(
         last_lagrange_moltiplicator = new_lagrange_moltiplicator
 
     # Computation of the correct axial and rotational interference factors
-    vectorize_axial_interf_f = np.vectorize(axial_interference_function)
 
     optimal_axial_interference_factor = vectorize_axial_interf_f(
         new_lagrange_moltiplicator * correction_function, non_dimensional_radius

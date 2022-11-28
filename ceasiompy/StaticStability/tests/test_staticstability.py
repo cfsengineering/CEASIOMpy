@@ -108,6 +108,8 @@ class TestGenerateTable:
 
         self.aeromap.add_row(mach=0.3, alt=0, aos=0.0, aoa=15.0, cd=0.001, cl=1.1, cmd=0.22)
         self.aeromap.add_row(mach=0.3, alt=0, aos=5.0, aoa=15.0, cd=0.001, cl=1.1, cmd=-0.12)
+        self.aeromap.add_row(mach=0.4, alt=0, aos=0.0, aoa=15.0, cd=0.001, cl=1.1, cmd=0.01)
+        self.aeromap.add_row(mach=0.4, alt=0, aos=5.0, aoa=15.0, cd=0.001, cl=1.1, cmd=0.01)
         table = generate_lateral_stab_table(self.aeromap)
         assert table == [
             ["mach", "alt", "aoa", "Lateral stability", "Comment"],
@@ -115,6 +117,7 @@ class TestGenerateTable:
             ["0.3", "0.0", "5.0", "Unstable", ""],
             ["0.3", "0.0", "10.0", "Unstable", ""],
             ["0.3", "0.0", "15.0", "Stable", ""],
+            ["0.4", "0.0", "15.0", "Unstable", "Neutral stability"],
         ]
 
 

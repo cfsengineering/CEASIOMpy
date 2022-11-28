@@ -42,10 +42,80 @@ log = get_logger()
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
+STABILITY_DICT = {True: "Stable", False: "Unstable", None: "Not define"}
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def generate_longitudinal_stab_table(aeromap):
+    """Generate the Markdownpy Table for the longitudinal stability to show in the results.
+
+    Args:
+        aeromap (aeromap object): cpacspy aeromap object
+    """
+
+    stability_table = [["mach", "alt", "aos", "Longitudinal stability", "Comment"]]
+
+    for (mach, alt, aos), _ in aeromap.df.groupby(["machNumber", "altitude", "angleOfSideslip"]):
+        stable, msg = aeromap.check_longitudinal_stability(alt=alt, mach=mach, aos=aos)
+
+        if stable is None:
+            continue
+
+        stability_table.append([str(mach), str(alt), str(aos), STABILITY_DICT[stable], msg])
+
+    if len(stability_table) == 1:
+        return ""
+
+    return Table(stability_table).write()
+
+
+def generate_directional_stab_table(aeromap):
+    """Generate the Markdownpy Table for the directional stability to show in the results.
+
+    Args:
+        aeromap (aeromap object): cpacspy aeromap object
+    """
+
+    stability_table = [["mach", "alt", "aoa", "Directional stability", "Comment"]]
+
+    for (mach, alt, aoa), _ in aeromap.df.groupby(["machNumber", "altitude", "angleOfAttack"]):
+        stable, msg = aeromap.check_directional_stability(alt=alt, mach=mach, aoa=aoa)
+
+        if stable is None:
+            continue
+
+        stability_table.append([str(mach), str(alt), str(aoa), STABILITY_DICT[stable], msg])
+
+    if len(stability_table) == 1:
+        return ""
+
+    return Table(stability_table).write()
+
+
+def generate_lateral_stab_table(aeromap):
+    """Generate the Markdownpy Table for the lateral stability to show in the results.
+
+    Args:
+        aeromap (aeromap object): cpacspy aeromap object
+    """
+
+    stability_table = [["mach", "alt", "aoa", "Lateral stability", "Comment"]]
+
+    for (mach, alt, aoa), _ in aeromap.df.groupby(["machNumber", "altitude", "angleOfAttack"]):
+        stable, msg = aeromap.check_lateral_stability(alt=alt, mach=mach, aoa=aoa)
+
+        if stable is None:
+            continue
+
+        stability_table.append([str(mach), str(alt), str(aoa), STABILITY_DICT[stable], msg])
+
+    if len(stability_table) == 1:
+        return ""
+
+    return Table(stability_table).write()
 
 
 def static_stability_analysis(cpacs_path, cpacs_out_path):
@@ -64,78 +134,28 @@ def static_stability_analysis(cpacs_path, cpacs_out_path):
     md = MarkdownDoc(Path(results_dir, "Static_stability.md"))
     md.h2("Static stability")
 
-    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, STABILITY_AEROMAP_TO_ANALYZE_XPATH)
-    longitudinal_stab = get_value_or_default(cpacs.tixi, CHECK_LONGITUDINAL_STABILITY_XPATH, True)
-    directional_stab = get_value_or_default(cpacs.tixi, CHECK_DIRECTIONAL_STABILITY_XPATH, False)
-    lateral_stab = get_value_or_default(cpacs.tixi, CHECK_LATERAL_STABILITY_XPATH, False)
-
-    STABILITY_DICT = {True: "Stable", False: "Unstable", None: "Not define"}
-
-    for aeromap_uid in aeromap_uid_list:
+    for aeromap_uid in get_aeromap_list_from_xpath(cpacs, STABILITY_AEROMAP_TO_ANALYZE_XPATH):
 
         md.h4(f"Static stability of '{aeromap_uid}' aeromap")
         aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
-        df = aeromap.df.groupby(["machNumber", "altitude", "angleOfSideslip"])
+        if get_value_or_default(cpacs.tixi, CHECK_LONGITUDINAL_STABILITY_XPATH, True):
 
-        stability_table = [["mach", "alt", "aos", "Longitudinal stability", "Comment"]]
+            table = generate_longitudinal_stab_table(aeromap)
+            md.p(table)
 
-        for (mach, alt, aos), _ in df:
+        if get_value_or_default(cpacs.tixi, CHECK_DIRECTIONAL_STABILITY_XPATH, False):
 
-            if longitudinal_stab:
-                stable, msg = aeromap.check_longitudinal_stability(alt=alt, mach=mach, aos=aos)
+            table = generate_directional_stab_table(aeromap)
+            md.p(table)
 
-                if stable is not None:
-                    stability_table.append(
-                        [str(mach), str(alt), str(aos), STABILITY_DICT[stable], msg]
-                    )
+        if get_value_or_default(cpacs.tixi, CHECK_LATERAL_STABILITY_XPATH, False):
 
-        if longitudinal_stab and len(stability_table) > 1:
-            md_table = Table(stability_table)
-            md.p(md_table.write())
+            table = generate_lateral_stab_table(aeromap)
+            md.p(table)
 
-        # Directional
-
-        df = aeromap.df.groupby(["machNumber", "altitude", "angleOfAttack"])
-
-        stability_table = [["mach", "alt", "aoa", "Directional stability", "Comment"]]
-
-        for (mach, alt, aoa), _ in df:
-
-            if directional_stab:
-                stable, msg = aeromap.check_directional_stability(alt=alt, mach=mach, aoa=aoa)
-
-                if stable is not None:
-                    stability_table.append(
-                        [str(mach), str(alt), str(aoa), STABILITY_DICT[stable], msg]
-                    )
-
-        if directional_stab and len(stability_table) > 1:
-
-            md_table = Table(stability_table)
-            md.p(md_table.write())
-
-        # Lateral
-
-        stability_table = [["mach", "alt", "aoa", "Lateral stability", "Comment"]]
-
-        for (mach, alt, aoa), _ in df:
-
-            if lateral_stab:
-                stable, msg = aeromap.check_lateral_stability(alt=alt, mach=mach, aoa=aoa)
-
-                if stable is not None:
-                    stability_table.append(
-                        [str(mach), str(alt), str(aoa), STABILITY_DICT[stable], msg]
-                    )
-
-        if lateral_stab and len(stability_table) > 1:
-
-            md_table = Table(stability_table)
-            md.p(md_table.write())
-
-    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
     md.save()
+    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
 
 # =================================================================================================

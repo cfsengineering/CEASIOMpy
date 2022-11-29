@@ -24,7 +24,7 @@ TODO:
 from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath, get_results_directory
 from ceasiompy.utils.moduleinterfaces import (
     check_cpacs_input_requirements,
     get_toolinput_file_path,
@@ -55,11 +55,7 @@ def export_aeromaps(cpacs_path, cpacs_out_path):
     cpacs = CPACS(cpacs_path)
 
     aeromap_to_export_xpath = CEASIOMPY_XPATH + "/export/aeroMapToExport"
-
-    try:
-        aeromap_uid_list = get_string_vector(cpacs.tixi, aeromap_to_export_xpath)
-    except ValueError:
-        aeromap_uid_list = cpacs.get_aeromap_uid_list()
+    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, aeromap_to_export_xpath)
 
     results_dir = get_results_directory("ExportCSV")
 

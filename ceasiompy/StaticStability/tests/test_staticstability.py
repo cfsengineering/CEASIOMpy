@@ -20,18 +20,20 @@ TODO:
 
 from pathlib import Path
 
-from cpacspy.cpacspy import CPACS
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
-
 from ceasiompy.StaticStability.staticstability import (
     generate_directional_stab_table,
     generate_lateral_stab_table,
     generate_longitudinal_stab_table,
+    static_stability_analysis,
 )
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from cpacspy.cpacspy import CPACS
 
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 CPACS_IN = Path(CPACS_FILES_PATH, "D150_simple.xml")
+CPACS_OUT_PATH = Path(MODULE_DIR, "D150_simple_staticstability_test_output.xml")
+
 
 # =================================================================================================
 #   CLASSES
@@ -50,6 +52,7 @@ class TestGenerateTable:
     aeromap = cpacs.get_aeromap_by_uid("test_apm")
 
     def test_generate_longitudinal_stab_table(self):
+        """Test function 'generate_longitudinal_stab_table'"""
 
         table = generate_longitudinal_stab_table(self.aeromap_empty)
         assert len(table) == 1
@@ -72,6 +75,7 @@ class TestGenerateTable:
         ]
 
     def test_generate_directional_stab_table(self):
+        """Test function 'generate_directional_stab_table'"""
 
         table = generate_directional_stab_table(self.aeromap_empty)
         assert len(table) == 1
@@ -94,6 +98,7 @@ class TestGenerateTable:
         ]
 
     def test_generate_lateral_stab_table(self):
+        """Test function 'generate_lateral_stab_table'"""
 
         table = generate_lateral_stab_table(self.aeromap_empty)
         assert len(table) == 1
@@ -121,10 +126,27 @@ class TestGenerateTable:
         ]
 
 
-def test_staticstability():
-    """Test Function 'get_index'"""
+def test_static_stability_analysis():
+    """Test Function 'static_stability_analysis'"""
 
-    assert True
+    result_markdown_file = Path(MODULE_DIR, "Results", "Stability", "Static_stability.md")
+
+    if result_markdown_file.exists():
+        result_markdown_file.unlink()
+
+    if CPACS_OUT_PATH.exists():
+        CPACS_OUT_PATH.unlink()
+
+    static_stability_analysis(CPACS_IN, CPACS_OUT_PATH)
+
+    assert CPACS_OUT_PATH.exists()
+    assert result_markdown_file.exists()
+
+    if result_markdown_file.exists():
+        result_markdown_file.unlink()
+
+    if CPACS_OUT_PATH.exists():
+        CPACS_OUT_PATH.unlink()
 
 
 # =================================================================================================

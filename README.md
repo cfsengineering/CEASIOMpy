@@ -180,8 +180,7 @@ A lot of different modules are available in CEASIOMpy, they can be assembled in 
 #### Mission Analysis
 
 - Range :warning:
-- StabilityStatic :warning:
-- StabilityDynamic :x:
+- [StaticStability](./ceasiompy/StaticStability/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_structure.png">
 

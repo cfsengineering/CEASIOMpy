@@ -42,7 +42,7 @@ def adimensional_radius(radius, hub_radius, stations):
 
     if hub_radius >= radius:
         raise ValueError("hub radius should be smaller than radius")
-    r = np.linspace(0, 1, stations)
+    r = np.linspace(0, 1, stations + 1)[1:]
     i_hub = np.abs(r - hub_radius / radius).argmin()
     if r[i_hub] < hub_radius:
         i_hub += 1
@@ -140,6 +140,7 @@ def thrust_calculator(
     free_stream_velocity,
     prandtl,
     blades_number,
+    rotational_velocity,
 ):
 
     """Performing of a calculation to obtain thrust and power coefficients distribution
@@ -161,8 +162,8 @@ def thrust_calculator(
     """
 
     r = adimensional_radius(radius, hub_radius, stations)
-    n = free_stream_velocity / (2 * radius * advanced_ratio)
-    omega = n * 2 * pi
+
+    omega = rotational_velocity * 2 * pi
 
     log.info("-------------- Check input values choseen --------------")
     log.info(f"Number of station= {stations}")
@@ -195,7 +196,7 @@ def thrust_calculator(
         + np.sqrt(
             1
             + (
-                ((2 * radius) ** 4 * (total_thrust_coefficient) * n**2)
+                ((2 * radius) ** 4 * (total_thrust_coefficient) * rotational_velocity**2)
                 / (free_stream_velocity**2 * pi * r)
             )
         )
@@ -313,7 +314,7 @@ def thrust_calculator(
         * optimal_axial_interference_factor
     )
 
-    dCp = (radius * 4 * pi / (n**3 * (2 * radius) ** 5)) * (
+    dCp = (radius * 4 * pi / (rotational_velocity**3 * (2 * radius) ** 5)) * (
         free_stream_velocity**3
         * (1 + optimal_axial_interference_factor) ** 2
         * optimal_axial_interference_factor
@@ -340,7 +341,9 @@ def thrust_calculator(
     )
 
     # Computation of the thrust coefficient using thrust_density_ratio
-    computed_total_thrust_coefficient = thrust_density_ratio / (n**2 * (2 * radius) ** 4)
+    computed_total_thrust_coefficient = thrust_density_ratio / (
+        rotational_velocity**2 * (2 * radius) ** 4
+    )
 
     # Computation of the efficiency.
     eta = advanced_ratio * (optimal_total_thrust_coefficient / total_power_coefficient)

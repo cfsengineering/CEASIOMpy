@@ -18,7 +18,7 @@ CENTER= 0.0 2.0 0.0
 AXIS= 1.0 0.0 0.0
 RADIUS= 2.5146    
 ADV_RATIO= 2.81487   
-NROW= 33   
+NROW= 37   
 #rs=r/R        dCT/drs       dCP/drs       dCR/drs
 0.1111111     0.0020506      0.0060856     0.0
 0.1388889     0.0039706      0.0117824     0.0
@@ -59,4 +59,4 @@ CENTER= 0.0 -2.0 0.0
 AXIS= 1.0 0.0 0.0
 RADIUS= 2.5146    
 ADV_RATIO= 2.81487   
-NROW= 1   
+NROW= 37   

@@ -27,15 +27,15 @@ Static pressure and acceleration of gravity can be obtained from the altitude (w
 
 The Lift force of an aircraft is given by:
 
-![Lift](https://latex.codecogs.com/png.image?\dpi{110}\bg{white}L&space;=&space;\frac{1}{2}&space;\cdot&space;q&space;\cdot&space;S_{ref}&space;\cdot&space;C_L)
+$L=\frac{1}{2}\cdot q\cdot S_{ref}\cdot C_L$
 
 Dynamic pressure can be calculated as:
 
-![Dynamic pressure](https://latex.codecogs.com/png.image?\dpi{110}\bg{white}q&space;=&space;\frac{1}{2}&space;\cdot&space;\gamma&space;\cdot&space;P_s&space;\cdot&space;M^2)
+$q = \frac{1}{2} \cdot \gamma \cdot P_s \cdot M^2$
 
 and we know the lift force must compensate for the weight of the aircraft (times the load factor), so L=M·g·LF and with the first equation, we obtain:
 
-![CL](https://latex.codecogs.com/png.image?\dpi{110}\bg{white}C_L&space;=&space;\frac{M&space;\cdot&space;g&space;\cdot&space;LF}{q&space;\cdot&space;S_{ref}})
+$C_L = \frac{M \cdot g \cdot LF}{q \cdot S_{ref}}$
 
 ## Outputs
 

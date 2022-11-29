@@ -19,16 +19,11 @@ The formula used to estimate the skin friction drag is from the paper by Gerard 
 With the Wetted aera S<sub>wet</sub> the span b, the aircraft velocity
 V and kinematic viscosity ν we can calculate the Reynolds number Re:
 
-![Re](https://latex.codecogs.com/png.image?\dpi{110}\bg{white}Re&space;=&space;(S_{wet}/b)&space;\cdot&space;V&space;/&space;\nu)
-
-<!-- If one day Github accept Latex equation in Markdown... -->
-<!-- Re = (S_{wet}/b) \cdot V / \nu -->
+$Re = (S_{wet}/b) \cdot V / \nu$
 
 We can now compute the skin friction coefficient from the linear regression found in the paper:
 
-![Cfe](https://latex.codecogs.com/png.image?\inline&space;\small&space;\dpi{100}\bg{white}C_{fe}&space;=&space;0.00258&space;&plus;&space;0.00102&space;\cdot&space;exp(-6.28\cdot10^{-9}&space;\cdot&space;Re)&space;&plus;&space;0.00295&space;\cdot&space;exp(-2.01&space;\cdot&space;10^{-8}&space;\cdot&space;Re)&space;)
-
-<!-- C_{fe} = 0.00258 + 0.00102 \cdot exp(-6.28\cdot10^{-9} \cdot Re) + 0.00295 \cdot exp(-2.01 \cdot 10^{-8} \cdot Re) -->
+$C_{fe} = 0.00258 + 0.00102 \cdot exp(-6.28\cdot10^{-9} \cdot Re) + 0.00295 \cdot exp(-2.01 \cdot 10^{-8} \cdot Re)$
 
 And finally, we can calculate the zero-lift drag coefficient with the following formula:
 

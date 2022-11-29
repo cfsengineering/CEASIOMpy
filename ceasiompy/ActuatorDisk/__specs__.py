@@ -69,7 +69,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="hub_radius",
     var_type=float,
-    default_value=0.4,
+    default_value=0.2,
     unit="m",
     descr="Hub propeller radius",
     xpath=PROP_XPATH + "/propeller/blade/hub_radius",

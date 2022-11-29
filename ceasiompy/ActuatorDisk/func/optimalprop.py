@@ -117,6 +117,7 @@ def write_external_file(CTrs, CPrs, radius, advanced_ratio, r, Ct_total):
     file.write(f"ADV_RATIO= {advanced_ratio}   \n")
     file.write(f"NROW= {r.size}   \n")
     file.write("#rs=r/R        dCT/drs       dCP/drs       dCR/drs\n")
+
     for r, ctrs, cprs in zip(r, CTrs, CPrs):
         file.write(f"{r:.7f}     {ctrs:.7f}      {cprs:.7f}     0.0\n")
 
@@ -207,7 +208,6 @@ def thrust_calculator(
     first_lagrange_moltiplicator = first_lagrange_moltiplicator / (free_stream_velocity * r.size)
 
     # Computation of the first try axial interference factor distribution
-
     initial_axial_interference_factor = vectorize_axial_interf_f(
         first_lagrange_moltiplicator * correction_function,
         non_dimensional_radius,

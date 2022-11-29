@@ -180,6 +180,8 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
 
         log.info("adding skin friction coefficients to: " + aeromap_uid)
 
+        new_aeromap_uid_list.append(aeromap_uid + "_SkinFriction")
+
         aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
         # Export aeromaps without skin friction
@@ -230,10 +232,10 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
     aeromap_to_plot_xpath = PLOT_XPATH + "/aeroMapToPlot"
 
     if cpacs.tixi.checkElement(aeromap_to_plot_xpath):
-        try:
-            aeromap_uid_list = get_string_vector(cpacs.tixi, aeromap_to_plot_xpath)
-        except ValueError:
-            aeromap_uid_list = []
+
+        aeromap_uid_list = get_aeromap_list_from_xpath(
+            cpacs, aeromap_to_plot_xpath, empty_if_not_found=True
+        )
 
         new_aeromap_to_plot = aeromap_uid_list + new_aeromap_uid_list
         new_aeromap_to_plot = list(set(new_aeromap_to_plot))

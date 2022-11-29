@@ -20,11 +20,11 @@
 
 ## Analyses
 
-Depending how much points are stored in the aeromap, the different stability could be calculated or not. In order to check a stability the aeromap must contain at least two point with the same altitude, mach number, angle of attack/sideslip and with a different and of sideslip/attack. The moment coefficient corresponding the stability must also be present.
+Depending how much points are stored in the aeromap, the different stability could be calculated or not. In order to check a stability the aeromap must contain at least two point with the same altitude, mach number, angle of attack/sideslip but with a different angle of sideslip/attack. The moment coefficient corresponding the stability must also be stored in the aeromap.
 
 ## Outputs
 
- The output of `StaticStability` outputs a Markdown file (in the results) which contains a table for each different stability. In every table the flight conditions and the stability are shown.
+ The output of `StaticStability` is a Markdown file (in the results directory) which contains a table for each different aeromap and stability. In every table the flight conditions and the stability result (Stable/Unstable) are shown.
 
 ## Installation or requirements
 
@@ -32,7 +32,7 @@ Depending how much points are stored in the aeromap, the different stability cou
 
 ## Limitations
 
-`StaticStability` module only uses a simple linear regression to check the sign of the slop depending how the data are distributed it could leads to errors.
+`StaticStability` module only uses a simple linear regression to check the sign of the slope, depending how the data are distributed it could leads to errors.
 
 ## More information
 

@@ -186,7 +186,10 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
         log.info("adding skin friction coefficients to: " + aeromap_uid)
 
         aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
-        aeromap_ori = copy.deepcopy(aeromap)
+
+        # Export aeromaps without skin friction
+        csv_path = Path(results_dir, f"{aeromap.uid}.csv")
+        aeromap.export_csv(csv_path)
 
         # Create new aeromap object to store coef with added skin friction
         aeromap_sf = cpacs.duplicate_aeromap(aeromap_uid, aeromap_uid + "_SkinFriction")
@@ -219,10 +222,6 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
             lambda row: row["cs"] + row["cd0"] * math.sin(math.radians(row["angleOfSideslip"])),
             axis=1,
         )
-
-        # Export aeromaps (with an without skin friction)
-        csv_path = Path(results_dir, f"{aeromap.uid}.csv")
-        aeromap_ori.export_csv(csv_path)
 
         aeromap_sf_csv = Path(results_dir, f"{aeromap_sf.uid}.csv")
         aeromap.export_csv(aeromap_sf_csv)

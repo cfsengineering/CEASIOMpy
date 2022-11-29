@@ -36,9 +36,9 @@ log = get_logger()
 
 def adimensional_radius(radius, hub_radius, stations):
 
-    """Function to adimensionalize the radius"""
+    """Function to adimensionalize the radius
 
-    """TODO check minimal number of station required"""
+    TODO check minimal number of station required"""
 
     if hub_radius >= radius:
         raise ValueError("hub radius should be smaller than radius")

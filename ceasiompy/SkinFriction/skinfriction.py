@@ -28,7 +28,7 @@ from pathlib import Path
 
 from ambiance import Atmosphere
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath, get_results_directory
 from ceasiompy.utils.moduleinterfaces import (
     check_cpacs_input_requirements,
     get_toolinput_file_path,
@@ -163,13 +163,9 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
 
     # Get aeroMapToCalculate
     aeroMap_to_calculate_xpath = SF_XPATH + "/aeroMapToCalculate"
-    if cpacs.tixi.checkElement(aeroMap_to_calculate_xpath):
-        try:
-            aeromap_uid_list = get_string_vector(cpacs.tixi, aeroMap_to_calculate_xpath)
-        except ValueError:
-            aeromap_uid_list = []
-    else:
-        aeromap_uid_list = []
+    aeromap_uid_list = get_aeromap_list_from_xpath(
+        cpacs, aeroMap_to_calculate_xpath, empty_if_not_found=True
+    )
 
     # If no aeroMap in aeroMapToCalculate, get all existing aeroMap
     if len(aeromap_uid_list) == 0:

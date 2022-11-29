@@ -71,7 +71,8 @@ def change_working_dir(working_dir):
 
 
 def get_aeromap_list_from_xpath(cpacs, aeromap_to_analyze_xpath):
-    """Get a list of aeromap from the xpath where it is stored, if not define, return all aeromaps.
+    """Get a list of aeromap from the xpath where it is stored, if not define, return all aeromaps
+    and save them at the given xpath.
 
     Args:
         cpacs (obj): CPACS object (from cpacspy).

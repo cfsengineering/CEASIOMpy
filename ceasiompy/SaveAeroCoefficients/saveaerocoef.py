@@ -25,15 +25,10 @@ from pathlib import Path
 import matplotlib.pyplot as plt
 import pandas as pd
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath, get_results_directory
 from ceasiompy.utils.commonxpath import PLOT_XPATH
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from cpacspy.cpacsfunctions import (
-    add_string_vector,
-    create_branch,
-    get_string_vector,
-    get_value_or_default,
-)
+from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacspy import CPACS
 
 log = get_logger()
@@ -132,14 +127,7 @@ def save_aero_coef(cpacs_path, cpacs_out_path):
     cpacs = CPACS(cpacs_path)
 
     aeromap_to_plot_xpath = PLOT_XPATH + "/aeroMapToPlot"
-    aeromap_uid_list = []
-
-    try:
-        aeromap_uid_list = get_string_vector(cpacs.tixi, aeromap_to_plot_xpath)
-    except ValueError:  # if aeroMapToPlot is not define, select all aeromaps
-        aeromap_uid_list = cpacs.get_aeromap_uid_list()
-        create_branch(cpacs.tixi, aeromap_to_plot_xpath)
-        add_string_vector(cpacs.tixi, aeromap_to_plot_xpath, aeromap_uid_list)
+    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, aeromap_to_plot_xpath)
 
     aeromap_df_list = []
     for aeromap_uid in aeromap_uid_list:

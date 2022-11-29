@@ -31,7 +31,6 @@ from ceasiompy.utils.moduleinterfaces import (
     get_tooloutput_file_path,
 )
 from ceasiompy.utils.commonxpath import CEASIOMPY_XPATH
-from cpacspy.cpacsfunctions import get_string_vector
 from cpacspy.cpacspy import CPACS
 
 log = get_logger()

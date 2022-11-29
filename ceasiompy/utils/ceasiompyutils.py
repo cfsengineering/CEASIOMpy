@@ -31,7 +31,13 @@ from typing import List
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonxpath import AIRCRAFT_NAME_XPATH
 from ceasiompy.utils.moduleinterfaces import get_module_list
-from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
+from cpacspy.cpacsfunctions import (
+    add_string_vector,
+    create_branch,
+    get_string_vector,
+    get_value_or_default,
+    open_tixi,
+)
 
 log = get_logger()
 
@@ -62,6 +68,26 @@ def change_working_dir(working_dir):
 
     finally:
         os.chdir(cwd)
+
+
+def get_aeromap_list_from_xpath(cpacs, aeromap_to_analyze_xpath):
+    """Get a list of aeromap from the xpath where it is stored, if not define, return all aeromaps.
+
+    Args:
+        cpacs (obj): CPACS object (from cpacspy).
+        aeromap_to_analyze_xpath (str): Xpath where the list of aeromap to analyze is stored.
+
+    """
+
+    aeromap_uid_list = []
+    try:
+        aeromap_uid_list = get_string_vector(cpacs.tixi, aeromap_to_analyze_xpath)
+    except ValueError:  # if aeroMapToPlot is not define, select all aeromaps
+        aeromap_uid_list = cpacs.get_aeromap_uid_list()
+        create_branch(cpacs.tixi, aeromap_to_analyze_xpath)
+        add_string_vector(cpacs.tixi, aeromap_to_analyze_xpath, aeromap_uid_list)
+
+    return aeromap_uid_list
 
 
 def get_results_directory(module_name: str) -> Path:

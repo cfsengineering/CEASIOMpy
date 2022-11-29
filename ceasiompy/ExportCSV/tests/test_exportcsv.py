@@ -57,10 +57,10 @@ def test_export_aeromaps():
         lines = csv_file.readlines()
 
     assert lines[0] == "altitude,machNumber,angleOfSideslip,angleOfAttack,cd,cl,cs,cmd,cml,cms\n"
-    assert lines[1] == "0.0,0.3,0.0,0.0,0.01,0.1,0.001,NaN,NaN,NaN\n"
-    assert lines[2] == "0.0,0.3,0.0,10.0,0.01,0.1,0.001,NaN,NaN,NaN\n"
-    assert lines[3] == "0.0,0.3,10.0,0.0,0.01,0.1,0.001,NaN,NaN,NaN\n"
-    assert lines[4] == "0.0,0.3,10.0,10.0,0.01,0.1,0.001,NaN,NaN,NaN\n"
+    assert lines[1] == "0,0.3,0,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
+    assert lines[2] == "0,0.3,0,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
+    assert lines[3] == "0,0.3,10,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
+    assert lines[4] == "0,0.3,10,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
 
 
 # =================================================================================================

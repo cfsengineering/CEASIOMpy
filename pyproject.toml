@@ -29,6 +29,5 @@ omit = [
   "*/SMTrain/*",
   "*/SMUse/*",
   "*/SU2MeshDef/*",
-  "*/StabilityStatic/*",
   "*/WeightUnconventional/*",
 ]

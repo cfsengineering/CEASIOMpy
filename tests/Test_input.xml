@@ -5251,6 +5251,14 @@
           </results>
         </su2>
       </aerodynamics>
+      <stability>
+        <aeroMapToAnalyze>test_apm</aeroMapToAnalyze>
+        <stabilityToCheck>
+          <longitudinal>True</longitudinal>
+          <directional>True</directional>
+          <lateral>False</lateral>
+        </stabilityToCheck>
+      </stability>
       <export>
         <aeroMapToExport>test_apm</aeroMapToExport>
       </export>

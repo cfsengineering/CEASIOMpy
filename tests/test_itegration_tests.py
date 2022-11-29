@@ -63,7 +63,13 @@ def workflow_ends():
 @pytest.mark.skipif(not shutil.which("pytornado"), reason="PyTornado not installed")
 def test_integration_1():
 
-    modules_to_run = ["WeightConventional", "PyTornado", "SkinFriction", "ExportCSV"]
+    modules_to_run = [
+        "WeightConventional",
+        "PyTornado",
+        "SkinFriction",
+        "ExportCSV",
+        "StaticStability",
+    ]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(CPACS_IN_PATH), *modules_to_run])

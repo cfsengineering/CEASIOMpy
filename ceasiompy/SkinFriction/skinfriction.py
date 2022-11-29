@@ -163,18 +163,13 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
 
     # Get aeroMapToCalculate
     aeroMap_to_calculate_xpath = SF_XPATH + "/aeroMapToCalculate"
-    aeromap_uid_list = get_aeromap_list_from_xpath(
-        cpacs, aeroMap_to_calculate_xpath, empty_if_not_found=True
-    )
+    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, aeroMap_to_calculate_xpath)
 
-    # If no aeroMap in aeroMapToCalculate, get all existing aeroMap
-    if len(aeromap_uid_list) == 0:
-        aeromap_uid_list = cpacs.get_aeromap_uid_list()
-
-        if not aeromap_uid_list:
-            raise ValueError(
-                "No aeroMap has been found in this CPACS file, skin friction cannot be added!"
-            )
+    if not aeromap_uid_list:
+        raise ValueError(
+            "No aeroMap has been found in this CPACS file, "
+            "you need at least one to add skin friction!"
+        )
 
     # Get unique aeroMap list
     aeromap_uid_list = list(set(aeromap_uid_list))

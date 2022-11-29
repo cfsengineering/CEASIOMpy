@@ -26,6 +26,7 @@ from ceasiompy.StaticStability.staticstability import (
     generate_longitudinal_stab_table,
     static_stability_analysis,
 )
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from cpacspy.cpacspy import CPACS
 
@@ -129,7 +130,8 @@ class TestGenerateTable:
 def test_static_stability_analysis():
     """Test Function 'static_stability_analysis'"""
 
-    result_markdown_file = Path(MODULE_DIR, "Results", "Stability", "Static_stability.md")
+    results_dir = get_results_directory("StaticStability")
+    result_markdown_file = Path(results_dir, "Static_stability.md")
 
     if result_markdown_file.exists():
         result_markdown_file.unlink()
@@ -141,9 +143,6 @@ def test_static_stability_analysis():
 
     assert CPACS_OUT_PATH.exists()
     assert result_markdown_file.exists()
-
-    if result_markdown_file.exists():
-        result_markdown_file.unlink()
 
     if CPACS_OUT_PATH.exists():
         CPACS_OUT_PATH.unlink()

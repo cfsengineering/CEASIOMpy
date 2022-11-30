@@ -57,7 +57,7 @@ include_gui = False
 #     default_value=None,
 #     xpath='/cpacs/toolspecific/CEASIOMpy/aerodynamics/skinFriction/aeroMapToCalculate',
 #     gui=include_gui,
-#     gui_name='__AEROMAP_CHECHBOX',
+#     gui_name='__AEROMAP_CHECKBOX',
 # )
 #
 # cpacs_inout.add_input(

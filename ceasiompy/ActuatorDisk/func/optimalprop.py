@@ -34,7 +34,7 @@ log = get_logger()
 # =================================================================================================
 
 
-def adimensional_radius(radius, hub_radius, stations):
+def radial_stations(radius, hub_radius, stations):
 
     """Function to adimensionalize the radius
 
@@ -162,7 +162,7 @@ def thrust_calculator(
         r (float): adimensional radius [-]
     """
 
-    r = adimensional_radius(radius, hub_radius, stations)
+    r = radial_stations(radius, hub_radius, stations)
 
     omega = rotational_velocity * 2 * pi
 

@@ -22,7 +22,7 @@ from pathlib import Path
 import numpy as np
 from ceasiompy.ActuatorDisk.func.optimalprop import (
     thrust_calculator,
-    adimensional_radius,
+    radial_stations,
     axial_interference_function,
 )
 from ceasiompy.ActuatorDisk.func.plot_func import function_plot
@@ -142,49 +142,12 @@ def test_file_exist():
     assert lines[-8] == "1.0000000     0.0000000      0.0000000     0.0\n"
 
 
-def test_plot_exist():
-    results_dir = get_results_directory("ActuatorDisk")
-    interference_plot_path = Path(results_dir, "interference_plot.png")
-    ct_cp_distr_plot_path = Path(results_dir, "ct_cp_distr.png")
-
-    (
-        _,
-        _,
-        _,
-        _,
-        r,
-        dCt_optimal,
-        dCp,
-        non_dimensional_radius,
-        optimal_axial_interference_factor,
-        optimal_rotational_interference_factor,
-        prandtl,
-        correction_function,
-    ) = thrust_calculator(37, 0.15, 2.5146, 0.2, 2.81487, 190.5488, True, 6, 33)
-
-    function_plot(
-        r,
-        dCt_optimal,
-        dCp,
-        non_dimensional_radius,
-        optimal_axial_interference_factor,
-        optimal_rotational_interference_factor,
-        prandtl,
-        correction_function,
-    )
-
-    assert ct_cp_distr_plot_path.exists()
-    assert interference_plot_path.exists()
-
-    remove_file_type_in_dir(results_dir, [".png"])
-
-
 def test_adimentional_radius():
     with pytest.raises(ValueError):
-        adimensional_radius(1, 1.1, 11)
-    np.testing.assert_almost_equal(adimensional_radius(1, 0.1, 10), (np.arange(0.1, 1.05, 0.1)))
-    np.testing.assert_almost_equal(adimensional_radius(1, 0.5, 10), (np.arange(0.5, 1.05, 0.1)))
-    np.testing.assert_almost_equal(adimensional_radius(1, 0.11, 10), (np.arange(0.2, 1.05, 0.1)))
+        radial_stations(1, 1.1, 11)
+    np.testing.assert_almost_equal(radial_stations(1, 0.1, 10), (np.arange(0.1, 1.05, 0.1)))
+    np.testing.assert_almost_equal(radial_stations(1, 0.5, 10), (np.arange(0.5, 1.05, 0.1)))
+    np.testing.assert_almost_equal(radial_stations(1, 0.11, 10), (np.arange(0.2, 1.05, 0.1)))
 
 
 # =================================================================================================

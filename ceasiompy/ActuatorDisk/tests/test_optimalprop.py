@@ -20,17 +20,15 @@ Python version: >=3.8
 from pathlib import Path
 
 import numpy as np
+import pytest
 from ceasiompy.ActuatorDisk.func.optimalprop import (
-    thrust_calculator,
-    radial_stations,
     axial_interference_function,
+    prandtl_corr,
+    radial_stations,
+    thrust_calculator,
 )
-from ceasiompy.ActuatorDisk.func.plot_func import function_plot
-from ceasiompy.ActuatorDisk.func.optimalprop import prandtl_corr
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from pytest import approx
-import pytest
-from ceasiompy.utils.ceasiompyutils import remove_file_type_in_dir
 
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(MODULE_DIR, "ToolInput", "simpletest_cpacs.xml")

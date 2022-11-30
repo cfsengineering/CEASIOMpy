@@ -28,7 +28,7 @@ from pathlib import Path
 
 from ambiance import Atmosphere
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath, get_results_directory
 from ceasiompy.utils.moduleinterfaces import (
     check_cpacs_input_requirements,
     get_toolinput_file_path,
@@ -163,22 +163,13 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
 
     # Get aeroMapToCalculate
     aeroMap_to_calculate_xpath = SF_XPATH + "/aeroMapToCalculate"
-    if cpacs.tixi.checkElement(aeroMap_to_calculate_xpath):
-        try:
-            aeromap_uid_list = get_string_vector(cpacs.tixi, aeroMap_to_calculate_xpath)
-        except ValueError:
-            aeromap_uid_list = []
-    else:
-        aeromap_uid_list = []
+    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, aeroMap_to_calculate_xpath)
 
-    # If no aeroMap in aeroMapToCalculate, get all existing aeroMap
-    if len(aeromap_uid_list) == 0:
-        aeromap_uid_list = cpacs.get_aeromap_uid_list()
-
-        if not aeromap_uid_list:
-            raise ValueError(
-                "No aeroMap has been found in this CPACS file, skin friction cannot be added!"
-            )
+    if not aeromap_uid_list:
+        raise ValueError(
+            "No aeroMap has been found in this CPACS file, "
+            "you need at least one to add skin friction!"
+        )
 
     # Get unique aeroMap list
     aeromap_uid_list = list(set(aeromap_uid_list))
@@ -189,8 +180,13 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
 
         log.info("adding skin friction coefficients to: " + aeromap_uid)
 
+        new_aeromap_uid_list.append(aeromap_uid + "_SkinFriction")
+
         aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
-        aeromap_ori = copy.deepcopy(aeromap)
+
+        # Export aeromaps without skin friction
+        csv_path = Path(results_dir, f"{aeromap.uid}.csv")
+        aeromap.export_csv(csv_path)
 
         # Create new aeromap object to store coef with added skin friction
         aeromap_sf = cpacs.duplicate_aeromap(aeromap_uid, aeromap_uid + "_SkinFriction")
@@ -224,10 +220,6 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
             axis=1,
         )
 
-        # Export aeromaps (with an without skin friction)
-        csv_path = Path(results_dir, f"{aeromap.uid}.csv")
-        aeromap_ori.export_csv(csv_path)
-
         aeromap_sf_csv = Path(results_dir, f"{aeromap_sf.uid}.csv")
         aeromap.export_csv(aeromap_sf_csv)
 
@@ -240,10 +232,10 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
     aeromap_to_plot_xpath = PLOT_XPATH + "/aeroMapToPlot"
 
     if cpacs.tixi.checkElement(aeromap_to_plot_xpath):
-        try:
-            aeromap_uid_list = get_string_vector(cpacs.tixi, aeromap_to_plot_xpath)
-        except ValueError:
-            aeromap_uid_list = []
+
+        aeromap_uid_list = get_aeromap_list_from_xpath(
+            cpacs, aeromap_to_plot_xpath, empty_if_not_found=True
+        )
 
         new_aeromap_to_plot = aeromap_uid_list + new_aeromap_uid_list
         new_aeromap_to_plot = list(set(new_aeromap_to_plot))

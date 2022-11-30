@@ -68,12 +68,16 @@ def test_get_aeromap_list_from_xpath():
 
     cpacs = CPACS(Path(CPACS_FILES_PATH, "D150_simple.xml"))
 
-    not_yet_define_xpath = "/cpacs/toolspecific/CEASIOMpy/newListOfAeromap"
-    aeromap_list = get_aeromap_list_from_xpath(cpacs, not_yet_define_xpath)
+    not_define_xpath = "/cpacs/toolspecific/CEASIOMpy/newListOfAeromap"
+    aeromap_list = get_aeromap_list_from_xpath(cpacs, not_define_xpath)
     assert aeromap_list == ["aeromap_empty", "test_apm"]
 
-    cpacs.tixi.updateTextElement(not_yet_define_xpath, "test_apm")
-    aeromap_list = get_aeromap_list_from_xpath(cpacs, not_yet_define_xpath)
+    not_define_xpath_2 = "/cpacs/toolspecific/CEASIOMpy/newListOfAeromap2"
+    aeromap_list = get_aeromap_list_from_xpath(cpacs, not_define_xpath_2, empty_if_not_found=True)
+    assert aeromap_list == []
+
+    cpacs.tixi.updateTextElement(not_define_xpath, "test_apm")
+    aeromap_list = get_aeromap_list_from_xpath(cpacs, not_define_xpath)
     assert aeromap_list == ["test_apm"]
 
 

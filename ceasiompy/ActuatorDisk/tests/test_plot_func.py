@@ -21,12 +21,6 @@ from pathlib import Path
 from ceasiompy.ActuatorDisk.func.optimalprop import thrust_calculator
 from ceasiompy.ActuatorDisk.func.plot_func import function_plot
 from ceasiompy.utils.ceasiompyutils import get_results_directory, remove_file_type_in_dir
-from pytest import approx
-
-MODULE_DIR = Path(__file__).parent
-CPACS_IN_PATH = Path(MODULE_DIR, "ToolInput", "simpletest_cpacs.xml")
-CPACS_OUT_PATH = Path(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
-ACTUATOR_DISK_PATH = Path(MODULE_DIR, "ToolOutput")
 
 
 # =================================================================================================

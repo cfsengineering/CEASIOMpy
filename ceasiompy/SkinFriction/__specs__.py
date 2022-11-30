@@ -22,7 +22,7 @@ cpacs_inout.add_input(
     descr="To which aeroMap the skin friction coef should be added",
     xpath=SF_XPATH + "/aeroMapToCalculate",
     gui=True,
-    gui_name="__AEROMAP_CHECHBOX",
+    gui_name="__AEROMAP_CHECKBOX",
     gui_group="Aeromap settings",
 )
 

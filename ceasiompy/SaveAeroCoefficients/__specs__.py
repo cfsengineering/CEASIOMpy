@@ -25,7 +25,7 @@ cpacs_inout.add_input(
     descr="List of aeroMap to plot",
     xpath=PLOT_XPATH + "/aeroMapToPlot",
     gui=True,
-    gui_name="__AEROMAP_CHECHBOX",
+    gui_name="__AEROMAP_CHECKBOX",
     gui_group="Aeromap settings",
 )
 

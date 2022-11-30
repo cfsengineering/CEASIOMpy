@@ -249,7 +249,7 @@ def add_module_tab():
                             help=description,
                         )
 
-                    elif name == "__AEROMAP_CHECHBOX":
+                    elif name == "__AEROMAP_CHECKBOX":
 
                         aeromap_uid_list = st.session_state.cpacs.get_aeromap_uid_list()
 

@@ -40,6 +40,7 @@ def get_last_workflow():
 
 
 def clear_containers(container_list):
+    """Delete the session_state variable of a list of containers."""
 
     for container in container_list:
         if container in st.session_state:
@@ -47,7 +48,7 @@ def clear_containers(container_list):
 
 
 def display_results(results_dir):
-    """Display results results depending which type of file they are."""
+    """Display results depending which type of file they are."""
 
     for child in sorted(Path(results_dir).iterdir()):
 
@@ -110,6 +111,7 @@ def display_results(results_dir):
 
 
 def open_paraview(file):
+    """Open Paraview with the file pass as argument."""
 
     paraview_state_txt = DEFAULT_PARAVIEW_STATE.read_text()
     paraview_state = Path(file.parent, "paraview_state.pvsm")
@@ -119,6 +121,7 @@ def open_paraview(file):
 
 
 def show_aeromap():
+    """Interactive graph to display aeromaps contained in the CPACS file."""
 
     st.markdown("#### Aeromap")
 
@@ -196,15 +199,10 @@ def show_aeromap():
                 legend = f"{aeromap.uid}<br>{filter1}={value}<br>{filter2}={value2}"
                 fig.add_trace(go.Scatter(x=df[x_axis], y=df[y_axis], name=legend))
 
-    fig.update_traces(
-        mode="markers+lines",
-        hovertemplate="x: %{x:.2f} \ny: %{y:.2f} ",
-    )
+    fig.update_traces(mode="markers+lines", hovertemplate="x: %{x:.2f} \ny: %{y:.2f} ")
 
     fig.update_layout(
-        xaxis=dict(title=x_axis),
-        yaxis=dict(title=y_axis),
-        plot_bgcolor="rgb(255,255,255)",
+        xaxis=dict(title=x_axis), yaxis=dict(title=y_axis), plot_bgcolor="rgb(255,255,255)"
     )
 
     axis_options = {

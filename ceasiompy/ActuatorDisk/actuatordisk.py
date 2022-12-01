@@ -83,7 +83,7 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
 
     # Required input data from CPACS
     cruise_alt = get_value_or_default(tixi, cruise_alt_xpath, 9000)
-    cruise_mach = get_value_or_default(tixi, cruise_mach_xpath, 0.45)
+    cruise_mach = get_value_or_default(tixi, cruise_mach_xpath, 0.4)
     stations = int(get_value_or_default(tixi, stations_xpath, 40))
     radius = get_value_or_default(tixi, radius_xpath, 0.935)
     hub_radius = get_value_or_default(tixi, hub_radius_xpath, 0.2)

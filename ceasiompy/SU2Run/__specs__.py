@@ -190,7 +190,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="max_iter",
     var_type=int,
-    default_value=800,
+    default_value=200,
     unit="1",
     descr="Maximum number of iterations performed by SU2",
     xpath=SU2_MAX_ITER_XPATH,
@@ -202,7 +202,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="cfl_nb",
     var_type=float,
-    default_value=8.0,
+    default_value=1.0,
     unit="1",
     descr="CFL Number, Courant–Friedrichs–Lewy condition",
     xpath=SU2_CFL_NB_XPATH,

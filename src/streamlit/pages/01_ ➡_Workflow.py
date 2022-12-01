@@ -1,6 +1,22 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+Streamlit page to create a CEASIOMpy workflow
+
+Python version: >=3.8
+
+| Author : Aidan Jungo
+| Creation: 2022-09-16
+
+TODO:
+
+"""
+
 import streamlit as st
 from ceasiompy.utils.moduleinterfaces import get_module_list
-from createsidbar import create_sidebar
+from streamlitutils import create_sidebar
 
 how_to_text = (
     "### How to use Create a workflow?\n"

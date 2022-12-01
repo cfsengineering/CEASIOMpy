@@ -1,9 +1,25 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+Streamlit page to run a CEASIOMpy workflow
+
+Python version: >=3.8
+
+| Author : Aidan Jungo
+| Creation: 2022-09-16
+
+TODO:
+
+"""
+
 import os
 from pathlib import Path
 
 import ceasiompy.__init__
 import streamlit as st
-from createsidbar import create_sidebar
+from streamlitutils import create_sidebar
 from streamlit_autorefresh import st_autorefresh
 
 CEASIOMPY_PATH = Path(ceasiompy.__init__.__file__).parents[1]
@@ -48,7 +64,7 @@ def run_workflow_button():
 
         # Run workflow from an external script
         config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
-        os.system(f"python run_workflow.py {config_path}  &")
+        os.system(f"python runworkflow.py {config_path}  &")
 
 
 def show_logs():

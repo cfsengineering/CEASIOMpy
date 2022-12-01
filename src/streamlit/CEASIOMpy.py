@@ -85,6 +85,9 @@ def section_3D_view():
         st.warning("No CPACS file has been selected!")
         return
 
+    if not st.button("Show 3D view"):
+        return
+
     stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
 
     st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)

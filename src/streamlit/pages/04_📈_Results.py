@@ -235,6 +235,7 @@ def show_aeromap():
 
 
 def show_results():
+    """Display all the results of the current workflow."""
 
     st.markdown("#### Results")
 

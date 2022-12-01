@@ -23,7 +23,7 @@ import streamlit as st
 from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
-from createsidbar import create_sidebar
+from streamlitutils import create_sidebar
 
 how_to_text = (
     "### How to check your results\n"

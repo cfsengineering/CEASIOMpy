@@ -19,7 +19,7 @@ from pathlib import Path
 
 import ceasiompy.__init__
 import streamlit as st
-from createsidbar import create_sidebar
+from streamlitutils import create_sidebar
 from streamlit_autorefresh import st_autorefresh
 
 CEASIOMPY_PATH = Path(ceasiompy.__init__.__file__).parents[1]

@@ -16,7 +16,7 @@ TODO:
 
 import streamlit as st
 from ceasiompy.utils.moduleinterfaces import get_module_list
-from createsidbar import create_sidebar
+from streamlitutils import create_sidebar
 
 how_to_text = (
     "### How to use Create a workflow?\n"

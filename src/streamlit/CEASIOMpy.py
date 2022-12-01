@@ -24,8 +24,7 @@ from cpacspy.cpacspy import CPACS
 
 import streamlit as st
 import streamlit.components.v1 as components
-from createsidbar import create_sidebar
-from directory_picker import st_directory_picker
+from streamlitutils import create_sidebar, st_directory_picker
 
 how_to_text = (
     "### How to use CEASIOMpy?\n"

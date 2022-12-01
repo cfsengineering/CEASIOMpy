@@ -27,7 +27,7 @@ from cpacspy.cpacsfunctions import (
     get_value_or_default,
 )
 from cpacspy.cpacspy import CPACS
-from createsidbar import create_sidebar
+from streamlitutils import create_sidebar
 
 how_to_text = (
     "### How to use Settings?\n"

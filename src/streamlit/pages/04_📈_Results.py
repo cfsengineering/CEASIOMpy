@@ -101,9 +101,8 @@ def display_results(results_dir):
             st.line_chart(df[["rms[Rho]", "rms[RhoU]", "rms[RhoV]", "rms[RhoW]", "rms[RhoE]"]])
 
         elif child.suffix == ".csv":
-            df = pd.read_csv(child)
             st.markdown(f"**{child.name}**")
-            st.dataframe(df)
+            st.dataframe(pd.read_csv(child))
 
         elif "Case" in child.name and child.is_dir():
             with st.expander(child.stem, expanded=False):

@@ -1,3 +1,19 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+Streamlit page to change settings of a CEASIOMpy workflow
+
+Python version: >=3.8
+
+| Author : Aidan Jungo
+| Creation: 2022-09-16
+
+TODO:
+
+"""
+
 from collections import OrderedDict
 from pathlib import Path
 
@@ -11,7 +27,7 @@ from cpacspy.cpacsfunctions import (
     get_value_or_default,
 )
 from cpacspy.cpacspy import CPACS
-from createsidbar import create_sidebar
+from streamlitutils import create_sidebar
 
 how_to_text = (
     "### How to use Settings?\n"

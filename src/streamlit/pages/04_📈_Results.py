@@ -1,3 +1,19 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+Streamlit page to show results of CEASIOMpy
+
+Python version: >=3.8
+
+| Author : Aidan Jungo
+| Creation: 2022-09-16
+
+TODO:
+
+"""
+
 import os
 from pathlib import Path
 
@@ -7,7 +23,7 @@ import streamlit as st
 from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
-from createsidbar import create_sidebar
+from streamlitutils import create_sidebar
 
 how_to_text = (
     "### How to check your results\n"
@@ -40,6 +56,7 @@ def get_last_workflow():
 
 
 def clear_containers(container_list):
+    """Delete the session_state variable of a list of containers."""
 
     for container in container_list:
         if container in st.session_state:
@@ -47,7 +64,7 @@ def clear_containers(container_list):
 
 
 def display_results(results_dir):
-    """Display results results depending which type of file they are."""
+    """Display results depending which type of file they are."""
 
     for child in sorted(Path(results_dir).iterdir()):
 
@@ -93,14 +110,16 @@ def display_results(results_dir):
 
         elif child.name == "history.csv":
             st.markdown("**Convergence**")
+
             df = pd.read_csv(child)
-            df = df.drop(["Time_Iter", "Outer_Iter", "Inner_Iter"], axis=1)
-            st.line_chart(data=df, x=None, y=None, width=0, height=0, use_container_width=True)
+            df.rename(columns=lambda x: x.strip().strip('"'), inplace=True)
+
+            st.line_chart(df[["CD", "CL", "CMy"]])
+            st.line_chart(df[["rms[Rho]", "rms[RhoU]", "rms[RhoV]", "rms[RhoW]", "rms[RhoE]"]])
 
         elif child.suffix == ".csv":
-            df = pd.read_csv(child)
             st.markdown(f"**{child.name}**")
-            st.dataframe(df)
+            st.dataframe(pd.read_csv(child))
 
         elif "Case" in child.name and child.is_dir():
             with st.expander(child.stem, expanded=False):
@@ -108,6 +127,7 @@ def display_results(results_dir):
 
 
 def open_paraview(file):
+    """Open Paraview with the file pass as argument."""
 
     paraview_state_txt = DEFAULT_PARAVIEW_STATE.read_text()
     paraview_state = Path(file.parent, "paraview_state.pvsm")
@@ -117,6 +137,7 @@ def open_paraview(file):
 
 
 def show_aeromap():
+    """Interactive graph to display aeromaps contained in the CPACS file."""
 
     st.markdown("#### Aeromap")
 
@@ -194,15 +215,10 @@ def show_aeromap():
                 legend = f"{aeromap.uid}<br>{filter1}={value}<br>{filter2}={value2}"
                 fig.add_trace(go.Scatter(x=df[x_axis], y=df[y_axis], name=legend))
 
-    fig.update_traces(
-        mode="markers+lines",
-        hovertemplate="x: %{x:.2f} \ny: %{y:.2f} ",
-    )
+    fig.update_traces(mode="markers+lines", hovertemplate="x: %{x:.2f} \ny: %{y:.2f} ")
 
     fig.update_layout(
-        xaxis=dict(title=x_axis),
-        yaxis=dict(title=y_axis),
-        plot_bgcolor="rgb(255,255,255)",
+        xaxis=dict(title=x_axis), yaxis=dict(title=y_axis), plot_bgcolor="rgb(255,255,255)"
     )
 
     axis_options = {
@@ -235,6 +251,7 @@ def show_aeromap():
 
 
 def show_results():
+    """Display all the results of the current workflow."""
 
     st.markdown("#### Results")
 

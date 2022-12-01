@@ -1,8 +1,39 @@
-import streamlit as st
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+Streamlit utils functions for CEASIOMpy
+
+Python version: >=3.8
+
+| Author : Aidan Jungo
+| Creation: 2022-12-01
+
+TODO:
+
+"""
+
 from pathlib import Path
+
+from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
+from PIL import Image
+
+import streamlit as st
+
+
+def create_sidebar(how_to_text):
+    """Create side bar with a text explaining how the page should be used."""
+
+    im = Image.open(CEASIOMPY_LOGO_PATH)
+    st.set_page_config(page_title="CEASIOMpy", page_icon=im)
+    st.sidebar.image(im)
+    st.sidebar.markdown(how_to_text)
 
 
 def st_directory_picker(initial_path=Path()):
+    """Workaround to be able to select a directory with Streamlit. Could be remove when this
+    function will be integrated into Streamlit."""
 
     if "path" not in st.session_state:
         st.session_state.path = initial_path.absolute().resolve()

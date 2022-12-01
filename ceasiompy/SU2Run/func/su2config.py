@@ -290,6 +290,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     cfg["WRT_FORCES_BREAKDOWN"] = "YES"
     cfg["BREAKDOWN_FILENAME"] = SU2_FORCES_BREAKDOWN_NAME
     cfg["OUTPUT_FILES"] = "(RESTART, PARAVIEW, SURFACE_PARAVIEW)"
+    cfg["HISTORY_OUTPUT"] = "(INNER_ITER, RMS_RES, AERO_COEFF)"
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
     for case_nb in range(param_count):

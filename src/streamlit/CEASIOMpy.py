@@ -1,3 +1,19 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+Main Streamlit page for CEASIOMpy GUI
+
+Python version: >=3.8
+
+| Author : Aidan Jungo
+| Creation: 2022-09-09
+
+TODO:
+
+"""
+
 import io
 from pathlib import Path
 
@@ -8,8 +24,7 @@ from cpacspy.cpacspy import CPACS
 
 import streamlit as st
 import streamlit.components.v1 as components
-from createsidbar import create_sidebar
-from directory_picker import st_directory_picker
+from streamlitutils import create_sidebar, st_directory_picker
 
 how_to_text = (
     "### How to use CEASIOMpy?\n"
@@ -67,6 +82,9 @@ def section_3D_view():
 
     if "cpacs" not in st.session_state:
         st.warning("No CPACS file has been selected!")
+        return
+
+    if not st.button("Show 3D view"):
         return
 
     stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")

@@ -93,9 +93,12 @@ def display_results(results_dir):
 
         elif child.name == "history.csv":
             st.markdown("**Convergence**")
+
             df = pd.read_csv(child)
-            df = df.drop(["Time_Iter", "Outer_Iter", "Inner_Iter"], axis=1)
-            st.line_chart(data=df, x=None, y=None, width=0, height=0, use_container_width=True)
+            df.rename(columns=lambda x: x.strip().strip('"'), inplace=True)
+
+            st.line_chart(df[["CD", "CL", "CMy"]])
+            st.line_chart(df[["rms[Rho]", "rms[RhoU]", "rms[RhoV]", "rms[RhoW]", "rms[RhoE]"]])
 
         elif child.suffix == ".csv":
             df = pd.read_csv(child)

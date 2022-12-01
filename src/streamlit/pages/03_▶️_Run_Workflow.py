@@ -64,7 +64,7 @@ def run_workflow_button():
 
         # Run workflow from an external script
         config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
-        os.system(f"python run_workflow.py {config_path}  &")
+        os.system(f"python runworkflow.py {config_path}  &")
 
 
 def show_logs():

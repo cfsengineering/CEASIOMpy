@@ -19,6 +19,7 @@ Python version: >=3.8
 
 from pathlib import Path
 
+import pytest
 from ceasiompy.SU2Run.func.su2config import add_damping_derivatives
 from ceasiompy.utils.configfiles import ConfigFile
 
@@ -53,6 +54,13 @@ def test_add_damping_derivatives(tmp_path):
     assert "5.4 0.0 0.0" in Path(case_dp, "ConfigCFD.cfg").read_text()
     assert "0.0 5.4 0.0" in Path(case_dq, "ConfigCFD.cfg").read_text()
     assert "0.0 0.0 5.4" in Path(case_dr, "ConfigCFD.cfg").read_text()
+
+
+@pytest.mark.skip(reason="Not implemented yet")
+def test_add_actuator_disk(tmp_path):
+    """Test function 'add_actuator_disk'"""
+
+    pass
 
 
 # =================================================================================================

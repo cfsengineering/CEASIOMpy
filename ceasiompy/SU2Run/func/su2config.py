@@ -106,6 +106,107 @@ def add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate):
     log.info("Damping derivatives cases directories has been created.")
 
 
+# TODO: will be modified when intgrating the disk actuator module
+def add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers):
+    """Add actuator disk parameter to the config file.
+
+    Args:
+        cfg (ConfigFile): ConfigFile object.
+        cpacs (CPACS): CPACS object from cpacspy library
+        actuator_disk_file (Path): Path to the actuator disk file
+        mesh_markers (dict): Dictionary containing all the mesh markers
+
+    Returns:
+        cfg (ConfigFile): ConfigFile object.
+    """
+
+    ad_inlet_marker = sorted(mesh_markers["actuator_disk_inlet"])
+    ad_outlet_marker = sorted(mesh_markers["actuator_disk_outlet"])
+
+    if "None" not in ad_inlet_marker and "None" not in ad_outlet_marker:
+
+        if len(ad_inlet_marker) != len(ad_outlet_marker):
+            raise ValueError(
+                "The number of inlet and outlet markers of the actuator disk must be the same."
+            )
+
+        # Get rotorcraft configuration (propeller)
+        try:
+            rotorcraft_config = cpacs.rotorcraft.configuration
+        except AttributeError:
+            raise ValueError(
+                "The actuator disk is defined but no rotorcraft configuration is defined in "
+                "the CPACS file."
+            )
+
+        rotor_uid_pos = {}
+        for i in range(1, rotorcraft_config.get_rotor_count() + 1):
+
+            rotor = rotorcraft_config.get_rotor(i)
+
+            rotor_uid = rotor.get_uid()
+            pos_x = rotor.get_translation().x
+            pos_y = rotor.get_translation().y
+            pos_z = rotor.get_translation().z
+            radius = rotor.get_radius()
+
+            rotor_uid_pos[rotor_uid] = (pos_x, pos_y, pos_z, radius)
+
+        cfg["ACTDISK_DOUBLE_SURFACE"] = "YES"
+        cfg["ACTDISK_TYPE"] = "VARIABLE_LOAD"
+        cfg["ACTDISK_FILENAME"] = ACTUATOR_DISK_FILE_NAME
+
+        # Calculation diverges if multigrid is used with a disk actuator
+        cfg["MGLEVEL"] = 0
+
+        actdisk_markers = []
+
+        f = open(actuator_disk_file, "w")
+        f = write_header(f)
+
+        for maker_inlet, marker_outlet in zip(ad_inlet_marker, ad_outlet_marker):
+            inlet_uid = maker_inlet.split(ACTUATOR_DISK_INLET_SUFFIX)[0]
+            outlet_uid = marker_outlet.split(ACTUATOR_DISK_OUTLET_SUFFIX)[0]
+
+            if inlet_uid != outlet_uid:
+                raise ValueError(
+                    "The inlet and outlet markers of the actuator disk must be the same."
+                )
+
+            if "_mirrored" in maker_inlet:
+                uid = inlet_uid.split("_mirrored")[0]
+                sym = -1
+            else:
+                uid = inlet_uid
+                sym = 1
+
+            center = []
+            center.append(round(rotor_uid_pos[uid][0], 5))
+            center.append(round(sym * rotor_uid_pos[uid][1], 5))
+            center.append(round(rotor_uid_pos[uid][2], 5))
+
+            # TODO: get the axis by applying the rotation matrix
+            axis = (1.0, 0.0, 0.0)
+            radius = round(rotor_uid_pos[uid][3], 5)
+
+            actdisk_markers.append(maker_inlet)
+            actdisk_markers.append(marker_outlet)
+            actdisk_markers.append(str(center[0]))
+            actdisk_markers.append(str(center[1]))
+            actdisk_markers.append(str(center[2]))
+            actdisk_markers.append(str(center[0]))
+            actdisk_markers.append(str(center[1]))
+            actdisk_markers.append(str(center[2]))
+
+            f = write_actuator_disk_data(f, maker_inlet, marker_outlet, center, axis, radius)
+
+        cfg["MARKER_ACTDISK"] = " (" + ", ".join(actdisk_markers) + " )"
+
+        f.close()
+
+        return cfg
+
+
 def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     """Function to create SU2 config file.
 
@@ -212,91 +313,9 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     cfg["MARKER_MOVING"] = "( NONE )"  # TODO: when do we need to define MARKER_MOVING?
     cfg["DV_MARKER"] = bc_wall_str
 
-    # Actuator disk (TODO: create a subfunction)
-    ad_inlet_marker = sorted(mesh_markers["actuator_disk_inlet"])
-    ad_outlet_marker = sorted(mesh_markers["actuator_disk_outlet"])
+    # TODO: call the function only when required
     actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
-
-    if "None" not in ad_inlet_marker and "None" not in ad_outlet_marker:
-
-        if len(ad_inlet_marker) != len(ad_outlet_marker):
-            raise ValueError(
-                "The number of inlet and outlet markers of the actuator disk must be the same."
-            )
-
-        # Get rotorcraft configuration (propeller)
-        try:
-            rotorcraft_config = cpacs.rotorcraft.configuration
-        except AttributeError:
-            raise ValueError(
-                "The actuator disk is defined but no rotorcraft configuration is defined in "
-                "the CPACS file."
-            )
-
-        rotor_uid_pos = {}
-        for i in range(1, rotorcraft_config.get_rotor_count() + 1):
-
-            rotor = rotorcraft_config.get_rotor(i)
-
-            rotor_uid = rotor.get_uid()
-            pos_x = rotor.get_translation().x
-            pos_y = rotor.get_translation().y
-            pos_z = rotor.get_translation().z
-            radius = rotor.get_radius()
-
-            rotor_uid_pos[rotor_uid] = (pos_x, pos_y, pos_z, radius)
-
-        cfg["ACTDISK_DOUBLE_SURFACE"] = "YES"
-        cfg["ACTDISK_TYPE"] = "VARIABLE_LOAD"
-        cfg["ACTDISK_FILENAME"] = ACTUATOR_DISK_FILE_NAME
-
-        # Calculation diverges if multigrid is used with a disk actuator
-        cfg["MGLEVEL"] = 0
-
-        actdisk_markers = []
-
-        f = open(actuator_disk_file, "w")
-        f = write_header(f)
-
-        for maker_inlet, marker_outlet in zip(ad_inlet_marker, ad_outlet_marker):
-            inlet_uid = maker_inlet.split(ACTUATOR_DISK_INLET_SUFFIX)[0]
-            outlet_uid = marker_outlet.split(ACTUATOR_DISK_OUTLET_SUFFIX)[0]
-
-            if inlet_uid != outlet_uid:
-                raise ValueError(
-                    "The inlet and outlet markers of the actuator disk must be the same."
-                )
-
-            if "_mirrored" in maker_inlet:
-                uid = inlet_uid.split("_mirrored")[0]
-                sym = -1
-            else:
-                uid = inlet_uid
-                sym = 1
-
-            center = []
-            center.append(round(rotor_uid_pos[uid][0], 5))
-            center.append(round(sym * rotor_uid_pos[uid][1], 5))
-            center.append(round(rotor_uid_pos[uid][2], 5))
-
-            # TODO: get the axis by applying the rotation matrix
-            axis = (1.0, 0.0, 0.0)
-            radius = round(rotor_uid_pos[uid][3], 5)
-
-            actdisk_markers.append(maker_inlet)
-            actdisk_markers.append(marker_outlet)
-            actdisk_markers.append(str(center[0]))
-            actdisk_markers.append(str(center[1]))
-            actdisk_markers.append(str(center[2]))
-            actdisk_markers.append(str(center[0]))
-            actdisk_markers.append(str(center[1]))
-            actdisk_markers.append(str(center[2]))
-
-            f = write_actuator_disk_data(f, maker_inlet, marker_outlet, center, axis, radius)
-
-        cfg["MARKER_ACTDISK"] = " (" + ", ".join(actdisk_markers) + " )"
-
-        f.close()
+    cfg = add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers)
 
     # Output
     cfg["WRT_FORCES_BREAKDOWN"] = "YES"

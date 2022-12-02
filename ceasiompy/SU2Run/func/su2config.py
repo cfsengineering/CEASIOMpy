@@ -127,8 +127,8 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         log.info("Configuration file for fixed CL calculation will be created.")
 
         # Create a new aeroMap
-        fix_cl_aeromap = cpacs.create_aeromap("aeroMap_fixedCL_SU2")
-        fix_cl_aeromap.description = "AeroMap created for SU2 fixed CL value of: " + str(target_cl)
+        fixed_cl_aeromap = cpacs.create_aeromap("aeroMap_fixedCL_SU2")
+        fixed_cl_aeromap.description = f"AeroMap created for SU2 fixed CL value of {target_cl}"
 
         # Get cruise mach and altitude
         cruise_mach_xpath = RANGE_XPATH + "/cruiseMach"
@@ -137,8 +137,8 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         alt = get_value_or_default(cpacs.tixi, cruise_alt_xpath, 12000)
 
         # Add new parameters to the aeroMap and save it
-        fix_cl_aeromap.add_row(alt=alt, mach=mach, aos=0.0, aoa=0.0)
-        fix_cl_aeromap.save()
+        fixed_cl_aeromap.add_row(alt=alt, mach=mach, aos=0.0, aoa=0.0)
+        fixed_cl_aeromap.save()
 
         # Parameter lists
         alt_list = [alt]

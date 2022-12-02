@@ -97,7 +97,6 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     if not su2_mesh.is_file():
         raise FileNotFoundError(f"SU2 mesh file {su2_mesh} not found")
 
-    # Get Mesh Marker and save them in the CPACS file
     mesh_markers = get_mesh_markers(su2_mesh)
 
     create_branch(cpacs.tixi, SU2_BC_WALL_XPATH)
@@ -108,7 +107,6 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     bc_farfiled_str = ";".join(mesh_markers["engine_intake"] + mesh_markers["engine_exhaust"])
     cpacs.tixi.updateTextElement(SU2_BC_FARFIELD_XPATH, bc_farfiled_str)
 
-    # Fixed CL parameters
     fixed_cl = get_value_or_default(cpacs.tixi, SU2_FIXED_CL_XPATH, "NO")
     target_cl = get_value_or_default(cpacs.tixi, SU2_TARGET_CL_XPATH, 1.0)
 
@@ -120,20 +118,13 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         log.info(f'Configuration file for "{aeromap_uid}" calculation will be created.')
 
         active_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
-
-        # Get parameters of the aeroMap (altitude, machNumber, angleOfAttack, angleOfSideslip)
         alt_list = active_aeromap.get("altitude").tolist()
         mach_list = active_aeromap.get("machNumber").tolist()
         aoa_list = active_aeromap.get("angleOfAttack").tolist()
         aos_list = active_aeromap.get("angleOfSideslip").tolist()
 
-        param_count = len(alt_list)
-
     else:  # if fixed_cl == 'YES':
         log.info("Configuration file for fixed CL calculation will be created.")
-
-        # Parameters fixed CL calculation
-        param_count = 1
 
         # Create a new aeroMap
         fix_cl_aeromap = cpacs.create_aeromap("aeroMap_fixedCL_SU2")
@@ -292,7 +283,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     cfg["HISTORY_OUTPUT"] = "(INNER_ITER, RMS_RES, AERO_COEFF)"
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
-    for case_nb in range(param_count):
+    for case_nb in range(len(alt_list)):
 
         cfg["MESH_FILENAME"] = str(su2_mesh)
 

@@ -315,7 +315,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
     # TODO: call the function only when required
     actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
-    cfg = add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers)
+    add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers)
 
     # Output
     cfg["WRT_FORCES_BREAKDOWN"] = "YES"

@@ -34,8 +34,8 @@ from ceasiompy.utils.ceasiompyutils import (
     run_software,
 )
 from ceasiompy.utils.commonnames import CONFIG_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
-from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.utils.commonxpath import SU2_NB_CPU_XPATH
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
 log = get_logger()
@@ -53,16 +53,15 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 
 
-def run_SU2_multi(wkdir, nb_proc):
+def run_SU2_multi(wkdir, nb_proc=1):
     """Function to run a multiple SU2 calculation.
 
-    Function 'run_SU2_multi' will run in the given working directory SU2
-    calculations (SU2_CFD then SU2_SOL). The working directory must have a
-    folder structure created by 'SU2Config' module.
+    Function 'run_SU2_multi' will run in the given working directory SU2 calculations. The working
+    directory must have a folder structure created by 'SU2Config' module.
 
     Args:
         wkdir (Path): Path to the working directory
-
+        nb_proc (int): Number of processor that should be used to run the calculation in parallel
     """
 
     if not wkdir.exists():

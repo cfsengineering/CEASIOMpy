@@ -97,6 +97,11 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
         thrust / (Atm.density * rotational_velocity**2 * (radius * 2) ** 4)
     )
 
+    log.info("-------------- Check input values choseen --------------")
+    log.info(f"Cruise mach velocity = {cruise_mach}")
+    log.info(f"Cruise altitude= {cruise_alt}")
+    log.info(f"Air density= {float(Atm.density)}")
+
     (
         _,
         _,

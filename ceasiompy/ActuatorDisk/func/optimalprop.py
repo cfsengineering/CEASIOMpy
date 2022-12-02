@@ -158,7 +158,6 @@ def thrust_calculator(
 
     omega = rotational_velocity * 2 * pi
 
-    log.info("-------------- Check input values choseen --------------")
     log.info(f"Selected total thrust coeff= {total_thrust_coefficient}")
     log.info(f"Radius= {radius}")
     log.info(f"Number of radial station= {r.size}")

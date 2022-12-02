@@ -75,135 +75,53 @@ MODULE_DIR = Path(__file__).parent
 # =================================================================================================
 
 
-def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
-    """Function to create SU2 config file.
-
-    Function 'generate_su2_cfd_config' reads data in the CPACS file and generate
-    configuration files for one or multiple flight conditions (alt,mach,aoa,aos)
-
-    Source:
-        * SU2 config template: https://github.com/su2code/SU2/blob/master/config_template.cfg
+def add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate):
+    """Add damping derivatives parameter to the config file and save them to their respective
+    directory.
 
     Args:
-        cpacs_path (Path): Path to CPACS file
-        cpacs_out_path (Path):Path to CPACS output file
+        cfg (ConfigFile): ConfigFile object.
         wkdir (Path): Path to the working directory
-
+        case_dir_name (str): Name of the case directory
+        rotation_rate (float): Rotation rate that will be impose to calculate damping derivatives
     """
 
-    cpacs = CPACS(cpacs_path)
+    cfg["GRID_MOVEMENT"] = "ROTATING_FRAME"
 
-    # Get the SU2 Mesh
-    su2_mesh_path = Path(get_value(cpacs.tixi, SU2MESH_XPATH))
-    if not su2_mesh_path.is_file():
-        raise FileNotFoundError(f"SU2 mesh file {su2_mesh_path} not found")
+    cfg["ROTATION_RATE"] = f"{rotation_rate} 0.0 0.0"
+    case_dir = Path(wkdir, f"{case_dir_name}_dp")
+    case_dir.mkdir()
+    cfg.write_file(Path(case_dir, CONFIG_CFD_NAME), overwrite=True)
 
-    # Get Mesh Marker and save them in the CPACS file
-    mesh_markers = get_mesh_markers(su2_mesh_path)
+    cfg["ROTATION_RATE"] = f"0.0 {rotation_rate} 0.0"
+    case_dir = Path(wkdir, f"{case_dir_name}_dq")
+    case_dir.mkdir()
+    cfg.write_file(Path(case_dir, CONFIG_CFD_NAME), overwrite=True)
 
-    create_branch(cpacs.tixi, SU2_BC_WALL_XPATH)
-    bc_wall_str = ";".join(mesh_markers["wall"])
-    cpacs.tixi.updateTextElement(SU2_BC_WALL_XPATH, bc_wall_str)
+    cfg["ROTATION_RATE"] = f"0.0 0.0 {rotation_rate}"
+    case_dir = Path(wkdir, f"{case_dir_name}_dr")
+    case_dir.mkdir()
+    cfg.write_file(Path(case_dir, CONFIG_CFD_NAME), overwrite=True)
 
-    create_branch(cpacs.tixi, SU2_BC_FARFIELD_XPATH)
-    bc_farfiled_str = ";".join(mesh_markers["engine_intake"] + mesh_markers["engine_exhaust"])
-    cpacs.tixi.updateTextElement(SU2_BC_FARFIELD_XPATH, bc_farfiled_str)
+    log.info("Damping derivatives cases directories has been created.")
 
-    # Fixed CL parameters
-    fixed_cl = get_value_or_default(cpacs.tixi, SU2_FIXED_CL_XPATH, "NO")
-    target_cl = get_value_or_default(cpacs.tixi, SU2_TARGET_CL_XPATH, 1.0)
 
-    if fixed_cl == "NO":
+# TODO: will be modified when intgrating the disk actuator module
+def add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers):
+    """Add actuator disk parameter to the config file.
 
-        # Get the first aeroMap as default one
-        aeromap_default = cpacs.get_aeromap_uid_list()[0]
-        aeromap_uid = get_value_or_default(cpacs.tixi, SU2_AEROMAP_UID_XPATH, aeromap_default)
-        log.info(f'Configuration file for "{aeromap_uid}" calculation will be created.')
+    Args:
+        cfg (ConfigFile): ConfigFile object.
+        cpacs (CPACS): CPACS object from cpacspy library
+        actuator_disk_file (Path): Path to the actuator disk file
+        mesh_markers (dict): Dictionary containing all the mesh markers
 
-        active_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+    Returns:
+        cfg (ConfigFile): ConfigFile object.
+    """
 
-        # Get parameters of the aeroMap (altitude, machNumber, angleOfAttack, angleOfSideslip)
-        alt_list = active_aeromap.get("altitude").tolist()
-        mach_list = active_aeromap.get("machNumber").tolist()
-        aoa_list = active_aeromap.get("angleOfAttack").tolist()
-        aos_list = active_aeromap.get("angleOfSideslip").tolist()
-
-        param_count = len(alt_list)
-
-    else:  # if fixed_cl == 'YES':
-        log.info("Configuration file for fixed CL calculation will be created.")
-
-        # Parameters fixed CL calculation
-        param_count = 1
-
-        # Create a new aeroMap
-        fix_cl_aeromap = cpacs.create_aeromap("aeroMap_fixedCL_SU2")
-        fix_cl_aeromap.description = "AeroMap created for SU2 fixed CL value of: " + str(target_cl)
-
-        # Get cruise mach and altitude
-        cruise_mach_xpath = RANGE_XPATH + "/cruiseMach"
-        mach = get_value_or_default(cpacs.tixi, cruise_mach_xpath, 0.78)
-        cruise_alt_xpath = RANGE_XPATH + "/cruiseAltitude"
-        alt = get_value_or_default(cpacs.tixi, cruise_alt_xpath, 12000)
-
-        # Add new parameters to the aeroMap and save it
-        fix_cl_aeromap.add_row(alt=alt, mach=mach, aos=0.0, aoa=0.0)
-        fix_cl_aeromap.save()
-
-        # Parameter lists
-        alt_list = [alt]
-        mach_list = [mach]
-        aoa_list = [0.0]
-        aos_list = [0.0]
-
-    # Get and modify the default configuration file
-    su2_congig_template_path = get_su2_config_template()
-    cfg = ConfigFile(su2_congig_template_path)
-
-    # Check if symmetry plane is defined (Default: False)
-    sym_factor = 1.0
-    if get_value_or_default(cpacs.tixi, GMSH_SYMMETRY_XPATH, False):
-        log.info("Symmetry plane is defined. The reference area will be divided by 2.")
-        sym_factor = 2.0
-
-    # General parmeters
-    cfg["RESTART_SOL"] = "NO"
-    cfg["REF_LENGTH"] = cpacs.aircraft.ref_length
-    cfg["REF_AREA"] = cpacs.aircraft.ref_area / sym_factor
-    cfg["REF_ORIGIN_MOMENT_X"] = cpacs.aircraft.ref_point_x
-    cfg["REF_ORIGIN_MOMENT_Y"] = cpacs.aircraft.ref_point_y
-    cfg["REF_ORIGIN_MOMENT_Z"] = cpacs.aircraft.ref_point_z
-
-    # Settings
-    cfg["INNER_ITER"] = int(get_value_or_default(cpacs.tixi, SU2_MAX_ITER_XPATH, 200))
-    cfg["CFL_NUMBER"] = get_value_or_default(cpacs.tixi, SU2_CFL_NB_XPATH, 1.0)
-    cfg["MGLEVEL"] = int(get_value_or_default(cpacs.tixi, SU2_MG_LEVEL_XPATH, 3))
-
-    # Fixed CL mode (AOA will not be taken into account)
-    cfg["FIXED_CL_MODE"] = fixed_cl
-    cfg["TARGET_CL"] = target_cl
-    cfg["DCL_DALPHA"] = "0.1"
-    cfg["UPDATE_AOA_ITER_LIMIT"] = "50"
-    cfg["ITER_DCL_DALPHA"] = "80"
-    # TODO: correct value for the 3 previous parameters ??
-
-    # Mesh Marker
-    bc_wall_str = f"( {','.join(mesh_markers['wall'])} )"
-    cfg["MARKER_EULER"] = bc_wall_str
-    farfield_bc = (
-        mesh_markers["farfield"] + mesh_markers["engine_intake"] + mesh_markers["engine_exhaust"]
-    )
-    cfg["MARKER_FAR"] = f"( {','.join(farfield_bc)} )"
-    cfg["MARKER_SYM"] = f"( {','.join(mesh_markers['symmetry'])} )"
-    cfg["MARKER_PLOTTING"] = bc_wall_str
-    cfg["MARKER_MONITORING"] = bc_wall_str
-    cfg["MARKER_MOVING"] = "( NONE )"  # TODO: when do we need to define MARKER_MOVING?
-    cfg["DV_MARKER"] = bc_wall_str
-
-    # Actuator disk (TODO: create a subfunction)
     ad_inlet_marker = sorted(mesh_markers["actuator_disk_inlet"])
     ad_outlet_marker = sorted(mesh_markers["actuator_disk_outlet"])
-    actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
 
     if "None" not in ad_inlet_marker and "None" not in ad_outlet_marker:
 
@@ -238,7 +156,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         cfg["ACTDISK_TYPE"] = "VARIABLE_LOAD"
         cfg["ACTDISK_FILENAME"] = ACTUATOR_DISK_FILE_NAME
 
-        # Multi grid diverges when there is a disk actuator
+        # Calculation diverges if multigrid is used with a disk actuator
         cfg["MGLEVEL"] = 0
 
         actdisk_markers = []
@@ -262,7 +180,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
                 uid = inlet_uid
                 sym = 1
 
-            center = [] * 3
+            center = []
             center.append(round(rotor_uid_pos[uid][0], 5))
             center.append(round(sym * rotor_uid_pos[uid][1], 5))
             center.append(round(rotor_uid_pos[uid][2], 5))
@@ -286,6 +204,119 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
         f.close()
 
+        return cfg
+
+
+def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
+    """Function to create SU2 config file.
+
+    Function 'generate_su2_cfd_config' reads data in the CPACS file and generate configuration
+    files for one or multiple flight conditions (alt,mach,aoa,aos)
+
+    Source:
+        * SU2 config template: https://github.com/su2code/SU2/blob/master/config_template.cfg
+
+    Args:
+        cpacs_path (Path): Path to CPACS file
+        cpacs_out_path (Path):Path to CPACS output file
+        wkdir (Path): Path to the working directory
+
+    """
+
+    cpacs = CPACS(cpacs_path)
+
+    su2_mesh = Path(get_value(cpacs.tixi, SU2MESH_XPATH))
+    if not su2_mesh.is_file():
+        raise FileNotFoundError(f"SU2 mesh file {su2_mesh} not found")
+
+    mesh_markers = get_mesh_markers(su2_mesh)
+
+    create_branch(cpacs.tixi, SU2_BC_WALL_XPATH)
+    bc_wall_str = ";".join(mesh_markers["wall"])
+    cpacs.tixi.updateTextElement(SU2_BC_WALL_XPATH, bc_wall_str)
+
+    create_branch(cpacs.tixi, SU2_BC_FARFIELD_XPATH)
+    bc_farfiled_str = ";".join(mesh_markers["engine_intake"] + mesh_markers["engine_exhaust"])
+    cpacs.tixi.updateTextElement(SU2_BC_FARFIELD_XPATH, bc_farfiled_str)
+
+    fixed_cl = get_value_or_default(cpacs.tixi, SU2_FIXED_CL_XPATH, "NO")
+    target_cl = get_value_or_default(cpacs.tixi, SU2_TARGET_CL_XPATH, 1.0)
+
+    if fixed_cl == "NO":
+
+        # Get the first aeroMap as default one
+        aeromap_default = cpacs.get_aeromap_uid_list()[0]
+        aeromap_uid = get_value_or_default(cpacs.tixi, SU2_AEROMAP_UID_XPATH, aeromap_default)
+        log.info(f'Configuration file for "{aeromap_uid}" calculation will be created.')
+
+        active_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+        alt_list = active_aeromap.get("altitude").tolist()
+        mach_list = active_aeromap.get("machNumber").tolist()
+        aoa_list = active_aeromap.get("angleOfAttack").tolist()
+        aos_list = active_aeromap.get("angleOfSideslip").tolist()
+
+    else:  # if fixed_cl == 'YES':
+        log.info("Configuration file for fixed CL calculation will be created.")
+
+        fixed_cl_aeromap = cpacs.create_aeromap("aeroMap_fixedCL_SU2")
+        fixed_cl_aeromap.description = f"AeroMap created for SU2 fixed CL value of {target_cl}"
+
+        mach = get_value_or_default(cpacs.tixi, RANGE_XPATH + "/cruiseMach", 0.78)
+        alt = get_value_or_default(cpacs.tixi, RANGE_XPATH + "/cruiseAltitude", 12000)
+
+        fixed_cl_aeromap.add_row(alt=alt, mach=mach, aos=0.0, aoa=0.0)
+        fixed_cl_aeromap.save()
+
+        alt_list = [alt]
+        mach_list = [mach]
+        aoa_list = [0.0]
+        aos_list = [0.0]
+
+    cfg = ConfigFile(get_su2_config_template())
+
+    # Check if symmetry plane is defined (Default: False)
+    sym_factor = 1.0
+    if get_value_or_default(cpacs.tixi, GMSH_SYMMETRY_XPATH, False):
+        log.info("Symmetry plane is defined. The reference area will be divided by 2.")
+        sym_factor = 2.0
+
+    # General parameters
+    cfg["RESTART_SOL"] = "NO"
+    cfg["REF_LENGTH"] = cpacs.aircraft.ref_length
+    cfg["REF_AREA"] = cpacs.aircraft.ref_area / sym_factor
+    cfg["REF_ORIGIN_MOMENT_X"] = cpacs.aircraft.ref_point_x
+    cfg["REF_ORIGIN_MOMENT_Y"] = cpacs.aircraft.ref_point_y
+    cfg["REF_ORIGIN_MOMENT_Z"] = cpacs.aircraft.ref_point_z
+
+    # Settings
+    cfg["INNER_ITER"] = int(get_value_or_default(cpacs.tixi, SU2_MAX_ITER_XPATH, 200))
+    cfg["CFL_NUMBER"] = get_value_or_default(cpacs.tixi, SU2_CFL_NB_XPATH, 1.0)
+    cfg["MGLEVEL"] = int(get_value_or_default(cpacs.tixi, SU2_MG_LEVEL_XPATH, 3))
+
+    # Fixed CL mode (AOA will not be taken into account)
+    cfg["FIXED_CL_MODE"] = fixed_cl
+    cfg["TARGET_CL"] = target_cl
+    cfg["DCL_DALPHA"] = "0.1"
+    cfg["UPDATE_AOA_ITER_LIMIT"] = "50"
+    cfg["ITER_DCL_DALPHA"] = "80"
+
+    # Mesh Marker
+    bc_wall_str = f"( {','.join(mesh_markers['wall'])} )"
+    cfg["MARKER_EULER"] = bc_wall_str
+    farfield_bc = (
+        mesh_markers["farfield"] + mesh_markers["engine_intake"] + mesh_markers["engine_exhaust"]
+    )
+    cfg["MARKER_FAR"] = f"( {','.join(farfield_bc)} )"
+    cfg["MARKER_SYM"] = f"( {','.join(mesh_markers['symmetry'])} )"
+    cfg["MARKER_PLOTTING"] = bc_wall_str
+    cfg["MARKER_MONITORING"] = bc_wall_str
+    cfg["MARKER_MOVING"] = "( NONE )"  # TODO: when do we need to define MARKER_MOVING?
+    cfg["DV_MARKER"] = bc_wall_str
+
+    # TODO: call the function only when required
+    actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
+    add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers)
+
     # Output
     cfg["WRT_FORCES_BREAKDOWN"] = "YES"
     cfg["BREAKDOWN_FILENAME"] = SU2_FORCES_BREAKDOWN_NAME
@@ -293,9 +324,9 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     cfg["HISTORY_OUTPUT"] = "(INNER_ITER, RMS_RES, AERO_COEFF)"
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
-    for case_nb in range(param_count):
+    for case_nb in range(len(alt_list)):
 
-        cfg["MESH_FILENAME"] = str(su2_mesh_path)
+        cfg["MESH_FILENAME"] = str(su2_mesh)
 
         alt = alt_list[case_nb]
         mach = mach_list[case_nb]
@@ -327,32 +358,9 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             case_actuator_disk_file = Path(case_dir_path, ACTUATOR_DISK_FILE_NAME)
             copyfile(actuator_disk_file, case_actuator_disk_file)
 
-        # Damping derivatives  (TODO: create a subfunctions)
         if get_value_or_default(cpacs.tixi, SU2_DAMPING_DER_XPATH, False):
-
-            rotation_rate = str(get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, 1.0))
-
-            cfg["GRID_MOVEMENT"] = "ROTATING_FRAME"
-
-            cfg["ROTATION_RATE"] = f"{rotation_rate} 0.0 0.0"
-            case_dir = Path(wkdir, f"{case_dir_name}_dp")
-            case_dir.mkdir()
-            config_output_path = Path(case_dir, CONFIG_CFD_NAME)
-            cfg.write_file(config_output_path, overwrite=True)
-
-            cfg["ROTATION_RATE"] = f"0.0 {rotation_rate} 0.0"
-            case_dir = Path(wkdir, f"{case_dir_name}_dq")
-            case_dir.mkdir()
-            config_output_path = Path(case_dir, CONFIG_CFD_NAME)
-            cfg.write_file(config_output_path, overwrite=True)
-
-            cfg["ROTATION_RATE"] = f"0.0 0.0 {rotation_rate}"
-            case_dir = Path(wkdir, f"{case_dir_name}_dr")
-            case_dir.mkdir()
-            config_output_path = Path(case_dir, CONFIG_CFD_NAME)
-            cfg.write_file(config_output_path, overwrite=True)
-
-            log.info("Damping derivatives cases directory has been created.")
+            rotation_rate = get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, 1.0)
+            add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate)
 
         # Control surfaces deflections (TODO: create a subfunctions)
         if get_value_or_default(cpacs.tixi, SU2_CONTROL_SURF_XPATH, False):
@@ -371,8 +379,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
                 config_dir_path.mkdir()
                 cfg["MESH_FILENAME"] = mesh_path
 
-                config_output_path = Path(wkdir, config_dir_path, CONFIG_CFD_NAME)
-                cfg.write_file(config_output_path, overwrite=True)
+                cfg.write_file(Path(config_dir_path, CONFIG_CFD_NAME), overwrite=True)
 
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 

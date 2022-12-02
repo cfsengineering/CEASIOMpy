@@ -86,8 +86,8 @@ def test_check_output():
     free_stream_velocity, prandtl, blades_number, rotational_velocity]
     the function will give an output file to compare with given result vector
     [renard_thrust_coeff, power_coeff, thrust_over_density, efficiency]
-
     """
+
     input_values = {
         "test1": [[0.5, 1.5, 0.2, 150, True, 2, 33], [0.5, 0.965, 44104.5, 0.7847]],
         "test2": [[0.8, 1.5, 0.15, 0.1, True, 3, 33], [0, 0.00744, 0, 0]],

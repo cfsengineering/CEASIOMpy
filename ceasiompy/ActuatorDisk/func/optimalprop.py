@@ -116,20 +116,12 @@ def write_external_file(CTrs, CPrs, radius, advanced_ratio, r, Ct_total):
     file.write("CENTER= 0.0 2.0 0.0\n")
     file.write("AXIS= 1.0 0.0 0.0\n")
     file.write(f"RADIUS= {radius}    \n")
-    file.write(f"ADV_RATIO= {advanced_ratio}   \n")
+    file.write(f"ADV_RATIO= {advanced_ratio:.4f}   \n")
     file.write(f"NROW= {r.size}   \n")
     file.write("#rs=r/R        dCT/drs       dCP/drs       dCR/drs\n")
 
     for r, ctrs, cprs in zip(r, CTrs, CPrs):
         file.write(f"{r:.7f}     {ctrs:.7f}      {cprs:.7f}     0.0\n")
-
-    file.write("\n")
-    file.write("MARKER_ACTDISK= Propeller_mirrored_AD_Inlet Propeller_mirrored_AD_Outlet\n")
-    file.write("CENTER= 0.0 -2.0 0.0\n")
-    file.write("AXIS= 1.0 0.0 0.0\n")
-    file.write(f"RADIUS= {radius}    \n")
-    file.write(f"ADV_RATIO= {advanced_ratio}   \n")
-    file.write(f"NROW= {r.size}   \n")
 
     file.close()
 

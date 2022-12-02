@@ -76,7 +76,6 @@ cpacs_inout.add_input(
     gui_group=None,
 )
 
-
 for direction in ["x", "y", "z"]:
     cpacs_inout.add_input(
         var_name=f"ref_ori_moment_{direction}",
@@ -89,7 +88,6 @@ for direction in ["x", "y", "z"]:
         gui_name=None,
         gui_group=None,
     )
-
 
 cpacs_inout.add_input(
     var_name="cruise_mach",
@@ -261,24 +259,6 @@ cpacs_inout.add_input(
 
 
 # ----- Output -----
-
-cpacs_inout.add_output(
-    var_name="start_time",
-    var_type=str,
-    default_value=None,
-    unit="1",
-    descr="Start time of the last SU2 calculation",
-    xpath=SU2_XPATH + "/startTime",
-)
-
-cpacs_inout.add_output(
-    var_name="end_time",
-    var_type=str,
-    default_value=None,
-    unit="1",
-    descr="Start time of the last SU2 calculation",
-    xpath=SU2_XPATH + "/endTime",
-)
 
 cpacs_inout.add_output(
     var_name="wetted_area",

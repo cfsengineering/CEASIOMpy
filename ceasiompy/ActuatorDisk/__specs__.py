@@ -92,14 +92,13 @@ cpacs_inout.add_input(
 
 cpacs_inout.add_input(
     var_name="prandtl",
-    var_type=list,
-    default_value=[True, False],
+    var_type=bool,
+    default_value=True,
     unit=None,
     descr="Enable or disable the tip loss correction of Prandtl",
     xpath=PROP_XPATH + "propeller/blade/loss",
     gui=True,
     gui_name="Tip loss correction",
-    gui_group="Correction settings",
 )
 
 cpacs_inout.add_input(

@@ -78,8 +78,8 @@ MODULE_DIR = Path(__file__).parent
 def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     """Function to create SU2 config file.
 
-    Function 'generate_su2_cfd_config' reads data in the CPACS file and generate
-    configuration files for one or multiple flight conditions (alt,mach,aoa,aos)
+    Function 'generate_su2_cfd_config' reads data in the CPACS file and generate configuration
+    files for one or multiple flight conditions (alt,mach,aoa,aos)
 
     Source:
         * SU2 config template: https://github.com/su2code/SU2/blob/master/config_template.cfg
@@ -93,13 +93,12 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
     cpacs = CPACS(cpacs_path)
 
-    # Get the SU2 Mesh
-    su2_mesh_path = Path(get_value(cpacs.tixi, SU2MESH_XPATH))
-    if not su2_mesh_path.is_file():
-        raise FileNotFoundError(f"SU2 mesh file {su2_mesh_path} not found")
+    su2_mesh = Path(get_value(cpacs.tixi, SU2MESH_XPATH))
+    if not su2_mesh.is_file():
+        raise FileNotFoundError(f"SU2 mesh file {su2_mesh} not found")
 
     # Get Mesh Marker and save them in the CPACS file
-    mesh_markers = get_mesh_markers(su2_mesh_path)
+    mesh_markers = get_mesh_markers(su2_mesh)
 
     create_branch(cpacs.tixi, SU2_BC_WALL_XPATH)
     bc_wall_str = ";".join(mesh_markers["wall"])
@@ -295,7 +294,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
     for case_nb in range(param_count):
 
-        cfg["MESH_FILENAME"] = str(su2_mesh_path)
+        cfg["MESH_FILENAME"] = str(su2_mesh)
 
         alt = alt_list[case_nb]
         mach = mach_list[case_nb]

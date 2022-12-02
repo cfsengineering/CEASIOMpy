@@ -72,7 +72,6 @@ def save_screenshot(surface_flow_file, scalar="Mach"):
 
     # Read data and send to plotter
     mesh = pv.read(str(surface_flow_file))
-
     plotter.add_mesh(mesh, scalars=scalar, show_scalar_bar=True)
 
     # Set camera
@@ -84,14 +83,16 @@ def save_screenshot(surface_flow_file, scalar="Mach"):
     screenshot_filename = Path(surface_flow_file.parent, f"3d_view_{scalar}.png")
     plotter.show(screenshot=screenshot_filename)
 
+    log.info(f"A screenshot has been saved at {screenshot_filename}")
+
     return screenshot_filename
 
 
 def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
     """Function to write SU2 results in a CPACS file.
 
-    Function 'get_su2_results' gets available results from the latest SU2
-    calculation and put them at the correct place in the CPACS file.
+    Function 'get_su2_results' gets available results from the latest SU2 calculation and put them
+    at the correct place in the CPACS file.
 
     '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[n]/aeroPerformanceMap'
 

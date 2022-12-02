@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Functions to manipulate SU2 Configuration and results.
+Functions to manipulate SU2 configuration and results.
 
 Python version: >=3.8
 
@@ -11,7 +11,6 @@ Python version: >=3.8
 | Creation: 2019-09-30
 
 TODO:
-
 
 """
 
@@ -120,28 +119,27 @@ def get_mesh_markers(su2_mesh_path):
 
 def get_su2_version():
     """
-    Return the version of the installed SU2
+    Return the installed version of SU2.
     """
 
     su2py_path = get_install_path("SU2_CFD.py")
 
-    if su2py_path:
-        with open(su2py_path, "r") as f:
-            for line in f.readlines():
-                try:
-                    version = re.search(r"version\s*([\d.]+)", line).group(1)
-                except AttributeError:
-                    version = None
+    if not su2py_path:
+        return None
 
-                if version is not None:
-                    log.info(f"Version of SU2 detected: {version}")
-                    return version
+    with open(su2py_path, "r") as f:
+        for line in f.readlines():
 
-    return None
+            if "version" not in line:
+                continue
+
+            version = re.search(r"version\s*([\d.]+)", line).group(1)
+            log.info(f"Version of SU2: {version}")
+            return version
 
 
 def get_su2_config_template():
-    """Return path of the SU2 config template coresponding to the SU2 version."""
+    """Return path of the SU2 config template corresponding to the SU2 version."""
 
     su2_version = get_su2_version()
     su2_dir = get_module_path("SU2Run")
@@ -195,7 +193,7 @@ def get_su2_aerocoefs(force_file):
                 cd = float(line.split(":")[1].split("|")[0])
             if "Total CSF:" in line:
                 cs = float(line.split(":")[1].split("|")[0])
-            # TODO: Check which axis name corespond to that: cml, cmd, cms
+            # TODO: Check which axis name correspond to that: cml, cmd, cms
             if "Total CMx:" in line:
                 cmd = float(line.split(":")[1].split("|")[0])
             if "Total CMy:" in line:
@@ -292,5 +290,3 @@ def get_wetted_area(su2_logfile):
 if __name__ == "__main__":
 
     print("Nothing to execute!")
-    print("You can use this module by importing for example:")
-    print("from ceasiompy.SU2Run.func.su2meshutils import get_mesh_markers")

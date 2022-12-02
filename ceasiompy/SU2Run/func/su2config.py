@@ -76,6 +76,16 @@ MODULE_DIR = Path(__file__).parent
 
 
 def add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate):
+    """Add damping derivatives parameter to the config file and save them to their respective
+    directory.
+
+    Args:
+        cfg (ConfigFile): ConfigFile object.
+        wkdir (Path): Path to the working directory
+        case_dir_name (str): Name of the case directory
+        rotation_rate (float): Rotation rate that will be impose to calculate damping derivatives
+
+    """
 
     cfg["GRID_MOVEMENT"] = "ROTATING_FRAME"
 
@@ -95,8 +105,6 @@ def add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate):
     cfg.write_file(Path(case_dir, CONFIG_CFD_NAME), overwrite=True)
 
     log.info("Damping derivatives cases directories has been created.")
-
-    return cfg
 
 
 def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
@@ -333,11 +341,8 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             copyfile(actuator_disk_file, case_actuator_disk_file)
 
         if get_value_or_default(cpacs.tixi, SU2_DAMPING_DER_XPATH, False):
-
             rotation_rate = get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, 1.0)
-
-            cfg = add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate)
-
+            add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate)
 
         # Control surfaces deflections (TODO: create a subfunctions)
         if get_value_or_default(cpacs.tixi, SU2_CONTROL_SURF_XPATH, False):

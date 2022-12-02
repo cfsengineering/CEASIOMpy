@@ -12,7 +12,6 @@ Python version: >=3.8
 
 TODO:
 
-    * Add possibility of using SSH
     * Create test functions
     * complete input/output in __specs__
     * Check platform with-> sys.platform
@@ -69,10 +68,9 @@ def run_SU2_multi(wkdir, nb_proc):
     if not wkdir.exists():
         raise OSError(f"The working directory : {wkdir} does not exit!")
 
-    # Check if there is some case directory
     case_dir_list = [dir for dir in wkdir.iterdir() if "Case" in dir.name]
     if not case_dir_list:
-        raise OSError(f"No folder has been found in the working directory: {wkdir}")
+        raise OSError(f"No Case directory has been found in the working directory: {wkdir}")
 
     for config_dir in sorted(case_dir_list):
 
@@ -159,8 +157,6 @@ def main(cpacs_path, cpacs_out_path):
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     tixi = open_tixi(cpacs_path)
-
-    # Get number of proc to use from the CPACS file
     nb_proc = get_value_or_default(tixi, SU2_NB_CPU_XPATH, get_reasonable_nb_cpu())
 
     results_dir = get_results_directory("SU2Run")
@@ -168,7 +164,6 @@ def main(cpacs_path, cpacs_out_path):
     # Temporary CPACS to be stored after "generate_su2_cfd_config"
     cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")
 
-    # Execute SU2 functions
     generate_su2_cfd_config(cpacs_path, cpacs_tmp_cfg, results_dir)
     run_SU2_multi(results_dir, nb_proc)
     get_su2_results(cpacs_tmp_cfg, cpacs_out_path, results_dir)

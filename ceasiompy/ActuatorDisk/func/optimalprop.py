@@ -101,9 +101,6 @@ def write_external_file(CTrs, CPrs, radius, advanced_ratio, r, Ct_total):
     file.write("# The load distribution is obtained using\n")
     file.write("# the inviscid theory of the optimal propeller using global data.\n")
     file.write("#\n")
-    file.write("# The first three lines must be filled.\n")
-    file.write("# An example of this file can be found in the TestCases directory.\n")
-    file.write("#\n")
     file.write(f"# It was choseen a total thrust coefficient= {Ct_total:.4f}\n")
     file.write("# This output file is generated thanks to a script created by\n")
     file.write("# University of Naples Federico II and modified by CFS Engineering\n")
@@ -130,7 +127,6 @@ def thrust_calculator(
     total_thrust_coefficient,
     radius,
     hub_radius,
-    advanced_ratio,
     free_stream_velocity,
     prandtl,
     blades_number,
@@ -140,14 +136,13 @@ def thrust_calculator(
     """Performing of a calculation to obtain thrust and power coefficients distribution
 
     Args:
-            stations (float): Number of elements for blade discretization [-]
             total_thrust_coefficient (float): Total thrust coefficient[-]
             radius (float): Blade radius [m]
             hub_radius (float): Radius of the blade at the hub [m]
-            advanced_ratio (float): Free_stream_velocity/(rotational_velocity*diameter)[-]
             free_stream_velocity (float): Cruise velocity [m/s]
             prandtl (bool): Correction for tip losses
             blades_number (int): Blades propeller number[-]
+            rotational_velocity (int): Blade velocity rotation [1/s]
 
     Returns:
         dCt_optimal (float): thrust coefficient at every radius [-]
@@ -157,12 +152,14 @@ def thrust_calculator(
 
     STATIONS = 40
 
+    advanced_ratio = free_stream_velocity / (rotational_velocity * (radius * 2))
+    print(advanced_ratio)
+
     r = radial_stations(radius, hub_radius)
 
     omega = rotational_velocity * 2 * pi
 
     log.info("-------------- Check input values choseen --------------")
-    log.info(f"Number of station= {STATIONS}")
     log.info(f"Selected total thrust coeff= {total_thrust_coefficient}")
     log.info(f"Radius= {radius}")
     log.info(f"Number of radial station= {r.size}")

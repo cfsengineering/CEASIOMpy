@@ -82,20 +82,20 @@ def test_prandtl_corr():
 def test_check_output():
     """Test function which made different test on thrust_coefficient function, the test function
     recive a vector with input parameter [total_thrust_coefficient, radius, hub radius,
-    advanced_ratio, free_stream_velocity, prandtl, blades_number, rotational_velocity]
+    free_stream_velocity, prandtl, blades_number, rotational_velocity]
     the function will give an output file to compare with given result vector
     [renard_thrust_coeff, power_coeff, thrust_over_density, efficiency]
 
     """
     input_values = {
-        "test1": [[0.5, 1.5, 0.2, 1.5, 150, True, 2, 33], [0.5, 0.989, 45000, 0.7577]],
-        "test2": [[0.8, 1.5, 0.15, 2, 190, True, 3, 33], [0.8, 1.878, 64980, 0.8518]],
-        "test3": [[1, 1.2, 0.1, 1.8, 180, False, 3, 33], [1, 5.972, 57600, 0.3013]],
-        "test4": [[1.2, 1.4, 0.1, 1.6, 140, True, 2, 33], [1.2, 2.7579, 72030, 0.69617]],
-        "test5": [[1.5, 2, 0.2, 1.8, 190, True, 8, 33], [1.5, 2.1639, 267407.41, 1.2477]],
-        "test6": [[0.2, 1.4, 0.1, 1.4, 130, True, 2, 33], [0.2, 0.3172, 13520, 0.8825]],
-        "test7": [[0.15, 1.4, 0.1, 1.3, 130, True, 2, 33], [0.15, 0.2721, 11760, 0.7164]],
-        "test8": [[1.2, 1.7, 0.5107, 1.7, 160, False, 6, 22], [1.199, 8.3783, 122879.9, 0.2434]],
+        "test1": [[0.5, 1.5, 0.2, 150, True, 2, 33], [0.5, 0.965, 44104.5, 0.7847]],
+        "test2": [[0.8, 1.5, 0.15, 0.1, True, 3, 33], [0, 0.00744, 0, 0]],
+        "test3": [[1, 1.2, 0.1, 180, False, 3, 33], [1, 3.010, 36130.40, 0.7549]],
+        "test4": [[1.2, 1.4, 0.1, 140, True, 2, 33], [1.2, 3.299, 80323.24, 0.55097]],
+        "test5": [[1.5, 2, 0.2, 190, True, 8, 33], [1.5, 4.6177, 418175.999, 0.4675]],
+        "test6": [[0.2, 1.4, 0.1, 130, True, 2, 33], [0.2, 0.3138, 13387.20, 0.8966]],
+        "test7": [[0.15, 1.4, 0.1, 130, True, 2, 33], [0.15, 0.2292, 10040.4057, 0.92068]],
+        "test8": [[1.2, 1.7, 0.5107, 160, False, 6, 22], [1.199, 3.7025, 77614.39, 0.6932]],
     }
 
     for values in input_values.values():
@@ -129,7 +129,7 @@ def test_file_exist():
     if actuator_disk_dat_path.exists():
         actuator_disk_dat_path.unlink()
 
-    thrust_calculator(0.5, 1.5, 0.15, 1.5, 150, True, 2, 33)
+    thrust_calculator(0.5, 1.5, 0.15, 150, True, 2, 33)
 
     assert actuator_disk_dat_path.exists()
 
@@ -137,7 +137,7 @@ def test_file_exist():
         lines = f.readlines()
 
     assert lines[0] == "# Automatic generated actuator disk input data file using\n"
-    assert lines[-8] == "1.0000000     0.0000000      0.0000000     0.0\n"
+    assert lines[-1] == "1.0000000     0.0000000      0.0000000     0.0\n"
 
 
 def test_adimentional_radius():

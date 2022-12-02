@@ -96,7 +96,8 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
     total_thrust_coefficient = float(
         thrust / (Atm.density * rotational_velocity**2 * (radius * 2) ** 4)
     )
-    advanced_ratio = float(free_stream_velocity / (rotational_velocity * (radius * 2)))
+
+    advanced_ratio = free_stream_velocity / (rotational_velocity * (radius * 2))
 
     (
         _,
@@ -115,7 +116,6 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
         total_thrust_coefficient,
         radius,
         hub_radius,
-        advanced_ratio,
         free_stream_velocity,
         prandtl_correction,
         blades_nb,

@@ -51,7 +51,7 @@ def test_plot_exist():
         optimal_rotational_interference_factor,
         prandtl,
         correction_function,
-    ) = thrust_calculator(37, 0.15, 2.5146, 0.2, 2.81487, 190.5488, True, 6, 33)
+    ) = thrust_calculator(0.15, 2.5146, 0.2, 2.81487, 190.5488, True, 6, 33)
 
     function_plot(
         r,

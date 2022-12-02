@@ -34,15 +34,17 @@ log = get_logger()
 # =================================================================================================
 
 
-def radial_stations(radius, hub_radius, stations):
+def radial_stations(radius, hub_radius):
 
     """Function to adimensionalize the radius
 
     TODO check minimal number of station required"""
 
+    STATIONS = 40
+
     if hub_radius >= radius:
         raise ValueError("hub radius should be smaller than radius")
-    r = np.linspace(0, 1, stations + 1)[1:]
+    r = np.linspace(0, 1, STATIONS + 1)[1:]
     i_hub = np.abs(r - hub_radius / radius).argmin()
     if r[i_hub] < hub_radius:
         i_hub += 1
@@ -133,7 +135,6 @@ def write_external_file(CTrs, CPrs, radius, advanced_ratio, r, Ct_total):
 
 
 def thrust_calculator(
-    stations,
     total_thrust_coefficient,
     radius,
     hub_radius,
@@ -162,12 +163,14 @@ def thrust_calculator(
         r (float): adimensional radius [-]
     """
 
-    r = radial_stations(radius, hub_radius, stations)
+    STATIONS = 40
+
+    r = radial_stations(radius, hub_radius)
 
     omega = rotational_velocity * 2 * pi
 
     log.info("-------------- Check input values choseen --------------")
-    log.info(f"Number of station= {stations}")
+    log.info(f"Number of station= {STATIONS}")
     log.info(f"Selected total thrust coeff= {total_thrust_coefficient}")
     log.info(f"Radius= {radius}")
     log.info(f"Number of radial station= {r.size}")
@@ -189,7 +192,7 @@ def thrust_calculator(
 
     EPSILON = 5e-20
 
-    radial_stations_spacing = 1.0 / stations
+    radial_stations_spacing = 1.0 / STATIONS
 
     # Computation of the first try induced velocity distribution
     induced_velocity_distribution = (2 / free_stream_velocity**2) * (

@@ -73,7 +73,6 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
     # XPath definition
     cruise_alt_xpath = RANGE_XPATH + "/cruiseAltitude"
     cruise_mach_xpath = RANGE_XPATH + "/cruiseMach"
-    stations_xpath = PROP_XPATH + "/propeller/blade/discretization"
     radius_xpath = PROP_XPATH + "/propeller/blade/radius"
     hub_radius_xpath = PROP_XPATH + "/propeller/blade/hub_radius"
     thrust_xpath = PROP_XPATH + "propeller/thrust"
@@ -84,11 +83,10 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
     # Required input data from CPACS
     cruise_alt = get_value_or_default(tixi, cruise_alt_xpath, 9000)
     cruise_mach = get_value_or_default(tixi, cruise_mach_xpath, 0.45)
-    stations = int(get_value_or_default(tixi, stations_xpath, 40))
     radius = get_value_or_default(tixi, radius_xpath, 0.935)
     hub_radius = get_value_or_default(tixi, hub_radius_xpath, 0.2)
     thrust = get_value_or_default(tixi, thrust_xpath, 3000)
-    rotational_velocity = get_value_or_default(tixi, n_xpath, 33)
+    rotational_velocity = get_value_or_default(tixi, n_xpath, -33)
     prandtl_correction = get_value_or_default(tixi, prandtl_correction_xpath, True)
     blades_nb = get_value_or_default(tixi, blades_number_xpath, 3)
 
@@ -114,7 +112,6 @@ def write_actuator_disk(cpacs_path, cpacs_out_path):
         prandtl,
         correction_function,
     ) = thrust_calculator(
-        stations,
         total_thrust_coefficient,
         radius,
         hub_radius,

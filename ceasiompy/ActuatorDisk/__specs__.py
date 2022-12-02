@@ -43,18 +43,6 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="station",
-    var_type=int,
-    default_value=40,
-    unit=None,
-    descr="Number of elements for blade discretization",
-    xpath=PROP_XPATH + "/propeller/blade/discretization",
-    gui=True,
-    gui_name="Blade discretization",
-    gui_group="Geometrical propeller settings",
-)
-
-cpacs_inout.add_input(
     var_name="radius",
     var_type=float,
     default_value=0.935,

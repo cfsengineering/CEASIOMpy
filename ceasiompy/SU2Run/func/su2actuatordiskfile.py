@@ -45,7 +45,12 @@ def write_header(file):
 
     """
 
-    file.write("# TEST CASE PROPELLER DATA.\n")
+    file.write("# Automatic generated actuator disk input data file using\n")
+    file.write("# the Optimal Propeller code.\n")
+    file.write("# Data file needed for the actuator disk VARIABLE_LOAD type.\n")
+    file.write("# The load distribution is obtained using\n")
+    file.write("# the inviscid theory of the optimal propeller using global data.\n")
+    file.write("#\n")
     file.write("# ADV_RATIO defined as Vinf/(nD) where: \n")
     file.write("#    n: propeller rounds per second,\n")
     file.write("#    D: propeller diameter.\n")
@@ -53,8 +58,9 @@ def write_header(file):
     file.write("# reference force = rho*n^2*D^4, reference power = rho*n^3*D^5.\n")
     file.write("# Propeller center in grid coordinates.\n")
     file.write("# Propeller axis versor pointing backward.\n")
-    file.write("# Total thrust coefficient CT = 0.15.\n")
-    file.write("# --------------------------------------------------------------------------- #\n")
+    file.write("# This output file is generated thanks to a script created by\n")
+    file.write("# University of Naples Federico II and modified by CFS Engineering\n")
+    file.write("# -----------------------------------------------------------------------------\n")
 
     return file
 
@@ -72,6 +78,8 @@ def write_actuator_disk_data(file, inlet_marker, outlet_marker, center, axis, ra
         radius (float): Radius of the actuator disk
 
     """
+
+    # TODO: add Ct for this engine
 
     file.write(f"MARKER_ACTDISK= {inlet_marker} {outlet_marker}\n")
     file.write(f"CENTER= {center[0]} {center[1]} {center[2]}\n")

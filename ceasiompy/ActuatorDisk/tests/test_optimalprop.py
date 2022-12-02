@@ -27,7 +27,7 @@ from ceasiompy.ActuatorDisk.func.optimalprop import (
     radial_stations,
     thrust_calculator,
 )
-from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.ceasiompyutils import get_results_directory, remove_file_type_in_dir
 from pytest import approx
 
 MODULE_DIR = Path(__file__).parent
@@ -80,6 +80,7 @@ def test_prandtl_corr():
 
 
 def test_check_output():
+    results_dir = get_results_directory("ActuatorDisk")
     """Test function which made different test on thrust_coefficient function, the test function
     recive a vector with input parameter [total_thrust_coefficient, radius, hub radius,
     free_stream_velocity, prandtl, blades_number, rotational_velocity]
@@ -120,6 +121,8 @@ def test_check_output():
         assert thrust_over_density == approx(values[1][2], rel=1e-3)
         assert efficiency == approx(values[1][3], rel=1e-3)
 
+        remove_file_type_in_dir(results_dir, [".dat"])
+
 
 def test_file_exist():
 
@@ -138,6 +141,8 @@ def test_file_exist():
 
     assert lines[0] == "# Automatic generated actuator disk input data file using\n"
     assert lines[-1] == "1.0000000     0.0000000      0.0000000     0.0\n"
+
+    remove_file_type_in_dir(results_dir, [".dat"])
 
 
 def test_adimentional_radius():

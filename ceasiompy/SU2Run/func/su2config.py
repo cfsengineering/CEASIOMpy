@@ -148,7 +148,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         log.info("Symmetry plane is defined. The reference area will be divided by 2.")
         sym_factor = 2.0
 
-    # General parmeters
+    # General parameters
     cfg["RESTART_SOL"] = "NO"
     cfg["REF_LENGTH"] = cpacs.aircraft.ref_length
     cfg["REF_AREA"] = cpacs.aircraft.ref_area / sym_factor
@@ -167,7 +167,6 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     cfg["DCL_DALPHA"] = "0.1"
     cfg["UPDATE_AOA_ITER_LIMIT"] = "50"
     cfg["ITER_DCL_DALPHA"] = "80"
-    # TODO: correct value for the 3 previous parameters ??
 
     # Mesh Marker
     bc_wall_str = f"( {','.join(mesh_markers['wall'])} )"
@@ -220,7 +219,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         cfg["ACTDISK_TYPE"] = "VARIABLE_LOAD"
         cfg["ACTDISK_FILENAME"] = ACTUATOR_DISK_FILE_NAME
 
-        # Multi grid diverges when there is a disk actuator
+        # Calculation diverges if multigrid is used with a disk actuator
         cfg["MGLEVEL"] = 0
 
         actdisk_markers = []
@@ -244,7 +243,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
                 uid = inlet_uid
                 sym = 1
 
-            center = [] * 3
+            center = []
             center.append(round(rotor_uid_pos[uid][0], 5))
             center.append(round(sym * rotor_uid_pos[uid][1], 5))
             center.append(round(rotor_uid_pos[uid][2], 5))
@@ -319,20 +318,17 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             cfg["ROTATION_RATE"] = f"{rotation_rate} 0.0 0.0"
             case_dir = Path(wkdir, f"{case_dir_name}_dp")
             case_dir.mkdir()
-            config_output_path = Path(case_dir, CONFIG_CFD_NAME)
-            cfg.write_file(config_output_path, overwrite=True)
+            cfg.write_file(Path(case_dir, CONFIG_CFD_NAME), overwrite=True)
 
             cfg["ROTATION_RATE"] = f"0.0 {rotation_rate} 0.0"
             case_dir = Path(wkdir, f"{case_dir_name}_dq")
             case_dir.mkdir()
-            config_output_path = Path(case_dir, CONFIG_CFD_NAME)
-            cfg.write_file(config_output_path, overwrite=True)
+            cfg.write_file(Path(case_dir, CONFIG_CFD_NAME), overwrite=True)
 
             cfg["ROTATION_RATE"] = f"0.0 0.0 {rotation_rate}"
             case_dir = Path(wkdir, f"{case_dir_name}_dr")
             case_dir.mkdir()
-            config_output_path = Path(case_dir, CONFIG_CFD_NAME)
-            cfg.write_file(config_output_path, overwrite=True)
+            cfg.write_file(Path(case_dir, CONFIG_CFD_NAME), overwrite=True)
 
             log.info("Damping derivatives cases directory has been created.")
 
@@ -353,8 +349,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
                 config_dir_path.mkdir()
                 cfg["MESH_FILENAME"] = mesh_path
 
-                config_output_path = Path(wkdir, config_dir_path, CONFIG_CFD_NAME)
-                cfg.write_file(config_output_path, overwrite=True)
+                cfg.write_file(Path(config_dir_path, CONFIG_CFD_NAME), overwrite=True)
 
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 

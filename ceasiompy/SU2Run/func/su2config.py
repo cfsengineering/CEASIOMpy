@@ -84,7 +84,6 @@ def add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate):
         wkdir (Path): Path to the working directory
         case_dir_name (str): Name of the case directory
         rotation_rate (float): Rotation rate that will be impose to calculate damping derivatives
-
     """
 
     cfg["GRID_MOVEMENT"] = "ROTATING_FRAME"

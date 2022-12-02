@@ -75,6 +75,30 @@ MODULE_DIR = Path(__file__).parent
 # =================================================================================================
 
 
+def add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate):
+
+    cfg["GRID_MOVEMENT"] = "ROTATING_FRAME"
+
+    cfg["ROTATION_RATE"] = f"{rotation_rate} 0.0 0.0"
+    case_dir = Path(wkdir, f"{case_dir_name}_dp")
+    case_dir.mkdir()
+    cfg.write_file(Path(case_dir, CONFIG_CFD_NAME), overwrite=True)
+
+    cfg["ROTATION_RATE"] = f"0.0 {rotation_rate} 0.0"
+    case_dir = Path(wkdir, f"{case_dir_name}_dq")
+    case_dir.mkdir()
+    cfg.write_file(Path(case_dir, CONFIG_CFD_NAME), overwrite=True)
+
+    cfg["ROTATION_RATE"] = f"0.0 0.0 {rotation_rate}"
+    case_dir = Path(wkdir, f"{case_dir_name}_dr")
+    case_dir.mkdir()
+    cfg.write_file(Path(case_dir, CONFIG_CFD_NAME), overwrite=True)
+
+    log.info("Damping derivatives cases directories has been created.")
+
+    return cfg
+
+
 def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     """Function to create SU2 config file.
 
@@ -308,29 +332,12 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             case_actuator_disk_file = Path(case_dir_path, ACTUATOR_DISK_FILE_NAME)
             copyfile(actuator_disk_file, case_actuator_disk_file)
 
-        # Damping derivatives  (TODO: create a subfunctions)
         if get_value_or_default(cpacs.tixi, SU2_DAMPING_DER_XPATH, False):
 
-            rotation_rate = str(get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, 1.0))
+            rotation_rate = get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, 1.0)
 
-            cfg["GRID_MOVEMENT"] = "ROTATING_FRAME"
+            cfg = add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate)
 
-            cfg["ROTATION_RATE"] = f"{rotation_rate} 0.0 0.0"
-            case_dir = Path(wkdir, f"{case_dir_name}_dp")
-            case_dir.mkdir()
-            cfg.write_file(Path(case_dir, CONFIG_CFD_NAME), overwrite=True)
-
-            cfg["ROTATION_RATE"] = f"0.0 {rotation_rate} 0.0"
-            case_dir = Path(wkdir, f"{case_dir_name}_dq")
-            case_dir.mkdir()
-            cfg.write_file(Path(case_dir, CONFIG_CFD_NAME), overwrite=True)
-
-            cfg["ROTATION_RATE"] = f"0.0 0.0 {rotation_rate}"
-            case_dir = Path(wkdir, f"{case_dir_name}_dr")
-            case_dir.mkdir()
-            cfg.write_file(Path(case_dir, CONFIG_CFD_NAME), overwrite=True)
-
-            log.info("Damping derivatives cases directory has been created.")
 
         # Control surfaces deflections (TODO: create a subfunctions)
         if get_value_or_default(cpacs.tixi, SU2_CONTROL_SURF_XPATH, False):

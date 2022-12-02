@@ -153,7 +153,6 @@ def thrust_calculator(
     STATIONS = 40
 
     advanced_ratio = free_stream_velocity / (rotational_velocity * (radius * 2))
-    print(advanced_ratio)
 
     r = radial_stations(radius, hub_radius)
 

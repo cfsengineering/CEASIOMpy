@@ -120,28 +120,27 @@ def get_mesh_markers(su2_mesh_path):
 
 def get_su2_version():
     """
-    Return the version of the installed SU2
+    Return the installed version of SU2.
     """
 
     su2py_path = get_install_path("SU2_CFD.py")
 
-    if su2py_path:
-        with open(su2py_path, "r") as f:
-            for line in f.readlines():
-                try:
-                    version = re.search(r"version\s*([\d.]+)", line).group(1)
-                except AttributeError:
-                    version = None
+    if not su2py_path:
+        return None
 
-                if version is not None:
-                    log.info(f"Version of SU2 detected: {version}")
-                    return version
+    with open(su2py_path, "r") as f:
+        for line in f.readlines():
 
-    return None
+            if not "version" in line:
+                continue
+
+            version = re.search(r"version\s*([\d.]+)", line).group(1)
+            log.info(f"Version of SU2: {version}")
+            return version
 
 
 def get_su2_config_template():
-    """Return path of the SU2 config template coresponding to the SU2 version."""
+    """Return path of the SU2 config template corresponding to the SU2 version."""
 
     su2_version = get_su2_version()
     su2_dir = get_module_path("SU2Run")

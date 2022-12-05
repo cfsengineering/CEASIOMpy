@@ -28,8 +28,6 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()
 
-NUMBER_OF_STATIONS = 40
-
 
 # =================================================================================================
 #   CLASSES
@@ -41,7 +39,7 @@ NUMBER_OF_STATIONS = 40
 # =================================================================================================
 
 
-def get_radial_stations(radius, hub_radius):
+def get_radial_stations(radius, hub_radius, number_of_stations=40):
     """Function to adimensionalize the radius and remove values smaller than hub radius.
 
     Args:
@@ -56,7 +54,7 @@ def get_radial_stations(radius, hub_radius):
     if hub_radius >= radius:
         raise ValueError("hub radius should be smaller than radius")
 
-    radial_stations = np.linspace(0, 1, NUMBER_OF_STATIONS + 1)[1:]
+    radial_stations = np.linspace(0, 1, number_of_stations + 1)[1:]
     i_hub = np.abs(radial_stations - hub_radius / radius).argmin()
 
     if radial_stations[i_hub] < hub_radius:

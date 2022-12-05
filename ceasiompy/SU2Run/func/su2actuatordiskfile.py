@@ -72,7 +72,7 @@ def write_actuator_disk_data(
     center,
     axis,
     radius,
-    advance_ratio,
+    advanced_ratio,
     radial_stations,
     radial_thrust_coefs,
     radial_power_coefs,
@@ -87,7 +87,7 @@ def write_actuator_disk_data(
         center (tuple): Center of the actuator disk (x,y,z)
         axis (tuple): Axis of the actuator disk (x,y,z)
         radius (float): Radius of the actuator disk
-        advance_ratio (float): Advance ratio
+        advanced_ratio (float): Advance ratio
         radial_stations (np.array): adimensional radius along the blade. Multiply by radius to
                                        get the real radius value
         radial_thrust_coefs (np.array): Thrust coefficient at each radial_stations
@@ -101,7 +101,7 @@ def write_actuator_disk_data(
     file.write(f"CENTER= {center[0]} {center[1]} {center[2]}\n")
     file.write(f"AXIS= {axis[0]} {axis[1]} {axis[2]}\n")
     file.write(f"RADIUS= {radius}\n")
-    file.write(f"ADV_RATIO= {advance_ratio:.5f}\n")
+    file.write(f"ADV_RATIO= {advanced_ratio:.5f}\n")
     file.write(f"NROW= {len(radial_stations)}\n")
     file.write("# rs=r/R    dCT/drs     dCP/drs     dCR/drs\n")
 

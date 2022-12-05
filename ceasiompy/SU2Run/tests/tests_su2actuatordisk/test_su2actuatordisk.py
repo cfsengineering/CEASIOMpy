@@ -40,7 +40,7 @@ def test_write_actuator_disk_data(tmp_path):
 
     correct_actuatordisck_path = Path(MODULE_DIR, "correct_ActuatorDisk.dat")
     test_actuatordisk_path = Path(tmp_path, "ActuatorDisk.dat")
-    
+
     with open(test_actuatordisk_path, "w") as f:
 
         write_actuator_disk_data(
@@ -50,14 +50,13 @@ def test_write_actuator_disk_data(tmp_path):
             center=(0, 5, 0),
             axis=(1, 0, 0),
             radius=2.5,
-            advance_ratio=1.5,
+            advanced_ratio=1.5,
             radial_stations=np.array([0.2, 0.4, 0.6, 0.8, 1.0]),
             radial_thrust_coefs=np.array([0.02, 0.04, 0.06, 0.08, 0.06]),
             radial_power_coefs=np.array([0.1, 0.2, 0.3, 0.4, 0.3]),
         )
 
     assert test_actuatordisk_path.read_text() == correct_actuatordisck_path.read_text()
-
 
 
 # =================================================================================================

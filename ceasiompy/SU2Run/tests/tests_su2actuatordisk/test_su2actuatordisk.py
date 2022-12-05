@@ -23,10 +23,14 @@ import pytest
 
 
 from ceasiompy.SU2Run.func.su2actuatordiskfile import (
+    axial_interference_function,
     get_advanced_ratio,
     get_radial_stations,
+    prandtl_corr,
+    thrust_calculator,
     write_actuator_disk_data,
 )
+from ceasiompy.utils.ceasiompyutils import get_results_directory, remove_file_type_in_dir
 
 MODULE_DIR = Path(__file__).parent
 
@@ -60,6 +64,74 @@ def test_get_advanced_ratio():
 
     assert get_advanced_ratio(1000, 0.3, 100, 2) == pytest.approx(0.2523, 1e-3)
     assert get_advanced_ratio(10000, 0.48, 100, 1.5) == pytest.approx(0.47925, 1e-3)
+
+
+def test_axial_interference():
+
+    lagrangian_molt = np.array([0.3, 0.12, 0.05])
+    adimensional_radius = np.array([0.25, 0.5, 0.75])
+
+    calc_axial_interference = np.array([0.01699, 0.01994, 0.01689])
+
+    axial_interference_factor = axial_interference_function(lagrangian_molt, adimensional_radius)
+
+    assert all(axial_interference_factor) == all(calc_axial_interference)
+
+
+def test_prandtl_corr():
+
+    r = np.arange(0.1, 1, 0.09)
+    correction_values = prandtl_corr(True, 2, r, 30, 0.8, 120)
+
+    output_values = np.array(
+        [
+            0.73844572,
+            0.71153049,
+            0.68137418,
+            0.64739118,
+            0.6087976,
+            0.56449233,
+            0.51282436,
+            0.45107467,
+            0.37404968,
+            0.26860365,
+        ]
+    )
+    assert correction_values == pytest.approx(output_values)
+
+
+def test_check_output():
+    """Test function which made different test on thrust_coefficient function, the test function
+    receive a vector with input parameter [total_thrust_coefficient, radius, hub radius,
+    free_stream_velocity, prandtl, blades_number, rotational_velocity]
+    the function will give an output file to compare with given result vector
+    [renard_thrust_coeff, power_coeff, thrust_over_density, efficiency]
+    """
+
+    results_dir = get_results_directory("ActuatorDisk")
+
+    input_values = {
+        "test1": [[0.5, 1.5, 0.2, 150, True, 2, 33], [0.5, 0.965, 44104.5, 0.7847]],
+        "test2": [[0.8, 1.5, 0.15, 0.1, True, 3, 33], [0, 0.00744, 0, 0]],
+        "test3": [[1, 1.2, 0.1, 180, False, 3, 33], [1, 3.010, 36130.40, 0.7549]],
+        "test4": [[1.2, 1.4, 0.1, 140, True, 2, 33], [1.2, 3.299, 80323.24, 0.55097]],
+        "test5": [[1.5, 2, 0.2, 190, True, 8, 33], [1.5, 4.6177, 418175.999, 0.4675]],
+        "test6": [[0.2, 1.4, 0.1, 130, True, 2, 33], [0.2, 0.3138, 13387.20, 0.8966]],
+        "test7": [[0.15, 1.4, 0.1, 130, True, 2, 33], [0.15, 0.2292, 10040.4057, 0.92068]],
+        "test8": [[1.2, 1.7, 0.5107, 160, False, 6, 22], [1.199, 3.7025, 77614.39, 0.6932]],
+    }
+
+    for values in input_values.values():
+
+        renard_thrust_coeff, power_coeff = thrust_calculator(*values[0])
+
+        assert np.sum((1 / 40.0) * renard_thrust_coeff) == pytest.approx(values[1][0], rel=1e-3)
+        assert np.sum((1 / 40.0) * power_coeff) == pytest.approx(values[1][1], rel=1e-3)
+
+        # assert thrust_over_density == pytest.approx(values[1][2], rel=1e-3)
+        # assert efficiency == pytest.approx(values[1][3], rel=1e-3)
+
+        remove_file_type_in_dir(results_dir, [".dat"])
 
 
 def test_write_actuator_disk_data(tmp_path):

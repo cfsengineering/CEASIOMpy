@@ -44,6 +44,7 @@ def test_get_radial_stations():
     np.testing.assert_almost_equal(get_radial_stations(1, 0.1), (np.arange(0.1, 1.02, 0.025)))
     np.testing.assert_almost_equal(get_radial_stations(1, 0.5), (np.arange(0.5, 1.02, 0.025)))
     np.testing.assert_almost_equal(get_radial_stations(1, 0.2), (np.arange(0.2, 1.02, 0.025)))
+    np.testing.assert_almost_equal(get_radial_stations(1, 0.0), (np.arange(0.0, 1.02, 0.025))[1:])
 
 
 def test_write_actuator_disk_data(tmp_path):

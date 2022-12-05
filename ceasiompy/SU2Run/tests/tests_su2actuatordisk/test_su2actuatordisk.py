@@ -163,14 +163,6 @@ def test_check_output():
         ],
     }
 
-    # radial_stations
-    # total_thrust_coefficient,
-    # radius,
-    # free_stream_velocity,
-    # prandtl,
-    # blades_number,
-    # rotational_velocity,
-
     for values in input_values.values():
 
         renard_thrust_coeff, power_coeff = thrust_calculator(*values[0])

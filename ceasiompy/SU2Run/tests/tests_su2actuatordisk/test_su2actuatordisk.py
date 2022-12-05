@@ -24,6 +24,7 @@ import pytest
 
 from ceasiompy.SU2Run.func.su2actuatordiskfile import (
     axial_interference_function,
+    calculate_radial_thrust_coefs,
     get_advanced_ratio,
     get_prandtl_correction_values,
     get_radial_stations,
@@ -99,6 +100,21 @@ def test_get_prandtl_correction_values():
         ]
     )
     assert correction_values == pytest.approx(output_values)
+
+
+def test_calculate_radial_thrust_coefs():
+    """Test function 'calculate_radial_thrust_coefs'"""
+
+    radial_thrust_coefs = calculate_radial_thrust_coefs(
+        radial_stations=get_radial_stations(1, 0.2, number_of_stations=4),
+        advanced_ratio=1.0,
+        opt_axial_interf_factor=np.array([1.0, 1.0, 1.0, 1.0]),
+    )
+
+    assert radial_thrust_coefs[0] == np.pi / 2
+    assert radial_thrust_coefs[1] == np.pi
+    assert radial_thrust_coefs[2] == 3 * np.pi / 2
+    assert radial_thrust_coefs[3] == 2 * np.pi
 
 
 def test_check_output():

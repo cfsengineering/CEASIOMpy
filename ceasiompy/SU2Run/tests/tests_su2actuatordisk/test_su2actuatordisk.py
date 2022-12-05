@@ -21,7 +21,12 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from ceasiompy.SU2Run.func.su2actuatordiskfile import get_radial_stations, write_actuator_disk_data
+
+from ceasiompy.SU2Run.func.su2actuatordiskfile import (
+    get_advanced_ratio,
+    get_radial_stations,
+    write_actuator_disk_data,
+)
 
 MODULE_DIR = Path(__file__).parent
 
@@ -45,6 +50,16 @@ def test_get_radial_stations():
     np.testing.assert_almost_equal(get_radial_stations(1, 0.5), (np.arange(0.5, 1.02, 0.025)))
     np.testing.assert_almost_equal(get_radial_stations(1, 0.2), (np.arange(0.2, 1.02, 0.025)))
     np.testing.assert_almost_equal(get_radial_stations(1, 0.0), (np.arange(0.0, 1.02, 0.025))[1:])
+
+
+def test_get_advanced_ratio():
+    """Test function 'get_advanced_ratio'"""
+
+    with pytest.raises(ValueError):
+        get_advanced_ratio(1000, 0.3, 0, 2)
+
+    assert get_advanced_ratio(1000, 0.3, 100, 2) == pytest.approx(0.2523, 1e-3)
+    assert get_advanced_ratio(10000, 0.48, 100, 1.5) == pytest.approx(0.47925, 1e-3)
 
 
 def test_write_actuator_disk_data(tmp_path):

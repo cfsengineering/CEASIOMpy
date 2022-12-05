@@ -21,7 +21,7 @@ from pathlib import Path
 import numpy as np
 import pytest
 
-from ceasiompy.SU2Run.func.su2actuatordiskfile import write_actuator_disk_data
+from ceasiompy.SU2Run.func.su2actuatordiskfile import get_radial_stations, write_actuator_disk_data
 
 MODULE_DIR = Path(__file__).parent
 
@@ -33,6 +33,17 @@ MODULE_DIR = Path(__file__).parent
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def test_get_radial_stations():
+    """Test function 'get_radial_stations'"""
+
+    with pytest.raises(ValueError):
+        get_radial_stations(1, 1.1)
+
+    np.testing.assert_almost_equal(get_radial_stations(1, 0.1), (np.arange(0.1, 1.02, 0.025)))
+    np.testing.assert_almost_equal(get_radial_stations(1, 0.5), (np.arange(0.5, 1.02, 0.025)))
+    np.testing.assert_almost_equal(get_radial_stations(1, 0.2), (np.arange(0.2, 1.02, 0.025)))
 
 
 def test_write_actuator_disk_data(tmp_path):

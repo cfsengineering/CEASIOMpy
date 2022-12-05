@@ -10,8 +10,8 @@ Source: https://github.com/su2code/SU2/blob/master/TestCases/rans/
 
 Python version: >=3.8
 
-| Author : Aidan Jungo
-| Creation: 2022-05-31
+| Author : Aidan Jungo and Giacomo Benedetti
+| Creation: 2022-12-05
 
 TODO:
 
@@ -22,9 +22,13 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+import numpy as np
+
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()
+
+NUMBER_OF_STATIONS = 40
 
 
 # =================================================================================================
@@ -35,6 +39,29 @@ log = get_logger()
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def get_radial_stations(radius, hub_radius):
+    """Function to adimensionalize the radius and remove values smaller than hub radius.
+
+    Args:
+        radius (float): Propeller radius [m]
+        hub_radius (float): Hub radius [m]
+
+    Returns:
+        radial_stations (np.array): adimensional radius along the blade. Multiply by radius to
+                                    get the real radius value
+    """
+
+    if hub_radius >= radius:
+        raise ValueError("hub radius should be smaller than radius")
+
+    radial_stations = np.linspace(0, 1, NUMBER_OF_STATIONS + 1)[1:]
+    i_hub = np.abs(radial_stations - hub_radius / radius).argmin()
+
+    if radial_stations[i_hub] < hub_radius:
+        i_hub += 1
+    return radial_stations[i_hub:]
 
 
 def write_header(file):

@@ -27,6 +27,7 @@ from ambiance import Atmosphere
 from ceasiompy.SU2Run.func.su2actuatordiskfile import (
     get_advanced_ratio,
     get_radial_stations,
+    save_plots,
     thrust_calculator,
     write_actuator_disk_data,
     write_header,
@@ -113,12 +114,13 @@ def add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate):
     log.info("Damping derivatives cases directories has been created.")
 
 
-def add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers, alt, mach):
+def add_actuator_disk(cfg, cpacs, case_dir_path, actuator_disk_file, mesh_markers, alt, mach):
     """Add actuator disk parameter to the config file.
 
     Args:
         cfg (ConfigFile): ConfigFile object.
         cpacs (CPACS): CPACS object from cpacspy library
+        case_dir_path (Path): Path object to the current case directory
         actuator_disk_file (Path): Path to the actuator disk file
         mesh_markers (dict): Dictionary containing all the mesh markers
 
@@ -225,7 +227,14 @@ def add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers, alt, mach):
             thrust / (Atm.density * rotational_velocity**2 * (radius * 2) ** 4)
         )
 
-        radial_thrust_coefs, radial_power_coefs = thrust_calculator(
+        (
+            radial_thrust_coefs,
+            radial_power_coefs,
+            non_dimensional_radius,
+            optimal_axial_interference_factor,
+            optimal_rotational_interference_factor,
+            prandtl_correction_values,
+        ) = thrust_calculator(
             radial_stations,
             total_thrust_coefficient,
             radius,
@@ -233,6 +242,17 @@ def add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers, alt, mach):
             prandtl_correction,
             blades_number,
             rotational_velocity,
+        )
+
+        save_plots(
+            radial_stations,
+            radial_thrust_coefs,
+            radial_power_coefs,
+            non_dimensional_radius,
+            optimal_axial_interference_factor,
+            optimal_rotational_interference_factor,
+            prandtl_correction_values,
+            case_dir_path,
         )
 
         f = write_actuator_disk_data(
@@ -359,9 +379,6 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     cfg["MARKER_MOVING"] = "( NONE )"  # TODO: when do we need to define MARKER_MOVING?
     cfg["DV_MARKER"] = bc_wall_str
 
-    # TODO: call the function only when required
-    actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
-
     # Output
     cfg["WRT_FORCES_BREAKDOWN"] = "YES"
     cfg["BREAKDOWN_FILENAME"] = SU2_FORCES_BREAKDOWN_NAME
@@ -396,7 +413,9 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         if not case_dir_path.exists():
             case_dir_path.mkdir()
 
-        add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers, alt, mach)
+        actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
+
+        add_actuator_disk(cfg, cpacs, case_dir_path, actuator_disk_file, mesh_markers, alt, mach)
 
         config_output_path = Path(case_dir_path, CONFIG_CFD_NAME)
         cfg.write_file(config_output_path, overwrite=True)

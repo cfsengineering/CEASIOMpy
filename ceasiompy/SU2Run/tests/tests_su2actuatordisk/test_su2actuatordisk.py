@@ -157,10 +157,10 @@ def test_thrust_calculator():
             [1.199, 3.7025, 77614.39, 0.6932],
         ],
     }
-
+    
     for values in input_values.values():
 
-        renard_thrust_coeff, power_coeff = thrust_calculator(*values[0])
+        renard_thrust_coeff, power_coeff, _,_,_,_ = thrust_calculator(*values[0])
 
         assert np.sum((1 / 40.0) * renard_thrust_coeff) == pytest.approx(values[1][0], rel=1e-3)
         assert np.sum((1 / 40.0) * power_coeff) == pytest.approx(values[1][1], rel=1e-3)

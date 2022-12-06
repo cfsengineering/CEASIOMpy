@@ -158,13 +158,13 @@ def save_plots(
     optimal_axial_interference_factor,
     optimal_rotational_interference_factor,
     prandtl_correction_values,
+    case_dir_path,
 ):
     """Function to save plot in result folder"""
 
-    results_dir = get_results_directory("SU2Run")
-    interference_plot_path = Path(results_dir, "interference_plot.png")
-    ct_cp_distr_plot_path = Path(results_dir, "ct_cp_distr.png")
-    prandtl_correction_plot_path = Path(results_dir, "prandtl_correction_plot.png")
+    interference_plot_path = Path(case_dir_path, "interference_plot.png")
+    ct_cp_distr_plot_path = Path(case_dir_path, "ct_cp_distr.png")
+    prandtl_correction_plot_path = Path(case_dir_path, "prandtl_correction_plot.png")
 
     f1 = plt.figure(1)
     plt.plot(
@@ -425,8 +425,7 @@ def thrust_calculator(
 
     # log.info("SU2 file generated!")
 
-    save_plots(
-        radial_stations,
+    return (
         radial_thrust_coefs,
         radial_power_coefs,
         non_dimensional_radius,
@@ -434,8 +433,6 @@ def thrust_calculator(
         optimal_rotational_interference_factor,
         prandtl_correction_values,
     )
-
-    return radial_thrust_coefs, radial_power_coefs
 
 
 def write_header(file):

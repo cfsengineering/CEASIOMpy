@@ -23,10 +23,12 @@ TODO:
 # =================================================================================================
 
 import math
+from pathlib import Path
 
 import numpy as np
-from ambiance import Atmosphere
+import matplotlib.pyplot as plt
 from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 log = get_logger()
 
@@ -148,12 +150,86 @@ def calculate_radial_thrust_coefs(radial_stations, advanced_ratio, opt_axial_int
     )
 
 
+def function_plot(
+    radial_stations,
+    radial_thrust_coefs,
+    radial_power_coefs,
+    non_dimensional_radius,
+    optimal_axial_interference_factor,
+    optimal_rotational_interference_factor,
+    prandtl_correction_values,
+):
+    """Function to save plot in result folder"""
+
+    results_dir = get_results_directory("SU2Run")
+    interference_plot_path = Path(results_dir, "interference_plot.png")
+    ct_cp_distr_plot_path = Path(results_dir, "ct_cp_distr.png")
+    prandtl_correction_plot_path = Path(results_dir, "prandtl_correction_plot.png")
+
+    f1 = plt.figure(1)
+    plt.plot(
+        radial_stations,
+        radial_thrust_coefs,
+        "r",
+        markersize=4,
+        label="$\\frac{dCT}{d\overline{r}}$",
+    )
+    plt.plot(
+        radial_stations,
+        radial_power_coefs,
+        "k",
+        markersize=4,
+        label="$\\frac{dCP}{d\overline{r}}$",
+    )
+    plt.grid(True)
+    plt.legend()
+    plt.xlabel("$\overline{r}$")
+    plt.ylabel("$dC_t$,  $dC_p$")
+    plt.title("Load Distribution")
+
+    f1.savefig(ct_cp_distr_plot_path)
+    plt.clf()
+
+    f2 = plt.figure(2)
+    plt.plot(
+        non_dimensional_radius,
+        optimal_axial_interference_factor,
+        "r",
+        markersize=4,
+        label="$a$",
+    )
+    plt.plot(
+        non_dimensional_radius,
+        optimal_rotational_interference_factor,
+        "k",
+        markersize=4,
+        label="$a^1$",
+    )
+    plt.grid(True)
+    plt.legend(numpoints=3)
+    plt.xlabel("$\chi$")
+    plt.ylabel("$a$, $a^1$")
+    plt.title("Interference Factors")
+
+    f2.savefig(interference_plot_path)
+    plt.clf()
+
+    f3 = plt.figure(3)
+    plt.plot(radial_stations, prandtl_correction_values, "k", markersize=4)
+    plt.grid(True)
+    plt.xlabel("$\overline{r}$")
+    plt.ylabel("$F(\overline{r})$")
+    plt.title("Tip Loss Prandtl Correction Function")
+    f3.savefig(prandtl_correction_plot_path)
+    plt.clf()
+
+
 def thrust_calculator(
     radial_stations,
     total_thrust_coefficient,
     radius,
     free_stream_velocity,
-    prandtl,
+    prandtl_correction,
     blades_number,
     rotational_velocity,
 ):
@@ -163,7 +239,7 @@ def thrust_calculator(
             total_thrust_coefficient (float): Total thrust coefficient[-]
             radius (float): Blade radius [m]
             free_stream_velocity (float): Cruise velocity [m/s]
-            prandtl (bool): Correction for tip losses
+            prandtl_correction (bool): Correction for tip losses
             blades_number (int): Blades propeller number[-]
             rotational_velocity (int): Blade velocity rotation [1/s]
 
@@ -181,7 +257,7 @@ def thrust_calculator(
     vectorized_axial_interf_f = np.vectorize(axial_interference_function)
 
     prandtl_correction_values = get_prandtl_correction_values(
-        radial_stations, prandtl, blades_number, omega, radius, free_stream_velocity
+        radial_stations, prandtl_correction, blades_number, omega, radius, free_stream_velocity
     )
 
     # TODO: put in the markdown file
@@ -190,7 +266,7 @@ def thrust_calculator(
     # log.info(f"Number of radial station= {len(radial_stations)}")
     # log.info(f"Advanced ratio= {advanced_ratio}")
     # log.info(f"Free stream velocity= {free_stream_velocity}")
-    # log.info(f"Prandtl correction= {prandtl}")
+    # log.info(f"Prandtl correction= {prandtl_correction}")
     # log.info(f"Number of blades= {blades_number}")
 
     non_dimensional_radius = np.pi * radial_stations / advanced_ratio
@@ -348,6 +424,16 @@ def thrust_calculator(
     # log.info(f"Lagrangian multiplicator/free_stream_velocity= {new_lagrange_multiplicator}")
 
     # log.info("SU2 file generated!")
+
+    function_plot(
+        radial_stations,
+        radial_thrust_coefs,
+        radial_power_coefs,
+        non_dimensional_radius,
+        optimal_axial_interference_factor,
+        optimal_rotational_interference_factor,
+        prandtl_correction_values,
+    )
 
     return radial_thrust_coefs, radial_power_coefs
 

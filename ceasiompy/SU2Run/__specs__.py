@@ -257,7 +257,7 @@ cpacs_inout.add_input(
     gui_group="Results",
 )
 
-### Actuator disk
+# Actuator disk
 cpacs_inout.add_input(
     var_name="thrust",
     var_type=float,

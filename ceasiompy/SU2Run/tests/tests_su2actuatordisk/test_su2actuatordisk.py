@@ -69,14 +69,13 @@ def test_get_advanced_ratio():
 
 def test_axial_interference():
 
-    lagrangian_molt = np.array([0.3, 0.12, 0.05])
+    lagrangian_mult = np.array([0.3, 0.12, 0.05])
     adimensional_radius = np.array([0.25, 0.5, 0.75])
+    axial_interference_factor = axial_interference_function(lagrangian_mult, adimensional_radius)
 
-    calc_axial_interference = np.array([0.01699, 0.01994, 0.01689])
-
-    axial_interference_factor = axial_interference_function(lagrangian_molt, adimensional_radius)
-
-    assert all(axial_interference_factor) == all(calc_axial_interference)
+    np.testing.assert_array_almost_equal(
+        axial_interference_factor, np.array([0.010699, 0.019942, 0.016892])
+    )
 
 
 def test_get_prandtl_correction_values():

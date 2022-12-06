@@ -26,7 +26,9 @@ from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.engineconversion import engine_conversion
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
+from ceasiompy.utils.commonxpath import GMSH_EXPORT_PROP_XPATH
 from ceasiompy.utils.configfiles import ConfigFile
+from cpacspy.cpacsfunctions import get_value_or_default
 
 from tigl3.import_export_helper import export_shapes
 
@@ -185,11 +187,12 @@ def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
     """
 
     # Get rotor config
-    try:
-        rotorcraft_config = cpacs.rotorcraft.configuration
-        rotor_config(rotorcraft_config, brep_dir)
-    except AttributeError:
-        pass
+    if get_value_or_default(cpacs.tixi, GMSH_EXPORT_PROP_XPATH, False):
+        try:
+            rotorcraft_config = cpacs.rotorcraft.configuration
+            rotor_config(rotorcraft_config, brep_dir)
+        except AttributeError:
+            pass
 
     # get the aircraft configuration
     aircraft_config = cpacs.aircraft.configuration

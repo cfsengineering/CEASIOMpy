@@ -7,6 +7,7 @@ from ceasiompy.utils.commonxpath import (
     PROP_XPATH,
     RANGE_XPATH,
     REF_XPATH,
+    SU2_ACTUATOR_DISK_XPATH,
     SU2_AEROMAP_UID_XPATH,
     SU2_BC_FARFIELD_XPATH,
     SU2_BC_WALL_XPATH,
@@ -258,6 +259,19 @@ cpacs_inout.add_input(
 )
 
 # Actuator disk
+
+cpacs_inout.add_input(
+    var_name="include_actuator_disk",
+    var_type=bool,
+    default_value=False,
+    unit="1",
+    descr="To check if actuator disk(s) should be included in the SU2 calculation",
+    xpath=SU2_ACTUATOR_DISK_XPATH,
+    gui=True,
+    gui_name="Include actuator disk(s)",
+    gui_group="Actuator disk",
+)
+
 cpacs_inout.add_input(
     var_name="thrust",
     var_type=float,

@@ -45,6 +45,7 @@ from ceasiompy.utils.commonxpath import (
     GMSH_SYMMETRY_XPATH,
     PROP_XPATH,
     RANGE_XPATH,
+    SU2_ACTUATOR_DISK_XPATH,
     SU2_AEROMAP_UID_XPATH,
     SU2_BC_FARFIELD_XPATH,
     SU2_BC_WALL_XPATH,
@@ -429,16 +430,19 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         if not case_dir_path.exists():
             case_dir_path.mkdir()
 
-        actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
+        if get_value_or_default(cpacs.tixi, SU2_ACTUATOR_DISK_XPATH, False):
+            
+            actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
+            add_actuator_disk(
+                cfg, cpacs, case_dir_path, actuator_disk_file, mesh_markers, alt, mach
+            )
 
-        add_actuator_disk(cfg, cpacs, case_dir_path, actuator_disk_file, mesh_markers, alt, mach)
+            if actuator_disk_file.exists():
+                case_actuator_disk_file = Path(case_dir_path, ACTUATOR_DISK_FILE_NAME)
+                copyfile(actuator_disk_file, case_actuator_disk_file)
 
         config_output_path = Path(case_dir_path, CONFIG_CFD_NAME)
         cfg.write_file(config_output_path, overwrite=True)
-
-        if actuator_disk_file.exists():
-            case_actuator_disk_file = Path(case_dir_path, ACTUATOR_DISK_FILE_NAME)
-            copyfile(actuator_disk_file, case_actuator_disk_file)
 
         if get_value_or_default(cpacs.tixi, SU2_DAMPING_DER_XPATH, False):
             rotation_rate = get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, 1.0)

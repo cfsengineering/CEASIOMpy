@@ -20,6 +20,7 @@ Python version: >=3.8
 from pathlib import Path
 import numpy as np
 import pytest
+from ambiance import Atmosphere
 
 
 from ceasiompy.SU2Run.func.su2actuatordiskfile import (
@@ -61,10 +62,15 @@ def test_get_advanced_ratio():
     """Test function 'get_advanced_ratio'"""
 
     with pytest.raises(ValueError):
-        get_advanced_ratio(1000, 0.3, 0, 2)
+        get_advanced_ratio(100, 0, 2)
 
-    assert get_advanced_ratio(1000, 0.3, 100, 2) == pytest.approx(0.2523, 1e-3)
-    assert get_advanced_ratio(10000, 0.48, 100, 1.5) == pytest.approx(0.47925, 1e-3)
+    Atm = Atmosphere(1000)
+    free_stream_velocity = 0.3 * Atm.speed_of_sound[0]
+    assert get_advanced_ratio(free_stream_velocity, 100, 2) == pytest.approx(0.2523, 1e-3)
+
+    Atm = Atmosphere(10000)
+    free_stream_velocity = 0.48 * Atm.speed_of_sound[0]
+    assert get_advanced_ratio(free_stream_velocity, 100, 1.5) == pytest.approx(0.47925, 1e-3)
 
 
 def test_axial_interference():
@@ -106,7 +112,7 @@ def test_calculate_radial_thrust_coefs():
     assert radial_thrust_coefs[3] == 2 * np.pi
 
 
-def test_check_output():
+def test_thrust_calculator():
     """Test function which made different test on thrust_coefficient function, the test function
     receive a vector with input parameter [total_thrust_coefficient, radius, hub radius,
     free_stream_velocity, prandtl, blades_number, rotational_velocity]

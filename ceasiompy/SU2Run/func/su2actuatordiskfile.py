@@ -64,21 +64,17 @@ def get_radial_stations(radius, hub_radius, number_of_stations=40):
     return radial_stations[i_hub:]
 
 
-def get_advanced_ratio(alt, mach, rotational_velocity, radius):
+def get_advanced_ratio(free_stream_velocity, rotational_velocity, radius):
     """_summary_
 
     Args:
-        alt (float): Altitude [m]
-        mach (float): Mach number [-]
+        free_stream_velocity (float): Free stream velocity [m/s]
         rotational_velocity (float): Propeller rotational velocity [1/s]
         radius (float): Propeller radius [m]
     """
 
     if rotational_velocity <= 0:
         raise ValueError("Rotational velocity must be positive!")
-
-    Atm = Atmosphere(alt)
-    free_stream_velocity = mach * Atm.speed_of_sound[0]
 
     return free_stream_velocity / (rotational_velocity * (2 * radius))
 

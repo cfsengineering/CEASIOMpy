@@ -18,11 +18,10 @@ Python version: >=3.8
 # =================================================================================================
 
 from pathlib import Path
+
 import numpy as np
 import pytest
 from ambiance import Atmosphere
-
-
 from ceasiompy.SU2Run.func.su2actuatordiskfile import (
     axial_interference_function,
     calculate_radial_thrust_coefs,
@@ -33,7 +32,7 @@ from ceasiompy.SU2Run.func.su2actuatordiskfile import (
     thrust_calculator,
     write_actuator_disk_data,
 )
-from ceasiompy.utils.ceasiompyutils import get_results_directory, remove_file_type_in_dir
+
 
 MODULE_DIR = Path(__file__).parent
 
@@ -144,8 +143,6 @@ def test_thrust_calculator():
     TODO
     """
 
-    results_dir = get_results_directory("ActuatorDisk")
-
     input_values = {
         "test1": [
             [get_radial_stations(1.5, 0.2), 0.5, 1.5, 150, True, 2, 33],
@@ -190,8 +187,6 @@ def test_thrust_calculator():
 
         # assert thrust_over_density == pytest.approx(values[1][2], rel=1e-3)
         # assert efficiency == pytest.approx(values[1][3], rel=1e-3)
-
-        remove_file_type_in_dir(results_dir, [".dat"])
 
 
 def test_write_actuator_disk_data(tmp_path):

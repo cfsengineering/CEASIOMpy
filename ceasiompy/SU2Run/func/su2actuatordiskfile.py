@@ -28,7 +28,7 @@ from pathlib import Path
 import numpy as np
 import matplotlib.pyplot as plt
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_results_directory
+
 
 log = get_logger()
 

@@ -216,9 +216,9 @@ def add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers, alt, mach):
             radial_stations = get_radial_stations(radius, hub_radius)
             advanced_ratio = get_advanced_ratio(free_stream_velocity, rotational_velocity, radius)
 
-            thrust_xpath = PROP_XPATH + "propeller/thrust"
+            thrust_xpath = PROP_XPATH + "/propeller/thrust"
             prandtl_correction_xpath = PROP_XPATH + "/propeller/blade/loss"
-            blades_number_xpath = PROP_XPATH + "/propeller/bladeCount"
+            blades_number_xpath = PROP_XPATH + "/propeller/bladeNumber"
 
             prandtl_correction = get_value_or_default(cpacs.tixi, prandtl_correction_xpath, True)
             blades_number = get_value_or_default(cpacs.tixi, blades_number_xpath, 3)
@@ -253,8 +253,6 @@ def add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers, alt, mach):
         cfg["MARKER_ACTDISK"] = " (" + ", ".join(actdisk_markers) + " )"
 
         f.close()
-
-        return cfg
 
 
 def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
@@ -400,10 +398,10 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         if not case_dir_path.exists():
             case_dir_path.mkdir()
 
+        add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers, alt, mach)
+
         config_output_path = Path(case_dir_path, CONFIG_CFD_NAME)
         cfg.write_file(config_output_path, overwrite=True)
-
-        add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers, alt, mach)
 
         if actuator_disk_file.exists():
             case_actuator_disk_file = Path(case_dir_path, ACTUATOR_DISK_FILE_NAME)

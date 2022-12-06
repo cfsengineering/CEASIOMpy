@@ -162,12 +162,13 @@ def add_actuator_disk(cfg, cpacs, case_dir_path, actuator_disk_file, mesh_marker
 
         rotor_xpath = cpacs.tixi.uIDGetXPath(rotor_uid)
 
-        number_of_blades = (
+        number_of_blades_xpath = (
             rotor_xpath + "/rotorHub/rotorBladeAttachments/rotorBladeAttachment/numberOfBlades"
         )
+        number_of_blades = get_value_or_default(cpacs.tixi, number_of_blades_xpath, 3)
 
+        # TODO: this is the nominal speed, how to get a speed which correspond to each flight cond.
         rotational_velocity_xpath = rotor_xpath + "/nominalRotationsPerMinute"
-
         rotational_velocity = (
             get_value_or_default(cpacs.tixi, rotational_velocity_xpath, 3000) / 60.0
         )
@@ -185,9 +186,7 @@ def add_actuator_disk(cfg, cpacs, case_dir_path, actuator_disk_file, mesh_marker
     cfg["ACTDISK_DOUBLE_SURFACE"] = "YES"
     cfg["ACTDISK_TYPE"] = "VARIABLE_LOAD"
     cfg["ACTDISK_FILENAME"] = ACTUATOR_DISK_FILE_NAME
-
-    # Calculation diverges if multigrid is used with a disk actuator
-    cfg["MGLEVEL"] = 0
+    cfg["MGLEVEL"] = 0  # Calculation diverges if multigrid is used with a disk actuator
 
     actdisk_markers = []
 

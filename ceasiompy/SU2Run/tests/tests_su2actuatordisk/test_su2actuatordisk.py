@@ -81,24 +81,14 @@ def test_axial_interference():
 def test_get_prandtl_correction_values():
     """Test function 'get_prandtl_correction_values'"""
 
-    radial_stations = np.arange(0.1, 1, 0.09)
+    radial_stations = np.arange(0.1, 1, 0.18)
     correction_values = get_prandtl_correction_values(radial_stations, True, 2, 30, 0.8, 120)
+    output_values = np.array([0.73844572, 0.68137418, 0.6087976, 0.51282436, 0.37404968])
+    np.testing.assert_array_almost_equal(correction_values, output_values)
 
-    output_values = np.array(
-        [
-            0.73844572,
-            0.71153049,
-            0.68137418,
-            0.64739118,
-            0.6087976,
-            0.56449233,
-            0.51282436,
-            0.45107467,
-            0.37404968,
-            0.26860365,
-        ]
-    )
-    assert correction_values == pytest.approx(output_values)
+    correction_values = get_prandtl_correction_values(radial_stations, False, 2, 30, 0.8, 120)
+    output_values = np.ones(len(radial_stations))
+    np.testing.assert_array_almost_equal(correction_values, output_values)
 
 
 def test_calculate_radial_thrust_coefs():

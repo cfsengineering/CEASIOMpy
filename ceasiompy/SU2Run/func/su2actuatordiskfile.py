@@ -150,7 +150,7 @@ def calculate_radial_thrust_coefs(radial_stations, advanced_ratio, opt_axial_int
     )
 
 
-def function_plot(
+def save_plots(
     radial_stations,
     radial_thrust_coefs,
     radial_power_coefs,
@@ -425,7 +425,7 @@ def thrust_calculator(
 
     # log.info("SU2 file generated!")
 
-    function_plot(
+    save_plots(
         radial_stations,
         radial_thrust_coefs,
         radial_power_coefs,

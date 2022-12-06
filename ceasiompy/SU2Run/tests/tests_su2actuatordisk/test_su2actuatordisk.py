@@ -29,6 +29,7 @@ from ceasiompy.SU2Run.func.su2actuatordiskfile import (
     get_advanced_ratio,
     get_prandtl_correction_values,
     get_radial_stations,
+    save_plots,
     thrust_calculator,
     write_actuator_disk_data,
 )
@@ -112,6 +113,28 @@ def test_calculate_radial_thrust_coefs():
     assert radial_thrust_coefs[3] == 2 * np.pi
 
 
+def test_save_plots(tmp_path):
+    """Test function 'save_plots'"""
+
+    fake_value = np.array([1.0, 2.0, 3.0, 4.0])
+
+    save_plots(
+        radial_stations=fake_value / 4,
+        radial_thrust_coefs=fake_value,
+        radial_power_coefs=fake_value,
+        non_dimensional_radius=fake_value,
+        optimal_axial_interference_factor=fake_value,
+        optimal_rotational_interference_factor=fake_value,
+        prandtl_correction_values=fake_value,
+        case_dir_path=tmp_path,
+        propeller_uid="propeller_test",
+    )
+
+    assert Path(tmp_path, "propeller_test", "interference.png").exists()
+    assert Path(tmp_path, "propeller_test", "radial_thrust_and_power_coefficient.png").exists()
+    assert Path(tmp_path, "propeller_test", "prandtl_correction.png").exists()
+
+
 def test_thrust_calculator():
     """Test function which made different test on thrust_coefficient function, the test function
     receive a vector with input parameter [total_thrust_coefficient, radius, hub radius,
@@ -157,10 +180,10 @@ def test_thrust_calculator():
             [1.199, 3.7025, 77614.39, 0.6932],
         ],
     }
-    
+
     for values in input_values.values():
 
-        renard_thrust_coeff, power_coeff, _,_,_,_ = thrust_calculator(*values[0])
+        renard_thrust_coeff, power_coeff, _, _, _, _ = thrust_calculator(*values[0])
 
         assert np.sum((1 / 40.0) * renard_thrust_coeff) == pytest.approx(values[1][0], rel=1e-3)
         assert np.sum((1 / 40.0) * power_coeff) == pytest.approx(values[1][1], rel=1e-3)

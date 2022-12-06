@@ -253,6 +253,7 @@ def add_actuator_disk(cfg, cpacs, case_dir_path, actuator_disk_file, mesh_marker
             optimal_rotational_interference_factor,
             prandtl_correction_values,
             case_dir_path,
+            inlet_uid,
         )
 
         f = write_actuator_disk_data(

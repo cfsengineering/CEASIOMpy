@@ -159,12 +159,29 @@ def save_plots(
     optimal_rotational_interference_factor,
     prandtl_correction_values,
     case_dir_path,
+    propeller_uid,
 ):
-    """Function to save plot in result folder"""
+    """Function to save plot in result folder
 
-    interference_plot_path = Path(case_dir_path, "interference_plot.png")
-    ct_cp_distr_plot_path = Path(case_dir_path, "ct_cp_distr.png")
-    prandtl_correction_plot_path = Path(case_dir_path, "prandtl_correction_plot.png")
+    TODO
+
+    Args:
+        radial_stations (_type_): _description_
+        radial_thrust_coefs (_type_): _description_
+        radial_power_coefs (_type_): _description_
+        non_dimensional_radius (_type_): _description_
+        optimal_axial_interference_factor (_type_): _description_
+        optimal_rotational_interference_factor (_type_): _description_
+        prandtl_correction_values (_type_): _description_
+        case_dir_path (Path): Path object of the case directory
+        propeller_uid (str): Uid of the current propeller
+    """
+
+    current_dir = Path(case_dir_path, propeller_uid)
+    current_dir.mkdir()
+    interference_plot_path = Path(current_dir, "interference.png")
+    ct_cp_distr_plot_path = Path(current_dir, "radial_thrust_and_power_coefficient.png")
+    prandtl_correction_plot_path = Path(current_dir, "prandtl_correction.png")
 
     f1 = plt.figure(1)
     plt.plot(

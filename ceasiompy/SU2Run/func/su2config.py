@@ -431,7 +431,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             case_dir_path.mkdir()
 
         if get_value_or_default(cpacs.tixi, SU2_ACTUATOR_DISK_XPATH, False):
-            
+
             actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
             add_actuator_disk(
                 cfg, cpacs, case_dir_path, actuator_disk_file, mesh_markers, alt, mach

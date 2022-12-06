@@ -24,7 +24,13 @@ from pathlib import Path
 from shutil import copyfile
 
 from ambiance import Atmosphere
-from ceasiompy.SU2Run.func.su2actuatordiskfile import write_actuator_disk_data, write_header
+from ceasiompy.SU2Run.func.su2actuatordiskfile import (
+    get_advanced_ratio,
+    get_radial_stations,
+    thrust_calculator,
+    write_actuator_disk_data,
+    write_header,
+)
 from ceasiompy.SU2Run.func.su2utils import get_mesh_markers, get_su2_config_template
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import (
@@ -36,6 +42,7 @@ from ceasiompy.utils.commonnames import (
 )
 from ceasiompy.utils.commonxpath import (
     GMSH_SYMMETRY_XPATH,
+    PROP_XPATH,
     RANGE_XPATH,
     SU2_AEROMAP_UID_XPATH,
     SU2_BC_FARFIELD_XPATH,
@@ -106,8 +113,8 @@ def add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate):
     log.info("Damping derivatives cases directories has been created.")
 
 
-# TODO: will be modified when intgrating the disk actuator module
-def add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers):
+# TODO: will be modified when integrating the disk actuator module
+def add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers, alt, mach):
     """Add actuator disk parameter to the config file.
 
     Args:
@@ -150,6 +157,9 @@ def add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers):
             pos_z = rotor.get_translation().z
             radius = rotor.get_radius()
 
+            # hub_radius = 0.1 * radius  # TODO: get from CPACS
+            # rotational_velocity = 50  # TODO: get from CPACS
+
             rotor_uid_pos[rotor_uid] = (pos_x, pos_y, pos_z, radius)
 
         cfg["ACTDISK_DOUBLE_SURFACE"] = "YES"
@@ -185,9 +195,11 @@ def add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers):
             center.append(round(sym * rotor_uid_pos[uid][1], 5))
             center.append(round(rotor_uid_pos[uid][2], 5))
 
-            # TODO: get the axis by applying the rotation matrix
-            axis = (1.0, 0.0, 0.0)
+            axis = (1.0, 0.0, 0.0)  # TODO: get the axis by applying the rotation matrix
             radius = round(rotor_uid_pos[uid][3], 5)
+
+            hub_radius = 0  # TODO: get this value from rotor_uid_pos
+            rotational_velocity = 100  # TODO: get this value from rotor_uid_pos
 
             actdisk_markers.append(maker_inlet)
             actdisk_markers.append(marker_outlet)
@@ -198,7 +210,45 @@ def add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers):
             actdisk_markers.append(str(center[1]))
             actdisk_markers.append(str(center[2]))
 
-            f = write_actuator_disk_data(f, maker_inlet, marker_outlet, center, axis, radius)
+            Atm = Atmosphere(alt)
+            free_stream_velocity = mach * Atm.speed_of_sound[0]
+
+            radial_stations = get_radial_stations(radius, hub_radius)
+            advanced_ratio = get_advanced_ratio(free_stream_velocity, rotational_velocity, radius)
+
+            thrust_xpath = PROP_XPATH + "propeller/thrust"
+            prandtl_correction_xpath = PROP_XPATH + "/propeller/blade/loss"
+            blades_number_xpath = PROP_XPATH + "/propeller/bladeCount"
+
+            prandtl_correction = get_value_or_default(cpacs.tixi, prandtl_correction_xpath, True)
+            blades_number = get_value_or_default(cpacs.tixi, blades_number_xpath, 3)
+            thrust = get_value_or_default(cpacs.tixi, thrust_xpath, 3000)
+            total_thrust_coefficient = float(
+                thrust / (Atm.density * rotational_velocity**2 * (radius * 2) ** 4)
+            )
+
+            radial_thrust_coefs, radial_power_coefs = thrust_calculator(
+                radial_stations,
+                total_thrust_coefficient,
+                radius,
+                free_stream_velocity,
+                prandtl_correction,
+                blades_number,
+                rotational_velocity,
+            )
+
+            f = write_actuator_disk_data(
+                file=f,
+                inlet_marker=maker_inlet,
+                outlet_marker=marker_outlet,
+                center=center,
+                axis=axis,
+                radius=radius,
+                advanced_ratio=advanced_ratio,
+                radial_stations=radial_stations,
+                radial_thrust_coefs=radial_thrust_coefs,
+                radial_power_coefs=radial_power_coefs,
+            )
 
         cfg["MARKER_ACTDISK"] = " (" + ", ".join(actdisk_markers) + " )"
 
@@ -315,7 +365,6 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
     # TODO: call the function only when required
     actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
-    add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers)
 
     # Output
     cfg["WRT_FORCES_BREAKDOWN"] = "YES"
@@ -353,6 +402,8 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
         config_output_path = Path(case_dir_path, CONFIG_CFD_NAME)
         cfg.write_file(config_output_path, overwrite=True)
+
+        add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers, alt, mach)
 
         if actuator_disk_file.exists():
             case_actuator_disk_file = Path(case_dir_path, ACTUATOR_DISK_FILE_NAME)

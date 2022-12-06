@@ -7,7 +7,6 @@ Test functions of 'ceasiompy/SU2Run/func/su2actuatordisk.py'
 
 Python version: >=3.8
 
-
 | Author : Aidan Jungo and Giacomo Benedetti
 | Creation: 2022-12-05
 

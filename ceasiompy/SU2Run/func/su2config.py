@@ -158,11 +158,29 @@ def add_actuator_disk(cfg, cpacs, case_dir_path, actuator_disk_file, mesh_marker
         pos_y = rotor.get_translation().y
         pos_z = rotor.get_translation().z
         radius = rotor.get_radius()
+        hub_radius = 0.0  # TODO: get correctly from CPACS
 
-        # hub_radius = 0.1 * radius  # TODO: get from CPACS
-        # rotational_velocity = 50  # TODO: get from CPACS
+        rotor_xpath = cpacs.tixi.uIDGetXPath(rotor_uid)
 
-        rotor_uid_pos[rotor_uid] = (pos_x, pos_y, pos_z, radius)
+        number_of_blades = (
+            rotor_xpath + "/rotorHub/rotorBladeAttachments/rotorBladeAttachment/numberOfBlades"
+        )
+
+        rotational_velocity_xpath = rotor_xpath + "/nominalRotationsPerMinute"
+
+        rotational_velocity = (
+            get_value_or_default(cpacs.tixi, rotational_velocity_xpath, 3000) / 60.0
+        )
+
+        rotor_uid_pos[rotor_uid] = (
+            pos_x,
+            pos_y,
+            pos_z,
+            radius,
+            hub_radius,
+            number_of_blades,
+            rotational_velocity,
+        )
 
     cfg["ACTDISK_DOUBLE_SURFACE"] = "YES"
     cfg["ACTDISK_TYPE"] = "VARIABLE_LOAD"
@@ -197,9 +215,9 @@ def add_actuator_disk(cfg, cpacs, case_dir_path, actuator_disk_file, mesh_marker
 
         axis = (1.0, 0.0, 0.0)  # TODO: get the axis by applying the rotation matrix
         radius = round(rotor_uid_pos[uid][3], 5)
-
-        hub_radius = 0  # TODO: get this value from rotor_uid_pos
-        rotational_velocity = 100  # TODO: get this value from rotor_uid_pos
+        hub_radius = round(rotor_uid_pos[uid][4], 5)
+        number_of_blades = round(rotor_uid_pos[uid][5], 5)
+        rotational_velocity = round(rotor_uid_pos[uid][6], 5)
 
         actdisk_markers.append(maker_inlet)
         actdisk_markers.append(marker_outlet)
@@ -216,12 +234,10 @@ def add_actuator_disk(cfg, cpacs, case_dir_path, actuator_disk_file, mesh_marker
         radial_stations = get_radial_stations(radius, hub_radius)
         advanced_ratio = get_advanced_ratio(free_stream_velocity, rotational_velocity, radius)
 
-        thrust_xpath = PROP_XPATH + "/propeller/thrust"
         prandtl_correction_xpath = PROP_XPATH + "/propeller/blade/loss"
-        blades_number_xpath = PROP_XPATH + "/propeller/bladeNumber"
-
         prandtl_correction = get_value_or_default(cpacs.tixi, prandtl_correction_xpath, True)
-        blades_number = get_value_or_default(cpacs.tixi, blades_number_xpath, 3)
+
+        thrust_xpath = PROP_XPATH + "/propeller/thrust"
         thrust = get_value_or_default(cpacs.tixi, thrust_xpath, 3000)
         total_thrust_coefficient = float(
             thrust / (Atm.density * rotational_velocity**2 * (radius * 2) ** 4)
@@ -240,7 +256,7 @@ def add_actuator_disk(cfg, cpacs, case_dir_path, actuator_disk_file, mesh_marker
             radius,
             free_stream_velocity,
             prandtl_correction,
-            blades_number,
+            number_of_blades,
             rotational_velocity,
         )
 

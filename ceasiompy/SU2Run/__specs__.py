@@ -270,17 +270,17 @@ cpacs_inout.add_input(
     gui_group="Actuator disk",
 )
 
-cpacs_inout.add_input(
-    var_name="n",
-    var_type=float,
-    default_value=33,
-    unit="1/s",
-    descr="Propeller rotational velocity",
-    xpath=PROP_XPATH + "/propeller/rotational_velocity",
-    gui=True,
-    gui_name="Rotational velocity setting",
-    gui_group="Actuator disk",
-)
+# cpacs_inout.add_input(
+#     var_name="n",
+#     var_type=float,
+#     default_value=33,
+#     unit="1/s",
+#     descr="Propeller rotational velocity",
+#     xpath=PROP_XPATH + "/propeller/rotational_velocity",
+#     gui=True,
+#     gui_name="Rotational velocity setting",
+#     gui_group="Actuator disk",
+# )
 
 cpacs_inout.add_input(
     var_name="prandtl",
@@ -294,17 +294,17 @@ cpacs_inout.add_input(
     gui_group="Actuator disk",
 )
 
-cpacs_inout.add_input(
-    var_name="blades_number",
-    var_type=int,
-    default_value=3,
-    unit=None,
-    descr="Number of propeller blades",
-    xpath=PROP_XPATH + "/propeller/bladeNumber",
-    gui=True,
-    gui_name="Propeller blades numbers",
-    gui_group="Actuator disk",
-)
+# cpacs_inout.add_input(
+#     var_name="blades_number",
+#     var_type=int,
+#     default_value=3,
+#     unit=None,
+#     descr="Number of propeller blades",
+#     xpath=PROP_XPATH + "/propeller/bladeNumber",
+#     gui=True,
+#     gui_name="Propeller blades numbers",
+#     gui_group="Actuator disk",
+# )
 
 
 # ----- Output -----

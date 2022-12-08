@@ -70,7 +70,6 @@ def get_radial_stations(radius, hub_radius, number_of_stations=40):
 def get_advanced_ratio(free_stream_velocity, rotational_velocity, radius):
     """Function to calculate advanced ratio, that is the ratio between velocity
         and rotational velocity, taking in account of the diameter of the propeller
-    TODO
 
     Args:
         free_stream_velocity (float): Free stream velocity [m/s]
@@ -84,19 +83,19 @@ def get_advanced_ratio(free_stream_velocity, rotational_velocity, radius):
     return free_stream_velocity / (rotational_velocity * (2 * radius))
 
 
-def axial_interference_function(lagrangian_multiplicator, non_dimensional_radius):
+def axial_interference_function(lagrangian_multiplier, non_dimensional_radius):
     """_summary_
 
     Args:
-        lagrangian_multiplicator (float): TODO
+        lagrangian_multiplier (float): TODO
         non_dimensional_radius (float): TODO
 
     Returns:
         axial_interference_factor (np.array): TODO
     """
 
-    axial_interference_factor = (lagrangian_multiplicator * non_dimensional_radius**2) / (
-        non_dimensional_radius**2 + (1 + lagrangian_multiplicator) ** 2
+    axial_interference_factor = (lagrangian_multiplier * non_dimensional_radius**2) / (
+        non_dimensional_radius**2 + (1 + lagrangian_multiplier) ** 2
     )
     return axial_interference_factor
 

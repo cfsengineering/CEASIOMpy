@@ -24,7 +24,14 @@ from pathlib import Path
 from shutil import copyfile
 
 from ambiance import Atmosphere
-from ceasiompy.SU2Run.func.su2actuatordiskfile import write_actuator_disk_data, write_header
+from ceasiompy.SU2Run.func.su2actuatordiskfile import (
+    get_advanced_ratio,
+    get_radial_stations,
+    save_plots,
+    thrust_calculator,
+    write_actuator_disk_data,
+    write_header,
+)
 from ceasiompy.SU2Run.func.su2utils import get_mesh_markers, get_su2_config_template
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import (
@@ -36,7 +43,9 @@ from ceasiompy.utils.commonnames import (
 )
 from ceasiompy.utils.commonxpath import (
     GMSH_SYMMETRY_XPATH,
+    PROP_XPATH,
     RANGE_XPATH,
+    SU2_ACTUATOR_DISK_XPATH,
     SU2_AEROMAP_UID_XPATH,
     SU2_BC_FARFIELD_XPATH,
     SU2_BC_WALL_XPATH,
@@ -106,13 +115,13 @@ def add_damping_derivatives(cfg, wkdir, case_dir_name, rotation_rate):
     log.info("Damping derivatives cases directories has been created.")
 
 
-# TODO: will be modified when intgrating the disk actuator module
-def add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers):
+def add_actuator_disk(cfg, cpacs, case_dir_path, actuator_disk_file, mesh_markers, alt, mach):
     """Add actuator disk parameter to the config file.
 
     Args:
         cfg (ConfigFile): ConfigFile object.
         cpacs (CPACS): CPACS object from cpacspy library
+        case_dir_path (Path): Path object to the current case directory
         actuator_disk_file (Path): Path to the actuator disk file
         mesh_markers (dict): Dictionary containing all the mesh markers
 
@@ -123,88 +132,162 @@ def add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers):
     ad_inlet_marker = sorted(mesh_markers["actuator_disk_inlet"])
     ad_outlet_marker = sorted(mesh_markers["actuator_disk_outlet"])
 
-    if "None" not in ad_inlet_marker and "None" not in ad_outlet_marker:
+    if "None" in ad_inlet_marker or "None" in ad_outlet_marker:
+        return
 
-        if len(ad_inlet_marker) != len(ad_outlet_marker):
-            raise ValueError(
-                "The number of inlet and outlet markers of the actuator disk must be the same."
-            )
+    if len(ad_inlet_marker) != len(ad_outlet_marker):
+        raise ValueError(
+            "The number of inlet and outlet markers of the actuator disk must be the same."
+        )
 
-        # Get rotorcraft configuration (propeller)
-        try:
-            rotorcraft_config = cpacs.rotorcraft.configuration
-        except AttributeError:
-            raise ValueError(
-                "The actuator disk is defined but no rotorcraft configuration is defined in "
-                "the CPACS file."
-            )
+    # Get rotorcraft configuration (propeller)
+    try:
+        rotorcraft_config = cpacs.rotorcraft.configuration
+    except AttributeError:
+        raise ValueError(
+            "The actuator disk is defined but no rotorcraft configuration is defined in "
+            "the CPACS file."
+        )
 
-        rotor_uid_pos = {}
-        for i in range(1, rotorcraft_config.get_rotor_count() + 1):
+    rotor_uid_pos = {}
+    for i in range(1, rotorcraft_config.get_rotor_count() + 1):
 
-            rotor = rotorcraft_config.get_rotor(i)
+        rotor = rotorcraft_config.get_rotor(i)
 
-            rotor_uid = rotor.get_uid()
-            pos_x = rotor.get_translation().x
-            pos_y = rotor.get_translation().y
-            pos_z = rotor.get_translation().z
-            radius = rotor.get_radius()
+        rotor_uid = rotor.get_uid()
+        pos_x = rotor.get_translation().x
+        pos_y = rotor.get_translation().y
+        pos_z = rotor.get_translation().z
+        radius = rotor.get_radius()
+        hub_radius = 0.0  # TODO: get correctly from CPACS
 
-            rotor_uid_pos[rotor_uid] = (pos_x, pos_y, pos_z, radius)
+        rotor_xpath = cpacs.tixi.uIDGetXPath(rotor_uid)
 
-        cfg["ACTDISK_DOUBLE_SURFACE"] = "YES"
-        cfg["ACTDISK_TYPE"] = "VARIABLE_LOAD"
-        cfg["ACTDISK_FILENAME"] = ACTUATOR_DISK_FILE_NAME
+        number_of_blades_xpath = (
+            rotor_xpath + "/rotorHub/rotorBladeAttachments/rotorBladeAttachment/numberOfBlades"
+        )
+        number_of_blades = get_value_or_default(cpacs.tixi, number_of_blades_xpath, 3)
 
-        # Calculation diverges if multigrid is used with a disk actuator
-        cfg["MGLEVEL"] = 0
+        # TODO: this is the nominal speed, how to get a speed which correspond to each flight cond.
+        rotational_velocity_xpath = rotor_xpath + "/nominalRotationsPerMinute"
+        rotational_velocity = (
+            get_value_or_default(cpacs.tixi, rotational_velocity_xpath, 3000) / 60.0
+        )
 
-        actdisk_markers = []
+        rotor_uid_pos[rotor_uid] = (
+            pos_x,
+            pos_y,
+            pos_z,
+            radius,
+            hub_radius,
+            number_of_blades,
+            rotational_velocity,
+        )
 
-        f = open(actuator_disk_file, "w")
-        f = write_header(f)
+    cfg["ACTDISK_DOUBLE_SURFACE"] = "YES"
+    cfg["ACTDISK_TYPE"] = "VARIABLE_LOAD"
+    cfg["ACTDISK_FILENAME"] = ACTUATOR_DISK_FILE_NAME
+    cfg["MGLEVEL"] = 0  # Calculation diverges if multigrid is used with a disk actuator
 
-        for maker_inlet, marker_outlet in zip(ad_inlet_marker, ad_outlet_marker):
-            inlet_uid = maker_inlet.split(ACTUATOR_DISK_INLET_SUFFIX)[0]
-            outlet_uid = marker_outlet.split(ACTUATOR_DISK_OUTLET_SUFFIX)[0]
+    actdisk_markers = []
 
-            if inlet_uid != outlet_uid:
-                raise ValueError(
-                    "The inlet and outlet markers of the actuator disk must be the same."
-                )
+    f = open(actuator_disk_file, "w")
+    f = write_header(f)
 
-            if "_mirrored" in maker_inlet:
-                uid = inlet_uid.split("_mirrored")[0]
-                sym = -1
-            else:
-                uid = inlet_uid
-                sym = 1
+    for maker_inlet, marker_outlet in zip(ad_inlet_marker, ad_outlet_marker):
+        inlet_uid = maker_inlet.split(ACTUATOR_DISK_INLET_SUFFIX)[0]
+        outlet_uid = marker_outlet.split(ACTUATOR_DISK_OUTLET_SUFFIX)[0]
 
-            center = []
-            center.append(round(rotor_uid_pos[uid][0], 5))
-            center.append(round(sym * rotor_uid_pos[uid][1], 5))
-            center.append(round(rotor_uid_pos[uid][2], 5))
+        if inlet_uid != outlet_uid:
+            raise ValueError("The inlet and outlet markers of the actuator disk must be the same.")
 
-            # TODO: get the axis by applying the rotation matrix
-            axis = (1.0, 0.0, 0.0)
-            radius = round(rotor_uid_pos[uid][3], 5)
+        if "_mirrored" in maker_inlet:
+            uid = inlet_uid.split("_mirrored")[0]
+            sym = -1
+        else:
+            uid = inlet_uid
+            sym = 1
 
-            actdisk_markers.append(maker_inlet)
-            actdisk_markers.append(marker_outlet)
-            actdisk_markers.append(str(center[0]))
-            actdisk_markers.append(str(center[1]))
-            actdisk_markers.append(str(center[2]))
-            actdisk_markers.append(str(center[0]))
-            actdisk_markers.append(str(center[1]))
-            actdisk_markers.append(str(center[2]))
+        center = []
+        center.append(round(rotor_uid_pos[uid][0], 5))
+        center.append(round(sym * rotor_uid_pos[uid][1], 5))
+        center.append(round(rotor_uid_pos[uid][2], 5))
 
-            f = write_actuator_disk_data(f, maker_inlet, marker_outlet, center, axis, radius)
+        axis = (1.0, 0.0, 0.0)  # TODO: get the axis by applying the rotation matrix
+        radius = round(rotor_uid_pos[uid][3], 5)
+        hub_radius = round(rotor_uid_pos[uid][4], 5)
+        number_of_blades = round(rotor_uid_pos[uid][5], 5)
+        rotational_velocity = round(rotor_uid_pos[uid][6], 5)
 
-        cfg["MARKER_ACTDISK"] = " (" + ", ".join(actdisk_markers) + " )"
+        actdisk_markers.append(maker_inlet)
+        actdisk_markers.append(marker_outlet)
+        actdisk_markers.append(str(center[0]))
+        actdisk_markers.append(str(center[1]))
+        actdisk_markers.append(str(center[2]))
+        actdisk_markers.append(str(center[0]))
+        actdisk_markers.append(str(center[1]))
+        actdisk_markers.append(str(center[2]))
 
-        f.close()
+        Atm = Atmosphere(alt)
+        free_stream_velocity = mach * Atm.speed_of_sound[0]
 
-        return cfg
+        radial_stations = get_radial_stations(radius, hub_radius)
+        advanced_ratio = get_advanced_ratio(free_stream_velocity, rotational_velocity, radius)
+
+        prandtl_correction_xpath = PROP_XPATH + "/propeller/blade/loss"
+        prandtl_correction = get_value_or_default(cpacs.tixi, prandtl_correction_xpath, True)
+
+        thrust_xpath = PROP_XPATH + "/propeller/thrust"
+        thrust = get_value_or_default(cpacs.tixi, thrust_xpath, 3000)
+        total_thrust_coefficient = float(
+            thrust / (Atm.density * rotational_velocity**2 * (radius * 2) ** 4)
+        )
+
+        (
+            radial_thrust_coefs,
+            radial_power_coefs,
+            non_dimensional_radius,
+            optimal_axial_interference_factor,
+            optimal_rotational_interference_factor,
+            prandtl_correction_values,
+        ) = thrust_calculator(
+            radial_stations,
+            total_thrust_coefficient,
+            radius,
+            free_stream_velocity,
+            prandtl_correction,
+            number_of_blades,
+            rotational_velocity,
+        )
+
+        save_plots(
+            radial_stations,
+            radial_thrust_coefs,
+            radial_power_coefs,
+            non_dimensional_radius,
+            optimal_axial_interference_factor,
+            optimal_rotational_interference_factor,
+            prandtl_correction_values,
+            case_dir_path,
+            inlet_uid,
+        )
+
+        f = write_actuator_disk_data(
+            file=f,
+            inlet_marker=maker_inlet,
+            outlet_marker=marker_outlet,
+            center=center,
+            axis=axis,
+            radius=radius,
+            advanced_ratio=advanced_ratio,
+            radial_stations=radial_stations,
+            radial_thrust_coefs=radial_thrust_coefs,
+            radial_power_coefs=radial_power_coefs,
+        )
+
+    cfg["MARKER_ACTDISK"] = " (" + ", ".join(actdisk_markers) + " )"
+
+    f.close()
 
 
 def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
@@ -313,10 +396,6 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     cfg["MARKER_MOVING"] = "( NONE )"  # TODO: when do we need to define MARKER_MOVING?
     cfg["DV_MARKER"] = bc_wall_str
 
-    # TODO: call the function only when required
-    actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
-    add_actuator_disk(cfg, cpacs, actuator_disk_file, mesh_markers)
-
     # Output
     cfg["WRT_FORCES_BREAKDOWN"] = "YES"
     cfg["BREAKDOWN_FILENAME"] = SU2_FORCES_BREAKDOWN_NAME
@@ -351,12 +430,19 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         if not case_dir_path.exists():
             case_dir_path.mkdir()
 
+        if get_value_or_default(cpacs.tixi, SU2_ACTUATOR_DISK_XPATH, False):
+
+            actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
+            add_actuator_disk(
+                cfg, cpacs, case_dir_path, actuator_disk_file, mesh_markers, alt, mach
+            )
+
+            if actuator_disk_file.exists():
+                case_actuator_disk_file = Path(case_dir_path, ACTUATOR_DISK_FILE_NAME)
+                copyfile(actuator_disk_file, case_actuator_disk_file)
+
         config_output_path = Path(case_dir_path, CONFIG_CFD_NAME)
         cfg.write_file(config_output_path, overwrite=True)
-
-        if actuator_disk_file.exists():
-            case_actuator_disk_file = Path(case_dir_path, ACTUATOR_DISK_FILE_NAME)
-            copyfile(actuator_disk_file, case_actuator_disk_file)
 
         if get_value_or_default(cpacs.tixi, SU2_DAMPING_DER_XPATH, False):
             rotation_rate = get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, 1.0)

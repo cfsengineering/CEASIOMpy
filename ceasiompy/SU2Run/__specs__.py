@@ -4,8 +4,10 @@ from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
 from ceasiompy.utils.commonxpath import (
     AEROPERFORMANCE_XPATH,
     GEOM_XPATH,
+    PROP_XPATH,
     RANGE_XPATH,
     REF_XPATH,
+    SU2_ACTUATOR_DISK_XPATH,
     SU2_AEROMAP_UID_XPATH,
     SU2_BC_FARFIELD_XPATH,
     SU2_BC_WALL_XPATH,
@@ -20,7 +22,6 @@ from ceasiompy.utils.commonxpath import (
     SU2_ROTATION_RATE_XPATH,
     SU2_TARGET_CL_XPATH,
     SU2_UPDATE_WETTED_AREA_XPATH,
-    SU2_XPATH,
     SU2MESH_XPATH,
 )
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
@@ -256,6 +257,68 @@ cpacs_inout.add_input(
     gui_name="Extract loads",
     gui_group="Results",
 )
+
+# Actuator disk
+
+cpacs_inout.add_input(
+    var_name="include_actuator_disk",
+    var_type=bool,
+    default_value=False,
+    unit="1",
+    descr="To check if actuator disk(s) should be included in the SU2 calculation",
+    xpath=SU2_ACTUATOR_DISK_XPATH,
+    gui=True,
+    gui_name="Include actuator disk(s)",
+    gui_group="Actuator disk",
+)
+
+cpacs_inout.add_input(
+    var_name="thrust",
+    var_type=float,
+    default_value=3000,
+    unit="N",
+    descr="Aircraft thrust",
+    xpath=PROP_XPATH + "/propeller/thrust",
+    gui=True,
+    gui_name="Thrust",
+    gui_group="Actuator disk",
+)
+
+# cpacs_inout.add_input(
+#     var_name="n",
+#     var_type=float,
+#     default_value=33,
+#     unit="1/s",
+#     descr="Propeller rotational velocity",
+#     xpath=PROP_XPATH + "/propeller/rotational_velocity",
+#     gui=True,
+#     gui_name="Rotational velocity setting",
+#     gui_group="Actuator disk",
+# )
+
+cpacs_inout.add_input(
+    var_name="prandtl",
+    var_type=bool,
+    default_value=True,
+    unit=None,
+    descr="Enable or disable the tip loss correction of Prandtl",
+    xpath=PROP_XPATH + "/propeller/blade/loss",
+    gui=True,
+    gui_name="Tip loss correction",
+    gui_group="Actuator disk",
+)
+
+# cpacs_inout.add_input(
+#     var_name="blades_number",
+#     var_type=int,
+#     default_value=3,
+#     unit=None,
+#     descr="Number of propeller blades",
+#     xpath=PROP_XPATH + "/propeller/bladeNumber",
+#     gui=True,
+#     gui_name="Propeller blades numbers",
+#     gui_group="Actuator disk",
+# )
 
 
 # ----- Output -----

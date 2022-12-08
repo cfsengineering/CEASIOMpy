@@ -114,7 +114,7 @@ def get_prandtl_correction_values(
                                     get the real radius value
         omega (float): rotational velocity multiplied for 2 and pi
         radius (float): radius of the propeller
-        free_stream_velocity (float): free sstream velocity
+        free_stream_velocity (float): free stream velocity
 
     Returns:
         correction function to correct thrust coefficient and power coefficient
@@ -170,7 +170,8 @@ def save_plots(
     TODO
 
     Args:
-        radial_stations (_type_): _description_
+        radial_stations (np.array): adimensional radius along the blade. Multiply by radius to
+                                    get the real radius value
         radial_thrust_coefs (_type_): _description_
         radial_power_coefs (_type_): _description_
         non_dimensional_radius (_type_): _description_
@@ -228,7 +229,7 @@ def save_plots(
     )
     plt.grid(True)
     plt.legend(numpoints=3)
-    plt.xlabel("$\chi$")
+    plt.xlabel("$\frac{2\pi*r}{J}$")
     plt.ylabel("$a$, $a^1$")
     plt.title("Interference Factors")
 
@@ -257,7 +258,8 @@ def thrust_calculator(
     """Performing of a calculation to obtain thrust and power coefficients distribution
 
     Args:
-        radial_stations () : TODO
+        radial_stations (np.array): adimensional radius along the blade. Multiply by radius to
+                                    get the real radius value
         total_thrust_coefficient (float): Total thrust coefficient[-]
         radius (float): Blade radius [m]
         free_stream_velocity (float): Cruise velocity [m/s]

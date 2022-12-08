@@ -934,5 +934,12 @@
         <multiplier>1.</multiplier>
       </farField>
     </cFD>
+    <CEASIOMpy>
+      <mesh>
+        <gmshOptions>
+          <exportPropellers>True</exportPropellers>
+        </gmshOptions>
+      </mesh>
+    </CEASIOMpy>
   </toolspecific>
 </cpacs>

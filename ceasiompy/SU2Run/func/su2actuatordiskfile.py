@@ -88,7 +88,7 @@ def axial_interference_function(lagrangian_multiplier, non_dimensional_radius):
 
     Args:
         lagrangian_multiplier (float): TODO
-        non_dimensional_radius (float): TODO
+        non_dimensional_radius (float): radius adimentionalization made using advanced ration
 
     Returns:
         axial_interference_factor (np.array): TODO
@@ -134,12 +134,13 @@ def get_prandtl_correction_values(
 
 
 def calculate_radial_thrust_coefs(radial_stations, advanced_ratio, opt_axial_interf_factor):
-    """_summary_
-    TODO
+    """Function to calculate thrust coefficient distribution along the radius
 
     Args:
-        radial_stations (_type_): _description_
-        advanced_ratio (_type_): _description_
+        radial_stations (np.array): adimensional radius along the blade. Multiply by radius to
+                                    get the real radius value
+        advanced_ratio (float): ratio between velocity and rotational velocity
+                                multiplied by diameter
         opt_axial_interf_factor (_type_): Optimal axial interference factor
 
     """

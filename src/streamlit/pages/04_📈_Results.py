@@ -23,6 +23,7 @@ import streamlit as st
 from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
+from streamlit_autorefresh import st_autorefresh
 from streamlitutils import create_sidebar
 
 how_to_text = (
@@ -284,3 +285,6 @@ show_results()
 
 if st.button("🔄 Refresh"):
     st.experimental_rerun()
+
+if st.checkbox("Auto refresh"):
+    st_autorefresh(interval=2000, limit=10000, key="auto_refresh")

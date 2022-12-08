@@ -457,29 +457,33 @@ def thrust_calculator(
 
 
 def write_header(file):
-    """Write the header of the actuator disk file
+    """Write the header of the actuator disk file.
 
     Args:
-        file (file): File to write the header
+        file (file): File in which the header will be written.
 
     """
 
-    file.write("# Automatic generated actuator disk input data file using\n")
-    file.write("# the Optimal Propeller code.\n")
-    file.write("# Data file needed for the actuator disk VARIABLE_LOAD type.\n")
-    file.write("# The load distribution is obtained using\n")
-    file.write("# the inviscid theory of the optimal propeller using global data.\n")
-    file.write("#\n")
-    file.write("# ADV_RATIO defined as Vinf/(nD) where: \n")
-    file.write("#    n: propeller rounds per second,\n")
-    file.write("#    D: propeller diameter.\n")
-    file.write("# 'Renard' definition of propeller coefficients:\n")
-    file.write("# reference force = rho*n^2*D^4, reference power = rho*n^3*D^5.\n")
-    file.write("# Propeller center in grid coordinates.\n")
-    file.write("# Propeller axis versor pointing backward.\n")
-    file.write("# This output file is generated thanks to a script created by\n")
-    file.write("# University of Naples Federico II and modified by CFS Engineering\n")
-    file.write("# -----------------------------------------------------------------------------\n")
+    header_lines = [
+        "# Automatic generated actuator disk input data file using\n",
+        "# the Optimal Propeller code.\n",
+        "# Data file needed for the actuator disk VARIABLE_LOAD type.\n",
+        "# The load distribution is obtained using\n",
+        "# the inviscid theory of the optimal propeller using global data.\n",
+        "#\n",
+        "# ADV_RATIO defined as Vinf/(nD) where: \n",
+        "#    n: propeller rounds per second,\n",
+        "#    D: propeller diameter.\n",
+        "# 'Renard' definition of propeller coefficients:\n",
+        "# reference force = rho*n^2*D^4, reference power = rho*n^3*D^5.\n",
+        "# Propeller center in grid coordinates.\n",
+        "# Propeller axis versor pointing backward.\n",
+        "# This output file is generated thanks to a script created by\n",
+        "# University of Naples Federico II and modified by CFS Engineering\n",
+        "# -----------------------------------------------------------------------------\n",
+    ]
+
+    file.writelines(header_lines)
 
     return file
 

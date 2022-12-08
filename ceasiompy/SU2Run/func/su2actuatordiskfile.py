@@ -68,7 +68,8 @@ def get_radial_stations(radius, hub_radius, number_of_stations=40):
 
 
 def get_advanced_ratio(free_stream_velocity, rotational_velocity, radius):
-    """_summary_
+    """Function to calculate advanced ratio, that is the ratio between velocity
+        and rotational velocity, taking in account of the diameter of the propeller
     TODO
 
     Args:

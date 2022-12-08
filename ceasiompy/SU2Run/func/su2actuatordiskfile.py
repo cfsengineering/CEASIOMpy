@@ -49,6 +49,7 @@ def get_radial_stations(radius, hub_radius, number_of_stations=40):
     Args:
         radius (float): Propeller radius [m]
         hub_radius (float): Hub radius [m]
+        number_of_stations (int): Number of radial station, 40 by default
 
     Returns:
         radial_stations (np.array): adimensional radius along the blade. Multiply by radius to
@@ -68,6 +69,7 @@ def get_radial_stations(radius, hub_radius, number_of_stations=40):
 
 def get_advanced_ratio(free_stream_velocity, rotational_velocity, radius):
     """_summary_
+    TODO
 
     Args:
         free_stream_velocity (float): Free stream velocity [m/s]
@@ -133,6 +135,7 @@ def get_prandtl_correction_values(
 
 def calculate_radial_thrust_coefs(radial_stations, advanced_ratio, opt_axial_interf_factor):
     """_summary_
+    TODO
 
     Args:
         radial_stations (_type_): _description_
@@ -253,12 +256,13 @@ def thrust_calculator(
     """Performing of a calculation to obtain thrust and power coefficients distribution
 
     Args:
-            total_thrust_coefficient (float): Total thrust coefficient[-]
-            radius (float): Blade radius [m]
-            free_stream_velocity (float): Cruise velocity [m/s]
-            prandtl_correction (bool): Correction for tip losses
-            blades_number (int): Blades propeller number[-]
-            rotational_velocity (int): Blade velocity rotation [1/s]
+        radial_stations () : TODO
+        total_thrust_coefficient (float): Total thrust coefficient[-]
+        radius (float): Blade radius [m]
+        free_stream_velocity (float): Cruise velocity [m/s]
+        prandtl_correction (bool): Correction for tip losses
+        blades_number (int): Blades propeller number[-]
+        rotational_velocity (int): Blade velocity rotation [1/s]
 
     Returns:
         dCt_optimal (float): thrust coefficient at every radius [-]

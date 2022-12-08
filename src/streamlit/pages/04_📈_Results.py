@@ -183,23 +183,23 @@ def show_aeromap():
         y_axis = st.selectbox("y", PARAMS_COEFS, 5)
 
     with st.expander("Filter 1"):
-        filt1_col1, filt1_col2 = st.columns([1, 2])
+        filter1_column1, filter1_column2 = st.columns([1, 2])
 
-        with filt1_col1:
-            filt1_remaining = [item for item in PARAMS_COEFS if item not in [x_axis, y_axis]]
-            filter1 = st.selectbox("Filter by:", filt1_remaining)
-        with filt1_col2:
+        with filter1_column1:
+            filter1_remaining = [item for item in PARAMS_COEFS if item not in [x_axis, y_axis]]
+            filter1 = st.selectbox("Filter by:", filter1_remaining)
+        with filter1_column2:
             value_list = df_tmp[filter1].unique()
             value_selected = st.multiselect("Filter value:", value_list, value_list[0])
 
     with st.expander("Filter 2"):
-        filt2_col1, filt2_col2 = st.columns([1, 2])
-        with filt2_col1:
-            filt2_remaining = [
+        filter2_column1, filter2_column2 = st.columns([1, 2])
+        with filter2_column1:
+            filter2_remaining = [
                 item for item in PARAMS_COEFS if item not in [x_axis, y_axis, filter1]
             ]
-            filter2 = st.selectbox("Filter2 by:", filt2_remaining)
-        with filt2_col2:
+            filter2 = st.selectbox("Filter2 by:", filter2_remaining)
+        with filter2_column2:
             value_list2 = df_tmp[filter2].unique()
             value_selected2 = st.multiselect("Filter2 value:", value_list2, value_list2[0])
 

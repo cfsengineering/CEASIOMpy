@@ -10,8 +10,8 @@ Source: https://github.com/su2code/SU2/blob/master/TestCases/rans/
 
 Python version: >=3.8
 
-| Author : Aidan Jungo
-| Creation: 2022-05-31
+| Author : Aidan Jungo and Giacomo Benedetti
+| Creation: 2022-12-05
 
 TODO:
 
@@ -22,7 +22,13 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+import math
+from pathlib import Path
+
+import numpy as np
+import matplotlib.pyplot as plt
 from ceasiompy.utils.ceasiomlogger import get_logger
+
 
 log = get_logger()
 
@@ -37,29 +43,463 @@ log = get_logger()
 # =================================================================================================
 
 
-def write_header(file):
-    """Write the header of the actuator disk file
+def get_radial_stations(radius, hub_radius, number_of_stations=40):
+    """Function to adimensionalize the radius and remove values smaller than hub radius.
 
     Args:
-        file (file): File to write the header
+        radius (float): Propeller radius [m]
+        hub_radius (float): Hub radius [m]
+        number_of_stations (int): Number of radial station, 40 by default
+
+    Returns:
+        radial_stations (np.array): adimensional radius along the blade. Multiply by radius to
+                                    get the real radius value
+    """
+
+    if hub_radius >= radius:
+        raise ValueError("hub radius should be smaller than radius")
+
+    radial_stations = np.linspace(0, 1, number_of_stations + 1)[1:]
+    i_hub = np.abs(radial_stations - hub_radius / radius).argmin()
+
+    if radial_stations[i_hub] < hub_radius:
+        i_hub += 1
+    return radial_stations[i_hub:]
+
+
+def get_advanced_ratio(free_stream_velocity, rotational_velocity, radius):
+    """_summary_
+    TODO
+
+    Args:
+        free_stream_velocity (float): Free stream velocity [m/s]
+        rotational_velocity (float): Propeller rotational velocity [1/s]
+        radius (float): Propeller radius [m]
+    """
+
+    if rotational_velocity <= 0:
+        raise ValueError("Rotational velocity must be positive!")
+
+    return free_stream_velocity / (rotational_velocity * (2 * radius))
+
+
+def axial_interference_function(lagrangian_multiplicator, non_dimensional_radius):
+    """_summary_
+
+    Args:
+        lagrangian_multiplicator (float): TODO
+        non_dimensional_radius (float): TODO
+
+    Returns:
+        axial_interference_factor (np.array): TODO
+    """
+
+    axial_interference_factor = (lagrangian_multiplicator * non_dimensional_radius**2) / (
+        non_dimensional_radius**2 + (1 + lagrangian_multiplicator) ** 2
+    )
+    return axial_interference_factor
+
+
+def get_prandtl_correction_values(
+    radial_stations, prandtl_correction, blades_number, omega, radius, free_stream_velocity
+):
+    """Function to correct the values of thrust and power coefficients near the tip, based on
+        Prandtl formulation
+
+        TODO
+
+    Args:
+        prandtl (_type_): _description_
+        blades_number (_type_): _description_
+        radial_stations (_type_): _description_
+        omega (_type_): _description_
+        radius (_type_): _description_
+        free_stream_velocity (_type_): _description_
+
+    Returns:
+        correction function to correct Ct and Cp
+    """
+
+    if not prandtl_correction:
+        return np.ones(len(radial_stations))
+
+    return (2 / np.pi) * np.arccos(
+        np.exp(
+            -0.5
+            * blades_number
+            * (1 - radial_stations)
+            * math.sqrt(1 + (omega * radius / free_stream_velocity) ** 2)
+        )
+    )
+
+
+def calculate_radial_thrust_coefs(radial_stations, advanced_ratio, opt_axial_interf_factor):
+    """_summary_
+    TODO
+
+    Args:
+        radial_stations (_type_): _description_
+        advanced_ratio (_type_): _description_
+        opt_axial_interf_factor (_type_): Optimal axial interference factor
 
     """
 
-    file.write("# TEST CASE PROPELLER DATA.\n")
-    file.write("# ADV_RATIO defined as Vinf/(nD) where: \n")
-    file.write("#    n: propeller rounds per second,\n")
-    file.write("#    D: propeller diameter.\n")
-    file.write("# 'Renard' definition of propeller coefficients:\n")
-    file.write("# reference force = rho*n^2*D^4, reference power = rho*n^3*D^5.\n")
-    file.write("# Propeller center in grid coordinates.\n")
-    file.write("# Propeller axis versor pointing backward.\n")
-    file.write("# Total thrust coefficient CT = 0.15.\n")
-    file.write("# --------------------------------------------------------------------------- #\n")
+    return (
+        np.pi
+        * advanced_ratio**2
+        * radial_stations
+        * (1 + opt_axial_interf_factor)
+        * opt_axial_interf_factor
+    )
+
+
+def save_plots(
+    radial_stations,
+    radial_thrust_coefs,
+    radial_power_coefs,
+    non_dimensional_radius,
+    optimal_axial_interference_factor,
+    optimal_rotational_interference_factor,
+    prandtl_correction_values,
+    case_dir_path,
+    propeller_uid,
+):
+    """Function to save plot in result folder
+
+    TODO
+
+    Args:
+        radial_stations (_type_): _description_
+        radial_thrust_coefs (_type_): _description_
+        radial_power_coefs (_type_): _description_
+        non_dimensional_radius (_type_): _description_
+        optimal_axial_interference_factor (_type_): _description_
+        optimal_rotational_interference_factor (_type_): _description_
+        prandtl_correction_values (_type_): _description_
+        case_dir_path (Path): Path object of the case directory
+        propeller_uid (str): Uid of the current propeller
+    """
+
+    current_dir = Path(case_dir_path, propeller_uid)
+    current_dir.mkdir()
+    interference_plot_path = Path(current_dir, "interference.png")
+    ct_cp_distr_plot_path = Path(current_dir, "radial_thrust_and_power_coefficient.png")
+    prandtl_correction_plot_path = Path(current_dir, "prandtl_correction.png")
+
+    f1 = plt.figure(1)
+    plt.plot(
+        radial_stations,
+        radial_thrust_coefs,
+        "r",
+        markersize=4,
+        label="$\\frac{dCT}{d\overline{r}}$",
+    )
+    plt.plot(
+        radial_stations,
+        radial_power_coefs,
+        "k",
+        markersize=4,
+        label="$\\frac{dCP}{d\overline{r}}$",
+    )
+    plt.grid(True)
+    plt.legend()
+    plt.xlabel("$\overline{r}$")
+    plt.ylabel("$dC_t$,  $dC_p$")
+    plt.title("Load Distribution")
+
+    f1.savefig(ct_cp_distr_plot_path)
+    plt.clf()
+
+    f2 = plt.figure(2)
+    plt.plot(
+        non_dimensional_radius,
+        optimal_axial_interference_factor,
+        "r",
+        markersize=4,
+        label="$a$",
+    )
+    plt.plot(
+        non_dimensional_radius,
+        optimal_rotational_interference_factor,
+        "k",
+        markersize=4,
+        label="$a^1$",
+    )
+    plt.grid(True)
+    plt.legend(numpoints=3)
+    plt.xlabel("$\chi$")
+    plt.ylabel("$a$, $a^1$")
+    plt.title("Interference Factors")
+
+    f2.savefig(interference_plot_path)
+    plt.clf()
+
+    f3 = plt.figure(3)
+    plt.plot(radial_stations, prandtl_correction_values, "k", markersize=4)
+    plt.grid(True)
+    plt.xlabel("$\overline{r}$")
+    plt.ylabel("$F(\overline{r})$")
+    plt.title("Tip Loss Prandtl Correction Function")
+    f3.savefig(prandtl_correction_plot_path)
+    plt.clf()
+
+
+def thrust_calculator(
+    radial_stations,
+    total_thrust_coefficient,
+    radius,
+    free_stream_velocity,
+    prandtl_correction,
+    blades_number,
+    rotational_velocity,
+):
+    """Performing of a calculation to obtain thrust and power coefficients distribution
+
+    Args:
+        radial_stations () : TODO
+        total_thrust_coefficient (float): Total thrust coefficient[-]
+        radius (float): Blade radius [m]
+        free_stream_velocity (float): Cruise velocity [m/s]
+        prandtl_correction (bool): Correction for tip losses
+        blades_number (int): Blades propeller number[-]
+        rotational_velocity (int): Blade velocity rotation [1/s]
+
+    Returns:
+        dCt_optimal (float): thrust coefficient at every radius [-]
+        dCp (float): power coefficient at every radius [-]
+        r (float): adimensional radius [-]
+    """
+
+    EPSILON = 5e-20
+
+    advanced_ratio = free_stream_velocity / (rotational_velocity * (radius * 2))
+    omega = rotational_velocity * 2 * np.pi
+
+    vectorized_axial_interf_f = np.vectorize(axial_interference_function)
+
+    prandtl_correction_values = get_prandtl_correction_values(
+        radial_stations, prandtl_correction, blades_number, omega, radius, free_stream_velocity
+    )
+
+    # TODO: put in the markdown file
+    # log.info(f"Selected total thrust coeff= {total_thrust_coefficient}")
+    # log.info(f"Radius= {radius}")
+    # log.info(f"Number of radial station= {len(radial_stations)}")
+    # log.info(f"Advanced ratio= {advanced_ratio}")
+    # log.info(f"Free stream velocity= {free_stream_velocity}")
+    # log.info(f"Prandtl correction= {prandtl_correction}")
+    # log.info(f"Number of blades= {blades_number}")
+
+    non_dimensional_radius = np.pi * radial_stations / advanced_ratio
+    radial_stations_spacing = radial_stations[1] - radial_stations[0]
+
+    # Computation of the first try induced velocity distribution
+    induced_velocity_distribution = (2 / free_stream_velocity**2) * (
+        (-1 / free_stream_velocity)
+        + np.sqrt(
+            1
+            + (
+                ((2 * radius) ** 4 * (total_thrust_coefficient) * rotational_velocity**2)
+                / (free_stream_velocity**2 * np.pi * radial_stations)
+            )
+        )
+    )
+
+    # ###### TO SIMPLIFY ----------------------------------------------------------------
+
+    first_lagrange_multiplicator = np.sum(induced_velocity_distribution) / (
+        free_stream_velocity * len(radial_stations)
+    )
+
+    # Computation of the first try axial interference factor distribution
+    initial_axial_interference_factor = vectorized_axial_interf_f(
+        first_lagrange_multiplicator * prandtl_correction_values,
+        non_dimensional_radius,
+    )
+
+    dCt_0 = calculate_radial_thrust_coefs(
+        radial_stations, advanced_ratio, initial_axial_interference_factor
+    )
+
+    # Compute the error with respect to the thrust coefficient given in input
+    initial_error = np.sum(radial_stations_spacing * dCt_0) - total_thrust_coefficient
+    log.info(f"Convergence history: {initial_error}")
+
+    # Computation of the second try Lagrange multiplicator
+    last_lagrange_multiplicator = first_lagrange_multiplicator + 0.1
+
+    # Computation of the second try axial interference factor distribution
+    old_axial_interference_factor = vectorized_axial_interf_f(
+        last_lagrange_multiplicator * prandtl_correction_values,
+        non_dimensional_radius,
+    )
+
+    dCt_old = calculate_radial_thrust_coefs(
+        radial_stations, advanced_ratio, old_axial_interference_factor
+    )
+
+    # Compute the error with respect to the thrust coefficient given in input
+    old_error = np.sum(radial_stations_spacing * dCt_old) - total_thrust_coefficient
+    log.info(f"old_error= {old_error}")
+
+    # Iterate using the false position methods.
+    # Based on the error from the thrust coefficient given in input
+    iteration = 2
+    new_error = old_error
+    while math.fabs(new_error) >= EPSILON and initial_error != old_error:
+
+        iteration += 1
+        # Computation of the new Lagrange multiplicator value based on the false position method
+        new_lagrange_multiplicator = (
+            last_lagrange_multiplicator * initial_error - first_lagrange_multiplicator * old_error
+        ) / (initial_error - old_error)
+
+        # Computation of the new axial interference factor distribution
+        new_axial_interference_factor = vectorized_axial_interf_f(
+            new_lagrange_multiplicator * prandtl_correction_values,
+            non_dimensional_radius,
+        )
+
+        dCt_new = calculate_radial_thrust_coefs(
+            radial_stations, advanced_ratio, new_axial_interference_factor
+        )
+
+        new_total_thrust_coefficient = radial_stations_spacing * np.sum(dCt_new)
+
+        new_error = new_total_thrust_coefficient - total_thrust_coefficient
+        log.info(f"new error= {new_error}")
+
+        # Updating the stored values for the next iteration
+        initial_error = old_error
+        old_error = new_error
+
+        first_lagrange_multiplicator = last_lagrange_multiplicator
+        last_lagrange_multiplicator = new_lagrange_multiplicator
+
+    # ###### TO SIMPLIFY----------------------------------------------------------------
+
+    # Calculate radial Thrust coefficient at each stations
+    optimal_axial_interference_factor = vectorized_axial_interf_f(
+        new_lagrange_multiplicator * prandtl_correction_values, non_dimensional_radius
+    )
+
+    radial_thrust_coefs = calculate_radial_thrust_coefs(
+        radial_stations, advanced_ratio, optimal_axial_interference_factor
+    )
+
+    # Calculate radial Power coefficient at each stations
+    optimal_rotational_interference_factor = (
+        new_lagrange_multiplicator * prandtl_correction_values
+    ) * (
+        (1 + new_lagrange_multiplicator * prandtl_correction_values)
+        / (
+            non_dimensional_radius * non_dimensional_radius
+            + (1 + new_lagrange_multiplicator * prandtl_correction_values) ** 2
+        )
+    )
+
+    radial_power_coefs = (radius * 4 * np.pi / (rotational_velocity**3 * (2 * radius) ** 5)) * (
+        free_stream_velocity**3
+        * (1 + optimal_axial_interference_factor) ** 2
+        * optimal_axial_interference_factor
+        * radial_stations
+        * radius
+        + omega**2
+        * free_stream_velocity
+        * (1 + optimal_axial_interference_factor)
+        * optimal_rotational_interference_factor**2
+        * (radial_stations * radius) ** 3
+    )
+
+    # # Computation of the total power coefficient
+    # total_power_coefficient = np.sum(radial_stations_spacing * dCp)
+    # optimal_total_thrust_coefficient = np.sum(radial_stations_spacing * dCt_optimal)
+    # delta_pressure = (
+    #    (dCt_optimal) * (2 * free_stream_velocity**2) / (advanced_ratio**2 * pi * radial_stations)
+    # )
+
+    # # Computation of the thrust over density using the static pressure jump distribution
+    # thrust_density_ratio = 0.0
+    # thrust_density_ratio = np.sum(
+    #     2 * pi * radial_stations * radius**2 * radial_stations_spacing * delta_pressure
+    # )
+
+    # # Computation of the thrust coefficient using thrust_density_ratio
+    # computed_total_thrust_coefficient = thrust_density_ratio / (
+    #     rotational_velocity**2 * (2 * radius) ** 4
+    # )
+
+    # # Computation of the efficiency.
+    # eta = advanced_ratio * (optimal_total_thrust_coefficient / total_power_coefficient)
+
+    # TODO: Add check
+    # TODO: Add markdown results file
+
+    # log.info("------- Check output values -------")
+    # log.info(f"Optimal total thrust coefficient= {optimal_total_thrust_coefficient}")
+    # log.info("Total thrust coefficient computed")
+    # log.info(f"using the static pressure jump= {computed_total_thrust_coefficient}")
+    # log.info(f"Power coefficient distribution integral= {total_power_coefficient}")
+    # log.info(f"Thrust over Density= {thrust_density_ratio}")
+    # log.info(f"Efficiency eta= {eta}")
+    # log.info(f"Lagrangian multiplicator/free_stream_velocity= {new_lagrange_multiplicator}")
+
+    # log.info("SU2 file generated!")
+
+    return (
+        radial_thrust_coefs,
+        radial_power_coefs,
+        non_dimensional_radius,
+        optimal_axial_interference_factor,
+        optimal_rotational_interference_factor,
+        prandtl_correction_values,
+    )
+
+
+def write_header(file):
+    """Write the header of the actuator disk file.
+
+    Args:
+        file (file): File in which the header will be written.
+
+    """
+
+    header_lines = [
+        "# Automatic generated actuator disk input data file using\n",
+        "# the Optimal Propeller code.\n",
+        "# Data file needed for the actuator disk VARIABLE_LOAD type.\n",
+        "# The load distribution is obtained using\n",
+        "# the inviscid theory of the optimal propeller using global data.\n",
+        "#\n",
+        "# ADV_RATIO defined as Vinf/(nD) where: \n",
+        "#    n: propeller rounds per second,\n",
+        "#    D: propeller diameter.\n",
+        "# 'Renard' definition of propeller coefficients:\n",
+        "# reference force = rho*n^2*D^4, reference power = rho*n^3*D^5.\n",
+        "# Propeller center in grid coordinates.\n",
+        "# Propeller axis versor pointing backward.\n",
+        "# This output file is generated thanks to a script created by\n",
+        "# University of Naples Federico II and modified by CFS Engineering\n",
+        "# -----------------------------------------------------------------------------\n",
+    ]
+
+    file.writelines(header_lines)
 
     return file
 
 
-def write_actuator_disk_data(file, inlet_marker, outlet_marker, center, axis, radius):
+def write_actuator_disk_data(
+    file,
+    inlet_marker,
+    outlet_marker,
+    center,
+    axis,
+    radius,
+    advanced_ratio,
+    radial_stations,
+    radial_thrust_coefs,
+    radial_power_coefs,
+):
     """Function to create a ActuatorDisk.dat file which is used to when rotor/propeller are define
     in the CPACS file.
 
@@ -70,65 +510,27 @@ def write_actuator_disk_data(file, inlet_marker, outlet_marker, center, axis, ra
         center (tuple): Center of the actuator disk (x,y,z)
         axis (tuple): Axis of the actuator disk (x,y,z)
         radius (float): Radius of the actuator disk
-
+        advanced_ratio (float): Advance ratio
+        radial_stations (np.array): adimensional radius along the blade. Multiply by radius to
+                                       get the real radius value
+        radial_thrust_coefs (np.array): Thrust coefficient at each radial_stations
+        radial_power_coefs (np.array): Power coefficient at each radial_stations
     """
+
+    total_thrust_coefficient = sum(radial_thrust_coefs * (radial_stations[1] - radial_stations[0]))
+    file.write(f"# Total thurst coefficient= {total_thrust_coefficient:.5f}\n")
 
     file.write(f"MARKER_ACTDISK= {inlet_marker} {outlet_marker}\n")
     file.write(f"CENTER= {center[0]} {center[1]} {center[2]}\n")
     file.write(f"AXIS= {axis[0]} {axis[1]} {axis[2]}\n")
     file.write(f"RADIUS= {radius}\n")
-
-    # These value must be specific to a propeller, but how to genereate them?
-    file.write("ADV_RATIO= 2.0\n")
-    file.write("NROW= 47\n")
+    file.write(f"ADV_RATIO= {advanced_ratio:.5f}\n")
+    file.write(f"NROW= {len(radial_stations)}\n")
     file.write("# rs=r/R    dCT/drs     dCP/drs     dCR/drs\n")
-    file.write("0.0031   0.20066   00.890674         0.0\n")
-    file.write("0.0235   0.20066   00.890674         0.0\n")
-    file.write("0.0439   0.20066   00.890674         0.0\n")
-    file.write("0.0644   0.20066   00.890674         0.0\n")
-    file.write("0.0848   0.20066   00.890674         0.0\n")
-    file.write("0.1031   0.20066   00.890674         0.0\n")
-    file.write("0.1235   0.20066   00.890674         0.0\n")
-    file.write("0.1439   0.20066   00.890674         0.0\n")
-    file.write("0.1644   0.20066   00.890674         0.0\n")
-    file.write("0.1848   0.20066   00.890674         0.0\n")
-    file.write("0.2031   0.20066   00.890674         0.0\n")
-    file.write("0.2235   0.19963   00.932674         0.0\n")
-    file.write("0.2439   0.21707   00.982980         0.0\n")
-    file.write("0.2644   0.24667   01.064153         0.0\n")
-    file.write("0.2848   0.29147   01.189045         0.0\n")
-    file.write("0.3257   0.43674   01.588513         0.0\n")
-    file.write("0.3461   0.53380   01.849900         0.0\n")
-    file.write("0.3665   0.64327   02.145367         0.0\n")
-    file.write("0.3870   0.76521   02.471873         0.0\n")
-    file.write("0.4278   1.03679   03.203392         0.0\n")
-    file.write("0.4483   1.18918   03.609085         0.0\n")
-    file.write("0.4687   1.35619   04.051864         0.0\n")
-    file.write("0.4891   1.52986   04.518863         0.0\n")
-    file.write("0.5096   1.71453   05.011266         0.0\n")
-    file.write("0.5300   1.90755   05.528521         0.0\n")
-    file.write("0.5504   2.11062   06.072281         0.0\n")
-    file.write("0.5709   2.31313   06.620508         0.0\n")
-    file.write("0.5913   2.51252   07.161404         0.0\n")
-    file.write("0.6117   2.71376   07.700722         0.0\n")
-    file.write("0.6322   2.90980   08.219708         0.0\n")
-    file.write("0.6526   3.09848   08.715231         0.0\n")
-    file.write("0.6730   3.28502   09.202496         0.0\n")
-    file.write("0.6935   3.46774   09.681596         0.0\n")
-    file.write("0.7139   3.64895   10.156277         0.0\n")
-    file.write("0.7343   3.81991   10.603740         0.0\n")
-    file.write("0.7548   3.98417   11.036331         0.0\n")
-    file.write("0.7752   4.13550   11.442054         0.0\n")
-    file.write("0.7956   4.27447   11.820164         0.0\n")
-    file.write("0.8161   4.40093   12.163819         0.0\n")
-    file.write("0.8365   4.51007   12.453084         0.0\n")
-    file.write("0.8569   4.60535   12.682212         0.0\n")
-    file.write("0.8774   4.67765   12.823500         0.0\n")
-    file.write("0.8978   4.71296   12.839416         0.0\n")
-    file.write("0.9182   4.70303   12.701343         0.0\n")
-    file.write("0.9387   4.60921   12.317719         0.0\n")
-    file.write("0.9591   4.34937   11.470356         0.0\n")
-    file.write("0.9795   3.77288   9.7460480         0.0\n")
+
+    for r, ctrs, cprs in zip(radial_stations, radial_thrust_coefs, radial_power_coefs):
+        file.write(f"{r:.5f}     {ctrs:.5f}      {cprs:08.5f}     0.0\n")
+
     file.write("\n")
 
     return file

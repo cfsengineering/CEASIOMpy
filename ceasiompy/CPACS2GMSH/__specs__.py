@@ -3,6 +3,7 @@ from pathlib import Path
 from ceasiompy.utils.commonxpath import (
     GMSH_AUTO_REFINE_XPATH,
     GMSH_EXHAUST_PERCENT_XPATH,
+    GMSH_EXPORT_PROP_XPATH,
     GMSH_FARFIELD_FACTOR_XPATH,
     GMSH_INTAKE_PERCENT_XPATH,
     GMSH_MESH_SIZE_FARFIELD_XPATH,
@@ -43,6 +44,18 @@ cpacs_inout.add_input(
     xpath=GMSH_OPEN_GUI_XPATH,
     gui=True,
     gui_name="Open GMSH GUI",
+    gui_group="General options",
+)
+
+cpacs_inout.add_input(
+    var_name="export_propellers",
+    var_type=bool,
+    default_value=False,
+    unit="1",
+    descr="Export propeller(s) to be use as disk actuator",
+    xpath=GMSH_EXPORT_PROP_XPATH,
+    gui=True,
+    gui_name="Export propeller(s)",
     gui_group="General options",
 )
 

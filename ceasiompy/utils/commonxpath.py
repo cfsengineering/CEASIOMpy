@@ -80,8 +80,6 @@ SU2MESH_XPATH = CEASIOMPY_XPATH + "/filesPath/su2Mesh"
 SUMOFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/sumoFilePath"
 WKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/wkdirPath"
 
-# GMSH
-
 # Propulsion
 TURBOPROP_XPATH = PROP_XPATH + "/turboprop"
 
@@ -94,6 +92,7 @@ SUMO_INCLUDE_ENGINE_XPATH = CEASIOMPY_XPATH + "/engine/includeEngine"
 GMSH_XPATH = MESH_XPATH + "/gmshOptions"
 GMSH_OPEN_GUI_XPATH = GMSH_XPATH + "/open_gui"
 GMSH_SYMMETRY_XPATH = GMSH_XPATH + "/symmetry"
+GMSH_EXPORT_PROP_XPATH = GMSH_XPATH + "/exportPropellers"
 GMSH_FARFIELD_FACTOR_XPATH = GMSH_XPATH + "/farfield_factor"
 GMSH_MESH_SIZE_FARFIELD_XPATH = GMSH_XPATH + "/mesh_size/farfield"
 GMSH_MESH_SIZE_FUSELAGE_XPATH = GMSH_XPATH + "/mesh_size/fuselage"
@@ -128,6 +127,8 @@ SU2_ROTATION_RATE_XPATH = SU2_XPATH + "/options/rotationRate"
 
 SU2_CONTROL_SURF_XPATH = SU2_XPATH + "/options/calculateControlSurfacesDeflections"
 SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
+
+SU2_ACTUATOR_DISK_XPATH = SU2_XPATH + "/options/includeActuatorDisk"
 
 # RANGE
 RANGE_LD_RATIO_XPATH = CEASIOMPY_XPATH + "/ranges/lDRatio"

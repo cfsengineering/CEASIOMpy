@@ -106,18 +106,18 @@ def get_prandtl_correction_values(
     """Function to correct the values of thrust and power coefficients near the tip, based on
         Prandtl formulation
 
-        TODO
-
     Args:
-        prandtl (_type_): _description_
-        blades_number (_type_): _description_
-        radial_stations (_type_): _description_
-        omega (_type_): _description_
-        radius (_type_): _description_
-        free_stream_velocity (_type_): _description_
+        prandtl (bool): bool value thanks to which is possible
+                        to activate or deactivate the correction
+        blades_number (int): number of blades of the propeller
+        radial_stations (np.array): adimensional radius along the blade. Multiply by radius to
+                                    get the real radius value
+        omega (float): rotational velocity multiplied for 2 and pi
+        radius (float): radius of the propeller
+        free_stream_velocity (float): free sstream velocity
 
     Returns:
-        correction function to correct Ct and Cp
+        correction function to correct thrust coefficient and power coefficient
     """
 
     if not prandtl_correction:

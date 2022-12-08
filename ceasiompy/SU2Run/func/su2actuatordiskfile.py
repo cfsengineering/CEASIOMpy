@@ -229,7 +229,7 @@ def save_plots(
     )
     plt.grid(True)
     plt.legend(numpoints=3)
-    plt.xlabel("$\frac{2\pi*r}{J}$")
+    plt.xlabel("$\\frac{2\pi*r}{J}$")
     plt.ylabel("$a$, $a^1$")
     plt.title("Interference Factors")
 

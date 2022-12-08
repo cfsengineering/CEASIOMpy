@@ -66,6 +66,9 @@ def clear_containers(container_list):
 def display_results(results_dir):
     """Display results depending which type of file they are."""
 
+    container_list = ["logs_container", "figures_container", "paraview_container"]
+    clear_containers(container_list)
+
     for child in sorted(Path(results_dir).iterdir()):
 
         if child.suffix == ".smx":
@@ -270,10 +273,6 @@ def show_results():
     results_tabs = st.tabs(results_name)
 
     for tab, tab_name in zip(results_tabs, results_name):
-
-        container_list = ["logs_container", "figures_container", "paraview_container"]
-        clear_containers(container_list)
-
         with tab:
             display_results(Path(results_dir, tab_name))
 

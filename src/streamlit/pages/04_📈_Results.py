@@ -23,6 +23,7 @@ import streamlit as st
 from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
+from streamlit_autorefresh import st_autorefresh
 from streamlitutils import create_sidebar
 
 how_to_text = (
@@ -65,6 +66,9 @@ def clear_containers(container_list):
 
 def display_results(results_dir):
     """Display results depending which type of file they are."""
+
+    container_list = ["logs_container", "figures_container", "paraview_container"]
+    clear_containers(container_list)
 
     for child in sorted(Path(results_dir).iterdir()):
 
@@ -180,23 +184,23 @@ def show_aeromap():
         y_axis = st.selectbox("y", PARAMS_COEFS, 5)
 
     with st.expander("Filter 1"):
-        filt1_col1, filt1_col2 = st.columns([1, 2])
+        filter1_column1, filter1_column2 = st.columns([1, 2])
 
-        with filt1_col1:
-            filt1_remaining = [item for item in PARAMS_COEFS if item not in [x_axis, y_axis]]
-            filter1 = st.selectbox("Filter by:", filt1_remaining)
-        with filt1_col2:
+        with filter1_column1:
+            filter1_remaining = [item for item in PARAMS_COEFS if item not in [x_axis, y_axis]]
+            filter1 = st.selectbox("Filter by:", filter1_remaining)
+        with filter1_column2:
             value_list = df_tmp[filter1].unique()
             value_selected = st.multiselect("Filter value:", value_list, value_list[0])
 
     with st.expander("Filter 2"):
-        filt2_col1, filt2_col2 = st.columns([1, 2])
-        with filt2_col1:
-            filt2_remaining = [
+        filter2_column1, filter2_column2 = st.columns([1, 2])
+        with filter2_column1:
+            filter2_remaining = [
                 item for item in PARAMS_COEFS if item not in [x_axis, y_axis, filter1]
             ]
-            filter2 = st.selectbox("Filter2 by:", filt2_remaining)
-        with filt2_col2:
+            filter2 = st.selectbox("Filter2 by:", filter2_remaining)
+        with filter2_column2:
             value_list2 = df_tmp[filter2].unique()
             value_selected2 = st.multiselect("Filter2 value:", value_list2, value_list2[0])
 
@@ -270,10 +274,6 @@ def show_results():
     results_tabs = st.tabs(results_name)
 
     for tab, tab_name in zip(results_tabs, results_name):
-
-        container_list = ["logs_container", "figures_container", "paraview_container"]
-        clear_containers(container_list)
-
         with tab:
             display_results(Path(results_dir, tab_name))
 
@@ -285,3 +285,6 @@ show_results()
 
 if st.button("🔄 Refresh"):
     st.experimental_rerun()
+
+if st.checkbox("Auto refresh"):
+    st_autorefresh(interval=2000, limit=10000, key="auto_refresh")

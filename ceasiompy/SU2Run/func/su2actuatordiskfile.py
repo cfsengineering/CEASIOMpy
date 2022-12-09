@@ -319,13 +319,13 @@ def thrust_calculator(
 
     # ###### TO SIMPLIFY ----------------------------------------------------------------
 
-    first_lagrange_multiplicator = np.sum(induced_velocity_distribution) / (
+    first_lagrange_multiplier = np.sum(induced_velocity_distribution) / (
         free_stream_velocity * len(radial_stations)
     )
 
     # Computation of the first try axial interference factor distribution
     initial_axial_interference_factor = vectorized_axial_interf_f(
-        first_lagrange_multiplicator * prandtl_correction_values,
+        first_lagrange_multiplier * prandtl_correction_values,
         non_dimensional_radius,
     )
 
@@ -335,14 +335,14 @@ def thrust_calculator(
 
     # Compute the error with respect to the thrust coefficient given in input
     initial_error = np.sum(radial_stations_spacing * dCt_0) - total_thrust_coefficient
-    log.info(f"Start of error calculation, convergence history: {initial_error}")
+    log.info(f"Start of error calculation")
 
     # Computation of the second try Lagrange multiplicator
-    last_lagrange_multiplicator = first_lagrange_multiplicator + 0.1
+    last_lagrange_multiplier = first_lagrange_multiplier + 0.1
 
     # Computation of the second try axial interference factor distribution
     old_axial_interference_factor = vectorized_axial_interf_f(
-        last_lagrange_multiplicator * prandtl_correction_values,
+        last_lagrange_multiplier * prandtl_correction_values,
         non_dimensional_radius,
     )
 
@@ -352,7 +352,7 @@ def thrust_calculator(
 
     # Compute the error with respect to the thrust coefficient given in input
     old_error = np.sum(radial_stations_spacing * dCt_old) - total_thrust_coefficient
-    log.info(f"old_error= {old_error}")
+    # log.info(f"old_error= {old_error}")
 
     # Iterate using the false position methods.
     # Based on the error from the thrust coefficient given in input
@@ -363,13 +363,13 @@ def thrust_calculator(
 
         iteration += 1
         # Computation of the new Lagrange multiplicator value based on the false position method
-        new_lagrange_multiplicator = (
-            last_lagrange_multiplicator * initial_error - first_lagrange_multiplicator * old_error
+        new_lagrange_multiplier = (
+            last_lagrange_multiplier * initial_error - first_lagrange_multiplier * old_error
         ) / (initial_error - old_error)
 
         # Computation of the new axial interference factor distribution
         new_axial_interference_factor = vectorized_axial_interf_f(
-            new_lagrange_multiplicator * prandtl_correction_values,
+            new_lagrange_multiplier * prandtl_correction_values,
             non_dimensional_radius,
         )
 
@@ -380,20 +380,21 @@ def thrust_calculator(
         new_total_thrust_coefficient = radial_stations_spacing * np.sum(dCt_new)
 
         new_error = new_total_thrust_coefficient - total_thrust_coefficient
-        log.info(f"new error= {new_error}")
+        # log.info(f"new error= {new_error}")
 
         # Updating the stored values for the next iteration
         initial_error = old_error
         old_error = new_error
 
-        first_lagrange_multiplicator = last_lagrange_multiplicator
-        last_lagrange_multiplicator = new_lagrange_multiplicator
+        first_lagrange_multiplier = last_lagrange_multiplier
+        last_lagrange_multiplier = new_lagrange_multiplier
 
     # ###### TO SIMPLIFY----------------------------------------------------------------
+    log.info("Error has been estimated")
 
     # Calculate radial Thrust coefficient at each stations
     optimal_axial_interference_factor = vectorized_axial_interf_f(
-        new_lagrange_multiplicator * prandtl_correction_values, non_dimensional_radius
+        new_lagrange_multiplier * prandtl_correction_values, non_dimensional_radius
     )
 
     radial_thrust_coefs = calculate_radial_thrust_coefs(
@@ -402,12 +403,12 @@ def thrust_calculator(
 
     # Calculate radial Power coefficient at each stations
     optimal_rotational_interference_factor = (
-        new_lagrange_multiplicator * prandtl_correction_values
+        new_lagrange_multiplier * prandtl_correction_values
     ) * (
-        (1 + new_lagrange_multiplicator * prandtl_correction_values)
+        (1 + new_lagrange_multiplier * prandtl_correction_values)
         / (
             non_dimensional_radius * non_dimensional_radius
-            + (1 + new_lagrange_multiplicator * prandtl_correction_values) ** 2
+            + (1 + new_lagrange_multiplier * prandtl_correction_values) ** 2
         )
     )
 

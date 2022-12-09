@@ -352,7 +352,6 @@ def thrust_calculator(
 
     # Compute the error with respect to the thrust coefficient given in input
     old_error = np.sum(radial_stations_spacing * dCt_old) - total_thrust_coefficient
-    # log.info(f"old_error= {old_error}")
 
     # Iterate using the false position methods.
     # Based on the error from the thrust coefficient given in input

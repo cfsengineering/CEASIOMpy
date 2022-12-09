@@ -16,24 +16,33 @@ TODO:
 
 """
 
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
+from pathlib import Path
+from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.ceasiomlogger import get_logger
-from cpacspy.cpacsfunctions import get_tigl_configuration, open_tigl, open_tixi
+
+from ceasiompy.utils.moduleinterfaces import (
+    check_cpacs_input_requirements,
+    get_toolinput_file_path,
+)
 
 log = get_logger()
 
+MODULE_DIR = Path(__file__).parent
+MODULE_NAME = MODULE_DIR.name
 
-# ==============================================================================
+
+# =================================================================================================
 #   CLASSES
-# ==============================================================================
+# =================================================================================================
 
 
-# ==============================================================================
+# =================================================================================================
 #   FUNCTIONS
-# ==============================================================================
+# =================================================================================================
 
 
 def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
@@ -53,16 +62,12 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
 
     """
 
-    log.info("----- Start of CPACSUpdater -----")
+    cpacs = CPACS(cpacs_path)
     log.info(f"{cpacs_path} will be updated.")
 
-    tixi = open_tixi(cpacs_path)
-    tigl = open_tigl(tixi)
-
     # Object seems to be unused, but are use in "eval" function
-    aircraft = get_tigl_configuration(tigl)
-    wings = aircraft.get_wings()
-    fuselage = aircraft.get_fuselages().get_fuselage(1)
+    wings = cpacs.aircraft.get_wings()
+    fuselage = cpacs.aircraft.get_fuselages().get_fuselage(1)
 
     # Perform update of all the variable contained in 'optim_var_dict'
     for name, variables in optim_var_dict.items():
@@ -88,23 +93,37 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
 
                 # Update value directly in the CPACS file
                 xpath = getcommand
-                tixi.updateTextElement(xpath, str(listval[-1]))
+                cpacs.tixi.updateTextElement(xpath, str(listval[-1]))
 
-    aircraft.write_cpacs(aircraft.get_uid())
-    tigl.close()
-    tixi.save(str(cpacs_out_path))
+    # aircraft.write_cpacs(aircraft.get_uid())
+    cpacs.save_cpacs(str(cpacs_out_path))
 
     log.info(f"{cpacs_out_path} has been saved.")
     log.info("----- Start of CPACSUpdater -----")
 
 
-# ==============================================================================
+# =================================================================================================
 #    MAIN
-# ==============================================================================
+# =================================================================================================
+
+
+def main(cpacs_path, cpacs_out_path):
+
+    log.info("----- Start of " + MODULE_NAME + " -----")
+
+    check_cpacs_input_requirements(cpacs_path)
+    update_cpacs_file(cpacs_path, cpacs_out_path, variable_to_update)
+
+    log.info("----- End of " + MODULE_NAME + " -----")
+
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    cpacs_path = get_toolinput_file_path(MODULE_NAME)
+    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
+
+    main(cpacs_path, cpacs_out_path)
+
 
 # Other functions which could be useful
 # help(aircraft)

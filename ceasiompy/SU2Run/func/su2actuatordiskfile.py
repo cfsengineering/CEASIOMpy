@@ -89,7 +89,7 @@ def axial_interference_function(lagrangian_multiplier, non_dimensional_radius):
     Args:
         lagrangian_multiplier (float): lagrangian multiplier, it is used to calculate
                                        interference factor
-        non_dimensional_radius (float): radius adimentionalization made using advanced ration
+        non_dimensional_radius (float): radius adimentionalization made using advanced ratio
 
     Returns:
         axial_interference_factor (np.array): axial interference factor calculated ad every radius,

@@ -175,7 +175,7 @@ def save_plots(
                                     get the real radius value
         radial_thrust_coefs (np.array): radial distribution of thrust coefficient
         radial_power_coefs (np.array): radial distribution of power coefficient
-        non_dimensional_radius (float): radius adimentionalization made using advanced ration
+        non_dimensional_radius (float): radius adimentionalization made using advanced ratio
         optimal_axial_interference_factor (np.array): optimal axial interference factor
         optimal_rotational_interference_factor (np.array): optimal rotational interference factor
         prandtl_correction_values (np.array): values of Prandtl correction

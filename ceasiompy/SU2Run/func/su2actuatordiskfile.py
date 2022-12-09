@@ -335,7 +335,7 @@ def thrust_calculator(
 
     # Compute the error with respect to the thrust coefficient given in input
     initial_error = np.sum(radial_stations_spacing * dCt_0) - total_thrust_coefficient
-    log.info(f"Start of error calculation")
+    log.info("Start of error calculation")
 
     # Computation of the second try Lagrange multiplicator
     last_lagrange_multiplier = first_lagrange_multiplier + 0.1

@@ -379,7 +379,6 @@ def thrust_calculator(
         new_total_thrust_coefficient = radial_stations_spacing * np.sum(dCt_new)
 
         new_error = new_total_thrust_coefficient - total_thrust_coefficient
-        # log.info(f"new error= {new_error}")
 
         # Updating the stored values for the next iteration
         initial_error = old_error

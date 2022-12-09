@@ -246,9 +246,9 @@ def save_plots(
     f3.savefig(prandtl_correction_plot_path)
     plt.clf()
 
-    log.info(f"A plot have been saved at{ct_cp_distr_plot_path}")
-    log.info(f"A plot have been saved at{interference_plot_path}")
-    log.info(f"A plot have been saved at{prandtl_correction_plot_path}")
+    log.info(f"A plot have been saved at {ct_cp_distr_plot_path}")
+    log.info(f"A plot have been saved at {interference_plot_path}")
+    log.info(f"A plot have been saved at {prandtl_correction_plot_path}")
 
 
 def thrust_calculator(

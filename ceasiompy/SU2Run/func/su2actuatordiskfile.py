@@ -246,6 +246,10 @@ def save_plots(
     f3.savefig(prandtl_correction_plot_path)
     plt.clf()
 
+    log.info(f"A plot have been saved at{ct_cp_distr_plot_path}")
+    log.info(f"A plot have been saved at{interference_plot_path}")
+    log.info(f"A plot have been saved at{prandtl_correction_plot_path}")
+
 
 def thrust_calculator(
     radial_stations,
@@ -274,6 +278,8 @@ def thrust_calculator(
         r (float): adimensional radius [-]
     """
 
+    log.info("Start of thrust calculation distribution")
+
     EPSILON = 5e-20
 
     advanced_ratio = free_stream_velocity / (rotational_velocity * (radius * 2))
@@ -284,6 +290,8 @@ def thrust_calculator(
     prandtl_correction_values = get_prandtl_correction_values(
         radial_stations, prandtl_correction, blades_number, omega, radius, free_stream_velocity
     )
+
+    log.info(f"Prandtl correction= {prandtl_correction}")
 
     # TODO: put in the markdown file
     # log.info(f"Selected total thrust coeff= {total_thrust_coefficient}")
@@ -327,7 +335,7 @@ def thrust_calculator(
 
     # Compute the error with respect to the thrust coefficient given in input
     initial_error = np.sum(radial_stations_spacing * dCt_0) - total_thrust_coefficient
-    log.info(f"Convergence history: {initial_error}")
+    log.info(f"Start of error calculation, convergence history: {initial_error}")
 
     # Computation of the second try Lagrange multiplicator
     last_lagrange_multiplicator = first_lagrange_multiplicator + 0.1
@@ -350,6 +358,7 @@ def thrust_calculator(
     # Based on the error from the thrust coefficient given in input
     iteration = 2
     new_error = old_error
+
     while math.fabs(new_error) >= EPSILON and initial_error != old_error:
 
         iteration += 1
@@ -415,6 +424,8 @@ def thrust_calculator(
         * (radial_stations * radius) ** 3
     )
 
+    log.info("Radial thrust and power coefficients have been estimated")
+
     # # Computation of the total power coefficient
     # total_power_coefficient = np.sum(radial_stations_spacing * dCp)
     # optimal_total_thrust_coefficient = np.sum(radial_stations_spacing * dCt_optimal)
@@ -447,8 +458,6 @@ def thrust_calculator(
     # log.info(f"Thrust over Density= {thrust_density_ratio}")
     # log.info(f"Efficiency eta= {eta}")
     # log.info(f"Lagrangian multiplicator/free_stream_velocity= {new_lagrange_multiplicator}")
-
-    # log.info("SU2 file generated!")
 
     return (
         radial_thrust_coefs,
@@ -488,6 +497,8 @@ def write_header(file):
     ]
 
     file.writelines(header_lines)
+
+    log.info("ActuatorDisk.dat header has been written")
 
     return file
 
@@ -536,6 +547,8 @@ def write_actuator_disk_data(
         file.write(f"{r:.5f}     {ctrs:.5f}      {cprs:08.5f}     0.0\n")
 
     file.write("\n")
+
+    log.info("ActuatorDisk.dat file generated!")
 
     return file
 

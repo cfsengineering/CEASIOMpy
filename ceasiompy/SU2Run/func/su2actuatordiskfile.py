@@ -87,11 +87,14 @@ def axial_interference_function(lagrangian_multiplier, non_dimensional_radius):
     """_summary_
 
     Args:
-        lagrangian_multiplier (float): TODO
+        lagrangian_multiplier (float): lagrangian multiplier, it is used to calculate
+                                       interference factor
         non_dimensional_radius (float): radius adimentionalization made using advanced ration
 
     Returns:
-        axial_interference_factor (np.array): TODO
+        axial_interference_factor (np.array): axial interference factor calculated ad every radius,
+                                              it is used to estimate the losses due to a
+                                              pre-rotation of the fluid
     """
 
     axial_interference_factor = (lagrangian_multiplier * non_dimensional_radius**2) / (
@@ -141,7 +144,7 @@ def calculate_radial_thrust_coefs(radial_stations, advanced_ratio, opt_axial_int
                                     get the real radius value
         advanced_ratio (float): ratio between velocity and rotational velocity
                                 multiplied by diameter
-        opt_axial_interf_factor (_type_): Optimal axial interference factor
+        opt_axial_interf_factor (np.array): Optimal axial interference factor
 
     """
 
@@ -167,17 +170,15 @@ def save_plots(
 ):
     """Function to save plot in result folder
 
-    TODO
-
     Args:
         radial_stations (np.array): adimensional radius along the blade. Multiply by radius to
                                     get the real radius value
-        radial_thrust_coefs (_type_): _description_
-        radial_power_coefs (_type_): _description_
-        non_dimensional_radius (_type_): _description_
-        optimal_axial_interference_factor (_type_): _description_
-        optimal_rotational_interference_factor (_type_): _description_
-        prandtl_correction_values (_type_): _description_
+        radial_thrust_coefs (np.array): radial distribution of thrust coefficient
+        radial_power_coefs (np.array): radial distribution of power coefficient
+        non_dimensional_radius (float): radius adimentionalization made using advanced ration
+        optimal_axial_interference_factor (np.array): optimal axial interference factor
+        optimal_rotational_interference_factor (np.array): optimal rotational interference factor
+        prandtl_correction_values (np.array): values of Prandtl correction
         case_dir_path (Path): Path object of the case directory
         propeller_uid (str): Uid of the current propeller
     """

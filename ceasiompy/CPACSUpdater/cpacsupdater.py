@@ -67,8 +67,8 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
     log.info(f"{cpacs_path} will be updated.")
 
     # DO NOT REMOVE, those variables are used in "eval" function
-    wings = cpacs.aircraft.get_wings()
-    fuselage = cpacs.aircraft.get_fuselages().get_fuselage(1)
+    wings = cpacs.aircraft.configuration.get_wings()
+    fuselage = cpacs.aircraft.configuration.get_fuselages().get_fuselage(1)
 
     for name, variables in optim_var_dict.items():
 

@@ -12,7 +12,7 @@ Python version: >=3.8
 
 TODO:
 
-    * This module is still a bit tricky to use, it will be simplified in the future
+    * 
 
 """
 
@@ -27,6 +27,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import (
     check_cpacs_input_requirements,
     get_toolinput_file_path,
+    get_tooloutput_file_path,
 )
 
 log = get_logger()
@@ -65,41 +66,37 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
     cpacs = CPACS(cpacs_path)
     log.info(f"{cpacs_path} will be updated.")
 
-    # Object seems to be unused, but are use in "eval" function
+    # DO NOT REMOVE, those variables are used in "eval" function
     wings = cpacs.aircraft.get_wings()
     fuselage = cpacs.aircraft.get_fuselages().get_fuselage(1)
 
-    # Perform update of all the variable contained in 'optim_var_dict'
     for name, variables in optim_var_dict.items():
 
-        # Unpack the variables
-        val_type, listval, _, _, getcommand, setcommand = variables
+        val_type, list_val, _, _, get_command, set_command = variables
 
-        if val_type == "des" and listval[0] not in ["-", "True", "False"]:
+        if val_type == "des" and list_val[0] not in ["-", "True", "False"]:
 
-            if setcommand not in ["-", ""]:
-
-                # Define variable (var1,var2,..)
-                locals()[str(name)] = listval[-1]
-
-                # Update value by using tigl configuration
-                if ";" in setcommand:  # if more than one command on the line
-                    command_split = setcommand.split(";")
-                    for setcommand in command_split:
-                        eval(setcommand)
-                else:
-                    eval(setcommand)
-            else:
+            if set_command in ["-", ""]:
 
                 # Update value directly in the CPACS file
-                xpath = getcommand
-                cpacs.tixi.updateTextElement(xpath, str(listval[-1]))
+                xpath = get_command
+                cpacs.tixi.updateTextElement(xpath, str(list_val[-1]))
 
-    # aircraft.write_cpacs(aircraft.get_uid())
+            else:
+
+                # Define variable (var1,var2,..)
+                locals()[str(name)] = list_val[-1]
+
+                if ";" in set_command:  # if more than one command on the line
+                    commands = set_command.split(";")
+                else:
+                    commands = [set_command]
+
+                # Update value by using tigl configuration
+                for command in commands:
+                    eval(command)
+
     cpacs.save_cpacs(str(cpacs_out_path))
-
-    log.info(f"{cpacs_out_path} has been saved.")
-    log.info("----- Start of CPACSUpdater -----")
 
 
 # =================================================================================================
@@ -112,7 +109,7 @@ def main(cpacs_path, cpacs_out_path):
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     check_cpacs_input_requirements(cpacs_path)
-    update_cpacs_file(cpacs_path, cpacs_out_path, variable_to_update)
+    update_cpacs_file(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + MODULE_NAME + " -----")
 

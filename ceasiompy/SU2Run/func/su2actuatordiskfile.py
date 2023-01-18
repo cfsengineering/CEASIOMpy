@@ -358,8 +358,8 @@ def thrust_calculator(
         r (float): adimensional radius [-]
     """
 
-    results_dir = get_results_directory("su2actuatordisk")
-    md = MarkdownDoc(Path(results_dir, "su2actuatordisk.md"))
+    # results_dir = get_results_directory("su2actuatordisk")
+    # md = MarkdownDoc(Path(results_dir, "su2actuatordisk.md"))
 
     log.info("Start of thrust calculation distribution")
 

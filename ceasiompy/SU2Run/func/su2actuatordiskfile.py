@@ -253,82 +253,106 @@ def save_plots(
     log.info(f"A plot have been saved at {prandtl_correction_plot_path}")
 
 
-def thrust_initialization(
-    free_stream_velocity,
-    radius,
-    total_thrust_coefficient,
-    rotational_velocity,
-    radial_stations,
-    prandtl_correction,
-    blades_number,
-    omega,
+# def thrust_initialization(
+#    free_stream_velocity,
+#    radius,
+#    total_thrust_coefficient,
+#    rotational_velocity,
+#    radial_stations,
+#    prandtl_correction,
+#    blades_number,
+#    omega,
+#    non_dimensional_radius,
+#    advanced_ratio,
+# ):
+#    radial_stations_spacing = radial_stations[1] - radial_stations[0]
+#
+#    vectorized_axial_interf_f = np.vectorize(axial_interference_function)
+#    prandtl_correction_values = get_prandtl_correction_values(
+#        radial_stations, prandtl_correction, blades_number, omega, radius, free_stream_velocity
+#    )
+#
+#    # Computation of the first try induced velocity distribution
+#    induced_velocity_distribution = (2 / free_stream_velocity**2) * (
+#        (-1 / free_stream_velocity)
+#        + np.sqrt(
+#            1
+#            + (
+#                ((2 * radius) ** 4 * (total_thrust_coefficient) * rotational_velocity**2)
+#                / (free_stream_velocity**2 * np.pi * radial_stations)
+#            )
+#        )
+#    )
+#
+#    first_lagrange_multiplier = np.sum(induced_velocity_distribution) / (
+#        free_stream_velocity * len(radial_stations)
+#    )
+#
+#    # Computation of the first try axial interference factor distribution
+#    initial_axial_interference_factor = vectorized_axial_interf_f(
+#        first_lagrange_multiplier * prandtl_correction_values,
+#        non_dimensional_radius,
+#    )
+#
+#    dCt_0 = calculate_radial_thrust_coefs(
+#        radial_stations, advanced_ratio, initial_axial_interference_factor
+#    )
+#
+#    # Compute the error with respect to the thrust coefficient given in input
+#    initial_error = np.sum(radial_stations_spacing * dCt_0) - total_thrust_coefficient
+#    log.info("Start of error calculation")
+#
+#    # Computation of the second try Lagrange multiplicator
+#    last_lagrange_multiplier = first_lagrange_multiplier + 0.1
+#
+#    # Computation of the second try axial interference factor distribution
+#    old_axial_interference_factor = vectorized_axial_interf_f(
+#        last_lagrange_multiplier * prandtl_correction_values,
+#        non_dimensional_radius,
+#    )
+#
+#    dCt_old = calculate_radial_thrust_coefs(
+#        radial_stations, advanced_ratio, old_axial_interference_factor
+#    )
+#
+#    # Compute the error with respect to the thrust coefficient given in input
+#    old_error = np.sum(radial_stations_spacing * dCt_old) - total_thrust_coefficient
+#    new_error = old_error
+#
+#    return (
+#        first_lagrange_multiplier,
+#        last_lagrange_multiplier,
+#        initial_error,
+#        old_error,
+#        radial_stations_spacing,
+#        new_error,
+#        prandtl_correction_values,
+#        vectorized_axial_interf_f,
+#    )
+
+
+def preliminary(
+    lagrange_multiplier,
+    prandtl_correction_values,
     non_dimensional_radius,
+    radial_stations,
     advanced_ratio,
+    radial_stations_spacing,
+    total_thrust_coefficient,
+    vectorized_axial_interf_f,
 ):
-    radial_stations_spacing = radial_stations[1] - radial_stations[0]
 
-    vectorized_axial_interf_f = np.vectorize(axial_interference_function)
-    prandtl_correction_values = get_prandtl_correction_values(
-        radial_stations, prandtl_correction, blades_number, omega, radius, free_stream_velocity
-    )
-
-    # Computation of the first try induced velocity distribution
-    induced_velocity_distribution = (2 / free_stream_velocity**2) * (
-        (-1 / free_stream_velocity)
-        + np.sqrt(
-            1
-            + (
-                ((2 * radius) ** 4 * (total_thrust_coefficient) * rotational_velocity**2)
-                / (free_stream_velocity**2 * np.pi * radial_stations)
-            )
-        )
-    )
-
-    first_lagrange_multiplier = np.sum(induced_velocity_distribution) / (
-        free_stream_velocity * len(radial_stations)
-    )
-
-    # Computation of the first try axial interference factor distribution
-    initial_axial_interference_factor = vectorized_axial_interf_f(
-        first_lagrange_multiplier * prandtl_correction_values,
+    axial_interference_factor = vectorized_axial_interf_f(
+        lagrange_multiplier * prandtl_correction_values,
         non_dimensional_radius,
     )
 
-    dCt_0 = calculate_radial_thrust_coefs(
-        radial_stations, advanced_ratio, initial_axial_interference_factor
-    )
+    dCt = calculate_radial_thrust_coefs(radial_stations, advanced_ratio, axial_interference_factor)
 
     # Compute the error with respect to the thrust coefficient given in input
-    initial_error = np.sum(radial_stations_spacing * dCt_0) - total_thrust_coefficient
-    log.info("Start of error calculation")
+    error = np.sum(radial_stations_spacing * dCt) - total_thrust_coefficient
 
-    # Computation of the second try Lagrange multiplicator
-    last_lagrange_multiplier = first_lagrange_multiplier + 0.1
-
-    # Computation of the second try axial interference factor distribution
-    old_axial_interference_factor = vectorized_axial_interf_f(
-        last_lagrange_multiplier * prandtl_correction_values,
-        non_dimensional_radius,
-    )
-
-    dCt_old = calculate_radial_thrust_coefs(
-        radial_stations, advanced_ratio, old_axial_interference_factor
-    )
-
-    # Compute the error with respect to the thrust coefficient given in input
-    old_error = np.sum(radial_stations_spacing * dCt_old) - total_thrust_coefficient
-    new_error = old_error
-
-    return (
-        first_lagrange_multiplier,
-        last_lagrange_multiplier,
-        initial_error,
-        old_error,
-        radial_stations_spacing,
-        new_error,
-        prandtl_correction_values,
-        vectorized_axial_interf_f,
-    )
+    return error
 
 
 def thrust_calculator(
@@ -433,27 +457,75 @@ def thrust_calculator(
     # iteration = 2
     # new_error = old_error
 
-    (
-        first_lagrange_multiplier,
-        last_lagrange_multiplier,
-        initial_error,
-        old_error,
-        radial_stations_spacing,
-        new_error,
-        prandtl_correction_values,
-        vectorized_axial_interf_f,
-    ) = thrust_initialization(
-        free_stream_velocity,
-        radius,
-        total_thrust_coefficient,
-        rotational_velocity,
-        radial_stations,
-        prandtl_correction,
-        blades_number,
-        omega,
-        non_dimensional_radius,
-        advanced_ratio,
+    #    (
+    #        first_lagrange_multiplier,
+    #        last_lagrange_multiplier,
+    #        initial_error,
+    #        old_error,
+    #        radial_stations_spacing,
+    #        new_error,
+    #        prandtl_correction_values,
+    #        vectorized_axial_interf_f,
+    #    ) = thrust_initialization(
+    #        free_stream_velocity,
+    #        radius,
+    #        total_thrust_coefficient,
+    #        rotational_velocity,
+    #        radial_stations,
+    #        prandtl_correction,
+    #        blades_number,
+    #        omega,
+    #        non_dimensional_radius,
+    #        advanced_ratio,
+    #    )
+
+    radial_stations_spacing = radial_stations[1] - radial_stations[0]
+
+    vectorized_axial_interf_f = np.vectorize(axial_interference_function)
+    prandtl_correction_values = get_prandtl_correction_values(
+        radial_stations, prandtl_correction, blades_number, omega, radius, free_stream_velocity
     )
+
+    induced_velocity_distribution = (2 / free_stream_velocity**2) * (
+        (-1 / free_stream_velocity)
+        + np.sqrt(
+            1
+            + (
+                ((2 * radius) ** 4 * (total_thrust_coefficient) * rotational_velocity**2)
+                / (free_stream_velocity**2 * np.pi * radial_stations)
+            )
+        )
+    )
+
+    lagrange_multiplier = np.sum(induced_velocity_distribution) / (
+        free_stream_velocity * len(radial_stations)
+    )
+
+    lagrange_multiplier = [lagrange_multiplier, lagrange_multiplier + 0.1]
+
+    initial_error = preliminary(
+        lagrange_multiplier[0],
+        prandtl_correction_values,
+        non_dimensional_radius,
+        radial_stations,
+        advanced_ratio,
+        radial_stations_spacing,
+        total_thrust_coefficient,
+        vectorized_axial_interf_f,
+    )
+
+    old_error = preliminary(
+        lagrange_multiplier[1],
+        prandtl_correction_values,
+        non_dimensional_radius,
+        radial_stations,
+        advanced_ratio,
+        radial_stations_spacing,
+        total_thrust_coefficient,
+        vectorized_axial_interf_f,
+    )
+
+    new_error = old_error
 
     iteration = 1
     while math.fabs(new_error) >= EPSILON and initial_error != old_error:
@@ -461,7 +533,7 @@ def thrust_calculator(
         iteration += 1
         # Computation of the new Lagrange multiplicator value based on the false position method
         new_lagrange_multiplier = (
-            last_lagrange_multiplier * initial_error - first_lagrange_multiplier * old_error
+            lagrange_multiplier[1] * initial_error - lagrange_multiplier[0] * old_error
         ) / (initial_error - old_error)
 
         # Computation of the new axial interference factor distribution
@@ -482,8 +554,8 @@ def thrust_calculator(
         initial_error = old_error
         old_error = new_error
 
-        first_lagrange_multiplier = last_lagrange_multiplier
-        last_lagrange_multiplier = new_lagrange_multiplier
+        lagrange_multiplier[0] = lagrange_multiplier[1]
+        lagrange_multiplier[1] = new_lagrange_multiplier
 
     # ###### TO SIMPLIFY----------------------------------------------------------------
     log.info("Error has been estimated")

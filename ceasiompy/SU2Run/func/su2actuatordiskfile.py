@@ -352,7 +352,7 @@ def preliminary(
     # Compute the error with respect to the thrust coefficient given in input
     error = np.sum(radial_stations_spacing * dCt) - total_thrust_coefficient
 
-    return error
+    return axial_interference_factor, dCt, error
 
 
 def thrust_calculator(
@@ -503,7 +503,7 @@ def thrust_calculator(
 
     lagrange_multiplier = [lagrange_multiplier, lagrange_multiplier + 0.1]
 
-    initial_error = preliminary(
+    _, _, initial_error = preliminary(
         lagrange_multiplier[0],
         prandtl_correction_values,
         non_dimensional_radius,
@@ -514,7 +514,7 @@ def thrust_calculator(
         vectorized_axial_interf_f,
     )
 
-    old_error = preliminary(
+    _, _, old_error = preliminary(
         lagrange_multiplier[1],
         prandtl_correction_values,
         non_dimensional_radius,
@@ -560,14 +560,25 @@ def thrust_calculator(
     # ###### TO SIMPLIFY----------------------------------------------------------------
     log.info("Error has been estimated")
 
-    # Calculate radial Thrust coefficient at each stations
-    optimal_axial_interference_factor = vectorized_axial_interf_f(
-        new_lagrange_multiplier * prandtl_correction_values, non_dimensional_radius
+    optimal_axial_interference_factor, radial_thrust_coefs, _ = preliminary(
+        new_lagrange_multiplier,
+        prandtl_correction_values,
+        non_dimensional_radius,
+        radial_stations,
+        advanced_ratio,
+        radial_stations_spacing,
+        total_thrust_coefficient,
+        vectorized_axial_interf_f,
     )
 
-    radial_thrust_coefs = calculate_radial_thrust_coefs(
-        radial_stations, advanced_ratio, optimal_axial_interference_factor
-    )
+    ## Calculate radial Thrust coefficient at each stations
+    # optimal_axial_interference_factor = vectorized_axial_interf_f(
+    #    new_lagrange_multiplier * prandtl_correction_values, non_dimensional_radius
+    # )
+    #
+    # radial_thrust_coefs = calculate_radial_thrust_coefs(
+    #    radial_stations, advanced_ratio, optimal_axial_interference_factor
+    # )
 
     # Calculate radial Power coefficient at each stations
     optimal_rotational_interference_factor = (

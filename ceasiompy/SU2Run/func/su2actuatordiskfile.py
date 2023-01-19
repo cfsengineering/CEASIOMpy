@@ -277,6 +277,49 @@ def preliminary(
     return axial_interference_factor, dCt, error
 
 
+def check_function(
+    radial_stations_spacing,
+    radial_power_coefs,
+    radial_thrust_coefs,
+    free_stream_velocity,
+    advanced_ratio,
+    radial_stations,
+    radius,
+    rotational_velocity,
+):
+
+    # Computation of the total power coefficient
+    total_power_coefficient = np.sum(radial_stations_spacing * radial_power_coefs)
+    optimal_total_thrust_coefficient = np.sum(radial_stations_spacing * radial_thrust_coefs)
+    delta_pressure = (
+        (radial_thrust_coefs)
+        * (2 * free_stream_velocity**2)
+        / (advanced_ratio**2 * math.pi * radial_stations)
+    )
+
+    # Computation of the thrust over density using the static pressure jump distribution
+    thrust_density_ratio = np.sum(
+        2 * math.pi * radial_stations * radius**2 * radial_stations_spacing * delta_pressure
+    )
+
+    # Computation of the thrust coefficient using thrust_density_ratio
+    computed_total_thrust_coefficient = thrust_density_ratio / (
+        rotational_velocity**2 * (2 * radius) ** 4
+    )
+
+    # Computation of the efficiency.
+    eta = advanced_ratio * (optimal_total_thrust_coefficient / total_power_coefficient)
+
+    return (
+        total_power_coefficient,
+        optimal_total_thrust_coefficient,
+        delta_pressure,
+        thrust_density_ratio,
+        computed_total_thrust_coefficient,
+        eta,
+    )
+
+
 def thrust_calculator(
     radial_stations,
     total_thrust_coefficient,
@@ -445,26 +488,23 @@ def thrust_calculator(
 
     log.info("Radial thrust and power coefficients have been estimated")
 
-    # # Computation of the total power coefficient
-    # total_power_coefficient = np.sum(radial_stations_spacing * dCp)
-    # optimal_total_thrust_coefficient = np.sum(radial_stations_spacing * dCt_optimal)
-    # delta_pressure = (
-    #    (dCt_optimal) * (2 * free_stream_velocity**2) / (advanced_ratio**2 * pi * radial_stations)
-    # )
-
-    # # Computation of the thrust over density using the static pressure jump distribution
-    # thrust_density_ratio = 0.0
-    # thrust_density_ratio = np.sum(
-    #     2 * pi * radial_stations * radius**2 * radial_stations_spacing * delta_pressure
-    # )
-
-    # # Computation of the thrust coefficient using thrust_density_ratio
-    # computed_total_thrust_coefficient = thrust_density_ratio / (
-    #     rotational_velocity**2 * (2 * radius) ** 4
-    # )
-
-    # # Computation of the efficiency.
-    # eta = advanced_ratio * (optimal_total_thrust_coefficient / total_power_coefficient)
+    (
+        total_power_coefficient,
+        optimal_total_thrust_coefficient,
+        delta_pressure,
+        thrust_density_ratio,
+        computed_total_thrust_coefficient,
+        eta,
+    ) = check_function(
+        radial_stations_spacing,
+        radial_power_coefs,
+        radial_thrust_coefs,
+        free_stream_velocity,
+        advanced_ratio,
+        radial_stations,
+        radius,
+        rotational_velocity,
+    )
 
     # TODO: Add check
     # TODO: Add markdown results file

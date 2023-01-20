@@ -549,7 +549,6 @@ def thrust_calculator(
     md.p(f"Power coefficient distribution integral= {total_power_coefficient}")
     md.p(f"Thrust over Density= {thrust_density_ratio}")
     md.p(f"Efficiency eta= {eta}")
-    md.p(f"Lagrangian multiplicator/free_stream_velocity= {new_lagrange_multiplicator}")
 
     return (
         radial_thrust_coefs,

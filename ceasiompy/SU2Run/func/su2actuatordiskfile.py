@@ -404,7 +404,8 @@ def thrust_calculator(
 
     log.info(f"Prandtl correction= {prandtl_correction}")
 
-    # TODO: put in the markdown file
+    md.h1("Input and output values of the actuator disk calculation")
+    md.h2("Input values")
     md.p(f"Selected total thrust coeff= {total_thrust_coefficient}")
     md.p(f"Radius= {radius}")
     md.p(f"Number of radial station= {len(radial_stations)}")
@@ -565,7 +566,7 @@ def thrust_calculator(
     # TODO: Add check
     # TODO: Add markdown results file
 
-    md.p("------- Check output values -------")
+    md.h2("Check output values")
     md.p(f"Optimal total thrust coefficient= {optimal_total_thrust_coefficient}")
     md.p("Total thrust coefficient computed")
     md.p(f"using the static pressure jump= {computed_total_thrust_coefficient}")

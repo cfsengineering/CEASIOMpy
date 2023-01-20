@@ -86,7 +86,8 @@ def get_advanced_ratio(free_stream_velocity, rotational_velocity, radius):
 
 
 def axial_interference_function(lagrangian_multiplier, non_dimensional_radius):
-    """_summary_
+    """Function to obtain the array with the different values of axial interference factor at
+        every radius
 
     Args:
         lagrangian_multiplier (float): lagrangian multiplier, it is used to calculate
@@ -122,7 +123,8 @@ def get_prandtl_correction_values(
         free_stream_velocity (float): free stream velocity
 
     Returns:
-        correction function to correct thrust coefficient and power coefficient
+        correction function to correct thrust coefficient and power coefficient based on Prandtl
+        function
     """
 
     if not prandtl_correction:
@@ -138,16 +140,37 @@ def get_prandtl_correction_values(
     )
 
 
-def get_error(radial_stations_spacing, dCt_0, total_thrust_coefficient):
-    return np.sum(radial_stations_spacing * dCt_0) - total_thrust_coefficient
+def get_error(radial_stations_spacing, dCt, total_thrust_coefficient):
+    """Function to get the error between calculated total thrust coefficient and the input one
+
+    Args:
+        radial_stations_spacing (float): spacing between r and r+dr
+        dCt (np.array): local thrust coefficient
+        total_thrust_coefficient (float): integration of local thrust coefficient
+
+    Returns:
+        Error between calculated and input thrust coefficients
+    """
+
+    return np.sum(radial_stations_spacing * dCt) - total_thrust_coefficient
 
 
-def get_axial_interference_factor(
+def get_corrected_axial_factor(
     vectorized_axial_interf_f,
     lagrange_multiplier,
     prandtl_correction_values,
     non_dimensional_radius,
 ):
+    """Function which correct axial interference factor at every radius with Prandtl correction
+
+    Args:
+        lagrangian_multiplier (float): lagrangian multiplier, it is used to calculate
+                                       interference factor
+        non_dimensional_radius (float): radius adimentionalization made using advanced ratio
+
+    Returns:
+        Corrected axial interference factor, using Prandtl correction
+    """
 
     return vectorized_axial_interf_f(
         lagrange_multiplier * prandtl_correction_values,
@@ -389,7 +412,7 @@ def thrust_calculator(
     )
 
     # Computation of the first try axial interference factor distribution
-    initial_axial_interference_factor = get_axial_interference_factor(
+    initial_axial_interference_factor = get_corrected_axial_factor(
         vectorized_axial_interf_f,
         first_lagrange_multiplier,
         prandtl_correction_values,
@@ -408,7 +431,7 @@ def thrust_calculator(
     last_lagrange_multiplier = first_lagrange_multiplier + 0.1
 
     # Computation of the second try axial interference factor distribution
-    old_axial_interference_factor = get_axial_interference_factor(
+    old_axial_interference_factor = get_corrected_axial_factor(
         vectorized_axial_interf_f,
         last_lagrange_multiplier,
         prandtl_correction_values,
@@ -436,7 +459,7 @@ def thrust_calculator(
         ) / (initial_error - old_error)
 
         # Computation of the new axial interference factor distribution
-        new_axial_interference_factor = get_axial_interference_factor(
+        new_axial_interference_factor = get_corrected_axial_factor(
             vectorized_axial_interf_f,
             new_lagrange_multiplier,
             prandtl_correction_values,
@@ -461,7 +484,7 @@ def thrust_calculator(
     log.info("Error has been estimated")
 
     # Calculate radial Thrust coefficient at each stations
-    optimal_axial_interference_factor = get_axial_interference_factor(
+    optimal_axial_interference_factor = get_corrected_axial_factor(
         vectorized_axial_interf_f,
         new_lagrange_multiplier,
         prandtl_correction_values,

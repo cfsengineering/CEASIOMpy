@@ -571,6 +571,7 @@ def thrust_calculator(
     md.p(f"using the static pressure jump= {computed_total_thrust_coefficient}")
     md.p(f"Power coefficient distribution integral= {total_power_coefficient}")
     md.p(f"Thrust over Density= {thrust_density_ratio}")
+    md.p(f"Delta pressure through the disk= {delta_pressure}")
     md.p(f"Efficiency eta= {eta}")
 
     return (

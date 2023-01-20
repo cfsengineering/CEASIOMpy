@@ -96,14 +96,41 @@ def test_get_prandtl_correction_values():
     np.testing.assert_array_almost_equal(correction_values, output_values)
 
 
-# def test_get_error():
-#
-# assert None
-#
-#
-# def test_get_corrected_axial_factor():
-#
-# assert None
+def test_get_error():
+
+    radial_stations = np.arange(0.1, 1, 0.20)
+    dCt = calculate_radial_thrust_coefs(
+        radial_stations,
+        advanced_ratio=1.0,
+        opt_axial_interf_factor=np.array([1.0, 1.0, 1.0, 1.0, 1.0]),
+    )
+    radial_stations_spacing = radial_stations[1] - radial_stations[0]
+
+    error = np.sum(radial_stations_spacing * dCt) - 0.3
+
+    assert error == pytest.approx(2.841, rel=1e-3)
+
+
+def test_get_corrected_axial_factor():
+
+    radial_stations = np.arange(0.1, 1, 0.20)
+    prandtl_correction_values = get_prandtl_correction_values(
+        radial_stations, False, 2, 30, 0.8, 120
+    )
+    lagrange_multiplier = 0.2
+    non_dimensional_radius = 0.75
+    axial_interference_function(lagrange_multiplier, non_dimensional_radius)
+    vectorized_axial_interf_f = np.vectorize(axial_interference_function)
+
+    corrected_axial_factor = vectorized_axial_interf_f(
+        lagrange_multiplier * prandtl_correction_values,
+        non_dimensional_radius,
+    )
+
+    np.testing.assert_array_almost_equal(
+        corrected_axial_factor,
+        np.array([0.05617978, 0.05617978, 0.05617978, 0.05617978, 0.05617978]),
+    )
 
 
 def test_calculate_radial_thrust_coefs():

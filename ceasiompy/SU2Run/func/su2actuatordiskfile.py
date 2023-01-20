@@ -363,8 +363,8 @@ def thrust_calculator(
         r (float): adimensional radius [-]
     """
 
-    # results_dir = get_results_directory("su2actuatordisk")
-    # md = MarkdownDoc(Path(results_dir, "su2actuatordisk.md"))
+    results_dir = get_results_directory("SU2Run")
+    md = MarkdownDoc(Path(results_dir, "su2actuatordisk.md"))
 
     log.info("Start of thrust calculation distribution")
 
@@ -382,13 +382,13 @@ def thrust_calculator(
     log.info(f"Prandtl correction= {prandtl_correction}")
 
     # TODO: put in the markdown file
-    # md.p(f"Selected total thrust coeff= {total_thrust_coefficient}")
-    # md.p(f"Radius= {radius}")
-    # md.p(f"Number of radial station= {len(radial_stations)}")
-    # md.p(f"Advanced ratio= {advanced_ratio}")
-    # md.p(f"Free stream velocity= {free_stream_velocity}")
-    # md.p(f"Prandtl correction= {prandtl_correction}")
-    # md.p(f"Number of blades= {blades_number}")
+    md.p(f"Selected total thrust coeff= {total_thrust_coefficient}")
+    md.p(f"Radius= {radius}")
+    md.p(f"Number of radial station= {len(radial_stations)}")
+    md.p(f"Advanced ratio= {advanced_ratio}")
+    md.p(f"Free stream velocity= {free_stream_velocity}")
+    md.p(f"Prandtl correction= {prandtl_correction}")
+    md.p(f"Number of blades= {blades_number}")
 
     non_dimensional_radius = np.pi * radial_stations / advanced_ratio
     radial_stations_spacing = radial_stations[1] - radial_stations[0]
@@ -542,14 +542,14 @@ def thrust_calculator(
     # TODO: Add check
     # TODO: Add markdown results file
 
-    # md.p("------- Check output values -------")
-    # md.p(f"Optimal total thrust coefficient= {optimal_total_thrust_coefficient}")
-    # md.p("Total thrust coefficient computed")
-    # md.p(f"using the static pressure jump= {computed_total_thrust_coefficient}")
-    # md.p(f"Power coefficient distribution integral= {total_power_coefficient}")
-    # md.p(f"Thrust over Density= {thrust_density_ratio}")
-    # md.p(f"Efficiency eta= {eta}")
-    # md.p(f"Lagrangian multiplicator/free_stream_velocity= {new_lagrange_multiplicator}")
+    md.p("------- Check output values -------")
+    md.p(f"Optimal total thrust coefficient= {optimal_total_thrust_coefficient}")
+    md.p("Total thrust coefficient computed")
+    md.p(f"using the static pressure jump= {computed_total_thrust_coefficient}")
+    md.p(f"Power coefficient distribution integral= {total_power_coefficient}")
+    md.p(f"Thrust over Density= {thrust_density_ratio}")
+    md.p(f"Efficiency eta= {eta}")
+    md.p(f"Lagrangian multiplicator/free_stream_velocity= {new_lagrange_multiplicator}")
 
     return (
         radial_thrust_coefs,

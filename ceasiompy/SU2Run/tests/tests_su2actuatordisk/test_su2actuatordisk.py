@@ -96,6 +96,16 @@ def test_get_prandtl_correction_values():
     np.testing.assert_array_almost_equal(correction_values, output_values)
 
 
+# def test_get_error():
+#
+# assert None
+#
+#
+# def test_get_corrected_axial_factor():
+#
+# assert None
+
+
 def test_calculate_radial_thrust_coefs():
     """Test function 'calculate_radial_thrust_coefs'"""
 
@@ -131,6 +141,11 @@ def test_save_plots(tmp_path):
     assert Path(tmp_path, "propeller_test", "interference.png").exists()
     assert Path(tmp_path, "propeller_test", "radial_thrust_and_power_coefficient.png").exists()
     assert Path(tmp_path, "propeller_test", "prandtl_correction.png").exists()
+
+
+# def test_check_function():
+#
+# assert None
 
 
 def test_thrust_calculator():

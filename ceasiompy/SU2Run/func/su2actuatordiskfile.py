@@ -61,11 +61,9 @@ def get_radial_stations(radius, hub_radius, number_of_stations=40):
     if hub_radius >= radius:
         raise ValueError("hub radius should be smaller than radius")
 
+    hub_radius_ratio = hub_radius / radius
     radial_stations = np.linspace(0, 1, number_of_stations + 1)[1:]
-    i_hub = np.abs(radial_stations - hub_radius / radius).argmin()
-
-    if radial_stations[i_hub] < hub_radius:
-        i_hub += 1
+    i_hub = (radial_stations >= hub_radius_ratio).argmax()
     return radial_stations[i_hub:]
 
 
@@ -563,16 +561,13 @@ def thrust_calculator(
         rotational_velocity,
     )
 
-    # TODO: Add check
-    # TODO: Add markdown results file
-
     md.h2("Check output values")
     md.p(f"Optimal total thrust coefficient= {optimal_total_thrust_coefficient}")
     md.p("Total thrust coefficient computed")
     md.p(f"using the static pressure jump= {computed_total_thrust_coefficient}")
     md.p(f"Power coefficient distribution integral= {total_power_coefficient}")
     md.p(f"Thrust over Density= {thrust_density_ratio}")
-    md.p(f"Delta pressure through the disk= {delta_pressure}")
+    md.p(f"Delta pressure distribution= {delta_pressure}")
     md.p(f"Efficiency eta= {eta}")
 
     return (

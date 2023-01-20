@@ -142,7 +142,7 @@ def get_error(radial_stations_spacing, dCt_0, total_thrust_coefficient):
     return np.sum(radial_stations_spacing * dCt_0) - total_thrust_coefficient
 
 
-def get_ax_factor(
+def get_axial_interference_factor(
     vectorized_axial_interf_f,
     lagrange_multiplier,
     prandtl_correction_values,
@@ -389,7 +389,7 @@ def thrust_calculator(
     )
 
     # Computation of the first try axial interference factor distribution
-    initial_axial_interference_factor = get_ax_factor(
+    initial_axial_interference_factor = get_axial_interference_factor(
         vectorized_axial_interf_f,
         first_lagrange_multiplier,
         prandtl_correction_values,
@@ -408,7 +408,7 @@ def thrust_calculator(
     last_lagrange_multiplier = first_lagrange_multiplier + 0.1
 
     # Computation of the second try axial interference factor distribution
-    old_axial_interference_factor = get_ax_factor(
+    old_axial_interference_factor = get_axial_interference_factor(
         vectorized_axial_interf_f,
         last_lagrange_multiplier,
         prandtl_correction_values,
@@ -436,7 +436,7 @@ def thrust_calculator(
         ) / (initial_error - old_error)
 
         # Computation of the new axial interference factor distribution
-        new_axial_interference_factor = get_ax_factor(
+        new_axial_interference_factor = get_axial_interference_factor(
             vectorized_axial_interf_f,
             new_lagrange_multiplier,
             prandtl_correction_values,
@@ -458,11 +458,10 @@ def thrust_calculator(
         first_lagrange_multiplier = last_lagrange_multiplier
         last_lagrange_multiplier = new_lagrange_multiplier
 
-    # ###### TO SIMPLIFY----------------------------------------------------------------
     log.info("Error has been estimated")
 
     # Calculate radial Thrust coefficient at each stations
-    optimal_axial_interference_factor = get_ax_factor(
+    optimal_axial_interference_factor = get_axial_interference_factor(
         vectorized_axial_interf_f,
         new_lagrange_multiplier,
         prandtl_correction_values,

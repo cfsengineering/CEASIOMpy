@@ -303,6 +303,29 @@ def check_function(
     radius,
     rotational_velocity,
 ):
+    """Function to control input and output values, these values will be written in markdown file
+
+    Args:
+        radial_stations_spacing (float): spacing between r and r+dr
+        radial_thrust_coefs (np.array): radial distribution of thrust coefficient
+        radial_power_coefs (np.array): radial distribution of power coefficient
+        free_stream_velocity (float): Cruise velocity [m/s]
+                                      get the real radius value
+        advanced_ratio (float): ratio between velocity and rotational velocity
+                                multiplied by diameter
+        radial_stations (np.array): adimensional radius along the blade. Multiply by radius to
+        radius (float): Blade radius [m]
+        rotational_velocity (int): Blade velocity rotation [1/s]
+
+    Returns:
+        total_power_coefficient (float): thrust coefficient at every radius [-]
+        optimal_total_thrust_coefficient (float): power coefficient at every radius [-]
+        delta_pressure (float): adimensional radius [-]
+        thrust_density_ratio (float): ratio between thrust and density [N m^3/kg]
+        computed_total_thrust_coefficient (float): thrust coefficient calculated in the program [-]
+        eta (float): efficiency of the propeller [-]
+
+    """
 
     # Computation of the total power coefficient
     total_power_coefficient = np.sum(radial_stations_spacing * radial_power_coefs)

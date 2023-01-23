@@ -192,7 +192,7 @@ def test_check_values():
         ],
     }
 
-    for test_name, values in input_values.items():
+    for values in input_values.values():
         (
             total_power_coefficient,
             optimal_total_thrust_coefficient,

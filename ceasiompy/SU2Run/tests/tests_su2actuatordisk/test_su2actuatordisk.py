@@ -16,6 +16,7 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
+# import math
 from pathlib import Path
 
 import numpy as np
@@ -31,7 +32,7 @@ from ceasiompy.SU2Run.func.su2actuatordiskfile import (
     thrust_calculator,
     write_actuator_disk_data,
 )
-
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 MODULE_DIR = Path(__file__).parent
 
@@ -172,7 +173,62 @@ def test_save_plots(tmp_path):
 
 # def test_check_function():
 #
-# assert None
+# rotational_velocity = 20
+# radius = 2
+# free_stream_velocity = 100
+# advanced_ratio = 1.3
+# optimal_axial_interference_factor = np.arange(0.05, 0.15, 0.022)
+# optimal_rotational_interference_factor = np.arange(0.01, 0.1, 0.022)
+# omega = 10
+#
+# radial_stations = np.arange(0.1, 1, 0.20)
+# radial_stations_spacing = radial_stations[1] - radial_stations[0]
+#
+# radial_power_coefs = (radius * 4 * np.pi / (rotational_velocity**3 * (2 * radius) ** 5)) * (
+# free_stream_velocity**3
+# * (1 + optimal_axial_interference_factor) ** 2
+# * optimal_axial_interference_factor
+# * radial_stations
+# * radius
+# + omega**2
+# * free_stream_velocity
+# * (1 + optimal_axial_interference_factor)
+# * optimal_rotational_interference_factor**2
+# * (radial_stations * radius) ** 3
+# )
+#
+# radial_thrust_coefs = calculate_radial_thrust_coefs(
+# radial_stations,
+# advanced_ratio=1.0,
+# opt_axial_interf_factor=np.array([1.0, 1.0, 1.0, 1.0, 1.0]),
+# )
+#
+# total_power_coefficient = np.sum(radial_stations_spacing * radial_power_coefs)
+# optimal_total_thrust_coefficient = np.sum(radial_stations_spacing * radial_thrust_coefs)
+# delta_pressure = (
+# (radial_thrust_coefs)
+# * (2 * free_stream_velocity**2)
+# / (advanced_ratio**2 * math.pi * radial_stations)
+# )
+#
+# Computation of the thrust over density using the static pressure jump distribution
+# thrust_density_ratio = np.sum(
+# 2 * math.pi * radial_stations * radius**2 * radial_stations_spacing * delta_pressure
+# )
+#
+# Computation of the thrust coefficient using thrust_density_ratio
+# computed_total_thrust_coefficient = thrust_density_ratio / (
+# rotational_velocity**2 * (2 * radius) ** 4
+# )
+#
+# Computation of the efficiency.
+# eta = advanced_ratio * (optimal_total_thrust_coefficient / total_power_coefficient)
+#
+# assert total_power_coefficient == pytest.approx(0.4282, 1e-3)
+# assert optimal_total_thrust_coefficient == pytest.approx(3.1415, 1e-3)
+# assert thrust_density_ratio == pytest.approx(297428.89, 1e-3)
+# assert computed_total_thrust_coefficient == pytest.approx(2.90457, 1e-3)
+# assert eta == pytest.approx(0.9, 1e-3)
 
 
 def test_thrust_calculator():
@@ -228,6 +284,16 @@ def test_thrust_calculator():
 
         # assert thrust_over_density == pytest.approx(values[1][2], rel=1e-3)
         # assert efficiency == pytest.approx(values[1][3], rel=1e-3)
+
+    results_dir = get_results_directory("SU2Run")
+    markdown_file_path = Path(results_dir, "su2actuatordisk.md")
+
+    if markdown_file_path.exists():
+        markdown_file_path.unlink()
+
+    thrust_calculator(get_radial_stations(1.5, 0.2), 0.5, 1.5, 150, True, 2, 33)
+
+    assert markdown_file_path.exists()
 
 
 def test_write_actuator_disk_data(tmp_path):

@@ -30,6 +30,7 @@ from ceasiompy.SU2Run.func.su2actuatordiskfile import (
     get_radial_stations,
     save_plots,
     thrust_calculator,
+    check_values,
     write_actuator_disk_data,
 )
 from ceasiompy.utils.ceasiompyutils import get_results_directory
@@ -171,64 +172,40 @@ def test_save_plots(tmp_path):
     assert Path(tmp_path, "propeller_test", "prandtl_correction.png").exists()
 
 
-# def test_check_function():
-#
-# rotational_velocity = 20
-# radius = 2
-# free_stream_velocity = 100
-# advanced_ratio = 1.3
-# optimal_axial_interference_factor = np.arange(0.05, 0.15, 0.022)
-# optimal_rotational_interference_factor = np.arange(0.01, 0.1, 0.022)
-# omega = 10
-#
-# radial_stations = np.arange(0.1, 1, 0.20)
-# radial_stations_spacing = radial_stations[1] - radial_stations[0]
-#
-# radial_power_coefs = (radius * 4 * np.pi / (rotational_velocity**3 * (2 * radius) ** 5)) * (
-# free_stream_velocity**3
-# * (1 + optimal_axial_interference_factor) ** 2
-# * optimal_axial_interference_factor
-# * radial_stations
-# * radius
-# + omega**2
-# * free_stream_velocity
-# * (1 + optimal_axial_interference_factor)
-# * optimal_rotational_interference_factor**2
-# * (radial_stations * radius) ** 3
-# )
-#
-# radial_thrust_coefs = calculate_radial_thrust_coefs(
-# radial_stations,
-# advanced_ratio=1.0,
-# opt_axial_interf_factor=np.array([1.0, 1.0, 1.0, 1.0, 1.0]),
-# )
-#
-# total_power_coefficient = np.sum(radial_stations_spacing * radial_power_coefs)
-# optimal_total_thrust_coefficient = np.sum(radial_stations_spacing * radial_thrust_coefs)
-# delta_pressure = (
-# (radial_thrust_coefs)
-# * (2 * free_stream_velocity**2)
-# / (advanced_ratio**2 * math.pi * radial_stations)
-# )
-#
-# Computation of the thrust over density using the static pressure jump distribution
-# thrust_density_ratio = np.sum(
-# 2 * math.pi * radial_stations * radius**2 * radial_stations_spacing * delta_pressure
-# )
-#
-# Computation of the thrust coefficient using thrust_density_ratio
-# computed_total_thrust_coefficient = thrust_density_ratio / (
-# rotational_velocity**2 * (2 * radius) ** 4
-# )
-#
-# Computation of the efficiency.
-# eta = advanced_ratio * (optimal_total_thrust_coefficient / total_power_coefficient)
-#
-# assert total_power_coefficient == pytest.approx(0.4282, 1e-3)
-# assert optimal_total_thrust_coefficient == pytest.approx(3.1415, 1e-3)
-# assert thrust_density_ratio == pytest.approx(297428.89, 1e-3)
-# assert computed_total_thrust_coefficient == pytest.approx(2.90457, 1e-3)
-# assert eta == pytest.approx(0.9, 1e-3)
+def test_check_values():
+    radial_stations = get_radial_stations(1, 0.2, number_of_stations=5)
+    radial_stations_spacing = radial_stations[1] - radial_stations[0]
+
+    input_values = {
+        "test1": [
+            [
+                radial_stations_spacing,
+                np.array([0.1, 0.2, 0.3, 0.4, 0.2]),
+                np.array([0.07, 0.17, 0.25, 0.32, 0.22]),
+                100,
+                0.9,
+                radial_stations,
+                2,
+                20,
+            ],
+            [0.24, 0.20600, 40691.358, 0.3973, 0.7725],
+        ],
+    }
+
+    for test_name, values in input_values.items():
+        (
+            total_power_coefficient,
+            optimal_total_thrust_coefficient,
+            thrust_density_ratio,
+            computed_total_thrust_coefficient,
+            eta,
+        ) = check_values(*values[0])
+
+        assert total_power_coefficient == pytest.approx(values[1][0], rel=1e-3)
+        assert optimal_total_thrust_coefficient == pytest.approx(values[1][1], rel=1e-3)
+        assert thrust_density_ratio == pytest.approx(values[1][2], rel=1e-3)
+        assert computed_total_thrust_coefficient == pytest.approx(values[1][3], rel=1e-3)
+        assert eta == pytest.approx(values[1][4], rel=1e-3)
 
 
 def test_thrust_calculator():
@@ -281,9 +258,6 @@ def test_thrust_calculator():
 
         assert np.sum((1 / 40.0) * renard_thrust_coeff) == pytest.approx(values[1][0], rel=1e-3)
         assert np.sum((1 / 40.0) * power_coeff) == pytest.approx(values[1][1], rel=1e-3)
-
-        # assert thrust_over_density == pytest.approx(values[1][2], rel=1e-3)
-        # assert efficiency == pytest.approx(values[1][3], rel=1e-3)
 
     results_dir = get_results_directory("SU2Run")
     markdown_file_path = Path(results_dir, "su2actuatordisk.md")

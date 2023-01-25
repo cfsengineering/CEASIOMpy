@@ -101,7 +101,6 @@ def test_get_prandtl_correction_values():
 def test_get_error():
 
     radial_stations = np.arange(0.1, 1, 0.20)
-    total_thrust_coefficient = 0.3
     dCt = calculate_radial_thrust_coefs(
         radial_stations,
         advanced_ratio=1.0,
@@ -109,9 +108,9 @@ def test_get_error():
     )
     radial_stations_spacing = radial_stations[1] - radial_stations[0]
 
-    error = np.sum(radial_stations_spacing * dCt) - total_thrust_coefficient
+    error = np.sum(radial_stations_spacing * dCt)
 
-    assert error == pytest.approx(2.841, rel=1e-3)
+    assert error == pytest.approx(3.141, rel=1e-3)
 
 
 def test_get_corrected_axial_factor():

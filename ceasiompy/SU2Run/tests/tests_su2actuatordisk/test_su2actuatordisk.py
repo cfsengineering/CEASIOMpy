@@ -214,9 +214,6 @@ def test_check_values(tmp_path):
             file.write(f"eta: {eta}\n")
 
     with open(check_values_path, "r") as file:
-
-        file_values = [float(line.split(":")[1]) for line in file.readlines()]
-
         for values in input_values.values():
             (
                 total_power_coefficient,

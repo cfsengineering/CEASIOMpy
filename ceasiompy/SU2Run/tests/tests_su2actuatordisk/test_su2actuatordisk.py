@@ -101,6 +101,7 @@ def test_get_prandtl_correction_values():
 def test_get_error():
 
     radial_stations = np.arange(0.1, 1, 0.20)
+    total_thrust_coefficient = 0.3
     dCt = calculate_radial_thrust_coefs(
         radial_stations,
         advanced_ratio=1.0,
@@ -108,7 +109,7 @@ def test_get_error():
     )
     radial_stations_spacing = radial_stations[1] - radial_stations[0]
 
-    error = np.sum(radial_stations_spacing * dCt) - 0.3
+    error = np.sum(radial_stations_spacing * dCt) - total_thrust_coefficient
 
     assert error == pytest.approx(2.841, rel=1e-3)
 
@@ -172,40 +173,64 @@ def test_save_plots(tmp_path):
     assert Path(tmp_path, "propeller_test", "prandtl_correction.png").exists()
 
 
-def test_check_values():
-    radial_stations = get_radial_stations(1, 0.2, number_of_stations=5)
-    radial_stations_spacing = radial_stations[1] - radial_stations[0]
+def test_check_values(tmp_path):
 
-    input_values = {
-        "test1": [
-            [
-                radial_stations_spacing,
-                np.array([0.1, 0.2, 0.3, 0.4, 0.2]),
-                np.array([0.07, 0.17, 0.25, 0.32, 0.22]),
-                100,
-                0.9,
-                radial_stations,
-                2,
-                20,
+    check_values_path = Path(tmp_path, "su2actuatordisk.txt")
+
+    with open(check_values_path, "w") as file:
+
+        radial_stations = get_radial_stations(1, 0.2, number_of_stations=5)
+        radial_stations_spacing = radial_stations[1] - radial_stations[0]
+
+        input_values = {
+            "test": [
+                [
+                    radial_stations_spacing,
+                    np.array([0.1, 0.2, 0.3, 0.4, 0.2]),
+                    np.array([0.07, 0.17, 0.25, 0.32, 0.22]),
+                    100,
+                    0.9,
+                    radial_stations,
+                    2,
+                    20,
+                ],
+                [0.24, 0.20600, 40691.358, 0.3973, 0.7725],
             ],
-            [0.24, 0.20600, 40691.358, 0.3973, 0.7725],
-        ],
-    }
+        }
 
-    for values in input_values.values():
-        (
-            total_power_coefficient,
-            optimal_total_thrust_coefficient,
-            thrust_density_ratio,
-            computed_total_thrust_coefficient,
-            eta,
-        ) = check_values(*values[0])
+        for values in input_values.values():
+            (
+                total_power_coefficient,
+                optimal_total_thrust_coefficient,
+                thrust_density_ratio,
+                computed_total_thrust_coefficient,
+                eta,
+            ) = check_values(*values[0])
 
-        assert total_power_coefficient == pytest.approx(values[1][0], rel=1e-3)
-        assert optimal_total_thrust_coefficient == pytest.approx(values[1][1], rel=1e-3)
-        assert thrust_density_ratio == pytest.approx(values[1][2], rel=1e-3)
-        assert computed_total_thrust_coefficient == pytest.approx(values[1][3], rel=1e-3)
-        assert eta == pytest.approx(values[1][4], rel=1e-3)
+            file.write(f"total_power_coefficient: {total_power_coefficient}\n")
+            file.write(f"optimal_total_thrust_coefficient: {optimal_total_thrust_coefficient}\n")
+            file.write(f"thrust_density_ratio: {thrust_density_ratio}\n")
+            file.write(f"computed_total_thrust_coefficient: {computed_total_thrust_coefficient}\n")
+            file.write(f"eta: {eta}\n")
+
+    with open(check_values_path, "r") as file:
+
+        file_values = [float(line.split(":")[1]) for line in file.readlines()]
+
+        for values in input_values.values():
+            (
+                total_power_coefficient,
+                optimal_total_thrust_coefficient,
+                thrust_density_ratio,
+                computed_total_thrust_coefficient,
+                eta,
+            ) = check_values(*values[0])
+
+            assert total_power_coefficient == pytest.approx(values[1][0], rel=1e-3)
+            assert optimal_total_thrust_coefficient == pytest.approx(values[1][1], rel=1e-3)
+            assert thrust_density_ratio == pytest.approx(values[1][2], rel=1e-3)
+            assert computed_total_thrust_coefficient == pytest.approx(values[1][3], rel=1e-3)
+            assert eta == pytest.approx(values[1][4], rel=1e-3)
 
 
 def test_thrust_calculator():
@@ -268,6 +293,9 @@ def test_thrust_calculator():
     thrust_calculator(get_radial_stations(1.5, 0.2), 0.5, 1.5, 150, True, 2, 33)
 
     assert markdown_file_path.exists()
+
+    if markdown_file_path.exists():
+        markdown_file_path.unlink()
 
 
 def test_write_actuator_disk_data(tmp_path):

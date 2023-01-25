@@ -283,7 +283,7 @@ def save_plots(
     log.info(f"A plot have been saved at {prandtl_correction_plot_path}")
 
 
-def check_values(
+def check_input_output_values(
     radial_stations_spacing,
     radial_power_coefs,
     radial_thrust_coefs,
@@ -564,7 +564,7 @@ def thrust_calculator(
         thrust_density_ratio,
         computed_total_thrust_coefficient,
         eta,
-    ) = check_values(
+    ) = check_input_output_values(
         radial_stations_spacing,
         radial_power_coefs,
         radial_thrust_coefs,

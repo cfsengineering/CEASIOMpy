@@ -30,7 +30,7 @@ from ceasiompy.SU2Run.func.su2actuatordiskfile import (
     get_radial_stations,
     save_plots,
     thrust_calculator,
-    check_values,
+    check_input_output_values,
     write_actuator_disk_data,
 )
 from ceasiompy.utils.ceasiompyutils import get_results_directory
@@ -173,7 +173,7 @@ def test_save_plots(tmp_path):
     assert Path(tmp_path, "propeller_test", "prandtl_correction.png").exists()
 
 
-def test_check_values(tmp_path):
+def test_check_input_output_values(tmp_path):
 
     check_values_path = Path(tmp_path, "su2actuatordisk.txt")
 
@@ -205,7 +205,7 @@ def test_check_values(tmp_path):
                 thrust_density_ratio,
                 computed_total_thrust_coefficient,
                 eta,
-            ) = check_values(*values[0])
+            ) = check_input_output_values(*values[0])
 
             file.write(f"total_power_coefficient: {total_power_coefficient}\n")
             file.write(f"optimal_total_thrust_coefficient: {optimal_total_thrust_coefficient}\n")
@@ -221,7 +221,7 @@ def test_check_values(tmp_path):
                 thrust_density_ratio,
                 computed_total_thrust_coefficient,
                 eta,
-            ) = check_values(*values[0])
+            ) = check_input_output_values(*values[0])
 
             assert total_power_coefficient == pytest.approx(values[1][0], rel=1e-3)
             assert optimal_total_thrust_coefficient == pytest.approx(values[1][1], rel=1e-3)

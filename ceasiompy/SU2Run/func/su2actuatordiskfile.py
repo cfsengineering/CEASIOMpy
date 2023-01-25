@@ -119,10 +119,6 @@ def get_prandtl_correction_values(
         omega (float): rotational velocity multiplied for 2 and pi
         radius (float): radius of the propeller
         free_stream_velocity (float): free stream velocity
-
-    Returns:
-        correction function to correct thrust coefficient and power coefficient based on Prandtl
-        function
     """
 
     if not prandtl_correction:
@@ -146,8 +142,6 @@ def get_error(radial_stations_spacing, dCt, total_thrust_coefficient):
         dCt (np.array): local thrust coefficient
         total_thrust_coefficient (float): integration of local thrust coefficient
 
-    Returns:
-        Error between calculated and input thrust coefficients
     """
 
     return np.sum(radial_stations_spacing * dCt) - total_thrust_coefficient
@@ -166,8 +160,6 @@ def get_corrected_axial_factor(
                                        interference factor
         non_dimensional_radius (float): radius adimentionalization made using advanced ratio
 
-    Returns:
-        Corrected axial interference factor, using Prandtl correction
     """
 
     return vectorized_axial_interf_f(

@@ -256,8 +256,8 @@ def test_thrust_calculator():
 
         renard_thrust_coeff, power_coeff, _, _, _, _ = thrust_calculator(*values[0])
 
-        assert np.sum((1 / 40.0) * renard_thrust_coeff) == pytest.approx(values[1][0], rel=1e-3)
-        assert np.sum((1 / 40.0) * power_coeff) == pytest.approx(values[1][1], rel=1e-3)
+    assert np.sum((1 / 40.0) * renard_thrust_coeff) == pytest.approx(values[1][0], rel=1e-3)
+    assert np.sum((1 / 40.0) * power_coeff) == pytest.approx(values[1][1], rel=1e-3)
 
     results_dir = get_results_directory("SU2Run")
     markdown_file_path = Path(results_dir, "su2actuatordisk.md")
@@ -276,7 +276,7 @@ def test_thrust_calculator():
 def test_write_actuator_disk_data(tmp_path):
     """Test function 'write_actuator_disk_data'"""
 
-    correct_actuatordisck_path = Path(MODULE_DIR, "correct_ActuatorDisk.dat")
+    correct_actuatordisk_path = Path(MODULE_DIR, "correct_ActuatorDisk.dat")
     test_actuatordisk_path = Path(tmp_path, "ActuatorDisk.dat")
 
     with open(test_actuatordisk_path, "w") as f:
@@ -294,7 +294,7 @@ def test_write_actuator_disk_data(tmp_path):
             radial_power_coefs=np.array([0.1, 0.2, 0.3, 0.4, 0.3]),
         )
 
-    assert test_actuatordisk_path.read_text() == correct_actuatordisck_path.read_text()
+    assert test_actuatordisk_path.read_text() == correct_actuatordisk_path.read_text()
 
 
 # =================================================================================================

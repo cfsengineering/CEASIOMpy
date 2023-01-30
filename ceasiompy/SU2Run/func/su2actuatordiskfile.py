@@ -391,14 +391,14 @@ def thrust_calculator(
 
     log.info(f"Prandtl correction= {prandtl_correction}")
 
-    md.h1("Input and output values of the actuator disk calculation")
-    md.h2("Input values")
-    md.p(f"Selected total thrust coeff= {total_thrust_coefficient}")
-    md.p(f"Radius= {radius}")
+    md.h2("Actuator disk calculation")
+    md.h3("Input values")
+    md.p(f"Selected total thrust coeff= {total_thrust_coefficient:.4f}")
+    md.p(f"Radius= {radius:.4f} m")
     md.p(f"Number of radial station= {len(radial_stations)}")
-    md.p(f"Advanced ratio= {advanced_ratio}")
-    md.p(f"Free stream velocity= {free_stream_velocity}")
-    md.p(f"Prandtl correction= {prandtl_correction}")
+    md.p(f"Advanced ratio= {advanced_ratio:.4f}")
+    md.p(f"Free stream velocity= {free_stream_velocity:.4f} m/s")
+    md.p(f"Prandtl correction= {prandtl_correction:.4f}")
     md.p(f"Number of blades= {blades_number}")
 
     non_dimensional_radius = np.pi * radial_stations / advanced_ratio
@@ -547,13 +547,13 @@ def thrust_calculator(
         rotational_velocity,
     )
 
-    md.h2("Check output values")
-    md.p(f"Optimal total thrust coefficient= {optimal_total_thrust_coefficient}")
+    md.h3("Output values")
+    md.p(f"Optimal total thrust coefficient= {optimal_total_thrust_coefficient:.4f}")
     md.p("Total thrust coefficient computed")
-    md.p(f"using the static pressure jump= {computed_total_thrust_coefficient}")
-    md.p(f"Power coefficient distribution integral= {total_power_coefficient}")
-    md.p(f"Thrust over Density= {thrust_density_ratio}")
-    md.p(f"Efficiency eta= {eta}")
+    md.p(f"using the static pressure jump= {computed_total_thrust_coefficient:.4f}")
+    md.p(f"Power coefficient distribution integral= {total_power_coefficient:.4f}")
+    md.p(f"Thrust over Density= {thrust_density_ratio:.4f} N m^3/kg")
+    md.p(f"Efficiency eta= {eta:.4f}")
 
     return (
         radial_thrust_coefs,

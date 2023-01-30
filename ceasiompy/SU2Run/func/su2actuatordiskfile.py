@@ -553,7 +553,7 @@ def thrust_calculator(
     md.p(f"using the static pressure jump= {computed_total_thrust_coefficient:.4f}")
     md.p(f"Power coefficient distribution integral= {total_power_coefficient:.4f}")
     md.p(f"Thrust over Density= {thrust_density_ratio:.4f} N m^3/kg")
-    md.p(f"Efficiency eta= {eta:.4f}")
+    md.p(f"Efficiency= {eta:.4f}")
 
     return (
         radial_thrust_coefs,

@@ -342,35 +342,10 @@ def check_input_output_values(
     return (
         total_power_coefficient,
         optimal_total_thrust_coefficient,
-        # delta_pressure,
         thrust_density_ratio,
         computed_total_thrust_coefficient,
         eta,
     )
-
-
-def get_pressure_distribution(
-    radial_thrust_coefs, free_stream_velocity, advanced_ratio, radial_stations
-):
-
-    return (
-        (radial_thrust_coefs)
-        * (2 * free_stream_velocity**2)
-        / (advanced_ratio**2 * math.pi * radial_stations)
-    )
-
-
-# def get_temperature_distribution(
-#    radial_thrust_coefs, free_stream_velocity, advanced_ratio, radial_stations, RHO
-# ):
-#    Atm
-#    R = 287.05
-#
-#    pressure_distribution = get_pressure_distribution(
-#        radial_thrust_coefs, free_stream_velocity, advanced_ratio, radial_stations
-#    )
-#
-#    return pressure_distribution / (Atm.density * R)
 
 
 def thrust_calculator(
@@ -560,7 +535,6 @@ def thrust_calculator(
     (
         total_power_coefficient,
         optimal_total_thrust_coefficient,
-        # delta_pressure,
         thrust_density_ratio,
         computed_total_thrust_coefficient,
         eta,
@@ -581,7 +555,6 @@ def thrust_calculator(
     md.p(f"using the static pressure jump= {computed_total_thrust_coefficient}")
     md.p(f"Power coefficient distribution integral= {total_power_coefficient}")
     md.p(f"Thrust over Density= {thrust_density_ratio}")
-    # md.p(f"Delta pressure distribution= {delta_pressure}")
     md.p(f"Efficiency eta= {eta}")
 
     return (

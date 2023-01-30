@@ -16,7 +16,7 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-# import math
+
 from pathlib import Path
 
 import numpy as np
@@ -25,12 +25,12 @@ from ambiance import Atmosphere
 from ceasiompy.SU2Run.func.su2actuatordiskfile import (
     axial_interference_function,
     calculate_radial_thrust_coefs,
+    check_input_output_values,
     get_advanced_ratio,
     get_prandtl_correction_values,
     get_radial_stations,
     save_plots,
     thrust_calculator,
-    check_input_output_values,
     write_actuator_disk_data,
 )
 from ceasiompy.utils.ceasiompyutils import get_results_directory

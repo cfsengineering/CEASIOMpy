@@ -25,12 +25,11 @@ TODO:
 import math
 from pathlib import Path
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from markdownpy.markdownpy import MarkdownDoc
-
 
 log = get_logger()
 
@@ -61,9 +60,8 @@ def get_radial_stations(radius, hub_radius, number_of_stations=40):
     if hub_radius >= radius:
         raise ValueError("hub radius should be smaller than radius")
 
-    hub_radius_ratio = hub_radius / radius
     radial_stations = np.linspace(0, 1, number_of_stations + 1)[1:]
-    i_hub = (radial_stations >= hub_radius_ratio).argmax()
+    i_hub = (radial_stations >= hub_radius / radius).argmax()
     return radial_stations[i_hub:]
 
 

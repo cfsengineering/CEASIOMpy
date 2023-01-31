@@ -276,11 +276,27 @@ def test_thrust_calculator():
 def test_write_actuator_disk_data(tmp_path):
     """Test function 'write_actuator_disk_data'"""
 
-    correct_actuatordisk_path = Path(MODULE_DIR, "correct_ActuatorDisk.dat")
+    correct_actuatordisk_file_content = [
+        "# Total thurst coefficient= 0.05200",
+        "MARKER_ACTDISK= Inlet Outlet",
+        "CENTER= 0 5 0",
+        "AXIS= 1 0 0",
+        "RADIUS= 2.5",
+        "ADV_RATIO= 1.50000",
+        "NROW= 5",
+        "# rs=r/R    dCT/drs     dCP/drs     dCR/drs",
+        "0.20000     0.02000      00.10000     0.0",
+        "0.40000     0.04000      00.20000     0.0",
+        "0.60000     0.06000      00.30000     0.0",
+        "0.80000     0.08000      00.40000     0.0",
+        "1.00000     0.06000      00.30000     0.0",
+        "",
+        "",
+    ]
+
     test_actuatordisk_path = Path(tmp_path, "ActuatorDisk.dat")
 
     with open(test_actuatordisk_path, "w") as f:
-
         write_actuator_disk_data(
             file=f,
             inlet_marker="Inlet",
@@ -294,7 +310,7 @@ def test_write_actuator_disk_data(tmp_path):
             radial_power_coefs=np.array([0.1, 0.2, 0.3, 0.4, 0.3]),
         )
 
-    assert test_actuatordisk_path.read_text() == correct_actuatordisk_path.read_text()
+    assert test_actuatordisk_path.read_text().split("\n") == correct_actuatordisk_file_content
 
 
 # =================================================================================================

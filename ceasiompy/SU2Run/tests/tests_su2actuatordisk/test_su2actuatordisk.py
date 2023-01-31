@@ -16,6 +16,7 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
+
 from pathlib import Path
 
 import numpy as np
@@ -24,6 +25,7 @@ from ambiance import Atmosphere
 from ceasiompy.SU2Run.func.su2actuatordiskfile import (
     axial_interference_function,
     calculate_radial_thrust_coefs,
+    check_input_output_values,
     get_advanced_ratio,
     get_prandtl_correction_values,
     get_radial_stations,
@@ -31,7 +33,7 @@ from ceasiompy.SU2Run.func.su2actuatordiskfile import (
     thrust_calculator,
     write_actuator_disk_data,
 )
-
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 MODULE_DIR = Path(__file__).parent
 
@@ -96,6 +98,43 @@ def test_get_prandtl_correction_values():
     np.testing.assert_array_almost_equal(correction_values, output_values)
 
 
+def test_get_error():
+
+    radial_stations = np.arange(0.1, 1, 0.20)
+    dCt = calculate_radial_thrust_coefs(
+        radial_stations,
+        advanced_ratio=1.0,
+        opt_axial_interf_factor=np.array([1.0, 1.0, 1.0, 1.0, 1.0]),
+    )
+    radial_stations_spacing = radial_stations[1] - radial_stations[0]
+
+    error = np.sum(radial_stations_spacing * dCt)
+
+    assert error == pytest.approx(3.141, rel=1e-3)
+
+
+def test_get_corrected_axial_factor():
+
+    radial_stations = np.arange(0.1, 1, 0.20)
+    prandtl_correction_values = get_prandtl_correction_values(
+        radial_stations, False, 2, 30, 0.8, 120
+    )
+    lagrange_multiplier = 0.2
+    non_dimensional_radius = 0.75
+    axial_interference_function(lagrange_multiplier, non_dimensional_radius)
+    vectorized_axial_interf_f = np.vectorize(axial_interference_function)
+
+    corrected_axial_factor = vectorized_axial_interf_f(
+        lagrange_multiplier * prandtl_correction_values,
+        non_dimensional_radius,
+    )
+
+    np.testing.assert_array_almost_equal(
+        corrected_axial_factor,
+        np.array([0.05617978, 0.05617978, 0.05617978, 0.05617978, 0.05617978]),
+    )
+
+
 def test_calculate_radial_thrust_coefs():
     """Test function 'calculate_radial_thrust_coefs'"""
 
@@ -131,6 +170,42 @@ def test_save_plots(tmp_path):
     assert Path(tmp_path, "propeller_test", "interference.png").exists()
     assert Path(tmp_path, "propeller_test", "radial_thrust_and_power_coefficient.png").exists()
     assert Path(tmp_path, "propeller_test", "prandtl_correction.png").exists()
+
+
+def test_check_input_output_values():
+    radial_stations = get_radial_stations(1, 0.2, number_of_stations=5)
+    radial_stations_spacing = radial_stations[1] - radial_stations[0]
+    radial_power_coefs = np.array([0.1, 0.2, 0.3, 0.4, 0.2])
+    radial_thrust_coefs = np.array([0.07, 0.17, 0.25, 0.32, 0.22])
+    free_stream_velocity = 100
+    advanced_ratio = 0.9
+    radius = 2
+    rotational_velocity = 20
+
+    output_values = np.array([0.24, 0.20600, 40691.358, 0.3973, 0.7725])
+
+    (
+        total_power_coefficient,
+        optimal_total_thrust_coefficient,
+        thrust_density_ratio,
+        computed_total_thrust_coefficient,
+        eta,
+    ) = check_input_output_values(
+        radial_stations_spacing,
+        radial_power_coefs,
+        radial_thrust_coefs,
+        free_stream_velocity,
+        advanced_ratio,
+        radial_stations,
+        radius,
+        rotational_velocity,
+    )
+
+    assert total_power_coefficient == pytest.approx(output_values[0], rel=1e-3)
+    assert optimal_total_thrust_coefficient == pytest.approx(output_values[1], rel=1e-3)
+    assert thrust_density_ratio == pytest.approx(output_values[2], rel=1e-3)
+    assert computed_total_thrust_coefficient == pytest.approx(output_values[3], rel=1e-3)
+    assert eta == pytest.approx(output_values[4], rel=1e-3)
 
 
 def test_thrust_calculator():
@@ -181,21 +256,47 @@ def test_thrust_calculator():
 
         renard_thrust_coeff, power_coeff, _, _, _, _ = thrust_calculator(*values[0])
 
-        assert np.sum((1 / 40.0) * renard_thrust_coeff) == pytest.approx(values[1][0], rel=1e-3)
-        assert np.sum((1 / 40.0) * power_coeff) == pytest.approx(values[1][1], rel=1e-3)
+    assert np.sum((1 / 40.0) * renard_thrust_coeff) == pytest.approx(values[1][0], rel=1e-3)
+    assert np.sum((1 / 40.0) * power_coeff) == pytest.approx(values[1][1], rel=1e-3)
 
-        # assert thrust_over_density == pytest.approx(values[1][2], rel=1e-3)
-        # assert efficiency == pytest.approx(values[1][3], rel=1e-3)
+    results_dir = get_results_directory("SU2Run")
+    markdown_file_path = Path(results_dir, "su2actuatordisk.md")
+
+    if markdown_file_path.exists():
+        markdown_file_path.unlink()
+
+    thrust_calculator(get_radial_stations(1.5, 0.2), 0.5, 1.5, 150, True, 2, 33)
+
+    assert markdown_file_path.exists()
+
+    if markdown_file_path.exists():
+        markdown_file_path.unlink()
 
 
 def test_write_actuator_disk_data(tmp_path):
     """Test function 'write_actuator_disk_data'"""
 
-    correct_actuatordisck_path = Path(MODULE_DIR, "correct_ActuatorDisk.dat")
+    correct_actuatordisk_file_content = [
+        "# Total thurst coefficient= 0.05200",
+        "MARKER_ACTDISK= Inlet Outlet",
+        "CENTER= 0 5 0",
+        "AXIS= 1 0 0",
+        "RADIUS= 2.5",
+        "ADV_RATIO= 1.50000",
+        "NROW= 5",
+        "# rs=r/R    dCT/drs     dCP/drs     dCR/drs",
+        "0.20000     0.02000      00.10000     0.0",
+        "0.40000     0.04000      00.20000     0.0",
+        "0.60000     0.06000      00.30000     0.0",
+        "0.80000     0.08000      00.40000     0.0",
+        "1.00000     0.06000      00.30000     0.0",
+        "",
+        "",
+    ]
+
     test_actuatordisk_path = Path(tmp_path, "ActuatorDisk.dat")
 
     with open(test_actuatordisk_path, "w") as f:
-
         write_actuator_disk_data(
             file=f,
             inlet_marker="Inlet",
@@ -209,7 +310,7 @@ def test_write_actuator_disk_data(tmp_path):
             radial_power_coefs=np.array([0.1, 0.2, 0.3, 0.4, 0.3]),
         )
 
-    assert test_actuatordisk_path.read_text() == correct_actuatordisck_path.read_text()
+    assert test_actuatordisk_path.read_text().split("\n") == correct_actuatordisk_file_content
 
 
 # =================================================================================================

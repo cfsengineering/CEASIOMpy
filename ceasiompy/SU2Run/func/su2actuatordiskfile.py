@@ -25,10 +25,11 @@ TODO:
 import math
 from pathlib import Path
 
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
 from ceasiompy.utils.ceasiomlogger import get_logger
-
+from ceasiompy.utils.ceasiompyutils import get_results_directory
+from markdownpy.markdownpy import MarkdownDoc
 
 log = get_logger()
 
@@ -60,10 +61,7 @@ def get_radial_stations(radius, hub_radius, number_of_stations=40):
         raise ValueError("hub radius should be smaller than radius")
 
     radial_stations = np.linspace(0, 1, number_of_stations + 1)[1:]
-    i_hub = np.abs(radial_stations - hub_radius / radius).argmin()
-
-    if radial_stations[i_hub] < hub_radius:
-        i_hub += 1
+    i_hub = (radial_stations >= hub_radius / radius).argmax()
     return radial_stations[i_hub:]
 
 
@@ -84,7 +82,8 @@ def get_advanced_ratio(free_stream_velocity, rotational_velocity, radius):
 
 
 def axial_interference_function(lagrangian_multiplier, non_dimensional_radius):
-    """_summary_
+    """Function to obtain the array with the different values of axial interference factor at
+        every radius
 
     Args:
         lagrangian_multiplier (float): lagrangian multiplier, it is used to calculate
@@ -118,9 +117,6 @@ def get_prandtl_correction_values(
         omega (float): rotational velocity multiplied for 2 and pi
         radius (float): radius of the propeller
         free_stream_velocity (float): free stream velocity
-
-    Returns:
-        correction function to correct thrust coefficient and power coefficient
     """
 
     if not prandtl_correction:
@@ -133,6 +129,40 @@ def get_prandtl_correction_values(
             * (1 - radial_stations)
             * math.sqrt(1 + (omega * radius / free_stream_velocity) ** 2)
         )
+    )
+
+
+def get_error(radial_stations_spacing, dCt, total_thrust_coefficient):
+    """Function to get the error between calculated total thrust coefficient and the input one
+
+    Args:
+        radial_stations_spacing (float): spacing between r and r+dr
+        dCt (np.array): local thrust coefficient
+        total_thrust_coefficient (float): integration of local thrust coefficient
+
+    """
+
+    return np.sum(radial_stations_spacing * dCt) - total_thrust_coefficient
+
+
+def get_corrected_axial_factor(
+    vectorized_axial_interf_f,
+    lagrange_multiplier,
+    prandtl_correction_values,
+    non_dimensional_radius,
+):
+    """Function which correct axial interference factor at every radius with Prandtl correction
+
+    Args:
+        lagrangian_multiplier (float): lagrangian multiplier, it is used to calculate
+                                       interference factor
+        non_dimensional_radius (float): radius adimentionalization made using advanced ratio
+
+    """
+
+    return vectorized_axial_interf_f(
+        lagrange_multiplier * prandtl_correction_values,
+        non_dimensional_radius,
     )
 
 
@@ -251,6 +281,71 @@ def save_plots(
     log.info(f"A plot have been saved at {prandtl_correction_plot_path}")
 
 
+def check_input_output_values(
+    radial_stations_spacing,
+    radial_power_coefs,
+    radial_thrust_coefs,
+    free_stream_velocity,
+    advanced_ratio,
+    radial_stations,
+    radius,
+    rotational_velocity,
+):
+    """Function to control input and output values, these values will be written in markdown file
+
+    Args:
+        radial_stations_spacing (float): spacing between r and r+dr
+        radial_thrust_coefs (np.array): radial distribution of thrust coefficient
+        radial_power_coefs (np.array): radial distribution of power coefficient
+        free_stream_velocity (float): Cruise velocity [m/s]
+                                      get the real radius value
+        advanced_ratio (float): ratio between velocity and rotational velocity
+                                multiplied by diameter
+        radial_stations (np.array): adimensional radius along the blade. Multiply by radius to
+        radius (float): Blade radius [m]
+        rotational_velocity (int): Blade velocity rotation [1/s]
+
+    Returns:
+        total_power_coefficient (float): thrust coefficient at every radius [-]
+        optimal_total_thrust_coefficient (float): power coefficient at every radius [-]
+        delta_pressure (float): adimensional radius [-]
+        thrust_density_ratio (float): ratio between thrust and density [N m^3/kg]
+        computed_total_thrust_coefficient (float): thrust coefficient calculated in the program [-]
+        eta (float): efficiency of the propeller [-]
+
+    """
+
+    # Computation of the total power coefficient
+    total_power_coefficient = np.sum(radial_stations_spacing * radial_power_coefs)
+    optimal_total_thrust_coefficient = np.sum(radial_stations_spacing * radial_thrust_coefs)
+    delta_pressure = (
+        (radial_thrust_coefs)
+        * (2 * free_stream_velocity**2)
+        / (advanced_ratio**2 * math.pi * radial_stations)
+    )
+
+    # Computation of the thrust over density using the static pressure jump distribution
+    thrust_density_ratio = np.sum(
+        2 * math.pi * radial_stations * radius**2 * radial_stations_spacing * delta_pressure
+    )
+
+    # Computation of the thrust coefficient using thrust_density_ratio
+    computed_total_thrust_coefficient = thrust_density_ratio / (
+        rotational_velocity**2 * (2 * radius) ** 4
+    )
+
+    # Computation of the efficiency.
+    eta = advanced_ratio * (optimal_total_thrust_coefficient / total_power_coefficient)
+
+    return (
+        total_power_coefficient,
+        optimal_total_thrust_coefficient,
+        thrust_density_ratio,
+        computed_total_thrust_coefficient,
+        eta,
+    )
+
+
 def thrust_calculator(
     radial_stations,
     total_thrust_coefficient,
@@ -278,6 +373,9 @@ def thrust_calculator(
         r (float): adimensional radius [-]
     """
 
+    results_dir = get_results_directory("SU2Run")
+    md = MarkdownDoc(Path(results_dir, "su2actuatordisk.md"))
+
     log.info("Start of thrust calculation distribution")
 
     EPSILON = 5e-20
@@ -293,14 +391,15 @@ def thrust_calculator(
 
     log.info(f"Prandtl correction= {prandtl_correction}")
 
-    # TODO: put in the markdown file
-    # log.info(f"Selected total thrust coeff= {total_thrust_coefficient}")
-    # log.info(f"Radius= {radius}")
-    # log.info(f"Number of radial station= {len(radial_stations)}")
-    # log.info(f"Advanced ratio= {advanced_ratio}")
-    # log.info(f"Free stream velocity= {free_stream_velocity}")
-    # log.info(f"Prandtl correction= {prandtl_correction}")
-    # log.info(f"Number of blades= {blades_number}")
+    md.h2("Actuator disk calculation")
+    md.h3("Input values")
+    md.p(f"Selected total thrust coeff= {total_thrust_coefficient:.4f}")
+    md.p(f"Radius= {radius:.4f} m")
+    md.p(f"Number of radial station= {len(radial_stations)}")
+    md.p(f"Advanced ratio= {advanced_ratio:.4f}")
+    md.p(f"Free stream velocity= {free_stream_velocity:.4f} m/s")
+    md.p(f"Prandtl correction= {prandtl_correction:.4f}")
+    md.p(f"Number of blades= {blades_number}")
 
     non_dimensional_radius = np.pi * radial_stations / advanced_ratio
     radial_stations_spacing = radial_stations[1] - radial_stations[0]
@@ -317,15 +416,15 @@ def thrust_calculator(
         )
     )
 
-    # ###### TO SIMPLIFY ----------------------------------------------------------------
-
     first_lagrange_multiplier = np.sum(induced_velocity_distribution) / (
         free_stream_velocity * len(radial_stations)
     )
 
     # Computation of the first try axial interference factor distribution
-    initial_axial_interference_factor = vectorized_axial_interf_f(
-        first_lagrange_multiplier * prandtl_correction_values,
+    initial_axial_interference_factor = get_corrected_axial_factor(
+        vectorized_axial_interf_f,
+        first_lagrange_multiplier,
+        prandtl_correction_values,
         non_dimensional_radius,
     )
 
@@ -334,15 +433,17 @@ def thrust_calculator(
     )
 
     # Compute the error with respect to the thrust coefficient given in input
-    initial_error = np.sum(radial_stations_spacing * dCt_0) - total_thrust_coefficient
+    initial_error = get_error(radial_stations_spacing, dCt_0, total_thrust_coefficient)
     log.info("Start of error calculation")
 
     # Computation of the second try Lagrange multiplicator
     last_lagrange_multiplier = first_lagrange_multiplier + 0.1
 
     # Computation of the second try axial interference factor distribution
-    old_axial_interference_factor = vectorized_axial_interf_f(
-        last_lagrange_multiplier * prandtl_correction_values,
+    old_axial_interference_factor = get_corrected_axial_factor(
+        vectorized_axial_interf_f,
+        last_lagrange_multiplier,
+        prandtl_correction_values,
         non_dimensional_radius,
     )
 
@@ -351,7 +452,7 @@ def thrust_calculator(
     )
 
     # Compute the error with respect to the thrust coefficient given in input
-    old_error = np.sum(radial_stations_spacing * dCt_old) - total_thrust_coefficient
+    old_error = get_error(radial_stations_spacing, dCt_old, total_thrust_coefficient)
 
     # Iterate using the false position methods.
     # Based on the error from the thrust coefficient given in input
@@ -367,8 +468,10 @@ def thrust_calculator(
         ) / (initial_error - old_error)
 
         # Computation of the new axial interference factor distribution
-        new_axial_interference_factor = vectorized_axial_interf_f(
-            new_lagrange_multiplier * prandtl_correction_values,
+        new_axial_interference_factor = get_corrected_axial_factor(
+            vectorized_axial_interf_f,
+            new_lagrange_multiplier,
+            prandtl_correction_values,
             non_dimensional_radius,
         )
 
@@ -387,12 +490,14 @@ def thrust_calculator(
         first_lagrange_multiplier = last_lagrange_multiplier
         last_lagrange_multiplier = new_lagrange_multiplier
 
-    # ###### TO SIMPLIFY----------------------------------------------------------------
     log.info("Error has been estimated")
 
     # Calculate radial Thrust coefficient at each stations
-    optimal_axial_interference_factor = vectorized_axial_interf_f(
-        new_lagrange_multiplier * prandtl_correction_values, non_dimensional_radius
+    optimal_axial_interference_factor = get_corrected_axial_factor(
+        vectorized_axial_interf_f,
+        new_lagrange_multiplier,
+        prandtl_correction_values,
+        non_dimensional_radius,
     )
 
     radial_thrust_coefs = calculate_radial_thrust_coefs(
@@ -425,38 +530,30 @@ def thrust_calculator(
 
     log.info("Radial thrust and power coefficients have been estimated")
 
-    # # Computation of the total power coefficient
-    # total_power_coefficient = np.sum(radial_stations_spacing * dCp)
-    # optimal_total_thrust_coefficient = np.sum(radial_stations_spacing * dCt_optimal)
-    # delta_pressure = (
-    #    (dCt_optimal) * (2 * free_stream_velocity**2) / (advanced_ratio**2 * pi * radial_stations)
-    # )
+    (
+        total_power_coefficient,
+        optimal_total_thrust_coefficient,
+        thrust_density_ratio,
+        computed_total_thrust_coefficient,
+        eta,
+    ) = check_input_output_values(
+        radial_stations_spacing,
+        radial_power_coefs,
+        radial_thrust_coefs,
+        free_stream_velocity,
+        advanced_ratio,
+        radial_stations,
+        radius,
+        rotational_velocity,
+    )
 
-    # # Computation of the thrust over density using the static pressure jump distribution
-    # thrust_density_ratio = 0.0
-    # thrust_density_ratio = np.sum(
-    #     2 * pi * radial_stations * radius**2 * radial_stations_spacing * delta_pressure
-    # )
-
-    # # Computation of the thrust coefficient using thrust_density_ratio
-    # computed_total_thrust_coefficient = thrust_density_ratio / (
-    #     rotational_velocity**2 * (2 * radius) ** 4
-    # )
-
-    # # Computation of the efficiency.
-    # eta = advanced_ratio * (optimal_total_thrust_coefficient / total_power_coefficient)
-
-    # TODO: Add check
-    # TODO: Add markdown results file
-
-    # log.info("------- Check output values -------")
-    # log.info(f"Optimal total thrust coefficient= {optimal_total_thrust_coefficient}")
-    # log.info("Total thrust coefficient computed")
-    # log.info(f"using the static pressure jump= {computed_total_thrust_coefficient}")
-    # log.info(f"Power coefficient distribution integral= {total_power_coefficient}")
-    # log.info(f"Thrust over Density= {thrust_density_ratio}")
-    # log.info(f"Efficiency eta= {eta}")
-    # log.info(f"Lagrangian multiplicator/free_stream_velocity= {new_lagrange_multiplicator}")
+    md.h3("Output values")
+    md.p(f"Optimal total thrust coefficient= {optimal_total_thrust_coefficient:.4f}")
+    md.p("Total thrust coefficient computed")
+    md.p(f"using the static pressure jump= {computed_total_thrust_coefficient:.4f}")
+    md.p(f"Power coefficient distribution integral= {total_power_coefficient:.4f}")
+    md.p(f"Thrust over Density= {thrust_density_ratio:.4f} N m^3/kg")
+    md.p(f"Efficiency= {eta:.4f}")
 
     return (
         radial_thrust_coefs,

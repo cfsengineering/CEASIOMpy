@@ -11,7 +11,7 @@
 
 CEASIOMpy is an open source conceptual aircraft design environment. CEASIOMpy can be used to set up complex design and optimisation workflows for both conventional and unconventional aircraft configurations. Tools for various aircraft design disciplines are provided, but the aerodynamic tools are the most advanced. They allow automatic generation of aerodynamic meshes and CFD calculations.
 
-CEASIOMpy is written mostly in Python but it also depends on third-party libraries and software (like [SU2](https://su2code.github.io/) for the CFD calculation).
+CEASIOMpy is mostly written in Python but it also depends on third-party libraries and software (like [SU2](https://su2code.github.io/) for the CFD calculation).
 
 CEASIOMpy is based on the open-standard format [CPACS](https://www.cpacs.de/), a *Common Parametric Aircraft Configuration Schema*. It is a data definition for the air transportation system which is developed by the German Aerospace Center [DLR](https://www.dlr.de/). CPACS enables engineers to exchange information between their tools.
 

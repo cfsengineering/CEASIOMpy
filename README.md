@@ -48,7 +48,7 @@ Theses test cases are there to learn how to use CEASIOMpy. You will probably als
 - [Test case 2](test_cases/test_case_2/README.md) : Create and run a workflow with the Graphical User Interface (Video tutorial) :heavy_check_mark:
 - [Test case 3](test_cases/test_case_3/README.md) : Create and run a workflow with the Graphical User Interface :heavy_check_mark:
 - [Test case 4](test_cases/test_case_4/README.md) : Create and run a from a command line :heavy_check_mark:
-- [Test case 5](test_cases/test_case_5/README.md) : Create and run a from a configuration file :x:
+- [Test case 5](test_cases/test_case_5/README.md) : Create and run a from a configuration file :heavy_check_mark:
 
 ### Run CEASIOMpy
 

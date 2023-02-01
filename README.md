@@ -100,13 +100,13 @@ Follow the [test cases](#test-cases) to discover the different way of using CEAS
 
 ### Available modules
 
-A lot of different modules are available in CEASIOMpy, they can be assembled in various workflows. You can find below the list of available modules. The module status is marked as follows:
+There are many different modules available in CEASIOMpy that can be combined in different workflows. The list of available modules is shown below. The module status is marked as follows:
 
-:heavy_check_mark: : The module should be working as expected. Some small bugs may be present, don't hesitate to report them (more details [here](CONTRIBUTING.md#reporting-bugs)).
+:heavy_check_mark: : The module should work as expected. There may be some minor bugs, don't hesitate to report them (more details [here](CONTRIBUTING.md#reporting-bugs)).
 
-:warning: : The module is not working fully as expected. It is not a bug, but some features or data handling are yet compatible with the new file structure. Check the [Kanban board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see planned and in progress features.
+warning: : The module does not work completely as expected. It is not a bug, but some features or data handling are not yet compatible with the new file structure. Check the [Kanban Board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see planned and in-progress features.
 
-:x: : The module is not working at all. Some functions have been written but requires a lot of changes to be compatible with the rest of CEASIOMpy.
+:x: : The module does not work at all. Some functions have been written, but need a lot of changes to be compatible with the rest of CEASIOMpy.
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_main.png">
 

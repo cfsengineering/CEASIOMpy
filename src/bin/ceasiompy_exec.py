@@ -94,7 +94,17 @@ def run_testcase(testcase_nb):
 
     elif testcase_nb == 4:
         testcase_message(4)
-        print("Sorry, this test case is not implemented yet!")
+
+        print(
+            "To run this test case, you will need to open a terminal"
+            "and run the following command:"
+        )
+        print(">> conda activate ceasiompy")
+        print(">> cd WKDIR")
+        print(
+            ">> ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml "
+            "PyTornado SkinFriction SaveAeroCoefficients"
+        )
 
     elif testcase_nb == 5:
         testcase_message(5)

@@ -69,36 +69,7 @@ These test cases are there to learn how to use CEASIOMpy. You will probably also
     ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml PyTornado SaveAeroCoefficients
     ```
 
-- **Run CEASIOMpy with an existing configuration file**
-
-    You can run an existing configuration file (e.g. from the [test cases](#test-cases)) with the following command.
-
-    ```bash
-    cd WKDIR
-    ceasiompy_run --cfg ../test_cases/config_test_case_1.cfg
-    ```
-
-- **Write a CEASIOMpy configuration file**
-
-    A CEASIOMpy configuration file is a text file (saved as `*.cfg`) which contains the information necessary to run CEASIOMpy. You can write a configuration file by following the example.
-
-    ```text
-    % CEASIOMpy configuration file
-
-    % Input CPACS files (required) which contain the aircraft geometry
-    CPACS_TOOLINPUT = /users/disk10/jungo/github/CEASIOMpy/test_files/CPACSfiles/D150_simple.xml
-
-    # Modules which will be used in the workflow (in order)
-
-    MODULE_TO_RUN = ( PyTornado, SaveAeroCoefficients )
-    ```
-
-    You can save this file as `my_config_file.cfg` in your `WKDIR`. Then, you can run it with the following commands:
-
-    ```bash
-    cd WKDIR
-    ceasiompy_run --cfg ./my_config_file.cfg
-    ```
+Follow the [test cases](#test-cases) to discover the different way of using CEASIOMpy.
 
 ### Examples of workflows
 

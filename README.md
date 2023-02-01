@@ -161,8 +161,9 @@ warning: : The module does not work completely as expected. It is not a bug, but
 
 ## Contributing
 
-CEASIOMpy is an open source project and we welcome contributions from everyone. Some CEASIOMpy modules have been developed by students during their internship or master thesis.
-If you want to contribute to the development of CEASIOMpy , please refer to the [CONTRIBUTING.md](CONTRIBUTING.md) document.
+CEASIOMpy is an open source project and we welcome contributions from everyone. Some CEASIOMpy modules have been developed by students as part of their internship or master thesis.
+
+If you want to contribute to the development of CEASIOMpy, please read the document [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## More information
 

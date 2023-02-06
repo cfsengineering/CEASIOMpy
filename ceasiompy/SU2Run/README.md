@@ -6,7 +6,7 @@
 
 **State**: :heavy_check_mark:
 
-<img align="right" height="120" src="https://github.com/su2code/SU2/raw/master/Common/doc/logoSU2small.png">
+<img align="right" height="120" src="https://github.com/su2code/SU2/raw/master/Docs/logoSU2small.png">
 
 `SU2Run` module can prepare and run calculations with the CFD code [SU2](https://su2code.github.io/). SU2 is a computational analysis and design package that has been developed to solve multiphysics analysis and optimization tasks using unstructured mesh topologies. [[1]](#Economon15)
 

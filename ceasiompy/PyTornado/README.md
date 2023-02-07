@@ -10,6 +10,8 @@
 
 `PyTornado` module is a launcher for the software [PyTornado](https://github.com/airinnova/pytornado) which has been developed by [Airinnova](https://airinnova.se/) based on the Matlab version of [Tornado](https://tornado.redhammer.se/index.php). It is a Vortex Lattice Method (VLM) solver for  low-fidelity aerodynamic analysis of wings.
 
+<br />
+
 ## Inputs
 
 `PyTornado` takes as input a CPACS file, the aircraft geometry will be use to create the mesh required by the VLM solver. To define the flight conditions an aeromap on which the calculation will be done is also required.

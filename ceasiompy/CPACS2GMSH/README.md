@@ -6,7 +6,13 @@
 
 **State**: :heavy_check_mark:
 
+<img align="right" height="150" src="https://gitlab.onelab.info/gmsh/gmsh/-/raw/a8662def403b8e0327a0f0e6ecf1d8aca1a1f63d/utils/icons/gmsh.png">
+
+<br />
+
 `CPACS2GMSH` is an automatic mesh generator module for a [CPACS](https://www.cpacs.de) aircraft geometry [[1]](#Alder20) using [GMSH](https://gmsh.info/) ,a finite element mesh generator. An unstructured mesh is automatically generated in a spherical domain surrounding the aircraft. The resulting mesh can be used for a CFD calculation by connecting the `SU2Run` module after `CPACS2GMSH` module.
+
+<br />
 
 <p align="center">
 <img height="460" src="files/GMSH_D150_sym.png">

@@ -134,7 +134,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
             # Estimate circumference and add to the list
             height = sumo.getDoubleAttribute(frame_xpath, "height")
             width = sumo.getDoubleAttribute(frame_xpath, "width")
-            circ_list.append(math.pi * math.sqrt((height**2 + width**2)))
+            circ_list.append(2 * math.pi * math.sqrt((height**2 + width**2) / 2))
 
             # Get overall minimum radius (semi-minor axi for ellipse)
             min_radius = min(min_radius, height, width)

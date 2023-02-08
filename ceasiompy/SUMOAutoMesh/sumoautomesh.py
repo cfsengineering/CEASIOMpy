@@ -12,10 +12,8 @@ Python version: >=3.8
 
 TODO:
 
-    * Find a way to execute SUMO in batch on MacOS
     * Add support on WindowsOS
     * Add multi-pass mesh with tetgen option...
-    * Raise an error if the mesh is not created
     * Add automatic refine mesh if error ? (increasing refine_level)
 
 """
@@ -39,11 +37,6 @@ log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
-
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
 
 
 # =================================================================================================
@@ -75,7 +68,7 @@ def update_fuselage_caps(sumo, body_xpath):
 
     Args:
         sumo (object): TIXI object representing the SUMO file.
-        body_xpath (str): XPath to the body inthe SUMO file.
+        body_xpath (str): XPath to the body in the SUMO file.
 
     """
 
@@ -102,19 +95,18 @@ def update_fuselage_caps(sumo, body_xpath):
 def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     """Function to add mesh parameter options in SUMO geometry (.smx file)
 
-    Function 'add_mesh_parameters' is used to add meshing parameters in the SUMO
-    geometry (.smx file) to get finer meshes. The only user input parameter is
-    the refinement level which allows to generate finer meshes. 0 correspond
-    to the default (close to values obtain with SUMO GUI). Then, increasing
-    refinement level of 1 correspond to approximately two time more cells in
-    the mesh. You can also use float number (e.g. refine_level=2.4).
+    Function 'add_mesh_parameters' is used to add meshing parameters in the SUMO geometry (.smx)
+    to get finer meshes. The only user input parameter is the refinement level which allows to
+    generate finer meshes. 0 correspond to the default (close to values obtain with SUMO GUI).
+    Then, increasing refinement level of 1 correspond to approximately two time more cells in the
+    mesh. You can also use float number (e.g. refine_level=2.4).
 
     Source :
-        * sumo source code
+        * sumo source code: https://www.larosterna.com/products/open-source
 
     Args:
         sumo_file_path (Path): Path to the SUMO geometry (.smx)
-        refine_level (float): Refinement level of the mesh. Default is 1.0.
+        refine_level (float): Refinement level of the mesh. Default is 1.0
 
     """
 
@@ -126,7 +118,6 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     sumo = open_tixi(sumo_file_path)
     ROOT_XPATH = "/Assembly"
 
-    # Get all Body (fuselage) and apply mesh parameters
     body_cnt = get_part_count(sumo, ROOT_XPATH, part_name="BodySkeleton")
 
     for i_body in range(body_cnt):
@@ -143,9 +134,9 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
             # Estimate circumference and add to the list
             height = sumo.getDoubleAttribute(frame_xpath, "height")
             width = sumo.getDoubleAttribute(frame_xpath, "width")
-            circ_list.append(2 * math.pi * math.sqrt((height**2 + width**2) / 2))
+            circ_list.append(math.pi * math.sqrt((height**2 + width**2)))
 
-            # Get overall min radius (semi-minor axi for ellipse)
+            # Get overall minimum radius (semi-minor axi for ellipse)
             min_radius = min(min_radius, height, width)
 
         mean_circ = sum(circ_list) / len(circ_list)
@@ -170,7 +161,6 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
 
         update_fuselage_caps(sumo, body_xpath)
 
-    # Go through every Wing and apply mesh parameters
     wing_cnt = get_part_count(sumo, ROOT_XPATH, part_name="WingSkeleton")
 
     for i_wing in range(wing_cnt):
@@ -245,13 +235,12 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
     if not sumo_file_path.exists():
         raise FileNotFoundError(f"No SUMO file has been found at: {sumo_file_path}")
 
-    # Set mesh parameters
     log.info("Setting mesh parameters...")
     refine_level = get_value_or_default(tixi, SUMO_REFINE_LEVEL_XPATH, 1.0)
     log.info(f"Mesh refinement level: {refine_level}")
     add_mesh_parameters(sumo_file_path, refine_level)
 
-    # Tetgen option, see help for more options
+    # Tetgen option, see the help for more options
     output = "su2"
     options = "pq1.16VY"
     arguments = [

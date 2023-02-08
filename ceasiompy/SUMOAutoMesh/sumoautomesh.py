@@ -122,14 +122,13 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
 
         # Go through every Boby frame (fuselage sections)
         frame_cnt = sumo.getNamedChildrenCount(body_xpath, "BodyFrame")
-        for i_sec in range(frame_cnt):
-            frame_xpath = body_xpath + f"/BodyFrame[{i_sec+1}]"
+        for i_sec in range(1, frame_cnt + 1):
+            frame_xpath = body_xpath + f"/BodyFrame[{i_sec}]"
 
             # Estimate circumference and add to the list
             height = sumo.getDoubleAttribute(frame_xpath, "height")
             width = sumo.getDoubleAttribute(frame_xpath, "width")
-            circ = 2 * math.pi * math.sqrt((height**2 + width**2) / 2)
-            circ_list.append(circ)
+            circ_list.append(2 * math.pi * math.sqrt((height**2 + width**2) / 2))
 
             # Get overall min radius (semi-minor axi for ellipse)
             min_radius = min(min_radius, height, width)
@@ -137,10 +136,9 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
         mean_circ = sum(circ_list) / len(circ_list)
 
         # Calculate mesh parameters from inputs and geometry
+        # In SUMO, minlen is min_radius/2, but sometimes it leads to meshing errors
         maxlen = (0.08 * mean_circ) * refine_factor
-        minlen = (
-            min(0.1 * maxlen, min_radius / 4) * refine_factor
-        )  # in SUMO, it is min_radius/2, but sometimes it leads to meshing errors
+        minlen = min(0.1 * maxlen, min_radius / 4) * refine_factor
 
         # Add mesh parameters in the XML file (.smx)
         meshcrit_xpath = body_xpath + "/MeshCriterion"
@@ -167,11 +165,9 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
 
         # Go through every WingSection
         section_cnt = sumo.getNamedChildrenCount(wing_xpath, "WingSection")
-        for i_sec in range(section_cnt):
-            section_xpath = wing_xpath + f"/WingSection[{i_sec+1}]"
-
-            chord_length = sumo.getDoubleAttribute(section_xpath, "chord")
-            chord_list.append(chord_length)
+        for i_sec in range(1, section_cnt + 1):
+            section_xpath = wing_xpath + f"/WingSection[{i_sec}]"
+            chord_list.append(sumo.getDoubleAttribute(section_xpath, "chord"))
 
         # In SUMO refChord is calculated from Area and Span, but this is not
         # trivial to get those value for each wing from the .smx file
@@ -182,13 +178,13 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
         minlen = (0.08 * maxlen) * refine_factor
         # in sumo it is 0.08*maxlen or 0.7*min leading edge radius...?
 
+        # Default value in SUMO
+        lerfactor = 1 / 2.0
+        terfactor = 1 / 2.0
+
         if refine_level > 1:
             lerfactor = 1 / (2.0 + 0.5 * (refine_level - 1))
             terfactor = 1 / (2.0 + 0.5 * (refine_level - 1))
-        else:
-            # correspond to the default value in SUMO
-            lerfactor = 1 / 2.0
-            terfactor = 1 / 2.0
 
         # Add mesh parameters in the XML file (.smx)
         meshcrit_xpath = wing_xpath + "/WingCriterion"
@@ -288,14 +284,13 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
     su2_mesh_out_path = Path(sumo_results_dir, su2_mesh_name)
     shutil.copyfile(su2_mesh_path, su2_mesh_out_path)
 
-    if su2_mesh_out_path.exists():
-        log.info("An SU2 Mesh has been correctly generated.")
-        create_branch(tixi, SU2MESH_XPATH)
-        tixi.updateTextElement(SU2MESH_XPATH, str(su2_mesh_out_path))
-        su2_mesh_path.unlink()
-
-    else:
+    if not su2_mesh_out_path.exists():
         raise ValueError("No SU2 Mesh file has been generated!")
+
+    log.info("An SU2 Mesh has been correctly generated.")
+    create_branch(tixi, SU2MESH_XPATH)
+    tixi.updateTextElement(SU2MESH_XPATH, str(su2_mesh_out_path))
+    su2_mesh_path.unlink()
 
     tixi.save(str(cpacs_out_path))
 

@@ -52,6 +52,14 @@ MODULE_NAME = MODULE_DIR.name
 
 
 def get_part_count(sumo, ROOT_XPATH, part_name):
+    """Function to get the count of a specific part 'part_name' in a SUMO file.
+
+    Args:
+        sumo (object): TIXI object representing the SUMO file.
+        ROOT_XPATH (str): XPath to the root of the SUMO file.
+        part_name: name of the part for which the count is to be returned.
+
+    """
 
     if sumo.checkElement(ROOT_XPATH):
         part_cnt = sumo.getNamedChildrenCount(ROOT_XPATH, part_name)
@@ -63,6 +71,13 @@ def get_part_count(sumo, ROOT_XPATH, part_name):
 
 
 def update_fuselage_caps(sumo, body_xpath):
+    """Function to write the correct fuselage (body) caps in the SUMO file.
+
+    Args:
+        sumo (object): TIXI object representing the SUMO file.
+        body_xpath (str): XPath to the body inthe SUMO file.
+
+    """
 
     # Remove existing fuselage caps
     cap_cnt = sumo.getNamedChildrenCount(body_xpath, "Cap")

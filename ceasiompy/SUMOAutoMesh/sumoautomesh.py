@@ -12,10 +12,8 @@ Python version: >=3.8
 
 TODO:
 
-    * Find a way to execute SUMO in batch on MacOS
     * Add support on WindowsOS
     * Add multi-pass mesh with tetgen option...
-    * Raise an error if the mesh is not created
     * Add automatic refine mesh if error ? (increasing refine_level)
 
 """
@@ -42,31 +40,73 @@ MODULE_NAME = MODULE_DIR.name
 
 
 # =================================================================================================
-#   CLASSES
-# =================================================================================================
-
-
-# =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def get_part_count(sumo, ROOT_XPATH, part_name):
+    """Function to get the count of a specific part 'part_name' in a SUMO file.
+
+    Args:
+        sumo (object): TIXI object representing the SUMO file.
+        ROOT_XPATH (str): XPath to the root of the SUMO file.
+        part_name: name of the part for which the count is to be returned.
+
+    """
+
+    if sumo.checkElement(ROOT_XPATH):
+        part_cnt = sumo.getNamedChildrenCount(ROOT_XPATH, part_name)
+        log.info(f"{part_cnt} {part_name} has been found.")
+        return part_cnt
+
+    log.warning(f"No {part_name} has been found in this SUMO file!")
+    return 0
+
+
+def update_fuselage_caps(sumo, body_xpath):
+    """Function to write the correct fuselage (body) caps in the SUMO file.
+
+    Args:
+        sumo (object): TIXI object representing the SUMO file.
+        body_xpath (str): XPath to the body in the SUMO file.
+
+    """
+
+    # Remove existing fuselage caps
+    cap_cnt = sumo.getNamedChildrenCount(body_xpath, "Cap")
+    for i in range(1, cap_cnt + 1):
+        cap_xpath = body_xpath + f"/Cap[{i}]"
+        sumo.removeElement(cap_xpath)
+
+    # Add new caps
+    sumo.addTextElementAtIndex(body_xpath, "Cap", "", 1)
+    cap1_xpath = body_xpath + "/Cap[1]"
+    sumo.addTextAttribute(cap1_xpath, "height", "0")
+    sumo.addTextAttribute(cap1_xpath, "shape", "LongCap")
+    sumo.addTextAttribute(cap1_xpath, "side", "south")
+
+    cap2_xpath = body_xpath + "/Cap[2]"
+    sumo.addTextElementAtIndex(body_xpath, "Cap", "", 2)
+    sumo.addTextAttribute(cap2_xpath, "height", "0")
+    sumo.addTextAttribute(cap2_xpath, "shape", "LongCap")
+    sumo.addTextAttribute(cap2_xpath, "side", "north")
 
 
 def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     """Function to add mesh parameter options in SUMO geometry (.smx file)
 
-    Function 'add_mesh_parameters' is used to add meshing parameters in the SUMO
-    geometry (.smx file) to get finer meshes. The only user input parameter is
-    the refinement level which allows to generate finer meshes. 0 correspond
-    to the default (close to values obtain with SUMO GUI). Then, increasing
-    refinement level of 1 corespond to approximately two time more cells in
-    the mesh. You can also use float number (e.g. refine_level=2.4).
+    Function 'add_mesh_parameters' is used to add meshing parameters in the SUMO geometry (.smx)
+    to get finer meshes. The only user input parameter is the refinement level which allows to
+    generate finer meshes. 0 correspond to the default (close to values obtain with SUMO GUI).
+    Then, increasing refinement level of 1 correspond to approximately two time more cells in the
+    mesh. You can also use float number (e.g. refine_level=2.4).
 
     Source :
-        * sumo source code
+        * sumo source code: https://www.larosterna.com/products/open-source
 
     Args:
         sumo_file_path (Path): Path to the SUMO geometry (.smx)
-        refine_level (float): Refinement level of the mesh. Default is 1.0.
+        refine_level (float): Refinement level of the mesh. Default is 1.0
 
     """
 
@@ -78,13 +118,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     sumo = open_tixi(sumo_file_path)
     ROOT_XPATH = "/Assembly"
 
-    # Get all Body (fuselage) and apply mesh parameters
-    if sumo.checkElement(ROOT_XPATH):
-        body_cnt = sumo.getNamedChildrenCount(ROOT_XPATH, "BodySkeleton")
-        log.info(str(body_cnt) + " body has been found.")
-    else:
-        body_cnt = 0
-        log.warning("No Fuselage has been found in this SUMO file!")
+    body_cnt = get_part_count(sumo, ROOT_XPATH, part_name="BodySkeleton")
 
     for i_body in range(body_cnt):
         body_xpath = ROOT_XPATH + f"/BodySkeleton[{i_body+1}]"
@@ -94,25 +128,23 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
 
         # Go through every Boby frame (fuselage sections)
         frame_cnt = sumo.getNamedChildrenCount(body_xpath, "BodyFrame")
-        for i_sec in range(frame_cnt):
-            frame_xpath = body_xpath + f"/BodyFrame[{i_sec+1}]"
+        for i_sec in range(1, frame_cnt + 1):
+            frame_xpath = body_xpath + f"/BodyFrame[{i_sec}]"
 
             # Estimate circumference and add to the list
             height = sumo.getDoubleAttribute(frame_xpath, "height")
             width = sumo.getDoubleAttribute(frame_xpath, "width")
-            circ = 2 * math.pi * math.sqrt((height**2 + width**2) / 2)
-            circ_list.append(circ)
+            circ_list.append(2 * math.pi * math.sqrt((height**2 + width**2) / 2))
 
-            # Get overall min radius (semi-minor axi for ellipse)
+            # Get overall minimum radius (semi-minor axi for ellipse)
             min_radius = min(min_radius, height, width)
 
         mean_circ = sum(circ_list) / len(circ_list)
 
         # Calculate mesh parameters from inputs and geometry
+        # In SUMO, minlen is min_radius/2, but sometimes it leads to meshing errors
         maxlen = (0.08 * mean_circ) * refine_factor
-        minlen = (
-            min(0.1 * maxlen, min_radius / 4) * refine_factor
-        )  # in SUMO, it is min_radius/2, but sometimes it leads to meshing errors
+        minlen = min(0.1 * maxlen, min_radius / 4) * refine_factor
 
         # Add mesh parameters in the XML file (.smx)
         meshcrit_xpath = body_xpath + "/MeshCriterion"
@@ -127,32 +159,9 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
         sumo.addTextAttribute(meshcrit_xpath, "nvmax", "1073741824")
         sumo.addTextAttribute(meshcrit_xpath, "xcoarse", "false")
 
-        # Change fuselage caps
-        cap_cnt = sumo.getNamedChildrenCount(body_xpath, "Cap")
+        update_fuselage_caps(sumo, body_xpath)
 
-        for _ in range(cap_cnt):
-            cap_xpath = body_xpath + "/Cap[1]"
-            sumo.removeElement(cap_xpath)
-
-        sumo.addTextElementAtIndex(body_xpath, "Cap", "", 1)
-        cap1_xpath = body_xpath + "/Cap[1]"
-        sumo.addTextAttribute(cap1_xpath, "height", "0")
-        sumo.addTextAttribute(cap1_xpath, "shape", "LongCap")
-        sumo.addTextAttribute(cap1_xpath, "side", "south")
-
-        cap2_xpath = body_xpath + "/Cap[2]"
-        sumo.addTextElementAtIndex(body_xpath, "Cap", "", 2)
-        sumo.addTextAttribute(cap2_xpath, "height", "0")
-        sumo.addTextAttribute(cap2_xpath, "shape", "LongCap")
-        sumo.addTextAttribute(cap2_xpath, "side", "north")
-
-    # Go through every Wing and apply mesh parameters
-    if sumo.checkElement(ROOT_XPATH):
-        wing_cnt = sumo.getNamedChildrenCount(ROOT_XPATH, "WingSkeleton")
-        log.info(f"{wing_cnt} wing(s) has been found.")
-    else:
-        wing_cnt = 0
-        log.warning("No wing has been found in this CPACS file!")
+    wing_cnt = get_part_count(sumo, ROOT_XPATH, part_name="WingSkeleton")
 
     for i_wing in range(wing_cnt):
         wing_xpath = ROOT_XPATH + f"/WingSkeleton[{i_wing+1}]"
@@ -161,11 +170,9 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
 
         # Go through every WingSection
         section_cnt = sumo.getNamedChildrenCount(wing_xpath, "WingSection")
-        for i_sec in range(section_cnt):
-            section_xpath = wing_xpath + f"/WingSection[{i_sec+1}]"
-
-            chord_length = sumo.getDoubleAttribute(section_xpath, "chord")
-            chord_list.append(chord_length)
+        for i_sec in range(1, section_cnt + 1):
+            section_xpath = wing_xpath + f"/WingSection[{i_sec}]"
+            chord_list.append(sumo.getDoubleAttribute(section_xpath, "chord"))
 
         # In SUMO refChord is calculated from Area and Span, but this is not
         # trivial to get those value for each wing from the .smx file
@@ -176,13 +183,13 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
         minlen = (0.08 * maxlen) * refine_factor
         # in sumo it is 0.08*maxlen or 0.7*min leading edge radius...?
 
+        # Default value in SUMO
+        lerfactor = 1 / 2.0
+        terfactor = 1 / 2.0
+
         if refine_level > 1:
             lerfactor = 1 / (2.0 + 0.5 * (refine_level - 1))
             terfactor = 1 / (2.0 + 0.5 * (refine_level - 1))
-        else:
-            # correspond to the default value in SUMO
-            lerfactor = 1 / 2.0
-            terfactor = 1 / 2.0
 
         # Add mesh parameters in the XML file (.smx)
         meshcrit_xpath = wing_xpath + "/WingCriterion"
@@ -228,13 +235,12 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
     if not sumo_file_path.exists():
         raise FileNotFoundError(f"No SUMO file has been found at: {sumo_file_path}")
 
-    # Set mesh parameters
     log.info("Setting mesh parameters...")
     refine_level = get_value_or_default(tixi, SUMO_REFINE_LEVEL_XPATH, 1.0)
     log.info(f"Mesh refinement level: {refine_level}")
     add_mesh_parameters(sumo_file_path, refine_level)
 
-    # Tetgen option, see help for more options
+    # Tetgen option, see the help for more options
     output = "su2"
     options = "pq1.16VY"
     arguments = [
@@ -282,14 +288,13 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
     su2_mesh_out_path = Path(sumo_results_dir, su2_mesh_name)
     shutil.copyfile(su2_mesh_path, su2_mesh_out_path)
 
-    if su2_mesh_out_path.exists():
-        log.info("An SU2 Mesh has been correctly generated.")
-        create_branch(tixi, SU2MESH_XPATH)
-        tixi.updateTextElement(SU2MESH_XPATH, str(su2_mesh_out_path))
-        su2_mesh_path.unlink()
-
-    else:
+    if not su2_mesh_out_path.exists():
         raise ValueError("No SU2 Mesh file has been generated!")
+
+    log.info("An SU2 Mesh has been correctly generated.")
+    create_branch(tixi, SU2MESH_XPATH)
+    tixi.updateTextElement(SU2MESH_XPATH, str(su2_mesh_out_path))
+    su2_mesh_path.unlink()
 
     tixi.save(str(cpacs_out_path))
 

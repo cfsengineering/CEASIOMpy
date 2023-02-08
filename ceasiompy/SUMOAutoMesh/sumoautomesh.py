@@ -62,6 +62,28 @@ def get_part_count(sumo, ROOT_XPATH, part_name):
     return 0
 
 
+def update_fuselage_caps(sumo, body_xpath):
+
+    # Remove existing fuselage caps
+    cap_cnt = sumo.getNamedChildrenCount(body_xpath, "Cap")
+    for i in range(1, cap_cnt + 1):
+        cap_xpath = body_xpath + f"/Cap[{i}]"
+        sumo.removeElement(cap_xpath)
+
+    # Add new caps
+    sumo.addTextElementAtIndex(body_xpath, "Cap", "", 1)
+    cap1_xpath = body_xpath + "/Cap[1]"
+    sumo.addTextAttribute(cap1_xpath, "height", "0")
+    sumo.addTextAttribute(cap1_xpath, "shape", "LongCap")
+    sumo.addTextAttribute(cap1_xpath, "side", "south")
+
+    cap2_xpath = body_xpath + "/Cap[2]"
+    sumo.addTextElementAtIndex(body_xpath, "Cap", "", 2)
+    sumo.addTextAttribute(cap2_xpath, "height", "0")
+    sumo.addTextAttribute(cap2_xpath, "shape", "LongCap")
+    sumo.addTextAttribute(cap2_xpath, "side", "north")
+
+
 def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     """Function to add mesh parameter options in SUMO geometry (.smx file)
 
@@ -133,24 +155,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
         sumo.addTextAttribute(meshcrit_xpath, "nvmax", "1073741824")
         sumo.addTextAttribute(meshcrit_xpath, "xcoarse", "false")
 
-        # Change fuselage caps
-        cap_cnt = sumo.getNamedChildrenCount(body_xpath, "Cap")
-
-        for _ in range(cap_cnt):
-            cap_xpath = body_xpath + "/Cap[1]"
-            sumo.removeElement(cap_xpath)
-
-        sumo.addTextElementAtIndex(body_xpath, "Cap", "", 1)
-        cap1_xpath = body_xpath + "/Cap[1]"
-        sumo.addTextAttribute(cap1_xpath, "height", "0")
-        sumo.addTextAttribute(cap1_xpath, "shape", "LongCap")
-        sumo.addTextAttribute(cap1_xpath, "side", "south")
-
-        cap2_xpath = body_xpath + "/Cap[2]"
-        sumo.addTextElementAtIndex(body_xpath, "Cap", "", 2)
-        sumo.addTextAttribute(cap2_xpath, "height", "0")
-        sumo.addTextAttribute(cap2_xpath, "shape", "LongCap")
-        sumo.addTextAttribute(cap2_xpath, "side", "north")
+        update_fuselage_caps(sumo, body_xpath)
 
     # Go through every Wing and apply mesh parameters
     wing_cnt = get_part_count(sumo, ROOT_XPATH, part_name="WingSkeleton")

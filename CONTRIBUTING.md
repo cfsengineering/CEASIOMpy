@@ -114,7 +114,7 @@ The log file is saved at the root of CEASIOMpy (CEASIOMpy/ceasiompy.log) and pri
 
 If possible, new functions should be tested with [pytest](https://docs.pytest.org/en/latest/getting-started.html).
 
-Pytest, [flake8](https://flake8.pycqa.org/en/latest/) and [codecov](https://about.codecov.io/) are included in our [Github action CI](https://github.com/cfsengineering/CEASIOMpy/blob/main/.github/workflows/pytest.yml) and will run automatically for each push and pull request to the main branch.
+Pytest, [flake8](https://flake8.pycqa.org/en/latest/) and [codecov](https://about.codecov.io/) are included in our [Github action CI](.github/workflows/unittests.yml) and will run automatically for each push and pull request to the main branch.
 
 You can also run the CI manually with on your machine with:
 
@@ -214,11 +214,11 @@ If you want to write a new module, you can use the [Module Template](https://git
 │   ├── test_subfunc2.py
 │   └── test_moduletemplate.py
 ├── __specs__.py        <- Specification of the module.
-├── moduletemplate.py   <- Main module of the module.
+├── moduletemplate.py   <- Main script of the module.
 └── README.md           <- Readme for the module.
 ```
 
-To develop a new module you should follow the above steps.:
+To develop a new module you should follow the steps bellow:
 
 - Create a fork of the CEASIOMpy repository
 - On your fork, create a new branch

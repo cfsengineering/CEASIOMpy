@@ -51,6 +51,17 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 
 
+def get_part_count(sumo, ROOT_XPATH, part_name):
+
+    if sumo.checkElement(ROOT_XPATH):
+        part_cnt = sumo.getNamedChildrenCount(ROOT_XPATH, part_name)
+        log.info(f"{part_cnt} {part_name} has been found.")
+        return part_cnt
+
+    log.warning(f"No {part_name} has been found in this SUMO file!")
+    return 0
+
+
 def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     """Function to add mesh parameter options in SUMO geometry (.smx file)
 
@@ -58,7 +69,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     geometry (.smx file) to get finer meshes. The only user input parameter is
     the refinement level which allows to generate finer meshes. 0 correspond
     to the default (close to values obtain with SUMO GUI). Then, increasing
-    refinement level of 1 corespond to approximately two time more cells in
+    refinement level of 1 correspond to approximately two time more cells in
     the mesh. You can also use float number (e.g. refine_level=2.4).
 
     Source :
@@ -79,12 +90,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     ROOT_XPATH = "/Assembly"
 
     # Get all Body (fuselage) and apply mesh parameters
-    if sumo.checkElement(ROOT_XPATH):
-        body_cnt = sumo.getNamedChildrenCount(ROOT_XPATH, "BodySkeleton")
-        log.info(str(body_cnt) + " body has been found.")
-    else:
-        body_cnt = 0
-        log.warning("No Fuselage has been found in this SUMO file!")
+    body_cnt = get_part_count(sumo, ROOT_XPATH, part_name="BodySkeleton")
 
     for i_body in range(body_cnt):
         body_xpath = ROOT_XPATH + f"/BodySkeleton[{i_body+1}]"
@@ -147,12 +153,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
         sumo.addTextAttribute(cap2_xpath, "side", "north")
 
     # Go through every Wing and apply mesh parameters
-    if sumo.checkElement(ROOT_XPATH):
-        wing_cnt = sumo.getNamedChildrenCount(ROOT_XPATH, "WingSkeleton")
-        log.info(f"{wing_cnt} wing(s) has been found.")
-    else:
-        wing_cnt = 0
-        log.warning("No wing has been found in this CPACS file!")
+    wing_cnt = get_part_count(sumo, ROOT_XPATH, part_name="WingSkeleton")
 
     for i_wing in range(wing_cnt):
         wing_xpath = ROOT_XPATH + f"/WingSkeleton[{i_wing+1}]"

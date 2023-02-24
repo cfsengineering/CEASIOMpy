@@ -113,7 +113,12 @@ SU2_EXTRACT_LOAD_XPATH = SU2_XPATH + "/results/extractLoads"
 SU2_UPDATE_WETTED_AREA_XPATH = SU2_XPATH + "/results/updateWettedArea"
 
 SU2_MAX_ITER_XPATH = SU2_XPATH + "/settings/maxIter"
-SU2_CFL_NB_XPATH = SU2_XPATH + "/settings/cflNumber"
+SU2_CFL_NB_XPATH = SU2_XPATH + "/settings/cflNumber/value"
+SU2_CFL_ADAPT_XPATH = SU2_XPATH + "/settings/cflNumber/adaptation/value"
+SU2_CFL_ADAPT_PARAM_DOWN_XPATH = SU2_XPATH + "/settings/cflNumber/adaptation/factor_down"
+SU2_CFL_ADAPT_PARAM_UP_XPATH = SU2_XPATH + "/settings/cflNumber/adaptation/factor_up"
+SU2_CFL_MIN_XPATH = SU2_XPATH + "/settings/cflNumber/adaptation/min"
+SU2_CFL_MAX_XPATH = SU2_XPATH + "/settings/cflNumber/adaptation/max"
 SU2_MG_LEVEL_XPATH = SU2_XPATH + "/settings/multigridLevel"
 
 SU2_BC_WALL_XPATH = SU2_XPATH + "/boundaryConditions/wall"

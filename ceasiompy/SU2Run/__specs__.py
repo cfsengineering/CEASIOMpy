@@ -12,6 +12,11 @@ from ceasiompy.utils.commonxpath import (
     SU2_BC_FARFIELD_XPATH,
     SU2_BC_WALL_XPATH,
     SU2_CFL_NB_XPATH,
+    SU2_CFL_ADAPT_XPATH,
+    SU2_CFL_ADAPT_PARAM_DOWN_XPATH,
+    SU2_CFL_ADAPT_PARAM_UP_XPATH,
+    SU2_CFL_MIN_XPATH,
+    SU2_CFL_MAX_XPATH,
     SU2_CONTROL_SURF_XPATH,
     SU2_DAMPING_DER_XPATH,
     SU2_EXTRACT_LOAD_XPATH,
@@ -207,6 +212,66 @@ cpacs_inout.add_input(
     xpath=SU2_CFL_NB_XPATH,
     gui=True,
     gui_name="CFL Number",
+    gui_group="SU2 Parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="cfl_adapt",
+    var_type=bool,
+    default_value=True,
+    unit="1",
+    descr="CFL Adaptation",
+    xpath=SU2_CFL_ADAPT_XPATH,
+    gui=True,
+    gui_name="CFL Adaptation",
+    gui_group="SU2 Parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="cfl_adapt_param_factor_down",
+    var_type=float,
+    default_value=0.5,
+    unit="1",
+    descr="CFL Adaptation Factor Down",
+    xpath=SU2_CFL_ADAPT_PARAM_DOWN_XPATH,
+    gui=True,
+    gui_name="CFL Adaptation Factor Down",
+    gui_group="SU2 Parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="cfl_adapt_param_factor_up",
+    var_type=float,
+    default_value=1.5,
+    unit="1",
+    descr="CFL Adaptation Factor Up",
+    xpath=SU2_CFL_ADAPT_PARAM_UP_XPATH,
+    gui=True,
+    gui_name="CFL Adaptation Factor Up",
+    gui_group="SU2 Parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="cfl_adapt_param_min",
+    var_type=float,
+    default_value=0.5,
+    unit="1",
+    descr="CFL Minimum Value",
+    xpath=SU2_CFL_MIN_XPATH,
+    gui=True,
+    gui_name="CFL Min Value",
+    gui_group="SU2 Parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="cfl_adapt_param_max",
+    var_type=float,
+    default_value=100,
+    unit="1",
+    descr="CFL Maximum Value",
+    xpath=SU2_CFL_MAX_XPATH,
+    gui=True,
+    gui_name="CFL Max Value",
     gui_group="SU2 Parameters",
 )
 

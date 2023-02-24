@@ -50,6 +50,11 @@ from ceasiompy.utils.commonxpath import (
     SU2_BC_FARFIELD_XPATH,
     SU2_BC_WALL_XPATH,
     SU2_CFL_NB_XPATH,
+    SU2_CFL_ADAPT_XPATH,
+    SU2_CFL_ADAPT_PARAM_DOWN_XPATH,
+    SU2_CFL_ADAPT_PARAM_UP_XPATH,
+    SU2_CFL_MAX_XPATH,
+    SU2_CFL_MIN_XPATH,
     SU2_CONTROL_SURF_XPATH,
     SU2_DAMPING_DER_XPATH,
     SU2_DEF_MESH_XPATH,
@@ -372,8 +377,21 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     cfg["REF_ORIGIN_MOMENT_Z"] = cpacs.aircraft.ref_point_z
 
     # Settings
+
+    cfl_down = get_value_or_default(cpacs.tixi, SU2_CFL_ADAPT_PARAM_DOWN_XPATH, 0.5)
+    cfl_up = get_value_or_default(cpacs.tixi, SU2_CFL_ADAPT_PARAM_UP_XPATH, 1.5)
+    cfl_min = get_value_or_default(cpacs.tixi, SU2_CFL_MIN_XPATH, 0.5)
+    cfl_max = get_value_or_default(cpacs.tixi, SU2_CFL_MAX_XPATH, 100)
+
+    if get_value_or_default(cpacs.tixi, SU2_CFL_ADAPT_XPATH, True):
+        cfg["CFL_ADAPT"] = "YES"
+
+    else:
+        cfg["CFL_ADAPT"] = "NO"
+
     cfg["INNER_ITER"] = int(get_value_or_default(cpacs.tixi, SU2_MAX_ITER_XPATH, 200))
     cfg["CFL_NUMBER"] = get_value_or_default(cpacs.tixi, SU2_CFL_NB_XPATH, 1.0)
+    cfg["CFL_ADAPT_PARAM"] = f"( {cfl_down}, {cfl_up}, {cfl_min}, {cfl_max} )"
     cfg["MGLEVEL"] = int(get_value_or_default(cpacs.tixi, SU2_MG_LEVEL_XPATH, 3))
 
     # Fixed CL mode (AOA will not be taken into account)

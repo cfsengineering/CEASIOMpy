@@ -383,7 +383,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     cfl_min = get_value_or_default(cpacs.tixi, SU2_CFL_MIN_XPATH, 0.5)
     cfl_max = get_value_or_default(cpacs.tixi, SU2_CFL_MAX_XPATH, 100)
 
-    if get_value(cpacs.tixi, SU2_CFL_ADAPT_XPATH):
+    if get_value_or_default(cpacs.tixi, SU2_CFL_ADAPT_XPATH, True):
         cfg["CFL_ADAPT"] = "YES"
 
     else:

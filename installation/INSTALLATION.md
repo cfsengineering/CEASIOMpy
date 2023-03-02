@@ -21,7 +21,7 @@ Before you run this command, you should read the following remarks:
 
 - PyTornado, SUMO, SU2 and Paraview are not mandatory to run CEASIOMpy. You can skip the lines corresponding to those you don't want to install. However, if you want to be able to run all possible workflows, you should have all the modules.
 
-- Some softwares will need to be executed with `sudo` command. It will ask you you for your password and you will have to type `yes` to confirm some of the installation steps.
+- Some softwares will need to be executed with `sudo` command. It will ask you for your password and you will have to type `yes` to confirm some of the installation steps.
 
 - If you want to be sure of what every script does, we encourage you to read those scripts ([Ubuntu](./Ubuntu), [CentOS](./CentOS)) in detail before you run them.
 

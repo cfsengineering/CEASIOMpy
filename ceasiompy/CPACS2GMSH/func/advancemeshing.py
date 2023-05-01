@@ -115,7 +115,8 @@ def restrict_fields(mesh_fields, dim, object_tags, infield=None):
 
     return mesh_fields
 
-def engine_fields_box(mesh_fields, object_tags, position):
+
+def engine_fields_box(external_mesh_size, internal_refinement, mesh_fields, object_tags, position):
     """
     This function creates a field box field around engines
 
@@ -143,10 +144,12 @@ def engine_fields_box(mesh_fields, object_tags, position):
     # Set the position and size of the fieldsBox
     min_pos, max_pos = gmsh.model.getBoundingBox(object_tags)
     size = max([max_pos[i] - min_pos[i] for i in range(3)])
-    
+
     gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "VIn", [internal_refinement])
-    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "VOut", [external_refinement])
-    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "Thickness", [(external_refinement+internal_refinement)/2])
+    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "VOut", [external_mesh_size])
+    gmsh.model.mesh.field.setNumbers(
+        mesh_fields["nbfields"], "Thickness", [(external_mesh_size + internal_refinement) / 2]
+    )
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "XMin", position[0] - size / 2)
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "XMax", position[0] + size / 2)
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "YMin", position[1] - size / 2)
@@ -297,14 +300,12 @@ def refine_wing_section(
 
     # For each wing section get the mean chord and le/te lines
     for wing_section in wing_part.wing_sections:
-
         chord_mean = wing_section["mean_chord"]
         x_chord = chord_mean * chord_percent
         lines_to_refine = wing_section["lines_tags"]
 
         # If the wing is truncated:
         if len(lines_to_refine) == 3:
-
             # Find the trailing edge thickness
             x1, y1, z1 = gmsh.model.occ.getCenterOfMass(1, lines_to_refine[0])
             x2, y2, z2 = gmsh.model.occ.getCenterOfMass(1, lines_to_refine[1])
@@ -318,7 +319,6 @@ def refine_wing_section(
 
             # Overwrite the trailing edge refinement
             if (mesh_size_wings / te_thickness > refine) and refine_truncated:
-
                 refine = mesh_size_wings / te_thickness
 
         # 1 : Math eval field
@@ -419,7 +419,6 @@ def set_domain_mesh(
     log.info("Set mesh refinement of fluid domain")
 
     for part in aircraft_parts:
-
         # 1 : Math eval field between the part surface and the farfield
 
         mesh_fields = distance_field(mesh_fields, 2, part.surfaces_tags)
@@ -563,5 +562,4 @@ def refine_small_surfaces(
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Nothing to execute!")

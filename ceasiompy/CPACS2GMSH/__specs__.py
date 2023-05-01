@@ -11,6 +11,9 @@ from ceasiompy.utils.commonxpath import (
     GMSH_MESH_SIZE_WINGS_XPATH,
     GMSH_MESH_SIZE_ENGINES_XPATH,
     GMSH_MESH_SIZE_PROPELLERS_XPATH,
+    GMSH_MESH_SIZE_BOX_INTERNAL_XPATH,
+    GMSH_MESH_SIZE_BOX_EXTERNAL_XPATH,
+    GMSH_MESH_SIZE_BOX_THICKNESS_XPATH,
     GMSH_OPEN_GUI_XPATH,
     GMSH_REFINE_TRUNCATED_XPATH,
     GMSH_REFINE_FACTOR_XPATH,
@@ -153,6 +156,7 @@ cpacs_inout.add_input(
     gui_name="LE/TE refinement factor",
     gui_group="Advanced mesh parameters",
 )
+
 cpacs_inout.add_input(
     var_name="refine_truncated",
     var_type=bool,
@@ -177,6 +181,55 @@ cpacs_inout.add_input(
     gui_name="Auto refine",
     gui_group="Advanced mesh parameters",
 )
+
+cpacs_inout.add_input(
+    var_name="box_refinement",
+    var_type=bool,
+    default_value=True,
+    unit="1",
+    descr="Automatically refine the mesh around the engine",
+    xpath=GMSH_AUTO_REFINE_XPATH,
+    gui=True,
+    gui_name="Box refinement",
+    gui_group="Advanced mesh parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="internal_box_refine_factor",
+    var_type=float,
+    default_value=0.1,
+    unit="1",
+    descr="Internal refinement factor of the box",
+    xpath=GMSH_MESH_SIZE_BOX_INTERNAL_XPATH,
+    gui=True,
+    gui_name="Internal refinement factor",
+    gui_group="Advanced mesh parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="external_box_refine_factor",
+    var_type=float,
+    default_value=0.2,
+    unit="1",
+    descr="External refinement factor of the box",
+    xpath=GMSH_MESH_SIZE_BOX_EXTERNAL_XPATH,
+    gui=True,
+    gui_name="Enternal refinement factor",
+    gui_group="Advanced mesh parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="thickness_box_refine_factor",
+    var_type=float,
+    default_value=0.15,
+    unit="1",
+    descr="External refinement factor of the box",
+    xpath=GMSH_MESH_SIZE_BOX_THICKNESS_XPATH,
+    gui=True,
+    gui_name="Thickness refinement factor",
+    gui_group="Advanced mesh parameters",
+)
+
 
 cpacs_inout.add_input(
     var_name="intake_percent",

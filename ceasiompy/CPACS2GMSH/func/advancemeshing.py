@@ -66,7 +66,7 @@ def distance_field(mesh_fields, dim, object_tags):
         raise ValueError("Dimension must be 1 or 2")
     gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], dim_list, object_tags)
 
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sampling", 100)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sampling", 150)
 
     return mesh_fields
 
@@ -112,6 +112,50 @@ def restrict_fields(mesh_fields, dim, object_tags, infield=None):
 
     # Add the new field to the list of restrict fields
     mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
+
+    return mesh_fields
+
+def engine_fields_box(mesh_fields, object_tags, position):
+    """
+    This function creates a field box field around engines
+
+    Args:
+    ----------
+    mesh_fields : dict
+        mesh_fields["nbfields"] : number of existing mesh field in the model,
+        each field must be created with a different index !!!
+
+    object_tags : list
+        list of the tags of the object to create the fieldsBox around
+
+    position : tuple
+        a tuple of three values (x, y, z) representing the center position of the fieldsBox
+
+    Returns:
+    ----------
+    mesh_fields : dict
+    """
+
+    # Create new fieldsBox field
+    mesh_fields["nbfields"] += 1
+    gmsh.model.mesh.field.add("Box", mesh_fields["nbfields"])
+
+    # Set the position and size of the fieldsBox
+    min_pos, max_pos = gmsh.model.getBoundingBox(object_tags)
+    size = max([max_pos[i] - min_pos[i] for i in range(3)])
+    
+    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "VIn", [internal_refinement])
+    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "VOut", [external_refinement])
+    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], "Thickness", [(external_refinement+internal_refinement)/2])
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "XMin", position[0] - size / 2)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "XMax", position[0] + size / 2)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "YMin", position[1] - size / 2)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "YMax", position[1] + size / 2)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "ZMin", position[2] - size / 2)
+    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "ZMax", position[2] + size / 2)
+
+    # Add the new field to the list of fields in the mesh
+    mesh_fields["fieldsBox"].append(mesh_fields["nbfields"])
 
     return mesh_fields
 
@@ -331,7 +375,7 @@ def set_domain_mesh(
     mesh_size_farfield,
     aircraft_charact_length,
     final_domain_volume_tag,
-    n_power=1.5,
+    n_power=0.7,
 ):
     """
     Function to define the domain mesh between the farfield and the aircraft

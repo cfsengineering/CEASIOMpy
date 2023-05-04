@@ -253,14 +253,12 @@ def refine_wing_section(
 
     # For each wing section get the mean chord and le/te lines
     for wing_section in wing_part.wing_sections:
-
         chord_mean = wing_section["mean_chord"]
         x_chord = chord_mean * chord_percent
         lines_to_refine = wing_section["lines_tags"]
 
         # If the wing is truncated:
         if len(lines_to_refine) == 3:
-
             # Find the trailing edge thickness
             x1, y1, z1 = gmsh.model.occ.getCenterOfMass(1, lines_to_refine[0])
             x2, y2, z2 = gmsh.model.occ.getCenterOfMass(1, lines_to_refine[1])
@@ -274,7 +272,6 @@ def refine_wing_section(
 
             # Overwrite the trailing edge refinement
             if (mesh_size_wings / te_thickness > refine) and refine_truncated:
-
                 refine = mesh_size_wings / te_thickness
 
         # 1 : Math eval field
@@ -331,7 +328,7 @@ def set_domain_mesh(
     mesh_size_farfield,
     aircraft_charact_length,
     final_domain_volume_tag,
-    n_power=1.5,
+    n_power=2.5,
 ):
     """
     Function to define the domain mesh between the farfield and the aircraft
@@ -375,7 +372,6 @@ def set_domain_mesh(
     log.info("Set mesh refinement of fluid domain")
 
     for part in aircraft_parts:
-
         # 1 : Math eval field between the part surface and the farfield
 
         mesh_fields = distance_field(mesh_fields, 2, part.surfaces_tags)
@@ -519,5 +515,4 @@ def refine_small_surfaces(
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Nothing to execute!")

@@ -5,6 +5,7 @@ from ceasiompy.utils.commonxpath import (
     GMSH_EXHAUST_PERCENT_XPATH,
     GMSH_EXPORT_PROP_XPATH,
     GMSH_FARFIELD_FACTOR_XPATH,
+    GMSH_N_POWER_FACTOR_XPATH,
     GMSH_INTAKE_PERCENT_XPATH,
     GMSH_MESH_SIZE_FARFIELD_XPATH,
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
@@ -140,6 +141,18 @@ cpacs_inout.add_input(
     gui=True,
     gui_name="Propellers",
     gui_group="Mesh size",
+)
+
+cpacs_inout.add_input(
+    var_name="n_power_factor",
+    var_type=float,
+    default_value=2,
+    unit="1",
+    descr="Value that changes the number of cells near the aircraft parts",
+    xpath=GMSH_N_POWER_FACTOR_XPATH,
+    gui=True,
+    gui_name="n power factor",
+    gui_group="Advanced mesh parameters",
 )
 
 cpacs_inout.add_input(

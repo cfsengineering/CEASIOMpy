@@ -78,7 +78,6 @@ class ModelPart:
     """
 
     def __init__(self, uid):
-
         self.uid = uid
         self.part_type = ""
 
@@ -124,7 +123,6 @@ class ModelPart:
 
         # 2D child and parent
         elif child_dimtag[0] == 2:
-
             child_surfaces = [child_dimtag]
             child_lines = list(
                 gmsh.model.getBoundary(
@@ -167,7 +165,6 @@ class ModelPart:
             final_domain part
         """
         if self.part_type == "rotor":
-
             # Detect all the entities in the domain with gmsh functions
             self.surfaces = sorted(
                 list(set(self.surfaces).intersection(set(gmsh.model.getEntities(dim=2))))
@@ -533,7 +530,6 @@ def control_disk_actuator_normal():
 
     # Check the disk actuator  inlet normal, should point forward (x>0))
     for inlet_group in inlet_groups:
-
         # Get the normal
         surface_tag = gmsh.model.getEntitiesForPhysicalGroup(*inlet_group)
         surface_dimtag = (2, *surface_tag)
@@ -567,6 +563,7 @@ def generate_gmsh(
     farfield_factor=6,
     symmetry=False,
     mesh_size_farfield=25,
+    n_power_factor=2,
     mesh_size_fuselage=0.4,
     mesh_size_wings=0.23,
     mesh_size_engines=0.23,
@@ -657,7 +654,6 @@ def generate_gmsh(
     parts_parent_dimtag = []
     log.info(f"Importing files from {brep_dir}")
     for brep_file in brep_files:
-
         # Import the part and create the aircraft part object
         part_entities = gmsh.model.occ.importShapes(str(brep_file), highestDimOnly=False)
         gmsh.model.occ.synchronize()
@@ -772,16 +768,13 @@ def generate_gmsh(
     # Some parent may have no children (due to symmetry), we need to remove them
     unwanted_parents = []
     for parent in aircraft_parts:
-
         if parent.part_type == "rotor":
             # Control possible 2D children not removed by the fragment symmetry unwanted_children
             for dimtag in list(parent.children_dimtag):
                 try:  # check if the child exists in the model
-
                     gmsh.model.getType(*dimtag)
 
                 except Exception:
-
                     # if not remove it from the parent
                     parent.children_dimtag.remove(dimtag)
 
@@ -801,7 +794,6 @@ def generate_gmsh(
     if len(aircraft_parts) > 1:
         for p, part in enumerate(aircraft_parts):
             for other_part in aircraft_parts[(p + 1) :]:
-
                 shared_children = part.children_dimtag.intersection(other_part.children_dimtag)
 
                 if shared_children:
@@ -823,7 +815,6 @@ def generate_gmsh(
     for parent in aircraft_parts:
         for child_dimtag in parent.children_dimtag:
             if child_dimtag not in unwanted_children:
-
                 good_children.append(child_dimtag)
                 log.info(f"Associating child {child_dimtag} to parent {parent.uid}")
                 parent.associate_child_to_parent(child_dimtag)
@@ -856,7 +847,6 @@ def generate_gmsh(
     aircraft = ModelPart("aircraft")
 
     for part in aircraft_parts:
-
         part.clean_inside_entities(final_domain)
 
         aircraft.points.extend(part.points)
@@ -892,7 +882,6 @@ def generate_gmsh(
     farfield_surfaces_tags = list(set(final_domain.surfaces_tags) - set(aircraft.surfaces_tags))
 
     if symmetry:
-
         symmetry_surfaces = []
         symmetry_surfaces_tags = []
 
@@ -907,7 +896,6 @@ def generate_gmsh(
             _, adj_lines_tags = gmsh.model.getAdjacencies(*farfield_surface)
 
             if set(adj_lines_tags).intersection(set(aircraft.lines_tags)):
-
                 farfield_surfaces.remove(farfield_surface)
                 farfield_surfaces_tags.remove(farfield_surface[1])
 
@@ -990,6 +978,7 @@ def generate_gmsh(
             mesh_size_farfield,
             max(model_dimensions),
             final_domain.volume_tag,
+            n_power_factor,
         )
 
         # Generate the minimal background mesh field
@@ -1009,7 +998,6 @@ def generate_gmsh(
 
     # Control of the mesh quality
     if refine_factor != 1 and auto_refine:
-
         bad_surfaces = []
 
         for part in aircraft_parts:
@@ -1029,7 +1017,6 @@ def generate_gmsh(
             mesh_fields = min_fields(mesh_fields)
 
             if open_gmsh:
-
                 log.info("Insufficient mesh size surfaces are displayed in red")
                 log.info("GMSH GUI is open, close it to continue...")
                 gmsh.fltk.run()
@@ -1040,7 +1027,6 @@ def generate_gmsh(
             gmsh.model.mesh.generate(2)
 
             for surface in bad_surfaces:
-
                 gmsh.model.setColor([(2, surface)], *MESH_COLORS["good_surface"], recursive=False)
 
             log.info("Remeshing process finished")
@@ -1097,5 +1083,4 @@ def generate_gmsh(
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Nothing to execute!")

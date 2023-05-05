@@ -328,7 +328,7 @@ def set_domain_mesh(
     mesh_size_farfield,
     aircraft_charact_length,
     final_domain_volume_tag,
-    n_power=2.5,
+    n_power_factor,
 ):
     """
     Function to define the domain mesh between the farfield and the aircraft
@@ -384,7 +384,7 @@ def set_domain_mesh(
             mesh_fields["nbfields"],
             "F",
             f"{part.mesh_size} + ({mesh_size_farfield} - {part.mesh_size})*"
-            f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power}",
+            f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power_factor}",
         )
         mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
 
@@ -395,7 +395,7 @@ def set_domain_mesh(
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", part.mesh_size)
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", part.mesh_size * 0.9)
+        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", part.mesh_size * 0.5)
 
         mesh_fields = restrict_fields(mesh_fields, 2, part.surfaces_tags)
 

@@ -6,6 +6,7 @@ from ceasiompy.utils.commonxpath import (
     GMSH_EXPORT_PROP_XPATH,
     GMSH_FARFIELD_FACTOR_XPATH,
     GMSH_N_POWER_FACTOR_XPATH,
+    GMSH_N_POWER_FIELD_XPATH,
     GMSH_INTAKE_PERCENT_XPATH,
     GMSH_MESH_SIZE_FARFIELD_XPATH,
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
@@ -152,6 +153,18 @@ cpacs_inout.add_input(
     xpath=GMSH_N_POWER_FACTOR_XPATH,
     gui=True,
     gui_name="n power factor",
+    gui_group="Advanced mesh parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="n_power_field",
+    var_type=float,
+    default_value=0.9,
+    unit="1",
+    descr="Value that changes the measure of fist cells near aircraft parts",
+    xpath=GMSH_N_POWER_FIELD_XPATH,
+    gui=True,
+    gui_name="n power field",
     gui_group="Advanced mesh parameters",
 )
 

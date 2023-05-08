@@ -564,6 +564,7 @@ def generate_gmsh(
     symmetry=False,
     mesh_size_farfield=25,
     n_power_factor=2,
+    n_power_field=0.9,
     mesh_size_fuselage=0.4,
     mesh_size_wings=0.23,
     mesh_size_engines=0.23,
@@ -979,6 +980,7 @@ def generate_gmsh(
             max(model_dimensions),
             final_domain.volume_tag,
             n_power_factor,
+            n_power_field,
         )
 
         # Generate the minimal background mesh field

@@ -34,6 +34,7 @@ from ceasiompy.utils.commonxpath import (
     GMSH_EXHAUST_PERCENT_XPATH,
     GMSH_FARFIELD_FACTOR_XPATH,
     GMSH_N_POWER_FACTOR_XPATH,
+    GMSH_N_POWER_FIELD_XPATH,
     GMSH_INTAKE_PERCENT_XPATH,
     GMSH_MESH_SIZE_FARFIELD_XPATH,
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
@@ -80,6 +81,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     symmetry = get_value_or_default(cpacs.tixi, GMSH_SYMMETRY_XPATH, False)
     mesh_size_farfield = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FARFIELD_XPATH, 25)
     n_power_factor = get_value_or_default(cpacs.tixi, GMSH_N_POWER_FACTOR_XPATH, 2)
+    n_power_field = get_value_or_default(cpacs.tixi, GMSH_N_POWER_FIELD_XPATH, 0.9)
     mesh_size_fuselage = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH, 0.4)
     mesh_size_wings = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_WINGS_XPATH, 0.23)
     mesh_size_engines = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_ENGINES_XPATH, 0.23)
@@ -101,6 +103,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         symmetry=symmetry,
         mesh_size_farfield=mesh_size_farfield,
         n_power_factor=n_power_factor,
+        n_power_field=n_power_field,
         mesh_size_fuselage=mesh_size_fuselage,
         mesh_size_wings=mesh_size_wings,
         mesh_size_engines=mesh_size_engines,

@@ -12,8 +12,7 @@ Python version: >=3.8
 
 TODO:
 
-    -Add a parameter to let the user tune the powerlaw governing the mesh
-    in the fluid domaine and the powerlaw for the wing surface mesh
+    -Add a parameter to let the user tune the powerlaw for the wing surface mesh
 
 """
 

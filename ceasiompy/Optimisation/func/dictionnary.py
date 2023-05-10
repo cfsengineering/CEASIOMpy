@@ -204,7 +204,7 @@ def init_elem_param(sec_name, section, elem_nb, scmd):
     """Create wing section element variable.
 
     Add design variables and constrains relative to the wing section elements
-    to the dictionnary.
+    to the dictionary.
 
     Args:
         sec_name (str) : Name of the wing section
@@ -401,5 +401,4 @@ def init_geom_var_dict(tixi):
 
 
 if __name__ == "__main__":
-
     print("Nothing to execute!")

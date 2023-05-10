@@ -210,7 +210,7 @@ cpacs_inout.add_input(
     unit="1",
     descr="CFL Number, Courant–Friedrichs–Lewy condition",
     xpath=SU2_CFL_NB_XPATH,
-    gui=True,
+    gui=False,
     gui_name="CFL Number",
     gui_group="SU2 Parameters",
 )

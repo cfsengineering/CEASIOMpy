@@ -462,7 +462,15 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
                 case_actuator_disk_file = Path(case_dir_path, ACTUATOR_DISK_FILE_NAME)
                 copyfile(actuator_disk_file, case_actuator_disk_file)
 
-                bc_wall_str = f"( {','.join(mesh_markers['wall']+mesh_markers['actuator_disk_inlet']+mesh_markers['actuator_disk_outlet'])} )"
+                bc_wall_str = (
+                    "("
+                    + ",".join(
+                        mesh_markers["wall"]
+                        + mesh_markers["actuator_disk_inlet"]
+                        + mesh_markers["actuator_disk_outlet"]
+                    )
+                    + ")"
+                )
 
                 cfg["MARKER_PLOTTING"] = bc_wall_str
                 cfg["MARKER_MONITORING"] = bc_wall_str

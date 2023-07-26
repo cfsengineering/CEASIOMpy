@@ -82,6 +82,8 @@ If everything is working correctly, you can try the first [test case](../test_ca
 
 An alternative solution is to install Ubuntu with [VirtualBox](https://www.virtualbox.org) and install CEASIOMpy in it.
 
+Or, if you don't have VirtualBox and for some reason don't want to install it, you can download the Windows subsystem for Linux [WSL](https://learn.microsoft.com/en-us/windows/wsl/install)
+
 :x: No automatic installation script are available yet.
 
 You can try to install it manually, the basic steps are the following:

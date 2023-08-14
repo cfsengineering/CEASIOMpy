@@ -11,7 +11,7 @@ To run this test case, you will need to open a terminal and run the following co
 # To be in the CEASIOMpy Conda environment with all the dependencies
 conda activate ceasiompy
 
-# To run the test case 3
+# To run the test case 2
 ceasiompy_run --testcase 2
 ```
 

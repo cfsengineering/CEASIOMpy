@@ -218,7 +218,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="cfl_adapt",
     var_type=bool,
-    default_value=True,
+    default_value=False,
     unit="1",
     descr="CFL Adaptation",
     xpath=SU2_CFL_ADAPT_XPATH,
@@ -364,7 +364,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="prandtl",
     var_type=bool,
-    default_value=True,
+    default_value=False,
     unit=None,
     descr="Enable or disable the tip loss correction of Prandtl",
     xpath=PROP_XPATH + "/propeller/blade/loss",

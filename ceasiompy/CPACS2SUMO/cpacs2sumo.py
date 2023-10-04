@@ -640,7 +640,7 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
                     if dx_squared + dz_squared > 1e-8:
                         prof_str += f"{round(prof_vect_x[i], 4)} {round(prof_vect_z[i], 4)} "
-                
+
                 sumo.addTextElementAtIndex(wg_sk_xpath, "WingSection", prof_str, wing_sec_index)
                 wg_sec_xpath = wg_sk_xpath + "/WingSection[" + str(wing_sec_index) + "]"
                 sumo.addTextAttribute(wg_sec_xpath, "airfoil", prof_uid)

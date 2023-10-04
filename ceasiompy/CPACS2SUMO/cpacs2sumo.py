@@ -628,10 +628,10 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
                 # to avoid double zero, not accepted by SUMO
                 prof_str += (
-                str(round(prof_vect_x[0], 4))
-                + " "
-                + str(round(prof_vect_z[0], 4))
-                + " "
+                    str(round(prof_vect_x[0], 4))
+                    + " "
+                    + str(round(prof_vect_z[0], 4))
+                    + " "
                 )
 
                 for i in range(1, len(prof_vect_x)):
@@ -888,10 +888,10 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
                 # to avoid double zero, not accepted by SUMO
                 prof_str += (
-                str(round(prof_vect_x[0], 4))
-                + " "
-                + str(round(prof_vect_z[0], 4))
-                + " "
+                    str(round(prof_vect_x[0], 4))
+                    + " "
+                    + str(round(prof_vect_z[0], 4))
+                    + " "
                 )
                 for i in range(1, len(prof_vect_x)):
                     dx_squared = (prof_vect_x[i] - prof_vect_x[i - 1]) ** 2

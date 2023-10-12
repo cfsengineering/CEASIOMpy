@@ -336,9 +336,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     target_cl = get_value_or_default(cpacs.tixi, SU2_TARGET_CL_XPATH, 1.0)
 
     if fixed_cl == "NO":
-        # Get the first aeroMap as default one
-        
-        # Verifica se il percorso specificato ha un valore
+        # Get the first aeroMap as default one or create automatically one
         if not cpacs.tixi.checkElement(SU2_AEROMAP_UID_XPATH):
 
             default_aeromap = cpacs.create_aeromap("DefaultAeromap")
@@ -355,30 +353,16 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             aoa_list = [0.0]
             aos_list = [0.0]
 
-            # Ora dovresti avere l'aeromappa predefinito creato
             aeromap_uid = "DefaultAeromap"
         else:
-            # Altrimenti, estrai il valore dell'UID
             aeromap_uid = get_value(cpacs.tixi, SU2_AEROMAP_UID_XPATH)
 
-        # Estrai l'aeromappa attivo
         active_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
-        # Estrai i dati dall'aeromappa
         alt_list = active_aeromap.get("altitude").tolist()
         mach_list = active_aeromap.get("machNumber").tolist()
         aoa_list = active_aeromap.get("angleOfAttack").tolist()
         aos_list = active_aeromap.get("angleOfSideslip").tolist()
-
-        #aeromap_default = cpacs.get_aeromap_uid_list()[0]
-        #aeromap_uid = get_value_or_default(cpacs.tixi, SU2_AEROMAP_UID_XPATH, aeromap_default)
-        # log.info(f'Configuration file for "{aeromap_uid}" calculation will be created.')
-# 
-        # active_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
-        # alt_list = active_aeromap.get("altitude").tolist()
-        # mach_list = active_aeromap.get("machNumber").tolist()
-        # aoa_list = active_aeromap.get("angleOfAttack").tolist()
-        # aos_list = active_aeromap.get("angleOfSideslip").tolist()
 
     else:  # if fixed_cl == 'YES':
         log.info("Configuration file for fixed CL calculation will be created.")

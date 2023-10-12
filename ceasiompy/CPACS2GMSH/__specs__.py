@@ -100,7 +100,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="fuselage_mesh_size",
     var_type=float,
-    default_value=0.4,
+    default_value=0.3,
     unit="[m]",
     descr="Value assigned for the fuselage surfaces mesh size",
     xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH,
@@ -194,7 +194,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="auto_refine",
     var_type=bool,
-    default_value=True,
+    default_value=False,
     unit="1",
     descr="Automatically refine the mesh on surfaces that are small compare to the chosen mesh"
     "size, this option increase the mesh generation time",

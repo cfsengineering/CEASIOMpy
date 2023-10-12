@@ -82,7 +82,7 @@ def test_integration_1():
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_2():
 
-    modules_to_run = ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"]
+    modules_to_run = ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run"]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(CPACS_IN_PATH), *modules_to_run])

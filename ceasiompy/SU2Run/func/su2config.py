@@ -344,13 +344,13 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             log.info(f'The aeromap is {aeromap_default}')
 
             aeromap_uid = get_value_or_default(cpacs.tixi, SU2_AEROMAP_UID_XPATH, aeromap_default)
-            
+    
             activate_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
             alt_list = activate_aeromap.get("altitude").tolist()
             mach_list = activate_aeromap.get("machNumber").tolist()
             aoa_list = activate_aeromap.get("angleOfAttack").tolist()
             aos_list = activate_aeromap.get("angleOfSideslip").tolist()
-    
+
         else:
             default_aeromap = cpacs.create_aeromap("DefaultAeromap")
             default_aeromap.description = "AeroMap created automatically"

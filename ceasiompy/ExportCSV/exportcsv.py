@@ -59,8 +59,9 @@ def export_aeromaps(cpacs_path, cpacs_out_path):
     print(f"aeromap_uid_list={aeromap_uid_list}")
 
     if not aeromap_uid_list:
-        aeromap_uid_list = get_value_or_default(cpacs.tixi, aeromap_to_export_xpath, 
-        "DefaultAeromap")
+        aeromap_uid_list = get_value_or_default(
+            cpacs.tixi, aeromap_to_export_xpath, "DefaultAeromap"
+        )
 
     results_dir = get_results_directory("ExportCSV")
 

@@ -366,8 +366,9 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             aoa_list = [0.0]
             aos_list = [0.0]
 
-            aeromap_uid = "DefaultAeromap"
+            aeromap_uid = get_value_or_default(cpacs.tixi, SU2_AEROMAP_UID_XPATH, "DefaultAeromap")
             log.info(f"{aeromap_uid} has been created")
+
 
     else:  # if fixed_cl == 'YES':
         log.info("Configuration file for fixed CL calculation will be created.")

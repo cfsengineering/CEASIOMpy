@@ -237,6 +237,11 @@ def add_skin_friction(cpacs_path, cpacs_out_path):
             cpacs, aeromap_to_plot_xpath, empty_if_not_found=True
         )
 
+        if not aeromap_uid_list:
+            aeromap_uid_list = get_value_or_default(
+            cpacs.tixi, aeromap_to_plot_xpath, "DefaultAeromap"
+        )
+
         new_aeromap_to_plot = aeromap_uid_list + new_aeromap_uid_list
         new_aeromap_to_plot = list(set(new_aeromap_to_plot))
         add_string_vector(cpacs.tixi, aeromap_to_plot_xpath, new_aeromap_to_plot)
@@ -254,8 +259,6 @@ def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + MODULE_NAME + " -----")
 
-    check_cpacs_input_requirements(cpacs_path)
-
     add_skin_friction(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + MODULE_NAME + " -----")
@@ -271,3 +274,5 @@ if __name__ == "__main__":
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)
+
+    check_cpacs_input_requirements(cpacs_path)

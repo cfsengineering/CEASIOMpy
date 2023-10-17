@@ -56,7 +56,6 @@ def export_aeromaps(cpacs_path, cpacs_out_path):
 
     aeromap_to_export_xpath = CEASIOMPY_XPATH + "/export/aeroMapToExport"
     aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, aeromap_to_export_xpath)
-    print(f"aeromap_uid_list={aeromap_uid_list}")
 
     if not aeromap_uid_list:
         aeromap_uid_list = get_value_or_default(

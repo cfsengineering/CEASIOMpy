@@ -92,19 +92,6 @@ def get_aeromap_list_from_xpath(cpacs, aeromap_to_analyze_xpath, empty_if_not_fo
 
     return aeromap_uid_list
 
-    # aeromap_uid_list = []
-    # try:
-        # aeromap_uid_list = get_string_vector(cpacs.tixi, aeromap_to_analyze_xpath)
-    # except ValueError:  # if aeromapToPlot is not define, select all aeromaps
-        #  if not empty_if_not_found:
-            # aeromap_to_export_xpath = CEASIOMPY_XPATH + "/export/aeroMapToExport"
-            # aeromap_uid_list = get_value_or_default(cpacs.tixi, aeromap_to_export_xpath, "DefaultAeromap")
-            # create_branch(cpacs.tixi, aeromap_to_analyze_xpath)
-            # add_string_vector(cpacs.tixi, aeromap_to_analyze_xpath, aeromap_uid_list)
-# 
-# 
-    # return aeromap_uid_list
-
 
 def get_results_directory(module_name: str) -> Path:
     """Create (if not exists) and return the results directory for a module"""

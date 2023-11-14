@@ -306,8 +306,9 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     * fus_transf.scaling.z
                 )
 
-                if body_frm_height < 0.01:
-                    body_frm_height = 0.01
+                # if body_frm_height < 0.01:
+                #     body_frm_height = 0.01
+                
                 body_frm_width = (
                     prof_size_y
                     * 2
@@ -315,8 +316,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     * sec_transf.scaling.y
                     * fus_transf.scaling.y
                 )
-                if body_frm_width < 0.01:
-                    body_frm_width = 0.01
+                # if body_frm_width < 0.01:
+                #     body_frm_width = 0.01
 
                 # Convert the profile points in the SMX format
                 prof_str = ""

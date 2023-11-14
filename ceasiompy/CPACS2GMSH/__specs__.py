@@ -112,7 +112,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="wing_mesh_size",
     var_type=float,
-    default_value=0.23,
+    default_value=0.123,
     unit="[m]",
     descr="Value assigned for the wings surfaces mesh size",
     xpath=GMSH_MESH_SIZE_WINGS_XPATH,

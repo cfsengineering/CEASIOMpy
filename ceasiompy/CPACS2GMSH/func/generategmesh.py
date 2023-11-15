@@ -1037,8 +1037,13 @@ def generate_gmsh(
 
     # Apply smoothing
     log.info("2D mesh smoothing process started")
-    gmsh.model.mesh.optimize("Laplace2D", niter=1)
+    gmsh.model.mesh.optimize("Laplace2D", niter=10)
     log.info("Smoothing process finished")
+
+    gmsh.model.occ.synchronize()
+
+    mesh_2d_path = Path(results_dir, "2d_mesh.msh")
+    gmsh.write(str(mesh_2d_path))
 
     if open_gmsh:
         log.info("Result of 2D surface mesh")
@@ -1063,6 +1068,9 @@ def generate_gmsh(
 
     su2mesh_path = Path(results_dir, "mesh.su2")
     gmsh.write(str(su2mesh_path))
+
+    cgnsmesh_path = Path(results_dir, "mesh.cgns")
+    gmsh.write(str(cgnsmesh_path))
 
     process_gmsh_log(gmsh.logger.get())
 

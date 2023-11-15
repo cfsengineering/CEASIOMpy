@@ -16,10 +16,14 @@ TODO:
 
 from collections import OrderedDict
 from pathlib import Path
+from cpacspy.cpacsfunctions import create_branch
+
+from tixi3 import tixi3wrapper
+from cpacspy.cpacsfunctions import open_tixi
 
 import pandas as pd
 import streamlit as st
-from ceasiompy.utils.moduleinterfaces import get_specs_for_module
+from ceasiompy.utils.moduleinterfaces import get_specs_for_module, get_toolinput_file_path
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     add_value,
@@ -28,6 +32,9 @@ from cpacspy.cpacsfunctions import (
 )
 from cpacspy.cpacspy import CPACS
 from streamlitutils import create_sidebar
+from ceasiompy.utils.commonxpath import SU2MESH_XPATH
+
+import os
 
 how_to_text = (
     "### How to use Settings?\n"
@@ -82,6 +89,29 @@ def save_cpacs_file():
     st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
     st.session_state.workflow.cpacs_in = saved_cpacs_file
     st.session_state.cpacs = CPACS(saved_cpacs_file)
+
+
+# def upload_and_save_file(file_uploader, save_dir):
+    
+#     file = file_uploader("Select a file", type=["cgns", "su2"], key="file_uploader_key")
+
+#     if file is not None:
+#         file_name = file.name
+
+#         # Crea la cartella di salvataggio se non esiste
+#         os.makedirs(save_dir, exist_ok=True)
+
+#         # Salva il file nella directory specificata
+#         file_path = os.path.join(save_dir, file_name)
+#         with open(file_path, "wb") as f:
+#             f.write(file.getbuffer())
+
+#         # Visualizza il percorso completo del file locale
+#         st.success(f"File saved to: {file_path}")
+
+#         return file_path
+
+#     return None
 
 
 def section_edit_aeromap():
@@ -190,6 +220,55 @@ def section_edit_aeromap():
             st.experimental_rerun()
 
 
+def mesh_file_upload():
+    st.markdown("#### Upload mesh file")
+
+    # Verifica se è stato caricato un file mesh
+    uploaded_mesh = st.file_uploader("Select a mesh file", key="00_mesh_upload", type=["su2", "cgns"])
+
+    if uploaded_mesh:
+        # Crea la cartella "mesh" se non esiste
+        mesh_dir = os.path.join(st.session_state.workflow.working_dir, "mesh")
+        os.makedirs(mesh_dir, exist_ok=True)
+
+        # Crea un nuovo percorso per il file .su2 nella cartella "mesh"
+        mesh_new_path = os.path.join(mesh_dir, uploaded_mesh.name)
+        print(f"mesh path: {mesh_new_path}")
+
+        try:
+            # Scrivi il file nel percorso specificato
+            with open(mesh_new_path, "wb") as f:
+                f.write(uploaded_mesh.getbuffer())
+
+            # Apri il file CPACS
+            cpacs_path = st.session_state.workflow.cpacs_in
+            print(f"cpacs_path: {cpacs_path}")
+            tixi = open_tixi(cpacs_path)
+
+            # Definisci la variabile mesh_xpath in base alla tua struttura CPACS
+            mesh_xpath = "/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh"
+
+            # Verifica se il percorso esiste
+            if not tixi.checkElement(mesh_xpath):
+                # Se il percorso non esiste, crealo
+                create_branch(tixi, mesh_xpath)
+
+            if st.button("Add this mesh"):
+                # Aggiorna il percorso del file SU2 mesh nel documento CPACS
+                tixi.updateTextElement(mesh_xpath, str(mesh_new_path))
+
+                # Salva il file CPACS
+                save_cpacs_file()
+
+                return mesh_new_path
+
+        except Exception as e:
+            st.error(f"An error occurred: {e}")
+            return None
+
+    return None
+
+
 def add_module_tab():
 
     if "cpacs" not in st.session_state:
@@ -198,6 +277,9 @@ def add_module_tab():
 
     with st.expander("Edit Aeromaps"):
         section_edit_aeromap()
+
+    # with st.expander("Add mesh"):
+    #     mesh_file_upload()
 
     if "tabs" not in st.session_state:
         st.session_state["tabs"] = []
@@ -286,6 +368,19 @@ def add_module_tab():
                                 default=default_otp,
                                 help=description,
                             )
+    
+
+                    elif name == "pathtype":
+                        # Chiama la funzione mesh_file_upload() e ottieni il percorso del file mesh
+                        mesh_path = mesh_file_upload()
+
+                        with st.columns([1, 2])[0]:
+                            st.text_input(
+                                "Mesh Path",
+                                value=mesh_path,
+                                key=key,
+                                help="Path to the mesh file",
+                            )
 
                     elif var_type == int:
 
@@ -309,6 +404,7 @@ def add_module_tab():
                                 value=get_value_or_default(
                                     st.session_state.cpacs.tixi, xpath, default_value
                                 ),
+                                format="%0.3f",
                                 key=key,
                                 help=description,
                             )
@@ -336,18 +432,13 @@ def add_module_tab():
                             help=description,
                         )
 
-                    elif var_type == "pathtype":
-                        st.warning(
-                            "Pathtype not implemented yet, "
-                            "it should not influance your use of CEASIOMpy."
-                        )
-                        # st.file_uploader(
-                        #     "Select a file",
-                        #     key=key,
-                        #     type=["xml"],
-                        #     help=description,
-                        #     on_change=update_value(xpath, key),
-                        # )
+                    # elif var_type == "pathtype":
+
+                    #     save_dir = "tempDir"
+                    #     mesh_path = upload_and_save_file(st.file_uploader, save_dir)
+                    #     print(f"mesh_path={mesh_path}")
+                    #     st.text_input(get_value_or_default(st.session_state.cpacs.tixi, xpath, mesh_path))
+                    #     update_value(xpath, key)
 
                     else:
                         with st.columns([1, 2])[0]:

@@ -18,6 +18,8 @@ from ceasiompy.utils.commonxpath import (
     GMSH_REFINE_FACTOR_XPATH,
     GMSH_SYMMETRY_XPATH,
     SU2MESH_XPATH,
+    GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
+    GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
 )
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
@@ -97,29 +99,54 @@ cpacs_inout.add_input(
     gui_group="Mesh size",
 )
 
+# cpacs_inout.add_input(
+#     var_name="fuselage_mesh_size",
+#     var_type=float,
+#     default_value=0.3,
+#     unit="[m]",
+#     descr="Value assigned for the fuselage surfaces mesh size",
+#     xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH,
+#     gui=True,
+#     gui_name="Fuselage",
+#     gui_group="Mesh size",
+# )
+
 cpacs_inout.add_input(
-    var_name="fuselage_mesh_size",
+    var_name="fuselage_mesh_size_factor",
     var_type=float,
-    default_value=0.3,
-    unit="[m]",
+    default_value=1,
+    unit="1",
     descr="Value assigned for the fuselage surfaces mesh size",
-    xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH,
+    xpath=GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
     gui=True,
-    gui_name="Fuselage",
+    gui_name="Fuselage factor",
     gui_group="Mesh size",
 )
 
+# cpacs_inout.add_input(
+#     var_name="wing_mesh_size",
+#     var_type=float,
+#     default_value=0.1,
+#     unit="[m]",
+#     descr="Value assigned for the wings surfaces mesh size",
+#     xpath=GMSH_MESH_SIZE_WINGS_XPATH,
+#     gui=True,
+#     gui_name="Wings",
+#     gui_group="Mesh size",
+# )
+
 cpacs_inout.add_input(
-    var_name="wing_mesh_size",
+    var_name="wing_mesh_size_factor",
     var_type=float,
-    default_value=0.123,
-    unit="[m]",
+    default_value=1,
+    unit="1",
     descr="Value assigned for the wings surfaces mesh size",
-    xpath=GMSH_MESH_SIZE_WINGS_XPATH,
+    xpath=GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
     gui=True,
-    gui_name="Wings",
+    gui_name="Wings factor",
     gui_group="Mesh size",
 )
+
 
 cpacs_inout.add_input(
     var_name="engine_mesh_size",
@@ -239,4 +266,20 @@ cpacs_inout.add_output(
     unit="1",
     descr="Absolute path of the SU2 mesh",
     xpath=SU2MESH_XPATH,
+)
+
+cpacs_inout.add_output(
+    var_name="fuselage_mesh_size",
+    var_type=float,
+    default_value=None,
+    descr="Value assigned for the fuselage surfaces mesh size",
+    xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH,
+)
+
+cpacs_inout.add_output(
+    var_name="wing_mesh_size",
+    var_type=float,
+    default_value=None,
+    descr="Value assigned for the wings surfaces mesh size",
+    xpath=GMSH_MESH_SIZE_WINGS_XPATH,
 )

@@ -37,8 +37,8 @@ from ceasiompy.utils.commonxpath import (
     GMSH_N_POWER_FIELD_XPATH,
     GMSH_INTAKE_PERCENT_XPATH,
     GMSH_MESH_SIZE_FARFIELD_XPATH,
-    GMSH_MESH_SIZE_FUSELAGE_XPATH,
-    GMSH_MESH_SIZE_WINGS_XPATH,
+    GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
+    GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
     GMSH_MESH_SIZE_ENGINES_XPATH,
     GMSH_MESH_SIZE_PROPELLERS_XPATH,
     GMSH_OPEN_GUI_XPATH,
@@ -82,8 +82,8 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     mesh_size_farfield = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FARFIELD_XPATH, 25)
     n_power_factor = get_value_or_default(cpacs.tixi, GMSH_N_POWER_FACTOR_XPATH, 2)
     n_power_field = get_value_or_default(cpacs.tixi, GMSH_N_POWER_FIELD_XPATH, 0.9)
-    mesh_size_fuselage = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH, 0.4)
-    mesh_size_wings = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_WINGS_XPATH, 0.23)
+    fuselage_mesh_size_factor = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,1)
+    wing_mesh_size_factor = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,1)
     mesh_size_engines = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_ENGINES_XPATH, 0.23)
     mesh_size_propellers = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_PROPELLERS_XPATH, 0.23)
     refine_factor = get_value_or_default(cpacs.tixi, GMSH_REFINE_FACTOR_XPATH, 7.0)
@@ -96,6 +96,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
     mesh_path, _ = generate_gmsh(
         cpacs,
+        cpacs_path,
         brep_dir,
         results_dir,
         open_gmsh=open_gmsh,
@@ -104,8 +105,8 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         mesh_size_farfield=mesh_size_farfield,
         n_power_factor=n_power_factor,
         n_power_field=n_power_field,
-        mesh_size_fuselage=mesh_size_fuselage,
-        mesh_size_wings=mesh_size_wings,
+        fuselage_mesh_size_factor=fuselage_mesh_size_factor,
+        wing_mesh_size_factor=wing_mesh_size_factor,
         mesh_size_engines=mesh_size_engines,
         mesh_size_propellers=mesh_size_propellers,
         refine_factor=refine_factor,

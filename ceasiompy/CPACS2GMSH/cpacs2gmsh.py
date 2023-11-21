@@ -83,7 +83,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     n_power_factor = get_value_or_default(cpacs.tixi, GMSH_N_POWER_FACTOR_XPATH, 2)
     n_power_field = get_value_or_default(cpacs.tixi, GMSH_N_POWER_FIELD_XPATH, 0.9)
     fuselage_mesh_size_factor = get_value_or_default(
-        cpacs.tixi, 
+        cpacs.tixi,
         GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
         1,
     )

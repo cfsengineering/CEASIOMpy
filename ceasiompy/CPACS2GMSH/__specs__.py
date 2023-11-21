@@ -88,14 +88,14 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="farfield_mesh_size",
+    var_name="farfield_mesh_size_factor",
     var_type=float,
-    default_value=25,
-    unit="[m]",
+    default_value=17,
+    unit="1",
     descr="Value assigned for the farfield surface mesh size",
     xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
     gui=True,
-    gui_name="Farfield",
+    gui_name="Farfield factor",
     gui_group="Mesh size",
 )
 
@@ -272,7 +272,7 @@ cpacs_inout.add_output(
     var_name="fuselage_mesh_size",
     var_type=float,
     default_value=None,
-    descr="Value assigned for the fuselage surfaces mesh size",
+    descr="Value calculated for the fuselage surfaces mesh size",
     xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH,
 )
 
@@ -280,6 +280,6 @@ cpacs_inout.add_output(
     var_name="wing_mesh_size",
     var_type=float,
     default_value=None,
-    descr="Value assigned for the wings surfaces mesh size",
+    descr="Value calculated for the wings surfaces mesh size",
     xpath=GMSH_MESH_SIZE_WINGS_XPATH,
 )

@@ -79,11 +79,15 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     open_gmsh = get_value_or_default(cpacs.tixi, GMSH_OPEN_GUI_XPATH, False)
     farfield_factor = get_value_or_default(cpacs.tixi, GMSH_FARFIELD_FACTOR_XPATH, 6)
     symmetry = get_value_or_default(cpacs.tixi, GMSH_SYMMETRY_XPATH, False)
-    mesh_size_farfield = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FARFIELD_XPATH, 25)
+    farfield_size_factor = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FARFIELD_XPATH, 17)
     n_power_factor = get_value_or_default(cpacs.tixi, GMSH_N_POWER_FACTOR_XPATH, 2)
     n_power_field = get_value_or_default(cpacs.tixi, GMSH_N_POWER_FIELD_XPATH, 0.9)
-    fuselage_mesh_size_factor = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,1)
-    wing_mesh_size_factor = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,1)
+    fuselage_mesh_size_factor = get_value_or_default(
+        cpacs.tixi, 
+        GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
+        1,
+    )
+    wing_mesh_size_factor = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FACTOR_WINGS_XPATH, 1)
     mesh_size_engines = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_ENGINES_XPATH, 0.23)
     mesh_size_propellers = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_PROPELLERS_XPATH, 0.23)
     refine_factor = get_value_or_default(cpacs.tixi, GMSH_REFINE_FACTOR_XPATH, 7.0)
@@ -102,7 +106,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         open_gmsh=open_gmsh,
         farfield_factor=farfield_factor,
         symmetry=symmetry,
-        mesh_size_farfield=mesh_size_farfield,
+        farfield_size_factor=farfield_size_factor,
         n_power_factor=n_power_factor,
         n_power_field=n_power_field,
         fuselage_mesh_size_factor=fuselage_mesh_size_factor,

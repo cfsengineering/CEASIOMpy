@@ -33,16 +33,16 @@ log = get_logger()
 #   FUNCTIONS
 # =================================================================================================
 
+
 def fuselage_size(cpacs_path):
 
     tixi = open_tixi(cpacs_path)
     if tixi.checkElement(FUSELAGES_XPATH):
-            fus_cnt = tixi.getNamedChildrenCount(FUSELAGES_XPATH, "fuselage")
+        fus_cnt = tixi.getNamedChildrenCount(FUSELAGES_XPATH, "fuselage")
     for i_fus in range(fus_cnt):
-            fus_xpath = FUSELAGES_XPATH + "/fuselage[" + str(i_fus + 1) + "]"
-            fus_uid = tixi.getTextAttribute(fus_xpath, "uID")
-            fus_transf = Transformation()
-            fus_transf.get_cpacs_transf(tixi, fus_xpath)
+        fus_xpath = FUSELAGES_XPATH + "/fuselage[" + str(i_fus + 1) + "]"
+        fus_transf = Transformation()
+        fus_transf.get_cpacs_transf(tixi, fus_xpath)
 
     # Positionings
     if tixi.checkElement(fus_xpath + "/positionings"):
@@ -80,37 +80,34 @@ def fuselage_size(cpacs_path):
             to_sec_list.append(to_sec)
 
         for j_pos in range(pos_cnt):
-                if from_sec_list[j_pos] == "":
-                    prev_pos_x = 0
-                    prev_pos_y = 0
-                    prev_pos_z = 0
-
-                elif from_sec_list[j_pos] == to_sec_list[j_pos - 1]:
-                    prev_pos_x = pos_x_list[j_pos - 1]
-                    prev_pos_y = pos_y_list[j_pos - 1]
-                    prev_pos_z = pos_z_list[j_pos - 1]
-
-                else:
-                    index_prev = to_sec_list.index(from_sec_list[j_pos])
-                    prev_pos_x = pos_x_list[index_prev]
-                    prev_pos_y = pos_y_list[index_prev]
-                    prev_pos_z = pos_z_list[index_prev]
-
-                pos_x_list[j_pos] += prev_pos_x
-                pos_y_list[j_pos] += prev_pos_y
-                pos_z_list[j_pos] += prev_pos_z
+            if from_sec_list[j_pos] == "":
+                prev_pos_x = 0
+                prev_pos_y = 0
+                prev_pos_z = 0
+            elif from_sec_list[j_pos] == to_sec_list[j_pos - 1]:
+                prev_pos_x = pos_x_list[j_pos - 1]
+                prev_pos_y = pos_y_list[j_pos - 1]
+                prev_pos_z = pos_z_list[j_pos - 1]
+            else:
+                index_prev = to_sec_list.index(from_sec_list[j_pos])
+                prev_pos_x = pos_x_list[index_prev]
+                prev_pos_y = pos_y_list[index_prev]
+                prev_pos_z = pos_z_list[index_prev]
+            pos_x_list[j_pos] += prev_pos_x
+            pos_y_list[j_pos] += prev_pos_y
+            pos_z_list[j_pos] += prev_pos_z
 
     else:
-            log.error('No "positionings" have been found!')
-            pos_cnt = 0
+        log.error('No "positionings" have been found!')
+        pos_cnt = 0
 
     # Sections
     sec_cnt = tixi.getNamedChildrenCount(fus_xpath + "/sections", "section")
     
     if pos_cnt == 0:
-            pos_x_list = [0.0] * sec_cnt
-            pos_y_list = [0.0] * sec_cnt
-            pos_z_list = [0.0] * sec_cnt
+        pos_x_list = [0.0] * sec_cnt
+        pos_y_list = [0.0] * sec_cnt
+        pos_z_list = [0.0] * sec_cnt
 
     # print(pos_cnt)
     body_frm_height_values = []
@@ -118,7 +115,6 @@ def fuselage_size(cpacs_path):
 
     for i_sec in range(sec_cnt):
         sec_xpath = fus_xpath + "/sections/section[" + str(i_sec + 1) + "]"
-        sec_uid = tixi.getTextAttribute(sec_xpath, "uID")
     
         sec_transf = Transformation()
         sec_transf.get_cpacs_transf(tixi, sec_xpath)
@@ -189,7 +185,7 @@ def fuselage_size(cpacs_path):
     fuselage_maxlen = (0.08 * mean_circ) * refine_factor
     fuselage_minlen = min(0.1 * fuselage_maxlen, min_radius / 2) * refine_factor
 
-    log.info(f"maxlen={fuselage_maxlen:.3f}")
+    log.info(f"fuselage_maxlen={fuselage_maxlen:.3f}")
     log.info(f"fuselage_minlen={fuselage_minlen:.3f}")
 
     return fuselage_maxlen, fuselage_minlen
@@ -199,16 +195,15 @@ def wings_size(cpacs_path):
 
     tixi = open_tixi(cpacs_path)
     if tixi.checkElement(WINGS_XPATH):
-            wing_cnt = tixi.getNamedChildrenCount(WINGS_XPATH, "wing")
-            log.warning(str(wing_cnt) + " wings have been found.")
+        wing_cnt = tixi.getNamedChildrenCount(WINGS_XPATH, "wing")
 
     chord_list = []
 
     for i_wing in range(wing_cnt):
-            wing_xpath = WINGS_XPATH + "/wing[" + str(i_wing + 1) + "]"
-            wing_uid = tixi.getTextAttribute(wing_xpath, "uID")
-            wing_transf = Transformation()
-            wing_transf.get_cpacs_transf(tixi, wing_xpath)
+        wing_xpath = WINGS_XPATH + "/wing[" + str(i_wing + 1) + "]"
+        wing_uid = tixi.getTextAttribute(wing_xpath, "uID")
+        wing_transf = Transformation()
+        wing_transf.get_cpacs_transf(tixi, wing_xpath)
 
     # Positionings
     if tixi.checkElement(wing_xpath + "/positionings"):
@@ -246,41 +241,37 @@ def wings_size(cpacs_path):
             to_sec_list.append(to_sec)
 
         for j_pos in range(pos_cnt):
-                if from_sec_list[j_pos] == "":
-                    prev_pos_x = 0
-                    prev_pos_y = 0
-                    prev_pos_z = 0
-
-                elif from_sec_list[j_pos] == to_sec_list[j_pos - 1]:
-                    prev_pos_x = pos_x_list[j_pos - 1]
-                    prev_pos_y = pos_y_list[j_pos - 1]
-                    prev_pos_z = pos_z_list[j_pos - 1]
-
-                else:
-                    index_prev = to_sec_list.index(from_sec_list[j_pos])
-                    prev_pos_x = pos_x_list[index_prev]
-                    prev_pos_y = pos_y_list[index_prev]
-                    prev_pos_z = pos_z_list[index_prev]
-
-                pos_x_list[j_pos] += prev_pos_x
-                pos_y_list[j_pos] += prev_pos_y
-                pos_z_list[j_pos] += prev_pos_z
+            if from_sec_list[j_pos] == "":
+                prev_pos_x = 0
+                prev_pos_y = 0
+                prev_pos_z = 0
+            elif from_sec_list[j_pos] == to_sec_list[j_pos - 1]:
+                prev_pos_x = pos_x_list[j_pos - 1]
+                prev_pos_y = pos_y_list[j_pos - 1]
+                prev_pos_z = pos_z_list[j_pos - 1]
+            else:
+                index_prev = to_sec_list.index(from_sec_list[j_pos])
+                prev_pos_x = pos_x_list[index_prev]
+                prev_pos_y = pos_y_list[index_prev]
+                prev_pos_z = pos_z_list[index_prev]
+            pos_x_list[j_pos] += prev_pos_x
+            pos_y_list[j_pos] += prev_pos_y
+            pos_z_list[j_pos] += prev_pos_z
 
     else:
-            log.warning('No "positionings" have been found!')
+            log.error('No "positionings" have been found!')
             pos_cnt = 0
 
     # Sections
     sec_cnt = tixi.getNamedChildrenCount(wing_xpath + "/sections", "section")
-    
+
     if pos_cnt == 0:
-            pos_x_list = [0.0] * sec_cnt
-            pos_y_list = [0.0] * sec_cnt
-            pos_z_list = [0.0] * sec_cnt
+        pos_x_list = [0.0] * sec_cnt
+        pos_y_list = [0.0] * sec_cnt
+        pos_z_list = [0.0] * sec_cnt
 
     for i_sec in range(sec_cnt):
         sec_xpath = wing_xpath + "/sections/section[" + str(i_sec + 1) + "]"
-        sec_uid = tixi.getTextAttribute(sec_xpath, "uID")
     
         sec_transf = Transformation()
         sec_transf.get_cpacs_transf(tixi, sec_xpath)
@@ -296,13 +287,16 @@ def wings_size(cpacs_path):
     # Calculate mesh parameter from inputs and geometry
     wing_maxlen = (0.15 * ref_chord) * refine_factor
     wing_minlen = (0.08 * wing_maxlen) * refine_factor
+
+    log.info(f"wing_maxlen={wing_maxlen:.3f}")
+    log.info(f"wing_minlen={wing_minlen:.3f}")
+    
     # in sumo it is 0.08*wing_maxlen or 0.7*min leading edge radius...
     # Default value in SUMO
-    lerfactor = 1 / 4.0
-    terfactor = 1 / 4.
-    if refine_level > 1:
-        lerfactor = 1 / (4.0 + 0.5 * (refine_level - 1))
-        terfactor = 1 / (4.0 + 0.5 * (refine_level - 1))
+    # lerfactor = 1 / 4.0
+    # terfactor = 1 / 4.
+    # if refine_level > 1:
+    #     lerfactor = 1 / (4.0 + 0.5 * (refine_level - 1))
+    #     terfactor = 1 / (4.0 + 0.5 * (refine_level - 1))
 
     return wing_maxlen, wing_minlen
-

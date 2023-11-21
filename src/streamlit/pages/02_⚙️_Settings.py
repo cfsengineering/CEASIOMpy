@@ -92,7 +92,7 @@ def save_cpacs_file():
 
 
 # def upload_and_save_file(file_uploader, save_dir):
-    
+
 #     file = file_uploader("Select a file", type=["cgns", "su2"], key="file_uploader_key")
 
 #     if file is not None:
@@ -224,7 +224,11 @@ def mesh_file_upload():
     st.markdown("#### Upload mesh file")
 
     # Verifica se è stato caricato un file mesh
-    uploaded_mesh = st.file_uploader("Select a mesh file", key="00_mesh_upload", type=["su2", "cgns"])
+    uploaded_mesh = st.file_uploader(
+        "Select a mesh file", 
+        key="00_mesh_upload", 
+        type=["su2", "cgns"],
+    )
 
     if uploaded_mesh:
         # Crea la cartella "mesh" se non esiste
@@ -368,7 +372,7 @@ def add_module_tab():
                                 default=default_otp,
                                 help=description,
                             )
-    
+ 
 
                     elif name == "pathtype":
                         # Chiama la funzione mesh_file_upload() e ottieni il percorso del file mesh
@@ -437,7 +441,8 @@ def add_module_tab():
                     #     save_dir = "tempDir"
                     #     mesh_path = upload_and_save_file(st.file_uploader, save_dir)
                     #     print(f"mesh_path={mesh_path}")
-                    #     st.text_input(get_value_or_default(st.session_state.cpacs.tixi, xpath, mesh_path))
+                    #     st.text_input(get_value_or_default(
+                    #       st.session_state.cpacs.tixi, xpath, mesh_path))
                     #     update_value(xpath, key)
 
                     else:

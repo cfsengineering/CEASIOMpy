@@ -927,11 +927,11 @@ def generate_gmsh(
     # Thus be sure to define mesh size in a certain order to control
     # the size of the points on boundaries.
 
-    fuselage_maxlen, fuselage_minlen = fuselage_size(cpacs_path)
+    _, fuselage_minlen = fuselage_size(cpacs_path)
     mesh_size_fuselage = fuselage_mesh_size_factor * fuselage_minlen
     log.info(f"mesh_size_fuselage={mesh_size_fuselage}")
 
-    wing_maxlen, wing_minlen = wings_size(cpacs_path)
+    _, wing_minlen = wings_size(cpacs_path)
     mesh_size_wing = wing_mesh_size_factor * wing_minlen
     log.info(f"mesh_size_wing={mesh_size_wing}")
 

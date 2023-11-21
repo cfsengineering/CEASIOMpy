@@ -35,7 +35,6 @@ log = get_logger()
 
 
 def fuselage_size(cpacs_path):
-
     tixi = open_tixi(cpacs_path)
     if tixi.checkElement(FUSELAGES_XPATH):
         fus_cnt = tixi.getNamedChildrenCount(FUSELAGES_XPATH, "fuselage")
@@ -103,7 +102,7 @@ def fuselage_size(cpacs_path):
 
     # Sections
     sec_cnt = tixi.getNamedChildrenCount(fus_xpath + "/sections", "section")
-    
+
     if pos_cnt == 0:
         pos_x_list = [0.0] * sec_cnt
         pos_y_list = [0.0] * sec_cnt
@@ -115,38 +114,37 @@ def fuselage_size(cpacs_path):
 
     for i_sec in range(sec_cnt):
         sec_xpath = fus_xpath + "/sections/section[" + str(i_sec + 1) + "]"
-    
+
         sec_transf = Transformation()
         sec_transf.get_cpacs_transf(tixi, sec_xpath)
-    
+
         # Elements
         elem_cnt = tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
 
         for i_elem in range(elem_cnt):
             elem_xpath = sec_xpath + "/elements/element[" + str(i_elem + 1) + "]"
-            elem_uid = tixi.getTextAttribute(elem_xpath, "uID")
             elem_transf = Transformation()
             elem_transf.get_cpacs_transf(tixi, elem_xpath)
-    
+
             # Fuselage profiles
             prof_uid = tixi.getTextElement(elem_xpath + "/profileUID")
             prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
-    
+
             prof_size_y = (max(prof_vect_y) - min(prof_vect_y)) / 2
             prof_size_z = (max(prof_vect_z) - min(prof_vect_z)) / 2
-    
+
             prof_vect_y[:] = [y / prof_size_y for y in prof_vect_y]
             prof_vect_z[:] = [z / prof_size_z for z in prof_vect_z]
-    
+
             prof_min_y = min(prof_vect_y)
             prof_min_z = min(prof_vect_z)
-    
+
             prof_vect_y[:] = [y - 1 - prof_min_y for y in prof_vect_y]
             prof_vect_z[:] = [z - 1 - prof_min_z for z in prof_vect_z]
-            
+
             pos_y_list[i_sec] += ((1 + prof_min_y) * prof_size_y) * elem_transf.scaling.y
             pos_z_list[i_sec] += ((1 + prof_min_z) * prof_size_z) * elem_transf.scaling.z
-    
+
             body_frm_height = (
                 prof_size_z
                 * 2
@@ -154,7 +152,7 @@ def fuselage_size(cpacs_path):
                 * sec_transf.scaling.z
                 * fus_transf.scaling.z
             )
-    
+
             body_frm_width = (
                 prof_size_y
                 * 2
@@ -162,7 +160,7 @@ def fuselage_size(cpacs_path):
                 * sec_transf.scaling.y
                 * fus_transf.scaling.y
             )
-    
+
             body_frm_height_values.append(body_frm_height)
             body_frm_width_values.append(body_frm_width)
 
@@ -177,7 +175,7 @@ def fuselage_size(cpacs_path):
 
         # Get overall minimum radius (semi-minor axis for ellipse)
         min_radius = min(min_radius, height, width)
-        
+
     mean_circ = sum(circ_list) / len(circ_list)
 
     # Calculate mesh parameters from inputs and geometry
@@ -192,7 +190,6 @@ def fuselage_size(cpacs_path):
 
 
 def wings_size(cpacs_path):
-
     tixi = open_tixi(cpacs_path)
     if tixi.checkElement(WINGS_XPATH):
         wing_cnt = tixi.getNamedChildrenCount(WINGS_XPATH, "wing")
@@ -201,7 +198,6 @@ def wings_size(cpacs_path):
 
     for i_wing in range(wing_cnt):
         wing_xpath = WINGS_XPATH + "/wing[" + str(i_wing + 1) + "]"
-        wing_uid = tixi.getTextAttribute(wing_xpath, "uID")
         wing_transf = Transformation()
         wing_transf.get_cpacs_transf(tixi, wing_xpath)
 
@@ -259,8 +255,8 @@ def wings_size(cpacs_path):
             pos_z_list[j_pos] += prev_pos_z
 
     else:
-            log.error('No "positionings" have been found!')
-            pos_cnt = 0
+        log.error('No "positionings" have been found!')
+        pos_cnt = 0
 
     # Sections
     sec_cnt = tixi.getNamedChildrenCount(wing_xpath + "/sections", "section")
@@ -272,7 +268,7 @@ def wings_size(cpacs_path):
 
     for i_sec in range(sec_cnt):
         sec_xpath = wing_xpath + "/sections/section[" + str(i_sec + 1) + "]"
-    
+
         sec_transf = Transformation()
         sec_transf.get_cpacs_transf(tixi, sec_xpath)
 
@@ -280,7 +276,7 @@ def wings_size(cpacs_path):
         chord_list.append(sec_transf.scaling.x)
 
     refine_factor = 1
-    refine_level = 0
+    # refine_level = 0
 
     ref_chord = sum(chord_list) / len(chord_list)
 
@@ -290,7 +286,7 @@ def wings_size(cpacs_path):
 
     log.info(f"wing_maxlen={wing_maxlen:.3f}")
     log.info(f"wing_minlen={wing_minlen:.3f}")
-    
+
     # in sumo it is 0.08*wing_maxlen or 0.7*min leading edge radius...
     # Default value in SUMO
     # lerfactor = 1 / 4.0

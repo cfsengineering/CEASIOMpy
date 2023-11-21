@@ -933,7 +933,7 @@ def generate_gmsh(
 
     wing_maxlen, wing_minlen = wings_size(cpacs_path)
     mesh_size_wing = wing_mesh_size_factor * wing_minlen
-    log.info(f"mesh_size_wing={mesh_size_wing}")    
+    log.info(f"mesh_size_wing={mesh_size_wing}")
 
     for part in aircraft_parts:
         if part.part_type == "fuselage":
@@ -954,7 +954,12 @@ def generate_gmsh(
             gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
 
     # Set mesh size and color of the farfield
-    mesh_size_farfield = max(wing_minlen, fuselage_minlen)*farfield_size_factor*max(model_dimensions)*domain_length   
+    mesh_size_farfield = (
+        max(wing_minlen, fuselage_minlen)
+        * farfield_size_factor
+        * max(model_dimensions)
+        * domain_length
+    )
     gmsh.model.mesh.setSize(farfield_points, mesh_size_farfield)
     gmsh.model.setColor(farfield_surfaces, *MESH_COLORS["farfield"], recursive=False)
 

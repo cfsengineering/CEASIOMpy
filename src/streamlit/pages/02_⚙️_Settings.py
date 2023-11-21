@@ -62,7 +62,6 @@ st.markdown(
 
 
 def update_value(xpath, key):
-
     if key in st.session_state:
         value = st.session_state[key]
 
@@ -77,13 +76,11 @@ def update_value(xpath, key):
 
 
 def update_all_modified_value():
-
     for xpath, key in st.session_state.xpath_to_update.items():
         update_value(xpath, key)
 
 
 def save_cpacs_file():
-
     update_all_modified_value()
     saved_cpacs_file = Path(st.session_state.workflow.working_dir, "CPACS_selected_from_GUI.xml")
     st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
@@ -115,13 +112,11 @@ def save_cpacs_file():
 
 
 def section_edit_aeromap():
-
     st.markdown("#### Available aeromaps")
 
     aeromap_uid_list = st.session_state.cpacs.get_aeromap_uid_list()
 
     for i, aeromap in enumerate(aeromap_uid_list):
-
         col1, col2, col3, _ = st.columns([6, 1, 1, 5])
 
         with col1:
@@ -209,7 +204,6 @@ def section_edit_aeromap():
         uploaded_aeromap_uid = uploaded_csv.name.split(".csv")[0]
 
         if st.button("Add this aeromap"):
-
             if uploaded_aeromap_uid in aeromap_uid_list:
                 st.error("There is already an aeromap with this name!")
                 return
@@ -225,8 +219,8 @@ def mesh_file_upload():
 
     # Verifica se è stato caricato un file mesh
     uploaded_mesh = st.file_uploader(
-        "Select a mesh file", 
-        key="00_mesh_upload", 
+        "Select a mesh file",
+        key="00_mesh_upload",
         type=["su2", "cgns"],
     )
 
@@ -274,7 +268,6 @@ def mesh_file_upload():
 
 
 def add_module_tab():
-
     if "cpacs" not in st.session_state:
         st.warning("No CPACS file has been selected!")
         return
@@ -296,9 +289,7 @@ def add_module_tab():
     for m, (tab, module) in enumerate(
         zip(st.session_state.tabs, st.session_state.workflow_modules)
     ):
-
         with tab:
-
             st.text("")
             specs = get_specs_for_module(module)
             inputs = specs.cpacs_inout.get_gui_dict()
@@ -317,9 +308,7 @@ def add_module_tab():
                     st.markdown(f"**{group}**")
 
             for name, default_value, var_type, unit, xpath, description, group in inputs.values():
-
                 with groups_container[group]:
-
                     if not group:
                         group = "none"
 
@@ -329,7 +318,6 @@ def add_module_tab():
                         name = f"{name} {unit}"
 
                     if name == "__AEROMAP_SELECTION":
-
                         aeromap_uid_list = st.session_state.cpacs.get_aeromap_uid_list()
 
                         if not len(aeromap_uid_list):
@@ -352,7 +340,6 @@ def add_module_tab():
                         )
 
                     elif name == "__AEROMAP_CHECKBOX":
-
                         aeromap_uid_list = st.session_state.cpacs.get_aeromap_uid_list()
 
                         if not len(aeromap_uid_list):
@@ -372,7 +359,6 @@ def add_module_tab():
                                 default=default_otp,
                                 help=description,
                             )
- 
 
                     elif name == "pathtype":
                         # Chiama la funzione mesh_file_upload() e ottieni il percorso del file mesh
@@ -387,7 +373,6 @@ def add_module_tab():
                             )
 
                     elif var_type == int:
-
                         with st.columns([1, 2])[0]:
                             st.number_input(
                                 name,
@@ -401,7 +386,6 @@ def add_module_tab():
                             )
 
                     elif var_type == float:
-
                         with st.columns([1, 2])[0]:
                             st.number_input(
                                 name,
@@ -460,7 +444,6 @@ def add_module_tab():
 
 
 def section_settings():
-
     if "workflow_modules" not in st.session_state:
         st.warning("No module selected!")
         return

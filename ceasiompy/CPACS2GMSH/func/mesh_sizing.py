@@ -92,9 +92,11 @@ def fuselage_size(cpacs_path):
                 prev_pos_x = pos_x_list[index_prev]
                 prev_pos_y = pos_y_list[index_prev]
                 prev_pos_z = pos_z_list[index_prev]
-            pos_x_list[j_pos] += prev_pos_x
-            pos_y_list[j_pos] += prev_pos_y
-            pos_z_list[j_pos] += prev_pos_z
+
+            if j_pos < len(pos_y_list):
+                pos_x_list[j_pos] += prev_pos_x
+                pos_y_list[j_pos] += prev_pos_y
+                pos_z_list[j_pos] += prev_pos_z
 
     else:
         log.error('No "positionings" have been found!')
@@ -142,8 +144,10 @@ def fuselage_size(cpacs_path):
             prof_vect_y[:] = [y - 1 - prof_min_y for y in prof_vect_y]
             prof_vect_z[:] = [z - 1 - prof_min_z for z in prof_vect_z]
 
-            pos_y_list[i_sec] += ((1 + prof_min_y) * prof_size_y) * elem_transf.scaling.y
-            pos_z_list[i_sec] += ((1 + prof_min_z) * prof_size_z) * elem_transf.scaling.z
+            if i_sec < len(pos_y_list):
+                pos_y_list[i_sec] += ((1 + prof_min_y) * prof_size_y) * elem_transf.scaling.y
+            if i_sec < len(pos_z_list):
+                pos_z_list[i_sec] += ((1 + prof_min_z) * prof_size_z) * elem_transf.scaling.z
 
             body_frm_height = (
                 prof_size_z

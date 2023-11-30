@@ -71,8 +71,8 @@ def test_get_mesh_marker():
         "D150_VAMP_HL1",
         "D150_VAMP_W1",
     ]
-    assert mesh_markers["engine_intake"] == ["D150_ENGINE1_Intake"]
-    assert mesh_markers["engine_exhaust"] == ["D150_ENGINE1_Exhaust"]
+    assert mesh_markers["engine_intake"] == ["D150_ENGINE1_In"]
+    assert mesh_markers["engine_exhaust"] == ["D150_ENGINE1_Ex"]
     assert mesh_markers["actuator_disk_inlet"] == ["D150_PROPELLER1_AD_Inlet"]
     assert mesh_markers["actuator_disk_outlet"] == ["D150_PROPELLER1_AD_Outlet"]
     assert mesh_markers["farfield"] == ["Farfield"]
@@ -187,5 +187,4 @@ def test_get_wetted_area():
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Nothing to execute!")

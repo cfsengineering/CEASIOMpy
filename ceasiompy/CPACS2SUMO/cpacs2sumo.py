@@ -305,8 +305,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     * fus_transf.scaling.z
                 )
 
-                # if body_frm_height < 0.01:
-                #     body_frm_height = 0.01
+                if body_frm_height < 0.01:
+                    body_frm_height = 0.01
 
                 body_frm_width = (
                     prof_size_y
@@ -315,8 +315,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     * sec_transf.scaling.y
                     * fus_transf.scaling.y
                 )
-                # if body_frm_width < 0.01:
-                #     body_frm_width = 0.01
+                if body_frm_width < 0.01:
+                    body_frm_width = 0.01
 
                 # Convert the profile points in the SMX format
                 prof_str = ""
@@ -627,9 +627,16 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 # then TE(1 0), but not reverse way.
 
                 # to avoid double zero, not accepted by SUMO
-                prof_str += (
-                    str(round(prof_vect_x[0], 4)) + " " + str(round(prof_vect_z[0], 4)) + " "
-                )
+                for i, item in enumerate(prof_vect_x):
+                    # if not (prof_vect_x[i] == prof_vect_x[i-1] or \
+                    #         round(prof_vect_z[i],4) == round(prof_vect_z[i-1],4)):
+                    if round(prof_vect_z[i], 4) != round(prof_vect_z[i - 1], 4):
+                        prof_str += (
+                            str(round(prof_vect_x[0], 4))
+                            + " "
+                            + str(round(prof_vect_z[0], 4))
+                            + " "
+                        )
 
                 for i in range(1, len(prof_vect_x)):
                     dx_squared = (prof_vect_x[i] - prof_vect_x[i - 1]) ** 2

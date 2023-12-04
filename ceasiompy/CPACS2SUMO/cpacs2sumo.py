@@ -626,16 +626,16 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 # then TE(1 0), but not reverse way.
 
                 # to avoid double zero, not accepted by SUMO
-                for i, item in enumerate(prof_vect_x):
-                    # if not (prof_vect_x[i] == prof_vect_x[i-1] or \
-                    #         round(prof_vect_z[i],4) == round(prof_vect_z[i-1],4)):
-                    if round(prof_vect_z[i], 4) != round(prof_vect_z[i - 1], 4):
-                        prof_str += (
-                            str(round(prof_vect_x[i], 4))
-                            + " "
-                            + str(round(prof_vect_z[i], 4))
-                            + " "
-                        )
+                prof_str += (
+                    str(round(prof_vect_x[0], 4)) + " " + str(round(prof_vect_z[0], 4)) + " "
+                )
+
+                for i in range(1, len(prof_vect_x)):
+                    dx_squared = (prof_vect_x[i] - prof_vect_x[i - 1]) ** 2
+                    dz_squared = (prof_vect_z[i] - prof_vect_z[i - 1]) ** 2
+
+                    if dx_squared + dz_squared > 1e-8:
+                        prof_str += f"{round(prof_vect_x[i], 4)} {round(prof_vect_z[i], 4)} "
 
                 sumo.addTextElementAtIndex(wg_sk_xpath, "WingSection", prof_str, wing_sec_index)
                 wg_sec_xpath = wg_sk_xpath + "/WingSection[" + str(wing_sec_index) + "]"
@@ -883,16 +883,15 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 # then TE(1 0), but not reverse way.
 
                 # to avoid double zero, not accepted by SUMO
-                for i, item in enumerate(prof_vect_x):
-                    # if not (prof_vect_x[i] == prof_vect_x[i-1] or \
-                    #         round(prof_vect_z[i],4) == round(prof_vect_z[i-1],4)):
-                    if round(prof_vect_z[i], 4) != round(prof_vect_z[i - 1], 4):
-                        prof_str += (
-                            str(round(prof_vect_x[i], 4))
-                            + " "
-                            + str(round(prof_vect_z[i], 4))
-                            + " "
-                        )
+                prof_str += (
+                    str(round(prof_vect_x[0], 4)) + " " + str(round(prof_vect_z[0], 4)) + " "
+                )
+                for i in range(1, len(prof_vect_x)):
+                    dx_squared = (prof_vect_x[i] - prof_vect_x[i - 1]) ** 2
+                    dz_squared = (prof_vect_z[i] - prof_vect_z[i - 1]) ** 2
+
+                    if dx_squared + dz_squared > 1e-6:
+                        prof_str += f"{round(prof_vect_x[i], 4)} {round(prof_vect_z[i], 4)} "
 
                 sumo.addTextElementAtIndex(wg_sk_xpath, "WingSection", prof_str, wing_sec_index)
                 wg_sec_xpath = wg_sk_xpath + "/WingSection[" + str(wing_sec_index) + "]"

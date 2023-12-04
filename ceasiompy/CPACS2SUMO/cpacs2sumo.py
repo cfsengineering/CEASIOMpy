@@ -305,8 +305,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     * fus_transf.scaling.z
                 )
 
-                # if body_frm_height < 0.01:
-                #     body_frm_height = 0.01
+                if body_frm_height < 0.005:
+                    body_frm_height = 0.005
                 body_frm_width = (
                     prof_size_y
                     * 2
@@ -314,8 +314,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     * sec_transf.scaling.y
                     * fus_transf.scaling.y
                 )
-                # if body_frm_width < 0.01:
-                #     body_frm_width = 0.01
+                if body_frm_width < 0.005:
+                    body_frm_width = 0.005
 
                 # Convert the profile points in the SMX format
                 prof_str = ""
@@ -1027,8 +1027,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 frame_xpath = body_xpath + "/BodyFrame[" + str(i_sec + 1) + "]"
 
                 diam = (ycontours[i_sec] + zsectransl) * 2
-                # if diam < 0.01:
-                #     diam = 0.01
+                if diam < 0.005:
+                    diam = 0.005
 
                 sumo.addTextAttribute(
                     frame_xpath, "center", sumo_str_format(xcontours[i_sec], 0, 0)
@@ -1067,8 +1067,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     frame_xpath = body_xpath + "/BodyFrame[" + str(i_sec + 1) + "]"
 
                     diam = (ycontours[i_sec] + zsectransl) * 2
-                    # if diam < 0.01:
-                    #     diam = 0.01
+                    if diam < 0.005:
+                        diam = 0.005
 
                     sumo.addTextAttribute(
                         frame_xpath, "center", sumo_str_format(xcontours[i_sec], 0, 0)

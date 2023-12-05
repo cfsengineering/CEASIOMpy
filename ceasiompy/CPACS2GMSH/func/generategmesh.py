@@ -565,14 +565,14 @@ def generate_gmsh(
     open_gmsh=False,
     farfield_factor=6,
     symmetry=False,
-    farfield_size_factor=17,
+    farfield_size_factor=10,
     n_power_factor=2,
     n_power_field=0.9,
     fuselage_mesh_size_factor=1,
-    wing_mesh_size_factor=1,
+    wing_mesh_size_factor=1.5,
     mesh_size_engines=0.23,
     mesh_size_propellers=0.23,
-    refine_factor=7.0,
+    refine_factor=2.0,
     refine_truncated=False,
     auto_refine=True,
     testing_gmsh=False,
@@ -927,13 +927,13 @@ def generate_gmsh(
     # Thus be sure to define mesh size in a certain order to control
     # the size of the points on boundaries.
 
-    _, fuselage_minlen = fuselage_size(cpacs_path)
+    fuselage_maxlen, fuselage_minlen = fuselage_size(cpacs_path)
     mesh_size_fuselage = fuselage_mesh_size_factor * fuselage_minlen
-    log.info(f"mesh_size_fuselage={mesh_size_fuselage}")
+    log.info(f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
 
-    _, wing_minlen = wings_size(cpacs_path)
+    wing_maxlen, wing_minlen = wings_size(cpacs_path)
     mesh_size_wing = wing_mesh_size_factor * wing_minlen
-    log.info(f"mesh_size_wing={mesh_size_wing}")
+    log.info(f"Mesh size wing={mesh_size_wing:.3f} m")
 
     for part in aircraft_parts:
         if part.part_type == "fuselage":
@@ -954,12 +954,11 @@ def generate_gmsh(
             gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
 
     # Set mesh size and color of the farfield
-    mesh_size_farfield = (
-        max(wing_minlen, fuselage_minlen)
-        * farfield_size_factor
-        * max(model_dimensions)
-        * domain_length
-    )
+    h_max_model = max(wing_maxlen, fuselage_maxlen)
+    mesh_size_farfield = h_max_model * farfield_size_factor
+
+    log.info(f"Farfield mesh size={mesh_size_farfield:.3f} m")
+
     gmsh.model.mesh.setSize(farfield_points, mesh_size_farfield)
     gmsh.model.setColor(farfield_surfaces, *MESH_COLORS["farfield"], recursive=False)
 
@@ -971,7 +970,8 @@ def generate_gmsh(
         if part.part_type == "wing":
             classify_wing(part, aircraft_parts)
             log.info(
-                f"Classification of {part.uid} done" f"{len(part.wing_sections)} section(s) found "
+                f"Classification of {part.uid} done"
+                f" {len(part.wing_sections)} section(s) found "
             )
 
     # Generate advance meshing features

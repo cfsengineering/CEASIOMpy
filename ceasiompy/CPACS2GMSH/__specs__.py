@@ -90,63 +90,38 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="farfield_mesh_size_factor",
     var_type=float,
-    default_value=17,
-    unit="1",
+    default_value=10,
+    unit="[-]",
     descr="Value assigned for the farfield surface mesh size",
     xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
     gui=True,
-    gui_name="Farfield factor",
+    gui_name="Farfield mesh size factor",
     gui_group="Mesh size",
 )
-
-# cpacs_inout.add_input(
-#     var_name="fuselage_mesh_size",
-#     var_type=float,
-#     default_value=0.3,
-#     unit="[m]",
-#     descr="Value assigned for the fuselage surfaces mesh size",
-#     xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH,
-#     gui=True,
-#     gui_name="Fuselage",
-#     gui_group="Mesh size",
-# )
 
 cpacs_inout.add_input(
     var_name="fuselage_mesh_size_factor",
     var_type=float,
     default_value=1,
-    unit="1",
+    unit="[-]",
     descr="Value assigned for the fuselage surfaces mesh size",
     xpath=GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
     gui=True,
-    gui_name="Fuselage factor",
+    gui_name="Fuselage mesh size factor",
     gui_group="Mesh size",
 )
-
-# cpacs_inout.add_input(
-#     var_name="wing_mesh_size",
-#     var_type=float,
-#     default_value=0.1,
-#     unit="[m]",
-#     descr="Value assigned for the wings surfaces mesh size",
-#     xpath=GMSH_MESH_SIZE_WINGS_XPATH,
-#     gui=True,
-#     gui_name="Wings",
-#     gui_group="Mesh size",
-# )
 
 cpacs_inout.add_input(
     var_name="wing_mesh_size_factor",
     var_type=float,
-    default_value=1,
-    unit="1",
+    default_value=1.5,
+    unit="[-]",
     descr="Value assigned for the wings surfaces mesh size",
     xpath=GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
     gui=True,
-    gui_name="Wings factor",
+    gui_name="Wings mesh size factor",
     gui_group="Mesh size",
 )
-
 
 cpacs_inout.add_input(
     var_name="engine_mesh_size",
@@ -159,6 +134,7 @@ cpacs_inout.add_input(
     gui_name="Engines",
     gui_group="Mesh size",
 )
+
 cpacs_inout.add_input(
     var_name="propeller_mesh_size",
     var_type=float,
@@ -198,7 +174,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="refine_factor",
     var_type=float,
-    default_value=7.0,
+    default_value=2.0,
     unit="1",
     descr="Refinement factor of wing leading/trailing edge mesh",
     xpath=GMSH_REFINE_FACTOR_XPATH,

@@ -171,7 +171,6 @@ def fuselage_size(cpacs_path):
     # Extrapolate mesh values
     circ_list = []
     min_radius = 10e6
-    refine_factor = 1
 
     for height, width in zip(body_frm_height_values, body_frm_width_values):
         # Calculate the sum of squares for each element in the lists
@@ -184,11 +183,11 @@ def fuselage_size(cpacs_path):
 
     # Calculate mesh parameters from inputs and geometry
     # In SUMO, fuselage_minlen is min_radius/2, but sometimes it leads to meshing errors
-    fuselage_maxlen = (0.08 * mean_circ) * refine_factor
-    fuselage_minlen = min(0.1 * fuselage_maxlen, min_radius / 2) * refine_factor
+    fuselage_maxlen = 0.08 * mean_circ
+    fuselage_minlen = min(0.1 * fuselage_maxlen, min_radius / 2)
 
-    log.info(f"fuselage_maxlen={fuselage_maxlen:.3f}")
-    log.info(f"fuselage_minlen={fuselage_minlen:.3f}")
+    log.info(f"Fuselage maxlen={fuselage_maxlen:.3f} m")
+    log.info(f"Fuselage minlen={fuselage_minlen:.3f} m")
 
     return fuselage_maxlen, fuselage_minlen
 
@@ -276,27 +275,15 @@ def wings_size(cpacs_path):
         sec_transf = Transformation()
         sec_transf.get_cpacs_transf(tixi, sec_xpath)
 
-        # Salva la corda di ogni sezione nella lista
         chord_list.append(sec_transf.scaling.x)
-
-    refine_factor = 1
-    # refine_level = 0
 
     ref_chord = sum(chord_list) / len(chord_list)
 
     # Calculate mesh parameter from inputs and geometry
-    wing_maxlen = (0.15 * ref_chord) * refine_factor
-    wing_minlen = (0.08 * wing_maxlen) * refine_factor
+    wing_maxlen = 0.15 * ref_chord
+    wing_minlen = 0.08 * wing_maxlen
 
-    log.info(f"wing_maxlen={wing_maxlen:.3f}")
-    log.info(f"wing_minlen={wing_minlen:.3f}")
-
-    # in sumo it is 0.08*wing_maxlen or 0.7*min leading edge radius...
-    # Default value in SUMO
-    # lerfactor = 1 / 4.0
-    # terfactor = 1 / 4.
-    # if refine_level > 1:
-    #     lerfactor = 1 / (4.0 + 0.5 * (refine_level - 1))
-    #     terfactor = 1 / (4.0 + 0.5 * (refine_level - 1))
+    log.info(f"Wing maxlen={wing_maxlen:.3f} m")
+    log.info(f"Wing minlen={wing_minlen:.3f} m")
 
     return wing_maxlen, wing_minlen

@@ -182,7 +182,6 @@ def fuselage_size(cpacs_path):
     mean_circ = sum(circ_list) / len(circ_list)
 
     # Calculate mesh parameters from inputs and geometry
-    # In SUMO, fuselage_minlen is min_radius/2, but sometimes it leads to meshing errors
     fuselage_maxlen = 0.08 * mean_circ
     fuselage_minlen = min(0.1 * fuselage_maxlen, min_radius / 2)
 

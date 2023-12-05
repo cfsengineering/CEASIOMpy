@@ -1374,14 +1374,10 @@
                     <mesh_size>
                         <farfield>13.0</farfield>
                         <fuselage>
-                            <value>
-                                <factor>10.0</factor>
-                            </value>
+                            <factor>5.0</factor>
                         </fuselage>
                         <wings>
-                            <value>
-                                <factor>10.0</factor>
-                            </value>
+                            <factor>5.0</factor>
                         </wings>
                         <engines>0.05</engines>
                         <propellers>0.05</propellers>

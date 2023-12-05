@@ -12,8 +12,7 @@ Python version: >=3.8
 
 TODO:
 
-    -Add a parameter to let the user tune the powerlaw governing the mesh
-    in the fluid domaine and the powerlaw for the wing surface mesh
+    -Add a parameter to let the user tune the powerlaw for the wing surface mesh
 
 """
 
@@ -253,14 +252,12 @@ def refine_wing_section(
 
     # For each wing section get the mean chord and le/te lines
     for wing_section in wing_part.wing_sections:
-
         chord_mean = wing_section["mean_chord"]
         x_chord = chord_mean * chord_percent
         lines_to_refine = wing_section["lines_tags"]
 
         # If the wing is truncated:
         if len(lines_to_refine) == 3:
-
             # Find the trailing edge thickness
             x1, y1, z1 = gmsh.model.occ.getCenterOfMass(1, lines_to_refine[0])
             x2, y2, z2 = gmsh.model.occ.getCenterOfMass(1, lines_to_refine[1])
@@ -274,7 +271,6 @@ def refine_wing_section(
 
             # Overwrite the trailing edge refinement
             if (mesh_size_wings / te_thickness > refine) and refine_truncated:
-
                 refine = mesh_size_wings / te_thickness
 
         # 1 : Math eval field
@@ -331,7 +327,8 @@ def set_domain_mesh(
     mesh_size_farfield,
     aircraft_charact_length,
     final_domain_volume_tag,
-    n_power=1.5,
+    n_power_factor,
+    n_power_field,
 ):
     """
     Function to define the domain mesh between the farfield and the aircraft
@@ -375,7 +372,6 @@ def set_domain_mesh(
     log.info("Set mesh refinement of fluid domain")
 
     for part in aircraft_parts:
-
         # 1 : Math eval field between the part surface and the farfield
 
         mesh_fields = distance_field(mesh_fields, 2, part.surfaces_tags)
@@ -388,7 +384,7 @@ def set_domain_mesh(
             mesh_fields["nbfields"],
             "F",
             f"{part.mesh_size} + ({mesh_size_farfield} - {part.mesh_size})*"
-            f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power}",
+            f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power_factor}",
         )
         mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
 
@@ -399,7 +395,9 @@ def set_domain_mesh(
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
         gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", part.mesh_size)
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", part.mesh_size * 0.9)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "SizeMin", part.mesh_size * n_power_field
+        )
 
         mesh_fields = restrict_fields(mesh_fields, 2, part.surfaces_tags)
 
@@ -519,5 +517,4 @@ def refine_small_surfaces(
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Nothing to execute!")

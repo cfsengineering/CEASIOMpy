@@ -64,16 +64,19 @@ def test_generate_gmsh():
 
     generate_gmsh(
         cpacs=cpacs,
+        cpacs_path=CPACS_IN_PATH,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
-        farfield_factor=5,
+        farfield_factor=2,
         symmetry=False,
-        mesh_size_farfield=5,
-        mesh_size_fuselage=0.5,
-        mesh_size_wings=0.5,
-        mesh_size_engines=0.5,
-        mesh_size_propellers=0.5,
+        farfield_size_factor=17,
+        n_power_factor=2,
+        n_power_field=0.9,
+        fuselage_mesh_size_factor=5,
+        wing_mesh_size_factor=5,
+        mesh_size_engines=0.2,
+        mesh_size_propellers=0.2,
         refine_factor=1.0,
         refine_truncated=False,
         auto_refine=False,
@@ -104,14 +107,17 @@ def test_generate_gmsh_symm():
 
     generate_gmsh(
         cpacs=cpacs,
+        cpacs_path=CPACS_IN_PATH,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
         farfield_factor=5,
         symmetry=True,
-        mesh_size_farfield=5,
-        mesh_size_fuselage=0.5,
-        mesh_size_wings=0.5,
+        farfield_size_factor=17,
+        n_power_factor=2,
+        n_power_field=0.9,
+        fuselage_mesh_size_factor=5,
+        wing_mesh_size_factor=5,
         mesh_size_engines=0.5,
         mesh_size_propellers=0.5,
         refine_factor=1.0,
@@ -209,14 +215,17 @@ def test_assignation():
 
     _, aircraft_parts = generate_gmsh(
         cpacs=cpacs,
+        cpacs_path=CPACS_IN_PATH,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
         farfield_factor=5,
         symmetry=False,
-        mesh_size_farfield=5,
-        mesh_size_fuselage=0.5,
-        mesh_size_wings=0.5,
+        farfield_size_factor=17,
+        n_power_factor=2,
+        n_power_field=0.9,
+        fuselage_mesh_size_factor=5,
+        wing_mesh_size_factor=5,
         mesh_size_engines=0.5,
         mesh_size_propellers=0.5,
         refine_factor=1.0,
@@ -265,14 +274,17 @@ def test_define_engine_bc():
 
     generate_gmsh(
         cpacs=cpacs,
+        cpacs_path=CPACS_IN_SIMPLE_ENGINE_PATH,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
         farfield_factor=2,
         symmetry=False,
-        mesh_size_farfield=2,
-        mesh_size_fuselage=0.2,
-        mesh_size_wings=0.2,
+        farfield_size_factor=17,
+        n_power_factor=2,
+        n_power_field=0.9,
+        fuselage_mesh_size_factor=8,
+        wing_mesh_size_factor=8,
         mesh_size_engines=0.2,
         mesh_size_propellers=0.2,
         refine_factor=1.0,
@@ -288,11 +300,11 @@ def test_define_engine_bc():
     assert gmsh.model.getPhysicalName(*physical_groups[0]) == "Pylon"
     assert gmsh.model.getPhysicalName(*physical_groups[1]) == "Pylon_mirrored"
     assert gmsh.model.getPhysicalName(*physical_groups[2]) == "SimpleEngine"
-    assert gmsh.model.getPhysicalName(*physical_groups[3]) == "SimpleEngine_fan_Intake"
-    assert gmsh.model.getPhysicalName(*physical_groups[4]) == "SimpleEngine_fan_Exhaust"
+    assert gmsh.model.getPhysicalName(*physical_groups[3]) == "SimpleEngine_fan_In"
+    assert gmsh.model.getPhysicalName(*physical_groups[4]) == "SimpleEngine_fan_Ex"
     assert gmsh.model.getPhysicalName(*physical_groups[5]) == "SimpleEngine_mirrored"
-    assert gmsh.model.getPhysicalName(*physical_groups[6]) == "SimpleEngine_mirrored_fan_Intake"
-    assert gmsh.model.getPhysicalName(*physical_groups[7]) == "SimpleEngine_mirrored_fan_Exhaust"
+    assert gmsh.model.getPhysicalName(*physical_groups[6]) == "SimpleEngine_mirrored_fan_In"
+    assert gmsh.model.getPhysicalName(*physical_groups[7]) == "SimpleEngine_mirrored_fan_Ex"
     assert gmsh.model.getPhysicalName(*physical_groups[8]) == "SimpleFuselage"
     assert gmsh.model.getPhysicalName(*physical_groups[9]) == "Wing"
     assert gmsh.model.getPhysicalName(*physical_groups[10]) == "Wing_mirrored"
@@ -327,14 +339,17 @@ def test_define_doubleflux_engine_bc():
 
     generate_gmsh(
         cpacs=cpacs,
+        cpacs_path=CPACS_IN_SIMPLE_ENGINE_PATH,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
-        farfield_factor=2,
+        farfield_factor=3,
         symmetry=False,
-        mesh_size_farfield=2,
-        mesh_size_fuselage=0.5,
-        mesh_size_wings=0.05,
+        farfield_size_factor=13,
+        n_power_factor=2,
+        n_power_field=0.9,
+        fuselage_mesh_size_factor=10,
+        wing_mesh_size_factor=10,
         mesh_size_engines=0.05,
         mesh_size_propellers=0.05,
         refine_factor=1.0,
@@ -347,12 +362,12 @@ def test_define_doubleflux_engine_bc():
     # Check if the engine integration did not disturb the BC assignation
     assert len(physical_groups) == 15
 
-    assert gmsh.model.getPhysicalName(*physical_groups[3]) == "SimpleEngine_fan_Intake"
-    assert gmsh.model.getPhysicalName(*physical_groups[4]) == "SimpleEngine_fan_Exhaust"
-    assert gmsh.model.getPhysicalName(*physical_groups[5]) == "SimpleEngine_core_Exhaust"
-    assert gmsh.model.getPhysicalName(*physical_groups[7]) == "SimpleEngine_mirrored_fan_Intake"
-    assert gmsh.model.getPhysicalName(*physical_groups[8]) == "SimpleEngine_mirrored_fan_Exhaust"
-    assert gmsh.model.getPhysicalName(*physical_groups[9]) == "SimpleEngine_mirrored_core_Exhaust"
+    assert gmsh.model.getPhysicalName(*physical_groups[3]) == "SimpleEngine_fan_In"
+    assert gmsh.model.getPhysicalName(*physical_groups[4]) == "SimpleEngine_fan_Ex"
+    assert gmsh.model.getPhysicalName(*physical_groups[5]) == "SimpleEngine_core_Ex"
+    assert gmsh.model.getPhysicalName(*physical_groups[7]) == "SimpleEngine_mirrored_fan_In"
+    assert gmsh.model.getPhysicalName(*physical_groups[8]) == "SimpleEngine_mirrored_fan_Ex"
+    assert gmsh.model.getPhysicalName(*physical_groups[9]) == "SimpleEngine_mirrored_core_Ex"
 
     # Check that the correct surfaces were assigned to the engine inlet outlet bc
     assert gmsh.model.getEntitiesForPhysicalGroup(*physical_groups[3]) == [22]
@@ -385,16 +400,19 @@ def test_disk_actuator_conversion():
 
     generate_gmsh(
         cpacs=cpacs,
+        cpacs_path=CPACS_IN_PROPELLER_ENGINE_PATH,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
-        farfield_factor=5,
+        farfield_factor=3,
         symmetry=False,
-        mesh_size_farfield=5,
-        mesh_size_fuselage=0.5,
-        mesh_size_wings=0.5,
-        mesh_size_engines=0.5,
-        mesh_size_propellers=0.5,
+        farfield_size_factor=10,
+        n_power_factor=2,
+        n_power_field=0.9,
+        fuselage_mesh_size_factor=100,
+        wing_mesh_size_factor=100,
+        mesh_size_engines=0.2,
+        mesh_size_propellers=0.1,
         refine_factor=1.0,
         refine_truncated=False,
         auto_refine=False,
@@ -423,7 +441,6 @@ def test_disk_actuator_conversion():
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

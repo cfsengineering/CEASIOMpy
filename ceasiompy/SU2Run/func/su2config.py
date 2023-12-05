@@ -156,7 +156,6 @@ def add_actuator_disk(cfg, cpacs, case_dir_path, actuator_disk_file, mesh_marker
 
     rotor_uid_pos = {}
     for i in range(1, rotorcraft_config.get_rotor_count() + 1):
-
         rotor = rotorcraft_config.get_rotor(i)
 
         rotor_uid = rotor.get_uid()
@@ -327,21 +326,48 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     bc_farfiled_str = ";".join(mesh_markers["engine_intake"] + mesh_markers["engine_exhaust"])
     cpacs.tixi.updateTextElement(SU2_BC_FARFIELD_XPATH, bc_farfiled_str)
 
+    create_branch(cpacs.tixi, SU2_ACTUATOR_DISK_XPATH)
+    bc_actuator_disk_str = ";".join(
+        mesh_markers["actuator_disk_inlet"] + mesh_markers["actuator_disk_outlet"]
+    )
+    cpacs.tixi.updateTextElement(SU2_ACTUATOR_DISK_XPATH, bc_actuator_disk_str)
+
     fixed_cl = get_value_or_default(cpacs.tixi, SU2_FIXED_CL_XPATH, "NO")
     target_cl = get_value_or_default(cpacs.tixi, SU2_TARGET_CL_XPATH, 1.0)
 
     if fixed_cl == "NO":
+        # Get the first aeroMap as default one or create automatically one
+        aeromap_list = cpacs.get_aeromap_uid_list()
 
-        # Get the first aeroMap as default one
-        aeromap_default = cpacs.get_aeromap_uid_list()[0]
-        aeromap_uid = get_value_or_default(cpacs.tixi, SU2_AEROMAP_UID_XPATH, aeromap_default)
-        log.info(f'Configuration file for "{aeromap_uid}" calculation will be created.')
+        if aeromap_list:
+            aeromap_default = aeromap_list[0]
+            log.info(f'The aeromap is {aeromap_default}')
 
-        active_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
-        alt_list = active_aeromap.get("altitude").tolist()
-        mach_list = active_aeromap.get("machNumber").tolist()
-        aoa_list = active_aeromap.get("angleOfAttack").tolist()
-        aos_list = active_aeromap.get("angleOfSideslip").tolist()
+            aeromap_uid = get_value_or_default(cpacs.tixi, SU2_AEROMAP_UID_XPATH, aeromap_default)
+
+            activate_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+            alt_list = activate_aeromap.get("altitude").tolist()
+            mach_list = activate_aeromap.get("machNumber").tolist()
+            aoa_list = activate_aeromap.get("angleOfAttack").tolist()
+            aos_list = activate_aeromap.get("angleOfSideslip").tolist()
+
+        else:
+            default_aeromap = cpacs.create_aeromap("DefaultAeromap")
+            default_aeromap.description = "AeroMap created automatically"
+
+            mach = get_value_or_default(cpacs.tixi, RANGE_XPATH + "/cruiseMach", 0.3)
+            alt = get_value_or_default(cpacs.tixi, RANGE_XPATH + "/cruiseAltitude", 10000)
+
+            default_aeromap.add_row(alt=alt, mach=mach, aos=0.0, aoa=0.0)
+            default_aeromap.save()
+
+            alt_list = [alt]
+            mach_list = [mach]
+            aoa_list = [0.0]
+            aos_list = [0.0]
+
+            aeromap_uid = get_value_or_default(cpacs.tixi, SU2_AEROMAP_UID_XPATH, "DefaultAeromap")
+            log.info(f"{aeromap_uid} has been created")
 
     else:  # if fixed_cl == 'YES':
         log.info("Configuration file for fixed CL calculation will be created.")
@@ -403,6 +429,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
     # Mesh Marker
     bc_wall_str = f"( {','.join(mesh_markers['wall'])} )"
+
     cfg["MARKER_EULER"] = bc_wall_str
     farfield_bc = (
         mesh_markers["farfield"] + mesh_markers["engine_intake"] + mesh_markers["engine_exhaust"]
@@ -422,7 +449,6 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
     for case_nb in range(len(alt_list)):
-
         cfg["MESH_FILENAME"] = str(su2_mesh)
 
         alt = alt_list[case_nb]
@@ -449,7 +475,6 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             case_dir_path.mkdir()
 
         if get_value_or_default(cpacs.tixi, SU2_ACTUATOR_DISK_XPATH, False):
-
             actuator_disk_file = Path(wkdir, ACTUATOR_DISK_FILE_NAME)
             add_actuator_disk(
                 cfg, cpacs, case_dir_path, actuator_disk_file, mesh_markers, alt, mach
@@ -458,6 +483,19 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             if actuator_disk_file.exists():
                 case_actuator_disk_file = Path(case_dir_path, ACTUATOR_DISK_FILE_NAME)
                 copyfile(actuator_disk_file, case_actuator_disk_file)
+
+                bc_wall_str = (
+                    "("
+                    + ",".join(
+                        mesh_markers["wall"]
+                        + mesh_markers["actuator_disk_inlet"]
+                        + mesh_markers["actuator_disk_outlet"]
+                    )
+                    + ")"
+                )
+
+                cfg["MARKER_PLOTTING"] = bc_wall_str
+                cfg["MARKER_MONITORING"] = bc_wall_str
 
         config_output_path = Path(case_dir_path, CONFIG_CFD_NAME)
         cfg.write_file(config_output_path, overwrite=True)
@@ -468,7 +506,6 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
         # Control surfaces deflections (TODO: create a subfunctions)
         if get_value_or_default(cpacs.tixi, SU2_CONTROL_SURF_XPATH, False):
-
             # Get deformed mesh list
             if cpacs.tixi.checkElement(SU2_DEF_MESH_XPATH):
                 su2_def_mesh_list = get_string_vector(cpacs.tixi, SU2_DEF_MESH_XPATH)
@@ -477,7 +514,6 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
                 su2_def_mesh_list = []
 
             for su2_def_mesh in su2_def_mesh_list:
-
                 mesh_path = Path(wkdir, "MESH", su2_def_mesh)
                 config_dir_path = Path(wkdir, case_dir_name + "_" + su2_def_mesh.split(".")[0])
                 config_dir_path.mkdir()
@@ -493,5 +529,4 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 # =================================================================================================
 
 if __name__ == "__main__":
-
     log.info("Nothing to execute!")

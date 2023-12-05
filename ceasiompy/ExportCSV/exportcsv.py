@@ -32,6 +32,7 @@ from ceasiompy.utils.moduleinterfaces import (
 )
 from ceasiompy.utils.commonxpath import CEASIOMPY_XPATH
 from cpacspy.cpacspy import CPACS
+from cpacspy.cpacsfunctions import get_value_or_default
 
 log = get_logger()
 
@@ -56,6 +57,11 @@ def export_aeromaps(cpacs_path, cpacs_out_path):
     aeromap_to_export_xpath = CEASIOMPY_XPATH + "/export/aeroMapToExport"
     aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, aeromap_to_export_xpath)
 
+    if not aeromap_uid_list:
+        aeromap_uid_list = get_value_or_default(
+            cpacs.tixi, aeromap_to_export_xpath, "DefaultAeromap"
+        )
+
     results_dir = get_results_directory("ExportCSV")
 
     for aeromap_uid in aeromap_uid_list:
@@ -78,7 +84,6 @@ def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + MODULE_NAME + " -----")
 
-    check_cpacs_input_requirements(cpacs_path)
     export_aeromaps(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + MODULE_NAME + " -----")
@@ -90,3 +95,5 @@ if __name__ == "__main__":
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 
     main(cpacs_path, cpacs_out_path)
+
+    check_cpacs_input_requirements(cpacs_path)

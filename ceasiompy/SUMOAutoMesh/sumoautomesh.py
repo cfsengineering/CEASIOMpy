@@ -184,12 +184,12 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
         # in sumo it is 0.08*maxlen or 0.7*min leading edge radius...?
 
         # Default value in SUMO
-        lerfactor = 1 / 2.0
-        terfactor = 1 / 2.0
+        lerfactor = 1 / 4.0
+        terfactor = 1 / 4.0
 
         if refine_level > 1:
-            lerfactor = 1 / (2.0 + 0.5 * (refine_level - 1))
-            terfactor = 1 / (2.0 + 0.5 * (refine_level - 1))
+            lerfactor = 1 / (4.0 + 0.5 * (refine_level - 1))
+            terfactor = 1 / (4.0 + 0.5 * (refine_level - 1))
 
         # Add mesh parameters in the XML file (.smx)
         meshcrit_xpath = wing_xpath + "/WingCriterion"

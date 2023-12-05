@@ -33,10 +33,12 @@ from ceasiompy.utils.commonxpath import (
     GMSH_AUTO_REFINE_XPATH,
     GMSH_EXHAUST_PERCENT_XPATH,
     GMSH_FARFIELD_FACTOR_XPATH,
+    GMSH_N_POWER_FACTOR_XPATH,
+    GMSH_N_POWER_FIELD_XPATH,
     GMSH_INTAKE_PERCENT_XPATH,
     GMSH_MESH_SIZE_FARFIELD_XPATH,
-    GMSH_MESH_SIZE_FUSELAGE_XPATH,
-    GMSH_MESH_SIZE_WINGS_XPATH,
+    GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
+    GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
     GMSH_MESH_SIZE_ENGINES_XPATH,
     GMSH_MESH_SIZE_PROPELLERS_XPATH,
     GMSH_OPEN_GUI_XPATH,
@@ -65,7 +67,6 @@ MODULE_NAME = MODULE_DIR.name
 
 
 def cpacs2gmsh(cpacs_path, cpacs_out_path):
-
     # Get option from the CPACS file
     cpacs = CPACS(cpacs_path)
 
@@ -78,9 +79,15 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     open_gmsh = get_value_or_default(cpacs.tixi, GMSH_OPEN_GUI_XPATH, False)
     farfield_factor = get_value_or_default(cpacs.tixi, GMSH_FARFIELD_FACTOR_XPATH, 6)
     symmetry = get_value_or_default(cpacs.tixi, GMSH_SYMMETRY_XPATH, False)
-    mesh_size_farfield = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FARFIELD_XPATH, 25)
-    mesh_size_fuselage = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH, 0.4)
-    mesh_size_wings = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_WINGS_XPATH, 0.23)
+    farfield_size_factor = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FARFIELD_XPATH, 17)
+    n_power_factor = get_value_or_default(cpacs.tixi, GMSH_N_POWER_FACTOR_XPATH, 2)
+    n_power_field = get_value_or_default(cpacs.tixi, GMSH_N_POWER_FIELD_XPATH, 0.9)
+    fuselage_mesh_size_factor = get_value_or_default(
+        cpacs.tixi,
+        GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
+        1,
+    )
+    wing_mesh_size_factor = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FACTOR_WINGS_XPATH, 1)
     mesh_size_engines = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_ENGINES_XPATH, 0.23)
     mesh_size_propellers = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_PROPELLERS_XPATH, 0.23)
     refine_factor = get_value_or_default(cpacs.tixi, GMSH_REFINE_FACTOR_XPATH, 7.0)
@@ -93,14 +100,17 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
     mesh_path, _ = generate_gmsh(
         cpacs,
+        cpacs_path,
         brep_dir,
         results_dir,
         open_gmsh=open_gmsh,
         farfield_factor=farfield_factor,
         symmetry=symmetry,
-        mesh_size_farfield=mesh_size_farfield,
-        mesh_size_fuselage=mesh_size_fuselage,
-        mesh_size_wings=mesh_size_wings,
+        farfield_size_factor=farfield_size_factor,
+        n_power_factor=n_power_factor,
+        n_power_field=n_power_field,
+        fuselage_mesh_size_factor=fuselage_mesh_size_factor,
+        wing_mesh_size_factor=wing_mesh_size_factor,
         mesh_size_engines=mesh_size_engines,
         mesh_size_propellers=mesh_size_propellers,
         refine_factor=refine_factor,
@@ -124,7 +134,6 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
 
 
 def main(cpacs_path, cpacs_out_path):
-
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     check_cpacs_input_requirements(cpacs_path)
@@ -135,7 +144,6 @@ def main(cpacs_path, cpacs_out_path):
 
 
 if __name__ == "__main__":
-
     cpacs_path = get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 

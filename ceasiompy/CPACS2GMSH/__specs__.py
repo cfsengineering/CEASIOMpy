@@ -5,6 +5,8 @@ from ceasiompy.utils.commonxpath import (
     GMSH_EXHAUST_PERCENT_XPATH,
     GMSH_EXPORT_PROP_XPATH,
     GMSH_FARFIELD_FACTOR_XPATH,
+    GMSH_N_POWER_FACTOR_XPATH,
+    GMSH_N_POWER_FIELD_XPATH,
     GMSH_INTAKE_PERCENT_XPATH,
     GMSH_MESH_SIZE_FARFIELD_XPATH,
     GMSH_MESH_SIZE_FUSELAGE_XPATH,
@@ -16,6 +18,8 @@ from ceasiompy.utils.commonxpath import (
     GMSH_REFINE_FACTOR_XPATH,
     GMSH_SYMMETRY_XPATH,
     SU2MESH_XPATH,
+    GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
+    GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
 )
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
@@ -84,38 +88,39 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="farfield_mesh_size",
+    var_name="farfield_mesh_size_factor",
     var_type=float,
-    default_value=25,
-    unit="[m]",
-    descr="Value assigned for the farfield surface mesh size",
+    default_value=10,
+    unit="[-]",
+    descr="""Factor proportional to the biggest cell on the plane
+            to obtain cell size on the farfield""",
     xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
     gui=True,
-    gui_name="Farfield",
+    gui_name="Farfield mesh size factor",
     gui_group="Mesh size",
 )
 
 cpacs_inout.add_input(
-    var_name="fuselage_mesh_size",
+    var_name="fuselage_mesh_size_factor",
     var_type=float,
-    default_value=0.4,
-    unit="[m]",
-    descr="Value assigned for the fuselage surfaces mesh size",
-    xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH,
+    default_value=1,
+    unit="[-]",
+    descr="Factor proportional to fuselage radius of curvature to obtain cell size on it",
+    xpath=GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
     gui=True,
-    gui_name="Fuselage",
+    gui_name="Fuselage mesh size factor",
     gui_group="Mesh size",
 )
 
 cpacs_inout.add_input(
-    var_name="wing_mesh_size",
+    var_name="wing_mesh_size_factor",
     var_type=float,
-    default_value=0.23,
-    unit="[m]",
-    descr="Value assigned for the wings surfaces mesh size",
-    xpath=GMSH_MESH_SIZE_WINGS_XPATH,
+    default_value=1.5,
+    unit="[-]",
+    descr="Factor proportional to wing radius of curvature to obtain cell size on it",
+    xpath=GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
     gui=True,
-    gui_name="Wings",
+    gui_name="Wings mesh size factor",
     gui_group="Mesh size",
 )
 
@@ -130,6 +135,7 @@ cpacs_inout.add_input(
     gui_name="Engines",
     gui_group="Mesh size",
 )
+
 cpacs_inout.add_input(
     var_name="propeller_mesh_size",
     var_type=float,
@@ -143,9 +149,33 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
+    var_name="n_power_factor",
+    var_type=float,
+    default_value=2,
+    unit="1",
+    descr="Value that changes the number of cells near the aircraft parts",
+    xpath=GMSH_N_POWER_FACTOR_XPATH,
+    gui=True,
+    gui_name="n power factor",
+    gui_group="Advanced mesh parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="n_power_field",
+    var_type=float,
+    default_value=0.9,
+    unit="1",
+    descr="Value that changes the measure of fist cells near aircraft parts",
+    xpath=GMSH_N_POWER_FIELD_XPATH,
+    gui=True,
+    gui_name="n power field",
+    gui_group="Advanced mesh parameters",
+)
+
+cpacs_inout.add_input(
     var_name="refine_factor",
     var_type=float,
-    default_value=7.0,
+    default_value=2.0,
     unit="1",
     descr="Refinement factor of wing leading/trailing edge mesh",
     xpath=GMSH_REFINE_FACTOR_XPATH,
@@ -168,7 +198,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="auto_refine",
     var_type=bool,
-    default_value=True,
+    default_value=False,
     unit="1",
     descr="Automatically refine the mesh on surfaces that are small compare to the chosen mesh"
     "size, this option increase the mesh generation time",

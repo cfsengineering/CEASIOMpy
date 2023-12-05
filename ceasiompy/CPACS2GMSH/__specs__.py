@@ -243,19 +243,3 @@ cpacs_inout.add_output(
     descr="Absolute path of the SU2 mesh",
     xpath=SU2MESH_XPATH,
 )
-
-cpacs_inout.add_output(
-    var_name="fuselage_mesh_size",
-    var_type=float,
-    default_value=None,
-    descr="Value calculated for the fuselage surfaces mesh size",
-    xpath=GMSH_MESH_SIZE_FUSELAGE_XPATH,
-)
-
-cpacs_inout.add_output(
-    var_name="wing_mesh_size",
-    var_type=float,
-    default_value=None,
-    descr="Value calculated for the wings surfaces mesh size",
-    xpath=GMSH_MESH_SIZE_WINGS_XPATH,
-)

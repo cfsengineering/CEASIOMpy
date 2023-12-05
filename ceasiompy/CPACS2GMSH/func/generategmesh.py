@@ -40,6 +40,7 @@ from ceasiompy.utils.commonnames import (
     ENGINE_INTAKE_SUFFIX,
     GMSH_ENGINE_CONFIG_NAME,
 )
+from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_FUSELAGE_XPATH, GMSH_MESH_SIZE_WINGS_XPATH
 from ceasiompy.utils.configfiles import ConfigFile
 import gmsh
 import numpy as np
@@ -54,6 +55,8 @@ from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_part_type
+
+from cpacspy.cpacsfunctions import create_branch
 
 from ceasiompy.CPACS2GMSH.func.mesh_sizing import fuselage_size, wings_size
 
@@ -931,9 +934,15 @@ def generate_gmsh(
     mesh_size_fuselage = fuselage_mesh_size_factor * fuselage_minlen
     log.info(f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
 
+    create_branch(cpacs.tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH)
+    cpacs.tixi.updateDoubleElement(GMSH_MESH_SIZE_FUSELAGE_XPATH, mesh_size_fuselage, "%.3f")
+
     wing_maxlen, wing_minlen = wings_size(cpacs_path)
     mesh_size_wing = wing_mesh_size_factor * wing_minlen
     log.info(f"Mesh size wing={mesh_size_wing:.3f} m")
+
+    create_branch(cpacs.tixi, GMSH_MESH_SIZE_WINGS_XPATH)
+    cpacs.tixi.updateDoubleElement(GMSH_MESH_SIZE_WINGS_XPATH, mesh_size_wing, "%.3f")
 
     for part in aircraft_parts:
         if part.part_type == "fuselage":

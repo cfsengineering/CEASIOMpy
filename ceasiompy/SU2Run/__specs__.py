@@ -58,6 +58,18 @@ cpacs_inout.add_input(
     gui_group="Aeromap settings",
 )
 
+# cpacs_inout.add_input(
+#     var_name="mesh_upload",
+#     var_type=str,
+#     default_value="your path",
+#     unit=None,
+#     descr="Name of the mesh to upload",
+#     xpath=SU2MESH_XPATH,
+#     gui=True,
+#     gui_name="Path of the mesh",
+#     gui_group="Mesh upload",
+# )
+
 cpacs_inout.add_input(
     var_name="ref_len",
     var_type=float,

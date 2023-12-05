@@ -3,6 +3,7 @@
 
 # Author: Aaron Dettmann
 # Modif: Aidan Jungo
+# Modif: Giacomo Benedetti
 
 import platform
 import setuptools
@@ -12,7 +13,7 @@ NAME = "ceasiompy"
 EXCLUDE_DIRS = ["test_cases", "test_files", "installation"]
 VERSION = "0.2.0"
 AUTHOR = "CFS Engineering"
-EMAIL = "aidan.jungo@cfse.ch"
+EMAIL = "giacomo.benedetti@cfse.ch"
 DESCRIPTION = "A conceptual aircraft design environment"
 URL = "https://github.com/cfsengineering/CEASIOMpy"
 REQUIRES_PYTHON = ">=3.8.0"

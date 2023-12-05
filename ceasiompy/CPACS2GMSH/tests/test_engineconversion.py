@@ -103,7 +103,6 @@ def test_close_engine():
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

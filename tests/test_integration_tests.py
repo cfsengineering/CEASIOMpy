@@ -62,7 +62,6 @@ def workflow_ends():
 
 @pytest.mark.skipif(not shutil.which("pytornado"), reason="PyTornado not installed")
 def test_integration_1():
-
     modules_to_run = [
         "WeightConventional",
         "PyTornado",
@@ -81,7 +80,6 @@ def test_integration_1():
 @pytest.mark.skipif(not shutil.which("dwfsumo"), reason="SUMO not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_2():
-
     modules_to_run = ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
@@ -94,7 +92,6 @@ def test_integration_2():
 @pytest.mark.skipif(not shutil.which("dwfsumo"), reason="SUMO not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_3():
-
     modules_to_run = ["CLCalculator", "CPACS2SUMO", "SUMOAutoMesh", "SU2Run"]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
@@ -107,7 +104,6 @@ def test_integration_3():
 @pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_4():
-
     modules_to_run = ["CPACS2GMSH", "SU2Run", "SaveAeroCoefficients"]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
@@ -121,7 +117,6 @@ def test_integration_4():
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Integration tests")
     print("To run test use the following command:")
     print(">> pytest -v . --cov=../ceasiompy --cov-report term")

@@ -219,15 +219,19 @@ def test_refine_wing_section():
 
     generate_gmsh(
         cpacs=cpacs,
+        cpacs_path=CPACS_IN_PATH,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
-        mesh_size_farfield=5,
-        mesh_size_fuselage=0.5,
-        mesh_size_wings=0.5,
+        farfield_factor=2,
+        symmetry=False,
+        farfield_size_factor=30,
+        n_power_factor=2,
+        n_power_field=0.9,
+        fuselage_mesh_size_factor=5,
+        wing_mesh_size_factor=5,
         mesh_size_engines=0.5,
         mesh_size_propellers=0.5,
-        symmetry=False,
         refine_factor=2.0,
         refine_truncated=False,
         auto_refine=False,
@@ -245,7 +249,7 @@ def test_refine_wing_section():
     )
 
     # Check if a Matheval field was generated with the correct formula
-    assert gmsh.model.mesh.field.getString(2, "F") == "(0.5/2.0) + 0.5*(1-(1/2.0))*(F1/0.25)^2"
+    assert gmsh.model.mesh.field.getString(2, "F") == "(0.06/2.0) + 0.06*(1-(1/2.0))*(F1/0.25)^2"
     assert gmsh.model.mesh.field.getType(2) == "MathEval"
 
     # Check if the restrict field was applied on the wing
@@ -277,15 +281,19 @@ def test_auto_refine():
 
     generate_gmsh(
         cpacs=cpacs,
+        cpacs_path=CPACS_IN_PATH,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
-        mesh_size_farfield=5,
-        mesh_size_fuselage=0.5,
-        mesh_size_wings=0.5,
+        farfield_factor=5,
+        symmetry=False,
+        farfield_size_factor=17,
+        n_power_factor=2,
+        n_power_field=0.9,
+        fuselage_mesh_size_factor=10,
+        wing_mesh_size_factor=10,
         mesh_size_engines=0.5,
         mesh_size_propellers=0.5,
-        symmetry=False,
         refine_factor=2.0,
         refine_truncated=False,
         auto_refine=True,

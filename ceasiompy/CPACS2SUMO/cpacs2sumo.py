@@ -222,7 +222,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
             sec_transf.get_cpacs_transf(tixi, sec_xpath)
 
             if sec_transf.rotation.x or sec_transf.rotation.y or sec_transf.rotation.z:
-
                 log.warning(
                     f"Sections '{sec_uid}' is rotated, it is"
                     "not possible to take that into account in SUMO !"
@@ -306,8 +305,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     * fus_transf.scaling.z
                 )
 
-                if body_frm_height < 0.01:
-                    body_frm_height = 0.01
+                if body_frm_height < 0.005:
+                    body_frm_height = 0.005
                 body_frm_width = (
                     prof_size_y
                     * 2
@@ -315,8 +314,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     * sec_transf.scaling.y
                     * fus_transf.scaling.y
                 )
-                if body_frm_width < 0.01:
-                    body_frm_width = 0.01
+                if body_frm_width < 0.005:
+                    body_frm_width = 0.005
 
                 # Convert the profile points in the SMX format
                 prof_str = ""
@@ -627,16 +626,16 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 # then TE(1 0), but not reverse way.
 
                 # to avoid double zero, not accepted by SUMO
-                for i, item in enumerate(prof_vect_x):
-                    # if not (prof_vect_x[i] == prof_vect_x[i-1] or \
-                    #         round(prof_vect_z[i],4) == round(prof_vect_z[i-1],4)):
-                    if round(prof_vect_z[i], 4) != round(prof_vect_z[i - 1], 4):
-                        prof_str += (
-                            str(round(prof_vect_x[i], 4))
-                            + " "
-                            + str(round(prof_vect_z[i], 4))
-                            + " "
-                        )
+                prof_str += (
+                    str(round(prof_vect_x[0], 4)) + " " + str(round(prof_vect_z[0], 4)) + " "
+                )
+
+                for i in range(1, len(prof_vect_x)):
+                    dx_squared = (prof_vect_x[i] - prof_vect_x[i - 1]) ** 2
+                    dz_squared = (prof_vect_z[i] - prof_vect_z[i - 1]) ** 2
+
+                    if dx_squared + dz_squared > 1e-8:
+                        prof_str += f"{round(prof_vect_x[i], 4)} {round(prof_vect_z[i], 4)} "
 
                 sumo.addTextElementAtIndex(wg_sk_xpath, "WingSection", prof_str, wing_sec_index)
                 wg_sec_xpath = wg_sk_xpath + "/WingSection[" + str(wing_sec_index) + "]"
@@ -884,16 +883,15 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 # then TE(1 0), but not reverse way.
 
                 # to avoid double zero, not accepted by SUMO
-                for i, item in enumerate(prof_vect_x):
-                    # if not (prof_vect_x[i] == prof_vect_x[i-1] or \
-                    #         round(prof_vect_z[i],4) == round(prof_vect_z[i-1],4)):
-                    if round(prof_vect_z[i], 4) != round(prof_vect_z[i - 1], 4):
-                        prof_str += (
-                            str(round(prof_vect_x[i], 4))
-                            + " "
-                            + str(round(prof_vect_z[i], 4))
-                            + " "
-                        )
+                prof_str += (
+                    str(round(prof_vect_x[0], 4)) + " " + str(round(prof_vect_z[0], 4)) + " "
+                )
+                for i in range(1, len(prof_vect_x)):
+                    dx_squared = (prof_vect_x[i] - prof_vect_x[i - 1]) ** 2
+                    dz_squared = (prof_vect_z[i] - prof_vect_z[i - 1]) ** 2
+
+                    if dx_squared + dz_squared > 1e-6:
+                        prof_str += f"{round(prof_vect_x[i], 4)} {round(prof_vect_z[i], 4)} "
 
                 sumo.addTextElementAtIndex(wg_sk_xpath, "WingSection", prof_str, wing_sec_index)
                 wg_sec_xpath = wg_sk_xpath + "/WingSection[" + str(wing_sec_index) + "]"
@@ -953,13 +951,11 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
         engineparts = [engine.nacelle.fancowl, engine.nacelle.corecowl, engine.nacelle.centercowl]
 
         for engpart in engineparts:
-
             if not engpart.isengpart:
                 log.info("This engine part is not define.")
                 continue
 
             if engpart.iscone:
-
                 xcontours = engpart.pointlist.xlist
                 ycontours = engpart.pointlist.ylist
 
@@ -969,7 +965,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 zsectransl = 0
 
             else:
-
                 xlist = engpart.section.pointlist.xlist
                 ylist = engpart.section.pointlist.ylist
 
@@ -1025,7 +1020,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
             # Add section
             for i_sec in range(len(xcontours)):
-
                 namesec = "section_" + str(i_sec + 1)
                 # Only circle profiles
                 prof_str = " 0 -1 0.7071 -0.7071 1 0 0.7071 0.7071 0 1"
@@ -1033,8 +1027,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 frame_xpath = body_xpath + "/BodyFrame[" + str(i_sec + 1) + "]"
 
                 diam = (ycontours[i_sec] + zsectransl) * 2
-                if diam < 0.01:
-                    diam = 0.01
+                if diam < 0.005:
+                    diam = 0.005
 
                 sumo.addTextAttribute(
                     frame_xpath, "center", sumo_str_format(xcontours[i_sec], 0, 0)
@@ -1050,7 +1044,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                 sumo_add_engine_bc(sumo, "Engine", engpart.uid)
 
             if engine.sym:
-
                 sumo.createElementAtIndex("/Assembly", "BodySkeleton", i_fus + 1)
                 body_xpath = "/Assembly/BodySkeleton[" + str(i_fus + 1) + "]"
 
@@ -1067,7 +1060,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
                 # Add section
                 for i_sec in range(len(xcontours)):
-
                     namesec = "section_" + str(i_sec + 1)
                     # Only circle profiles
                     prof_str = " 0 -1 0.7071 -0.7071 1 0 0.7071 0.7071 0 1"
@@ -1075,8 +1067,8 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
                     frame_xpath = body_xpath + "/BodyFrame[" + str(i_sec + 1) + "]"
 
                     diam = (ycontours[i_sec] + zsectransl) * 2
-                    if diam < 0.01:
-                        diam = 0.01
+                    if diam < 0.005:
+                        diam = 0.005
 
                     sumo.addTextAttribute(
                         frame_xpath, "center", sumo_str_format(xcontours[i_sec], 0, 0)
@@ -1109,7 +1101,6 @@ def convert_cpacs_to_sumo(cpacs_path, cpacs_out_path):
 
 
 def main(cpacs_path, cpacs_out_path):
-
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     convert_cpacs_to_sumo(cpacs_path, cpacs_out_path)
@@ -1118,7 +1109,6 @@ def main(cpacs_path, cpacs_out_path):
 
 
 if __name__ == "__main__":
-
     cpacs_path = get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 

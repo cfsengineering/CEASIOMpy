@@ -58,6 +58,18 @@ cpacs_inout.add_input(
     gui_group="Aeromap settings",
 )
 
+# cpacs_inout.add_input(
+#     var_name="mesh_upload",
+#     var_type=str,
+#     default_value="your path",
+#     unit=None,
+#     descr="Name of the mesh to upload",
+#     xpath=SU2MESH_XPATH,
+#     gui=True,
+#     gui_name="Path of the mesh",
+#     gui_group="Mesh upload",
+# )
+
 cpacs_inout.add_input(
     var_name="ref_len",
     var_type=float,
@@ -210,7 +222,7 @@ cpacs_inout.add_input(
     unit="1",
     descr="CFL Number, Courant–Friedrichs–Lewy condition",
     xpath=SU2_CFL_NB_XPATH,
-    gui=True,
+    gui=False,
     gui_name="CFL Number",
     gui_group="SU2 Parameters",
 )
@@ -218,7 +230,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="cfl_adapt",
     var_type=bool,
-    default_value=True,
+    default_value=False,
     unit="1",
     descr="CFL Adaptation",
     xpath=SU2_CFL_ADAPT_XPATH,
@@ -364,7 +376,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="prandtl",
     var_type=bool,
-    default_value=True,
+    default_value=False,
     unit=None,
     descr="Enable or disable the tip loss correction of Prandtl",
     xpath=PROP_XPATH + "/propeller/blade/loss",

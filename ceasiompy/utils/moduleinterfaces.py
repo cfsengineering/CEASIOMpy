@@ -248,11 +248,6 @@ def get_module_list(only_active=True):
         if only_active:
             if module_status:
                 module_list.append(module_name)
-            else:
-                log.info(
-                    f"{module_name} has not been added to the module list because it is marked as "
-                    "deactivated (module_status = False in __specs__.py) "
-                )
         else:
             module_list.append(module_name)
 

@@ -84,6 +84,7 @@ WKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/wkdirPath"
 TURBOPROP_XPATH = PROP_XPATH + "/turboprop"
 
 # SUMO
+SUMO_OUTPUT_MESH_FORMAT_XPATH = MESH_XPATH + "sumoOptions/format"
 SUMO_REFINE_LEVEL_XPATH = MESH_XPATH + "/sumoOptions/refinementLevel"
 SUMO_INCLUDE_PYLON_XPATH = CEASIOMPY_XPATH + "/engine/includePylon"
 SUMO_INCLUDE_ENGINE_XPATH = CEASIOMPY_XPATH + "/engine/includeEngine"

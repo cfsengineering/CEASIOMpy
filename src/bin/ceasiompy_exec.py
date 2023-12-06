@@ -63,7 +63,6 @@ def run_testcase(testcase_nb):
     """Run a test case."""
 
     if testcase_nb == 1:
-
         testcase_message(1)
 
         test_case_1_path = Path(TEST_CASES_PATH, "test_case_1")
@@ -174,13 +173,18 @@ def run_gui():
     os.system(f"cd {STREAMLIT_PATH} && streamlit run CEASIOMpy.py")
 
 
+def run_output(format):
+    """Chose the format for the output mesh"""
+
+    log.info()
+
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
 
 def main():
-
     parser = argparse.ArgumentParser(
         description="CEASIOMpy: Conceptual Aircraft Design Environment",
         usage=argparse.SUPPRESS,
@@ -215,28 +219,36 @@ def main():
         metavar="NB",
         help="run a test case [1, 2, or 3]",
     )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        metavar="",
+        default="su2",
+        help="chose to generate a mesh for SU2 or m-Edge [su2, edge]",
+    )
 
     args = parser.parse_args()
 
     if args.testcase:
-
         run_testcase(args.testcase)
         return
 
     if args.modules:
-
         run_modules_list(args.modules)
         return
 
     if args.cfg:
-
         run_config_file(args.cfg)
 
         return
 
     if args.gui:
-
         run_gui()
+        return
+
+    if args.output:
+        run_output(args.output)
         return
 
     # If no argument is given, print the help
@@ -244,5 +256,4 @@ def main():
 
 
 if __name__ == "__main__":
-
     main()

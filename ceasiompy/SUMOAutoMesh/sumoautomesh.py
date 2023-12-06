@@ -112,7 +112,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
 
     REFINE_RATIO = 0.6  # to get approx. double mesh cell when +1 on "refine_level"
     refine_factor = REFINE_RATIO**refine_level
-    log.info("Refinement factor is {}".format(refine_factor))
+    log.info(f"Refinement factor is {refine_factor:.3f}")
 
     # Open SUMO (.smx) with tixi library
     sumo = open_tixi(sumo_file_path)
@@ -209,7 +209,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     sumo.save(str(sumo_file_path))
 
 
-def create_SU2_mesh(cpacs_path, cpacs_out_path):
+def create_mesh(cpacs_path, cpacs_out_path, output):
     """Function to create a simple SU2 mesh form an SUMO file (.smx)
 
     Function 'create_mesh' is used to generate an unstructured mesh with  SUMO
@@ -228,8 +228,15 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 
     tixi = open_tixi(cpacs_path)
 
+    if output == "su2":
+        file_extension = "su2"
+    elif output == "edge":
+        file_extension = "bmsh"
+    else:
+        raise ValueError("Unsupported output format. Use 'su2' or 'edge'")
+
     sumo_results_dir = get_results_directory("SUMOAutoMesh")
-    su2_mesh_path = Path(sumo_results_dir, "ToolOutput.su2")
+    mesh_path = Path(sumo_results_dir, f"ToolOutput.{file_extension}")
 
     sumo_file_path = Path(get_value_or_default(tixi, SUMOFILE_XPATH, ""))
     if not sumo_file_path.exists():
@@ -241,7 +248,7 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
     add_mesh_parameters(sumo_file_path, refine_level)
 
     # Tetgen option, see the help for more options
-    output = "su2"
+    # output = "su2"
     options = "pq1.16VY"
     arguments = [
         "-batch",
@@ -284,17 +291,17 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
         raise OSError("OS not recognize!")
 
     # Copy the mesh in the MESH directory
-    su2_mesh_name = aircraft_name(tixi) + "_baseline.su2"
-    su2_mesh_out_path = Path(sumo_results_dir, su2_mesh_name)
-    shutil.copyfile(su2_mesh_path, su2_mesh_out_path)
+    mesh_name = aircraft_name(tixi) + f"_baseline.{file_extension}"
+    mesh_out_path = Path(sumo_results_dir, mesh_name)
+    shutil.copyfile(mesh_path, mesh_out_path)
 
-    if not su2_mesh_out_path.exists():
-        raise ValueError("No SU2 Mesh file has been generated!")
+    if not mesh_out_path.exists():
+        raise ValueError("No mesh file has been generated!")
 
-    log.info("An SU2 Mesh has been correctly generated.")
+    log.info(f"A {output} mesh has been correctly generated.")
     create_branch(tixi, SU2MESH_XPATH)
-    tixi.updateTextElement(SU2MESH_XPATH, str(su2_mesh_out_path))
-    su2_mesh_path.unlink()
+    tixi.updateTextElement(SU2MESH_XPATH, str(mesh_out_path))
+    mesh_path.unlink()
 
     tixi.save(str(cpacs_out_path))
 
@@ -304,17 +311,16 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 # =================================================================================================
 
 
-def main(cpacs_path, cpacs_out_path):
-
+def main(cpacs_path, cpacs_out_path, output_format="edge"):
     log.info("----- Start of " + MODULE_NAME + " -----")
 
-    create_SU2_mesh(cpacs_path, cpacs_out_path)
+    # Call create_mesh with the desired output format
+    create_mesh(cpacs_path, cpacs_out_path, output=output_format)
 
     log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
-
     cpacs_path = get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 

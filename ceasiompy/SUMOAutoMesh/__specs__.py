@@ -1,6 +1,11 @@
 from pathlib import Path
 
-from ceasiompy.utils.commonxpath import SU2MESH_XPATH, SUMO_REFINE_LEVEL_XPATH, SUMOFILE_XPATH
+from ceasiompy.utils.commonxpath import (
+    SU2MESH_XPATH,
+    SUMO_REFINE_LEVEL_XPATH,
+    SUMOFILE_XPATH,
+    SUMO_OUTPUT_MESH_FORMAT_XPATH,
+)
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 # ===== Module Status =====
@@ -40,6 +45,18 @@ cpacs_inout.add_input(
     xpath=SUMO_REFINE_LEVEL_XPATH,
     gui=True,
     gui_name="Refinement Level",
+    gui_group="SUMO options",
+)
+
+cpacs_inout.add_input(
+    var_name="output_format",
+    var_type=list,
+    default_value=["SU2", "M-Edge"],
+    unit="1",
+    descr="chose the output mesh format",
+    xpath=SUMO_OUTPUT_MESH_FORMAT_XPATH,
+    gui=True,
+    gui_name="Output mesh format",
     gui_group="SUMO options",
 )
 

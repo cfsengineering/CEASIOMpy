@@ -29,7 +29,12 @@ from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import aircraft_name, get_results_directory, run_software
-from ceasiompy.utils.commonxpath import SU2MESH_XPATH, SUMO_REFINE_LEVEL_XPATH, SUMOFILE_XPATH
+from ceasiompy.utils.commonxpath import (
+    SU2MESH_XPATH,
+    SUMO_REFINE_LEVEL_XPATH,
+    SUMOFILE_XPATH,
+    SUMO_OUTPUT_MESH_FORMAT_XPATH,
+)
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
 
@@ -209,7 +214,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     sumo.save(str(sumo_file_path))
 
 
-def create_mesh(cpacs_path, cpacs_out_path, output):
+def create_mesh(cpacs_path, cpacs_out_path):
     """Function to create a simple SU2 mesh form an SUMO file (.smx)
 
     Function 'create_mesh' is used to generate an unstructured mesh with  SUMO
@@ -228,12 +233,16 @@ def create_mesh(cpacs_path, cpacs_out_path, output):
 
     tixi = open_tixi(cpacs_path)
 
+    output = get_value_or_default(tixi, SUMO_OUTPUT_MESH_FORMAT_XPATH, "su2")
+
     if output == "su2":
         file_extension = "su2"
     elif output == "edge":
         file_extension = "bmsh"
     else:
         raise ValueError("Unsupported output format. Use 'su2' or 'edge'")
+
+    log.info(f"The output mesh format is {file_extension}")
 
     sumo_results_dir = get_results_directory("SUMOAutoMesh")
     mesh_path = Path(sumo_results_dir, f"ToolOutput.{file_extension}")
@@ -311,11 +320,11 @@ def create_mesh(cpacs_path, cpacs_out_path, output):
 # =================================================================================================
 
 
-def main(cpacs_path, cpacs_out_path, output_format="edge"):
+def main(cpacs_path, cpacs_out_path):
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     # Call create_mesh with the desired output format
-    create_mesh(cpacs_path, cpacs_out_path, output=output_format)
+    create_mesh(cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + MODULE_NAME + " -----")
 

@@ -51,7 +51,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="output_format",
     var_type=list,
-    default_value=["SU2", "M-Edge"],
+    default_value=["su2", "edge"],
     unit="1",
     descr="chose the output mesh format",
     xpath=SUMO_OUTPUT_MESH_FORMAT_XPATH,

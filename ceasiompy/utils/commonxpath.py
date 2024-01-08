@@ -12,6 +12,7 @@ Python version: >=3.8
 
 | Author: Aidan jungo
 | Creation: 2021-10-21
+| Last modifiction: 2024-01-05 (Mengmeng Zhang, added M-Edge XPATHs )
 
 TODO:
 
@@ -77,6 +78,7 @@ STABILITY_DYNAMIC_XPATH = CEASIOMPY_XPATH + "/stability/dynamic"
 OPTWKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/optimPath"
 SMFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/SMpath"
 SU2MESH_XPATH = CEASIOMPY_XPATH + "/filesPath/su2Mesh"
+EdgeMESH_XPATH = CEASIOMPY_XPATH + "/filesPath/edgeMesh"
 SUMOFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/sumoFilePath"
 WKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/wkdirPath"
 
@@ -139,6 +141,15 @@ SU2_CONTROL_SURF_XPATH = SU2_XPATH + "/options/calculateControlSurfacesDeflectio
 SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
 
 SU2_ACTUATOR_DISK_XPATH = SU2_XPATH + "/options/includeActuatorDisk"
+
+# m-Edge
+Edge_XPATH = CEASIOMPY_XPATH + "/aerodynamics/m-edge"
+Edge_AEROMAP_UID_XPATH = Edge_XPATH + "/aeroMapUID"
+Edge_NB_CPU_XPATH = Edge_XPATH + "/settings/nbCPU"
+Edge_MAX_ITER_XPATH = Edge_XPATH + "/settings/maxIter"
+Edge_CFL_NB_XPATH = Edge_XPATH + "/settings/cflNumber/value"
+Edge_MG_LEVEL_XPATH = Edge_XPATH + "/settings/multigridLevel"
+Edge_FIXED_CL_XPATH = Edge_XPATH + "/fixedCL"
 
 # RANGE
 RANGE_LD_RATIO_XPATH = CEASIOMPY_XPATH + "/ranges/lDRatio"

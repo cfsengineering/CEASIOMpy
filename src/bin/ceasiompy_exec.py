@@ -231,6 +231,7 @@ def main():
     parser.add_argument(
         "-o",
         "--output",
+        dest="output",
         type=str,
         metavar="",
         default="su2",

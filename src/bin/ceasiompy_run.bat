@@ -39,5 +39,4 @@
 
 :: Turn off command echoing feature
 @echo off
-
-python ceasiompy_exec.py %*
+python3 ceasiompy_exec.py %*

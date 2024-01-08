@@ -43,7 +43,6 @@ class ModuleToRun:
     def __init__(
         self, name: str, wkflow_dir: Path, cpacs_in: Path = None, cpacs_out: Path = None
     ) -> None:
-
         # Check module name validity
         accepted_names = get_module_list(only_active=False) + OPTIM_METHOD
         if name not in accepted_names:
@@ -69,7 +68,6 @@ class ModuleToRun:
         self.optim_related_modules = []
 
     def create_module_wkflow_dir(self, cnt: int) -> None:
-
         if self.is_optim_module and self.optim_method:
             module_wkflow_name = str(cnt).rjust(2, "0") + "_" + self.optim_method
         else:
@@ -85,7 +83,6 @@ class OptimSubWorkflow:
     def __init__(
         self, subworkflow_dir: Path, cpacs_in: Path, optim_method: str, modules_list: list
     ) -> None:
-
         self.subworkflow_dir = subworkflow_dir
         self.cpacs_in = cpacs_in
         self.optim_method = optim_method
@@ -103,7 +100,6 @@ class OptimSubWorkflow:
         """Set input and output for subworkflow."""
 
         for m, module in enumerate(self.modules):
-
             # Create the module directory in the subworkflow directory
             with change_working_dir(self.subworkflow_dir):
                 self.modules[m].create_module_wkflow_dir(m + 1)
@@ -148,7 +144,6 @@ class Workflow:
     """Class to define and run CEASIOMpy workflow."""
 
     def __init__(self) -> None:
-
         self.working_dir = Path().cwd()
         self.cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml").resolve()
         self.current_wkflow_dir = None
@@ -158,6 +153,11 @@ class Workflow:
 
         self.optim_method = None
         self.module_optim = []
+        self.output_format = []
+
+    def set_output_format(self, output_format: str) -> None:
+        """Set the mesh extension."""
+        self.output_format = output_format
 
     def from_config_file(self, cfg_file: Path) -> None:
         """Get parameters from a config file
@@ -201,6 +201,8 @@ class Workflow:
         else:
             cfg["comment_module_optim"] = "MODULE_OPTIM = (  )"
             cfg["comment_optim_method"] = "OPTIM_METHOD = NONE"
+
+        cfg["MESH_OUTPUT_FORMAT"] = self.output_format
 
         cfg_file = Path(self.working_dir, "ceasiompy.cfg")
         cfg.write_file(cfg_file, overwrite=True)
@@ -255,7 +257,6 @@ class Workflow:
         module_optim_idx = None
 
         for m, module_name in enumerate(self.modules_list):
-
             # Check if it is the first module (to know where the cpacs input file should come from)
             if m == 0:
                 cpacs_in = wkflow_cpacs_in
@@ -266,6 +267,7 @@ class Workflow:
             if self.module_optim[m] == "NO":
                 module = ModuleToRun(module_name, self.current_wkflow_dir, cpacs_in)
 
+            module.output_format = self.output_format
             skip_create_module = False
 
             # Check if should be included in Optim/DoE
@@ -317,6 +319,10 @@ class Workflow:
         # log.info(f"  -> {module.name}")
 
         for module in self.modules:
+            if module.name == "SUMOAutomesh":
+                command_with_output_format = f"{module.name} --output={self.output_format}"
+                module.name = command_with_output_format
+
             if module.is_optim_module:
                 self.subworkflow.run_subworkflow()
             else:
@@ -342,5 +348,4 @@ class Workflow:
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Nothing to execute!")

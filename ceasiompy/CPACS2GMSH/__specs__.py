@@ -16,6 +16,7 @@ from ceasiompy.utils.commonxpath import (
     GMSH_OPEN_GUI_XPATH,
     GMSH_REFINE_TRUNCATED_XPATH,
     GMSH_REFINE_FACTOR_XPATH,
+    GMSH_EULER_XPATH,
     GMSH_SYMMETRY_XPATH,
     SU2MESH_XPATH,
     GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
@@ -61,6 +62,18 @@ cpacs_inout.add_input(
     gui=True,
     gui_name="Export propeller(s)",
     gui_group="General options",
+)
+
+cpacs_inout.add_input(
+    var_name="euler",
+    var_type=bool,
+    default_value=True,
+    unit="1",
+    descr="Create a farfield",
+    xpath=GMSH_EULER_XPATH,
+    gui=True,
+    gui_name="Domain for euler calculation",
+    gui_group="Domain",
 )
 
 cpacs_inout.add_input(

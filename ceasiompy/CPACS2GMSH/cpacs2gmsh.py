@@ -44,6 +44,7 @@ from ceasiompy.utils.commonxpath import (
     GMSH_OPEN_GUI_XPATH,
     GMSH_REFINE_FACTOR_XPATH,
     GMSH_REFINE_TRUNCATED_XPATH,
+    GMSH_EULER_XPATH,
     GMSH_SYMMETRY_XPATH,
     SU2MESH_XPATH,
 )
@@ -78,6 +79,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     # Retrieve value from the GUI Setting
     open_gmsh = get_value_or_default(cpacs.tixi, GMSH_OPEN_GUI_XPATH, False)
     farfield_factor = get_value_or_default(cpacs.tixi, GMSH_FARFIELD_FACTOR_XPATH, 6)
+    euler = get_value_or_default(cpacs.tixi, GMSH_EULER_XPATH, True)
     symmetry = get_value_or_default(cpacs.tixi, GMSH_SYMMETRY_XPATH, False)
     farfield_size_factor = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FARFIELD_XPATH, 17)
     n_power_factor = get_value_or_default(cpacs.tixi, GMSH_N_POWER_FACTOR_XPATH, 2)
@@ -105,6 +107,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         results_dir,
         open_gmsh=open_gmsh,
         farfield_factor=farfield_factor,
+        euler=euler,
         symmetry=symmetry,
         farfield_size_factor=farfield_size_factor,
         n_power_factor=n_power_factor,

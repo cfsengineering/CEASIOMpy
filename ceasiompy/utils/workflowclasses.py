@@ -158,6 +158,11 @@ class Workflow:
 
         self.optim_method = None
         self.module_optim = []
+        self.output_format = []
+
+    def set_output_format(self, output_format: str) -> None:
+        """Set the mesh extension."""
+        self.output_format = output_format
 
     def from_config_file(self, cfg_file: Path) -> None:
         """Get parameters from a config file
@@ -201,6 +206,8 @@ class Workflow:
         else:
             cfg["comment_module_optim"] = "MODULE_OPTIM = (  )"
             cfg["comment_optim_method"] = "OPTIM_METHOD = NONE"
+
+        cfg["MESH_OUTPUT_FORMAT"] = self.output_format
 
         cfg_file = Path(self.working_dir, "ceasiompy.cfg")
         cfg.write_file(cfg_file, overwrite=True)
@@ -265,7 +272,7 @@ class Workflow:
             # Create an object for the module if not and opitm module
             if self.module_optim[m] == "NO":
                 module = ModuleToRun(module_name, self.current_wkflow_dir, cpacs_in)
-
+            module.output_format = self.output_format
             skip_create_module = False
 
             # Check if should be included in Optim/DoE
@@ -317,6 +324,9 @@ class Workflow:
         # log.info(f"  -> {module.name}")
 
         for module in self.modules:
+            if module.name == "SUMOAutomesh":
+                command_with_output_format = f"{module.name} --output={self.output_format}"
+                module.name = command_with_output_format            
             if module.is_optim_module:
                 self.subworkflow.run_subworkflow()
             else:

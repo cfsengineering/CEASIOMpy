@@ -30,11 +30,13 @@ sys.path.append(str(ceasiompy_path))
 # import ceasiompy
 from ceasiompy.EdgeRun.func.edgeconfig import generate_edge_cfd_ainp
 import os
+from ceasiompy.EdgeRun.edgerun import run_Edge_multi
+from ceasiompy.utils.commonxpath import Edge_NB_CPU_XPATH
 
 # from ceasiompy.utils.create_ainpfile import CreateAinp
 
 MODULE_DIR = Path(__file__).parent
-
+nb_proc = 32
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
@@ -54,7 +56,7 @@ class TestEdgeConfig(unittest.TestCase):
         if not os.path.exists(wkdir):
             os.makedirs(wkdir)
 
-        generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir)
+        run_Edge_multi(wkdir)
 
 
 # =================================================================================================

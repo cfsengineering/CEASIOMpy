@@ -75,7 +75,6 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     results_dir = get_results_directory("CPACS2GMSH")
     brep_dir = Path(results_dir, "brep_files")
     brep_dir.mkdir()
-    aaaaaaaaaa
 
     # Retrieve value from the GUI Setting
     open_gmsh = get_value_or_default(cpacs.tixi, GMSH_OPEN_GUI_XPATH, False)

@@ -26,33 +26,34 @@ from pathlib import Path
 from shutil import copyfile
 
 from ambiance import Atmosphere
-#from ceasiompy.SU2Run.func.su2actuatordiskfile import (
+
+# from ceasiompy.SU2Run.func.su2actuatordiskfile import (
 #    get_advanced_ratio,
 #    get_radial_stations,
 #    save_plots,
 #    thrust_calculator,
 #    write_actuator_disk_data,
 #    write_header,
-#)
+# )
 from ceasiompy.EdgeRun.func.edgeutils import get_edge_ainp_template
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import (
-AINP_CFD_NAME,
+    AINP_CFD_NAME,
 )
 from ceasiompy.utils.commonxpath import (
     GMSH_SYMMETRY_XPATH,
     PROP_XPATH,
     RANGE_XPATH,
     EdgeMESH_XPATH,
-    Edge_AEROMAP_UID_XPATH, 
+    Edge_AEROMAP_UID_XPATH,
     Edge_CFL_NB_XPATH,
     Edge_MAX_ITER_XPATH,
     Edge_MG_LEVEL_XPATH,
     Edge_NB_CPU_XPATH,
     Edge_FIXED_CL_XPATH,
-
 )
-#from ceasiompy.utils.configfiles import ConfigFile
+
+# from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.create_ainpfile import CreateAinp
 from cpacspy.cpacsfunctions import (
     create_branch,
@@ -61,7 +62,8 @@ from cpacspy.cpacsfunctions import (
     get_value_or_default,
 )
 from cpacspy.cpacspy import CPACS
-#import cpacs
+
+# import cpacs
 
 log = get_logger()
 
@@ -79,14 +81,14 @@ MODULE_DIR = Path(__file__).parent
 
 
 def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
-    #output_path = Path(case_dir_path, AINP_CFD_NAME)
+    # output_path = Path(case_dir_path, AINP_CFD_NAME)
     """Function to create Edge input (*.ainp) file.
 
     Function 'generate_edge_cfd_ainp' reads data in the CPACS file and generate configuration
     files for one or multiple flight conditions (alt,mach,aoa,aos)
 
     Source:
-        * M-Edge ainp template: 
+        * M-Edge ainp template:
 
     Args:
         cpacs_path (Path): Path to CPACS file
@@ -100,7 +102,7 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
     edge_mesh = Path(get_value(cpacs.tixi, EdgeMESH_XPATH))
     if not edge_mesh.is_file():
         raise FileNotFoundError(f"M-Edge mesh file {edge_mesh} not found")
-    
+
     # Get the fixedCL value from CPACS
     fixed_cl = get_value_or_default(cpacs.tixi, Edge_FIXED_CL_XPATH, "NO")
     if fixed_cl == "NO":
@@ -109,7 +111,7 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
 
         if aeromap_list:
             aeromap_default = aeromap_list[0]
-            log.info(f'The aeromap is {aeromap_default}')
+            log.info(f"The aeromap is {aeromap_default}")
 
             aeromap_uid = get_value_or_default(cpacs.tixi, Edge_AEROMAP_UID_XPATH, aeromap_default)
 
@@ -134,7 +136,9 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
             aoa_list = [0.0]
             aos_list = [0.0]
 
-            aeromap_uid = get_value_or_default(cpacs.tixi, Edge_AEROMAP_UID_XPATH, "DefaultAeromap")
+            aeromap_uid = get_value_or_default(
+                cpacs.tixi, Edge_AEROMAP_UID_XPATH, "DefaultAeromap"
+            )
             log.info(f"{aeromap_uid} has been created")
 
     else:  # if fixed_cl == 'YES':
@@ -154,7 +158,7 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
         aoa_list = [0.0]
         aos_list = [0.0]
 
-    #cfg = ConfigFile(get_su2_config_template())
+    # cfg = ConfigFile(get_su2_config_template())
 
     # Check if symmetry plane is defined (Default: False)
     sym_factor = 1.0
@@ -163,7 +167,7 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
         sym_factor = 2.0
 
     # General parameters
-#    cfg["RESTART_SOL"] = "NO"
+    #    cfg["RESTART_SOL"] = "NO"
     CREF = cpacs.aircraft.ref_length
     SREF = cpacs.aircraft.ref_area / sym_factor
     BREF = SREF / CREF
@@ -174,13 +178,12 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
     ITMAX = int(get_value_or_default(cpacs.tixi, Edge_MAX_ITER_XPATH, 200))
     CFL = get_value_or_default(cpacs.tixi, Edge_CFL_NB_XPATH, 1.5)
     NGRID = int(get_value_or_default(cpacs.tixi, Edge_MG_LEVEL_XPATH, 3))
-    NPART = int(get_value_or_default(cpacs.tixi,Edge_NB_CPU_XPATH,32))
+    NPART = int(get_value_or_default(cpacs.tixi, Edge_NB_CPU_XPATH, 32))
     INSEUL = 0
-
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
     for case_nb in range(len(alt_list)):
-        #cfg["MESH_FILENAME"] = str(su2_mesh)
+        # cfg["MESH_FILENAME"] = str(su2_mesh)
 
         alt = alt_list[case_nb]
         mach = mach_list[case_nb]
@@ -192,23 +195,23 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
         PFREE = Atm.pressure[0]
         TFREE = Atm.temperature[0]
         speedofsound = Atm.speed_of_sound[0]
-        airspeed = mach*speedofsound
-        
+        airspeed = mach * speedofsound
+
         aoa_rad = math.radians(aoa)
         aos_rad = math.radians(aos)
-        
+
         UFREE = airspeed * math.cos(aos) * math.cos(aoa)
         WFREE = airspeed * math.cos(aos) * math.sin(aoa)
         VFREE = airspeed * math.sin(aos) * (-1)
-        
+
         IDCDP1 = math.cos(aos) * math.cos(aoa)
-        IDCDP2 = math.sin(aos) 
+        IDCDP2 = math.sin(aos)
         IDCDP3 = math.cos(aos) * math.sin(aoa)
-        
+
         IDCLP1 = math.sin(aoa) * (-1)
         IDCLP2 = 0
         IDCLP3 = math.cos(aoa)
-        
+
         IDCCP1 = math.cos(aoa) * math.sin(aos) * (-1)
         IDCCP2 = math.cos(aos) * (-1)
         IDCCP3 = math.sin(aoa) * math.sin(aos) * (-1)
@@ -221,7 +224,7 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
         IDCRP1 = IDCDP1
         IDCRP2 = IDCDP2
         IDCRP3 = IDCDP3
-        
+
         IDCLP = f"{IDCLP1} {IDCLP2} {IDCLP3}"
         IDCDP = f"{IDCDP1} {IDCDP2} {IDCDP3}"
         IDCMP = f"{IDCMP1} {IDCMP2} {IDCMP3}"
@@ -238,16 +241,37 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
         if not case_dir_path.exists():
             case_dir_path.mkdir()
         output_path = Path(case_dir_path, AINP_CFD_NAME)
-        #template_path = get_edge_ainp_template()
+        # template_path = get_edge_ainp_template()
         create_ainp_instance = CreateAinp()
-        #create_ainp_instance = CreateAinp(get_edge_ainp_template())
+        # create_ainp_instance = CreateAinp(get_edge_ainp_template())
 
-        create_ainp_instance.create_ainp(UFREE, VFREE, WFREE, TFREE, PFREE, SREF, CREF, BREF, IXMP, IDCLP, IDCDP, IDCCP, IDCMP, IDCNP, IDCRP, NPART, ITMAX, INSEUL, NGRID, CFL, output_path)
+        create_ainp_instance.create_ainp(
+            UFREE,
+            VFREE,
+            WFREE,
+            TFREE,
+            PFREE,
+            SREF,
+            CREF,
+            BREF,
+            IXMP,
+            IDCLP,
+            IDCDP,
+            IDCCP,
+            IDCMP,
+            IDCNP,
+            IDCRP,
+            NPART,
+            ITMAX,
+            INSEUL,
+            NGRID,
+            CFL,
+            output_path,
+        )
 
-        #cfg.write_file(config_output_path, overwrite=True)
+        # cfg.write_file(config_output_path, overwrite=True)
 
         cpacs.save_cpacs(cpacs_out_path, overwrite=True)
-
 
         # =================================================================================================
         #    MAIN

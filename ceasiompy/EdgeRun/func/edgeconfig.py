@@ -146,7 +146,7 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
         log.info("Configuration file for fixed CL calculation will be created.")
 
         fixed_cl_aeromap = cpacs.create_aeromap("aeroMap_fixedCL_SU2")
-        fixed_cl_aeromap.description = f"AeroMap created for SU2 fixed CL value of {target_cl}"
+        # fixed_cl_aeromap.description = f"AeroMap created for SU2 fixed CL value of {target_cl}"
 
         mach = get_value_or_default(cpacs.tixi, RANGE_XPATH + "/cruiseMach", 0.78)
         alt = get_value_or_default(cpacs.tixi, RANGE_XPATH + "/cruiseAltitude", 12000)

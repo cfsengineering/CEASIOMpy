@@ -28,7 +28,7 @@ from pathlib import Path
 from ceasiompy.EdgeRun.func.edgeconfig import generate_edge_cfd_ainp
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import (
-    get_reasonable_nb_cpu,
+    get_reasonable_nb_cpu,xed_cl_aeromap = cpacs.create_aeromap("aeroMap_fixedCL_SU2")
     get_results_directory,
     run_software,
 )

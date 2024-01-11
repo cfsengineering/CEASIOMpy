@@ -44,12 +44,13 @@ log = get_logger()
 #   FUNCTIONS
 # =================================================================================================
 
+
 def get_edge_ainp_template():
     """Return path of the M-Edge ainp template corresponding to the M-Edge version."""
 
-#    su2_version = get_su2_version()
+    #    su2_version = get_su2_version()
     edge_dir = get_module_path("EdgeRun")
-    edge_ainp_template_path = Path(edge_dir, "files", f"default.ainp.tmp")
+    edge_ainp_template_path = Path(edge_dir, "files", "default.ainp.tmp")
     if not edge_ainp_template_path.is_file():
         raise FileNotFoundError(
             f"The M-Edge ainp template '{edge_ainp_template_path}' has not been found!"
@@ -102,11 +103,6 @@ def get_su2_aerocoefs(force_file):
                 velocity = float(line.split(" ")[7])
 
     return cl, cd, cs, cmd, cms, cml, velocity
-""""""
-
-
-
-
 
 
 # =================================================================================================
@@ -114,5 +110,4 @@ def get_su2_aerocoefs(force_file):
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Nothing to execute!")

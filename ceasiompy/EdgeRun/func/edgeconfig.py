@@ -12,7 +12,7 @@ Python version: >=3.8
 
 TODO:
 
-    * 
+    *
 
 """
 
@@ -35,6 +35,7 @@ from ambiance import Atmosphere
 #    write_actuator_disk_data,
 #    write_header,
 # )
+
 from ceasiompy.EdgeRun.func.edgeutils import get_edge_ainp_template
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import (
@@ -44,13 +45,13 @@ from ceasiompy.utils.commonxpath import (
     GMSH_SYMMETRY_XPATH,
     PROP_XPATH,
     RANGE_XPATH,
-    EdgeMESH_XPATH,
-    Edge_AEROMAP_UID_XPATH,
-    Edge_CFL_NB_XPATH,
-    Edge_MAX_ITER_XPATH,
-    Edge_MG_LEVEL_XPATH,
-    Edge_NB_CPU_XPATH,
-    Edge_FIXED_CL_XPATH,
+    EDGE_MESH_XPATH,
+    EDGE_AEROMAP_UID_XPATH,
+    EDGE_CFL_NB_XPATH,
+    EDGE_MAX_ITER_XPATH,
+    EDGE_MG_LEVEL_XPATH,
+    EDGE_NB_CPU_XPATH,
+    EDGE_FIXED_CL_XPATH,
 )
 
 # from ceasiompy.utils.configfiles import ConfigFile
@@ -99,12 +100,12 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
 
     cpacs = CPACS(cpacs_path)
 
-    edge_mesh = Path(get_value(cpacs.tixi, EdgeMESH_XPATH))
+    edge_mesh = Path(get_value(cpacs.tixi, EDGE_MESH_XPATH))
     if not edge_mesh.is_file():
         raise FileNotFoundError(f"M-Edge mesh file {edge_mesh} not found")
 
     # Get the fixedCL value from CPACS
-    fixed_cl = get_value_or_default(cpacs.tixi, Edge_FIXED_CL_XPATH, "NO")
+    fixed_cl = get_value_or_default(cpacs.tixi, EDGE_FIXED_CL_XPATH, "NO")
     if fixed_cl == "NO":
         # Get the first aeroMap as default one or create automatically one
         aeromap_list = cpacs.get_aeromap_uid_list()
@@ -113,7 +114,7 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
             aeromap_default = aeromap_list[0]
             log.info(f"The aeromap is {aeromap_default}")
 
-            aeromap_uid = get_value_or_default(cpacs.tixi, Edge_AEROMAP_UID_XPATH, aeromap_default)
+            aeromap_uid = get_value_or_default(cpacs.tixi, EDGE_AEROMAP_UID_XPATH, aeromap_default)
 
             activate_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
             alt_list = activate_aeromap.get("altitude").tolist()
@@ -137,7 +138,7 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
             aos_list = [0.0]
 
             aeromap_uid = get_value_or_default(
-                cpacs.tixi, Edge_AEROMAP_UID_XPATH, "DefaultAeromap"
+                cpacs.tixi, EDGE_AEROMAP_UID_XPATH, "DefaultAeromap"
             )
             log.info(f"{aeromap_uid} has been created")
 
@@ -145,7 +146,7 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
         log.info("Configuration file for fixed CL calculation will be created.")
 
         fixed_cl_aeromap = cpacs.create_aeromap("aeroMap_fixedCL_SU2")
-        fixed_cl_aeromap.description = f"AeroMap created for SU2 fixed CL value of {target_cl}"
+        # fixed_cl_aeromap.description = f"AeroMap created for SU2 fixed CL value of {target_cl}"
 
         mach = get_value_or_default(cpacs.tixi, RANGE_XPATH + "/cruiseMach", 0.78)
         alt = get_value_or_default(cpacs.tixi, RANGE_XPATH + "/cruiseAltitude", 12000)
@@ -175,10 +176,10 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
 
     # Settings
 
-    ITMAX = int(get_value_or_default(cpacs.tixi, Edge_MAX_ITER_XPATH, 200))
-    CFL = get_value_or_default(cpacs.tixi, Edge_CFL_NB_XPATH, 1.5)
-    NGRID = int(get_value_or_default(cpacs.tixi, Edge_MG_LEVEL_XPATH, 3))
-    NPART = int(get_value_or_default(cpacs.tixi, Edge_NB_CPU_XPATH, 32))
+    ITMAX = int(get_value_or_default(cpacs.tixi, EDGE_MAX_ITER_XPATH, 200))
+    CFL = get_value_or_default(cpacs.tixi, EDGE_CFL_NB_XPATH, 1.5)
+    NGRID = int(get_value_or_default(cpacs.tixi, EDGE_MG_LEVEL_XPATH, 3))
+    NPART = int(get_value_or_default(cpacs.tixi, EDGE_NB_CPU_XPATH, 32))
     INSEUL = 0
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
@@ -197,8 +198,8 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
         speedofsound = Atm.speed_of_sound[0]
         airspeed = mach * speedofsound
 
-        aoa_rad = math.radians(aoa)
-        aos_rad = math.radians(aos)
+        # aoa_rad = math.radians(aoa)
+        # aos_rad = math.radians(aos)
 
         UFREE = airspeed * math.cos(aos) * math.cos(aoa)
         WFREE = airspeed * math.cos(aos) * math.sin(aoa)

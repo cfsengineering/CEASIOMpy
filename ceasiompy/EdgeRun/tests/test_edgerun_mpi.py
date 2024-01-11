@@ -23,15 +23,15 @@ import sys
 from pathlib import Path
 
 # Add the ceasiompy module to the PYTHONPATH
-ceasiompy_path = Path("/home/mengmeng/Documents/CEASIOMpy23/CEASIOMpy/ceasiompy")
-sys.path.append(str(ceasiompy_path))
+# ceasiompy_path = Path("/home/mengmeng/Documents/CEASIOMpy23/CEASIOMpy/ceasiompy")
+# sys.path.append(str(ceasiompy_path))
 
 # Now you can import and use the ceasiompy module
 # import ceasiompy
 from ceasiompy.EdgeRun.func.edgeconfig import generate_edge_cfd_ainp
 import os
-from ceasiompy.EdgeRun.edgerun import run_Edge_multi
-from ceasiompy.utils.commonxpath import Edge_NB_CPU_XPATH
+from ceasiompy.EdgeRun.edgerun import run_edge_multi
+from ceasiompy.utils.commonxpath import EDGE_NB_CPU_XPATH
 
 # from ceasiompy.utils.create_ainpfile import CreateAinp
 
@@ -47,16 +47,14 @@ class TestEdgeConfig(unittest.TestCase):
 
     def test_generate_edge_cfd_ainp(self):
         """Test function for 'ceasiompy.EdgeRun.func.edgeconfig.py'."""
-        cpacs_path = Path(
-            "/home/mengmeng/Documents/CEASIOMpy23/CEASIOMpy/WKDIR/labARstraight_toolInput.xml"
-        )
-        cpacs_out_path = MODULE_DIR / "ToolOutput.xml"
+        # cpacs_in_path = Path(MODULE_DIR / "ToolInput" / "ToolInput.xml")
+        # cpacs_out_path = MODULE_DIR / "ToolOutput.xml"
         wkdir = MODULE_DIR / "Results/Edge"
 
         if not os.path.exists(wkdir):
             os.makedirs(wkdir)
 
-        run_Edge_multi(wkdir)
+        run_edge_multi(wkdir)
 
 
 # =================================================================================================

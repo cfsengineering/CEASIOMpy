@@ -22,7 +22,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import (
     get_reasonable_nb_cpu,
     get_results_directory,
-    run_software,
+#    run_software,
 )
 
 # from ceasiompy.utils.commonnames import AINP_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
@@ -50,7 +50,7 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 input_que_script_path = get_edge_queScript_template()
 
-def run_edge_multi(wkdir, nb_proc=2):
+def run_edge_multi(wkdir, input_que_script_path , nb_proc=2):
     """Function to run a multiple Edge calculation.
 
     Function 'run_edge_multi' will run in the given working directory Edge calculations.
@@ -76,35 +76,11 @@ def run_edge_multi(wkdir, nb_proc=2):
 
         if len(config_cfd) > 1:
             raise ValueError(f"More than one '{AINP_CFD_NAME}' file in this directory!")
-        edge_scripts_instance = EdgeScripts(config_cfd[0], input_que_script_path, AINP_CFD_NAME)
+        
+        # run / submit edge commands
+        edge_scripts_instance = EdgeScripts(config_dir, input_que_script_path, AINP_CFD_NAME)
         edge_scripts_instance.submit_preprocessor_script()
         #edge_scripts_instance.submit_solver_script(nb_proc)
-"""
-        run_software(
-            software_name="edge_mpi_run",
-            arguments=[config_cfd[0], str(nb_proc)],
-            wkdir=config_dir,
-<<<<<<< HEAD
-            with_mpi=True,
-#            nb_proc
-        )
-"""
-
-        #forces_breakdown_file = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
-        #if not forces_breakdown_file.exists():
-=======
-            with_mpi=False,
-            # nb_proc
-        )
-
-        # forces_breakdown_file = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
-        # if not forces_breakdown_file.exists():
->>>>>>> 11ccb81e114b69bf4ab99efd08c252c4ab3ecd0f
-        #    raise ValueError(
-        #    "The SU2_CFD calculation has not ended correctly,"
-        #    f"{SU2_FORCES_BREAKDOWN_NAME} is missing!"
-        #    )
-
 
 # =================================================================================================
 #    MAIN

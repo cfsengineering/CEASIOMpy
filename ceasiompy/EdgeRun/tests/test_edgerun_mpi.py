@@ -32,10 +32,11 @@ from ceasiompy.EdgeRun.func.edgeconfig import generate_edge_cfd_ainp
 import os
 from ceasiompy.EdgeRun.edgerun import run_edge_multi
 from ceasiompy.utils.commonxpath import EDGE_NB_CPU_XPATH
-
+from ceasiompy.EdgeRun.func.edgeutils import get_edge_queScript_template
 # from ceasiompy.utils.create_ainpfile import CreateAinp
 
 MODULE_DIR = Path(__file__).parent
+input_que_script_path = get_edge_queScript_template()
 nb_proc = 32
 # =================================================================================================
 #   CLASSES
@@ -45,16 +46,18 @@ nb_proc = 32
 class TestEdgeConfig(unittest.TestCase):
     """Test class for 'ceasiompy/EdgeRun/func/edgerun.py'"""
 
-    def test_generate_edge_cfd_ainp(self):
-        """Test function for 'ceasiompy.EdgeRun.func.edgeconfig.py'."""
-        # cpacs_in_path = Path(MODULE_DIR / "ToolInput" / "ToolInput.xml")
-        # cpacs_out_path = MODULE_DIR / "ToolOutput.xml"
+    def test_run_edge_cfd(self):
+       # cpacs_in_path = Path(MODULE_DIR / "ToolInput" / "ToolInput.xml")
+        cpacs_in_path = Path('/home/mengmeng/Documents/CEASIOMpy23/CEASIOMpy/WKDIR/labARstraight_toolInput.xml')
+        cpacs_out_path = MODULE_DIR / "ToolOutput.xml"
         wkdir = MODULE_DIR / "Results/Edge"
+
 
         if not os.path.exists(wkdir):
             os.makedirs(wkdir)
 
-        run_edge_multi(wkdir)
+        generate_edge_cfd_ainp(cpacs_in_path, cpacs_out_path, wkdir)
+        run_edge_multi(wkdir,input_que_script_path )
 
 
 # =================================================================================================

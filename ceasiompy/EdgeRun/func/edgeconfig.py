@@ -35,6 +35,7 @@ from ambiance import Atmosphere
 #    write_actuator_disk_data,
 #    write_header,
 # )
+
 from ceasiompy.EdgeRun.func.edgeutils import get_edge_ainp_template
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import (
@@ -197,8 +198,8 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
         speedofsound = Atm.speed_of_sound[0]
         airspeed = mach * speedofsound
 
-        aoa_rad = math.radians(aoa)
-        aos_rad = math.radians(aos)
+        # aoa_rad = math.radians(aoa)
+        # aos_rad = math.radians(aos)
 
         UFREE = airspeed * math.cos(aos) * math.cos(aoa)
         WFREE = airspeed * math.cos(aos) * math.sin(aoa)

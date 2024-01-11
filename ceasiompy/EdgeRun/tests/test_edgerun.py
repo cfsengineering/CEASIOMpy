@@ -23,8 +23,8 @@ import sys
 from pathlib import Path
 
 # Add the ceasiompy module to the PYTHONPATH
-ceasiompy_path = Path("/home/mengmeng/Documents/CEASIOMpy23/CEASIOMpy/ceasiompy")
-sys.path.append(str(ceasiompy_path))
+# ceasiompy_path = Path("/home/mengmeng/Documents/CEASIOMpy23/CEASIOMpy/ceasiompy")
+# sys.path.append(str(ceasiompy_path))
 
 # Now you can import and use the ceasiompy module
 # import ceasiompy

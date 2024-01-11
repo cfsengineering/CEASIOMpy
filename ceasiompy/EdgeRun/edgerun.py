@@ -32,7 +32,8 @@ from ceasiompy.utils.ceasiompyutils import (
     get_results_directory,
     run_software,
 )
-#from ceasiompy.utils.commonnames import AINP_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
+
+# from ceasiompy.utils.commonnames import AINP_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.commonnames import AINP_CFD_NAME
 from ceasiompy.utils.commonxpath import Edge_NB_CPU_XPATH
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
@@ -56,8 +57,8 @@ MODULE_NAME = MODULE_DIR.name
 def run_Edge_multi(wkdir, nb_proc=2):
     """Function to run a multiple Edge calculation.
 
-    Function 'run_Edge_multi' will run in the given working directory Edge calculations. The working
-    directory must have a folder structure created by 'SU2Config'/ 'EdgeConfig' module.
+    Function 'run_Edge_multi' will run in the given working directory Edge calculations.
+    The working directory must have a folder structure created by 'SU2Config'/ 'EdgeConfig' module.
 
     Args:
         wkdir (Path): Path to the working directory
@@ -72,7 +73,6 @@ def run_Edge_multi(wkdir, nb_proc=2):
         raise OSError(f"No Case directory has been found in the working directory: {wkdir}")
 
     for config_dir in sorted(case_dir_list):
-
         config_cfd = [c for c in config_dir.iterdir() if c.name == AINP_CFD_NAME]
 
         if not config_cfd:
@@ -86,15 +86,14 @@ def run_Edge_multi(wkdir, nb_proc=2):
             arguments=[config_cfd[0], str(nb_proc)],
             wkdir=config_dir,
             with_mpi=False,
-#            nb_proc
+            # nb_proc
         )
 
-
-        #forces_breakdown_file = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
-        #if not forces_breakdown_file.exists():
+        # forces_breakdown_file = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
+        # if not forces_breakdown_file.exists():
         #    raise ValueError(
-        #        "The SU2_CFD calculation has not ended correctly,"
-        #        f"{SU2_FORCES_BREAKDOWN_NAME} is missing!"
+        #    "The SU2_CFD calculation has not ended correctly,"
+        #    f"{SU2_FORCES_BREAKDOWN_NAME} is missing!"
         #    )
 
 
@@ -104,7 +103,6 @@ def run_Edge_multi(wkdir, nb_proc=2):
 
 
 def main(cpacs_path, cpacs_out_path):
-
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     tixi = open_tixi(cpacs_path)
@@ -117,13 +115,12 @@ def main(cpacs_path, cpacs_out_path):
 
     generate_edge_cfd_ainp(cpacs_path, cpacs_tmp_cfg, results_dir)
     run_Edge_multi(results_dir, nb_proc)
-    #get_su2_results(cpacs_tmp_cfg, cpacs_out_path, results_dir)
+    # get_su2_results(cpacs_tmp_cfg, cpacs_out_path, results_dir)
 
     log.info("----- End of " + MODULE_NAME + " -----")
 
 
 if __name__ == "__main__":
-
     cpacs_path = get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 

@@ -28,14 +28,14 @@ from pathlib import Path
 from ceasiompy.EdgeRun.func.edgeconfig import generate_edge_cfd_ainp
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import (
-    get_reasonable_nb_cpu,xed_cl_aeromap = cpacs.create_aeromap("aeroMap_fixedCL_SU2")
+    get_reasonable_nb_cpu,
     get_results_directory,
     run_software,
 )
 
 # from ceasiompy.utils.commonnames import AINP_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.commonnames import AINP_CFD_NAME
-from ceasiompy.utils.commonxpath import Edge_NB_CPU_XPATH
+from ceasiompy.utils.commonxpath import EDGE_NB_CPU_XPATH
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
@@ -54,10 +54,10 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 
 
-def run_Edge_multi(wkdir, nb_proc=2):
+def run_edge_multi(wkdir, nb_proc=2):
     """Function to run a multiple Edge calculation.
 
-    Function 'run_Edge_multi' will run in the given working directory Edge calculations.
+    Function 'run_edge_multi' will run in the given working directory Edge calculations.
     The working directory must have a folder structure created by 'SU2Config'/ 'EdgeConfig' module.
 
     Args:
@@ -106,7 +106,7 @@ def main(cpacs_path, cpacs_out_path):
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     tixi = open_tixi(cpacs_path)
-    nb_proc = get_value_or_default(tixi, Edge_NB_CPU_XPATH, get_reasonable_nb_cpu())
+    nb_proc = get_value_or_default(tixi, EDGE_NB_CPU_XPATH, get_reasonable_nb_cpu())
 
     results_dir = get_results_directory("EdgeRun")
 
@@ -114,7 +114,7 @@ def main(cpacs_path, cpacs_out_path):
     cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")
 
     generate_edge_cfd_ainp(cpacs_path, cpacs_tmp_cfg, results_dir)
-    run_Edge_multi(results_dir, nb_proc)
+    run_edge_multi(results_dir, nb_proc)
     # get_su2_results(cpacs_tmp_cfg, cpacs_out_path, results_dir)
 
     log.info("----- End of " + MODULE_NAME + " -----")

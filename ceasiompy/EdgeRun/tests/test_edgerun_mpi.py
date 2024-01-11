@@ -30,8 +30,8 @@ from pathlib import Path
 # import ceasiompy
 from ceasiompy.EdgeRun.func.edgeconfig import generate_edge_cfd_ainp
 import os
-from ceasiompy.EdgeRun.edgerun import run_Edge_multi
-from ceasiompy.utils.commonxpath import Edge_NB_CPU_XPATH
+from ceasiompy.EdgeRun.edgerun import run_edge_multi
+from ceasiompy.utils.commonxpath import EDGE_NB_CPU_XPATH
 
 # from ceasiompy.utils.create_ainpfile import CreateAinp
 
@@ -47,14 +47,14 @@ class TestEdgeConfig(unittest.TestCase):
 
     def test_generate_edge_cfd_ainp(self):
         """Test function for 'ceasiompy.EdgeRun.func.edgeconfig.py'."""
-        cpacs_in_path = Path(MODULE_DIR / "ToolInput" / "ToolInput.xml")
-        cpacs_out_path = MODULE_DIR / "ToolOutput.xml"
+        # cpacs_in_path = Path(MODULE_DIR / "ToolInput" / "ToolInput.xml")
+        # cpacs_out_path = MODULE_DIR / "ToolOutput.xml"
         wkdir = MODULE_DIR / "Results/Edge"
 
         if not os.path.exists(wkdir):
             os.makedirs(wkdir)
 
-        run_Edge_multi(wkdir)
+        run_edge_multi(wkdir)
 
 
 # =================================================================================================

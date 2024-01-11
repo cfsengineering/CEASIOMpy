@@ -56,6 +56,17 @@ def get_edge_ainp_template():
         )
     return edge_ainp_template_path
 
+def get_edge_queScript_template():
+    """Return path of the M-Edge ainp template corresponding to the M-Edge version."""
+
+    edge_dir = get_module_path("EdgeRun")
+    edge_queScript_template_path = Path(edge_dir, "files", f"queue_template.script")
+    if not edge_queScript_template_path.is_file():
+        raise FileNotFoundError(
+            f"The M-Edge queueScript template '{edge_queScript_template_path}' has not been found!"
+        )
+    return edge_queScript_template_path
+
 """"""
 def get_su2_aerocoefs(force_file):
     """Get aerodynamic coefficients and velocity from SU2 forces file (forces_breakdown.dat)

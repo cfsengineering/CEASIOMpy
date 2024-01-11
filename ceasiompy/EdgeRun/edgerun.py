@@ -1,22 +1,14 @@
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
-Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+Developed for Airinnova AB, Stockholm, Sweden
 
-Module to run SU2 Calculation in CEASIOMpy
+Functions to manipulate Edge input file and results (TO-DO)
 
 Python version: >=3.8
 
-| Author : Aidan Jungo
-| Creation: 2018-11-06
-
-TODO:
-
-    * Create test functions
-    * complete input/output in __specs__
-    * Check platform with-> sys.platform
-    * Move run_SU2_fsi to /SU2Run/func/su2fsi.py
-
+| Author : Mengmeng Zhang
+| Creation: 2024-01-05
 """
 
 # =================================================================================================
@@ -37,11 +29,15 @@ from ceasiompy.utils.commonnames import AINP_CFD_NAME
 from ceasiompy.utils.commonxpath import Edge_NB_CPU_XPATH
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
+from ceasiompy.EdgeRun.func.edge_queScript_gen import EdgeScripts
+from ceasiompy.EdgeRun.func.edgeutils import get_edge_queScript_template
 
 log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+
+
 
 # =================================================================================================
 #   CLASSES
@@ -51,7 +47,7 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
-
+input_que_script_path = get_edge_queScript_template()
 
 def run_Edge_multi(wkdir, nb_proc=2):
     """Function to run a multiple Edge calculation.
@@ -80,15 +76,18 @@ def run_Edge_multi(wkdir, nb_proc=2):
 
         if len(config_cfd) > 1:
             raise ValueError(f"More than one '{AINP_CFD_NAME}' file in this directory!")
-
+        edge_scripts_instance = EdgeScripts(config_cfd[0], input_que_script_path, AINP_CFD_NAME)
+        edge_scripts_instance.submit_preprocessor_script()
+        #edge_scripts_instance.submit_solver_script(nb_proc)
+"""
         run_software(
             software_name="edge_mpi_run",
             arguments=[config_cfd[0], str(nb_proc)],
             wkdir=config_dir,
-            with_mpi=False,
+            with_mpi=True,
 #            nb_proc
         )
-
+"""
 
         #forces_breakdown_file = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
         #if not forces_breakdown_file.exists():

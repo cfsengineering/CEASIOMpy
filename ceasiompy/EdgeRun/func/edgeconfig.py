@@ -45,13 +45,13 @@ from ceasiompy.utils.commonxpath import (
     GMSH_SYMMETRY_XPATH,
     PROP_XPATH,
     RANGE_XPATH,
-    EdgeMESH_XPATH,
-    Edge_AEROMAP_UID_XPATH,
-    Edge_CFL_NB_XPATH,
-    Edge_MAX_ITER_XPATH,
-    Edge_MG_LEVEL_XPATH,
-    Edge_NB_CPU_XPATH,
-    Edge_FIXED_CL_XPATH,
+    EDGE_MESH_XPATH,
+    EDGE_AEROMAP_UID_XPATH,
+    EDGE_CFL_NB_XPATH,
+    EDGE_MAX_ITER_XPATH,
+    EDGE_MG_LEVEL_XPATH,
+    EDGE_NB_CPU_XPATH,
+    EDGE_FIXED_CL_XPATH,
 )
 
 # from ceasiompy.utils.configfiles import ConfigFile

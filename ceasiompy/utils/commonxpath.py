@@ -78,7 +78,7 @@ STABILITY_DYNAMIC_XPATH = CEASIOMPY_XPATH + "/stability/dynamic"
 OPTWKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/optimPath"
 SMFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/SMpath"
 SU2MESH_XPATH = CEASIOMPY_XPATH + "/filesPath/su2Mesh"
-EdgeMESH_XPATH = CEASIOMPY_XPATH + "/filesPath/edgeMesh"
+EDGE_MESH_XPATH = CEASIOMPY_XPATH + "/filesPath/edgeMesh"
 SUMOFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/sumoFilePath"
 WKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/wkdirPath"
 
@@ -143,14 +143,14 @@ SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
 
 SU2_ACTUATOR_DISK_XPATH = SU2_XPATH + "/options/includeActuatorDisk"
 
-# m-Edge
-Edge_XPATH = CEASIOMPY_XPATH + "/aerodynamics/m-edge"
-Edge_AEROMAP_UID_XPATH = Edge_XPATH + "/aeroMapUID"
-Edge_NB_CPU_XPATH = Edge_XPATH + "/settings/nbCPU"
-Edge_MAX_ITER_XPATH = Edge_XPATH + "/settings/maxIter"
-Edge_CFL_NB_XPATH = Edge_XPATH + "/settings/cflNumber/value"
-Edge_MG_LEVEL_XPATH = Edge_XPATH + "/settings/multigridLevel"
-Edge_FIXED_CL_XPATH = Edge_XPATH + "/fixedCL"
+# EDGE
+EDGE_XPATH = CEASIOMPY_XPATH + "/aerodynamics/m-edge"
+EDGE_AEROMAP_UID_XPATH = EDGE_XPATH + "/aeroMapUID"
+EDGE_NB_CPU_XPATH = EDGE_XPATH + "/settings/nbCPU"
+EDGE_MAX_ITER_XPATH = EDGE_XPATH + "/settings/maxIter"
+EDGE_CFL_NB_XPATH = EDGE_XPATH + "/settings/cflNumber/value"
+EDGE_MG_LEVEL_XPATH = EDGE_XPATH + "/settings/multigridLevel"
+EDGE_FIXED_CL_XPATH = EDGE_XPATH + "/fixedCL"
 
 # RANGE
 RANGE_LD_RATIO_XPATH = CEASIOMPY_XPATH + "/ranges/lDRatio"

@@ -45,16 +45,14 @@ class TestEdgeConfig(unittest.TestCase):
 
     def test_generate_edge_cfd_ainp(self):
         """Test function for 'ceasiompy.EdgeRun.func.edgeconfig.py'."""
-        cpacs_path = Path(
-            "/home/mengmeng/Documents/CEASIOMpy23/CEASIOMpy/WKDIR/labARstraight_toolInput.xml"
-        )
+        cpacs_in_path = Path(MODULE_DIR / "ToolInput" / "ToolInput.xml")
         cpacs_out_path = MODULE_DIR / "ToolOutput.xml"
         wkdir = MODULE_DIR / "Results/Edge"
 
         if not os.path.exists(wkdir):
             os.makedirs(wkdir)
 
-        generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir)
+        generate_edge_cfd_ainp(cpacs_in_path, cpacs_out_path, wkdir)
 
 
 # =================================================================================================

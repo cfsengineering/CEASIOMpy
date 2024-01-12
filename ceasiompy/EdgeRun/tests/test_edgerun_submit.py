@@ -37,35 +37,14 @@ from ceasiompy.EdgeRun.func.edgeutils import get_edge_queScript_template
 
 MODULE_DIR = Path(__file__).parent
 input_que_script_path = get_edge_queScript_template()
-nb_proc = 32
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
 
-
-class TestEdgeConfig(unittest.TestCase):
-    """Test class for 'ceasiompy/EdgeRun/func/edgerun.py'"""
-
-    def test_run_edge_cfd(self):
        # cpacs_in_path = Path(MODULE_DIR / "ToolInput" / "ToolInput.xml")
-        cpacs_in_path = Path('/home/mengmeng/Documents/CEASIOMpy23/CEASIOMpy/WKDIR/labARstraight_toolInput.xml')
-        cpacs_out_path = MODULE_DIR / "ToolOutput.xml"
-        wkdir = MODULE_DIR / "Results/Edge"
+cpacs_in_path = Path('/home/mengmeng/Documents/CEASIOMpy23/CEASIOMpy/WKDIR/labARstraight_toolInput.xml')
+cpacs_out_path = MODULE_DIR / "ToolOutput.xml"
+wkdir = MODULE_DIR / "Results/Edge"
 
 
-        if not os.path.exists(wkdir):
-            os.makedirs(wkdir)
+if not os.path.exists(wkdir):
+    os.makedirs(wkdir)
 
-        generate_edge_cfd_ainp(cpacs_in_path, cpacs_out_path, wkdir)
-        #run_edge_multi(wkdir,input_que_script_path )
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-"""
-if __name__ == "__main__":
-    print("Test configfile.py")
-    print("To run test use the following command:")
-    print(">> pytest -v")
-"""
+generate_edge_cfd_ainp(cpacs_in_path, cpacs_out_path, wkdir)

@@ -63,14 +63,15 @@ from cpacspy.cpacsfunctions import (
     get_value_or_default,
 )
 from cpacspy.cpacspy import CPACS
-
+from ceasiompy.EdgeRun.func.edgeutils import get_edge_queScript_template
+from ceasiompy.EdgeRun.func.edge_queScript_gen import EdgeScripts
 # import cpacs
 
 log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 
-
+input_que_script_path = get_edge_queScript_template()
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
@@ -271,7 +272,12 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
         )
 
         # cfg.write_file(config_output_path, overwrite=True)
-
+        # create and submit the edge-run scripts
+        # run / submit edge commands
+        jobname = case_dir_name
+        edge_scripts_instance = EdgeScripts(jobname,case_dir_path, input_que_script_path, AINP_CFD_NAME)
+        edge_scripts_instance.submit_preprocessor_script(case_dir_path)
+        edge_scripts_instance.submit_solver_script(case_dir_path,NPART)
         cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
         # =================================================================================================

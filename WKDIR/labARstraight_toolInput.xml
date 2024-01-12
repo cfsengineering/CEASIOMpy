@@ -965,7 +965,7 @@
             <extractLoads>False</extractLoads>
           </results>
         </su2>
-        <m-edge>
+        <medge>
           <aeroMapUID>aeromap_new</aeroMapUID>
           <options>
             <calculateDampingDerivatives>False</calculateDampingDerivatives>
@@ -979,13 +979,13 @@
             <cflNumber>
                 <value>False</value>
             </cflNumber>
-            <multigridLevel>3</multigridLevel>
+            <multigridLevel>1</multigridLevel>
           </settings>
           <results>
             <updateWettedArea>False</updateWettedArea>
             <extractLoads>False</extractLoads>
           </results>
-        </m-edge>
+        </medge>
       </aerodynamics>
       <propulsion>
         <propeller>

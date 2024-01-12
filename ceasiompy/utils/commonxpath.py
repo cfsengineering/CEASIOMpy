@@ -144,7 +144,7 @@ SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
 SU2_ACTUATOR_DISK_XPATH = SU2_XPATH + "/options/includeActuatorDisk"
 
 # EDGE
-EDGE_XPATH = CEASIOMPY_XPATH + "/aerodynamics/m-edge"
+EDGE_XPATH = CEASIOMPY_XPATH + "/aerodynamics/medge"
 EDGE_AEROMAP_UID_XPATH = EDGE_XPATH + "/aeroMapUID"
 EDGE_NB_CPU_XPATH = EDGE_XPATH + "/settings/nbCPU"
 EDGE_MAX_ITER_XPATH = EDGE_XPATH + "/settings/maxIter"

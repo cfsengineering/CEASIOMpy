@@ -33,9 +33,9 @@ class CreateAinp:
     def __init__(self):
         self.template_file = get_edge_ainp_template()
 
-    def _write_file(self, content, output_file_path):
+    def _write_file(self, content, output_file_withpath):
         # output_file_path = os.path.join(output_folder, 'Edge.ainp')
-        with open(output_file_path, "w") as f:
+        with open(output_file_withpath, "w") as f:
             f.write(content)
 
     def create_ainp(

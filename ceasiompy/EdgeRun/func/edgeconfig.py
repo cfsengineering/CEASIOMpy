@@ -20,7 +20,7 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import math
+import math,os
 
 from pathlib import Path
 from shutil import copyfile
@@ -102,8 +102,21 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
     cpacs = CPACS(cpacs_path)
 
     edge_mesh = Path(get_value(cpacs.tixi, EDGE_MESH_XPATH))
+    edge_aboc = edge_mesh.with_suffix(".aboc")
+
     if not edge_mesh.is_file():
         raise FileNotFoundError(f"M-Edge mesh file {edge_mesh} not found")
+    # copy edge_mesh and edge_aboc file to the Working directory
+    
+    grid_folder = Path(wkdir, "grid")
+    to_grid = grid_folder / edge_mesh.name
+    to_aboc = grid_folder / edge_aboc.name
+
+    if not os.path.exists(grid_folder):
+        os.makedirs(grid_folder)
+    copyfile(edge_mesh, to_grid)
+    copyfile(edge_aboc, to_aboc)
+
 
     # Get the fixedCL value from CPACS
     fixed_cl = get_value_or_default(cpacs.tixi, EDGE_FIXED_CL_XPATH, "NO")
@@ -242,7 +255,7 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
         case_dir_path = Path(wkdir, case_dir_name)
         if not case_dir_path.exists():
             case_dir_path.mkdir()
-        output_path = Path(case_dir_path, AINP_CFD_NAME)
+        output_file_withpath = Path(case_dir_path, AINP_CFD_NAME)
         # template_path = get_edge_ainp_template()
         create_ainp_instance = CreateAinp()
         # create_ainp_instance = CreateAinp(get_edge_ainp_template())
@@ -268,7 +281,7 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
             INSEUL,
             NGRID,
             CFL,
-            output_path,
+            output_file_withpath,
         )
 
         # cfg.write_file(config_output_path, overwrite=True)

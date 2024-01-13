@@ -47,7 +47,7 @@ class EdgeScripts:
             print(f'{preprocessor} {self.EdgeInputFile} > edge_preprocessor.log 2>&1\n')
         os.system(f'{Submitcommand} {que_script}')
 
-    def runlocal_preprocessor_script(self,dir_path):
+    def runlocal_preprocessor(self,dir_path):
         #preprocessor = os.path.join(self.Edge_dir, 'preprocessor')
         #dir_path = self.dir_path
         #QueScript = f'queue_preprocessor.script'

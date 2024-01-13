@@ -47,6 +47,24 @@ class EdgeScripts:
             print(f'{preprocessor} {self.EdgeInputFile} > edge_preprocessor.log 2>&1\n')
         os.system(f'{Submitcommand} {que_script}')
 
+    def runlocal_preprocessor_script(self,dir_path):
+        #preprocessor = os.path.join(self.Edge_dir, 'preprocessor')
+        #dir_path = self.dir_path
+        #QueScript = f'queue_preprocessor.script'
+        #Submitcommand = 'sbatch'
+        os.chdir(dir_path)
+        """
+        with open(self.input_que_script_path, 'r') as template_file, open(QueScript, 'w') as que_script:
+            for line in template_file:
+                if '-J jobname' in line:
+                    line = line.replace('-J jobname', f'-J {self.jobname}prepro')
+                que_script.write(line)
+        
+            que_script.write(f'{preprocessor} {self.EdgeInputFile} > edge_preprocessor.log 2>&1\n')
+            print(f'{preprocessor} {self.EdgeInputFile} > edge_preprocessor.log 2>&1\n')
+        """
+        os.system(f'preprocessor {self.EdgeInputFile} > edge_preprocessor.log 2>&1\n')
+
     def submit_solver_script(self, dir_path, nb_proc):
         run_solver = os.path.join(self.Edge_dir, 'edge_mpi_run')
         QueScript = f'queue_edgesolver.script'

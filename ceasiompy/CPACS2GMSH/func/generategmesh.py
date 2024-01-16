@@ -567,7 +567,6 @@ def generate_gmsh(
     results_dir,
     open_gmsh=False,
     farfield_factor=6,
-    euler=False,
     symmetry=False,
     farfield_size_factor=10,
     n_power_factor=2,
@@ -693,12 +692,9 @@ def generate_gmsh(
     ]
 
     domain_length = farfield_factor * max(model_dimensions)
-
-    if euler:
-        farfield = gmsh.model.occ.addSphere(*model_center, domain_length)
-        gmsh.model.occ.synchronize()
-
-        ext_domain = [(3, farfield)]
+    farfield = gmsh.model.occ.addSphere(*model_center, domain_length)
+    gmsh.model.occ.synchronize()
+    ext_domain = [(3, farfield)]
 
     if symmetry:
         log.info("Preparing: symmetry operation")
@@ -715,14 +711,9 @@ def generate_gmsh(
 
     log.info("Start fragment operation between the aircraft and the farfield")
 
-    if euler:
-        _, children_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)
-        gmsh.model.occ.synchronize()
-
-        log.info("Fragment operation finished")
-
-    else:
-        _, child_dimtag = parts_parent_dimtag
+    _, children_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)
+    gmsh.model.occ.synchronize()
+    log.info("Fragment operation finished")
 
     # fragment produce fragments_dimtag and children_dimtag
 
@@ -919,13 +910,12 @@ def generate_gmsh(
         symmetry_group = gmsh.model.addPhysicalGroup(2, symmetry_surfaces_tags)
         gmsh.model.setPhysicalName(2, symmetry_group, "symmetry")
 
-    if euler:
-        farfield = gmsh.model.addPhysicalGroup(2, farfield_surfaces_tags)
-        gmsh.model.setPhysicalName(2, farfield, "Farfield")
+    farfield = gmsh.model.addPhysicalGroup(2, farfield_surfaces_tags)
+    gmsh.model.setPhysicalName(2, farfield, "Farfield")
 
-        # Fluid domain
-        ps = gmsh.model.addPhysicalGroup(3, final_domain.volume_tag)
-        gmsh.model.setPhysicalName(3, ps, final_domain.uid)
+    # Fluid domain
+    ps = gmsh.model.addPhysicalGroup(3, final_domain.volume_tag)
+    gmsh.model.setPhysicalName(3, ps, final_domain.uid)
 
     gmsh.model.occ.synchronize()
     log.info("Markers for SU2 generated")

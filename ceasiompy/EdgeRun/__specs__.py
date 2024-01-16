@@ -38,7 +38,7 @@ module_status = True
 
 # ===== Results directory path =====
 
-RESULTS_DIR = Path("Results", "MEDGE")
+RESULTS_DIR = Path("Results", "EdgeRun")
 
 # ===== CPACS inputs and outputs =====
 

@@ -47,6 +47,7 @@ from ceasiompy.utils.commonxpath import (
     RANGE_XPATH,
     EDGE_MESH_XPATH,
     EDGE_AEROMAP_UID_XPATH,
+    EDGE_SOLVER_XPATH,
     EDGE_CFL_NB_XPATH,
     EDGE_MAX_ITER_XPATH,
     EDGE_MG_LEVEL_XPATH,
@@ -193,8 +194,8 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
     ITMAX = int(get_value_or_default(cpacs.tixi, EDGE_MAX_ITER_XPATH, 200))
     CFL = get_value_or_default(cpacs.tixi, EDGE_CFL_NB_XPATH, 1.5)
     NGRID = int(get_value_or_default(cpacs.tixi, EDGE_MG_LEVEL_XPATH, 3))
-    NPART = int(get_value_or_default(cpacs.tixi, EDGE_NB_CPU_XPATH, 32))
-    INSEUL = 0
+    NPART = int(get_value_or_default(cpacs.tixi, EDGE_NB_CPU_XPATH, 64))
+    INSEUL = int(get_value_or_default(cpacs.tixi, EDGE_SOLVER_XPATH, 0)) 
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
     for case_nb in range(len(alt_list)):

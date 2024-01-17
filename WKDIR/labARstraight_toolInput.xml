@@ -974,6 +974,7 @@
             <includeActuatorDisk>False</includeActuatorDisk>
           </options>
           <settings>
+            <solver>euler</solver>
             <nbCPU>32</nbCPU>
             <maxIter>20</maxIter>
             <cflNumber>

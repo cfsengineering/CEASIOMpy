@@ -47,7 +47,7 @@ class EdgeScripts:
             print(f'{preprocessor} {self.EdgeInputFile} > edge_preprocessor.log 2>&1\n')
         os.system(f'{Submitcommand} {que_script}')
 
-    def runlocal_preprocessor(self,dir_path):
+    def run_preprocessor(self,dir_path):
         #preprocessor = os.path.join(self.Edge_dir, 'preprocessor')
         #dir_path = self.dir_path
         #QueScript = f'queue_preprocessor.script'
@@ -70,6 +70,47 @@ class EdgeScripts:
         QueScript = f'queue_edgesolver.script'
         #dir_path = self.dir_path
         Submitcommand = 'sbatch'
+        os.chdir(dir_path)
+        with open(self.input_que_script_path, 'r') as template_file, open(QueScript, 'w') as que_script:
+            for line in template_file:
+                if '-J jobname' in line:
+                    line = line.replace('-J jobname', f'-J {self.jobname}solver')
+                que_script.write(line)
+            que_script.write(f'{run_solver} {self.EdgeInputFile} {nb_proc} > edge_run.log 2>&1\n')
+        os.system(f'{Submitcommand} {que_script}')
+
+
+    def run_edgesolver(self, dir_path, nb_proc):
+        run_solver = os.path.join(self.Edge_dir, 'edge_mpi_run')
+        #QueScript = f'queue_edgesolver.script'
+        #dir_path = self.dir_path
+        #Submitcommand = 'sbatch'
+        os.chdir(dir_path)
+        """
+        with open(self.input_que_script_path, 'r') as template_file, open(QueScript, 'w') as que_script:
+            for line in template_file:
+                if '-J jobname' in line:
+                    line = line.replace('-J jobname', f'-J {self.jobname}solver')
+                que_script.write(line)
+            que_script.write(f'{run_solver} {self.EdgeInputFile} {nb_proc} > edge_run.log 2>&1\n')
+        """
+        os.system(f'run_solver {self.EdgeInputFile} {nb_proc} > edge_run.log 2>&1\n')
+
+    def postprocess_script(self, dir_path):
+        ffaucut = os.path.join(self.Edge_dir, 'ffaucut')
+        ffauinterpol = os.path.join(self.Edge_dir, 'ffauinterpol')
+        ffa2tab = os.path.join(self.Edge_dir, 'ffa2tab')
+        ffa2engold = os.path.join(self.Edge_dir, 'ffa2engold')
+
+        # output file names
+        walldata2 = "Edge_wall.cf"
+        forcemoments = "Edge_force_moment.dat"
+        ensgoldprefix = "zzz"
+        solution1 = "Edge.bout"
+        solution2 = "Post.bout"
+        #QueScript = f'queue_edgesolver.script'
+        #dir_path = self.dir_path
+        #Submitcommand = 'sbatch'
         os.chdir(dir_path)
         with open(self.input_que_script_path, 'r') as template_file, open(QueScript, 'w') as que_script:
             for line in template_file:

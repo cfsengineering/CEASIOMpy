@@ -298,12 +298,16 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
                 break
 
         if not bedg_files_exist:
-            edge_scripts_instance.submit_preprocessor_script(case_dir_path)
-            #edge_scripts_instance.runlocal_preprocessor(case_dir_path)
+            #edge_scripts_instance.submit_preprocessor_script(case_dir_path)
+            edge_scripts_instance.run_preprocessor(case_dir_path)
             print('bedg files are generated')
         #else:
         #    print('bedg files exist, not generated')
-        edge_scripts_instance.submit_solver_script(case_dir_path,NPART)
+        #edge_scripts_instance.submit_solver_script(case_dir_path,NPART)
+        edge_scripts_instance.run_edgesolver(case_dir_path,NPART)
+
+        # postprocess for results
+        # wait until the results are generated
         cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
         # =================================================================================================

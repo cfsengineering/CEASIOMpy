@@ -308,6 +308,7 @@ def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
         edge_scripts_instance.run_edgesolver(case_dir_path,NPART)
 
         # postprocess for results
+        edge_scripts_instance.postprocess_script(case_dir_path,edge_mesh)
         # wait until the results are generated
         cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 

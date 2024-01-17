@@ -16,8 +16,7 @@ Python version: >=3.8
 # =================================================================================================
 
 import os
-from pathlib import Path
-
+import subprocess
 from pathlib import Path
 
 
@@ -82,43 +81,56 @@ class EdgeScripts:
 
     def run_edgesolver(self, dir_path, nb_proc):
         run_solver = os.path.join(self.Edge_dir, 'edge_mpi_run')
-        #QueScript = f'queue_edgesolver.script'
-        #dir_path = self.dir_path
-        #Submitcommand = 'sbatch'
         os.chdir(dir_path)
-        """
-        with open(self.input_que_script_path, 'r') as template_file, open(QueScript, 'w') as que_script:
-            for line in template_file:
-                if '-J jobname' in line:
-                    line = line.replace('-J jobname', f'-J {self.jobname}solver')
-                que_script.write(line)
-            que_script.write(f'{run_solver} {self.EdgeInputFile} {nb_proc} > edge_run.log 2>&1\n')
-        """
-        os.system(f'run_solver {self.EdgeInputFile} {nb_proc} > edge_run.log 2>&1\n')
+        os.system(f'{run_solver} {self.EdgeInputFile} {nb_proc} > edge_run.log 2>&1\n')
 
-    def postprocess_script(self, dir_path):
+    def postprocess_script(self, dir_path,edge_grid):
         ffaucut = os.path.join(self.Edge_dir, 'ffaucut')
         ffauinterpol = os.path.join(self.Edge_dir, 'ffauinterpol')
         ffa2tab = os.path.join(self.Edge_dir, 'ffa2tab')
         ffa2engold = os.path.join(self.Edge_dir, 'ffa2engold')
+        grid = edge_grid
 
         # output file names
+        walldata1 = "Edge_wall.dat"
         walldata2 = "Edge_wall.cf"
         forcemoments = "Edge_force_moment.dat"
         ensgoldprefix = "zzz"
         solution1 = "Edge.bout"
         solution2 = "Post.bout"
-        #QueScript = f'queue_edgesolver.script'
-        #dir_path = self.dir_path
-        #Submitcommand = 'sbatch'
+        
+        # Enter the folder
         os.chdir(dir_path)
-        with open(self.input_que_script_path, 'r') as template_file, open(QueScript, 'w') as que_script:
-            for line in template_file:
-                if '-J jobname' in line:
-                    line = line.replace('-J jobname', f'-J {self.jobname}solver')
-                que_script.write(line)
-            que_script.write(f'{run_solver} {self.EdgeInputFile} {nb_proc} > edge_run.log 2>&1\n')
-        os.system(f'{Submitcommand} {que_script}')
+
+        # Extract the boundary
+        input_data = """1
+        0
+        """
+        with subprocess.Popen([ffaucut, grid, 'tmp1'], stdin=subprocess.PIPE, text=True) as process:
+            process.communicate(input=input_data)
+
+
+        # Inteerpolate the soulutions
+        subprocess.run([ffauinterpol, solution1, 'tmp1', 'tmp11'])
+        subprocess.run([ffauinterpol, solution2, 'tmp1', 'tmp12'])
+
+        # Extract tabulated data
+        subprocess.run([ffa2tab, 'tmp11', walldata1])
+        subprocess.run([ffa2tab, 'tmp12', walldata2])
+
+        # Cleanup
+        for temp_file in ['tmp1', 'tmp11', 'tmp12']:
+            os.remove(temp_file)
+
+        # Create ensight gold files
+        subprocess.run([ffa2engold, grid, solution1, ensgoldprefix])
+
+
+
+
+
+
+        #os.system(f'{Submitcommand} {que_script}')
 
 
 

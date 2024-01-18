@@ -1109,7 +1109,11 @@ def generate_gmsh(
     if not testing_gmsh:
         gmsh.clear()
         gmsh.finalize()
-    return su2mesh_path, aircraft_parts
+    return (
+        su2mesh_path,
+        aircraft_parts,
+        cgnsmesh_path,
+    )
 
 
 # =================================================================================================

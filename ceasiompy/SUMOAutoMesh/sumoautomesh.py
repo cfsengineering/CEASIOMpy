@@ -34,6 +34,7 @@ from ceasiompy.utils.commonxpath import (
     SUMO_REFINE_LEVEL_XPATH,
     SUMOFILE_XPATH,
     SUMO_OUTPUT_MESH_FORMAT_XPATH,
+    EDGE_MESH_XPATH,
 )
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
@@ -308,9 +309,16 @@ def create_mesh(cpacs_path, cpacs_out_path):
         raise ValueError("No mesh file has been generated!")
 
     log.info(f"A {output} mesh has been correctly generated.")
-    create_branch(tixi, SU2MESH_XPATH)
-    tixi.updateTextElement(SU2MESH_XPATH, str(mesh_out_path))
-    mesh_path.unlink()
+
+    if output == "su2":
+        create_branch(tixi, SU2MESH_XPATH)
+        tixi.updateTextElement(SU2MESH_XPATH, str(mesh_out_path))
+        mesh_path.unlink()
+
+    else:
+        create_branch(tixi, EDGE_MESH_XPATH)
+        tixi.updateTextElement(EDGE_MESH_XPATH, str(mesh_out_path))
+        mesh_path.unlink()
 
     tixi.save(str(cpacs_out_path))
 

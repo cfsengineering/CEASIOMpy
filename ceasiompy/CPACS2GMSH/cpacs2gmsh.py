@@ -46,6 +46,7 @@ from ceasiompy.utils.commonxpath import (
     GMSH_REFINE_TRUNCATED_XPATH,
     GMSH_SYMMETRY_XPATH,
     SU2MESH_XPATH,
+    EDGE_MESH_XPATH,
 )
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from cpacspy.cpacspy import CPACS
@@ -98,7 +99,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
 
     # Run mesh generation
     export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
-    mesh_path, _ = generate_gmsh(
+    su2mesh_path, _, cgnsmesh_path = generate_gmsh(
         cpacs,
         cpacs_path,
         brep_dir,
@@ -119,10 +120,15 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         testing_gmsh=False,
     )
 
-    if mesh_path.exists():
+    if su2mesh_path.exists():
         create_branch(cpacs.tixi, SU2MESH_XPATH)
-        cpacs.tixi.updateTextElement(SU2MESH_XPATH, str(mesh_path))
+        cpacs.tixi.updateTextElement(SU2MESH_XPATH, str(su2mesh_path))
         log.info("SU2 Mesh has been correctly generated.")
+
+    if cgnsmesh_path.exists():
+        create_branch(cpacs.tixi, EDGE_MESH_XPATH)
+        cpacs.tixi.updateTextElement(EDGE_MESH_XPATH, str(cgnsmesh_path))
+        log.info("EDGE Mesh has been correctly generated.")
 
     # Save CPACS
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)

@@ -4,30 +4,16 @@ from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
 from ceasiompy.utils.commonxpath import (
     AEROPERFORMANCE_XPATH,
     GEOM_XPATH,
-    PROP_XPATH,
     RANGE_XPATH,
     REF_XPATH,
-    EDGE_ACTUATOR_DISK_XPATH,
     EDGE_AEROMAP_UID_XPATH,
-    EDGE_BC_FARFIELD_XPATH,
-    EDGE_BC_WALL_XPATH,
     EDGE_CFL_NB_XPATH,
-    EDGE_CFL_ADAPT_XPATH,
-    EDGE_CFL_ADAPT_PARAM_DOWN_XPATH,
-    EDGE_CFL_ADAPT_PARAM_UP_XPATH,
-    EDGE_CFL_MIN_XPATH,
-    EDGE_CFL_MAX_XPATH,
-    EDGE_CONTROL_SURF_XPATH,
-    EDGE_DAMPING_DER_XPATH,
-    EDGE_EXTRACT_LOAD_XPATH,
     EDGE_FIXED_CL_XPATH,
     EDGE_MAX_ITER_XPATH,
     EDGE_MG_LEVEL_XPATH,
     EDGE_NB_CPU_XPATH,
-    EDGE_ROTATION_RATE_XPATH,
-    EDGE_TARGET_CL_XPATH,
-    EDGE_UPDATE_WETTED_AREA_XPATH,
     EDGE_MESH_XPATH,
+    EDGE_SOLVER,
 )
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
@@ -57,18 +43,6 @@ cpacs_inout.add_input(
     gui_name="__AEROMAP_SELECTION",
     gui_group="Aeromap settings",
 )
-
-# cpacs_inout.add_input(
-#     var_name="mesh_upload",
-#     var_type=str,
-#     default_value="your path",
-#     unit=None,
-#     descr="Name of the mesh to upload",
-#     xpath=SU2MESH_XPATH,
-#     gui=True,
-#     gui_name="Path of the mesh",
-#     gui_group="Mesh upload",
-# )
 
 cpacs_inout.add_input(
     var_name="ref_len",
@@ -132,18 +106,6 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="target_cl",
-    var_type=float,
-    default_value=1.0,
-    unit="1",
-    descr="Value of CL to achieve to have a level flight with the given conditions",
-    xpath=EDGE_TARGET_CL_XPATH,
-    gui=False,
-    gui_name=None,
-    gui_group=None,
-)
-
-cpacs_inout.add_input(
     var_name="fixed_cl",
     var_type=str,
     default_value="NO",
@@ -153,42 +115,6 @@ cpacs_inout.add_input(
     gui=False,
     gui_name=None,
     gui_group=None,
-)
-
-cpacs_inout.add_input(
-    var_name="damping_der",
-    var_type=bool,
-    default_value=False,
-    unit="1",
-    descr="To check if damping derivatives should be calculated or not",
-    xpath=EDGE_DAMPING_DER_XPATH,
-    gui=True,
-    gui_name="Damping Derivatives",
-    gui_group="Aeromap Options",
-)
-
-cpacs_inout.add_input(
-    var_name="rotation_rate",
-    var_type=float,
-    default_value=1.0,
-    unit="rad/s",
-    descr="Rotation rate use to calculate damping derivatives",
-    xpath=EDGE_ROTATION_RATE_XPATH,
-    gui=True,
-    gui_name="Rotation Rate",
-    gui_group="Aeromap Options",
-)
-
-cpacs_inout.add_input(
-    var_name="control_surf",
-    var_type=bool,
-    default_value=False,
-    unit="1",
-    descr="To check if control surfaces deflections should be calculated or not",
-    xpath=EDGE_CONTROL_SURF_XPATH,
-    gui=True,
-    gui_name="Control Surfaces",
-    gui_group="Aeromap Options",
 )
 
 cpacs_inout.add_input(
@@ -228,66 +154,6 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="cfl_adapt",
-    var_type=bool,
-    default_value=False,
-    unit="1",
-    descr="CFL Adaptation",
-    xpath=EDGE_CFL_ADAPT_XPATH,
-    gui=True,
-    gui_name="CFL Adaptation",
-    gui_group="EDGE Parameters",
-)
-
-cpacs_inout.add_input(
-    var_name="cfl_adapt_param_factor_down",
-    var_type=float,
-    default_value=0.5,
-    unit="1",
-    descr="CFL Adaptation Factor Down",
-    xpath=EDGE_CFL_ADAPT_PARAM_DOWN_XPATH,
-    gui=True,
-    gui_name="CFL Adaptation Factor Down",
-    gui_group="EDGE Parameters",
-)
-
-cpacs_inout.add_input(
-    var_name="cfl_adapt_param_factor_up",
-    var_type=float,
-    default_value=1.5,
-    unit="1",
-    descr="CFL Adaptation Factor Up",
-    xpath=EDGE_CFL_ADAPT_PARAM_UP_XPATH,
-    gui=True,
-    gui_name="CFL Adaptation Factor Up",
-    gui_group="EDGE Parameters",
-)
-
-cpacs_inout.add_input(
-    var_name="cfl_adapt_param_min",
-    var_type=float,
-    default_value=0.5,
-    unit="1",
-    descr="CFL Minimum Value",
-    xpath=EDGE_CFL_MIN_XPATH,
-    gui=True,
-    gui_name="CFL Min Value",
-    gui_group="EDGE Parameters",
-)
-
-cpacs_inout.add_input(
-    var_name="cfl_adapt_param_max",
-    var_type=float,
-    default_value=100,
-    unit="1",
-    descr="CFL Maximum Value",
-    xpath=EDGE_CFL_MAX_XPATH,
-    gui=True,
-    gui_name="CFL Max Value",
-    gui_group="EDGE Parameters",
-)
-
-cpacs_inout.add_input(
     var_name="mg_level",
     var_type=int,
     default_value=3,
@@ -297,6 +163,18 @@ cpacs_inout.add_input(
     gui=True,
     gui_name="Multigrid Level",
     gui_group="EDGE Parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="calculation_type",
+    var_type=list,
+    default_value=["RANS", "Euler"],
+    unit="1",
+    descr="Chose if perform a RANS or an Euler calculation",
+    xpath=EDGE_SOLVER,
+    gui=True,
+    gui_name="Solver for calculation",
+    gui_group="EDGE parameters",
 )
 
 cpacs_inout.add_input(
@@ -311,93 +189,6 @@ cpacs_inout.add_input(
     gui_group="Inputs",
 )
 
-cpacs_inout.add_input(
-    var_name="update_wetted_area",
-    var_type=bool,
-    default_value=False,
-    unit="1",
-    descr="Option to update the wetted area from the latest EDGE result.",
-    xpath=EDGE_UPDATE_WETTED_AREA_XPATH,
-    gui=True,
-    gui_name="Update Wetted Area",
-    gui_group="Results",
-)
-
-cpacs_inout.add_input(
-    var_name="check_extract_loads",
-    var_type=bool,
-    default_value=False,
-    unit="1",
-    descr="Option to extract loads (forces in each point) from results",
-    xpath=EDGE_EXTRACT_LOAD_XPATH,
-    gui=True,
-    gui_name="Extract loads",
-    gui_group="Results",
-)
-
-# Actuator disk
-
-cpacs_inout.add_input(
-    var_name="include_actuator_disk",
-    var_type=bool,
-    default_value=False,
-    unit="1",
-    descr="To check if actuator disk(s) should be included in the EDGE calculation",
-    xpath=EDGE_ACTUATOR_DISK_XPATH,
-    gui=True,
-    gui_name="Include actuator disk(s)",
-    gui_group="Actuator disk",
-)
-
-cpacs_inout.add_input(
-    var_name="thrust",
-    var_type=float,
-    default_value=3000,
-    unit="N",
-    descr="Aircraft thrust",
-    xpath=PROP_XPATH + "/propeller/thrust",
-    gui=True,
-    gui_name="Thrust",
-    gui_group="Actuator disk",
-)
-
-# cpacs_inout.add_input(
-#     var_name="n",
-#     var_type=float,
-#     default_value=33,
-#     unit="1/s",
-#     descr="Propeller rotational velocity",
-#     xpath=PROP_XPATH + "/propeller/rotational_velocity",
-#     gui=True,
-#     gui_name="Rotational velocity setting",
-#     gui_group="Actuator disk",
-# )
-
-cpacs_inout.add_input(
-    var_name="prandtl",
-    var_type=bool,
-    default_value=False,
-    unit=None,
-    descr="Enable or disable the tip loss correction of Prandtl",
-    xpath=PROP_XPATH + "/propeller/blade/loss",
-    gui=True,
-    gui_name="Tip loss correction",
-    gui_group="Actuator disk",
-)
-
-# cpacs_inout.add_input(
-#     var_name="blades_number",
-#     var_type=int,
-#     default_value=3,
-#     unit=None,
-#     descr="Number of propeller blades",
-#     xpath=PROP_XPATH + "/propeller/bladeNumber",
-#     gui=True,
-#     gui_name="Propeller blades numbers",
-#     gui_group="Actuator disk",
-# )
-
-
 # ----- Output -----
 
 cpacs_inout.add_output(
@@ -407,24 +198,6 @@ cpacs_inout.add_output(
     unit="m^2",
     descr="Aircraft wetted area calculated by EDGE",
     xpath=GEOM_XPATH + "/analyses/wettedArea",
-)
-
-cpacs_inout.add_output(
-    var_name="bc_wall_list",
-    var_type=list,
-    default_value=None,
-    unit="1",
-    descr="Wall boundary conditions found in the EDGE mesh",
-    xpath=EDGE_BC_WALL_XPATH,
-)
-
-cpacs_inout.add_output(
-    var_name="bc_farfield_list",
-    var_type=list,
-    default_value=None,
-    unit="1",
-    descr="Farfield boundary conditions found in the EDGE mesh (for off engines)",
-    xpath=EDGE_BC_FARFIELD_XPATH,
 )
 
 cpacs_inout.add_output(

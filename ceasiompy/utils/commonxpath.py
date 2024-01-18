@@ -151,6 +151,7 @@ EDGE_MAX_ITER_XPATH = EDGE_XPATH + "/settings/maxIter"
 EDGE_CFL_NB_XPATH = EDGE_XPATH + "/settings/cflNumber/value"
 EDGE_MG_LEVEL_XPATH = EDGE_XPATH + "/settings/multigridLevel"
 EDGE_FIXED_CL_XPATH = EDGE_XPATH + "/fixedCL"
+EDGE_SOLVER = EDGE_XPATH + "/solver"
 
 # RANGE
 RANGE_LD_RATIO_XPATH = CEASIOMPY_XPATH + "/ranges/lDRatio"

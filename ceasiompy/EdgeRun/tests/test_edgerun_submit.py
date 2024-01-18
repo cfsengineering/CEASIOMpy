@@ -28,7 +28,7 @@ from pathlib import Path
 
 # Now you can import and use the ceasiompy module
 # import ceasiompy
-from ceasiompy.EdgeRun.func.edgeconfig import generate_edge_cfd_ainp
+from ceasiompy.EdgeRun.func.edgeconfig import edge_cfd
 import os
 from ceasiompy.EdgeRun.edgerun import run_edge_multi
 from ceasiompy.utils.commonxpath import EDGE_NB_CPU_XPATH
@@ -47,4 +47,4 @@ wkdir = MODULE_DIR / "Results/Edge"
 if not os.path.exists(wkdir):
     os.makedirs(wkdir)
 
-generate_edge_cfd_ainp(cpacs_in_path, cpacs_out_path, wkdir)
+edge_cfd(cpacs_in_path, cpacs_out_path, wkdir)

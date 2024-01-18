@@ -83,7 +83,7 @@ input_que_script_path = get_edge_queScript_template()
 # =================================================================================================
 
 
-def generate_edge_cfd_ainp(cpacs_path, cpacs_out_path, wkdir):
+def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
     # output_path = Path(case_dir_path, AINP_CFD_NAME)
     """Function to create Edge input (*.ainp) file.
 

@@ -20,7 +20,7 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import math,os
+import math, os
 
 from pathlib import Path
 from shutil import copyfile
@@ -43,7 +43,6 @@ from ceasiompy.utils.commonnames import (
 )
 from ceasiompy.utils.commonxpath import (
     GMSH_SYMMETRY_XPATH,
-    PROP_XPATH,
     RANGE_XPATH,
     EDGE_MESH_XPATH,
     EDGE_AEROMAP_UID_XPATH,
@@ -66,6 +65,7 @@ from cpacspy.cpacsfunctions import (
 from cpacspy.cpacspy import CPACS
 from ceasiompy.EdgeRun.func.edgeutils import get_edge_queScript_template
 from ceasiompy.EdgeRun.func.edge_queScript_gen import EdgeScripts
+
 # import cpacs
 
 log = get_logger()
@@ -73,6 +73,8 @@ log = get_logger()
 MODULE_DIR = Path(__file__).parent
 
 input_que_script_path = get_edge_queScript_template()
+
+
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
@@ -108,7 +110,7 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
     if not edge_mesh.is_file():
         raise FileNotFoundError(f"M-Edge mesh file {edge_mesh} not found")
     # copy edge_mesh and edge_aboc file to the Working directory
-    
+
     grid_folder = Path(wkdir, "grid")
     to_grid = grid_folder / edge_mesh.name
     to_aboc = grid_folder / edge_aboc.name
@@ -117,7 +119,6 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
         os.makedirs(grid_folder)
     copyfile(edge_mesh, to_grid)
     copyfile(edge_aboc, to_aboc)
-
 
     # Get the fixedCL value from CPACS
     fixed_cl = get_value_or_default(cpacs.tixi, EDGE_FIXED_CL_XPATH, "NO")
@@ -195,7 +196,7 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
     CFL = get_value_or_default(cpacs.tixi, EDGE_CFL_NB_XPATH, 1.5)
     NGRID = int(get_value_or_default(cpacs.tixi, EDGE_MG_LEVEL_XPATH, 3))
     NPART = int(get_value_or_default(cpacs.tixi, EDGE_NB_CPU_XPATH, 64))
-    INSEUL = int(get_value_or_default(cpacs.tixi, EDGE_SOLVER_XPATH, 0)) 
+    INSEUL = int(get_value_or_default(cpacs.tixi, EDGE_SOLVER_XPATH, 0))
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
     for case_nb in range(len(alt_list)):
@@ -289,26 +290,28 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
         # create and submit the edge-run scripts
         # run / submit edge commands
         jobname = case_dir_name
-        edge_scripts_instance = EdgeScripts(jobname,case_dir_path, input_que_script_path, AINP_CFD_NAME)
-        
+        edge_scripts_instance = EdgeScripts(
+            jobname, case_dir_path, input_que_script_path, AINP_CFD_NAME
+        )
+
         bedg_files_exist = True
-        for i in range(1, NPART+1):
-            bedg_file_path = Path(case_dir_path, grid_folder, f'Edge.bedg_p{i}')
+        for i in range(1, NPART + 1):
+            bedg_file_path = Path(case_dir_path, grid_folder, f"Edge.bedg_p{i}")
             if not bedg_file_path.exists():
                 bedg_files_exist = False
                 break
 
         if not bedg_files_exist:
-            #edge_scripts_instance.submit_preprocessor_script(case_dir_path)
+            # edge_scripts_instance.submit_preprocessor_script(case_dir_path)
             edge_scripts_instance.run_preprocessor(case_dir_path)
-            print('bedg files are generated')
-        #else:
+            print("bedg files are generated")
+        # else:
         #    print('bedg files exist, not generated')
-        #edge_scripts_instance.submit_solver_script(case_dir_path,NPART)
-        edge_scripts_instance.run_edgesolver(case_dir_path,NPART)
+        # edge_scripts_instance.submit_solver_script(case_dir_path,NPART)
+        edge_scripts_instance.run_edgesolver(case_dir_path, NPART)
 
         # postprocess for results
-        edge_scripts_instance.postprocess_script(case_dir_path,edge_mesh)
+        edge_scripts_instance.postprocess_script(case_dir_path, edge_mesh)
         # wait until the results are generated
         cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 

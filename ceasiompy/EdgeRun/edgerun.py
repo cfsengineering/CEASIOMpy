@@ -22,7 +22,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import (
     get_reasonable_nb_cpu,
     get_results_directory,
-#    run_software,
+    #    run_software,
 )
 
 # from ceasiompy.utils.commonnames import AINP_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
@@ -39,7 +39,6 @@ MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
 
-
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
@@ -50,7 +49,8 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 input_que_script_path = get_edge_queScript_template()
 
-def run_edge_multi(wkdir, input_que_script_path , nb_proc=2):
+
+def run_edge_multi(wkdir, input_que_script_path, nb_proc=2):
     """Function to run a multiple Edge calculation.
 
     Function 'run_edge_multi' will run in the given working directory Edge calculations.
@@ -63,21 +63,20 @@ def run_edge_multi(wkdir, input_que_script_path , nb_proc=2):
 
     if not wkdir.exists():
         raise OSError(f"The working directory : {wkdir} does not exist!")
-    
+
     case_dir_name = (
-            f"Case{str(case_nb).zfill(2)}_alt{alt}_mach{round(mach, 2)}"
-            f"_aoa{round(aoa, 1)}_aos{round(aos, 1)}"
-        )
+        f"Case{str(case_nb).zfill(2)}_alt{alt}_mach{round(mach, 2)}"
+        f"_aoa{round(aoa, 1)}_aos{round(aos, 1)}"
+    )
 
     case_dir_path = Path(wkdir, case_dir_name)
     if not case_dir_path.exists():
-            case_dir_path.mkdir()
+        case_dir_path.mkdir()
     output_path = Path(case_dir_path, AINP_CFD_NAME)
 
     case_dir_list = [dir for dir in wkdir.iterdir() if "Case" in dir.name]
     if not case_dir_list:
         raise OSError(f"No Case directory has been found in the working directory: {wkdir}")
-    
 
     for config_dir in sorted(case_dir_list):
         current_dir = Path(case_dir_path, config_dir)
@@ -89,11 +88,12 @@ def run_edge_multi(wkdir, input_que_script_path , nb_proc=2):
 
         if len(config_cfd) > 1:
             raise ValueError(f"More than one '{AINP_CFD_NAME}' file in this directory!")
-        
+
         # run / submit edge commands
         edge_scripts_instance = EdgeScripts(current_dir, input_que_script_path, AINP_CFD_NAME)
         edge_scripts_instance.submit_preprocessor_script()
         edge_scripts_instance.submit_solver_script(nb_proc)
+
 
 # =================================================================================================
 #    MAIN

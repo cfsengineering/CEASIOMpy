@@ -935,7 +935,7 @@
         </sumoOptions>
       </mesh>
       <meshsumoOptions>
-        <format>su2</format>
+        <format>edge</format>
       </meshsumoOptions>
       <aerodynamics>
         <su2>

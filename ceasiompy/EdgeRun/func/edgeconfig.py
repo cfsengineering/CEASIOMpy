@@ -184,7 +184,9 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
         sym_factor = 2.0
 
     # General parameters
-    #    cfg["RESTART_SOL"] = "NO"
+    # 
+    BMSH = edge_mesh.name
+    ABOC = edge_aboc.name
     CREF = cpacs.aircraft.ref_length
     SREF = cpacs.aircraft.ref_area / sym_factor
     BREF = SREF / CREF
@@ -263,6 +265,8 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
         # create_ainp_instance = CreateAinp(get_edge_ainp_template())
 
         create_ainp_instance.create_ainp(
+            BMSH,
+            ABOC,
             UFREE,
             VFREE,
             WFREE,

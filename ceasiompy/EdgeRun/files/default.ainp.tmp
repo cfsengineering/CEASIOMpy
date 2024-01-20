@@ -1826,7 +1826,7 @@ VGKCONSTSCALE,R   ,1,1,0
 * The mesh file ( .bmsh )                                                 
 *
 CFIMSH,L   ,1,1,0
-'../grid/Edge.bmsh                                                           ' 
+'../grid/__BMSH__                                                           ' 
 *
 ***************************************************************************
 * Edge file name from the preprocessor ( .bedg )                          
@@ -1838,7 +1838,7 @@ CFIEDG,L   ,1,1,0
 * The boundary condition file ( .aboc )                                   
 *
 CFIBOC,L   ,1,1,0
-'../grid/Edge.aboc                                                           ' 
+'../grid/__ABOC__                                                           ' 
 *
 ***************************************************************************
 * The residual file ( .bres )                                             

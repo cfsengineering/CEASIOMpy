@@ -40,6 +40,8 @@ class CreateAinp:
 
     def create_ainp(
         self,
+        BMSH,
+        ABOC,
         UFREE,
         VFREE,
         WFREE,
@@ -68,6 +70,8 @@ class CreateAinp:
 
         # Define a dictionary for keyword-value pairs
         replacements = {
+            "__BMSH__": f"../grid/{BMSH}",
+            "__ABOC__": f"../grid/{ABOC}",
             "__UFREE__": str(UFREE),
             "__VFREE__": str(VFREE),
             "__WFREE__": str(WFREE),

@@ -36,7 +36,7 @@ from ambiance import Atmosphere
 #    write_header,
 # )
 
-from ceasiompy.EdgeRun.func.edgeutils import get_edge_ainp_template
+#from ceasiompy.EdgeRun.func.edgeutils import get_edge_ainp_template
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import (
     AINP_CFD_NAME,

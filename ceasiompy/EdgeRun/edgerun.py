@@ -16,8 +16,8 @@ Python version: >=3.8
 # =================================================================================================
 
 from pathlib import Path
-
-from ceasiompy.EdgeRun.func.edgeconfig import generate_edge_cfd_ainp
+from cpacspy.cpacspy import CPACS
+from ceasiompy.EdgeRun.func.edgeconfig import edge_cfd
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import (
     get_reasonable_nb_cpu,
@@ -27,7 +27,7 @@ from ceasiompy.utils.ceasiompyutils import (
 
 # from ceasiompy.utils.commonnames import AINP_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
 from ceasiompy.utils.commonnames import AINP_CFD_NAME
-from ceasiompy.utils.commonxpath import EDGE_NB_CPU_XPATH
+from ceasiompy.utils.commonxpath import EDGE_NB_CPU_XPATH, EDGE_MESH_XPATH
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 from ceasiompy.EdgeRun.func.edge_queScript_gen import EdgeScripts
@@ -60,6 +60,9 @@ def run_edge_multi(wkdir, input_que_script_path, nb_proc=2):
         wkdir (Path): Path to the working directory
         nb_proc (int): Number of processor that should be used to run the calculation in parallel
     """
+    cpacs = CPACS(cpacs_path)
+
+    edge_mesh = Path(get_value(cpacs.tixi, EDGE_MESH_XPATH))
 
     if not wkdir.exists():
         raise OSError(f"The working directory : {wkdir} does not exist!")
@@ -91,8 +94,23 @@ def run_edge_multi(wkdir, input_que_script_path, nb_proc=2):
 
         # run / submit edge commands
         edge_scripts_instance = EdgeScripts(current_dir, input_que_script_path, AINP_CFD_NAME)
-        edge_scripts_instance.submit_preprocessor_script()
-        edge_scripts_instance.submit_solver_script(nb_proc)
+        # check if preprocessor is already run
+        bedg_files_exist = True
+        for i in range(1, nb_proc + 1):
+            bedg_file_path = Path(case_dir_path, grid_folder, f"Edge.bedg_p{i}")
+            if not bedg_file_path.exists():
+                bedg_files_exist = False
+                break
+        if not bedg_files_exist:
+            # edge_scripts_instance.submit_preprocessor_script(case_dir_path)
+            edge_scripts_instance.run_preprocessor(case_dir_path)
+            print("bedg files are generated")
+
+        #edge_scripts_instance.submit_solver_script(nb_proc)
+        edge_scripts_instance.run_solver(nb_proc)
+
+        # postprocess for results
+        edge_scripts_instance.postprocess_script(case_dir_path, edge_mesh)
 
 
 # =================================================================================================
@@ -105,14 +123,15 @@ def main(cpacs_path, cpacs_out_path):
 
     tixi = open_tixi(cpacs_path)
     nb_proc = get_value_or_default(tixi, EDGE_NB_CPU_XPATH, get_reasonable_nb_cpu())
+    
 
     results_dir = get_results_directory("EdgeRun")
 
     # Temporary CPACS to be stored after "generate_edge_cfd_ainp"
     cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")
 
-    generate_edge_cfd_ainp(cpacs_path, cpacs_tmp_cfg, results_dir)
-    run_edge_multi(results_dir, nb_proc)
+    edge_cfd(cpacs_path, cpacs_tmp_cfg, results_dir)
+    #run_edge_multi(results_dir, nb_proc)
     # get_su2_results(cpacs_tmp_cfg, cpacs_out_path, results_dir)
 
     log.info("----- End of " + MODULE_NAME + " -----")

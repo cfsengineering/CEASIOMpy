@@ -289,6 +289,7 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
         # cfg.write_file(config_output_path, overwrite=True)
         # create and submit the edge-run scripts
         # run / submit edge commands
+        
         jobname = case_dir_name
         edge_scripts_instance = EdgeScripts(
             jobname, case_dir_path, input_que_script_path, AINP_CFD_NAME
@@ -305,14 +306,17 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
             # edge_scripts_instance.submit_preprocessor_script(case_dir_path)
             edge_scripts_instance.run_preprocessor(case_dir_path)
             print("bedg files are generated")
+        
         # else:
         #    print('bedg files exist, not generated')
         # edge_scripts_instance.submit_solver_script(case_dir_path,NPART)
+        
         edge_scripts_instance.run_edgesolver(case_dir_path, NPART)
 
         # postprocess for results
         edge_scripts_instance.postprocess_script(case_dir_path, edge_mesh)
         # wait until the results are generated
+        
         cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
         # =================================================================================================

@@ -1,6 +1,5 @@
 from pathlib import Path
 
-from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
 from ceasiompy.utils.commonxpath import (
     AEROPERFORMANCE_XPATH,
     GEOM_XPATH,
@@ -120,7 +119,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="nb_proc",
     var_type=int,
-    default_value=get_reasonable_nb_cpu(),
+    default_value=64,
     unit="1",
     descr="Number of proc to use to run EDGE",
     xpath=EDGE_NB_CPU_XPATH,
@@ -156,8 +155,8 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="mg_level",
     var_type=int,
-    default_value=3,
-    unit="3",
+    default_value=1,
+    unit="1",
     descr="Multi-grid level (0 = no multigrid)",
     xpath=EDGE_MG_LEVEL_XPATH,
     gui=True,
@@ -168,7 +167,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="calculation_type",
     var_type=list,
-    default_value=["RANS", "Euler"],
+    default_value=["Euler", "RANS"],
     unit="1",
     descr="Chose if perform a RANS or an Euler calculation",
     xpath=EDGE_SOLVER,

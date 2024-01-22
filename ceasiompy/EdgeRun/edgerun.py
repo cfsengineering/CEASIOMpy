@@ -106,7 +106,7 @@ def run_edge_multi(wkdir, input_que_script_path, nb_proc=2):
             edge_scripts_instance.run_preprocessor(case_dir_path)
             print("bedg files are generated")
 
-        #edge_scripts_instance.submit_solver_script(nb_proc)
+        # edge_scripts_instance.submit_solver_script(nb_proc)
         edge_scripts_instance.run_solver(nb_proc)
 
         # postprocess for results
@@ -123,7 +123,6 @@ def main(cpacs_path, cpacs_out_path):
 
     tixi = open_tixi(cpacs_path)
     nb_proc = get_value_or_default(tixi, EDGE_NB_CPU_XPATH, get_reasonable_nb_cpu())
-    
 
     results_dir = get_results_directory("EdgeRun")
 
@@ -131,7 +130,7 @@ def main(cpacs_path, cpacs_out_path):
     cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")
 
     edge_cfd(cpacs_path, cpacs_tmp_cfg, results_dir)
-    #run_edge_multi(results_dir, nb_proc)
+    # run_edge_multi(results_dir, nb_proc)
     # get_su2_results(cpacs_tmp_cfg, cpacs_out_path, results_dir)
 
     log.info("----- End of " + MODULE_NAME + " -----")

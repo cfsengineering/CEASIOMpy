@@ -308,13 +308,14 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
 
         if not bedg_files_exist:
             # edge_scripts_instance.submit_preprocessor_script(case_dir_path)
+            log.info("Running Edge preprocessor for Case..." + case_dir_name )
             edge_scripts_instance.run_preprocessor(case_dir_path)
             print("bedg files are generated")
         
         # else:
         #    print('bedg files exist, not generated')
         # edge_scripts_instance.submit_solver_script(case_dir_path,NPART)
-        
+        log.info("Running Edge solver for Case..." + case_dir_name )
         edge_scripts_instance.run_edgesolver(case_dir_path, NPART)
 
         # postprocess for results

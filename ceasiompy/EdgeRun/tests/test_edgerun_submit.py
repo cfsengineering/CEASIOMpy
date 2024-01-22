@@ -41,7 +41,7 @@ input_que_script_path = get_edge_queScript_template()
        # cpacs_in_path = Path(MODULE_DIR / "ToolInput" / "ToolInput.xml")
 cpacs_in_path = Path('/home/mengmeng/Documents/CEASIOMpy23/CEASIOMpy/WKDIR/CPACS_selected_from_GUI.xml')
 cpacs_out_path = MODULE_DIR / "ToolOutput.xml"
-wkdir = MODULE_DIR / "Results/Edge"
+wkdir = MODULE_DIR / "Results"
 
 
 if not os.path.exists(wkdir):

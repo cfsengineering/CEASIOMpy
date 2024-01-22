@@ -125,7 +125,7 @@ def main(cpacs_path, cpacs_out_path):
     nb_proc = get_value_or_default(tixi, EDGE_NB_CPU_XPATH, get_reasonable_nb_cpu())
     
 
-    results_dir = get_results_directory("MEdge")
+    results_dir = get_results_directory("EdgeRun")
 
     # Temporary CPACS to be stored after "generate_edge_cfd_ainp"
     cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")

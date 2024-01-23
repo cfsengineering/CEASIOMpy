@@ -85,15 +85,15 @@ class EdgeScripts:
         os.system(f'{run_solver} {self.EdgeInputFile} {nb_proc} > edge_run.log 2>&1\n')
 
     def postprocess_script(self, dir_path,edge_grid):
-        ffaucut = os.path.join(self.Edge_dir, 'ffaucut')
-        ffauinterpol = os.path.join(self.Edge_dir, 'ffauinterpol')
-        ffa2tab = os.path.join(self.Edge_dir, 'ffa2tab')
+        #ffaucut = os.path.join(self.Edge_dir, 'ffaucut')
+        #ffauinterpol = os.path.join(self.Edge_dir, 'ffauinterpol')
+        #ffa2tab = os.path.join(self.Edge_dir, 'ffa2tab')
         ffa2engold = os.path.join(self.Edge_dir, 'ffa2engold')
         grid = edge_grid
 
         # output file names
-        walldata1 = "Edge_wall.dat"
-        walldata2 = "Edge_wall.cf"
+        #walldata1 = "Edge_wall.dat"
+        #walldata2 = "Edge_wall.cf"
         forcemoments = "Edge_force_moment.dat"
         ensgoldprefix = "zzz"
         solution1 = "Edge.bout"
@@ -102,9 +102,11 @@ class EdgeScripts:
         # Enter the folder
         os.chdir(dir_path)
 
-        # Extract the boundary
-        input_data = """1
-        0
+        """
+        # Extract the boundary 
+        input_data = """
+        #1
+        #0
         """
         with subprocess.Popen([ffaucut, grid, 'tmp1'], stdin=subprocess.PIPE, text=True) as process:
             process.communicate(input=input_data)
@@ -121,7 +123,7 @@ class EdgeScripts:
         # Cleanup
         for temp_file in ['tmp1', 'tmp11', 'tmp12']:
             os.remove(temp_file)
-
+        """
         # Create ensight gold files
         subprocess.run([ffa2engold, grid, solution1, ensgoldprefix])
 

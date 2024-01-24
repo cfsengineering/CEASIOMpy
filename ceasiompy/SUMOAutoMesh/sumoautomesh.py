@@ -35,6 +35,7 @@ from ceasiompy.utils.commonxpath import (
     SUMOFILE_XPATH,
     SUMO_OUTPUT_MESH_FORMAT_XPATH,
     EDGE_MESH_XPATH,
+    EDGE_ABOC_XPATH,
 )
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
@@ -318,6 +319,13 @@ def create_mesh(cpacs_path, cpacs_out_path):
     else:
         create_branch(tixi, EDGE_MESH_XPATH)
         tixi.updateTextElement(EDGE_MESH_XPATH, str(mesh_out_path))
+
+        edge_aboc_path = Path(sumo_results_dir, "ToolOutput.aboc")
+        shutil.copyfile(mesh_path, edge_aboc_path)
+
+        create_branch(tixi, EDGE_ABOC_XPATH)
+        tixi.updateTextElement(EDGE_ABOC_XPATH, str(edge_aboc_path))
+
         mesh_path.unlink()
 
     tixi.save(str(cpacs_out_path))

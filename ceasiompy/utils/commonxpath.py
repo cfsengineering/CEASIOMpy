@@ -108,6 +108,7 @@ GMSH_REFINE_TRUNCATED_XPATH = GMSH_XPATH + "/refine_truncated"
 GMSH_AUTO_REFINE_XPATH = GMSH_XPATH + "/auto_refine"
 GMSH_INTAKE_PERCENT_XPATH = GMSH_XPATH + "/intake_percent"
 GMSH_EXHAUST_PERCENT_XPATH = GMSH_XPATH + "/exhaust_percent"
+GMSH_MESH_TYPE_XPATH = GMSH_XPATH + "/type_mesh"
 
 # SU2
 SU2_XPATH = CEASIOMPY_XPATH + "/aerodynamics/su2"

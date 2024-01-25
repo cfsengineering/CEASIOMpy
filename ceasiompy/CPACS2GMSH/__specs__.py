@@ -20,6 +20,7 @@ from ceasiompy.utils.commonxpath import (
     SU2MESH_XPATH,
     GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
+    GMSH_MESH_TYPE_XPATH,
 )
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
@@ -49,6 +50,17 @@ cpacs_inout.add_input(
     gui=True,
     gui_name="Open GMSH GUI",
     gui_group="General options",
+)
+
+cpacs_inout.add_input(
+    var_name="type_mesh",
+    var_type=list,
+    default_value=["Euler", "RANS"],
+    unit="1",
+    descr=" ",
+    xpath=GMSH_MESH_TYPE_XPATH,
+    gui=True,
+    gui_group="Mesh type",
 )
 
 cpacs_inout.add_input(

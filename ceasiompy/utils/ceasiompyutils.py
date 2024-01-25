@@ -306,6 +306,46 @@ def get_part_type(tixi, part_uid: str) -> str:
     return None
 
 
+def get_parts_volume_dimtags(tixi, part_uid: str, part_entites) -> str:
+    """The function get the type of the aircraft from the cpacs file.
+
+    Args:
+        cpacs_path (Path): Path to the CPACS file
+        part_uid (str): UID of the part
+
+    Returns:
+        part_type (str): Type of the part.
+
+    """
+    # split uid if mirrored part
+    part_uid = part_uid.split("_mirrored")[0]
+    part_xpath = tixi.uIDGetXPath(part_uid)
+
+    if "fuselages/fuselage" in part_xpath:
+        fuselage_volume_dimtags = part_entities[0]
+        return fuselage_volume_dimtags
+
+    elif "wings/wing" in part_xpath:
+        wings_volume_dimtags = part_entities[0]
+        return wings_volume_dimtags
+
+    elif "enginePylons/enginePylon" :
+        enginePylons_enginePylon_volume_dimtags = part_entities[0]
+        return enginePylons_enginePylon_volume_dimtags
+
+    elif "engine/nacelle/fanCowl" in part_xpath :
+        engine_nacelle_fanCowl_volume_dimtags = part_entities[0]
+
+    elif "engine/nacelle/coreCowl" in part_xpath:
+        engine_nacelle_coreCowl_volume_dimtags = part_entities[0]
+
+    elif "vehicles/engines/engine" in part_xpath :
+        vehicles_engines_engine_volume_dimtags = part_entities[0]
+
+    elif "vehicles/rotorcraft/model/rotors/rotor" in part_xpath :
+        vehicles_rotorcraft_model_rotors_rotor_volume_dimtags = part_entities[0]
+
+
 def remove_file_type_in_dir(directory: Path, file_type_list: List[str]) -> None:
     """Remove all files of a given type in a directory.
 

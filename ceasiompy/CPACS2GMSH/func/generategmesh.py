@@ -1334,37 +1334,49 @@ def generate_gmsh_pentagrow(
 
     # create the config file for pentagrow
     config_penta_path = Path(results_dir, 'config.cfg')
-    config_file = open(config_penta_path, "w")
-    # config_file = open(config_penta_path, "w")
-    config_file.write(
-        'InputFormat = stl\n'
-        'NLayers = 25\n'
-        'FeatureAngle = 120.0\n'
-        'InitialHeight = 0.0000003\n'
-        'MaxLayerThickness = 1\n'
-        'OutputFormat = "cgns"\n'
-        'TetgenOptions = -pq1.2VY\n'
-        'TetGrowthFactor = 1.35\n'
-        'HeightIterations = 8\n'
-        'NormalIterations = 8\n'
-        'MaxCritIterations = 128\n'
-        'LaplaceIterations = 8')
+    # Variables
+    InputFormat = "stl"
+    NLayers = 25
+    FeatureAngle = 120.0
+    InitialHeight = 0.0000003
+    MaxLayerThickness = 1
+    FarfieldRadius = model_dimensions[0] * 20
+    OutputFormat = "cgns"
+    HolePosition = "0.0 0.0 0.0"
+    TetgenOptions = "-pq1.2VY"
+    TetGrowthFactor = 1.35
+    HeightIterations = 8
+    NormalIterations = 8
+    MaxCritIterations = 128
+    LaplaceIterations = 8
+    # writing to file
+    file = open(config_penta_path, "w")
+    file.write(f"InputFormat = {InputFormat}\n")
+    file.write(f"NLayers = {NLayers}\n")
+    file.write(f"FeatureAngle = {FeatureAngle}\n")
+    file.write(f"InitialHeight = {InitialHeight}\n")
+    file.write(f"MaxLayerThickness = {MaxLayerThickness}\n")
+    file.write(f"FarfieldRadius = {FarfieldRadius}\n")
+    file.write(f"OutputFormat = {OutputFormat}\n")
+    file.write(f"HolePosition = {HolePosition}\n")
+    file.write(f"TetgenOptions = {TetgenOptions}\n")
+    file.write(f"TetGrowthFactor = {TetGrowthFactor}\n")
+    file.write(f"HeightIterations = {HeightIterations}\n")
+    file.write(f"NormalIterations = {NormalIterations}\n")
+    file.write(f"MaxCritIterations = {MaxCritIterations}\n")
+    file.write(f"LaplaceIterations = {LaplaceIterations}\n")
+    file.close
+    gmsh.fltk.run()
 
-    config_file.close
-
-    config_file = open(config_penta_path, "a")
-    config_file.write('\nFarfieldRadius = %s\n' % (model_dimensions[0] * 20))
-
-    config_file.close
+    os.chdir("Results/GMSH/")
+    print(os.getcwd())
+    subprocess.Popen("pentagrow penta1.stl config.cfg", shell=True)
+    # subprocess.Popen("paraview hybrid.cgns", shell=True)
 
     if open_gmsh:
         log.info("Result of 2D surface mesh")
         log.info("GMSH GUI is open, close it to continue...")
         gmsh.fltk.run()
-
-    os.chdir("Results/GMSH/")
-    subprocess.Popen("pentagrow penta1.stl config.cfg", shell=True)
-    subprocess.Popen("paraview hybrid.cgns", shell=True)
 
     if rotor_model:
         log.info("Duplicating disk actuator mesh surfaces")
@@ -1385,12 +1397,9 @@ def generate_gmsh_pentagrow(
         gmsh.finalize()
     return mesh_2d_path
 
-    # use pentagrow
-
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
-
 if __name__ == "__main__":
     print("Nothing to execute!")

@@ -60,6 +60,7 @@ cpacs_inout.add_input(
     descr=" ",
     xpath=GMSH_MESH_TYPE_XPATH,
     gui=True,
+    gui_name="unstructured or hybrid",
     gui_group="Mesh type",
 )
 

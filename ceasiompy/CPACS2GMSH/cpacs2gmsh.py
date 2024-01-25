@@ -146,7 +146,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         log.info("SU2 Mesh has been correctly generated.")
 
     # Save CPACS
-    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
+        cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
 
 # =================================================================================================

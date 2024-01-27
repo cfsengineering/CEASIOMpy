@@ -316,11 +316,13 @@ def create_mesh(cpacs_path, cpacs_out_path):
         tixi.updateTextElement(SU2MESH_XPATH, str(mesh_out_path))
         mesh_path.unlink()
 
-    else:
+    elif output == "edge":
         create_branch(tixi, EDGE_MESH_XPATH)
         tixi.updateTextElement(EDGE_MESH_XPATH, str(mesh_out_path))
 
-        edge_aboc_path = Path(sumo_results_dir, "ToolOutput.aboc")
+        #edge_aboc_path = Path(sumo_results_dir, "ToolOutput.aboc")   # commented by Mengmeng
+        edge_aboc_name = aircraft_name(tixi) + f"_baseline.aboc"
+        edge_aboc_path = Path(sumo_results_dir, edge_aboc_name)
         shutil.copyfile(mesh_path, edge_aboc_path)
 
         create_branch(tixi, EDGE_ABOC_XPATH)

@@ -320,7 +320,9 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
         log.info("Edge solver is done." )
 
         # postprocess for results
-        #edge_scripts_instance.postprocess_script(case_dir_path, edge_mesh)
+        log.info("Running Edge postprocessor...for " + case_dir_name )
+        edge_scripts_instance.postprocess_script(case_dir_path, edge_mesh)
+        log.info("Edge postprocessor is done." )
         # wait until the results are generated
         
         cpacs.save_cpacs(cpacs_out_path, overwrite=True)

@@ -111,8 +111,8 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
         raise FileNotFoundError(f"M-Edge mesh file {edge_mesh} not found")
     # copy edge_mesh and edge_aboc file to the Working directory
 
-    #grid_folder = Path(wkdir, "grid") # Commented by Mengmeng Zhang
-    grid_folder = Path(wkdir) # Added by Mengmeng Zhang
+    grid_folder = Path(wkdir, "grid") 
+    #grid_folder = Path(wkdir) # Added by Mengmeng Zhang
     to_grid = grid_folder / edge_mesh.name
     to_aboc = grid_folder / edge_aboc.name
 

@@ -200,7 +200,9 @@ def main(cpacs_path, cpacs_out_path):
     log.info("Edge postprocessing finished")
     # run_edge_multi(results_dir, nb_proc)
     # get_su2_results(cpacs_tmp_cfg, cpacs_out_path, results_dir)
-
+    cpacs = CPACS(cpacs_path)
+    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
+    
     log.info("----- End of " + MODULE_NAME + " -----")
 
 

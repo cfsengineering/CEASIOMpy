@@ -315,9 +315,9 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
         
 
         # edge_scripts_instance.submit_solver_script(case_dir_path,NPART)
-        log.info("Running Edge solver for " + case_dir_name )
+        log.info("Running Edge solver... for " + case_dir_name )
         edge_scripts_instance.run_edgesolver(case_dir_path, NPART)
-        log.info("Edge solver is done for" + case_dir_name )
+        log.info("Edge solver is done." )
 
         # postprocess for results
         #edge_scripts_instance.postprocess_script(case_dir_path, edge_mesh)

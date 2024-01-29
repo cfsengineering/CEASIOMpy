@@ -42,7 +42,7 @@ def get_logger():
         logger (logger): Logger
     """
 
-"""
+
     logger = logging.getLogger("CEASIOMpy")
 
     # NOTE: Multiple calls to getLogger() with the same name will return a
@@ -54,6 +54,7 @@ def get_logger():
     logger.setLevel(logging.DEBUG)
 
     # Write logfile
+    """
     file_formatter = logging.Formatter("%(asctime)s - %(levelname)8s - %(module)18s - %(message)s")
     file_handler = logging.FileHandler(filename=LOGFILE, mode="w")
     file_handler.setLevel(logging.DEBUG)  # Level for the logfile
@@ -66,9 +67,9 @@ def get_logger():
     console_handler.setLevel(logging.DEBUG)  # Level for the console log
     console_handler.setFormatter(console_formatter)
     logger.addHandler(console_handler)
-
+    """
     return logger
-"""
+
 
 def add_to_runworkflow_history(working_dir: Path, comment: str = "") -> None:
     """Add a line to the runworkflow history"""

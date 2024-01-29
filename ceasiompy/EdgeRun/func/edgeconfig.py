@@ -199,7 +199,14 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
     CFL = get_value_or_default(cpacs.tixi, EDGE_CFL_NB_XPATH, 1.5)
     NGRID = int(get_value_or_default(cpacs.tixi, EDGE_MG_LEVEL_XPATH, 3))
     NPART = int(get_value_or_default(cpacs.tixi, EDGE_NB_CPU_XPATH, 64))
-    INSEUL = int(get_value_or_default(cpacs.tixi, EDGE_SOLVER_XPATH, 0))
+
+    edge_solver = get_value(cpacs.tixi, EDGE_SOLVER_XPATH)
+    if edge_solver == "Euler"
+        INSEUL = 0
+    if edge_solver == "RANS"
+        INSEUL = 1
+    else:
+        raise Exception("Error, edge solver not assigned")
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
     for case_nb in range(len(alt_list)):

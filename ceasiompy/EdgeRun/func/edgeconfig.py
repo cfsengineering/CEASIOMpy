@@ -195,12 +195,13 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
 
     # Settings
 
-    ITMAX = int(get_value_or_default(cpacs.tixi, EDGE_MAX_ITER_XPATH, 200))
+    ITMAX = int(get_value_or_default(cpacs.tixi, EDGE_MAX_ITER_XPATH, 1000))
     CFL = get_value_or_default(cpacs.tixi, EDGE_CFL_NB_XPATH, 1.5)
-    NGRID = int(get_value_or_default(cpacs.tixi, EDGE_MG_LEVEL_XPATH, 3))
-    NPART = int(get_value_or_default(cpacs.tixi, EDGE_NB_CPU_XPATH, 64))
+    NGRID = int(get_value_or_default(cpacs.tixi, EDGE_MG_LEVEL_XPATH, 1))
+    NPART = int(get_value_or_default(cpacs.tixi, EDGE_NB_CPU_XPATH, 128))
 
     edge_solver = get_value_or_default(cpacs.tixi, EDGE_SOLVER_XPATH,"Euler")
+    print(f'edge_solver: {edge_solver}')  
     if edge_solver == "Euler":
         INSEUL = 0
     if edge_solver == "RANS":

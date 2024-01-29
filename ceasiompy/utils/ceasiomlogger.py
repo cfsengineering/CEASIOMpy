@@ -57,14 +57,14 @@ def get_logger():
     file_handler = logging.FileHandler(filename=LOGFILE, mode="w")
     file_handler.setLevel(logging.DEBUG)  # Level for the logfile
     file_handler.setFormatter(file_formatter)
-    logger.addHandler(file_handler)
+#    logger.addHandler(file_handler)
 
     # Write log messages on the console
     console_formatter = logging.Formatter("%(levelname)-8s - %(message)s")
     console_handler = logging.StreamHandler()
     console_handler.setLevel(logging.DEBUG)  # Level for the console log
     console_handler.setFormatter(console_formatter)
-    logger.addHandler(console_handler)
+ #   logger.addHandler(console_handler)
 
     return logger
 

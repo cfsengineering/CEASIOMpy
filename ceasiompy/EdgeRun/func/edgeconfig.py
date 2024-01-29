@@ -201,9 +201,9 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
     NPART = int(get_value_or_default(cpacs.tixi, EDGE_NB_CPU_XPATH, 64))
 
     edge_solver = get_value(cpacs.tixi, EDGE_SOLVER_XPATH)
-    if edge_solver == "Euler"
+    if edge_solver == "Euler":
         INSEUL = 0
-    if edge_solver == "RANS"
+    if edge_solver == "RANS":
         INSEUL = 1
     else:
         raise Exception("Error, edge solver not assigned")

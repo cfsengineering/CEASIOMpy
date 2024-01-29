@@ -200,7 +200,7 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
     NGRID = int(get_value_or_default(cpacs.tixi, EDGE_MG_LEVEL_XPATH, 3))
     NPART = int(get_value_or_default(cpacs.tixi, EDGE_NB_CPU_XPATH, 64))
 
-    edge_solver = get_value(cpacs.tixi, EDGE_SOLVER_XPATH)
+    edge_solver = get_value_or_default(cpacs.tixi, EDGE_SOLVER_XPATH,"Euler")
     if edge_solver == "Euler":
         INSEUL = 0
     if edge_solver == "RANS":

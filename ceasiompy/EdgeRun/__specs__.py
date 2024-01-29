@@ -12,7 +12,7 @@ from ceasiompy.utils.commonxpath import (
     EDGE_MG_LEVEL_XPATH,
     EDGE_NB_CPU_XPATH,
     EDGE_MESH_XPATH,
-    EDGE_SOLVER,
+    EDGE_SOLVER_XPATH,
 )
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
@@ -170,7 +170,7 @@ cpacs_inout.add_input(
     default_value=["Euler", "RANS"],
     unit="1",
     descr="Chose if perform a RANS or an Euler calculation",
-    xpath=EDGE_SOLVER,
+    xpath=EDGE_SOLVER_XPATH,
     gui=True,
     gui_name="Solver for calculation",
     gui_group="EDGE parameters",

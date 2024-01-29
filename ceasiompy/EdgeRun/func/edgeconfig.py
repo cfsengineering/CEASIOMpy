@@ -204,7 +204,7 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
     print(f'edge_solver: {edge_solver}')  
     if edge_solver == "Euler":
         INSEUL = 0
-    if edge_solver == "RANS":
+    elif edge_solver == "RANS":
         INSEUL = 1
     else:
         raise Exception("Error, edge solver not assigned")

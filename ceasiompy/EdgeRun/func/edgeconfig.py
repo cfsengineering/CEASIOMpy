@@ -111,7 +111,8 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
         raise FileNotFoundError(f"M-Edge mesh file {edge_mesh} not found")
     # copy edge_mesh and edge_aboc file to the Working directory
 
-    grid_folder = Path(wkdir, "grid")
+    grid_folder = Path(wkdir, "grid") 
+    #grid_folder = Path(wkdir) # Added by Mengmeng Zhang
     to_grid = grid_folder / edge_mesh.name
     to_aboc = grid_folder / edge_aboc.name
 
@@ -314,12 +315,14 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
         
 
         # edge_scripts_instance.submit_solver_script(case_dir_path,NPART)
-        log.info("Running Edge solver for " + case_dir_name )
+        log.info("Running Edge solver... for " + case_dir_name )
         edge_scripts_instance.run_edgesolver(case_dir_path, NPART)
-        log.info("Edge solver is done for" + case_dir_name )
+        log.info("Edge solver is done." )
 
         # postprocess for results
-        #edge_scripts_instance.postprocess_script(case_dir_path, edge_mesh)
+        log.info("Running Edge postprocessor...for " + case_dir_name )
+        edge_scripts_instance.postprocess_script(case_dir_path, edge_mesh)
+        log.info("Edge postprocessor is done." )
         # wait until the results are generated
         
         cpacs.save_cpacs(cpacs_out_path, overwrite=True)

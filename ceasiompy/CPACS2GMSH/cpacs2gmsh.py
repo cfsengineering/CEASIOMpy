@@ -18,6 +18,7 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+import os
 from pathlib import Path
 
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep

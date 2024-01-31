@@ -61,6 +61,7 @@ from cpacspy.cpacsfunctions import create_branch
 
 from ceasiompy.CPACS2GMSH.func.mesh_sizing import fuselage_size, wings_size
 
+
 log = get_logger()
 
 
@@ -1220,7 +1221,9 @@ def generate_gmsh_pentagrow(
 
         if part_obj.part_type == "fuselage":
             fuselage_volume_dimtags.append(part_entities[0])
-            model_bb = gmsh.model.getBoundingBox(-1, -1)
+            model_bb = gmsh.model.get_bounding_box(
+                fuselage_volume_dimtags[0][0], fuselage_volume_dimtags[0][1])
+
             # return fuselage_volume_dimtags
 
         elif part_obj.part_type == "wing" :
@@ -1247,6 +1250,7 @@ def generate_gmsh_pentagrow(
         # return None
 
     gmsh.model.occ.synchronize()
+    log.info("Manipulating the geometry, please wait..")
 
     # we have to obtain a wathertight
     gmsh.model.occ.cut(wings_volume_dimtags, fuselage_volume_dimtags, -1, True, False)
@@ -1257,7 +1261,6 @@ def generate_gmsh_pentagrow(
 
     gmsh.model.occ.synchronize()
 
-    # model_bb = gmsh.model.getBoundingBox(-1, -1)
     model_dimensions = [
         abs(model_bb[0] - model_bb[3]),
         abs(model_bb[1] - model_bb[4]),
@@ -1273,21 +1276,27 @@ def generate_gmsh_pentagrow(
     gmsh.model.occ.synchronize()
 
     aircraft_parts = gmsh.model.get_bounding_box(-1, -1)
+
     # Mesh generation
     log.info("Start of gmsh 2D surface meshing process")
 
-    gmsh.option.setNumber("Mesh.Algorithm", 6)  # Frontal-Delunay
+    # Frontal-Delunay: 6   1: MeshAdapt, 2: Automatic, 3: Initial mesh only, 5: Delaunay, 6: Frontal-Delaunay, 7: BAMG, 8: Frontal-Delaunay for Quads, 9: Packing of Parallelograms, 11: Quasi-structured Quad
+    gmsh.option.setNumber("Mesh.Algorithm", 6)
     gmsh.option.setNumber("Mesh.LcIntegrationPrecision", 1e-6)
     msesh_size = model_dimensions[0] * 0.005
     gmsh.option.set_number("Mesh.MeshSizeMin", msesh_size)
     gmsh.option.set_number("Mesh.MeshSizeMax", msesh_size)
     gmsh.model.occ.synchronize()
     gmsh.logger.start()
-
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
 
-    # Control of the mesh quality
+    if open_gmsh:
+        log.info("Result of 2D surface mesh")
+        log.info("GMSH GUI is open, close it to continue...")
+        gmsh.fltk.run()
+
+    # # Control of the mesh quality
     # if refine_factor != 1 and auto_refine:
     #     bad_surfaces = []
 
@@ -1322,12 +1331,15 @@ def generate_gmsh_pentagrow(
     #         if open_gmsh:
     #             log.info("Corrected mesh surfaces are displayed in green")
 
-    # Apply smoothing
+    # # Apply smoothing
     # log.info("2D mesh smoothing process started")
     # gmsh.model.mesh.optimize("Laplace2D", niter=10)
     # log.info("Smoothing process finished")
 
     gmsh.model.occ.synchronize()
+
+    # su2mesh_path = Path(results_dir, "mesh.su2")
+    # gmsh.write(str(su2mesh_path))
 
     mesh_2d_path = Path(results_dir, "penta1.stl")
     gmsh.write(str(mesh_2d_path))
@@ -1338,7 +1350,7 @@ def generate_gmsh_pentagrow(
     InputFormat = "stl"
     NLayers = 25
     FeatureAngle = 120.0
-    InitialHeight = 0.0000003
+    InitialHeight = 0.00003
     MaxLayerThickness = 1
     FarfieldRadius = model_dimensions[0] * 20
     OutputFormat = "cgns"
@@ -1366,17 +1378,17 @@ def generate_gmsh_pentagrow(
     file.write(f"MaxCritIterations = {MaxCritIterations}\n")
     file.write(f"LaplaceIterations = {LaplaceIterations}\n")
     file.close
-    gmsh.fltk.run()
 
-    os.chdir("Results/GMSH/")
-    print(os.getcwd())
-    subprocess.Popen("pentagrow penta1.stl config.cfg", shell=True)
-    # subprocess.Popen("paraview hybrid.cgns", shell=True)
+    os.chdir('Results/GMSH')
+    process1 = subprocess.Popen("pentagrow penta1.stl config.cfg",
+                                shell=True, cwd=results_dir, start_new_session=True)
 
-    if open_gmsh:
-        log.info("Result of 2D surface mesh")
-        log.info("GMSH GUI is open, close it to continue...")
-        gmsh.fltk.run()
+    # process1.wait()
+
+    # process2 = subprocess.Popen("paraview hybrid.cgns",
+    #                             shell=True, cwd=results_dir, start_new_session=True)
+
+    # process2.wait()
 
     if rotor_model:
         log.info("Duplicating disk actuator mesh surfaces")
@@ -1395,7 +1407,7 @@ def generate_gmsh_pentagrow(
     if not testing_gmsh:
         gmsh.clear()
         gmsh.finalize()
-    return mesh_2d_path
+    return mesh_2d_path, aircraft_parts
 
 
 # =================================================================================================

@@ -311,7 +311,7 @@ def generate_2d_for_pentagrow(
     # su2mesh_path = Path(results_dir, "mesh.su2")
     # gmsh.write(str(su2mesh_path))
 
-    mesh_2d_path = Path(results_dir, "penta1.stl")
+    mesh_2d_path = Path(results_dir, "mesh_2d.stl")
     gmsh.write(str(mesh_2d_path))
 
     # process1.wait(20)
@@ -380,10 +380,10 @@ def pentagrow_3d_mesh(result_dir, Dimension: float) -> None:
     os.chdir("Results/GMSH")
 
     process = subprocess.Popen(
-        "pentagrow penta1.stl config.cfg", shell=True, cwd=result_dir, start_new_session=False
+        "pentagrow mesh_2d.stl config.cfg", shell=True, cwd=result_dir, start_new_session=False
     )
 
-    # run_software('pentagrow', ['penta1.stl', 'config.cfg'], result_dir)
+    # run_software('pentagrow', ['mesh_2d.stl', 'config.cfg'], result_dir)
     # output, error = process1.communicate()
 
     mesh_3d_path = Path(result_dir, "hybrid.su2")

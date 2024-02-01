@@ -11,6 +11,8 @@ Python version: >=3.8
 
 | Author: Tony Govoni
 | Creation: 2022-03-22
+| Modified by: Giacomo Benedetti, Guido Vallifuoco
+| Last modification: 2024-02-01
 
 TODO:
 

@@ -9,8 +9,8 @@ resulting domain is meshed using gmsh
 
 Python version: >=3.8
 
-| Author: Tony Govoni
-| Creation: 2022-03-22
+| Author: Guido Vallifuoco
+| Creation: 2024-02-01
 
 TODO:
 

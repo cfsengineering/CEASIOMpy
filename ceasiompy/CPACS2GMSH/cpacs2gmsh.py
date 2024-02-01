@@ -131,7 +131,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
             testing_gmsh=False,
         )
     else:
-        sub
+
         export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
         mesh_path, _ = generate_2d_mesh_for_pentagrow(
             cpacs,

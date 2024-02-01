@@ -83,7 +83,7 @@ log = get_logger()
 # =================================================================================================
 
 
-def generate_2d_for_pentagrow(
+def generate_2d_mesh_for_pentagrow(
     cpacs,
     cpacs_path,
     brep_dir,

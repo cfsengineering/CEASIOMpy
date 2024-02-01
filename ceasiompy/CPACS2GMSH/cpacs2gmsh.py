@@ -28,7 +28,7 @@ from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
 from ceasiompy.CPACS2GMSH.func.RANS_mesh_generator import (
-    generate_2d_for_pentagrow,
+    generate_2d_mesh_for_pentagrow,
     pentagrow_3d_mesh,
 )
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -132,7 +132,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         )
     else:
         export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
-        mesh_path, _ = generate_2d_for_pentagrow(
+        mesh_path, _ = generate_2d_mesh_for_pentagrow(
             cpacs,
             cpacs_path,
             brep_dir,

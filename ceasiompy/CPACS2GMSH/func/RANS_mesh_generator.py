@@ -253,9 +253,9 @@ def generate_2d_for_pentagrow(
     # Frontal-Delunay: 6   1: MeshAdapt, 2: Automatic, 3: Initial mesh only, 5: Delaunay, 6: Frontal-Delaunay, 7: BAMG, 8: Frontal-Delaunay for Quads, 9: Packing of Parallelograms, 11: Quasi-structured Quad
     gmsh.option.setNumber("Mesh.Algorithm", 6)
     gmsh.option.setNumber("Mesh.LcIntegrationPrecision", 1e-6)
-    msesh_size = model_dimensions[0] * 0.005
-    gmsh.option.set_number("Mesh.MeshSizeMin", msesh_size)
-    gmsh.option.set_number("Mesh.MeshSizeMax", msesh_size)
+    mesh_size = model_dimensions[0] * 0.005
+    gmsh.option.set_number("Mesh.MeshSizeMin", mesh_size)
+    gmsh.option.set_number("Mesh.MeshSizeMax", mesh_size)
     gmsh.model.occ.synchronize()
     gmsh.logger.start()
     gmsh.model.mesh.generate(1)

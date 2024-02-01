@@ -24,7 +24,11 @@ import concurrent.futures
 from pathlib import Path
 
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh, generate_gmsh_pentagrow, penta
+from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
+from ceasiompy.CPACS2GMSH.func.RANS_mesh_generator import (
+    generate_2d_for_pentagrow,
+    pentagrow_3d_mesh,
+)
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.moduleinterfaces import (
@@ -102,7 +106,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     exhaust_percent = get_value_or_default(cpacs.tixi, GMSH_EXHAUST_PERCENT_XPATH, 20)
 
     # Run mesh generation
-    if type_mesh is "Euler":
+    if type_mesh == "Euler":
         export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
         mesh_path, _ = generate_gmsh(
             cpacs,
@@ -122,10 +126,11 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
             refine_factor=refine_factor,
             refine_truncated=refine_truncated,
             auto_refine=auto_refine,
-            testing_gmsh=False,)
+            testing_gmsh=False,
+        )
     else:
         export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
-        mesh_path, _ = generate_gmsh_pentagrow(
+        mesh_path, _ = generate_2d_for_pentagrow(
             cpacs,
             cpacs_path,
             brep_dir,
@@ -144,14 +149,13 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         )
 
     if mesh_path.exists():
-
-        mesh_3D_path = penta(results_dir, 5)
+        mesh_3D_path = pentagrow_3d_mesh(results_dir, 5)
 
         create_branch(cpacs.tixi, SU2MESH_XPATH)
         cpacs.tixi.updateTextElement(SU2MESH_XPATH, str(mesh_3D_path))
         log.info("SU2 Mesh has been correctly generated.")
 
-    # Save CPACS
+        # Save CPACS
         cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
 

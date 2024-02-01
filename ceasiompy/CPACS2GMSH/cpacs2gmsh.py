@@ -131,7 +131,6 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
             testing_gmsh=False,
         )
     else:
-
         export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
         mesh_path, _ = generate_2d_mesh_for_pentagrow(
             cpacs,
@@ -152,14 +151,18 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         )
 
     if mesh_path.exists():
+        log.info("Mesh file exists. Proceeding to 3D mesh generation")
         mesh_3D_path = pentagrow_3d_mesh(results_dir, 5)
 
         create_branch(cpacs.tixi, SU2MESH_XPATH)
         cpacs.tixi.updateTextElement(SU2MESH_XPATH, str(mesh_3D_path))
         log.info("SU2 Mesh has been correctly generated.")
 
-        # Save CPACS
-        cpacs.save_cpacs(cpacs_out_path, overwrite=True)
+    else:
+        log.error("Error in generating SU2 mesh")
+
+    # Save CPACS
+    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
 
 # =================================================================================================

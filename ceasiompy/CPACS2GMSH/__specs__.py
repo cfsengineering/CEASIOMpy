@@ -57,10 +57,10 @@ cpacs_inout.add_input(
     var_type=list,
     default_value=["Euler", "RANS"],
     unit="1",
-    descr=" ",
+    descr="Chose between Euler and RANS mesh",
     xpath=GMSH_MESH_TYPE_XPATH,
     gui=True,
-    gui_name="unstructured or hybrid",
+    gui_name="Chose the mesh type",
     gui_group="Mesh type",
 )
 

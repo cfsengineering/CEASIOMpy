@@ -379,7 +379,7 @@ def pentagrow_3d_mesh(result_dir, Dimension: float) -> None:
 
     os.chdir("Results/GMSH")
 
-    process = subprocess.Popen(
+    process = subprocess.run(
         "pentagrow mesh_2d.stl config.cfg", shell=True, cwd=result_dir, start_new_session=False
     )
 

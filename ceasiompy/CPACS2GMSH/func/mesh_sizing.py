@@ -178,6 +178,8 @@ def fuselage_size(cpacs_path):
 
         # Get overall minimum radius (semi-minor axis for ellipse)
         min_radius = min(min_radius, height, width)
+        if min_radius == 0:
+            min_radius = 0.0001
 
     mean_circ = sum(circ_list) / len(circ_list)
 
@@ -186,7 +188,7 @@ def fuselage_size(cpacs_path):
     fuselage_minlen = min(0.1 * fuselage_maxlen, min_radius / 2)
 
     log.info(f"Fuselage maxlen={fuselage_maxlen:.3f} m")
-    log.info(f"Fuselage minlen={fuselage_minlen:.3f} m")
+    log.info(f"Fuselage minlen={fuselage_minlen:.4f} m")
 
     return fuselage_maxlen, fuselage_minlen
 
@@ -283,6 +285,6 @@ def wings_size(cpacs_path):
     wing_minlen = 0.08 * wing_maxlen
 
     log.info(f"Wing maxlen={wing_maxlen:.3f} m")
-    log.info(f"Wing minlen={wing_minlen:.3f} m")
+    log.info(f"Wing minlen={wing_minlen:.4f} m")
 
     return wing_maxlen, wing_minlen

@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This script contains different functions to classify and manipulate wing elements
+This script contains different functions to classify and manipulate wing and fuselage elements
 
 Python version: >=3.8
 
@@ -35,6 +35,8 @@ log = get_logger()
 
 
 def fuselage_size(cpacs_path):
+    """Function to get the measure of the fuselage and to obtain a good mesh size"""
+
     tixi = open_tixi(cpacs_path)
     if tixi.checkElement(FUSELAGES_XPATH):
         fus_cnt = tixi.getNamedChildrenCount(FUSELAGES_XPATH, "fuselage")
@@ -194,6 +196,8 @@ def fuselage_size(cpacs_path):
 
 
 def wings_size(cpacs_path):
+    """Function to get the measure of the wing and to obtain a good mesh size"""
+
     tixi = open_tixi(cpacs_path)
     if tixi.checkElement(WINGS_XPATH):
         wing_cnt = tixi.getNamedChildrenCount(WINGS_XPATH, "wing")

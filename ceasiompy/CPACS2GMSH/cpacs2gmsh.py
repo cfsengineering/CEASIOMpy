@@ -19,10 +19,12 @@ TODO:
 # =================================================================================================
 
 import os
+import asyncio
+import concurrent.futures
 from pathlib import Path
 
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh, generate_gmsh_pentagrow
+from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh, generate_gmsh_pentagrow, penta
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.moduleinterfaces import (
@@ -142,8 +144,11 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         )
 
     if mesh_path.exists():
+
+        mesh_3D_path = penta(results_dir, 5)
+
         create_branch(cpacs.tixi, SU2MESH_XPATH)
-        cpacs.tixi.updateTextElement(SU2MESH_XPATH, str(mesh_path))
+        cpacs.tixi.updateTextElement(SU2MESH_XPATH, str(mesh_3D_path))
         log.info("SU2 Mesh has been correctly generated.")
 
     # Save CPACS

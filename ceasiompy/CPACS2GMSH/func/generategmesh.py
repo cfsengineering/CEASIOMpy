@@ -45,6 +45,7 @@ from ceasiompy.utils.configfiles import ConfigFile
 import gmsh
 import numpy as np
 import os
+from typing import List
 import subprocess
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
@@ -55,7 +56,7 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
 from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_part_type
+from ceasiompy.utils.ceasiompyutils import get_part_type, run_software
 
 from cpacspy.cpacsfunctions import create_branch
 
@@ -1230,20 +1231,20 @@ def generate_gmsh_pentagrow(
             wings_volume_dimtags.append(part_entities[0])
             # return wings_volume_dimtags
 
-        elif part_obj.part_type is "enginePylons/enginePylon" :
+        elif part_obj.part_type == "enginePylons/enginePylon" :
             enginePylons_enginePylon_volume_dimtags.append(part_entities[0])
             # return enginePylons_enginePylon_volume_dimtags
 
-        elif part_obj.part_type is "engine/nacelle/fanCowl" :
+        elif part_obj.part_type == "engine/nacelle/fanCowl" :
             engine_nacelle_fanCowl_volume_dimtags.append(part_entities[0])
 
-        elif part_obj.part_type is "engine/nacelle/coreCowl" :
+        elif part_obj.part_type == "engine/nacelle/coreCowl" :
             engine_nacelle_coreCowl_volume_dimtags.append(part_entities[0])
 
-        elif part_obj.part_type is "vehicles/engines/engine" :
+        elif part_obj.part_type == "vehicles/engines/engine" :
             vehicles_engines_engine_volume_dimtags.append(part_entities[0])
 
-        elif part_obj.part_type is "vehicles/rotorcraft/model/rotors/rotor" :
+        elif part_obj.part_type == "vehicles/rotorcraft/model/rotors/rotor" :
             vehicles_rotorcraft_model_rotors_rotor_volume_dimtags.append(part_entities[0])
 
         # log.warning(f"'{brep_file}' cannot be categorized!")
@@ -1344,16 +1345,44 @@ def generate_gmsh_pentagrow(
     mesh_2d_path = Path(results_dir, "penta1.stl")
     gmsh.write(str(mesh_2d_path))
 
+    # process1.wait(20)
+
+    # process2 = subprocess.Popen("paraview hybrid.cgns",
+    #                             shell=True, cwd=results_dir, start_new_session=True)
+
+    # process2.wait()
+
+    if rotor_model:
+        log.info("Duplicating disk actuator mesh surfaces")
+        for part in aircraft_parts:
+            if part.part_type == "rotor":
+                duplicate_disk_actuator_surfaces(part)
+
+        # option to use when duplicating disk actuator surfaces
+        gmsh.option.setNumber("Mesh.SaveAll", 1)
+
+        # Control surface orientation
+        control_disk_actuator_normal()
+
+    process_gmsh_log(gmsh.logger.get())
+
+    if not testing_gmsh:
+        gmsh.clear()
+        gmsh.finalize()
+    return mesh_2d_path, aircraft_parts
+
+
+def penta(result_dir, Dimension: float) -> None:
     # create the config file for pentagrow
-    config_penta_path = Path(results_dir, 'config.cfg')
+    config_penta_path = Path(result_dir, 'config.cfg')
     # Variables
     InputFormat = "stl"
     NLayers = 25
     FeatureAngle = 120.0
     InitialHeight = 0.00003
     MaxLayerThickness = 1
-    FarfieldRadius = model_dimensions[0] * 20
-    OutputFormat = "cgns"
+    FarfieldRadius = Dimension * 20
+    OutputFormat = "su2"
     HolePosition = "0.0 0.0 0.0"
     TetgenOptions = "-pq1.2VY"
     TetGrowthFactor = 1.35
@@ -1379,35 +1408,17 @@ def generate_gmsh_pentagrow(
     file.write(f"LaplaceIterations = {LaplaceIterations}\n")
     file.close
 
-    os.chdir('Results/GMSH')
-    process1 = subprocess.Popen("pentagrow penta1.stl config.cfg",
-                                shell=True, cwd=results_dir, start_new_session=True)
+    os.chdir("Results/GMSH")
 
-    # process1.wait()
+    process2 = subprocess.Popen("pentagrow penta1.stl config.cfg",
+                                shell=True, cwd=result_dir, start_new_session=False)
 
-    # process2 = subprocess.Popen("paraview hybrid.cgns",
-    #                             shell=True, cwd=results_dir, start_new_session=True)
+    # run_software('pentagrow', ['penta1.stl', 'config.cfg'], result_dir)
+    # output, error = process1.communicate()
 
-    # process2.wait()
+    mesh_3d_path = Path(result_dir, 'hybrid.su2')
 
-    if rotor_model:
-        log.info("Duplicating disk actuator mesh surfaces")
-        for part in aircraft_parts:
-            if part.part_type == "rotor":
-                duplicate_disk_actuator_surfaces(part)
-
-        # option to use when duplicating disk actuator surfaces
-        gmsh.option.setNumber("Mesh.SaveAll", 1)
-
-        # Control surface orientation
-        control_disk_actuator_normal()
-
-    process_gmsh_log(gmsh.logger.get())
-
-    if not testing_gmsh:
-        gmsh.clear()
-        gmsh.finalize()
-    return mesh_2d_path, aircraft_parts
+    return mesh_3d_path
 
 
 # =================================================================================================

@@ -196,7 +196,7 @@ def run_software(
     command_line += arguments
 
     # Use xvfb to run sumo to avoid problems with X11 (e.g. when running test on Github actions)
-    if software_name in ["sumo", "dwfsumo"] and sys.platform == "linux":
+    if software_name in ["sumo", "dwfsumo", "pentagrow"] and sys.platform == "linux":
         command_line = ["xvfb-run"] + command_line
 
     log.info(f">>> Running {software_name} on {int(nb_cpu)} cpu(s)")

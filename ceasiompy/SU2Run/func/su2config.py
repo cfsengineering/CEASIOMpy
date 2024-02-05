@@ -341,7 +341,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
         if aeromap_list:
             aeromap_default = aeromap_list[0]
-            log.info(f'The aeromap is {aeromap_default}')
+            log.info(f"The aeromap is {aeromap_default}")
 
             aeromap_uid = get_value_or_default(cpacs.tixi, SU2_AEROMAP_UID_XPATH, aeromap_default)
 

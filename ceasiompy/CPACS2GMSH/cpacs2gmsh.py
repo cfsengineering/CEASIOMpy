@@ -9,6 +9,8 @@ Python version: >=3.8
 
 | Author:Tony Govoni
 | Creation: 2022-03-22
+| Modified by: Giacomo Benedetti, Guido Vallifuoco
+| Last modification: 2024-02-01
 
 TODO:
 
@@ -18,10 +20,17 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+import os
+import asyncio
+import concurrent.futures
 from pathlib import Path
 
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
+from ceasiompy.CPACS2GMSH.func.RANS_mesh_generator import (
+    generate_2d_mesh_for_pentagrow,
+    pentagrow_3d_mesh,
+)
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.moduleinterfaces import (
@@ -46,6 +55,7 @@ from ceasiompy.utils.commonxpath import (
     GMSH_REFINE_TRUNCATED_XPATH,
     GMSH_SYMMETRY_XPATH,
     SU2MESH_XPATH,
+    GMSH_MESH_TYPE_XPATH,
 )
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from cpacspy.cpacspy import CPACS
@@ -77,6 +87,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
 
     # Retrieve value from the GUI Setting
     open_gmsh = get_value_or_default(cpacs.tixi, GMSH_OPEN_GUI_XPATH, False)
+    type_mesh = get_value_or_default(cpacs.tixi, GMSH_MESH_TYPE_XPATH, "Euler")
     farfield_factor = get_value_or_default(cpacs.tixi, GMSH_FARFIELD_FACTOR_XPATH, 6)
     symmetry = get_value_or_default(cpacs.tixi, GMSH_SYMMETRY_XPATH, False)
     farfield_size_factor = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FARFIELD_XPATH, 17)
@@ -97,32 +108,58 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     exhaust_percent = get_value_or_default(cpacs.tixi, GMSH_EXHAUST_PERCENT_XPATH, 20)
 
     # Run mesh generation
-    export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
-    mesh_path, _ = generate_gmsh(
-        cpacs,
-        cpacs_path,
-        brep_dir,
-        results_dir,
-        open_gmsh=open_gmsh,
-        farfield_factor=farfield_factor,
-        symmetry=symmetry,
-        farfield_size_factor=farfield_size_factor,
-        n_power_factor=n_power_factor,
-        n_power_field=n_power_field,
-        fuselage_mesh_size_factor=fuselage_mesh_size_factor,
-        wing_mesh_size_factor=wing_mesh_size_factor,
-        mesh_size_engines=mesh_size_engines,
-        mesh_size_propellers=mesh_size_propellers,
-        refine_factor=refine_factor,
-        refine_truncated=refine_truncated,
-        auto_refine=auto_refine,
-        testing_gmsh=False,
-    )
+    if type_mesh == "Euler":
+        export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
+        mesh_path, _ = generate_gmsh(
+            cpacs,
+            cpacs_path,
+            brep_dir,
+            results_dir,
+            open_gmsh=open_gmsh,
+            farfield_factor=farfield_factor,
+            symmetry=symmetry,
+            farfield_size_factor=farfield_size_factor,
+            n_power_factor=n_power_factor,
+            n_power_field=n_power_field,
+            fuselage_mesh_size_factor=fuselage_mesh_size_factor,
+            wing_mesh_size_factor=wing_mesh_size_factor,
+            mesh_size_engines=mesh_size_engines,
+            mesh_size_propellers=mesh_size_propellers,
+            refine_factor=refine_factor,
+            refine_truncated=refine_truncated,
+            auto_refine=auto_refine,
+            testing_gmsh=False,
+        )
+    else:
+        export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
+        mesh_path, _ = generate_2d_mesh_for_pentagrow(
+            cpacs,
+            cpacs_path,
+            brep_dir,
+            results_dir,
+            open_gmsh=open_gmsh,
+            n_power_factor=n_power_factor,
+            n_power_field=n_power_field,
+            fuselage_mesh_size_factor=fuselage_mesh_size_factor,
+            wing_mesh_size_factor=wing_mesh_size_factor,
+            mesh_size_engines=mesh_size_engines,
+            mesh_size_propellers=mesh_size_propellers,
+            refine_factor=refine_factor,
+            refine_truncated=refine_truncated,
+            auto_refine=auto_refine,
+            testing_gmsh=False,
+        )
 
     if mesh_path.exists():
+        log.info("Mesh file exists. Proceeding to 3D mesh generation")
+        mesh_3D_path = pentagrow_3d_mesh(results_dir, 5)
+
         create_branch(cpacs.tixi, SU2MESH_XPATH)
-        cpacs.tixi.updateTextElement(SU2MESH_XPATH, str(mesh_path))
+        cpacs.tixi.updateTextElement(SU2MESH_XPATH, str(mesh_3D_path))
         log.info("SU2 Mesh has been correctly generated.")
+
+    else:
+        log.error("Error in generating SU2 mesh")
 
     # Save CPACS
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)

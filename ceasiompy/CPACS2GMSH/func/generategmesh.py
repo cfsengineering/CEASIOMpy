@@ -11,6 +11,8 @@ Python version: >=3.8
 
 | Author: Tony Govoni
 | Creation: 2022-03-22
+| Modified by: Giacomo Benedetti, Guido Vallifuoco
+| Last modification: 2024-02-01
 
 TODO:
 
@@ -44,7 +46,9 @@ from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_FUSELAGE_XPATH, GMSH_MESH
 from ceasiompy.utils.configfiles import ConfigFile
 import gmsh
 import numpy as np
-
+import os
+from typing import List
+import subprocess
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
     set_domain_mesh,
@@ -54,11 +58,12 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
 from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_part_type
+from ceasiompy.utils.ceasiompyutils import get_part_type, run_software
 
 from cpacspy.cpacsfunctions import create_branch
 
 from ceasiompy.CPACS2GMSH.func.mesh_sizing import fuselage_size, wings_size
+
 
 log = get_logger()
 
@@ -1117,6 +1122,5 @@ def generate_gmsh(
 # =================================================================================================
 #    MAIN
 # =================================================================================================
-
 if __name__ == "__main__":
     print("Nothing to execute!")

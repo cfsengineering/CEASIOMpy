@@ -13,6 +13,7 @@ from ceasiompy.utils.commonxpath import (
     EDGE_NB_CPU_XPATH,
     EDGE_MESH_XPATH,
     EDGE_SOLVER_XPATH,
+    EDGE_ABOC_XPATH,
 )
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
@@ -185,6 +186,18 @@ cpacs_inout.add_input(
     xpath=EDGE_MESH_XPATH,
     gui=True,
     gui_name="EDGE Mesh",
+    gui_group="Inputs",
+)
+
+cpacs_inout.add_input(
+    var_name="EDGE_ABOC_path",
+    var_type="pathtype",
+    default_value="-",
+    unit="1",
+    descr="Absolute path of the EDGE Boundary Condition file",
+    xpath=EDGE_ABOC_XPATH,
+    gui=True,
+    gui_name="EDGE ABOC",
     gui_group="Inputs",
 )
 

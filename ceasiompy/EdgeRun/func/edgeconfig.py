@@ -52,6 +52,7 @@ from ceasiompy.utils.commonxpath import (
     EDGE_MG_LEVEL_XPATH,
     EDGE_NB_CPU_XPATH,
     EDGE_FIXED_CL_XPATH,
+    EDGE_ABOC_XPATH,
 )
 
 # from ceasiompy.utils.configfiles import ConfigFile
@@ -105,7 +106,10 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
     cpacs = CPACS(cpacs_path)
 
     edge_mesh = Path(get_value(cpacs.tixi, EDGE_MESH_XPATH))
-    edge_aboc = edge_mesh.with_suffix(".aboc")
+    # edge_aboc = edge_mesh.with_suffix(".aboc")
+    edge_aboc = Path(
+        get_value_or_default(cpacs.tixi, EDGE_ABOC_XPATH, edge_mesh.with_suffix(".aboc"))
+    )
 
     if not edge_mesh.is_file():
         raise FileNotFoundError(f"M-Edge mesh file {edge_mesh} not found")
@@ -200,7 +204,7 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
     NGRID = int(get_value_or_default(cpacs.tixi, EDGE_MG_LEVEL_XPATH, 1))
     NPART = int(get_value_or_default(cpacs.tixi, EDGE_NB_CPU_XPATH, 128))
 
-    edge_solver = get_value_or_default(cpacs.tixi, EDGE_SOLVER_XPATH,"Euler") 
+    edge_solver = get_value_or_default(cpacs.tixi, EDGE_SOLVER_XPATH, "Euler")
     if edge_solver == "Euler":
         INSEUL = 0
     elif edge_solver == "RANS":

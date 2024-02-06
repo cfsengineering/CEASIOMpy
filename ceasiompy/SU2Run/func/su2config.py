@@ -318,10 +318,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
 
     mesh_markers = get_mesh_markers(su2_mesh)
     for key, value in mesh_markers.items():
-        # Verifica se value è una lista
-        if isinstance(value, list):
-            # Applica replace a ciascun elemento della lista
-            mesh_markers[key] = [str(item).replace(" ", "") for item in value]
+        mesh_markers[key] = [str(item).replace(" ", "") for item in value]
 
     create_branch(cpacs.tixi, SU2_BC_WALL_XPATH)
     bc_wall_str = ";".join(mesh_markers["wall"])

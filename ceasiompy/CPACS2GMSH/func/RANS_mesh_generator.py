@@ -384,20 +384,20 @@ def pentagrow_3d_mesh(result_dir, Dimension: float) -> None:
         print("mesh_2d.stl exists")
     else:
         print("mesh_2d.stl does not exist")
-        
+
     if os.path.exists("config.cfg"):
         print("config.cfg exists")
     else:
         print("config.cfg does not exist")
 
-    #process = subprocess.run(
+    # process = subprocess.run(
     #    "pentagrow mesh_2d.stl config.cfg", shell=True, cwd=result_dir, start_new_session=False
-    #)
+    # )
     current_dir = os.getcwd()
     os.chdir(current_dir)
-    #mesh_file= os.path.join(current_dir, "mesh_2d.stl")
-    #config_file = os.path.join(current_dir, "config.cfg")
-    #command = f"pentagrow {mesh_file} {config_file}"
+    # mesh_file= os.path.join(current_dir, "mesh_2d.stl")
+    # config_file = os.path.join(current_dir, "config.cfg")
+    # command = f"pentagrow {mesh_file} {config_file}"
     command = f"pentagrow mesh_2d.stl config.cfg"
 
     # Specify the file path
@@ -409,16 +409,14 @@ def pentagrow_3d_mesh(result_dir, Dimension: float) -> None:
 
     print("Command written to:", file_path)
 
-    process = subprocess.run(command, shell=True, cwd=current_dir,check=True, start_new_session=False)
-       
+    process = subprocess.run(
+        command, shell=True, cwd=current_dir, check=True, start_new_session=False
+    )
 
-
-    #if process.returncode == 0:
+    # if process.returncode == 0:
     #    print("Command executed successfully.")
-    #else:
+    # else:
     #    print(f"Error: Command returned non-zero exit code {process.returncode}")
- 
-
 
     # run_software('pentagrow', ['mesh_2d.stl', 'config.cfg'], result_dir)
     # output, error = process1.communicate()

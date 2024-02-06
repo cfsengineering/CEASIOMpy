@@ -32,6 +32,7 @@ TODO:
 # =================================================================================================
 
 import subprocess
+import os
 from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.generategmesh import (
     add_disk_actuator,
@@ -379,9 +380,45 @@ def pentagrow_3d_mesh(result_dir, Dimension: float) -> None:
 
     os.chdir("Results/GMSH")
 
-    process = subprocess.run(
-        "pentagrow mesh_2d.stl config.cfg", shell=True, cwd=result_dir, start_new_session=False
-    )
+    if os.path.exists("mesh_2d.stl"):
+        print("mesh_2d.stl exists")
+    else:
+        print("mesh_2d.stl does not exist")
+        
+    if os.path.exists("config.cfg"):
+        print("config.cfg exists")
+    else:
+        print("config.cfg does not exist")
+
+    #process = subprocess.run(
+    #    "pentagrow mesh_2d.stl config.cfg", shell=True, cwd=result_dir, start_new_session=False
+    #)
+    current_dir = os.getcwd()
+    os.chdir(current_dir)
+    #mesh_file= os.path.join(current_dir, "mesh_2d.stl")
+    #config_file = os.path.join(current_dir, "config.cfg")
+    #command = f"pentagrow {mesh_file} {config_file}"
+    command = f"pentagrow mesh_2d.stl config.cfg"
+
+    # Specify the file path
+    file_path = "command.txt"  # You can change the file path as needed
+
+    # Write the command to the file
+    with open(file_path, "w") as file:
+        file.write(command)
+
+    print("Command written to:", file_path)
+
+    process = subprocess.run(command, shell=True, cwd=current_dir,check=True, start_new_session=False)
+       
+
+
+    #if process.returncode == 0:
+    #    print("Command executed successfully.")
+    #else:
+    #    print(f"Error: Command returned non-zero exit code {process.returncode}")
+ 
+
 
     # run_software('pentagrow', ['mesh_2d.stl', 'config.cfg'], result_dir)
     # output, error = process1.communicate()

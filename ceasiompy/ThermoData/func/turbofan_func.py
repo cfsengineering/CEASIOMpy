@@ -32,7 +32,7 @@ def turbofan_analysis(alt, MN, Fn):
     class HBTF(pyc.Cycle):
         def setup(self):
 
-            # Setup the problem by including all the relevant components here - comp, burner, turbine etc
+            # Setup the problem by including all the relevant components here
 
             # Create any relevant short hands here:
 
@@ -78,17 +78,13 @@ def turbofan_analysis(alt, MN, Fn):
             self.add_subsystem("burner", pyc.Combustor(fuel_type=FUEL_TYPE))
             self.add_subsystem(
                 "hpt",
-                pyc.Turbine(
-                    map_data=pyc.HPTMap, bleed_names=["cool3", "cool4"], map_extrap=True
-                ),
+                pyc.Turbine(map_data=pyc.HPTMap, bleed_names=["cool3", "cool4"], map_extrap=True),
                 promotes_inputs=[("Nmech", "HP_Nmech")],
             )
             self.add_subsystem("duct11", pyc.Duct())
             self.add_subsystem(
                 "lpt",
-                pyc.Turbine(
-                    map_data=pyc.LPTMap, bleed_names=["cool1", "cool2"], map_extrap=True
-                ),
+                pyc.Turbine(map_data=pyc.LPTMap, bleed_names=["cool1", "cool2"], map_extrap=True),
                 promotes_inputs=[("Nmech", "LP_Nmech")],
             )
             self.add_subsystem("duct13", pyc.Duct())
@@ -128,7 +124,8 @@ def turbofan_analysis(alt, MN, Fn):
             # HP-shaft connections
             self.connect("hpc.trq", "hp_shaft.trq_0")
             self.connect("hpt.trq", "hp_shaft.trq_1")
-            # Ideally expanding flow by conneting flight condition static pressure to nozzle exhaust pressure
+            # Ideally expanding flow by conneting flight condition static
+            # pressure to nozzle exhaust pressure
             self.connect("fc.Fl_O:stat:P", "core_nozz.Ps_exhaust")
             self.connect("fc.Fl_O:stat:P", "byp_nozz.Ps_exhaust")
 
@@ -149,7 +146,8 @@ def turbofan_analysis(alt, MN, Fn):
                 self.connect("burner.Fl_O:tot:T", "balance.lhs:FAR")
                 self.promotes("balance", inputs=[("rhs:FAR", "T4_MAX")])
 
-                # Note that for the following two balances the mult val is set to -1 so that the NET torque is zero
+                # Note that for the following two balances
+                # the mult val is set to -1 so that the NET torque is zero
                 balance.add_balance(
                     "lpt_PR",
                     val=1.5,
@@ -273,9 +271,7 @@ def turbofan_analysis(alt, MN, Fn):
             file=file,
             flush=True,
         )
-        print(
-            "                       PERFORMANCE CHARACTERISTICS", file=file, flush=True
-        )
+        print("                       PERFORMANCE CHARACTERISTICS", file=file, flush=True)
         print(
             "    Mach      Alt       W      Fn      Fg    Fram     OPR     TSFC      BPR ",
             file=file,
@@ -358,12 +354,8 @@ def turbofan_analysis(alt, MN, Fn):
     )
     V_stat_out_byp = prob.get_val("DESIGN.byp_nozz.mux.Fl_O:stat:V") * 0.3048
     MN_out_byp = prob.get_val("DESIGN.byp_nozz.mux.Fl_O:stat:MN")
-    P_tot_out_byp = (
-        prob.get_val("DESIGN.byp_nozz.throat_total.flow.Fl_O:tot:P") * 6894.7573
-    )  # Pa
-    massflow_stat_out_byp = (
-        prob.get_val("DESIGN.byp_nozz.mux.Fl_O:stat:W") * 0.45359237
-    )  # kg/s
+    P_tot_out_byp = prob.get_val("DESIGN.byp_nozz.throat_total.flow.Fl_O:tot:P") * 6894.7573  # Pa
+    massflow_stat_out_byp = prob.get_val("DESIGN.byp_nozz.mux.Fl_O:stat:W") * 0.45359237  # kg/s
     T_stat_out_byp = convert_temperature(
         (prob.get_val("DESIGN.byp_nozz.mux.Fl_O:stat:T")), "Rankine", "Celsius"
     )  # celsius
@@ -379,9 +371,7 @@ def turbofan_analysis(alt, MN, Fn):
     P_tot_out_core = (
         prob.get_val("DESIGN.core_nozz.throat_total.flow.Fl_O:tot:P") * 6894.7573
     )  # Pa
-    massflow_stat_out_core = (
-        prob.get_val("DESIGN.core_nozz.mux.Fl_O:stat:W") * 0.45359237
-    )  # kg/s
+    massflow_stat_out_core = prob.get_val("DESIGN.core_nozz.mux.Fl_O:stat:W") * 0.45359237  # kg/s
     T_stat_out_core = convert_temperature(
         (prob.get_val("DESIGN.core_nozz.mux.Fl_O:stat:T")), "Rankine", "Kelvin"
     )  # celsius

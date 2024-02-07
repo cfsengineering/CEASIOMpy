@@ -449,18 +449,20 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             tot_temp_out = get_value(cpacs.tixi, ENGINE_BC + "/temperatureOutlet")
             tot_pressure_out = get_value(cpacs.tixi, ENGINE_BC + "/pressureOutlet")
             cfg["INLET_TYPE"] = "TOTAL_CONDITIONS"
-            cfg[
-                "MARKER_INLET"
-            ] = f"(INLET_ENGINE,{tot_temp_in}, {tot_pressure_in}, {1},{0},{0},OUTLET_ENGINE, {tot_temp_out}, {tot_pressure_out},  {1},{0},{0} )"
+            cfg["MARKER_INLET"] = (
+                f"(INLET_ENGINE, {tot_temp_in}, {tot_pressure_in}, {1},{0},{0}, "
+                f"OUTLET_ENGINE,{tot_temp_out},{tot_pressure_out}, {1},{0},{0})"
+            )
 
         elif engine_type == 1:
             log.info("turbofan boundary conditions")
             tot_temp_out = get_value(cpacs.tixi, ENGINE_BC + "/temperatureOutlet")
             tot_pressure_out = get_value(cpacs.tixi, ENGINE_BC + "/pressureOutlet")
         cfg["INLET_TYPE"] = "TOTAL_CONDITIONS"
-        cfg[
-            "MARKER_INLET"
-        ] = f"(INLET_ENGINE, {tot_temp_in}, {tot_pressure_in},  {1},{0},{0}, OUTLET_ENGINE,{tot_temp_out}, {tot_pressure_out},  {1},{0},{0} )"
+        cfg["MARKER_INLET"] = (
+            f"(INLET_ENGINE, {tot_temp_in}, {tot_pressure_in}, {1},{0},{0}, "
+            f"OUTLET_ENGINE,{tot_temp_out},{tot_pressure_out}, {1},{0},{0})"
+        )
 
     cfg["MARKER_EULER"] = bc_wall_str
     farfield_bc = (

@@ -315,9 +315,10 @@ def add_thermodata(cfg, cpacs, alt, case_nb, alt_list):
         tot_temp_out = tot_temp_out[case_nb]
         tot_pressure_out = tot_pressure_out[case_nb]
         cfg["INLET_TYPE"] = "TOTAL_CONDITIONS"
-        cfg[
-            "MARKER_INLET"
-        ] = f"(INLET_ENGINE, {tot_temp_in}, {tot_pressure_in},  {1},{0},{0}, OUTLET_ENGINE,{tot_temp_out}, {tot_pressure_out},  {1},{0},{0} )"
+        cfg["MARKER_INLET"] = (
+            f"(INLET_ENGINE, {tot_temp_in}, {tot_pressure_in}, {1},{0},{0}, "
+            f"OUTLET_ENGINE,{tot_temp_out},{tot_pressure_out}, {1},{0},{0})"
+        )
 
 
 def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):

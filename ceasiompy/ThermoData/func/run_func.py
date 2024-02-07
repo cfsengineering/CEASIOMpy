@@ -4,7 +4,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Function to run the PyCycle code in order to obtain turbojet and turbofan boundary conditions
-at given altitude, mach number and net force = thrust of the engine 
+at given altitude, mach number and net force = thrust of the engine
 
 Python version: >=3.8
 
@@ -39,8 +39,8 @@ from ceasiompy.utils.commonnames import (
 from cpacspy.cpacsfunctions import (
     get_value_or_default,
     add_float_vector,
+    create_branch,
 )
-from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from cpacspy.cpacspy import CPACS
 
 log = get_logger()
@@ -71,9 +71,7 @@ def thermo_data_run(cpacs_path, cpacs_out_path, wkdir):
     if aeromap_list:
         aeromap_default = aeromap_list[0]
         log.info(f"The aeromap is {aeromap_default}")
-        aeromap_uid = get_value_or_default(
-            cpacs.tixi, SU2_AEROMAP_UID_XPATH, aeromap_default
-        )
+        aeromap_uid = get_value_or_default(cpacs.tixi, SU2_AEROMAP_UID_XPATH, aeromap_default)
         activate_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
         alt_list = activate_aeromap.get("altitude").tolist()
         mach_list = activate_aeromap.get("machNumber").tolist()

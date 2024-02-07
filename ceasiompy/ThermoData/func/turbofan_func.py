@@ -295,7 +295,7 @@ def turbofan_analysis(alt, MN, Fn):
 
     prob = om.Problem()
 
-    prob.model = mp_hbtf = MPhbtf()
+    prob.model = MPhbtf()
 
     prob.setup()
 

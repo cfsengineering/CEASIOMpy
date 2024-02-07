@@ -56,7 +56,7 @@ def get_edge_que_script_template():
     """Return path of the M-Edge ainp template corresponding to the M-Edge version."""
 
     edge_dir = get_module_path("EdgeRun")
-    edge_queScript_template_path = Path(edge_dir, "files", f"queue_template.script")
+    edge_queScript_template_path = Path(edge_dir, "files", "queue_template.script")
     if not edge_queScript_template_path.is_file():
         raise FileNotFoundError(
             f"The M-Edge queueScript template '{edge_queScript_template_path}' has not been found!"

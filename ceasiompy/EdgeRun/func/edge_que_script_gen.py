@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for Airinnova AB, Stockholm, Sweden
 
-Functions to generate queuing script for Edge: 
+Functions to generate queuing script for Edge:
 queue_preprocessor.script and queue_edgesolver.script
 
 Python version: >=3.8
@@ -60,7 +60,7 @@ class EdgeScripts:
         os.chdir(dir_path)
 
         """
-        with open(self.input_que_script_path, 'r') as template_file, 
+        with open(self.input_que_script_path, 'r') as template_file,
         open(QueScript, 'w') as que_script:
             for line in template_file:
                 if '-J jobname' in line:
@@ -111,7 +111,7 @@ class EdgeScripts:
         os.chdir(dir_path)
 
         """
-        # Extract the boundary 
+        # Extract the boundary
         input_data =
         1
         0

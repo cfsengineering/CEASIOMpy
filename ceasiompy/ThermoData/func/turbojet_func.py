@@ -53,9 +53,7 @@ def turbojet_analysis(alt, MN, Fn):
                 "turb", pyc.Turbine(map_data=pyc.LPT2269), promotes_inputs=["Nmech"]
             )
             self.add_subsystem("nozz", pyc.Nozzle(nozzType="CD", lossCoef="Cv"))
-            self.add_subsystem(
-                "shaft", pyc.Shaft(num_ports=2), promotes_inputs=["Nmech"]
-            )
+            self.add_subsystem("shaft", pyc.Shaft(num_ports=2), promotes_inputs=["Nmech"])
             self.add_subsystem("perf", pyc.Performance(num_nozzles=1, num_burners=1))
 
             # Connect flow stations
@@ -84,9 +82,7 @@ def turbojet_analysis(alt, MN, Fn):
             balance = self.add_subsystem("balance", om.BalanceComp())
             if design:
 
-                balance.add_balance(
-                    "W", units="lbm/s", eq_units="lbf", rhs_name="Fn_target"
-                )
+                balance.add_balance("W", units="lbm/s", eq_units="lbf", rhs_name="Fn_target")
                 self.connect("balance.W", "inlet.Fl_I:stat:W")
                 self.connect("perf.Fn", "balance.lhs:W")
 
@@ -136,7 +132,7 @@ def turbojet_analysis(alt, MN, Fn):
 
     prob = om.Problem()
 
-    mp_turbojet = prob.model = MPTurbojet()
+    prob.model = MPTurbojet()
     prob.setup(check=False)
 
     # define input values
@@ -188,9 +184,7 @@ def turbojet_analysis(alt, MN, Fn):
         prob.get_val("DESIGN.nozz.mux.Fl_O:stat:T"), "Rankine", "Kelvin"
     )  # celsius
     massflow_stat_out = prob.get_val("DESIGN.nozz.mux.Fl_O:stat:W") * 0.45359237  # kg/s
-    P_tot_out = (
-        prob.get_val("DESIGN.nozz.throat_total.flow.Fl_O:tot:P") * 6894.7573
-    )  # Pa
+    P_tot_out = prob.get_val("DESIGN.nozz.throat_total.flow.Fl_O:tot:P") * 6894.7573  # Pa
     P_stat_out = prob.get_val("DESIGN.nozz.mux.Fl_O:stat:P") * 6894.7573  # Pa
 
     return (

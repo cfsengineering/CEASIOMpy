@@ -241,9 +241,9 @@ def turbofan_analysis(alt, MN, Fn):
             FAR = prob["DESIGN.balance.FAR"]
         else:
             MN = prob[pt + ".fc.Fl_O:stat:MN"]
-            LPT_PR = prob[pt + ".lpt.PR"]
-            HPT_PR = prob[pt + ".hpt.PR"]
-            FAR = prob[pt + ".balance.FAR"]
+            # LPT_PR = prob[pt + ".lpt.PR"]
+            # HPT_PR = prob[pt + ".hpt.PR"]
+            # FAR = prob[pt + ".balance.FAR"]
 
         summary_data = (
             MN,
@@ -327,8 +327,6 @@ def turbofan_analysis(alt, MN, Fn):
 
     prob.set_solver_print(level=-1)
     prob.set_solver_print(level=2, depth=1)
-
-    flight_env = [(0.9, 6000)]
 
     viewer_file = open("hbtf_des_view.out", "w")
 

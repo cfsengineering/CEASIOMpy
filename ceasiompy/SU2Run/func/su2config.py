@@ -310,10 +310,14 @@ def add_thermodata(cfg, cpacs, alt, case_nb, alt_list):
         Atm = Atmosphere(alt)
         tot_temp_in = Atm.temperature[0]
         tot_pressure_in = Atm.pressure[0]
-        tot_temp_out = get_value(cpacs.tixi, ENGINE_BC + "/temperatureOutlet").split(";")
-        tot_pressure_out = get_value(cpacs.tixi, ENGINE_BC + "/pressureOutlet").split(";")
-        tot_temp_out = tot_temp_out[case_nb]
-        tot_pressure_out = tot_pressure_out[case_nb]
+        if len(alt_list) > 1:
+            tot_temp_out = get_value(cpacs.tixi, ENGINE_BC + "/temperatureOutlet").split(";")
+            tot_pressure_out = get_value(cpacs.tixi, ENGINE_BC + "/pressureOutlet").split(";")
+            tot_temp_out = tot_temp_out[case_nb]
+            tot_pressure_out = tot_pressure_out[case_nb]
+        else:
+            tot_temp_out = get_value(cpacs.tixi, ENGINE_BC + "/temperatureOutlet")
+            tot_pressure_out = get_value(cpacs.tixi, ENGINE_BC + "/pressureOutlet")
         cfg["INLET_TYPE"] = "TOTAL_CONDITIONS"
         cfg["MARKER_INLET"] = (
             f"(INLET_ENGINE, {tot_temp_in}, {tot_pressure_in}, {1},{0},{0}, "

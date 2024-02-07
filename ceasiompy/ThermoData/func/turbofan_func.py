@@ -236,9 +236,9 @@ def turbofan_analysis(alt, MN, Fn):
 
         if pt == "DESIGN":
             MN = prob["DESIGN.fc.Fl_O:stat:MN"]
-            LPT_PR = prob["DESIGN.balance.lpt_PR"]
-            HPT_PR = prob["DESIGN.balance.hpt_PR"]
-            FAR = prob["DESIGN.balance.FAR"]
+            # LPT_PR = prob["DESIGN.balance.lpt_PR"]
+            # HPT_PR = prob["DESIGN.balance.hpt_PR"]
+            # FAR = prob["DESIGN.balance.FAR"]
         else:
             MN = prob[pt + ".fc.Fl_O:stat:MN"]
             # LPT_PR = prob[pt + ".lpt.PR"]

@@ -89,17 +89,17 @@ def generate_2d_mesh_for_pentagrow(
     cpacs_path,
     brep_dir,
     results_dir,
-    open_gmsh=False,
-    n_power_factor=2,
-    n_power_field=0.9,
-    fuselage_mesh_size_factor=1,
-    wing_mesh_size_factor=1.5,
-    mesh_size_engines=0.23,
-    mesh_size_propellers=0.23,
-    refine_factor=2.0,
-    refine_truncated=False,
-    auto_refine=True,
-    testing_gmsh=False,
+    open_gmsh,
+    n_power_factor,
+    n_power_field,
+    fuselage_mesh_size_factor,
+    wing_mesh_size_factor,
+    mesh_size_engines,
+    mesh_size_propellers,
+    refine_factor,
+    refine_truncated,
+    auto_refine,
+    testing_gmsh,
 ):
     """
     Function to generate a mesh from brep files forming an airplane
@@ -400,7 +400,7 @@ def pentagrow_3d_mesh(result_dir, Dimension: float) -> None:
     # mesh_file= os.path.join(current_dir, "mesh_2d.stl")
     # config_file = os.path.join(current_dir, "config.cfg")
     # command = f"pentagrow {mesh_file} {config_file}"
-    command = f"pentagrow mesh_2d.stl config.cfg"
+    command = "pentagrow mesh_2d.stl config.cfg"
 
     # Specify the file path
     file_path = "command.txt"  # You can change the file path as needed
@@ -411,17 +411,7 @@ def pentagrow_3d_mesh(result_dir, Dimension: float) -> None:
 
     print("Command written to:", file_path)
 
-    process = subprocess.run(
-        command, shell=True, cwd=current_dir, check=True, start_new_session=False
-    )
-
-    # if process.returncode == 0:
-    #    print("Command executed successfully.")
-    # else:
-    #    print(f"Error: Command returned non-zero exit code {process.returncode}")
-
-    # run_software('pentagrow', ['mesh_2d.stl', 'config.cfg'], result_dir)
-    # output, error = process1.communicate()
+    subprocess.run(command, shell=True, cwd=current_dir, check=True, start_new_session=False)
 
     mesh_3d_path = Path(result_dir, "hybrid.su2")
 

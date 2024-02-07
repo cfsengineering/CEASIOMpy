@@ -328,11 +328,13 @@ def turbofan_analysis(alt, MN, Fn):
 
     viewer_file = open("hbtf_des_view.out", "w")
 
-    for PC in [1, 0.9]:
-        viewer(prob, "DESIGN", file=viewer_file)
-        prob.run_model()
+    # for PC in [1, 0.9]:
+    #     viewer(prob, "DESIGN", file=viewer_file)
+    #     prob.run_model()
+    # print()
 
-    print()
+    viewer(prob, "DESIGN", file=viewer_file)
+    prob.run_model()
 
     # Obtaining variables names
 

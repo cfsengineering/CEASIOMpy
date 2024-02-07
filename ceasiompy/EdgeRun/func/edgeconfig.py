@@ -20,7 +20,8 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import math, os
+import math
+import os
 
 from pathlib import Path
 from shutil import copyfile
@@ -58,14 +59,12 @@ from ceasiompy.utils.commonxpath import (
 # from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.create_ainpfile import CreateAinp
 from cpacspy.cpacsfunctions import (
-    create_branch,
-    get_string_vector,
     get_value,
     get_value_or_default,
 )
 from cpacspy.cpacspy import CPACS
 from ceasiompy.EdgeRun.func.edgeutils import get_edge_queScript_template
-from ceasiompy.EdgeRun.func.edge_queScript_gen import EdgeScripts
+from ceasiompy.EdgeRun.func.edge_que_script_gen import EdgeScripts
 
 # import cpacs
 

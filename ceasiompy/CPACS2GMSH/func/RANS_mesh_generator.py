@@ -347,15 +347,16 @@ def pentagrow_3d_mesh(result_dir, Dimension: float) -> None:
     config_penta_path = Path(result_dir, "config.cfg")
     # Variables
     InputFormat = "stl"
-    NLayers = 25
+    NLayers = 35
     FeatureAngle = 120.0
     InitialHeight = 0.00003
-    MaxLayerThickness = 1
+    # MaxGrowthRatio = 1.2
+    MaxLayerThickness = 0.01
     FarfieldRadius = Dimension * 20
     OutputFormat = "su2"
     HolePosition = "0.0 0.0 0.0"
-    TetgenOptions = "-pq1.2VY"
-    TetGrowthFactor = 1.35
+    TetgenOptions = "-pq1.16VY"
+    TetGrowthFactor = 1.2
     HeightIterations = 8
     NormalIterations = 8
     MaxCritIterations = 128
@@ -366,6 +367,7 @@ def pentagrow_3d_mesh(result_dir, Dimension: float) -> None:
     file.write(f"NLayers = {NLayers}\n")
     file.write(f"FeatureAngle = {FeatureAngle}\n")
     file.write(f"InitialHeight = {InitialHeight}\n")
+    # file.write(f"MaxGrowthRatio = {MaxGrowthRatio}\n")
     file.write(f"MaxLayerThickness = {MaxLayerThickness}\n")
     file.write(f"FarfieldRadius = {FarfieldRadius}\n")
     file.write(f"OutputFormat = {OutputFormat}\n")

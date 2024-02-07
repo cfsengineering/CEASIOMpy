@@ -1073,9 +1073,6 @@ def generate_gmsh(
 
     gmsh.model.occ.synchronize()
 
-    mesh_2d_path = Path(results_dir, "2d_mesh.msh")
-    gmsh.write(str(mesh_2d_path))
-
     if open_gmsh:
         log.info("Result of 2D surface mesh")
         log.info("GMSH GUI is open, close it to continue...")

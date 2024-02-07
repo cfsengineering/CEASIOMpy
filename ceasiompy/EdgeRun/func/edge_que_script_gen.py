@@ -3,7 +3,8 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for Airinnova AB, Stockholm, Sweden
 
-Functions to generate queuing script for Edge: queue_preprocessor.script and queue_edgesolver.script
+Functions to generate queuing script for Edge: 
+queue_preprocessor.script and queue_edgesolver.script
 
 Python version: >=3.8
 
@@ -57,6 +58,7 @@ class EdgeScripts:
         # QueScript = f'queue_preprocessor.script'
         # Submitcommand = 'sbatch'
         os.chdir(dir_path)
+
         """
         with open(self.input_que_script_path, 'r') as template_file, 
         open(QueScript, 'w') as que_script:

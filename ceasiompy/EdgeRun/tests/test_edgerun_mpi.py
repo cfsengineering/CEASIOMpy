@@ -49,6 +49,7 @@ class TestEdgeConfig(unittest.TestCase):
         cpacs_in_path = Path(
             "/home/mengmeng/Documents/CEASIOMpy23/CEASIOMpy/WKDIR/labARstraight_toolInput.xml"
         )
+
         cpacs_out_path = MODULE_DIR / "ToolOutput.xml"
         wkdir = MODULE_DIR / "Results/Edge"
 

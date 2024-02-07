@@ -20,7 +20,6 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import numpy as np
 from pathlib import Path
 from shutil import copyfile
 
@@ -297,29 +296,6 @@ def add_actuator_disk(cfg, cpacs, case_dir_path, actuator_disk_file, mesh_marker
     f.close()
 
 
-# adding the results of ThermoData to the config file of su2
-
-
-def add_thermodata(cfg, cpacs, alt, case_nb, alt_list):
-
-    if cpacs.tixi.checkElement(ENGINE_TYPE_XPATH):
-        log.info("adding engine BC to the SU2 config file")
-        engine_type = get_value(cpacs.tixi, ENGINE_TYPE_XPATH)
-        log.info(f"engine type {engine_type}")
-        alt = alt_list[case_nb]
-        Atm = Atmosphere(alt)
-        tot_temp_in = Atm.temperature[0]
-        tot_pressure_in = Atm.pressure[0]
-        tot_temp_out = get_value(cpacs.tixi, ENGINE_BC + "/temperatureOutlet").split(";")
-        tot_pressure_out = get_value(cpacs.tixi, ENGINE_BC + "/pressureOutlet").split(";")
-        tot_temp_out = tot_temp_out[case_nb]
-        tot_pressure_out = tot_pressure_out[case_nb]
-        cfg["INLET_TYPE"] = "TOTAL_CONDITIONS"
-        cfg[
-            "MARKER_INLET"
-        ] = f"(INLET_ENGINE, {tot_temp_in}, {tot_pressure_in},  {1},{0},{0}, OUTLET_ENGINE,{tot_temp_out}, {tot_pressure_out},  {1},{0},{0} )"
-
-
 def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     """Function to create SU2 config file.
 
@@ -456,6 +432,36 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     # Mesh Marker
     bc_wall_str = f"( {','.join(mesh_markers['wall'])} )"
 
+    # ThermoData config file adding for engine BC
+
+    if cpacs.tixi.checkElement(ENGINE_TYPE_XPATH):
+        log.info("adding engine BC to the SU2 config file")
+        engine_type = get_value(cpacs.tixi, ENGINE_TYPE_XPATH)
+        log.info(f"engine type {engine_type}")
+        alt = alt_list[0]
+        Atm = Atmosphere(alt)
+        tot_temp_in = Atm.temperature[0]
+        tot_pressure_in = Atm.pressure[0]
+        print(tot_pressure_in)
+
+        if engine_type == 0:
+            log.info("turbojet boundary conditions")
+            tot_temp_out = get_value(cpacs.tixi, ENGINE_BC + "/temperatureOutlet")
+            tot_pressure_out = get_value(cpacs.tixi, ENGINE_BC + "/pressureOutlet")
+            cfg["INLET_TYPE"] = "TOTAL_CONDITIONS"
+            cfg[
+                "MARKER_INLET"
+            ] = f"(INLET_ENGINE,{tot_temp_in}, {tot_pressure_in}, {1},{0},{0},OUTLET_ENGINE, {tot_temp_out}, {tot_pressure_out},  {1},{0},{0} )"
+
+        elif engine_type == 1:
+            log.info("turbofan boundary conditions")
+            tot_temp_out = get_value(cpacs.tixi, ENGINE_BC + "/temperatureOutlet")
+            tot_pressure_out = get_value(cpacs.tixi, ENGINE_BC + "/pressureOutlet")
+        cfg["INLET_TYPE"] = "TOTAL_CONDITIONS"
+        cfg[
+            "MARKER_INLET"
+        ] = f"(INLET_ENGINE, {tot_temp_in}, {tot_pressure_in},  {1},{0},{0}, OUTLET_ENGINE,{tot_temp_out}, {tot_pressure_out},  {1},{0},{0} )"
+
     cfg["MARKER_EULER"] = bc_wall_str
     farfield_bc = (
         mesh_markers["farfield"] + mesh_markers["engine_intake"] + mesh_markers["engine_exhaust"]
@@ -474,7 +480,6 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     cfg["HISTORY_OUTPUT"] = "(INNER_ITER, RMS_RES, AERO_COEFF)"
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
-
     for case_nb in range(len(alt_list)):
         cfg["MESH_FILENAME"] = str(su2_mesh)
 
@@ -496,8 +501,6 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
             f"Case{str(case_nb).zfill(2)}_alt{alt}_mach{round(mach, 2)}"
             f"_aoa{round(aoa, 1)}_aos{round(aos, 1)}"
         )
-
-        add_thermodata(cfg, cpacs, alt, case_nb, alt_list)
 
         case_dir_path = Path(wkdir, case_dir_name)
         if not case_dir_path.exists():

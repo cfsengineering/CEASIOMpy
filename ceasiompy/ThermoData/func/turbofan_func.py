@@ -291,8 +291,6 @@ def turbofan_analysis(alt, MN, Fn):
         fs_full_names = [f"{pt}.{fs}" for fs in fs_names]
         pyc.print_flow_station(prob, fs_full_names, file=file)
 
-    import time
-
     prob = om.Problem()
 
     prob.model = MPhbtf()

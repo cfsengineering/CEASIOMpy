@@ -27,14 +27,6 @@ from ceasiompy.utils.moduleinterfaces import (
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from ceasiompy.utils.commonxpath import (
-    REF_XPATH,
-    CLCALC_XPATH,
-    ENGINE_TYPE_XPATH,
-)
-from ceasiompy.utils.commonnames import (
-    ENGINE_BOUNDARY_CONDITIONS,
-)
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 

@@ -78,7 +78,7 @@ def thermo_data_run(cpacs_path, cpacs_out_path, wkdir):
         T_tot_out_array = []
         P_tot_out_array = []
 
-        for case_nb in range(len(alt_list)):
+        for case_nb, alt in enumerate(alt_list):
             alt = alt_list[case_nb]
             MN = mach_list[case_nb]
             case_dir_name = f"Case{str(case_nb).zfill(2)}_alt{alt}_mach{round(MN, 2)}"

@@ -126,8 +126,6 @@ def turbojet_analysis(alt, MN, Fn):
 
             super().setup()
 
-    import time
-
     # defining the optimization problem
 
     prob = om.Problem()

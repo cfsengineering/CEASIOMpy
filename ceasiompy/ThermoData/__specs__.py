@@ -1,8 +1,6 @@
 from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpath import (
-    REF_XPATH,
-    CLCALC_XPATH,
     SU2_FIXED_CL_XPATH,
     SU2_TARGET_CL_XPATH,
     ENGINE_TYPE_XPATH,

@@ -35,7 +35,7 @@ from ceasiompy.utils.ceasiompyutils import (
     run_software,
 )
 from ceasiompy.utils.commonnames import CONFIG_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
-from ceasiompy.utils.commonxpath import SU2_NB_CPU_XPATH, SU2_RANS_XPATH
+from ceasiompy.utils.commonxpath import SU2_NB_CPU_XPATH, SU2_CONFIG_RANS_XPATH
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
@@ -115,8 +115,10 @@ def main(cpacs_path, cpacs_out_path):
     # Temporary CPACS to be stored after "generate_su2_cfd_config"
     cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")
 
-    if get_value_or_default(tixi, SU2_RANS_XPATH, "EULER") == "RANS":
-        log.info("Rans simulation")
+    config_file_type = get_value_or_default(tixi, SU2_CONFIG_RANS_XPATH, "Euler")
+
+    if config_file_type == "RANS":
+        log.info("RANS simulation")
         generate_su2_cfd_config_rans(cpacs_path, cpacs_tmp_cfg, results_dir)
     else:
         log.info("Euler simulation")

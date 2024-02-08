@@ -28,7 +28,7 @@ from ceasiompy.utils.commonxpath import (
     SU2_TARGET_CL_XPATH,
     SU2_UPDATE_WETTED_AREA_XPATH,
     SU2MESH_XPATH,
-    SU2_RANS_XPATH,
+    SU2_CONFIG_RANS_XPATH,
 )
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
@@ -169,18 +169,6 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="RANS calculation",
-    var_type=list,
-    default_value=["EULER", "RANS"],
-    unit="1",
-    descr="Running a Rans or an Euler calculation",
-    xpath=SU2_RANS_XPATH,
-    gui=True,
-    gui_name="Choosing between Rans or Euler simulation",
-    gui_group="Aeromap Options",
-)
-
-cpacs_inout.add_input(
     var_name="rotation_rate",
     var_type=float,
     default_value=1.0,
@@ -214,6 +202,18 @@ cpacs_inout.add_input(
     gui=True,
     gui_name="Nb of processor",
     gui_group="CPU",
+)
+
+cpacs_inout.add_input(
+    var_name="RANS calculation",
+    var_type=list,
+    default_value=["Euler", "RANS"],
+    unit="1",
+    descr="Running an Euler or a RANS calculation",
+    xpath=SU2_CONFIG_RANS_XPATH,
+    gui=True,
+    gui_name="Choosing between Euler or RANS simulation",
+    gui_group="SU2 Parameters",
 )
 
 cpacs_inout.add_input(

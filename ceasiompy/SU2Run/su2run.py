@@ -26,6 +26,7 @@ TODO:
 from pathlib import Path
 
 from ceasiompy.SU2Run.func.su2config import generate_su2_cfd_config
+from ceasiompy.SU2Run.func.su2configrans import generate_su2_cfd_config_rans
 from ceasiompy.SU2Run.func.su2results import get_su2_results
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import (
@@ -114,7 +115,7 @@ def main(cpacs_path, cpacs_out_path):
     # Temporary CPACS to be stored after "generate_su2_cfd_config"
     cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")
 
-    generate_su2_cfd_config(cpacs_path, cpacs_tmp_cfg, results_dir)
+    generate_su2_cfd_config_rans(cpacs_path, cpacs_tmp_cfg, results_dir)
     run_SU2_multi(results_dir, nb_proc)
     get_su2_results(cpacs_tmp_cfg, cpacs_out_path, results_dir)
 

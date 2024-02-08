@@ -115,7 +115,7 @@ def main(cpacs_path, cpacs_out_path):
     # Temporary CPACS to be stored after "generate_su2_cfd_config"
     cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")
 
-    if tixi.getTextElement(SU2_RANS_XPATH) == "True":
+    if get_value_or_default(tixi, SU2_RANS_XPATH, False):
         print("hello rans")
         generate_su2_cfd_config_rans(cpacs_path, cpacs_tmp_cfg, results_dir)
     else:

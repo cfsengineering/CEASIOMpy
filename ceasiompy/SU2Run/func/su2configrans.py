@@ -341,11 +341,11 @@ def generate_su2_cfd_config_rans(cpacs_path, cpacs_out_path, wkdir):
 
     # creare delle nuove xpath per la mesh cgns
 
-    cgns_mesh = Path(get_value(cpacs.tixi, SU2MESH_XPATH))
-    if not cgns_mesh.is_file():
-        raise FileNotFoundError(f"CGNS mesh file {cgns_mesh} not found")
+    su2_mesh = Path(get_value(cpacs.tixi, SU2MESH_XPATH))
+    if not su2_mesh.is_file():
+        raise FileNotFoundError(f"CGNS mesh file {su2_mesh} not found")
 
-    mesh_markers = get_mesh_markers(cgns_mesh)
+    mesh_markers = get_mesh_markers(su2_mesh)
 
     create_branch(cpacs.tixi, SU2_BC_WALL_XPATH)
     bc_wall_str = ";".join(mesh_markers["wall"])
@@ -479,7 +479,7 @@ def generate_su2_cfd_config_rans(cpacs_path, cpacs_out_path, wkdir):
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
 
     for case_nb in range(len(alt_list)):
-        cfg["MESH_FILENAME"] = str(cgns_mesh)
+        cfg["MESH_FILENAME"] = str(su2_mesh)
 
         alt = alt_list[case_nb]
         mach = mach_list[case_nb]

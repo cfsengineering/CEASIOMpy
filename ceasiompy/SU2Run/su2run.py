@@ -115,11 +115,11 @@ def main(cpacs_path, cpacs_out_path):
     # Temporary CPACS to be stored after "generate_su2_cfd_config"
     cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")
 
-    if get_value_or_default(tixi, SU2_RANS_XPATH, False):
-        print("hello rans")
+    if get_value_or_default(tixi, SU2_RANS_XPATH, "EULER") == "RANS":
+        log.info("Rans simulation")
         generate_su2_cfd_config_rans(cpacs_path, cpacs_tmp_cfg, results_dir)
     else:
-        print("hello euler")
+        log.info("Euler simulation")
         generate_su2_cfd_config(cpacs_path, cpacs_tmp_cfg, results_dir)
 
     run_SU2_multi(results_dir, nb_proc)

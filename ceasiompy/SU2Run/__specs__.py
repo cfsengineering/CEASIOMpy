@@ -170,13 +170,13 @@ cpacs_inout.add_input(
 
 cpacs_inout.add_input(
     var_name="RANS calculation",
-    var_type=bool,
-    default_value=False,
+    var_type=list,
+    default_value=["EULER", "RANS"],
     unit="1",
-    descr="To check if is needed to run a RANS simulation or a normal EULER",
+    descr="Running a Rans or an Euler calculation",
     xpath=SU2_RANS_XPATH,
     gui=True,
-    gui_name="Rans simulation",
+    gui_name="Choosing between Rans or Euler simulation",
     gui_group="Aeromap Options",
 )
 

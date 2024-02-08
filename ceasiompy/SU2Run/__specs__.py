@@ -28,6 +28,7 @@ from ceasiompy.utils.commonxpath import (
     SU2_TARGET_CL_XPATH,
     SU2_UPDATE_WETTED_AREA_XPATH,
     SU2MESH_XPATH,
+    SU2_RANS_XPATH,
 )
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
@@ -164,6 +165,18 @@ cpacs_inout.add_input(
     xpath=SU2_DAMPING_DER_XPATH,
     gui=True,
     gui_name="Damping Derivatives",
+    gui_group="Aeromap Options",
+)
+
+cpacs_inout.add_input(
+    var_name="RANS calculation",
+    var_type=bool,
+    default_value=False,
+    unit="1",
+    descr="To check if is needed to run a RANS simulation or a normal EULER",
+    xpath=SU2_RANS_XPATH,
+    gui=True,
+    gui_name="Rans simulation",
     gui_group="Aeromap Options",
 )
 

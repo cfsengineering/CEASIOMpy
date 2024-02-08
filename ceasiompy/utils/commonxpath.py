@@ -138,6 +138,7 @@ SU2_CONTROL_SURF_XPATH = SU2_XPATH + "/options/calculateControlSurfacesDeflectio
 SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
 
 SU2_ACTUATOR_DISK_XPATH = SU2_XPATH + "/options/includeActuatorDisk"
+SU2_RANS_XPATH = SU2_XPATH + "/options/ransRun"
 
 # RANGE
 RANGE_LD_RATIO_XPATH = CEASIOMPY_XPATH + "/ranges/lDRatio"

@@ -6,8 +6,6 @@ import pytest
 
 import numpy as np
 
-sys.path.append("/home/cfse/Stage_Francesco/Thermodata")
-
 from ceasiompy.ThermoData.func.turbofan_func import (
     turbofan_analysis,
 )
@@ -15,6 +13,8 @@ from ceasiompy.ThermoData.func.turbofan_func import (
 from ceasiompy.ThermoData.func.turbojet_func import (
     turbojet_analysis,
 )
+
+sys.path.append("/home/cfse/Stage_Francesco/Thermodata")
 
 
 def test_turbojet():

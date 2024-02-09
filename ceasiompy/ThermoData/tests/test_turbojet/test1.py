@@ -2,6 +2,10 @@ from pathlib import Path
 
 import sys
 
+import pytest
+
+import numpy as np
+
 sys.path.append("/home/cfse/Stage_Francesco/Thermodata")
 
 from ceasiompy.ThermoData.func.turbofan_func import (
@@ -11,10 +15,6 @@ from ceasiompy.ThermoData.func.turbofan_func import (
 from ceasiompy.ThermoData.func.turbojet_func import (
     turbojet_analysis,
 )
-
-import pytest
-
-import numpy as np
 
 
 def test_turbojet():
@@ -29,7 +29,7 @@ def test_turbojet():
 def test_turbofan():
     alt = 4000  # [ft]
     MN = 0.6
-    Fn = 11800  # [lbf]
+    # Fn = 11800  # [lbf]
     new_sol_tf = turbofan_analysis(alt, MN)
     correct_sol_tf = np.array(
         [

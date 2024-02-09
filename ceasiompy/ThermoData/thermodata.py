@@ -6,7 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Calculate outlet conditions fot turbojet and turbofan engines by using the open source code PyCycle
 and saving those conditions in a text file
 
-| Author: Giacomo Benedetti and Francesco Marcucci
+| Author: Francesco Marcucci
 | Creation: 2023-12-12
 """
 

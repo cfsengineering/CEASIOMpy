@@ -212,7 +212,7 @@ cpacs_inout.add_input(
     descr="Running an Euler or a RANS calculation",
     xpath=SU2_CONFIG_RANS_XPATH,
     gui=True,
-    gui_name="Choosing between Euler or RANS simulation",
+    gui_name="Euler or RANS simulation",
     gui_group="SU2 Parameters",
 )
 

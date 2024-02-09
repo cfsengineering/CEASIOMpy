@@ -8,7 +8,7 @@ Test functions of 'ceasiompy/ThermoData/func/turbojet_func.py'
 Python version: >=3.8
 
 
-| Author : Giacomo Benedetti and Francesco Marcucci
+| Author : Francesco Marcucci
 | Creation: 2024-02-09
 
 """

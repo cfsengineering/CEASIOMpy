@@ -297,7 +297,6 @@ def add_actuator_disk(cfg, cpacs, case_dir_path, actuator_disk_file, mesh_marker
 
 
 def add_thermodata(cfg, cpacs, alt, case_nb, alt_list):
-
     if cpacs.tixi.checkElement(ENGINE_TYPE_XPATH):
         log.info("adding engine BC to the SU2 config file")
         engine_type = get_value(cpacs.tixi, ENGINE_TYPE_XPATH)
@@ -478,7 +477,7 @@ def generate_su2_cfd_config_rans(cpacs_path, cpacs_out_path, wkdir):
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
 
-    for case_nb in range(len(alt_list)):
+    for case_nb, alt_value in enumerate(alt_list):
         cfg["MESH_FILENAME"] = str(su2_mesh)
 
         alt = alt_list[case_nb]

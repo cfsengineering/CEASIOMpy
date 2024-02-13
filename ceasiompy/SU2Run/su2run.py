@@ -26,7 +26,7 @@ TODO:
 from pathlib import Path
 
 from ceasiompy.SU2Run.func.su2config import generate_su2_cfd_config
-from ceasiompy.SU2Run.func.su2configrans import generate_su2_cfd_config_rans
+from ceasiompy.SU2Run.func.su2config_rans import generate_su2_cfd_config_rans
 from ceasiompy.SU2Run.func.su2results import get_su2_results
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import (
@@ -73,7 +73,6 @@ def run_SU2_multi(wkdir, nb_proc=1):
         raise OSError(f"No Case directory has been found in the working directory: {wkdir}")
 
     for config_dir in sorted(case_dir_list):
-
         config_cfd = [c for c in config_dir.iterdir() if c.name == CONFIG_CFD_NAME]
 
         if not config_cfd:
@@ -104,7 +103,6 @@ def run_SU2_multi(wkdir, nb_proc=1):
 
 
 def main(cpacs_path, cpacs_out_path):
-
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     tixi = open_tixi(cpacs_path)
@@ -131,7 +129,6 @@ def main(cpacs_path, cpacs_out_path):
 
 
 if __name__ == "__main__":
-
     cpacs_path = get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 

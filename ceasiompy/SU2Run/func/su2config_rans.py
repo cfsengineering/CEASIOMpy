@@ -477,7 +477,7 @@ def generate_su2_cfd_config_rans(cpacs_path, cpacs_out_path, wkdir):
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
 
-    for case_nb, alt_value in enumerate(alt_list):
+    for case_nb in enumerate(alt_list):
         cfg["MESH_FILENAME"] = str(su2_mesh)
 
         alt = alt_list[case_nb]

@@ -313,7 +313,7 @@ def turbofan_analysis(alt, MN, Fn):
     prob.set_val("DESIGN.fc.MN", MN)
 
     prob.set_val("DESIGN.T4_MAX", 2857, units="degR")
-    prob.set_val("DESIGN.Fn_DES", Fn, units="lbf")
+    prob.set_val("DESIGN.Fn_DES", Fn * 0.2248089431, units="lbf")  # 1 N = 0.2248089431 lbf
 
     # Set initial guesses for balances
     prob["DESIGN.balance.FAR"] = 0.1

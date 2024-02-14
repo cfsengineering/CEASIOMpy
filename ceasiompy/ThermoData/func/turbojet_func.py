@@ -136,7 +136,9 @@ def turbojet_analysis(alt, MN, Fn):
     # define input values
     prob.set_val("DESIGN.fc.alt", alt, units="ft")
     prob.set_val("DESIGN.fc.MN", MN)
-    prob.set_val("DESIGN.balance.Fn_target", Fn, units="lbf")
+    prob.set_val(
+        "DESIGN.balance.Fn_target", Fn * 0.2248089431, units="lbf"
+    )  # 1 N = 0.2248089431 lbf
     prob.set_val("DESIGN.balance.T4_target", 2370.0, units="degR")
     prob.set_val("DESIGN.comp.PR", 13.5)
     prob.set_val("DESIGN.comp.eff", 0.83)

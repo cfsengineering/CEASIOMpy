@@ -309,7 +309,7 @@ def turbofan_analysis(alt, MN, Fn):
     prob.set_val("DESIGN.hpt.eff", 0.8888)
     prob.set_val("DESIGN.lpt.eff", 0.8996)
 
-    prob.set_val("DESIGN.fc.alt", alt, units="ft")
+    prob.set_val("DESIGN.fc.alt", alt * 3.2808399, units="ft")
     prob.set_val("DESIGN.fc.MN", MN)
 
     prob.set_val("DESIGN.T4_MAX", 2857, units="degR")

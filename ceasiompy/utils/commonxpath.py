@@ -113,6 +113,13 @@ GMSH_REFINE_TRUNCATED_XPATH = GMSH_XPATH + "/refine_truncated"
 GMSH_AUTO_REFINE_XPATH = GMSH_XPATH + "/auto_refine"
 GMSH_INTAKE_PERCENT_XPATH = GMSH_XPATH + "/intake_percent"
 GMSH_EXHAUST_PERCENT_XPATH = GMSH_XPATH + "/exhaust_percent"
+GMSH_MESH_FORMAT_XPATH = GMSH_XPATH + "/type_output_penta"
+GMSH_NUMBER_LAYER_XPATH = GMSH_XPATH + "/number_layer"
+GMSH_H_FIRST_LAYER_XPATH = GMSH_XPATH + "/height_first_layer"
+GMSH_MAX_THICKNESS_LAYER_XPATH = GMSH_XPATH + "/max_thickness_layer"
+GMSH_GROWTH_FACTOR_XPATH = GMSH_XPATH + "/growth_factor"
+GMSH_MIN_MAX_MESH_SIZE_XPATH = GMSH_XPATH + "min_max_mesh_factor"
+GMSH_FEATURE_ANGLE_XPATH = GMSH_XPATH + "/feature_angle"
 
 # SU2
 SU2_XPATH = CEASIOMPY_XPATH + "/aerodynamics/su2"

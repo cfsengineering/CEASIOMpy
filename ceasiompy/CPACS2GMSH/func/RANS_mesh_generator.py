@@ -90,16 +90,18 @@ def generate_2d_mesh_for_pentagrow(
     brep_dir,
     results_dir,
     open_gmsh,
-    n_power_factor,
-    n_power_field,
-    fuselage_mesh_size_factor,
-    wing_mesh_size_factor,
-    mesh_size_engines,
-    mesh_size_propellers,
-    refine_factor,
-    refine_truncated,
-    auto_refine,
-    testing_gmsh,
+    min_max_mesh_factor,
+    # n_power_factor,
+    # n_power_field,
+    # fuselage_mesh_size_factor,
+    # wing_mesh_size_factor,
+    # mesh_size_engines,
+    # mesh_size_propellers,
+    # refine_factor,
+    # refine_truncated,
+    # auto_refine,
+    # testing_gmsh,
+    # farfield_factor,
 ):
     """
     Function to generate a mesh from brep files forming an airplane
@@ -220,7 +222,6 @@ def generate_2d_mesh_for_pentagrow(
 
     gmsh.model.occ.synchronize()
     log.info("Manipulating the geometry, please wait..")
-
     # we have to obtain a wathertight
     gmsh.model.occ.cut(wings_volume_dimtags, fuselage_volume_dimtags, -1, True, False)
 
@@ -237,6 +238,7 @@ def generate_2d_mesh_for_pentagrow(
         abs(model_bb[1] - model_bb[4]),
         abs(model_bb[2] - model_bb[5]),
     ]
+    fuselage_maxlen, fuselage_minlen = fuselage_size(cpacs_path)
     gmsh.model.occ.translate(
         [(3, 1)],
         -((model_bb[0]) + (model_dimensions[0] / 2)),
@@ -251,12 +253,15 @@ def generate_2d_mesh_for_pentagrow(
     # Mesh generation
     log.info("Start of gmsh 2D surface meshing process")
 
-    # Frontal-Delunay: 6   1: MeshAdapt, 2: Automatic, 3: Initial mesh only, 5: Delaunay, 6: Frontal-Delaunay, 7: BAMG, 8: Frontal-Delaunay for Quads, 9: Packing of Parallelograms, 11: Quasi-structured Quad
+    # Frontal-Delunay: 6   1: MeshAdapt, 2: Automatic, 3: Initial mesh only,
+    # 5: Delaunay, 6: Frontal-Delaunay, 7: BAMG, 8: Frontal-Delaunay for Quads,
+    # 9: Packing of Parallelograms, 11: Quasi-structured Quad
     gmsh.option.setNumber("Mesh.Algorithm", 6)
     gmsh.option.setNumber("Mesh.LcIntegrationPrecision", 1e-6)
-    mesh_size = model_dimensions[0] * 0.005
+    mesh_size = model_dimensions[0] * float(min_max_mesh_factor) * (10 ** -3)
     gmsh.option.set_number("Mesh.MeshSizeMin", mesh_size)
     gmsh.option.set_number("Mesh.MeshSizeMax", mesh_size)
+
     gmsh.model.occ.synchronize()
     gmsh.logger.start()
     gmsh.model.mesh.generate(1)
@@ -336,27 +341,38 @@ def generate_2d_mesh_for_pentagrow(
 
     process_gmsh_log(gmsh.logger.get())
 
-    if not testing_gmsh:
-        gmsh.clear()
-        gmsh.finalize()
-    return mesh_2d_path, aircraft_parts
+    # if not testing_gmsh:
+    #     gmsh.clear()
+    #     gmsh.finalize()
+    return mesh_2d_path, fuselage_maxlen
 
 
-def pentagrow_3d_mesh(result_dir, Dimension: float) -> None:
+def pentagrow_3d_mesh(
+    result_dir,
+    fuselage_maxlen,
+    farfield_factor,
+    n_layer,
+    h_first_layer,
+    max_layer_thickness,
+    growth_factor,
+    feature_angle,
+    type_output_penta,
+) -> None:
     # create the config file for pentagrow
     config_penta_path = Path(result_dir, "config.cfg")
     # Variables
     InputFormat = "stl"
-    NLayers = 35
-    FeatureAngle = 120.0
-    InitialHeight = 0.00003
+    NLayers = n_layer
+    FeatureAngle = feature_angle
+    InitialHeight = h_first_layer * (10 ** -5)
     # MaxGrowthRatio = 1.2
-    MaxLayerThickness = 0.01
-    FarfieldRadius = Dimension * 20
-    OutputFormat = "su2"
+    MaxLayerThickness = max_layer_thickness
+    FarfieldRadius = fuselage_maxlen * farfield_factor * 100
+    FarfieldCenter = "0.0 0.0 0.0"
+    OutputFormat = type_output_penta
     HolePosition = "0.0 0.0 0.0"
     TetgenOptions = "-pq1.16VY"
-    TetGrowthFactor = 1.2
+    TetGrowthFactor = growth_factor
     HeightIterations = 8
     NormalIterations = 8
     MaxCritIterations = 128
@@ -372,12 +388,14 @@ def pentagrow_3d_mesh(result_dir, Dimension: float) -> None:
     file.write(f"FarfieldRadius = {FarfieldRadius}\n")
     file.write(f"OutputFormat = {OutputFormat}\n")
     file.write(f"HolePosition = {HolePosition}\n")
+    file.write(f"FarfieldCenter = {FarfieldCenter}\n")
     file.write(f"TetgenOptions = {TetgenOptions}\n")
     file.write(f"TetGrowthFactor = {TetGrowthFactor}\n")
     file.write(f"HeightIterations = {HeightIterations}\n")
     file.write(f"NormalIterations = {NormalIterations}\n")
     file.write(f"MaxCritIterations = {MaxCritIterations}\n")
     file.write(f"LaplaceIterations = {LaplaceIterations}\n")
+
     file.close
 
     os.chdir("Results/GMSH")
@@ -413,6 +431,6 @@ def pentagrow_3d_mesh(result_dir, Dimension: float) -> None:
 
     subprocess.run(command, shell=True, cwd=current_dir, check=True, start_new_session=False)
 
-    mesh_3d_path = Path(result_dir, "hybrid.su2")
+    mesh_3d_path = Path(result_dir, "hybrid.cgns")
 
     return mesh_3d_path

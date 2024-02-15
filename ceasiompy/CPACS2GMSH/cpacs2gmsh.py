@@ -56,6 +56,13 @@ from ceasiompy.utils.commonxpath import (
     GMSH_SYMMETRY_XPATH,
     SU2MESH_XPATH,
     GMSH_MESH_TYPE_XPATH,
+    GMSH_NUMBER_LAYER_XPATH,
+    GMSH_H_FIRST_LAYER_XPATH,
+    GMSH_MAX_THICKNESS_LAYER_XPATH,
+    GMSH_GROWTH_FACTOR_XPATH,
+    GMSH_MIN_MAX_MESH_SIZE_XPATH,
+    GMSH_FEATURE_ANGLE_XPATH,
+    GMSH_MESH_FORMAT_XPATH,
 )
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from cpacspy.cpacspy import CPACS
@@ -106,6 +113,13 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     auto_refine = get_value_or_default(cpacs.tixi, GMSH_AUTO_REFINE_XPATH, True)
     intake_percent = get_value_or_default(cpacs.tixi, GMSH_INTAKE_PERCENT_XPATH, 20)
     exhaust_percent = get_value_or_default(cpacs.tixi, GMSH_EXHAUST_PERCENT_XPATH, 20)
+    n_layer = get_value_or_default(cpacs.tixi, GMSH_NUMBER_LAYER_XPATH, 20)
+    h_first_layer = get_value_or_default(cpacs.tixi, GMSH_H_FIRST_LAYER_XPATH, 3)
+    max_layer_thickness = get_value_or_default(cpacs.tixi, GMSH_MAX_THICKNESS_LAYER_XPATH, 10)
+    growth_factor = get_value_or_default(cpacs.tixi, GMSH_GROWTH_FACTOR_XPATH, 1.2)
+    min_max_mesh_factor = get_value_or_default(cpacs.tixi, GMSH_MIN_MAX_MESH_SIZE_XPATH, 5)
+    feature_angle = get_value_or_default(cpacs.tixi, GMSH_FEATURE_ANGLE_XPATH, 80)
+    type_output_penta = get_value_or_default(cpacs.tixi, GMSH_MESH_FORMAT_XPATH, "su2")
 
     # Run mesh generation
     if type_mesh == "Euler":
@@ -132,27 +146,38 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         )
     else:
         export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
-        mesh_path, _ = generate_2d_mesh_for_pentagrow(
+        mesh_path, fuselage_maxlen = generate_2d_mesh_for_pentagrow(
             cpacs,
             cpacs_path,
             brep_dir,
             results_dir,
             open_gmsh=open_gmsh,
-            n_power_factor=n_power_factor,
-            n_power_field=n_power_field,
-            fuselage_mesh_size_factor=fuselage_mesh_size_factor,
-            wing_mesh_size_factor=wing_mesh_size_factor,
-            mesh_size_engines=mesh_size_engines,
-            mesh_size_propellers=mesh_size_propellers,
-            refine_factor=refine_factor,
-            refine_truncated=refine_truncated,
-            auto_refine=auto_refine,
-            testing_gmsh=False,
+            # n_power_factor=n_power_factor,
+            # n_power_field=n_power_field,
+            # fuselage_mesh_size_factor=fuselage_mesh_size_factor,
+            # wing_mesh_size_factor=wing_mesh_size_factor,
+            min_max_mesh_factor=min_max_mesh_factor
+            # mesh_size_engines=mesh_size_engines,
+            # mesh_size_propellers=mesh_size_propellers,
+            # refine_factor=refine_factor,
+            # refine_truncated=refine_truncated,
+            # auto_refine=auto_refine,
+            # testing_gmsh=False,
         )
 
     if mesh_path.exists():
         log.info("Mesh file exists. Proceeding to 3D mesh generation")
-        mesh_3D_path = pentagrow_3d_mesh(results_dir, 5)
+        mesh_3D_path = pentagrow_3d_mesh(
+            results_dir,
+            fuselage_maxlen,
+            farfield_factor=farfield_factor,
+            n_layer=n_layer,
+            h_first_layer=h_first_layer,
+            max_layer_thickness=max_layer_thickness,
+            growth_factor=growth_factor,
+            feature_angle=feature_angle,
+            type_output_penta=type_output_penta
+        )
 
         create_branch(cpacs.tixi, SU2MESH_XPATH)
         cpacs.tixi.updateTextElement(SU2MESH_XPATH, str(mesh_3D_path))

@@ -171,6 +171,7 @@ def generate_2d_mesh_for_pentagrow(
 
     # Import each aircraft original parts / parent parts
     fuselage_volume_dimtags = []
+    fuselage_surfaces_dimtags = []
     wings_volume_dimtags = []
     enginePylons_enginePylon_volume_dimtags = []
     engine_nacelle_fanCowl_volume_dimtags = []
@@ -195,8 +196,6 @@ def generate_2d_mesh_for_pentagrow(
                 fuselage_volume_dimtags[0][0], fuselage_volume_dimtags[0][1]
             )
 
-            # return fuselage_volume_dimtags
-
         elif part_obj.part_type == "wing":
             wings_volume_dimtags.append(part_entities[0])
             # return wings_volume_dimtags
@@ -219,7 +218,6 @@ def generate_2d_mesh_for_pentagrow(
 
         # log.warning(f"'{brep_file}' cannot be categorized!")
         # return None
-
     gmsh.model.occ.synchronize()
     log.info("Manipulating the geometry, please wait..")
     # we have to obtain a wathertight
@@ -228,6 +226,8 @@ def generate_2d_mesh_for_pentagrow(
     gmsh.model.occ.synchronize()
 
     gmsh.model.occ.fuse(wings_volume_dimtags, fuselage_volume_dimtags, -1, True, True)
+
+    gmsh.model.occ.synchronize()
 
     gmsh.model.occ.synchronize()
 
@@ -261,12 +261,17 @@ def generate_2d_mesh_for_pentagrow(
     mesh_size = model_dimensions[0] * float(min_max_mesh_factor) * (10 ** -3)
     gmsh.option.set_number("Mesh.MeshSizeMin", mesh_size)
     gmsh.option.set_number("Mesh.MeshSizeMax", mesh_size)
+    gmsh.model.add_physical_group(3, [1], -1, name="aircraft_penta")
+    gmsh.model.add_physical_group(
+        2, [1, 2, 3, 4, 5, 8, 11, 12, 17, 18, 19, 20, 21], -1, name="fuselage")
+    gmsh.model.add_physical_group(2, [6, 7, 9, 10, 13, 14, 15, 16], -1, name="wings")
+
+    gmsh.fltk.run()
 
     gmsh.model.occ.synchronize()
     gmsh.logger.start()
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
-
     if open_gmsh:
         log.info("Result of 2D surface mesh")
         log.info("GMSH GUI is open, close it to continue...")
@@ -312,6 +317,7 @@ def generate_2d_mesh_for_pentagrow(
     # gmsh.model.mesh.optimize("Laplace2D", niter=10)
     # log.info("Smoothing process finished")
 
+    gmsh.option.setNumber('Mesh.StlOneSolidPerSurface', 2)
     gmsh.model.occ.synchronize()
 
     # su2mesh_path = Path(results_dir, "mesh.su2")

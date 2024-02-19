@@ -26,8 +26,8 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="net_force",
     var_type=float,
-    default_value=5000,
-    unit="[N]",
+    default_value=2000,
+    unit="N",
     descr="Engine net force",
     xpath=RANGE_XPATH + "/NetForce",
     gui=True,

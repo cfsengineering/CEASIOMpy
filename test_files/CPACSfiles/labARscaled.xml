@@ -1,0 +1,933 @@
+<?xml version="1.0" encoding="utf-8"?>
+<cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://cpacs.googlecode.com/files/CPACS_21_Schema.xsd">
+  <header>
+    <name>labARscaled</name>
+    <description>Simple Wing for unit testing</description>
+    <creator>Martin Siggel</creator>
+    <timestamp>2012-10-09T15:12:47</timestamp>
+    <version>0.2</version>
+    <cpacsVersion>3.0</cpacsVersion>
+    <updates>
+      <update uID="update1">
+        <modification>Converted to cpacs 3.0 using cpacs2to3 - does not include structure update</modification>
+        <creator>cpacs2to3</creator>
+        <timestamp uID="timeUpdate1">2018-01-15T09:22:57</timestamp>
+        <version>0.2</version>
+        <cpacsVersion>3.0</cpacsVersion>
+      </update>
+      <update uID="update2">
+        <modification>Add this update</modification>
+        <creator>Aidan</creator>
+        <timestamp uID="timeUpdate2">2018-10-03T09:00:01</timestamp>
+        <version>0.3</version>
+        <cpacsVersion>3.0</cpacsVersion>
+      </update>
+    </updates>
+  </header>
+  <vehicles>
+    <aircraft>
+      <model uID="labAv0">
+        <name>labAv0</name>
+        <reference>
+          <area>0.027329</area>
+          <length>0.069737</length>
+          <point>
+            <x>0.19223</x>
+            <y>0</y>
+            <z>0</z>
+          </point>
+        </reference>
+<fuselages>
+<fuselage uID="Body1">
+<name>Body1</name>
+<description>description</description>
+<transformation uID="Body1transf"> 
+ <scaling uID="Body1transfsc"> 
+   <x> 1 </x>
+   <y> 1 </y> 
+   <z> 1 </z> 
+ </scaling>
+ <rotation uID="Body1transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1transftrn">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+<sections>
+<section uID="Body1Frame1">
+<name>Body1Frame1</name>
+<description>description</description>
+<transformation uID="Body1Frame1transf"> 
+ <scaling uID="Body1Frame1transfsc"> 
+   <x> 1 </x>
+   <y> 1 </y> 
+   <z> 1 </z> 
+ </scaling>
+ <rotation uID="Body1Frame1transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame1transftrn">
+   <x>0.004572</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+<elements>
+<element uID="Body1Frame1elem1">
+	<name>...</name>
+	<profileUID>fuseprof_1_1</profileUID>
+<transformation uID="Body1Frame1elem1transf"> 
+ <scaling uID="Body1Frame1elem1transfsc"> 
+   <x> 1 </x>
+   <y> 0.0022547 </y> 
+   <z> 0.0022547 </z> 
+ </scaling>
+ <rotation uID="Body1Frame1elem1transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame1elem1transftrn">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+</element>
+</elements>
+</section>
+<section uID="Body1Frame2">
+<name>Body1Frame2</name>
+<description>description</description>
+<transformation uID="Body1Frame2transf"> 
+ <scaling uID="Body1Frame2transfsc"> 
+   <x> 1 </x>
+   <y> 1 </y> 
+   <z> 1 </z> 
+ </scaling>
+ <rotation uID="Body1Frame2transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame2transftrn">
+   <x>0.054356</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+<elements>
+<element uID="Body1Frame2elem1">
+	<name>...</name>
+	<profileUID>fuseprof_1_2</profileUID>
+<transformation uID="Body1Frame2elem1transf"> 
+ <scaling uID="Body1Frame2elem1transfsc"> 
+   <x> 1 </x>
+   <y> 0.013229 </y> 
+   <z> 0.013229 </z> 
+ </scaling>
+ <rotation uID="Body1Frame2elem1transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame2elem1transftrn">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+</element>
+</elements>
+</section>
+<section uID="Body1Frame3">
+<name>Body1Frame3</name>
+<description>description</description>
+<transformation uID="Body1Frame3transf"> 
+ <scaling uID="Body1Frame3transfsc"> 
+   <x> 1 </x>
+   <y> 1 </y> 
+   <z> 1 </z> 
+ </scaling>
+ <rotation uID="Body1Frame3transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame3transftrn">
+   <x>0.10414</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+<elements>
+<element uID="Body1Frame3elem1">
+	<name>...</name>
+	<profileUID>fuseprof_1_3</profileUID>
+<transformation uID="Body1Frame3elem1transf"> 
+ <scaling uID="Body1Frame3elem1transfsc"> 
+   <x> 1 </x>
+   <y> 0.019512 </y> 
+   <z> 0.019512 </z> 
+ </scaling>
+ <rotation uID="Body1Frame3elem1transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame3elem1transftrn">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+</element>
+</elements>
+</section>
+<section uID="Body1Frame4">
+<name>Body1Frame4</name>
+<description>description</description>
+<transformation uID="Body1Frame4transf"> 
+ <scaling uID="Body1Frame4transfsc"> 
+   <x> 1 </x>
+   <y> 1 </y> 
+   <z> 1 </z> 
+ </scaling>
+ <rotation uID="Body1Frame4transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame4transftrn">
+   <x>0.15392</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+<elements>
+<element uID="Body1Frame4elem1">
+	<name>...</name>
+	<profileUID>fuseprof_1_4</profileUID>
+<transformation uID="Body1Frame4elem1transf"> 
+ <scaling uID="Body1Frame4elem1transfsc"> 
+   <x> 1 </x>
+   <y> 0.023339 </y> 
+   <z> 0.023339 </z> 
+ </scaling>
+ <rotation uID="Body1Frame4elem1transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame4elem1transftrn">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+</element>
+</elements>
+</section>
+<section uID="Body1Frame5">
+<name>Body1Frame5</name>
+<description>description</description>
+<transformation uID="Body1Frame5transf"> 
+ <scaling uID="Body1Frame5transfsc"> 
+   <x> 1 </x>
+   <y> 1 </y> 
+   <z> 1 </z> 
+ </scaling>
+ <rotation uID="Body1Frame5transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame5transftrn">
+   <x>0.20371</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+<elements>
+<element uID="Body1Frame5elem1">
+	<name>...</name>
+	<profileUID>fuseprof_1_5</profileUID>
+<transformation uID="Body1Frame5elem1transf"> 
+ <scaling uID="Body1Frame5elem1transfsc"> 
+   <x> 1 </x>
+   <y> 0.025174 </y> 
+   <z> 0.025174 </z> 
+ </scaling>
+ <rotation uID="Body1Frame5elem1transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame5elem1transftrn">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+</element>
+</elements>
+</section>
+<section uID="Body1Frame6">
+<name>Body1Frame6</name>
+<description>description</description>
+<transformation uID="Body1Frame6transf"> 
+ <scaling uID="Body1Frame6transfsc"> 
+   <x> 1 </x>
+   <y> 1 </y> 
+   <z> 1 </z> 
+ </scaling>
+ <rotation uID="Body1Frame6transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame6transftrn">
+   <x>0.25349</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+<elements>
+<element uID="Body1Frame6elem1">
+	<name>...</name>
+	<profileUID>fuseprof_1_6</profileUID>
+<transformation uID="Body1Frame6elem1transf"> 
+ <scaling uID="Body1Frame6elem1transfsc"> 
+   <x> 1 </x>
+   <y> 0.025174 </y> 
+   <z> 0.025174 </z> 
+ </scaling>
+ <rotation uID="Body1Frame6elem1transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame6elem1transftrn">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+</element>
+</elements>
+</section>
+<section uID="Body1Frame7">
+<name>Body1Frame7</name>
+<description>description</description>
+<transformation uID="Body1Frame7transf"> 
+ <scaling uID="Body1Frame7transfsc"> 
+   <x> 1 </x>
+   <y> 1 </y> 
+   <z> 1 </z> 
+ </scaling>
+ <rotation uID="Body1Frame7transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame7transftrn">
+   <x>0.30328</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+<elements>
+<element uID="Body1Frame7elem1">
+	<name>...</name>
+	<profileUID>fuseprof_1_7</profileUID>
+<transformation uID="Body1Frame7elem1transf"> 
+ <scaling uID="Body1Frame7elem1transfsc"> 
+   <x> 1 </x>
+   <y> 0.023339 </y> 
+   <z> 0.023339 </z> 
+ </scaling>
+ <rotation uID="Body1Frame7elem1transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame7elem1transftrn">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+</element>
+</elements>
+</section>
+<section uID="Body1Frame8">
+<name>Body1Frame8</name>
+<description>description</description>
+<transformation uID="Body1Frame8transf"> 
+ <scaling uID="Body1Frame8transfsc"> 
+   <x> 1 </x>
+   <y> 1 </y> 
+   <z> 1 </z> 
+ </scaling>
+ <rotation uID="Body1Frame8transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame8transftrn">
+   <x>0.35306</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+<elements>
+<element uID="Body1Frame8elem1">
+	<name>...</name>
+	<profileUID>fuseprof_1_8</profileUID>
+<transformation uID="Body1Frame8elem1transf"> 
+ <scaling uID="Body1Frame8elem1transfsc"> 
+   <x> 1 </x>
+   <y> 0.019512 </y> 
+   <z> 0.019512 </z> 
+ </scaling>
+ <rotation uID="Body1Frame8elem1transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame8elem1transftrn">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+</element>
+</elements>
+</section>
+<section uID="Body1Frame9">
+<name>Body1Frame9</name>
+<description>description</description>
+<transformation uID="Body1Frame9transf"> 
+ <scaling uID="Body1Frame9transfsc"> 
+   <x> 1 </x>
+   <y> 1 </y> 
+   <z> 1 </z> 
+ </scaling>
+ <rotation uID="Body1Frame9transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame9transftrn">
+   <x>0.40284</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+<elements>
+<element uID="Body1Frame9elem1">
+	<name>...</name>
+	<profileUID>fuseprof_1_9</profileUID>
+<transformation uID="Body1Frame9elem1transf"> 
+ <scaling uID="Body1Frame9elem1transfsc"> 
+   <x> 1 </x>
+   <y> 0.013229 </y> 
+   <z> 0.013229 </z> 
+ </scaling>
+ <rotation uID="Body1Frame9elem1transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame9elem1transftrn">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+</element>
+</elements>
+</section>
+<section uID="Body1Frame10">
+<name>Body1Frame10</name>
+<description>description</description>
+<transformation uID="Body1Frame10transf"> 
+ <scaling uID="Body1Frame10transfsc"> 
+   <x> 1 </x>
+   <y> 1 </y> 
+   <z> 1 </z> 
+ </scaling>
+ <rotation uID="Body1Frame10transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame10transftrn">
+   <x>0.45263</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+<elements>
+<element uID="Body1Frame10elem1">
+	<name>...</name>
+	<profileUID>fuseprof_1_10</profileUID>
+<transformation uID="Body1Frame10elem1transf"> 
+ <scaling uID="Body1Frame10elem1transfsc"> 
+   <x> 1 </x>
+   <y> 0.0022547 </y> 
+   <z> 0.0022547 </z> 
+ </scaling>
+ <rotation uID="Body1Frame10elem1transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="Body1Frame10elem1transftrn">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+</element>
+</elements>
+</section>
+</sections>
+<positionings>
+<positioning uID="Body1Frame1Pos">
+  <name>...</name>
+  <description>description</description>
+  <dihedralAngle>0</dihedralAngle>
+  <sweepAngle>0</sweepAngle>
+  <toSectionUID>Body1Frame1</toSectionUID>
+  <length>0</length>
+</positioning>
+
+<positioning uID="Body1Frame2Pos">
+  <name>...</name>
+  <description>description</description>
+  <dihedralAngle>0</dihedralAngle>
+  <sweepAngle>0</sweepAngle>
+  <toSectionUID>Body1Frame2</toSectionUID>
+  <length>0</length>
+</positioning>
+
+<positioning uID="Body1Frame3Pos">
+  <name>...</name>
+  <description>description</description>
+  <dihedralAngle>0</dihedralAngle>
+  <sweepAngle>0</sweepAngle>
+  <toSectionUID>Body1Frame3</toSectionUID>
+  <length>0</length>
+</positioning>
+
+<positioning uID="Body1Frame4Pos">
+  <name>...</name>
+  <description>description</description>
+  <dihedralAngle>0</dihedralAngle>
+  <sweepAngle>0</sweepAngle>
+  <toSectionUID>Body1Frame4</toSectionUID>
+  <length>0</length>
+</positioning>
+
+<positioning uID="Body1Frame5Pos">
+  <name>...</name>
+  <description>description</description>
+  <dihedralAngle>0</dihedralAngle>
+  <sweepAngle>0</sweepAngle>
+  <toSectionUID>Body1Frame5</toSectionUID>
+  <length>0</length>
+</positioning>
+
+<positioning uID="Body1Frame6Pos">
+  <name>...</name>
+  <description>description</description>
+  <dihedralAngle>0</dihedralAngle>
+  <sweepAngle>0</sweepAngle>
+  <toSectionUID>Body1Frame6</toSectionUID>
+  <length>0</length>
+</positioning>
+
+<positioning uID="Body1Frame7Pos">
+  <name>...</name>
+  <description>description</description>
+  <dihedralAngle>0</dihedralAngle>
+  <sweepAngle>0</sweepAngle>
+  <toSectionUID>Body1Frame7</toSectionUID>
+  <length>0</length>
+</positioning>
+
+<positioning uID="Body1Frame8Pos">
+  <name>...</name>
+  <description>description</description>
+  <dihedralAngle>0</dihedralAngle>
+  <sweepAngle>0</sweepAngle>
+  <toSectionUID>Body1Frame8</toSectionUID>
+  <length>0</length>
+</positioning>
+
+<positioning uID="Body1Frame9Pos">
+  <name>...</name>
+  <description>description</description>
+  <dihedralAngle>0</dihedralAngle>
+  <sweepAngle>0</sweepAngle>
+  <toSectionUID>Body1Frame9</toSectionUID>
+  <length>0</length>
+</positioning>
+
+<positioning uID="Body1Frame10Pos">
+  <name>...</name>
+  <description>description</description>
+  <dihedralAngle>0</dihedralAngle>
+  <sweepAngle>0</sweepAngle>
+  <toSectionUID>Body1Frame10</toSectionUID>
+  <length>0</length>
+</positioning>
+
+</positionings>
+<segments>
+<segment uID="Body1Seg1">
+  <name>...</name>
+  <fromElementUID>Body1Frame1elem1</fromElementUID>
+  <toElementUID>Body1Frame2elem1</toElementUID>
+</segment>
+
+<segment uID="Body1Seg2">
+  <name>...</name>
+  <fromElementUID>Body1Frame2elem1</fromElementUID>
+  <toElementUID>Body1Frame3elem1</toElementUID>
+</segment>
+
+<segment uID="Body1Seg3">
+  <name>...</name>
+  <fromElementUID>Body1Frame3elem1</fromElementUID>
+  <toElementUID>Body1Frame4elem1</toElementUID>
+</segment>
+
+<segment uID="Body1Seg4">
+  <name>...</name>
+  <fromElementUID>Body1Frame4elem1</fromElementUID>
+  <toElementUID>Body1Frame5elem1</toElementUID>
+</segment>
+
+<segment uID="Body1Seg5">
+  <name>...</name>
+  <fromElementUID>Body1Frame5elem1</fromElementUID>
+  <toElementUID>Body1Frame6elem1</toElementUID>
+</segment>
+
+<segment uID="Body1Seg6">
+  <name>...</name>
+  <fromElementUID>Body1Frame6elem1</fromElementUID>
+  <toElementUID>Body1Frame7elem1</toElementUID>
+</segment>
+
+<segment uID="Body1Seg7">
+  <name>...</name>
+  <fromElementUID>Body1Frame7elem1</fromElementUID>
+  <toElementUID>Body1Frame8elem1</toElementUID>
+</segment>
+
+<segment uID="Body1Seg8">
+  <name>...</name>
+  <fromElementUID>Body1Frame8elem1</fromElementUID>
+  <toElementUID>Body1Frame9elem1</toElementUID>
+</segment>
+
+<segment uID="Body1Seg9">
+  <name>...</name>
+  <fromElementUID>Body1Frame9elem1</fromElementUID>
+  <toElementUID>Body1Frame10elem1</toElementUID>
+</segment>
+
+</segments>
+</fuselage>
+</fuselages>
+<wings>
+ <wing uID="wingmod1A" symmetry="x-z-plane">
+ <name>wingmod1A</name>
+ <parentUID>Body1</parentUID>
+ <description>description</description>
+<transformation uID="wingmod1Atransf"> 
+ <scaling uID="wingmod1Atransfsc"> 
+   <x> 1 </x>
+   <y> 1 </y> 
+   <z> 1 </z> 
+ </scaling>
+ <rotation uID="wingmod1Atransfrot">
+   <x>-0</x>
+   <y>0</y>
+   <z>-0</z>
+ </rotation>
+ <translation refType="absLocal" uID="wingmod1Atransftrn">
+   <x>0.1016</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+<sections>
+<section uID="wingmod1Aroot">
+<name>wingmod1Aroot</name>
+<description>description</description>
+<transformation uID="wingmod1Aroottransf"> 
+ <scaling uID="wingmod1Aroottransfsc"> 
+   <x> 1 </x>
+   <y> 1 </y> 
+   <z> 1 </z> 
+ </scaling>
+ <rotation uID="wingmod1Aroottransfrot">
+   <x>-0</x>
+   <y>0</y>
+   <z>-0</z>
+ </rotation>
+ <translation refType="absLocal" uID="wingmod1Aroottransftrn">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+<elements>
+<element uID="wingmod1Arootelem1">
+	<name>...</name>
+	<airfoilUID>foil_1_2</airfoilUID>
+ 
+<transformation uID="wingmod1Arootelem1transf"> 
+ <scaling uID="wingmod1Arootelem1transfsc"> 
+   <x> 0.089662 </x>
+   <y> 0.089662 </y> 
+   <z> 0.089662 </z> 
+ </scaling>
+ <rotation uID="wingmod1Arootelem1transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="wingmod1Arootelem1transftrn">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+</element>
+</elements>
+</section>
+<section uID="wingmod1Atip">
+<name>wingmod1Atip</name>
+<description>description</description>
+<transformation uID="wingmod1Atiptransf"> 
+ <scaling uID="wingmod1Atiptransfsc"> 
+   <x> 1 </x>
+   <y> 1 </y> 
+   <z> 1 </z> 
+ </scaling>
+ <rotation uID="wingmod1Atiptransfrot">
+   <x>-0</x>
+   <y>0</y>
+   <z>-0</z>
+ </rotation>
+ <translation refType="absLocal" uID="wingmod1Atiptransftrn">
+   <x>0.1647</x>
+   <y>0.2032</y>
+   <z>0</z>
+ </translation>
+</transformation>
+<elements>
+<element uID="wingmod1Atipelem1">
+	<name>...</name>
+	<airfoilUID>foil_1_1</airfoilUID>
+ 
+<transformation uID="wingmod1Atipelem1transf"> 
+ <scaling uID="wingmod1Atipelem1transfsc"> 
+   <x> 0.044831 </x>
+   <y> 0.044831 </y> 
+   <z> 0.044831 </z> 
+ </scaling>
+ <rotation uID="wingmod1Atipelem1transfrot">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </rotation>
+ <translation refType="absLocal" uID="wingmod1Atipelem1transftrn">
+   <x>0</x>
+   <y>0</y>
+   <z>0</z>
+ </translation>
+</transformation>
+</element>
+</elements>
+</section>
+</sections>
+<positionings>
+<positioning uID="wingmod1AtipPos">
+  <name>...</name>
+  <description>description</description>
+  <dihedralAngle>0</dihedralAngle>
+  <sweepAngle>0</sweepAngle>
+  <toSectionUID>wingmod1Atip</toSectionUID>
+  <length>0</length>
+</positioning>
+
+<positioning uID="wingmod1ArootPos">
+  <name>...</name>
+  <description>description</description>
+  <dihedralAngle>0</dihedralAngle>
+  <sweepAngle>0</sweepAngle>
+  <toSectionUID>wingmod1Aroot</toSectionUID>
+  <length>0</length>
+</positioning>
+
+</positionings>
+<segments>
+<segment uID="wingmod1ASeg1">
+  <name>...</name>
+  <fromElementUID>wingmod1Atipelem1</fromElementUID>
+  <toElementUID>wingmod1Arootelem1</toElementUID>
+</segment>
+
+</segments>
+</wing>
+</wings>
+ <analyses>
+    <aeroPerformance>
+       <aeroMap uID="aeromap_empty">
+          <name>aeromap_empty</name>
+          <description>Common default aeroMap</description>
+          <boundaryCondition>
+              <atmosphericModel>ISA</atmosphericModel>
+          </boundaryCondition>
+          <aeroPerformanceMap>
+              <altitude mapType="vector">0.0</altitude>
+              <machNumber mapType="vector">0.3</machNumber>
+              <angleOfAttack mapType="vector">0.0</angleOfAttack>
+              <angleOfSideslip mapType="vector">0.0</angleOfSideslip>
+          </aeroPerformanceMap>
+       </aeroMap>
+    </aeroPerformance>
+ </analyses>
+
+
+</model>
+</aircraft>
+<profiles>
+<fuselageProfiles>
+<fuselageProfile uID="fuseprof_1_1">
+  <name>...</name>
+  <description>...</description>
+  <pointList>
+    <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
+    <y mapType="vector">0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 </y>
+    <z mapType="vector">-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 </z>
+  </pointList>
+</fuselageProfile>
+<fuselageProfile uID="fuseprof_1_2">
+  <name>...</name>
+  <description>...</description>
+  <pointList>
+    <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
+    <y mapType="vector">0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 </y>
+    <z mapType="vector">-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 </z>
+  </pointList>
+</fuselageProfile>
+<fuselageProfile uID="fuseprof_1_3">
+  <name>...</name>
+  <description>...</description>
+  <pointList>
+    <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
+    <y mapType="vector">0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 </y>
+    <z mapType="vector">-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 </z>
+  </pointList>
+</fuselageProfile>
+<fuselageProfile uID="fuseprof_1_4">
+  <name>...</name>
+  <description>...</description>
+  <pointList>
+    <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
+    <y mapType="vector">0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 </y>
+    <z mapType="vector">-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 </z>
+  </pointList>
+</fuselageProfile>
+<fuselageProfile uID="fuseprof_1_5">
+  <name>...</name>
+  <description>...</description>
+  <pointList>
+    <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
+    <y mapType="vector">0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 </y>
+    <z mapType="vector">-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 </z>
+  </pointList>
+</fuselageProfile>
+<fuselageProfile uID="fuseprof_1_6">
+  <name>...</name>
+  <description>...</description>
+  <pointList>
+    <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
+    <y mapType="vector">0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 </y>
+    <z mapType="vector">-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 </z>
+  </pointList>
+</fuselageProfile>
+<fuselageProfile uID="fuseprof_1_7">
+  <name>...</name>
+  <description>...</description>
+  <pointList>
+    <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
+    <y mapType="vector">0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 </y>
+    <z mapType="vector">-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 </z>
+  </pointList>
+</fuselageProfile>
+<fuselageProfile uID="fuseprof_1_8">
+  <name>...</name>
+  <description>...</description>
+  <pointList>
+    <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
+    <y mapType="vector">0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 </y>
+    <z mapType="vector">-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 </z>
+  </pointList>
+</fuselageProfile>
+<fuselageProfile uID="fuseprof_1_9">
+  <name>...</name>
+  <description>...</description>
+  <pointList>
+    <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
+    <y mapType="vector">0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 </y>
+    <z mapType="vector">-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 </z>
+  </pointList>
+</fuselageProfile>
+<fuselageProfile uID="fuseprof_1_10">
+  <name>...</name>
+  <description>...</description>
+  <pointList>
+    <x mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </x>
+    <y mapType="vector">0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 </y>
+    <z mapType="vector">-1.000000 ;-0.951057 ;-0.809017 ;-0.587785 ;-0.309017 ;0.000000 ;0.309017 ;0.587785 ;0.809017 ;0.951057 ;1.000000 ;0.951057 ;0.809017 ;0.587785 ;0.309017 ;0.000000 ;-0.309017 ;-0.587785 ;-0.809017 ;-0.951057 ;-1.000000 </z>
+  </pointList>
+</fuselageProfile>
+</fuselageProfiles>
+<wingAirfoils>
+<wingAirfoil uID="foil_1_1">
+  <name>...</name>
+  <description>...</description>
+  <pointList>
+    <x mapType="vector">1.000000 ;0.951194 ;0.902266 ;0.853214 ;0.804038 ;0.754739 ;0.705314 ;0.655764 ;0.606088 ;0.556287 ;0.506358 ;0.456303 ;0.406120 ;0.355808 ;0.305368 ;0.254799 ;0.204101 ;0.153272 ;0.102313 ;0.076784 ;0.051222 ;0.025628 ;0.012818 ;0.007692 ;0.005128 ;0.000000 ;0.005128 ;0.007692 ;0.012818 ;0.025628 ;0.051222 ;0.076784 ;0.102313 ;0.153272 ;0.204101 ;0.254799 ;0.305368 ;0.355808 ;0.406120 ;0.456303 ;0.506358 ;0.556287 ;0.606088 ;0.655764 ;0.705314 ;0.754739 ;0.804038 ;0.853214 ;0.902266 ;0.951194 ;1.000000 </x>
+    <y mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </y>
+    <z mapType="vector">-0.000224 ;-0.005576 ;-0.010942 ;-0.016321 ;-0.021714 ;-0.027121 ;-0.032470 ;-0.037536 ;-0.042148 ;-0.046177 ;-0.049506 ;-0.051949 ;-0.053253 ;-0.053150 ;-0.051842 ;-0.049452 ;-0.045919 ;-0.041032 ;-0.034397 ;-0.030137 ;-0.024954 ;-0.018011 ;-0.013038 ;-0.010317 ;-0.008572 ;0.000000 ;0.008572 ;0.010317 ;0.013038 ;0.018011 ;0.024954 ;0.030137 ;0.034397 ;0.041032 ;0.045919 ;0.049452 ;0.051842 ;0.053150 ;0.053253 ;0.051949 ;0.049506 ;0.046177 ;0.042148 ;0.037536 ;0.032470 ;0.027121 ;0.021714 ;0.016321 ;0.010942 ;0.005576 ;0.000224 </z>
+    </pointList>
+</wingAirfoil>
+<wingAirfoil uID="foil_1_2">
+  <name>...</name>
+  <description>...</description>
+  <pointList>
+    <x mapType="vector">1.000000 ;0.951194 ;0.902266 ;0.853214 ;0.804038 ;0.754739 ;0.705314 ;0.655764 ;0.606088 ;0.556287 ;0.506358 ;0.456303 ;0.406120 ;0.355808 ;0.305368 ;0.254799 ;0.204101 ;0.153272 ;0.102313 ;0.076784 ;0.051222 ;0.025628 ;0.012818 ;0.007692 ;0.005128 ;0.000000 ;0.005128 ;0.007692 ;0.012818 ;0.025628 ;0.051222 ;0.076784 ;0.102313 ;0.153272 ;0.204101 ;0.254799 ;0.305368 ;0.355808 ;0.406120 ;0.456303 ;0.506358 ;0.556287 ;0.606088 ;0.655764 ;0.705314 ;0.754739 ;0.804038 ;0.853214 ;0.902266 ;0.951194 ;1.000000 </x>
+    <y mapType="vector">0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 ;0.000000 </y>
+    <z mapType="vector">-0.000224 ;-0.005576 ;-0.010942 ;-0.016321 ;-0.021714 ;-0.027121 ;-0.032470 ;-0.037536 ;-0.042148 ;-0.046177 ;-0.049506 ;-0.051949 ;-0.053253 ;-0.053150 ;-0.051842 ;-0.049452 ;-0.045919 ;-0.041032 ;-0.034397 ;-0.030137 ;-0.024954 ;-0.018011 ;-0.013038 ;-0.010317 ;-0.008572 ;0.000000 ;0.008572 ;0.010317 ;0.013038 ;0.018011 ;0.024954 ;0.030137 ;0.034397 ;0.041032 ;0.045919 ;0.049452 ;0.051842 ;0.053150 ;0.053253 ;0.051949 ;0.049506 ;0.046177 ;0.042148 ;0.037536 ;0.032470 ;0.027121 ;0.021714 ;0.016321 ;0.010942 ;0.005576 ;0.000224 </z>
+    </pointList>
+</wingAirfoil>
+</wingAirfoils>
+</profiles>
+</vehicles>
+</cpacs>

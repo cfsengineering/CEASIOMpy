@@ -170,7 +170,7 @@ def get_su2_config_template():
     return su2_config_template_path
 
 
-def get_cgns_config_template():
+def get_su2_config_template_rans():
 
     su2_dir = get_module_path("SU2Run")
     su2_config_template_path_rans = Path(su2_dir, "files", "config_template_rans.cfg")

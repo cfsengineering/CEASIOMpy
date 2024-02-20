@@ -32,7 +32,7 @@ from ceasiompy.SU2Run.func.su2actuatordiskfile import (
     write_actuator_disk_data,
     write_header,
 )
-from ceasiompy.SU2Run.func.su2utils import get_mesh_markers, get_cgns_config_template
+from ceasiompy.SU2Run.func.su2utils import get_mesh_markers, get_su2_config_template_rans
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import (
     ACTUATOR_DISK_FILE_NAME,
@@ -338,11 +338,11 @@ def generate_su2_cfd_config_rans(cpacs_path, cpacs_out_path, wkdir):
 
     cpacs = CPACS(cpacs_path)
 
-    # creare delle nuove xpath per la mesh cgns
+    # creare delle nuove xpath per la mesh su2
 
     su2_mesh = Path(get_value(cpacs.tixi, SU2MESH_XPATH))
     if not su2_mesh.is_file():
-        raise FileNotFoundError(f"CGNS mesh file {su2_mesh} not found")
+        raise FileNotFoundError(f"SU2 mesh file {su2_mesh} not found")
 
     mesh_markers = get_mesh_markers(su2_mesh)
 
@@ -414,7 +414,7 @@ def generate_su2_cfd_config_rans(cpacs_path, cpacs_out_path, wkdir):
         aoa_list = [0.0]
         aos_list = [0.0]
 
-    cfg = ConfigFile(get_cgns_config_template())
+    cfg = ConfigFile(get_su2_config_template_rans())
 
     # Check if symmetry plane is defined (Default: False)
     sym_factor = 1.0
@@ -477,7 +477,7 @@ def generate_su2_cfd_config_rans(cpacs_path, cpacs_out_path, wkdir):
 
     # Parameters which will vary for the different cases (alt,mach,aoa,aos)
 
-    for case_nb in enumerate(alt_list):
+    for case_nb in range(len(alt_list)):
         cfg["MESH_FILENAME"] = str(su2_mesh)
 
         alt = alt_list[case_nb]

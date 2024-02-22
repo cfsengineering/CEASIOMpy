@@ -718,8 +718,9 @@ def generate_gmsh(
     log.info("Start fragment operation between the aircraft and the farfield")
 
     _, children_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)
-    gmsh.model.occ.synchronize()
 
+    gmsh.model.occ.synchronize()
+    print(children_dimtag)
     log.info("Fragment operation finished")
 
     # fragment produce fragments_dimtag and children_dimtag
@@ -769,6 +770,7 @@ def generate_gmsh(
 
     # Get the children of the aircraft parts
     aircraft_parts_children_dimtag = children_dimtag[1:]
+    print(aircraft_parts_children_dimtag)
 
     log.info("Before/after fragment operation relations:")
     for parent, children in zip(aircraft_parts, aircraft_parts_children_dimtag):

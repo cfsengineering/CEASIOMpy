@@ -14,7 +14,7 @@
 `ThermoData` can be run on is own by giving an Aeromap that contains Altitude and Mach number with the addition of the Net force that needs to be chosen. Otherwise it can take as an input the values from `CPACS2GMSH` module. 
 
 ## Analyses
-`ThermoData` compute the values obtained at the engine outlet giving a "EngineBC.dat" file as an output. If the workflow continues with the `SU2Run` run module the results are added to the config file of `SU2` to perform the simulation. 
+`ThermoData` compute the values obtained at the engine outlet giving a "EngineBC.dat" file as an output. If the workflow continues with the `SU2Run` run module the results are added to the config file of SU2 to perform the simulation. 
 
 ## Outputs
 `ThermoData` output is the "EngineBC.dat" file with stored inside for the turbojet engine:

@@ -318,15 +318,14 @@ def generate_2d_mesh_for_pentagrow(
 
         elif part_obj.part_type == "vehicles/rotorcraft/model/rotors/rotor":
             vehicles_rotorcraft_model_rotors_rotor_volume_dimtags.append(part_entities[0])
-
-        # log.warning(f"'{brep_file}' cannot be categorized!")
-        # return None
+        else:
+            log.warning(f"'{brep_file}' cannot be categorized!")
+            return None
     gmsh.model.occ.synchronize()
-    print(parts_parent_dimtag)
 
     log.info("Manipulating the geometry, please wait..")
     # we have to obtain a wathertight
-    # gmsh.model.occ.cut(wings_volume_dimtags, fuselage_volume_dimtags, -1, True, False)
+    gmsh.model.occ.cut(wings_volume_dimtags, fuselage_volume_dimtags, -1, True, False)
 
     gmsh.model.occ.synchronize()
 
@@ -359,18 +358,15 @@ def generate_2d_mesh_for_pentagrow(
     # Mesh generation
     log.info("Start of gmsh 2D surface meshing process")
 
-    # Frontal-Delunay: 6   1: MeshAdapt, 2: Automatic, 3: Initial mesh only,
-    # 5: Delaunay, 6: Frontal-Delaunay, 7: BAMG, 8: Frontal-Delaunay for Quads,
-    # 9: Packing of Parallelograms, 11: Quasi-structured Quad
     gmsh.option.setNumber("Mesh.Algorithm", 6)
     gmsh.option.setNumber("Mesh.LcIntegrationPrecision", 1e-6)
     mesh_size = model_dimensions[0] * float(min_max_mesh_factor) * (10 ** -3)
     gmsh.option.set_number("Mesh.MeshSizeMin", mesh_size)
     gmsh.option.set_number("Mesh.MeshSizeMax", mesh_size)
-    gmsh.model.add_physical_group(3, [1], -1, name="aircraft_penta")
-    gmsh.model.add_physical_group(
-        2, [1, 2, 3, 4, 5, 8, 11, 12, 17, 18, 19, 20, 21], -1, name="fuselage")
-    gmsh.model.add_physical_group(2, [6, 7, 9, 10, 13, 14, 15, 16], -1, name="wings")
+    # gmsh.model.add_physical_group(3, [1], -1, name="aircraft_penta")
+    # gmsh.model.add_physical_group(
+    #     2, [1, 2, 3, 4, 5, 8, 11, 12, 17, 18, 19, 20, 21], -1, name="fuselage")
+    # gmsh.model.add_physical_group(2, [6, 7, 9, 10, 13, 14, 15, 16], -1, name="wings")
 
     gmsh.model.occ.synchronize()
     gmsh.logger.start()
@@ -421,21 +417,11 @@ def generate_2d_mesh_for_pentagrow(
     # gmsh.model.mesh.optimize("Laplace2D", niter=10)
     # log.info("Smoothing process finished")
 
-    gmsh.option.setNumber('Mesh.StlOneSolidPerSurface', 2)
+    # gmsh.option.setNumber('Mesh.StlOneSolidPerSurface', 2) importante ma finche' non sistemi le superfici fisiche devi commentarlo
     gmsh.model.occ.synchronize()
-
-    # su2mesh_path = Path(results_dir, "mesh.su2")
-    # gmsh.write(str(su2mesh_path))
 
     mesh_2d_path = Path(results_dir, "mesh_2d.stl")
     gmsh.write(str(mesh_2d_path))
-
-    # process1.wait(20)
-
-    # process2 = subprocess.Popen("paraview hybrid.cgns",
-    #                             shell=True, cwd=results_dir, start_new_session=True)
-
-    # process2.wait()
 
     if rotor_model:
         log.info("Duplicating disk actuator mesh surfaces")
@@ -451,9 +437,6 @@ def generate_2d_mesh_for_pentagrow(
 
     process_gmsh_log(gmsh.logger.get())
 
-    # if not testing_gmsh:
-    #     gmsh.clear()
-    #     gmsh.finalize()
     return mesh_2d_path, fuselage_maxlen
 
 
@@ -520,14 +503,9 @@ def pentagrow_3d_mesh(
     else:
         print("config.cfg does not exist")
 
-    # process = subprocess.run(
-    #    "pentagrow mesh_2d.stl config.cfg", shell=True, cwd=result_dir, start_new_session=False
-    # )
     current_dir = os.getcwd()
     os.chdir(current_dir)
-    # mesh_file= os.path.join(current_dir, "mesh_2d.stl")
-    # config_file = os.path.join(current_dir, "config.cfg")
-    # command = f"pentagrow {mesh_file} {config_file}"
+
     command = "pentagrow mesh_2d.stl config.cfg"
 
     # Specify the file path

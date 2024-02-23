@@ -14,7 +14,7 @@
 
 It's currently possible to choose between two options for 3D meshing of the external domain. 
 Selecting the 'Euler' an unstructured mesh is automatically generated in a spherical domain surrounding the aircraft.
-Instead, selecting the 'RANS' option  GMSH will generate only the 2D mesh of the entire aircraft, which will then be processed by the programme [Pentagrow], which use [Tetgen](https://wias-berlin.de/software/tetgen/1.5/doc/manual/manual.pdf) package too. The hybrid mesh obtained will constitute the 3D domain.
+Instead, selecting the 'RANS' option Gmsh will generate only the 2D mesh of the entire aircraft, which will then be processed by the programme [Pentagrow] to generate the structured part that wraps the geometry, then [Tetgen](https://wias-berlin.de/software/tetgen/1.5/doc/manual/manual.pdf) package provides for meshing of the unstructured part. The hybrid mesh obtained will constitute the 3D domain.
 
 
 The resulting mesh can be used for a CFD calculation by connecting the `SU2Run` module after `CPACS2GMSH` module.

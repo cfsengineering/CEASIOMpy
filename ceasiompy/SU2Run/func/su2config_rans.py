@@ -320,6 +320,22 @@ def add_thermodata(cfg, cpacs, alt, case_nb, alt_list):
         )
 
 
+def add_reynods_number(alt, mach, cfg):
+
+    Atm = Atmosphere(alt)
+
+    # Get speed from Mach Number
+    speed = mach * Atm.speed_of_sound[0]
+    print(speed)
+    print(Atm.kinematic_viscosity[0])
+    log.info(f"Mach number: {mach} [-] -> Velocity: {round(speed)} [m/s]")
+
+    # Reynolds number based on the ratio Wetted Area / Wing Span
+    reynolds = 1 * speed / Atm.kinematic_viscosity[0]
+    print(reynolds)
+    cfg["REYNOLDS_NUMBER"] = int(reynolds)
+
+
 def generate_su2_cfd_config_rans(cpacs_path, cpacs_out_path, wkdir):
     """Function to create SU2 config file.
 
@@ -500,6 +516,8 @@ def generate_su2_cfd_config_rans(cpacs_path, cpacs_out_path, wkdir):
         )
 
         add_thermodata(cfg, cpacs, alt, case_nb, alt_list)
+
+        add_reynods_number(alt, mach, cfg)
 
         case_dir_path = Path(wkdir, case_dir_name)
         if not case_dir_path.exists():

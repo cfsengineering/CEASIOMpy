@@ -326,13 +326,10 @@ def add_reynods_number(alt, mach, cfg):
 
     # Get speed from Mach Number
     speed = mach * Atm.speed_of_sound[0]
-    print(speed)
-    print(Atm.kinematic_viscosity[0])
-    log.info(f"Mach number: {mach} [-] -> Velocity: {round(speed)} [m/s]")
 
     # Reynolds number based on the ratio Wetted Area / Wing Span
     reynolds = 1 * speed / Atm.kinematic_viscosity[0]
-    print(reynolds)
+    log.info(f"Reynolds number= {int(reynolds)}")
     cfg["REYNOLDS_NUMBER"] = int(reynolds)
 
 

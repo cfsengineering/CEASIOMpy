@@ -32,6 +32,7 @@ from ceasiompy.SU2Run.func.su2actuatordiskfile import (
     write_actuator_disk_data,
     write_header,
 )
+from ceasiompy.CPACS2GMSH.func.mesh_sizing import wings_size
 from ceasiompy.SU2Run.func.su2utils import get_mesh_markers, get_su2_config_template_rans
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import (
@@ -320,15 +321,18 @@ def add_thermodata(cfg, cpacs, alt, case_nb, alt_list):
         )
 
 
-def add_reynods_number(alt, mach, cfg):
+def add_reynods_number(alt, mach, cfg, cpacs_path):
 
     Atm = Atmosphere(alt)
 
     # Get speed from Mach Number
     speed = mach * Atm.speed_of_sound[0]
 
-    # Reynolds number based on the ratio Wetted Area / Wing Span
-    reynolds = 1 * speed / Atm.kinematic_viscosity[0]
+    ref_chord = wings_size(cpacs_path)[0] / 0.15
+    print(ref_chord)
+
+    # Reynolds number based on the mean chord
+    reynolds = ref_chord * speed / Atm.kinematic_viscosity[0]
     log.info(f"Reynolds number= {int(reynolds)}")
     cfg["REYNOLDS_NUMBER"] = int(reynolds)
 
@@ -514,7 +518,7 @@ def generate_su2_cfd_config_rans(cpacs_path, cpacs_out_path, wkdir):
 
         add_thermodata(cfg, cpacs, alt, case_nb, alt_list)
 
-        add_reynods_number(alt, mach, cfg)
+        add_reynods_number(alt, mach, cfg, cpacs_path)
 
         case_dir_path = Path(wkdir, case_dir_name)
         if not case_dir_path.exists():

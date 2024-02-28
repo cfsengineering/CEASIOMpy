@@ -23,13 +23,7 @@ from pathlib import Path
 
 import requests
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_install_path
-from ceasiompy.utils.commonnames import (
-    ACTUATOR_DISK_INLET_SUFFIX,
-    ACTUATOR_DISK_OUTLET_SUFFIX,
-    ENGINE_EXHAUST_SUFFIX,
-    ENGINE_INTAKE_SUFFIX,
-)
+
 from ceasiompy.utils.moduleinterfaces import get_module_path
 
 log = get_logger()
@@ -57,18 +51,22 @@ def get_edge_ainp_template():
         )
     return edge_ainp_template_path
 
-def get_edge_queScript_template():
+
+def get_edge_que_script_template():
     """Return path of the M-Edge ainp template corresponding to the M-Edge version."""
 
     edge_dir = get_module_path("EdgeRun")
-    edge_queScript_template_path = Path(edge_dir, "files", f"queue_template.script")
+    edge_queScript_template_path = Path(edge_dir, "files", "queue_template.script")
     if not edge_queScript_template_path.is_file():
         raise FileNotFoundError(
             f"The M-Edge queueScript template '{edge_queScript_template_path}' has not been found!"
         )
     return edge_queScript_template_path
 
+
 """"""
+
+
 def get_su2_aerocoefs(force_file):
     """Get aerodynamic coefficients and velocity from SU2 forces file (forces_breakdown.dat)
 

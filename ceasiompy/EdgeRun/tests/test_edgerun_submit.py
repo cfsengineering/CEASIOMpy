@@ -17,9 +17,6 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-import unittest
-
-import sys
 from pathlib import Path
 
 # Add the ceasiompy module to the PYTHONPATH
@@ -30,16 +27,17 @@ from pathlib import Path
 # import ceasiompy
 from ceasiompy.EdgeRun.func.edgeconfig import edge_cfd
 import os
-from ceasiompy.EdgeRun.edgerun import run_edge_multi
-from ceasiompy.utils.commonxpath import EDGE_NB_CPU_XPATH
-from ceasiompy.EdgeRun.func.edgeutils import get_edge_queScript_template
+
+# from ceasiompy.EdgeRun.func.edgeutils import get_edge_que_script_template
 # from ceasiompy.utils.create_ainpfile import CreateAinp
 
 MODULE_DIR = Path(__file__).parent
-input_que_script_path = get_edge_queScript_template()
+# input_que_script_path = get_edge_que_script_template()
 
-       # cpacs_in_path = Path(MODULE_DIR / "ToolInput" / "ToolInput.xml")
-cpacs_in_path = Path('/home/mengmeng/Documents/CEASIOMpy23/CEASIOMpy/WKDIR/CPACS_selected_from_GUI.xml')
+# cpacs_in_path = Path(MODULE_DIR / "ToolInput" / "ToolInput.xml")
+cpacs_in_path = Path(
+    "/home/mengmeng/Documents/CEASIOMpy23/CEASIOMpy/WKDIR/CPACS_selected_from_GUI.xml"
+)
 cpacs_out_path = MODULE_DIR / "ToolOutput.xml"
 wkdir = MODULE_DIR / "Results"
 

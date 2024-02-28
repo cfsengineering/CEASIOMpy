@@ -14,29 +14,14 @@ Python version: >=3.8
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
-import os, re
+import os
+import re
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from ceasiompy.EdgeRun.func.edgeconfig import edge_cfd
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import (
-    get_reasonable_nb_cpu,
-    get_results_directory,
-    #    run_software,
-)
-
-# from ceasiompy.utils.commonnames import AINP_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
-from cpacspy.cpacsfunctions import (
-    create_branch,
-    get_string_vector,
-    get_value,
-    get_value_or_default,
-)
-from ceasiompy.utils.commonnames import AINP_CFD_NAME
-from ceasiompy.utils.commonxpath import EDGE_NB_CPU_XPATH, EDGE_MESH_XPATH
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
-from ceasiompy.EdgeRun.func.edge_queScript_gen import EdgeScripts
 from ceasiompy.EdgeRun.func.edgeutils import get_edge_queScript_template
 
 log = get_logger()
@@ -54,6 +39,7 @@ MODULE_NAME = MODULE_DIR.name
 #   FUNCTIONS
 # =================================================================================================
 input_que_script_path = get_edge_queScript_template()
+
 
 def extract_edge_forces(results_dir):
     # Use list comprehension to get a list of directory names starting with "Case"
@@ -135,7 +121,7 @@ def main(cpacs_path, cpacs_out_path):
     log.info("Edge postprocessing finished")
 
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
-    
+
     log.info("----- End of " + MODULE_NAME + " -----")
 
 

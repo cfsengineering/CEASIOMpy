@@ -42,6 +42,7 @@ def get_logger():
         logger (logger): Logger
     """
 
+"""
     logger = logging.getLogger("CEASIOMpy")
 
     # NOTE: Multiple calls to getLogger() with the same name will return a
@@ -67,7 +68,7 @@ def get_logger():
     logger.addHandler(console_handler)
     return logger
 
-
+"""
 def add_to_runworkflow_history(working_dir: Path, comment: str = "") -> None:
     """Add a line to the runworkflow history"""
 

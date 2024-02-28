@@ -63,7 +63,7 @@ from cpacspy.cpacsfunctions import (
     get_value_or_default,
 )
 from cpacspy.cpacspy import CPACS
-from ceasiompy.EdgeRun.func.edgeutils import get_edge_queScript_template
+from ceasiompy.EdgeRun.func.edgeutils import get_edge_que_script_template
 from ceasiompy.EdgeRun.func.edge_que_script_gen import EdgeScripts
 
 # import cpacs
@@ -72,7 +72,7 @@ log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 
-input_que_script_path = get_edge_queScript_template()
+input_que_script_path = get_edge_que_script_template()
 
 
 # =================================================================================================

@@ -72,14 +72,14 @@ def get_logger():
 def add_to_runworkflow_history(working_dir: Path, comment: str = "") -> None:
     """Add a line to the runworkflow history"""
 
-    RUNWORKFLOW_HISTORY_PATH.parent.mkdir(exist_ok=True)
-    RUNWORKFLOW_HISTORY_PATH.touch(exist_ok=True)
+    #RUNWORKFLOW_HISTORY_PATH.parent.mkdir(exist_ok=True)
+    #RUNWORKFLOW_HISTORY_PATH.touch(exist_ok=True)
 
     if comment:
         comment = " - " + comment
 
-    with open(RUNWORKFLOW_HISTORY_PATH, "a") as f:
-        f.write(f"{datetime.now():%Y-%m-%d %H:%M:%S} - {working_dir}{comment}\n")
+    #with open(RUNWORKFLOW_HISTORY_PATH, "a") as f:
+    #    f.write(f"{datetime.now():%Y-%m-%d %H:%M:%S} - {working_dir}{comment}\n")
 
 
 def get_last_runworkflow() -> Path:

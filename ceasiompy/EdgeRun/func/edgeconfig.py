@@ -227,24 +227,24 @@ def edge_cfd(cpacs_path, cpacs_out_path, wkdir):
         speedofsound = Atm.speed_of_sound[0]
         airspeed = mach * speedofsound
 
-        # aoa_rad = math.radians(aoa)
-        # aos_rad = math.radians(aos)
+        aoa_rad = math.radians(aoa)
+        aos_rad = math.radians(aos)
 
-        UFREE = airspeed * math.cos(aos) * math.cos(aoa)
-        WFREE = airspeed * math.cos(aos) * math.sin(aoa)
-        VFREE = airspeed * math.sin(aos) * (-1)
+        UFREE = airspeed * math.cos(aos_rad) * math.cos(aoa_rad)
+        WFREE = airspeed * math.cos(aos_rad) * math.sin(aoa_rad)
+        VFREE = airspeed * math.sin(aos_rad) * (-1)
 
-        IDCDP1 = math.cos(aos) * math.cos(aoa)
-        IDCDP2 = math.sin(aos)
-        IDCDP3 = math.cos(aos) * math.sin(aoa)
+        IDCDP1 = math.cos(aos_rad) * math.cos(aoa_rad)
+        IDCDP2 = math.sin(aos_rad)
+        IDCDP3 = math.cos(aos_rad) * math.sin(aoa_rad)
 
-        IDCLP1 = math.sin(aoa) * (-1)
+        IDCLP1 = math.sin(aoa_rad) * (-1)
         IDCLP2 = 0
-        IDCLP3 = math.cos(aoa)
+        IDCLP3 = math.cos(aoa_rad)
 
-        IDCCP1 = math.cos(aoa) * math.sin(aos) * (-1)
-        IDCCP2 = math.cos(aos) * (-1)
-        IDCCP3 = math.sin(aoa) * math.sin(aos) * (-1)
+        IDCCP1 = math.cos(aoa_rad) * math.sin(aos_rad) * (-1)
+        IDCCP2 = math.cos(aos_rad) * (-1)
+        IDCCP3 = math.sin(aoa_rad) * math.sin(aos_rad) * (-1)
         IDCMP1 = IDCCP1
         IDCMP2 = IDCCP2
         IDCMP3 = IDCCP3

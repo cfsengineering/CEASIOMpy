@@ -22,7 +22,7 @@ from ceasiompy.EdgeRun.func.edgeconfig import edge_cfd
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from ceasiompy.EdgeRun.func.edgeutils import get_edge_queScript_template
+from ceasiompy.EdgeRun.func.edgeutils import get_edge_que_script_template
 
 log = get_logger()
 
@@ -38,7 +38,7 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
-input_que_script_path = get_edge_queScript_template()
+input_que_script_path = get_edge_que_script_template()
 
 
 def extract_edge_forces(results_dir):
@@ -57,6 +57,7 @@ def extract_edge_forces(results_dir):
         dir_path = os.path.join(results_dir, dir_name)
         # print(f"Processing directory: {dir_path}")
         log.info(f"Extracting forces from Directory : {dir_name}")
+        print(f"Extracting forces from Directory : {dir_name}")
 
         # Extract mach and alfa from directory name
         match = re.match(r".*alt(\d+\.\d+)_mach(\d+\.\d+)_aoa(\d+\.\d+)_aos(\d+\.\d+)*", dir_name)
@@ -97,6 +98,7 @@ def extract_edge_forces(results_dir):
                         f"{alt:.8f} {mach:.8f} {aoa:.8f} {aos:.8f} {CL} {CD} {CDP} {CDV} {CM}\n"
                     )
                     log.info(f"Saving forces to file: {forcemoments}")
+                    print(f"Saving forces to file: {forcemoments}")
 
 
 # =================================================================================================

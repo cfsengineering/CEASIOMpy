@@ -217,7 +217,6 @@ def section_edit_aeromap():
 def mesh_file_upload():
     st.markdown("#### Upload mesh file")
 
-    # Verifica se è stato caricato un file mesh
     uploaded_mesh = st.file_uploader(
         "Select a mesh file",
         key="00_mesh_upload",
@@ -225,37 +224,28 @@ def mesh_file_upload():
     )
 
     if uploaded_mesh:
-        # Crea la cartella "mesh" se non esiste
         mesh_dir = os.path.join(st.session_state.workflow.working_dir, "mesh")
         os.makedirs(mesh_dir, exist_ok=True)
 
-        # Crea un nuovo percorso per il file .su2 nella cartella "mesh"
         mesh_new_path = os.path.join(mesh_dir, uploaded_mesh.name)
         print(f"mesh path: {mesh_new_path}")
 
         try:
-            # Scrivi il file nel percorso specificato
             with open(mesh_new_path, "wb") as f:
                 f.write(uploaded_mesh.getbuffer())
 
-            # Apri il file CPACS
             cpacs_path = st.session_state.workflow.cpacs_in
             print(f"cpacs_path: {cpacs_path}")
             tixi = open_tixi(cpacs_path)
 
-            # Definisci la variabile mesh_xpath in base alla tua struttura CPACS
             mesh_xpath = "/cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh"
 
-            # Verifica se il percorso esiste
             if not tixi.checkElement(mesh_xpath):
-                # Se il percorso non esiste, crealo
                 create_branch(tixi, mesh_xpath)
 
             if st.button("Add this mesh"):
-                # Aggiorna il percorso del file SU2 mesh nel documento CPACS
                 tixi.updateTextElement(mesh_xpath, str(mesh_new_path))
 
-                # Salva il file CPACS
                 save_cpacs_file()
 
                 return mesh_new_path
@@ -361,7 +351,6 @@ def add_module_tab():
                             )
 
                     elif name == "pathtype":
-                        # Chiama la funzione mesh_file_upload() e ottieni il percorso del file mesh
                         mesh_path = mesh_file_upload()
 
                         with st.columns([1, 2])[0]:

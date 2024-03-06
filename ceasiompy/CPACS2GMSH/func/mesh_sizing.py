@@ -171,6 +171,8 @@ def fuselage_size(cpacs_path):
     # Extrapolate mesh values
     circ_list = []
     min_radius = 10e6
+    if min_radius == 0:
+        min_radius = 0.0001
 
     for height, width in zip(body_frm_height_values, body_frm_width_values):
         # Calculate the sum of squares for each element in the lists
@@ -186,7 +188,7 @@ def fuselage_size(cpacs_path):
     fuselage_minlen = min(0.1 * fuselage_maxlen, min_radius / 2)
 
     log.info(f"Fuselage maxlen={fuselage_maxlen:.3f} m")
-    log.info(f"Fuselage minlen={fuselage_minlen:.3f} m")
+    log.info(f"Fuselage minlen={fuselage_minlen:.4f} m")
 
     return fuselage_maxlen, fuselage_minlen
 

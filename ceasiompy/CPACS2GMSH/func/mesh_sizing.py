@@ -171,8 +171,6 @@ def fuselage_size(cpacs_path):
     # Extrapolate mesh values
     circ_list = []
     min_radius = 10e6
-    if min_radius == 0:
-        min_radius = 0.0001
 
     for height, width in zip(body_frm_height_values, body_frm_width_values):
         # Calculate the sum of squares for each element in the lists
@@ -180,6 +178,8 @@ def fuselage_size(cpacs_path):
 
         # Get overall minimum radius (semi-minor axis for ellipse)
         min_radius = min(min_radius, height, width)
+        if min_radius == 0:
+            min_radius = 0.0001
 
     mean_circ = sum(circ_list) / len(circ_list)
 

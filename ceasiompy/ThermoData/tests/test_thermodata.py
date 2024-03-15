@@ -22,6 +22,8 @@ import sys
 
 import pytest
 
+import os
+
 import numpy as np
 
 from ceasiompy.ThermoData.func.turbofan_func import (
@@ -65,44 +67,44 @@ def test_turbojet_func():
     np.testing.assert_almost_equal(new_sol, correct_sol, 3)
 
 
-"""
-        T_tot_out,
-        V_stat_out,
-        MN_out,
-        P_tot_out,
-        massflow_stat_out,
-        T_stat_out,
-        P_stat_out,
+def test_write_turbojet_file(tmp_path):
+    T_tot_out = 300
+    V_stat_out = 200
+    MN_out = 0.5
+    P_tot_out = 100000
+    massflow_stat_out = 50
+    T_stat_out = 400
+    P_stat_out = 200000
+
+    test_thermodata_path = Path(tmp_path, "EngineBC.dat")
+
+    with open(test_thermodata_path, "w") as file:
+        write_turbojet_file(
+            file,
+            T_tot_out,
+            V_stat_out,
+            MN_out,
+            P_tot_out,
+            massflow_stat_out,
+            T_stat_out,
+            P_stat_out,
+        )
+
+    with open(test_thermodata_path, "r") as file:
+        content = [
+            line.strip() for line in file.readlines()
+        ]  # Rimuovi il carattere di nuova linea
+
+    content.append("")
+
+    print("Contenuto letto dal file:", content)
+
+    expected_content = test_thermodata_path.read_text().split("\n")
+    print("Contenuto atteso:", expected_content)
+
+    assert test_thermodata_path.read_text().split("\n") == content
 
 
-
-
-def test_write_turbojet_file():
-    ll = 2
-
-
-def test_turbofan():
-    alt = 4000  # [ft]
-    MN = 0.6
-    # Fn = 11800  # [lbf]
-    new_sol_tf = turbofan_analysis(alt, MN)
-    correct_sol_tf = np.array(
-        [
-            8.11328662e01,
-            3.44500820e02,
-            1.00000000e00,
-            4.19439630e02,
-            5.64233274e01,
-            1.08865912e-01,
-        ]
-    ).reshape((6, 1))
-    np.testing.assert_almost_equal(new_sol_tf, correct_sol_tf, 5)
-
-
-def test_write_hbtf_file():
-    ll = 1
-
-"""
 # =================================================================================================
 #    MAIN
 # =================================================================================================

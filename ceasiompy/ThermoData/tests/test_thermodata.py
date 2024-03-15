@@ -91,16 +91,12 @@ def test_write_turbojet_file(tmp_path):
         )
 
     with open(test_thermodata_path, "r") as file:
-        content = [
-            line.strip() for line in file.readlines()
-        ]  # Rimuovi il carattere di nuova linea
-
+        content = [line.strip() for line in file.readlines()]
     content.append("")
 
-    print("Contenuto letto dal file:", content)
-
-    expected_content = test_thermodata_path.read_text().split("\n")
-    print("Contenuto atteso:", expected_content)
+    # print("content=", content)
+    # expected_content = test_thermodata_path.read_text().split("\n")
+    # print("expected_content=", expected_content)
 
     assert test_thermodata_path.read_text().split("\n") == content
 

@@ -20,16 +20,7 @@ from pathlib import Path
 
 import sys
 
-import pytest
-
-import os
-
 import numpy as np
-
-from ceasiompy.ThermoData.func.turbofan_func import (
-    turbofan_analysis,
-    write_hbtf_file,
-)
 
 from ceasiompy.ThermoData.func.turbojet_func import (
     turbojet_analysis,

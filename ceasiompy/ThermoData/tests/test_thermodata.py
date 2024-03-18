@@ -45,6 +45,7 @@ sys.path.append("/home/cfse/Stage_Francesco/Thermodata")
 
 
 def test_turbojet_func():
+    """Test function 'turbojet_analysis'"""
     alt = 1000
     MN = 0.3
     Fn = 2000
@@ -64,6 +65,7 @@ def test_turbojet_func():
 
 
 def test_write_turbojet_file(tmp_path):
+    """Test function 'write_turbojet_file'"""
     T_tot_out = 300
     V_stat_out = 200
     MN_out = 0.5
@@ -98,6 +100,7 @@ def test_write_turbojet_file(tmp_path):
 
 
 def test_turbofan_func():
+    """Test function 'turbofan_analysis'"""
     alt = 1000
     MN = 0.3
     Fn = 2000
@@ -119,13 +122,11 @@ def test_turbofan_func():
             1139.22870449,
         ]
     )
-    print(new_sol)
-    print("hello")
-    print(correct_sol)
     np.testing.assert_almost_equal(new_sol, correct_sol, 3)
 
 
 def test_write_hbtf_file(tmp_path):
+    """Test function 'write_hbtf_file'"""
     T_tot_out_core = 300
     V_stat_out_core = 200
     MN_out_core = 0.5
@@ -162,10 +163,6 @@ def test_write_hbtf_file(tmp_path):
         content = [line.strip() for line in file.readlines()]
     content.append("")
 
-    print("content=", content)
-    expected_content = test_thermodata_path.read_text().split("\n")
-    print("expected_content=", expected_content)
-
     assert test_thermodata_path.read_text().split("\n") == content
 
 
@@ -175,6 +172,6 @@ def test_write_hbtf_file(tmp_path):
 
 if __name__ == "__main__":
 
-    print("Test configfile.py")
+    print("Test ThermoData")
     print("To run test use the following command:")
     print(">> pytest -v")

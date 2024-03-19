@@ -60,6 +60,7 @@ from ceasiompy.utils.commonxpath import (
     GMSH_H_FIRST_LAYER_XPATH,
     GMSH_MAX_THICKNESS_LAYER_XPATH,
     GMSH_GROWTH_FACTOR_XPATH,
+    GMSH_GROWTH_RATIO_XPATH,
     GMSH_MIN_MAX_MESH_SIZE_XPATH,
     GMSH_FEATURE_ANGLE_XPATH,
     GMSH_MESH_FORMAT_XPATH,
@@ -95,7 +96,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     # Retrieve value from the GUI Setting
     open_gmsh = get_value_or_default(cpacs.tixi, GMSH_OPEN_GUI_XPATH, False)
     type_mesh = get_value_or_default(cpacs.tixi, GMSH_MESH_TYPE_XPATH, "Euler")
-    farfield_factor = get_value_or_default(cpacs.tixi, GMSH_FARFIELD_FACTOR_XPATH, 6)
+    farfield_factor = get_value_or_default(cpacs.tixi, GMSH_FARFIELD_FACTOR_XPATH, 10)
     symmetry = get_value_or_default(cpacs.tixi, GMSH_SYMMETRY_XPATH, False)
     farfield_size_factor = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FARFIELD_XPATH, 17)
     n_power_factor = get_value_or_default(cpacs.tixi, GMSH_N_POWER_FACTOR_XPATH, 2)
@@ -116,9 +117,10 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     n_layer = get_value_or_default(cpacs.tixi, GMSH_NUMBER_LAYER_XPATH, 20)
     h_first_layer = get_value_or_default(cpacs.tixi, GMSH_H_FIRST_LAYER_XPATH, 3)
     max_layer_thickness = get_value_or_default(cpacs.tixi, GMSH_MAX_THICKNESS_LAYER_XPATH, 10)
-    growth_factor = get_value_or_default(cpacs.tixi, GMSH_GROWTH_FACTOR_XPATH, 1.2)
+    growth_factor = get_value_or_default(cpacs.tixi, GMSH_GROWTH_FACTOR_XPATH, 1.4)
+    growth_ratio = get_value_or_default(cpacs.tixi, GMSH_GROWTH_RATIO_XPATH, 1.2)
     min_max_mesh_factor = get_value_or_default(cpacs.tixi, GMSH_MIN_MAX_MESH_SIZE_XPATH, 5)
-    feature_angle = get_value_or_default(cpacs.tixi, GMSH_FEATURE_ANGLE_XPATH, 80)
+    feature_angle = get_value_or_default(cpacs.tixi, GMSH_FEATURE_ANGLE_XPATH, 40)
     type_output_penta = get_value_or_default(cpacs.tixi, GMSH_MESH_FORMAT_XPATH, "su2")
 
     # Run mesh generation
@@ -146,7 +148,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
         )
     else:
         export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
-        mesh_path, fuselage_maxlen = generate_2d_mesh_for_pentagrow(
+        mesh_2d_path, fuselage_maxlen = generate_2d_mesh_for_pentagrow(
             cpacs,
             cpacs_path,
             brep_dir,
@@ -165,26 +167,27 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
             # testing_gmsh=False,
         )
 
+        if mesh_2d_path.exists():
+            log.info("Mesh file exists. Proceeding to 3D mesh generation")
+            mesh_path = pentagrow_3d_mesh(
+                results_dir,
+                fuselage_maxlen,
+                farfield_factor=farfield_factor,
+                n_layer=n_layer,
+                h_first_layer=h_first_layer,
+                max_layer_thickness=max_layer_thickness,
+                growth_factor=growth_factor,
+                growth_ratio=growth_ratio,
+                feature_angle=feature_angle,
+                type_output_penta=type_output_penta
+            )
+        else:
+            log.error("Error in generating SU2 mesh")
+
     if mesh_path.exists():
-        log.info("Mesh file exists. Proceeding to 3D mesh generation")
-        mesh_3D_path = pentagrow_3d_mesh(
-            results_dir,
-            fuselage_maxlen,
-            farfield_factor=farfield_factor,
-            n_layer=n_layer,
-            h_first_layer=h_first_layer,
-            max_layer_thickness=max_layer_thickness,
-            growth_factor=growth_factor,
-            feature_angle=feature_angle,
-            type_output_penta=type_output_penta
-        )
-
         create_branch(cpacs.tixi, SU2MESH_XPATH)
-        cpacs.tixi.updateTextElement(SU2MESH_XPATH, str(mesh_3D_path))
+        cpacs.tixi.updateTextElement(SU2MESH_XPATH, str(mesh_path))
         log.info("SU2 Mesh has been correctly generated.")
-
-    else:
-        log.error("Error in generating SU2 mesh")
 
     # Save CPACS
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)

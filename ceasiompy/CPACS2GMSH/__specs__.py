@@ -86,7 +86,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="farfield_factor",
     var_type=float,
-    default_value=6,
+    default_value=10,
     unit="[-]",
     descr="Farfield size factor compare to the aircraft largest dimension",
     xpath=GMSH_FARFIELD_FACTOR_XPATH,
@@ -193,9 +193,21 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="growth_factor",
+    var_name="growth_ratio",
     var_type=float,
     default_value=1.2,
+    unit="[-]",
+    descr="the largest allowed ratio between the wall-normal edge lengths of consecutive cells",
+    xpath=GMSH_GROWTH_FACTOR_XPATH,
+    gui=True,
+    gui_name="Growth ratio",
+    gui_group="RANS options",
+)
+
+cpacs_inout.add_input(
+    var_name="growth_factor",
+    var_type=float,
+    default_value=1.4,
     unit="[-]",
     descr="Desired growth factor between edge lengths of coincident tetrahedra",
     xpath=GMSH_GROWTH_FACTOR_XPATH,
@@ -207,7 +219,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="feature_angle",
     var_type=float,
-    default_value=80,
+    default_value=40,
     unit="[grad]",
     descr="Whenever the dihedral angle of two triangle is smaller than this limit, the resulting edge is understood to represent an actual geometrical feature. Larger angles are treated as resulting from approximation of curved surfaces by linear triangles",
     xpath=GMSH_FEATURE_ANGLE_XPATH,

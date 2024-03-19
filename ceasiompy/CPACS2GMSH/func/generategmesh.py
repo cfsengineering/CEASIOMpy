@@ -11,8 +11,6 @@ Python version: >=3.8
 
 | Author: Tony Govoni
 | Creation: 2022-03-22
-| Modified by: Giacomo Benedetti, Guido Vallifuoco
-| Last modification: 2024-02-01
 
 TODO:
 
@@ -46,9 +44,7 @@ from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_FUSELAGE_XPATH, GMSH_MESH
 from ceasiompy.utils.configfiles import ConfigFile
 import gmsh
 import numpy as np
-import os
-from typing import List
-import subprocess
+
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
     set_domain_mesh,
@@ -58,12 +54,11 @@ from ceasiompy.CPACS2GMSH.func.advancemeshing import (
 from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_part_type, run_software
+from ceasiompy.utils.ceasiompyutils import get_part_type
 
 from cpacspy.cpacsfunctions import create_branch
 
 from ceasiompy.CPACS2GMSH.func.mesh_sizing import fuselage_size, wings_size
-
 
 log = get_logger()
 
@@ -718,9 +713,8 @@ def generate_gmsh(
     log.info("Start fragment operation between the aircraft and the farfield")
 
     _, children_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)
-
     gmsh.model.occ.synchronize()
-    print(children_dimtag)
+
     log.info("Fragment operation finished")
 
     # fragment produce fragments_dimtag and children_dimtag
@@ -770,7 +764,6 @@ def generate_gmsh(
 
     # Get the children of the aircraft parts
     aircraft_parts_children_dimtag = children_dimtag[1:]
-    print(aircraft_parts_children_dimtag)
 
     log.info("Before/after fragment operation relations:")
     for parent, children in zip(aircraft_parts, aircraft_parts_children_dimtag):
@@ -1075,6 +1068,9 @@ def generate_gmsh(
 
     gmsh.model.occ.synchronize()
 
+    mesh_2d_path = Path(results_dir, "2d_mesh.msh")
+    gmsh.write(str(mesh_2d_path))
+
     if open_gmsh:
         log.info("Result of 2D surface mesh")
         log.info("GMSH GUI is open, close it to continue...")
@@ -1121,5 +1117,6 @@ def generate_gmsh(
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 if __name__ == "__main__":
     print("Nothing to execute!")

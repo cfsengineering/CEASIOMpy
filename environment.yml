@@ -47,3 +47,4 @@ dependencies:
     - smt==1.2.0
     - streamlit==1.14.0
     - streamlit-autorefresh
+    - om-pycycle

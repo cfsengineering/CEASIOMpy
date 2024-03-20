@@ -32,7 +32,8 @@ from ceasiompy.SU2Run.func.su2actuatordiskfile import (
     write_actuator_disk_data,
     write_header,
 )
-from ceasiompy.SU2Run.func.su2utils import get_mesh_markers, get_su2_config_template
+from ceasiompy.CPACS2GMSH.func.mesh_sizing import wings_size
+from ceasiompy.SU2Run.func.su2utils import get_mesh_markers, get_su2_config_template_rans
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonnames import (
     ACTUATOR_DISK_FILE_NAME,
@@ -296,11 +297,7 @@ def add_actuator_disk(cfg, cpacs, case_dir_path, actuator_disk_file, mesh_marker
     f.close()
 
 
-# adding the results of ThermoData to the config file of su2
-
-
 def add_thermodata(cfg, cpacs, alt, case_nb, alt_list):
-
     if cpacs.tixi.checkElement(ENGINE_TYPE_XPATH):
         log.info("adding engine BC to the SU2 config file")
         engine_type = get_value(cpacs.tixi, ENGINE_TYPE_XPATH)
@@ -324,7 +321,23 @@ def add_thermodata(cfg, cpacs, alt, case_nb, alt_list):
         )
 
 
-def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
+def add_reynods_number(alt, mach, cfg, cpacs_path):
+
+    Atm = Atmosphere(alt)
+
+    # Get speed from Mach Number
+    speed = mach * Atm.speed_of_sound[0]
+
+    ref_chord = wings_size(cpacs_path)[0] / 0.15
+    print(ref_chord)
+
+    # Reynolds number based on the mean chord
+    reynolds = ref_chord * speed / Atm.kinematic_viscosity[0]
+    log.info(f"Reynolds number= {int(reynolds)}")
+    cfg["REYNOLDS_NUMBER"] = int(reynolds)
+
+
+def generate_su2_cfd_config_rans(cpacs_path, cpacs_out_path, wkdir):
     """Function to create SU2 config file.
 
     Function 'generate_su2_cfd_config' reads data in the CPACS file and generate configuration
@@ -341,6 +354,8 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     """
 
     cpacs = CPACS(cpacs_path)
+
+    # creare delle nuove xpath per la mesh su2
 
     su2_mesh = Path(get_value(cpacs.tixi, SU2MESH_XPATH))
     if not su2_mesh.is_file():
@@ -416,7 +431,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         aoa_list = [0.0]
         aos_list = [0.0]
 
-    cfg = ConfigFile(get_su2_config_template())
+    cfg = ConfigFile(get_su2_config_template_rans())
 
     # Check if symmetry plane is defined (Default: False)
     sym_factor = 1.0
@@ -502,6 +517,8 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         )
 
         add_thermodata(cfg, cpacs, alt, case_nb, alt_list)
+
+        add_reynods_number(alt, mach, cfg, cpacs_path)
 
         case_dir_path = Path(wkdir, case_dir_name)
         if not case_dir_path.exists():

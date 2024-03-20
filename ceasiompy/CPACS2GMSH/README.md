@@ -40,7 +40,7 @@ Multiple options are available with `CPACS2GMSH`, you can see these options if y
 
 General options:
 
-* `Display mesh with GMSHl : False`
+* `Display mesh with GMSH : False`
 Open the gmsh GUI after the generation of the surface mesh (2D) and the domain mesh (3D). This option is usefully to control the quality of the automated generated mesh or make extra operation with gmsh GUI.
 
 Domain:

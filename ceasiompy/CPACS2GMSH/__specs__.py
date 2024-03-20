@@ -221,7 +221,7 @@ cpacs_inout.add_input(
     var_type=float,
     default_value=40,
     unit="[grad]",
-    descr="Larger angles are treated as resulting from approximation of curved surfaces by linear triangles",
+    descr="Larger angles are treated as resulting from approximation of curved surfaces",
     xpath=GMSH_FEATURE_ANGLE_XPATH,
     gui=True,
     gui_name="Feature Angle",

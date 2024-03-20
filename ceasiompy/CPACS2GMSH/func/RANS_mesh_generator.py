@@ -32,14 +32,12 @@ TODO:
 # =================================================================================================
 
 import subprocess
-import os
 from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.generategmesh import (
     add_disk_actuator,
     duplicate_disk_actuator_surfaces,
     control_disk_actuator_normal,
     process_gmsh_log,
-    ModelPart,
 )
 from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
 from ceasiompy.utils.commonnames import (
@@ -160,7 +158,6 @@ def generate_2d_mesh_for_pentagrow(
 
     # Import each aircraft original parts / parent parts
     fuselage_volume_dimtags = []
-    fuselage_surfaces_dimtags = []
     wings_volume_dimtags = []
     enginePylons_enginePylon_volume_dimtags = []
     engine_nacelle_fanCowl_volume_dimtags = []

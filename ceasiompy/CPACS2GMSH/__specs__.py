@@ -221,7 +221,7 @@ cpacs_inout.add_input(
     var_type=float,
     default_value=40,
     unit="[grad]",
-    descr="Whenever the dihedral angle of two triangle is smaller than this limit, the resulting edge is understood to represent an actual geometrical feature. Larger angles are treated as resulting from approximation of curved surfaces by linear triangles",
+    descr="Larger angles are treated as resulting from approximation of curved surfaces by linear triangles",
     xpath=GMSH_FEATURE_ANGLE_XPATH,
     gui=True,
     gui_name="Feature Angle",

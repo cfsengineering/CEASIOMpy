@@ -84,7 +84,6 @@ def thermo_data_run(cpacs_path, cpacs_out_path, wkdir):
 
     Fn = get_value_or_default(tixi, RANGE_XPATH + "/NetForce", 2000)
 
-    """Creating a default Aeromap to be used when one is not defined"""
     default_aeromap = cpacs.create_aeromap("DefaultAeromap")
     default_aeromap.description = "AeroMap created automatically"
     mach = get_value_or_default(cpacs.tixi, RANGE_XPATH + "/cruiseMach", 0.3)
@@ -98,7 +97,6 @@ def thermo_data_run(cpacs_path, cpacs_out_path, wkdir):
 
     aeromap_list = cpacs.get_aeromap_uid_list()
 
-    """Executing the code by taking the correct Aeromap"""
     if aeromap_list:
         aeromap_default = aeromap_list[0]
         log.info(f"The aeromap is {aeromap_default}")

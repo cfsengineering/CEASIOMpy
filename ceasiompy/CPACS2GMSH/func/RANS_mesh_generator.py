@@ -213,7 +213,7 @@ def generate_2d_mesh_for_pentagrow(
 
     gmsh.model.occ.synchronize()
 
-    children_dimtag3, children_dimtag4 = gmsh.model.occ.fuse(
+    fuse_dimtag3, fuse_dimtag4 = gmsh.model.occ.fuse(
         wings_volume_dimtags, fuselage_volume_dimtags, -1, True, True)
 
     gmsh.model.occ.synchronize()

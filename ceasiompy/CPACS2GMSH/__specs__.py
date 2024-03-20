@@ -26,6 +26,7 @@ from ceasiompy.utils.commonxpath import (
     GMSH_H_FIRST_LAYER_XPATH,
     GMSH_MAX_THICKNESS_LAYER_XPATH,
     GMSH_GROWTH_FACTOR_XPATH,
+    GMSH_GROWTH_RATIO_XPATH,
     GMSH_MIN_MAX_MESH_SIZE_XPATH,
     GMSH_FEATURE_ANGLE_XPATH,
 )
@@ -198,7 +199,7 @@ cpacs_inout.add_input(
     default_value=1.2,
     unit="[-]",
     descr="the largest allowed ratio between the wall-normal edge lengths of consecutive cells",
-    xpath=GMSH_GROWTH_FACTOR_XPATH,
+    xpath=GMSH_GROWTH_RATIO_XPATH,
     gui=True,
     gui_name="Growth ratio",
     gui_group="RANS options",

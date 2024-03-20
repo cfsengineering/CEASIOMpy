@@ -159,17 +159,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
             brep_dir,
             results_dir,
             open_gmsh=open_gmsh,
-            # n_power_factor=n_power_factor,
-            # n_power_field=n_power_field,
-            # fuselage_mesh_size_factor=fuselage_mesh_size_factor,
-            # wing_mesh_size_factor=wing_mesh_size_factor,
             min_max_mesh_factor=min_max_mesh_factor
-            # mesh_size_engines=mesh_size_engines,
-            # mesh_size_propellers=mesh_size_propellers,
-            # refine_factor=refine_factor,
-            # refine_truncated=refine_truncated,
-            # auto_refine=auto_refine,
-            # testing_gmsh=False,
         )
 
         if gmesh_path.exists():

@@ -38,6 +38,7 @@ from ceasiompy.CPACS2GMSH.func.generategmesh import (
     duplicate_disk_actuator_surfaces,
     control_disk_actuator_normal,
     process_gmsh_log,
+    ModelPart
 )
 from ceasiompy.utils.commonnames import (
     ACTUATOR_DISK_OUTLET_SUFFIX,
@@ -45,6 +46,7 @@ from ceasiompy.utils.commonnames import (
     ENGINE_INTAKE_SUFFIX,
     GMSH_ENGINE_CONFIG_NAME,
 )
+from ceasiompy.utils.ceasiompyutils import get_part_type
 from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_WINGS_XPATH
 from ceasiompy.utils.configfiles import ConfigFile
 import gmsh
@@ -52,7 +54,7 @@ import os
 from ceasiompy.CPACS2GMSH.func.generategmesh import (
     get_entities_from_volume,
 )
-
+from ceasiompy.CPACS2GMSH.func.generategmesh import (fuselage_size)
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()
@@ -331,7 +333,7 @@ def pentagrow_3d_mesh(
 
     print("Command written to:", file_path)
 
-    subprocess.run(command, shell=False, cwd=current_dir, check=True, start_new_session=False)
+    subprocess.run(command, shell=True, cwd=current_dir, check=True, start_new_session=False)
 
     mesh_path = Path(result_dir, "hybrid.su2")
     print(mesh_path)

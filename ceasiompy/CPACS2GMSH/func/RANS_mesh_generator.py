@@ -39,39 +39,21 @@ from ceasiompy.CPACS2GMSH.func.generategmesh import (
     control_disk_actuator_normal,
     process_gmsh_log,
 )
-from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
 from ceasiompy.utils.commonnames import (
-    ACTUATOR_DISK_INLET_SUFFIX,
     ACTUATOR_DISK_OUTLET_SUFFIX,
     ENGINE_EXHAUST_SUFFIX,
     ENGINE_INTAKE_SUFFIX,
     GMSH_ENGINE_CONFIG_NAME,
 )
-from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_FUSELAGE_XPATH, GMSH_MESH_SIZE_WINGS_XPATH
+from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_WINGS_XPATH
 from ceasiompy.utils.configfiles import ConfigFile
 import gmsh
-import numpy as np
 import os
-from typing import List
-from ceasiompy.CPACS2GMSH.func.advancemeshing import (
-    refine_wing_section,
-    set_domain_mesh,
-    refine_small_surfaces,
-    min_fields,
-)
 from ceasiompy.CPACS2GMSH.func.generategmesh import (
     get_entities_from_volume,
-    ModelPart,
 )
-from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_part_type, run_software
-
-from cpacspy.cpacsfunctions import create_branch
-
-from ceasiompy.CPACS2GMSH.func.mesh_sizing import fuselage_size, wings_size
-
 
 log = get_logger()
 
@@ -206,15 +188,13 @@ def generate_2d_mesh_for_pentagrow(
             log.warning(f"'{brep_file}' cannot be categorized!")
             return None
     gmsh.model.occ.synchronize()
-    log.info("Start manipulation operation to obtain a watertight volume")
+    log.info("Start manipulation to obtain a watertight volume")
     # we have to obtain a wathertight volume
-    cut_dimtag1, cut_dimtag2 = gmsh.model.occ.cut(
-        wings_volume_dimtags, fuselage_volume_dimtags, -1, True, False)
+    gmsh.model.occ.cut(wings_volume_dimtags, fuselage_volume_dimtags, -1, True, False)
 
     gmsh.model.occ.synchronize()
 
-    fuse_dimtag3, fuse_dimtag4 = gmsh.model.occ.fuse(
-        wings_volume_dimtags, fuselage_volume_dimtags, -1, True, True)
+    gmsh.model.occ.fuse(wings_volume_dimtags, fuselage_volume_dimtags, -1, True, True)
 
     gmsh.model.occ.synchronize()
 
@@ -224,7 +204,7 @@ def generate_2d_mesh_for_pentagrow(
         abs(model_bb[2] - model_bb[5]),
     ]
 
-    fuselage_maxlen, fuselage_minlen = fuselage_size(cpacs_path)
+    fuselage_maxlen, _ = fuselage_size(cpacs_path)
 
     gmsh.model.occ.translate(
         [(3, 1)],
@@ -325,8 +305,6 @@ def pentagrow_3d_mesh(
     file.write(f"MaxCritIterations = {MaxCritIterations}\n")
     file.write(f"LaplaceIterations = {LaplaceIterations}\n")
 
-    file.close
-
     os.chdir("Results/GMSH")
 
     if os.path.exists("mesh_2d.stl"):
@@ -353,7 +331,7 @@ def pentagrow_3d_mesh(
 
     print("Command written to:", file_path)
 
-    subprocess.run(command, shell=True, cwd=current_dir, check=True, start_new_session=False)
+    subprocess.run(command, shell=False, cwd=current_dir, check=True, start_new_session=False)
 
     mesh_path = Path(result_dir, "hybrid.su2")
     print(mesh_path)

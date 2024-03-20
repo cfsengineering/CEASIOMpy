@@ -20,9 +20,6 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import os
-import asyncio
-import concurrent.futures
 from pathlib import Path
 
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep

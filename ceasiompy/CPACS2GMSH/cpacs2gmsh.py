@@ -146,9 +146,14 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
             auto_refine=auto_refine,
             testing_gmsh=False,
         )
+        if mesh_path.exists():
+            create_branch(cpacs.tixi, SU2MESH_XPATH)
+            cpacs.tixi.updateTextElement(SU2MESH_XPATH, str(mesh_path))
+            log.info("SU2 Mesh has been correctly generated.")
+
     else:
         export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
-        mesh_2d_path, fuselage_maxlen = generate_2d_mesh_for_pentagrow(
+        gmesh_path, fuselage_maxlen = generate_2d_mesh_for_pentagrow(
             cpacs,
             cpacs_path,
             brep_dir,
@@ -167,7 +172,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
             # testing_gmsh=False,
         )
 
-        if mesh_2d_path.exists():
+        if gmesh_path.exists():
             log.info("Mesh file exists. Proceeding to 3D mesh generation")
             mesh_path = pentagrow_3d_mesh(
                 results_dir,
@@ -181,13 +186,12 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
                 feature_angle=feature_angle,
                 type_output_penta=type_output_penta
             )
+            if mesh_path.exists():
+                create_branch(cpacs.tixi, SU2MESH_XPATH)
+                cpacs.tixi.updateTextElement(SU2MESH_XPATH, str(mesh_path))
+                log.info("SU2 Mesh has been correctly generated.")
         else:
             log.error("Error in generating SU2 mesh")
-
-    if mesh_path.exists():
-        create_branch(cpacs.tixi, SU2MESH_XPATH)
-        cpacs.tixi.updateTextElement(SU2MESH_XPATH, str(mesh_path))
-        log.info("SU2 Mesh has been correctly generated.")
 
     # Save CPACS
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)

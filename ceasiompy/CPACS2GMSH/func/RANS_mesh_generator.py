@@ -270,12 +270,12 @@ def generate_2d_mesh_for_pentagrow(
 
     gmsh.model.occ.synchronize()
 
-    mesh_2d_path = Path(results_dir, "mesh_2d.stl")
-    gmsh.write(str(mesh_2d_path))
+    gmesh_path = Path(results_dir, "mesh_2d.stl")
+    gmsh.write(str(gmesh_path))
 
     process_gmsh_log(gmsh.logger.get())
 
-    return mesh_2d_path, fuselage_maxlen
+    return gmesh_path, fuselage_maxlen
 
 
 def pentagrow_3d_mesh(
@@ -358,6 +358,6 @@ def pentagrow_3d_mesh(
 
     subprocess.run(command, shell=True, cwd=current_dir, check=True, start_new_session=False)
 
-    mesh_path = Path(result_dir, f"hybrid.{OutputFormat}\n")
-
+    mesh_path = Path(result_dir, "hybrid.su2")
+    print(mesh_path)
     return mesh_path

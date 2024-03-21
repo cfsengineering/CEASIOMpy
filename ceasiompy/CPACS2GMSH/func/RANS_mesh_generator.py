@@ -32,19 +32,28 @@ TODO:
 # =================================================================================================
 
 import os
-import gmsh
 import subprocess
 from pathlib import Path
-from ceasiompy.CPACS2GMSH.func.generategmesh import (
-    add_disk_actuator,
-    process_gmsh_log,
-    fuselage_size,
-    ModelPart,
-)
-from ceasiompy.utils.ceasiompyutils import get_part_type
-from ceasiompy.utils.configfiles import ConfigFile
 
+import gmsh
+from ceasiompy.CPACS2GMSH.func.generategmesh import (  # duplicate_disk_actuator_surfaces,; control_disk_actuator_normal,; get_entities_from_volume,
+    ModelPart,
+    add_disk_actuator,
+    fuselage_size,
+    process_gmsh_log,
+)
 from ceasiompy.utils.ceasiomlogger import get_logger
+
+# from ceasiompy.utils.commonnames import (
+#     ACTUATOR_DISK_OUTLET_SUFFIX,
+#     ENGINE_EXHAUST_SUFFIX,
+#     ENGINE_INTAKE_SUFFIX,
+#     GMSH_ENGINE_CONFIG_NAME,
+# )
+from ceasiompy.utils.ceasiompyutils import get_part_type
+
+# from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_WINGS_XPATH
+from ceasiompy.utils.configfiles import ConfigFile
 
 log = get_logger()
 
@@ -55,13 +64,7 @@ log = get_logger()
 
 
 def generate_2d_mesh_for_pentagrow(
-    cpacs,
-    cpacs_path,
-    brep_dir,
-    results_dir,
-    open_gmsh,
-    min_max_mesh_factor,
-    symmetry=False
+    cpacs, cpacs_path, brep_dir, results_dir, open_gmsh, min_max_mesh_factor, symmetry=False
 ):
     """
     Function to generate a mesh from brep files forming an airplane

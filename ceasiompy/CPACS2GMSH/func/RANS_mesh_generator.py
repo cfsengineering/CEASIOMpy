@@ -31,31 +31,29 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+import os
 import subprocess
 from pathlib import Path
-from ceasiompy.CPACS2GMSH.func.generategmesh import (
-    add_disk_actuator,
-    duplicate_disk_actuator_surfaces,
-    control_disk_actuator_normal,
-    process_gmsh_log,
-    ModelPart
-)
-from ceasiompy.utils.commonnames import (
-    ACTUATOR_DISK_OUTLET_SUFFIX,
-    ENGINE_EXHAUST_SUFFIX,
-    ENGINE_INTAKE_SUFFIX,
-    GMSH_ENGINE_CONFIG_NAME,
-)
-from ceasiompy.utils.ceasiompyutils import get_part_type
-from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_WINGS_XPATH
-from ceasiompy.utils.configfiles import ConfigFile
+
 import gmsh
-import os
-from ceasiompy.CPACS2GMSH.func.generategmesh import (
-    get_entities_from_volume,
+from ceasiompy.CPACS2GMSH.func.generategmesh import (  # duplicate_disk_actuator_surfaces,; control_disk_actuator_normal,; get_entities_from_volume,
+    ModelPart,
+    add_disk_actuator,
+    fuselage_size,
+    process_gmsh_log,
 )
-from ceasiompy.CPACS2GMSH.func.generategmesh import (fuselage_size)
 from ceasiompy.utils.ceasiomlogger import get_logger
+
+# from ceasiompy.utils.commonnames import (
+#     ACTUATOR_DISK_OUTLET_SUFFIX,
+#     ENGINE_EXHAUST_SUFFIX,
+#     ENGINE_INTAKE_SUFFIX,
+#     GMSH_ENGINE_CONFIG_NAME,
+# )
+from ceasiompy.utils.ceasiompyutils import get_part_type
+
+# from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_WINGS_XPATH
+from ceasiompy.utils.configfiles import ConfigFile
 
 log = get_logger()
 
@@ -66,13 +64,7 @@ log = get_logger()
 
 
 def generate_2d_mesh_for_pentagrow(
-    cpacs,
-    cpacs_path,
-    brep_dir,
-    results_dir,
-    open_gmsh,
-    min_max_mesh_factor,
-    symmetry=False
+    cpacs, cpacs_path, brep_dir, results_dir, open_gmsh, min_max_mesh_factor, symmetry=False
 ):
     """
     Function to generate a mesh from brep files forming an airplane
@@ -233,10 +225,10 @@ def generate_2d_mesh_for_pentagrow(
 
     gmsh.option.setNumber("Mesh.Algorithm", 6)
     gmsh.option.setNumber("Mesh.LcIntegrationPrecision", 1e-6)
-    mesh_size = model_dimensions[0] * float(min_max_mesh_factor) * (10 ** -3)
+    mesh_size = model_dimensions[0] * float(min_max_mesh_factor) * (10**-3)
     gmsh.option.set_number("Mesh.MeshSizeMin", mesh_size)
     gmsh.option.set_number("Mesh.MeshSizeMax", mesh_size)
-    gmsh.option.setNumber('Mesh.StlOneSolidPerSurface', 2)
+    gmsh.option.setNumber("Mesh.StlOneSolidPerSurface", 2)
 
     gmsh.model.occ.synchronize()
     gmsh.logger.start()
@@ -275,7 +267,7 @@ def pentagrow_3d_mesh(
     InputFormat = "stl"
     NLayers = n_layer
     FeatureAngle = feature_angle
-    InitialHeight = h_first_layer * (10 ** -5)
+    InitialHeight = h_first_layer * (10**-5)
     MaxGrowthRatio = growth_ratio
     MaxLayerThickness = max_layer_thickness
     FarfieldRadius = fuselage_maxlen * farfield_factor * 100
@@ -288,6 +280,7 @@ def pentagrow_3d_mesh(
     NormalIterations = 8
     MaxCritIterations = 128
     LaplaceIterations = 8
+
     # writing to file
     file = open(config_penta_path, "w")
     file.write(f"InputFormat = {InputFormat}\n")

@@ -36,7 +36,10 @@ import subprocess
 from pathlib import Path
 
 import gmsh
-from ceasiompy.CPACS2GMSH.func.generategmesh import (  # duplicate_disk_actuator_surfaces,; control_disk_actuator_normal,; get_entities_from_volume,
+from ceasiompy.CPACS2GMSH.func.generategmesh import (
+    # duplicate_disk_actuator_surfaces,
+    # control_disk_actuator_normal,
+    # get_entities_from_volume,
     ModelPart,
     add_disk_actuator,
     fuselage_size,
@@ -274,7 +277,7 @@ def pentagrow_3d_mesh(
     FarfieldCenter = "0.0 0.0 0.0"
     OutputFormat = type_output_penta
     HolePosition = "0.0 0.0 0.0"
-    TetgenOptions = "-pq1.16VY"
+    TetgenOptions = "-pq1.3VY"
     TetGrowthFactor = growth_factor
     HeightIterations = 8
     NormalIterations = 8

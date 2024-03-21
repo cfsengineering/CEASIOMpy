@@ -188,7 +188,7 @@ def fuselage_size(cpacs_path):
     fuselage_minlen = min(0.1 * fuselage_maxlen, min_radius / 2)
 
     log.info(f"Fuselage maxlen={fuselage_maxlen:.3f} m")
-    log.info(f"Fuselage minlen={fuselage_minlen:.3f} m")
+    log.info(f"Fuselage minlen={fuselage_minlen:.4f} m")
 
     return fuselage_maxlen, fuselage_minlen
 

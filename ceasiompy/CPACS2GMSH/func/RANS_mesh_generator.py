@@ -306,14 +306,14 @@ def pentagrow_3d_mesh(
     os.chdir("Results/GMSH")
 
     if os.path.exists("mesh_2d.stl"):
-        print("mesh_2d.stl exists")
+        log.info("mesh_2d.stl exists")
     else:
-        print("mesh_2d.stl does not exist")
+        log.warning("mesh_2d.stl does not exist")
 
     if os.path.exists("config.cfg"):
-        print("config.cfg exists")
+        log.info("config.cfg exists")
     else:
-        print("config.cfg does not exist")
+        log.warning("config.cfg does not exist")
 
     current_dir = os.getcwd()
     os.chdir(current_dir)
@@ -327,10 +327,11 @@ def pentagrow_3d_mesh(
     with open(file_path, "w") as file:
         file.write(command)
 
-    log.info("Command written to:", file_path)
+    # log.info(f"Command written to: {file_path}")
 
     subprocess.run(command, shell=True, cwd=current_dir, check=False, start_new_session=False)
 
     mesh_path = Path(result_dir, "hybrid.su2")
-    print(mesh_path)
+    log.info(f"Mesh path:{mesh_path}")
+
     return mesh_path

@@ -116,6 +116,7 @@ warning: : The module does not work completely as expected. It is not a bug, but
 - [Optimisation](ceasiompy/Optimisation/README.md) :x:
 - [SMTrain](ceasiompy/SMTrain/README.md) :x:
 - [SMUse](ceasiompy/SMUse/README.md) :x:
+- [ThermoData](ceasiompy/ThermoData/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_geometry.png">
 

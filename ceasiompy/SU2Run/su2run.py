@@ -26,6 +26,7 @@ TODO:
 from pathlib import Path
 
 from ceasiompy.SU2Run.func.su2config import generate_su2_cfd_config
+from ceasiompy.SU2Run.func.su2config_rans import generate_su2_cfd_config_rans
 from ceasiompy.SU2Run.func.su2results import get_su2_results
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import (
@@ -34,7 +35,7 @@ from ceasiompy.utils.ceasiompyutils import (
     run_software,
 )
 from ceasiompy.utils.commonnames import CONFIG_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
-from ceasiompy.utils.commonxpath import SU2_NB_CPU_XPATH
+from ceasiompy.utils.commonxpath import SU2_NB_CPU_XPATH, SU2_CONFIG_RANS_XPATH
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
@@ -72,7 +73,6 @@ def run_SU2_multi(wkdir, nb_proc=1):
         raise OSError(f"No Case directory has been found in the working directory: {wkdir}")
 
     for config_dir in sorted(case_dir_list):
-
         config_cfd = [c for c in config_dir.iterdir() if c.name == CONFIG_CFD_NAME]
 
         if not config_cfd:
@@ -103,7 +103,6 @@ def run_SU2_multi(wkdir, nb_proc=1):
 
 
 def main(cpacs_path, cpacs_out_path):
-
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     tixi = open_tixi(cpacs_path)
@@ -114,7 +113,15 @@ def main(cpacs_path, cpacs_out_path):
     # Temporary CPACS to be stored after "generate_su2_cfd_config"
     cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")
 
-    generate_su2_cfd_config(cpacs_path, cpacs_tmp_cfg, results_dir)
+    config_file_type = get_value_or_default(tixi, SU2_CONFIG_RANS_XPATH, "Euler")
+
+    if config_file_type == "RANS":
+        log.info("RANS simulation")
+        generate_su2_cfd_config_rans(cpacs_path, cpacs_tmp_cfg, results_dir)
+    else:
+        log.info("Euler simulation")
+        generate_su2_cfd_config(cpacs_path, cpacs_tmp_cfg, results_dir)
+
     run_SU2_multi(results_dir, nb_proc)
     get_su2_results(cpacs_tmp_cfg, cpacs_out_path, results_dir)
 
@@ -122,7 +129,6 @@ def main(cpacs_path, cpacs_out_path):
 
 
 if __name__ == "__main__":
-
     cpacs_path = get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 

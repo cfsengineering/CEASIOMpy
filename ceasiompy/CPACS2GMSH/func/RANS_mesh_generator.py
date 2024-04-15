@@ -329,7 +329,7 @@ def pentagrow_3d_mesh(
 
     # log.info(f"Command written to: {file_path}")
 
-    subprocess.run(command, shell=True, cwd=current_dir, check=False, start_new_session=False)
+    subprocess.call(command, shell=True, cwd=current_dir, start_new_session=False)
 
     mesh_path = Path(result_dir, "hybrid.su2")
     log.info(f"Mesh path:{mesh_path}")

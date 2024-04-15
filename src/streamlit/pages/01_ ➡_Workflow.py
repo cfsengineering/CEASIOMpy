@@ -60,7 +60,6 @@ st.markdown(
 
 
 def section_predefined_workflow():
-
     st.markdown("#### Predefined Workflows")
 
     predefine_workflows = [
@@ -68,6 +67,7 @@ def section_predefined_workflow():
         ["CPACS2GMSH", "SU2Run", "SkinFriction"],
         ["CPACS2GMSH", "ThermoData", "SU2Run"],
         ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
+        ["CPACS2SUMO", "SUMOAutoMesh", "EdgeRun"],
     ]
 
     for workflow in predefine_workflows:
@@ -76,7 +76,6 @@ def section_predefined_workflow():
 
 
 def section_add_module():
-
     st.markdown("#### Your workflow")
 
     if "workflow_modules" not in st.session_state:
@@ -84,7 +83,6 @@ def section_add_module():
 
     if len(st.session_state.workflow_modules):
         for i, module in enumerate(st.session_state.workflow_modules):
-
             col1, col2, col3, _ = st.columns([6, 1, 1, 5])
 
             with col1:

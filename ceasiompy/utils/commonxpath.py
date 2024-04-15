@@ -12,6 +12,7 @@ Python version: >=3.8
 
 | Author: Aidan jungo
 | Creation: 2021-10-21
+| Last modifiction: 2024-01-05 (Mengmeng Zhang, added M-Edge XPATHs )
 
 TODO:
 
@@ -77,6 +78,8 @@ STABILITY_DYNAMIC_XPATH = CEASIOMPY_XPATH + "/stability/dynamic"
 OPTWKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/optimPath"
 SMFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/SMpath"
 SU2MESH_XPATH = CEASIOMPY_XPATH + "/filesPath/su2Mesh"
+EDGE_MESH_XPATH = CEASIOMPY_XPATH + "/filesPath/edgeMesh"
+
 SUMOFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/sumoFilePath"
 WKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/wkdirPath"
 
@@ -84,6 +87,7 @@ WKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/wkdirPath"
 TURBOPROP_XPATH = PROP_XPATH + "/turboprop"
 
 # SUMO
+SUMO_OUTPUT_MESH_FORMAT_XPATH = MESH_XPATH + "sumoOptions/format"
 SUMO_REFINE_LEVEL_XPATH = MESH_XPATH + "/sumoOptions/refinementLevel"
 SUMO_INCLUDE_PYLON_XPATH = CEASIOMPY_XPATH + "/engine/includePylon"
 SUMO_INCLUDE_ENGINE_XPATH = CEASIOMPY_XPATH + "/engine/includeEngine"
@@ -139,6 +143,17 @@ SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
 
 SU2_ACTUATOR_DISK_XPATH = SU2_XPATH + "/options/includeActuatorDisk"
 SU2_CONFIG_RANS_XPATH = SU2_XPATH + "/options/config_type"
+
+# EDGE
+EDGE_XPATH = CEASIOMPY_XPATH + "/aerodynamics/medge"
+EDGE_AEROMAP_UID_XPATH = EDGE_XPATH + "/aeroMapUID"
+EDGE_NB_CPU_XPATH = EDGE_XPATH + "/settings/nbCPU"
+EDGE_SOLVER_XPATH = EDGE_XPATH + "/settings/solver"
+EDGE_MAX_ITER_XPATH = EDGE_XPATH + "/settings/maxIter"
+EDGE_CFL_NB_XPATH = EDGE_XPATH + "/settings/cflNumber/value"
+EDGE_MG_LEVEL_XPATH = EDGE_XPATH + "/settings/multigridLevel"
+EDGE_FIXED_CL_XPATH = EDGE_XPATH + "/fixedCL"
+EDGE_ABOC_XPATH = EDGE_XPATH + "/boundary_condition"
 
 # RANGE
 RANGE_LD_RATIO_XPATH = CEASIOMPY_XPATH + "/ranges/lDRatio"

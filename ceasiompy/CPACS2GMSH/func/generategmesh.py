@@ -694,7 +694,6 @@ def generate_gmsh(
     domain_length = farfield_factor * max(model_dimensions)
     farfield = gmsh.model.occ.addSphere(*model_center, domain_length)
     gmsh.model.occ.synchronize()
-
     ext_domain = [(3, farfield)]
 
     if symmetry:
@@ -714,7 +713,6 @@ def generate_gmsh(
 
     _, children_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)
     gmsh.model.occ.synchronize()
-
     log.info("Fragment operation finished")
 
     # fragment produce fragments_dimtag and children_dimtag
@@ -1111,7 +1109,11 @@ def generate_gmsh(
     if not testing_gmsh:
         gmsh.clear()
         gmsh.finalize()
-    return su2mesh_path, aircraft_parts
+    return (
+        su2mesh_path,
+        aircraft_parts,
+        cgnsmesh_path,
+    )
 
 
 # =================================================================================================

@@ -63,7 +63,6 @@ def run_testcase(testcase_nb):
     """Run a test case."""
 
     if testcase_nb == 1:
-
         testcase_message(1)
 
         test_case_1_path = Path(TEST_CASES_PATH, "test_case_1")
@@ -115,9 +114,9 @@ def run_testcase(testcase_nb):
 def run_modules_list(args_list):
     """Run a workflow from a CPACS file and a list of modules."""
 
-    if len(args_list) < 2:
+    if len(args_list) < 3:
         print(
-            "\nAt least 2 arguments are required to run a CEASIOMpy, the first onw must be the"
+            "\nAt least 3 arguments are required to run a CEASIOMpy, the first onw must be the"
             "CPACS file and the modules to run. You can add as many modules as you want."
         )
         return
@@ -134,7 +133,8 @@ def run_modules_list(args_list):
         print(f"The CPACS file {cpacs_path} does not exist.")
         return
 
-    modules_list = args_list[1:]
+    output_format = args_list[1]
+    modules_list = args_list[2:]
 
     log.info("CEASIOMpy as been started from a command line")
 
@@ -142,6 +142,7 @@ def run_modules_list(args_list):
     workflow.cpacs_in = cpacs_path
     workflow.modules_list = modules_list
     workflow.module_optim = ["NO"] * len(modules_list)
+    workflow.output_format = output_format
     workflow.write_config_file()
 
     workflow.set_workflow()
@@ -174,13 +175,25 @@ def run_gui():
     os.system(f"cd {STREAMLIT_PATH} && streamlit run CEASIOMpy.py")
 
 
+def run_output(output):
+    """Chose the format for the output mesh"""
+
+    if output == "su2":
+        file_extension = "su2"
+    elif output == "edge":
+        file_extension = "bmsh"
+    else:
+        raise ValueError("Unsupported output format. Use 'su2' or 'edge'")
+
+    log.info(f"The chosen output format is: {file_extension}")
+
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
 
 def main():
-
     parser = argparse.ArgumentParser(
         description="CEASIOMpy: Conceptual Aircraft Design Environment",
         usage=argparse.SUPPRESS,
@@ -215,28 +228,38 @@ def main():
         metavar="NB",
         help="run a test case [1, 2, or 3]",
     )
+    parser.add_argument(
+        "-o",
+        "--output",
+        dest="output",
+        type=str,
+        metavar="",
+        default="su2",
+        choices=["su2", "cgns", "edge"],
+        help="chose to generate a mesh for SU2 or m-Edge [su2, cgns, edge]",
+    )
 
     args = parser.parse_args()
 
     if args.testcase:
-
         run_testcase(args.testcase)
         return
 
     if args.modules:
-
         run_modules_list(args.modules)
         return
 
     if args.cfg:
-
         run_config_file(args.cfg)
 
         return
 
     if args.gui:
-
         run_gui()
+        return
+
+    if args.output:
+        run_output(args.output)
         return
 
     # If no argument is given, print the help
@@ -244,5 +267,4 @@ def main():
 
 
 if __name__ == "__main__":
-
     main()

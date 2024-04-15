@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-This script contains different functions to classify and manipulate wing elements
+This script contains different functions to classify and manipulate wing and fuselage elements
 
 Python version: >=3.8
 
@@ -35,6 +35,8 @@ log = get_logger()
 
 
 def fuselage_size(cpacs_path):
+    """Function to get the measure of the fuselage and to obtain a good mesh size"""
+
     tixi = open_tixi(cpacs_path)
     if tixi.checkElement(FUSELAGES_XPATH):
         fus_cnt = tixi.getNamedChildrenCount(FUSELAGES_XPATH, "fuselage")
@@ -188,12 +190,14 @@ def fuselage_size(cpacs_path):
     fuselage_minlen = min(0.1 * fuselage_maxlen, min_radius / 2)
 
     log.info(f"Fuselage maxlen={fuselage_maxlen:.3f} m")
-    log.info(f"Fuselage minlen={fuselage_minlen:.3f} m")
+    log.info(f"Fuselage minlen={fuselage_minlen:.4f} m")
 
     return fuselage_maxlen, fuselage_minlen
 
 
 def wings_size(cpacs_path):
+    """Function to get the measure of the wing and to obtain a good mesh size"""
+
     tixi = open_tixi(cpacs_path)
     if tixi.checkElement(WINGS_XPATH):
         wing_cnt = tixi.getNamedChildrenCount(WINGS_XPATH, "wing")
@@ -285,6 +289,6 @@ def wings_size(cpacs_path):
     wing_minlen = 0.08 * wing_maxlen
 
     log.info(f"Wing maxlen={wing_maxlen:.3f} m")
-    log.info(f"Wing minlen={wing_minlen:.3f} m")
+    log.info(f"Wing minlen={wing_minlen:.4f} m")
 
     return wing_maxlen, wing_minlen

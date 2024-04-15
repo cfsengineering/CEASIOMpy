@@ -9,6 +9,7 @@ Python version: >=3.8
 
 | Author: Aidan jungo
 | Creation: 2022-05-13
+| Last modifiction: 2024-01-05 (Mengmeng Zhang, added M-Edge AINP_CFD_NAME )
 
 TODO:
 
@@ -40,6 +41,9 @@ ENGINE_EXHAUST_SUFFIX = "_Ex"
 ACTUATOR_DISK_FILE_NAME = "ActuatorDisk.dat"
 ACTUATOR_DISK_INLET_SUFFIX = "_AD_Inlet"
 ACTUATOR_DISK_OUTLET_SUFFIX = "_AD_Outlet"
+
+# M-Edge
+AINP_CFD_NAME = "Edge.ainp"
 
 # WEIGHT & BALANCE
 MTOM_FIGURE_NAME = "MTOM_Prediction.png"

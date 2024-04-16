@@ -318,18 +318,17 @@ def pentagrow_3d_mesh(
     current_dir = os.getcwd()
     os.chdir(current_dir)
 
-    command = "pentagrow mesh_2d.stl config.cfg"
-
+    # command = "pentagrow mesh_2d.stl config.cfg"
+    command = ["pentagrow", "mesh_2d.stl", "config.cfg"]
     # Specify the file path
-    file_path = "command.txt"  # You can change the file path as needed
+    file_path = "command.txt"
 
-    # Write the command to the file
+    command_str = " ".join(command)
+
     with open(file_path, "w") as file:
-        file.write(command)
+        file.write(command_str)
 
-    # log.info(f"Command written to: {file_path}")
-
-    subprocess.call(command, shell=True, cwd=current_dir, start_new_session=False)
+    subprocess.call(command, cwd=current_dir, start_new_session=False)
 
     mesh_path = Path(result_dir, "hybrid.su2")
     log.info(f"Mesh path:{mesh_path}")

@@ -17,12 +17,9 @@ TODO:
     - It may be good to move all the function and some of the code in generategmsh()
     that are related to disk actuator to another python script and import it here
 
-    - It may be better to propose more options for the mesh size of the different
-    part (pylon,engine,rotor)
+    - Add mesh sizing for each aircraft part
 
-    - Add a boolean to deactivate the refinement factor according to the thickness of the
-    truncated te of the wings. This options often create very small meshes and is not
-    always required.
+    - Use run software function instead subprocess.call
 
 """
 

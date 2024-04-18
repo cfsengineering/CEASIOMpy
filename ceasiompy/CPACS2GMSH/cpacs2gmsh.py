@@ -60,7 +60,6 @@ from ceasiompy.utils.commonxpath import (
     GMSH_GROWTH_RATIO_XPATH,
     GMSH_MIN_MAX_MESH_SIZE_XPATH,
     GMSH_FEATURE_ANGLE_XPATH,
-    GMSH_MESH_FORMAT_XPATH,
 )
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from cpacspy.cpacspy import CPACS
@@ -118,7 +117,6 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     growth_ratio = get_value_or_default(cpacs.tixi, GMSH_GROWTH_RATIO_XPATH, 1.2)
     min_max_mesh_factor = get_value_or_default(cpacs.tixi, GMSH_MIN_MAX_MESH_SIZE_XPATH, 5)
     feature_angle = get_value_or_default(cpacs.tixi, GMSH_FEATURE_ANGLE_XPATH, 40)
-    type_output_penta = get_value_or_default(cpacs.tixi, GMSH_MESH_FORMAT_XPATH, "su2")
 
     # Run mesh generation
     if type_mesh == "Euler":
@@ -156,7 +154,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
             brep_dir,
             results_dir,
             open_gmsh=open_gmsh,
-            min_max_mesh_factor=min_max_mesh_factor
+            min_max_mesh_factor=min_max_mesh_factor,
         )
 
         if gmesh_path.exists():
@@ -171,7 +169,6 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
                 growth_factor=growth_factor,
                 growth_ratio=growth_ratio,
                 feature_angle=feature_angle,
-                type_output_penta=type_output_penta
             )
             if mesh_path.exists():
                 create_branch(cpacs.tixi, SU2MESH_XPATH)

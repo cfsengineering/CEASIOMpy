@@ -261,7 +261,6 @@ def pentagrow_3d_mesh(
     growth_factor,
     growth_ratio,
     feature_angle,
-    type_output_penta,
 ) -> None:
     # create the config file for pentagrow
     config_penta_path = Path(result_dir, "config.cfg")
@@ -271,10 +270,10 @@ def pentagrow_3d_mesh(
     FeatureAngle = feature_angle
     InitialHeight = h_first_layer * (10**-5)
     MaxGrowthRatio = growth_ratio
-    MaxLayerThickness = max_layer_thickness
+    MaxLayerThickness = max_layer_thickness / 10
     FarfieldRadius = fuselage_maxlen * farfield_factor * 100
     FarfieldCenter = "0.0 0.0 0.0"
-    OutputFormat = type_output_penta
+    OutputFormat = "su2"
     HolePosition = "0.0 0.0 0.0"
     TetgenOptions = "-pq1.3VY"
     TetGrowthFactor = growth_factor

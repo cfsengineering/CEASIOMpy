@@ -17,7 +17,9 @@ TODO:
     - It may be good to move all the function and some of the code in generategmsh()
     that are related to disk actuator to another python script and import it here
 
-    - Add mesh sizing for each aircraft part
+    - Add mesh sizing for each aircraft part and as consequence add marker
+
+    - Integrate other parts during fragmentation
 
     - Use run software function instead subprocess.call
 

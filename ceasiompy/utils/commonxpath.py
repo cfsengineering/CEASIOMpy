@@ -12,6 +12,7 @@ Python version: >=3.8
 
 | Author: Aidan jungo
 | Creation: 2021-10-21
+| Last modifiction: 2024-01-05 (Mengmeng Zhang, added M-Edge XPATHs )
 
 TODO:
 
@@ -77,6 +78,8 @@ STABILITY_DYNAMIC_XPATH = CEASIOMPY_XPATH + "/stability/dynamic"
 OPTWKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/optimPath"
 SMFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/SMpath"
 SU2MESH_XPATH = CEASIOMPY_XPATH + "/filesPath/su2Mesh"
+EDGE_MESH_XPATH = CEASIOMPY_XPATH + "/filesPath/edgeMesh"
+
 SUMOFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/sumoFilePath"
 WKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/wkdirPath"
 
@@ -84,6 +87,7 @@ WKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/wkdirPath"
 TURBOPROP_XPATH = PROP_XPATH + "/turboprop"
 
 # SUMO
+SUMO_OUTPUT_MESH_FORMAT_XPATH = MESH_XPATH + "sumoOptions/format"
 SUMO_REFINE_LEVEL_XPATH = MESH_XPATH + "/sumoOptions/refinementLevel"
 SUMO_INCLUDE_PYLON_XPATH = CEASIOMPY_XPATH + "/engine/includePylon"
 SUMO_INCLUDE_ENGINE_XPATH = CEASIOMPY_XPATH + "/engine/includeEngine"
@@ -96,6 +100,7 @@ GMSH_EXPORT_PROP_XPATH = GMSH_XPATH + "/exportPropellers"
 GMSH_FARFIELD_FACTOR_XPATH = GMSH_XPATH + "/farfield_factor"
 GMSH_N_POWER_FACTOR_XPATH = GMSH_XPATH + "/n_power_factor"
 GMSH_N_POWER_FIELD_XPATH = GMSH_XPATH + "/n_power_field"
+GMSH_MESH_TYPE_XPATH = GMSH_XPATH + "/type_mesh"
 GMSH_MESH_SIZE_FARFIELD_XPATH = GMSH_XPATH + "/mesh_size/farfield"
 GMSH_MESH_SIZE_FUSELAGE_XPATH = GMSH_XPATH + "/mesh_size/fuselage/value"
 GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH = GMSH_XPATH + "/mesh_size/fuselage/factor"
@@ -108,6 +113,14 @@ GMSH_REFINE_TRUNCATED_XPATH = GMSH_XPATH + "/refine_truncated"
 GMSH_AUTO_REFINE_XPATH = GMSH_XPATH + "/auto_refine"
 GMSH_INTAKE_PERCENT_XPATH = GMSH_XPATH + "/intake_percent"
 GMSH_EXHAUST_PERCENT_XPATH = GMSH_XPATH + "/exhaust_percent"
+GMSH_MESH_FORMAT_XPATH = GMSH_XPATH + "/type_output_penta"
+GMSH_NUMBER_LAYER_XPATH = GMSH_XPATH + "/number_layer"
+GMSH_H_FIRST_LAYER_XPATH = GMSH_XPATH + "/height_first_layer"
+GMSH_MAX_THICKNESS_LAYER_XPATH = GMSH_XPATH + "/max_thickness_layer"
+GMSH_GROWTH_FACTOR_XPATH = GMSH_XPATH + "/growth_factor"
+GMSH_GROWTH_RATIO_XPATH = GMSH_XPATH + "/growth_ratio"
+GMSH_SURFACE_MESH_SIZE_XPATH = GMSH_XPATH + "min_max_mesh_factor"
+GMSH_FEATURE_ANGLE_XPATH = GMSH_XPATH + "/feature_angle"
 
 # SU2
 SU2_XPATH = CEASIOMPY_XPATH + "/aerodynamics/su2"
@@ -139,6 +152,17 @@ SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
 
 SU2_ACTUATOR_DISK_XPATH = SU2_XPATH + "/options/includeActuatorDisk"
 SU2_CONFIG_RANS_XPATH = SU2_XPATH + "/options/config_type"
+
+# EDGE
+EDGE_XPATH = CEASIOMPY_XPATH + "/aerodynamics/medge"
+EDGE_AEROMAP_UID_XPATH = EDGE_XPATH + "/aeroMapUID"
+EDGE_NB_CPU_XPATH = EDGE_XPATH + "/settings/nbCPU"
+EDGE_SOLVER_XPATH = EDGE_XPATH + "/settings/solver"
+EDGE_MAX_ITER_XPATH = EDGE_XPATH + "/settings/maxIter"
+EDGE_CFL_NB_XPATH = EDGE_XPATH + "/settings/cflNumber/value"
+EDGE_MG_LEVEL_XPATH = EDGE_XPATH + "/settings/multigridLevel"
+EDGE_FIXED_CL_XPATH = EDGE_XPATH + "/fixedCL"
+EDGE_ABOC_XPATH = EDGE_XPATH + "/boundary_condition"
 
 # RANGE
 RANGE_LD_RATIO_XPATH = CEASIOMPY_XPATH + "/ranges/lDRatio"

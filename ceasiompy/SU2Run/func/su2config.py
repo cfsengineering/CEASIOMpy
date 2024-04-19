@@ -347,6 +347,8 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
         raise FileNotFoundError(f"SU2 mesh file {su2_mesh} not found")
 
     mesh_markers = get_mesh_markers(su2_mesh)
+    for key, value in mesh_markers.items():
+        mesh_markers[key] = [str(item).replace(" ", "") for item in value]
 
     create_branch(cpacs.tixi, SU2_BC_WALL_XPATH)
     bc_wall_str = ";".join(mesh_markers["wall"])

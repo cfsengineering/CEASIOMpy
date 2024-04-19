@@ -20,6 +20,14 @@ from ceasiompy.utils.commonxpath import (
     SU2MESH_XPATH,
     GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
     GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
+    GMSH_MESH_TYPE_XPATH,
+    GMSH_NUMBER_LAYER_XPATH,
+    GMSH_H_FIRST_LAYER_XPATH,
+    GMSH_MAX_THICKNESS_LAYER_XPATH,
+    GMSH_GROWTH_FACTOR_XPATH,
+    GMSH_GROWTH_RATIO_XPATH,
+    GMSH_SURFACE_MESH_SIZE_XPATH,
+    GMSH_FEATURE_ANGLE_XPATH,
 )
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
@@ -52,15 +60,15 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="export_propellers",
-    var_type=bool,
-    default_value=False,
+    var_name="type_mesh",
+    var_type=list,
+    default_value=["Euler", "RANS"],
     unit="1",
-    descr="Export propeller(s) to be use as disk actuator",
-    xpath=GMSH_EXPORT_PROP_XPATH,
+    descr="Chose between Euler and RANS mesh",
+    xpath=GMSH_MESH_TYPE_XPATH,
     gui=True,
-    gui_name="Export propeller(s)",
-    gui_group="General options",
+    gui_name="Chose the mesh type",
+    gui_group="Mesh type",
 )
 
 cpacs_inout.add_input(
@@ -78,7 +86,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="farfield_factor",
     var_type=float,
-    default_value=6,
+    default_value=10,
     unit="[-]",
     descr="Farfield size factor compare to the aircraft largest dimension",
     xpath=GMSH_FARFIELD_FACTOR_XPATH,
@@ -93,11 +101,11 @@ cpacs_inout.add_input(
     default_value=10,
     unit="[-]",
     descr="""Factor proportional to the biggest cell on the plane
-            to obtain cell size on the farfield""",
+            to obtain cell size on the farfield(just for Euler)""",
     xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
     gui=True,
     gui_name="Farfield mesh size factor",
-    gui_group="Mesh size",
+    gui_group="Euler options",
 )
 
 cpacs_inout.add_input(
@@ -109,7 +117,7 @@ cpacs_inout.add_input(
     xpath=GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
     gui=True,
     gui_name="Fuselage mesh size factor",
-    gui_group="Mesh size",
+    gui_group="Euler options",
 )
 
 cpacs_inout.add_input(
@@ -121,7 +129,7 @@ cpacs_inout.add_input(
     xpath=GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
     gui=True,
     gui_name="Wings mesh size factor",
-    gui_group="Mesh size",
+    gui_group="Euler options",
 )
 
 cpacs_inout.add_input(
@@ -133,7 +141,7 @@ cpacs_inout.add_input(
     xpath=GMSH_MESH_SIZE_ENGINES_XPATH,
     gui=True,
     gui_name="Engines",
-    gui_group="Mesh size",
+    gui_group="Euler options",
 )
 
 cpacs_inout.add_input(
@@ -145,7 +153,103 @@ cpacs_inout.add_input(
     xpath=GMSH_MESH_SIZE_PROPELLERS_XPATH,
     gui=True,
     gui_name="Propellers",
-    gui_group="Mesh size",
+    gui_group="Euler options",
+)
+
+cpacs_inout.add_input(
+    var_name="n_layer",
+    var_type=int,
+    default_value=20,
+    unit="[-]",
+    descr="Number of prismatic element layers.",
+    xpath=GMSH_NUMBER_LAYER_XPATH,
+    gui=True,
+    gui_name="Number of layer",
+    gui_group="RANS options",
+)
+
+cpacs_inout.add_input(
+    var_name="h_first_layer",
+    var_type=float,
+    default_value=3,
+    unit="[\u03BCm]",
+    descr="is the height of the first prismatic cell, touching the wall, in mesh length units.",
+    xpath=GMSH_H_FIRST_LAYER_XPATH,
+    gui=True,
+    gui_name="Height of first layer",
+    gui_group="RANS options",
+)
+
+cpacs_inout.add_input(
+    var_name="max_layer_thickness",
+    var_type=float,
+    default_value=100,
+    unit="[mm]",
+    descr="The maximum allowed absolute thickness of the prismatic layer.",
+    xpath=GMSH_MAX_THICKNESS_LAYER_XPATH,
+    gui=True,
+    gui_name="Max layer thickness",
+    gui_group="RANS options",
+)
+
+cpacs_inout.add_input(
+    var_name="growth_ratio",
+    var_type=float,
+    default_value=1.2,
+    unit="[-]",
+    descr="the largest allowed ratio between the wall-normal edge lengths of consecutive cells",
+    xpath=GMSH_GROWTH_RATIO_XPATH,
+    gui=True,
+    gui_name="Growth ratio",
+    gui_group="RANS options",
+)
+
+cpacs_inout.add_input(
+    var_name="growth_factor",
+    var_type=float,
+    default_value=1.4,
+    unit="[-]",
+    descr="Desired growth factor between edge lengths of coincident tetrahedra",
+    xpath=GMSH_GROWTH_FACTOR_XPATH,
+    gui=True,
+    gui_name="Growth factor",
+    gui_group="RANS options",
+)
+
+cpacs_inout.add_input(
+    var_name="feature_angle",
+    var_type=float,
+    default_value=40,
+    unit="[grad]",
+    descr="Larger angles are treated as resulting from approximation of curved surfaces",
+    xpath=GMSH_FEATURE_ANGLE_XPATH,
+    gui=True,
+    gui_name="Feature Angle",
+    gui_group="RANS options",
+)
+
+cpacs_inout.add_input(
+    var_name="surface_mesh_factor",
+    var_type=float,
+    default_value=5,
+    unit="[10^-3]",
+    descr="Surface mesh size factor compared to aircraft largest dimension (omogeneus everywhere)",
+    xpath=GMSH_SURFACE_MESH_SIZE_XPATH,
+    gui=True,
+    gui_name="Surface mesh size",
+    gui_group="RANS options",
+)
+
+cpacs_inout.add_input(
+    var_name="export_propellers",
+    var_type=bool,
+    default_value=False,
+    unit="1",
+    descr="Export propeller(s) to be use as disk actuator",
+    xpath=GMSH_EXPORT_PROP_XPATH,
+    gui=True,
+    gui_name="Export propeller(s)",
+    gui_group="General options",
 )
 
 cpacs_inout.add_input(
@@ -157,7 +261,7 @@ cpacs_inout.add_input(
     xpath=GMSH_N_POWER_FACTOR_XPATH,
     gui=True,
     gui_name="n power factor",
-    gui_group="Advanced mesh parameters",
+    gui_group="Advanced Euler mesh parameters",
 )
 
 cpacs_inout.add_input(
@@ -169,7 +273,7 @@ cpacs_inout.add_input(
     xpath=GMSH_N_POWER_FIELD_XPATH,
     gui=True,
     gui_name="n power field",
-    gui_group="Advanced mesh parameters",
+    gui_group="Advanced Euler mesh parameters",
 )
 
 cpacs_inout.add_input(
@@ -181,7 +285,7 @@ cpacs_inout.add_input(
     xpath=GMSH_REFINE_FACTOR_XPATH,
     gui=True,
     gui_name="LE/TE refinement factor",
-    gui_group="Advanced mesh parameters",
+    gui_group="Advanced Euler mesh parameters",
 )
 cpacs_inout.add_input(
     var_name="refine_truncated",
@@ -192,7 +296,7 @@ cpacs_inout.add_input(
     xpath=GMSH_REFINE_TRUNCATED_XPATH,
     gui=True,
     gui_name="Refine truncated TE",
-    gui_group="Advanced mesh parameters",
+    gui_group="Advanced Euler mesh parameters",
 )
 
 cpacs_inout.add_input(
@@ -205,7 +309,7 @@ cpacs_inout.add_input(
     xpath=GMSH_AUTO_REFINE_XPATH,
     gui=True,
     gui_name="Auto refine",
-    gui_group="Advanced mesh parameters",
+    gui_group="Advanced Euler mesh parameters",
 )
 
 cpacs_inout.add_input(

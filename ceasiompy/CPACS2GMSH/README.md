@@ -10,7 +10,14 @@
 
 <br />
 
-`CPACS2GMSH` is an automatic mesh generator module for a [CPACS](https://www.cpacs.de) aircraft geometry [[1]](#Alder20) using [GMSH](https://gmsh.info/) ,a finite element mesh generator. An unstructured mesh is automatically generated in a spherical domain surrounding the aircraft. The resulting mesh can be used for a CFD calculation by connecting the `SU2Run` module after `CPACS2GMSH` module.
+`CPACS2GMSH` is an automatic mesh generator module for a [CPACS](https://www.cpacs.de) aircraft geometry [[1]](#Alder20) using [GMSH](https://gmsh.info/) ,a finite element mesh generator.  
+
+It's currently possible to choose between two options for 3D meshing of the external domain. 
+Selecting the 'Euler' an unstructured mesh is automatically generated in a spherical domain surrounding the aircraft.
+Instead, selecting the 'RANS' option Gmsh will generate only the 2D mesh of the entire aircraft, which will then be processed by the programme [Pentagrow] to generate the structured part that wraps the geometry, then [Tetgen](https://wias-berlin.de/software/tetgen/1.5/doc/manual/manual.pdf) package provides for meshing of the unstructured part. The hybrid mesh obtained will constitute the 3D domain.
+
+
+The resulting mesh can be used for a CFD calculation by connecting the `SU2Run` module after `CPACS2GMSH` module.
 
 <br />
 
@@ -21,7 +28,7 @@
 Surface mesh of the D150 aircraft, with a symmetry plane
 </p>
 
-If an engine (simple or doubleflux) is part of the aircraft geometry, CPACS2GMSH will combine the different nacelle parts in one engine and  will add an intake and exhaust surface that can be used by SU2Run to simulate the engine operation. For doubleflux engines, only one intake surface will be placed on the fan cowl and two exhaust surfaces will be placed on the fan and center cowl.
+By Euler if an engine (simple or doubleflux) is part of the aircraft geometry, CPACS2GMSH will combine the different nacelle parts in one engine and  will add an intake and exhaust surface that can be used by SU2Run to simulate the engine operation. For doubleflux engines, only one intake surface will be placed on the fan cowl and two exhaust surfaces will be placed on the fan and center cowl.
 
 If the aircraft geometry contains propeller engines, their blades will be replaced by 2D disk surfaces in order to simulate the propeller engines with SU2 disk actuator model.
 
@@ -43,6 +50,11 @@ General options:
 * `Display mesh with GMSH : False`
 Open the gmsh GUI after the generation of the surface mesh (2D) and the domain mesh (3D). This option is usefully to control the quality of the automated generated mesh or make extra operation with gmsh GUI.
 
+
+Mesh type:
+* `Choice the mesh type: Euler or RANS`
+Choose between an unstructured domain (Euler) and an hybrid domain (RANS)
+
 Domain:
 
 * `Use Symmetry : False`
@@ -51,7 +63,8 @@ Apply a symmetry operation to the model with a xz symmetry plane in the center o
 * `Farfield size factor : 6.0`
 Enable to control the spherical domain size. The fluid domain surrounding the aircraft is defined with a radius equivalent to the largest xyz aircraft dimension times the `Farfield size factor
 
-Mesh size:
+if Euler:
+Euler options:
 
 * `Farfield : 25.0` Mesh size of the farfield surfaces
 * `Fuselage : 0.4` Mesh size of the fuselage surfaces
@@ -60,6 +73,23 @@ Mesh size:
 * `Propellers : 0.23` Mesh size of the propellers surfaces
 
 :warning: The mesh size values are unitless. They are consistent with the aircraft dimensions units
+
+else:
+RANS options:
+
+*`Number of layer: 20` 
+Number of prismatic element layers
+*`height of first layer: 3 e-5 mm` 
+Height of the first prismatic cell, touching the wall, in mesh length units.
+*`Max layer thickness: 10 cm` 
+The maximum allowed absolute thickness of the prismatic layer.
+*`Growth factor: 1.2`
+Growth factor between edge lengths of coincident tetrahedra
+*`Feature angle: 80 grad` 
+Whenever the dihedral angle of two triangle is smaller than this limit, the resulting edge is understood to represent an actual geometrical feature. Larger angles are treated as resulting from approximation of curved surfaces by linear triangles
+*`Surface mesh size: 5 `
+ Surface mesh size factor compared to the aircraft largest dimension, omogeneus everywhere
+
 
 Advanced mesh parameters :
 
@@ -81,11 +111,15 @@ Engine exhaust surface position from the back of the engine fan cowl in percent 
 
 ## Analyses
 
-`CPACS2GMSH` Generate .brep files with TiGL for each part of the aircraft configuration. Then all the parts are imported into GMSH to generates a SU2 mesh file.
+`CPACS2GMSH` Generate .brep files with TiGL for each part of the aircraft configuration. Then all the parts are imported into GMSH to generates a SU2 mesh file 
+
+for the euler case, instead a .stl file is generated to be read by pentagrow
 
 ## Outputs
 
 `CPACS2GMSH` outputs a SU2 mesh files (.su2), the path to this file is saved in the CPACS file under this xpath: /cpacs/toolspecific/CEASIOMpy/filesPath/su2Mesh.
+
+With RANS also a configuration file is created in the same directory containing the setup used to generate the hybrid mesh.
 
 ## Installation or requirements
 
@@ -94,6 +128,8 @@ Engine exhaust surface position from the back of the engine fan cowl in percent 
 ## Limitations
 
 At the time of writing, this module is not able to handle aircraft with control surfaces (they will not be modelled and thus appear in the final mesh).
+
+For the RANS part, it is only possible to process aircraft consisting of .brep files of category 'fuselage' and 'wing'
 
 ## More information
 

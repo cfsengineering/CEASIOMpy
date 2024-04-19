@@ -229,14 +229,14 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="min_max_mesh_factor",
+    var_name="size_mesh_factor",
     var_type=float,
     default_value=5,
     unit="[10^-3]",
-    descr="Minimum and maximum mesh size factor compare to the aircraft largest dimension",
+    descr="Mesh size factor compared to aircraft largest dimension (omogeneus everywhere)",
     xpath=GMSH_MIN_MAX_MESH_SIZE_XPATH,
     gui=True,
-    gui_name="Max and min mesh size",
+    gui_name="Mesh size",
     gui_group="RANS options",
 )
 

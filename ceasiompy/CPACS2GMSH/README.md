@@ -87,8 +87,8 @@ The maximum allowed absolute thickness of the prismatic layer.
 Growth factor between edge lengths of coincident tetrahedra
 *`Feature angle: 80 grad` 
 Whenever the dihedral angle of two triangle is smaller than this limit, the resulting edge is understood to represent an actual geometrical feature. Larger angles are treated as resulting from approximation of curved surfaces by linear triangles
-*`Max and min mesh size: 5 `
- Minimum and maximum mesh size factor compare to the aircraft largest dimension
+*`Surface mesh size: 5 `
+ Surface mesh size factor compared to the aircraft largest dimension, omogeneus everywhere
 
 
 Advanced mesh parameters :

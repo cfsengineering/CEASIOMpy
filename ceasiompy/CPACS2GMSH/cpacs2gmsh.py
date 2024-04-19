@@ -58,7 +58,7 @@ from ceasiompy.utils.commonxpath import (
     GMSH_MAX_THICKNESS_LAYER_XPATH,
     GMSH_GROWTH_FACTOR_XPATH,
     GMSH_GROWTH_RATIO_XPATH,
-    GMSH_MIN_MAX_MESH_SIZE_XPATH,
+    GMSH_SURFACE_MESH_SIZE_XPATH,
     GMSH_FEATURE_ANGLE_XPATH,
 )
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default
@@ -115,7 +115,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     max_layer_thickness = get_value_or_default(cpacs.tixi, GMSH_MAX_THICKNESS_LAYER_XPATH, 10)
     growth_factor = get_value_or_default(cpacs.tixi, GMSH_GROWTH_FACTOR_XPATH, 1.4)
     growth_ratio = get_value_or_default(cpacs.tixi, GMSH_GROWTH_RATIO_XPATH, 1.2)
-    min_max_mesh_factor = get_value_or_default(cpacs.tixi, GMSH_MIN_MAX_MESH_SIZE_XPATH, 5)
+    min_max_mesh_factor = get_value_or_default(cpacs.tixi, GMSH_SURFACE_MESH_SIZE_XPATH, 5)
     feature_angle = get_value_or_default(cpacs.tixi, GMSH_FEATURE_ANGLE_XPATH, 40)
 
     # Run mesh generation

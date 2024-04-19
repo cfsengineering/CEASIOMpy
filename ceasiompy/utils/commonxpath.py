@@ -119,7 +119,7 @@ GMSH_H_FIRST_LAYER_XPATH = GMSH_XPATH + "/height_first_layer"
 GMSH_MAX_THICKNESS_LAYER_XPATH = GMSH_XPATH + "/max_thickness_layer"
 GMSH_GROWTH_FACTOR_XPATH = GMSH_XPATH + "/growth_factor"
 GMSH_GROWTH_RATIO_XPATH = GMSH_XPATH + "/growth_ratio"
-GMSH_MIN_MAX_MESH_SIZE_XPATH = GMSH_XPATH + "min_max_mesh_factor"
+GMSH_SURFACE_MESH_SIZE_XPATH = GMSH_XPATH + "min_max_mesh_factor"
 GMSH_FEATURE_ANGLE_XPATH = GMSH_XPATH + "/feature_angle"
 
 # SU2

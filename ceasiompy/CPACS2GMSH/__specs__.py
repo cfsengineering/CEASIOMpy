@@ -26,7 +26,7 @@ from ceasiompy.utils.commonxpath import (
     GMSH_MAX_THICKNESS_LAYER_XPATH,
     GMSH_GROWTH_FACTOR_XPATH,
     GMSH_GROWTH_RATIO_XPATH,
-    GMSH_MIN_MAX_MESH_SIZE_XPATH,
+    GMSH_SURFACE_MESH_SIZE_XPATH,
     GMSH_FEATURE_ANGLE_XPATH,
 )
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
@@ -229,14 +229,14 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="size_mesh_factor",
+    var_name="surface_mesh_factor",
     var_type=float,
     default_value=5,
     unit="[10^-3]",
-    descr="Mesh size factor compared to aircraft largest dimension (omogeneus everywhere)",
-    xpath=GMSH_MIN_MAX_MESH_SIZE_XPATH,
+    descr="Surface mesh size factor compared to aircraft largest dimension (omogeneus everywhere)",
+    xpath=GMSH_SURFACE_MESH_SIZE_XPATH,
     gui=True,
-    gui_name="Mesh size",
+    gui_name="Surface mesh size",
     gui_group="RANS options",
 )
 

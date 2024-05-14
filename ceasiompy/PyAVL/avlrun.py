@@ -4,7 +4,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Script to run AVL calculations in CEASIOMpy.
-AVL allows to perform aerodynamic analyses using 
+AVL allows to perform aerodynamic analyses using
 the vortex-lattice method (VLM)
 
 Python version: >=3.8
@@ -24,9 +24,13 @@ TODO:
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.PyAVL.func.cpacs2avl import convert_cpacs_to_avl
-from ceasiompy.PyAVL.func.avlconfig import write_command_file, get_aeromap_conditions, get_option_settings
+from ceasiompy.PyAVL.func.avlconfig import (
+    write_command_file,
+    get_aeromap_conditions,
+    get_option_settings,
+)
 from ceasiompy.PyAVL.func.avlresults import get_avl_results
-from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.ceasiompyutils import get_results_directory, run_software
 
 import subprocess
 from pathlib import Path
@@ -93,6 +97,8 @@ def run_avl(cpacs_path, wkdir):
                                           )
         subprocess.run(["avl"],
                        stdin=open(str(command_path), "r"))
+
+        # run_software(software_name="avl", arguments=command_path, wkdir=case_dir_path)
 
         source_force_path = str(Path.cwd())
         for force_file in ["ft", "fn", "fs", "fe"]:

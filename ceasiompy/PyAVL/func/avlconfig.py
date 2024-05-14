@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Script to get the flight conditions (alt, aoa, mach...) from 
+Script to get the flight conditions (alt, aoa, mach...) from
 the input CPACS file, and write the command file for AVL.
 
 Python version: >=3.8
@@ -24,7 +24,12 @@ TODO:
 from pathlib import Path
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import RANGE_XPATH, AVL_AEROMAP_UID_XPATH, AVL_PLOT_XPATH, AVL_VORTEX_DISTR_XPATH
+from ceasiompy.utils.commonxpath import (
+    RANGE_XPATH,
+    AVL_AEROMAP_UID_XPATH,
+    AVL_PLOT_XPATH,
+    AVL_VORTEX_DISTR_XPATH,
+)
 from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.utils.moduleinterfaces import get_module_path
 from cpacspy.cpacspy import CPACS
@@ -121,6 +126,10 @@ def write_command_file(
                 command_file.write(str(Path.cwd()) + "/" + force_file + ".txt\n")
             command_file.write("\n\n\n")
             command_file.write("quit")
+
+    with open(command_path, 'r') as command_file:
+        for line in command_file:
+            log.info(line)
 
     return Path(command_path)
 

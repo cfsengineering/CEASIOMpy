@@ -55,7 +55,7 @@ def write_command_file(
         save_plots):
     """Function to write the command file for AVL.
 
-    Function 'write_command_file' writes the command file to 
+    Function 'write_command_file' writes the command file to
     execute for AVL calculations.
 
     Args:

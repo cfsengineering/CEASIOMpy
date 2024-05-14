@@ -51,10 +51,24 @@ def rotate_3D_points(x, y, z, angle_x, angle_y, angle_z):
         y_rot (float): y coordinate of the rotated point
         z_rot (float): z coordinate of the rotated point
     """
-    rotation_matrix = np.array([[math.cos(angle_z) * math.cos(angle_y), math.cos(angle_z) * math.sin(angle_y) * math.sin(angle_x) - math.sin(angle_z) * math.cos(angle_x), math.cos(angle_z) * math.sin(angle_y) * math.cos(angle_x) + math.sin(angle_z) * math.sin(angle_x)],
-                                [math.sin(angle_z) * math.cos(angle_y), math.sin(angle_z) * math.sin(angle_y) * math.sin(angle_x) + math.cos(angle_z) * math.cos(
-                                    angle_x), math.sin(angle_z) * math.sin(angle_y) * math.cos(angle_x) - math.cos(angle_z) * math.sin(angle_x)],
-                                [-math.sin(angle_y), math.cos(angle_y) * math.sin(angle_x), math.cos(angle_y) * math.cos(angle_x)]])
+    R11 = math.cos(angle_z) * math.cos(angle_y)
+    R12 = math.cos(angle_z) * math.sin(angle_y) * math.sin(angle_x) - \
+        math.sin(angle_z) * math.cos(angle_x)
+    R13 = math.cos(angle_z) * math.sin(angle_y) * math.cos(angle_x) + \
+        math.sin(angle_z) * math.sin(angle_x)
+    R21 = math.sin(angle_z) * math.cos(angle_y)
+    R22 = math.sin(angle_z) * math.sin(angle_y) * math.sin(angle_x) + \
+        math.cos(angle_z) * math.cos(angle_x)
+    R23 = math.sin(angle_z) * math.sin(angle_y) * math.cos(angle_x) - \
+        math.cos(angle_z) * math.sin(angle_x)
+    R31 = -math.sin(angle_y)
+    R32 = math.cos(angle_y) * math.sin(angle_x)
+    R33 = math.cos(angle_y) * math.cos(angle_x)
+
+    rotation_matrix = np.array([[R11, R12, R13],
+                                [R21, R22, R23],
+                                [R31, R32, R33]])
+
     x_rot = x * rotation_matrix[0, 0] + y * \
         rotation_matrix[0, 1] + z * rotation_matrix[0, 2]
     y_rot = x * rotation_matrix[1, 0] + y * \

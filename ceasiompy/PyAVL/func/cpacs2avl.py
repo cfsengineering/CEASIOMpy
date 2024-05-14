@@ -583,9 +583,6 @@ def convert_cpacs_to_avl(cpacs_path, wkdir):
                 add_rotation.z = elem_transf.rotation.z + \
                     sec_transf.rotation.z + wg_sk_transf.rotation.z
 
-                add_rotation.y = elem_transf.rotation.y + sec_transf.rotation.y + wg_sk_transf.rotation.y
-                add_rotation.z = elem_transf.rotation.z + sec_transf.rotation.z + wg_sk_transf.rotation.z
-
                 # Get Section rotation
                 wg_sec_rot = euler2fix(add_rotation)
                 wg_sec_dihed = math.radians(wg_sec_rot.x)
@@ -636,8 +633,10 @@ def convert_cpacs_to_avl(cpacs_path, wkdir):
                         avl_file.write("AFILE\n")
                         avl_file.write(foil_dat_path + "\n\n")
 
-                elif integrate_fuselage is False or np.sqrt((y_LE_abs)**2 + (delta_z)**2) > radius_fus \
+                elif integrate_fuselage is False or \
+                        np.sqrt((y_LE_abs)**2 + (delta_z)**2) > radius_fus \
                         or wg_sec_dihed > 0.95 * math.pi / 2:
+
                     # Write the leading edge coordinates and the airfoil file
                     with open(avl_path, 'a') as avl_file:
                         avl_file.write("#---------------\n")

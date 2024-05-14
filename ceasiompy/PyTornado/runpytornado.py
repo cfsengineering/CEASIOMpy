@@ -134,7 +134,10 @@ def get_pytornado_settings(cpacs_in_path):
     # ----- Modify the default dict -----
     settings["aircraft"] = "ToolInput.xml"  # Aircraft input file
     settings["state"] = "__CPACS"  # Load aeroperformance map from CPACS
-    settings["plot"]["results"]["show"] = False
+    settings["plot"]["results"]["show"] = False   alpha=3,
+        mach_number=0.3,
+        ref_velocity=100,
+        ref_density=1.2):
     settings["plot"]["results"]["save"] = False
     settings["save_results"]["aeroperformance"] = True
 

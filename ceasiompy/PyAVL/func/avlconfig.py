@@ -128,10 +128,6 @@ def write_command_file(
             command_file.write("\n\n\n")
             command_file.write("quit")
 
-    with open(command_path, 'r') as command_file:
-        for line in command_file:
-            log.info(line)
-
     return Path(command_path)
 
 

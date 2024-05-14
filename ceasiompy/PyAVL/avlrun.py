@@ -101,7 +101,7 @@ def run_avl(cpacs_path, wkdir):
         # run_software(software_name="avl", arguments=command_path, wkdir=case_dir_path)
 
         source_force_path = str(Path.cwd())
-        for force_file in ["ft", "fn", "fs", "fe"]:
+        for force_file in ["ft", "fn", "fs", "fe", "st"]:
             Path(source_force_path + "/" + force_file
                  + ".txt").rename(str(case_dir_path) + "/" + force_file + ".txt")
 

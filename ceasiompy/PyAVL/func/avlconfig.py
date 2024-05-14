@@ -97,7 +97,7 @@ def write_command_file(
                                     "lo\n",
                                      "h\n\n"])
             command_file.write("x\n")
-            for force_file in ["ft", "fn", "fs", "fe"]:
+            for force_file in ["ft", "fn", "fs", "fe", "st"]:
                 command_file.write(force_file + "\n")
                 command_file.write(str(Path.cwd()) + "/" + force_file + ".txt\n")
             command_file.write("\n\n\n")
@@ -121,7 +121,7 @@ def write_command_file(
                                      "d " + str(ref_density) + "\n",
                                      "v " + str(ref_velocity) + "\n\n"])
             command_file.write("x\n")
-            for force_file in ["ft", "fn", "fs", "fe"]:
+            for force_file in ["ft", "fn", "fs", "fe", "st"]:
                 command_file.write(force_file + "\n")
                 command_file.write(str(Path.cwd()) + "/" + force_file + ".txt\n")
             command_file.write("\n\n\n")

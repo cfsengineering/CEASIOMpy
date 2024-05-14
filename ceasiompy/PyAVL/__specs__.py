@@ -50,10 +50,10 @@ cpacs_inout.add_input(
 
 cpacs_inout.add_input(
     var_name="panel_distribution",
-    var_type=float,
-    default_value=1.0,
+    var_type=list,
+    default_value=["cosine", "sine", "equal"],
     unit=None,
-    descr="Must be in the range [-3.0 ; +3.0]",
+    descr=("Select the type of distribution"),
     xpath=AVL_VORTEX_DISTR_XPATH + "/Distribution",
     gui=True,
     gui_name="Choice of distribution",

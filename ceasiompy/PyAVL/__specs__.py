@@ -1,5 +1,10 @@
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import CEASIOMPY_XPATH, AVL_PLOT_XPATH, AVL_VORTEX_DISTR_XPATH
+from ceasiompy.utils.commonxpath import (
+    CEASIOMPY_XPATH,
+    AVL_PLOT_XPATH,
+    AVL_VORTEX_DISTR_XPATH,
+    AVL_FUSELAGE_XPATH,
+)
 from pathlib import Path
 
 # ===== Module Status =====
@@ -32,7 +37,19 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="other_var",
+    var_name="integrate_fuselage",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="Select to integrate the fuselage in the AVL model",
+    xpath=AVL_FUSELAGE_XPATH,
+    gui=True,
+    gui_name="Integrate fuselage",
+    gui_group="Fuselage",
+)
+
+cpacs_inout.add_input(
+    var_name="panel_distribution",
     var_type=float,
     default_value=1.0,
     unit=None,
@@ -44,7 +61,7 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="other_var",
+    var_name="chordwise_vort",
     var_type=int,
     default_value=20,
     unit=None,
@@ -56,7 +73,7 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="other_var",
+    var_name="spanwise_vort",
     var_type=int,
     default_value=50,
     unit=None,
@@ -68,7 +85,7 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="other_var",
+    var_name="save_plots",
     var_type=bool,
     default_value=False,
     unit=None,

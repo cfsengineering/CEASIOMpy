@@ -62,7 +62,7 @@ def run_avl(cpacs_path, wkdir):
     """
 
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs_path)
-    save_fig, _, _, _ = get_option_settings(cpacs_path)
+    save_fig, _, _, _, _ = get_option_settings(cpacs_path)
 
     for i_case in range(len(alt_list)):
         alt = alt_list[i_case]

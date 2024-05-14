@@ -29,6 +29,7 @@ from ceasiompy.utils.commonxpath import (
     AVL_AEROMAP_UID_XPATH,
     AVL_PLOT_XPATH,
     AVL_VORTEX_DISTR_XPATH,
+    AVL_FUSELAGE_XPATH,
 )
 from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.utils.moduleinterfaces import get_module_path
@@ -209,8 +210,9 @@ def get_option_settings(cpacs_path):
         cpacs.tixi, AVL_VORTEX_DISTR_XPATH + "/Distribution", 1)
     Nchordwise = get_value_or_default(cpacs.tixi, AVL_VORTEX_DISTR_XPATH + "/Nchordwise", 20)
     Nspanwise = get_value_or_default(cpacs.tixi, AVL_VORTEX_DISTR_XPATH + "/Nspanwise", 20)
+    integrate_fuselage = get_value_or_default(cpacs.tixi, AVL_FUSELAGE_XPATH, False)
 
-    return save_plots, vortex_distribution, Nchordwise, Nspanwise
+    return save_plots, vortex_distribution, Nchordwise, Nspanwise, integrate_fuselage
 
 
 # =================================================================================================

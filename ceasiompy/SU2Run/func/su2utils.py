@@ -79,7 +79,6 @@ def get_mesh_markers(su2_mesh_path):
         lines = f.readlines()
 
     for line in lines:
-
         if "MARKER_TAG" not in line:
             continue
 
@@ -129,7 +128,6 @@ def get_su2_version():
 
     with open(su2py_path, "r") as f:
         for line in f.readlines():
-
             if "version" not in line:
                 continue
 
@@ -141,37 +139,38 @@ def get_su2_version():
 def get_su2_config_template():
     """Return path of the SU2 config template corresponding to the SU2 version."""
 
-    su2_version = get_su2_version()
+    # su2_version = get_su2_version()
     su2_dir = get_module_path("SU2Run")
-    su2_config_template_path = Path(su2_dir, "files", f"config_template_v{su2_version}.cfg")
+    su2_config_template_path_euler = Path(su2_dir, "files", "config_template_euler.cfg")
 
-    if not su2_config_template_path.exists():
+    # su2_config_template_path = Path(su2_dir, "files", f"config_template_v{su2_version}.cfg")
 
-        # Use the Euler Onera M6 config as template
-        url = (
-            f"https://raw.githubusercontent.com/su2code/SU2/v{su2_version}"
-            "/TestCases/euler/oneram6/inv_ONERAM6.cfg"
-        )
-        r = requests.get(url)
+    # if not su2_config_template_path.exists():
 
-        if r.status_code == 404:
-            raise FileNotFoundError(
-                f"The SU2 config template for SU2 version {su2_version} does not exist."
-            )
+    #     # Use the Euler Onera M6 config as template
+    #     url = (
+    #         f"https://raw.githubusercontent.com/su2code/SU2/v{su2_version}"
+    #         "/TestCases/euler/oneram6/inv_ONERAM6.cfg"
+    #     )
+    #     r = requests.get(url)
 
-        if not r.status_code == 200:
-            raise ConnectionError(
-                f"Cannot download the template file for SU2 version {su2_version} at {url}"
-            )
+    #     if r.status_code == 404:
+    #         raise FileNotFoundError(
+    #             f"The SU2 config template for SU2 version {su2_version} does not exist."
+    #         )
 
-        with open(su2_config_template_path, "wb") as f:
-            f.write(r.content)
+    #     if not r.status_code == 200:
+    #         raise ConnectionError(
+    #             f"Cannot download the template file for SU2 version {su2_version} at {url}"
+    #         )
 
-    return su2_config_template_path
+    #     with open(su2_config_template_path, "wb") as f:
+    #         f.write(r.content)
+
+    return su2_config_template_path_euler
 
 
 def get_su2_config_template_rans():
-
     su2_dir = get_module_path("SU2Run")
     su2_config_template_path_rans = Path(su2_dir, "files", "config_template_rans.cfg")
 
@@ -296,5 +295,4 @@ def get_wetted_area(su2_logfile):
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Nothing to execute!")

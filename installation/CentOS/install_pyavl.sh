@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to install avl on Ubuntu 20.04 and  Mint 20.3
+# Script to install avl on CentOS
 
 current_dir="$(pwd)"
 

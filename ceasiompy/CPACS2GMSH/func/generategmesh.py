@@ -931,14 +931,14 @@ def generate_gmsh(
     # the size of the points on boundaries.
 
     fuselage_maxlen, fuselage_minlen = fuselage_size(cpacs_path)
-    mesh_size_fuselage = fuselage_mesh_size_factor * fuselage_minlen
+    mesh_size_fuselage = ((fuselage_maxlen + fuselage_minlen) / 2) / fuselage_mesh_size_factor
     log.info(f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
 
     create_branch(cpacs.tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH)
     cpacs.tixi.updateDoubleElement(GMSH_MESH_SIZE_FUSELAGE_XPATH, mesh_size_fuselage, "%.3f")
 
     wing_maxlen, wing_minlen = wings_size(cpacs_path)
-    mesh_size_wing = wing_mesh_size_factor * wing_minlen
+    mesh_size_wing = ((wing_maxlen * 0.8 + wing_minlen) / 2) / wing_mesh_size_factor
     log.info(f"Mesh size wing={mesh_size_wing:.3f} m")
 
     create_branch(cpacs.tixi, GMSH_MESH_SIZE_WINGS_XPATH)

@@ -157,6 +157,67 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
+    var_name="n_power_factor",
+    var_type=float,
+    default_value=2,
+    unit="1",
+    descr="Value that changes the number of cells near the aircraft parts",
+    xpath=GMSH_N_POWER_FACTOR_XPATH,
+    gui=True,
+    gui_name="n power factor",
+    gui_group="Advanced Euler mesh parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="n_power_field",
+    var_type=float,
+    default_value=0.9,
+    unit="1",
+    descr="Value that changes the measure of fist cells near aircraft parts",
+    xpath=GMSH_N_POWER_FIELD_XPATH,
+    gui=True,
+    gui_name="n power field",
+    gui_group="Advanced Euler mesh parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="refine_factor",
+    var_type=float,
+    default_value=2.0,
+    unit="1",
+    descr="Refinement factor of wing leading/trailing edge mesh",
+    xpath=GMSH_REFINE_FACTOR_XPATH,
+    gui=True,
+    gui_name="LE/TE refinement factor",
+    gui_group="Advanced Euler mesh parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="refine_truncated",
+    var_type=bool,
+    default_value=False,
+    unit="1",
+    descr="Enable the refinement of truncated trailing edge",
+    xpath=GMSH_REFINE_TRUNCATED_XPATH,
+    gui=True,
+    gui_name="Refine truncated TE",
+    gui_group="Advanced Euler mesh parameters",
+)
+
+cpacs_inout.add_input(
+    var_name="auto_refine",
+    var_type=bool,
+    default_value=False,
+    unit="1",
+    descr="Automatically refine the mesh on surfaces that are small compare to the chosen mesh"
+    "size, this option increase the mesh generation time",
+    xpath=GMSH_AUTO_REFINE_XPATH,
+    gui=True,
+    gui_name="Auto refine",
+    gui_group="Advanced Euler mesh parameters",
+)
+
+cpacs_inout.add_input(
     var_name="n_layer",
     var_type=int,
     default_value=20,
@@ -250,66 +311,6 @@ cpacs_inout.add_input(
     gui=True,
     gui_name="Export propeller(s)",
     gui_group="General options",
-)
-
-cpacs_inout.add_input(
-    var_name="n_power_factor",
-    var_type=float,
-    default_value=2,
-    unit="1",
-    descr="Value that changes the number of cells near the aircraft parts",
-    xpath=GMSH_N_POWER_FACTOR_XPATH,
-    gui=True,
-    gui_name="n power factor",
-    gui_group="Advanced Euler mesh parameters",
-)
-
-cpacs_inout.add_input(
-    var_name="n_power_field",
-    var_type=float,
-    default_value=0.9,
-    unit="1",
-    descr="Value that changes the measure of fist cells near aircraft parts",
-    xpath=GMSH_N_POWER_FIELD_XPATH,
-    gui=True,
-    gui_name="n power field",
-    gui_group="Advanced Euler mesh parameters",
-)
-
-cpacs_inout.add_input(
-    var_name="refine_factor",
-    var_type=float,
-    default_value=2.0,
-    unit="1",
-    descr="Refinement factor of wing leading/trailing edge mesh",
-    xpath=GMSH_REFINE_FACTOR_XPATH,
-    gui=True,
-    gui_name="LE/TE refinement factor",
-    gui_group="Advanced Euler mesh parameters",
-)
-cpacs_inout.add_input(
-    var_name="refine_truncated",
-    var_type=bool,
-    default_value=False,
-    unit="1",
-    descr="Enable the refinement of truncated trailing edge",
-    xpath=GMSH_REFINE_TRUNCATED_XPATH,
-    gui=True,
-    gui_name="Refine truncated TE",
-    gui_group="Advanced Euler mesh parameters",
-)
-
-cpacs_inout.add_input(
-    var_name="auto_refine",
-    var_type=bool,
-    default_value=False,
-    unit="1",
-    descr="Automatically refine the mesh on surfaces that are small compare to the chosen mesh"
-    "size, this option increase the mesh generation time",
-    xpath=GMSH_AUTO_REFINE_XPATH,
-    gui=True,
-    gui_name="Auto refine",
-    gui_group="Advanced Euler mesh parameters",
 )
 
 cpacs_inout.add_input(

@@ -102,7 +102,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     mesh. You can also use float number (e.g. refine_level=2.4).
 
     Source :
-        * sumo source code: https://www.larosterna.com/products/open-source
+        * sumo source code: https://www.larosterna.com/oss/
 
     Args:
         sumo_file_path (Path): Path to the SUMO geometry (.smx)
@@ -305,7 +305,6 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 
 
 def main(cpacs_path, cpacs_out_path):
-
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     create_SU2_mesh(cpacs_path, cpacs_out_path)
@@ -314,7 +313,6 @@ def main(cpacs_path, cpacs_out_path):
 
 
 if __name__ == "__main__":
-
     cpacs_path = get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
 

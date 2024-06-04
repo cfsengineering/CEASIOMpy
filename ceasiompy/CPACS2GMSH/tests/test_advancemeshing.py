@@ -249,7 +249,8 @@ def test_refine_wing_section():
     )
 
     # Check if a Matheval field was generated with the correct formula
-    # assert gmsh.model.mesh.field.getString(2, "F") == "(0.044/2.0) + 0.06*(1-(1/2.0))*(F1/0.25)^2"
+    # assert gmsh.model.mesh.field.getString(2, "F") ==
+    # "(0.044/2.0) + 0.06*(1-(1/2.0))*(F1/0.25)^2"
     assert gmsh.model.mesh.field.getType(2) == "MathEval"
 
     # Check if the restrict field was applied on the wing

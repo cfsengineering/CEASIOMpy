@@ -22,7 +22,6 @@ wget -q https://web.mit.edu/drela/Public/web/avl/avl3.40_execs/LINUX64/avl \
 chmod +x avl || { echo "Error: Failed to set execute permission on AVL binary." >&2; exit 1; }
 
 echo "export PATH=\"\$PATH:$install_dir\"" >> ~/.bashrc
-echo "export PATH=\"\$PATH:$install_dir\"" >> ~/.zshrc
 
 cd "$current_dir"
 

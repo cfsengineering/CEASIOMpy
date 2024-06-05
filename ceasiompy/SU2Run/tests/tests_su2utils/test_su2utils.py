@@ -125,7 +125,7 @@ def test_get_su2_config_template():
     su2_dir = get_module_path("SU2Run")
 
     # Test with an old version of the config template
-    config_template_path = Path(su2_dir, "files", f"config_template_euler.cfg")
+    config_template_path = Path(su2_dir, "files", "config_template_euler.cfg")
 
     # Remove the config template file if it exists (from a previous test)
     if config_template_path.exists():

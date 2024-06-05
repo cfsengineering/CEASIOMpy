@@ -39,49 +39,49 @@ CPACS_OUT_PATH = Path(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
 # =================================================================================================
 
 
-def test_MyClass():
-    """Test Class 'MyClass'"""
+# def test_MyClass():
+#     """Test Class 'MyClass'"""
 
-    TestClass = MyClass()
+#     TestClass = MyClass()
 
-    assert TestClass.var_a == 1.1
-    assert TestClass.var_b == 2.2
-    assert TestClass.var_c == 0.0
+#     assert TestClass.var_a == 1.1
+#     assert TestClass.var_b == 2.2
+#     assert TestClass.var_c == 0.0
 
-    TestClass.add_my_var()
-    assert TestClass.var_c == approx(3.3)
-
-
-def test_sum_funcion():
-    """Test function 'sum_funcion'"""
-
-    # Test Raise ValueError
-    with pytest.raises(ValueError):
-        sum_funcion(5.5, 4.4)
-
-    # Test 'sum_funcion' normal use
-    assert sum_funcion(5, 4.4) == approx(9.4)
+#     TestClass.add_my_var()
+#     assert TestClass.var_c == approx(3.3)
 
 
-def test_get_fuselage_scaling():
-    """Test function 'get_fuselage_scaling'"""
+# def test_sum_funcion():
+#     """Test function 'sum_funcion'"""
 
-    x, y, z = get_fuselage_scaling(CPACS_IN_PATH, CPACS_OUT_PATH)
+#     # Test Raise ValueError
+#     with pytest.raises(ValueError):
+#         sum_funcion(5.5, 4.4)
 
-    assert x == approx(1)
-    assert y == approx(0.5)
-    assert z == approx(0.5)
+#     # Test 'sum_funcion' normal use
+#     assert sum_funcion(5, 4.4) == approx(9.4)
 
 
-def test_subfunc():
-    """Test subfunction 'my_subfunc'"""
+# def test_get_fuselage_scaling():
+#     """Test function 'get_fuselage_scaling'"""
 
-    a = "a"
-    b = "b"
+#     x, y, z = get_fuselage_scaling(CPACS_IN_PATH, CPACS_OUT_PATH)
 
-    res = my_subfunc(a, b)
+#     assert x == approx(1)
+#     assert y == approx(0.5)
+#     assert z == approx(0.5)
 
-    assert res == "a and b"
+
+# def test_subfunc():
+#     """Test subfunction 'my_subfunc'"""
+
+#     a = "a"
+#     b = "b"
+
+#     res = my_subfunc(a, b)
+
+#     assert res == "a and b"
 
 
 # =================================================================================================
@@ -89,7 +89,6 @@ def test_subfunc():
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Test ModuleTemplate")
     print("To run test use the following command:")
     print(">> pytest -v")

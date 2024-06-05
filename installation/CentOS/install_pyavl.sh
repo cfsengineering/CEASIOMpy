@@ -15,11 +15,14 @@ mkdir -p "$install_dir"
 cd "$install_dir"
 
 echo "Downloading AVL..."
-wget https://web.mit.edu/drela/Public/web/avl/avl3.40_execs/LINUX64/avl
+wget -q https://web.mit.edu/drela/Public/web/avl/avl3.40_execs/LINUX64/avl \
+|| { echo "Error: Failed to download AVL." >&2; exit 1; }
 
-chmod +x avl
+
+chmod +x avl || { echo "Error: Failed to set execute permission on AVL binary." >&2; exit 1; }
 
 echo "export PATH=\"\$PATH:$install_dir\"" >> ~/.bashrc
+echo "export PATH=\"\$PATH:$install_dir\"" >> ~/.zshrc
 
 cd "$current_dir"
 

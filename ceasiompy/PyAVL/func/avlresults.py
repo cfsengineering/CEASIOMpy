@@ -21,6 +21,8 @@ TODO:
 # =================================================================================================
 
 from pathlib import Path
+import pandas as pd
+import matplotlib.pyplot as plt
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonxpath import CEASIOMPY_XPATH
@@ -40,22 +42,85 @@ log = get_logger()
 #   FUNCTIONS
 # =================================================================================================
 
-def get_avl_aerocoefs(force_file):
-    """Get aerodynamic coefficients and velocity from AVL forces file (forces.txt)
+def plot_lift_distribution(force_file_fs, aoa, aos, mach, alt, wkdir):
+    """Plot the lift distribution from AVL strip forces file (fs.txt)
 
     Args:
-        force_file (Path): Path to the SU2 forces file
+        force_file_fs (Path): Path to the AVL strip forces file
+        aoa (float): angle of attack [deg]
+        aos (float): angle of sideslip [deg]
+        mach (float): mach number
+        alt (float): flight altitude [m]
+        wkir (path): path to save the plot
+
+    Returns:
+    """
+    y_list = []
+    chord_list = []
+    cl_list = []
+    clnorm_list = []
+
+    with open(force_file_fs, "r") as fs:
+        for line in fs:
+            if "Cref =" in line:
+                cref = float(line.split()[5])
+
+            elif "# Spanwise =" in line:
+                number_strips = int(line.split()[7])
+
+            elif "Xle" in line:
+                number_data = 0
+                for line in fs:
+                    data = line.split()
+                    y_list.append(float(data[2]))
+                    chord_list.append(float(data[4]))
+                    cl_list.append(float(data[9]))
+                    clnorm_list.append(float(data[8]))
+                    number_data += 1
+
+                    # break when every line has been extracted
+                    if number_data == number_strips:
+                        break
+
+    data_df = pd.DataFrame({'y': y_list,
+                            'chord': chord_list,
+                            'cl': cl_list,
+                            'cl_norm': clnorm_list})
+
+    data_df.sort_values(by="y", inplace=True)
+    data_df.reset_index(drop=True, inplace=True)
+    data_df["cl_cref"] = data_df["cl"] * data_df['chord'] / cref
+
+    _, ax = plt.subplots(figsize=(10, 5))
+    data_df.plot("y", "cl_norm", ax=ax, label="$c_{l\perp}$", linestyle='dashed', color='r')
+    data_df.plot("y", "cl", label="$c_l$", ax=ax, linestyle='dashed', color='#FFA500')
+    data_df.plot("y", "cl_cref", ax=ax,
+                 label="$c_l \cdot C/C_{ref}$", linestyle='solid', color='#41EE33')
+
+    plt.title("Lift distribution along the wing span ($\\alpha=%.1f^{\circ}$, $\\beta=%.1f^{\circ}$, $M=%.1f$, alt = %d m)" % (
+        aoa, aos, mach, alt), fontsize=14)
+    plt.ylabel("$C_l$", rotation=0, fontsize=12)
+    plt.legend(fontsize=12)
+    plt.grid()
+    plt.savefig(Path(wkdir, "lift_distribution.png"))
+
+
+def get_avl_aerocoefs(force_file_ft):
+    """Get aerodynamic coefficients and velocity from AVL total forces file (ft.txt)
+
+    Args:
+        force_file_ft (Path): Path to the AVL total forces file
 
     Returns:
         cl, cd, cs, cmd, cms, cml: Aerodynamic coefficients
     """
 
-    if not force_file.is_file():
-        raise FileNotFoundError(f"The AVL forces file '{force_file}' has not been found!")
+    if not force_file_ft.is_file():
+        raise FileNotFoundError(f"The AVL forces file '{force_file_ft}' has not been found!")
 
     cl, cd = None, None
 
-    with open(force_file) as f:
+    with open(force_file_ft) as f:
         for line in f.readlines():
             if "CLtot" in line:
                 cl = float(line.split("=")[1].strip())
@@ -106,9 +171,13 @@ def get_avl_results(cpacs_path, cpacs_out_path, wkdir):
         if not config_dir.is_dir():
             continue
 
-        force_file_path = Path(config_dir, "ft.txt")
-        if not force_file_path.exists():
-            raise OSError("No result force file have been found!")
+        ft_file_path = Path(config_dir, "ft.txt")
+        if not ft_file_path.exists():
+            raise OSError("No result total forces file have been found!")
+
+        fs_file_path = Path(config_dir, "fs.txt")
+        if not fs_file_path.exists():
+            raise OSError("No result strip forces file have been found!")
 
         case_nb = int(config_dir.name.split("_")[0].split("Case")[1])
 
@@ -117,7 +186,8 @@ def get_avl_results(cpacs_path, cpacs_out_path, wkdir):
         mach = mach_list[case_nb]
         alt = alt_list[case_nb]
 
-        cl, cd, cm = get_avl_aerocoefs(force_file_path)
+        cl, cd, cm = get_avl_aerocoefs(ft_file_path)
+        plot_lift_distribution(fs_file_path, aoa, aos, mach, alt, wkdir=config_dir)
 
         aeromap.add_coefficients(
             alt=alt,

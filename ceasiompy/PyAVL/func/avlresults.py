@@ -42,6 +42,7 @@ log = get_logger()
 #   FUNCTIONS
 # =================================================================================================
 
+
 def plot_lift_distribution(force_file_fs, aoa, aos, mach, alt, wkdir):
     """Plot the lift distribution from AVL strip forces file (fs.txt)
 
@@ -82,23 +83,31 @@ def plot_lift_distribution(force_file_fs, aoa, aos, mach, alt, wkdir):
                     if number_data == number_strips:
                         break
 
-    data_df = pd.DataFrame({'y': y_list,
-                            'chord': chord_list,
-                            'cl': cl_list,
-                            'cl_norm': clnorm_list})
+    data_df = pd.DataFrame(
+        {"y": y_list, "chord": chord_list, "cl": cl_list, "cl_norm": clnorm_list}
+    )
 
     data_df.sort_values(by="y", inplace=True)
     data_df.reset_index(drop=True, inplace=True)
-    data_df["cl_cref"] = data_df["cl"] * data_df['chord'] / cref
+    data_df["cl_cref"] = data_df["cl"] * data_df["chord"] / cref
 
     _, ax = plt.subplots(figsize=(10, 5))
-    data_df.plot("y", "cl_norm", ax=ax, label="$c_{l\perp}$", linestyle='dashed', color='r')
-    data_df.plot("y", "cl", label="$c_l$", ax=ax, linestyle='dashed', color='#FFA500')
-    data_df.plot("y", "cl_cref", ax=ax,
-                 label="$c_l \cdot C/C_{ref}$", linestyle='solid', color='#41EE33')
+    data_df.plot("y", "cl_norm", ax=ax, label="$c_{l\perp}$", linestyle="dashed", color="r")
+    data_df.plot("y", "cl", label="$c_l$", ax=ax, linestyle="dashed", color="#FFA500")
+    data_df.plot(
+        "y", "cl_cref", ax=ax, label="$c_l \cdot C/C_{ref}$", linestyle="solid", color="#41EE33"
+    )
 
-    plt.title("Lift distribution along the wing span ($\\alpha=%.1f^{\circ}$, $\\beta=%.1f^{\circ}$, $M=%.1f$, alt = %d m)" % (
-        aoa, aos, mach, alt), fontsize=14)
+    plt.title(
+        (
+            "Lift distribution along the wing span "
+            "($\\alpha=%.1f^{\circ}$, $\\beta=%.1f^{\circ}$, "
+            "$M=%.1f$, alt = %d m)"
+        )
+        % (aoa, aos, mach, alt),
+        fontsize=14,
+    )
+
     plt.ylabel("$C_l$", rotation=0, fontsize=12)
     plt.legend(fontsize=12)
     plt.grid()
@@ -167,7 +176,6 @@ def get_avl_results(cpacs_path, cpacs_out_path, wkdir):
     case_dir_list = [case_dir for case_dir in wkdir.iterdir() if "Case" in case_dir.name]
 
     for config_dir in sorted(case_dir_list):
-
         if not config_dir.is_dir():
             continue
 
@@ -189,15 +197,7 @@ def get_avl_results(cpacs_path, cpacs_out_path, wkdir):
         cl, cd, cm = get_avl_aerocoefs(ft_file_path)
         plot_lift_distribution(fs_file_path, aoa, aos, mach, alt, wkdir=config_dir)
 
-        aeromap.add_coefficients(
-            alt=alt,
-            mach=mach,
-            aos=aos,
-            aoa=aoa,
-            cd=cd,
-            cl=cl,
-            cms=cm
-        )
+        aeromap.add_coefficients(alt=alt, mach=mach, aos=aos, aoa=aoa, cd=cd, cl=cl, cms=cm)
     aeromap.save()
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
@@ -207,5 +207,4 @@ def get_avl_results(cpacs_path, cpacs_out_path, wkdir):
 # =================================================================================================
 
 if __name__ == "__main__":
-
     log.info("Nothing to execute!")

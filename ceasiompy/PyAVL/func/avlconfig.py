@@ -104,11 +104,6 @@ def write_command_file(
             command_file.write("\n\n\n")
             command_file.write("quit")
 
-            # command_file.write("ft\n")
-            # command_file.write(str(Path.cwd()) + "/forces.txt\n")
-            # command_file.write("o\n\n\n")
-            # command_file.write("quit")
-
     else:  # same without lines saving figures
         with open(command_path, 'w') as command_file:
             command_file.writelines(["load " + str(avl_path) + "\n",
@@ -201,7 +196,7 @@ def get_option_settings(cpacs_path):
     """
     cpacs = CPACS(cpacs_path)
 
-    save_plots = get_value_or_default(cpacs.tixi, AVL_PLOT_XPATH, False)
+    save_plots = get_value_or_default(cpacs.tixi, AVL_PLOT_XPATH, True)
     vortex_distribution_gui = get_value_or_default(
         cpacs.tixi, AVL_VORTEX_DISTR_XPATH + "/Distribution", "equal")
     if vortex_distribution_gui == "cosine":

@@ -95,7 +95,7 @@ def run_avl(cpacs_path, wkdir):
                                           ref_density=density,
                                           g_acceleration=g,
                                           )
-        subprocess.run(["avl"],
+        subprocess.run(["xvfb-run", "avl"],
                        stdin=open(str(command_path), "r"))
 
         # Move force files to the case directory
@@ -109,9 +109,9 @@ def run_avl(cpacs_path, wkdir):
             source_plot_path = str(Path.cwd()) + "/plot.ps"
             Path(source_plot_path).rename(str(case_dir_path) + "/plot.ps")
 
-        # Convert plot.ps to plot.pdf and remove plot.ps
-        subprocess.run(["ps2pdf", "plot.ps", "plot.pdf"], cwd=case_dir_path)
-        subprocess.run(["rm", "plot.ps"], cwd=case_dir_path)
+            # Convert plot.ps to plot.pdf and remove plot.ps
+            subprocess.run(["ps2pdf", "plot.ps", "plot.pdf"], cwd=case_dir_path)
+            subprocess.run(["rm", "plot.ps"], cwd=case_dir_path)
 
 
 # =================================================================================================

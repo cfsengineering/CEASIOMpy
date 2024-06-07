@@ -60,6 +60,10 @@ jobs:
       shell: bash -l {0}
       run: installation/Ubuntu/install_sumo.sh
 
+    - name: Install AVL
+      shell: bash -l {0}
+      run: installation/Ubuntu/install_avl.sh
+
     - name: Install SU2
       shell: bash -l {0}
       run: installation/Ubuntu/install_su2.sh

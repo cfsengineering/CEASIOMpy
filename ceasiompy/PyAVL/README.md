@@ -3,13 +3,13 @@
 
 # PyAVL
 
-**Categories:** Aerodynamics, Vortex lattice method, low-fidelity.
+**Categories:** Aerodynamics, vortex lattice method, low-fidelity.
 
 **State**: :heavy_check_mark:
 
 <img align="right" height="120" src="files/avl_logo.png">
 
-`PyAVL` module is a launcher for the [Athena Vortex Lattice (AVL)]('https://web.mit.edu/drela/Public/web/avl/') solver, developed by M. Drela and H. Youngren at MIT. It is a vortex lattice method (VLM) solver for low-fidelity aerodynamic computations. 
+`PyAVL` module is a launcher for the [Athena Vortex Lattice (AVL)](https://web.mit.edu/drela/Public/web/avl/) solver, developed by M. Drela and H. Youngren at MIT. It is a vortex lattice method (VLM) solver for low-fidelity aerodynamic computations. 
 
 ## Inputs
 
@@ -24,7 +24,7 @@ Example of AVL geometry model.
 
 ## Analyses
 
-`PyAVL` computes the aerodynamic coefficients of an aircraft for a given aeromap and write the results in a CPACS file. It calculates the total forces on the aircraft, the forces on individual surfaces, the forces on wing strips, and the forces on each panel. The stability derivatives can also be computed.
+`PyAVL` computes the aerodynamic coefficients of an aircraft for a given aeromap and writes the results in a CPACS file. It calculates the total forces on the aircraft, the forces on individual surfaces, the forces on wing strips, and the forces on each panel. The stability derivatives can also be computed.
 
 ## Outputs
 
@@ -54,15 +54,15 @@ Following the automatic installation procedure on the [CEASIOMpy installation pa
 
 `PyAVL` uses a Vortex Lattice Method solver:
 - The flow is quasi-steady and ideal: incompressible, irrotational, and inviscid.
-- The flow is low-subsonic: [Prandlt-Glauert transformation]("https://en.wikipedia.org/wiki/Prandtl%E2%80%93Glauert_transformation") is used to adapt the equations up to Mach 0.6.
+- The flow is low-subsonic: [Prandlt-Glauert transformation](https://en.wikipedia.org/wiki/Prandtl%E2%80%93Glauert_transformation) is used to adapt the equations up to Mach 0.6.
 - Lifting surfaces are assumed to be thin, the thickness is not taken into account.
 - The angle of attack and sideslip must be small.
 - Viscous effects, turbulence or boundary layer phenomena are not solved at all.
 
 ## More information
 
-- [AVL documentation.]("https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf")
-- [AVL website.]("https://web.mit.edu/drela/Public/web/avl/")
-- [Flight Vehicule Aerodynamics]("https://mitpress.mit.edu/9780262526449/flight-vehicle-aerodynamics/") by M. Drela.
-- [Low-Speed Aerodynamics]("https://www.cambridge.org/core/books/lowspeed-aerodynamics/077FAF851C4582F1B7593809752C44AE") by J. Katz and A. Plotkin.
-- [Aerodynamics for Engineers]("https://www.cambridge.org/highereducation/books/aerodynamics-for-engineers/C8AAC9F38F0781CA38AB65FA85E61CCF#overview") by J. Bertin.
+- [AVL documentation.](https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf)
+- [AVL website.](https://web.mit.edu/drela/Public/web/avl/)
+- [Flight Vehicule Aerodynamics](https://mitpress.mit.edu/9780262526449/flight-vehicle-aerodynamics/) by M. Drela.
+- [Low-Speed Aerodynamics](https://www.cambridge.org/core/books/lowspeed-aerodynamics/077FAF851C4582F1B7593809752C44AE) by J. Katz and A. Plotkin.
+- [Aerodynamics for Engineers](https://www.cambridge.org/highereducation/books/aerodynamics-for-engineers/C8AAC9F38F0781CA38AB65FA85E61CCF#overview) by J. Bertin.

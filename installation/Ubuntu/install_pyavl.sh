@@ -23,7 +23,7 @@ chmod +x avl || { echo "Error: Failed to set execute permission on AVL binary." 
 
 echo "export PATH=\"\$PATH:$install_dir\"" >> ~/.bashrc
 
-sudo apt-get install ps2pdf
+sudo apt-get install -y ghostscript
 
 cd "$current_dir"
 

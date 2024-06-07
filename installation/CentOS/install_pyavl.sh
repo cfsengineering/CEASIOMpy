@@ -21,7 +21,7 @@ wget -q https://web.mit.edu/drela/Public/web/avl/avl3.40_execs/LINUX64/avl \
 
 chmod +x avl || { echo "Error: Failed to set execute permission on AVL binary." >&2; exit 1; }
 
-sudo dnf install ps2pdf
+sudo dnf install -y ghostscript
 
 echo "export PATH=\"\$PATH:$install_dir\"" >> ~/.bashrc
 

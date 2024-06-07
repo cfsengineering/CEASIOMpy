@@ -35,8 +35,6 @@ from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.utils.moduleinterfaces import get_module_path
 from cpacspy.cpacspy import CPACS
 
-from ambiance import Atmosphere
-
 log = get_logger()
 
 
@@ -44,15 +42,16 @@ log = get_logger()
 #   FUNCTIONS
 # =================================================================================================
 def write_command_file(
-        avl_path,
-        case_dir_path,
-        alpha,
-        beta,
-        mach_number,
-        ref_velocity,
-        ref_density,
-        g_acceleration,
-        save_plots):
+    avl_path,
+    case_dir_path,
+    alpha,
+    beta,
+    mach_number,
+    ref_velocity,
+    ref_density,
+    g_acceleration,
+    save_plots,
+):
     """Function to write the command file for AVL.
 
     Function 'write_command_file' writes the command file to
@@ -78,25 +77,26 @@ def write_command_file(
     mass_path = Path(pyavl_dir, "files", "template.mass")
 
     if save_plots:
-        with open(command_path, 'w') as command_file:
-            command_file.writelines(["load " + str(avl_path) + "\n",
-                                    "mass " + str(mass_path) + "\n",
-                                     "oper\n",
-                                     "g\n",
-                                     "h\n\n",
-                                     "a a " + str(alpha) + "\n",
-                                     "b b " + str(beta) + "\n",
-                                     "m\n",
-                                     "mn " + str(mach_number) + "\n",
-                                     "g " + str(g_acceleration) + "\n",
-                                     "d " + str(ref_density) + "\n",
-                                     "v " + str(ref_velocity) + "\n\n"])
+        with open(command_path, "w") as command_file:
+            command_file.writelines(
+                [
+                    "load " + str(avl_path) + "\n",
+                    "mass " + str(mass_path) + "\n",
+                    "oper\n",
+                    "g\n",
+                    "h\n\n",
+                    "a a " + str(alpha) + "\n",
+                    "b b " + str(beta) + "\n",
+                    "m\n",
+                    "mn " + str(mach_number) + "\n",
+                    "g " + str(g_acceleration) + "\n",
+                    "d " + str(ref_density) + "\n",
+                    "v " + str(ref_velocity) + "\n\n",
+                ]
+            )
             command_file.write("x\n")
-            command_file.writelines(["t\n",
-                                    "h\n\n"])
-            command_file.writelines(["g\n",
-                                    "lo\n",
-                                     "h\n\n"])
+            command_file.writelines(["t\n", "h\n\n"])
+            command_file.writelines(["g\n", "lo\n", "h\n\n"])
             command_file.write("x\n")
             for force_file in ["ft", "fn", "fs", "fe", "st"]:
                 command_file.write(force_file + "\n")
@@ -105,17 +105,21 @@ def write_command_file(
             command_file.write("quit")
 
     else:  # same without lines saving figures
-        with open(command_path, 'w') as command_file:
-            command_file.writelines(["load " + str(avl_path) + "\n",
-                                    "mass " + str(mass_path) + "\n",
-                                     "oper\n",
-                                     "a a " + str(alpha) + "\n",
-                                     "b b " + str(beta) + "\n",
-                                     "m\n",
-                                     "mn " + str(mach_number) + "\n",
-                                     "g " + str(g_acceleration) + "\n",
-                                     "d " + str(ref_density) + "\n",
-                                     "v " + str(ref_velocity) + "\n\n"])
+        with open(command_path, "w") as command_file:
+            command_file.writelines(
+                [
+                    "load " + str(avl_path) + "\n",
+                    "mass " + str(mass_path) + "\n",
+                    "oper\n",
+                    "a a " + str(alpha) + "\n",
+                    "b b " + str(beta) + "\n",
+                    "m\n",
+                    "mn " + str(mach_number) + "\n",
+                    "g " + str(g_acceleration) + "\n",
+                    "d " + str(ref_density) + "\n",
+                    "v " + str(ref_velocity) + "\n\n",
+                ]
+            )
             command_file.write("x\n")
             for force_file in ["ft", "fn", "fs", "fe", "st"]:
                 command_file.write(force_file + "\n")
@@ -148,7 +152,7 @@ def get_aeromap_conditions(cpacs_path):
 
     if aeromap_list:
         aeromap_default = aeromap_list[0]
-        log.info(f'The aeromap is {aeromap_default}')
+        log.info(f"The aeromap is {aeromap_default}")
 
         aeromap_uid = get_value_or_default(cpacs.tixi, AVL_AEROMAP_UID_XPATH, aeromap_default)
 
@@ -198,7 +202,8 @@ def get_option_settings(cpacs_path):
 
     save_plots = get_value_or_default(cpacs.tixi, AVL_PLOT_XPATH, True)
     vortex_distribution_gui = get_value_or_default(
-        cpacs.tixi, AVL_VORTEX_DISTR_XPATH + "/Distribution", "equal")
+        cpacs.tixi, AVL_VORTEX_DISTR_XPATH + "/Distribution", "equal"
+    )
     if vortex_distribution_gui == "cosine":
         vortex_distribution = 1.0
     elif vortex_distribution_gui == "sine":
@@ -217,5 +222,4 @@ def get_option_settings(cpacs_path):
 # =================================================================================================
 
 if __name__ == "__main__":
-
     log.info("Nothing to execute!")

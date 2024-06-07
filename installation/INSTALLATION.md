@@ -38,6 +38,7 @@ cd CEASIOMpy/installation/Ubuntu
 ./install_miniconda.sh
 source ~/.bashrc
 ./install_ceasiompy.sh
+./install_pyavl.sh
 ./install_pytornado.sh
 ./install_sumo.sh
 ./install_su2.sh
@@ -54,6 +55,7 @@ cd CEASIOMpy/installation/CentOS
 ./install_miniconda.sh
 source ~/.bashrc
 ./install_ceasiompy.sh
+./install_pyavl.sh
 ./install_pytornado.sh
 ./install_sumo.sh
 ./install_su2.sh

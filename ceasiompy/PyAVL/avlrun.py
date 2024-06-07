@@ -96,7 +96,7 @@ def run_avl(cpacs_path, wkdir):
             ref_density=density,
             g_acceleration=g,
         )
-        subprocess.run(["avl"], stdin=open(str(command_path), "r"))
+        subprocess.run(["xvfb-run", "avl"], stdin=open(str(command_path), "r"))
 
         # Move force files to the case directory
         source_force_path = str(Path.cwd())

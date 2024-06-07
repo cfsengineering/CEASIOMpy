@@ -23,6 +23,8 @@ chmod +x avl || { echo "Error: Failed to set execute permission on AVL binary." 
 
 echo "export PATH=\"\$PATH:$install_dir\"" >> ~/.bashrc
 
+sudo apt-get install ps2pdf
+
 cd "$current_dir"
 
 echo "AVL installed successfully in $install_dir and added to PATH."

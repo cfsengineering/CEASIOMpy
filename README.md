@@ -134,7 +134,6 @@ warning: : The module does not work completely as expected. It is not a bug, but
 
 - [CLCalculator](ceasiompy/CLCalculator/README.md) :heavy_check_mark:
 - [PyTornado](ceasiompy/PyTornado/README.md) :heavy_check_mark:
-- [PyAVL](ceasiompy/PyAVL/README.md) :heavy_check_mark:
 - [SU2Run](ceasiompy/SU2Run/README.md) :heavy_check_mark:
 - [SkinFriction](ceasiompy/SkinFriction/README.md) :heavy_check_mark:
 - [SaveAeroCoefficients](ceasiompy/SaveAeroCoefficients/README.md) :heavy_check_mark:

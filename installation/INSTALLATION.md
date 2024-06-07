@@ -69,6 +69,7 @@ When it is done, you can test the installation, by opening a new terminal and tr
 conda activate ceasiompy
 python -c "import ceasiompy"
 cpacscreator # A "CPACSCreator" window will open, you can close it.
+avl # The avl interface should appear in the terminal
 pytornado # You should see the help of PyTornado in the terminal.
 sumo # A "SUMO" window will open, you can close it.
 SU2_CFD # You should see something like "Error in "void CConfig::SetConfig_Parsing(char*)" in the terminal
@@ -97,6 +98,7 @@ You can try to install it manually, the basic steps are the following:
 - Run the command `pip install -e .`
 - Install [PyTornado](https://github.com/airinnova/pytornado)
 - Install [SUMO](https://www.larosterna.com/products/open-source)
+- Install [AVL](https://web.mit.edu/drela/Public/web/avl)
 - Install [SU2](https://su2code.github.io/download.html)
 - Install [Paraview](https://www.paraview.org/download/)
 
@@ -113,6 +115,7 @@ You can install it manually, the basic steps are the following:
 - Run the command `pip install -e .`
 - Install [PyTornado](https://github.com/airinnova/pytornado)
 - Install [SUMO](https://www.larosterna.com/products/open-source)
+- Install [AVL](https://web.mit.edu/drela/Public/web/avl)
 - Install [SU2](https://su2code.github.io/download.html)
 - Install [Paraview](https://www.paraview.org/download/)
 

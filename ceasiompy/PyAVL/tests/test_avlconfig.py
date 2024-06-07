@@ -58,37 +58,37 @@ def test_write_command_file():
                 elif "b b" in line:
                     assert float(line.split()[2]) == 0.0, "AoS should be 0"
                 elif "mn" in line:
-                    assert float(
-                        line.split()[1]) == 0.3, "Mach number should be 0.3"
+                    assert float(line.split()[1]) == 0.3, "Mach number should be 0.3"
                 elif "g " in line:
                     g_acc = Atmosphere(1000).grav_accel[0]
                     assert float(line.split()[1]) == pytest.approx(
-                        g_acc, rel=1e-4), "Gravitational acceleration is not correct."
+                        g_acc, rel=1e-4
+                    ), "Gravitational acceleration is not correct."
                 elif "d " in line and "load" not in line:
                     density = Atmosphere(1000).density[0]
                     assert float(line.split()[1]) == pytest.approx(
-                        density, rel=1e-4), "Density is not correct."
+                        density, rel=1e-4
+                    ), "Density is not correct."
                 elif "v " in line:
                     velocity = Atmosphere(1000).speed_of_sound[0] * 0.3
                     assert float(line.split()[1]) == pytest.approx(
-                        velocity, rel=1e-4), "Velocity is not correct."
+                        velocity, rel=1e-4
+                    ), "Velocity is not correct."
 
 
 def test_results_files():
     wkdir = Path.cwd() / "AVLpytest/Case00_alt1000.0_mach0.3_aoa5.0_aos0.0"
     for file in ["ft", "fs", "fe", "fn", "st"]:
-        assert (
-            wkdir / f"{file}.txt").exists(), f"Result file {file}.txt not found!"
+        assert (wkdir / f"{file}.txt").exists(), f"Result file {file}.txt not found!"
 
 
 def test_save_fig():
     wkdir = Path.cwd() / "AVLpytest/Case00_alt1000.0_mach0.3_aoa5.0_aos0.0"
-    assert (wkdir / "plot.pdf").exists(), f"AVL plot not found!"
+    assert (wkdir / "plot.pdf").exists(), "AVL plot not found!"
 
 
 def test_get_aeromap_conditions():
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
-        CPACS_IN_PATH)
+    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(CPACS_IN_PATH)
     assert alt_list[0] == 1000.0, "Altitude from aeromap not correct, should be 1000.0 meters."
     assert mach_list[0] == 0.3, "Mach number from aeromap not correct, should be 0.3."
     assert aoa_list[0] == 5.0, "Aoa from aeromap not correct, should be 5.0 degrees."
@@ -100,9 +100,10 @@ def test_delete_directory():
     shutil.rmtree(Path.cwd() / "Results")
 
 
-    # =================================================================================================
-    #    MAIN
-    # =================================================================================================
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
 if __name__ == "__main__":
     print("Test avlconfig.py")
     print("To run test use the following command:")

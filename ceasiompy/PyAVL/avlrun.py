@@ -96,7 +96,7 @@ def run_avl(cpacs_path, wkdir):
             ref_density=density,
             g_acceleration=g,
         )
-        subprocess.run(["xvfb-run", "avl"], stdin=open(str(command_path), "r"), cwd=case_dir_path)
+        subprocess.run(["avl"], stdin=open(str(command_path), "r"), cwd=case_dir_path)
 
         if save_fig:
             # Convert plot.ps to plot.pdf and remove plot.ps

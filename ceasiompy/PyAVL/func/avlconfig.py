@@ -205,7 +205,7 @@ def get_option_settings(cpacs_path):
         vortex_distribution = 2.0
     else:
         vortex_distribution = 3.0
-    Nchordwise = get_value_or_default(cpacs.tixi, AVL_VORTEX_DISTR_XPATH + "/Nchordwise", 20)
+    Nchordwise = get_value_or_default(cpacs.tixi, AVL_VORTEX_DISTR_XPATH + "/Nchordwise", 5)
     Nspanwise = get_value_or_default(cpacs.tixi, AVL_VORTEX_DISTR_XPATH + "/Nspanwise", 20)
     integrate_fuselage = get_value_or_default(cpacs.tixi, AVL_FUSELAGE_XPATH, False)
 

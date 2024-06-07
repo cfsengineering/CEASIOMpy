@@ -100,7 +100,7 @@ def run_avl(cpacs_path, wkdir):
 
         if save_fig:
             subprocess.run(["ps2pdf", "plot.ps", "plot.pdf"], cwd=case_dir_path)
-            subprocess.run(["rm", "plot.ps"], cwd=case_dir_path)
+            # subprocess.run(["rm", "plot.ps"], cwd=case_dir_path)
 
 
 # =================================================================================================

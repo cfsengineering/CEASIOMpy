@@ -19,6 +19,7 @@ RUN source ~/.bashrc
 RUN conda update -n base -c defaults conda
 
 WORKDIR /CEASIOMpy/CEASIOMpy/installation/CentOS/
+RUN chmod +x install_*.sh
 RUN ./install_ceasiompy.sh
 RUN ./install_ceasiompy.sh
 RUN ./install_pyavl.sh

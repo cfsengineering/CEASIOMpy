@@ -85,24 +85,25 @@ def run_avl(cpacs_path, wkdir):
 
         avl_path = convert_cpacs_to_avl(cpacs_path, wkdir=case_dir_path)
 
-        command_path = write_command_file(avl_path,
-                                          case_dir_path,
-                                          save_plots=save_fig,
-                                          alpha=aoa,
-                                          beta=aos,
-                                          mach_number=mach,
-                                          ref_velocity=velocity,
-                                          ref_density=density,
-                                          g_acceleration=g,
-                                          )
-        subprocess.run(["xvfb-run", "avl"],
-                       stdin=open(str(command_path), "r"))
+        command_path = write_command_file(
+            avl_path,
+            case_dir_path,
+            save_plots=save_fig,
+            alpha=aoa,
+            beta=aos,
+            mach_number=mach,
+            ref_velocity=velocity,
+            ref_density=density,
+            g_acceleration=g,
+        )
+        subprocess.run(["avl"], stdin=open(str(command_path), "r"))
 
         # Move force files to the case directory
         source_force_path = str(Path.cwd())
         for force_file in ["ft", "fn", "fs", "fe", "st"]:
-            Path(source_force_path + "/" + force_file
-                 + ".txt").rename(str(case_dir_path) + "/" + force_file + ".txt")
+            Path(source_force_path + "/" + force_file + ".txt").rename(
+                str(case_dir_path) + "/" + force_file + ".txt"
+            )
 
         # Move plot results to the case directory
         if save_fig:
@@ -122,7 +123,7 @@ def run_avl(cpacs_path, wkdir):
 def main(cpacs_path, cpacs_out_path):
     log.info("----- Start of " + MODULE_NAME + " -----")
 
-    results_dir = get_results_directory(module_name='PyAVL')
+    results_dir = get_results_directory(module_name="PyAVL")
     run_avl(cpacs_path, wkdir=results_dir)
 
     get_avl_results(cpacs_path, cpacs_out_path, wkdir=results_dir)

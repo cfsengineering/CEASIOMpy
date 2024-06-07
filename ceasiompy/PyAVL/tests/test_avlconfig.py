@@ -21,6 +21,7 @@ import pytest
 from ambiance import Atmosphere
 from ceasiompy.PyAVL.avlrun import run_avl
 from ceasiompy.PyAVL.func.avlconfig import get_aeromap_conditions
+import subprocess
 
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 
@@ -78,6 +79,7 @@ def test_write_command_file():
 
 def test_results_files():
     wkdir = Path.cwd() / "AVLpytest/Case00_alt1000.0_mach0.3_aoa5.0_aos0.0"
+    assert Path()
     for file in ["ft", "fs", "fe", "fn", "st"]:
         assert (wkdir / f"{file}.txt").exists(), f"Result file {file}.txt not found!"
 

@@ -20,7 +20,7 @@ from pathlib import Path
 import pytest
 from ceasiompy.PyAVL.avlrun import run_avl
 from ceasiompy.PyAVL.func.avlresults import get_avl_aerocoefs
-
+import subprocess
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 
 

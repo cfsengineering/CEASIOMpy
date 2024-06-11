@@ -77,7 +77,7 @@ def test_write_command_file():
                     ), "Velocity is not correct."
 
 
-def test_results_files():
+def test_results_files(tmp_path):
     wkdir = Path.cwd() / "AVLpytest/Case00_alt1000.0_mach0.3_aoa5.0_aos0.0"
     print("############## Current Working Directory:", Path.cwd())
     print("############## Expected Working Directory:", wkdir)

@@ -25,7 +25,6 @@ from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 
 MODULE_DIR = Path(__file__).parent
 AVL_TEST_DIR = Path(MODULE_DIR, "AVLpytest")
-FT_DIR = Path(AVL_TEST_DIR, "ft.txt")
 
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "labARscaled.xml")
 

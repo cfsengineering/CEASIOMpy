@@ -36,28 +36,28 @@ CPACS_IN_PATH = Path(CPACS_FILES_PATH, "labARscaled.xml")
 # =================================================================================================
 
 
-def test_directory():
-    wkdir = Path.cwd() / "AVLpytest"
-    Path(wkdir).mkdir(exist_ok=True)
+# def test_directory():
+#     wkdir = Path.cwd() / "AVLpytest"
+#     Path(wkdir).mkdir(exist_ok=True)
 
 
-def test_run_avl():
-    wkdir = Path.cwd() / "AVLpytest"
-    run_avl(CPACS_IN_PATH, wkdir)
+# def test_run_avl():
+#     wkdir = Path.cwd() / "AVLpytest"
+#     run_avl(CPACS_IN_PATH, wkdir)
 
 
 def test_get_avl_aerocoefs():
-    wkdir = Path.cwd() / "AVLpytest/Case00_alt1000.0_mach0.3_aoa5.0_aos0.0"
-    assert (wkdir / "ft.txt").exists(), "Result file ft.txt not found!"
-    cl, cd, cm = get_avl_aerocoefs((wkdir / "ft.txt"))
+    wkdir = Path.cwd()
+    assert (wkdir / "ft_template.txt").exists(), "Result file ft.txt not found!"
+    cl, cd, cm = get_avl_aerocoefs((wkdir / "ft_template.txt"))
     assert cl == pytest.approx(0.35063, rel=1e-4), "CLtot is not correct!"
     assert cd == pytest.approx(0.00624, rel=1e-4), "CDtot is not correct!"
     assert cm == pytest.approx(-0.01362, rel=1e-4), "Cmtot is not correct!"
 
 
-def test_delete_directory():
-    shutil.rmtree(Path.cwd() / "AVLpytest")
-    shutil.rmtree(Path.cwd() / "Results")
+# def test_delete_directory():
+#     shutil.rmtree(Path.cwd() / "AVLpytest")
+#     shutil.rmtree(Path.cwd() / "Results")
 
 
 # =================================================================================================

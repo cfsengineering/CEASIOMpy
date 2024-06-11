@@ -47,6 +47,7 @@ def test_run_avl():
 
 def test_write_command_file():
     wkdir = Path.cwd() / "AVLpytest/Case00_alt1000.0_mach0.3_aoa5.0_aos0.0"
+    print("##############", wkdir)
     file_found = Path(wkdir).joinpath("avl_commands.txt").exists()
     assert file_found, "AVL command file not found!"
 
@@ -78,6 +79,7 @@ def test_write_command_file():
 
 def test_results_files():
     wkdir = Path.cwd() / "AVLpytest/Case00_alt1000.0_mach0.3_aoa5.0_aos0.0"
+    print("##############", wkdir)
     for file in ["ft", "fs", "fe", "fn", "st"]:
         file_found = Path(wkdir).joinpath(f"{file}.txt").exists()
         assert file_found, f"Result file {file}.txt not found!"
@@ -85,8 +87,9 @@ def test_results_files():
 
 def test_save_fig():
     wkdir = Path.cwd() / "AVLpytest/Case00_alt1000.0_mach0.3_aoa5.0_aos0.0"
-    file_found = Path(wkdir).joinpath("plot.pdf").exists()
-    assert file_found, "AVL pdf plot not found!"
+    print("##############", wkdir)
+    file_found = Path(wkdir).joinpath("plot.ps").exists()
+    assert file_found, "AVL ps plot not found!"
 
 
 def test_get_aeromap_conditions():

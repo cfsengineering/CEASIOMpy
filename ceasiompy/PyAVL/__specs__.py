@@ -4,6 +4,8 @@ from ceasiompy.utils.commonxpath import (
     AVL_PLOT_XPATH,
     AVL_VORTEX_DISTR_XPATH,
     AVL_FUSELAGE_XPATH,
+    AVL_AEROMAP_UID_XPATH,
+    AEROPERFORMANCE_XPATH,
 )
 from pathlib import Path
 
@@ -12,13 +14,13 @@ from pathlib import Path
 # False if the module is disabled (not working or not ready)
 module_status = True  # Because it is just an example not a real module
 
+# ===== Results directory path =====
+
+RESULTS_DIR = Path("Results", "PyAVL")
+
 # ===== CPACS inputs and outputs =====
 
 cpacs_inout = CPACSInOut()
-
-include_gui = True
-
-RESULTS_DIR = Path("Results", "PyAVL")
 
 # ----- Input -----
 
@@ -30,7 +32,7 @@ cpacs_inout.add_input(
     default_value=None,
     unit=None,
     descr="Name of the aero map to calculate",
-    xpath="/cpacs/toolspecific/CEASIOMpy/aerodynamics/avl/aeroMapUID",
+    xpath=AVL_AEROMAP_UID_XPATH,
     gui=True,
     gui_name="__AEROMAP_SELECTION",
     gui_group="Aeromap settings",
@@ -104,4 +106,13 @@ cpacs_inout.add_output(
     unit="1",
     descr="Description of the output",
     xpath=CEASIOMPY_XPATH + "/test/myOutput",
+)
+
+cpacs_inout.add_output(
+    var_name="aeromap_avl",  # name to change...
+    # var_type=CPACS_aeroMap, # no type pour output, would it be useful?
+    default_value=None,
+    unit="-",
+    descr="aeroMap with aero coefficients calculated by AVL",
+    xpath=AEROPERFORMANCE_XPATH + "/aeroMap/aeroPerformanceMap",
 )

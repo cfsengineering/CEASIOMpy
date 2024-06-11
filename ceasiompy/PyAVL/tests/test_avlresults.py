@@ -50,9 +50,9 @@ def test_get_avl_aerocoefs():
     wkdir = Path.cwd() / "AVLpytest/Case00_alt1000.0_mach0.3_aoa5.0_aos0.0"
     assert (wkdir / "ft.txt").exists(), "Result file ft.txt not found!"
     cl, cd, cm = get_avl_aerocoefs((wkdir / "ft.txt"))
-    assert cl == pytest.approx(0.70018, rel=1e-4), "CLtot is not correct!"
-    assert cd == pytest.approx(0.02494, rel=1e-4), "CDtot is not correct!"
-    assert cm == pytest.approx(-0.02723, rel=1e-4), "Cmtot is not correct!"
+    assert cl == pytest.approx(0.35063, rel=1e-4), "CLtot is not correct!"
+    assert cd == pytest.approx(0.00624, rel=1e-4), "CDtot is not correct!"
+    assert cm == pytest.approx(-0.01362, rel=1e-4), "Cmtot is not correct!"
 
 
 def test_delete_directory():

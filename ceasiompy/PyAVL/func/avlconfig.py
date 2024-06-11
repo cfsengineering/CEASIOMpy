@@ -181,6 +181,7 @@ def get_aeromap_conditions(cpacs_path):
         aeromap_uid = get_value_or_default(cpacs.tixi, AVL_AEROMAP_UID_XPATH, "DefaultAeromap")
         log.info(f"{aeromap_uid} has been created")
 
+    cpacs.save_cpacs(cpacs_path, overwrite=True)
     return alt_list, mach_list, aoa_list, aos_list
 
 

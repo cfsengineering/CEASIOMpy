@@ -25,7 +25,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import CEASIOMPY_XPATH
+from ceasiompy.utils.commonxpath import AVL_AEROMAP_UID_XPATH
 
 from cpacspy.cpacsfunctions import get_value
 from cpacspy.cpacspy import CPACS
@@ -157,12 +157,8 @@ def get_avl_results(cpacs_path, cpacs_out_path, wkdir):
     """
 
     cpacs = CPACS(cpacs_path)
-    AVL_XPATH = CEASIOMPY_XPATH + "/aerodynamics/avl"
-    AVL_AEROMAP_UID_XPATH = AVL_XPATH + "/aeroMapUID"
-
     if not wkdir.exists():
         raise OSError(f"The working directory : {wkdir} does not exit!")
-
     aeromap_uid = get_value(cpacs.tixi, AVL_AEROMAP_UID_XPATH)
 
     log.info(f"The aeromap uid is: {aeromap_uid}")

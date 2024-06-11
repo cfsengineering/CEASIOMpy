@@ -111,10 +111,9 @@ def run_avl(cpacs_path, wkdir):
 def main(cpacs_path, cpacs_out_path):
     log.info("----- Start of " + MODULE_NAME + " -----")
 
-    results_dir = get_results_directory(module_name="PyAVL")
-    run_avl(cpacs_path, wkdir=results_dir)
-
-    get_avl_results(cpacs_path, cpacs_out_path, wkdir=results_dir)
+    results_dir = get_results_directory("PyAVL")
+    run_avl(cpacs_path, results_dir)
+    get_avl_results(cpacs_path, cpacs_out_path, results_dir)
 
     log.info("----- End of " + MODULE_NAME + " -----")
 

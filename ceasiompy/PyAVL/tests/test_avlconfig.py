@@ -113,9 +113,9 @@ def test_get_aeromap_conditions():
     assert aos_list[0] == 0.0, "Altitude from aeromap not correct, should be 0.0 degrees"
 
 
-# def test_delete_directory():
-#     shutil.rmtree(Path.cwd() / "AVLpytest")
-#     shutil.rmtree(Path.cwd() / "Results")
+def test_delete_directory():
+    shutil.rmtree(Path.cwd() / "AVLpytest")
+    shutil.rmtree(Path.cwd() / "Results")
 
 
 # =================================================================================================

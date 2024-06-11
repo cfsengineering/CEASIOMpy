@@ -99,7 +99,7 @@ def test_results_files(tmp_path):
 
 
 def test_save_fig():
-    wkdir = Path.cwd() / "AVLpytest/Case00_alt1000.0_mach0.3_aoa5.0_aos0.0"
+    wkdir = Path.cwd() / "AVLpytest"  # /Case00_alt1000.0_mach0.3_aoa5.0_aos0.0"
     print("##############", wkdir)
     file_found = Path(wkdir).joinpath("plot.ps").exists()
     assert file_found, "AVL ps plot not found!"

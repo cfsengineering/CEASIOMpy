@@ -79,9 +79,22 @@ def test_write_command_file():
 
 def test_results_files():
     wkdir = Path.cwd() / "AVLpytest/Case00_alt1000.0_mach0.3_aoa5.0_aos0.0"
-    print("##############", wkdir)
+    print("############## Current Working Directory:", Path.cwd())
+    print("############## Expected Working Directory:", wkdir)
+
+    if not wkdir.exists():
+        print(f"Directory {wkdir} does not exist!")
+        assert False, f"Directory {wkdir} does not exist!"
+
+    # List all files in the directory
+    print("############## Listing all files in the directory:")
+    for path in wkdir.iterdir():
+        print(path)
+
     for file in ["ft", "fs", "fe", "fn", "st"]:
-        file_found = Path(wkdir).joinpath(f"{file}.txt").exists()
+        file_path = wkdir / f"{file}.txt"
+        print(f"Checking if {file_path} exists...")
+        file_found = file_path.exists()
         assert file_found, f"Result file {file}.txt not found!"
 
 

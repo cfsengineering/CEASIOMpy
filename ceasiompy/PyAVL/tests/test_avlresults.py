@@ -58,8 +58,8 @@ def test_get_avl_aerocoefs():
 
 
 def test_delete_directory():
-    shutil.rmtree(Path.cwd() / "AVLpytest")
-    shutil.rmtree(Path.cwd() / "Results")
+    shutil.rmtree(AVL_TEST_DIR)
+    shutil.rmtree(Path(MODULE_DIR, "Results"))
 
 
 # =================================================================================================

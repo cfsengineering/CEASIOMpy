@@ -91,6 +91,11 @@ def test_results_files(tmp_path):
     for path in wkdir.iterdir():
         print(path)
 
+    current_directory = Path.cwd()
+    for file_path in current_directory.rglob('*'):
+        if file_path.is_file():
+            print(file_path)
+
     for file in ["ft", "fs", "fe", "fn", "st"]:
         file_path = wkdir / f"{file}.txt"
         print(f"Checking if {file_path} exists...")

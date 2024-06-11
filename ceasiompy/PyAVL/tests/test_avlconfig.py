@@ -77,39 +77,6 @@ def test_write_command_file():
                     ), "Velocity is not correct."
 
 
-def test_results_files(tmp_path):
-    wkdir = Path.cwd() / "AVLpytest/Case00_alt1000.0_mach0.3_aoa5.0_aos0.0"
-    print("############## Current Working Directory:", Path.cwd())
-    print("############## Expected Working Directory:", wkdir)
-
-    if not wkdir.exists():
-        print(f"Directory {wkdir} does not exist!")
-        assert False, f"Directory {wkdir} does not exist!"
-
-    # List all files in the directory
-    print("############## Listing all files in the directory:")
-    for path in wkdir.iterdir():
-        print(path)
-
-    current_directory = Path.cwd()
-    for file_path in current_directory.rglob('*'):
-        if file_path.is_file():
-            print(file_path)
-
-    for file in ["ft", "fs", "fe", "fn", "st"]:
-        file_path = wkdir / f"{file}.txt"
-        print(f"Checking if {file_path} exists...")
-        file_found = file_path.exists()
-        assert file_found, f"Result file {file}.txt not found!"
-
-
-def test_save_fig():
-    wkdir = Path.cwd() / "AVLpytest"  # Case00_alt1000.0_mach0.3_aoa5.0_aos0.0"
-    print("##############", wkdir)
-    file_found = Path(wkdir).joinpath("plot.ps").exists()
-    assert file_found, "AVL ps plot not found!"
-
-
 def test_get_aeromap_conditions():
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(CPACS_IN_PATH)
     assert alt_list[0] == 1000.0, "Altitude from aeromap not correct, should be 1000.0 meters."

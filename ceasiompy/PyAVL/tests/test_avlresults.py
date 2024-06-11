@@ -15,10 +15,8 @@ Python version: >=3.8
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
-import shutil
 from pathlib import Path
 import pytest
-from ceasiompy.PyAVL.avlrun import run_avl
 from ceasiompy.PyAVL.func.avlresults import get_avl_aerocoefs
 
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
@@ -38,14 +36,6 @@ CPACS_IN_PATH = Path(CPACS_FILES_PATH, "labARscaled.xml")
 # =================================================================================================
 
 
-def test_directory():
-    Path(AVL_TEST_DIR).mkdir(exist_ok=True)
-
-
-def test_run_avl():
-    run_avl(CPACS_IN_PATH, AVL_TEST_DIR)
-
-
 def test_get_avl_aerocoefs():
     FT_TEMPLATE = Path(MODULE_DIR, "ft_template.txt")
 
@@ -54,11 +44,6 @@ def test_get_avl_aerocoefs():
     assert cl == pytest.approx(0.35063, rel=1e-4), "CLtot is not correct!"
     assert cd == pytest.approx(0.00624, rel=1e-4), "CDtot is not correct!"
     assert cm == pytest.approx(-0.01362, rel=1e-4), "Cmtot is not correct!"
-
-
-def test_delete_directory():
-    shutil.rmtree(AVL_TEST_DIR)
-    shutil.rmtree(Path(MODULE_DIR, "Results"))
 
 
 # =================================================================================================

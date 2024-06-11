@@ -79,7 +79,7 @@ def convert_cpacs_to_avl(cpacs_path, wkdir):
     FLIGHT_XPATH = "/cpacs/vehicles/aircraft/model/analyses/" + \
         "aeroPerformance/aeroMap[1]/aeroPerformanceMap"
     mach = tixi.getDoubleElement(FLIGHT_XPATH + '/machNumber')
-    AoA = tixi.getDoubleElement(FLIGHT_XPATH + '/angleOfAttack')
+    AoA = 0  # tixi.getDoubleElement(FLIGHT_XPATH + '/angleOfAttack')
     with open(avl_path, 'a') as avl_file:
         # Mach number
         avl_file.write('#Mach\n')

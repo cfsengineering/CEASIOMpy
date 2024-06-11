@@ -143,6 +143,9 @@ def generate_2d_mesh_for_pentagrow(
     vehicles_engines_engine_volume_dimtags = []
     vehicles_rotorcraft_model_rotors_rotor_volume_dimtags = []
 
+    fuselage_surface = []
+    wing_surface = []
+
     log.info(f"Importing files from {brep_dir}")
 
     for brep_file in brep_files:
@@ -160,10 +163,18 @@ def generate_2d_mesh_for_pentagrow(
             model_bb = gmsh.model.get_bounding_box(
                 fuselage_volume_dimtags[0][0], fuselage_volume_dimtags[0][1]
             )
+            fuselage_surface_dimtags = gmsh.model.get_entities(2)
+            print(f"fuselage_surface_dimtags{fuselage_surface_dimtags}")
 
         elif part_obj.part_type == "wing":
             wings_volume_dimtags.append(part_entities[0])
             # return wings_volume_dimtags
+            wing_surface_dimtags = gmsh.model.get_entities(2)
+            wing_surface_dimtags = [
+                tag for tag in wing_surface_dimtags if tag not in fuselage_surface_dimtags
+            ]
+
+            print(f"wing_surface_dimtags{wing_surface_dimtags}")
 
         elif part_obj.part_type == "enginePylons/enginePylon":
             enginePylons_enginePylon_volume_dimtags.append(part_entities[0])
@@ -183,16 +194,44 @@ def generate_2d_mesh_for_pentagrow(
         else:
             log.warning(f"'{brep_file}' cannot be categorized!")
             return None
+
+    for fuselage_surface_dimtag in fuselage_surface_dimtags:
+        fuselage_tags = fuselage_surface_dimtag[1]
+        fuselage_surface.append(fuselage_tags)
+
+    for wing_surface_dimtag in wing_surface_dimtags:
+        wing_tags = wing_surface_dimtag[1]
+        wing_surface.append(wing_tags)
+
+    # gmsh.model.add_physical_group(2, surface, -1, name="aircraft_surface")
+
+    gmsh.model.add_physical_group(2, fuselage_surface, -1, name="fuselage_surface")
+    gmsh.model.add_physical_group(2, wing_surface, -1, name="wing_surface")
+
     gmsh.model.occ.synchronize()
     log.info("Start manipulation to obtain a watertight volume")
+    log.info("Cutting parts...")
     # we have to obtain a wathertight volume
-    gmsh.model.occ.cut(wings_volume_dimtags, fuselage_volume_dimtags, -1, True, False)
 
+    # gmsh.model.occ.fragment(
+    #     wings_volume_dimtags,
+    #     fuselage_volume_dimtags,
+    # )
+    # gmsh.model.occ.cut(wings_volume_dimtags, fuselage_volume_dimtags, -1, False, False)
+    log.info("Removing parts...")
+    inner_part = gmsh.model.occ.cut(
+        wings_volume_dimtags, fuselage_volume_dimtags, -1, False, False
+    )
     gmsh.model.occ.synchronize()
 
-    gmsh.model.occ.fuse(wings_volume_dimtags, fuselage_volume_dimtags, -1, True, True)
+    gmsh.model.occ.delete(inner_part)
 
+    log.info("Fusing parts...")
+    # gmsh.model.occ.fuse(wings_volume_dimtags, fuselage_volume_dimtags, -1, False, False)
+    gmsh.model.occ.fuse(wings_volume_dimtags, fuselage_volume_dimtags, -1, False, False)
     gmsh.model.occ.synchronize()
+
+    gmsh.fltk.run()
 
     model_dimensions = [
         abs(model_bb[0] - model_bb[3]),
@@ -202,26 +241,17 @@ def generate_2d_mesh_for_pentagrow(
 
     fuselage_maxlen, _ = fuselage_size(cpacs_path)
 
-    gmsh.model.occ.translate(
-        [(3, 1)],
-        -((model_bb[0]) + (model_dimensions[0] / 2)),
-        -((model_bb[1]) + (model_dimensions[1] / 2)),
-        -((model_bb[2]) + (model_dimensions[2] / 2)),
-    )
+    # gmsh.model.occ.translate(
+    #     [(3, 1)],
+    #     -((model_bb[0]) + (model_dimensions[0] / 2)),
+    #     -((model_bb[1]) + (model_dimensions[1] / 2)),
+    #     -((model_bb[2]) + (model_dimensions[2] / 2)),
+    # )
 
     gmsh.model.occ.synchronize()
     log.info("Manipulation finished")
 
-    aircraft_surface_dimtags = gmsh.model.get_entities(2)
-    len_aircraft_surface = len(aircraft_surface_dimtags)
-    surface = []
-
-    for i in range(len_aircraft_surface):
-        tags = aircraft_surface_dimtags[i][1]
-        surface.append(tags)
-
-    gmsh.model.add_physical_group(2, surface, -1, name="aircraft_surface")
-
+    gmsh.fltk.run()
     # Mesh generation
     log.info("Start of gmsh 2D surface meshing process")
 

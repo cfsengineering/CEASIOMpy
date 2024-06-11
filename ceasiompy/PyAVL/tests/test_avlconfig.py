@@ -27,6 +27,9 @@ from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "labARscaled.xml")
 
+MODULE_DIR = Path(__file__).parent
+CASE_DIR = Path(MODULE_DIR, "AVLpytest")
+
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
@@ -36,23 +39,20 @@ CPACS_IN_PATH = Path(CPACS_FILES_PATH, "labARscaled.xml")
 #   FUNCTIONS
 # =================================================================================================
 def test_directory():
-    wkdir = Path.cwd() / "AVLpytest"
-    Path(wkdir).mkdir(exist_ok=True)
+    Path(MODULE_DIR, "AVLpytest").mkdir(parents=True, exist_ok=True)
 
 
 def test_run_avl():
-    wkdir = Path.cwd() / "AVLpytest"
-    run_avl(CPACS_IN_PATH, wkdir)
+    run_avl(CPACS_IN_PATH, CASE_DIR)
 
 
 def test_write_command_file():
-    wkdir = Path.cwd() / "AVLpytest/Case00_alt1000.0_mach0.3_aoa5.0_aos0.0"
-    print("##############", wkdir)
-    file_found = Path(wkdir).joinpath("avl_commands.txt").exists()
+    file_found = Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0").joinpath(
+        "avl_commands.txt").exists()
     assert file_found, "AVL command file not found!"
 
     if file_found:
-        with open(Path(wkdir).joinpath("avl_commands.txt"), "r") as file:
+        with open(Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0").joinpath("avl_commands.txt"), "r") as file:
             for line in file:
                 if "a a" in line:
                     assert float(line.split()[2]) == 5.0, "AoA should be 5"
@@ -75,6 +75,12 @@ def test_write_command_file():
                     assert float(line.split()[1]) == pytest.approx(
                         velocity, rel=1e-4
                     ), "Velocity is not correct."
+
+
+def test_result_files():
+    file_found = Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0").joinpath(
+        "ft.txt").exists()
+    assert file_found, "Result ft.txt file not found!"
 
 
 def test_get_aeromap_conditions():

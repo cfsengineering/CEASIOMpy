@@ -219,7 +219,7 @@ def generate_2d_mesh_for_pentagrow(
     # )
     # gmsh.model.occ.cut(wings_volume_dimtags, fuselage_volume_dimtags, -1, False, False)
     log.info("Removing parts...")
-    inner_part = gmsh.model.occ.cut(
+    inner_part = gmsh.model.occ.remove(
         wings_volume_dimtags, fuselage_volume_dimtags, -1, False, False
     )
     gmsh.model.occ.synchronize()

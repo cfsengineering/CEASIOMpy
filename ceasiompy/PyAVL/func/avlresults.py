@@ -180,6 +180,11 @@ def get_avl_results(cpacs_path, cpacs_out_path, wkdir):
         for path in Path(config_dir).rglob('*'):
             print(path)
         print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+
+        with open(Path(config_dir, "avl_commands.txt"), "r") as f:
+            for line in f:
+                print(line)
+
         if not ft_file_path.exists():
             raise OSError("No result total forces file have been found!")
 

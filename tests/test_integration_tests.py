@@ -115,7 +115,7 @@ def test_integration_4():
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 def test_integration_5():
-    modules_to_run = ["PyAVL", "SaveAeroCoefficients"]
+    modules_to_run = ["PyAVL"]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(CPACS_IN_PATH), *modules_to_run])

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to install SUMO on Ubuntu 20.04 and  Mint 20.3
+# Script to install SUMO on Ubuntu
 
 current_dir="$(pwd)"
 
@@ -16,24 +16,28 @@ mkdir -p "$install_dir"
 cd "$install_dir"
 
 echo "Downloading SUMO from larosterna website..."
-if [ ! -e "$install_dir/sumo-standalone-Qt4-2.7.9.tgz" ]; then
-    wget https://www.larosterna.com/packages/sumo-standalone-Qt4-2.7.9.tgz
+if [ ! -e "$install_dir/dwfsumo-2.7.12-x86_64.AppImage" ]; then
+    wget https://static.larosterna.com/packages/dwfsumo-2.7.12-x86_64.AppImage
 fi
-tar zxvf sumo-standalone-Qt4-2.7.9.tgz
+chmod +x dwfsumo-2.7.12-x86_64.AppImage
 
-echo "Adding missing librairies..."
+mv dwfsumo-2.7.12-x86_64.AppImage dwfsumo
 
-echo "--> libgortran3"
-if ! grep "ethz.ch/ubuntu/" /etc/apt/sources.list ; then
-    sudo  -- bash -c 'echo "deb http://ubuntu.ethz.ch/ubuntu/ bionic universe" >> /etc/apt/sources.list'
-    sudo  -- bash -c 'echo "deb http://ubuntu.ethz.ch/ubuntu/ bionic-updates universe" >> /etc/apt/sources.list'
+echo "Downloading scope from larosterna website..."
+if [ ! -e "$install_dir/dwfscope-2.2.12-x86_64.AppImage" ]; then
+    wget https://static.larosterna.com/packages/dwfscope-2.2.12-x86_64.AppImage
 fi
-sudo apt-get update -y
-sudo apt-get install -y libgfortran3
+chmod +x dwfscope-2.2.12-x86_64.AppImage
+
+mv dwfscope-2.2.12-x86_64.AppImage dwfscope
+
+echo "Adding missing libraries..."
+
+echo "--> libgfortran"
+sudo apt update -y
+sudo apt install -y libgfortran4
 
 echo "--> libpng12"
-sudo add-apt-repository ppa:linuxuprising/libpng12
-sudo apt update -y
 sudo apt install -y libpng12-0
 
 echo "--> libglu"

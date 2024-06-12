@@ -82,43 +82,12 @@ def test_write_command_file():
                     ), "Velocity is not correct."
 
 
-def test_result_files():
-    for file in ["ft", "fn", "fe", "fs", "st"]:
-        try:
-            result_dir = Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0")
-            expected_file = result_dir / f"{file}.txt"
-
-            assert expected_file.exists(), f"Result file '{file}.txt' not found in {result_dir}"
-
-        except AssertionError as e:
-            print(f"Assertion error: {e}")
-        except Exception as e:
-            print(f"An unexpected error occurred: {e}")
-
-
-def test_pdf_plot():
-    try:
-        result_dir = Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0")
-        expected_file = result_dir / "plot.pdf"
-
-        assert expected_file.exists(), f"Plot 'plot.pdf' not found in {result_dir}"
-
-    except AssertionError as e:
-        print(f"Assertion error: {e}")
-    except Exception as e:
-        print(f"An unexpected error occurred: {e}")
-
-
 def test_get_aeromap_conditions():
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(CPACS_IN_PATH)
     assert alt_list[0] == 1000.0, "Altitude from aeromap not correct, should be 1000.0 meters."
     assert mach_list[0] == 0.3, "Mach number from aeromap not correct, should be 0.3."
     assert aoa_list[0] == 5.0, "Aoa from aeromap not correct, should be 5.0 degrees."
     assert aos_list[0] == 0.0, "Altitude from aeromap not correct, should be 0.0 degrees"
-
-
-# def test_get_avl_results():
-#     get_avl_results(CPACS_IN_PATH, CPACS_OUT_PATH, CASE_DIR)
 
 
 def test_delete_directory():

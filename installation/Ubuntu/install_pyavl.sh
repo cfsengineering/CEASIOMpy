@@ -25,6 +25,8 @@ echo "export PATH=\"\$PATH:$install_dir\"" >> ~/.bashrc
 
 sudo apt-get install -y ghostscript
 
+ps2pdf
+
 cd "$current_dir"
 
 echo "AVL installed successfully in $install_dir and added to PATH."

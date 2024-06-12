@@ -112,15 +112,15 @@ def test_integration_4():
     assert workflow_ends()
 
 
-# @pytest.mark.slow
-# @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
-# def test_integration_5():
-#     modules_to_run = ["PyAVL", "SaveAeroCoefficients"]
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
+def test_integration_5():
+    modules_to_run = ["PyAVL", "SaveAeroCoefficients"]
 
-#     with change_working_dir(WORKFLOW_TEST_DIR):
-#         run_modules_list([str(CPACS_IN_PATH), *modules_to_run])
+    with change_working_dir(WORKFLOW_TEST_DIR):
+        run_modules_list([str(CPACS_IN_PATH), *modules_to_run])
 
-#     assert workflow_ends()
+    assert workflow_ends()
 
 
 # =================================================================================================

@@ -176,6 +176,7 @@ def get_avl_results(cpacs_path, cpacs_out_path, wkdir):
             continue
 
         ft_file_path = Path(config_dir, "ft.txt")
+        print("###############", ft_file_path)
         if not ft_file_path.exists():
             raise OSError("No result total forces file have been found!")
 

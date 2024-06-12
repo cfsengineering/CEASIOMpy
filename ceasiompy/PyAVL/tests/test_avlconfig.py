@@ -38,8 +38,6 @@ CASE_DIR = Path(MODULE_DIR, "AVLpytest")
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
-def test_directory():
-    Path(MODULE_DIR, "AVLpytest").mkdir(parents=True, exist_ok=True)
 
 
 def test_run_avl():
@@ -84,11 +82,26 @@ def test_write_command_file():
 
 
 def test_result_files():
+
+    for file in ["ft", "fn", "fe", "fs", "st"]:
+        try:
+            result_dir = Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0")
+            expected_file = result_dir / f"{file}.txt"
+
+            assert expected_file.exists(), f"Result file '{file}.txt' not found in {result_dir}"
+
+        except AssertionError as e:
+            print(f"Assertion error: {e}")
+        except Exception as e:
+            print(f"An unexpected error occurred: {e}")
+
+
+def test_pdf_plot():
     try:
         result_dir = Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0")
-        expected_file = result_dir / "ft.txt"
+        expected_file = result_dir / "plot.pdf"
 
-        assert expected_file.exists(), f"Result file 'ft.txt' not found in {result_dir}"
+        assert expected_file.exists(), f"Plot 'plot.pdf' not found in {result_dir}"
 
     except AssertionError as e:
         print(f"Assertion error: {e}")

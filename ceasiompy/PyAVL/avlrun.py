@@ -99,8 +99,8 @@ def run_avl(cpacs_path, wkdir):
         subprocess.run(["xvfb-run", "avl"], stdin=open(str(command_path), "r"), cwd=case_dir_path)
 
         if save_fig:
-            subprocess.call(["ps2pdf", "plot.ps", "plot.pdf"], cwd=case_dir_path)
-            subprocess.call(["rm", "plot.ps"], cwd=case_dir_path)
+            subprocess.call(["ps2pdf", "plot.ps", "plot.pdf"], cwd=case_dir_path, shell=True)
+            subprocess.call(["rm", "plot.ps"], cwd=case_dir_path, shell=True)
 
 
 # =================================================================================================

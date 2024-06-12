@@ -47,24 +47,30 @@ echo "--> xvfb"
 sudo apt install -y xvfb
 
 echo "Set Tetgen path in dwfsumo.conf..."
-if [ ! -e "~/.config/larosterna/dwfsumo.conf" ]; then
+if [ ! -d "~/.config/larosterna" ]; then
     mkdir -p ~/.config/larosterna
-    echo "[General]" >> ~/.config/larosterna/dwfsumo.conf
-    echo "tetgenpath=$install_dir/sumo-2.7.9/bin/tetgen" >> ~/.config/larosterna/dwfsumo.conf
+fi
+
+dwfsumo_conf="~/.config/larosterna/dwfsumo.conf"
+
+if [ ! -e "$dwfsumo_conf" ]; then
+    echo "[General]" >> "$dwfsumo_conf"
+    echo "tetgenpath=$install_dir/sumo-2.7.9/bin/tetgen" >> "$dwfsumo_conf"
 else
-    if ! grep "tetgenpath" ~/.config/larosterna/dwfsumo.conf ; then
-        echo "tetgenpath=$install_dir/sumo-2.7.9/bin/tetgen" >> ~/.config/larosterna/dwfsumo.conf
+    if ! grep "tetgenpath" "$dwfsumo_conf" ; then
+        echo "tetgenpath=$install_dir/sumo-2.7.9/bin/tetgen" >> "$dwfsumo_conf"
     else
-        sed -i "s|tetgenpath.*|tetgenpath=$install_dir/sumo-2.7.9/bin/tetgen|" ~/.config/larosterna/dwfsumo.conf
+        sed -i "s|tetgenpath.*|tetgenpath=$install_dir/sumo-2.7.9/bin/tetgen|" "$dwfsumo_conf"
     fi
 fi
 
 # Add sumo to PATH in bashrc
-sumo_run_path="$install_dir"/sumo-2.7.9/bin
-echo \# SUMO Path >> ~/.bashrc
-echo export SUMO_RUN=\""$sumo_run_path"\" >> ~/.bashrc
-echo export PATH=\"\$PATH:\$SUMO_RUN\" >> ~/.bashrc
+echo "# SUMO Path" >> ~/.bashrc
+echo "export PATH=\"\$PATH:$install_dir\"" >> ~/.bashrc
 
+# Source .bashrc to apply changes
 source ~/.bashrc
 
 cd "$current_dir"
+
+echo "Installation completed and SUMO is added to the shell path."

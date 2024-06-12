@@ -18,9 +18,8 @@ Python version: >=3.8
 import shutil
 from pathlib import Path
 import pytest
-from ambiance import Atmosphere
-from ceasiompy.PyAVL.avlrun import run_avl
 from ceasiompy.PyAVL.func.avlconfig import (
+    write_command_file,
     get_aeromap_conditions,
     get_option_settings
 )
@@ -31,6 +30,7 @@ CPACS_IN_PATH = Path(CPACS_FILES_PATH, "labARscaled.xml")
 
 MODULE_DIR = Path(__file__).parent
 CASE_DIR = Path(MODULE_DIR, "AVLpytest")
+COMMAND_TEM_DIR = Path(MODULE_DIR, "avl_command_template.txt")
 
 # =================================================================================================
 #   CLASSES
@@ -41,47 +41,32 @@ CASE_DIR = Path(MODULE_DIR, "AVLpytest")
 #   FUNCTIONS
 # =================================================================================================
 
+def test_write_command_file(tmp_path):
+    test_path = Path("/path", "to", "avl", "input", "file", "aircraft.avl")
 
-def test_run_avl():
-    Path(MODULE_DIR, "AVLpytest").mkdir(parents=True, exist_ok=True)
-    run_avl(CPACS_IN_PATH, CASE_DIR)
-
-
-def test_write_command_file():
-    file_found = (
-        Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0")
-        .joinpath("avl_commands.txt")
-        .exists()
+    write_command_file(
+        avl_path=test_path,
+        case_dir_path=tmp_path,
+        alpha=5.0,
+        beta=0.0,
+        mach_number=0.3,
+        ref_velocity=100.93037463067732,
+        ref_density=1.1116596736996904,
+        g_acceleration=9.803565306802405,
+        save_plots=True
     )
-    assert file_found, "AVL command file not found!"
 
-    if file_found:
-        with open(
-            Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0").joinpath("avl_commands.txt"),
-            "r",
-        ) as file:
-            for line in file:
-                if "a a" in line:
-                    assert float(line.split()[2]) == 5.0, "AoA should be 5"
-                elif "b b" in line:
-                    assert float(line.split()[2]) == 0.0, "AoS should be 0"
-                elif "mn" in line:
-                    assert float(line.split()[1]) == 0.3, "Mach number should be 0.3"
-                elif "g " in line:
-                    g_acc = Atmosphere(1000).grav_accel[0]
-                    assert float(line.split()[1]) == pytest.approx(
-                        g_acc, rel=1e-4
-                    ), "Gravitational acceleration is not correct."
-                elif "d " in line and "load" not in line:
-                    density = Atmosphere(1000).density[0]
-                    assert float(line.split()[1]) == pytest.approx(
-                        density, rel=1e-4
-                    ), "Density is not correct."
-                elif "v " in line:
-                    velocity = Atmosphere(1000).speed_of_sound[0] * 0.3
-                    assert float(line.split()[1]) == pytest.approx(
-                        velocity, rel=1e-4
-                    ), "Velocity is not correct."
+    file_exists = Path(tmp_path, "avl_commands.txt").exists()
+    assert file_exists, "File 'avl_commands.txt' not found."
+
+    if file_exists:
+        COMMAND_DIR = Path(tmp_path, "avl_commands.txt")
+        with open(COMMAND_TEM_DIR, 'r') as file1, open(COMMAND_DIR, 'r') as file2:
+            for line1, line2 in zip(file1, file2):
+                assert line1 == line2, "File 'avl_commands.txt' not correct."
+
+            # Check for any remaining lines in either file
+            assert not file1.read() or not file2.read(), "File 'avl_commands.txt' not correct."
 
 
 def test_get_aeromap_conditions():
@@ -90,26 +75,6 @@ def test_get_aeromap_conditions():
     assert mach_list[0] == 0.3, "Mach number from aeromap not correct, should be 0.3."
     assert aoa_list[0] == 5.0, "Aoa from aeromap not correct, should be 5.0 degrees."
     assert aos_list[0] == 0.0, "Altitude from aeromap not correct, should be 0.0 degrees"
-
-
-def test_delete_directory():
-    directories_to_delete = ["AVLpytest", "Results"]
-
-    for dir_name in directories_to_delete:
-        dir_path = Path.cwd() / dir_name
-
-        try:
-            if dir_path.exists() and dir_path.is_dir():
-                shutil.rmtree(dir_path)
-                print(f"Directory {dir_path} deleted successfully.")
-            else:
-                print(f"Directory {dir_path} does not exist.")
-
-            assert not dir_path.exists(), f"Directory {dir_path} was not deleted."
-
-        except Exception as e:
-            print(f"An error occurred while deleting {dir_path}: {e}")
-            raise
 
 
 def test_get_option_settings():

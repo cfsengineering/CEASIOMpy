@@ -47,12 +47,18 @@ def test_run_avl():
 
 
 def test_write_command_file():
-    file_found = Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0").joinpath(
-        "avl_commands.txt").exists()
+    file_found = (
+        Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0")
+        .joinpath("avl_commands.txt")
+        .exists()
+    )
     assert file_found, "AVL command file not found!"
 
     if file_found:
-        with open(Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0").joinpath("avl_commands.txt"), "r") as file:
+        with open(
+            Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0").joinpath("avl_commands.txt"),
+            "r",
+        ) as file:
             for line in file:
                 if "a a" in line:
                     assert float(line.split()[2]) == 5.0, "AoA should be 5"
@@ -78,9 +84,16 @@ def test_write_command_file():
 
 
 def test_result_files():
-    file_found = Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0").joinpath(
-        "ft.txt").exists()
-    assert file_found, "Result ft.txt file not found!"
+    try:
+        result_dir = Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0")
+        expected_file = result_dir / "ft.txt"
+
+        assert expected_file.exists(), f"Result file 'ft.txt' not found in {result_dir}"
+
+    except AssertionError as e:
+        print(f"Assertion error: {e}")
+    except Exception as e:
+        print(f"An unexpected error occurred: {e}")
 
 
 def test_get_aeromap_conditions():

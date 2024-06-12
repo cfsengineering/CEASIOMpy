@@ -20,8 +20,10 @@ from pathlib import Path
 import pytest
 from ambiance import Atmosphere
 from ceasiompy.PyAVL.avlrun import run_avl
-from ceasiompy.PyAVL.func.avlconfig import get_aeromap_conditions
-
+from ceasiompy.PyAVL.func.avlconfig import (
+    get_aeromap_conditions,
+    get_option_settings
+)
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 
 
@@ -110,9 +112,19 @@ def test_delete_directory():
             raise
 
 
+def test_get_option_settings():
+    save_plots, vortex_distribution, Nchordwise, Nspanwise, integrate_fuselage = get_option_settings(
+        CPACS_IN_PATH)
+    assert save_plots, "Option 'save_plots' should be 'True'."
+    assert vortex_distribution == 3.0, "Option 'vortex_distribution' should be '3.0'."
+    assert Nchordwise == 5, "Option 'Nchordwise' should be '5'."
+    assert Nspanwise == 20, "Option 'Nspanwise' should be '20'."
+    assert not integrate_fuselage, "Option 'integrate_fuselage' should be 'False'."
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 
 if __name__ == "__main__":
     print("Test avlconfig.py")

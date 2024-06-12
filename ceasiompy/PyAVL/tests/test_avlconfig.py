@@ -113,8 +113,12 @@ def test_delete_directory():
 
 
 def test_get_option_settings():
-    save_plots, vortex_distribution, Nchordwise, Nspanwise, integrate_fuselage = get_option_settings(
-        CPACS_IN_PATH)
+    (save_plots,
+     vortex_distribution,
+     Nchordwise,
+     Nspanwise,
+     integrate_fuselage) = get_option_settings(CPACS_IN_PATH)
+
     assert save_plots, "Option 'save_plots' should be 'True'."
     assert vortex_distribution == 3.0, "Option 'vortex_distribution' should be '3.0'."
     assert Nchordwise == 5, "Option 'Nchordwise' should be '5'."

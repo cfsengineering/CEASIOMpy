@@ -184,7 +184,7 @@ def get_avl_results(cpacs_path, cpacs_out_path, wkdir):
         print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
         base_path = Path("/home")
         for path in base_path.rglob('*'):
-            if 'ft.txt' in path.name:
+            if 'plot.pdf' in path.name:
                 print(path)
         print("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^")
 

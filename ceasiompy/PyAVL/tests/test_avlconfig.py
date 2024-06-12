@@ -41,6 +41,7 @@ CASE_DIR = Path(MODULE_DIR, "AVLpytest")
 
 
 def test_run_avl():
+    Path(MODULE_DIR, "AVLpytest").mkdir(parents=True, exist_ok=True)
     run_avl(CPACS_IN_PATH, CASE_DIR)
 
 
@@ -82,7 +83,6 @@ def test_write_command_file():
 
 
 def test_result_files():
-
     for file in ["ft", "fn", "fe", "fs", "st"]:
         try:
             result_dir = Path(CASE_DIR, "Case00_alt1000.0_mach0.3_aoa5.0_aos0.0")
@@ -118,8 +118,23 @@ def test_get_aeromap_conditions():
 
 
 def test_delete_directory():
-    shutil.rmtree(Path.cwd() / "AVLpytest")
-    shutil.rmtree(Path.cwd() / "Results")
+    directories_to_delete = ["AVLpytest", "Results"]
+
+    for dir_name in directories_to_delete:
+        dir_path = Path.cwd() / dir_name
+
+        try:
+            if dir_path.exists() and dir_path.is_dir():
+                shutil.rmtree(dir_path)
+                print(f"Directory {dir_path} deleted successfully.")
+            else:
+                print(f"Directory {dir_path} does not exist.")
+
+            assert not dir_path.exists(), f"Directory {dir_path} was not deleted."
+
+        except Exception as e:
+            print(f"An error occurred while deleting {dir_path}: {e}")
+            raise
 
 
 # =================================================================================================

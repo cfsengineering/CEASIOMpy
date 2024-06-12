@@ -106,7 +106,7 @@ def run_avl(cpacs_path, wkdir):
 
             with open(file_path, "w") as file:
                 file.write(command_str)
-            subprocess.call(conversion_command, cwd=case_dir_path, start_new_session=False)
+            subprocess.run(conversion_command, cwd=case_dir_path, start_new_session=False)
 
             delete_ps = ["rm", "plot.ps"]
             file_path_2 = "delete_command.txt"
@@ -116,7 +116,7 @@ def run_avl(cpacs_path, wkdir):
             with open(file_path_2, "w") as file:
                 file.write(command_str_2)
 
-            subprocess.call(delete_ps, cwd=case_dir_path, start_new_session=False)
+            subprocess.run(delete_ps, cwd=case_dir_path, start_new_session=False)
 
 
 # =================================================================================================

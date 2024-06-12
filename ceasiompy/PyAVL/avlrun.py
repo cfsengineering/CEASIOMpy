@@ -97,6 +97,9 @@ def run_avl(cpacs_path, wkdir):
             g_acceleration=g,
         )
 
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
+        print(case_dir_path)
+        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
         subprocess.run(["xvfb-run", "avl"], stdin=open(str(command_path), "r"), cwd=case_dir_path)
 
         if save_fig:

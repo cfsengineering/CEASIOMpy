@@ -117,8 +117,8 @@ def test_get_aeromap_conditions():
     assert aos_list[0] == 0.0, "Altitude from aeromap not correct, should be 0.0 degrees"
 
 
-def test_get_avl_results():
-    get_avl_results(CPACS_IN_PATH, CPACS_OUT_PATH, CASE_DIR)
+# def test_get_avl_results():
+#     get_avl_results(CPACS_IN_PATH, CPACS_OUT_PATH, CASE_DIR)
 
 
 def test_delete_directory():

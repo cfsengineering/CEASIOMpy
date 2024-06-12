@@ -209,6 +209,7 @@ def generate_2d_mesh_for_pentagrow(
     gmsh.model.add_physical_group(2, wing_surface, -1, name="wing_surface")
 
     gmsh.model.occ.synchronize()
+
     log.info("Start manipulation to obtain a watertight volume")
     log.info("Cutting parts...")
     # we have to obtain a wathertight volume
@@ -217,15 +218,49 @@ def generate_2d_mesh_for_pentagrow(
     #     wings_volume_dimtags,
     #     fuselage_volume_dimtags,
     # )
-    # gmsh.model.occ.cut(wings_volume_dimtags, fuselage_volume_dimtags, -1, False, False)
+    gmsh.model.occ.fuse(wings_volume_dimtags, wings_volume_dimtags, -1, False, False)
     log.info("Removing parts...")
-    inner_part = gmsh.model.occ.remove(
+    # gmsh.model.occ.cut(wings_volume_dimtags, fuselage_volume_dimtags, -1, False, False)
+
+    volume_inner_part = gmsh.model.occ.cut(
         wings_volume_dimtags, fuselage_volume_dimtags, -1, False, False
     )
+    volume_inner_part = volume_inner_part[:-1]
+    print(f"inner part={volume_inner_part}")
+    volume_inner_part = [(3, 4), (3, 5)]
+
+    surface_inner_part = gmsh.model.occ.cut(
+        wing_surface_dimtags, fuselage_surface_dimtags, -1, False, False
+    )
+    surface_inner_part = surface_inner_part[:-1]
+    print(f"inner part={surface_inner_part}")
+    surface_inner_part = [
+        (2, 15),
+        (2, 20),
+        (2, 3),
+        (2, 4),
+        (2, 5),
+        (2, 34),
+        (2, 35),
+        (2, 36),
+        (2, 37),
+        (2, 38),
+        (2, 39),
+        (2, 40),
+        (2, 41),
+        (2, 42),
+        (2, 43),
+        (2, 44),
+        (2, 45),
+        (2, 46),
+    ]
+
     gmsh.model.occ.synchronize()
 
-    gmsh.model.occ.delete(inner_part)
-
+    gmsh.model.occ.remove(volume_inner_part)
+    gmsh.model.occ.remove(surface_inner_part)
+    gmsh.model.occ.synchronize()
+    gmsh.fltk.run()
     log.info("Fusing parts...")
     # gmsh.model.occ.fuse(wings_volume_dimtags, fuselage_volume_dimtags, -1, False, False)
     gmsh.model.occ.fuse(wings_volume_dimtags, fuselage_volume_dimtags, -1, False, False)
@@ -251,7 +286,6 @@ def generate_2d_mesh_for_pentagrow(
     gmsh.model.occ.synchronize()
     log.info("Manipulation finished")
 
-    gmsh.fltk.run()
     # Mesh generation
     log.info("Start of gmsh 2D surface meshing process")
 
@@ -273,12 +307,12 @@ def generate_2d_mesh_for_pentagrow(
 
     gmsh.model.occ.synchronize()
 
-    gmesh_path = Path(results_dir, "mesh_2d.stl")
-    gmsh.write(str(gmesh_path))
+    gmsh_path = Path(results_dir, "mesh_2d.stl")
+    gmsh.write(str(gmsh_path))
 
     process_gmsh_log(gmsh.logger.get())
 
-    return gmesh_path, fuselage_maxlen
+    return gmsh_path, fuselage_maxlen
 
 
 def pentagrow_3d_mesh(

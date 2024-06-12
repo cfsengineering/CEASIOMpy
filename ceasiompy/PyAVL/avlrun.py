@@ -96,14 +96,24 @@ def run_avl(cpacs_path, wkdir):
             ref_density=density,
             g_acceleration=g,
         )
-        subprocess.run(["xvfb-run", "avl"], stdin=open(str(command_path), "r"), cwd=case_dir_path)
+        run_avl_command = ["xvfb-run", "avl"]
+        with open(command_path, "r") as command_file:
+            subprocess.run(
+                run_avl_command,
+                stdin=command_file,
+                cwd=case_dir_path,
+                start_new_session=False,
+                check=True,  # This will raise an exception if the command fails
+            )
 
         if save_fig:
             conversion_command = ["ps2pdf", "plot.ps", "plot.pdf"]
-            subprocess.call(conversion_command, cwd=case_dir_path, start_new_session=False)
+            subprocess.run(
+                conversion_command, cwd=case_dir_path, start_new_session=False, check=True
+            )
 
             delete_ps = ["rm", "plot.ps"]
-            subprocess.call(delete_ps, cwd=case_dir_path, start_new_session=False)
+            subprocess.run(delete_ps, cwd=case_dir_path, start_new_session=False, check=True)
 
 
 # =================================================================================================

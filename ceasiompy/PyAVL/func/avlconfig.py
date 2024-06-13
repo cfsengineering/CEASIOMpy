@@ -128,11 +128,9 @@ def write_command_file(
             command_file.write("quit")
 
     # Print the command file for debugging
-    '''
-    with open(command_path, "r") as command_file:
-        for line in command_file:
-            print(line)
-    '''
+    # with open(command_path, "r") as command_file:
+    #     for line in command_file:
+    #         print(line)
 
     return Path(command_path)
 

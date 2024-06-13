@@ -97,12 +97,12 @@ def run_avl(cpacs_path, wkdir):
             g_acceleration=g,
         )
 
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-        print(case_dir_path)
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
         subprocess.run(["xvfb-run", "avl"], stdin=open(str(command_path), "r"), cwd=case_dir_path)
 
         if save_fig:
+            if not Path(case_dir_path, "plot.ps").exists():
+                raise FileNotFoundError("File 'plot.ps' does not exist.")
+
             subprocess.run(["ps2pdf", "plot.ps", "plot.pdf"], cwd=case_dir_path)
             subprocess.run(["rm", "plot.ps"], cwd=case_dir_path)
 

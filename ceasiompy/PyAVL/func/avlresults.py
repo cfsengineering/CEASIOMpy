@@ -176,17 +176,13 @@ def get_avl_results(cpacs_path, cpacs_out_path, wkdir):
             continue
 
         ft_file_path = Path(config_dir, "ft.txt")
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-        for path in Path(config_dir).rglob('*'):
-            print(path)
-        print("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
 
         if not ft_file_path.exists():
-            raise OSError("No result total forces file have been found!")
+            raise FileNotFoundError("No result total forces 'ft.txt' file have been found!")
 
         fs_file_path = Path(config_dir, "fs.txt")
         if not fs_file_path.exists():
-            raise OSError("No result strip forces file have been found!")
+            raise FileNotFoundError("No result strip forces 'fs.txt' file have been found!")
 
         case_nb = int(config_dir.name.split("_")[0].split("Case")[1])
 

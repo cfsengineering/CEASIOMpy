@@ -100,7 +100,6 @@ def write_command_file(
             command_file.write("x\n")
             for force_file in ["ft", "fn", "fs", "fe", "st"]:
                 command_file.write(force_file + "\n")
-                # command_file.write(str(Path.cwd()) + "/" + force_file + ".txt\n")
                 command_file.write(force_file + ".txt\n")
             command_file.write("\n\n\n")
             command_file.write("quit")
@@ -124,14 +123,16 @@ def write_command_file(
             command_file.write("x\n")
             for force_file in ["ft", "fn", "fs", "fe", "st"]:
                 command_file.write(force_file + "\n")
-                # command_file.write(str(Path.cwd()) + "/" + force_file + ".txt\n")
                 command_file.write(force_file + ".txt\n")
             command_file.write("\n\n\n")
             command_file.write("quit")
 
+    # Print the command file for debugging
+    '''
     with open(command_path, "r") as command_file:
         for line in command_file:
             print(line)
+    '''
 
     return Path(command_path)
 

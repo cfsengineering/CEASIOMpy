@@ -23,7 +23,7 @@ Python version: >=3.8
 
 
 TODO:
-    * make working directories
+    * Refactoring
 
 """
 
@@ -55,7 +55,6 @@ FILE_SU2_CONF = Path(DIR_TOOL_INPUT, "ToolInput.su2")
 # =================================================================================================
 
 if __name__ == "__main__":
-
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     af.standard_run(args=af.StdRunArgs(dest=DIR_AEROFRAME_WKDIR, verbose=True))

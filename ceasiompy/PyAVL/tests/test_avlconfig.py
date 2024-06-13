@@ -87,7 +87,7 @@ def test_get_option_settings():
         integrate_fuselage,
     ) = get_option_settings(CPACS_IN_PATH)
 
-    assert save_plots, "Option 'save_plots' should be 'True'."
+    assert not save_plots, "Option 'save_plots' should be 'False'."
     assert vortex_distribution == 3.0, "Option 'vortex_distribution' should be '3.0'."
     assert Nchordwise == 5, "Option 'Nchordwise' should be '5'."
     assert Nspanwise == 20, "Option 'Nspanwise' should be '20'."

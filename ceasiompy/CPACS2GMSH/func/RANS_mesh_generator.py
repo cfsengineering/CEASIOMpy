@@ -273,6 +273,12 @@ def generate_2d_mesh_for_pentagrow(
         abs(model_bb[1] - model_bb[4]),
         abs(model_bb[2] - model_bb[5]),
     ]
+    model_center = [
+        model_bb[0] + model_dimensions[0] / 2,
+        0,  # the y coordinate is set to zero because sometimes (when act disk
+        # actuator is present) the coordinate of the model is not exact
+        model_bb[2] + model_dimensions[2] / 2,
+    ]
 
     fuselage_maxlen, _ = fuselage_size(cpacs_path)
 
@@ -312,7 +318,7 @@ def generate_2d_mesh_for_pentagrow(
 
     process_gmsh_log(gmsh.logger.get())
 
-    return gmsh_path, fuselage_maxlen
+    return gmsh_path, fuselage_maxlen, model_center
 
 
 def pentagrow_3d_mesh(
@@ -325,6 +331,7 @@ def pentagrow_3d_mesh(
     growth_factor,
     growth_ratio,
     feature_angle,
+    model_center,
 ) -> None:
     # create the config file for pentagrow
     config_penta_path = Path(result_dir, "config.cfg")
@@ -336,7 +343,7 @@ def pentagrow_3d_mesh(
     MaxGrowthRatio = growth_ratio
     MaxLayerThickness = max_layer_thickness / 10
     FarfieldRadius = fuselage_maxlen * farfield_factor * 100
-    FarfieldCenter = "0.0 0.0 0.0"
+    FarfieldCenter = model_center
     OutputFormat = "su2"
     HolePosition = "0.0 0.0 0.0"
     TetgenOptions = "-pq1.3VY"

@@ -148,7 +148,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
 
     else:
         export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
-        gmesh_path, fuselage_maxlen = generate_2d_mesh_for_pentagrow(
+        gmesh_path, fuselage_maxlen, model_center = generate_2d_mesh_for_pentagrow(
             cpacs,
             cpacs_path,
             brep_dir,
@@ -169,6 +169,7 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
                 growth_factor=growth_factor,
                 growth_ratio=growth_ratio,
                 feature_angle=feature_angle,
+                model_center=model_center,
             )
             if mesh_path.exists():
                 create_branch(cpacs.tixi, SU2MESH_XPATH)

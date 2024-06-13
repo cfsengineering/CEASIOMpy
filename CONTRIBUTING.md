@@ -178,7 +178,11 @@ Other resources that could the useful.
 
 #### SUMO
 
-- [SUMO website](https://www.larosterna.com/products/open-source)
+- [SUMO website](https://www.larosterna.com/oss/)
+
+#### AVL
+
+- [AVL website](https://web.mit.edu/drela/Public/web/avl/)
 
 #### SU2
 

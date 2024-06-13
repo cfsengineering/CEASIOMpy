@@ -327,7 +327,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="update_wetted_area",
     var_type=bool,
-    default_value=False,
+    default_value=True,
     unit="1",
     descr="Option to update the wetted area from the latest SU2 result.",
     xpath=SU2_UPDATE_WETTED_AREA_XPATH,

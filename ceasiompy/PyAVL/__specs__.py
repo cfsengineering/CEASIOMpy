@@ -89,7 +89,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="save_plots",
     var_type=bool,
-    default_value=True,
+    default_value=False,
     unit=None,
     descr="Select to save geometry and results plots",
     xpath=AVL_PLOT_XPATH,

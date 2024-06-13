@@ -202,7 +202,7 @@ def get_option_settings(cpacs_path):
     """
     cpacs = CPACS(cpacs_path)
 
-    save_plots = get_value_or_default(cpacs.tixi, AVL_PLOT_XPATH, True)
+    save_plots = get_value_or_default(cpacs.tixi, AVL_PLOT_XPATH, False)
     vortex_distribution_gui = get_value_or_default(
         cpacs.tixi, AVL_VORTEX_DISTR_XPATH + "/Distribution", "equal"
     )

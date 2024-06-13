@@ -124,7 +124,8 @@ def write_command_file(
             command_file.write("x\n")
             for force_file in ["ft", "fn", "fs", "fe", "st"]:
                 command_file.write(force_file + "\n")
-                command_file.write(str(Path.cwd()) + "/" + force_file + ".txt\n")
+                # command_file.write(str(Path.cwd()) + "/" + force_file + ".txt\n")
+                command_file.write(force_file + ".txt\n")
             command_file.write("\n\n\n")
             command_file.write("quit")
 

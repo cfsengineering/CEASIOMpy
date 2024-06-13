@@ -1,0 +1,37 @@
+load /path/to/avl/input/file/aircraft.avl
+mass /users/disk8/cfse3/Stage_Romain/CEASIOMpy/ceasiompy/PyAVL/files/template.mass
+oper
+g
+h
+
+a a 5.0
+b b 0.0
+m
+mn 0.3
+g 9.803565306802405
+d 1.1116596736996904
+v 100.93037463067732
+
+x
+t
+h
+
+g
+lo
+h
+
+x
+ft
+ft.txt
+fn
+fn.txt
+fs
+fs.txt
+fe
+fe.txt
+st
+st.txt
+
+
+
+quit

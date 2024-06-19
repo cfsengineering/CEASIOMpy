@@ -216,3 +216,7 @@ AVL_AEROMAP_UID_XPATH = AVL_XPATH + "/aeroMapUID"
 AVL_PLOT_XPATH = AVL_XPATH + "/SavePlots"
 AVL_FUSELAGE_XPATH = AVL_XPATH + "/IntegrateFuselage"
 AVL_VORTEX_DISTR_XPATH = AVL_XPATH + "/VortexDistribution"
+
+# FramAT
+FRAMAT_XPATH = CEASIOMPY_XPATH + "/structure/FramAT"
+FRAMAT_MATERIAL_XPATH = FRAMAT_XPATH + "/MaterialProperties"

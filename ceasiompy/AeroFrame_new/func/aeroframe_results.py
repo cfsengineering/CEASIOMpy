@@ -104,15 +104,14 @@ def compute_deformations(results, wing_df, centerline_df):
 
             horizontal_vec = np.array([1, 0, 0])
 
-            chord = np.linalg.norm(chord_line)
-            angle = calculate_angle(chord_line, horizontal_vec)
+            twist_angle = calculate_angle(chord_line, horizontal_vec)
 
             leading_edges.append(
-                (leading_edge["x_new"], leading_edge["y_new"], leading_edge["z_new"], chord, angle))
+                (leading_edge["x_new"], leading_edge["y_new"], leading_edge["z_new"], leading_edge["chord_length"], leading_edge["AoA"] + twist_angle))
 
     deformed_df = pd.DataFrame(leading_edges, columns=[
                                "x_leading", "y_leading", "z_leading", "chord", "AoA"])
-    deformed_df["x_leading"] -= deformed_df["x_leading"].min()
+    # deformed_df["x_leading"] -= deformed_df["x_leading"].min()
 
     max_y_new = wing_df["y_new_round"].max()
     tip_points = wing_df.query("y_new_round == @max_y_new")[["x_new", "y_new", "z_new"]].to_numpy()

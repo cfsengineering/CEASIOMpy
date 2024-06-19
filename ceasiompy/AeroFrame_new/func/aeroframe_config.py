@@ -346,7 +346,7 @@ def get_material_properties(cpacs_path):
     return young_modulus, shear_modulus, material_density
 
 
-def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_tip, tip_def, aera_profile, Ix_profile, Iy_profile):
+def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_tip, tip_def, aera_profile, Ix_profile, Iy_profile, chord_profile, twist_profile):
     if iter == 1:
         wing_df = pd.DataFrame({'x': [row[0] for row in xyz_tot],
                                 'y': [row[1] for row in xyz_tot],
@@ -368,6 +368,8 @@ def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_
 
         wing_df.sort_values(by="y", inplace=True)
         wing_df.reset_index(drop=True, inplace=True)
+        wing_df["chord_length"] = chord_profile(wing_df["y"])
+        wing_df["AoA"] = twist_profile(wing_df["y"])
 
         centerline_df = (wing_df.groupby("y")[["x", "z"]].max(
         ) + wing_df.groupby("y")[["x", "z"]].min()) / 2
@@ -452,6 +454,7 @@ def compute_cross_section(cpacs_path):
         log.warning("No wings has been found in this CPACS file!")
 
     wg_origin_list = []
+    wg_twist_list = []
     area_list = []
     wg_center_x_list = []
     wg_center_y_list = []
@@ -604,6 +607,10 @@ def compute_cross_section(cpacs_path):
                 add_rotation.z = elem_transf.rotation.z + \
                     sec_transf.rotation.z + wg_sk_transf.rotation.z
 
+                # Get Section rotation
+                wg_sec_rot = euler2fix(add_rotation)
+                wg_sec_twist = math.radians(wg_sec_rot.y)
+
                 wg_sec_center_x = (
                     elem_transf.translation.x
                     + sec_transf.translation.x + pos_x_list[i_sec]
@@ -626,6 +633,7 @@ def compute_cross_section(cpacs_path):
                              round(wg_sk_transf.translation.z, 3)]
 
                 wg_origin_list.append(wg_origin)
+                wg_twist_list.append(wg_sec_twist)
                 area_list.append(PolyArea(prof_vect_x, prof_vect_z))
                 Ix, Iy = second_moments_of_area(x=prof_vect_x, y=prof_vect_z)
                 Ix_list.append(Ix)
@@ -635,12 +643,13 @@ def compute_cross_section(cpacs_path):
                 wg_center_z_list.append(wg_sec_center_z)
                 wg_chord_list.append(wg_sec_chord)
 
-    return wg_origin_list, area_list, Ix_list, Iy_list, wg_center_x_list, wg_center_y_list, wg_center_z_list, wg_chord_list
+    return wg_origin_list, wg_twist_list, area_list, Ix_list, Iy_list, wg_center_x_list, wg_center_y_list, wg_center_z_list, wg_chord_list
 
 
 def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, deformed_df):
-    deformed_df_sorted = deformed_df.sort_values(by="y_leading").reset_index()
-    print(deformed_df_sorted)
+    deformed_df.sort_values(by="y_leading", inplace=True)
+    deformed_df.reset_index(drop=True, inplace=True)
+    print(deformed_df)
     with open(UNDEFORMED_PATH, "r") as file_undeformed:
         with open(DEFORMED_PATH, "w") as file_deformed:
             for line in file_undeformed:
@@ -650,15 +659,16 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, deformed_df):
 
             file_deformed.writelines(
                 ["TRANSLATE\n",
-                 "0.0\t0.0\t0.0\n"])
+                 "0.0\t0.0\t0.0\n\n",
+                 "#---------------\n"])
             step = 5
             # for i_node in range(0, len(deformed_df_sorted), step):
-            for i_node in range(len(deformed_df_sorted)):
-                x_new = deformed_df_sorted.iloc[i_node]["x_leading"]
-                y_new = deformed_df_sorted.iloc[i_node]["y_leading"]
-                z_new = deformed_df_sorted.iloc[i_node]["z_leading"]
-                chord = deformed_df_sorted.iloc[i_node]["chord"]
-                AoA = deformed_df_sorted.iloc[i_node]["AoA"]
+            for i_node in range(len(deformed_df)):
+                x_new = deformed_df.iloc[i_node]["x_leading"]
+                y_new = deformed_df.iloc[i_node]["y_leading"]
+                z_new = deformed_df.iloc[i_node]["z_leading"]
+                chord = deformed_df.iloc[i_node]["chord"]
+                AoA = deformed_df.iloc[i_node]["AoA"]
                 file_deformed.writelines(
                     ["SECTION\n",
                      "#Xle    Yle    Zle     Chord   Ainc\n",

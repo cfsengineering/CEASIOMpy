@@ -25,6 +25,7 @@ from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_toolou
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.PyAVL.avlrun import run_avl
 from ceasiompy.PyAVL.func.avlconfig import get_aeromap_conditions
+from ceasiompy.PyAVL.func.avlresults import convert_ps_to_pdf
 from ceasiompy.AeroFrame_new.func.aeroframe_config import (
     read_AVL_fe_file,
     create_framat_model,
@@ -64,7 +65,7 @@ MODULE_NAME = MODULE_DIR.name
 #   FUNCTIONS
 # =================================================================================================
 
-def aeroelastic_loop(cpacs_path, xyz, fxyz, area_list, Ix_list, Iy_list, wg_center_x_list, wg_center_y_list, wg_center_z_list, wing_transl_list, CASE_PATH):
+def aeroelastic_loop(cpacs_path, xyz, fxyz, area_list, Ix_list, Iy_list, chord_list, wg_center_x_list, wg_center_y_list, wg_center_z_list, wing_transl_list, wg_twist_list, CASE_PATH):
 
     delta_tip = []
     iter = 0
@@ -85,6 +86,8 @@ def aeroelastic_loop(cpacs_path, xyz, fxyz, area_list, Ix_list, Iy_list, wg_cent
     aera_profile = interpolate.interp1d(wg_center_y_list, area_list)
     Ix_profile = interpolate.interp1d(wg_center_y_list, Ix_list)
     Iy_profile = interpolate.interp1d(wg_center_y_list, Iy_list)
+    chord_profile = interpolate.interp1d(wg_center_y_list, chord_list)
+    twist_profile = interpolate.interp1d(wg_center_y_list, wg_twist_list)
 
     young_modulus, shear_modulus, material_density = get_material_properties(cpacs_path)
     wing_df = pd.DataFrame()
@@ -109,7 +112,7 @@ def aeroelastic_loop(cpacs_path, xyz, fxyz, area_list, Ix_list, Iy_list, wg_cent
         fxyz_tot = np.vstack((fxyz_root, fxyz))
 
         wing_df_new, centerline_df_new, internal_load_df = create_wing_centerline(
-            wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_tip, tip_points, aera_profile, Ix_profile, Iy_profile)
+            wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_tip, tip_points, aera_profile, Ix_profile, Iy_profile, chord_profile, twist_profile)
 
         plot_fem_mesh(wing_df_new, centerline_df_new, wkdir=ITERATION_PATH)
 
@@ -142,6 +145,7 @@ def aeroelastic_loop(cpacs_path, xyz, fxyz, area_list, Ix_list, Iy_list, wg_cent
         write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND)
         subprocess.run(["xvfb-run", "avl"],
                        stdin=open(str(DEFORMED_COMMAND), "r"), cwd=ITERATION_PATH)
+        convert_ps_to_pdf(wkdir=ITERATION_PATH)
 
         wing_df = wing_df_new
         centerline_df = centerline_df_new
@@ -191,13 +195,13 @@ def aeroframe_run(cpacs_path, wkdir):
         surface_name_list, nspanwise_list, nchordwise_list, xyz_list, p_xyz_list, slope_list = read_AVL_fe_file(
             FE_PATH, plot=False)
 
-        wing_transl_list, area_list, Ix_list, Iy_list, wg_center_x_list, wg_center_y_list, wg_center_z_list, wg_chord_list = compute_cross_section(
+        wing_transl_list, wg_twist_list, area_list, Ix_list, Iy_list, wg_center_x_list, wg_center_y_list, wg_center_z_list, wg_chord_list = compute_cross_section(
             cpacs_path)
 
         f_xyz_list = np.array(p_xyz_list) * 0.5 * fluid_density * fluid_velocity**2
 
         tip_deflection, residuals = aeroelastic_loop(cpacs_path, xyz_list[0], f_xyz_list[0], area_list, Ix_list,
-                                                     Iy_list, wg_center_x_list, wg_center_y_list, wg_center_z_list, wing_transl_list, CASE_PATH)
+                                                     Iy_list, wg_chord_list, wg_center_x_list, wg_center_y_list, wg_center_z_list, wing_transl_list, wg_twist_list, CASE_PATH)
 
         plot_convergence(tip_deflection, residuals, wkdir=CASE_PATH)
 

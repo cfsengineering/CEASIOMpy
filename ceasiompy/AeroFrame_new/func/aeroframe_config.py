@@ -355,16 +355,19 @@ def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_
                                 'Fy': [row[1] for row in fxyz_tot],
                                 'Fz': [row[2] for row in fxyz_tot]})
 
-        wing_df = wing_df.append({"x": xyz_tip[0],
-                                  "y": xyz_tip[1],
-                                  "z": xyz_tip[2],
-                                  "Fx": 0,
-                                  "Fy": 0,
-                                  "Fz": 0,
-                                  "Mx": 0,
-                                  "My": 0,
-                                  "Mz": 0},
-                                 ignore_index=True)
+        tip_row = pd.DataFrame([{
+            "x": xyz_tip[0],
+            "y": xyz_tip[1],
+            "z": xyz_tip[2],
+            "Fx": 0,
+            "Fy": 0,
+            "Fz": 0,
+            "Mx": 0,
+            "My": 0,
+            "Mz": 0
+        }])
+
+        wing_df = pd.concat([wing_df, tip_row], ignore_index=True)
 
         wing_df.sort_values(by="y", inplace=True)
         wing_df.reset_index(drop=True, inplace=True)
@@ -661,9 +664,9 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, deformed_df):
                 ["TRANSLATE\n",
                  "0.0\t0.0\t0.0\n\n",
                  "#---------------\n"])
-            step = 5
-            # for i_node in range(0, len(deformed_df_sorted), step):
-            for i_node in range(len(deformed_df)):
+            step = 2
+            for i_node in range(0, len(deformed_df), step):
+                # for i_node in range(len(deformed_df)):
                 x_new = deformed_df.iloc[i_node]["x_leading"]
                 y_new = deformed_df.iloc[i_node]["y_leading"]
                 z_new = deformed_df.iloc[i_node]["z_leading"]
@@ -674,17 +677,17 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, deformed_df):
                      "#Xle    Yle    Zle     Chord   Ainc\n",
                      f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord:.3f} {AoA:.3e}\n",
                      "#---------------\n"])
-            # if (len(deformed_df_sorted) - 1) % step:
-            #     x_new = deformed_df_sorted.iloc[-1]["x_leading"]
-            #     y_new = deformed_df_sorted.iloc[-1]["y_leading"]
-            #     z_new = deformed_df_sorted.iloc[-1]["z_leading"]
-            #     chord = deformed_df_sorted.iloc[-1]["chord"]
-            #     AoA = deformed_df_sorted.iloc[-1]["AoA"]
-            #     file_deformed.writelines(
-            #         ["SECTION\n",
-            #             "#Xle    Yle    Zle     Chord   Ainc\n",
-            #             f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord} {AoA:.3e}\n",
-            #             "#---------------\n"])
+            if (len(deformed_df) - 1) % step:
+                x_new = deformed_df.iloc[-1]["x_leading"]
+                y_new = deformed_df.iloc[-1]["y_leading"]
+                z_new = deformed_df.iloc[-1]["z_leading"]
+                chord = deformed_df.iloc[-1]["chord"]
+                AoA = deformed_df.iloc[-1]["AoA"]
+                file_deformed.writelines(
+                    ["SECTION\n",
+                        "#Xle    Yle    Zle     Chord   Ainc\n",
+                        f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord} {AoA:.3e}\n",
+                        "#---------------\n"])
 
 
 def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):

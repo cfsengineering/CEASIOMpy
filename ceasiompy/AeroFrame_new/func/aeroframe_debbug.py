@@ -53,6 +53,32 @@ def plot_fem_mesh(wing_df, centerline_df, wkdir):
     fig.tight_layout()
     fig.savefig(Path(wkdir, "structural_mesh.png"))
 
+
+def plot_deformed_wing(centerline_df, undeformed_df, wkdir):
+    fig, axs = plt.subplots()
+    axs.plot(centerline_df['y_new'],
+             centerline_df['z_new'],
+             '-o',
+             label='Deformed wing',
+             linewidth=2,
+             color='r')
+
+    axs.plot(undeformed_df["y"], undeformed_df["z"], '-o', label="Undeformed wing", linewidth=2)
+    axs.set_xlabel('$y$ [m]')
+    axs.set_ylabel('$z$ [m]', rotation=0)
+    axs.set_title('Wing shape in y-z plane')
+    axs.legend()
+    # plt.axis('equal')
+
+    # for index, row in centerline_df.iterrows():
+    #     y, z = row['y'], row['z']
+    #     Fy, Fz = row['Fy'], row['Fz']
+    #     axs.quiver(y, z, Fy, Fz, angles='uv', scale=10, color='k', width=0.003)
+
+    fig.tight_layout()
+    fig.savefig(Path(wkdir, "deformed_wing.png"))
+
+
     # =================================================================================================
     #    MAIN
     # =================================================================================================

@@ -46,7 +46,10 @@ from ceasiompy.AeroFrame_new.func.aeroframe_results import (
     plot_convergence
 )
 
-from ceasiompy.AeroFrame_new.func.aeroframe_debbug import plot_fem_mesh
+from ceasiompy.AeroFrame_new.func.aeroframe_debbug import (
+    plot_fem_mesh,
+    plot_deformed_wing
+)
 
 from ceasiompy.utils.commonxpath import (
     AVL_PLOT_XPATH,
@@ -113,7 +116,7 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, area_list, Ix_list, Iy_list, chor
     wing_df = pd.DataFrame()
     centerline_df = pd.DataFrame()
 
-    while res[-1] > tol and iter < 3:
+    while res[-1] > tol and iter < 8:
         iter += 1
 
         Path(CASE_PATH, f"Iteration_{iter+1}", "AVL").mkdir(parents=True, exist_ok=True)
@@ -132,7 +135,11 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, area_list, Ix_list, Iy_list, chor
         wing_df_new, centerline_df_new, internal_load_df = create_wing_centerline(
             wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_tip, tip_points, aera_profile, Ix_profile, Iy_profile, chord_profile, twist_profile)
 
+        if iter == 1:
+            undeformed_df = centerline_df_new.copy(deep=True)
+
         plot_fem_mesh(wing_df_new, centerline_df_new, wkdir=FRAMAT_ITER_PATH)
+        plot_deformed_wing(centerline_df_new, undeformed_df, wkdir=FRAMAT_ITER_PATH)
 
         model = create_framat_model(young_modulus, shear_modulus,
                                     material_density, centerline_df_new, internal_load_df)

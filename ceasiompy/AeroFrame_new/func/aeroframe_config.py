@@ -256,8 +256,8 @@ def create_framat_model(young_modulus, shear_modulus, material_density, centerli
 
     # Material
     mat = model.add_feature('material', uid='material')
-    mat.set('E', young_modulus)
-    mat.set('G', shear_modulus)
+    mat.set('E', young_modulus * 1e9)
+    mat.set('G', shear_modulus * 1e9)
     mat.set('rho', material_density)
 
     # Initialize boundary condition

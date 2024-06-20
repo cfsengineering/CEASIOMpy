@@ -25,6 +25,7 @@ from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_toolou
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.PyAVL.avlrun import run_avl
 from ceasiompy.PyAVL.func.avlconfig import get_aeromap_conditions
+from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.PyAVL.func.avlresults import convert_ps_to_pdf
 from ceasiompy.AeroFrame_new.func.aeroframe_config import (
     read_AVL_fe_file,
@@ -42,6 +43,9 @@ from ceasiompy.AeroFrame_new.func.aeroframe_results import (
 )
 
 from ceasiompy.AeroFrame_new.func.aeroframe_debbug import plot_fem_mesh
+
+from ceasiompy.utils.commonxpath import AVL_PLOT_XPATH
+from cpacspy.cpacspy import CPACS
 
 from pathlib import Path
 from ambiance import Atmosphere
@@ -66,6 +70,8 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 
 def aeroelastic_loop(cpacs_path, xyz, fxyz, area_list, Ix_list, Iy_list, chord_list, wg_center_x_list, wg_center_y_list, wg_center_z_list, wing_transl_list, wg_twist_list, CASE_PATH):
+
+    cpacs = CPACS(cpacs_path)
 
     delta_tip = []
     iter = 0
@@ -127,7 +133,7 @@ def aeroelastic_loop(cpacs_path, xyz, fxyz, area_list, Ix_list, Iy_list, chord_l
 
         write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, deformed_df)
 
-        alpha_u = 0.3
+        alpha_u = 1
         tip_deflection = centerline_df["z_new"].max() - xyz_tip[2]
         if iter == 1:
             delta_tip.append(tip_deflection)
@@ -145,7 +151,10 @@ def aeroelastic_loop(cpacs_path, xyz, fxyz, area_list, Ix_list, Iy_list, chord_l
         write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND)
         subprocess.run(["xvfb-run", "avl"],
                        stdin=open(str(DEFORMED_COMMAND), "r"), cwd=ITERATION_PATH)
-        convert_ps_to_pdf(wkdir=ITERATION_PATH)
+
+        save_avl_plot = get_value_or_default(cpacs.tixi, AVL_PLOT_XPATH, False)
+        if save_avl_plot:
+            convert_ps_to_pdf(wkdir=ITERATION_PATH)
 
         wing_df = wing_df_new
         centerline_df = centerline_df_new

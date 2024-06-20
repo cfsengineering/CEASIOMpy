@@ -85,24 +85,24 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="young_modulus",
     var_type=float,
-    default_value=32.5e10,
+    default_value=325,
     unit=None,
-    descr="Enter the Young modulus of the wing material in Pa.",
+    descr="Enter the Young modulus of the wing material in GPa.",
     xpath=FRAMAT_MATERIAL_XPATH + "/YoungModulus",
     gui=True,
-    gui_name="Young modulus [Pa]",
+    gui_name="Young modulus [GPa]",
     gui_group="FramAT: Material properties",
 )
 
 cpacs_inout.add_input(
     var_name="shear_modulus",
     var_type=float,
-    default_value=1.25e11,
+    default_value=125,
     unit=None,
-    descr="Enter the shear modulus of the wing material in Pa.",
+    descr="Enter the shear modulus of the wing material in GPa.",
     xpath=FRAMAT_MATERIAL_XPATH + "/ShearModulus",
     gui=True,
-    gui_name="Shear modulus [Pa]",
+    gui_name="Shear modulus [GPa]",
     gui_group="FramAT: Material properties",
 )
 

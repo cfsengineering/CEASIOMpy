@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Script to run aeroelastic computations using AVL to compute 
+Script to run aeroelastic computations using AVL to compute
 aerodynamic loads and FramAT for structural calculations.
 
 Python version: >=3.8
@@ -93,7 +93,7 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, area_list, Ix_list, Iy_list, chor
     delta_tip = []
     iter = 0
     res = [1]
-    tol = 1e-6
+    tol = 1e-3
 
     xyz_root = np.array([wg_center_x_list[0] + wing_transl_list[0][0],
                          wg_center_y_list[0] + wing_transl_list[0][1],
@@ -116,7 +116,7 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, area_list, Ix_list, Iy_list, chor
     wing_df = pd.DataFrame()
     centerline_df = pd.DataFrame()
 
-    while res[-1] > tol and iter < 8:
+    while res[-1] > tol and iter < 10:
         iter += 1
 
         Path(CASE_PATH, f"Iteration_{iter+1}", "AVL").mkdir(parents=True, exist_ok=True)
@@ -133,7 +133,7 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, area_list, Ix_list, Iy_list, chor
         fxyz_tot = np.vstack((fxyz_root, fxyz))
 
         wing_df_new, centerline_df_new, internal_load_df = create_wing_centerline(
-            wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_tip, tip_points, aera_profile, Ix_profile, Iy_profile, chord_profile, twist_profile)
+            wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_tip, tip_points, aera_profile, Ix_profile, Iy_profile, chord_profile, twist_profile, CASE_PATH, AVL_UNDEFORMED_PATH)
 
         if iter == 1:
             undeformed_df = centerline_df_new.copy(deep=True)

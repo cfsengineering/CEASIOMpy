@@ -24,6 +24,7 @@ import re
 import numpy as np
 import matplotlib.pyplot as plt
 import math
+from pathlib import Path
 from framat import Model
 from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import get_value_or_default
@@ -346,34 +347,191 @@ def get_material_properties(cpacs_path):
     return young_modulus, shear_modulus, material_density
 
 
-def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_tip, tip_def, aera_profile, Ix_profile, Iy_profile, chord_profile, twist_profile):
+def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_tip, tip_def, aera_profile, Ix_profile, Iy_profile, chord_profile, twist_profile, CASE_PATH, AVL_UNDEFORMED_PATH):
+
+    # if iter == 1:
+    #     wing_df = pd.DataFrame({'x': [row[0] for row in xyz_tot],
+    #                             'y': [row[1] for row in xyz_tot],
+    #                             'z': [row[2] for row in xyz_tot],
+    #                             'Fx': [row[0] for row in fxyz_tot],
+    #                             'Fy': [row[1] for row in fxyz_tot],
+    #                             'Fz': [row[2] for row in fxyz_tot]})
+
+    #     tip_row = pd.DataFrame([{
+    #         "x": xyz_tip[0],
+    #         "y": xyz_tip[1],
+    #         "z": xyz_tip[2],
+    #         "Fx": 0,
+    #         "Fy": 0,
+    #         "Fz": 0
+    #     }])
+
+    #     wing_df = pd.concat([wing_df, tip_row], ignore_index=True)
+
+    #     Xle, Yle, Zle = interpolate_leading_edge(
+    #         AVL_UNDEFORMED_PATH, CASE_PATH, iter, y_query=wing_df["y"].unique())
+    #     leading_edge = []
+    #     trailing_edge = []
+
+    #     Xte = Xle + chord_profile(Yle)
+    #     Yte = Yle
+    #     Zte = Zle
+
+    #     for i in range(len(Xle)):
+    #         leading_edge.append({
+    #             "x": Xle[i],
+    #             "y": Yle[i],
+    #             "z": Zle[i],
+    #             "Fx": 0.0,
+    #             "Fy": 0.0,
+    #             "Fz": 0.0
+    #         })
+
+    #     for i in range(len(Xte)):
+    #         trailing_edge.append({
+    #             "x": Xte[i],
+    #             "y": Yte[i],
+    #             "z": Zte[i],
+    #             "Fx": 0.0,
+    #             "Fy": 0.0,
+    #             "Fz": 0.0
+    #         })
+
+    #     leading_edge_df = pd.DataFrame(leading_edge)
+    #     trailing_edge_df = pd.DataFrame(trailing_edge)
+
+    #     wing_df = pd.concat([wing_df, leading_edge_df, trailing_edge_df], ignore_index=True)
+    #     log.info(xyz_tip)
+
+    #     wing_df.sort_values(by="y", inplace=True)
+    #     wing_df.reset_index(drop=True, inplace=True)
+    #     wing_df["chord_length"] = chord_profile(wing_df["y"])
+    #     wing_df["AoA"] = twist_profile(wing_df["y"])
+
+    #     centerline_df = (wing_df.groupby("y")[["x", "z"]].max(
+    #     ) + wing_df.groupby("y")[["x", "z"]].min()) / 2
+    #     centerline_df = centerline_df.reset_index().reindex(columns=["x", "y", "z"])
+    #     centerline_df[["Fx", "Fy", "Fz", "Mx", "My", "Mz"]] = 0
+    #     centerline_df["x_new"] = centerline_df["x"]
+    #     centerline_df["y_new"] = centerline_df["y"]
+    #     centerline_df["z_new"] = centerline_df["z"]
+    #     internal_load_df = centerline_df.copy(deep=True)
+
+    #     centerline_df['node_uid'] = centerline_df.apply(
+    #         lambda row: "wing1_node" + str(row.name + 1), axis=1)
+    #     centerline_df['cross_section_uid'] = centerline_df.apply(
+    #         lambda row: "wing1_cross-sec" + str(row.name + 1), axis=1)
+
+    #     centerline_df["cross_section_area"] = aera_profile(centerline_df["y"])
+    #     centerline_df["cross_section_Ix"] = Ix_profile(centerline_df["y"])
+    #     centerline_df["cross_section_Iy"] = Iy_profile(centerline_df["y"])
+    #     centerline_df["cross_section_J"] = centerline_df["cross_section_Ix"] + \
+    #         centerline_df["cross_section_Iy"]
+
+    #     distances = cdist(wing_df[['x', 'y', 'z']], centerline_df[['x', 'y', 'z']])
+    #     closest_centerline_indices = distances.argmin(axis=1)
+
+    #     for coord in ['x', 'y', 'z']:
+    #         wing_df['closest_centerline_'
+    #                 + coord] = centerline_df.loc[closest_centerline_indices, coord].values
+
+    #     wing_df['closest_centerline_index'] = closest_centerline_indices
+
+    # else:
+    #     Xle, Yle, Zle = interpolate_leading_edge(
+    #         AVL_UNDEFORMED_PATH, CASE_PATH, iter, y_query=wing_df["y"].unique())
+    #     leading_edge = []
+    #     trailing_edge = []
+
+    #     log.info(Xle)
+    #     log.info(Yle)
+    #     log.info(Zle)
+
+    #     Xte = Xle + chord_profile(Yle)
+    #     Yte = Yle
+    #     Zte = Zle
+
+    #     leading = np.column_stack((Xle, Yle, Zle))
+    #     trailing = np.column_stack((Xte, Yte, Zte))
+
+    #     log.info(tip_def[1])
+
+    #     wing_df["x"] = [row[0]
+    #                     for row in np.vstack((xyz_tot, tip_def[1], leading, trailing))]
+    #     wing_df["y"] = [row[1]
+    #                     for row in np.vstack((xyz_tot, tip_def[1], leading, trailing))]
+    #     wing_df["z"] = [row[2]
+    #                     for row in np.vstack((xyz_tot, tip_def[1], leading, trailing))]
+    #     wing_df["Fx"] = [row[0]
+    #                      for row in np.vstack((fxyz_tot, np.zeros((2 * len(leading) + 1, 3))))]
+    #     wing_df["Fy"] = [row[1]
+    #                      for row in np.vstack((fxyz_tot, np.zeros((2 * len(leading) + 1, 3))))]
+    #     wing_df["Fz"] = [row[2]
+    #                      for row in np.vstack((fxyz_tot, np.zeros((2 * len(leading) + 1, 3))))]
+    #     internal_load_df = centerline_df.copy(deep=True)
+    #     centerline_df[["Fx", "Fy", "Fz", "Mx", "My", "Mz"]] = 0
+    #     centerline_df["x"] = centerline_df["x_new"]
+    #     centerline_df["y"] = centerline_df["y_new"]
+    #     centerline_df["z"] = centerline_df["z_new"]
+
+    wing_df = pd.DataFrame({'x': [row[0] for row in xyz_tot],
+                            'y': [row[1] for row in xyz_tot],
+                            'z': [row[2] for row in xyz_tot],
+                            'Fx': [row[0] for row in fxyz_tot],
+                            'Fy': [row[1] for row in fxyz_tot],
+                            'Fz': [row[2] for row in fxyz_tot]})
+
+    tip_row = pd.DataFrame([{
+        "x": xyz_tip[0],
+        "y": xyz_tip[1],
+        "z": xyz_tip[2],
+        "Fx": 0,
+        "Fy": 0,
+        "Fz": 0
+    }])
+
+    wing_df = pd.concat([wing_df, tip_row], ignore_index=True)
+
+    Xle, Yle, Zle = interpolate_leading_edge(
+        AVL_UNDEFORMED_PATH, CASE_PATH, iter, y_query=wing_df["y"].unique())
+    leading_edge = []
+    trailing_edge = []
+
+    Xte = Xle + chord_profile(Yle)
+    Yte = Yle
+    Zte = Zle
+
+    for i in range(len(Xle)):
+        leading_edge.append({
+            "x": Xle[i],
+            "y": Yle[i],
+            "z": Zle[i],
+            "Fx": 0.0,
+            "Fy": 0.0,
+            "Fz": 0.0
+        })
+
+    for i in range(len(Xte)):
+        trailing_edge.append({
+            "x": Xte[i],
+            "y": Yte[i],
+            "z": Zte[i],
+            "Fx": 0.0,
+            "Fy": 0.0,
+            "Fz": 0.0
+        })
+
+    leading_edge_df = pd.DataFrame(leading_edge)
+    trailing_edge_df = pd.DataFrame(trailing_edge)
+
+    wing_df = pd.concat([wing_df, leading_edge_df, trailing_edge_df], ignore_index=True)
+
+    wing_df.sort_values(by="y", inplace=True)
+    wing_df.reset_index(drop=True, inplace=True)
+    wing_df["chord_length"] = chord_profile(wing_df["y"])
+    wing_df["AoA"] = twist_profile(wing_df["y"])
+
     if iter == 1:
-        wing_df = pd.DataFrame({'x': [row[0] for row in xyz_tot],
-                                'y': [row[1] for row in xyz_tot],
-                                'z': [row[2] for row in xyz_tot],
-                                'Fx': [row[0] for row in fxyz_tot],
-                                'Fy': [row[1] for row in fxyz_tot],
-                                'Fz': [row[2] for row in fxyz_tot]})
-
-        tip_row = pd.DataFrame([{
-            "x": xyz_tip[0],
-            "y": xyz_tip[1],
-            "z": xyz_tip[2],
-            "Fx": 0,
-            "Fy": 0,
-            "Fz": 0,
-            "Mx": 0,
-            "My": 0,
-            "Mz": 0
-        }])
-
-        wing_df = pd.concat([wing_df, tip_row], ignore_index=True)
-
-        wing_df.sort_values(by="y", inplace=True)
-        wing_df.reset_index(drop=True, inplace=True)
-        wing_df["chord_length"] = chord_profile(wing_df["y"])
-        wing_df["AoA"] = twist_profile(wing_df["y"])
-
         centerline_df = (wing_df.groupby("y")[["x", "z"]].max(
         ) + wing_df.groupby("y")[["x", "z"]].min()) / 2
         centerline_df = centerline_df.reset_index().reindex(columns=["x", "y", "z"])
@@ -394,27 +552,21 @@ def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_
         centerline_df["cross_section_J"] = centerline_df["cross_section_Ix"] + \
             centerline_df["cross_section_Iy"]
 
-        distances = cdist(wing_df[['x', 'y', 'z']], centerline_df[['x', 'y', 'z']])
-        closest_centerline_indices = distances.argmin(axis=1)
-
-        for coord in ['x', 'y', 'z']:
-            wing_df['closest_centerline_'
-                    + coord] = centerline_df.loc[closest_centerline_indices, coord].values
-
-        wing_df['closest_centerline_index'] = closest_centerline_indices
-
     else:
-        wing_df["x"] = [row[0] for row in np.vstack((xyz_tot, tip_def))]
-        wing_df["y"] = [row[1] for row in np.vstack((xyz_tot, tip_def))]
-        wing_df["z"] = [row[2] for row in np.vstack((xyz_tot, tip_def))]
-        wing_df["Fx"] = [row[0] for row in np.vstack((fxyz_tot, [0, 0, 0]))]
-        wing_df["Fy"] = [row[1] for row in np.vstack((fxyz_tot, [0, 0, 0]))]
-        wing_df["Fz"] = [row[2] for row in np.vstack((fxyz_tot, [0, 0, 0]))]
         internal_load_df = centerline_df.copy(deep=True)
         centerline_df[["Fx", "Fy", "Fz", "Mx", "My", "Mz"]] = 0
         centerline_df["x"] = centerline_df["x_new"]
         centerline_df["y"] = centerline_df["y_new"]
         centerline_df["z"] = centerline_df["z_new"]
+
+    distances = cdist(wing_df[['x', 'y', 'z']], centerline_df[['x', 'y', 'z']])
+    closest_centerline_indices = distances.argmin(axis=1)
+
+    for coord in ['x', 'y', 'z']:
+        wing_df['closest_centerline_'
+                + coord] = centerline_df.loc[closest_centerline_indices, coord].values
+
+    wing_df['closest_centerline_index'] = closest_centerline_indices
 
     def compute_distance_and_moment(row):
         point_xyz = np.array([row['x'], row['y'], row['z']])
@@ -652,7 +804,7 @@ def compute_cross_section(cpacs_path):
 def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, deformed_df):
     deformed_df.sort_values(by="y_leading", inplace=True)
     deformed_df.reset_index(drop=True, inplace=True)
-    print(deformed_df)
+    log.info(deformed_df)
     with open(UNDEFORMED_PATH, "r") as file_undeformed:
         with open(DEFORMED_PATH, "w") as file_deformed:
             for line in file_undeformed:
@@ -664,7 +816,7 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, deformed_df):
                 ["TRANSLATE\n",
                  "0.0\t0.0\t0.0\n\n",
                  "#---------------\n"])
-            step = 2
+            step = 3
             for i_node in range(0, len(deformed_df), step):
                 # for i_node in range(len(deformed_df)):
                 x_new = deformed_df.iloc[i_node]["x_leading"]
@@ -697,6 +849,52 @@ def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):
             for line in undeformed:
                 if "load" not in line:
                     deformed.write(line)
+
+
+def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, iter, y_query):
+    Xle_list = []
+    Yle_list = []
+    Zle_list = []
+    # Chord_list = []
+
+    if iter == 1:
+        path_to_read = AVL_UNDEFORMED_PATH
+    else:
+        path_to_read = Path(CASE_PATH, f"Iteration_{iter}", "AVL", "deformed.avl")
+
+    with open(path_to_read, "r") as f:
+        lines = f.readlines()
+        for i, line in enumerate(lines):
+            if "Xle" in line:
+                next_line = lines[i + 1].strip()
+                parts = next_line.split()
+                if iter == 1:
+                    Xle_list.append(float(parts[0]) + 0.102)
+                else:
+                    Xle_list.append(float(parts[0]))
+
+                Yle_list.append(float(parts[1]))
+                Zle_list.append(float(parts[2]))
+                # Chord_list.append(float(parts[3]))
+
+    Xle_array = np.array(Xle_list)
+    Yle_array = np.array(Yle_list)
+    Zle_array = np.array(Zle_list)
+    # Chord_array = np.array(Chord_list)
+
+    def linear_interpolation(x1, y1, z1, x2, y2, z2, y_query):
+        t = (y_query - y1) / (y2 - y1)
+        interpolated_x = x1 + t * (x2 - x1)
+        interpolated_z = z1 + t * (z2 - z1)
+        return interpolated_x, y_query, interpolated_z
+
+    interpolated_Xle, interpolated_Yle, interpolated_Zle = linear_interpolation(
+        Xle_array[0], Yle_array[0], Zle_array[0],
+        Xle_array[1], Yle_array[1], Zle_array[1],
+        y_query
+    )
+
+    return interpolated_Xle, interpolated_Yle, interpolated_Zle,
 
     # =================================================================================================
     #    MAIN

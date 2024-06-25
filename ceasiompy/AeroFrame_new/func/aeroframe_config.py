@@ -279,19 +279,24 @@ def create_framat_model(young_modulus, shear_modulus, material_density, centerli
 
     # Add orientation property to the beam
     beam.add('orientation', {'from': centerline_df.iloc[0]['node_uid'],
-                             'to': centerline_df.iloc[-1]['node_uid'], 'up': [0, 0, 1]})
+                             'to': centerline_df.iloc[-1]['node_uid'],
+                             'up': [0, 0, 1]})
     beam.add('material', {'from': centerline_df.iloc[0]['node_uid'],
-                          'to': centerline_df.iloc[-1]['node_uid'], 'uid': 'material'})
+                          'to': centerline_df.iloc[-1]['node_uid'],
+                          'uid': 'material'})
 
+    # Add cross-section properties
     for i_node in range(len(centerline_df) - 1):
-        cs = model.add_feature(
-            'cross_section', uid=centerline_df.iloc[i_node]['cross_section_uid'])
+        cs = model.add_feature('cross_section',
+                               uid=centerline_df.iloc[i_node]['cross_section_uid'])
         cs.set('A', centerline_df.iloc[i_node]["cross_section_area"])
         cs.set('Iy', centerline_df.iloc[i_node]["cross_section_Ix"])
         cs.set('Iz', centerline_df.iloc[i_node]["cross_section_Iy"])
         cs.set('J', centerline_df.iloc[i_node]["cross_section_J"])
-        beam.add('cross_section', {'from': centerline_df.iloc[i_node]['node_uid'],
-                                   'to': centerline_df.iloc[i_node + 1]['node_uid'], 'uid': centerline_df.iloc[i_node]['cross_section_uid']})
+        beam.add('cross_section',
+                 {'from': centerline_df.iloc[i_node]['node_uid'],
+                  'to': centerline_df.iloc[i_node + 1]['node_uid'],
+                  'uid': centerline_df.iloc[i_node]['cross_section_uid']})
 
     # Add line loads [N/m] and point loads [N]
     for i_node in range(len(centerline_df)):
@@ -338,10 +343,12 @@ def get_material_properties(cpacs_path):
     """
     cpacs = CPACS(cpacs_path)
 
-    young_modulus = get_value_or_default(
-        cpacs.tixi, FRAMAT_MATERIAL_XPATH + "/YoungModulus", 32.5e10)
-    shear_modulus = get_value_or_default(
-        cpacs.tixi, FRAMAT_MATERIAL_XPATH + "/ShearModulus", 1.25e11)
+    young_modulus = get_value_or_default(cpacs.tixi,
+                                         FRAMAT_MATERIAL_XPATH + "/YoungModulus", 70)
+
+    shear_modulus = get_value_or_default(cpacs.tixi,
+                                         FRAMAT_MATERIAL_XPATH + "/ShearModulus", 27)
+
     material_density = get_value_or_default(cpacs.tixi, FRAMAT_MATERIAL_XPATH + "/Density", 1960)
 
     return young_modulus, shear_modulus, material_density
@@ -492,8 +499,9 @@ def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_
 
     wing_df = pd.concat([wing_df, tip_row], ignore_index=True)
 
-    Xle, Yle, Zle = interpolate_leading_edge(
-        AVL_UNDEFORMED_PATH, CASE_PATH, iter, y_query=wing_df["y"].unique())
+    Xle, Yle, Zle = interpolate_leading_edge(AVL_UNDEFORMED_PATH,
+                                             CASE_PATH, iter,
+                                             y_query=wing_df["y"].unique())
     leading_edge = []
     trailing_edge = []
 

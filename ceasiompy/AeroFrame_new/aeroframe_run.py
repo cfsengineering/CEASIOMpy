@@ -80,7 +80,9 @@ MODULE_NAME = MODULE_DIR.name
 #   FUNCTIONS
 # =================================================================================================
 
-def aeroelastic_loop(cpacs_path, q, xyz, fxyz, area_list, Ix_list, Iy_list, chord_list, wg_center_x_list, wg_center_y_list, wg_center_z_list, wing_transl_list, wg_twist_list, CASE_PATH):
+def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
+
+    cpacs = CPACS(cpacs_path)
 
     AVL_ITER1_PATH = Path(CASE_PATH, "Iteration_1", "AVL")
     for path in get_results_directory("PyAVL").glob('*.avl'):
@@ -88,12 +90,19 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, area_list, Ix_list, Iy_list, chor
 
     AVL_UNDEFORMED_COMMAND = Path(AVL_ITER1_PATH, "avl_commands.txt")
 
-    cpacs = CPACS(cpacs_path)
+    (
+        wing_transl_list,
+        wg_twist_list,
+        area_list,
+        Ix_list,
+        Iy_list,
+        wg_center_x_list,
+        wg_center_y_list,
+        wg_center_z_list,
+        wg_chord_list
+    ) = compute_cross_section(cpacs_path)
 
-    delta_tip = []
-    iter = 0
-    res = [1]
-    tol = 1e-3
+    young_modulus, shear_modulus, material_density = get_material_properties(cpacs_path)
 
     xyz_root = np.array([wg_center_x_list[0] + wing_transl_list[0][0],
                          wg_center_y_list[0] + wing_transl_list[0][1],
@@ -104,36 +113,50 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, area_list, Ix_list, Iy_list, chor
                         wg_center_y_list[-1] + wing_transl_list[-1][1],
                         wg_center_z_list[-1] + wing_transl_list[-1][2]])
 
-    tip_points = None
-
+    # Compute cross-section properties along the span
     aera_profile = interpolate.interp1d(wg_center_y_list, area_list)
     Ix_profile = interpolate.interp1d(wg_center_y_list, Ix_list)
     Iy_profile = interpolate.interp1d(wg_center_y_list, Iy_list)
-    chord_profile = interpolate.interp1d(wg_center_y_list, chord_list)
+    chord_profile = interpolate.interp1d(wg_center_y_list, wg_chord_list)
     twist_profile = interpolate.interp1d(wg_center_y_list, wg_twist_list)
 
-    young_modulus, shear_modulus, material_density = get_material_properties(cpacs_path)
+    # Initialize variables for the loop
     wing_df = pd.DataFrame()
     centerline_df = pd.DataFrame()
+    delta_tip = []
+    iter = 0
+    res = [1]
+    tol = 1e-3
+    tip_def_points = None
 
     while res[-1] > tol and iter < 10:
         iter += 1
+        log.info(f"################ FramAT: Deformation {iter} ################")
 
         Path(CASE_PATH, f"Iteration_{iter+1}", "AVL").mkdir(parents=True, exist_ok=True)
         Path(CASE_PATH, f"Iteration_{iter}", "FramAT").mkdir(parents=True, exist_ok=True)
         AVL_ITER_PATH = Path(CASE_PATH, f"Iteration_{iter+1}", "AVL")
         FRAMAT_ITER_PATH = Path(CASE_PATH, f"Iteration_{iter}", "FramAT")
-
         AVL_DEFORMED_PATH = Path(AVL_ITER_PATH, "deformed.avl")
         AVL_DEFORMED_COMMAND = Path(AVL_ITER_PATH, "avl_commands.txt")
-
-        log.info(f"################ FramAT: Deformation {iter} ################")
 
         xyz_tot = np.vstack((xyz_root, xyz))
         fxyz_tot = np.vstack((fxyz_root, fxyz))
 
-        wing_df_new, centerline_df_new, internal_load_df = create_wing_centerline(
-            wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_tip, tip_points, aera_profile, Ix_profile, Iy_profile, chord_profile, twist_profile, CASE_PATH, AVL_UNDEFORMED_PATH)
+        wing_df_new, centerline_df_new, internal_load_df = create_wing_centerline(wing_df,
+                                                                                  centerline_df,
+                                                                                  xyz_tot,
+                                                                                  fxyz_tot,
+                                                                                  iter,
+                                                                                  xyz_tip,
+                                                                                  tip_def_points,
+                                                                                  aera_profile,
+                                                                                  Ix_profile,
+                                                                                  Iy_profile,
+                                                                                  chord_profile,
+                                                                                  twist_profile,
+                                                                                  CASE_PATH,
+                                                                                  AVL_UNDEFORMED_PATH)
 
         if iter == 1:
             undeformed_df = centerline_df_new.copy(deep=True)
@@ -141,18 +164,23 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, area_list, Ix_list, Iy_list, chor
         plot_fem_mesh(wing_df_new, centerline_df_new, wkdir=FRAMAT_ITER_PATH)
         plot_deformed_wing(centerline_df_new, undeformed_df, wkdir=FRAMAT_ITER_PATH)
 
-        model = create_framat_model(young_modulus, shear_modulus,
-                                    material_density, centerline_df_new, internal_load_df)
+        model = create_framat_model(young_modulus,
+                                    shear_modulus,
+                                    material_density,
+                                    centerline_df_new,
+                                    internal_load_df)
 
         # Run the beam analysis
         framat_results = model.run()
 
-        centerline_df, deformed_df, tip_points = compute_deformations(
-            framat_results, wing_df_new, centerline_df_new)
+        centerline_df, deformed_df, tip_def_points = compute_deformations(framat_results,
+                                                                          wing_df_new,
+                                                                          centerline_df_new)
 
         write_deformed_geometry(AVL_UNDEFORMED_PATH, AVL_DEFORMED_PATH, deformed_df)
 
-        alpha_u = 1
+        # S Compute tip deflection
+        alpha_u = 1  # under-relaxtion coefficient
         tip_deflection = centerline_df["z_new"].loc[centerline_df["y_new"].idxmax()] - xyz_tip[2]
         if iter == 1:
             delta_tip.append(tip_deflection)
@@ -168,16 +196,19 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, area_list, Ix_list, Iy_list, chor
         log.info(f"Residual: {res[-1]:.3e}")
 
         write_deformed_command(AVL_UNDEFORMED_COMMAND, AVL_DEFORMED_COMMAND)
+
+        # Run AVL with the new deformed geometry
         subprocess.run(["xvfb-run", "avl"],
-                       stdin=open(str(AVL_DEFORMED_COMMAND), "r"), cwd=AVL_ITER_PATH)
+                       stdin=open(str(AVL_DEFORMED_COMMAND), "r"),
+                       cwd=AVL_ITER_PATH)
 
         save_avl_plot = get_value_or_default(cpacs.tixi, AVL_PLOT_XPATH, False)
         if save_avl_plot:
             convert_ps_to_pdf(wkdir=AVL_ITER_PATH)
 
+        # Read the new "fe.txt" to extract the loads
         FE_PATH = Path(AVL_ITER_PATH, "fe.txt")
-        surface_name_list, nspanwise_list, nchordwise_list, xyz_list, p_xyz_list, slope_list = read_AVL_fe_file(
-            FE_PATH, plot=False)
+        _, _, _, xyz_list, p_xyz_list, _ = read_AVL_fe_file(FE_PATH, plot=False)
 
         xyz = xyz_list[0]
         fxyz = np.array(p_xyz_list[0]) * q
@@ -209,6 +240,8 @@ def aeroframe_run(cpacs_path, cpacs_out_path, wkdir):
     """
     tixi = open_tixi(cpacs_path)
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs_path)
+
+    # First AVL run
     run_avl(cpacs_path, wkdir)
 
     for i_case in range(len(alt_list)):
@@ -236,17 +269,18 @@ def aeroframe_run(cpacs_path, cpacs_out_path, wkdir):
                 shutil.move(str(file_path), str(AVL_ITER_PATH / file_path.name))
 
         FE_PATH = Path(AVL_ITER_PATH, "fe.txt")
-        surface_name_list, nspanwise_list, nchordwise_list, xyz_list, p_xyz_list, slope_list = read_AVL_fe_file(
-            FE_PATH, plot=False)
+        _, _, _, xyz_list, p_xyz_list, _ = read_AVL_fe_file(FE_PATH, plot=False)
 
-        wing_transl_list, wg_twist_list, area_list, Ix_list, Iy_list, wg_center_x_list, wg_center_y_list, wg_center_z_list, wg_chord_list = compute_cross_section(
-            cpacs_path)
+        f_xyz_array = np.array(p_xyz_list) * q
 
-        f_xyz_list = np.array(p_xyz_list) * q
+        # Start the aeroelastic loop
+        tip_deflection, residuals = aeroelastic_loop(cpacs_path,
+                                                     q,
+                                                     xyz_list[0],
+                                                     f_xyz_array[0],
+                                                     CASE_PATH)
 
-        tip_deflection, residuals = aeroelastic_loop(cpacs_path, q, xyz_list[0], f_xyz_list[0], area_list, Ix_list,
-                                                     Iy_list, wg_chord_list, wg_center_x_list, wg_center_y_list, wg_center_z_list, wing_transl_list, wg_twist_list, CASE_PATH)
-
+        # Write results in CPACS out
         create_branch(tixi, FRAMAT_RESULTS_XPATH + "/TipDeflection")
         tixi.updateDoubleElement(FRAMAT_RESULTS_XPATH + "/TipDeflection", tip_deflection[-1], "%g")
         tixi.save(str(cpacs_out_path))

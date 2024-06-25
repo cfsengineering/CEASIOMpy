@@ -119,8 +119,8 @@ def parse_AVL_surface(string):
                    i_newline[1] + i_strip_dihed[k] - 1 + 24 + 1)
         dihed_strip[k] = float(string[i0])
 
-        idd = [i for i in range(len(i_newline) - 1) if (i_IbX[k] + i_newline[1]
-                                                        - 1 - i_newline[i]) * (i_IbX[k] + i_newline[1] - 1 - i_newline[i + 1]) < 0]
+        idd = [i for i in range(len(i_newline) - 1) if (i_IbX[k] + i_newline[1] - 1 - i_newline[i])
+               * (i_IbX[k] + i_newline[1] - 1 - i_newline[i + 1]) < 0]
 
         sa = np.sin(np.deg2rad(incidence_strip[k]))
         ca = np.cos(np.deg2rad(incidence_strip[k]))
@@ -252,7 +252,8 @@ def read_AVL_fe_file(FE_PATH, plot=False):
     return surface_name_list, nspanwise_list, nchordwise_list, xyz_list, p_xyz_list, slope_list
 
 
-def create_framat_model(young_modulus, shear_modulus, material_density, centerline_df, internal_load_df):
+def create_framat_model(young_modulus, shear_modulus, material_density,
+                        centerline_df, internal_load_df):
     model = Model()
 
     # Material
@@ -300,17 +301,10 @@ def create_framat_model(young_modulus, shear_modulus, material_density, centerli
 
     # Add line loads [N/m] and point loads [N]
     for i_node in range(len(centerline_df)):
-        beam.add('point_load', {'at': centerline_df.iloc[i_node]['node_uid'],
-                                'load': [centerline_df.iloc[i_node]["Fx"] - internal_load_df.iloc[i_node]["Fx"],
-                                         centerline_df.iloc[i_node]["Fy"]
-                                         - internal_load_df.iloc[i_node]["Fy"],
-                                         centerline_df.iloc[i_node]["Fz"]
-                                         - internal_load_df.iloc[i_node]["Fz"],
-                                         centerline_df.iloc[i_node]["Mx"]
-                                         - internal_load_df.iloc[i_node]["Mx"],
-                                         centerline_df.iloc[i_node]["My"]
-                                         - internal_load_df.iloc[i_node]["My"],
-                                         centerline_df.iloc[i_node]["Mz"] - internal_load_df.iloc[i_node]["Mz"]]})
+        node_uid = centerline_df.iloc[i_node]['node_uid']
+        load = [centerline_df.iloc[i_node][force] - internal_load_df.iloc[i_node][force]
+                for force in ["Fx", "Fy", "Fz", "Mx", "My", "Mz"]]
+        beam.add('point_load', {'at': node_uid, 'load': load})
 
     # ===== BOUNDARY CONDITIONS =====
     idx_to_fix = centerline_df.apply(lambda row: row['x']**2 + row['z']**2, axis=1).idxmin()
@@ -354,7 +348,9 @@ def get_material_properties(cpacs_path):
     return young_modulus, shear_modulus, material_density
 
 
-def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_tip, tip_def, aera_profile, Ix_profile, Iy_profile, chord_profile, twist_profile, CASE_PATH, AVL_UNDEFORMED_PATH):
+def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_tip, tip_def,
+                           aera_profile, Ix_profile, Iy_profile, chord_profile, twist_profile,
+                           CASE_PATH, AVL_UNDEFORMED_PATH):
 
     # if iter == 1:
     #     wing_df = pd.DataFrame({'x': [row[0] for row in xyz_tot],
@@ -806,7 +802,10 @@ def compute_cross_section(cpacs_path):
                 wg_center_z_list.append(wg_sec_center_z)
                 wg_chord_list.append(wg_sec_chord)
 
-    return wg_origin_list, wg_twist_list, area_list, Ix_list, Iy_list, wg_center_x_list, wg_center_y_list, wg_center_z_list, wg_chord_list
+    return (
+        wg_origin_list, wg_twist_list, area_list, Ix_list, Iy_list,
+        wg_center_x_list, wg_center_y_list, wg_center_z_list, wg_chord_list
+    )
 
 
 def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, deformed_df):

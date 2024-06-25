@@ -107,7 +107,8 @@ def compute_deformations(results, wing_df, centerline_df):
             twist_angle = calculate_angle(chord_line, horizontal_vec)
 
             leading_edges.append(
-                (leading_edge["x_new"], leading_edge["y_new"], leading_edge["z_new"], leading_edge["chord_length"], leading_edge["AoA"] + twist_angle))
+                (leading_edge["x_new"], leading_edge["y_new"], leading_edge["z_new"],
+                 leading_edge["chord_length"], leading_edge["AoA"] + twist_angle))
 
     deformed_df = pd.DataFrame(leading_edges, columns=[
                                "x_leading", "y_leading", "z_leading", "chord", "AoA"])
@@ -136,9 +137,11 @@ def plot_convergence(tip_deflection, res, wkdir):
     fig.tight_layout()
     fig.savefig(Path(wkdir, "deflection_convergence.png"))
 
-    # =================================================================================================
-    #    MAIN
-    # =================================================================================================
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
 if __name__ == "__main__":
 
     log.info("Nothing to execute!")

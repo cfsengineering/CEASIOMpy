@@ -143,20 +143,24 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
         xyz_tot = np.vstack((xyz_root, xyz))
         fxyz_tot = np.vstack((fxyz_root, fxyz))
 
-        wing_df_new, centerline_df_new, internal_load_df = create_wing_centerline(wing_df,
-                                                                                  centerline_df,
-                                                                                  xyz_tot,
-                                                                                  fxyz_tot,
-                                                                                  iter,
-                                                                                  xyz_tip,
-                                                                                  tip_def_points,
-                                                                                  aera_profile,
-                                                                                  Ix_profile,
-                                                                                  Iy_profile,
-                                                                                  chord_profile,
-                                                                                  twist_profile,
-                                                                                  CASE_PATH,
-                                                                                  AVL_UNDEFORMED_PATH)
+        (
+            wing_df_new,
+            centerline_df_new,
+            internal_load_df
+        ) = create_wing_centerline(wing_df,
+                                   centerline_df,
+                                   xyz_tot,
+                                   fxyz_tot,
+                                   iter,
+                                   xyz_tip,
+                                   tip_def_points,
+                                   aera_profile,
+                                   Ix_profile,
+                                   Iy_profile,
+                                   chord_profile,
+                                   twist_profile,
+                                   CASE_PATH,
+                                   AVL_UNDEFORMED_PATH)
 
         if iter == 1:
             undeformed_df = centerline_df_new.copy(deep=True)

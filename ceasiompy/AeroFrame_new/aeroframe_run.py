@@ -124,19 +124,19 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
     wing_df = pd.DataFrame()
     centerline_df = pd.DataFrame()
     delta_tip = []
-    iter = 0
+    n_iter = 0
     res = [1]
     tol = 1e-3
     tip_def_points = None
 
-    while res[-1] > tol and iter < 10:
-        iter += 1
-        log.info(f"################ FramAT: Deformation {iter} ################")
+    while res[-1] > tol and n_iter < 10:
+        n_iter += 1
+        log.info(f"################ FramAT: Deformation {n_iter} ################")
 
-        Path(CASE_PATH, f"Iteration_{iter+1}", "AVL").mkdir(parents=True, exist_ok=True)
-        Path(CASE_PATH, f"Iteration_{iter}", "FramAT").mkdir(parents=True, exist_ok=True)
-        AVL_ITER_PATH = Path(CASE_PATH, f"Iteration_{iter+1}", "AVL")
-        FRAMAT_ITER_PATH = Path(CASE_PATH, f"Iteration_{iter}", "FramAT")
+        Path(CASE_PATH, f"Iteration_{n_iter+1}", "AVL").mkdir(parents=True, exist_ok=True)
+        Path(CASE_PATH, f"Iteration_{n_iter}", "FramAT").mkdir(parents=True, exist_ok=True)
+        AVL_ITER_PATH = Path(CASE_PATH, f"Iteration_{n_iter+1}", "AVL")
+        FRAMAT_ITER_PATH = Path(CASE_PATH, f"Iteration_{n_iter}", "FramAT")
         AVL_DEFORMED_PATH = Path(AVL_ITER_PATH, "deformed.avl")
         AVL_DEFORMED_COMMAND = Path(AVL_ITER_PATH, "avl_commands.txt")
 
@@ -151,7 +151,7 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
                                    centerline_df,
                                    xyz_tot,
                                    fxyz_tot,
-                                   iter,
+                                   n_iter,
                                    xyz_tip,
                                    tip_def_points,
                                    aera_profile,
@@ -162,7 +162,7 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
                                    CASE_PATH,
                                    AVL_UNDEFORMED_PATH)
 
-        if iter == 1:
+        if n_iter == 1:
             undeformed_df = centerline_df_new.copy(deep=True)
 
         plot_fem_mesh(wing_df_new, centerline_df_new, wkdir=FRAMAT_ITER_PATH)
@@ -186,16 +186,16 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
         # S Compute tip deflection
         alpha_u = 1  # under-relaxtion coefficient
         tip_deflection = centerline_df["z_new"].loc[centerline_df["y_new"].idxmax()] - xyz_tip[2]
-        if iter == 1:
+        if n_iter == 1:
             delta_tip.append(tip_deflection)
         else:
             delta_tip.append(delta_tip[-1] + alpha_u
                              * (tip_deflection - delta_tip[-1]))
 
-        if iter > 1:
+        if n_iter > 1:
             res.append(np.abs((delta_tip[-1] - delta_tip[-2]) / delta_tip[-2]))
 
-        log.info(f"Iteration {iter} done!")
+        log.info(f"Iteration {n_iter} done!")
         log.info(f"Wing tip deflection: {delta_tip[-1]:.3e} m.")
         log.info(f"Residual: {res[-1]:.3e}")
 

@@ -19,12 +19,13 @@ TODO:
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
-from scipy import interpolate
 import numpy as np
 import pandas as pd
-from ceasiompy.utils.ceasiomlogger import get_logger
 import matplotlib.pyplot as plt
 from pathlib import Path
+from scipy import interpolate
+
+from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()
 
@@ -91,7 +92,7 @@ def compute_deformations(results, wing_df, centerline_df):
         return np.degrees(angle)
 
     leading_edges = []
-    for y_val, group in wing_df.groupby('y_new_round'):
+    for _, group in wing_df.groupby('y_new_round'):
         if len(group) >= 2:
             leading_edge = group.loc[group["x_new"].idxmin()]
             trailing_edge = group.loc[group["x_new"].idxmax()]
@@ -115,7 +116,8 @@ def compute_deformations(results, wing_df, centerline_df):
     # deformed_df["x_leading"] -= deformed_df["x_leading"].min()
 
     max_y_new = wing_df["y_new_round"].max()
-    tip_points = wing_df.query("y_new_round == @max_y_new")[["x_new", "y_new", "z_new"]].to_numpy()
+    tip_points = wing_df.loc[wing_df["y_new_round"]
+                             == max_y_new][["x_new", "y_new", "z_new"]].to_numpy()
 
     return centerline_df, deformed_df, tip_points
 

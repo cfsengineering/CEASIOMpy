@@ -19,12 +19,11 @@ TODO:
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
-from scipy import interpolate
-import numpy as np
-import pandas as pd
-from ceasiompy.utils.ceasiomlogger import get_logger
 import matplotlib.pyplot as plt
 from pathlib import Path
+
+from ceasiompy.utils.ceasiomlogger import get_logger
+
 
 log = get_logger()
 
@@ -78,9 +77,11 @@ def plot_deformed_wing(centerline_df, undeformed_df, wkdir):
     fig.tight_layout()
     fig.savefig(Path(wkdir, "deformed_wing.png"))
 
-    # =================================================================================================
-    #    MAIN
-    # =================================================================================================
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
 if __name__ == "__main__":
 
     log.info("Nothing to execute!")

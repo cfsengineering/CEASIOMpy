@@ -22,22 +22,22 @@ TODO:
 # ==============================================================================
 import re
 import numpy as np
+import pandas as pd
 import matplotlib.pyplot as plt
 import math
 from pathlib import Path
+from scipy.spatial.distance import cdist
 from framat import Model
+
 from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import get_value_or_default
+from cpacspy.cpacsfunctions import open_tixi
+
 from ceasiompy.utils.commonxpath import (
     FRAMAT_MATERIAL_XPATH,
     WINGS_XPATH
 )
-from cpacspy.cpacsfunctions import open_tixi
-import pandas as pd
-from scipy.spatial.distance import cdist
-from scipy import interpolate
 from ceasiompy.utils.ceasiomlogger import get_logger
-
 from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
 from ceasiompy.utils.mathfunctions import euler2fix
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
@@ -348,11 +348,11 @@ def get_material_properties(cpacs_path):
     return young_modulus, shear_modulus, material_density
 
 
-def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_tip, tip_def,
+def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, n_iter, xyz_tip, tip_def,
                            aera_profile, Ix_profile, Iy_profile, chord_profile, twist_profile,
                            CASE_PATH, AVL_UNDEFORMED_PATH):
 
-    # if iter == 1:
+    # if n_iter == 1:
     #     wing_df = pd.DataFrame({'x': [row[0] for row in xyz_tot],
     #                             'y': [row[1] for row in xyz_tot],
     #                             'z': [row[2] for row in xyz_tot],
@@ -372,7 +372,7 @@ def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_
     #     wing_df = pd.concat([wing_df, tip_row], ignore_index=True)
 
     #     Xle, Yle, Zle = interpolate_leading_edge(
-    #         AVL_UNDEFORMED_PATH, CASE_PATH, iter, y_query=wing_df["y"].unique())
+    #         AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, y_query=wing_df["y"].unique())
     #     leading_edge = []
     #     trailing_edge = []
 
@@ -442,7 +442,7 @@ def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_
 
     # else:
     #     Xle, Yle, Zle = interpolate_leading_edge(
-    #         AVL_UNDEFORMED_PATH, CASE_PATH, iter, y_query=wing_df["y"].unique())
+    #         AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, y_query=wing_df["y"].unique())
     #     leading_edge = []
     #     trailing_edge = []
 
@@ -496,7 +496,7 @@ def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_
     wing_df = pd.concat([wing_df, tip_row], ignore_index=True)
 
     Xle, Yle, Zle = interpolate_leading_edge(AVL_UNDEFORMED_PATH,
-                                             CASE_PATH, iter,
+                                             CASE_PATH, n_iter,
                                              y_query=wing_df["y"].unique())
     leading_edge = []
     trailing_edge = []
@@ -535,7 +535,7 @@ def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, iter, xyz_
     wing_df["chord_length"] = chord_profile(wing_df["y"])
     wing_df["AoA"] = twist_profile(wing_df["y"])
 
-    if iter == 1:
+    if n_iter == 1:
         centerline_df = (wing_df.groupby("y")[["x", "z"]].max(
         ) + wing_df.groupby("y")[["x", "z"]].min()) / 2
         centerline_df = centerline_df.reset_index().reindex(columns=["x", "y", "z"])
@@ -858,16 +858,16 @@ def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):
                     deformed.write(line)
 
 
-def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, iter, y_query):
+def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, y_query):
     Xle_list = []
     Yle_list = []
     Zle_list = []
     # Chord_list = []
 
-    if iter == 1:
+    if n_iter == 1:
         path_to_read = AVL_UNDEFORMED_PATH
     else:
-        path_to_read = Path(CASE_PATH, f"Iteration_{iter}", "AVL", "deformed.avl")
+        path_to_read = Path(CASE_PATH, f"Iteration_{n_iter}", "AVL", "deformed.avl")
 
     with open(path_to_read, "r") as f:
         lines = f.readlines()
@@ -875,7 +875,7 @@ def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, iter, y_query):
             if "Xle" in line:
                 next_line = lines[i + 1].strip()
                 parts = next_line.split()
-                if iter == 1:
+                if n_iter == 1:
                     Xle_list.append(float(parts[0]) + 0.102)
                 else:
                     Xle_list.append(float(parts[0]))

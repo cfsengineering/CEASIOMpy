@@ -91,7 +91,7 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
     AVL_UNDEFORMED_COMMAND = Path(AVL_ITER1_PATH, "avl_commands.txt")
 
     (
-        wing_transl_list,
+        wing_origin,
         wg_twist_list,
         area_list,
         Ix_list,
@@ -102,16 +102,23 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
         wg_chord_list
     ) = compute_cross_section(cpacs_path)
 
+    log.info(f"Ix: {Ix_list}")
+    log.info(f"Iy: {Iy_list}")
+
     young_modulus, shear_modulus, material_density = get_material_properties(cpacs_path)
 
-    xyz_root = np.array([wg_center_x_list[0] + wing_transl_list[0][0],
-                         wg_center_y_list[0] + wing_transl_list[0][1],
-                         wg_center_z_list[0] + wing_transl_list[0][2]])
+    xyz_root = np.array([wg_center_x_list[0] + wing_origin[0],
+                         wg_center_y_list[0] + wing_origin[1],
+                         wg_center_z_list[0] + wing_origin[2]])
     fxyz_root = np.zeros(3)
 
-    xyz_tip = np.array([wg_center_x_list[-1] + wing_transl_list[-1][0],
-                        wg_center_y_list[-1] + wing_transl_list[-1][1],
-                        wg_center_z_list[-1] + wing_transl_list[-1][2]])
+    xyz_tip = np.array([wg_center_x_list[-1] + wing_origin[0],
+                        wg_center_y_list[-1] + wing_origin[1],
+                        wg_center_z_list[-1] + wing_origin[2]])
+
+    log.info(f"Wing tip center z: {wg_center_z_list}")
+    log.info(f"Wing z-translation: {wing_origin}")
+    log.info(f"Z-tip final: {xyz_tip[-1]}")
 
     # Compute cross-section properties along the span
     aera_profile = interpolate.interp1d(wg_center_y_list, area_list)
@@ -129,7 +136,7 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
     tol = 1e-3
     tip_def_points = None
 
-    while res[-1] > tol and n_iter < 10:
+    while res[-1] > tol and n_iter < 1:
         n_iter += 1
         log.info(f"################ FramAT: Deformation {n_iter} ################")
 
@@ -149,6 +156,7 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
             internal_load_df
         ) = create_wing_centerline(wing_df,
                                    centerline_df,
+                                   wing_origin,
                                    xyz_tot,
                                    fxyz_tot,
                                    n_iter,
@@ -183,7 +191,7 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
 
         write_deformed_geometry(AVL_UNDEFORMED_PATH, AVL_DEFORMED_PATH, deformed_df)
 
-        # S Compute tip deflection
+        # Compute tip deflection
         alpha_u = 1  # under-relaxtion coefficient
         tip_deflection = centerline_df["z_new"].loc[centerline_df["y_new"].idxmax()] - xyz_tip[2]
         if n_iter == 1:

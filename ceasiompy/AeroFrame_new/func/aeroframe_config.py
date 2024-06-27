@@ -348,134 +348,9 @@ def get_material_properties(cpacs_path):
     return young_modulus, shear_modulus, material_density
 
 
-def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, n_iter, xyz_tip, tip_def,
-                           aera_profile, Ix_profile, Iy_profile, chord_profile, twist_profile,
+def create_wing_centerline(wing_df, centerline_df, wg_origin, xyz_tot, fxyz_tot, n_iter, xyz_tip,
+                           tip_def, aera_profile, Ix_profile, Iy_profile, chord_profile, twist_profile,
                            CASE_PATH, AVL_UNDEFORMED_PATH):
-
-    # if n_iter == 1:
-    #     wing_df = pd.DataFrame({'x': [row[0] for row in xyz_tot],
-    #                             'y': [row[1] for row in xyz_tot],
-    #                             'z': [row[2] for row in xyz_tot],
-    #                             'Fx': [row[0] for row in fxyz_tot],
-    #                             'Fy': [row[1] for row in fxyz_tot],
-    #                             'Fz': [row[2] for row in fxyz_tot]})
-
-    #     tip_row = pd.DataFrame([{
-    #         "x": xyz_tip[0],
-    #         "y": xyz_tip[1],
-    #         "z": xyz_tip[2],
-    #         "Fx": 0,
-    #         "Fy": 0,
-    #         "Fz": 0
-    #     }])
-
-    #     wing_df = pd.concat([wing_df, tip_row], ignore_index=True)
-
-    #     Xle, Yle, Zle = interpolate_leading_edge(
-    #         AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, y_query=wing_df["y"].unique())
-    #     leading_edge = []
-    #     trailing_edge = []
-
-    #     Xte = Xle + chord_profile(Yle)
-    #     Yte = Yle
-    #     Zte = Zle
-
-    #     for i in range(len(Xle)):
-    #         leading_edge.append({
-    #             "x": Xle[i],
-    #             "y": Yle[i],
-    #             "z": Zle[i],
-    #             "Fx": 0.0,
-    #             "Fy": 0.0,
-    #             "Fz": 0.0
-    #         })
-
-    #     for i in range(len(Xte)):
-    #         trailing_edge.append({
-    #             "x": Xte[i],
-    #             "y": Yte[i],
-    #             "z": Zte[i],
-    #             "Fx": 0.0,
-    #             "Fy": 0.0,
-    #             "Fz": 0.0
-    #         })
-
-    #     leading_edge_df = pd.DataFrame(leading_edge)
-    #     trailing_edge_df = pd.DataFrame(trailing_edge)
-
-    #     wing_df = pd.concat([wing_df, leading_edge_df, trailing_edge_df], ignore_index=True)
-    #     log.info(xyz_tip)
-
-    #     wing_df.sort_values(by="y", inplace=True)
-    #     wing_df.reset_index(drop=True, inplace=True)
-    #     wing_df["chord_length"] = chord_profile(wing_df["y"])
-    #     wing_df["AoA"] = twist_profile(wing_df["y"])
-
-    #     centerline_df = (wing_df.groupby("y")[["x", "z"]].max(
-    #     ) + wing_df.groupby("y")[["x", "z"]].min()) / 2
-    #     centerline_df = centerline_df.reset_index().reindex(columns=["x", "y", "z"])
-    #     centerline_df[["Fx", "Fy", "Fz", "Mx", "My", "Mz"]] = 0
-    #     centerline_df["x_new"] = centerline_df["x"]
-    #     centerline_df["y_new"] = centerline_df["y"]
-    #     centerline_df["z_new"] = centerline_df["z"]
-    #     internal_load_df = centerline_df.copy(deep=True)
-
-    #     centerline_df['node_uid'] = centerline_df.apply(
-    #         lambda row: "wing1_node" + str(row.name + 1), axis=1)
-    #     centerline_df['cross_section_uid'] = centerline_df.apply(
-    #         lambda row: "wing1_cross-sec" + str(row.name + 1), axis=1)
-
-    #     centerline_df["cross_section_area"] = aera_profile(centerline_df["y"])
-    #     centerline_df["cross_section_Ix"] = Ix_profile(centerline_df["y"])
-    #     centerline_df["cross_section_Iy"] = Iy_profile(centerline_df["y"])
-    #     centerline_df["cross_section_J"] = centerline_df["cross_section_Ix"] + \
-    #         centerline_df["cross_section_Iy"]
-
-    #     distances = cdist(wing_df[['x', 'y', 'z']], centerline_df[['x', 'y', 'z']])
-    #     closest_centerline_indices = distances.argmin(axis=1)
-
-    #     for coord in ['x', 'y', 'z']:
-    #         wing_df['closest_centerline_'
-    #                 + coord] = centerline_df.loc[closest_centerline_indices, coord].values
-
-    #     wing_df['closest_centerline_index'] = closest_centerline_indices
-
-    # else:
-    #     Xle, Yle, Zle = interpolate_leading_edge(
-    #         AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, y_query=wing_df["y"].unique())
-    #     leading_edge = []
-    #     trailing_edge = []
-
-    #     log.info(Xle)
-    #     log.info(Yle)
-    #     log.info(Zle)
-
-    #     Xte = Xle + chord_profile(Yle)
-    #     Yte = Yle
-    #     Zte = Zle
-
-    #     leading = np.column_stack((Xle, Yle, Zle))
-    #     trailing = np.column_stack((Xte, Yte, Zte))
-
-    #     log.info(tip_def[1])
-
-    #     wing_df["x"] = [row[0]
-    #                     for row in np.vstack((xyz_tot, tip_def[1], leading, trailing))]
-    #     wing_df["y"] = [row[1]
-    #                     for row in np.vstack((xyz_tot, tip_def[1], leading, trailing))]
-    #     wing_df["z"] = [row[2]
-    #                     for row in np.vstack((xyz_tot, tip_def[1], leading, trailing))]
-    #     wing_df["Fx"] = [row[0]
-    #                      for row in np.vstack((fxyz_tot, np.zeros((2 * len(leading) + 1, 3))))]
-    #     wing_df["Fy"] = [row[1]
-    #                      for row in np.vstack((fxyz_tot, np.zeros((2 * len(leading) + 1, 3))))]
-    #     wing_df["Fz"] = [row[2]
-    #                      for row in np.vstack((fxyz_tot, np.zeros((2 * len(leading) + 1, 3))))]
-    #     internal_load_df = centerline_df.copy(deep=True)
-    #     centerline_df[["Fx", "Fy", "Fz", "Mx", "My", "Mz"]] = 0
-    #     centerline_df["x"] = centerline_df["x_new"]
-    #     centerline_df["y"] = centerline_df["y_new"]
-    #     centerline_df["z"] = centerline_df["z_new"]
 
     wing_df = pd.DataFrame({'x': [row[0] for row in xyz_tot],
                             'y': [row[1] for row in xyz_tot],
@@ -493,11 +368,14 @@ def create_wing_centerline(wing_df, centerline_df, xyz_tot, fxyz_tot, n_iter, xy
         "Fz": 0
     }])
 
+    log.info(f"Tip row: {tip_row}")
+
     wing_df = pd.concat([wing_df, tip_row], ignore_index=True)
 
     Xle, Yle, Zle = interpolate_leading_edge(AVL_UNDEFORMED_PATH,
                                              CASE_PATH, n_iter,
-                                             y_query=wing_df["y"].unique())
+                                             wg_origin,
+                                             y_queries=wing_df["y"].unique())
     leading_edge = []
     trailing_edge = []
 
@@ -612,7 +490,6 @@ def compute_cross_section(cpacs_path):
         wing_cnt = 0
         log.warning("No wings has been found in this CPACS file!")
 
-    wg_origin_list = []
     wg_twist_list = []
     area_list = []
     wg_center_x_list = []
@@ -635,6 +512,10 @@ def compute_cross_section(cpacs_path):
 
         # Add WingSkeleton origin
         wg_sk_transf.translation = wing_transf.translation
+
+        wg_origin = [round(wg_sk_transf.translation.x, 3),
+                     round(wg_sk_transf.translation.y, 3),
+                     round(wg_sk_transf.translation.z, 3)]
 
         # Positionings
         if tixi.checkElement(wing_xpath + "/positionings"):
@@ -787,11 +668,6 @@ def compute_cross_section(cpacs_path):
                     + pos_z_list[i_sec]
                 ) * wing_transf.scaling.z
 
-                wg_origin = [round(wg_sk_transf.translation.x + wg_sec_chord / 2, 3),
-                             round(wg_sk_transf.translation.y, 3),
-                             round(wg_sk_transf.translation.z, 3)]
-
-                wg_origin_list.append(wg_origin)
                 wg_twist_list.append(wg_sec_twist)
                 area_list.append(PolyArea(prof_vect_x, prof_vect_z))
                 Ix, Iy = second_moments_of_area(x=prof_vect_x, y=prof_vect_z)
@@ -803,7 +679,7 @@ def compute_cross_section(cpacs_path):
                 wg_chord_list.append(wg_sec_chord)
 
     return (
-        wg_origin_list, wg_twist_list, area_list, Ix_list, Iy_list,
+        wg_origin, wg_twist_list, area_list, Ix_list, Iy_list,
         wg_center_x_list, wg_center_y_list, wg_center_z_list, wg_chord_list
     )
 
@@ -823,7 +699,7 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, deformed_df):
                 ["TRANSLATE\n",
                  "0.0\t0.0\t0.0\n\n",
                  "#---------------\n"])
-            step = 3
+            step = 6
             for i_node in range(0, len(deformed_df), step):
                 # for i_node in range(len(deformed_df)):
                 x_new = deformed_df.iloc[i_node]["x_leading"]
@@ -858,10 +734,11 @@ def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):
                     deformed.write(line)
 
 
-def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, y_query):
+def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, wg_origin, y_queries):
     Xle_list = []
     Yle_list = []
     Zle_list = []
+    surface_count = 0
     # Chord_list = []
 
     if n_iter == 1:
@@ -872,16 +749,22 @@ def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, y_query):
     with open(path_to_read, "r") as f:
         lines = f.readlines()
         for i, line in enumerate(lines):
+            if "SURFACE" in line:
+                surface_count += 1
+                if surface_count > 1:
+                    break
+
             if "Xle" in line:
                 next_line = lines[i + 1].strip()
                 parts = next_line.split()
                 if n_iter == 1:
-                    Xle_list.append(float(parts[0]) + 0.102)
+                    Xle_list.append(float(parts[0]) + wg_origin[0])
+                    Yle_list.append(float(parts[1]) + wg_origin[1])
+                    Zle_list.append(float(parts[2]) + wg_origin[2])
                 else:
                     Xle_list.append(float(parts[0]))
-
-                Yle_list.append(float(parts[1]))
-                Zle_list.append(float(parts[2]))
+                    Yle_list.append(float(parts[1]))
+                    Zle_list.append(float(parts[2]))
                 # Chord_list.append(float(parts[3]))
 
     Xle_array = np.array(Xle_list)
@@ -895,13 +778,51 @@ def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, y_query):
         interpolated_z = z1 + t * (z2 - z1)
         return interpolated_x, y_query, interpolated_z
 
-    interpolated_Xle, interpolated_Yle, interpolated_Zle = linear_interpolation(
-        Xle_array[0], Yle_array[0], Zle_array[0],
-        Xle_array[1], Yle_array[1], Zle_array[1],
-        y_query
-    )
+    def interpolate_leading_edge_points(Xle_array, Yle_array, Zle_array, y_queries):
+        interpolated_points = []
+        for y_query in y_queries:
+            # if y_query < Yle_array[0] - 1e-2 or y_query > Yle_array[-1] + 1e-2:
+            #     raise ValueError(
+            #         f"y_query value {y_query} is too far outside the range of the leading edge points.")
 
-    return interpolated_Xle, interpolated_Yle, interpolated_Zle,
+            if y_query < Yle_array[0]:  # Extrapolate before the first point
+                interpolated_points.append(
+                    linear_interpolation(
+                        Xle_array[0], Yle_array[0], Zle_array[0],
+                        Xle_array[1], Yle_array[1], Zle_array[1],
+                        y_query
+                    )
+                )
+            elif y_query > Yle_array[-1]:  # Extrapolate after the last point
+                interpolated_points.append(
+                    linear_interpolation(
+                        Xle_array[-2], Yle_array[-2], Zle_array[-2],
+                        Xle_array[-1], Yle_array[-1], Zle_array[-1],
+                        y_query
+                    )
+                )
+            else:
+                for i in range(len(Yle_array) - 1):  # Iterate through segments
+                    if Yle_array[i] <= y_query <= Yle_array[i + 1]:
+                        interpolated_points.append(
+                            linear_interpolation(
+                                Xle_array[i], Yle_array[i], Zle_array[i],
+                                Xle_array[i + 1], Yle_array[i + 1], Zle_array[i + 1],
+                                y_query
+                            )
+                        )
+                        break
+
+        return np.array(interpolated_points)
+
+    interpolated_points = interpolate_leading_edge_points(Xle_array, Yle_array,
+                                                          Zle_array, y_queries)
+
+    interpolated_Xle = interpolated_points[:, 0]
+    interpolated_Yle = interpolated_points[:, 1]
+    interpolated_Zle = interpolated_points[:, 2]
+
+    return interpolated_Xle, interpolated_Yle, interpolated_Zle
 
     # =================================================================================================
     #    MAIN

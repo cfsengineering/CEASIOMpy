@@ -34,7 +34,8 @@ log = get_logger()
 
 def plot_fem_mesh(wing_df, centerline_df, wkdir):
     fig, axs = plt.subplots(1, 2)
-    axs[0].plot(centerline_df["y"], centerline_df["x"], "-o", label="FEM nodes", color="r")
+    axs[0].plot(centerline_df["y"], centerline_df["x"], "-o", label="FEM nodes", color="r",
+                ms=1)
     axs[0].scatter(wing_df["y"], wing_df["x"], s=1, label="wing panels", color="b")
     axs[0].set_xlabel("$y$")
     axs[0].set_ylabel("$x$")

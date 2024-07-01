@@ -20,6 +20,7 @@ TODO:
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
+import matplotlib.pyplot as plt
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.utils.ceasiompyutils import get_results_directory
@@ -35,6 +36,7 @@ from ceasiompy.AeroFrame_new.func.aeroframe_config import (
     read_AVL_fe_file,
     create_framat_model,
     get_material_properties,
+    get_section_properties,
     create_wing_centerline,
     compute_cross_section,
     write_deformed_geometry,
@@ -43,6 +45,7 @@ from ceasiompy.AeroFrame_new.func.aeroframe_config import (
 
 from ceasiompy.AeroFrame_new.func.aeroframe_results import (
     compute_deformations,
+    plot_translations_rotations,
     plot_convergence
 )
 
@@ -70,6 +73,7 @@ log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+
 
 # =================================================================================================
 #   CLASSES
@@ -104,28 +108,41 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
 
     log.info(f"Ix: {Ix_list}")
     log.info(f"Iy: {Iy_list}")
+    log.info(f"Area: {area_list}")
+    log.info(f"Chord: {wg_chord_list}")
 
     young_modulus, shear_modulus, material_density = get_material_properties(cpacs_path)
 
-    xyz_root = np.array([wg_center_x_list[0] + wing_origin[0],
+    xyz_root = np.array([wg_center_x_list[0] + wing_origin[0] + wg_chord_list[0] / 2,
                          wg_center_y_list[0] + wing_origin[1],
                          wg_center_z_list[0] + wing_origin[2]])
     fxyz_root = np.zeros(3)
 
-    xyz_tip = np.array([wg_center_x_list[-1] + wing_origin[0],
+    xyz_tip = np.array([wg_center_x_list[-1] + wing_origin[0] + wg_chord_list[0] / 2,
                         wg_center_y_list[-1] + wing_origin[1],
                         wg_center_z_list[-1] + wing_origin[2]])
 
+    log.info(f"Wing tip center x: {wg_center_x_list}")
+    log.info(f"Wing tip center y: {wg_center_y_list}")
     log.info(f"Wing tip center z: {wg_center_z_list}")
-    log.info(f"Wing z-translation: {wing_origin}")
-    log.info(f"Z-tip final: {xyz_tip[-1]}")
+    # log.info(f"Wing z-translation: {wing_origin}")
+    # log.info(f"Z-tip final: {xyz_tip[-1]}")
 
     # Compute cross-section properties along the span
-    aera_profile = interpolate.interp1d(wg_center_y_list, area_list)
-    Ix_profile = interpolate.interp1d(wg_center_y_list, Ix_list)
-    Iy_profile = interpolate.interp1d(wg_center_y_list, Iy_list)
-    chord_profile = interpolate.interp1d(wg_center_y_list, wg_chord_list)
-    twist_profile = interpolate.interp1d(wg_center_y_list, wg_twist_list)
+    area_const, Ix_const, Iy_const = get_section_properties(cpacs_path)
+
+    if area_const > 0:
+        area_list = area_const * np.ones(len(wg_center_y_list))
+    if Ix_const > 0:
+        Ix_list = Ix_const * np.ones(len(wg_center_y_list))
+    if Iy_const > 0:
+        Iy_list = Iy_const * np.ones(len(wg_center_y_list))
+
+    area_profile = interpolate.interp1d(wg_center_y_list, area_list, fill_value="extrapolate")
+    Ix_profile = interpolate.interp1d(wg_center_y_list, Ix_list, fill_value="extrapolate")
+    Iy_profile = interpolate.interp1d(wg_center_y_list, Iy_list, fill_value="extrapolate")
+    chord_profile = interpolate.interp1d(wg_center_y_list, wg_chord_list, fill_value="extrapolate")
+    twist_profile = interpolate.interp1d(wg_center_y_list, wg_twist_list, fill_value="extrapolate")
 
     # Initialize variables for the loop
     wing_df = pd.DataFrame()
@@ -136,7 +153,7 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
     tol = 1e-3
     tip_def_points = None
 
-    while res[-1] > tol and n_iter < 1:
+    while res[-1] > tol and n_iter < 5:
         n_iter += 1
         log.info(f"################ FramAT: Deformation {n_iter} ################")
 
@@ -162,7 +179,7 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
                                    n_iter,
                                    xyz_tip,
                                    tip_def_points,
-                                   aera_profile,
+                                   area_profile,
                                    Ix_profile,
                                    Iy_profile,
                                    chord_profile,
@@ -172,6 +189,7 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
 
         if n_iter == 1:
             undeformed_df = centerline_df_new.copy(deep=True)
+            semi_span = centerline_df_new["y"].max()
 
         plot_fem_mesh(wing_df_new, centerline_df_new, wkdir=FRAMAT_ITER_PATH)
         plot_deformed_wing(centerline_df_new, undeformed_df, wkdir=FRAMAT_ITER_PATH)
@@ -189,7 +207,9 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
                                                                           wing_df_new,
                                                                           centerline_df_new)
 
-        write_deformed_geometry(AVL_UNDEFORMED_PATH, AVL_DEFORMED_PATH, deformed_df)
+        plot_translations_rotations(centerline_df, wkdir=FRAMAT_ITER_PATH)
+
+        write_deformed_geometry(AVL_UNDEFORMED_PATH, AVL_DEFORMED_PATH, centerline_df, deformed_df)
 
         # Compute tip deflection
         alpha_u = 1  # under-relaxtion coefficient
@@ -203,8 +223,11 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
         if n_iter > 1:
             res.append(np.abs((delta_tip[-1] - delta_tip[-2]) / delta_tip[-2]))
 
+        deflection = delta_tip[-1]
+        percentage = deflection / semi_span
         log.info(f"Iteration {n_iter} done!")
-        log.info(f"Wing tip deflection: {delta_tip[-1]:.3e} m.")
+        log.info(
+            f"Wing tip deflection: {deflection:.3e} m ({percentage:.2%} of the semi-span length).")
         log.info(f"Residual: {res[-1]:.3e}")
 
         write_deformed_command(AVL_UNDEFORMED_COMMAND, AVL_DEFORMED_COMMAND)
@@ -233,7 +256,10 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
     else:
         log.warning("Maximum number of iterations reached, convergence not achieved.")
 
-    log.info(f"Wing tip deflection: {delta_tip[-1]:.3e} m.")
+    deflection = delta_tip[-1]
+    percentage = deflection / semi_span
+    log.info(
+        f"Wing tip deflection: {deflection:.3e} m ({percentage:.2%} of the semi-span length).")
 
     return delta_tip, res
 

@@ -5,7 +5,8 @@ from ceasiompy.utils.commonxpath import (
     AVL_VORTEX_DISTR_XPATH,
     AVL_AEROMAP_UID_XPATH,
     AEROPERFORMANCE_XPATH,
-    FRAMAT_MATERIAL_XPATH
+    FRAMAT_MATERIAL_XPATH,
+    FRAMAT_SECTION_XPATH
 )
 from pathlib import Path
 
@@ -111,11 +112,49 @@ cpacs_inout.add_input(
     var_type=float,
     default_value=1960,
     unit=None,
-    descr="Enter the density of the wing material in kg/m^3.",
+    descr="Enter the density of the wing material in kg/m³.",
     xpath=FRAMAT_MATERIAL_XPATH + "/Density",
     gui=True,
-    gui_name="Material density [kg/m^3]",
+    gui_name="Material density [kg/m³]",
     gui_group="FramAT: Material properties",
+)
+
+cpacs_inout.add_input(
+    var_name="cross_section_area",
+    var_type=float,
+    default_value=-1,
+    unit=None,
+    descr="Enter the area of the cross-section in m².",
+    xpath=FRAMAT_SECTION_XPATH + "/Area",
+    gui=True,
+    gui_name="Cross-section area [m²]",
+    gui_group="FramAT: Cross-section properties",
+)
+
+cpacs_inout.add_input(
+    var_name="cross_section_Ix",
+    var_type=float,
+    default_value=-1,
+    unit=None,
+    descr="Enter the second moment of area of the cross-section \
+            about the horizontal axis, in m⁴.",
+    xpath=FRAMAT_SECTION_XPATH + "/Ix",
+    gui=True,
+    gui_name="Second moment of area Ix [m⁴]",
+    gui_group="FramAT: Cross-section properties",
+)
+
+cpacs_inout.add_input(
+    var_name="cross_section_Iy",
+    var_type=float,
+    default_value=-1,
+    unit=None,
+    descr="Enter the second moment of area of the cross-section \
+            about the vertical axis, in m⁴",
+    xpath=FRAMAT_SECTION_XPATH + "/Iy",
+    gui=True,
+    gui_name="Second moment of area Iy [m⁴]",
+    gui_group="FramAT: Cross-section properties",
 )
 
 # ----- Output -----

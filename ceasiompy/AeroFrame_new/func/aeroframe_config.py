@@ -27,6 +27,7 @@ import matplotlib.pyplot as plt
 import math
 from pathlib import Path
 from scipy.spatial.distance import cdist
+from scipy import interpolate
 from framat import Model
 
 from cpacspy.cpacspy import CPACS
@@ -35,6 +36,7 @@ from cpacspy.cpacsfunctions import open_tixi
 
 from ceasiompy.utils.commonxpath import (
     FRAMAT_MATERIAL_XPATH,
+    FRAMAT_SECTION_XPATH,
     WINGS_XPATH
 )
 from ceasiompy.utils.ceasiomlogger import get_logger
@@ -333,6 +335,9 @@ def get_material_properties(cpacs_path):
         cpacs_path (Path) : path to the cpacs input file
 
     Returns:
+        young_modulus (float): Young modulus of the material [GPa].
+        shear_modulus (float): Shear modulus of the material [GPa].
+        material_density (float): Density of the material [kg/m^3].
 
     """
     cpacs = CPACS(cpacs_path)
@@ -348,9 +353,32 @@ def get_material_properties(cpacs_path):
     return young_modulus, shear_modulus, material_density
 
 
+def get_section_properties(cpacs_path):
+    """Function reads the cross-section properties for structural
+    calculations.
+
+    Function 'get_section_properties' reads the cross-section properties
+    of the wing from the graphical user interface of CEASIOMpy, in
+    order to make structural computations.
+
+    Args:
+        cpacs_path (Path) : path to the cpacs input file
+
+    Returns:
+
+    """
+    cpacs = CPACS(cpacs_path)
+
+    area = get_value_or_default(cpacs.tixi, FRAMAT_SECTION_XPATH + "/Area", None)
+    Ix = get_value_or_default(cpacs.tixi, FRAMAT_SECTION_XPATH + "/Ix", None)
+    Iy = get_value_or_default(cpacs.tixi, FRAMAT_SECTION_XPATH + "/Iy", None)
+
+    return area, Ix, Iy
+
+
 def create_wing_centerline(wing_df, centerline_df, wg_origin, xyz_tot, fxyz_tot, n_iter, xyz_tip,
-                           tip_def, aera_profile, Ix_profile, Iy_profile, chord_profile, twist_profile,
-                           CASE_PATH, AVL_UNDEFORMED_PATH):
+                           tip_def, aera_profile, Ix_profile, Iy_profile, chord_profile,
+                           twist_profile, CASE_PATH, AVL_UNDEFORMED_PATH):
 
     wing_df = pd.DataFrame({'x': [row[0] for row in xyz_tot],
                             'y': [row[1] for row in xyz_tot],
@@ -359,16 +387,24 @@ def create_wing_centerline(wing_df, centerline_df, wg_origin, xyz_tot, fxyz_tot,
                             'Fy': [row[1] for row in fxyz_tot],
                             'Fz': [row[2] for row in fxyz_tot]})
 
-    tip_row = pd.DataFrame([{
-        "x": xyz_tip[0],
-        "y": xyz_tip[1],
-        "z": xyz_tip[2],
-        "Fx": 0,
-        "Fy": 0,
-        "Fz": 0
-    }])
-
-    log.info(f"Tip row: {tip_row}")
+    if n_iter == 1:
+        tip_row = pd.DataFrame([{
+            "x": xyz_tip[0],
+            "y": xyz_tip[1],
+            "z": xyz_tip[2],
+            "Fx": 0,
+            "Fy": 0,
+            "Fz": 0
+        }])
+    else:
+        tip_row = pd.DataFrame([{
+            "x": tip_def[0],
+            "y": tip_def[1],
+            "z": tip_def[2],
+            "Fx": 0,
+            "Fy": 0,
+            "Fz": 0
+        }])
 
     wing_df = pd.concat([wing_df, tip_row], ignore_index=True)
 
@@ -421,6 +457,8 @@ def create_wing_centerline(wing_df, centerline_df, wg_origin, xyz_tot, fxyz_tot,
         centerline_df["x_new"] = centerline_df["x"]
         centerline_df["y_new"] = centerline_df["y"]
         centerline_df["z_new"] = centerline_df["z"]
+        centerline_df["AoA"] = twist_profile(centerline_df["y"])
+        centerline_df["AoA_new"] = centerline_df["AoA"]
         internal_load_df = centerline_df.copy(deep=True)
 
         centerline_df['node_uid'] = centerline_df.apply(
@@ -440,6 +478,7 @@ def create_wing_centerline(wing_df, centerline_df, wg_origin, xyz_tot, fxyz_tot,
         centerline_df["x"] = centerline_df["x_new"]
         centerline_df["y"] = centerline_df["y_new"]
         centerline_df["z"] = centerline_df["z_new"]
+        centerline_df["AoA"] = centerline_df["AoA_new"]
 
     distances = cdist(wing_df[['x', 'y', 'z']], centerline_df[['x', 'y', 'z']])
     closest_centerline_indices = distances.argmin(axis=1)
@@ -684,10 +723,14 @@ def compute_cross_section(cpacs_path):
     )
 
 
-def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, deformed_df):
+def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, deformed_df):
     deformed_df.sort_values(by="y_leading", inplace=True)
     deformed_df.reset_index(drop=True, inplace=True)
-    log.info(deformed_df)
+    twist_profile = interpolate.interp1d(
+        centerline_df["y_new"], centerline_df["AoA_new"], fill_value="extrapolate")
+    log.info(centerline_df["AoA_new"])
+    log.info(f"Taille centerline: {len(centerline_df)}")
+    log.info(f"Taille deformed: {len(centerline_df)}")
     with open(UNDEFORMED_PATH, "r") as file_undeformed:
         with open(DEFORMED_PATH, "w") as file_deformed:
             for line in file_undeformed:
@@ -699,30 +742,34 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, deformed_df):
                 ["TRANSLATE\n",
                  "0.0\t0.0\t0.0\n\n",
                  "#---------------\n"])
-            step = 6
+            step = 1
+            twist_test = 0 + (0.4 - 0) * (np.linspace(0, 0.3, len(deformed_df))
+                                          )  # np.linspace(0, 0.3, len(deformed_df))
             for i_node in range(0, len(deformed_df), step):
                 # for i_node in range(len(deformed_df)):
                 x_new = deformed_df.iloc[i_node]["x_leading"]
                 y_new = deformed_df.iloc[i_node]["y_leading"]
                 z_new = deformed_df.iloc[i_node]["z_leading"]
                 chord = deformed_df.iloc[i_node]["chord"]
-                AoA = deformed_df.iloc[i_node]["AoA"]
+                # twist_test[i_node]  # deformed_df.iloc[i_node]["AoA"]
+                AoA = twist_profile(y_new)
                 file_deformed.writelines(
                     ["SECTION\n",
                      "#Xle    Yle    Zle     Chord   Ainc\n",
-                     f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord:.3f} {AoA:.3e}\n",
+                     f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord:.3f} {AoA:.3e}\n\n",
+                     #  "NACA\n",
+                     #  "2415\n\n"
                      "#---------------\n"])
             if (len(deformed_df) - 1) % step:
                 x_new = deformed_df.iloc[-1]["x_leading"]
                 y_new = deformed_df.iloc[-1]["y_leading"]
                 z_new = deformed_df.iloc[-1]["z_leading"]
                 chord = deformed_df.iloc[-1]["chord"]
-                AoA = deformed_df.iloc[-1]["AoA"]
+                AoA = centerline_df.iloc[-1]["AoA_new"]
                 file_deformed.writelines(
                     ["SECTION\n",
-                        "#Xle    Yle    Zle     Chord   Ainc\n",
-                        f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord} {AoA:.3e}\n",
-                        "#---------------\n"])
+                     "#Xle    Yle    Zle     Chord   Ainc\n",
+                     f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord} {AoA:.3e}\n\n"])
 
 
 def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):
@@ -783,7 +830,8 @@ def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, wg_origin, 
         for y_query in y_queries:
             # if y_query < Yle_array[0] - 1e-2 or y_query > Yle_array[-1] + 1e-2:
             #     raise ValueError(
-            #         f"y_query value {y_query} is too far outside the range of the leading edge points.")
+            #         f"y_query value {y_query} is too far outside the range of
+            #         the leading edge points.")
 
             if y_query < Yle_array[0]:  # Extrapolate before the first point
                 interpolated_points.append(

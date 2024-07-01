@@ -363,7 +363,7 @@
                                     <element uID="Cpacs2Test_Wing_Sec1_El1">
                                         <name>Cpacs2Test - Wing Section 1 Main Element</name>
                                         <description>Cpacs2Test - Wing Section 1 Main Element</description>
-                                        <airfoilUID>RectAirfoil</airfoilUID>
+                                        <airfoilUID>NACA0012</airfoilUID>
                                         <transformation
                                             uID="Cpacs2Test_Wing_Sec1_El1_transformation1">
                                             <scaling
@@ -413,7 +413,7 @@
                                     <element uID="Cpacs2Test_Wing_Sec2_El1">
                                         <name>Cpacs2Test - Wing Section 2 Main Element</name>
                                         <description>Cpacs2Test - Wing Section 2 Main Element</description>
-                                        <airfoilUID>RectAirfoil</airfoilUID>
+                                        <airfoilUID>NACA0012</airfoilUID>
                                         <transformation
                                             uID="Cpacs2Test_Wing_Sec2_El1_transformation1">
                                             <scaling
@@ -451,7 +451,7 @@
                             <positioning uID="Wing_positioning2">
                                 <name>Cpacs2Test - Wing Section 2 Positioning</name>
                                 <description>Cpacs2Test - Wing Section 2 Positioning</description>
-                                <length>2.5</length>
+                                <length>5</length>
                                 <sweepAngle>0</sweepAngle>
                                 <dihedralAngle>0</dihedralAngle>
                                 <fromSectionUID>Cpacs2Test_Wing_Sec1</fromSectionUID>

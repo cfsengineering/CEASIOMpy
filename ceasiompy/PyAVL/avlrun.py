@@ -29,7 +29,10 @@ from ceasiompy.PyAVL.func.avlconfig import (
     get_aeromap_conditions,
     get_option_settings,
 )
-from ceasiompy.PyAVL.func.avlresults import get_avl_results
+from ceasiompy.PyAVL.func.avlresults import (
+    get_avl_results,
+    convert_ps_to_pdf
+)
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 import subprocess
@@ -100,11 +103,7 @@ def run_avl(cpacs_path, wkdir):
         subprocess.run(["xvfb-run", "avl"], stdin=open(str(command_path), "r"), cwd=case_dir_path)
 
         if save_fig:
-            if not Path(case_dir_path, "plot.ps").exists():
-                raise FileNotFoundError("File 'plot.ps' does not exist.")
-
-            subprocess.run(["ps2pdf", "plot.ps", "plot.pdf"], cwd=case_dir_path)
-            subprocess.run(["rm", "plot.ps"], cwd=case_dir_path)
+            convert_ps_to_pdf(wkdir=case_dir_path)
 
 
 # =================================================================================================

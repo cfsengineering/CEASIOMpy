@@ -20,7 +20,6 @@ TODO:
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
-import matplotlib.pyplot as plt
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.utils.ceasiompyutils import get_results_directory
@@ -56,7 +55,9 @@ from ceasiompy.AeroFrame_new.func.aeroframe_debbug import (
 
 from ceasiompy.utils.commonxpath import (
     AVL_PLOT_XPATH,
-    FRAMAT_RESULTS_XPATH
+    FRAMAT_RESULTS_XPATH,
+    FRAMAT_MESH_XPATH,
+    AEROFRAME_SETTINGS
 )
 from cpacspy.cpacspy import CPACS
 
@@ -106,12 +107,9 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
         wg_chord_list
     ) = compute_cross_section(cpacs_path)
 
-    log.info(f"Ix: {Ix_list}")
-    log.info(f"Iy: {Iy_list}")
-    log.info(f"Area: {area_list}")
-    log.info(f"Chord: {wg_chord_list}")
-
     young_modulus, shear_modulus, material_density = get_material_properties(cpacs_path)
+
+    N_beam = get_value_or_default(cpacs.tixi, FRAMAT_MESH_XPATH + "/NumberNodes", 8)
 
     xyz_root = np.array([wg_center_x_list[0] + wing_origin[0] + wg_chord_list[0] / 2,
                          wg_center_y_list[0] + wing_origin[1],
@@ -121,12 +119,6 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
     xyz_tip = np.array([wg_center_x_list[-1] + wing_origin[0] + wg_chord_list[0] / 2,
                         wg_center_y_list[-1] + wing_origin[1],
                         wg_center_z_list[-1] + wing_origin[2]])
-
-    log.info(f"Wing tip center x: {wg_center_x_list}")
-    log.info(f"Wing tip center y: {wg_center_y_list}")
-    log.info(f"Wing tip center z: {wg_center_z_list}")
-    # log.info(f"Wing z-translation: {wing_origin}")
-    # log.info(f"Z-tip final: {xyz_tip[-1]}")
 
     # Compute cross-section properties along the span
     area_const, Ix_const, Iy_const = get_section_properties(cpacs_path)
@@ -144,18 +136,21 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
     chord_profile = interpolate.interp1d(wg_center_y_list, wg_chord_list, fill_value="extrapolate")
     twist_profile = interpolate.interp1d(wg_center_y_list, wg_twist_list, fill_value="extrapolate")
 
+    # Convergence settings
+    n_iter_max = get_value_or_default(cpacs.tixi, AEROFRAME_SETTINGS + "/MaxNumberIterations", 8)
+    tol = get_value_or_default(cpacs.tixi, AEROFRAME_SETTINGS + "/Tolerance", 1e-3)
+
     # Initialize variables for the loop
     wing_df = pd.DataFrame()
     centerline_df = pd.DataFrame()
     delta_tip = []
     n_iter = 0
     res = [1]
-    tol = 1e-3
     tip_def_points = None
 
-    while res[-1] > tol and n_iter < 5:
+    while res[-1] > tol and n_iter < n_iter_max:
         n_iter += 1
-        log.info(f"################ FramAT: Deformation {n_iter} ################")
+        log.info(f"----- FramAT: Deformation {n_iter} -----")
 
         Path(CASE_PATH, f"Iteration_{n_iter+1}", "AVL").mkdir(parents=True, exist_ok=True)
         Path(CASE_PATH, f"Iteration_{n_iter}", "FramAT").mkdir(parents=True, exist_ok=True)
@@ -173,6 +168,7 @@ def aeroelastic_loop(cpacs_path, q, xyz, fxyz, CASE_PATH):
             internal_load_df
         ) = create_wing_centerline(wing_df,
                                    centerline_df,
+                                   N_beam,
                                    wing_origin,
                                    xyz_tot,
                                    fxyz_tot,

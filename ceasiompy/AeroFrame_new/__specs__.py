@@ -6,7 +6,9 @@ from ceasiompy.utils.commonxpath import (
     AVL_AEROMAP_UID_XPATH,
     AEROPERFORMANCE_XPATH,
     FRAMAT_MATERIAL_XPATH,
-    FRAMAT_SECTION_XPATH
+    FRAMAT_SECTION_XPATH,
+    FRAMAT_MESH_XPATH,
+    AEROFRAME_SETTINGS
 )
 from pathlib import Path
 
@@ -44,7 +46,7 @@ cpacs_inout.add_input(
     xpath=AVL_VORTEX_DISTR_XPATH + "/Distribution",
     gui=True,
     gui_name="Choice of distribution",
-    gui_group="Vortex Lattice Spacing Distributions",
+    gui_group="AVL: Vortex Lattice Spacing Distributions",
 )
 
 cpacs_inout.add_input(
@@ -56,7 +58,7 @@ cpacs_inout.add_input(
     xpath=AVL_VORTEX_DISTR_XPATH + "/Nchordwise",
     gui=True,
     gui_name="Number of chordwise vortices",
-    gui_group="Vortex Lattice Spacing Distributions",
+    gui_group="AVL: Vortex Lattice Spacing Distributions",
 )
 
 cpacs_inout.add_input(
@@ -68,7 +70,7 @@ cpacs_inout.add_input(
     xpath=AVL_VORTEX_DISTR_XPATH + "/Nspanwise",
     gui=True,
     gui_name="Number of spanwise vortices",
-    gui_group="Vortex Lattice Spacing Distributions",
+    gui_group="AVL: Vortex Lattice Spacing Distributions",
 )
 
 cpacs_inout.add_input(
@@ -79,8 +81,20 @@ cpacs_inout.add_input(
     descr="Select to save geometry and results plots",
     xpath=AVL_PLOT_XPATH,
     gui=True,
-    gui_name="Save plots",
+    gui_name="Save AVL plots",
     gui_group="Plots",
+)
+
+cpacs_inout.add_input(
+    var_name="N_beam",
+    var_type=int,
+    default_value=8,
+    unit=None,
+    descr="Enter number of nodes for the beam mesh.",
+    xpath=FRAMAT_MESH_XPATH + "/NumberNodes",
+    gui=True,
+    gui_name="Number of beam nodes",
+    gui_group="FramAT: Mesh properties",
 )
 
 cpacs_inout.add_input(
@@ -155,6 +169,30 @@ cpacs_inout.add_input(
     gui=True,
     gui_name="Second moment of area Iy [m⁴]",
     gui_group="FramAT: Cross-section properties",
+)
+
+cpacs_inout.add_input(
+    var_name="n_iter_max",
+    var_type=int,
+    default_value=8,
+    unit=None,
+    descr="Enter the maximum number of iterations of the aeroelastic-loop.",
+    xpath=AEROFRAME_SETTINGS + "/MaxNumberIterations",
+    gui=True,
+    gui_name="Maximum number of iterations",
+    gui_group="AeroFrame: Convergence settings",
+)
+
+cpacs_inout.add_input(
+    var_name="tolerance",
+    var_type=float,
+    default_value=1e-3,
+    unit=None,
+    descr="Enter the tolerance for convergence of the wing deformation.",
+    xpath=AEROFRAME_SETTINGS + "/Tolerance",
+    gui=True,
+    gui_name="Tolerance",
+    gui_group="AeroFrame: Convergence settings",
 )
 
 # ----- Output -----

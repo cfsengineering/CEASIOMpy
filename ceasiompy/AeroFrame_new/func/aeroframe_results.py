@@ -58,16 +58,12 @@ def compute_deformations(results, wing_df, centerline_df):
     centerline_df['thy'] = thy_profile(centerline_df['y'])
     centerline_df['thz'] = thz_profile(centerline_df['y'])
 
-    # log.info(f"x-displacement: {centerline_df['ux'].unique()}")
-    # log.info(f"y-displacement: {centerline_df['uy'].unique()}")
-    # log.info(f"z-displacement: {centerline_df['uz'].unique()}")
-    # log.info(f"x-rotation: {centerline_df['thx'].unique()}")
-    # log.info(f"y-rotation: {centerline_df['thy'].unique()}")
-    # log.info(f"z-rotation: {centerline_df['thz'].unique()}")
-
     centerline_df["x_new"] += centerline_df['ux']
     centerline_df["y_new"] += centerline_df['uy']
     centerline_df["z_new"] += centerline_df['uz']
+    centerline_df["thx_new"] += centerline_df['thx']
+    centerline_df["thy_new"] += centerline_df['thy']
+    centerline_df["thz_new"] += centerline_df['thz']
     centerline_df["AoA_new"] += np.rad2deg(centerline_df["thy"])
 
     centerline_df["delta_S"] = centerline_df.apply(
@@ -96,23 +92,17 @@ def compute_deformations(results, wing_df, centerline_df):
         dot_product = np.dot(v1, v2)
         norm_v1 = np.linalg.norm(v1)
         norm_v2 = np.linalg.norm(v2)
-        log.info(f"Norm1: {norm_v1}")
-        log.info(f"Norm2: {norm_v2}")
         cos_theta = dot_product / (norm_v1 * norm_v2)
-        log.info(f"cos: {cos_theta}")
         angle = np.arccos(cos_theta)
 
         if math.isnan(angle):
-            angle = 2.25e-2
+            angle = 0
 
         return np.degrees(angle)
 
     leading_edges = []
-    log.info("#$#$#$#$#$#$#$#$#$#$#$#$#$")
-    log.info(wing_df["y_new_round"].unique())
     for _, group in wing_df.groupby('y_new_round'):
         if len(group) >= 2:
-            log.info(f"Number of y values: {len(group)}")
             leading_edge = group.loc[group["x_new"].idxmin()]
             trailing_edge = group.loc[group["x_new"].idxmax()]
 
@@ -122,11 +112,11 @@ def compute_deformations(results, wing_df, centerline_df):
                 trailing_edge["z_new"] - leading_edge["z_new"]
             ])
 
-            log.info(f"chord line: {chord_line}")
-
             horizontal_vec = np.array([1, 0, 0])
 
             twist_angle = calculate_angle(chord_line, horizontal_vec)
+            # twist_angle2 = math.asin(
+            #     (group['z_new'].max() - group['z_new'].min()) / 0.35) * 180 / math.pi
 
             leading_edges.append(
                 (leading_edge["x_new"], leading_edge["y_new_round"], leading_edge["z_new"],
@@ -134,17 +124,9 @@ def compute_deformations(results, wing_df, centerline_df):
 
     deformed_df = pd.DataFrame(leading_edges, columns=[
                                "x_leading", "y_leading", "z_leading", "chord", "AoA"])
-    # deformed_df["x_leading"] -= deformed_df["x_leading"].min()
-    log.info("$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$")
-    log.info(deformed_df)
 
-    max_y_new = wing_df["y_new_round"].max()
-    # tip_points = wing_df.loc[wing_df["y_new_round"]
-    #                          == max_y_new][["x_new", "y_new", "z_new"]].to_numpy()
     tip_points = centerline_df.loc[centerline_df["y_new"].idxmax()][[
         "x_new", "y_new", "z_new"]].to_numpy()
-
-    log.info(f"TIP POINTS: {tip_points}")
 
     return centerline_df, deformed_df, tip_points
 

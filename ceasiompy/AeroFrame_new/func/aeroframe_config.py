@@ -45,7 +45,8 @@ from ceasiompy.utils.mathfunctions import euler2fix
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from ceasiompy.AeroFrame_new.func.aeroframe_utils import (
     PolyArea,
-    second_moments_of_area
+    second_moments_of_area,
+    rotate_3D_points
 )
 
 log = get_logger()
@@ -281,9 +282,20 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
     beam.set('nelem', len(centerline_df) - 1)
 
     # Add orientation property to the beam
-    beam.add('orientation', {'from': centerline_df.iloc[0]['node_uid'],
-                             'to': centerline_df.iloc[-1]['node_uid'],
-                             'up': [0, 0, 1]})
+    for i_node in range(len(centerline_df) - 1):
+        up_x, up_y, up_z = rotate_3D_points(x=0,
+                                            y=0,
+                                            z=1,
+                                            angle_x=centerline_df.iloc[i_node]["thx_new"],
+                                            angle_y=centerline_df.iloc[i_node]["thy_new"],
+                                            angle_z=centerline_df.iloc[i_node]["thz_new"])
+
+        beam.add('orientation', {'from': centerline_df.iloc[i_node]['node_uid'],
+                                 'to': centerline_df.iloc[i_node + 1]['node_uid'],
+                                 'up': [up_x, up_y, up_z]})
+    # beam.add('orientation', {'from': centerline_df.iloc[0]['node_uid'],
+    #                          'to': centerline_df.iloc[-1]['node_uid'],
+    #                          'up': [0, 0, 1]})
     beam.add('material', {'from': centerline_df.iloc[0]['node_uid'],
                           'to': centerline_df.iloc[-1]['node_uid'],
                           'uid': 'material'})
@@ -376,8 +388,8 @@ def get_section_properties(cpacs_path):
     return area, Ix, Iy
 
 
-def create_wing_centerline(wing_df, centerline_df, wg_origin, xyz_tot, fxyz_tot, n_iter, xyz_tip,
-                           tip_def, aera_profile, Ix_profile, Iy_profile, chord_profile,
+def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, fxyz_tot, n_iter,
+                           xyz_tip, tip_def, aera_profile, Ix_profile, Iy_profile, chord_profile,
                            twist_profile, CASE_PATH, AVL_UNDEFORMED_PATH):
 
     wing_df = pd.DataFrame({'x': [row[0] for row in xyz_tot],
@@ -453,10 +465,23 @@ def create_wing_centerline(wing_df, centerline_df, wg_origin, xyz_tot, fxyz_tot,
         centerline_df = (wing_df.groupby("y")[["x", "z"]].max(
         ) + wing_df.groupby("y")[["x", "z"]].min()) / 2
         centerline_df = centerline_df.reset_index().reindex(columns=["x", "y", "z"])
+        if N_beam < len(centerline_df):
+            target_y_values = np.linspace(
+                centerline_df['y'].min(), centerline_df['y'].max(), int(N_beam))
+            selected_indices = []
+            for target_y in target_y_values:
+                closest_index = (centerline_df['y'] - target_y).abs().idxmin()
+                selected_indices.append(closest_index)
+
+            centerline_df = centerline_df.loc[selected_indices].sort_index().reset_index(drop=True)
+
         centerline_df[["Fx", "Fy", "Fz", "Mx", "My", "Mz"]] = 0
         centerline_df["x_new"] = centerline_df["x"]
         centerline_df["y_new"] = centerline_df["y"]
         centerline_df["z_new"] = centerline_df["z"]
+        centerline_df["thx_new"] = 0
+        centerline_df["thy_new"] = 0
+        centerline_df["thz_new"] = 0
         centerline_df["AoA"] = twist_profile(centerline_df["y"])
         centerline_df["AoA_new"] = centerline_df["AoA"]
         internal_load_df = centerline_df.copy(deep=True)
@@ -728,9 +753,11 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
     deformed_df.reset_index(drop=True, inplace=True)
     twist_profile = interpolate.interp1d(
         centerline_df["y_new"], centerline_df["AoA_new"], fill_value="extrapolate")
-    log.info(centerline_df["AoA_new"])
-    log.info(f"Taille centerline: {len(centerline_df)}")
-    log.info(f"Taille deformed: {len(centerline_df)}")
+    # twist_profile = interpolate.interp1d(
+    #     deformed_df["y_leading"], deformed_df["AoA"], kind="quadratic", fill_value="extrapolate")
+
+    # twist_test = np.linspace(0, 0.024, len(deformed_df))
+
     with open(UNDEFORMED_PATH, "r") as file_undeformed:
         with open(DEFORMED_PATH, "w") as file_deformed:
             for line in file_undeformed:
@@ -743,22 +770,16 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                  "0.0\t0.0\t0.0\n\n",
                  "#---------------\n"])
             step = 1
-            twist_test = 0 + (0.4 - 0) * (np.linspace(0, 0.3, len(deformed_df))
-                                          )  # np.linspace(0, 0.3, len(deformed_df))
             for i_node in range(0, len(deformed_df), step):
-                # for i_node in range(len(deformed_df)):
                 x_new = deformed_df.iloc[i_node]["x_leading"]
                 y_new = deformed_df.iloc[i_node]["y_leading"]
                 z_new = deformed_df.iloc[i_node]["z_leading"]
                 chord = deformed_df.iloc[i_node]["chord"]
-                # twist_test[i_node]  # deformed_df.iloc[i_node]["AoA"]
-                AoA = twist_profile(y_new)
+                AoA = twist_profile(y_new)  # deformed_df.iloc[i_node]["AoA"]
                 file_deformed.writelines(
                     ["SECTION\n",
                      "#Xle    Yle    Zle     Chord   Ainc\n",
                      f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord:.3f} {AoA:.3e}\n\n",
-                     #  "NACA\n",
-                     #  "2415\n\n"
                      "#---------------\n"])
             if (len(deformed_df) - 1) % step:
                 x_new = deformed_df.iloc[-1]["x_leading"]
@@ -786,7 +807,6 @@ def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, wg_origin, 
     Yle_list = []
     Zle_list = []
     surface_count = 0
-    # Chord_list = []
 
     if n_iter == 1:
         path_to_read = AVL_UNDEFORMED_PATH
@@ -812,12 +832,10 @@ def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, wg_origin, 
                     Xle_list.append(float(parts[0]))
                     Yle_list.append(float(parts[1]))
                     Zle_list.append(float(parts[2]))
-                # Chord_list.append(float(parts[3]))
 
     Xle_array = np.array(Xle_list)
     Yle_array = np.array(Yle_list)
     Zle_array = np.array(Zle_list)
-    # Chord_array = np.array(Chord_list)
 
     def linear_interpolation(x1, y1, z1, x2, y2, z2, y_query):
         t = (y_query - y1) / (y2 - y1)

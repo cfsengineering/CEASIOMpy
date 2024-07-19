@@ -35,15 +35,12 @@ import subprocess
 from pathlib import Path
 
 import gmsh
-from ceasiompy.CPACS2GMSH.func.generategmesh import (
-    # duplicate_disk_actuator_surfaces,
-    # control_disk_actuator_normal,
-    # get_entities_from_volume,
+from ceasiompy.CPACS2GMSH.func.generategmesh import (  # duplicate_disk_actuator_surfaces,; control_disk_actuator_normal,; get_entities_from_volume,
     ModelPart,
     add_disk_actuator,
-    fuselage_size,
     process_gmsh_log,
 )
+from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
 from ceasiompy.utils.ceasiomlogger import get_logger
 
 # from ceasiompy.utils.commonnames import (
@@ -53,9 +50,12 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 #     GMSH_ENGINE_CONFIG_NAME,
 # )
 from ceasiompy.utils.ceasiompyutils import get_part_type
-
-# from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_WINGS_XPATH
+from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_FUSELAGE_XPATH, GMSH_MESH_SIZE_WINGS_XPATH
 from ceasiompy.utils.configfiles import ConfigFile
+from cpacspy.cpacsfunctions import create_branch
+
+from ceasiompy.CPACS2GMSH.func.mesh_sizing import fuselage_size, wings_size
+
 
 log = get_logger()
 
@@ -66,7 +66,15 @@ log = get_logger()
 
 
 def generate_2d_mesh_for_pentagrow(
-    cpacs, cpacs_path, brep_dir, results_dir, open_gmsh, min_max_mesh_factor, symmetry=False
+    cpacs,
+    cpacs_path,
+    brep_dir,
+    results_dir,
+    open_gmsh,
+    min_max_mesh_factor,
+    symmetry=False,
+    fuselage_mesh_size_factor=1,
+    wing_mesh_size_factor=1.5,
 ):
     """
     Function to generate a mesh from brep files forming an airplane
@@ -133,18 +141,22 @@ def generate_2d_mesh_for_pentagrow(
     gmsh.option.setNumber("General.Terminal", 0)
     # Log complexity
     gmsh.option.setNumber("General.Verbosity", 5)
+    # Tollerance for boolean
+    gmsh.option.setNumber("Geometry.ToleranceBoolean", 1e-5)
 
     # Import each aircraft original parts / parent parts
-    fuselage_volume_dimtags = []
-    wings_volume_dimtags = []
-    enginePylons_enginePylon_volume_dimtags = []
-    engine_nacelle_fanCowl_volume_dimtags = []
-    engine_nacelle_coreCowl_volume_dimtags = []
-    vehicles_engines_engine_volume_dimtags = []
-    vehicles_rotorcraft_model_rotors_rotor_volume_dimtags = []
+    # fuselage_volume_dimtags = []
+    # wings_volume_dimtags = []
+    # enginePylons_enginePylon_volume_dimtags = []
+    # engine_nacelle_fanCowl_volume_dimtags = []
+    # engine_nacelle_coreCowl_volume_dimtags = []
+    # vehicles_engines_engine_volume_dimtags = []
+    # vehicles_rotorcraft_model_rotors_rotor_volume_dimtags = []
 
-    fuselage_surface = []
-    wing_surface = []
+    # fuselage_surface = []
+    # wing_surface = []
+    aircraft_parts = []
+    parts_parent_dimtag = []
 
     log.info(f"Importing files from {brep_dir}")
 
@@ -153,121 +165,22 @@ def generate_2d_mesh_for_pentagrow(
         part_entities = gmsh.model.occ.importShapes(str(brep_file), highestDimOnly=False)
         gmsh.model.occ.synchronize()
 
-        # Create the aircraft part object
         part_obj = ModelPart(uid=brep_file.stem)
-        # maybe to cut off -->
         part_obj.part_type = get_part_type(cpacs.tixi, part_obj.uid)
 
-        if part_obj.part_type == "fuselage":
-            fuselage_volume_dimtags.append(part_entities[0])
-            model_bb = gmsh.model.get_bounding_box(
-                fuselage_volume_dimtags[0][0], fuselage_volume_dimtags[0][1]
-            )
-            fuselage_surface_dimtags = gmsh.model.get_entities(2)
-            print(f"fuselage_surface_dimtags{fuselage_surface_dimtags}")
+        part_surfaces = [e for e in part_entities if e[0] == 2]
+        part_obj.surfaces_tags = [tag for dim, tag in part_surfaces]
 
-        elif part_obj.part_type == "wing":
-            wings_volume_dimtags.append(part_entities[0])
-            # return wings_volume_dimtags
-            wing_surface_dimtags = gmsh.model.get_entities(2)
-            wing_surface_dimtags = [
-                tag for tag in wing_surface_dimtags if tag not in fuselage_surface_dimtags
-            ]
+        # Add to the list of aircraft parts
+        aircraft_parts.append(part_obj)
+        parts_parent_dimtag.append(part_entities[0])
 
-            print(f"wing_surface_dimtags{wing_surface_dimtags}")
-
-        elif part_obj.part_type == "enginePylons/enginePylon":
-            enginePylons_enginePylon_volume_dimtags.append(part_entities[0])
-            # return enginePylons_enginePylon_volume_dimtags
-
-        elif part_obj.part_type == "engine/nacelle/fanCowl":
-            engine_nacelle_fanCowl_volume_dimtags.append(part_entities[0])
-
-        elif part_obj.part_type == "engine/nacelle/coreCowl":
-            engine_nacelle_coreCowl_volume_dimtags.append(part_entities[0])
-
-        elif part_obj.part_type == "vehicles/engines/engine":
-            vehicles_engines_engine_volume_dimtags.append(part_entities[0])
-
-        elif part_obj.part_type == "vehicles/rotorcraft/model/rotors/rotor":
-            vehicles_rotorcraft_model_rotors_rotor_volume_dimtags.append(part_entities[0])
-        else:
-            log.warning(f"'{brep_file}' cannot be categorized!")
-            return None
-
-    for fuselage_surface_dimtag in fuselage_surface_dimtags:
-        fuselage_tags = fuselage_surface_dimtag[1]
-        fuselage_surface.append(fuselage_tags)
-
-    for wing_surface_dimtag in wing_surface_dimtags:
-        wing_tags = wing_surface_dimtag[1]
-        wing_surface.append(wing_tags)
-
-    # gmsh.model.add_physical_group(2, surface, -1, name="aircraft_surface")
-
-    gmsh.model.add_physical_group(2, fuselage_surface, -1, name="fuselage_surface")
-    gmsh.model.add_physical_group(2, wing_surface, -1, name="wing_surface")
+        log.info(f"Part : {part_obj.uid} imported")
 
     gmsh.model.occ.synchronize()
 
-    log.info("Start manipulation to obtain a watertight volume")
-    log.info("Cutting parts...")
-    # we have to obtain a wathertight volume
-
-    # gmsh.model.occ.fragment(
-    #     wings_volume_dimtags,
-    #     fuselage_volume_dimtags,
-    # )
-    gmsh.model.occ.fuse(wings_volume_dimtags, wings_volume_dimtags, -1, False, False)
-    log.info("Removing parts...")
-    # gmsh.model.occ.cut(wings_volume_dimtags, fuselage_volume_dimtags, -1, False, False)
-
-    volume_inner_part = gmsh.model.occ.cut(
-        wings_volume_dimtags, fuselage_volume_dimtags, -1, False, False
-    )
-    volume_inner_part = volume_inner_part[:-1]
-    print(f"inner part={volume_inner_part}")
-    volume_inner_part = [(3, 4), (3, 5)]
-
-    surface_inner_part = gmsh.model.occ.cut(
-        wing_surface_dimtags, fuselage_surface_dimtags, -1, False, False
-    )
-    surface_inner_part = surface_inner_part[:-1]
-    print(f"inner part={surface_inner_part}")
-    surface_inner_part = [
-        (2, 15),
-        (2, 20),
-        (2, 3),
-        (2, 4),
-        (2, 5),
-        (2, 34),
-        (2, 35),
-        (2, 36),
-        (2, 37),
-        (2, 38),
-        (2, 39),
-        (2, 40),
-        (2, 41),
-        (2, 42),
-        (2, 43),
-        (2, 44),
-        (2, 45),
-        (2, 46),
-    ]
-
-    gmsh.model.occ.synchronize()
-
-    gmsh.model.occ.remove(volume_inner_part)
-    gmsh.model.occ.remove(surface_inner_part)
-    gmsh.model.occ.synchronize()
-    gmsh.fltk.run()
-    log.info("Fusing parts...")
-    # gmsh.model.occ.fuse(wings_volume_dimtags, fuselage_volume_dimtags, -1, False, False)
-    gmsh.model.occ.fuse(wings_volume_dimtags, fuselage_volume_dimtags, -1, False, False)
-    gmsh.model.occ.synchronize()
-
-    gmsh.fltk.run()
-
+    # Create external domain for the farfield
+    model_bb = gmsh.model.getBoundingBox(-1, -1)
     model_dimensions = [
         abs(model_bb[0] - model_bb[3]),
         abs(model_bb[1] - model_bb[4]),
@@ -280,7 +193,66 @@ def generate_2d_mesh_for_pentagrow(
         model_bb[2] + model_dimensions[2] / 2,
     ]
 
-    fuselage_maxlen, _ = fuselage_size(cpacs_path)
+    log.info("Start manipulation to obtain a watertight volume")
+    log.info("Fusing parts...")
+
+    # Ciclo di fusione
+    while len(parts_parent_dimtag) > 1:
+        fused_entities, mapping = gmsh.model.occ.fuse(
+            [parts_parent_dimtag[0]], [parts_parent_dimtag[1]]
+        )
+
+        gmsh.model.occ.synchronize()
+
+        # Aggiorna la lista delle entità fuse
+        new_fused = fused_entities[0]
+        parts_parent_dimtag = [new_fused] + parts_parent_dimtag[2:]
+
+    # Verifica le entità nel modello
+    final_volume_numbers = gmsh.model.getEntities(3)
+
+    if len(final_volume_numbers) != 1 or final_volume_numbers[0][1] != 1:
+        log.error(f"There are {len(final_volume_numbers)}, fusion not successful")
+        log.error("You should have just one volume")
+
+    gmsh.model.occ.synchronize()
+
+    aircraft = ModelPart("aircraft")
+
+    for part in aircraft_parts:
+        aircraft.points.extend(part.points)
+        aircraft.lines.extend(part.lines)
+        aircraft.surfaces.extend(part.surfaces)
+        aircraft.volume.extend(part.volume)
+        aircraft.points_tags.extend(part.points_tags)
+        aircraft.lines_tags.extend(part.lines_tags)
+        aircraft.surfaces_tags.extend(part.surfaces_tags)
+        aircraft.volume_tag.extend(part.volume_tag)
+
+        print(part.surfaces_tags)
+
+        surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
+        print(f"surfaces_group ={surfaces_group}")
+        gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
+        part.physical_groups.append(surfaces_group)
+
+        # Set surface BC for each part of the aircraft
+        # if part.part_type == "engine":
+        #     define_engine_bc(part, brep_dir)
+        # else:
+        #     surfaces_group = gmsh.model.addPhysicalGroup(2, part.surfaces_tags)
+        #     if part.part_type == "rotor":
+        #         gmsh.model.setPhysicalName(
+        #             2, surfaces_group, f"{part.uid}{ACTUATOR_DISK_INLET_SUFFIX}"
+        #         )
+        #     else:
+        #         gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
+        #     part.physical_groups.append(surfaces_group)
+    gmsh.model.occ.synchronize()
+
+    # gmsh.fltk.run()
+
+    fuselage_maxlen, fuselage_minlen = fuselage_size(cpacs_path)
 
     # gmsh.model.occ.translate(
     #     [(3, 1)],
@@ -290,17 +262,49 @@ def generate_2d_mesh_for_pentagrow(
     # )
 
     gmsh.model.occ.synchronize()
-    log.info("Manipulation finished")
+    log.info("Geometry has been fused")
 
-    # Mesh generation
+    mesh_size_fuselage = ((fuselage_maxlen + fuselage_minlen) / 2) / fuselage_mesh_size_factor
+    log.info(f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
+
+    create_branch(cpacs.tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH)
+    cpacs.tixi.updateDoubleElement(GMSH_MESH_SIZE_FUSELAGE_XPATH, mesh_size_fuselage, "%.3f")
+
+    wing_maxlen, wing_minlen = wings_size(cpacs_path)
+    mesh_size_wing = ((wing_maxlen * 0.8 + wing_minlen) / 2) / wing_mesh_size_factor
+    log.info(f"Mesh size wing={mesh_size_wing:.3f} m")
+
+    create_branch(cpacs.tixi, GMSH_MESH_SIZE_WINGS_XPATH)
+    cpacs.tixi.updateDoubleElement(GMSH_MESH_SIZE_WINGS_XPATH, mesh_size_wing, "%.3f")
+
+    for part in aircraft_parts:
+        print(part.part_type)
+        if part.part_type == "fuselage":
+            part.mesh_size = mesh_size_fuselage
+            gmsh.model.mesh.setSize(part.points, part.mesh_size)
+            gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
+        elif part.part_type in ["wing", "pylon"]:
+            part.mesh_size = mesh_size_wing
+            gmsh.model.mesh.setSize(part.points, part.mesh_size)
+            gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
+        # elif part.part_type == "engine":
+        #     part.mesh_size = mesh_size_engines
+        #     gmsh.model.mesh.setSize(part.points, part.mesh_size)
+        #     gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
+        # elif part.part_type == "rotor":
+        #     part.mesh_size = mesh_size_propellers
+        #     gmsh.model.mesh.setSize(part.points, part.mesh_size)
+        #     gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
+
+    # mesh_size = model_dimensions[0] * float(min_max_mesh_factor) * (10**-3)
+    # gmsh.option.set_number("Mesh.MeshSizeMin", mesh_size)
+    # gmsh.option.set_number("Mesh.MeshSizeMax", mesh_size)
+    # gmsh.option.setNumber("Mesh.StlOneSolidPerSurface", 2)
+
     log.info("Start of gmsh 2D surface meshing process")
 
     gmsh.option.setNumber("Mesh.Algorithm", 6)
     gmsh.option.setNumber("Mesh.LcIntegrationPrecision", 1e-6)
-    mesh_size = model_dimensions[0] * float(min_max_mesh_factor) * (10**-3)
-    gmsh.option.set_number("Mesh.MeshSizeMin", mesh_size)
-    gmsh.option.set_number("Mesh.MeshSizeMax", mesh_size)
-    gmsh.option.setNumber("Mesh.StlOneSolidPerSurface", 2)
 
     gmsh.model.occ.synchronize()
     gmsh.logger.start()

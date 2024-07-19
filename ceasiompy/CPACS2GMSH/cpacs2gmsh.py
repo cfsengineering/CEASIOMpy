@@ -155,6 +155,8 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
             results_dir,
             open_gmsh=open_gmsh,
             min_max_mesh_factor=min_max_mesh_factor,
+            fuselage_mesh_size_factor=1,
+            wing_mesh_size_factor=1.5,
         )
 
         if gmesh_path.exists():

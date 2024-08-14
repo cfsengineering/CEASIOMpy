@@ -416,7 +416,7 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
     """Function to create the beam nodes along the wing centerline.
 
     Function 'create_wing_centerline' creates the beam nodes along
-    the wing centerline, associating all the geometric properties 
+    the wing centerline, associating all the geometric properties
     and the applied forces and moments.
 
     Args:
@@ -431,15 +431,15 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
         n_iter (int): number of the current iteration.
         xyz_tip (list): coordinates of the mid-chord tip center of the undeformed wing [m].
         tip_def (list): coordinates of the mid-chord tip center of the deformed wing [m].
-        aera_profile (scipy.interpolate): profile of area of the cross-sections along 
+        aera_profile (scipy.interpolate): profile of area of the cross-sections along
                                           the span [m^2].
-        Ix_profile (scipy.interpolate.interp1d): profile of the second moment of area about 
+        Ix_profile (scipy.interpolate.interp1d): profile of the second moment of area about
                                                  the x-axis along the span [m^4].
-        Iy_profile (scipy.interpolate.interp1d): profile of the second moment of area about 
+        Iy_profile (scipy.interpolate.interp1d): profile of the second moment of area about
                                                  the y-axis along the span [m^4].
-        chord_profile (scipy.interpolate.interp1d): profile of the chord length along 
+        chord_profile (scipy.interpolate.interp1d): profile of the chord length along
                                                     the span [m].
-        twist_profile (scipy.interpolate.interp1d): profile of the twist angle along 
+        twist_profile (scipy.interpolate.interp1d): profile of the twist angle along
                                                     the span [deg].
         CASE_PATH (Path): path to the flight case directory.
         AVL_UNDEFORMED_PATH (Path): path to the undeformed AVL geometry.
@@ -620,15 +620,15 @@ def compute_cross_section(cpacs_path):
         wg_origin (list): list of the coordinates of the origin of the wing geometry.
         wg_twist_list (list): list of the twist angle of each cross-section [deg].
         area_list (list): list of the area of each cross-section [m^2].
-        Ix_list (list): list of the second moment of area about the x-axis for each 
+        Ix_list (list): list of the second moment of area about the x-axis for each
                         cross-section [m^4].
-        Iy_list (list): list of the second moment of area about the y-axis for each 
+        Iy_list (list): list of the second moment of area about the y-axis for each
                         cross-section [m^4].
-        wg_center_x_list (list): list of the x-coordinates of the center of each 
+        wg_center_x_list (list): list of the x-coordinates of the center of each
                         cross-section [m].
-        wg_center_y_list (list): list of the y-coordinates of the center of each 
+        wg_center_y_list (list): list of the y-coordinates of the center of each
                                  cross-section [m].
-        wg_center_z_list (list): list of the z-coordinates of the center of each 
+        wg_center_z_list (list): list of the z-coordinates of the center of each
                                  cross-section [m].
         wg_chord_list (list): list of the chord length of each cross-section [m].
 

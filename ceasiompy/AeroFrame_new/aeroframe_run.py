@@ -279,34 +279,32 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         wing_df['aero_work'] = wing_df.apply(compute_aero_work, axis=1)
         total_aero_work = wing_df['aero_work'].sum()
 
-        '''
-        E = 325e9  # Young's modulus in Pascals (example value)
-        G = 125e9   # Shear modulus in Pascals (example value)
-        A = 1.435e-3   # Cross-sectional area in square meters (example value)
-        I_x = 2.01e-9  # Second moment of area about y-axis in meters^4 (example value)
-        I_z = 1.465e-5  # Second moment of area about z-axis in meters^4 (example value)
-        J = I_x + I_z  # Polar moment of inertia in meters^4 (example value)
+        # E = 325e9  # Young's modulus in Pascals (example value)
+        # G = 125e9   # Shear modulus in Pascals (example value)
+        # A = 1.435e-3   # Cross-sectional area in square meters (example value)
+        # I_x = 2.01e-9  # Second moment of area about y-axis in meters^4 (example value)
+        # I_z = 1.465e-5  # Second moment of area about z-axis in meters^4 (example value)
+        # J = I_x + I_z  # Polar moment of inertia in meters^4 (example value)
 
-        # Compute axial strain energy
-        centerline_df['axial_strain_energy'] = 0.5 * (centerline_df['Fy']**2) / (E * A)
+        # # Compute axial strain energy
+        # centerline_df['axial_strain_energy'] = 0.5 * (centerline_df['Fy']**2) / (E * A)
 
-        # Compute bending strain energy
-        centerline_df['bending_strain_energy'] = 0.5 * \
-            ((centerline_df['Mx']**2 / (E * I_x)) + (centerline_df['Mz']**2 / (E * I_z)))
+        # # Compute bending strain energy
+        # centerline_df['bending_strain_energy'] = 0.5 * \
+        #     ((centerline_df['Mx']**2 / (E * I_x)) + (centerline_df['Mz']**2 / (E * I_z)))
 
-        # Compute torsional strain energy
-        centerline_df['torsional_strain_energy'] = 0.5 * (centerline_df['My']**2) / (G * J)
+        # # Compute torsional strain energy
+        # centerline_df['torsional_strain_energy'] = 0.5 * (centerline_df['My']**2) / (G * J)
 
-        # Sum the strain energies to get the total strain energy for each node
-        centerline_df['total_strain_energy'] = (
-            centerline_df['axial_strain_energy']
-            + centerline_df['bending_strain_energy']
-            + centerline_df['torsional_strain_energy']
-        )
+        # # Sum the strain energies to get the total strain energy for each node
+        # centerline_df['total_strain_energy'] = (
+        #     centerline_df['axial_strain_energy']
+        #     + centerline_df['bending_strain_energy']
+        #     + centerline_df['torsional_strain_energy']
+        # )
 
-        # Sum the total strain energy over all nodes to get the total strain energy of the beam
-        total_strain_energy = centerline_df['total_strain_energy'].sum()
-        '''
+        # # Sum the total strain energy over all nodes to get the total strain energy of the beam
+        # total_strain_energy = centerline_df['total_strain_energy'].sum()
 
         def compute_structural_work(row):
             force = np.array([row['Fx'], row['Fy'], row['Fz']])

@@ -40,7 +40,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="panel_distribution",
     var_type=list,
-    default_value=["cosine", "sine", "equal"],
+    default_value=["equal", "cosine", "sine"],
     unit=None,
     descr=("Select the type of distribution"),
     xpath=AVL_VORTEX_DISTR_XPATH + "/Distribution",
@@ -52,7 +52,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="chordwise_vort",
     var_type=int,
-    default_value=5,
+    default_value=8,
     unit=None,
     descr="Select the number of chordwise vortices",
     xpath=AVL_VORTEX_DISTR_XPATH + "/Nchordwise",
@@ -64,7 +64,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="spanwise_vort",
     var_type=int,
-    default_value=20,
+    default_value=30,
     unit=None,
     descr="Select the number of spanwise vortices",
     xpath=AVL_VORTEX_DISTR_XPATH + "/Nspanwise",
@@ -76,7 +76,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="save_plots",
     var_type=bool,
-    default_value=False,
+    default_value=True,
     unit=None,
     descr="Select to save geometry and results plots",
     xpath=AVL_PLOT_XPATH,
@@ -88,7 +88,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="N_beam",
     var_type=int,
-    default_value=8,
+    default_value=15,
     unit=None,
     descr="Enter number of nodes for the beam mesh.",
     xpath=FRAMAT_MESH_XPATH + "/NumberNodes",
@@ -112,7 +112,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="shear_modulus",
     var_type=float,
-    default_value=27,
+    default_value=26,
     unit=None,
     descr="Enter the shear modulus of the wing material in GPa.",
     xpath=FRAMAT_MATERIAL_XPATH + "/ShearModulus",

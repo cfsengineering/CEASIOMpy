@@ -70,7 +70,8 @@ def plot_lift_distribution(force_file_fs, aoa, aos, mach, alt, wkdir):
                 cref = float(line.split()[5])
 
             elif "# Spanwise =" in line:
-                number_strips = int(line.split()[7])
+                # number_strips = int(line.split()[7])
+                number_strips = int(line.split("=")[2].split("F")[0])
 
             elif "Xle" in line:
                 number_data = 0

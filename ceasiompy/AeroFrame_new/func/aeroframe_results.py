@@ -36,6 +36,25 @@ log = get_logger()
 
 
 def compute_deformations(results, wing_df, centerline_df):
+    """
+    Function to compute the deformation of the wing.
+
+    Function 'compute_deformations' computes the deformation at
+    each beam node and translate the displacement to the VLM mesh.
+
+    Args:
+        results: FramAT results for displacement, rotations...
+        wing_df (pandas dataframe): dataframe containing VLM nodes.
+        centerline_df (pandas dataframe): dataframe containing beam nodes,
+
+    Returns:
+        centerline_df (pandas dataframe): updated dataframe with displacements 
+                                          and rotations.
+        deformed_df (pandas dataframe): dataframe containing the new VLM points.
+        tip_points (numpy array): coordinates of the tip of the deformed wing [m].
+    """
+
+    # Interpolate displacements and rotations along the wing span
     y_plot = np.linspace(centerline_df['y'].min(), centerline_df['y'].max(), len(
         results.get('tensors').get('comp:U')['uz']))
     ux_profile = interpolate.interp1d(y_plot, results.get('tensors').get(
@@ -51,6 +70,7 @@ def compute_deformations(results, wing_df, centerline_df):
     thz_profile = interpolate.interp1d(y_plot, results.get('tensors').get(
         'comp:U')['thz'], kind='quadratic', fill_value='extrapolate')
 
+    # Compute displacements and rotations of the beam nodes
     centerline_df['ux'] = ux_profile(centerline_df['y'])
     centerline_df['uy'] = uy_profile(centerline_df['y'])
     centerline_df['uz'] = uz_profile(centerline_df['y'])
@@ -58,6 +78,7 @@ def compute_deformations(results, wing_df, centerline_df):
     centerline_df['thy'] = thy_profile(centerline_df['y'])
     centerline_df['thz'] = thz_profile(centerline_df['y'])
 
+    # Compute the updated values of coordinates and angles of the beam nodes
     centerline_df["x_new"] += centerline_df['ux']
     centerline_df["y_new"] += centerline_df['uy']
     centerline_df["z_new"] += centerline_df['uz']
@@ -71,6 +92,7 @@ def compute_deformations(results, wing_df, centerline_df):
     centerline_df["omega_S"] = centerline_df.apply(
         lambda row: [row['thx'], row['thy'], row['thz']], axis=1)
 
+    # Mapping of the displacements and rotations of the beam nodes to the associated VLM panel
     wing_df["delta_S_mapped"] = wing_df["closest_centerline_index"].map(centerline_df["delta_S"])
     wing_df["omega_S_mapped"] = wing_df["closest_centerline_index"].map(centerline_df["omega_S"])
 
@@ -115,8 +137,6 @@ def compute_deformations(results, wing_df, centerline_df):
             horizontal_vec = np.array([1, 0, 0])
 
             twist_angle = calculate_angle(chord_line, horizontal_vec)
-            # twist_angle2 = math.asin(
-            #     (group['z_new'].max() - group['z_new'].min()) / 0.35) * 180 / math.pi
 
             leading_edges.append(
                 (leading_edge["x_new"], leading_edge["y_new_round"], leading_edge["z_new"],
@@ -132,32 +152,44 @@ def compute_deformations(results, wing_df, centerline_df):
 
 
 def plot_translations_rotations(centerline_df, wkdir):
+    """
+    Function to plot the displacements and rotations profiles along the span.
+
+    Function 'plot_translations_rotations' saves a plot  of the displacements
+    and rotations profiles along the span.
+
+    Args:
+        centerline_df (pandas dataframe): dataframe containing the displacements 
+                                          and rotations of the beam nodes.
+        wkdir (Path): path to the directory to save the plot.
+
+    """
     fig, axs = plt.subplots(3, 2, sharex=True)
 
     # Translations
     axs[0][0].plot(centerline_df["y"], centerline_df["ux"])
-    axs[0][0].set_xlabel("$y$")
+    axs[0][0].set_xlabel("$y$ [m]")
     axs[0][0].set_ylabel("$u_x$ [m]")
 
     axs[1][0].plot(centerline_df["y"], centerline_df["uy"])
-    axs[1][0].set_xlabel("$y$")
+    axs[1][0].set_xlabel("$y$ [m]")
     axs[1][0].set_ylabel("$u_y$ [m]")
 
     axs[2][0].plot(centerline_df["y"], centerline_df["uz"])
-    axs[2][0].set_xlabel("$y$")
+    axs[2][0].set_xlabel("$y$ [m]")
     axs[2][0].set_ylabel("$u_z$ [m]")
 
     # Rotations
     axs[0][1].plot(centerline_df["y"], np.rad2deg(centerline_df["thx"]))
-    axs[0][1].set_xlabel("$y$")
+    axs[0][1].set_xlabel("$y$ [m]")
     axs[0][1].set_ylabel("$\\theta_x~[^{\circ}]$")
 
     axs[1][1].plot(centerline_df["y"], np.rad2deg(centerline_df["thy"]))
-    axs[1][1].set_xlabel("$y$")
+    axs[1][1].set_xlabel("$y$ [m]")
     axs[1][1].set_ylabel("$\\theta_y~[^{\circ}]$")
 
     axs[2][1].plot(centerline_df["y"], np.rad2deg(centerline_df["thz"]))
-    axs[2][1].set_xlabel("$y$")
+    axs[2][1].set_xlabel("$y$ [m]")
     axs[2][1].set_ylabel("$\\theta_z~[^{\circ}]$")
 
     fig.suptitle("Structural translations/rotations along the span.")
@@ -167,6 +199,19 @@ def plot_translations_rotations(centerline_df, wkdir):
 
 
 def plot_convergence(tip_deflection, res, wkdir):
+    """
+    Function to plot the convergence of the aeroelastic computations.
+
+    Function 'plot_convergence' saves a plot of the evolution of the
+    wing tip deflection during the iterations, as well as a plot of 
+    the residual.
+
+    Args:
+        tip_deflection (list) : deflections of the mid-chord wing tip for each iteration [m].
+        res (list): residual of the mid-chord wing tip for each iteration
+        wkdir (Path): path to the directory to save the plot.
+
+    """
     iter_vec = np.arange(1, len(tip_deflection) + 1, 1)
     fig, axs = plt.subplots(1, 2)
     axs[0].plot(iter_vec, tip_deflection, '-o')

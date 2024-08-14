@@ -33,6 +33,18 @@ log = get_logger()
 
 
 def plot_fem_mesh(wing_df, centerline_df, wkdir):
+    """Function to plot the VLM and FEM meshes.
+
+    Function 'plot_fem_mesh' saves a plot of the 
+    VLM and FEM meshes in the x-y and y-z planes.
+
+    Args:
+        wing_df (pandas dataframe): dataframe containing the VLM nodes.
+        centerline_df (pandas dataframe): dataframe containing the FEM nodes.
+        wkdir (Path): path to the directory to save the plot.
+
+    """
+
     fig, axs = plt.subplots(1, 2)
     axs[0].plot(centerline_df["y"], centerline_df["x"], "-o", label="FEM nodes", color="r",
                 ms=1)
@@ -55,6 +67,17 @@ def plot_fem_mesh(wing_df, centerline_df, wkdir):
 
 
 def plot_deformed_wing(centerline_df, undeformed_df, wkdir):
+    """Function to plot the deformed shape of the wing.
+
+    Function 'plot_deformed_wing' saves a plot of the 
+    deformed and undeformed shapes of the wing.
+
+    Args:
+        centerline_df (pandas dataframe): dataframe containing the nodes of the deformed wing.
+        undeformed_df (pandas dataframe): dataframe containing the nodes of the initial wing.
+        wkdir (Path): path to the directory to save the plot.
+
+    """
     fig, axs = plt.subplots()
     axs.plot(centerline_df['y_new'],
              centerline_df['z_new'],

@@ -257,6 +257,26 @@ def read_AVL_fe_file(FE_PATH, plot=False):
 
 def create_framat_model(young_modulus, shear_modulus, material_density,
                         centerline_df, internal_load_df):
+    """
+    Function to create the FramAT beam model.
+
+    Function 'create_framat_model' creates the FramAT beam model used
+    for structural computations.
+
+    Args:
+        young_modulus (float): Young modulus of the wing material [GPa].
+        shear_modulus (float): Shear modulus of the wing material [GPa].
+        material_density (float): Density of the wing material [kg/m^3].
+        centerline_df (pandas dataframe): dataframe with the beam nodes,
+                                          the applied forces/moments,
+                                          the sections properties,
+        internal_load_df (pandas dataframe): previous version of centerline_df
+                                             (iteration n-1).
+
+    Returns:
+        model: FramAT beam model, ready for FEM computations.
+    """
+
     model = Model()
 
     # Material
@@ -293,9 +313,8 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
         beam.add('orientation', {'from': centerline_df.iloc[i_node]['node_uid'],
                                  'to': centerline_df.iloc[i_node + 1]['node_uid'],
                                  'up': [up_x, up_y, up_z]})
-    # beam.add('orientation', {'from': centerline_df.iloc[0]['node_uid'],
-    #                          'to': centerline_df.iloc[-1]['node_uid'],
-    #                          'up': [0, 0, 1]})
+
+    # Define material
     beam.add('material', {'from': centerline_df.iloc[0]['node_uid'],
                           'to': centerline_df.iloc[-1]['node_uid'],
                           'uid': 'material'})
@@ -313,7 +332,7 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
                   'to': centerline_df.iloc[i_node + 1]['node_uid'],
                   'uid': centerline_df.iloc[i_node]['cross_section_uid']})
 
-    # Add line loads [N/m] and point loads [N]
+    # Add increment of point loads [N] on each beam node
     for i_node in range(len(centerline_df)):
         node_uid = centerline_df.iloc[i_node]['node_uid']
         load = [centerline_df.iloc[i_node][force] - internal_load_df.iloc[i_node][force]
@@ -321,7 +340,7 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
         beam.add('point_load', {'at': node_uid, 'load': load})
 
     # ===== BOUNDARY CONDITIONS =====
-    idx_to_fix = centerline_df.apply(lambda row: row['x']**2 + row['z']**2, axis=1).idxmin()
+    idx_to_fix = centerline_df["y"].idxmin()
     bc.add('fix', {'node': "wing1_node" + str(idx_to_fix + 1), 'fix': ['all']})
 
     # ===== POST-PROCESSING =====
@@ -336,12 +355,12 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
 
 
 def get_material_properties(cpacs_path):
-    """Function reads the material properties for structural
+    """Function to read the material properties for structural
     calculations.
 
     Function 'get_material_properties' reads the material properties
-    of the wing from the graphical user interface of CEASIOMpy, in
-    order to make structural computations
+    of the wing given in the graphical user interface of CEASIOMpy, in
+    order to make structural computations.
 
     Args:
         cpacs_path (Path) : path to the cpacs input file
@@ -377,6 +396,9 @@ def get_section_properties(cpacs_path):
         cpacs_path (Path) : path to the cpacs input file
 
     Returns:
+        area (float): area of the cross-section [m^2].
+        Ix (float): second moment of area about the x-axis [m^4].
+        Iy (float): second moment of area about the x-axis [m^4].
 
     """
     cpacs = CPACS(cpacs_path)
@@ -391,6 +413,40 @@ def get_section_properties(cpacs_path):
 def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, fxyz_tot, n_iter,
                            xyz_tip, tip_def, aera_profile, Ix_profile, Iy_profile, chord_profile,
                            twist_profile, CASE_PATH, AVL_UNDEFORMED_PATH):
+    """Function to create the beam nodes along the wing centerline.
+
+    Function 'create_wing_centerline' creates the beam nodes along 
+    the wing centerline, associating all the geometric properties 
+    and the applied forces and moments.
+
+    Args:
+        wing_df (pandas dataframe): dataframe containing all VLM points coordinates and aero forces.
+        centerline_df (pandas dataframe): dataframe containing beam nodes, associated projected 
+                                          forces and moments, associated section properties.
+        N_beam (int): number of beam nodes to use for the structural mesh.
+        wg_origin (list): coordinates of the origin of the wing geometry [m]. 
+        xyz_tot (list): coordinates of the VLM nodes, including root and tip [m]. 
+        fxyz_tot (list): components of the VLM aero forces [N]. 
+        n_iter (int): number of the current iteration.
+        xyz_tip (list): coordinates of the mid-chord tip center of the undeformed wing [m].
+        tip_def (list): coordinates of the mid-chord tip center of the deformed wing [m].
+        aera_profile (scipy.interpolate): profile of area of the cross-sections along the span [m^2]. 
+        Ix_profile (scipy.interpolate.interp1d): profile of the second moment of area about the x-axis 
+                                                 along the span [m^4].
+        Iy_profile (scipy.interpolate.interp1d): profile of the second moment of area about the y-axis 
+                                                along the span [m^4].
+        chord_profile (scipy.interpolate.interp1d): profile of the chord length along the span [m].
+        twist_profile (scipy.interpolate.interp1d): profile of the twist angle along the span [deg].
+        CASE_PATH (Path): path to the flight case directory.
+        AVL_UNDEFORMED_PATH (Path): path to the undeformed AVL geometry.
+
+    Returns:
+        wing_df (pandas dataframe): updated dataframe.
+        centerline_df (pandas dataframe): updated dataframe.
+        internal_load_df (pandas dataframe): dataframe containing the internal forces of the beam
+                                             (i.e. the previous aero forces).
+
+    """
 
     wing_df = pd.DataFrame({'x': [row[0] for row in xyz_tot],
                             'y': [row[1] for row in xyz_tot],
@@ -454,6 +510,7 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
     leading_edge_df = pd.DataFrame(leading_edge)
     trailing_edge_df = pd.DataFrame(trailing_edge)
 
+    # Concatenate LE and TE points to the VLM panels points
     wing_df = pd.concat([wing_df, leading_edge_df, trailing_edge_df], ignore_index=True)
 
     wing_df.sort_values(by="y", inplace=True)
@@ -465,6 +522,8 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
         centerline_df = (wing_df.groupby("y")[["x", "z"]].max(
         ) + wing_df.groupby("y")[["x", "z"]].min()) / 2
         centerline_df = centerline_df.reset_index().reindex(columns=["x", "y", "z"])
+
+        # Select the good number of beam nodes
         if N_beam < len(centerline_df):
             target_y_values = np.linspace(
                 centerline_df['y'].min(), centerline_df['y'].max(), int(N_beam))
@@ -505,6 +564,7 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
         centerline_df["z"] = centerline_df["z_new"]
         centerline_df["AoA"] = centerline_df["AoA_new"]
 
+    # Nearest neighbor interpolation between VLM and structrual meshes
     distances = cdist(wing_df[['x', 'y', 'z']], centerline_df[['x', 'y', 'z']])
     closest_centerline_indices = distances.argmin(axis=1)
 
@@ -514,6 +574,7 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
 
     wing_df['closest_centerline_index'] = closest_centerline_indices
 
+    # Transfer of forces and induced moment to the closest beam node
     def compute_distance_and_moment(row):
         point_xyz = np.array([row['x'], row['y'], row['z']])
         centerline_xyz = np.array([centerline_df.at[row['closest_centerline_index'], 'x'],
@@ -538,11 +599,30 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
         for force in ['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz']:
             centerline_df.at[centerline_index, force] += wing_df.at[i, force]
 
+    log.info(f"Total aerodynamic force: {centerline_df['Fz'].sum()} N.")
+
     return wing_df, centerline_df, internal_load_df
 
 
 def compute_cross_section(cpacs_path):
-    """Function to...
+    """
+    Function 'compute_cross_section' computes the area, the second moments of area,
+    and additional geometric properties of each cross-section of the wing.
+
+    Args:
+        cpacs_path (Path): path to the CPACS input file.
+
+    Returns:
+        wg_origin (list): list of the coordinates of the origin of the wing geometry. 
+        wg_twist_list (list): list of the twist angle of each cross-section [deg].
+        area_list (list): list of the area of each cross-section [m^2].
+        Ix_list (list): list of the second moment of area about the x-axis for each cross-section [m^4].
+        Iy_list (list): list of the second moment of area about the y-axis for each cross-section [m^4].
+        wg_center_x_list (list): list of the x-coordinates of the center of each cross-section [m].
+        wg_center_y_list (list): list of the y-coordinates of the center of each cross-section [m].
+        wg_center_z_list (list): list of the z-coordinates of the center of each cross-section [m].
+        wg_chord_list (list): list of the chord length of each cross-section [m].
+
     """
     tixi = open_tixi(cpacs_path)
 
@@ -554,6 +634,7 @@ def compute_cross_section(cpacs_path):
         wing_cnt = 0
         log.warning("No wings has been found in this CPACS file!")
 
+    # Initialization of the lists
     wg_twist_list = []
     area_list = []
     wg_center_x_list = []
@@ -562,6 +643,10 @@ def compute_cross_section(cpacs_path):
     wg_chord_list = []
     Ix_list = []
     Iy_list = []
+
+    # x_beam_range = [[22.92, 31],
+    #                 [29.7, 34.6],
+    #                 [46.46, 48.3]]
 
     for i_wing in range(1):
         wing_xpath = WINGS_XPATH + "/wing[" + str(i_wing + 1) + "]"
@@ -694,8 +779,8 @@ def compute_cross_section(cpacs_path):
                 prof_size_y = max(prof_vect_y) - min(prof_vect_y)
 
                 if prof_size_y == 0:
-                    prof_vect_x[:] = [x / prof_size_x for x in prof_vect_x]
-                    prof_vect_z[:] = [z / prof_size_x for z in prof_vect_z]
+                    # prof_vect_x[:] = [x / prof_size_x for x in prof_vect_x]
+                    # prof_vect_z[:] = [z / prof_size_x for z in prof_vect_z]
 
                     wg_sec_chord = prof_size_x
                 else:
@@ -713,7 +798,7 @@ def compute_cross_section(cpacs_path):
 
                 # Get Section rotation
                 wg_sec_rot = euler2fix(add_rotation)
-                wg_sec_twist = math.radians(wg_sec_rot.y)
+                wg_sec_twist = math.degrees(wg_sec_rot.y)
 
                 wg_sec_center_x = (
                     elem_transf.translation.x
@@ -732,15 +817,30 @@ def compute_cross_section(cpacs_path):
                     + pos_z_list[i_sec]
                 ) * wing_transf.scaling.z
 
+                # beam_vect_x = []
+                # beam_vect_z = []
+
+                # for x, z in zip(prof_vect_x, prof_vect_z):
+                #     log.info(f"{x} ; {z}")
+                #     if x > x_beam_range[i_sec][0] - x_le[i_sec] and x < x_beam_range[i_sec][1] - x_le[i_sec]:
+                #         beam_vect_x.append(x)
+                #         beam_vect_z.append(z)
+
                 wg_twist_list.append(wg_sec_twist)
                 area_list.append(PolyArea(prof_vect_x, prof_vect_z))
                 Ix, Iy = second_moments_of_area(x=prof_vect_x, y=prof_vect_z)
                 Ix_list.append(Ix)
                 Iy_list.append(Iy)
+
                 wg_center_x_list.append(wg_sec_center_x)
                 wg_center_y_list.append(wg_sec_center_y)
                 wg_center_z_list.append(wg_sec_center_z)
                 wg_chord_list.append(wg_sec_chord)
+
+                log.info(f"Section number: {i_sec}")
+                log.info(f"Area of the sections: {area_list}")
+                log.info(f"Ix of the sections: {Ix_list}")
+                log.info(f"Iy of the sections: {Iy_list}")
 
     return (
         wg_origin, wg_twist_list, area_list, Ix_list, Iy_list,
@@ -749,14 +849,21 @@ def compute_cross_section(cpacs_path):
 
 
 def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, deformed_df):
+    """
+    Function 'write_deformed_geometry' writes the AVL geometry input file of the 
+    deformed wing.
+
+    Args:
+        UNDEFORMED_PATH (Path): path to the undeformed AVL input file.
+        DEFORMED_PATH (Path): path to the deformed AVL input file.
+        centerline_df (pandas dataframe): dataframe containing the beam nodes.
+        deformed_df (pandas dataframe): dataframe containing the VLM nodes. 
+    """
+
     deformed_df.sort_values(by="y_leading", inplace=True)
     deformed_df.reset_index(drop=True, inplace=True)
     twist_profile = interpolate.interp1d(
         centerline_df["y_new"], centerline_df["AoA_new"], fill_value="extrapolate")
-    # twist_profile = interpolate.interp1d(
-    #     deformed_df["y_leading"], deformed_df["AoA"], kind="quadratic", fill_value="extrapolate")
-
-    # twist_test = np.linspace(0, 0.024, len(deformed_df))
 
     with open(UNDEFORMED_PATH, "r") as file_undeformed:
         with open(DEFORMED_PATH, "w") as file_deformed:
@@ -769,6 +876,32 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                 ["TRANSLATE\n",
                  "0.0\t0.0\t0.0\n\n",
                  "#---------------\n"])
+
+            # target_pairs = [(20.870, 0), (28.050, 10.074), (45.930, 35.134)]
+
+            # airfoils = ["/users/disk8/cfse3/Stage_Romain/CEASIOMpy/WKDIR/Workflow_353/Results/PyAVL/Airfoil1.dat",
+            #             "/users/disk8/cfse3/Stage_Romain/CEASIOMpy/WKDIR/Workflow_353/Results/PyAVL/Airfoil2.dat",
+            #             "/users/disk8/cfse3/Stage_Romain/CEASIOMpy/WKDIR/Workflow_353/Results/PyAVL/Airfoil3.dat"]
+
+            # closest_indices = [
+            #     deformed_df.apply(lambda row: np.linalg.norm(
+            #         [row['x_leading'] - target[0], row['y_leading'] - target[1]]), axis=1).idxmin()
+            #     for target in target_pairs]
+
+            # for i_sec, airfoil in zip(closest_indices, airfoils):
+            #     x_new = deformed_df.iloc[i_sec]["x_leading"]
+            #     y_new = deformed_df.iloc[i_sec]["y_leading"]
+            #     z_new = deformed_df.iloc[i_sec]["z_leading"]
+            #     chord = deformed_df.iloc[i_sec]["chord"]
+            #     AoA = twist_profile(y_new)  # deformed_df.iloc[i_node]["AoA"]
+            #     file_deformed.writelines(
+            #         ["SECTION\n",
+            #          "#Xle    Yle    Zle     Chord   Ainc\n",
+            #          f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord:.3f} {AoA:.3e}\n\n",
+            #          "AFILE\n",
+            #          airfoil + "\n\n",
+            #          "#---------------\n"])
+
             step = 1
             for i_node in range(0, len(deformed_df), step):
                 x_new = deformed_df.iloc[i_node]["x_leading"]
@@ -790,10 +923,18 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                 file_deformed.writelines(
                     ["SECTION\n",
                      "#Xle    Yle    Zle     Chord   Ainc\n",
-                     f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord} {AoA:.3e}\n\n"])
+                     f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord:.3f} {AoA:.3e}\n\n"])
 
 
 def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):
+    """
+    Function 'write_deformed_command' writes the AVL command file to execute
+    the computations for the deformed wing.
+
+    Args:
+        UNDEFORMED_COMMAND (Path): path to the command file for the undeformed wing.
+        DEFORMED_COMMAND (Path): path to the command file for the deformed wing.
+    """
     with open(UNDEFORMED_COMMAND, "r") as undeformed:
         with open(DEFORMED_COMMAND, "w") as deformed:
             deformed.write("load deformed.avl\n")
@@ -803,6 +944,23 @@ def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):
 
 
 def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, wg_origin, y_queries):
+    """Function to get the coordinates of the leading-edge points.
+
+    Function 'interpolate_leading_edge' computes the coordinates of the leading-edge points
+    for each spanwise location of the VLM panels.
+
+    Args:
+        AVL_UNDEFORMED_PATH (Path): path to the undeformed AVL geometry.
+        CASE_PATH (Path): path to the flight case directory.
+        n_iter (int): number of the current iteration.
+        wg_origin (list): list of the coordinates of the origin of the wing geometry [m].
+        y_queries (list): list of unique spanwise location of the VLM panels [m].
+
+    Returns:
+        interpolated_Xle (numpy array): array of the x-coordinates of the interpolated LE points.
+        interpolated_Yle (numpy array): array of the y-coordinates of the interpolated LE points.
+        interpolated_Zle (numpy array): array of the z-coordinates of the interpolated LE points.
+    """
     Xle_list = []
     Yle_list = []
     Zle_list = []

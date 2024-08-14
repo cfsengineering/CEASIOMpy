@@ -35,7 +35,7 @@ log = get_logger()
 def plot_fem_mesh(wing_df, centerline_df, wkdir):
     """Function to plot the VLM and FEM meshes.
 
-    Function 'plot_fem_mesh' saves a plot of the 
+    Function 'plot_fem_mesh' saves a plot of the
     VLM and FEM meshes in the x-y and y-z planes.
 
     Args:
@@ -69,7 +69,7 @@ def plot_fem_mesh(wing_df, centerline_df, wkdir):
 def plot_deformed_wing(centerline_df, undeformed_df, wkdir):
     """Function to plot the deformed shape of the wing.
 
-    Function 'plot_deformed_wing' saves a plot of the 
+    Function 'plot_deformed_wing' saves a plot of the
     deformed and undeformed shapes of the wing.
 
     Args:

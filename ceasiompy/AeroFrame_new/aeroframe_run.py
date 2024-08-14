@@ -325,7 +325,7 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
             f"Work variation: {((total_aero_work-total_structural_work)/total_aero_work):.2%}.")
 
     log.info("")
-    log.info(f"----- Final results -----")
+    log.info("----- Final results -----")
     if res[-1] <= tol:
         log.info("Convergence of wing tip deflection achieved.")
     else:

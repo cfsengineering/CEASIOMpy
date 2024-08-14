@@ -48,7 +48,7 @@ def compute_deformations(results, wing_df, centerline_df):
         centerline_df (pandas dataframe): dataframe containing beam nodes,
 
     Returns:
-        centerline_df (pandas dataframe): updated dataframe with displacements 
+        centerline_df (pandas dataframe): updated dataframe with displacements
                                           and rotations.
         deformed_df (pandas dataframe): dataframe containing the new VLM points.
         tip_points (numpy array): coordinates of the tip of the deformed wing [m].
@@ -159,7 +159,7 @@ def plot_translations_rotations(centerline_df, wkdir):
     and rotations profiles along the span.
 
     Args:
-        centerline_df (pandas dataframe): dataframe containing the displacements 
+        centerline_df (pandas dataframe): dataframe containing the displacements
                                           and rotations of the beam nodes.
         wkdir (Path): path to the directory to save the plot.
 
@@ -203,7 +203,7 @@ def plot_convergence(tip_deflection, res, wkdir):
     Function to plot the convergence of the aeroelastic computations.
 
     Function 'plot_convergence' saves a plot of the evolution of the
-    wing tip deflection during the iterations, as well as a plot of 
+    wing tip deflection during the iterations, as well as a plot of
     the residual.
 
     Args:

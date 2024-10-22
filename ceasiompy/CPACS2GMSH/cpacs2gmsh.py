@@ -23,7 +23,7 @@ TODO:
 from pathlib import Path
 
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
+from ceasiompy.CPACS2GMSH.func.generategmsh import generate_gmsh
 from ceasiompy.CPACS2GMSH.func.RANS_mesh_generator import (
     generate_2d_mesh_for_pentagrow,
     pentagrow_3d_mesh,

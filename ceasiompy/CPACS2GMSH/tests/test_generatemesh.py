@@ -21,7 +21,7 @@ from pathlib import Path
 
 import gmsh
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.CPACS2GMSH.func.generategmesh import (
+from ceasiompy.CPACS2GMSH.func.generategmsh import (
     ModelPart,
     generate_gmsh,
     get_entities_from_volume,

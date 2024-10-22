@@ -36,7 +36,7 @@ from pathlib import Path
 import numpy as np
 
 import gmsh
-from ceasiompy.CPACS2GMSH.func.generategmesh import (
+from ceasiompy.CPACS2GMSH.func.generategmsh import (
     # duplicate_disk_actuator_surfaces,
     # control_disk_actuator_normal,
     # get_entities_from_volume,

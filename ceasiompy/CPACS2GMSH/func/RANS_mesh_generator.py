@@ -359,7 +359,7 @@ def pentagrow_3d_mesh(
     MaxLayerThickness = max_layer_thickness / 10
     FarfieldRadius = fuselage_maxlen * farfield_factor * 100
     OutputFormat = "su2"
-    HolePosition = model_center
+    HolePosition = " ".join(map(str, model_center))
     TetgenOptions = "-pq1.3VY"
     TetGrowthFactor = growth_factor
     HeightIterations = 8

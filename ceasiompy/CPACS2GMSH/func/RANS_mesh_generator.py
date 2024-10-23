@@ -222,9 +222,9 @@ def generate_2d_mesh_for_pentagrow(
             bounding_boxes["fused"] = new_bbox
 
             fused = True
-            log.info(
-                f"Fused entities {i} and {j} with distance {min_distance}. Remaining entities: {len(parts_parent_dimtag)}"
-            )
+            log.info(f"Fused entities {i} and {j} with distance {min_distance}")
+            log.info(f"Remaining entities: {len(parts_parent_dimtag)}")
+
         except Exception as e:
             log.error(f"Fusion failed for entities {i} and {j}: {e}")
 
@@ -262,7 +262,8 @@ def generate_2d_mesh_for_pentagrow(
         aircraft.volume_tag.extend(part.volume_tag)
 
         log.info(
-            f"Part: {part.uid}, Points: {part.points}, Lines: {part.lines}, surfaces: {part.surfaces}, Type: {part.part_type}"
+            f"Part: {part.uid}, Points: {part.points}, Lines: {part.lines}, "
+            f"Surfaces: {part.surfaces}, Type: {part.part_type}"
         )
 
         # Set surface BC for each part of the aircraft

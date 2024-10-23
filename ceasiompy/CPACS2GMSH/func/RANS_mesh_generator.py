@@ -171,7 +171,6 @@ def generate_2d_mesh_for_pentagrow(
 
         log.info(f"Part : {part_obj.uid} imported")
         log.info(f"Importing part from {brep_file}: {part_entities}")
-        log.info(f"Part type for {part_obj.uid}: {part_obj.part_type}")
 
     while len(parts_parent_dimtag) > 1:
         fused = False
@@ -191,7 +190,7 @@ def generate_2d_mesh_for_pentagrow(
                     best_pair = (i, j)
 
         if best_pair is None:
-            print("No valid pairs found for fusion.")
+            log.error("No valid pairs found for fusion.")
             break
 
         i, j = best_pair
@@ -215,18 +214,18 @@ def generate_2d_mesh_for_pentagrow(
             bounding_boxes["fused"] = new_bbox
 
             fused = True
-            print(
+            log.info(
                 f"Fused entities {i} and {j} with distance {min_distance}. Remaining entities: {len(parts_parent_dimtag)}"
             )
         except Exception as e:
-            print(f"Fusion failed for entities {i} and {j}: {e}")
+            log.error(f"Fusion failed for entities {i} and {j}: {e}")
 
         if not fused:
-            print("No more entities could be fused.")
+            log.info("No more entities could be fused.")
             break
 
     fuselage_maxlen, _ = fuselage_size(cpacs_path)
-    print("Fusion process ended")
+    log.info("Fusion process ended")
 
     aircraft = ModelPart("aircraft")
 

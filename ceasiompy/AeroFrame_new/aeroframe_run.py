@@ -137,9 +137,37 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
                          wg_center_z_list[0] + wing_origin[2]])
     fxyz_root = np.zeros(3)
 
-    xyz_tip = np.array([wg_center_x_list[-1] + wing_origin[0] + wg_chord_list[-1] / 2,
-                        wg_center_y_list[-1] + wing_origin[1],
-                        wg_center_z_list[-1] + wing_origin[2]])
+    # xyz_tip = np.array([wg_center_x_list[-1] + wing_origin[0] + wg_chord_list[-1] / 2,
+    #                     wg_center_y_list[-1] + wing_origin[1],
+    #                     wg_center_z_list[-1] + wing_origin[2]])
+    
+    Xle_list = []
+    Yle_list = []
+    Zle_list = []
+    surface_count = 0
+    with open(AVL_UNDEFORMED_PATH, "r") as f:
+        lines = f.readlines()
+        for i, line in enumerate(lines):
+            if "SURFACE" in line:
+                surface_count += 1
+                if surface_count > 1:
+                    break
+
+            if "Xle" in line:
+                next_line = lines[i + 1].strip()
+                parts = next_line.split()
+                Xle_list.append(float(parts[0]) + wing_origin[0])
+                Yle_list.append(float(parts[1]) + wing_origin[1])
+                Zle_list.append(float(parts[2]) + wing_origin[2])
+
+    Xle_array = np.array(Xle_list)
+    Yle_array = np.array(Yle_list)
+    Zle_array = np.array(Zle_list)
+    
+    xyz_tip = np.array([Xle_array[-1] + wg_chord_list[-1] / 2,
+                        Yle_array[-1],
+                        Zle_array[-1]])
+
 
     # Get cross-section properties from CPACS file (if constants)
     area_const, Ix_const, Iy_const = get_section_properties(cpacs_path)
@@ -245,8 +273,8 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
 
         log.info(f"Iteration {n_iter} done!")
         log.info(
-            f"Wing tip deflection: {deflection:.3e} m ({percentage:.2%} of the semi-span length).")
-        log.info(f"Residual: {res[-1]:.3e}")
+            f"Wing tip deflection:     {deflection:.3e} m ({percentage:.2%} of the semi-span length).")
+        log.info(f"Residual:                {res[-1]:.3e}")
 
         # Run AVL with the new deformed geometry
         write_deformed_geometry(AVL_UNDEFORMED_PATH, AVL_DEFORMED_PATH, centerline_df, deformed_df)
@@ -279,33 +307,6 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         wing_df['aero_work'] = wing_df.apply(compute_aero_work, axis=1)
         total_aero_work = wing_df['aero_work'].sum()
 
-        # E = 325e9  # Young's modulus in Pascals (example value)
-        # G = 125e9   # Shear modulus in Pascals (example value)
-        # A = 1.435e-3   # Cross-sectional area in square meters (example value)
-        # I_x = 2.01e-9  # Second moment of area about y-axis in meters^4 (example value)
-        # I_z = 1.465e-5  # Second moment of area about z-axis in meters^4 (example value)
-        # J = I_x + I_z  # Polar moment of inertia in meters^4 (example value)
-
-        # # Compute axial strain energy
-        # centerline_df['axial_strain_energy'] = 0.5 * (centerline_df['Fy']**2) / (E * A)
-
-        # # Compute bending strain energy
-        # centerline_df['bending_strain_energy'] = 0.5 * \
-        #     ((centerline_df['Mx']**2 / (E * I_x)) + (centerline_df['Mz']**2 / (E * I_z)))
-
-        # # Compute torsional strain energy
-        # centerline_df['torsional_strain_energy'] = 0.5 * (centerline_df['My']**2) / (G * J)
-
-        # # Sum the strain energies to get the total strain energy for each node
-        # centerline_df['total_strain_energy'] = (
-        #     centerline_df['axial_strain_energy']
-        #     + centerline_df['bending_strain_energy']
-        #     + centerline_df['torsional_strain_energy']
-        # )
-
-        # # Sum the total strain energy over all nodes to get the total strain energy of the beam
-        # total_strain_energy = centerline_df['total_strain_energy'].sum()
-
         def compute_structural_work(row):
             force = np.array([row['Fx'], row['Fy'], row['Fz']])
             moment = np.array([row['Mx'], row['My'], row['Mz']])
@@ -317,10 +318,10 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         centerline_df['structural_work'] = centerline_df.apply(compute_structural_work, axis=1)
         total_structural_work = centerline_df['structural_work'].sum()
 
-        log.info(f"Total aerodynamic work: {total_aero_work:.3e} J.")
-        log.info(f"Total structural work: {total_structural_work:.3e} J.")
+        log.info(f"Total aerodynamic work:  {total_aero_work:.3e} J.")
+        log.info(f"Total structural work:   {total_structural_work:.3e} J.")
         log.info(
-            f"Work variation: {((total_aero_work-total_structural_work)/total_aero_work):.2%}.")
+            f"Work variation:          {((total_aero_work-total_structural_work)/total_aero_work):.2%}.")
 
     log.info("")
     log.info("----- Final results -----")
@@ -333,13 +334,12 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
     percentage = deflection / semi_span
 
     log.info(
-        f"Wing tip deflection: {deflection:.3e} m ({percentage:.2%} of the semi-span length).")
-    log.info(f"Wing tip twist: {tip_twist:.3e} degrees.")
-    log.info(f"Total aerodynamic work: {total_aero_work:.3e} J.")
-    log.info(f"Total structural work: {total_structural_work:.3e} J.")
+        f"Wing tip deflection:     {deflection:.3e} m ({percentage:.2%} of the semi-span length).")
+    log.info(f"Wing tip twist:          {tip_twist:.3e} degrees.")
+    log.info(f"Total aerodynamic work:  {total_aero_work:.3e} J.")
+    log.info(f"Total structural work:   {total_structural_work:.3e} J.")
     log.info(
-        f"Work variation: {((total_aero_work-total_structural_work)/total_aero_work):.2%}.")
-    # log.info(f"Total Strain Energy of the Beam: {total_strain_energy:.3e} J.")
+        f"Work variation:          {((total_aero_work-total_structural_work)/total_aero_work):.2%}.")
 
     return delta_tip, res
 

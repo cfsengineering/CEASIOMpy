@@ -340,8 +340,14 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
         beam.add('point_load', {'at': node_uid, 'load': load})
 
     # ===== BOUNDARY CONDITIONS =====
-    idx_to_fix = centerline_df["y"].idxmin()
-    bc.add('fix', {'node': "wing1_node" + str(idx_to_fix + 1), 'fix': ['all']})
+    #idx_to_fix = centerline_df["y"].idxmin()
+    #bc.add('fix', {'node': "wing1_node" + str(idx_to_fix + 1), 'fix': ['all']})
+    
+    # /!\ FOR D150 ONLY
+    idx_to_fix = centerline_df[centerline_df["y"] < 1.8].index
+    for idx in idx_to_fix:
+        bc.add('fix', {'node': "wing1_node" + str(idx + 1), 'fix': ['all']})
+
 
     # ===== POST-PROCESSING =====
     pp = model.set_feature('post_proc')
@@ -480,10 +486,11 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
 
     wing_df = pd.concat([wing_df, tip_row], ignore_index=True)
 
-    Xle, Yle, Zle = interpolate_leading_edge(AVL_UNDEFORMED_PATH,
-                                             CASE_PATH, n_iter,
-                                             wg_origin,
-                                             y_queries=wing_df["y"].unique())
+    _, _, _, Xle, Yle, Zle = interpolate_leading_edge(AVL_UNDEFORMED_PATH,
+                                                      CASE_PATH,
+                                                      wg_origin,
+                                                      y_queries=wing_df["y"].unique(),
+                                                      n_iter=n_iter)
     leading_edge = []
     trailing_edge = []
 
@@ -603,7 +610,7 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
         for force in ['Fx', 'Fy', 'Fz', 'Mx', 'My', 'Mz']:
             centerline_df.at[centerline_index, force] += wing_df.at[i, force]
 
-    log.info(f"Total aerodynamic force: {centerline_df['Fz'].sum()} N.")
+    log.info(f"Total aerodynamic force: {centerline_df['Fz'].sum():.2f} N.")
 
     return wing_df, centerline_df, internal_load_df
 
@@ -652,10 +659,6 @@ def compute_cross_section(cpacs_path):
     wg_chord_list = []
     Ix_list = []
     Iy_list = []
-
-    # x_beam_range = [[22.92, 31],
-    #                 [29.7, 34.6],
-    #                 [46.46, 48.3]]
 
     for i_wing in range(1):
         wing_xpath = WINGS_XPATH + "/wing[" + str(i_wing + 1) + "]"
@@ -826,16 +829,6 @@ def compute_cross_section(cpacs_path):
                     + pos_z_list[i_sec]
                 ) * wing_transf.scaling.z
 
-                # beam_vect_x = []
-                # beam_vect_z = []
-
-                # for x, z in zip(prof_vect_x, prof_vect_z):
-                #     log.info(f"{x} ; {z}")
-                #     if x > x_beam_range[i_sec][0] - x_le[i_sec]
-                # and x < x_beam_range[i_sec][1] - x_le[i_sec]:
-                #         beam_vect_x.append(x)
-                #         beam_vect_z.append(z)
-
                 wg_twist_list.append(wg_sec_twist)
                 area_list.append(PolyArea(prof_vect_x, prof_vect_z))
                 Ix, Iy = second_moments_of_area(x=prof_vect_x, y=prof_vect_z)
@@ -848,9 +841,10 @@ def compute_cross_section(cpacs_path):
                 wg_chord_list.append(wg_sec_chord)
 
                 log.info(f"Section number: {i_sec}")
-                log.info(f"Area of the sections: {area_list}")
-                log.info(f"Ix of the sections: {Ix_list}")
-                log.info(f"Iy of the sections: {Iy_list}")
+                log.info(f"Area of the sections: [{', '.join([f'{area:.2e}' for area in area_list])}] m^2.")
+                log.info(f"Ix of the sections:   [{', '.join([f'{Ix:.2e}' for Ix in Ix_list])}] m^4.")
+                log.info(f"Iy of the sections:   [{', '.join([f'{Iy:.2e}' for Iy in Iy_list])}] m^4.")
+
 
     return (
         wg_origin, wg_twist_list, area_list, Ix_list, Iy_list,
@@ -887,42 +881,23 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                  "0.0\t0.0\t0.0\n\n",
                  "#---------------\n"])
 
-            # target_pairs = [(20.870, 0), (28.050, 10.074), (45.930, 35.134)]
-
-            # airfoils = ["/users/disk8/cfse3/Stage_Romain/CEASIOMpy/WKDIR/
-            # Workflow_353/Results/PyAVL/Airfoil1.dat",
-            #             "/users/disk8/cfse3/Stage_Romain/CEASIOMpy/WKDIR/
-            # Workflow_353/Results/PyAVL/Airfoil2.dat",
-            #             "/users/disk8/cfse3/Stage_Romain/CEASIOMpy/WKDIR/
-            # Workflow_353/Results/PyAVL/Airfoil3.dat"]
-
-            # closest_indices = [
-            #     deformed_df.apply(lambda row: np.linalg.norm(
-            #         [row['x_leading'] - target[0],
-            # row['y_leading'] - target[1]]), axis=1).idxmin()
-            #     for target in target_pairs]
-
-            # for i_sec, airfoil in zip(closest_indices, airfoils):
-            #     x_new = deformed_df.iloc[i_sec]["x_leading"]
-            #     y_new = deformed_df.iloc[i_sec]["y_leading"]
-            #     z_new = deformed_df.iloc[i_sec]["z_leading"]
-            #     chord = deformed_df.iloc[i_sec]["chord"]
-            #     AoA = twist_profile(y_new)  # deformed_df.iloc[i_node]["AoA"]
-            #     file_deformed.writelines(
-            #         ["SECTION\n",
-            #          "#Xle    Yle    Zle     Chord   Ainc\n",
-            #          f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord:.3f} {AoA:.3e}\n\n",
-            #          "AFILE\n",
-            #          airfoil + "\n\n",
-            #          "#---------------\n"])
-
-            step = 1
+            step = 7
+            root_sec_added = False
             for i_node in range(0, len(deformed_df), step):
                 x_new = deformed_df.iloc[i_node]["x_leading"]
                 y_new = deformed_df.iloc[i_node]["y_leading"]
                 z_new = deformed_df.iloc[i_node]["z_leading"]
                 chord = deformed_df.iloc[i_node]["chord"]
-                AoA = twist_profile(y_new)  # deformed_df.iloc[i_node]["AoA"]
+                AoA = 2#twist_profile(y_new)
+                
+                if y_new > 1.856 and root_sec_added == False:
+                    file_deformed.writelines(
+                    ["SECTION\n",
+                     "#Xle    Yle    Zle     Chord   Ainc\n",
+                     f"{12.746} {1.856} {-1.136} {6.076} {2}\n\n",
+                     "#---------------\n"])
+                    root_sec_added = True
+                    
                 file_deformed.writelines(
                     ["SECTION\n",
                      "#Xle    Yle    Zle     Chord   Ainc\n",
@@ -933,7 +908,7 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                 y_new = deformed_df.iloc[-1]["y_leading"]
                 z_new = deformed_df.iloc[-1]["z_leading"]
                 chord = deformed_df.iloc[-1]["chord"]
-                AoA = centerline_df.iloc[-1]["AoA_new"]
+                AoA = 2#centerline_df.iloc[-1]["AoA_new"]
                 file_deformed.writelines(
                     ["SECTION\n",
                      "#Xle    Yle    Zle     Chord   Ainc\n",
@@ -957,7 +932,7 @@ def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):
                     deformed.write(line)
 
 
-def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, wg_origin, y_queries):
+def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, wg_origin, y_queries, n_iter):
     """Function to get the coordinates of the leading-edge points.
 
     Function 'interpolate_leading_edge' computes the coordinates of the leading-edge points
@@ -966,9 +941,9 @@ def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, wg_origin, 
     Args:
         AVL_UNDEFORMED_PATH (Path): path to the undeformed AVL geometry.
         CASE_PATH (Path): path to the flight case directory.
-        n_iter (int): number of the current iteration.
         wg_origin (list): list of the coordinates of the origin of the wing geometry [m].
         y_queries (list): list of unique spanwise location of the VLM panels [m].
+        n_iter (int): number of the current iteration.
 
     Returns:
         interpolated_Xle (numpy array): array of the x-coordinates of the interpolated LE points.
@@ -1060,7 +1035,7 @@ def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, n_iter, wg_origin, 
     interpolated_Yle = interpolated_points[:, 1]
     interpolated_Zle = interpolated_points[:, 2]
 
-    return interpolated_Xle, interpolated_Yle, interpolated_Zle
+    return Xle_array, Yle_array, Zle_array, interpolated_Xle, interpolated_Yle, interpolated_Zle
 
     # =================================================================================================
     #    MAIN

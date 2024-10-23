@@ -22,6 +22,9 @@ TODO:
 import numpy as np
 import math
 from shapely.geometry import Polygon
+from ceasiompy.utils.ceasiomlogger import get_logger
+
+log = get_logger()
 
 
 # =================================================================================================
@@ -42,8 +45,9 @@ def second_moments_of_area(x, y):
     Ix = 0
     Iy = 0
     x_centr, y_centr = compute_centroid(x, y)
-    x -= x_centr
-    y -= y_centr
+    x = [xi - x_centr for xi in x]
+    y = [yi - y_centr for yi in y]
+    
     n = len(x)
     for i in range(n):
         j = (i + 1) % n
@@ -104,3 +108,12 @@ def rotate_3D_points(x, y, z, angle_x, angle_y, angle_z):
         rotation_matrix[2, 1] + z * rotation_matrix[2, 2]
 
     return x_rot, y_rot, z_rot
+
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+
+    log.info("Nothing to execute!")

@@ -3,7 +3,9 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Script to...
+Script to plot the FEM mesh and VLM panels used in the aeroelastic computations, 
+and plot the shape of the deformed wing. It helps to see if the geometry was 
+accurately captured and if the meshes are fine. 
 
 Python version: >=3.8
 

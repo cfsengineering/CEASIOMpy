@@ -55,7 +55,11 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 # )
 from ceasiompy.utils.ceasiompyutils import get_part_type
 
-# from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_WINGS_XPATH
+# from ceasiompy.utils.commonxpath import (
+#     MIN_GMSH_SURFACE_MESH_SIZE_XPATH,
+#     MAX_GMSH_SURFACE_MESH_SIZE_XPATH,
+# GMSH_MESH_SIZE_WINGS_XPATH
+# )
 from ceasiompy.utils.configfiles import ConfigFile
 
 log = get_logger()
@@ -305,8 +309,8 @@ def generate_2d_mesh_for_pentagrow(
             gmsh.model.mesh.setSize(part.points, part.mesh_size)
         #     # gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
 
-    gmsh.option.setNumber("Mesh.MeshSizeMin", 0.01)
-    gmsh.option.setNumber("Mesh.MeshSizeMax", 0.1)
+    gmsh.option.setNumber("Mesh.MeshSizeMin", min_mesh_factor)
+    gmsh.option.setNumber("Mesh.MeshSizeMax", max_mesh_factor)
 
     gmsh.option.setNumber("Mesh.Algorithm", 6)
     gmsh.option.setNumber("Mesh.LcIntegrationPrecision", 1e-6)

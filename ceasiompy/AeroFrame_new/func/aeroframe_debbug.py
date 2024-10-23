@@ -3,9 +3,9 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Script to plot the FEM mesh and VLM panels used in the aeroelastic computations, 
-and plot the shape of the deformed wing. It helps to see if the geometry was 
-accurately captured and if the meshes are fine. 
+Script to plot the FEM mesh and VLM panels used in the aeroelastic computations,
+and plot the shape of the deformed wing. It helps to see if the geometry was
+accurately captured and if the meshes are fine.
 
 Python version: >=3.8
 
@@ -78,7 +78,6 @@ def plot_deformed_wing(centerline_df, undeformed_df, wkdir):
         centerline_df (pandas dataframe): dataframe containing the nodes of the deformed wing.
         undeformed_df (pandas dataframe): dataframe containing the nodes of the initial wing.
         wkdir (Path): path to the directory to save the plot.
-
     """
     fig, axs = plt.subplots()
     axs.plot(centerline_df['y_new'],

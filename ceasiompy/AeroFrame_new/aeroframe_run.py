@@ -140,7 +140,7 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
     # xyz_tip = np.array([wg_center_x_list[-1] + wing_origin[0] + wg_chord_list[-1] / 2,
     #                     wg_center_y_list[-1] + wing_origin[1],
     #                     wg_center_z_list[-1] + wing_origin[2]])
-    
+
     Xle_list = []
     Yle_list = []
     Zle_list = []
@@ -163,11 +163,10 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
     Xle_array = np.array(Xle_list)
     Yle_array = np.array(Yle_list)
     Zle_array = np.array(Zle_list)
-    
+
     xyz_tip = np.array([Xle_array[-1] + wg_chord_list[-1] / 2,
                         Yle_array[-1],
                         Zle_array[-1]])
-
 
     # Get cross-section properties from CPACS file (if constants)
     area_const, Ix_const, Iy_const = get_section_properties(cpacs_path)
@@ -273,7 +272,9 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
 
         log.info(f"Iteration {n_iter} done!")
         log.info(
-            f"Wing tip deflection:     {deflection:.3e} m ({percentage:.2%} of the semi-span length).")
+            f"Wing tip deflection:     {deflection:.3e} m "
+            f"({percentage:.2%} of the semi-span length)."
+        )
         log.info(f"Residual:                {res[-1]:.3e}")
 
         # Run AVL with the new deformed geometry
@@ -321,8 +322,9 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         log.info(f"Total aerodynamic work:  {total_aero_work:.3e} J.")
         log.info(f"Total structural work:   {total_structural_work:.3e} J.")
         log.info(
-            f"Work variation:          {((total_aero_work-total_structural_work)/total_aero_work):.2%}.")
-
+            f"Work variation:          "
+            f"{((total_aero_work - total_structural_work) / total_aero_work):.2%}."
+        )
     log.info("")
     log.info("----- Final results -----")
     if res[-1] <= tol:
@@ -339,8 +341,10 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
     log.info(f"Total aerodynamic work:  {total_aero_work:.3e} J.")
     log.info(f"Total structural work:   {total_structural_work:.3e} J.")
     log.info(
-        f"Work variation:          {((total_aero_work-total_structural_work)/total_aero_work):.2%}.")
-
+        "Work variation:          "
+        f"{((total_aero_work - total_structural_work) / total_aero_work):.2%}."
+    )
+    
     return delta_tip, res
 
 

@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Script to compute the wing deformation, plot the displacements and rotations, 
+Script to compute the wing deformation, plot the displacements and rotations,
 and plot the convergence.
 
 Python version: >=3.8

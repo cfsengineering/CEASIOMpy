@@ -340,14 +340,13 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
         beam.add('point_load', {'at': node_uid, 'load': load})
 
     # ===== BOUNDARY CONDITIONS =====
-    #idx_to_fix = centerline_df["y"].idxmin()
-    #bc.add('fix', {'node': "wing1_node" + str(idx_to_fix + 1), 'fix': ['all']})
-    
+    # idx_to_fix = centerline_df["y"].idxmin()
+    # bc.add('fix', {'node': "wing1_node" + str(idx_to_fix + 1), 'fix': ['all']})
+
     # /!\ FOR D150 ONLY
     idx_to_fix = centerline_df[centerline_df["y"] < 1.8].index
     for idx in idx_to_fix:
         bc.add('fix', {'node': "wing1_node" + str(idx + 1), 'fix': ['all']})
-
 
     # ===== POST-PROCESSING =====
     pp = model.set_feature('post_proc')
@@ -841,10 +840,18 @@ def compute_cross_section(cpacs_path):
                 wg_chord_list.append(wg_sec_chord)
 
                 log.info(f"Section number: {i_sec}")
-                log.info(f"Area of the sections: [{', '.join([f'{area:.2e}' for area in area_list])}] m^2.")
-                log.info(f"Ix of the sections:   [{', '.join([f'{Ix:.2e}' for Ix in Ix_list])}] m^4.")
-                log.info(f"Iy of the sections:   [{', '.join([f'{Iy:.2e}' for Iy in Iy_list])}] m^4.")
-
+                log.info(
+                    "Area of the sections:   "
+                    f"[{', '.join([f'{area:.2e}' for area in area_list])}] m^2."
+                )
+                log.info(
+                    "Ix of the sections:     "
+                    f"[{', '.join([f'{Ix:.2e}' for Ix in Ix_list])}] m^4."
+                )
+                log.info(
+                    "Iy of the sections:     "
+                    f"[{', '.join([f'{Iy:.2e}' for Iy in Iy_list])}] m^4."
+                )
 
     return (
         wg_origin, wg_twist_list, area_list, Ix_list, Iy_list,
@@ -866,8 +873,8 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
 
     deformed_df.sort_values(by="y_leading", inplace=True)
     deformed_df.reset_index(drop=True, inplace=True)
-    twist_profile = interpolate.interp1d(
-        centerline_df["y_new"], centerline_df["AoA_new"], fill_value="extrapolate")
+    # twist_profile = interpolate.interp1d(
+        # centerline_df["y_new"], centerline_df["AoA_new"], fill_value="extrapolate")
 
     with open(UNDEFORMED_PATH, "r") as file_undeformed:
         with open(DEFORMED_PATH, "w") as file_deformed:
@@ -888,16 +895,16 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                 y_new = deformed_df.iloc[i_node]["y_leading"]
                 z_new = deformed_df.iloc[i_node]["z_leading"]
                 chord = deformed_df.iloc[i_node]["chord"]
-                AoA = 2#twist_profile(y_new)
-                
-                if y_new > 1.856 and root_sec_added == False:
+                AoA = 2  # twist_profile(y_new)
+
+                if y_new > 1.856 and root_sec_added is False:
                     file_deformed.writelines(
-                    ["SECTION\n",
-                     "#Xle    Yle    Zle     Chord   Ainc\n",
-                     f"{12.746} {1.856} {-1.136} {6.076} {2}\n\n",
-                     "#---------------\n"])
+                        ["SECTION\n",
+                        "#Xle    Yle    Zle     Chord   Ainc\n",
+                        f"{12.746} {1.856} {-1.136} {6.076} {2}\n\n",
+                        "#---------------\n"])
                     root_sec_added = True
-                    
+
                 file_deformed.writelines(
                     ["SECTION\n",
                      "#Xle    Yle    Zle     Chord   Ainc\n",
@@ -908,7 +915,7 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                 y_new = deformed_df.iloc[-1]["y_leading"]
                 z_new = deformed_df.iloc[-1]["z_leading"]
                 chord = deformed_df.iloc[-1]["chord"]
-                AoA = 2#centerline_df.iloc[-1]["AoA_new"]
+                AoA = 2  # centerline_df.iloc[-1]["AoA_new"]
                 file_deformed.writelines(
                     ["SECTION\n",
                      "#Xle    Yle    Zle     Chord   Ainc\n",

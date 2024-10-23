@@ -47,7 +47,7 @@ def second_moments_of_area(x, y):
     x_centr, y_centr = compute_centroid(x, y)
     x = [xi - x_centr for xi in x]
     y = [yi - y_centr for yi in y]
-    
+
     n = len(x)
     for i in range(n):
         j = (i + 1) % n
@@ -115,5 +115,5 @@ def rotate_3D_points(x, y, z, angle_x, angle_y, angle_z):
 # =================================================================================================
 
 if __name__ == "__main__":
-
+    
     log.info("Nothing to execute!")

@@ -27,7 +27,6 @@ import matplotlib.pyplot as plt
 import math
 from pathlib import Path
 from scipy.spatial.distance import cdist
-from scipy import interpolate
 from framat import Model
 
 from cpacspy.cpacspy import CPACS
@@ -874,7 +873,7 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
     deformed_df.sort_values(by="y_leading", inplace=True)
     deformed_df.reset_index(drop=True, inplace=True)
     # twist_profile = interpolate.interp1d(
-        # centerline_df["y_new"], centerline_df["AoA_new"], fill_value="extrapolate")
+    # centerline_df["y_new"], centerline_df["AoA_new"], fill_value="extrapolate")
 
     with open(UNDEFORMED_PATH, "r") as file_undeformed:
         with open(DEFORMED_PATH, "w") as file_deformed:
@@ -902,7 +901,8 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                         ["SECTION\n",
                         "#Xle    Yle    Zle     Chord   Ainc\n",
                         f"{12.746} {1.856} {-1.136} {6.076} {2}\n\n",
-                        "#---------------\n"])
+                        "#---------------\n"]
+                    )
                     root_sec_added = True
 
                 file_deformed.writelines(

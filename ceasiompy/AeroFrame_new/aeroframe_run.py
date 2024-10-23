@@ -344,7 +344,7 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         "Work variation:          "
         f"{((total_aero_work - total_structural_work) / total_aero_work):.2%}."
     )
-    
+
     return delta_tip, res
 
 

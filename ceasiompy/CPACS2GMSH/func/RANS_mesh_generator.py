@@ -246,7 +246,6 @@ def generate_2d_mesh_for_pentagrow(
         # actuator is present) the coordinate of the model is not exact
         model_bb[2] + model_dimensions[2] / 4,
     ]
-    print(f"model_center {model_center}")
 
     aircraft = ModelPart("aircraft")
 

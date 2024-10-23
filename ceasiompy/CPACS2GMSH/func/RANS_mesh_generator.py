@@ -67,7 +67,14 @@ log = get_logger()
 
 
 def generate_2d_mesh_for_pentagrow(
-    cpacs, cpacs_path, brep_dir, results_dir, open_gmsh, min_max_mesh_factor, symmetry=False
+    cpacs,
+    cpacs_path,
+    brep_dir,
+    results_dir,
+    open_gmsh,
+    min_mesh_factor,
+    max_mesh_factor,
+    symmetry=False,
 ):
     """
     Function to generate a mesh from brep files forming an airplane
@@ -170,7 +177,6 @@ def generate_2d_mesh_for_pentagrow(
         gmsh.model.occ.synchronize()
 
         log.info(f"Part : {part_obj.uid} imported")
-        log.info(f"Importing part from {brep_file}: {part_entities}")
 
     while len(parts_parent_dimtag) > 1:
         fused = False
@@ -227,10 +233,24 @@ def generate_2d_mesh_for_pentagrow(
     fuselage_maxlen, _ = fuselage_size(cpacs_path)
     log.info("Fusion process ended")
 
+    # maybe can be removed
+    model_bb = gmsh.model.getBoundingBox(-1, -1)
+    model_dimensions = [
+        abs(model_bb[0] - model_bb[3]),
+        abs(model_bb[1] - model_bb[4]),
+        abs(model_bb[2] - model_bb[5]),
+    ]
+    model_center = [
+        model_bb[0] + model_dimensions[0] / 4,
+        0,  # the y coordinate is set to zero because sometimes (when act disk
+        # actuator is present) the coordinate of the model is not exact
+        model_bb[2] + model_dimensions[2] / 4,
+    ]
+    print(f"model_center {model_center}")
+
     aircraft = ModelPart("aircraft")
 
     for part in aircraft_parts:
-        log.info(f"Part: {part.uid}, Points: {part.points}, Type: {part.part_type}")
         aircraft.points.extend(part.points)
         aircraft.lines.extend(part.lines)
         aircraft.surfaces.extend(part.surfaces)
@@ -239,6 +259,8 @@ def generate_2d_mesh_for_pentagrow(
         aircraft.lines_tags.extend(part.lines_tags)
         aircraft.surfaces_tags.extend(part.surfaces_tags)
         aircraft.volume_tag.extend(part.volume_tag)
+
+        log.info(f"Part: {part.uid}, Points: {part.points}, Type: {part.part_type}")
 
         # Set surface BC for each part of the aircraft
         # if part.part_type == "engine":
@@ -303,7 +325,7 @@ def generate_2d_mesh_for_pentagrow(
 
     process_gmsh_log(gmsh.logger.get())
 
-    return gmsh_path, fuselage_maxlen
+    return gmsh_path, fuselage_maxlen, model_center
 
 
 def pentagrow_3d_mesh(
@@ -316,6 +338,7 @@ def pentagrow_3d_mesh(
     growth_factor,
     growth_ratio,
     feature_angle,
+    model_center,
 ) -> None:
     # create the config file for pentagrow
     config_penta_path = Path(result_dir, "config.cfg")
@@ -327,9 +350,8 @@ def pentagrow_3d_mesh(
     MaxGrowthRatio = growth_ratio
     MaxLayerThickness = max_layer_thickness / 10
     FarfieldRadius = fuselage_maxlen * farfield_factor * 100
-    FarfieldCenter = "0.0 0.0 0.0"
     OutputFormat = "su2"
-    HolePosition = "0.0 0.0 0.0"
+    HolePosition = model_center
     TetgenOptions = "-pq1.3VY"
     TetGrowthFactor = growth_factor
     HeightIterations = 8
@@ -348,7 +370,6 @@ def pentagrow_3d_mesh(
     file.write(f"FarfieldRadius = {FarfieldRadius}\n")
     file.write(f"OutputFormat = {OutputFormat}\n")
     file.write(f"HolePosition = {HolePosition}\n")
-    file.write(f"FarfieldCenter = {FarfieldCenter}\n")
     file.write(f"TetgenOptions = {TetgenOptions}\n")
     file.write(f"TetGrowthFactor = {TetGrowthFactor}\n")
     file.write(f"HeightIterations = {HeightIterations}\n")

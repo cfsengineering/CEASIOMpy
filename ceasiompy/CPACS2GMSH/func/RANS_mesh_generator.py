@@ -215,8 +215,10 @@ def generate_2d_mesh_for_pentagrow(
 
             fused = True
             log.info(
-                f"Fused entities {i} and {j} with distance {min_distance}. Remaining entities: {len(parts_parent_dimtag)}"
+                f"Fused entities {i} and {j} with distance {min_distance}. "
+                f"Remaining entities: {len(parts_parent_dimtag)}"
             )
+
         except Exception as e:
             log.error(f"Fusion failed for entities {i} and {j}: {e}")
 

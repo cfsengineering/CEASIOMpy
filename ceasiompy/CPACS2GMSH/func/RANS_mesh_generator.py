@@ -258,8 +258,8 @@ def generate_2d_mesh_for_pentagrow(
 
     # Mesh generation
     log.info("Start of gmsh 2D surface meshing process")
-    log.info(f"aircraft part {aircraft_parts}")
-    log.info(f"part {part}")
+    # log.info(f"aircraft part {aircraft_parts}")
+    # log.info(f"part {part}")
 
     for part in aircraft_parts:
         if part.part_type == "fuselage":

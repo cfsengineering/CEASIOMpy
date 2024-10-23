@@ -26,7 +26,8 @@ from ceasiompy.utils.commonxpath import (
     GMSH_MAX_THICKNESS_LAYER_XPATH,
     GMSH_GROWTH_FACTOR_XPATH,
     GMSH_GROWTH_RATIO_XPATH,
-    GMSH_SURFACE_MESH_SIZE_XPATH,
+    MIN_GMSH_SURFACE_MESH_SIZE_XPATH,
+    MAX_GMSH_SURFACE_MESH_SIZE_XPATH,
     GMSH_FEATURE_ANGLE_XPATH,
 )
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
@@ -218,9 +219,33 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
+    var_name="max_surface_mesh_factor",
+    var_type=float,
+    default_value=0.1,
+    unit="[10^-3]",
+    descr="Maximum surface mesh size factor",
+    xpath=MAX_GMSH_SURFACE_MESH_SIZE_XPATH,
+    gui=True,
+    gui_name="Max surface mesh size",
+    gui_group="RANS options",
+)
+
+cpacs_inout.add_input(
+    var_name="min_surface_mesh_factor",
+    var_type=float,
+    default_value=0.01,
+    unit="[10^-3]",
+    descr="Minimum surface mesh size factor",
+    xpath=MIN_GMSH_SURFACE_MESH_SIZE_XPATH,
+    gui=True,
+    gui_name="Min surface mesh size",
+    gui_group="RANS options",
+)
+
+cpacs_inout.add_input(
     var_name="n_layer",
     var_type=int,
-    default_value=20,
+    default_value=35,
     unit="[-]",
     descr="Number of prismatic element layers.",
     xpath=GMSH_NUMBER_LAYER_XPATH,
@@ -280,24 +305,12 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="feature_angle",
     var_type=float,
-    default_value=40,
+    default_value=45,
     unit="[grad]",
     descr="Larger angles are treated as resulting from approximation of curved surfaces",
     xpath=GMSH_FEATURE_ANGLE_XPATH,
     gui=True,
     gui_name="Feature Angle",
-    gui_group="RANS options",
-)
-
-cpacs_inout.add_input(
-    var_name="surface_mesh_factor",
-    var_type=float,
-    default_value=5,
-    unit="[10^-3]",
-    descr="Surface mesh size factor compared to aircraft largest dimension (omogeneus everywhere)",
-    xpath=GMSH_SURFACE_MESH_SIZE_XPATH,
-    gui=True,
-    gui_name="Surface mesh size",
     gui_group="RANS options",
 )
 

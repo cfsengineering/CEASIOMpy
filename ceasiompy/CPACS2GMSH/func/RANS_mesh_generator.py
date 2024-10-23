@@ -159,6 +159,8 @@ def generate_2d_mesh_for_pentagrow(
 
     for brep_file in brep_files:
         part_entities = gmsh.model.occ.importShapes(str(brep_file), highestDimOnly=False)
+        gmsh.model.occ.synchronize()
+
         xmin, ymin, zmin, xmax, ymax, zmax = gmsh.model.occ.getBoundingBox(
             part_entities[0][0], part_entities[0][1]
         )
@@ -259,7 +261,9 @@ def generate_2d_mesh_for_pentagrow(
         aircraft.surfaces_tags.extend(part.surfaces_tags)
         aircraft.volume_tag.extend(part.volume_tag)
 
-        log.info(f"Part: {part.uid}, Points: {part.points}, Type: {part.part_type}")
+        log.info(
+            f"Part: {part.uid}, Points: {part.points}, Lines: {part.lines}, surfaces: {part.surfaces}, Type: {part.part_type}"
+        )
 
         # Set surface BC for each part of the aircraft
         # if part.part_type == "engine":

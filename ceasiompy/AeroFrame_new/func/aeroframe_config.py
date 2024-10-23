@@ -898,11 +898,14 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
 
                 if y_new > 1.856 and root_sec_added is False:
                     file_deformed.writelines(
-                        ["SECTION\n",
-                        "#Xle    Yle    Zle     Chord   Ainc\n",
-                        f"{12.746} {1.856} {-1.136} {6.076} {2}\n\n",
-                        "#---------------\n"]
+                        [
+                            "SECTION\n",
+                            "#Xle    Yle    Zle     Chord   Ainc\n",
+                            f"{12.746} {1.856} {-1.136} {6.076} {2}\n\n",
+                            "#---------------\n"
+                        ]
                     )
+
                     root_sec_added = True
 
                 file_deformed.writelines(

@@ -303,7 +303,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="mg_level",
     var_type=int,
-    default_value=3,
+    default_value=0,
     unit="3",
     descr="Multi-grid level (0 = no multigrid)",
     xpath=SU2_MG_LEVEL_XPATH,

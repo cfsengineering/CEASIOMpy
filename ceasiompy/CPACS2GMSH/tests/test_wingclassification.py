@@ -22,7 +22,7 @@ from pathlib import Path
 import gmsh
 import pytest
 from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
+from ceasiompy.CPACS2GMSH.func.generategmsh import generate_gmsh
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
     detect_normal_profile,
     detect_truncated_profile,

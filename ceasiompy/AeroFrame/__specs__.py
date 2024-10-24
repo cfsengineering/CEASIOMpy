@@ -1,16 +1,17 @@
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from pathlib import Path
+
 from ceasiompy.utils.commonxpath import (
-    CEASIOMPY_XPATH,
+    AEROFRAME_SETTINGS,
+    AEROPERFORMANCE_XPATH,
+    AVL_AEROMAP_UID_XPATH,
     AVL_PLOT_XPATH,
     AVL_VORTEX_DISTR_XPATH,
-    AVL_AEROMAP_UID_XPATH,
-    AEROPERFORMANCE_XPATH,
+    CEASIOMPY_XPATH,
     FRAMAT_MATERIAL_XPATH,
-    FRAMAT_SECTION_XPATH,
     FRAMAT_MESH_XPATH,
-    AEROFRAME_SETTINGS
+    FRAMAT_SECTION_XPATH,
 )
-from pathlib import Path
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 # ===== Module Status =====
 # True if the module is active

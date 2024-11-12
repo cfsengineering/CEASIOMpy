@@ -328,7 +328,7 @@ def generate_2d_mesh_for_pentagrow(
 
     gmsh.model.occ.synchronize()
 
-    gmsh_path = Path(results_dir, "mesh_2d.stl")
+    gmsh_path = Path(results_dir, "surface_mesh.stl")
     gmsh.write(str(gmsh_path))
 
     process_gmsh_log(gmsh.logger.get())
@@ -387,10 +387,10 @@ def pentagrow_3d_mesh(
 
     os.chdir("Results/GMSH")
 
-    if os.path.exists("mesh_2d.stl"):
-        log.info("mesh_2d.stl exists")
+    if os.path.exists("surface_mesh.stl"):
+        log.info("surface_mesh.stl exists")
     else:
-        log.warning("mesh_2d.stl does not exist")
+        log.warning("surface_mesh.stl does not exist")
 
     if os.path.exists("config.cfg"):
         log.info("config.cfg exists")
@@ -400,8 +400,8 @@ def pentagrow_3d_mesh(
     current_dir = os.getcwd()
     os.chdir(current_dir)
 
-    # command = "pentagrow mesh_2d.stl config.cfg"
-    command = ["pentagrow", "mesh_2d.stl", "config.cfg"]
+    # command = "pentagrow surface_mesh.stl config.cfg"
+    command = ["pentagrow", "surface_mesh.stl", "config.cfg"]
     # Specify the file path
     file_path = "command.txt"
 

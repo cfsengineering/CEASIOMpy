@@ -322,7 +322,6 @@ def add_thermodata(cfg, cpacs, alt, case_nb, alt_list):
 
 
 def add_reynods_number(alt, mach, cfg, cpacs_path):
-
     Atm = Atmosphere(alt)
 
     # Get speed from Mach Number
@@ -474,8 +473,9 @@ def generate_su2_cfd_config_rans(cpacs_path, cpacs_out_path, wkdir):
 
     # Mesh Marker
     bc_wall_str = f"( {','.join(mesh_markers['wall'])} )"
+    bc_wall_str = bc_wall_str.replace(" ", "")
 
-    cfg["MARKER_EULER"] = bc_wall_str
+    # cfg["MARKER_EULER"] = bc_wall_str
     farfield_bc = (
         mesh_markers["farfield"] + mesh_markers["engine_intake"] + mesh_markers["engine_exhaust"]
     )

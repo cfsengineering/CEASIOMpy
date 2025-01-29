@@ -589,18 +589,18 @@ def convert_cpacs_to_avl(cpacs_path, wkdir):
                 wg_sec_twist = math.radians(wg_sec_rot.y)
                 wg_sec_yaw = math.radians(wg_sec_rot.z)
 
-                # Define the leading edge position from translations
-                x_LE = sec_transf.translation.x + elem_transf.translation.x
-                y_LE = sec_transf.translation.y + elem_transf.translation.y
-                z_LE = sec_transf.translation.z + elem_transf.translation.z
+                # Define the leading edge position from translation/scaling
+                x_LE = elem_transf.translation.x + \
+                    sec_transf.translation.x * sec_transf.scaling.x + pos_x_list[i_sec]
 
-                if all(abs(value) < 1e-6 for value in pos_y_list):
-                    x_LE_rot, y_LE_rot, z_LE_rot = rotate_3D_points(
-                        x_LE, y_LE, z_LE, wg_sec_dihed, wg_sec_twist, wg_sec_yaw)
-                else:
-                    x_LE_rot, y_LE_rot, z_LE_rot = rotate_3D_points(
-                        pos_x_list[i_sec], pos_y_list[i_sec], pos_z_list[i_sec],
-                        wg_sec_dihed, wg_sec_twist, wg_sec_yaw)
+                y_LE = elem_transf.translation.y * elem_transf.scaling.y + \
+                    sec_transf.translation.y * sec_transf.scaling.y + pos_y_list[i_sec]
+
+                z_LE = elem_transf.translation.z * elem_transf.scaling.z + \
+                    sec_transf.translation.z * sec_transf.scaling.z + pos_z_list[i_sec]
+
+                x_LE_rot, y_LE_rot, z_LE_rot = rotate_3D_points(
+                    x_LE, y_LE, z_LE, wg_sec_dihed, wg_sec_twist, wg_sec_yaw)
 
                 # Compute the absolute location of the leading edge
                 x_LE_abs = x_LE_rot + wg_sk_transf.translation.x

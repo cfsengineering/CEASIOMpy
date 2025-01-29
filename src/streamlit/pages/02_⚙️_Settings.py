@@ -147,9 +147,9 @@ def section_edit_aeromap():
     with col2:
         mach = st.number_input("Mach", value=0.3, min_value=0.0, step=0.1)
     with col3:
-        aos = st.number_input("AoS", value=0, min_value=-90, max_value=90, step=1)
+        aos = st.number_input("AoS", value=0.0, min_value=-90.0, max_value=90.0, step=0.1)
     with col4:
-        aoa = st.number_input("AoA", value=0, min_value=-90, max_value=90, step=1)
+        aoa = st.number_input("AoA", value=0.0, min_value=-90.0, max_value=90.0, step=0.1)
     with col5:
         st.session_state.point_exist = False
         st.markdown("")
@@ -392,7 +392,7 @@ def add_module_tab():
                                 value=get_value_or_default(
                                     st.session_state.cpacs.tixi, xpath, default_value
                                 ),
-                                format="%0.3f",
+                                format="%g",
                                 key=key,
                                 help=description,
                             )

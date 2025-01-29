@@ -4,6 +4,8 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Extract results from AVL calculations and save them in a CPACS file.
+Plot the lift distribution from AVL strip forces file 'fs.txt'.
+Convert AVL 'plot.ps' to 'plot.pdf'.
 
 Python version: >=3.8
 
@@ -23,6 +25,7 @@ TODO:
 from pathlib import Path
 import pandas as pd
 import matplotlib.pyplot as plt
+import subprocess
 
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonxpath import AVL_AEROMAP_UID_XPATH
@@ -67,7 +70,8 @@ def plot_lift_distribution(force_file_fs, aoa, aos, mach, alt, wkdir):
                 cref = float(line.split()[5])
 
             elif "# Spanwise =" in line:
-                number_strips = int(line.split()[7])
+                # number_strips = int(line.split()[7])
+                number_strips = int(line.split("=")[2].split("F")[0])
 
             elif "Xle" in line:
                 number_data = 0
@@ -197,6 +201,20 @@ def get_avl_results(cpacs_path, cpacs_out_path, wkdir):
         aeromap.add_coefficients(alt=alt, mach=mach, aos=aos, aoa=aoa, cd=cd, cl=cl, cms=cm)
     aeromap.save()
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
+
+
+def convert_ps_to_pdf(wkdir):
+    """Function to convert AVL 'plot.ps' to 'plot.pdf'.
+
+    Args:
+        wkdir (Path): Path to the working directory.
+
+    """
+    if not Path(wkdir, "plot.ps").exists():
+        raise FileNotFoundError("File 'plot.ps' does not exist.")
+
+    subprocess.run(["ps2pdf", "plot.ps", "plot.pdf"], cwd=wkdir)
+    subprocess.run(["rm", "plot.ps"], cwd=wkdir)
 
 
 # =================================================================================================

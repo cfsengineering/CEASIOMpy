@@ -125,7 +125,7 @@ warning: : The module does not work completely as expected. It is not a bug, but
 - [CPACSCreator](ceasiompy/CPACSCreator/README.md) :heavy_check_mark:
 - [CPACS2GMSH](ceasiompy/CPACS2GMSH/README.md) :heavy_check_mark:
 - [CPACS2SUMO](ceasiompy/CPACS2SUMO/README.md) :heavy_check_mark:
-- [SUMOAutoMesh](ceasiompy/SUMOAutoMesh/README.md) :heavy_check_mark:
+- [SUMOAutoMesh](ceasiompy/SUMOAutoMesh/README.md) :warning:
 - SU2MeshDef :warning:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_aero.png">
@@ -159,7 +159,7 @@ warning: : The module does not work completely as expected. It is not a bug, but
 
 #### Structure
 
-- AeroFrame :x:
+- AeroFrame :heavy_check_mark:
 
 ## Contributing
 

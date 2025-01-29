@@ -42,10 +42,12 @@ dependencies:
     - black==22.3
     - cpacspy==0.1.8
     - cython==0.29.30
+    - framat
     - gmsh==4.10.3
     - markdownpy==0.1.4
     - om-pycycle
     - pytest==7.2.0
+    - shapely
     - smt==1.2.0
     - streamlit==1.14.0
     - streamlit-autorefresh

@@ -104,7 +104,7 @@ There are many different modules available in CEASIOMpy that can be combined in 
 
 :heavy_check_mark: : The module should work as expected. There may be some minor bugs, don't hesitate to report them (more details [here](CONTRIBUTING.md#reporting-bugs)).
 
-warning: : The module does not work completely as expected. It is not a bug, but some features or data handling are not yet compatible with the new file structure. Check the [Kanban Board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see planned and in-progress features.
+:warning: : The module does not work completely as expected. It is not a bug, but some features or data handling are not yet compatible with the new file structure. Check the [Kanban Board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see planned and in-progress features.
 
 :x: : The module does not work at all. Some functions have been written, but need a lot of changes to be compatible with the rest of CEASIOMpy.
 

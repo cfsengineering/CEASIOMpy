@@ -38,7 +38,7 @@ jobs:
     - name: Set cache date # With that, cache will be updated every day
       run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
-    - uses: actions/cache@v3
+    - uses: actions/cache@v4
       with:
         path: /usr/share/miniconda3/envs/ceasiompy
         key: ubuntu-latest-conda-${{ env.DATE }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}
@@ -84,7 +84,7 @@ jobs:
         verbose: true
 
     - name: Upload logs
-      uses: actions/upload-artifact@v3
+      uses: actions/upload-artifact@v4
       with:
         name: integration-test-logs
         path: tests/workflow_tests/**/ceasiompy.log

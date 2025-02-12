@@ -6,25 +6,31 @@
 
 **State**: :heavy_check_mark:
 
-`StaticStability` module checks the three main static stabilities, for one or several aeromaps. In order to assert those stability, it only check the sign of the slope corresponding to its stability:
+`StaticStability` module checks the three main static stabilities, that is the sign of the slope corresponding to its stability:
 
-- `cms` vs `angleOfAttack` for the longitudinal stability (negative means stable)
-- `cml` vs `angleOfSideslip` for the directional stability (positive means stable)
-- `cmd` vs `angleOfSideslip` for the lateral stability (negative means stable)
+- Pitch moment `Cm` vs `angleOfAttack` for the longitudinal stability (negative slope means stable)
+- Yaw moment `Cn` vs `angleOfSideslip` for the directional stability (positive slope means stable)
+- Roll moment `Cl` vs `angleOfSideslip` for the lateral stability (negative slope means stable)
 
 (Names and reference system are those used by CPACS, more info [here](https://www.cpacs.de/documentation/CPACS_3_4_0_Docs/html/89b6a288-0944-bd56-a1ef-8d3c8e48ad95.htm))
 
 ## Inputs
 
-`StaticStability` only takes as input a CPACS file. However the CPACS file must contained at least one aeromap. In the settings, the user can chose on which aeromap and which stability the calculation will be performed.
+`StaticStability` only takes as input a CPACS file. However the CPACS file must contained at least one aeromap. In the settings, the user can choose on which aeromap and which stability the calculation will be performed.
 
 ## Analyses
 
-Depending how much points are stored in the aeromap, the different stability could be calculated or not. In order to check a stability the aeromap must contain at least two point with the same altitude, mach number, angle of attack/sideslip but with a different angle of sideslip/attack. The moment coefficient corresponding the stability must also be stored in the aeromap.
+1. If you use the pyAVL module before the StaticStability module :
+A unique (Mach, Altitude, AoA, AoS) in the aeromap suffices to do the Static Stability analysis as the necessary derivates are already computed.
+
+2. If you are not using pyAVL, then the model does a linear regression (it assumes that the moments are linear wrt to the angles of interest). Therefore you need to add strictly more then one different angle of attack and sideslip angle in the aeromap to access the stability derivatives.  
 
 ## Outputs
 
- The output of `StaticStability` is a Markdown file (in the results directory) which contains a table for each different aeromap and stability. In every table the flight conditions and the stability result (Stable/Unstable) are shown.
+In the results directory you can find:
+    1. a Markdown file which contains a table with the stability results (Stable/Unstable wrt to the 3 different axes) for the specific aeromap.
+
+    2. A longitudinal, directional and lateral html plot of the Pitch, Yaw and Roll moments wrt AoA, AoS and AoS respectively.
 
 ## Installation or requirements
 
@@ -32,9 +38,8 @@ Depending how much points are stored in the aeromap, the different stability cou
 
 ## Limitations
 
-`StaticStability` module only uses a simple linear regression to check the sign of the slope, depending how the data are distributed it could leads to errors.
+`StaticStability` module makes the assumption that the pitch, roll and yaw moments are a linear function of the angle of attack and sidelip angle.
 
 ## More information
 
-- <https://en.wikipedia.org/wiki/Longitudinal_stability>
 - <https://www.cpacs.de/documentation/CPACS_3_4_0_Docs/html/89b6a288-0944-bd56-a1ef-8d3c8e48ad95.htm>

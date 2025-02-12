@@ -21,9 +21,7 @@ TODO:
 from pathlib import Path
 
 from ceasiompy.StaticStability.staticstability import (
-    generate_directional_stab_table,
-    generate_lateral_stab_table,
-    generate_longitudinal_stab_table,
+    generate_stab_table,
     static_stability_analysis,
 )
 from ceasiompy.utils.ceasiompyutils import get_results_directory
@@ -37,98 +35,13 @@ CPACS_OUT_PATH = Path(MODULE_DIR, "D150_simple_staticstability_test_output.xml")
 
 
 # =================================================================================================
-#   CLASSES
-# =================================================================================================
-
-
-# =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
 
-
-class TestGenerateTable:
-
-    cpacs = CPACS(CPACS_IN)
-    aeromap_empty = cpacs.get_aeromap_by_uid("aeromap_empty")
-    aeromap = cpacs.get_aeromap_by_uid("test_apm")
-
-    def test_generate_longitudinal_stab_table(self):
-        """Test function 'generate_longitudinal_stab_table'"""
-
-        table = generate_longitudinal_stab_table(self.aeromap_empty)
-        assert len(table) == 1
-
-        table = generate_longitudinal_stab_table(self.aeromap)
-        assert table == [
-            ["mach", "alt", "aos", "Longitudinal stability", "Comment"],
-            ["0.3", "0.0", "0.0", "Unstable", ""],
-            ["0.3", "0.0", "10.0", "Unstable", ""],
-        ]
-
-        self.aeromap.add_row(mach=0.3, alt=0, aos=5.0, aoa=0, cd=0.001, cl=1.1, cs=0.22, cms=0.22)
-        self.aeromap.add_row(mach=0.3, alt=0, aos=5.0, aoa=4, cd=0.001, cl=1.1, cs=0.22, cms=0.12)
-        table = generate_longitudinal_stab_table(self.aeromap)
-        assert table == [
-            ["mach", "alt", "aos", "Longitudinal stability", "Comment"],
-            ["0.3", "0.0", "0.0", "Unstable", ""],
-            ["0.3", "0.0", "5.0", "Stable", ""],
-            ["0.3", "0.0", "10.0", "Unstable", ""],
-        ]
-
-    def test_generate_directional_stab_table(self):
-        """Test function 'generate_directional_stab_table'"""
-
-        table = generate_directional_stab_table(self.aeromap_empty)
-        assert len(table) == 1
-
-        table = generate_directional_stab_table(self.aeromap)
-        assert table == [
-            ["mach", "alt", "aoa", "Directional stability", "Comment"],
-            ["0.3", "0.0", "0.0", "Unstable", ""],
-            ["0.3", "0.0", "10.0", "Unstable", ""],
-        ]
-
-        self.aeromap.add_row(mach=0.3, alt=0, aos=0.0, aoa=5.0, cd=0.001, cl=1.1, cml=-0.22)
-        self.aeromap.add_row(mach=0.3, alt=0, aos=5.0, aoa=5.0, cd=0.001, cl=1.1, cml=0.12)
-        table = generate_directional_stab_table(self.aeromap)
-        assert table == [
-            ["mach", "alt", "aoa", "Directional stability", "Comment"],
-            ["0.3", "0.0", "0.0", "Unstable", ""],
-            ["0.3", "0.0", "5.0", "Stable", ""],
-            ["0.3", "0.0", "10.0", "Unstable", ""],
-        ]
-
-    def test_generate_lateral_stab_table(self):
-        """Test function 'generate_lateral_stab_table'"""
-
-        table = generate_lateral_stab_table(self.aeromap_empty)
-        assert len(table) == 1
-
-        table = generate_lateral_stab_table(self.aeromap)
-        assert table == [
-            ["mach", "alt", "aoa", "Lateral stability", "Comment"],
-            ["0.3", "0.0", "0.0", "Unstable", ""],
-            ["0.3", "0.0", "5.0", "Unstable", ""],
-            ["0.3", "0.0", "10.0", "Unstable", ""],
-        ]
-
-        self.aeromap.add_row(mach=0.3, alt=0, aos=0.0, aoa=15.0, cd=0.001, cl=1.1, cmd=0.22)
-        self.aeromap.add_row(mach=0.3, alt=0, aos=5.0, aoa=15.0, cd=0.001, cl=1.1, cmd=-0.12)
-        self.aeromap.add_row(mach=0.4, alt=0, aos=0.0, aoa=15.0, cd=0.001, cl=1.1, cmd=0.01)
-        self.aeromap.add_row(mach=0.4, alt=0, aos=5.0, aoa=15.0, cd=0.001, cl=1.1, cmd=0.01)
-        table = generate_lateral_stab_table(self.aeromap)
-        assert table == [
-            ["mach", "alt", "aoa", "Lateral stability", "Comment"],
-            ["0.3", "0.0", "0.0", "Unstable", ""],
-            ["0.3", "0.0", "5.0", "Unstable", ""],
-            ["0.3", "0.0", "10.0", "Unstable", ""],
-            ["0.3", "0.0", "15.0", "Stable", ""],
-            ["0.4", "0.0", "15.0", "Unstable", "Neutral stability"],
-        ]
-
-
 def test_static_stability_analysis():
-    """Test Function 'static_stability_analysis'"""
+    """
+    Test Function 'static_stability_analysis'
+    """
 
     results_dir = get_results_directory("StaticStability")
     result_markdown_file = Path(results_dir, "Static_stability.md")
@@ -147,6 +60,44 @@ def test_static_stability_analysis():
     if CPACS_OUT_PATH.exists():
         CPACS_OUT_PATH.unlink()
 
+
+# =================================================================================================
+#   CLASSES
+# =================================================================================================
+
+class TestStaticStability:
+    @classmethod
+    def setup_class(cls):
+        cls.cpacs = CPACS("/users/disk12/cfse2/Leon/CEASIOMpy_Leon/CEASIOMpy/test_files/CPACSfiles/D150_simple.xml")
+        cls.aeromap_empty = cls.cpacs.get_aeromap_by_uid("aeromap_empty")
+        cls.aeromap = cls.cpacs.get_aeromap_by_uid("test_apm")
+
+    def test_generate_stab_table(self):
+        """Test function 'generate_stab_table'"""
+
+        '''
+        print(self.aeromap_empty)
+
+        print("First test on empty aeromap")
+        table = generate_stab_table(self.aeromap_empty)
+        assert len(table) == 1
+        '''
+        
+        print("Adding rows")
+        self.aeromap.add_row(mach=0.3, alt=0, aos=5.0, aoa=0, cma=-0.002, cnb=0.002, clb=-0.002)
+        self.aeromap.add_row(mach=0.3, alt=0, aos=5.0, aoa=0, cma=0.002, cnb=0.002, clb=-0.002)
+        self.aeromap.add_row(mach=0.3, alt=0, aos=5.0, aoa=0, cma=-0.002, cnb=-0.002, clb=-0.002)
+        self.aeromap.add_row(mach=0.3, alt=0, aos=5.0, aoa=0, cma=-0.002, cnb=0.002, clb=0.002)
+        
+        print("Generating table")
+        table = generate_stab_table(self.aeromap)
+        assert table == [
+            ["mach", "alt", "aoa", "aos", "cma", "cnb", "clb" "Longitudinal stability", "Directional stability", "Lateral stability", "Comment"],
+            ["0.3", "0.0", "0.0", "5.0", "-0.002", "0.002", "-0.002", "Stable", "Stable", "Stable", "Aircraft is stable"],
+            ["0.3", "0.0", "0.0", "5.0", "0.002", "0.002", "-0.002", "Unstable", "Stable", "Stable", "Aircraft is unstable"],
+            ["0.3", "0.0", "0.0", "5.0", "-0.002", "-0.002", "-0.002", "Stable", "Unstable", "Stable", "Aircraft is unstable"],
+            ["0.3", "0.0", "0.0", "5.0", "-0.002", "0.002", "0.002", "Stable", "Stable", "Unstable", "Aircraft is unstable"],
+        ]
 
 # =================================================================================================
 #    MAIN

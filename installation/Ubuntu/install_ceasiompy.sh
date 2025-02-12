@@ -7,6 +7,8 @@ current_dir="$(pwd)"
 sudo apt install g++
 sudo apt install libtbb2
 
+sudo apt install ghostscript
+
 cd ../..
 
 conda env create -f environment.yml

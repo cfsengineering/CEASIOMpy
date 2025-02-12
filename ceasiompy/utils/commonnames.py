@@ -47,3 +47,6 @@ AINP_CFD_NAME = "Edge.ainp"
 
 # WEIGHT & BALANCE
 MTOM_FIGURE_NAME = "MTOM_Prediction.png"
+
+# PYCYCLE
+ENGINE_BOUNDARY_CONDITIONS = "EngineBC.dat"

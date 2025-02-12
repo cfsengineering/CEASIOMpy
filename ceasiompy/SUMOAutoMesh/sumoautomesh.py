@@ -109,7 +109,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     mesh. You can also use float number (e.g. refine_level=2.4).
 
     Source :
-        * sumo source code: https://www.larosterna.com/products/open-source
+        * sumo source code: https://www.larosterna.com/oss/
 
     Args:
         sumo_file_path (Path): Path to the SUMO geometry (.smx)

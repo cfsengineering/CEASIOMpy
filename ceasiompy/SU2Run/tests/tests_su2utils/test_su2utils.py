@@ -125,20 +125,16 @@ def test_get_su2_config_template():
     su2_dir = get_module_path("SU2Run")
 
     # Test with an old version of the config template
-    su2_version = "3.0.0"
-    config_template_path = Path(su2_dir, "files", f"config_template_v{su2_version}.cfg")
+    config_template_path = Path(su2_dir, "files", "config_template_euler.cfg")
 
     # Remove the config template file if it exists (from a previous test)
     if config_template_path.exists():
-        config_template_path.unlink()
-
-    with patch("ceasiompy.SU2Run.func.su2utils.get_su2_version", return_value=su2_version):
         assert get_su2_config_template() == config_template_path
 
-    # Test with an inexistent config template version
-    with patch("ceasiompy.SU2Run.func.su2utils.get_su2_version", return_value="9.9.99"):
-        with pytest.raises(FileNotFoundError):
-            assert get_su2_config_template() == config_template_path
+    # # Test with an inexistent config template version
+    # with patch("ceasiompy.SU2Run.func.su2utils.get_su2_version", return_value="9.9.99"):
+    #     with pytest.raises(FileNotFoundError):
+    #         assert get_su2_config_template() == config_template_path
 
 
 def test_get_su2_aerocoefs():

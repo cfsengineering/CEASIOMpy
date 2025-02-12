@@ -100,6 +100,7 @@ GMSH_EXPORT_PROP_XPATH = GMSH_XPATH + "/exportPropellers"
 GMSH_FARFIELD_FACTOR_XPATH = GMSH_XPATH + "/farfield_factor"
 GMSH_N_POWER_FACTOR_XPATH = GMSH_XPATH + "/n_power_factor"
 GMSH_N_POWER_FIELD_XPATH = GMSH_XPATH + "/n_power_field"
+GMSH_MESH_TYPE_XPATH = GMSH_XPATH + "/type_mesh"
 GMSH_MESH_SIZE_FARFIELD_XPATH = GMSH_XPATH + "/mesh_size/farfield"
 GMSH_MESH_SIZE_FUSELAGE_XPATH = GMSH_XPATH + "/mesh_size/fuselage/value"
 GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH = GMSH_XPATH + "/mesh_size/fuselage/factor"
@@ -112,6 +113,15 @@ GMSH_REFINE_TRUNCATED_XPATH = GMSH_XPATH + "/refine_truncated"
 GMSH_AUTO_REFINE_XPATH = GMSH_XPATH + "/auto_refine"
 GMSH_INTAKE_PERCENT_XPATH = GMSH_XPATH + "/intake_percent"
 GMSH_EXHAUST_PERCENT_XPATH = GMSH_XPATH + "/exhaust_percent"
+GMSH_MESH_FORMAT_XPATH = GMSH_XPATH + "/type_output_penta"
+GMSH_NUMBER_LAYER_XPATH = GMSH_XPATH + "/number_layer"
+GMSH_H_FIRST_LAYER_XPATH = GMSH_XPATH + "/height_first_layer"
+GMSH_MAX_THICKNESS_LAYER_XPATH = GMSH_XPATH + "/max_thickness_layer"
+GMSH_GROWTH_FACTOR_XPATH = GMSH_XPATH + "/growth_factor"
+GMSH_GROWTH_RATIO_XPATH = GMSH_XPATH + "/growth_ratio"
+MIN_GMSH_SURFACE_MESH_SIZE_XPATH = GMSH_XPATH + "min_mesh_factor"
+MAX_GMSH_SURFACE_MESH_SIZE_XPATH = GMSH_XPATH + "max_mesh_factor"
+GMSH_FEATURE_ANGLE_XPATH = GMSH_XPATH + "/feature_angle"
 
 # SU2
 SU2_XPATH = CEASIOMPY_XPATH + "/aerodynamics/su2"
@@ -142,6 +152,18 @@ SU2_CONTROL_SURF_XPATH = SU2_XPATH + "/options/calculateControlSurfacesDeflectio
 SU2_DEF_MESH_XPATH = SU2_XPATH + "/availableDeformedMesh"
 
 SU2_ACTUATOR_DISK_XPATH = SU2_XPATH + "/options/includeActuatorDisk"
+SU2_CONFIG_RANS_XPATH = SU2_XPATH + "/options/config_type"
+
+# EDGE
+EDGE_XPATH = CEASIOMPY_XPATH + "/aerodynamics/medge"
+EDGE_AEROMAP_UID_XPATH = EDGE_XPATH + "/aeroMapUID"
+EDGE_NB_CPU_XPATH = EDGE_XPATH + "/settings/nbCPU"
+EDGE_SOLVER_XPATH = EDGE_XPATH + "/settings/solver"
+EDGE_MAX_ITER_XPATH = EDGE_XPATH + "/settings/maxIter"
+EDGE_CFL_NB_XPATH = EDGE_XPATH + "/settings/cflNumber/value"
+EDGE_MG_LEVEL_XPATH = EDGE_XPATH + "/settings/multigridLevel"
+EDGE_FIXED_CL_XPATH = EDGE_XPATH + "/fixedCL"
+EDGE_ABOC_XPATH = EDGE_XPATH + "/boundary_condition"
 
 # EDGE
 EDGE_XPATH = CEASIOMPY_XPATH + "/aerodynamics/medge"
@@ -195,3 +217,25 @@ STABILITY_AEROMAP_TO_ANALYZE_XPATH = STABILITY_XPATH + "/aeroMapToAnalyze"
 CHECK_LONGITUDINAL_STABILITY_XPATH = STABILITY_XPATH + "/stabilityToCheck/longitudinal"
 CHECK_DIRECTIONAL_STABILITY_XPATH = STABILITY_XPATH + "/stabilityToCheck/directional"
 CHECK_LATERAL_STABILITY_XPATH = STABILITY_XPATH + "/stabilityToCheck/lateral"
+
+# PYCYCLE
+ENGINE_TYPE_XPATH = CEASIOMPY_XPATH + "/ThermoData"
+ENGINE_BC = CEASIOMPY_XPATH + "/BC"
+
+# AVL
+AVL_XPATH = CEASIOMPY_XPATH + "/aerodynamics/avl"
+AVL_AEROMAP_UID_XPATH = AVL_XPATH + "/aeroMapUID"
+AVL_PLOT_XPATH = AVL_XPATH + "/SavePlots"
+AVL_FUSELAGE_XPATH = AVL_XPATH + "/IntegrateFuselage"
+AVL_VORTEX_DISTR_XPATH = AVL_XPATH + "/VortexDistribution"
+
+# FramAT
+FRAMAT_XPATH = CEASIOMPY_XPATH + "/structure/FramAT"
+FRAMAT_MATERIAL_XPATH = FRAMAT_XPATH + "/MaterialProperties"
+FRAMAT_SECTION_XPATH = FRAMAT_XPATH + "/SectionProperties"
+FRAMAT_MESH_XPATH = FRAMAT_XPATH + "/BeamMesh"
+FRAMAT_RESULTS_XPATH = FRAMAT_XPATH + "/Results"
+
+# AeroFrame
+AEROFRAME_XPATH = CEASIOMPY_XPATH + "/aeroelasticity/AeroFrame"
+AEROFRAME_SETTINGS = AEROFRAME_XPATH + "/Settings"

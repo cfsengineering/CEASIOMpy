@@ -7,6 +7,8 @@ current_dir="$(pwd)"
 sudo dnf install gcc-c++
 sudo dnf install tbb
 
+sudo dnf install ghostscript
+
 # only in Docker?
 sudo dnf install libXrender
 sudo dnf install libXcursor

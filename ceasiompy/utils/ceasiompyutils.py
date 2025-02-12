@@ -125,11 +125,9 @@ def run_module(module, wkdir=Path.cwd(), iteration=0):
     log.info("CPACS output file: " + str(module.cpacs_out))
 
     if module.name == "Optimisation" and iteration > 0:
-
         log.info("Optimisation module is only run at first iteration!")
 
     else:
-
         for file in module.module_dir.iterdir():
             if file.name.endswith(".py") and not file.name.startswith("__"):
                 python_file = file.stem
@@ -330,5 +328,4 @@ def remove_file_type_in_dir(directory: Path, file_type_list: List[str]) -> None:
 # =================================================================================================
 
 if __name__ == "__main__":
-
     log.info("Nothing to execute!")

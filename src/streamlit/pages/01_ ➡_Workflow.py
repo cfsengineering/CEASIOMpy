@@ -63,8 +63,9 @@ def section_predefined_workflow():
     st.markdown("#### Predefined Workflows")
 
     predefine_workflows = [
-        ["PyTornado", "WeightConventional"],
+        ["PyAVL", "SaveAeroCoefficients"],
         ["CPACS2GMSH", "SU2Run", "SkinFriction"],
+        ["CPACS2GMSH", "ThermoData", "SU2Run"],
         ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
         ["CPACS2SUMO", "SUMOAutoMesh", "EdgeRun"],
     ]

@@ -381,7 +381,7 @@ def add_module_tab():
                                 value=get_value_or_default(
                                     st.session_state.cpacs.tixi, xpath, default_value
                                 ),
-                                format="%0.3f",
+                                format="%g",
                                 key=key,
                                 help=description,
                             )

@@ -79,7 +79,7 @@ Follow the [test cases](#test-cases) to discover the different way of using CEAS
 
 ```mermaid
   graph LR;
-      PyTornado-->SaveAeroCoefficients;
+      PyAVL-->SaveAeroCoefficients;
 ```
 
 </div>
@@ -116,6 +116,7 @@ warning: : The module does not work completely as expected. It is not a bug, but
 - [Optimisation](ceasiompy/Optimisation/README.md) :x:
 - [SMTrain](ceasiompy/SMTrain/README.md) :x:
 - [SMUse](ceasiompy/SMUse/README.md) :x:
+- [ThermoData](ceasiompy/ThermoData/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_geometry.png">
 
@@ -133,6 +134,7 @@ warning: : The module does not work completely as expected. It is not a bug, but
 
 - [CLCalculator](ceasiompy/CLCalculator/README.md) :heavy_check_mark:
 - [PyTornado](ceasiompy/PyTornado/README.md) :heavy_check_mark:
+- [PyAVL](ceasiompy/PyAVL/README.md) :heavy_check_mark:
 - [SU2Run](ceasiompy/SU2Run/README.md) :heavy_check_mark:
 - [SkinFriction](ceasiompy/SkinFriction/README.md) :heavy_check_mark:
 - [SaveAeroCoefficients](ceasiompy/SaveAeroCoefficients/README.md) :heavy_check_mark:

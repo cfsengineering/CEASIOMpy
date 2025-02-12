@@ -52,9 +52,7 @@ from ceasiompy.utils.commonxpath import (
     GMSH_REFINE_TRUNCATED_XPATH,
     GMSH_SYMMETRY_XPATH,
     SU2MESH_XPATH,
-<<<<<<< HEAD
     EDGE_MESH_XPATH,
-=======
     GMSH_MESH_TYPE_XPATH,
     GMSH_NUMBER_LAYER_XPATH,
     GMSH_H_FIRST_LAYER_XPATH,
@@ -64,7 +62,6 @@ from ceasiompy.utils.commonxpath import (
     MIN_GMSH_SURFACE_MESH_SIZE_XPATH,
     MAX_GMSH_SURFACE_MESH_SIZE_XPATH,
     GMSH_FEATURE_ANGLE_XPATH,
->>>>>>> surface_mesh_improvment
 )
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from cpacspy.cpacspy import CPACS

@@ -156,7 +156,7 @@ failure.xml
 
 # Ignore all SU2 meshes (.su2)
 *.su2
-# forces_breakdown.dat
+forces_breakdown.dat
 
 # Ignore temp folder and  and temp files
 /INSTALLDIR

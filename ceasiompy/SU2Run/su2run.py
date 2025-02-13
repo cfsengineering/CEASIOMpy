@@ -89,12 +89,18 @@ def run_SU2_multi(wkdir, nb_proc=1):
             nb_cpu=nb_proc,
         )
 
-        # forces_breakdown_file = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
-        # if not forces_breakdown_file.exists():
-        #     raise ValueError(
-        #         "The SU2_CFD calculation has not ended correctly,"
-        #         f"{SU2_FORCES_BREAKDOWN_NAME} is missing!"
-        #     )
+        print(f"Contenuto della cartella {config_dir}:")
+        for root, dirs, files in os.walk(config_dir):
+            print(f"Directory: {root}")
+            for file in files:
+                print(f"  {file}")
+
+        forces_breakdown_file = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
+        if not forces_breakdown_file.exists():
+            raise ValueError(
+                "The SU2_CFD calculation has not ended correctly,"
+                f"{SU2_FORCES_BREAKDOWN_NAME} is missing!"
+            )
 
 
 # =================================================================================================

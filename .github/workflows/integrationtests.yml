@@ -72,15 +72,6 @@ jobs:
       run: |
         echo "Current directory structure:"
         ls -R
-
-    - name: Check if forces_breakdown.dat exists
-      run: |
-        if [ ! -f forces_breakdown.dat ]; then
-          echo "forces_breakdown.dat is missing!"
-          exit 1
-        else
-          echo "forces_breakdown.dat found."
-        fi
     
     - name: Print environment variables
       run: printenv
@@ -90,6 +81,14 @@ jobs:
       run: |
         source ~/.bashrc
         pytest -v ./tests --cov=ceasiompy/ --cov-report xml:coverage.xml -m "not gui"
+
+    - name: Check if forces_breakdown.dat exists
+      run: |
+        if [ ! -f forces_breakdown.dat ]; then
+          echo "forces_breakdown.dat is missing!"
+        else
+          echo "forces_breakdown.dat found."
+        fi
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3.1.0

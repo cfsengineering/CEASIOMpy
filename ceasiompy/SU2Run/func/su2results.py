@@ -139,7 +139,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
             save_screenshot(surface_flow_path, "Mach")
             save_screenshot(surface_flow_path, "Pressure_Coefficient")
 
-        # force_file_path = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
+        force_file_path = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
         # if not force_file_path.exists():
         #     raise OSError("No result force file have been found!")
 

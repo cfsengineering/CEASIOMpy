@@ -39,6 +39,8 @@ from ceasiompy.utils.commonxpath import SU2_NB_CPU_XPATH, SU2_CONFIG_RANS_XPATH
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
+import os
+
 log = get_logger()
 
 MODULE_DIR = Path(__file__).parent

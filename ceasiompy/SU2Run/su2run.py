@@ -91,9 +91,7 @@ def run_SU2_multi(wkdir, nb_proc=1):
             nb_cpu=nb_proc,
         )
 
-        print(f"Contenuto della cartella {config_dir}:")
         for root, dirs, files in os.walk(config_dir):
-            print(f"Directory: {root}")
             for file in files:
                 print(f"  {file}")
 

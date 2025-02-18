@@ -89,7 +89,7 @@ jobs:
         name: integration-test-logs
         path: tests/workflow_tests/**/ceasiompy.log
 
-    # - name: Setup tmate session to SSH to the remote machine (for debugging)
-    #   if: ${{ failure() }}
-    #   uses: mxschmitt/action-tmate@v3
-    #   timeout-minutes: 15
+    - name: Setup tmate session to SSH to the remote machine (for debugging)
+      if: ${{ failure() }}
+      uses: mxschmitt/action-tmate@v3
+      timeout-minutes: 15

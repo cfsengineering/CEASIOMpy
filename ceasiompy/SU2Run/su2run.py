@@ -39,6 +39,8 @@ from ceasiompy.utils.commonxpath import SU2_NB_CPU_XPATH, SU2_CONFIG_RANS_XPATH
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
+import os
+
 log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
@@ -88,6 +90,10 @@ def run_SU2_multi(wkdir, nb_proc=1):
             with_mpi=True,
             nb_cpu=nb_proc,
         )
+
+        for root, dirs, files in os.walk(config_dir):
+            for file in files:
+                print(f"  {file}")
 
         forces_breakdown_file = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
         if not forces_breakdown_file.exists():

@@ -13,11 +13,11 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 from skopt.space import Real, Categorical
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import MFSMTRAIN_SM_XPATH
+from ceasiompy.utils.commonxpath import SMTRAIN_SM_XPATH
 from cpacspy.cpacsfunctions import get_value_or_default, add_string_vector
 from ceasiompy.utils.moduleinterfaces import get_module_path
 from cpacspy.cpacspy import CPACS
-from ceasiompy.MFSMTrain.func.surrogate import Kriging, MF_Kriging
+from ceasiompy.SMTrain.func.surrogate import Kriging, MF_Kriging
 from smt.surrogate_models import KRG
 from smt.applications import MFK
 

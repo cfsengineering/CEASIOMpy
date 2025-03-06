@@ -3,6 +3,7 @@
 # ==============================================================================
 
 import os
+import matplotlib as plt
 import pandas as pd
 import pickle
 from pathlib import Path
@@ -10,11 +11,11 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 from skopt.space import Real, Categorical
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import MFSMTRAIN_SM_XPATH
+from ceasiompy.utils.commonxpath import SMTRAIN_SM_XPATH
 from cpacspy.cpacsfunctions import get_value_or_default, create_branch, add_value
 from ceasiompy.utils.moduleinterfaces import get_module_path
 from cpacspy.cpacspy import CPACS
-from ceasiompy.MFSMTrain.func.surrogate import Kriging, MF_Kriging, make_predictions
+from ceasiompy.SMTrain.func.surrogate import Kriging, MF_Kriging, make_predictions
 
 log = get_logger()
 
@@ -30,7 +31,8 @@ def extract_data_set(dataset_paths, objective_coefficient, result_dir):
     remove constant input columns, and return them as numpy arrays for multifidelity Kriging.
 
     param dataset_paths: Dictionary containing dataset file paths.
-    param objective_coefficient: String indicating the output variable to extract ('CL', 'CD', or 'CM').
+    param objective_coefficient: String indicating the output variable to extract
+    ('CL', 'CD', or 'CM').
     return: Extracted data for available fidelity levels.
     """
     input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
@@ -76,7 +78,8 @@ def extract_data_set(dataset_paths, objective_coefficient, result_dir):
 
 
 def split_data(datasets, data_repartition, random_state=42):
-    """Divide the data into training, validation, and testing sets using only the highest fidelity level dataset."""
+    """Divide the data into training, validation, and testing sets using only
+    the highest fidelity level dataset."""
 
     # Find the dataset with the highest fidelity level (last in the dictionary)
     highest_fidelity_level = list(datasets.keys())[-1]
@@ -171,8 +174,8 @@ def save_model(model, cpacs_path, cpacs_out_path, result_dir):
     model_name = "surrogateModel.pkl"
     model_path = os.path.join(result_dir, model_name)
 
-    create_branch(cpacs.tixi, MFSMTRAIN_SM_XPATH)
-    add_value(cpacs.tixi, MFSMTRAIN_SM_XPATH, model_path)
+    create_branch(cpacs.tixi, SMTRAIN_SM_XPATH)
+    add_value(cpacs.tixi, SMTRAIN_SM_XPATH, model_path)
 
     with open(model_path, "wb") as file:
         pickle.dump(model, file)
@@ -210,10 +213,7 @@ def response_surface(
     y_rs,
     y_rs_ll,
     y_rs_hl,
-    first_const,
-    first_const_val,
-    second_const,
-    second_const_val,
+    const_var,
     fidelity_level,
     datasets,
 ):
@@ -274,8 +274,6 @@ def new_doe(datasets, model, columns_to_keep, fraction_of_new_samples, result_di
     output_file_path = os.path.join(result_dir, filename)
     new_df.to_csv(output_file_path, index=False)
 
-
-# plot(se attivato)
 
 # suggest new values(se attivato)
 

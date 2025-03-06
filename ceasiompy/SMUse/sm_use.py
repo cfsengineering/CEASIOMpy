@@ -24,12 +24,12 @@ TODO:
 from pathlib import Path
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
-from ceasiompy.MFSMUse.func.mfsmUconfig import (
+from ceasiompy.SMUse.func.smUconfig import (
     get_paths,
     load_surrogate,
     get_response_surface_values,
 )
-from ceasiompy.MFSMUse.func.mfsmU_func import make_predictions, save_new_dataset, response_surface
+from ceasiompy.SMUse.func.smU_func import make_predictions, save_new_dataset, response_surface
 
 log = get_logger()
 
@@ -47,7 +47,7 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 
 
-def run_mfsmUse(cpacs_path, wkdir):
+def run_smUse(cpacs_path, wkdir):
     model = load_surrogate(cpacs_path)
     # aeromap?
     prediction_dataset = load_surrogate(cpacs_path)
@@ -65,8 +65,8 @@ def main(cpacs_path, cpacs_out_path):
 
     log.info("----- Start of " + MODULE_NAME + " -----")
 
-    result_dir = get_results_directory("MFSMUse")
-    run_mfsmUse(cpacs_path, results_dir)
+    result_dir = get_results_directory("SMUse")
+    run_smUse(cpacs_path, results_dir)
 
     log.info("----- End of " + MODULE_NAME + " -----")
 

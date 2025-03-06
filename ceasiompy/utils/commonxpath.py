@@ -228,13 +228,13 @@ FRAMAT_RESULTS_XPATH = FRAMAT_XPATH + "/Results"
 AEROFRAME_XPATH = CEASIOMPY_XPATH + "/aeroelasticity/AeroFrame"
 AEROFRAME_SETTINGS = AEROFRAME_XPATH + "/Settings"
 
-# MFSMTrain
-MFSMTRAIN_XPATH = CEASIOMPY_XPATH + "/generalModules/mfsmTrain"
-MFSMTRAIN_DOE = MFSMTRAIN_XPATH + "/DoE"
-MFSMTRAIN_SM_XPATH = MFSMTRAIN_XPATH + "/surrogateModelPath"
-MFSMTRAIN_RS = MFSMTRAIN_XPATH + "/responseSurface"
-MFSMTRAIN_NEWDATA = MFSMTRAIN_XPATH + "/newDataset"
+# SMTrain
+SMTRAIN_XPATH = CEASIOMPY_XPATH + "/generalModules/smTrain"
+SMTRAIN_DOE = SMTRAIN_XPATH + "/DoE"
+SMTRAIN_SM_XPATH = SMTRAIN_XPATH + "/surrogateModelPath"
+SMTRAIN_RS = SMTRAIN_XPATH + "/responseSurface"
 
-# MFSMUse
-MFSMUSE_XPATH = CEASIOMPY_XPATH + "/generalModules/mfsmUse"
-MFSMUSE_RS = MFSMUSE_XPATH + "/responseSurface"
+
+# SMUse
+SMUSE_XPATH = CEASIOMPY_XPATH + "/generalModules/smUse"
+SMUSE_RS = SMUSE_XPATH + "/responseSurface"

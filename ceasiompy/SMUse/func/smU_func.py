@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 from skopt.space import Real, Categorical
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonxpath import SMUSE_PRED_DATASET
-from cpacspy.cpacsfunctions import get_value_or_default, add_string_vector
+from cpacspy.cpacsfunctions import get_value_or_default, add_value, create_branch
 from ceasiompy.utils.moduleinterfaces import get_module_path
 from cpacspy.cpacspy import CPACS
 from ceasiompy.SMTrain.func.surrogate import Kriging, MF_Kriging

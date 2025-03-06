@@ -31,7 +31,7 @@ from cpacspy.cpacsfunctions import (
     open_tixi
 )
 from ceasiompy.PyAVL.func.avlresults import convert_ps_to_pdf
-from ceasiompy.AeroFrame_new.func.aeroframe_config import (
+from ceasiompy.AeroFrame.func.aeroframe_config import (
     read_AVL_fe_file,
     create_framat_model,
     get_material_properties,
@@ -42,13 +42,13 @@ from ceasiompy.AeroFrame_new.func.aeroframe_config import (
     write_deformed_command
 )
 
-from ceasiompy.AeroFrame_new.func.aeroframe_results import (
+from ceasiompy.AeroFrame.func.aeroframe_results import (
     compute_deformations,
     plot_translations_rotations,
     plot_convergence
 )
 
-from ceasiompy.AeroFrame_new.func.aeroframe_debbug import (
+from ceasiompy.AeroFrame.func.aeroframe_debbug import (
     plot_fem_mesh,
     plot_deformed_wing
 )
@@ -418,7 +418,7 @@ def aeroframe_run(cpacs_path, cpacs_out_path, wkdir):
 def main(cpacs_path, cpacs_out_path):
     log.info("----- Start of " + MODULE_NAME + " -----")
 
-    results_dir = get_results_directory("AeroFrame_new")
+    results_dir = get_results_directory("AeroFrame")
     aeroframe_run(cpacs_path, cpacs_out_path, wkdir=results_dir)
 
     log.info("----- End of " + MODULE_NAME + " -----")

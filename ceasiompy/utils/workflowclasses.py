@@ -23,7 +23,7 @@ import shutil
 from datetime import datetime
 from pathlib import Path
 
-from ceasiompy.Optimisation.optimisation import routine_launcher
+# from ceasiompy.Optimisation.optimisation import routine_launcher
 from ceasiompy.utils.ceasiomlogger import add_to_runworkflow_history, get_logger
 from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module
 from ceasiompy.utils.configfiles import ConfigFile

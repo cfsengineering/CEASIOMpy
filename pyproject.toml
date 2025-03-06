@@ -24,9 +24,9 @@ omit = [
   "*/CPACSUpdater/*",
   "*/ModuleTemplate/*",
   "*/Optimisation/*",
+  "*/SMTrain.old/*",
+  "*/SMUse.old/*",
   "*/Range/*",
-  "*/SMTrain/*",
-  "*/SMUse/*",
   "*/SU2MeshDef/*",
   "*/WeightUnconventional/*",
 ]

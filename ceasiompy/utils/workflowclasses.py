@@ -141,7 +141,7 @@ class OptimSubWorkflow:
         # Other iterations
         module_optim = [module for module in self.modules]
 
-        routine_launcher(self.optim_method, module_optim, self.subworkflow_dir.parent)
+        # routine_launcher(self.optim_method, module_optim, self.subworkflow_dir.parent)
 
 
 class Workflow:

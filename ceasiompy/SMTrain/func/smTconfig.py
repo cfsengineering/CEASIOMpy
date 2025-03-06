@@ -1,6 +1,6 @@
-# ==============================================================================
+# =================================================================================================
 #   IMPORTS
-# ==============================================================================
+# =================================================================================================
 
 from pathlib import Path
 
@@ -98,7 +98,8 @@ def response_surface_inputs(cpacs_path):
 
 def get_paths(cpacs_path, fidelity_level):
 
-    # da capire se lasciare il valore di default (quindi "-") oppure fare in modo che il dict abbia solo i path
+    # da capire se lasciare il valore di default (quindi "-") oppure fare in modo che il dict
+    # abbia solo i path
     # in caso aggiornare anche il ciclo for in "extract_data_set"
 
     cpacs = CPACS(cpacs_path)

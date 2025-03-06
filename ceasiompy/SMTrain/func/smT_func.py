@@ -3,6 +3,7 @@
 # ==============================================================================
 
 import os
+import matplotlib as plt
 import pandas as pd
 import pickle
 from pathlib import Path
@@ -212,10 +213,7 @@ def response_surface(
     y_rs,
     y_rs_ll,
     y_rs_hl,
-    first_const,
-    first_const_val,
-    second_const,
-    second_const_val,
+    const_var,
     fidelity_level,
     datasets,
 ):

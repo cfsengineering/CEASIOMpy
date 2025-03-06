@@ -234,7 +234,7 @@ SMTRAIN_DOE = SMTRAIN_XPATH + "/DoE"
 SMTRAIN_SM_XPATH = SMTRAIN_XPATH + "/surrogateModelPath"
 SMTRAIN_RS = SMTRAIN_XPATH + "/responseSurface"
 
-
 # SMUse
 SMUSE_XPATH = CEASIOMPY_XPATH + "/generalModules/smUse"
 SMUSE_RS = SMUSE_XPATH + "/responseSurface"
+SMUSE_PRED_DATASET = SMUSE_XPATH + "/predictionsDatasetPath"

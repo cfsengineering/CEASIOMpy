@@ -40,16 +40,6 @@ def load_surrogate(cpacs_path):
     return model
 
 
-def get_response_surface_values(cpacs_path):
-
-    cpacs = CPACS(cpacs_path)
-
-    x_rs = get_value_or_default(cpacs.tixi, SMUSE_RS + "/VariableOnX", "angleOfAttack")
-    y_rs = get_value_or_default(cpacs.tixi, SMUSE_RS + "/VariableOnY", "machNumber")
-
-    return x_rs, y_rs
-
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================

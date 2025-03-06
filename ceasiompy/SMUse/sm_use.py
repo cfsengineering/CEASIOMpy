@@ -24,12 +24,12 @@ TODO:
 from pathlib import Path
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.SMUse.func.smUconfig import (
     get_paths,
     load_surrogate,
-    get_response_surface_values,
 )
-from ceasiompy.SMUse.func.smU_func import make_predictions, save_new_dataset, response_surface
+from ceasiompy.SMUse.func.smU_func import make_predictions, save_new_dataset
 
 log = get_logger()
 
@@ -47,13 +47,13 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 
 
-def run_smUse(cpacs_path, wkdir):
+def run_smUse(cpacs_path):
     model = load_surrogate(cpacs_path)
-    # aeromap?
+    # aggiungere funzione per recuperare il path del dataset SMTrain
     prediction_dataset = load_surrogate(cpacs_path)
-    # response surface
     predictions = make_predictions(cpacs_path, prediction_dataset, model)
-    output_path = save_new_dataset(prediction_dataset, predictions, cpacs_path, wkdir)
+
+    return prediction_dataset, predictions
 
 
 # =================================================================================================
@@ -66,7 +66,8 @@ def main(cpacs_path, cpacs_out_path):
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     result_dir = get_results_directory("SMUse")
-    run_smUse(cpacs_path, results_dir)
+    pred_dataset, preds = run_smUse(cpacs_path)
+    save_new_dataset(pred_dataset, preds, result_dir, cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + MODULE_NAME + " -----")
 

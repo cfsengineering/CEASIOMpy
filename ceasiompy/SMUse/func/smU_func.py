@@ -10,11 +10,10 @@ import matplotlib as plt
 import matplotlib.tri as tri
 from pathlib import Path
 from sklearn.model_selection import train_test_split
-import numpy as np
 from skopt.space import Real, Categorical
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import SMTRAIN_SM_XPATH
-from cpacspy.cpacsfunctions import get_value_or_default, add_string_vector
+from ceasiompy.utils.commonxpath import SMUSE_PRED_DATASET
+from cpacspy.cpacsfunctions import get_value_or_default, add_value, create_branch
 from ceasiompy.utils.moduleinterfaces import get_module_path
 from cpacspy.cpacspy import CPACS
 from ceasiompy.SMTrain.func.surrogate import Kriging, MF_Kriging
@@ -29,7 +28,9 @@ log = get_logger()
 # =================================================================================================
 
 
-def make_predictions(cpacs_path, prediction_dataset, model):
+def make_predictions(prediction_dataset, model):
+
+    input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
 
     df = pd.read_csv(prediction_dataset)
 
@@ -38,9 +39,8 @@ def make_predictions(cpacs_path, prediction_dataset, model):
     removed_columns = list(set(input_columns) - set(columns_to_keep))
 
     if removed_columns:
-        print(f"Removing constant columns in {level}: {removed_columns}")
-        df = df[columns_to_keep + [objective_coefficient]]  # Keep only relevant columns
-        # df.to_csv(output_file_path, index=False)  # Save the modified dataset
+        print(f"Removing constant columns in {df}: {removed_columns}")
+        df = df[columns_to_keep]  # Keep only relevant columns
 
     X_pred = df.to_numpy()
     y_pred = model.predict_values(X_pred)
@@ -48,7 +48,7 @@ def make_predictions(cpacs_path, prediction_dataset, model):
     return y_pred
 
 
-def save_new_dataset(prediction_dataset, predictions, cpacs_path, result_dir):
+def save_new_dataset(prediction_dataset, predictions, result_dir, cpacs_path, cpacs_out_path):
 
     cpacs = CPACS(cpacs_path)
 
@@ -58,48 +58,17 @@ def save_new_dataset(prediction_dataset, predictions, cpacs_path, result_dir):
 
     old_filename = os.path.basename(prediction_dataset)
     new_filename = old_filename.replace(".csv", "_with_predictions.csv")
-    output_file_path = os.path.join(result_dir, filename)
+    output_file_path = os.path.join(result_dir, new_filename)
     df.to_csv(output_file_path, index=False)
 
     log.info(f"New dataset with prediction saved in: {output_file_path}")
 
+    create_branch(cpacs.tixi, SMUSE_PRED_DATASET)
+    add_value(cpacs.tixi, SMUSE_PRED_DATASET, output_file_path)
+
+    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
+
     return output_file_path
-
-
-def response_surface(x_rs, y_rs, dataset_path):
-    
-    # per il momento no scatter e solo "predictions"
-
-    df = pd.read_csv(dataset_path)
-
-    x = df[x_rs]
-    y = df[y_rs]
-    z = df["Predictions"]
-
-    fig = plt.figure(figsize=(12, 8))
-    ax = fig.add_subplot(111, projection="3d")
-
-    ax.plot_trisurf(x, y, z, cmap="viridis", alpha=0.5, edgecolor="none")
-    ax.set_xlabel(f"{x_rs}")
-    ax.set_ylabel(f"{y_rs}")
-    ax.set_zlabel("Predictions")
-    ax.set_title(f"Response Surface")
-    ax.view_init(elev=25, azim=45)
-    ax.legend()
-    
-    colorbar = plt.colorbar(ax.collections[0], ax=ax, shrink=0.5, aspect=10)
-    colorbar.set_label("Predictions")
-
-    plt.show()
-    
-    
-
-
-# plot(se attivato)
-
-# suggest new values(se attivato)
-
-# aeromap (x workflow)
 
 
 # =================================================================================================

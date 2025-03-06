@@ -206,53 +206,6 @@ def plot_validation(model, X_test, y_test, label):
     plt.show()
 
 
-def response_surface(
-    x_rs,
-    x_rs_ll,
-    x_rs_hl,
-    y_rs,
-    y_rs_ll,
-    y_rs_hl,
-    const_var,
-    fidelity_level,
-    datasets,
-):
-
-    # X_lf, y_lf, _ = datasets["first_dataset_path"]
-    # if fidelity_level >= 2:
-    #     X_mf, y_mf, _ = datasets["second_dataset_path"]
-    # if fidelity_level >= 3:
-    #     X_hf, y_hf, _ = datasets["second_dataset_path"]
-
-    # Find the dataset with the highest fidelity level (last in the dictionary)
-    highest_fidelity_level = list(datasets.keys())[-1]
-    log.info(f"Highest fidelity level dataset: {highest_fidelity_level}")
-
-    # Extract X and y from the highest fidelity level dataset
-    X, coeff, df = datasets[highest_fidelity_level]
-
-    input_cols = df.columns[:-1]
-    if x_rs not in input_cols or y_rs not in input_cols:
-        log.warning("")
-
-    x_grid = np.linspace(x_rs_ll, x_rs_hl, 50)
-    y_grid = np.linspace(y_rs_ll, y_rs_hl, 50)
-    X, Y = np.meshgrid(x_grid, y_grid)  # 2D grid
-
-    input_data = pd.DataFrame(columns=input_cols)
-    input_data[x_rs] = X.ravel()
-    input_data[y_rs] = Y.ravel()
-
-    for var in input_cols:
-        if var not in [x_rs, y_rs]:
-            input_data[var] = const_var.get(var)
-        else:
-            input_data[var] = df[var].mean()
-
-    pred_values = make_predictions(model, input_data.to_numpy())
-    Z = pred_values.reshape(X.shape)
-
-
 def new_doe(datasets, model, columns_to_keep, fraction_of_new_samples, result_dir):
 
     highest_fidelity_level = list(datasets.keys())[-1]
@@ -275,7 +228,68 @@ def new_doe(datasets, model, columns_to_keep, fraction_of_new_samples, result_di
     new_df.to_csv(output_file_path, index=False)
 
 
-# suggest new values(se attivato)
+# def response_surface(model,
+#     x_rs,
+#     x_rs_ll,
+#     x_rs_hl,
+#     y_rs,
+#     y_rs_ll,
+#     y_rs_hl,
+#     const_var,
+#     fidelity_level,
+#     datasets,
+# ):
+
+#     # X_lf, y_lf, _ = datasets["first_dataset_path"]
+#     # if fidelity_level >= 2:
+#     #     X_mf, y_mf, _ = datasets["second_dataset_path"]
+#     # if fidelity_level >= 3:
+#     #     X_hf, y_hf, _ = datasets["second_dataset_path"]
+
+#     # Find the dataset with the highest fidelity level (last in the dictionary)
+#     highest_fidelity_level = list(datasets.keys())[-1]
+#     log.info(f"Highest fidelity level dataset: {highest_fidelity_level}")
+
+#     # Extract X and y from the highest fidelity level dataset
+#     X, coeff, df = datasets[highest_fidelity_level]
+
+#     input_cols = df.columns[:-1]
+#     if x_rs not in input_cols or y_rs not in input_cols:
+#         log.warning("")
+
+#     x_grid = np.linspace(x_rs_ll, x_rs_hl, 50)
+#     y_grid = np.linspace(y_rs_ll, y_rs_hl, 50)
+#     X, Y = np.meshgrid(x_grid, y_grid)  # 2D grid
+
+#     input_data = pd.DataFrame(columns=input_cols)
+#     input_data[x_rs] = X.ravel()
+#     input_data[y_rs] = Y.ravel()
+
+#     for var in input_cols:
+#         if var not in [x_rs, y_rs]:
+#             input_data[var] = const_var.get(var)
+#         else:
+#             input_data[var] = df[var].mean()
+
+#     pred_values = make_predictions(model, input_data.to_numpy())
+#     Z = pred_values.reshape(X.shape)
+
+# fig = plt.figure(figsize=(12, 8))
+# ax = fig.add_subplot(111, projection="3d")
+
+# ax.plot_trisurf(x, y, z, cmap="viridis", alpha=0.5, edgecolor="none")
+# ax.set_xlabel(f"{x_rs}")
+# ax.set_ylabel(f"{y_rs}")
+# ax.set_zlabel("Predictions")
+# ax.set_title(f"Response Surface")
+# ax.view_init(elev=25, azim=45)
+# ax.legend()
+
+# colorbar = plt.colorbar(ax.collections[0], ax=ax, shrink=0.5, aspect=10)
+# colorbar.set_label("Predictions")
+
+# plt.show()
+
 
 # aeromap (x workflow)
 

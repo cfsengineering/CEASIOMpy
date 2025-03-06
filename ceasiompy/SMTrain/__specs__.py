@@ -192,7 +192,7 @@ cpacs_inout.add_input(
     var_name="first_constant_variable",
     var_type=str,
     default_value="altitude",
-    descr=""" Firts Variable to mantain constant while the response surface is plotted 
+    descr="""Firts Variable to mantain constant while the response surface is plotted
     \n Warning ! The parameter name must match the ones in the CSV file !""",
     xpath=SMTRAIN_RS + "/FirstConstantVariable",
     gui=include_gui,
@@ -215,7 +215,7 @@ cpacs_inout.add_input(
     var_name="second_constant_variable",
     var_type=str,
     default_value="angleOfSideslip",
-    descr=""" Second Variable to mantain constant while the response surface is plotted 
+    descr="""Second Variable to mantain constant while the response surface is plotted
     \n Warning! The parameter name must match the ones in the CSV file !""",
     xpath=SMTRAIN_RS + "/SecondConstantVariable",
     gui=include_gui,

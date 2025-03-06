@@ -24,6 +24,7 @@ TODO:
 from pathlib import Path
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.SMUse.func.smUconfig import (
     get_paths,
     load_surrogate,
@@ -46,7 +47,7 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 
 
-def run_smUse(cpacs_path, wkdir):
+def run_smUse(cpacs_path):
     model = load_surrogate(cpacs_path)
     # aggiungere funzione per recuperare il path del dataset SMTrain
     prediction_dataset = load_surrogate(cpacs_path)
@@ -65,8 +66,8 @@ def main(cpacs_path, cpacs_out_path):
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     result_dir = get_results_directory("SMUse")
-    pred_dataset, preds = run_smUse(cpacs_path, results_dir)
-    save_new_dataset(pred_dataset, preds, wkdir, cpacs_path, cpacs_out_path)
+    pred_dataset, preds = run_smUse(cpacs_path)
+    save_new_dataset(pred_dataset, preds, result_dir, cpacs_path, cpacs_out_path)
 
     log.info("----- End of " + MODULE_NAME + " -----")
 

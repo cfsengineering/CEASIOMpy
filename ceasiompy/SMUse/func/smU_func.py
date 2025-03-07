@@ -43,6 +43,7 @@ def make_predictions(prediction_dataset, model):
         df = df[columns_to_keep]  # Keep only relevant columns
 
     X_pred = df.to_numpy()
+
     y_pred = model.predict_values(X_pred)
 
     return y_pred

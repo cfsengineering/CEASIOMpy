@@ -31,9 +31,9 @@ def get_setting(cpacs_path):
     data_repartition = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH + "/trainingPercentage", 0.7)
     objective = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH + "/objective", "Total CL")
 
-    print(f"fid_lev: {fidelity_level}")
-    print(f"d_rep: {data_repartition}")
-    print(f"obj: {objective}")
+    log.info(f"fid_lev: {fidelity_level}")
+    log.info(f"d_rep: {data_repartition}")
+    log.info(f"obj: {objective}")
 
     return fidelity_level, data_repartition, objective
 
@@ -55,7 +55,7 @@ def response_surface_inputs(cpacs_path):
 
     cpacs = CPACS(cpacs_path)
 
-    response_surface = get_value_or_default(cpacs.tixi, SMTRAIN_RS, False)
+    response_surface = get_value_or_default(cpacs.tixi, SMTRAIN_RS + "/Plot", False)
     x_rSurf = get_value_or_default(cpacs.tixi, SMTRAIN_RS + "/VariableOnX", "angleOfAttack")
     x_rSurf_low_limit = get_value_or_default(cpacs.tixi, SMTRAIN_RS + "/VariableOnX/LowLimit", 0.0)
     x_rSurf_high_limit = get_value_or_default(
@@ -108,19 +108,19 @@ def get_paths(cpacs_path, fidelity_level):
 
     if fidelity_level >= 1:
         dataset_paths["first_dataset_path"] = get_value_or_default(
-            cpacs.tixi, SMTRAIN_XPATH + "/csvPath1", None
+            cpacs.tixi, SMTRAIN_XPATH + "/csvPath1", "-"
         )
         log.info(f"First dataset path: {dataset_paths['first_dataset_path']}")
 
     if fidelity_level >= 2:
         dataset_paths["second_dataset_path"] = get_value_or_default(
-            cpacs.tixi, SMTRAIN_XPATH + "/csvPath2", None
+            cpacs.tixi, SMTRAIN_XPATH + "/csvPath2", "-"
         )
         log.info(f"Second dataset path: {dataset_paths['second_dataset_path']}")
 
     if fidelity_level == 3:
         dataset_paths["third_dataset_path"] = get_value_or_default(
-            cpacs.tixi, SMTRAIN_XPATH + "/csvPath3", None
+            cpacs.tixi, SMTRAIN_XPATH + "/csvPath3", "-"
         )
         log.info(f"Third dataset path: {dataset_paths['third_dataset_path']}")
 

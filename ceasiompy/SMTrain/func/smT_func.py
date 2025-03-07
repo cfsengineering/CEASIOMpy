@@ -3,7 +3,7 @@
 # ==============================================================================
 
 import os
-import matplotlib as plt
+import matplotlib.pyplot as plt
 import pandas as pd
 import pickle
 from pathlib import Path
@@ -74,12 +74,15 @@ def extract_data_set(dataset_paths, objective_coefficient, result_dir):
             print(f"y:{y}")
             print(f"df:{df}")
 
-    return datasets, columns_to_keep
+    return datasets
 
 
 def split_data(datasets, data_repartition, random_state=42):
     """Divide the data into training, validation, and testing sets using only
     the highest fidelity level dataset."""
+
+    if not datasets:
+        log.warning("Warning!")
 
     # Find the dataset with the highest fidelity level (last in the dictionary)
     highest_fidelity_level = list(datasets.keys())[-1]
@@ -206,7 +209,21 @@ def plot_validation(model, X_test, y_test, label):
     plt.show()
 
 
-def new_doe(datasets, model, columns_to_keep, fraction_of_new_samples, result_dir):
+def new_doe(datasets, model, fraction_of_new_samples, result_dir):
+    """Generates a new set of suggested sampling points based on model uncertainty.
+
+    Args:
+        datasets (dict): A dictionary containing datasets for different fidelity levels.
+        model: The surrogate model used for making predictions.
+        fraction_of_new_samples (int): The divisor to determine the number of new samples.
+        result_dir (str): Path to the directory where the new dataset will be saved.
+
+    Raises:
+        ValueError: If fraction_of_new_samples is less than or equal to 0.
+    """
+
+    if fraction_of_new_samples <= 0:
+        raise ValueError("fraction_of_new_samples must be greater than 0.")
 
     highest_fidelity_level = list(datasets.keys())[-1]
     log.info(f"Highest fidelity level dataset: {highest_fidelity_level}")
@@ -215,17 +232,23 @@ def new_doe(datasets, model, columns_to_keep, fraction_of_new_samples, result_di
 
     _, y_var = make_predictions(model, X)
 
-    y_var_flat = y_var.flatten()
-    sorted_indices = np.argsort(y_var_flat)[::-1]
-    n_new_samples = len(X) // fraction_of_new_samples
+    y_var_flat = np.asarray(y_var).flatten()
+    sorted_indices = np.argsort(y_var_flat)[::-1]  # Sort in descending order
+    n_new_samples = max(1, len(X) // fraction_of_new_samples)  # Ensure at least one sample
     top_n_indices = sorted_indices[:n_new_samples]
     top_X = X[top_n_indices]
 
-    new_df = pd.DataFrame(top_X, columns=columns_to_keep)
+    if top_X.shape[0] == 0:
+        log.warning("No new suggested points, file not created.")
+        return
+
+    new_df = pd.DataFrame(top_X, columns=df.columns)
 
     filename = "suggested_points.csv"
     output_file_path = os.path.join(result_dir, filename)
     new_df.to_csv(output_file_path, index=False)
+
+    log.info(f"New suggested points saved in {output_file_path}")
 
 
 # def response_surface(model,

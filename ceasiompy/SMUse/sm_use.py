@@ -50,8 +50,8 @@ MODULE_NAME = MODULE_DIR.name
 def run_smUse(cpacs_path):
     model = load_surrogate(cpacs_path)
     # aggiungere funzione per recuperare il path del dataset SMTrain
-    prediction_dataset = load_surrogate(cpacs_path)
-    predictions = make_predictions(cpacs_path, prediction_dataset, model)
+    prediction_dataset = get_paths(cpacs_path)
+    predictions = make_predictions(prediction_dataset, model)
 
     return prediction_dataset, predictions
 

@@ -1,16 +1,17 @@
 from pathlib import Path
-
+from ceasiompy.utils.commonxpath import SMUSE_XPATH, SMUSE_RS
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import SMUSE_XPATH
+
+# from ceasiompy.utils.commonxpath import SMTRAIN_XPATH
 
 # ===== Module Status =====
 # True if the module is active
 # False if the module is disabled (not working or not ready)
-module_status = False
+module_status = True
 
 # ===== Results directory path =====
 
-RESULTS_DIR = Path("Results", "SurrogateModels")
+RESULTS_DIR = Path("Results", "SMUse")
 
 # ===== CPACS inputs and outputs =====
 
@@ -19,6 +20,7 @@ cpacs_inout = CPACSInOut()
 include_gui = True
 
 # ----- Input -----
+
 
 cpacs_inout.add_input(
     var_name="model_file",
@@ -32,35 +34,44 @@ cpacs_inout.add_input(
 )
 
 cpacs_inout.add_input(
-    var_name="Aeromap only",
-    var_type=bool,
-    default_value="False",
-    unit=None,
-    descr="""Indicate wether or not the parameters are all contained in an aeromap, in which case
-    the workflow only has to be run once.""",
-    xpath=SMUSE_XPATH + "/AeroMapOnly",
+    var_name="prediction_dataset",
+    var_type="pathtype",
+    default_value="-",
+    descr="CSV file with inputs to be predicted",
+    xpath=SMUSE_XPATH + "/predictionDataset",
     gui=include_gui,
-    gui_name="Aeromap only",
-    gui_group="Aeromap settings",
+    gui_name="Prediction Dataset",
+    gui_group="Use options",
 )
 
-cpacs_inout.add_input(
-    var_name="",
-    var_type=list,
-    default_value=None,
-    descr="To which aeroMap the model shall take andn write the entries",
-    xpath=SMUSE_XPATH + "/aeroMapUID",
-    gui=True,
-    gui_name="__AEROMAP_SELECTION",
-    gui_group="Aeromap settings",
-)
 
-# ----- Output -----
+# DOE LIMITS???
+
+
+# print(cpacs_inout.inputs[1])
+
+
+# for entry in cpacs_inout.inputs:
+#     print(f"Variable Name: {entry.var_name}, Default Value: {entry.default_value}")
+
+
+# bayesian or random seach?
+
+
+# ----- Output ----
 
 # cpacs_inout.add_output(
-#     var_name='output',
-#     default_value='-',
-#     unit='1',
-#     descr='Description of the output',
-#     xpath='/cpacs/toolspecific/CEASIOMpy/test/myOutput',
+#     var_name="output",
+#     default_value=None,
+#     unit="1",
+#     descr="Description of the output",
+#     xpath=CEASIOMPY_XPATH + "/test/myOutput",
+# )
+
+# cpacs_inout.add_output(
+#     var_name="surrogateModel",
+#     default_value=None,
+#     unit="1",
+#     descr="path of the trained surrogate model",
+#     xpath=SMTRAIN_XPATH + "/surrogateModelPath",
 # )

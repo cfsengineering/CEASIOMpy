@@ -99,7 +99,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="show_validation_plot",
     var_type=bool,
-    default_value=False,
+    default_value=True,
     unit=None,
     descr="Choose if the validation plot must be shown or not",
     xpath=SMTRAIN_XPATH + "/ValidationPlot",
@@ -126,7 +126,7 @@ cpacs_inout.add_input(
     default_value="angleOfAttack",
     descr="""Variable on X axe of Response Surface  \n Warning !
     The parameter name must match the ones in the CSV file !""",
-    xpath=SMTRAIN_RS + "/VariableOnX",
+    xpath=SMTRAIN_RS + "/VariableOnX/Variable",
     gui=include_gui,
     gui_name="Variable on X ",
     gui_group="Response Surface",
@@ -160,7 +160,7 @@ cpacs_inout.add_input(
     default_value="machNumber",
     descr="""Variable on Y axe of Response Surface \n Warning !
     The parameter name must match the ones in the CSV file !""",
-    xpath=SMTRAIN_RS + "/VariableOnY",
+    xpath=SMTRAIN_RS + "/VariableOnY/Variable",
     gui=include_gui,
     gui_name="Variable on Y",
     gui_group="Response Surface",
@@ -205,7 +205,7 @@ cpacs_inout.add_input(
     var_type=float,
     default_value="1000",
     descr="Value of the First Variable to mantain constant while the response surface is plotted",
-    xpath=SMTRAIN_RS + "/FirstConstantVariable/value",
+    xpath=SMTRAIN_RS + "/FirstConstantVariableValue",
     gui=include_gui,
     gui_name="Value of First Constant Variable",
     gui_group="Response Surface",
@@ -228,7 +228,7 @@ cpacs_inout.add_input(
     var_type=float,
     default_value="0",
     descr="Value of the Second Variable to mantain constant while the response surface is plotted",
-    xpath=SMTRAIN_RS + "/SecondConstantVariable/value",
+    xpath=SMTRAIN_RS + "/SecondConstantVariableValue",
     gui=include_gui,
     gui_name="Value of Second Constant Variable",
     gui_group="Response Surface",
@@ -258,7 +258,6 @@ cpacs_inout.add_input(
     gui_name="Fraction of new samples",
     gui_group="New Suggested Dataset",
 )
-
 
 cpacs_inout.add_input(
     var_name="number_of_samples",

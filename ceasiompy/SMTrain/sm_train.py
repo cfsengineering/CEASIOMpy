@@ -36,7 +36,7 @@ from ceasiompy.SMTrain.func.smT_func import (
     train_surrogate_model,
     save_model,
     plot_validation,
-    response_surface,
+    # response_surface,
     new_doe,
 )
 from pathlib import Path
@@ -60,6 +60,7 @@ def run_smTrain(cpacs_path, wkdir):
     fidelity_level, data_repartition, objective_coefficent = get_setting(cpacs_path)
     dataset_paths = get_paths(cpacs_path, fidelity_level)
     show_plot, new_dataset, fraction_of_new_samples = plots_and_new_dataset(cpacs_path)
+
     (
         response_surface_plot,
         x_rSurf,
@@ -70,15 +71,16 @@ def run_smTrain(cpacs_path, wkdir):
         y_rSurf_high_limit,
         const_var,
     ) = response_surface_inputs(cpacs_path)
-    datasets, columns = extract_data_set(dataset_paths, objective_coefficent, wkdir)
+    datasets = extract_data_set(dataset_paths, objective_coefficent, wkdir)
     X, y, X_train, X_test, X_val, y_train, y_test, y_val = split_data(datasets, data_repartition)
     model = train_surrogate_model(
-        fidelity_level, columns, X_train, X_test, X_val, y_train, y_test, y_val
+        fidelity_level, datasets, X_train, X_test, X_val, y_train, y_test, y_val
     )
     if show_plot is True:
+        log.info("Validation plots")
         plot_validation(model, X_test, y_test, objective_coefficent)
     if new_dataset is True:
-        new_doe(datasets, model, columns, fraction_of_new_samples, wkdir)
+        new_doe(datasets, model, fraction_of_new_samples, wkdir)
     # if response_surface_plot is True:
 
     return model

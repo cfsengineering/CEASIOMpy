@@ -30,7 +30,7 @@ from scipy.spatial.distance import cdist
 from framat import Model
 
 from cpacspy.cpacspy import CPACS
-from cpacspy.cpacsfunctions import get_value_or_default
+from cpacspy.cpacsfunctions import get_value_or_default, get_value
 from cpacspy.cpacsfunctions import open_tixi
 
 from ceasiompy.utils.commonxpath import (
@@ -407,16 +407,16 @@ def get_section_properties(cpacs_path):
     """
     cpacs = CPACS(cpacs_path)
 
-    area = get_value_or_default(cpacs.tixi, FRAMAT_SECTION_XPATH + "/Area", None)
-    Ix = get_value_or_default(cpacs.tixi, FRAMAT_SECTION_XPATH + "/Ix", None)
-    Iy = get_value_or_default(cpacs.tixi, FRAMAT_SECTION_XPATH + "/Iy", None)
+    area = get_value_or_default(cpacs.tixi, FRAMAT_SECTION_XPATH + "/Area", -1)
+    Ix = get_value_or_default(cpacs.tixi, FRAMAT_SECTION_XPATH + "/Ix", -1)
+    Iy = get_value_or_default(cpacs.tixi, FRAMAT_SECTION_XPATH + "/Iy", -1)
 
     return area, Ix, Iy
 
 
 def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, fxyz_tot, n_iter,
                            xyz_tip, tip_def, aera_profile, Ix_profile, Iy_profile, chord_profile,
-                           twist_profile, CASE_PATH, AVL_UNDEFORMED_PATH):
+                           twist_profile, CASE_PATH, AVL_UNDEFORMED_PATH, wg_scaling):
     """Function to create the beam nodes along the wing centerline.
 
     Function 'create_wing_centerline' creates the beam nodes along
@@ -487,8 +487,10 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
     _, _, _, Xle, Yle, Zle = interpolate_leading_edge(AVL_UNDEFORMED_PATH,
                                                       CASE_PATH,
                                                       wg_origin,
+                                                      wg_scaling,
                                                       y_queries=wing_df["y"].unique(),
-                                                      n_iter=n_iter)
+                                                      n_iter=n_iter,
+                                                      )
     leading_edge = []
     trailing_edge = []
 
@@ -675,6 +677,10 @@ def compute_cross_section(cpacs_path):
         wg_origin = [round(wg_sk_transf.translation.x, 3),
                      round(wg_sk_transf.translation.y, 3),
                      round(wg_sk_transf.translation.z, 3)]
+        
+        wg_scaling = [round(wing_transf.scaling.x, 3),
+                     round(wing_transf.scaling.y, 3),
+                     round(wing_transf.scaling.z, 3)]
 
         # Positionings
         if tixi.checkElement(wing_xpath + "/positionings"):
@@ -699,7 +705,7 @@ def compute_cross_section(cpacs_path):
                 # Get the corresponding translation of each positioning
                 pos_x_list.append(length * math.sin(sweep))
                 pos_y_list.append(length * math.cos(dihedral) * math.cos(sweep))
-                pos_z_list.append(length * math.sin(dihedral) * math.cos(sweep))
+                pos_z_list.append(length * math.sin(dihedral) * math.cos(sweep))              
 
                 # Get which section are connected by the positioning
                 if tixi.checkElement(pos_xpath + "/fromSectionUID"):
@@ -854,7 +860,7 @@ def compute_cross_section(cpacs_path):
 
     return (
         wg_origin, wg_twist_list, area_list, Ix_list, Iy_list,
-        wg_center_x_list, wg_center_y_list, wg_center_z_list, wg_chord_list
+        wg_center_x_list, wg_center_y_list, wg_center_z_list, wg_chord_list, wg_scaling
     )
 
 
@@ -942,7 +948,7 @@ def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):
                     deformed.write(line)
 
 
-def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, wg_origin, y_queries, n_iter):
+def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, wg_origin, wg_scaling, y_queries, n_iter):
     """Function to get the coordinates of the leading-edge points.
 
     Function 'interpolate_leading_edge' computes the coordinates of the leading-edge points
@@ -982,9 +988,9 @@ def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, wg_origin, y_querie
                 next_line = lines[i + 1].strip()
                 parts = next_line.split()
                 if n_iter == 1:
-                    Xle_list.append(float(parts[0]) + wg_origin[0])
-                    Yle_list.append(float(parts[1]) + wg_origin[1])
-                    Zle_list.append(float(parts[2]) + wg_origin[2])
+                    Xle_list.append(float(parts[0]) * wg_scaling[0] + wg_origin[0])
+                    Yle_list.append(float(parts[1]) * wg_scaling[1] + wg_origin[1])
+                    Zle_list.append(float(parts[2]) * wg_scaling[2] + wg_origin[2])
                 else:
                     Xle_list.append(float(parts[0]))
                     Yle_list.append(float(parts[1]))

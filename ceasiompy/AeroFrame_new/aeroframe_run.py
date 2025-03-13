@@ -124,7 +124,8 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         wg_center_x_list,
         wg_center_y_list,
         wg_center_z_list,
-        wg_chord_list
+        wg_chord_list,
+        wg_scaling
     ) = compute_cross_section(cpacs_path)
 
     # Get the properties of the wing material and the number of beam nodes to use
@@ -232,7 +233,8 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
                                    chord_profile,
                                    twist_profile,
                                    CASE_PATH,
-                                   AVL_UNDEFORMED_PATH)
+                                   AVL_UNDEFORMED_PATH,
+                                   wg_scaling)
 
         if n_iter == 1:
             undeformed_df = centerline_df_new.copy(deep=True)

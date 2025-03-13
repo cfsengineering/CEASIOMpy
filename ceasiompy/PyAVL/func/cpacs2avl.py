@@ -549,23 +549,15 @@ def convert_cpacs_to_avl(cpacs_path, wkdir):
 
                 # Apply scaling
                 for i, item in enumerate(prof_vect_x):
-                    # prof_vect_x[i] = (
-                    #     item * elem_transf.scaling.x * sec_transf.scaling.x * wing_transf.scaling.x
-                    # )
+                    # wing_transf.scaling removed
                     prof_vect_x[i] = (
                         item * elem_transf.scaling.x * sec_transf.scaling.x
                     )
                 for i, item in enumerate(prof_vect_y):
-                    # prof_vect_y[i] = (
-                    #     item * elem_transf.scaling.y * sec_transf.scaling.y * wing_transf.scaling.y
-                    # )
                     prof_vect_y[i] = (
                         item * elem_transf.scaling.y * sec_transf.scaling.y
                     )
                 for i, item in enumerate(prof_vect_z):
-                    # prof_vect_z[i] = (
-                    #     item * elem_transf.scaling.z * sec_transf.scaling.z * wing_transf.scaling.z
-                    # )
                      prof_vect_z[i] = (
                         item * elem_transf.scaling.z * sec_transf.scaling.z
                     )

@@ -677,7 +677,7 @@ def compute_cross_section(cpacs_path):
         wg_origin = [round(wg_sk_transf.translation.x, 3),
                      round(wg_sk_transf.translation.y, 3),
                      round(wg_sk_transf.translation.z, 3)]
-        
+
         wg_scaling = [round(wing_transf.scaling.x, 3),
                      round(wing_transf.scaling.y, 3),
                      round(wing_transf.scaling.z, 3)]
@@ -705,7 +705,7 @@ def compute_cross_section(cpacs_path):
                 # Get the corresponding translation of each positioning
                 pos_x_list.append(length * math.sin(sweep))
                 pos_y_list.append(length * math.cos(dihedral) * math.cos(sweep))
-                pos_z_list.append(length * math.sin(dihedral) * math.cos(sweep))              
+                pos_z_list.append(length * math.sin(dihedral) * math.cos(sweep))
 
                 # Get which section are connected by the positioning
                 if tixi.checkElement(pos_xpath + "/fromSectionUID"):

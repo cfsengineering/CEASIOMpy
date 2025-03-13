@@ -948,7 +948,11 @@ def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):
                     deformed.write(line)
 
 
-def interpolate_leading_edge(AVL_UNDEFORMED_PATH, CASE_PATH, wg_origin, wg_scaling, y_queries, n_iter):
+def interpolate_leading_edge(AVL_UNDEFORMED_PATH, 
+                             CASE_PATH, wg_origin, 
+                             wg_scaling, 
+                             y_queries, 
+                             n_iter):
     """Function to get the coordinates of the leading-edge points.
 
     Function 'interpolate_leading_edge' computes the coordinates of the leading-edge points

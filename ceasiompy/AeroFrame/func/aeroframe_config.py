@@ -42,7 +42,7 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
 from ceasiompy.utils.mathfunctions import euler2fix
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
-from ceasiompy.AeroFrame_new.func.aeroframe_utils import (
+from ceasiompy.AeroFrame.func.aeroframe_utils import (
     PolyArea,
     second_moments_of_area,
     rotate_3D_points

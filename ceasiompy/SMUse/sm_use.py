@@ -26,10 +26,11 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.SMUse.func.smUconfig import (
-    get_paths,
+    get_predictions_dataset,
     load_surrogate,
 )
-from ceasiompy.SMUse.func.smU_func import make_predictions, save_new_dataset
+from ceasiompy.SMUse.func.smUfunc import make_predictions, save_new_dataset
+from ceasiompy.SMUse.func.smUresults import get_smu_results
 
 log = get_logger()
 
@@ -47,13 +48,13 @@ MODULE_NAME = MODULE_DIR.name
 # =================================================================================================
 
 
-def run_smUse(cpacs_path):
-    model = load_surrogate(cpacs_path)
-    # aggiungere funzione per recuperare il path del dataset SMTrain
-    prediction_dataset = get_paths(cpacs_path)
-    predictions = make_predictions(prediction_dataset, model)
-
-    return prediction_dataset, predictions
+def run_smUse(cpacs_path, wkdir):
+    model, coefficient = load_surrogate(cpacs_path)
+    predictions_dataset_filtered, removed_columns, df = get_predictions_dataset(cpacs_path)
+    predictions = make_predictions(predictions_dataset_filtered, model)
+    save_new_dataset(
+        predictions_dataset_filtered, predictions, coefficient, removed_columns, df, wkdir
+    )
 
 
 # =================================================================================================
@@ -66,8 +67,8 @@ def main(cpacs_path, cpacs_out_path):
     log.info("----- Start of " + MODULE_NAME + " -----")
 
     result_dir = get_results_directory("SMUse")
-    pred_dataset, preds = run_smUse(cpacs_path)
-    save_new_dataset(pred_dataset, preds, result_dir, cpacs_path, cpacs_out_path)
+    run_smUse(cpacs_path, result_dir)
+    get_smu_results(cpacs_path, cpacs_out_path, result_dir)
 
     log.info("----- End of " + MODULE_NAME + " -----")
 

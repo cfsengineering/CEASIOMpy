@@ -28,10 +28,15 @@ def check_nan_inf(*arrays):
             print(f"Array {i} contiene Inf")
 
 
-def Kriging(
-    param_space, X_train, X_test, X_val, y_train, y_test, y_val, n_calls=50, random_state=42
-):
+def Kriging(param_space, sets, n_calls=10, random_state=42):  # MODIFICA NUMERO ITERAZIONI A 50
     """Train Kriging model using Bayesian optimization."""
+
+    X_train = sets["X_train"]
+    X_val = sets["X_val"]
+    X_test = sets["X_test"]
+    y_train = sets["y_train"]
+    y_val = sets["y_val"]
+    y_test = sets["y_test"]
 
     check_nan_inf(X_train, X_test, X_val, y_train, y_test, y_val)
 
@@ -83,20 +88,29 @@ def MF_Kriging(
     fidelity_level,
     datasets,
     param_space,
-    X_train,
-    X_test,
-    X_val,
-    y_train,
-    y_test,
-    y_val,
-    n_calls=30,
+    sets,
+    n_calls=10,  # MODIFICA NUMERO DI ITERAZIONI A  35
     random_state=42,
 ):
     """Train a multi-fidelity Kriging model with 2 or 3 fidelity levels."""
 
-    X_lf, y_lf, _ = datasets["first_dataset_path"]
+    X_train = sets["X_train"]
+    X_val = sets["X_val"]
+    X_test = sets["X_test"]
+    y_train = sets["y_train"]
+    y_val = sets["y_val"]
+    y_test = sets["y_test"]
+
+    if fidelity_level < 2 or fidelity_level > 3:
+        raise ValueError("fidelity_level must be 2 or 3.")
+
+    X_lf, y_lf, _ = datasets["level_1"]
+    X_mf, y_mf = None, None
+
     if fidelity_level == 3:
-        X_mf, y_mf, _ = datasets["second_dataset_path"]
+        if "level_2" not in datasets:
+            raise KeyError("Missing 'level_2' in datasets for fidelity_level=3.")
+        X_mf, y_mf, _ = datasets["level_2"]
 
     def objective(params):
         theta0, corr, poly, opt, nugget, rho_regr, lambda_penalty = params

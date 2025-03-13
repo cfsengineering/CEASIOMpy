@@ -11,7 +11,7 @@ from sklearn.model_selection import train_test_split
 import numpy as np
 from skopt.space import Real, Categorical
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import SMTRAIN_SM_XPATH
+from ceasiompy.utils.commonxpath import SM_XPATH, SMTRAIN_XPATH, SUGGESTED_POINTS_XPATH
 from cpacspy.cpacsfunctions import get_value_or_default, create_branch, add_value
 from ceasiompy.utils.moduleinterfaces import get_module_path
 from cpacspy.cpacspy import CPACS
@@ -25,68 +25,44 @@ log = get_logger()
 # =================================================================================================
 
 
-def extract_data_set(dataset_paths, objective_coefficient, result_dir):
+def filter_constant_columns(df, input_columns):
     """
-    Load datasets from the given paths, extract input and selected output columns,
-    remove constant input columns, and return them as numpy arrays for multifidelity Kriging.
+    Remove constant input columns from the dataset and store their values.
 
-    param dataset_paths: Dictionary containing dataset file paths.
-    param objective_coefficient: String indicating the output variable to extract
-    ('CL', 'CD', or 'CM').
-    return: Extracted data for available fidelity levels.
+    param df: DataFrame containing the dataset.
+    param input_columns: List of input column names to check.
+    return: DataFrame with constant columns removed, dictionary of removed columns and their values.
     """
-    input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
-    datasets = {}
+    columns_to_keep = [col for col in input_columns if df[col].nunique() > 1]
+    removed_columns = {col: df[col].iloc[0] for col in input_columns if col not in columns_to_keep}
 
-    for level, path in dataset_paths.items():
-        if path != "-":
+    if removed_columns:
+        print(f"Removing constant columns: {list(removed_columns.keys())}")
 
-            filename = os.path.basename(path)
-            output_file_path = os.path.join(result_dir, filename)
-
-            df = pd.read_csv(path)
-
-            # Check for missing input columns
-            missing_inputs = [col for col in input_columns if col not in df.columns]
-            if missing_inputs:
-                raise KeyError(f"Missing input columns in {level}: {missing_inputs}")
-
-            # Check if objective_coefficient exists in dataset
-            if objective_coefficient not in df.columns:
-                raise KeyError(
-                    f"Objective coefficient '{objective_coefficient}' not found in {level}"
-                )
-
-            # Remove constant input columns
-            columns_to_keep = [col for col in input_columns if df[col].nunique() > 1]
-            removed_columns = list(set(input_columns) - set(columns_to_keep))
-
-            if removed_columns:
-                print(f"Removing constant columns in {level}: {removed_columns}")
-                df = df[columns_to_keep + [objective_coefficient]]  # Keep only relevant columns
-                df.to_csv(output_file_path, index=False)  # Save the modified dataset
-
-            # Extract inputs and outputs
-            X = df[columns_to_keep].values
-            y = df[objective_coefficient].values
-            datasets[level] = (X, y, df)
-            print(f"x:{X}")
-            print(f"y:{y}")
-            print(f"df:{df}")
-
-    return datasets
+    return df[columns_to_keep], removed_columns
 
 
 def split_data(datasets, data_repartition, random_state=42):
-    """Divide the data into training, validation, and testing sets using only
-    the highest fidelity level dataset."""
+    """Divide the highest fidelity dataset into training, validation, and testing sets.
+
+    Args:
+        datasets (dict): Dictionary with fidelity levels as keys and (X, y) tuples as values.
+        data_repartition (float): Fraction of data to use for validation+test (e.g., 0.3 means 70% train, 15% val, 15% test).
+        random_state (int): Random seed for reproducibility.
+
+    Returns:
+        dict: Dictionary containing split datasets (X_train, X_val, X_test, y_train, y_val, y_test).
+    """
+
+    data_repartition = 1 - data_repartition
 
     if not datasets:
-        log.warning("Warning!")
+        log.warning("Datasets dictionary is empty. Returning None.")
+        return None
 
     # Find the dataset with the highest fidelity level (last in the dictionary)
-    highest_fidelity_level = list(datasets.keys())[-1]
-    log.info(f"Highest fidelity level dataset: {highest_fidelity_level}")
+    highest_fidelity_level = max(datasets.keys(), key=lambda k: int(k.split("_")[-1]))
+    log.info(f"Using highest fidelity dataset: {highest_fidelity_level}")
 
     # Extract X and y from the highest fidelity level dataset
     X = datasets[highest_fidelity_level][0]  # Inputs
@@ -111,7 +87,7 @@ def split_data(datasets, data_repartition, random_state=42):
 
     # Split into validation and test
     X_val, X_test, y_val, y_test = train_test_split(
-        X_t, y_t, test_size=0.5, random_state=random_state
+        X_t, y_t, test_size=0.3, random_state=random_state
     )
 
     log.info(f"X_val shape: {X_val.shape}, y_val shape: {y_val.shape}")
@@ -122,75 +98,58 @@ def split_data(datasets, data_repartition, random_state=42):
     log.info(f"X_test content: {X_test}")
     log.info(f"y_test content: {y_test}")
 
-    return X, y, X_train, X_test, X_val, y_train, y_test, y_val
+    return {
+        "X_train": X_train,
+        "X_val": X_val,
+        "X_test": X_test,
+        "y_train": y_train,
+        "y_val": y_val,
+        "y_test": y_test,
+    }
 
 
-def train_surrogate_model(
-    fidelity_level, datasets, X_train, X_test, X_val, y_train, y_test, y_val
-):
-
-    # hyperparam_space = [
-    #     Real(0.0001, 10, name="theta0"),  # Theta0 (continuo)
-    #     Categorical(
-    #         ["abs_exp", "squar_exp", "matern52", "matern32"], name="corr"
-    #     ),  # Tipo di correlazione
-    #     Categorical(["constant", "linear", "quadratic"], name="poly"),  # Tipo di regressione
-    #     Categorical(["Cobyla", "TNC"], name="opt"),
-    #     Real(1e-12, 1e-1, name="nugget"),
-    #     Categorical(["constant", "linear", "quadratic"], name="rho_regr"),
-    #     Real(0.1, 1, name="lambda_penalty"),
-    # ]
+def train_surrogate_model(fidelity_level, datasets, sets):
 
     hyperparam_space = [
-        Real(0.2, 0.21, name="theta0"),  # Theta0 (continuo)
-        Categorical(["abs_exp"], name="corr"),  # Tipo di correlazione
-        Categorical(["constant"], name="poly"),  # Tipo di regressione
-        Categorical(["Cobyla"], name="opt"),
-        Real(1e-12, 1e-11, name="nugget"),
-        Categorical(["constant"], name="rho_regr"),
-        Real(0.1, 0.11, name="lambda_penalty"),
+        Real(0.0001, 10, name="theta0"),
+        Categorical(["abs_exp", "squar_exp", "matern52", "matern32"], name="corr"),
+        Categorical(["constant", "linear", "quadratic"], name="poly"),
+        Categorical(["Cobyla", "TNC"], name="opt"),
+        Real(1e-12, 1e-1, name="nugget"),
+        Categorical(["constant", "linear", "quadratic"], name="rho_regr"),
+        Real(0.1, 1, name="lambda_penalty"),
     ]
 
     if fidelity_level == 1:
-        model = Kriging(hyperparam_space, X_train, X_test, X_val, y_train, y_test, y_val)
+        model = Kriging(hyperparam_space, sets)
 
     else:
-        model = MF_Kriging(
-            fidelity_level,
-            datasets,
-            hyperparam_space,
-            X_train,
-            X_test,
-            X_val,
-            y_train,
-            y_test,
-            y_val,
-        )
+        model = MF_Kriging(fidelity_level, datasets, hyperparam_space, sets)
 
     return model
 
 
-def save_model(model, cpacs_path, cpacs_out_path, result_dir):
+def save_model(model, coefficient_name, result_dir):
 
-    cpacs = CPACS(cpacs_path)
-
-    model_name = "surrogateModel.pkl"
+    model_name = f"surrogateModel_{coefficient_name}.pkl"
     model_path = os.path.join(result_dir, model_name)
 
-    create_branch(cpacs.tixi, SMTRAIN_SM_XPATH)
-    add_value(cpacs.tixi, SMTRAIN_SM_XPATH, model_path)
+    # Crea un dizionario con il modello e le informazioni sui metadati
+    model_metadata = {"model": model, "coefficient": coefficient_name}
 
     with open(model_path, "wb") as file:
-        pickle.dump(model, file)
+        pickle.dump(model_metadata, file)
 
     print(f"model path:{model_path}")
 
     log.info(f"Model saved to {model_path}")
-    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
 
-def plot_validation(model, X_test, y_test, label):
+def plot_validation(model, sets, label):
     """Crea un grafico Predicted vs Actual"""
+
+    X_test = sets["X_test"]
+    y_test = sets["y_test"]
 
     predictions, _ = make_predictions(model, X_test, y_test)
 
@@ -225,10 +184,11 @@ def new_doe(datasets, model, fraction_of_new_samples, result_dir):
     if fraction_of_new_samples <= 0:
         raise ValueError("fraction_of_new_samples must be greater than 0.")
 
-    highest_fidelity_level = list(datasets.keys())[-1]
-    log.info(f"Highest fidelity level dataset: {highest_fidelity_level}")
+    # Find the dataset with the highest fidelity level (last in the dictionary)
+    highest_fidelity_level = max(datasets.keys(), key=lambda k: int(k.split("_")[-1]))
+    log.info(f"Using highest fidelity dataset: {highest_fidelity_level}")
 
-    X, _, df = datasets[highest_fidelity_level]
+    X, _, df_filt, rmv_col, df = datasets[highest_fidelity_level]
 
     _, y_var = make_predictions(model, X)
 
@@ -242,13 +202,71 @@ def new_doe(datasets, model, fraction_of_new_samples, result_dir):
         log.warning("No new suggested points, file not created.")
         return
 
-    new_df = pd.DataFrame(top_X, columns=df.columns)
+    new_df = pd.DataFrame(top_X, columns=df_filt.columns)
+
+    for col, value in rmv_col.items():
+        new_df[col] = value
+
+    input_columns = df.columns[:4]
+    new_df = new_df[input_columns]
 
     filename = "suggested_points.csv"
     output_file_path = os.path.join(result_dir, filename)
     new_df.to_csv(output_file_path, index=False)
 
     log.info(f"New suggested points saved in {output_file_path}")
+
+
+# def extract_data_set(dataset_paths, objective_coefficient, result_dir):
+#     """
+#     Load datasets from the given paths, extract input and selected output columns,
+#     remove constant input columns, and return them as numpy arrays for multifidelity Kriging.
+
+#     param dataset_paths: Dictionary containing dataset file paths.
+#     param objective_coefficient: String indicating the output variable to extract
+#     ('CL', 'CD', or 'CM').
+#     return: Extracted data for available fidelity levels.
+#     """
+#     input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
+#     datasets = {}
+
+#     for level, path in dataset_paths.items():
+#         if path != "-":
+
+#             filename = os.path.basename(path)
+#             output_file_path = os.path.join(result_dir, filename)
+
+#             df = pd.read_csv(path)
+
+#             # Check for missing input columns
+#             missing_inputs = [col for col in input_columns if col not in df.columns]
+#             if missing_inputs:
+#                 raise KeyError(f"Missing input columns in {level}: {missing_inputs}")
+
+#             # Check if objective_coefficient exists in dataset
+#             if objective_coefficient not in df.columns:
+#                 raise KeyError(
+#                     f"Objective coefficient '{objective_coefficient}' not found in {level}"
+#                 )
+
+#             # Remove constant input columns
+#             columns_to_keep = [col for col in input_columns if df[col].nunique() > 1]
+#             removed_columns = list(set(input_columns) - set(columns_to_keep))
+
+#             if removed_columns:
+#                 print(f"Removing constant columns in {level}: {removed_columns}")
+#                 df = df[columns_to_keep + [objective_coefficient]]  # Keep only relevant columns
+#                 df.to_csv(output_file_path, index=False)  # Save the modified dataset
+
+#             # Extract inputs and outputs
+#             X = df[columns_to_keep].values
+#             y = df[objective_coefficient].values
+#             datasets[level] = (X, y, df)
+#             print(f"x:{X}")
+#             print(f"y:{y}")
+#             print(f"df:{df}")
+
+#     return datasets
 
 
 # def response_surface(model,

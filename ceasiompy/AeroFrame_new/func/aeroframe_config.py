@@ -679,8 +679,8 @@ def compute_cross_section(cpacs_path):
                      round(wg_sk_transf.translation.z, 3)]
 
         wg_scaling = [round(wing_transf.scaling.x, 3),
-                     round(wing_transf.scaling.y, 3),
-                     round(wing_transf.scaling.z, 3)]
+                      round(wing_transf.scaling.y, 3),
+                      round(wing_transf.scaling.z, 3)]
 
         # Positionings
         if tixi.checkElement(wing_xpath + "/positionings"):
@@ -948,10 +948,10 @@ def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):
                     deformed.write(line)
 
 
-def interpolate_leading_edge(AVL_UNDEFORMED_PATH, 
-                             CASE_PATH, wg_origin, 
-                             wg_scaling, 
-                             y_queries, 
+def interpolate_leading_edge(AVL_UNDEFORMED_PATH,
+                             CASE_PATH, wg_origin,
+                             wg_scaling,
+                             y_queries,
                              n_iter):
     """Function to get the coordinates of the leading-edge points.
 

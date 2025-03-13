@@ -1,5 +1,5 @@
 from pathlib import Path
-from ceasiompy.utils.commonxpath import SMUSE_XPATH, SMUSE_RS
+from ceasiompy.utils.commonxpath import SMUSE_XPATH, SM_XPATH
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 # from ceasiompy.utils.commonxpath import SMTRAIN_XPATH
@@ -27,21 +27,22 @@ cpacs_inout.add_input(
     var_type="pathtype",
     default_value="-",
     descr="File that contains a trained model",
-    xpath=SMUSE_XPATH + "/modelFile",
+    xpath=SM_XPATH,
     gui=include_gui,
     gui_name="Model to use",
-    gui_group="Prediction options",
+    gui_group="Model",
 )
 
 cpacs_inout.add_input(
     var_name="prediction_dataset",
-    var_type="pathtype",
-    default_value="-",
-    descr="CSV file with inputs to be predicted",
+    var_type=list,
+    default_value=None,
+    unit=None,
+    descr="Aeromap with inputs to be predicted",
     xpath=SMUSE_XPATH + "/predictionDataset",
     gui=include_gui,
-    gui_name="Prediction Dataset",
-    gui_group="Use options",
+    gui_name="__AEROMAP_CHECKBOX",
+    gui_group="Predictions Dataset",
 )
 
 

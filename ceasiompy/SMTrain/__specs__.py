@@ -2,7 +2,6 @@ from pathlib import Path
 from ceasiompy.utils.commonxpath import (
     SMTRAIN_XPATH,
     SMTRAIN_DOE,
-    SMTRAIN_RS,
     CEASIOMPY_XPATH,
 )
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
@@ -38,75 +37,18 @@ cpacs_inout.add_input(
     gui_group="Global Settings",
 )
 
-
-# cpacs_inout.add_input(
-#     var_name="training_dataset1",
-#     var_type="pathtype",
-#     default_value="-",
-#     descr="CSV file to be used to train a model",
-#     xpath=SMTRAIN_XPATH + "/csvPath1",
-#     gui=include_gui,
-#     gui_name="First training dataset",
-#     gui_group="Training Options",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="training_dataset2",
-#     var_type="pathtype",
-#     default_value="-",
-#     descr="CSV file to be used to train a model",
-#     xpath=SMTRAIN_XPATH + "/csvPath2",
-#     gui=include_gui,
-#     gui_name="Second Training dataset",
-#     gui_group="Training Options",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="training_dataset3",
-#     var_type="pathtype",
-#     default_value="-",
-#     descr="CSV file to be used to train a model",
-#     xpath=SMTRAIN_XPATH + "/csvPath3",
-#     gui=include_gui,
-#     gui_name="Third Training dataset",
-#     gui_group="Training Options",
-# )
-
 cpacs_inout.add_input(
-    var_name="training_dataset1",
+    var_name="training_datasets",
     var_type=list,
     default_value=None,
     unit=None,
-    descr="First training dataset",
-    xpath=SMTRAIN_XPATH + "/trainingDataset1",
+    descr="Select, in the RIGHT ORDER, training datasets from the aeromaps",
+    xpath=SMTRAIN_XPATH + "/aeromapForTraining",
     gui=include_gui,
     gui_name="__AEROMAP_CHECKBOX",
-    gui_group="First Dataset",
+    gui_group="Training Dataset",
 )
 
-cpacs_inout.add_input(
-    var_name="training_dataset2",
-    var_type=list,
-    default_value=None,
-    unit=None,
-    descr="Second training dataset",
-    xpath=SMTRAIN_XPATH + "/trainingDataset2",
-    gui=include_gui,
-    gui_name="__AEROMAP_CHECKBOX",
-    gui_group="Second Dataset",
-)
-
-cpacs_inout.add_input(
-    var_name="training_dataset3",
-    var_type=list,
-    default_value=None,
-    unit=None,
-    descr="Third training dataset",
-    xpath=SMTRAIN_XPATH + "/trainingDataset3",
-    gui=include_gui,
-    gui_name="__AEROMAP_CHECKBOX",
-    gui_group="Third Dataset",
-)
 
 cpacs_inout.add_input(
     var_name="trainig_part",
@@ -169,144 +111,95 @@ cpacs_inout.add_input(
     gui_group="New Suggested Dataset",
 )
 
+cpacs_inout.add_input(
+    var_name="designOfExperiments",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="""Choose if you want to start a Design of Experiments with the Latin 
+    Hypercube Sampling""",
+    xpath=SMTRAIN_DOE + "/newDoe",
+    gui=include_gui,
+    gui_name="Design of Experiments",
+    gui_group="Domain settings",
+)
 
-# cpacs_inout.add_input(
-#     var_name="response_surface",
-#     var_type=bool,
-#     default_value=False,
-#     unit=None,
-#     descr="Choose if the response surface must be shown or not",
-#     xpath=SMTRAIN_RS + "/Plot",
-#     gui=include_gui,
-#     gui_name="Response Surface",
-#     gui_group="Response Surface",
-# )
+cpacs_inout.add_input(
+    var_name="fidelity_level_doe",
+    var_type=list,
+    default_value=["One level", "Two level"],
+    unit=None,
+    descr="""Select if you want to train a simple Kriging (1 level of fidelity) or you want to
+    train a Multi-Fidelity Kriging with adaprive sampling""",
+    xpath=SMTRAIN_DOE + "/fidelityLevel",
+    gui=True,
+    gui_name="Choice of fidelity level",
+    gui_group="Domain settings",
+)
 
-# cpacs_inout.add_input(
-#     var_name="x_rSurf",
-#     var_type=str,
-#     default_value="angleOfAttack",
-#     descr="""Variable on X axe of Response Surface  \n Warning !
-#     The parameter name must match the ones in the CSV file !""",
-#     xpath=SMTRAIN_RS + "/VariableOnX/Variable",
-#     gui=include_gui,
-#     gui_name="Variable on X ",
-#     gui_group="Response Surface",
-# )
 
-# cpacs_inout.add_input(
-#     var_name="x_rSurf_low_limit",
-#     var_type=float,
-#     default_value="0.0",
-#     descr="Low limit of the Variable on X axe of Response Surface",
-#     xpath=SMTRAIN_RS + "/VariableOnX/LowLimit",
-#     gui=include_gui,
-#     gui_name="Low limit of the Variable on X ",
-#     gui_group="Response Surface",
-# )
+cpacs_inout.add_input(
+    var_name="useAVL",
+    var_type=bool,
+    default_value=True,
+    unit=None,
+    descr="""Choose if you want to use AVL for low fidelity simulation""",
+    xpath=SMTRAIN_DOE + "/AVL",
+    gui=include_gui,
+    gui_name="Use of AVL for low fidelity simulations",
+    gui_group="Domain settings",
+)
 
-# cpacs_inout.add_input(
-#     var_name="x_rSurf_high_limit",
-#     var_type=float,
-#     default_value="0.0",
-#     descr="High limit of the Variable on X axe of Response Surface",
-#     xpath=SMTRAIN_RS + "/VariableOnX/HighLimit",
-#     gui=include_gui,
-#     gui_name="High limit of the Variable on X ",
-#     gui_group="Response Surface",
-# )
+cpacs_inout.add_input(
+    var_name="useSU2",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="""Choose if you want to use SU2 for high fidelity simulations""",
+    xpath=SMTRAIN_DOE + "/SU2",
+    gui=include_gui,
+    gui_name="Use of SU2 for high fidelity simulations",
+    gui_group="Domain settings",
+)
 
-# cpacs_inout.add_input(
-#     var_name="y_rSurf",
-#     var_type=str,
-#     default_value="machNumber",
-#     descr="""Variable on Y axe of Response Surface \n Warning !
-#     The parameter name must match the ones in the CSV file !""",
-#     xpath=SMTRAIN_RS + "/VariableOnY/Variable",
-#     gui=include_gui,
-#     gui_name="Variable on Y",
-#     gui_group="Response Surface",
-# )
+cpacs_inout.add_input(
+    var_name="rmse_objective",
+    var_type=float,
+    default_value=0.05,
+    unit=None,
+    descr="Selects the model's RMSE threshold value for Bayesian optimisation",
+    xpath=SMTRAIN_DOE + "/rmseThreshold",
+    gui=include_gui,
+    gui_name="RMSE Threshold",
+    gui_group="Domain settings",
+)
 
-# cpacs_inout.add_input(
-#     var_name="y_rSurf_low_limit",
-#     var_type=float,
-#     default_value="0.0",
-#     descr="Low limit of the Variable on Y axe of Response Surface",
-#     xpath=SMTRAIN_RS + "/VariableOnY/LowLimit",
-#     gui=include_gui,
-#     gui_name="Low limit of the Variable on Y ",
-#     gui_group="Response Surface",
-# )
 
-# cpacs_inout.add_input(
-#     var_name="y_rSurf_high_limit",
-#     var_type=float,
-#     default_value="0.0",
-#     descr="High limit of the Variable on Y axe of Response Surface",
-#     xpath=SMTRAIN_RS + "/VariableOnY/HighLimit",
-#     gui=include_gui,
-#     gui_name="High limit of the Variable on Y",
-#     gui_group="Response Surface",
-# )
+cpacs_inout.add_input(
+    var_name="number_of_samples",
+    var_type=int,
+    default_value=100,  # devono essere 2 o piu!!
+    unit=None,
+    descr="Choose the number of samples",
+    xpath=SMTRAIN_DOE + "/nSamples",
+    gui=include_gui,
+    gui_name="Number of samples",
+    gui_group="Domain settings",
+)
 
-# cpacs_inout.add_input(
-#     var_name="first_constant_variable",
-#     var_type=str,
-#     default_value="altitude",
-#     descr="""Firts Variable to mantain constant while the response surface is plotted
-#     \n Warning ! The parameter name must match the ones in the CSV file !""",
-#     xpath=SMTRAIN_RS + "/FirstConstantVariable",
-#     gui=include_gui,
-#     gui_name="First Constant Variable",
-#     gui_group="Response Surface",
-# )
 
-# cpacs_inout.add_input(
-#     var_name="val_of_first_constant_variable",
-#     var_type=float,
-#     default_value="1000",
-#     descr="Value of the First Variable to mantain constant while the response surface is plotted",
-#     xpath=SMTRAIN_RS + "/FirstConstantVariableValue",
-#     gui=include_gui,
-#     gui_name="Value of First Constant Variable",
-#     gui_group="Response Surface",
-# )
+cpacs_inout.add_input(
+    var_name="dataset_for_doe",
+    var_type=list,
+    default_value=None,
+    unit=None,
+    descr="Select the aeromap with ranges for the Design of Experiments",
+    xpath=SMTRAIN_XPATH + "/aeromapForDoe",
+    gui=include_gui,
+    gui_name="__AEROMAP_CHECKBOX",
+    gui_group="Dataset with ranges",
+)
 
-# cpacs_inout.add_input(
-#     var_name="second_constant_variable",
-#     var_type=str,
-#     default_value="angleOfSideslip",
-#     descr="""Second Variable to mantain constant while the response surface is plotted
-#     \n Warning! The parameter name must match the ones in the CSV file !""",
-#     xpath=SMTRAIN_RS + "/SecondConstantVariable",
-#     gui=include_gui,
-#     gui_name="Second Constant Variable",
-#     gui_group="Response Surface",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="val_of_second_constant_variable",
-#     var_type=float,
-#     default_value="0",
-#     descr="Value of the Second Variable to mantain constant while the response surface is plotted",
-#     xpath=SMTRAIN_RS + "/SecondConstantVariableValue",
-#     gui=include_gui,
-#     gui_name="Value of Second Constant Variable",
-#     gui_group="Response Surface",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="number_of_samples",
-#     var_type=int,
-#     default_value=100,  # devono essere 2 o piu!!
-#     unit=None,
-#     descr="Choose the number of samples",
-#     xpath=SMTRAIN_DOE + "/nSamples",
-#     gui=include_gui,
-#     gui_name="Number of samples",
-#     gui_group="Domain settings",
-# )
 
 # cpacs_inout.add_input(
 #     var_name="altitude_low_limit",
@@ -358,7 +251,7 @@ cpacs_inout.add_input(
 
 # cpacs_inout.add_input(
 #     var_name="aoa_low_limit",
-#     var_type=int,
+#     var_type=float,
 #     default_value=0,
 #     unit=None,
 #     descr="Insert the AOA low limit",
@@ -370,7 +263,7 @@ cpacs_inout.add_input(
 
 # cpacs_inout.add_input(
 #     var_name="aoa_high_limit",
-#     var_type=int,
+#     var_type=float,
 #     default_value=0,
 #     unit=None,
 #     descr="Insert the AOA high limit",
@@ -382,7 +275,7 @@ cpacs_inout.add_input(
 
 # cpacs_inout.add_input(
 #     var_name="aos_low_limit",
-#     var_type=int,
+#     var_type=float,
 #     default_value=0,
 #     unit=None,
 #     descr="Insert the AOS low limit",
@@ -394,7 +287,7 @@ cpacs_inout.add_input(
 
 # cpacs_inout.add_input(
 #     var_name="aos_high_limit",
-#     var_type=int,
+#     var_type=float,
 #     default_value=0,
 #     unit=None,
 #     descr="Insert the AOS high limit",

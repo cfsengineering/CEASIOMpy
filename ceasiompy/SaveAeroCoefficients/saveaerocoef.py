@@ -26,10 +26,11 @@ import matplotlib.pyplot as plt
 import pandas as pd
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath, get_results_directory
-from ceasiompy.utils.commonxpath import PLOT_XPATH
+from ceasiompy.utils.commonxpath import PLOT_XPATH, RS_XPATH
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacspy import CPACS
+from ceasiompy.SaveAeroCoefficients.func.response_surface import plot_response_surface
 
 log = get_logger()
 
@@ -150,6 +151,10 @@ def save_aero_coef(cpacs_path, cpacs_out_path):
     alt_crit = get_value_or_default(cpacs.tixi, crit_xpath + "/alt", "None")
     mach_crit = get_value_or_default(cpacs.tixi, crit_xpath + "/mach", "None")
     aos_crit = get_value_or_default(cpacs.tixi, crit_xpath + "/aos", "None")
+
+    response_surface = get_value_or_default(cpacs.tixi, RS_XPATH + "/Plot", False)
+    if response_surface is True:
+        plot_response_surface(cpacs_path)
 
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 

@@ -49,12 +49,10 @@ MODULE_NAME = MODULE_DIR.name
 
 
 def run_smUse(cpacs_path, wkdir):
-    model, coefficient = load_surrogate(cpacs_path)
-    predictions_dataset_filtered, removed_columns, df = get_predictions_dataset(cpacs_path)
-    predictions = make_predictions(predictions_dataset_filtered, model)
-    save_new_dataset(
-        predictions_dataset_filtered, predictions, coefficient, removed_columns, df, wkdir
-    )
+    model, coefficient, removed_columns = load_surrogate(cpacs_path)
+    datasets = get_predictions_dataset(cpacs_path, removed_columns)
+    predictions = make_predictions(datasets, model)
+    save_new_dataset(datasets, predictions, coefficient, wkdir)
 
 
 # =================================================================================================

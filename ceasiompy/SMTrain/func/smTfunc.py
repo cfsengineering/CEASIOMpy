@@ -16,6 +16,8 @@ from cpacspy.cpacsfunctions import get_value_or_default, create_branch, add_valu
 from ceasiompy.utils.moduleinterfaces import get_module_path
 from cpacspy.cpacspy import CPACS
 from ceasiompy.SMTrain.func.surrogate import Kriging, MF_Kriging, make_predictions
+from ceasiompy.utils.ceasiompyutils import get_results_directory
+from smt.sampling_methods import LHS
 
 log = get_logger()
 
@@ -33,6 +35,7 @@ def filter_constant_columns(df, input_columns):
     param input_columns: List of input column names to check.
     return: DataFrame with constant columns removed, dictionary of removed columns and their values.
     """
+
     columns_to_keep = [col for col in input_columns if df[col].nunique() > 1]
     removed_columns = {col: df[col].iloc[0] for col in input_columns if col not in columns_to_keep}
 
@@ -129,18 +132,30 @@ def train_surrogate_model(fidelity_level, datasets, sets):
     return model
 
 
-def save_model(model, coefficient_name, result_dir):
+def save_model(model, coefficient_name, datasets, result_dir):
+
+    if not datasets:
+        log.warning("Datasets dictionary is empty. Returning None.")
+        return None
+
+    # Find the dataset with the highest fidelity level (last in the dictionary)
+    highest_fidelity_level = max(datasets.keys(), key=lambda k: int(k.split("_")[-1]))
+
+    # Extract removed columns
+    removed_columns = list(datasets[highest_fidelity_level][3].keys())
 
     model_name = f"surrogateModel_{coefficient_name}.pkl"
     model_path = os.path.join(result_dir, model_name)
 
     # Crea un dizionario con il modello e le informazioni sui metadati
-    model_metadata = {"model": model, "coefficient": coefficient_name}
+    model_metadata = {
+        "model": model,
+        "coefficient": coefficient_name,
+        "removed_columns": removed_columns,
+    }
 
     with open(model_path, "wb") as file:
         pickle.dump(model_metadata, file)
-
-    print(f"model path:{model_path}")
 
     log.info(f"Model saved to {model_path}")
 
@@ -153,7 +168,7 @@ def plot_validation(model, sets, label):
 
     predictions, _ = make_predictions(model, X_test, y_test)
 
-    plt.figure(figsize=(6, 6))
+    fig = plt.figure(figsize=(6, 6))
     plt.scatter(y_test, predictions, color="blue", alpha=0.5)
     plt.plot(
         [y_test.min(), y_test.max()],
@@ -165,7 +180,12 @@ def plot_validation(model, sets, label):
     plt.xlabel(f"Actual {label}")
     plt.ylabel(f"Predicted {label}")
     plt.grid()
-    plt.show()
+
+    results_dir = get_results_directory("SMTrain")
+    fig_name = "validatio_plot_" + label + ".png"
+    fig_path = Path(results_dir, fig_name)
+    plt.savefig(fig_path)
+    plt.close(fig)
 
 
 def new_doe(datasets, model, fraction_of_new_samples, result_dir):
@@ -217,122 +237,24 @@ def new_doe(datasets, model, fraction_of_new_samples, result_dir):
     log.info(f"New suggested points saved in {output_file_path}")
 
 
-# def extract_data_set(dataset_paths, objective_coefficient, result_dir):
-#     """
-#     Load datasets from the given paths, extract input and selected output columns,
-#     remove constant input columns, and return them as numpy arrays for multifidelity Kriging.
+def lh_sampling(n_samples, ranges, random_state=None):
 
-#     param dataset_paths: Dictionary containing dataset file paths.
-#     param objective_coefficient: String indicating the output variable to extract
-#     ('CL', 'CD', or 'CM').
-#     return: Extracted data for available fidelity levels.
-#     """
-#     input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
-#     datasets = {}
+    sampling = LHS(
+        xlimits=np.array(list(ranges.values())), criterion="ese", random_state=random_state
+    )
+    samples = sampling(n_samples)
 
-#     for level, path in dataset_paths.items():
-#         if path != "-":
+    # Map sampled values back to variable names
+    sampled_dict = {key: samples[:, idx] for idx, key in enumerate(ranges.keys())}
 
-#             filename = os.path.basename(path)
-#             output_file_path = os.path.join(result_dir, filename)
-
-#             df = pd.read_csv(path)
-
-#             # Check for missing input columns
-#             missing_inputs = [col for col in input_columns if col not in df.columns]
-#             if missing_inputs:
-#                 raise KeyError(f"Missing input columns in {level}: {missing_inputs}")
-
-#             # Check if objective_coefficient exists in dataset
-#             if objective_coefficient not in df.columns:
-#                 raise KeyError(
-#                     f"Objective coefficient '{objective_coefficient}' not found in {level}"
-#                 )
-
-#             # Remove constant input columns
-#             columns_to_keep = [col for col in input_columns if df[col].nunique() > 1]
-#             removed_columns = list(set(input_columns) - set(columns_to_keep))
-
-#             if removed_columns:
-#                 print(f"Removing constant columns in {level}: {removed_columns}")
-#                 df = df[columns_to_keep + [objective_coefficient]]  # Keep only relevant columns
-#                 df.to_csv(output_file_path, index=False)  # Save the modified dataset
-
-#             # Extract inputs and outputs
-#             X = df[columns_to_keep].values
-#             y = df[objective_coefficient].values
-#             datasets[level] = (X, y, df)
-#             print(f"x:{X}")
-#             print(f"y:{y}")
-#             print(f"df:{df}")
-
-#     return datasets
-
-
-# def response_surface(model,
-#     x_rs,
-#     x_rs_ll,
-#     x_rs_hl,
-#     y_rs,
-#     y_rs_ll,
-#     y_rs_hl,
-#     const_var,
-#     fidelity_level,
-#     datasets,
-# ):
-
-#     # X_lf, y_lf, _ = datasets["first_dataset_path"]
-#     # if fidelity_level >= 2:
-#     #     X_mf, y_mf, _ = datasets["second_dataset_path"]
-#     # if fidelity_level >= 3:
-#     #     X_hf, y_hf, _ = datasets["second_dataset_path"]
-
-#     # Find the dataset with the highest fidelity level (last in the dictionary)
-#     highest_fidelity_level = list(datasets.keys())[-1]
-#     log.info(f"Highest fidelity level dataset: {highest_fidelity_level}")
-
-#     # Extract X and y from the highest fidelity level dataset
-#     X, coeff, df = datasets[highest_fidelity_level]
-
-#     input_cols = df.columns[:-1]
-#     if x_rs not in input_cols or y_rs not in input_cols:
-#         log.warning("")
-
-#     x_grid = np.linspace(x_rs_ll, x_rs_hl, 50)
-#     y_grid = np.linspace(y_rs_ll, y_rs_hl, 50)
-#     X, Y = np.meshgrid(x_grid, y_grid)  # 2D grid
-
-#     input_data = pd.DataFrame(columns=input_cols)
-#     input_data[x_rs] = X.ravel()
-#     input_data[y_rs] = Y.ravel()
-
-#     for var in input_cols:
-#         if var not in [x_rs, y_rs]:
-#             input_data[var] = const_var.get(var)
-#         else:
-#             input_data[var] = df[var].mean()
-
-#     pred_values = make_predictions(model, input_data.to_numpy())
-#     Z = pred_values.reshape(X.shape)
-
-# fig = plt.figure(figsize=(12, 8))
-# ax = fig.add_subplot(111, projection="3d")
-
-# ax.plot_trisurf(x, y, z, cmap="viridis", alpha=0.5, edgecolor="none")
-# ax.set_xlabel(f"{x_rs}")
-# ax.set_ylabel(f"{y_rs}")
-# ax.set_zlabel("Predictions")
-# ax.set_title(f"Response Surface")
-# ax.view_init(elev=25, azim=45)
-# ax.legend()
-
-# colorbar = plt.colorbar(ax.collections[0], ax=ax, shrink=0.5, aspect=10)
-# colorbar.set_label("Predictions")
-
-# plt.show()
-
-
-# aeromap (x workflow)
+    # Post-process sampled data to apply precision constraints
+    for key in sampled_dict:
+        if key == "altitude":
+            sampled_dict[key] = np.round(sampled_dict[key]).astype(int)  # Convert to int
+        elif key == "machNumber":
+            sampled_dict[key] = np.round(sampled_dict[key] / 0.01) * 0.01  # Round to nearest 0.01
+        elif key in ["angleOfAttack", "angleOfSideslip"]:
+            sampled_dict[key] = np.round(sampled_dict[key] / 0.01) * 0.01  # Round to nearest 0.01
 
 
 # =================================================================================================

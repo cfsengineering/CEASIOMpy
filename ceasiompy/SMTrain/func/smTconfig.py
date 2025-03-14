@@ -7,7 +7,6 @@ import pandas as pd
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonxpath import (
     SMTRAIN_XPATH,
-    SMTRAIN_RS,
     SMTRAIN_DOE,
     SMTRAIN_SM_XPATH,
 )
@@ -15,6 +14,7 @@ from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.utils.moduleinterfaces import get_module_path
 from cpacspy.cpacspy import CPACS
 from ceasiompy.SMTrain.func.smTfunc import filter_constant_columns
+from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 
 log = get_logger()
 
@@ -56,63 +56,46 @@ def plots_and_new_dataset(cpacs_path):
     return show_plot, new_dataset, fraction_of_new_samples
 
 
-# def response_surface_inputs(cpacs_path):
+def retrieve_aeromap_data(cpacs, aeromap_uid, objective, objective_map):
 
-#     cpacs = CPACS(cpacs_path)
+    input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
 
-#     response_surface = get_value_or_default(cpacs.tixi, SMTRAIN_RS + "/Plot", False)
-#     x_rSurf = get_value_or_default(cpacs.tixi, SMTRAIN_RS + "/VariableOnX", "angleOfAttack")
-#     x_rSurf_low_limit = get_value_or_default(cpacs.tixi, SMTRAIN_RS + "/VariableOnX/LowLimit", 0.0)
-#     x_rSurf_high_limit = get_value_or_default(
-#         cpacs.tixi, SMTRAIN_RS + "/VariableOnX/HighLimit", 0.0
-#     )
-#     y_rSurf = get_value_or_default(cpacs.tixi, SMTRAIN_RS + "/VariableOnY", "machNumber")
-#     y_rSurf_low_limit = get_value_or_default(cpacs.tixi, SMTRAIN_RS + "/VariableOnY/LowLimit", 0.0)
-#     y_rSurf_high_limit = get_value_or_default(
-#         cpacs.tixi, SMTRAIN_RS + "/VariableOnY/HighLimit", 0.0
-#     )
-#     first_constant_variable = get_value_or_default(
-#         cpacs.tixi, SMTRAIN_RS + "/FirstConstantVariable", "altitude"
-#     )
-#     val_of_first_constant_variable = get_value_or_default(
-#         cpacs.tixi, SMTRAIN_RS + "/FirstConstantVariable/value", 1000
-#     )
-#     second_constant_variable = get_value_or_default(
-#         cpacs.tixi, SMTRAIN_RS + "/SecondConstantVariable", "angleOfSideslip"
-#     )
-#     val_of_second_constant_variable = get_value_or_default(
-#         cpacs.tixi, SMTRAIN_RS + "/SecondConstantVariable/value", 0
-#     )
+    activate_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
-#     const_var = {
-#         first_constant_variable: val_of_first_constant_variable,
-#         second_constant_variable: val_of_second_constant_variable,
-#     }
+    if activate_aeromap is None:
+        log.error(f"Aeromap {aeromap_uid} not found.")
+        raise ValueError(f"Aeromap {aeromap_uid} does not exist.")
 
-#     return (
-#         response_surface,
-#         x_rSurf,
-#         x_rSurf_low_limit,
-#         x_rSurf_high_limit,
-#         y_rSurf,
-#         y_rSurf_low_limit,
-#         y_rSurf_high_limit,
-#         const_var,
-#     )
+    # Crea il DataFrame per l'aeromap con le colonne richieste
+    df = pd.DataFrame(
+        {
+            "altitude": activate_aeromap.get("altitude").tolist(),
+            "machNumber": activate_aeromap.get("machNumber").tolist(),
+            "angleOfAttack": activate_aeromap.get("angleOfAttack").tolist(),
+            "angleOfSideslip": activate_aeromap.get("angleOfSideslip").tolist(),
+            objective_map[objective]: activate_aeromap.get(objective_map[objective]).tolist(),
+        }
+    )
+
+    # Filtra le colonne costanti
+    df_filtered, removed_columns = filter_constant_columns(df, input_columns)
+
+    # Estrai gli input e l'output
+    inputs = df_filtered.values
+    output = df[objective_map[objective]].values.reshape(-1, 1)
+
+    return inputs, output, df_filtered, removed_columns, df
 
 
 def get_datasets_from_aeromaps(cpacs_path, fidelity_level, objective):
     cpacs = CPACS(cpacs_path)
-    aeromap_list = cpacs.get_aeromap_uid_list()
 
-    if not aeromap_list:
+    aeromap_for_training_xpath = SMTRAIN_XPATH + "/aeromapForTraining"
+    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, aeromap_for_training_xpath)
+
+    if not aeromap_uid_list:
         log.error("No aeromaps found in the CPACS file.")
         raise ValueError("No aeromaps available.")
-
-    datasets = {}
-    aeromap_default = aeromap_list[0]  # Usa il primo aeromap come default
-
-    input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
 
     objective_map = {"cl": "cl", "cd": "cd", "cs": "cs", "cmd": "cmd", "cml": "cml", "cms": "cms"}
 
@@ -121,143 +104,63 @@ def get_datasets_from_aeromaps(cpacs_path, fidelity_level, objective):
             f"Invalid objective '{objective}'. Choose from {list(objective_map.keys())}."
         )
 
-    def retrieve_aeromap_data(aeromap_uid):
-        activate_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+    datasets = {}
 
-        print(activate_aeromap)
-
-        if not activate_aeromap:
-            log.error(f"Aeromap {aeromap_uid} not found.")
-            raise ValueError(f"Aeromap {aeromap_uid} does not exist.")
-
-        df = pd.DataFrame(
-            {
-                "altitude": activate_aeromap.get("altitude").tolist(),
-                "machNumber": activate_aeromap.get("machNumber").tolist(),
-                "angleOfAttack": activate_aeromap.get("angleOfAttack").tolist(),
-                "angleOfSideslip": activate_aeromap.get("angleOfSideslip").tolist(),
-                objective_map[objective]: activate_aeromap.get(objective_map[objective]).tolist(),
-            }
-        )
-
-        df_filtered, removed_columns = filter_constant_columns(
-            df, input_columns
-        )  # Rimuove colonne costanti
-
-        inputs = df_filtered.values
-        output = df[objective_map[objective]].values.reshape(-1, 1)
-
-        return inputs, output, df_filtered, removed_columns, df
-
-    for level in range(1, min(fidelity_level, 3) + 1):  # cosi al massimo 3 liveeli di fedelta'
-        aeromap_uid = get_value_or_default(
-            cpacs.tixi, f"{SMTRAIN_XPATH}/trainingDataset{level}", aeromap_default
-        )
-
+    # Ciclo su ciascun aeromap_uid e assegnazione del livello
+    for level, aeromap_uid in enumerate(aeromap_uid_list, start=1):
         log.info(f"Training dataset {level}: {aeromap_uid}")
 
         try:
-            datasets[f"level_{level}"] = retrieve_aeromap_data(aeromap_uid)
+            # Recupera i dati dell'aeromap per ogni livello e aggiungi al dizionario
+            datasets[f"level_{level}"] = retrieve_aeromap_data(
+                cpacs, aeromap_uid, objective, objective_map
+            )
         except ValueError as e:
-            log.warning(f"Skipping level {level} due to error: {e}")
+            log.warning(f"Skipping aeromap {aeromap_uid} due to error: {e}")
 
-    cpacs.save_cpacs(cpacs_path, overwrite=True)
-
+    log.info(f"datasets: {datasets}")
     return datasets
 
 
-# def get_datasets_from_aeromaps(cpacs_path, fidelity_level, objective):
-#     cpacs = CPACS(cpacs_path)
-#     aeromap_list = cpacs.get_aeromap_uid_list()
+def get_doe_settings(cpacs_path):
+    cpacs = CPACS(cpacs_path)
 
-#     if not aeromap_list:
-#         log.error("No aeromaps found in the CPACS file.")
-#         raise ValueError("No aeromaps available.")
+    doe = get_value_or_default(cpacs.tixi, SMTRAIN_DOE + "/newDoe", False)
+    fidelity_level_doe = get_value_or_default(
+        cpacs.tixi, SMTRAIN_DOE + "/fidelityLevel", "One Level"
+    )
+    avl = get_value_or_default(cpacs.tixi, SMTRAIN_DOE + "/AVL", True)
+    su2 = get_value_or_default(cpacs.tixi, SMTRAIN_DOE + "/SU2", False)
+    rmse_obj = get_value_or_default(cpacs.tixi, SMTRAIN_DOE + "/rmseThreshold", 0.05)
 
-#     aeromap_default = aeromap_list[0]  # Usa il primo aeromap come default
-#     datasets = {}
-#     objective_map = {
-#         "Total CL": "cl",
-#         "Total CD": "cd",
-#         "Total CM": "cmd",
-#     }
-
-#     if objective not in objective_map:
-#         raise ValueError(
-#             f"Invalid objective '{objective}'. Choose from {list(objective_map.keys())}."
-#         )
-
-#     # Funzione per recuperare i dati dall'aeromap
-#     def retrieve_aeromap_data(aeromap_uid):
-#         activate_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
-#         if not activate_aeromap:
-#             log.error(f"Aeromap {aeromap_uid} not found.")
-#             raise ValueError(f"Aeromap {aeromap_uid} does not exist.")
-
-#         alt_list = activate_aeromap.get("altitude").tolist()
-#         mach_list = activate_aeromap.get("machNumber").tolist()
-#         aoa_list = activate_aeromap.get("angleOfAttack").tolist()
-#         aos_list = activate_aeromap.get("angleOfSideslip").tolist()
-#         objective_list = activate_aeromap.get(objective_map[objective]).tolist()
-
-#         inputs = np.column_stack((alt_list, mach_list, aoa_list, aos_list))
-#         output = np.column_stack((objective_list))  # Mantiene la forma (N, 1)
-
-#         return inputs, output
-
-#     # Recupera il dataset per il primo livello di fedeltà
-#     if fidelity_level >= 1:
-#         aeromap_uid = get_value_or_default(
-#             cpacs.tixi, SMTRAIN_XPATH + "/trainingDataset1", aeromap_default
-#         )
-#         log.info(f"The first training dataset is {aeromap_uid}")
-#         inputs1, output1 = retrieve_aeromap_data(aeromap_uid)
-#         datasets["level_1"] = (inputs1, output1)
-
-#     # Recupera il dataset per il secondo livello di fedeltà
-#     if fidelity_level >= 2:
-#         aeromap_uid = get_value_or_default(
-#             cpacs.tixi, SMTRAIN_XPATH + "/trainingDataset2", aeromap_default
-#         )
-#         log.info(f"The second training dataset is {aeromap_uid}")
-#         inputs2, output2 = retrieve_aeromap_data(aeromap_uid)
-#         datasets["level_2"] = (inputs2, output2)
-
-#     # Recupera il dataset per il terzo livello di fedeltà
-#     if fidelity_level >= 3:
-#         aeromap_uid = get_value_or_default(
-#             cpacs.tixi, SMTRAIN_XPATH + "/trainingDataset3", aeromap_default
-#         )
-#         log.info(f"The third training dataset is {aeromap_uid}")
-#         inputs3, output3 = retrieve_aeromap_data(aeromap_uid)
-#         datasets["level_3"] = (inputs3, output3)
-
-#     # Salva i cambiamenti nel file CPACS
-#     cpacs.save_cpacs(cpacs_path, overwrite=True)
-
-#     return datasets
+    return doe, fidelity_level_doe, avl, su2, rmse_obj
 
 
 def DoE(cpacs_path):
     cpacs = CPACS(cpacs_path)
 
     n_samples = get_value_or_default(cpacs.tixi, SMTRAIN_XPATH + "/nSamples", 100)
+
+    aeromap_for_doe_xpath = SMTRAIN_XPATH + "/aeromapForDoe"
+    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, aeromap_for_doe_xpath)
+    aeromap_df = cpacs.get_aeromap_by_uid(aeromap_uid_list).df
+
     ranges = {
         "altitude": [
-            get_value_or_default(cpacs.tixi, SMTRAIN_DOE + "/altitudeMin", 0),
-            get_value_or_default(cpacs.tixi, SMTRAIN_DOE + "/altitudeMax", 1000),
+            aeromap_df["altitude"].iloc[0],
+            aeromap_df["altitude"].iloc[1],
         ],
-        "machNumber": [
-            get_value_or_default(cpacs.tixi, SMTRAIN_DOE + "/machNumberMin", 0),
-            get_value_or_default(cpacs.tixi, SMTRAIN_DOE + "/machNumberMax", 0.3),
+        "Mach": [
+            aeromap_df["Mach"].iloc[0],
+            aeromap_df["Mach"].iloc[1],
         ],
-        "angleOfAttack": [
-            get_value_or_default(cpacs.tixi, SMTRAIN_DOE + "/angleOfAttackMin", 0),
-            get_value_or_default(cpacs.tixi, SMTRAIN_DOE + "/angleOfAttackMax", 10),
+        "AoA": [
+            aeromap_df["AoA"].iloc[0],
+            aeromap_df["AoA"].iloc[1],
         ],
-        "angleOfSideslip": [
-            get_value_or_default(cpacs.tixi, SMTRAIN_DOE + "/angleOfSideslip", 0),
-            get_value_or_default(cpacs.tixi, SMTRAIN_DOE + "/angleOfSideslip", 0),
+        "AoS": [
+            aeromap_df["AoS"].iloc[0],
+            aeromap_df["AoS"].iloc[1],
         ],
     }
 

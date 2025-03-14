@@ -27,12 +27,15 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import subprocess
 import os
+import csv
 import glob
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import SM_XPATH, SUGGESTED_POINTS_XPATH
+from ceasiompy.utils.commonxpath import SM_XPATH, SUGGESTED_POINTS_XPATH, SMTRAIN_XPATH
 from cpacspy.cpacsfunctions import create_branch, add_value
 from cpacspy.cpacsfunctions import get_value
 from cpacspy.cpacspy import CPACS
+from ceasiompy.SMUse.func.smUconfig import load_surrogate
+import pickle
 
 log = get_logger()
 
@@ -50,6 +53,7 @@ log = get_logger()
 def get_smt_results(cpacs_path, cpacs_out_path, results_path):
     """
     Finds the files "suggested_points.csv" and "surrogateModel_*.pkl" in the results_path directory.
+    Updates the CPACS file with the paths.
 
     Args:
         cpacs_path (str): Path to the input CPACS file.
@@ -58,24 +62,22 @@ def get_smt_results(cpacs_path, cpacs_out_path, results_path):
     """
 
     cpacs = CPACS(cpacs_path)
+    input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
 
     # Path to "suggested_points.csv"
     suggested_points_path = os.path.join(results_path, "suggested_points.csv")
-
-    # Find the file "surrogateModel_*.pkl"
-    surrogate_model_files = glob.glob(os.path.join(results_path, "surrogateModel_*.pkl"))
-
-    if not os.path.exists(suggested_points_path):
+    if os.path.exists(suggested_points_path):
+        df = pd.read_csv(suggested_points_path)
+    else:
         print(f"File not found: {suggested_points_path}")
         suggested_points_path = None
 
-    if not surrogate_model_files:
+    # Find the surrogate model file
+    surrogate_model_files = glob.glob(os.path.join(results_path, "surrogateModel_*.pkl"))
+    surrogate_model_path = surrogate_model_files[0] if surrogate_model_files else None
+
+    if not surrogate_model_path:
         print("No surrogateModel_*.pkl file found.")
-        surrogate_model_path = None
-    else:
-        surrogate_model_path = surrogate_model_files[
-            0
-        ]  # Take the first file if there are multiple
 
     # Add suggested_points and surrogate_model path to CPACS
     if suggested_points_path:

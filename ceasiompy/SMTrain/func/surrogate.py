@@ -104,13 +104,13 @@ def MF_Kriging(
     if fidelity_level < 2 or fidelity_level > 3:
         raise ValueError("fidelity_level must be 2 or 3.")
 
-    X_lf, y_lf, _ = datasets["level_1"]
+    X_lf, y_lf, _, _, _ = datasets["level_1"]
     X_mf, y_mf = None, None
 
     if fidelity_level == 3:
         if "level_2" not in datasets:
             raise KeyError("Missing 'level_2' in datasets for fidelity_level=3.")
-        X_mf, y_mf, _ = datasets["level_2"]
+        X_mf, y_mf, _, _, _ = datasets["level_2"]
 
     def objective(params):
         theta0, corr, poly, opt, nugget, rho_regr, lambda_penalty = params

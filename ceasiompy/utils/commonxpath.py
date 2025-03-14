@@ -62,6 +62,7 @@ WEIGHT_XPATH = CEASIOMPY_XPATH + "/weight"
 
 CLCALC_XPATH = CEASIOMPY_XPATH + "/aerodynamics/clCalculation"
 PLOT_XPATH = CEASIOMPY_XPATH + "/aerodynamics/plotAeroCoefficient"
+RS_XPATH = PLOT_XPATH + "/responseSurface"
 
 SF_XPATH = CEASIOMPY_XPATH + "/aerodynamics/skinFriction"
 
@@ -236,8 +237,6 @@ AEROFRAME_SETTINGS = AEROFRAME_XPATH + "/Settings"
 SMTRAIN_XPATH = CEASIOMPY_XPATH + "/generalModules/smTrain"
 SMTRAIN_DOE = SMTRAIN_XPATH + "/DoE"
 SMTRAIN_SM_XPATH = SMTRAIN_XPATH + "/surrogateModelPath"
-SMTRAIN_RS = SMTRAIN_XPATH + "/responseSurface"
 
 # SMUse
 SMUSE_XPATH = CEASIOMPY_XPATH + "/generalModules/smUse"
-SMUSE_RS = SMUSE_XPATH + "/responseSurface"

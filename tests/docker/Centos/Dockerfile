@@ -24,7 +24,7 @@ RUN ./install_ceasiompy.sh
 RUN ./install_ceasiompy.sh
 RUN ./install_pyavl.sh
 RUN ./install_pytornado.sh
-RUN ./install_sumo.sh
+RUN ./install_sumo_new.sh
 RUN ./install_su2.sh
 RUN source ~/.bashrc
 

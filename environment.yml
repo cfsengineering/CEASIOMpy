@@ -48,6 +48,7 @@ dependencies:
     - om-pycycle
     - pytest==7.2.0
     - shapely
+    - skopt==0.9.0
     - smt==1.2.0
     - streamlit==1.14.0
     - streamlit-autorefresh

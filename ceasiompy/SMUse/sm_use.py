@@ -3,18 +3,17 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Small description of the script
+This script loads a pre-trained surrogate model and uses it to make aerodynamic predictions
+based on new input data. The results are then stored for further analysis.
 
 Python version: >=3.8
 
-| Author: Name
-| Creation: YEAR-MONTH-DAY
+| Author: Giacomo Gronda
+| Creation: 2025-03-20
 
 TODO:
-
     * Things to improve ...
     * Things to add ...
-
 """
 
 # =================================================================================================
@@ -49,6 +48,15 @@ MODULE_NAME = MODULE_DIR.name
 
 
 def run_smUse(cpacs_path, wkdir):
+    """
+    Load the surrogate model, prepare the dataset for predictions,
+    perform predictions, and save the new dataset.
+
+    Args:
+        cpacs_path (str): Path to the CPACS file.
+        wkdir (str): Working directory where results will be stored.
+    """
+
     model, coefficient, removed_columns = load_surrogate(cpacs_path)
     datasets = get_predictions_dataset(cpacs_path, removed_columns)
     predictions = make_predictions(datasets, model)

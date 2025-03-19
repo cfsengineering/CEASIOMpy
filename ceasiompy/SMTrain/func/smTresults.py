@@ -51,7 +51,8 @@ log = get_logger()
 
 
 def get_smt_results(cpacs_path, cpacs_out_path, results_path):
-    """
+    """Function to write SMTrain result in the CPACS file
+
     Finds the files "suggested_points.csv" and "surrogateModel_*.pkl" in the results_path directory.
     Updates the CPACS file with the paths.
 
@@ -69,7 +70,7 @@ def get_smt_results(cpacs_path, cpacs_out_path, results_path):
     if os.path.exists(suggested_points_path):
         df = pd.read_csv(suggested_points_path)
     else:
-        print(f"File not found: {suggested_points_path}")
+        log.info(f"File not found: {suggested_points_path}")
         suggested_points_path = None
 
     # Find the surrogate model file
@@ -77,7 +78,7 @@ def get_smt_results(cpacs_path, cpacs_out_path, results_path):
     surrogate_model_path = surrogate_model_files[0] if surrogate_model_files else None
 
     if not surrogate_model_path:
-        print("No surrogateModel_*.pkl file found.")
+        log.info("No surrogateModel_*.pkl file found.")
 
     # Add suggested_points and surrogate_model path to CPACS
     if suggested_points_path:
@@ -92,7 +93,7 @@ def get_smt_results(cpacs_path, cpacs_out_path, results_path):
     if suggested_points_path:
         aeromap = cpacs.create_aeromap_from_csv(suggested_points_path)
         aeromap.save()
-        print(f"New aeromap with suggested points: {aeromap}")
+        log.info(f"New aeromap with suggested points: {aeromap}")
 
     # Save the updated CPACS
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)

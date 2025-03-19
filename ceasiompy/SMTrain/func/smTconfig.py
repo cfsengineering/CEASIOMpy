@@ -210,19 +210,36 @@ def get_datasets_from_aeromaps(cpacs_path, fidelity_level, objective):
     cpacs = CPACS(cpacs_path)
     tixi = open_tixi(cpacs_path)
 
+    # If a csv file is provided is taken as aeromap, otherwise if SMTrain is in a Workflow with other
+    # modules, their results are taken as aeromap
+
+    # Check if 'aeromapForTraining' exists and is not empty
     if tixi.checkElement(SMTRAIN_XPATH + "/aeromapForTraining"):
-        aeromap_uid_list = get_aeromap_list_from_xpath(
-            cpacs, SMTRAIN_XPATH + "/aeromapForTraining"
-        )
+        aeromap_text = tixi.getTextElement(SMTRAIN_XPATH + "/aeromapForTraining").strip()
+        if aeromap_text:  # If it contains a valid value, use it
+            aeromap_uid_list = get_aeromap_list_from_xpath(
+                cpacs, SMTRAIN_XPATH + "/aeromapForTraining"
+            )
+        else:  # If empty, move to the next option
+            aeromap_uid_list = None
+    else:  # If the element does not exist, move to the next option
+        aeromap_uid_list = None
 
-    elif tixi.checkElement(AVL_AEROMAP_UID_XPATH):
-        aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, AVL_AEROMAP_UID_XPATH)
+    # If 'aeromapForTraining' is not valid, check 'AVL_AEROMAP_UID_XPATH'
+    if aeromap_uid_list is None and tixi.checkElement(AVL_AEROMAP_UID_XPATH):
+        avl_text = tixi.getTextElement(AVL_AEROMAP_UID_XPATH).strip()
+        if avl_text:  # If it contains a valid value, use it
+            aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, AVL_AEROMAP_UID_XPATH)
 
-    elif tixi.checkElement(SU2_AEROMAP_UID_XPATH):
-        aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, SU2_AEROMAP_UID_XPATH)
+    # If AVL is not valid, check 'SU2_AEROMAP_UID_XPATH'
+    if aeromap_uid_list is None and tixi.checkElement(SU2_AEROMAP_UID_XPATH):
+        su2_text = tixi.getTextElement(SU2_AEROMAP_UID_XPATH).strip()
+        if su2_text:  # If it contains a valid value, use it
+            aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, SU2_AEROMAP_UID_XPATH)
 
-    else:
-        aeromap_list = cpacs.get_aeromap_uid_list()
+    # If no valid aeromap is found, use the default method
+    if aeromap_uid_list is None:
+        aeromap_uid_list = cpacs.get_aeromap_uid_list()
 
     log.info(f"Aeromap list retrieved: {aeromap_uid_list}")
     # input()
@@ -232,8 +249,6 @@ def get_datasets_from_aeromaps(cpacs_path, fidelity_level, objective):
 
         log.error("No aeromaps found in the CPACS file.")
         raise ValueError("No aeromaps available.")
-
-    # if aeromap_uid_list[-1] !=
 
     objective_map = {"cl": "cl", "cd": "cd", "cs": "cs", "cmd": "cmd", "cml": "cml", "cms": "cms"}
 

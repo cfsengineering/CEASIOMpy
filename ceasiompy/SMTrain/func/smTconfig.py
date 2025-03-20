@@ -37,12 +37,12 @@ def get_settings(cpacs_path):
 
     Returns:
         tuple: A tuple containing the following settings:
-            - fidelity_level (str): Selected fidelity level (default: "One level").
-            - data_repartition (float): Training data percentage (default: 0.7).
-            - objective (str): Optimization objective, e.g., "cl" for lift coefficient (default: "cl").
-            - show_plot (bool): Whether to display validation plots (default: False).
-            - new_dataset (bool): Whether to generate a new dataset (default: False).
-            - fraction_of_new_samples (int): Factor for new dataset sample increase (default: 2).
+            - fidelity_level (str): Selected fidelity level
+            - data_repartition (float): Training data percentage
+            - objective (str): model objective
+            - show_plot (bool): Display or not validation plots
+            - new_dataset (bool):Generate or not a new dataset
+            - fraction_of_new_samples (int): Factor for new dataset sample (fraction respect old)
     """
 
     cpacs = CPACS(cpacs_path)
@@ -87,9 +87,9 @@ def get_doe_settings(cpacs_path):
 
     Returns:
         tuple: A tuple containing the following settings:
-            - doe (bool): Whether to use a new Design of Experiments (DoE) (default: False).
-            - avl_or_su2 (str): Selected aerodynamic solver, either "AVL" or "SU2" (default: "AVL").
-            - rmse_obj (float): Root Mean Square Error (RMSE) threshold for stopping criteria (default: 0.05).
+            - doe (bool): Whether to use a new Design of Experiments (DoE)
+            - avl_or_su2 (str): Selected aerodynamic solver, either "AVL" or "SU2"
+            - rmse_obj (float): Root Mean Square Error (RMSE) threshold for stopping criteria
     """
 
     cpacs = CPACS(cpacs_path)
@@ -172,9 +172,9 @@ def retrieve_aeromap_data(cpacs, aeromap_uid, objective, objective_map):
         }
     )
 
-    # Skip filtering if there is only one row
+    # Skip filtering if there is only one row (important for adaptive sampling)
     if len(df) == 1:
-        df_filtered = df.copy()
+        df_filtered = df.iloc[:, :4].copy()
         removed_columns = {}
     else:
         df_filtered, removed_columns = filter_constant_columns(df, input_columns)
@@ -210,8 +210,8 @@ def get_datasets_from_aeromaps(cpacs_path, fidelity_level, objective):
     cpacs = CPACS(cpacs_path)
     tixi = open_tixi(cpacs_path)
 
-    # If a csv file is provided is taken as aeromap, otherwise if SMTrain is in a Workflow with other
-    # modules, their results are taken as aeromap
+    # If a csv file is provided is taken as aeromap, otherwise if SMTrain is in a Workflow
+    # with other modules, their results are taken as aeromap
 
     # Check if 'aeromapForTraining' exists and is not empty
     if tixi.checkElement(SMTRAIN_XPATH + "/aeromapForTraining"):

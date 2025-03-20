@@ -9,7 +9,6 @@ import numpy as np
 import pickle
 from pathlib import Path
 from sklearn.model_selection import train_test_split
-import numpy as np
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonxpath import (
     AVL_AEROMAP_UID_XPATH,
@@ -48,18 +47,22 @@ log = get_logger()
 def split_data(datasets, data_repartition, val_test_size=0.3, random_state=42):
     """Function to split the highest fidelity dataset into training, validation, and testing sets.
 
-    The function takes a dictionary of datasets with different fidelity levels, identifies the highest fidelity dataset,
-    and splits it into training, validation, and test sets based on the specified proportions.
+    The function takes a dictionary of datasets with different fidelity levels, identifies the
+    highest fidelity dataset, and splits it into training, validation, and test sets based on the
+    specified proportions.
 
     Args:
-        datasets (dict): Dictionary where keys represent fidelity levels, and values are (X, y) tuples.
-        data_repartition (float): Fraction of data reserved for validation and test sets (e.g., 0.3 means 70% train, 15% val, 15% test).
-        val_test_size (float, optional): Proportion of validation+test data allocated to the test set (default is 0.5, meaning equal split).
+        datasets (dict): Dictionary where keys represent fidelity levels, and values are (X, y) tup
+        data_repartition (float): Fraction of data reserved for validation and test sets
+            (e.g., 0.3 means 70% train, 15% val, 15% test).
+        val_test_size (float, optional): Proportion of validation+test data allocated to the test
+            set (default is 0.3).
         random_state (int, optional): Random seed for reproducibility.
 
     Returns:
         dict: Dictionary containing the split datasets with keys:
-            - "X_train", "X_val", "X_test": Feature matrices for training, validation, and test sets.
+            - "X_train", "X_val", "X_test": Feature matrices for training, validation,
+                and test sets.
             - "y_train", "y_val", "y_test": Target values for training, validation, and test sets.
     """
 
@@ -96,8 +99,6 @@ def split_data(datasets, data_repartition, val_test_size=0.3, random_state=42):
         raise ValueError(f"Dataset '{highest_fidelity_level}' is incorrectly formatted.")
 
     log.info(f"Dataset shape - X: {X.shape}, y: {y.shape}")
-    log.info(f"Original X content: {X}")  ### DA TOGLIERE
-    log.info(f"Original y content: {y}")
 
     # Split into train and test/validation
     X_train, X_t, y_train, y_t = train_test_split(
@@ -106,16 +107,12 @@ def split_data(datasets, data_repartition, val_test_size=0.3, random_state=42):
 
     if X_t.shape[0] < 1:
         raise ValueError(
-            f"Not enough samples for validation and test with data_repartition={data_repartition}. "
+            f"Not enough samples for validation and test with data_repartition={data_repartition}"
             f"At least 1 samples is needed for test: avaiable {X_t.shape[0]}"
             f"Try to add some points or change '% of training data'"
         )
 
     log.info(f"Train size: {X_train.shape[0]}, Test+Validation size: {X_t.shape[0]}")
-    log.info(f"X_train content: {X_train}")  ### DA TOGLIERE
-    log.info(f"y_train content: {y_train}")
-    log.info(f"X_t content: {X_t}")  ### DA TOGLIERE
-    log.info(f"y_t content: {y_t}")
 
     # Split into validation and test
     X_val, X_test, y_val, y_test = train_test_split(
@@ -123,10 +120,6 @@ def split_data(datasets, data_repartition, val_test_size=0.3, random_state=42):
     )
 
     log.info(f"Validation size: {X_val.shape[0]}, Test size: {X_test.shape[0]}")
-    log.info(f"X_val content: {X_val}")  ### DA TOGLIERE
-    log.info(f"y_val content: {y_val}")
-    log.info(f"X_test content: {X_test}")
-    log.info(f"y_test content: {y_test}")
 
     return {
         "X_train": X_train,
@@ -172,16 +165,16 @@ def train_surrogate_model(fidelity_level, datasets, sets):
         poly_options = ["constant", "linear", "quadratic"]
         x = (n_features + 1) * (n_features + 2) / 2
         log.info(f"Training points (n_samples): {n_samples}>{x} -> poly_options: {poly_options}")
-    elif n_samples > (n_features + 1):
+    elif n_samples > (n_features + 2):
         poly_options = ["constant", "linear"]
         x = (n_features + 1) * (n_features + 2) / 2
-        y = n_features + 1
+        y = n_features + 2
         log.info(
             f"Training points (n_samples): {y}<{n_samples}<{x} -> poly_options: {poly_options}"
         )
     elif n_samples > 2:
         poly_options = ["constant"]
-        y = n_features + 1
+        y = n_features + 2
         log.info(f"Training points (n_samples): {n_samples}<{y} -> poly_options: {poly_options}")
     else:
         raise Warning(
@@ -465,12 +458,12 @@ def launch_avl(result_dir, cpacs_path, cpacs_tmp_cfg, objective):
     # Run AVL analysis
     result_dir = get_results_directory("PyAVL")
     run_avl(cpacs_path, result_dir)
-    get_avl_results(cpacs_path, cpacs_tmp_cfg, result_dir)
+    get_avl_results(cpacs_path, cpacs_path, result_dir)
 
     log.info("----- End of " + "PyAVL" + " -----")
 
     # Reload CPACS file with updated AVL results
-    cpacs = CPACS(cpacs_tmp_cfg)
+    cpacs = CPACS(cpacs_path)
 
     # Validate objective
     objective_map = {"cl": "cl", "cd": "cd", "cs": "cs", "cmd": "cmd", "cml": "cml", "cms": "cms"}
@@ -482,7 +475,7 @@ def launch_avl(result_dir, cpacs_path, cpacs_tmp_cfg, objective):
 
     # Retrieve aerodynamic data
     dataset = retrieve_aeromap_data(cpacs, aeromap.uid, objective, objective_map)
-    cpacs.save_cpacs(cpacs_tmp_cfg, overwrite=True)
+    cpacs.save_cpacs(cpacs_path, overwrite=True)
 
     log.info(f"AVL results extracted for {objective}:")
     log.info(dataset)
@@ -544,6 +537,7 @@ def launch_su2(
     log.info(f"Selected aeromap: {aeromap_uid}")
 
     # Determine SU2 configuration
+    cpacs = CPACS(cpacs_path)
     iterations = get_value_or_default(cpacs.tixi, SU2_MAX_ITER_XPATH, 2)
     nb_proc = get_value_or_default(cpacs.tixi, SU2_NB_CPU_XPATH, get_reasonable_nb_cpu())
     config_file_type = get_value_or_default(cpacs.tixi, SU2_CONFIG_RANS_XPATH, "Euler")

@@ -47,6 +47,7 @@ from ceasiompy.SMTrain.func.smTfunc import (
 from ceasiompy.SMTrain.func.smTresults import get_smt_results
 from pathlib import Path
 import pandas as pd
+import numpy as np
 
 log = get_logger()
 
@@ -158,15 +159,35 @@ def run_smTrain(cpacs_path, cpacs_tmp_cfg, wkdir):
                     high_variance_points,
                 )
 
-                # Append new data to the existing dataset (without overwriting)
                 if "level_2" in datasets:
-                    datasets["level_2"] = pd.concat(
-                        [datasets["level_2"], su2_dataset], ignore_index=True
-                    )
-                else:
-                    datasets["level_2"] = su2_dataset
+                    # Estrai i dati dalla tupla salvata
+                    X_old, y_old, df_old, removed_old, df_cl_old = datasets["level_2"]
+                    X_new, y_new, df_new, removed_new, df_cl_new = su2_dataset
 
-                log.info(datasets["level_2"])
+                    # Concatenazione degli array NumPy
+                    X_combined = np.vstack([X_old, X_new])  # Input
+                    y_combined = np.vstack([y_old, y_new])  # Output
+
+                    # Concatenazione dei DataFrame
+                    df_combined = pd.concat([df_old, df_new], ignore_index=True)
+                    df_cl_combined = pd.concat([df_cl_old, df_cl_new], ignore_index=True)
+
+                    # Il dizionario non cambia (assumendo che sia vuoto)
+                    removed_combined = (
+                        removed_old  # Se servisse modificarlo, dipende dal contenuto
+                    )
+
+                    # Ricostruzione della tupla aggiornata
+                    datasets["level_2"] = (
+                        X_combined,
+                        y_combined,
+                        df_combined,
+                        removed_combined,
+                        df_cl_combined,
+                    )
+
+                else:
+                    datasets["level_2"] = su2_dataset  # Primo inserimento
 
                 # Train multi-fidelity Kriging model
                 sets = split_data(datasets, 0.7, 0.5)

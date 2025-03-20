@@ -1,3 +1,23 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+Get settings from GUI. Manage datasets and perform LHS when required
+
+
+
+Python version: >=3.8
+
+| Author: Giacomo Gronda
+| Creation: 2025-03-20
+
+TODO:
+
+    *Move some functions to smTfunc (be careful with "mutual recursion" or "circular dependency")
+
+"""
+
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================

@@ -113,7 +113,7 @@ cpacs_inout.add_input(
     var_type=bool,
     default_value=False,
     unit=None,
-    descr="""Choose if you want to start a Design of Experiments with the Latin 
+    descr="""Choose if you want to start a Design of Experiments with the Latin
     Hypercube Sampling""",
     xpath=SMTRAIN_DOE + "/newDoe",
     gui=include_gui,

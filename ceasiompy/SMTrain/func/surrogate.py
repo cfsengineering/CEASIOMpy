@@ -1,3 +1,23 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+Manage Kriging and MF_Kriging algorithms + make predictions.
+
+
+Python version: >=3.8
+
+| Author: Giacomo Gronda
+| Creation: 2025-03-20
+
+TODO:
+
+    *Improve Bayesian optimization 
+    *Understand better poly from SMT (sometimes gives some problems)
+
+"""
+
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================

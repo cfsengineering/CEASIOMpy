@@ -16,7 +16,12 @@ Python version: >= 3.8
 
 TODO:
 
-    * Things to improve ...
+    * Create test function
+    * Adapt SaveAeroCoefficient for the adaptive sampling
+    * More test on adaptive sampling 
+    * Never tested with 3 levels of fidelity
+    * Define how to change AVL and SU2 settings 
+    
 
 """
 
@@ -127,7 +132,7 @@ def run_smTrain(cpacs_path, cpacs_tmp_cfg, wkdir):
 
             # Adaptive refinement: iterative improvement using SU2 high-fidelity data
             high_variance_points = []
-            max_iterations = len(avl_dataset)  ## Ensure the iteration limit is not exceeded
+            max_iterations = len(avl_dataset[0])  # Ensure the iteration limit is not exceeded X)
             iteration = 0
 
             rmse = float("inf")
@@ -139,7 +144,8 @@ def run_smTrain(cpacs_path, cpacs_tmp_cfg, wkdir):
                 # Check if new_point_df is empty (no new high-variance points available)
                 if new_point_df.empty:
                     log.warning(
-                        "No new high-variance points found. Ending refinement process and returning the current surrogate model."
+                        "No new high-variance points found. Ending refinement process and "
+                        "returning the current surrogate model."
                     )
                     break  # Exit loop and return the current model
 

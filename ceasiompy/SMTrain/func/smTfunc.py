@@ -1,3 +1,22 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+Many functions for SMTrain
+
+
+Python version: >=3.8
+
+| Author: Giacomo Gronda
+| Creation: 2025-03-20
+
+TODO:
+
+    *Improve loop and AVL and SU2 settings
+    
+"""
+
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
@@ -153,7 +172,8 @@ def train_surrogate_model(fidelity_level, datasets, sets):
         rmse (float): Root Mean Square Error of the trained model.
 
     Polynomial Selection Logic:
-        - If training samples > (n_features + 1) * (n_features + 2) / 2 → Use ["constant", "linear", "quadratic"]
+        - If training samples > (n_features + 1) * (n_features + 2) / 2 → Use
+            ["constant", "linear", "quadratic"]
         - If training samples > (n_features + 1) → Use ["constant", "linear"]
         - Otherwise → Use ["constant"]
     """
@@ -538,8 +558,8 @@ def launch_su2(
 
     # Determine SU2 configuration
     cpacs = CPACS(cpacs_path)
-    iterations = get_value_or_default(cpacs.tixi, SU2_MAX_ITER_XPATH, 2)
-    nb_proc = get_value_or_default(cpacs.tixi, SU2_NB_CPU_XPATH, get_reasonable_nb_cpu())
+    # iterations = get_value_or_default(cpacs.tixi, SU2_MAX_ITER_XPATH, 2)
+    # nb_proc = get_value_or_default(cpacs.tixi, SU2_NB_CPU_XPATH, get_reasonable_nb_cpu())
     config_file_type = get_value_or_default(cpacs.tixi, SU2_CONFIG_RANS_XPATH, "Euler")
 
     if config_file_type == "RANS":

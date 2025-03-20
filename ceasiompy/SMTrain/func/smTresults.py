@@ -3,14 +3,14 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Extract results from AVL calculations and save them in a CPACS file.
-Plot the lift distribution from AVL strip forces file 'fs.txt'.
-Convert AVL 'plot.ps' to 'plot.pdf'.
+Get suggested points and model paths and save them in CPACS File.
+Save new aeromap suggested points
+
 
 Python version: >=3.8
 
-| Author: Romain Gauthier
-| Creation: 2024-03-18
+| Author: Giacomo Gronda
+| Creation: 2025-03-20
 
 TODO:
 
@@ -53,8 +53,9 @@ log = get_logger()
 def get_smt_results(cpacs_path, cpacs_out_path, results_path):
     """Function to write SMTrain result in the CPACS file
 
-    Finds the files "suggested_points.csv" and "surrogateModel_*.pkl" in the results_path directory.
+    Finds the files "suggested_points.csv" and "surrogateModel_*.pkl" in the results_path directory
     Updates the CPACS file with the paths.
+    Add aeromap.
 
     Args:
         cpacs_path (str): Path to the input CPACS file.
@@ -63,12 +64,11 @@ def get_smt_results(cpacs_path, cpacs_out_path, results_path):
     """
 
     cpacs = CPACS(cpacs_path)
-    input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
 
     # Path to "suggested_points.csv"
     suggested_points_path = os.path.join(results_path, "suggested_points.csv")
     if os.path.exists(suggested_points_path):
-        df = pd.read_csv(suggested_points_path)
+        log.info(f"Suggested points path: {suggested_points_path}")
     else:
         log.info(f"File not found: {suggested_points_path}")
         suggested_points_path = None

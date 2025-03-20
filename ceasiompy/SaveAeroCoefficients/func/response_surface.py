@@ -41,7 +41,7 @@ log = get_logger()
 
 def plot_response_surface(cpacs_path):
     """
-    Generates and visualizes the response surface 
+    Generates and visualizes the response surface
     of an aerodynamic coefficient using a surrogate model.
 
     This function processes a CPACS file, extracts the necessary parameters for plotting,

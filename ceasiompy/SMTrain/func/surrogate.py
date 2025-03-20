@@ -13,7 +13,7 @@ Python version: >=3.8
 
 TODO:
 
-    *Improve Bayesian optimization 
+    *Improve Bayesian optimization
     *Understand better poly from SMT (sometimes gives some problems)
 
 """
@@ -139,7 +139,7 @@ def MF_Kriging(
     datasets,
     param_space,
     sets,
-    n_calls=30,  # changing the number of iteration (n_calls) speeds up the solution (low limit = 10)
+    n_calls=30,# changing the number of iteration (n_calls) speeds up the solution (low limit = 10)
     random_state=42,
 ):
     """

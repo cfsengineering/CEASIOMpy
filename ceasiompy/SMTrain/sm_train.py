@@ -4,9 +4,9 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Script to train a Surrogate Model in CEASIOMPY.
-The surrogate model can be trained either through a csv file containing the inputs and outputs, 
+The surrogate model can be trained either through a csv file containing the inputs and outputs,
 or by carrying out a Design of Experiments after providing the domain extremes.
-Either Kriging or Multi-Fidelity Kriging algorithm can be used, 
+Either Kriging or Multi-Fidelity Kriging algorithm can be used,
 depending on the level of fidelity chosen.
 
 Python version: >= 3.8
@@ -18,10 +18,10 @@ TODO:
 
     * Create test function
     * Adapt SaveAeroCoefficient for the adaptive sampling
-    * More test on adaptive sampling 
+    * More test on adaptive sampling
     * Never tested with 3 levels of fidelity
-    * Define how to change AVL and SU2 settings 
-    
+    * Define how to change AVL and SU2 settings
+
 
 """
 
@@ -32,13 +32,13 @@ TODO:
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.utils.ceasiompyutils import get_results_directory
-from ceasiompy.SMTrain.func.smTconfig import (
+from ceasiompy.SMTrain.func.smtconfig import (
     get_settings,
     get_doe_settings,
     DoE,
     get_datasets_from_aeromaps,
 )
-from ceasiompy.SMTrain.func.smTfunc import (
+from ceasiompy.SMTrain.func.smtfunc import (
     split_data,
     train_surrogate_model,
     save_model,
@@ -49,7 +49,7 @@ from ceasiompy.SMTrain.func.smTfunc import (
     launch_su2,
     new_points,
 )
-from ceasiompy.SMTrain.func.smTresults import get_smt_results
+from ceasiompy.SMTrain.func.smtresults import get_smt_results
 from pathlib import Path
 import pandas as pd
 import numpy as np

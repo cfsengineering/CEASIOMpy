@@ -20,7 +20,6 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import os
 from pathlib import Path
 
 import pyvista as pv
@@ -134,7 +133,7 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
         if not config_dir.is_dir():
             continue
 
-        surface_flow_path = Path(config_dir, SURFACE_FLOW_FILE_NAME)
+        #surface_flow_path = Path(config_dir, SURFACE_FLOW_FILE_NAME)
         # if surface_flow_path.exists() and "DISPLAY" in os.environ:
         #     save_screenshot(surface_flow_path, "Mach")
         #     save_screenshot(surface_flow_path, "Pressure_Coefficient")

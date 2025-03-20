@@ -6,9 +6,8 @@ from pathlib import Path
 import pandas as pd
 import pickle
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import SMUSE_XPATH, SMTRAIN_SM_XPATH, SM_XPATH
-from cpacspy.cpacsfunctions import get_value_or_default, get_value
-from ceasiompy.utils.moduleinterfaces import get_module_path
+from ceasiompy.utils.commonxpath import SMUSE_XPATH, SM_XPATH
+from cpacspy.cpacsfunctions import get_value
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 
@@ -54,7 +53,7 @@ def get_predictions_dataset(cpacs_path, removed_columns):
         log.info(f"Prediction dataset: {aeromap_uid}")
 
         # Define input feature names
-        input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
+        #input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
 
         # Ensure that the aeromap exists before processing
         if activate_aeromap is None:
@@ -102,7 +101,8 @@ def load_surrogate(cpacs_path):
         cpacs_path (str): Path to the CPACS file.
 
     Returns:
-        tuple: A tuple containing the trained model, the coefficient name, and the list of removed columns.
+        tuple: A tuple containing the trained model, 
+               the coefficient name, and the list of removed columns.
     """
 
     cpacs = CPACS(cpacs_path)

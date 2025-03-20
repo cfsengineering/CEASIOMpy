@@ -19,28 +19,16 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import os
 import matplotlib.pyplot as plt
-import matplotlib.tri as tri
 import pandas as pd
-import pickle
 from pathlib import Path
-from sklearn.model_selection import train_test_split
 import numpy as np
-from skopt.space import Real, Categorical
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import RS_XPATH, SM_XPATH, SMTRAIN_XPATH, PLOT_XPATH
-from cpacspy.cpacsfunctions import (
-    get_value_or_default,
-    create_branch,
-    add_value,
-    get_value,
-    open_tixi,
-)
-from ceasiompy.utils.moduleinterfaces import get_module_path
+from ceasiompy.utils.commonxpath import RS_XPATH, PLOT_XPATH
+from cpacspy.cpacsfunctions import (get_value_or_default)
 from cpacspy.cpacspy import CPACS
-from ceasiompy.SMUse.func.smUconfig import load_surrogate
-from ceasiompy.SMTrain.func.smTfunc import make_predictions
+from ceasiompy.SMUse.func.smuconfig import load_surrogate
+from ceasiompy.SMTrain.func.smtfunc import make_predictions
 from ceasiompy.utils.ceasiompyutils import get_results_directory, get_aeromap_list_from_xpath
 
 log = get_logger()
@@ -53,7 +41,8 @@ log = get_logger()
 
 def plot_response_surface(cpacs_path):
     """
-    Generates and visualizes the response surface of an aerodynamic coefficient using a surrogate model.
+    Generates and visualizes the response surface 
+    of an aerodynamic coefficient using a surrogate model.
 
     This function processes a CPACS file, extracts the necessary parameters for plotting,
     loads the surrogate model, and visualizes the predicted aerodynamic response surface.

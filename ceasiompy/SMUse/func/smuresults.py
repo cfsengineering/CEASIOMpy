@@ -9,8 +9,8 @@ Convert AVL 'plot.ps' to 'plot.pdf'.
 
 Python version: >=3.8
 
-| Author: Romain Gauthier
-| Creation: 2024-03-18
+| Author: Giacomo Gronda
+| Creation: 2025-03-20
 
 TODO:
 
@@ -22,16 +22,10 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-from pathlib import Path
 import pandas as pd
-import matplotlib.pyplot as plt
-import subprocess
 import os
-import glob
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import SM_PREDICTIONS, SMUSE_XPATH
-from cpacspy.cpacsfunctions import create_branch, add_value
-from cpacspy.cpacsfunctions import get_value
+from ceasiompy.utils.commonxpath import SMUSE_XPATH
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 

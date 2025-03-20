@@ -1,24 +1,10 @@
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
-import numpy as np
-import csv
+
 import os
-import pandas as pd
-import pickle
-import matplotlib as plt
-import matplotlib.tri as tri
-from pathlib import Path
-from sklearn.model_selection import train_test_split
-from skopt.space import Real, Categorical
 from ceasiompy.utils.ceasiomlogger import get_logger
 from smt.utils.misc import compute_rms_error
-from cpacspy.cpacsfunctions import get_value_or_default, add_value, create_branch, get_value
-from ceasiompy.utils.moduleinterfaces import get_module_path
-from cpacspy.cpacspy import CPACS
-from ceasiompy.SMTrain.func.surrogate import Kriging, MF_Kriging
-from smt.surrogate_models import KRG
-from smt.applications import MFK
 
 log = get_logger()
 
@@ -58,7 +44,8 @@ def make_predictions(datasets, model):
 
 def save_new_dataset(datasets, predictions_dict, coefficient, result_dir):
     """
-    Saves new datasets with predictions, ensuring correct column order and updating only necessary fields.
+    Saves new datasets with predictions, 
+    ensuring correct column order and updating only necessary fields.
 
     Parameters:
         datasets (dict): Dictionary containing multiple datasets.

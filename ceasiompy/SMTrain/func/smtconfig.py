@@ -28,12 +28,10 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonxpath import (
     SMTRAIN_XPATH,
     SMTRAIN_DOE,
-    SMTRAIN_SM_XPATH,
     AVL_AEROMAP_UID_XPATH,
     SU2_AEROMAP_UID_XPATH,
 )
 from cpacspy.cpacsfunctions import get_value_or_default, get_value, open_tixi
-from ceasiompy.utils.moduleinterfaces import get_module_path
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 

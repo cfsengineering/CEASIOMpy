@@ -22,19 +22,12 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-from pathlib import Path
-import pandas as pd
-import matplotlib.pyplot as plt
-import subprocess
 import os
-import csv
 import glob
 from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import SM_XPATH, SUGGESTED_POINTS_XPATH, SMTRAIN_XPATH
+from ceasiompy.utils.commonxpath import SM_XPATH, SUGGESTED_POINTS_XPATH
 from cpacspy.cpacsfunctions import create_branch, add_value
-from cpacspy.cpacsfunctions import get_value
 from cpacspy.cpacspy import CPACS
-from ceasiompy.SMUse.func.smUconfig import load_surrogate
 import pickle
 
 log = get_logger()

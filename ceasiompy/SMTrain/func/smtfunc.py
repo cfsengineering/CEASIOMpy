@@ -14,7 +14,7 @@ Python version: >=3.8
 TODO:
 
     *Improve loop and AVL and SU2 settings
-    
+
 """
 
 # ==============================================================================
@@ -32,20 +32,13 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonxpath import (
     AVL_AEROMAP_UID_XPATH,
     SU2_AEROMAP_UID_XPATH,
-    SU2_NB_CPU_XPATH,
     SU2_CONFIG_RANS_XPATH,
-    SU2_MAX_ITER_XPATH,
 )
 from cpacspy.cpacsfunctions import get_value_or_default, add_value, open_tixi
 from cpacspy.cpacspy import CPACS
-from ceasiompy.SMTrain.func.smTconfig import retrieve_aeromap_data
+from ceasiompy.SMTrain.func.smtconfig import retrieve_aeromap_data
 from ceasiompy.SMTrain.func.surrogate import Kriging, MF_Kriging, make_predictions
-from ceasiompy.utils.ceasiompyutils import (
-    get_results_directory,
-    run_module,
-    get_aeromap_list_from_xpath,
-    get_reasonable_nb_cpu,
-)
+from ceasiompy.utils.ceasiompyutils import (get_results_directory)
 from smt.sampling_methods import LHS
 from ceasiompy.PyAVL.avlrun import run_avl
 from ceasiompy.PyAVL.func.avlresults import get_avl_results

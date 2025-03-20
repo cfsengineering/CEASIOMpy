@@ -22,7 +22,6 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-from pathlib import Path
 import pandas as pd
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonxpath import (

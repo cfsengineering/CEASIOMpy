@@ -168,7 +168,7 @@ def run_smTrain(cpacs_path, cpacs_tmp_cfg, wkdir):
                 if "level_2" in datasets:
                     # Estrai i dati dalla tupla salvata
                     X_old, y_old, df_old, removed_old, df_cl_old = datasets["level_2"]
-                    X_new, y_new, df_new, removed_new, df_cl_new = su2_dataset
+                    X_new, y_new, df_new, _ , df_cl_new = su2_dataset
 
                     # Concatenazione degli array NumPy
                     X_combined = np.vstack([X_old, X_new])  # Input

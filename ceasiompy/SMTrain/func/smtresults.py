@@ -28,7 +28,6 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.commonxpath import SM_XPATH, SUGGESTED_POINTS_XPATH
 from cpacspy.cpacsfunctions import create_branch, add_value
 from cpacspy.cpacspy import CPACS
-import pickle
 
 log = get_logger()
 

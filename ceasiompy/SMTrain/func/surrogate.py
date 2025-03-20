@@ -77,7 +77,7 @@ def Kriging(
     check_nan_inf(X_train, X_test, X_val, y_train, y_test, y_val)
 
     def objective(params):
-        theta0, corr, poly, opt, nugget, rho_regr, lambda_penalty = params
+        theta0, corr, poly, opt, nugget, _, lambda_penalty = params
 
         # Initialize and train the Kriging model
         model = KRG(theta0=[theta0], corr=corr, poly=poly, hyper_opt=opt, nugget=nugget)

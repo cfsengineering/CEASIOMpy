@@ -610,7 +610,7 @@ def new_points(datasets, model, result_dir, high_variance_points):
 
     # Retrieve the first fidelity dataset
     first_dataset = datasets["level_1"]
-    X, y, df, _, _ = first_dataset  # Unpack dataset
+    X, _, df, _, _ = first_dataset  # Unpack dataset
 
     # Compute variance prediction
     _, y_var = make_predictions(model, X)

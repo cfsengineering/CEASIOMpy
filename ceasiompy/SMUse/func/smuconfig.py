@@ -53,7 +53,7 @@ def get_predictions_dataset(cpacs_path, removed_columns):
         log.info(f"Prediction dataset: {aeromap_uid}")
 
         # Define input feature names
-        #input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
+        # input_columns = ["altitude", "machNumber", "angleOfAttack", "angleOfSideslip"]
 
         # Ensure that the aeromap exists before processing
         if activate_aeromap is None:

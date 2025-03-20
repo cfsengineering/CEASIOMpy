@@ -88,7 +88,8 @@ def save_screenshot(surface_flow_file, scalar="Mach"):
 
 
 def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
-    """Function to write SU2 results in a CPACS file.
+    """
+    Function to write SU2 results in a CPACS file.
 
     Function 'get_su2_results' gets available results from the latest SU2 calculation and put them
     at the correct place in the CPACS file.

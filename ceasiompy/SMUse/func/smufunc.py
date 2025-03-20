@@ -44,7 +44,7 @@ def make_predictions(datasets, model):
 
 def save_new_dataset(datasets, predictions_dict, coefficient, result_dir):
     """
-    Saves new datasets with predictions, 
+    Saves new datasets with predictions,
     ensuring correct column order and updating only necessary fields.
 
     Parameters:

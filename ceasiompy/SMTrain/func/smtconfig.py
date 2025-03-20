@@ -44,7 +44,8 @@ log = get_logger()
 
 
 def get_settings(cpacs_path):
-    """Function to read the global and new suggested dataset settings from the aeromap
+    """
+    Function to read the global and new suggested dataset settings from the aeromap
 
     Function 'get_settings' reads the global and new suggested dataset settings
     from the graphical user interface

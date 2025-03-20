@@ -101,7 +101,7 @@ def load_surrogate(cpacs_path):
         cpacs_path (str): Path to the CPACS file.
 
     Returns:
-        tuple: A tuple containing the trained model, 
+        tuple: A tuple containing the trained model,
                the coefficient name, and the list of removed columns.
     """
 

@@ -447,7 +447,7 @@ def generate_su2_cfd_config(cpacs_path, cpacs_out_path, wkdir):
     else:
         cfg["CFL_ADAPT"] = "NO"
 
-    cfg["INNER_ITER"] = int(get_value_or_default(cpacs.tixi, SU2_MAX_ITER_XPATH, 200))
+    cfg["INNER_ITER"] = int(get_value_or_default(cpacs.tixi, SU2_MAX_ITER_XPATH, 100))
     cfg["CFL_NUMBER"] = get_value_or_default(cpacs.tixi, SU2_CFL_NB_XPATH, 1.0)
     cfg["CFL_ADAPT_PARAM"] = f"( {cfl_down}, {cfl_up}, {cfl_min}, {cfl_max} )"
     cfg["MGLEVEL"] = int(get_value_or_default(cpacs.tixi, SU2_MG_LEVEL_XPATH, 3))

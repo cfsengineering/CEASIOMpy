@@ -40,11 +40,6 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
     Source :
         * For CPACSCreator https://github.com/cfsengineering/CPACSCreator
-
-    Args:
-        cpacs_path (Path): Path to the input CPACS file.
-        cpacs_out_path (Path): Path to the output CPACS file.
-
     """
 
     cpacs_in = cpacs.cpacs_file

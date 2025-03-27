@@ -45,9 +45,9 @@ class CeasiompyTest(unittest.TestCase):
         # When the function to test f returns a single value
         # then it is not of type tuple.
         # We make the following adjustment.
-        if not isinstance(actual, tuple):
+        if not isinstance(actual, tuple) and isinstance(expected, tuple):
             actual = (actual,)
-
+            
         self.assertEqual(len(actual), len(expected), "Number of outputs does not match.")
         for act, exp in zip(actual, expected):
             self.assertEqual(act, approx(exp))

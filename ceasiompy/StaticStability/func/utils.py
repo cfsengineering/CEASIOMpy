@@ -43,6 +43,10 @@ def markdownpy_to_markdown(md: MarkdownDoc, table: List[List[str]]) -> None:
         md.p(Table(table).write())
         md.line()
 
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
 
 if __name__ == "__main__":
     log.info("Nothing to execute.")

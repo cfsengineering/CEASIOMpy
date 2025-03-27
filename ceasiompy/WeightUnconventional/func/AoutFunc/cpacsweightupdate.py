@@ -19,9 +19,8 @@ Python version: >=3.8
 
 from cpacspy.cpacsfunctions import add_uid, create_branch, open_tixi
 from ceasiompy.utils.commonxpath import CREW_XPATH, MASSBREAKDOWN_XPATH, PASS_XPATH
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 
-log = get_logger()
 
 
 # =============================================================================

@@ -16,7 +16,7 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.commonpaths import LOGFILE
 
 
@@ -36,8 +36,7 @@ def test_logger():
     """
 
     # Set logger name and create a logger with this name
-    log = get_logger()
-
+    
     # Use the 5 log level
     log.debug("Test debug")
     log.info("Test info")

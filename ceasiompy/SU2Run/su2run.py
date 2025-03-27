@@ -9,13 +9,11 @@ Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2018-11-06
+| Modified: Leon Deligny
+| Date: 24-Feb-2025
 
 TODO:
-
-    * Create test functions
-    * complete input/output in __specs__
-    * Check platform with-> sys.platform
-    * Move run_SU2_fsi to /SU2Run/func/su2fsi.py
+    * Check platform with -> sys.platform
 
 """
 
@@ -23,113 +21,110 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-from pathlib import Path
+from cpacspy.cpacsfunctions import get_value
+from ceasiompy.SU2Run.func.results import get_su2_results
+from ceasiompy.SU2Run.func.runconfigfiles import run_SU2_multi
 
-from ceasiompy.SU2Run.func.su2config import generate_su2_cfd_config
-from ceasiompy.SU2Run.func.su2config_rans import generate_su2_cfd_config_rans
-from ceasiompy.SU2Run.func.su2results import get_su2_results
-from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import (
-    get_reasonable_nb_cpu,
-    get_results_directory,
-    run_software,
+    call_main,
+    check_nb_cpu,
 )
-from ceasiompy.utils.commonnames import CONFIG_CFD_NAME, SU2_FORCES_BREAKDOWN_NAME
-from ceasiompy.utils.commonxpath import SU2_NB_CPU_XPATH, SU2_CONFIG_RANS_XPATH
-from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from cpacspy.cpacsfunctions import get_value_or_default, open_tixi
 
-log = get_logger()
+from ceasiompy.SU2Run.func.config import (
+    define_markers,
+    load_su2_mesh_paths,
+    generate_su2_cfd_config,
+)
 
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
+from pathlib import Path
+from cpacspy.cpacspy import CPACS
 
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
+from ceasiompy import log
+
+from ceasiompy.utils.commonxpath import (
+    SU2_NB_CPU_XPATH,
+    SU2_CONFIG_RANS_XPATH,
+    SU2_DYNAMICDERIVATIVES_BOOL_XPATH,
+)
 
 
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
-
-def run_SU2_multi(wkdir, nb_proc=1):
-    """Function to run a multiple SU2 calculation.
-
-    Function 'run_SU2_multi' will run in the given working directory SU2 calculations. The working
-    directory must have a folder structure created by 'SU2Config' module.
-
-    Args:
-        wkdir (Path): Path to the working directory
-        nb_proc (int): Number of processor that should be used to run the calculation in parallel
-    """
-
-    if not wkdir.exists():
-        raise OSError(f"The working directory : {wkdir} does not exit!")
-
-    case_dir_list = [dir for dir in wkdir.iterdir() if "Case" in dir.name]
-    if not case_dir_list:
-        raise OSError(f"No Case directory has been found in the working directory: {wkdir}")
-
-    for config_dir in sorted(case_dir_list):
-        config_cfd = [c for c in config_dir.iterdir() if c.name == CONFIG_CFD_NAME]
-
-        if not config_cfd:
-            raise ValueError(f"No '{CONFIG_CFD_NAME}' file has been found in this directory!")
-
-        if len(config_cfd) > 1:
-            raise ValueError(f"More than one '{CONFIG_CFD_NAME}' file in this directory!")
-
-        run_software(
-            software_name="SU2_CFD",
-            arguments=[config_cfd[0]],
-            wkdir=config_dir,
-            with_mpi=True,
-            nb_cpu=nb_proc,
-        )
-
-        forces_breakdown_file = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
-        if not forces_breakdown_file.exists():
-            raise ValueError(
-                "The SU2_CFD calculation has not ended correctly,"
-                f"{SU2_FORCES_BREAKDOWN_NAME} is missing!"
-            )
-
+from ceasiompy.SU2Run import *
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
 
-def main(cpacs_path, cpacs_out_path):
-    log.info("----- Start of " + MODULE_NAME + " -----")
+def main(cpacs: CPACS, wkdir: Path) -> None:
+    """
+    SU2Run module is decomposed into 4 parts.
 
-    tixi = open_tixi(cpacs_path)
-    nb_proc = get_value_or_default(tixi, SU2_NB_CPU_XPATH, get_reasonable_nb_cpu())
+        1. Retrieve the correct .su2 mesh files to run in SU2 software.
+        2. For each .su2 file create a .cfg configuration for SU2.
+        3. Run each .cfg file in SU2.
+        4. Retrieve SU2 results.
 
-    results_dir = get_results_directory("SU2Run")
+    Args:
+        cpacs (CPACS): Input CPACS file.
+        wkdir (Path): Results directory (where to store the results).
 
-    # Temporary CPACS to be stored after "generate_su2_cfd_config"
-    cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")
+    Raises:
+        ValueError: If .su2 mesh files are not found.
 
-    config_file_type = get_value_or_default(tixi, SU2_CONFIG_RANS_XPATH, "Euler")
+    """
 
-    if config_file_type == "RANS":
-        log.info("RANS simulation")
-        generate_su2_cfd_config_rans(cpacs_path, cpacs_tmp_cfg, results_dir)
-    else:
-        log.info("Euler simulation")
-        generate_su2_cfd_config(cpacs_path, cpacs_tmp_cfg, results_dir)
+    # Define variable
+    tixi = cpacs.tixi
 
-    run_SU2_multi(results_dir, nb_proc)
-    get_su2_results(cpacs_tmp_cfg, cpacs_out_path, results_dir)
+    # Define constants
+    nb_proc = get_value(tixi, SU2_NB_CPU_XPATH)
+    config_file_type = get_value(tixi, SU2_CONFIG_RANS_XPATH)
+    rans = (config_file_type == "RANS")
 
-    log.info("----- End of " + MODULE_NAME + " -----")
+    #
+    # Check that the number of used CPUs is correct
+    check_nb_cpu(nb_proc)
+
+    # 1. Load .su2 mesh files
+    su2_mesh_paths, dynstab_su2_mesh_paths = load_su2_mesh_paths(tixi, wkdir)
+    if not su2_mesh_paths:
+        raise ValueError("List of su2 mesh paths is empty.")
+    if not dynstab_su2_mesh_paths:
+        raise ValueError("List of Dynamic Stability su2 mesh paths is empty.")
+
+    mesh_markers = define_markers(tixi, su2_mesh_paths[0])
+
+    # 2. Create configuration files
+    if get_value(tixi, SU2_DYNAMICDERIVATIVES_BOOL_XPATH):
+        log.info("----- Generating Dynamic Stability ConfigFile -----")
+
+        generate_su2_cfd_config(
+            cpacs=cpacs,
+            wkdir=wkdir,
+            su2_mesh_paths=dynstab_su2_mesh_paths,
+            mesh_markers=mesh_markers,
+            dyn_stab=True,
+            rans=rans,
+        )
+
+    log.info(f"----- Generating {config_file_type} ConfigFile -----")
+    generate_su2_cfd_config(
+        cpacs=cpacs,
+        wkdir=wkdir,
+        su2_mesh_paths=su2_mesh_paths,
+        mesh_markers=mesh_markers,
+        dyn_stab=False,
+        rans=rans,
+    )
+
+    # 3. Run each configuration file in SU2
+    log.info(f"----- Running  {config_file_type} simulations -----")
+    run_SU2_multi(wkdir, nb_proc)
+
+    # 4. Retrieve SU2 results
+    log.info(f"----- Updating CPACS and accessing results -----")
+    get_su2_results(cpacs, wkdir)
 
 
 if __name__ == "__main__":
-    cpacs_path = get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
-
-    main(cpacs_path, cpacs_out_path)
+    call_main(main, MODULE_NAME)

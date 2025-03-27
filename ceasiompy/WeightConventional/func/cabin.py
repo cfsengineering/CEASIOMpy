@@ -18,7 +18,7 @@ Python version: >=3.8
 
 import math
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.commonxpath import (
     WB_ABREAST_NB_XPATH,
     WB_AISLE_WIDTH_XPATH,
@@ -42,7 +42,6 @@ from ceasiompy.WeightConventional.func.weightutils import (
 )
 from cpacspy.cpacsfunctions import add_value, get_value_or_default
 
-log = get_logger()
 
 
 # =================================================================================================
@@ -238,4 +237,4 @@ def stringed_seat_row(abreast_nb):
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

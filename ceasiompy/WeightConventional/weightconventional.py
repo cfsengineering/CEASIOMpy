@@ -29,7 +29,7 @@ from ceasiompy.WeightConventional.func.cabin import Cabin
 from ceasiompy.WeightConventional.func.masses import AircfaftMasses
 
 from ceasiompy.utils.InputClasses.Conventional.weightconvclass import InsideDimensions
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.commonxpath import TURBOPROP_XPATH, WB_DOUBLE_FLOOR_XPATH
 
@@ -45,15 +45,7 @@ from ceasiompy.WeightConventional.func.weightutils import PILOT_NB
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacspy import CPACS
 
-log = get_logger()
-
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
+from ceasiompy.WeightConventional import *
 
 # =================================================================================================
 #   FUNCTIONS
@@ -164,20 +156,18 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 # =================================================================================================
 
 
-def main(cpacs_path, cpacs_out_path):
-
-    log.info("----- Start of " + MODULE_NAME + " -----")
-
-    check_cpacs_input_requirements(cpacs_path)
+def main(cpacs_path: Path, cpacs_out_path: Path) -> None:
+    module_name = MODULE_NAME
+    log.info("----- Start of " + module_name + " -----")
 
     get_weight_estimations(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + MODULE_NAME + " -----")
+    log.info("----- End of " + module_name + " -----")
 
 
 if __name__ == "__main__":
-
     cpacs_path = get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
+    check_cpacs_input_requirements(cpacs_path)
 
     main(cpacs_path, cpacs_out_path)

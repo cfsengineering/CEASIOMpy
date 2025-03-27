@@ -229,7 +229,7 @@ def test_refine_wing_section():
         n_power_factor=2,
         n_power_field=0.9,
         fuselage_mesh_size_factor=1,
-        wing_mesh_size_factor=1.5,
+        wing_mesh_size_factor=0.5,
         mesh_size_engines=0.5,
         mesh_size_propellers=0.5,
         refine_factor=2.0,

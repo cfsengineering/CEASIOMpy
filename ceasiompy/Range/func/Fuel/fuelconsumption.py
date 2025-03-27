@@ -19,9 +19,8 @@ The script evaluates the fuel consumption during the different flight phases.
 import math
 from ceasiompy.WeightConventional.func.weightutils import UNUSABLE_FUEL_RATIO
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 
-log = get_logger()
 
 
 # =============================================================================

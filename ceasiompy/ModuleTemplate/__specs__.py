@@ -1,18 +1,41 @@
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import CEASIOMPY_XPATH, FUSELAGES_XPATH
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
 
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-module_status = False  # Because it is just an example not a real module
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+GUI Interface of ModuleTemplate.
+
+Python version: >=3.8
+
+| Author: Leon Deligny
+| Creation: 18-Mar-2025
+
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
+
+from ceasiompy import log
+from ceasiompy.ModuleTemplate import include_gui
+
+from ceasiompy.utils.commonxpath import (
+    CEASIOMPY_XPATH,
+    FUSELAGES_XPATH,
+)
+
+# ==============================================================================
+#   VARIABLE
+# ==============================================================================
 
 # ===== CPACS inputs and outputs =====
-
 cpacs_inout = CPACSInOut()
 
-include_gui = False
-
-# ----- Input -----
+# ==============================================================================
+#   GUI INPUTS
+# ==============================================================================
 
 # * In the following example we add three (!) new entries to 'cpacs_inout'
 # * Try to use (readable) loops instead of copy-pasting three almost same entries :)
@@ -21,7 +44,7 @@ for direction in ["x", "y", "z"]:
         var_name=direction,
         var_type=float,
         default_value=None,
-        unit="1",
+        unit=None,
         descr=f"Fuselage scaling on {direction} axis",
         xpath=FUSELAGES_XPATH + f"/fuselage/transformation/scaling/{direction}",
         gui=include_gui,
@@ -52,12 +75,21 @@ cpacs_inout.add_input(
     gui_group="My Selection",
 )
 
-# ----- Output -----
+# ==============================================================================
+#   GUI OUTPUTS
+# ==============================================================================
 
 cpacs_inout.add_output(
     var_name="output",
     default_value=None,
-    unit="1",
+    unit=None,
     descr="Description of the output",
     xpath=CEASIOMPY_XPATH + "/test/myOutput",
 )
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")

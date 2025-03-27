@@ -22,9 +22,8 @@ import numpy as np
 
 from cpacspy.cpacsfunctions import open_tigl, open_tixi
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 
-log = get_logger()
 
 
 # ==============================================================================
@@ -478,4 +477,4 @@ def fuse_geom_eval(fus_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

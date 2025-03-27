@@ -48,7 +48,7 @@ Example of aerodynamic loads computed by AVL.
 
 ## Installation or requirements
 
-Following the automatic installation procedure on the [CEASIOMpy installation page](../../installation/INSTALLATION.md) should install `PyAVL` automatically with the other tools.
+Following the automatic installation procedure on the [CEASIOMpy installation page](../../installation/INSTALLATION.md) should install `PyAVL` automatically along with the other tools.
 
 ## Limitations
 

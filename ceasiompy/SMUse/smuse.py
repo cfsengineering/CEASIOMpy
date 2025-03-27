@@ -29,23 +29,18 @@ from pathlib import Path
 import numpy as np
 import pandas as pd
 import smt.surrogate_models as sms  # Use after loading the model
-from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
+from ceasiompy import log
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path, check_cpacs_input_requirements
 from ceasiompy.utils.commonxpath import SMTRAIN_XPATH, SMUSE_XPATH
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import PARAMS_COEFS
 
-log = get_logger()
-
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
-
+from ceasiompy.SMUse import *
 
 # =================================================================================================
 #   ClASSES
 # =================================================================================================
-
 
 class Surrogate_model:
     """Class to be dumped for later use of a model"""
@@ -153,7 +148,8 @@ def write_inouts(v, inout, tixi):
 
 
 def aeromap_calculation(sm, cpacs):
-    """Make a prediction using only the aeromap entries.
+    """
+    Make a prediction using only the aeromap entries.
 
     By using only the aeromap functions this module is way faster to execute. Only
     works  with the aeromap as the other values of the CPACs are not vectors and
@@ -252,9 +248,10 @@ def check_aeromap(tixi):
 # ==================================================================================================
 
 
-def main(cpacs_path, cpacs_out_path):
+def main(cpacs_path: Path, cpacs_out_path: Path) -> None:
 
-    log.info("----- Start of " + MODULE_NAME + " -----")
+    module_name = MODULE_NAME
+    log.info("----- Start of " + module_name + " -----")
 
     # Load the model
     cpacs = CPACS(cpacs_path)
@@ -269,12 +266,13 @@ def main(cpacs_path, cpacs_out_path):
 
     cpacs.save_cpacs(cpacs_out_path, overwrite=True)
 
-    log.info("----- End of " + MODULE_NAME + " -----")
+    log.info("----- End of " + module_name + " -----")
 
 
 if __name__ == "__main__":
 
     cpacs_path = get_toolinput_file_path("SMUse")
     cpacs_out_path = get_tooloutput_file_path("SMUse")
+    check_cpacs_input_requirements(cpacs_path)
 
     main(cpacs_path, cpacs_out_path)

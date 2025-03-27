@@ -35,13 +35,12 @@ from ceasiompy.Optimisation.func.tools import (
     launch_external_program,
 )
 from ceasiompy.SMUse.smuse import load_surrogate
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.moduleinterfaces import get_all_module_specs
 from ceasiompy.utils.commonxpath import OPTIM_XPATH, SMUSE_XPATH, SU2_FIXED_CL_XPATH
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.utils import COEFS, PARAMS_COEFS
 
-log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 CSV_PATH = Path(MODULE_DIR, "Variable_library.csv")
@@ -564,4 +563,4 @@ def create_variable_library(Rt, tixi, optim_dir_path):
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

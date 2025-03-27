@@ -22,12 +22,12 @@ import sys
 
 import numpy as np
 
-from ceasiompy.ThermoData.func.turbojet_func import (
+from ceasiompy.ThermoData.func.turbojet import (
     turbojet_analysis,
     write_turbojet_file,
 )
 
-from ceasiompy.ThermoData.func.turbofan_func import (
+from ceasiompy.ThermoData.func.turbofan import (
     turbofan_analysis,
     write_hbtf_file,
 )

@@ -19,7 +19,7 @@ Python version: >=3.8
 import logging
 from pathlib import Path
 
-from ceasiompy.SkinFriction.skinfriction import add_skin_friction, estimate_skin_friction_coef
+from ceasiompy.SkinFriction.skinfriction import main as add_skin_friction, estimate_skin_friction_coef
 from cpacspy.cpacspy import CPACS
 from pytest import approx
 

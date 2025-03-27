@@ -9,10 +9,8 @@ Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2021-12-10
-
-TODO:
-
-    *
+| Modified: Leon Deligny
+| Date: 25 March 2025
 
 """
 
@@ -22,15 +20,11 @@ TODO:
 
 from collections import OrderedDict
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
-
+from ceasiompy import log
 
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
-
 
 class ConfigFile:
     """Class to read/write and modify a configuration file."""
@@ -154,16 +148,9 @@ class ConfigFile:
                 text_line.append(f"{key} = {value}")
         return ("\n").join(text_line)
 
-
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
 if __name__ == "__main__":
-
-    print("Nothing to execute")
+    log("Nothing to execute")

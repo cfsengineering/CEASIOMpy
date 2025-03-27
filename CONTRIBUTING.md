@@ -95,7 +95,6 @@ Logging the output of a module can be very useful to understand what happens dur
 
 ```python
 from lib.utils.ceasiomlogger import get_logger
-log = get_logger()
 ```
 
 Then, you can use the following logging function anywhere in the code of the module:

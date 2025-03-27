@@ -20,10 +20,10 @@
 
 ## Analyses
 
-1. If you use the pyAVL module before the StaticStability module :
+1. If you use the PyAVL module before the StaticStability module :
 A unique (Mach, Altitude, AoA, AoS) in the aeromap suffices to do the Static Stability analysis as the necessary derivates are already computed.
 
-2. If you are not using pyAVL, then the model does a linear regression (it assumes that the moments are linear wrt to the angles of interest). Therefore you need to add strictly more then one different angle of attack and sideslip angle in the aeromap to access the stability derivatives.  
+2. If you are not using PyAVL, then the model does a linear regression (it assumes that the moments are linear wrt to the angles of interest). Therefore you need to add strictly more then one different angle of attack and sideslip angle in the aeromap to access the stability derivatives.
 
 ## Outputs
 

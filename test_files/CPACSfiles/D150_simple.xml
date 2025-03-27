@@ -3091,8 +3091,6 @@
                 <sweepAngle>0</sweepAngle>
                 <dihedralAngle>0</dihedralAngle>
                 <toSectionUID>Fuselage1_Sec1</toSectionUID>
-                <!--                <fromSectionUID></fromSectionUID>-->
-                <fromSectionUID />
               </positioning>
               <positioning uID="Fuselage1_Sec2GenPos" xsi:type="positioningType">
                 <name>pos2</name>
@@ -4153,8 +4151,6 @@
                 <sweepAngle>0</sweepAngle>
                 <dihedralAngle>0</dihedralAngle>
                 <toSectionUID>Wing1_Sec1</toSectionUID>
-                <!--                <fromSectionUID></fromSectionUID>-->
-                <fromSectionUID />
               </positioning>
               <positioning uID="Wing1_Sec2GenPos" xsi:type="positioningType">
                 <name>p2</name>
@@ -4994,8 +4990,6 @@
                 <sweepAngle>0</sweepAngle>
                 <dihedralAngle>0</dihedralAngle>
                 <toSectionUID>Wing2H_Sec1</toSectionUID>
-                <!--                <fromSectionUID></fromSectionUID>-->
-                <fromSectionUID />
               </positioning>
               <positioning uID="Wing2H_Sec2GenPos" xsi:type="positioningType">
                 <name>w2p2</name>
@@ -5132,7 +5126,7 @@
                 uID="Wing3V_transformation1_translation1">
                 <x>29.838</x>
                 <y>-0.00200292</y>
-                <z>1.89101</z>
+                <z>1.8</z>
               </translation>
             </transformation>
             <sections xsi:type="wingSectionsType">
@@ -5237,16 +5231,14 @@
             </sections>
             <positionings xsi:type="positioningsType">
               <positioning uID="Wing3V_Sec1GenPos" xsi:type="positioningType">
-                <name />
+                <name>Wing3V_Pos1</name>
                 <length>0</length>
                 <sweepAngle>0</sweepAngle>
                 <dihedralAngle>0</dihedralAngle>
                 <toSectionUID>Wing3V_Sec1</toSectionUID>
-                <!--                <fromSectionUID></fromSectionUID>-->
-                <fromSectionUID />
               </positioning>
               <positioning uID="Wing3V_Sec2GenPos" xsi:type="positioningType">
-                <name />
+                <name>Wing3V_Pos2</name>
                 <length>7.70151</length>
                 <sweepAngle>40.3982</sweepAngle>
                 <dihedralAngle>0</dihedralAngle>

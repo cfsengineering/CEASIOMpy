@@ -25,9 +25,8 @@ from ceasiompy.utils.WB.ConvGeometry.Fuselage.fusegeom import (
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.commonxpath import FUSELAGES_XPATH, WINGS_XPATH
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 
-log = get_logger()
 
 
 # =============================================================================
@@ -830,4 +829,4 @@ class AircraftGeometry:
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

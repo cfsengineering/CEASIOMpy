@@ -21,9 +21,8 @@ import math
 
 from cpacspy.cpacsfunctions import open_tigl, open_tixi
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 
-log = get_logger()
 
 
 # =============================================================================

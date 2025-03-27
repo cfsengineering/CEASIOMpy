@@ -18,9 +18,8 @@ This file will analyse the fuselage geometry from cpacs file.
 
 import numpy as np
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 
-log = get_logger()
 
 
 # =================================================================================================
@@ -164,4 +163,4 @@ def rel_dist(fus_nb, sec_nb, seg_nb, tigl, seg_sec, start_index):
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

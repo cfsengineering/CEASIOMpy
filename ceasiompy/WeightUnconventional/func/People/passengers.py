@@ -18,9 +18,8 @@ Python version: >=3.8
 # =============================================================================
 
 from ceasiompy.WeightConventional.func.weightutils import PASSENGER_MASS, PASSENGER_PER_TOILET
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 
-log = get_logger()
 
 
 # =============================================================================

@@ -19,7 +19,7 @@ Python version: >=3.8
 from ceasiompy.WeightConventional.func.mtom import estimate_mtom
 from ceasiompy.WeightConventional.func.oem import estimate_oem
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.commonxpath import (
     FUEL_MASS_XPATH,
     MASS_CARGO_XPATH,
@@ -33,7 +33,6 @@ from ceasiompy.WeightConventional.func.weightutils import UNUSABLE_FUEL_RATIO
 
 from cpacspy.cpacsfunctions import add_value, get_value_or_default
 
-log = get_logger()
 
 
 # =================================================================================================
@@ -184,4 +183,4 @@ class AircfaftMasses:
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

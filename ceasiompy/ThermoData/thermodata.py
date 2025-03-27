@@ -15,59 +15,47 @@ and saving those conditions in a text file
 # =================================================================================================
 
 import shutil
+
 from pathlib import Path
 
-from ceasiompy.ThermoData.func.turbofan_func import (
-    turbofan_analysis,
-    write_hbtf_file,
-)
+from ceasiompy.utils.ceasiompyutils import call_main
 
-from ceasiompy.ThermoData.func.turbojet_func import (
+from ceasiompy.ThermoData.func.turbofan import (
+    write_hbtf_file,
+    turbofan_analysis,
+)
+from ceasiompy.ThermoData.func.turbojet import (
     turbojet_analysis,
     write_turbojet_file,
 )
-
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-from ceasiompy.utils.moduleinterfaces import (
-    get_toolinput_file_path,
-    get_tooloutput_file_path,
-)
-from ceasiompy.utils.ceasiompyutils import get_results_directory
-from ceasiompy.utils.commonxpath import (
-    ENGINE_TYPE_XPATH,
-    ENGINE_BC,
-    RANGE_XPATH,
-    SU2_AEROMAP_UID_XPATH,
-)
-from ceasiompy.utils.commonnames import (
-    ENGINE_BOUNDARY_CONDITIONS,
-)
 from cpacspy.cpacsfunctions import (
-    get_value_or_default,
-    add_float_vector,
     create_branch,
+    add_float_vector,
+    get_value_or_default,
 )
+
 from cpacspy.cpacspy import CPACS
 
+from ceasiompy import log
+from ceasiompy.utils.commonnames import ENGINE_BOUNDARY_CONDITIONS
 
-log = get_logger()
+from ceasiompy.utils.commonxpath import (
+    ENGINE_BC,
+    RANGE_XPATH,
+    ENGINE_TYPE_XPATH,
+    SU2_AEROMAP_UID_XPATH,
+    RANGE_CRUISE_ALT_XPATH,
+    RANGE_CRUISE_MACH_XPATH, 
+)
 
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
-
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
+from ceasiompy.ThermoData import *
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
 
 
-def thermo_data_run(cpacs_path, cpacs_out_path, wkdir):
+def main(cpacs: CPACS, wkdir: Path) -> None:
     """Running the PyCycle code by choosing between turbojet or turbofan engine
 
     Args
@@ -76,23 +64,18 @@ def thermo_data_run(cpacs_path, cpacs_out_path, wkdir):
         wkdir (str): Path to the working directory
     """
 
-    if not wkdir.exists():
-        raise OSError(f"The working directory : {wkdir} does not exit!")
-
-    cpacs = CPACS(cpacs_path)
     tixi = cpacs.tixi
-
     Fn = get_value_or_default(tixi, RANGE_XPATH + "/NetForce", 2000)
 
     default_aeromap = cpacs.create_aeromap("DefaultAeromap")
     default_aeromap.description = "AeroMap created automatically"
-    mach = get_value_or_default(cpacs.tixi, RANGE_XPATH + "/cruiseMach", 0.3)
-    alt = get_value_or_default(cpacs.tixi, RANGE_XPATH + "/cruiseAltitude", 10000)
+    mach = get_value_or_default(tixi, RANGE_CRUISE_MACH_XPATH, 0.3)
+    alt = get_value_or_default(tixi, RANGE_CRUISE_ALT_XPATH, 10000)
     default_aeromap.add_row(alt=alt, mach=mach, aos=0.0, aoa=0.0)
     default_aeromap.save()
     alt_list = [alt]
     mach_list = [mach]
-    aeromap_uid = get_value_or_default(cpacs.tixi, SU2_AEROMAP_UID_XPATH, "DefaultAeromap")
+    aeromap_uid = get_value_or_default(tixi, SU2_AEROMAP_UID_XPATH, "DefaultAeromap")
     log.info(f"{aeromap_uid} has been created")
 
     aeromap_list = cpacs.get_aeromap_uid_list()
@@ -100,7 +83,7 @@ def thermo_data_run(cpacs_path, cpacs_out_path, wkdir):
     if aeromap_list:
         aeromap_default = aeromap_list[0]
         log.info(f"The aeromap is {aeromap_default}")
-        aeromap_uid = get_value_or_default(cpacs.tixi, SU2_AEROMAP_UID_XPATH, aeromap_default)
+        aeromap_uid = get_value_or_default(tixi, SU2_AEROMAP_UID_XPATH, aeromap_default)
         activate_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
         alt_list = activate_aeromap.get("altitude").tolist()
         mach_list = activate_aeromap.get("machNumber").tolist()
@@ -121,7 +104,7 @@ def thermo_data_run(cpacs_path, cpacs_out_path, wkdir):
                 f = open(EngineBC, "w")
 
                 engine_type = get_value_or_default(tixi, ENGINE_TYPE_XPATH, 0)
-                create_branch(cpacs.tixi, ENGINE_BC)
+                create_branch(tixi, ENGINE_BC)
 
                 if engine_type == 0:
                     (
@@ -186,32 +169,13 @@ def thermo_data_run(cpacs_path, cpacs_out_path, wkdir):
         add_float_vector(tixi, ENGINE_BC + "/temperatureOutlet", T_tot_out_array)
         add_float_vector(tixi, ENGINE_BC + "/pressureOutlet", P_tot_out_array)
 
-    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
+    folder_name = "reports"
+    shutil.rmtree(folder_name)
 
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
-
-def main(cpacs_path, cpacs_out_path):
-
-    log.info("----- Start of " + MODULE_NAME + " -----")
-
-    results_dir = get_results_directory("ThermoData")
-
-    thermo_data_run(cpacs_path, cpacs_out_path, results_dir)
-
-    folder_name = "reports"
-
-    shutil.rmtree(folder_name)
-
-    log.info("----- End of " + MODULE_NAME + " -----")
-
-
 if __name__ == "__main__":
-
-    cpacs_path = get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
-
-    main(cpacs_path, cpacs_out_path)
+    call_main(main, MODULE_NAME)

@@ -22,16 +22,20 @@ import os
 import shutil
 from datetime import datetime
 from pathlib import Path
+import importlib
 
 from ceasiompy.Optimisation.optimisation import routine_launcher
-from ceasiompy.utils.ceasiomlogger import add_to_runworkflow_history, get_logger
-from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module
+from ceasiompy.utils.ceasiompylogger import add_to_runworkflow_history
+from ceasiompy.utils.ceasiompyutils import change_working_dir, run_module, get_results_directory
 from ceasiompy.utils.configfiles import ConfigFile
 from ceasiompy.utils.moduleinterfaces import get_module_list
+
+from ceasiompy import log
+from ceasiompy.utils.moduleinterfaces import MODNAME_INIT
+
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH, LOGFILE, MODULES_DIR_PATH
 
-# log = get_logger()
-
+#
 OPTIM_METHOD = ["OPTIM", "DOE"]
 
 # =================================================================================================
@@ -41,7 +45,11 @@ OPTIM_METHOD = ["OPTIM", "DOE"]
 
 class ModuleToRun:
     def __init__(
-        self, name: str, wkflow_dir: Path, cpacs_in: Path = None, cpacs_out: Path = None
+        self, 
+        name: str, 
+        wkflow_dir: Path, 
+        cpacs_in: Path = None, 
+        cpacs_out: Path = None,
     ) -> None:
 
         # Check module name validity
@@ -57,6 +65,12 @@ class ModuleToRun:
         self.name = name
         self.wkflow_dir = wkflow_dir
         self.cpacs_in = cpacs_in
+        init = importlib.import_module(f"ceasiompy.{name}.{MODNAME_INIT}")
+        add_res_dir: bool = init.RES_DIR
+        
+        if add_res_dir:
+            self.results_dir = get_results_directory(name, create=True, wkflow_dir=wkflow_dir)
+        else: self.results_dir = None
         self.cpacs_out = cpacs_out
 
         # Set module path
@@ -297,44 +311,22 @@ class Workflow:
             )
             self.subworkflow.set_subworkflow()
 
-        # Create Results directory
-        new_res_dir = Path.joinpath(self.current_wkflow_dir, "Results")
-        new_res_dir.mkdir()
 
     def run_workflow(self) -> None:
         """Run the complete Worflow"""
 
         add_to_runworkflow_history(self.current_wkflow_dir)
 
-        # log.info("#" * 99)
-        # log.info("###  Starting the workflow")
-        # log.info("#" * 99)
-        # log.info(f"The workflow will be run in {self.current_wkflow_dir}")
-        # log.info(f"Input CPACS file: {self.cpacs_in}")
-        # log.info("The following modules with be run:")
-
-        # for module in self.modules:
-        # log.info(f"  -> {module.name}")
-
         for module in self.modules:
             if module.is_optim_module:
                 self.subworkflow.run_subworkflow()
             else:
-                run_module(module, self.current_wkflow_dir)
+                run_module(module, self.current_wkflow_dir, self.modules_list.index(module.name))
 
         shutil.copy(module.cpacs_out, Path(self.current_wkflow_dir, "ToolOutput.xml"))
 
-        # log.info("#" * 99)
-        # log.info("###  End of the workflow")
-        # log.info("#" * 99)
-
         # Copy logfile in the Workflow directory
         shutil.copy(LOGFILE, self.current_wkflow_dir)
-
-
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
 
 
 # =================================================================================================
@@ -342,5 +334,4 @@ class Workflow:
 # =================================================================================================
 
 if __name__ == "__main__":
-
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

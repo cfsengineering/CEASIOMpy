@@ -43,10 +43,9 @@ The cpacs file should also contain:
 from cpacspy.cpacsfunctions import add_uid, create_branch, open_tixi
 
 from cpacspy.cpacsfunctions import get_value_or_default
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.commonxpath import RANGE_LD_RATIO_XPATH, TURBOPROP_XPATH
 
-log = get_logger()
 
 
 # =============================================================================

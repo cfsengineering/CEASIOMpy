@@ -41,9 +41,8 @@ from ceasiompy.utils.commonxpath import (
     WB_MAX_PAYLOAD_XPATH,
 )
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 
-log = get_logger()
 
 
 # =============================================================================

@@ -20,8 +20,7 @@ TODO:
     * Mesh def for FSI (with surface disp)
     * Create the doc for this module
     * Create test functions
-    * Use Pathlib and asolute path when refactor this module
-    * Use 'run_software' function to run SU2
+    * Use Pathlib and absolute path when refactor this module
 
 """
 
@@ -36,13 +35,13 @@ from pathlib import Path
 
 import numpy as np
 import pandas as pd
-from ceasiompy.SU2Run.func.su2utils import get_mesh_markers
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.SU2Run.func.utils import get_mesh_markers, su2_format
+from ceasiompy import log
 from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
     get_reasonable_nb_cpu,
     get_results_directory,
-    run_soft,
+    run_software,
 )
 from ceasiompy.utils.commonxpath import (
     REF_XPATH,
@@ -52,7 +51,7 @@ from ceasiompy.utils.commonxpath import (
     WINGS_XPATH,
 )
 from ceasiompy.utils.configfiles import ConfigFile
-from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path, check_cpacs_input_requirements
 from cpacspy.cpacsfunctions import (
     add_string_vector,
     get_uid,
@@ -63,16 +62,7 @@ from cpacspy.cpacsfunctions import (
 )
 from tixi3.tixi3wrapper import Tixi3Exception
 
-log = get_logger()
-
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
-
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
+from ceasiompy.SU2MeshDef import *
 
 # =================================================================================================
 #   FUNCTIONS
@@ -596,9 +586,9 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
     # Mesh Marker
     mesh_markers = get_mesh_markers(su2_mesh_path)
 
-    bc_wall_str = "(" + ",".join(mesh_markers["wall"]) + ")"
+    bc_wall_str = su2_format(",".join(mesh_markers["wall"]))
     cfg["MARKER_EULER"] = bc_wall_str
-    cfg["MARKER_FAR"] = " (Farfield)"
+    cfg["MARKER_FAR"] = " ( Farfield )"
     cfg["MARKER_SYM"] = " (0)"
     cfg["MARKER_PLOTTING"] = bc_wall_str
     cfg["MARKER_MONITORING"] = bc_wall_str
@@ -607,13 +597,14 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
 
     # FFD BOX definition
     cfg["DV_KIND"] = "FFD_SETTING"
-    cfg["DV_MARKER"] = "( " + wing_uid + ")"
+    cfg["DV_MARKER"] = su2_format(wing_uid)
     cfg["FFD_CONTINUITY"] = "2ND_DERIVATIVE"
-    cfg["FFD_DEFINITION"] = "( " + ted_uid + ", " + ",".join(ted_corner_list) + ")"
+    cfg["FFD_DEFINITION"] = su2_format(ted_uid + ", " + ",".join(ted_corner_list))
     cfg["FFD_DEGREE"] = "( 6, 10, 3 )"  # TODO: how to chose/calculate these value?
     if sym_dir:
-        cfg["FFD_DEFINITION"] += "; (" + ted_uid + "_sym, " + ",".join(ted_corner_sym_list) + ")"
-        cfg["FFD_DEGREE"] += ";( 6, 10, 3 )"  # TODO: how to chose/calculate these value?
+        cfg["FFD_DEFINITION"] += "; " + \
+            su2_format(ted_uid + "_sym, " + ",".join(ted_corner_sym_list))
+        cfg["FFD_DEGREE"] += "; ( 6, 10, 3 )"  # TODO: how to chose/calculate these value?
     cfg["MESH_OUT_FILENAME"] = "_mesh_ffd_box.su2"
 
     # Write Config definition for FFD box
@@ -626,8 +617,8 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
     for defl in defl_list:
 
         cfg["DV_KIND"] = "FFD_ROTATION"
-        cfg["DV_MARKER"] = "( " + wing_uid + ")"
-        cfg["DV_PARAM"] = "( " + ted_uid + ", " + ",".join(hinge_list) + ")"
+        cfg["DV_MARKER"] = su2_format(wing_uid)
+        cfg["DV_PARAM"] = su2_format(ted_uid + ", " + ",".join(hinge_list))
         cfg["DV_VALUE"] = str(defl / 1000)  # SU2 use 1/1000 degree...
 
         cfg["MESH_FILENAME"] = "_mesh_ffd_box.su2"
@@ -644,8 +635,8 @@ def generate_mesh_def_config(tixi, wkdir, ted_uid, wing_uid, sym_dir, defl_list)
 
         if sym_dir:
             # TODO: add a condition for anti symmetric deflection (e.g. ailerons)
-            cfg["DV_MARKER"] = "( " + wing_uid + ")"
-            cfg["DV_PARAM"] = "( " + ted_uid + "_sym, " + ",".join(hinge_sym_list) + ")"
+            cfg["DV_MARKER"] = su2_format(wing_uid)
+            cfg["DV_PARAM"] = su2_format(ted_uid + "_sym, " + ",".join(hinge_sym_list))
             cfg["DV_VALUE"] = str(defl / 1000)  # SU2 use 1/1000 degree...
 
             cfg["MESH_FILENAME"] = defl_mesh_name
@@ -767,7 +758,7 @@ def run_mesh_deformation(tixi, wkdir):
         for cfg_file in sorted(cfg_file_list):
 
             if os.path.isfile(cfg_file):
-                run_soft("SU2_DEF", cfg_file, ted_dir, nb_proc)
+                run_software("SU2_DEF", cfg_file, ted_dir, nb_proc)
             else:
                 raise ValueError("Not correct configuration file to run!")
 
@@ -793,9 +784,10 @@ def run_mesh_deformation(tixi, wkdir):
 # =================================================================================================
 
 
-def main(cpacs_path, cpacs_out_path):
+def main(cpacs_path: Path, cpacs_out_path: Path) -> None:
 
-    log.info("----- Start of " + MODULE_NAME + " -----")
+    module_name = MODULE_NAME
+    log.info("----- Start of " + module_name + " -----")
 
     if len(sys.argv) > 1:
         if sys.argv[1] == "-c":
@@ -807,12 +799,12 @@ def main(cpacs_path, cpacs_out_path):
     else:  # if no argument given
         generate_config_deformed_mesh(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + MODULE_NAME + " -----")
+    log.info("----- End of " + module_name + " -----")
 
 
 if __name__ == "__main__":
-
     cpacs_path = get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
+    check_cpacs_input_requirements(cpacs_path)
 
     main(cpacs_path, cpacs_out_path)

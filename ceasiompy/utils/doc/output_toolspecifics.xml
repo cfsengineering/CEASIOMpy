@@ -40,22 +40,18 @@
       <stability>
         <static>
           <results>
-            <longitudinalStaticStable/>
-            <directionnalStaticStable/>
+            <longitudinalStaticStability/>
+            <directionnalStaticStability/>
+            <lateralStaticStability/>
           </results>
           <trimConditions>
-            <longitudinal>
-              <altitude/>
-              <machNumber/>
-              <angleOfAttack/>
-              <angleOfSideslip/>
-            </longitudinal>
-            <directional>
-              <altitude/>
-              <machNumber/>
-              <angleOfAttack/>
-              <angleOfSideslip/>
-            </directional>
+            <altitude/>
+            <machNumber/>
+            <angleOfAttack/>
+            <angleOfSideslip/>
+            <cma/>
+            <cnb/>
+            <clb/>
           </trimConditions>
         </static>
         <dynamic>

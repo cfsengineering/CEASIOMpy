@@ -34,9 +34,8 @@ import numpy as np
 
 from cpacspy.cpacsfunctions import create_branch, open_tixi
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 
-log = get_logger()
 
 
 # =============================================================================

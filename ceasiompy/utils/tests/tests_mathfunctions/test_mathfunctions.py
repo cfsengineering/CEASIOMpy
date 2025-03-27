@@ -16,12 +16,11 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.generalclasses import SimpleNamespace
-from ceasiompy.utils.mathfunctions import euler2fix, fix2euler
+from ceasiompy.utils.mathsfunctions import euler2fix, fix2euler
 from pytest import approx
 
-log = get_logger()
 
 # =================================================================================================
 #   CLASSES

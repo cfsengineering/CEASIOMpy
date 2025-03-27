@@ -22,17 +22,18 @@ from pathlib import Path
 import numpy as np
 import pytest
 from ambiance import Atmosphere
-from ceasiompy.SU2Run.func.su2actuatordiskfile import (
+from ceasiompy.SU2Run.func.actuatordiskfile import (
     axial_interference_function,
     calculate_radial_thrust_coefs,
     check_input_output_values,
     get_advanced_ratio,
     get_prandtl_correction_values,
     get_radial_stations,
-    save_plots,
     thrust_calculator,
     write_actuator_disk_data,
 )
+from ceasiompy.SU2Run.func.plot import save_plots
+
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 MODULE_DIR = Path(__file__).parent
@@ -322,3 +323,4 @@ if __name__ == "__main__":
     print("Test configfile.py")
     print("To run test use the following command:")
     print(">> pytest -v")
+    test_get_radial_stations()

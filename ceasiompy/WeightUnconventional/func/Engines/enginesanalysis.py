@@ -19,9 +19,8 @@ Python version: >=3.8
 
 import numpy as np
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 
-log = get_logger()
 
 
 # =============================================================================

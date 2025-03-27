@@ -11,27 +11,18 @@ Python version: >=3.8
 | Author: Aidan Jungo
 | Creation: 2021-04-26
 
-TODO:
-
-    *
-
 """
 
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
 
-
-from ceasiompy.CPACS2SUMO.func.cst2coord import CST_shape
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from cpacspy.cpacsfunctions import get_float_vector
 
-log = get_logger()
-
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
+from tixi3.tixi3wrapper import Tixi3
+from typing import Tuple, List
+from ceasiompy.CPACS2SUMO.func.cst2coord import CST_shape
 
 
 # =================================================================================================
@@ -39,17 +30,19 @@ log = get_logger()
 # =================================================================================================
 
 
-def get_profile_coord(tixi, prof_uid):
-    """Function to get profile coordinate point
+def get_profile_coord(tixi: Tixi3, prof_uid: str) -> Tuple[List, List, List]:
+    """
+    Get profile coordinate points.
 
     Args:
-        tixi (handles): TIXI Handle
-        profileUID (uid): uID of the airfoil/profile to get
+        tixi (handles): TIXI Handle.
+        prof_uid (str): uID of the airfoil/profile to get.
 
     Returns:
-        prof_vect_x (list): list of point in x coordinate
-        prof_vect_y (list): list of point in y coordinate
-        prof_vect_z (list): list of point in z coordinate
+         (Tuple[List, List, List]): List of x, y, z coordinate points.
+            - List[float]: List of x-th coordinate points.
+            - List[float]: List of y-th coordinate points.
+            - List[float]: List of z-th coordinate points.
 
     """
 
@@ -131,11 +124,10 @@ def get_profile_coord(tixi, prof_uid):
 
     return prof_vect_x, prof_vect_y, prof_vect_z
 
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
-if __name__ == "__main__":
 
-    print("Nothing to execute!")
+if __name__ == "__main__":
+    log.info("Nothing to execute!")

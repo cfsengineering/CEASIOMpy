@@ -21,7 +21,7 @@ from pathlib import Path
 from unittest.mock import mock_open, patch
 
 import pytest
-from ceasiompy.SU2Run.func.su2utils import (
+from ceasiompy.SU2Run.func.utils import (
     get_efficiency_and_aoa,
     get_mesh_markers,
     get_su2_aerocoefs,
@@ -129,7 +129,7 @@ def test_get_su2_config_template():
 
     # Remove the config template file if it exists (from a previous test)
     if config_template_path.exists():
-        assert get_su2_config_template() == config_template_path
+        assert get_su2_config_template("euler") == config_template_path
 
     # # Test with an inexistent config template version
     # with patch("ceasiompy.SU2Run.func.su2utils.get_su2_version", return_value="9.9.99"):
@@ -183,4 +183,4 @@ def test_get_wetted_area():
 # =================================================================================================
 
 if __name__ == "__main__":
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

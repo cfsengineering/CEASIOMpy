@@ -1,60 +1,46 @@
-from pathlib import Path
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
 
-from ceasiompy.utils.commonxpath import (
-    GMSH_AUTO_REFINE_XPATH,
-    GMSH_EXHAUST_PERCENT_XPATH,
-    GMSH_EXPORT_PROP_XPATH,
-    GMSH_FARFIELD_FACTOR_XPATH,
-    GMSH_N_POWER_FACTOR_XPATH,
-    GMSH_N_POWER_FIELD_XPATH,
-    GMSH_INTAKE_PERCENT_XPATH,
-    GMSH_MESH_SIZE_FARFIELD_XPATH,
-    GMSH_MESH_SIZE_FUSELAGE_XPATH,
-    GMSH_MESH_SIZE_WINGS_XPATH,
-    GMSH_MESH_SIZE_ENGINES_XPATH,
-    GMSH_MESH_SIZE_PROPELLERS_XPATH,
-    GMSH_OPEN_GUI_XPATH,
-    GMSH_REFINE_TRUNCATED_XPATH,
-    GMSH_REFINE_FACTOR_XPATH,
-    GMSH_SYMMETRY_XPATH,
-    SU2MESH_XPATH,
-    GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
-    GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
-    GMSH_MESH_TYPE_XPATH,
-    GMSH_NUMBER_LAYER_XPATH,
-    GMSH_H_FIRST_LAYER_XPATH,
-    GMSH_MAX_THICKNESS_LAYER_XPATH,
-    GMSH_GROWTH_FACTOR_XPATH,
-    GMSH_GROWTH_RATIO_XPATH,
-    GMSH_SURFACE_MESH_SIZE_XPATH,
-    GMSH_FEATURE_ANGLE_XPATH,
-)
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+GUI Interface of CPACS2GMSH.
+
+Python version: >=3.8
+
+| Author: Leon Deligny
+| Creation: 18-Mar-2025
+
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-module_status = True
+from ceasiompy import log
+from ceasiompy.CPACS2GMSH import include_gui
 
-# ===== Results directory path =====
+from ceasiompy.utils.commonxpath import *
 
-RESULTS_DIR = Path("Results", "GMSH")
-
-
-# ===== CPACS inputs and outputs =====
+# ==============================================================================
+#   VARIABLE
+# ==============================================================================
 
 cpacs_inout = CPACSInOut()
 
-# ----- Input -----
+# ==============================================================================
+#   GUI INPUTS
+# ==============================================================================
 
 cpacs_inout.add_input(
     var_name="open_gmsh",
     var_type=bool,
     default_value=False,
-    unit="1",
+    unit=None,
     descr="Open GMSH GUI when the mesh is created",
     xpath=GMSH_OPEN_GUI_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Open GMSH GUI",
     gui_group="General options",
 )
@@ -63,22 +49,34 @@ cpacs_inout.add_input(
     var_name="type_mesh",
     var_type=list,
     default_value=["Euler", "RANS"],
-    unit="1",
-    descr="Chose between Euler and RANS mesh",
+    unit=None,
+    descr="Choose between Euler and RANS mesh",
     xpath=GMSH_MESH_TYPE_XPATH,
-    gui=True,
-    gui_name="Chose the mesh type",
+    gui=include_gui,
+    gui_name="Choose the mesh type",
     gui_group="Mesh type",
+)
+
+cpacs_inout.add_input(
+    var_name="aileron",
+    var_type="multiselect",
+    default_value=[0.0],
+    unit="[deg]",
+    descr="List of Aileron, Elevator, Rudder angles",
+    xpath=GMSH_CTRLSURF_ANGLE_XPATH,
+    gui=include_gui,
+    gui_name="Aileron/Elevator/Rudder Angles",
+    gui_group="Control surface settings",
 )
 
 cpacs_inout.add_input(
     var_name="symmetry",
     var_type=bool,
     default_value=False,
-    unit="1",
+    unit=None,
     descr="Create a symmetry condition",
     xpath=GMSH_SYMMETRY_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Use Symmetry",
     gui_group="Domain",
 )
@@ -87,10 +85,10 @@ cpacs_inout.add_input(
     var_name="farfield_factor",
     var_type=float,
     default_value=10,
-    unit="[-]",
+    unit=None,
     descr="Farfield size factor compare to the aircraft largest dimension",
     xpath=GMSH_FARFIELD_FACTOR_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Farfield size factor",
     gui_group="Domain",
 )
@@ -99,11 +97,11 @@ cpacs_inout.add_input(
     var_name="farfield_mesh_size_factor",
     var_type=float,
     default_value=10,
-    unit="[-]",
+    unit=None,
     descr="""Factor proportional to the biggest cell on the plane
             to obtain cell size on the farfield(just for Euler)""",
     xpath=GMSH_MESH_SIZE_FARFIELD_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Farfield mesh size factor",
     gui_group="Euler options",
 )
@@ -111,11 +109,11 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="fuselage_mesh_size_factor",
     var_type=float,
-    default_value=1,
-    unit="[-]",
+    default_value=1.0,
+    unit=None,
     descr="Factor proportional to fuselage radius of curvature to obtain cell size on it",
     xpath=GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Fuselage mesh size factor",
     gui_group="Euler options",
 )
@@ -123,11 +121,11 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="wing_mesh_size_factor",
     var_type=float,
-    default_value=1.5,
-    unit="[-]",
+    default_value=1.0,
+    unit=None,
     descr="Factor proportional to wing radius of curvature to obtain cell size on it",
     xpath=GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Wings mesh size factor",
     gui_group="Euler options",
 )
@@ -139,7 +137,7 @@ cpacs_inout.add_input(
     unit="[m]",
     descr="Value assigned for the engine surfaces mesh size",
     xpath=GMSH_MESH_SIZE_ENGINES_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Engines",
     gui_group="Euler options",
 )
@@ -151,7 +149,7 @@ cpacs_inout.add_input(
     unit="[m]",
     descr="Value assigned for the propeller surfaces mesh size",
     xpath=GMSH_MESH_SIZE_PROPELLERS_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Propellers",
     gui_group="Euler options",
 )
@@ -160,10 +158,10 @@ cpacs_inout.add_input(
     var_name="n_power_factor",
     var_type=float,
     default_value=2,
-    unit="1",
+    unit=None,
     descr="Value that changes the number of cells near the aircraft parts",
     xpath=GMSH_N_POWER_FACTOR_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="n power factor",
     gui_group="Advanced Euler mesh parameters",
 )
@@ -172,10 +170,10 @@ cpacs_inout.add_input(
     var_name="n_power_field",
     var_type=float,
     default_value=0.9,
-    unit="1",
+    unit=None,
     descr="Value that changes the measure of fist cells near aircraft parts",
     xpath=GMSH_N_POWER_FIELD_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="n power field",
     gui_group="Advanced Euler mesh parameters",
 )
@@ -184,10 +182,10 @@ cpacs_inout.add_input(
     var_name="refine_factor",
     var_type=float,
     default_value=2.0,
-    unit="1",
+    unit=None,
     descr="Refinement factor of wing leading/trailing edge mesh",
     xpath=GMSH_REFINE_FACTOR_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="LE/TE refinement factor",
     gui_group="Advanced Euler mesh parameters",
 )
@@ -196,10 +194,10 @@ cpacs_inout.add_input(
     var_name="refine_truncated",
     var_type=bool,
     default_value=False,
-    unit="1",
+    unit=None,
     descr="Enable the refinement of truncated trailing edge",
     xpath=GMSH_REFINE_TRUNCATED_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Refine truncated TE",
     gui_group="Advanced Euler mesh parameters",
 )
@@ -208,11 +206,11 @@ cpacs_inout.add_input(
     var_name="auto_refine",
     var_type=bool,
     default_value=False,
-    unit="1",
+    unit=None,
     descr="Automatically refine the mesh on surfaces that are small compare to the chosen mesh"
     "size, this option increase the mesh generation time",
     xpath=GMSH_AUTO_REFINE_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Auto refine",
     gui_group="Advanced Euler mesh parameters",
 )
@@ -221,10 +219,10 @@ cpacs_inout.add_input(
     var_name="n_layer",
     var_type=int,
     default_value=20,
-    unit="[-]",
+    unit=None,
     descr="Number of prismatic element layers.",
     xpath=GMSH_NUMBER_LAYER_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Number of layer",
     gui_group="RANS options",
 )
@@ -236,7 +234,7 @@ cpacs_inout.add_input(
     unit="[\u03BCm]",
     descr="is the height of the first prismatic cell, touching the wall, in mesh length units.",
     xpath=GMSH_H_FIRST_LAYER_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Height of first layer",
     gui_group="RANS options",
 )
@@ -248,7 +246,7 @@ cpacs_inout.add_input(
     unit="[mm]",
     descr="The maximum allowed absolute thickness of the prismatic layer.",
     xpath=GMSH_MAX_THICKNESS_LAYER_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Max layer thickness",
     gui_group="RANS options",
 )
@@ -257,10 +255,10 @@ cpacs_inout.add_input(
     var_name="growth_ratio",
     var_type=float,
     default_value=1.2,
-    unit="[-]",
+    unit=None,
     descr="the largest allowed ratio between the wall-normal edge lengths of consecutive cells",
     xpath=GMSH_GROWTH_RATIO_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Growth ratio",
     gui_group="RANS options",
 )
@@ -269,10 +267,10 @@ cpacs_inout.add_input(
     var_name="growth_factor",
     var_type=float,
     default_value=1.4,
-    unit="[-]",
+    unit=None,
     descr="Desired growth factor between edge lengths of coincident tetrahedra",
     xpath=GMSH_GROWTH_FACTOR_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Growth factor",
     gui_group="RANS options",
 )
@@ -284,7 +282,7 @@ cpacs_inout.add_input(
     unit="[grad]",
     descr="Larger angles are treated as resulting from approximation of curved surfaces",
     xpath=GMSH_FEATURE_ANGLE_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Feature Angle",
     gui_group="RANS options",
 )
@@ -296,7 +294,7 @@ cpacs_inout.add_input(
     unit="[10^-3]",
     descr="Surface mesh size factor compared to aircraft largest dimension (omogeneus everywhere)",
     xpath=GMSH_SURFACE_MESH_SIZE_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Surface mesh size",
     gui_group="RANS options",
 )
@@ -305,10 +303,10 @@ cpacs_inout.add_input(
     var_name="export_propellers",
     var_type=bool,
     default_value=False,
-    unit="1",
+    unit=None,
     descr="Export propeller(s) to be use as disk actuator",
     xpath=GMSH_EXPORT_PROP_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Export propeller(s)",
     gui_group="General options",
 )
@@ -321,7 +319,7 @@ cpacs_inout.add_input(
     descr="Position of the intake surface boundary condition in percentage of"
     " the engine length from the beginning of the engine",
     xpath=GMSH_INTAKE_PERCENT_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Engine intake position",
     gui_group="Engines",
 )
@@ -333,19 +331,27 @@ cpacs_inout.add_input(
     descr="Position of the exhaust surface boundary condition in percentage of"
     " the engine length from the end of the engine",
     xpath=GMSH_EXHAUST_PERCENT_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Engine exhaust position",
     gui_group="Engines",
 )
 
-
-# ----- Output -----
+# ==============================================================================
+#   GUI OUTPUTS
+# ==============================================================================
 
 cpacs_inout.add_output(
     var_name="su2_mesh_path",
     var_type="pathtype",
     default_value=None,
-    unit="1",
+    unit=None,
     descr="Absolute path of the SU2 mesh",
     xpath=SU2MESH_XPATH,
 )
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")

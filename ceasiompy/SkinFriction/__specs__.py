@@ -1,19 +1,43 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+GUI Interface of SkinFriction.
+
+Python version: >=3.8
+
+| Author: Leon Deligny
+| Creation: 18-Mar-2025
+
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import GEOM_XPATH, RANGE_XPATH, SF_XPATH, PLOT_XPATH
-from pathlib import Path
 
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-module_status = True
+from ceasiompy import log
+from ceasiompy.SkinFriction import include_gui
 
-# ===== Results directory path =====
+from ceasiompy.utils.commonxpath import (
+    SF_XPATH,
+    GEOM_XPATH, 
+    PLOT_XPATH,
+    RANGE_CRUISE_ALT_XPATH,
+    RANGE_CRUISE_MACH_XPATH, 
+)
 
-RESULTS_DIR = Path("Results", "SkinFriction")
-
-# ===== Input =====
+# ==============================================================================
+#   VARIABLE
+# ==============================================================================
 
 cpacs_inout = CPACSInOut()
+
+# ==============================================================================
+#   GUI INPUTS
+# ==============================================================================
 
 cpacs_inout.add_input(
     var_name="",
@@ -21,7 +45,7 @@ cpacs_inout.add_input(
     default_value=None,
     descr="To which aeroMap the skin friction coef should be added",
     xpath=SF_XPATH + "/aeroMapToCalculate",
-    gui=True,
+    gui=include_gui,
     gui_name="__AEROMAP_CHECKBOX",
     gui_group="Aeromap settings",
 )
@@ -45,7 +69,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Delete original aeroMap once skin friction coefficient has been added",
     xpath=SF_XPATH + "/deleteOriginal",
-    gui=True,
+    gui=include_gui,
     gui_name="Delete Original",
     gui_group=None,
 )
@@ -55,7 +79,7 @@ cpacs_inout.add_input(
     default_value=0.78,
     unit="-",
     descr="Aircraft cruise Mach number",
-    xpath=RANGE_XPATH + "/cruiseMach",
+    xpath=RANGE_CRUISE_MACH_XPATH,
 )
 
 cpacs_inout.add_input(
@@ -63,10 +87,12 @@ cpacs_inout.add_input(
     default_value=12000,
     unit="m",
     descr="Aircraft cruise altitude",
-    xpath=RANGE_XPATH + "/cruiseAltitude",
+    xpath=RANGE_CRUISE_ALT_XPATH,
 )
 
-# ===== Output =====
+# ==============================================================================
+#   GUI OUTPUTS
+# ==============================================================================
 
 cpacs_inout.add_output(
     var_name="cd0",
@@ -99,3 +125,10 @@ cpacs_inout.add_output(
     descr="List of aeroMap to plot",
     xpath=PLOT_XPATH + "/aeroMapToPlot",
 )
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")

@@ -10,11 +10,6 @@ Python version: >=3.8
 | Author: Aidan Jungo
 | Creation: 2021-04-07
 
-TODO:
-
-    * export other data...
-    *
-
 """
 
 # =================================================================================================
@@ -23,77 +18,41 @@ TODO:
 
 from pathlib import Path
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath, get_results_directory
-from ceasiompy.utils.moduleinterfaces import (
-    check_cpacs_input_requirements,
-    get_toolinput_file_path,
-    get_tooloutput_file_path,
-)
-from ceasiompy.utils.commonxpath import CEASIOMPY_XPATH
-from cpacspy.cpacspy import CPACS
 from cpacspy.cpacsfunctions import get_value_or_default
 
-log = get_logger()
+from ceasiompy.utils.ceasiompyutils import (
+    call_main,
+    get_aeromap_list_from_xpath,
+)
 
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
+from cpacspy.aeromap import AeroMap
+from cpacspy.cpacspy import CPACS
 
+from ceasiompy import log
+from ceasiompy.utils.commonxpath import AEROMAP_TO_EXPORT_XPATH
 
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
-
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
-
-def export_aeromaps(cpacs_path, cpacs_out_path):
-
-    cpacs = CPACS(cpacs_path)
-
-    aeromap_to_export_xpath = CEASIOMPY_XPATH + "/export/aeroMapToExport"
-    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, aeromap_to_export_xpath)
-
-    if not aeromap_uid_list:
-        aeromap_uid_list = get_value_or_default(
-            cpacs.tixi, aeromap_to_export_xpath, "DefaultAeromap"
-        )
-
-    results_dir = get_results_directory("ExportCSV")
-
-    for aeromap_uid in aeromap_uid_list:
-        aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
-
-        csv_path = Path(results_dir, f"{aeromap_uid}.csv")
-        aeromap.export_csv(csv_path)
-
-        log.info(f"Aeromap(s) has been saved to {csv_path}")
-
-    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
-
+from ceasiompy.ExportCSV import *
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
+def main(cpacs: CPACS, wkdir: Path) -> None:
+    tixi = cpacs.tixi
 
-def main(cpacs_path, cpacs_out_path):
+    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, AEROMAP_TO_EXPORT_XPATH)
 
-    log.info("----- Start of " + MODULE_NAME + " -----")
+    if not aeromap_uid_list:
+        aeromap_uid_list = get_value_or_default(
+            tixi, AEROMAP_TO_EXPORT_XPATH, "DefaultAeromap"
+        )
 
-    export_aeromaps(cpacs_path, cpacs_out_path)
+    for aeromap_uid in aeromap_uid_list:
+        aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
+        csv_path = Path(wkdir, f"{aeromap_uid}.csv")
+        aeromap.export_csv(csv_path)
 
-    log.info("----- End of " + MODULE_NAME + " -----")
-
+        log.info(f"Aeromap(s) has been saved to {csv_path}")
 
 if __name__ == "__main__":
-
-    cpacs_path = get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
-
-    main(cpacs_path, cpacs_out_path)
-
-    check_cpacs_input_requirements(cpacs_path)
+    call_main(main, MODULE_NAME)

@@ -16,7 +16,7 @@ RESULTS_DIR = Path("Results", "Optimisation")
 
 cpacs_inout = CPACSInOut()
 
-include_gui = True
+include_gui = False
 
 # ----- Input -----
 

@@ -9,51 +9,50 @@ Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2022-09-16
-
-TODO:
+| Modified : Leon Deligny
+| Date: 10-Mar-2025
 
 """
 
-import os
-from pathlib import Path
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
 
-import ceasiompy.__init__
+import os
+
 import streamlit as st
-from streamlitutils import create_sidebar
+
+from streamlitutils import create_sidebar, save_cpacs_file
 from streamlit_autorefresh import st_autorefresh
 
-CEASIOMPY_PATH = Path(ceasiompy.__init__.__file__).parents[1]
-LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
+from pathlib import Path
 
-how_to_text = (
+from ceasiompy.utils.commonpaths import LOGFILE
+
+# ==============================================================================
+#   CONSTANTS
+# ==============================================================================
+
+# Set the current page in session state
+PAGE_NAME = "Run Workflow"
+
+HOW_TO_TEXT = (
     "### How to Run your workflow?\n"
-    "1. Just click on the *Run* button\n"
-    "Depending your workflow it could take time to get result, you can see the logs of what's "
-    "happening.\n\n"
+    "1. Click on the *Run* button\n"
+    "Some workflows takes time, you can always check the LogFile \n\n"
     "2. When it is done, go to the *Results* page\n"
 )
 
-create_sidebar(how_to_text)
-
-# Custom CSS
-st.markdown(
-    """
-    <style>
-    .css-4u7rgp  {
-        padding: 15px;
-        font-size: 20px;
-        border-radius:10px;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
-
+# ==============================================================================
+#   FUNCTIONS
+# ==============================================================================
 
 def run_workflow_button():
-    if st.button("Run ▶️", help="Run the workflow "):
+    """
+    Run workflow button.
+    """
 
-        # save_cpacs_file()
+    if st.button("Run ▶️", help="Run the workflow "):
 
         st.session_state.workflow.modules_list = st.session_state.workflow_modules
         st.session_state.workflow.optim_method = "None"
@@ -68,6 +67,9 @@ def run_workflow_button():
 
 
 def show_logs():
+    """
+    Log interface.
+    """
 
     st.markdown("")
     st.markdown("##### Logfile")
@@ -80,9 +82,39 @@ def show_logs():
     st.text_area("(more recent on top)", lines_str, height=300, disabled=True)
 
 
-st.title("Run workflow")
+# =================================================================================================
+#    MAIN
+# =================================================================================================
 
-run_workflow_button()
-show_logs()
+if __name__ == "__main__":
+    
+    # Define Interface
+    create_sidebar(HOW_TO_TEXT)
+    
+    # Custom CSS
+    st.markdown(
+        """
+        <style>
+        .css-4u7rgp  {
+            padding: 15px;
+            font-size: 20px;
+            border-radius:10px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
 
-st_autorefresh(interval=1000, limit=10000, key="auto_refresh")
+    st.title(PAGE_NAME)
+
+    if "last_page" in st.session_state and st.session_state.last_page != PAGE_NAME:
+        save_cpacs_file()
+
+    run_workflow_button()
+    show_logs()
+
+    # AutoRefresh for logs
+    st_autorefresh(interval=1000, limit=10000, key="auto_refresh")
+
+    # Update last_page
+    st.session_state.last_page = PAGE_NAME

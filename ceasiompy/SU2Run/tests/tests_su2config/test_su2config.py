@@ -7,7 +7,6 @@ Test functions of 'ceasiompy/SU2Run/func/su2config.py'
 
 Python version: >=3.8
 
-
 | Author : Aidan Jungo
 | Creation: 2022-04-07
 
@@ -20,20 +19,14 @@ Python version: >=3.8
 from pathlib import Path
 
 import pytest
-from ceasiompy.SU2Run.func.su2config import add_damping_derivatives
+from ceasiompy.SU2Run.func.config import add_damping_derivatives
 from ceasiompy.utils.configfiles import ConfigFile
 
-MODULE_DIR = Path(__file__).parent
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
+MODULE_DIR = Path(__file__).parent 
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
-
 
 def test_add_damping_derivatives(tmp_path):
     """Test function 'add_damping_derivatives'"""
@@ -55,20 +48,17 @@ def test_add_damping_derivatives(tmp_path):
     assert "0.0 5.4 0.0" in Path(case_dq, "ConfigCFD.cfg").read_text()
     assert "0.0 0.0 5.4" in Path(case_dr, "ConfigCFD.cfg").read_text()
 
-
 @pytest.mark.skip(reason="Not implemented yet")
 def test_add_actuator_disk(tmp_path):
     """Test function 'add_actuator_disk'"""
 
     pass
 
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
 if __name__ == "__main__":
-
-    print("Test configfile.py")
+    print("Test test_su2configfile.py")
     print("To run test use the following command:")
     print(">> pytest -v")

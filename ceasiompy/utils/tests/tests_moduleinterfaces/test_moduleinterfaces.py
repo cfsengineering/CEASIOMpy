@@ -114,7 +114,7 @@ def test_check_cpacs_input_requirements():
         default_value=12000,
         unit="m",
         descr="Aircraft cruise altitude",
-        xpath=RANGE_XPATH + "/cruiseAltitude",
+        xpath=RANGE_CRUISE_ALT_XPATH,
     )
 
     assert check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout) is None

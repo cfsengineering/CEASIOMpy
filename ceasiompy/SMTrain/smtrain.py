@@ -33,18 +33,20 @@ import numpy as np
 import pandas as pd
 import smt.surrogate_models as sms
 from ceasiompy.SMUse.smuse import Surrogate_model
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.ceasiompyutils import get_results_directory
-from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
+from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path, check_cpacs_input_requirements
 from ceasiompy.utils.commonxpath import OPTWKDIR_XPATH, SMFILE_XPATH, SMTRAIN_XPATH
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import COEFS, PARAMS
 
-log = get_logger()
+from ceasiompy.SMTrain import *
 
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
+# =================================================================================================
+#   CONSTANTS
+# =================================================================================================
+
 
 # Working surrogate models, the hyperparameters can be changed here for experienced users.
 model_dict = {
@@ -451,9 +453,9 @@ def generate_model(Tool, cpacs_path):
 # =================================================================================================
 
 
-def main(cpacs_path, cpacs_out_path):
-
-    log.info("----- Start of " + MODULE_NAME + " -----")
+def main(cpacs_path: Path, cpacs_out_path: Path) -> None:
+    module_name = MODULE_NAME
+    log.info("----- Start of " + module_name + " -----")
 
     # Get results directory
     results_dir = get_results_directory("SMTrain")
@@ -463,12 +465,13 @@ def main(cpacs_path, cpacs_out_path):
     generate_model(Tool, cpacs_path)
     save_model(Tool, cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + MODULE_NAME + " -----")
+    log.info("----- End of " + module_name + " -----")
 
 
 if __name__ == "__main__":
 
     cpacs_path = get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
+    check_cpacs_input_requirements(cpacs_path)
 
     main(cpacs_path, cpacs_out_path)

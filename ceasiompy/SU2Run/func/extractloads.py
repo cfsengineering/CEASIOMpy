@@ -4,16 +4,10 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 based on a script from Jan-Niclas Walther (DLR)
 
-Small description of the script
-
 Python version: >=3.8
 
 | Author: Aidan Jungo
 | Creation: 2019-09-24
-
-TODO:
-
-    *
 
 """
 
@@ -21,29 +15,25 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-from pathlib import Path
-
+import vtk
 import numpy as np
 import pandas as pd
-import vtk
-from ceasiompy.utils.ceasiomlogger import get_logger
+
+from ceasiompy import log
+from six import iteritems
+from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
+
+from pathlib import Path
+from ceasiompy.utils.configfiles import ConfigFile
+from scipy.sparse import csr_matrix
+from typing import Dict, List
+
 from ceasiompy.utils.commonnames import (
     CONFIG_CFD_NAME,
     FORCE_FILE_NAME,
     SURFACE_FLOW_FILE_NAME,
     SURFACE_FLOW_FORCE_FILE_NAME,
 )
-from ceasiompy.utils.configfiles import ConfigFile
-from scipy.sparse import csr_matrix
-from six import iteritems
-from vtk.util.numpy_support import numpy_to_vtk, vtk_to_numpy
-
-log = get_logger()
-
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
 
 
 # =================================================================================================
@@ -51,18 +41,17 @@ log = get_logger()
 # =================================================================================================
 
 
-def compute_point_normals(coord, cells):
-    """Function the normal vectors
-
-    Function 'compute_point_normals' computes normals at points weighted by the
-    area of the surrounding cells on a triangular mesh.
+def compute_point_normals(coord: np.ndarray, cells: np.ndarray) -> np.ndarray:
+    """
+    Computes normals at points weighted by the area of the surrounding cells on a triangular mesh.
 
     Args:
-        coords (array): np.ndarray(n, k) List of n k-dimensional coordinate points
-        cells (array): np.ndarray(m, 3) Triangular cell connectivity
+        coords (np.ndarray): (n, k)-dimensional coordinate points.
+        cells (np.ndarray): (m, 3) triangular cell connectivity.
 
     Returns:
-        point_nvecs (array): np.ndarray(n, k) List of k-dimensional normal vector at the n points
+        point_nvecs (np.ndarray): (n, k)-dimensional normal vector at the n points.
+
     """
 
     cell_vecs = np.diff(coord[cells], axis=1)
@@ -76,33 +65,27 @@ def compute_point_normals(coord, cells):
     return cell_sp.T.dot(cell_nvecs) / 3.0
 
 
-def compute_forces(vtu_file_path, force_file_path, config_dict):
-    """Function to compute force of a VTU file
-
-    Function 'compute_forces' computes surface forces at points for SU2 result
-    files.
+def compute_forces(
+    vtu_file_path: str,
+    force_file_path: str,
+    config_dict: Dict,
+) -> vtk.vtkXMLUnstructuredGridReader:
+    """
+    Computes surface forces at points for SU2 result files.
+    Saves forces dataframe at force_file_path.
 
     Args:
-        vtu_file_path (str): Path of the VTU file
-        force_file_path (str): Path to the results force file to write
-        config_dict (dict): SU2 cfg file dictionary to dimensionalize
-                            non-dimensional output
+        vtu_file_path (str): Path of the VTU file.
+        force_file_path (str): Path to the results force file to write.
+        config_dict (dict): SU2 cfg file dictionary to dimensionalize non-dimensional output.
 
     Returns:
-        mesh (vtkhelpers object instance): Python instance of SU2 result file
-                                           with added force and normal vectors
+        mesh (vtk.vtkXMLUnstructuredGridReader): SU2 result file with force and normal vectors.
+
     """
 
-    # To read .vtk file
-    # reader = vtk.vtkUnstructuredGridReader()
-    # reader.SetFileName(vtu_file_path)
-    # reader.SetReadAllNormals(1)
-    # reader.SetReadAllScalars(1)
-    # reader.SetReadAllTensors(1)
-    # reader.SetReadAllVectors(1)
-
     # To read .vtu file
-    reader = vtk.vtkXMLUnstructuredGridReader()  # test
+    reader = vtk.vtkXMLUnstructuredGridReader()
     reader.SetFileName(vtu_file_path)
 
     reader.Update()
@@ -112,18 +95,17 @@ def compute_forces(vtu_file_path, force_file_path, config_dict):
     cells = vtk_to_numpy(mesh.GetCells().GetData()).reshape(-1, 4)[:, 1:]
     point_nvecs = compute_point_normals(coord, cells)
 
-    press = np.ascontiguousarray(
+    # Access pressure at each PointData
+    pressure = np.ascontiguousarray(
         vtk_to_numpy(mesh.GetPointData().GetAbstractArray("Pressure"))
     ).astype(np.double)
 
-    # TODO raine ERROR, now we need config_dict anyway
+    # TODO raise ERROR, now we need config_dict anyway
     if config_dict is not None:
-        press = dimensionalize_pressure(press, config_dict)
+        pressure = dimensionalize_pressure(pressure, config_dict)
 
-    force = point_nvecs * press[:, None]
+    force = point_nvecs * pressure[:, None]
 
-    # unit_norm = point_nvecs / np.linalg.norm(point_nvecs, axis=1, keepdims=True)
-    # # had to chage that with the last version of numpy
     unit_norm = point_nvecs / np.linalg.norm(point_nvecs)
 
     for name, values in iteritems({"n": unit_norm, "f": force}):
@@ -138,7 +120,6 @@ def compute_forces(vtu_file_path, force_file_path, config_dict):
     ids = range(len(coord))
 
     su2_mesh_path = config_dict.get("MESH_FILENAME")
-
     marker_dict = get_mesh_markers_ids(su2_mesh_path)
     mesh_maker = []
 
@@ -171,19 +152,18 @@ def compute_forces(vtu_file_path, force_file_path, config_dict):
     return mesh
 
 
-def dimensionalize_pressure(p, config_dict):
-    """Function to dimensionalize pressure
-
-    Function 'dimensionalize_pressure' retrurns the pressures values
-    dimensionalize accorind to data from the SU2 configuration file
+def dimensionalize_pressure(p: List, config_dict: Dict) -> List:
+    """
+    Returns the pressures values dimensionalized 
+    accoring to data from the SU2 configuration file.
 
     Args:
-        p (list): Pressure values
-        config_dict (dict): SU2 cfg file dictionary to
-                            dimensionalize non-dimensional output
+        p (list): Pressure values.
+        config_dict (dict): SU2 cfg file dictionary to dimensionalize non-dimensional output.
 
     Returns:
-        p (list): New pressure values
+        p (list): Dimensionalized pressure values.
+
     """
 
     ref_dim = config_dict.get("REF_DIMENSIONALIZATION", "DIMENSIONAL")
@@ -201,22 +181,17 @@ def dimensionalize_pressure(p, config_dict):
         return (p * gamma * ma**2 - 1) * p_inf
 
 
-def write_updated_mesh(mesh, new_vtu_file_path):
-    """Function to write the new VTU file
-
-    Function 'write_updated_mesh' crete new VTU file with utdated value given
-    by 'mesh' and save at 'new_vtu_file_path'
+def write_updated_mesh(mesh: vtk.vtkXMLUnstructuredGridWriter, new_vtu_file_path: str) -> None:
+    """
+    Create new VTU file with updated value given by mesh
+    and save at new_vtu_file_path.
 
     Args:
-        mesh (vtkhelpers object instance): Python instance of SU2 result file
-                                           with added force and normal vectors
-        new_vtu_file_path (str): New VTU file path
+        mesh (vtk.vtkXMLUnstructuredGridWriter): 
+            Python instance of SU2 result file with added force and normal vectors.
+        new_vtu_file_path (str): New VTU file path.
 
     """
-
-    # To write .vtk file
-    # writer = vtk.vtkUnstructuredGridWriter()
-    # writer.SetFileType(0)
 
     # To write .vtu file
     writer = vtk.vtkXMLUnstructuredGridWriter()
@@ -229,19 +204,19 @@ def write_updated_mesh(mesh, new_vtu_file_path):
     writer.SetFileName(new_vtu_file_path)
     writer.Update()
 
-
 # TODO: maybe create some exteral function to cope with SU2Mesh, get coord, get marker ...
-def get_mesh_markers_ids(su2_mesh_path):
-    """Function to get ids corresponding to each marker
 
-    Function 'get_mesh_markers_ids' crete dictionary which contains for each
-    mesh marker (keys) a list of ids belonging to this mesh marker
+
+def get_mesh_markers_ids(su2_mesh_path: str) -> Dict:
+    """
+    Create dictionary which contains for each mesh marker (keys) 
+    a list of ids belonging to this mesh marker.
 
     Args:
-        su2_mesh_path (str): Path to the SU2 mesh file
+        su2_mesh_path (str): Path to the SU2 mesh file.
 
-    Return:
-        marker_dict (dict): Dictionary of marker and ids
+    Returns:
+        marker_dict (dict): Dictionary of marker and ids.
 
     """
 
@@ -265,9 +240,7 @@ def get_mesh_markers_ids(su2_mesh_path):
                 log.info("Mesh marker " + new_marker + " start at line: " + str(start_line_nb))
 
             if line_nb > start_line_nb + 1:
-                # print(line)
                 line_ids = line.split("\n")[0].split()
-                # print(line_ids)
                 marker_dict[new_marker].append(int(line_ids[1]))
                 marker_dict[new_marker].append(int(line_ids[2]))
                 marker_dict[new_marker].append(int(line_ids[3]))
@@ -284,8 +257,9 @@ def get_mesh_markers_ids(su2_mesh_path):
     return marker_dict
 
 
-def extract_loads(results_files_dir):
-    """Function to extract loads from a SU2 resuts file.
+def extract_loads(results_files_dir: Path) -> None:
+    """
+    Extract loads from a SU2 resuts file.
 
     Args:
         results_files_dir (Path): Path to the directory where results from SU2 are saved.
@@ -298,17 +272,15 @@ def extract_loads(results_files_dir):
     surface_flow_force_file_path = Path(results_files_dir, SURFACE_FLOW_FORCE_FILE_NAME)
     force_file_path = Path(results_files_dir, FORCE_FILE_NAME)
 
+    # Update mesh
     config_dict = ConfigFile(config_file_path).data
     updated_mesh = compute_forces(surface_flow_file_path, force_file_path, config_dict)
     write_updated_mesh(updated_mesh, surface_flow_force_file_path)
-
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
+
 if __name__ == "__main__":
-
     log.info("Nothing to execute!")
-
-    # TODO: adapt to be use as stand alone

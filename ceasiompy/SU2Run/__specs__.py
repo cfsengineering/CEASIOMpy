@@ -1,169 +1,88 @@
-from pathlib import Path
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
 
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+GUI Interface of ModuleTemplate.
+
+Python version: >=3.8
+
+| Author: Leon Deligny
+| Creation: 18-Mar-2025
+
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+
+import streamlit as st
+
+from ceasiompy.Database.func.utils import get_aircrafts_list
 from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
-from ceasiompy.utils.commonxpath import (
-    AEROPERFORMANCE_XPATH,
-    GEOM_XPATH,
-    PROP_XPATH,
-    RANGE_XPATH,
-    REF_XPATH,
-    SU2_ACTUATOR_DISK_XPATH,
-    SU2_AEROMAP_UID_XPATH,
-    SU2_BC_FARFIELD_XPATH,
-    SU2_BC_WALL_XPATH,
-    SU2_CFL_NB_XPATH,
-    SU2_CFL_ADAPT_XPATH,
-    SU2_CFL_ADAPT_PARAM_DOWN_XPATH,
-    SU2_CFL_ADAPT_PARAM_UP_XPATH,
-    SU2_CFL_MIN_XPATH,
-    SU2_CFL_MAX_XPATH,
-    SU2_CONTROL_SURF_XPATH,
-    SU2_DAMPING_DER_XPATH,
-    SU2_EXTRACT_LOAD_XPATH,
-    SU2_FIXED_CL_XPATH,
-    SU2_MAX_ITER_XPATH,
-    SU2_MG_LEVEL_XPATH,
-    SU2_NB_CPU_XPATH,
-    SU2_ROTATION_RATE_XPATH,
-    SU2_TARGET_CL_XPATH,
-    SU2_UPDATE_WETTED_AREA_XPATH,
-    SU2MESH_XPATH,
-    SU2_CONFIG_RANS_XPATH,
-)
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-module_status = True
+from ceasiompy import log, NO_YES_LIST
+from ceasiompy.SU2Run import include_gui, TEMPLATE_TYPE
 
-# ===== Results directory path =====
+from ceasiompy.utils.commonxpath import *
 
-RESULTS_DIR = Path("Results", "SU2")
-
-# ===== CPACS inputs and outputs =====
+# ==============================================================================
+#   VARIABLE
+# ==============================================================================
 
 cpacs_inout = CPACSInOut()
 
-# ----- Input -----
+# ==============================================================================
+#   GUI INPUTS
+# ==============================================================================
 
 cpacs_inout.add_input(
     var_name="aeromap_uid",
     var_type=list,
-    default_value=None,
+    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
     unit=None,
     descr="Name of the aero map to calculate",
     xpath=SU2_AEROMAP_UID_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="__AEROMAP_SELECTION",
     gui_group="Aeromap settings",
 )
 
-# cpacs_inout.add_input(
-#     var_name="mesh_upload",
-#     var_type=str,
-#     default_value="your path",
-#     unit=None,
-#     descr="Name of the mesh to upload",
-#     xpath=SU2MESH_XPATH,
-#     gui=True,
-#     gui_name="Path of the mesh",
-#     gui_group="Mesh upload",
-# )
-
 cpacs_inout.add_input(
-    var_name="ref_len",
-    var_type=float,
-    default_value=None,
-    unit="m",
-    descr="Reference length of the aircraft",
-    xpath=REF_XPATH + "/length",
-    gui=False,
-    gui_name=None,
-    gui_group=None,
+    var_name="db_data_su2run",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="You need to specify the correct aircraft's name.",
+    xpath=SU2_CEASIOMPYDATA_XPATH,
+    gui=include_gui,
+    gui_name="Use ceasiompy.db mesh data",
+    gui_group="Data Settings",
 )
 
 cpacs_inout.add_input(
-    var_name="ref_area",
-    var_type=float,
-    default_value=None,
-    unit="m^2",
-    descr="Reference area of the aircraft",
-    xpath=REF_XPATH + "/area",
-    gui=False,
-    gui_name=None,
-    gui_group=None,
+    var_name="db_data_su2run_aircraft",
+    var_type=list,
+    default_value=get_aircrafts_list(),
+    unit=None,
+    descr="Runs SU2Run with aircraft's mesh data.",
+    xpath=SU2_AIRCRAFT_XPATH,
+    gui=include_gui,
+    gui_name="Use aircraft's mesh data",
+    gui_group="Data Settings",
 )
 
-for direction in ["x", "y", "z"]:
-    cpacs_inout.add_input(
-        var_name=f"ref_ori_moment_{direction}",
-        var_type=float,
-        default_value=0.0,
-        unit="m",
-        descr=f"Fuselage scaling on {direction} axis",
-        xpath=REF_XPATH + f"/point/{direction}",
-        gui=False,
-        gui_name=None,
-        gui_group=None,
-    )
-
-cpacs_inout.add_input(
-    var_name="cruise_mach",
-    var_type=float,
-    default_value=0.78,
-    unit="1",
-    descr="Aircraft cruise Mach number",
-    xpath=RANGE_XPATH + "/cruiseMach",
-    gui=False,
-    gui_name="Cruise Mach",
-    gui_group="If fixed CL",
-)
-
-cpacs_inout.add_input(
-    var_name="cruise_alt",
-    var_type=float,
-    default_value=120000.0,
-    unit="m",
-    descr="Aircraft cruise altitude",
-    xpath=RANGE_XPATH + "/cruiseAltitude",
-    gui=False,
-    gui_name="Cruise Altitude",
-    gui_group="If fixed CL",
-)
-
-cpacs_inout.add_input(
-    var_name="target_cl",
-    var_type=float,
-    default_value=1.0,
-    unit="1",
-    descr="Value of CL to achieve to have a level flight with the given conditions",
-    xpath=SU2_TARGET_CL_XPATH,
-    gui=False,
-    gui_name=None,
-    gui_group=None,
-)
-
-cpacs_inout.add_input(
-    var_name="fixed_cl",
-    var_type=str,
-    default_value="NO",
-    unit="-",
-    descr="FIXED_CL_MODE parameter for SU2",
-    xpath=SU2_FIXED_CL_XPATH,
-    gui=False,
-    gui_name=None,
-    gui_group=None,
-)
 
 cpacs_inout.add_input(
     var_name="damping_der",
     var_type=bool,
     default_value=False,
-    unit="1",
+    unit=None,
     descr="To check if damping derivatives should be calculated or not",
     xpath=SU2_DAMPING_DER_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Damping Derivatives",
     gui_group="Aeromap Options",
 )
@@ -172,10 +91,10 @@ cpacs_inout.add_input(
     var_name="rotation_rate",
     var_type=float,
     default_value=1.0,
-    unit="rad/s",
+    unit="[rad/s]",
     descr="Rotation rate use to calculate damping derivatives",
     xpath=SU2_ROTATION_RATE_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Rotation Rate",
     gui_group="Aeromap Options",
 )
@@ -184,11 +103,23 @@ cpacs_inout.add_input(
     var_name="control_surf",
     var_type=bool,
     default_value=False,
-    unit="1",
+    unit=None,
     descr="To check if control surfaces deflections should be calculated or not",
-    xpath=SU2_CONTROL_SURF_XPATH,
-    gui=True,
+    xpath=SU2_CONTROL_SURF_BOOL_XPATH,
+    gui=include_gui,
     gui_name="Control Surfaces",
+    gui_group="Aeromap Options",
+)
+
+cpacs_inout.add_input(
+    var_name="ctrl_surf_deflection",
+    var_type="multiselect",
+    default_value=[0.0],
+    unit="[deg]",
+    descr="Rotation of control surface",
+    xpath=SU2_CONTROL_SURF_ANGLE_XPATH,
+    gui=include_gui,
+    gui_name="Control surface angle",
     gui_group="Aeromap Options",
 )
 
@@ -196,10 +127,10 @@ cpacs_inout.add_input(
     var_name="nb_proc",
     var_type=int,
     default_value=get_reasonable_nb_cpu(),
-    unit="1",
+    unit=None,
     descr="Number of proc to use to run SU2",
     xpath=SU2_NB_CPU_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Nb of processor",
     gui_group="CPU",
 )
@@ -207,23 +138,23 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="RANS calculation",
     var_type=list,
-    default_value=["Euler", "RANS"],
-    unit="1",
-    descr="Running an Euler or a RANS calculation",
+    default_value=TEMPLATE_TYPE,
+    unit=None,
+    descr="Running EULER or RANS calculation",
     xpath=SU2_CONFIG_RANS_XPATH,
-    gui=True,
-    gui_name="Euler or RANS simulation",
+    gui=include_gui,
+    gui_name="EULER or RANS simulation",
     gui_group="SU2 Parameters",
 )
 
 cpacs_inout.add_input(
     var_name="max_iter",
     var_type=int,
-    default_value=200,
-    unit="1",
+    default_value=5000,
+    unit=None,
     descr="Maximum number of iterations performed by SU2",
     xpath=SU2_MAX_ITER_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Maximum iterations",
     gui_group="SU2 Parameters",
 )
@@ -232,22 +163,22 @@ cpacs_inout.add_input(
     var_name="cfl_nb",
     var_type=float,
     default_value=1.0,
-    unit="1",
+    unit=None,
     descr="CFL Number, Courant–Friedrichs–Lewy condition",
     xpath=SU2_CFL_NB_XPATH,
-    gui=False,
+    gui=include_gui,
     gui_name="CFL Number",
     gui_group="SU2 Parameters",
 )
 
 cpacs_inout.add_input(
     var_name="cfl_adapt",
-    var_type=bool,
-    default_value=False,
-    unit="1",
+    var_type=list,
+    default_value=NO_YES_LIST,
+    unit=None,
     descr="CFL Adaptation",
     xpath=SU2_CFL_ADAPT_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="CFL Adaptation",
     gui_group="SU2 Parameters",
 )
@@ -256,10 +187,10 @@ cpacs_inout.add_input(
     var_name="cfl_adapt_param_factor_down",
     var_type=float,
     default_value=0.5,
-    unit="1",
+    unit=None,
     descr="CFL Adaptation Factor Down",
     xpath=SU2_CFL_ADAPT_PARAM_DOWN_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="CFL Adaptation Factor Down",
     gui_group="SU2 Parameters",
 )
@@ -268,10 +199,10 @@ cpacs_inout.add_input(
     var_name="cfl_adapt_param_factor_up",
     var_type=float,
     default_value=1.5,
-    unit="1",
+    unit=None,
     descr="CFL Adaptation Factor Up",
     xpath=SU2_CFL_ADAPT_PARAM_UP_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="CFL Adaptation Factor Up",
     gui_group="SU2 Parameters",
 )
@@ -280,10 +211,10 @@ cpacs_inout.add_input(
     var_name="cfl_adapt_param_min",
     var_type=float,
     default_value=0.5,
-    unit="1",
+    unit=None,
     descr="CFL Minimum Value",
     xpath=SU2_CFL_MIN_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="CFL Min Value",
     gui_group="SU2 Parameters",
 )
@@ -292,10 +223,10 @@ cpacs_inout.add_input(
     var_name="cfl_adapt_param_max",
     var_type=float,
     default_value=100,
-    unit="1",
+    unit=None,
     descr="CFL Maximum Value",
     xpath=SU2_CFL_MAX_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="CFL Max Value",
     gui_group="SU2 Parameters",
 )
@@ -304,10 +235,10 @@ cpacs_inout.add_input(
     var_name="mg_level",
     var_type=int,
     default_value=3,
-    unit="3",
+    unit=None,
     descr="Multi-grid level (0 = no multigrid)",
     xpath=SU2_MG_LEVEL_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Multigrid Level",
     gui_group="SU2 Parameters",
 )
@@ -316,10 +247,10 @@ cpacs_inout.add_input(
     var_name="su2_mesh_path",
     var_type="pathtype",
     default_value="-",
-    unit="1",
+    unit=None,
     descr="Absolute path of the SU2 mesh",
     xpath=SU2MESH_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="SU2 Mesh",
     gui_group="Inputs",
 )
@@ -328,10 +259,10 @@ cpacs_inout.add_input(
     var_name="update_wetted_area",
     var_type=bool,
     default_value=True,
-    unit="1",
+    unit=None,
     descr="Option to update the wetted area from the latest SU2 result.",
     xpath=SU2_UPDATE_WETTED_AREA_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Update Wetted Area",
     gui_group="Results",
 )
@@ -340,10 +271,10 @@ cpacs_inout.add_input(
     var_name="check_extract_loads",
     var_type=bool,
     default_value=False,
-    unit="1",
+    unit=None,
     descr="Option to extract loads (forces in each point) from results",
     xpath=SU2_EXTRACT_LOAD_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Extract loads",
     gui_group="Results",
 )
@@ -354,10 +285,10 @@ cpacs_inout.add_input(
     var_name="include_actuator_disk",
     var_type=bool,
     default_value=False,
-    unit="1",
+    unit=None,
     descr="To check if actuator disk(s) should be included in the SU2 calculation",
     xpath=SU2_ACTUATOR_DISK_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Include actuator disk(s)",
     gui_group="Actuator disk",
 )
@@ -368,8 +299,8 @@ cpacs_inout.add_input(
     default_value=3000,
     unit="N",
     descr="Aircraft thrust",
-    xpath=PROP_XPATH + "/propeller/thrust",
-    gui=True,
+    xpath=PROPELLER_THRUST_XPATH,
+    gui=include_gui,
     gui_name="Thrust",
     gui_group="Actuator disk",
 )
@@ -381,7 +312,7 @@ cpacs_inout.add_input(
 #     unit="1/s",
 #     descr="Propeller rotational velocity",
 #     xpath=PROP_XPATH + "/propeller/rotational_velocity",
-#     gui=True,
+#     gui=include_gui,
 #     gui_name="Rotational velocity setting",
 #     gui_group="Actuator disk",
 # )
@@ -392,8 +323,8 @@ cpacs_inout.add_input(
     default_value=False,
     unit=None,
     descr="Enable or disable the tip loss correction of Prandtl",
-    xpath=PROP_XPATH + "/propeller/blade/loss",
-    gui=True,
+    xpath=PROPELLER_BLADE_LOSS_XPATH,
+    gui=include_gui,
     gui_name="Tip loss correction",
     gui_group="Actuator disk",
 )
@@ -405,13 +336,122 @@ cpacs_inout.add_input(
 #     unit=None,
 #     descr="Number of propeller blades",
 #     xpath=PROP_XPATH + "/propeller/bladeNumber",
-#     gui=True,
+#     gui=include_gui,
 #     gui_name="Propeller blades numbers",
 #     gui_group="Actuator disk",
 # )
 
+# Dynamic Stability Settings 
+cpacs_inout.add_input(
+    var_name="dot_derivatives",
+    var_type=bool,
+    default_value=False,
+    unit=None,
+    descr="Computing dot derivatives",
+    xpath=SU2_DYNAMICDERIVATIVES_BOOL_XPATH,
+    gui=include_gui,
+    gui_name="Compute derivatives",
+    gui_group="Dynamic Stability Settings",
+)
 
-# ----- Output -----
+cpacs_inout.add_input(
+    var_name="time_steps",
+    var_type=int,
+    default_value=20,
+    unit=None,
+    descr="Size of time vector i.e. t = 2pi * (0, 1/n-1, ..., n-2/n-1)",
+    xpath=SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH,
+    gui=include_gui,
+    gui_name="Time Size (n > 1)",
+    gui_group="Dynamic Stability Settings",
+)
+
+cpacs_inout.add_input(
+    var_name="amplitude",
+    var_type=float,
+    default_value=1.0,
+    unit="[deg]",
+    descr="Oscillation: a * sin(w t) and a > 0",
+    xpath=SU2_DYNAMICDERIVATIVES_AMPLITUDE_XPATH,
+    gui=include_gui,
+    gui_name="Oscillation's amplitude (a): ",
+    gui_group="Dynamic Stability Settings",
+)
+
+cpacs_inout.add_input(
+    var_name="angular_frequency",
+    var_type=float,
+    default_value=0.087,
+    unit="[rad/s]",
+    descr="Oscillation: a * sin(w t) and w > 0",
+    xpath=SU2_DYNAMICDERIVATIVES_FREQUENCY_XPATH,
+    gui=include_gui,
+    gui_name="Oscillation's angular frequency (w)",
+    gui_group="Dynamic Stability Settings",
+)
+
+cpacs_inout.add_input(
+    var_name="inner_iter",
+    var_type=int,
+    default_value=100,
+    unit=None,
+    descr="Per time step, the maximum number of iterations the solver will use if it have not converged.",
+    xpath=SU2_DYNAMICDERIVATIVES_INNERITER_XPATH,
+    gui=include_gui,
+    gui_name="Maximum number of inner iterations",
+    gui_group="Dynamic Stability Settings",
+)
+cpacs_inout.add_input(
+    var_name="cruise_mach",
+    var_type=float,
+    default_value=0.78,
+    unit=None,
+    descr="Aircraft cruise Mach number",
+    xpath=RANGE_CRUISE_MACH_XPATH,
+    gui=include_gui,
+    gui_name="Cruise Mach",
+    gui_group="If fixed CL",
+)
+
+cpacs_inout.add_input(
+    var_name="cruise_alt",
+    var_type=float,
+    default_value=120000.0,
+    unit="m",
+    descr="Aircraft cruise altitude",
+    xpath=RANGE_CRUISE_ALT_XPATH,
+    gui=include_gui,
+    gui_name="Cruise Altitude",
+    gui_group="If fixed CL",
+)
+
+cpacs_inout.add_input(
+    var_name="target_cl",
+    var_type=float,
+    default_value=1.0,
+    unit=None,
+    descr="Value of CL to achieve to have a level flight with the given conditions",
+    xpath=SU2_TARGET_CL_XPATH,
+    gui=include_gui,
+    gui_name="Target CL value",
+    gui_group="If fixed CL",
+)
+
+cpacs_inout.add_input(
+    var_name="fixed_cl",
+    var_type=list,
+    default_value=NO_YES_LIST,
+    unit=None,
+    descr="FIXED_CL_MODE parameter for SU2",
+    xpath=SU2_FIXED_CL_XPATH,
+    gui=include_gui,
+    gui_name="Fixed CL value",
+    gui_group="If fixed CL",
+)
+
+# ==============================================================================
+#   GUI OUTPUTS
+# ==============================================================================
 
 cpacs_inout.add_output(
     var_name="wetted_area",
@@ -426,7 +466,7 @@ cpacs_inout.add_output(
     var_name="bc_wall_list",
     var_type=list,
     default_value=None,
-    unit="1",
+    unit=None,
     descr="Wall boundary conditions found in the SU2 mesh",
     xpath=SU2_BC_WALL_XPATH,
 )
@@ -435,7 +475,7 @@ cpacs_inout.add_output(
     var_name="bc_farfield_list",
     var_type=list,
     default_value=None,
-    unit="1",
+    unit=None,
     descr="Farfield boundary conditions found in the SU2 mesh (for off engines)",
     xpath=SU2_BC_FARFIELD_XPATH,
 )
@@ -448,3 +488,11 @@ cpacs_inout.add_output(
     descr="aeroMap with aero coefficients calculated by SU2",
     xpath=AEROPERFORMANCE_XPATH + "/aeroMap/aeroPerformanceMap",
 )
+
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")

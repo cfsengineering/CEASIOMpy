@@ -313,7 +313,7 @@ def get_avl_results(cpacs: CPACS, wkdir: Path) -> None:
             raise FileNotFoundError("No result strip forces 'fs.txt' file have been found!")
 
         # Check if we are running the standard aeromap
-        if not "aileron" in config_dir.name:
+        if "p" in config_dir.name:
             alt = float(config_dir.name.split("_")[1].split("alt")[1])
             mach = float(config_dir.name.split("_")[2].split("mach")[1])
             aoa = float(config_dir.name.split("_")[3].split("aoa")[1])
@@ -349,6 +349,7 @@ def get_avl_results(cpacs: CPACS, wkdir: Path) -> None:
                 st_file_path,
             )
 
+        # Control Surface deflections
         else:
             mach = float(config_dir.name.split("_")[2].split("mach")[1])
             aoa = float(config_dir.name.split("_")[3].split("aoa")[1])

@@ -94,7 +94,7 @@ These guidelines have been adapted from:
 Logging the output of a module can be very useful to understand what happens during its execution or debugging it.  The CEASIOMpy logger can be imported and used as following:
 
 ```python
-from lib.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 ```
 
 Then, you can use the following logging function anywhere in the code of the module:

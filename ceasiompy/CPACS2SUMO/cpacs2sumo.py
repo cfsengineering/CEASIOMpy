@@ -18,7 +18,6 @@ TODO:
     * Use 'sumo_str_format' function everywhere
     * Improve the class data structure of Engine
     * Use class data structure for fuselage and wings
-
 """
 
 # ==============================================================================

@@ -24,7 +24,6 @@ from ceasiompy import log
 from ceasiompy.PyAVL import include_gui
 
 from ceasiompy.utils.commonxpath import (
-    AVL_XPATH,
     AVL_PLOT_XPATH,
     AVL_DISTR_XPATH,
     AVL_NB_CPU_XPATH,

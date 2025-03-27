@@ -26,10 +26,15 @@ TODO:
 
 """
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
 
+<<<<<<< HEAD
 import gmsh
 
 import numpy as np
@@ -55,6 +60,10 @@ from ceasiompy import log
 from ceasiompy.CPACS2GMSH.func.cpacs2gmsh_utils import MESH_COLORS
 
 from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_FUSELAGE_XPATH, GMSH_MESH_SIZE_WINGS_XPATH, GMSH_MESH_SIZE_CTRLSURFS_XPATH
+=======
+from pathlib import Path
+from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
+>>>>>>> origin/main
 from ceasiompy.utils.commonnames import (
     ACTUATOR_DISK_INLET_SUFFIX,
     ACTUATOR_DISK_OUTLET_SUFFIX,
@@ -62,6 +71,30 @@ from ceasiompy.utils.commonnames import (
     ENGINE_INTAKE_SUFFIX,
     GMSH_ENGINE_CONFIG_NAME,
 )
+<<<<<<< HEAD
+=======
+from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_FUSELAGE_XPATH, GMSH_MESH_SIZE_WINGS_XPATH
+from ceasiompy.utils.configfiles import ConfigFile
+import gmsh
+import numpy as np
+
+from ceasiompy.CPACS2GMSH.func.advancemeshing import (
+    refine_wing_section,
+    set_domain_mesh,
+    refine_small_surfaces,
+    min_fields,
+)
+from ceasiompy.CPACS2GMSH.func.wingclassification import classify_wing
+
+from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.utils.ceasiompyutils import get_part_type
+
+from cpacspy.cpacsfunctions import create_branch
+
+from ceasiompy.CPACS2GMSH.func.mesh_sizing import fuselage_size, wings_size
+
+log = get_logger()
+>>>>>>> origin/main
 
 
 # =================================================================================================
@@ -187,7 +220,10 @@ class ModelPart:
             self.lines_tags = [dimtag[1] for dimtag in self.lines]
             self.points_tags = [dimtag[1] for dimtag in self.points]
             return
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
         # if not rotor part
         # Detect only shared entities with the final domain
         self.surfaces = sorted(list(set(self.surfaces).intersection(set(final_domain.surfaces))))
@@ -398,6 +434,7 @@ def process_gmsh_log(gmsh_log):
     log.info(f"Total meshing time : {round(total_time, 2)}s")
 
 
+<<<<<<< HEAD
 def duplicate_disk_actuator_surfaces(part: ModelPart):
     """
     Duplicate the surfaces of a disk actuator.
@@ -410,6 +447,114 @@ def duplicate_disk_actuator_surfaces(part: ModelPart):
     # "crack" the mesh by duplicating the elements and nodes on the disk surface
     if len(part.physical_groups) > 1:
         raise ValueError("Disk actuator can only have one surface.")
+=======
+def add_disk_actuator(brep_dir, config_file):
+    """
+    Function to create a 2D disk in a given location to represent a rotor as a
+    disk actuator
+    ...
+
+    Args:
+    ----------
+    brep_dir : Path
+        path to the brep files of the aircraft that also contains the rotor config file
+    config_file : Configfile
+        config file of the propellers configuration on the aircraft
+
+    """
+
+    nb_rotor = int(config_file["NB_ROTOR"])
+
+    for k in range(1, nb_rotor + 1):
+        # get the rotor configuration from cfg file
+        rotor_uid = config_file[f"UID_{k}"]
+        radius = float(config_file[f"{rotor_uid}_ROTOR_RADIUS"])
+        sym = int(config_file[f"{rotor_uid}_SYMMETRIC"])
+        trans_vector = (
+            float(config_file[f"{rotor_uid}_TRANS_X"]),
+            float(config_file[f"{rotor_uid}_TRANS_Y"]),
+            float(config_file[f"{rotor_uid}_TRANS_Z"]),
+        )
+        rot_vector = (
+            float(config_file[f"{rotor_uid}_ROT_X"]),
+            float(config_file[f"{rotor_uid}_ROT_Y"]),
+            float(config_file[f"{rotor_uid}_ROT_Z"]),
+        )
+
+        # Adding rotating disk
+        gmsh.initialize()
+        # generate the inlet_disk (gmsh always create a disk in the xy plane)
+        disk_tag = gmsh.model.occ.addDisk(*trans_vector, radius, radius)
+        disk_dimtag = (2, disk_tag)
+
+        # y axis 180deg flip to make the inlet of the disk face forward
+        gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 1, 0, np.radians(180))
+        gmsh.model.occ.synchronize()
+
+        # rotation given in the cpacs file
+        # x axis
+        gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 1, 0, 0, np.radians(rot_vector[0]))
+        # y axis
+        gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 1, 0, np.radians(rot_vector[1]))
+        # z axis
+        gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 0, 1, np.radians(rot_vector[2]))
+
+        gmsh.model.occ.synchronize()
+
+        path_disk = Path(brep_dir, f"{rotor_uid}.brep")
+        gmsh.write(str(path_disk))
+
+        gmsh.clear()
+        gmsh.finalize()
+
+        if sym == 2:
+            # Adding the symmetric
+            gmsh.initialize()
+            # generate the inlet_disk (gmsh always create a disk in the xy plane)
+            disk_tag = gmsh.model.occ.addDisk(*trans_vector, radius, radius)
+            disk_dimtag = (2, disk_tag)
+
+            # y axis 180deg flip to make the inlet of the disk face forward is not necessary for
+            # the mirrored part, and for now the symmetry is not implemented correctly since
+            # the symmetry does not take into account the orientation of the rotor and the plane
+            # of symmetry is assume to be the xz plane
+            # When the face of the disk actuator are not oriented well the simulation shows
+            # increasing cd and will probably diverge
+
+            # rotation given in the cpacs file
+            # x axis
+            gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 1, 0, 0, np.radians(rot_vector[0]))
+            # y axis
+            gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 1, 0, np.radians(rot_vector[1]))
+            # z axis
+            gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 0, 1, np.radians(rot_vector[2]))
+
+            gmsh.model.occ.synchronize()
+
+            gmsh.model.occ.mirror([disk_dimtag], 0, 1, 0, 0)
+            gmsh.model.occ.synchronize()
+            path_disk = Path(brep_dir, f"{rotor_uid}_mirrored.brep")
+            gmsh.write(str(path_disk))
+
+            gmsh.clear()
+            gmsh.finalize()
+
+
+def duplicate_disk_actuator_surfaces(part):
+    """
+    Function to duplicate the surfaces of a disk actuator
+    ...
+
+    Args:
+    ----------
+    part : ModelPart
+        Part object of the rotor modeled as a disk actuator
+    """
+    # "crack" the mesh by duplicating the elements and nodes on the disk surface
+    if len(part.physical_groups) > 1:
+        # raise error since disk actuator can only have one surface before duplicating
+        raise ValueError("Disk actuator can only have one surface")
+>>>>>>> origin/main
 
     gmsh.plugin.setNumber("Crack", "Dimension", 2)
     gmsh.plugin.setNumber("Crack", "PhysicalGroup", part.physical_groups[0])
@@ -469,16 +614,27 @@ def control_disk_actuator_normal():
 
 
 def generate_gmsh(
+<<<<<<< HEAD
     tixi: Tixi3,
     brep_dir: Path,
     results_dir: Path,
     open_gmsh: bool = False,
     farfield_factor: float = 6.0,
     symmetry: bool = False,
+=======
+    cpacs,
+    cpacs_path,
+    brep_dir,
+    results_dir,
+    open_gmsh=False,
+    farfield_factor=6,
+    symmetry=False,
+>>>>>>> origin/main
     farfield_size_factor=10,
     n_power_factor=2,
     n_power_field=0.9,
     fuselage_mesh_size_factor=1,
+<<<<<<< HEAD
     wing_mesh_size_factor=0.5,
     mesh_size_engines: float = 0.23,
     mesh_size_propellers: float = 0.23,
@@ -537,12 +693,101 @@ def generate_gmsh(
 
     # Initialize gmsh
     initialize_gmsh()
+=======
+    wing_mesh_size_factor=1.5,
+    mesh_size_engines=0.23,
+    mesh_size_propellers=0.23,
+    refine_factor=2.0,
+    refine_truncated=False,
+    auto_refine=True,
+    testing_gmsh=False,
+):
+    """
+    Function to generate a mesh from brep files forming an airplane
+    Function 'generate_gmsh' is a subfunction of CPACS2GMSH which return a
+    mesh file.
+    The airplane is fused with the different brep files : fuselage, wings and
+    other parts are identified anf fused together, then a farfield is generated
+    and the airplane is subtracted to him to generate the final fluid domain
+    marker of each airplane part and farfield surfaces is reported in the mesh
+    file.
+    Args:
+    ----------
+    cpacs : CPACS
+        CPACS object
+    brep_dir : Path
+        Path to the directory containing the brep files
+    results_dir : Path
+        Path to the directory containing the result (mesh) files
+    open_gmsh : bool
+        Open gmsh GUI after the mesh generation if set to true
+    farfield_factor = float
+        Factor to enlarge the farfield : factor times the largest dimension(x,y,z)
+        of the aircraft
+    symmetry : bool
+        If set to true, the mesh will be generated with symmetry wrt the x,z plane
+    mesh_size_farfield : float
+        Size of the farfield mesh
+    mesh_size_fuselage : float
+        Size of the fuselage mesh
+    mesh_size_wings : float
+        Size of the wing mesh
+    mesh_size_engines : float
+        Size of the engine mesh
+    mesh_size_propellers : float
+        Size of the propeller mesh
+    advance_mesh : bool
+        If set to true, the mesh will be generated with advanced meshing options
+    refine_factor : float
+        refine factor for the mesh le and te edge
+    refine_truncated : bool
+        If set to true, the refinement can change to match the truncated te thickness
+    auto_refine : bool
+        If set to true, the mesh will be checked for quality
+    testing_gmsh : bool
+        If set to true, the gmsh sessions will not be clear and killed at the end of
+        the function, this allow to test the gmsh feature after the call of generate_gmsh()
+    ...
+    Returns:
+    ----------
+    mesh_file : Path
+        Path to the mesh file generated by gmsh
+    aircraft_parts : list(ModelPart)
+        List of the aircraft parts in the model
+
+    """
+
+    # Determine if rotor are present in the aircraft model
+    rotor_model = False
+    if Path(brep_dir, "config_rotors.cfg").exists():
+        rotor_model = True
+
+    if rotor_model:
+        log.info("Adding disk actuator")
+        config_file = ConfigFile(Path(brep_dir, "config_rotors.cfg"))
+        add_disk_actuator(brep_dir, config_file)
+
+    # Retrieve all brep
+    brep_files = list(brep_dir.glob("*.brep"))
+    brep_files.sort()
+
+    # initialize gmsh
+    gmsh.initialize()
+    # Stop gmsh output log in the terminal
+    gmsh.option.setNumber("General.Terminal", 0)
+    # Log complexity
+    gmsh.option.setNumber("General.Verbosity", 5)
+>>>>>>> origin/main
 
     # Import each aircraft original parts / parent parts
     aircraft_parts = []
     parts_parent_dimtag = []
+<<<<<<< HEAD
 
     log.info(f"Importing files from {brep_dir}.")
+=======
+    log.info(f"Importing files from {brep_dir}")
+>>>>>>> origin/main
     for brep_file in brep_files:
         # Import the part and create the aircraft part object
         part_entities = gmsh.model.occ.importShapes(str(brep_file), highestDimOnly=False)
@@ -550,12 +795,17 @@ def generate_gmsh(
 
         # Create the aircraft part object
         part_obj = ModelPart(uid=brep_file.stem)
+<<<<<<< HEAD
         part_obj.part_type = get_part_type(tixi, part_obj.uid)
+=======
+        part_obj.part_type = get_part_type(cpacs.tixi, part_obj.uid)
+>>>>>>> origin/main
 
         # Add to the list of aircraft parts
         aircraft_parts.append(part_obj)
         parts_parent_dimtag.append(part_entities[0])
 
+<<<<<<< HEAD
         log.info(f"Part: {part_obj.uid} imported.")
 
     gmsh.model.occ.synchronize()
@@ -565,6 +815,14 @@ def generate_gmsh(
     ###########################################
 
     model_bb = gmsh.model.getBoundingBox(-1, -1)  # Get bounding box of whole model
+=======
+        log.info(f"Part : {part_obj.uid} imported")
+
+    gmsh.model.occ.synchronize()
+
+    # Create external domain for the farfield
+    model_bb = gmsh.model.getBoundingBox(-1, -1)
+>>>>>>> origin/main
     model_dimensions = [
         abs(model_bb[0] - model_bb[3]),
         abs(model_bb[1] - model_bb[4]),
@@ -578,18 +836,26 @@ def generate_gmsh(
     ]
 
     domain_length = farfield_factor * max(model_dimensions)
+<<<<<<< HEAD
 
+=======
+>>>>>>> origin/main
     farfield = gmsh.model.occ.addSphere(*model_center, domain_length)
     gmsh.model.occ.synchronize()
 
     ext_domain = [(3, farfield)]
 
+<<<<<<< HEAD
     ##################################################
     # Ensure domain is symmetric if symmetry == True #
     ##################################################
 
     if symmetry:
         log.info("Preparing: symmetry operation.")
+=======
+    if symmetry:
+        log.info("Preparing: symmetry operation")
+>>>>>>> origin/main
         sym_plane = gmsh.model.occ.addDisk(*model_center, domain_length, domain_length)
         sym_vector = [0, 1, 0]
         plane_vector = [0, 0, 1]
@@ -601,6 +867,7 @@ def generate_gmsh(
             )
         parts_parent_dimtag.append(sym_box[1])
 
+<<<<<<< HEAD
     ###########################################
     # Fragment operation aircraft to farfield #
     ###########################################
@@ -619,15 +886,45 @@ def generate_gmsh(
     # Ror example: if the first part imported was "fuselage1" then the first children_dimtag
     # is a list of all the "child" volumes in the model that are from the "parent" "fuselage1"
     # we can then associate each entities in the model to their parent origin.
+=======
+    log.info("Start fragment operation between the aircraft and the farfield")
+
+    _, children_dimtag = gmsh.model.occ.fragment(ext_domain, parts_parent_dimtag)
+    gmsh.model.occ.synchronize()
+
+    log.info("Fragment operation finished")
+
+    # fragment produce fragments_dimtag and children_dimtag
+
+    # fragments_dimtag is a list of tuples (dimtag, tag) of all the volumes in the model
+    # the first fragment is the entire domain, each other fragment are sub volume of the domain
+
+    # children_dimtag is a list list of tuples (dimtag, tag)
+    # the first list is associated to the entire domain as for fragments_dimtag, we don't need it
+    # so for the following we work with children_dimtag[1:]
+
+    # The rest of children_dimtag are list of tuples (dimtag, tag) that represent volumes in the
+    # model children_dimtag is "sorted" according to the order of importation of the parent parts.
+    # for example : if the first part imported was "fuselage1" then the first children_dimtag
+    # is a list of all the "child" volumes in the model that are from the "parent" "fuselage1"
+    # we can then associate each entities in the model to their parent origin
+>>>>>>> origin/main
 
     # When two parents part ex. a fuselage and a wing intersect each other
     # two children are generated for both parts, thus if a child is shared by
     # two parent parts (or more), then this child is a volume given
     # by the intersection of the two parent parts, we don't need them and some
+<<<<<<< HEAD
     # of its surfaces, lines and point in the final models.
 
     # Thus we need to find those unwanted child and their entities that don't belong
     # to the final model, and remove them.
+=======
+    # of its surfaces, lines and point in the final models
+
+    # Thus we need to find those unwanted child and their entities that don't belong
+    # to the final model, and remove them
+>>>>>>> origin/main
 
     # afterward the entities of each child will be associated with their parent part names
     # then we can delete all the child in the model, and only keep the final domain
@@ -636,6 +933,7 @@ def generate_gmsh(
     # to the original parent parts imported at the begging of the function
 
     # If symmetry is applied the last children_dimtag is all the volume in the symmetry cylinder
+<<<<<<< HEAD
     # thus the we can easily remove them and only keep the volumes of half domain.
 
     log.info("Start fragment operation between the aircraft and the farfield.")
@@ -650,6 +948,15 @@ def generate_gmsh(
         # Take the unwanted children from symmetry
         unwanted_children = children_dimtag[-1]
         # Careful: this only take into account volumes elements in the symmetry
+=======
+    # thus the we can easily remove them and only keep the volumes of half domain
+
+    unwanted_children = []
+    if symmetry:
+        # take the unwanted children from symmetry
+        unwanted_children = children_dimtag[-1]
+        # Attention this only take into account volumes elements in the symmetry
+>>>>>>> origin/main
         # Disk actuator that are 2D element are not taken into account
         # and will be removed latter
 
@@ -681,7 +988,11 @@ def generate_gmsh(
                     parent.children_dimtag.remove(dimtag)
 
         if not parent.children_dimtag:
+<<<<<<< HEAD
             log.info(f"{parent.uid} has no more children due to symmetry, it will be deleted.")
+=======
+            log.info(f"{parent.uid} has no more children due to symmetry, it will be deleted")
+>>>>>>> origin/main
             unwanted_parents.append(parent)
 
     # Remove unwanted parents
@@ -709,7 +1020,11 @@ def generate_gmsh(
     # Remove unwanted children from the model
     gmsh.model.occ.remove(unwanted_children, recursive=True)
     gmsh.model.occ.synchronize()
+<<<<<<< HEAD
     log.info(f"Unwanted children {unwanted_children} removed from model.")
+=======
+    log.info(f"Unwanted children {unwanted_children} removed from model")
+>>>>>>> origin/main
 
     # Associate good child with their parent
     good_children = []
@@ -722,7 +1037,11 @@ def generate_gmsh(
                 parent.associate_child_to_parent(child_dimtag)
 
     # Now that its clear which child entities in the model are from which parent part,
+<<<<<<< HEAD
     # we can delete the child volumes and only keep the final domain.
+=======
+    # we can delete the child volumes and only keep the final domain
+>>>>>>> origin/main
     gmsh.model.occ.remove(good_children, recursive=True)
     gmsh.model.occ.synchronize()
 
@@ -730,6 +1049,7 @@ def generate_gmsh(
     # we will use the ModelPart class to store the entities of the final domain
     final_domain = ModelPart("fluid")
     left_volume = gmsh.model.getEntities(dim=3)
+<<<<<<< HEAD
 
     len_left_volume = len(left_volume)
     if len_left_volume != 1:
@@ -750,6 +1070,18 @@ def generate_gmsh(
     # but there might be some lines and surfaces from the hole in the fuselage
     # that were not eliminated since they were shared by the unwanted children
     # and those lines and surfaces were assigned to the fuselage part.
+=======
+    final_domain.associate_child_to_parent(*left_volume)
+
+    # As already discussed, it is often that two parts intersect each other,
+    # it can also happened that some parts create holes inside other parts
+    # for example a fuselage and 2 wings defined in the center of the fuselage
+    # will create a holed fragment of the fuselage
+    # This is not a problem since this hole is not in the final domain volume
+    # but they may be some lines and surfaces from the hole in the fuselage
+    # that were not eliminated since they were shared by the unwanted children
+    # and those lines and surfaces were assigned to the fuselage part
+>>>>>>> origin/main
 
     # thus we need to clean a bit the associated entities by the function
     # associate_child_to_parent() by comparing them with the entities of the
@@ -783,10 +1115,18 @@ def generate_gmsh(
                 gmsh.model.setPhysicalName(2, surfaces_group, f"{part.uid}")
             part.physical_groups.append(surfaces_group)
 
+<<<<<<< HEAD
     log.info("Model has been cleaned.")
 
     # Farfield
     # farfield entities are simply the entities left in the final domain that don't belong to the aircraft.
+=======
+    log.info("Model has been cleaned")
+
+    # Farfield
+    # farfield entities are simply the entities left in the final domain
+    # that don't belong to the aircraft
+>>>>>>> origin/main
 
     farfield_surfaces = list(set(final_domain.surfaces) - set(aircraft.surfaces))
     farfield_points = list(set(final_domain.points) - set(aircraft.points))
@@ -834,6 +1174,7 @@ def generate_gmsh(
     # Thus be sure to define mesh size in a certain order to control
     # the size of the points on boundaries.
 
+<<<<<<< HEAD
     fuselage_maxlen, fuselage_minlen = fuselage_size(tixi)
     mesh_size_fuselage = ((fuselage_maxlen + fuselage_minlen) / 2) / fuselage_mesh_size_factor
     log.info(f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
@@ -865,6 +1206,39 @@ def generate_gmsh(
             gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
         else:
             log.warning(f"Incorrect part.part_type {part.part_type} in generategmesh.py.")
+=======
+    fuselage_maxlen, fuselage_minlen = fuselage_size(cpacs_path)
+    mesh_size_fuselage = ((fuselage_maxlen + fuselage_minlen) / 2) / fuselage_mesh_size_factor
+    log.info(f"Mesh size fuselage={mesh_size_fuselage:.3f} m")
+
+    create_branch(cpacs.tixi, GMSH_MESH_SIZE_FUSELAGE_XPATH)
+    cpacs.tixi.updateDoubleElement(GMSH_MESH_SIZE_FUSELAGE_XPATH, mesh_size_fuselage, "%.3f")
+
+    wing_maxlen, wing_minlen = wings_size(cpacs_path)
+    mesh_size_wing = ((wing_maxlen * 0.8 + wing_minlen) / 2) / wing_mesh_size_factor
+    log.info(f"Mesh size wing={mesh_size_wing:.3f} m")
+
+    create_branch(cpacs.tixi, GMSH_MESH_SIZE_WINGS_XPATH)
+    cpacs.tixi.updateDoubleElement(GMSH_MESH_SIZE_WINGS_XPATH, mesh_size_wing, "%.3f")
+
+    for part in aircraft_parts:
+        if part.part_type == "fuselage":
+            part.mesh_size = mesh_size_fuselage
+            gmsh.model.mesh.setSize(part.points, part.mesh_size)
+            gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
+        elif part.part_type in ["wing", "pylon"]:
+            part.mesh_size = mesh_size_wing
+            gmsh.model.mesh.setSize(part.points, part.mesh_size)
+            gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
+        elif part.part_type == "engine":
+            part.mesh_size = mesh_size_engines
+            gmsh.model.mesh.setSize(part.points, part.mesh_size)
+            gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
+        elif part.part_type == "rotor":
+            part.mesh_size = mesh_size_propellers
+            gmsh.model.mesh.setSize(part.points, part.mesh_size)
+            gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)
+>>>>>>> origin/main
 
     # Set mesh size and color of the farfield
     h_max_model = max(wing_maxlen, fuselage_maxlen)
@@ -880,7 +1254,11 @@ def generate_gmsh(
 
     # Wing leading edge and trailing edge detection
     for part in aircraft_parts:
+<<<<<<< HEAD
         if part.part_type in ["wing", "ctrlsurf"]:
+=======
+        if part.part_type == "wing":
+>>>>>>> origin/main
             classify_wing(part, aircraft_parts)
             log.info(
                 f"Classification of {part.uid} done"
@@ -972,12 +1350,17 @@ def generate_gmsh(
 
     gmsh.model.occ.synchronize()
 
+<<<<<<< HEAD
     if surf == None:
         mesh_2d_path = Path(results_dir, "2d_mesh.msh")
         gmsh.write(str(mesh_2d_path))
     else:
         mesh_2d_path = Path(results_dir, f"2d_mesh_{surf}_{angle}.msh")
         gmsh.write(str(mesh_2d_path))
+=======
+    mesh_2d_path = Path(results_dir, "2d_mesh.msh")
+    gmsh.write(str(mesh_2d_path))
+>>>>>>> origin/main
 
     if open_gmsh:
         log.info("Result of 2D surface mesh")
@@ -1000,6 +1383,7 @@ def generate_gmsh(
         # Control surface orientation
         control_disk_actuator_normal()
 
+<<<<<<< HEAD
     if surf == None:
         su2mesh_path = write_gmsh(results_dir, "mesh.su2")
     else:
@@ -1014,6 +1398,20 @@ def generate_gmsh(
     #    gmsh.fltk.run()
 
     gmsh.model.occ.synchronize()
+=======
+    su2mesh_path = Path(results_dir, "mesh.su2")
+    gmsh.write(str(su2mesh_path))
+
+    cgnsmesh_path = Path(results_dir, "mesh.cgns")
+    gmsh.write(str(cgnsmesh_path))
+
+    process_gmsh_log(gmsh.logger.get())
+
+    if open_gmsh:
+        log.info("Result of the 3D volume mesh")
+        log.info("GMSH GUI is open, close it to continue...")
+        gmsh.fltk.run()
+>>>>>>> origin/main
 
     log.info("Mesh generation finished")
     # Create duplicated mesh surface for disk actuator
@@ -1021,13 +1419,23 @@ def generate_gmsh(
     if not testing_gmsh:
         gmsh.clear()
         gmsh.finalize()
+<<<<<<< HEAD
 
     return su2mesh_path
+=======
+    return su2mesh_path, aircraft_parts
+
+>>>>>>> origin/main
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
+<<<<<<< HEAD
 
 if __name__ == "__main__":
     log.info("Nothing to execute!")
+=======
+if __name__ == "__main__":
+    print("Nothing to execute!")
+>>>>>>> origin/main

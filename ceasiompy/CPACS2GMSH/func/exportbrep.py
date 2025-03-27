@@ -24,7 +24,11 @@ TODO:
 from pathlib import Path
 
 from ceasiompy.CPACS2GMSH.func.engineconversion import engine_conversion
+<<<<<<< HEAD
 from ceasiompy import log
+=======
+from ceasiompy.utils.ceasiomlogger import get_logger
+>>>>>>> origin/main
 from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
 from ceasiompy.utils.commonxpath import GMSH_EXPORT_PROP_XPATH
 from ceasiompy.utils.configfiles import ConfigFile
@@ -32,6 +36,10 @@ from cpacspy.cpacsfunctions import get_value_or_default
 
 from tigl3.import_export_helper import export_shapes
 
+<<<<<<< HEAD
+=======
+log = get_logger()
+>>>>>>> origin/main
 
 # =================================================================================================
 #   FUNCTIONS
@@ -184,11 +192,17 @@ def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
     None
 
     """
+<<<<<<< HEAD
     
     tixi = cpacs.tixi
 
     # Get rotor config
     if get_value_or_default(tixi, GMSH_EXPORT_PROP_XPATH, False):
+=======
+
+    # Get rotor config
+    if get_value_or_default(cpacs.tixi, GMSH_EXPORT_PROP_XPATH, False):
+>>>>>>> origin/main
         try:
             rotorcraft_config = cpacs.rotorcraft.configuration
             rotor_config(rotorcraft_config, brep_dir)
@@ -257,10 +271,20 @@ def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
             engine = engines_config.get_engine(k)
             engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_percent)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
+<<<<<<< HEAD
 
 if __name__ == "__main__":
     log.info("Nothing to execute!")
+=======
+if __name__ == "__main__":
+
+    print("Nothing to execute!")
+>>>>>>> origin/main

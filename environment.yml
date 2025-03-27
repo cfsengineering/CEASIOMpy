@@ -37,16 +37,19 @@ dependencies:
   - vtk=9.0.1
 
   - pip:
-    - altair == 4.0.0
+    - altair==4.0.0
     - ambiance==1.3.0
     - black==22.3
     - cpacspy==0.1.8
     - cython==0.29.30
+    - framat
     - gmsh==4.10.3
     - markdownpy==0.1.4
     - om-pycycle
     - pytest==7.2.0
     - smt==1.2.0
+    - pydantic==2.10.6
+    - shapely
     - streamlit==1.14.0
     - streamlit-autorefresh
-    - pydantic==2.10.6
+

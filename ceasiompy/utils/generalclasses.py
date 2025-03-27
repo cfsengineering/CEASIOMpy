@@ -110,7 +110,6 @@ class Transformation:
         Args:
             tixi (handles): TIXI Handle of the CPACS file
             xpath (str): xpath to the tansformations
-
         """
 
         self.tixi = tixi

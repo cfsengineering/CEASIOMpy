@@ -41,6 +41,7 @@ from pathlib import Path
 from math import pi
 
 MODULE_DIR = Path(__file__).parent
+from ceasiompy import log
 
 # =================================================================================================
 #   CLASSES

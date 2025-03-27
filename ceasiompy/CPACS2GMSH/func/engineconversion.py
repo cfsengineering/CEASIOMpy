@@ -24,12 +24,20 @@ from ceasiompy.utils.commonxpath import ENGINES_XPATH
 import gmsh
 import numpy as np
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
+<<<<<<< HEAD
 from ceasiompy import log
+=======
+from ceasiompy.utils.ceasiomlogger import get_logger
+>>>>>>> origin/main
 from ceasiompy.utils.ceasiompyutils import get_part_type
 from ceasiompy.utils.configfiles import ConfigFile
 from scipy.spatial.transform import Rotation as R
 
 
+<<<<<<< HEAD
+=======
+log = get_logger()
+>>>>>>> origin/main
 
 # ==============================================================================
 #   FUNCTIONS
@@ -470,10 +478,20 @@ def reposition_engine(cpacs, engine_path, engine_uids, engines_cfg_file):
     # Save this info in the engines config file
     config_file.write_file(engines_cfg_file, overwrite=True)
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
+<<<<<<< HEAD
 
 if __name__ == "__main__":
     log.info("Nothing to execute!")
+=======
+if __name__ == "__main__":
+
+    print("Nothing to execute!")
+>>>>>>> origin/main

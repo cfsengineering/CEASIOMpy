@@ -30,6 +30,9 @@ module_status = True
 # ===== Include GUI =====
 include_gui = True
 
+# ===== Add a Results Directory =====
+RES_DIR = False
+
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name

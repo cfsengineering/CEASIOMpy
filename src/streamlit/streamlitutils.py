@@ -10,6 +10,7 @@ Python version: >=3.8
 | Author : Aidan Jungo
 | Creation: 2022-12-01
 
+<<<<<<< HEAD
 """
 
 # ==============================================================================
@@ -99,6 +100,18 @@ def save_cpacs_file():
     st.session_state.cpacs.save_cpacs(saved_cpacs_file, overwrite=True)
     st.session_state.workflow.cpacs_in = saved_cpacs_file
     st.session_state.cpacs = CPACS(saved_cpacs_file)
+=======
+TODO:
+
+"""
+
+from pathlib import Path
+
+from ceasiompy.utils.commonpaths import CEASIOMPY_LOGO_PATH
+from PIL import Image
+
+import streamlit as st
+>>>>>>> origin/main
 
 
 def create_sidebar(how_to_text):
@@ -122,16 +135,27 @@ def st_directory_picker(initial_path=Path()):
     manual_input = Path(manual_input)
     if manual_input != st.session_state.path:
         st.session_state.path = manual_input
+<<<<<<< HEAD
         st.rerun()
+=======
+        st.experimental_rerun()
+>>>>>>> origin/main
 
     _, col1, col2, col3, _ = st.columns([3, 1, 3, 1, 3])
 
     with col1:
+<<<<<<< HEAD
         st.markdown("<div class='nav-button-container'>", unsafe_allow_html=True)
         if st.button("⬅️") and "path" in st.session_state:
             st.session_state.path = st.session_state.path.parent
             st.rerun()
         st.markdown("</div>", unsafe_allow_html=True)
+=======
+        st.markdown("#")
+        if st.button("⬅️") and "path" in st.session_state:
+            st.session_state.path = st.session_state.path.parent
+            st.experimental_rerun()
+>>>>>>> origin/main
 
     with col2:
         subdirectroies = [
@@ -142,6 +166,7 @@ def st_directory_picker(initial_path=Path()):
         if subdirectroies:
             st.session_state.new_dir = st.selectbox("Subdirectories", sorted(subdirectroies))
         else:
+<<<<<<< HEAD
             st.markdown("<div style='margin-top: 32px;'>", unsafe_allow_html=True)
             st.markdown("<font color='#FF0000'>No subdir</font>", unsafe_allow_html=True)
             st.markdown("</div>", unsafe_allow_html=True)
@@ -308,3 +333,16 @@ def mesh_file_upload():
 
 if __name__ == "__main__":
     log.info("Nothing to execute!")
+=======
+            st.markdown("#")
+            st.markdown("<font color='#FF0000'>No subdir</font>", unsafe_allow_html=True)
+
+    with col3:
+        if subdirectroies:
+            st.markdown("#")
+            if st.button("➡️") and "path" in st.session_state:
+                st.session_state.path = Path(st.session_state.path, st.session_state.new_dir)
+                st.experimental_rerun()
+
+    return st.session_state.path
+>>>>>>> origin/main

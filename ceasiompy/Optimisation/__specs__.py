@@ -2,6 +2,8 @@ from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpath import OPTIM_XPATH
 
+from ceasiompy.Optimisation import include_gui
+
 # ===== Module Status =====
 # True if the module is active
 # False if the module is disabled (not working or not ready)
@@ -16,7 +18,6 @@ RESULTS_DIR = Path("Results", "Optimisation")
 
 cpacs_inout = CPACSInOut()
 
-include_gui = False
 
 # ----- Input -----
 

@@ -2,7 +2,7 @@
 <cpacs xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="http://cpacs.googlecode.com/files/CPACS_21_Schema.xsd">
   <header>
     <name>Empty_CPACS</name>
-    <description>Empty CPACS file to generate input and output /toolspecific</description>
+    <description>Empty CPACS file to genrate input and output /toolspecific</description>
     <creator>Aidan Jungo</creator>
     <timestamp>2019-10-28T11:12:47</timestamp>
     <version>0.2</version>

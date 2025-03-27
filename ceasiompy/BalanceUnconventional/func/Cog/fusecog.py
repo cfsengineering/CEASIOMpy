@@ -20,8 +20,14 @@ Function to evaluate the Center of Gravity of the aircraft.
 
 import numpy as np
 
+<<<<<<< HEAD
 from ceasiompy import log
 
+=======
+from ceasiompy.utils.ceasiomlogger import get_logger
+
+log = get_logger()
+>>>>>>> origin/main
 
 
 # =============================================================================

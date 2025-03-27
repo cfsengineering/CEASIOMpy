@@ -25,7 +25,6 @@ from ceasiompy.SU2Run.func.utils import (
     get_efficiency_and_aoa,
     get_mesh_markers,
     get_su2_aerocoefs,
-    get_su2_config_template,
     get_su2_version,
     get_wetted_area,
 )
@@ -117,24 +116,6 @@ def test_get_su2_version():
         with patch.object(Path, "exists", return_value=True):
             with patch("builtins.open", mock_data_no_version):
                 assert get_su2_version() is None
-
-
-def test_get_su2_config_template():
-    """Test function 'get_su2_config_template'"""
-
-    su2_dir = get_module_path("SU2Run")
-
-    # Test with an old version of the config template
-    config_template_path = Path(su2_dir, "files", "config_template_euler.cfg")
-
-    # Remove the config template file if it exists (from a previous test)
-    if config_template_path.exists():
-        assert get_su2_config_template("euler") == config_template_path
-
-    # # Test with an inexistent config template version
-    # with patch("ceasiompy.SU2Run.func.su2utils.get_su2_version", return_value="9.9.99"):
-    #     with pytest.raises(FileNotFoundError):
-    #         assert get_su2_config_template() == config_template_path
 
 
 def test_get_su2_aerocoefs():

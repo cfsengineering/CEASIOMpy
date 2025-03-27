@@ -24,8 +24,14 @@ The script evaluates the Moments of Inertia (Ixx, Iyy, Izz) in case of:
 
 from . import lumpedmassesinertia
 
+<<<<<<< HEAD
 from ceasiompy import log
 
+=======
+from ceasiompy.utils.ceasiomlogger import get_logger
+
+log = get_logger()
+>>>>>>> origin/main
 
 
 # =============================================================================

@@ -33,26 +33,22 @@ from ceasiompy import log
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.commonxpath import TURBOPROP_XPATH, WB_DOUBLE_FLOOR_XPATH
 
-from ceasiompy.utils.moduleinterfaces import (
-    check_cpacs_input_requirements,
-    get_toolinput_file_path,
-    get_tooloutput_file_path,
-)
 from ceasiompy.utils.WB.ConvGeometry import geometry
 
 from ceasiompy.WeightConventional.func.weightutils import PILOT_NB
 
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.ceasiompyutils import call_main
 
 from ceasiompy.WeightConventional import *
 
 # =================================================================================================
-#   FUNCTIONS
+#    MAIN
 # =================================================================================================
 
 
-def get_weight_estimations(cpacs_path, cpacs_out_path):
+def get_weight_estimations(cpacs: CPACS) -> None:
     """Function to estimate the all weights for a conventional aircraft.
 
     Function 'get_weight_estimations' use available information in the CPACS file to estimate the
@@ -67,7 +63,6 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
 
     """
 
-    cpacs = CPACS(cpacs_path)
     result_dir = get_results_directory("WeightConventional")
 
     turboprop = get_value_or_default(cpacs.tixi, TURBOPROP_XPATH, False)
@@ -148,26 +143,6 @@ def get_weight_estimations(cpacs_path, cpacs_out_path):
     log.info(f"Pilots: {PILOT_NB}")
     log.info(f"Cabin crew members: {cabin.cabin_crew_nb}")
 
-    cpacs.save_cpacs(cpacs_out_path, overwrite=True)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-def main(cpacs_path: Path, cpacs_out_path: Path) -> None:
-    module_name = MODULE_NAME
-    log.info("----- Start of " + module_name + " -----")
-
-    get_weight_estimations(cpacs_path, cpacs_out_path)
-
-    log.info("----- End of " + module_name + " -----")
-
 
 if __name__ == "__main__":
-    cpacs_path = get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
-    check_cpacs_input_requirements(cpacs_path)
-
-    main(cpacs_path, cpacs_out_path)
+    call_main(main, MODULE_NAME)

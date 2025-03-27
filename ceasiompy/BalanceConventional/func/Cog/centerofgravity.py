@@ -24,7 +24,21 @@ The script evaluates the centre of gravity coordinates in case of:
 
 import numpy as np
 
+<<<<<<< HEAD
 from ceasiompy import log
+=======
+from ceasiompy.utils.ceasiomlogger import get_logger
+
+log = get_logger()
+
+
+# =============================================================================
+#   CLASSES
+# =============================================================================
+
+# All classes are defined inside the InputClasses/Conventional
+
+>>>>>>> origin/main
 
 # =============================================================================
 #   FUNCTIONS

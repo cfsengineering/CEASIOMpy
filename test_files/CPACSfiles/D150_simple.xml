@@ -5231,7 +5231,11 @@
             </sections>
             <positionings xsi:type="positioningsType">
               <positioning uID="Wing3V_Sec1GenPos" xsi:type="positioningType">
+<<<<<<< HEAD
                 <name>Wing3V_Pos1</name>
+=======
+                <name />
+>>>>>>> origin/main
                 <length>0</length>
                 <sweepAngle>0</sweepAngle>
                 <dihedralAngle>0</dihedralAngle>

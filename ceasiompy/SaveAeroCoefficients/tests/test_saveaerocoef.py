@@ -19,7 +19,11 @@ Python version: >=3.8
 
 from pathlib import Path
 
+<<<<<<< HEAD
 from ceasiompy.SaveAeroCoefficients.saveaerocoef import main as save_aero_coef
+=======
+from ceasiompy.SaveAeroCoefficients.saveaerocoef import save_aero_coef
+>>>>>>> origin/main
 from ceasiompy.utils.ceasiompyutils import change_working_dir
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 

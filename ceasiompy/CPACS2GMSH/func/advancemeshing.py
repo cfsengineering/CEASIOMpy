@@ -21,12 +21,22 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+<<<<<<< HEAD
 from ceasiompy.CPACS2GMSH.func.cpacs2gmsh_utils import MESH_COLORS
 import gmsh
 import numpy as np
 from ceasiompy import log
 
 
+=======
+from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
+import gmsh
+import numpy as np
+from ceasiompy.utils.ceasiomlogger import get_logger
+
+
+log = get_logger()
+>>>>>>> origin/main
 
 # =================================================================================================
 #   FUNCTIONS
@@ -510,10 +520,19 @@ def refine_small_surfaces(
 
     return refined_surfaces, mesh_fields
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> origin/main
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
+<<<<<<< HEAD
 
 if __name__ == "__main__":
     log.info("Nothing to execute!")
+=======
+if __name__ == "__main__":
+    print("Nothing to execute!")
+>>>>>>> origin/main

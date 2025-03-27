@@ -23,7 +23,7 @@ Python version: >=3.8
 
 
 from ceasiompy.utils.ceasiompyutils import get_results_directory
-from ceasiompy.ExportCSV.exportcsv import export_aeromaps
+from ceasiompy.ExportCSV.exportcsv import main as export_aeromaps
 import pytest
 import shutil
 from pathlib import Path

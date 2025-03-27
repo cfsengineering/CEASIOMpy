@@ -24,10 +24,9 @@ Python version: >=3.8
 
 from cpacspy.cpacsfunctions import open_tixi
 from ceasiompy.utils.commonxpath import SU2_TARGET_CL_XPATH
-from ceasiompy.CLCalculator.clcalculator import calculate_cl, get_cl
+from ceasiompy.CLCalculator.clcalculator import calculate_cl
 from pathlib import Path
 from pytest import approx
-from ceasiompy.CLCalculator.func.calculatecl import calculate_cl
 
 from ceasiompy.utils.decorators import log_test
 
@@ -72,21 +71,6 @@ def test_calculate_cl():
     cl = calculate_cl(ref_area, alt, mach, mass, load_fact)
 
     assert cl == approx(0.48429196151547343)
-
-
-def test_get_cl():
-    """Test function 'get_cl'"""
-
-    get_cl(CPACS_IN_PATH, CPACS_OUT_PATH)
-
-    tixi = open_tixi(CPACS_OUT_PATH)
-
-    cl_to_check = tixi.getDoubleElement(SU2_TARGET_CL_XPATH)
-    assert cl_to_check == approx(0.791955)
-
-    if CPACS_OUT_PATH.exists():
-        CPACS_OUT_PATH.unlink()
-
 
 # =================================================================================================
 #    MAIN

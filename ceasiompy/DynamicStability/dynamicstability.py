@@ -16,8 +16,6 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-import subprocess
-
 from ceasiompy.utils.ceasiompyutils import (
     call_main, 
     run_software,

@@ -3,7 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-<<<<<<< HEAD
+
 Test functions ModuleTemplate module.
 =======
 Test functions for 'lib/ModuleTemplate/moduletemplate.py'
@@ -13,7 +13,7 @@ Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2019-08-14
-<<<<<<< HEAD
+
 | Modified: Leon Deligny
 | Date: 18-Mar-2025
 =======
@@ -25,33 +25,30 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-<<<<<<< HEAD
+
+from pytest import approx
+from ceasiompy.ModuleTemplate.moduletemplate import MyClass, get_fuselage_scaling, sum_funcion
+from ceasiompy.ModuleTemplate.func.subfunc import my_subfunc
+import pytest
+from pathlib import Path
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.ModuleTemplate.moduletemplate import get_fuselage_scaling
 
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 from ceasiompy.ModuleTemplate.func.subfunc import MyClass
-=======
 
-from pathlib import Path
-
-import pytest
-from ceasiompy.ModuleTemplate.func.subfunc import my_subfunc
-from ceasiompy.ModuleTemplate.moduletemplate import MyClass, get_fuselage_scaling, sum_funcion
-from pytest import approx
 
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(MODULE_DIR, "ToolInput", "simpletest_cpacs.xml")
 CPACS_OUT_PATH = Path(MODULE_DIR, "ToolOutput", "ToolOutput.xml")
->>>>>>> origin/main
 
 
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
 
-<<<<<<< HEAD
+
 class TestModuleTemplate(CeasiompyTest):
 
     @log_test
@@ -72,7 +69,7 @@ class TestModuleTemplate(CeasiompyTest):
 
         TestClass.add_my_var()
         self.assertAlmostEqual(TestClass.var_c, 3.3)
-=======
+
 
 # =================================================================================================
 #   FUNCTIONS
@@ -123,20 +120,15 @@ def test_subfunc():
 
     assert res == "a and b"
 
->>>>>>> origin/main
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
-
-<<<<<<< HEAD
-
 if __name__ == "__main__":
     main(verbosity=0)
-=======
+
 if __name__ == "__main__":
 
     print("Test ModuleTemplate")
     print("To run test use the following command:")
     print(">> pytest -v")
->>>>>>> origin/main

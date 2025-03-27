@@ -9,7 +9,7 @@ Python version: >=3.8
 
 | Author : Romain Gauthier
 | Creation: 2024-06-06
-<<<<<<< HEAD
+
 | Modified: Leon Deligny
 | Date: 21 March 2025
 =======
@@ -21,7 +21,12 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-<<<<<<< HEAD
+
+from ceasiompy.PyAVL.func.avlconfig import (
+    get_aeromap_conditions,
+    get_option_settings,
+    write_command_file,
+)
 import unittest
 
 from pathlib import Path
@@ -30,7 +35,7 @@ from ceasiompy.utils.decorators import log_test
 
 from ceasiompy.utils.ceasiompyutils import (
     current_workflow_dir,
-    get_aeromap_conditions, 
+    get_aeromap_conditions,
 )
 from ceasiompy.PyAVL.func.config import (
     write_command_file,
@@ -44,29 +49,20 @@ from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.utils.commonxpath import AVL_AEROMAP_UID_XPATH
 
 from ceasiompy.PyAVL import *
-=======
-from pathlib import Path
 
-from ceasiompy.PyAVL.func.avlconfig import (
-    get_aeromap_conditions,
-    get_option_settings,
-    write_command_file,
-)
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "labARscaled.xml")
 
 MODULE_DIR = Path(__file__).parent
 CASE_DIR = Path(MODULE_DIR, "AVLpytest")
 COMMAND_TEM_DIR = Path(MODULE_DIR, "avl_command_template.txt")
->>>>>>> origin/main
+
 
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
 
 
-<<<<<<< HEAD
 class TestModuleTemplate(CeasiompyTest):
 
     @classmethod
@@ -138,7 +134,8 @@ class TestModuleTemplate(CeasiompyTest):
 
                 # Check for any remaining lines in either file
                 assert not file1.read() or not file2.read(), "File 'avl_commands.txt' not correct."
-=======
+
+
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
@@ -195,19 +192,15 @@ def test_get_option_settings():
     assert Nchordwise == 5, "Option 'Nchordwise' should be '5'."
     assert Nspanwise == 20, "Option 'Nspanwise' should be '20'."
     assert not integrate_fuselage, "Option 'integrate_fuselage' should be 'False'."
->>>>>>> origin/main
 
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
-
-
 if __name__ == "__main__":
-<<<<<<< HEAD
+
     unittest.main(verbosity=0)
-=======
-    print("Test avlconfig.py")
-    print("To run test use the following command:")
-    print(">> pytest -v")
->>>>>>> origin/main
+
+print("Test avlconfig.py")
+print("To run test use the following command:")
+print(">> pytest -v")

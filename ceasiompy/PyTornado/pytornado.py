@@ -47,8 +47,6 @@ from cpacspy.cpacsfunctions import get_value_or_default
 
 from ceasiompy.utils.ceasiompyutils import (
     call_main,
-    get_toolinput_file_path,
-    get_tooloutput_file_path,
 )
 
 from pathlib import Path

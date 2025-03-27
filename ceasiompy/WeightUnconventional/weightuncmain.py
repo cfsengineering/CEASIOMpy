@@ -60,10 +60,8 @@ from ceasiompy.WeightUnconventional.func.People.passengers import (
 )
 from ceasiompy.WeightUnconventional.func.Systems.systemsmass import estimate_system_mass
 
-<<<<<<< HEAD
+
 from ceasiompy.WeightUnconventional import *
-=======
-log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
@@ -76,16 +74,12 @@ MODULE_NAME = MODULE_DIR.name
 """All classes are defined inside the classes and into
    the InputClasses/Unconventional folder."""
 
->>>>>>> origin/main
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
 
-<<<<<<< HEAD
-=======
 
->>>>>>> origin/main
 def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
     """Function to estimate the all weights for a unconventional aircraft.
 

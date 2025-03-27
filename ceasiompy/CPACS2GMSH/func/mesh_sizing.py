@@ -3,11 +3,7 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-<<<<<<< HEAD
 This script contains different functions to classify and manipulate wing elements.
-=======
-This script contains different functions to classify and manipulate wing elements
->>>>>>> origin/main
 
 Python version: >=3.8
 
@@ -17,16 +13,11 @@ Python version: >=3.8
 
 """
 
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
 
 import math
-<<<<<<< HEAD
 
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from ceasiompy import log
@@ -38,29 +29,13 @@ from typing import Tuple
 
 from ceasiompy.utils.commonxpath import FUSELAGES_XPATH, WINGS_XPATH
 
-=======
-from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-from ceasiompy.utils.generalclasses import Transformation
-
-from ceasiompy.utils.commonxpath import FUSELAGES_XPATH, WINGS_XPATH
-from cpacspy.cpacsfunctions import open_tixi
-
-log = get_logger()
->>>>>>> origin/main
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
 
 
-<<<<<<< HEAD
 def fuselage_size(tixi: Tixi3) -> None:
-=======
-def fuselage_size(cpacs_path):
-    tixi = open_tixi(cpacs_path)
->>>>>>> origin/main
     if tixi.checkElement(FUSELAGES_XPATH):
         fus_cnt = tixi.getNamedChildrenCount(FUSELAGES_XPATH, "fuselage")
     for i_fus in range(fus_cnt):
@@ -218,7 +193,6 @@ def fuselage_size(cpacs_path):
     return fuselage_maxlen, fuselage_minlen
 
 
-<<<<<<< HEAD
 def wings_size(tixi: Tixi3) -> Tuple[float, float]:
 
     if tixi.checkElement(WINGS_XPATH):
@@ -262,100 +236,3 @@ def wings_size(tixi: Tixi3) -> Tuple[float, float]:
 
 if __name__ == "__main__":
     log.info("Nothing to execute!")
-=======
-def wings_size(cpacs_path):
-    tixi = open_tixi(cpacs_path)
-    if tixi.checkElement(WINGS_XPATH):
-        wing_cnt = tixi.getNamedChildrenCount(WINGS_XPATH, "wing")
-
-    chord_list = []
-
-    for i_wing in range(wing_cnt):
-        wing_xpath = WINGS_XPATH + "/wing[" + str(i_wing + 1) + "]"
-        wing_transf = Transformation()
-        wing_transf.get_cpacs_transf(tixi, wing_xpath)
-
-    # Positionings
-    if tixi.checkElement(wing_xpath + "/positionings"):
-        pos_cnt = tixi.getNamedChildrenCount(wing_xpath + "/positionings", "positioning")
-
-        pos_x_list = []
-        pos_y_list = []
-        pos_z_list = []
-        from_sec_list = []
-        to_sec_list = []
-
-        for i_pos in range(pos_cnt):
-            pos_xpath = wing_xpath + "/positionings/positioning[" + str(i_pos + 1) + "]"
-
-            length = tixi.getDoubleElement(pos_xpath + "/length")
-            sweep_deg = tixi.getDoubleElement(pos_xpath + "/sweepAngle")
-            sweep = math.radians(sweep_deg)
-            dihedral_deg = tixi.getDoubleElement(pos_xpath + "/dihedralAngle")
-            dihedral = math.radians(dihedral_deg)
-
-            # Get the corresponding translation of each positioning
-            pos_x_list.append(length * math.sin(sweep))
-            pos_y_list.append(length * math.cos(dihedral) * math.cos(sweep))
-            pos_z_list.append(length * math.sin(dihedral) * math.cos(sweep))
-            # Get which section are connected by the positioning
-            if tixi.checkElement(pos_xpath + "/fromSectionUID"):
-                from_sec = tixi.getTextElement(pos_xpath + "/fromSectionUID")
-            else:
-                from_sec = ""
-            from_sec_list.append(from_sec)
-            if tixi.checkElement(pos_xpath + "/toSectionUID"):
-                to_sec = tixi.getTextElement(pos_xpath + "/toSectionUID")
-            else:
-                to_sec = ""
-            to_sec_list.append(to_sec)
-
-        for j_pos in range(pos_cnt):
-            if from_sec_list[j_pos] == "":
-                prev_pos_x = 0
-                prev_pos_y = 0
-                prev_pos_z = 0
-            elif from_sec_list[j_pos] == to_sec_list[j_pos - 1]:
-                prev_pos_x = pos_x_list[j_pos - 1]
-                prev_pos_y = pos_y_list[j_pos - 1]
-                prev_pos_z = pos_z_list[j_pos - 1]
-            else:
-                index_prev = to_sec_list.index(from_sec_list[j_pos])
-                prev_pos_x = pos_x_list[index_prev]
-                prev_pos_y = pos_y_list[index_prev]
-                prev_pos_z = pos_z_list[index_prev]
-            pos_x_list[j_pos] += prev_pos_x
-            pos_y_list[j_pos] += prev_pos_y
-            pos_z_list[j_pos] += prev_pos_z
-
-    else:
-        log.error('No "positionings" have been found!')
-        pos_cnt = 0
-
-    # Sections
-    sec_cnt = tixi.getNamedChildrenCount(wing_xpath + "/sections", "section")
-
-    if pos_cnt == 0:
-        pos_x_list = [0.0] * sec_cnt
-        pos_y_list = [0.0] * sec_cnt
-        pos_z_list = [0.0] * sec_cnt
-
-    for i_sec in range(sec_cnt):
-        sec_xpath = wing_xpath + "/sections/section[" + str(i_sec + 1) + "]"
-
-        sec_transf = Transformation()
-        sec_transf.get_cpacs_transf(tixi, sec_xpath)
-
-        chord_list.append(sec_transf.scaling.x)
-
-    ref_chord = sum(chord_list) / len(chord_list)
-
-    # Calculate mesh parameter from inputs and geometry
-    wing_maxlen = 0.15 * ref_chord
-    wing_minlen = 0.08 * wing_maxlen
-
-    log.info(f"Wing maxlen={wing_maxlen:.3f} m")
-    log.info(f"Wing minlen={wing_minlen:.3f} m")
-
-    return wing_maxlen, wing_minlen
->>>>>>> origin/main

@@ -9,13 +9,8 @@ Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2022-02-04
-<<<<<<< HEAD
 | Modified : Leon Deligny
 | Date: 11-Mar-2025
-=======
-
-TODO:
->>>>>>> origin/main
 
 """
 
@@ -23,29 +18,24 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy.utils.commonxpath import AIRCRAFT_NAME_XPATH
-from ceasiompy.utils.ceasiomlogger import get_logger
-from typing import List
-from ceasiompy import *
-from ceasiompy.utils.commonxpath import (
-    AIRCRAFT_NAME_XPATH,
-    RANGE_CRUISE_ALT_XPATH,
-    RANGE_CRUISE_MACH_XPATH,
+import re
+import os
+import sys
+import math
+import shutil
+import importlib
+import subprocess
+
+from pydantic import validate_call
+from contextlib import contextmanager
+from ceasiompy.utils.moduleinterfaces import get_module_list
+
+from ceasiompy.utils.moduleinterfaces import (
+    get_specs_for_module,
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+    check_cpacs_input_requirements,
 )
-from ceasiompy.utils.commonpaths import (
-    WKDIR_PATH,
-    CPACS_FILES_PATH,
-)
-from typing import (
-    List,
-    Tuple,
-    TextIO,
-    Optional,
-    Callable,
-)
-from tixi3.tixi3wrapper import Tixi3
-from cpacspy.cpacspy import CPACS
-from pathlib import Path
 from cpacspy.cpacsfunctions import (
     get_value,
     open_tixi,
@@ -54,30 +44,35 @@ from cpacspy.cpacsfunctions import (
     get_string_vector,
     get_value_or_default,
 )
-from ceasiompy.utils.moduleinterfaces import (
-    get_specs_for_module,
-    get_toolinput_file_path,
-    get_tooloutput_file_path,
-    check_cpacs_input_requirements,
+
+from pathlib import Path
+from cpacspy.cpacspy import CPACS
+from tixi3.tixi3wrapper import Tixi3
+
+from typing import (
+    List,
+    Tuple,
+    TextIO,
+    Optional,
+    Callable,
 )
-from ceasiompy.utils.moduleinterfaces import get_module_list
-from contextlib import contextmanager
-from pydantic import validate_call
-import subprocess
-import importlib
-import shutil
-import math
-import sys
-import os
-import re
-<< << << < HEAD
 
+from ceasiompy.utils.commonpaths import (
+    WKDIR_PATH,
+    CPACS_FILES_PATH,
+)
 
-== == == =
+from ceasiompy.utils.moduleinterfaces import (
+    MODNAME_INIT,
+    MODNAME_SPECS,
+)
+from ceasiompy.utils.commonxpath import (
+    AIRCRAFT_NAME_XPATH,
+    RANGE_CRUISE_ALT_XPATH,
+    RANGE_CRUISE_MACH_XPATH,
+)
 
-
-log = get_logger()
->>>>>> > origin / main
+from ceasiompy import *
 
 # =================================================================================================
 #   CLASSES
@@ -90,12 +85,10 @@ class SoftwareNotInstalled(Exception):
     pass
 
 
+
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
-
-<< << << < HEAD
-
 
 def update_cpacs_from_specs(cpacs: CPACS, module_name: str) -> None:
     specs = get_specs_for_module(module_name)
@@ -152,9 +145,6 @@ def check_directory_exists(dir: Path) -> None:
     if not dir.exists():
         raise OSError(f"The working directory : {dir} does not exit!")
 
-
-== == == =
->>>>>> > origin / main
 
 
 @contextmanager

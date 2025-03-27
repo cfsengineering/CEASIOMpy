@@ -17,19 +17,17 @@ using the lumped masses method.
 #   IMPORTS
 # =============================================================================
 
+from ceasiompy.utils.ceasiomlogger import get_logger
 import numpy as np
 import math
 
 from cpacspy.cpacsfunctions import open_tigl, open_tixi
 
-<<<<<<< HEAD
+
 from ceasiompy import log
 
-=======
-from ceasiompy.utils.ceasiomlogger import get_logger
 
 log = get_logger()
->>>>>>> origin/main
 
 
 # =============================================================================

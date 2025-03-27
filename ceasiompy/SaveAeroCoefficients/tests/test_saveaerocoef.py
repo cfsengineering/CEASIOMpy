@@ -17,15 +17,14 @@ Python version: >=3.8
 # =================================================================================================
 
 
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy.utils.ceasiompyutils import change_working_dir
+from ceasiompy.SaveAeroCoefficients.saveaerocoef import save_aero_coef
 from pathlib import Path
 
-<<<<<<< HEAD
+
 from ceasiompy.SaveAeroCoefficients.saveaerocoef import main as save_aero_coef
-=======
-from ceasiompy.SaveAeroCoefficients.saveaerocoef import save_aero_coef
->>>>>>> origin/main
-from ceasiompy.utils.ceasiompyutils import change_working_dir
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+
 
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")

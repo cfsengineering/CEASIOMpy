@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 """
 CEASIOMpy: Conceptual Aircraft Design Software
 
@@ -17,6 +17,7 @@ Python version: >=3.8
 #   IMPORTS
 # ==============================================================================
 
+from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
@@ -28,15 +29,7 @@ from ceasiompy import log
 # Still have to initialize an empty cpacs_inout
 cpacs_inout = CPACSInOut()
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
 
-if __name__ == "__main__":
-    log.info("Nothing to be executed.")
-=======
-from pathlib import Path
-from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 # ===== Module Status =====
 # True if the module is active
@@ -58,4 +51,10 @@ cpacs_inout = CPACSInOut()
 # ----- Output -----
 
 # No outputs value for this modules
->>>>>>> origin/main
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")

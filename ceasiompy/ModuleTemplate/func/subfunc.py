@@ -8,30 +8,18 @@ Small description of the script
 Python version: >=3.8
 
 | Author: Name
-<<<<<<< HEAD
 | Creation: day month year
-=======
-| Creation: YEAR-MONTH-DAY
->>>>>>> origin/main
 
 TODO:
 
     * Things to improve ...
     * Things to add ...
-<<<<<<< HEAD
 """
 
-=======
-
-"""
-
-
->>>>>>> origin/main
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
 
-<<<<<<< HEAD
 from pydantic import validate_call
 from cpacspy.cpacsfunctions import get_value
 
@@ -119,24 +107,6 @@ def get_fuselage_scaling(cpacs: CPACS) -> Tuple[float, float, float]:
 
 @validate_call
 def my_subfunc(arg_a: str, arg_b: str) -> str:
-=======
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
-
-
-# ==============================================================================
-#   CLASSES
-# ==============================================================================
-
-
-# ==============================================================================
-#   FUNCTIONS
-# ==============================================================================
-
-
-def my_subfunc(arg_a, arg_b):
->>>>>>> origin/main
     """Function to calculate ...
 
     Function 'my_subfunc' is a subfunction of ModuleTemplate which returns...
@@ -166,9 +136,4 @@ def my_subfunc(arg_a, arg_b):
 # ==============================================================================
 
 if __name__ == "__main__":
-<<<<<<< HEAD
     log.info("Nothing to execute!")
-=======
-
-    print("Nothing to execute!")
->>>>>>> origin/main

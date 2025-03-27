@@ -9,7 +9,7 @@ Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2021-12-09
-<<<<<<< HEAD
+
 | Modified: Leon Deligny
 | Date: 25 March 2025
 =======
@@ -21,7 +21,11 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-<<<<<<< HEAD
+
+from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.ExportCSV.exportcsv import export_aeromaps
+import pytest
+import shutil
 from pathlib import Path
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
@@ -57,13 +61,7 @@ class TestExportCSV(CeasiompyTest):
         assert lines[2] == "0,0.3,0,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
         assert lines[3] == "0,0.3,10,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
         assert lines[4] == "0,0.3,10,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
-=======
-import shutil
-from pathlib import Path
 
-import pytest
-from ceasiompy.ExportCSV.exportcsv import export_aeromaps
-from ceasiompy.utils.ceasiompyutils import get_results_directory
 
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(MODULE_DIR, "D150_simple.xml")
@@ -104,18 +102,15 @@ def test_export_aeromaps():
     assert lines[3] == "0,0.3,10,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
     assert lines[4] == "0,0.3,10,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
 
->>>>>>> origin/main
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
-
 if __name__ == "__main__":
-<<<<<<< HEAD
-    main(verbosity=0)
-=======
 
-    print("Running Test ExportCSV")
-    print("To run test use the following command:")
-    print(">> pytest -v")
->>>>>>> origin/main
+    main(verbosity=0)
+
+
+print("Running Test ExportCSV")
+print("To run test use the following command:")
+print(">> pytest -v")

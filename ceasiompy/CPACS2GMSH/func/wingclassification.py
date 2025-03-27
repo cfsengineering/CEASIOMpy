@@ -17,25 +17,18 @@ TODO:
     function detect_normal_profile() in order to prevent this.
 """
 
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
 # =================================================================================================
 #   IMPORTS
 # =================================================================================================
 
 import gmsh
-<<<<<<< HEAD
 
 import numpy as np
 
 from typing import List
 
-=======
-import numpy as np
+from ceasiompy import log
 
->>>>>>> origin/main
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
@@ -216,7 +209,6 @@ def exclude_lines(wing_part, aircraft_parts):
     return list(set(wing_part.lines) - set(other_lines))
 
 
-<<<<<<< HEAD
 def classify_wing(wing_part, aircraft_parts: List) -> None:
     """
     Function to classify the leading and trailing edge of the wing.
@@ -224,19 +216,6 @@ def classify_wing(wing_part, aircraft_parts: List) -> None:
     Args:
         wing_part (ModelPart): Wing part to classify/order.
         aircraft_parts (List(ModelPart)): Parts of the aircraft
-=======
-def classify_wing(wing_part, aircraft_parts):
-    """
-    Function to classify the leading and trailing edge of the wing
-
-    Args:
-    ----------
-    wing_part : ModelPart
-        aircraft part to classify
-
-    aircraft_parts : list(ModelPart)
-        parts of the aircraft
->>>>>>> origin/main
 
     """
 
@@ -268,20 +247,10 @@ def classify_wing(wing_part, aircraft_parts):
             {"lines_tags": le_te, "mean_chord": find_chord_length(le_te)}
         )
 
-<<<<<<< HEAD
-=======
-
->>>>>>> origin/main
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
-<<<<<<< HEAD
 
 if __name__ == "__main__":
     log.info("Nothing to execute!")
-=======
-if __name__ == "__main__":
-
-    print("Nothing to execute!")
->>>>>>> origin/main

@@ -284,6 +284,12 @@ CPACSUPDATER_CPACSCREATOR_XPATH = CPACSUPDATER_XPATH + "/CPACSCreator"
 DATABASE_XPATH = CEASIOMPY_XPATH + "/Database"
 DATABASE_STOREDATA_XPATH = DATABASE_XPATH + "/StoreData"
 
+# FramAT
+FRAMAT_XPATH = CEASIOMPY_XPATH + "/structure/FramAT"
+FRAMAT_MATERIAL_XPATH = FRAMAT_XPATH + "/MaterialProperties"
+FRAMAT_SECTION_XPATH = FRAMAT_XPATH + "/SectionProperties"
+FRAMAT_MESH_XPATH = FRAMAT_XPATH + "/BeamMesh"
+FRAMAT_RESULTS_XPATH = FRAMAT_XPATH + "/Results"
 # =================================================================================================
 #    MAIN
 # =================================================================================================

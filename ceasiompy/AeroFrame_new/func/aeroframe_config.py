@@ -30,7 +30,7 @@ from scipy.spatial.distance import cdist
 from framat import Model
 
 from cpacspy.cpacspy import CPACS
-from cpacspy.cpacsfunctions import get_value_or_default, get_value
+from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacsfunctions import open_tixi
 
 from ceasiompy.utils.commonxpath import (
@@ -38,7 +38,6 @@ from ceasiompy.utils.commonxpath import (
     FRAMAT_SECTION_XPATH,
     WINGS_XPATH
 )
-from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
 from ceasiompy.utils.mathfunctions import euler2fix
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
@@ -48,7 +47,7 @@ from ceasiompy.AeroFrame_new.func.aeroframe_utils import (
     rotate_3D_points
 )
 
-log = get_logger()
+from ceasiompy import log
 
 # =================================================================================================
 #   FUNCTIONS

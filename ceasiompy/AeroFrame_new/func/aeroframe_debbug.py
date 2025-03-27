@@ -24,10 +24,7 @@ TODO:
 import matplotlib.pyplot as plt
 from pathlib import Path
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-
-log = get_logger()
+from ceasiompy import log
 
 # =================================================================================================
 #   FUNCTIONS

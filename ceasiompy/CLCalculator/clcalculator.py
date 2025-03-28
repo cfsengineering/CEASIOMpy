@@ -12,7 +12,7 @@ Python version: >=3.8
 
 TODO:
     * Save CruiseCL somewhere
-    
+
 """
 
 # =================================================================================================
@@ -34,7 +34,7 @@ from markdownpy.markdownpy import MarkdownDoc
 
 from ceasiompy import log
 
-from ceasiompy.CLCalculator import *
+from ceasiompy.CLCalculator import MODULE_NAME
 
 # =================================================================================================
 #    MAIN
@@ -42,7 +42,7 @@ from ceasiompy.CLCalculator import *
 
 def main(cpacs: CPACS, wkdir: Path) -> None:
     """
-    Computes required CL in function 
+    Computes required CL in function
     of the parameters found in the CPACS file.
     """
     

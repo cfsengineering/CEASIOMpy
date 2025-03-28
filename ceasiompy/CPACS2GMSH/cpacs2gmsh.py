@@ -50,7 +50,10 @@ from ceasiompy.utils.commonxpath import (
     GMSH_CTRLSURF_ANGLE_XPATH,
 )
 
-from ceasiompy.CPACS2GMSH import *
+from ceasiompy.CPACS2GMSH import (
+    MODULE_NAME, 
+    CONTROL_SURFACES_LIST,
+)
 
 # =================================================================================================
 #   FUNCTIONS
@@ -70,7 +73,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
     tixi = cpacs.tixi
 
     # Create corresponding brep directory.
-    if surf == None:
+    if surf is None:
         brep_dir = Path(wkdir, "brep_files")
     else:
         brep_dir = Path(wkdir, f"brep_files_{surf}_{angle}")

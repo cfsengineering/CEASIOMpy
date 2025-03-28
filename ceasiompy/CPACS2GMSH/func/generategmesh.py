@@ -972,7 +972,7 @@ def generate_gmsh(
 
     gmsh.model.occ.synchronize()
 
-    if surf == None:
+    if surf is None:
         mesh_2d_path = Path(results_dir, "2d_mesh.msh")
         gmsh.write(str(mesh_2d_path))
     else:
@@ -1000,7 +1000,7 @@ def generate_gmsh(
         # Control surface orientation
         control_disk_actuator_normal()
 
-    if surf == None:
+    if surf is None:
         su2mesh_path = write_gmsh(results_dir, "mesh.su2")
     else:
         mesh_name = f"mesh_{surf}_{angle}"

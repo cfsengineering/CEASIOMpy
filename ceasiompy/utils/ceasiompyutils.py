@@ -58,7 +58,7 @@ from typing import (
 )
 
 from ceasiompy import (
-    log, 
+    log,
     ceasiompy_cfg,
 )
 
@@ -138,7 +138,6 @@ def check_directory_exists(wkdir: Path) -> None:
         raise OSError(f"The working directory : {wkdir} does not exit!")
 
 
-
 @contextmanager
 def change_working_dir(working_dir):
     """Context manager to change the working directory just before the execution of a function."""
@@ -151,6 +150,7 @@ def change_working_dir(working_dir):
     finally:
         if cwd is not None:
             os.chdir(cwd)
+
 
 def ensure_and_append_text_element(
     tixi: Tixi3,
@@ -211,7 +211,7 @@ def get_results_directory(module_name: str, create: bool = True, wkflow_dir: Pat
         raise ValueError(f"Module '{module_name}' does not exist.")
 
     init = importlib.import_module(f"ceasiompy.{module_name}.{MODNAME_INIT}")
-    if wkflow_dir == None:
+    if wkflow_dir is None:
         results_dir = Path(Path.cwd(), "Results", init.MODULE_NAME)
     else:
         results_dir = Path(wkflow_dir, "Results", init.MODULE_NAME)
@@ -256,7 +256,7 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path = None) -> None
     log.info(f"Workflow's working directory: {wkflow_dir} \n")
 
     log.info("----- Start of " + module_name + " -----")
-    if cpacs_path == None:
+    if cpacs_path is None:
         xml_file = "D150_simple.xml"
         cpacs_path = Path(CPACS_FILES_PATH, xml_file)
     else:
@@ -326,7 +326,7 @@ def run_module(module, wkdir=Path.cwd(), iteration=0):
         # Run the module
         with change_working_dir(wkdir):
             cpacs = CPACS(cpacs_in)
-            if module.results_dir == None:
+            if module.results_dir is None:
                 my_module.main(cpacs)
             else:
                 my_module.main(cpacs, module.results_dir)
@@ -363,7 +363,7 @@ def check_version(software_name: str, required_version: str) -> Tuple[bool, str]
     """
 
     version = get_version(software_name)
-    if version == None:
+    if version is None:
         return False, ""
 
     version_tuple = tuple(map(int, version.split('.')))

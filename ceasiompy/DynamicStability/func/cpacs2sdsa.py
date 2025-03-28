@@ -137,9 +137,9 @@ class SDSAFile:
         self.cgrid = get_value(self.tixi, DYNAMICSTABILITY_CGRID_XPATH)
         self.aircraft_name: str = aircraft_name(self.tixi)
         mach_str: str = get_value(self.tixi, DYNAMICSTABILITY_MACHLIST_XPATH)
-        
+
         self.plot = bool_(get_value(self.tixi, DYNAMICSTABILITY_VISUALIZATION_XPATH))
-        
+
         log.info(f"self.plot {self.plot}")
 
         # Extract and unique list of mach identifiers
@@ -191,7 +191,6 @@ class SDSAFile:
                 f"software {self.software_data} is not implemented yet."
             )
 
-
     def update_tables(self: "SDSAFile") -> None:
         """
         Updates SDSA input file with table values.
@@ -218,7 +217,7 @@ class SDSAFile:
         self.update_attribute(self.ctrltable_xpath, f"{len(ctrl_table_df)} 11")
 
     def update_piloteye(self: "SDSAFile") -> None:
-        if self.model == None:
+        if self.model is None:
             log.warning("Issue with DLM model in cpacs2sdsa.py.")
         else:
             x_le, _, z_le = get_leading_edge(self.model)

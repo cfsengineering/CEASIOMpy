@@ -16,22 +16,19 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
+from ceasiompy.SaveAeroCoefficients.saveaerocoef import main as save_aero_coef
+from ceasiompy.utils.ceasiompyutils import change_working_dir, get_results_directory
 
 from pathlib import Path
+from cpacspy.cpacspy import CPACS
 
-from ceasiompy.SaveAeroCoefficients.saveaerocoef import main as save_aero_coef
-from ceasiompy.utils.ceasiompyutils import change_working_dir
+
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy.SaveAeroCoefficients import MODULE_NAME, MODULE_DIR
 
-MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")
 CPACS_OUT_PATH = Path(MODULE_DIR, "D150_simple_saveaerocoef_test.xml")
 FIG_PATH = Path(MODULE_DIR, "Results", "ExportCSV", "D150-Alt0.0-Mach0.3-AoS0.0.png")
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
 
 # =================================================================================================
 #   FUNCTIONS
@@ -44,7 +41,8 @@ def test_save_aero_coef():
     """
 
     with change_working_dir(MODULE_DIR):
-        save_aero_coef(CPACS_IN_PATH, CPACS_OUT_PATH)
+        cpacs = CPACS(CPACS_IN_PATH)
+        save_aero_coef(cpacs, get_results_directory(MODULE_NAME))
         assert FIG_PATH.exists()
 
     if CPACS_OUT_PATH.exists():

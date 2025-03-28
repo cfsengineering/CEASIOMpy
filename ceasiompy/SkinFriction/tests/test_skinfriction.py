@@ -19,6 +19,7 @@ Python version: >=3.8
 import logging
 from pathlib import Path
 
+from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.SkinFriction.skinfriction import main as add_skin_friction, estimate_skin_friction_coef
 from cpacspy.cpacspy import CPACS
 from pytest import approx
@@ -26,11 +27,6 @@ from pytest import approx
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(MODULE_DIR, "D150_simple_SkinFriction_test.xml")
 CPACS_OUT_PATH = Path(MODULE_DIR, "D150_simple_skinfriction_test_output.xml")
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
 
 # =================================================================================================
 #   FUNCTIONS
@@ -74,11 +70,12 @@ def test_estimate_skin_friction_coef(caplog):
 def test_add_skin_friction():
     """Test function 'add_skin_friction'"""
 
+    cpacs = CPACS(CPACS_OUT_PATH)
+
     # User the function to add skin frictions
-    add_skin_friction(CPACS_IN_PATH, CPACS_OUT_PATH)
+    add_skin_friction(cpacs, wkdir=get_results_directory("SkinFriction"))
 
     # Read the aeromap with the skin friction added in the output cpacs file
-    cpacs = CPACS(CPACS_OUT_PATH)
     apm_sf = cpacs.get_aeromap_by_uid("test_apm_SkinFriction")
 
     # Expected values

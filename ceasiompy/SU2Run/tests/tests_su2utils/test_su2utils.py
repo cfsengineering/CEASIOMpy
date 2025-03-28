@@ -94,7 +94,7 @@ def test_get_su2_version():
 
     # TODO: When Python 3.10 will be used, with could use one "with" with parentheses
     with patch(
-        "ceasiompy.SU2Run.func.su2utils.get_install_path",
+        "ceasiompy.SU2Run.func.utils.get_install_path",
         return_value=Path("/mockpath/bin/SU2_CFD"),
     ):
         with patch.object(Path, "exists", return_value=True):
@@ -110,7 +110,7 @@ def test_get_su2_version():
 
     # TODO: When Python 3.10 will be used, with could use one "with" with parentheses
     with patch(
-        "ceasiompy.SU2Run.func.su2utils.get_install_path",
+        "ceasiompy.SU2Run.func.utils.get_install_path",
         return_value=Path("/mockpath/bin/SU2_CFD"),
     ):
         with patch.object(Path, "exists", return_value=True):

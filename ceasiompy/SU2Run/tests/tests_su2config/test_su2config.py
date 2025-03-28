@@ -35,11 +35,12 @@ def test_add_damping_derivatives(tmp_path):
     cfg = ConfigFile()
     case_dir_name = "test_damping_der_cfg"
 
-    add_damping_derivatives(cfg, tmp_path, case_dir_name, 5.4)
+    rotation_rate = 5.4
+    add_damping_derivatives(cfg, tmp_path, case_dir_name, rotation_rate)
 
-    case_dp = Path(tmp_path, f"{case_dir_name}_dp")
-    case_dq = Path(tmp_path, f"{case_dir_name}_dq")
-    case_dr = Path(tmp_path, f"{case_dir_name}_dr")
+    case_dp = Path(tmp_path, f"{case_dir_name}_p_{rotation_rate}")
+    case_dq = Path(tmp_path, f"{case_dir_name}_q_{rotation_rate}")
+    case_dr = Path(tmp_path, f"{case_dir_name}_r_{rotation_rate}")
 
     assert case_dp.exists()
     assert case_dq.exists()

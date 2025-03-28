@@ -24,13 +24,13 @@ from ceasiompy import log
 
 from ceasiompy.utils.ceasiompyutils import call_main, get_results_directory
 
-from ceasiompy.PyAVL.avlrun import run_avl
-from ceasiompy.PyAVL.func.avlconfig import get_aeromap_conditions
+from ceasiompy.PyAVL.pyavl import main as run_avl
+from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
 from cpacspy.cpacsfunctions import (
     get_value_or_default,
     create_branch,
 )
-from ceasiompy.PyAVL.func.avlresults import convert_ps_to_pdf
+from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
 from ceasiompy.AeroFrame_new.func.aeroframe_config import (
     read_AVL_fe_file,
     create_framat_model,
@@ -364,7 +364,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs_path)
 
     # First AVL run
-    run_avl(cpacs_path, wkdir)
+    run_avl(cpacs, wkdir)
 
     for i_case, _ in enumerate(alt_list):
         alt = alt_list[i_case]

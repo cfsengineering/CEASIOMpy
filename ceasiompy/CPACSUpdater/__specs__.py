@@ -28,8 +28,10 @@ from ceasiompy.utils.commonxpath import (
 )
 
 from ceasiompy import log
-from ceasiompy.CPACSUpdater import include_gui
-from ceasiompy.CPACSUpdater import *
+from ceasiompy.CPACSUpdater import (
+    include_gui,
+    CONTROL_SURFACES_LIST,
+)
 
 # ==============================================================================
 #   VARIABLE

@@ -39,7 +39,7 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from ceasiompy.utils.commonxpath import AVL_AEROMAP_UID_XPATH
 
-from ceasiompy.PyAVL import *
+from ceasiompy.PyAVL import MODULE_DIR
 
 # =================================================================================================
 #   CLASSES

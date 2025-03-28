@@ -72,7 +72,7 @@ from ceasiompy.utils.commonxpath import (
     RANGE_CRUISE_MACH_XPATH,
 )
 
-from ceasiompy import *
+from ceasiompy import log
 
 # =================================================================================================
 #   FUNCTIONS
@@ -348,7 +348,7 @@ def get_install_path(software_name: str, raise_error: bool = False) -> Path:
     log.warning(f"{software_name} is not installed on your computer!")
 
     if raise_error:
-        raise SoftwareNotInstalled(f"{software_name} is not installed on your computer!")
+        log.warning(f"{software_name} is not installed on your computer!")
     else:
         return None
 

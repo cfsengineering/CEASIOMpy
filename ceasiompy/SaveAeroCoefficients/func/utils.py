@@ -79,7 +79,7 @@ def subplot_options(ax, ylabel: str, xlabel: str) -> None:
     ax.grid()
 
 
-def deal_with_feature(criterion, aeromap, groupby_list, feature: str, crit: float) -> None:
+def deal_with_feature(title, criterion, aeromap, groupby_list, feature: str, crit: float) -> None:
     feature_ = FEATURE_DICT[feature]
     if len(aeromap[feature].unique()) == 1:
         title += f" - {feature_} = " + str(aeromap[feature].loc[0])

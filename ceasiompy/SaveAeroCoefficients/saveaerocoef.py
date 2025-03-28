@@ -74,9 +74,9 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     mach_crit = float(get_value_or_default(tixi, crit_xpath + "/mach", "None"))
     aos_crit = float(get_value_or_default(tixi, crit_xpath + "/aos", "None"))
         
-    deal_with_feature(criterion, aeromap, groupby_list, "altitude", alt_crit)
-    deal_with_feature(criterion, aeromap, groupby_list, "machNumber", mach_crit)
-    deal_with_feature(criterion, aeromap, groupby_list, "angleOfSideslip", aos_crit)
+    deal_with_feature(title, criterion, aeromap, groupby_list, "altitude", alt_crit)
+    deal_with_feature(title, criterion, aeromap, groupby_list, "machNumber", mach_crit)
+    deal_with_feature(title, criterion, aeromap, groupby_list, "angleOfSideslip", aos_crit)
 
     if uid_crit is not None and len(groupby_list) > 1:
         criterion = criterion & (aeromap.uid == uid_crit)

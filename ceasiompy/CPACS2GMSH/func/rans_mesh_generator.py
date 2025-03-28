@@ -47,7 +47,7 @@ from ceasiompy import log
 #     ENGINE_INTAKE_SUFFIX,
 #     GMSH_ENGINE_CONFIG_NAME,
 # )
-from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu, get_part_type, run_software
+from ceasiompy.utils.ceasiompyutils import bool_, get_reasonable_nb_cpu, get_part_type, run_software
 from ceasiompy.CPACS2GMSH.func.cpacs2gmsh_utils import check_path, initialize_gmsh, cfg_rotors
 from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.generategmesh import ModelPart
@@ -232,7 +232,7 @@ def generate_2d_mesh_for_pentagrow(
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
 
-    if open_gmsh:
+    if bool_(open_gmsh):
         log.info("Result of 2D surface mesh.")
         log.info("GMSH GUI is open, close it to continue...")
         gmsh.fltk.run()

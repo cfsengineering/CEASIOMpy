@@ -20,9 +20,9 @@ import matplotlib
 import numpy as np
 import matplotlib.pyplot as plt
 
-from ceasiompy import log
-
 from mpl_toolkits.mplot3d.art3d import Poly3DCollection
+
+from ceasiompy import log
 
 # =================================================================================================
 #   BACKEND SETTING

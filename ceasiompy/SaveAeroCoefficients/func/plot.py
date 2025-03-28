@@ -16,6 +16,8 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
+import matplotlib
+
 import matplotlib.pyplot as plt
 
 from ceasiompy.SaveAeroCoefficients.func.utils import (
@@ -29,6 +31,12 @@ from typing import List
 from ceasiompy import log
 
 from ceasiompy.SaveAeroCoefficients import *
+
+# =================================================================================================
+#   BACKEND SETTING
+# =================================================================================================
+
+matplotlib.use('TkAgg')
 
 # =================================================================================================
 #   FUNCTIONS

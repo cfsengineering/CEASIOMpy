@@ -24,6 +24,7 @@ import re
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import matplotlib
 import math
 from pathlib import Path
 from scipy.spatial.distance import cdist
@@ -48,6 +49,11 @@ from ceasiompy.AeroFrame_new.func.aeroframe_utils import (
 )
 
 from ceasiompy import log
+# =================================================================================================
+#   BACKEND SETTING
+# =================================================================================================
+
+matplotlib.use('TkAgg')
 
 # =================================================================================================
 #   FUNCTIONS

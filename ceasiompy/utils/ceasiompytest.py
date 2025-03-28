@@ -40,8 +40,8 @@ class CeasiompyTest(unittest.TestCase):
         cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml")
         cls.test_cpacs = CPACS(cpacs_in)
 
-    def assert_equal_function(self, f: Callable, input: Tuple, expected: Tuple) -> None:
-        actual = f(*input)
+    def assert_equal_function(self, f: Callable, input_args: Tuple, expected: Tuple) -> None:
+        actual = f(*input_args)
         # When the function to test f returns a single value
         # then it is not of type tuple.
         # We make the following adjustment.

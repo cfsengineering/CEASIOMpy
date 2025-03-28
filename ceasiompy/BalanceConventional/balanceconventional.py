@@ -39,18 +39,13 @@ from ceasiompy.BalanceConventional.func.AinFunc import getdatafromcpacs
 from ceasiompy.BalanceConventional.func.AoutFunc import cpacsbalanceupdate, outputbalancegen
 from ceasiompy.BalanceConventional.func.Cog.centerofgravity import center_of_gravity_evaluation
 from ceasiompy.BalanceConventional.func.Inertia import lumpedmassesinertia
-from ceasiompy import log
-from ceasiompy.utils.ceasiompyutils import aircraft_name
+from ceasiompy.utils.ceasiompyutils import aircraft_name, call_main
 from ceasiompy.utils.InputClasses.Conventional import balanceconvclass
-from ceasiompy.utils.moduleinterfaces import (
-    check_cpacs_input_requirements,
-    get_toolinput_file_path,
-    get_tooloutput_file_path,
-)
 from ceasiompy.utils.WB.ConvGeometry import geometry
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy.BalanceConventional import *
+from ceasiompy import log
+from ceasiompy.BalanceConventional import MODULE_NAME
 
 # =================================================================================================
 #   FUNCTIONS
@@ -84,7 +79,11 @@ def check_rounding(I1, I2):
     return rd
 
 
-def get_balance_estimations(cpacs_path, cpacs_out_path):
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+def main(cpacs: CPACS) -> None:
     """Function to estimate inertia value and CoF of an conventional aircraft.
 
     Function 'get_balance_unc_estimations' ...
@@ -94,11 +93,10 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
 
     Args:
         cpacs_path (str): Path to CPACS file
-        cpacs_out_path (str):Path to CPACS output file
+        cpacs_path (str):Path to CPACS output file
 
     """
-
-    cpacs = CPACS(cpacs_path)
+    cpacs_path = cpacs.cpacs_file
 
     # TODO: when refactor, use Pathlib and absolute path
     # Removing and recreating the ToolOutput folder.
@@ -111,7 +109,7 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
 
     name = aircraft_name(cpacs_path)
 
-    shutil.copyfile(cpacs_path, cpacs_out_path)  # TODO: shoud not be like that
+    #shutil.copyfile(cpacs_path, cpacs_path)  # TODO: shoud not be like that
     newpath = "ToolOutput/" + name
     if not os.path.exists(newpath):
         os.makedirs(newpath)
@@ -120,7 +118,7 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
     bi = balanceconvclass.BalanceInputs()
     out = balanceconvclass.BalanceOutputs()
     mw = balanceconvclass.MassesWeights()
-    (mw, bi) = getdatafromcpacs.get_data(mw, bi, cpacs_out_path)
+    (mw, bi) = getdatafromcpacs.get_data(mw, bi, cpacs_path)
 
     # BALANCE ANALYSIS
 
@@ -129,7 +127,7 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
     F_PERC_MAXPASS = (mw.mass_fuel_maxpass / mw.mass_fuel_max) * 100
 
     # CENTER OF GRAVITY---------------------------------------------------------
-    # ag = geometry.geometry_eval(cpacs_out_path, name)
+    # ag = geometry.geometry_eval(cpacs_path, name)
     # TODO: get CPACS object
     ag = geometry.AircraftGeometry()
     ag.fuse_geom_eval(cpacs)
@@ -180,10 +178,10 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
     log.info("------------ Lumped mass Inertia ------------")
     log.info("--------- Max Payload configuration ---------")
     (_, _, _, Ixxf, Iyyf, Izzf, Ixyf, Iyzf, Ixzf) = lumpedmassesinertia.fuselage_inertia(
-        bi.SPACING_FUSE, out.center_of_gravity, mass_seg_i, ag, cpacs_out_path
+        bi.SPACING_FUSE, out.center_of_gravity, mass_seg_i, ag, cpacs_path
     )
     (_, _, _, Ixxw, Iyyw, Izzw, Ixyw, Iyzw, Ixzw) = lumpedmassesinertia.wing_inertia(
-        bi.WPP, bi.SPACING_WING, out.center_of_gravity, mass_seg_i, ag, cpacs_out_path
+        bi.WPP, bi.SPACING_WING, out.center_of_gravity, mass_seg_i, ag, cpacs_path
     )
 
     rd = check_rounding(Ixxf + Ixxw, Iyzf + Iyzw)
@@ -196,10 +194,10 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
 
     log.info("---------- Zero Fuel configuration ----------")
     (_, _, _, Ixxf2, Iyyf2, Izzf2, Ixyf2, Iyzf2, Ixzf2) = lumpedmassesinertia.fuselage_inertia(
-        bi.SPACING_FUSE, out.cg_zfm, ms_zfm, ag, cpacs_out_path
+        bi.SPACING_FUSE, out.cg_zfm, ms_zfm, ag, cpacs_path
     )
     (_, _, _, Ixxw2, Iyyw2, Izzw2, Ixyw2, Iyzw2, Ixzw2) = lumpedmassesinertia.wing_inertia(
-        bi.WPP, bi.SPACING_WING, out.cg_zfm, ms_zfm, ag, cpacs_out_path
+        bi.WPP, bi.SPACING_WING, out.cg_zfm, ms_zfm, ag, cpacs_path
     )
 
     out.Ixx_lump_zfm = round(Ixxf2 + Ixxw2, rd)
@@ -211,10 +209,10 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
 
     log.info("--------- Zero Payload configuration --------")
     (_, _, _, Ixxf3, Iyyf3, Izzf3, Ixyf3, Iyzf3, Ixzf3) = lumpedmassesinertia.fuselage_inertia(
-        bi.SPACING_FUSE, out.cg_zpm, ms_zpm, ag, cpacs_out_path
+        bi.SPACING_FUSE, out.cg_zpm, ms_zpm, ag, cpacs_path
     )
     (_, _, _, Ixxw3, Iyyw3, Izzw3, Ixyw3, Iyzw3, Ixzw3) = lumpedmassesinertia.wing_inertia(
-        bi.WPP, bi.SPACING_WING, out.cg_zpm, ms_zpm, ag, cpacs_out_path
+        bi.WPP, bi.SPACING_WING, out.cg_zpm, ms_zpm, ag, cpacs_path
     )
 
     out.Ixx_lump_zpm = round(Ixxf3 + Ixxw3, rd)
@@ -226,10 +224,10 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
 
     log.info("------------- OEM configuration -------------")
     (fx, fy, fz, Ixxf4, Iyyf4, Izzf4, Ixyf4, Iyzf4, Ixzf4) = lumpedmassesinertia.fuselage_inertia(
-        bi.SPACING_FUSE, out.cg_oem, ms_oem, ag, cpacs_out_path
+        bi.SPACING_FUSE, out.cg_oem, ms_oem, ag, cpacs_path
     )
     (wx, wy, wz, Ixxw4, Iyyw4, Izzw4, Ixyw4, Iyzw4, Ixzw4) = lumpedmassesinertia.wing_inertia(
-        bi.WPP, bi.SPACING_WING, out.cg_oem, ms_oem, ag, cpacs_out_path
+        bi.WPP, bi.SPACING_WING, out.cg_oem, ms_oem, ag, cpacs_path
     )
 
     out.Ixx_lump_oem = round(Ixxf4 + Ixxw4, rd)
@@ -252,10 +250,10 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
             Iyzfu,
             Ixzfu,
         ) = lumpedmassesinertia.fuselage_inertia(
-            bi.SPACING_FUSE, out.cg_user, ms_user, ag, cpacs_out_path
+            bi.SPACING_FUSE, out.cg_user, ms_user, ag, cpacs_path
         )
         (wx, wy, wz, Ixxwu, Iyywu, Izzwu, Ixywu, Iyzwu, Ixzwu) = lumpedmassesinertia.wing_inertia(
-            bi.WPP, bi.SPACING_WING, out.cg_user, ms_user, ag, cpacs_out_path
+            bi.WPP, bi.SPACING_WING, out.cg_user, ms_user, ag, cpacs_path
         )
 
         out.Ixx_lump_user = round(Ixxfu + Ixxwu, rd)
@@ -271,7 +269,7 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
     outputbalancegen.output_txt(out, mw, bi, name)
 
     # CPACS WRITING
-    cpacsbalanceupdate.cpacs_mbd_update(out, mw, bi, np.sum(ms_zpm), cpacs_out_path)
+    cpacsbalanceupdate.cpacs_mbd_update(out, mw, bi, np.sum(ms_zpm), cpacs_path)
 
     # PLOTS
     # Aircraft Cog Plot
@@ -353,23 +351,7 @@ def get_balance_estimations(cpacs_path, cpacs_out_path):
     log.info("############## Balance estimation completed ##############")
 
 
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-def main(cpacs_path: Path, cpacs_out_path: Path) -> None:
-    module_name = MODULE_NAME
-    log.info("----- Start of " + module_name + " -----")
-
-    get_balance_estimations(cpacs_path, cpacs_out_path)
-
-    log.info("----- End of " + module_name + " -----")
 
 
 if __name__ == "__main__":
-    cpacs_path = get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
-    check_cpacs_input_requirements(cpacs_path)
-
-    main(cpacs_path, cpacs_out_path)
+    call_main(main, MODULE_NAME)

@@ -1,4 +1,6 @@
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
+
+from ceasiompy import log
 from ceasiompy.utils.commonxpath import (
     CEASIOMPY_XPATH,
     AVL_PLOT_XPATH,
@@ -213,3 +215,10 @@ cpacs_inout.add_output(
     descr="aeroMap with aero coefficients calculated by AVL",
     xpath=AEROPERFORMANCE_XPATH + "/aeroMap/aeroPerformanceMap",
 )
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")

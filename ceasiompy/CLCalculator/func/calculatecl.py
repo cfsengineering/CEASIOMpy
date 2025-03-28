@@ -25,17 +25,17 @@ from ceasiompy import *
 # =================================================================================================
 
 def calculate_cl(
-    ref_area: float, 
-    alt: float, 
-    mach: float, 
-    mass: float, 
-    load_fact: float = 1.05
+    ref_area: float,
+    alt: float,
+    mach: float,
+    mass: float,
+    load_fact: float = 1.05,
 ) -> float:
     """
     Computes the lift coefficient value for the given set of inputs:
-        - Reference Area, 
-        - Altitude, 
-        - Mach Number, 
+        - Reference Area,
+        - Altitude,
+        - Mach Number,
         - Mass,
         - Load Factor.
 
@@ -43,11 +43,11 @@ def calculate_cl(
        /CEASIOMpy/lib/CLCalculator/doc/Calculate_CL.pdf
 
     Args:
-        ref_area (float): Reference area [m^2]
-        alt (float): Altitude [m]
-        mach (float): Mach number [-]
-        mass (float): Aircraft mass [kg]
-        load_fact (float = 1.05): Load Factor [-] 
+        ref_area (float): Reference area [m^2].
+        alt (float): Altitude [m].
+        mach (float): Mach number [-].
+        mass (float): Aircraft mass [kg].
+        load_fact (float = 1.05): Load Factor [-].
 
     Returns:
         (float): Lift coefficient [???].

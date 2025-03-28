@@ -175,21 +175,22 @@ class SDSAFile:
 
         if self.software_data == AVL_SOFTWARE:
             df_dot = compute_dot_derivatives(self)
+            for aero_prim_xpath, column_name in self.xpaths_prim:
+                x_xpath = aero_prim_xpath + "/X"
+                values_xpath = aero_prim_xpath + "/Values"
+
+                self.update(x_xpath, sdsa_format(self.mach_list))
+                self.update_attribute(x_xpath, f"1 {self.len_mach_list}")
+                self.update(aero_prim_xpath + "/NX", f"{self.len_mach_list}")
+                self.update(values_xpath, sdsa_format(df_dot[column_name].tolist()))
+                self.update_attribute(values_xpath, f"1 {self.len_mach_list}")
+
         else:
             log.warning(
                 "Computing dot-derivatives with "
                 f"software {self.software_data} is not implemented yet."
             )
 
-        for aero_prim_xpath, column_name in self.xpaths_prim:
-            x_xpath = aero_prim_xpath + "/X"
-            values_xpath = aero_prim_xpath + "/Values"
-
-            self.update(x_xpath, sdsa_format(self.mach_list))
-            self.update_attribute(x_xpath, f"1 {self.len_mach_list}")
-            self.update(aero_prim_xpath + "/NX", f"{self.len_mach_list}")
-            self.update(values_xpath, sdsa_format(df_dot[column_name].tolist()))
-            self.update_attribute(values_xpath, f"1 {self.len_mach_list}")
 
     def update_tables(self: "SDSAFile") -> None:
         """

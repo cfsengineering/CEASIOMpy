@@ -303,9 +303,8 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
             for angle in ['alpha', 'beta']:
 
                 # Get results from dynstab
-                force_file_pattern = Path(dict_dir[angle], "forces_breakdown_*.dat")
-                force_file_paths = list(force_file_pattern.glob())
-
+                force_file_pattern = Path(dict_dir[angle])
+                force_file_paths = list(force_file_pattern.glob("forces_breakdown_*.dat"))
                 if not force_file_paths.exists():
                     raise OSError("No result force file have been found!")
 

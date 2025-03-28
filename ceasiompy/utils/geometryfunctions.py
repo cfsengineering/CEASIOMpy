@@ -144,6 +144,8 @@ def corrects_airfoil_profile(
     """
     prof_size_x = np.max(prof_vect_x) - np.min(prof_vect_x)
     prof_size_y = np.max(prof_vect_y) - np.min(prof_vect_y)
+    
+    wg_sec_chord = 0.0
 
     if prof_size_y == 0:
         if prof_size_x == 0.0:

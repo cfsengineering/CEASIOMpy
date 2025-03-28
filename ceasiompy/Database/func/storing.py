@@ -71,7 +71,7 @@ class CeasiompyDb:
 
     def connect_to_table(self, module_name: str) -> str:
         table_name, table_schema = self.get_table_parameters(module_name)
-        
+
         # Validate table name
         if not table_name.isidentifier():
             raise ValueError("Invalid table name.")

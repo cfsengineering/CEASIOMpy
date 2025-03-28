@@ -59,7 +59,7 @@ from ceasiompy.CPACS2GMSH import *
 
 def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = None) -> None:
     """
-    Starts meshing with gmsh. 
+    Starts meshing with gmsh.
 
     Args:
         cpacs (CPACS): CPACS file.
@@ -167,7 +167,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
 
 def deform_surf(cpacs: CPACS, wkdir: Path, surf: str, angle: float, wing_names: List) -> None:
     """
-    Deform the surface surf by angle angle, 
+    Deform the surface surf by angle angle,
     and run run_cpacs2gmsh with this modified CPACS.
 
     Args:

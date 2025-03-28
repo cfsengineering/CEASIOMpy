@@ -19,6 +19,7 @@ Python version: >=3.8
 
 from pathlib import Path
 from unittest.mock import mock_open, patch
+from ceasiompy import log
 
 import pytest
 from ceasiompy.SU2Run.func.utils import (
@@ -28,7 +29,6 @@ from ceasiompy.SU2Run.func.utils import (
     get_su2_version,
     get_wetted_area,
 )
-from ceasiompy.utils.moduleinterfaces import get_module_path
 from pytest import approx
 
 MODULE_DIR = Path(__file__).parent

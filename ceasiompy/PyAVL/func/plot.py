@@ -40,10 +40,10 @@ def convert_ps_to_pdf(wkdir):
 
     """
     if not Path(wkdir, "plot.ps").exists():
-        raise FileNotFoundError("File 'plot.ps' does not exist.")
-
-    subprocess.run(["ps2pdf", "plot.ps", "plot.pdf"], cwd=wkdir)
-    subprocess.run(["rm", "plot.ps"], cwd=wkdir)
+        log.warning("File 'plot.ps' does not exist. Nothing to convert.")
+    else:
+        subprocess.run(["ps2pdf", "plot.ps", "plot.pdf"], cwd=wkdir)
+        subprocess.run(["rm", "plot.ps"], cwd=wkdir)
 
 
 def plot_lift_distribution(

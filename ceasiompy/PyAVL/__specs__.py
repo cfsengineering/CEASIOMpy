@@ -145,7 +145,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="plot_lift",
     var_type=bool,
-    default_value=False,
+    default_value=True,
     unit=None,
     descr="Select to plot lift along wing",
     xpath=AVL_PLOTLIFT_XPATH,
@@ -157,7 +157,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="save_plots",
     var_type=bool,
-    default_value=False,
+    default_value=True,
     unit=None,
     descr="Select to save geometry and results plots",
     xpath=AVL_PLOT_XPATH,

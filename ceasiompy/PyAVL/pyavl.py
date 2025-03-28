@@ -77,10 +77,8 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         list(set(aos_list)),
         list(set(rotation_rate_list)),
     )
-    first_cases = len(new_alt_list)
 
-    for i_case in range(first_cases):
-        alt = new_alt_list[i_case]
+    for i_case, alt in enumerate(new_alt_list):
         mach = new_mach_list[i_case]
         aoa = new_aoa_list[i_case]
         aos = new_aos_list[i_case]
@@ -161,8 +159,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     )
 
     # Name of the case directory
-    for i_case in range(len(new_alt_list)):
-        alt = new_alt_list[i_case]
+    for i_case, alt in enumerate(new_alt_list):
         mach = new_mach_list[i_case]
         aoa = new_aoa_list[i_case]
 

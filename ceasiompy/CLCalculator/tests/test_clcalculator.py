@@ -28,20 +28,14 @@ from ceasiompy.utils.decorators import log_test
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
+from ceasiompy.CLCalculator import MODULE_DIR
 
-MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(MODULE_DIR, "D150_simple.xml")
 CPACS_OUT_PATH = Path(MODULE_DIR, "D150_simple_clcalulator_test.xml")
 
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
-
-
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
 
 class TestModuleTemplate(CeasiompyTest):
 
@@ -52,7 +46,10 @@ class TestModuleTemplate(CeasiompyTest):
             input_args=(122, 12_000, 0.78, 50_000, 1.0, ),
             expected=(approx(0.48429196151547343), ),
         )
-
+        
+# =================================================================================================
+#   FUNCTIONS
+# =================================================================================================
 
 def test_calculate_cl():
     """Test function 'calculate_cl'"""
@@ -70,11 +67,6 @@ def test_calculate_cl():
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 if __name__ == "__main__":
-
     main(verbosity=0)
-
-
-print("Running Test CL Calulator")
-print("To run test use the following command:")
-print(">> pytest -v")

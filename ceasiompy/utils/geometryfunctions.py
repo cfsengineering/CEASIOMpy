@@ -90,7 +90,8 @@ def get_segments_wing(tixi: Tixi3, wing_name: str) -> List[Tuple[str, str, str]]
 
 def get_segments(tixi: Tixi3) -> List[Tuple[str, str]]:
     """
-    Retrieve and return a sorted list of unique wing segment names from a Tixi3 document.
+    Retrieve and return a sorted list of
+    unique wing segment names from a Tixi3 document.
 
     Args:
         tixi (Tixi3): Tixi3 handle of the CPACS file.
@@ -111,7 +112,8 @@ def get_segments(tixi: Tixi3) -> List[Tuple[str, str]]:
         segment_cnt = elements_number(tixi, segments_xpath, "segment", logg=False)
 
         for i_seg in range(segment_cnt):
-            segment_name = tixi.getTextElement(segments_xpath + f"/segment[{i_seg + 1}]/name")
+            seg_xpath = segments_xpath + f"/segment[{i_seg + 1}]/name"
+            segment_name = tixi.getTextElement(seg_xpath)
             segment_list.append((wing_name, segment_name))
 
     unique_segment_list = list(set(segment_list))
@@ -134,9 +136,9 @@ def corrects_airfoil_profile(
     Process airfoil profiles correctly.
 
     Args:
-        prof_vect_x (np.ndarray): Vector containing x-th coordinate of airfoil's profile.
-        prof_vect_y (np.ndarray): Vector containing y-th coordinate of airfoil's profile.
-        prof_vect_z (np.ndarray): Vector containing z-th coordinate of airfoil's profile.
+        prof_vect_x (np.ndarray): x-th coordinate of airfoil's profile.
+        prof_vect_y (np.ndarray): y-th coordinate of airfoil's profile.
+        prof_vect_z (np.ndarray): z-th coordinate of airfoil's profile.
 
     Returns:
         wg_sec_chord (float): Wing's section chord length.
@@ -149,7 +151,7 @@ def corrects_airfoil_profile(
 
     if prof_size_y == 0:
         if prof_size_x == 0.0:
-            log.warning(f"Can not divide by zero. prof_size_x == 0.0.")
+            log.warning("Can not divide by zero. prof_size_x == 0.0.")
         else:
             # Apply scaling
             prof_vect_x /= prof_size_x
@@ -208,33 +210,6 @@ def get_chord_span(tixi: Tixi3, wing_xpath: str) -> Tuple[float, float]:
     return d12, s_ref
 
 
-def return_nsections(tixi: Tixi3, i_wing: int):
-    """
-    Returns the number of sections of a wing in tixi handle of CPACS file
-
-    Args:
-        tixi (Tixi3): TIXI Handle of the CPACS file.
-        i_wing (int): Wing's number
-
-    Returns:
-        sec_cnt (int): number of sections wing i_wing in tixi handle of CPACS file
-
-    """
-
-    # Check if the wing has sections
-    wing_sections_xpath = WINGS_XPATH + "/wing[" + str(i_wing + 1) + "]" + "/sections"
-
-    if tixi.checkElement(wing_sections_xpath):
-        sec_cnt = tixi.getNamedChildrenCount(wing_sections_xpath, "section")
-        log.info(str(sec_cnt) + " wing sections have been found")
-
-    else:
-        sec_cnt = 0
-        log.warning("No wings sections have been found in this CPACS file!")
-
-    return sec_cnt
-
-
 def return_namewings(tixi: Tixi3) -> List:
     """
     Returns the names of all wings in the tixi handle of the CPACS file.
@@ -269,7 +244,7 @@ def return_uidwings(tixi: Tixi3) -> List:
         tixi (Tixi3): TIXI Handle of the CPACS file.
 
     Returns:
-        wing_uids (List): List of wing uIDs in the tixi handle of the CPACS file.
+        wing_uids (List): List of wing uIDs.
 
     """
 
@@ -441,7 +416,9 @@ def access_leading_edges(
         pos_z_list (List): List of z translations for each positioning.
 
     Returns:
-        le_list (List[List]): List of list containing leading edges and chord length of each sections of a wing.
+        (List[List]):
+            List of list containing leading edges
+            and chord length of each sections of a wing.
 
     """
 
@@ -477,19 +454,30 @@ def access_leading_edges(
             prof_vect_z = np.array(prof_vect_z)
 
             # Apply scaling using numpy operations
-            prof_vect_x *= elem_transf.scaling.x * sec_transf.scaling.x * wing_transf.scaling.x
-            prof_vect_y *= elem_transf.scaling.y * sec_transf.scaling.y * wing_transf.scaling.y
-            prof_vect_z *= elem_transf.scaling.z * sec_transf.scaling.z * wing_transf.scaling.z
-
+            prof_vect_x *= (
+                elem_transf.scaling.x
+                * sec_transf.scaling.x
+                * wing_transf.scaling.x
+            )
+            prof_vect_y *= (
+                elem_transf.scaling.y
+                * sec_transf.scaling.y
+                * wing_transf.scaling.y
+            )
+            prof_vect_z *= (
+                elem_transf.scaling.z
+                * sec_transf.scaling.z
+                * wing_transf.scaling.z
+            )
             wg_sec_chord = corrects_airfoil_profile(prof_vect_x, prof_vect_y, prof_vect_z)
 
             # Adding the two angles: May not work in every case !!!
-            add_rotation = SimpleNamespace()
-
-            add_rotation.x = elem_transf.rotation.x + sec_transf.rotation.x + wg_sk_transf.rotation.x
-            add_rotation.y = elem_transf.rotation.y + sec_transf.rotation.y + wg_sk_transf.rotation.y
-            add_rotation.z = elem_transf.rotation.z + sec_transf.rotation.z + wg_sk_transf.rotation.z
-
+            add_rotation = SimpleNamespace(
+                x=elem_transf.rotation.x + sec_transf.rotation.x + wg_sk_transf.rotation.x,
+                y=elem_transf.rotation.y + sec_transf.rotation.y + wg_sk_transf.rotation.y,
+                z=elem_transf.rotation.z + sec_transf.rotation.z + wg_sk_transf.rotation.z,
+            )
+            
             # Get section rotation
             wg_sec_rot = euler2fix(add_rotation)
             wg_sec_dihed = math.radians(wg_sec_rot.x)
@@ -528,11 +516,15 @@ def wing_sections(
         pos_x_list (List): List of x translations for each positioning.
         pos_y_list (List): List of y translations for each positioning.
         pos_z_list (List): List of z translations for each positioning.
-        list_type (str): Either 'first_n_last' or 'first_n_second' or 'secondlast_n_last' or 'first' or 'all'.
+        list_type (str): 
+            Either 'first_n_last' 
+            or 'first_n_second' 
+            or 'secondlast_n_last' 
+            or 'first' or 'all'.
 
     Returns:
-        le_list (List[List]) List of list containing leading edge coordinates
-        (x_le_abs, y_le_abs, z_le_abs) and chord length of specified sections in list_type.
+        (List[List]): eading edge coordinates (x_le_abs, y_le_abs, z_le_abs)
+        and chord length of specified sections in list_type.
 
     """
 
@@ -586,7 +578,7 @@ def get_leading_edge(tixi: Tixi3) -> Tuple[float, float, float, float]:
         tixi (Tixi3): Tixi handle of CPACS file.
 
     Returns:
-        x1, y1, z1, d12 (Tuple[float, float, float, float]): Leading edge coordinate, chord length.
+        (Tuple[float, float, float, float]): Leading edge coordinate, chord length.
 
     """
     wing_xpath = WINGS_XPATH + "/wing[1]"

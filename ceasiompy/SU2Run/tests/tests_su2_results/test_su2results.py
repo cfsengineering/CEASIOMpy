@@ -39,10 +39,8 @@ from ceasiompy.SU2Run.func.dotderivatives import (
 )
 
 from pathlib import Path
-from numpy import ndarray
 from ambiance import Atmosphere
 from cpacspy.cpacspy import CPACS
-from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
 from typing import (
@@ -92,21 +90,21 @@ class TestModuleTemplate(CeasiompyTest):
 
         dict_dir: List[Dict] = []
 
-        for dir in dir_list:
-            log.info(f"dir.name {dir.name}")
-            if dir.name.endswith("aoa0.0_aos0.0"):
+        for dir_ in dir_list:
+            log.info(f"dir.name {dir_.name}")
+            if dir_.name.endswith("aoa0.0_aos0.0"):
                 angle = "none"
-            elif dir.name.endswith("dynstab"):
-                angle = dir.name.split("_")[3].split("angle")[1]
+            elif dir_.name.endswith("dynstab"):
+                angle = dir_.name.split("_")[3].split("angle")[1]
             else:
-                log.warning(f"Skipping results of directory {dir}.")
+                log.warning(f"Skipping results of directory {dir_}.")
                 continue
 
             dict_dir.append(
                 {
-                    "mach": float(dir.name.split("_")[2].split("mach")[1]),
-                    "alt": float(dir.name.split("_")[1].split("alt")[1]),
-                    "dir": dir,
+                    "mach": float(dir_.name.split("_")[2].split("mach")[1]),
+                    "alt": float(dir_.name.split("_")[1].split("alt")[1]),
+                    "dir": dir_,
                     "angle": angle,
                 },
             )

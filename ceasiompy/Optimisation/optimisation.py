@@ -51,7 +51,7 @@ from cpacspy.cpacspy import CPACS
 from cpacspy.utils import COEFS, PARAMS
 
 # Do not remove: Called within eval() function
-from tigl3.geometry import eval
+# from tigl3.geometry import eval
 
 from ceasiompy.Optimisation import *
 

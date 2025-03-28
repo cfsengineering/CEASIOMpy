@@ -139,6 +139,6 @@ def estimate_system_mass(
 
 if __name__ == "__main__":
 
-    print("########################################################")
-    print("# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #")
-    print("########################################################")
+    log.info("########################################################")
+    log.info("# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #")
+    log.info("########################################################")

@@ -60,7 +60,7 @@ def update_value(xpath, key):
             else:
                 # Otherwise just add value
                 add_value(st.session_state.cpacs.tixi, xpath, value)
-    except:
+    except Exception as e:
         "DoNothing"
 
 
@@ -83,9 +83,9 @@ def get_last_workflow():
 
     last_workflow_nb = 0
 
-    for dir in Path(st.session_state.workflow.working_dir).iterdir():
-        if "Workflow_" in str(dir):
-            last_workflow_nb = max(last_workflow_nb, int(str(dir).split("_")[-1]))
+    for dir_ in Path(st.session_state.workflow.working_dir).iterdir():
+        if "Workflow_" in str(dir_):
+            last_workflow_nb = max(last_workflow_nb, int(str(dir_).split("_")[-1]))
 
     if last_workflow_nb == 0:
         return None

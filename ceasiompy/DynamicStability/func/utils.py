@@ -157,8 +157,8 @@ def complex_cross(a: ndarray, b: ndarray) -> ndarray:
     return real_part + 1j * imag_part
 
 
-def sdsa_format(list: List) -> str:
-    return " ".join(map(str, list))
+def sdsa_format(list_: List) -> str:
+    return " ".join(map(str, list_))
 
 # =================================================================================================
 #    MAIN

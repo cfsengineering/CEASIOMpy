@@ -119,7 +119,7 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str) -> None:
             tixi.updateTextElement(xpath, default_value)
 
 
-def check_directory_exists(dir: Path) -> None:
+def check_directory_exists(wkdir: Path) -> None:
     """
     Checks if directory dir exists.
 
@@ -130,8 +130,8 @@ def check_directory_exists(dir: Path) -> None:
         OSError: TODO: Add description.
     """
 
-    if not dir.exists():
-        raise OSError(f"The working directory : {dir} does not exit!")
+    if not wkdir.exists():
+        raise OSError(f"The working directory : {wkdir} does not exit!")
 
 
 

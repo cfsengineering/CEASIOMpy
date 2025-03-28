@@ -17,7 +17,6 @@ Python version: >=3.8
 #   IMPORTS
 # ==============================================================================
 
-from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log

@@ -80,7 +80,7 @@ def format_ctrl_data(df: DataFrame) -> DataFrame:
 
     # Group by Mach number
     mach_groups = df.groupby("mach")
-    for mach, mach_group in mach_groups:
+    for _, mach_group in mach_groups:
         # Sort by alpha
         mach_group = mach_group.sort_values(by="alpha")
 

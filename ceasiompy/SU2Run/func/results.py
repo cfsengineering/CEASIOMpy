@@ -273,14 +273,14 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
 
             dict_dir = {"none": None, "alpha": None, "beta": None}
 
-            for dir in dynstab_dir_list:
-                mach_nb = int(dir.name.split("_")[1].split("mach")[1])
-                angle = dir.name.split("_")[2].split("angle")[1]
+            for dir_ in dynstab_dir_list:
+                mach_nb = int(dir_.name.split("_")[1].split("mach")[1])
+                angle = dir_.name.split("_")[2].split("angle")[1]
                 mach_numbers.append(mach_nb)
                 angles.append(angle)
 
                 try:
-                    dict_dir[angle] = dir
+                    dict_dir[angle] = dir_
                 except:
                     raise ValueError(f"{angle} is an incorrect value for an oscillation.")
 

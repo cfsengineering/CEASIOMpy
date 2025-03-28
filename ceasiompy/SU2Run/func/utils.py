@@ -68,10 +68,17 @@ def su2_format(string: str) -> str:
     return "( " + string + " )"
 
 
-def save_cfg_dir(cfg: ConfigFile, wkdir: Path, case_dir_name: str, rate_type: str, dict: Dict, cfg_param: str) -> None:
+def save_cfg_dir(
+    cfg: ConfigFile, 
+    wkdir: Path, 
+    case_dir_name: str, 
+    rate_type: str, 
+    cfg_dict: Dict, 
+    cfg_param: str
+) -> None:
     """Specific use for add_damping_derivatives."""
-    cfg[cfg_param] = dict[rate_type][0]
-    drate = dict[rate_type][1]
+    cfg[cfg_param] = cfg_dict[rate_type][0]
+    drate = cfg_dict[rate_type][1]
     case_dir = Path(wkdir, f"{case_dir_name}_{drate}")
     case_dir.mkdir()
     cfg.write_file(Path(case_dir, CONFIG_CFD_NAME), overwrite=True)

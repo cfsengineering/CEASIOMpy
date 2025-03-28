@@ -158,16 +158,16 @@ def compute_abs_location(tixi: Tixi3, wing_xpath: str) -> Dict[str, Tuple[str, s
             for i_pos in range(poss_cnt):
                 pos_xpath = poss_xpath + f"/{pos}[{i_pos + 1}]"
                 if tixi.getTextElement(pos_xpath + "/toSectionUID") == sec_uid:
-                    len: float = tixi.getDoubleElement(pos_xpath + "/length")
+                    length: float = tixi.getDoubleElement(pos_xpath + "/length")
                     sweep: float = tixi.getDoubleElement(pos_xpath + "/sweepAngle")
                     dih: float = tixi.getDoubleElement(pos_xpath + "/dihedralAngle")
                     break
             else:
                 log.warning("Issue with positioning. Associated with wrong section uID.")
 
-            x_ = len * math.sin(math.radians(sweep))
-            y_ = len * math.cos(math.radians(dih)) * math.cos(math.radians(sweep))
-            z_ = len * math.sin(math.radians(dih)) * math.cos(math.radians(sweep))
+            x_ = length * math.sin(math.radians(sweep))
+            y_ = length * math.cos(math.radians(dih)) * math.cos(math.radians(sweep))
+            z_ = length * math.sin(math.radians(dih)) * math.cos(math.radians(sweep))
 
             coord_ = np.array([x_, y_, z_])
             x_, y_, z_ = rot.dot(coord_)

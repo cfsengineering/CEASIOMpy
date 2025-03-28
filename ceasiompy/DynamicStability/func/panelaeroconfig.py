@@ -142,8 +142,7 @@ class AeroModel():
 
         # TODO: Improve the quality of aerocards by admitting several CPACS sections
 
-        for i in range(len(self.wings_list)):
-            wing_i = self.wings_list[i]
+        for wing_i in self.wings_list:
 
             caerocard = {
                 'EID': 2 * int(wing_i["EID"]) + 1,  # int

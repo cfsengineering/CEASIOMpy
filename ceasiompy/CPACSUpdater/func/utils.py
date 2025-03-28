@@ -321,16 +321,13 @@ def interpolate_points(
     new_x = [x[0]]
     new_z = [z[0]]
 
-    for i in range(len(x) - 1):
-        x1, x2 = x[i], x[i + 1]
-        z1, z2 = z[i], z[i + 1]
+    for (x1, z1), (x2, z2) in zip(zip(x[:-1], z[:-1]), zip(x[1:], z[1:])):
         interpolated_points = interpolate(x1, z1, x2, z2, max_dist)
         for x_, z_ in interpolated_points:
             new_x.append(x_)
             new_z.append(z_)
 
     return array(new_x), array(new_z)
-
 
 def find_max_x(x: ndarray, z: ndarray) -> Tuple[float, float, float, float]:
     """

@@ -389,7 +389,7 @@ def get_leading_edge(model: AeroModel) -> Tuple[float, float, float]:
     """
 
     wings_list = model.wings_list
-    x1_values = [model.caerocards[i]['X1'][0] for i in range(len(wings_list))]
+    x1_values = [model.caerocards[i]['X1'][0] for i, _ in enumerate(wings_list)]
     min_x1_index = x1_values.index(min(x1_values))
 
     return model.caerocards[min_x1_index]['X1'][0], model.caerocards[

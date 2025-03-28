@@ -550,8 +550,8 @@ def convert_cpacs_to_avl(tixi: Tixi3) -> Path:
                             f"{control_type} {0.0} {outerhingeXsi} {axis} {second_bool}\n\n")
                     else:
                         log.warning(
-                            f"Issue with {control_uid} control surface at section {
-                                i_sec} of wing number {i_wing}."
+                            f"Issue with {control_uid} control surface "
+                            f"at section {i_sec} of wing number {i_wing}."
                         )
 
                 avl_file.write("AFILE\n")

@@ -19,7 +19,10 @@ Python version: >=3.8
 from cpacspy.aeromap import get_filter
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.PyAVL.func.plot import plot_lift_distribution
-from ceasiompy.utils.ceasiompyutils import ensure_and_append_text_element
+from ceasiompy.utils.ceasiompyutils import (
+    current_workflow_dir,
+    ensure_and_append_text_element,
+)
 
 from typing import Tuple
 from pathlib import Path
@@ -287,13 +290,15 @@ def add_coefficients_in_ctrltable(
         ensure_and_append_text_element(tixi, xpath, name, str(value))
 
 
-def get_avl_results(cpacs: CPACS, wkdir: Path) -> None:
+def get_avl_results(cpacs: CPACS) -> None:
     """
     Write AVL results in a CPACS file at xPath:
     '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[n]/aeroPerformanceMap'
     """
 
     tixi = cpacs.tixi
+    
+    wkdir = current_workflow_dir()
 
     case_dir_list = [case_dir for case_dir in wkdir.iterdir() if "Case" in case_dir.name]
 

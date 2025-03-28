@@ -53,7 +53,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
     Args:
         cpacs_path (Path): Path to the CPACS input file.
-        wkdir (Path): Path to the working directory.
+        wkdir (Path): Path to the results directory.
 
     """
 
@@ -228,7 +228,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         if save_fig:
             convert_ps_to_pdf(wkdir)
 
-    get_avl_results(cpacs, wkdir)
+    get_avl_results(cpacs)
 
 
 if __name__ == "__main__":

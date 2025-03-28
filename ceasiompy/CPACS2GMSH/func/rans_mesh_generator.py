@@ -49,8 +49,6 @@ from ceasiompy import log
 # )
 from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu, get_part_type, run_software
 from ceasiompy.CPACS2GMSH.func.cpacs2gmsh_utils import check_path, initialize_gmsh, cfg_rotors
-
-from ceasiompy.utils.configfiles import ConfigFile
 from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.generategmesh import ModelPart
 from typing import Dict

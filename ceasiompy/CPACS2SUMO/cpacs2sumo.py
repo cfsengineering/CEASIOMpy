@@ -890,7 +890,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     if get_value(tixi, CPACS2SUMO_SUMO_GUI_XPATH):
         # Open SUMO
         try:
-            log.info(f"To continue the workflow, please close the SUMO window.")
+            log.info("To continue the workflow, please close the SUMO window.")
             subprocess.run(["sumo", sumo_file_path], check=True)
         except subprocess.CalledProcessError as e:
             log.error(f"Failed to open SUMO: {e}.")

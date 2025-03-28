@@ -21,15 +21,11 @@ The script evaluates the centre of gravity coordinates in case of:
 #   IMPORTS
 # =============================================================================
 
-from ceasiompy.utils.ceasiomlogger import get_logger
 from .fusecog import center_of_gravity_evaluation
 from .bwbcog import center_of_gravity_evaluation_bwb
 
 
 from ceasiompy import log
-
-
-log = get_logger()
 
 
 # =============================================================================

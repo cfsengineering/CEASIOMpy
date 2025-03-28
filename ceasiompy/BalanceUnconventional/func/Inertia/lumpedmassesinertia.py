@@ -17,7 +17,6 @@ using the lumped masses method.
 #   IMPORTS
 # =============================================================================
 
-from ceasiompy.utils.ceasiomlogger import get_logger
 import numpy as np
 import math
 
@@ -25,9 +24,6 @@ from cpacspy.cpacsfunctions import open_tigl, open_tixi
 
 
 from ceasiompy import log
-
-
-log = get_logger()
 
 
 # =============================================================================

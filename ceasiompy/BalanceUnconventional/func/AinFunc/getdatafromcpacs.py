@@ -30,16 +30,12 @@ The cpacs file Should also contain:
 #   IMPORTS
 # =============================================================================
 
-from ceasiompy.utils.ceasiomlogger import get_logger
 import numpy as np
 
 from cpacspy.cpacsfunctions import create_branch, open_tixi
 
 
 from ceasiompy import log
-
-
-log = get_logger()
 
 
 # =============================================================================

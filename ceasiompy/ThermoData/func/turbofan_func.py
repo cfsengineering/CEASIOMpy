@@ -19,9 +19,6 @@ import pycycle.api as pyc
 
 from scipy.constants import convert_temperature
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
 
 # =================================================================================================
 #   FUNCTIONS

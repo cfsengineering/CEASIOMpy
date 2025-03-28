@@ -25,7 +25,7 @@ from pathlib import Path
 from logging import Logger
 
 from pydantic import (
-    BaseModel, 
+    BaseModel,
     ConfigDict,
 )
 
@@ -43,6 +43,7 @@ LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
 #   CLASSES
 # =================================================================================================
 
+
 class IgnoreSpecificError(logging.Filter):
     def filter(self, record):
         # List of error messages to ignore
@@ -52,6 +53,7 @@ class IgnoreSpecificError(logging.Filter):
         ]
         # Check if the log message contains any of the ignore errors
         return not any(error in record.getMessage() for error in ignore_errors)
+
 
 class CustomConfig(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
@@ -109,9 +111,11 @@ def get_logger() -> Logger:
 # Log
 log = get_logger()
 
+
 # Override the built-in print function to use the logger
 def custom_print(*args, **kwargs):
     log.info(' '.join(map(str, args)))
+
 
 builtins.print = custom_print
 

@@ -14,15 +14,9 @@ This script updates the CPACS fiel and copy it on the ToolOutput folder.
 # =============================================================================
 #   IMPORTS
 # =============================================================================
-
-from ceasiompy.utils.ceasiomlogger import get_logger
 from cpacspy.cpacsfunctions import add_uid, create_branch, open_tixi
 
-
 from ceasiompy import log
-
-
-log = get_logger()
 
 
 # =============================================================================

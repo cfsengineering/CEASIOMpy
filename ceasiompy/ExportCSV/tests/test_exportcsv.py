@@ -12,8 +12,6 @@ Python version: >=3.8
 
 | Modified: Leon Deligny
 | Date: 25 March 2025
-=======
->>>>>>> origin/main
 
 """
 

@@ -39,6 +39,3 @@ ModuleTemplate is limited in every aspect.
 
 
 * <https://en.wikipedia.org/wiki/Spirit_of_St._Louis>
-=======
-* <https://en.wikipedia.org/wiki/Spirit_of_St._Louis>
->>>>>>> origin/main

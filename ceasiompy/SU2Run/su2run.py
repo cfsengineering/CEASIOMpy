@@ -122,7 +122,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     run_SU2_multi(wkdir, nb_proc)
 
     # 4. Retrieve SU2 results
-    log.info(f"----- Updating CPACS and accessing results -----")
+    log.info("----- Updating CPACS and accessing results -----")
     get_su2_results(cpacs, wkdir)
 
 

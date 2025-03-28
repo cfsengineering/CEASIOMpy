@@ -217,11 +217,11 @@ def get_range_estimation(cpacs_path, cpacs_out_path):
 
 def main(cpacs_path: Path, cpacs_out_path: Path) -> None:
     module_name = MODULE_NAME
-    log.info("----- Start of " + MODULE_NAME + " -----")
+    log.info("----- Start of " + module_name + " -----")
 
     get_range_estimation(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + MODULE_NAME + " -----")
+    log.info("----- End of " + module_name + " -----")
 
 
 # =================================================================================================

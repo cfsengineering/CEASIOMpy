@@ -31,7 +31,10 @@ from typing import (
     Tuple,
 )
 
-from ceasiompy import *
+from ceasiompy import (
+    log, 
+    ceasiompy_cfg,
+)
 
 from ceasiompy.utils.commonxpath import (
     AVL_NB_CPU_XPATH,

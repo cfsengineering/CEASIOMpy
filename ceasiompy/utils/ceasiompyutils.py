@@ -57,6 +57,11 @@ from typing import (
     Callable,
 )
 
+from ceasiompy import (
+    log, 
+    ceasiompy_cfg,
+)
+
 from ceasiompy.utils.commonpaths import (
     WKDIR_PATH,
     CPACS_FILES_PATH,
@@ -72,7 +77,6 @@ from ceasiompy.utils.commonxpath import (
     RANGE_CRUISE_MACH_XPATH,
 )
 
-from ceasiompy import log
 
 # =================================================================================================
 #   FUNCTIONS

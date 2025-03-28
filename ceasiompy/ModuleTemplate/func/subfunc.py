@@ -26,8 +26,12 @@ from cpacspy.cpacsfunctions import get_value
 from typing import Tuple
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy import *
 from ceasiompy.utils.commonxpath import FUSELAGES_XPATH
+
+from ceasiompy import (
+    log, 
+    ceasiompy_cfg,
+)
 
 # =================================================================================================
 #   CLASSES

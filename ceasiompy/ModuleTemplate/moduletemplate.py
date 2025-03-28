@@ -26,9 +26,12 @@ from ceasiompy.ModuleTemplate.func.subfunc import get_fuselage_scaling
 
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy import *
+from ceasiompy.ModuleTemplate import MODULE_NAME
 
-from ceasiompy.ModuleTemplate import *
+from ceasiompy import (
+    log, 
+    ceasiompy_cfg,
+)
 
 # Do not add function definitions here.
 # If you want to define classes or functions do it in func directory.

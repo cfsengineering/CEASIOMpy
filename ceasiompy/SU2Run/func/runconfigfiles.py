@@ -62,7 +62,7 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
                     if (c.name == CONFIG_CFD_NAME or c.name == CONFIG_DYNSTAB_NAME)
                 ]
 
-                # Make sure there is exactly 
+                # Make sure there is exactly
                 # 1 configuration file 
                 # for 1 scenario
                 if (not config_file):

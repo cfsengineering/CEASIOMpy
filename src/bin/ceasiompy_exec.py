@@ -29,7 +29,7 @@ from ceasiompy import log
 
 from ceasiompy.utils.commonpaths import (
     STREAMLIT_PATH,
-    TEST_CASES_PATH, 
+    TEST_CASES_PATH,
     CPACS_FILES_PATH,
 )
 

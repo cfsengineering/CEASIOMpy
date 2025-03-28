@@ -341,7 +341,7 @@ cpacs_inout.add_input(
 #     gui_group="Actuator disk",
 # )
 
-# Dynamic Stability Settings 
+# Dynamic Stability Settings
 cpacs_inout.add_input(
     var_name="dot_derivatives",
     var_type=bool,

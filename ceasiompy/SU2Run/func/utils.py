@@ -38,8 +38,8 @@ from ceasiompy import log
 from ceasiompy.utils.commonpaths import CEASIOMPY_DB_PATH
 
 from ceasiompy.SU2Run import (
-    MODULE_DIR, 
-    TEMPLATE_TYPE, 
+    MODULE_DIR,
+    TEMPLATE_TYPE,
     CONTROL_SURFACE_LIST
 )
 
@@ -64,13 +64,6 @@ from ceasiompy.utils.commonnames import (
 def su2_format(string: str) -> str:
     """
     Converts a string to SU2 tuple string format.
-
-    Args:
-        string (str): Input string to convert in SU2 format.
-
-    Returns:
-        str: SU2 tuple string format.
-
     """
     return "( " + string + " )"
 
@@ -110,9 +103,10 @@ def add_damping_derivatives(
         "yaw": [f"0.0 0.0 {rotation_rate}", f"r_{rotation_rate}"],
     }
 
-    save_cfg_dir(cfg, wkdir, case_dir_name, "roll", RATE_DICT, "ROTATION_RATE")
-    save_cfg_dir(cfg, wkdir, case_dir_name, "pitch", RATE_DICT, "ROTATION_RATE")
-    save_cfg_dir(cfg, wkdir, case_dir_name, "yaw", RATE_DICT, "ROTATION_RATE")
+    RATE = "ROTATION_RATE"
+    save_cfg_dir(cfg, wkdir, case_dir_name, "roll", RATE_DICT, RATE)
+    save_cfg_dir(cfg, wkdir, case_dir_name, "pitch", RATE_DICT, RATE)
+    save_cfg_dir(cfg, wkdir, case_dir_name, "yaw", RATE_DICT, RATE)
 
     log.info("Damping derivatives cases directories have been created.")
 

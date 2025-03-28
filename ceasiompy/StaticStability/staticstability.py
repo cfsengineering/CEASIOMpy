@@ -27,9 +27,8 @@ from cpacspy.cpacspy import CPACS
 from markdownpy.markdownpy import MarkdownDoc
 
 from ceasiompy import log
+from ceasiompy.StaticStability import MODULE_NAME
 from ceasiompy.utils.commonxpath import STATICSTABILITY_LR_XPATH
-
-from ceasiompy.StaticStability import *
 
 # =================================================================================================
 #    MAIN
@@ -52,13 +51,14 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     md.h2(MODULE_NAME)
 
     for aeromap_uid in cpacs.get_aeromap_uid_list():
-        log_msg = f"Static stability of '{aeromap_uid}' aeromap."
-        log.info(log_msg)
-        md.h4(log_msg)
+        if not str(aeromap_uid) == "aeromap_empty":
+            log_msg = f"Static stability of '{aeromap_uid}' aeromap."
+            log.info(log_msg)
+            md.h4(log_msg)
 
-        lr_bool = get_value(tixi, STATICSTABILITY_LR_XPATH)
-        table = generate_stab_table(cpacs, aeromap_uid, wkdir, lr_bool)
-        markdownpy_to_markdown(md, table)
+            lr_bool = get_value(tixi, STATICSTABILITY_LR_XPATH)
+            table = generate_stab_table(cpacs, aeromap_uid, wkdir, lr_bool)
+            markdownpy_to_markdown(md, table)
 
     md.save()
 

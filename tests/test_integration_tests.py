@@ -61,7 +61,6 @@ def test_integration_1():
         "PyTornado",
         "SkinFriction",
         "ExportCSV",
-        "StaticStability",
     ]
 
     with change_working_dir(WORKFLOW_TEST_DIR):

@@ -20,13 +20,12 @@ Python version: >=3.8
 import math
 
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
-from ceasiompy import log
-from cpacspy.cpacsfunctions import open_tixi
 
-from ceasiompy.utils.generalclasses import Transformation
-from tixi3.tixi3wrapper import Tixi3
 from typing import Tuple
+from tixi3.tixi3wrapper import Tixi3
+from ceasiompy.utils.generalclasses import Transformation
 
+from ceasiompy import log
 from ceasiompy.utils.commonxpath import FUSELAGES_XPATH, WINGS_XPATH
 
 
@@ -224,7 +223,7 @@ def wings_size(tixi: Tixi3) -> Tuple[float, float]:
         log.info(f"Wing minlen={wing_minlen:.3f} m")
 
         return wing_maxlen, wing_minlen
-    
+
     else:
         ValueError(f"No wings found at {WINGS_XPATH}.")
         return 0.0, 0.0
@@ -232,7 +231,6 @@ def wings_size(tixi: Tixi3) -> Tuple[float, float]:
 # =================================================================================================
 #    MAIN
 # =================================================================================================
-
 
 if __name__ == "__main__":
     log.info("Nothing to execute!")

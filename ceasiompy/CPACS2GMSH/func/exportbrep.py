@@ -178,13 +178,8 @@ def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
     engine_surface_percent : tuple
         Tuple containing the position percentage of the surface intake and exhaust bc
         for the engine
-
-    Returns
-    -------
-    None
-
     """
-    
+
     tixi = cpacs.tixi
 
     # Get rotor config

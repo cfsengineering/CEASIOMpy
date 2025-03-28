@@ -77,15 +77,15 @@ Euler options:
 else:
 RANS options:
 
-*`Number of layer: 20` 
+*`Number of layer: 20`
 Number of prismatic element layers
-*`height of first layer: 3 e-5 mm` 
+*`height of first layer: 3 e-5 mm`
 Height of the first prismatic cell, touching the wall, in mesh length units.
-*`Max layer thickness: 10 cm` 
+*`Max layer thickness: 10 cm`
 The maximum allowed absolute thickness of the prismatic layer.
 *`Growth factor: 1.2`
 Growth factor between edge lengths of coincident tetrahedra
-*`Feature angle: 80 grad` 
+*`Feature angle: 80 grad`
 Whenever the dihedral angle of two triangle is smaller than this limit, the resulting edge is understood to represent an actual geometrical feature. Larger angles are treated as resulting from approximation of curved surfaces by linear triangles
 *`Surface mesh size: 5 `
  Surface mesh size factor compared to the aircraft largest dimension, omogeneus everywhere
@@ -111,8 +111,7 @@ Engine exhaust surface position from the back of the engine fan cowl in percent 
 
 ## Analyses
 
-`CPACS2GMSH` Generate .brep files with TiGL for each part of the aircraft configuration. Then all the parts are imported into GMSH to generates a SU2 mesh file 
-
+`CPACS2GMSH` Generate .brep files with TiGL for each part of the aircraft configuration. Then all the parts are imported into GMSH to generates a SU2 mesh file
 for the euler case, instead a .stl file is generated to be read by pentagrow
 
 ## Outputs

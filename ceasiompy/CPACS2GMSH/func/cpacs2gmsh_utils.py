@@ -295,7 +295,7 @@ def retrieve_gui_values(tixi: Tixi3):
         intake_percent, exhaust_percent,
         n_layer, h_first_layer, max_layer_thickness,
         growth_factor, growth_ratio,
-        min_max_mesh_factor, feature_angle, 
+        min_max_mesh_factor, feature_angle,
 
     )
 

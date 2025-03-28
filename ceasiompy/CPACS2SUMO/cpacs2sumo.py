@@ -598,9 +598,21 @@ def convert_enginepylons(tixi: Tixi3, sumo: Tixi3) -> None:
                 prof_vect_z = np.array(prof_vect_z)
 
                 # Apply scaling
-                prof_vect_x *= elem_transf.scaling.x * sec_transf.scaling.x * pylon_transf.scaling.x
-                prof_vect_y *= elem_transf.scaling.y * sec_transf.scaling.y * pylon_transf.scaling.y
-                prof_vect_z *= elem_transf.scaling.z * sec_transf.scaling.z * pylon_transf.scaling.z
+                prof_vect_x *= (
+                    elem_transf.scaling.x
+                    * sec_transf.scaling.x
+                    * pylon_transf.scaling.x
+                )
+                prof_vect_y *= (
+                    elem_transf.scaling.y
+                    * sec_transf.scaling.y
+                    * pylon_transf.scaling.y
+                )
+                prof_vect_z *= (
+                    elem_transf.scaling.z
+                    * sec_transf.scaling.z
+                    * pylon_transf.scaling.z
+                )
 
                 wg_sec_chord = corrects_airfoil_profile(prof_vect_x, prof_vect_y, prof_vect_z)
 

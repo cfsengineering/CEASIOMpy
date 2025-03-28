@@ -54,7 +54,11 @@ from tixi3.tixi3wrapper import Tixi3
 from ceasiompy import log
 from ceasiompy.CPACS2GMSH.func.cpacs2gmsh_utils import MESH_COLORS
 
-from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_FUSELAGE_XPATH, GMSH_MESH_SIZE_WINGS_XPATH, GMSH_MESH_SIZE_CTRLSURFS_XPATH
+from ceasiompy.utils.commonxpath import (
+    GMSH_MESH_SIZE_FUSELAGE_XPATH, 
+    GMSH_MESH_SIZE_WINGS_XPATH, 
+    GMSH_MESH_SIZE_CTRLSURFS_XPATH,
+)
 from ceasiompy.utils.commonnames import (
     ACTUATOR_DISK_INLET_SUFFIX,
     ACTUATOR_DISK_OUTLET_SUFFIX,
@@ -511,7 +515,9 @@ def generate_gmsh(
         mesh_size_engines (float = 0.23): Size of the engine mesh.
         mesh_size_propellers (float = 0.23): Size of the propeller mesh.
 
-        #advance_mesh (bool): If set to true, the mesh will be generated with advanced meshing options.
+        #advance_mesh (bool): 
+        # If set to true, 
+        # the mesh will be generated with advanced meshing options.
 
         refine_factor (float = 2.0): Refine factor for the mesh's LE and TE.
         refine_truncated (bool = False): Refinement can change to match the truncated te thickness.
@@ -592,7 +598,12 @@ def generate_gmsh(
         plane_vector = [0, 0, 1]
         if sym_vector != plane_vector:
             rotation_axis = np.cross(sym_vector, plane_vector)
-            gmsh.model.occ.rotate([(2, sym_plane)], *model_center, *rotation_axis, np.pi / 2)
+            gmsh.model.occ.rotate(
+                [(2, sym_plane)],
+                *model_center,
+                *rotation_axis, 
+                np.pi / 2,
+            )
             sym_box = gmsh.model.occ.extrude(
                 [(2, sym_plane)], *(np.multiply(sym_vector, -domain_length * 1.1))
             )

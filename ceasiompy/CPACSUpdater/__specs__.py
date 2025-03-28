@@ -66,7 +66,7 @@ if "cpacs" in st.session_state:
             var_type=list,
             default_value=CONTROL_SURFACES_LIST,
             unit=None,
-            descr=f"Type of control surface to add at specific wing and segment of wing.",
+            descr="Type of control surface to add at specific wing and segment of wing.",
             xpath=CPACSUPDATER_CTRLSURF_XPATH + f"/{wing_name}/{segment_name}",
             gui=include_gui,
             gui_name=f"Control Surface for segment {segment_name} of wing {wing_name}",

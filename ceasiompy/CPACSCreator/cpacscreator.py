@@ -24,9 +24,9 @@ from ceasiompy.utils.ceasiompyutils import (
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
-from ceasiompy.utils.ceasiompyutils import SoftwareNotInstalled
 
-from ceasiompy.CPACSCreator import *
+from ceasiompy import log
+from ceasiompy.CPACSCreator import MODULE_NAME
 
 # =================================================================================================
 #    MAIN
@@ -55,7 +55,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
             break
 
     if install_path is None:
-        raise SoftwareNotInstalled("CPACSCreator is not installed on your computer.")
+        log.warning("CPACSCreator is not installed on your computer.")
 
     # Run CPACSCreator
     run_software(software_name=software_name, arguments=[str(cpacs_in)], wkdir=wkdir)

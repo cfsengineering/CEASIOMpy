@@ -21,8 +21,34 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy import log
 from ceasiompy.CPACS2GMSH import include_gui
 
-from ceasiompy.utils.commonxpath import *
-
+from ceasiompy.utils.commonxpath import (
+    GMSH_OPEN_GUI_XPATH,
+    GMSH_MESH_TYPE_XPATH,
+    GMSH_CTRLSURF_ANGLE_XPATH,
+    GMSH_SYMMETRY_XPATH,
+    GMSH_FARFIELD_FACTOR_XPATH,
+    GMSH_MESH_SIZE_FARFIELD_XPATH,
+    GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
+    GMSH_MESH_SIZE_FACTOR_WINGS_XPATH,
+    GMSH_MESH_SIZE_ENGINES_XPATH,
+    GMSH_MESH_SIZE_PROPELLERS_XPATH,
+    GMSH_N_POWER_FACTOR_XPATH,
+    GMSH_N_POWER_FIELD_XPATH,
+    GMSH_REFINE_FACTOR_XPATH,
+    GMSH_REFINE_TRUNCATED_XPATH,
+    GMSH_AUTO_REFINE_XPATH,
+    GMSH_NUMBER_LAYER_XPATH,
+    GMSH_H_FIRST_LAYER_XPATH,
+    GMSH_MAX_THICKNESS_LAYER_XPATH,
+    GMSH_GROWTH_RATIO_XPATH,
+    GMSH_GROWTH_FACTOR_XPATH,
+    GMSH_FEATURE_ANGLE_XPATH,
+    GMSH_SURFACE_MESH_SIZE_XPATH,
+    GMSH_EXPORT_PROP_XPATH,
+    GMSH_INTAKE_PERCENT_XPATH,
+    GMSH_EXHAUST_PERCENT_XPATH,
+    SU2MESH_XPATH,
+)
 # ==============================================================================
 #   VARIABLE
 # ==============================================================================

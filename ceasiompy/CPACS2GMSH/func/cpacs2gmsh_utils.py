@@ -96,8 +96,8 @@ def add_disk_actuator(brep_dir: Path, config_file: ConfigFile):
     Creates a 2D disk in a given location to represent a rotor as a disk actuator.
 
     Args:
-        brep_dir (Path): Path to the brep files of the aircraft that also contains the rotor config file.
-        config_file (Configfile): Config file of the propellers configuration on the aircraft.
+        brep_dir (Path): brep files of the aircraft that contains the rotor config file.
+        config_file (Configfile): Propellers configuration on the aircraft.
 
     """
 

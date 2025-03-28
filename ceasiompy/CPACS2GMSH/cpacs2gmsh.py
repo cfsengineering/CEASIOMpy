@@ -191,7 +191,10 @@ def deform_surf(cpacs: CPACS, wkdir: Path, surf: str, angle: float, wing_names: 
     for wing in filtered_wing_names:
         updated_angle = angle if "right_" in wing else -angle
         deflection_angle(tixi, wing_uid=wing, angle=updated_angle)
-        log.info(f"Deforming control surface {wing} of type {surf} by angle {updated_angle}.")
+        log.info(
+            f"Deforming control surface {wing} "
+            f"of type {surf} by angle {updated_angle}."
+        )
 
     # Upload the change in angles to the temporary CPACS
     new_file_name = cpacs_in.stem + f"_surf{surf}_angle{angle}.xml"
@@ -233,7 +236,8 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
                     # Check if control surface exists through name of wings
                     if not any(surf in wing for wing in wing_names):
                         log.warning(
-                            f"No control surface {surf}. Thus it can not be deflected by angle {angle}."
+                            f"No control surface {surf}. " 
+                            f"It can not be deflected by angle {angle}."
                         )
                     else:
                         # If control Surface exists, deform the correct wings

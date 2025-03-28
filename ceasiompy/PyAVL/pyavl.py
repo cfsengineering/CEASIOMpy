@@ -149,7 +149,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         )
 
         if save_fig:
-            convert_ps_to_pdf(case_dir_path)
+            convert_ps_to_pdf(wkdir)
 
     #
     # 3. aileron, elevator, rudder
@@ -226,7 +226,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         )
 
         if save_fig:
-            convert_ps_to_pdf(case_dir_path)
+            convert_ps_to_pdf(wkdir)
 
     get_avl_results(cpacs, wkdir)
 

@@ -114,6 +114,14 @@ def check_in_table(cursor: Cursor, data: Dict, columns: List, table_name: str) -
     """
     Checks if data is alrady in table.
     """
+    # Validate table name
+    if not table_name.isidentifier():
+        raise ValueError(f"Invalid table name: {table_name}")
+
+    # Validate column names
+    if not all(col.isidentifier() for col in columns):
+        raise ValueError(f"Invalid column name(s): {columns}")
+
     # Build the WHERE clause for checking existing data
     where_clause = " AND ".join([f"{col} = ?" for col in columns])
     check_query = f"SELECT 1 FROM {table_name} WHERE {where_clause} LIMIT 1"

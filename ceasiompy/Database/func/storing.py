@@ -110,6 +110,14 @@ class CeasiompyDb:
         self.connection.close()
 
     def get_data(self, table_name: str, columns: List[str], db_close = False, filters: List[str] = None) -> List[Tuple]:
+        # Validate table name
+        if not table_name.isidentifier():
+            raise ValueError(f"Invalid table name: {table_name}")
+
+        # Validate column names
+        if not all(col.isidentifier() for col in columns):
+            raise ValueError(f"Invalid column name(s): {columns}")
+
         columns_str = ", ".join(columns)
         query = f"SELECT {columns_str} FROM {table_name}"
         if filters is not None:

@@ -97,6 +97,7 @@ def test_fix2euler():
     fix_angle.z = -10.98
     euler_angle = fix2euler(fix_angle)
     fix_angle2 = euler2fix(euler_angle)
+
     assert fix_angle == fix_angle2
 
 
@@ -105,7 +106,7 @@ def test_fix2euler():
 # =================================================================================================
 
 if __name__ == "__main__":
-
+    test_fix2euler()
     log.info("Running Test Math Functions")
     log.info("To run test use the following command:")
     log.info(">> pytest -v")

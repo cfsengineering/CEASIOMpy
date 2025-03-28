@@ -210,12 +210,12 @@ def fix2euler(rotation_fix: object) -> object:
     Rx, Ry, Rz = get_rotation_matrix(RaX, RaY, RaZ)
 
     # Direction cosine matrix
-    DirCos = Rx @ (Ry @ (Rz @ np.eye(3)))
+    DirCos = Rz @ (Ry @ (Rx @ np.eye(3)))
 
     # Angle of rotation (euler angle)
-    rax = math.atan2(DirCos[1, 0], DirCos[0, 0])
+    rax = math.atan2(DirCos[2, 1], DirCos[2, 2])
     ray = math.atan2(-DirCos[2, 0], math.sqrt(DirCos[2, 1] ** 2 + DirCos[2, 2] ** 2))
-    raz = math.atan2(DirCos[2, 1], DirCos[2, 2])
+    raz = math.atan2(DirCos[1, 0], DirCos[0, 0])
 
     # Transform back to degree and round angles
     rax = round(math.degrees(rax), 2)

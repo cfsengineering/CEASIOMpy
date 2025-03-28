@@ -98,6 +98,9 @@ class ConfigFile:
 
     def write_file(self, file, overwrite=False):
         """Write a .cfg configuration file."""
+        
+        # Ensure the directory exists
+        file.parent.mkdir(parents=True, exist_ok=True)
 
         if file.is_file():
             if overwrite:
@@ -106,7 +109,7 @@ class ConfigFile:
                 raise FileExistsError(
                     f"File {file} already exists. Use overwrite=True to overwrite"
                 )
-
+                
         with open(file, "w") as f:
             for key, value in self.data.items():
                 if "comment_" in key:
@@ -123,6 +126,7 @@ class ConfigFile:
                         f.write(f"{key} = ( {', '.join(map(str, value))} )\n")
                 else:
                     f.write(f"{key} = {value}\n")
+                        
 
     def __setitem__(self, key, value):
         self.data[key] = value

@@ -42,7 +42,6 @@ from ceasiompy.BalanceUnconventional.func.Cog.unccog import (
     unc_center_of_gravity,
 )
 from ceasiompy.BalanceUnconventional.func.Inertia import uncinertia
-from ceasiompy import log
 from ceasiompy.utils.ceasiompyutils import aircraft_name
 from ceasiompy.utils.InputClasses.Unconventional import (
     balanceuncclass,
@@ -56,7 +55,9 @@ from ceasiompy.utils.moduleinterfaces import (
 )
 from ceasiompy.utils.WB.UncGeometry import uncgeomanalysis
 
-from ceasiompy.BalanceUnconventional import *
+from ceasiompy import log
+from ceasiompy.BalanceUnconventional import MODULE_NAME
+
 
 # =================================================================================================
 #   FUNCTIONS

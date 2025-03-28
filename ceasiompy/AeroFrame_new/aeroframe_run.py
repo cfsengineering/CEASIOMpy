@@ -405,7 +405,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         # Write results in CPACS out
         create_branch(tixi, FRAMAT_RESULTS_XPATH + "/TipDeflection")
         tixi.updateDoubleElement(FRAMAT_RESULTS_XPATH + "/TipDeflection", tip_deflection[-1], "%g")
-        
+
         plot_convergence(tip_deflection, residuals, wkdir=CASE_PATH)
 
 

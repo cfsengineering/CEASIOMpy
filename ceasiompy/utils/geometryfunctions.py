@@ -119,7 +119,7 @@ def get_segments(tixi: Tixi3) -> List[Tuple[str, str]]:
     unique_segment_list = list(set(segment_list))
 
     if len(unique_segment_list) != len(segment_list):
-        log.warning(f"Some segments are identically defined.")
+        log.warning("Some segments are identically defined.")
 
     # Sort the segment_list by the first and then the second value of the tuples
     unique_segment_list.sort(key=lambda x: (x[0], x[1]))
@@ -477,7 +477,7 @@ def access_leading_edges(
                 y=elem_transf.rotation.y + sec_transf.rotation.y + wg_sk_transf.rotation.y,
                 z=elem_transf.rotation.z + sec_transf.rotation.z + wg_sk_transf.rotation.z,
             )
-            
+
             # Get section rotation
             wg_sec_rot = euler2fix(add_rotation)
             wg_sec_dihed = math.radians(wg_sec_rot.x)
@@ -516,10 +516,10 @@ def wing_sections(
         pos_x_list (List): List of x translations for each positioning.
         pos_y_list (List): List of y translations for each positioning.
         pos_z_list (List): List of z translations for each positioning.
-        list_type (str): 
-            Either 'first_n_last' 
-            or 'first_n_second' 
-            or 'secondlast_n_last' 
+        list_type (str):
+            Either 'first_n_last'
+            or 'first_n_second'
+            or 'secondlast_n_last'
             or 'first' or 'all'.
 
     Returns:

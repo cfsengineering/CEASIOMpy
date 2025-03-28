@@ -60,6 +60,11 @@ def get_aircrafts_list() -> List:
             for table in tables:
                 table_name = table[0]
 
+                # Validate table name to prevent SQL injection
+                if not table_name.isidentifier():
+                    log.warning(f"Skipping invalid table name: {table_name}")
+                    continue
+
                 # Check if the table has an "aircraft" column
                 cursor.execute(f"PRAGMA table_info({table_name})")
                 columns = cursor.fetchall()

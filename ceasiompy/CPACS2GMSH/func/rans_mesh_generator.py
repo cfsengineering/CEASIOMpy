@@ -121,7 +121,8 @@ def generate_2d_mesh_for_pentagrow(
     tixi = cpacs.tixi
 
     # Determine if rotor are present in the aircraft model
-    rotor_model = cfg_rotors(brep_dir)
+    # TODO: add rotor model ?
+    #rotor_model = cfg_rotors(brep_dir)
 
     # Retrieve all brep
     brep_files = list(brep_dir.glob("*.brep"))

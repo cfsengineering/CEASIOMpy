@@ -42,8 +42,6 @@ from ceasiompy.utils.commonpaths import CEASIOMPY_DB_PATH
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH_NAME
 from ceasiompy.DynamicStability import MODULE_NAME as DYNSTAB_NAME
 
-from ceasiompy.Database import *
-
 # ==============================================================================
 #   CLASS
 # ==============================================================================

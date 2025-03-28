@@ -25,8 +25,6 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy import log
 from ceasiompy.utils.commonxpath import DATABASE_STOREDATA_XPATH
 
-from ceasiompy.Database import *
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================

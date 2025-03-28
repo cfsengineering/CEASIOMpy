@@ -32,12 +32,9 @@ from ceasiompy import log
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL_NAME
 from ceasiompy.utils.commonpaths import TESTCEASIOMPY_DB_PATH
 
-from ceasiompy.Database import *
-
 # =================================================================================================
 #   CLASSES
 # =================================================================================================
-
 
 class TestDatabase(CeasiompyTest):
 

@@ -60,20 +60,7 @@ from ceasiompy.WeightUnconventional.func.People.passengers import (
 )
 from ceasiompy.WeightUnconventional.func.Systems.systemsmass import estimate_system_mass
 
-
-from ceasiompy.WeightUnconventional import *
-
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
-
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
-"""All classes are defined inside the classes and into
-   the InputClasses/Unconventional folder."""
-
+from ceasiompy.WeightUnconventional import MODULE_NAME
 
 # =================================================================================================
 #   FUNCTIONS

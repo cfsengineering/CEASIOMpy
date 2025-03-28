@@ -49,10 +49,9 @@ def test_add_damping_derivatives(tmp_path):
     assert "0.0 0.0 5.4" in Path(case_dr, "ConfigCFD.cfg").read_text()
 
 @pytest.mark.skip(reason="Not implemented yet")
-def test_add_actuator_disk(tmp_path):
+def test_add_actuator_disk():
     """Test function 'add_actuator_disk'"""
-
-    pass
+    ...
 
 # =================================================================================================
 #    MAIN

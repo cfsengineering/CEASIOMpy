@@ -49,7 +49,7 @@ class TestModuleTemplate(CeasiompyTest):
     def test_calculate_cl(self):
         self.assert_equal_function(
             f=calculate_cl,
-            input=(122, 12_000, 0.78, 50_000, 1.0, ),
+            input_args=(122, 12_000, 0.78, 50_000, 1.0, ),
             expected=(approx(0.48429196151547343), ),
         )
 

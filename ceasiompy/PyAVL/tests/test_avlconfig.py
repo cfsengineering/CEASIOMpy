@@ -60,7 +60,7 @@ class TestModuleTemplate(CeasiompyTest):
     def test_module_template_functions(self) -> None:
         self.assert_equal_function(
             f=get_aeromap_conditions,
-            input=(self.cpacs, AVL_AEROMAP_UID_XPATH),
+            input_args=(self.cpacs, AVL_AEROMAP_UID_XPATH),
             expected=([1000.0], [0.3], [5.0], [0.0]),
         )
 

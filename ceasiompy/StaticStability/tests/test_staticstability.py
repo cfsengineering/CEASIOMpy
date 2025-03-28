@@ -108,7 +108,7 @@ class TestStaticStability(CeasiompyTest):
         # Test Linear Regression
         self.assert_equal_function(
             f=generate_stab_table,
-            input=(self.cpacs, "test_apm", self.wkdir, True, ),
+            input_args=(self.cpacs, "test_apm", self.wkdir, True, ),
             expected=([
                 [
                     "mach", "alt", "aoa", "aos",
@@ -141,7 +141,7 @@ class TestStaticStability(CeasiompyTest):
         # Test data
         self.assert_equal_function(
             f=generate_stab_table,
-            input=(self.cpacs, "test_apm", self.wkdir, False,),
+            input_args=(self.cpacs, "test_apm", self.wkdir, False,),
             expected=([
                 [
                     "mach", "alt", "aoa", "aos",

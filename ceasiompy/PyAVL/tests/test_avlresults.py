@@ -51,7 +51,7 @@ class TestAvlResults(CeasiompyTest):
     def test_module_template_functions(self) -> None:
         self.assert_equal_function(
             f=get_avl_aerocoefs,
-            input=(self.ft_template,),
+            input_args=(self.ft_template,),
             expected=(
                 0.00119, 0.00008, 0.18118,
                 0.00001, -0.66525, -0.00009,

@@ -291,7 +291,7 @@ def initialize_cpacs(module_name: str) -> Tuple[CPACS, Path]:
     return cpacs, cpacs_out
 
 
-def run_module(module, wkdir=Path.cwd(), iteration=0):
+def run_module(module, wkdir=Path.cwd(), iteration=0, test = False):
     """Run a 'ModuleToRun' object in a specific wkdir.
 
     Args:
@@ -326,6 +326,8 @@ def run_module(module, wkdir=Path.cwd(), iteration=0):
         # Run the module
         with change_working_dir(wkdir):
             cpacs = CPACS(cpacs_in)
+            if test:
+                update_cpacs_from_specs(cpacs, module_name)
             if module.results_dir is None:
                 my_module.main(cpacs)
             else:

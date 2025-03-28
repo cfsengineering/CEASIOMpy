@@ -29,10 +29,14 @@ from ceasiompy.utils.ceasiompyutils import change_working_dir
 from ceasiompy.utils.commonpaths import LOGFILE
 from src.bin.ceasiompy_exec import run_modules_list
 
+from cpacspy.cpacspy import CPACS
+
 MODULE_DIR = Path(__file__).parent
 WORKFLOW_TEST_DIR = Path(MODULE_DIR, "workflow_tests")
 CPACS_IN_PATH = Path(MODULE_DIR, "Test_input.xml")
 CPACS_IN_2_PATH = Path(MODULE_DIR, "Test_input2.xml")
+cpacs1 = CPACS(CPACS_IN_PATH)
+cpacs2 = CPACS(CPACS_IN_2_PATH)
 
 # Remove previous workflow directory and create new one
 if WORKFLOW_TEST_DIR.exists():
@@ -71,7 +75,10 @@ def test_integration_1():
     ]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_PATH), *modules_to_run])
+        run_modules_list(
+            args_list=[str(CPACS_IN_PATH), *modules_to_run], 
+            test=True
+        )
 
     assert workflow_ends()
 
@@ -83,7 +90,10 @@ def test_integration_2():
     modules_to_run = ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_PATH), *modules_to_run])
+        run_modules_list(
+            args_list=[str(CPACS_IN_PATH), *modules_to_run], 
+            test=True
+        )
 
     assert workflow_ends()
 
@@ -95,7 +105,10 @@ def test_integration_3():
     modules_to_run = ["CLCalculator", "CPACS2SUMO", "SUMOAutoMesh", "SU2Run"]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_PATH), *modules_to_run])
+        run_modules_list(
+            args_list=[str(CPACS_IN_PATH), *modules_to_run], 
+            test=True
+        )
 
     assert workflow_ends()
 
@@ -107,7 +120,10 @@ def test_integration_4():
     modules_to_run = ["CPACS2GMSH", "SU2Run", "SaveAeroCoefficients"]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_2_PATH), *modules_to_run])
+        run_modules_list(
+            args_list=[str(CPACS_IN_2_PATH), *modules_to_run], 
+            test=True
+        )
 
     assert workflow_ends()
 
@@ -118,7 +134,10 @@ def test_integration_5():
     modules_to_run = ["PyAVL", "SaveAeroCoefficients"]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_PATH), *modules_to_run])
+        run_modules_list(
+            args_list=[str(CPACS_IN_PATH), *modules_to_run], 
+            test=True
+        )
 
     assert workflow_ends()
 

@@ -108,7 +108,7 @@ def run_testcase(testcase_nb):
         print("\nTest case number must be 1,2,3,4 or 5.")
 
 
-def run_modules_list(args_list):
+def run_modules_list(args_list, test=False):
     """Run a workflow from a CPACS file and a list of modules."""
 
     if len(args_list) < 2:
@@ -141,7 +141,7 @@ def run_modules_list(args_list):
     workflow.write_config_file()
 
     workflow.set_workflow()
-    workflow.run_workflow()
+    workflow.run_workflow(test=True)
 
 
 def run_config_file(config_file):

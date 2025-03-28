@@ -16,7 +16,7 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-import random
+import secrets
 
 from pathlib import Path
 from pandas import DataFrame
@@ -90,8 +90,7 @@ def generate_random_color() -> str:
 
     """
 
-    return f'#{random.randint(0, 0xFFFFFF):06x}'
-
+    return f'#{secrets.randbelow(0xFFFFFF + 1):06x}'
 
 def add_stability_plot_tangent(results_dir: Path, df: DataFrame, axis: str) -> None:
     """

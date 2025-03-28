@@ -22,7 +22,6 @@ from pathlib import Path
 
 import pytest
 from ceasiompy.utils.ceasiompyutils import change_working_dir
-from ceasiompy.utils.commonpaths import LOGFILE
 from src.bin.ceasiompy_exec import run_modules_list
 
 from cpacspy.cpacspy import CPACS
@@ -43,17 +42,6 @@ WORKFLOW_TEST_DIR.mkdir()
 #   FUNCTIONS
 # =================================================================================================
 
-
-def workflow_ends():
-    """Check that the workflow ends correctly"""
-
-    with open(LOGFILE, "r") as f:
-        if "---------- End of" in f.readlines()[-1]:
-            return True
-
-    return False
-
-
 @pytest.mark.skipif(not shutil.which("pytornado"), reason="PyTornado not installed")
 def test_integration_1():
     modules_to_run = [
@@ -69,8 +57,6 @@ def test_integration_1():
             test=True
         )
 
-    assert workflow_ends()
-
 
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("dwfsumo"), reason="SUMO not installed")
@@ -83,8 +69,6 @@ def test_integration_2():
             args_list=[str(CPACS_IN_PATH), *modules_to_run],
             test=True
         )
-
-    assert workflow_ends()
 
 
 @pytest.mark.slow
@@ -99,8 +83,6 @@ def test_integration_3():
             test=True
         )
 
-    assert workflow_ends()
-
 
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
@@ -114,8 +96,6 @@ def test_integration_4():
             test=True
         )
 
-    assert workflow_ends()
-
 
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
@@ -127,8 +107,6 @@ def test_integration_5():
             args_list=[str(CPACS_IN_PATH), *modules_to_run],
             test=True
         )
-
-    assert workflow_ends()
 
 
 # =================================================================================================

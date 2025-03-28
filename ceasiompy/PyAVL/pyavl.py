@@ -77,6 +77,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         list(set(aos_list)),
         list(set(rotation_rate_list)),
     )
+    first_cases = len(new_alt_list)
 
     for i_case, alt in enumerate(new_alt_list):
         mach = new_mach_list[i_case]

@@ -136,4 +136,4 @@ __all__ = ["log", "ceasiompy_cfg"]
 # ==============================================================================
 
 if __name__ == "__main__":
-    log.info("Nothing to execute!")
+    get_logger().info("Nothing to execute!")

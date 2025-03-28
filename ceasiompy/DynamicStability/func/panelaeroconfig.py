@@ -101,6 +101,17 @@ class AeroModel():
         set_k = np.arange(n * 6).reshape((n, 6))
         set_j = np.arange(n * 6).reshape((n, 6))
 
+        # Assure corner points are correctly generated
+        if not isinstance(caero_grid['ID'], np.ndarray):
+            raise TypeError("'caero_grid['ID']' must be a NumPy array.")
+        if caero_grid['ID'].ndim != 1:
+            raise ValueError("'caero_grid['ID']' must be a 1D array.")
+        if caero_grid['ID'].shape[0] != caero_grid['offset'].shape[0]:
+            raise ValueError("'ID' and 'offset' must have the same number of rows.")
+        
+        reshaped_id = np.reshape(caero_grid['ID'], (-1, 1))
+        corner_points = np.hstack(reshaped_id, caero_grid['offset'])
+
         aerogrid = {
             'ID': np.array(ID),
             'l': np.array(l),
@@ -120,7 +131,7 @@ class AeroModel():
             'n': n,
             'coord_desc': 'bodyfixed',
             'cornerpoint_panels': caero_panels['cornerpoints'],
-            'cornerpoint_grids': np.hstack((caero_grid['ID'][:, None], caero_grid['offset']))
+            'cornerpoint_grids': corner_points
         }
 
         self.aerogrid = aerogrid

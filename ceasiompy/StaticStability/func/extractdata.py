@@ -39,15 +39,15 @@ from ceasiompy import log
 
 def generate_stab_df(cpacs: CPACS, aeromap_uid: str, lr_bool: bool) -> DataFrame:
     """
-    Generate the Markdownpy Table for 
-    longitudinal/directional/lateral stability 
+    Generate the Markdownpy Table for
+    longitudinal/directional/lateral stability
     to show in the results directory.
 
     Args:
         cpacs (CPACS object): CPACS file.
         aeromap (AeroMap object): Chosen Aeromap.
         lr_bool (bool): True if using Linear Regression.
-        
+
     Returns:
         (DataFrame): Contains stability data for each combination of mach, alt, aoa, and aos.
 
@@ -68,7 +68,7 @@ def generate_stab_df(cpacs: CPACS, aeromap_uid: str, lr_bool: bool) -> DataFrame
             raise ValueError(f"More than two distinct lines found for group: {name}")
 
     df = grouped.first().reset_index()
-    
+
     # Rename columns
     df.rename(columns={
         "machNumber": "mach",
@@ -98,20 +98,20 @@ def generate_stab_df(cpacs: CPACS, aeromap_uid: str, lr_bool: bool) -> DataFrame
 
         # Check stability for each row
         (
-            df["long_stab"], 
-            df["dir_stab"], 
-            df["lat_stab"], 
+            df["long_stab"],
+            df["dir_stab"],
+            df["lat_stab"],
             df["comment"],
-            
+
         ) = zip(*df.apply(
-                lambda row: check_stability_tangent(row["cma"], row["cnb"], row["clb"]), 
+                lambda row: check_stability_tangent(row["cma"], row["cnb"], row["clb"]),
                 axis=1,
                 )
             )
 
         return df[[
             "mach", "alt", "aoa", "aos",
-            "cms", "cml", "cmd", 
+            "cms", "cml", "cmd",
             "cma", "clb", "cnb",
             "long_stab", "dir_stab", "lat_stab",
             "comment",
@@ -123,9 +123,9 @@ def generate_stab_df(cpacs: CPACS, aeromap_uid: str, lr_bool: bool) -> DataFrame
 
         return df[[
             "mach", "alt",  "aoa", "aos",
-            "cms", "cml", "cmd", 
+            "cms", "cml", "cmd",
             "lr_cma", "lr_cma_intercept",
-            "lr_clb", "lr_clb_intercept", 
+            "lr_clb", "lr_clb_intercept",
             "lr_cnb", "lr_cnb_intercept",
             "long_stab", "dir_stab", "lat_stab",
             "comment",

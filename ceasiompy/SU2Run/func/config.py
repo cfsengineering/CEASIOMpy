@@ -584,12 +584,12 @@ def configure_cfd_environment(
 def define_markers(tixi: Tixi3, su2_mesh_path: Path) -> Dict:
     """
     Define markers in CPACS file.
-    We assume that among all imported meshes, 
+    We assume that among all imported meshes,
     there will be the same markers.
 
     Args:
         tixi (Tixi3): Tixi handle of CPACS file.
-        su2_mesh_path (Path): Path to a mesh. 
+        su2_mesh_path (Path): Path to a mesh.
 
     """
     mesh_markers = get_mesh_markers(su2_mesh_path)
@@ -672,7 +672,7 @@ def generate_su2_cfd_config(
     rans: bool
 ) -> None:
     """
-    Reads data in the CPACS file and generate configuration files 
+    Reads data in the CPACS file and generate configuration files
     for one or multiple flight conditions (alt, mach, aoa, aos).
 
     Source:

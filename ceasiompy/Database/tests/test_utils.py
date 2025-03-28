@@ -46,14 +46,14 @@ class TestDatabase(CeasiompyTest):
     def test_create_db(self: 'TestDatabase') -> None:
         create_db(path=self.testceasiompy_db_path)
         self.assertTrue(self.testceasiompy_db_path.exists(), "Database file was not created")
-        
+
         # Remove if exists
         if self.testceasiompy_db_path.exists():
             self.testceasiompy_db_path.unlink()
 
     @log_test
     def test_data_to_db(self: 'TestDatabase') -> None:
-        # Define constants 
+        # Define constants
         module_name = PYAVL_NAME # test on AVL module
         data = {
             "aircraft": "test_aircraft",
@@ -66,13 +66,13 @@ class TestDatabase(CeasiompyTest):
             "cmd_a": 0.0, "cms_a": 0.0, "cml_a": 0.0,
             "cmd_b": 0.0, "cms_b": 0.0, "cml_b": 0.0,
         }
-        
+
         testceasiompy_db = CeasiompyDb(db_path=self.testceasiompy_db_path)
         table_name = testceasiompy_db.connect_to_table(module_name)
-        
+
         data_to_db(testceasiompy_db.cursor, data, table_name)
         log.info(f"Successfully stored data in table {table_name}.")
-        
+
         testceasiompy_db.commit()
         testceasiompy_db.close()
 

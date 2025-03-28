@@ -154,7 +154,7 @@ def compute_forces(
 
 def dimensionalize_pressure(p: List, config_dict: Dict) -> List:
     """
-    Returns the pressures values dimensionalized 
+    Returns the pressures values dimensionalized
     accoring to data from the SU2 configuration file.
 
     Args:
@@ -187,7 +187,7 @@ def write_updated_mesh(mesh: vtk.vtkXMLUnstructuredGridWriter, new_vtu_file_path
     and save at new_vtu_file_path.
 
     Args:
-        mesh (vtk.vtkXMLUnstructuredGridWriter): 
+        mesh (vtk.vtkXMLUnstructuredGridWriter):
             Python instance of SU2 result file with added force and normal vectors.
         new_vtu_file_path (str): New VTU file path.
 
@@ -209,7 +209,7 @@ def write_updated_mesh(mesh: vtk.vtkXMLUnstructuredGridWriter, new_vtu_file_path
 
 def get_mesh_markers_ids(su2_mesh_path: str) -> Dict:
     """
-    Create dictionary which contains for each mesh marker (keys) 
+    Create dictionary which contains for each mesh marker (keys)
     a list of ids belonging to this mesh marker.
 
     Args:

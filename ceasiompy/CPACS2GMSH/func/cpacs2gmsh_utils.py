@@ -284,7 +284,7 @@ def retrieve_gui_values(tixi: Tixi3):
     min_max_mesh_factor = get_value(tixi, GMSH_SURFACE_MESH_SIZE_XPATH)
 
     feature_angle = get_value(tixi, GMSH_FEATURE_ANGLE_XPATH)
-    
+
     return (
         open_gmsh, type_mesh, symmetry,
         farfield_factor, farfield_size_factor,

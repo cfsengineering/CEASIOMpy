@@ -17,8 +17,8 @@ Python version: >=3.8
 # ==============================================================================
 
 from cpacspy.cpacsfunctions import (
-    get_value, 
-    create_branch, 
+    get_value,
+    create_branch,
 )
 
 from tixi3.tixi3wrapper import Tixi3
@@ -62,18 +62,18 @@ def retrieve_gui(tixi: Tixi3):
 
     ref_area = get_value(tixi, ref_area_xpath)
     mass_type = get_value(tixi, mass_type_xpath)
-    
+
     cruise_alt = get_value(tixi, cruise_alt_xpath)
     cruise_mach = get_value(tixi, cruise_mach_xpath)
     load_fact = get_value(tixi, load_fact_xpath)
-    
+
     return ref_area, mass_type, cruise_alt, cruise_mach, load_fact
 
 
 def deal_with_mass(md: MarkdownDoc, tixi: Tixi3, mass_type: str) -> float:
     mass = None
     md.p(f"The mass used for the calculation is {mass_type}")
-    
+
     percent_fuel_mass_xpath = CLCALC_XPATH + "/percentFuelMass"
     custom_mass_xpath = CLCALC_XPATH + "/customMass"
 
@@ -97,7 +97,7 @@ def deal_with_mass(md: MarkdownDoc, tixi: Tixi3, mass_type: str) -> float:
         log.info(f"Aircraft mass use for this analysis is {mass} [kg]")
     else:
         raise ValueError("The chosen aircraft mass has not been found!")
-    
+
     return mass
 
 

@@ -24,7 +24,7 @@ TODO:
 import math
 
 from ceasiompy.utils.ceasiompyutils import (
-    call_main, 
+    call_main,
     get_aeromap_list_from_xpath,
 )
 from cpacspy.cpacsfunctions import (

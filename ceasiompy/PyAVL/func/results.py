@@ -292,7 +292,7 @@ def get_avl_results(cpacs: CPACS, wkdir: Path) -> None:
     Write AVL results in a CPACS file at xPath:
     '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[n]/aeroPerformanceMap'
     """
-    
+
     tixi = cpacs.tixi
 
     case_dir_list = [case_dir for case_dir in wkdir.iterdir() if "Case" in case_dir.name]

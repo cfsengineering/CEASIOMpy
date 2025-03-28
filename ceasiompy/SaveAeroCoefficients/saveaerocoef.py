@@ -46,7 +46,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     """
     Save Aero coefficients from the chosen aeroMap in the CPACS file.
     """
-    
+
     # Define variables
     tixi = cpacs.tixi
     groupby_list = ["uid", "machNumber", "altitude", "angleOfSideslip"]
@@ -73,7 +73,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     alt_crit = float(get_value_or_default(tixi, crit_xpath + "/alt", "None"))
     mach_crit = float(get_value_or_default(tixi, crit_xpath + "/mach", "None"))
     aos_crit = float(get_value_or_default(tixi, crit_xpath + "/aos", "None"))
-        
+
     deal_with_feature(title, criterion, aeromap, groupby_list, "altitude", alt_crit)
     deal_with_feature(title, criterion, aeromap, groupby_list, "machNumber", mach_crit)
     deal_with_feature(title, criterion, aeromap, groupby_list, "angleOfSideslip", aos_crit)

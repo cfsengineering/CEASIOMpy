@@ -37,7 +37,7 @@ from ceasiompy.StaticStability import STABILITY_DICT
 
 def generate_message(row: Series) -> str:
     """
-    Generates a message indicating the stability of the aircraft 
+    Generates a message indicating the stability of the aircraft
     based on the stability status of longitudinal, directional, and lateral directions.
 
     Args:
@@ -94,7 +94,7 @@ def compute_stability_cma(group: DataFrame) -> DataFrame:
 
 def compute_stability_cnb_clb(group: DataFrame) -> DataFrame:
     """
-    Computes the directional (cnb) and lateral (clb) stability of the aircraft 
+    Computes the directional (cnb) and lateral (clb) stability of the aircraft
     for a given group using linear regression.
 
     Args:
@@ -159,7 +159,7 @@ def check_stability_lr(df: DataFrame) -> DataFrame:
     df = df.merge(grouped_cnb_clb, on=["mach", "alt", "aoa"], how="left")
 
     df["comment"] = df.apply(generate_message, axis=1)
-    
+
     return df
 
 

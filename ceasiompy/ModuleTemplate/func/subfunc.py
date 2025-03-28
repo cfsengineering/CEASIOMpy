@@ -29,7 +29,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.commonxpath import FUSELAGES_XPATH
 
 from ceasiompy import (
-    log, 
+    log,
     ceasiompy_cfg,
 )
 
@@ -88,7 +88,7 @@ def get_fuselage_scaling(cpacs: CPACS) -> Tuple[float, float, float]:
         * y (float): Scaling on y [-]
         * z (float): Scaling on z [-]
     """
-    
+
     tixi = cpacs.tixi
 
     SCALING_XPATH = "/fuselage[1]/transformation/scaling"

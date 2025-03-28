@@ -17,7 +17,7 @@ Python version: >=3.8
 # =================================================================================================
 
 from typing import List
-    
+
 from markdownpy.markdownpy import (
     Table,
     MarkdownDoc,

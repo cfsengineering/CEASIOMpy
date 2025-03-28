@@ -27,12 +27,12 @@ from itertools import product
 from cpacspy.cpacspy import CPACS
 
 from typing import (
-    List, 
+    List,
     Tuple,
 )
 
 from ceasiompy import (
-    log, 
+    log,
     ceasiompy_cfg,
 )
 
@@ -65,20 +65,20 @@ def retrieve_gui_values(cpacs: CPACS) -> Tuple[
     avl_path = convert_cpacs_to_avl(tixi)
 
     nb_cpu = int(get_value(tixi, AVL_NB_CPU_XPATH))
-    
+
     return (
-            alt_list, mach_list, aoa_list, aos_list, 
+            alt_list, mach_list, aoa_list, aos_list,
             rotation_rate_list, control_surface_list,
             avl_path,
             save_fig,
             nb_cpu,
         )
-    
+
 
 @validate_call(config=ceasiompy_cfg)
 def duplicate_elements(*lists: List) -> Tuple[List, ...]:
     """
-    Duplicates lists such that there is a unique combination of them 
+    Duplicates lists such that there is a unique combination of them
     and the last three lists are zero-independent.
 
     zero-independent: For a unique combination of elements, you will have,

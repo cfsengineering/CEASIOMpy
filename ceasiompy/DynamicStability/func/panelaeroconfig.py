@@ -108,7 +108,7 @@ class AeroModel():
             raise ValueError("'caero_grid['ID']' must be a 1D array.")
         if caero_grid['ID'].shape[0] != caero_grid['offset'].shape[0]:
             raise ValueError("'ID' and 'offset' must have the same number of rows.")
-        
+
         reshaped_id = np.reshape(caero_grid['ID'], (-1, 1))
         corner_points = np.hstack(reshaped_id, caero_grid['offset'])
 

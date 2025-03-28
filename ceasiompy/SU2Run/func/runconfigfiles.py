@@ -39,7 +39,7 @@ from ceasiompy.SU2Run import *
 
 def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
     """
-    Run in the given working directory SU2 calculations. 
+    Run in the given working directory SU2 calculations.
     The working directory must have a folder structure created by 'SU2Config' module.
 
     Args:
@@ -49,7 +49,7 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
     """
 
     case_dir_list = [dir for dir in wkdir.iterdir() if "Case" in dir.name]
-    
+
     if not case_dir_list:
         log.warning(f"No Case directory has been found in the working directory: {wkdir}.")
     else:
@@ -63,7 +63,7 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
                 ]
 
                 # Make sure there is exactly
-                # 1 configuration file 
+                # 1 configuration file
                 # for 1 scenario
                 if (not config_file):
                     raise ValueError(

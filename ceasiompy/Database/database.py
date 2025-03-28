@@ -31,7 +31,7 @@ from ceasiompy.utils.commonxpath import DATABASE_STOREDATA_XPATH
 
 def main(cpacs: CPACS) -> None:
     tixi = cpacs.tixi
-    
+
     # Check if we store data
     if bool_(get_value(tixi, DATABASE_STOREDATA_XPATH)):
         store_data(tixi)

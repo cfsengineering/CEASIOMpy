@@ -23,10 +23,10 @@ from ceasiompy.SkinFriction import include_gui
 
 from ceasiompy.utils.commonxpath import (
     SF_XPATH,
-    GEOM_XPATH, 
+    GEOM_XPATH,
     PLOT_XPATH,
     RANGE_CRUISE_ALT_XPATH,
-    RANGE_CRUISE_MACH_XPATH, 
+    RANGE_CRUISE_MACH_XPATH,
 )
 
 # ==============================================================================

@@ -23,7 +23,7 @@ from ceasiompy import log
 from ceasiompy.SaveAeroCoefficients import include_gui
 
 from ceasiompy.utils.commonxpath import (
-    PLOT_XPATH, 
+    PLOT_XPATH,
     AEROMAP_TO_PLOT_XPATH,
 )
 

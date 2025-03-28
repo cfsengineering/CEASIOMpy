@@ -45,7 +45,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         wkdir (str): Results directory.
 
     """
-    
+
     tixi = cpacs.tixi
     md = MarkdownDoc(Path(wkdir, f"{MODULE_NAME}.md"))
     md.h2(MODULE_NAME)

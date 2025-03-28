@@ -42,7 +42,7 @@ def save_plots(
     Save plot in result folder.
 
     Args:
-        radial_stations (np.ndarray): Non-dimensionalized radius along the blade. 
+        radial_stations (np.ndarray): Non-dimensionalized radius along the blade.
         radial_thrust_coefs (np.ndarray): Radial distribution of thrust coefficient.
         radial_power_coefs (np.ndarray): Radial distribution of power coefficient.
         non_dimensional_radius (float): Non-dimensionalized radius made using advanced ratio.
@@ -51,7 +51,7 @@ def save_plots(
         prandtl_correction_values (np.ndarray): Values of Prandtl correction.
         case_dir_path (Path): Path object of the case directory.
         propeller_uid (str): Uid of the current propeller.
-        
+
     """
 
     current_dir = Path(case_dir_path, propeller_uid)
@@ -121,7 +121,7 @@ def save_plots(
     log.info(f"{plot_msg} {ct_cp_distr_plot_path}.")
     log.info(f"{plot_msg} {interference_plot_path}.")
     log.info(f"{plot_msg} {prandtl_correction_plot_path}.")
-    
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================

@@ -30,14 +30,14 @@ from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 
 from ceasiompy.utils.mathsfunctions import (
-    euler2fix, 
+    euler2fix,
     rotate_points,
 )
 from ceasiompy.utils.geometryfunctions import (
     get_chord_span,
     elements_number,
-    get_positionings, 
-    corrects_airfoil_profile, 
+    get_positionings,
+    corrects_airfoil_profile,
 )
 
 from pathlib import Path
@@ -45,14 +45,14 @@ from scipy import interpolate
 from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy.utils.generalclasses import (
-    SimpleNamespace, 
+    SimpleNamespace,
     Transformation,
 )
 
 from ceasiompy.utils.commonxpath import (
     REF_XPATH,
     WINGS_XPATH,
-    FUSELAGES_XPATH, 
+    FUSELAGES_XPATH,
 )
 
 # =================================================================================================
@@ -60,8 +60,8 @@ from ceasiompy.utils.commonxpath import (
 # =================================================================================================
 
 def convert_fuselage(tixi: Tixi3, integrate_fuselage: bool, avl_path: Path, results_path: Path):
-    # TODO: Modularize this code, make it more clear the notations 
-    
+    # TODO: Modularize this code, make it more clear the notations
+
     # Initialize variables
     fus_z_profile = None
     fus_radius_profile = None
@@ -268,7 +268,7 @@ def convert_cpacs_to_avl(tixi: Tixi3) -> Path:
         avl_path (Path): Path to the AVL input file.
 
     """
-    # TODO: Modularize this code, make it more clear the notations 
+    # TODO: Modularize this code, make it more clear the notations
 
     # Get the aircraft name
     name_aircraft = tixi.getTextElement("/cpacs/header/name")

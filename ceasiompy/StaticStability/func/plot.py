@@ -181,7 +181,7 @@ def add_stability_plot_lr(results_dir: Path, df: DataFrame, axis: str) -> None:
     unique_combinations = df[
         ["alt", "mach", f"{X_Y_DICT[f'{axis}_x_prime']}"]
     ].drop_duplicates()
-    
+
     color_map = {
         tuple(row): generate_random_color()
         for row in unique_combinations.values
@@ -191,7 +191,7 @@ def add_stability_plot_lr(results_dir: Path, df: DataFrame, axis: str) -> None:
     df['color'] = df.apply(
         lambda row: color_map[
             (row["alt"], row["mach"], row[f"{X_Y_DICT[f'{axis}_x_prime']}"])
-        ], 
+        ],
         axis=1,
     )
 

@@ -284,7 +284,7 @@ def main(cpacs: CPACS, wkdir: Path):
     tixi = cpacs.tixi
 
     log.info("Running PyTornado...")
-    
+
     cpacs_in = cpacs.cpacs_file
 
     # ===== Delete old working directories =====

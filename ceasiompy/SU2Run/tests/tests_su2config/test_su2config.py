@@ -22,7 +22,7 @@ import pytest
 from ceasiompy.SU2Run.func.config import add_damping_derivatives
 from ceasiompy.utils.configfiles import ConfigFile
 
-MODULE_DIR = Path(__file__).parent 
+MODULE_DIR = Path(__file__).parent
 
 # =================================================================================================
 #   FUNCTIONS

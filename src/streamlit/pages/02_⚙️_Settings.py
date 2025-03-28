@@ -23,7 +23,7 @@ import streamlit as st
 from src.streamlit.moduletab import add_module_tab
 
 from streamlitutils import (
-    create_sidebar, 
+    create_sidebar,
     save_cpacs_file,
 )
 

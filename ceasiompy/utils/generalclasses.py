@@ -104,7 +104,7 @@ class Transformation:
 
     def get_cpacs_transf(self, tixi, xpath):
         """
-        Get scaling, rotation and translation 
+        Get scaling, rotation and translation
         from a given path in the CPACS file
 
         Args:

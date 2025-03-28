@@ -45,9 +45,9 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     Computes required CL in function
     of the parameters found in the CPACS file.
     """
-    
+
     tixi = cpacs.tixi
-    
+
     ref_area, mass_type, cruise_alt, cruise_mach, load_fact = retrieve_gui(tixi)
 
     # Create Markdown file

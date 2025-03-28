@@ -56,7 +56,7 @@ def write_legend(groupby_list: List, value) -> None:
                 name = FEATURE_DICT[name]
             else:
                 name = param
-                
+
             legend += name + "=" + str(value_i)
 
         if i + 1 != len(groupby_list):

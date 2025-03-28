@@ -159,7 +159,7 @@ def ensure_and_append_text_element(
     text: str
 ) -> None:
     """
-    Ensures element (element_name) exists at xpath (parent_xpath), 
+    Ensures element (element_name) exists at xpath (parent_xpath),
     and appends data (text) to this element.
 
     Args:

@@ -45,7 +45,7 @@ from ceasiompy.utils.commonxpath import (
     ENGINE_TYPE_XPATH,
     SU2_AEROMAP_UID_XPATH,
     RANGE_CRUISE_ALT_XPATH,
-    RANGE_CRUISE_MACH_XPATH, 
+    RANGE_CRUISE_MACH_XPATH,
 )
 
 from ceasiompy.ThermoData import *

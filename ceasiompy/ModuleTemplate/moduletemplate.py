@@ -29,7 +29,7 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.ModuleTemplate import MODULE_NAME
 
 from ceasiompy import (
-    log, 
+    log,
     ceasiompy_cfg,
 )
 

@@ -65,9 +65,9 @@ from ceasiompy.DynamicStability.func import *
 
 
 class SDSAFile:
-    """    
+    """
     This class contains the following public methods:
-        generate_xml(self) -> str: 
+        generate_xml(self) -> str:
             Generates xml file for SDSA and returns it"s path.
 
         update_alpha_max(self) -> None:

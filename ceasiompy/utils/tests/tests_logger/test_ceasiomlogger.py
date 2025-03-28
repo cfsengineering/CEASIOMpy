@@ -36,7 +36,7 @@ def test_logger():
     """
 
     # Set logger name and create a logger with this name
-    
+
     # Use the 5 log level
     log.debug("Test debug")
     log.info("Test info")

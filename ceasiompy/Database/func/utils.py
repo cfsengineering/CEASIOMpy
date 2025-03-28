@@ -139,7 +139,7 @@ def data_to_db(cursor: Cursor, data: Dict, table_name: str) -> None:
     """
     if not table_name.isidentifier():
         raise ValueError("Invalid table name.")
-    
+
     columns = list(data.keys())
     if not all(col.isidentifier() for col in columns):
         raise ValueError("Invalid column name(s).")
@@ -150,7 +150,7 @@ def data_to_db(cursor: Cursor, data: Dict, table_name: str) -> None:
         # Create the SQL statement dynamically
         placeholders = ", ".join(["?" for _ in columns])
         columns_str = ", ".join(columns)
-        
+
         query = f"""
                     INSERT INTO {table_name} (
                         {columns_str}
@@ -158,7 +158,7 @@ def data_to_db(cursor: Cursor, data: Dict, table_name: str) -> None:
                         {placeholders}
                     )
                 """
-        
+
         # Execute the statement with values
         cursor.execute(query, tuple(data.values()))
 

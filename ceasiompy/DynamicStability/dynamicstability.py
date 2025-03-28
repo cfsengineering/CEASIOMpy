@@ -17,7 +17,7 @@ Python version: >=3.8
 # =================================================================================================
 
 from ceasiompy.utils.ceasiompyutils import (
-    call_main, 
+    call_main,
     run_software,
 )
 
@@ -63,7 +63,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     #    1 - GUI is displayed
 
     log.info("--- Calling SDSA ---")
-    
+
     run_software(
         software_name=SOFTWARE_NAME,
         arguments=["", f"{input_xml}", "1"],

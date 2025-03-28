@@ -144,7 +144,7 @@ def corrects_airfoil_profile(
     """
     prof_size_x = np.max(prof_vect_x) - np.min(prof_vect_x)
     prof_size_y = np.max(prof_vect_y) - np.min(prof_vect_y)
-    
+
     wg_sec_chord = 0.0
 
     if prof_size_y == 0:
@@ -177,7 +177,7 @@ def get_chord_span(tixi: Tixi3, wing_xpath: str) -> Tuple[float, float]:
         wing_xpath (str): xPath of wing.
 
     Returns:
-         (Tuple[float, float]): 
+         (Tuple[float, float]):
             - c_ref (float): Chord length of wing.
             - s_ref (float): Span length of wing.
 
@@ -325,10 +325,10 @@ def elements_number(tixi: Tixi3, xpath: str, element: str, logg: bool = True) ->
 
 
 def get_positionings(tixi: Tixi3, xpath: str, element: str) -> Tuple[int, List, List, List]:
-    """    
+    """
     Retrieve and compute the positionings for an element from the CPACS file.
 
-    It computes the cumulative translations for each positioning and 
+    It computes the cumulative translations for each positioning and
     returns the lists of x, y, and z translations from the reference point.
 
     Args:
@@ -519,7 +519,7 @@ def wing_sections(
     pos_z_list: List,
     list_type: str,
 ) -> List[List]:
-    """    
+    """
     Retrieve and process the sections of a wing from the CPACS file.
 
     Args:
@@ -531,7 +531,7 @@ def wing_sections(
         list_type (str): Either 'first_n_last' or 'first_n_second' or 'secondlast_n_last' or 'first' or 'all'.
 
     Returns:
-        le_list (List[List]) List of list containing leading edge coordinates 
+        le_list (List[List]) List of list containing leading edge coordinates
         (x_le_abs, y_le_abs, z_le_abs) and chord length of specified sections in list_type.
 
     """
@@ -579,7 +579,7 @@ def wing_sections(
 
 def get_leading_edge(tixi: Tixi3) -> Tuple[float, float, float, float]:
     """
-    Get main wing's leading edge position of first section from tixi handle, 
+    Get main wing's leading edge position of first section from tixi handle,
     along with chord length.
 
     Args:

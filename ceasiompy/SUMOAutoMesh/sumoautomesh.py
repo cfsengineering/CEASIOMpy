@@ -29,16 +29,16 @@ import platform
 
 from cpacspy.cpacsfunctions import (
     open_tixi,
-    create_branch, 
+    create_branch,
     get_value_or_default,
 )
 
 from ceasiompy.utils.ceasiompyutils import (
     call_main,
     run_software,
-    aircraft_name, 
+    aircraft_name,
     get_reasonable_nb_cpu,
-) 
+)
 
 from pathlib import Path
 from tixi3.tixi3wrapper import Tixi3
@@ -238,7 +238,7 @@ def main(tixi: Tixi3, wkdir: Path):
         cpacs_out_path (Path): Path to the output CPACS file
 
     """
-    
+
     su2_mesh_path = Path(wkdir, "ToolOutput.su2")
 
     sumo_file_path = Path(get_value_or_default(tixi, SUMOFILE_XPATH, ""))

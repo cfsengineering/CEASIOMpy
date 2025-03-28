@@ -132,7 +132,7 @@ def compute_velocity_attributes(
         k_beta_model (float): Reduced frequency for beta oscillations.
 
     Returns:
-        (Tuple[float, float, float]): 
+        (Tuple[float, float, float]):
             - Angular frequency for alpha oscillations.
             - Angular frequency for beta oscillations.
             - Dynamic pressure.
@@ -509,7 +509,7 @@ def get_mach_list(self, x_hinge: float) -> Tuple[List, List]:
     db.close()
 
     mach_set = {row[0] for row in data}
-    
+
 
     return list(set(self.mach_list) - mach_set), ", ".join(str(mach) for mach in list(mach_set))
 
@@ -702,7 +702,7 @@ def compute_dot_derivatives(self) -> DataFrame:
 def add_db_values(self, df: DataFrame, non_mach_str: str, x_hinge: float) -> DataFrame:
     der_columns = [
         "mach", "x_ref", "y_ref", "z_ref",
-        "cm_alphaprim", "cz_alphaprim", "cx_alphaprim", 
+        "cm_alphaprim", "cz_alphaprim", "cx_alphaprim",
         "cy_betaprim", "cl_betaprim", "cn_betaprim"
     ]
     db = CeasiompyDb()
@@ -721,7 +721,7 @@ def add_db_values(self, df: DataFrame, non_mach_str: str, x_hinge: float) -> Dat
         ],
         db_close=True,
     )
-    
+
     return concat([df[der_columns], DataFrame(data, columns=der_columns)], ignore_index=True)
 
 # =================================================================================================

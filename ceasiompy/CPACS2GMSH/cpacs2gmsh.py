@@ -51,7 +51,7 @@ from ceasiompy.utils.commonxpath import (
 )
 
 from ceasiompy.CPACS2GMSH import (
-    MODULE_NAME, 
+    MODULE_NAME,
     CONTROL_SURFACES_LIST,
 )
 

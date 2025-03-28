@@ -91,7 +91,7 @@ def section_add_module():
             with col3:
                 if st.button("❌", key=f"del{i}", help=f"Remove {module} from the workflow"):
                     st.session_state.workflow_modules.pop(i)
-                    st.rerun()        
+                    st.rerun()
     else:
         st.warning("No module has been added to the workflow.")
 
@@ -118,7 +118,7 @@ def section_add_module():
 if __name__ == "__main__":
     # Define interface
     create_sidebar(HOW_TO_TEXT)
-    
+
     # Custom CSS
     st.markdown(
         """
@@ -158,6 +158,6 @@ if __name__ == "__main__":
     section_add_module()
 
     st.markdown("---")
-    
-    # Add last_page 
+
+    # Add last_page
     st.session_state.last_page = PAGE_NAME

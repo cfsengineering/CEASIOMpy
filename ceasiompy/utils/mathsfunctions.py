@@ -47,7 +47,7 @@ def rot(angle: float) -> ndarray:
     """
     c = cos(angle)
     s = sin(angle)
-    
+
     return np.array([
         [c, -s],
         [s, c],
@@ -65,17 +65,17 @@ def rotate_2d_point(x: Tuple[float, float], center_point: Tuple[float, float], a
 
     Returns:
         (Tuple[float, float]): Rotated point.
-        
+
     """
     angle_rad = math.radians(angle)
     rotation_matrix = rot(angle_rad)
-    
+
     # Center the point
     x_centered = np.array([x[0] - center_point[0], x[1] - center_point[1]])
-    
+
     # Apply the rotation matrix
     rotated_point = np.dot(rotation_matrix, x_centered)
-    
+
     # Translate back to the original center
     return rotated_point[0] + center_point[0], rotated_point[1] + center_point[1]
 

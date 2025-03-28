@@ -116,23 +116,23 @@ class TestStaticStability(CeasiompyTest):
                     "comment"
                 ],
                 [
-                    0.3, 0.0, 0.0, 0.0, 
-                    "Stable", "Stable", "Unstable", 
+                    0.3, 0.0, 0.0, 0.0,
+                    "Stable", "Stable", "Unstable",
                     "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ], 
+                ],
                 [
-                    0.3, 0.0, 0.0, 10.0, 
-                    "Stable", "Stable", "Unstable", 
+                    0.3, 0.0, 0.0, 10.0,
+                    "Stable", "Stable", "Unstable",
                     "Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ], 
+                ],
                 [
-                    0.3, 0.0, 10.0, 0.0, 
-                    "Stable", "Unstable", "Unstable", 
+                    0.3, 0.0, 10.0, 0.0,
+                    "Stable", "Unstable", "Unstable",
                     "Aircraft is unstable for Directional axis i.e. Cnb <=0. Aircraft is unstable for Lateral axis i.e. Clb >=0. "
-                ], 
+                ],
                 [
-                    0.3, 0.0, 10.0, 10.0, 
-                    "Stable", "Unstable", "Unstable", 
+                    0.3, 0.0, 10.0, 10.0,
+                    "Stable", "Unstable", "Unstable",
                     "Aircraft is unstable for Directional axis i.e. Cnb <=0. Aircraft is unstable for Lateral axis i.e. Clb >=0. "
                 ]
             ])

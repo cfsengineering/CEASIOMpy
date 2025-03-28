@@ -69,11 +69,11 @@ def su2_format(string: str) -> str:
 
 
 def save_cfg_dir(
-    cfg: ConfigFile, 
-    wkdir: Path, 
-    case_dir_name: str, 
-    rate_type: str, 
-    cfg_dict: Dict, 
+    cfg: ConfigFile,
+    wkdir: Path,
+    case_dir_name: str,
+    rate_type: str,
+    cfg_dict: Dict,
     cfg_param: str
 ) -> None:
     """Specific use for add_damping_derivatives."""
@@ -245,10 +245,10 @@ def retrieve_su2_mesh(
     for deformation in deformation_list:
         # Query to retrieve the last su2_data value
         query = f"""
-                    SELECT su2_file_data 
-                    FROM gmsh_data 
+                    SELECT su2_file_data
+                    FROM gmsh_data
                     WHERE aircraft = ? AND deformation = ? AND angle = ?
-                    ORDER BY timestamp DESC 
+                    ORDER BY timestamp DESC
                     LIMIT 1
                 """
         cursor.execute(query, (aircraft_name, deformation, angle))
@@ -275,7 +275,7 @@ def get_surface_pitching_omega(oscillation_type: str, omega: float) -> str:
         ValueError: Checks correct format for oscillation_type.
 
     Returns:
-        str: Either '0.0 omega 0.0 ' or '0.0 0.0 omega '. 
+        str: Either '0.0 omega 0.0 ' or '0.0 0.0 omega '.
 
     """
     if oscillation_type == "alpha":
@@ -354,7 +354,7 @@ def get_su2_cfg_tpl(tpl_type: str) -> Path:
 
     if tpl_type not in TEMPLATE_TYPE:
         log.warning("template_type (str) should be either 'EULER' or 'RANS' in get_su2_config_template.")
-    
+
     tpl_type = tpl_type.lower()
     # Name configuration
     name = f"cfg_tpl_{tpl_type}.cfg"
@@ -368,7 +368,7 @@ def get_su2_aerocoefs(
     """
     Get aerodynamic coefficients and velocity from the force_file.
 
-    Note: 
+    Note:
         force_file should be: forces_breakdown.dat
 
     Args:
@@ -422,7 +422,7 @@ def get_su2_forces_moments(
     """
     Get aerodynamic forces and moments from the force_file.
 
-    Note: 
+    Note:
         force_file should be: forces_breakdown.dat
 
     Args:
@@ -469,7 +469,7 @@ def get_efficiency_and_aoa(force_file: Path) -> Tuple[float, float]:
     """
     Get efficiency (CL/CD) and Angle of Attack (AoA) in the force_file.
 
-    Note: 
+    Note:
         force_file should be: forces_breakdown.dat
 
     Args:
@@ -513,7 +513,7 @@ def get_efficiency_and_aoa(force_file: Path) -> Tuple[float, float]:
 
 def get_wetted_area(su2_logfile: Path) -> float:
     """
-    Get SU2 logfile and returns the wetted area value 
+    Get SU2 logfile and returns the wetted area value
     previously calculated by SU2.
 
     Args:

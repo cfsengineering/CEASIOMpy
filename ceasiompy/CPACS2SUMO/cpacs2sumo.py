@@ -36,12 +36,12 @@ from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from cpacspy.cpacsfunctions import (
     get_value,
     open_tixi,
-    create_branch, 
+    create_branch,
     get_value_or_default,
-) 
+)
 from ceasiompy.utils.geometryfunctions import (
     elements_number,
-    get_positionings, 
+    get_positionings,
     corrects_airfoil_profile,
 )
 from ceasiompy.CPACS2SUMO.func.sumofunctions import (
@@ -58,7 +58,7 @@ from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
 
 from ceasiompy.utils.generalclasses import (
-    Transformation, 
+    Transformation,
     SimpleNamespace,
 )
 
@@ -852,10 +852,10 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     """
     Converts a CPACS file geometry into a SUMO file geometry.
 
-    Converts every elements in the SUMO .smx format (which is also an xml file). 
+    Converts every elements in the SUMO .smx format (which is also an xml file).
 
     Limitation: (What differences ?)
-        Due to some differences between both format, some CPACS definition could lead to issues. 
+        Due to some differences between both format, some CPACS definition could lead to issues.
 
     Source:
         * CPACS documentation: https://www.cpacs.de/pages/documentation.html

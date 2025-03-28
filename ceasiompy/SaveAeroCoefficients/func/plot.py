@@ -19,9 +19,9 @@ Python version: >=3.8
 import matplotlib.pyplot as plt
 
 from ceasiompy.SaveAeroCoefficients.func.utils import (
-    write_legend, 
+    write_legend,
     subplot_options,
-) 
+)
 
 from pathlib import Path
 from typing import List

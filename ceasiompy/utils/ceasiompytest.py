@@ -47,7 +47,7 @@ class CeasiompyTest(unittest.TestCase):
         # We make the following adjustment.
         if not isinstance(actual, tuple) and isinstance(expected, tuple):
             actual = (actual,)
-            
+
         self.assertEqual(len(actual), len(expected), "Number of outputs does not match.")
         for act, exp in zip(actual, expected):
             self.assertEqual(act, approx(exp))

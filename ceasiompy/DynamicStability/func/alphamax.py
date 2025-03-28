@@ -33,10 +33,10 @@ def get_alpha_max(self) -> DataFrame:
     """
     Compute alpha max, i.e. d Cm/ d alpha = 0.
     alpha_max will correspond to the the smallest alpha
-    such that the derivative is positive: 
-    alpha_max = argmax_alpha (d Cm/ d alpha) (alpha) < 0. 
-    
-    Assumptions: 
+    such that the derivative is positive:
+    alpha_max = argmax_alpha (d Cm/ d alpha) (alpha) < 0.
+
+    Assumptions:
         beta = p = q = r = 0
         alt = 1000.0
 
@@ -46,7 +46,7 @@ def get_alpha_max(self) -> DataFrame:
     """
 
     log.info("--- Computing AlphaMax per Mach ---")
-    
+
     if self.software_data == AVL_SOFTWARE:
         table_name = "avl_data"
     else:
@@ -55,8 +55,8 @@ def get_alpha_max(self) -> DataFrame:
     # Retrieve data from db
     ceasiompy_db = CeasiompyDb()
     data = ceasiompy_db.get_data(
-        table_name=table_name, 
-        columns=["mach", "alpha", "cms_a"], 
+        table_name=table_name,
+        columns=["mach", "alpha", "cms_a"],
         filters=[
             f"mach IN ({self.mach_str})",
             f"aircraft = '{self.aircraft_name}'",
@@ -90,10 +90,10 @@ def get_alpha_max(self) -> DataFrame:
         positive_indices = np.where(cms_a < 0)[0]
         if len(positive_indices) > 0:
             # Largest alpha where cms_a < 0
-            alpha_max = alphas[positive_indices[-1]]  
+            alpha_max = alphas[positive_indices[-1]]
         else:
             alpha_max = 0.0
-    
+
         alpha_max_results.append({"mach": mach, "alpha_max": alpha_max})
 
     alpha_max_df = DataFrame(alpha_max_results)

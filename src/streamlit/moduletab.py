@@ -49,7 +49,7 @@ def order_by_gps(inputs: List) -> OrderedDict:
     groups_container = OrderedDict()
     for group in groups:
         groups_container[group] = st.expander(f"**{group}**", expanded=True)
-        
+
     return groups_container
 
 
@@ -83,10 +83,10 @@ def add_gui_object(session_state, name, group, groups_container, m, module, unit
         elif var_type in vartype_map:
             vartype_map[var_type](
                 session_state.cpacs.tixi,
-                xpath, 
-                default_value, 
-                name, 
-                key, 
+                xpath,
+                default_value,
+                name,
+                key,
                 description
             )
         elif var_type == "multiselect":
@@ -95,11 +95,11 @@ def add_gui_object(session_state, name, group, groups_container, m, module, unit
             path_vartype(key)
         else:
             else_vartype(
-                tixi=session_state.cpacs.tixi, 
+                tixi=session_state.cpacs.tixi,
                 xpath=xpath,
-                default_value=default_value, 
-                name=name, 
-                key=key, 
+                default_value=default_value,
+                name=name,
+                key=key,
                 description=description
             )
 
@@ -140,7 +140,7 @@ def add_module_tab() -> None:
             if not inputs:
                 st.warning("No settings to modify this module.")
                 continue
-          
+
             groups_container = order_by_gps(inputs)
 
             for name, default_value, var_type, unit, xpath, description, group in inputs.values():

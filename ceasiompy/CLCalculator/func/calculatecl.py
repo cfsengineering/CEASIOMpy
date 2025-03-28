@@ -51,7 +51,7 @@ def calculate_cl(
 
     Returns:
         (float): Lift coefficient [???].
-        
+
     """
 
     # Get atmosphere values at this altitude

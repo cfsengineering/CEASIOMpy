@@ -45,10 +45,10 @@ OPTIM_METHOD = ["OPTIM", "DOE"]
 
 class ModuleToRun:
     def __init__(
-        self, 
-        name: str, 
-        wkflow_dir: Path, 
-        cpacs_in: Path = None, 
+        self,
+        name: str,
+        wkflow_dir: Path,
+        cpacs_in: Path = None,
         cpacs_out: Path = None,
     ) -> None:
 
@@ -67,7 +67,7 @@ class ModuleToRun:
         self.cpacs_in = cpacs_in
         init = importlib.import_module(f"ceasiompy.{name}.{MODNAME_INIT}")
         add_res_dir: bool = init.RES_DIR
-        
+
         if add_res_dir:
             self.results_dir = get_results_directory(name, create=True, wkflow_dir=wkflow_dir)
         else: self.results_dir = None

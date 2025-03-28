@@ -58,7 +58,7 @@ class TestExportCSV(CeasiompyTest):
         assert lines[2] == "0,0.3,0,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
         assert lines[3] == "0,0.3,10,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
         assert lines[4] == "0,0.3,10,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
-        
+
     def test_export_aeromaps(self):
         """Test function 'exportcsv' function."""
 

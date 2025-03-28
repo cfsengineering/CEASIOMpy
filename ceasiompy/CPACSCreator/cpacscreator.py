@@ -34,8 +34,8 @@ from ceasiompy.CPACSCreator import *
 
 def main(cpacs: CPACS, wkdir: Path) -> None:
     """
-    Runs CPACSCrator with an input CPACS file 
-    and puts the output CPACS file in the folder /ToolInput. 
+    Runs CPACSCrator with an input CPACS file
+    and puts the output CPACS file in the folder /ToolInput.
     CPACSCreator must be installed on your computer.
 
     Source :

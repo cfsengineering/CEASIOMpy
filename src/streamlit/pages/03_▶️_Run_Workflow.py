@@ -87,10 +87,10 @@ def show_logs():
 # =================================================================================================
 
 if __name__ == "__main__":
-    
+
     # Define Interface
     create_sidebar(HOW_TO_TEXT)
-    
+
     # Custom CSS
     st.markdown(
         """

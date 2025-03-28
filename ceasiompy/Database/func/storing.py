@@ -119,12 +119,12 @@ class CeasiompyDb:
         columns_str = ", ".join(columns)
         query = f"SELECT {columns_str} FROM {table_name}"
         if filters is not None:
-            query += " WHERE " + " AND ".join(filters)            
-                
+            query += " WHERE " + " AND ".join(filters)
+
         self.cursor.execute(query)
-        
+
         data = self.cursor.fetchall()
-        
+
         if db_close:
             self.close()
 
@@ -160,7 +160,7 @@ def call_store_data(
 
 def store_data(tixi: Tixi3) -> None:
     """
-    Looks at the workflow and stores data. 
+    Looks at the workflow and stores data.
     Implemented for modules:
         - 'PyAVL': Aerodynamic Coefficients.
         - 'CPACS2GMSH': .su2 file.

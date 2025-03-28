@@ -14,17 +14,17 @@ from ceasiompy.DynamicStability import MODULE_NAME as DYNSTAB_NAME
 
 # Tables structure of ceasiompy.db
 TABLE_DICT = {
-    f"{PYAVL_NAME}": 
+    f"{PYAVL_NAME}":
         [
             "avl_data",
             """
                 aircraft TEXT,
-                
+
                 alt REAL,
                 mach REAL,
                 alpha REAL,
                 beta REAL,
-                
+
                 pb_2V REAL,
                 qc_2V REAL,
                 rb_2V REAL,
@@ -37,11 +37,11 @@ TABLE_DICT = {
                 xref REAL,
                 yref REAL,
                 zref REAL,
-                
+
                 cd REAL,
                 cs REAL,
                 cl REAL,
-                
+
                 cmd REAL,
                 cms REAL,
                 cml REAL,
@@ -55,7 +55,7 @@ TABLE_DICT = {
                 cml_b REAL,
             """
         ],
-    f"{CPACS2GMSH_NAME}": 
+    f"{CPACS2GMSH_NAME}":
         [
             "gmsh_data",
             """
@@ -65,27 +65,27 @@ TABLE_DICT = {
                 su2_file_data BLOB,
             """
         ],
-    f"{DYNSTAB_NAME}": 
+    f"{DYNSTAB_NAME}":
         [
             "derivatives_data",
             """
                 aircraft TEXT,
-    
+
                 method TEXT,
-                
+
                 chord INT,
                 span INT,
-                
+
                 mach REAL,
-                
+
                 x_ref REAL,
                 y_ref REAL,
                 z_ref REAL,
-                            
+
                 cm_alphaprim REAL,
                 cz_alphaprim REAL,
                 cx_alphaprim REAL,
-                
+
                 cy_betaprim REAL,
                 cl_betaprim REAL,
                 cn_betaprim REAL,

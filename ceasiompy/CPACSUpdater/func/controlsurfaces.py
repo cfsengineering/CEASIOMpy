@@ -116,7 +116,7 @@ def compute_abs_location(tixi: Tixi3, wing_xpath: str) -> Dict[str, Tuple[str, s
     sec = "section"
     secs_xpath = wing_xpath + f"/{sec}s"
     secs_cnt = elements_number(tixi, secs_xpath, sec, logg=False)
-    
+
     # Define variables
     result = {}
     x_xpath, y_xpath, z_xpath = "/x", "/y", "/z"
@@ -199,7 +199,7 @@ def filter_sections(
     sec = "section"
     secs_xpath = new_xpath + f"/{sec}s"
     secs_cnt = elements_number(tixi, secs_xpath, sec, logg=False)
-    
+
     # Filter the sections
     for i_sec in range(secs_cnt, 0, -1):
         sec_xpath = secs_xpath + f"/{sec}[{i_sec}]"
@@ -232,7 +232,7 @@ def filter_positionings(
     pos = "positioning"
     poss_xpath = new_xpath + f"/{pos}s"
     poss_cnt = elements_number(tixi, poss_xpath, pos, logg=False)
-    
+
     # Filter positionings
     for i_pos in range(poss_cnt, 0, -1):
         pos_xpath = poss_xpath + f"/{pos}[{i_pos}]"
@@ -248,8 +248,8 @@ def filter_positionings(
         if from_sec_uid != "":
             if not (
                 (from_sec_uid in kept_sec)
-                and 
-                (to_sec_uid in kept_sec)
+
+                and (to_sec_uid in kept_sec)
             ):
                 remove(tixi, pos_xpath)
 
@@ -287,7 +287,7 @@ def filter_segments(
     seg = "segment"
     segs_xpath = new_xpath + f"/{seg}s"
     segs_cnt = elements_number(tixi, segs_xpath, seg, logg=False)
-    
+
     #
     # Filter segments iteratively
     for i_seg in range(segs_cnt, 0, -1):
@@ -296,8 +296,8 @@ def filter_segments(
 
         if not (
             (tixi.getTextElement(org_seg_xpath + "/fromElementUID") == seg_from_uid)
-            and 
-            (tixi.getTextElement(org_seg_xpath + "/toElementUID") == seg_to_uid)
+
+            and (tixi.getTextElement(org_seg_xpath + "/toElementUID") == seg_to_uid)
         ):
             remove(tixi, seg_xpath)
 
@@ -362,7 +362,8 @@ def fowler_transform(
     transformed_z = np.where(mask, z_values * np.exp(-100.0
                              * (x_values - x_ref) * (1 - x_values)), z_values)
 
-    return transformed_z, x_values[mask], transformed_z[mask]    
+    return transformed_z, x_values[mask], transformed_z[mask]
+
 
 def plain_transform(
     x_values: ndarray,
@@ -387,8 +388,8 @@ def plain_transform(
 
     close_x = max_x_pos + new_x
     close_z = np.linspace(z_pos, z_neg, len(close_x))
-    newx_values = np.concatenate((newx_values, close_x, [newx_values[0]])) # 
-    newz_values = np.concatenate((newz_values, close_z, [newz_values[0]])) #  
+    newx_values = np.concatenate((newx_values, close_x, [newx_values[0]]))
+    newz_values = np.concatenate((newz_values, close_z, [newz_values[0]]))
 
     # Flap
     x_flap = x_ref + 0.02
@@ -401,27 +402,27 @@ def plain_transform(
     # Create new x values for the flap using sine function
     x = np.arange(1.0, -0.1, -0.05)
     new_x = curve * np.sin(np.pi * x)
-    
+
     arc_x = x_flap + new_x
     arc_z = np.linspace(z_pos - 0.001, z_neg + 0.001, len(x))[::-1]
-    
+
     # Sort the values such that the pairs (x, z) are ordered by z in decreasing order
     sorted_indices = np.argsort(newz_flapvalues)[::-1]
     newx_flapvalues = newx_flapvalues[sorted_indices]
-    newz_flapvalues = newz_flapvalues[sorted_indices]    
+    newz_flapvalues = newz_flapvalues[sorted_indices]
 
     ##########
-    
+
     # Concatenate the transition points with the existing arrays
-    newx_flapvalues = np.concatenate((newx_flapvalues, arc_x, [newx_flapvalues[0]])) # 
-    newz_flapvalues = np.concatenate((newz_flapvalues, arc_z, [newz_flapvalues[0]])) # 
-    
+    newx_flapvalues = np.concatenate((newx_flapvalues, arc_x, [newx_flapvalues[0]]))
+    newz_flapvalues = np.concatenate((newz_flapvalues, arc_z, [newz_flapvalues[0]]))
+
     # Re-order for correct leading edge in CPACS format
     min_x_index = np.argmin(newx_flapvalues)
     newx_flapvalues = np.roll(newx_flapvalues, -min_x_index)
-    newz_flapvalues = np.roll(newz_flapvalues, -min_x_index)    
-    #from ceasiompy.CPACSUpdater.func.utils import plot_values
-    #plot_values(newx_values, newz_values, newx_flapvalues, newz_flapvalues)
+    newz_flapvalues = np.roll(newz_flapvalues, -min_x_index)
+    # from ceasiompy.CPACSUpdater.func.utils import plot_values
+    # plot_values(newx_values, newz_values, newx_flapvalues, newz_flapvalues)
 
     return newx_values, newz_values, newx_flapvalues, newz_flapvalues
 
@@ -545,7 +546,7 @@ def createfrom_wing_airfoil(
     """
     Creates a wingAirfoil.
     """
-    
+
     newx_str, newy_str, newz_str = array_to_str(xlist, zlist)
     new_airfoil_xpath = copy(tixi, wingairfoil_xpath, "wingAirfoil", ids, sym=False)
     tixi.updateTextElement(new_airfoil_xpath + "/pointList/x", newx_str)
@@ -693,9 +694,9 @@ def add_control_surfaces(tixi: Tixi3) -> None:
                 add_airfoil(tixi, sgt, ctrltype)
 
                 # Test deflection function
-                #deflection_angle(tixi, ctrltype + "_" + sgt, angle=-20.0)
-                #deflection_angle(tixi, "right_" + ctrltype + "_" + sgt, angle=20.0)
-                #deflection_angle(tixi, "left_" + ctrltype + "_" + sgt, angle=-20.0)
+                # deflection_angle(tixi, ctrltype + "_" + sgt, angle=-20.0)
+                # deflection_angle(tixi, "right_" + ctrltype + "_" + sgt, angle=20.0)
+                # deflection_angle(tixi, "left_" + ctrltype + "_" + sgt, angle=-20.0)
 
         log.info(f"Finished adding control surfaces.")
     else:

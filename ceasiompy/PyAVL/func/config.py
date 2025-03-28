@@ -155,7 +155,7 @@ def get_option_settings(tixi: Tixi3) -> Tuple[bool, float, int, int, bool, float
         Nchordwise (int): Number of chordwise vortices.
         Nspanwise (int): Number of spanwise vortices.
         integrate_fuselage (bool): If you add fuselage to geometry.
-        rotation_rates_float (float): Rotation rates in deg/s. 
+        rotation_rates_float (float): Rotation rates in deg/s.
 
     """
 

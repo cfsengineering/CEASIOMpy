@@ -115,7 +115,7 @@ def array_to_str(x: ndarray, z: ndarray) -> Tuple[str, str, str]:
 
 def copy(tixi: Tixi3, xpath: str, copy_name: str, ids: str, sym: bool = True) -> str:
     """
-    Copies an element and its children from a given xpath 
+    Copies an element and its children from a given xpath
     to a new element with the specified copy_name.
 
     Args:
@@ -175,7 +175,7 @@ def symmetry(tixi: Tixi3, xpath: str) -> None:
     Args:
         tixi (Tixi3): Tixi handle of CPACS file.
         xpath (str): xPath to the parent element.
-        
+
     """
     # Get the number of children at the given XPath
     num_children = tixi.getNumberOfChilds(xpath)
@@ -212,7 +212,7 @@ def update_uid_element(tixi: Tixi3, xpath: str, element_name: str, uids_identifi
         xpath (str): xPath to the element.
         element_name (str): Name of the UID element to update.
         uids_identifier (str): uID identifier to add.
-        
+
     """
     element_xpath = f"{xpath}/{element_name}"
     if tixi.checkElement(element_xpath):
@@ -229,7 +229,7 @@ def update_uids(tixi: Tixi3, xpath: str, uids_identifier: str) -> None:
         tixi (Tixi3): Tixi handle of CPACS file.
         xpath (str): xPath to start the search.
         uids_identifier (str): uID identifier to add.
-    
+
     """
 
     num_children = tixi.getNumberOfChilds(xpath)
@@ -310,8 +310,8 @@ def interpolate(
 
 
 def interpolate_points(
-    x: ndarray, 
-    z: ndarray, 
+    x: ndarray,
+    z: ndarray,
     max_dist: float,
 ) -> Tuple[ndarray, ndarray]:
     """
@@ -374,17 +374,17 @@ def find_min_x(x: ndarray, z: ndarray) -> Tuple[float, float, float, float]:
 
 
 def plot_values(
-    x: ndarray, 
-    z: ndarray, 
-    x_flap: ndarray = None, 
+    x: ndarray,
+    z: ndarray,
+    x_flap: ndarray = None,
     z_flap: ndarray = None,
 ) -> None:
     plt.plot(x, z, marker='o', label='X vs Z values')
 
     if x_flap is not None and z_flap is not None:
         plt.plot(
-            x_flap, 
-            z_flap, 
+            x_flap,
+            z_flap,
             marker='x',
             label='X Flap vs Z Flap values'
         )

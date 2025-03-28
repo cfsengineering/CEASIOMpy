@@ -31,8 +31,8 @@ from numpy import ndarray
 from markdownpy.markdownpy import MarkdownDoc
 
 from typing import (
-    Callable, 
-    Tuple, 
+    Callable,
+    Tuple,
     TextIO,
 )
 
@@ -44,8 +44,8 @@ from ceasiompy import log
 
 
 def get_radial_stations(
-    radius: float, 
-    hub_radius: float, 
+    radius: float,
+    hub_radius: float,
     number_of_stations: int = 40
 ) -> ndarray:
     """
@@ -71,12 +71,12 @@ def get_radial_stations(
 
 
 def get_advanced_ratio(
-    free_stream_velocity: float, 
-    rotational_velocity: float, 
+    free_stream_velocity: float,
+    rotational_velocity: float,
     radius: float,
 ) -> float:
     """
-    Calculate advanced ratio (ratio between velocity and rotational velocity), 
+    Calculate advanced ratio (ratio between velocity and rotational velocity),
     taking in account of the diameter of the propeller.
 
     Args:
@@ -124,7 +124,7 @@ def get_prandtl_correction_values(
     free_stream_velocity: float,
 ) -> ndarray:
     """
-    Correct the values of thrust and power coefficients near the tip, 
+    Correct the values of thrust and power coefficients near the tip,
     based on Prandtl formulation.
 
     Args:
@@ -470,7 +470,7 @@ def thrust_calculator(
         thrust_density_ratio,
         computed_total_thrust_coefficient,
         eta,
-        
+
     ) = check_input_output_values(
         radial_stations_spacing,
         radial_power_coefs,

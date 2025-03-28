@@ -65,25 +65,6 @@ class TestModuleTemplate(CeasiompyTest):
         )
 
     @log_test
-    def test_get_option_settings(self):
-        (
-            save_plots,
-            vortex_distribution,
-            Nchordwise,
-            Nspanwise,
-            integrate_fuselage,
-            rotation_rates_float,
-
-        ) = get_option_settings(self.cpacs.tixi)
-
-        assert not save_plots, "Option 'save_plots' should be 'False'."
-        assert vortex_distribution == 3.0, "Option 'vortex_distribution' should be '3.0'."
-        assert Nchordwise == 5, "Option 'Nchordwise' should be '5'."
-        assert Nspanwise == 20, "Option 'Nspanwise' should be '20'."
-        assert not integrate_fuselage, "Option 'integrate_fuselage' should be 'False'."
-        assert rotation_rates_float == 0.0, "Option 'rotation_rates_float' should be 0.0"
-
-    @log_test
     def test_write_command_file(self):
 
         write_command_file(

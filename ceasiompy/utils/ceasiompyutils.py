@@ -151,14 +151,14 @@ def check_directory_exists(dir: Path) -> None:
 def change_working_dir(working_dir):
     """Context manager to change the working directory just before the execution of a function."""
 
+    cwd = None
     try:
         cwd = os.getcwd()
         os.chdir(working_dir)
         yield
-
     finally:
-        os.chdir(cwd)
-
+        if cwd is not None:
+            os.chdir(cwd)
 
 def ensure_and_append_text_element(
     tixi: Tixi3,

@@ -94,11 +94,11 @@ class CST_shape(object):
         xu = np.zeros(N - center_loc)
 
         # Lower surface x-coordinates
-        for i in range(len(xl)):
+        for i, _ in enumerate(xl):
             xl[i] = x[i]
 
         # Upper surface x-coordinates
-        for i in range(len(xu)):
+        for i, _ in enumerate(xu):
             xu[i] = x[i + center_loc]
 
         # Call ClassShape function to determine lower and upper surface y-coordinates

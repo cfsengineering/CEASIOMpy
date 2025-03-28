@@ -21,15 +21,6 @@ from ceasiompy.WeightConventional.func.weightutils import PASSENGER_MASS, PASSEN
 from ceasiompy import log
 
 
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and in the
-   InputClasses/Unconventional folder."""
-
-
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================

@@ -44,15 +44,6 @@ from ceasiompy.utils.commonxpath import (
 from ceasiompy import log
 
 
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and in the
-   InputClasses/Unconventional folder."""
-
-
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================

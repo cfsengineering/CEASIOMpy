@@ -16,6 +16,7 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
+import os
 import matplotlib
 
 import matplotlib.pyplot as plt
@@ -36,7 +37,10 @@ from ceasiompy.SaveAeroCoefficients import *
 #   BACKEND SETTING
 # =================================================================================================
 
-matplotlib.use('Agg')
+if os.environ.get('DISPLAY', '') == '':
+    matplotlib.use('Agg')
+else:
+    matplotlib.use('TkAgg')
 
 # =================================================================================================
 #   FUNCTIONS

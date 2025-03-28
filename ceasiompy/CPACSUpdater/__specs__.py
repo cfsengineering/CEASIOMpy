@@ -22,12 +22,13 @@ from ceasiompy.utils.geometryfunctions import get_segments
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
+from ceasiompy import log
+
 from ceasiompy.utils.commonxpath import (
     CPACSUPDATER_CTRLSURF_XPATH,
     CPACSUPDATER_ADD_CTRLSURFACES_XPATH,
 )
 
-from ceasiompy import log
 from ceasiompy.CPACSUpdater import (
     include_gui,
     CONTROL_SURFACES_LIST,

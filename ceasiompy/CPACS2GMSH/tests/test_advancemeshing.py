@@ -214,8 +214,7 @@ def test_refine_wing_section():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_PATH,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -277,8 +276,7 @@ def test_auto_refine():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_PATH,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,

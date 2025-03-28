@@ -56,3 +56,12 @@ def test_wing_size():
 
     assert wing_maxlen == approx(0.15, abs=1e-2)
     assert wing_minlen == approx(0.012, abs=1e-4)
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    print("Test CPACS2GMSH")
+    print("To run test use the following command:")
+    print(">> pytest -v")

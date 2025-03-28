@@ -24,8 +24,6 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy import log
 from ceasiompy.utils.commonxpath import CPACSUPDATER_ADD_CTRLSURFACES_XPATH
 
-from ceasiompy.CPACSUpdater import *
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================

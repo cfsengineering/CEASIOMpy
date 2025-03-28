@@ -16,6 +16,7 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
+import os
 import matplotlib
 
 import numpy as np
@@ -29,7 +30,10 @@ from ceasiompy import log
 #   BACKEND SETTING
 # =================================================================================================
 
-matplotlib.use('Agg')
+if os.environ.get('DISPLAY', '') == '':
+    matplotlib.use('Agg')
+else:
+    matplotlib.use('TkAgg')
 
 # =================================================================================================
 #   FUNCTIONS

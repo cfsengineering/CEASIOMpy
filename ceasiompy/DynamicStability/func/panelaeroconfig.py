@@ -15,6 +15,7 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
+import os
 import matplotlib
 
 import numpy as np
@@ -28,7 +29,10 @@ from ceasiompy import log
 #   BACKEND SETTING
 # =================================================================================================
 
-matplotlib.use('TkAgg')
+if os.environ.get('DISPLAY', '') == '':
+    matplotlib.use('Agg')
+else:
+    matplotlib.use('TkAgg')
 
 # =================================================================================================
 #   CLASSES

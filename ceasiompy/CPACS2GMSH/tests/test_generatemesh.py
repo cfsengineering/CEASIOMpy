@@ -63,8 +63,7 @@ def test_generate_gmsh():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_PATH,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -106,8 +105,7 @@ def test_generate_gmsh_symm():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_PATH,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -214,8 +212,7 @@ def test_assignation():
     export_brep(cpacs, TEST_OUT_PATH)
 
     _, aircraft_parts = generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_PATH,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -273,8 +270,7 @@ def test_define_engine_bc():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_SIMPLE_ENGINE_PATH,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -338,8 +334,7 @@ def test_define_doubleflux_engine_bc():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_SIMPLE_ENGINE_PATH,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -399,8 +394,7 @@ def test_disk_actuator_conversion():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_PROPELLER_ENGINE_PATH,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,

@@ -19,9 +19,6 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-
-from cpacspy.cpacsfunctions import open_tixi
-from ceasiompy.utils.commonxpath import SU2_TARGET_CL_XPATH
 from ceasiompy.CLCalculator.clcalculator import calculate_cl
 from pathlib import Path
 from pytest import approx

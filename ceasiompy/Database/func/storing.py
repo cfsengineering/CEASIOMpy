@@ -71,6 +71,14 @@ class CeasiompyDb:
 
     def connect_to_table(self, module_name: str) -> str:
         table_name, table_schema = self.get_table_parameters(module_name)
+        
+        # Validate table name
+        if not table_name.isidentifier():
+            raise ValueError("Invalid table name.")
+
+        # Validate table schema
+        if not all(line.strip().split()[0].isidentifier() for line in table_schema.split(',')):
+            raise ValueError("Invalid table schema.")
 
         create_table_query = f"""
             CREATE TABLE IF NOT EXISTS {table_name} (

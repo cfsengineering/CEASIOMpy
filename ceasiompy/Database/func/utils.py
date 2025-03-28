@@ -124,8 +124,12 @@ def data_to_db(cursor: Cursor, data: Dict, table_name: str) -> None:
     """
     Inserts one line at a time if not already in table.
     """
-    # Get the keys that exist in your data dictionary
+    if not table_name.isidentifier():
+        raise ValueError("Invalid table name.")
+    
     columns = list(data.keys())
+    if not all(col.isidentifier() for col in columns):
+        raise ValueError("Invalid column name(s).")
 
     if check_in_table(cursor, data, columns, table_name):
         log.info(f"{data.values()} already in {table_name}.")

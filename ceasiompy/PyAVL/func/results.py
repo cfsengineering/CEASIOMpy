@@ -16,6 +16,7 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
+from cpacspy.aeromap import get_filter
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.PyAVL.func.plot import plot_lift_distribution
 from ceasiompy.utils.ceasiompyutils import ensure_and_append_text_element
@@ -102,7 +103,6 @@ def get_avl_aerocoefs(force_file: Path) -> Tuple[
         results["cmd_b"], results["cms_a"], results["cml_b"],
     )
 
-from cpacspy.aeromap import get_filter
 
 def add_coefficients_in_aeromap(
     cpacs: CPACS,

@@ -152,7 +152,8 @@ def get_prandtl_correction_values(
     )
 
 
-def get_error(radial_stations_spacing: float, dCt: ndarray, total_thrust_coefficient: float) -> float:
+def get_error(radial_stations_spacing: float, dCt: ndarray,
+              total_thrust_coefficient: float) -> float:
     """
     Computes error between calculated and input thrust coefficient.
 

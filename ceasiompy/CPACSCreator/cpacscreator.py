@@ -32,6 +32,7 @@ from ceasiompy.CPACSCreator import *
 #    MAIN
 # =================================================================================================
 
+
 def main(cpacs: CPACS, wkdir: Path) -> None:
     """
     Runs CPACSCrator with an input CPACS file
@@ -58,6 +59,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
     # Run CPACSCreator
     run_software(software_name=software_name, arguments=[str(cpacs_in)], wkdir=wkdir)
+
 
 if __name__ == "__main__":
     call_main(main, MODULE_NAME)

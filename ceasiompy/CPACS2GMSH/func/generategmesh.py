@@ -130,12 +130,11 @@ class ModelPart:
         # 2D child and parent
         elif child_dimtag[0] == 2:
             child_surfaces = [child_dimtag]
-            child_lines = list(
+            child_lines = sorted(
                 gmsh.model.getBoundary(
                     child_surfaces, combined=True, oriented=False, recursive=False
                 )
             )
-            child_lines.sort()
 
             child_points = list(
                 gmsh.model.getBoundary(
@@ -233,7 +232,7 @@ def get_entities_from_volume(volume_dimtag):
         volume_dimtag, combined=True, oriented=False, recursive=False
     )
 
-    lines_dimtags = list(
+    lines_dimtags = sorted(
         set().union(
             *[
                 gmsh.model.getBoundary([surface], combined=True, oriented=False, recursive=False)
@@ -241,7 +240,6 @@ def get_entities_from_volume(volume_dimtag):
             ]
         )
     )
-    lines_dimtags.sort()
 
     points_dimtags = list(
         set().union(
@@ -532,8 +530,7 @@ def generate_gmsh(
     rotor_model = cfg_rotors(brep_dir)
 
     # Retrieve all breps
-    brep_files = list(brep_dir.glob("*.brep"))
-    brep_files.sort()
+    brep_files = sorted(brep_dir.glob("*.brep"))
 
     # Initialize gmsh
     initialize_gmsh()
@@ -786,7 +783,8 @@ def generate_gmsh(
     log.info("Model has been cleaned.")
 
     # Farfield
-    # farfield entities are simply the entities left in the final domain that don't belong to the aircraft.
+    # farfield entities are simply the entities left in the final domain that
+    # don't belong to the aircraft.
 
     farfield_surfaces = list(set(final_domain.surfaces) - set(aircraft.surfaces))
     farfield_points = list(set(final_domain.points) - set(aircraft.points))

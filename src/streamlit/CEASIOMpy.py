@@ -48,6 +48,7 @@ PAGE_NAME = "CEASIOMpy"
 #    FUNCTIONS
 # =================================================================================================
 
+
 def section_select_working_dir():
 
     st.markdown("#### Working directory")
@@ -66,7 +67,7 @@ def section_select_cpacs():
         cpacs_file_path = st.session_state.cpacs_file_path
         if Path(cpacs_file_path).exists():
             st.session_state.cpacs = CPACS(cpacs_file_path)
-            #st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
+            # st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
         else:
             st.session_state.cpacs_file_path = None
 
@@ -83,7 +84,7 @@ def section_select_cpacs():
         st.session_state.cpacs = CPACS(cpacs_new_path)
         st.session_state.cpacs_file_path = str(cpacs_new_path)
 
-        #st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
+        # st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
 
     # Display the file uploader widget with the previously uploaded file
     if "cpacs_file_path" in st.session_state and st.session_state.cpacs_file_path:
@@ -136,6 +137,7 @@ def section_3D_view():
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 
 if __name__ == "__main__":
 

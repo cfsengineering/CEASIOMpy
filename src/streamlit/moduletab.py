@@ -64,7 +64,8 @@ def checks(session_state, tabs) -> None:
         session_state.xpath_to_update = {}
 
 
-def add_gui_object(session_state, name, group, groups_container, m, module, unit, aeromap_map, xpath, description, var_type, vartype_map, default_value) -> None:
+def add_gui_object(session_state, name, group, groups_container, m, module, unit,
+                   aeromap_map, xpath, description, var_type, vartype_map, default_value) -> None:
     if not group:
         group = "none"
 
@@ -144,7 +145,20 @@ def add_module_tab() -> None:
             groups_container = order_by_gps(inputs)
 
             for name, default_value, var_type, unit, xpath, description, group in inputs.values():
-                add_gui_object(st.session_state, name, group, groups_container, m, module, unit, aeromap_map, xpath, description, var_type, vartype_map, default_value)
+                add_gui_object(
+                    st.session_state,
+                    name,
+                    group,
+                    groups_container,
+                    m,
+                    module,
+                    unit,
+                    aeromap_map,
+                    xpath,
+                    description,
+                    var_type,
+                    vartype_map,
+                    default_value)
 
 
 # =================================================================================================

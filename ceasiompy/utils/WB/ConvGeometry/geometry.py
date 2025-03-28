@@ -28,7 +28,6 @@ from ceasiompy.utils.commonxpath import FUSELAGES_XPATH, WINGS_XPATH
 from ceasiompy import log
 
 
-
 # =============================================================================
 #   CLASSES
 # =============================================================================

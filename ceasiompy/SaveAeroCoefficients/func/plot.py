@@ -70,5 +70,6 @@ def plot(wkdir: Path, groupby_list: List, title: str, aeromap, criterion) -> Non
 #    MAIN
 # ==============================================================================
 
+
 if __name__ == "__main__":
     log.info("Nothing to execute!")

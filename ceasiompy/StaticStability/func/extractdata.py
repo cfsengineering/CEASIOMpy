@@ -107,7 +107,7 @@ def generate_stab_df(cpacs: CPACS, aeromap_uid: str, lr_bool: bool) -> DataFrame
                 lambda row: check_stability_tangent(row["cma"], row["cnb"], row["clb"]),
                 axis=1,
                 )
-            )
+                )
 
         return df[[
             "mach", "alt", "aoa", "aos",
@@ -122,7 +122,7 @@ def generate_stab_df(cpacs: CPACS, aeromap_uid: str, lr_bool: bool) -> DataFrame
         df = check_stability_lr(df)
 
         return df[[
-            "mach", "alt",  "aoa", "aos",
+            "mach", "alt", "aoa", "aos",
             "cms", "cml", "cmd",
             "lr_cma", "lr_cma_intercept",
             "lr_clb", "lr_clb_intercept",
@@ -132,7 +132,8 @@ def generate_stab_df(cpacs: CPACS, aeromap_uid: str, lr_bool: bool) -> DataFrame
         ]]
 
 
-def generate_stab_table(cpacs: CPACS, aeromap_uid: str, results_dir: Path, lr_bool: bool) -> List[List[str]]:
+def generate_stab_table(cpacs: CPACS, aeromap_uid: str, results_dir: Path,
+                        lr_bool: bool) -> List[List[str]]:
     """
     Generate the Markdownpy Table for the longitudinal/directional/lateral stability to show in the results.
 

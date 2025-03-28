@@ -38,7 +38,7 @@ MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
 # None options
-NONE_LIST = ["None", "NONE", "No", "NO", "N", "n", "-", " ", ""] # ?
+NONE_LIST = ["None", "NONE", "No", "NO", "N", "n", "-", " ", ""]  # ?
 
 FEATURE_DICT = {
     "machNumber": "Mach",

@@ -20,7 +20,6 @@ from ceasiompy.WeightConventional.func.weightutils import CABIN_CREW_MASS, PILOT
 from ceasiompy import log
 
 
-
 # =============================================================================
 #   CLASSES
 # =============================================================================

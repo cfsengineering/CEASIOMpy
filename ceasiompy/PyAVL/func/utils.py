@@ -46,6 +46,7 @@ from ceasiompy.utils.commonxpath import (
 #   FUNCTIONS
 # =================================================================================================
 
+
 @validate_call(config=ceasiompy_cfg)
 def retrieve_gui_values(cpacs: CPACS) -> Tuple[
     List, List, List, List,
@@ -67,12 +68,12 @@ def retrieve_gui_values(cpacs: CPACS) -> Tuple[
     nb_cpu = int(get_value(tixi, AVL_NB_CPU_XPATH))
 
     return (
-            alt_list, mach_list, aoa_list, aos_list,
-            rotation_rate_list, control_surface_list,
-            avl_path,
-            save_fig,
-            nb_cpu,
-        )
+        alt_list, mach_list, aoa_list, aos_list,
+        rotation_rate_list, control_surface_list,
+        avl_path,
+        save_fig,
+        nb_cpu,
+    )
 
 
 @validate_call(config=ceasiompy_cfg)

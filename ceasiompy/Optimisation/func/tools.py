@@ -34,7 +34,6 @@ import tigl3.configuration  # used within eval
 from ceasiompy import log
 
 
-
 # Not an exhaustive list
 accronym_dict = {
     "maximum_take_off_mass": "mtom",

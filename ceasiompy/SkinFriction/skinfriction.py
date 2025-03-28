@@ -55,6 +55,7 @@ from ceasiompy.SkinFriction import *
 #   FUNCTIONS
 # =================================================================================================
 
+
 def estimate_skin_friction_coef(wetted_area, wing_area, wing_span, mach, alt):
     """Return an estimation of skin friction drag coefficient.
 
@@ -241,6 +242,7 @@ def main(cpacs: CPACS, wkdir: Path):
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 
 if __name__ == "__main__":
     call_main(main, MODULE_NAME)

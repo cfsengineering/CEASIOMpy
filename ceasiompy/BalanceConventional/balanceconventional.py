@@ -108,7 +108,7 @@ def main(cpacs: CPACS) -> None:
 
     name = aircraft_name(cpacs_path)
 
-    #shutil.copyfile(cpacs_path, cpacs_path)  # TODO: shoud not be like that
+    # shutil.copyfile(cpacs_path, cpacs_path)  # TODO: shoud not be like that
     newpath = "ToolOutput/" + name
     if not os.path.exists(newpath):
         os.makedirs(newpath)
@@ -348,8 +348,6 @@ def main(cpacs: CPACS) -> None:
         log.info("---------------------------------------")
 
     log.info("############## Balance estimation completed ##############")
-
-
 
 
 if __name__ == "__main__":

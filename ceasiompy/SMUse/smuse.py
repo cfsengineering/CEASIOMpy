@@ -42,6 +42,7 @@ from ceasiompy.SMUse import *
 #   ClASSES
 # =================================================================================================
 
+
 class Surrogate_model:
     """Class to be dumped for later use of a model"""
 

@@ -20,7 +20,6 @@ from cpacspy.cpacsfunctions import add_uid, create_branch, open_tixi
 from ceasiompy import log
 
 
-
 # =============================================================================
 #   CLASSES
 # =============================================================================

@@ -510,8 +510,8 @@ def get_mach_list(self, x_hinge: float) -> Tuple[List, List]:
 
     mach_set = {row[0] for row in data}
 
-
     return list(set(self.mach_list) - mach_set), ", ".join(str(mach) for mach in list(mach_set))
+
 
 def compute_dot_derivatives(self) -> DataFrame:
     """
@@ -539,7 +539,6 @@ def compute_dot_derivatives(self) -> DataFrame:
         log.info(f"Plotting PanelAero's aerogrid of aircraft {self.aircraft_name}.")
         plots = DetailedPlots(model)
         plots.plot_aerogrid()
-
 
     # Oscillation Parameters
 
@@ -698,6 +697,7 @@ def compute_dot_derivatives(self) -> DataFrame:
     df.to_csv(self.dynamic_stability_dir / "alpha_beta_dot_derivatives.csv", index=False)
 
     return add_db_values(self, df, non_mach_str, x_hinge)
+
 
 def add_db_values(self, df: DataFrame, non_mach_str: str, x_hinge: float) -> DataFrame:
     der_columns = [

@@ -37,6 +37,7 @@ from ceasiompy.ExportCSV import *
 #    MAIN
 # =================================================================================================
 
+
 def main(cpacs: CPACS, wkdir: Path) -> None:
     tixi = cpacs.tixi
 
@@ -53,6 +54,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         aeromap.export_csv(csv_path)
 
         log.info(f"Aeromap(s) has been saved to {csv_path}")
+
 
 if __name__ == "__main__":
     call_main(main, MODULE_NAME)

@@ -122,11 +122,10 @@ def generate_2d_mesh_for_pentagrow(
 
     # Determine if rotor are present in the aircraft model
     # TODO: add rotor model ?
-    #rotor_model = cfg_rotors(brep_dir)
+    # rotor_model = cfg_rotors(brep_dir)
 
     # Retrieve all brep
-    brep_files = list(brep_dir.glob("*.brep"))
-    brep_files.sort()
+    brep_files = sorted(brep_dir.glob("*.brep"))
 
     # Initialize gmsh
     initialize_gmsh()
@@ -302,6 +301,7 @@ def pentagrow_3d_mesh(
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 
 if __name__ == "__main__":
     log.info("Nothing to execute!")

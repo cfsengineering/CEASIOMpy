@@ -22,7 +22,6 @@ from ceasiompy.utils.commonxpath import CREW_XPATH, MASSBREAKDOWN_XPATH, PASS_XP
 from ceasiompy import log
 
 
-
 # =============================================================================
 #   CLASSES
 # =============================================================================

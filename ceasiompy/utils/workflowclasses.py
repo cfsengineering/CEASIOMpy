@@ -70,7 +70,8 @@ class ModuleToRun:
 
         if add_res_dir:
             self.results_dir = get_results_directory(name, create=True, wkflow_dir=wkflow_dir)
-        else: self.results_dir = None
+        else:
+            self.results_dir = None
         self.cpacs_out = cpacs_out
 
         # Set module path
@@ -311,8 +312,7 @@ class Workflow:
             )
             self.subworkflow.set_subworkflow()
 
-
-    def run_workflow(self, test = False) -> None:
+    def run_workflow(self, test=False) -> None:
         """Run the complete Worflow"""
 
         add_to_runworkflow_history(self.current_wkflow_dir)
@@ -321,7 +321,12 @@ class Workflow:
             if module.is_optim_module:
                 self.subworkflow.run_subworkflow()
             else:
-                run_module(module, self.current_wkflow_dir, self.modules_list.index(module.name), test)
+                run_module(
+                    module,
+                    self.current_wkflow_dir,
+                    self.modules_list.index(
+                        module.name),
+                    test)
 
         shutil.copy(module.cpacs_out, Path(self.current_wkflow_dir, "ToolOutput.xml"))
 

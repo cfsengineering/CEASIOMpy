@@ -22,7 +22,6 @@ from ceasiompy.WeightConventional.func.weightutils import UNUSABLE_FUEL_RATIO
 from ceasiompy import log
 
 
-
 # =============================================================================
 #   CLASSES
 # =============================================================================
@@ -34,7 +33,6 @@ from ceasiompy import log
 
 
 def breguet_cruise_range(LDcru, ri, mw):
-
     """The function estimates the maximum range using the Breguet equation.
 
     Source: Raymer, D.P. "Aircraft design: a conceptual approach"

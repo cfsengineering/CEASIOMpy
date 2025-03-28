@@ -281,7 +281,7 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
 
                 try:
                     dict_dir[angle] = dir_
-                except:
+                except BaseException:
                     raise ValueError(f"{angle} is an incorrect value for an oscillation.")
 
             # Check that all mach_nb values are the same

@@ -29,6 +29,7 @@ from ceasiompy.utils.commonpaths import RUNWORKFLOW_HISTORY_PATH
 #   FUNCTIONS
 # =================================================================================================
 
+
 def add_to_runworkflow_history(working_dir: Path, comment: str = "") -> None:
     """Add a line to the runworkflow history"""
 

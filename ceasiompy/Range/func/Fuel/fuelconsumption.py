@@ -22,7 +22,6 @@ from ceasiompy.WeightConventional.func.weightutils import UNUSABLE_FUEL_RATIO
 from ceasiompy import log
 
 
-
 # =============================================================================
 #   CLASSES
 # =============================================================================

@@ -107,7 +107,8 @@ class CeasiompyDb:
         log.info(f"Closing connection to database {self.db_name}.")
         self.connection.close()
 
-    def get_data(self, table_name: str, columns: List[str], db_close = False, filters: List[str] = None) -> List[Tuple]:
+    def get_data(self, table_name: str,
+                 columns: List[str], db_close=False, filters: List[str] = None) -> List[Tuple]:
         # Validate table name
         if not table_name.isidentifier():
             raise ValueError(f"Invalid table name: {table_name}")
@@ -170,7 +171,10 @@ def store_data(tixi: Tixi3) -> None:
     # You do not want to create a results directory "PyAVL"
     # with get_results_dir("PyAVL") if it does not exist.
     # Only access the path and then check if it exists.
-    avl_dir: Path = get_results_directory(PYAVL_NAME, create=False, wkflow_dir="/home/cfse2/Leon/CEASIOMpy_Leon/CEASIOMpy/WKDIR/Workflow_460")
+    avl_dir: Path = get_results_directory(
+        PYAVL_NAME,
+        create=False,
+        wkflow_dir="/home/cfse2/Leon/CEASIOMpy_Leon/CEASIOMpy/WKDIR/Workflow_460")
     gmsh_dir: Path = get_results_directory(CPACS2GMSH_NAME, create=False)
     dynstab_dir: Path = get_results_directory(DYNSTAB_NAME, create=False)
     su2_dir: Path = get_results_directory(SU2RUN_NAME, create=False)
@@ -193,6 +197,6 @@ def store_data(tixi: Tixi3) -> None:
 
 
 if __name__ == "__main__":
-    #from cpacspy.cpacspy import CPACS
-    #store_data(CPACS("/home/cfse2/Leon/CEASIOMpy_Leon/CEASIOMpy/WKDIR/Workflow_460/00_ToolInput.xml").tixi)
+    # from cpacspy.cpacspy import CPACS
+    # store_data(CPACS("/home/cfse2/Leon/CEASIOMpy_Leon/CEASIOMpy/WKDIR/Workflow_460/00_ToolInput.xml").tixi)
     log.info("Nothing to execute!")

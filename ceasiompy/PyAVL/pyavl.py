@@ -43,6 +43,7 @@ from ceasiompy.PyAVL import *
 #    MAIN
 # =================================================================================================
 
+
 def main(cpacs: CPACS, wkdir: Path) -> None:
     """
     Run AVL calculations on specified CPACS file.
@@ -184,7 +185,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         )
 
         case_dir_name = (
-            f"Case{str(i_case+first_cases).zfill(2)}"
+            f"Case{str(i_case + first_cases).zfill(2)}"
             f"_alt{alt}"
             f"_mach{round(mach, 2)}"
             f"_aoa{round(aoa, 1)}"

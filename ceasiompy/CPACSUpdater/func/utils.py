@@ -113,6 +113,7 @@ def array_to_str(x: ndarray, z: ndarray) -> Tuple[str, str, str]:
 
     return x_str, y_str, z_str
 
+
 def copy(tixi: Tixi3, xpath: str, copy_name: str, ids: str, sym: bool = True) -> str:
     """
     Copies an element and its children from a given xpath
@@ -261,7 +262,7 @@ def remove(tixi: Tixi3, xpath: str, attr_name: Optional[str] = None) -> None:
     try:
         if tixi.checkElement(xpath):
             tixi.removeElement(xpath)
-        elif attr_name != None:
+        elif attr_name is not None:
             if tixi.checkAttribute(xpath, attr_name):
                 tixi.removeAttribute(xpath, attr_name)
             log.warning(f"Attribute {attr_name} not found at '{xpath}'.")
@@ -304,7 +305,8 @@ def interpolate(
     if distance > max_dist:
         mid_x = (x1 + x2) / 2
         mid_z = (z1 + z2) / 2
-        return interpolate(x1, z1, mid_x, mid_z, max_dist) + [(mid_x, mid_z)] + interpolate(mid_x, mid_z, x2, z2, max_dist)
+        return interpolate(x1, z1, mid_x, mid_z, max_dist) + \
+            [(mid_x, mid_z)] + interpolate(mid_x, mid_z, x2, z2, max_dist)
     else:
         return [(x2, z2)]
 
@@ -328,6 +330,7 @@ def interpolate_points(
             new_z.append(z_)
 
     return array(new_x), array(new_z)
+
 
 def find_max_x(x: ndarray, z: ndarray) -> Tuple[float, float, float, float]:
     """
@@ -395,6 +398,7 @@ def plot_values(
     plt.legend()
     plt.grid(True)
     plt.show()
+
 
 # ==============================================================================
 #    MAIN

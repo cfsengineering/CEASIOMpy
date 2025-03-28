@@ -164,7 +164,7 @@ class AircfaftMasses:
         lines.write(f"\n- Maximum fuel mass with no passengers : {int(self.mass_fuel_max)} [kg]")
         lines.write(
             "\n- Maximum fuel volume with no passengers:"
-            f"{int(self.mass_fuel_max / self.fuel_density *1000)} [l]"
+            f"{int(self.mass_fuel_max / self.fuel_density * 1000)} [l]"
         )
         lines.write(f"\n- Wing loading: {int(self.wing_loading)} [kg/m^2]")
 

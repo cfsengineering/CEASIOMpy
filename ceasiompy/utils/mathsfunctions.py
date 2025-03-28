@@ -35,6 +35,7 @@ from ceasiompy import log
 #   FUNCTIONS
 # =================================================================================================
 
+
 def rot(angle: float) -> ndarray:
     """
     2D Rotation matrix.
@@ -54,7 +55,8 @@ def rot(angle: float) -> ndarray:
     ])
 
 
-def rotate_2d_point(x: Tuple[float, float], center_point: Tuple[float, float], angle: float) -> Tuple[float, float]:
+def rotate_2d_point(x: Tuple[float, float], center_point: Tuple[float,
+                    float], angle: float) -> Tuple[float, float]:
     """
     Rotate a point in a 2d space.
 

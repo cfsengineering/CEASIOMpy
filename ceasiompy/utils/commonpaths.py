@@ -39,7 +39,12 @@ MODULES_DIR_PATH = Path(ceasiompy.__file__).parent
 CEASIOMPY_DB_PATH = Path(MODULES_DIR_PATH, "Database", "databases", "ceasiompy.db")
 
 # /CEASIOMpy/ceasiompy/Database/tests/databases/testceasiompy.db
-TESTCEASIOMPY_DB_PATH = Path(MODULES_DIR_PATH, "Database", "tests", "databases", "testceasiompy.db")
+TESTCEASIOMPY_DB_PATH = Path(
+    MODULES_DIR_PATH,
+    "Database",
+    "tests",
+    "databases",
+    "testceasiompy.db")
 
 # /CEASIOMpy/documents/logos/CEASIOMpy_main_logos.png
 CEASIOMPY_LOGO_PATH = Path(CEASIOMPY_PATH, "documents", "logos", "CEASIOMpy_512px.png")

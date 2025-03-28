@@ -28,6 +28,7 @@ MODULE_DIR = Path(__file__).parent
 #   FUNCTIONS
 # =================================================================================================
 
+
 def test_add_damping_derivatives(tmp_path):
     """Test function 'add_damping_derivatives'"""
 
@@ -48,6 +49,7 @@ def test_add_damping_derivatives(tmp_path):
     assert "0.0 5.4 0.0" in Path(case_dq, "ConfigCFD.cfg").read_text()
     assert "0.0 0.0 5.4" in Path(case_dr, "ConfigCFD.cfg").read_text()
 
+
 @pytest.mark.skip(reason="Not implemented yet")
 def test_add_actuator_disk():
     """Test function 'add_actuator_disk'"""
@@ -56,6 +58,7 @@ def test_add_actuator_disk():
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 
 if __name__ == "__main__":
     print("Test test_su2configfile.py")

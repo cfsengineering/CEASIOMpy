@@ -78,7 +78,7 @@ def get_segments_wing(tixi: Tixi3, wing_name: str) -> List[Tuple[str, str, str]]
 
     #
     for i_seg in range(segment_cnt):
-        segment_xpath = segments_xpath + f"/segment[{i_seg+1}]"
+        segment_xpath = segments_xpath + f"/segment[{i_seg + 1}]"
         segment_name = tixi.getTextElement(segment_xpath + "/name")
         segment_from_uid = tixi.getTextElement(segment_xpath + "/fromElementUID")
         segment_to_uid = tixi.getTextElement(segment_xpath + "/toElementUID")
@@ -105,13 +105,13 @@ def get_segments(tixi: Tixi3) -> List[Tuple[str, str]]:
 
     # Iterate through each wing and get its uID
     for i_wing in range(wing_cnt):
-        wing_xpath = WINGS_XPATH + f"/wing[{i_wing+1}]"
+        wing_xpath = WINGS_XPATH + f"/wing[{i_wing + 1}]"
         segments_xpath = wing_xpath + "/segments"
         wing_name = tixi.getTextElement(wing_xpath + "/name")
         segment_cnt = elements_number(tixi, segments_xpath, "segment", logg=False)
 
         for i_seg in range(segment_cnt):
-            segment_name = tixi.getTextElement(segments_xpath + f"/segment[{i_seg+1}]/name")
+            segment_name = tixi.getTextElement(segments_xpath + f"/segment[{i_seg + 1}]/name")
             segment_list.append((wing_name, segment_name))
 
     unique_segment_list = list(set(segment_list))

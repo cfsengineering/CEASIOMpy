@@ -172,6 +172,7 @@ def run_gui():
 #    MAIN
 # =================================================================================================
 
+
 def main():
     parser = argparse.ArgumentParser(
         description="CEASIOMpy: Conceptual Aircraft Design Environment",

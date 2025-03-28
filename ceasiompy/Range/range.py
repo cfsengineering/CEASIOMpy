@@ -61,6 +61,7 @@ from ceasiompy.Range import *
 #   FUNCTIONS
 # =================================================================================================
 
+
 def get_range_estimation(cpacs_path, cpacs_out_path):
 
     if os.path.exists("ToolOutput"):

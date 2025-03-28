@@ -47,7 +47,6 @@ from ceasiompy import log
 from ceasiompy.utils.commonxpath import RANGE_LD_RATIO_XPATH, TURBOPROP_XPATH
 
 
-
 # =============================================================================
 #   CLASSES
 # =============================================================================

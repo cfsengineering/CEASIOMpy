@@ -59,6 +59,7 @@ from ceasiompy.utils.commonxpath import (
 #   FUNCTIONS
 # =================================================================================================
 
+
 def convert_fuselage(tixi: Tixi3, integrate_fuselage: bool, avl_path: Path, results_path: Path):
     # TODO: Modularize this code, make it more clear the notations
 
@@ -232,7 +233,8 @@ def convert_fuselage(tixi: Tixi3, integrate_fuselage: bool, avl_path: Path, resu
                         fus_file.write("fuselage" + str(i_fus + 1) + "\n")
 
                         # Write coordinates of the top surface
-                        for x_fus, y_fus in reversed(list(zip(x_fuselage[1:], y_fuselage_top[1:]))):
+                        for x_fus, y_fus in reversed(
+                                list(zip(x_fuselage[1:], y_fuselage_top[1:]))):
                             # fus_file.write(str(x_fus) + "\t" + str(y_fus) + "\n")
                             fus_file.write(f"{x_fus:.3f}\t{y_fus:.3f}\n")
 
@@ -548,7 +550,8 @@ def convert_cpacs_to_avl(tixi: Tixi3) -> Path:
                             f"{control_type} {0.0} {outerhingeXsi} {axis} {second_bool}\n\n")
                     else:
                         log.warning(
-                            f"Issue with {control_uid} control surface at section {i_sec} of wing number {i_wing}."
+                            f"Issue with {control_uid} control surface at section {
+                                i_sec} of wing number {i_wing}."
                         )
 
                 avl_file.write("AFILE\n")

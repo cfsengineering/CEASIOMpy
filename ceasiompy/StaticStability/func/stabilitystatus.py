@@ -49,7 +49,8 @@ def generate_message(row: Series) -> str:
     """
 
     msg = ""
-    if (row["long_stab"] == "Stable") and (row["dir_stab"] == "Stable") and (row["lat_stab"] == "Stable"):
+    if (row["long_stab"] == "Stable") and (row["dir_stab"]
+                                           == "Stable") and (row["lat_stab"] == "Stable"):
         msg += "Aircraft is stable along all axes."
     elif (row["long_stab"] == "Unstable") and (row["dir_stab"] == "Unstable") and (row["lat_stab"] == "Unstable"):
         msg += "Aircraft is UN-stable along ALL axes."

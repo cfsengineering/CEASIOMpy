@@ -57,6 +57,7 @@ from ceasiompy.SUMOAutoMesh import *
 #   FUNCTIONS
 # =================================================================================================
 
+
 def get_part_count(sumo, ROOT_XPATH, part_name):
     """Function to get the count of a specific part 'part_name' in a SUMO file.
 
@@ -134,7 +135,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     body_cnt = get_part_count(sumo, ROOT_XPATH, part_name="BodySkeleton")
 
     for i_body in range(body_cnt):
-        body_xpath = ROOT_XPATH + f"/BodySkeleton[{i_body+1}]"
+        body_xpath = ROOT_XPATH + f"/BodySkeleton[{i_body + 1}]"
 
         circ_list = []
         min_radius = 10e6
@@ -177,7 +178,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     wing_cnt = get_part_count(sumo, ROOT_XPATH, part_name="WingSkeleton")
 
     for i_wing in range(wing_cnt):
-        wing_xpath = ROOT_XPATH + f"/WingSkeleton[{i_wing+1}]"
+        wing_xpath = ROOT_XPATH + f"/WingSkeleton[{i_wing + 1}]"
 
         chord_list = []
 
@@ -314,6 +315,7 @@ def main(tixi: Tixi3, wkdir: Path):
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 
 if __name__ == "__main__":
     call_main(main, MODULE_NAME)

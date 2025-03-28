@@ -30,7 +30,6 @@ from ceasiompy.utils.configfiles import ConfigFile
 from scipy.spatial.transform import Rotation as R
 
 
-
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================

@@ -43,7 +43,6 @@ from ceasiompy.WeightConventional.func.weightutils import (
 from cpacspy.cpacsfunctions import add_value, get_value_or_default
 
 
-
 # =================================================================================================
 #   CLASSES
 # =================================================================================================

@@ -51,6 +51,7 @@ PAGE_NAME = "Results"
 #    FUNCTIONS
 # =================================================================================================
 
+
 def clear_containers(container_list):
     """Delete the session_state variable of a list of containers."""
 
@@ -101,7 +102,7 @@ def display_results(results_dir):
                     st.session_state["figures_container"] = st.container()
                     st.session_state.figures_container.markdown("**Figures**")
 
-                st.session_state.figures_container.markdown(f"{child.stem.replace('_',' ')}")
+                st.session_state.figures_container.markdown(f"{child.stem.replace('_', ' ')}")
                 st.session_state.figures_container.image(str(child))
 
             elif child.suffix == ".md":
@@ -134,7 +135,7 @@ def display_results(results_dir):
                 with st.expander(child.stem, expanded=False):
                     display_results(child)
 
-    except:
+    except BaseException:
         display_results_else(results_dir)
 
 

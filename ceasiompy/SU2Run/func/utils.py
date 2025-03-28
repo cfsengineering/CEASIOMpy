@@ -255,7 +255,8 @@ def retrieve_su2_mesh(
 
         su2_mesh = cursor.fetchone()
         log.info(
-            f"Loading .su2 file for aircraft {aircraft_name}, deformation {deformation} of angle {angle} [deg]."
+            f"Loading .su2 file for aircraft {aircraft_name}, deformation {
+                deformation} of angle {angle} [deg]."
         )
         su2_mesh_list.append((su2_mesh, aircraft_name, deformation, angle))
 

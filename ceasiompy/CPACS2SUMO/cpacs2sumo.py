@@ -81,6 +81,7 @@ from ceasiompy.CPACS2SUMO import MODULE_NAME, MODULE_DIR
 #   FUNCTIONS
 # =================================================================================================
 
+
 def convert_fuselages(tixi: Tixi3, sumo: Tixi3) -> None:
     """
     Convert fuselage from CPACS to SUMO.

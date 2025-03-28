@@ -51,7 +51,6 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     tixi = cpacs.tixi
     groupby_list = ["uid", "machNumber", "altitude", "angleOfSideslip"]
 
-
     # Get list of aeromaps
     aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, AEROMAP_TO_PLOT_XPATH)
     aeromap_df_list = []
@@ -85,7 +84,6 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
     # Generate plots
     plot(wkdir, groupby_list, title, aeromap, criterion)
-
 
 
 if __name__ == "__main__":

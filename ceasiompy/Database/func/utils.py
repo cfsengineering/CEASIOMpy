@@ -129,8 +129,10 @@ def check_in_table(cursor: Cursor, data: Dict, columns: List, table_name: str) -
     # Check if the data already exists
     unique_values = [data[col] for col in columns]
     cursor.execute(check_query, tuple(unique_values))
-    if cursor.fetchone(): return True
-    else: return False
+    if cursor.fetchone():
+        return True
+    else:
+        return False
 
 
 def data_to_db(cursor: Cursor, data: Dict, table_name: str) -> None:

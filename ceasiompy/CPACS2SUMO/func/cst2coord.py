@@ -32,6 +32,7 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+from ceasiompy import log
 import numpy as np
 
 from math import cos, factorial
@@ -41,7 +42,6 @@ from pathlib import Path
 from math import pi
 
 MODULE_DIR = Path(__file__).parent
-from ceasiompy import log
 
 # =================================================================================================
 #   CLASSES

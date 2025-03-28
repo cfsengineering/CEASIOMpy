@@ -125,7 +125,7 @@ def get_tables_values(
 
     aero_columns = [
         "alpha", "mach", "beta", "pb_2V", "qc_2V", "rb_2V",
-        "cl", "cd", "cms" , "cs", "cmd", "cml"
+        "cl", "cd", "cms", "cs", "cmd", "cml"
     ]
 
     # Retrieve data from db
@@ -145,7 +145,7 @@ def get_tables_values(
 
     ctrl_columns = [
         "alpha", "mach", "elevator", "rudder", "aileron",
-        "cl", "cd", "cms" , "cs", "cmd", "cml"
+        "cl", "cd", "cms", "cs", "cmd", "cml"
     ]
 
     data = ceasiompy_db.get_data(

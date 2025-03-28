@@ -89,7 +89,8 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
                 forces_breakdown_file = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
                 dynstab_forces_breakdown_file = Path(config_dir, SU2_DYNSTAB_FORCES_BREAKDOWN_NAME)
 
-                if (not forces_breakdown_file.exists()) and (not dynstab_forces_breakdown_file.exists()):
+                if (not forces_breakdown_file.exists()) and (
+                        not dynstab_forces_breakdown_file.exists()):
                     raise ValueError(
                         "The SU2_CFD calculations have not ended correctly, "
                         f"{SU2_FORCES_BREAKDOWN_NAME} and {SU2_DYNSTAB_FORCES_BREAKDOWN_NAME} "

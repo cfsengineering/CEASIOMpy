@@ -232,5 +232,6 @@ def wings_size(tixi: Tixi3) -> Tuple[float, float]:
 #    MAIN
 # =================================================================================================
 
+
 if __name__ == "__main__":
     log.info("Nothing to execute!")

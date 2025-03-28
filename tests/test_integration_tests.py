@@ -76,7 +76,7 @@ def test_integration_1():
 
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list(
-            args_list=[str(CPACS_IN_PATH), *modules_to_run], 
+            args_list=[str(CPACS_IN_PATH), *modules_to_run],
             test=True
         )
 
@@ -91,7 +91,7 @@ def test_integration_2():
 
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list(
-            args_list=[str(CPACS_IN_PATH), *modules_to_run], 
+            args_list=[str(CPACS_IN_PATH), *modules_to_run],
             test=True
         )
 
@@ -106,7 +106,7 @@ def test_integration_3():
 
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list(
-            args_list=[str(CPACS_IN_PATH), *modules_to_run], 
+            args_list=[str(CPACS_IN_PATH), *modules_to_run],
             test=True
         )
 
@@ -121,7 +121,7 @@ def test_integration_4():
 
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list(
-            args_list=[str(CPACS_IN_2_PATH), *modules_to_run], 
+            args_list=[str(CPACS_IN_2_PATH), *modules_to_run],
             test=True
         )
 
@@ -135,7 +135,7 @@ def test_integration_5():
 
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list(
-            args_list=[str(CPACS_IN_PATH), *modules_to_run], 
+            args_list=[str(CPACS_IN_PATH), *modules_to_run],
             test=True
         )
 

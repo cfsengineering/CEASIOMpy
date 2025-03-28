@@ -26,6 +26,7 @@ from ceasiompy import log
 #   CLASSES
 # =================================================================================================
 
+
 class ConfigFile:
     """Class to read/write and modify a configuration file."""
 
@@ -117,9 +118,9 @@ class ConfigFile:
                     f.write(f"{key} = NONE\n")
                 elif isinstance(value, list):
                     if any("(" in str(val) for val in value):
-                        f.write(f"{key} = {'; '.join(map(str,value))}\n")
+                        f.write(f"{key} = {'; '.join(map(str, value))}\n")
                     else:
-                        f.write(f"{key} = ( {', '.join(map(str,value))} )\n")
+                        f.write(f"{key} = ( {', '.join(map(str, value))} )\n")
                 else:
                     f.write(f"{key} = {value}\n")
 
@@ -141,9 +142,9 @@ class ConfigFile:
                 text_line.append(f"{key} = NONE\n")
             elif isinstance(value, list):
                 if any("(" in str(val) for val in value):
-                    text_line.append(f"{key} = {'; '.join(map(str,value))}\n")
+                    text_line.append(f"{key} = {'; '.join(map(str, value))}\n")
                 else:
-                    text_line.append(f"{key} = ( {', '.join(map(str,value))} )\n")
+                    text_line.append(f"{key} = ( {', '.join(map(str, value))} )\n")
             else:
                 text_line.append(f"{key} = {value}")
         return ("\n").join(text_line)
@@ -151,6 +152,7 @@ class ConfigFile:
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 
 if __name__ == "__main__":
     log("Nothing to execute")

@@ -24,6 +24,7 @@ from tixi3.tixi3wrapper import Tixi3Exception
 #   CLASSES
 # =================================================================================================
 
+
 class SimpleNamespace(object):
     """
     Rudimentary SimpleNamespace clone. Works as a record-type object, or

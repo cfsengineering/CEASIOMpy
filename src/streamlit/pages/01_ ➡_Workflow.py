@@ -54,12 +54,14 @@ def section_predefined_workflow():
         ["CPACSUpdater", "CPACSCreator", "CPACS2GMSH", "Database"],
         ["SU2Run", "Database"],
         ["CPACS2GMSH", "SU2Run", "SkinFriction"],
-        ["CPACS2GMSH", "ThermoData", "SU2Run"], #["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
+        # ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"],
+        ["CPACS2GMSH", "ThermoData", "SU2Run"],
     ]
 
     for workflow in predefine_workflows:
         if st.button(" → ".join(workflow)):
             st.session_state.workflow_modules = workflow
+
 
 def section_add_module():
     """
@@ -114,6 +116,7 @@ def section_add_module():
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 
 if __name__ == "__main__":
     # Define interface

@@ -33,6 +33,7 @@ from ceasiompy.DynamicStability import *
 #    MAIN
 # =================================================================================================
 
+
 def main(cpacs: CPACS, wkdir: Path) -> None:
     """
     Opens SDSA with CPACS file and ceasiompy.db's data.
@@ -56,7 +57,8 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     #    3 - FCS definition,
     #    4 - performance
 
-    # sdsa_params filename - name of the configuration file - this parameter forces exit from SDSA after stability computation
+    # sdsa_params filename - name of the configuration file - this parameter
+    # forces exit from SDSA after stability computation
 
     # iGUi - number: (option not active yet - GUI always present)
     #    0 - no GUI
@@ -70,6 +72,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         wkdir=wkdir,
         with_mpi=False,
     )
+
 
 if __name__ == "__main__":
     call_main(main, MODULE_NAME)

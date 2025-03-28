@@ -201,9 +201,9 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         log.info("")
         log.info(f"----- FramAT: Deformation {n_iter} -----")
 
-        Path(CASE_PATH, f"Iteration_{n_iter+1}", "AVL").mkdir(parents=True, exist_ok=True)
+        Path(CASE_PATH, f"Iteration_{n_iter + 1}", "AVL").mkdir(parents=True, exist_ok=True)
         Path(CASE_PATH, f"Iteration_{n_iter}", "FramAT").mkdir(parents=True, exist_ok=True)
-        AVL_ITER_PATH = Path(CASE_PATH, f"Iteration_{n_iter+1}", "AVL")
+        AVL_ITER_PATH = Path(CASE_PATH, f"Iteration_{n_iter + 1}", "AVL")
         FRAMAT_ITER_PATH = Path(CASE_PATH, f"Iteration_{n_iter}", "FramAT")
         AVL_DEFORMED_PATH = Path(AVL_ITER_PATH, "deformed.avl")
         AVL_DEFORMED_COMMAND = Path(AVL_ITER_PATH, "avl_commands.txt")

@@ -378,6 +378,7 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
     log.info(f"{cpacs_out_path} has been saved.")
     log.info("----- Start of CPACSUpdater -----")
 
+
 def driver_setup(prob):
     """Change settings of the driver
 

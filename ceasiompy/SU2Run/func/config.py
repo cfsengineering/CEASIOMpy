@@ -171,7 +171,8 @@ def add_actuator_disk(
         )
         number_of_blades = get_value_or_default(tixi, number_of_blades_xpath, 3)
 
-        # TODO: this is the nominal speed, how to get a speed which correspond to each flight condition
+        # TODO: this is the nominal speed, how to get a speed which correspond to
+        # each flight condition
         rotational_velocity_xpath = rotor_xpath + "/nominalRotationsPerMinute"
         rotational_velocity = (
             get_value_or_default(tixi, rotational_velocity_xpath, 3000) / 60.0

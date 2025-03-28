@@ -36,6 +36,7 @@ from ceasiompy.utils.commonpaths import TESTCEASIOMPY_DB_PATH
 #   CLASSES
 # =================================================================================================
 
+
 class TestDatabase(CeasiompyTest):
 
     @classmethod
@@ -54,7 +55,7 @@ class TestDatabase(CeasiompyTest):
     @log_test
     def test_data_to_db(self: 'TestDatabase') -> None:
         # Define constants
-        module_name = PYAVL_NAME # test on AVL module
+        module_name = PYAVL_NAME  # test on AVL module
         data = {
             "aircraft": "test_aircraft",
             "mach": 0.0, "alpha": 0.0, "beta": 0.0,
@@ -79,6 +80,7 @@ class TestDatabase(CeasiompyTest):
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 
 if __name__ == "__main__":
     main(verbosity=0)

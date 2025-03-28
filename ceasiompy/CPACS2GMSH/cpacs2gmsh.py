@@ -233,7 +233,8 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
                     # Check if control surface exists through name of wings
                     if not any(surf in wing for wing in wing_names):
                         log.warning(
-                            f"No control surface {surf}. Thus it can not be deflected by angle {angle}."
+                            f"No control surface {
+                                surf}. Thus it can not be deflected by angle {angle}."
                         )
                     else:
                         # If control Surface exists, deform the correct wings

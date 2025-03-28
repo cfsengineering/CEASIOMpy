@@ -40,6 +40,7 @@ from ceasiompy.CLCalculator import MODULE_NAME
 #    MAIN
 # =================================================================================================
 
+
 def main(cpacs: CPACS, wkdir: Path) -> None:
     """
     Computes required CL in function

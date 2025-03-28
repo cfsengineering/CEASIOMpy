@@ -39,6 +39,7 @@ from ceasiompy import *
 #   FUNCTIONS
 # =================================================================================================
 
+
 def save_for_su2(tixi: Tixi3, target_cl: float) -> None:
     create_branch(tixi, SU2_XPATH)
     create_branch(tixi, SU2_TARGET_CL_XPATH)

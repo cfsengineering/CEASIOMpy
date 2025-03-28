@@ -327,7 +327,6 @@ def aircraft_cog_unc_plot(cg, bi, ed, afg, awg, NAME):
 
 
 def aircraft_cog_bwb_plot(cg, bi, ed, awg, NAME):
-
     """The function that generate the plot of the blended wing body
     center of gravity and the nodes used to evaluate it.
 

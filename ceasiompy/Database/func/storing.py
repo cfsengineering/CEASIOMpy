@@ -74,10 +74,6 @@ class CeasiompyDb:
         if not table_name.isidentifier():
             raise ValueError("Invalid table name.")
 
-        # Validate table schema
-        if not all(line.strip().split()[0].isidentifier() for line in table_schema.split(',')):
-            raise ValueError("Invalid table schema.")
-
         create_table_query = f"""
             CREATE TABLE IF NOT EXISTS {table_name} (
                 id INTEGER PRIMARY KEY AUTOINCREMENT,

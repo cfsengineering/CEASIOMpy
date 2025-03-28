@@ -165,7 +165,7 @@ def run_config_file(config_file):
 def run_gui():
     """Create an run a workflow from a GUI."""
 
-    log.info(f"CEASIOMpy has been started from the GUI.")
+    log.info("CEASIOMpy has been started from the GUI.")
     os.system(f"cd {STREAMLIT_PATH} && streamlit run CEASIOMpy.py")
 
 # =================================================================================================

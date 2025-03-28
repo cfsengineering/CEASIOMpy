@@ -366,7 +366,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     # First AVL run
     run_avl(cpacs_path, wkdir)
 
-    for i_case in range(len(alt_list)):
+    for i_case, _ in enumerate(alt_list):
         alt = alt_list[i_case]
         mach = mach_list[i_case]
         aoa = aoa_list[i_case]

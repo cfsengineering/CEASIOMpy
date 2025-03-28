@@ -48,7 +48,7 @@ from ceasiompy.WeightConventional import *
 # =================================================================================================
 
 
-def get_weight_estimations(cpacs: CPACS) -> None:
+def main(cpacs: CPACS) -> None:
     """Function to estimate the all weights for a conventional aircraft.
 
     Function 'get_weight_estimations' use available information in the CPACS file to estimate the

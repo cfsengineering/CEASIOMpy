@@ -257,7 +257,7 @@ def show_aeromap():
         if st.button("Save this figure 📷"):
             fig_name = f"{cpacs.ac_name}_{y_axis}_vs_{x_axis}{img_format}"
             current_workflow = get_last_workflow()
-            aerocoef_dir = Path(current_workflow, "Results", "AeroCoefficients")
+            aerocoef_dir = Path(current_workflow, "Results", "ExportCSV")
             if not aerocoef_dir.exists():
                 aerocoef_dir.mkdir(parents=True)
             fig.write_image(Path(aerocoef_dir, fig_name))

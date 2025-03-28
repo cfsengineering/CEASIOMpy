@@ -26,7 +26,7 @@ from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")
 CPACS_OUT_PATH = Path(MODULE_DIR, "D150_simple_saveaerocoef_test.xml")
-FIG_PATH = Path(MODULE_DIR, "Results", "AeroCoefficients", "D150-Alt0.0-Mach0.3-AoS0.0.png")
+FIG_PATH = Path(MODULE_DIR, "Results", "ExportCSV", "D150-Alt0.0-Mach0.3-AoS0.0.png")
 
 # =================================================================================================
 #   CLASSES

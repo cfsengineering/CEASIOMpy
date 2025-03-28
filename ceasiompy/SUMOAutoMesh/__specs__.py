@@ -8,11 +8,6 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 # False if the module is disabled (not working or not ready)
 module_status = False
 
-# ===== Results directory path =====
-
-RESULTS_DIR = Path("Results", "SUMO")
-
-
 # ===== CPACS inputs and outputs =====
 
 cpacs_inout = CPACSInOut()

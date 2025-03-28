@@ -18,6 +18,7 @@ import pycycle.api as pyc
 
 from scipy.constants import convert_temperature
 
+from ceasiompy import log
 
 # =================================================================================================
 #   FUNCTIONS
@@ -217,3 +218,11 @@ def write_turbojet_file(
     log.info("turbojet.dat file generated!")
 
     return file
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+
+if __name__ == "__main__":
+    log.info('Nothing to execute.')

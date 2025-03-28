@@ -18,7 +18,7 @@ Python version: >=3.8
 
 from ambiance import Atmosphere
 
-from ceasiompy import *
+from ceasiompy import log
 
 # =================================================================================================
 #   FUNCTIONS

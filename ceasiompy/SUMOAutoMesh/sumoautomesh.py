@@ -51,7 +51,7 @@ from ceasiompy.utils.commonxpath import (
     SUMOFILE_XPATH
 )
 
-from ceasiompy.SUMOAutoMesh import *
+from ceasiompy.SUMOAutoMesh import MODULE_NAME
 
 # =================================================================================================
 #   FUNCTIONS

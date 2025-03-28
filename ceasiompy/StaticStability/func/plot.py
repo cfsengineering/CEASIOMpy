@@ -211,7 +211,7 @@ def add_stability_plot_lr(results_dir: Path, df: DataFrame, axis: str) -> None:
             y=scatter_y,
             mode='markers',
             marker=dict(color=color),
-            name=f"Alt: {combination[0]}, Mach: {combination[1]}, " 
+            name=f"Alt: {combination[0]}, Mach: {combination[1]}, "
             f"{X_Y_DICT[f'{axis}_x_prime_short']}: {combination[2]}"
         )
         fig.add_trace(scatter)

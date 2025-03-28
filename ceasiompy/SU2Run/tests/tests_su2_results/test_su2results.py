@@ -57,8 +57,6 @@ from ceasiompy.utils.commonxpath import (
     SU2_DYNAMICDERIVATIVES_DATA_XPATH,
 )
 
-from ceasiompy.SU2Run import *
-
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================

@@ -18,8 +18,11 @@ Python version: >=3.8
 
 from typing import List
 
-from ceasiompy import *
-from ceasiompy.SaveAeroCoefficients import *
+from ceasiompy import log
+from ceasiompy.SaveAeroCoefficients import (
+    NONE_LIST,
+    FEATURE_DICT,
+)
 
 # =================================================================================================
 #   FUNCTIONS

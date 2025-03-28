@@ -5,7 +5,8 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Functions to generate the actuator disk file for SU2.
 
-Source: https://github.com/su2code/SU2/blob/master/TestCases/rans/actuatordisk_variable_load/ActuatorDisk.dat
+Source: 
+    https://github.com/su2code/SU2/blob/master/TestCases/rans/actuatordisk_variable_load/ActuatorDisk.dat
 
 Python version: >=3.8
 
@@ -240,7 +241,7 @@ def check_input_output_values(
         radial_thrust_coefs (ndarray): Radial distribution of thrust coefficient.
         radial_power_coefs (ndarray): Radial distribution of power coefficient.
         free_stream_velocity (float): Cruise velocity [m/s] get the real radius value.
-        advanced_ratio (float): 
+        advanced_ratio (float):
             Ratio between velocity
             and rotational velocity multiplied by diameter.
         radial_stations (ndarray): Non-dimensionalized radius along the blade.
@@ -269,7 +270,7 @@ def check_input_output_values(
 
     # Computation of the thrust over density using the static pressure jump distribution
     thrust_density_ratio = np.sum(
-        2 * math.pi * radial_stations * radius**2 
+        2 * math.pi * radial_stations * radius**2
         * radial_stations_spacing * delta_pressure
     )
 
@@ -417,7 +418,7 @@ def thrust_calculator(
         iteration += 1
         # Computation of the new Lagrange multiplicator value based on the false position method
         new_lagrange_multiplier = (
-            last_lagrange_multiplier * initial_error 
+            last_lagrange_multiplier * initial_error
             - first_lagrange_multiplier * old_error
         ) / (initial_error - old_error)
 
@@ -470,20 +471,20 @@ def thrust_calculator(
     )
     # ???
     radial_power_coefs = (
-        radius * 4 * np.pi 
+        radius * 4 * np.pi
         / (rotational_velocity**3 * (2 * radius) ** 5)
-        ) * (
-            free_stream_velocity**3
-            * (1 + optimal_axial_interference_factor) ** 2
-            * optimal_axial_interference_factor
-            * radial_stations
-            * radius
-            + omega**2
-            * free_stream_velocity
-            * (1 + optimal_axial_interference_factor)
-            * optimal_rotational_interference_factor**2
-            * (radial_stations * radius) ** 3
-        )
+    ) * (
+        free_stream_velocity**3
+        * (1 + optimal_axial_interference_factor) ** 2
+        * optimal_axial_interference_factor
+        * radial_stations
+        * radius
+        + omega**2
+        * free_stream_velocity
+        * (1 + optimal_axial_interference_factor)
+        * optimal_rotational_interference_factor**2
+        * (radial_stations * radius) ** 3
+    )
 
     log.info("Finished estimating Radial thrust and power coefficients.")
 

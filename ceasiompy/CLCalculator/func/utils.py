@@ -33,7 +33,7 @@ from ceasiompy.utils.commonxpath import (
     MASSBREAKDOWN_XPATH,
 )
 
-from ceasiompy import *
+from ceasiompy import log
 
 # =================================================================================================
 #   FUNCTIONS

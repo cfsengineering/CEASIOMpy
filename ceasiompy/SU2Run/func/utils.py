@@ -244,7 +244,7 @@ def retrieve_su2_mesh(
 
     for deformation in deformation_list:
         # Query to retrieve the last su2_data value
-        query = f"""
+        query = """
                     SELECT su2_file_data
                     FROM gmsh_data
                     WHERE aircraft = ? AND deformation = ? AND angle = ?
@@ -354,7 +354,10 @@ def get_su2_cfg_tpl(tpl_type: str) -> Path:
     """
 
     if tpl_type not in TEMPLATE_TYPE:
-        log.warning("template_type (str) should be either 'EULER' or 'RANS' in get_su2_config_template.")
+        log.warning(
+            "template_type (str) should be either "
+            "'EULER' or 'RANS' in get_su2_config_template."
+        )
 
     tpl_type = tpl_type.lower()
     # Name configuration

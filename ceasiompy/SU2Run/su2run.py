@@ -48,7 +48,7 @@ from ceasiompy.utils.commonxpath import (
 )
 
 
-from ceasiompy.SU2Run import *
+from ceasiompy.SU2Run import MODULE_NAME
 
 # =================================================================================================
 #    MAIN

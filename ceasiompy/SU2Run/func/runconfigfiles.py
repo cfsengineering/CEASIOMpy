@@ -30,7 +30,7 @@ from ceasiompy.utils.commonnames import (
     SU2_DYNSTAB_FORCES_BREAKDOWN_NAME,
 )
 
-from ceasiompy.SU2Run import *
+from ceasiompy.SU2Run import SOFTWARE_NAME
 
 # =================================================================================================
 #   FUNCTIONS

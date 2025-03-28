@@ -49,7 +49,7 @@ from ceasiompy.utils.commonxpath import (
     WING_SPAN_XPATH,
 )
 
-from ceasiompy.SkinFriction import *
+from ceasiompy.SkinFriction import MODULE_NAME
 
 # =================================================================================================
 #   FUNCTIONS

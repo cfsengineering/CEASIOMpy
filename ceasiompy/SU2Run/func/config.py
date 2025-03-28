@@ -456,10 +456,10 @@ def configure_cfd_environment(
     cfg["MARKER_MOVING"] = su2_format("NONE")
     cfg["MESH_FILENAME"] = str(su2_mesh_path)
 
-    l = len(mach_list)
+    mach_len = len(mach_list)
 
     # Parameters which will vary for the different cases (alt, mach, aoa, aos)
-    for case_nb in range(l):
+    for case_nb in range(mach_len):
 
         alt = alt_list[case_nb]
         mach = mach_list[case_nb]
@@ -539,7 +539,7 @@ def configure_cfd_environment(
                 cfg["SURFACE_PITCHING_AMPL"] = su2_format((f"{a} {a} {a} " * markers_len))
 
                 case_dir_name = (
-                    f"Case{str(case_nb + l).zfill(2)}"
+                    f"Case{str(case_nb + mach_len).zfill(2)}"
                     f"_alt{round(alt, 2)}"
                     f"_mach{round(mach, 2)}"
                     f"_angle{oscillation_type}_dynstab"

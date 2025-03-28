@@ -16,9 +16,6 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-import pandas as pd
-
-
 from typing import Tuple
 from sklearn.linear_model import LinearRegression
 
@@ -52,7 +49,11 @@ def generate_message(row: Series) -> str:
     if (row["long_stab"] == "Stable") and (row["dir_stab"]
                                            == "Stable") and (row["lat_stab"] == "Stable"):
         msg += "Aircraft is stable along all axes."
-    elif (row["long_stab"] == "Unstable") and (row["dir_stab"] == "Unstable") and (row["lat_stab"] == "Unstable"):
+    elif (
+        (row["long_stab"] == "Unstable")
+    and (row["dir_stab"] == "Unstable")
+    and (row["lat_stab"] == "Unstable")
+    ):
         msg += "Aircraft is UN-stable along ALL axes."
     else:
         if (row["long_stab"] == "Unstable"):
@@ -99,10 +100,10 @@ def compute_stability_cnb_clb(group: DataFrame) -> DataFrame:
     for a given group using linear regression.
 
     Args:
-        group (DataFrame): A dataframe containing the aerodynamic coefficients for a specific combination of mach, altitude, and angle of attack.
+        group (DataFrame): Aerodynamic coefficients for mach, altitude, and angle of attack.
 
     Returns:
-        Series: A series containing the stability status for the directional and lateral directions.
+        Series: Stability status for the directional and lateral directions.
 
     """
     # Linear regression for cnb (slope of cml to aos)

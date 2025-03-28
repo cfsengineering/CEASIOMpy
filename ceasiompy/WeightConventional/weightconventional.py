@@ -41,7 +41,7 @@ from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.ceasiompyutils import call_main
 
-from ceasiompy.WeightConventional import *
+from ceasiompy.WeightConventional import MODULE_NAME
 
 # =================================================================================================
 #    MAIN

@@ -36,7 +36,7 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 from ceasiompy import log
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 
-from ceasiompy.PyAVL import *
+from ceasiompy.PyAVL import MODULE_NAME
 
 
 # =================================================================================================
@@ -128,12 +128,14 @@ class TestStaticStability(CeasiompyTest):
                 [
                     0.3, 0.0, 10.0, 0.0,
                     "Stable", "Unstable", "Unstable",
-                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. Aircraft is unstable for Lateral axis i.e. Clb >=0. "
+                    "Aircraft is unstable for Directional axis "
+                    "i.e. Cnb <=0. Aircraft is unstable for Lateral axis i.e. Clb >=0. "
                 ],
                 [
                     0.3, 0.0, 10.0, 10.0,
                     "Stable", "Unstable", "Unstable",
-                    "Aircraft is unstable for Directional axis i.e. Cnb <=0. Aircraft is unstable for Lateral axis i.e. Clb >=0. "
+                    "Aircraft is unstable for Directional axis "
+                    "i.e. Cnb <=0. Aircraft is unstable for Lateral axis i.e. Clb >=0. "
                 ]
             ])
         )

@@ -60,7 +60,7 @@ def update_value(xpath, key):
             else:
                 # Otherwise just add value
                 add_value(st.session_state.cpacs.tixi, xpath, value)
-    except:
+    except Exception:
         pass
 
 
@@ -181,8 +181,8 @@ def section_edit_aeromap():
     st.markdown("#### Add a point")
 
     selected_aeromap = st.selectbox(
-        "in", 
-        st.session_state.cpacs.get_aeromap_uid_list(), 
+        "in",
+        st.session_state.cpacs.get_aeromap_uid_list(),
         help="Choose in which aeromap you want to add the point"
     )
 

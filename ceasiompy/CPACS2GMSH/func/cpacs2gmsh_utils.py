@@ -22,12 +22,14 @@ import gmsh
 import numpy as np
 
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy import log
+from ceasiompy.utils.ceasiompyutils import bool_
 
-from tixi3.tixi3wrapper import Tixi3
 from typing import Dict
 from pathlib import Path
+from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.configfiles import ConfigFile
+
+from ceasiompy import log
 
 from ceasiompy.utils.commonxpath import (
     GMSH_AUTO_REFINE_XPATH,
@@ -251,7 +253,7 @@ def retrieve_gui_values(tixi: Tixi3):
 
     """
     # Retrieve value from the GUI Setting
-    open_gmsh = get_value(tixi, GMSH_OPEN_GUI_XPATH)
+    open_gmsh = bool_(get_value(tixi, GMSH_OPEN_GUI_XPATH))
     type_mesh = get_value(tixi, GMSH_MESH_TYPE_XPATH)
     symmetry = get_value(tixi, GMSH_SYMMETRY_XPATH)
 

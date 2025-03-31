@@ -25,6 +25,7 @@ import math
 import shutil
 import importlib
 import subprocess
+import streamlit as st
 
 from pydantic import validate_call
 from contextlib import contextmanager
@@ -83,6 +84,8 @@ from ceasiompy.utils.commonxpath import (
 # =================================================================================================
 
 def update_cpacs_from_specs(cpacs: CPACS, module_name: str) -> None:
+
+    st.session_state.cpacs = cpacs
     specs = get_specs_for_module(module_name)
     inputs = specs.cpacs_inout.get_gui_dict()
     tixi = cpacs.tixi

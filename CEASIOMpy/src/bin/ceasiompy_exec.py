@@ -26,6 +26,7 @@ from pathlib import Path
 from ceasiompy.utils.workflowclasses import Workflow
 
 from ceasiompy import log
+from unittest.mock import patch
 
 from ceasiompy.utils.commonpaths import (
     STREAMLIT_PATH,
@@ -132,16 +133,18 @@ def run_modules_list(args_list, test=False):
 
     modules_list = args_list[1:]
 
-    log.info("CEASIOMpy has been started from a command line")
+    log.info("CEASIOMpy has been started from a command line.")
 
-    workflow = Workflow()
-    workflow.cpacs_in = cpacs_path
-    workflow.modules_list = modules_list
-    workflow.module_optim = ["NO"] * len(modules_list)
-    workflow.write_config_file()
+    with patch("streamlit.runtime.scriptrunner_utils.script_run_context"):
 
-    workflow.set_workflow()
-    workflow.run_workflow(test)
+        workflow = Workflow()
+        workflow.cpacs_in = cpacs_path
+        workflow.modules_list = modules_list
+        workflow.module_optim = ["NO"] * len(modules_list)
+        workflow.write_config_file()
+
+        workflow.set_workflow()
+        workflow.run_workflow(test)
 
 
 def run_config_file(config_file):

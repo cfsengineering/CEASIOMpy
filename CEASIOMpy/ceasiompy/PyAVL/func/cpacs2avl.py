@@ -45,7 +45,7 @@ from scipy import interpolate
 from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy.utils.generalclasses import (
-    SimpleNamespace,
+    Point,
     Transformation,
 )
 
@@ -445,7 +445,7 @@ def convert_cpacs_to_avl(tixi: Tixi3) -> Path:
 
             # Add rotation from element and sections
             # Adding the two angles: Maybe not work in every case!!!
-            add_rotation = SimpleNamespace()
+            add_rotation = Point()
             add_rotation.x = elem_transf.rotation.x + \
                 sec_transf.rotation.x + wg_sk_transf.rotation.x
             add_rotation.y = elem_transf.rotation.y + \

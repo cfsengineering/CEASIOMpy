@@ -82,14 +82,14 @@ def subplot_options(ax, ylabel: str, xlabel: str) -> None:
     ax.grid()
 
 
-def deal_with_feature(title, criterion, aeromap, groupby_list, feature: str, crit: float) -> None:
+def deal_with_feature(title, criterion, aeromap, groupby_list, feature: str, crit: str) -> None:
     feature_ = FEATURE_DICT[feature]
     if len(aeromap[feature].unique()) == 1:
         title += f" - {feature_} = " + str(aeromap[feature].loc[0])
         groupby_list.remove(feature)
     elif crit not in NONE_LIST:
-        criterion = criterion & (aeromap.angleOfSideslip == crit)
-        title += f" - {feature_} = " + str(crit)
+        criterion = criterion & (aeromap.angleOfSideslip == float(crit))
+        title += f" - {feature_} = " + crit
         groupby_list.remove(feature)
 
 

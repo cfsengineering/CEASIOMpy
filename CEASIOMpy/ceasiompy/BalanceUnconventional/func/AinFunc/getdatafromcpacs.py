@@ -34,22 +34,11 @@ import numpy as np
 
 from cpacspy.cpacsfunctions import create_branch, open_tixi
 
-
 from ceasiompy import log
-
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and into the
-   InputClasses/Uconventional folder"""
-
 
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
-
 
 def get_user_fuel(fus_nb, ui, cpacs_in):
     """Function to extract from the xml file the required input data,

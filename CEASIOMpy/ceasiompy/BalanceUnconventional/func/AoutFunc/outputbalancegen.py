@@ -20,19 +20,9 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and into the
-   InputClasses/Uconventional folder"""
-
-
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
-
 
 def output_txt(bout, mw, bi, ec, NAME):
     """The function generates the output text file for the unconventional

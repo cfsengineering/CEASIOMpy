@@ -30,7 +30,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import openmdao.api as om
 import pandas as pd
-import tigl3.configuration  # used within eval
 from ceasiompy import log
 
 

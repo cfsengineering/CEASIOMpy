@@ -118,7 +118,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         log.warning("Aircraft does not have wings")
         raise Exception("Aircraft does not have wings")
     elif not fus_nb:
-        (awg, wing_nodes) = uncgeomanalysis.no_fuse_geom_analysis(
+        (awg, _) = uncgeomanalysis.no_fuse_geom_analysis(
             cpacs_out_path, ui.FLOORS_NB, wing_nb, h_min, ui.FUEL_ON_CABIN, name, ed.turboprop
         )
     else:

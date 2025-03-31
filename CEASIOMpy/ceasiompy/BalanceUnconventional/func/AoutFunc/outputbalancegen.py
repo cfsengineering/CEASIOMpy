@@ -24,6 +24,7 @@ import matplotlib.pyplot as plt
 #   FUNCTIONS
 # =============================================================================
 
+
 def output_txt(bout, mw, bi, ec, NAME):
     """The function generates the output text file for the unconventional
     balance analysis.

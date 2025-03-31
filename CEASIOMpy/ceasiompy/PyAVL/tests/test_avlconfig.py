@@ -23,14 +23,11 @@ import unittest
 from pathlib import Path
 
 from ceasiompy.utils.decorators import log_test
+from ceasiompy.PyAVL.func.config import write_command_file
 
 from ceasiompy.utils.ceasiompyutils import (
     current_workflow_dir,
     get_aeromap_conditions,
-)
-from ceasiompy.PyAVL.func.config import (
-    write_command_file,
-    get_option_settings,
 )
 
 from cpacspy.cpacspy import CPACS

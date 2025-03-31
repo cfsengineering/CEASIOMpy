@@ -44,8 +44,20 @@ jobs:
         key: ubuntu-latest-conda-${{ env.DATE }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}
       id: cache
 
+    - name: Debug environment.yml path
+      run: |
+        echo "Current working directory: $(pwd)"
+        echo "Listing files in the current directory:"
+        ls -R
+        echo "Checking if environment.yml exists:"
+        if [ -f ./CEASIOMpy/environment.yml ]; then
+          echo "environment.yml found at ./CEASIOMpy/environment.yml"
+        else
+          echo "environment.yml not found!"
+        fi
+
     - name: Update environment
-      run: mamba env update -n ceasiompy -f ./environment.yml
+      run: mamba env update -n ceasiompy -f ./CEASIOMpy/environment.yml
       if: steps.cache.outputs.cache-hit != 'true'
 
     - name: Install ceasiompy with pip

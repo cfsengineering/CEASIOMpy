@@ -38,6 +38,11 @@ jobs:
     - name: Set cache date # With that, cache will be updated every day
       run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
 
+    - name: Debug Working Directory
+      run: |
+        echo "Current working directory: $(pwd)"
+        ls -l
+
     - uses: actions/cache@v4
       with:
         path: /usr/share/miniconda3/envs/ceasiompy
@@ -47,7 +52,7 @@ jobs:
     - name: Debug environment.yml Location
       run: |
         find . -name "environment.yml"
-        
+
     - name: Update environment
       run: mamba env update -n ceasiompy -f /CEASIOMpy/environment.yml
       if: steps.cache.outputs.cache-hit != 'true'

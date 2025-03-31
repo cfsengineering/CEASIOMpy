@@ -50,13 +50,12 @@ jobs:
 
     - name: Install ceasiompy with pip
       shell: bash -l {0}
-      run: |
-        cd CEASIOMpy
-        pip install -e .
+      working-directory: ./CEASIOMpy
+      run: pip install -e .
     
     - name: Run unit tests
       shell: bash -l {0}
-      run: pytest -v ./ceasiompy --cov=ceasiompy/ --cov-report xml:coverage.xml
+      run: pytest -v ./CEASIOMpy/ceasiompy --cov=CEASIOMpy/ceasiompy/ --cov-report xml:coverage.xml
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3.1.0

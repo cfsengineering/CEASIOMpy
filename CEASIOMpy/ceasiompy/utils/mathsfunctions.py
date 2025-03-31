@@ -28,6 +28,7 @@ from math import (
 
 from typing import Tuple
 from numpy import ndarray
+from ceasiompy.utils.generalclasses import SimpleNamespace
 
 from ceasiompy import log
 
@@ -126,7 +127,7 @@ def get_rotation_matrix(RaX: float, RaY: float, RaZ: float) -> Tuple[ndarray, nd
     return Rx, Ry, Rz
 
 
-def euler2fix(rotation_euler: object) -> object:
+def euler2fix(rotation_euler: SimpleNamespace) -> SimpleNamespace:
     """
     Converts an Euler angle rotation into a fix angle rotation.
 
@@ -154,23 +155,22 @@ def euler2fix(rotation_euler: object) -> object:
     RaZ = math.radians(rotation_euler.z)
 
     # Direction cosine matrix
-    Rx, Ry, Rz = get_rotation_matrix(RaX, RaY, RaZ)
+    Rx, Ry, Rz = get_rotation_matrix(RaX, -RaY, RaZ)
 
     # Identity matrices
     DirCos = Rx @ (Ry @ (Rz @ np.eye(3)))
 
     # Angle of rotation (fix frame angle)
-    rax = math.atan2(-DirCos[1, 2], DirCos[2, 2])
-    ray = math.atan2(DirCos[0, 2], math.sqrt(DirCos[0, 0] ** 2 + DirCos[0, 1] ** 2))
-    raz = math.atan2(-DirCos[0, 1], DirCos[0, 0])
-
-    # Transform back to degree and round angles
-    rax = round(math.degrees(rax), 2)
-    ray = round(math.degrees(ray), 2)
-    raz = round(math.degrees(raz), 2)
+    rax = round(math.degrees(math.atan2(-DirCos[1, 2], DirCos[2, 2])), 2)
+    ray = round(math.degrees(
+        math.atan2(
+            DirCos[0, 2],
+            math.sqrt(DirCos[0, 0] ** 2 + DirCos[0, 1] ** 2)
+        )), 2)
+    raz = round(math.degrees(math.atan2(-DirCos[0, 1], DirCos[0, 0])), 2)
 
     # Return the rotation as an object
-    rotation_fix = copy.deepcopy(rotation_euler)
+    rotation_fix = SimpleNamespace()
     rotation_fix.x = rax
     rotation_fix.y = ray
     rotation_fix.z = raz
@@ -178,7 +178,7 @@ def euler2fix(rotation_euler: object) -> object:
     return rotation_fix
 
 
-def fix2euler(rotation_fix: object) -> object:
+def fix2euler(rotation_fix: SimpleNamespace) -> SimpleNamespace:
     """
     Convert a fix angle rotation into an Euler angle rotation.
 
@@ -207,15 +207,15 @@ def fix2euler(rotation_fix: object) -> object:
     RaZ = math.radians(rotation_fix.z)
 
     # Rotation matrices
-    Rx, Ry, Rz = get_rotation_matrix(RaX, RaY, RaZ)
+    Rx, Ry, Rz = get_rotation_matrix(RaX, -RaY, RaZ)
 
     # Direction cosine matrix
     DirCos = Rz @ (Ry @ (Rx @ np.eye(3)))
 
     # Angle of rotation (euler angle)
-    rax = math.atan2(DirCos[2, 1], DirCos[2, 2])
-    ray = math.atan2(-DirCos[2, 0], math.sqrt(DirCos[2, 1] ** 2 + DirCos[2, 2] ** 2))
     raz = math.atan2(DirCos[1, 0], DirCos[0, 0])
+    ray = math.atan2(-DirCos[2, 0], math.sqrt(DirCos[2, 1] ** 2 + DirCos[2, 2] ** 2))
+    rax = math.atan2(DirCos[2, 1], DirCos[2, 2])
 
     # Transform back to degree and round angles
     rax = round(math.degrees(rax), 2)
@@ -223,7 +223,7 @@ def fix2euler(rotation_fix: object) -> object:
     raz = round(math.degrees(raz), 2)
 
     # Return the rotation as an object
-    rotation_euler = copy.deepcopy(rotation_fix)
+    rotation_euler = SimpleNamespace()
     rotation_euler.x = rax
     rotation_euler.y = ray
     rotation_euler.z = raz

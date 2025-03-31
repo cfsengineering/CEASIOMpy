@@ -48,9 +48,14 @@ jobs:
       run: mamba env update -n ceasiompy -f ./environment.yml
       if: steps.cache.outputs.cache-hit != 'true'
 
+    - name: Checkout repository
+      uses: actions/checkout@v3
+      with:
+        path: repo
+
     - name: Install ceasiompy with pip
       shell: bash -l {0}
-      working-directory: ./CEASIOMpy
+      working-directory: ./repo/CEASIOMpy
       run: pip install -e .
     
     - name: Run unit tests

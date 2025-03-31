@@ -491,8 +491,8 @@ def add_parameters(prob, ivc):
         listval,
         minval,
         maxval,
-        getcommand,
-        setcommand,
+        _,
+        _,
     ) in Rt.optim_var_dict.items():
         if val_type == "des" and listval[-1] not in ["True", "False", "-"]:
             if is_digit(minval) and is_digit(maxval):

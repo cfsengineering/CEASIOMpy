@@ -509,9 +509,9 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
     Yte = Yle
     Zte = Zle
 
-    for i in range(len(Xle)):
+    for i, xle_i in enumerate(Xle):
         leading_edge.append({
-            "x": Xle[i],
+            "x": xle_i,
             "y": Yle[i],
             "z": Zle[i],
             "Fx": 0.0,
@@ -519,9 +519,9 @@ def create_wing_centerline(wing_df, centerline_df, N_beam, wg_origin, xyz_tot, f
             "Fz": 0.0
         })
 
-    for i in range(len(Xte)):
+    for i, xte_i in enumerate(Xte):
         trailing_edge.append({
-            "x": Xte[i],
+            "x": xte_i,
             "y": Yte[i],
             "z": Zte[i],
             "Fx": 0.0,

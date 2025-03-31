@@ -24,15 +24,6 @@ from cpacspy.cpacsfunctions import open_tigl, open_tixi
 
 from ceasiompy import log
 
-
-# ==============================================================================
-#   CLASSES
-# ==============================================================================
-
-"""All classes are defined inside the classes folder and into the
-   InputClasses/Uconventional folder"""
-
-
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================

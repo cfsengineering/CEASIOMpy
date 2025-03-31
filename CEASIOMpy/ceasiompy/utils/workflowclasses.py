@@ -117,7 +117,7 @@ class OptimSubWorkflow:
     def set_subworkflow(self) -> None:
         """Set input and output for subworkflow."""
 
-        for m, module in enumerate(self.modules):
+        for m, _ in enumerate(self.modules):
 
             # Create the module directory in the subworkflow directory
             with change_working_dir(self.subworkflow_dir):

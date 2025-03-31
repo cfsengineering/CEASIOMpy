@@ -175,7 +175,7 @@ def convert_fuselages(tixi: Tixi3, sumo: Tixi3) -> None:
 
                 # Fuselage profiles
                 prof_uid = tixi.getTextElement(elem_xpath + "/profileUID")
-                prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
+                _, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
 
                 prof_size_y = (max(prof_vect_y) - min(prof_vect_y)) / 2
                 prof_size_z = (max(prof_vect_z) - min(prof_vect_z)) / 2

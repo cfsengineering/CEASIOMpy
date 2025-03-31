@@ -40,6 +40,7 @@ from ceasiompy import log
 #   FUNCTIONS
 # =============================================================================
 
+
 def get_user_fuel(fus_nb, ui, cpacs_in):
     """Function to extract from the xml file the required input data,
     the code will use the default value when they are missing.

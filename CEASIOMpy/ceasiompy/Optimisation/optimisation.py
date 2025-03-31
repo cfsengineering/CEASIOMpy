@@ -18,6 +18,7 @@ Todo:
 
 """
 
+import ast
 
 from pathlib import Path
 from re import split
@@ -364,9 +365,9 @@ def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
                 if ";" in setcommand:  # if more than one command on the line
                     command_split = setcommand.split(";")
                     for setcommand in command_split:
-                        eval(setcommand)
+                        ast.literal_eval(setcommand)
                 else:
-                    eval(setcommand)
+                    ast.literal_eval(setcommand)
             else:
 
                 # Update value directly in the CPACS file

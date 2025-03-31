@@ -31,10 +31,12 @@ from ceasiompy.utils.ceasiompytest import CeasiompyTest
 from ceasiompy.utils.decorators import log_test
 from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 
+from ceasiompy.ExportCSV import MODULE_NAME
 
 # =================================================================================================
 #   CLASS
 # =================================================================================================
+
 
 class TestExportCSV(CeasiompyTest):
     @classmethod
@@ -66,7 +68,7 @@ class TestExportCSV(CeasiompyTest):
         export_aeromaps(self.test_cpacs, self.wkdir)
 
         # Read and check csv file
-        with open(CSV_FILE_PATH, "r") as csv_file:
+        with open(self.csv_path, "r") as csv_file:
             lines = csv_file.readlines()
 
         features_str = "altitude,machNumber,angleOfSideslip,angleOfAttack"
@@ -77,37 +79,9 @@ class TestExportCSV(CeasiompyTest):
         assert lines[4] == "0,0.3,10,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
 
 
-MODULE_DIR = Path(__file__).parent
-CPACS_IN_PATH = Path(MODULE_DIR, "D150_simple.xml")
-
-
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
-@pytest.fixture(autouse=True)
-def change_test_dir(request, monkeypatch):
-
-    monkeypatch.chdir(request.fspath.dirname)
-
-    global CSV_FILE_PATH
-    results_dir = get_results_directory("ExportCSV")
-    CSV_FILE_PATH = Path(results_dir, "test_apm.csv")
-
-    yield
-
-    # Clean up
-    shutil.rmtree(CSV_FILE_PATH.parent.parent)
-
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 if __name__ == "__main__":
-
     main(verbosity=0)
-
-
-print("Running Test ExportCSV")
-print("To run test use the following command:")
-print(">> pytest -v")

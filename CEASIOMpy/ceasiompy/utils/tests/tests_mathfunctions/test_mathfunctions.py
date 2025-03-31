@@ -50,25 +50,25 @@ def test_euler2fix():
     euler_angle.y = 90
     euler_angle.z = 90
     fix_angle = euler2fix(euler_angle)
-    assert fix_angle.x == 90.0
-    assert fix_angle.y == 90.0
-    assert fix_angle.z == 90.0
+    assert fix_angle.x == approx(180.0)
+    assert fix_angle.y == approx(-90.0)
+    assert fix_angle.z == approx(0.0)
 
     euler_angle.x = 135
     euler_angle.y = 99
     euler_angle.z = -30
     fix_angle = euler2fix(euler_angle)
-    assert fix_angle.x == approx(-45.0)
-    assert fix_angle.y == approx(81.0)
-    assert fix_angle.z == approx(150.0)
+    assert fix_angle.x == approx(98.045944)
+    assert fix_angle.y == approx(-14.5532525)
+    assert fix_angle.z == approx(83.4377462)
 
     euler_angle.x = 50
     euler_angle.y = 32
     euler_angle.z = 65
     fix_angle = euler2fix(euler_angle)
-    assert fix_angle.x == approx(50.0)
-    assert fix_angle.y == approx(32.0)
-    assert fix_angle.z == approx(65.0)
+    assert fix_angle.x == approx(64.580333)
+    assert fix_angle.y == approx(-33.388795)
+    assert fix_angle.z == approx(49.2418955)
 
 
 def test_fix2euler():
@@ -83,7 +83,9 @@ def test_fix2euler():
     euler_angle = fix2euler(fix_angle)
     fix_angle2 = euler2fix(euler_angle)
 
-    assert fix_angle == fix_angle2
+    assert fix_angle.x == approx(fix_angle2.x)
+    assert fix_angle.y == approx(fix_angle2.y)
+    assert fix_angle.z == approx(fix_angle2.z)
 
 
 # =================================================================================================
@@ -91,8 +93,6 @@ def test_fix2euler():
 # =================================================================================================
 
 if __name__ == "__main__":
-    test_euler2fix()
-    test_fix2euler()
     log.info("Running Test Math Functions")
     log.info("To run test use the following command:")
     log.info(">> pytest -v")

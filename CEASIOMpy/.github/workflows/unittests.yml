@@ -44,6 +44,10 @@ jobs:
         key: ubuntu-latest-conda-${{ env.DATE }}-${{ env.CACHE_NUMBER }}-${{ hashFiles('environment.yml') }}
       id: cache
 
+    - name: Debug environment.yml Location
+      run: |
+        find . -name "environment.yml"
+        
     - name: Update environment
       run: mamba env update -n ceasiompy -f /CEASIOMpy/environment.yml
       if: steps.cache.outputs.cache-hit != 'true'

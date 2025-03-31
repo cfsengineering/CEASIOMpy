@@ -123,6 +123,7 @@ There are many different modules available in CEASIOMpy that can be combined in 
 #### Geometry and Mesh
 
 - [CPACSCreator](ceasiompy/CPACSCreator/README.md) :heavy_check_mark:
+- [CPACSUpdater](ceasiompy/CPACSUpdater/README.md) :heavy_check_mark:
 - [CPACS2GMSH](ceasiompy/CPACS2GMSH/README.md) :heavy_check_mark:
 - [CPACS2SUMO](ceasiompy/CPACS2SUMO/README.md) :heavy_check_mark:
 - [SUMOAutoMesh](ceasiompy/SUMOAutoMesh/README.md) :warning:
@@ -133,7 +134,7 @@ There are many different modules available in CEASIOMpy that can be combined in 
 #### Aerodynamics
 
 - [CLCalculator](ceasiompy/CLCalculator/README.md) :heavy_check_mark:
-- [PyTornado](ceasiompy/PyTornado/README.md) :heavy_check_mark:
+- [PyTornado](ceasiompy/PyTornado/README.md) :x:
 - [PyAVL](ceasiompy/PyAVL/README.md) :heavy_check_mark:
 - [SU2Run](ceasiompy/SU2Run/README.md) :heavy_check_mark:
 - [SkinFriction](ceasiompy/SkinFriction/README.md) :heavy_check_mark:
@@ -154,12 +155,17 @@ There are many different modules available in CEASIOMpy that can be combined in 
 
 - Range :warning:
 - [StaticStability](./ceasiompy/StaticStability/README.md) :heavy_check_mark:
+- [DynamicStability](./ceasiompy/DynamicStability/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_structure.png">
 
 #### Structure
 
-- AeroFrame :heavy_check_mark:
+- AeroFrame :x:
+
+#### Data Analysis and Storage
+
+- [Database](./ceasiompy/Database/README.md) :heavy_check_mark:
 
 ## Contributing
 

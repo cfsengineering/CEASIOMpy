@@ -51,8 +51,7 @@ jobs:
     - name: Install ceasiompy with pip
       shell: bash -l {0}
       run: |
-        PROJECT_DIR=$(pwd)
-        echo "Installing from $PROJECT_DIR"
+        cd CEASIOMpy
         pip install -e .
 
     - name: Install PyTornado

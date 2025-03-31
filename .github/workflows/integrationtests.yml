@@ -48,10 +48,22 @@ jobs:
       run: mamba env update -n ceasiompy -f ./environment.yml
       if: steps.cache.outputs.cache-hit != 'true'
 
+    - name: Debug directory structure
+      shell: bash -l {0}
+      run: |
+        echo "Current directory: $(pwd)"
+        ls -R
+
     - name: Install ceasiompy with pip
       shell: bash -l {0}
       working-directory: ./CEASIOMpy
       run: pip install -e .
+
+    - name: Debug directory structure bis
+      shell: bash -l {0}
+      run: |
+        echo "Current directory: $(pwd)"
+        ls -R
 
     - name: Install PyTornado
       shell: bash -l {0}
@@ -77,7 +89,7 @@ jobs:
       shell: bash -l {0}
       run: |
         source ~/.bashrc
-        pytest -v CEASIOMpy/tests --cov=CEASIOMpy/ceasiompy/ --cov-report xml:coverage.xml -m "not gui"
+        pytest -v tests --cov=ceasiompy/ --cov-report xml:coverage.xml -m "not gui"
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3.1.0

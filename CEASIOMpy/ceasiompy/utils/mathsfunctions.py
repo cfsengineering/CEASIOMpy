@@ -16,7 +16,6 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-import copy
 import math
 
 import numpy as np
@@ -29,6 +28,7 @@ from math import (
 from typing import Tuple
 from numpy import ndarray
 from ceasiompy.utils.generalclasses import SimpleNamespace
+from scipy.spatial.transform import Rotation as R
 
 from ceasiompy import log
 
@@ -127,7 +127,7 @@ def get_rotation_matrix(RaX: float, RaY: float, RaZ: float) -> Tuple[ndarray, nd
     return Rx, Ry, Rz
 
 
-def euler2fix(rotation_euler: SimpleNamespace) -> SimpleNamespace:
+def euler2fix(rotation_euler):
     """
     Converts an Euler angle rotation into a fix angle rotation.
 
@@ -141,44 +141,24 @@ def euler2fix(rotation_euler: SimpleNamespace) -> SimpleNamespace:
     Source :
         https://ethz.ch/content/dam/ethz/special-interest/mavt/robotics-n-intelligent-systems/rsl-dam/documents/RobotDynamics2016/KinematicsSingleBody.pdf
 
-    Args:
-        rotation_euler (object): Object containing Euler rotation in x,y,z [deg].
-
-    Returns:
-        (object): Fixed angle rotation in x,y,z [deg].
-
     """
+    object_ = False
+    if isinstance(rotation_euler, SimpleNamespace):
+        object_ = True
+        rotation_euler = np.array([rotation_euler.x, rotation_euler.y, rotation_euler.z])
 
-    # Angle of rotation (Euler angle)
-    RaX = math.radians(rotation_euler.x)
-    RaY = math.radians(rotation_euler.y)
-    RaZ = math.radians(rotation_euler.z)
+    # Convert fixed angles to a rotation object
+    rotation = R.from_euler('zyx', rotation_euler, degrees=True)
 
-    # Direction cosine matrix
-    Rx, Ry, Rz = get_rotation_matrix(RaX, -RaY, RaZ)
+    fix_angles = rotation.as_euler('xyz', degrees=True)
 
-    # Identity matrices
-    DirCos = Rx @ (Ry @ (Rz @ np.eye(3)))
-
-    # Angle of rotation (fix frame angle)
-    rax = round(math.degrees(math.atan2(-DirCos[1, 2], DirCos[2, 2])), 2)
-    ray = round(math.degrees(
-        math.atan2(
-            DirCos[0, 2],
-            math.sqrt(DirCos[0, 0] ** 2 + DirCos[0, 1] ** 2)
-        )), 2)
-    raz = round(math.degrees(math.atan2(-DirCos[0, 1], DirCos[0, 0])), 2)
-
-    # Return the rotation as an object
-    rotation_fix = SimpleNamespace()
-    rotation_fix.x = rax
-    rotation_fix.y = ray
-    rotation_fix.z = raz
-
-    return rotation_fix
+    if object_:
+        return SimpleNamespace(x=fix_angles[0],y=fix_angles[1],z=fix_angles[2])
+    else:
+        return fix_angles
 
 
-def fix2euler(rotation_fix: SimpleNamespace) -> SimpleNamespace:
+def fix2euler(rotation_fix):
     """
     Convert a fix angle rotation into an Euler angle rotation.
 
@@ -193,44 +173,22 @@ def fix2euler(rotation_fix: SimpleNamespace) -> SimpleNamespace:
     Source:
         https://ethz.ch/content/dam/ethz/special-interest/mavt/robotics-n-intelligent-systems/rsl-dam/documents/RobotDynamics2016/KinematicsSingleBody.pdf
 
-    Args:
-        rotation_fix (object): Fixed angle rotation in x,y,z [deg].
-
-    Returns:
-        (object): Euler rotation in x,y,z [deg].
-
     """
+    object_ = False
+    if isinstance(rotation_fix, SimpleNamespace):
+        object_ = True
+        rotation_fix = np.array([rotation_fix.x, rotation_fix.y, rotation_fix.z])
 
-    # Angle of rotation (Fix frame angle)
-    RaX = math.radians(rotation_fix.x)
-    RaY = math.radians(rotation_fix.y)
-    RaZ = math.radians(rotation_fix.z)
+    # Convert fixed angles to a rotation object
+    rotation = R.from_euler('xyz', rotation_fix, degrees=True)
 
-    # Rotation matrices
-    Rx, Ry, Rz = get_rotation_matrix(RaX, -RaY, RaZ)
+    euler_angles = rotation.as_euler('zyx', degrees=True)
 
-    # Direction cosine matrix
-    DirCos = Rz @ (Ry @ (Rx @ np.eye(3)))
-
-    # Angle of rotation (euler angle)
-    raz = math.atan2(DirCos[1, 0], DirCos[0, 0])
-    ray = math.atan2(-DirCos[2, 0], math.sqrt(DirCos[2, 1] ** 2 + DirCos[2, 2] ** 2))
-    rax = math.atan2(DirCos[2, 1], DirCos[2, 2])
-
-    # Transform back to degree and round angles
-    rax = round(math.degrees(rax), 2)
-    ray = round(math.degrees(ray), 2)
-    raz = round(math.degrees(raz), 2)
-
-    # Return the rotation as an object
-    rotation_euler = SimpleNamespace()
-    rotation_euler.x = rax
-    rotation_euler.y = ray
-    rotation_euler.z = raz
-
-    return rotation_euler
-
-
+    if object_:
+        return SimpleNamespace(x=euler_angles[0],y=euler_angles[1],z=euler_angles[2])
+    else:
+        return euler_angles
+            
 def rotate_points(
     x: float,
     y: float,

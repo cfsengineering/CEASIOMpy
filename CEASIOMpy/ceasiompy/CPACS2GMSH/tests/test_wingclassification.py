@@ -16,28 +16,18 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-import shutil
 from pathlib import Path
 
 import gmsh
-import pytest
-from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
     detect_normal_profile,
     detect_truncated_profile,
 )
-from ceasiompy.utils.ceasiompyutils import remove_file_type_in_dir
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
-from cpacspy.cpacspy import CPACS
 
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
 
 
 # =================================================================================================

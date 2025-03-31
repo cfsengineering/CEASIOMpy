@@ -139,7 +139,7 @@ class CST_shape(object):
 
         # Calculate y output
         y = np.zeros(len(x))
-        for i in range(len(y)):
+        for i, _ in enumerate(y):
             y[i] = C[i] * S[i] + x[i] * dz
 
         return y

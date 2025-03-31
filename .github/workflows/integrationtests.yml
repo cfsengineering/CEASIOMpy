@@ -50,31 +50,34 @@ jobs:
 
     - name: Install ceasiompy with pip
       shell: bash -l {0}
-      run: |
-        cd CEASIOMpy
-        pip install -e .
+      working-directory: ./CEASIOMpy
+      run: pip install -e .
 
     - name: Install PyTornado
       shell: bash -l {0}
+      working-directory: ./CEASIOMpy
       run: installation/Ubuntu/install_pytornado.sh
 
     - name: Install SUMO
       shell: bash -l {0}
+      working-directory: ./CEASIOMpy
       run: installation/Ubuntu/install_sumo.sh
 
     - name: Install AVL
       shell: bash -l {0}
+      working-directory: ./CEASIOMpy
       run: installation/Ubuntu/install_pyavl.sh
 
     - name: Install SU2
       shell: bash -l {0}
+      working-directory: ./CEASIOMpy
       run: installation/Ubuntu/install_su2.sh
         
     - name: Run integration tests
       shell: bash -l {0}
       run: |
         source ~/.bashrc
-        pytest -v ./tests --cov=ceasiompy/ --cov-report xml:coverage.xml -m "not gui"
+        pytest -v CEASIOMpy/tests --cov=CEASIOMpy/ceasiompy/ --cov-report xml:coverage.xml -m "not gui"
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3.1.0

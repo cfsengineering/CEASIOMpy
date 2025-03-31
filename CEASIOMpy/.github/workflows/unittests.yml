@@ -45,7 +45,7 @@ jobs:
       id: cache
 
     - name: Update environment
-      run: mamba env update -n ceasiompy -f ../../environment.yml
+      run: mamba env update -n ceasiompy -f /CEASIOMpy/environment.yml
       if: steps.cache.outputs.cache-hit != 'true'
 
     - name: Install ceasiompy with pip

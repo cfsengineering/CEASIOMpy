@@ -135,16 +135,23 @@ def run_modules_list(args_list, test=False):
 
     log.info("CEASIOMpy has been started from a command line.")
 
-    with patch("streamlit.runtime.scriptrunner_utils.script_run_context"):
+    if test:
+        with patch("streamlit.runtime.scriptrunner_utils.script_run_context"):
+            with patch("streamlit.runtime.state.session_state_proxy"):
+                run_ceasiompy_workflow(cpacs_path, modules_list, test)
+    else:
+        run_ceasiompy_workflow(cpacs_path, modules_list, test)
 
-        workflow = Workflow()
-        workflow.cpacs_in = cpacs_path
-        workflow.modules_list = modules_list
-        workflow.module_optim = ["NO"] * len(modules_list)
-        workflow.write_config_file()
 
-        workflow.set_workflow()
-        workflow.run_workflow(test)
+def run_ceasiompy_workflow(cpacs_path, modules_list, test):
+    workflow = Workflow()
+    workflow.cpacs_in = cpacs_path
+    workflow.modules_list = modules_list
+    workflow.module_optim = ["NO"] * len(modules_list)
+    workflow.write_config_file()
+
+    workflow.set_workflow()
+    workflow.run_workflow(test)
 
 
 def run_config_file(config_file):

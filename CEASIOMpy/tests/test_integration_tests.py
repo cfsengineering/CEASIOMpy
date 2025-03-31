@@ -21,12 +21,12 @@ from pathlib import Path
 
 import pytest
 from ceasiompy.utils.ceasiompyutils import change_working_dir
-from ceasiompy.utils.commonpaths import LOGFILE
+from ceasiompy.utils.commonpaths import LOGFILE, CPACS_FILES_PATH
 from src.bin.ceasiompy_exec import run_modules_list
 
 MODULE_DIR = Path(__file__).parent
 WORKFLOW_TEST_DIR = Path(MODULE_DIR, "workflow_tests")
-CPACS_IN_PATH = Path(MODULE_DIR, "Test_input.xml")
+CPACS_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")
 
 # Remove previous workflow directory and create new one
 if WORKFLOW_TEST_DIR.exists():

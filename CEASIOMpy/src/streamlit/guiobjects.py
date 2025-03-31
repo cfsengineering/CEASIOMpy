@@ -35,8 +35,6 @@ from ceasiompy import log
 #   FUNCTIONS
 # ==============================================================================
 
-#
-# GUI objects
 
 def aeromap_selection(cpacs, xpath, key, description):
     aeromap_uid_list = cpacs.get_aeromap_uid_list()

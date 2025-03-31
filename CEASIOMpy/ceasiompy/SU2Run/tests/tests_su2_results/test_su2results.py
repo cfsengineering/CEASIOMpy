@@ -202,10 +202,10 @@ class TestModuleTemplate(CeasiompyTest):
                 # Scale moments accordingly
                 cmx = np.copy(mx)
                 cmy = np.copy(my)
-                cmx[[0, 2],] /= qsb
-                cmx[1,] /= qsc
-                cmy[[0, 2],] /= qsb
-                cmy[1,] /= qsc
+                cmx[[0, 2], ] /= qsb
+                cmx[1, ] /= qsc
+                cmy[[0, 2], ] /= qsb
+                cmy[1, ] /= qsc
 
                 # Put derivatives in CPACS at SU2 in DynamicDerivatives
                 xpath = SU2_DYNAMICDERIVATIVES_DATA_XPATH

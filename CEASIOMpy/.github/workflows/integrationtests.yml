@@ -45,7 +45,7 @@ jobs:
       id: cache
 
     - name: Update environment
-      run: mamba env update -n ceasiompy -f ../../environment.yml
+      run: mamba env update -n ceasiompy -f /CEASIOMpy/environment.yml
       if: steps.cache.outputs.cache-hit != 'true'
 
     - name: Install ceasiompy with pip
@@ -56,7 +56,7 @@ jobs:
       shell: bash -l {0}
       run: installation/Ubuntu/install_pytornado.sh
 
-    - name: Install SUMO
+    - name: Install SUMOUpdate environment
       shell: bash -l {0}
       run: installation/Ubuntu/install_sumo.sh
 

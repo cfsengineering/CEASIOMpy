@@ -121,7 +121,7 @@ cpacs_inout.add_input(
     xpath=REF_XPATH + "/area",
     gui=False,
     gui_name=None,
-    gui_group=None,
+    gui_group="Reference Area",
 )
 
 # ==============================================================================

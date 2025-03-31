@@ -41,7 +41,7 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 
 from pathlib import Path
-from tixi3.tixi3wrapper import Tixi3
+from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
 
@@ -223,7 +223,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     sumo.save(str(sumo_file_path))
 
 
-def main(tixi: Tixi3, wkdir: Path):
+def main(cpacs: CPACS, wkdir: Path):
     """Function to create a simple SU2 mesh form an SUMO file (.smx)
 
     Function 'create_mesh' is used to generate an unstructured mesh with  SUMO
@@ -239,10 +239,12 @@ def main(tixi: Tixi3, wkdir: Path):
         cpacs_out_path (Path): Path to the output CPACS file
 
     """
+    tixi = cpacs.tixi
 
     su2_mesh_path = Path(wkdir, "ToolOutput.su2")
 
     sumo_file_path = Path(get_value_or_default(tixi, SUMOFILE_XPATH, ""))
+    
     if not sumo_file_path.exists():
         raise FileNotFoundError(f"No SUMO file has been found at: {sumo_file_path}")
 

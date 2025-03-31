@@ -5285,6 +5285,7 @@
       <aerodynamics>
         <skinFriction>
           <aeroMapToCalculate>test_apm</aeroMapToCalculate>
+          <deleteOriginal>False</deleteOriginal>
         </skinFriction>
         <plotAeroCoefficient>
           <manualSelection>False</manualSelection>
@@ -5323,6 +5324,10 @@
           <extractLoads>False</extractLoads>
         </save_results>
       </pytornado>
+      <ranges>
+        <CruiseMach>0.78</CruiseMach>
+        <CruiseAltitude>12000.0</CruiseAltitude>
+      </ranges>
     </CEASIOMpy>
     <pytornado>
       <vlm_autopanels_c>20</vlm_autopanels_c>

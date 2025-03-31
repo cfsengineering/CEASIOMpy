@@ -59,11 +59,11 @@ cpacs_inout.add_input(
     xpath=GEOM_XPATH + "/analysis/wettedArea",
     gui=False,
     gui_name="Wetted Area",
-    gui_group=None,
+    gui_group="Wetted Area",
 )
 
 cpacs_inout.add_input(
-    var_name="",
+    var_name="Delete",
     var_type=bool,
     default_value=False,
     unit=None,
@@ -71,23 +71,29 @@ cpacs_inout.add_input(
     xpath=SF_XPATH + "/deleteOriginal",
     gui=include_gui,
     gui_name="Delete Original",
-    gui_group=None,
+    gui_group="Delete",
 )
 
 cpacs_inout.add_input(
     var_name="cruise_mach",
     default_value=0.78,
-    unit="-",
-    descr="Aircraft cruise Mach number",
+    unit="[Mach]",
+    descr="Cruise speed of aircraft",
     xpath=RANGE_CRUISE_MACH_XPATH,
+    gui=include_gui,
+    gui_name="Aircraft cruise speed",
+    gui_group="Aircraft cruise parameters",
 )
 
 cpacs_inout.add_input(
     var_name="cruise_alt",
-    default_value=12000,
-    unit="m",
-    descr="Aircraft cruise altitude",
+    default_value=12_000,
+    unit="[m]",
+    descr="Cruise altitude of aircraft",
     xpath=RANGE_CRUISE_ALT_XPATH,
+    gui=include_gui,
+    gui_name="Aircraft cruise altitude",
+    gui_group="Aircraft cruise parameters",
 )
 
 # ==============================================================================

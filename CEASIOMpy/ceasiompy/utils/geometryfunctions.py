@@ -35,7 +35,7 @@ from typing import (
 )
 from ceasiompy.utils.generalclasses import (
     Transformation,
-    SimpleNamespace,
+    Point,
 )
 
 from ceasiompy import log
@@ -281,6 +281,7 @@ def elements_number(tixi: Tixi3, xpath: str, element: str, logg: bool = True) ->
 
     """
 
+    ele_cnt = 0
     if tixi.checkElement(xpath):
         ele_cnt = int(tixi.getNamedChildrenCount(xpath, element))
         if logg:
@@ -472,7 +473,7 @@ def access_leading_edges(
             wg_sec_chord = corrects_airfoil_profile(prof_vect_x, prof_vect_y, prof_vect_z)
 
             # Adding the two angles: May not work in every case !!!
-            add_rotation = SimpleNamespace(
+            add_rotation = Point(
                 x=elem_transf.rotation.x + sec_transf.rotation.x + wg_sk_transf.rotation.x,
                 y=elem_transf.rotation.y + sec_transf.rotation.y + wg_sk_transf.rotation.y,
                 z=elem_transf.rotation.z + sec_transf.rotation.z + wg_sk_transf.rotation.z,

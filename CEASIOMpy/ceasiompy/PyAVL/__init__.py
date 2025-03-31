@@ -35,7 +35,7 @@ MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
 # ===== Add a Results Directory =====
-RES_DIR = True
+RES_DIR = False
 
 # ===== Name of Software used =====
 SOFTWARE_NAME = "avl"

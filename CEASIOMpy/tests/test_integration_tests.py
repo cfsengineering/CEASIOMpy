@@ -18,7 +18,8 @@ Python version: >=3.8
 
 import shutil
 from pathlib import Path
-
+import warnings
+warnings.filterwarnings("ignore", category=UserWarning, module="streamlit")
 import pytest
 from ceasiompy.utils.ceasiompyutils import change_working_dir
 from ceasiompy.utils.commonpaths import LOGFILE, CPACS_FILES_PATH
@@ -101,7 +102,7 @@ def test_integration_5():
 # =================================================================================================
 
 if __name__ == "__main__":
-    test_integration_4()
+    test_integration_3()
     print("Integration tests")
     print("To run test use the following command:")
     print(">> pytest -v . --cov=../ceasiompy --cov-report term")

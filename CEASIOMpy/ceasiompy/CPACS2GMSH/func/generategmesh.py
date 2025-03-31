@@ -953,7 +953,7 @@ def generate_gmsh(
             bad_surfaces.extend(refined_surfaces)
 
         if bad_surfaces:
-            log.info(f"{len(bad_surfaces)} surface(s) need to be refined")
+            log.info(f"{len(bad_surfaces)} surface(s) needs to be refined")
 
             # Reset the background mesh
             mesh_fields = min_fields(mesh_fields)

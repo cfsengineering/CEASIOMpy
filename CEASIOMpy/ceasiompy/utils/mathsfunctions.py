@@ -153,7 +153,11 @@ def euler2fix(rotation_euler):
     fix_angles = rotation.as_euler('xyz', degrees=True)
 
     if object_:
-        return SimpleNamespace(x=fix_angles[0],y=fix_angles[1],z=fix_angles[2])
+        return SimpleNamespace(
+            x=fix_angles[0],
+            y=fix_angles[1],
+            z=fix_angles[2],
+        )
     else:
         return fix_angles
 
@@ -185,10 +189,15 @@ def fix2euler(rotation_fix):
     euler_angles = rotation.as_euler('zyx', degrees=True)
 
     if object_:
-        return SimpleNamespace(x=euler_angles[0],y=euler_angles[1],z=euler_angles[2])
+        return SimpleNamespace(
+            x=euler_angles[0],
+            y=euler_angles[1],
+            z=euler_angles[2],
+        )
     else:
         return euler_angles
-            
+
+
 def rotate_points(
     x: float,
     y: float,

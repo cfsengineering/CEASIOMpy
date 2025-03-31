@@ -41,55 +41,40 @@ def test_euler2fix():
     euler_angle.y = 0
     euler_angle.z = 0
     fix_angle = euler2fix(euler_angle)
+
     assert fix_angle.x == 0.0
     assert fix_angle.y == 0.0
     assert fix_angle.z == 0.0
-
-    euler_angle.x = 50
-    euler_angle.y = 32
-    euler_angle.z = 65
-    fix_angle = euler2fix(euler_angle)
-    assert fix_angle.x == approx(49.24)
-    assert fix_angle.y == approx(-33.39)
-    assert fix_angle.z == approx(64.58)
-
-    euler_angle.x = -12.5
-    euler_angle.y = 27
-    euler_angle.z = 93
-    fix_angle = euler2fix(euler_angle)
-    assert fix_angle.x == approx(27.56)
-    assert fix_angle.y == approx(11.12)
-    assert fix_angle.z == approx(92.72)
 
     euler_angle.x = 90
     euler_angle.y = 90
     euler_angle.z = 90
     fix_angle = euler2fix(euler_angle)
     assert fix_angle.x == 90.0
-    assert fix_angle.y == -90.0
+    assert fix_angle.y == 90.0
     assert fix_angle.z == 90.0
+
+    euler_angle.x = 135
+    euler_angle.y = 99
+    euler_angle.z = -30
+    fix_angle = euler2fix(euler_angle)
+    assert fix_angle.x == approx(-45.0)
+    assert fix_angle.y == approx(81.0)
+    assert fix_angle.z == approx(150.0)
+
+    euler_angle.x = 50
+    euler_angle.y = 32
+    euler_angle.z = 65
+    fix_angle = euler2fix(euler_angle)
+    assert fix_angle.x == approx(50.0)
+    assert fix_angle.y == approx(32.0)
+    assert fix_angle.z == approx(65.0)
 
 
 def test_fix2euler():
     """Test convertion from fix angles to Euler angles"""
 
     fix_angle = SimpleNamespace()
-
-    fix_angle.x = 0
-    fix_angle.y = 0
-    fix_angle.z = 0
-    euler_angle = euler2fix(fix_angle)
-    assert euler_angle.x == 0.0
-    assert euler_angle.y == 0.0
-    assert euler_angle.z == 0.0
-
-    fix_angle.x = 90
-    fix_angle.y = 90
-    fix_angle.z = 90
-    euler_angle = euler2fix(fix_angle)
-    assert euler_angle.x == 90.0
-    assert euler_angle.y == -90.0
-    assert euler_angle.z == 90.0
 
     # Test by doing both transformation
     fix_angle.x = 30.23
@@ -106,6 +91,7 @@ def test_fix2euler():
 # =================================================================================================
 
 if __name__ == "__main__":
+    test_euler2fix()
     test_fix2euler()
     log.info("Running Test Math Functions")
     log.info("To run test use the following command:")

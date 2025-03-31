@@ -29,6 +29,7 @@ from ceasiompy.PyAVL.func.utils import retrieve_gui_values
 from ceasiompy.utils.ceasiompyutils import (
     call_main,
     run_software,
+    current_workflow_dir,
 )
 
 from pathlib import Path
@@ -44,7 +45,7 @@ from ceasiompy.PyAVL import MODULE_NAME, SOFTWARE_NAME
 # =================================================================================================
 
 
-def main(cpacs: CPACS, wkdir: Path) -> None:
+def main(cpacs: CPACS) -> None:
     """
     Run AVL calculations on specified CPACS file.
         1. Load the necessary data.
@@ -53,12 +54,12 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
     Args:
         cpacs_path (Path): Path to the CPACS input file.
-        wkdir (Path): Path to the results directory.
 
     """
 
     # 1. Load the necessary data
     tixi = cpacs.tixi
+    wkdir = current_workflow_dir()
 
     (
         alt_list, mach_list, aoa_list, aos_list,
@@ -157,7 +158,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         )
 
         if save_fig:
-            convert_ps_to_pdf(wkdir)
+            convert_ps_to_pdf(case_dir_path)
 
     #
     # 3. aileron, elevator, rudder
@@ -241,7 +242,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         )
 
         if save_fig:
-            convert_ps_to_pdf(wkdir)
+            convert_ps_to_pdf(case_dir_path)
 
     get_avl_results(cpacs)
 

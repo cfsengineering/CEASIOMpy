@@ -138,6 +138,7 @@ def run_modules_list(args_list, test=False):
     if test:
         with patch("streamlit.runtime.scriptrunner_utils.script_run_context"):
             with patch("streamlit.runtime.state.session_state_proxy"):
+                log.info(f"Integration test for {args_list}.")
                 run_ceasiompy_workflow(cpacs_path, modules_list, test)
     else:
         run_ceasiompy_workflow(cpacs_path, modules_list, test)

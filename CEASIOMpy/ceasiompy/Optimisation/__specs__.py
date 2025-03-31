@@ -1,7 +1,7 @@
 from pathlib import Path
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpath import OPTIM_XPATH
-
+import streamlit as st
 from ceasiompy.Optimisation import include_gui
 
 # ===== Module Status =====
@@ -37,7 +37,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="",
     var_type=list,
-    default_value=None,
+    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
     unit=None,
     descr="Name of the aero map to evaluate",
     xpath=OPTIM_XPATH + "/aeroMapUID",

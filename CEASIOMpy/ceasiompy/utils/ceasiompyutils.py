@@ -327,12 +327,14 @@ def run_module(module, wkdir=Path.cwd(), iteration=0, test=False):
         with change_working_dir(wkdir):
             cpacs = CPACS(cpacs_in)
             if test:
+                log.info("Updating CPACS from __specs__")
                 update_cpacs_from_specs(cpacs, module_name)
             if module.results_dir is None:
                 my_module.main(cpacs)
             else:
                 my_module.main(cpacs, module.results_dir)
             cpacs.save_cpacs(cpacs_out, overwrite=True)
+
             log.info("---------- End of " + module_name + " ---------- \n")
 
 

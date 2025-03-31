@@ -132,7 +132,7 @@ def run_modules_list(args_list, test=False):
 
     modules_list = args_list[1:]
 
-    log.info("CEASIOMpy as been started from a command line")
+    log.info("CEASIOMpy has been started from a command line")
 
     workflow = Workflow()
     workflow.cpacs_in = cpacs_path

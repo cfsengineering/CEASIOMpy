@@ -27,6 +27,7 @@ from math import (
 
 from typing import Tuple
 from numpy import ndarray
+from ceasiompy.utils.generalclasses import Point
 from ceasiompy.utils.generalclasses import SimpleNamespace
 from scipy.spatial.transform import Rotation as R
 
@@ -143,9 +144,10 @@ def euler2fix(rotation_euler):
 
     """
     object_ = False
-    if isinstance(rotation_euler, SimpleNamespace):
+    if isinstance(rotation_euler, Point):
         object_ = True
         rotation_euler = np.array([rotation_euler.x, rotation_euler.y, rotation_euler.z])
+
 
     # Convert fixed angles to a rotation object
     rotation = R.from_euler('zyx', rotation_euler, degrees=True)
@@ -153,7 +155,7 @@ def euler2fix(rotation_euler):
     fix_angles = rotation.as_euler('xyz', degrees=True)
 
     if object_:
-        return SimpleNamespace(
+        return Point(
             x=fix_angles[0],
             y=fix_angles[1],
             z=fix_angles[2],
@@ -179,7 +181,7 @@ def fix2euler(rotation_fix):
 
     """
     object_ = False
-    if isinstance(rotation_fix, SimpleNamespace):
+    if isinstance(rotation_fix, Point):
         object_ = True
         rotation_fix = np.array([rotation_fix.x, rotation_fix.y, rotation_fix.z])
 
@@ -189,7 +191,7 @@ def fix2euler(rotation_fix):
     euler_angles = rotation.as_euler('zyx', degrees=True)
 
     if object_:
-        return SimpleNamespace(
+        return Point(
             x=euler_angles[0],
             y=euler_angles[1],
             z=euler_angles[2],

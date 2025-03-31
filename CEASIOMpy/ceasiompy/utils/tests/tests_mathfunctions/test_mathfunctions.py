@@ -17,7 +17,8 @@ Python version: >=3.8
 # =================================================================================================
 
 from ceasiompy import log
-from ceasiompy.utils.generalclasses import SimpleNamespace
+from ceasiompy.utils.generalclasses import Point
+
 from ceasiompy.utils.mathsfunctions import euler2fix, fix2euler
 from pytest import approx
 
@@ -35,7 +36,7 @@ from pytest import approx
 def test_euler2fix():
     """Test convertion from Euler angles to fix angles"""
 
-    euler_angle = SimpleNamespace()
+    euler_angle = Point()
 
     euler_angle.x = 0
     euler_angle.y = 0
@@ -74,7 +75,7 @@ def test_euler2fix():
 def test_fix2euler():
     """Test convertion from fix angles to Euler angles"""
 
-    fix_angle = SimpleNamespace()
+    fix_angle = Point()
 
     # Test by doing both transformation
     fix_angle.x = 30.23

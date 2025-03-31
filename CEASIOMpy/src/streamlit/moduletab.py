@@ -18,10 +18,10 @@ Python version: >=3.8
 
 import streamlit as st
 
-from streamlitutils import section_edit_aeromap
+from src.streamlit.streamlitutils import section_edit_aeromap
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module
 
-from guiobjects import (
+from src.streamlit.guiobjects import (
     int_vartype,
     list_vartype,
     bool_vartype,
@@ -49,7 +49,7 @@ def order_by_gps(inputs: List) -> OrderedDict:
     groups_container = OrderedDict()
     for group in groups:
         groups_container[group] = st.expander(f"**{group}**", expanded=True)
-
+    
     return groups_container
 
 
@@ -66,8 +66,6 @@ def checks(session_state, tabs) -> None:
 
 def add_gui_object(session_state, name, group, groups_container, m, module, unit,
                    aeromap_map, xpath, description, var_type, vartype_map, default_value) -> None:
-    if not group:
-        group = "none"
 
     # Iterate per group
     with groups_container[group]:
@@ -158,7 +156,8 @@ def add_module_tab() -> None:
                     description,
                     var_type,
                     vartype_map,
-                    default_value)
+                    default_value,
+                )
 
 
 # =================================================================================================

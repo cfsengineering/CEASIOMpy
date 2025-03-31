@@ -30,7 +30,7 @@ import subprocess
 import numpy as np
 
 from ceasiompy.utils.mathsfunctions import euler2fix
-from ceasiompy.utils.ceasiompyutils import call_main
+from ceasiompy.utils.ceasiompyutils import call_main, bool_
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 
 from cpacspy.cpacsfunctions import (
@@ -59,7 +59,7 @@ from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
 
 from ceasiompy.utils.generalclasses import (
     Transformation,
-    SimpleNamespace,
+    Point,
 )
 
 from ceasiompy import log
@@ -446,7 +446,7 @@ def convert_wings(tixi: Tixi3, sumo: Tixi3) -> None:
 
                 # Add roation from element and sections
                 # Adding the two angles: Maybe not work in every case!!!
-                add_rotation = SimpleNamespace()
+                add_rotation = Point()
                 add_rotation.x = elem_transf.rotation.x + sec_transf.rotation.x
                 add_rotation.y = elem_transf.rotation.y + sec_transf.rotation.y
                 add_rotation.z = elem_transf.rotation.z + sec_transf.rotation.z
@@ -635,7 +635,7 @@ def convert_enginepylons(tixi: Tixi3, sumo: Tixi3) -> None:
 
                 # Add rotation from element and sections
                 # Adding the two angles: Maybe not work in every case!!!
-                add_rotation = SimpleNamespace()
+                add_rotation = Point()
                 add_rotation.x = elem_transf.rotation.x + sec_transf.rotation.x
                 add_rotation.y = elem_transf.rotation.y + sec_transf.rotation.y
                 add_rotation.z = elem_transf.rotation.z + sec_transf.rotation.z
@@ -900,7 +900,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     # Save CPACS and SMX file
     sumo.save(str(sumo_file_path))
 
-    if get_value(tixi, CPACS2SUMO_SUMO_GUI_XPATH):
+    if bool_(get_value(tixi, CPACS2SUMO_SUMO_GUI_XPATH)):
         # Open SUMO
         try:
             log.info("To continue the workflow, please close the SUMO window.")

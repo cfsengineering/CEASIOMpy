@@ -16,6 +16,8 @@ Python version: >=3.8
 #   IMPORTS
 # ==============================================================================
 
+import streamlit as st
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
@@ -40,7 +42,7 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="",
     var_type=list,
-    default_value=None,
+    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
     unit=None,
     descr="Name of the aero map to evaluate",
     xpath=PYTORNADO_XPATH + "/aeroMapUID",

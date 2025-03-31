@@ -23,15 +23,17 @@ from pathlib import Path
 # ==============================================================================
 
 # ===== Module Status =====
-module_status = False
+module_status = True
 
 # ===== Include GUI =====
-include_gui = False
+include_gui = True
 
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
+# ===== Add a Results Directory =====
+RES_DIR = True
 
 # ==============================================================================
 #   EXPORT

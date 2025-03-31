@@ -10,12 +10,7 @@ Python version: >=3.8
 | Author: Aidan Jungo
 | Creation: 2022-05-06
 
-TODO:
-
-    -
-
 """
-
 
 # ====================================================================================================================
 #   IMPORTS
@@ -32,18 +27,12 @@ from src.bin.ceasiompy_exec import run_modules_list
 MODULE_DIR = Path(__file__).parent
 WORKFLOW_TEST_DIR = Path(MODULE_DIR, "workflow_tests")
 CPACS_IN_PATH = Path(MODULE_DIR, "Test_input.xml")
-CPACS_IN_2_PATH = Path(MODULE_DIR, "Test_input2.xml")
 
 # Remove previous workflow directory and create new one
 if WORKFLOW_TEST_DIR.exists():
     shutil.rmtree(WORKFLOW_TEST_DIR)
+
 WORKFLOW_TEST_DIR.mkdir()
-
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
 
 # =================================================================================================
 #   FUNCTIONS
@@ -91,7 +80,7 @@ def test_integration_4():
     modules_to_run = ["CPACS2GMSH", "SU2Run", "SaveAeroCoefficients"]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_2_PATH), *modules_to_run], test=True)
+        run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
 
     assert workflow_ends()
 
@@ -112,7 +101,7 @@ def test_integration_5():
 # =================================================================================================
 
 if __name__ == "__main__":
-    test_integration_3()
+    test_integration_4()
     print("Integration tests")
     print("To run test use the following command:")
     print(">> pytest -v . --cov=../ceasiompy --cov-report term")

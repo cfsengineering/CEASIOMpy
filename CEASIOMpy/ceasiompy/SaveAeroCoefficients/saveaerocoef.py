@@ -69,9 +69,9 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     criterion = pd.Series([True] * len(aeromap.index))
 
     crit_xpath = PLOT_XPATH + "/criterion"
-    alt_crit = float(get_value_or_default(tixi, crit_xpath + "/alt", "None"))
-    mach_crit = float(get_value_or_default(tixi, crit_xpath + "/mach", "None"))
-    aos_crit = float(get_value_or_default(tixi, crit_xpath + "/aos", "None"))
+    alt_crit = get_value_or_default(tixi, crit_xpath + "/alt", "None")
+    mach_crit = get_value_or_default(tixi, crit_xpath + "/mach", "None")
+    aos_crit = get_value_or_default(tixi, crit_xpath + "/aos", "None")
 
     deal_with_feature(title, criterion, aeromap, groupby_list, "altitude", alt_crit)
     deal_with_feature(title, criterion, aeromap, groupby_list, "machNumber", mach_crit)

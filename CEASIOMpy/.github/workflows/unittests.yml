@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main
+      - add-new-modules
   pull_request:
     branches:
       - main

@@ -92,7 +92,7 @@ class Geom_param(om.ExplicitComponent):
 
         else:
 
-            for m, module in enumerate(Rt.modules):
+            for m, _ in enumerate(Rt.modules):
 
                 # Increment name of output CPACS file
                 Rt.modules[m].cpacs_out = Path(

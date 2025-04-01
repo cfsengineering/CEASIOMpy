@@ -23,7 +23,7 @@ import streamlit as st
 import pyvista as pv
 import streamlit.components.v1 as components
 
-from streamlitutils import create_sidebar, st_directory_picker
+from src.streamlit.streamlitutils import create_sidebar, st_directory_picker
 
 from ceasiompy.utils.workflowclasses import Workflow
 from cpacspy.cpacspy import CPACS

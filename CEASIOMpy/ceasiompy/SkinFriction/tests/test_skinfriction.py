@@ -19,7 +19,7 @@ Python version: >=3.8
 import logging
 from pathlib import Path
 
-from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.ceasiompyutils import get_results_directory, current_workflow_dir
 from ceasiompy.SkinFriction.skinfriction import (
     main as add_skin_friction,
     estimate_skin_friction_coef,
@@ -73,10 +73,10 @@ def test_estimate_skin_friction_coef(caplog):
 def test_add_skin_friction():
     """Test function 'add_skin_friction'"""
 
-    cpacs = CPACS(CPACS_OUT_PATH)
-
+    cpacs = CPACS(CPACS_IN_PATH)
+    workflow_dir = current_workflow_dir()
     # User the function to add skin frictions
-    add_skin_friction(cpacs, wkdir=get_results_directory("SkinFriction"))
+    add_skin_friction(cpacs, wkdir=get_results_directory("SkinFriction", create=True, wkflow_dir=workflow_dir))
 
     # Read the aeromap with the skin friction added in the output cpacs file
     apm_sf = cpacs.get_aeromap_by_uid("test_apm_SkinFriction")
@@ -100,7 +100,6 @@ def test_add_skin_friction():
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Test SkinFriction")
     print("To run test use the following command:")
     print(">> pytest -v")

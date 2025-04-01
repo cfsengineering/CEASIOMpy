@@ -48,6 +48,7 @@ from ceasiompy.SU2Run.func.utils import (
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
 from cpacspy.utils import COEFS
@@ -109,6 +110,138 @@ def save_screenshot(surface_flow_file: Path, scalar: str = "Mach") -> Path:
     return screenshot_path
 
 
+def get_aeromap_uid(tixi: Tixi3, fixed_cl: str) -> str:
+    if fixed_cl == "YES":
+        return "aeroMap_fixedCL_SU2"
+    else:
+        return str(get_value(tixi, SU2_AEROMAP_UID_XPATH))
+
+
+def get_static_results(
+    tixi,
+    aeromap,
+    config_dir,
+    aoa_list,
+    aos_list,
+    mach_list,
+    alt_list,
+    fixed_cl,
+    found_wetted_area,
+) -> None:
+    surface_flow_path = Path(config_dir, SURFACE_FLOW_FILE_NAME)
+    if surface_flow_path.exists() and "DISPLAY" in os.environ:
+        save_screenshot(surface_flow_path, "Mach")
+        save_screenshot(surface_flow_path, "Pressure_Coefficient")
+
+    force_file_path = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
+    if not force_file_path.exists():
+        raise OSError("No result force file have been found!")
+
+    baseline_coef = True
+
+    case_nb = int(config_dir.name.split("_")[0].split("Case")[1])
+
+    aoa = aoa_list[case_nb]
+    aos = aos_list[case_nb]
+    mach = mach_list[case_nb]
+    alt = alt_list[case_nb]
+
+    if fixed_cl == "YES":
+        cl_cd, aoa = get_efficiency_and_aoa(force_file_path)
+
+        # Replace aoa with the with the value from fixed cl calculation
+        aeromap.df.loc[0, ["angleOfAttack"]] = aoa
+
+        # Save cl/cd found during the fixed CL calculation (useful for range analysis)
+        create_branch(tixi, RANGE_LD_RATIO_XPATH)
+        tixi.updateDoubleElement(RANGE_LD_RATIO_XPATH, cl_cd, "%g")
+
+    cl, cd, cs, cmd, cms, cml, velocity = get_su2_aerocoefs(force_file_path)
+
+    # Damping derivatives
+    rotation_rate = get_value(tixi, SU2_ROTATION_RATE_XPATH)
+    ref_len = tixi.getTextElement(WING_SPAN_XPATH)
+    adim_rot_rate = rotation_rate * ref_len / velocity
+
+    coefs = {"cl": cl, "cd": cd, "cs": cs, "cmd": cmd, "cms": cms, "cml": cml}
+
+    for axis in ["dp", "dq", "dr"]:
+        if f"_{axis}" not in config_dir.name:
+            continue
+
+        baseline_coef = False
+
+        for coef in COEFS:
+            coef_baseline = aeromap.get(coef, alt=alt, mach=mach, aoa=aoa, aos=aos)
+            dcoef = (coefs[coef] - coef_baseline) / adim_rot_rate
+            aeromap.add_damping_derivatives(
+                alt=alt,
+                mach=mach,
+                aos=aos,
+                aoa=aoa,
+                coef=coef,
+                axis=axis,
+                value=dcoef,
+                rate=rotation_rate,
+            )
+
+    if "_TED_" in config_dir.name:
+
+        # TODO: convert when it is possible to save TED in cpacspy
+        raise NotImplementedError("TED not implemented yet")
+
+        # baseline_coef = False
+        # config_dir_split = config_dir.split('_')
+        # ted_idx = config_dir_split.index('TED')
+        # ted_uid = config_dir_split[ted_idx+1]
+        # defl_angle = float(config_dir.split('_defl')[1])
+        # try:
+        #     print(Coef.IncrMap.dcl)
+        # except AttributeError:
+        #     Coef.IncrMap = a.p.m.f.IncrementMap(ted_uid)
+        # dcl = (cl-Coef.cl[-1])
+        # dcd = (cd-Coef.cd[-1])
+        # dcs = (cs-Coef.cs[-1])
+        # dcml = (cml-Coef.cml[-1])
+        # dcmd = (cmd-Coef.cmd[-1])
+        # dcms = (cms-Coef.cms[-1])
+        # control_parameter = -1
+        # Coef.IncrMap.add_cs_coef(dcl,dcd,dcs,dcml,dcmd,dcms,ted_uid,control_parameter)
+
+    # Baseline coefficients (no damping derivative or control surfaces case)
+    if baseline_coef:
+        aeromap.add_coefficients(
+            alt=alt,
+            mach=mach,
+            aos=aos,
+            aoa=aoa,
+            cd=cd,
+            cl=cl,
+            cs=cs,
+            cml=cml,
+            cmd=cmd,
+            cms=cms,
+        )
+
+    update_wetted_area = get_value(tixi, SU2_UPDATE_WETTED_AREA_XPATH)
+    if not found_wetted_area and update_wetted_area:
+        wetted_area = get_wetted_area(Path(config_dir, "logfile_SU2_CFD.log"))
+
+        # Check if symmetry plane is defined (Default: False)
+        sym_factor = 1.0
+        if get_value_or_default(tixi, GMSH_SYMMETRY_XPATH, False):
+            log.info("Symmetry plane is defined. Multiplying wetted area by 2.")
+            sym_factor = 2.0
+
+        create_branch(tixi, WETTED_AREA_XPATH)
+        tixi.updateDoubleElement(WETTED_AREA_XPATH, wetted_area * sym_factor, "%g")
+        found_wetted_area = True
+
+    if get_value(tixi, SU2_EXTRACT_LOAD_XPATH):
+        extract_loads(config_dir)
+
+
+
 def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
     """
     Updates CPACS file with SU2 results.
@@ -116,18 +249,12 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
     Updates Aeromap at xPath:
     '/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[n]/aeroPerformanceMap'
 
-    Args:
-        cpacs_path (Path): Path to input CPACS file.
-        cpacs_out_path (Path): Path to output CPACS file.
-        wkdir (Path): Path to the working directory.
-
     """
     tixi = cpacs.tixi
 
     fixed_cl = get_value(tixi, SU2_FIXED_CL_XPATH)
 
-    aeromap_uid = "aeroMap_fixedCL_SU2" if fixed_cl == "YES" else get_value(
-        tixi, SU2_AEROMAP_UID_XPATH)
+    aeromap_uid = get_aeromap_uid(tixi, fixed_cl)
 
     aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, aeromap_uid)
@@ -137,199 +264,16 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
     found_wetted_area = False
 
     for config_dir in sorted(case_dir_list):
+        
         if not config_dir.is_dir():
+            log.warning(f"{config_dir} is not a directory.")
             continue
 
         if "dynstab" not in str(config_dir):
-            surface_flow_path = Path(config_dir, SURFACE_FLOW_FILE_NAME)
-            if surface_flow_path.exists() and "DISPLAY" in os.environ:
-                save_screenshot(surface_flow_path, "Mach")
-                save_screenshot(surface_flow_path, "Pressure_Coefficient")
-
-            force_file_path = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
-            if not force_file_path.exists():
-                raise OSError("No result force file have been found!")
-
-            baseline_coef = True
-
-            case_nb = int(config_dir.name.split("_")[0].split("Case")[1])
-
-            aoa = aoa_list[case_nb]
-            aos = aos_list[case_nb]
-            mach = mach_list[case_nb]
-            alt = alt_list[case_nb]
-
-            if fixed_cl == "YES":
-                cl_cd, aoa = get_efficiency_and_aoa(force_file_path)
-
-                # Replace aoa with the with the value from fixed cl calculation
-                aeromap.df.loc[0, ["angleOfAttack"]] = aoa
-
-                # Save cl/cd found during the fixed CL calculation (useful for range analysis)
-                create_branch(tixi, RANGE_LD_RATIO_XPATH)
-                tixi.updateDoubleElement(RANGE_LD_RATIO_XPATH, cl_cd, "%g")
-
-            cl, cd, cs, cmd, cms, cml, velocity = get_su2_aerocoefs(force_file_path)
-
-            # Damping derivatives
-            rotation_rate = get_value(tixi, SU2_ROTATION_RATE_XPATH)
-            ref_len = tixi.getTextElement(WING_SPAN_XPATH)
-            adim_rot_rate = rotation_rate * ref_len / velocity
-
-            coefs = {"cl": cl, "cd": cd, "cs": cs, "cmd": cmd, "cms": cms, "cml": cml}
-
-            for axis in ["dp", "dq", "dr"]:
-                if f"_{axis}" not in config_dir.name:
-                    continue
-
-                baseline_coef = False
-
-                for coef in COEFS:
-                    coef_baseline = aeromap.get(coef, alt=alt, mach=mach, aoa=aoa, aos=aos)
-                    dcoef = (coefs[coef] - coef_baseline) / adim_rot_rate
-                    aeromap.add_damping_derivatives(
-                        alt=alt,
-                        mach=mach,
-                        aos=aos,
-                        aoa=aoa,
-                        coef=coef,
-                        axis=axis,
-                        value=dcoef,
-                        rate=rotation_rate,
-                    )
-
-            if "_TED_" in config_dir.name:
-
-                # TODO: convert when it is possible to save TED in cpacspy
-                raise NotImplementedError("TED not implemented yet")
-
-                # baseline_coef = False
-                # config_dir_split = config_dir.split('_')
-                # ted_idx = config_dir_split.index('TED')
-                # ted_uid = config_dir_split[ted_idx+1]
-                # defl_angle = float(config_dir.split('_defl')[1])
-                # try:
-                #     print(Coef.IncrMap.dcl)
-                # except AttributeError:
-                #     Coef.IncrMap = a.p.m.f.IncrementMap(ted_uid)
-                # dcl = (cl-Coef.cl[-1])
-                # dcd = (cd-Coef.cd[-1])
-                # dcs = (cs-Coef.cs[-1])
-                # dcml = (cml-Coef.cml[-1])
-                # dcmd = (cmd-Coef.cmd[-1])
-                # dcms = (cms-Coef.cms[-1])
-                # control_parameter = -1
-                # Coef.IncrMap.add_cs_coef(dcl,dcd,dcs,dcml,dcmd,dcms,ted_uid,control_parameter)
-
-            # Baseline coefficients (no damping derivative or control surfaces case)
-            if baseline_coef:
-                aeromap.add_coefficients(
-                    alt=alt,
-                    mach=mach,
-                    aos=aos,
-                    aoa=aoa,
-                    cd=cd,
-                    cl=cl,
-                    cs=cs,
-                    cml=cml,
-                    cmd=cmd,
-                    cms=cms,
-                )
-
-            update_wetted_area = get_value(tixi, SU2_UPDATE_WETTED_AREA_XPATH)
-            if not found_wetted_area and update_wetted_area:
-                wetted_area = get_wetted_area(Path(config_dir, "logfile_SU2_CFD.log"))
-
-                # Check if symmetry plane is defined (Default: False)
-                sym_factor = 1.0
-                if get_value_or_default(tixi, GMSH_SYMMETRY_XPATH, False):
-                    log.info("Symmetry plane is defined. Multiplying wetted area by 2.")
-                    sym_factor = 2.0
-
-                create_branch(tixi, WETTED_AREA_XPATH)
-                tixi.updateDoubleElement(WETTED_AREA_XPATH, wetted_area * sym_factor, "%g")
-                found_wetted_area = True
-
-            if get_value(tixi, SU2_EXTRACT_LOAD_XPATH):
-                extract_loads(config_dir)
+            get_static_results(tixi, aeromap, config_dir, aoa_list, aos_list, mach_list, alt_list, fixed_cl, found_wetted_area)
 
         else:
-            # Retrieve all "Case{case_nb}" to get "none", "alpha", "beta" oscillations
-            case_nb = int(config_dir.name.split("_")[0].split("Case")[1])
-
-            # Define the pattern to match directories
-            pattern = f"Case{case_nb}_*dynstab*"
-
-            # Retrieve the directories matching the pattern
-            dynstab_dir_list = [d for d in Path(config_dir.parent).glob(pattern) if d.is_dir()]
-
-            if not dynstab_dir_list:
-                raise OSError(
-                    f"No directories found for Case{case_nb} with 'dynstab' in the name.")
-
-            # Extract mach_nb and angle
-            mach_numbers = []
-            angles = []
-
-            dict_dir = {"none": None, "alpha": None, "beta": None}
-
-            for dir_ in dynstab_dir_list:
-                mach_nb = int(dir_.name.split("_")[1].split("mach")[1])
-                angle = dir_.name.split("_")[2].split("angle")[1]
-                mach_numbers.append(mach_nb)
-                angles.append(angle)
-
-                try:
-                    dict_dir[angle] = dir_
-                except BaseException:
-                    raise ValueError(f"{angle} is an incorrect value for an oscillation.")
-
-            # Check that all mach_nb values are the same
-            if len(set(mach_numbers)) != 1:
-                raise ValueError("Mach numbers are not consistent across directories.")
-
-            mach_nb = mach_numbers[0]
-
-            # Retrieve forces and moments for (alpha, alpha_dot) = (0, 0)
-            none_force_file_path = Path(dict_dir["none"], SU2_FORCES_BREAKDOWN_NAME)
-            if not force_file_path.exists():
-                raise OSError("No result force file have been found!")
-            cfx_0, cfy_0, cfz_0, cmx_0, cmy_0, cmz_0 = get_su2_forces_moments(none_force_file_path)
-
-            n = int(get_value(tixi, SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH))
-            f_static = np.tile([cfx_0, cfy_0, cfz_0, cmx_0, cmy_0, cmz_0], (n, 1))
-
-            # Retrive forces and moments for (alpha, alpha_dot) = (alpha(t), alpha_dot(t))
-            for angle in ['alpha', 'beta']:
-
-                # Get results from dynstab
-                force_file_pattern = Path(dict_dir[angle])
-                force_file_paths = list(force_file_pattern.glob("forces_breakdown_*.dat"))
-                if not force_file_paths.exists():
-                    raise OSError("No result force file have been found!")
-
-                coefficients_list = []
-
-                for force_file_path in force_file_paths:
-                    # Access coefficients
-                    cfx, cfy, cfz, cmx, cmy, cmz = get_su2_forces_moments(force_file_path)
-                    coefficients_list.append([cfx, cfy, cfz, cmx, cmy, cmz])
-
-                # Convert the list to a numpy array
-                f_time = np.array(coefficients_list)
-
-                # Compute derivatives
-                a, omega, _, t = load_parameters(tixi)
-                x, y = compute_derivatives(a, omega, t, f_time, f_static)
-
-                # Put derivatives in CPACS at SU2 in DynamicDerivatives
-                xpath = SU2_DYNAMICDERIVATIVES_DATA_XPATH
-
-                ensure_and_append_text_element(tixi, xpath, "mach", mach_nb)
-
-                for i, label in enumerate(['cfx', 'cfy', 'cfz', 'cmx', 'cmy', 'cmz']):
-                    ensure_and_append_text_element(tixi, xpath, f"{label}_{angle}", x[i])
-                    ensure_and_append_text_element(tixi, xpath, f"{label}_{angle}prim", y[i])
+            log.warning("Accessing dynamic results is not implemented yet.")
 
     aeromap.save()
 

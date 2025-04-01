@@ -28,7 +28,6 @@ from math import (
 from typing import Tuple
 from numpy import ndarray
 from ceasiompy.utils.generalclasses import Point
-from ceasiompy.utils.generalclasses import SimpleNamespace
 from scipy.spatial.transform import Rotation as R
 
 from ceasiompy import log

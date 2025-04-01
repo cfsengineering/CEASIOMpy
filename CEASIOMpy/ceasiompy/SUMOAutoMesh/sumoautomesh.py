@@ -40,7 +40,6 @@ from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
     get_results_directory,
     get_reasonable_nb_cpu,
-    current_workflow_dir,
 )
 
 from pathlib import Path

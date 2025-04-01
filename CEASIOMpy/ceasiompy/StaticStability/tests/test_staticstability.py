@@ -103,7 +103,7 @@ class TestStaticStability(CeasiompyTest):
         tixi.updateTextElement(f"{increment_map_xpath}/dcml", "0.002;0.002;-0.002;0.002")
 
     @log_test
-    def test_module_template_functions(self) -> None:
+    def test_generate_stab_table(self) -> None:
 
         # Test Linear Regression
         self.assert_equal_function(

@@ -54,7 +54,7 @@ class TestModuleTemplate(CeasiompyTest):
         cls.avl_path = Path(MODULE_DIR, "tests", "aircraft.avl")
 
     @log_test
-    def test_module_template_functions(self) -> None:
+    def test_get_aeromap_conditions(self) -> None:
         self.assert_equal_function(
             f=get_aeromap_conditions,
             input_args=(self.cpacs, AVL_AEROMAP_UID_XPATH),

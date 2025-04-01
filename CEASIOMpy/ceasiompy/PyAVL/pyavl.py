@@ -158,89 +158,91 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         if save_fig:
             convert_ps_to_pdf(case_dir_path)
 
-    #
-    # 3. aileron, elevator, rudder
-    (
-        new_alt_list,
-        new_mach_list,
-        new_aoa_list,
-        new_aileron_list,
-        new_elevator_list,
-        new_rudder_list
-    ) = duplicate_elements(
-        list(set(alt_list)),
-        list(set(mach_list)),
-        list(set(aoa_list)),
-        list(set(control_surface_list)),
-    )
+    if control_surface_list != [0.0]:
 
-    # Name of the case directory
-    for i_case, alt in enumerate(new_alt_list):
-        mach = new_mach_list[i_case]
-        aoa = new_aoa_list[i_case]
-
-        aileron = new_aileron_list[i_case]
-        elevator = new_elevator_list[i_case]
-        rudder = new_rudder_list[i_case]
-
-        # Set atmosphere conditions
-        Atm = Atmosphere(alt)
-        density = Atm.density[0]
-        g = Atm.grav_accel[0]
-        velocity = Atm.speed_of_sound[0] * mach
-
-        log.info(
-            f"--- alt: {alt}, "
-            f"mach: {mach}, "
-            f"aoa: {aoa}, "
-            f"aileron: {aileron}, "
-            f"elevator: {elevator}, "
-            f"rudder: {rudder} ---"
+        #
+        # 3. aileron, elevator, rudder
+        (
+            new_alt_list,
+            new_mach_list,
+            new_aoa_list,
+            new_aileron_list,
+            new_elevator_list,
+            new_rudder_list
+        ) = duplicate_elements(
+            list(set(alt_list)),
+            list(set(mach_list)),
+            list(set(aoa_list)),
+            list(set(control_surface_list)),
         )
 
-        case_dir_name = (
-            f"Case{str(i_case + first_cases).zfill(2)}"
-            f"_alt{alt}"
-            f"_mach{round(mach, 2)}"
-            f"_aoa{round(aoa, 1)}"
-            f"_aileron{round(aileron, 1)}"
-            f"_elevator{round(elevator, 1)}"
-            f"_rudder{round(rudder, 1)}"
-        )
+        # Name of the case directory
+        for i_case, alt in enumerate(new_alt_list):
+            mach = new_mach_list[i_case]
+            aoa = new_aoa_list[i_case]
 
-        Path(results_dir, case_dir_name).mkdir(exist_ok=True)
-        case_dir_path = Path(results_dir, case_dir_name)
+            aileron = new_aileron_list[i_case]
+            elevator = new_elevator_list[i_case]
+            rudder = new_rudder_list[i_case]
 
-        command_path = write_command_file(
-            tixi=tixi,
-            avl_path=avl_path,
-            case_dir_path=case_dir_path,
-            save_plots=save_fig,
-            alpha=aoa,
-            beta=0.0,
-            pitch_rate=0.0,
-            roll_rate=0.0,
-            yaw_rate=0.0,
-            mach_number=mach,
-            ref_velocity=velocity,
-            ref_density=density,
-            aileron=aileron,
-            rudder=rudder,
-            elevator=elevator,
-            g_acceleration=g,
-        )
+            # Set atmosphere conditions
+            Atm = Atmosphere(alt)
+            density = Atm.density[0]
+            g = Atm.grav_accel[0]
+            velocity = Atm.speed_of_sound[0] * mach
 
-        run_software(
-            software_name=SOFTWARE_NAME,
-            arguments=[""],
-            wkdir=case_dir_path,
-            with_mpi=False,
-            nb_cpu=nb_cpu,
-            stdin=open(str(command_path), "r"),
-        )
+            log.info(
+                f"--- alt: {alt}, "
+                f"mach: {mach}, "
+                f"aoa: {aoa}, "
+                f"aileron: {aileron}, "
+                f"elevator: {elevator}, "
+                f"rudder: {rudder} ---"
+            )
 
-        if save_fig:
-            convert_ps_to_pdf(case_dir_path)
+            case_dir_name = (
+                f"Case{str(i_case + first_cases).zfill(2)}"
+                f"_alt{alt}"
+                f"_mach{round(mach, 2)}"
+                f"_aoa{round(aoa, 1)}"
+                f"_aileron{round(aileron, 1)}"
+                f"_elevator{round(elevator, 1)}"
+                f"_rudder{round(rudder, 1)}"
+            )
+
+            Path(results_dir, case_dir_name).mkdir(exist_ok=True)
+            case_dir_path = Path(results_dir, case_dir_name)
+
+            command_path = write_command_file(
+                tixi=tixi,
+                avl_path=avl_path,
+                case_dir_path=case_dir_path,
+                save_plots=save_fig,
+                alpha=aoa,
+                beta=0.0,
+                pitch_rate=0.0,
+                roll_rate=0.0,
+                yaw_rate=0.0,
+                mach_number=mach,
+                ref_velocity=velocity,
+                ref_density=density,
+                aileron=aileron,
+                rudder=rudder,
+                elevator=elevator,
+                g_acceleration=g,
+            )
+
+            run_software(
+                software_name=SOFTWARE_NAME,
+                arguments=[""],
+                wkdir=case_dir_path,
+                with_mpi=False,
+                nb_cpu=nb_cpu,
+                stdin=open(str(command_path), "r"),
+            )
+
+            if save_fig:
+                convert_ps_to_pdf(case_dir_path)
 
     get_avl_results(cpacs)
 

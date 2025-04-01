@@ -30,7 +30,6 @@ from ceasiompy.SU2Run.func.results import save_screenshot
 from ceasiompy.SU2Run.func.utils import get_su2_forces_moments
 
 from ceasiompy.utils.ceasiompyutils import (
-    current_workflow_dir,
     ensure_and_append_text_element,
 )
 from ceasiompy.SU2Run.func.dotderivatives import (
@@ -40,20 +39,15 @@ from ceasiompy.SU2Run.func.dotderivatives import (
 
 from pathlib import Path
 from ambiance import Atmosphere
-from cpacspy.cpacspy import CPACS
-from ceasiompy.utils.ceasiompytest import CeasiompyTest
-
 from typing import (
     List,
     Dict,
 )
 
 from ceasiompy import log
-from ceasiompy.utils.commonpaths import TEST_RESULTS_FILES_PATH
 from ceasiompy.utils.commonnames import SU2_FORCES_BREAKDOWN_NAME
 
 from ceasiompy.utils.commonxpath import (
-    REF_XPATH,
     SU2_DYNAMICDERIVATIVES_DATA_XPATH,
 )
 

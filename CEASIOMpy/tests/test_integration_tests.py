@@ -10,6 +10,9 @@ Python version: >=3.8
 | Author: Aidan Jungo
 | Creation: 2022-05-06
 
+TODO:
+Test allworking modules
+
 """
 
 # ====================================================================================================================
@@ -17,14 +20,25 @@ Python version: >=3.8
 # ====================================================================================================================
 
 import shutil
-from pathlib import Path
 import pytest
-from ceasiompy.utils.ceasiompyutils import change_working_dir
-from ceasiompy.utils.commonpaths import LOGFILE, CPACS_FILES_PATH
-from src.bin.ceasiompy_exec import run_modules_list
 
 import streamlit as st
+
+from pathlib import Path
 from unittest.mock import MagicMock
+
+from src.bin.ceasiompy_exec import run_modules_list
+from ceasiompy.utils.ceasiompyutils import change_working_dir
+
+from ceasiompy.utils.commonpaths import (
+    LOGFILE,
+    CPACS_FILES_PATH,
+)
+
+
+# =================================================================================================
+#   CONSTANTS
+# =================================================================================================
 
 MODULE_DIR = Path(__file__).parent
 WORKFLOW_TEST_DIR = Path(MODULE_DIR, "workflow_tests")

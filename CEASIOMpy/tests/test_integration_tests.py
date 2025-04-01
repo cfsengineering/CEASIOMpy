@@ -23,6 +23,9 @@ from ceasiompy.utils.ceasiompyutils import change_working_dir
 from ceasiompy.utils.commonpaths import LOGFILE, CPACS_FILES_PATH
 from src.bin.ceasiompy_exec import run_modules_list
 
+import streamlit as st
+from unittest.mock import MagicMock
+
 MODULE_DIR = Path(__file__).parent
 WORKFLOW_TEST_DIR = Path(MODULE_DIR, "workflow_tests")
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")
@@ -53,7 +56,7 @@ def workflow_ends():
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_2():
     modules_to_run = ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"]
-
+    st.session_state = MagicMock()
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
 
@@ -65,7 +68,7 @@ def test_integration_2():
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_3():
     modules_to_run = ["CLCalculator", "CPACS2SUMO", "SUMOAutoMesh", "SU2Run"]
-
+    st.session_state = MagicMock()
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
 
@@ -77,7 +80,7 @@ def test_integration_3():
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_4():
     modules_to_run = ["CPACS2GMSH", "SU2Run", "SaveAeroCoefficients"]
-
+    st.session_state = MagicMock()
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
 
@@ -88,7 +91,7 @@ def test_integration_4():
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 def test_integration_5():
     modules_to_run = ["PyAVL", "SaveAeroCoefficients", "Database"]
-
+    st.session_state = MagicMock()
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
 

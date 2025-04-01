@@ -684,9 +684,9 @@ def add_control_surfaces(tixi: Tixi3) -> None:
     log.info(f"Modifying {ctrlsurf}.")
 
     if ctrlsurf:
-        for wing_name in ctrlsurf.keys():
+        for wing_name, wing_data in ctrlsurf.items():
             decompose_wing(tixi, wing_name)
-            for (sgt, ctrltype) in ctrlsurf[wing_name]:
+            for (sgt, ctrltype) in wing_data:
 
                 # Transform and scale original airfoil
                 transform_airfoil(tixi, sgt, ctrltype)

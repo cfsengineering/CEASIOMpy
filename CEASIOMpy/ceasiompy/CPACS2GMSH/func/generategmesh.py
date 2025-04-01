@@ -869,7 +869,7 @@ def generate_gmsh(
     }
 
     for part in aircraft_parts:
-        if part.part_type in AIRCRAFT_DICT.keys():
+        if part.part_type in AIRCRAFT_DICT:
             part.mesh_size = AIRCRAFT_DICT[part.part_type]
             gmsh.model.mesh.setSize(part.points, AIRCRAFT_DICT[part.part_type])
             gmsh.model.setColor(part.surfaces, *MESH_COLORS[part.part_type], recursive=False)

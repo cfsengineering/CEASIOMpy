@@ -222,10 +222,10 @@ def main(cpacs: CPACS) -> None:
     out.Ixz_lump_zpm = round(Ixzf3 + Ixzw3, rd)
 
     log.info("------------- OEM configuration -------------")
-    (fx, fy, fz, Ixxf4, Iyyf4, Izzf4, Ixyf4, Iyzf4, Ixzf4) = lumpedmassesinertia.fuselage_inertia(
+    (_, _, _, Ixxf4, Iyyf4, Izzf4, Ixyf4, Iyzf4, Ixzf4) = lumpedmassesinertia.fuselage_inertia(
         bi.SPACING_FUSE, out.cg_oem, ms_oem, ag, cpacs_path
     )
-    (wx, wy, wz, Ixxw4, Iyyw4, Izzw4, Ixyw4, Iyzw4, Ixzw4) = lumpedmassesinertia.wing_inertia(
+    (_, _, _, Ixxw4, Iyyw4, Izzw4, Ixyw4, Iyzw4, Ixzw4) = lumpedmassesinertia.wing_inertia(
         bi.WPP, bi.SPACING_WING, out.cg_oem, ms_oem, ag, cpacs_path
     )
 

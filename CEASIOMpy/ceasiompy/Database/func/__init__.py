@@ -54,7 +54,7 @@ TABLE_DICT = {
                 cms_b REAL,
                 cml_b REAL,
             """
-        ],
+    ],
     f"{CPACS2GMSH_NAME}":
         [
             "gmsh_data",
@@ -64,7 +64,7 @@ TABLE_DICT = {
                 angle REAL,
                 su2_file_data BLOB,
             """
-        ],
+    ],
     f"{DYNSTAB_NAME}":
         [
             "derivatives_data",
@@ -90,7 +90,7 @@ TABLE_DICT = {
                 cl_betaprim REAL,
                 cn_betaprim REAL,
             """
-        ],
+    ],
 }
 
 # ==============================================================================

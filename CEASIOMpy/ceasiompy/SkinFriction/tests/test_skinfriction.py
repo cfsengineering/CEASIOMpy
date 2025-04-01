@@ -76,7 +76,10 @@ def test_add_skin_friction():
     cpacs = CPACS(CPACS_IN_PATH)
     workflow_dir = current_workflow_dir()
     # User the function to add skin frictions
-    add_skin_friction(cpacs, wkdir=get_results_directory("SkinFriction", create=True, wkflow_dir=workflow_dir))
+    add_skin_friction(
+        cpacs,
+        wkdir=get_results_directory("SkinFriction", create=True, wkflow_dir=workflow_dir)
+    )
 
     # Read the aeromap with the skin friction added in the output cpacs file
     apm_sf = cpacs.get_aeromap_by_uid("test_apm_SkinFriction")

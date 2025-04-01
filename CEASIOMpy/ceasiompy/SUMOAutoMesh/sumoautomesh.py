@@ -249,7 +249,7 @@ def main(cpacs: CPACS, wkdir: Path):
         sumo_file_path = Path(get_value(tixi, SUMOFILE_XPATH))
     else:
         sumo_file_path = Path(get_value(tixi, SPECIFIED_SUMOFILE_XPATH))
-        
+
     if not sumo_file_path.exists():
         raise FileNotFoundError(f"No SUMO file has been found at: {sumo_file_path}")
 

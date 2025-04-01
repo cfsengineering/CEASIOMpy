@@ -49,7 +49,7 @@ def order_by_gps(inputs: List) -> OrderedDict:
     groups_container = OrderedDict()
     for group in groups:
         groups_container[group] = st.expander(f"**{group}**", expanded=True)
-    
+
     return groups_container
 
 

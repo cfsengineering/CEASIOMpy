@@ -148,8 +148,6 @@ def euler2fix(rotation_euler):
         object_ = True
         rotation_euler = np.array([rotation_euler.x, rotation_euler.y, rotation_euler.z])
 
-
-    # Convert fixed angles to a rotation object
     rotation = R.from_euler('zyx', rotation_euler, degrees=True)
 
     fix_angles = rotation.as_euler('xyz', degrees=True)
@@ -185,7 +183,6 @@ def fix2euler(rotation_fix):
         object_ = True
         rotation_fix = np.array([rotation_fix.x, rotation_fix.y, rotation_fix.z])
 
-    # Convert fixed angles to a rotation object
     rotation = R.from_euler('xyz', rotation_fix, degrees=True)
 
     euler_angles = rotation.as_euler('zyx', degrees=True)

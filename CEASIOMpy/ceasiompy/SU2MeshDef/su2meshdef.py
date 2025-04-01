@@ -707,7 +707,7 @@ def generate_config_deformed_mesh(cpacs_path, cpacs_out_path, skip_config=False,
             # else: calculate all TED adn all deflections from CPACS
             #     active_ted_list = ted_list
 
-            for i, row in ted_df.iterrows():
+            for _, row in ted_df.iterrows():
 
                 # Unwrap TED data from the dataframe
                 ted_uid = row["ted_uid"]

@@ -39,7 +39,7 @@ def write_legend(groupby_list: List, value) -> None:
 
     groupby_name_list = []
     for name in groupby_list:
-        if name in FEATURE_DICT.keys():
+        if name in FEATURE_DICT:
             groupby_name_list.append(FEATURE_DICT[name])
         else:
             groupby_name_list.append(name)
@@ -55,7 +55,7 @@ def write_legend(groupby_list: List, value) -> None:
         if param == "uid":
             legend += value_i
         else:
-            if name in FEATURE_DICT.keys():
+            if name in FEATURE_DICT:
                 name = FEATURE_DICT[name]
             else:
                 name = param

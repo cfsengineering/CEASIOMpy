@@ -38,7 +38,9 @@ from ceasiompy.utils.ceasiompyutils import (
     call_main,
     run_software,
     aircraft_name,
+    get_results_directory,
     get_reasonable_nb_cpu,
+    current_workflow_dir,
 )
 
 from pathlib import Path
@@ -54,6 +56,7 @@ from ceasiompy.utils.commonxpath import (
 )
 
 from ceasiompy.SUMOAutoMesh import MODULE_NAME
+from ceasiompy.CPACS2SUMO import MODULE_NAME as CPACS2SUMO
 
 # =================================================================================================
 #   FUNCTIONS
@@ -239,7 +242,8 @@ def main(cpacs: CPACS, wkdir: Path):
     """
     tixi = cpacs.tixi
 
-    su2_mesh_path = Path(wkdir, "ToolOutput.su2")
+    cpacs_to_sumo_wkdir = get_results_directory(CPACS2SUMO)
+    su2_mesh_path = Path(cpacs_to_sumo_wkdir, "ToolOutput.su2")
 
     if tixi.checkElement(SUMOFILE_XPATH):
         sumo_file_path = Path(get_value(tixi, SUMOFILE_XPATH))

@@ -25,7 +25,11 @@ from ceasiompy.SU2Run.func.plot import save_plots
 from ceasiompy.CPACS2GMSH.func.mesh_sizing import wings_size
 from ceasiompy.utils.geometryfunctions import get_leading_edge
 from ceasiompy.SU2Run.func.dotderivatives import load_parameters
-from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
+
+from ceasiompy.utils.ceasiompyutils import (
+    bool_,
+    get_aeromap_conditions,
+)
 
 from cpacspy.cpacsfunctions import (
     get_value,
@@ -630,7 +634,7 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
     """
 
     # Not using ceasiompy.db data
-    if not get_value(tixi, SU2_CEASIOMPYDATA_XPATH):
+    if not bool_(get_value(tixi, SU2_CEASIOMPYDATA_XPATH)):
 
         if tixi.checkElement(SU2MESH_XPATH):
             tixi_su2_mesh_paths = get_value(tixi, SU2MESH_XPATH)

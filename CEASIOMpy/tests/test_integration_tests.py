@@ -100,9 +100,7 @@ def test_integration_5():
 # =================================================================================================
 
 if __name__ == "__main__":
-    import shutil
-    print(shutil.which("avl"))
-    #test_integration_5()
+    test_integration_2()
     print("Integration tests")
     print("To run test use the following command:")
     print(">> pytest -v . --cov=../ceasiompy --cov-report term")

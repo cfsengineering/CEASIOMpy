@@ -361,7 +361,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     """
     cpacs_path = cpacs.cpacs_file
     tixi = cpacs.tixi
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs_path)
+    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs_path, AVL_AEROMAP_UID_XPATH)
 
     # First AVL run
     run_avl(cpacs, wkdir)

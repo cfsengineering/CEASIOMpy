@@ -1,0 +1,19 @@
+{
+    "general_settings": {
+        "static_loop": {
+            "max_iterations": 15,
+            "abs_conv_lim": 0.001
+        }
+    },
+    "cfd_model": {
+        "wrapper": "ceasiompy.AeroFrame.wrappers.cfd.su2",
+        "exec_settings": {
+        }
+    },
+    "structure_model": {
+        "wrapper": "aeroframe._wrappers.structure.framat",
+        "exec_settings": {
+            "model_file": "structure/WindTunnelModel.json"
+        }
+    }
+}

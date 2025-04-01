@@ -1,0 +1,5 @@
+Name,type,initial value,min,max,getpath,setpath
+cl,obj,-,-1.0,1.0,/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[1]/aeroPerformanceMap/cl,-
+cd,obj,-,-1.0,1.0,/cpacs/vehicles/aircraft/model/analyses/aeroPerformance/aeroMap[1]/aeroPerformanceMap/cd,-
+wing1_sweep,des,21.6488944235501,17.3191155388401,25.9786733082602,wings.get_wing(1).get_sweep(),wings.get_wing(1).set_sweep(wing1_sweep)
+wing1_span,des,16.9565628679127,13.565250294330196,20.347875441495198,wings.get_wing(1).get_wing_half_span(),wings.get_wing(1).set_half_span_keep_ar(wing1_span)

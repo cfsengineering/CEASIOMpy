@@ -226,7 +226,10 @@ class Workflow:
         """Create the directory structure and set input/output of each modules"""
 
         # Check optim method validity
-        if str(self.optim_method) not in OPTIM_METHOD or str(self.optim_method) in ["None", "NONE"]:
+        if (
+            str(self.optim_method) not in OPTIM_METHOD
+            or str(self.optim_method) in ["None", "NONE"]
+        ):
             raise ValueError(f"Optimisation method {self.optim_method} not supported")
 
         # Check coherence of the optimisation modules from config file

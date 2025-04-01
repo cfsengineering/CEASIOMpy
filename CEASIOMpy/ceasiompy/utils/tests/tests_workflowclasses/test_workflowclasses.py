@@ -195,9 +195,6 @@ class TestWorkflow:
 # =================================================================================================
 
 if __name__ == "__main__":
-    test=TestWorkflow()
-    test.test_set_workflow()
-
     print("Test configfile.py")
     print("To run test use the following command:")
     print(">> pytest -v")

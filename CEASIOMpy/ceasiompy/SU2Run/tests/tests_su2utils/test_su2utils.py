@@ -123,5 +123,4 @@ def test_get_wetted_area():
 # =================================================================================================
 
 if __name__ == "__main__":
-    test_get_su2_version()
     log.info("Nothing to execute!")

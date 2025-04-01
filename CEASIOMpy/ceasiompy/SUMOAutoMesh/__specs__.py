@@ -1,5 +1,9 @@
 
-from ceasiompy.utils.commonxpath import SU2MESH_XPATH, SUMO_REFINE_LEVEL_XPATH, SPECIFIED_SUMOFILE_XPATH
+from ceasiompy.utils.commonxpath import (
+    SU2MESH_XPATH,
+    SUMO_REFINE_LEVEL_XPATH,
+    SPECIFIED_SUMOFILE_XPATH,
+)
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 # ===== Module Status =====

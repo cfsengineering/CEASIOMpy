@@ -357,7 +357,7 @@ def get_install_path(software_name: str, raise_error: bool = False) -> Path:
         return Path(install_path)
 
     log.warning(f"{software_name} is not installed on your computer!")
-    
+
     if install_path is None and software_name == "avl":
         return Path("/home/cfse2/newCeasiompy/CEASIOMpy/INSTALLDIR/avl")
 

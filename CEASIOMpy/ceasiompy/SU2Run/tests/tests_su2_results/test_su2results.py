@@ -60,8 +60,7 @@ from ceasiompy.utils.commonxpath import (
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
-
-
+"""
 class TestModuleTemplate(CeasiompyTest):
     @classmethod
     def setUpClass(cls):
@@ -74,6 +73,7 @@ class TestModuleTemplate(CeasiompyTest):
         cls.s = cls.tixi.getDoubleElement(REF_XPATH + '/area')
         cls.c = cls.tixi.getDoubleElement(REF_XPATH + '/length')
         cls.b = cls.s / cls.c
+"""
 
 
 @pytest.mark.skipif("DISPLAY" not in os.environ, reason="requires display")

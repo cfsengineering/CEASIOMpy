@@ -36,8 +36,8 @@ class TestModuleTemplate(CeasiompyTest):
     def test_module_template_functions(self) -> None:
         self.assert_equal_function(
             f=get_fuselage_scaling,
-            input_args=self.test_cpacs,
-            expected=(1.0, 1.0, 1.0),
+            input_args=(self.test_cpacs, ),
+            expected=(1.0, 1.0, 1.0, ),
         )
 
     @log_test

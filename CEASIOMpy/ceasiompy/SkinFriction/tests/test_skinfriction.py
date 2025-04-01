@@ -55,6 +55,7 @@ def test_estimate_skin_friction_coef(caplog):
 
     with caplog.at_level(logging.WARNING):
         estimate_skin_friction_coef(400.0, 50, 20, 0.22, 12000)
+    print("Captured logs:", caplog.text)
     assert "Reynolds number is out of range." in caplog.text
 
     with caplog.at_level(logging.WARNING):

@@ -48,7 +48,7 @@ class TestAvlResults(CeasiompyTest):
         assert self.ft_template.exists(), "Result file 'ft.txt' not found!"
 
     @log_test
-    def test_module_template_functions(self) -> None:
+    def test_get_avl_aerocoefs(self) -> None:
         self.assert_equal_function(
             f=get_avl_aerocoefs,
             input_args=(self.ft_template,),

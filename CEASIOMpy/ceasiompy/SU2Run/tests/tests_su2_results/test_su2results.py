@@ -129,8 +129,10 @@ def forces_breakdown(self):
 
         def check_one_entry(dict_dir: List[Dict], angle: str) -> Path:
             # Check that there exists exactly one entry with "angle" == "none" in dict_dir
-            one_entry = [d for d in dict_dir if d['mach']
-                            == mach and d['alt'] == alt and d['angle'] == angle]
+            one_entry = [
+                d for d in dict_dir
+                if d['mach'] == mach and d['alt'] == alt and d['angle'] == angle
+            ]
             if len(one_entry) != 1:
                 raise ValueError(
                     f"Expected exactly one angle={angle}"

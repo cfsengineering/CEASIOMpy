@@ -232,6 +232,10 @@ def get_wkdir_status(module_name: str) -> bool:
 
 def current_workflow_dir() -> Path:
 
+    # Ensure WKDIR_PATH exists
+    WKDIR_PATH.mkdir(parents=True, exist_ok=True)
+
+    # Change the current working directory
     os.chdir(WKDIR_PATH)
 
     # Check index of the last workflow directory to set the next one

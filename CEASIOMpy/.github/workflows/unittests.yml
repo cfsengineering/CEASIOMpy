@@ -45,22 +45,16 @@ jobs:
       id: cache
 
     - name: Update environment
-      run: mamba env update -n ceasiompy -f ./environment.yml
+      run: mamba env update -n ceasiompy -f environment.yml
       if: steps.cache.outputs.cache-hit != 'true'
-
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        path: repo
 
     - name: Install ceasiompy with pip
       shell: bash -l {0}
-      working-directory: ./repo/CEASIOMpy
       run: pip install -e .
-    
+      
     - name: Run unit tests
       shell: bash -l {0}
-      run: pytest -v ./CEASIOMpy/ceasiompy --cov=CEASIOMpy/ceasiompy/ --cov-report xml:coverage.xml
+      run: pytest -v ./ceasiompy --cov=ceasiompy/ --cov-report xml:coverage.xml
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3.1.0

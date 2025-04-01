@@ -55,6 +55,7 @@ from ceasiompy.AeroFrame_new.func.aeroframe_debbug import (
 
 from ceasiompy.utils.commonxpath import (
     AVL_PLOT_XPATH,
+    AVL_AEROMAP_UID_XPATH,
     FRAMAT_RESULTS_XPATH,
     FRAMAT_MESH_XPATH,
     AEROFRAME_SETTINGS
@@ -361,7 +362,10 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     """
     cpacs_path = cpacs.cpacs_file
     tixi = cpacs.tixi
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs_path, AVL_AEROMAP_UID_XPATH)
+    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
+        cpacs_path,
+        AVL_AEROMAP_UID_XPATH
+    )
 
     # First AVL run
     run_avl(cpacs, wkdir)

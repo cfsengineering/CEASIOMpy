@@ -65,8 +65,6 @@ class ModuleToRun:
         self.name = name
         self.wkflow_dir = wkflow_dir
         self.cpacs_in = cpacs_in
-        if name == "OPTIM":
-            name = "Optimisation"
         init = importlib.import_module(f"ceasiompy.{name}.{MODNAME_INIT}")
         add_res_dir: bool = init.RES_DIR
 
@@ -226,10 +224,7 @@ class Workflow:
         """Create the directory structure and set input/output of each modules"""
 
         # Check optim method validity
-        if (
-            str(self.optim_method) not in OPTIM_METHOD
-            or str(self.optim_method) in ["None", "NONE"]
-        ):
+        if str(self.optim_method) not in OPTIM_METHOD + ["None", "NONE"]:
             raise ValueError(f"Optimisation method {self.optim_method} not supported")
 
         # Check coherence of the optimisation modules from config file

@@ -48,18 +48,8 @@ from ceasiompy.utils.commonxpath import RANGE_LD_RATIO_XPATH, TURBOPROP_XPATH
 
 
 # =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder in the
-   range_output_class script and into the Input_classes/Conventional
-   folder inside the range_user_input.py script."""
-
-
-# =============================================================================
 #   FUNCTIONS
 # =============================================================================
-
 
 def get_data(mw, ri, cpacs_in):
     """The function extracts from the xml file the required input data,

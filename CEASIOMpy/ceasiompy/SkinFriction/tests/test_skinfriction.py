@@ -16,7 +16,6 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-import logging
 from pathlib import Path
 
 from ceasiompy.utils.ceasiompyutils import get_results_directory, current_workflow_dir
@@ -27,6 +26,8 @@ from ceasiompy.SkinFriction.skinfriction import (
 from cpacspy.cpacspy import CPACS
 from pytest import approx
 
+from ceasiompy.utils.commonpaths import LOGFILE
+
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(MODULE_DIR, "D150_simple_SkinFriction_test.xml")
 CPACS_OUT_PATH = Path(MODULE_DIR, "D150_simple_skinfriction_test_output.xml")
@@ -36,7 +37,7 @@ CPACS_OUT_PATH = Path(MODULE_DIR, "D150_simple_skinfriction_test_output.xml")
 # =================================================================================================
 
 
-def test_estimate_skin_friction_coef(caplog):
+def test_estimate_skin_friction_coef():
     """Test function 'estimate_skin_friction_coef'"""
 
     # Normal case
@@ -50,25 +51,21 @@ def test_estimate_skin_friction_coef(caplog):
     for cd0, inputs in test_dict.items():
         assert cd0 == approx(estimate_skin_friction_coef(*inputs))
 
-    # Case that raise warning (in logs)
-    caplog.clear()
-
-    with caplog.at_level(logging.WARNING):
+    with open(LOGFILE, "r") as log_file:
         estimate_skin_friction_coef(400.0, 50, 20, 0.22, 12000)
-    print("Captured logs:", caplog.text)
-    assert "Reynolds number is out of range." in caplog.text
+        assert "Reynolds number is out of range." in log_file.read()
 
-    with caplog.at_level(logging.WARNING):
+    with open(LOGFILE, "r") as log_file:
         estimate_skin_friction_coef(3401.0, 100, 20, 0.78, 12000)
-    assert "Wetted area is not in the correct range." in caplog.text
+        assert "Wetted area is not in the correct range." in log_file.read()
 
-    with caplog.at_level(logging.WARNING):
+    with open(LOGFILE, "r") as log_file:
         estimate_skin_friction_coef(701.813, 19, 20, 0.78, 12000)
-    assert "Wing area is not in the correct range." in caplog.text
+        assert "Wing area is not in the correct range." in log_file.read()
 
-    with caplog.at_level(logging.WARNING):
+    with open(LOGFILE, "r") as log_file:
         estimate_skin_friction_coef(701.813, 100, 75, 0.78, 12000)
-    assert "Wing span is not in the correct range." in caplog.text
+        assert "Wing span is not in the correct range." in log_file.read()
 
 
 def test_add_skin_friction():

@@ -157,14 +157,14 @@ class TestWorkflow:
         with pytest.raises(ValueError):
             self.workflow.set_workflow()
 
-        self.workflow.from_config_file(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
+        self.workflow.from_config_file(Path(MODULE_DIR, "ceasiompy.cfg"))
         self.workflow.cpacs_in = Path(MODULE_DIR, "NotExistingCPACS.xml")
         with pytest.raises(FileNotFoundError):
             self.workflow.set_workflow()
 
         # Test normal behavior
         self.workflow = Workflow()
-        self.workflow.from_config_file(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
+        self.workflow.from_config_file(Path(MODULE_DIR, "ceasiompy.cfg"))
         self.workflow.optim_method = "OPTIM"
         self.workflow.set_workflow()
 
@@ -195,6 +195,8 @@ class TestWorkflow:
 # =================================================================================================
 
 if __name__ == "__main__":
+    test=TestWorkflow()
+    test.test_set_workflow()
 
     print("Test configfile.py")
     print("To run test use the following command:")

@@ -167,10 +167,7 @@ def store_data(tixi: Tixi3) -> None:
     # You do not want to create a results directory "PyAVL"
     # with get_results_dir("PyAVL") if it does not exist.
     # Only access the path and then check if it exists.
-    avl_dir: Path = get_results_directory(
-        PYAVL_NAME,
-        create=False,
-        wkflow_dir="/home/cfse2/Leon/CEASIOMpy_Leon/CEASIOMpy/WKDIR/Workflow_460")
+    avl_dir: Path = get_results_directory(PYAVL_NAME, create=False)
     gmsh_dir: Path = get_results_directory(CPACS2GMSH_NAME, create=False)
     dynstab_dir: Path = get_results_directory(DYNSTAB_NAME, create=False)
     su2_dir: Path = get_results_directory(SU2RUN_NAME, create=False)

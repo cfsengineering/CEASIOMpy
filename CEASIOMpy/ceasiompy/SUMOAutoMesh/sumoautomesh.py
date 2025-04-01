@@ -29,6 +29,7 @@ import platform
 
 from cpacspy.cpacsfunctions import (
     open_tixi,
+    get_value,
     create_branch,
     get_value_or_default,
 )
@@ -48,7 +49,8 @@ from ceasiompy import log
 from ceasiompy.utils.commonxpath import (
     SU2MESH_XPATH,
     SUMO_REFINE_LEVEL_XPATH,
-    SUMOFILE_XPATH
+    SUMOFILE_XPATH,
+    SPECIFIED_SUMOFILE_XPATH,
 )
 
 from ceasiompy.SUMOAutoMesh import MODULE_NAME
@@ -234,17 +236,16 @@ def main(cpacs: CPACS, wkdir: Path):
     Source :
         * sumo help, tetgen help (in the folder /doc)
 
-    Args:
-        cpacs_path (Path): Path to the CPACS file
-        cpacs_out_path (Path): Path to the output CPACS file
-
     """
     tixi = cpacs.tixi
 
     su2_mesh_path = Path(wkdir, "ToolOutput.su2")
 
-    sumo_file_path = Path(get_value_or_default(tixi, SUMOFILE_XPATH, ""))
-    
+    if tixi.checkElement(SUMOFILE_XPATH):
+        sumo_file_path = Path(get_value(tixi, SUMOFILE_XPATH))
+    else:
+        sumo_file_path = Path(get_value(tixi, SPECIFIED_SUMOFILE_XPATH))
+        
     if not sumo_file_path.exists():
         raise FileNotFoundError(f"No SUMO file has been found at: {sumo_file_path}")
 

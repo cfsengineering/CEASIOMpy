@@ -892,13 +892,14 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     convert_engines(tixi, sumo)
 
     # Get results directory
-    sumo_file_path = Path(wkdir, "ToolOutput.smx")
+    sumo_file_path = str(Path(wkdir, "ToolOutput.smx"))
 
+    log.info(f"Saving sumo at {sumo_file_path}.")
     create_branch(tixi, SUMOFILE_XPATH)
-    tixi.updateTextElement(SUMOFILE_XPATH, str(sumo_file_path))
+    tixi.updateTextElement(SUMOFILE_XPATH, sumo_file_path)
 
-    # Save CPACS and SMX file
-    sumo.save(str(sumo_file_path))
+    # Save SMX file
+    sumo.save(sumo_file_path)
 
     if bool_(get_value(tixi, CPACS2SUMO_SUMO_GUI_XPATH)):
         # Open SUMO

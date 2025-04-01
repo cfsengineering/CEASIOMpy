@@ -29,7 +29,6 @@ from ceasiompy.PyAVL.func.utils import retrieve_gui_values
 from ceasiompy.utils.ceasiompyutils import (
     call_main,
     run_software,
-    current_workflow_dir,
 )
 
 from pathlib import Path
@@ -45,7 +44,7 @@ from ceasiompy.PyAVL import MODULE_NAME, SOFTWARE_NAME
 # =================================================================================================
 
 
-def main(cpacs: CPACS) -> None:
+def main(cpacs: CPACS, results_dir: Path) -> None:
     """
     Run AVL calculations on specified CPACS file.
         1. Load the necessary data.
@@ -59,7 +58,6 @@ def main(cpacs: CPACS) -> None:
 
     # 1. Load the necessary data
     tixi = cpacs.tixi
-    wkdir = current_workflow_dir()
 
     (
         alt_list, mach_list, aoa_list, aos_list,
@@ -126,8 +124,8 @@ def main(cpacs: CPACS) -> None:
             f"_r{round(r, 1)}"
         )
 
-        Path(wkdir, case_dir_name).mkdir(exist_ok=True)
-        case_dir_path = Path(wkdir, case_dir_name)
+        Path(results_dir, case_dir_name).mkdir(exist_ok=True)
+        case_dir_path = Path(results_dir, case_dir_name)
 
         command_path = write_command_file(
             tixi=tixi,
@@ -210,8 +208,8 @@ def main(cpacs: CPACS) -> None:
             f"_rudder{round(rudder, 1)}"
         )
 
-        Path(wkdir, case_dir_name).mkdir(exist_ok=True)
-        case_dir_path = Path(wkdir, case_dir_name)
+        Path(results_dir, case_dir_name).mkdir(exist_ok=True)
+        case_dir_path = Path(results_dir, case_dir_name)
 
         command_path = write_command_file(
             tixi=tixi,

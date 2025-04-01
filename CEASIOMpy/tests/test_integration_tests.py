@@ -18,8 +18,6 @@ Python version: >=3.8
 
 import shutil
 from pathlib import Path
-import warnings
-warnings.filterwarnings("ignore", category=UserWarning, module="streamlit")
 import pytest
 from ceasiompy.utils.ceasiompyutils import change_working_dir
 from ceasiompy.utils.commonpaths import LOGFILE, CPACS_FILES_PATH
@@ -89,7 +87,7 @@ def test_integration_4():
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 def test_integration_5():
-    modules_to_run = ["PyAVL", "SaveAeroCoefficients"]
+    modules_to_run = ["PyAVL", "SaveAeroCoefficients", "Database"]
 
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
@@ -102,7 +100,7 @@ def test_integration_5():
 # =================================================================================================
 
 if __name__ == "__main__":
-    test_integration_3()
+    test_integration_5()
     print("Integration tests")
     print("To run test use the following command:")
     print(">> pytest -v . --cov=../ceasiompy --cov-report term")

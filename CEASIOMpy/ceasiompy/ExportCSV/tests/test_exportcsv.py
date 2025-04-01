@@ -19,19 +19,13 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-
-from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.decorators import log_test
+from ceasiompy.utils.ceasiompyutils import current_workflow_dir
 from ceasiompy.ExportCSV.exportcsv import main as export_aeromaps
-import pytest
-import shutil
+
 from pathlib import Path
 from unittest import main
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
-
-from ceasiompy.utils.decorators import log_test
-from ceasiompy.utils.ceasiompyutils import current_workflow_dir
-
-from ceasiompy.ExportCSV import MODULE_NAME
 
 # =================================================================================================
 #   CLASS

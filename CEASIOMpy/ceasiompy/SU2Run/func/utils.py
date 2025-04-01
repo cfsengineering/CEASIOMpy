@@ -18,11 +18,9 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-import re
 import sqlite3
 
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.utils.ceasiompyutils import get_install_path
 
 from pathlib import Path
 from tixi3.tixi3wrapper import Tixi3

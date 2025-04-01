@@ -77,7 +77,7 @@ def wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN=0):
             subd_l = 1
         eta = 1.0 / subd_l
         et = 0.0
-        #(xc, yc, zc) = awg.wing_center_seg_point[int(i) - 1][w][:]
+        # (xc, yc, zc) = awg.wing_center_seg_point[int(i) - 1][w][:]
         for j in range(0, int(subd_l) - 1):
             (xle, _, _) = tigl.wingGetLowerPoint(w + 1, int(i), et, 0.0)
             (xle2, _, _) = tigl.wingGetLowerPoint(w + 1, int(i), et, 1.0)

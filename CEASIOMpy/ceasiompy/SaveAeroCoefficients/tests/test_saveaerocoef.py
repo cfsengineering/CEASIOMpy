@@ -53,6 +53,7 @@ def test_save_aero_coef():
 
 
 if __name__ == "__main__":
+    test_save_aero_coef()
     print("Test SaveAeroCoefficients")
     print("To run test use the following command:")
     print(">> pytest -v")

@@ -21,7 +21,6 @@ TODO:
 
 import os
 
-import numpy as np
 import pyvista as pv
 
 from ceasiompy.SU2Run.func.extractloads import extract_loads
@@ -31,24 +30,22 @@ from cpacspy.cpacsfunctions import (
     create_branch,
     get_value_or_default,
 )
-from ceasiompy.SU2Run.func.dotderivatives import (
-    load_parameters,
-    compute_derivatives,
-)
 from ceasiompy.utils.ceasiompyutils import (
     get_aeromap_conditions,
-    ensure_and_append_text_element
 )
 from ceasiompy.SU2Run.func.utils import (
     get_wetted_area,
     get_su2_aerocoefs,
-    get_su2_forces_moments,
     get_efficiency_and_aoa,
 )
 
 from pathlib import Path
-from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
+
+from cpacspy.cpacspy import (
+    CPACS,
+    AeroMap,
+)
 
 from ceasiompy import log
 from cpacspy.utils import COEFS
@@ -67,8 +64,6 @@ from ceasiompy.utils.commonxpath import (
     SU2_ROTATION_RATE_XPATH,
     SU2_UPDATE_WETTED_AREA_XPATH,
     WETTED_AREA_XPATH,
-    SU2_DYNAMICDERIVATIVES_DATA_XPATH,
-    SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH,
 )
 
 # =================================================================================================
@@ -118,9 +113,9 @@ def get_aeromap_uid(tixi: Tixi3, fixed_cl: str) -> str:
 
 
 def get_static_results(
-    tixi,
-    aeromap,
-    config_dir,
+    tixi: Tixi3,
+    aeromap: AeroMap,
+    config_dir: Path,
     aoa_list,
     aos_list,
     mach_list,
@@ -241,7 +236,6 @@ def get_static_results(
         extract_loads(config_dir)
 
 
-
 def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
     """
     Updates CPACS file with SU2 results.
@@ -264,13 +258,23 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
     found_wetted_area = False
 
     for config_dir in sorted(case_dir_list):
-        
+
         if not config_dir.is_dir():
             log.warning(f"{config_dir} is not a directory.")
             continue
 
         if "dynstab" not in str(config_dir):
-            get_static_results(tixi, aeromap, config_dir, aoa_list, aos_list, mach_list, alt_list, fixed_cl, found_wetted_area)
+            get_static_results(
+                tixi,
+                aeromap,
+                config_dir,
+                aoa_list,
+                aos_list,
+                mach_list,
+                alt_list,
+                fixed_cl,
+                found_wetted_area
+            )
 
         else:
             log.warning("Accessing dynamic results is not implemented yet.")

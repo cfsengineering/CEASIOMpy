@@ -77,16 +77,6 @@ def get_fuselage_scaling(cpacs: CPACS) -> Tuple[float, float, float]:
     Source:
         * Reference paper or book, with author and date
 
-    Args:
-        cpacs_path (Path): Path to CPACS file
-        cpacs_out_path (Path):Path to CPACS output file
-
-    Returns:
-        Tuple with fuselage scaling
-
-        * x (float): Scaling on x [-]
-        * y (float): Scaling on y [-]
-        * z (float): Scaling on z [-]
     """
 
     tixi = cpacs.tixi
@@ -119,7 +109,7 @@ def my_subfunc(arg_a: str, arg_b: str) -> str:
        * Reference paper or book, with author and date
 
     Args:
-        arg_a (str):  Argument 1
+        arg_a (str): Argument 1
         arg_a (str): Argument 2
 
     Returns:

@@ -311,35 +311,6 @@ def su2_mesh_list_from_db(tixi: Tixi3) -> List:
     return su2_mesh_list
 
 
-def get_su2_version() -> str:
-    """
-    Return the installed version of SU2.
-
-    Returns:
-        version (str): Version of SU2.
-
-    """
-
-    # Access su2 path
-    su2py_path = get_install_path("SU2_CFD.py")
-
-    # If no path exists return ""None
-    if not su2py_path:
-        return "None"
-
-    # Otherwise return version
-    with open(su2py_path, "r") as f:
-        for line in f.readlines():
-            if "version" not in line:
-                continue
-
-            version = re.search(r"version\s*([\d.]+)", line).group(1)
-            log.info(f"Version of SU2: {version}")
-            return version
-
-    return "None"
-
-
 def get_su2_cfg_tpl(tpl_type: str) -> Path:
     """
     Get path of the SU2 config template of template_type

@@ -45,45 +45,34 @@ jobs:
       id: cache
 
     - name: Update environment
-      run: mamba env update -n ceasiompy -f ./environment.yml
+      run: mamba env update -n ceasiompy -f environment.yml
       if: steps.cache.outputs.cache-hit != 'true'
-
-    - name: Checkout repository
-      uses: actions/checkout@v3
-      with:
-        path: repo
 
     - name: Install ceasiompy with pip
       shell: bash -l {0}
-      working-directory: ./repo/CEASIOMpy
       run: pip install -e .
 
     - name: Install PyTornado
       shell: bash -l {0}
-      working-directory: ./repo/CEASIOMpy
       run: installation/Ubuntu/install_pytornado.sh
 
     - name: Install SUMO
       shell: bash -l {0}
-      working-directory: ./repo/CEASIOMpy
       run: installation/Ubuntu/install_sumo.sh
 
     - name: Install AVL
       shell: bash -l {0}
-      working-directory: ./repo/CEASIOMpy
       run: installation/Ubuntu/install_pyavl.sh
 
     - name: Install SU2
       shell: bash -l {0}
-      working-directory: ./repo/CEASIOMpy
       run: installation/Ubuntu/install_su2.sh
         
     - name: Run integration tests
       shell: bash -l {0}
-      working-directory: ./repo/CEASIOMpy
       run: |
         source ~/.bashrc
-        pytest -v tests --cov=ceasiompy/ --cov-report xml:coverage.xml -m "not gui"
+        pytest -v ./tests --cov=ceasiompy/ --cov-report xml:coverage.xml -m "not gui"
 
     - name: Upload coverage to Codecov
       uses: codecov/codecov-action@v3.1.0

@@ -43,18 +43,14 @@ def test_save_aero_coef():
     with change_working_dir(MODULE_DIR):
         cpacs = CPACS(CPACS_IN_PATH)
         save_aero_coef(cpacs, get_results_directory(MODULE_NAME))
-        assert FIG_PATH.exists()
 
-    if CPACS_OUT_PATH.exists():
-        CPACS_OUT_PATH.unlink()
-
-    if FIG_PATH.exists():
-        FIG_PATH.unlink()
-
+        # Assert the figure exists
+        assert FIG_PATH.exists(), f"Figure not found at {FIG_PATH}"
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 
 if __name__ == "__main__":
     print("Test SaveAeroCoefficients")

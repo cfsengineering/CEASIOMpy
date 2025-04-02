@@ -22,10 +22,12 @@ Python version: >=3.8
 
 from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
 from ceasiompy.PyAVL.func.results import get_avl_results
-from ceasiompy.PyAVL.func.utils import duplicate_elements
 from ceasiompy.PyAVL.func.config import write_command_file
-from ceasiompy.PyAVL.func.utils import retrieve_gui_values
 
+from ceasiompy.PyAVL.func.utils import (
+    duplicate_elements,
+    retrieve_gui_values,
+)
 from ceasiompy.utils.ceasiompyutils import (
     call_main,
     run_software,
@@ -50,10 +52,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         1. Load the necessary data.
         2. Run avl with p, q, r rate deflections.
         3. Run avl with control surfaces deflections.
-
-    Args:
-        cpacs_path (Path): Path to the CPACS input file.
-
     """
 
     # 1. Load the necessary data

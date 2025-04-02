@@ -99,8 +99,14 @@ def run_avl(cpacs_path, wkdir):
             ref_density=density,
             g_acceleration=g,
         )
-
-        subprocess.run(["xvfb-run", "avl"], stdin=open(str(command_path), "r"), cwd=case_dir_path)
+        log.info("Running AVL")
+        subprocess.run(
+            ["xvfb-run", "avl"], 
+            stdin=open(str(command_path), "r"), 
+            cwd=case_dir_path, 
+            stdout=subprocess.DEVNULL
+        )
+        log.info("AVL Done!")
 
         Path(avl_path).rename(case_dir_path / Path(avl_path).name)
 

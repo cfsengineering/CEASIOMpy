@@ -620,9 +620,9 @@ def convert_cpacs_to_avl(cpacs_path, machnumber, wkdir):
                         "#Xle    Yle    Zle     Chord   Ainc\n"
                     ])
                     avl_file.write(f"{x_LE_rot:.3f} {y_LE_rot:.3f} {z_LE_rot:.3f} "
-                                    f"{(wg_sec_chord):.3f} {wg_sec_rot.y}\n\n")
+                                   f"{(wg_sec_chord):.3f} {wg_sec_rot.y}\n\n")
 
-                    avl_file.writelines(["AFILE\n",str(airfoil_dat_path) + "\n\n"])
+                    avl_file.writelines(["AFILE\n", str(airfoil_dat_path) + "\n\n"])
 
     return Path(avl_path)
 

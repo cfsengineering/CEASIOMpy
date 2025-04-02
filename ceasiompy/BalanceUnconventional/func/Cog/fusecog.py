@@ -25,14 +25,6 @@ from ceasiompy import log
 
 
 # =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes and into
-   the InputClasses/Unconventional folder."""
-
-
-# =============================================================================
 #   FUNCTIONS
 # =============================================================================
 
@@ -98,7 +90,8 @@ def center_of_gravity_evaluation(F_PERC, P_PERC, afg, awg, mw, ed, ui, bi):
                 x0 = x
 
     mass_seg_i = np.zeros((max_seg_n, tot_nb))
-    oem_vol = (awg.wing_tot_vol - awg.wing_fuel_vol) + (np.sum(afg.fuse_vol) - fuse_fuel_vol)
+    oem_vol = (awg.wing_tot_vol - awg.wing_fuel_vol) + \
+        (np.sum(afg.fuse_vol) - fuse_fuel_vol)
 
     # Evaluating oem density, fuel density, passenger density
     if bi.USER_EN_PLACEMENT:
@@ -110,7 +103,8 @@ def center_of_gravity_evaluation(F_PERC, P_PERC, afg, awg, mw, ed, ui, bi):
 
     mpass_par = (mw.mass_payload * (P_PERC / 100.0)) / pass_vol
 
-    mfuel_par = (mw.mass_fuel_tot * (F_PERC / 100.0)) / (awg.wing_fuel_vol + fuse_fuel_vol)
+    mfuel_par = (mw.mass_fuel_tot * (F_PERC / 100.0)) / \
+        (awg.wing_fuel_vol + fuse_fuel_vol)
 
     mtom = (
         mw.operating_empty_mass
@@ -135,7 +129,8 @@ def center_of_gravity_evaluation(F_PERC, P_PERC, afg, awg, mw, ed, ui, bi):
                         i - 1
                     ]
                 else:
-                    mass_seg_i[j - 1][i - 1] = oem_par * afg.fuse_seg_vol[j - 1][i - 1]
+                    mass_seg_i[j - 1][i - 1] = oem_par * \
+                        afg.fuse_seg_vol[j - 1][i - 1]
     w = 0
     for i in range(afg.fus_nb + 1, t_nb + 1):
         for j in range(1, awg.wing_seg_nb[i - 1 - afg.fus_nb] + 1):
@@ -193,13 +188,16 @@ def center_of_gravity_evaluation(F_PERC, P_PERC, afg, awg, mw, ed, ui, bi):
 
     center_of_gravity = []
     center_of_gravity.append(
-        round((np.sum(airplane_centers_segs[:, :, 0] * mass_seg_i) + cog_enx) / mtom, 3)
+        round(
+            (np.sum(airplane_centers_segs[:, :, 0] * mass_seg_i) + cog_enx) / mtom, 3)
     )
     center_of_gravity.append(
-        round((np.sum(airplane_centers_segs[:, :, 1] * mass_seg_i) + cog_eny) / mtom, 3)
+        round(
+            (np.sum(airplane_centers_segs[:, :, 1] * mass_seg_i) + cog_eny) / mtom, 3)
     )
     center_of_gravity.append(
-        round((np.sum(airplane_centers_segs[:, :, 2] * mass_seg_i) + cog_enz) / mtom, 3)
+        round(
+            (np.sum(airplane_centers_segs[:, :, 2] * mass_seg_i) + cog_enz) / mtom, 3)
     )
 
     for i in range(1, 4):

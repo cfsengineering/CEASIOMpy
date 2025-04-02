@@ -21,14 +21,6 @@ Python version: >=3.8
 
 
 # =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes and into
-   the InputClasses/Unconventional folder."""
-
-
-# =============================================================================
 #   FUNCTIONS
 # =============================================================================
 
@@ -76,8 +68,10 @@ def produce_wing_output_txt(awg, NAME):
     OutputTextFile.write("\n-------------------------------------------------")
     OutputTextFile.write("\nNumber of Wings [-]: " + str(awg.wing_nb))
     OutputTextFile.write("\nWing symmetry plane [-]: " + str(awg.wing_sym))
-    OutputTextFile.write("\nNumber of wing sections [-]: " + str(awg.wing_sec_nb))
-    OutputTextFile.write("\nNumber of wing segments [-]: " + str(awg.wing_seg_nb))
+    OutputTextFile.write(
+        "\nNumber of wing sections [-]: " + str(awg.wing_sec_nb))
+    OutputTextFile.write(
+        "\nNumber of wing segments [-]: " + str(awg.wing_seg_nb))
     OutputTextFile.write("\nWingd Span [m]: " + str(awg.wing_span))
     OutputTextFile.write(
         "\nWing MAC length [m]: "
@@ -95,27 +89,40 @@ def produce_wing_output_txt(awg, NAME):
             ]
         )
     )
-    OutputTextFile.write("\nWings sections thickness [m]:\n" + str(awg.wing_sec_thickness))
-    OutputTextFile.write("\nWings sections mean thickness [m]:\n" + str(awg.wing_sec_mean_thick))
-    OutputTextFile.write("\nWing segments length [m]:\n " + str(awg.wing_seg_length))
-    OutputTextFile.write("\nWing max chord length [m]: " + str(awg.wing_max_chord))
-    OutputTextFile.write("\nWing min chord length [m]: " + str(awg.wing_min_chord))
-    OutputTextFile.write("\nWings planform area [m^2]: " + str(awg.wing_plt_area))
-    OutputTextFile.write("\nMain wing wetted surface [m^2]: " + str(awg.main_wing_surface))
-    OutputTextFile.write("\nTail wings wetted surface [m^2]: " + str(awg.tail_wings_surface))
-    OutputTextFile.write("\nMain wing planform area [m^2]: " + str(awg.wing_plt_area_main))
+    OutputTextFile.write(
+        "\nWings sections thickness [m]:\n" + str(awg.wing_sec_thickness))
+    OutputTextFile.write(
+        "\nWings sections mean thickness [m]:\n" + str(awg.wing_sec_mean_thick))
+    OutputTextFile.write(
+        "\nWing segments length [m]:\n " + str(awg.wing_seg_length))
+    OutputTextFile.write(
+        "\nWing max chord length [m]: " + str(awg.wing_max_chord))
+    OutputTextFile.write(
+        "\nWing min chord length [m]: " + str(awg.wing_min_chord))
+    OutputTextFile.write(
+        "\nWings planform area [m^2]: " + str(awg.wing_plt_area))
+    OutputTextFile.write(
+        "\nMain wing wetted surface [m^2]: " + str(awg.main_wing_surface))
+    OutputTextFile.write(
+        "\nTail wings wetted surface [m^2]: " + str(awg.tail_wings_surface))
+    OutputTextFile.write(
+        "\nMain wing planform area [m^2]: " + str(awg.wing_plt_area_main))
     OutputTextFile.write("\nCabin area [m^2]: " + str(awg.cabin_area))
     OutputTextFile.write("\nVolume of each wing [m^3]: " + str(awg.wing_vol))
     OutputTextFile.write("\nTotal wing volume [m^3]: " + str(awg.wing_tot_vol))
     OutputTextFile.write("\n-------------------------------------------------")
     OutputTextFile.write("\nWINGS VOLUMES -----------------------------------")
     OutputTextFile.write("\nCabin volume [m^3]: " + str(awg.cabin_vol))
-    OutputTextFile.write("\nVolume of the wing as fuselage [m^3]: " + str(awg.fuse_vol))
     OutputTextFile.write(
-        "\nVolume of the remaining portion of the wing [m^3]: " + str(awg.wing_vol)
+        "\nVolume of the wing as fuselage [m^3]: " + str(awg.fuse_vol))
+    OutputTextFile.write(
+        "\nVolume of the remaining portion of the wing [m^3]: " + str(
+            awg.wing_vol)
     )
-    OutputTextFile.write("\nFuel volume in the fuselage wing [m^3]: " + str(awg.fuse_fuel_vol))
-    OutputTextFile.write("\nFuel volume in the wing [m^3]: " + str(awg.wing_fuel_vol))
+    OutputTextFile.write(
+        "\nFuel volume in the fuselage wing [m^3]: " + str(awg.fuse_fuel_vol))
+    OutputTextFile.write(
+        "\nFuel volume in the wing [m^3]: " + str(awg.wing_fuel_vol))
     OutputTextFile.write("\nTotal fuel Volume [m^3]: " + str(awg.fuel_vol_tot))
     OutputTextFile.write("\n-------------------------------------------------")
     OutputTextFile.write("\n-------------------------------------------------")
@@ -168,16 +175,22 @@ def produce_geom_output_txt(afg, awg, NAME):
     OutputTextFile.write("\nFUSELAGES ---------------------------------------")
     OutputTextFile.write("\n-------------------------------------------------")
     OutputTextFile.write("\nNumber of fuselages [-]: " + str(afg.fuse_nb))
-    OutputTextFile.write("\nNumber of fuselage sections [-]: " + str(afg.fuse_sec_nb))
-    OutputTextFile.write("\nNumber of fuselage segments [-]: " + str(afg.fuse_seg_nb))
+    OutputTextFile.write(
+        "\nNumber of fuselage sections [-]: " + str(afg.fuse_sec_nb))
+    OutputTextFile.write(
+        "\nNumber of fuselage segments [-]: " + str(afg.fuse_seg_nb))
     OutputTextFile.write("\nCabin segments array [-]:\n" + str(afg.cabin_seg))
     OutputTextFile.write("\nFuse Length [m]: " + str(afg.fuse_length))
-    OutputTextFile.write("\nFuse nose Length [m]: " + str(afg.fuse_nose_length))
-    OutputTextFile.write("\nFuse cabin Length [m]: " + str(afg.fuse_cabin_length))
-    OutputTextFile.write("\nFuse tail Length [m]: " + str(afg.fuse_tail_length))
+    OutputTextFile.write(
+        "\nFuse nose Length [m]: " + str(afg.fuse_nose_length))
+    OutputTextFile.write(
+        "\nFuse cabin Length [m]: " + str(afg.fuse_cabin_length))
+    OutputTextFile.write(
+        "\nFuse tail Length [m]: " + str(afg.fuse_tail_length))
     OutputTextFile.write("\nAircraft Length [m]: " + str(afg.tot_length))
     OutputTextFile.write(
-        "\nPerimeter of each section of each fuselage [m]: \n" + str(afg.fuse_sec_per)
+        "\nPerimeter of each section of each fuselage [m]: \n" + str(
+            afg.fuse_sec_per)
     )
     OutputTextFile.write(
         "\nRelative distance of each section of the fuselage, \
@@ -185,33 +198,42 @@ def produce_geom_output_txt(afg, awg, NAME):
         + str(afg.fuse_sec_rel_dist)
     )
     OutputTextFile.write(
-        "\nLength of each section of each fuselage [m]: \n" + str(afg.fuse_seg_length)
+        "\nLength of each section of each fuselage [m]: \n" + str(
+            afg.fuse_seg_length)
     )
-    OutputTextFile.write("\nMean fuselage width [m]: " + str(afg.fuse_mean_width))
+    OutputTextFile.write(
+        "\nMean fuselage width [m]: " + str(afg.fuse_mean_width))
     OutputTextFile.write(
         "\nWidth of each section of each fuselage [m]: \n" + str(afg.fuse_sec_width)
     )
     OutputTextFile.write(
-        "\nHeight of each section of each fuselage [m]: \n" + str(afg.fuse_sec_height)
+        "\nHeight of each section of each fuselage [m]: \n" + str(
+            afg.fuse_sec_height)
     )
     OutputTextFile.write("\nCabin area [m^2]: " + str(afg.cabin_area))
-    OutputTextFile.write("\nFuselages wetted surface [m^2]: " + str(afg.fuse_surface))
     OutputTextFile.write(
-        "\nVolume of all the segmetns of each fuselage " + "[m^3]: \n" + str(afg.fuse_seg_vol)
+        "\nFuselages wetted surface [m^2]: " + str(afg.fuse_surface))
+    OutputTextFile.write(
+        "\nVolume of all the segmetns of each fuselage [m^3]: \n" + str(afg.fuse_seg_vol)
     )
-    OutputTextFile.write("\nVolume of each cabin [m^3]: " + str(afg.fuse_cabin_vol))
-    OutputTextFile.write("\nVolume of each fuselage [m^3]: " + str(afg.fuse_vol))
-    OutputTextFile.write("\nFuel Volume in each fuselage [m^3]: " + str(afg.fuse_fuel_vol))
+    OutputTextFile.write(
+        "\nVolume of each cabin [m^3]: " + str(afg.fuse_cabin_vol))
+    OutputTextFile.write(
+        "\nVolume of each fuselage [m^3]: " + str(afg.fuse_vol))
+    OutputTextFile.write(
+        "\nFuel Volume in each fuselage [m^3]: " + str(afg.fuse_fuel_vol))
     OutputTextFile.write("\n-------------------------------------------------")
     OutputTextFile.write("\nWINGS -------------------------------------------")
     OutputTextFile.write("\n-------------------------------------------------")
     OutputTextFile.write("\nNumber of Wings [-]: " + str(awg.wing_nb))
     OutputTextFile.write("\nWing symmetry plane [-]: " + str(awg.wing_sym))
     OutputTextFile.write(
-        "\nNumber of wing sections (not counting symmetry) [-]: " + str(awg.wing_sec_nb)
+        "\nNumber of wing sections (not counting symmetry) [-]: " + str(
+            awg.wing_sec_nb)
     )
     OutputTextFile.write(
-        "\nNumber of wing segments (not counting symmetry) [-]: " + str(awg.wing_seg_nb)
+        "\nNumber of wing segments (not counting symmetry) [-]: " + str(
+            awg.wing_seg_nb)
     )
     OutputTextFile.write("\nWingd Span [m]: " + str(awg.wing_span))
     OutputTextFile.write(
@@ -230,20 +252,30 @@ def produce_geom_output_txt(afg, awg, NAME):
             ]
         )
     )
-    OutputTextFile.write("\nWings sections thickness [m]:\n" + str(awg.wing_sec_thickness))
-    OutputTextFile.write("\nWings sections mean thickness [m]:\n" + str(awg.wing_sec_mean_thick))
-    OutputTextFile.write("\nWing segments length [m]:\n " + str(awg.wing_seg_length))
-    OutputTextFile.write("\nWing max chord length [m]: " + str(awg.wing_max_chord))
-    OutputTextFile.write("\nWing min chord length [m]: " + str(awg.wing_min_chord))
-    OutputTextFile.write("\nWings planform area [m^2]: " + str(awg.wing_plt_area))
-    OutputTextFile.write("\nMain wing wetted surface [m^2]: " + str(awg.main_wing_surface))
-    OutputTextFile.write("\nTail wings wetted surface [m^2]: " + str(awg.tail_wings_surface))
-    OutputTextFile.write("\nMain wing planform area [m^2]: " + str(awg.wing_plt_area_main))
+    OutputTextFile.write(
+        "\nWings sections thickness [m]:\n" + str(awg.wing_sec_thickness))
+    OutputTextFile.write(
+        "\nWings sections mean thickness [m]:\n" + str(awg.wing_sec_mean_thick))
+    OutputTextFile.write(
+        "\nWing segments length [m]:\n " + str(awg.wing_seg_length))
+    OutputTextFile.write(
+        "\nWing max chord length [m]: " + str(awg.wing_max_chord))
+    OutputTextFile.write(
+        "\nWing min chord length [m]: " + str(awg.wing_min_chord))
+    OutputTextFile.write(
+        "\nWings planform area [m^2]: " + str(awg.wing_plt_area))
+    OutputTextFile.write(
+        "\nMain wing wetted surface [m^2]: " + str(awg.main_wing_surface))
+    OutputTextFile.write(
+        "\nTail wings wetted surface [m^2]: " + str(awg.tail_wings_surface))
+    OutputTextFile.write(
+        "\nMain wing planform area [m^2]: " + str(awg.wing_plt_area_main))
     OutputTextFile.write("\n-------------------------------------------------")
     OutputTextFile.write("\nWINGS VOLUMES -----------------------------------")
     OutputTextFile.write("\nVolume of each wing [m^3]: " + str(awg.wing_vol))
     OutputTextFile.write("\nTotal wing volume [m^3]: " + str(awg.wing_tot_vol))
-    OutputTextFile.write("\nWing volume for fuel storage [m^3]: " + str(awg.wing_fuel_vol))
+    OutputTextFile.write(
+        "\nWing volume for fuel storage [m^3]: " + str(awg.wing_fuel_vol))
     OutputTextFile.write("\n-------------------------------------------------")
     OutputTextFile.write("\n-------------------------------------------------")
 

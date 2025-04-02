@@ -29,16 +29,10 @@ from ceasiompy import log
 
 
 # =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes and into
-   the InputClasses/Unconventional folder."""
-
-
-# =============================================================================
 #   FUNCTIONS
 # =============================================================================
+
+
 def unc_center_of_gravity(awg, afg, bout, ui, bi, mw, ed):
     """Unconventional aircraft center of gravity analysis main function.
     It dvides the cases defined and evaluates them calling the
@@ -105,7 +99,7 @@ def unc_center_of_gravity(awg, afg, bout, ui, bi, mw, ed):
 
     if bi.USER_CASE:
         if bi.P_PERC < 0 or bi.F_PERC < 0:
-            raise Exception("Error, F_PERC and P_PERC can" + " not be negative.")
+            raise Exception("Error, F_PERC and P_PERC can not be negative.")
         if (
             mw.mass_fuel_maxpass * (bi.F_PERC / 100) + mw.mass_payload * (bi.P_PERC / 100)
         ) > mw.mass_fuel_maxpass + mw.mass_payload:
@@ -114,7 +108,8 @@ def unc_center_of_gravity(awg, afg, bout, ui, bi, mw, ed):
                 + "chosen payload mass,"
                 + "fuel mass automatically reduced"
             )
-            bi.F_PERC = 1 + ((mw.mass_payload / mw.mass_fuel_maxpass) * (1 - (bi.P_PERC / 100)))
+            bi.F_PERC = 1 + \
+                ((mw.mass_payload / mw.mass_fuel_maxpass) * (1 - (bi.P_PERC / 100)))
             log.warning("FUEL percentage: " + str(bi.F_PERC * 100))
         log.info("---------- User configuration ---------")
         (bout.cg_user, mw.ms_user, airplane_centers_segs) = center_of_gravity_evaluation(
@@ -181,7 +176,7 @@ def bwb_center_of_gravity(awg, bout, ui, bi, mw, ed):
 
     if bi.USER_CASE:
         if bi.P_PERC < 0 or bi.F_PERC < 0:
-            raise Exception("Error, F_PERC and P_PERC can" + " not be negative.")
+            raise Exception("Error, F_PERC and P_PERC can not be negative.")
         if (
             mw.mass_fuel_maxpass * (bi.F_PERC / 100) + mw.mass_payload * (bi.P_PERC / 100)
         ) > mw.mass_fuel_maxpass + mw.mass_payload:
@@ -190,7 +185,8 @@ def bwb_center_of_gravity(awg, bout, ui, bi, mw, ed):
                 + "chosen payload mass,"
                 + "fuel mass automatically reduced"
             )
-            bi.F_PERC = 1 + ((mw.mass_payload / mw.mass_fuel_maxpass) * (1 - bi.P_PERC / 100))
+            bi.F_PERC = 1 + \
+                ((mw.mass_payload / mw.mass_fuel_maxpass) * (1 - bi.P_PERC / 100))
             log.warning("FUEL percentage: " + str(bi.F_PERC))
         log.info("---------- User configuration ---------")
         (bout.cg_user, mw.ms_user, airplane_centers_segs) = center_of_gravity_evaluation_bwb(

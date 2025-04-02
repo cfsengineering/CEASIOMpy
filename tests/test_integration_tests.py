@@ -107,6 +107,7 @@ def test_integration_5():
 # =================================================================================================
 
 if __name__ == "__main__":
+    test_integration_5()
     print("Integration tests")
     print("To run test use the following command:")
     print(">> pytest -v . --cov=../ceasiompy --cov-report term")

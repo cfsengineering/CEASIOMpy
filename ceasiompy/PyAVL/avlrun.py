@@ -86,7 +86,7 @@ def run_avl(cpacs_path, wkdir):
         Path(wkdir, case_dir_name).mkdir(exist_ok=True)
         case_dir_path = Path(wkdir, case_dir_name)
 
-        avl_path = convert_cpacs_to_avl(cpacs_path, wkdir=case_dir_path)
+        avl_path = convert_cpacs_to_avl(cpacs_path, machnumber=mach, wkdir=case_dir_path)
 
         command_path = write_command_file(
             avl_path,
@@ -101,6 +101,9 @@ def run_avl(cpacs_path, wkdir):
         )
 
         subprocess.run(["xvfb-run", "avl"], stdin=open(str(command_path), "r"), cwd=case_dir_path)
+        
+        Path(avl_path).rename(case_dir_path / Path(avl_path).name)
+        
 
         if save_fig:
             convert_ps_to_pdf(wkdir=case_dir_path)

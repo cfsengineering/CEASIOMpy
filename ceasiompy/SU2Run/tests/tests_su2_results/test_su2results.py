@@ -54,20 +54,6 @@ from ceasiompy.utils.commonxpath import (
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
-"""
-class TestModuleTemplate(CeasiompyTest):
-    @classmethod
-    def setUpClass(cls):
-        cls.test_results_path = TEST_RESULTS_FILES_PATH
-        cls.config_dir = cls.test_results_path / "Case01_mach0.3_anglealpha_dynstab"
-        cls.cpacs = CPACS(cls.test_results_path / "00_ToolInput.xml")
-        cls.tixi = cls.cpacs.tixi
-        cls.wkdir = current_workflow_dir()
-        # Get the reference dimensions
-        cls.s = cls.tixi.getDoubleElement(REF_XPATH + '/area')
-        cls.c = cls.tixi.getDoubleElement(REF_XPATH + '/length')
-        cls.b = cls.s / cls.c
-"""
 
 
 @pytest.mark.skipif("DISPLAY" not in os.environ, reason="requires display")
@@ -89,7 +75,8 @@ def forces_breakdown(self):
     n = 22
 
     # Retrieve the directories matching the pattern
-    dir_list: List[Path] = [d for d in Path(self.config_dir.parent).iterdir() if d.is_dir()]
+    dir_list: List[Path] = [d for d in Path(
+        self.config_dir.parent).iterdir() if d.is_dir()]
     log.info(f"dir_list {dir_list}")
 
     dict_dir: List[Dict] = []
@@ -140,10 +127,13 @@ def forces_breakdown(self):
         alpha_file = check_one_entry(dict_dir, "alpha")
         # beta_file = check_one_entry(dict_dir, "beta")
 
-        angle_file = {"alpha": alpha_file / "no_deformation", }  # "beta": beta_file
+        angle_file = {
+            "alpha": alpha_file / "no_deformation"
+        }  # "beta": beta_file
 
         # Retrieve forces and moments for (alpha, alpha_dot) = (0, 0)
-        none_force_file_path = Path(none_file, "no_deformation", SU2_FORCES_BREAKDOWN_NAME)
+        none_force_file_path = Path(
+            none_file, "no_deformation", SU2_FORCES_BREAKDOWN_NAME)
 
         (
             cfx_0, cfy_0, cfz_0,
@@ -170,7 +160,8 @@ def forces_breakdown(self):
         for angle in ['alpha']:  # , 'beta'
 
             # Get results from dynstab
-            force_file_paths = list(Path(angle_file[angle]).glob("forces_breakdown_*.dat"))
+            force_file_paths = list(
+                Path(angle_file[angle]).glob("forces_breakdown_*.dat"))
 
             if not force_file_paths:
                 raise OSError("No result force file have been found!")
@@ -179,7 +170,8 @@ def forces_breakdown(self):
 
             for force_file_path in force_file_paths:
                 # Access coefficients
-                cfx, cfy, cfz, cmx, cmy, cmz = get_su2_forces_moments(force_file_path)
+                cfx, cfy, cfz, cmx, cmy, cmz = get_su2_forces_moments(
+                    force_file_path)
                 forces_coef_list.append([cfx, cfy, cfz])
                 moments_coef_list.append([cmx, cmy, cmz])
 

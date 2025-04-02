@@ -95,7 +95,8 @@ def convert_fuselage(tixi: Tixi3, integrate_fuselage: bool, avl_path: Path, resu
 
             # Write fuselage settings
             with open(avl_path, 'a') as avl_file:
-                avl_file.write("#--------------------------------------------------\n")
+                avl_file.write(
+                    "#--------------------------------------------------\n")
                 avl_file.write("BODY\n")
                 avl_file.write("Fuselage\n\n")
                 avl_file.write("!Nbody  Bspace\n")
@@ -127,7 +128,8 @@ def convert_fuselage(tixi: Tixi3, integrate_fuselage: bool, avl_path: Path, resu
             body_height_vec = np.zeros(sec_cnt)
 
             for i_sec in range(sec_cnt):
-                sec_xpath = fus_xpath + "/sections/section[" + str(i_sec + 1) + "]"
+                sec_xpath = fus_xpath + \
+                    "/sections/section[" + str(i_sec + 1) + "]"
                 sec_uid = tixi.getTextAttribute(sec_xpath, "uID")
 
                 sec_transf = Transformation()
@@ -140,7 +142,8 @@ def convert_fuselage(tixi: Tixi3, integrate_fuselage: bool, avl_path: Path, resu
                     )
 
                 # Elements
-                elem_cnt = tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
+                elem_cnt = tixi.getNamedChildrenCount(
+                    sec_xpath + "/elements", "element")
 
                 if elem_cnt > 1:
                     log.warning(
@@ -149,7 +152,8 @@ def convert_fuselage(tixi: Tixi3, integrate_fuselage: bool, avl_path: Path, resu
                     )
 
                 for i_elem in range(elem_cnt):
-                    elem_xpath = sec_xpath + "/elements/element[" + str(i_elem + 1) + "]"
+                    elem_xpath = sec_xpath + \
+                        "/elements/element[" + str(i_elem + 1) + "]"
                     elem_uid = tixi.getTextAttribute(elem_xpath, "uID")
 
                     elem_transf = Transformation()
@@ -163,7 +167,8 @@ def convert_fuselage(tixi: Tixi3, integrate_fuselage: bool, avl_path: Path, resu
 
                     # Fuselage profiles
                     prof_uid = tixi.getTextElement(elem_xpath + "/profileUID")
-                    _, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
+                    _, prof_vect_y, prof_vect_z = get_profile_coord(
+                        tixi, prof_uid)
 
                     prof_size_y = (max(prof_vect_y) - min(prof_vect_y)) / 2
                     prof_size_z = (max(prof_vect_z) - min(prof_vect_z)) / 2
@@ -179,12 +184,15 @@ def convert_fuselage(tixi: Tixi3, integrate_fuselage: bool, avl_path: Path, resu
 
                     # Could be a problem if they are less positionings than sections
                     # TODO: solve that!
-                    pos_y_list[i_sec] += ((1 + prof_min_y) * prof_size_y) * elem_transf.scaling.y
-                    pos_z_list[i_sec] += ((1 + prof_min_z) * prof_size_z) * elem_transf.scaling.z
+                    pos_y_list[i_sec] += ((1 + prof_min_y)
+                                          * prof_size_y) * elem_transf.scaling.y
+                    pos_z_list[i_sec] += ((1 + prof_min_z)
+                                          * prof_size_z) * elem_transf.scaling.z
 
                     # Compute coordinates of the center of section
                     body_frm_center_x = (
-                        elem_transf.translation.x + sec_transf.translation.x + pos_x_list[i_sec]
+                        elem_transf.translation.x
+                        + sec_transf.translation.x + pos_x_list[i_sec]
                     ) * fus_transf.scaling.x
 
                     body_frm_center_z = (
@@ -239,7 +247,8 @@ def convert_fuselage(tixi: Tixi3, integrate_fuselage: bool, avl_path: Path, resu
                             fus_file.write(f"{x_fus:.3f}\t{y_fus:.3f}\n")
 
                         # Write coordinates of the nose of the fuselage
-                        y_nose = np.mean([y_fuselage_top[0], y_fuselage_bottom[0]])
+                        y_nose = np.mean(
+                            [y_fuselage_top[0], y_fuselage_bottom[0]])
                         # fus_file.write(str(x_fuselage[0]) + "\t" + str(y_nose) + "\n")
                         fus_file.write(f"{x_fuselage[0]:.3f}\t{y_nose:.3f}\n")
 
@@ -255,6 +264,114 @@ def convert_fuselage(tixi: Tixi3, integrate_fuselage: bool, avl_path: Path, resu
     return fus_z_profile, fus_radius_profile, body_transf
 
 
+def leadingedge_coordinates(
+    tixi,
+    avl_path,
+    i_wing,
+    i_sec,
+    x_LE_rot,
+    y_LE_rot,
+    z_LE_rot,
+    wg_sec_chord,
+    wg_sec_rot,
+    wing_xpath,
+    c_ref,
+    s_ref,
+    foil_dat_path,
+) -> None:
+
+    # Write the leading edge coordinates and the airfoil file
+    with open(avl_path, 'a') as avl_file:
+        avl_file.write("#---------------\n")
+        avl_file.write("SECTION\n")
+        avl_file.write("#Xle    Yle    Zle     Chord   Ainc\n")
+        avl_file.write(
+            f"{x_LE_rot:.3f} {y_LE_rot:.3f} {z_LE_rot:.3f} "
+            f"{(wg_sec_chord):.3f} {wg_sec_rot.y}\n"
+        )
+
+        edge_xpath = "/componentSegments/componentSegment"
+        bis_xpath = "/controlSurfaces/trailingEdgeDevices"
+        control_xpath_base = wing_xpath + edge_xpath + bis_xpath
+        num_devices = tixi.getNumberOfChilds(control_xpath_base)
+
+        for i in range(1, num_devices + 1):
+            control_xpath = f"{control_xpath_base}/trailingEdgeDevice[{i}]"
+            control_uid = tixi.getTextAttribute(control_xpath, "uID")
+            innerhingeXsi_xpath = control_xpath + "/path/innerHingePoint/hingeXsi"
+            outerhingeXsi_xpath = control_xpath + "/path/outerHingePoint/hingeXsi"
+            innerhingeXsi = float(get_value(tixi, innerhingeXsi_xpath))
+            outerhingeXsi = float(get_value(tixi, outerhingeXsi_xpath))
+
+            innerEta_xpath = control_xpath + "/outerShape/innerBorder/etaTE/eta"
+            outerEta_xpath = control_xpath + "/outerShape/outerBorder/etaTE/eta"
+
+            innerEta = float(get_value(tixi, innerEta_xpath))
+            outerEta = float(get_value(tixi, outerEta_xpath))
+
+            x_axis = (outerhingeXsi - innerhingeXsi) * c_ref
+            y_axis = (outerEta - innerEta) * s_ref
+            z_axis = 0.0
+
+            # TODO : Issue with geometry plot in AVL. We can not check
+            # if the control surface sections are well defined.
+
+            CONTROL_DICT = {
+                "InnerFlap": {
+                    "i_sec": [0, 1],
+                    "type": "flap",
+                    "axis": f"{x_axis} {y_axis} {z_axis}",
+                    "bool": [1.0, 1.0],
+                },
+                "OuterFlap": {
+                    "i_sec": [1, 2],
+                    "type": "flap",
+                    "axis": f"{x_axis} {y_axis} {z_axis}",
+                    "bool": [1.0, 1.0],
+                },
+                "Aileron": {
+                    "i_sec": [2, 3],
+                    "type": "aileron",
+                    "axis": f"{x_axis} {y_axis} {z_axis}",
+                    "bool": [-1.0, -1.0],
+                },
+                "Elevator": {
+                    "i_sec": [0, 1],
+                    "type": "elevator",
+                    "axis": f"{x_axis} {y_axis} {z_axis}",
+                    "bool": [1.0, 1.0],
+                },
+                "Rudder": {
+                    "i_sec": [0, 1],
+                    "type": "rudder",
+                    "axis": f"{x_axis} {z_axis} {y_axis}",
+                    "bool": [-1.0, -1.0],
+                },
+            }
+            control_type = CONTROL_DICT[control_uid]["type"]
+
+            if i_sec == CONTROL_DICT[control_uid]["i_sec"][0]:
+                first_bool = CONTROL_DICT[control_uid]["bool"][0]
+                axis = CONTROL_DICT[control_uid]["axis"]
+                avl_file.write("CONTROL\n")
+                avl_file.write(
+                    f"{control_type} {0.0} {innerhingeXsi} {axis} {first_bool}\n\n")
+            elif i_sec == CONTROL_DICT[control_uid]["i_sec"][1]:
+                second_bool = CONTROL_DICT[control_uid]["bool"][1]
+                axis = CONTROL_DICT[control_uid]["axis"]
+                avl_file.write("CONTROL\n")
+                avl_file.write(
+                    f"{control_type} {0.0} {outerhingeXsi} {axis} {second_bool}\n\n")
+            else:
+                log.warning(
+                    f"Issue with {control_uid} control surface "
+                    f"at section {i_sec} of wing number {i_wing}."
+                )
+
+        avl_file.write("AFILE\n")
+        avl_file.write(foil_dat_path + "\n\n")
+
+
 def convert_cpacs_to_avl(tixi: Tixi3) -> Path:
     """
     Convert a CPACS file geometry into an AVL file geometry.
@@ -266,8 +383,7 @@ def convert_cpacs_to_avl(tixi: Tixi3) -> Path:
         TODO:
 
     Returns:
-        aircraft.avl: Write the input AVL file.
-        avl_path (Path): Path to the AVL input file.
+        (Path): Path to the AVL input file.
 
     """
     # TODO: Modularize this code, make it more clear the notations
@@ -359,7 +475,8 @@ def convert_cpacs_to_avl(tixi: Tixi3) -> Path:
 
         # Write wing settings
         with open(avl_path, 'a') as avl_file:
-            avl_file.write("#--------------------------------------------------\n")
+            avl_file.write(
+                "#--------------------------------------------------\n")
             avl_file.write("SURFACE\n")
             avl_file.write("Wing\n\n")
             avl_file.write("!Nchordwise  Cspace  Nspanwise  Sspace\n")
@@ -392,16 +509,19 @@ def convert_cpacs_to_avl(tixi: Tixi3) -> Path:
             avl_file.write(wg_sk_ori_str + "\n\n")
 
         # Positionings
-        sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(tixi, wing_xpath, "wing")
+        sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(
+            tixi, wing_xpath, "wing")
 
         for i_sec in range(sec_cnt):
-            sec_xpath = wing_xpath + "/sections/section[" + str(i_sec + 1) + "]"
+            sec_xpath = wing_xpath + \
+                "/sections/section[" + str(i_sec + 1) + "]"
             sec_uid = tixi.getTextAttribute(sec_xpath, "uID")
             sec_transf = Transformation()
             sec_transf.get_cpacs_transf(tixi, sec_xpath)
 
             # Elements
-            elem_cnt = tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
+            elem_cnt = tixi.getNamedChildrenCount(
+                sec_xpath + "/elements", "element")
 
             if elem_cnt > 1:
                 log.warning(
@@ -415,7 +535,8 @@ def convert_cpacs_to_avl(tixi: Tixi3) -> Path:
 
             # Get wing profile (airfoil)
             prof_uid = tixi.getTextElement(elem_xpath + "/airfoilUID")
-            prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
+            prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(
+                tixi, prof_uid)
             foil_dat_path = results_path + "/" + prof_uid + ".dat"
 
             with open(foil_dat_path, 'w') as dat_file:
@@ -423,12 +544,16 @@ def convert_cpacs_to_avl(tixi: Tixi3) -> Path:
                 # Limit the number of points to 100 (otherwise AVL error)
                 if len(prof_vect_x) < 100:
                     for coord_x, coord_z in zip(prof_vect_x, prof_vect_z):
-                        dat_file.write(str(coord_x) + '\t' + str(coord_z) + "\n")
+                        dat_file.write(
+                            str(coord_x) + '\t' + str(coord_z) + "\n"
+                        )
                 else:
                     step = round(len(prof_vect_x) / 100)
                     for coord_x, coord_z in zip(prof_vect_x[0:len(prof_vect_x):step],
                                                 prof_vect_z[0:len(prof_vect_x):step]):
-                        dat_file.write(str(coord_x) + '\t' + str(coord_z) + "\n")
+                        dat_file.write(
+                            str(coord_x) + '\t' + str(coord_z) + "\n"
+                        )
 
             # Apply scaling
             # Convert lists to NumPy arrays
@@ -437,11 +562,15 @@ def convert_cpacs_to_avl(tixi: Tixi3) -> Path:
             prof_vect_z = np.array(prof_vect_z)
 
             # Apply scaling
-            prof_vect_x *= elem_transf.scaling.x * sec_transf.scaling.x * wing_transf.scaling.x
-            prof_vect_y *= elem_transf.scaling.y * sec_transf.scaling.y * wing_transf.scaling.y
-            prof_vect_z *= elem_transf.scaling.z * sec_transf.scaling.z * wing_transf.scaling.z
+            prof_vect_x *= elem_transf.scaling.x * \
+                sec_transf.scaling.x * wing_transf.scaling.x
+            prof_vect_y *= elem_transf.scaling.y * \
+                sec_transf.scaling.y * wing_transf.scaling.y
+            prof_vect_z *= elem_transf.scaling.z * \
+                sec_transf.scaling.z * wing_transf.scaling.z
 
-            wg_sec_chord = corrects_airfoil_profile(prof_vect_x, prof_vect_y, prof_vect_z)
+            wg_sec_chord = corrects_airfoil_profile(
+                prof_vect_x, prof_vect_y, prof_vect_z)
 
             # Add rotation from element and sections
             # Adding the two angles: Maybe not work in every case!!!
@@ -482,7 +611,8 @@ def convert_cpacs_to_avl(tixi: Tixi3) -> Path:
                 # between fuselage center and leading edge
                 radius_fus = fus_radius_profile(x_LE_abs + wg_sec_chord / 2)
                 fus_z_center = fus_z_profile(x_LE_abs + wg_sec_chord / 2)
-                delta_z = np.abs(fus_z_center + body_transf.translation.z - z_LE_abs)
+                delta_z = np.abs(
+                    fus_z_center + body_transf.translation.z - z_LE_abs)
 
             # If the root wing section is inside the fuselage, translate it to...
             # the fuselage border
@@ -494,96 +624,21 @@ def convert_cpacs_to_avl(tixi: Tixi3) -> Path:
                 y_LE_rot = y_LE_abs - wg_sk_transf.translation.y
                 root_defined = True
 
-            # Write the leading edge coordinates and the airfoil file
-            with open(avl_path, 'a') as avl_file:
-                avl_file.write("#---------------\n")
-                avl_file.write("SECTION\n")
-                avl_file.write("#Xle    Yle    Zle     Chord   Ainc\n")
-                avl_file.write(
-                    f"{x_LE_rot:.3f} {y_LE_rot:.3f} {z_LE_rot:.3f} "
-                    f"{(wg_sec_chord):.3f} {wg_sec_rot.y}\n"
-                )
-
-                edge_xpath = "/componentSegments/componentSegment"
-                bis_xpath = "/controlSurfaces/trailingEdgeDevices"
-                control_xpath_base = wing_xpath + edge_xpath + bis_xpath
-                num_devices = tixi.getNumberOfChilds(control_xpath_base)
-
-                for i in range(1, num_devices + 1):
-                    control_xpath = f"{control_xpath_base}/trailingEdgeDevice[{i}]"
-                    control_uid = tixi.getTextAttribute(control_xpath, "uID")
-                    innerhingeXsi_xpath = control_xpath + "/path/innerHingePoint/hingeXsi"
-                    outerhingeXsi_xpath = control_xpath + "/path/outerHingePoint/hingeXsi"
-                    innerhingeXsi = float(get_value(tixi, innerhingeXsi_xpath))
-                    outerhingeXsi = float(get_value(tixi, outerhingeXsi_xpath))
-
-                    innerEta_xpath = control_xpath + "/outerShape/innerBorder/etaTE/eta"
-                    outerEta_xpath = control_xpath + "/outerShape/outerBorder/etaTE/eta"
-
-                    innerEta = float(get_value(tixi, innerEta_xpath))
-                    outerEta = float(get_value(tixi, outerEta_xpath))
-
-                    x_axis = (outerhingeXsi - innerhingeXsi) * c_ref
-                    y_axis = (outerEta - innerEta) * s_ref
-                    z_axis = 0.0
-
-                    # TODO : Issue with geometry plot in AVL. We can not check
-                    # if the control surface sections are well defined.
-
-                    CONTROL_DICT = {
-                        "InnerFlap": {
-                            "i_sec": [0, 1],
-                            "type": "flap",
-                            "axis": f"{x_axis} {y_axis} {z_axis}",
-                            "bool": [1.0, 1.0],
-                        },
-                        "OuterFlap": {
-                            "i_sec": [1, 2],
-                            "type": "flap",
-                            "axis": f"{x_axis} {y_axis} {z_axis}",
-                            "bool": [1.0, 1.0],
-                        },
-                        "Aileron": {
-                            "i_sec": [2, 3],
-                            "type": "aileron",
-                            "axis": f"{x_axis} {y_axis} {z_axis}",
-                            "bool": [-1.0, -1.0],
-                        },
-                        "Elevator": {
-                            "i_sec": [0, 1],
-                            "type": "elevator",
-                            "axis": f"{x_axis} {y_axis} {z_axis}",
-                            "bool": [1.0, 1.0],
-                        },
-                        "Rudder": {
-                            "i_sec": [0, 1],
-                            "type": "rudder",
-                            "axis": f"{x_axis} {z_axis} {y_axis}",
-                            "bool": [-1.0, -1.0],
-                        },
-                    }
-                    control_type = CONTROL_DICT[control_uid]["type"]
-
-                    if i_sec == CONTROL_DICT[control_uid]["i_sec"][0]:
-                        first_bool = CONTROL_DICT[control_uid]["bool"][0]
-                        axis = CONTROL_DICT[control_uid]["axis"]
-                        avl_file.write("CONTROL\n")
-                        avl_file.write(
-                            f"{control_type} {0.0} {innerhingeXsi} {axis} {first_bool}\n\n")
-                    elif i_sec == CONTROL_DICT[control_uid]["i_sec"][1]:
-                        second_bool = CONTROL_DICT[control_uid]["bool"][1]
-                        axis = CONTROL_DICT[control_uid]["axis"]
-                        avl_file.write("CONTROL\n")
-                        avl_file.write(
-                            f"{control_type} {0.0} {outerhingeXsi} {axis} {second_bool}\n\n")
-                    else:
-                        log.warning(
-                            f"Issue with {control_uid} control surface "
-                            f"at section {i_sec} of wing number {i_wing}."
-                        )
-
-                avl_file.write("AFILE\n")
-                avl_file.write(foil_dat_path + "\n\n")
+            leadingedge_coordinates(
+                tixi,
+                avl_path,
+                i_wing,
+                i_sec,
+                x_LE_rot,
+                y_LE_rot,
+                z_LE_rot,
+                wg_sec_chord,
+                wg_sec_rot,
+                wing_xpath,
+                c_ref,
+                s_ref,
+                foil_dat_path,
+            )
 
     return Path(avl_path)
 

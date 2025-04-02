@@ -39,9 +39,9 @@ DATA = {
     "Beta": (1, "beta"),
     "Mach": (1, "mach"),
 
-    "pb/2V": (2, "pb_2v"),
-    "qc/2V": (2, "qc_2v"),
-    "rb/2V": (2, "rb_2v"),
+    "pb/2V": (2, "pb_2V"),
+    "qc/2V": (2, "qc_2V"),
+    "rb/2V": (2, "rb_2V"),
 
     "flap": (1, "flap"),
     "aileron": (1, "aileron"),

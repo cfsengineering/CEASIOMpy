@@ -47,7 +47,7 @@ def test_save_aero_coef():
         # Assert a .png file exists in the directory
         png_files = list(results_dir.glob("*.png"))
         assert png_files, f"No .png file found in {results_dir}"
-        
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================

@@ -103,8 +103,12 @@ class CeasiompyDb:
         log.info(f"Closing connection to database {self.db_name}.")
         self.connection.close()
 
-    def get_data(self, table_name: str,
-                 columns: List[str], db_close=False, filters: List[str] = None) -> List[Tuple]:
+    def get_data(self,
+        table_name: str,
+        columns: List[str],
+        db_close=False,
+        filters: List[str] = None,
+    ) -> List[Tuple]:
         # Validate table name
         if not table_name.isidentifier():
             raise ValueError(f"Invalid table name: {table_name}")
@@ -115,10 +119,20 @@ class CeasiompyDb:
 
         columns_str = ", ".join(columns)
         query = f"SELECT {columns_str} FROM {table_name}"
+        
+        # Handle filters
+        params = []
         if filters is not None:
-            query += " WHERE " + " AND ".join(filters)
+            filter_clauses = []
+            for column, value in filters:
+                if not column.isidentifier():
+                    raise ValueError(f"Invalid column name in filter: {column}")
+                filter_clauses.append(f"{column} = ?")
+                params.append(value)
+            query += " WHERE " + " AND ".join(filter_clauses)
 
-        self.cursor.execute(query)
+        # Execute the query with parameters
+        self.cursor.execute(query, params)
 
         data = self.cursor.fetchall()
 

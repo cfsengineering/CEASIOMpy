@@ -66,7 +66,7 @@ def get_aircrafts_list() -> List:
                 table_name = table[0]
 
                 # Validate table name
-                if table_name not in ALLOWED_TABLES:
+                if table_name not in ALLOWED_TABLES + ["sqlite_sequence"]:
                     raise ValueError(f"Invalid table name: {table_name}")
 
                 # Check if the table has an "aircraft" column

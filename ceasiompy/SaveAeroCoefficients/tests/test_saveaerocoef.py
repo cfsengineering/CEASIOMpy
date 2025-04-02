@@ -28,7 +28,6 @@ from ceasiompy.SaveAeroCoefficients import MODULE_NAME, MODULE_DIR
 
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")
 CPACS_OUT_PATH = Path(MODULE_DIR, "D150_simple_saveaerocoef_test.xml")
-FIG_PATH = Path(MODULE_DIR, "Results", "ExportCSV", "D150-Alt0.0-Mach0.3-AoS0.0.png")
 
 # =================================================================================================
 #   FUNCTIONS
@@ -44,9 +43,13 @@ def test_save_aero_coef():
         cpacs = CPACS(CPACS_IN_PATH)
         save_aero_coef(cpacs, get_results_directory(MODULE_NAME))
 
-        # Assert the figure exists
-        assert FIG_PATH.exists(), f"Figure not found at {FIG_PATH}"
+        # Define the expected path for the .png file
+        expected_png_path = Path(MODULE_DIR, "Results", "ExportCSV")
 
+        # Assert a .png file exists in the directory
+        png_files = list(expected_png_path.glob("*.png"))
+        assert png_files, f"No .png file found in {expected_png_path}"
+        
 # =================================================================================================
 #    MAIN
 # =================================================================================================

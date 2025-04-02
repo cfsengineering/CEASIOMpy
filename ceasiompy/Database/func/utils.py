@@ -75,7 +75,7 @@ def get_aircrafts_list() -> List:
                 if any(column[1] == "aircraft" for column in columns):
                     # Query for distinct aircraft names from the table
                     cursor.execute(
-                        f"SELECT DISTINCT aircraft FROM {table_name}")
+                        f"SELECT DISTINCT aircraft FROM {table_name}")  # nosec
                     rows = cursor.fetchall()
                     for row in rows:
                         aircrafts.add(row[0])

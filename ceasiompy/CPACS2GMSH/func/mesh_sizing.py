@@ -86,11 +86,13 @@ def fuselage_size(tixi: Tixi3) -> None:
             prof_vect_z[:] = [z - 1 - prof_min_z for z in prof_vect_z]
 
             if i_sec < len(pos_y_list):
-                pos_y_list[i_sec] += ((1 + prof_min_y) *
-                                      prof_size_y) * elem_transf.scaling.y
+                pos_y_list[i_sec] += (
+                    (1 + prof_min_y) * prof_size_y
+                ) * elem_transf.scaling.y
             if i_sec < len(pos_z_list):
-                pos_z_list[i_sec] += ((1 + prof_min_z) *
-                                      prof_size_z) * elem_transf.scaling.z
+                pos_z_list[i_sec] += (
+                    (1 + prof_min_z) * prof_size_z
+                ) * elem_transf.scaling.z
 
             body_frm_height = (
                 prof_size_z

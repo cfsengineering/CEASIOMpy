@@ -66,6 +66,7 @@ from ceasiompy.utils.commonxpath import (
     SU2_ROTATION_RATE_XPATH,
     SU2_UPDATE_WETTED_AREA_XPATH,
     WETTED_AREA_XPATH,
+    SU2_DAMPING_DER_XPATH,
 )
 
 # =================================================================================================
@@ -155,32 +156,33 @@ def get_static_results(
 
     cl, cd, cs, cmd, cms, cml, velocity = get_su2_aerocoefs(force_file_path)
 
-    # Damping derivatives
-    rotation_rate = get_value(tixi, SU2_ROTATION_RATE_XPATH)
-    ref_len = tixi.getTextElement(WING_SPAN_XPATH)
-    adim_rot_rate = rotation_rate * ref_len / velocity
+    if bool_(get_value(tixi, SU2_DAMPING_DER_XPATH)):
+        # Damping derivatives
+        rotation_rate = get_value(tixi, SU2_ROTATION_RATE_XPATH)
+        ref_len = tixi.getTextElement(WING_SPAN_XPATH)
+        adim_rot_rate = rotation_rate * ref_len / velocity
 
-    coefs = {"cl": cl, "cd": cd, "cs": cs, "cmd": cmd, "cms": cms, "cml": cml}
+        coefs = {"cl": cl, "cd": cd, "cs": cs, "cmd": cmd, "cms": cms, "cml": cml}
 
-    for axis in ["dp", "dq", "dr"]:
-        if f"_{axis}" not in config_dir.name:
-            continue
+        for axis in ["dp", "dq", "dr"]:
+            if f"_{axis}" not in config_dir.name:
+                continue
 
-        baseline_coef = False
+            baseline_coef = False
 
-        for coef in COEFS:
-            coef_baseline = aeromap.get(coef, alt=alt, mach=mach, aoa=aoa, aos=aos)
-            dcoef = (coefs[coef] - coef_baseline) / adim_rot_rate
-            aeromap.add_damping_derivatives(
-                alt=alt,
-                mach=mach,
-                aos=aos,
-                aoa=aoa,
-                coef=coef,
-                axis=axis,
-                value=dcoef,
-                rate=rotation_rate,
-            )
+            for coef in COEFS:
+                coef_baseline = aeromap.get(coef, alt=alt, mach=mach, aoa=aoa, aos=aos)
+                dcoef = (coefs[coef] - coef_baseline) / adim_rot_rate
+                aeromap.add_damping_derivatives(
+                    alt=alt,
+                    mach=mach,
+                    aos=aos,
+                    aoa=aoa,
+                    coef=coef,
+                    axis=axis,
+                    value=dcoef,
+                    rate=rotation_rate,
+                )
 
     if "_TED_" in config_dir.name:
 

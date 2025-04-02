@@ -239,9 +239,9 @@ def main(cpacs: CPACS) -> None:
     if bi.USER_CASE:
         log.info("------------- User configuration ------------")
         (
-            fx,
-            fy,
-            fz,
+            _,
+            _,
+            _,
             Ixxfu,
             Iyyfu,
             Izzfu,
@@ -251,7 +251,7 @@ def main(cpacs: CPACS) -> None:
         ) = lumpedmassesinertia.fuselage_inertia(
             bi.SPACING_FUSE, out.cg_user, ms_user, ag, cpacs_path
         )
-        (wx, wy, wz, Ixxwu, Iyywu, Izzwu, Ixywu, Iyzwu, Ixzwu) = lumpedmassesinertia.wing_inertia(
+        (_, _, _, Ixxwu, Iyywu, Izzwu, Ixywu, Iyzwu, Ixzwu) = lumpedmassesinertia.wing_inertia(
             bi.WPP, bi.SPACING_WING, out.cg_user, ms_user, ag, cpacs_path
         )
 

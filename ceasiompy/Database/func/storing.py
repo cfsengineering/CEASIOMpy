@@ -72,7 +72,7 @@ class CeasiompyDb:
     def connect_to_table(self, module_name: str) -> str:
         table_name, table_schema = self.get_table_parameters(module_name)
         # Codacy: Table and column names are strictly validated against whitelisted values.
-        # Table names are validated against ALLOWED_TABLES.        
+        # Table names are validated against ALLOWED_TABLES.
 
         # Validate table name
         if table_name not in ALLOWED_TABLES:
@@ -115,8 +115,8 @@ class CeasiompyDb:
         filters: List[str] = None,
     ) -> List[Tuple]:
         # Codacy: Table and column names are strictly validated against whitelisted values.
-        # Table and column names are validated against ALLOWED_TABLES and ALLOWED_COLUMNS.        # Validate table name
-        
+        # Table and column names are validated against ALLOWED_TABLES and ALLOWED_COLUMNS.
+
         # Validate table name
         if table_name not in ALLOWED_TABLES:
             raise ValueError(f"Invalid table name: {table_name}")

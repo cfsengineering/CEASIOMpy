@@ -82,6 +82,165 @@ from ceasiompy.CPACS2SUMO import MODULE_NAME, MODULE_DIR
 # =================================================================================================
 
 
+def deal_with_elements(
+    tixi, sumo,
+    body_xpath, sec_xpath,
+    sec_uid, i_sec,
+    pos_x_list, pos_y_list, pos_z_list,
+    sec_transf, fus_transf
+) -> None:
+    # Elements
+    elem_cnt = tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
+
+    if elem_cnt > 1:
+        log.warning(
+            "Sections "
+            + sec_uid
+            + " contains multiple elements, "
+            "it could be an issue for the conversion to SUMO!"
+        )
+
+    for i_elem in range(elem_cnt):
+        elem_xpath = sec_xpath + "/elements/element[" + str(i_elem + 1) + "]"
+        elem_uid = tixi.getTextAttribute(elem_xpath, "uID")
+
+        elem_transf = Transformation()
+        elem_transf.get_cpacs_transf(tixi, elem_xpath)
+
+        if elem_transf.rotation.x or elem_transf.rotation.y or elem_transf.rotation.z:
+            log.warning(
+                f"Element '{elem_uid}' is rotated, it is"
+                "not possible to take that into account in SUMO !"
+            )
+
+        # Fuselage profiles
+        prof_uid = tixi.getTextElement(elem_xpath + "/profileUID")
+        _, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
+
+        prof_size_y = (max(prof_vect_y) - min(prof_vect_y)) / 2
+        prof_size_z = (max(prof_vect_z) - min(prof_vect_z)) / 2
+
+        prof_vect_y[:] = [y / prof_size_y for y in prof_vect_y]
+        prof_vect_z[:] = [z / prof_size_z for z in prof_vect_z]
+
+        prof_min_y = min(prof_vect_y)
+        prof_min_z = min(prof_vect_z)
+
+        prof_vect_y[:] = [y - 1 - prof_min_y for y in prof_vect_y]
+        prof_vect_z[:] = [z - 1 - prof_min_z for z in prof_vect_z]
+
+        # Could be a problem if they are less positionings than sections
+        # TODO: solve that!
+        pos_y_list[i_sec] += ((1 + prof_min_y) * prof_size_y) * elem_transf.scaling.y
+        pos_z_list[i_sec] += ((1 + prof_min_z) * prof_size_z) * elem_transf.scaling.z
+
+        # Put value in SUMO format
+        body_frm_center_x = (
+            elem_transf.translation.x + sec_transf.translation.x + pos_x_list[i_sec]
+        ) * fus_transf.scaling.x
+        body_frm_center_y = (
+            elem_transf.translation.y * sec_transf.scaling.y + sec_transf.translation.y
+            + pos_y_list[i_sec]
+        ) * fus_transf.scaling.y
+        body_frm_center_z = (
+            elem_transf.translation.z * sec_transf.scaling.z + sec_transf.translation.z
+            + pos_z_list[i_sec]
+        ) * fus_transf.scaling.z
+
+        body_frm_height = (
+            prof_size_z
+            * 2
+            * elem_transf.scaling.z
+            * sec_transf.scaling.z
+            * fus_transf.scaling.z
+        )
+
+        if body_frm_height < 0.005:
+            body_frm_height = 0.005
+        body_frm_width = (
+            prof_size_y
+            * 2
+            * elem_transf.scaling.y
+            * sec_transf.scaling.y
+            * fus_transf.scaling.y
+        )
+        if body_frm_width < 0.005:
+            body_frm_width = 0.005
+
+        # Convert the profile points in the SMX format
+        prof_str = ""
+        teta_list, teta_half = [], []
+        prof_vect_y_half, prof_vect_z_half = [], []
+        check_max, check_min = 0, 0
+
+        # Use polar angle to keep point in the correct order
+        for i, item in enumerate(prof_vect_y):
+            teta_list.append(math.atan2(prof_vect_z[i], item))
+
+        for t, teta in enumerate(teta_list):
+            HALF_PI = math.pi / 2
+            EPSILON = 0.04
+
+            if abs(teta) <= HALF_PI - EPSILON:
+                teta_half.append(teta)
+                prof_vect_y_half.append(prof_vect_y[t])
+                prof_vect_z_half.append(prof_vect_z[t])
+            elif abs(teta) < HALF_PI + EPSILON:
+                # Check if not the last element of the list
+                if not t == len(teta_list) - 1:
+                    next_val = prof_vect_z[t + 1]
+                    # Check if it is better to keep next point
+                    if not abs(next_val) > abs(prof_vect_z[t]):
+                        if prof_vect_z[t] > 0 and not check_max:
+                            teta_half.append(teta)
+                            # Force y=0, to get symmetrical profile
+                            prof_vect_y_half.append(0)
+                            prof_vect_z_half.append(prof_vect_z[t])
+                            check_max = 1
+                        elif prof_vect_z[t] < 0 and not check_min:
+                            teta_half.append(teta)
+                            # Force y=0, to get symmetrical profile
+                            prof_vect_y_half.append(0)
+                            prof_vect_z_half.append(prof_vect_z[t])
+                            check_min = 1
+
+        # Sort points by teta value, to fit the SUMO profile format
+        teta_half, prof_vect_z_half, prof_vect_y_half = (
+            list(t)
+            for t in zip(*sorted(zip(teta_half, prof_vect_z_half, prof_vect_y_half)))
+        )
+
+        # Write profile as a string and add y=0 point at the beginning
+        # and at the end to ensure symmetry
+        if not check_min:
+            prof_str += str(0) + " " + str(prof_vect_z_half[0]) + " "
+        for i, _ in enumerate(prof_vect_z_half):
+            prof_str += (
+                str(round(prof_vect_y_half[i], 4))
+                + " "
+                + str(round(prof_vect_z_half[i], 4))
+                + " "
+            )
+        if not check_max:
+            prof_str += str(0) + " " + str(prof_vect_z_half[i]) + " "
+
+        # Write the SUMO file
+        sumo.addTextElementAtIndex(
+            body_xpath, "BodyFrame", prof_str, i_sec + 1)
+        frame_xpath = body_xpath + "/BodyFrame[" + str(i_sec + 1) + "]"
+
+        body_center_str = sumo_str_format(
+            body_frm_center_x,
+            body_frm_center_y,
+            body_frm_center_z,
+        )
+
+        sumo.addTextAttribute(frame_xpath, "center", body_center_str)
+        sumo.addTextAttribute(frame_xpath, "height", str(body_frm_height))
+        sumo.addTextAttribute(frame_xpath, "width", str(body_frm_width))
+        sumo.addTextAttribute(frame_xpath, "name", sec_uid)
+
+
 def convert_fuselages(tixi: Tixi3, sumo: Tixi3) -> None:
     """
     Convert fuselage from CPACS to SUMO.
@@ -133,7 +292,8 @@ def convert_fuselages(tixi: Tixi3, sumo: Tixi3) -> None:
 
         sumo.addTextAttribute(body_xpath, "origin", body_ori_str)
 
-        sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(tixi, fus_xpath, element)
+        sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(
+            tixi, fus_xpath, element)
 
         for i_sec in range(sec_cnt):
             sec_xpath = fus_xpath + "/sections/section[" + str(i_sec + 1) + "]"
@@ -147,158 +307,15 @@ def convert_fuselages(tixi: Tixi3, sumo: Tixi3) -> None:
                     f"Sections '{sec_uid}' is rotated, it is"
                     "not possible to take that into account in SUMO !"
                 )
-
-            # Elements
-            elem_cnt = tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
-
-            if elem_cnt > 1:
-                log.warning(
-                    "Sections "
-                    + sec_uid
-                    + " contains multiple elements, "
-                    "it could be an issue for the conversion to SUMO!"
-                )
-
-            for i_elem in range(elem_cnt):
-                elem_xpath = sec_xpath + "/elements/element[" + str(i_elem + 1) + "]"
-                elem_uid = tixi.getTextAttribute(elem_xpath, "uID")
-
-                elem_transf = Transformation()
-                elem_transf.get_cpacs_transf(tixi, elem_xpath)
-
-                if elem_transf.rotation.x or elem_transf.rotation.y or elem_transf.rotation.z:
-                    log.warning(
-                        f"Element '{elem_uid}' is rotated, it is"
-                        "not possible to take that into account in SUMO !"
-                    )
-
-                # Fuselage profiles
-                prof_uid = tixi.getTextElement(elem_xpath + "/profileUID")
-                _, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
-
-                prof_size_y = (max(prof_vect_y) - min(prof_vect_y)) / 2
-                prof_size_z = (max(prof_vect_z) - min(prof_vect_z)) / 2
-
-                prof_vect_y[:] = [y / prof_size_y for y in prof_vect_y]
-                prof_vect_z[:] = [z / prof_size_z for z in prof_vect_z]
-
-                prof_min_y = min(prof_vect_y)
-                prof_min_z = min(prof_vect_z)
-
-                prof_vect_y[:] = [y - 1 - prof_min_y for y in prof_vect_y]
-                prof_vect_z[:] = [z - 1 - prof_min_z for z in prof_vect_z]
-
-                # Could be a problem if they are less positionings than sections
-                # TODO: solve that!
-                pos_y_list[i_sec] += ((1 + prof_min_y) * prof_size_y) * elem_transf.scaling.y
-                pos_z_list[i_sec] += ((1 + prof_min_z) * prof_size_z) * elem_transf.scaling.z
-
-                # Put value in SUMO format
-                body_frm_center_x = (
-                    elem_transf.translation.x + sec_transf.translation.x + pos_x_list[i_sec]
-                ) * fus_transf.scaling.x
-                body_frm_center_y = (
-                    elem_transf.translation.y * sec_transf.scaling.y
-                    + sec_transf.translation.y
-                    + pos_y_list[i_sec]
-                ) * fus_transf.scaling.y
-                body_frm_center_z = (
-                    elem_transf.translation.z * sec_transf.scaling.z
-                    + sec_transf.translation.z
-                    + pos_z_list[i_sec]
-                ) * fus_transf.scaling.z
-
-                body_frm_height = (
-                    prof_size_z
-                    * 2
-                    * elem_transf.scaling.z
-                    * sec_transf.scaling.z
-                    * fus_transf.scaling.z
-                )
-
-                if body_frm_height < 0.005:
-                    body_frm_height = 0.005
-                body_frm_width = (
-                    prof_size_y
-                    * 2
-                    * elem_transf.scaling.y
-                    * sec_transf.scaling.y
-                    * fus_transf.scaling.y
-                )
-                if body_frm_width < 0.005:
-                    body_frm_width = 0.005
-
-                # Convert the profile points in the SMX format
-                prof_str = ""
-                teta_list, teta_half = [], []
-                prof_vect_y_half, prof_vect_z_half = [], []
-                check_max, check_min = 0, 0
-
-                # Use polar angle to keep point in the correct order
-                for i, item in enumerate(prof_vect_y):
-                    teta_list.append(math.atan2(prof_vect_z[i], item))
-
-                for t, teta in enumerate(teta_list):
-                    HALF_PI = math.pi / 2
-                    EPSILON = 0.04
-
-                    if abs(teta) <= HALF_PI - EPSILON:
-                        teta_half.append(teta)
-                        prof_vect_y_half.append(prof_vect_y[t])
-                        prof_vect_z_half.append(prof_vect_z[t])
-                    elif abs(teta) < HALF_PI + EPSILON:
-                        # Check if not the last element of the list
-                        if not t == len(teta_list) - 1:
-                            next_val = prof_vect_z[t + 1]
-                            # Check if it is better to keep next point
-                            if not abs(next_val) > abs(prof_vect_z[t]):
-                                if prof_vect_z[t] > 0 and not check_max:
-                                    teta_half.append(teta)
-                                    # Force y=0, to get symmetrical profile
-                                    prof_vect_y_half.append(0)
-                                    prof_vect_z_half.append(prof_vect_z[t])
-                                    check_max = 1
-                                elif prof_vect_z[t] < 0 and not check_min:
-                                    teta_half.append(teta)
-                                    # Force y=0, to get symmetrical profile
-                                    prof_vect_y_half.append(0)
-                                    prof_vect_z_half.append(prof_vect_z[t])
-                                    check_min = 1
-
-                # Sort points by teta value, to fit the SUMO profile format
-                teta_half, prof_vect_z_half, prof_vect_y_half = (
-                    list(t)
-                    for t in zip(*sorted(zip(teta_half, prof_vect_z_half, prof_vect_y_half)))
-                )
-
-                # Write profile as a string and add y=0 point at the beginning
-                # and at the end to ensure symmetry
-                if not check_min:
-                    prof_str += str(0) + " " + str(prof_vect_z_half[0]) + " "
-                for i, _ in enumerate(prof_vect_z_half):
-                    prof_str += (
-                        str(round(prof_vect_y_half[i], 4))
-                        + " "
-                        + str(round(prof_vect_z_half[i], 4))
-                        + " "
-                    )
-                if not check_max:
-                    prof_str += str(0) + " " + str(prof_vect_z_half[i]) + " "
-
-                # Write the SUMO file
-                sumo.addTextElementAtIndex(body_xpath, "BodyFrame", prof_str, i_sec + 1)
-                frame_xpath = body_xpath + "/BodyFrame[" + str(i_sec + 1) + "]"
-
-                body_center_str = sumo_str_format(
-                    body_frm_center_x,
-                    body_frm_center_y,
-                    body_frm_center_z,
-                )
-
-                sumo.addTextAttribute(frame_xpath, "center", body_center_str)
-                sumo.addTextAttribute(frame_xpath, "height", str(body_frm_height))
-                sumo.addTextAttribute(frame_xpath, "width", str(body_frm_width))
-                sumo.addTextAttribute(frame_xpath, "name", sec_uid)
+            deal_with_elements(
+                tixi,
+                sumo,
+                body_xpath, sec_xpath,
+                sec_uid,
+                i_sec,
+                pos_x_list, pos_y_list, pos_z_list,
+                sec_transf, fus_transf
+            )
 
         # Fuselage symmetry (mirror copy)
         if tixi.checkAttribute(fus_xpath, "symmetry"):
@@ -363,22 +380,26 @@ def convert_wings(tixi: Tixi3, sumo: Tixi3) -> None:
 
         if tixi.checkAttribute(wing_xpath, "symmetry"):
             if tixi.getTextAttribute(wing_xpath, "symmetry") == "x-z-plane":
-                sumo.addTextAttribute(wg_sk_xpath, "flags", "autosym,detectwinglet")
+                sumo.addTextAttribute(
+                    wg_sk_xpath, "flags", "autosym,detectwinglet")
             else:
                 sumo.addTextAttribute(wg_sk_xpath, "flags", "detectwinglet")
 
-        sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(tixi, wing_xpath, "wing")
+        sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(
+            tixi, wing_xpath, "wing")
 
         wing_sec_index = 1
 
         for i_sec in reversed(range(sec_cnt)):
-            sec_xpath = wing_xpath + "/sections/section[" + str(i_sec + 1) + "]"
+            sec_xpath = wing_xpath + \
+                "/sections/section[" + str(i_sec + 1) + "]"
             sec_uid = tixi.getTextAttribute(sec_xpath, "uID")
             sec_transf = Transformation()
             sec_transf.get_cpacs_transf(tixi, sec_xpath)
 
             # Elements
-            elem_cnt = tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
+            elem_cnt = tixi.getNamedChildrenCount(
+                sec_xpath + "/elements", "element")
 
             if elem_cnt > 1:
                 log.warning(
@@ -387,13 +408,15 @@ def convert_wings(tixi: Tixi3, sumo: Tixi3) -> None:
                 )
 
             for i_elem in range(elem_cnt):
-                elem_xpath = sec_xpath + "/elements/element[" + str(i_elem + 1) + "]"
+                elem_xpath = sec_xpath + \
+                    "/elements/element[" + str(i_elem + 1) + "]"
                 elem_transf = Transformation()
                 elem_transf.get_cpacs_transf(tixi, elem_xpath)
 
                 # Get wing profile (airfoil)
                 prof_uid = tixi.getTextElement(elem_xpath + "/airfoilUID")
-                prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
+                prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(
+                    tixi, prof_uid)
 
                 # Convert lists to NumPy arrays
                 prof_vect_x = np.array(prof_vect_x)
@@ -401,9 +424,12 @@ def convert_wings(tixi: Tixi3, sumo: Tixi3) -> None:
                 prof_vect_z = np.array(prof_vect_z)
 
                 # Apply scaling
-                prof_vect_x *= elem_transf.scaling.x * sec_transf.scaling.x * wing_transf.scaling.x
-                prof_vect_y *= elem_transf.scaling.y * sec_transf.scaling.y * wing_transf.scaling.y
-                prof_vect_z *= elem_transf.scaling.z * sec_transf.scaling.z * wing_transf.scaling.z
+                prof_vect_x *= elem_transf.scaling.x * \
+                    sec_transf.scaling.x * wing_transf.scaling.x
+                prof_vect_y *= elem_transf.scaling.y * \
+                    sec_transf.scaling.y * wing_transf.scaling.y
+                prof_vect_z *= elem_transf.scaling.z * \
+                    sec_transf.scaling.z * wing_transf.scaling.z
 
                 # Plot setions (for tests)
                 # import matplotlib.pyplot as plt
@@ -414,15 +440,15 @@ def convert_wings(tixi: Tixi3, sumo: Tixi3) -> None:
                 #     plt.grid(True)
                 #     plt.show()
 
-                wg_sec_chord = corrects_airfoil_profile(prof_vect_x, prof_vect_y, prof_vect_z)
+                wg_sec_chord = corrects_airfoil_profile(
+                    prof_vect_x, prof_vect_y, prof_vect_z)
 
                 # SUMO variable for WingSection
                 wg_sec_center_x = (
                     elem_transf.translation.x + sec_transf.translation.x + pos_x_list[i_sec]
                 ) * wing_transf.scaling.x
                 wg_sec_center_y = (
-                    elem_transf.translation.y * sec_transf.scaling.y
-                    + sec_transf.translation.y
+                    elem_transf.translation.y * sec_transf.scaling.y + sec_transf.translation.y
                     + pos_y_list[i_sec]
                 ) * wing_transf.scaling.y
                 wg_sec_center_z = (
@@ -462,8 +488,10 @@ def convert_wings(tixi: Tixi3, sumo: Tixi3) -> None:
                     if dx_squared + dz_squared > 1e-8:
                         prof_str += f"{round(prof_vect_x[i], 4)} {round(prof_vect_z[i], 4)} "
 
-                sumo.addTextElementAtIndex(wg_sk_xpath, "WingSection", prof_str, wing_sec_index)
-                wg_sec_xpath = wg_sk_xpath + "/WingSection[" + str(wing_sec_index) + "]"
+                sumo.addTextElementAtIndex(
+                    wg_sk_xpath, "WingSection", prof_str, wing_sec_index)
+                wg_sec_xpath = wg_sk_xpath + \
+                    "/WingSection[" + str(wing_sec_index) + "]"
                 sumo.addTextAttribute(wg_sec_xpath, "airfoil", prof_uid)
                 sumo.addTextAttribute(wg_sec_xpath, "name", sec_uid)
                 wg_sec_center_str = sumo_str_format(
@@ -472,9 +500,11 @@ def convert_wings(tixi: Tixi3, sumo: Tixi3) -> None:
                     wg_sec_center_z,
                 )
 
-                sumo.addTextAttribute(wg_sec_xpath, "center", wg_sec_center_str)
+                sumo.addTextAttribute(
+                    wg_sec_xpath, "center", wg_sec_center_str)
                 sumo.addTextAttribute(wg_sec_xpath, "chord", str(wg_sec_chord))
-                sumo.addTextAttribute(wg_sec_xpath, "dihedral", str(wg_sec_dihed))
+                sumo.addTextAttribute(
+                    wg_sec_xpath, "dihedral", str(wg_sec_dihed))
                 sumo.addTextAttribute(wg_sec_xpath, "twist", str(wg_sec_twist))
                 sumo.addTextAttribute(wg_sec_xpath, "yaw", str(wg_sec_yaw))
                 sumo.addTextAttribute(wg_sec_xpath, "napprox", "-1")
@@ -545,7 +575,8 @@ def convert_enginepylons(tixi: Tixi3, sumo: Tixi3) -> None:
         )
         sumo.addTextAttribute(wg_sk_xpath, "flags", "detectwinglet")
 
-        sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(tixi, pylon_xpath, "pylon")
+        sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(
+            tixi, pylon_xpath, "pylon")
 
         check_reversed_wing = []
 
@@ -553,13 +584,15 @@ def convert_enginepylons(tixi: Tixi3, sumo: Tixi3) -> None:
 
         for i_sec in range(sec_cnt):
             # for i_sec in reversed(range(sec_cnt)):
-            sec_xpath = pylon_xpath + "/sections/section[" + str(i_sec + 1) + "]"
+            sec_xpath = pylon_xpath + \
+                "/sections/section[" + str(i_sec + 1) + "]"
             sec_uid = tixi.getTextAttribute(sec_xpath, "uID")
             sec_transf = Transformation()
             sec_transf.get_cpacs_transf(tixi, sec_xpath)
 
             # Elements
-            elem_cnt = tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
+            elem_cnt = tixi.getNamedChildrenCount(
+                sec_xpath + "/elements", "element")
 
             if elem_cnt > 1:
                 log.warning(
@@ -571,13 +604,15 @@ def convert_enginepylons(tixi: Tixi3, sumo: Tixi3) -> None:
                 )
 
             for i_elem in range(elem_cnt):
-                elem_xpath = sec_xpath + "/elements/element[" + str(i_elem + 1) + "]"
+                elem_xpath = sec_xpath + \
+                    "/elements/element[" + str(i_elem + 1) + "]"
                 elem_transf = Transformation()
                 elem_transf.get_cpacs_transf(tixi, elem_xpath)
 
                 # Get pylon profile (airfoil)
                 prof_uid = tixi.getTextElement(elem_xpath + "/airfoilUID")
-                prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
+                prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(
+                    tixi, prof_uid)
 
                 # Convert lists to NumPy arrays
                 prof_vect_x = np.array(prof_vect_x)
@@ -601,7 +636,8 @@ def convert_enginepylons(tixi: Tixi3, sumo: Tixi3) -> None:
                     * pylon_transf.scaling.z
                 )
 
-                wg_sec_chord = corrects_airfoil_profile(prof_vect_x, prof_vect_y, prof_vect_z)
+                wg_sec_chord = corrects_airfoil_profile(
+                    prof_vect_x, prof_vect_y, prof_vect_z)
 
                 # SUMO variable for WingSection
                 wg_sec_center_x = (
@@ -650,17 +686,21 @@ def convert_enginepylons(tixi: Tixi3, sumo: Tixi3) -> None:
                     if dx_squared + dz_squared > 1e-6:
                         prof_str += f"{round(prof_vect_x[i], 4)} {round(prof_vect_z[i], 4)} "
 
-                sumo.addTextElementAtIndex(wg_sk_xpath, "WingSection", prof_str, wing_sec_index)
-                wg_sec_xpath = wg_sk_xpath + "/WingSection[" + str(wing_sec_index) + "]"
+                sumo.addTextElementAtIndex(
+                    wg_sk_xpath, "WingSection", prof_str, wing_sec_index)
+                wg_sec_xpath = wg_sk_xpath + \
+                    "/WingSection[" + str(wing_sec_index) + "]"
                 sumo.addTextAttribute(wg_sec_xpath, "airfoil", prof_uid)
                 sumo.addTextAttribute(wg_sec_xpath, "name", sec_uid)
                 sumo.addTextAttribute(
                     wg_sec_xpath,
                     "center",
-                    sumo_str_format(wg_sec_center_x, wg_sec_center_y, wg_sec_center_z),
+                    sumo_str_format(wg_sec_center_x,
+                                    wg_sec_center_y, wg_sec_center_z),
                 )
                 sumo.addTextAttribute(wg_sec_xpath, "chord", str(wg_sec_chord))
-                sumo.addTextAttribute(wg_sec_xpath, "dihedral", str(wg_sec_dihed))
+                sumo.addTextAttribute(
+                    wg_sec_xpath, "dihedral", str(wg_sec_dihed))
                 sumo.addTextAttribute(wg_sec_xpath, "twist", str(wg_sec_twist))
                 sumo.addTextAttribute(wg_sec_xpath, "yaw", str(wg_sec_yaw))
                 sumo.addTextAttribute(wg_sec_xpath, "napprox", "-1")
@@ -673,7 +713,8 @@ def convert_enginepylons(tixi: Tixi3, sumo: Tixi3) -> None:
         if check_reversed_wing[0] < check_reversed_wing[1]:
             log.info("Wing section order will be reversed.")
             for i_sec in range(sec_cnt):
-                wg_sec_xpath = wg_sk_xpath + "/WingSection[" + str(i_sec + 1) + "]"
+                wg_sec_xpath = wg_sk_xpath + \
+                    "/WingSection[" + str(i_sec + 1) + "]"
                 sumo.removeAttribute(wg_sec_xpath, "reversed")
                 sumo.addTextAttribute(wg_sec_xpath, "reversed", "true")
 
@@ -695,7 +736,8 @@ def convert_engines(tixi: Tixi3, sumo: Tixi3) -> None:
 
     """
 
-    include_engine = bool_(get_value_or_default(tixi, SUMO_INCLUDE_ENGINE_XPATH, False))
+    include_engine = bool_(get_value_or_default(
+        tixi, SUMO_INCLUDE_ENGINE_XPATH, False))
 
     if include_engine:
         engine_cnt = elements_number(tixi, ENGINES_XPATH, "engine")
@@ -712,7 +754,8 @@ def convert_engines(tixi: Tixi3, sumo: Tixi3) -> None:
         yengtransl = engine.transf.translation.y
         zengtransl = engine.transf.translation.z
 
-        engineparts = [engine.nacelle.fancowl, engine.nacelle.corecowl, engine.nacelle.centercowl]
+        engineparts = [engine.nacelle.fancowl,
+                       engine.nacelle.corecowl, engine.nacelle.centercowl]
 
         for engpart in engineparts:
             if not engpart.isengpart:
@@ -768,18 +811,21 @@ def convert_engines(tixi: Tixi3, sumo: Tixi3) -> None:
             # ax.grid()
             # plt.show()
 
-            sumo.createElementAtIndex("/Assembly", "BodySkeleton", i_engine + 1)
+            sumo.createElementAtIndex(
+                "/Assembly", "BodySkeleton", i_engine + 1)
             body_xpath = "/Assembly/BodySkeleton[" + str(i_engine + 1) + "]"
 
             sumo.addTextAttribute(body_xpath, "akimatg", "false")
             sumo.addTextAttribute(body_xpath, "name", engpart.uid)
 
             # Add body rotation and origin
-            sumo.addTextAttribute(body_xpath, "rotation", sumo_str_format(0, 0, 0))
+            sumo.addTextAttribute(body_xpath, "rotation",
+                                  sumo_str_format(0, 0, 0))
             sumo.addTextAttribute(
                 body_xpath,
                 "origin",
-                sumo_str_format(xengtransl + ysectransl, yengtransl, zengtransl),
+                sumo_str_format(xengtransl + ysectransl,
+                                yengtransl, zengtransl),
             )
 
             # Add section
@@ -787,7 +833,8 @@ def convert_engines(tixi: Tixi3, sumo: Tixi3) -> None:
                 namesec = "section_" + str(i_sec + 1)
                 # Only circle profiles
                 prof_str = " 0 -1 0.7071 -0.7071 1 0 0.7071 0.7071 0 1"
-                sumo.addTextElementAtIndex(body_xpath, "BodyFrame", prof_str, i_sec + 1)
+                sumo.addTextElementAtIndex(
+                    body_xpath, "BodyFrame", prof_str, i_sec + 1)
                 frame_xpath = body_xpath + "/BodyFrame[" + str(i_sec + 1) + "]"
 
                 diam = (ycontours[i_sec] + zsectransl) * 2
@@ -795,7 +842,8 @@ def convert_engines(tixi: Tixi3, sumo: Tixi3) -> None:
                     diam = 0.005
 
                 sumo.addTextAttribute(
-                    frame_xpath, "center", sumo_str_format(xcontours[i_sec], 0, 0)
+                    frame_xpath, "center", sumo_str_format(
+                        xcontours[i_sec], 0, 0)
                 )
                 sumo.addTextAttribute(frame_xpath, "height", str(diam))
                 sumo.addTextAttribute(frame_xpath, "width", str(diam))
@@ -808,18 +856,25 @@ def convert_engines(tixi: Tixi3, sumo: Tixi3) -> None:
                 sumo_add_engine_bc(sumo, "Engine", engpart.uid)
 
             if engine.sym:
-                sumo.createElementAtIndex("/Assembly", "BodySkeleton", i_engine + 1)
-                body_xpath = "/Assembly/BodySkeleton[" + str(i_engine + 1) + "]"
+                sumo.createElementAtIndex(
+                    "/Assembly", "BodySkeleton", i_engine + 1)
+                body_xpath = "/Assembly/BodySkeleton[" + \
+                    str(i_engine + 1) + "]"
 
                 sumo.addTextAttribute(body_xpath, "akimatg", "false")
                 sumo.addTextAttribute(body_xpath, "name", engpart.uid + "_sym")
 
                 # Add body rotation and origin
-                sumo.addTextAttribute(body_xpath, "rotation", sumo_str_format(0, 0, 0))
+                sumo.addTextAttribute(
+                    body_xpath, "rotation", sumo_str_format(0, 0, 0))
                 sumo.addTextAttribute(
                     body_xpath,
                     "origin",
-                    sumo_str_format(xengtransl + ysectransl, -yengtransl, zengtransl),
+                    sumo_str_format(
+                        xengtransl + ysectransl,
+                        -yengtransl,
+                        zengtransl
+                    ),
                 )
 
                 # Add section
@@ -827,15 +882,18 @@ def convert_engines(tixi: Tixi3, sumo: Tixi3) -> None:
                     namesec = "section_" + str(i_sec + 1)
                     # Only circle profiles
                     prof_str = " 0 -1 0.7071 -0.7071 1 0 0.7071 0.7071 0 1"
-                    sumo.addTextElementAtIndex(body_xpath, "BodyFrame", prof_str, i_sec + 1)
-                    frame_xpath = body_xpath + "/BodyFrame[" + str(i_sec + 1) + "]"
+                    sumo.addTextElementAtIndex(
+                        body_xpath, "BodyFrame", prof_str, i_sec + 1)
+                    frame_xpath = body_xpath + \
+                        "/BodyFrame[" + str(i_sec + 1) + "]"
 
                     diam = (ycontours[i_sec] + zsectransl) * 2
                     if diam < 0.005:
                         diam = 0.005
 
                     sumo.addTextAttribute(
-                        frame_xpath, "center", sumo_str_format(xcontours[i_sec], 0, 0)
+                        frame_xpath, "center", sumo_str_format(
+                            xcontours[i_sec], 0, 0)
                     )
                     sumo.addTextAttribute(frame_xpath, "height", str(diam))
                     sumo.addTextAttribute(frame_xpath, "width", str(diam))
@@ -845,7 +903,8 @@ def convert_engines(tixi: Tixi3, sumo: Tixi3) -> None:
                 sumo_add_nacelle_lip(sumo, body_xpath)
 
                 if not engpart.iscone:
-                    sumo_add_engine_bc(sumo, "Engine_sym", engpart.uid + "_sym")
+                    sumo_add_engine_bc(sumo, "Engine_sym",
+                                       engpart.uid + "_sym")
 
 
 def main(cpacs: CPACS, wkdir: Path) -> None:

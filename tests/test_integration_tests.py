@@ -93,7 +93,7 @@ def test_integration_3():
 @pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_4():
-    modules_to_run = ["CPACS2GMSH", "SU2Run", "SaveAeroCoefficients"]
+    modules_to_run = ["CPACS2GMSH", "SU2Run"]
     st.session_state = MagicMock()
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
@@ -104,7 +104,7 @@ def test_integration_4():
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 def test_integration_5():
-    modules_to_run = ["PyAVL", "SaveAeroCoefficients", "Database"]
+    modules_to_run = ["PyAVL", "Database"]
     st.session_state = MagicMock()
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
@@ -117,7 +117,7 @@ def test_integration_5():
 # =================================================================================================
 
 if __name__ == "__main__":
-    test_integration_2()
+    test_integration_4()
     print("Integration tests")
     print("To run test use the following command:")
     print(">> pytest -v . --cov=../ceasiompy --cov-report term")

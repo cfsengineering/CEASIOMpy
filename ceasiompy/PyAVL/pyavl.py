@@ -244,7 +244,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             if save_fig:
                 convert_ps_to_pdf(case_dir_path)
 
-    get_avl_results(cpacs)
+    get_avl_results(cpacs, results_dir)
 
 
 if __name__ == "__main__":

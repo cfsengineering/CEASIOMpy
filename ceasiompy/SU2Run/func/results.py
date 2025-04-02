@@ -130,7 +130,7 @@ def get_static_results(
         save_screenshot(surface_flow_path, "Mach")
         save_screenshot(surface_flow_path, "Pressure_Coefficient")
 
-    force_file_path = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
+    force_file_path = Path(config_dir, "no_deformation", SU2_FORCES_BREAKDOWN_NAME)
     if not force_file_path.exists():
         raise OSError("No result force file have been found!")
 

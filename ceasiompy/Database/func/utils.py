@@ -124,7 +124,7 @@ def check_in_table(cursor: Cursor, data: Dict, columns: List, table_name: str) -
         raise ValueError(f"Invalid table name: {table_name}")
 
     # Validate column names
-    if not all(col in ALLOWED_COLUMNS for col in columns):
+    if not all(col in ALLOWED_COLUMNS[table_name] for col in columns):
         raise ValueError(f"Invalid column name(s): {columns}")
 
     # Build the WHERE clause dynamically
@@ -147,7 +147,7 @@ def data_to_db(cursor: Cursor, data: Dict, table_name: str) -> None:
         raise ValueError(f"Invalid table name: {table_name}")
 
     # Validate column names
-    if not all(col in ALLOWED_COLUMNS for col in columns):
+    if not all(col in ALLOWED_COLUMNS[table_name] for col in columns):
         raise ValueError(f"Invalid column name(s): {columns}")
 
     if check_in_table(cursor, data, columns, table_name):

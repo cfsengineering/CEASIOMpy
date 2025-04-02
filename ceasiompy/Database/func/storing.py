@@ -118,7 +118,7 @@ class CeasiompyDb:
             raise ValueError(f"Invalid table name: {table_name}")
 
         # Validate column names
-        if not all(col in ALLOWED_COLUMNS for col in columns):
+        if not all(col in ALLOWED_COLUMNS[table_name] for col in columns):
             raise ValueError(f"Invalid column name(s): {columns}")
 
         # Safely construct the query

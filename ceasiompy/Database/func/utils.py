@@ -130,7 +130,7 @@ def check_in_table(cursor: Cursor, data: Dict, columns: List, table_name: str) -
 
     # Build the WHERE clause dynamically
     where_clause = " AND ".join([f"{col} = ?" for col in columns])
-    query = f"SELECT 1 FROM {table_name} WHERE {where_clause} LIMIT 1" # nosec
+    query = f"SELECT 1 FROM {table_name} WHERE {where_clause} LIMIT 1"  # nosec
     params = tuple(data[col] for col in columns)
 
     cursor.execute(query, params)
@@ -171,7 +171,7 @@ def data_to_db(cursor: Cursor, data: Dict, table_name: str) -> None:
                     ) VALUES (
                         {placeholders}
                     )
-                """ # nosec
+                """  # nosec
 
         # Execute the statement with values
         cursor.execute(query, tuple(data.values()))

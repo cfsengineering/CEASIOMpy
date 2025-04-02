@@ -308,11 +308,15 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
         st_file_path = Path(config_dir, "st.txt")
 
         if not st_file_path.exists():
-            raise FileNotFoundError("No result total forces 'st.txt' file have been found!")
+            raise FileNotFoundError(
+                f"No result total forces 'st.txt' file have been found at {st_file_path}"
+            )
 
         fs_file_path = Path(config_dir, "fs.txt")
         if not fs_file_path.exists():
-            raise FileNotFoundError("No result strip forces 'fs.txt' file have been found!")
+            raise FileNotFoundError(
+                f"No result strip forces 'fs.txt' file have been found {fs_file_path}"
+            )
 
         # Check if we are running the standard aeromap
         if "p" in config_dir.name:

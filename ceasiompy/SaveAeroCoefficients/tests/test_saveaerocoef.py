@@ -41,14 +41,12 @@ def test_save_aero_coef():
 
     with change_working_dir(MODULE_DIR):
         cpacs = CPACS(CPACS_IN_PATH)
-        save_aero_coef(cpacs, get_results_directory(MODULE_NAME))
-
-        # Define the expected path for the .png file
-        expected_png_path = Path(MODULE_DIR, "Results", "ExportCSV")
+        results_dir = get_results_directory(MODULE_NAME)
+        save_aero_coef(cpacs, results_dir)
 
         # Assert a .png file exists in the directory
-        png_files = list(expected_png_path.glob("*.png"))
-        assert png_files, f"No .png file found in {expected_png_path}"
+        png_files = list(results_dir.glob("*.png"))
+        assert png_files, f"No .png file found in {results_dir}"
         
 # =================================================================================================
 #    MAIN

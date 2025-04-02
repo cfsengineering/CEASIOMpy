@@ -21,22 +21,12 @@ from cpacspy.cpacsfunctions import add_uid, create_branch, open_tixi
 from ceasiompy.utils.commonxpath import CREW_XPATH, MASSBREAKDOWN_XPATH, PASS_XPATH
 from ceasiompy import log
 
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and in the
-   Input
-   classes/Unconventional folder."""
-
-
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
 
 
-def toolspecific_update(fus_nb, awg, mw, out, cpacs_out_path):
+def toolspecific_update(mw, out, cpacs_out_path):
     """The function that update the cpacs file after the Weight_unc_main
     program.
 

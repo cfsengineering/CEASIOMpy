@@ -24,7 +24,6 @@ import math
 import numpy as np
 
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy import log
 from ceasiompy.PyAVL.func.config import get_option_settings
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
@@ -48,6 +47,8 @@ from ceasiompy.utils.generalclasses import (
     Point,
     Transformation,
 )
+
+from ceasiompy import log
 
 from ceasiompy.utils.commonxpath import (
     REF_XPATH,

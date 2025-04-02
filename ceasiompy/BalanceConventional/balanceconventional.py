@@ -135,22 +135,22 @@ def main(cpacs: CPACS) -> None:
 
     log.info("------- Center of Gravity coordinates -------")
     log.info("--------- Max Payload configuration ---------")
-    (out.center_of_gravity, mass_seg_i, airplane_centers_segs) = center_of_gravity_evaluation(
+    (out.center_of_gravity, mass_seg_i, _) = center_of_gravity_evaluation(
         F_PERC_MAXPASS, 100, ag.cabin_seg, ag, mw, bi.WING_MOUNTED
     )
     log.info("[x, y, z] = " + str(out.center_of_gravity))
     log.info("---------- Zero Fuel configuration ----------")
-    (out.cg_zfm, ms_zfm, airplane_centers_segs) = center_of_gravity_evaluation(
+    (out.cg_zfm, ms_zfm, _) = center_of_gravity_evaluation(
         0, 100, ag.cabin_seg, ag, mw, bi.WING_MOUNTED
     )
     log.info("[x, y, z] = " + str(out.cg_zfm))
     log.info("-------- Zero Payload configuration ---------")
-    (out.cg_zpm, ms_zpm, airplane_centers_segs) = center_of_gravity_evaluation(
+    (out.cg_zpm, ms_zpm, _) = center_of_gravity_evaluation(
         100, 0, ag.cabin_seg, ag, mw, bi.WING_MOUNTED
     )
     log.info("[x, y, z] = " + str(out.cg_zpm))
     log.info("------------- OEM configuration -------------")
-    (out.cg_oem, ms_oem, airplane_centers_segs) = center_of_gravity_evaluation(
+    (out.cg_oem, ms_oem, _) = center_of_gravity_evaluation(
         0, 0, ag.cabin_seg, ag, mw, bi.WING_MOUNTED
     )
     log.info("[x, y, z] = " + str(out.cg_oem))
@@ -168,7 +168,7 @@ def main(cpacs: CPACS) -> None:
             bi.F_PERC = 1 + ((mw.mass_payload / mw.mass_fuel_maxpass) * (1 - (bi.P_PERC / 100.0)))
             log.warning("FUEL percentage: " + str(bi.F_PERC))
         log.info("------------- User configuration ------------")
-        (out.cg_user, ms_user, airplane_centers_segs) = center_of_gravity_evaluation(
+        (out.cg_user, ms_user, _) = center_of_gravity_evaluation(
             bi.F_PERC * 100, bi.P_PERC, ag.cabin_seg, ag, mw, bi.WING_MOUNTED
         )
 

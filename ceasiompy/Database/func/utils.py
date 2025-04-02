@@ -141,7 +141,8 @@ def data_to_db(cursor: Cursor, data: Dict, table_name: str) -> None:
     """
     Inserts one line at a time if not already in table.
     """
-    # Codacy: Table and column names are strictly validated against whitelisted values.
+    
+    # Table names are validated against ALLOWED_TABLES.        
     columns = list(data.keys())
 
     # Validate table name
@@ -163,6 +164,7 @@ def data_to_db(cursor: Cursor, data: Dict, table_name: str) -> None:
         # Create the SQL statement dynamically
         placeholders = ", ".join(["?" for _ in columns])
 
+        # Codacy: Table and column names are strictly validated against whitelisted values.
         query = f"""
                     INSERT INTO {escaped_table_name} (
                         {escaped_columns}

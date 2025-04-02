@@ -101,9 +101,9 @@ def run_avl(cpacs_path, wkdir):
         )
         log.info("Running AVL")
         subprocess.run(
-            ["xvfb-run", "avl"], 
-            stdin=open(str(command_path), "r"), 
-            cwd=case_dir_path, 
+            ["xvfb-run", "avl"],
+            stdin=open(str(command_path), "r"),
+            cwd=case_dir_path,
             stdout=subprocess.DEVNULL
         )
         log.info("AVL Done!")

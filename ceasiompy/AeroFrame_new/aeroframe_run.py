@@ -107,9 +107,9 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
     AVL_ITER1_PATH = Path(CASE_PATH, "Iteration_1", "AVL")
 
     # Get the path to the undeformed/initial AVL geometry
-    for path in get_results_directory("PyAVL").glob('*.avl'):
-        AVL_UNDEFORMED_PATH = path
 
+    for path in AVL_ITER1_PATH.glob('*.avl'):
+        AVL_UNDEFORMED_PATH = path
     AVL_UNDEFORMED_COMMAND = Path(AVL_ITER1_PATH, "avl_commands.txt")
 
     # Get the properties of each cross-section of the wing
@@ -155,9 +155,9 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
             if "Xle" in line:
                 next_line = lines[i + 1].strip()
                 parts = next_line.split()
-                Xle_list.append(float(parts[0]) + wing_origin[0])
-                Yle_list.append(float(parts[1]) + wing_origin[1])
-                Zle_list.append(float(parts[2]) + wing_origin[2])
+                Xle_list.append(float(parts[0]) * wg_scaling[0] + wing_origin[0])
+                Yle_list.append(float(parts[1]) * wg_scaling[1] + wing_origin[1])
+                Zle_list.append(float(parts[2]) * wg_scaling[2] + wing_origin[2])
 
     Xle_array = np.array(Xle_list)
     Yle_array = np.array(Yle_list)
@@ -280,9 +280,13 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         # Run AVL with the new deformed geometry
         write_deformed_geometry(AVL_UNDEFORMED_PATH, AVL_DEFORMED_PATH, centerline_df, deformed_df)
         write_deformed_command(AVL_UNDEFORMED_COMMAND, AVL_DEFORMED_COMMAND)
+        log.info("Running AVL")
         subprocess.run(["xvfb-run", "avl"],
                        stdin=open(str(AVL_DEFORMED_COMMAND), "r"),
-                       cwd=AVL_ITER_PATH)
+                       cwd=AVL_ITER_PATH,
+                       stdout=subprocess.DEVNULL
+                       )
+        log.info("AVL done!")
 
         save_avl_plot = get_value_or_default(cpacs.tixi, AVL_PLOT_XPATH, False)
         if save_avl_plot:

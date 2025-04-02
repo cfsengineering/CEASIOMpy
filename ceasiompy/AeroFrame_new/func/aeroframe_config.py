@@ -825,7 +825,7 @@ def compute_cross_section(cpacs_path):
 
                 # Get Section rotation
                 wg_sec_rot = euler2fix(add_rotation)
-                wg_sec_twist = math.degrees(wg_sec_rot.y)
+                # wg_sec_twist = math.radians(wg_sec_rot.y)
 
                 wg_sec_center_x = (
                     elem_transf.translation.x
@@ -844,7 +844,7 @@ def compute_cross_section(cpacs_path):
                     + pos_z_list[i_sec]
                 ) * wing_transf.scaling.z
 
-                wg_twist_list.append(wg_sec_twist)
+                wg_twist_list.append(wg_sec_rot.y)
                 area_list.append(PolyArea(prof_vect_x, prof_vect_z))
                 Ix, Iy = second_moments_of_area(x=prof_vect_x, y=prof_vect_z)
                 Ix_list.append(Ix)
@@ -895,9 +895,13 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
     with open(UNDEFORMED_PATH, "r") as file_undeformed:
         with open(DEFORMED_PATH, "w") as file_deformed:
             for line in file_undeformed:
-                if "TRANSLATE" in line:
+                if "ANGLE" in line:
                     break
                 file_deformed.write(line)
+
+            file_deformed.writelines(
+                ["SCALE\n",
+                 "1\t1\t1\n\n"])
 
             file_deformed.writelines(
                 ["TRANSLATE\n",
@@ -905,25 +909,12 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                  "#---------------\n"])
 
             step = 7
-            root_sec_added = False
             for i_node in range(0, len(deformed_df), step):
                 x_new = deformed_df.iloc[i_node]["x_leading"]
                 y_new = deformed_df.iloc[i_node]["y_leading"]
                 z_new = deformed_df.iloc[i_node]["z_leading"]
                 chord = deformed_df.iloc[i_node]["chord"]
-                AoA = 2  # twist_profile(y_new)
-
-                if y_new > 1.856 and root_sec_added is False:
-                    file_deformed.writelines(
-                        [
-                            "SECTION\n",
-                            "#Xle    Yle    Zle     Chord   Ainc\n",
-                            f"{12.746} {1.856} {-1.136} {6.076} {2}\n\n",
-                            "#---------------\n"
-                        ]
-                    )
-
-                    root_sec_added = True
+                AoA = deformed_df.iloc[i_node]["AoA"]
 
                 file_deformed.writelines(
                     ["SECTION\n",
@@ -935,7 +926,7 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                 y_new = deformed_df.iloc[-1]["y_leading"]
                 z_new = deformed_df.iloc[-1]["z_leading"]
                 chord = deformed_df.iloc[-1]["chord"]
-                AoA = 2  # centerline_df.iloc[-1]["AoA_new"]
+                AoA = deformed_df.iloc[-1]["AoA"]
                 file_deformed.writelines(
                     ["SECTION\n",
                      "#Xle    Yle    Zle     Chord   Ainc\n",

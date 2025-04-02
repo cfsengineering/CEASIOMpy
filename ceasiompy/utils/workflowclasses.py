@@ -230,7 +230,7 @@ class Workflow:
         """Create the directory structure and set input/output of each modules"""
 
         # Check optim method validity
-        if str(self.optim_method) not in OPTIM_METHOD + ["None", "NONE"]:
+        if str(self.optim_method) not in (OPTIM_METHOD + ["None", "NONE"]):
             raise ValueError(
                 f"Optimisation method {self.optim_method} not supported")
 

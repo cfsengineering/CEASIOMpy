@@ -300,6 +300,12 @@ def elements_number(tixi: Tixi3, xpath: str, element: str, logg: bool = True) ->
     return ele_cnt
 
 
+def get_section_uid(tixi: Tixi3, pos_xpath: str, uid_type: str) -> str:
+    """Helper to retrieve section UID."""
+    uid_xpath = f"{pos_xpath}/{uid_type}"
+    return tixi.getTextElement(uid_xpath) if tixi.checkElement(uid_xpath) else ""
+
+
 def get_positionings(tixi: Tixi3, xpath: str, element: str) -> Tuple[int, List, List, List]:
     """
     Retrieve and compute the positionings for an element from the CPACS file.
@@ -321,7 +327,7 @@ def get_positionings(tixi: Tixi3, xpath: str, element: str) -> Tuple[int, List, 
     """
 
     # Sections
-    sec_cnt = tixi.getNamedChildrenCount(xpath + "/sections", "section")
+    sec_cnt = elements_number(tixi, xpath + "/sections", "section", logg=False)
 
     # Positionings list
     pos_x_list = []
@@ -329,7 +335,7 @@ def get_positionings(tixi: Tixi3, xpath: str, element: str) -> Tuple[int, List, 
     pos_z_list = []
 
     if tixi.checkElement(xpath + "/positionings"):
-        pos_cnt = tixi.getNamedChildrenCount(xpath + "/positionings", "positioning")
+        pos_cnt = elements_number(tixi, xpath + "/positionings", "positioning", logg=False)
 
         from_sec_list = []
         to_sec_list = []
@@ -338,10 +344,8 @@ def get_positionings(tixi: Tixi3, xpath: str, element: str) -> Tuple[int, List, 
             pos_xpath = xpath + "/positionings/positioning[" + str(i_pos + 1) + "]"
 
             length = tixi.getDoubleElement(pos_xpath + "/length")
-            sweep_deg = tixi.getDoubleElement(pos_xpath + "/sweepAngle")
-            sweep = math.radians(sweep_deg)
-            dihedral_deg = tixi.getDoubleElement(pos_xpath + "/dihedralAngle")
-            dihedral = math.radians(dihedral_deg)
+            sweep = math.radians(tixi.getDoubleElement(pos_xpath + "/sweepAngle"))
+            dihedral = math.radians(tixi.getDoubleElement(pos_xpath + "/dihedralAngle"))
 
             # Get the corresponding translation of each positioning.
             # This is correct. But why ? TODO: Add explaination.
@@ -350,24 +354,13 @@ def get_positionings(tixi: Tixi3, xpath: str, element: str) -> Tuple[int, List, 
             pos_z_list.append(length * math.sin(dihedral) * math.cos(sweep))
 
             # Get which section are connected by the positioning
-            if tixi.checkElement(pos_xpath + "/fromSectionUID"):
-                from_sec = tixi.getTextElement(pos_xpath + "/fromSectionUID")
-            else:
-                from_sec = ""
-            from_sec_list.append(from_sec)
-
-            if tixi.checkElement(pos_xpath + "/toSectionUID"):
-                to_sec = tixi.getTextElement(pos_xpath + "/toSectionUID")
-            else:
-                to_sec = ""
-            to_sec_list.append(to_sec)
+            from_sec_list.append(get_section_uid(tixi, pos_xpath, "/fromSectionUID"))
+            to_sec_list.append(get_section_uid(tixi, pos_xpath, "/toSectionUID"))
 
         # Re-loop though the positioning to re-order them
         for j_pos in range(pos_cnt):
             if from_sec_list[j_pos] == "":
-                prev_pos_x = 0
-                prev_pos_y = 0
-                prev_pos_z = 0
+                prev_pos_x, prev_pos_y, prev_pos_z = 0, 0, 0
 
             elif from_sec_list[j_pos] == to_sec_list[j_pos - 1]:
                 prev_pos_x = pos_x_list[j_pos - 1]

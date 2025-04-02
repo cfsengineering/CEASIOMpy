@@ -62,6 +62,11 @@ from ceasiompy.utils.generalclasses import (
     Point,
 )
 
+from typing import (
+    List,
+    Tuple,
+)
+
 from ceasiompy import log
 
 from ceasiompy.utils.commonxpath import (
@@ -80,6 +85,36 @@ from ceasiompy.CPACS2SUMO import MODULE_NAME, MODULE_DIR
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def normalize_profile(tixi: Tixi3, prof_uid: str) -> Tuple[List[float], List[float]]:
+    _, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
+    prof_size_y = (max(prof_vect_y) - min(prof_vect_y)) / 2
+    prof_size_z = (max(prof_vect_z) - min(prof_vect_z)) / 2
+
+    prof_vect_y = [(y / prof_size_y) - 1 for y in prof_vect_y]
+    prof_vect_z = [(z / prof_size_z) - 1 for z in prof_vect_z]
+
+    return prof_vect_y, prof_vect_z, prof_size_y, prof_size_z
+
+
+def calculate_body_frame_center(
+    elem_transf, sec_transf, fus_transf,
+    pos_x_list, pos_y_list, pos_z_list, i_sec
+) -> Tuple[float, float, float]:
+    body_frm_center_x = (
+        elem_transf.translation.x + sec_transf.translation.x + pos_x_list[i_sec]
+    ) * fus_transf.scaling.x
+    body_frm_center_y = (
+        elem_transf.translation.y * sec_transf.scaling.y + sec_transf.translation.y
+        + pos_y_list[i_sec]
+    ) * fus_transf.scaling.y
+    body_frm_center_z = (
+        elem_transf.translation.z * sec_transf.scaling.z + sec_transf.translation.z
+        + pos_z_list[i_sec]
+    ) * fus_transf.scaling.z
+
+    return body_frm_center_x, body_frm_center_y, body_frm_center_z
 
 
 def deal_with_elements(
@@ -102,8 +137,7 @@ def deal_with_elements(
         )
 
     # Elements
-    elem_cnt = elements_number(
-        tixi, sec_xpath + "/elements", "element", logg=False)
+    elem_cnt = elements_number(tixi, sec_xpath + "/elements", "element", logg=False)
 
     for i_elem in range(elem_cnt):
         elem_xpath = sec_xpath + "/elements/element[" + str(i_elem + 1) + "]"
@@ -120,13 +154,7 @@ def deal_with_elements(
 
         # Fuselage profiles
         prof_uid = tixi.getTextElement(elem_xpath + "/profileUID")
-        _, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
-
-        prof_size_y = (max(prof_vect_y) - min(prof_vect_y)) / 2
-        prof_size_z = (max(prof_vect_z) - min(prof_vect_z)) / 2
-
-        prof_vect_y[:] = [y / prof_size_y for y in prof_vect_y]
-        prof_vect_z[:] = [z / prof_size_z for z in prof_vect_z]
+        prof_vect_y, prof_vect_z, prof_size_y, prof_size_z = normalize_profile(tixi, prof_uid)
 
         prof_min_y = min(prof_vect_y)
         prof_min_z = min(prof_vect_z)
@@ -139,18 +167,10 @@ def deal_with_elements(
         pos_y_list[i_sec] += ((1 + prof_min_y) * prof_size_y) * elem_transf.scaling.y
         pos_z_list[i_sec] += ((1 + prof_min_z) * prof_size_z) * elem_transf.scaling.z
 
-        # Put value in SUMO format
-        body_frm_center_x = (
-            elem_transf.translation.x + sec_transf.translation.x + pos_x_list[i_sec]
-        ) * fus_transf.scaling.x
-        body_frm_center_y = (
-            elem_transf.translation.y * sec_transf.scaling.y + sec_transf.translation.y
-            + pos_y_list[i_sec]
-        ) * fus_transf.scaling.y
-        body_frm_center_z = (
-            elem_transf.translation.z * sec_transf.scaling.z + sec_transf.translation.z
-            + pos_z_list[i_sec]
-        ) * fus_transf.scaling.z
+        body_frm_center_x, body_frm_center_y, body_frm_center_z = calculate_body_frame_center(
+            elem_transf, sec_transf, fus_transf,
+            pos_x_list, pos_y_list, pos_z_list, i_sec
+        )
 
         body_frm_height = (
             prof_size_z
@@ -160,8 +180,7 @@ def deal_with_elements(
             * fus_transf.scaling.z
         )
 
-        if body_frm_height < 0.005:
-            body_frm_height = 0.005
+        body_frm_height = max(body_frm_height, 0.005)
         body_frm_width = (
             prof_size_y
             * 2
@@ -169,8 +188,7 @@ def deal_with_elements(
             * sec_transf.scaling.y
             * fus_transf.scaling.y
         )
-        if body_frm_width < 0.005:
-            body_frm_width = 0.005
+        body_frm_width = max(body_frm_width, 0.005)
 
         # Convert the profile points in the SMX format
         prof_str = ""

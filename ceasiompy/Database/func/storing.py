@@ -35,12 +35,13 @@ from typing import (
 )
 
 from ceasiompy import log
-from ceasiompy.Database.func import TABLE_DICT
 from ceasiompy.PyAVL import MODULE_NAME as PYAVL_NAME
 from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
 from ceasiompy.utils.commonpaths import CEASIOMPY_DB_PATH
 from ceasiompy.CPACS2GMSH import MODULE_NAME as CPACS2GMSH_NAME
 from ceasiompy.DynamicStability import MODULE_NAME as DYNSTAB_NAME
+
+from ceasiompy.Database.func import TABLE_DICT, ALLOWED_TABLES, ALLOWED_COLUMNS
 
 # ==============================================================================
 #   CLASS
@@ -65,7 +66,8 @@ class CeasiompyDb:
         self.connection: Connection = connect(self.db_path)
         self.cursor: Cursor = self.connection.cursor()
 
-        log.info(f"Connecting to database {self.db_name} at path {self.db_path}")
+        log.info(
+            f"Connecting to database {self.db_name} at path {self.db_path}")
 
     def connect_to_table(self, module_name: str) -> str:
         table_name, table_schema = self.get_table_parameters(module_name)
@@ -110,12 +112,13 @@ class CeasiompyDb:
         db_close=False,
         filters: List[str] = None,
     ) -> List[Tuple]:
+
         # Validate table name
-        if not table_name.isidentifier():
+        if table_name not in ALLOWED_TABLES:
             raise ValueError(f"Invalid table name: {table_name}")
 
         # Validate column names
-        if not all(col.isidentifier() for col in columns):
+        if not all(col in ALLOWED_COLUMNS for col in columns):
             raise ValueError(f"Invalid column name(s): {columns}")
 
         columns_str = ", ".join(columns)
@@ -127,7 +130,8 @@ class CeasiompyDb:
             filter_clauses = []
             for column, value in filters:
                 if not column.isidentifier():
-                    raise ValueError(f"Invalid column name in filter: {column}")
+                    raise ValueError(
+                        f"Invalid column name in filter: {column}")
                 filter_clauses.append(f"{column} = ?")
                 params.append(value)
             query += " WHERE " + " AND ".join(filter_clauses)

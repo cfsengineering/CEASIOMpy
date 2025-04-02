@@ -29,6 +29,11 @@ from typing import (
 from ceasiompy import log
 from ceasiompy.utils.commonpaths import CEASIOMPY_DB_PATH
 
+from ceasiompy.Database.func import (
+    ALLOWED_TABLES,
+    ALLOWED_COLUMNS,
+)
+
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
@@ -60,10 +65,9 @@ def get_aircrafts_list() -> List:
             for table in tables:
                 table_name = table[0]
 
-                # Validate table name to prevent SQL injection
-                if not table_name.isidentifier():
-                    log.warning(f"Skipping invalid table name: {table_name}")
-                    continue
+                # Validate table name
+                if table_name not in ALLOWED_TABLES:
+                    raise ValueError(f"Invalid table name: {table_name}")
 
                 # Check if the table has an "aircraft" column
                 cursor.execute(f"PRAGMA table_info({table_name})")
@@ -115,11 +119,13 @@ def check_in_table(cursor: Cursor, data: Dict, columns: List, table_name: str) -
     """
     Checks if data is already in the table using a raw cursor.
     """
-    if not table_name.isidentifier():
-        raise ValueError("Invalid table name.")
+    # Validate table name
+    if table_name not in ALLOWED_TABLES:
+        raise ValueError(f"Invalid table name: {table_name}")
 
-    if not all(col.isidentifier() for col in columns):
-        raise ValueError("Invalid column name(s).")
+    # Validate column names
+    if not all(col in ALLOWED_COLUMNS for col in columns):
+        raise ValueError(f"Invalid column name(s): {columns}")
 
     # Build the WHERE clause dynamically
     where_clause = " AND ".join([f"{col} = ?" for col in columns])
@@ -134,12 +140,15 @@ def data_to_db(cursor: Cursor, data: Dict, table_name: str) -> None:
     """
     Inserts one line at a time if not already in table.
     """
-    if not table_name.isidentifier():
-        raise ValueError("Invalid table name.")
 
     columns = list(data.keys())
-    if not all(col.isidentifier() for col in columns):
-        raise ValueError("Invalid column name(s).")
+    # Validate table name
+    if table_name not in ALLOWED_TABLES:
+        raise ValueError(f"Invalid table name: {table_name}")
+
+    # Validate column names
+    if not all(col in ALLOWED_COLUMNS for col in columns):
+        raise ValueError(f"Invalid column name(s): {columns}")
 
     if check_in_table(cursor, data, columns, table_name):
         log.info(f"{data.values()} already in {table_name}.")

@@ -103,7 +103,8 @@ class CeasiompyDb:
         log.info(f"Closing connection to database {self.db_name}.")
         self.connection.close()
 
-    def get_data(self,
+    def get_data(
+        self,
         table_name: str,
         columns: List[str],
         db_close=False,
@@ -119,7 +120,7 @@ class CeasiompyDb:
 
         columns_str = ", ".join(columns)
         query = f"SELECT {columns_str} FROM {table_name}"
-        
+
         # Handle filters
         params = []
         if filters is not None:

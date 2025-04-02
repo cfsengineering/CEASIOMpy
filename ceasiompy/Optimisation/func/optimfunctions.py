@@ -136,8 +136,11 @@ class Routine:
             tixi, OPTIM_XPATH + "/parameters/DoE/driver", "Uniform"
         )
         self.samplesnb = int(
-            get_value_or_default(tixi, OPTIM_XPATH +
-                                 "/parameters/DoE/sampleNB", 3)
+            get_value_or_default(
+                tixi,
+                OPTIM_XPATH + "/parameters/DoE/sampleNB",
+                3,
+            )
         )
 
         # User specified configuration file path

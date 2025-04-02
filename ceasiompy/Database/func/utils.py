@@ -153,13 +153,16 @@ def data_to_db(cursor: Cursor, data: Dict, table_name: str) -> None:
     if check_in_table(cursor, data, columns, table_name):
         log.info(f"{data.values()} already in {table_name}.")
     else:
+        # Safely escape table and column names
+        escaped_table_name = f'"{table_name}"'
+        escaped_columns = ", ".join(f'"{col}"' for col in columns)
+
         # Create the SQL statement dynamically
         placeholders = ", ".join(["?" for _ in columns])
-        columns_str = ", ".join(columns)
 
         query = f"""
-                    INSERT INTO {table_name} (
-                        {columns_str}
+                    INSERT INTO {escaped_table_name} (
+                        {escaped_columns}
                     ) VALUES (
                         {placeholders}
                     )

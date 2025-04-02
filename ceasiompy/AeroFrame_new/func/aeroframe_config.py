@@ -814,7 +814,7 @@ def compute_cross_section(cpacs_path):
 
                 # Get Section rotation
                 wg_sec_rot = euler2fix(add_rotation)
-                wg_sec_twist = math.radians(wg_sec_rot.y)
+                # wg_sec_twist = math.radians(wg_sec_rot.y)
 
                 wg_sec_center_x = (
                     elem_transf.translation.x
@@ -891,7 +891,7 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
             file_deformed.writelines(
                 ["SCALE\n",
                  "1\t1\t1\n\n"])
-            
+
             file_deformed.writelines(
                 ["TRANSLATE\n",
                  "0.0\t0.0\t0.0\n\n",

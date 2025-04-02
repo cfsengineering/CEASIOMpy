@@ -84,11 +84,23 @@ from ceasiompy.CPACS2SUMO import MODULE_NAME, MODULE_DIR
 
 def deal_with_elements(
     tixi, sumo,
-    body_xpath, sec_xpath,
-    sec_uid, i_sec,
+    fus_xpath, body_xpath,
+    i_sec,
     pos_x_list, pos_y_list, pos_z_list,
-    sec_transf, fus_transf
+    fus_transf
 ) -> None:
+    sec_xpath = fus_xpath + "/sections/section[" + str(i_sec + 1) + "]"
+    sec_uid = tixi.getTextAttribute(sec_xpath, "uID")
+
+    sec_transf = Transformation()
+    sec_transf.get_cpacs_transf(tixi, sec_xpath)
+
+    if sec_transf.rotation.x or sec_transf.rotation.y or sec_transf.rotation.z:
+        log.warning(
+            f"Sections '{sec_uid}' is rotated, it is"
+            "not possible to take that into account in SUMO !"
+        )
+
     # Elements
     elem_cnt = tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
 
@@ -296,25 +308,12 @@ def convert_fuselages(tixi: Tixi3, sumo: Tixi3) -> None:
             tixi, fus_xpath, element)
 
         for i_sec in range(sec_cnt):
-            sec_xpath = fus_xpath + "/sections/section[" + str(i_sec + 1) + "]"
-            sec_uid = tixi.getTextAttribute(sec_xpath, "uID")
-
-            sec_transf = Transformation()
-            sec_transf.get_cpacs_transf(tixi, sec_xpath)
-
-            if sec_transf.rotation.x or sec_transf.rotation.y or sec_transf.rotation.z:
-                log.warning(
-                    f"Sections '{sec_uid}' is rotated, it is"
-                    "not possible to take that into account in SUMO !"
-                )
             deal_with_elements(
-                tixi,
-                sumo,
-                body_xpath, sec_xpath,
-                sec_uid,
+                tixi, sumo,
+                fus_xpath, body_xpath,
                 i_sec,
                 pos_x_list, pos_y_list, pos_z_list,
-                sec_transf, fus_transf
+                fus_transf
             )
 
         # Fuselage symmetry (mirror copy)

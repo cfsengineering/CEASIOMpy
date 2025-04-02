@@ -102,15 +102,8 @@ def deal_with_elements(
         )
 
     # Elements
-    elem_cnt = tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
-
-    if elem_cnt > 1:
-        log.warning(
-            "Sections "
-            + sec_uid
-            + " contains multiple elements, "
-            "it could be an issue for the conversion to SUMO!"
-        )
+    elem_cnt = elements_number(
+        tixi, sec_xpath + "/elements", "element", logg=False)
 
     for i_elem in range(elem_cnt):
         elem_xpath = sec_xpath + "/elements/element[" + str(i_elem + 1) + "]"
@@ -121,7 +114,7 @@ def deal_with_elements(
 
         if elem_transf.rotation.x or elem_transf.rotation.y or elem_transf.rotation.z:
             log.warning(
-                f"Element '{elem_uid}' is rotated, it is"
+                f"Element '{elem_uid}' is rotated, it is "
                 "not possible to take that into account in SUMO !"
             )
 
@@ -247,10 +240,10 @@ def deal_with_elements(
             body_frm_center_z,
         )
 
-        sumo.addTextAttribute(frame_xpath, "center", body_center_str)
+        sumo.addTextAttribute(frame_xpath, "center", str(body_center_str))
         sumo.addTextAttribute(frame_xpath, "height", str(body_frm_height))
         sumo.addTextAttribute(frame_xpath, "width", str(body_frm_width))
-        sumo.addTextAttribute(frame_xpath, "name", sec_uid)
+        sumo.addTextAttribute(frame_xpath, "name", str(sec_uid))
 
 
 def convert_fuselages(tixi: Tixi3, sumo: Tixi3) -> None:
@@ -636,7 +629,8 @@ def convert_enginepylons(tixi: Tixi3, sumo: Tixi3) -> None:
                 )
 
                 wg_sec_chord = corrects_airfoil_profile(
-                    prof_vect_x, prof_vect_y, prof_vect_z)
+                    prof_vect_x, prof_vect_y, prof_vect_z
+                )
 
                 # SUMO variable for WingSection
                 wg_sec_center_x = (

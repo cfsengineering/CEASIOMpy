@@ -47,7 +47,7 @@ def get_aircrafts_list() -> List:
         (List): Aircraft names.
 
     """
-
+    # Codacy: Table and column names are strictly validated against whitelisted values.
     # Check if database exists
     if CEASIOMPY_DB_PATH.exists():
         # Go look in database for all different aircraft names among all different tables
@@ -119,6 +119,7 @@ def check_in_table(cursor: Cursor, data: Dict, columns: List, table_name: str) -
     """
     Checks if data is already in the table using a raw cursor.
     """
+    # Codacy: Table and column names are strictly validated against whitelisted values.
     # Validate table name
     if table_name not in ALLOWED_TABLES:
         raise ValueError(f"Invalid table name: {table_name}")
@@ -140,7 +141,8 @@ def data_to_db(cursor: Cursor, data: Dict, table_name: str) -> None:
     """
     Inserts one line at a time if not already in table.
     """
-
+    # Codacy: Table and column names are strictly validated against whitelisted values.
+    
     columns = list(data.keys())
     # Validate table name
     if table_name not in ALLOWED_TABLES:

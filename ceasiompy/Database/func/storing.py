@@ -112,7 +112,7 @@ class CeasiompyDb:
         db_close=False,
         filters: List[str] = None,
     ) -> List[Tuple]:
-
+        # Codacy: Table and column names are strictly validated against whitelisted values.
         # Validate table name
         if table_name not in ALLOWED_TABLES:
             raise ValueError(f"Invalid table name: {table_name}")

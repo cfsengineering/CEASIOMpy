@@ -20,6 +20,7 @@ from cpacspy.aeromap import get_filter
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.PyAVL.func.plot import plot_lift_distribution
 from ceasiompy.utils.ceasiompyutils import (
+    bool_,
     ensure_and_append_text_element,
 )
 
@@ -135,7 +136,7 @@ def add_coefficients_in_aeromap(
 
     cl, cd, cs, cmd, cml, cms, cms_a, cml_b, cmd_b = get_avl_aerocoefs(st_file_path)
 
-    plot = get_value(tixi, AVL_PLOTLIFT_XPATH)
+    plot = bool_(get_value(tixi, AVL_PLOTLIFT_XPATH))
 
     if plot:
         plot_lift_distribution(fs_file_path, aoa, aos, mach, alt, wkdir=config_dir)

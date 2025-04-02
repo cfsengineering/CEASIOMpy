@@ -21,6 +21,7 @@ Python version: >=3.8
 # ==============================================================================
 
 from cpacspy.cpacsfunctions import get_value
+from ceasiompy.utils.ceasiompyutils import bool_
 from ceasiompy.utils.moduleinterfaces import get_module_path
 
 from typing import Tuple
@@ -159,7 +160,7 @@ def get_option_settings(tixi: Tixi3) -> Tuple[bool, float, int, int, bool, float
 
     """
 
-    save_plots = get_value(tixi, AVL_PLOT_XPATH)
+    save_plots = bool_(get_value(tixi, AVL_PLOT_XPATH))
     vortex_distribution_gui = get_value(
         tixi, AVL_DISTR_XPATH
     )

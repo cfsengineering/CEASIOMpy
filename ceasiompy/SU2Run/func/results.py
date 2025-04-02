@@ -224,7 +224,7 @@ def get_static_results(
 
     update_wetted_area = bool_(get_value(tixi, SU2_UPDATE_WETTED_AREA_XPATH))
     if not found_wetted_area and update_wetted_area:
-        wetted_area = get_wetted_area(Path(config_dir, "logfile_SU2_CFD.log"))
+        wetted_area = get_wetted_area(Path(config_dir, "no_deformation", "logfile_SU2_CFD.log"))
 
         # Check if symmetry plane is defined (Default: False)
         sym_factor = 1.0

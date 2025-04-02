@@ -83,7 +83,7 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
                     wkdir=config_dir,
                     with_mpi=True,
                     nb_cpu=nb_proc,
-                    log_bool=False,
+                    log_bool=True,
                 )
 
                 forces_breakdown_file = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)

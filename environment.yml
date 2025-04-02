@@ -46,10 +46,10 @@ dependencies:
     - gmsh==4.10.3
     - markdownpy==0.1.4
     - om-pycycle
+    - panelaero
+    - pydantic==2.10.6
     - pytest==7.2.0
     - shapely
     - smt==1.2.0
     - streamlit==1.40.1
     - streamlit-autorefresh
-    - panelaero
-    - pydantic

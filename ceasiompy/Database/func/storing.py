@@ -121,18 +121,18 @@ class CeasiompyDb:
         if not all(col in ALLOWED_COLUMNS for col in columns):
             raise ValueError(f"Invalid column name(s): {columns}")
 
-        columns_str = ", ".join(columns)
-        query = f"SELECT {columns_str} FROM {table_name}"
+        # Safely construct the query
+        columns_str = ", ".join([f"`{col}`" for col in columns])  # Escape column names
+        query = f"SELECT {columns_str} FROM `{table_name}`"  # Escape table name
 
         # Handle filters
         params = []
         if filters is not None:
             filter_clauses = []
             for column, value in filters:
-                if not column.isidentifier():
-                    raise ValueError(
-                        f"Invalid column name in filter: {column}")
-                filter_clauses.append(f"{column} = ?")
+                if column not in ALLOWED_COLUMNS:
+                    raise ValueError(f"Invalid column name in filter: {column}")
+                filter_clauses.append(f"`{column}` = ?")  # Escape column names
                 params.append(value)
             query += " WHERE " + " AND ".join(filter_clauses)
 

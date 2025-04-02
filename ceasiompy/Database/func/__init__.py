@@ -90,6 +90,21 @@ TABLE_DICT = {
     ],
 }
 
+ALLOWED_TABLES = [value[0] for value in TABLE_DICT.values()]
+
+TABLE_TO_MODULE = {item[0]: key for key, item in TABLE_DICT.items()}
+
+ALLOWED_COLUMNS = {
+    table: [
+        line.strip().split()[0]  # Extract column names from the SQL-like definitions
+        for line in TABLE_DICT[TABLE_TO_MODULE[table]][1].splitlines()
+        if line.strip() and not line.strip().startswith("--")  # Ignore empty lines and comments
+    ]
+    for table in ALLOWED_TABLES
+}
+
+print(ALLOWED_COLUMNS)
+
 # ==============================================================================
 #    MAIN
 # ==============================================================================

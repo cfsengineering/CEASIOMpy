@@ -23,7 +23,8 @@ from ceasiompy.utils.workflowclasses import ModuleToRun, OptimSubWorkflow, Workf
 from ceasiompy.utils.ceasiompyutils import run_module
 
 MODULE_DIR = Path(__file__).parent
-CPACS_PATH = Path(MODULE_DIR.parents[3], "test_files", "CPACSfiles", "D150_simple.xml")
+CPACS_PATH = Path(
+    MODULE_DIR.parents[3], "test_files", "CPACSfiles", "D150_simple.xml")
 CPACS_PATH_OUT = Path(MODULE_DIR, "D150_simple_out.xml")
 
 # =================================================================================================
@@ -92,7 +93,8 @@ class TestModuleToRun:
         if CPACS_PATH_OUT.exists():
             CPACS_PATH_OUT.unlink()
 
-        module = ModuleToRun("ModuleTemplate", self.wkflow_test, CPACS_PATH, CPACS_PATH_OUT)
+        module = ModuleToRun(
+            "ModuleTemplate", self.wkflow_test, CPACS_PATH, CPACS_PATH_OUT)
 
         # TODO: how to separate test from workflowclasses.py and ceasiompyutils.py
         run_module(module)
@@ -124,14 +126,16 @@ class TestWorkflow:
 
         # Copy config file to WKFLOW_test dir
         shutil.copy(
-            Path(MODULE_DIR, "ceasiompy.cfg"), Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg")
+            Path(MODULE_DIR, "ceasiompy.cfg"), Path(
+                MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg")
         )
 
-        self.workflow.from_config_file(Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
+        self.workflow.from_config_file(
+            Path(MODULE_DIR, "WKFLOW_test", "ceasiompy.cfg"))
 
         assert self.workflow.modules_list == self.MODULE_TO_RUN
         assert self.workflow.module_optim == self.MODULE_OPTIM
-        assert self.workflow.optim_method == "OPTIM"
+        assert self.workflow.optim_method == "Optimisation"
 
     def test_write_config_file(self):
         pass
@@ -165,7 +169,7 @@ class TestWorkflow:
         # Test normal behavior
         self.workflow = Workflow()
         self.workflow.from_config_file(Path(MODULE_DIR, "ceasiompy.cfg"))
-        self.workflow.optim_method = "OPTIM"
+        self.workflow.optim_method = "Optimisation"
         self.workflow.set_workflow()
 
         assert self.workflow.current_wkflow_dir.exists()
@@ -173,12 +177,12 @@ class TestWorkflow:
 
         assert len(list(self.workflow.current_wkflow_dir.iterdir())) == 5
 
-        assert self.workflow.modules[0].name == "OPTIM"
+        assert self.workflow.modules[0].name == "Optimisation"
         assert self.workflow.modules[1].name == "PyTornado"
         assert self.workflow.modules[2].name == "SaveAeroCoefficients"
 
         assert self.workflow.modules[0].is_optim_module
-        assert self.workflow.modules[0].optim_method == "OPTIM"
+        assert self.workflow.modules[0].optim_method == "Optimisation"
         assert self.workflow.modules[0].module_wkflow_path == Path(
             self.workflow.current_wkflow_dir, "01_OPTIM"
         )

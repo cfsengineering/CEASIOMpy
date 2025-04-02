@@ -250,8 +250,10 @@ class SmComp(om.ExplicitComponent):
             elif df.loc[name, "type"] == "des":
                 self.add_input(name)
 
-        self.xd = df.loc[[name for name in df.index if df.loc[name, "type"] == "des"]]
-        self.yd = df.loc[[name for name in df.index if df.loc[name, "type"] == "obj"]]
+        self.xd = df.loc[[
+            name for name in df.index if df.loc[name, "type"] == "des"]]
+        self.yd = df.loc[[
+            name for name in df.index if df.loc[name, "type"] == "obj"]]
 
     def compute(self, inputs, outputs):
         """Make a prediction"""
@@ -396,7 +398,7 @@ def driver_setup(prob):
 
     """
 
-    if Rt.type == "OPTIM":
+    if Rt.type == "Optimisation":
         # TBD : Genetic algorithm
         # if len(Rt.objective) > 1 and False:
         #     log.info("""More than 1 objective function, the driver will
@@ -429,8 +431,10 @@ def driver_setup(prob):
 
     #  Attaching a recorder and a diagramm visualizer ##
     prob.driver.recording_options["record_inputs"] = True
-    prob.driver.add_recorder(om.SqliteRecorder(str(Rt.optim_dir) + "/circuit.sqlite"))
-    prob.driver.add_recorder(om.SqliteRecorder(str(Rt.optim_dir) + "/Driver_recorder.sql"))
+    prob.driver.add_recorder(om.SqliteRecorder(
+        str(Rt.optim_dir) + "/circuit.sqlite"))
+    prob.driver.add_recorder(om.SqliteRecorder(
+        str(Rt.optim_dir) + "/Driver_recorder.sql"))
 
 
 def add_subsystems(prob, ivc):
@@ -462,11 +466,13 @@ def add_subsystems(prob, ivc):
             Rt.last_am_module = module.name
 
         if module.name == "SMUse":
-            prob.model.add_subsystem(module.name, SmComp(module), promotes=["*"])
+            prob.model.add_subsystem(
+                module.name, SmComp(module), promotes=["*"])
         else:
             spec = get_specs_for_module(module.name)
             if spec.cpacs_inout.inputs or spec.cpacs_inout.outputs:
-                prob.model.add_subsystem(module.name, ModuleComp(module), promotes=["*"])
+                prob.model.add_subsystem(
+                    module.name, ModuleComp(module), promotes=["*"])
 
     # Objectives
     prob.model.add_subsystem("objective", obj, promotes=["*"])
@@ -496,7 +502,8 @@ def add_parameters(prob, ivc):
     ) in Rt.optim_var_dict.items():
         if val_type == "des" and listval[-1] not in ["True", "False", "-"]:
             if is_digit(minval) and is_digit(maxval):
-                prob.model.add_design_var(name, lower=float(minval), upper=float(maxval))
+                prob.model.add_design_var(
+                    name, lower=float(minval), upper=float(maxval))
             elif is_digit(minval):
                 prob.model.add_design_var(name, lower=float(minval))
             elif is_digit(maxval):
@@ -506,7 +513,8 @@ def add_parameters(prob, ivc):
             ivc.add_output(name, val=listval[-1])
         elif val_type == "const":
             if is_digit(minval) and is_digit(maxval):
-                prob.model.add_constraint(name, lower=float(minval), upper=float(maxval))
+                prob.model.add_constraint(
+                    name, lower=float(minval), upper=float(maxval))
             elif is_digit(minval):
                 prob.model.add_constraint(name, lower=float(minval))
             elif is_digit(maxval):

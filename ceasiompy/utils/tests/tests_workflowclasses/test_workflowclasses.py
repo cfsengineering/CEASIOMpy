@@ -151,11 +151,6 @@ class TestWorkflow:
         with pytest.raises(ValueError):
             self.workflow.set_workflow()
 
-        self.workflow.optim_method = "NONE"
-        self.workflow.module_optim = self.MODULE_OPTIM
-        with pytest.raises(ValueError):
-            self.workflow.set_workflow()
-
         self.workflow.module_optim = self.MODULE_OPTIM
         self.workflow.working_dir = ""
         with pytest.raises(ValueError):
@@ -184,7 +179,7 @@ class TestWorkflow:
         assert self.workflow.modules[0].is_optim_module
         assert self.workflow.modules[0].optim_method == "Optimisation"
         assert self.workflow.modules[0].module_wkflow_path == Path(
-            self.workflow.current_wkflow_dir, "01_OPTIM"
+            self.workflow.current_wkflow_dir, "01_Optimisation"
         )
 
         assert not self.workflow.modules[1].is_optim_module

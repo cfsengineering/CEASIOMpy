@@ -84,7 +84,7 @@ class CeasiompyDb:
                 {table_schema}
                 timestamp TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             )
-        """
+        """ # nosec
 
         self.cursor.execute(create_table_query)
         self.commit()
@@ -138,7 +138,7 @@ class CeasiompyDb:
                     raise ValueError(f"Invalid column name in filter: {column}")
                 filter_clauses.append(f"`{column}` = ?")  # Escape column names
                 params.append(value)
-            query += " WHERE " + " AND ".join(filter_clauses)
+            query += " WHERE " + " AND ".join(filter_clauses) # nosec
 
         # Execute the query with parameters
         self.cursor.execute(query, params)

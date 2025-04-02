@@ -18,7 +18,6 @@ Python version: >=3.8
 # =================================================================================================
 
 from pathlib import Path
-from unittest.mock import mock_open, patch
 from ceasiompy import log
 
 import pytest
@@ -35,10 +34,6 @@ FORCES_BREAKDOWN = Path(MODULE_DIR, "forces_breakdown.dat")
 FORCES_BREAKDOWN_NO_VALUE = Path(MODULE_DIR, "forces_breakdown_no_value.dat")
 SU2_LOGFILE = Path(MODULE_DIR, "logfile_SU2_CFD.log")
 SU2_LOGFILE_NO_WETTED_AREA = Path(MODULE_DIR, "logfile_SU2_CFD_no_wetted_area.log")
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
 
 
 # =================================================================================================

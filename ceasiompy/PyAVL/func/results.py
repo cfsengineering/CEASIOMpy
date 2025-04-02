@@ -308,8 +308,10 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
         st_file_path = Path(config_dir, "st.txt")
 
         if not st_file_path.exists():
+            available_files = ", ".join(f.name for f in Path(config_dir).iterdir() if f.is_file())
             raise FileNotFoundError(
-                f"No result total forces 'st.txt' file have been found at {st_file_path}"
+                f"No result total forces 'st.txt' file have been found at {st_file_path}. "
+                f"Available files in the directory: {available_files}"
             )
 
         fs_file_path = Path(config_dir, "fs.txt")

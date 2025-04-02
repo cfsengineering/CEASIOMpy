@@ -20,7 +20,6 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-import os
 from pathlib import Path
 
 import pyvista as pv
@@ -89,7 +88,8 @@ def save_screenshot(surface_flow_file, scalar="Mach"):
 
 
 def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
-    """Function to write SU2 results in a CPACS file.
+    """
+    Function to write SU2 results in a CPACS file.
 
     Function 'get_su2_results' gets available results from the latest SU2 calculation and put them
     at the correct place in the CPACS file.
@@ -134,10 +134,10 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
         if not config_dir.is_dir():
             continue
 
-        surface_flow_path = Path(config_dir, SURFACE_FLOW_FILE_NAME)
-        if surface_flow_path.exists() and "DISPLAY" in os.environ:
-            save_screenshot(surface_flow_path, "Mach")
-            save_screenshot(surface_flow_path, "Pressure_Coefficient")
+        # surface_flow_path = Path(config_dir, SURFACE_FLOW_FILE_NAME)
+        # if surface_flow_path.exists() and "DISPLAY" in os.environ:
+        #     save_screenshot(surface_flow_path, "Mach")
+        #     save_screenshot(surface_flow_path, "Pressure_Coefficient")
 
         force_file_path = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
         if not force_file_path.exists():

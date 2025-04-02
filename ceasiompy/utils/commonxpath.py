@@ -62,6 +62,7 @@ WEIGHT_XPATH = CEASIOMPY_XPATH + "/weight"
 
 CLCALC_XPATH = CEASIOMPY_XPATH + "/aerodynamics/clCalculation"
 PLOT_XPATH = CEASIOMPY_XPATH + "/aerodynamics/plotAeroCoefficient"
+RS_XPATH = PLOT_XPATH + "/responseSurface"
 
 SF_XPATH = CEASIOMPY_XPATH + "/aerodynamics/skinFriction"
 
@@ -69,8 +70,8 @@ WETTED_AREA_XPATH = CEASIOMPY_XPATH + "/geometry/analysis/wettedArea"
 WING_AREA_XPATH = CEASIOMPY_XPATH + "/geometry/analysis/wingArea"
 WING_SPAN_XPATH = CEASIOMPY_XPATH + "/geometry/analysis/wingSpan"
 
-SMTRAIN_XPATH = CEASIOMPY_XPATH + "/surrogateModel"
-SMUSE_XPATH = CEASIOMPY_XPATH + "/surrogateModelUse"
+# SMTRAIN_XPATH = CEASIOMPY_XPATH + "/surrogateModel"
+# SMUSE_XPATH = CEASIOMPY_XPATH + "/surrogateModelUse"
 
 STABILITY_STATIC_XPATH = CEASIOMPY_XPATH + "/stability/static"
 STABILITY_DYNAMIC_XPATH = CEASIOMPY_XPATH + "/stability/dynamic"
@@ -82,6 +83,10 @@ EDGE_MESH_XPATH = CEASIOMPY_XPATH + "/filesPath/edgeMesh"
 
 SUMOFILE_XPATH = CEASIOMPY_XPATH + "/filesPath/sumoFilePath"
 WKDIR_XPATH = CEASIOMPY_XPATH + "/filesPath/wkdirPath"
+
+SM_XPATH = CEASIOMPY_XPATH + "/filesPath/surrogateModelPath"
+SUGGESTED_POINTS_XPATH = CEASIOMPY_XPATH + "/filesPath/suggestedPointsPath"
+SM_PREDICTIONS = CEASIOMPY_XPATH + "/filesPath/predictionsDatasetPath"
 
 # Propulsion
 TURBOPROP_XPATH = PROP_XPATH + "/turboprop"
@@ -227,3 +232,11 @@ FRAMAT_RESULTS_XPATH = FRAMAT_XPATH + "/Results"
 # AeroFrame
 AEROFRAME_XPATH = CEASIOMPY_XPATH + "/aeroelasticity/AeroFrame"
 AEROFRAME_SETTINGS = AEROFRAME_XPATH + "/Settings"
+
+# SMTrain
+SMTRAIN_XPATH = CEASIOMPY_XPATH + "/generalModules/smTrain"
+SMTRAIN_DOE = SMTRAIN_XPATH + "/DoE"
+SMTRAIN_SM_XPATH = SMTRAIN_XPATH + "/surrogateModelPath"
+
+# SMUse
+SMUSE_XPATH = CEASIOMPY_XPATH + "/generalModules/smUse"

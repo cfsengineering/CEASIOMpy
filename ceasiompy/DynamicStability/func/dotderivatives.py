@@ -237,8 +237,8 @@ def access_angle_derivatives(
 
     """
 
-    cos_omega_t = math.cos(omega * t)
-    sin_omega_t = math.sin(omega * t)
+    cos_omega_t = np.cos(omega * t)
+    sin_omega_t = np.sin(omega * t)
 
     x = ((f_real[0] * cos_omega_t) + (f_img[0] * sin_omega_t)) / angle_0
     y = ((f_real[1] * cos_omega_t) + (f_img[1] * sin_omega_t)) / angle_0
@@ -255,7 +255,7 @@ def access_angle_derivatives_np(
     angle_0: float
 ) -> ndarray:
     """
-    Decomposition of real and imaginary part of f in (cos, sin) basis.
+    Decomposition of real and imaginary part of f_derivative in (cos, sin) basis.
 
     Args:
         f_real (ndarray): Real part of f.
@@ -286,7 +286,7 @@ def access_angle_dot_derivatives(
     angle_0: float
 ) -> Tuple[float, float, float]:
     """
-    Decomposition of real and imaginary part of f in (cos, sin) basis.
+    Decomposition of real and imaginary part of f_dot in (cos, sin) basis.
 
     Args:
         f_real (ndarray): Real part of f.
@@ -300,8 +300,8 @@ def access_angle_dot_derivatives(
 
     """
 
-    cos_omega_t = math.cos(omega * t)
-    sin_omega_t = math.sin(omega * t)
+    cos_omega_t = np.cos(omega * t)
+    sin_omega_t = np.sin(omega * t)
     scale = angle_0 * omega
 
     x = (f_img[0] * cos_omega_t - f_real[0] * sin_omega_t) / scale

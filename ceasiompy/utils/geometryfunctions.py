@@ -306,7 +306,7 @@ def get_section_uid(tixi: Tixi3, pos_xpath: str, uid_type: str) -> str:
     return tixi.getTextElement(uid_xpath) if tixi.checkElement(uid_xpath) else ""
 
 
-def get_positionings(tixi: Tixi3, xpath: str, element: str) -> Tuple[int, List, List, List]:
+def get_positionings(tixi: Tixi3, xpath: str, element: str = "") -> Tuple[int, List, List, List]:
     """
     Retrieve and compute the positionings for an element from the CPACS file.
 
@@ -316,7 +316,6 @@ def get_positionings(tixi: Tixi3, xpath: str, element: str) -> Tuple[int, List, 
     Args:
         tixi (Tixi3): TIXI Handle of the CPACS file.
         xpath (str): xPath to the fuselage/wing/pylon element in the CPACS file.
-        element (str): Either "fuselage", "wing" or "enginePylon".
 
     Returns:
         sec_cnt (int): Number of sections found at xpath.
@@ -326,22 +325,21 @@ def get_positionings(tixi: Tixi3, xpath: str, element: str) -> Tuple[int, List, 
 
     """
 
+    positioning = "positioning"
+    positionings = positioning + "s"
+
     # Sections
     sec_cnt = elements_number(tixi, xpath + "/sections", "section", logg=False)
 
     # Positionings list
-    pos_x_list = []
-    pos_y_list = []
-    pos_z_list = []
+    pos_x_list, pos_y_list, pos_z_list = [], [], []
 
-    if tixi.checkElement(xpath + "/positionings"):
-        pos_cnt = elements_number(tixi, xpath + "/positionings", "positioning", logg=False)
-
-        from_sec_list = []
-        to_sec_list = []
+    if tixi.checkElement(xpath + f"/{positionings}"):
+        pos_cnt = elements_number(tixi, xpath + f"/{positionings}", positioning, logg=False)
+        from_sec_list, to_sec_list = [], []
 
         for i_pos in range(pos_cnt):
-            pos_xpath = xpath + "/positionings/positioning[" + str(i_pos + 1) + "]"
+            pos_xpath = xpath + f"/{positionings}/{positioning}[" + str(i_pos + 1) + "]"
 
             length = tixi.getDoubleElement(pos_xpath + "/length")
             sweep = math.radians(tixi.getDoubleElement(pos_xpath + "/sweepAngle"))
@@ -378,10 +376,11 @@ def get_positionings(tixi: Tixi3, xpath: str, element: str) -> Tuple[int, List, 
             pos_z_list[j_pos] += prev_pos_z
 
     else:
-        log.warning(f'No "positionings" have been found in: {element}.')
-        pos_x_list = [0.0] * sec_cnt
-        pos_y_list = [0.0] * sec_cnt
-        pos_z_list = [0.0] * sec_cnt
+        log.warning(f'No "{positionings}" have been found in: {element}.')
+        zero_cnt = [0.0] * sec_cnt
+        pos_x_list = zero_cnt
+        pos_y_list = zero_cnt
+        pos_z_list = zero_cnt
 
     return sec_cnt, pos_x_list, pos_y_list, pos_z_list
 

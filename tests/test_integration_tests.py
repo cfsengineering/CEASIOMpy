@@ -21,6 +21,7 @@ Test allworking modules
 
 import shutil
 import pytest
+import matplotlib
 
 import streamlit as st
 
@@ -34,11 +35,11 @@ from ceasiompy.utils.commonpaths import (
     CPACS_FILES_PATH,
 )
 
-
 # =================================================================================================
 #   CONSTANTS
 # =================================================================================================
 
+matplotlib.use("Agg")
 MODULE_DIR = Path(__file__).parent
 WORKFLOW_TEST_DIR = Path(MODULE_DIR, "workflow_tests")
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")

@@ -43,6 +43,7 @@ from ceasiompy.utils.commonxpath import (
 )
 from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
 from ceasiompy.utils.mathfunctions import euler2fix
+from ceasiompy.utils.geometryfunctions import get_positionings
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from ceasiompy.AeroFrame_new.func.aeroframe_utils import (
     PolyArea,
@@ -693,76 +694,7 @@ def compute_cross_section(cpacs_path):
                       round(wing_transf.scaling.y, 3),
                       round(wing_transf.scaling.z, 3)]
 
-        # Positionings
-        if tixi.checkElement(wing_xpath + "/positionings"):
-            pos_cnt = tixi.getNamedChildrenCount(wing_xpath + "/positionings", "positioning")
-            log.info(str(pos_cnt) + ' "positioning" has been found : ')
-
-            pos_x_list = []
-            pos_y_list = []
-            pos_z_list = []
-            from_sec_list = []
-            to_sec_list = []
-
-            for i_pos in range(pos_cnt):
-                pos_xpath = wing_xpath + "/positionings/positioning[" + str(i_pos + 1) + "]"
-
-                length = tixi.getDoubleElement(pos_xpath + "/length")
-                sweep_deg = tixi.getDoubleElement(pos_xpath + "/sweepAngle")
-                sweep = math.radians(sweep_deg)
-                dihedral_deg = tixi.getDoubleElement(pos_xpath + "/dihedralAngle")
-                dihedral = math.radians(dihedral_deg)
-
-                # Get the corresponding translation of each positioning
-                pos_x_list.append(length * math.sin(sweep))
-                pos_y_list.append(length * math.cos(dihedral) * math.cos(sweep))
-                pos_z_list.append(length * math.sin(dihedral) * math.cos(sweep))
-
-                # Get which section are connected by the positioning
-                if tixi.checkElement(pos_xpath + "/fromSectionUID"):
-                    from_sec = tixi.getTextElement(pos_xpath + "/fromSectionUID")
-                else:
-                    from_sec = ""
-                from_sec_list.append(from_sec)
-
-                if tixi.checkElement(pos_xpath + "/toSectionUID"):
-                    to_sec = tixi.getTextElement(pos_xpath + "/toSectionUID")
-                else:
-                    to_sec = ""
-                to_sec_list.append(to_sec)
-
-            # Re-loop though the positioning to re-order them
-            for j_pos in range(pos_cnt):
-                if from_sec_list[j_pos] == "":
-                    prev_pos_x = 0
-                    prev_pos_y = 0
-                    prev_pos_z = 0
-                elif from_sec_list[j_pos] == to_sec_list[j_pos - 1]:
-                    prev_pos_x = pos_x_list[j_pos - 1]
-                    prev_pos_y = pos_y_list[j_pos - 1]
-                    prev_pos_z = pos_z_list[j_pos - 1]
-                else:
-                    index_prev = to_sec_list.index(from_sec_list[j_pos])
-                    prev_pos_x = pos_x_list[index_prev]
-                    prev_pos_y = pos_y_list[index_prev]
-                    prev_pos_z = pos_z_list[index_prev]
-
-                pos_x_list[j_pos] += prev_pos_x
-                pos_y_list[j_pos] += prev_pos_y
-                pos_z_list[j_pos] += prev_pos_z
-
-        else:
-            log.warning('No "positionings" have been found!')
-            pos_cnt = 0
-
-        # Sections
-        sec_cnt = tixi.getNamedChildrenCount(wing_xpath + "/sections", "section")
-        log.info("    -" + str(sec_cnt) + " wing sections have been found")
-
-        if pos_cnt == 0:
-            pos_x_list = [0.0] * sec_cnt
-            pos_y_list = [0.0] * sec_cnt
-            pos_z_list = [0.0] * sec_cnt
+        sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(tixi, wing_xpath)
 
         for i_sec in range(sec_cnt):
             sec_xpath = wing_xpath + "/sections/section[" + str(i_sec + 1) + "]"

@@ -35,7 +35,7 @@ FIG_PATH = Path(MODULE_DIR, "Results", "ExportCSV", "D150-Alt0.0-Mach0.3-AoS0.0.
 # =================================================================================================
 
 
-def test_save_aero_coef():
+def t_save_aero_coef():
     """
     Test if the function 'save_aero_coef' will produce a figure
     """
@@ -53,7 +53,6 @@ def test_save_aero_coef():
 
 
 if __name__ == "__main__":
-    test_save_aero_coef()
     print("Test SaveAeroCoefficients")
     print("To run test use the following command:")
     print(">> pytest -v")

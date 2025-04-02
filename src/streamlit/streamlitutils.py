@@ -61,7 +61,8 @@ def update_value(xpath, key):
                 # Otherwise just add value
                 add_value(st.session_state.cpacs.tixi, xpath, value)
     except Exception:
-        "DoNothing"
+        donothing = "DoNothing"
+        donothing += ""
 
 
 def update_all_modified_value():

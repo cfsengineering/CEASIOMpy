@@ -70,7 +70,8 @@ def get_aircrafts_list() -> List:
                 columns = cursor.fetchall()
                 if any(column[1] == "aircraft" for column in columns):
                     # Query for distinct aircraft names from the table
-                    cursor.execute(f"SELECT DISTINCT aircraft FROM {table_name}")
+                    cursor.execute(
+                        f"SELECT DISTINCT aircraft FROM {table_name}")
                     rows = cursor.fetchall()
                     for row in rows:
                         aircrafts.add(row[0])
@@ -112,27 +113,21 @@ def create_db(path: Path = CEASIOMPY_DB_PATH) -> None:
 
 def check_in_table(cursor: Cursor, data: Dict, columns: List, table_name: str) -> bool:
     """
-    Checks if data is alrady in table.
+    Checks if data is already in the table using a raw cursor.
     """
-    # Validate table name
     if not table_name.isidentifier():
-        raise ValueError(f"Invalid table name: {table_name}")
+        raise ValueError("Invalid table name.")
 
-    # Validate column names
     if not all(col.isidentifier() for col in columns):
-        raise ValueError(f"Invalid column name(s): {columns}")
+        raise ValueError("Invalid column name(s).")
 
-    # Build the WHERE clause for checking existing data
+    # Build the WHERE clause dynamically
     where_clause = " AND ".join([f"{col} = ?" for col in columns])
-    check_query = f"SELECT 1 FROM {table_name} WHERE {where_clause} LIMIT 1"
+    query = f"SELECT 1 FROM {table_name} WHERE {where_clause} LIMIT 1"
+    params = tuple(data[col] for col in columns)
 
-    # Check if the data already exists
-    unique_values = [data[col] for col in columns]
-    cursor.execute(check_query, tuple(unique_values))
-    if cursor.fetchone():
-        return True
-    else:
-        return False
+    cursor.execute(query, params)
+    return cursor.fetchone() is not None
 
 
 def data_to_db(cursor: Cursor, data: Dict, table_name: str) -> None:

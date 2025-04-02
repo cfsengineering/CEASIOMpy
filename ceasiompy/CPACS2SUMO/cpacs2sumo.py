@@ -155,9 +155,8 @@ def convert_fuselages(tixi: Tixi3, sumo: Tixi3) -> None:
                 log.warning(
                     "Sections "
                     + sec_uid
-                    + "  contains multiple \
-                             element, it could be an issue for the conversion \
-                             to SUMO!"
+                    + " contains multiple elements, "
+                    "it could be an issue for the conversion to SUMO!"
                 )
 
             for i_elem in range(elem_cnt):
@@ -193,15 +192,6 @@ def convert_fuselages(tixi: Tixi3, sumo: Tixi3) -> None:
                 # TODO: solve that!
                 pos_y_list[i_sec] += ((1 + prof_min_y) * prof_size_y) * elem_transf.scaling.y
                 pos_z_list[i_sec] += ((1 + prof_min_z) * prof_size_z) * elem_transf.scaling.z
-
-                # #To Plot a particular section
-                # import matplotlib.pyplot as plt
-                # if i_sec==5:
-                #     plt.plot(prof_vect_z, prof_vect_y,'x')
-                #     plt.xlabel('y')
-                #     plt.ylabel('z')
-                #     plt.grid(True)
-                #     plt.show
 
                 # Put value in SUMO format
                 body_frm_center_x = (
@@ -240,12 +230,9 @@ def convert_fuselages(tixi: Tixi3, sumo: Tixi3) -> None:
 
                 # Convert the profile points in the SMX format
                 prof_str = ""
-                teta_list = []
-                teta_half = []
-                prof_vect_y_half = []
-                prof_vect_z_half = []
-                check_max = 0
-                check_min = 0
+                teta_list, teta_half = [], []
+                prof_vect_y_half, prof_vect_z_half = [], []
+                check_max, check_min = 0, 0
 
                 # Use polar angle to keep point in the correct order
                 for i, item in enumerate(prof_vect_y):

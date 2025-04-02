@@ -31,7 +31,6 @@ from src.bin.ceasiompy_exec import run_modules_list
 from ceasiompy.utils.ceasiompyutils import change_working_dir
 
 from ceasiompy.utils.commonpaths import (
-    LOGFILE,
     CPACS_FILES_PATH,
 )
 

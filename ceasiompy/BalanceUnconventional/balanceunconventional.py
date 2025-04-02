@@ -136,16 +136,16 @@ def get_balance_unc_estimations(cpacs_path, cpacs_out_path):
     # CENTER OF GRAVITY
 
     if not fus_nb:
-        (bout, airplane_centers_segs) = bwb_center_of_gravity(awg, bout, ui, bi, mw, ed)
+        (bout, _) = bwb_center_of_gravity(awg, bout, ui, bi, mw, ed)
     else:
-        (bout, airplane_centers_segs) = unc_center_of_gravity(awg, afg, bout, ui, bi, mw, ed)
+        (bout, _) = unc_center_of_gravity(awg, afg, bout, ui, bi, mw, ed)
 
     # MOMENT OF INERTIA
 
     if not fus_nb:
-        (bout, wx, wy, wz) = uncinertia.bwb_inertia_eval(awg, bout, bi, mw, ed, cpacs_out_path)
+        (bout, _, _, _) = uncinertia.bwb_inertia_eval(awg, bout, bi, mw, ed, cpacs_out_path)
     else:
-        (bout, fx, fy, fz, wx, wy, wz) = uncinertia.unc_inertia_eval(
+        (bout, _, _, _, _, _, _) = uncinertia.unc_inertia_eval(
             awg, afg, bout, bi, mw, ed, cpacs_out_path
         )
 

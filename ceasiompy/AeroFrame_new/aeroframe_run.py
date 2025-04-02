@@ -22,7 +22,7 @@ TODO:
 # ==============================================================================
 from ceasiompy import log
 
-from ceasiompy.utils.ceasiompyutils import call_main, get_results_directory
+from ceasiompy.utils.ceasiompyutils import call_main
 
 from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions

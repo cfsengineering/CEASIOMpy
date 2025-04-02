@@ -21,7 +21,6 @@ Test allworking modules
 
 import shutil
 import pytest
-import matplotlib
 
 import streamlit as st
 
@@ -39,7 +38,6 @@ from ceasiompy.utils.commonpaths import (
 #   CONSTANTS
 # =================================================================================================
 
-matplotlib.use("Agg")
 MODULE_DIR = Path(__file__).parent
 WORKFLOW_TEST_DIR = Path(MODULE_DIR, "workflow_tests")
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")
@@ -107,7 +105,6 @@ def test_integration_5():
 # =================================================================================================
 
 if __name__ == "__main__":
-    test_integration_5()
     print("Integration tests")
     print("To run test use the following command:")
     print(">> pytest -v . --cov=../ceasiompy --cov-report term")

@@ -146,8 +146,8 @@ cpacs_inout.add_input(
 
 cpacs_inout.add_input(
     var_name="plot_lift",
-    var_type=False,
-    default_value=True,
+    var_type=bool,
+    default_value=False,
     unit=None,
     descr="Select to plot lift along wing",
     xpath=AVL_PLOTLIFT_XPATH,

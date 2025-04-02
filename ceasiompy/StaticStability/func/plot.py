@@ -22,6 +22,11 @@ from pathlib import Path
 from pandas import DataFrame
 import plotly.graph_objects as go
 
+from typing import (
+    Dict,
+    Tuple,
+)
+
 from ceasiompy import log
 
 # =================================================================================================
@@ -93,16 +98,7 @@ def generate_random_color() -> str:
     return f'#{secrets.randbelow(0xFFFFFF + 1):06x}'
 
 
-def add_stability_plot_tangent(results_dir: Path, df: DataFrame, axis: str) -> None:
-    """
-    Adds a stability plot to the given axis for the provided dataframe.
-
-    Args:
-        df (DataFrame): A dataframe containing the data to be plotted.
-        axis (str): The axis on which the plot will be added.
-
-    """
-
+def set_html_plot(results_dir: Path, df: DataFrame, axis: str) -> Tuple[Path, Dict]:
     # Access where to store the plot
     plot_path = Path(results_dir, f"Stability_{axis}_plot.html")
 
@@ -122,6 +118,16 @@ def add_stability_plot_tangent(results_dir: Path, df: DataFrame, axis: str) -> N
     # Assign colors based on altitude, mach, and AoS
     df['color'] = df.apply(lambda row: color_map[(
         row["alt"], row["mach"], row[f"{X_Y_DICT[f'{axis}_x_prime']}"])], axis=1)
+
+    return plot_path, color_map
+
+
+def add_stability_plot_tangent(results_dir: Path, df: DataFrame, axis: str) -> None:
+    """
+    Adds a stability plot for the Tangent case.
+    """
+
+    plot_path, color_map = set_html_plot(results_dir, df, axis)
 
     # Initial plot
     fig = go.Figure()
@@ -167,34 +173,10 @@ def add_stability_plot_tangent(results_dir: Path, df: DataFrame, axis: str) -> N
 
 def add_stability_plot_lr(results_dir: Path, df: DataFrame, axis: str) -> None:
     """
-    Adds a stability plot to the given axis for the provided dataframe.
-
-    Args:
-        df (DataFrame): A dataframe containing the data to be plotted.
-        axis (str): The axis on which the plot will be added.
-
+    Adds a stability plot for Linear Regression case.
     """
 
-    # Access where to store the plot
-    plot_path = Path(results_dir, f"Stability_{axis}_plot.html")
-
-    # Create a color map for different categories
-    unique_combinations = df[
-        ["alt", "mach", f"{X_Y_DICT[f'{axis}_x_prime']}"]
-    ].drop_duplicates()
-
-    color_map = {
-        tuple(row): generate_random_color()
-        for row in unique_combinations.values
-    }
-
-    # Assign colors based on altitude, mach, and AoS
-    df['color'] = df.apply(
-        lambda row: color_map[
-            (row["alt"], row["mach"], row[f"{X_Y_DICT[f'{axis}_x_prime']}"])
-        ],
-        axis=1,
-    )
+    plot_path, color_map = set_html_plot(results_dir, df, axis)
 
     # Initial plot
     fig = go.Figure()

@@ -160,15 +160,15 @@ def compute_abs_location(tixi: Tixi3, wing_xpath: str) -> Dict[str, Tuple[str, s
                 pos_xpath = poss_xpath + f"/{pos}[{i_pos + 1}]"
                 if tixi.getTextElement(pos_xpath + "/toSectionUID") == sec_uid:
                     length: float = tixi.getDoubleElement(pos_xpath + "/length")
-                    sweep: float = tixi.getDoubleElement(pos_xpath + "/sweepAngle")
-                    dih: float = tixi.getDoubleElement(pos_xpath + "/dihedralAngle")
+                    sweep: float = math.radians(tixi.getDoubleElement(pos_xpath + "/sweepAngle"))
+                    dih: float = math.radians(tixi.getDoubleElement(pos_xpath + "/dihedralAngle"))
                     break
             else:
                 log.warning("Issue with positioning. Associated with wrong section uID.")
 
-            x_ = length * math.sin(math.radians(sweep))
-            y_ = length * math.cos(math.radians(dih)) * math.cos(math.radians(sweep))
-            z_ = length * math.sin(math.radians(dih)) * math.cos(math.radians(sweep))
+            x_ = length * math.sin(sweep)
+            y_ = length * math.cos(dih) * math.cos(sweep)
+            z_ = length * math.sin(dih) * math.cos(sweep)
 
             coord_ = np.array([x_, y_, z_])
             x_, y_, z_ = rot.dot(coord_)
@@ -338,9 +338,9 @@ def decompose_wing(tixi: Tixi3, wing_name: str) -> None:
 
         # Modify translate vector accordingly
         trsl_xpath = new_xpath + "/transformation/translation"
-        tixi.updateTextElement(trsl_xpath + "/x", loc[seg_from_uid][0])
-        tixi.updateTextElement(trsl_xpath + "/y", loc[seg_from_uid][1])
-        tixi.updateTextElement(trsl_xpath + "/z", loc[seg_from_uid][2])
+        update_xpath_at_xyz(
+            tixi, trsl_xpath, loc[seg_from_uid][0], loc[seg_from_uid][1], loc[seg_from_uid][2]
+        )
 
     # Remove original wing
     remove(tixi, wing_xpath)
@@ -518,9 +518,9 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
             newx_str, newy_str, newz_str = array_to_str(newx, newz)
             ids = "main_" + ctrltype + "_" + sgt + f'_{i_sec}'
             new_airfoil_xpath = copy(tixi, wingairfoil_xpath, "wingAirfoil", ids, sym=False)
-            tixi.updateTextElement(new_airfoil_xpath + "/pointList/x", newx_str)
-            tixi.updateTextElement(new_airfoil_xpath + "/pointList/y", newy_str)
-            tixi.updateTextElement(new_airfoil_xpath + "/pointList/z", newz_str)
+            update_xpath_at_xyz(
+                tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str
+            )
 
             # Update airfoil uID for each section
             tixi.updateTextElement(airfoil_xpath, ids)
@@ -529,12 +529,21 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
             newx_str, newy_str, newz_str = array_to_str(x_airfoil, z_airfoil)
             ids = ctrltype + "_" + sgt + f'_{i_sec}'
             new_airfoil_xpath = copy(tixi, wingairfoil_xpath, "wingAirfoil", ids, sym=False)
-            tixi.updateTextElement(new_airfoil_xpath + "/pointList/x", newx_str)
-            tixi.updateTextElement(new_airfoil_xpath + "/pointList/y", newy_str)
-            tixi.updateTextElement(new_airfoil_xpath + "/pointList/z", newz_str)
+            update_xpath_at_xyz(
+                tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str
+            )
 
         else:
             log.warning(f"Airfoil uID {airfoil_uid} not found.")
+
+
+def update_xpath_at_xyz(tixi: Tixi3, xpath: str, x: str, y: str, z: str) -> None:
+    """
+    Helper Function.
+    """
+    tixi.updateTextElement(xpath + "/x", x)
+    tixi.updateTextElement(xpath + "/y", y)
+    tixi.updateTextElement(xpath + "/z", z)
 
 
 def createfrom_wing_airfoil(
@@ -550,9 +559,9 @@ def createfrom_wing_airfoil(
 
     newx_str, newy_str, newz_str = array_to_str(xlist, zlist)
     new_airfoil_xpath = copy(tixi, wingairfoil_xpath, "wingAirfoil", ids, sym=False)
-    tixi.updateTextElement(new_airfoil_xpath + "/pointList/x", newx_str)
-    tixi.updateTextElement(new_airfoil_xpath + "/pointList/y", newy_str)
-    tixi.updateTextElement(new_airfoil_xpath + "/pointList/z", newz_str)
+    update_xpath_at_xyz(
+        tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str
+    )
 
 
 def add_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
@@ -658,9 +667,9 @@ def deflection_angle(tixi: Tixi3, wing_uid: str, angle: float) -> None:
 
                 ids = wing_uid + f"angle_{angle}" + f'_{i_sec}'
                 new_airfoil_xpath = copy(tixi, wingairfoil_xpath, "wingAirfoil", ids, sym=False)
-                tixi.updateTextElement(new_airfoil_xpath + "/pointList/x", newx_str)
-                tixi.updateTextElement(new_airfoil_xpath + "/pointList/y", newy_str)
-                tixi.updateTextElement(new_airfoil_xpath + "/pointList/z", newz_str)
+                update_xpath_at_xyz(
+                    tixi, new_airfoil_xpath + "/pointList", newx_str, newy_str, newz_str
+                )
 
                 # Update airfoil uID for each section
                 tixi.updateTextElement(airfoil_xpath, ids)

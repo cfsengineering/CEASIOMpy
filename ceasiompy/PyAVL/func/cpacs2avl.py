@@ -337,10 +337,10 @@ def convert_cpacs_to_avl(cpacs_path, machnumber, wkdir):
                 x_fuselage + body_transf.translation.x, y_fuselage_top - fus_radius_vec)
             fus_radius_profile = interpolate.interp1d(
                 x_fuselage + body_transf.translation.x, fus_radius_vec)
-            
+
             fuselage_dir = Path(results_path) / "Fuselage_files"
             fuselage_dir.mkdir(exist_ok=True)
-            fuselage_dat_path = fuselage_dir / f"{prof_uid}.dat"
+            fuselage_dat_path = fuselage_dir / f"{fus_uid}.dat"
 
             with open(fuselage_dat_path, 'w') as fus_file:
                 fus_file.write("fuselage" + str(i_fus + 1) + "\n")
@@ -613,7 +613,6 @@ def convert_cpacs_to_avl(cpacs_path, machnumber, wkdir):
                     y_LE_rot = y_LE_abs - wg_sk_transf.translation.y
                     root_defined = True
 
-                
                 with open(avl_path, 'a') as avl_file:
                     avl_file.writelines([
                         "#---------------\n",
@@ -623,10 +622,7 @@ def convert_cpacs_to_avl(cpacs_path, machnumber, wkdir):
                     avl_file.write(f"{x_LE_rot:.3f} {y_LE_rot:.3f} {z_LE_rot:.3f} "
                                     f"{(wg_sec_chord):.3f} {wg_sec_rot.y}\n\n")
 
-                    avl_file.writelines([
-                        "AFILE\n",
-                        str(airfoil_dat_path) + "\n\n"
-                    ])
+                    avl_file.writelines(["AFILE\n",str(airfoil_dat_path) + "\n\n"])
 
     return Path(avl_path)
 

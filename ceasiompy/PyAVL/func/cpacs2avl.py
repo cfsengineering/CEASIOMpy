@@ -46,12 +46,11 @@ log = get_logger()
 # =================================================================================================
 
 
-def convert_cpacs_to_avl(cpacs_path, wkdir):
+def convert_cpacs_to_avl(cpacs_path, machnumber, wkdir):
     """Function to convert a CPACS file geometry into an AVL file geometry.
 
     Function 'convert_cpacs_to_avl' opens an input CPACS file with TIXI handle
     and  converts every element (as much as possible) in the AVL (.avl) format.
-    The output sumo file is saved in ...
 
     Source:
        * https://github.com/cfsengineering/CEASIOMpy/blob/main/ceasiompy/CPACS2SUMO/cpacs2sumo.py
@@ -73,17 +72,11 @@ def convert_cpacs_to_avl(cpacs_path, wkdir):
     avl_path = str(results_dir) + "/" + name_aircraft + ".avl"
 
     with open(avl_path, 'w') as avl_file:
+        # Aircraft name
         avl_file.write(name_aircraft + "\n\n")
-
-    # Get the flight conditions
-    FLIGHT_XPATH = "/cpacs/vehicles/aircraft/model/analyses/" + \
-        "aeroPerformance/aeroMap[1]/aeroPerformanceMap"
-    mach = tixi.getDoubleElement(FLIGHT_XPATH + '/machNumber')
-    AoA = 0  # tixi.getDoubleElement(FLIGHT_XPATH + '/angleOfAttack')
-    with open(avl_path, 'a') as avl_file:
         # Mach number
         avl_file.write('#Mach\n')
-        avl_file.write(str(mach) + "\n\n")
+        avl_file.write(str(machnumber) + "\n\n")
         # Symmetry
         avl_file.write("#IYsym   IZsym   Zsym\n")
         avl_file.write("0\t0\t0\n\n")
@@ -344,30 +337,29 @@ def convert_cpacs_to_avl(cpacs_path, wkdir):
                 x_fuselage + body_transf.translation.x, y_fuselage_top - fus_radius_vec)
             fus_radius_profile = interpolate.interp1d(
                 x_fuselage + body_transf.translation.x, fus_radius_vec)
+            
+            fuselage_dir = Path(results_path) / "Fuselage_files"
+            fuselage_dir.mkdir(exist_ok=True)
+            fuselage_dat_path = fuselage_dir / f"{prof_uid}.dat"
 
-            fus_dat_path = results_path + "/" + fus_uid + ".dat"
-
-            with open(fus_dat_path, 'w') as fus_file:
+            with open(fuselage_dat_path, 'w') as fus_file:
                 fus_file.write("fuselage" + str(i_fus + 1) + "\n")
 
                 # Write coordinates of the top surface
                 for x_fus, y_fus in reversed(list(zip(x_fuselage[1:], y_fuselage_top[1:]))):
-                    # fus_file.write(str(x_fus) + "\t" + str(y_fus) + "\n")
                     fus_file.write(f"{x_fus:.3f}\t{y_fus:.3f}\n")
 
                 # Write coordinates of the nose of the fuselage
                 y_nose = np.mean([y_fuselage_top[0], y_fuselage_bottom[0]])
-                # fus_file.write(str(x_fuselage[0]) + "\t" + str(y_nose) + "\n")
                 fus_file.write(f"{x_fuselage[0]:.3f}\t{y_nose:.3f}\n")
 
                 # Write coordinates of the bottom surface
                 for x_fus, y_fus in zip(x_fuselage[1:], y_fuselage_bottom[1:]):
-                    # fus_file.write(str(x_fus) + "\t" + str(y_fus) + "\n")
                     fus_file.write(f"{x_fus:.3f}\t{y_fus:.3f}\n")
 
             with open(avl_path, 'a') as avl_file:
                 avl_file.write("BFILE\n")
-                avl_file.write(fus_dat_path + "\n\n")
+                avl_file.write(str(fuselage_dat_path) + "\n\n")
 
     # Wing(s) ------------------------------------------------------------------
     if tixi.checkElement(WINGS_XPATH):
@@ -424,7 +416,7 @@ def convert_cpacs_to_avl(cpacs_path, wkdir):
 
             # Angle
             avl_file.write('ANGLE\n')
-            avl_file.write(str(AoA) + "\n\n")
+            avl_file.write("0\n\n")
 
             # Scaling
             avl_file.write("SCALE\n")
@@ -533,9 +525,11 @@ def convert_cpacs_to_avl(cpacs_path, wkdir):
                 # Get wing profile (airfoil)
                 prof_uid = tixi.getTextElement(elem_xpath + "/airfoilUID")
                 prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
-                foil_dat_path = results_path + "/" + prof_uid + ".dat"
+                airfoil_dir = Path(results_path) / "Airfoil_files"
+                airfoil_dir.mkdir(exist_ok=True)
+                airfoil_dat_path = airfoil_dir / f"{prof_uid}.dat"
 
-                with open(foil_dat_path, 'w') as dat_file:
+                with open(airfoil_dat_path, 'w') as dat_file:
                     dat_file.write(prof_uid + "\n")
                     # Limit the number of points to 100 (otherwise AVL error)
                     if len(prof_vect_x) < 100:
@@ -618,29 +612,21 @@ def convert_cpacs_to_avl(cpacs_path, wkdir):
                     y_LE_abs += np.sqrt(radius_fus**2 - delta_z**2) - y_LE_abs
                     y_LE_rot = y_LE_abs - wg_sk_transf.translation.y
                     root_defined = True
-                    with open(avl_path, 'a') as avl_file:
-                        avl_file.write("#---------------\n")
-                        avl_file.write("SECTION\n")
-                        avl_file.write("#Xle    Yle    Zle     Chord   Ainc\n")
-                        avl_file.write(f"{x_LE_rot:.3f} {y_LE_rot:.3f} {z_LE_rot:.3f} "
-                                       f"{(wg_sec_chord):.3f} {wg_sec_rot.y}\n\n")
 
-                        avl_file.write("AFILE\n")
-                        avl_file.write(foil_dat_path + "\n\n")
+                
+                with open(avl_path, 'a') as avl_file:
+                    avl_file.writelines([
+                        "#---------------\n",
+                        "SECTION\n",
+                        "#Xle    Yle    Zle     Chord   Ainc\n"
+                    ])
+                    avl_file.write(f"{x_LE_rot:.3f} {y_LE_rot:.3f} {z_LE_rot:.3f} "
+                                    f"{(wg_sec_chord):.3f} {wg_sec_rot.y}\n\n")
 
-                elif integrate_fuselage is False or \
-                        np.sqrt((y_LE_abs)**2 + (delta_z)**2) > radius_fus \
-                        or wg_sec_dihed > 0.95 * math.pi / 2:
-
-                    # Write the leading edge coordinates and the airfoil file
-                    with open(avl_path, 'a') as avl_file:
-                        avl_file.write("#---------------\n")
-                        avl_file.write("SECTION\n")
-                        avl_file.write("#Xle    Yle    Zle     Chord   Ainc\n")
-                        avl_file.write(f"{x_LE_rot:.3f} {y_LE_rot:.3f} {z_LE_rot:.3f} "
-                                       f"{(wg_sec_chord):.3f} {wg_sec_rot.y}\n\n")
-                        avl_file.write("AFILE\n")
-                        avl_file.write(foil_dat_path + "\n\n")
+                    avl_file.writelines([
+                        "AFILE\n",
+                        str(airfoil_dat_path) + "\n\n"
+                    ])
 
     return Path(avl_path)
 

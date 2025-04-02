@@ -141,8 +141,8 @@ def data_to_db(cursor: Cursor, data: Dict, table_name: str) -> None:
     """
     Inserts one line at a time if not already in table.
     """
-    
-    # Table names are validated against ALLOWED_TABLES.        
+
+    # Table names are validated against ALLOWED_TABLES.
     columns = list(data.keys())
 
     # Validate table name

@@ -20,11 +20,9 @@ Python version: >=3.8
 # ==============================================================================
 
 import math
-
 import numpy as np
 
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
-
 from cpacspy.cpacsfunctions import (
     get_uid,
     get_value,
@@ -48,11 +46,14 @@ from ceasiompy.utils.geometryfunctions import (
     corrects_airfoil_profile,
 )
 
-from typing import List, Tuple
 from pathlib import Path
 from numpy import ndarray
 from tixi3.tixi3wrapper import Tixi3
 from scipy.interpolate import interp1d
+from typing import (
+    List,
+    Tuple,
+)
 from ceasiompy.utils.generalclasses import (
     Point,
     Transformation,
@@ -216,7 +217,7 @@ def convert_fuselage(tixi: Tixi3, avl_path: Path, results_path: Path):
     for i_fus in reversed(range(fus_cnt)):
         fus_xpath = FUSELAGES_XPATH + "/fuselage[" + str(i_fus + 1) + "]"
         fus_uid = get_uid(tixi, fus_xpath)
-        fus_dat_path = results_path + "/" + fus_uid + ".dat"
+        fus_dat_path = str(results_path) + "/" + fus_uid + ".dat"
 
         fus_transf = Transformation()
         fus_transf.get_cpacs_transf(tixi, fus_xpath)

@@ -48,8 +48,9 @@ from cpacspy.cpacsfunctions import (
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
+from unittest.mock import MagicMock
 from tixi3.tixi3wrapper import Tixi3
-
+from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from typing import (
     List,
     Tuple,
@@ -58,16 +59,15 @@ from typing import (
     Callable,
 )
 
+from ceasiompy.utils import AEROMAP_LIST
 from ceasiompy import (
     log,
     ceasiompy_cfg,
 )
-
 from ceasiompy.utils.commonpaths import (
     WKDIR_PATH,
     CPACS_FILES_PATH,
 )
-
 from ceasiompy.utils.moduleinterfaces import (
     MODNAME_INIT,
     MODNAME_SPECS,
@@ -78,21 +78,17 @@ from ceasiompy.utils.commonxpath import (
     RANGE_CRUISE_MACH_XPATH,
 )
 
-
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
 
-def update_cpacs_from_specs(cpacs: CPACS, module_name: str) -> None:
 
-    st.session_state.cpacs = cpacs
-    specs = get_specs_for_module(module_name)
-    inputs = specs.cpacs_inout.get_gui_dict()
+def update_cpacs_from_specs(cpacs: CPACS, module_name: str) -> None:
     tixi = cpacs.tixi
-    aeromap_map = [
-        "__AEROMAP_SELECTION",
-        "__AEROMAP_CHECKBOX",
-    ]
+    st.session_state.cpacs = cpacs
+    cpacsin_out: CPACSInOut = get_specs_for_module(module_name).cpacs_inout
+    inputs = cpacsin_out.get_gui_dict()
+
     for name, default_value, var_type, _, xpath, _, _ in inputs.values():
         parts = xpath.strip('/').split('/')
         for i in range(1, len(parts) + 1):
@@ -101,7 +97,7 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str) -> None:
                 tixi.createElement('/' + '/'.join(parts[:i - 1]), parts[i - 1])
 
         # Check if the name or var_type is in the dictionary and call the corresponding function
-        if name in aeromap_map:
+        if name in AEROMAP_LIST:
             aeromap_uid_list = cpacs.get_aeromap_uid_list()
             if not len(aeromap_uid_list):
                 log.error("You must create an aeromap in order to use this module !")
@@ -256,36 +252,37 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path = None) -> None
     """
     Calls main with input/output CPACS of module named module_name.
     #TODO: Add Args and Returns.
-
     """
+    st.session_state = MagicMock()
     wkflow_dir = current_workflow_dir()
-
     log.info(f"Workflow's working directory: {wkflow_dir} \n")
 
     log.info("----- Start of " + module_name + " -----")
+
     if cpacs_path is None:
         xml_file = "D150_simple.xml"
         cpacs_path = Path(CPACS_FILES_PATH, xml_file)
     else:
         xml_file = cpacs_path.name
 
-    cpacs = CPACS(cpacs_path)
+    with change_working_dir(wkflow_dir):
+        cpacs = CPACS(cpacs_path)
+        log.info(f"Upload default values from {MODNAME_SPECS}.")
+        update_cpacs_from_specs(cpacs, module_name)
 
-    log.info(f"Upload default values from {MODNAME_SPECS}.")
-    update_cpacs_from_specs(cpacs, module_name)
     new_cpacs_path = wkflow_dir / xml_file
     cpacs.save_cpacs(new_cpacs_path, overwrite=True)
-
-    new_cpacs = CPACS(new_cpacs_path)
+    cpacs = CPACS(new_cpacs_path)
+    
     log.info(f"Finished uploading default values from {MODNAME_SPECS}.")
 
     if get_wkdir_status(module_name):
         results_dir = get_results_directory(module_name, create=True, wkflow_dir=wkflow_dir)
-        main(new_cpacs, results_dir)
+        main(cpacs, results_dir)
     else:
-        main(new_cpacs)
+        main(cpacs)
 
-    new_cpacs.save_cpacs(new_cpacs_path, overwrite=True)
+    cpacs.save_cpacs(new_cpacs_path, overwrite=True)
 
     log.info("----- End of " + module_name + " -----")
 

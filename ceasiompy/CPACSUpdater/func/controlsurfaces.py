@@ -82,16 +82,15 @@ def retrieve_gui_ctrlsurf(tixi: Tixi3) -> Dict[str, List]:
     """
 
     # Load constants
-    ctrlsurf_xpath = CPACSUPDATER_CTRLSURF_XPATH
-    wing_cnt = tixi.getNumberOfChilds(ctrlsurf_xpath)
+    wing_cnt = tixi.getNumberOfChilds(CPACSUPDATER_CTRLSURF_XPATH)
 
-    # Global variable
+    # Load variable
     result = {}
 
     #
     for i in range(1, wing_cnt + 1):
-        wing_name = tixi.getChildNodeName(ctrlsurf_xpath, i)
-        wing_xpath = f"{ctrlsurf_xpath}/{wing_name}"
+        wing_name = tixi.getChildNodeName(CPACSUPDATER_CTRLSURF_XPATH, i)
+        wing_xpath = f"{CPACSUPDATER_CTRLSURF_XPATH}/{wing_name}"
         seg_cnt = tixi.getNumberOfChilds(wing_xpath)
 
         wing_sgt_list = []

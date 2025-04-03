@@ -19,11 +19,15 @@ Python version: >=3.8
 # ==============================================================================
 
 import os
-
+import psutil
+import signal
 import streamlit as st
 
-from streamlitutils import create_sidebar, save_cpacs_file
 from streamlit_autorefresh import st_autorefresh
+from streamlitutils import (
+    create_sidebar,
+    save_cpacs_file,
+)
 
 from pathlib import Path
 
@@ -48,23 +52,49 @@ HOW_TO_TEXT = (
 # ==============================================================================
 
 
-def run_workflow_button():
+def terminate_previous_workflows():
+    """
+    Terminate any previously running workflow processes.
+    """
+    for proc in psutil.process_iter(attrs=["pid", "name", "cmdline"]):
+        try:
+            # Check if the process is running the workflow script
+            if "python" in proc.info["name"] and "runworkflow.py" in proc.info["cmdline"]:
+                # Terminate the process
+                os.kill(proc.info["pid"], signal.SIGTERM)
+                st.warning(f"Terminated previous workflow process (PID: {proc.info['pid']}).")
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
+
+
+def workflow_buttons():
     """
     Run workflow button.
     """
 
-    if st.button("Run ▶️", help="Run the workflow "):
+    # Create two buttons side by side
+    col1, col2 = st.columns([1, 1])
 
-        st.session_state.workflow.modules_list = st.session_state.workflow_modules
-        st.session_state.workflow.optim_method = "None"
-        st.session_state.workflow.module_optim = ["NO"] * len(
-            st.session_state.workflow.modules_list
-        )
-        st.session_state.workflow.write_config_file()
+    with col1:
+        if st.button("Run ▶️", help="Run the workflow"):
+            # Terminate any previous workflows
+            terminate_previous_workflows()
 
-        # Run workflow from an external script
-        config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
-        os.system(f"python runworkflow.py {config_path}  &")
+            st.session_state.workflow.modules_list = st.session_state.workflow_modules
+            st.session_state.workflow.optim_method = "None"
+            st.session_state.workflow.module_optim = ["NO"] * len(
+                st.session_state.workflow.modules_list
+            )
+            st.session_state.workflow.write_config_file()
+
+            # Run workflow from an external script
+            config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
+            os.system(f"python runworkflow.py {config_path} &")
+
+    with col2:
+        if st.button("Terminate ✖️", help="Terminate the workflow"):
+            # Terminate any running workflows
+            terminate_previous_workflows()
 
 
 def show_logs():
@@ -80,7 +110,7 @@ def show_logs():
 
     lines_str = "\n".join(reversed(lines))
 
-    st.text_area("(more recent on top)", lines_str, height=300, disabled=True)
+    st.text_area("(more recent on top)", lines_str, height=400, disabled=True)
 
 
 # =================================================================================================
@@ -111,7 +141,7 @@ if __name__ == "__main__":
     if "last_page" in st.session_state and st.session_state.last_page != PAGE_NAME:
         save_cpacs_file()
 
-    run_workflow_button()
+    workflow_buttons()
     show_logs()
 
     # AutoRefresh for logs

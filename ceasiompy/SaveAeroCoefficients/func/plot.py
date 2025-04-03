@@ -55,7 +55,7 @@ def plot(wkdir: Path, groupby_list: List, title: str, aeromap, criterion) -> Non
 
     for value, grp in aeromap.loc[criterion].groupby(groupby_list):
         legend = write_legend(groupby_list, value)
-        
+
         # Convert data to NumPy arrays before plotting
         angle_of_attack = np.array(grp["angleOfAttack"])
         cl = np.array(grp["cl"])

@@ -247,9 +247,7 @@ def filter_positionings(
         # If it is not the first one
         if from_sec_uid != "":
             if not (
-                (from_sec_uid in kept_sec)
-
-                and (to_sec_uid in kept_sec)
+                (from_sec_uid in kept_sec) and (to_sec_uid in kept_sec)
             ):
                 remove(tixi, pos_xpath)
 
@@ -296,7 +294,6 @@ def filter_segments(
 
         if not (
             (tixi.getTextElement(org_seg_xpath + "/fromElementUID") == seg_from_uid)
-
             and (tixi.getTextElement(org_seg_xpath + "/toElementUID") == seg_to_uid)
         ):
             remove(tixi, seg_xpath)
@@ -352,8 +349,6 @@ def fowler_transform(
 ) -> Tuple[ndarray, ndarray, ndarray]:
     """
     Transforms z values to 0.0 for x values greater than x_ref.
-
-    TODO: Specify args and returns
     """
 
     mask = (x_values > x_ref) & (z_values < 0)
@@ -391,8 +386,8 @@ def plain_transform(
 
     close_x = max_x_pos + new_x
     close_z = np.linspace(z_pos, z_neg, len(close_x))
-    newx_values = np.concatenate((newx_values, close_x))  # , [newx_values[0]]
-    newz_values = np.concatenate((newz_values, close_z))  # , [newz_values[0]]
+    newx_values = np.concatenate((newx_values, close_x))
+    newz_values = np.concatenate((newz_values, close_z))
 
     # Flap
     x_flap = x_ref + 0.02
@@ -415,8 +410,8 @@ def plain_transform(
     newz_flapvalues = newz_flapvalues[sorted_indices]
 
     # Concatenate the transition points with the existing arrays
-    newx_flapvalues = np.concatenate((newx_flapvalues, arc_x))  # , [newx_flapvalues[0]]
-    newz_flapvalues = np.concatenate((newz_flapvalues, arc_z))  # , [newz_flapvalues[0]]
+    newx_flapvalues = np.concatenate((newx_flapvalues, arc_x))
+    newz_flapvalues = np.concatenate((newz_flapvalues, arc_z))
 
     # Re-order for correct leading edge in CPACS format
     min_x_index = np.argmin(newx_flapvalues)
@@ -496,7 +491,10 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
             z = array([float(z) for z in z_str.split(';')])
 
             # TODO: Add choice of different interpolation techniques
-            newx, newz = interpolate_points(x, z, max_dist=0.02)
+            # newx, newz = interpolate_points(x, z, max_dist=0.02)
+            # CAREFUL: if you want to interpolate airfoil coordinates,
+            # you need to apply the interpolation to all airfoils.
+            newx, newz = x, z
 
             if "fowler" in ctrltype:
                 # Store airfoil temporarily

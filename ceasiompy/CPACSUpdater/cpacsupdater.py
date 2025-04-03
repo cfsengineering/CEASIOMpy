@@ -17,11 +17,12 @@ Python version: >=3.8
 # ==============================================================================
 
 from cpacspy.cpacsfunctions import get_value
+from ceasiompy.utils.ceasiompyutils import run_module
 from ceasiompy.CPACSUpdater.func.controlsurfaces import add_control_surfaces
 
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy import log
+from ceasiompy.CPACSUpdater import MODULE_NAME
 from ceasiompy.utils.commonxpath import CPACSUPDATER_ADD_CTRLSURFACES_XPATH
 
 # =================================================================================================
@@ -42,7 +43,4 @@ def main(cpacs: CPACS) -> None:
 
 
 if __name__ == "__main__":
-    # Since the __specs__ of CPACSUpdater
-    # need a CPACS file you can not use
-    # the 'call_main' function.
-    log.info("Nothing to execute.")
+    run_module(MODULE_NAME, test=True)

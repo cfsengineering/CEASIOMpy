@@ -641,7 +641,7 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
             su2_mesh_paths = [Path(x) for x in str(tixi_su2_mesh_paths).split(';')]
         else:
             log.warning("No .su2 mesh paths found at ")
-            
+
         log.info("Not using ceasiompy.db data")
 
     # Using ceasiompy.db data

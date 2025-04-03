@@ -28,11 +28,12 @@ from ceasiompy import log
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 
-# ==============================================================================
-#   EXPORT
-# ==============================================================================
+# Aeromap list
+AEROMAP_LIST = [
+    "__AEROMAP_SELECTION",
+    "__AEROMAP_CHECKBOX",
+]
 
-__all__ = ["MODULE_NAME", "MODULE_DIR"]
 
 # =================================================================================================
 #    MAIN

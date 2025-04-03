@@ -30,9 +30,7 @@ from unittest.mock import MagicMock
 from src.bin.ceasiompy_exec import run_modules_list
 from ceasiompy.utils.ceasiompyutils import change_working_dir
 
-from ceasiompy.utils.commonpaths import (
-    CPACS_FILES_PATH,
-)
+from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 
 # =================================================================================================
 #   CONSTANTS
@@ -51,6 +49,17 @@ WORKFLOW_TEST_DIR.mkdir()
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("cpacscreator"), reason="cpacscreator not installed")
+def test_integration_1():
+    modules_to_run = ["CPACSUpdater", "CPACS2GMSH"]
+    st.session_state = MagicMock()
+    with change_working_dir(WORKFLOW_TEST_DIR):
+        run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
+
+    assert True
 
 
 @pytest.mark.slow
@@ -92,7 +101,7 @@ def test_integration_4():
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 def test_integration_5():
-    modules_to_run = ["PyAVL", "Database"]
+    modules_to_run = ["PyAVL", "SaveAeroCoefficients", "Database"]
     st.session_state = MagicMock()
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)

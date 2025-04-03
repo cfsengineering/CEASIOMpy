@@ -53,7 +53,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
         csv_path = Path(wkdir, f"{aeromap_uid}.csv")
         aeromap.export_csv(csv_path)
 
-        log.info(f"Aeromap(s) has been saved to {csv_path}")
+    log.info(f"Aeromap(s) have been saved to {csv_path}")
 
 
 if __name__ == "__main__":

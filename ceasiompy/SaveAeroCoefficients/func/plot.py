@@ -18,7 +18,7 @@ Python version: >=3.8
 
 import os
 import matplotlib
-
+import numpy as np
 import matplotlib.pyplot as plt
 
 from ceasiompy.SaveAeroCoefficients.func.utils import (
@@ -54,15 +54,21 @@ def plot(wkdir: Path, groupby_list: List, title: str, aeromap, criterion) -> Non
     axs[0, 1].axhline(y=0.0, color="k", linestyle="-")  # Line at Cm=0
 
     for value, grp in aeromap.loc[criterion].groupby(groupby_list):
-
         legend = write_legend(groupby_list, value)
+        
+        # Convert data to NumPy arrays before plotting
+        angle_of_attack = np.array(grp["angleOfAttack"])
+        cl = np.array(grp["cl"])
+        cd = np.array(grp["cd"])
+        cms = np.array(grp["cms"])
+        cl_cd = cl / cd
 
-        axs[0, 0].plot(grp["angleOfAttack"], grp["cl"], "x-", label=legend)
-        axs[1, 0].plot(grp["angleOfAttack"], grp["cd"], "x-")
-        axs[0, 1].plot(grp["angleOfAttack"], grp["cms"], "x-")
-        axs[1, 1].plot(grp["angleOfAttack"], grp["cl"] / grp["cd"], "x-")
-        axs[0, 2].plot(grp["cd"], grp["cl"], "x-")
-        axs[1, 2].plot(grp["cl"], grp["cl"] / grp["cd"], "x-")
+        axs[0, 0].plot(angle_of_attack, cl, "x-", label=legend)
+        axs[1, 0].plot(angle_of_attack, cd, "x-")
+        axs[0, 1].plot(angle_of_attack, cms, "x-")
+        axs[1, 1].plot(angle_of_attack, cl_cd, "x-")
+        axs[0, 2].plot(cd, cl, "x-")
+        axs[1, 2].plot(cl, cl_cd, "x-")
 
     subplot_options(axs[0, 0], "CL", "AoA")
     subplot_options(axs[1, 0], "CD", "AoA")
@@ -75,6 +81,8 @@ def plot(wkdir: Path, groupby_list: List, title: str, aeromap, criterion) -> Non
     fig_name = title.replace(" ", "").replace("=", "") + ".png"
     fig_path = Path(wkdir, fig_name)
     plt.savefig(fig_path)
+    log.info(f"Figure saved at: {fig_path}")
+
 
 # ==============================================================================
 #    MAIN

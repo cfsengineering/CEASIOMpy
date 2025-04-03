@@ -122,21 +122,6 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str) -> None:
             tixi.updateTextElement(xpath, default_value)
 
 
-def check_directory_exists(wkdir: Path) -> None:
-    """
-    Checks if directory dir exists.
-
-    Args:
-        wkdir (Path): TODO: Add description.
-
-    Raises:
-        OSError: TODO: Add description.
-    """
-
-    if not wkdir.exists():
-        raise OSError(f"The working directory : {wkdir} does not exit!")
-
-
 @contextmanager
 def change_working_dir(working_dir):
     """Context manager to change the working directory just before the execution of a function."""
@@ -194,7 +179,7 @@ def get_aeromap_list_from_xpath(cpacs, aeromap_to_analyze_xpath, empty_if_not_fo
     aeromap_uid_list = []
     try:
         aeromap_uid_list = get_string_vector(tixi, aeromap_to_analyze_xpath)
-    except ValueError:  # if aeroMapToPlot is not define, select all aeromaps
+    except ValueError:  # if aeroMapToPlot is not defined, select all aeromaps
         if not empty_if_not_found:
             aeromap_uid_list = cpacs.get_aeromap_uid_list()
             create_branch(tixi, aeromap_to_analyze_xpath)
@@ -204,16 +189,23 @@ def get_aeromap_list_from_xpath(cpacs, aeromap_to_analyze_xpath, empty_if_not_fo
 
 
 def get_results_directory(module_name: str, create: bool = True, wkflow_dir: Path = None) -> Path:
-    """Create (if not exists) and return the results directory for a module"""
+    """
+    Returns the results directory of a module.
+    
+    Args:
+        module_name (str): Name of the module's result directory.
+        create (bool): If you need to create it.
+        wkflow_dir (Path): Path to the workflow of the module.
+
+    """
 
     if module_name not in get_module_list(only_active=False):
         raise ValueError(f"Module '{module_name}' does not exist.")
 
     init = importlib.import_module(f"ceasiompy.{module_name}.{MODNAME_INIT}")
     if wkflow_dir is None:
-        results_dir = Path(Path.cwd(), "Results", init.MODULE_NAME)
-    else:
-        results_dir = Path(wkflow_dir, "Results", init.MODULE_NAME)
+        wkflow_dir = Path.cwd()
+    results_dir = Path(wkflow_dir, "Results", init.MODULE_NAME)
 
     if create and not results_dir.is_dir():
         results_dir.mkdir(parents=True)
@@ -227,6 +219,9 @@ def get_wkdir_status(module_name: str) -> bool:
 
 
 def current_workflow_dir() -> Path:
+    """
+    Get the current workflow directory.
+    """
 
     # Ensure WKDIR_PATH exists
     WKDIR_PATH.mkdir(parents=True, exist_ok=True)
@@ -255,8 +250,8 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path = None) -> None
     """
     st.session_state = MagicMock()
     wkflow_dir = current_workflow_dir()
-    log.info(f"Workflow's working directory: {wkflow_dir} \n")
 
+    log.info(f"Workflow's working directory: {wkflow_dir} \n")
     log.info("----- Start of " + module_name + " -----")
 
     if cpacs_path is None:
@@ -273,7 +268,7 @@ def call_main(main: Callable, module_name: str, cpacs_path: Path = None) -> None
     new_cpacs_path = wkflow_dir / xml_file
     cpacs.save_cpacs(new_cpacs_path, overwrite=True)
     cpacs = CPACS(new_cpacs_path)
-    
+
     log.info(f"Finished uploading default values from {MODNAME_SPECS}.")
 
     if get_wkdir_status(module_name):

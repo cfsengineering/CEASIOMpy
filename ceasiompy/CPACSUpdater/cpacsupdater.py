@@ -17,7 +17,7 @@ Python version: >=3.8
 # ==============================================================================
 
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.utils.ceasiompyutils import run_module
+from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.CPACSUpdater.func.controlsurfaces import add_control_surfaces
 
 from cpacspy.cpacspy import CPACS
@@ -43,4 +43,4 @@ def main(cpacs: CPACS) -> None:
 
 
 if __name__ == "__main__":
-    run_module(MODULE_NAME, test=True)
+    call_main(main, MODULE_NAME)

@@ -21,9 +21,9 @@ import subprocess
 import pandas as pd
 import matplotlib.pyplot as plt
 
-from ceasiompy import log
-
 from pathlib import Path
+
+from ceasiompy import log
 
 
 # =================================================================================================
@@ -31,7 +31,7 @@ from pathlib import Path
 # =================================================================================================
 
 
-def convert_ps_to_pdf(wkdir):
+def convert_ps_to_pdf(wkdir: Path) -> None:
     """
     Function to convert AVL 'plot.ps' to 'plot.pdf'.
 

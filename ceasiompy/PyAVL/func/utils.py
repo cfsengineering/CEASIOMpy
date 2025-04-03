@@ -17,15 +17,11 @@ Python version: >=3.8
 # =================================================================================================
 
 from pydantic import validate_call
-from cpacspy.cpacsfunctions import get_value
-from ceasiompy.PyAVL.func.config import get_option_settings
-from ceasiompy.PyAVL.func.cpacs2avl import convert_cpacs_to_avl
-from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
 
 from pathlib import Path
 from itertools import product
-from cpacspy.cpacspy import CPACS
-
+from ambiance import Atmosphere
+from ceasiompy.utils.generalclasses import Point
 from typing import (
     List,
     Tuple,
@@ -36,44 +32,63 @@ from ceasiompy import (
     ceasiompy_cfg,
 )
 
-from ceasiompy.utils.commonxpath import (
-    AVL_NB_CPU_XPATH,
-    AVL_AEROMAP_UID_XPATH,
-    AVL_CTRLSURF_ANGLES_XPATH,
-)
-
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
 
 
-@validate_call(config=ceasiompy_cfg)
-def retrieve_gui_values(cpacs: CPACS) -> Tuple[
-    List, List, List, List,
-    List, List,
-    Path, bool,
-    int,
-]:
-    tixi = cpacs.tixi
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, AVL_AEROMAP_UID_XPATH)
-    save_fig, _, _, _, _, rotation_rates_float = get_option_settings(tixi)
-    control_surface_float = get_value(tixi, AVL_CTRLSURF_ANGLES_XPATH)
+def write_control(avl_file, control_type, hinge_xsi, axis, control_bool) -> None:
+    """Helper function to write CONTROL section."""
+    avl_file.write("CONTROL\n")
+    avl_file.write(f"{control_type} {0.0} {hinge_xsi} {axis} {control_bool}\n\n")
 
-    # Convert to lists
-    rotation_rate_list = [float(x) for x in str(rotation_rates_float).split(';')]
-    control_surface_list = [float(x) for x in str(control_surface_float).split(';')]
 
-    avl_path = convert_cpacs_to_avl(tixi)
+def split_dir(dir_name: str, index: int, param: str) -> float:
+    return float(dir_name.split("_")[index].split(param)[1])
 
-    nb_cpu = int(get_value(tixi, AVL_NB_CPU_XPATH))
 
-    return (
-        alt_list, mach_list, aoa_list, aos_list,
-        rotation_rate_list, control_surface_list,
-        avl_path,
-        save_fig,
-        nb_cpu,
+def split_line(line: str, index: int):
+    return float(line.split("=")[index].strip().split()[0])
+
+
+def get_atmospheric_cond(alt: float, mach: float) -> Tuple[float, float, float]:
+    Atm = Atmosphere(alt)
+    density = Atm.density[0]
+    g = Atm.grav_accel[0]
+    velocity = Atm.speed_of_sound[0] * mach
+
+    return density, g, velocity
+
+
+def create_case_dir(results_dir: Path, i_case: int, alt: float, **params: float) -> Path:
+    # Log the parameters
+    param_log = ", ".join(f"{key}: {value}" for key, value in params.items())
+    log.info(f"--- alt: {alt}, {param_log} ---")
+
+    # Create the case directory name dynamically
+    case_dir_name = f"Case{str(i_case).zfill(2)}_alt{alt}" + "".join(
+        f"_{key}{round(value, 2) if isinstance(value, float) else value}"
+        for key, value in params.items()
     )
+
+    # Create the directory
+    case_dir_path = Path(results_dir, case_dir_name)
+    case_dir_path.mkdir(exist_ok=True)
+
+    return case_dir_path
+
+
+def convert_dist_to_avl_format(vortex_dist: str) -> int:
+    if vortex_dist == "cosine":
+        return 1
+    elif vortex_dist == "sine":
+        return 2
+    else:
+        return 3
+
+
+def to_cpacs_format(point: Point) -> str:
+    return str(point.x) + "\t" + str(point.y) + "\t" + str(point.z)
 
 
 @validate_call(config=ceasiompy_cfg)
@@ -86,6 +101,9 @@ def duplicate_elements(*lists: List) -> Tuple[List, ...]:
         (elem1, ..., elemn) (value, 0.0, 0.0)
         (elem1, ..., elemn) (0.0, value, 0.0)
         (elem1, ..., elemn) (0.0, 0.0, value)
+
+    Objective:
+        SDSA requires data of the specified type.
 
     Returns:
         (Tuple[List, ...]): Number of *lists + 2, where the 3 last lists are zero-independent.
@@ -100,40 +118,24 @@ def duplicate_elements(*lists: List) -> Tuple[List, ...]:
     n = len(initial_lists)
     new_lists = [[] for _ in initial_lists] + [[] for _ in range(3)]
 
+    def append_combination(combination, values):
+        """Helper function to append a combination with specific values."""
+        for i, entry in enumerate(combination):
+            new_lists[i].append(entry)
+        for j, value in enumerate(values):
+            new_lists[n + j].append(value)
+
     for value in last_list:
         if value == 0.0:
             for combination in combinations:
-                for i, entry in enumerate(combination):
-                    new_lists[i].append(entry)
-
-                new_lists[n].append(0.0)
-                new_lists[n + 1].append(0.0)
-                new_lists[n + 2].append(0.0)
-
+                append_combination(combination, [0.0, 0.0, 0.0])
         else:
             for combination in combinations:
-                for i, entry in enumerate(combination):
-                    new_lists[i].append(entry)
-
-                new_lists[n].append(value)
-                new_lists[n + 1].append(0.0)
-                new_lists[n + 2].append(0.0)
-
+                append_combination(combination, [value, 0.0, 0.0])
             for combination in combinations:
-                for i, entry in enumerate(combination):
-                    new_lists[i].append(entry)
-
-                new_lists[n].append(0.0)
-                new_lists[n + 1].append(value)
-                new_lists[n + 2].append(0.0)
-
+                append_combination(combination, [0.0, value, 0.0])
             for combination in combinations:
-                for i, entry in enumerate(combination):
-                    new_lists[i].append(entry)
-
-                new_lists[n].append(0.0)
-                new_lists[n + 1].append(0.0)
-                new_lists[n + 2].append(value)
+                append_combination(combination, [0.0, 0.0, value])
 
     return tuple(new_lists)
 

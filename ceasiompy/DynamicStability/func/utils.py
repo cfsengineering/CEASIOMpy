@@ -36,64 +36,6 @@ from ceasiompy import log
 # =================================================================================================
 
 
-def non_dimensionalize_rate(
-    self,
-    p: float,
-    q: float,
-    r: float,
-    v: float,
-) -> Tuple[float, float, float]:
-    """
-    Non-dimensionalize pitch, roll and yaw rates.
-
-    Args:
-        p (float): Roll rate in [deg/s].
-        q (float): Pitch rate in [deg/s].
-        r (float): Yaw rate in [deg/s].
-        v (float): Velocity in [m/s].
-
-    Returns:
-        pStar (float): Non-dimensionalized roll rate in [deg/s].
-        qStar (float): Non-dimensionalized pitch rate in [deg/s].
-        rStar (float): Non-dimensionalized yaw rate in [deg/s].
-
-    """
-    pStar = p * self.b / (2 * v)
-    qStar = q * self.c / (2 * v)
-    rStar = r * self.b / (2 * v)
-
-    return pStar, qStar, rStar
-
-
-def dimensionalize_rate(
-    self,
-    pStar: float,
-    qStar: float,
-    rStar: float,
-    v: float
-) -> Tuple[float, float, float]:
-    """
-    Dimensionalize pitch, roll and yaw rates.
-
-    Args:
-        pStar (float): Non-dimensionalized roll rate in [deg/s].
-        qStar (float): Non-dimensionalized pitch rate in [deg/s].
-        rStar (float): Non-dimensionalized yaw rate in [deg/s].
-        v (float): Velocity in [m/s].
-
-    Returns:
-        p (float): Roll rate in [deg/s].
-        q (float): Pitch rate in [deg/s].
-        r (float): Yaw rate in [deg/s].
-
-    """
-    p = pStar * (2 * v) / self.b
-    q = qStar * (2 * v) / self.c
-    r = rStar * (2 * v) / self.b
-
-    return p, q, r
-
-
 def exp_i(omega: float, t: float) -> complex128:
     """
     Computes e^{iwt}.

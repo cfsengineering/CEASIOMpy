@@ -20,15 +20,14 @@ import math
 
 import numpy as np
 
+from math import prod
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
-
 from ceasiompy.utils.mathsfunctions import (
     euler2fix,
     rotate_points,
 )
 
 from tixi3.tixi3wrapper import Tixi3
-
 from typing import (
     List,
     Tuple,
@@ -39,13 +38,41 @@ from ceasiompy.utils.generalclasses import (
 )
 
 from ceasiompy import log
-
 from ceasiompy.utils.commonxpath import WINGS_XPATH
-
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def sum_points(*points: Point) -> Tuple[float, float, float]:
+    """
+    Adds points together by summing their x, y, z coordinates.
+    """
+    return (
+        sum(point.x for point in points),
+        sum(point.y for point in points),
+        sum(point.z for point in points),
+    )
+
+
+def prod_points(*points: Point) -> Tuple[float, float, float]:
+    """
+    Multiplies points together by summing their x, y, z coordinates.
+    """
+    return (
+        prod(point.x for point in points),
+        prod(point.y for point in points),
+        prod(point.z for point in points),
+    )
+
+
+def check_if_rotated(rotation: Point, elem_uid: str) -> None:
+    if rotation.x or rotation.y or rotation.z:
+        log.warning(
+            f"Element '{elem_uid}' is rotated, it is"
+            "not possible to take that into account in SUMO !"
+        )
 
 
 def find_wing_xpath(tixi: Tixi3, wing_name: str):

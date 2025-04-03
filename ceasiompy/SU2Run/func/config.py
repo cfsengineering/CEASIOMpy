@@ -639,6 +639,10 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
         if tixi.checkElement(SU2MESH_XPATH):
             tixi_su2_mesh_paths = get_value(tixi, SU2MESH_XPATH)
             su2_mesh_paths = [Path(x) for x in str(tixi_su2_mesh_paths).split(';')]
+        else:
+            log.warning("No .su2 mesh paths found at ")
+            
+        log.info("Not using ceasiompy.db data")
 
     # Using ceasiompy.db data
     else:
@@ -660,9 +664,11 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
         # Update tixi element at SU2MESH_XPATH with new paths
         tixi_su2_mesh_paths = ';'.join(str(su2_mesh_paths))
         tixi.updateTextElement(SU2MESH_XPATH, tixi_su2_mesh_paths)
+        log.info("Using ceasiompy.db data")
 
     dynstab_su2_mesh_paths = [
-        mesh for mesh in su2_mesh_paths
+        mesh
+        for mesh in su2_mesh_paths
         if not any(exclude in str(mesh) for exclude in CONTROL_SURFACE_LIST)
     ]
 

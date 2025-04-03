@@ -129,7 +129,7 @@ def get_rotation_matrix(RaX: float, RaY: float, RaZ: float) -> Tuple[ndarray, nd
 
 def euler2fix(rotation_euler):
     """
-    Converts an Euler angle rotation into a fix angle rotation.
+    Converts an Euler angle [deg] rotation into a fix angle [deg] rotation.
 
     Euler angle (CPACS): First rotation around Ox, then rotation around
     already rotated Oy and finally rotation around already rotated Oz (x,y',z").
@@ -163,7 +163,7 @@ def euler2fix(rotation_euler):
 
 def fix2euler(rotation_fix):
     """
-    Convert a fix angle rotation into an Euler angle rotation.
+    Convert a fix angle [deg] rotation into an Euler angle [deg] rotation.
 
     Fix angle (for SUMO): Rotation around the three axes are done independently.
 
@@ -227,6 +227,70 @@ def rotate_points(
     rotated_point = rotation_matrix @ point
 
     return rotated_point[0], rotated_point[1], rotated_point[2]
+
+
+def non_dimensionalize_rate(
+    p: float,
+    q: float,
+    r: float,
+    v: float,
+    b: float,
+    c: float,
+) -> Tuple[float, float, float]:
+    """
+    Non-dimensionalize pitch, roll and yaw rates.
+
+    Args:
+        p (float): Roll rate in [deg/s].
+        q (float): Pitch rate in [deg/s].
+        r (float): Yaw rate in [deg/s].
+        v (float): Velocity in [m/s].
+        b (float): Span of aircraft [m].
+        c (float): Chord of aircraft [m].
+
+    Returns:
+        pStar (float): Non-dimensionalized roll rate in [deg/s].
+        qStar (float): Non-dimensionalized pitch rate in [deg/s].
+        rStar (float): Non-dimensionalized yaw rate in [deg/s].
+
+    """
+    pStar = p * b / (2 * v)
+    qStar = q * c / (2 * v)
+    rStar = r * b / (2 * v)
+
+    return pStar, qStar, rStar
+
+
+def dimensionalize_rate(
+    pStar: float,
+    qStar: float,
+    rStar: float,
+    v: float,
+    b: float,
+    c: float,
+) -> Tuple[float, float, float]:
+    """
+    Dimensionalize pitch, roll and yaw rates.
+
+    Args:
+        pStar (float): Non-dimensionalized roll rate in [deg/s].
+        qStar (float): Non-dimensionalized pitch rate in [deg/s].
+        rStar (float): Non-dimensionalized yaw rate in [deg/s].
+        v (float): Velocity in [m/s].
+        b (float): Span of aircraft [m].
+        c (float): Chord of aircraft [m].
+
+    Returns:
+        p (float): Roll rate in [deg/s].
+        q (float): Pitch rate in [deg/s].
+        r (float): Yaw rate in [deg/s].
+
+    """
+    p = pStar * (2 * v) / b
+    q = qStar * (2 * v) / c
+    r = rStar * (2 * v) / b
+
+    return p, q, r
 
 
 # =================================================================================================

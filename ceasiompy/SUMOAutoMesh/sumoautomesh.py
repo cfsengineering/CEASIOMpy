@@ -242,7 +242,7 @@ def main(cpacs: CPACS, wkdir: Path):
     tixi = cpacs.tixi
 
     cpacs_to_sumo_wkdir = get_results_directory(CPACS2SUMO)
-    su2_mesh_path = Path(cpacs_to_sumo_wkdir, "ToolOutput.su2")
+    su2_mesh_path = Path(cpacs_to_sumo_wkdir, "ToolOutput.smx")
 
     if tixi.checkElement(SUMOFILE_XPATH):
         sumo_file_path = Path(get_value(tixi, SUMOFILE_XPATH))
@@ -257,7 +257,7 @@ def main(cpacs: CPACS, wkdir: Path):
     add_mesh_parameters(sumo_file_path, refine_level)
 
     # Tetgen option, see the help for more options
-    output = "su2"
+    output = "smx"
     options = "pq1.16VY"
     arguments = [
         "-batch",

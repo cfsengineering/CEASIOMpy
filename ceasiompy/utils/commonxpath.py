@@ -35,6 +35,9 @@ AIRCRAFT_NAME_XPATH = "/cpacs/header/name"
 
 # model
 REF_XPATH = "/cpacs/vehicles/aircraft/model/reference"
+AREA_XPATH = "/cpacs/vehicles/aircraft/model/reference/area"
+LENGTH_XPATH = "/cpacs/vehicles/aircraft/model/reference/length"
+
 FUSELAGES_XPATH = "/cpacs/vehicles/aircraft/model/fuselages"
 WINGS_XPATH = "/cpacs/vehicles/aircraft/model/wings"
 PYLONS_XPATH = "/cpacs/vehicles/aircraft/model/enginePylons"
@@ -245,22 +248,6 @@ ENGINE_TYPE_XPATH = CEASIOMPY_XPATH + "/ThermoData"
 ENGINE_BC = CEASIOMPY_XPATH + "/BC"
 ENGINE_BC_TEMPERATUREOUTLET_XPATH = ENGINE_BC + "/TemperatureOutlet"
 ENGINE_BC_PRESSUREOUTLET_XPATH = ENGINE_BC + "/PressureOutlet"
-
-# AVL
-AVL_XPATH = CEASIOMPY_XPATH + "/avl"
-AVL_ROTRATES_XPATH = AVL_XPATH + "/RotationRates"
-AVL_AEROMAP_UID_XPATH = AVL_XPATH + "/aeroMapUID"
-AVL_TABLE_XPATH = AVL_XPATH + "/Table"
-AVL_CTRLTABLE_XPATH = AVL_XPATH + "/CtrlTable"
-AVL_PLOT_XPATH = AVL_XPATH + "/SavePlots"
-AVL_FUSELAGE_XPATH = AVL_XPATH + "/IntegrateFuselage"
-AVL_VORTEX_DISTR_XPATH = AVL_XPATH + "/VortexDistribution"
-AVL_NCHORDWISE_XPATH = AVL_VORTEX_DISTR_XPATH + "/Nchordwise"
-AVL_NSPANWISE_XPATH = AVL_VORTEX_DISTR_XPATH + "/Nspanwise"
-AVL_DISTR_XPATH = AVL_VORTEX_DISTR_XPATH + "/Distribution"
-AVL_PLOTLIFT_XPATH = AVL_XPATH + "/PlotLift"
-AVL_NB_CPU_XPATH = AVL_XPATH + "NbCPU"
-AVL_CTRLSURF_ANGLES_XPATH = AVL_XPATH + "/ControlSurfaceAngles"
 
 # DYNAMICSTABILITY
 DYNAMICSTABILITY_XPATH = CEASIOMPY_XPATH + "/DynamicStability"

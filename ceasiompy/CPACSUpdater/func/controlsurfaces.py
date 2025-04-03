@@ -360,8 +360,11 @@ def fowler_transform(
     mask = (x_values > x_ref) & (z_values < 0)
 
     # Apply the transformation to the z values where the mask is True
-    transformed_z = np.where(mask, z_values * np.exp(-100.0
-                             * (x_values - x_ref) * (1 - x_values)), z_values)
+    transformed_z = np.where(
+        mask,
+        z_values * np.exp(-100.0 * (x_values - x_ref) * (1 - x_values)),
+        z_values,
+    )
 
     return transformed_z, x_values[mask], transformed_z[mask]
 
@@ -389,8 +392,8 @@ def plain_transform(
 
     close_x = max_x_pos + new_x
     close_z = np.linspace(z_pos, z_neg, len(close_x))
-    newx_values = np.concatenate((newx_values, close_x, [newx_values[0]]))
-    newz_values = np.concatenate((newz_values, close_z, [newz_values[0]]))
+    newx_values = np.concatenate((newx_values, close_x))  # , [newx_values[0]]
+    newz_values = np.concatenate((newz_values, close_z))  # , [newz_values[0]]
 
     # Flap
     x_flap = x_ref + 0.02
@@ -412,18 +415,14 @@ def plain_transform(
     newx_flapvalues = newx_flapvalues[sorted_indices]
     newz_flapvalues = newz_flapvalues[sorted_indices]
 
-    ##########
-
     # Concatenate the transition points with the existing arrays
-    newx_flapvalues = np.concatenate((newx_flapvalues, arc_x, [newx_flapvalues[0]]))
-    newz_flapvalues = np.concatenate((newz_flapvalues, arc_z, [newz_flapvalues[0]]))
+    newx_flapvalues = np.concatenate((newx_flapvalues, arc_x))  # , [newx_flapvalues[0]]
+    newz_flapvalues = np.concatenate((newz_flapvalues, arc_z))  # , [newz_flapvalues[0]]
 
     # Re-order for correct leading edge in CPACS format
     min_x_index = np.argmin(newx_flapvalues)
     newx_flapvalues = np.roll(newx_flapvalues, -min_x_index)
     newz_flapvalues = np.roll(newz_flapvalues, -min_x_index)
-    # from ceasiompy.CPACSUpdater.func.utils import plot_values
-    # plot_values(newx_values, newz_values, newx_flapvalues, newz_flapvalues)
 
     return newx_values, newz_values, newx_flapvalues, newz_flapvalues
 

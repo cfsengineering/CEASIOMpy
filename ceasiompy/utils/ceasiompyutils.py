@@ -450,8 +450,11 @@ def run_software(
     command_line += arguments
 
     # Use xvfb to run sumo to avoid problems with X11 (e.g. when running test on Github actions)
-    if software_name in ["sumo", "dwfsumo"] and sys.platform == "linux":
-        command_line = ["xvfb-run", "--auto-servernum"] + command_line
+    if software_name in ["sumo", "dwfsumo", "avl"] and sys.platform == "linux":
+        if shutil.which("xvfb-run"):
+            command_line = ["xvfb-run", "--auto-servernum"] + command_line
+        else:
+            log.warning("xvfb-run not found. Proceeding without it.")
 
     log.info(f">>> Running {software_name} on {int(nb_cpu)} cpu(s)")
     log.info(f"Working directory: {wkdir}")

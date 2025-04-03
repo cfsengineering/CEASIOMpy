@@ -9,6 +9,8 @@ Python version: >=3.8
 
 | Author: Aidan Jungo
 | Creation: 2021-04-07
+| Modified: Leon Deligny
+| Date: 03 April 2025
 
 """
 
@@ -19,19 +21,17 @@ Python version: >=3.8
 from pathlib import Path
 
 from cpacspy.cpacsfunctions import get_value_or_default
-
 from ceasiompy.utils.ceasiompyutils import (
     call_main,
     get_aeromap_list_from_xpath,
 )
 
-from cpacspy.aeromap import AeroMap
 from cpacspy.cpacspy import CPACS
+from cpacspy.aeromap import AeroMap
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpath import AEROMAP_TO_EXPORT_XPATH
-
 from ceasiompy.ExportCSV import MODULE_NAME
+from ceasiompy.utils.commonxpath import AEROMAP_TO_EXPORT_XPATH
 
 # =================================================================================================
 #    MAIN

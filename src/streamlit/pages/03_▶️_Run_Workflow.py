@@ -52,7 +52,7 @@ HOW_TO_TEXT = (
 # ==============================================================================
 
 
-def terminate_previous_workflows():
+def terminate_previous_workflows() -> None:
     """
     Terminate any previously running workflow processes.
     """
@@ -62,12 +62,11 @@ def terminate_previous_workflows():
             if "python" in proc.info["name"] and "runworkflow.py" in proc.info["cmdline"]:
                 # Terminate the process
                 os.kill(proc.info["pid"], signal.SIGTERM)
-                st.warning(f"Terminated previous workflow process (PID: {proc.info['pid']}).")
         except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
             pass
 
 
-def workflow_buttons():
+def workflow_buttons() -> None:
     """
     Run workflow button.
     """
@@ -77,7 +76,6 @@ def workflow_buttons():
 
     with col1:
         if st.button("Run ▶️", help="Run the workflow"):
-            # Terminate any previous workflows
             terminate_previous_workflows()
 
             st.session_state.workflow.modules_list = st.session_state.workflow_modules
@@ -93,11 +91,10 @@ def workflow_buttons():
 
     with col2:
         if st.button("Terminate ✖️", help="Terminate the workflow"):
-            # Terminate any running workflows
             terminate_previous_workflows()
 
 
-def show_logs():
+def show_logs() -> None:
     """
     Log interface.
     """

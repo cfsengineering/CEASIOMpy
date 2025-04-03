@@ -17,7 +17,6 @@ Python version: >=3.8
 # =================================================================================================
 
 from ceasiompy.StaticStability.func.plot import plot_stability
-
 from ceasiompy.StaticStability.func.stabilitystatus import (
     check_stability_lr,
     check_stability_tangent,
@@ -27,8 +26,10 @@ from typing import List
 from pathlib import Path
 from pandas import DataFrame
 from tixi3.tixi3wrapper import Tixi3
-
-from cpacspy.cpacspy import CPACS, AeroMap
+from cpacspy.cpacspy import (
+    CPACS,
+    AeroMap,
+)
 
 from ceasiompy import log
 

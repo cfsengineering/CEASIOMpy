@@ -20,11 +20,9 @@ TODO:
 # =================================================================================================
 
 import os
-
 import pyvista as pv
 
 from ceasiompy.SU2Run.func.extractloads import extract_loads
-
 from cpacspy.cpacsfunctions import (
     get_value,
     create_branch,
@@ -43,7 +41,6 @@ from ceasiompy.SU2Run.func.utils import (
 from pathlib import Path
 from typing import List
 from tixi3.tixi3wrapper import Tixi3
-
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -51,7 +48,6 @@ from cpacspy.cpacspy import (
 
 from ceasiompy import log
 from cpacspy.utils import COEFS
-
 from ceasiompy.utils.commonnames import (
     SU2_FORCES_BREAKDOWN_NAME,
     SURFACE_FLOW_FILE_NAME

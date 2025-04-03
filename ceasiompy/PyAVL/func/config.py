@@ -20,30 +20,75 @@ Python version: >=3.8
 #   IMPORTS
 # ==============================================================================
 
+from pydantic import validate_call
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.utils.ceasiompyutils import bool_
-from ceasiompy.utils.moduleinterfaces import get_module_path
-
-from typing import Tuple
-from pathlib import Path
-from tixi3.tixi3wrapper import Tixi3
-
-from ceasiompy import log
-
-from ceasiompy.utils.commonxpath import (
-    REF_XPATH,
-    AVL_PLOT_XPATH,
-    AVL_DISTR_XPATH,
-    AVL_ROTRATES_XPATH,
-    AVL_FUSELAGE_XPATH,
-    AVL_NSPANWISE_XPATH,
-    AVL_NCHORDWISE_XPATH,
+from ceasiompy.PyAVL.func.utils import get_atmospheric_cond
+from ceasiompy.utils.mathsfunctions import non_dimensionalize_rate
+from ceasiompy.utils.ceasiompyutils import (
+    bool_,
+    get_aeromap_conditions,
 )
 
+from pathlib import Path
+from cpacspy.cpacspy import CPACS
+from tixi3.tixi3wrapper import Tixi3
+from ceasiompy.PyAVL.func.cpacs2avl import Avl
+from typing import (
+    List,
+    Tuple,
+)
+
+from ceasiompy import log, ceasiompy_cfg
+from ceasiompy.PyAVL import MODULE_DIR
+from ceasiompy.PyAVL.func import FORCE_FILES
+from ceasiompy.utils.commonxpath import (
+    AREA_XPATH,
+    LENGTH_XPATH,
+)
+from ceasiompy.PyAVL.func import (
+    AVL_PLOT_XPATH,
+    AVL_NB_CPU_XPATH,
+    AVL_ROTRATES_XPATH,
+    AVL_AEROMAP_UID_XPATH,
+    AVL_CTRLSURF_ANGLES_XPATH,
+)
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+@validate_call(config=ceasiompy_cfg)
+def retrieve_gui_values(cpacs: CPACS, results_dir: Path) -> Tuple[
+    List, List, List, List,
+    List, List,
+    Path, bool,
+    int,
+]:
+    tixi = cpacs.tixi
+    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, AVL_AEROMAP_UID_XPATH)
+
+    save_fig = bool_(get_value(tixi, AVL_PLOT_XPATH))
+    rotation_rates_float = get_value(tixi, AVL_ROTRATES_XPATH)
+    control_surface_float = get_value(tixi, AVL_CTRLSURF_ANGLES_XPATH)
+
+    # Convert to lists
+    rotation_rate_list = [float(x) for x in str(rotation_rates_float).split(';')]
+    control_surface_list = [float(x) for x in str(control_surface_float).split(';')]
+
+    avl_file = Avl(tixi, results_dir)
+    avl_path = avl_file.convert_cpacs_to_avl()
+
+    nb_cpu = int(get_value(tixi, AVL_NB_CPU_XPATH))
+
+    return (
+        alt_list, mach_list, aoa_list, aos_list,
+        rotation_rate_list, control_surface_list,
+        avl_path,
+        save_fig,
+        nb_cpu,
+    )
+
 
 def write_command_file(
     tixi: Tixi3,
@@ -55,9 +100,7 @@ def write_command_file(
     roll_rate: float,
     yaw_rate: float,
     mach_number: float,
-    ref_velocity: float,
-    ref_density: float,
-    g_acceleration: float,
+    alt: float,
     aileron: float,
     elevator: float,
     rudder: float,
@@ -76,9 +119,7 @@ def write_command_file(
         roll_rate (float): roll rate [deg/s]
         yaw_rate (float): yaw rate [deg/s]
         mach_number (float): Mach number
-        ref_velocity (float): reference upstream velocity [m/s]
-        ref_density (float): reference upstream density [kg/m^3]
-        g_acceleration (float): gravitational acceleration [m/s^2]
+        alt (float): Altitude.
         aileron (float): Aileron angle [deg].
         elevator (float): Elevator angle [deg].
         rudder (float): Rudder angle [deg].
@@ -89,20 +130,28 @@ def write_command_file(
 
     """
 
+    ref_density, g_acceleration, ref_velocity = get_atmospheric_cond(alt, mach_number)
+
     command_path = str(case_dir_path) + "/avl_commands.txt"
-    pyavl_dir = get_module_path("PyAVL")
-    mass_path = Path(pyavl_dir, "files", "template.mass")
+
+    # Retrieve template file for mass
+    mass_path = Path(MODULE_DIR, "files", "template.mass")
 
     # Get the reference dimensions
-    s = tixi.getDoubleElement(REF_XPATH + '/area')
-    c = tixi.getDoubleElement(REF_XPATH + '/length')
+    s = tixi.getDoubleElement(AREA_XPATH)
+    c = tixi.getDoubleElement(LENGTH_XPATH)
     b = s / c
 
     # See https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf
     # for how he non-dimensionalize the rates
-    roll_rate_star = roll_rate * b / (2 * ref_velocity)
-    pitch_rate_star = pitch_rate * c / (2 * ref_velocity)
-    yaw_rate_star = yaw_rate * b / (2 * ref_velocity)
+    roll_rate_star, pitch_rate_star, yaw_rate_star = non_dimensionalize_rate(
+        p=roll_rate,
+        q=pitch_rate,
+        r=yaw_rate,
+        v=ref_velocity,
+        b=b,
+        c=c,
+    )
 
     command = [
         "load " + str(avl_path) + "\n",
@@ -133,7 +182,7 @@ def write_command_file(
 
         command_file.write("x\n")
 
-        for force_file in ["ft", "fn", "fs", "fe", "st", "sb"]:
+        for force_file in FORCE_FILES:
             command_file.write(force_file + "\n")
             command_file.write(force_file + ".txt\n")
 
@@ -142,45 +191,6 @@ def write_command_file(
 
     return Path(command_path)
 
-
-def get_option_settings(tixi: Tixi3) -> Tuple[bool, float, int, int, bool, float]:
-    """
-    Reads the settings of CEASIOMpy's graphical user interface.
-
-    Args:
-        TODO
-
-    Returns:
-        save_plots (bool): Save the geometry and results figures.
-        vortex_distribution (float): Distribution of the vortices.
-        Nchordwise (int): Number of chordwise vortices.
-        Nspanwise (int): Number of spanwise vortices.
-        integrate_fuselage (bool): If you add fuselage to geometry.
-        rotation_rates_float (float): Rotation rates in deg/s.
-
-    """
-
-    save_plots = bool_(get_value(tixi, AVL_PLOT_XPATH))
-    vortex_distribution_gui = get_value(
-        tixi, AVL_DISTR_XPATH
-    )
-    if vortex_distribution_gui == "cosine":
-        vortex_distribution = 1.0
-    elif vortex_distribution_gui == "sine":
-        vortex_distribution = 2.0
-    else:
-        vortex_distribution = 3.0
-    Nchordwise = get_value(tixi, AVL_NCHORDWISE_XPATH)
-    Nspanwise = get_value(tixi, AVL_NSPANWISE_XPATH)
-    integrate_fuselage = get_value(tixi, AVL_FUSELAGE_XPATH)
-
-    rotation_rates_float = get_value(tixi, AVL_ROTRATES_XPATH)
-
-    return (
-        save_plots, vortex_distribution,
-        Nchordwise, Nspanwise,
-        integrate_fuselage, rotation_rates_float
-    )
 
 # =================================================================================================
 #    MAIN

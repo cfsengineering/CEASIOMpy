@@ -40,6 +40,7 @@ from cpacspy.cpacsfunctions import (
     get_value_or_default,
 )
 from ceasiompy.utils.geometryfunctions import (
+    check_if_rotated,
     elements_number,
     get_positionings,
     corrects_airfoil_profile,
@@ -130,11 +131,7 @@ def deal_with_elements(
     sec_transf = Transformation()
     sec_transf.get_cpacs_transf(tixi, sec_xpath)
 
-    if sec_transf.rotation.x or sec_transf.rotation.y or sec_transf.rotation.z:
-        log.warning(
-            f"Sections '{sec_uid}' is rotated, it is"
-            "not possible to take that into account in SUMO !"
-        )
+    check_if_rotated(sec_transf.rotation, sec_uid)
 
     # Elements
     elem_cnt = elements_number(tixi, sec_xpath + "/elements", "element", logg=False)
@@ -146,11 +143,7 @@ def deal_with_elements(
         elem_transf = Transformation()
         elem_transf.get_cpacs_transf(tixi, elem_xpath)
 
-        if elem_transf.rotation.x or elem_transf.rotation.y or elem_transf.rotation.z:
-            log.warning(
-                f"Element '{elem_uid}' is rotated, it is "
-                "not possible to take that into account in SUMO !"
-            )
+        check_if_rotated(elem_transf.rotation, elem_uid)
 
         # Fuselage profiles
         prof_uid = tixi.getTextElement(elem_xpath + "/profileUID")

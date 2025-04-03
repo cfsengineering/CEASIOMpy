@@ -27,7 +27,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 import matplotlib
-import math
 from pathlib import Path
 from scipy.spatial.distance import cdist
 from framat import Model

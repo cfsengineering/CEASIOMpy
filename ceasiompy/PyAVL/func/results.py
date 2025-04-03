@@ -19,6 +19,10 @@ Python version: >=3.8
 from cpacspy.aeromap import get_filter
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.PyAVL.func.plot import plot_lift_distribution
+from ceasiompy.PyAVL.func.utils import (
+    split_dir,
+    split_line,
+)
 from ceasiompy.utils.ceasiompyutils import (
     bool_,
     ensure_and_append_text_element,
@@ -30,8 +34,8 @@ from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
-
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.PyAVL.func import AVL_COEFS
+from ceasiompy.PyAVL.func import (
     AVL_XPATH,
     AVL_TABLE_XPATH,
     AVL_PLOTLIFT_XPATH,
@@ -68,29 +72,11 @@ def get_avl_aerocoefs(force_file: Path) -> Tuple[
 
     """
 
-    if not force_file.is_file():
-        raise FileNotFoundError(f"The AVL forces file '{force_file}' has not been found!")
-
-    coefficients = {
-        "CLtot": (1, "cl"),
-        "CDtot": (1, "cd"),
-        "CYtot": (1, "cs"),
-        "Cltot": (2, "cmd"),
-        "Cmtot": (2, "cms"),
-        "Cntot": (2, "cml"),
-        "Cma": (1, "cms_a"),
-        "Clb": (2, "cmd_b"),
-        "Cnb": (2, "cml_b"),
-    }
-
-    results = {key: None for key in coefficients.values()}
-
-    def split_line(line: str, index: int):
-        return float(line.split("=")[index].strip().split()[0])
+    results = {key: None for key in AVL_COEFS.values()}
 
     with open(force_file) as f:
         for line in f.readlines():
-            for key, (index, var_name) in coefficients.items():
+            for key, (index, var_name) in AVL_COEFS.items():
                 if key in line:
                     # Exception as they appear twice in .txt file
                     if key in ["Clb", "Cnb"]:
@@ -297,22 +283,19 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
     """
 
     tixi = cpacs.tixi
-
     case_dir_list = [case_dir for case_dir in results_dir.iterdir() if "Case" in case_dir.name]
 
     for config_dir in sorted(case_dir_list):
+        dir_name = config_dir.name
 
         # Checks if config_dir is a directory
         if not config_dir.is_dir():
             continue
 
         st_file_path = Path(config_dir, "st.txt")
-
         if not st_file_path.exists():
-            available_files = ", ".join(f.name for f in Path(config_dir).iterdir() if f.is_file())
             raise FileNotFoundError(
                 f"No result total forces 'st.txt' file have been found at {st_file_path}. "
-                f"Available files in the directory: {available_files}"
             )
 
         fs_file_path = Path(config_dir, "fs.txt")
@@ -322,19 +305,17 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
             )
 
         # Check if we are running the standard aeromap
-        if "p" in config_dir.name:
-            alt = float(config_dir.name.split("_")[1].split("alt")[1])
-            mach = float(config_dir.name.split("_")[2].split("mach")[1])
-            aoa = float(config_dir.name.split("_")[3].split("aoa")[1])
-            aos = float(config_dir.name.split("_")[4].split("aos")[1])
+        if "p" in dir_name:
+            alt = split_dir(dir_name, 1, "alt")
+            mach = split_dir(dir_name, 2, "mach")
+            aoa = split_dir(dir_name, 3, "aoa")
+            aos = split_dir(dir_name, 4, "aos")
 
-            p = float(config_dir.name.split("_")[5].split("p")[1])
-            q = float(config_dir.name.split("_")[6].split("q")[1])
-            r = float(config_dir.name.split("_")[7].split("r")[1])
+            q = split_dir(dir_name, 5, "q")
+            p = split_dir(dir_name, 6, "p")
+            r = split_dir(dir_name, 7, "r")
 
-            # Add in aeromap
             if (p == 0.0) and (q == 0.0) and (r == 0.0):
-                # Add the coefficients in Aeromap.
                 add_coefficients_in_aeromap(
                     cpacs,
                     alt,
@@ -346,7 +327,7 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
                     config_dir,
                 )
 
-            # Add the coefficients in Table.
+            # For DynamicStability
             add_coefficients_in_table(
                 tixi,
                 mach,
@@ -358,14 +339,14 @@ def get_avl_results(cpacs: CPACS, results_dir: Path) -> None:
                 st_file_path,
             )
 
-        # Control Surface deflections
+        # Case Control Surface deflections for DynamicStability
         else:
-            mach = float(config_dir.name.split("_")[2].split("mach")[1])
-            aoa = float(config_dir.name.split("_")[3].split("aoa")[1])
+            mach = split_dir(dir_name, 2, "mach")
+            aoa = split_dir(dir_name, 3, "alt")
 
-            aileron = float(config_dir.name.split("_")[4].split("aileron")[1])
-            elevator = float(config_dir.name.split("_")[5].split("elevator")[1])
-            rudder = float(config_dir.name.split("_")[6].split("rudder")[1])
+            aileron = split_dir(dir_name, 4, "aileron")
+            elevator = split_dir(dir_name, 5, "elevator")
+            rudder = split_dir(dir_name, 6, "rudder")
 
             # Add the coefficients in Table.
             add_coefficients_in_ctrltable(

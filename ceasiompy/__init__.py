@@ -50,6 +50,7 @@ class IgnoreSpecificError(logging.Filter):
         ignore_errors = [
             "QWidget::repaint: Recursive repaint detected",
             "Can not add element to document. Document already saved.",
+            "Info    : Increasing process stack size (8192 kB < 16 MB)",
         ]
         # Check if the log message contains any of the ignore errors
         return not any(error in record.getMessage() for error in ignore_errors)
@@ -73,6 +74,8 @@ def get_logger() -> Logger:
     """
 
     logger = logging.getLogger("CEASIOMpy")
+    if logger.hasHandlers():
+        return logger
     logger.setLevel(logging.DEBUG)
 
     # Prevent propagation to root logger to avoid duplicates
@@ -101,6 +104,10 @@ def get_logger() -> Logger:
     console_handler.setFormatter(console_formatter)
     console_handler.addFilter(IgnoreSpecificError())  # Add the custom filter
     logger.addHandler(console_handler)
+
+    # Ignore root logger error messages
+    root_logger = logging.getLogger()
+    root_logger.addFilter(IgnoreSpecificError())
 
     return logger
 

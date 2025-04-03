@@ -22,10 +22,12 @@ Python version: >=3.8
 
 from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
 from ceasiompy.PyAVL.func.results import get_avl_results
-from ceasiompy.PyAVL.func.config import write_command_file
-
 from ceasiompy.PyAVL.func.utils import (
+    create_case_dir,
     duplicate_elements,
+)
+from ceasiompy.PyAVL.func.config import (
+    write_command_file,
     retrieve_gui_values,
 )
 from ceasiompy.utils.ceasiompyutils import (
@@ -34,12 +36,12 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 
 from pathlib import Path
-from ambiance import Atmosphere
 from cpacspy.cpacspy import CPACS
 
-from ceasiompy import log
-
-from ceasiompy.PyAVL import MODULE_NAME, SOFTWARE_NAME
+from ceasiompy.PyAVL import (
+    MODULE_NAME,
+    SOFTWARE_NAME,
+)
 
 # =================================================================================================
 #    MAIN
@@ -64,7 +66,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         save_fig,
         nb_cpu,
 
-    ) = retrieve_gui_values(cpacs)
+    ) = retrieve_gui_values(cpacs, results_dir)
 
     #
     # 2. p, q, r
@@ -94,36 +96,17 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
         p = new_roll_rate_list[i_case]
         r = new_yaw_rate_list[i_case]
 
-        # Set atmosphere conditions
-        Atm = Atmosphere(alt)
-        density = Atm.density[0]
-        g = Atm.grav_accel[0]
-        velocity = Atm.speed_of_sound[0] * mach
-
-        log.info(
-            f"--- alt: {alt}, "
-            f"mach: {mach}, "
-            f"aoa: {aoa}, "
-            f"aos: {aos}, "
-            f"q: {q}, "
-            f"p: {p}, "
-            f"r: {r} ---"
+        case_dir_path = create_case_dir(
+            results_dir,
+            i_case,
+            alt,
+            mach=mach,
+            aoa=aoa,
+            aos=aos,
+            q=q,
+            p=p,
+            r=r,
         )
-
-        # Name of the case directory
-        case_dir_name = (
-            f"Case{str(i_case).zfill(2)}"
-            f"_alt{alt}"
-            f"_mach{round(mach, 2)}"
-            f"_aoa{round(aoa, 1)}"
-            f"_aos{round(aos, 1)}"
-            f"_p{round(p, 1)}"
-            f"_q{round(q, 1)}"
-            f"_r{round(r, 1)}"
-        )
-
-        Path(results_dir, case_dir_name).mkdir(exist_ok=True)
-        case_dir_path = Path(results_dir, case_dir_name)
 
         command_path = write_command_file(
             tixi=tixi,
@@ -136,12 +119,10 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             roll_rate=p,
             yaw_rate=r,
             mach_number=mach,
-            ref_velocity=velocity,
-            ref_density=density,
+            alt=alt,
             aileron=0.0,
             rudder=0.0,
             elevator=0.0,
-            g_acceleration=g,
         )
 
         run_software(
@@ -174,7 +155,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             list(set(control_surface_list)),
         )
 
-        # Name of the case directory
+        # Iterate through each case
         for i_case, alt in enumerate(new_alt_list):
             mach = new_mach_list[i_case]
             aoa = new_aoa_list[i_case]
@@ -183,33 +164,16 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             elevator = new_elevator_list[i_case]
             rudder = new_rudder_list[i_case]
 
-            # Set atmosphere conditions
-            Atm = Atmosphere(alt)
-            density = Atm.density[0]
-            g = Atm.grav_accel[0]
-            velocity = Atm.speed_of_sound[0] * mach
-
-            log.info(
-                f"--- alt: {alt}, "
-                f"mach: {mach}, "
-                f"aoa: {aoa}, "
-                f"aileron: {aileron}, "
-                f"elevator: {elevator}, "
-                f"rudder: {rudder} ---"
+            case_dir_path = create_case_dir(
+                results_dir,
+                i_case + first_cases,
+                alt,
+                mach=mach,
+                aoa=aoa,
+                aileron=aileron,
+                elevator=elevator,
+                rudder=rudder,
             )
-
-            case_dir_name = (
-                f"Case{str(i_case + first_cases).zfill(2)}"
-                f"_alt{alt}"
-                f"_mach{round(mach, 2)}"
-                f"_aoa{round(aoa, 1)}"
-                f"_aileron{round(aileron, 1)}"
-                f"_elevator{round(elevator, 1)}"
-                f"_rudder{round(rudder, 1)}"
-            )
-
-            Path(results_dir, case_dir_name).mkdir(exist_ok=True)
-            case_dir_path = Path(results_dir, case_dir_name)
 
             command_path = write_command_file(
                 tixi=tixi,
@@ -217,17 +181,15 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 case_dir_path=case_dir_path,
                 save_plots=save_fig,
                 alpha=aoa,
+                mach_number=mach,
+                alt=alt,
+                aileron=aileron,
+                rudder=rudder,
+                elevator=elevator,
                 beta=0.0,
                 pitch_rate=0.0,
                 roll_rate=0.0,
                 yaw_rate=0.0,
-                mach_number=mach,
-                ref_velocity=velocity,
-                ref_density=density,
-                aileron=aileron,
-                rudder=rudder,
-                elevator=elevator,
-                g_acceleration=g,
             )
 
             run_software(

@@ -25,7 +25,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy import log
 from ceasiompy.PyAVL import include_gui
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.PyAVL.func import (
     AVL_PLOT_XPATH,
     AVL_DISTR_XPATH,
     AVL_NB_CPU_XPATH,
@@ -35,6 +35,7 @@ from ceasiompy.utils.commonxpath import (
     AVL_NSPANWISE_XPATH,
     AVL_NCHORDWISE_XPATH,
     AVL_AEROMAP_UID_XPATH,
+    AVL_FREESTREAM_MACH_XPATH,
     AVL_CTRLSURF_ANGLES_XPATH,
 )
 
@@ -142,6 +143,18 @@ cpacs_inout.add_input(
     gui=include_gui,
     gui_name="Nb of processor",
     gui_group="CPU",
+)
+
+cpacs_inout.add_input(
+    var_name="default_freestream_mach",
+    var_type=float,
+    default_value=0.6,
+    unit="[Mach]",
+    descr="Usually 0.2 < default value < 0.8",
+    xpath=AVL_FREESTREAM_MACH_XPATH,
+    gui=include_gui,
+    gui_name="Default freestream Mach for Prandtl-Glauert corrections",
+    gui_group="Default freestream Mach",
 )
 
 cpacs_inout.add_input(

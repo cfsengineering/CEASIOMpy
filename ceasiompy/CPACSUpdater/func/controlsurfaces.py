@@ -17,17 +17,14 @@ Python version: >=3.8
 # ==============================================================================
 
 import math
-
 import numpy as np
 
 from numpy import array
-
 from ceasiompy.utils.mathsfunctions import (
     rot,
     rotate_2d_point,
     get_rotation_matrix,
 )
-
 from ceasiompy.utils.geometryfunctions import (
     get_uid,
     elements_number,
@@ -40,13 +37,12 @@ from ceasiompy.CPACSUpdater.func.utils import (
     find_max_x,
     find_min_x,
     array_to_str,
-    interpolate_points,
+    # interpolate_points,
     symmetric_operation,
 )
 
 from numpy import ndarray
 from tixi3.tixi3wrapper import Tixi3
-
 from typing import (
     List,
     Dict,
@@ -54,7 +50,6 @@ from typing import (
 )
 
 from ceasiompy import log
-
 from ceasiompy.utils.commonxpath import (
     WINGS_XPATH,
     AIRFOILS_XPATH,
@@ -372,7 +367,7 @@ def plain_transform(
     Transforms z values to create a rounded shape nearest to x_ref.
     """
 
-    curve = -0.025
+    curve = -0.035
 
     # Mask for values less than x_ref
     mask = x_values < x_ref
@@ -380,8 +375,8 @@ def plain_transform(
     newz_values = z_values[mask]
 
     # Create new x values using sine function
-    x = np.arange(0.0, 1.1, 0.1)
-    new_x = curve * np.sin(np.pi * x)
+    x = np.arange(0.0, 1.1, 0.2)
+    new_x = -curve * np.sin(np.pi * x)
     max_x_pos, z_pos, _, z_neg = find_max_x(newx_values, newz_values)
 
     close_x = max_x_pos + new_x
@@ -417,6 +412,23 @@ def plain_transform(
     min_x_index = np.argmin(newx_flapvalues)
     newx_flapvalues = np.roll(newx_flapvalues, -min_x_index)
     newz_flapvalues = np.roll(newz_flapvalues, -min_x_index)
+
+    maybe = True
+    if maybe:
+        import matplotlib.pyplot as plt
+
+        # Plot the results
+        plt.figure(figsize=(10, 6))
+        plt.plot(newx_values, newz_values, label="Transformed Leading Edge", marker="o")
+        plt.plot(newx_flapvalues, newz_flapvalues, label="Transformed Trailing Edge", marker="x")
+        plt.scatter(x_values, z_values, label="Original Points", color="gray", alpha=0.5)
+        plt.axvline(x=x_ref, color="red", linestyle="--", label="x_ref")
+        plt.title("Plain Transform Result")
+        plt.xlabel("X Values")
+        plt.ylabel("Z Values")
+        plt.legend()
+        plt.grid()
+        plt.show()
 
     return newx_values, newz_values, newx_flapvalues, newz_flapvalues
 

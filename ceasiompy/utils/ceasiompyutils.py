@@ -191,7 +191,7 @@ def get_aeromap_list_from_xpath(cpacs, aeromap_to_analyze_xpath, empty_if_not_fo
 def get_results_directory(module_name: str, create: bool = True, wkflow_dir: Path = None) -> Path:
     """
     Returns the results directory of a module.
-    
+
     Args:
         module_name (str): Name of the module's result directory.
         create (bool): If you need to create it.

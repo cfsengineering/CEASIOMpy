@@ -25,7 +25,6 @@ from cpacspy.cpacsfunctions import get_value
 from pathlib import Path
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.configfiles import ConfigFile
-
 from typing import (
     Dict,
     List,
@@ -33,14 +32,16 @@ from typing import (
 )
 
 from ceasiompy import log
+from ceasiompy.SU2Run.func import (
+    SU2_FORCES_MOM,
+    AERO_COEFFICIENTS,
+)
 from ceasiompy.utils.commonpaths import CEASIOMPY_DB_PATH
-
 from ceasiompy.SU2Run import (
     MODULE_DIR,
     TEMPLATE_TYPE,
     CONTROL_SURFACE_LIST
 )
-
 from ceasiompy.utils.commonxpath import (
     SU2_AIRCRAFT_XPATH,
     SU2_CONTROL_SURF_BOOL_XPATH,
@@ -119,17 +120,6 @@ def add_damping_derivatives(
 def access_coef(line: str) -> float:
     """
     Extracts and returns the coefficient from a given line of text.
-
-    The function expects the input string to be in the format 'key:value|other_data'.
-    It splits the string by ':' to isolate the value part, then splits by '|' to
-    remove any additional data, and finally converts the extracted coefficient to a float.
-
-    Args:
-        line (str): The input string containing the coefficient.
-
-    Returns:
-        float: The extracted coefficient as a float.
-
     """
     return float(line.split(":")[1].split("|")[0])
 
@@ -137,11 +127,6 @@ def access_coef(line: str) -> float:
 def validate_file(_file: Path, file_name: str) -> None:
     """
     Check if the _file is indeed a file.
-
-    Args:
-        _file (Path): Path to the SU2 forces file.
-        file_name (str): Name of _file.
-
     """
     if not _file.is_file():
         raise FileNotFoundError(f"The {file_name} file at '{_file}' has not been found!")
@@ -288,7 +273,6 @@ def get_surface_pitching_omega(oscillation_type: str, omega: float) -> str:
 def su2_mesh_list_from_db(tixi: Tixi3) -> List:
 
     aircraft_name = get_value(tixi, SU2_AIRCRAFT_XPATH)
-
     su2_mesh_list = []
 
     # No control surfaces
@@ -318,7 +302,7 @@ def get_su2_cfg_tpl(tpl_type: str) -> Path:
         template_type (str): Either "euler" or "rans".
 
     Returns:
-        su2_cfg_tpe_euler_path (str): Path of the SU2 config template corresponding.
+        su2_cfg_tpe_euler_path (str): Path of the SU2 config template.
 
     """
 
@@ -329,10 +313,8 @@ def get_su2_cfg_tpl(tpl_type: str) -> Path:
         )
 
     tpl_type = tpl_type.lower()
-    # Name configuration
-    name = f"cfg_tpl_{tpl_type}.cfg"
 
-    return Path(MODULE_DIR, "files", name)
+    return Path(MODULE_DIR, "files", f"cfg_tpl_{tpl_type}.cfg")
 
 
 def get_su2_aerocoefs(
@@ -354,23 +336,12 @@ def get_su2_aerocoefs(
 
     validate_file(force_file, "SU2 force")
 
-    # List of coefficients we are going to look for and return
-    coefficients = {
-        "Total CL:": "cl",
-        "Total CD:": "cd",
-        "Total CSF:": "cs",
-        "Total CMx:": "cmd",
-        "Total CMy:": "cms",
-        "Total CMz:": "cml",
-        "Free-stream velocity": "velocity"
-    }
-
     # In case they are not found in force_file
-    results = {key: None for key in coefficients.values()}
+    results = {key: None for key in AERO_COEFFICIENTS.values()}
 
     # Call access_coef for the correct coefficient
-    def parse_line(line: str):
-        for key, var_name in coefficients.items():
+    def parse_line(line: str) -> None:
+        for key, var_name in AERO_COEFFICIENTS.items():
             if key in line:
                 if (key == "Free-stream velocity") and ("m/s" in line):
                     results[var_name] = float(line.split(" ")[7])
@@ -408,22 +379,12 @@ def get_su2_forces_moments(
 
     validate_file(force_file, "SU2 force")
 
-    # List of coefficients we are going to look for and return
-    coefficients = {
-        "Total CFx:": "cfx",
-        "Total CFy:": "cfy",
-        "Total CFz:": "cfz",
-        "Total CMx:": "cmx",
-        "Total CMy:": "cmy",
-        "Total CMz:": "cmz",
-    }
-
     # In case they are not found in force_file
-    results = {key: None for key in coefficients.values()}
+    results = {key: None for key in SU2_FORCES_MOM.values()}
 
     # Call access_coef for the correct coefficient
     def parse_line(line: str):
-        for key, var_name in coefficients.items():
+        for key, var_name in SU2_FORCES_MOM.items():
             if key in line:
                 results[var_name] = access_coef(line)
 
@@ -441,21 +402,9 @@ def get_su2_forces_moments(
 def get_efficiency_and_aoa(force_file: Path) -> Tuple[float, float]:
     """
     Get efficiency (CL/CD) and Angle of Attack (AoA) in the force_file.
-
-    Note:
-        force_file should be: forces_breakdown.dat
-
-    Args:
-        force_file (Path): Path to the SU2 forces file.
-
-    Returns:
-        cl_cd (float): Lift divided by drag.
-        aoa (float): Angle of Attack in degrees.
-
     """
 
     validate_file(force_file, "SU2 force")
-
     cl_cd, aoa = None, None
 
     with open(force_file) as f:
@@ -469,32 +418,20 @@ def get_efficiency_and_aoa(force_file: Path) -> Tuple[float, float]:
                 continue
 
             if cl_cd and aoa:
-                break
+                log.info(f"CL/CD ratio has been found and is equal to: {cl_cd}.")
+                log.info(f"AoA has been found and is equal to: {aoa}.")
+                return cl_cd, aoa
 
     if cl_cd is None:
         raise ValueError(f"No value has been found for the CL/CD ratio in {force_file}.")
     else:
-        log.info(f"CL/CD ratio has been found and is equal to: {cl_cd}.")
-
-    if aoa is None:
         raise ValueError(f"No value has been found for the AoA in {force_file}")
-    else:
-        log.info(f"AoA has been found and is equal to: {aoa}.")
-
-    return cl_cd, aoa
 
 
 def get_wetted_area(su2_logfile: Path) -> float:
     """
     Get SU2 logfile and returns the wetted area value
     previously calculated by SU2.
-
-    Args:
-        su2_logfile (Path): Path to the working directory.
-
-    Returns:
-        wetted_area (float): Wetted area calculated by SU2 [m^2].
-
     """
 
     validate_file(su2_logfile, "SU2 log")

@@ -992,13 +992,13 @@ def generate_gmsh(
 
     if bool_(open_gmsh):
         log.info("Result of 2D surface mesh")
-        
+
         log.info("Optimizing mesh.")
         gmsh.model.mesh.optimize("Netgen")
-        
+
         log.info("Synchronizing.")
         gmsh.model.occ.synchronize()
-        
+
         log.info("GMSH GUI is open, close it to continue...")
         gmsh.fltk.run()
 

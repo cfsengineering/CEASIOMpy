@@ -188,6 +188,7 @@ def get_mesh_markers(su2_mesh_path: Path) -> Dict:
                 mesh_markers["actuator_disk_outlet"].append(marker)
                 log.info(f"'{marker}' marker has been marked as actuator_disk_outlet.")
             else:
+                # In SU2 wings and fuselages are marked as wall.
                 mesh_markers["wall"].append(marker)
                 log.info(f"'{marker}' marker has been marked as wall.")
 

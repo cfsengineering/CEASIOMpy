@@ -93,6 +93,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     if not dynstab_su2_mesh_paths:
         raise ValueError("List of Dynamic Stability su2 mesh paths is empty.")
 
+    # Load only 1 mesh file for now
     mesh_markers = define_markers(tixi, su2_mesh_paths[0])
 
     # 2. Create configuration files

@@ -76,6 +76,10 @@ def get_logger() -> Logger:
     logger = logging.getLogger("CEASIOMpy")
     logger.setLevel(logging.DEBUG)
 
+    # Check if the logger already has handlers to avoid duplicates
+    if logger.hasHandlers():
+        return logger
+
     # Prevent propagation to root logger to avoid duplicates
     logger.propagate = False
 

@@ -63,7 +63,7 @@ class TestModuleTemplate(CeasiompyTest):
 
     @log_test
     def test_write_command_file(self):
-        
+
         write_command_file(
             tixi=self.cpacs.tixi,
             avl_path=self.avl_path,

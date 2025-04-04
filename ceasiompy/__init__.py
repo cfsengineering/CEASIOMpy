@@ -74,17 +74,10 @@ def get_logger() -> Logger:
     """
 
     logger = logging.getLogger("CEASIOMpy")
-    if logger.hasHandlers():
-        return logger
     logger.setLevel(logging.DEBUG)
 
     # Prevent propagation to root logger to avoid duplicates
     logger.propagate = False
-
-    # Clear existing handlers to prevent duplicates
-    if logger.handlers:
-        for handler in logger.handlers[:]:
-            logger.removeHandler(handler)
 
     # Add file handler
     file_formatter = logging.Formatter(
@@ -144,4 +137,4 @@ __all__ = ["log", "ceasiompy_cfg"]
 # ==============================================================================
 
 if __name__ == "__main__":
-    get_logger().info("Nothing to execute!")
+    log.info("Nothing to execute!")

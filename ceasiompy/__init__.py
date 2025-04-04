@@ -77,7 +77,7 @@ def get_logger() -> Logger:
     logger.setLevel(logging.DEBUG)
 
     # Check if the logger already has handlers to avoid duplicates
-    if logger.hasHandlers():
+    if len(logger.handlers) > 0:
         return logger
 
     # Prevent propagation to root logger to avoid duplicates

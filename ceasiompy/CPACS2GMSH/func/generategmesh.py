@@ -531,7 +531,7 @@ def generate_gmsh(
             - List of the aircraft parts in the model.
 
     """
-    gmsh.model.occ.removeAllDuplicates()
+    # gmsh.model.occ.removeAllDuplicates()
 
     # Determine if rotors are present in the aircraft model
     rotor_model = cfg_rotors(brep_dir)
@@ -1025,7 +1025,7 @@ def generate_gmsh(
     #    gmsh.fltk.run()
 
     gmsh.model.occ.synchronize()
-    gmsh.model.occ.removeAllDuplicates()
+    # gmsh.model.occ.removeAllDuplicates()
 
     log.info("Mesh generation finished")
     # Create duplicated mesh surface for disk actuator

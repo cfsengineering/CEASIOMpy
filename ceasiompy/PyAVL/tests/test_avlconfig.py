@@ -63,7 +63,7 @@ class TestModuleTemplate(CeasiompyTest):
 
     @log_test
     def test_write_command_file(self):
-
+        
         write_command_file(
             tixi=self.cpacs.tixi,
             avl_path=self.avl_path,
@@ -74,9 +74,7 @@ class TestModuleTemplate(CeasiompyTest):
             roll_rate=0.0,
             yaw_rate=0.0,
             mach_number=0.3,
-            ref_velocity=100.93037463067732,
-            ref_density=1.1116596736996904,
-            g_acceleration=9.803565306802405,
+            alt=1000.0,
             aileron=0.0,
             elevator=0.0,
             rudder=0.0,

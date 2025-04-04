@@ -37,7 +37,7 @@ from ceasiompy.CPACSUpdater.func.utils import (
     find_max_x,
     find_min_x,
     array_to_str,
-    # interpolate_points,
+    interpolate_points,
     symmetric_operation,
 )
 
@@ -376,7 +376,7 @@ def plain_transform(
 
     # Create new x values using sine function
     x = np.arange(0.0, 1.1, 0.2)
-    new_x = -curve * np.sin(np.pi * x)
+    new_x = curve * np.sin(np.pi * x)
     max_x_pos, z_pos, _, z_neg = find_max_x(newx_values, newz_values)
 
     close_x = max_x_pos + new_x
@@ -691,10 +691,6 @@ def deflection_angle(tixi: Tixi3, wing_uid: str, angle: float) -> None:
 def add_control_surfaces(tixi: Tixi3) -> None:
     """
     Adds control surfaces for each wings in CPACS file.
-
-    Args:
-        tixi (Tixi3): Tixi handle of CPACS file.
-
     """
 
     ctrlsurf = retrieve_gui_ctrlsurf(tixi)

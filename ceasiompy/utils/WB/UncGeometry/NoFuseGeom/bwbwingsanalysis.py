@@ -22,17 +22,7 @@ import numpy as np
 import math
 
 from cpacspy.cpacsfunctions import open_tigl, open_tixi
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
-
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and in the
-   InputClasses/Unconventional folder."""
+from ceasiompy import log
 
 
 # =============================================================================

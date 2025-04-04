@@ -43,25 +43,13 @@ The cpacs file should also contain:
 from cpacspy.cpacsfunctions import add_uid, create_branch, open_tixi
 
 from cpacspy.cpacsfunctions import get_value_or_default
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.commonxpath import RANGE_LD_RATIO_XPATH, TURBOPROP_XPATH
-
-log = get_logger()
-
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder in the
-   range_output_class script and into the Input_classes/Conventional
-   folder inside the range_user_input.py script."""
 
 
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
-
 
 def get_data(mw, ri, cpacs_in):
     """The function extracts from the xml file the required input data,

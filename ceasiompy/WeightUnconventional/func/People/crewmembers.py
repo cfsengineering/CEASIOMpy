@@ -18,17 +18,7 @@ Python version: >=3.8
 # =============================================================================
 
 from ceasiompy.WeightConventional.func.weightutils import CABIN_CREW_MASS, PILOT_MASS, PILOT_NB
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
-
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and in the
-   InputClasses/Unconventional folder."""
+from ceasiompy import log
 
 
 # =============================================================================

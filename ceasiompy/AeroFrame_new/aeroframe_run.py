@@ -20,17 +20,17 @@ TODO:
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
-from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from ceasiompy.utils.ceasiompyutils import get_results_directory
-from ceasiompy.PyAVL.avlrun import run_avl
-from ceasiompy.PyAVL.func.avlconfig import get_aeromap_conditions
+from ceasiompy import log
+
+from ceasiompy.utils.ceasiompyutils import call_main
+
+from ceasiompy.PyAVL.pyavl import main as run_avl
+from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
 from cpacspy.cpacsfunctions import (
     get_value_or_default,
     create_branch,
-    open_tixi
 )
-from ceasiompy.PyAVL.func.avlresults import convert_ps_to_pdf
+from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
 from ceasiompy.AeroFrame_new.func.aeroframe_config import (
     read_AVL_fe_file,
     create_framat_model,
@@ -55,6 +55,7 @@ from ceasiompy.AeroFrame_new.func.aeroframe_debbug import (
 
 from ceasiompy.utils.commonxpath import (
     AVL_PLOT_XPATH,
+    AVL_AEROMAP_UID_XPATH,
     FRAMAT_RESULTS_XPATH,
     FRAMAT_MESH_XPATH,
     AEROFRAME_SETTINGS
@@ -68,9 +69,6 @@ from scipy import interpolate
 import subprocess
 import pandas as pd
 import shutil
-
-
-log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
@@ -204,9 +202,9 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         log.info("")
         log.info(f"----- FramAT: Deformation {n_iter} -----")
 
-        Path(CASE_PATH, f"Iteration_{n_iter+1}", "AVL").mkdir(parents=True, exist_ok=True)
+        Path(CASE_PATH, f"Iteration_{n_iter + 1}", "AVL").mkdir(parents=True, exist_ok=True)
         Path(CASE_PATH, f"Iteration_{n_iter}", "FramAT").mkdir(parents=True, exist_ok=True)
-        AVL_ITER_PATH = Path(CASE_PATH, f"Iteration_{n_iter+1}", "AVL")
+        AVL_ITER_PATH = Path(CASE_PATH, f"Iteration_{n_iter + 1}", "AVL")
         FRAMAT_ITER_PATH = Path(CASE_PATH, f"Iteration_{n_iter}", "FramAT")
         AVL_DEFORMED_PATH = Path(AVL_ITER_PATH, "deformed.avl")
         AVL_DEFORMED_COMMAND = Path(AVL_ITER_PATH, "avl_commands.txt")
@@ -354,7 +352,7 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
     return delta_tip, res
 
 
-def aeroframe_run(cpacs_path, cpacs_out_path, wkdir):
+def main(cpacs: CPACS, wkdir: Path) -> None:
     """Function to run aeroelastic calculations.
 
     Function 'aeroframe_run' runs aeroelastic calculations
@@ -366,13 +364,17 @@ def aeroframe_run(cpacs_path, cpacs_out_path, wkdir):
         cpacs_out_path (Path): path to the CPACS output file.
         wkdir (Path): path to the working directory.
     """
-    tixi = open_tixi(cpacs_path)
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs_path)
+    cpacs_path = cpacs.cpacs_file
+    tixi = cpacs.tixi
+    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
+        cpacs_path,
+        AVL_AEROMAP_UID_XPATH
+    )
 
     # First AVL run
-    run_avl(cpacs_path, wkdir)
+    run_avl(cpacs, wkdir)
 
-    for i_case in range(len(alt_list)):
+    for i_case, _ in enumerate(alt_list):
         alt = alt_list[i_case]
         mach = mach_list[i_case]
         aoa = aoa_list[i_case]
@@ -411,7 +413,6 @@ def aeroframe_run(cpacs_path, cpacs_out_path, wkdir):
         # Write results in CPACS out
         create_branch(tixi, FRAMAT_RESULTS_XPATH + "/TipDeflection")
         tixi.updateDoubleElement(FRAMAT_RESULTS_XPATH + "/TipDeflection", tip_deflection[-1], "%g")
-        tixi.save(str(cpacs_out_path))
 
         plot_convergence(tip_deflection, residuals, wkdir=CASE_PATH)
 
@@ -420,18 +421,5 @@ def aeroframe_run(cpacs_path, cpacs_out_path, wkdir):
 #    MAIN
 # =================================================================================================
 
-
-def main(cpacs_path, cpacs_out_path):
-    log.info("----- Start of " + MODULE_NAME + " -----")
-
-    results_dir = get_results_directory("AeroFrame_new")
-    aeroframe_run(cpacs_path, cpacs_out_path, wkdir=results_dir)
-
-    log.info("----- End of " + MODULE_NAME + " -----")
-
-
 if __name__ == "__main__":
-    cpacs_path = get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
-
-    main(cpacs_path, cpacs_out_path)
+    call_main(main, MODULE_NAME)

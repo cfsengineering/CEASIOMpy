@@ -9,12 +9,20 @@ Python version: >=3.8
 
 | Author: Aidan jungo
 | Creation: 2022-05-13
-
-TODO:
-
-    *
+| Modified: Leon Deligny
+| Date: 25 March 2025
 
 """
+
+# =================================================================================================
+#   IMPORTS
+# =================================================================================================
+
+from ceasiompy import log
+
+# =================================================================================================
+#   CSTS
+# =================================================================================================
 
 # CEASIOMpy Colors
 CEASIOMPY_BLACK = "#000000"
@@ -29,7 +37,10 @@ GMSH_ENGINE_CONFIG_NAME = "config_engines.cfg"
 
 # SU2
 CONFIG_CFD_NAME = "ConfigCFD.cfg"
+CONFIG_DYNSTAB_NAME = "ConfigDYNSTAB.cfg"
+
 SU2_FORCES_BREAKDOWN_NAME = "forces_breakdown.dat"
+SU2_DYNSTAB_FORCES_BREAKDOWN_NAME = "forces_breakdown_00000.dat"
 SURFACE_FLOW_FILE_NAME = "surface_flow.vtu"
 SURFACE_FLOW_FORCE_FILE_NAME = "surface_flow_forces.vtu"
 FORCE_FILE_NAME = "forces.csv"
@@ -46,3 +57,10 @@ MTOM_FIGURE_NAME = "MTOM_Prediction.png"
 
 # PYCYCLE
 ENGINE_BOUNDARY_CONDITIONS = "EngineBC.dat"
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    log.info("Nothing to execute!")

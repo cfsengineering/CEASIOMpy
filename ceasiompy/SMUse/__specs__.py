@@ -1,5 +1,5 @@
 from pathlib import Path
-
+import streamlit as st
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy.utils.commonxpath import SMUSE_XPATH
 
@@ -47,7 +47,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="",
     var_type=list,
-    default_value=None,
+    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
     descr="To which aeroMap the model shall take andn write the entries",
     xpath=SMUSE_XPATH + "/aeroMapUID",
     gui=True,

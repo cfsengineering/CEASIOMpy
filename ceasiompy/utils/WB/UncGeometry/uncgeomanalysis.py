@@ -34,17 +34,7 @@ from .Output.outputgeom import produce_geom_output_txt
 
 from cpacspy.cpacsfunctions import open_tixi
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
-
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes and into
-   the InputClasses/Unconventional folder."""
+from ceasiompy import log
 
 
 # =============================================================================
@@ -67,12 +57,14 @@ def get_number_of_parts(cpacs_in):
     tixi = open_tixi(cpacs_in)
 
     if tixi.checkElement("/cpacs/vehicles/aircraft/model/fuselages"):
-        fus_nb = tixi.getNamedChildrenCount("/cpacs/vehicles/aircraft/model/fuselages", "fuselage")
+        fus_nb = tixi.getNamedChildrenCount(
+            "/cpacs/vehicles/aircraft/model/fuselages", "fuselage")
     else:
         fus_nb = 0
 
     if tixi.checkElement("/cpacs/vehicles/aircraft/model/wings"):
-        wing_nb = tixi.getNamedChildrenCount("/cpacs/vehicles/aircraft/model/wings", "wing")
+        wing_nb = tixi.getNamedChildrenCount(
+            "/cpacs/vehicles/aircraft/model/wings", "wing")
     else:
         wing_nb = 0
 
@@ -102,7 +94,8 @@ def no_fuse_geom_analysis(cpacs_in, FLOOR_NB, wing_nb, h_min, FUEL_ON_CABIN, NAM
     """
     awg = AircraftWingGeometry()
     awg = geom_eval(wing_nb, awg, cpacs_in)
-    (awg, wing_nodes) = wing_check_thickness(h_min, awg, cpacs_in, TP, FUEL_ON_CABIN)
+    (awg, wing_nodes) = wing_check_thickness(
+        h_min, awg, cpacs_in, TP, FUEL_ON_CABIN)
     produce_wing_output_txt(awg, NAME)
 
     return (awg, wing_nodes)

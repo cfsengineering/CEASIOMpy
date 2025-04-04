@@ -17,9 +17,7 @@ Python version: >=3.8
 #   IMPORTS
 # =============================================================================
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
+from ceasiompy import log
 
 
 # =================================================================================================
@@ -85,4 +83,4 @@ def estimate_oem(mtom, fuse_length, wing_span, turboprop):
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

@@ -82,19 +82,6 @@ cpacs_inout.add_input(
     gui_group=None,
 )
 
-for direction in ["x", "y", "z"]:
-    cpacs_inout.add_input(
-        var_name=f"ref_ori_moment_{direction}",
-        var_type=float,
-        default_value=0.0,
-        unit="m",
-        descr=f"Fuselage scaling on {direction} axis",
-        xpath=REF_XPATH + f"/point/{direction}",
-        gui=False,
-        gui_name=None,
-        gui_group=None,
-    )
-
 
 # ----- Output -----
 

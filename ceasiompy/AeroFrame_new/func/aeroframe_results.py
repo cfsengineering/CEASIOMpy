@@ -27,9 +27,7 @@ import matplotlib.pyplot as plt
 from pathlib import Path
 from scipy import interpolate
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
+from ceasiompy import log
 
 # =================================================================================================
 #   FUNCTIONS

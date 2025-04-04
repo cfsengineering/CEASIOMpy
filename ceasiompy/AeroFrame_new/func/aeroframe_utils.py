@@ -22,9 +22,7 @@ TODO:
 import numpy as np
 import math
 from shapely.geometry import Polygon
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
+from ceasiompy import log
 
 
 # =================================================================================================

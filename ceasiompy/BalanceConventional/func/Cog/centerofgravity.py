@@ -24,9 +24,8 @@ The script evaluates the centre of gravity coordinates in case of:
 
 import numpy as np
 
-from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger()
+from ceasiompy import log
 
 
 # =============================================================================
@@ -157,6 +156,7 @@ def center_of_gravity_evaluation(F_PERC, P_PERC, cabin_seg, ag, mw, WING_MOUNTED
                 if htw != 0:
                     a = wg.index(htw)
                 else:
+                    tw = 0
                     a = wg.index(tw)
             else:
                 a = wg.index(ag.main_wing_index)

@@ -35,13 +35,12 @@ from ceasiompy.Optimisation.func.tools import (
     launch_external_program,
 )
 from ceasiompy.SMUse.smuse import load_surrogate
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.moduleinterfaces import get_all_module_specs
 from ceasiompy.utils.commonxpath import OPTIM_XPATH, SMUSE_XPATH, SU2_FIXED_CL_XPATH
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.utils import COEFS, PARAMS_COEFS
 
-log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 CSV_PATH = Path(MODULE_DIR, "Variable_library.csv")
@@ -71,7 +70,7 @@ class Routine:
         """Define default main parameters."""
 
         # Choice of routine type : DOE or Optimisation
-        self.type = "OPTIM"
+        self.type = "Optimisation"
         self.date = ""
         self.modules = []
 
@@ -116,36 +115,50 @@ class Routine:
         """Take user inputs from the GUI."""
 
         # Problem setup
-        objectives = get_value_or_default(tixi, OPTIM_XPATH + "/objective", "cl")
+        objectives = get_value_or_default(
+            tixi, OPTIM_XPATH + "/objective", "cl")
         self.objective = split(";|,", objectives)
-        self.minmax = get_value_or_default(tixi, OPTIM_XPATH + "/minmax", "max")
+        self.minmax = get_value_or_default(
+            tixi, OPTIM_XPATH + "/minmax", "max")
 
         # Global parameters
-        self.driver = get_value_or_default(tixi, OPTIM_XPATH + "/parameters/driver", "COBYLA")
-        self.max_iter = int(get_value_or_default(tixi, OPTIM_XPATH + "/iterationNB", 200))
-        self.tol = float(get_value_or_default(tixi, OPTIM_XPATH + "/tolerance", 1e-3))
-        self.save_iter = int(get_value_or_default(tixi, OPTIM_XPATH + "/saving/perIter", 1))
+        self.driver = get_value_or_default(
+            tixi, OPTIM_XPATH + "/parameters/driver", "COBYLA")
+        self.max_iter = int(get_value_or_default(
+            tixi, OPTIM_XPATH + "/iterationNB", 200))
+        self.tol = float(get_value_or_default(
+            tixi, OPTIM_XPATH + "/tolerance", 1e-3))
+        self.save_iter = int(get_value_or_default(
+            tixi, OPTIM_XPATH + "/saving/perIter", 1))
 
         # Specific DoE parameters
         self.doedriver = get_value_or_default(
             tixi, OPTIM_XPATH + "/parameters/DoE/driver", "Uniform"
         )
         self.samplesnb = int(
-            get_value_or_default(tixi, OPTIM_XPATH + "/parameters/DoE/sampleNB", 3)
+            get_value_or_default(
+                tixi,
+                OPTIM_XPATH + "/parameters/DoE/sampleNB",
+                3,
+            )
         )
 
         # User specified configuration file path
-        self.user_config = str(get_value_or_default(tixi, OPTIM_XPATH + "/Config/filepath", "-"))
+        self.user_config = str(get_value_or_default(
+            tixi, OPTIM_XPATH + "/Config/filepath", "-"))
 
         fix_cl = get_value_or_default(tixi, SU2_FIXED_CL_XPATH, "no")
 
         if fix_cl == "YES":
-            tixi.updateTextElement(OPTIM_XPATH + "/aeroMapUID", "aeroMap_fixedCL_SU2")
+            tixi.updateTextElement(
+                OPTIM_XPATH + "/aeroMapUID", "aeroMap_fixedCL_SU2")
             self.aeromap_uid = "aeroMap_fixedCL_SU2"
         else:
-            self.aeromap_uid = str(get_value_or_default(tixi, OPTIM_XPATH + "/aeroMapUID", "-"))
+            self.aeromap_uid = str(get_value_or_default(
+                tixi, OPTIM_XPATH + "/aeroMapUID", "-"))
 
-        self.use_aeromap = get_value_or_default(tixi, OPTIM_XPATH + "/Config/useAero", False)
+        self.use_aeromap = get_value_or_default(
+            tixi, OPTIM_XPATH + "/Config/useAero", False)
 
 
 # =================================================================================================
@@ -564,4 +577,4 @@ def create_variable_library(Rt, tixi, optim_dir_path):
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

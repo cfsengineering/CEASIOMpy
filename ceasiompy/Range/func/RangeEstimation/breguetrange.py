@@ -19,9 +19,7 @@ This script evaluates the range of the aircraft with the Breguet equation.
 import math
 from ceasiompy.WeightConventional.func.weightutils import UNUSABLE_FUEL_RATIO
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
+from ceasiompy import log
 
 
 # =============================================================================
@@ -35,7 +33,6 @@ log = get_logger()
 
 
 def breguet_cruise_range(LDcru, ri, mw):
-
     """The function estimates the maximum range using the Breguet equation.
 
     Source: Raymer, D.P. "Aircraft design: a conceptual approach"

@@ -41,17 +41,7 @@ from ceasiompy.utils.commonxpath import (
     WB_MAX_PAYLOAD_XPATH,
 )
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
-
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and in the
-   InputClasses/Unconventional folder."""
+from ceasiompy import log
 
 
 # =============================================================================

@@ -30,10 +30,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import openmdao.api as om
 import pandas as pd
-import tigl3.configuration  # used within eval
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
+from ceasiompy import log
 
 
 # Not an exhaustive list
@@ -474,4 +471,4 @@ def add_bounds(value, var):
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

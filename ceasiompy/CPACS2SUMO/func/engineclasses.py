@@ -21,11 +21,9 @@ TODO:
 # =================================================================================================
 
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.generalclasses import Transformation
 from cpacspy.cpacsfunctions import get_float_vector
-
-log = get_logger()
 
 
 # =================================================================================================
@@ -164,11 +162,10 @@ class PointList(object):
         self.xlist = get_float_vector(tixi, self.xpath + "/x")
         self.ylist = get_float_vector(tixi, self.xpath + "/y")
 
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
-if __name__ == "__main__":
 
-    print("Nothing to execute!")
+if __name__ == "__main__":
+    log.info("Nothing to execute!")

@@ -33,14 +33,10 @@ from ceasiompy.utils.ceasiompyutils import remove_file_type_in_dir
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from cpacspy.cpacspy import CPACS
 
+
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simple_sharp_airfoil.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
 
 # =================================================================================================
 #   FUNCTIONS
@@ -218,8 +214,7 @@ def test_refine_wing_section():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_PATH,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -281,8 +276,7 @@ def test_auto_refine():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_PATH,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,

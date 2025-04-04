@@ -19,17 +19,7 @@ Python version: >=3.8
 
 import numpy as np
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
-
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and in the
-   InputClasses/Unconventional folder."""
+from ceasiompy import log
 
 
 # =============================================================================
@@ -149,6 +139,6 @@ def estimate_system_mass(
 
 if __name__ == "__main__":
 
-    print("########################################################")
-    print("# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #")
-    print("########################################################")
+    log.info("########################################################")
+    log.info("# ERROR NOT A STANDALONE PROGRAM, RUN weightuncmain.py #")
+    log.info("########################################################")

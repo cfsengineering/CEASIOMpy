@@ -38,9 +38,7 @@ from ceasiompy.utils.commonxpath import (
     WB_TOILET_LENGTH_XPATH,
 )
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
+from ceasiompy import log
 
 
 # =================================================================================================
@@ -192,4 +190,4 @@ class InsideDimensions:
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

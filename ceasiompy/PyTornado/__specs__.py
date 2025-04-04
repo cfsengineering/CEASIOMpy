@@ -1,37 +1,52 @@
-from pathlib import Path
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+GUI Interface of PyTornado.
+
+Python version: >=3.8
+
+| Author: Leon Deligny
+| Creation: 18-Mar-2025
+
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+
+import streamlit as st
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
+
+from ceasiompy import log
+from ceasiompy.PyTornado import include_gui
+
 from ceasiompy.utils.commonxpath import (
     REF_XPATH,
     WINGS_XPATH,
     PYTORNADO_XPATH,
-    AEROPERFORMANCE_XPATH,
 )
 
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-module_status = True
-
-# ===== Results directory path =====
-
-RESULTS_DIR = Path("Results", "PyTornado")
-
-
-# ===== CPACS inputs and outputs =====
+# ==============================================================================
+#   VARIABLE
+# ==============================================================================
 
 cpacs_inout = CPACSInOut()
 
-# ===== Input =====
+# ==============================================================================
+#   GUI INPUTS
+# ==============================================================================
 
 cpacs_inout.add_input(
     var_name="",
     var_type=list,
-    default_value=None,
+    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
     unit=None,
     descr="Name of the aero map to evaluate",
     xpath=PYTORNADO_XPATH + "/aeroMapUID",
-    gui=True,
+    gui=include_gui,
     gui_name="__AEROMAP_SELECTION",
     gui_group="Aeromap settings",
 )
@@ -58,7 +73,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="The number of chordwise VLM panels",
     xpath=PYTORNADO_XPATH + "/vlm_autopanels_c",
-    gui=True,
+    gui=include_gui,
     gui_name="Number of chordwise panels",
     gui_group="Dicretisation",
 )
@@ -70,7 +85,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="The number of spanwise VLM panels",
     xpath=PYTORNADO_XPATH + "/vlm_autopanels_s",
-    gui=True,
+    gui=include_gui,
     gui_name="Number of spanwise panels",
     gui_group="Dicretisation",
 )
@@ -82,7 +97,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Save plot of the aircraft geometry",
     xpath=PYTORNADO_XPATH + "/plot/geometry/save",
-    gui=True,
+    gui=include_gui,
     gui_name="Save geometry plot",
     gui_group="Plots",
 )
@@ -94,7 +109,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Save plot of the results (pressure coefficient)",
     xpath=PYTORNADO_XPATH + "/plot/results/save",
-    gui=True,
+    gui=include_gui,
     gui_name="Save results plot",
     gui_group="Plots",
 )
@@ -106,7 +121,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Save plot of the lattices",
     xpath=PYTORNADO_XPATH + "/plot/lattice/save",
-    gui=True,
+    gui=include_gui,
     gui_name="Save lattices plot",
     gui_group="Plots",
 )
@@ -118,7 +133,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Save the downwash matrix plot",
     xpath=PYTORNADO_XPATH + "/plot/matrix_downwash/save",
-    gui=True,
+    gui=include_gui,
     gui_name="Save matrix_downwash plot",
     gui_group="Plots",
 )
@@ -130,7 +145,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Save PyTornado global results as a json file",
     xpath=PYTORNADO_XPATH + "/save_results/global",
-    gui=True,
+    gui=include_gui,
     gui_name="Save global results",
     gui_group="Save CPACS external results",
 )
@@ -142,7 +157,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="Save PyTornado panelwise results as a dat file",
     xpath=PYTORNADO_XPATH + "/save_results/panelwise",
-    gui=True,
+    gui=include_gui,
     gui_name="Save panelwise results",
     gui_group="Save CPACS external results",
 )
@@ -154,7 +169,7 @@ cpacs_inout.add_input(
     unit="1",
     descr="Option to extract loads from results (only last calculated case)",
     xpath=PYTORNADO_XPATH + "/save_results/extractLoads",
-    gui=True,
+    gui=include_gui,
     gui_name="Extract loads",
     gui_group="Save CPACS external results",
 )
@@ -207,14 +222,9 @@ cpacs_inout.add_input(
     xpath=WINGS_XPATH,
 )
 
+# =================================================================================================
+#    MAIN
+# =================================================================================================
 
-# ----- Output -----
-
-cpacs_inout.add_output(
-    var_name="aeromap_PyTornado",  # name to change...
-    # var_type=CPACS_aeroMap, # no type for output, would it be useful?
-    default_value=None,
-    unit="-",
-    descr="aeroMap with aero coefficients calculated by PyTornado",
-    xpath=AEROPERFORMANCE_XPATH + "/aeroMap/aeroPerformanceMap",
-)
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")

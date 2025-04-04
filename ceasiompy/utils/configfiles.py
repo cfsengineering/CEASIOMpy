@@ -9,10 +9,8 @@ Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2021-12-10
-
-TODO:
-
-    *
+| Modified: Leon Deligny
+| Date: 25 March 2025
 
 """
 
@@ -22,10 +20,7 @@ TODO:
 
 from collections import OrderedDict
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
-
+from ceasiompy import log
 
 # =================================================================================================
 #   CLASSES
@@ -104,6 +99,9 @@ class ConfigFile:
     def write_file(self, file, overwrite=False):
         """Write a .cfg configuration file."""
 
+        # Ensure the directory exists
+        file.parent.mkdir(parents=True, exist_ok=True)
+
         if file.is_file():
             if overwrite:
                 file.unlink()
@@ -123,9 +121,9 @@ class ConfigFile:
                     f.write(f"{key} = NONE\n")
                 elif isinstance(value, list):
                     if any("(" in str(val) for val in value):
-                        f.write(f"{key} = {'; '.join(map(str,value))}\n")
+                        f.write(f"{key} = {'; '.join(map(str, value))}\n")
                     else:
-                        f.write(f"{key} = ( {', '.join(map(str,value))} )\n")
+                        f.write(f"{key} = ( {', '.join(map(str, value))} )\n")
                 else:
                     f.write(f"{key} = {value}\n")
 
@@ -147,23 +145,17 @@ class ConfigFile:
                 text_line.append(f"{key} = NONE\n")
             elif isinstance(value, list):
                 if any("(" in str(val) for val in value):
-                    text_line.append(f"{key} = {'; '.join(map(str,value))}\n")
+                    text_line.append(f"{key} = {'; '.join(map(str, value))}\n")
                 else:
-                    text_line.append(f"{key} = ( {', '.join(map(str,value))} )\n")
+                    text_line.append(f"{key} = ( {', '.join(map(str, value))} )\n")
             else:
                 text_line.append(f"{key} = {value}")
         return ("\n").join(text_line)
-
-
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
-if __name__ == "__main__":
 
-    print("Nothing to execute")
+if __name__ == "__main__":
+    log("Nothing to execute")

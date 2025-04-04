@@ -20,14 +20,6 @@ from ceasiompy.WeightConventional.func.weightutils import PILOT_NB
 
 
 # =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and in the
-   InputClasses/Unconventional folder."""
-
-
-# =============================================================================
 #   FUNCTIONS
 # =============================================================================
 

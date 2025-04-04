@@ -22,12 +22,11 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.commonnames import MTOM_FIGURE_NAME
 from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
 from sklearn.neighbors import KNeighborsRegressor
 
-log = get_logger()
 
 # =================================================================================================
 #   CLASSES
@@ -121,4 +120,4 @@ def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span, results
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

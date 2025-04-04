@@ -19,17 +19,7 @@ Python version: >=3.8
 
 import numpy as np
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
-
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and in the
-   InputClasses/Unconventional folder."""
+from ceasiompy import log
 
 
 # =============================================================================

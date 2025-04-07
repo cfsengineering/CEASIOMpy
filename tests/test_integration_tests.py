@@ -50,6 +50,7 @@ WORKFLOW_TEST_DIR.mkdir()
 #   FUNCTIONS
 # =================================================================================================
 
+
 def run_workflow_test(modules_to_run):
     """Run a workflow test with the given modules."""
     st.session_state = MagicMock()

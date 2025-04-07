@@ -719,7 +719,6 @@ def generate_gmsh(
                 f" {len(part.wing_sections)} section(s) found "
             )
 
-
     # Generate advance meshing features
     if refine_factor != 1:
         log.info(f"Refining wings with factor {refine_factor}")

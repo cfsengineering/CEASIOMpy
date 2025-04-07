@@ -64,7 +64,7 @@ def check_one_entry(dict_dir: List[Dict], mach: float, alt: float, angle: str) -
     """
     Check that there exists exactly one entry with "angle" == "none" in dict_dir
     """
-    
+
     one_entry = [
         d for d in dict_dir
         if d['mach'] == mach and d['alt'] == alt and d['angle'] == angle

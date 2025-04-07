@@ -29,45 +29,8 @@ from sqlite3 import Cursor
 from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
+from ceasiompy.Database.func import PYAVL_ST
 
-# ==============================================================================
-#   CONSTANTS
-# ==============================================================================
-
-DATA = {
-    "Alpha": (1, "alpha"),
-    "Beta": (1, "beta"),
-    "Mach": (1, "mach"),
-
-    "pb/2V": (2, "pb_2V"),
-    "qc/2V": (2, "qc_2V"),
-    "rb/2V": (2, "rb_2V"),
-
-    "flap": (1, "flap"),
-    "aileron": (1, "aileron"),
-    "elevator": (1, "elevator"),
-    "rudder": (1, "rudder"),
-
-    "Xref": (1, "xref"),
-    "Yref": (2, "yref"),
-    "Zref": (3, "zref"),
-
-    "CDtot": (1, "cd"),
-    "CYtot": (1, "cs"),
-    "CLtot": (1, "cl"),
-
-    "Cltot": (2, "cmd"),
-    "Cmtot": (2, "cms"),
-    "Cntot": (2, "cml"),
-
-    "Cla": (1, "cmd_a"),
-    "Cma": (1, "cms_a"),
-    "Cna": (1, "cml_a"),
-
-    "Clb": (2, "cmd_b"),
-    "Cmb": (2, "cms_b"),
-    "Cnb": (2, "cml_b"),
-}
 
 # ==============================================================================
 #   FUNCTIONS
@@ -86,14 +49,11 @@ def get_avl_data(force_file: Path) -> Dict:
 
     """
 
-    if not force_file.is_file():
-        raise FileNotFoundError(f"The AVL forces file '{force_file}' has not been found!")
-
-    results = {var_name: None for _, var_name in DATA.values()}
+    results = {var_name: None for _, var_name in PYAVL_ST.values()}
 
     with open(force_file) as f:
         for line in f.readlines():
-            for key, (index, var_name) in DATA.items():
+            for key, (index, var_name) in PYAVL_ST.items():
                 if key in line:
                     # Exception as they appear twice in .txt file
                     if key in ["Clb", "Cnb"]:
@@ -130,9 +90,7 @@ def store_pyavl_data(
     """
 
     case_dir_list = [case_dir for case_dir in wkdir.iterdir() if "Case" in case_dir.name]
-
     txt_file_name = "st.txt"
-
     name = str(aircraft_name(tixi))
 
     for config_dir in sorted(case_dir_list):
@@ -141,7 +99,6 @@ def store_pyavl_data(
             continue
 
         alt = float(config_dir.name.split("_")[1].split("alt")[1])
-
         file_path = Path(config_dir, txt_file_name)
 
         if not file_path.exists():
@@ -150,8 +107,6 @@ def store_pyavl_data(
 
         # Append data to it
         data = get_avl_data(file_path)
-
-        # Add aircraft name
         data["aircraft"] = name
         data["alt"] = alt
 

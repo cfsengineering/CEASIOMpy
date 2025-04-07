@@ -76,7 +76,7 @@ def check_one_entry(dict_dir: List[Dict], mach: float, alt: float, angle: str) -
         return one_entry[0]["dir"]
 
 
-def process_config_dir(config_dir: Path, dict_dir: Dict) -> bool:
+def process_config_dir(config_dir: Path, dict_dir: List[Dict]) -> None:
     config_name = config_dir.name
     log.info(f"dir.name {config_name}")
     if config_name.endswith("aoa0.0_aos0.0"):
@@ -85,7 +85,6 @@ def process_config_dir(config_dir: Path, dict_dir: Dict) -> bool:
         angle = config_name.split("_")[3].split("angle")[1]
     else:
         log.warning(f"Skipping results of directory {config_dir}.")
-        return True
 
     dict_dir.append(
         {
@@ -95,7 +94,6 @@ def process_config_dir(config_dir: Path, dict_dir: Dict) -> bool:
             "angle": angle,
         },
     )
-    return False
 
 
 def su2_format(string: str) -> str:

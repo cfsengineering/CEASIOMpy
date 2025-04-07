@@ -261,8 +261,7 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
             log.warning(f"{config_dir} is not a directory.")
             continue
 
-        if process_config_dir():
-            continue
+        process_config_dir(config_dir, dict_dir):
 
         if "dynstab" not in str(config_dir):
             log.info(f"config_dir {config_dir}")

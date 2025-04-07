@@ -16,9 +16,6 @@ Python version: >=3.8
 #   IMPORTS
 # ==============================================================================
 
-from ceasiompy.Database.func.utils import data_to_db
-from ceasiompy.utils.ceasiompyutils import aircraft_name
-
 from pathlib import Path
 from sqlite3 import Cursor
 from tixi3.tixi3wrapper import Tixi3

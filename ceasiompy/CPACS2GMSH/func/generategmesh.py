@@ -798,13 +798,12 @@ def generate_gmsh(
 
             for surface in bad_surfaces:
                 gmsh.model.setColor([(2, surface)], *MESH_COLORS["good_surface"], recursive=False)
-        
-            gmsh.model.occ.synchronize()    
+            gmsh.model.occ.synchronize()
 
             log.info("Remeshing process finished")
             if bool_(open_gmsh):
                 log.info("Corrected mesh surfaces are displayed in green")
-        
+
     gmsh.model.occ.removeAllDuplicates()
     gmsh.model.occ.synchronize()
 

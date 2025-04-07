@@ -20,9 +20,15 @@ TODO:
 # =================================================================================================
 
 import os
+import itertools
 import pyvista as pv
+import numpy as np
 
 from ceasiompy.SU2Run.func.extractloads import extract_loads
+from ceasiompy.SU2Run.func.dotderivatives import (
+    load_parameters,
+    compute_derivatives,
+)
 from cpacspy.cpacsfunctions import (
     get_value,
     create_branch,
@@ -31,15 +37,23 @@ from cpacspy.cpacsfunctions import (
 from ceasiompy.utils.ceasiompyutils import (
     bool_,
     get_aeromap_conditions,
+    ensure_and_append_text_element,
 )
 from ceasiompy.SU2Run.func.utils import (
+    check_one_entry,
     get_wetted_area,
     get_su2_aerocoefs,
+    process_config_dir,
     get_efficiency_and_aoa,
+    get_su2_forces_moments,
 )
 
 from pathlib import Path
-from typing import List
+from ambiance import Atmosphere
+from typing import (
+    List,
+    Dict,
+)
 from tixi3.tixi3wrapper import Tixi3
 from cpacspy.cpacspy import (
     CPACS,
@@ -53,6 +67,8 @@ from ceasiompy.utils.commonnames import (
     SURFACE_FLOW_FILE_NAME
 )
 from ceasiompy.utils.commonxpath import (
+    AREA_XPATH,
+    LENGTH_XPATH,
     GMSH_SYMMETRY_XPATH,
     RANGE_LD_RATIO_XPATH,
     SU2_AEROMAP_UID_XPATH,
@@ -63,6 +79,8 @@ from ceasiompy.utils.commonxpath import (
     SU2_UPDATE_WETTED_AREA_XPATH,
     WETTED_AREA_XPATH,
     SU2_DAMPING_DER_XPATH,
+    SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH,
+    SU2_DYNAMICDERIVATIVES_DATA_XPATH,
 )
 
 # =================================================================================================
@@ -181,27 +199,8 @@ def get_static_results(
                 )
 
     if "_TED_" in config_dir.name:
-
         # TODO: convert when it is possible to save TED in cpacspy
         raise NotImplementedError("TED not implemented yet")
-
-        # baseline_coef = False
-        # config_dir_split = config_dir.split('_')
-        # ted_idx = config_dir_split.index('TED')
-        # ted_uid = config_dir_split[ted_idx+1]
-        # defl_angle = float(config_dir.split('_defl')[1])
-        # try:
-        #     print(Coef.IncrMap.dcl)
-        # except AttributeError:
-        #     Coef.IncrMap = a.p.m.f.IncrementMap(ted_uid)
-        # dcl = (cl-Coef.cl[-1])
-        # dcd = (cd-Coef.cd[-1])
-        # dcs = (cs-Coef.cs[-1])
-        # dcml = (cml-Coef.cml[-1])
-        # dcmd = (cmd-Coef.cmd[-1])
-        # dcms = (cms-Coef.cms[-1])
-        # control_parameter = -1
-        # Coef.IncrMap.add_cs_coef(dcl,dcd,dcs,dcml,dcmd,dcms,ted_uid,control_parameter)
 
     # Baseline coefficients (no damping derivative or control surfaces case)
     if baseline_coef:
@@ -245,22 +244,24 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
 
     """
     tixi = cpacs.tixi
+    found_wetted_area = False
 
     fixed_cl = get_value(tixi, SU2_FIXED_CL_XPATH)
-
     aeromap_uid = get_aeromap_uid(tixi, fixed_cl)
-
     aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, SU2_AEROMAP_UID_XPATH)
 
     case_dir_list = [case_dir for case_dir in wkdir.iterdir() if "Case" in case_dir.name]
 
-    found_wetted_area = False
+    dict_dir: List[Dict] = []
 
     for config_dir in sorted(case_dir_list):
 
         if not config_dir.is_dir():
             log.warning(f"{config_dir} is not a directory.")
+            continue
+
+        if process_config_dir():
             continue
 
         if "dynstab" not in str(config_dir):
@@ -279,8 +280,123 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
 
         else:
             log.warning("Accessing dynamic results is not implemented yet.")
-
     aeromap.save()
+
+    # Extract unique mach and alt values
+    mach_values = list(set(d['mach'] for d in dict_dir))
+    alt_values = list(set(d['alt'] for d in dict_dir))
+    n = int(get_value(tixi, SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH))
+    b: float = tixi.getDoubleElement(AREA_XPATH)
+    c: float = tixi.getDoubleElement(LENGTH_XPATH)
+    s: float = b / c
+
+    for mach, alt in itertools.product(mach_values, alt_values):
+        none_file = check_one_entry(dict_dir, mach, alt, "none")
+        alpha_file = check_one_entry(dict_dir, mach, alt, "alpha")
+        # beta_file = check_one_entry(dict_dir, "beta")
+
+        angle_file = {
+            "alpha": alpha_file / "no_deformation"
+        }  # "beta": beta_file
+
+        # Retrieve forces and moments for (alpha, alpha_dot) = (0, 0)
+        none_force_file_path = Path(
+            none_file, "no_deformation", SU2_FORCES_BREAKDOWN_NAME)
+
+        (
+            cfx_0, cfy_0, cfz_0,
+            cmx_0, cmy_0, cmz_0,
+
+        ) = get_su2_forces_moments(none_force_file_path)
+
+        log.info(
+            f"cfx_0: {cfx_0}, cfy_0: {cfy_0}, cfz_0: {cfz_0}, "
+            f"cmx_0: {cmx_0}, cmy_0: {cmy_0}, cmz_0: {cmz_0}"
+        )
+
+        # Force
+        f_static = np.tile([
+            cfx_0, cfy_0, cfz_0,
+        ], (n, 1))
+
+        # Moments
+        m_static = np.tile([
+            cmx_0, cmy_0, cmz_0
+        ], (n, 1))
+
+        # Retrive forces and moments for (alpha, alpha_dot) = (alpha(t), alpha_dot(t))
+        for angle in ['alpha']:  # , 'beta'
+
+            # Get results from dynstab
+            force_file_paths = list(
+                Path(angle_file[angle]).glob("forces_breakdown_*.dat"))
+
+            if not force_file_paths:
+                raise OSError("No result force file have been found!")
+
+            forces_coef_list, moments_coef_list = [], []
+
+            for force_file_path in force_file_paths:
+                # Access coefficients
+                cfx, cfy, cfz, cmx, cmy, cmz = get_su2_forces_moments(
+                    force_file_path)
+                forces_coef_list.append([cfx, cfy, cfz])
+                moments_coef_list.append([cmx, cmy, cmz])
+
+            # Convert the list to a numpy array
+            f_time = np.array(forces_coef_list)
+            m_time = np.array(moments_coef_list)
+
+            # Compute derivatives
+            a, omega, _, t = load_parameters(tixi)
+            fx, fy = compute_derivatives(a, omega, t, f_time, f_static)
+            mx, my = compute_derivatives(a, omega, t, m_time, m_static)
+
+            # Velocity in m/s in atmospheric environment
+            Atm = Atmosphere(alt)
+            velocity = Atm.speed_of_sound[0] * mach
+
+            # Dynamic pressure
+            q_dyn = Atm.density[0] * (velocity ** 2) / 2.0
+
+            qs = q_dyn * s
+            qsb = qs * b
+            qsc = qs * c
+
+            # Scale forces accordingly
+            cfx = fx / qs
+            cfy = fy / qs
+
+            # Scale moments accordingly
+            cmx = np.copy(mx)
+            cmy = np.copy(my)
+            cmx[[0, 2], ] /= qsb
+            cmx[1, ] /= qsc
+            cmy[[0, 2], ] /= qsb
+            cmy[1, ] /= qsc
+
+            # Put derivatives in CPACS at SU2 in DynamicDerivatives
+            xpath = SU2_DYNAMICDERIVATIVES_DATA_XPATH
+
+            # Ensure the path exists
+            create_branch(tixi, xpath)
+
+            ensure_and_append_text_element(tixi, xpath, "mach", str(mach))
+            ensure_and_append_text_element(tixi, xpath, "alt", str(alt))
+
+            log.info(f"q {q_dyn} fx {fx} mx {mx}, cfx {cfx} cmx {cmx}")
+
+            for i, label in enumerate(['cfx', 'cfy', 'cfz']):
+                ensure_and_append_text_element(
+                    tixi, xpath, f"{label}_{angle}", str(cfx[i]))
+                ensure_and_append_text_element(
+                    tixi, xpath, f"{label}_{angle}prim", str(cfy[i]))
+            for i, label in enumerate(['cmx', 'cmy', 'cmz']):
+                ensure_and_append_text_element(
+                    tixi, xpath, f"{label}_{angle}", str(cmx[i]))
+                ensure_and_append_text_element(
+                    tixi, xpath, f"{label}_{angle}prim", str(cmy[i]))
+
 
 # =================================================================================================
 #    MAIN

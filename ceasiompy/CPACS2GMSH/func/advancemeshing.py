@@ -11,7 +11,6 @@ Python version: >=3.8
 | Creation: 2022-04-07
 
 TODO:
-
     -Add a parameter to let the user tune the powerlaw for the wing surface mesh
 
 """
@@ -21,10 +20,12 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy.CPACS2GMSH.func.cpacs2gmsh_utils import MESH_COLORS
 import gmsh
 import numpy as np
+
 from ceasiompy import log
+from ceasiompy.CPACS2GMSH.func.wingclassification import ModelPart
+from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
 
 
 # =================================================================================================
@@ -187,7 +188,7 @@ def refine_wing_section(
     mesh_fields,
     final_domain_volume_tag,
     aircraft,
-    wing_part,
+    wing_part: ModelPart,
     mesh_size_wings,
     refine,
     refine_truncated,

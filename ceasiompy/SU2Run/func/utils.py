@@ -60,6 +60,44 @@ from ceasiompy.utils.commonnames import (
 # =================================================================================================
 
 
+def check_one_entry(dict_dir: List[Dict], mach: float, alt: float, angle: str) -> Path:
+    # Check that there exists exactly one entry with "angle" == "none" in dict_dir
+    one_entry = [
+        d for d in dict_dir
+        if d['mach'] == mach and d['alt'] == alt and d['angle'] == angle
+    ]
+    if len(one_entry) != 1:
+        raise ValueError(
+            f"Expected exactly one angle={angle}"
+            f"for mach={mach}, alt={alt}, "
+            f"but found {len(one_entry)}."
+        )
+    else:
+        return one_entry[0]["dir"]
+
+
+def process_config_dir(config_dir: Path, dict_dir: Dict) -> bool:
+    config_name = config_dir.name
+    log.info(f"dir.name {config_name}")
+    if config_name.endswith("aoa0.0_aos0.0"):
+        angle = "none"
+    elif config_name.endswith("dynstab"):
+        angle = config_name.split("_")[3].split("angle")[1]
+    else:
+        log.warning(f"Skipping results of directory {config_dir}.")
+        return True
+
+    dict_dir.append(
+        {
+            "mach": float(config_name.split("_")[2].split("mach")[1]),
+            "alt": float(config_name.split("_")[1].split("alt")[1]),
+            "dir": config_dir,
+            "angle": angle,
+        },
+    )
+    return False
+
+
 def su2_format(string: str) -> str:
     """
     Converts a string to SU2 tuple string format.

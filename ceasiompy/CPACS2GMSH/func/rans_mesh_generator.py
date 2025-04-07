@@ -53,7 +53,7 @@ from ceasiompy.utils.ceasiompyutils import (
     get_part_type,
     run_software,
 )
-from ceasiompy.CPACS2GMSH.func.cpacs2gmsh_utils import check_path, initialize_gmsh
+from ceasiompy.CPACS2GMSH.func.utils import check_path, initialize_gmsh
 from pathlib import Path
 from ceasiompy.CPACS2GMSH.func.generategmesh import ModelPart
 from typing import Dict

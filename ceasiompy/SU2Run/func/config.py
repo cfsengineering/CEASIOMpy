@@ -659,7 +659,7 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
             su2_mesh_paths.append(Path(su2_path))
 
         if not tixi.checkElement(SU2MESH_XPATH):
-            tixi.createElement(SU2MESH_XPATH)
+            create_branch(tixi, SU2MESH_XPATH)
 
         # Update tixi element at SU2MESH_XPATH with new paths
         tixi_su2_mesh_paths = ';'.join(str(su2_mesh_paths))
@@ -671,6 +671,11 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
         for mesh in su2_mesh_paths
         if not any(exclude in str(mesh) for exclude in CONTROL_SURFACE_LIST)
     ]
+
+    if not su2_mesh_paths:
+        raise ValueError("List of su2 mesh paths is empty.")
+    if not dynstab_su2_mesh_paths:
+        raise ValueError("List of Dynamic Stability su2 mesh paths is empty.")
 
     return su2_mesh_paths, dynstab_su2_mesh_paths
 

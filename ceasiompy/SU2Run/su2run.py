@@ -88,10 +88,6 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
     # 1. Load .su2 mesh files
     su2_mesh_paths, dynstab_su2_mesh_paths = load_su2_mesh_paths(tixi, wkdir)
-    if not su2_mesh_paths:
-        raise ValueError("List of su2 mesh paths is empty.")
-    if not dynstab_su2_mesh_paths:
-        raise ValueError("List of Dynamic Stability su2 mesh paths is empty.")
 
     # Load only 1 mesh file for now
     mesh_markers = define_markers(tixi, su2_mesh_paths[0])
@@ -129,4 +125,5 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
 
 if __name__ == "__main__":
+    # TODO : Specify here an option to give as input a SU2 file path
     call_main(main, MODULE_NAME)

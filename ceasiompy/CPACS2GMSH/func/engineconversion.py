@@ -165,11 +165,13 @@ def close_engine(nacelle_parts, engine_uids, brep_dir, engines_cfg_file, engine_
 
     # Import all the parts
     for brep_file in engine_files_path:
+        log.info(f"Importing brep file {brep_file}")
         part_entities = gmsh.model.occ.importShapes(str(brep_file), highestDimOnly=False)
         gmsh.model.occ.synchronize()
         part_to_fuse.append(part_entities[0])
 
     # Fuse them
+    log.info(f"Fusing brep file {part_to_fuse[:1]} with the rest")
     gmsh.model.occ.fuse(part_to_fuse[:1], part_to_fuse[1:], removeObject=True, removeTool=True)
     gmsh.model.occ.synchronize()
 

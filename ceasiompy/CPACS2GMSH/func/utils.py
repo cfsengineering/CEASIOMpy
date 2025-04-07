@@ -243,15 +243,9 @@ def load_rans_cgf_params(
 
 def retrieve_gui_values(tixi: Tixi3):
     """
-    Return input values from CEASIOMpy's GUI interface.
-
-    Args:
-        tixi (Tixi3): Tixi handle of CPACS file.
-
-    Returns:
-        GUI values
-
+    Returns input values from CEASIOMpy's GUI interface.
     """
+
     # Retrieve value from the GUI Setting
     open_gmsh = bool_(get_value(tixi, GMSH_OPEN_GUI_XPATH))
     type_mesh = get_value(tixi, GMSH_MESH_TYPE_XPATH)

@@ -30,7 +30,7 @@ from cpacspy.cpacsfunctions import (
     get_value,
     create_branch,
 )
-from ceasiompy.CPACS2GMSH.func.cpacs2gmsh_utils import (
+from ceasiompy.CPACS2GMSH.func.utils import (
     retrieve_gui_values,
     load_rans_cgf_params,
 )

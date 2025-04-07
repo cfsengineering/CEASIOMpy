@@ -735,9 +735,7 @@ def generate_gmsh(
                     refine=refine_factor,
                     refine_truncated=refine_truncated,
                 )
-
-    # Step 4: Synchronize and update the mesh
-    gmsh.model.occ.synchronize()
+        gmsh.model.occ.synchronize()
 
     # Domain mesh
     set_domain_mesh(
@@ -758,14 +756,12 @@ def generate_gmsh(
 
     gmsh.option.setNumber("Mesh.Algorithm", 6)
     gmsh.option.setNumber("Mesh.LcIntegrationPrecision", 1e-6)
-
     gmsh.model.occ.synchronize()
 
     gmsh.model.mesh.generate(1)
-
     gmsh.model.occ.synchronize()
-    gmsh.model.mesh.generate(2)
 
+    gmsh.model.mesh.generate(2)
     gmsh.model.occ.synchronize()
 
     # Control of the mesh quality
@@ -802,42 +798,19 @@ def generate_gmsh(
 
             for surface in bad_surfaces:
                 gmsh.model.setColor([(2, surface)], *MESH_COLORS["good_surface"], recursive=False)
+        
+            gmsh.model.occ.synchronize()    
 
             log.info("Remeshing process finished")
             if bool_(open_gmsh):
                 log.info("Corrected mesh surfaces are displayed in green")
-
-    gmsh.model.occ.synchronize()
-
-    for dim in range(1, 4):  # Loop through dimensions (1D: lines, 2D: surfaces, 3D: volumes)
-        entities = gmsh.model.getEntities(dim)
-        for entity in entities:
-            gmsh.model.mesh.removeDuplicateNodes(dimTags=[entity])
-
-    gmsh.model.occ.synchronize()
-
-    # all_surfaces = gmsh.model.getEntities(dim=2)  # Get all 2D surfaces
-    # Fuse all surfaces and handle the output
-    # fused_surfaces, surface_map = gmsh.model.occ.fuse(all_surfaces, all_surfaces)
-
-    # Log the results of the fusion
-    # log.info(f"Number of fused surfaces: {len(fused_surfaces)}")
-    # log.info(f"Surface mapping: {surface_map}")
-    gmsh.model.occ.synchronize()
-
-    # Step 2: Fragment overlapping surfaces (if needed)
-    # all_surfaces = gmsh.model.getEntities(dim=2)
-    # gmsh.model.occ.fragment(all_surfaces, all_surfaces)
-    # gmsh.model.occ.synchronize()
-
-    log.info("Smoothing process finished")
+        
     gmsh.model.occ.removeAllDuplicates()
-    # Synchronize again to update the model after removing duplicates
     gmsh.model.occ.synchronize()
 
     # Apply smoothing
-    # log.info("2D mesh smoothing process started")
-    gmsh.model.mesh.optimize("Netgen")
+    log.info("2D mesh smoothing process started")
+    gmsh.model.mesh.optimize("Laplace2D", niter=10)
     log.info("Smoothing process finished")
 
     gmsh.model.occ.removeAllDuplicates()
@@ -845,43 +818,45 @@ def generate_gmsh(
     # Synchronize again to update the model after removing duplicates
     gmsh.model.occ.synchronize()
 
-    # Fuse surfaces
-    fusings: Dict[str, List] = {}
-    tags_dict: Dict[str, List] = {}
-    tags = []
-    # Get all physical groups
-    # TODO: Remap getPhysicalGroups
-    surfaces: List[Tuple[int, int]] = gmsh.model.getPhysicalGroups(dim=2)
+    fuse_back = True
+    if fuse_back:
+        # Fuse surfaces
+        fusings: Dict[str, List] = {}
+        tags_dict: Dict[str, List] = {}
+        tags = []
+        # Get all physical groups
+        # TODO: Remap getPhysicalGroups
+        surfaces: List[Tuple[int, int]] = gmsh.model.getPhysicalGroups(dim=2)
 
-    for dim, tag in surfaces:
-        name = gmsh.model.getPhysicalName(dim, tag)
-        log.info(f"Dimension: {dim}, Tag: {tag}, Name: {name}")
-        # Remove '_Seg{i}'
-        root_name = re.sub(r"_Seg\d+", "", name)
-        if root_name not in fusings:
-            fusings[root_name] = []
-            tags_dict[root_name] = []
+        for dim, tag in surfaces:
+            name = gmsh.model.getPhysicalName(dim, tag)
+            log.info(f"Dimension: {dim}, Tag: {tag}, Name: {name}")
+            # Remove '_Seg{i}'
+            root_name = re.sub(r"_Seg\d+", "", name)
+            if root_name not in fusings:
+                fusings[root_name] = []
+                tags_dict[root_name] = []
 
-        fusings[root_name].append(gmsh.model.getEntitiesForPhysicalGroup(dim, tag))
-        tags_dict[root_name].append(tag)
-        tags.append(tag)
+            fusings[root_name].append(gmsh.model.getEntitiesForPhysicalGroup(dim, tag))
+            tags_dict[root_name].append(tag)
+            tags.append(tag)
 
-    for fusing in fusings:
-        fused_len = len(fusings[fusing])
-        if fused_len > 1:
-            fused_entities = list(set(
-                [entity for group in fusings[fusing] for entity in group]
-            ))
-            fused_tags = list(set(
-                [tag for tag in tags_dict[fusing]]
-            ))
-            log.info(f"Fusing {fused_len} wings named {fusing}")
-            new_tag = max(tags) + 1
-            tags.append(new_tag)
-            gmsh.model.addPhysicalGroup(2, fused_entities, new_tag)
-            gmsh.model.setPhysicalName(dim, new_tag, fusing)
-            gmsh.model.removePhysicalGroups([(2, tag) for tag in fused_tags])
-            gmsh.model.occ.synchronize()
+        for fusing in fusings:
+            fused_len = len(fusings[fusing])
+            if fused_len > 1:
+                fused_entities = list(set(
+                    [entity for group in fusings[fusing] for entity in group]
+                ))
+                fused_tags = list(set(
+                    [tag for tag in tags_dict[fusing]]
+                ))
+                log.info(f"Fusing {fused_len} wings named {fusing}")
+                new_tag = max(tags) + 1
+                tags.append(new_tag)
+                gmsh.model.addPhysicalGroup(2, fused_entities, new_tag)
+                gmsh.model.setPhysicalName(dim, new_tag, fusing)
+                gmsh.model.removePhysicalGroups([(2, tag) for tag in fused_tags])
+                gmsh.model.occ.synchronize()
 
     # Necessary for after fusing back wings
     gmsh.model.occ.removeAllDuplicates()

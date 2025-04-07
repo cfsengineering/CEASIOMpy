@@ -718,7 +718,7 @@ def generate_gmsh(
                 f"Classification of {part.uid} done"
                 f" {len(part.wing_sections)} section(s) found "
             )
-            
+
     mesh_fields = {"nbfields": 0, "restrict_fields": []}
 
     # Generate advance meshing features

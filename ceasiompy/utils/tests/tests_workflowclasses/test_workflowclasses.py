@@ -169,7 +169,7 @@ class TestWorkflow:
         assert self.workflow.current_wkflow_dir.exists()
         assert self.workflow.cpacs_in.exists()
 
-        assert len(list(self.workflow.current_wkflow_dir.iterdir())) == 3
+        assert len(list(self.workflow.current_wkflow_dir.iterdir())) == 4
 
         assert self.workflow.modules[0].name == "Optimisation"
         assert self.workflow.modules[1].name == "PyAVL"

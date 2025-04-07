@@ -61,7 +61,10 @@ from ceasiompy.utils.commonnames import (
 
 
 def check_one_entry(dict_dir: List[Dict], mach: float, alt: float, angle: str) -> Path:
-    # Check that there exists exactly one entry with "angle" == "none" in dict_dir
+    """
+    Check that there exists exactly one entry with "angle" == "none" in dict_dir
+    """
+    
     one_entry = [
         d for d in dict_dir
         if d['mach'] == mach and d['alt'] == alt and d['angle'] == angle

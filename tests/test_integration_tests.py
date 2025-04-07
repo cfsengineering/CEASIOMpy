@@ -11,7 +11,7 @@ Python version: >=3.8
 | Creation: 2022-05-06
 
 TODO:
-Test allworking modules
+    Test allworking modules
 
 """
 
@@ -50,15 +50,22 @@ WORKFLOW_TEST_DIR.mkdir()
 #   FUNCTIONS
 # =================================================================================================
 
-
-@pytest.mark.slow
-@pytest.mark.skipif(not shutil.which("cpacscreator"), reason="cpacscreator not installed")
-def test_integration_1():
-    modules_to_run = ["CPACSUpdater", "CPACS2GMSH"]
+def run_workflow_test(modules_to_run):
+    """Run a workflow test with the given modules."""
     st.session_state = MagicMock()
     with change_working_dir(WORKFLOW_TEST_DIR):
         run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
 
+# =================================================================================================
+#   TESTS
+# =================================================================================================
+
+
+@pytest.mark.slow
+@pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
+def test_integration_1():
+    st.session_state = MagicMock()
+    run_workflow_test(["CPACSUpdater", "CPACS2GMSH"])
     assert True
 
 
@@ -66,11 +73,8 @@ def test_integration_1():
 @pytest.mark.skipif(not shutil.which("dwfsumo"), reason="SUMO not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_2():
-    modules_to_run = ["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"]
     st.session_state = MagicMock()
-    with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
-
+    run_workflow_test(["CPACS2SUMO", "SUMOAutoMesh", "SU2Run", "ExportCSV"])
     assert True
 
 
@@ -78,11 +82,8 @@ def test_integration_2():
 @pytest.mark.skipif(not shutil.which("dwfsumo"), reason="SUMO not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_3():
-    modules_to_run = ["CLCalculator", "CPACS2SUMO", "SUMOAutoMesh", "SU2Run"]
     st.session_state = MagicMock()
-    with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
-
+    run_workflow_test(["CLCalculator", "CPACS2SUMO", "SUMOAutoMesh", "SU2Run"])
     assert True
 
 
@@ -90,22 +91,16 @@ def test_integration_3():
 @pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
 @pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_4():
-    modules_to_run = ["CPACS2GMSH", "SU2Run"]
     st.session_state = MagicMock()
-    with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
-
+    run_workflow_test(["CPACS2GMSH", "SU2Run"])
     assert True
 
 
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
 def test_integration_5():
-    modules_to_run = ["PyAVL", "SaveAeroCoefficients", "Database"]
     st.session_state = MagicMock()
-    with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
-
+    run_workflow_test(["PyAVL", "SaveAeroCoefficients", "Database"])
     assert True
 
 

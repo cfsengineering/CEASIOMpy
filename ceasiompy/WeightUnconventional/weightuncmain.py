@@ -329,7 +329,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
     # Outptu writting
     log.info("Generating output text file")
     cpacsweightupdate.cpacs_weight_update(out, mw, ui, cpacs_out_path)
-    cpacsweightupdate.toolspecific_update(fus_nb, awg, mw, out, cpacs_out_path)
+    cpacsweightupdate.toolspecific_update(mw, out, cpacs_out_path)
     cpacsweightupdate.cpacs_engine_update(ui, ed, mw, cpacs_out_path)
 
     if not fus_nb:

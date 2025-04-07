@@ -19,6 +19,7 @@ Python version: >=3.8
 
 from ceasiompy.utils.ceasiompyutils import run_software
 
+from typing import List
 from pathlib import Path
 
 from ceasiompy import log
@@ -33,6 +34,36 @@ from ceasiompy.utils.commonnames import (
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def check_config_file_exists(config_file: List[Path], config_dir: Path) -> None:
+    """
+    Check that there exists exactly 1 configuration file for 1 scenario
+    """
+    if (not config_file):
+        raise ValueError(
+            f"No configuration files '{CONFIG_CFD_NAME}' "
+            f"and '{CONFIG_DYNSTAB_NAME}' have been found in directory {config_dir}."
+        )
+
+    if (len(config_file) > 1):
+        raise ValueError(
+            f"More than one configuration file '{CONFIG_CFD_NAME}' "
+            f"or '{CONFIG_DYNSTAB_NAME}' have been found in directory {config_dir}."
+        )
+
+
+def check_force_files_exists(config_dir: Path) -> None:
+    forces_breakdown_file = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
+    dynstab_forces_breakdown_file = Path(config_dir, SU2_DYNSTAB_FORCES_BREAKDOWN_NAME)
+
+    if (not forces_breakdown_file.exists()) and (
+            not dynstab_forces_breakdown_file.exists()):
+        raise ValueError(
+            "The SU2_CFD calculations have not ended correctly, "
+            f"{SU2_FORCES_BREAKDOWN_NAME} and {SU2_DYNSTAB_FORCES_BREAKDOWN_NAME} "
+            f"are missing in {config_dir}."
+        )
 
 
 def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
@@ -55,6 +86,7 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
 
     # Iterate through different cases.
     for case_dir in case_dir_list:
+
         # Iterate through [no_deformation, aileron, elevator, rudder].
         for config_dir in case_dir.iterdir():
             config_file = [
@@ -62,20 +94,7 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
                 if (c.name == CONFIG_CFD_NAME or c.name == CONFIG_DYNSTAB_NAME)
             ]
 
-            # Make sure there is exactly
-            # 1 configuration file
-            # for 1 scenario
-            if (not config_file):
-                raise ValueError(
-                    f"No configuration files '{CONFIG_CFD_NAME}' "
-                    f"and '{CONFIG_DYNSTAB_NAME}' have been found in directory {config_dir}."
-                )
-
-            if (len(config_file) > 1):
-                raise ValueError(
-                    f"More than one configuration file '{CONFIG_CFD_NAME}' "
-                    f"or '{CONFIG_DYNSTAB_NAME}' have been found in directory {config_dir}."
-                )
+            check_config_file_exists(config_file, config_dir)
 
             run_software(
                 software_name=SOFTWARE_NAME,
@@ -86,16 +105,7 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
                 log_bool=True,
             )
 
-            forces_breakdown_file = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
-            dynstab_forces_breakdown_file = Path(config_dir, SU2_DYNSTAB_FORCES_BREAKDOWN_NAME)
-
-            if (not forces_breakdown_file.exists()) and (
-                    not dynstab_forces_breakdown_file.exists()):
-                raise ValueError(
-                    "The SU2_CFD calculations have not ended correctly, "
-                    f"{SU2_FORCES_BREAKDOWN_NAME} and {SU2_DYNSTAB_FORCES_BREAKDOWN_NAME} "
-                    f"are missing in {config_dir}."
-                )
+            check_force_files_exists(config_dir)
 
 # =================================================================================================
 #    MAIN

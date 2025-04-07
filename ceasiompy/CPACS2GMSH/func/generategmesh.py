@@ -719,11 +719,11 @@ def generate_gmsh(
                 f" {len(part.wing_sections)} section(s) found "
             )
 
-    mesh_fields = {"nbfields": 0, "restrict_fields": []}
 
     # Generate advance meshing features
     if refine_factor != 1:
         log.info(f"Refining wings with factor {refine_factor}")
+        mesh_fields = {"nbfields": 0, "restrict_fields": []}
 
         # Refine wings
         for part in aircraft_parts:
@@ -737,21 +737,20 @@ def generate_gmsh(
                     refine=refine_factor,
                     refine_truncated=refine_truncated,
                 )
-        gmsh.model.occ.synchronize()
 
-    # Domain mesh
-    set_domain_mesh(
-        mesh_fields,
-        aircraft_parts,
-        mesh_size_farfield,
-        max(model_dimensions),
-        final_domain.volume_tag,
-        n_power_factor,
-        n_power_field,
-    )
+        # Domain mesh
+        set_domain_mesh(
+            mesh_fields,
+            aircraft_parts,
+            mesh_size_farfield,
+            max(model_dimensions),
+            final_domain.volume_tag,
+            n_power_factor,
+            n_power_field,
+        )
 
-    # Generate the minimal background mesh field
-    mesh_fields = min_fields(mesh_fields)
+        # Generate the minimal background mesh field
+        mesh_fields = min_fields(mesh_fields)
 
     # Mesh generation
     log.info("Start of gmsh 2D surface meshing process")
@@ -761,9 +760,8 @@ def generate_gmsh(
     gmsh.model.occ.synchronize()
 
     gmsh.model.mesh.generate(1)
-    gmsh.model.occ.synchronize()
-
     gmsh.model.mesh.generate(2)
+
     gmsh.model.occ.synchronize()
 
     # Control of the mesh quality
@@ -855,7 +853,7 @@ def generate_gmsh(
 
     # Apply smoothing
     log.info("2D mesh smoothing process started")
-    gmsh.model.mesh.optimize("Netgen")
+    gmsh.model.mesh.optimize("Laplace2D", niter=10)
     log.info("Smoothing process finished")
 
     gmsh.model.occ.removeAllDuplicates()

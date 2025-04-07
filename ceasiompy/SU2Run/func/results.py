@@ -281,120 +281,122 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
             log.warning("Accessing dynamic results is not implemented yet.")
     aeromap.save()
 
-    # Extract unique mach and alt values
-    mach_values = list(set(d['mach'] for d in dict_dir))
-    alt_values = list(set(d['alt'] for d in dict_dir))
-    n = int(get_value(tixi, SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH))
-    b: float = tixi.getDoubleElement(AREA_XPATH)
-    c: float = tixi.getDoubleElement(LENGTH_XPATH)
-    s: float = b / c
+    maybe = False
+    if maybe:
+        # Extract unique mach and alt values
+        mach_values = list(set(d['mach'] for d in dict_dir))
+        alt_values = list(set(d['alt'] for d in dict_dir))
+        n = int(get_value(tixi, SU2_DYNAMICDERIVATIVES_TIMESIZE_XPATH))
+        b: float = tixi.getDoubleElement(AREA_XPATH)
+        c: float = tixi.getDoubleElement(LENGTH_XPATH)
+        s: float = b / c
 
-    for mach, alt in itertools.product(mach_values, alt_values):
-        none_file = check_one_entry(dict_dir, mach, alt, "none")
-        alpha_file = check_one_entry(dict_dir, mach, alt, "alpha")
-        # beta_file = check_one_entry(dict_dir, "beta")
+        for mach, alt in itertools.product(mach_values, alt_values):
+            none_file = check_one_entry(dict_dir, mach, alt, "none")
+            alpha_file = check_one_entry(dict_dir, mach, alt, "alpha")
+            # beta_file = check_one_entry(dict_dir, "beta")
 
-        angle_file = {
-            "alpha": alpha_file / "no_deformation"
-        }  # "beta": beta_file
+            angle_file = {
+                "alpha": alpha_file / "no_deformation"
+            }  # "beta": beta_file
 
-        # Retrieve forces and moments for (alpha, alpha_dot) = (0, 0)
-        none_force_file_path = Path(
-            none_file, "no_deformation", SU2_FORCES_BREAKDOWN_NAME)
+            # Retrieve forces and moments for (alpha, alpha_dot) = (0, 0)
+            none_force_file_path = Path(
+                none_file, "no_deformation", SU2_FORCES_BREAKDOWN_NAME)
 
-        (
-            cfx_0, cfy_0, cfz_0,
-            cmx_0, cmy_0, cmz_0,
+            (
+                cfx_0, cfy_0, cfz_0,
+                cmx_0, cmy_0, cmz_0,
 
-        ) = get_su2_forces_moments(none_force_file_path)
+            ) = get_su2_forces_moments(none_force_file_path)
 
-        log.info(
-            f"cfx_0: {cfx_0}, cfy_0: {cfy_0}, cfz_0: {cfz_0}, "
-            f"cmx_0: {cmx_0}, cmy_0: {cmy_0}, cmz_0: {cmz_0}"
-        )
+            log.info(
+                f"cfx_0: {cfx_0}, cfy_0: {cfy_0}, cfz_0: {cfz_0}, "
+                f"cmx_0: {cmx_0}, cmy_0: {cmy_0}, cmz_0: {cmz_0}"
+            )
 
-        # Force
-        f_static = np.tile([
-            cfx_0, cfy_0, cfz_0,
-        ], (n, 1))
+            # Force
+            f_static = np.tile([
+                cfx_0, cfy_0, cfz_0,
+            ], (n, 1))
 
-        # Moments
-        m_static = np.tile([
-            cmx_0, cmy_0, cmz_0
-        ], (n, 1))
+            # Moments
+            m_static = np.tile([
+                cmx_0, cmy_0, cmz_0
+            ], (n, 1))
 
-        # Retrive forces and moments for (alpha, alpha_dot) = (alpha(t), alpha_dot(t))
-        for angle in ['alpha']:  # , 'beta'
+            # Retrive forces and moments for (alpha, alpha_dot) = (alpha(t), alpha_dot(t))
+            for angle in ['alpha']:  # , 'beta'
 
-            # Get results from dynstab
-            force_file_paths = list(
-                Path(angle_file[angle]).glob("forces_breakdown_*.dat"))
+                # Get results from dynstab
+                force_file_paths = list(
+                    Path(angle_file[angle]).glob("forces_breakdown_*.dat"))
 
-            if not force_file_paths:
-                raise OSError("No result force file have been found!")
+                if not force_file_paths:
+                    raise OSError("No result force file have been found!")
 
-            forces_coef_list, moments_coef_list = [], []
+                forces_coef_list, moments_coef_list = [], []
 
-            for force_file_path in force_file_paths:
-                # Access coefficients
-                cfx, cfy, cfz, cmx, cmy, cmz = get_su2_forces_moments(
-                    force_file_path)
-                forces_coef_list.append([cfx, cfy, cfz])
-                moments_coef_list.append([cmx, cmy, cmz])
+                for force_file_path in force_file_paths:
+                    # Access coefficients
+                    cfx, cfy, cfz, cmx, cmy, cmz = get_su2_forces_moments(
+                        force_file_path)
+                    forces_coef_list.append([cfx, cfy, cfz])
+                    moments_coef_list.append([cmx, cmy, cmz])
 
-            # Convert the list to a numpy array
-            f_time = np.array(forces_coef_list)
-            m_time = np.array(moments_coef_list)
+                # Convert the list to a numpy array
+                f_time = np.array(forces_coef_list)
+                m_time = np.array(moments_coef_list)
 
-            # Compute derivatives
-            a, omega, _, t = load_parameters(tixi)
-            fx, fy = compute_derivatives(a, omega, t, f_time, f_static)
-            mx, my = compute_derivatives(a, omega, t, m_time, m_static)
+                # Compute derivatives
+                a, omega, _, t = load_parameters(tixi)
+                fx, fy = compute_derivatives(a, omega, t, f_time, f_static)
+                mx, my = compute_derivatives(a, omega, t, m_time, m_static)
 
-            # Velocity in m/s in atmospheric environment
-            Atm = Atmosphere(alt)
-            velocity = Atm.speed_of_sound[0] * mach
+                # Velocity in m/s in atmospheric environment
+                Atm = Atmosphere(alt)
+                velocity = Atm.speed_of_sound[0] * mach
 
-            # Dynamic pressure
-            q_dyn = Atm.density[0] * (velocity ** 2) / 2.0
+                # Dynamic pressure
+                q_dyn = Atm.density[0] * (velocity ** 2) / 2.0
 
-            qs = q_dyn * s
-            qsb = qs * b
-            qsc = qs * c
+                qs = q_dyn * s
+                qsb = qs * b
+                qsc = qs * c
 
-            # Scale forces accordingly
-            cfx = fx / qs
-            cfy = fy / qs
+                # Scale forces accordingly
+                cfx = fx / qs
+                cfy = fy / qs
 
-            # Scale moments accordingly
-            cmx = np.copy(mx)
-            cmy = np.copy(my)
-            cmx[[0, 2], ] /= qsb
-            cmx[1, ] /= qsc
-            cmy[[0, 2], ] /= qsb
-            cmy[1, ] /= qsc
+                # Scale moments accordingly
+                cmx = np.copy(mx)
+                cmy = np.copy(my)
+                cmx[[0, 2], ] /= qsb
+                cmx[1, ] /= qsc
+                cmy[[0, 2], ] /= qsb
+                cmy[1, ] /= qsc
 
-            # Put derivatives in CPACS at SU2 in DynamicDerivatives
-            xpath = SU2_DYNAMICDERIVATIVES_DATA_XPATH
+                # Put derivatives in CPACS at SU2 in DynamicDerivatives
+                xpath = SU2_DYNAMICDERIVATIVES_DATA_XPATH
 
-            # Ensure the path exists
-            create_branch(tixi, xpath)
+                # Ensure the path exists
+                create_branch(tixi, xpath)
 
-            ensure_and_append_text_element(tixi, xpath, "mach", str(mach))
-            ensure_and_append_text_element(tixi, xpath, "alt", str(alt))
+                ensure_and_append_text_element(tixi, xpath, "mach", str(mach))
+                ensure_and_append_text_element(tixi, xpath, "alt", str(alt))
 
-            log.info(f"q {q_dyn} fx {fx} mx {mx}, cfx {cfx} cmx {cmx}")
+                log.info(f"q {q_dyn} fx {fx} mx {mx}, cfx {cfx} cmx {cmx}")
 
-            for i, label in enumerate(['cfx', 'cfy', 'cfz']):
-                ensure_and_append_text_element(
-                    tixi, xpath, f"{label}_{angle}", str(cfx[i]))
-                ensure_and_append_text_element(
-                    tixi, xpath, f"{label}_{angle}prim", str(cfy[i]))
-            for i, label in enumerate(['cmx', 'cmy', 'cmz']):
-                ensure_and_append_text_element(
-                    tixi, xpath, f"{label}_{angle}", str(cmx[i]))
-                ensure_and_append_text_element(
-                    tixi, xpath, f"{label}_{angle}prim", str(cmy[i]))
+                for i, label in enumerate(['cfx', 'cfy', 'cfz']):
+                    ensure_and_append_text_element(
+                        tixi, xpath, f"{label}_{angle}", str(cfx[i]))
+                    ensure_and_append_text_element(
+                        tixi, xpath, f"{label}_{angle}prim", str(cfy[i]))
+                for i, label in enumerate(['cmx', 'cmy', 'cmz']):
+                    ensure_and_append_text_element(
+                        tixi, xpath, f"{label}_{angle}", str(cmx[i]))
+                    ensure_and_append_text_element(
+                        tixi, xpath, f"{label}_{angle}prim", str(cmy[i]))
 
 
 # =================================================================================================

@@ -27,6 +27,7 @@ from ceasiompy.utils.mathsfunctions import (
     rotate_points,
 )
 
+from numpy import ndarray
 from tixi3.tixi3wrapper import Tixi3
 from typing import (
     List,
@@ -155,17 +156,17 @@ def get_segments(tixi: Tixi3) -> List[Tuple[str, str]]:
 
 
 def corrects_airfoil_profile(
-    prof_vect_x: np.ndarray,
-    prof_vect_y: np.ndarray,
-    prof_vect_z: np.ndarray
+    prof_vect_x: ndarray,
+    prof_vect_y: ndarray,
+    prof_vect_z: ndarray
 ) -> float:
     """
     Process airfoil profiles correctly.
 
     Args:
-        prof_vect_x (np.ndarray): x-th coordinate of airfoil's profile.
-        prof_vect_y (np.ndarray): y-th coordinate of airfoil's profile.
-        prof_vect_z (np.ndarray): z-th coordinate of airfoil's profile.
+        prof_vect_x (ndarray): x-th coordinate of airfoil's profile.
+        prof_vect_y (ndarray): y-th coordinate of airfoil's profile.
+        prof_vect_z (ndarray): z-th coordinate of airfoil's profile.
 
     Returns:
         wg_sec_chord (float): Wing's section chord length.
@@ -474,29 +475,17 @@ def access_leading_edges(
             prof_vect_z = np.array(prof_vect_z)
 
             # Apply scaling using numpy operations
-            prof_vect_x *= (
-                elem_transf.scaling.x
-                * sec_transf.scaling.x
-                * wing_transf.scaling.x
+            prof_vect_x, prof_vect_y, prof_vect_z = prod_points(
+                elem_transf.scaling,
+                sec_transf.scaling,
+                wing_transf.scaling
             )
-            prof_vect_y *= (
-                elem_transf.scaling.y
-                * sec_transf.scaling.y
-                * wing_transf.scaling.y
-            )
-            prof_vect_z *= (
-                elem_transf.scaling.z
-                * sec_transf.scaling.z
-                * wing_transf.scaling.z
-            )
+
             wg_sec_chord = corrects_airfoil_profile(prof_vect_x, prof_vect_y, prof_vect_z)
 
             # Adding the two angles: May not work in every case !!!
-            add_rotation = Point(
-                x=elem_transf.rotation.x + sec_transf.rotation.x + wg_sk_transf.rotation.x,
-                y=elem_transf.rotation.y + sec_transf.rotation.y + wg_sk_transf.rotation.y,
-                z=elem_transf.rotation.z + sec_transf.rotation.z + wg_sk_transf.rotation.z,
-            )
+            x, y, z = sum_points(elem_transf.rotation, sec_transf.rotation, wg_sk_transf.rotation)
+            add_rotation = Point(x=x, y=y, z=z)
 
             # Get section rotation
             wg_sec_rot = euler2fix(add_rotation)

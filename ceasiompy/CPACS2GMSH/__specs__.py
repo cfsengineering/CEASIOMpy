@@ -207,7 +207,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="refine_factor",
     var_type=float,
-    default_value=1.0,
+    default_value=2.0,
     unit=None,
     descr="Refinement factor of wing leading/trailing edge mesh",
     xpath=GMSH_REFINE_FACTOR_XPATH,

@@ -825,35 +825,37 @@ def generate_gmsh(
     # TODO: Remap getPhysicalGroups
     surfaces: List[Tuple[int, int]] = gmsh.model.getPhysicalGroups(dim=2)
 
-    for dim, tag in surfaces:
-        name = gmsh.model.getPhysicalName(dim, tag)
-        log.info(f"Dimension: {dim}, Tag: {tag}, Name: {name}")
-        # Remove '_Seg{i}'
-        root_name = re.sub(r"_Seg\d+", "", name)
-        if root_name not in fusings:
-            fusings[root_name] = []
-            tags_dict[root_name] = []
+    fusing = False
+    if fusing:
+        for dim, tag in surfaces:
+            name = gmsh.model.getPhysicalName(dim, tag)
+            log.info(f"Dimension: {dim}, Tag: {tag}, Name: {name}")
+            # Remove '_Seg{i}'
+            root_name = re.sub(r"_Seg\d+", "", name)
+            if root_name not in fusings:
+                fusings[root_name] = []
+                tags_dict[root_name] = []
 
-        fusings[root_name].append(gmsh.model.getEntitiesForPhysicalGroup(dim, tag))
-        tags_dict[root_name].append(tag)
-        tags.append(tag)
+            fusings[root_name].append(gmsh.model.getEntitiesForPhysicalGroup(dim, tag))
+            tags_dict[root_name].append(tag)
+            tags.append(tag)
 
-    for fusing in fusings:
-        fused_len = len(fusings[fusing])
-        if fused_len > 1:
-            fused_entities = list(set(
-                [entity for group in fusings[fusing] for entity in group]
-            ))
-            fused_tags = list(set(
-                [tag for tag in tags_dict[fusing]]
-            ))
-            log.info(f"Fusing {fused_len} wings named {fusing}")
-            new_tag = max(tags) + 1
-            tags.append(new_tag)
-            gmsh.model.addPhysicalGroup(2, fused_entities, new_tag)
-            gmsh.model.setPhysicalName(dim, new_tag, fusing)
-            gmsh.model.removePhysicalGroups([(2, tag) for tag in fused_tags])
-            gmsh.model.occ.synchronize()
+        for fusing in fusings:
+            fused_len = len(fusings[fusing])
+            if fused_len > 1:
+                fused_entities = list(set(
+                    [entity for group in fusings[fusing] for entity in group]
+                ))
+                fused_tags = list(set(
+                    [tag for tag in tags_dict[fusing]]
+                ))
+                log.info(f"Fusing {fused_len} wings named {fusing}")
+                new_tag = max(tags) + 1
+                tags.append(new_tag)
+                gmsh.model.addPhysicalGroup(2, fused_entities, new_tag)
+                gmsh.model.setPhysicalName(dim, new_tag, fusing)
+                gmsh.model.removePhysicalGroups([(2, tag) for tag in fused_tags])
+                gmsh.model.occ.synchronize()
 
     # Necessary for after fusing back wings
     gmsh.model.occ.removeAllDuplicates()

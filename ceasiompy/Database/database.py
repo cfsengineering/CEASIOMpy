@@ -17,8 +17,8 @@ Python version: >=3.8
 # =================================================================================================
 
 from cpacspy.cpacsfunctions import get_value
-from ceasiompy.Database.func.storing import store_data
 from ceasiompy.utils.ceasiompyutils import bool_
+from ceasiompy.Database.func.storing import store_data
 
 from cpacspy.cpacspy import CPACS
 

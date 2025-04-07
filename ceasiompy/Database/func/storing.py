@@ -18,9 +18,10 @@ Python version: >=3.8
 
 from sqlite3 import connect
 from ceasiompy.Database.func.utils import create_db
-from ceasiompy.Database.func.pyavl import store_avl_data
-from ceasiompy.Database.func.gmsh import store_gmsh_data
+from ceasiompy.Database.func.pyavl import store_pyavl_data
+from ceasiompy.Database.func.su2run import store_su2run_data
 from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.Database.func.cpacs2gmsh import store_cpacs2gmsh_data
 from ceasiompy.Database.func.dynamicstability import store_dynstab_data
 
 from pathlib import Path
@@ -184,7 +185,8 @@ def store_data(tixi: Tixi3) -> None:
     Implemented for modules:
         - 'PyAVL': Aerodynamic Coefficients.
         - 'CPACS2GMSH': .su2 file.
-        - 'DynamicStability': Dot-derivatives coefficients.
+        - 'DynamicStability': Dot-derivatives coefficients from PanelAero.
+        - 'SU2Run': Forces, moments and dot-derivatives.
     """
 
     # You do not want to create a results directory "PyAVL"
@@ -196,14 +198,13 @@ def store_data(tixi: Tixi3) -> None:
     su2_dir: Path = get_results_directory(SU2RUN_NAME, create=False)
 
     if avl_dir.is_dir():
-        call_store_data(tixi, store_avl_data, avl_dir, PYAVL_NAME)
+        call_store_data(tixi, store_pyavl_data, avl_dir, PYAVL_NAME)
     if gmsh_dir.is_dir():
-        call_store_data(tixi, store_gmsh_data, gmsh_dir, CPACS2GMSH_NAME)
+        call_store_data(tixi, store_cpacs2gmsh_data, gmsh_dir, CPACS2GMSH_NAME)
     if dynstab_dir.is_dir():
         call_store_data(tixi, store_dynstab_data, dynstab_dir, DYNSTAB_NAME)
-
     if su2_dir.is_dir():
-        # call_store_data(dynstab_dir, tixi, store_dynstab_data, CREATETABLE_DICT[DYNSTAB_NAME][0])
+        call_store_data(tixi, store_su2run_data, su2_dir, SU2RUN_NAME)
         log.warning("Not implemented yet.")
 
 
@@ -213,6 +214,4 @@ def store_data(tixi: Tixi3) -> None:
 
 
 if __name__ == "__main__":
-    # from cpacspy.cpacspy import CPACS
-    # store_data(CPACS("/home/cfse2/Leon/CEASIOMpy_Leon/CEASIOMpy/WKDIR/Workflow_460/00_ToolInput.xml").tixi)
     log.info("Nothing to execute!")

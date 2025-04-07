@@ -30,7 +30,7 @@ from ceasiompy import log
 # ==============================================================================
 
 
-def store_gmsh_data(
+def store_cpacs2gmsh_data(
     cursor: Cursor,
     wkdir: Path,
     tixi: Tixi3,

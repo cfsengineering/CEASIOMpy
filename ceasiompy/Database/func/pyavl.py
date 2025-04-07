@@ -110,7 +110,7 @@ def get_avl_data(force_file: Path) -> Dict:
     return results
 
 
-def store_avl_data(
+def store_pyavl_data(
     cursor: Cursor,
     wkdir: Path,
     tixi: Tixi3,

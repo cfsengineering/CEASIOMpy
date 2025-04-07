@@ -718,10 +718,12 @@ def generate_gmsh(
                 f"Classification of {part.uid} done"
                 f" {len(part.wing_sections)} section(s) found "
             )
+            
+    mesh_fields = {"nbfields": 0, "restrict_fields": []}
+
     # Generate advance meshing features
     if refine_factor != 1:
         log.info(f"Refining wings with factor {refine_factor}")
-        mesh_fields = {"nbfields": 0, "restrict_fields": []}
 
         # Refine wings
         for part in aircraft_parts:
@@ -807,16 +809,6 @@ def generate_gmsh(
     gmsh.model.occ.removeAllDuplicates()
     gmsh.model.occ.synchronize()
 
-    # Apply smoothing
-    log.info("2D mesh smoothing process started")
-    gmsh.model.mesh.optimize("Laplace2D", niter=10)
-    log.info("Smoothing process finished")
-
-    gmsh.model.occ.removeAllDuplicates()
-
-    # Synchronize again to update the model after removing duplicates
-    gmsh.model.occ.synchronize()
-
     # Fuse surfaces
     fusings: Dict[str, List] = {}
     tags_dict: Dict[str, List] = {}
@@ -825,7 +817,7 @@ def generate_gmsh(
     # TODO: Remap getPhysicalGroups
     surfaces: List[Tuple[int, int]] = gmsh.model.getPhysicalGroups(dim=2)
 
-    fusing = False
+    fusing = True
     if fusing:
         for dim, tag in surfaces:
             name = gmsh.model.getPhysicalName(dim, tag)
@@ -859,6 +851,16 @@ def generate_gmsh(
 
     # Necessary for after fusing back wings
     gmsh.model.occ.removeAllDuplicates()
+    gmsh.model.occ.synchronize()
+
+    # Apply smoothing
+    log.info("2D mesh smoothing process started")
+    gmsh.model.mesh.optimize("Netgen")
+    log.info("Smoothing process finished")
+
+    gmsh.model.occ.removeAllDuplicates()
+
+    # Synchronize again to update the model after removing duplicates
     gmsh.model.occ.synchronize()
 
     surfaces: List[Tuple[int, int]] = gmsh.model.getPhysicalGroups(dim=2)

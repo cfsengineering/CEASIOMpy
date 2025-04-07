@@ -114,9 +114,8 @@ class TestWorkflow:
     workflow = Workflow()
 
     MODULE_TO_RUN = [
-        "CPACS2SUMO",
         "CLCalculator",
-        "PyTornado",
+        "PyAVL",
         "SaveAeroCoefficients",
     ]
 

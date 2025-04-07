@@ -127,7 +127,7 @@ def main(cpacs: CPACS, wkdir: Path):
     """Function to add the skin frictions drag coefficient to aerodynamic coefficients
 
     Function 'add_skin_friction' add the skin friction drag 'cd0' to  the
-    SU2 and pyTornado aeroMap, if their UID is not given, it will add skin
+    aeroMap, if their UID is not given, it will add skin
     friction to all aeroMap. For each aeroMap it creates a new aeroMap where
     the skin friction drag coefficient is added with the correct projections.
 

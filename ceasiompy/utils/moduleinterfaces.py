@@ -254,7 +254,7 @@ def check_cpacs_input_requirements(
 def get_module_list(only_active=True):
     """Return a list of CEASIOMpy modules
 
-    ['SkinFriction', 'PyTornado', ...]
+    ['SkinFriction', 'PyAVL', ...]
 
     Returns:
         A list of module names (as strings)
@@ -367,8 +367,8 @@ def get_all_module_specs():
     The dictionary has the form:
 
     {
-        'SkinFriction': pytornado_specs_module,
-        'PyTornado': pytornado_specs_module,
+        'SkinFriction': skinfriction_specs_module,
+        'PyAVL': pyavl_specs_module,
         'SomeModuleWithoutSpecsFile': None,
         ...
     }

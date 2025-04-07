@@ -267,9 +267,6 @@ def get_ted_corner(tixi, tigl, ted_uid):
         * UP:   Upper surface
         * LOW:  Lower surface
 
-    Source: * A part of this function as been copy from the pyTornado code
-            * CPACS Documentation https://www.cpacs.de/pages/documentation.html
-
     Args:
         tixi (handles): TIXI Handle of the CPACS file
         tigl (handles): TIGL Handle of the CPACS file
@@ -333,9 +330,6 @@ def get_ted_hinge(tixi, tigl, ted_uid):
         * TE:   Trailing Edge
         * IN:   Inbord side
         * OUT:  Outbord side
-
-    Source: * A part of this function as been copy from the pyTornado code
-             * CPACS Documentation
 
     Args:
         tixi (handles): TIXI Handle of the CPACS file

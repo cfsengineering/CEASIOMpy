@@ -73,7 +73,7 @@ Follow the [test cases](#test-cases) to discover the different way of using CEAS
 
 ### Examples of workflows
 
-- **Simple workflow with PyTornado (Vortex Lattice Method)**
+- **Simple workflow with PyAVL (Vortex Lattice Method)**
 
 <div align="center">
 

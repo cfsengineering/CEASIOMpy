@@ -5637,34 +5637,5 @@
         <aeroMapToExport>test_apm</aeroMapToExport>
       </export>
     </CEASIOMpy>
-    <pytornado>
-      <vlm_autopanels_c>20</vlm_autopanels_c>
-      <vlm_autopanels_s>5</vlm_autopanels_s>
-      <plot>
-        <lattice>
-          <save>False</save>
-          <show>False</show>
-        </lattice>
-        <geometry>
-          <save>False</save>
-          <show>False</show>
-        </geometry>
-        <results>
-          <save>False</save>
-          <show>False</show>
-        </results>
-        <matrix_downwash>
-          <save>False</save>
-          <show>False</show>
-        </matrix_downwash>
-      </plot>
-      <save_results>
-        <global>False</global>
-        <panelwise>False</panelwise>
-        <aeroperformance>False</aeroperformance>
-        <extractLoads>False</extractLoads>
-      </save_results>
-      <aeroMapUID>test_apm</aeroMapUID>
-    </pytornado>
   </toolspecific>
 </cpacs>

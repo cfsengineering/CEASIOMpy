@@ -99,7 +99,7 @@ def run_testcase(testcase_nb):
         print(">> cd WKDIR")
         print(
             ">> ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml "
-            "PyTornado SkinFriction SaveAeroCoefficients"
+            "PyAVL SkinFriction SaveAeroCoefficients"
         )
 
     elif testcase_nb == 5:

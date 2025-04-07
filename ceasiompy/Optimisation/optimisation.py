@@ -164,7 +164,7 @@ class ModuleComp(om.ExplicitComponent):
                 declared.append(entry.var_name)
             elif (
                 "aeromap" in entry.var_name and self.module_name == Rt.last_am_module
-            ):  # == 'PyTornado':  #not skf^is_skf:
+            ):  # == 'PyAVL':  #not skf^is_skf:
                 # Condition to avoid any conflict with skinfriction
                 for name in PARAMS:
                     if name in Rt.optim_var_dict:
@@ -462,7 +462,7 @@ def add_subsystems(prob, ivc):
     # Loop throuth Modules
     for module in Rt.modules:
 
-        if module.name in ["SU2Run", "PyTornado", "SkinFriction"]:
+        if module.name in ["SU2Run", "PyAVL", "SkinFriction"]:
             Rt.last_am_module = module.name
 
         if module.name == "SMUse":

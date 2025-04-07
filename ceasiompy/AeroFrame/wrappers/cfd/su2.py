@@ -97,7 +97,7 @@ class Wrapper(AeroWrapper):
 
     def run_analysis(self, turn_off_deform=False):
         """
-        Run the PyTornado analysis
+        Run the PyAVL analysis
 
         Args:
             :turn_off_deform: Flag which can be used to turn off all deformations

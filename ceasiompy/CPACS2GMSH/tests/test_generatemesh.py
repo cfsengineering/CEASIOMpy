@@ -24,8 +24,8 @@ from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.generategmesh import (
     ModelPart,
     generate_gmsh,
-    get_entities_from_volume,
 )
+from ceasiompy.CPACS2GMSH.func.wingclassification import get_entities_from_volume
 from ceasiompy.SU2Run.func.utils import get_mesh_markers
 from ceasiompy.utils.ceasiompyutils import remove_file_type_in_dir
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH

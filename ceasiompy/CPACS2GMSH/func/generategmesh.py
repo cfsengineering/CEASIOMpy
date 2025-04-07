@@ -907,11 +907,6 @@ def generate_gmsh(
         log.info("GMSH GUI is open, close it to continue...")
         gmsh.fltk.run()
 
-    # Refine the mesh if necessary
-    gmsh.option.setNumber("Mesh.CharacteristicLengthMin", 0.1)
-    gmsh.option.setNumber("Mesh.CharacteristicLengthMax", 1.0)
-    gmsh.model.occ.synchronize()
-
     log.info("Start of gmsh 3D volume meshing process")
     gmsh.model.mesh.generate(3)
     gmsh.model.occ.synchronize()

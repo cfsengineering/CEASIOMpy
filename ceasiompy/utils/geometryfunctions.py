@@ -17,7 +17,7 @@ Python version: >=3.8
 # ==============================================================================
 
 import math
-
+import sqlite3
 import numpy as np
 
 from math import prod
@@ -30,6 +30,7 @@ from ceasiompy.utils.mathsfunctions import (
 
 from numpy import ndarray
 from tixi3.tixi3wrapper import Tixi3
+from ceasiompy.Database.func.storing import CeasiompyDb
 from typing import (
     List,
     Tuple,
@@ -40,12 +41,108 @@ from ceasiompy.utils.generalclasses import (
 )
 
 from ceasiompy import log
+from ceasiompy.Database.func import ALLOWED_TABLES
+from ceasiompy.utils.commonpaths import CEASIOMPY_DB_PATH
 from ceasiompy.utils.commonxpath import WINGS_XPATH
 
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def get_aircrafts_list() -> List:
+    """
+    Access different aircraft names from "ceasiompy.db".
+
+    Returns:
+        (List): Aircraft names.
+
+    """
+    # Codacy: Table and column names are strictly validated against whitelisted values.
+    # Check if database exists
+    if CEASIOMPY_DB_PATH.exists():
+        # Go look in database for all different aircraft names among all different tables
+        aircrafts = set()
+        db = CeasiompyDb()
+
+        try:
+            # Get all table names
+            db.cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
+            tables = db.cursor.fetchall()
+
+            for table in tables:
+                table_name = table[0]
+
+                # Validate table name
+                if table_name not in ALLOWED_TABLES + ["sqlite_sequence"]:
+                    raise ValueError(f"Invalid table name: {table_name}")
+
+                # Check if the table has an "aircraft" column
+                db.cursor.execute(f"PRAGMA table_info({table_name})")
+                columns = db.cursor.fetchall()
+                if any(column[1] == "aircraft" for column in columns):
+                    # Query for distinct aircraft names from the table
+                    db.cursor.execute(
+                        f"SELECT DISTINCT aircraft FROM {table_name}")  # nosec
+                    rows = db.cursor.fetchall()
+                    for row in rows:
+                        aircrafts.add(row[0])
+
+        except sqlite3.Error as e:
+            log.warning(f"An error occurred: {e}.")
+
+        db.close()
+
+        return list(aircrafts)
+
+    else:
+        return []
+
+
+def convert_fuselage_profiles(
+    tixi: Tixi3, sec_xpath: str,
+    i_sec: int, i_elem: int,
+    pos_y_list: List, pos_z_list: List,
+) -> Tuple[Transformation, float, float, ndarray, ndarray]:
+    elem_xpath = sec_xpath + "/elements/element[" + str(i_elem + 1) + "]"
+    elem_uid = get_uid(tixi, elem_xpath)
+    elem_transf = Transformation()
+    elem_transf.get_cpacs_transf(tixi, elem_xpath)
+    check_if_rotated(elem_transf.rotation, elem_uid)
+
+    prof_uid, prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(
+        tixi,
+        elem_xpath + "/profileUID"
+    )
+
+    # Calculate profile sizes
+    prof_vect_x = np.max(prof_vect_x) - np.min(prof_vect_x)
+    if not prof_vect_x == 0.0:
+        log.warning(
+            f"Issue with profile {prof_uid} as prof_vect_x not equal to 0.0"
+        )
+
+    prof_size_y = (np.max(prof_vect_y) - np.min(prof_vect_y)) / 2
+    prof_size_z = (np.max(prof_vect_z) - np.min(prof_vect_z)) / 2
+
+    # Normalize profile vectors
+    prof_vect_y /= prof_size_y
+    prof_vect_z /= prof_size_z
+
+    # Shift profile vectors
+    prof_min_y = np.min(prof_vect_y)
+    prof_min_z = np.min(prof_vect_z)
+
+    prof_vect_y -= (1 + prof_min_y)
+    prof_vect_z -= (1 + prof_min_z)
+
+    # Could be a problem if they are less positionings than sections
+    # TODO: solve that!
+    pos_y_list[i_sec] += (1 + prof_min_y) * prof_size_y * elem_transf.scaling.y
+    pos_z_list[i_sec] += (1 + prof_min_z) * prof_size_z * elem_transf.scaling.z
+
+    return elem_transf, prof_size_y, prof_size_z, prof_vect_y, prof_vect_z
 
 
 def get_profile_coord(

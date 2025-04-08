@@ -43,6 +43,7 @@ from ceasiompy.utils.geometryfunctions import (
     check_if_rotated,
     elements_number,
     get_positionings,
+    convert_fuselage_profiles,
     corrects_airfoil_profile,
 )
 from ceasiompy.CPACS2SUMO.func.sumofunctions import (
@@ -136,29 +137,14 @@ def deal_with_elements(
     # Elements
     elem_cnt = elements_number(tixi, sec_xpath + "/elements", "element", logg=False)
 
-    for i_elem in range(elem_cnt):
-        elem_xpath = sec_xpath + "/elements/element[" + str(i_elem + 1) + "]"
-        elem_uid = tixi.getTextAttribute(elem_xpath, "uID")
-
-        elem_transf = Transformation()
-        elem_transf.get_cpacs_transf(tixi, elem_xpath)
-
-        check_if_rotated(elem_transf.rotation, elem_uid)
-
-        # Fuselage profiles
-        prof_uid = tixi.getTextElement(elem_xpath + "/profileUID")
-        prof_vect_y, prof_vect_z, prof_size_y, prof_size_z = normalize_profile(tixi, prof_uid)
-
-        prof_min_y = min(prof_vect_y)
-        prof_min_z = min(prof_vect_z)
-
-        prof_vect_y[:] = [y - 1 - prof_min_y for y in prof_vect_y]
-        prof_vect_z[:] = [z - 1 - prof_min_z for z in prof_vect_z]
-
-        # Could be a problem if they are less positionings than sections
-        # TODO: solve that!
-        pos_y_list[i_sec] += ((1 + prof_min_y) * prof_size_y) * elem_transf.scaling.y
-        pos_z_list[i_sec] += ((1 + prof_min_z) * prof_size_z) * elem_transf.scaling.z
+    for i_elem in range(elem_cnt):  
+        (
+            elem_transf,
+            prof_size_y, prof_size_z,
+            prof_vect_y, prof_vect_z 
+        ) = convert_fuselage_profiles(
+            tixi, sec_xpath, i_sec, i_elem, pos_y_list, pos_z_list
+        )
 
         body_frm_center_x, body_frm_center_y, body_frm_center_z = calculate_body_frame_center(
             elem_transf, sec_transf, fus_transf,

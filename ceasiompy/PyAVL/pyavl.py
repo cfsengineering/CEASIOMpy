@@ -120,9 +120,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
             yaw_rate=r,
             mach_number=mach,
             alt=alt,
-            aileron=0.0,
-            rudder=0.0,
-            elevator=0.0,
         )
 
         run_software(
@@ -186,10 +183,6 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 aileron=aileron,
                 rudder=rudder,
                 elevator=elevator,
-                beta=0.0,
-                pitch_rate=0.0,
-                roll_rate=0.0,
-                yaw_rate=0.0,
             )
 
             run_software(

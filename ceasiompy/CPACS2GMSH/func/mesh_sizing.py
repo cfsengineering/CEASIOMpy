@@ -20,7 +20,7 @@ Python version: >=3.8
 import math
 
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
-from ceasiompy.utils.geometryfunctions import get_positionings
+from ceasiompy.utils.geometryfunctions import get_positionings, convert_fuselage_profiles
 
 from typing import Tuple
 from tixi3.tixi3wrapper import Tixi3

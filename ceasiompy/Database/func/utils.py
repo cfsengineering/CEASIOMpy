@@ -39,59 +39,6 @@ from ceasiompy.Database.func import (
 # ==============================================================================
 
 
-def get_aircrafts_list() -> List:
-    """
-    Access different aircraft names from "ceasiompy.db".
-
-    Returns:
-        (List): Aircraft names.
-
-    """
-    # Codacy: Table and column names are strictly validated against whitelisted values.
-    # Check if database exists
-    if CEASIOMPY_DB_PATH.exists():
-        # Go look in database for all different aircraft names among all different tables
-        aircrafts = set()
-
-        # Connect to the database
-        conn = sqlite3.connect(CEASIOMPY_DB_PATH)
-        cursor = conn.cursor()
-
-        try:
-            # Get all table names
-            cursor.execute("SELECT name FROM sqlite_master WHERE type='table'")
-            tables = cursor.fetchall()
-
-            for table in tables:
-                table_name = table[0]
-
-                # Validate table name
-                if table_name not in ALLOWED_TABLES + ["sqlite_sequence"]:
-                    raise ValueError(f"Invalid table name: {table_name}")
-
-                # Check if the table has an "aircraft" column
-                cursor.execute(f"PRAGMA table_info({table_name})")
-                columns = cursor.fetchall()
-                if any(column[1] == "aircraft" for column in columns):
-                    # Query for distinct aircraft names from the table
-                    cursor.execute(
-                        f"SELECT DISTINCT aircraft FROM {table_name}")  # nosec
-                    rows = cursor.fetchall()
-                    for row in rows:
-                        aircrafts.add(row[0])
-
-        except sqlite3.Error as e:
-            log.warning(f"An error occurred: {e}.")
-
-        finally:
-            conn.close()
-
-        return list(aircrafts)
-
-    else:
-        return []
-
-
 def split_line(line: str, index: int) -> float:
     """
     Splits a line with "=" sign and keeps only the value at specified index.

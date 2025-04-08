@@ -18,7 +18,7 @@ Python version: >=3.8
 
 import streamlit as st
 
-from ceasiompy.Database.func.utils import get_aircrafts_list
+from ceasiompy.utils.geometryfunctions import get_aircrafts_list
 from ceasiompy.utils.ceasiompyutils import get_reasonable_nb_cpu
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut

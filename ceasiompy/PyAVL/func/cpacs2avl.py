@@ -44,6 +44,7 @@ from ceasiompy.utils.geometryfunctions import (
     get_chord_span,
     elements_number,
     get_positionings,
+    convert_fuselage_profiles,
     corrects_airfoil_profile,
 )
 
@@ -79,51 +80,6 @@ from ceasiompy.utils.commonxpath import (
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
-
-
-def convert_fuselage_profiles(
-    tixi: Tixi3, sec_xpath: str,
-    i_sec: int, i_elem: int,
-    pos_y_list: List, pos_z_list: List,
-) -> Tuple[Transformation, float, float]:
-    elem_xpath = sec_xpath + "/elements/element[" + str(i_elem + 1) + "]"
-    elem_uid = get_uid(tixi, elem_xpath)
-    elem_transf = Transformation()
-    elem_transf.get_cpacs_transf(tixi, elem_xpath)
-    check_if_rotated(elem_transf.rotation, elem_uid)
-
-    prof_uid, prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(
-        tixi,
-        elem_xpath + "/profileUID"
-    )
-
-    # Calculate profile sizes
-    prof_vect_x = np.max(prof_vect_x) - np.min(prof_vect_x)
-    if not prof_vect_x == 0.0:
-        log.warning(
-            f"Issue with profile {prof_uid} as prof_vect_x not equal to 0.0"
-        )
-
-    prof_size_y = (np.max(prof_vect_y) - np.min(prof_vect_y)) / 2
-    prof_size_z = (np.max(prof_vect_z) - np.min(prof_vect_z)) / 2
-
-    # Normalize profile vectors
-    prof_vect_y /= prof_size_y
-    prof_vect_z /= prof_size_z
-
-    # Shift profile vectors
-    prof_min_y = np.min(prof_vect_y)
-    prof_min_z = np.min(prof_vect_z)
-
-    prof_vect_y -= (1 + prof_min_y)
-    prof_vect_z -= (1 + prof_min_z)
-
-    # Could be a problem if they are less positionings than sections
-    # TODO: solve that!
-    pos_y_list[i_sec] += (1 + prof_min_y) * prof_size_y * elem_transf.scaling.y
-    pos_z_list[i_sec] += (1 + prof_min_z) * prof_size_z * elem_transf.scaling.z
-
-    return elem_transf, prof_size_y, prof_size_z
 
 
 def compute_fuselage_coords(
@@ -431,7 +387,7 @@ class Avl:
                 elem_cnt = self.tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
 
                 for i_elem in range(elem_cnt):
-                    elem_transf, prof_size_y, prof_size_z = convert_fuselage_profiles(
+                    elem_transf, prof_size_y, prof_size_z, _, _ = convert_fuselage_profiles(
                         self.tixi, sec_xpath, i_sec, i_elem, pos_y_list, pos_z_list
                     )
 

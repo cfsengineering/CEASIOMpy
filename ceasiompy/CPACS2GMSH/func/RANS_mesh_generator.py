@@ -66,7 +66,7 @@ log = get_logger()
 
 def generate_2d_mesh_for_pentagrow(
     cpacs, cpacs_path, brep_dir, results_dir, open_gmsh, min_max_mesh_factor,
-    fuselage_mesh_size_factor, wing_mesh_size_factor, mesh_size_engines, mesh_size_propellers, symmetry=False,
+    fuselage_mesh_size_factor, wing_mesh_size_factor, mesh_size_engines, mesh_size_propellers,
 ):
     """
     Function to generate a mesh from brep files forming an airplane
@@ -86,11 +86,16 @@ def generate_2d_mesh_for_pentagrow(
         Path to the directory containing the result (mesh) files
     open_gmsh : bool
         Open gmsh GUI after the mesh generation if set to true
-    #TODO implement symmetry
-    symmetry : bool
-        If set to true, the mesh will be generated with symmetry wrt the x,z plane
     min_max_mesh_factor : ?
         ? (TODO)
+    fuselage_mesh_size_factor : float
+        Factor of the fuselage mesh size : the mesh size will be the mean fuselage width divided by this factor
+    wing_mesh_size_factor : float
+        Factor of the wing mesh size : the mesh size will be the mean fuselage width divided by this factor
+    mesh_size_engines : float
+        Mesh size of the engines
+    mesh_size_propellers : float
+        Mesh size of the propellers
     ...
     Returns:
     ----------
@@ -122,9 +127,9 @@ def generate_2d_mesh_for_pentagrow(
 
     log.info(f"Importing files from {brep_dir}")
 
+    # Import shapes and get the tags and name
     parts_name_tag = []
     fuselage_volume_dimtags = []
-
     for brep_file in brep_files:
         # Import the part and create the aircraft part object
         part_entities = gmsh.model.occ.importShapes(
@@ -135,19 +140,23 @@ def generate_2d_mesh_for_pentagrow(
         part_obj = ModelPart(uid=brep_file.stem)
         # maybe to cut off -->
         part_obj.part_type = get_part_type(cpacs.tixi, part_obj.uid)
-        # We also need the name to recognize the parts when fusing (and do the ,atching with dimtag)
-        parts_name_tag.append([brep_file.name, part_entities[0]])
-
         # Want to get fuselage length to size our model
         if part_obj.part_type == "fuselage":
             fuselage_volume_dimtags.append(part_entities[0])
-        # TODO what if multiple fuselage (like J28 or seaplane)
-        # AAAAAH why is it not getBoundingBox ?
+
+        # We now stock important info. We also need the name to recognize the parts when fusing (and do the matching with dimtag)
+        parts_name_tag.append([brep_file.name, part_entities[0]])
+
+    if (len(fuselage_volume_dimtags) < 1):
+        # Don't know in which case it should happen but is here if neede
+        model_bb = gmsh.model.get_bounding_box(-1, -1)
+        log.info("Warning : no fuselage in this aircraft")
+    else:
         model_bb = gmsh.model.get_bounding_box(
             fuselage_volume_dimtags[0][0], fuselage_volume_dimtags[0][1]
         )
-    if (len(fuselage_volume_dimtags) < 1):
-        model_bb = gmsh.model.get_bounding_box(-1, -1)
+
+    # Compute dimensions of fuselage
     model_dimensions = [
         abs(model_bb[0] - model_bb[3]),
         abs(model_bb[1] - model_bb[4]),
@@ -155,6 +164,7 @@ def generate_2d_mesh_for_pentagrow(
     ]
     gmsh.model.occ.synchronize()
 
+    # Center the fuselage
     all_volumes = gmsh.model.getEntities(3)
     gmsh.model.occ.translate(
         all_volumes,
@@ -162,77 +172,71 @@ def generate_2d_mesh_for_pentagrow(
         -((model_bb[1]) + (model_dimensions[1] / 2)),
         -((model_bb[2]) + (model_dimensions[2] / 2)),
     )
-
     gmsh.model.occ.synchronize()
-    log.info("Start manipulation to obtain a watertight volume")
-    # we have to obtain a watertight volume, needed for tetgen
 
-    # we then call the function to fuse the parts and create the named physical groups
+    log.info("Start manipulation to obtain a watertight volume")
+    # we have to obtain a watertight volume, needed for tetgen (otherwise just can't start)
+
+    # We then call the function to fuse the parts and create the named physical groups
     surfaces_by_part = fusing_parts_and_surface_naming_for_2d_mesh(
         parts_name_tag, brep_files, cpacs, model_bb, model_dimensions)
-
     gmsh.model.occ.synchronize()
-
-    # Want to center the plane (center the main fuselage)
     log.info("Manipulation finished")
 
     # Mesh generation
     log.info("Start of gmsh 2D surface meshing process")
 
-    mesh_size = model_dimensions[0] * float(min_max_mesh_factor) * (10**-3)
-    # TODO true sizing
-    mesh_size_by_group = {}
+    # Compute fuselage and wing size for meshing
     fuselage_maxlen, fuselage_minlen = fuselage_size(cpacs_path)
     wing_maxlen, wing_minlen = wings_size(cpacs_path)
+
+    # Store the computed value to use later
+    mesh_size_by_group = {}
     mesh_size_by_group["fuselage"] = (
         (fuselage_maxlen + fuselage_minlen) / 2) / fuselage_mesh_size_factor
-    log.info(
-        f"Mesh size fuselage={  ((fuselage_maxlen + fuselage_minlen) / 2) / fuselage_mesh_size_factor :.3f} m")
     mesh_size_by_group["wing"] = ((wing_maxlen * 0.8 + wing_minlen) /
                                   2) / wing_mesh_size_factor
+    mesh_size_by_group["engine"] = mesh_size_engines
+    mesh_size_by_group["rotor"] = mesh_size_propellers
+
+    log.info(
+        f"Mesh size fuselage={  ((fuselage_maxlen + fuselage_minlen) / 2) / fuselage_mesh_size_factor :.3f} m")
     log.info(
         f"Mesh size wing={((wing_maxlen * 0.8 + wing_minlen) /2) / wing_mesh_size_factor:.3f} m")
-    mesh_size_by_group["engine"] = mesh_size_engines
     log.info(f"Mesh size engine={mesh_size_engines:.3f} m")
-    mesh_size_by_group["rotor"] = mesh_size_propellers
     log.info(f"Mesh size rotor={mesh_size_propellers:.3f} m")
 
+    # Now fix the mesh size for every part
     i = 0
     for [name, tag, list_of_surfaces, name_physical_group] in surfaces_by_part:
         i += 1
+        # Take the right mesh size (name physical group should be wing or fuselage or engine or propeller)
         lc = mesh_size_by_group[name_physical_group]
 
-        gmsh.model.mesh.field.add("Distance", 3*i-2)
-        gmsh.model.mesh.field.setNumbers(
-            3*i-2, "SurfacesList", list_of_surfaces)
-        gmsh.model.mesh.field.setNumber(3*i-2, "Sampling", 350)
+        # To choose the size, we create a field with constant value containing only our list of surfaces, and give it the size
+        gmsh.model.mesh.field.add("Constant", i)
+        # List of surfaces should contain all the surfaces of the part
+        gmsh.model.mesh.field.setNumbers(i, "SurfacesList", list_of_surfaces)
+        gmsh.model.mesh.field.setNumber(i, "VIn", lc)
+        gmsh.model.mesh.field.setAsBackgroundMesh(i)
 
-        gmsh.model.mesh.field.add("Threshold", 3*i-1)
-        gmsh.model.mesh.field.setNumber(3*i-1, "InField", 3*i-2)
-        gmsh.model.mesh.field.setNumber(3*i-1, "SizeMin", lc)
-
-        gmsh.model.mesh.field.add("Restrict", 3*i)
-        gmsh.model.mesh.field.setNumber(3*i, "InField", 3*i-1)
-        gmsh.model.mesh.field.setNumber(3*i, "IncludeBoundary", True)
-        gmsh.model.mesh.field.setNumbers(
-            3*i, "SurfacesList", list_of_surfaces)
-
-    j = 3*i+1
-    fields = [3*i for i in range(1, len(surfaces_by_part)+1)]
+    # Now we combine our fields to get the total airplane mesh
+    j = i+1
+    fields = [i for i in range(1, len(surfaces_by_part)+1)]
     gmsh.model.mesh.field.add("Min", j)
     gmsh.model.mesh.field.setNumbers(j, "FieldsList", fields)
     gmsh.model.mesh.field.setAsBackgroundMesh(j)
+    gmsh.model.occ.synchronize()
 
+    # Parameters for the meshing
     gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
     gmsh.option.setNumber("Mesh.MeshSizeFromPoints", 0)
     gmsh.option.setNumber("Mesh.MeshSizeExtendFromBoundary", 0)
     gmsh.option.setNumber("Mesh.Algorithm", 6)
     gmsh.option.setNumber("Mesh.LcIntegrationPrecision", 1e-6)
-    # gmsh.option.set_number("Mesh.MeshSizeMin", mesh_size)
-    # gmsh.option.set_number("Mesh.MeshSizeMax", mesh_size)
     gmsh.option.setNumber("Mesh.StlOneSolidPerSurface", 2)
 
-    gmsh.model.occ.synchronize()
+    # Generate the mesh
     gmsh.logger.start()
     gmsh.model.mesh.generate(1)
     gmsh.model.mesh.generate(2)
@@ -268,7 +272,7 @@ Returns:
 (i,j, True) : tuple (int,int,bool)
     indices in the list of the two volumes we want to fuse, and a bool that is true if we haven't found any intersection (by default return 0,1)
 """
-
+    # For every surfaces i and j, check if they intersect. If yes, return i,j
     for i in range(len(parts_dimtag)-1):
         entities1 = [parts_dimtag[i]]
         for j in range(i+1, len(parts_dimtag)):
@@ -276,11 +280,15 @@ Returns:
             intersect = gmsh.model.occ.intersect(
                 entities1, entities2, removeObject=False, removeTool=False)[0]
             gmsh.model.occ.synchronize()
-            # What's missing is that he doesn't recognize the intersection by a face (only volume)
+            # What's missing is that he sadly doesn't recognize the intersection by a face (only volume) (but rarely a problem)
+
+            # Check if there is an intersection (i.e. there will be a dimtag in intersect)
             if len(intersect):
+                # Remove the intersection so it doesn't cause problems for meshing and others
                 gmsh.model.occ.remove(intersect, True)
                 gmsh.model.occ.synchronize()
                 return (i, j, False)
+    # There if doesn't find intersection (usually bug bc intersection of surfaces, and unlikely)
     return (0, 1, True)
 
 
@@ -298,11 +306,15 @@ def fusing_parts_and_surface_naming_for_2d_mesh(
         Path of where are stocked the brep files for the airplane
     cpacs : CPACS
         CPACS object
+    model_bb : list
+        Contains [xmin,ymin,zmin,xmax,ymax,zmax] of bounding box of fuselage
+    model_dimensions : list
+        Contains [width (x-axis), length (y-axis), height (z-axis)] of fuselage
     ...
     Returns:
     ----------
     surfaces_by_part : list of list
-        list of [name of brep file, tag of volume, [list of surfaces in this part],name of physical group] for all the parts in the airplane
+        list of [name of brep file, tag of volume, [list of surfaces in this part], name of physical group] for all the parts in the airplane
     """
     # First we take the bounding boxes of each part
     bounding_boxes = {}
@@ -313,14 +325,14 @@ def fusing_parts_and_surface_naming_for_2d_mesh(
 
     # Take all the dimtag of the parts volume (vector that we will empty)
     parts_dimtag = [p_n_t[1] for p_n_t in parts_name_tag]
-    brep_file_names = [p_n_t[0] for p_n_t in parts_name_tag]
 
     # Secondly we take care of the fusion to create the airfoil
     counter = 0
     while len(parts_dimtag) > 1:
-        fused = False
         # Choose two entities to fuse
         i, j, nointersection = intersecting_entities_for_fusing(parts_dimtag)
+
+        # Keep count of how many times it didn't work (if error or some seperate part could loop forever)
         if nointersection:
             counter += 1
         try:
@@ -332,32 +344,28 @@ def fusing_parts_and_surface_naming_for_2d_mesh(
 
             # Look for problems
             if len(fused_entities) > 1:
-                log.info("Warning : the fusion did not give only one piece",
-                         fused_entities)
+                log.info("Warning : the fusion did not give only one piece")
             if len(fused_entities) == 0:
-                log.info("Warning : no fused entity")
+                log.info("Warning : error, no fused entity")
 
             # Update the vectors of remaining entities
             parts_dimtag = [fused_entities[0]] + [
                 parts_dimtag[k]
                 for k in range(len(parts_dimtag))
                 if k != j and k != i
-            ]+fused_entities[1:]  # end should be empty but if there is a problem let it stay
-            brep_file_names = ["fused"] + [
-                brep_file_names[k] for k in range(len(brep_file_names)) if k != j and k != i
-            ]+["fusederror" for i in range(len(fused_entities)-1)]
+            ]+fused_entities[1:]  # end should be empty but if there is a problem we let it stay
+
         # Handle the cases where it didn't work
         except Exception as e:
             log.info(f"Fusion failed for entities {0} and {j}: {e}")
         if counter > 10:
-            log.info("Too many problems with order of fusion : giving up")
+            log.info("Error : too many problems with order of fusion : giving up")
             break
 
     # Now we sort the surfaces by part (to name them & set mesh size)
 
-    # Get all the surfaces by part with bounding boxes
+    # Get all the surfaces, classified by part with bounding boxes (might take too many, will be dealt with after)
     surfaces_by_part = []
-
     for part_name, [(dim, tag), (xmin, ymin, zmin, xmax, ymax, zmax)] in bounding_boxes.items():
         entities = gmsh.model.getEntitiesInBoundingBox(
             xmin, ymin, zmin, xmax, ymax, zmax, 2
@@ -371,9 +379,9 @@ def fusing_parts_and_surface_naming_for_2d_mesh(
     all_surfaces_tag = [s[1] for s in all_surfaces]
 
     # First reimport all the shapes, get their new tags and names
-    newparts_name_tag = []
+    newparts_name_tag_type = []
     for brep_file in brep_files:
-        # Import the part and create the aircraft part object
+        # Import the part and create the aircraft part object (and translate them as the original were translated)
         part_entities = gmsh.model.occ.importShapes(
             str(brep_file), highestDimOnly=False)
         gmsh.model.occ.translate(
@@ -388,57 +396,60 @@ def fusing_parts_and_surface_naming_for_2d_mesh(
         part_obj.part_type = get_part_type(cpacs.tixi, part_obj.uid)
 
         # We also need the name of the file to recognize the parts when fusing, but also the name of the part to name physical groups
-        newparts_name_tag.append(
+        newparts_name_tag_type.append(
             [brep_file.name, part_entities[0][1], part_obj.part_type])
 
-    # Reorder the imported shape so that it is in same order than our previous ones
+    # Reorder the imported shape so that it is in same order than our previous ones (i.e. vectors surfaces by part and newpart name tag type have save brep name at same index)
     for i in range(len(surfaces_by_part)):
-        for j in range(i, len(newparts_name_tag)):
-            if surfaces_by_part[i][0] == newparts_name_tag[j][0]:
-                newparts_name_tag[i], newparts_name_tag[j] = newparts_name_tag[j], newparts_name_tag[i]
+        for j in range(i, len(newparts_name_tag_type)):
+            if surfaces_by_part[i][0] == newparts_name_tag_type[j][0]:
+                newparts_name_tag_type[i], newparts_name_tag_type[j] = newparts_name_tag_type[j], newparts_name_tag_type[i]
                 break
 
     # Now for each surface count in how many different part it is
     for surf in all_surfaces_tag:
+        # Count all the parts surf is in
         parts_in = []
         for j in range(len(surfaces_by_part)):
             for surff in surfaces_by_part[j][2]:
                 if surff == surf:
                     parts_in.append(j)
+
         # Now deal with it if in more than one part
         if len(parts_in) > 1:
             for i in parts_in:
-                # Compute intersection(which is a surface) of surface with original shape. If there is an intersection, it means that it is the shape that the surface was on
+                # This is maybe overcomplicated, but gmsh doesn't keep the tags of surfaces when fused so we have to find a way to rematch them to their original part
+                # Compute intersection (which is a surface) of surface with the original shape/part. If there is an intersection, it means that it is the shape that the surface was on.
+                # (Precision : gmsh doesn't compute curves (or in general entity of smaller dim) at intersection for some reason, which is why it works.
+                # We only get intersection if the surface is really along/inside the volume, which only happens if it is the volume it comes from.)
                 intersection = gmsh.model.occ.intersect(
-                    [(2, surf)], [(3, newparts_name_tag[i][1])], removeObject=False, removeTool=False)[0]
+                    [(2, surf)], [(3, newparts_name_tag_type[i][1])], removeObject=False, removeTool=False)[0]
                 # Remove intersection to have a clean result
                 gmsh.model.occ.remove(intersection, recursive=True)
                 if len(intersection) > 0:
-                    # If found, remove the tag from the others parts
+                    # If found, remove the tag from the others parts, and we have finished for this surface
                     for j in parts_in:
                         if j != i:
                             surfaces_by_part[j][2].remove(surf)
                     break
                 elif i == parts_in[-1]:
-                    # If we are here, we have found no part st it is in, so there is a problem
+                    # If we are here, we have found no part st it is in, so there is a problem. We choose a part and hope for the best
                     log.info(
                         f"Surface{surf} still in parts{parts_in}, take off randomly")
                     for k in range(len(parts_in)-1):
                         surfaces_by_part[parts_in[k]][2].remove(surf)
-    # Remove the parts we imported after to get clean result
-    gmsh.model.occ.remove([(3, newparts_name_tag_of[1])
-                           for newparts_name_tag_of in newparts_name_tag], recursive=True)
+    # Remove the parts we re-imported, to get a clean result (we win't need them anymore)
+    gmsh.model.occ.remove([(3, newparts_name_tag_type_of[1])
+                           for newparts_name_tag_type_of in newparts_name_tag_type], recursive=True)
     gmsh.model.occ.synchronize()
-
-    # gmsh.fltk.run()
 
     # Now add the physical group to each part and the surfaces that are now sorted
     for j in range(len(surfaces_by_part)):
+        # Just add group and name (which is the brep file without ".brep") to the surfaces of the part computed before
         part_group = gmsh.model.addPhysicalGroup(2, surfaces_by_part[j][2])
-        name_group = newparts_name_tag[j][0].replace('.brep', '')
+        name_group = newparts_name_tag_type[j][0].replace('.brep', '')
         gmsh.model.setPhysicalName(2, part_group, name_group)
-        surfaces_by_part[j].append(newparts_name_tag[j][2])
-        # log.info(f"Set physical name {name_group} to surfaces {surfaces_by_part[j][2]}")
+        surfaces_by_part[j].append(newparts_name_tag_type[j][2])
 
     return surfaces_by_part
 

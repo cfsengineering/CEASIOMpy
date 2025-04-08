@@ -20,6 +20,7 @@ import math
 import numpy as np
 
 from numpy import array
+from cpacspy.cpacsfunctions import get_float_vector
 from ceasiompy.utils.mathsfunctions import (
     rot,
     rotate_2d_point,
@@ -103,6 +104,13 @@ def retrieve_gui_ctrlsurf(tixi: Tixi3) -> Dict[str, List]:
     return result
 
 
+def get_point(tixi: Tixi3, xpath: str) -> Tuple[float, float, float]:
+    x = tixi.getDoubleElement(xpath + "/x")
+    y = tixi.getDoubleElement(xpath + "/y")
+    z = tixi.getDoubleElement(xpath + "/z")
+    return x, y, z
+
+
 def compute_abs_location(tixi: Tixi3, wing_xpath: str) -> Dict[str, Tuple[str, str, str]]:
     """
     Need to compute absolute locations for the main wing.
@@ -114,8 +122,6 @@ def compute_abs_location(tixi: Tixi3, wing_xpath: str) -> Dict[str, Tuple[str, s
 
     # Define variables
     result = {}
-    x_xpath, y_xpath, z_xpath = "/x", "/y", "/z"
-
     # TODO: Case with scale, where do we put the scaling operation.
     # scale_xpath = wing_xpath + "/transformation/scaling/"
     # sx = float(tixi.getTextElement(scale_xpath + x_xpath))
@@ -123,14 +129,11 @@ def compute_abs_location(tixi: Tixi3, wing_xpath: str) -> Dict[str, Tuple[str, s
     # sz = float(tixi.getTextElement(scale_xpath + z_xpath))
 
     rot_xpath = wing_xpath + "/transformation/rotation/"
-    rax: float = -math.radians(tixi.getDoubleElement(rot_xpath + x_xpath))
-    ray: float = -math.radians(tixi.getDoubleElement(rot_xpath + y_xpath))
-    raz: float = -math.radians(tixi.getDoubleElement(rot_xpath + z_xpath))
+    deg_x, deg_y, deg_z = get_point(tixi, rot_xpath)
+    rax, ray, raz = -math.radians(deg_x), -math.radians(deg_y), -math.radians(deg_z)
 
     trans_xpath = wing_xpath + "/transformation/translation/"
-    tx: float = tixi.getDoubleElement(trans_xpath + x_xpath)
-    ty: float = tixi.getDoubleElement(trans_xpath + y_xpath)
-    tz: float = tixi.getDoubleElement(trans_xpath + z_xpath)
+    tx, ty, tz = get_point(trans_xpath)
 
     rx, ry, rz = get_rotation_matrix(rax, ray, raz)
     rot = rz @ ry @ rx
@@ -413,23 +416,6 @@ def plain_transform(
     newx_flapvalues = np.roll(newx_flapvalues, -min_x_index)
     newz_flapvalues = np.roll(newz_flapvalues, -min_x_index)
 
-    maybe = False
-    if maybe:
-        import matplotlib.pyplot as plt
-
-        # Plot the results
-        plt.figure(figsize=(10, 6))
-        plt.plot(newx_values, newz_values, label="Transformed Leading Edge", marker="o")
-        plt.plot(newx_flapvalues, newz_flapvalues, label="Transformed Trailing Edge", marker="x")
-        plt.scatter(x_values, z_values, label="Original Points", color="gray", alpha=0.5)
-        plt.axvline(x=x_ref, color="red", linestyle="--", label="x_ref")
-        plt.title("Plain Transform Result")
-        plt.xlabel("X Values")
-        plt.ylabel("Z Values")
-        plt.legend()
-        plt.grid()
-        plt.show()
-
     return newx_values, newz_values, newx_flapvalues, newz_flapvalues
 
 
@@ -495,11 +481,9 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
         airfoil_uid = tixi.getTextElement(airfoil_xpath)
         wingairfoil_xpath = AIRFOILS_XPATH + f"/wingAirfoil[@uID='{airfoil_uid}']"
         if tixi.checkElement(wingairfoil_xpath):
-            x_str = tixi.getTextElement(wingairfoil_xpath + "/pointList/x")
-            z_str = tixi.getTextElement(wingairfoil_xpath + "/pointList/z")
-
-            x = array([float(val) for val in x_str.split(";")])
-            z = array([float(val) for val in z_str.split(";")])
+            pointlist_xpath = wingairfoil_xpath + "/pointList"
+            x = array(get_float_vector(tixi, pointlist_xpath + "/x"))
+            z = array(get_float_vector(tixi, pointlist_xpath + "/z"))
 
             # TODO: Add choice of different interpolation techniques
             newx, newz = interpolate_points(x, z, max_dist=0.02)
@@ -650,12 +634,9 @@ def deflection_angle(tixi: Tixi3, wing_uid: str, angle: float) -> None:
             airfoil_uid = tixi.getTextElement(airfoil_xpath)
             wingairfoil_xpath = AIRFOILS_XPATH + f"/wingAirfoil[@uID='{airfoil_uid}']"
             if tixi.checkElement(wingairfoil_xpath):
-                x_str = tixi.getTextElement(wingairfoil_xpath + "/pointList/x")
-                z_str = tixi.getTextElement(wingairfoil_xpath + "/pointList/z")
-
-                # Convert strings to lists.
-                x_list = [float(x) for x in x_str.split(';')]
-                z_list = [float(z) for z in z_str.split(';')]
+                pointlist_xpath = wingairfoil_xpath + "/pointList"
+                x_list = get_float_vector(tixi, pointlist_xpath + "/x")
+                z_list = get_float_vector(tixi, pointlist_xpath + "/z")
 
                 # Find the point with the smallest x
                 min_x_index = x_list.index(min(x_list))

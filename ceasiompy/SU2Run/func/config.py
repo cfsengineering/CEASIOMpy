@@ -684,14 +684,8 @@ def generate_su2_cfd_config(
     for one or multiple flight conditions (alt, mach, aoa, aos).
 
     Source:
-        * SU2 config template: https://github.com/su2code/SU2/blob/master/config_template.cfg
-
-    Args:
-        cpacs_path (Path): Path to CPACS file.
-        cpacs_out_path (Path): Path to CPACS output file.
-        wkdir (Path): Path to the working directory.
-        dyn_stab (bool): True if dynamic stability computation.
-        rans (bool): True if RANS simulation.
+        * SU2 config template:
+            https://github.com/su2code/SU2/blob/master/config_template.cfg
 
     """
     tixi = cpacs.tixi

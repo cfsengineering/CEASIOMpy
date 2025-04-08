@@ -164,7 +164,7 @@ def compute_abs_location(tixi: Tixi3, wing_xpath: str) -> Dict[str, Tuple[str, s
             y_ = length * math.cos(dih) * math.cos(sweep)
             z_ = length * math.sin(dih) * math.cos(sweep)
 
-            coord_ = np.array([x_, y_, z_])
+            coord_ = array([x_, y_, z_])
             x_, y_, z_ = rot.dot(coord_)
 
             x += x_
@@ -498,8 +498,8 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
             x_str = tixi.getTextElement(wingairfoil_xpath + "/pointList/x")
             z_str = tixi.getTextElement(wingairfoil_xpath + "/pointList/z")
 
-            x = np.array([float(val) for val in x_str.split(";")])
-            z = np.array([float(val) for val in z_str.split(";")])
+            x = array([float(val) for val in x_str.split(";")])
+            z = array([float(val) for val in z_str.split(";")])
 
             # TODO: Add choice of different interpolation techniques
             # newx, newz = interpolate_points(x, z, max_dist=0.02)

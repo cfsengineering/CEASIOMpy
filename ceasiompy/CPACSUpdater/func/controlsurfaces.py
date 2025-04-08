@@ -384,11 +384,6 @@ def plain_transform(
     newx_values = np.concatenate((newx_values, close_x))
     newz_values = np.concatenate((newz_values, close_z))
 
-    # Re-order for correct leading edge in CPACS format
-    min_x_index = np.argmin(newx_values)
-    newx_flapvalues = np.roll(newx_values, -min_x_index)
-    newz_values = np.roll(newz_values, -min_x_index)
-
     # Flap
     x_flap = x_ref + 0.02
     mask_flap = x_values > x_flap
@@ -503,15 +498,8 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
             x_str = tixi.getTextElement(wingairfoil_xpath + "/pointList/x")
             z_str = tixi.getTextElement(wingairfoil_xpath + "/pointList/z")
 
-            # Convert strings to lists.
-            unique_pairs = list(dict.fromkeys(
-                zip(map(float, x_str.split(';')),
-                    map(float, z_str.split(';'))),
-            ))
-            x, z = (
-                array([pair[0] for pair in unique_pairs]),
-                array([pair[1] for pair in unique_pairs]),
-            )
+            x = np.array([float(val) for val in x_str.split(";")])
+            z = np.array([float(val) for val in z_str.split(";")])
 
             # TODO: Add choice of different interpolation techniques
             # newx, newz = interpolate_points(x, z, max_dist=0.02)

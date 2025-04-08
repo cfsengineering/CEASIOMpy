@@ -18,7 +18,6 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-import sqlite3
 
 from cpacspy.cpacsfunctions import get_value
 
@@ -37,7 +36,6 @@ from ceasiompy.SU2Run.func import (
     SU2_FORCES_MOM,
     AERO_COEFFICIENTS,
 )
-from ceasiompy.utils.commonpaths import CEASIOMPY_DB_PATH
 from ceasiompy.SU2Run import (
     MODULE_DIR,
     TEMPLATE_TYPE,

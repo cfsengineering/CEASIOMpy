@@ -16,7 +16,7 @@ env:
 
 jobs:
   build-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-22.04
     strategy:
       max-parallel: 5
 
@@ -51,6 +51,10 @@ jobs:
     - name: Install ceasiompy with pip
       shell: bash -l {0}
       run: pip install -e .
+
+    - name: Install PyTornado
+      shell: bash -l {0}
+      run: installation/Ubuntu/install_pytornado.sh
 
     - name: Install SUMO
       shell: bash -l {0}

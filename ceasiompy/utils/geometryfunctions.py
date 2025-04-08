@@ -40,10 +40,6 @@ from ceasiompy.utils.generalclasses import (
 
 from ceasiompy import log
 from ceasiompy.utils.commonxpath import WINGS_XPATH
-from numpy import (
-    min,
-    max,
-)
 
 # =================================================================================================
 #   FUNCTIONS
@@ -176,9 +172,9 @@ def corrects_airfoil_profile(
         wg_sec_chord (float): Wing's section chord length.
 
     """
-    prof_size_x = max(prof_vect_x) - min(prof_vect_x)
-    prof_size_y = max(prof_vect_y) - min(prof_vect_y)
-    prof_size_z = max(prof_vect_z) - min(prof_vect_z)
+    prof_size_x = np.max(prof_vect_x) - np.min(prof_vect_x)
+    prof_size_y = np.max(prof_vect_y) - np.min(prof_vect_y)
+    prof_size_z = np.max(prof_vect_z) - np.min(prof_vect_z)
 
     wg_sec_chord = 0.0
 

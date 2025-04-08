@@ -431,29 +431,6 @@ def add_case_data(
     cfg.write_file(config_output_path, overwrite=True)
 
 
-def configure_case(cfg, Atm, mach, aoa, aos, alt, case_nb, case_dir_name, tixi, wkdir, cpacs_path, rans, mesh_markers, ctrlsurf, alt_list):
-    cfg["MACH_NUMBER"] = mach
-    cfg["AOA"] = aoa
-    cfg["SIDESLIP_ANGLE"] = aos
-    cfg["FREESTREAM_PRESSURE"] = Atm.pressure[0]
-    cfg["FREESTREAM_TEMPERATURE"] = Atm.temperature[0]
-
-    add_case_data(
-        tixi=tixi,
-        wkdir=wkdir,
-        cfg=cfg,
-        cpacs_path=cpacs_path,
-        rans=rans,
-        mesh_markers=mesh_markers,
-        case_dir_name=case_dir_name,
-        mach=mach,
-        alt=alt,
-        case_nb=case_nb,
-        alt_list=alt_list,
-        ctrlsurf=ctrlsurf,
-    )
-
-
 def configure_unsteady_simulation(
     cfg: ConfigFile,
     tixi: Tixi3,

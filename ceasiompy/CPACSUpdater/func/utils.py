@@ -67,13 +67,10 @@ def copy_children(tixi: Tixi3, source_xpath: str, target_xpath: str, copy_id: st
     num_children = tixi.getNumberOfChilds(source_xpath)
 
     for i in range(1, num_children + 1):
-        # Get the XPath of the child
-        child_name = tixi.getChildNodeName(source_xpath, i)
-        child_xpath = f"{source_xpath}/{child_name}"
+        (
+            child_name, child_xpath, num_same_name_children
+        ) = get_same_child(tixi, source_xpath, i, num_children)
 
-        # Check if there are multiple elements with the same name
-        num_same_name_children = sum(1 for j in range(
-            1, num_children + 1) if tixi.getChildNodeName(source_xpath, j) == child_name)
         if num_same_name_children > 1:
             child_xpath += f"[{i}]"
 
@@ -186,13 +183,10 @@ def symmetry(tixi: Tixi3, xpath: str) -> None:
     num_children = tixi.getNumberOfChilds(xpath)
 
     for i in range(1, num_children + 1):
-        # Get the name and XPath of the child
-        child_name = tixi.getChildNodeName(xpath, i)
-        child_xpath = f"{xpath}/{child_name}"
+        (
+            child_name, child_xpath, num_same_name_children
+        ) = get_same_child(tixi, xpath, i, num_children)
 
-        # Check if there are multiple elements with the same name
-        num_same_name_children = sum(1 for j in range(
-            1, num_children + 1) if tixi.getChildNodeName(xpath, j) == child_name)
         if num_same_name_children > 1:
             child_xpath += f"[{i}]"
 
@@ -239,10 +233,9 @@ def update_uids(tixi: Tixi3, xpath: str, uids_identifier: str) -> None:
 
     num_children = tixi.getNumberOfChilds(xpath)
     for i in range(1, num_children + 1):
-        child_name = tixi.getChildNodeName(xpath, i)
-        child_xpath = f"{xpath}/{child_name}"
-        num_same_name_children = sum(1 for j in range(
-            1, num_children + 1) if tixi.getChildNodeName(xpath, j) == child_name)
+        (
+            child_name, child_xpath, num_same_name_children
+        ) = get_same_child(tixi, xpath, i, num_children)
 
         if num_same_name_children > 1:
             child_xpath += f"[{i}]"
@@ -257,6 +250,14 @@ def update_uids(tixi: Tixi3, xpath: str, uids_identifier: str) -> None:
                     update_uid_element(tixi, child_xpath, element, uids_identifier)
 
                 update_uids(tixi, child_xpath, uids_identifier)
+
+
+def get_same_child(tixi: Tixi3, xpath: str, i: int, num_children: int) -> Tuple[str, str, int]:
+    child_name = tixi.getChildNodeName(xpath, i)
+    child_xpath = f"{xpath}/{child_name}"
+    num_same_name_children = sum(1 for j in range(
+        1, num_children + 1) if tixi.getChildNodeName(xpath, j) == child_name)
+    return child_name, child_xpath, num_same_name_children
 
 
 def remove(tixi: Tixi3, xpath: str, attr_name: Optional[str] = None) -> None:

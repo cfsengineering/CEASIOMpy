@@ -40,22 +40,6 @@ class TestExportCSV(CeasiompyTest):
         cls.csv_path = Path(cls.wkdir, "test_apm.csv")
 
     @log_test
-    def test_main(self):
-        """Test function 'exportcsv' function."""
-
-        export_aeromaps(self.test_cpacs, self.wkdir)
-
-        # Read and check csv file
-        with open(self.csv_path, "r") as csv_file:
-            lines = csv_file.readlines()
-
-        features_str = "altitude,machNumber,angleOfSideslip,angleOfAttack"
-        assert lines[0] == f"{features_str},cd,cl,cs,cmd,cml,cms\n"
-        assert lines[1] == "0,0.3,0,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
-        assert lines[2] == "0,0.3,0,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
-        assert lines[3] == "0,0.3,10,0,0.01,0.1,0.001,NaN,NaN,NaN\n"
-        assert lines[4] == "0,0.3,10,10,0.01,0.1,0.001,NaN,NaN,NaN\n"
-
     def test_export_aeromaps(self):
         """Test function 'exportcsv' function."""
 

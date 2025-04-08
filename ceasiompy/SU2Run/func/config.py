@@ -465,16 +465,12 @@ def configure_cfd_environment(
 
     # Parameters which will vary for the different cases (alt, mach, aoa, aos)
     for case_nb in range(mach_len):
-
-        alt = alt_list[case_nb]
-        mach = mach_list[case_nb]
+        alt, mach = alt_list[case_nb], mach_list[case_nb]
 
         if dyn_stab:
-            aoa = 0.0
-            aos = 0.0
+            aoa, aos = 0.0, 0.0
         else:
-            aoa = aoa_list[case_nb]
-            aos = aos_list[case_nb]
+            aoa, aos = aoa_list[case_nb], aos_list[case_nb]
 
         Atm = Atmosphere(alt)
 

@@ -158,4 +158,4 @@ class ConfigFile:
 
 
 if __name__ == "__main__":
-    log("Nothing to execute")
+    log.info("Nothing to execute")

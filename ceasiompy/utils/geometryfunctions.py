@@ -97,7 +97,7 @@ def get_aircrafts_list() -> List:
         return list(aircrafts)
 
     else:
-        return []
+        return ["Can't use ceasiompy.db"]
 
 
 def convert_fuselage_profiles(

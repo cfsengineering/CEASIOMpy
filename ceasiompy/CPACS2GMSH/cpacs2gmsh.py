@@ -92,31 +92,49 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
     # Retrieve value from the GUI Setting
     open_gmsh = get_value_or_default(cpacs.tixi, GMSH_OPEN_GUI_XPATH, False)
     type_mesh = get_value_or_default(cpacs.tixi, GMSH_MESH_TYPE_XPATH, "Euler")
-    farfield_factor = get_value_or_default(cpacs.tixi, GMSH_FARFIELD_FACTOR_XPATH, 10)
+    farfield_factor = get_value_or_default(
+        cpacs.tixi, GMSH_FARFIELD_FACTOR_XPATH, 10)
     symmetry = get_value_or_default(cpacs.tixi, GMSH_SYMMETRY_XPATH, False)
-    farfield_size_factor = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FARFIELD_XPATH, 17)
-    n_power_factor = get_value_or_default(cpacs.tixi, GMSH_N_POWER_FACTOR_XPATH, 2)
-    n_power_field = get_value_or_default(cpacs.tixi, GMSH_N_POWER_FIELD_XPATH, 0.9)
+    farfield_size_factor = get_value_or_default(
+        cpacs.tixi, GMSH_MESH_SIZE_FARFIELD_XPATH, 17)
+    n_power_factor = get_value_or_default(
+        cpacs.tixi, GMSH_N_POWER_FACTOR_XPATH, 2)
+    n_power_field = get_value_or_default(
+        cpacs.tixi, GMSH_N_POWER_FIELD_XPATH, 0.9)
     fuselage_mesh_size_factor = get_value_or_default(
         cpacs.tixi,
         GMSH_MESH_SIZE_FACTOR_FUSELAGE_XPATH,
         1,
     )
-    wing_mesh_size_factor = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_FACTOR_WINGS_XPATH, 1)
-    mesh_size_engines = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_ENGINES_XPATH, 0.23)
-    mesh_size_propellers = get_value_or_default(cpacs.tixi, GMSH_MESH_SIZE_PROPELLERS_XPATH, 0.23)
-    refine_factor = get_value_or_default(cpacs.tixi, GMSH_REFINE_FACTOR_XPATH, 7.0)
-    refine_truncated = get_value_or_default(cpacs.tixi, GMSH_REFINE_TRUNCATED_XPATH, False)
-    auto_refine = get_value_or_default(cpacs.tixi, GMSH_AUTO_REFINE_XPATH, True)
-    intake_percent = get_value_or_default(cpacs.tixi, GMSH_INTAKE_PERCENT_XPATH, 20)
-    exhaust_percent = get_value_or_default(cpacs.tixi, GMSH_EXHAUST_PERCENT_XPATH, 20)
+    wing_mesh_size_factor = get_value_or_default(
+        cpacs.tixi, GMSH_MESH_SIZE_FACTOR_WINGS_XPATH, 1)
+    mesh_size_engines = get_value_or_default(
+        cpacs.tixi, GMSH_MESH_SIZE_ENGINES_XPATH, 0.23)
+    mesh_size_propellers = get_value_or_default(
+        cpacs.tixi, GMSH_MESH_SIZE_PROPELLERS_XPATH, 0.23)
+    refine_factor = get_value_or_default(
+        cpacs.tixi, GMSH_REFINE_FACTOR_XPATH, 7.0)
+    refine_truncated = get_value_or_default(
+        cpacs.tixi, GMSH_REFINE_TRUNCATED_XPATH, False)
+    auto_refine = get_value_or_default(
+        cpacs.tixi, GMSH_AUTO_REFINE_XPATH, True)
+    intake_percent = get_value_or_default(
+        cpacs.tixi, GMSH_INTAKE_PERCENT_XPATH, 20)
+    exhaust_percent = get_value_or_default(
+        cpacs.tixi, GMSH_EXHAUST_PERCENT_XPATH, 20)
     n_layer = get_value_or_default(cpacs.tixi, GMSH_NUMBER_LAYER_XPATH, 20)
-    h_first_layer = get_value_or_default(cpacs.tixi, GMSH_H_FIRST_LAYER_XPATH, 3)
-    max_layer_thickness = get_value_or_default(cpacs.tixi, GMSH_MAX_THICKNESS_LAYER_XPATH, 10)
-    growth_factor = get_value_or_default(cpacs.tixi, GMSH_GROWTH_FACTOR_XPATH, 1.4)
-    growth_ratio = get_value_or_default(cpacs.tixi, GMSH_GROWTH_RATIO_XPATH, 1.2)
-    min_max_mesh_factor = get_value_or_default(cpacs.tixi, GMSH_SURFACE_MESH_SIZE_XPATH, 5)
-    feature_angle = get_value_or_default(cpacs.tixi, GMSH_FEATURE_ANGLE_XPATH, 40)
+    h_first_layer = get_value_or_default(
+        cpacs.tixi, GMSH_H_FIRST_LAYER_XPATH, 3)
+    max_layer_thickness = get_value_or_default(
+        cpacs.tixi, GMSH_MAX_THICKNESS_LAYER_XPATH, 10)
+    growth_factor = get_value_or_default(
+        cpacs.tixi, GMSH_GROWTH_FACTOR_XPATH, 1.4)
+    growth_ratio = get_value_or_default(
+        cpacs.tixi, GMSH_GROWTH_RATIO_XPATH, 1.2)
+    min_max_mesh_factor = get_value_or_default(
+        cpacs.tixi, GMSH_SURFACE_MESH_SIZE_XPATH, 5)
+    feature_angle = get_value_or_default(
+        cpacs.tixi, GMSH_FEATURE_ANGLE_XPATH, 40)
 
     # Run mesh generation
     if type_mesh == "Euler":
@@ -155,6 +173,10 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
             results_dir,
             open_gmsh=open_gmsh,
             min_max_mesh_factor=min_max_mesh_factor,
+            fuselage_mesh_size_factor=fuselage_mesh_size_factor,
+            wing_mesh_size_factor=wing_mesh_size_factor,
+            mesh_size_engines=mesh_size_engines,
+            mesh_size_propellers=mesh_size_propellers,
         )
 
         if gmesh_path.exists():

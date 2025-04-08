@@ -431,6 +431,85 @@ def add_case_data(
     cfg.write_file(config_output_path, overwrite=True)
 
 
+def configure_case(cfg, Atm, mach, aoa, aos, alt, case_nb, case_dir_name, tixi, wkdir, cpacs_path, rans, mesh_markers, ctrlsurf, alt_list):
+    cfg["MACH_NUMBER"] = mach
+    cfg["AOA"] = aoa
+    cfg["SIDESLIP_ANGLE"] = aos
+    cfg["FREESTREAM_PRESSURE"] = Atm.pressure[0]
+    cfg["FREESTREAM_TEMPERATURE"] = Atm.temperature[0]
+
+    add_case_data(
+        tixi=tixi,
+        wkdir=wkdir,
+        cfg=cfg,
+        cpacs_path=cpacs_path,
+        rans=rans,
+        mesh_markers=mesh_markers,
+        case_dir_name=case_dir_name,
+        mach=mach,
+        alt=alt,
+        case_nb=case_nb,
+        alt_list=alt_list,
+        ctrlsurf=ctrlsurf,
+    )
+
+
+def configure_unsteady_simulation(
+    cfg: ConfigFile,
+    tixi: Tixi3,
+    oscillation_type: str,
+    mesh_markers: Dict,
+    markers_len: int,
+) -> None:
+    # Center of gravity
+    x1, _, z1, c = get_main_wing_le(tixi)
+    x_cg = x1 + (c / 4)
+
+    # Load parameters
+    a, omega, n, _ = load_parameters(tixi)
+
+    time_step = (2 / (n - 1)) * np.pi / omega
+
+    cfg["TIME_DOMAIN"] = "YES"
+    cfg["TIME_MARCHING"] = "DUAL_TIME_STEPPING-2ND_ORDER"
+    cfg["TIME_STEP"] = str(time_step)
+    cfg["MAX_TIME"] = str(2 * np.pi / omega)
+
+    inner_iter = get_value(tixi, SU2_DYNAMICDERIVATIVES_INNERITER_XPATH)
+    cfg["INNER_ITER"] = str(inner_iter)
+    cfg["UNST_ADJOINT_ITER"] = "0"
+    cfg["OUTPUT_WRT_FREQ"] = "1"
+
+    cfg["TIME_ITER"] = str(2 * np.pi / omega)
+    cfg["CONV_RESIDUAL_MINVAL"] = "-8"
+    cfg["CONV_STARTITER"] = "0"
+    cfg["CONV_CAUCHY_ELEMS"] = "2"
+    cfg["CONV_CAUCHY_EPS"] = "1E-10"
+
+    surf_omega = get_surface_pitching_omega(oscillation_type, omega)
+    cfg["SURFACE_MOVEMENT"] = su2_format(("DEFORMING " * markers_len))
+    cfg["MARKER_MOVING"] = su2_format(",".join(mesh_markers["wall"]))
+    cfg["SURFACE_MOTION_ORIGIN"] = su2_format((f"{x_cg} 0.0 {z1} " * markers_len))
+    cfg["SURFACE_PITCHING_OMEGA"] = su2_format((surf_omega * markers_len))
+    cfg["SURFACE_PITCHING_AMPL"] = su2_format((f"{a} {a} {a} " * markers_len))
+
+
+def configure_freestream(
+    cfg: ConfigFile,
+    alt: float,
+    mach: float,
+    aoa: float,
+    aos: float,
+) -> None:
+    Atm = Atmosphere(alt)
+
+    cfg["MACH_NUMBER"] = mach
+    cfg["AOA"] = aoa
+    cfg["SIDESLIP_ANGLE"] = aos
+    cfg["FREESTREAM_PRESSURE"] = Atm.pressure[0]
+    cfg["FREESTREAM_TEMPERATURE"] = Atm.temperature[0]
+
+
 def configure_cfd_environment(
     cpacs: CPACS,
     wkdir: Path,
@@ -465,79 +544,19 @@ def configure_cfd_environment(
 
     # Parameters which will vary for the different cases (alt, mach, aoa, aos)
     for case_nb in range(mach_len):
+        # Configure aeromaps cases
         alt, mach = alt_list[case_nb], mach_list[case_nb]
+        aoa, aos = (0.0, 0.0) if dyn_stab else (aoa_list[case_nb], aos_list[case_nb])
+        configure_freestream(cfg, alt, mach, aoa, aos)
 
-        if dyn_stab:
-            aoa, aos = 0.0, 0.0
-        else:
-            aoa, aos = aoa_list[case_nb], aos_list[case_nb]
-
-        Atm = Atmosphere(alt)
-
-        cfg["MACH_NUMBER"] = mach
-        cfg["AOA"] = aoa
-        cfg["SIDESLIP_ANGLE"] = aos
-        cfg["FREESTREAM_PRESSURE"] = Atm.pressure[0]
-        cfg["FREESTREAM_TEMPERATURE"] = Atm.temperature[0]
-
+        # Oscillatory case
         if dyn_stab:
             markers_len = len(mesh_markers["wall"])
 
             for oscillation_type in ["alpha", "beta"]:
-                # Center of gravity
-                x1, _, z1, c = get_main_wing_le(tixi)
-                x_cg = x1 + (c / 4)
-
-                # Load parameters
-                a, omega, n, _ = load_parameters(tixi)
-
-                time_step = (2 / (n - 1)) * np.pi / omega
-
-                #######################
-                # UNSTEADY SIMULATION #
-                #######################
-
-                cfg["TIME_DOMAIN"] = "YES"
-                cfg["TIME_MARCHING"] = "DUAL_TIME_STEPPING-2ND_ORDER"
-
-                cfg["TIME_STEP"] = str(time_step)
-
-                cfg["MAX_TIME"] = str(2 * np.pi / omega)
-
-                inner_iter = get_value(tixi, SU2_DYNAMICDERIVATIVES_INNERITER_XPATH)
-
-                # Maximum number of inner iterations
-                cfg["INNER_ITER"] = str(inner_iter)
-
-                # Starting direct solver iteration for the unsteady adjoint
-                cfg["UNST_ADJOINT_ITER"] = "0"
-
-                # Frequencies corresponding to the list in OUTPUT_FILES
-                cfg["OUTPUT_WRT_FREQ"] = "1"
-
-                ##########################
-                # CONVERGENCE PARAMETERS #
-                ##########################
-
-                # Maximum number of time iterations
-                cfg["TIME_ITER"] = str(2 * np.pi / omega)
-
-                cfg["CONV_RESIDUAL_MINVAL"] = "-8"
-                cfg["CONV_STARTITER"] = "0"
-                cfg["CONV_CAUCHY_ELEMS"] = "2"  # "100"
-                cfg["CONV_CAUCHY_EPS"] = "1E-10"
-
-                ###########################
-                # DYNAMIC MESH DEFINITION #
-                ###########################
-
-                surf_omega = get_surface_pitching_omega(oscillation_type, omega)
-
-                cfg["SURFACE_MOVEMENT"] = su2_format(("DEFORMING " * markers_len))
-                cfg["MARKER_MOVING"] = su2_format(",".join(mesh_markers["wall"]))
-                cfg["SURFACE_MOTION_ORIGIN"] = su2_format((f"{x_cg} 0.0 {z1} " * markers_len))
-                cfg["SURFACE_PITCHING_OMEGA"] = su2_format((surf_omega * markers_len))
-                cfg["SURFACE_PITCHING_AMPL"] = su2_format((f"{a} {a} {a} " * markers_len))
+                configure_unsteady_simulation(
+                    cfg, tixi, oscillation_type, mesh_markers, markers_len
+                )
 
                 case_dir_name = (
                     f"Case{str(case_nb + mach_len).zfill(2)}"
@@ -561,6 +580,7 @@ def configure_cfd_environment(
                     ctrlsurf=ctrlsurf,
                 )
 
+        # Stationary case
         else:
             case_dir_name = (
                 f"Case{str(case_nb).zfill(2)}_alt{alt}_mach{round(mach, 2)}"

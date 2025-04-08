@@ -365,7 +365,7 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
 
     fixed_cl = get_value(tixi, SU2_FIXED_CL_XPATH)
     aeromap_uid = get_aeromap_uid(tixi, fixed_cl)
-    aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+    aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
     alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, SU2_AEROMAP_UID_XPATH)
 
     case_dir_list = [
@@ -381,7 +381,6 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
 
         # Retrieve non dynamic stability data
         if "dynstab" not in str(config_dir):
-            log.info(f"config_dir {config_dir}")
             get_static_results(
                 tixi,
                 aeromap,

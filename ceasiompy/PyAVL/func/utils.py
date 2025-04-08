@@ -16,17 +16,23 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
+import numpy as np
+
 from pydantic import validate_call
 
 from pathlib import Path
+from numpy import ndarray
 from itertools import product
 from ambiance import Atmosphere
+from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.generalclasses import Point
 from typing import (
     List,
     Tuple,
+    TextIO,
 )
 
+from ceasiompy.utils.commonxpath import REF_XPATH
 from ceasiompy import (
     log,
     ceasiompy_cfg,
@@ -37,7 +43,21 @@ from ceasiompy import (
 # =================================================================================================
 
 
-def write_control(avl_file, control_type, hinge_xsi, axis, control_bool) -> None:
+def get_points_ref(tixi: Tixi3) -> ndarray:
+    return np.array([
+        tixi.getDoubleElement(REF_XPATH + "/point/x"),
+        tixi.getDoubleElement(REF_XPATH + "/point/y"),
+        tixi.getDoubleElement(REF_XPATH + "/point/z"),
+    ])
+
+
+def write_control(
+    avl_file: TextIO,
+    control_type: str,
+    hinge_xsi: float,
+    axis: str,
+    control_bool: float
+) -> None:
     """Helper function to write CONTROL section."""
     avl_file.write("CONTROL\n")
     avl_file.write(f"{control_type} {0.0} {hinge_xsi} {axis} {control_bool}\n\n")
@@ -118,8 +138,8 @@ def duplicate_elements(*lists: List) -> Tuple[List, ...]:
     n = len(initial_lists)
     new_lists = [[] for _ in initial_lists] + [[] for _ in range(3)]
 
-    def append_combination(combination, values):
-        """Helper function to append a combination with specific values."""
+    def append_combination(combination: List, values: List) -> None:
+        """Appends a combination with specific values."""
         for i, entry in enumerate(combination):
             new_lists[i].append(entry)
         for j, value in enumerate(values):

@@ -496,6 +496,7 @@ def get_mach_list(self, x_hinge: float) -> Tuple[List, List]:
     data = db.get_data(
         table_name="derivatives_data",
         columns=["mach"],
+        db_close=True,
         filters=[
             f"aircraft = '{self.aircraft_name}'",
             "method = 'DLM'",
@@ -506,7 +507,6 @@ def get_mach_list(self, x_hinge: float) -> Tuple[List, List]:
             "z_ref = 0.0"
         ]
     )
-    db.close()
 
     mach_set = {row[0] for row in data}
 
@@ -711,6 +711,7 @@ def add_db_values(self, df: DataFrame, non_mach_str: str, x_hinge: float) -> Dat
     data = db.get_data(
         table_name="derivatives_data",
         columns=der_columns,
+        db_close=True,
         filters=[
             f"mach IN ({non_mach_str})",
             f"aircraft = '{self.aircraft_name}'",
@@ -721,7 +722,6 @@ def add_db_values(self, df: DataFrame, non_mach_str: str, x_hinge: float) -> Dat
             "y_ref = 0.0",
             "z_ref = 0.0"
         ],
-        db_close=True,
     )
 
     return concat([df[der_columns], DataFrame(data, columns=der_columns)], ignore_index=True)

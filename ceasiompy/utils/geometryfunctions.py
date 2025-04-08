@@ -21,7 +21,8 @@ import math
 import numpy as np
 
 from math import prod
-from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
+from numpy import array
+from cpacspy.cpacsfunctions import get_float_vector
 from ceasiompy.utils.mathsfunctions import (
     euler2fix,
     rotate_points,
@@ -41,9 +42,29 @@ from ceasiompy.utils.generalclasses import (
 from ceasiompy import log
 from ceasiompy.utils.commonxpath import WINGS_XPATH
 
+
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def get_profile_coord(
+    tixi: Tixi3,
+    uid_xpath: str,
+) -> Tuple[ndarray, ndarray, ndarray]:
+    """
+    Get profile coordinate points.
+    """
+    prof_uid = tixi.getTextElement(uid_xpath)
+    pointlist_xpath = tixi.uIDGetXPath(prof_uid) + "/pointList"
+
+    if not tixi.checkElement(pointlist_xpath):
+        raise ValueError(f"xPath {pointlist_xpath} not found.")
+    prof_vect_x = array(get_float_vector(tixi, pointlist_xpath + "/x"))
+    prof_vect_y = array(get_float_vector(tixi, pointlist_xpath + "/y"))
+    prof_vect_z = array(get_float_vector(tixi, pointlist_xpath + "/z"))
+
+    return prof_uid, prof_vect_x, prof_vect_y, prof_vect_z
 
 
 def sum_points(*points: Point) -> Tuple[float, float, float]:
@@ -76,8 +97,13 @@ def check_if_rotated(rotation: Point, elem_uid: str) -> None:
         )
 
 
-def find_wing_xpath(tixi: Tixi3, wing_name: str):
+def find_wing_xpath(tixi: Tixi3, wing_name: str) -> str:
+    """
+    Find the XPath of a wing by its name in the CPACS file.
 
+    Raises:
+        ValueError: If the wing with the specified name is not found.
+    """
     # Load constant
     wings_xpath = WINGS_XPATH
 
@@ -176,19 +202,17 @@ def corrects_airfoil_profile(
     prof_size_y = np.max(prof_vect_y) - np.min(prof_vect_y)
     prof_size_z = np.max(prof_vect_z) - np.min(prof_vect_z)
 
-    wg_sec_chord = 0.0
-
+    default = 0.0
     if prof_size_y != 0.0:
         log.error("An airfoil profile is not defined correctly: prof_size_y should be 0.0")
-        return wg_sec_chord
+        return default
 
     if prof_size_x == 0.0:
         if prof_size_z == 0.0:
             log.warning("Invalid airfoil profile: prof_size_x and prof_size_z are both 0.0")
-            return wg_sec_chord
         else:
             log.warning("Invalid airfoil profile: prof_size_x is 0.0")
-            return wg_sec_chord
+        return default
 
     # Apply scaling
     prof_vect_x /= prof_size_x
@@ -414,8 +438,7 @@ def get_section_rotation(
     sec_transf.get_cpacs_transf(tixi, sec_xpath)
 
     # Get the number of elements
-    elem_cnt = tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
-
+    elem_cnt = elements_number(tixi, sec_xpath, "element", logg=False)
     if elem_cnt > 1:
         log.warning(
             f"Sections {sec_uid} contains {elem_cnt} elements !"
@@ -427,20 +450,21 @@ def get_section_rotation(
     elem_transf.get_cpacs_transf(tixi, elem_xpath)
 
     # Get wing profile (airfoil)
-    prof_uid = tixi.getTextElement(elem_xpath + "/airfoilUID")
-    prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
-
-    # Convert lists to numpy arrays if they are not already
-    prof_vect_x = np.array(prof_vect_x)
-    prof_vect_y = np.array(prof_vect_y)
-    prof_vect_z = np.array(prof_vect_z)
+    prof_uid, prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(
+        tixi,
+        elem_xpath + "/airfoilUID"
+    )
 
     # Apply scaling using numpy operations
-    prof_vect_x, prof_vect_y, prof_vect_z = prod_points(
+    x, y, z = prod_points(
         elem_transf.scaling,
         sec_transf.scaling,
         wing_transf.scaling
     )
+
+    prof_vect_x *= x
+    prof_vect_y *= y
+    prof_vect_z *= z
 
     wg_sec_chord = corrects_airfoil_profile(prof_vect_x, prof_vect_y, prof_vect_z)
 

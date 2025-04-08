@@ -28,7 +28,6 @@ from ceasiompy.SU2Run.func.runconfigfiles import run_SU2_multi
 from ceasiompy.utils.ceasiompyutils import (
     bool_,
     call_main,
-    check_nb_cpu,
 )
 
 from ceasiompy.SU2Run.func.config import (
@@ -56,21 +55,18 @@ from ceasiompy.SU2Run import MODULE_NAME
 # =================================================================================================
 
 
-def main(cpacs: CPACS, wkdir: Path) -> None:
+def main(cpacs: CPACS, results_dir: Path) -> None:
     """
     SU2Run module is decomposed into 4 parts.
 
-        1. Retrieve the correct .su2 mesh files to run in SU2 software.
-        2. For each .su2 file create a .cfg configuration for SU2.
-        3. Run each .cfg file in SU2.
-        4. Retrieve SU2 results.
+        1. Retrieve the correct geometry: .su2 mesh files.
+        2. For each .su2 file create a .cfg configuration file.
+        3. Run each .cfg file in SU2_CFD.
+        4. Retrieve force files results in configuration directory.
 
     Args:
         cpacs (CPACS): Input CPACS file.
-        wkdir (Path): Results directory (where to store the results).
-
-    Raises:
-        ValueError: If .su2 mesh files are not found.
+        wkdir (Path): SU2Run Results directory.
 
     """
 
@@ -78,18 +74,16 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     tixi = cpacs.tixi
 
     # Define constants
-    nb_proc = get_value(tixi, SU2_NB_CPU_XPATH)
-    config_file_type = get_value(tixi, SU2_CONFIG_RANS_XPATH)
-    rans = (config_file_type == "RANS")
-
-    #
-    # Check that the number of used CPUs is correct
-    check_nb_cpu(nb_proc)
+    nb_proc = int(get_value(tixi, SU2_NB_CPU_XPATH))
+    config_file_type = str(get_value(tixi, SU2_CONFIG_RANS_XPATH))
+    rans: bool = (config_file_type == "RANS")
 
     # 1. Load .su2 mesh files
-    su2_mesh_paths, dynstab_su2_mesh_paths = load_su2_mesh_paths(tixi, wkdir)
+    su2_mesh_paths, dynstab_su2_mesh_paths = load_su2_mesh_paths(tixi, results_dir)
 
-    # Load only 1 mesh file for now
+    # Load only 1 mesh file for the su2 markers
+    # Accross all different meshes for the same aircraft,
+    # the markers will remain the same.
     mesh_markers = define_markers(tixi, su2_mesh_paths[0])
 
     # 2. Create configuration files
@@ -98,7 +92,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
         generate_su2_cfd_config(
             cpacs=cpacs,
-            wkdir=wkdir,
+            wkdir=results_dir,
             su2_mesh_paths=dynstab_su2_mesh_paths,
             mesh_markers=mesh_markers,
             dyn_stab=True,
@@ -108,7 +102,7 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     log.info(f"----- Generating {config_file_type} ConfigFile -----")
     generate_su2_cfd_config(
         cpacs=cpacs,
-        wkdir=wkdir,
+        wkdir=results_dir,
         su2_mesh_paths=su2_mesh_paths,
         mesh_markers=mesh_markers,
         dyn_stab=False,
@@ -117,13 +111,13 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
     # 3. Run each configuration file in SU2
     log.info(f"----- Running  {config_file_type} simulations -----")
-    run_SU2_multi(wkdir, nb_proc)
+    run_SU2_multi(results_dir, nb_proc)
 
     # 4. Retrieve SU2 results
     log.info("----- Updating CPACS and accessing results -----")
-    get_su2_results(cpacs, wkdir)
+    get_su2_results(cpacs, results_dir)
 
 
 if __name__ == "__main__":
-    # TODO : Specify here an option to give as input a SU2 file path
+    # TODO : Specify an option to give as input a SU2 file path
     call_main(main, MODULE_NAME)

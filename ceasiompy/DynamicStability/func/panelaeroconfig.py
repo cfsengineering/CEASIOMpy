@@ -43,7 +43,6 @@ class AeroModel():
     def __init__(self, wings_list):
         self.aerogrid = None
         self.caerocards = None
-
         self.wings_list = wings_list
 
     def build_aerogrid(self):
@@ -72,15 +71,15 @@ class AeroModel():
             #         |
             #        z.--- x
 
-            index_1 = np.where(caero_panels['cornerpoints'][i_panel][0] == caero_grid['ID'])[0][0]
-            index_2 = np.where(caero_panels['cornerpoints'][i_panel][1] == caero_grid['ID'])[0][0]
-            index_3 = np.where(caero_panels['cornerpoints'][i_panel][2] == caero_grid['ID'])[0][0]
-            index_4 = np.where(caero_panels['cornerpoints'][i_panel][3] == caero_grid['ID'])[0][0]
+            indices = [
+                np.where(caero_panels['cornerpoints'][i_panel][j] == caero_grid['ID'])[0][0]
+                for j in range(4)
+            ]
 
-            l_1 = caero_grid['offset'][index_2] - caero_grid['offset'][index_1]
-            l_2 = caero_grid['offset'][index_3] - caero_grid['offset'][index_4]
-            b_1 = caero_grid['offset'][index_4] - caero_grid['offset'][index_1]
-            b_2 = caero_grid['offset'][index_3] - caero_grid['offset'][index_2]
+            l_1 = caero_grid['offset'][indices[1]] - caero_grid['offset'][indices[0]]
+            l_2 = caero_grid['offset'][indices[2]] - caero_grid['offset'][indices[3]]
+            b_1 = caero_grid['offset'][indices[3]] - caero_grid['offset'][indices[0]]
+            b_2 = caero_grid['offset'][indices[2]] - caero_grid['offset'][indices[1]]
             l_m = (l_1 + l_2) / 2.0
             b_m = (b_1 + b_2) / 2.0
 
@@ -92,18 +91,17 @@ class AeroModel():
             if normal[2] < 0.0:
                 normal = -normal
             N.append(normal)
-            offset_l.append(caero_grid['offset'][index_1] + 0.25 * l_m + 0.50 * b_1)
-            offset_k.append(caero_grid['offset'][index_1] + 0.50 * l_m + 0.50 * b_1)
-            offset_j.append(caero_grid['offset'][index_1] + 0.75 * l_m + 0.50 * b_1)
-            offset_P1.append(caero_grid['offset'][index_1] + 0.25 * l_1)
-            offset_P3.append(caero_grid['offset'][index_4] + 0.25 * l_2)
-            r.append((caero_grid['offset'][index_4] + 0.25 * l_2)
-                     - (caero_grid['offset'][index_1] + 0.25 * l_1))
+            offset_l.append(caero_grid['offset'][indices[0]] + 0.25 * l_m + 0.50 * b_1)
+            offset_k.append(caero_grid['offset'][indices[0]] + 0.50 * l_m + 0.50 * b_1)
+            offset_j.append(caero_grid['offset'][indices[0]] + 0.75 * l_m + 0.50 * b_1)
+            offset_P1.append(caero_grid['offset'][indices[0]] + 0.25 * l_1)
+            offset_P3.append(caero_grid['offset'][indices[3]] + 0.25 * l_2)
+            r.append((caero_grid['offset'][indices[3]] + 0.25 * l_2)
+                     - (caero_grid['offset'][indices[0]] + 0.25 * l_1))
 
         n = len(ID)
-        set_l = np.arange(n * 6).reshape((n, 6))
-        set_k = np.arange(n * 6).reshape((n, 6))
-        set_j = np.arange(n * 6).reshape((n, 6))
+        arange = np.arange(n * 6).reshape((n, 6))
+        set_l, set_k, set_j = arange, arange, arange
 
         # Assure corner points are correctly generated
         if not isinstance(caero_grid['ID'], np.ndarray):

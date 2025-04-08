@@ -135,6 +135,7 @@ def get_tables_values(
     data = ceasiompy_db.get_data(
         table_name=table_name,
         columns=aero_columns,
+        db_close=False,
         filters=[
             f"mach IN ({self.mach_str})",
             f"aircraft = '{self.aircraft_name}'",
@@ -153,6 +154,7 @@ def get_tables_values(
     data = ceasiompy_db.get_data(
         table_name=table_name,
         columns=ctrl_columns,
+        db_close=True,
         filters=[
             f"mach IN ({self.mach_str})",
             f"aircraft = '{self.aircraft_name}'",
@@ -162,8 +164,6 @@ def get_tables_values(
 
     # Convert the data list to a DataFrame
     ctrl_df = DataFrame(data, columns=ctrl_columns)
-
-    ceasiompy_db.close()
 
     log.info("--- Finished retrieving the Tables values ---")
 

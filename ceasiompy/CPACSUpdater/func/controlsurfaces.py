@@ -37,7 +37,7 @@ from ceasiompy.CPACSUpdater.func.utils import (
     find_max_x,
     find_min_x,
     array_to_str,
-    # interpolate_points,
+    interpolate_points,
     symmetric_operation,
 )
 
@@ -502,10 +502,10 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
             z = array([float(val) for val in z_str.split(";")])
 
             # TODO: Add choice of different interpolation techniques
-            # newx, newz = interpolate_points(x, z, max_dist=0.02)
+            newx, newz = interpolate_points(x, z, max_dist=0.02)
             # CAREFUL: if you want to interpolate airfoil coordinates,
             # you need to apply the interpolation to all airfoils.
-            newx, newz = x, z
+            # newx, newz = x, z
 
             if "fowler" in ctrltype:
                 # Store airfoil temporarily

@@ -22,7 +22,6 @@ Python version: >=3.8
 import math
 import numpy as np
 
-from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from cpacspy.cpacsfunctions import (
     get_uid,
     get_value,
@@ -34,11 +33,13 @@ from ceasiompy.utils.mathsfunctions import (
 from ceasiompy.PyAVL.func.utils import (
     write_control,
     to_cpacs_format,
+    get_points_ref,
     convert_dist_to_avl_format,
 )
 from ceasiompy.utils.geometryfunctions import (
     sum_points,
     prod_points,
+    get_profile_coord,
     check_if_rotated,
     get_chord_span,
     elements_number,
@@ -68,7 +69,6 @@ from ceasiompy.PyAVL.func import (
     AVL_FREESTREAM_MACH_XPATH,
 )
 from ceasiompy.utils.commonxpath import (
-    REF_XPATH,
     AREA_XPATH,
     WINGS_XPATH,
     LENGTH_XPATH,
@@ -92,14 +92,18 @@ def convert_fuselage_profiles(
     elem_transf.get_cpacs_transf(tixi, elem_xpath)
     check_if_rotated(elem_transf.rotation, elem_uid)
 
-    prof_uid = tixi.getTextElement(elem_xpath + "/profileUID")
-    _, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
-
-    # Convert lists to NumPy arrays
-    prof_vect_y = np.array(prof_vect_y)
-    prof_vect_z = np.array(prof_vect_z)
+    prof_uid, prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(
+        tixi,
+        elem_xpath + "/profileUID"
+    )
 
     # Calculate profile sizes
+    prof_vect_x = np.max(prof_vect_x) - np.min(prof_vect_x)
+    if not prof_vect_x == 0.0:
+        log.warning(
+            f"Issue with profile {prof_uid} as prof_vect_x not equal to 0.0"
+        )
+
     prof_size_y = (np.max(prof_vect_y) - np.min(prof_vect_y)) / 2
     prof_size_z = (np.max(prof_vect_z) - np.min(prof_vect_z)) / 2
 
@@ -122,49 +126,12 @@ def convert_fuselage_profiles(
     return elem_transf, prof_size_y, prof_size_z
 
 
-def write_fuselage_settings(avl_path: Path, scaling: Point, translation: Point) -> None:
-    with open(avl_path, 'a') as avl_file:
-        avl_file.write("#--------------------------------------------------\n")
-        avl_file.write("BODY\nFuselage\n\n")
-        avl_file.write("!Nbody  Bspace\n100\t1.0\n\n")
-        avl_file.write(f"SCALE\n{to_cpacs_format(scaling)}\n\n")
-        avl_file.write(f"TRANSLATE\n{to_cpacs_format(translation)}\n\n")
-
-
-def write_fuselage_coords(
-    avl_path: Path,
-    fus_dat_path: Path,
-    i_fus: int,
-    x_fuselage, y_fuselage_bottom, y_fuselage_top
-) -> None:
-    with open(fus_dat_path, 'w') as fus_file:
-        fus_file.write("fuselage" + str(i_fus + 1) + "\n")
-
-        # Write coordinates of the top surface
-        for x_fus, y_fus in reversed(
-                list(zip(x_fuselage[1:], y_fuselage_top[1:]))):
-            fus_file.write(f"{x_fus:.3f}\t{y_fus:.3f}\n")
-
-        # Write coordinates of the nose of the fuselage
-        y_nose = np.mean(
-            [y_fuselage_top[0], y_fuselage_bottom[0]])
-        fus_file.write(f"{x_fuselage[0]:.3f}\t{y_nose:.3f}\n")
-
-        # Write coordinates of the bottom surface
-        for x_fus, y_fus in zip(x_fuselage[1:], y_fuselage_bottom[1:]):
-            fus_file.write(f"{x_fus:.3f}\t{y_fus:.3f}\n")
-
-    with open(avl_path, 'a') as avl_file:
-        avl_file.write("BFILE\n")
-        avl_file.write(fus_dat_path + "\n\n")
-
-
 def compute_fuselage_coords(
-    i_sec,
-    elem_transf,
-    sec_transf,
-    fus_transf,
-    pos_x_list, pos_z_list,
+    i_sec: int,
+    elem_transf: Transformation,
+    sec_transf: Transformation,
+    fus_transf: Transformation,
+    pos_x_list: List, pos_z_list: List,
     prof_size_y, prof_size_z,
     fus_radius_vec,
     x_fuselage,
@@ -200,89 +167,8 @@ def compute_fuselage_coords(
     return body_frm_width, body_frm_height
 
 
-def convert_fuselage(tixi: Tixi3, avl_path: Path, results_path: Path):
-    """
-    Convert fuselages from CPACS to avl format.
-
-    Workflow:
-        For each fuselage
-            1. Write fuselage settings
-            For each sections
-                2. Write the fuselage coordinates
-
-    """
-
-    fus_cnt = elements_number(tixi, FUSELAGES_XPATH, "fuselage")
-
-    for i_fus in reversed(range(fus_cnt)):
-        fus_xpath = FUSELAGES_XPATH + "/fuselage[" + str(i_fus + 1) + "]"
-        fus_uid = get_uid(tixi, fus_xpath)
-        fus_dat_path = str(results_path) + "/" + fus_uid + ".dat"
-
-        fus_transf = Transformation()
-        fus_transf.get_cpacs_transf(tixi, fus_xpath)
-
-        body_transf = Transformation()
-        body_transf.translation = fus_transf.translation
-        body_transf.rotation = euler2fix(fus_transf.rotation)
-
-        # 1. Write fuselage settings
-        write_fuselage_settings(avl_path, fus_transf.scaling, body_transf.translation)
-
-        sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(
-            tixi, fus_xpath, "fuselage")
-
-        # Initialize to null array of size [sec_cnt]
-        (
-            x_fuselage, y_fuselage_top, y_fuselage_bottom,
-            fus_radius_vec, body_width_vec, body_height_vec
-
-        ) = (np.zeros(sec_cnt) for _ in range(6))
-
-        for i_sec in range(sec_cnt):
-            sec_xpath = fus_xpath + "/sections/section[" + str(i_sec + 1) + "]"
-            sec_uid = tixi.getTextAttribute(sec_xpath, "uID")
-            sec_transf = Transformation()
-            sec_transf.get_cpacs_transf(tixi, sec_xpath)
-            check_if_rotated(sec_transf.rotation, sec_uid)
-
-            elem_cnt = tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
-
-            for i_elem in range(elem_cnt):
-                elem_transf, prof_size_y, prof_size_z = convert_fuselage_profiles(
-                    tixi, sec_xpath, i_sec, i_elem, pos_y_list, pos_z_list
-                )
-
-                body_frm_width, body_frm_height = compute_fuselage_coords(
-                    i_sec,
-                    elem_transf,
-                    sec_transf,
-                    fus_transf,
-                    pos_x_list, pos_z_list,
-                    prof_size_y, prof_size_z,
-                    fus_radius_vec,
-                    x_fuselage,
-                    y_fuselage_top, y_fuselage_bottom,
-                )
-
-                body_width_vec[i_sec] = body_frm_width
-                body_height_vec[i_sec] = body_frm_height
-
-                body_transf_x = x_fuselage + body_transf.translation.x
-                fus_z_profile = interp1d(body_transf_x, y_fuselage_top - fus_radius_vec)
-                fus_radius_profile = interp1d(body_transf_x, fus_radius_vec)
-
-                write_fuselage_coords(
-                    avl_path, fus_dat_path,
-                    i_fus,
-                    x_fuselage, y_fuselage_bottom, y_fuselage_top,
-                )
-
-    return fus_z_profile, fus_radius_profile, body_transf
-
-
 def leadingedge_coordinates(
-    tixi,
+    tixi: Tixi3,
     avl_path,
     i_wing,
     i_sec,
@@ -392,20 +278,30 @@ def leadingedge_coordinates(
 def write_airfoil_coords(
     foil_dat_path: Path,
     prof_uid: str,
-    prof_vect_x,
-    prof_vect_z,
+    prof_vect_x: ndarray,
+    prof_vect_z: ndarray,
 ) -> None:
+    """
+    No need to add in Avl class.
+    """
     with open(foil_dat_path, 'w') as dat_file:
         dat_file.write(prof_uid + "\n")
 
+        prof_x_len = len(prof_vect_x)
+
         # Limit the number of points to 100 (otherwise AVL error)
-        if len(prof_vect_x) >= 100:
-            step = round(len(prof_vect_x) / 100)
-            prof_vect_x = prof_vect_x[0:len(prof_vect_x):step]
-            prof_vect_z = prof_vect_z[0:len(prof_vect_x):step]
+        if prof_x_len >= 100:
+            log.warning("Limiting the number of points.")
+            step = round(prof_x_len / 100)
+            prof_vect_x = prof_vect_x[0:prof_x_len:step]
+            prof_vect_z = prof_vect_z[0:prof_x_len:step]
 
         for coord_x, coord_z in zip(prof_vect_x, prof_vect_z):
             dat_file.write(f"{coord_x}\t{coord_z}\n")
+
+# =================================================================================================
+#   CLASS
+# =================================================================================================
 
 
 class Avl:
@@ -428,11 +324,7 @@ class Avl:
         self.area_ref: float = tixi.getDoubleElement(AREA_XPATH)
         self.chord_ref: float = tixi.getDoubleElement(LENGTH_XPATH)
         self.span_ref: float = self.area_ref / self.chord_ref
-        self.points_ref: ndarray = np.array([
-            tixi.getDoubleElement(REF_XPATH + '/point/x'),
-            tixi.getDoubleElement(REF_XPATH + '/point/y'),
-            tixi.getDoubleElement(REF_XPATH + '/point/z')
-        ])
+        self.points_ref: ndarray = get_points_ref(tixi)
 
         # .avl file type
         self.name_aircraft = self.tixi.getTextElement(AIRCRAFT_NAME_XPATH)
@@ -466,7 +358,7 @@ class Avl:
         with open(self.avl_path, 'a') as avl_file:
             # Default freestream mach number
             avl_file.write('#Mach\n')
-            avl_file.write(str(mach) + "\n\n")
+            avl_file.write(f"{mach}\n\n")
 
             # No Symmetry assumed
             avl_file.write("#IYsym   IZsym   Zsym\n")
@@ -477,9 +369,7 @@ class Avl:
         # 2. Convert fuselage (if included)
         fus_z_profile, fus_radius_profile, body_transf = None, None, None
         if self.add_fuselage:
-            fus_z_profile, fus_radius_profile, body_transf = convert_fuselage(
-                self.tixi, self.avl_path, self.results_dir
-            )
+            fus_z_profile, fus_radius_profile, body_transf = self.convert_fuselage()
 
         # 3. Convert wings
         self.convert_wings(
@@ -490,12 +380,93 @@ class Avl:
 
         return Path(self.avl_path)
 
+    def convert_fuselage(
+        self: "Avl",
+    ) -> Tuple[interp1d, interp1d, Transformation]:
+        """
+        Convert fuselages from CPACS to avl format.
+
+        Workflow:
+            For each fuselage
+                1. Write fuselage settings
+                For each sections
+                    2. Write the fuselage coordinates
+
+        """
+
+        fus_cnt = elements_number(self.tixi, FUSELAGES_XPATH, "fuselage")
+
+        for i_fus in reversed(range(fus_cnt)):
+            fus_xpath = FUSELAGES_XPATH + "/fuselage[" + str(i_fus + 1) + "]"
+            fus_uid = get_uid(self.tixi, fus_xpath)
+            fus_dat_path = str(self.results_dir) + "/" + fus_uid + ".dat"
+
+            fus_transf = Transformation()
+            fus_transf.get_cpacs_transf(self.tixi, fus_xpath)
+
+            body_transf = Transformation()
+            body_transf.translation = fus_transf.translation
+            body_transf.rotation = euler2fix(fus_transf.rotation)
+
+            # 1. Write fuselage settings
+            self.write_fuselage_settings(fus_transf.scaling, body_transf.translation)
+
+            sec_cnt, pos_x_list, pos_y_list, pos_z_list = get_positionings(
+                self.tixi, fus_xpath, "fuselage")
+
+            # Initialize to null array of size [sec_cnt]
+            (
+                x_fuselage, y_fuselage_top, y_fuselage_bottom,
+                fus_radius_vec, body_width_vec, body_height_vec
+
+            ) = (np.zeros(sec_cnt) for _ in range(6))
+
+            for i_sec in range(sec_cnt):
+                sec_xpath = fus_xpath + "/sections/section[" + str(i_sec + 1) + "]"
+                sec_uid = self.tixi.getTextAttribute(sec_xpath, "uID")
+                sec_transf = Transformation()
+                sec_transf.get_cpacs_transf(self.tixi, sec_xpath)
+                check_if_rotated(sec_transf.rotation, sec_uid)
+
+                elem_cnt = self.tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
+
+                for i_elem in range(elem_cnt):
+                    elem_transf, prof_size_y, prof_size_z = convert_fuselage_profiles(
+                        self.tixi, sec_xpath, i_sec, i_elem, pos_y_list, pos_z_list
+                    )
+
+                    body_frm_width, body_frm_height = compute_fuselage_coords(
+                        i_sec,
+                        elem_transf,
+                        sec_transf,
+                        fus_transf,
+                        pos_x_list, pos_z_list,
+                        prof_size_y, prof_size_z,
+                        fus_radius_vec,
+                        x_fuselage,
+                        y_fuselage_top, y_fuselage_bottom,
+                    )
+
+                    body_width_vec[i_sec] = body_frm_width
+                    body_height_vec[i_sec] = body_frm_height
+
+                    body_transf_x = x_fuselage + body_transf.translation.x
+                    fus_z_profile = interp1d(body_transf_x, y_fuselage_top - fus_radius_vec)
+                    fus_radius_profile = interp1d(body_transf_x, fus_radius_vec)
+
+                    self.write_fuselage_coords(
+                        fus_dat_path, i_fus,
+                        x_fuselage, y_fuselage_bottom, y_fuselage_top,
+                    )
+
+        return fus_z_profile, fus_radius_profile, body_transf
+
     def convert_wings(
-        self,
-        fus_radius_profile,
-        fus_z_profile,
-        body_transf,
-    ):
+        self: "Avl",
+        fus_radius_profile: interp1d,
+        fus_z_profile: interp1d,
+        body_transf: Transformation,
+    ) -> None:
         wing_cnt = elements_number(self.tixi, WINGS_XPATH, "wing")
 
         for i_wing in range(wing_cnt):
@@ -532,20 +503,17 @@ class Avl:
                 elem_transf.get_cpacs_transf(self.tixi, elem_xpath)
 
                 # Get wing profile (airfoil)
-                prof_uid = self.tixi.getTextElement(elem_xpath + "/airfoilUID")
-                prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(
-                    self.tixi, prof_uid)
-                foil_dat_path = str(self.results_dir) + "/" + prof_uid + ".dat"
+                prof_uid, prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(
+                    self.tixi, elem_xpath + "/airfoilUID")
+
+                airfoil_dir = Path(self.results_dir) / "Airfoil_files"
+                airfoil_dir.mkdir(exist_ok=True)
+                foil_dat_path = str(airfoil_dir / f"{prof_uid}.dat")
 
                 write_airfoil_coords(foil_dat_path, prof_uid, prof_vect_x, prof_vect_z)
 
-                # Convert lists to NumPy arrays
-                prof_vect_x = np.array(prof_vect_x)
-                prof_vect_y = np.array(prof_vect_y)
-                prof_vect_z = np.array(prof_vect_z)
-
                 # Apply scaling
-                x, y, z = prod_points(elem_transf.scaling, sec_transf.scaling, wing_transf.scaling)
+                x, y, z = prod_points(elem_transf.scaling, sec_transf.scaling)
                 prof_vect_x *= x
                 prof_vect_y *= y
                 prof_vect_z *= z
@@ -559,11 +527,7 @@ class Avl:
                     sec_transf.rotation,
                     wg_sk_transf.rotation,
                 )
-                add_rotation = Point(
-                    x=x,
-                    y=y,
-                    z=z,
-                )
+                add_rotation = Point(x=x, y=y, z=z)
 
                 # Get Section rotation
                 wg_sec_rot = euler2fix(add_rotation)
@@ -571,10 +535,9 @@ class Avl:
                 wg_sec_twist = math.radians(wg_sec_rot.y)
                 wg_sec_yaw = math.radians(wg_sec_rot.z)
 
-                # Define the leading edge position from translations
-                x_LE, y_LE, z_LE = sum_points(sec_transf.translation, elem_transf.translation)
-
                 if all(abs(value) < 1e-6 for value in pos_y_list):
+                    # Define the leading edge position from translations
+                    x_LE, y_LE, z_LE = sum_points(sec_transf.translation, elem_transf.translation)
                     x_LE_rot, y_LE_rot, z_LE_rot = rotate_points(
                         x_LE, y_LE, z_LE, wg_sec_dihed, wg_sec_twist, wg_sec_yaw)
                 else:
@@ -630,14 +593,12 @@ class Avl:
         # Write wing settings
         with open(self.avl_path, 'a') as avl_file:
             avl_file.write("#--------------------------------------------------\n")
-            avl_file.write("SURFACE\n")
-            avl_file.write("Wing\n\n")
+            avl_file.write("SURFACE\nWing\n\n")
             avl_file.write("!Nchordwise  Cspace  Nspanwise  Sspace\n")
             avl_file.write(
                 f"{self.nchordwise}  {self.vortex_dist}   {self.nspanwise} {self.vortex_dist}\n\n"
             )
-            avl_file.write("COMPONENT\n")
-            avl_file.write("1\n\n")
+            avl_file.write("COMPONENT\n1\n\n")
 
             # Symmetry
             if (
@@ -663,6 +624,39 @@ class Avl:
                 avl_file.write(f"{self.points_ref[i_points]:.3f}\t")
             avl_file.write("\n\n")
 
+    def write_fuselage_coords(
+        self: "Avl",
+        fus_dat_path: Path,
+        i_fus: int,
+        x_fuselage, y_fuselage_bottom, y_fuselage_top
+    ) -> None:
+        with open(fus_dat_path, 'w') as fus_file:
+            fus_file.write("fuselage" + str(i_fus + 1) + "\n")
+
+            # Write coordinates of the top surface
+            for x_fus, y_fus in reversed(
+                    list(zip(x_fuselage[1:], y_fuselage_top[1:]))):
+                fus_file.write(f"{x_fus:.3f}\t{y_fus:.3f}\n")
+
+            # Write coordinates of the nose of the fuselage
+            y_nose = np.mean([y_fuselage_top[0], y_fuselage_bottom[0]])
+            fus_file.write(f"{x_fuselage[0]:.3f}\t{y_nose:.3f}\n")
+
+            # Write coordinates of the bottom surface
+            for x_fus, y_fus in zip(x_fuselage[1:], y_fuselage_bottom[1:]):
+                fus_file.write(f"{x_fus:.3f}\t{y_fus:.3f}\n")
+
+        with open(self.avl_path, 'a') as avl_file:
+            avl_file.write("BFILE\n")
+            avl_file.write(fus_dat_path + "\n\n")
+
+    def write_fuselage_settings(self, scaling: Point, translation: Point) -> None:
+        with open(self.avl_path, 'a') as avl_file:
+            avl_file.write("#--------------------------------------------------\n")
+            avl_file.write("BODY\nFuselage\n\n")
+            avl_file.write("!Nbody  Bspace\n100\t1.0\n\n")
+            avl_file.write(f"SCALE\n{to_cpacs_format(scaling)}\n\n")
+            avl_file.write(f"TRANSLATE\n{to_cpacs_format(translation)}\n\n")
 
 # =================================================================================================
 #    MAIN

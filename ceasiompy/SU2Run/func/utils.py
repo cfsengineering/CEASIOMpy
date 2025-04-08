@@ -25,6 +25,7 @@ from cpacspy.cpacsfunctions import get_value
 from pathlib import Path
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.configfiles import ConfigFile
+from ceasiompy.Database.func.storing import CeasiompyDb
 from typing import (
     Dict,
     List,
@@ -255,15 +256,20 @@ def check_control_surface(input_string: str) -> str:
 
 
 def retrieve_su2_mesh(
-    su2_mesh_list: List,
+    su2_mesh_list: List[Tuple[bytes, str, str, float]],
     aircraft_name: str,
-    angle: str,
-    deformation_list: List,
-) -> List:
+    angle: float,
+    deformation_list: List[str],
+) -> List[Tuple[bytes, str, str, float]]:
+    """
+    Connect to ceasiompy.db and retrieve the first .su2 mesh for:
+        - Specific aircraft name
+        - Specific deformation from the deformation_list
+        - Specific angle of deformation
 
-    # Connect to the database
-    conn = sqlite3.connect(CEASIOMPY_DB_PATH)
-    cursor = conn.cursor()
+    Append the result to the su2_mesh_list.
+    """
+    db = CeasiompyDb()
 
     for deformation in deformation_list:
         # Query to retrieve the last su2_data value
@@ -274,16 +280,18 @@ def retrieve_su2_mesh(
                     ORDER BY timestamp DESC
                     LIMIT 1
                 """
-        cursor.execute(query, (aircraft_name, deformation, angle))
+        db.cursor.execute(query, (aircraft_name, deformation, angle))
 
-        su2_mesh = cursor.fetchone()
+        su2_mesh: bytes = db.cursor.fetchone()
         log.info(
             f"Loading .su2 file for aircraft {aircraft_name}, "
             f"deformation {deformation} of angle {angle} [deg]."
         )
-        su2_mesh_list.append((su2_mesh, aircraft_name, deformation, angle))
+        su2_mesh_list.append(
+            (su2_mesh[0], aircraft_name, deformation, angle)
+        )
 
-    return su2_mesh_list
+    db.close()
 
 
 def get_surface_pitching_omega(oscillation_type: str, omega: float) -> str:
@@ -310,7 +318,9 @@ def get_surface_pitching_omega(oscillation_type: str, omega: float) -> str:
         raise ValueError("Invalid oscillation_type in get_surface_pitching_omega.")
 
 
-def su2_mesh_list_from_db(tixi: Tixi3) -> List:
+def su2_mesh_list_from_db(
+    tixi: Tixi3
+) -> List[Tuple[bytes, str, str, float]]:
 
     aircraft_name = get_value(tixi, SU2_AIRCRAFT_XPATH)
     su2_mesh_list = []
@@ -320,13 +330,12 @@ def su2_mesh_list_from_db(tixi: Tixi3) -> List:
         retrieve_su2_mesh(su2_mesh_list, aircraft_name, 0.0, ["no_deformation"])
 
     else:
-        angles = get_value(tixi, SU2_CONTROL_SURF_ANGLE_XPATH)
-        angles_list = list(set([str(x) for x in str(angles).split(';')]))
+        angles = str(get_value(tixi, SU2_CONTROL_SURF_ANGLE_XPATH))
+        angles_list = list(set([float(angle) for angle in angles.split(';')]))
 
         for angle in angles_list:
-            if float(angle) != 0.0:
-                deformation_list = CONTROL_SURFACE_LIST
-                retrieve_su2_mesh(su2_mesh_list, aircraft_name, angle, deformation_list)
+            if angle != 0.0:
+                retrieve_su2_mesh(su2_mesh_list, aircraft_name, angle, CONTROL_SURFACE_LIST)
             else:
                 retrieve_su2_mesh(su2_mesh_list, aircraft_name, 0.0, ["no_deformation"])
 

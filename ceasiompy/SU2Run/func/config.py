@@ -629,8 +629,6 @@ def define_markers(tixi: Tixi3, su2_mesh_path: Path) -> Dict:
 def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], List[Path]]:
     """
     Retrieve su2 mesh file data and paths.
-    TODO: Add Args and Returns
-
     """
 
     # Not using ceasiompy.db data
@@ -654,7 +652,7 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
             su2_path = results_dir / f"{aircraft_name}_{deformation}_{angle}.su2"
 
             with open(su2_path, 'w') as su2_file:
-                su2_file.write(su2_mesh[0].decode('utf-8'))
+                su2_file.write(su2_mesh.decode('utf-8'))
 
             su2_mesh_paths.append(Path(su2_path))
 

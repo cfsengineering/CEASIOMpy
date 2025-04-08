@@ -4,4 +4,3 @@ max-line-length = 99
 ignore = W503, F401, W605, E203
 
 exclude = test/*, doc/*, build/*, dist/* setup.py, ceasiompy/Stability*
-# Should be removed: ceasiompy/Stability* (too many things to refactor in those modules)

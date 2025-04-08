@@ -137,11 +137,11 @@ def deal_with_elements(
     # Elements
     elem_cnt = elements_number(tixi, sec_xpath + "/elements", "element", logg=False)
 
-    for i_elem in range(elem_cnt):  
+    for i_elem in range(elem_cnt):
         (
             elem_transf,
             prof_size_y, prof_size_z,
-            prof_vect_y, prof_vect_z 
+            prof_vect_y, prof_vect_z,
         ) = convert_fuselage_profiles(
             tixi, sec_xpath, i_sec, i_elem, pos_y_list, pos_z_list
         )

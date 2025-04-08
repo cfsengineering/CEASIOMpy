@@ -119,11 +119,11 @@ def calculate_body_frame_center(
 
 
 def deal_with_elements(
-    tixi, sumo,
+    tixi: Tixi3, sumo,
     fus_xpath, body_xpath,
     i_sec,
     pos_x_list, pos_y_list, pos_z_list,
-    fus_transf
+    fus_transf: Transformation,
 ) -> None:
     sec_xpath = fus_xpath + "/sections/section[" + str(i_sec + 1) + "]"
     sec_uid = tixi.getTextAttribute(sec_xpath, "uID")
@@ -434,17 +434,9 @@ def convert_wings(tixi: Tixi3, sumo: Tixi3) -> None:
                 prof_vect_z *= elem_transf.scaling.z * \
                     sec_transf.scaling.z * wing_transf.scaling.z
 
-                # Plot setions (for tests)
-                # import matplotlib.pyplot as plt
-                # if (i_sec>8 and i_sec<=10):
-                #     plt.plot(prof_vect_x, prof_vect_z,'x')
-                #     plt.xlabel('x')
-                #     plt.ylabel('z')
-                #     plt.grid(True)
-                #     plt.show()
-
                 wg_sec_chord = corrects_airfoil_profile(
-                    prof_vect_x, prof_vect_y, prof_vect_z)
+                    prof_vect_x, prof_vect_y, prof_vect_z
+                )
 
                 # SUMO variable for WingSection
                 wg_sec_center_x = (

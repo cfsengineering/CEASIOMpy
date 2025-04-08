@@ -376,7 +376,7 @@ def compute_moments(
     return moments
 
 
-def get_leading_edge(model: AeroModel) -> Tuple[float, float, float]:
+def get_main_wing_le(model: AeroModel) -> Tuple[float, float, float]:
     """
     Get leading edge of main wing.
 
@@ -566,7 +566,7 @@ def compute_dot_derivatives(self) -> DataFrame:
     k_beta_model = 2 * k_nastran / self.b  # = omega / velocity
 
     # Leading edge of airplane
-    x_le, _, _ = get_leading_edge(model)
+    x_le, _, _ = get_main_wing_le(model)
     x_hinge = x_le + (self.c / 4)  # Hinge point on x-axis
     check_x_hinge(aerogrid, x_hinge)
 

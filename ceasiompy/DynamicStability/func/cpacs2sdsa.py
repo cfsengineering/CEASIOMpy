@@ -33,7 +33,7 @@ from ceasiompy.utils.ceasiompyutils import (
     aircraft_name,
 )
 from ceasiompy.DynamicStability.func.dotderivatives import (
-    get_leading_edge,
+    get_main_wing_le,
     compute_dot_derivatives,
 )
 
@@ -235,7 +235,7 @@ class SDSAFile:
         if self.model is None:
             log.warning("Issue with DLM model in cpacs2sdsa.py.")
         else:
-            x_le, _, z_le = get_leading_edge(self.model)
+            x_le, _, z_le = get_main_wing_le(self.model)
             x_cg = x_le + (self.c / 4.0)
 
             self.update(self.piloteye_xpath + "/X", f"{x_cg}")

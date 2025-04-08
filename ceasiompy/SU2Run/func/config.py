@@ -23,7 +23,7 @@ import numpy as np
 from shutil import copyfile
 from ceasiompy.SU2Run.func.plot import save_plots
 from ceasiompy.CPACS2GMSH.func.mesh_sizing import wings_size
-from ceasiompy.utils.geometryfunctions import get_leading_edge
+from ceasiompy.utils.geometryfunctions import get_main_wing_le
 from ceasiompy.SU2Run.func.dotderivatives import load_parameters
 
 from ceasiompy.utils.ceasiompyutils import (
@@ -489,7 +489,7 @@ def configure_cfd_environment(
 
             for oscillation_type in ["alpha", "beta"]:
                 # Center of gravity
-                x1, _, z1, c = get_leading_edge(tixi)
+                x1, _, z1, c = get_main_wing_le(tixi)
                 x_cg = x1 + (c / 4)
 
                 # Load parameters

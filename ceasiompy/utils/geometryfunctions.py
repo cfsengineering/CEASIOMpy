@@ -40,6 +40,10 @@ from ceasiompy.utils.generalclasses import (
 
 from ceasiompy import log
 from ceasiompy.utils.commonxpath import WINGS_XPATH
+from numpy import (
+    min,
+    max,
+)
 
 # =================================================================================================
 #   FUNCTIONS
@@ -172,29 +176,30 @@ def corrects_airfoil_profile(
         wg_sec_chord (float): Wing's section chord length.
 
     """
-    prof_size_x = np.max(prof_vect_x) - np.min(prof_vect_x)
-    prof_size_y = np.max(prof_vect_y) - np.min(prof_vect_y)
+    prof_size_x = max(prof_vect_x) - min(prof_vect_x)
+    prof_size_y = max(prof_vect_y) - min(prof_vect_y)
+    prof_size_z = max(prof_vect_z) - min(prof_vect_z)
 
     wg_sec_chord = 0.0
 
-    if prof_size_y == 0:
-        if prof_size_x == 0.0:
-            log.warning("Can not divide by zero. prof_size_x == 0.0.")
+    if prof_size_y != 0.0:
+        log.error("An airfoil profile is not defined correctly: prof_size_y should be 0.0")
+        return wg_sec_chord
+
+    if prof_size_x == 0.0:
+        if prof_size_z == 0.0:
+            log.warning("Invalid airfoil profile: prof_size_x and prof_size_z are both 0.0")
+            return wg_sec_chord
         else:
-            # Apply scaling
-            prof_vect_x /= prof_size_x
-            prof_vect_z /= prof_size_x
+            log.warning("Invalid airfoil profile: prof_size_x is 0.0")
+            return wg_sec_chord
 
-            # Convert back to lists
-            prof_vect_x = prof_vect_x.tolist()
-            prof_vect_y = prof_vect_y.tolist()
-            prof_vect_z = prof_vect_z.tolist()
+    # Apply scaling
+    prof_vect_x /= prof_size_x
+    prof_vect_z /= prof_size_x
 
-            wg_sec_chord = prof_size_x
-    else:
-        log.error("An airfoil profile is not define correctly")
-
-    return wg_sec_chord
+    # Return the chord length
+    return prof_size_x
 
 
 def get_chord_span(tixi: Tixi3, wing_xpath: str) -> Tuple[float, float]:
@@ -241,13 +246,6 @@ def get_chord_span(tixi: Tixi3, wing_xpath: str) -> Tuple[float, float]:
 def return_namewings(tixi: Tixi3) -> List:
     """
     Returns the names of all wings in the tixi handle of the CPACS file.
-
-    Args:
-        tixi (Tixi3): TIXI Handle of the CPACS file.
-
-    Returns:
-        wing_names (List): List of wing names in the tixi handle of the CPACS file.
-
     """
 
     # Initialize list to store wing names
@@ -267,13 +265,6 @@ def return_namewings(tixi: Tixi3) -> List:
 def return_uidwings(tixi: Tixi3) -> List:
     """
     Returns the uIDs of all wings in the tixi handle of the CPACS file.
-
-    Args:
-        tixi (Tixi3): TIXI Handle of the CPACS file.
-
-    Returns:
-        wing_uids (List): List of wing uIDs.
-
     """
 
     # Initialize list to store wing uIDs
@@ -413,6 +404,88 @@ def get_positionings(tixi: Tixi3, xpath: str, element: str = "") -> Tuple[int, L
     return sec_cnt, pos_x_list, pos_y_list, pos_z_list
 
 
+def get_section_rotation(
+    tixi: Tixi3,
+    i_sec: int,
+    wing_sections_xpath: str,
+    wing_transf: Transformation,
+    wg_sk_transf: Transformation,
+) -> Tuple[Point, float, ndarray, ndarray, ndarray, str]:
+    # Access section xpath
+    sec_xpath = wing_sections_xpath + "/section[" + str(i_sec + 1) + "]"
+    sec_uid = tixi.getTextAttribute(sec_xpath, "uID")
+    sec_transf = Transformation()
+    sec_transf.get_cpacs_transf(tixi, sec_xpath)
+
+    # Get the number of elements
+    elem_cnt = tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
+
+    if elem_cnt > 1:
+        log.warning(
+            f"Sections {sec_uid} contains {elem_cnt} elements !"
+        )
+
+    # Access element xpath
+    elem_xpath = sec_xpath + "/elements/element[1]"
+    elem_transf = Transformation()
+    elem_transf.get_cpacs_transf(tixi, elem_xpath)
+
+    # Get wing profile (airfoil)
+    prof_uid = tixi.getTextElement(elem_xpath + "/airfoilUID")
+    prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
+
+    # Convert lists to numpy arrays if they are not already
+    prof_vect_x = np.array(prof_vect_x)
+    prof_vect_y = np.array(prof_vect_y)
+    prof_vect_z = np.array(prof_vect_z)
+
+    # Apply scaling using numpy operations
+    prof_vect_x, prof_vect_y, prof_vect_z = prod_points(
+        elem_transf.scaling,
+        sec_transf.scaling,
+        wing_transf.scaling
+    )
+
+    wg_sec_chord = corrects_airfoil_profile(prof_vect_x, prof_vect_y, prof_vect_z)
+
+    # Adding the two angles: May not work in every case !!!
+    x, y, z = sum_points(elem_transf.rotation, sec_transf.rotation, wg_sk_transf.rotation)
+    add_rotation = Point(x=x, y=y, z=z)
+
+    # Get section rotation
+    wg_sec_rot = euler2fix(add_rotation)
+
+    return wg_sec_rot, wg_sec_chord, prof_vect_x, prof_vect_y, prof_vect_z, prof_uid
+
+
+def get_leading_edge(
+    i_sec: int,
+    wg_sk_transf: Transformation,
+    wg_sec_rot: Point,
+    wg_sec_chord: float,
+    pos_x_list: List,
+    pos_y_list: List,
+    pos_z_list: List,
+) -> Tuple[float, float, float, float]:
+
+    wg_sec_dihed = math.radians(wg_sec_rot.x)
+    wg_sec_twist = math.radians(wg_sec_rot.y)
+    wg_sec_yaw = math.radians(wg_sec_rot.z)
+
+    # Apply 3d rotation of section rotation
+    x_le_rot, y_le_rot, z_le_rot = rotate_points(
+        pos_x_list[i_sec], pos_y_list[i_sec], pos_z_list[i_sec],
+        wg_sec_dihed, wg_sec_twist, wg_sec_yaw
+    )
+
+    x_le_abs, y_le_abs, z_le_abs = sum_points(
+        wg_sk_transf.translation,
+        Point(x=x_le_rot, y=y_le_rot, z=z_le_rot),
+    )
+
+    return x_le_abs, y_le_abs, z_le_abs, wg_sec_chord
+
+
 def access_leading_edges(
     tixi: Tixi3,
     list_cnt: List,
@@ -446,64 +519,21 @@ def access_leading_edges(
     le_list = []
 
     for i_sec in list_cnt:
-        # Access section xpath
-        sec_xpath = wing_sections_xpath + "/section[" + str(i_sec + 1) + "]"
-        sec_uid = tixi.getTextAttribute(sec_xpath, "uID")
-        sec_transf = Transformation()
-        sec_transf.get_cpacs_transf(tixi, sec_xpath)
+        wg_sec_rot, wg_sec_chord, _, _, _, _ = get_section_rotation(
+            tixi,
+            i_sec,
+            wing_sections_xpath,
+            wing_transf, wg_sk_transf
+        )
 
-        # Get the number of elements
-        elem_cnt = tixi.getNamedChildrenCount(sec_xpath + "/elements", "element")
+        x_le_abs, y_le_abs, z_le_abs, wg_sec_chord = get_leading_edge(
+            i_sec,
+            wg_sk_transf,
+            wg_sec_rot, wg_sec_chord,
+            pos_x_list, pos_y_list, pos_z_list,
+        )
 
-        if elem_cnt > 1:
-            log.warning(
-                f"Sections {sec_uid} contains {elem_cnt} elements !"
-            )
-        else:
-            # Access element xpath
-            elem_xpath = sec_xpath + "/elements/element[1]"
-            elem_transf = Transformation()
-            elem_transf.get_cpacs_transf(tixi, elem_xpath)
-
-            # Get wing profile (airfoil)
-            prof_uid = tixi.getTextElement(elem_xpath + "/airfoilUID")
-            prof_vect_x, prof_vect_y, prof_vect_z = get_profile_coord(tixi, prof_uid)
-
-            # Convert lists to numpy arrays if they are not already
-            prof_vect_x = np.array(prof_vect_x)
-            prof_vect_y = np.array(prof_vect_y)
-            prof_vect_z = np.array(prof_vect_z)
-
-            # Apply scaling using numpy operations
-            prof_vect_x, prof_vect_y, prof_vect_z = prod_points(
-                elem_transf.scaling,
-                sec_transf.scaling,
-                wing_transf.scaling
-            )
-
-            wg_sec_chord = corrects_airfoil_profile(prof_vect_x, prof_vect_y, prof_vect_z)
-
-            # Adding the two angles: May not work in every case !!!
-            x, y, z = sum_points(elem_transf.rotation, sec_transf.rotation, wg_sk_transf.rotation)
-            add_rotation = Point(x=x, y=y, z=z)
-
-            # Get section rotation
-            wg_sec_rot = euler2fix(add_rotation)
-            wg_sec_dihed = math.radians(wg_sec_rot.x)
-            wg_sec_twist = math.radians(wg_sec_rot.y)
-            wg_sec_yaw = math.radians(wg_sec_rot.z)
-
-            # Apply 3d rotation of section rotation
-            x_LE_rot, y_LE_rot, z_LE_rot = rotate_points(
-                pos_x_list[i_sec], pos_y_list[i_sec], pos_z_list[i_sec],
-                wg_sec_dihed, wg_sec_twist, wg_sec_yaw
-            )
-
-            x_le_abs = x_LE_rot + wg_sk_transf.translation.x
-            y_le_abs = y_LE_rot + wg_sk_transf.translation.y
-            z_le_abs = z_LE_rot + wg_sk_transf.translation.z
-
-            le_list.append([x_le_abs, y_le_abs, z_le_abs, wg_sec_chord])
+        le_list.append([x_le_abs, y_le_abs, z_le_abs, wg_sec_chord])
 
     return le_list
 
@@ -541,7 +571,6 @@ def wing_sections(
     wing_sections_xpath = wing_xpath + "/sections"
 
     if tixi.checkElement(wing_sections_xpath):
-        # Get the number of sections
         sec_cnt = tixi.getNamedChildrenCount(wing_sections_xpath, "section")
 
         wing_transf = Transformation()
@@ -549,11 +578,7 @@ def wing_sections(
 
         # Create a class for the transformation of the WingSkeleton
         wg_sk_transf = Transformation()
-
-        # Convert WingSkeleton rotation
         wg_sk_transf.rotation = euler2fix(wing_transf.rotation)
-
-        # Add WingSkeleton origin
         wg_sk_transf.translation = wing_transf.translation
 
         if list_type == "first_n_last":
@@ -578,7 +603,7 @@ def wing_sections(
         )
 
 
-def get_leading_edge(tixi: Tixi3) -> Tuple[float, float, float, float]:
+def get_main_wing_le(tixi: Tixi3) -> Tuple[float, float, float, float]:
     """
     Get main wing's leading edge position of first section from tixi handle,
     along with chord length.

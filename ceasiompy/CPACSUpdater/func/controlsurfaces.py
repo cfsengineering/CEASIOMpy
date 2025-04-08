@@ -37,7 +37,7 @@ from ceasiompy.CPACSUpdater.func.utils import (
     find_max_x,
     find_min_x,
     array_to_str,
-    interpolate_points,
+    # interpolate_points,
     symmetric_operation,
 )
 

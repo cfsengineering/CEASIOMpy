@@ -100,6 +100,8 @@ class ModelPart:
         self.children_dimtag = set()
         # Physical groups
         self.physical_groups = []
+        # Bounding box (used in RANS)
+        self.bounding_box = []
 
     def associate_child_to_parent(self, child_dimtag):
         """

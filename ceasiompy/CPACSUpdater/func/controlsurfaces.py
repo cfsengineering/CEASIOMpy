@@ -133,7 +133,7 @@ def compute_abs_location(tixi: Tixi3, wing_xpath: str) -> Dict[str, Tuple[str, s
     rax, ray, raz = -math.radians(deg_x), -math.radians(deg_y), -math.radians(deg_z)
 
     trans_xpath = wing_xpath + "/transformation/translation/"
-    tx, ty, tz = get_point(trans_xpath)
+    tx, ty, tz = get_point(tixi, trans_xpath)
 
     rx, ry, rz = get_rotation_matrix(rax, ray, raz)
     rot = rz @ ry @ rx

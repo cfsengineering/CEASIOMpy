@@ -52,10 +52,6 @@ jobs:
       shell: bash -l {0}
       run: pip install -e .
 
-    - name: Install SUMO
-      shell: bash -l {0}
-      run: installation/Ubuntu/install_sumo.sh
-
     - name: Install AVL
       shell: bash -l {0}
       run: installation/Ubuntu/install_pyavl.sh

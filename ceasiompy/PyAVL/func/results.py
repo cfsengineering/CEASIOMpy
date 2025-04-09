@@ -35,7 +35,7 @@ from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
 from ceasiompy.PyAVL.func import AVL_COEFS
-from ceasiompy.PyAVL.func import (
+from ceasiompy.PyAVL import (
     AVL_XPATH,
     AVL_TABLE_XPATH,
     AVL_PLOTLIFT_XPATH,

@@ -36,9 +36,3 @@ include_gui = False
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
 RES_DIR = True
-
-# ==============================================================================
-#   EXPORT
-# ==============================================================================
-
-__all__ = ['MODULE_NAME']

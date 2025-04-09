@@ -40,11 +40,6 @@ MODULE_NAME = MODULE_DIR.name
 # Specific to CPACSUpdater module
 CONTROL_SURFACES_LIST = ["none", "plain_aileron", "plain_rudder", "plain_flap", "fowler_flap"]
 
-# ==============================================================================
-#   EXPORT
-# ==============================================================================
-
-__all__ = ["MODULE_NAME", "RES_DIR", "CONTROL_SURFACES_LIST"]
 
 # =================================================================================================
 #    MAIN

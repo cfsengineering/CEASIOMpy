@@ -1,11 +1,13 @@
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpath import (
-    CEASIOMPY_XPATH,
+from ceasiompy.PyAVL import (
     AVL_PLOT_XPATH,
     AVL_VORTEX_DISTR_XPATH,
     AVL_AEROMAP_UID_XPATH,
+)
+from ceasiompy.utils.commonxpath import (
+    CEASIOMPY_XPATH,
     AEROPERFORMANCE_XPATH,
     FRAMAT_MATERIAL_XPATH,
     FRAMAT_SECTION_XPATH,

@@ -62,7 +62,7 @@ from ceasiompy.utils.generalclasses import (
 )
 
 from ceasiompy import log
-from ceasiompy.PyAVL.func import (
+from ceasiompy.PyAVL import (
     AVL_DISTR_XPATH,
     AVL_FUSELAGE_XPATH,
     AVL_NSPANWISE_XPATH,

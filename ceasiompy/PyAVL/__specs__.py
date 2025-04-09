@@ -25,7 +25,7 @@ from ceasiompy.utils.moduleinterfaces import CPACSInOut
 from ceasiompy import log
 from ceasiompy.PyAVL import include_gui
 
-from ceasiompy.PyAVL.func import (
+from ceasiompy.PyAVL import (
     AVL_PLOT_XPATH,
     AVL_DISTR_XPATH,
     AVL_NB_CPU_XPATH,

@@ -12,16 +12,14 @@ Python version: >=3.8
 | Author: Romain Gauthier
 | Creation: 2024-06-19
 
-TODO:
-
-    * Things to improve...
-
 """
 
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
+
 import matplotlib.pyplot as plt
+
 from pathlib import Path
 
 from ceasiompy import log
@@ -32,10 +30,8 @@ from ceasiompy import log
 
 
 def plot_fem_mesh(wing_df, centerline_df, wkdir):
-    """Function to plot the VLM and FEM meshes.
-
-    Function 'plot_fem_mesh' saves a plot of the
-    VLM and FEM meshes in the x-y and y-z planes.
+    """
+    Saves a plot of the VLM and FEM meshes in the x-y and y-z planes.
 
     Args:
         wing_df (pandas dataframe): dataframe containing the VLM nodes.
@@ -66,15 +62,13 @@ def plot_fem_mesh(wing_df, centerline_df, wkdir):
 
 
 def plot_deformed_wing(centerline_df, undeformed_df, wkdir):
-    """Function to plot the deformed shape of the wing.
-
-    Function 'plot_deformed_wing' saves a plot of the
-    deformed and undeformed shapes of the wing.
+    """
+    Saves a plot of the deformed and undeformed shapes of the wing.
 
     Args:
-        centerline_df (pandas dataframe): dataframe containing the nodes of the deformed wing.
-        undeformed_df (pandas dataframe): dataframe containing the nodes of the initial wing.
-        wkdir (Path): path to the directory to save the plot.
+        centerline_df (DataFrame): Contains nodes of the deformed wing.
+        undeformed_df (DataFrame): Contains nodes of the initial wing.
+        wkdir (Path): Path to the directory to save the plot.
     """
     fig, axs = plt.subplots()
     axs.plot(centerline_df['y_new'],
@@ -105,5 +99,4 @@ def plot_deformed_wing(centerline_df, undeformed_df, wkdir):
 # =================================================================================================
 
 if __name__ == "__main__":
-
     log.info("Nothing to execute!")

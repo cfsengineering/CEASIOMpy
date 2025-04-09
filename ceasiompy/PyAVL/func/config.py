@@ -45,7 +45,7 @@ from ceasiompy.utils.commonxpath import (
     AREA_XPATH,
     LENGTH_XPATH,
 )
-from ceasiompy.PyAVL.func import (
+from ceasiompy.PyAVL import (
     AVL_PLOT_XPATH,
     AVL_NB_CPU_XPATH,
     AVL_ROTRATES_XPATH,

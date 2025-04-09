@@ -33,8 +33,7 @@ from ceasiompy.utils.ceasiompyutils import (
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
 
-from ceasiompy.PyAVL import MODULE_DIR
-from ceasiompy.PyAVL.func import AVL_AEROMAP_UID_XPATH
+from ceasiompy.PyAVL import MODULE_DIR, AVL_AEROMAP_UID_XPATH
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 
 

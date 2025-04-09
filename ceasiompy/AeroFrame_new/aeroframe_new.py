@@ -31,7 +31,7 @@ from cpacspy.cpacsfunctions import (
     create_branch,
 )
 from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
-from ceasiompy.AeroFrame_new.func.aeroframe_config import (
+from ceasiompy.AeroFrame_new.func.config import (
     read_AVL_fe_file,
     create_framat_model,
     get_material_properties,
@@ -42,20 +42,22 @@ from ceasiompy.AeroFrame_new.func.aeroframe_config import (
     write_deformed_command
 )
 
-from ceasiompy.AeroFrame_new.func.aeroframe_results import (
+from ceasiompy.AeroFrame_new.func.results import (
     compute_deformations,
     plot_translations_rotations,
     plot_convergence
 )
 
-from ceasiompy.AeroFrame_new.func.aeroframe_debbug import (
+from ceasiompy.AeroFrame_new.func.plot import (
     plot_fem_mesh,
     plot_deformed_wing
 )
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.PyAVL import (
     AVL_PLOT_XPATH,
     AVL_AEROMAP_UID_XPATH,
+)
+from ceasiompy.utils.commonxpath import (
     FRAMAT_RESULTS_XPATH,
     FRAMAT_MESH_XPATH,
     AEROFRAME_SETTINGS

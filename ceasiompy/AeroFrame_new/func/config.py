@@ -41,13 +41,12 @@ from ceasiompy.utils.commonxpath import (
     WINGS_XPATH
 )
 from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
-from ceasiompy.utils.mathfunctions import euler2fix
+from ceasiompy.utils.mathfunctions import euler2fix, rotate_points
 from ceasiompy.utils.geometryfunctions import get_positionings
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from ceasiompy.AeroFrame_new.func.utils import (
     PolyArea,
     second_moments_of_area,
-    rotate_3D_points
 )
 
 from ceasiompy import log
@@ -313,12 +312,14 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
 
     # Add orientation property to the beam
     for i_node in range(len(centerline_df) - 1):
-        up_x, up_y, up_z = rotate_3D_points(x=0,
-                                            y=0,
-                                            z=1,
-                                            angle_x=centerline_df.iloc[i_node]["thx_new"],
-                                            angle_y=centerline_df.iloc[i_node]["thy_new"],
-                                            angle_z=centerline_df.iloc[i_node]["thz_new"])
+        up_x, up_y, up_z = rotate_points(
+            x=0,
+            y=0,
+            z=1,
+            angle_x=centerline_df.iloc[i_node]["thx_new"],
+            angle_y=-centerline_df.iloc[i_node]["thy_new"],
+            angle_z=centerline_df.iloc[i_node]["thz_new"],
+        )
 
         beam.add('orientation', {'from': centerline_df.iloc[i_node]['node_uid'],
                                  'to': centerline_df.iloc[i_node + 1]['node_uid'],

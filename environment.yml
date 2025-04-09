@@ -201,7 +201,6 @@ dependencies:
   - numpy=1.23.3
   - oce=0.17.2
   - olefile=0.47
-  - om-pycycle=4.3.0
   - openh264=2.1.1
   - openjpeg=2.5.0
   - openmdao=3.18.0
@@ -346,6 +345,7 @@ dependencies:
       - model-framework==0.0.20
       - mypy-extensions==1.0.0
       - numpydoc==1.7.0
+      - om-pycycle=4.3.0
       - panelaero==2024.2
       - pathspec==0.12.1
       - protobuf==5.29.4

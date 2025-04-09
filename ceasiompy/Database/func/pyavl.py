@@ -53,12 +53,12 @@ def store_results(
     if key in ["Clb", "Cnb"]:
         if len(parts) > 2:
             results[var_name] = split_line(line, index)
-    
+
     # Handle control surface keys or general case
     elif key in PYAVL_CTRLSURF:
         if len(parts) == 2:
             results[var_name] = split_line(line, index)
-    
+
     # General case for other keys
     else:
         results[var_name] = split_line(line, index)

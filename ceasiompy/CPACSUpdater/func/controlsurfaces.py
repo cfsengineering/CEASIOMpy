@@ -124,9 +124,7 @@ def compute_abs_location(tixi: Tixi3, wing_xpath: str) -> Dict[str, Tuple[str, s
     result = {}
     # TODO: Case with scale, where do we put the scaling operation.
     # scale_xpath = wing_xpath + "/transformation/scaling/"
-    # sx = float(tixi.getTextElement(scale_xpath + x_xpath))
-    # sy = float(tixi.getTextElement(scale_xpath + y_xpath))
-    # sz = float(tixi.getTextElement(scale_xpath + z_xpath))
+    # sx, sy, sz = get_point(tixi, scale_xpath)
 
     rot_xpath = wing_xpath + "/transformation/rotation/"
     deg_x, deg_y, deg_z = get_point(tixi, rot_xpath)

@@ -243,10 +243,11 @@ def get_static_results(
         extract_loads(config_dir)
 
 
-def get_dynamic_force_files(angle_file: Path, angle: float) -> Path:
+def get_dynamic_force_files(file_path: Path) -> Path:
     # Get results from dynstab
     force_file_paths = list(
-        Path(angle_file[angle]).glob("forces_breakdown_*.dat"))
+        Path(file_path).glob("forces_breakdown_*.dat")
+    )
 
     if not force_file_paths:
         raise OSError("No result force file have been found!")
@@ -298,13 +299,7 @@ def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
 
         # Retrive forces and moments for (alpha, alpha_dot) = (alpha(t), alpha_dot(t))
         for angle in ['alpha']:  # , 'beta'
-
-            # Get results from dynstab
-            force_file_paths = list(
-                Path(angle_file[angle]).glob("forces_breakdown_*.dat"))
-
-            if not force_file_paths:
-                raise OSError("No result force file have been found!")
+            force_file_paths = get_dynamic_force_files(angle_file[angle])
 
             forces_coef_list, moments_coef_list = [], []
 
@@ -358,14 +353,17 @@ def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
 
             log.info(f"q {q_dyn} fx {fx} mx {mx}, cfx {cfx} cmx {cmx}")
 
-            for i, label in enumerate(['cfx', 'cfy', 'cfz']):
+            for i, label in enumerate([("cfx", "cmx"), "cfy", "cfz"]):
+                element_name = f"{label}_{angle}"
+                prim_name = element_name + "prim"
                 ensure_and_append_text_element(
-                    tixi, xpath, f"{label}_{angle}", str(cfx[i]))
+                    tixi, xpath, element_name, str(cfx[i]))
                 ensure_and_append_text_element(
-                    tixi, xpath, f"{label}_{angle}prim", str(cfy[i]))
-            for i, label in enumerate(['cmx', 'cmy', 'cmz']):
+                    tixi, xpath, prim_name, str(cfy[i]))
+            for i, label in enumerate(["cmx", "cmy", "cmz"]):
+                element_name = f"{label}_{angle}"
                 ensure_and_append_text_element(
-                    tixi, xpath, f"{label}_{angle}", str(cmx[i]))
+                    tixi, xpath, element_name, str(cmx[i]))
                 ensure_and_append_text_element(
                     tixi, xpath, f"{label}_{angle}prim", str(cmy[i]))
 

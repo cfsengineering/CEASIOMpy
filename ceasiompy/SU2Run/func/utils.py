@@ -46,7 +46,6 @@ from ceasiompy.utils.commonxpath import (
     SU2_CONTROL_SURF_BOOL_XPATH,
     SU2_CONTROL_SURF_ANGLE_XPATH,
     SU2_AEROMAP_UID_XPATH,
-    SU2_FORCES_BREAKDOWN_NAME,
 )
 from ceasiompy.utils.commonnames import (
     CONFIG_CFD_NAME,
@@ -54,6 +53,7 @@ from ceasiompy.utils.commonnames import (
     ENGINE_EXHAUST_SUFFIX,
     ACTUATOR_DISK_INLET_SUFFIX,
     ACTUATOR_DISK_OUTLET_SUFFIX,
+    SU2_FORCES_BREAKDOWN_NAME,
 )
 
 # =================================================================================================

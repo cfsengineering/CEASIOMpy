@@ -243,6 +243,16 @@ def get_static_results(
         extract_loads(config_dir)
 
 
+def get_dynamic_force_files(angle_file: Path, angle: float) -> Path:
+    # Get results from dynstab
+    force_file_paths = list(
+        Path(angle_file[angle]).glob("forces_breakdown_*.dat"))
+
+    if not force_file_paths:
+        raise OSError("No result force file have been found!")
+    return force_file_paths
+
+
 def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
     # Extract unique mach and alt values
     mach_values = list(set(d['mach'] for d in dict_dir))

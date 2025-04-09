@@ -505,7 +505,7 @@ def get_conditions_from_aeromap(aeromap: AeroMap) -> Tuple[List, List, List, Lis
     mach_list = aeromap.get("machNumber").tolist()
     aoa_list = aeromap.get("angleOfAttack").tolist()
     aos_list = aeromap.get("angleOfSideslip").tolist()
-    return alt_list, mach_list, aoa_list, aos_list 
+    return alt_list, mach_list, aoa_list, aos_list
 
 
 def get_aeromap_conditions(cpacs: CPACS, uid_xpath: str) -> Tuple[List, List, List, List]:

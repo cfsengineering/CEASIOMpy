@@ -23,7 +23,7 @@ dependencies:
   - pythreejs=2.3.0
   - pyvista=0.44.2
   - xmltodict=0.12.0
-  - vtk=9.3.1
+  - vtk=9.0.1
 
   - pip:
     - altair==4.0.0

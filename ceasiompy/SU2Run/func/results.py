@@ -353,19 +353,26 @@ def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
 
             log.info(f"q {q_dyn} fx {fx} mx {mx}, cfx {cfx} cmx {cmx}")
 
-            for i, label in enumerate([("cfx", "cmx"), "cfy", "cfz"]):
-                element_name = f"{label}_{angle}"
-                prim_name = element_name + "prim"
+            for i, label in enumerate(
+                [("cfx", "cmx"), ("cfy", "cmy"), ("cfz", "cmz")]
+            ):
+                f_element_name = f"{label[0]}_{angle}"
+                f_prim_name = f_element_name + "prim"
+                s_element_name = f"{label[1]}_{angle}"
+                s_prim_name = s_element_name + "prim"
+
                 ensure_and_append_text_element(
-                    tixi, xpath, element_name, str(cfx[i]))
+                    tixi, xpath, f_element_name, str(cfx[i])
+                )
                 ensure_and_append_text_element(
-                    tixi, xpath, prim_name, str(cfy[i]))
-            for i, label in enumerate(["cmx", "cmy", "cmz"]):
-                element_name = f"{label}_{angle}"
+                    tixi, xpath, f_prim_name, str(cfy[i])
+                )
                 ensure_and_append_text_element(
-                    tixi, xpath, element_name, str(cmx[i]))
+                    tixi, xpath, s_element_name, str(cmx[i])
+                )
                 ensure_and_append_text_element(
-                    tixi, xpath, f"{label}_{angle}prim", str(cmy[i]))
+                    tixi, xpath, s_prim_name, str(cmy[i])
+                )
 
 
 def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:

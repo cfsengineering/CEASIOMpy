@@ -39,4 +39,4 @@ dependencies:
     - smt==1.2.0
     - streamlit==1.40.1
     - streamlit-autorefresh
-    - matplotlib=3.7.5
+    - matplotlib==3.7.5

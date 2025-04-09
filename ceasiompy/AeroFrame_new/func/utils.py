@@ -20,10 +20,10 @@ TODO:
 #   IMPORTS
 # ==============================================================================
 import numpy as np
-import math
-from shapely.geometry import Polygon
-from ceasiompy import log
 
+from shapely.geometry import Polygon
+
+from ceasiompy import log
 
 # =================================================================================================
 #   FUNCTIONS

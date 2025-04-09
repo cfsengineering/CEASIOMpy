@@ -29,7 +29,10 @@ from sqlite3 import Cursor
 from tixi3.tixi3wrapper import Tixi3
 
 from ceasiompy import log
-from ceasiompy.Database.func import PYAVL_ST
+from ceasiompy.Database.func import (
+    PYAVL_ST,
+    PYAVL_CTRLSURF,
+)
 
 
 # ==============================================================================
@@ -37,16 +40,34 @@ from ceasiompy.Database.func import PYAVL_ST
 # ==============================================================================
 
 
+def store_results(
+    results: Dict,
+    key: str,
+    line: str,
+    index: int,
+    var_name: str,
+) -> None:
+    parts = line.split('=')
+
+    # Handle special case for keys like "Clb" and "Cnb"
+    if key in ["Clb", "Cnb"]:
+        if len(parts) > 2:
+            results[var_name] = split_line(line, index)
+    
+    # Handle control surface keys or general case
+    elif key in PYAVL_CTRLSURF:
+        if len(parts) == 2:
+            results[var_name] = split_line(line, index)
+    
+    # General case for other keys
+    else:
+        results[var_name] = split_line(line, index)
+
+
 def get_avl_data(force_file: Path) -> Dict:
     """
-    Get aerodynamic coefficients and velocity from AVL total forces file (sb.txt).
-
-    Args:
-        force_file_ft (Path): Path to the AVL total forces file.
-
-    Returns:
-        (Dict[str, float]): Results from AVL.
-
+    Get aerodynamic coefficients and velocity
+    from AVL total forces file (sb.txt).
     """
 
     results = {var_name: None for _, var_name in PYAVL_ST.values()}
@@ -55,18 +76,13 @@ def get_avl_data(force_file: Path) -> Dict:
         for line in f.readlines():
             for key, (index, var_name) in PYAVL_ST.items():
                 if key in line:
-                    # Exception as they appear twice in .txt file
-                    if key in ["Clb", "Cnb"]:
-                        parts = line.split('=')
-                        if len(parts) > 2:
-                            results[var_name] = split_line(line, index)
-                    elif key in ["flap", "aileron", "elevator", "rudder"]:
-                        parts = line.split('=')
-                        if len(parts) == 2:
-                            results[var_name] = split_line(line, index)
-                    else:
-                        results[var_name] = split_line(line, index)
-
+                    store_results(
+                        results,
+                        key,
+                        line,
+                        index,
+                        var_name,
+                    )
     return results
 
 

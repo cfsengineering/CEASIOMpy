@@ -139,6 +139,9 @@ PYAVL_ST = {
     "Cnb": (2, "cml_b"),
 }
 
+# pyavl.py
+PYAVL_CTRLSURF = ["flap", "aileron", "elevator", "rudder"]
+
 
 # ==============================================================================
 #    MAIN

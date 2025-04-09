@@ -471,14 +471,20 @@ def run_software(
 
 
 def get_reasonable_nb_cpu() -> int:
-    """Get a reasonable number of processors depending on the total number of processors on
+    """
+    Get a reasonable number of processors depending on the total number of processors on
     the host machine. Approximately 1/4 of the total number of processors will be used.
     This function is generally used to set up a default value for the number of processors,
-    the user can then override this value with the settings."""
+    the user can then override this value with the settings.
+    """
 
     cpu_count = os.cpu_count()
 
     if cpu_count is None:
+        log.warning(
+            "Could not figure out the number of CPU(s) on your machine. "
+            "This might be an issue with the OS you use."
+        )
         return 1
 
     return math.ceil(cpu_count / 4)

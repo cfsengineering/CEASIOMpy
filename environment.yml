@@ -375,4 +375,3 @@ dependencies:
       - toolz==1.0.0
       - vtk==9.3.1
       - watchdog==4.0.2
-prefix: /home/cfse2/anaconda3/envs/ceasiompy

@@ -46,15 +46,17 @@ from ceasiompy.CPACS2GMSH.func.generategmesh import (
 )
 from ceasiompy.utils.ceasiomlogger import get_logger
 
-# from ceasiompy.utils.commonnames import (
-#     ACTUATOR_DISK_OUTLET_SUFFIX,
-#     ENGINE_EXHAUST_SUFFIX,
-#     ENGINE_INTAKE_SUFFIX,
-#     GMSH_ENGINE_CONFIG_NAME,
-# )
+from ceasiompy.CPACS2GMSH.func.advancemeshing import (
+    refine_wing_section,
+    set_domain_mesh,
+    min_fields,
+)
+from ceasiompy.CPACS2GMSH.func.wingclassification import (
+    classify_wing,
+)
+
 from ceasiompy.utils.ceasiompyutils import get_part_type
 
-# from ceasiompy.utils.commonxpath import GMSH_MESH_SIZE_WINGS_XPATH
 from ceasiompy.utils.configfiles import ConfigFile
 
 log = get_logger()
@@ -93,9 +95,9 @@ def generate_2d_mesh_for_pentagrow(
     wing_mesh_size_factor : float
         Factor of the wing mesh size : the mesh size will be the mean fuselage width divided by this factor
     mesh_size_engines : float
-        Mesh size of the engines
+        Size of the engines mesh
     mesh_size_propellers : float
-        Mesh size of the propellers
+        Size of the propellers mesh
     ...
     Returns:
     ----------
@@ -138,20 +140,22 @@ def generate_2d_mesh_for_pentagrow(
 
         # Create the aircraft part object
         part_obj = ModelPart(uid=brep_file.stem)
-        # maybe to cut off -->
         part_obj.part_type = get_part_type(cpacs.tixi, part_obj.uid)
+        part_obj.physical_groups = [brep_file.name.replace('.brep', '')]
+        # part_obj.
         # Want to get fuselage length to size our model
         if part_obj.part_type == "fuselage":
             fuselage_volume_dimtags.append(part_entities[0])
 
         # We now stock important info. We also need the name to recognize the parts when fusing (and do the matching with dimtag)
-        parts_name_tag.append([brep_file.name, part_entities[0]])
+        parts_name_tag.append([brep_file.name, part_entities[0], part_obj])
 
     if (len(fuselage_volume_dimtags) < 1):
-        # Don't know in which case it should happen but is here if neede
+        # Don't know in which case it should happen but is here if needed
         model_bb = gmsh.model.get_bounding_box(-1, -1)
         log.info("Warning : no fuselage in this aircraft")
     else:
+        # TODO if multiple fuselage?
         model_bb = gmsh.model.get_bounding_box(
             fuselage_volume_dimtags[0][0], fuselage_volume_dimtags[0][1]
         )
@@ -208,7 +212,7 @@ def generate_2d_mesh_for_pentagrow(
 
     # Now fix the mesh size for every part
     i = 0
-    for [name, tag, list_of_surfaces, name_physical_group] in surfaces_by_part:
+    for [name, tag, list_of_surfaces,  model_part, name_physical_group] in surfaces_by_part:
         i += 1
         # Take the right mesh size (name physical group should be wing or fuselage or engine or propeller)
         lc = mesh_size_by_group[name_physical_group]
@@ -227,6 +231,44 @@ def generate_2d_mesh_for_pentagrow(
     gmsh.model.mesh.field.setNumbers(j, "FieldsList", fields)
     gmsh.model.mesh.field.setAsBackgroundMesh(j)
     gmsh.model.occ.synchronize()
+
+    aircraft = ModelPart("aircraft")
+    aircraft_parts = []
+    for [name, tag, list_of_surfaces, model_part, name_physical_group] in surfaces_by_part:
+        model_part.surfaces_tags = list_of_surfaces
+        all_lines = gmsh.model.getBoundary(
+            [(2, l) for l in list_of_surfaces], combined=False, oriented=False)
+        model_part.lines = all_lines
+        aircraft_parts.append(model_part)
+
+    for [name, tag, list_of_surfaces, model_part, name_physical_group] in surfaces_by_part:
+        model_part.surfaces_tags = list_of_surfaces
+        if name_physical_group == "wing":
+            classify_wing(model_part, aircraft_parts)
+            log.info(
+                f"Classification of {model_part.uid} done"
+                f" {len(model_part.wing_sections)} section(s) found "
+            )
+
+    final_domain_volume_tag = gmsh.model.occ.getEntities(3)[0][1]
+    refine_factor = 2
+    if refine_factor != 1:
+        mesh_fields = {"nbfields": j, "restrict_fields": [
+            i for i in range(1, len(surfaces_by_part)+2)]}
+        for [name, tag, list_of_surfaces, model_part, name_physical_group] in surfaces_by_part:
+            if name_physical_group == "wing":
+                refine_wing_section(
+                    mesh_fields,
+                    [final_domain_volume_tag],
+                    aircraft,
+                    model_part,
+                    mesh_size_by_group["wing"],
+                    refine=refine_factor,
+                    refine_truncated=False,
+                )
+
+        # Generate the minimal background mesh field
+        mesh_fields = min_fields(mesh_fields)
 
     # Parameters for the meshing
     gmsh.option.setNumber("Mesh.MeshSizeFromCurvature", 0)
@@ -318,10 +360,11 @@ def fusing_parts_and_surface_naming_for_2d_mesh(
     """
     # First we take the bounding boxes of each part
     bounding_boxes = {}
-    for [name, dimtag] in parts_name_tag:
+    for [name, dimtag, model_part] in parts_name_tag:
         xmin, ymin, zmin, xmax, ymax, zmax = gmsh.model.occ.getBoundingBox(
             dimtag[0], dimtag[1])
-        bounding_boxes[name] = [dimtag, (xmin, ymin, zmin, xmax, ymax, zmax)]
+        bounding_boxes[name] = [dimtag, model_part,
+                                (xmin, ymin, zmin, xmax, ymax, zmax)]
 
     # Take all the dimtag of the parts volume (vector that we will empty)
     parts_dimtag = [p_n_t[1] for p_n_t in parts_name_tag]
@@ -366,12 +409,12 @@ def fusing_parts_and_surface_naming_for_2d_mesh(
 
     # Get all the surfaces, classified by part with bounding boxes (might take too many, will be dealt with after)
     surfaces_by_part = []
-    for part_name, [(dim, tag), (xmin, ymin, zmin, xmax, ymax, zmax)] in bounding_boxes.items():
+    for part_name, [(dim, tag), model_part, (xmin, ymin, zmin, xmax, ymax, zmax)] in bounding_boxes.items():
         entities = gmsh.model.getEntitiesInBoundingBox(
             xmin, ymin, zmin, xmax, ymax, zmax, 2
         )
         surface_tags = [tag for dim, tag in entities]
-        surfaces_by_part.append([part_name, tag, surface_tags])
+        surfaces_by_part.append([part_name, tag, surface_tags, model_part])
     gmsh.model.occ.synchronize()
 
     # Now we deal with the ones that are in multiple bounding box --> Find in which they belong

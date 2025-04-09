@@ -63,7 +63,8 @@ def distance_field(mesh_fields, dim, object_tags):
         dim_list = "SurfacesList"
     else:
         raise ValueError("Dimension must be 1 or 2")
-    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], dim_list, object_tags)
+    gmsh.model.mesh.field.setNumbers(
+        mesh_fields["nbfields"], dim_list, object_tags)
 
     gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "Sampling", 100)
 
@@ -99,7 +100,8 @@ def restrict_fields(mesh_fields, dim, object_tags, infield=None):
     if infield is None:
         infield = mesh_fields["nbfields"] - 1
 
-    gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", infield)
+    gmsh.model.mesh.field.setNumber(
+        mesh_fields["nbfields"], "InField", infield)
     if dim == 2:
         dim_list = "SurfacesList"
     elif dim == 3:
@@ -107,7 +109,8 @@ def restrict_fields(mesh_fields, dim, object_tags, infield=None):
     else:
         raise ValueError("Dimension must be 2 or 3")
 
-    gmsh.model.mesh.field.setNumbers(mesh_fields["nbfields"], dim_list, object_tags)
+    gmsh.model.mesh.field.setNumbers(
+        mesh_fields["nbfields"], dim_list, object_tags)
 
     # Add the new field to the list of restrict fields
     mesh_fields["restrict_fields"].append(mesh_fields["nbfields"])
@@ -232,7 +235,7 @@ def refine_wing_section(
         wing part to refine
     mesh_size_wings : float
         mesh size of the wing
-    wing_section : wing_section (see wingclassification.py)
+    wing_section : wing_section (see wingclassification.py)  --> Not an arg ? aaaah
         wing_section to refine
     refine : float
         refinement factor for the le/te edge
@@ -301,15 +304,18 @@ def refine_wing_section(
         # Create the threshold field
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_wings)
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", mesh_size_wings)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "InField", distance_field_tag)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "SizeMax", mesh_size_wings)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "SizeMin", mesh_size_wings)
 
         mesh_fields = restrict_fields(mesh_fields, 2, surfaces_wing)
 
     if original_refine != refine:
         log.info(
-            f"{wing_part.uid} is truncated : refinement factor was increase from "
+            f"{wing_part.uid} is truncated : refinement factor was increased from "
             f"{original_refine} to " + str(round(refine, 2))
         )
 
@@ -393,8 +399,10 @@ def set_domain_mesh(
         # Create the threshold field
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", part.mesh_size)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "InField", distance_field_tag)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "SizeMax", part.mesh_size)
         gmsh.model.mesh.field.setNumber(
             mesh_fields["nbfields"], "SizeMin", part.mesh_size * n_power_field
         )
@@ -406,9 +414,11 @@ def set_domain_mesh(
         # Create the threshold field
         mesh_fields["nbfields"] += 1
         gmsh.model.mesh.field.add("Threshold", mesh_fields["nbfields"])
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "InField", distance_field_tag)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "InField", distance_field_tag)
 
-        gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", mesh_size_farfield)
+        gmsh.model.mesh.field.setNumber(
+            mesh_fields["nbfields"], "SizeMax", mesh_size_farfield)
         gmsh.model.mesh.field.setNumber(
             mesh_fields["nbfields"], "SizeMin", mesh_size_farfield * 0.9
         )
@@ -479,7 +489,8 @@ def refine_small_surfaces(
             new_mesh_size = ((area / (nb_min_triangle)) / 0.43301270) ** 0.5
 
             # Set the color to indicate the bad surfaces
-            gmsh.model.setColor([(2, surface_tag)], *MESH_COLORS["bad_surface"], recursive=False)
+            gmsh.model.setColor([(2, surface_tag)], *
+                                MESH_COLORS["bad_surface"], recursive=False)
 
             mesh_fields = distance_field(mesh_fields, 2, [surface_tag])
             distance_field_tag = mesh_fields["nbfields"]
@@ -490,8 +501,10 @@ def refine_small_surfaces(
             gmsh.model.mesh.field.setNumber(
                 mesh_fields["nbfields"], "InField", mesh_fields["nbfields"] - 1
             )
-            gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMin", new_mesh_size)
-            gmsh.model.mesh.field.setNumber(mesh_fields["nbfields"], "SizeMax", new_mesh_size)
+            gmsh.model.mesh.field.setNumber(
+                mesh_fields["nbfields"], "SizeMin", new_mesh_size)
+            gmsh.model.mesh.field.setNumber(
+                mesh_fields["nbfields"], "SizeMax", new_mesh_size)
 
             mesh_fields = restrict_fields(mesh_fields, 2, [surface_tag])
 
@@ -505,7 +518,8 @@ def refine_small_surfaces(
                 f"(F{distance_field_tag}/{aircraft_charact_length})^{n_power}",
             )
 
-            mesh_fields = restrict_fields(mesh_fields, 3, final_domain_volume_tag)
+            mesh_fields = restrict_fields(
+                mesh_fields, 3, final_domain_volume_tag)
 
     log.info(f"Surface mesh of {part.uid} was insufficient")
 

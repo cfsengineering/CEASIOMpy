@@ -145,7 +145,7 @@ dependencies:
   - libgfortran-ng=14.2.0
   - libgfortran5=14.2.0
   - libgl=1.7.0
-  - libglib=2.80.2
+  - libglib
   - libglu=9.0.3
   - libglvnd=1.7.0
   - libglx=1.7.0
@@ -242,19 +242,19 @@ dependencies:
   - python-json-logger=2.0.7
   - python-kaleido=0.2.1
   - python_abi=3.8
-  - pythonocc-core=0.17.3
+  - pythonocc-core
   - pythreejs=2.3.0
   - pytz=2024.2
   - pyvista=0.44.2
   - pyyaml=6.0.2
-  - pyzmq=26.2.0
+  - pyzmq
   - qt=5.9.7
   - readline=8.2
   - referencing=0.35.1
   - requests=2.32.3
   - rfc3339-validator=0.1.4
   - rfc3986-validator=0.1.1
-  - rpds-py=0.20.0
+  - rpds-py
   - scipy=1.10.1
   - scooby=0.10.0
   - send2trash=1.8.3
@@ -274,7 +274,7 @@ dependencies:
   - tinycss2=1.4.0
   - tixi3=3.3.0
   - tigl3
-  - tk=8.6.13
+  - tk
   - toml=0.10.2
   - tomli=2.0.2
   - tornado=6.4.1
@@ -308,13 +308,13 @@ dependencies:
   - xorg-libxfixes=6.0.1
   - xorg-libxt=1.3.1
   - xorg-libxxf86vm=1.1.6
-  - xz=5.6.4
-  - xz-gpl-tools=5.6.4
-  - xz-tools=5.6.4
+  - xz
+  - xz-gpl-tools
+  - xz-tools
   - yaml=0.2.5
   - zeromq=4.3.5
   - zipp=3.21.0
-  - zlib=1.2.13
+  - zlib
   - zstandard=0.23.0
   - zstd=1.5.6
   - pip:

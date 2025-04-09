@@ -47,7 +47,7 @@ from cpacspy.cpacsfunctions import (
 )
 
 from pathlib import Path
-from cpacspy.cpacspy import CPACS
+from cpacspy.cpacspy import CPACS, AeroMap
 from unittest.mock import MagicMock
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
@@ -500,19 +500,17 @@ def check_nb_cpu(nb_proc: int) -> None:
         log.info(f"Using by default {nb_proc} CPUs.")
 
 
+def get_conditions_from_aeromap(aeromap: AeroMap) -> Tuple[List, List, List, List]:
+    alt_list = aeromap.get("altitude").tolist()
+    mach_list = aeromap.get("machNumber").tolist()
+    aoa_list = aeromap.get("angleOfAttack").tolist()
+    aos_list = aeromap.get("angleOfSideslip").tolist()
+    return alt_list, mach_list, aoa_list, aos_list 
+
+
 def get_aeromap_conditions(cpacs: CPACS, uid_xpath: str) -> Tuple[List, List, List, List]:
     """
     Reads the flight conditions from the aeromap.
-
-    Args:
-        cpacs (Path): CPACS file.
-
-    Returns:
-        alt_list (list): Altitudes.
-        mach_list (list): Mach numbers.
-        aoa_list (list): Angles of attack.
-        aos_list (list): Angles of sideslip.
-
     """
     tixi = cpacs.tixi
 
@@ -524,13 +522,8 @@ def get_aeromap_conditions(cpacs: CPACS, uid_xpath: str) -> Tuple[List, List, Li
 
         aeromap_uid = get_value_or_default(tixi, uid_xpath, aeromap_default)
         log.info(f"Used aeromap: {aeromap_uid}.")
-
-        activate_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
-        alt_list = activate_aeromap.get("altitude").tolist()
-        mach_list = activate_aeromap.get("machNumber").tolist()
-        aoa_list = activate_aeromap.get("angleOfAttack").tolist()
-        aos_list = activate_aeromap.get("angleOfSideslip").tolist()
-
+        aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+        alt_list, mach_list, aoa_list, aos_list = get_conditions_from_aeromap(aeromap)
     else:
         default_aeromap = cpacs.create_aeromap("DefaultAeromap")
         default_aeromap.description = "Automatically created AeroMap."

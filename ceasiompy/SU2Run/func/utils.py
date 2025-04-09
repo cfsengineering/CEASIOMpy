@@ -45,6 +45,8 @@ from ceasiompy.utils.commonxpath import (
     SU2_AIRCRAFT_XPATH,
     SU2_CONTROL_SURF_BOOL_XPATH,
     SU2_CONTROL_SURF_ANGLE_XPATH,
+    SU2_AEROMAP_UID_XPATH,
+    SU2_FORCES_BREAKDOWN_NAME,
 )
 from ceasiompy.utils.commonnames import (
     CONFIG_CFD_NAME,
@@ -96,6 +98,20 @@ def process_config_dir(config_dir: Path, dict_dir: List[Dict]) -> None:
             "angle": angle,
         },
     )
+
+
+def check_force_file_exists(config_dir: Path) -> Path:
+    force_file_path = Path(config_dir, "no_deformation", SU2_FORCES_BREAKDOWN_NAME)
+    if not force_file_path.exists():
+        raise OSError("No result force file have been found!")
+    return force_file_path
+
+
+def get_aeromap_uid(tixi: Tixi3, fixed_cl: str) -> str:
+    if fixed_cl == "YES":
+        return "aeroMap_fixedCL_SU2"
+    else:
+        return str(get_value(tixi, SU2_AEROMAP_UID_XPATH))
 
 
 def su2_format(string: str) -> str:

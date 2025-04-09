@@ -36,7 +36,7 @@ from cpacspy.cpacsfunctions import (
 )
 from ceasiompy.utils.ceasiompyutils import (
     bool_,
-    get_aeromap_conditions,
+    get_conditions_from_aeromap,
     ensure_and_append_text_element,
 )
 from ceasiompy.SU2Run.func.utils import (
@@ -44,6 +44,8 @@ from ceasiompy.SU2Run.func.utils import (
     get_wetted_area,
     get_su2_aerocoefs,
     process_config_dir,
+    get_aeromap_uid,
+    check_force_file_exists,
     get_efficiency_and_aoa,
     get_su2_forces_moments,
 )
@@ -53,6 +55,7 @@ from ambiance import Atmosphere
 from typing import (
     List,
     Dict,
+    Tuple,
 )
 from tixi3.tixi3wrapper import Tixi3
 from cpacspy.cpacspy import (
@@ -71,7 +74,6 @@ from ceasiompy.utils.commonxpath import (
     LENGTH_XPATH,
     GMSH_SYMMETRY_XPATH,
     RANGE_LD_RATIO_XPATH,
-    SU2_AEROMAP_UID_XPATH,
     WING_SPAN_XPATH,
     SU2_EXTRACT_LOAD_XPATH,
     SU2_FIXED_CL_XPATH,
@@ -118,117 +120,123 @@ def save_screenshot(surface_flow_file: Path, scalar: str = "Mach") -> Path:
     plotter.show(screenshot=screenshot_path)
 
     log.info(f"A screenshot has been saved at {screenshot_path}.")
-
     return screenshot_path
 
 
-def get_aeromap_uid(tixi: Tixi3, fixed_cl: str) -> str:
-    if fixed_cl == "YES":
-        return "aeroMap_fixedCL_SU2"
-    else:
-        return str(get_value(tixi, SU2_AEROMAP_UID_XPATH))
+def get_value_at(i: int, *lists: List[float]) -> Tuple[float, ...]:
+    return tuple(lst[i] for lst in lists)
+
+
+def update_wetted_area_func(tixi: Tixi3, config_dir: Path) -> None:
+    wetted_area = get_wetted_area(Path(config_dir, "no_deformation", "logfile_SU2_CFD.log"))
+
+    # Check if symmetry plane is defined (Default: False)
+    sym_factor = 1.0
+    if get_value_or_default(tixi, GMSH_SYMMETRY_XPATH, False):
+        log.info("Symmetry plane is defined. Multiplying wetted area by 2.")
+        sym_factor = 2.0
+
+    create_branch(tixi, WETTED_AREA_XPATH)
+    tixi.updateDoubleElement(WETTED_AREA_XPATH, wetted_area * sym_factor, "%g")
+
+
+def update_damping_derivatives(
+    tixi: Tixi3,
+    config_dir: Path,
+    aeromap: AeroMap,
+    alt: float,
+    mach: float,
+    aoa: float,
+    aos: float,
+    coefs: Dict,
+    velocity: float,
+) -> None:
+    rotation_rate = get_value(tixi, SU2_ROTATION_RATE_XPATH)
+    ref_len = tixi.getTextElement(WING_SPAN_XPATH)
+    adim_rot_rate = rotation_rate * ref_len / velocity
+
+    for axis in ["dp", "dq", "dr"]:
+        if f"_{axis}" not in config_dir.name:
+            continue
+
+        for coef in COEFS:
+            coef_baseline = aeromap.get(coef, alt=alt, mach=mach, aoa=aoa, aos=aos)
+            dcoef = (coefs[coef] - coef_baseline) / adim_rot_rate
+            aeromap.add_damping_derivatives(
+                alt=alt,
+                mach=mach,
+                aoa=aoa,
+                aos=aos,
+                coef=coef,
+                axis=axis,
+                value=dcoef,
+                rate=rotation_rate,
+            )
+
+
+def update_fixed_cl(tixi: Tixi3, aeromap: AeroMap, force_file_path: Path) -> None:
+    cl_cd, aoa = get_efficiency_and_aoa(force_file_path)
+
+    # Replace aoa with the with the value from fixed cl calculation
+    aeromap.df.loc[0, ["angleOfAttack"]] = aoa
+
+    # Save cl/cd found during the fixed CL calculation (useful for range analysis)
+    create_branch(tixi, RANGE_LD_RATIO_XPATH)
+    tixi.updateDoubleElement(RANGE_LD_RATIO_XPATH, cl_cd, "%g")
+
+
+def save_screenshots(config_dir: Path):
+    surface_flow_path = Path(config_dir, SURFACE_FLOW_FILE_NAME)
+    if surface_flow_path.exists() and "DISPLAY" in os.environ:
+        save_screenshot(surface_flow_path, "Mach")
+        save_screenshot(surface_flow_path, "Pressure_Coefficient")
 
 
 def get_static_results(
     tixi: Tixi3,
     aeromap: AeroMap,
     config_dir: Path,
-    aoa_list: List,
-    aos_list: List,
-    mach_list: List,
-    alt_list: List,
     fixed_cl: str,
     found_wetted_area: bool,
 ) -> None:
-    surface_flow_path = Path(config_dir, SURFACE_FLOW_FILE_NAME)
-    if surface_flow_path.exists() and "DISPLAY" in os.environ:
-        save_screenshot(surface_flow_path, "Mach")
-        save_screenshot(surface_flow_path, "Pressure_Coefficient")
-
-    force_file_path = Path(config_dir, "no_deformation", SU2_FORCES_BREAKDOWN_NAME)
-    if not force_file_path.exists():
-        raise OSError("No result force file have been found!")
-
-    baseline_coef = True
-
+    save_screenshots(config_dir)
+    force_file_path = check_force_file_exists(config_dir)
     case_nb = int(config_dir.name.split("_")[0].split("Case")[1])
 
-    aoa = aoa_list[case_nb]
-    aos = aos_list[case_nb]
-    mach = mach_list[case_nb]
-    alt = alt_list[case_nb]
+    alt_list, mach_list, aoa_list, aos_list = get_conditions_from_aeromap(aeromap)
+    aoa, aos, mach, alt = get_value_at(case_nb, aoa_list, aos_list, mach_list, alt_list)
 
     if fixed_cl == "YES":
-        cl_cd, aoa = get_efficiency_and_aoa(force_file_path)
+        update_fixed_cl(tixi, aeromap, force_file_path)
 
-        # Replace aoa with the with the value from fixed cl calculation
-        aeromap.df.loc[0, ["angleOfAttack"]] = aoa
-
-        # Save cl/cd found during the fixed CL calculation (useful for range analysis)
-        create_branch(tixi, RANGE_LD_RATIO_XPATH)
-        tixi.updateDoubleElement(RANGE_LD_RATIO_XPATH, cl_cd, "%g")
-
+    # Load aerocoefs
     cl, cd, cs, cmd, cms, cml, velocity = get_su2_aerocoefs(force_file_path)
 
+    # Damping derivatives
     if bool_(get_value(tixi, SU2_DAMPING_DER_XPATH)):
-        # Damping derivatives
-        rotation_rate = get_value(tixi, SU2_ROTATION_RATE_XPATH)
-        ref_len = tixi.getTextElement(WING_SPAN_XPATH)
-        adim_rot_rate = rotation_rate * ref_len / velocity
-
         coefs = {"cl": cl, "cd": cd, "cs": cs, "cmd": cmd, "cms": cms, "cml": cml}
-
-        for axis in ["dp", "dq", "dr"]:
-            if f"_{axis}" not in config_dir.name:
-                continue
-
-            baseline_coef = False
-
-            for coef in COEFS:
-                coef_baseline = aeromap.get(coef, alt=alt, mach=mach, aoa=aoa, aos=aos)
-                dcoef = (coefs[coef] - coef_baseline) / adim_rot_rate
-                aeromap.add_damping_derivatives(
-                    alt=alt,
-                    mach=mach,
-                    aos=aos,
-                    aoa=aoa,
-                    coef=coef,
-                    axis=axis,
-                    value=dcoef,
-                    rate=rotation_rate,
-                )
+        update_damping_derivatives(
+            tixi,
+            config_dir,
+            aeromap,
+            alt, mach, aoa, aos,
+            coefs, velocity,
+        )
+    # Baseline coefficients (no damping derivatives)
+    else:
+        aeromap.add_coefficients(
+            alt=alt, mach=mach, aos=aos, aoa=aoa,
+            cd=cd, cl=cl, cs=cs,
+            cml=cml, cmd=cmd, cms=cms,
+        )
 
     if "_TED_" in config_dir.name:
         # TODO: convert when it is possible to save TED in cpacspy
         raise NotImplementedError("TED not implemented yet")
 
-    # Baseline coefficients (no damping derivative or control surfaces case)
-    if baseline_coef:
-        aeromap.add_coefficients(
-            alt=alt,
-            mach=mach,
-            aos=aos,
-            aoa=aoa,
-            cd=cd,
-            cl=cl,
-            cs=cs,
-            cml=cml,
-            cmd=cmd,
-            cms=cms,
-        )
-
     update_wetted_area = bool_(get_value(tixi, SU2_UPDATE_WETTED_AREA_XPATH))
     if not found_wetted_area and update_wetted_area:
-        wetted_area = get_wetted_area(Path(config_dir, "no_deformation", "logfile_SU2_CFD.log"))
-
-        # Check if symmetry plane is defined (Default: False)
-        sym_factor = 1.0
-        if get_value_or_default(tixi, GMSH_SYMMETRY_XPATH, False):
-            log.info("Symmetry plane is defined. Multiplying wetted area by 2.")
-            sym_factor = 2.0
-
-        create_branch(tixi, WETTED_AREA_XPATH)
-        tixi.updateDoubleElement(WETTED_AREA_XPATH, wetted_area * sym_factor, "%g")
+        update_wetted_area_func(tixi, config_dir)
         found_wetted_area = True
 
     if bool_(get_value(tixi, SU2_EXTRACT_LOAD_XPATH)):
@@ -366,7 +374,6 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
     fixed_cl = get_value(tixi, SU2_FIXED_CL_XPATH)
     aeromap_uid = get_aeromap_uid(tixi, fixed_cl)
     aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs, SU2_AEROMAP_UID_XPATH)
 
     case_dir_list = [
         case_dir
@@ -385,10 +392,6 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
                 tixi,
                 aeromap,
                 config_dir,
-                aoa_list,
-                aos_list,
-                mach_list,
-                alt_list,
                 fixed_cl,
                 found_wetted_area
             )

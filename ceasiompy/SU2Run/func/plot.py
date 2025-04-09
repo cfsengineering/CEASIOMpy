@@ -67,14 +67,14 @@ def save_plots(
         radial_thrust_coefs,
         "r",
         markersize=4,
-        label=r"$\\frac{dCT}{d\overline{r}}$",
+        label=r"$\frac{dCT}{d\overline{r}}$",
     )
     plt.plot(
         radial_stations,
         radial_power_coefs,
         "k",
         markersize=4,
-        label=r"$\\frac{dCP}{d\overline{r}}$",
+        label=r"$\frac{dCP}{d\overline{r}}$",
     )
     plt.grid(True)
     plt.legend()
@@ -102,7 +102,7 @@ def save_plots(
     )
     plt.grid(True)
     plt.legend(numpoints=3)
-    plt.xlabel(r"$\\frac{2\pi*r}{J}$")
+    plt.xlabel(r"$\frac{2\pi*r}{J}$")
     plt.ylabel(r"$a$, $a^1$")
     plt.title("Interference Factors")
 

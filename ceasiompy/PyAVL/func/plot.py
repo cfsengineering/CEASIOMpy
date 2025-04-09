@@ -114,14 +114,14 @@ def plot_lift_distribution(
     plt.title(
         (
             "Lift distribution along the wing span "
-            r"($\\alpha=%.1f^{\circ}$, $\\beta=%.1f^{\circ}$, "
+            r"($\alpha=%.1f^{\circ}$, $\beta=%.1f^{\circ}$, "
             r"$M=%.1f$, alt = %d m)"
         )
         % (aoa, aos, mach, alt),
         fontsize=14,
     )
 
-    plt.ylabel("$C_l$", rotation=0, fontsize=12)
+    plt.ylabel(r"$C_l$", rotation=0, fontsize=12)
     plt.legend(fontsize=12)
     plt.grid()
     plt.savefig(Path(wkdir, "lift_distribution.png"))

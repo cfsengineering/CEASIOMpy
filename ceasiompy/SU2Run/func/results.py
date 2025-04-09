@@ -308,8 +308,11 @@ def add_dynamic_coefs(
     mach: str,
     alt: str,
     angle: str,
-    cfx
-):
+    cfx: str,
+    cfy: str,
+    cmx: str,
+    cmy: str,
+) -> None:
     # Put derivatives in CPACS at SU2 in DynamicDerivatives
     xpath = SU2_DYNAMICDERIVATIVES_DATA_XPATH
 
@@ -319,26 +322,18 @@ def add_dynamic_coefs(
     ensure_and_append_text_element(tixi, xpath, "mach", str(mach))
     ensure_and_append_text_element(tixi, xpath, "alt", str(alt))
 
-    for i, label in enumerate(
-        [("cfx", "cmx"), ("cfy", "cmy"), ("cfz", "cmz")]
-    ):
-        f_element_name = f"{label[0]}_{angle}"
-        f_prim_name = f_element_name + "prim"
-        s_element_name = f"{label[1]}_{angle}"
-        s_prim_name = s_element_name + "prim"
-
-        ensure_and_append_text_element(
-            tixi, xpath, f_element_name, str(cfx[i])
-        )
-        ensure_and_append_text_element(
-            tixi, xpath, f_prim_name, str(cfy[i])
-        )
-        ensure_and_append_text_element(
-            tixi, xpath, s_element_name, str(cmx[i])
-        )
-        ensure_and_append_text_element(
-            tixi, xpath, s_prim_name, str(cmy[i])
-        )
+    ensure_and_append_text_element(
+        tixi, xpath, f"cf_{angle}", cfx,
+    )
+    ensure_and_append_text_element(
+        tixi, xpath, f"cf_{angle}_prim", cfy,
+    )
+    ensure_and_append_text_element(
+        tixi, xpath, f"cm_{angle}", cmx,
+    )
+    ensure_and_append_text_element(
+        tixi, xpath, f"cm_{angle}_prim", cmy,
+    )
 
 
 def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
@@ -411,35 +406,11 @@ def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
                 c,
             )
 
-            # Put derivatives in CPACS at SU2 in DynamicDerivatives
-            xpath = SU2_DYNAMICDERIVATIVES_DATA_XPATH
-
-            # Ensure the path exists
-            create_branch(tixi, xpath)
-
-            ensure_and_append_text_element(tixi, xpath, "mach", str(mach))
-            ensure_and_append_text_element(tixi, xpath, "alt", str(alt))
-
-            for i, label in enumerate(
-                [("cfx", "cmx"), ("cfy", "cmy"), ("cfz", "cmz")]
-            ):
-                f_element_name = f"{label[0]}_{angle}"
-                f_prim_name = f_element_name + "prim"
-                s_element_name = f"{label[1]}_{angle}"
-                s_prim_name = s_element_name + "prim"
-
-                ensure_and_append_text_element(
-                    tixi, xpath, f_element_name, str(cfx[i])
-                )
-                ensure_and_append_text_element(
-                    tixi, xpath, f_prim_name, str(cfy[i])
-                )
-                ensure_and_append_text_element(
-                    tixi, xpath, s_element_name, str(cmx[i])
-                )
-                ensure_and_append_text_element(
-                    tixi, xpath, s_prim_name, str(cmy[i])
-                )
+            # Add them in the CPACS
+            add_dynamic_coefs(
+                tixi, mach, alt, angle,
+                str(cfx), str(cfy), str(cmx), str(cmy),
+            )
 
 
 def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:

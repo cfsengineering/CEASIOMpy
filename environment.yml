@@ -4,7 +4,7 @@ channels:
   - defaults
 
 dependencies:
-  - python=3.8.15
+  - python=3.8
   - cpacscreator=0.1
   - clang=13.0.0
   - codecov=2.1.11

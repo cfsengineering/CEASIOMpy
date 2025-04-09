@@ -64,24 +64,16 @@ def run_workflow_test(modules_to_run):
 
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
+@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
 def test_integration_1():
     st.session_state = MagicMock()
-    run_workflow_test(["CPACSUpdater", "CPACS2GMSH"])
-    assert True
-
-
-@pytest.mark.slow
-@pytest.mark.skipif(not shutil.which("gmsh"), reason="GMSH not installed")
-@pytest.mark.skipif(not shutil.which("SU2_CFD"), reason="SU2_CFD not installed")
-def test_integration_4():
-    st.session_state = MagicMock()
-    run_workflow_test(["CPACS2GMSH", "SU2Run"])
+    run_workflow_test(["CPACSUpdater", "CPACS2GMSH", "SU2Run"])
     assert True
 
 
 @pytest.mark.slow
 @pytest.mark.skipif(not shutil.which("avl"), reason="avl not installed")
-def test_integration_5():
+def test_integration_2():
     st.session_state = MagicMock()
     run_workflow_test(["PyAVL", "SaveAeroCoefficients", "Database"])
     assert True
@@ -92,7 +84,6 @@ def test_integration_5():
 # =================================================================================================
 
 if __name__ == "__main__":
-    test_integration_4()
     print("Integration tests")
     print("To run test use the following command:")
     print(">> pytest -v . --cov=../ceasiompy --cov-report term")

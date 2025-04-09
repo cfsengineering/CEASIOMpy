@@ -51,6 +51,7 @@ from ceasiompy.SU2Run.func.utils import (
 )
 
 from pathlib import Path
+from numpy import ndarray
 from ambiance import Atmosphere
 from typing import (
     List,
@@ -254,6 +255,92 @@ def get_dynamic_force_files(file_path: Path) -> Path:
     return force_file_paths
 
 
+def compute_dynamic_coefs(
+    tixi: Tixi3,
+    forces_coef_list: List,
+    moments_coef_list: List,
+    f_static: ndarray,
+    m_static: ndarray,
+    alt: float,
+    mach: float,
+    s: float,
+    b: float,
+    c: float,
+) -> Tuple[float, float, float, float]:
+    # Convert the list to a numpy array
+    f_time = np.array(forces_coef_list)
+    m_time = np.array(moments_coef_list)
+
+    # Compute derivatives
+    a, omega, _, t = load_parameters(tixi)
+    fx, fy = compute_derivatives(a, omega, t, f_time, f_static)
+    mx, my = compute_derivatives(a, omega, t, m_time, m_static)
+
+    # Velocity in m/s in atmospheric environment
+    Atm = Atmosphere(alt)
+    velocity = Atm.speed_of_sound[0] * mach
+
+    # Dynamic pressure
+    q_dyn = Atm.density[0] * (velocity ** 2) / 2.0
+
+    qs = q_dyn * s
+    qsb = qs * b
+    qsc = qs * c
+
+    # Scale forces accordingly
+    cfx = fx / qs
+    cfy = fy / qs
+
+    # Scale moments accordingly
+    cmx = np.copy(mx)
+    cmy = np.copy(my)
+    cmx[[0, 2], ] /= qsb
+    cmx[1, ] /= qsc
+    cmy[[0, 2], ] /= qsb
+    cmy[1, ] /= qsc
+    log.info(f"q {q_dyn} fx {fx} mx {mx}, cfx {cfx} cmx {cmx}")
+
+    return cfx, cfy, cmx, cmy
+
+
+def add_dynamic_coefs(
+    tixi: Tixi3,
+    mach: str,
+    alt: str,
+    angle: str,
+    cfx
+):
+    # Put derivatives in CPACS at SU2 in DynamicDerivatives
+    xpath = SU2_DYNAMICDERIVATIVES_DATA_XPATH
+
+    # Ensure the path exists
+    create_branch(tixi, xpath)
+
+    ensure_and_append_text_element(tixi, xpath, "mach", str(mach))
+    ensure_and_append_text_element(tixi, xpath, "alt", str(alt))
+
+    for i, label in enumerate(
+        [("cfx", "cmx"), ("cfy", "cmy"), ("cfz", "cmz")]
+    ):
+        f_element_name = f"{label[0]}_{angle}"
+        f_prim_name = f_element_name + "prim"
+        s_element_name = f"{label[1]}_{angle}"
+        s_prim_name = s_element_name + "prim"
+
+        ensure_and_append_text_element(
+            tixi, xpath, f_element_name, str(cfx[i])
+        )
+        ensure_and_append_text_element(
+            tixi, xpath, f_prim_name, str(cfy[i])
+        )
+        ensure_and_append_text_element(
+            tixi, xpath, s_element_name, str(cmx[i])
+        )
+        ensure_and_append_text_element(
+            tixi, xpath, s_prim_name, str(cmy[i])
+        )
+
+
 def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
     # Extract unique mach and alt values
     mach_values = list(set(d['mach'] for d in dict_dir))
@@ -274,7 +361,8 @@ def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
 
         # Retrieve forces and moments for (alpha, alpha_dot) = (0, 0)
         none_force_file_path = Path(
-            none_file, "no_deformation", SU2_FORCES_BREAKDOWN_NAME)
+            none_file, "no_deformation", SU2_FORCES_BREAKDOWN_NAME
+        )
 
         (
             cfx_0, cfy_0, cfz_0,
@@ -300,47 +388,28 @@ def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
         # Retrive forces and moments for (alpha, alpha_dot) = (alpha(t), alpha_dot(t))
         for angle in ['alpha']:  # , 'beta'
             force_file_paths = get_dynamic_force_files(angle_file[angle])
-
             forces_coef_list, moments_coef_list = [], []
 
             for force_file_path in force_file_paths:
                 # Access coefficients
                 cfx, cfy, cfz, cmx, cmy, cmz = get_su2_forces_moments(
-                    force_file_path)
+                    force_file_path
+                )
                 forces_coef_list.append([cfx, cfy, cfz])
                 moments_coef_list.append([cmx, cmy, cmz])
 
-            # Convert the list to a numpy array
-            f_time = np.array(forces_coef_list)
-            m_time = np.array(moments_coef_list)
-
-            # Compute derivatives
-            a, omega, _, t = load_parameters(tixi)
-            fx, fy = compute_derivatives(a, omega, t, f_time, f_static)
-            mx, my = compute_derivatives(a, omega, t, m_time, m_static)
-
-            # Velocity in m/s in atmospheric environment
-            Atm = Atmosphere(alt)
-            velocity = Atm.speed_of_sound[0] * mach
-
-            # Dynamic pressure
-            q_dyn = Atm.density[0] * (velocity ** 2) / 2.0
-
-            qs = q_dyn * s
-            qsb = qs * b
-            qsc = qs * c
-
-            # Scale forces accordingly
-            cfx = fx / qs
-            cfy = fy / qs
-
-            # Scale moments accordingly
-            cmx = np.copy(mx)
-            cmy = np.copy(my)
-            cmx[[0, 2], ] /= qsb
-            cmx[1, ] /= qsc
-            cmy[[0, 2], ] /= qsb
-            cmy[1, ] /= qsc
+            cfx, cfy, cmx, cmy = compute_dynamic_coefs(
+                tixi,
+                forces_coef_list,
+                moments_coef_list,
+                f_static,
+                m_static,
+                alt,
+                mach,
+                s,
+                b,
+                c,
+            )
 
             # Put derivatives in CPACS at SU2 in DynamicDerivatives
             xpath = SU2_DYNAMICDERIVATIVES_DATA_XPATH
@@ -350,8 +419,6 @@ def get_dynstab_results(tixi: Tixi3, dict_dir: Dict) -> None:
 
             ensure_and_append_text_element(tixi, xpath, "mach", str(mach))
             ensure_and_append_text_element(tixi, xpath, "alt", str(alt))
-
-            log.info(f"q {q_dyn} fx {fx} mx {mx}, cfx {cfx} cmx {cmx}")
 
             for i, label in enumerate(
                 [("cfx", "cmx"), ("cfy", "cmy"), ("cfz", "cmz")]

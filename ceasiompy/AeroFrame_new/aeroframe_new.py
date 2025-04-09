@@ -31,7 +31,7 @@ from cpacspy.cpacsfunctions import (
     create_branch,
 )
 from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
-from ceasiompy.AeroFrame_new.func.config import (
+from ceasiompy.AeroFrame_new.func.aeroframe_config import (
     read_AVL_fe_file,
     create_framat_model,
     get_material_properties,

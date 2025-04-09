@@ -25,7 +25,7 @@ jobs:
     - name: Set up Python 3.8
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.8.15
 
     - name: Setup Mambaforge
       uses: conda-incubator/setup-miniconda@v2

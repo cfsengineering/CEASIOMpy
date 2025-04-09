@@ -23,6 +23,7 @@ dependencies:
   - pyvista=0.44.2
   - xmltodict=0.12.0
   - vtk=9.0.1
+  - pydantic
 
   - pip:
     - altair==4.0.0

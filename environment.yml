@@ -201,6 +201,7 @@ dependencies:
   - numpy=1.23.3
   - oce=0.17.2
   - olefile=0.47
+  - om-pycycle=4.3.0
   - openh264=2.1.1
   - openjpeg=2.5.0
   - openmdao=3.18.0

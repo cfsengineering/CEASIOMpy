@@ -345,7 +345,7 @@ dependencies:
       - model-framework==0.0.20
       - mypy-extensions==1.0.0
       - numpydoc==1.7.0
-      - om-pycycle=4.3.0
+      - om-pycycle==4.3.0
       - panelaero==2024.2
       - pathspec==0.12.1
       - protobuf==5.29.4

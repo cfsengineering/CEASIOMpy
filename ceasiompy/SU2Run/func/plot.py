@@ -67,19 +67,19 @@ def save_plots(
         radial_thrust_coefs,
         "r",
         markersize=4,
-        label="$\\frac{dCT}{d\overline{r}}$",
+        label=r"$\\frac{dCT}{d\overline{r}}$",
     )
     plt.plot(
         radial_stations,
         radial_power_coefs,
         "k",
         markersize=4,
-        label="$\\frac{dCP}{d\overline{r}}$",
+        label=r"$\\frac{dCP}{d\overline{r}}$",
     )
     plt.grid(True)
     plt.legend()
-    plt.xlabel("$\overline{r}$")
-    plt.ylabel("$dC_t$,  $dC_p$")
+    plt.xlabel(r"$\overline{r}$")
+    plt.ylabel(r"$dC_t$,  $dC_p$")
     plt.title("Load Distribution")
 
     f1.savefig(ct_cp_distr_plot_path)
@@ -91,19 +91,19 @@ def save_plots(
         optimal_axial_interference_factor,
         "r",
         markersize=4,
-        label="$a$",
+        label=r"$a$",
     )
     plt.plot(
         non_dimensional_radius,
         optimal_rotational_interference_factor,
         "k",
         markersize=4,
-        label="$a^1$",
+        label=r"$a^1$",
     )
     plt.grid(True)
     plt.legend(numpoints=3)
-    plt.xlabel("$\\frac{2\pi*r}{J}$")
-    plt.ylabel("$a$, $a^1$")
+    plt.xlabel(r"$\\frac{2\pi*r}{J}$")
+    plt.ylabel(r"$a$, $a^1$")
     plt.title("Interference Factors")
 
     f2.savefig(interference_plot_path)
@@ -112,8 +112,8 @@ def save_plots(
     f3 = plt.figure(3)
     plt.plot(radial_stations, prandtl_correction_values, "k", markersize=4)
     plt.grid(True)
-    plt.xlabel("$\overline{r}$")
-    plt.ylabel("$F(\overline{r})$")
+    plt.xlabel(r"$\overline{r}$")
+    plt.ylabel(r"$F(\overline{r})$")
     plt.title("Tip Loss Prandtl Correction Function")
     f3.savefig(prandtl_correction_plot_path)
     plt.clf()

@@ -105,17 +105,17 @@ def plot_lift_distribution(
     data_df["cl_cref"] = data_df["cl"] * data_df["chord"] / cref
 
     _, ax = plt.subplots(figsize=(10, 5))
-    data_df.plot("y", "cl_norm", ax=ax, label="$c_{l\perp}$", linestyle="dashed", color="r")
-    data_df.plot("y", "cl", label="$c_l$", ax=ax, linestyle="dashed", color="#FFA500")
+    data_df.plot("y", "cl_norm", ax=ax, label=r"$c_{l\perp}$", linestyle="dashed", color="r")
+    data_df.plot("y", "cl", label=r"$c_l$", ax=ax, linestyle="dashed", color="#FFA500")
     data_df.plot(
-        "y", "cl_cref", ax=ax, label="$c_l \cdot C/C_{ref}$", linestyle="solid", color="#41EE33"
+        "y", "cl_cref", ax=ax, label=r"$c_l \cdot C/C_{ref}$", linestyle="solid", color="#41EE33"
     )
 
     plt.title(
         (
             "Lift distribution along the wing span "
-            "($\\alpha=%.1f^{\circ}$, $\\beta=%.1f^{\circ}$, "
-            "$M=%.1f$, alt = %d m)"
+            r"($\\alpha=%.1f^{\circ}$, $\\beta=%.1f^{\circ}$, "
+            r"$M=%.1f$, alt = %d m)"
         )
         % (aoa, aos, mach, alt),
         fontsize=14,

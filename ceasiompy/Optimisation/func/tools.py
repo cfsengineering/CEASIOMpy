@@ -74,7 +74,7 @@ def launch_external_program(path):
         os.system("Start excel.exe " + str(path))
     elif OS == "darwin":
         os.system(
-            "/Applications/Microsoft\ Excel.app/Contents/MacOS/Microsoft\ Excel " + str(path)
+            r"/Applications/Microsoft\ Excel.app/Contents/MacOS/Microsoft\ Excel " + str(path)
         )
 
     input("Press ENTER to continue...")

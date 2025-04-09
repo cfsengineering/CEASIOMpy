@@ -2,7 +2,7 @@
 
 # Script to install SU2 on Ubuntu 20.04 and  Mint 20.3
 
-su2_version="7.3.0"
+su2_version="8.1.0"
 
 current_dir="$(pwd)"
 

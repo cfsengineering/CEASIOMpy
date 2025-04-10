@@ -539,7 +539,7 @@ def create_variable_library(Rt, tixi, optim_dir_path):
 
     """
 
-    global objective, var
+    # global objective, var
 
     CSV_PATH = Path(optim_dir_path, "Variable_library.csv")
 

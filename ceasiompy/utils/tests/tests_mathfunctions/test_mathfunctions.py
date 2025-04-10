@@ -16,17 +16,15 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy import log
+from pytest import approx
+from ceasiompy.utils.mathsfunctions import (
+    euler2fix,
+    fix2euler,
+)
+
 from ceasiompy.utils.generalclasses import Point
 
-from ceasiompy.utils.mathsfunctions import euler2fix, fix2euler
-from pytest import approx
-
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
+from ceasiompy import log
 
 # =================================================================================================
 #   FUNCTIONS

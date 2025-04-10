@@ -50,4 +50,5 @@ dependencies:
     - pydantic==2.11.3
     - psutil==7.0.0
     - pyvista==0.44.2
+    - pycycle==0.0.8
     - vtk==9.3.0

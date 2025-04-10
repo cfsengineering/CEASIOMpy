@@ -93,16 +93,6 @@ def cfg_rotors(brep_dir: Path) -> bool:
     return rotor_model
 
 
-def add_axis(disk_dimtag, trans_vector, rot_vector) -> None:
-    gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 1, 0, 0, np.radians(rot_vector[0]))
-    # y axis
-    gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 1, 0, np.radians(rot_vector[1]))
-    # z axis
-    gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 0, 1, np.radians(rot_vector[2]))
-
-    gmsh.model.occ.synchronize()
-
-
 def add_disk_actuator(brep_dir: Path, config_file: ConfigFile):
     """
     Creates a 2D disk in a given location to represent a rotor as a disk actuator.
@@ -142,7 +132,13 @@ def add_disk_actuator(brep_dir: Path, config_file: ConfigFile):
         gmsh.model.occ.synchronize()
 
         # rotation given in the cpacs file
-        add_axis(disk_dimtag, trans_vector, rot_vector)
+        gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 1, 0, 0, np.radians(rot_vector[0]))
+        # y axis
+        gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 1, 0, np.radians(rot_vector[1]))
+        # z axis
+        gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 0, 1, np.radians(rot_vector[2]))
+
+        gmsh.model.occ.synchronize()
 
         path_disk = Path(brep_dir, f"{rotor_uid}.brep")
         gmsh.write(str(path_disk))
@@ -165,7 +161,13 @@ def add_disk_actuator(brep_dir: Path, config_file: ConfigFile):
             # increasing cd and will probably diverge
 
             # rotation given in the cpacs file
-            add_axis(disk_dimtag, trans_vector, rot_vector)
+            gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 1, 0, 0, np.radians(rot_vector[0]))
+            # y axis
+            gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 1, 0, np.radians(rot_vector[1]))
+            # z axis
+            gmsh.model.occ.rotate([disk_dimtag], *trans_vector, 0, 0, 1, np.radians(rot_vector[2]))
+
+            gmsh.model.occ.synchronize()
 
             gmsh.model.occ.mirror([disk_dimtag], 0, 1, 0, 0)
             gmsh.model.occ.synchronize()

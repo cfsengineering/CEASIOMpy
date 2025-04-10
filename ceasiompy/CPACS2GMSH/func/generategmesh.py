@@ -686,7 +686,8 @@ def generate_gmsh(
 
     AIRCRAFT_DICT = {
         "fuselage": mesh_size_fuselage,
-        "wing": mesh_size_wing, "pylon": mesh_size_wing,
+        "wing": mesh_size_wing,
+        "pylon": mesh_size_wing,
         "engine": mesh_size_engines,
         "rotor": mesh_size_propellers,
     }

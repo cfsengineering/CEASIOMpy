@@ -339,13 +339,8 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
         beam.add('point_load', {'at': node_uid, 'load': load})
 
     # ===== BOUNDARY CONDITIONS =====
-    # idx_to_fix = centerline_df["y"].idxmin()
-    # bc.add('fix', {'node': "wing1_node" + str(idx_to_fix + 1), 'fix': ['all']})
-
-    # /!\ FOR D150 ONLY
-    idx_to_fix = centerline_df[centerline_df["y"] < 1.8].index
-    for idx in idx_to_fix:
-        bc.add('fix', {'node': "wing1_node" + str(idx + 1), 'fix': ['all']})
+    idx_to_fix = centerline_df["y"].idxmin()
+    bc.add('fix', {'node': "wing1_node" + str(idx_to_fix + 1), 'fix': ['all']})
 
     # ===== POST-PROCESSING =====
     pp = model.set_feature('post_proc')

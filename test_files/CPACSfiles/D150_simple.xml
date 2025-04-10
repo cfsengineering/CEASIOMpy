@@ -4250,6 +4250,7 @@
                         </outerHingePoint>
                         <steps xsi:type="controlSurfaceStepsType">
                           <step xsi:type="controlSurfaceStepType">
+                            <controlParameter></controlParameter>
                             <relDeflection>0</relDeflection>
                             <innerHingeTranslation uID="InnerFlap_innerHingeTranslation1">
                               <x>0</x>
@@ -4263,6 +4264,7 @@
                             <hingeLineRotation>0</hingeLineRotation>
                           </step>
                           <step xsi:type="controlSurfaceStepType">
+                            <controlParameter></controlParameter>
                             <relDeflection>1</relDeflection>
                             <innerHingeTranslation uID="InnerFlap_innerHingeTranslation2">
                               <x>0</x>

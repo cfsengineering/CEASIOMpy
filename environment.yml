@@ -32,7 +32,6 @@ dependencies:
   - python-kaleido=0.2.1
   - pythreejs=2.4.2
   - xmltodict=0.14.2
-  - gmsh=4.13.1
 
   - pip:
     - altair==5.5.0
@@ -55,3 +54,4 @@ dependencies:
     - scipy==1.15.2
     - om-pycycle==4.3.0
     - pycycle==0.0.8
+    - gmsh==4.13.1

@@ -46,6 +46,7 @@ dependencies:
     - shapely==2.1.0
     - smt==2.9.2
     - streamlit==1.44.1
+    - streamlit-autorefresh
     - matplotlib==3.10.1
     - pydantic==2.11.3
     - psutil==7.0.0

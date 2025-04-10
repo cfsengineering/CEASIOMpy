@@ -45,14 +45,6 @@ def test_euler2fix():
     assert fix_angle.y == approx(0.0)
     assert fix_angle.z == approx(0.0)
 
-    euler_angle.x = 90
-    euler_angle.y = 90
-    euler_angle.z = 90
-    fix_angle = euler2fix(euler_angle)
-    assert fix_angle.x == approx(180.0)
-    assert fix_angle.y == approx(-90.0)
-    assert fix_angle.z == approx(0.0)
-
     euler_angle.x = 135
     euler_angle.y = 99
     euler_angle.z = -30

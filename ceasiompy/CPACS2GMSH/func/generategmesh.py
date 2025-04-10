@@ -482,7 +482,7 @@ def generate_gmsh(
 
         # remove them from the model
         gmsh.model.occ.remove(unwanted_children, recursive=True)
-        gmsh.model.mesh.removeDuplicateNodes()
+        # gmsh.model.mesh.removeDuplicateNodes()
         gmsh.model.occ.synchronize()
 
     # Get the children of the aircraft parts

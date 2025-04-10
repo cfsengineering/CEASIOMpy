@@ -98,6 +98,7 @@ def test_detect_normal_profile():
             le_te_pair, _ = detect_normal_profile(le_te_pair, line_comp1, line_comp2)
 
     # Test if only one te_le_pair is detected in the profile
+    print(le_te_pair)
     assert len(le_te_pair) == 1
 
     # Test if the correct le_te_pair is detected
@@ -210,6 +211,7 @@ def test_detect_truncated_profile():
 # =================================================================================================
 
 if __name__ == "__main__":
+    test_detect_normal_profile()
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

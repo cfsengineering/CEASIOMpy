@@ -814,7 +814,7 @@ def generate_gmsh(
     # TODO: Remap getPhysicalGroups
     surfaces: List[Tuple[int, int]] = gmsh.model.getPhysicalGroups(dim=2)
 
-    fusing = True
+    fusing = False
     if fusing:
         for dim, tag in surfaces:
             name = gmsh.model.getPhysicalName(dim, tag)

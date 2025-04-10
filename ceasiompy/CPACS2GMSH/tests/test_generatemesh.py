@@ -339,16 +339,16 @@ def test_disk_actuator_conversion():
         tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
-        open_gmsh=False,
+        open_gmsh=True,
         farfield_factor=3,
         symmetry=False,
         farfield_size_factor=10,
         n_power_factor=2,
         n_power_field=0.9,
-        fuselage_mesh_size_factor=1,
-        wing_mesh_size_factor=1,
-        mesh_size_engines=0.2,
-        mesh_size_propellers=0.1,
+        fuselage_mesh_size_factor=0.5,
+        wing_mesh_size_factor=0.1,
+        mesh_size_engines=0.4,
+        mesh_size_propellers=0.3,
         refine_factor=1.0,
         refine_truncated=False,
         auto_refine=False,
@@ -381,6 +381,7 @@ def test_disk_actuator_conversion():
 # =================================================================================================
 
 if __name__ == "__main__":
+    test_disk_actuator_conversion()
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

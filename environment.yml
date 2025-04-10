@@ -13,8 +13,6 @@ channels:
   - dlr-sc
   - conda-forge
   - defaults
-  - https://repo.anaconda.com/pkgs/main
-  - https://repo.anaconda.com/pkgs/r
 
 dependencies:
   - python=3.11.11
@@ -42,7 +40,7 @@ dependencies:
     - cpacspy==0.1.8
     - cython==3.0.12
     - framat==0.4.8
-    - gmsh==4.10.3
+    - gmsh==4.13.1
     - markdownpy==0.1.4
     - om-pycycle==4.3.0
     - shapely==2.1.0

@@ -847,15 +847,15 @@ def generate_gmsh(
                 gmsh.model.occ.synchronize()
 
     # Necessary for after fusing back wings
-    gmsh.model.occ.removeAllDuplicates()
-    gmsh.model.occ.synchronize()
+    # gmsh.model.occ.removeAllDuplicates()
+    # gmsh.model.occ.synchronize()
 
     # Apply smoothing
     log.info("2D mesh smoothing process started")
     gmsh.model.mesh.optimize("Laplace2D", niter=10)
     log.info("Smoothing process finished")
 
-    gmsh.model.occ.removeAllDuplicates()
+    # gmsh.model.occ.removeAllDuplicates()
 
     # Synchronize again to update the model after removing duplicates
     gmsh.model.occ.synchronize()

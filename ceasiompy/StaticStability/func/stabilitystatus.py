@@ -45,17 +45,20 @@ def generate_message(row: Series) -> str:
 
     """
 
-    msg = ""
-    if (row["long_stab"] == "Stable") and (row["dir_stab"]
-                                           == "Stable") and (row["lat_stab"] == "Stable"):
-        msg += "Aircraft is stable along all axes."
+    if (
+        (row["long_stab"] == "Stable")
+        and (row["dir_stab"] == "Stable")
+        and (row["lat_stab"] == "Stable")
+    ):
+        return "Aircraft is stable along all axes."
     elif (
         (row["long_stab"] == "Unstable")
         and (row["dir_stab"] == "Unstable")
         and (row["lat_stab"] == "Unstable")
     ):
-        msg += "Aircraft is UN-stable along ALL axes."
+        return "Aircraft is UN-stable along ALL axes."
     else:
+        msg = ""
         if (row["long_stab"] == "Unstable"):
             msg += "Aircraft is unstable for Longitudinal axis i.e. Cma >=0. "
         if (row["dir_stab"] == "Unstable"):
@@ -148,18 +151,19 @@ def check_stability_lr(df: DataFrame) -> DataFrame:
         "mach",
         "alt",
         "aos",
-    ]).apply(compute_stability_cma).reset_index()
+    ]).apply(compute_stability_cma, include_groups=False).reset_index()
 
     grouped_cnb_clb = df.groupby([
         "mach",
         "alt",
         "aoa",
-    ]).apply(compute_stability_cnb_clb).reset_index()
+    ]).apply(compute_stability_cnb_clb, include_groups=False).reset_index()
 
     # Merge grouped_cma and grouped_cnb_clb with the original df
     df = df.merge(grouped_cma, on=["mach", "alt", "aos"], how="left")
     df = df.merge(grouped_cnb_clb, on=["mach", "alt", "aoa"], how="left")
 
+    print(df)
     df["comment"] = df.apply(generate_message, axis=1)
 
     return df

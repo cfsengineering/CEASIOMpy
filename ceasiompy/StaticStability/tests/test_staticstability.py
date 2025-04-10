@@ -18,8 +18,6 @@ Python version: >=3.8
 
 import unittest
 
-import numpy as np
-
 from ceasiompy.utils.decorators import log_test
 from cpacspy.cpacsfunctions import create_branch
 from ceasiompy.StaticStability.staticstability import generate_stab_table
@@ -50,7 +48,7 @@ class TestStaticStability(CeasiompyTest):
 
     @classmethod
     def setUpClass(cls):
-        cls.cpacs_path = Path(CPACS_FILES_PATH, "D150_simple.xml")
+        cls.cpacs_path = Path(CPACS_FILES_PATH, "D150_simple_test_static.xml")
         cls.cpacs = CPACS(cls.cpacs_path)
         cls.wkdir = current_workflow_dir()
 
@@ -59,38 +57,6 @@ class TestStaticStability(CeasiompyTest):
         tixi = cls.cpacs.tixi
         cls.results_dir = get_results_directory(MODULE_NAME, True, cls.wkdir)
 
-        # Test aeromap
-
-        # Test linear regression
-        # Remove previous rows
-        '''
-        cls.aeromap.remove_row(alt=0.0, mach=0.3, aos=0.0, aoa=0.0)
-        cls.aeromap.remove_row(alt=0.0, mach=0.3, aos=10.0, aoa=0.0)
-        cls.aeromap.remove_row(alt=0.0, mach=0.3, aos=0.0, aoa=10.0)
-        cls.aeromap.remove_row(alt=0.0, mach=0.3, aos=10.0, aoa=10.0)
-
-        # Add complete ones
-        cls.aeromap.add_row(
-            alt=0.0, mach=0.3, aos=0.0, aoa=0.0,
-            cd=np.nan, cl=np.nan, cs=np.nan,
-            cmd=0.002, cml=0.002, cms=0.004,
-        )
-        cls.aeromap.add_row(
-            alt=0.0, mach=0.3, aos=0.0, aoa=10.0,
-            cd=np.nan, cl=np.nan, cs=np.nan,
-            cmd=0.002, cml=0.002, cms=0.002,
-        )
-        cls.aeromap.add_row(
-            alt=0.0, mach=0.3, aos=10.0, aoa=0.0,
-            cd=np.nan, cl=np.nan, cs=np.nan,
-            cmd=0.004, cml=0.004, cms=0.004,
-        )
-        cls.aeromap.add_row(
-            alt=0.0, mach=0.3, aos=10.0, aoa=10.0,
-            cd=np.nan, cl=np.nan, cs=np.nan,
-            cmd=0.004, cml=0.002, cms=0.002,
-        )
-        '''
         log.info(f"cls.aeromap {cls.aeromap}")
 
         # Test directly values from derivatives
@@ -109,6 +75,8 @@ class TestStaticStability(CeasiompyTest):
 
     @log_test
     def test_generate_stab_table(self) -> None:
+        act = generate_stab_table(self.cpacs, "test_apm", self.wkdir, True)
+        print("Actual Output:", act)  # Debugging: Print the actual output
 
         # Test Linear Regression
         self.assert_equal_function(

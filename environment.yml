@@ -38,5 +38,5 @@ dependencies:
     - matplotlib==3.10.1
     - pydantic==2.11.3
     - psutil==7.0.0
-    - pyvista=0.44.2
-    - vtk=9.3.0
+    - pyvista==0.44.2
+    - vtk==9.3.0

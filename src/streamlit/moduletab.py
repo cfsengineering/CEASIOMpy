@@ -135,7 +135,11 @@ def add_module_tab() -> None:
         with tab:
             st.text("")
             specs = get_specs_for_module(module)
-            inputs = specs.cpacs_inout.get_gui_dict()
+            # Check if specs.cpacs_inout is None
+            if specs.cpacs_inout is None:
+                log.error("specs.cpacs_inout is None. Ensure it is initialized before use.")
+            else:
+                inputs = specs.cpacs_inout.get_gui_dict()
             if not inputs:
                 st.warning("No settings to modify this module.")
                 continue

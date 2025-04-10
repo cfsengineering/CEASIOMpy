@@ -304,9 +304,9 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
             x=0,
             y=0,
             z=1,
-            angle_x=centerline_df.iloc[i_node]["thx_new"],
-            angle_y=centerline_df.iloc[i_node]["thy_new"],
-            angle_z=centerline_df.iloc[i_node]["thz_new"],
+            RaX=centerline_df.iloc[i_node]["thx_new"],
+            RaY=-centerline_df.iloc[i_node]["thy_new"],
+            RaZ=centerline_df.iloc[i_node]["thz_new"],
         )
 
         beam.add('orientation', {'from': centerline_df.iloc[i_node]['node_uid'],

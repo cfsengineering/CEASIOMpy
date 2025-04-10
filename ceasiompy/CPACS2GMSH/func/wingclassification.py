@@ -173,7 +173,7 @@ class ModelPart:
 # =================================================================================================
 
 
-def detect_normal_profile(le_te_pair, line_comp1, line_comp2):
+def detect_normal_profile(le_te_pair: List, line_comp1, line_comp2):
     """
     Function to detect leading and trailing edge lines for normal profile (not truncated)
     le/te lines are linked by the two same surfaces

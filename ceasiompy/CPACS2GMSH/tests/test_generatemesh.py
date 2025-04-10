@@ -355,7 +355,10 @@ def test_disk_actuator_conversion():
         testing_gmsh=True,
     )
 
-    physical_groups = gmsh.model.getPhysicalGroups(dim=-1)
+    physical_groups = gmsh.model.getPhysicalGroups()
+    
+    for tag, dim in physical_groups:
+        print(f"tag {tag} dim {dim}")
 
     # Check if the disk actuator integration was correct
     assert len(physical_groups) == 11

@@ -101,7 +101,7 @@ def test_detect_normal_profile():
     assert len(le_te_pair) == 1
 
     # Test if the correct le_te_pair is detected
-    assert sorted(le_te_pair[0]) == sorted([le_line, te_line])
+    assert sorted(le_te_pair) == sorted([le_line, te_line])
 
     gmsh.clear()
     gmsh.finalize()

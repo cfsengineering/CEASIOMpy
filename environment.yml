@@ -54,4 +54,4 @@ dependencies:
     - scipy==1.15.2
     - om-pycycle==4.3.0
     - pycycle==0.0.8
-    - gmsh==4.13.1
+    - gmsh==4.10.3

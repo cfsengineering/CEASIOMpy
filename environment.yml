@@ -53,3 +53,4 @@ dependencies:
     - pyvista==0.44.2
     - pycycle==0.0.8
     - vtk==9.3.0
+    - scipy==1.15.2

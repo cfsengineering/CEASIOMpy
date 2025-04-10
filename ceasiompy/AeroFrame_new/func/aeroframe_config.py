@@ -1049,5 +1049,4 @@ def interpolate_leading_edge(AVL_UNDEFORMED_PATH,
 
 
 if __name__ == "__main__":
-
     log.info("Nothing to execute!")

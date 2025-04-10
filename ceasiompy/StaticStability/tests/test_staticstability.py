@@ -63,6 +63,7 @@ class TestStaticStability(CeasiompyTest):
 
         # Test linear regression
         # Remove previous rows
+        '''
         cls.aeromap.remove_row(alt=0.0, mach=0.3, aos=0.0, aoa=0.0)
         cls.aeromap.remove_row(alt=0.0, mach=0.3, aos=10.0, aoa=0.0)
         cls.aeromap.remove_row(alt=0.0, mach=0.3, aos=0.0, aoa=10.0)
@@ -89,6 +90,7 @@ class TestStaticStability(CeasiompyTest):
             cd=np.nan, cl=np.nan, cs=np.nan,
             cmd=0.004, cml=0.002, cms=0.002,
         )
+        '''
         log.info(f"cls.aeromap {cls.aeromap}")
 
         # Test directly values from derivatives

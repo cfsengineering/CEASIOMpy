@@ -51,7 +51,10 @@ jobs:
     - name: Install ceasiompy with pip
       shell: bash -l {0}
       run: pip install -e .
-      
+
+    - name: Install libGLU
+      run: sudo apt-get install -y libglu1-mesa-dev
+
     - name: Run unit tests
       shell: bash -l {0}
       run: pytest -v ./ceasiompy --cov=ceasiompy/ --cov-report xml:coverage.xml

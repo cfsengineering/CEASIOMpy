@@ -1,3 +1,14 @@
+# This file lists external packages required to run and develop CEASIOMpy.
+#
+# * Only top-level requirements are listed here.
+# * You can use this file to set up a Conda environment:
+#
+#       conda env create -f environment.yml
+#
+# See also: https://docs.conda.io/projects/conda/en/latest/user-guide/tasks/manage-environments.html
+
+name: ceasiompy
+
 channels:
   - dlr-sc
   - conda-forge

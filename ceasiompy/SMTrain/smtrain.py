@@ -171,7 +171,7 @@ def extract_data_set(Tool):
             for v in var_list:
                 if not v.isdigit() and v != "" and v in df.index:
                     exec('{} = df.loc["{}"]'.format(v, v))
-            df_data = Tool.df.append({"Name": obj, "type": "obj"}, ignore_index=True)
+            df_data = pd.concat([Tool.df, pd.DataFrame([{"Name": obj, "type": "obj"}])], ignore_index=True)
             y.loc[obj] = eval(obj)
 
     Tool.objectives = y.index
@@ -367,7 +367,7 @@ def gen_df_from_am(tixi):
     x["type"] = "des"
     y["type"] = "obj"
 
-    df = x.append(y, ignore_index=True)
+    df = pd.concat([x, y], ignore_index=True)
     df["getcmd"] = "-"
     df["setcmd"] = "-"
     df["initial value"] = "-"

@@ -25,6 +25,7 @@ Todo:
 from pathlib import Path
 from re import split
 
+from pandas import DataFrame
 import pandas as pd
 from ceasiompy.Optimisation.func.dictionnary import init_geom_var_dict
 from ceasiompy.Optimisation.func.tools import (
@@ -451,7 +452,7 @@ def initialize_df():
     return df
 
 
-def add_geometric_vars(tixi, df):
+def add_geometric_vars(tixi, df: DataFrame):
     """Add geometry parameters as design variables.
 
     Automatically add the geometric variables as they are not included as
@@ -480,7 +481,7 @@ def add_geometric_vars(tixi, df):
             "getcmd": getcmd,
             "setcmd": setcmd,
         }
-        df = df.append(new_row, ignore_index=True)
+        df = pd.concat([df, new_row], ignore_index=True)
 
     df.sort_values(
         by=["type", "Name"],

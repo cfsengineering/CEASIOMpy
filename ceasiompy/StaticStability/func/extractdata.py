@@ -133,8 +133,12 @@ def generate_stab_df(cpacs: CPACS, aeromap_uid: str, lr_bool: bool) -> DataFrame
         ]]
 
 
-def generate_stab_table(cpacs: CPACS, aeromap_uid: str, results_dir: Path,
-                        lr_bool: bool) -> List[List[str]]:
+def generate_stab_table(
+    cpacs: CPACS,
+    aeromap_uid: str,
+    results_dir: Path,
+    lr_bool: bool,
+) -> List[List[str]]:
     """
     Generate the Markdownpy Table for the longitudinal/directional/lateral
     stability to show in the results.

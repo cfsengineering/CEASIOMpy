@@ -239,6 +239,7 @@ def duplicate_disk_actuator_surfaces(part: ModelPart):
     # Set the new physical group for the back surface
     gmsh.model.setPhysicalName(2, new_tag, f"{part.uid}{ACTUATOR_DISK_OUTLET_SUFFIX}")
     gmsh.plugin.run("Crack")
+    log.info("Created outlet disk actuator surface")
 
 
 def control_disk_actuator_normal():

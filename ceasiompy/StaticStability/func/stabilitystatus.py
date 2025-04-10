@@ -163,7 +163,6 @@ def check_stability_lr(df: DataFrame) -> DataFrame:
     df = df.merge(grouped_cma, on=["mach", "alt", "aos"], how="left")
     df = df.merge(grouped_cnb_clb, on=["mach", "alt", "aoa"], how="left")
 
-    print(df)
     df["comment"] = df.apply(generate_message, axis=1)
 
     return df

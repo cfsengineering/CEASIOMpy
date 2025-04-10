@@ -32,8 +32,6 @@ dependencies:
   - python-kaleido=0.2.1
   - pythreejs=2.4.2
   - xmltodict=0.14.2
-  - om-pycycle=4.3.0
-  - pycycle=0.0.8
   - gmsh=4.13.1
 
   - pip:
@@ -55,3 +53,5 @@ dependencies:
     - pyvista==0.44.2
     - vtk==9.3.0
     - scipy==1.15.2
+    - om-pycycle==4.3.0
+    - pycycle==0.0.8

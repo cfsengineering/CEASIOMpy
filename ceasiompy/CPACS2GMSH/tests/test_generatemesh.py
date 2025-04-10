@@ -361,6 +361,7 @@ def test_disk_actuator_conversion():
         print(f"tag {tag} dim {dim}")
 
     # Check if the disk actuator integration was correct
+    print(physical_groups)
     assert len(physical_groups) == 11
 
     assert gmsh.model.getPhysicalName(*physical_groups[0]) == "Propeller_AD_Inlet"

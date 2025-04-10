@@ -803,8 +803,8 @@ def generate_gmsh(
             if bool_(open_gmsh):
                 log.info("Corrected mesh surfaces are displayed in green")
 
-    gmsh.model.occ.removeAllDuplicates()
-    gmsh.model.occ.synchronize()
+    # gmsh.model.occ.removeAllDuplicates()
+    # gmsh.model.occ.synchronize()
 
     # Fuse surfaces
     fusings: Dict[str, List] = {}
@@ -814,7 +814,7 @@ def generate_gmsh(
     # TODO: Remap getPhysicalGroups
     surfaces: List[Tuple[int, int]] = gmsh.model.getPhysicalGroups(dim=2)
 
-    fusing = False
+    fusing = True
     if fusing:
         for dim, tag in surfaces:
             name = gmsh.model.getPhysicalName(dim, tag)

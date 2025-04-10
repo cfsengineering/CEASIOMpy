@@ -171,7 +171,10 @@ def extract_data_set(Tool):
             for v in var_list:
                 if not v.isdigit() and v != "" and v in df.index:
                     exec('{} = df.loc["{}"]'.format(v, v))
-            df_data = pd.concat([Tool.df, pd.DataFrame([{"Name": obj, "type": "obj"}])], ignore_index=True)
+            df_data = pd.concat(
+                [Tool.df, pd.DataFrame([{"Name": obj, "type": "obj"}])], 
+                ignore_index=True,
+            )
             y.loc[obj] = eval(obj)
 
     Tool.objectives = y.index

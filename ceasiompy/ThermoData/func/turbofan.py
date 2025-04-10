@@ -277,7 +277,7 @@ def turbofan_analysis(alt, MN, Fn):
             flush=True,
         )
         print(
-            " %7.5f  %7.1f %7.3f %7.1f %7.1f %7.1f %7.3f  %7.5f  %7.3f" % tuple(summary_data.flatten(),
+            " %7.5f  %7.1f %7.3f %7.1f %7.1f %7.1f %7.3f  %7.5f  %7.3f" % tuple(summary_data.flatten()),
             file=file,
             flush=True,
         )

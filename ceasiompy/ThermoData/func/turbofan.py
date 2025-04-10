@@ -12,15 +12,13 @@ Python version: >=3.8
 
 """
 import sys
-
+import numpy as np
 import openmdao.api as om
-
 import pycycle.api as pyc
 
 from scipy.constants import convert_temperature
 
 from ceasiompy import log
-
 
 # =================================================================================================
 #   FUNCTIONS
@@ -277,7 +275,8 @@ def turbofan_analysis(alt, MN, Fn):
             flush=True,
         )
         print(
-            " %7.5f  %7.1f %7.3f %7.1f %7.1f %7.1f %7.3f  %7.5f  %7.3f" % summary_data.flatten(),
+            " %7.5f  %7.1f %7.3f %7.1f %7.1f %7.1f %7.3f  %7.5f  %7.3f"
+            % summary_data,
             file=file,
             flush=True,
         )

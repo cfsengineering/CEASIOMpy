@@ -40,7 +40,7 @@ from ceasiompy.utils.commonxpath import (
 )
 from ceasiompy import log
 from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
-from ceasiompy.utils.mathfunctions import euler2fix, rotate_points
+from ceasiompy.utils.mathsfunctions import euler2fix, rotate_points
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
 from ceasiompy.AeroFrame_new.func.utils import (
     PolyArea,

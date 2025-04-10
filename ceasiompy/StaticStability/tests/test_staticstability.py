@@ -30,8 +30,11 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 
 from pathlib import Path
-from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.ceasiompytest import CeasiompyTest
+from cpacspy.cpacspy import (
+    CPACS,
+    AeroMap,
+)
 
 from ceasiompy import log
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
@@ -51,8 +54,8 @@ class TestStaticStability(CeasiompyTest):
         cls.cpacs = CPACS(cls.cpacs_path)
         cls.wkdir = current_workflow_dir()
 
-        cls.aeromap_empty = cls.cpacs.get_aeromap_by_uid("aeromap_empty")
-        cls.aeromap = cls.cpacs.get_aeromap_by_uid("test_apm")
+        cls.aeromap_empty: AeroMap = cls.cpacs.get_aeromap_by_uid("aeromap_empty")
+        cls.aeromap: AeroMap = cls.cpacs.get_aeromap_by_uid("test_apm")
         tixi = cls.cpacs.tixi
         cls.results_dir = get_results_directory(MODULE_NAME, True, cls.wkdir)
 

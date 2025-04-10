@@ -80,7 +80,7 @@ class CST_shape(object):
 
         for i in range(0, N):
             zeta[i] = 2 * pi / N * i
-            x[i] = 0.5 * (cos(zeta[i]) + 1)
+            x[i] = 0.5 * (cos(zeta[i][0]) + 1)
 
         # N1 and N2 parameters (N1 = 0.5 and N2 = 1 for airfoil shape)
         N1 = 0.5
@@ -95,11 +95,11 @@ class CST_shape(object):
 
         # Lower surface x-coordinates
         for i, _ in enumerate(xl):
-            xl[i] = x[i]
+            xl[i] = x[i][0]
 
         # Upper surface x-coordinates
         for i, _ in enumerate(xu):
-            xu[i] = x[i + center_loc]
+            xu[i] = x[i + center_loc][0]
 
         # Call ClassShape function to determine lower and upper surface y-coordinates
         yl = self.__ClassShape(wl, xl, N1, N2, -dz)

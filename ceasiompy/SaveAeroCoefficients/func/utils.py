@@ -17,6 +17,7 @@ Python version: >=3.8
 # ==============================================================================
 
 from typing import List
+from pandas import DataFrame
 
 from ceasiompy import log
 from ceasiompy.SaveAeroCoefficients import (
@@ -53,7 +54,7 @@ def write_legend(groupby_list: List, value) -> None:
             value_i = value
 
         if param == "uid":
-            legend += value_i
+            legend += str(value_i)
         else:
             if name in FEATURE_DICT:
                 name = FEATURE_DICT[name]
@@ -82,7 +83,14 @@ def subplot_options(ax, ylabel: str, xlabel: str) -> None:
     ax.grid()
 
 
-def deal_with_feature(title, criterion, aeromap, groupby_list, feature: str, crit: str) -> None:
+def deal_with_feature(
+    title: str,
+    criterion,
+    aeromap: DataFrame,
+    groupby_list: List,
+    feature: str,
+    crit: str,
+) -> None:
     feature_ = FEATURE_DICT[feature]
     if len(aeromap[feature].unique()) == 1:
         title += f" - {feature_} = " + str(aeromap[feature].loc[0])

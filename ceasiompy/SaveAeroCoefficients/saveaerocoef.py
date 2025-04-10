@@ -31,11 +31,18 @@ from ceasiompy.utils.ceasiompyutils import (
 )
 
 from pathlib import Path
-from cpacspy.cpacspy import CPACS
-
-from ceasiompy.utils.commonxpath import PLOT_XPATH, AIRCRAFT_NAME_XPATH, AEROMAP_TO_PLOT_XPATH
+from cpacspy.cpacspy import (
+    CPACS,
+    AeroMap,
+)
 
 from ceasiompy.SaveAeroCoefficients import MODULE_NAME
+from ceasiompy.utils.commonxpath import (
+    PLOT_XPATH,
+    AIRCRAFT_NAME_XPATH,
+    AEROMAP_TO_PLOT_XPATH,
+)
+
 
 # =================================================================================================
 #    MAIN
@@ -55,7 +62,8 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
     aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, AEROMAP_TO_PLOT_XPATH)
     aeromap_df_list = []
     for aeromap_uid in aeromap_uid_list:
-        aeromap_df = cpacs.get_aeromap_by_uid(aeromap_uid).df
+        aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
+        aeromap_df = aeromap.df
         aeromap_df["uid"] = aeromap_uid
         aeromap_df_list.append(aeromap_df)
     aeromap = pd.concat(aeromap_df_list, ignore_index=True)

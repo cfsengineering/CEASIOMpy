@@ -33,6 +33,6 @@ echo export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN >> ~/.bashrc
 echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
 
 echo "Installing MPICH..."
-sudo apt install -y mpich
+sudo apt-get install -y mpich
 
 cd "$current_dir"

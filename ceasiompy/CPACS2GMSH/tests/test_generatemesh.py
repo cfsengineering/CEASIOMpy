@@ -336,7 +336,7 @@ def test_disk_actuator_conversion():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        cpacs=cpacs,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,

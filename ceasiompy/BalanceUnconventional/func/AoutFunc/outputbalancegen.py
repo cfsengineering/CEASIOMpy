@@ -20,15 +20,6 @@ import numpy as np
 import matplotlib as mpl
 import matplotlib.pyplot as plt
 
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and into the
-   InputClasses/Uconventional folder"""
-
-
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
@@ -327,7 +318,6 @@ def aircraft_cog_unc_plot(cg, bi, ed, afg, awg, NAME):
 
 
 def aircraft_cog_bwb_plot(cg, bi, ed, awg, NAME):
-
     """The function that generate the plot of the blended wing body
     center of gravity and the nodes used to evaluate it.
 

@@ -56,6 +56,8 @@ If you want to perform calculation on an aircraft with an actuator disk you must
 
 :warning: The mesh convergence should also be checked. If you use a mesh too coarse, the aerodynamic coefficients might be far from the values you would expect with a finer mesh.
 
+For unsteady simulations, it uses by default time marching : DUAL_TIME_STEPPING-2ND_ORDER.
+
 ## More information
 
 * [SU2 website](https://su2code.github.io/)

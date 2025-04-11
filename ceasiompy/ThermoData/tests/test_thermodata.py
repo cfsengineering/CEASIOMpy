@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions of 'ceasiompy/ThermoData/func/turbojet_func.py'
 
-Python version: >=3.8
 
 
 | Author : Francesco Marcucci
@@ -16,27 +15,19 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-from pathlib import Path
-
-import sys
-
 import numpy as np
 
-from ceasiompy.ThermoData.func.turbojet_func import (
+from pathlib import Path
+
+from ceasiompy.ThermoData.func.turbojet import (
     turbojet_analysis,
     write_turbojet_file,
 )
 
-from ceasiompy.ThermoData.func.turbofan_func import (
+from ceasiompy.ThermoData.func.turbofan import (
     turbofan_analysis,
     write_hbtf_file,
 )
-
-sys.path.append("/home/cfse/Stage_Francesco/Thermodata")
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
 
 
 # =================================================================================================
@@ -171,7 +162,6 @@ def test_write_hbtf_file(tmp_path):
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Test ThermoData")
     print("To run test use the following command:")
     print(">> pytest -v")

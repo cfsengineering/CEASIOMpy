@@ -6,7 +6,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script contains the user inputs required for the
 balance unconventional analysis.
 
-Python version: >=3.8
 
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27

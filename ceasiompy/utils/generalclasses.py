@@ -5,14 +5,9 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 General classes to get transformation from any part of a CPACS file
 
-Python version: >=3.8
 
 | Author: Aidan Jungo
 | Creation: 2021-02-25
-
-TODO:
-
-    *
 
 """
 
@@ -20,14 +15,9 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-from pathlib import Path
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from tixi3.tixi3wrapper import Tixi3Exception
-
-log = get_logger()
-
-MODULE_DIR = Path(__file__).parent
 
 # =================================================================================================
 #   CLASSES
@@ -96,7 +86,7 @@ class Point:
 
 class Transformation:
     """
-    The Class "Transformation" store scaling, rotation and tanlsation by
+    The Class "Transformation" store scaling, rotation and translation by
     calling the class "Point"
 
     Attributes:
@@ -113,8 +103,9 @@ class Transformation:
         self.translation = Point()
 
     def get_cpacs_transf(self, tixi, xpath):
-        """Get scaling,rotation and translation from a given path in the
-            CPACS file
+        """
+        Get scaling, rotation and translation
+        from a given path in the CPACS file
 
         Args:
             tixi (handles): TIXI Handle of the CPACS file
@@ -165,4 +156,4 @@ class Transformation:
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

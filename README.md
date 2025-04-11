@@ -66,14 +66,14 @@ These test cases are there to learn how to use CEASIOMpy. You will probably also
 
     ```bash
     cd WKDIR
-    ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml PyTornado SaveAeroCoefficients
+    ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml PyAVL SaveAeroCoefficients
     ```
 
 Follow the [test cases](#test-cases) to discover the different way of using CEASIOMpy.
 
 ### Examples of workflows
 
-- **Simple workflow with PyTornado (Vortex Lattice Method)**
+- **Simple workflow with PyAVL (Vortex Lattice Method)**
 
 <div align="center">
 
@@ -90,21 +90,21 @@ Follow the [test cases](#test-cases) to discover the different way of using CEAS
 
 ```mermaid
   graph LR;
-      CLCalculator-->CPACS2SUMO;
-      CPACS2SUMO-->SUMOAutoMesh;
-      SUMOAutoMesh-->SU2Run;
+      CPACS2Updater-->CPACS2Gmsh;
+      CPACS2Gmsh-->SU2Run;
       SU2Run-->ExportCSV;
+      ExportCSV-->Database;
 ```
 
 </div>
 
 ### Available modules
 
-There are many different modules available in CEASIOMpy that can be combined in different workflows. The list of available modules is shown below. The module status is marked as follows:
+There are many different modules available in CEASIOMpy that can be combined to create different workflows. The list of available modules is shown below. The modules' statuses are marked as follows:
 
-:heavy_check_mark: : The module should work as expected. There may be some minor bugs, don't hesitate to report them (more details [here](CONTRIBUTING.md#reporting-bugs)).
+:heavy_check_mark: : The module should work as expected. If you find bugs, do not hesitate to report them (more details [here](CONTRIBUTING.md#reporting-bugs)).
 
-:warning: : The module does not work completely as expected. It is not a bug, but some features or data handling are not yet compatible with the new file structure. Check the [Kanban Board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see planned and in-progress features.
+:warning: : The module does not work as expected. It is not a bug, but some features or data handling are not yet compatible with the new file structure. Check the [Kanban Board](https://github.com/cfsengineering/CEASIOMpy/projects/1) to see planned and in-progress features.
 
 :x: : The module does not work at all. Some functions have been written, but need a lot of changes to be compatible with the rest of CEASIOMpy.
 
@@ -123,6 +123,7 @@ There are many different modules available in CEASIOMpy that can be combined in 
 #### Geometry and Mesh
 
 - [CPACSCreator](ceasiompy/CPACSCreator/README.md) :heavy_check_mark:
+- [CPACSUpdater](ceasiompy/CPACSUpdater/README.md) :heavy_check_mark:
 - [CPACS2GMSH](ceasiompy/CPACS2GMSH/README.md) :heavy_check_mark:
 - [CPACS2SUMO](ceasiompy/CPACS2SUMO/README.md) :heavy_check_mark:
 - [SUMOAutoMesh](ceasiompy/SUMOAutoMesh/README.md) :warning:
@@ -133,7 +134,6 @@ There are many different modules available in CEASIOMpy that can be combined in 
 #### Aerodynamics
 
 - [CLCalculator](ceasiompy/CLCalculator/README.md) :heavy_check_mark:
-- [PyTornado](ceasiompy/PyTornado/README.md) :heavy_check_mark:
 - [PyAVL](ceasiompy/PyAVL/README.md) :heavy_check_mark:
 - [SU2Run](ceasiompy/SU2Run/README.md) :heavy_check_mark:
 - [SkinFriction](ceasiompy/SkinFriction/README.md) :heavy_check_mark:
@@ -154,12 +154,17 @@ There are many different modules available in CEASIOMpy that can be combined in 
 
 - Range :warning:
 - [StaticStability](./ceasiompy/StaticStability/README.md) :heavy_check_mark:
+- [DynamicStability](./ceasiompy/DynamicStability/README.md) :heavy_check_mark:
 
 <img align="right" height="80" src="documents/logos/CEASIOMpy_banner_structure.png">
 
 #### Structure
 
-- AeroFrame :heavy_check_mark:
+- AeroFrame :x:
+
+#### Data Analysis and Storage
+
+- [Database](./ceasiompy/Database/README.md) :heavy_check_mark:
 
 ## Contributing
 

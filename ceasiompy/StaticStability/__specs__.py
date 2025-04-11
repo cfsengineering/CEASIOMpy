@@ -1,80 +1,48 @@
-#!/usr/bin/env python3
-# -*- coding: utf-8 -*-
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
 
-from pathlib import Path
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+GUI Interface of StaticStability.
+
+
+| Author: Leon Deligny
+| Creation: 18-Mar-2025
+
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import (
-    CHECK_DIRECTIONAL_STABILITY_XPATH,
-    CHECK_LATERAL_STABILITY_XPATH,
-    CHECK_LONGITUDINAL_STABILITY_XPATH,
-    STABILITY_AEROMAP_TO_ANALYZE_XPATH,
-)
 
+from ceasiompy import log
 
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-module_status = True
+from ceasiompy.StaticStability import include_gui
+from ceasiompy.utils.commonxpath import STATICSTABILITY_LR_XPATH
 
-# ===== Results directory path =====
-
-RESULTS_DIR = Path("Results", "Stability")
-
-
-# ===== CPACS inputs and outputs =====
+# ==============================================================================
+#   VARIABLE
+# ==============================================================================
 
 cpacs_inout = CPACSInOut()
 
-
-# ===== Input =====
-
 cpacs_inout.add_input(
-    var_name="aeromap_to_analyze",
-    var_type=list,
-    default_value=None,
+    var_name="static_stability_linear_regression_bool",
+    var_type=bool,
+    default_value=False,
     unit=None,
-    descr="Name of the aero map to evaluate",
-    xpath=STABILITY_AEROMAP_TO_ANALYZE_XPATH,
-    gui=True,
-    gui_name="__AEROMAP_CHECKBOX",
-    gui_group="Inputs",
+    descr="Either use linear regression or directly the derivative's values",
+    xpath=STATICSTABILITY_LR_XPATH,
+    gui=include_gui,
+    gui_name="Linear Regression",
+    gui_group="Static Stability Settings",
 )
 
-cpacs_inout.add_input(
-    var_name="longitudinal_stability",
-    var_type=bool,
-    default_value=True,
-    unit="1",
-    descr="Whether the longitudinal stability should the check or not.",
-    xpath=CHECK_LONGITUDINAL_STABILITY_XPATH,
-    gui=True,
-    gui_name="Longitudinal",
-    gui_group="Stability",
-)
+# =================================================================================================
+#    MAIN
+# =================================================================================================
 
-cpacs_inout.add_input(
-    var_name="directional_stability",
-    var_type=bool,
-    default_value=False,
-    unit="1",
-    descr="Whether the directional stability should the check or not.",
-    xpath=CHECK_DIRECTIONAL_STABILITY_XPATH,
-    gui=True,
-    gui_name="Directional",
-    gui_group="Stability",
-)
-
-cpacs_inout.add_input(
-    var_name="lateral_stability",
-    var_type=bool,
-    default_value=False,
-    unit="1",
-    descr="Whether the lateral stability should the check or not.",
-    xpath=CHECK_LATERAL_STABILITY_XPATH,
-    gui=True,
-    gui_name="Lateral",
-    gui_group="Stability",
-)
-
-
-# ===== Output =====
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")

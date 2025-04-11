@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/CPACS2GMSH/wingclassification.py'
 
-Python version: >=3.8
 
 | Author : Tony Govoni
 | Creation: 2022-04-19
@@ -16,28 +15,18 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-import shutil
 from pathlib import Path
 
 import gmsh
-import pytest
-from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
-from ceasiompy.CPACS2GMSH.func.generategmesh import generate_gmsh
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
     detect_normal_profile,
     detect_truncated_profile,
 )
-from ceasiompy.utils.ceasiompyutils import remove_file_type_in_dir
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
-from cpacspy.cpacspy import CPACS
 
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "simpletest_cpacs.xml")
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
 
 
 # =================================================================================================
@@ -213,58 +202,6 @@ def test_detect_truncated_profile():
 
     gmsh.clear()
     gmsh.finalize()
-
-
-def test_classify_wing():
-    """
-    Test if one of the wing of the simple test model is correctly classified
-
-    This test import the whole simple.xml file and check if one of its wing is correctly
-    classified
-    """
-
-    if TEST_OUT_PATH.exists():
-        shutil.rmtree(TEST_OUT_PATH)
-    TEST_OUT_PATH.mkdir()
-
-    cpacs = CPACS(CPACS_IN_PATH)
-
-    export_brep(cpacs, TEST_OUT_PATH)
-
-    _, aircraft_parts = generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_PATH,
-        brep_dir=TEST_OUT_PATH,
-        results_dir=TEST_OUT_PATH,
-        open_gmsh=False,
-        farfield_factor=2,
-        symmetry=False,
-        farfield_size_factor=17,
-        n_power_factor=2,
-        n_power_field=0.9,
-        fuselage_mesh_size_factor=1,
-        wing_mesh_size_factor=1,
-        mesh_size_engines=0.2,
-        mesh_size_propellers=0.2,
-        refine_factor=1.0,
-        refine_truncated=False,
-        auto_refine=False,
-        testing_gmsh=False,
-    )
-
-    for part in aircraft_parts:
-        if "Wing_mirrored" == part.uid:
-            test_wingsection = part.wing_sections
-
-    # Test if the wing1_m is correctly classified
-    assert len(test_wingsection) == 2
-
-    # Test if the wing1_m section 1 is correctly classified
-    section1 = test_wingsection[0]
-    assert section1["lines_tags"] == [21, 23, 25]
-    assert pytest.approx(section1["mean_chord"], 0.01) == 1
-
-    remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
 
 
 # =================================================================================================

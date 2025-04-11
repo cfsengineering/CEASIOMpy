@@ -3,13 +3,13 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Test functions of 'ceasiompy/SU2Run/func/su2config.py'
-
-Python version: >=3.8
+Test for get_su2_results function.
 
 
 | Author : Aidan Jungo
 | Creation: 2022-04-07
+| Modified: Leon Deligny
+| Date: 21 March 2025
 
 """
 
@@ -18,43 +18,38 @@ Python version: >=3.8
 # =================================================================================================
 
 import os
-from pathlib import Path
-
 import pytest
-from ceasiompy.SU2Run.func.su2results import save_screenshot
+import unittest
+
+from ceasiompy.SU2Run.func.results import save_screenshot
+
+from pathlib import Path
+from ceasiompy.utils.ceasiompytest import CeasiompyTest
+
 from ceasiompy.utils.commonpaths import TEST_RESULTS_FILES_PATH
-
-MODULE_DIR = Path(__file__).parent
-
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
 
 
-@pytest.mark.skipif("DISPLAY" not in os.environ, reason="requires display")
-def test_save_screenshot():
-    """Test the function 'save_screenshot'"""
+class TestSU2Results(CeasiompyTest):
 
-    surface_flow_file = Path(TEST_RESULTS_FILES_PATH, "surface_flow.vtu")
-    screenshot_file = save_screenshot(surface_flow_file, "Mach")
-    assert screenshot_file.exists()
+    @pytest.mark.skipif("DISPLAY" not in os.environ, reason="requires display")
+    def test_save_screenshot(self):
+        """Test the function 'save_screenshot'"""
 
-    if screenshot_file.exists():
-        screenshot_file.unlink()
+        surface_flow_file = Path(TEST_RESULTS_FILES_PATH, "surface_flow.vtu")
+        screenshot_file = save_screenshot(surface_flow_file, "Mach")
+        assert screenshot_file.exists()
 
+        if screenshot_file.exists():
+            screenshot_file.unlink()
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
-if __name__ == "__main__":
 
-    print("Test configfile.py")
-    print("To run test use the following command:")
-    print(">> pytest -v")
+if __name__ == "__main__":
+    unittest.main(verbosity=0)

@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test the module CPACS2SUMO (lib/CPACS2SUMO/cpacs2sumo.py')
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2018-10-26

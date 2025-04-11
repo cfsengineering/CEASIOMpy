@@ -7,4 +7,4 @@ source $CONDA_BASE/etc/profile.d/conda.sh
 conda activate ceasiompy
 
 # Run CEASIOMpy
-ceasiompy_run -g 
+ceasiompy_run -g

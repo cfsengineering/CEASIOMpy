@@ -5,55 +5,50 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Streamlit page to show results of CEASIOMpy
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2022-09-16
-
-TODO:
+| Modified : Leon Deligny
+| Date: 10-Mar-2025
 
 """
 
+# =================================================================================================
+#    IMPORTS
+# =================================================================================================
+
 import os
-from pathlib import Path
 
 import pandas as pd
-import plotly.graph_objects as go
 import streamlit as st
-from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
-from cpacspy.cpacspy import CPACS
-from cpacspy.utils import PARAMS_COEFS
-from streamlit_autorefresh import st_autorefresh
-from streamlitutils import create_sidebar
+import plotly.graph_objects as go
 
-how_to_text = (
+from streamlit_autorefresh import st_autorefresh
+from streamlitutils import create_sidebar, get_last_workflow
+
+from pathlib import Path
+from cpacspy.cpacspy import CPACS
+
+from cpacspy.utils import PARAMS_COEFS
+from ceasiompy.utils.commonpaths import DEFAULT_PARAVIEW_STATE
+
+# =================================================================================================
+#    CONSTANTS
+# =================================================================================================
+
+HOW_TO_TEXT = (
     "### How to check your results\n"
-    "1. Select the aeromap(s) you want to show\n"
-    "1. Chose the parameter you want to plot\n"
-    "1. Save some figure if you want\n"
-    "1. Check results from each module\n"
+    "1. Select an aeromap(s) \n"
+    "1. Choose the parameters to plot\n"
+    "1. Save the figure\n"
+    "1. Check the results for each module\n"
 )
 
-create_sidebar(how_to_text)
+PAGE_NAME = "Results"
 
-
-def get_last_workflow():
-    """Get the last workflow of the working directory"""
-
-    if "workflow" not in st.session_state:
-        st.warning("No workflow to show the result yet.")
-        return
-
-    last_workflow_nb = 0
-
-    for dir in Path(st.session_state.workflow.working_dir).iterdir():
-        if "Workflow_" in str(dir):
-            last_workflow_nb = max(last_workflow_nb, int(str(dir).split("_")[-1]))
-
-    if last_workflow_nb == 0:
-        return None
-
-    return Path(st.session_state.workflow.working_dir, f"Workflow_{last_workflow_nb:03}")
+# =================================================================================================
+#    FUNCTIONS
+# =================================================================================================
 
 
 def clear_containers(container_list):
@@ -64,70 +59,83 @@ def clear_containers(container_list):
             del st.session_state[container]
 
 
+def display_results_else(path):
+    if path.is_dir():
+        for child in path.iterdir():
+            display_results(child)
+    else:
+        st.text_area(path.stem, path.read_text(), height=200, key=str(path))
+
+
 def display_results(results_dir):
-    """Display results depending which type of file they are."""
+    try:
+        """Display results depending which type of file they are."""
 
-    container_list = ["logs_container", "figures_container", "paraview_container"]
-    clear_containers(container_list)
+        container_list = ["logs_container", "figures_container", "paraview_container"]
+        clear_containers(container_list)
 
-    for child in sorted(Path(results_dir).iterdir()):
+        for child in sorted(Path(results_dir).iterdir()):
 
-        if child.suffix == ".smx":
-            if st.button(f"Open {child.name} with SUMO", key=f"{child}_sumo_geom"):
-                os.system(f"dwfsumo {str(child)}")
+            if child.suffix == ".smx":
+                if st.button(f"Open {child.name} with SUMO", key=f"{child}_sumo_geom"):
+                    os.system(f"dwfsumo {str(child)}")
 
-        elif child.suffix == ".su2":
-            if st.button(f"Open {child.name} with Scope", key=f"{child}_su2_mesh"):
-                os.system(f"dwfscope {str(child)}")
+            elif child.suffix == ".su2":
+                if st.button(f"Open {child.name} with Scope", key=f"{child}_su2_mesh"):
+                    os.system(f"dwfscope {str(child)}")
 
-        elif child.suffix == ".vtu":
+            elif child.suffix == ".vtu":
 
-            if "paraview_container" not in st.session_state:
-                st.session_state["paraview_container"] = st.container()
-                st.session_state.paraview_container.markdown("**Paraview**")
+                if "paraview_container" not in st.session_state:
+                    st.session_state["paraview_container"] = st.container()
+                    st.session_state.paraview_container.markdown("**Paraview**")
 
-            if st.session_state.paraview_container.button(
-                f"Open {child.name} with Paraview", key=f"{child}_vtu"
-            ):
-                open_paraview(child)
+                if st.session_state.paraview_container.button(
+                    f"Open {child.name} with Paraview", key=f"{child}_vtu"
+                ):
+                    open_paraview(child)
 
-        elif child.suffix == ".png":
+            elif child.suffix == ".png":
 
-            if "figures_container" not in st.session_state:
-                st.session_state["figures_container"] = st.container()
-                st.session_state.figures_container.markdown("**Figures**")
+                if "figures_container" not in st.session_state:
+                    st.session_state["figures_container"] = st.container()
+                    st.session_state.figures_container.markdown("**Figures**")
 
-            st.session_state.figures_container.markdown(f"{child.stem.replace('_',' ')}")
-            st.session_state.figures_container.image(str(child))
+                st.session_state.figures_container.markdown(f"{child.stem.replace('_', ' ')}")
+                st.session_state.figures_container.image(str(child))
 
-        elif child.suffix == ".md":
-            st.markdown(child.read_text())
+            elif child.suffix == ".md":
+                st.markdown(child.read_text())
 
-        elif child.suffix == ".json":
-            st.text_area(child.stem, child.read_text(), height=200)
+            elif child.suffix == ".json":
+                st.text_area(child.stem, child.read_text(), height=200)
 
-        elif child.suffix == ".log" or child.suffix == ".txt":
-            if "logs_container" not in st.session_state:
-                st.session_state["logs_container"] = st.container()
-                st.session_state.logs_container.markdown("**Logs**")
-            st.session_state.logs_container.text_area(child.stem, child.read_text(), height=200)
+            elif child.suffix == ".log" or child.suffix == ".txt":
+                if "logs_container" not in st.session_state:
+                    st.session_state["logs_container"] = st.container()
+                    st.session_state.logs_container.markdown("**Logs**")
+                st.session_state.logs_container.text_area(
+                    child.stem, child.read_text(), height=200)
 
-        elif child.name == "history.csv":
-            st.markdown("**Convergence**")
+            elif child.name == "history.csv":
+                st.markdown("**Convergence**")
 
-            df = pd.read_csv(child)
-            df.rename(columns=lambda x: x.strip().strip('"'), inplace=True)
+                df = pd.read_csv(child)
+                df.rename(columns=lambda x: x.strip().strip('"'), inplace=True)
 
-            st.line_chart(df[["CD", "CL", "CMy"]])
-            st.line_chart(df[["rms[Rho]", "rms[RhoU]", "rms[RhoV]", "rms[RhoW]", "rms[RhoE]"]])
+                st.line_chart(df[["CD", "CL", "CMy"]])
+                st.line_chart(df[["rms[Rho]", "rms[RhoU]", "rms[RhoV]", "rms[RhoW]", "rms[RhoE]"]])
 
-        elif child.suffix == ".csv":
-            st.markdown(f"**{child.name}**")
-            st.dataframe(pd.read_csv(child))
+            elif child.suffix == ".csv":
+                st.markdown(f"**{child.name}**")
+                st.dataframe(pd.read_csv(child))
 
-        elif "Case" in child.name and child.is_dir():
-            with st.expander(child.stem, expanded=False):
-                display_results(child)
+            elif "Case" in child.name and child.is_dir():
+                with st.expander(child.stem, expanded=False):
+                    display_results(child)
+
+    except BaseException:
+        display_results_else(results_dir)
 
 
 def open_paraview(file):
@@ -248,7 +256,7 @@ def show_aeromap():
         if st.button("Save this figure 📷"):
             fig_name = f"{cpacs.ac_name}_{y_axis}_vs_{x_axis}{img_format}"
             current_workflow = get_last_workflow()
-            aerocoef_dir = Path(current_workflow, "Results", "AeroCoefficients")
+            aerocoef_dir = Path(current_workflow, "Results", "ExportCSV")
             if not aerocoef_dir.exists():
                 aerocoef_dir.mkdir(parents=True)
             fig.write_image(Path(aerocoef_dir, fig_name))
@@ -278,13 +286,25 @@ def show_results():
             display_results(Path(results_dir, tab_name))
 
 
-st.title("Results")
+# =================================================================================================
+#    MAIN
+# =================================================================================================
 
-show_aeromap()
-show_results()
+if __name__ == "__main__":
 
-if st.button("🔄 Refresh"):
-    st.experimental_rerun()
+    # Define interface
+    create_sidebar(HOW_TO_TEXT)
 
-if st.checkbox("Auto refresh"):
-    st_autorefresh(interval=2000, limit=10000, key="auto_refresh")
+    st.title("Results")
+
+    show_aeromap()
+    show_results()
+
+    if st.button("🔄 Refresh"):
+        st.rerun()
+
+    if st.checkbox("Auto refresh"):
+        st_autorefresh(interval=2000, limit=10000, key="auto_refresh")
+
+    # Update last_page
+    st.session_state.last_page = PAGE_NAME

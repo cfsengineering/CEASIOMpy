@@ -6,7 +6,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 This module sets up and solves an optimisation problem or runs a design of
 experiement with specified inputs and outputs that are parsed from a CSV file.
 
-Python version: >=3.8
 
 | Author: Vivien Riolo
 | Creation: 2020-06-15
@@ -18,13 +17,13 @@ Todo:
 
 """
 
+import ast
 
 from pathlib import Path
 from re import split
 
 import numpy as np
 import openmdao.api as om
-from ceasiompy.CPACSUpdater.cpacsupdater import update_cpacs_file
 from ceasiompy.Optimisation.func.dictionnary import (
     add_am_to_dict,
     create_aeromap_dict,
@@ -38,12 +37,13 @@ from ceasiompy.Optimisation.func.optimfunctions import (
 )
 from ceasiompy.Optimisation.func.tools import change_var_name, is_digit, plot_results, save_results
 from ceasiompy.SMUse.smuse import load_surrogate, write_inouts
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.ceasiompyutils import run_module
 from ceasiompy.utils.moduleinterfaces import (
     get_specs_for_module,
     get_toolinput_file_path,
     get_tooloutput_file_path,
+    check_cpacs_input_requirements,
 )
 from ceasiompy.utils.commonxpath import OPTIM_XPATH
 from cpacspy.cpacsfunctions import add_float_vector, get_value, open_tixi
@@ -51,12 +51,9 @@ from cpacspy.cpacspy import CPACS
 from cpacspy.utils import COEFS, PARAMS
 
 # Do not remove: Called within eval() function
-from tigl3 import geometry
+# from tigl3.geometry import eval
 
-log = get_logger()
-
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
+from ceasiompy.Optimisation import MODULE_NAME
 
 Rt = Routine()
 
@@ -94,7 +91,7 @@ class Geom_param(om.ExplicitComponent):
 
         else:
 
-            for m, module in enumerate(Rt.modules):
+            for m, _ in enumerate(Rt.modules):
 
                 # Increment name of output CPACS file
                 Rt.modules[m].cpacs_out = Path(
@@ -166,7 +163,7 @@ class ModuleComp(om.ExplicitComponent):
                 declared.append(entry.var_name)
             elif (
                 "aeromap" in entry.var_name and self.module_name == Rt.last_am_module
-            ):  # == 'PyTornado':  #not skf^is_skf:
+            ):  # == 'PyAVL':  #not skf^is_skf:
                 # Condition to avoid any conflict with skinfriction
                 for name in PARAMS:
                     if name in Rt.optim_var_dict:
@@ -252,8 +249,10 @@ class SmComp(om.ExplicitComponent):
             elif df.loc[name, "type"] == "des":
                 self.add_input(name)
 
-        self.xd = df.loc[[name for name in df.index if df.loc[name, "type"] == "des"]]
-        self.yd = df.loc[[name for name in df.index if df.loc[name, "type"] == "obj"]]
+        self.xd = df.loc[[
+            name for name in df.index if df.loc[name, "type"] == "des"]]
+        self.yd = df.loc[[
+            name for name in df.index if df.loc[name, "type"] == "obj"]]
 
     def compute(self, inputs, outputs):
         """Make a prediction"""
@@ -320,6 +319,70 @@ class Objective(om.ExplicitComponent):
 # =================================================================================================
 
 
+def update_cpacs_file(cpacs_path, cpacs_out_path, optim_var_dict):
+    """Function to update a CPACS file with value from the optimiser
+
+    This function sets the new values of the design variables given by
+    the routine driver to the CPACS file, using the Tigl and Tixi handler.
+
+    Source:
+        * See CPACSCreator api function,
+
+    Args:
+        cpacs_path (Path): Path to CPACS file to update
+        cpacs_out_path (Path):Path to the updated CPACS file
+        optim_var_dict (dict): Dictionary containing all the variable
+                               value/min/max and command to modify a CPACS file
+
+    """
+
+    log.info("----- Start of CPACSUpdater -----")
+    log.info(f"{cpacs_path} will be updated.")
+
+    tixi = open_tixi(cpacs_path)
+    tigl = tixi
+    # open_tigl(tixi)
+
+    # Object seems to be unused, but are use in "eval" function
+    aircraft = tigl
+    # get_tigl_configuration(tigl)
+    # wings = aircraft.get_wings()
+    # fuselage = aircraft.get_fuselages().get_fuselage(1)
+
+    # Perform update of all the variable contained in 'optim_var_dict'
+    for name, variables in optim_var_dict.items():
+
+        # Unpack the variables
+        val_type, listval, _, _, getcommand, setcommand = variables
+
+        if val_type == "des" and listval[0] not in ["-", "True", "False"]:
+
+            if setcommand not in ["-", ""]:
+
+                # Define variable (var1,var2,..)
+                locals()[str(name)] = listval[-1]
+
+                # Update value by using tigl configuration
+                if ";" in setcommand:  # if more than one command on the line
+                    command_split = setcommand.split(";")
+                    for setcommand in command_split:
+                        ast.literal_eval(setcommand)
+                else:
+                    ast.literal_eval(setcommand)
+            else:
+
+                # Update value directly in the CPACS file
+                xpath = getcommand
+                tixi.updateTextElement(xpath, str(listval[-1]))
+
+    aircraft.write_cpacs(aircraft.get_uid())
+    tigl.close()
+    tixi.save(str(cpacs_out_path))
+
+    log.info(f"{cpacs_out_path} has been saved.")
+    log.info("----- Start of CPACSUpdater -----")
+
+
 def driver_setup(prob):
     """Change settings of the driver
 
@@ -334,7 +397,7 @@ def driver_setup(prob):
 
     """
 
-    if Rt.type == "OPTIM":
+    if Rt.type == "Optimisation":
         # TBD : Genetic algorithm
         # if len(Rt.objective) > 1 and False:
         #     log.info("""More than 1 objective function, the driver will
@@ -367,8 +430,10 @@ def driver_setup(prob):
 
     #  Attaching a recorder and a diagramm visualizer ##
     prob.driver.recording_options["record_inputs"] = True
-    prob.driver.add_recorder(om.SqliteRecorder(str(Rt.optim_dir) + "/circuit.sqlite"))
-    prob.driver.add_recorder(om.SqliteRecorder(str(Rt.optim_dir) + "/Driver_recorder.sql"))
+    prob.driver.add_recorder(om.SqliteRecorder(
+        str(Rt.optim_dir) + "/circuit.sqlite"))
+    prob.driver.add_recorder(om.SqliteRecorder(
+        str(Rt.optim_dir) + "/Driver_recorder.sql"))
 
 
 def add_subsystems(prob, ivc):
@@ -396,15 +461,17 @@ def add_subsystems(prob, ivc):
     # Loop throuth Modules
     for module in Rt.modules:
 
-        if module.name in ["SU2Run", "PyTornado", "SkinFriction"]:
+        if module.name in ["SU2Run", "PyAVL", "SkinFriction"]:
             Rt.last_am_module = module.name
 
         if module.name == "SMUse":
-            prob.model.add_subsystem(module.name, SmComp(module), promotes=["*"])
+            prob.model.add_subsystem(
+                module.name, SmComp(module), promotes=["*"])
         else:
             spec = get_specs_for_module(module.name)
             if spec.cpacs_inout.inputs or spec.cpacs_inout.outputs:
-                prob.model.add_subsystem(module.name, ModuleComp(module), promotes=["*"])
+                prob.model.add_subsystem(
+                    module.name, ModuleComp(module), promotes=["*"])
 
     # Objectives
     prob.model.add_subsystem("objective", obj, promotes=["*"])
@@ -429,12 +496,13 @@ def add_parameters(prob, ivc):
         listval,
         minval,
         maxval,
-        getcommand,
-        setcommand,
+        _,
+        _,
     ) in Rt.optim_var_dict.items():
         if val_type == "des" and listval[-1] not in ["True", "False", "-"]:
             if is_digit(minval) and is_digit(maxval):
-                prob.model.add_design_var(name, lower=float(minval), upper=float(maxval))
+                prob.model.add_design_var(
+                    name, lower=float(minval), upper=float(maxval))
             elif is_digit(minval):
                 prob.model.add_design_var(name, lower=float(minval))
             elif is_digit(maxval):
@@ -444,7 +512,8 @@ def add_parameters(prob, ivc):
             ivc.add_output(name, val=listval[-1])
         elif val_type == "const":
             if is_digit(minval) and is_digit(maxval):
-                prob.model.add_constraint(name, lower=float(minval), upper=float(maxval))
+                prob.model.add_constraint(
+                    name, lower=float(minval), upper=float(maxval))
             elif is_digit(minval):
                 prob.model.add_constraint(name, lower=float(minval))
             elif is_digit(maxval):
@@ -557,9 +626,10 @@ def routine_launcher(optim_method, module_optim, wkflow_dir):
 # =====================================================================================================================
 
 
-def main(cpacs_path, cpacs_out_path):
+def main(cpacs_path: Path, cpacs_out_path: Path) -> None:
 
-    log.info("----- Start of " + MODULE_NAME + " -----")
+    module_name = MODULE_NAME
+    log.info("----- Start of " + module_name + " -----")
 
     tixi = open_tixi(cpacs_path)
 
@@ -574,12 +644,13 @@ def main(cpacs_path, cpacs_out_path):
 
     tixi.save(cpacs_out_path)
 
-    log.info("----- End of " + MODULE_NAME + " -----")
+    log.info("----- End of " + module_name + " -----")
 
 
 if __name__ == "__main__":
 
     cpacs_path = get_toolinput_file_path("Optimisation")
     cpacs_out_path = get_tooloutput_file_path("Optimisation")
+    check_cpacs_input_requirements(cpacs_path)
 
     main(cpacs_path, cpacs_out_path)

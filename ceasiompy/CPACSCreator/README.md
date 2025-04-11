@@ -35,7 +35,7 @@ In a CEASIOMpy workflow `CPACSCreator` takes as input a CPACS file, the other in
 
 ## Limitations
 
-`CPACSCreator` allows you to modify the wings and fuselage of an aircraft. For now it is not possible to add or modify things like engines, control surfaces, landing gear, etc.  
+`CPACSCreator` allows you to modify the wings and fuselage of an aircraft. For now it is not possible to add or modify things like engines, control surfaces, landing gear, etc.
 
 ## More information
 

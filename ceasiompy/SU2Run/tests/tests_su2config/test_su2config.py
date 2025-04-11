@@ -5,8 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions of 'ceasiompy/SU2Run/func/su2config.py'
 
-Python version: >=3.8
-
 
 | Author : Aidan Jungo
 | Creation: 2022-04-07
@@ -20,15 +18,10 @@ Python version: >=3.8
 from pathlib import Path
 
 import pytest
-from ceasiompy.SU2Run.func.su2config import add_damping_derivatives
+from ceasiompy.SU2Run.func.config import add_damping_derivatives
 from ceasiompy.utils.configfiles import ConfigFile
 
 MODULE_DIR = Path(__file__).parent
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
 
 # =================================================================================================
 #   FUNCTIONS
@@ -41,11 +34,12 @@ def test_add_damping_derivatives(tmp_path):
     cfg = ConfigFile()
     case_dir_name = "test_damping_der_cfg"
 
-    add_damping_derivatives(cfg, tmp_path, case_dir_name, 5.4)
+    rotation_rate = 5.4
+    add_damping_derivatives(cfg, tmp_path, case_dir_name, rotation_rate)
 
-    case_dp = Path(tmp_path, f"{case_dir_name}_dp")
-    case_dq = Path(tmp_path, f"{case_dir_name}_dq")
-    case_dr = Path(tmp_path, f"{case_dir_name}_dr")
+    case_dp = Path(tmp_path, f"{case_dir_name}_p_{rotation_rate}")
+    case_dq = Path(tmp_path, f"{case_dir_name}_q_{rotation_rate}")
+    case_dr = Path(tmp_path, f"{case_dir_name}_r_{rotation_rate}")
 
     assert case_dp.exists()
     assert case_dq.exists()
@@ -57,18 +51,16 @@ def test_add_damping_derivatives(tmp_path):
 
 
 @pytest.mark.skip(reason="Not implemented yet")
-def test_add_actuator_disk(tmp_path):
+def test_add_actuator_disk():
     """Test function 'add_actuator_disk'"""
-
-    pass
-
+    ...
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
-if __name__ == "__main__":
 
-    print("Test configfile.py")
+if __name__ == "__main__":
+    print("Test test_su2configfile.py")
     print("To run test use the following command:")
     print(">> pytest -v")

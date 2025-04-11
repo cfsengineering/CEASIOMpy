@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Functions and variables for CPACS2GMSH
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2022-05-24

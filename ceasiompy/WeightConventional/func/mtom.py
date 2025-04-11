@@ -6,7 +6,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 This script estimates the maximum take of mass from a database
 of conventional aircraft using the k-nearest neighbors regression method.
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Date of creation: 2022-11-08
@@ -22,12 +21,11 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import pandas as pd
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.commonnames import MTOM_FIGURE_NAME
 from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
 from sklearn.neighbors import KNeighborsRegressor
 
-log = get_logger()
 
 # =================================================================================================
 #   CLASSES
@@ -121,4 +119,4 @@ def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span, results
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

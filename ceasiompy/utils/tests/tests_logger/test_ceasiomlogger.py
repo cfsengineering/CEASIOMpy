@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test  for 'ceasiomlogger.py' function
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2018-09-27
@@ -16,14 +15,8 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.commonpaths import LOGFILE
-
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
 
 # =================================================================================================
 #   FUNCTIONS
@@ -36,7 +29,6 @@ def test_logger():
     """
 
     # Set logger name and create a logger with this name
-    log = get_logger()
 
     # Use the 5 log level
     log.debug("Test debug")
@@ -70,7 +62,6 @@ def test_logger():
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Running Test CEASIOMLogger")
     print("To run test use the following command:")
     print(">> pytest -v")

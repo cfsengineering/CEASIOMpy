@@ -16,15 +16,15 @@ conda activate ceasiompy
 cd WKDIR
 
 # To run the test case 4
-ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml PyTornado SkinFriction SaveAeroCoefficients
+ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml PyAVL SkinFriction SaveAeroCoefficients
 ```
 
 The following workflow will be executed:
 
 ```mermaid
   graph LR;
-      D150([D150 CPACS file])-->PyTornado;
-      PyTornado-->SkinFriction;
+      D150([D150 CPACS file])-->PyAVL;
+      PyAVL-->SkinFriction;
       SkinFriction-->SaveAeroCoefficients:
 ```
 

@@ -6,7 +6,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 Output text and plot generation function for unconventional
 aircraft with fuselage.
 
-Python version: >=3.8
 
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
@@ -19,26 +18,14 @@ Python version: >=3.8
 
 from cpacspy.cpacsfunctions import add_uid, create_branch, open_tixi
 from ceasiompy.utils.commonxpath import CREW_XPATH, MASSBREAKDOWN_XPATH, PASS_XPATH
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
-
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and in the
-   Input
-   classes/Unconventional folder."""
-
+from ceasiompy import log
 
 # =============================================================================
 #   FUNCTIONS
 # =============================================================================
 
 
-def toolspecific_update(fus_nb, awg, mw, out, cpacs_out_path):
+def toolspecific_update(mw, out, cpacs_out_path):
     """The function that update the cpacs file after the Weight_unc_main
     program.
 

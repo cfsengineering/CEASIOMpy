@@ -5,14 +5,9 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Functions used to help the cration of SUMO file
 
-Python version: >=3.8
 
 | Author: Aidan Jungo
 | Creation: 2021-02-25
-
-TODO:
-
-    *
 
 """
 
@@ -22,15 +17,10 @@ TODO:
 
 import json
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from cpacspy.cpacsfunctions import copy_branch
 
-log = get_logger()
-
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
+from tixi3.tixi3wrapper import Tixi3
 
 
 # =================================================================================================
@@ -38,33 +28,39 @@ log = get_logger()
 # =================================================================================================
 
 
-def sumo_str_format(x, y, z):
-    """Function to get coordinate x,y,z into the string format which is use by SUMO.
+def sumo_str_format(x: float, y: float, z: float) -> str:
+    """
+    Get coordinate x,y,z into the string format which is use by SUMO.
 
     Args:
-        x (float): x coordinate
-        y (float): y coordinate
-        z (float): z coordinate
+        x (float): x coordinate.
+        y (float): y coordinate.
+        z (float): z coordinate.
 
     Returns:
-        sumo_str (str): String point format for SUMO
+         (str): String point format for SUMO.
 
     """
 
-    sumo_str = str(x) + " " + str(y) + " " + str(z)
-
-    return sumo_str
+    return str(x) + " " + str(y) + " " + str(z)
 
 
-def sumo_add_nacelle_lip(sumo, xpath, ax_offset=1.2, rad_offset=0.15, shape_coef=0.3):
-    """Function to add nacelle lips option in SUMO.
+def sumo_add_nacelle_lip(
+    sumo: Tixi3,
+    xpath: str,
+    ax_offset: float = 1.2,
+    rad_offset: float = 0.15,
+    shape_coef: float = 0.3
+) -> None:
+    """
+    Add nacelle lips option in SUMO.
 
     Args:
-        sumo (obj): Tixi handle for SUMO
-        xpath (str): xpath
-        ax_offset (float): Axial offset of the nacelle lip
-        rad_offset (float): Radial offset of the nacelle lip
-        shape_coef (float): Shape coefficient of the nacelle lip
+        sumo (obj): Tixi handle for SUMO.
+        xpath (str): xpath.
+        ax_offset (float): Axial offset of the nacelle lip.
+        rad_offset (float): Radial offset of the nacelle lip.
+        shape_coef (float): Shape coefficient of the nacelle lip.
 
     """
 
@@ -74,13 +70,15 @@ def sumo_add_nacelle_lip(sumo, xpath, ax_offset=1.2, rad_offset=0.15, shape_coef
     sumo.addTextAttribute(xpath + "/NacelleInletLip", "shapeCoef", str(shape_coef))
 
 
-def sumo_add_engine_bc(sumo, eng_name, part_uid):
-    """Function to add engine boundary conditions in SUMO.
+def sumo_add_engine_bc(sumo: Tixi3, eng_name: str, part_uid: str) -> None:
+    """
+    Add engine boundary conditions in SUMO.
 
     Args:
-        sumo (obj): Tixi handle for SUMO
-        eng_name (str): Name of this engine
-        part_uid (str): Part of the nacelle (fan/core)
+        sumo (obj): Tixi handle for SUMO.
+        eng_name (str): Name of this engine.
+        part_uid (str): Part of the nacelle (fan/core).
+
     """
 
     sumo.createElementAtIndex("/Assembly", "JetEngineSpec", 1)
@@ -117,7 +115,15 @@ def sumo_add_engine_bc(sumo, eng_name, part_uid):
     sumo.addTextAttribute(jeregion_xpath, "type", "tail")
 
 
-def add_wing_cap(sumo, wg_sk_xpath):
+def add_wing_cap(sumo: Tixi3, wg_sk_xpath: str) -> None:
+    """
+    Add Wing caps.
+
+    Args:
+        sumo (Tixi3): Tixi handle for SUMO.
+        wg_sk_xpath (_type_): Wing skeleton xpath.
+
+    """
 
     sumo.createElementAtIndex(wg_sk_xpath, "Cap", 1)
     sumo.addTextAttribute(wg_sk_xpath + "/Cap[1]", "height", "0")
@@ -130,7 +136,17 @@ def add_wing_cap(sumo, wg_sk_xpath):
     sumo.addTextAttribute(wg_sk_xpath + "/Cap[2]", "side", "north")
 
 
-def sumo_mirror_copy(sumo, xpath, uid, is_wing=True):
+def sumo_mirror_copy(sumo: Tixi3, xpath: str, uid: str, is_wing: bool = True) -> None:
+    """
+    If problem is symmetric in x-z-plane, copy attributes.
+
+    Args:
+        sumo (Tixi3): Tixi handle for SUMO.
+        xpath (str): xPath to element to copy.
+        uid (str): uid of element to copy.
+        is_wing (bool = True): True if wing.
+
+    """
 
     skeleton = "BodySkeleton"
     if is_wing:
@@ -184,10 +200,13 @@ def sumo_mirror_copy(sumo, xpath, uid, is_wing=True):
 
         add_wing_cap(sumo, xpath_sym)
 
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
+
+if __name__ == "__main__":
+    log.info("Nothing to execute!")
 
 if __name__ == "__main__":
 

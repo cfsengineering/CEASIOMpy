@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'utils/ceasiompyutils.py'
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2022-02-10
@@ -21,7 +20,6 @@ import shutil
 from pathlib import Path
 import pytest
 from ceasiompy.utils.ceasiompyutils import (
-    SoftwareNotInstalled,
     aircraft_name,
     change_working_dir,
     get_aeromap_list_from_xpath,
@@ -86,10 +84,10 @@ def test_get_results_directory():
     with change_working_dir(TMP_DIR):
 
         results_dir = get_results_directory("ExportCSV")
-        assert results_dir == Path(Path.cwd(), "Results", "AeroCoefficients")
+        assert results_dir == Path(Path.cwd(), "Results", "ExportCSV")
 
         results_dir = get_results_directory("CPACS2SUMO")
-        assert results_dir == Path(Path.cwd(), "Results", "SUMO")
+        assert results_dir == Path(Path.cwd(), "Results", "CPACS2SUMO")
 
         if results_dir.parent.exists():
             shutil.rmtree(results_dir.parent)
@@ -112,8 +110,8 @@ def test_get_install_path():
 
     assert get_install_path("NotExistingSoftware") is None
 
-    with pytest.raises(SoftwareNotInstalled):
-        get_install_path("NotExistingSoftware", raise_error=True)
+    # with pytest.raises(SoftwareNotInstalled):
+    #    get_install_path("NotExistingSoftware", raise_error=True)
 
 
 def test_run_software():

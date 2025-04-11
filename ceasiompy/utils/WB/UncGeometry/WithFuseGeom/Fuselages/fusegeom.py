@@ -6,7 +6,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The scrpt will analyse the fuselage geometry from cpacs file for an
 unconventional aircraft.
 
-Python version: >=3.8
 
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
@@ -22,24 +21,15 @@ import numpy as np
 
 from cpacspy.cpacsfunctions import open_tigl, open_tixi
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
-
-
-# ==============================================================================
-#   CLASSES
-# ==============================================================================
-
-"""All classes are defined inside the classes folder and into the
-   InputClasses/Uconventional folder"""
-
+from ceasiompy import log
 
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
 
 # TODO: change name and maybe reuse conventional aircraft function
+
+
 def check_segment_connection(fus_nb, fuse_seg_nb, fuse_sec_nb, tigl):
     """The function checks for each segment the start and end section index
         and to reorder them.
@@ -478,4 +468,4 @@ def fuse_geom_eval(fus_nb, h_min, fuse_thick, F_FUEL, afg, cpacs_in):
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

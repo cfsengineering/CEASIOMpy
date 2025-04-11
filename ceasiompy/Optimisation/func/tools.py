@@ -6,7 +6,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 This module contains the tools used for data creation and manipulation of the
 Optimisation and PredictiveTool modules.
 
-Python version: >=3.8
 
 | Author : Vivien Riolo
 | Creation: 2020-05-26
@@ -30,10 +29,7 @@ import matplotlib.pyplot as plt
 import numpy as np
 import openmdao.api as om
 import pandas as pd
-import tigl3.configuration  # used within eval
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
+from ceasiompy import log
 
 
 # Not an exhaustive list
@@ -77,7 +73,7 @@ def launch_external_program(path):
         os.system("Start excel.exe " + str(path))
     elif OS == "darwin":
         os.system(
-            "/Applications/Microsoft\ Excel.app/Contents/MacOS/Microsoft\ Excel " + str(path)
+            r"/Applications/Microsoft\ Excel.app/Contents/MacOS/Microsoft\ Excel " + str(path)
         )
 
     input("Press ENTER to continue...")
@@ -474,4 +470,4 @@ def add_bounds(value, var):
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

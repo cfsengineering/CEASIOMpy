@@ -6,7 +6,7 @@
 
 **State**: :heavy_check_mark:
 
-`SkinFriction` module adds skin friction drag to an Aeromap calculated without it. The aerodynamic coefficients calculated with pyTornado or Euler methods (SU2) do not depend on atmospheric parameters and do not include the skin friction drag. It means that for different altitudes as input you will get the same aerodynamic coefficients. Furthermore, the drag calculated with these methods is generally underestimated. You can use this module to estimate the skin friction drag from empirical formula and add it to the selected aeroMap.
+`SkinFriction` module adds skin friction drag to an Aeromap calculated without it. The calculated aerodynamic coefficients do not depend on atmospheric parameters and do not include the skin friction drag. It means that for different altitudes as input you will get the same aerodynamic coefficients. Furthermore, the drag calculated with these methods is generally underestimated. You can use this module to estimate the skin friction drag from empirical formula and add it to the selected aeroMap.
 
 ## Inputs
 

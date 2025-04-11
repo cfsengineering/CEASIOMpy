@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/CPACS2GMSH/engineconversion.py'
 
-Python version: >=3.8
 
 | Author : Tony Govoni
 | Creation: 2022-05-17
@@ -28,11 +27,6 @@ from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
 MODULE_DIR = Path(__file__).parent
 TEST_OUT_PATH = Path(MODULE_DIR, "ToolOutput")
 TEST_IN_PATH = Path(MODULE_DIR, "ToolInput")
-
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
 
 
 # =================================================================================================

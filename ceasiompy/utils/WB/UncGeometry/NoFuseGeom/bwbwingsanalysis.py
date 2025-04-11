@@ -6,7 +6,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script evaluate the wings geometry for an unconventional
 aircraft without fuselage.
 
-Python version: >=3.8
 
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07
@@ -22,17 +21,7 @@ import numpy as np
 import math
 
 from cpacspy.cpacsfunctions import open_tigl, open_tixi
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
-
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and in the
-   InputClasses/Unconventional folder."""
+from ceasiompy import log
 
 
 # =============================================================================

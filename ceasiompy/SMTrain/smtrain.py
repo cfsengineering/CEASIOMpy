@@ -8,7 +8,6 @@ inputs and outputs. A CSV file describing the entries and containing the data
 must be provided to train the model, except if the values are taken from an
 aeromap, in which case they can all be found in the CPACS file.
 
-Python version: >=3.8
 
 | Author: Vivien Riolo
 | Creation: 2020-07-06
@@ -31,20 +30,25 @@ from re import split as splt
 import matplotlib.pyplot as plt
 import numpy as np
 import pandas as pd
-import smt.surrogate_models as sms
 from ceasiompy.SMUse.smuse import Surrogate_model
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.ceasiompyutils import get_results_directory
-from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
+from ceasiompy.utils.moduleinterfaces import (
+    get_toolinput_file_path,
+    get_tooloutput_file_path,
+    check_cpacs_input_requirements,
+)
 from ceasiompy.utils.commonxpath import OPTWKDIR_XPATH, SMFILE_XPATH, SMTRAIN_XPATH
 from cpacspy.cpacsfunctions import create_branch, get_value_or_default
 from cpacspy.cpacspy import CPACS
 from cpacspy.utils import COEFS, PARAMS
 
-log = get_logger()
+from ceasiompy.SMTrain import MODULE_NAME
 
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
+# =================================================================================================
+#   CONSTANTS
+# =================================================================================================
+
 
 # Working surrogate models, the hyperparameters can be changed here for experienced users.
 model_dict = {
@@ -166,7 +170,10 @@ def extract_data_set(Tool):
             for v in var_list:
                 if not v.isdigit() and v != "" and v in df.index:
                     exec('{} = df.loc["{}"]'.format(v, v))
-            df_data = Tool.df.append({"Name": obj, "type": "obj"}, ignore_index=True)
+            df_data = pd.concat(
+                [Tool.df, pd.DataFrame([{"Name": obj, "type": "obj"}])],
+                ignore_index=True,
+            )
             y.loc[obj] = eval(obj)
 
     Tool.objectives = y.index
@@ -362,7 +369,7 @@ def gen_df_from_am(tixi):
     x["type"] = "des"
     y["type"] = "obj"
 
-    df = x.append(y, ignore_index=True)
+    df = pd.concat([x, y], ignore_index=True)
     df["getcmd"] = "-"
     df["setcmd"] = "-"
     df["initial value"] = "-"
@@ -451,9 +458,9 @@ def generate_model(Tool, cpacs_path):
 # =================================================================================================
 
 
-def main(cpacs_path, cpacs_out_path):
-
-    log.info("----- Start of " + MODULE_NAME + " -----")
+def main(cpacs_path: Path, cpacs_out_path: Path) -> None:
+    module_name = MODULE_NAME
+    log.info("----- Start of " + module_name + " -----")
 
     # Get results directory
     results_dir = get_results_directory("SMTrain")
@@ -463,12 +470,13 @@ def main(cpacs_path, cpacs_out_path):
     generate_model(Tool, cpacs_path)
     save_model(Tool, cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + MODULE_NAME + " -----")
+    log.info("----- End of " + module_name + " -----")
 
 
 if __name__ == "__main__":
 
     cpacs_path = get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
+    check_cpacs_input_requirements(cpacs_path)
 
     main(cpacs_path, cpacs_out_path)

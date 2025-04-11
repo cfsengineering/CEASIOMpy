@@ -5,14 +5,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module interfaces functions to deal with CPACS input and output
 
-Python version: >=3.8
 
 | Author : Aaron Dettmann
 | Creation: 2019-08-06
 
-TODO:
-
-    *
 """
 
 # =================================================================================================
@@ -25,16 +21,18 @@ import inspect
 import uuid
 from pathlib import Path
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from typing import Union
+
+from ceasiompy import log
 from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
 from cpacspy.cpacsfunctions import create_branch, open_tixi
 
-log = get_logger()
 
-MODULE_DIR = Path(__file__).parent
+from ceasiompy.utils import MODULE_DIR
 
 MODNAME_TOP = "ceasiompy"
 MODNAME_SPECS = "__specs__"
+MODNAME_INIT = "__init__"
 
 # =================================================================================================
 #   CLASSES
@@ -85,7 +83,7 @@ class _Entry:
         self.var_name = var_name
         self.var_type = var_type
         self.default_value = default_value
-        self.unit = unit
+        self.unit = self.filter_unit(unit)
         self.descr = descr
         self.xpath = xpath
 
@@ -94,6 +92,15 @@ class _Entry:
         self.gui_name = gui_name
         self.gui_group = gui_group
 
+    def filter_unit(self, unit_entry: Union[None, str]) -> Union[None, str]:
+        if unit_entry is None:
+            return None
+        if not unit_entry.startswith('['):
+            unit_entry = '[' + unit_entry
+        if not unit_entry.endswith(']'):
+            unit_entry = unit_entry + ']'
+        return unit_entry
+
 
 class CPACSInOut:
     def __init__(self):
@@ -101,12 +108,14 @@ class CPACSInOut:
         Class summarising the input and output data
 
         Attributes:
-            inputs (list): List of CPACS inputs
-            outputs (list): List of CPACS output
+            inputs (list): List of CPACS inputs.
+            outputs (list): List of CPACS outputs.
+
         """
 
         self.inputs = []
         self.outputs = []
+        self.change_listeners = {}
 
     def add_input(self, **kwargs):
         """Add a new entry to the inputs list"""
@@ -145,6 +154,29 @@ class CPACSInOut:
 
         return gui_settings_dict
 
+    def set_gui_visibility(self, var_name, visible):
+        """Set the visibility of a GUI element"""
+        for entry in self.inputs:
+            if entry.var_name == var_name:
+                entry.gui = visible
+
+    def add_change_listener(self, var_name, listener):
+        """Add a change listener for a specific input"""
+        if var_name in self.change_listeners:
+            self.change_listeners[var_name].append(listener)
+
+    def notify_change_listeners(self, var_name):
+        """Notify all change listeners for a specific input"""
+        if var_name in self.change_listeners:
+            for listener in self.change_listeners[var_name]:
+                listener()
+
+    def get_defaultvalue_xpath(self, var_name):
+        """Get the value of a specific input"""
+        for entry in self.inputs:
+            if entry.var_name == var_name:
+                return (entry.default_value, entry.xpath)
+        raise ValueError(f"Input '{var_name}' not found")
 
 # =================================================================================================
 #   FUNCTIONS
@@ -161,7 +193,7 @@ def get_module_path(module_name: str) -> Path:
 
 
 def check_cpacs_input_requirements(
-    cpacs_file, *, module_name=None, submodule_level=1, cpacs_inout=None
+    tixi, *, module_name=None, submodule_level=1, cpacs_inout=None
 ):
     """Check if the input CPACS file contains the required nodes
 
@@ -178,50 +210,50 @@ def check_cpacs_input_requirements(
         cpacs_inout (obj): CPACSInOut() instance
 
     Raises:
-        CPACSRequirementError: If one or more paths are required by calling
-                               module but not available in CPACS file
+        CPACSRequirementError: If >=1 paths are required but not available in CPACS file.
     """
 
-    if not isinstance(submodule_level, int) and submodule_level < 1:
-        ValueError("'submodule_level' must be a positive integer")
+    if module_name != "utils":
 
-    # If 'cpacs_inout' not provided by caller, we try to determine it
-    if cpacs_inout is None:
-        if module_name is None:
-            # Get the path of the caller submodule
-            frm = inspect.stack()[1]
-            mod = inspect.getmodule(frm[0])
-            caller_module_path = Path(mod.__file__).parent
+        if not isinstance(submodule_level, int) and submodule_level < 1:
+            ValueError("'submodule_level' must be a positive integer")
 
-            # Get the CEASIOM_XPATH submodule name
-            module_name = caller_module_path.name
-            for _ in range(1, submodule_level):
+        # If 'cpacs_inout' not provided by caller, we try to determine it
+        if cpacs_inout is None:
+            if module_name is None:
+                # Get the path of the caller submodule
+                frm = inspect.stack()[1]
+                mod = inspect.getmodule(frm[0])
+                caller_module_path = Path(mod.__file__).parent
+
+                # Get the CEASIOM_XPATH submodule name
                 module_name = caller_module_path.name
+                for _ in range(1, submodule_level):
+                    module_name = caller_module_path.name
 
-        # Load the submodule specifications
-        specs_module = get_specs_for_module(module_name, raise_error=True)
-        cpacs_inout = specs_module.cpacs_inout
+            # Load the submodule specifications
+            specs_module = get_specs_for_module(module_name, raise_error=True)
+            cpacs_inout = specs_module.cpacs_inout
 
-    tixi = open_tixi(cpacs_file)
-    missing_nodes = []
-    for entry in cpacs_inout.inputs:
+        missing_nodes = []
+        for entry in cpacs_inout.inputs:
 
-        if entry.default_value is not None:
-            continue
-        if tixi.checkElement(entry.xpath) is False:
-            missing_nodes.append(entry.xpath)
+            if entry.default_value is not None:
+                continue
+            if tixi.checkElement(entry.xpath) is False:
+                missing_nodes.append(entry.xpath)
 
-    if missing_nodes:
-        for missing in missing_nodes:
-            log.error("The following xpath cannot be found: " + missing)
+        if missing_nodes:
+            for missing in missing_nodes:
+                log.error("The following xpath cannot be found: " + missing)
 
-        raise CPACSRequirementError("CPACS xpath(s) required but does not exist!")
+            raise CPACSRequirementError("CPACS xpath(s) required but does not exist!")
 
 
 def get_module_list(only_active=True):
     """Return a list of CEASIOMpy modules
 
-    ['SkinFriction', 'PyTornado', ...]
+    ['SkinFriction', 'PyAVL', ...]
 
     Returns:
         A list of module names (as strings)
@@ -235,14 +267,14 @@ def get_module_list(only_active=True):
         if module_name.startswith("__") or module_name.startswith("."):
             continue
 
-        specs = get_specs_for_module(module_name, raise_error=False)
+        init = get_init_for_module(module_name, raise_error=False)
         try:
-            module_status = specs.module_status
+            module_status = init.module_status
         except AttributeError:
             module_status = False
             if module_name != "utils":
                 log.warning(
-                    f"module status of {module_name} is not define in its __specs__.py file"
+                    f"Module status of {module_name} is not define in its __init__.py file."
                 )
 
         if only_active:
@@ -282,7 +314,7 @@ def get_tooloutput_file_path(module_name):
     return Path(MODULES_DIR_PATH, module_name, "ToolOutput", "ToolOutput.xml")
 
 
-def get_specs_for_module(module_name, raise_error=False):
+def get_specs_for_module(module_name: str, raise_error=False):
     """Return the __specs__ module for a CEASIOMpy module
 
     Args:
@@ -297,9 +329,31 @@ def get_specs_for_module(module_name, raise_error=False):
     try:
         specs = importlib.import_module(".".join((module_name, MODNAME_SPECS)))
         return specs
-    except ImportError:
+    except ImportError as e:
+        log.error(f"Error loading __specs__ for module {module_name}: {e}")
         if raise_error:
             raise ImportError(f"{MODNAME_SPECS} module not found for {module_name}")
+        return None
+
+
+def get_init_for_module(module_name, raise_error=False):
+    """Return the __init__ module for a CEASIOMpy module
+
+    Args:
+        module_name (str): name of the module as a string
+        raise_error (bool): 'True' if error should be raised
+                            if __specs__ does not exist
+    """
+
+    if not module_name.startswith("ceasiompy."):
+        module_name = ".".join((MODNAME_TOP, module_name))
+
+    try:
+        init = importlib.import_module(".".join((module_name, MODNAME_INIT)))
+        return init
+    except ImportError:
+        if raise_error:
+            raise ImportError(f"{MODNAME_INIT} module not found for {module_name}")
         return None
 
 
@@ -313,8 +367,8 @@ def get_all_module_specs():
     The dictionary has the form:
 
     {
-        'SkinFriction': pytornado_specs_module,
-        'PyTornado': pytornado_specs_module,
+        'SkinFriction': skinfriction_specs_module,
+        'PyAVL': pyavl_specs_module,
         'SomeModuleWithoutSpecsFile': None,
         ...
     }

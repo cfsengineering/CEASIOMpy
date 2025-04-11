@@ -1,27 +1,41 @@
-from pathlib import Path
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+GUI Interface of ThermoData.
+
+
+| Author: Leon Deligny
+| Creation: 18-Mar-2025
+
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
+
+from ceasiompy import log
+from ceasiompy.ThermoData import include_gui
+
 from ceasiompy.utils.commonxpath import (
+    RANGE_XPATH,
+    ENGINE_TYPE_XPATH,
     SU2_FIXED_CL_XPATH,
     SU2_TARGET_CL_XPATH,
-    ENGINE_TYPE_XPATH,
-    RANGE_XPATH,
 )
 
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-module_status = True
-
-# ===== Results directory path =====
-
-RESULTS_DIR = Path("Results", "Thermodata")
-
-# ===== CPACS inputs and outputs =====
+# ==============================================================================
+#   VARIABLE
+# ==============================================================================
 
 cpacs_inout = CPACSInOut()
 
-# ===== Input =====
-
+# ==============================================================================
+#   GUI INPUTS
+# ==============================================================================
 
 cpacs_inout.add_input(
     var_name="net_force",
@@ -30,7 +44,7 @@ cpacs_inout.add_input(
     unit="N",
     descr="Engine net force",
     xpath=RANGE_XPATH + "/NetForce",
-    gui=True,
+    gui=include_gui,
     gui_name="NetForce",
     gui_group="Cruise",
 )
@@ -42,13 +56,15 @@ cpacs_inout.add_input(
     unit=None,
     descr="0: TBJ, 1: TBF ",
     xpath=ENGINE_TYPE_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="0 for Turbojet 1 for Turbofan",
     gui_group="User inputs",
 )
 
+# ==============================================================================
+#   GUI OUTPUTS
+# ==============================================================================
 
-# ===== Output =====
 
 cpacs_inout.add_output(
     var_name="target_cl",
@@ -65,3 +81,10 @@ cpacs_inout.add_output(
     descr="FIXED_CL_MODE parameter for SU2",
     xpath=SU2_FIXED_CL_XPATH,
 )
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")

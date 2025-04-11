@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/SaveAeroCoefficients/saveaerocoef.py'
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2022-09-23
@@ -16,22 +15,18 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
+from ceasiompy.SaveAeroCoefficients.saveaerocoef import main as save_aero_coef
+from ceasiompy.utils.ceasiompyutils import change_working_dir, get_results_directory
 
 from pathlib import Path
+from cpacspy.cpacspy import CPACS
 
-from ceasiompy.SaveAeroCoefficients.saveaerocoef import save_aero_coef
-from ceasiompy.utils.ceasiompyutils import change_working_dir
+
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
+from ceasiompy.SaveAeroCoefficients import MODULE_NAME, MODULE_DIR
 
-MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(CPACS_FILES_PATH, "D150_simple.xml")
 CPACS_OUT_PATH = Path(MODULE_DIR, "D150_simple_saveaerocoef_test.xml")
-FIG_PATH = Path(MODULE_DIR, "Results", "AeroCoefficients", "D150-Alt0.0-Mach0.3-AoS0.0.png")
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
 
 # =================================================================================================
 #   FUNCTIONS
@@ -44,19 +39,18 @@ def test_save_aero_coef():
     """
 
     with change_working_dir(MODULE_DIR):
-        save_aero_coef(CPACS_IN_PATH, CPACS_OUT_PATH)
-        assert FIG_PATH.exists()
+        cpacs = CPACS(CPACS_IN_PATH)
+        results_dir = get_results_directory(MODULE_NAME)
+        save_aero_coef(cpacs, results_dir)
 
-    if CPACS_OUT_PATH.exists():
-        CPACS_OUT_PATH.unlink()
-
-    if FIG_PATH.exists():
-        FIG_PATH.unlink()
-
+        # Assert a .png file exists in the directory
+        png_files = list(results_dir.glob("*.png"))
+        assert png_files, f"No .png file found in {results_dir}"
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
+
 
 if __name__ == "__main__":
     print("Test SaveAeroCoefficients")

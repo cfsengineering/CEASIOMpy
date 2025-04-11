@@ -27,7 +27,7 @@ jobs:
       with:
         python-version: 3.11.11
 
-    - name: Setup Miniconda
+    - name: Setup Miniforge3
       uses: conda-incubator/setup-miniconda@v2
       with:
         miniforge-variant: Miniforge3

@@ -336,7 +336,7 @@ def test_disk_actuator_conversion():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        tixi=cpacs.tixi,
+        cpacs=cpacs,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -345,15 +345,15 @@ def test_disk_actuator_conversion():
         farfield_size_factor=10,
         n_power_factor=2,
         n_power_field=0.9,
-        fuselage_mesh_size_factor=0.5,
-        wing_mesh_size_factor=0.1,
-        mesh_size_engines=0.4,
-        mesh_size_propellers=0.3,
+        fuselage_mesh_size_factor=1,
+        wing_mesh_size_factor=1,
+        mesh_size_engines=0.2,
+        mesh_size_propellers=0.1,
         refine_factor=1.0,
         refine_truncated=False,
         auto_refine=False,
         testing_gmsh=True,
-    )
+    )   
 
     physical_groups = gmsh.model.getPhysicalGroups()
     print(physical_groups)

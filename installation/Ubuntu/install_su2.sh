@@ -26,7 +26,7 @@ sudo apt-get install -y python3 python3-pip g++ cmake ninja-build
 pip3 install meson
 git clone https://github.com/su2code/SU2.git
 cd SU2
-meson setup build -Denable-mpi=true
+meson setup build
 meson compile -C build
 sudo meson install -C build
 
@@ -44,5 +44,6 @@ mpich_path=$(dirname "$(which mpirun)")
 
 echo \# MPICH Path >> ~/.bashrc
 echo export PATH=\"\$PATH:$mpich_path\" >> ~/.bashrc
+SU2_CFD --version
 
 cd "$current_dir"

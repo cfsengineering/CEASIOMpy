@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 The script evaluates the unconventional aircraft wings geometry .
 
-Python version: >=3.8
 
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07

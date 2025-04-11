@@ -6,7 +6,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Script to extract panel forces of a surface,
 from AVL 'fe.txt' element force file
 
-Python version: >=3.8
 
 | Author: Romain Gauthier
 | Creation: 2024-06-17

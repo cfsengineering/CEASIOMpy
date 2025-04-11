@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Main scripts for Database module.
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 03-Mar-2025

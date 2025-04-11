@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Store data from workflow modules.
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 2025-Mar-03

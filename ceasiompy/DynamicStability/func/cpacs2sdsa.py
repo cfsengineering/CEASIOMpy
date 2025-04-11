@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Transfer CPACS unsteady data into SDSA with the correct file format (for reference: SDSAEmpty.xml).
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 27-Jan-2025

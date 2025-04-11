@@ -7,7 +7,6 @@ Script to plot the FEM mesh and VLM panels used in the aeroelastic computations,
 and plot the shape of the deformed wing. It helps to see if the geometry was
 accurately captured and if the meshes are fine.
 
-Python version: >=3.8
 
 | Author: Romain Gauthier
 | Creation: 2024-06-19

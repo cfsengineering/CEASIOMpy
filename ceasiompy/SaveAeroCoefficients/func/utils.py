@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Small description of the script
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 27 March 2025

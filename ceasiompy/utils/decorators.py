@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Scripts to convert CPACS file geometry into any geometry.
 
-Python version: >=3.8
 
 |   Author : Leon Deligny
 |   Creation: 2025-Feb-12

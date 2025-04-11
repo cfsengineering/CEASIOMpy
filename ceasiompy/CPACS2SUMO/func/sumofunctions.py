@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Functions used to help the cration of SUMO file
 
-Python version: >=3.8
 
 | Author: Aidan Jungo
 | Creation: 2021-02-25

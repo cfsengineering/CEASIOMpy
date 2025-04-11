@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Evaluation of the number of crew members expected for an unconventional aircraft.
 
-Python version: >=3.8
 
 | Author : Stefano Piccini
 | Date of creation: 2018-12-19

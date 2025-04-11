@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Functions and constants for CPACS2GMSH module.
 
-Python version: >=3.8
 
 | Author : Leon Deligny
 | Creation: 2025-Feb-25

@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Static stability module
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 2025-01-27

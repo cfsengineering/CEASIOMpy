@@ -6,7 +6,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 This script estimates the maximum take of mass from a database
 of conventional aircraft using the k-nearest neighbors regression method.
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Date of creation: 2022-11-08

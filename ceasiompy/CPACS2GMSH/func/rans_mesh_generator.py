@@ -7,7 +7,6 @@ Use .brep files parts of an airplane to generate a fused airplane in GMSH with
 the OCC kernel. Then Spherical farfield is created around the airplane and the
 resulting domain is meshed using gmsh
 
-Python version: >=3.8
 
 | Author: Guido Vallifuoco
 | Creation: 2024-02-01

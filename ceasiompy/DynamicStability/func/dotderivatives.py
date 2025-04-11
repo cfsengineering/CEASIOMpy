@@ -9,7 +9,6 @@ Notation used:
     2. fx, fy, fz represent drag, side, lift force.
     3. cx, cy, cz represent drag, side, lift coefficient.
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 2025-Feb-12

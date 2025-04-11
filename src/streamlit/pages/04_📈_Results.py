@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Streamlit page to show results of CEASIOMpy
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2022-09-16

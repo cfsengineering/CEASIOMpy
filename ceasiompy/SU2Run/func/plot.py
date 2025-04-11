@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Save plot in result folder of SU2 module.
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 2025-Feb-24

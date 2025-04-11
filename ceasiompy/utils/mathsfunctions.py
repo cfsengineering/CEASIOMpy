@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Math functions which are used in different modules of CEASIOMpy.
 
-Python version: >=3.8
 
 | Author : Leon Deligny
 | Creation: 2025-Mar-03

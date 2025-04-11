@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module to run SU2 configuration files in CEASIOMpy.
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 20 March 2025
@@ -100,7 +99,7 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
                 software_name=SOFTWARE_NAME,
                 arguments=[config_file[0]],
                 wkdir=config_dir,
-                with_mpi=True,
+                with_mpi=False,
                 nb_cpu=nb_proc,
                 log_bool=False,
             )

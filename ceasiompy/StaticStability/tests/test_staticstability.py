@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for StaticStability module.
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 21 March 2025

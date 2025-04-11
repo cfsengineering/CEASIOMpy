@@ -16,7 +16,6 @@ Please report any issues with AeroFrame or this wrapper here:
 
 * https://github.com/airinnova/aeroframe/issues
 
-Python version: >=3.8
 
 | Author: Aaron Dettmann
 | Creation: 2019-09-25

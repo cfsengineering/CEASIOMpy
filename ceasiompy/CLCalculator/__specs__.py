@@ -6,7 +6,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI Interface of CLCalculator.
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 18-Mar-2025

@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Weight conventional module for preliminary design of conventional aircraft
 
-Python version: >=3.8
 
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27

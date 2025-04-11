@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Main Streamlit page for CEASIOMpy GUI.
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2022-09-09

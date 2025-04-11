@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'utils/workflowclasses.py'
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2022-01-21

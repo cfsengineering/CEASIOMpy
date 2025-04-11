@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Streamlit Tabs per module function.
 
-Python version: >=3.8
 
 | Author : Leon Deligny
 | Creation: 21 March 2025

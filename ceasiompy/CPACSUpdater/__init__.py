@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Initialization for CPACSUpdater module.
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 18-Mar-2025

@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Dynamic Stability Module
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 2025-01-27

@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Calculate CL script.
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 25 March 2025

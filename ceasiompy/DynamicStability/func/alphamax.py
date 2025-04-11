@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Compute AlphaMax for SDSA from ceasiomp.db.
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 25 March 2025

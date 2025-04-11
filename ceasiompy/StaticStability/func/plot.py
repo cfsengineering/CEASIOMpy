@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Scripts for plotting the results
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 2025-01-27

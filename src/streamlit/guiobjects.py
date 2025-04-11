@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI objects in CEASIOMpy.
 
-Python version: >=3.8
 
 | Author : Leon Deligny
 | Creation: 21 March 2025

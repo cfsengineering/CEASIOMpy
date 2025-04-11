@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/CPACS2GMSH/mesh_sizing.py'
 
-Python version: >=3.8
 
 | Author : Giacomo Benedetti
 | Creation: 2023-11-23

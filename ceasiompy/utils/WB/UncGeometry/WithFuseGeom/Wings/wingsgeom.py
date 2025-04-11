@@ -6,7 +6,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 The script evaluate the wings geometry from cpacs file for an
 unconventional aircraft with fuselage.
 
-Python version: >=3.8
 
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27

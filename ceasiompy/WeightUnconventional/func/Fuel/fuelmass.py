@@ -6,7 +6,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 Evaluation of the fuel mass in the fuselages and in the wings for
 an unconventional aircraft.
 
-Python version: >=3.8
 
 | Author: Stefano Piccini
 | Date of creation: 2018-12-19

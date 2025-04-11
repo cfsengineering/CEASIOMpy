@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions ModuleTemplate module.
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2019-08-14

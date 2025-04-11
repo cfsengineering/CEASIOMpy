@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI Interface of ExportCSV.
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 19-Mar-2025

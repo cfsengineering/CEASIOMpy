@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Plot Aerodynamic coefficients from CPACS v3 aeroMaps
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 27 march 2025

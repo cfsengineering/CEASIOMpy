@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/utils/generalclasses.py'
 
-Python version: >=3.8
 
 
 | Author : Aidan Jungo

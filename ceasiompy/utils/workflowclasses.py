@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Classes to run ceasiompy workflows
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2019-10-04

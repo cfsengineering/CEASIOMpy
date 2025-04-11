@@ -6,7 +6,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Initialization for CEASIOMpy.
     1. Log initialization.
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 18-Mar-2025

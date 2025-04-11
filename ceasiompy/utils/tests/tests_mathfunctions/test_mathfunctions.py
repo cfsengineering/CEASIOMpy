@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions from 'lib/utils/mathfunctions.py'
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2018-10-19

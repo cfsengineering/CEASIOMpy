@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Function library for the optimisation module.
 
-Python version: >=3.8
 
 | Author: Vivien Riolo
 | Creation: 2020-04-10

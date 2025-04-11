@@ -7,7 +7,6 @@ Script to get the flight conditions (alt, aoa, mach...) from
 the input CPACS file, and write the command file for AVL.
 More details at: https://web.mit.edu/drela/Public/web/avl/AVL_User_Primer.pdf.
 
-Python version: >=3.8
 
 | Author: Romain Gauthier
 | Creation: 2024-03-14

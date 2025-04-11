@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Scripts for checking the slope of the pitch, roll and yaw moments with respect to a certain angle
 
-Python version: >=3.8
 
 | Author: Leon Deligny
 | Creation: 2025-01-27

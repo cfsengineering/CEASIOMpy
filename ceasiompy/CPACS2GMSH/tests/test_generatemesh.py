@@ -378,6 +378,7 @@ def disk_actuator_conversion():
 # =================================================================================================
 
 if __name__ == "__main__":
+    disk_actuator_conversion()
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

@@ -35,4 +35,8 @@ echo export SU2_HOME=\""$su2_home_path"\" >> ~/.bashrc
 echo export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN >> ~/.bashrc
 echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
 
+which mpich
+which mpirun
+mpirun --version
+
 cd "$current_dir"

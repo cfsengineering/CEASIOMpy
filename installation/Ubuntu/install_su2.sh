@@ -2,8 +2,6 @@
 
 # Script to install SU2
 
-su2_version="8.1.0"
-
 current_dir="$(pwd)"
 
 # Get install dir from input if it exists
@@ -55,7 +53,7 @@ echo "Adding MPICH path to the .bashrc"
 mpich_path=$(dirname "$(which mpirun)")
 
 echo \# MPICH Path >> ~/.bashrc
-echo export PATH=\"\$PATH:$mpich_path\" >> ~/.bashrc
+echo "export PATH=\"\$PATH:$mpich_path\"" >> ~/.bashrc
 
 # Verify SU2 installation
 source ~/.bashrc

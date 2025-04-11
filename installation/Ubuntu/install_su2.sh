@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to install SU2 on Ubuntu 20.04 and  Mint 20.3
+# Script to install SU2
 
 su2_version="8.1.0"
 
@@ -34,5 +34,12 @@ echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
 
 echo "Installing MPICH..."
 sudo apt install -y mpich
+
+echo "Adding MPICH path to the .bashrc"
+
+mpich_path="/usr/bin"
+echo export PATH=\"\$PATH:$mpich_path\" >> ~/.bashrc
+
+source ~/.bashrc
 
 cd "$current_dir"

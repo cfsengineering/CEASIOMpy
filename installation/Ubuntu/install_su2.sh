@@ -44,7 +44,7 @@ echo export PATH=\"\$PATH:$mpich_path\" >> ~/.bashrc
 source ~/.bashrc
 
 echo "Checking version"
-mpirun --version
-$SU2_RUN/SU2_CFD --version
+mpich --version
+$SU2_RUN/SU2_CFD --help
 
 cd "$current_dir"

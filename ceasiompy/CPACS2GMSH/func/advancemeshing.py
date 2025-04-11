@@ -296,8 +296,7 @@ def refine_wing_section(
 
         mesh_fields = restrict_fields(mesh_fields, 2, aircraft.surfaces_tags)
         mesh_fields = restrict_fields(
-            mesh_fields, 3, final_domain_volume_tag, infield=math_eval_field
-        )
+            mesh_fields, 3, final_domain_volume_tag, infield=math_eval_field)
 
         # 2 : Threshold field
 

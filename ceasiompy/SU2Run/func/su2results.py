@@ -80,7 +80,8 @@ def save_screenshot(surface_flow_file, scalar="Mach"):
     plotter.camera.zoom(1.6)
 
     # Save Screenshot
-    screenshot_filename = Path(surface_flow_file.parent, f"3d_view_{scalar}.png")
+    screenshot_filename = Path(
+        surface_flow_file.parent, f"3d_view_{scalar}.png")
     plotter.show(screenshot=screenshot_filename)
 
     log.info(f"A screenshot has been saved at {screenshot_filename}")
@@ -115,7 +116,8 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
     elif fixed_cl == "NO":
         aeromap_uid = get_value(cpacs.tixi, SU2_AEROMAP_UID_XPATH)
     else:
-        raise ValueError("The value for fixed_cl is not valid! Should be YES or NO")
+        raise ValueError(
+            "The value for fixed_cl is not valid! Should be YES or NO")
 
     log.info(f"The aeromap uid is: {aeromap_uid}")
     aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
@@ -125,7 +127,8 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
     aoa_list = aeromap.get("angleOfAttack").tolist()
     aos_list = aeromap.get("angleOfSideslip").tolist()
 
-    case_dir_list = [case_dir for case_dir in wkdir.iterdir() if "Case" in case_dir.name]
+    case_dir_list = [case_dir for case_dir in wkdir.iterdir()
+                     if "Case" in case_dir.name]
 
     found_wetted_area = False
 
@@ -135,9 +138,9 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
             continue
 
         surface_flow_path = Path(config_dir, SURFACE_FLOW_FILE_NAME)
-        if surface_flow_path.exists() and "DISPLAY" in os.environ:
-            save_screenshot(surface_flow_path, "Mach")
-            save_screenshot(surface_flow_path, "Pressure_Coefficient")
+        # if surface_flow_path.exists() and "DISPLAY" in os.environ:
+        #    save_screenshot(surface_flow_path, "Mach")
+        #    save_screenshot(surface_flow_path, "Pressure_Coefficient")
 
         force_file_path = Path(config_dir, SU2_FORCES_BREAKDOWN_NAME)
         if not force_file_path.exists():
@@ -162,14 +165,17 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
             create_branch(cpacs.tixi, RANGE_LD_RATIO_XPATH)
             cpacs.tixi.updateDoubleElement(RANGE_LD_RATIO_XPATH, cl_cd, "%g")
 
-        cl, cd, cs, cmd, cms, cml, velocity = get_su2_aerocoefs(force_file_path)
+        cl, cd, cs, cmd, cms, cml, velocity = get_su2_aerocoefs(
+            force_file_path)
 
         # Damping derivatives
-        rotation_rate = get_value_or_default(cpacs.tixi, SU2_ROTATION_RATE_XPATH, -1.0)
+        rotation_rate = get_value_or_default(
+            cpacs.tixi, SU2_ROTATION_RATE_XPATH, -1.0)
         ref_len = cpacs.aircraft.ref_length
         adim_rot_rate = rotation_rate * ref_len / velocity
 
-        coefs = {"cl": cl, "cd": cd, "cs": cs, "cmd": cmd, "cms": cms, "cml": cml}
+        coefs = {"cl": cl, "cd": cd, "cs": cs,
+                 "cmd": cmd, "cms": cms, "cml": cml}
 
         for axis in ["dp", "dq", "dr"]:
 
@@ -179,7 +185,8 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
             baseline_coef = False
 
             for coef in COEFS:
-                coef_baseline = aeromap.get(coef, alt=alt, mach=mach, aoa=aoa, aos=aos)
+                coef_baseline = aeromap.get(
+                    coef, alt=alt, mach=mach, aoa=aoa, aos=aos)
                 dcoef = (coefs[coef] - coef_baseline) / adim_rot_rate
                 aeromap.add_damping_derivatives(
                     alt=alt,
@@ -230,18 +237,22 @@ def get_su2_results(cpacs_path, cpacs_out_path, wkdir):
                 cms=cms,
             )
 
-        update_wetted_area = get_value_or_default(cpacs.tixi, SU2_UPDATE_WETTED_AREA_XPATH, False)
+        update_wetted_area = get_value_or_default(
+            cpacs.tixi, SU2_UPDATE_WETTED_AREA_XPATH, False)
         if not found_wetted_area and update_wetted_area:
-            wetted_area = get_wetted_area(Path(config_dir, "logfile_SU2_CFD.log"))
+            wetted_area = get_wetted_area(
+                Path(config_dir, "logfile_SU2_CFD.log"))
 
             # Check if symmetry plane is defined (Default: False)
             sym_factor = 1.0
             if get_value_or_default(cpacs.tixi, GMSH_SYMMETRY_XPATH, False):
-                log.info("Symmetry plane is defined. The wetted area will be multiplied by 2.")
+                log.info(
+                    "Symmetry plane is defined. The wetted area will be multiplied by 2.")
                 sym_factor = 2.0
 
             create_branch(cpacs.tixi, WETTED_AREA_XPATH)
-            cpacs.tixi.updateDoubleElement(WETTED_AREA_XPATH, wetted_area * sym_factor, "%g")
+            cpacs.tixi.updateDoubleElement(
+                WETTED_AREA_XPATH, wetted_area * sym_factor, "%g")
             found_wetted_area = True
 
         if get_value_or_default(cpacs.tixi, SU2_EXTRACT_LOAD_XPATH, False):

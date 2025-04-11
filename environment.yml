@@ -43,7 +43,7 @@ dependencies:
     - cpacspy==0.1.8
     - cython==0.29.30
     - framat
-    - gmsh==4.10.3
+    - gmsh==4.13.1
     - markdownpy==0.1.4
     - om-pycycle
     - pytest==7.2.0

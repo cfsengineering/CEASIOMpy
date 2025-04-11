@@ -18,7 +18,9 @@ mkdir -p "$install_dir"
 cd "$install_dir"
 
 echo "Installing MPICH..."
+sudo apt-get update
 sudo apt-get install -y mpich
+pip install meson
 
 echo "Downloading SU2..."
 git clone https://github.com/su2code/SU2.git

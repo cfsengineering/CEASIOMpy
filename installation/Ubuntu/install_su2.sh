@@ -1,6 +1,8 @@
 #!/bin/bash
 
-# Script to install SU2
+# Script to install SU2 on Ubuntu 20.04 and  Mint 20.3
+
+su2_version="8.1.0"
 
 current_dir="$(pwd)"
 
@@ -15,32 +17,14 @@ echo "Creating install directory..."
 mkdir -p "$install_dir"
 cd "$install_dir"
 
-echo "Installing MPICH and development libraries..."
-sudo apt-get install -y mpich libmpich-dev
-
 echo "Downloading SU2..."
-sudo apt-get update
-sudo apt-get install -y python3 python3-pip g++ cmake ninja-build
-sudo pip3 install meson
-git clone https://github.com/su2code/SU2.git
-cd SU2
+wget https://github.com/su2code/SU2/releases/download/v"$su2_version"/SU2-v"$su2_version"-linux64-mpi.zip
+unzip -d SU2-v"$su2_version"-linux64-mpi SU2-v"$su2_version"-linux64-mpi.zip
 
-echo "Running preconfigure.py..."
-python3 preconfigure.py
+echo "Adding path to the .bashrc"
 
-echo "Configuring SU2 build..."
-meson setup build -Dc_args="-I/usr/include/mpich" -Dc_link_args="-L/usr/lib/x86_64-linux-gnu"
-
-echo "Building SU2..."
-meson compile -C build
-
-echo "Installing SU2..."
-sudo meson install -C build
-
-echo "Adding SU2 path to the .bashrc"
-
-su2_run_path="$install_dir/SU2/build/bin"
-su2_home_path="$install_dir/SU2"
+su2_run_path=/"$install_dir"/SU2-v"$su2_version"-linux64-mpi/bin
+su2_home_path=/"$install_dir"/SU2-v"$su2_version"-linux64-mpi
 
 echo \# SU2 Path >> ~/.bashrc
 echo export SU2_RUN=\""$su2_run_path"\" >> ~/.bashrc
@@ -48,15 +32,7 @@ echo export SU2_HOME=\""$su2_home_path"\" >> ~/.bashrc
 echo export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN >> ~/.bashrc
 echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
 
-echo "Adding MPICH path to the .bashrc"
-
-mpich_path=$(dirname "$(which mpirun)")
-
-echo \# MPICH Path >> ~/.bashrc
-echo "export PATH=\"\$PATH:$mpich_path\"" >> ~/.bashrc
-
-# Verify SU2 installation
-source ~/.bashrc
-SU2_CFD --version
+echo "Installing MPICH..."
+sudo apt install -y mpich
 
 cd "$current_dir"

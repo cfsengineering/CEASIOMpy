@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Script to install SU2 on Ubuntu 20.04 and  Mint 20.3
+# Script to install SU2
 
 su2_version="8.1.0"
 

@@ -17,8 +17,8 @@ echo "Creating install directory..."
 mkdir -p "$install_dir"
 cd "$install_dir"
 
-echo "Installing MPICH..."
-sudo apt-get install -y mpich
+echo "Installing MPICH and development libraries..."
+sudo apt-get install -y mpich libmpich-dev
 
 echo "Downloading SU2..."
 sudo apt-get update
@@ -31,7 +31,7 @@ echo "Running preconfigure.py..."
 python3 preconfigure.py
 
 echo "Configuring SU2 build..."
-meson setup build
+meson setup build -Dc_args="-I/usr/include/mpich" -Dc_link_args="-L/usr/lib/x86_64-linux-gnu"
 
 echo "Building SU2..."
 meson compile -C build

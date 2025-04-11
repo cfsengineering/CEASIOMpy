@@ -27,13 +27,14 @@ jobs:
       with:
         python-version: 3.11.11
 
-    - name: Setup Mambaforge
+    - name: Setup Miniconda
       uses: conda-incubator/setup-miniconda@v2
       with:
         miniforge-variant: Miniforge3
         miniforge-version: latest
         activate-environment: ceasiompy
-        use-mamba: true
+        use-mamba: false
+        conda-version: 25.3.1
 
     - name: Set cache date # With that, cache will be updated every day
       run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV

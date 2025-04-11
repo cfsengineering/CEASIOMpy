@@ -722,9 +722,9 @@ def generate_gmsh(
             )
 
     # Generate advance meshing features
+    mesh_fields = {"nbfields": 0, "restrict_fields": []}
     if refine_factor != 1:
         log.info(f"Refining wings with factor {refine_factor}")
-        mesh_fields = {"nbfields": 0, "restrict_fields": []}
 
         # Refine wings
         for part in aircraft_parts:

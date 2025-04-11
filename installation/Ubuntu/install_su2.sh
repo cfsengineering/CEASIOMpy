@@ -21,8 +21,14 @@ echo "Installing MPICH..."
 sudo apt-get install -y mpich
 
 echo "Downloading SU2..."
-wget https://github.com/su2code/SU2/releases/download/v"$su2_version"/SU2-v"$su2_version"-linux64-mpi.zip
-unzip -d SU2-v"$su2_version"-linux64-mpi SU2-v"$su2_version"-linux64-mpi.zip
+sudo apt-get update
+sudo apt-get install -y python3 python3-pip g++ cmake ninja-build
+pip3 install meson
+git clone https://github.com/su2code/SU2.git
+cd SU2
+meson setup build -Denable-mpi=true
+meson compile -C build
+sudo meson install -C build
 
 echo "Adding path to the .bashrc"
 
@@ -34,9 +40,5 @@ echo export SU2_RUN=\""$su2_run_path"\" >> ~/.bashrc
 echo export SU2_HOME=\""$su2_home_path"\" >> ~/.bashrc
 echo export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN >> ~/.bashrc
 echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
-
-which mpich
-which mpirun
-mpirun --version
 
 cd "$current_dir"

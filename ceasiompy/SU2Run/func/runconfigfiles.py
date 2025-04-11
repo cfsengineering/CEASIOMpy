@@ -99,9 +99,9 @@ def run_SU2_multi(wkdir: Path, nb_proc: int = 1) -> None:
                 software_name=SOFTWARE_NAME,
                 arguments=[config_file[0]],
                 wkdir=config_dir,
-                with_mpi=False,
+                with_mpi=True,
                 nb_cpu=nb_proc,
-                log_bool=False,
+                log_bool=True,
             )
 
             check_force_files_exists(config_dir)

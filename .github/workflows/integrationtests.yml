@@ -56,6 +56,9 @@ jobs:
     - name: Install libGLU
       run: sudo apt-get install -y libglu1-mesa-dev
 
+    - name: Install MPICH
+      run: sudo apt-get install -y mpich
+
     - name: Install AVL
       shell: bash -l {0}
       run: installation/Ubuntu/install_pyavl.sh

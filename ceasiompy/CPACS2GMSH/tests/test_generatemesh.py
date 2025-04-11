@@ -353,7 +353,7 @@ def test_disk_actuator_conversion():
         refine_truncated=False,
         auto_refine=False,
         testing_gmsh=True,
-    )   
+    )
 
     physical_groups = gmsh.model.getPhysicalGroups()
     print(physical_groups)

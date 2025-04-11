@@ -186,7 +186,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="max_iter",
     var_type=int,
-    default_value=100,
+    default_value=1,
     unit=None,
     descr="Maximum number of iterations performed by SU2",
     xpath=SU2_MAX_ITER_XPATH,
@@ -417,7 +417,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="inner_iter",
     var_type=int,
-    default_value=100,
+    default_value=10,
     unit=None,
     descr="Per time step, the maximum number of iterations the solver will use.",
     xpath=SU2_DYNAMICDERIVATIVES_INNERITER_XPATH,

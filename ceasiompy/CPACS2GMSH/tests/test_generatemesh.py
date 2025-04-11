@@ -322,7 +322,7 @@ def test_define_doubleflux_engine_bc():
     remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
 
 
-def disk_actuator_conversion():
+def test_disk_actuator_conversion():
     """
     Test if disk actuator conversion is working on the simple_propeller.xml
     by testing the physical groups
@@ -378,7 +378,6 @@ def disk_actuator_conversion():
 # =================================================================================================
 
 if __name__ == "__main__":
-    disk_actuator_conversion()
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

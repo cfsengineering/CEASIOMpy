@@ -3,6 +3,7 @@
 # Script to install SU2
 
 su2_version="8.1.0"
+mpi_version="4.1.1"
 
 current_dir="$(pwd)"
 
@@ -33,7 +34,7 @@ echo export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN >> ~/.bashrc
 echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
 
 echo "Installing MPICH..."
-sudo apt install -y mpich
+sudo apt install -y mpich=$mpi_version
 
 echo "Adding MPICH path to the .bashrc"
 
@@ -41,5 +42,9 @@ mpich_path="/usr/bin"
 echo export PATH=\"\$PATH:$mpich_path\" >> ~/.bashrc
 
 source ~/.bashrc
+
+echo "Checking version"
+mpirun --version
+$SU2_RUN/SU2_CFD --version
 
 cd "$current_dir"

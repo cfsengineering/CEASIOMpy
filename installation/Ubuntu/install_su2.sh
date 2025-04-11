@@ -32,13 +32,17 @@ sudo meson install -C build
 
 echo "Adding path to the .bashrc"
 
-su2_run_path=/"$install_dir"/SU2-v"$su2_version"-linux64-mpi/bin
-su2_home_path=/"$install_dir"/SU2-v"$su2_version"-linux64-mpi
+su2_run_path="$install_dir/SU2/build/bin"
+su2_home_path="$install_dir/SU2"
 
 echo \# SU2 Path >> ~/.bashrc
 echo export SU2_RUN=\""$su2_run_path"\" >> ~/.bashrc
 echo export SU2_HOME=\""$su2_home_path"\" >> ~/.bashrc
 echo export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN >> ~/.bashrc
 echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
+mpich_path=$(dirname "$(which mpirun)")
+
+echo \# MPICH Path >> ~/.bashrc
+echo export PATH=\"\$PATH:$mpich_path\" >> ~/.bashrc
 
 cd "$current_dir"

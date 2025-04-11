@@ -871,8 +871,8 @@ def generate_gmsh(
     if surf is None:
         mesh_2d_path = Path(results_dir, "2d_mesh.msh")
         gmsh.write(str(mesh_2d_path))
-        cgnsmesh_path = Path(results_dir, "mesh.cgns")
-        gmsh.write(str(cgnsmesh_path))
+        # cgnsmesh_path = Path(results_dir, "mesh.cgns")
+        # gmsh.write(str(cgnsmesh_path))
     else:
         mesh_2d_path = Path(results_dir, f"2d_mesh_{surf}_{angle}.msh")
         gmsh.write(str(mesh_2d_path))

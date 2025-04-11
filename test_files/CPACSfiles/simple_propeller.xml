@@ -774,13 +774,13 @@
         <enginePylons>
           <enginePylon uID="PylonR">
             <parentUID>Wing</parentUID>
-            <transformation uID="">
-              <rotation uID="">
+            <transformation uID="transformation1">
+              <rotation uID="rotation1">
                 <x>90</x>
                 <y>0</y>
                 <z>-90</z>
               </rotation>
-              <translation refType="absLocal" uID="">
+              <translation refType="absLocal" uID="translation1">
                 <x>-0.1</x>
                 <y>2</y>
                 <z>0</z>
@@ -789,8 +789,8 @@
             <sections>
               <section uID="PylonR_Sec1">
                 <name>PylonR section 1</name>
-                <transformation uID="">
-                  <scaling uID="">
+                <transformation>
+                  <scaling>
                     <x>0</x>
                     <y>0</y>
                     <z>0</z>
@@ -800,7 +800,7 @@
                   <element uID="PylonR_Sec1_El1">
                     <name>PylonR section 1 element 1</name>
                     <airfoilUID>PylonRProfile</airfoilUID>
-                    <transformation uID="" />
+                    <transformation />
                   </element>
                 </elements>
               </section>
@@ -817,8 +817,8 @@
                   <element uID="PylonR_Sec2_El1">
                     <name>PylonR section 2 element 1</name>
                     <airfoilUID>PylonRProfile</airfoilUID>
-                    <transformation uID="">
-                      <scaling uID="">
+                    <transformation>
+                      <scaling>
                         <x>1</x>
                         <y>1</y>
                         <z>1</z>
@@ -829,8 +829,8 @@
               </section>
               <section uID="PylonR_Sec3">
                 <name>PylonR Section 3</name>
-                <transformation uID="">
-                  <scaling uID="">
+                <transformation>
+                  <scaling>
                     <x>0.02</x>
                     <y>0.02</y>
                     <z>0.02</z>
@@ -840,8 +840,8 @@
                   <element uID="PylonR_Sec3_El1">
                     <name>PylonR section 3 element 1</name>
                     <airfoilUID>PylonRProfile</airfoilUID>
-                    <transformation uID="">
-                      <scaling uID="">
+                    <transformation>
+                      <scaling>
                         <x>1</x>
                         <y>1</y>
                         <z>1</z>

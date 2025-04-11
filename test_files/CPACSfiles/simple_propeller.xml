@@ -966,7 +966,7 @@
     <CEASIOMpy>
       <mesh>
         <gmshOptions>
-          <exportPropellers>False</exportPropellers>
+          <exportPropellers>True</exportPropellers>
         </gmshOptions>
       </mesh>
     </CEASIOMpy>

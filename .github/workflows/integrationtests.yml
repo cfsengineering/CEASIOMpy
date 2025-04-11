@@ -53,6 +53,9 @@ jobs:
       shell: bash -l {0}
       run: pip install -e .
 
+    - name: Install libGLU
+      run: sudo apt-get install -y libglu1-mesa-dev
+
     - name: Install AVL
       shell: bash -l {0}
       run: installation/Ubuntu/install_pyavl.sh
@@ -60,9 +63,6 @@ jobs:
     - name: Install SU2
       shell: bash -l {0}
       run: installation/Ubuntu/install_su2.sh
-
-    - name: Install libGLU
-      run: sudo apt-get install -y libglu1-mesa-dev
         
     - name: Run integration tests
       shell: bash -l {0}

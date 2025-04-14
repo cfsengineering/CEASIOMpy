@@ -55,4 +55,4 @@ dependencies:
     - om-pycycle==4.3.0
     - pycycle==0.0.8
     - gmsh==4.13.1
-
+    - stpyvista==0.1.4

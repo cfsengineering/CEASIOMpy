@@ -15,20 +15,23 @@ Main Streamlit page for CEASIOMpy GUI.
 #    IMPORTS
 # =================================================================================================
 
-
-import io
-
-import streamlit as st
 import pyvista as pv
-import streamlit.components.v1 as components
+import streamlit as st
 
-from src.streamlit.streamlitutils import create_sidebar, st_directory_picker
+from stpyvista import stpyvista
+from src.streamlit.streamlitutils import (
+    create_sidebar,
+    st_directory_picker,
+)
 
-from ceasiompy.utils.workflowclasses import Workflow
-from cpacspy.cpacspy import CPACS
 from pathlib import Path
+from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.workflowclasses import Workflow
 
-from ceasiompy.utils.commonnames import CEASIOMPY_BEIGE, CEASIOMPY_ORANGE
+from ceasiompy.utils.commonnames import (
+    CEASIOMPY_BEIGE,
+    CEASIOMPY_ORANGE,
+)
 
 # =================================================================================================
 #    CONSTANTS
@@ -92,8 +95,9 @@ def section_select_cpacs():
 
 def section_3D_view():
     """
-    Shows a 3D view of the aircraft by exporting a STL file. The pyvista viewer is based on:
-    https://github.com/edsaac/streamlit-PyVista-viewer
+    Shows a 3D view of the aircraft by exporting a STL file.
+    The pyvista viewer is based on:
+        https://github.com/edsaac/streamlit-PyVista-viewer
     """
 
     st.markdown("## 3D view")
@@ -101,37 +105,29 @@ def section_3D_view():
     if "cpacs" not in st.session_state:
         st.warning("No CPACS file has been selected!")
         return
+    else:
+        stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
 
-    if not st.button("Show 3D view"):
-        return
+        st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
 
-    stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
+        # Using pythreejs as pyvista backend
+        pv.set_jupyter_backend("static")
 
-    st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
+        # Initialize pyvista reader and plotter
+        plotter = pv.Plotter(border=False, window_size=[572, 600])
+        plotter.background_color = CEASIOMPY_BEIGE
+        reader = pv.STLReader(str(stl_file))
 
-    # Using pythreejs as pyvista backend
-    pv.set_jupyter_backend("pythreejs")
+        # Read data and send to plotter
+        mesh = reader.read()
+        plotter.add_mesh(mesh, color=CEASIOMPY_ORANGE)
 
-    # Initialize pyvista reader and plotter
-    plotter = pv.Plotter(border=False, window_size=[572, 600])
-    plotter.background_color = CEASIOMPY_BEIGE
-    reader = pv.STLReader(str(stl_file))
+        # Camera
+        plotter.camera.azimuth = 110.0
+        plotter.camera.elevation = -20.0
+        plotter.camera.zoom(1.4)
 
-    # Read data and send to plotter
-    mesh = reader.read()
-    plotter.add_mesh(mesh, color=CEASIOMPY_ORANGE)
-
-    # Camera
-    plotter.camera.azimuth = 110.0
-    plotter.camera.elevation = -20.0
-    plotter.camera.zoom(1.4)
-
-    # Export to a pythreejs HTML
-    model_html = io.StringIO()
-    plotter.export_html(model_html, backend="pythreejs")
-
-    # Show in webpage
-    components.html(model_html.getvalue(), height=600, width=572, scrolling=False)
+        stpyvista(plotter)
 
 # =================================================================================================
 #    MAIN

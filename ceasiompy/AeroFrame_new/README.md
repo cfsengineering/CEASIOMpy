@@ -23,7 +23,7 @@
 ## Outputs
 
 `AeroFrame` outputs a CPACS file with all the structural parameters and wing tip deflection written. In addition, the following files are saved at each iterations:
-- All AVL forces outputs, see `PyAVL` documentation for more details.
+- All AVL forces outputs, see [`PyAVL` documentation](../PyAVL/README.md) for more details.
 - `deformed_wing.png` : plot of the deformed wing shape compared to the undeformed one.
 - `structural_mesh.png` : plot of the structural nodes and vortex lattice panels.
 - `translations_rotations.png` : plot of the results of the structural model (translations and rotations) along the wing span.
@@ -34,7 +34,7 @@ At the end of the calculation the convergence of the wing tip deflection as well
 
 ## Installation or requirements
 
-TO DO
+Following the automatic installation procedure on the [CEASIOMpy installation page](../../installation/INSTALLATION.md) should install `AeroFrame` automatically with the other tools.
 
 ## Limitations
 

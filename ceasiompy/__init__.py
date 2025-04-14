@@ -67,9 +67,6 @@ class CustomConfig(BaseModel):
 def get_logger() -> Logger:
     """
     Creates a logger, sets format and level of logfile and console log.
-
-    Returns:
-        logger (Logger): Logger object.
     """
 
     logger = logging.getLogger("CEASIOMpy")

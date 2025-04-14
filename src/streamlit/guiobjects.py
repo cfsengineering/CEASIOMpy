@@ -31,10 +31,6 @@ from ceasiompy import log
 # ==============================================================================
 
 
-def su2_data_settings():
-    ...
-
-
 def aeromap_selection(cpacs, xpath, key, description):
     aeromap_uid_list = cpacs.get_aeromap_uid_list()
 
@@ -89,14 +85,13 @@ def path_vartype(default_value, key) -> None:
     su2_file_path = default_value
     if uploaded_file:
         su2_file_path = (
-            st.session_state.workflow.working_dir 
+            st.session_state.workflow.working_dir
             / uploaded_file.name
         )
 
         # Save the uploaded file to the specified path
         with open(su2_file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
-        
         st.success(f"Using SU2 mesh at path: {su2_file_path}")
 
     st.session_state[key] = str(su2_file_path)

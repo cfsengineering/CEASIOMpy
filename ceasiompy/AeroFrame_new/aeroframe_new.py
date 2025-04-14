@@ -281,7 +281,9 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         # Run AVL with the new deformed geometry
         write_deformed_geometry(AVL_UNDEFORMED_PATH, AVL_DEFORMED_PATH, centerline_df, deformed_df)
         write_deformed_command(AVL_UNDEFORMED_COMMAND, AVL_DEFORMED_COMMAND)
-        log.info("Running AVL")
+        log.info("")
+        log.info(f"----- AVL: Calculation {n_iter+1} -----")
+        log.info("Running AVL ...")
         subprocess.run(["xvfb-run", "avl"],
                        stdin=open(str(AVL_DEFORMED_COMMAND), "r"),
                        cwd=AVL_ITER_PATH,
@@ -340,8 +342,7 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
     deflection = delta_tip[-1]
     percentage = deflection / semi_span
 
-    log.info(
-        f"Wing tip deflection:     {deflection:.3e} m ({percentage:.2%} of the semi-span length).")
+    log.info(f"Wing tip deflection:     {deflection:.3e} m ({percentage:.2%} of the semi-span length).")
     log.info(f"Wing tip twist:          {tip_twist:.3e} degrees.")
     log.info(f"Total aerodynamic work:  {total_aero_work:.3e} J.")
     log.info(f"Total structural work:   {total_structural_work:.3e} J.")

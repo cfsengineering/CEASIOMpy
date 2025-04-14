@@ -18,7 +18,6 @@ echo "Creating install directory..."
 mkdir -p "$install_dir"
 cd "$install_dir"
 
-
 echo "Downloading SU2..."
 wget https://github.com/su2code/SU2/releases/download/v"$su2_version"/SU2-v"$su2_version"-linux64-mpi.zip
 unzip -d SU2-v"$su2_version"-linux64-mpi SU2-v"$su2_version"-linux64-mpi.zip
@@ -44,7 +43,7 @@ echo export PATH=\"\$PATH:$mpich_path\" >> ~/.bashrc
 source ~/.bashrc
 
 echo "Checking SU2 version"
-$SU2_RUN/SU2_CFD --help
+"$SU2_RUN/SU2_CFD" --help
 
 echo "Checking MPICH version"
 mpirun --version

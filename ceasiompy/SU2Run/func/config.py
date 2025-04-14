@@ -683,7 +683,7 @@ def configure_mesh_format(cfg: ConfigFile, mesh_path: Path) -> None:
         log.warning(
             "Did not recognize the mesh format. "
             "Using SU2 as default."
-            )
+        )
     cfg["MESH_FORMAT"] = "SU2"
 
 
@@ -707,7 +707,7 @@ def generate_su2_cfd_config(
     tixi = cpacs.tixi
 
     for su2_mesh_path in su2_mesh_paths:
-        configure_mesh_format(cfg, su2_mesh_path)
+
         ctrlsurf = check_control_surface(str(su2_mesh_path))
         log.info(f"Using SU2 mesh at path: {su2_mesh_path}.")
 
@@ -718,6 +718,7 @@ def generate_su2_cfd_config(
 
         tpl_type = "RANS" if rans else "EULER"
         cfg = ConfigFile(get_su2_cfg_tpl(tpl_type))
+        configure_mesh_format(cfg, su2_mesh_path)
 
         if dyn_stab and 'ITER' in cfg.data:
             cfg.data.pop('ITER', None)

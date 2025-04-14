@@ -483,10 +483,10 @@ def transform_airfoil(tixi: Tixi3, sgt: str, ctrltype: str) -> None:
             z = array(get_float_vector(tixi, pointlist_xpath + "/z"))
 
             # TODO: Add choice of different interpolation techniques
-            # newx, newz = interpolate_points(x, z, max_dist=0.02)
+            newx, newz = interpolate_points(x, z, max_dist=0.02)
             # CAREFUL: if you want to interpolate airfoil coordinates,
             # you need to apply the interpolation to all airfoils.
-            newx, newz = x, z
+            # newx, newz = x, z
 
             if "fowler" in ctrltype:
                 # Store airfoil temporarily

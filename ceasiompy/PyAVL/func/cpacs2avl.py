@@ -153,7 +153,7 @@ def convert_cpacs_to_avl(cpacs_path, machnumber, wkdir):
                 avl_file.write("TRANSLATE\n")
                 avl_file.write(body_ori_str + "\n\n")
 
-                # avl_file.write("NOWAKE\n\n")
+                avl_file.write("NOWAKE\n\n")
 
             # Positionings
             if tixi.checkElement(fus_xpath + "/positionings"):

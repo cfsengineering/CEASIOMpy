@@ -99,7 +99,7 @@ def run_avl(cpacs_path, wkdir):
             ref_density=density,
             g_acceleration=g,
         )
-        log.info("Running AVL")
+        log.info("Running AVL ...")
         subprocess.run(
             ["xvfb-run", "avl"],
             stdin=open(str(command_path), "r"),

@@ -77,7 +77,6 @@ def add_gui_object(
     default_value,
 ) -> None:
 
-
     # Iterate per group
     with groups_container[group]:
 
@@ -152,10 +151,8 @@ def add_module_tab() -> None:
             groups_container = order_by_gps(inputs)
 
             for name, default_value, var_type, unit, xpath, description, group in inputs.values():
-                
                 key = f"{m}_{module}_{name.replace(' ', '')}_{group.replace(' ', '')}"
                 process_unit(name, unit)
-                
                 add_gui_object(
                     st.session_state,
                     name,

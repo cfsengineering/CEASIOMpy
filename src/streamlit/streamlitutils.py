@@ -15,15 +15,8 @@ Streamlit utils functions for CEASIOMpy
 #   IMPORTS
 # ==============================================================================
 
-import os
-
 import pandas as pd
 import streamlit as st
-
-from cpacspy.cpacsfunctions import (
-    open_tixi,
-    create_branch,
-)
 
 from cpacspy.cpacsfunctions import (
     add_string_vector,

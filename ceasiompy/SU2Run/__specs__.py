@@ -131,7 +131,7 @@ cpacs_inout.add_input(
     xpath=SU2_DAMPING_DER_XPATH,
     gui=include_gui,
     gui_name="Damping Derivatives",
-    gui_group="Aeromap Options",
+    gui_group="Damping Derivative Option",
 )
 
 cpacs_inout.add_input(
@@ -143,7 +143,7 @@ cpacs_inout.add_input(
     xpath=SU2_ROTATION_RATE_XPATH,
     gui=include_gui,
     gui_name="Rotation Rate",
-    gui_group="Aeromap Options",
+    gui_group="Rotation Rates Setting",
 )
 
 cpacs_inout.add_input(
@@ -155,7 +155,7 @@ cpacs_inout.add_input(
     xpath=SU2_CONTROL_SURF_BOOL_XPATH,
     gui=include_gui,
     gui_name="Control Surfaces",
-    gui_group="Aeromap Options",
+    gui_group="Control Surface Option",
 )
 
 cpacs_inout.add_input(

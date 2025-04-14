@@ -62,7 +62,6 @@ from ceasiompy.utils.commonxpath import (
     SU2_BC_WALL_XPATH,
     SU2_BC_FARFIELD_XPATH,
     AEROPERFORMANCE_XPATH,
-    SU2MESH_XPATH,
 )
 
 # ==============================================================================

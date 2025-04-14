@@ -342,7 +342,8 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
     percentage = deflection / semi_span
 
     log.info(f"Final tip deflection residual : {res[-1]:.3e}")
-    log.info("Wing tip deflection           : "
+    log.info(
+        "Wing tip deflection           : "
         f"{deflection:.3e} m ({percentage:.2%} of the semi-span length)."
     )
     log.info(f"Wing tip twist                : {tip_twist:.3e} degrees.")

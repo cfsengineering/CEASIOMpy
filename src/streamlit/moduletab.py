@@ -207,19 +207,35 @@ def add_module_tab() -> None:
             for name, default_value, var_type, unit, xpath, description, group in inputs.values():
                 key = f"{m}_{module}_{name.replace(' ', '')}_{group.replace(' ', '')}"
                 process_unit(name, unit)
-                add_gui_object(
-                    st.session_state,
-                    name,
-                    group,
-                    groups_container,
-                    key,
-                    aeromap_map,
-                    xpath,
-                    description,
-                    var_type,
-                    vartype_map,
-                    default_value,
-                )
+                if var_type == "DynamicChoice":
+
+                    with groups_container[group]:
+                        if_choice_vartype(
+                            dynamic_vartype_map,
+                            tixi=st.session_state.cpacs.tixi,
+                            xpath=xpath,
+                            default_value=default_value,
+                            name=name,
+                            key=key,
+                            description=description,
+                        )
+                    st.session_state.xpath_to_update[xpath] = key
+
+                else:
+
+                    add_gui_object(
+                        st.session_state,
+                        name,
+                        group,
+                        groups_container,
+                        key,
+                        aeromap_map,
+                        xpath,
+                        description,
+                        var_type,
+                        vartype_map,
+                        default_value,
+                    )
 
 
 def process_unit(name: str, unit: str) -> None:

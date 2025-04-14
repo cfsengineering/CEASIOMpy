@@ -108,7 +108,6 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
     AVL_ITER1_PATH = Path(CASE_PATH, "Iteration_1", "AVL")
 
     # Get the path to the undeformed/initial AVL geometry
-
     for path in AVL_ITER1_PATH.glob('*.avl'):
         AVL_UNDEFORMED_PATH = path
     AVL_UNDEFORMED_COMMAND = Path(AVL_ITER1_PATH, "avl_commands.txt")
@@ -273,10 +272,10 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
 
         log.info(f"Iteration {n_iter} done!")
         log.info(
-            f"Wing tip deflection:     {deflection:.3e} m "
+            f"Wing tip deflection : {deflection:.3e} m "
             f"({percentage:.2%} of the semi-span length)."
         )
-        log.info(f"Residual:                {res[-1]:.3e}")
+        log.info(f"Residual            : {res[-1]:.3e}")
 
         # Run AVL with the new deformed geometry
         write_deformed_geometry(AVL_UNDEFORMED_PATH, AVL_DEFORMED_PATH, centerline_df, deformed_df)
@@ -326,10 +325,10 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         centerline_df['structural_work'] = centerline_df.apply(compute_structural_work, axis=1)
         total_structural_work = centerline_df['structural_work'].sum()
 
-        log.info(f"Total aerodynamic work:  {total_aero_work:.3e} J.")
-        log.info(f"Total structural work:   {total_structural_work:.3e} J.")
+        log.info(f"Total aerodynamic work : {total_aero_work:.3e} J.")
+        log.info(f"Total structural work  : {total_structural_work:.3e} J.")
         log.info(
-            f"Work variation:          "
+            f"Work variation         : "
             f"{((total_aero_work - total_structural_work) / total_aero_work):.2%}."
         )
     log.info("")
@@ -342,12 +341,15 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
     deflection = delta_tip[-1]
     percentage = deflection / semi_span
 
-    log.info(f"Wing tip deflection:     {deflection:.3e} m ({percentage:.2%} of the semi-span length).")
-    log.info(f"Wing tip twist:          {tip_twist:.3e} degrees.")
-    log.info(f"Total aerodynamic work:  {total_aero_work:.3e} J.")
-    log.info(f"Total structural work:   {total_structural_work:.3e} J.")
+    log.info(f"Final tip deflection residual : {res[-1]:.3e}")
+    log.info("Wing tip deflection           : "
+        f"{deflection:.3e} m ({percentage:.2%} of the semi-span length)."
+    )
+    log.info(f"Wing tip twist                : {tip_twist:.3e} degrees.")
+    log.info(f"Total aerodynamic work        : {total_aero_work:.3e} J.")
+    log.info(f"Total structural work         : {total_structural_work:.3e} J.")
     log.info(
-        "Work variation:          "
+        "Work variation                : "
         f"{((total_aero_work - total_structural_work) / total_aero_work):.2%}."
     )
 

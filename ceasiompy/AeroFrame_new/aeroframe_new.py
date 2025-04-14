@@ -343,7 +343,8 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
 
     log.info(f"Final tip deflection residual : {res[-1]:.3e}")
     log.info("Wing tip deflection           : "
-             f"{deflection:.3e} m ({percentage:.2%} of the semi-span length).")
+        f"{deflection:.3e} m ({percentage:.2%} of the semi-span length)."
+    )
     log.info(f"Wing tip twist                : {tip_twist:.3e} degrees.")
     log.info(f"Total aerodynamic work        : {total_aero_work:.3e} J.")
     log.info(f"Total structural work         : {total_structural_work:.3e} J.")
@@ -381,6 +382,8 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 
     # First AVL run
     log.info("----- AVL: Calculation 1 -----")
+
+    # First AVL run
     run_avl(cpacs, wkdir)
 
     for i_case, _ in enumerate(alt_list):

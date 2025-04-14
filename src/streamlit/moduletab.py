@@ -27,7 +27,6 @@ from src.streamlit.guiobjects import (
     path_vartype,
     float_vartype,
     aeromap_checkbox,
-    su2_data_settings,
     aeromap_selection,
     multiselect_vartype,
 )

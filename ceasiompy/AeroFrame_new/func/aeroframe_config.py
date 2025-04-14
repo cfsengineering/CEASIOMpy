@@ -874,8 +874,8 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
 
     deformed_df.sort_values(by="y_leading", inplace=True)
     deformed_df.reset_index(drop=True, inplace=True)
-    twist_profile = interpolate.interp1d(centerline_df["y_new"], 
-                                         centerline_df["AoA_new"], 
+    twist_profile = interpolate.interp1d(centerline_df["y_new"],
+                                         centerline_df["AoA_new"],
                                          fill_value="extrapolate")
 
     with open(UNDEFORMED_PATH, "r") as file_undeformed:
@@ -887,11 +887,12 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                     file_deformed.write(line)
                 else:
                     break
-                
+
             for i, line in enumerate(lines):
                 if "Nspanwise" in line:
-                    Nspanwise = int(float(lines[i+1].strip().split()[2]))
-                    
+                    values = lines[i + 1].strip().split()
+                    Nspanwise = int(float(values[2]))
+
                 if line.strip().upper() == "AFILE":
                     if i + 1 < len(lines):
                         airfoil_file = lines[i + 1].strip()
@@ -903,7 +904,7 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
                  "TRANSLATE\n",
                  "0.0\t0.0\t0.0\n\n",
                  "#---------------\n"])
-            
+
             y_coords = deformed_df["y_leading"].values
             y_root = y_coords[0]
             y_tip = y_coords[-1]
@@ -919,7 +920,7 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
 
             if selected_indices[-1] != len(y_coords) - 1:
                 selected_indices.append(len(y_coords) - 1)
-                
+
             for i_node in selected_indices:
                 x_new = deformed_df.iloc[i_node]["x_leading"]
                 y_new = deformed_df.iloc[i_node]["y_leading"]

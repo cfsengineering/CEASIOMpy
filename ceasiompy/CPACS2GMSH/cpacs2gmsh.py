@@ -96,7 +96,7 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
     export_brep(cpacs, brep_dir, (intake_percent, exhaust_percent))
 
     if type_mesh == "Euler":
-        cgns_path = generate_gmsh(
+        su2mesh_path = generate_gmsh(
             tixi,
             brep_dir,
             wkdir,
@@ -150,12 +150,12 @@ def run_cpacs2gmsh(cpacs: CPACS, wkdir: Path, surf: str = None, angle: str = Non
             log.error("Error in generating SU2 mesh.")
 
     # Update SU2 mesh xPath
-    if cgns_path.exists():
-        mesh_path = str(cgns_path)
-
+    if su2mesh_path.exists():
+        mesh_path = str(su2mesh_path)
         if tixi.checkElement(SU2MESH_XPATH):
-            meshes = str(get_value(tixi, SU2MESH_XPATH))
-            mesh_path = meshes + ";" + mesh_path
+            meshes = tixi.getTextElement(SU2MESH_XPATH)
+            if meshes != "":
+                mesh_path = meshes + ";" + mesh_path
         else:
             # Create the branch if it does not exist.
             create_branch(tixi, SU2MESH_XPATH)

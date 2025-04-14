@@ -281,7 +281,7 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         write_deformed_geometry(AVL_UNDEFORMED_PATH, AVL_DEFORMED_PATH, centerline_df, deformed_df)
         write_deformed_command(AVL_UNDEFORMED_COMMAND, AVL_DEFORMED_COMMAND)
         log.info("")
-        log.info(f"----- AVL: Calculation {n_iter+1} -----")
+        log.info(f"----- AVL: Calculation {n_iter + 1} -----")
         log.info("Running AVL ...")
         subprocess.run(["xvfb-run", "avl"],
                        stdin=open(str(AVL_DEFORMED_COMMAND), "r"),

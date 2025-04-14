@@ -23,12 +23,10 @@ TODO:
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.SU2Run.func.results import get_su2_results
 from ceasiompy.SU2Run.func.runconfigfiles import run_SU2_multi
-
 from ceasiompy.utils.ceasiompyutils import (
     bool_,
     call_main,
 )
-
 from ceasiompy.SU2Run.func.config import (
     define_markers,
     load_su2_mesh_paths,
@@ -39,15 +37,13 @@ from pathlib import Path
 from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-
+from ceasiompy.SU2Run import MODULE_NAME
 from ceasiompy.utils.commonxpath import (
     SU2_NB_CPU_XPATH,
     SU2_CONFIG_RANS_XPATH,
     SU2_DYNAMICDERIVATIVES_BOOL_XPATH,
 )
 
-
-from ceasiompy.SU2Run import MODULE_NAME
 
 # =================================================================================================
 #    MAIN

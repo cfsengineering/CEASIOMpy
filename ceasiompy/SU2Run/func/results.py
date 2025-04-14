@@ -42,7 +42,7 @@ from ceasiompy.SU2Run.func.utils import (
     check_one_entry,
     get_wetted_area,
     get_su2_aerocoefs,
-    process_config_dir,
+    # process_config_dir,
     get_aeromap_uid,
     check_force_file_exists,
     get_efficiency_and_aoa,
@@ -433,10 +433,10 @@ def get_su2_results(cpacs: CPACS, wkdir: Path) -> None:
         if ("Case" in case_dir.name) and (case_dir.is_dir())
     ]
 
-    dict_dir: List[Dict] = []
+    # dict_dir: List[Dict] = []
 
     for config_dir in sorted(case_dir_list):
-        process_config_dir(config_dir, dict_dir)
+        # process_config_dir(config_dir, dict_dir)
 
         # Retrieve non dynamic stability data
         if "dynstab" not in str(config_dir):

@@ -51,7 +51,7 @@ cpacs_inout.add_input(
     xpath=DYNAMICSTABILITY_SOFTWARE_XPATH,
     gui=include_gui,
     gui_name="Use data from which software",
-    gui_group="Data Settings",
+    gui_group="Software Settings",
 )
 
 cpacs_inout.add_input(
@@ -63,7 +63,7 @@ cpacs_inout.add_input(
     xpath=DYNAMICSTABILITY_MACHLIST_XPATH,
     gui=include_gui,
     gui_name="Mach List",
-    gui_group="Data Settings",
+    gui_group="Mach Settings",
 )
 
 cpacs_inout.add_input(

@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Initialize CEASIOMpy's workflow.
 
-
 | Author : Leon Deligny
 | Creation: 2025-Mar-04
 

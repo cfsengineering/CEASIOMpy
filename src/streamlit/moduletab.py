@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Streamlit Tabs per module function.
 
-
 | Author : Leon Deligny
 | Creation: 21 March 2025
 
@@ -28,6 +27,7 @@ from src.streamlit.guiobjects import (
     path_vartype,
     float_vartype,
     aeromap_checkbox,
+    su2_data_settings,
     aeromap_selection,
     multiselect_vartype,
 )
@@ -63,21 +63,29 @@ def checks(session_state, tabs) -> None:
         session_state.xpath_to_update = {}
 
 
-def add_gui_object(session_state, name, group, groups_container, m, module, unit,
-                   aeromap_map, xpath, description, var_type, vartype_map, default_value) -> None:
+def add_gui_object(
+    session_state,
+    name,
+    group,
+    groups_container,
+    key,
+    aeromap_map,
+    xpath,
+    description,
+    var_type,
+    vartype_map,
+    default_value,
+) -> None:
+
 
     # Iterate per group
     with groups_container[group]:
 
-        key = f"{m}_{module}_{name.replace(' ', '')}_{group.replace(' ', '')}"
-
-        # TODO: Add constants in __init__ ?
-        if unit not in ["[]", "[1]", None]:
-            name = f"{name} {unit}"
-
         # Check if the name or var_type is in the dictionary and call the corresponding function
         if name in aeromap_map:
             aeromap_map[name](session_state.cpacs, xpath, key, description)
+        elif var_type == "path_type":
+            path_vartype(default_value, key)
         elif var_type in vartype_map:
             vartype_map[var_type](
                 session_state.cpacs.tixi,
@@ -89,8 +97,6 @@ def add_gui_object(session_state, name, group, groups_container, m, module, unit
             )
         elif var_type == "multiselect":
             multiselect_vartype(default_value, name, key)
-        elif var_type == "path_type":
-            path_vartype(key)
         else:
             else_vartype(
                 tixi=session_state.cpacs.tixi,
@@ -146,14 +152,16 @@ def add_module_tab() -> None:
             groups_container = order_by_gps(inputs)
 
             for name, default_value, var_type, unit, xpath, description, group in inputs.values():
+                
+                key = f"{m}_{module}_{name.replace(' ', '')}_{group.replace(' ', '')}"
+                process_unit(name, unit)
+                
                 add_gui_object(
                     st.session_state,
                     name,
                     group,
                     groups_container,
-                    m,
-                    module,
-                    unit,
+                    key,
                     aeromap_map,
                     xpath,
                     description,
@@ -162,6 +170,11 @@ def add_module_tab() -> None:
                     default_value,
                 )
 
+
+def process_unit(name: str, unit: str) -> None:
+    # TODO: Add constants in __init__ ?
+    if unit not in ["[]", "[1]", None]:
+        name = f"{name} {unit}"
 
 # =================================================================================================
 #    MAIN

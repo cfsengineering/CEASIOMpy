@@ -623,38 +623,42 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
     Retrieve su2 mesh file data and paths.
     """
 
-    # Not using ceasiompy.db data
-    if not bool_(get_value(tixi, SU2_CEASIOMPYDATA_XPATH)):
-
-        if tixi.checkElement(SU2MESH_XPATH):
-            tixi_su2_mesh_paths = get_value(tixi, SU2MESH_XPATH)
-            su2_mesh_paths = [Path(x) for x in str(tixi_su2_mesh_paths).split(';')]
-        else:
-            log.warning("No .su2 mesh paths found at ")
-
-        log.info("Not using ceasiompy.db data")
-
-    # Using ceasiompy.db data
+    from_gui_mesh = get_value(tixi, SU2MESH_XPATH)
+    if from_gui_mesh != "":
+        su2_mesh_paths = [Path(from_gui_mesh)]
     else:
-        su2_mesh_list = su2_mesh_list_from_db(tixi)
+        # Not using ceasiompy.db data
+        if not get_value(tixi, SU2_CEASIOMPYDATA_XPATH):
 
-        # Upload files to the working directory and update paths
-        su2_mesh_paths = []
-        for (su2_mesh, aircraft_name, deformation, angle) in su2_mesh_list:
-            su2_path = results_dir / f"{aircraft_name}_{deformation}_{angle}.su2"
+            if tixi.checkElement(SU2MESH_XPATH):
+                tixi_su2_mesh_paths = get_value(tixi, SU2MESH_XPATH)
+                su2_mesh_paths = [Path(x) for x in str(tixi_su2_mesh_paths).split(';')]
+            else:
+                log.warning("No .su2 mesh paths found at ")
 
-            with open(su2_path, 'w') as su2_file:
-                su2_file.write(su2_mesh.decode('utf-8'))
+            log.info("Not using ceasiompy.db data")
 
-            su2_mesh_paths.append(Path(su2_path))
+        # Using ceasiompy.db data
+        else:
+            su2_mesh_list = su2_mesh_list_from_db(tixi)
 
-        if not tixi.checkElement(SU2MESH_XPATH):
-            create_branch(tixi, SU2MESH_XPATH)
+            # Upload files to the working directory and update paths
+            su2_mesh_paths = []
+            for (su2_mesh, aircraft_name, deformation, angle) in su2_mesh_list:
+                su2_path = results_dir / f"{aircraft_name}_{deformation}_{angle}.su2"
 
-        # Update tixi element at SU2MESH_XPATH with new paths
-        tixi_su2_mesh_paths = ';'.join(str(su2_mesh_paths))
-        tixi.updateTextElement(SU2MESH_XPATH, tixi_su2_mesh_paths)
-        log.info("Using ceasiompy.db data")
+                with open(su2_path, 'w') as su2_file:
+                    su2_file.write(su2_mesh.decode('utf-8'))
+
+                su2_mesh_paths.append(Path(su2_path))
+
+            if not tixi.checkElement(SU2MESH_XPATH):
+                create_branch(tixi, SU2MESH_XPATH)
+
+            # Update tixi element at SU2MESH_XPATH with new paths
+            tixi_su2_mesh_paths = ';'.join(str(su2_mesh_paths))
+            tixi.updateTextElement(SU2MESH_XPATH, tixi_su2_mesh_paths)
+            log.info("Using ceasiompy.db data")
 
     dynstab_su2_mesh_paths = [
         mesh
@@ -668,6 +672,19 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
         raise ValueError("List of Dynamic Stability su2 mesh paths is empty.")
 
     return su2_mesh_paths, dynstab_su2_mesh_paths
+
+
+def configure_mesh_format(cfg: ConfigFile, mesh_path: Path) -> None:
+    mesh_name = mesh_path.name
+    if mesh_name.endswith(".cgns"):
+        cfg["MESH_FORMAT"] = "CGNS"
+        return None
+    if not mesh_name.endswith(".su2"):
+        log.warning(
+            "Did not recognize the mesh format. "
+            "Using SU2 as default."
+            )
+    cfg["MESH_FORMAT"] = "SU2"
 
 
 def generate_su2_cfd_config(
@@ -690,6 +707,7 @@ def generate_su2_cfd_config(
     tixi = cpacs.tixi
 
     for su2_mesh_path in su2_mesh_paths:
+        configure_mesh_format(cfg, su2_mesh_path)
         ctrlsurf = check_control_surface(str(su2_mesh_path))
         log.info(f"Using SU2 mesh at path: {su2_mesh_path}.")
 

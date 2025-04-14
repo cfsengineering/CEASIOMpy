@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI objects in CEASIOMpy.
 
-
 | Author : Leon Deligny
 | Creation: 21 March 2025
 
@@ -18,21 +17,22 @@ GUI objects in CEASIOMpy.
 import pandas as pd
 import streamlit as st
 
+from src.streamlit.streamlitutils import save_cpacs_file
 from cpacspy.cpacsfunctions import (
     get_string_vector,
     get_value_or_default,
 )
 
-from src.streamlit.streamlitutils import (
-    save_cpacs_file,
-    mesh_file_upload,
-)
 
 from ceasiompy import log
 
 # ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
+
+
+def su2_data_settings():
+    ...
 
 
 def aeromap_selection(cpacs, xpath, key, description):
@@ -81,17 +81,26 @@ def aeromap_checkbox(cpacs, xpath, key, description) -> None:
             )
 
 
-def path_vartype(key) -> None:
-    mesh_path = mesh_file_upload()
-
-    with st.columns([1, 2])[0]:
-        st.text_input(
-            "Mesh Path",
-            value=mesh_path,
-            key=key,
-            help="Path to the mesh file",
-            on_change=save_cpacs_file
+def path_vartype(default_value, key) -> None:
+    uploaded_file = st.file_uploader(
+        "Select a SU2 file",
+        type=["su2"],
+    )
+    su2_file_path = default_value
+    if uploaded_file:
+        su2_file_path = (
+            st.session_state.workflow.working_dir 
+            / uploaded_file.name
         )
+
+        # Save the uploaded file to the specified path
+        with open(su2_file_path, "wb") as f:
+            f.write(uploaded_file.getbuffer())
+        
+        st.success(f"Using SU2 mesh at path: {su2_file_path}")
+
+    st.session_state[key] = str(su2_file_path)
+    save_cpacs_file()
 
 
 def multiselect_vartype(default_value, name, key) -> None:
@@ -123,13 +132,10 @@ def multiselect_vartype(default_value, name, key) -> None:
 
 def int_vartype(tixi, xpath, default_value, name, key, description) -> None:
     with st.columns([1, 2])[0]:
+        value = int(get_value_or_default(tixi, xpath, default_value))
         st.number_input(
             name,
-            value=int(
-                get_value_or_default(
-                    tixi, xpath, default_value
-                )
-            ),
+            value=value,
             key=key,
             help=description,
             on_change=save_cpacs_file

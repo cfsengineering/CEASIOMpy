@@ -61,6 +61,7 @@ from ceasiompy.utils.commonxpath import (
     SU2_BC_WALL_XPATH,
     SU2_BC_FARFIELD_XPATH,
     AEROPERFORMANCE_XPATH,
+    SU2MESH_XPATH,
 )
 
 # ==============================================================================
@@ -109,6 +110,17 @@ cpacs_inout.add_input(
     gui_group="Data Settings",
 )
 
+cpacs_inout.add_input(
+    var_name="mesh_upload",
+    var_type="path_type",
+    default_value="",
+    unit=None,
+    descr="Name of the mesh to upload",
+    xpath=SU2MESH_XPATH,
+    gui=True,
+    gui_name="Path of the mesh",
+    gui_group="Data Settings",
+)
 
 cpacs_inout.add_input(
     var_name="damping_der",

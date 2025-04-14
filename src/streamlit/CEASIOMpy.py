@@ -21,13 +21,13 @@ import streamlit as st
 from stpyvista import stpyvista
 from src.streamlit.streamlitutils import (
     create_sidebar,
-    st_directory_picker,
 )
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.workflowclasses import Workflow
 
+from ceasiompy.utils.commonpaths import WKDIR_PATH
 from ceasiompy.utils.commonnames import (
     CEASIOMPY_BEIGE,
     CEASIOMPY_ORANGE,
@@ -51,17 +51,11 @@ PAGE_NAME = "CEASIOMpy"
 # =================================================================================================
 
 
-def section_select_working_dir():
-
-    st.markdown("#### Working directory")
-
+def section_select_cpacs():
     if "workflow" not in st.session_state:
         st.session_state.workflow = Workflow()
 
-    st.session_state.workflow.working_dir = st_directory_picker(Path("../../WKDIR").absolute())
-
-
-def section_select_cpacs():
+    st.session_state.workflow.working_dir = WKDIR_PATH
     st.markdown("#### CPACS file")
 
     # Check if the CPACS file path is already in session state
@@ -74,7 +68,10 @@ def section_select_cpacs():
             st.session_state.cpacs_file_path = None
 
     # File uploader widget
-    uploaded_file = st.file_uploader("Select a CPACS file", type=["xml"])
+    uploaded_file = st.file_uploader(
+        "Select a CPACS file",
+        type=["xml"],
+    )
 
     if uploaded_file:
         cpacs_new_path = Path(st.session_state.workflow.working_dir, uploaded_file.name)
@@ -90,7 +87,7 @@ def section_select_cpacs():
 
     # Display the file uploader widget with the previously uploaded file
     if "cpacs_file_path" in st.session_state and st.session_state.cpacs_file_path:
-        st.write(f"Uploaded file: {st.session_state.cpacs_file_path}")
+        st.success(f"Uploaded file: {st.session_state.cpacs_file_path}")
 
 
 def section_3D_view():
@@ -100,7 +97,7 @@ def section_3D_view():
         https://github.com/edsaac/streamlit-PyVista-viewer
     """
 
-    st.markdown("## 3D view")
+    st.markdown("##### 3D view")
 
     if "cpacs" not in st.session_state:
         st.warning("No CPACS file has been selected!")
@@ -152,6 +149,5 @@ if __name__ == "__main__":
 
     st.title(PAGE_NAME)
 
-    section_select_working_dir()
     section_select_cpacs()
     section_3D_view()

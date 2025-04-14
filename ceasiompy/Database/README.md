@@ -1,40 +1,33 @@
 
 <img align="right" height="70" src="../../documents/logos/CEASIOMpy_banner_main.png">
 
-# ModuleTemplate
+# Database
 
-**Categories:** Template module, Example, Illustration
+**Categories:** Database, Data
 
 **State**: :heavy_check_mark:
 
-This is a template module. Its purpose is to illustrate how other modules of CEASIOMpy should be structured, set up and documented.
-
-<p align="center">
-<img height="160" src="files/Spirit_of_St._Louis.jpg">
-</p>
-
-Example picture. Image in the public domain, from [Wikimedia Commons](https://commons.wikimedia.org/wiki/File:Spirit_of_St._Louis.jpg)
-
 ## Inputs
 
-ModuleTemplate needs no inputs.
+Needs a workflow to be generated and done.
 
 ## Analyses
 
-ModuleTemplate computes nothing.
+Analyses nothing. It stores automatically the "important" data in a preSQL database.
 
 ## Outputs
 
-ModuleTemplate outputs nothing.
+Outputs nothing.
 
 ## Installation or requirements
 
-ModuleTemplate is a native CEASIOMpy module, hence it is available and installed by default.
+Database is a native CEASIOMpy module.
 
 ## Limitations
 
-ModuleTemplate is limited in every aspect.
+- Exists only one table per module data.
+- Not compatible with Weight and Balance modules of CEASIOMpy.
 
 ## More information
 
-* <https://en.wikipedia.org/wiki/Spirit_of_St._Louis>
+NA

@@ -3,6 +3,7 @@
 # Script to install SU2 on Centos 8
 
 su2_version="8.1.0"
+mpi_version="4.1.1"
 
 current_dir="$(pwd)"
 
@@ -17,8 +18,6 @@ echo "Creating install directory..."
 mkdir -p "$install_dir"
 cd "$install_dir"
 
-echo "Installing MPICH..."
-sudo dnf install -y mpich
 
 echo "Downloading SU2..."
 wget https://github.com/su2code/SU2/releases/download/v"$su2_version"/SU2-v"$su2_version"-linux64-mpi.zip
@@ -34,5 +33,20 @@ echo export SU2_RUN=\""$su2_run_path"\" >> ~/.bashrc
 echo export SU2_HOME=\""$su2_home_path"\" >> ~/.bashrc
 echo export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN >> ~/.bashrc
 echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
+
+echo "Installing MPICH..."
+sudo dnf install -y mpich$mpi_version
+
+echo "Adding MPICH path to the .bashrc"
+mpich_path="/usr/bin"
+echo export PATH=\"\$PATH:$mpich_path\" >> ~/.bashrc
+
+source ~/.bashrc
+
+echo "Checking SU2 version"
+$SU2_RUN/SU2_CFD --help
+
+echo "Checking MPICH version"
+mpirun --version
 
 cd "$current_dir"

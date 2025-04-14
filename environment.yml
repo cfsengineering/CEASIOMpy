@@ -41,18 +41,18 @@ dependencies:
     - cpacspy==0.2.0
     - Cython==3.0.12
     - framat==0.4.8
+    - gmsh==4.13.1
     - markdownpy==0.1.4
-    - shapely==2.1.0
-    - smt==2.9.2
-    - streamlit==1.44.1
-    - streamlit-autorefresh
     - matplotlib==3.10.1
+    - om-pycycle==4.3.0
+    - pycycle==0.0.8
     - pydantic==2.11.3
     - psutil==7.0.0
     - pytest==8.3.4
     - pyvista==0.44.2
-    - vtk==9.3.0
-    - om-pycycle==4.3.0
-    - pycycle==0.0.8
-    - gmsh==4.13.1
+    - shapely==2.1.0
+    - smt==2.9.2
     - stpyvista==0.1.4
+    - streamlit==1.44.1
+    - streamlit-autorefresh
+    - vtk==9.3.0

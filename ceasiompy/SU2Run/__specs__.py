@@ -53,6 +53,7 @@ from ceasiompy.utils.commonxpath import (
     SU2_DYNAMICDERIVATIVES_AMPLITUDE_XPATH,
     SU2_DYNAMICDERIVATIVES_FREQUENCY_XPATH,
     SU2_DYNAMICDERIVATIVES_INNERITER_XPATH,
+    SU2MESH_XPATH,
     RANGE_CRUISE_MACH_XPATH,
     RANGE_CRUISE_ALT_XPATH,
     SU2_TARGET_CL_XPATH,
@@ -86,39 +87,44 @@ cpacs_inout.add_input(
     gui_group="Aeromap settings",
 )
 
-cpacs_inout.add_input(
-    var_name="db_data_su2run",
-    var_type=bool,
-    default_value=False,
-    unit=None,
-    descr="You need to specify the correct aircraft's name.",
-    xpath=SU2_CEASIOMPYDATA_XPATH,
-    gui=include_gui,
-    gui_name="Use ceasiompy.db mesh data",
-    gui_group="Data Settings",
-)
+# cpacs_inout.add_input(
+#     var_name="db_data_su2run",
+#     var_type=bool,
+#     default_value=False,
+#     unit=None,
+#     descr="You need to specify the correct aircraft's name.",
+#     xpath=SU2_CEASIOMPYDATA_XPATH,
+#     gui=include_gui,
+#     gui_name="Use ceasiompy.db mesh data",
+#     gui_group="Data Settings",
+# )
+
+# cpacs_inout.add_input(
+#     var_name="db_data_su2run_aircraft",
+#     var_type=list,
+#     default_value=get_aircrafts_list(),
+#     unit=None,
+#     descr="Runs SU2Run with aircraft's mesh data.",
+#     xpath=SU2_AIRCRAFT_XPATH,
+#     gui=include_gui,
+#     gui_name="Use aircraft's mesh data",
+#     gui_group="Data Settings",
+# )
 
 cpacs_inout.add_input(
-    var_name="db_data_su2run_aircraft",
-    var_type=list,
-    default_value=get_aircrafts_list(),
+    var_name="mesh_choice",
+    var_type="DynamicChoice",
+    default_value={
+        "Other": "Custom value",
+        "Path": "path/to/file.su2",
+        "db": get_aircrafts_list(),  # solo se mappi "db"
+        "default_type": "Path"
+    },
     unit=None,
-    descr="Runs SU2Run with aircraft's mesh data.",
-    xpath=SU2_AIRCRAFT_XPATH,
-    gui=include_gui,
-    gui_name="Use aircraft's mesh data",
-    gui_group="Data Settings",
-)
-
-cpacs_inout.add_input(
-    var_name="mesh_upload",
-    var_type="path_type",
-    default_value="",
-    unit=None,
-    descr="Name of the mesh to upload",
+    descr="Choose from where to upload the mesh",
     xpath=SU2MESH_XPATH,
-    gui=True,
-    gui_name="Path of the mesh",
+    gui=include_gui,
+    gui_name="Choose mesh",
     gui_group="Data Settings",
 )
 

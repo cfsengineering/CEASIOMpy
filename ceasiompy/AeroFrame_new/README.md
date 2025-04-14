@@ -8,6 +8,7 @@
 **State**: :heavy_check_mark:
 
 <img align="right" height="120" src="files/avl_logo.png">
+<img align="right" height="120" src="files/framat_logo.png">
 
 `AeroFrame` module allows to perform low-fidelity steady aeroelastic calculations. It couples the [Athena Vortex Lattice (AVL)](https://web.mit.edu/drela/Public/web/avl/) solver used in `PyAVL` module and [FramAT](https://framat.readthedocs.io/en/latest/). A finite element method implementation of the linear beam equations are combined with the vortex lattice method to compute the wing deformation under specific steady flight conditions.
 

@@ -66,8 +66,6 @@ def if_choice_vartype(
         help="Choose the input type",
     )
     session_state[f"{key}_types"] = selected_type
-
-    log.info(f"selected_type {selected_type}")
     selected_func = vartype_map[selected_type]
 
     if selected_type == "Path":

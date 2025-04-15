@@ -23,7 +23,6 @@ from cpacspy.cpacsfunctions import (
     get_value_or_default,
 )
 
-
 from ceasiompy import log
 
 # ==============================================================================
@@ -77,12 +76,11 @@ def aeromap_checkbox(cpacs, xpath, key, description) -> None:
             )
 
 
-def path_vartype(default_value, key) -> None:
+def path_vartype(key) -> None:
     uploaded_file = st.file_uploader(
         "Select a SU2 file",
         type=["su2"],
     )
-    su2_file_path = default_value
     if uploaded_file:
         su2_file_path = (
             st.session_state.workflow.working_dir
@@ -92,10 +90,11 @@ def path_vartype(default_value, key) -> None:
         # Save the uploaded file to the specified path
         with open(su2_file_path, "wb") as f:
             f.write(uploaded_file.getbuffer())
-        st.success(f"Using SU2 mesh at path: {su2_file_path}")
+        st.session_state[key] = str(su2_file_path)
+        save_cpacs_file()
 
-    st.session_state[key] = str(su2_file_path)
-    save_cpacs_file()
+    if key in st.session_state:
+        st.success(f"Uploaded file: {st.session_state[key]}")
 
 
 def multiselect_vartype(default_value, name, key) -> None:
@@ -166,34 +165,31 @@ def list_vartype(tixi, xpath, default_value, name, key, description) -> None:
             index=idx,
             key=key,
             help=description,
-            on_change=save_cpacs_file
+            on_change=save_cpacs_file,
         )
 
 
 def bool_vartype(tixi, xpath, default_value, name, key, description) -> None:
     st.checkbox(
         name,
-        value=get_value_or_default(
-            tixi, xpath, default_value
-        ),
+        value=get_value_or_default(tixi, xpath, default_value),
         key=key,
         help=description,
-        on_change=save_cpacs_file
+        on_change=save_cpacs_file,
     )
 
 
 def else_vartype(tixi, xpath, default_value, name, key, description) -> None:
-    value = get_value_or_default(
-        tixi, xpath, default_value
-    )
-    with st.columns([1, 2])[0]:
-        st.text_input(
-            name,
-            value=value,
-            key=key,
-            help=description,
-            on_change=save_cpacs_file
-        )
+    if name != "Choose mesh":
+        value = str(get_value_or_default(tixi, xpath, default_value))
+        with st.columns([1, 2])[0]:
+            st.text_input(
+                name,
+                value=value,
+                key=key,
+                help=description,
+                on_change=save_cpacs_file,
+            )
 
 # =================================================================================================
 #    MAIN

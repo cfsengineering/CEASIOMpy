@@ -27,8 +27,6 @@ from ceasiompy.SU2Run import include_gui, TEMPLATE_TYPE
 
 from ceasiompy.utils.commonxpath import (
     SU2_AEROMAP_UID_XPATH,
-    SU2_CEASIOMPYDATA_XPATH,
-    SU2_AIRCRAFT_XPATH,
     SU2_DAMPING_DER_XPATH,
     SU2_ROTATION_RATE_XPATH,
     SU2_CONTROL_SURF_BOOL_XPATH,
@@ -53,7 +51,7 @@ from ceasiompy.utils.commonxpath import (
     SU2_DYNAMICDERIVATIVES_AMPLITUDE_XPATH,
     SU2_DYNAMICDERIVATIVES_FREQUENCY_XPATH,
     SU2_DYNAMICDERIVATIVES_INNERITER_XPATH,
-    SU2MESH_XPATH,
+    USED_SU2_MESH_XPATH,
     RANGE_CRUISE_MACH_XPATH,
     RANGE_CRUISE_ALT_XPATH,
     SU2_TARGET_CL_XPATH,
@@ -89,14 +87,10 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="mesh_choice",
     var_type="DynamicChoice",
-    default_value={
-        "Other": "",
-        "Path": "",
-        "db": get_aircrafts_list(),
-    },
+    default_value=["Other", "Path", "db"],
     unit=None,
     descr="Choose from where to upload the mesh",
-    xpath=SU2MESH_XPATH,
+    xpath=USED_SU2_MESH_XPATH,
     gui=include_gui,
     gui_name="Choose mesh",
     gui_group="Data Settings",

@@ -16,9 +16,10 @@ Streamlit Tabs per module function.
 
 import streamlit as st
 
-from src.streamlit.streamlitutils import save_cpacs_file, section_edit_aeromap
+from cpacspy.cpacsfunctions import get_value_or_default, create_branch
+from ceasiompy.utils.geometryfunctions import get_aircrafts_list
+from src.streamlit.streamlitutils import section_edit_aeromap, save_cpacs_file
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module
-
 from src.streamlit.guiobjects import (
     int_vartype,
     list_vartype,
@@ -43,50 +44,58 @@ from ceasiompy import log
 
 def if_choice_vartype(
     vartype_map,
-    tixi,
+    session_state,
     xpath,
     default_value,
     name,
     key,
     description,
-):
-    if not isinstance(default_value, dict):
-        st.warning("DynamicChoice requires a dictionary as default_value.")
-        return
+) -> None:
 
-    allowed_types = [k for k in default_value.keys() if k in vartype_map]
-    if not allowed_types:
-        st.warning("No valid input types specified for DynamicChoice.")
-        return
-
-    default_type = default_value.get("default_type", allowed_types[0])
+    default_index = int(default_value.index(get_value_or_default(
+        session_state.cpacs.tixi,
+        xpath + "type",
+        "Other"
+    )))
 
     selected_type = st.radio(
         "Select variable type:",
-        options=allowed_types,
-        index=allowed_types.index(default_type) if default_type in allowed_types else 0,
+        options=default_value,
+        index=default_index,
         key=f"{key}_type",
         help="Choose the input type",
-        on_change=save_cpacs_file,
     )
+    session_state[f"{key}_types"] = selected_type
 
+    log.info(f"selected_type {selected_type}")
     selected_func = vartype_map[selected_type]
 
-    value_for_type = default_value.get(selected_type)
-
     if selected_type == "Path":
-        selected_func(default_value=value_for_type, key=key)
-    elif selected_type == "multiselect":
-        selected_func(default_value=value_for_type, name=name, key=key)
-    else:
         selected_func(
-            tixi=tixi,
+            key=key,
+        )
+        session_state.xpath_to_update[xpath] = key
+    elif selected_type == "Other":
+        selected_func(
+            tixi=session_state.cpacs.tixi,
             xpath=xpath,
-            default_value=value_for_type,
+            default_value="",
             name=name,
             key=key,
             description=description,
         )
+        session_state.xpath_to_update[xpath] = key
+    elif selected_type == "db":
+        selected_func(
+            tixi=session_state.cpacs.tixi,
+            xpath=xpath + "list",
+            default_value=get_aircrafts_list(),
+            name=name,
+            key=key + "list",
+            description=description,
+        )
+        session_state.xpath_to_update[xpath + "list"] = key + "list"
+    session_state.xpath_to_update[xpath + "type"] = f"{key}_types"
 
 
 def order_by_gps(inputs: List) -> OrderedDict:
@@ -150,7 +159,7 @@ def add_gui_object(
                 default_value=default_value,
                 name=name,
                 key=key,
-                description=description
+                description=description,
             )
 
         session_state.xpath_to_update[xpath] = key
@@ -182,7 +191,6 @@ def add_module_tab() -> None:
         "Path": path_vartype,
         "db": list_vartype,
         "Other": else_vartype,
-        "multiselect": multiselect_vartype,
     }
 
     # Load each module iteratively
@@ -207,22 +215,20 @@ def add_module_tab() -> None:
             for name, default_value, var_type, unit, xpath, description, group in inputs.values():
                 key = f"{m}_{module}_{name.replace(' ', '')}_{group.replace(' ', '')}"
                 process_unit(name, unit)
-                if var_type == "DynamicChoice":
 
+                if var_type == "DynamicChoice":
                     with groups_container[group]:
                         if_choice_vartype(
                             dynamic_vartype_map,
-                            tixi=st.session_state.cpacs.tixi,
+                            session_state=st.session_state,
                             xpath=xpath,
                             default_value=default_value,
                             name=name,
                             key=key,
                             description=description,
                         )
-                    st.session_state.xpath_to_update[xpath] = key
 
                 else:
-
                     add_gui_object(
                         st.session_state,
                         name,

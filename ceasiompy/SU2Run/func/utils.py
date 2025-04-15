@@ -41,7 +41,7 @@ from ceasiompy.SU2Run import (
     CONTROL_SURFACE_LIST
 )
 from ceasiompy.utils.commonxpath import (
-    SU2_AIRCRAFT_XPATH,
+    USED_SU2_MESH_XPATH,
     SU2_CONTROL_SURF_BOOL_XPATH,
     SU2_CONTROL_SURF_ANGLE_XPATH,
     SU2_AEROMAP_UID_XPATH,
@@ -335,7 +335,7 @@ def su2_mesh_list_from_db(
     tixi: Tixi3
 ) -> List[Tuple[bytes, str, str, float]]:
 
-    aircraft_name = get_value(tixi, SU2_AIRCRAFT_XPATH)
+    aircraft_name = get_value(tixi, USED_SU2_MESH_XPATH + "list")
     su2_mesh_list = []
 
     # No control surfaces

@@ -178,6 +178,8 @@ def cpacs2gmsh(cpacs_path, cpacs_out_path):
             wing_mesh_size_factor=wing_mesh_size_factor,
             mesh_size_engines=mesh_size_engines,
             mesh_size_propellers=mesh_size_propellers,
+            auto_refine=auto_refine,
+            farfield_size_factor=farfield_factor
         )
 
         if gmesh_path.exists():

@@ -32,6 +32,7 @@ TODO:
 import os
 import subprocess
 from pathlib import Path
+import random
 
 import gmsh
 from ceasiompy.CPACS2GMSH.func.generategmesh import (
@@ -49,10 +50,13 @@ from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.CPACS2GMSH.func.advancemeshing import (
     refine_wing_section,
     min_fields,
+    refine_small_surfaces,
 )
 from ceasiompy.CPACS2GMSH.func.wingclassification import (
     classify_wing,
 )
+
+from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
 
 from ceasiompy.utils.ceasiompyutils import get_part_type
 
@@ -68,7 +72,7 @@ log = get_logger()
 def generate_2d_mesh_for_pentagrow(
     cpacs, cpacs_path, brep_dir, results_dir, open_gmsh,
     refine_factor=2.0, refine_truncated=False, n_power_factor=2, n_power_field=0.9,
-    fuselage_mesh_size_factor=1, wing_mesh_size_factor=1.5, mesh_size_engines=0.23, mesh_size_propellers=0.23,
+    fuselage_mesh_size_factor=1, wing_mesh_size_factor=1.5, mesh_size_engines=0.23, mesh_size_propellers=0.23, auto_refine=False, farfield_size_factor=10
 ):
     """
     Function to generate a mesh from brep files forming an airplane
@@ -174,7 +178,7 @@ def generate_2d_mesh_for_pentagrow(
     gmsh.model.occ.synchronize()
 
     # Center everything around the center of the fuselage
-    all_volumes = gmsh.model.getEntities(3)
+    all_volumes = gmsh.model.getEntities(-1)
     gmsh.model.occ.translate(
         all_volumes,
         -((model_bb[0]) + (model_dimensions[0] / 2)),
@@ -182,7 +186,6 @@ def generate_2d_mesh_for_pentagrow(
         -((model_bb[2]) + (model_dimensions[2] / 2)),
     )
     gmsh.model.occ.synchronize()
-
     log.info("Start manipulation to obtain a watertight volume")
     # we have to obtain a watertight volume, needed for tetgen (otherwise just can't start)
 
@@ -208,6 +211,8 @@ def generate_2d_mesh_for_pentagrow(
                                   / 2) / wing_mesh_size_factor
     mesh_size_by_group["engine"] = mesh_size_engines
     mesh_size_by_group["rotor"] = mesh_size_propellers
+    mesh_size_by_group["pylon"] = mesh_size_propellers
+    mesh_size_by_group["vort"] = mesh_size_by_group["fuselage"] / 8
 
     log.info(
         f"Mesh size fuselage={  ((fuselage_maxlen + fuselage_minlen) / 2) / fuselage_mesh_size_factor :.3f} m")
@@ -220,7 +225,12 @@ def generate_2d_mesh_for_pentagrow(
     for i in range(len(aircraft_parts)):
         model_part = aircraft_parts[i]
         # Take the right mesh size (name physical group should be wing or fuselage or engine or propeller)
-        lc = mesh_size_by_group[model_part.part_type]
+        if "vort" in model_part.uid:  # TODO change?
+            lc = mesh_size_by_group["vort"]
+        else:
+            lc = mesh_size_by_group[model_part.part_type]
+
+        model_part.mesh_size = lc
 
         # To choose the size, we create a field with constant value containing only our list of surfaces, and give it the size
         gmsh.model.mesh.field.add("Constant", i + 1)
@@ -259,6 +269,55 @@ def generate_2d_mesh_for_pentagrow(
     gmsh.model.mesh.generate(2)
 
     process_gmsh_log(gmsh.logger.get())
+    gmsh.model.occ.synchronize()
+
+    # Control of the mesh quality
+    if refine_factor != 1 and auto_refine:
+        bad_surfaces = []
+        final_domain_volume_tag = gmsh.model.occ.getEntities(3)[0][1]
+
+        # Set mesh size and color of the farfield
+        h_max_model = max(wing_maxlen, fuselage_maxlen)
+        mesh_size_farfield = h_max_model * farfield_size_factor
+        for part in aircraft_parts:
+            refined_surfaces, mesh_fields = refine_small_surfaces(
+                mesh_fields,
+                part,
+                mesh_size_farfield,
+                max(model_dimensions),
+                [final_domain_volume_tag],
+            )
+            bad_surfaces.extend(refined_surfaces)
+
+        if bad_surfaces:
+            log.info(f"{len(bad_surfaces)} surface(s) need to be refined")
+
+            # Reset the background mesh
+            mesh_fields = min_fields(mesh_fields)
+
+            if open_gmsh:
+                log.info("Insufficient mesh size surfaces are displayed in red")
+                log.info("GMSH GUI is open, close it to continue...")
+                gmsh.fltk.run()
+
+            log.info("Start of gmsh 2D surface remeshing process")
+
+            gmsh.model.mesh.generate(1)
+            gmsh.model.mesh.generate(2)
+
+            for surface in bad_surfaces:
+                gmsh.model.setColor(
+                    [(2, surface)], *MESH_COLORS["good_surface"], recursive=False)
+
+            log.info("Remeshing process finished")
+            if open_gmsh:
+                log.info("Corrected mesh surfaces are displayed in green")
+
+    # Apply smoothing
+    log.info("2D mesh smoothing process started")
+    gmsh.model.mesh.optimize("Laplace2D", niter=10)
+    log.info("Smoothing process finished")
+
     gmsh.model.occ.synchronize()
 
     log.info("Finished meshing surface")
@@ -304,9 +363,9 @@ Returns:
                 # Remove the intersection so it doesn't cause problems for meshing and others
                 gmsh.model.occ.remove(intersect, True)
                 gmsh.model.occ.synchronize()
-                return (i, j, False)
+                return (i, j)
     # There if doesn't find intersection (usually bug bc intersection of surfaces, and unlikely)
-    return (0, 1, True)
+    return (0, 1)
 
 
 def fusing_parts(
@@ -328,20 +387,23 @@ def fusing_parts(
     for model_part in aircraft_parts:
         xmin, ymin, zmin, xmax, ymax, zmax = gmsh.model.occ.getBoundingBox(
             *model_part.volume)
-        model_part.bounding_box = [xmin, ymin, zmin, xmax, ymax, zmax]
+        model_part.bounding_box = [xmin - 0.01, ymin - 0.01,
+                                   zmin - 0.01, xmax + 0.01, ymax + 0.01, zmax + 0.01]
 
     # Take all the dimtag of the parts volume (vector that we will empty)
     parts_dimtag = [model_part.volume for model_part in aircraft_parts]
+    names = [model_part.uid for model_part in aircraft_parts]
 
     # Secondly we take care of the fusion to create the airfoil
+
+    # Keep count of how many times it didn't work (if error or some seperate part, could loop forever)
     counter = 0
     while len(parts_dimtag) > 1:
         # Choose two entities to fuse
-        i, j, nointersection = intersecting_entities_for_fusing(parts_dimtag)
+        i, j = intersecting_entities_for_fusing(parts_dimtag)
 
-        # Keep count of how many times it didn't work (if error or some seperate part, could loop forever)
-        if nointersection:
-            counter += 1
+        # log.info(f"fused entities {i,j}, {names[i],names[j]}")
+
         try:
             # Fuse them
             fused_entities, mapping = gmsh.model.occ.fuse(
@@ -351,22 +413,46 @@ def fusing_parts(
 
             # Look for problems
             if len(fused_entities) > 1:
-                log.info("Warning : the fusion did not give only one piece")
-            if len(fused_entities) == 0:
-                log.info("Warning : error, no fused entity")
+                # in this case, either the pieces are not connected
+                # or the order was wrong and we took a non connected piece
+                counter += 1
+                log.info(
+                    "Warning : the fusion did not give only one piece (will still try if question of order)")
+                names = ["errorwhen" + names[i] + "+" + names[j]] + [
+                    names[k]
+                    for k in range(len(names))
+                    if k != j and k != i
+                ] + ["errorwhen" + names[i] + names[j] for k in range(len(fused_entities) - 1)]
+            else:
+                if len(fused_entities) == 0:
+                    counter += 1
+                    log.info("Warning : error, no fused entity")
 
-            # Update the vectors of remaining entities
-            parts_dimtag = [fused_entities[0]] + [
-                parts_dimtag[k]
-                for k in range(len(parts_dimtag))
-                if k != j and k != i
-            ] + fused_entities[1:]  # end should be empty but if there is a problem we let it stay
-
+                # Update the vectors of remaining entities
+                parts_dimtag = [fused_entities[0]] + [
+                    parts_dimtag[k]
+                    for k in range(len(parts_dimtag))
+                    if k != j and k != i
+                ] + fused_entities[1:]  # end should be empty but if there is a problem we let it stay
+                names = [names[i] + "+" + names[j]] + [
+                    names[k]
+                    for k in range(len(names))
+                    if k != j and k != i
+                ]
         # Handle the cases where it didn't work
         except Exception as e:
             log.info(f"Fusion failed for entities {0} and {j}: {e}")
-        if counter > 10:
-            log.info("Error : too many problems with order of fusion : giving up")
+            counter += 1
+            r = random.sample(range(0, len(parts_dimtag)), min(4, len(parts_dimtag)))
+            while len(r) < 4:
+                r.append(0)
+            parts_dimtag[r[0]], parts_dimtag[r[1]], parts_dimtag[r[2]], parts_dimtag[r[3]
+                                                                                     ] = parts_dimtag[r[1]], parts_dimtag[r[2]], parts_dimtag[r[3]], parts_dimtag[r[0]]
+            names[r[0]], names[r[1]], names[r[2]], names[r[3]
+                                                         ] = names[r[1]], names[r[2]], names[r[3]], names[r[0]]
+        if counter > 20:
+            # If here we have multiples times had problems with fusion and won't give one piece
+            log.info(f"Warning : the end result is not in one piece. Parts by group : {names}")
             break
 
 
@@ -395,6 +481,8 @@ def sort_surfaces_and_create_physical_groups(
     # Now we sort the surfaces by part (to name them & set mesh size)
 
     # Get all the surfaces, classified by part with bounding boxes (might take too many, will be dealt with after)
+
+    log.info(f"Start the classification of surfaces by parts")
     for model_part in aircraft_parts:
         surfaces_dimtags = gmsh.model.getEntitiesInBoundingBox(
             *model_part.bounding_box, 2
@@ -576,7 +664,7 @@ def pentagrow_3d_mesh(
     MaxLayerThickness = max_layer_thickness / 10
     FarfieldRadius = fuselage_maxlen * farfield_factor * 100
     FarfieldCenter = "0.0 0.0 0.0"
-    OutputFormat = "su2"
+    OutputFormat = "cgns"
     HolePosition = "0.0 0.0 0.0"
     TetgenOptions = "-pq1.3VY"
     TetGrowthFactor = growth_factor
@@ -631,7 +719,7 @@ def pentagrow_3d_mesh(
 
     subprocess.call(command, cwd=current_dir, start_new_session=False)
 
-    mesh_path = Path(result_dir, "hybrid.su2")
+    mesh_path = Path(result_dir, "hybrid.cgns")
     log.info(f"Mesh path:{mesh_path}")
 
     return mesh_path

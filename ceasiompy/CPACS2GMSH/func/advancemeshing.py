@@ -231,6 +231,8 @@ def refine_wing_section(
         this is the list to be use for the final "Min" background field
     aircraft : ModelPart
         the aircraft model part
+    final_domain_volume_tag : list
+        list of the tag(s) of the final domain volume (usually one)
     wing_part : ModelPart
         wing part to refine
     mesh_size_wings : float
@@ -258,7 +260,6 @@ def refine_wing_section(
         chord_mean = wing_section["mean_chord"]
         x_chord = chord_mean * chord_percent
         lines_to_refine = wing_section["lines_tags"]
-
         # If the wing is truncated:
         if len(lines_to_refine) == 3:
             # Find the trailing edge thickness
@@ -456,8 +457,8 @@ def refine_small_surfaces(
         mesh size of the farfield
     aircraft_charact_length : float
         characteristic length of the aircraft : max(x_length, y_length, z_length) of the aircraft
-    final_domain_volume_tag : int
-        tag of the final domain volume
+    final_domain_volume_tag : list
+        list of tag of the final domain volume (usually one)
     n_power : float
         power of the power law for the mesh extend function
     nb_min_triangle : int
@@ -488,8 +489,8 @@ def refine_small_surfaces(
             new_mesh_size = ((area / (nb_min_triangle)) / 0.43301270) ** 0.5
 
             # Set the color to indicate the bad surfaces
-            gmsh.model.setColor([(2, surface_tag)], *
-                                MESH_COLORS["bad_surface"], recursive=False)
+            gmsh.model.setColor([(2, surface_tag)],
+                                * MESH_COLORS["bad_surface"], recursive=False)
 
             mesh_fields = distance_field(mesh_fields, 2, [surface_tag])
             distance_field_tag = mesh_fields["nbfields"]

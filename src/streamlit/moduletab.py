@@ -16,9 +16,9 @@ Streamlit Tabs per module function.
 
 import streamlit as st
 
-from cpacspy.cpacsfunctions import get_value_or_default, create_branch
+from cpacspy.cpacsfunctions import get_value_or_default
 from ceasiompy.utils.geometryfunctions import get_aircrafts_list
-from src.streamlit.streamlitutils import section_edit_aeromap, save_cpacs_file
+from src.streamlit.streamlitutils import section_edit_aeromap
 from ceasiompy.utils.moduleinterfaces import get_specs_for_module
 from src.streamlit.guiobjects import (
     int_vartype,
@@ -140,7 +140,7 @@ def add_gui_object(
         if name in aeromap_map:
             aeromap_map[name](session_state.cpacs, xpath, key, description)
         elif var_type == "path_type":
-            path_vartype(default_value, key)
+            path_vartype(key)
         elif var_type in vartype_map:
             vartype_map[var_type](
                 session_state.cpacs.tixi,

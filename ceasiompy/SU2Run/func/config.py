@@ -29,7 +29,6 @@ from ceasiompy.utils.ceasiompyutils import (
     bool_,
     get_aeromap_conditions,
 )
-
 from cpacspy.cpacsfunctions import (
     get_value,
     open_tigl,
@@ -60,7 +59,6 @@ from cpacspy.cpacspy import CPACS
 from tixi3.tixi3wrapper import Tixi3
 from cpacspy.rotorcraft import Rotorcraft
 from ceasiompy.utils.configfiles import ConfigFile
-
 from typing import (
     Dict,
     List,
@@ -97,7 +95,6 @@ from ceasiompy.utils.commonxpath import (
     PROPELLER_THRUST_XPATH,
     SU2_ACTUATOR_DISK_XPATH,
     SU2_ROTATION_RATE_XPATH,
-    SU2_CEASIOMPYDATA_XPATH,
     PROPELLER_BLADE_LOSS_XPATH,
     SU2_CFL_ADAPT_PARAM_UP_XPATH,
     SU2_CFL_ADAPT_PARAM_DOWN_XPATH,

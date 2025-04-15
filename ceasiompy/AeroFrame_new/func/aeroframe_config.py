@@ -27,6 +27,7 @@ import matplotlib.pyplot as plt
 import math
 from pathlib import Path
 from scipy.spatial.distance import cdist
+from scipy import interpolate
 from framat import Model
 
 from cpacspy.cpacspy import CPACS
@@ -873,48 +874,67 @@ def write_deformed_geometry(UNDEFORMED_PATH, DEFORMED_PATH, centerline_df, defor
 
     deformed_df.sort_values(by="y_leading", inplace=True)
     deformed_df.reset_index(drop=True, inplace=True)
-    # twist_profile = interpolate.interp1d(
-    # centerline_df["y_new"], centerline_df["AoA_new"], fill_value="extrapolate")
+    twist_profile = interpolate.interp1d(centerline_df["y_new"],
+                                         centerline_df["AoA_new"],
+                                         fill_value="extrapolate")
 
     with open(UNDEFORMED_PATH, "r") as file_undeformed:
         with open(DEFORMED_PATH, "w") as file_deformed:
-            for line in file_undeformed:
-                if "ANGLE" in line:
+
+            lines = file_undeformed.readlines()
+            for i, line in enumerate(lines):
+                if "SCALE" not in line:
+                    file_deformed.write(line)
+                else:
                     break
-                file_deformed.write(line)
+
+            for i, line in enumerate(lines):
+                if "Nspanwise" in line:
+                    values = lines[i + 1].strip().split()
+                    Nspanwise = int(float(values[2]))
+
+                if line.strip().upper() == "AFILE":
+                    if i + 1 < len(lines):
+                        airfoil_file = lines[i + 1].strip()
+                        break
 
             file_deformed.writelines(
                 ["SCALE\n",
-                 "1\t1\t1\n\n"])
-
-            file_deformed.writelines(
-                ["TRANSLATE\n",
+                 "1.0\t1.0\t1.0\n\n",
+                 "TRANSLATE\n",
                  "0.0\t0.0\t0.0\n\n",
                  "#---------------\n"])
 
-            step = 7
-            for i_node in range(0, len(deformed_df), step):
+            y_coords = deformed_df["y_leading"].values
+            y_root = y_coords[0]
+            y_tip = y_coords[-1]
+            dy_min = (y_tip - y_root) / Nspanwise
+
+            selected_indices = [0]
+            last_y = y_coords[0]
+
+            for i in range(1, len(y_coords)):
+                if y_coords[i] - last_y >= dy_min and y_coords[i] + dy_min <= y_tip:
+                    selected_indices.append(i)
+                    last_y = y_coords[i]
+
+            if selected_indices[-1] != len(y_coords) - 1:
+                selected_indices.append(len(y_coords) - 1)
+
+            for i_node in selected_indices:
                 x_new = deformed_df.iloc[i_node]["x_leading"]
                 y_new = deformed_df.iloc[i_node]["y_leading"]
                 z_new = deformed_df.iloc[i_node]["z_leading"]
                 chord = deformed_df.iloc[i_node]["chord"]
-                AoA = deformed_df.iloc[i_node]["AoA"]
+                AoA = twist_profile(y_new)
 
                 file_deformed.writelines(
                     ["SECTION\n",
                      "#Xle    Yle    Zle     Chord   Ainc\n",
                      f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord:.3f} {AoA:.3e}\n\n",
+                     "AFILE\n",
+                     f"{airfoil_file}\n\n",
                      "#---------------\n"])
-            if (len(deformed_df) - 1) % step:
-                x_new = deformed_df.iloc[-1]["x_leading"]
-                y_new = deformed_df.iloc[-1]["y_leading"]
-                z_new = deformed_df.iloc[-1]["z_leading"]
-                chord = deformed_df.iloc[-1]["chord"]
-                AoA = deformed_df.iloc[-1]["AoA"]
-                file_deformed.writelines(
-                    ["SECTION\n",
-                     "#Xle    Yle    Zle     Chord   Ainc\n",
-                     f"{x_new:.3f} {y_new:.3f} {z_new:.3e} {chord:.3f} {AoA:.3e}\n\n"])
 
 
 def write_deformed_command(UNDEFORMED_COMMAND, DEFORMED_COMMAND):

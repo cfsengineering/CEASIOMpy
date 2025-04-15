@@ -92,7 +92,7 @@ def store_pyavl_data(
     table_name: str,
 ) -> None:
     """
-    Store data from Results/GMSH.
+    Store data from Results/PyAVL.
 
     Args:
         cursor (Cursor): avl_data table from 'ceasiompy.db' cursor.

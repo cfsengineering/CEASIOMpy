@@ -33,11 +33,11 @@ def store_su2run_data(
     table_name: str,
 ) -> None:
     """
-    Store data from Results/GMSH.
+    Store data from Results/SU2.
 
     Args:
         cursor (Cursor): gmsh_data table from 'ceasiompy.db' cursor.
-        wkdir (Path): Results/GMSH directory.
+        wkdir (Path): Results/SU2 directory.
         tixi (Tixi3): Tixi handle of CPACS file.
 
     """

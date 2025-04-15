@@ -244,7 +244,7 @@ def generate_2d_mesh_for_pentagrow(
     gmsh.model.occ.synchronize()
 
     # Add GMSH path
-    gmesh_path = Path(results_dir, "mesh_2d.stl")
+    gmesh_path = Path(results_dir, "surface_mesh.stl")
     gmsh.write(str(gmesh_path))
 
     process_gmsh_log(gmsh.logger.get())
@@ -279,13 +279,13 @@ def pentagrow_3d_mesh(
 
     os.chdir("Results/GMSH")
 
-    check_path("mesh_2d.stl")
+    check_path("surface_mesh.stl")
     check_path("config.cfg")
 
     current_dir = os.getcwd()
     os.chdir(current_dir)
 
-    command = ["mesh_2d.stl", "config.cfg"]
+    command = ["surface_mesh.stl", "config.cfg"]
 
     # Specify the file path
     file_path = "command.txt"
@@ -293,7 +293,7 @@ def pentagrow_3d_mesh(
     with open(file_path, "w") as file:
         file.write(" ".join(command))
 
-    # Running command = "pentagrow mesh_2d.stl config.cfg"
+    # Running command = "pentagrow surface_mesh.stl config.cfg"
     run_software(
         software_name="pentagrow",
         arguments=command,

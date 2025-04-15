@@ -112,7 +112,7 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str) -> None:
             tixi.updateBooleanElement(xpath, default_value)
         elif var_type == int:
             tixi.updateIntegerElement(xpath, default_value, format="%d")
-        elif var_type == list:
+        elif var_type == list or var_type == "DynamicChoice":
             tixi.updateTextElement(xpath, str(default_value[0]))
         elif var_type == "multiselect":
             str_value = ";".join(str(ele) for ele in default_value)

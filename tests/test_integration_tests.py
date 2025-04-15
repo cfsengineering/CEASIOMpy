@@ -5,10 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Integration test for some typical CEASIOMpy workflows.
 
-
-| Author: Aidan Jungo
-| Creation: 2022-05-06
-
 TODO:
     Test allworking modules
 

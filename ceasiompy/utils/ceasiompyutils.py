@@ -252,7 +252,7 @@ def aircraft_name(tixi_or_cpacs):
     return name
 
 
-def get_part_type(tixi, part_uid: str) -> str:
+def get_part_type(tixi, part_uid: str, print=True) -> str:
     """The function get the type of the aircraft from the cpacs file.
 
     Args:
@@ -269,38 +269,47 @@ def get_part_type(tixi, part_uid: str) -> str:
     part_xpath = tixi.uIDGetXPath(part_uid)
 
     if "wings/wing" in part_xpath:
-        log.info(f"'{part_uid}' is a wing")
+        if print:
+            log.info(f"'{part_uid}' is a wing")
         return "wing"
 
     elif "fuselages/fuselage" in part_xpath:
-        log.info(f"'{part_uid}' is a fuselage")
+        if print:
+            log.info(f"'{part_uid}' is a fuselage")
         return "fuselage"
 
     elif "enginePylons/enginePylon" in part_xpath:
-        log.info(f"'{part_uid}' is a pylon")
+        if print:
+            log.info(f"'{part_uid}' is a pylon")
         return "pylon"
 
     elif "engine/nacelle/fanCowl" in part_xpath:
-        log.info(f"'{part_uid}' is a fanCowl")
+        if print:
+            log.info(f"'{part_uid}' is a fanCowl")
         return "fanCowl"
 
     elif "engine/nacelle/centerCowl" in part_xpath:
-        log.info(f"'{part_uid}' is a centerCowl")
+        if print:
+            log.info(f"'{part_uid}' is a centerCowl")
         return "centerCowl"
 
     elif "engine/nacelle/coreCowl" in part_xpath:
-        log.info(f"'{part_uid}' is a coreCowl")
+        if print:
+            log.info(f"'{part_uid}' is a coreCowl")
         return "coreCowl"
 
     elif "vehicles/engines/engine" in part_xpath:
-        log.info(f"'{part_uid}' is an engine")
+        if print:
+            log.info(f"'{part_uid}' is an engine")
         return "engine"
 
     elif "vehicles/rotorcraft/model/rotors/rotor" in part_xpath:
-        log.info(f"'{part_uid}' is an rotor")
+        if print:
+            log.info(f"'{part_uid}' is an rotor")
         return "rotor"
 
-    log.warning(f"'{part_uid}' cannot be categorized!")
+    if print:
+        log.warning(f"'{part_uid}' cannot be categorized!")
     return None
 
 

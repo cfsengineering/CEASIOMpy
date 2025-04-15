@@ -59,7 +59,8 @@ def detect_normal_profile(le_te_pair, line_comp1, line_comp2):
         return le_te_pair, False
 
     # Check if the surfaces are the same
-    surfaces = list(line_comp1["surf_tags"].intersection(line_comp2["surf_tags"]))
+    surfaces = list(line_comp1["surf_tags"].intersection(
+        line_comp2["surf_tags"]))
     if len(surfaces) != 2:
         return le_te_pair, False
 
@@ -98,7 +99,8 @@ def detect_truncated_profile(le_te_pair, line_comp1, line_comp2, line_comp3):
     False : otherwise
     """
     lines = sorted(
-        list(set([line_comp1["line_tag"], line_comp2["line_tag"], line_comp3["line_tag"]]))
+        list(
+            set([line_comp1["line_tag"], line_comp2["line_tag"], line_comp3["line_tag"]]))
     )
 
     # Check if the line are not the same
@@ -119,7 +121,8 @@ def detect_truncated_profile(le_te_pair, line_comp1, line_comp2, line_comp3):
         return le_te_pair, False
 
     surfaces = sorted(
-        list(line_comp1["surf_tags"].union(line_comp2["surf_tags"], line_comp3["surf_tags"]))
+        list(line_comp1["surf_tags"].union(
+            line_comp2["surf_tags"], line_comp3["surf_tags"]))
     )
     # Check nb of surface:
     if len(surfaces) != 3:
@@ -224,15 +227,16 @@ def classify_wing(wing_part, aircraft_parts):
     lines_composition = []
     for line in exclude_lines(wing_part, aircraft_parts):
         adj_surfs, _ = gmsh.model.getAdjacencies(*line)
-        lines_composition.append({"line_tag": line[1], "surf_tags": set(adj_surfs)})
-
+        lines_composition.append(
+            {"line_tag": line[1], "surf_tags": set(adj_surfs)})
     # Find the pair of le/te lines with all the lines of the wing part
     le_te_pair = []
 
     for i, line_comp1 in enumerate(lines_composition):
-        for line_comp2 in lines_composition[(i + 1) :]:
+        for line_comp2 in lines_composition[(i + 1):]:
             # try to detect if two line form a normal profile
-            le_te_pair, found_normal = detect_normal_profile(le_te_pair, line_comp1, line_comp2)
+            le_te_pair, found_normal = detect_normal_profile(
+                le_te_pair, line_comp1, line_comp2)
             if not found_normal:
                 for line_comp3 in lines_composition:
                     # try to detect if three line form a truncated profile

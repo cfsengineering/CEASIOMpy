@@ -4,13 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Functions utils to run ceasiompy workflows
-
-
-| Author : Aidan Jungo
-| Creation: 2022-02-04
-| Modified : Leon Deligny
-| Date: 11-Mar-2025
-
 """
 
 # =================================================================================================
@@ -29,7 +22,6 @@ import streamlit as st
 from pydantic import validate_call
 from contextlib import contextmanager
 from ceasiompy.utils.moduleinterfaces import get_module_list
-
 from ceasiompy.utils.moduleinterfaces import (
     get_specs_for_module,
     get_toolinput_file_path,
@@ -115,6 +107,7 @@ def update_cpacs_from_specs(cpacs: CPACS, module_name: str) -> None:
         elif var_type == list:
             tixi.updateTextElement(xpath, str(default_value[0]))
         elif var_type == "DynamicChoice":
+            create_branch(tixi, xpath + "type")
             tixi.updateTextElement(xpath + "type", str(default_value[0]))
         elif var_type == "multiselect":
             str_value = ";".join(str(ele) for ele in default_value)

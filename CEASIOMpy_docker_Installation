@@ -3,7 +3,7 @@
 # Use the commands below to build the Docker image,
 # and then to run the Docker container.
 
-#docker build -t ceasiompy:local -f CEASIOMpyInstallation .
+#docker build -t ceasiompy:local -f CEASIOMpy_docker_Installation .
 
 #docker run -it --rm \
 #-e DISPLAY=$DISPLAY \

@@ -160,7 +160,7 @@ There are many different modules available in CEASIOMpy that can be combined to 
 
 #### Structure
 
-- AeroFrame :x:
+- AeroFrame :heavy_check_mark:
 
 #### Data Analysis and Storage
 

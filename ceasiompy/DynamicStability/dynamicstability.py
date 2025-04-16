@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Dynamic Stability Module
 
-
 | Author: Leon Deligny
 | Creation: 2025-01-27
 

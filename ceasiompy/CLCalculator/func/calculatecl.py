@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Calculate CL script.
 
-
 | Author: Leon Deligny
 | Creation: 25 March 2025
 

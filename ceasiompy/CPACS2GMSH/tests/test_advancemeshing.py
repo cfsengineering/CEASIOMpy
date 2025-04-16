@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/CPACS2GMSH/advancemeshing.py'
 
-
 | Author : Tony Govoni
 | Creation: 2022-04-09
 

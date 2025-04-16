@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Store data from workflow modules.
 
-
 | Author: Leon Deligny
 | Creation: 2025-Mar-03
 

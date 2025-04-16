@@ -8,7 +8,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Main module of CEASIOMpy to launch workflow by different way.
 
-
 | Author: Aidan Jungo
 | Creation: 2022-03-29
 
@@ -175,7 +174,7 @@ def run_config_file(config_file):
 def run_gui():
     """Create an run a workflow from a GUI."""
 
-    log.info("CEASIOMpy has been started from the GUI.")
+    log.info("CEASIOMpy has been started from the GUI (with Docker now).")
     os.system(f"cd {STREAMLIT_PATH} && streamlit run CEASIOMpy.py")
 
 # =================================================================================================

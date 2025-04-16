@@ -4,7 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Streamlit Tabs per module function.
-
 | Author : Leon Deligny
 | Creation: 21 March 2025
 

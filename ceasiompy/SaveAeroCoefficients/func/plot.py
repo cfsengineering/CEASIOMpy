@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Plot Aerodynamic coefficients from CPACS v3 aeroMaps
 
-
 | Author: Leon Deligny
 | Creation: 27 march 2025
 
@@ -34,7 +33,7 @@ from ceasiompy import log
 #   BACKEND SETTING
 # =================================================================================================
 
-if os.environ.get('DISPLAY', '') == '':
+if os.environ.get('DISPLAY', '') in ['', ':99']:
     matplotlib.use('Agg')
 else:
     matplotlib.use('TkAgg')

@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Script to convert CPACS file geometry into SUMO geometry
 
-
 | Author : Aidan Jungo
 | Creation: 2017-03-03
 

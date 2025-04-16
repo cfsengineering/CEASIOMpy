@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Small description of the script
 
-
 | Author:Tony Govoni
 | Creation: 2022-03-22
 | Modified by: Giacomo Benedetti, Guido Vallifuoco

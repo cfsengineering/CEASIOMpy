@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Classes to run ceasiompy workflows
 
-
 | Author : Aidan Jungo
 | Creation: 2019-10-04
 

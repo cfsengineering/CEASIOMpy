@@ -1,0 +1,59 @@
+# With this Dockerfile, you are building a Docker image for
+# your LOCAL CEASIOMpy on CentOS 8, with system dependencies and Miniconda.
+# Use the commands below to build the Docker image,
+# and then to run the Docker container.
+
+# docker build -t ceasiompy:local -f CEASIOMpyInstallation .
+# docker run -it --rm -v /absolutepathto/CEASIOMpy:/CEASIOMpy -e DISPLAY=:99 ceasiompy:local /bin/bash
+
+FROM centos:8
+
+# Update CentOS repositories and install system dependencies
+RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
+    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && \
+    dnf -y install git curl wget sudo unzip gcc-c++ tbb libXrender libXcursor libXinerama libXft
+
+# Use bash as the default shell
+SHELL ["/bin/bash", "--login", "-c"]
+
+RUN git clone https://github.com/cfsengineering/CEASIOMpy.git
+RUN chmod +x CEASIOMpy/installation/CentOS/install_*
+ENV CONDA_DIR=/opt/conda
+RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
+    /bin/bash ~/miniconda.sh -b -p /opt/conda
+ENV PATH=$CONDA_DIR/bin:$PATH
+
+WORKDIR /CEASIOMpy/installation/CentOS/
+RUN chmod +x install_*.sh
+RUN ./install_ceasiompy.sh
+RUN ./install_pyavl.sh
+RUN ./install_su2.sh
+
+# Install xvfb for graphical display
+RUN dnf -y install xorg-x11-server-Xvfb
+RUN dnf -y install mesa-libGL mesa-libGLU mesa-dri-drivers libXt
+
+# Set the DISPLAY environment variable
+ENV DISPLAY=:99
+
+# Initialize Conda for the shell
+RUN $CONDA_DIR/bin/conda init bash && \
+    echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc
+
+# Set the working directory to the mounted CEASIOMpy folder
+WORKDIR /CEASIOMpy
+
+# docker run -it --rm -v /home/cfse2/Leon/GiacomoBranch/CEASIOMpy:/CEASIOMpy -e DISPLAY=:99 ceasiompy:local /bin/bash
+
+# 1. conda activate ceasiompy
+# 2. ceasiompy_run --gui
+# 3. select: External URL
+
+# If you did not have the necessary permissions:
+# Run the following command to add your user to the docker group:
+
+# sudo usermod -aG docker $USER
+
+# Then, use the following command to apply the group change:
+
+# newgrp docker

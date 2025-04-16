@@ -4,7 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Modified PanelAero methods, see: https://github.com/DLR-AE/PanelAero.
-
 | Author: Leon Deligny
 | Creation: 2025-01-27
 
@@ -28,7 +27,7 @@ from ceasiompy import log
 #   BACKEND SETTING
 # =================================================================================================
 
-if os.environ.get('DISPLAY', '') == '':
+if os.environ.get('DISPLAY', '') in ['', ':99']:
     matplotlib.use('Agg')
 else:
     matplotlib.use('TkAgg')

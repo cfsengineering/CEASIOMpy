@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 The script contains the user inputs required for the engine analysis.
 
-
 | Author : Stefano Piccini
 | Date of creation: 2018-12-11
 

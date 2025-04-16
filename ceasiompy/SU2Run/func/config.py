@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Function generate or modify SU2 configuration files
 
-
 | Author: Aidan Jungo
 | Creation: 2020-02-24
 | Modified: Leon Deligny

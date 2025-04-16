@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Data extraction from pyAVL for stability analysis
 
-
 | Author: Leon Deligny
 | Creation: 2025-01-27
 

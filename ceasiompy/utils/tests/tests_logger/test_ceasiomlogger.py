@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test  for 'ceasiomlogger.py' function
 
-
 | Author : Aidan Jungo
 | Creation: 2018-09-27
 

@@ -10,7 +10,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 #   IMPORTS
 # ==============================================================================
 
-from smt.utils.misc import compute_rms_error
+from smt.utils.misc import compute_rmse
 
 from ceasiompy import log
 
@@ -38,7 +38,7 @@ def make_predictions(datasets, model):
         y_pred = model.predict_values(X_pred)
 
         # Compute RMSE for the dataset
-        rmse = compute_rms_error(model, X_pred, y_pred)
+        rmse = compute_rmse(model, X_pred, y_pred)
         log.info(f"RMSE for {dataset_name}: {rmse}")
 
         # Store the predictions in the dictionary

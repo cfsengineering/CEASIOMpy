@@ -5,10 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI Interface of StaticStability.
 
-
-| Author: Leon Deligny
-| Creation: 18-Mar-2025
-
 """
 
 # ==============================================================================
@@ -18,7 +14,6 @@ GUI Interface of StaticStability.
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
 from ceasiompy import log
-
 from ceasiompy.StaticStability import include_gui
 from ceasiompy.utils.commonxpath import STATICSTABILITY_LR_XPATH
 

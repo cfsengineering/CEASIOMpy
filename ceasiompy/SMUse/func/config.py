@@ -1,38 +1,44 @@
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+"""
+
+
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
 
-from pathlib import Path
-import pandas as pd
 import pickle
-from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonxpath import SMUSE_XPATH, SM_XPATH
+import pandas as pd
+
+from pathlib import Path
+from cpacspy.cpacspy import (
+    CPACS,
+    AeroMap,
+)
+from typing import (
+    List,
+    Dict,
+)
+
 from cpacspy.cpacsfunctions import get_value
-from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 
-log = get_logger()
+from ceasiompy import log
+from ceasiompy.utils.commonxpath import SMUSE_XPATH, SM_XPATH
 
 
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
 
-
-def get_predictions_dataset(cpacs_path, removed_columns):
+def get_predictions_dataset(cpacs: CPACS, removed_columns: List) -> Dict:
     """
-    Extracts the dataset for predictions from the CPACS file by reading the specified aeromaps.
-
-    Args:
-        cpacs_path (str): Path to the CPACS file.
-        removed_columns (list): List of columns to remove from the dataset.
-
-    Returns:
-        dict: A dictionary containing filtered and original datasets for each aeromap.
-
+    Extracts the dataset for predictions from the CPACS file
+    by reading the specified aeromaps.
     """
-
-    cpacs = CPACS(cpacs_path)
 
     # Define the XPath to retrieve aeromap UIDs for predictions
     aeromap_for_predictions_xpath = SMUSE_XPATH + "/predictionDataset"
@@ -48,7 +54,7 @@ def get_predictions_dataset(cpacs_path, removed_columns):
 
     # Loop through each aeromap and process the data
     for idx, aeromap_uid in enumerate(aeromap_uid_list, start=1):  # Start numbering from 1
-        activate_aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+        activate_aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
         log.info(f"Prediction dataset: {aeromap_uid}")
 
@@ -87,25 +93,15 @@ def get_predictions_dataset(cpacs_path, removed_columns):
         log.debug(f"Removed columns: {removed_columns}")
 
     # Return the dictionary containing all processed datasets
-
     log.info("Completed dataset extraction.")
 
     return dataset_dict
 
 
-def load_surrogate(cpacs_path):
+def load_surrogate(cpacs: CPACS, removed_columns: List):
     """
     Loads the surrogate model and metadata from the CPACS file.
-
-    Args:
-        cpacs_path (str): Path to the CPACS file.
-
-    Returns:
-        tuple: A tuple containing the trained model,
-               the coefficient name, and the list of removed columns.
     """
-
-    cpacs = CPACS(cpacs_path)
 
     # Retrieve the model path from CPACS
     model_path = Path(get_value(cpacs.tixi, SM_XPATH))
@@ -124,8 +120,10 @@ def load_surrogate(cpacs_path):
     log.debug(f"Model: {model}")
     log.debug(f"Coefficient name: {coefficient_name}")
     log.debug(f"Removed columns: {removed_columns}")
+    
+    dataset_dict = get_predictions_dataset(cpacs, removed_columns)
 
-    return model, coefficient_name, removed_columns
+    return model, coefficient_name, removed_columns, dataset_dict
 
 
 # =================================================================================================

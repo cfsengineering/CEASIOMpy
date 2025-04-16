@@ -1,26 +1,35 @@
-from pathlib import Path
-from ceasiompy.utils.commonxpath import SMUSE_XPATH, SM_XPATH
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+GUI Interface of SMUse.
+
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 
+from ceasiompy import log
+from ceasiompy.SMUse import include_gui
+from ceasiompy.utils.commonxpath import (
+    SM_XPATH,
+    SMUSE_XPATH,
+)
 # from ceasiompy.utils.commonxpath import SMTRAIN_XPATH
 
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-module_status = True
-
-# ===== Results directory path =====
-
-RESULTS_DIR = Path("Results", "SMUse")
-
-# ===== CPACS inputs and outputs =====
+# ==============================================================================
+#   VARIABLE
+# ==============================================================================
 
 cpacs_inout = CPACSInOut()
 
-include_gui = True
-
-# ----- Input -----
-
+# ==============================================================================
+#   GUI INPUTS
+# ==============================================================================
 
 cpacs_inout.add_input(
     var_name="model_file",
@@ -45,34 +54,9 @@ cpacs_inout.add_input(
     gui_group="Predictions Dataset",
 )
 
+# =================================================================================================
+#    MAIN
+# =================================================================================================
 
-# DOE LIMITS???
-
-
-# print(cpacs_inout.inputs[1])
-
-
-# for entry in cpacs_inout.inputs:
-#     print(f"Variable Name: {entry.var_name}, Default Value: {entry.default_value}")
-
-
-# bayesian or random seach?
-
-
-# ----- Output ----
-
-# cpacs_inout.add_output(
-#     var_name="output",
-#     default_value=None,
-#     unit="1",
-#     descr="Description of the output",
-#     xpath=CEASIOMPY_XPATH + "/test/myOutput",
-# )
-
-# cpacs_inout.add_output(
-#     var_name="surrogateModel",
-#     default_value=None,
-#     unit="1",
-#     descr="path of the trained surrogate model",
-#     xpath=SMTRAIN_XPATH + "/surrogateModelPath",
-# )
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")

@@ -6,7 +6,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Script to extract panel forces of a surface,
 from AVL 'fe.txt' element force file
 
-Python version: >=3.8
 
 | Author: Romain Gauthier
 | Creation: 2024-06-17
@@ -31,7 +30,7 @@ from scipy import interpolate
 from framat import Model
 
 from cpacspy.cpacspy import CPACS
-from cpacspy.cpacsfunctions import get_value_or_default, get_value
+from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacsfunctions import open_tixi
 
 from ceasiompy.utils.commonxpath import (
@@ -39,17 +38,15 @@ from ceasiompy.utils.commonxpath import (
     FRAMAT_SECTION_XPATH,
     WINGS_XPATH
 )
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
-from ceasiompy.utils.mathfunctions import euler2fix
+from ceasiompy.utils.mathsfunctions import euler2fix, rotate_points
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
-from ceasiompy.AeroFrame_new.func.aeroframe_utils import (
+from ceasiompy.AeroFrame_new.func.utils import (
     PolyArea,
     second_moments_of_area,
-    rotate_3D_points
 )
 
-log = get_logger()
 
 # =================================================================================================
 #   FUNCTIONS
@@ -303,12 +300,14 @@ def create_framat_model(young_modulus, shear_modulus, material_density,
 
     # Add orientation property to the beam
     for i_node in range(len(centerline_df) - 1):
-        up_x, up_y, up_z = rotate_3D_points(x=0,
-                                            y=0,
-                                            z=1,
-                                            angle_x=centerline_df.iloc[i_node]["thx_new"],
-                                            angle_y=centerline_df.iloc[i_node]["thy_new"],
-                                            angle_z=centerline_df.iloc[i_node]["thz_new"])
+        up_x, up_y, up_z = rotate_points(
+            x=0,
+            y=0,
+            z=1,
+            RaX=centerline_df.iloc[i_node]["thx_new"],
+            RaY=-centerline_df.iloc[i_node]["thy_new"],
+            RaZ=centerline_df.iloc[i_node]["thz_new"],
+        )
 
         beam.add('orientation', {'from': centerline_df.iloc[i_node]['node_uid'],
                                  'to': centerline_df.iloc[i_node + 1]['node_uid'],
@@ -1069,5 +1068,4 @@ def interpolate_leading_edge(AVL_UNDEFORMED_PATH,
 
 
 if __name__ == "__main__":
-
     log.info("Nothing to execute!")

@@ -8,13 +8,9 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Main module of CEASIOMpy to launch workflow by different way.
 
-Python version: >=3.8
 
 | Author: Aidan Jungo
 | Creation: 2022-03-29
-
-Todo:
-    *
 
 """
 
@@ -22,20 +18,20 @@ Todo:
 #   IMPORTS
 # =================================================================================================
 
-import argparse
 import os
-from pathlib import Path
+import argparse
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.commonpaths import CPACS_FILES_PATH, TEST_CASES_PATH, STREAMLIT_PATH
+from pathlib import Path
 from ceasiompy.utils.workflowclasses import Workflow
 
-log = get_logger()
+from ceasiompy import log
+from unittest.mock import patch
 
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
+from ceasiompy.utils.commonpaths import (
+    STREAMLIT_PATH,
+    TEST_CASES_PATH,
+    CPACS_FILES_PATH,
+)
 
 # =================================================================================================
 #   FUNCTIONS
@@ -102,7 +98,7 @@ def run_testcase(testcase_nb):
         print(">> cd WKDIR")
         print(
             ">> ceasiompy_run -m ../test_files/CPACSfiles/D150_simple.xml "
-            "PyTornado SkinFriction SaveAeroCoefficients"
+            "PyAVL SkinFriction SaveAeroCoefficients"
         )
 
     elif testcase_nb == 5:
@@ -112,7 +108,7 @@ def run_testcase(testcase_nb):
         print("\nTest case number must be 1,2,3,4 or 5.")
 
 
-def run_modules_list(args_list):
+def run_modules_list(args_list, test=False):
     """Run a workflow from a CPACS file and a list of modules."""
 
     if len(args_list) < 2:
@@ -136,8 +132,18 @@ def run_modules_list(args_list):
 
     modules_list = args_list[1:]
 
-    log.info("CEASIOMpy as been started from a command line")
+    log.info("CEASIOMpy has been started from a command line.")
 
+    if test:
+        with patch("streamlit.runtime.scriptrunner_utils.script_run_context"):
+            with patch("streamlit.runtime.state.session_state_proxy"):
+                log.info(f"Integration test for {args_list}.")
+                run_ceasiompy_workflow(cpacs_path, modules_list, test)
+    else:
+        run_ceasiompy_workflow(cpacs_path, modules_list, test)
+
+
+def run_ceasiompy_workflow(cpacs_path, modules_list, test):
     workflow = Workflow()
     workflow.cpacs_in = cpacs_path
     workflow.modules_list = modules_list
@@ -145,13 +151,13 @@ def run_modules_list(args_list):
     workflow.write_config_file()
 
     workflow.set_workflow()
-    workflow.run_workflow()
+    workflow.run_workflow(test)
 
 
 def run_config_file(config_file):
     """Run a workflow from a config file"""
 
-    log.info("CEASIOMpy as been started from a config file")
+    log.info("CEASIOMpy has been started from a config file.")
 
     config_file_path = Path(config_file)
 
@@ -169,10 +175,8 @@ def run_config_file(config_file):
 def run_gui():
     """Create an run a workflow from a GUI."""
 
-    log.info("CEASIOMpy as been started from the GUI")
-
+    log.info("CEASIOMpy has been started from the GUI.")
     os.system(f"cd {STREAMLIT_PATH} && streamlit run CEASIOMpy.py")
-
 
 # =================================================================================================
 #    MAIN
@@ -180,7 +184,6 @@ def run_gui():
 
 
 def main():
-
     parser = argparse.ArgumentParser(
         description="CEASIOMpy: Conceptual Aircraft Design Environment",
         usage=argparse.SUPPRESS,
@@ -235,7 +238,6 @@ def main():
         return
 
     if args.gui:
-
         run_gui()
         return
 

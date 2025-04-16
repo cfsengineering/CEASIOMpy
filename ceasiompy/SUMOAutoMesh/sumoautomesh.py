@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module to create a simple SU2 mesh from SUMO file (.smx)
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2018-10-29
@@ -22,22 +21,40 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
+import os
 import math
-import platform
 import shutil
+import platform
+
+from cpacspy.cpacsfunctions import (
+    open_tixi,
+    get_value,
+    create_branch,
+    get_value_or_default,
+)
+
+from ceasiompy.utils.ceasiompyutils import (
+    call_main,
+    run_software,
+    aircraft_name,
+    get_results_directory,
+    get_reasonable_nb_cpu,
+)
+
 from pathlib import Path
+from cpacspy.cpacspy import CPACS
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.ceasiompyutils import aircraft_name, get_results_directory, run_software
-from ceasiompy.utils.commonxpath import SU2MESH_XPATH, SUMO_REFINE_LEVEL_XPATH, SUMOFILE_XPATH
-from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from cpacspy.cpacsfunctions import create_branch, get_value_or_default, open_tixi
+from ceasiompy import log
 
-log = get_logger()
+from ceasiompy.utils.commonxpath import (
+    SU2MESH_XPATH,
+    SUMO_REFINE_LEVEL_XPATH,
+    SUMOFILE_XPATH,
+    SPECIFIED_SUMOFILE_XPATH,
+)
 
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
-
+from ceasiompy.SUMOAutoMesh import MODULE_NAME
+from ceasiompy.CPACS2SUMO import MODULE_NAME as CPACS2SUMO
 
 # =================================================================================================
 #   FUNCTIONS
@@ -121,7 +138,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     body_cnt = get_part_count(sumo, ROOT_XPATH, part_name="BodySkeleton")
 
     for i_body in range(body_cnt):
-        body_xpath = ROOT_XPATH + f"/BodySkeleton[{i_body+1}]"
+        body_xpath = ROOT_XPATH + f"/BodySkeleton[{i_body + 1}]"
 
         circ_list = []
         min_radius = 10e6
@@ -164,7 +181,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     wing_cnt = get_part_count(sumo, ROOT_XPATH, part_name="WingSkeleton")
 
     for i_wing in range(wing_cnt):
-        wing_xpath = ROOT_XPATH + f"/WingSkeleton[{i_wing+1}]"
+        wing_xpath = ROOT_XPATH + f"/WingSkeleton[{i_wing + 1}]"
 
         chord_list = []
 
@@ -209,7 +226,7 @@ def add_mesh_parameters(sumo_file_path, refine_level=0.0):
     sumo.save(str(sumo_file_path))
 
 
-def create_SU2_mesh(cpacs_path, cpacs_out_path):
+def main(cpacs: CPACS, wkdir: Path):
     """Function to create a simple SU2 mesh form an SUMO file (.smx)
 
     Function 'create_mesh' is used to generate an unstructured mesh with  SUMO
@@ -220,28 +237,26 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
     Source :
         * sumo help, tetgen help (in the folder /doc)
 
-    Args:
-        cpacs_path (Path): Path to the CPACS file
-        cpacs_out_path (Path): Path to the output CPACS file
-
     """
+    tixi = cpacs.tixi
 
-    tixi = open_tixi(cpacs_path)
+    cpacs_to_sumo_wkdir = get_results_directory(CPACS2SUMO)
+    su2_mesh_path = Path(cpacs_to_sumo_wkdir, "ToolOutput.smx")
 
-    sumo_results_dir = get_results_directory("SUMOAutoMesh")
-    su2_mesh_path = Path(sumo_results_dir, "ToolOutput.su2")
+    if tixi.checkElement(SUMOFILE_XPATH):
+        sumo_file_path = Path(get_value(tixi, SUMOFILE_XPATH))
+    else:
+        sumo_file_path = Path(get_value(tixi, SPECIFIED_SUMOFILE_XPATH))
 
-    sumo_file_path = Path(get_value_or_default(tixi, SUMOFILE_XPATH, ""))
     if not sumo_file_path.exists():
         raise FileNotFoundError(f"No SUMO file has been found at: {sumo_file_path}")
 
-    log.info("Setting mesh parameters...")
     refine_level = get_value_or_default(tixi, SUMO_REFINE_LEVEL_XPATH, 1.0)
     log.info(f"Mesh refinement level: {refine_level}")
     add_mesh_parameters(sumo_file_path, refine_level)
 
     # Tetgen option, see the help for more options
-    output = "su2"
+    output = "smx"
     options = "pq1.16VY"
     arguments = [
         "-batch",
@@ -252,8 +267,10 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 
     current_os = platform.system()
 
-    if current_os == "Darwin":
-        log.info("Your OS is MacOS")
+    nb_cpu = get_reasonable_nb_cpu()
+
+    if (current_os == "Darwin") or (current_os == "Linux"):
+        log.info("Your OS is supported by SUMOAutoMesh.")
 
         # The complete command line to run is:
         # /Applications/SUMO/dwfsumo.app/Contents/MacOS/dwfsumo
@@ -263,15 +280,13 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
         # with QT occurs when trying to run the command.
         # The folder which contains the 'dwfsumo' executable must be in the PATH
 
-        run_software("dwfsumo", arguments, sumo_results_dir)
-
-    elif current_os == "Linux":
-        log.info("Your OS is Linux")
-
-        # The complete command line to run is:
-        # sumo -batch -output=su2 -tetgen-options=pq1.16VY ToolOutput.smx
-
-        run_software("dwfsumo", arguments, sumo_results_dir)
+        run_software(
+            software_name="dwfsumo",
+            arguments=arguments,
+            wkdir=wkdir,
+            with_mpi=False,
+            nb_cpu=nb_cpu
+        )
 
     elif current_os == "Windows":
         log.info("Your OS is Windows")
@@ -285,35 +300,27 @@ def create_SU2_mesh(cpacs_path, cpacs_out_path):
 
     # Copy the mesh in the MESH directory
     su2_mesh_name = aircraft_name(tixi) + "_baseline.su2"
-    su2_mesh_out_path = Path(sumo_results_dir, su2_mesh_name)
+    su2_mesh_out_path = Path(wkdir, su2_mesh_name)
+
+    if not os.path.exists(su2_mesh_path):
+        log.error(f"SU2 mesh file does not exist: {su2_mesh_path}")
+        return
+
     shutil.copyfile(su2_mesh_path, su2_mesh_out_path)
 
     if not su2_mesh_out_path.exists():
         raise ValueError("No SU2 Mesh file has been generated!")
+    else:
+        log.info("A SU2 Mesh has been correctly generated.")
 
-    log.info("An SU2 Mesh has been correctly generated.")
-    create_branch(tixi, SU2MESH_XPATH)
-    tixi.updateTextElement(SU2MESH_XPATH, str(su2_mesh_out_path))
-    su2_mesh_path.unlink()
-
-    tixi.save(str(cpacs_out_path))
-
+        create_branch(tixi, SU2MESH_XPATH)
+        tixi.updateTextElement(SU2MESH_XPATH, str(su2_mesh_out_path))
+        su2_mesh_path.unlink()
 
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
 
-def main(cpacs_path, cpacs_out_path):
-    log.info("----- Start of " + MODULE_NAME + " -----")
-
-    create_SU2_mesh(cpacs_path, cpacs_out_path)
-
-    log.info("----- End of " + MODULE_NAME + " -----")
-
-
 if __name__ == "__main__":
-    cpacs_path = get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
-
-    main(cpacs_path, cpacs_out_path)
+    call_main(main, MODULE_NAME)

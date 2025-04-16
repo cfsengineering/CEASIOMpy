@@ -3,121 +3,151 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Main Streamlit page for CEASIOMpy GUI
+Main Streamlit page for CEASIOMpy GUI.
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2022-09-09
 
-TODO:
-
 """
 
-import io
-from pathlib import Path
+# =================================================================================================
+#    IMPORTS
+# =================================================================================================
 
 import pyvista as pv
-from ceasiompy.utils.commonnames import CEASIOMPY_BEIGE, CEASIOMPY_ORANGE
-from ceasiompy.utils.workflowclasses import Workflow
-from cpacspy.cpacspy import CPACS
-
 import streamlit as st
-import streamlit.components.v1 as components
-from streamlitutils import create_sidebar, st_directory_picker
 
-how_to_text = (
-    "### How to use CEASIOMpy?\n"
-    "1. Chose your *Working directory*\n"
-    "1. Chose a *CPACS file*\n"
-    "1. Go to the *Workflow* page (with the menu above)\n"
+from stpyvista import stpyvista
+from src.streamlit.streamlitutils import (
+    create_sidebar,
 )
 
-create_sidebar(how_to_text)
+from pathlib import Path
+from cpacspy.cpacspy import CPACS
+from ceasiompy.utils.workflowclasses import Workflow
 
+from ceasiompy.utils.commonpaths import WKDIR_PATH
+from ceasiompy.utils.commonnames import (
+    CEASIOMPY_BEIGE,
+    CEASIOMPY_ORANGE,
+)
 
-def section_select_working_dir():
+# =================================================================================================
+#    CONSTANTS
+# =================================================================================================
 
-    st.markdown("#### Working directory")
+HOW_TO_TEXT = (
+    "### How to use CEASIOMpy?\n"
+    "1. Choose a *Working directory*\n"
+    "1. Choose a *CPACS file*\n"
+    "1. Go to *Workflow* page (with menu above)\n"
+)
 
-    if "workflow" not in st.session_state:
-        st.session_state.workflow = Workflow()
+PAGE_NAME = "CEASIOMpy"
 
-    st.session_state.workflow.working_dir = st_directory_picker(Path("../../WKDIR").absolute())
+# =================================================================================================
+#    FUNCTIONS
+# =================================================================================================
 
 
 def section_select_cpacs():
+    if "workflow" not in st.session_state:
+        st.session_state.workflow = Workflow()
 
+    st.session_state.workflow.working_dir = WKDIR_PATH
     st.markdown("#### CPACS file")
 
-    st.session_state.cpacs_file = st.file_uploader("Select a CPACS file", type=["xml"])
+    # Check if the CPACS file path is already in session state
+    if "cpacs_file_path" in st.session_state:
+        cpacs_file_path = st.session_state.cpacs_file_path
+        if Path(cpacs_file_path).exists():
+            st.session_state.cpacs = CPACS(cpacs_file_path)
+            # st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
+        else:
+            st.session_state.cpacs_file_path = None
 
-    if st.session_state.cpacs_file:
+    # File uploader widget
+    uploaded_file = st.file_uploader(
+        "Select a CPACS file",
+        type=["xml"],
+    )
 
-        cpacs_new_path = Path(
-            st.session_state.workflow.working_dir, st.session_state.cpacs_file.name
-        )
+    if uploaded_file:
+        cpacs_new_path = Path(st.session_state.workflow.working_dir, uploaded_file.name)
 
         with open(cpacs_new_path, "wb") as f:
-            f.write(st.session_state.cpacs_file.getbuffer())
+            f.write(uploaded_file.getbuffer())
 
         st.session_state.workflow.cpacs_in = cpacs_new_path
         st.session_state.cpacs = CPACS(cpacs_new_path)
+        st.session_state.cpacs_file_path = str(cpacs_new_path)
 
-        cpacs_new_path = Path(
-            st.session_state.workflow.working_dir, st.session_state.cpacs_file.name
-        )
-        st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
+        # st.info(f"**Aircraft name:** {st.session_state.cpacs.ac_name}")
 
-        if "cpacs" not in st.session_state:
-            st.session_state.cpacs = CPACS(cpacs_new_path)
+    # Display the file uploader widget with the previously uploaded file
+    if "cpacs_file_path" in st.session_state and st.session_state.cpacs_file_path:
+        st.success(f"Uploaded file: {st.session_state.cpacs_file_path}")
 
 
 def section_3D_view():
-    """Show a 3D view of the aircraft by exporting a STL file. The pyvista viewer is based on:
-    https://github.com/edsaac/streamlit-PyVista-viewer
+    """
+    Shows a 3D view of the aircraft by exporting a STL file.
+    The pyvista viewer is based on:
+        https://github.com/edsaac/streamlit-PyVista-viewer
     """
 
-    st.markdown("## 3D view")
+    st.markdown("##### 3D view")
 
     if "cpacs" not in st.session_state:
         st.warning("No CPACS file has been selected!")
         return
+    else:
+        stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
 
-    if not st.button("Show 3D view"):
-        return
+        st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
 
-    stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
+        # Using pythreejs as pyvista backend
+        pv.set_jupyter_backend("static")
 
-    st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
+        # Initialize pyvista reader and plotter
+        plotter = pv.Plotter(border=False, window_size=[572, 600])
+        plotter.background_color = CEASIOMPY_BEIGE
+        reader = pv.STLReader(str(stl_file))
 
-    # Using pythreejs as pyvista backend
-    pv.set_jupyter_backend("pythreejs")
+        # Read data and send to plotter
+        mesh = reader.read()
+        plotter.add_mesh(mesh, color=CEASIOMPY_ORANGE)
 
-    # Initialize pyvista reader and plotter
-    plotter = pv.Plotter(border=False, window_size=[572, 600])
-    plotter.background_color = CEASIOMPY_BEIGE
-    reader = pv.STLReader(str(stl_file))
+        # Camera
+        plotter.camera.azimuth = 110.0
+        plotter.camera.elevation = -20.0
+        plotter.camera.zoom(1.4)
 
-    # Read data and send to plotter
-    mesh = reader.read()
-    plotter.add_mesh(mesh, color=CEASIOMPY_ORANGE)
+        stpyvista(plotter)
 
-    # Camera
-    plotter.camera.azimuth = 110.0
-    plotter.camera.elevation = -20.0
-    plotter.camera.zoom(1.4)
-
-    # Export to a pythreejs HTML
-    model_html = io.StringIO()
-    plotter.export_html(model_html, backend="pythreejs")
-
-    # Show in webpage
-    components.html(model_html.getvalue(), height=600, width=572, scrolling=False)
+# =================================================================================================
+#    MAIN
+# =================================================================================================
 
 
-st.title("CEASIOMpy")
+if __name__ == "__main__":
 
-section_select_working_dir()
-section_select_cpacs()
-section_3D_view()
+    create_sidebar(HOW_TO_TEXT)
+    st.markdown("""
+        <style>
+        /* Align navigation buttons with selectbox */
+        .nav-button-container {
+            display: flex;
+            align-items: flex-end;
+            height: 100%;
+            padding-bottom: 5px;
+            margin-top: 23px;  /* Matches the label height + spacing */
+        }
+        </style>
+    """, unsafe_allow_html=True)
+
+    st.title(PAGE_NAME)
+
+    section_select_cpacs()
+    section_3D_view()

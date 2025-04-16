@@ -30,7 +30,7 @@
 
 Other differences may appear:
 
-:warning: Even if the definition of SUMO is close to CPACS, they differ in some points, thus for complex geometries, the SUMO geometry obtained may not be exact.  
+:warning: Even if the definition of SUMO is close to CPACS, they differ in some points, thus for complex geometries, the SUMO geometry obtained may not be exact.
 
 :warning: The interpolation of surfaces between existing sections may differ.
 
@@ -44,4 +44,4 @@ Other differences may appear:
 
 ## References
 
-<a id="Alder20">[1]</a> M. Alder, E. Moerland, J. Jepsen and B. Nagel. Recent Advances in Establishing a Common Language for Aircraft Design with CPACS. Aerospace Europe Conference 2020, Bordeaux, France, 2020. <https://elib.dlr.de/134341/>  
+<a id="Alder20">[1]</a> M. Alder, E. Moerland, J. Jepsen and B. Nagel. Recent Advances in Establishing a Common Language for Aircraft Design with CPACS. Aerospace Europe Conference 2020, Bordeaux, France, 2020. <https://elib.dlr.de/134341/>

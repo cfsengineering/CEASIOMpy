@@ -23,12 +23,12 @@ conda activate ceasiompy
 ceasiompy_run --testcase 1
 ```
 
-This workflow will take as input the CPACS file of the aircraft (D150_simple.xml), it will run the PyTornado module, and it will export the aerodynamic coefficients in a CSV file.
+This workflow will take as input the CPACS file of the aircraft (D150_simple.xml), it will run the PyAVL module, and it will export the aerodynamic coefficients in a CSV file.
 
 ```mermaid
   graph LR;
-      D150([D150 CPACS file])-->PyTornado;
-      PyTornado-->ExportCSV;
+      D150([D150 CPACS file])-->PyAVL;
+      PyAVL-->ExportCSV;
 ```
 
 You can find the exported CSV file in the results dir: `/Workflow_001/Results/Aeromaps/test_apm.csv` and it should look like this:
@@ -41,7 +41,7 @@ altitude,machNumber,angleOfSideslip,angleOfAttack,cd,cl,cs,cmd,cml,cms
 0,0.3,10,10,0.0545719,1.08554,-0.100854,0.249796,-0.84655,-4.65115
 ```
 
-You can see than PyTornado ran four calculations with different angles of attack and sideslip, but at the same altitude and Mach number. On the next test case, you will learn how to define your own flight parameters.
+You can see than PyAVL ran four calculations with different angles of attack and sideslip, but at the same altitude and Mach number. On the next test case, you will learn how to define your own flight parameters.
 
 These results have also been written in the last output CPACS file that you can find at : `/Workflow_001/02_ExportCSV/ToolOutput.xml`. It is a big file, because it contains all the geometric description of the aircraft. However, if you open it in a text editor and look for `test_apm`, you should find the following:
 
@@ -66,6 +66,6 @@ These results have also been written in the last output CPACS file that you can 
 </aeroPerformanceMap>
 ```
 
-You can see that parameters `altitude`, `machNumber`, `angleOfSideslip`, `angleOfAttack` and coefficients `cl`, `cd`, `cs`, `cml`, `cms` and `cmd` are defined as lists of four values, representing the four calculations made by PyTornado.
+You can see that parameters `altitude`, `machNumber`, `angleOfSideslip`, `angleOfAttack` and coefficients `cl`, `cd`, `cs`, `cml`, `cms` and `cmd` are defined as lists of four values, representing the four calculations made by PyAVL.
 
 | [Home](../../README.md#test-cases) | Next test case [**>>**](../test_case_2/README.md)

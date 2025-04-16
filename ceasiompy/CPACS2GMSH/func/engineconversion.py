@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 This script contains different functions to convert engine
 
-Python version: >=3.8
 
 | Author: Tony Govoni
 | Creation: 2022-05-12
@@ -13,26 +12,24 @@ Python version: >=3.8
 TODO:
     - When TIGL new version is incorporated, check all the function of this script
     and make the modification written in the function docstring
-"""
 
+"""
 
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
+
 from pathlib import Path
 from ceasiompy.utils.commonxpath import ENGINES_XPATH
 import gmsh
 import numpy as np
 from ceasiompy.CPACS2SUMO.func.engineclasses import Engine
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.ceasiompyutils import get_part_type
 from ceasiompy.utils.configfiles import ConfigFile
 from scipy.spatial.transform import Rotation as R
 
 
-log = get_logger()
-
-# ==============================================================================
 #   FUNCTIONS
 # ==============================================================================
 
@@ -167,11 +164,13 @@ def close_engine(nacelle_parts, engine_uids, brep_dir, engines_cfg_file, engine_
 
     # Import all the parts
     for brep_file in engine_files_path:
+        log.info(f"Importing brep file {brep_file}")
         part_entities = gmsh.model.occ.importShapes(str(brep_file), highestDimOnly=False)
         gmsh.model.occ.synchronize()
         part_to_fuse.append(part_entities[0])
 
     # Fuse them
+    log.info(f"Fusing brep file {part_to_fuse[:1]} with the rest")
     gmsh.model.occ.fuse(part_to_fuse[:1], part_to_fuse[1:], removeObject=True, removeTool=True)
     gmsh.model.occ.synchronize()
 
@@ -471,11 +470,10 @@ def reposition_engine(cpacs, engine_path, engine_uids, engines_cfg_file):
     # Save this info in the engines config file
     config_file.write_file(engines_cfg_file, overwrite=True)
 
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
-if __name__ == "__main__":
 
-    print("Nothing to execute!")
+if __name__ == "__main__":
+    log.info("Nothing to execute!")

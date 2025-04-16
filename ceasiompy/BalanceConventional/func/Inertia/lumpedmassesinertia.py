@@ -21,9 +21,8 @@ import math
 
 from cpacspy.cpacsfunctions import open_tigl, open_tixi
 
-from ceasiompy.utils.ceasiomlogger import get_logger
 
-log = get_logger()
+from ceasiompy import log
 
 
 # =============================================================================
@@ -151,9 +150,9 @@ def fuselage_inertia(SPACING, center_of_gravity, mass_seg_i, ag, cpacs_in):
             fx_t = fx * symx
             fy_t = fy * symy
             fz_t = fz * symz
-            [sfx.append(x) for x in fx_t]
-            [sfx.append(y) for y in fy_t]
-            [sfx.append(z) for z in fz_t]
+            # [sfx.append(x) for x in fx_t]
+            # [sfx.append(y) for y in fy_t]
+            # [sfx.append(z) for z in fz_t]
             M = mass_seg_i[int(i) - 1, f + a - 1] / np.max(np.shape(fx))
             fcx_t = fx_t - (np.zeros((np.shape(fx_t))) + center_of_gravity[0])
             fcy_t = fy_t - (np.zeros((np.shape(fy_t))) + center_of_gravity[1])

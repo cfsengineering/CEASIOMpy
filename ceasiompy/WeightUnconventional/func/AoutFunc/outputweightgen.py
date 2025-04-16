@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Output text and plot generation function for unconventional aircraft analysis.
 
-Python version: >=3.8
 
 | Author : Stefano Piccini
 | Date of creation: 2018-11-21
@@ -17,14 +16,6 @@ Python version: >=3.8
 # =============================================================================
 
 from ceasiompy.WeightConventional.func.weightutils import PILOT_NB
-
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and in the
-   InputClasses/Unconventional folder."""
 
 
 # =============================================================================

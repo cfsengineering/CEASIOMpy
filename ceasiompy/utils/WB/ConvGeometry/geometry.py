@@ -25,9 +25,7 @@ from ceasiompy.utils.WB.ConvGeometry.Fuselage.fusegeom import (
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.utils.commonxpath import FUSELAGES_XPATH, WINGS_XPATH
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
+from ceasiompy import log
 
 
 # =============================================================================
@@ -653,7 +651,7 @@ class AircraftGeometry:
             nb = np.shape(wing_sec_index)
             if nb[0] > nbmax:
                 nbmax = nb[0]
-            sec_index.resize(nbmax, self.w_nb, refcheck=False)
+            sec_index.resize((nbmax, self.w_nb), refcheck=False)
             sec_index[0 : nb[0], i - 1] = wing_sec_index[0 : nb[0]]
             sec_nb.append(nb[0])
 
@@ -830,4 +828,4 @@ class AircraftGeometry:
 
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

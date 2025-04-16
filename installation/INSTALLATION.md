@@ -19,7 +19,7 @@ Before you run this command, you should read the following remarks:
 
 - If you already have a recent version of [Miniconda](https://docs.conda.io/en/latest/miniconda.html) or [Anaconda](https://anaconda.org/) installed on you computer, you can skip the line with `./install_conda.sh`
 
-- PyTornado, SUMO, SU2 and Paraview are not mandatory to run CEASIOMpy. You can skip the lines corresponding to those you don't want to install. However, if you want to be able to run all possible workflows, you should have all the modules.
+- Avl, SUMO, SU2 and Paraview are not mandatory to run CEASIOMpy. You can skip the lines corresponding to those you don't want to install. However, if you want to be able to run all possible workflows, you should have all the modules.
 
 - Some softwares will need to be executed with `sudo` command. It will ask you for your password and you will have to type `yes` to confirm some of the installation steps.
 
@@ -39,7 +39,6 @@ cd CEASIOMpy/installation/Ubuntu
 source ~/.bashrc
 ./install_ceasiompy.sh
 ./install_pyavl.sh
-./install_pytornado.sh
 ./install_sumo.sh
 ./install_su2.sh
 ./install_paraview.sh
@@ -56,7 +55,6 @@ cd CEASIOMpy/installation/CentOS
 source ~/.bashrc
 ./install_ceasiompy.sh
 ./install_pyavl.sh
-./install_pytornado.sh
 ./install_sumo.sh
 ./install_su2.sh
 ./install_paraview.sh
@@ -70,7 +68,6 @@ conda activate ceasiompy
 python -c "import ceasiompy"
 cpacscreator # A "CPACSCreator" window will open, you can close it.
 avl # The avl interface should appear in the terminal
-pytornado # You should see the help of PyTornado in the terminal.
 sumo # A "SUMO" window will open, you can close it.
 SU2_CFD # You should see something like "Error in "void CConfig::SetConfig_Parsing(char*)" in the terminal
 paraview # A "Paraview" window will open, you can close it.
@@ -96,7 +93,6 @@ You can try to install it manually, the basic steps are the following:
 - Create the conda environment `ceasiompy` with the command `conda env create -f environment.yml`
 - Activate the conda environment with the command `conda activate ceasiompy`
 - Run the command `pip install -e .`
-- Install [PyTornado](https://github.com/airinnova/pytornado)
 - Install [SUMO](https://www.larosterna.com/products/open-source)
 - Install [AVL](https://web.mit.edu/drela/Public/web/avl)
 - Install [SU2](https://su2code.github.io/download.html)
@@ -113,7 +109,6 @@ You can install it manually, the basic steps are the following:
 - Create the conda environment `ceasiompy` with the command `conda env create -f environment.yml`
 - Activate the conda environment with the command `conda activate ceasiompy`
 - Run the command `pip install -e .`
-- Install [PyTornado](https://github.com/airinnova/pytornado)
 - Install [SUMO](https://www.larosterna.com/products/open-source)
 - Install [AVL](https://web.mit.edu/drela/Public/web/avl)
 - Install [SU2](https://su2code.github.io/download.html)

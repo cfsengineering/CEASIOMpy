@@ -166,11 +166,6 @@ If you are new to Python we recommend some material that could help you (you can
 
 Other resources that could the useful.
 
-#### PyTornado
-
-- [PyTornado website](https://pytornado.readthedocs.io/en/latest/)
-- [Github repository](https://github.com/airinnova/pytornado)
-
 #### GMSH
 
 - [GMSH website](https://gmsh.info/)

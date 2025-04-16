@@ -12,7 +12,7 @@ Lunit = 1.0 m
 Munit = 1.0 kg
 Tunit = 1.0    s
 
-#------------------------- 
+#-------------------------
 #  Gravity and density to be used as default values in trim setup.
 #  Must be in the units given above.
 g = 9.81

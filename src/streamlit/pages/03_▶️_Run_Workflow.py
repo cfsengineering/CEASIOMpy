@@ -5,69 +5,98 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Streamlit page to run a CEASIOMpy workflow
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2022-09-16
-
-TODO:
+| Modified : Leon Deligny
+| Date: 10-Mar-2025
 
 """
 
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+
 import os
+import psutil
+import signal
+import streamlit as st
+
+from streamlit_autorefresh import st_autorefresh
+from streamlitutils import (
+    create_sidebar,
+    save_cpacs_file,
+)
+
 from pathlib import Path
 
-import ceasiompy.__init__
-import streamlit as st
-from streamlitutils import create_sidebar
-from streamlit_autorefresh import st_autorefresh
+from ceasiompy.utils.commonpaths import LOGFILE
 
-CEASIOMPY_PATH = Path(ceasiompy.__init__.__file__).parents[1]
-LOGFILE = Path(CEASIOMPY_PATH, "ceasiompy.log")
+# ==============================================================================
+#   CONSTANTS
+# ==============================================================================
 
-how_to_text = (
+# Set the current page in session state
+PAGE_NAME = "Run Workflow"
+
+HOW_TO_TEXT = (
     "### How to Run your workflow?\n"
-    "1. Just click on the *Run* button\n"
-    "Depending your workflow it could take time to get result, you can see the logs of what's "
-    "happening.\n\n"
+    "1. Click on the *Run* button\n"
+    "Some workflows takes time, you can always check the LogFile \n\n"
     "2. When it is done, go to the *Results* page\n"
 )
 
-create_sidebar(how_to_text)
+# ==============================================================================
+#   FUNCTIONS
+# ==============================================================================
 
-# Custom CSS
-st.markdown(
+
+def terminate_previous_workflows() -> None:
     """
-    <style>
-    .css-4u7rgp  {
-        padding: 15px;
-        font-size: 20px;
-        border-radius:10px;
-    }
-    </style>
-    """,
-    unsafe_allow_html=True,
-)
+    Terminate any previously running workflow processes.
+    """
+    for proc in psutil.process_iter(attrs=["pid", "name", "cmdline"]):
+        try:
+            # Check if the process is running the workflow script
+            if "python" in proc.info["name"] and "runworkflow.py" in proc.info["cmdline"]:
+                # Terminate the process
+                os.kill(proc.info["pid"], signal.SIGTERM)
+        except (psutil.NoSuchProcess, psutil.AccessDenied, psutil.ZombieProcess):
+            pass
 
 
-def run_workflow_button():
-    if st.button("Run ▶️", help="Run the workflow "):
+def workflow_buttons() -> None:
+    """
+    Run workflow button.
+    """
 
-        # save_cpacs_file()
+    # Create two buttons side by side
+    col1, col2 = st.columns([1, 1])
 
-        st.session_state.workflow.modules_list = st.session_state.workflow_modules
-        st.session_state.workflow.optim_method = "None"
-        st.session_state.workflow.module_optim = ["NO"] * len(
-            st.session_state.workflow.modules_list
-        )
-        st.session_state.workflow.write_config_file()
+    with col1:
+        if st.button("Run ▶️", help="Run the workflow"):
+            terminate_previous_workflows()
 
-        # Run workflow from an external script
-        config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
-        os.system(f"python runworkflow.py {config_path}  &")
+            st.session_state.workflow.modules_list = st.session_state.workflow_modules
+            st.session_state.workflow.optim_method = "None"
+            st.session_state.workflow.module_optim = ["NO"] * len(
+                st.session_state.workflow.modules_list
+            )
+            st.session_state.workflow.write_config_file()
+
+            # Run workflow from an external script
+            config_path = Path(st.session_state.workflow.working_dir, "ceasiompy.cfg")
+            os.system(f"python runworkflow.py {config_path} &")
+
+    with col2:
+        if st.button("Terminate ✖️", help="Terminate the workflow"):
+            terminate_previous_workflows()
 
 
-def show_logs():
+def show_logs() -> None:
+    """
+    Log interface.
+    """
 
     st.markdown("")
     st.markdown("##### Logfile")
@@ -77,12 +106,42 @@ def show_logs():
 
     lines_str = "\n".join(reversed(lines))
 
-    st.text_area("(more recent on top)", lines_str, height=300, disabled=True)
+    st.text_area("(more recent on top)", lines_str, height=400, disabled=True)
 
 
-st.title("Run workflow")
+# =================================================================================================
+#    MAIN
+# =================================================================================================
 
-run_workflow_button()
-show_logs()
+if __name__ == "__main__":
 
-st_autorefresh(interval=1000, limit=10000, key="auto_refresh")
+    # Define Interface
+    create_sidebar(HOW_TO_TEXT)
+
+    # Custom CSS
+    st.markdown(
+        """
+        <style>
+        .css-4u7rgp  {
+            padding: 15px;
+            font-size: 20px;
+            border-radius:10px;
+        }
+        </style>
+        """,
+        unsafe_allow_html=True,
+    )
+
+    st.title(PAGE_NAME)
+
+    if "last_page" in st.session_state and st.session_state.last_page != PAGE_NAME:
+        save_cpacs_file()
+
+    workflow_buttons()
+    show_logs()
+
+    # AutoRefresh for logs
+    st_autorefresh(interval=1000, limit=10000, key="auto_refresh")
+
+    # Update last_page
+    st.session_state.last_page = PAGE_NAME

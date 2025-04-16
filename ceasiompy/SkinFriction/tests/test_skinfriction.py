@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'lib/SkinFriction/skinfriction.py'
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2019-07-17
@@ -16,28 +15,28 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-import logging
 from pathlib import Path
 
-from ceasiompy.SkinFriction.skinfriction import add_skin_friction, estimate_skin_friction_coef
+from ceasiompy.utils.ceasiompyutils import get_results_directory, current_workflow_dir
+from ceasiompy.SkinFriction.skinfriction import (
+    main as add_skin_friction,
+    estimate_skin_friction_coef,
+)
 from cpacspy.cpacspy import CPACS
 from pytest import approx
+
+from ceasiompy.utils.commonpaths import LOGFILE
 
 MODULE_DIR = Path(__file__).parent
 CPACS_IN_PATH = Path(MODULE_DIR, "D150_simple_SkinFriction_test.xml")
 CPACS_OUT_PATH = Path(MODULE_DIR, "D150_simple_skinfriction_test_output.xml")
 
 # =================================================================================================
-#   CLASSES
-# =================================================================================================
-
-
-# =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
 
 
-def test_estimate_skin_friction_coef(caplog):
+def test_estimate_skin_friction_coef():
     """Test function 'estimate_skin_friction_coef'"""
 
     # Normal case
@@ -51,34 +50,35 @@ def test_estimate_skin_friction_coef(caplog):
     for cd0, inputs in test_dict.items():
         assert cd0 == approx(estimate_skin_friction_coef(*inputs))
 
-    # Case that raise warning (in logs)
-    caplog.clear()
-
-    with caplog.at_level(logging.WARNING):
+    with open(LOGFILE, "r") as log_file:
         estimate_skin_friction_coef(400.0, 50, 20, 0.22, 12000)
-    assert "Reynolds number is out of range." in caplog.text
+        assert "Reynolds number is out of range." in log_file.read()
 
-    with caplog.at_level(logging.WARNING):
+    with open(LOGFILE, "r") as log_file:
         estimate_skin_friction_coef(3401.0, 100, 20, 0.78, 12000)
-    assert "Wetted area is not in the correct range." in caplog.text
+        assert "Wetted area is not in the correct range." in log_file.read()
 
-    with caplog.at_level(logging.WARNING):
+    with open(LOGFILE, "r") as log_file:
         estimate_skin_friction_coef(701.813, 19, 20, 0.78, 12000)
-    assert "Wing area is not in the correct range." in caplog.text
+        assert "Wing area is not in the correct range." in log_file.read()
 
-    with caplog.at_level(logging.WARNING):
+    with open(LOGFILE, "r") as log_file:
         estimate_skin_friction_coef(701.813, 100, 75, 0.78, 12000)
-    assert "Wing span is not in the correct range." in caplog.text
+        assert "Wing span is not in the correct range." in log_file.read()
 
 
 def test_add_skin_friction():
     """Test function 'add_skin_friction'"""
 
+    cpacs = CPACS(CPACS_IN_PATH)
+    workflow_dir = current_workflow_dir()
     # User the function to add skin frictions
-    add_skin_friction(CPACS_IN_PATH, CPACS_OUT_PATH)
+    add_skin_friction(
+        cpacs,
+        wkdir=get_results_directory("SkinFriction", create=True, wkflow_dir=workflow_dir)
+    )
 
     # Read the aeromap with the skin friction added in the output cpacs file
-    cpacs = CPACS(CPACS_OUT_PATH)
     apm_sf = cpacs.get_aeromap_by_uid("test_apm_SkinFriction")
 
     # Expected values
@@ -100,7 +100,6 @@ def test_add_skin_friction():
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Test SkinFriction")
     print("To run test use the following command:")
     print(">> pytest -v")

@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'lib/moduleinterfaces.py'
 
-Python version: >=3.8
 
 | Author : Aaron Dettmann
 | Creation: 2019-09-09
@@ -16,8 +15,9 @@ Python version: >=3.8
 #   IMPORTS
 # =================================================================================================
 
-
+import streamlit as st
 from pathlib import Path
+from cpacspy.cpacspy import CPACS
 
 import pytest
 from ceasiompy.utils.moduleinterfaces import (
@@ -31,8 +31,8 @@ from ceasiompy.utils.moduleinterfaces import (
     get_toolinput_file_path,
     get_tooloutput_file_path,
 )
-from ceasiompy.utils.commonpaths import MODULES_DIR_PATH
-from ceasiompy.utils.commonxpath import RANGE_XPATH
+from ceasiompy.utils.commonpaths import MODULES_DIR_PATH, CPACS_FILES_PATH
+from ceasiompy.utils.commonxpath import RANGE_CRUISE_ALT_XPATH
 
 MODULE_DIR = Path(__file__).parent
 CPACS_TEST_FILE = Path(MODULE_DIR, "ToolInput", "cpacs_test_file.xml")
@@ -107,17 +107,17 @@ def test_check_cpacs_input_requirements():
     """
 
     cpacs_inout = CPACSInOut()
-    cpacs_file = Path(MODULE_DIR, "ToolInput", "D150_AGILE_Hangar_v3.xml")
+    cpacs_file = CPACS(Path(MODULE_DIR, "ToolInput", "D150_AGILE_Hangar_v3.xml"))
 
     cpacs_inout.add_input(
         var_name="cruise_alt",
         default_value=12000,
         unit="m",
         descr="Aircraft cruise altitude",
-        xpath=RANGE_XPATH + "/cruiseAltitude",
+        xpath=RANGE_CRUISE_ALT_XPATH,
     )
 
-    assert check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout) is None
+    assert check_cpacs_input_requirements(cpacs_file.tixi, cpacs_inout=cpacs_inout) is None
 
     cpacs_inout.add_input(
         var_name="something",
@@ -128,7 +128,7 @@ def test_check_cpacs_input_requirements():
     )
 
     with pytest.raises(CPACSRequirementError):
-        check_cpacs_input_requirements(cpacs_file, cpacs_inout=cpacs_inout)
+        check_cpacs_input_requirements(cpacs_file.tixi, cpacs_inout=cpacs_inout)
 
 
 def test_get_module_list():
@@ -198,7 +198,7 @@ def test_get_all_module_specs():
     """
     Test that 'get_all_module_specs()' runs
     """
-
+    st.session_state.cpacs = CPACS(Path(CPACS_FILES_PATH, "D150_simple.xml"))
     all_specs = get_all_module_specs()
     assert isinstance(all_specs, dict)
 
@@ -217,7 +217,6 @@ def test_create_default_toolspecific():
 # =================================================================================================
 
 if __name__ == "__main__":
-
     print("Test moduleinterfaces.py")
     print("To run test use the following command:")
     print(">> pytest -v")

@@ -34,18 +34,7 @@ import numpy as np
 
 from cpacspy.cpacsfunctions import create_branch, open_tixi
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
-
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and into the
-   InputClasses/Uconventional folder"""
-
+from ceasiompy import log
 
 # =============================================================================
 #   FUNCTIONS

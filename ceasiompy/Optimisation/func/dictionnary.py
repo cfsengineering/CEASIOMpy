@@ -6,7 +6,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 Functions to create the dictionnary of geometric variables needed
 for the optimnization routine.
 
-Python version: >=3.8
 
 | Author : Vivien Riolo
 | Creation: 2020-03-24
@@ -24,11 +23,10 @@ TODO
 # =================================================================================================
 
 import numpy as np
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from cpacspy.cpacsfunctions import get_tigl_configuration, open_tigl
 from cpacspy.utils import COEFS, PARAMS_COEFS
 
-log = get_logger()
 
 # Contains the geometric design variables
 geom_var_dict = {}
@@ -401,4 +399,4 @@ def init_geom_var_dict(tixi):
 
 
 if __name__ == "__main__":
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

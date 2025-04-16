@@ -41,10 +41,10 @@ Inviscid flow: Computing density based on free-stream
 temperature and pressure using the ideal gas law.
 Force coefficients computed using free-stream values.
 -- Input conditions:
-Fluid Model: STANDARD_AIR 
+Fluid Model: STANDARD_AIR
 Specific gas constant: 287.058 N.m/kg.K.
 Specific gas constant (non-dim): 7.93651
-Specific Heat Ratio: 1.4000 
+Specific Heat Ratio: 1.4000
 Free-stream static pressure: 101325 Pa.
 Free-stream total pressure: 107853 Pa.
 Free-stream temperature: 288.15 K.

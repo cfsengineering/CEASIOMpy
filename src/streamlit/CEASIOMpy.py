@@ -14,7 +14,6 @@ Main Streamlit page for CEASIOMpy GUI.
 #    IMPORTS
 # =================================================================================================
 
-import os
 import pyvista as pv
 import streamlit as st
 

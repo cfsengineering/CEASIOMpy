@@ -3,18 +3,14 @@
 # Use the commands below to build the Docker image,
 # and then to run the Docker container.
 
-"""
-docker build -t ceasiompy:local -f CEASIOMpyInstallation .
-"""
+#docker build -t ceasiompy:local -f CEASIOMpyInstallation .
 
-"""
-docker run -it --rm \
--e DISPLAY=$DISPLAY \
--e LIBGL_ALWAYS_SOFTWARE=1 \
--v /tmp/.X11-unix:/tmp/.X11-unix \
--v /home/cfse2/Leon/GiacomoBranch/CEASIOMpy:/CEASIOMpy \
-ceasiompy:local
-"""
+#docker run -it --rm \
+#-e DISPLAY=$DISPLAY \
+#-e LIBGL_ALWAYS_SOFTWARE=1 \
+#-v /tmp/.X11-unix:/tmp/.X11-unix \
+#-v /home/cfse2/Leon/GiacomoBranch/CEASIOMpy:/CEASIOMpy \
+#ceasiompy:local
 
 FROM centos:8
 

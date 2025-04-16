@@ -6,7 +6,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Script to run aeroelastic computations using AVL to compute
 aerodynamic loads and FramAT for structural calculations.
 
-Python version: >=3.8
 
 | Author: Romain Gauthier
 | Creation: 2024-06-17
@@ -20,18 +19,20 @@ TODO:
 # ==============================================================================
 #   IMPORTS
 # ==============================================================================
-from ceasiompy.utils.ceasiomlogger import get_logger
-from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from ceasiompy.utils.ceasiompyutils import get_results_directory
-from ceasiompy.PyAVL.avlrun import run_avl
-from ceasiompy.PyAVL.func.avlconfig import get_aeromap_conditions
+from ceasiompy import log
+
+from ceasiompy.utils.ceasiompyutils import call_main
+
+from ceasiompy.PyAVL.pyavl import main as run_avl
+from ceasiompy.utils.ceasiompyutils import get_aeromap_conditions
 from cpacspy.cpacsfunctions import (
     get_value_or_default,
     create_branch,
-    open_tixi
 )
-from ceasiompy.PyAVL.func.avlresults import convert_ps_to_pdf
-from ceasiompy.AeroFrame.func.aeroframe_config import (
+from ceasiompy.PyAVL.func.results import convert_ps_to_pdf
+from ceasiompy.AeroFrame.func.config import (
+from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
+from ceasiompy.AeroFrame_new.func.aeroframe_config import (
     read_AVL_fe_file,
     create_framat_model,
     get_material_properties,
@@ -43,18 +44,28 @@ from ceasiompy.AeroFrame.func.aeroframe_config import (
 )
 
 from ceasiompy.AeroFrame.func.aeroframe_results import (
+========
+from ceasiompy.AeroFrame_new.func.results import (
+>>>>>>>> origin/main:ceasiompy/AeroFrame/aeroframe_new.py
     compute_deformations,
     plot_translations_rotations,
     plot_convergence
 )
 
+<<<<<<<< HEAD:ceasiompy/AeroFrame/aeroframe_run.py
 from ceasiompy.AeroFrame.func.aeroframe_debbug import (
+========
+from ceasiompy.AeroFrame_new.func.plot import (
+>>>>>>>> origin/main:ceasiompy/AeroFrame/aeroframe_new.py
     plot_fem_mesh,
     plot_deformed_wing
 )
 
-from ceasiompy.utils.commonxpath import (
+from ceasiompy.PyAVL import (
     AVL_PLOT_XPATH,
+    AVL_AEROMAP_UID_XPATH,
+)
+from ceasiompy.utils.commonxpath import (
     FRAMAT_RESULTS_XPATH,
     FRAMAT_MESH_XPATH,
     AEROFRAME_SETTINGS
@@ -68,9 +79,6 @@ from scipy import interpolate
 import subprocess
 import pandas as pd
 import shutil
-
-
-log = get_logger()
 
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
@@ -109,9 +117,8 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
     AVL_ITER1_PATH = Path(CASE_PATH, "Iteration_1", "AVL")
 
     # Get the path to the undeformed/initial AVL geometry
-    for path in get_results_directory("PyAVL").glob('*.avl'):
+    for path in AVL_ITER1_PATH.glob('*.avl'):
         AVL_UNDEFORMED_PATH = path
-
     AVL_UNDEFORMED_COMMAND = Path(AVL_ITER1_PATH, "avl_commands.txt")
 
     # Get the properties of each cross-section of the wing
@@ -157,9 +164,9 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
             if "Xle" in line:
                 next_line = lines[i + 1].strip()
                 parts = next_line.split()
-                Xle_list.append(float(parts[0]) + wing_origin[0])
-                Yle_list.append(float(parts[1]) + wing_origin[1])
-                Zle_list.append(float(parts[2]) + wing_origin[2])
+                Xle_list.append(float(parts[0]) * wg_scaling[0] + wing_origin[0])
+                Yle_list.append(float(parts[1]) * wg_scaling[1] + wing_origin[1])
+                Zle_list.append(float(parts[2]) * wg_scaling[2] + wing_origin[2])
 
     Xle_array = np.array(Xle_list)
     Yle_array = np.array(Yle_list)
@@ -204,9 +211,9 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         log.info("")
         log.info(f"----- FramAT: Deformation {n_iter} -----")
 
-        Path(CASE_PATH, f"Iteration_{n_iter+1}", "AVL").mkdir(parents=True, exist_ok=True)
+        Path(CASE_PATH, f"Iteration_{n_iter + 1}", "AVL").mkdir(parents=True, exist_ok=True)
         Path(CASE_PATH, f"Iteration_{n_iter}", "FramAT").mkdir(parents=True, exist_ok=True)
-        AVL_ITER_PATH = Path(CASE_PATH, f"Iteration_{n_iter+1}", "AVL")
+        AVL_ITER_PATH = Path(CASE_PATH, f"Iteration_{n_iter + 1}", "AVL")
         FRAMAT_ITER_PATH = Path(CASE_PATH, f"Iteration_{n_iter}", "FramAT")
         AVL_DEFORMED_PATH = Path(AVL_ITER_PATH, "deformed.avl")
         AVL_DEFORMED_COMMAND = Path(AVL_ITER_PATH, "avl_commands.txt")
@@ -274,17 +281,23 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
 
         log.info(f"Iteration {n_iter} done!")
         log.info(
-            f"Wing tip deflection:     {deflection:.3e} m "
+            f"Wing tip deflection : {deflection:.3e} m "
             f"({percentage:.2%} of the semi-span length)."
         )
-        log.info(f"Residual:                {res[-1]:.3e}")
+        log.info(f"Residual            : {res[-1]:.3e}")
 
         # Run AVL with the new deformed geometry
         write_deformed_geometry(AVL_UNDEFORMED_PATH, AVL_DEFORMED_PATH, centerline_df, deformed_df)
         write_deformed_command(AVL_UNDEFORMED_COMMAND, AVL_DEFORMED_COMMAND)
+        log.info("")
+        log.info(f"----- AVL: Calculation {n_iter + 1} -----")
+        log.info("Running AVL ...")
         subprocess.run(["xvfb-run", "avl"],
                        stdin=open(str(AVL_DEFORMED_COMMAND), "r"),
-                       cwd=AVL_ITER_PATH)
+                       cwd=AVL_ITER_PATH,
+                       stdout=subprocess.DEVNULL
+                       )
+        log.info("AVL done!")
 
         save_avl_plot = get_value_or_default(cpacs.tixi, AVL_PLOT_XPATH, False)
         if save_avl_plot:
@@ -321,10 +334,10 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
         centerline_df['structural_work'] = centerline_df.apply(compute_structural_work, axis=1)
         total_structural_work = centerline_df['structural_work'].sum()
 
-        log.info(f"Total aerodynamic work:  {total_aero_work:.3e} J.")
-        log.info(f"Total structural work:   {total_structural_work:.3e} J.")
+        log.info(f"Total aerodynamic work : {total_aero_work:.3e} J.")
+        log.info(f"Total structural work  : {total_structural_work:.3e} J.")
         log.info(
-            f"Work variation:          "
+            f"Work variation         : "
             f"{((total_aero_work - total_structural_work) / total_aero_work):.2%}."
         )
     log.info("")
@@ -337,20 +350,23 @@ def aeroelastic_loop(cpacs_path, CASE_PATH, q, xyz, fxyz):
     deflection = delta_tip[-1]
     percentage = deflection / semi_span
 
+    log.info(f"Final tip deflection residual : {res[-1]:.3e}")
     log.info(
-        f"Wing tip deflection:     {deflection:.3e} m ({percentage:.2%} of the semi-span length).")
-    log.info(f"Wing tip twist:          {tip_twist:.3e} degrees.")
-    log.info(f"Total aerodynamic work:  {total_aero_work:.3e} J.")
-    log.info(f"Total structural work:   {total_structural_work:.3e} J.")
+        "Wing tip deflection           : "
+        f"{deflection:.3e} m ({percentage:.2%} of the semi-span length)."
+    )
+    log.info(f"Wing tip twist                : {tip_twist:.3e} degrees.")
+    log.info(f"Total aerodynamic work        : {total_aero_work:.3e} J.")
+    log.info(f"Total structural work         : {total_structural_work:.3e} J.")
     log.info(
-        "Work variation:          "
+        "Work variation                : "
         f"{((total_aero_work - total_structural_work) / total_aero_work):.2%}."
     )
 
     return delta_tip, res
 
 
-def aeroframe_run(cpacs_path, cpacs_out_path, wkdir):
+def main(cpacs: CPACS, wkdir: Path) -> None:
     """Function to run aeroelastic calculations.
 
     Function 'aeroframe_run' runs aeroelastic calculations
@@ -362,13 +378,25 @@ def aeroframe_run(cpacs_path, cpacs_out_path, wkdir):
         cpacs_out_path (Path): path to the CPACS output file.
         wkdir (Path): path to the working directory.
     """
-    tixi = open_tixi(cpacs_path)
-    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(cpacs_path)
+    cpacs_path = cpacs.cpacs_file
+    tixi = cpacs.tixi
+    alt_list, mach_list, aoa_list, aos_list = get_aeromap_conditions(
+        cpacs_path,
+        AVL_AEROMAP_UID_XPATH
+    )
+    log.info("FLIGHT CONDITIONS:")
+    log.info(f"\tAltitude          : {', '.join(str(a) for a in alt_list)} meters")
+    log.info(f"\tMach number       : {', '.join(str(m) for m in mach_list)}")
+    log.info(f"\tAngle of attack   : {', '.join(str(a) for a in aoa_list)} degrees")
+    log.info(f"\tAngle of sideslip : {', '.join(str(a) for a in aos_list)} degrees\n")
 
     # First AVL run
-    run_avl(cpacs_path, wkdir)
+    log.info("----- AVL: Calculation 1 -----")
 
-    for i_case in range(len(alt_list)):
+    # First AVL run
+    run_avl(cpacs, wkdir)
+
+    for i_case, _ in enumerate(alt_list):
         alt = alt_list[i_case]
         mach = mach_list[i_case]
         aoa = aoa_list[i_case]
@@ -407,7 +435,6 @@ def aeroframe_run(cpacs_path, cpacs_out_path, wkdir):
         # Write results in CPACS out
         create_branch(tixi, FRAMAT_RESULTS_XPATH + "/TipDeflection")
         tixi.updateDoubleElement(FRAMAT_RESULTS_XPATH + "/TipDeflection", tip_deflection[-1], "%g")
-        tixi.save(str(cpacs_out_path))
 
         plot_convergence(tip_deflection, residuals, wkdir=CASE_PATH)
 
@@ -416,6 +443,7 @@ def aeroframe_run(cpacs_path, cpacs_out_path, wkdir):
 #    MAIN
 # =================================================================================================
 
+<<<<<<<< HEAD:ceasiompy/AeroFrame/aeroframe_run.py
 
 def main(cpacs_path, cpacs_out_path):
     log.info("----- Start of " + MODULE_NAME + " -----")
@@ -426,8 +454,7 @@ def main(cpacs_path, cpacs_out_path):
     log.info("----- End of " + MODULE_NAME + " -----")
 
 
+========
+>>>>>>>> origin/main:ceasiompy/AeroFrame/aeroframe_new.py
 if __name__ == "__main__":
-    cpacs_path = get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
-
-    main(cpacs_path, cpacs_out_path)
+    call_main(main, MODULE_NAME)

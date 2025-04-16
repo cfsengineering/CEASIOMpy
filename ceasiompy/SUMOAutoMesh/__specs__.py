@@ -1,16 +1,10 @@
-from pathlib import Path
 
-from ceasiompy.utils.commonxpath import SU2MESH_XPATH, SUMO_REFINE_LEVEL_XPATH, SUMOFILE_XPATH
+from ceasiompy.utils.commonxpath import (
+    SU2MESH_XPATH,
+    SUMO_REFINE_LEVEL_XPATH,
+    SPECIFIED_SUMOFILE_XPATH,
+)
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-module_status = True
-
-# ===== Results directory path =====
-
-RESULTS_DIR = Path("Results", "SUMO")
 
 
 # ===== CPACS inputs and outputs =====
@@ -25,7 +19,7 @@ cpacs_inout.add_input(
     default_value="-",
     unit="1",
     descr="Absolute path to the SUMO file",
-    xpath=SUMOFILE_XPATH,
+    xpath=SPECIFIED_SUMOFILE_XPATH,
     gui=True,
     gui_name="SUMO File path",
     gui_group="Inputs",

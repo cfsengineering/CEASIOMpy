@@ -1,21 +1,21 @@
  ---------------------------------------------------------------
  Surface and Strip Forces by surface
 
-  Sref = 0.27000E-01   Cref = 0.70000E-01   Bref = 0.39200    
-  Xref = 0.19200       Yref =  0.0000       Zref =  0.0000    
+  Sref = 0.27000E-01   Cref = 0.70000E-01   Bref = 0.39200
+  Xref = 0.19200       Yref =  0.0000       Zref =  0.0000
 
-  Surface # 1     Wing                                    
+  Surface # 1     Wing
      # Chordwise =  5   # Spanwise = 20     First strip =  1
      Surface area Ssurf =    0.013703     Ave. chord Cave =    0.067500
 
  Forces referred to Sref, Cref, Bref about Xref, Yref, Zref
- Standard axis orientation,  X fwd, Z down         
+ Standard axis orientation,  X fwd, Z down
      CLsurf  =   0.17532     Clsurf  =  -0.04113
      CYsurf  =   0.00714     Cmsurf  =  -0.00681
      CDsurf  =   0.00312     Cnsurf  =  -0.00444
      CDisurf =   0.00312     CDvsurf =   0.00000
 
- Forces referred to Ssurf, Cave 
+ Forces referred to Ssurf, Cave
      CLsurf  =   0.34545     CDsurf  =   0.00614
 
  Strip Forces referred to Strip Area, Chord
@@ -41,18 +41,18 @@
     19   0.2546   0.1878   0.0000   0.0484   0.0005   0.0150   0.0659   0.4877   0.3113  -0.0013   0.0000   0.0162  -0.0475    0.198
     20   0.2629   0.1979   0.0000   0.0461   0.0005   0.0106   0.0727   0.3610   0.2304  -0.0027   0.0000   0.0203  -0.0288    0.162
 
-  Surface # 2     Wing (YDUP)                             
+  Surface # 2     Wing (YDUP)
      # Chordwise =  5   # Spanwise = 20     First strip = 21
      Surface area Ssurf =    0.013703     Ave. chord Cave =    0.067500
 
  Forces referred to Sref, Cref, Bref about Xref, Yref, Zref
- Standard axis orientation,  X fwd, Z down         
+ Standard axis orientation,  X fwd, Z down
      CLsurf  =   0.17532     Clsurf  =   0.04113
      CYsurf  =  -0.00714     Cmsurf  =  -0.00681
      CDsurf  =   0.00312     Cnsurf  =   0.00444
      CDisurf =   0.00312     CDvsurf =   0.00000
 
- Forces referred to Ssurf, Cave 
+ Forces referred to Ssurf, Cave
      CLsurf  =   0.34545     CDsurf  =   0.00614
 
  Strip Forces referred to Strip Area, Chord

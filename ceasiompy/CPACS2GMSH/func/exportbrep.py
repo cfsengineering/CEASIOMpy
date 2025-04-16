@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Small description of the script
 
-Python version: >=3.8
 
 | Author: Tony Govoni
 | Creation: 2022-03-22
@@ -24,7 +23,7 @@ TODO:
 from pathlib import Path
 
 from ceasiompy.CPACS2GMSH.func.engineconversion import engine_conversion
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.commonnames import GMSH_ENGINE_CONFIG_NAME
 from ceasiompy.utils.commonxpath import GMSH_EXPORT_PROP_XPATH
 from ceasiompy.utils.configfiles import ConfigFile
@@ -32,7 +31,6 @@ from cpacspy.cpacsfunctions import get_value_or_default
 
 from tigl3.import_export_helper import export_shapes
 
-log = get_logger()
 
 # =================================================================================================
 #   FUNCTIONS
@@ -179,15 +177,12 @@ def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
     engine_surface_percent : tuple
         Tuple containing the position percentage of the surface intake and exhaust bc
         for the engine
-
-    Returns
-    -------
-    None
-
     """
 
+    tixi = cpacs.tixi
+
     # Get rotor config
-    if get_value_or_default(cpacs.tixi, GMSH_EXPORT_PROP_XPATH, False):
+    if get_value_or_default(tixi, GMSH_EXPORT_PROP_XPATH, False):
         try:
             rotorcraft_config = cpacs.rotorcraft.configuration
             rotor_config(rotorcraft_config, brep_dir)
@@ -256,11 +251,10 @@ def export_brep(cpacs, brep_dir, engine_surface_percent=(20, 20)):
             engine = engines_config.get_engine(k)
             engine_export(cpacs, engine, brep_dir, engines_cfg_file, engine_surface_percent)
 
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
-if __name__ == "__main__":
 
-    print("Nothing to execute!")
+if __name__ == "__main__":
+    log.info("Nothing to execute!")

@@ -9,7 +9,7 @@
 
 <img align="right" height="120" src="files/avl_logo.png">
 
-`PyAVL` module is a launcher for the [Athena Vortex Lattice (AVL)](https://web.mit.edu/drela/Public/web/avl/) solver, developed by M. Drela and H. Youngren at MIT. It is a vortex lattice method (VLM) solver for low-fidelity aerodynamic computations. 
+`PyAVL` module is a launcher for the [Athena Vortex Lattice (AVL)](https://web.mit.edu/drela/Public/web/avl/) solver, developed by M. Drela and H. Youngren at MIT. It is a vortex lattice method (VLM) solver for low-fidelity aerodynamic computations.
 
 ## Inputs
 
@@ -29,7 +29,7 @@ Example of AVL geometry model.
 ## Outputs
 
 `PyAVL` outputs a CPACS file with the aerodynamic coefficients added in the aeromap. The settings of the simulation (number of chordwise/spanwise vortices, vortex distribution) are saved. The following force files are saved:
-- `ft.txt`: Total Forces. 
+- `ft.txt`: Total Forces.
 - `fn.txt`: Surface Forces.
 - `fs.txt`: Strip Forces.
 - `fe.txt`: Element Forces (vortex strength).
@@ -48,7 +48,7 @@ Example of aerodynamic loads computed by AVL.
 
 ## Installation or requirements
 
-Following the automatic installation procedure on the [CEASIOMpy installation page](../../installation/INSTALLATION.md) should install `PyAVL` automatically with the other tools.
+Following the automatic installation procedure on the [CEASIOMpy installation page](../../installation/INSTALLATION.md) should install `PyAVL` automatically along with the other tools.
 
 ## Limitations
 

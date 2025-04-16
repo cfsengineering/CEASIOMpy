@@ -1,9 +1,13 @@
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-from ceasiompy.utils.commonxpath import (
-    CEASIOMPY_XPATH,
+
+from ceasiompy import log
+from ceasiompy.PyAVL import (
     AVL_PLOT_XPATH,
     AVL_VORTEX_DISTR_XPATH,
     AVL_AEROMAP_UID_XPATH,
+)
+from ceasiompy.utils.commonxpath import (
+    CEASIOMPY_XPATH,
     AEROPERFORMANCE_XPATH,
     FRAMAT_MATERIAL_XPATH,
     FRAMAT_SECTION_XPATH,
@@ -12,14 +16,13 @@ from ceasiompy.utils.commonxpath import (
 )
 from pathlib import Path
 
+import streamlit as st
 # ===== Module Status =====
 # True if the module is active
 # False if the module is disabled (not working or not ready)
 module_status = True
 
-include_gui = True
-
-RESULTS_DIR = Path("Results", "AeroFrame")
+RESULTS_DIR = Path("Results", "AeroFrame_new")
 
 # ===== CPACS inputs and outputs =====
 
@@ -30,7 +33,7 @@ cpacs_inout = CPACSInOut()
 cpacs_inout.add_input(
     var_name="aeromap_uid",
     var_type=list,
-    default_value=None,
+    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
     unit=None,
     descr="Name of the aero map to calculate",
     xpath=AVL_AEROMAP_UID_XPATH,
@@ -215,3 +218,10 @@ cpacs_inout.add_output(
     descr="aeroMap with aero coefficients calculated by AVL",
     xpath=AEROPERFORMANCE_XPATH + "/aeroMap/aeroPerformanceMap",
 )
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")

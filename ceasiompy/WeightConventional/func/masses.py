@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 This script store all the aircraft masses ...
 
-Python version: >=3.8
 
 | Author : Aidan Jungo
 | Creation: 2022-06-01
@@ -19,7 +18,7 @@ Python version: >=3.8
 from ceasiompy.WeightConventional.func.mtom import estimate_mtom
 from ceasiompy.WeightConventional.func.oem import estimate_oem
 
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.commonxpath import (
     FUEL_MASS_XPATH,
     MASS_CARGO_XPATH,
@@ -32,8 +31,6 @@ from ceasiompy.utils.commonxpath import (
 from ceasiompy.WeightConventional.func.weightutils import UNUSABLE_FUEL_RATIO
 
 from cpacspy.cpacsfunctions import add_value, get_value_or_default
-
-log = get_logger()
 
 
 # =================================================================================================
@@ -166,22 +163,17 @@ class AircfaftMasses:
         lines.write(f"\n- Maximum fuel mass with no passengers : {int(self.mass_fuel_max)} [kg]")
         lines.write(
             "\n- Maximum fuel volume with no passengers:"
-            f"{int(self.mass_fuel_max / self.fuel_density *1000)} [l]"
+            f"{int(self.mass_fuel_max / self.fuel_density * 1000)} [l]"
         )
         lines.write(f"\n- Wing loading: {int(self.wing_loading)} [kg/m^2]")
 
         lines.close()
 
-
-# =================================================================================================
-#   FUNCTIONS
-# =================================================================================================
-
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
+
 if __name__ == "__main__":
 
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

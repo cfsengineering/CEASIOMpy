@@ -544,7 +544,7 @@
         </wingAirfoil>
       </wingAirfoils>
       <fuselageProfiles>
-        
+
         <fuselageProfile uID="fuselageCircleProfileuID" xsi:type="profileGeometryType">
           <name>Circle</name>
           <description>Profile build up from set of Points on Circle where max Dimensions are 1..-1</description>

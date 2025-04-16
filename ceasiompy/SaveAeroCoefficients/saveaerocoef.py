@@ -5,13 +5,11 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Plot Aerodynamic coefficients from CPACS v3 aeroMaps
 
-Python version: >=3.8
 
 | Author: Aidan jungo
 | Creation: 2019-08-19
 
 TODO:
-
     * add plot vs Mach, vs sideslip angle, damping derivatives, CS deflections
 
 """
@@ -20,10 +18,8 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-from pathlib import Path
-
-import matplotlib.pyplot as plt
 import pandas as pd
+<<<<<<< HEAD
 from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath, get_results_directory
 from ceasiompy.utils.commonxpath import PLOT_XPATH, RS_XPATH
@@ -31,12 +27,25 @@ from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_toolou
 from cpacspy.cpacsfunctions import get_value_or_default
 from cpacspy.cpacspy import CPACS
 from ceasiompy.SaveAeroCoefficients.func.response_surface import plot_response_surface
+=======
 
-log = get_logger()
+from cpacspy.cpacsfunctions import get_value_or_default
+from ceasiompy.SaveAeroCoefficients.func.plot import plot
+from ceasiompy.SaveAeroCoefficients.func.utils import deal_with_feature
+>>>>>>> origin/main
 
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
+from ceasiompy.utils.ceasiompyutils import (
+    call_main,
+    get_aeromap_list_from_xpath,
+)
 
+from pathlib import Path
+from cpacspy.cpacspy import (
+    CPACS,
+    AeroMap,
+)
+
+<<<<<<< HEAD
 NONE_LIST = ["None", "NONE", "No", "NO", "N", "n", "-", " ", ""]
 
 # =================================================================================================
@@ -218,6 +227,14 @@ def save_aero_coef(cpacs_path, cpacs_out_path):
     fig_name = title.replace(" ", "").replace("=", "") + ".png"
     fig_path = Path(results_dir, fig_name)
     plt.savefig(fig_path)
+=======
+from ceasiompy.SaveAeroCoefficients import MODULE_NAME
+from ceasiompy.utils.commonxpath import (
+    PLOT_XPATH,
+    AIRCRAFT_NAME_XPATH,
+    AEROMAP_TO_PLOT_XPATH,
+)
+>>>>>>> origin/main
 
 
 # =================================================================================================
@@ -225,18 +242,50 @@ def save_aero_coef(cpacs_path, cpacs_out_path):
 # =================================================================================================
 
 
-def main(cpacs_path, cpacs_out_path):
+def main(cpacs: CPACS, wkdir: Path) -> None:
+    """
+    Save Aero coefficients from the chosen aeroMap in the CPACS file.
+    """
 
-    log.info("----- Start of " + MODULE_NAME + " -----")
+    # Define variables
+    tixi = cpacs.tixi
+    groupby_list = ["uid", "machNumber", "altitude", "angleOfSideslip"]
 
-    save_aero_coef(cpacs_path, cpacs_out_path)
+    # Get list of aeromaps
+    aeromap_uid_list = get_aeromap_list_from_xpath(cpacs, AEROMAP_TO_PLOT_XPATH)
+    aeromap_df_list = []
+    for aeromap_uid in aeromap_uid_list:
+        aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
+        aeromap_df = aeromap.df
+        aeromap_df["uid"] = aeromap_uid
+        aeromap_df_list.append(aeromap_df)
+    aeromap = pd.concat(aeromap_df_list, ignore_index=True)
 
-    log.info("----- End of " + MODULE_NAME + " -----")
+    if len(aeromap_uid_list) > 1:
+        uid_crit = None
+    else:
+        uid_crit = aeromap_uid_list[0]
+
+    title = tixi.getTextElement(AIRCRAFT_NAME_XPATH)
+    criterion = pd.Series([True] * len(aeromap.index))
+
+    crit_xpath = PLOT_XPATH + "/criterion"
+    alt_crit = get_value_or_default(tixi, crit_xpath + "/alt", "None")
+    mach_crit = get_value_or_default(tixi, crit_xpath + "/mach", "None")
+    aos_crit = get_value_or_default(tixi, crit_xpath + "/aos", "None")
+
+    deal_with_feature(title, criterion, aeromap, groupby_list, "altitude", alt_crit)
+    deal_with_feature(title, criterion, aeromap, groupby_list, "machNumber", mach_crit)
+    deal_with_feature(title, criterion, aeromap, groupby_list, "angleOfSideslip", aos_crit)
+
+    if uid_crit is not None and len(groupby_list) > 1:
+        criterion = criterion & (aeromap.uid == uid_crit)
+        title += " - " + uid_crit
+        groupby_list.remove("uid")
+
+    # Generate plots
+    plot(wkdir, groupby_list, title, aeromap, criterion)
 
 
 if __name__ == "__main__":
-
-    cpacs_path = get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
-
-    main(cpacs_path, cpacs_out_path)
+    call_main(main, MODULE_NAME)

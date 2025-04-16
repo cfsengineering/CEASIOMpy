@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Weight unconventional module for preliminary design of unconventional aircraft
 
-Python version: >=3.8
 
 | Author : Stefano Piccini
 | Date of creation: 2018-12-07
@@ -31,7 +30,7 @@ from ceasiompy.WeightConventional.func.weightutils import (
     PILOT_NB,
     UNUSABLE_FUEL_RATIO,
 )
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy import log
 from ceasiompy.utils.ceasiompyutils import aircraft_name
 from ceasiompy.utils.InputClasses.Unconventional.engineclass import EngineData
 from ceasiompy.utils.InputClasses.Unconventional.weightuncclass import (
@@ -60,19 +59,7 @@ from ceasiompy.WeightUnconventional.func.People.passengers import (
 )
 from ceasiompy.WeightUnconventional.func.Systems.systemsmass import estimate_system_mass
 
-log = get_logger()
-
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
-
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
-
-"""All classes are defined inside the classes and into
-   the InputClasses/Unconventional folder."""
-
+from ceasiompy.WeightUnconventional import MODULE_NAME
 
 # =================================================================================================
 #   FUNCTIONS
@@ -130,7 +117,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
         log.warning("Aircraft does not have wings")
         raise Exception("Aircraft does not have wings")
     elif not fus_nb:
-        (awg, wing_nodes) = uncgeomanalysis.no_fuse_geom_analysis(
+        (awg, _) = uncgeomanalysis.no_fuse_geom_analysis(
             cpacs_out_path, ui.FLOORS_NB, wing_nb, h_min, ui.FUEL_ON_CABIN, name, ed.turboprop
         )
     else:
@@ -341,7 +328,7 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
     # Outptu writting
     log.info("Generating output text file")
     cpacsweightupdate.cpacs_weight_update(out, mw, ui, cpacs_out_path)
-    cpacsweightupdate.toolspecific_update(fus_nb, awg, mw, out, cpacs_out_path)
+    cpacsweightupdate.toolspecific_update(mw, out, cpacs_out_path)
     cpacsweightupdate.cpacs_engine_update(ui, ed, mw, cpacs_out_path)
 
     if not fus_nb:
@@ -355,20 +342,18 @@ def get_weight_unc_estimations(cpacs_path, cpacs_out_path):
 # =================================================================================================
 
 
-def main(cpacs_path, cpacs_out_path):
-
-    log.info("----- Start of " + MODULE_NAME + " -----")
-
-    check_cpacs_input_requirements(cpacs_path)
+def main(cpacs_path: Path, cpacs_out_path: Path) -> None:
+    module_name = MODULE_NAME
+    log.info("----- Start of " + module_name + " -----")
 
     get_weight_unc_estimations(cpacs_path, cpacs_out_path)
 
-    log.info("----- End of " + MODULE_NAME + " -----")
+    log.info("----- End of " + module_name + " -----")
 
 
 if __name__ == "__main__":
-
     cpacs_path = get_toolinput_file_path(MODULE_NAME)
     cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
+    check_cpacs_input_requirements(cpacs_path)
 
     main(cpacs_path, cpacs_out_path)

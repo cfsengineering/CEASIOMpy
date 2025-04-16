@@ -1,30 +1,52 @@
-from pathlib import Path
+
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+GUI Interface of SaveAeroCoefficients.
+
+
+| Author: Leon Deligny
+| Creation: 18-Mar-2025
+
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
+<<<<<<< HEAD
 from ceasiompy.utils.commonxpath import PLOT_XPATH, RS_XPATH
+=======
+>>>>>>> origin/main
 
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-module_status = True
+from ceasiompy import log
+from ceasiompy.SaveAeroCoefficients import include_gui
 
-# ===== Results directory path =====
+from ceasiompy.utils.commonxpath import (
+    PLOT_XPATH,
+    AEROMAP_TO_PLOT_XPATH,
+)
 
-RESULTS_DIR = Path("Results", "AeroCoefficients")
-
-# ===== CPACS inputs and outputs =====
+# ==============================================================================
+#   VARIABLE
+# ==============================================================================
 
 cpacs_inout = CPACSInOut()
 
-
-# ===== Input =====
+# ==============================================================================
+#   GUI INPUTS
+# ==============================================================================
 
 cpacs_inout.add_input(
     var_name="",
     var_type=list,
     default_value=None,
     descr="List of aeroMap to plot",
-    xpath=PLOT_XPATH + "/aeroMapToPlot",
-    gui=True,
+    xpath=AEROMAP_TO_PLOT_XPATH,
+    gui=include_gui,
     gui_name="__AEROMAP_CHECKBOX",
     gui_group="Aeromap settings",
 )
@@ -35,7 +57,7 @@ cpacs_inout.add_input(
     default_value="None",
     descr="Altitude inclusion criteria",
     xpath=PLOT_XPATH + "/criterion/alt",
-    gui=True,
+    gui=include_gui,
     gui_name="Altitdue criteria",
     gui_group="Plot vs AoA",
 )
@@ -46,7 +68,7 @@ cpacs_inout.add_input(
     default_value="None",
     descr="Mach inclusion criteria",
     xpath=PLOT_XPATH + "/criterion/mach",
-    gui=True,
+    gui=include_gui,
     gui_name="Mach criteria",
     gui_group="Plot vs AoA",
 )
@@ -57,11 +79,12 @@ cpacs_inout.add_input(
     default_value="None",
     descr="Angle of Sideslip (AoS) inclusion criteria",
     xpath=PLOT_XPATH + "/criterion/aos",
-    gui=True,
+    gui=include_gui,
     gui_name="AoS criteria",
     gui_group="Plot vs AoA",
 )
 
+<<<<<<< HEAD
 cpacs_inout.add_input(
     var_name="response_surface",
     var_type=bool,
@@ -198,3 +221,11 @@ cpacs_inout.add_input(
     gui_name="__AEROMAP_CHECKBOX",
     gui_group="Aeromap list for scatter points",
 )
+=======
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")
+>>>>>>> origin/main

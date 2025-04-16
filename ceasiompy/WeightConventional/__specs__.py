@@ -1,48 +1,60 @@
-from pathlib import Path
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+GUI Interface of WeightConventional.
+
+
+| Author: Leon Deligny
+| Creation: 18-Mar-2025
+
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
+
+from ceasiompy import log
+from ceasiompy.WeightConventional import include_gui
+
 from ceasiompy.utils.commonxpath import (
-    FUEL_MASS_XPATH,
     FUEL_XPATH,
     GEOM_XPATH,
-    MASS_CARGO_XPATH,
-    MASSBREAKDOWN_XPATH,
     MOEM_XPATH,
     MTOM_XPATH,
     MZFM_XPATH,
-    PAYLOAD_MASS_XPATH,
-    WB_ABREAST_NB_XPATH,
-    WB_CAB_CREW_NB_XPATH,
-    WB_CREW_MASS_XPATH,
-    WB_CREW_NB_XPATH,
     PROP_XPATH,
+    WB_ROW_NB_XPATH,
+    FUEL_MASS_XPATH,
+    WB_CREW_NB_XPATH,
+    MASS_CARGO_XPATH,
+    WB_TOILET_NB_XPATH,
+    PAYLOAD_MASS_XPATH,
+    WB_CREW_MASS_XPATH,
+    WB_ABREAST_NB_XPATH,
+    MASSBREAKDOWN_XPATH,
+    WB_CAB_CREW_NB_XPATH,
+    WB_MAX_PAYLOAD_XPATH,
+    WB_PEOPLE_MASS_XPATH,
     WB_DOUBLE_FLOOR_XPATH,
     WB_MAX_FUEL_VOL_XPATH,
-    WB_MAX_PAYLOAD_XPATH,
-    WB_PASSENGER_MASS_XPATH,
     WB_PASSENGER_NB_XPATH,
-    WB_PEOPLE_MASS_XPATH,
-    WB_ROW_NB_XPATH,
-    WB_TOILET_NB_XPATH,
+    WB_PASSENGER_MASS_XPATH,
 )
 
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-module_status = True
-
-# ===== Results directory path =====
-
-RESULTS_DIR = Path("Results", "WeightAndBalance")
-
-# ===== CPACS inputs and outputs =====
+# ==============================================================================
+#   VARIABLE
+# ==============================================================================
 
 cpacs_inout = CPACSInOut()
 
+# ==============================================================================
+#   GUI INPUTS
+# ==============================================================================
 
-# ----- Input -----
-
-# User inputs ----
 cpacs_inout.add_input(
     var_name="is_double_floor",
     var_type=list,
@@ -50,7 +62,7 @@ cpacs_inout.add_input(
     unit=None,
     descr="0: no 2nd floor, 1: full 2nd floor (A380), 2: half 2nd floor (B747)",
     xpath=WB_DOUBLE_FLOOR_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Double deck",
     gui_group="User inputs",
 )
@@ -62,7 +74,7 @@ cpacs_inout.add_input(
     unit="[kg]",
     descr="Maximum payload allowed, set 0 if equal to max passenger mass.",
     xpath=WB_MAX_PAYLOAD_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Max payload",
     gui_group="User inputs",
 )
@@ -74,7 +86,7 @@ cpacs_inout.add_input(
     unit="[l]",
     descr="Maximum fuel volume allowed [l]",
     xpath=WB_MAX_FUEL_VOL_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Max Fuel volum",
     gui_group="User inputs",
 )
@@ -86,7 +98,7 @@ cpacs_inout.add_input(
     unit="[kg]",
     descr="Cargo mass [kg]",
     xpath=MASS_CARGO_XPATH,
-    gui=True,
+    gui=include_gui,
     gui_name="Mass cargo",
     gui_group="User inputs",
 )
@@ -98,7 +110,7 @@ cpacs_inout.add_input(
     unit="[kg/m^3]",
     descr="Fuel density [kg/m^3]",
     xpath=FUEL_XPATH + "/density",
-    gui=True,
+    gui=include_gui,
     gui_name="Fuel density",
     gui_group="User inputs",
 )
@@ -110,7 +122,7 @@ cpacs_inout.add_input(
     unit=None,
     descr='"True" only if the aircraft is a turboprop',
     xpath=PROP_XPATH + "/turboprop",
-    gui=True,
+    gui=include_gui,
     gui_name="Turboprop",
     gui_group="User inputs",
 )
@@ -122,14 +134,12 @@ cpacs_inout.add_input(
     unit="[%]",
     descr="Fuselage thickness, percentage of fuselage width",
     xpath=GEOM_XPATH + "/fuseThick",
-    gui=True,
+    gui=include_gui,
     gui_name="Fuselage thickness",
     gui_group="Fuselage",
 )
 
-
 # InsideDimensions ---
-
 cpacs_inout.add_input(
     var_name="seat_length",
     var_type=float,
@@ -137,7 +147,7 @@ cpacs_inout.add_input(
     unit="[m]",
     descr="Seats length",
     xpath=GEOM_XPATH + "/seatLength",
-    gui=True,
+    gui=include_gui,
     gui_name="Seat length",
     gui_group="Inside dimension",
 )
@@ -149,7 +159,7 @@ cpacs_inout.add_input(
     unit="[m]",
     descr="Seats width",
     xpath=GEOM_XPATH + "/seatWidth",
-    gui=True,
+    gui=include_gui,
     gui_name="Seat width",
     gui_group="Inside dimension",
 )
@@ -161,7 +171,7 @@ cpacs_inout.add_input(
     unit="[m]",
     descr="Aisles width",
     xpath=GEOM_XPATH + "/aisleWidth",
-    gui=True,
+    gui=include_gui,
     gui_name="Aisles width",
     gui_group="Inside dimension",
 )
@@ -173,7 +183,7 @@ cpacs_inout.add_input(
     unit="[m]",
     descr="Common space length",
     xpath=GEOM_XPATH + "/toiletLength",
-    gui=True,
+    gui=include_gui,
     gui_name="Toilet length",
     gui_group="Inside dimension",
 )
@@ -232,7 +242,9 @@ cpacs_inout.add_input(
 # Mass of a single mounted engine (Dry Weight)	Belongs to the EngineData class
 
 
-# ----- Output -----
+# ==============================================================================
+#   GUI OUTPUTS
+# ==============================================================================
 
 cpacs_inout.add_output(
     var_name="mtom",
@@ -274,7 +286,6 @@ cpacs_inout.add_output(
     xpath=PAYLOAD_MASS_XPATH,
 )
 
-
 cpacs_inout.add_output(
     var_name="mass_fuel_max",
     default_value=None,
@@ -282,14 +293,6 @@ cpacs_inout.add_output(
     descr="Maximum fuel mass",
     xpath=MASSBREAKDOWN_XPATH + "/fuel/massDescription/mass",
 )
-
-# cpacs_inout.add_output(
-#     var_name="mass_cargo",
-#     default_value=None,
-#     unit="[kg]",
-#     descr="xtra payload mass in case of max fuel and total mass less than MTOM",
-#     xpath=MASSBREAKDOWN_XPATH + "/mCargo/massDescription/massCargo",
-# )
 
 cpacs_inout.add_output(
     var_name="passenger_nb",
@@ -362,3 +365,10 @@ cpacs_inout.add_output(
     descr="Number of toilets",
     xpath=WB_TOILET_NB_XPATH,
 )
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")

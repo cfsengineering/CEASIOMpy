@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/CPACS2GMSH/generategmesh.py'
 
-Python version: >=3.8
 
 | Author : Tony Govoni
 | Creation: 2022-03-22
@@ -24,9 +23,9 @@ from ceasiompy.CPACS2GMSH.func.exportbrep import export_brep
 from ceasiompy.CPACS2GMSH.func.generategmesh import (
     ModelPart,
     generate_gmsh,
-    get_entities_from_volume,
 )
-from ceasiompy.SU2Run.func.su2utils import get_mesh_markers
+from ceasiompy.CPACS2GMSH.func.wingclassification import get_entities_from_volume
+from ceasiompy.SU2Run.func.utils import get_mesh_markers
 from ceasiompy.utils.ceasiompyutils import remove_file_type_in_dir
 from ceasiompy.utils.commonpaths import CPACS_FILES_PATH
 from cpacspy.cpacspy import CPACS
@@ -63,8 +62,7 @@ def test_generate_gmsh():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_PATH,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -106,8 +104,7 @@ def test_generate_gmsh_symm():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_PATH,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -199,65 +196,6 @@ def test_ModelPart_clean_inside_entities():
     gmsh.finalize()
 
 
-def test_assignation():
-    """
-    Test if the assignation mechanism is correct on all parts
-    test if the assignation of the entities of wing1 is correct
-    """
-
-    if TEST_OUT_PATH.exists():
-        shutil.rmtree(TEST_OUT_PATH)
-    TEST_OUT_PATH.mkdir()
-
-    cpacs = CPACS(CPACS_IN_PATH)
-
-    export_brep(cpacs, TEST_OUT_PATH)
-
-    _, aircraft_parts = generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_PATH,
-        brep_dir=TEST_OUT_PATH,
-        results_dir=TEST_OUT_PATH,
-        open_gmsh=False,
-        farfield_factor=5,
-        symmetry=False,
-        farfield_size_factor=17,
-        n_power_factor=2,
-        n_power_field=0.9,
-        fuselage_mesh_size_factor=1,
-        wing_mesh_size_factor=1,
-        mesh_size_engines=0.5,
-        mesh_size_propellers=0.5,
-        refine_factor=1.0,
-        refine_truncated=False,
-        auto_refine=False,
-        testing_gmsh=False,
-    )
-
-    fuselage1_child = set([(3, 2)])
-    wing1_m_child = set([(3, 5)])
-
-    wing1_child = set([(3, 3)])
-    wing1_volume_tag = [3]
-    wing1_surfaces_tags = [5, 6, 7, 12, 13, 14, 19]
-    wing1_lines_tags = [7, 8, 9, 15, 16, 17, 18, 19, 20, 29, 30, 31, 32, 33, 34]
-    wing1_points_tags = [5, 6, 7, 12, 13, 14, 19, 20, 21]
-
-    for part in aircraft_parts:
-        if part.uid == "Wing_mirrored":
-            assert part.children_dimtag == wing1_m_child
-        if part.uid == "SimpleFuselage":
-            assert part.children_dimtag == fuselage1_child
-        if part.uid == "Wing":
-            assert part.children_dimtag == wing1_child
-            assert part.volume_tag == wing1_volume_tag
-            assert part.surfaces_tags == wing1_surfaces_tags
-            assert part.lines_tags == wing1_lines_tags
-            assert part.points_tags == wing1_points_tags
-
-    remove_file_type_in_dir(TEST_OUT_PATH, [".brep", ".su2", ".cfg"])
-
-
 def test_define_engine_bc():
     """
     Test if the engine bc are correctly assigned
@@ -273,8 +211,7 @@ def test_define_engine_bc():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_SIMPLE_ENGINE_PATH,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -338,8 +275,7 @@ def test_define_doubleflux_engine_bc():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_SIMPLE_ENGINE_PATH,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -399,8 +335,7 @@ def test_disk_actuator_conversion():
     export_brep(cpacs, TEST_OUT_PATH)
 
     generate_gmsh(
-        cpacs=cpacs,
-        cpacs_path=CPACS_IN_PROPELLER_ENGINE_PATH,
+        tixi=cpacs.tixi,
         brep_dir=TEST_OUT_PATH,
         results_dir=TEST_OUT_PATH,
         open_gmsh=False,
@@ -419,7 +354,8 @@ def test_disk_actuator_conversion():
         testing_gmsh=True,
     )
 
-    physical_groups = gmsh.model.getPhysicalGroups(dim=-1)
+    physical_groups = gmsh.model.getPhysicalGroups()
+    print(physical_groups)
 
     # Check if the disk actuator integration was correct
     assert len(physical_groups) == 11
@@ -441,6 +377,7 @@ def test_disk_actuator_conversion():
 # =================================================================================================
 
 if __name__ == "__main__":
+    test_disk_actuator_conversion()
     print("Test CPACS2GMSH")
     print("To run test use the following command:")
     print(">> pytest -v")

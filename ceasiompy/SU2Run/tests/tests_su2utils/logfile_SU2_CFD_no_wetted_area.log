@@ -38,8 +38,8 @@ Non-Dimensional simulation (V=1.0, Rho=1.0, T=1.0 at the farfield).
 The reference area is 122.4 m^2.
 The semi-span will be computed using the max y(3D) value.
 The reference length is 4.193 m.
-Surface(s) where the force coefficients are evaluated and 
-their reference origin for moment computation: 
+Surface(s) where the force coefficients are evaluated and
+their reference origin for moment computation:
    - Fuselage1 (0, 0, 0).
    - Wing3V (0, 0, 0).
    - Wing2H (0, 0, 0).

@@ -6,7 +6,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 Evaluation of the fuel mass in the fuselages and in the wings for
 an unconventional aircraft.
 
-Python version: >=3.8
 
 | Author: Stefano Piccini
 | Date of creation: 2018-12-19
@@ -19,17 +18,7 @@ Python version: >=3.8
 
 import numpy as np
 
-from ceasiompy.utils.ceasiomlogger import get_logger
-
-log = get_logger()
-
-
-# =============================================================================
-#   CLASSES
-# =============================================================================
-
-"""All classes are defined inside the classes folder and in the
-   InputClasses/Unconventional folder."""
+from ceasiompy import log
 
 
 # =============================================================================

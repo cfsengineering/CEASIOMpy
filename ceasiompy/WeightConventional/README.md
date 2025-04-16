@@ -24,7 +24,7 @@ Example of workflow with the `WeightConventional` module:
 ```mermaid
   graph LR;
       CPACSCreator-->WeightConventional;
-      WeightConventional-->PyTornado;
+      WeightConventional-->PyAVL;
 ```
 
 ## Inputs

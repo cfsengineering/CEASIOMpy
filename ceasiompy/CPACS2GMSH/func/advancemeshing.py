@@ -5,13 +5,11 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 This script contains different functions to classify and manipulate wing elements
 
-Python version: >=3.8
 
 | Author: Tony Govoni
 | Creation: 2022-04-07
 
 TODO:
-
     -Add a parameter to let the user tune the powerlaw for the wing surface mesh
 
 """
@@ -21,13 +19,13 @@ TODO:
 #   IMPORTS
 # =================================================================================================
 
-from ceasiompy.CPACS2GMSH.func.gmsh_utils import MESH_COLORS
 import gmsh
 import numpy as np
-from ceasiompy.utils.ceasiomlogger import get_logger
 
+from ceasiompy import log
+from ceasiompy.CPACS2GMSH.func.wingclassification import ModelPart
+from ceasiompy.CPACS2GMSH.func.utils import MESH_COLORS
 
-log = get_logger()
 
 # =================================================================================================
 #   FUNCTIONS
@@ -189,7 +187,7 @@ def refine_wing_section(
     mesh_fields,
     final_domain_volume_tag,
     aircraft,
-    wing_part,
+    wing_part: ModelPart,
     mesh_size_wings,
     refine,
     refine_truncated,
@@ -511,10 +509,10 @@ def refine_small_surfaces(
 
     return refined_surfaces, mesh_fields
 
-
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
+
 if __name__ == "__main__":
-    print("Nothing to execute!")
+    log.info("Nothing to execute!")

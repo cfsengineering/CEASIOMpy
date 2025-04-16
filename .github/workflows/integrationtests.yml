@@ -16,24 +16,25 @@ env:
 
 jobs:
   build-linux:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     strategy:
       max-parallel: 5
 
     steps:
     - uses: actions/checkout@v3
-    - name: Set up Python 3.8
+    - name: Set up Python 3.11.11
       uses: actions/setup-python@v2
       with:
-        python-version: 3.8
+        python-version: 3.11.11
 
-    - name: Setup Mambaforge
+    - name: Setup Miniforge3
       uses: conda-incubator/setup-miniconda@v2
       with:
         miniforge-variant: Miniforge3
         miniforge-version: latest
         activate-environment: ceasiompy
-        use-mamba: true
+        use-mamba: false
+        conda-version: 25.3.1
 
     - name: Set cache date # With that, cache will be updated every day
       run: echo "DATE=$(date +'%Y%m%d')" >> $GITHUB_ENV
@@ -45,20 +46,15 @@ jobs:
       id: cache
 
     - name: Update environment
-      run: mamba env update -n ceasiompy -f environment.yml
+      run: conda env update -n ceasiompy -f environment.yml
       if: steps.cache.outputs.cache-hit != 'true'
 
     - name: Install ceasiompy with pip
       shell: bash -l {0}
       run: pip install -e .
 
-    - name: Install PyTornado
-      shell: bash -l {0}
-      run: installation/Ubuntu/install_pytornado.sh
-
-    - name: Install SUMO
-      shell: bash -l {0}
-      run: installation/Ubuntu/install_sumo.sh
+    - name: Install libGLU
+      run: sudo apt-get install -y libglu1-mesa-dev
 
     - name: Install AVL
       shell: bash -l {0}

@@ -29,7 +29,6 @@ TODO:
 #   IMPORTS
 # ==============================================================================
 
-from ceasiompy.utils.ceasiomlogger import get_logger
 from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
 from ceasiompy.utils.ceasiompyutils import get_results_directory
 from ceasiompy.SMTrain.func.smtconfig import (
@@ -54,14 +53,10 @@ from pathlib import Path
 import pandas as pd
 import numpy as np
 
-log = get_logger()
+from ceasiompy import log
 
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
 
 
 # =================================================================================================

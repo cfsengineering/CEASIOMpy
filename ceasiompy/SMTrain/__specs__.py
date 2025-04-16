@@ -1,7 +1,7 @@
 from pathlib import Path
 from ceasiompy.utils.commonxpath import SMTRAIN_XPATH, SMTRAIN_DOE, CEASIOMPY_XPATH, SU2MESH_XPATH
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-
+import streamlit as st
 # from ceasiompy.utils.commonxpath import SMTRAIN_XPATH
 
 # ===== Module Status =====
@@ -74,7 +74,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="training_datasets",
     var_type=list,
-    default_value=None,
+    default_value=st.session_state.cpacs.get_aeromap_uid_list(),
     unit=None,
     descr="Select, in the RIGHT ORDER, training datasets from the aeromaps",
     xpath=SMTRAIN_XPATH + "/aeromapForTraining",

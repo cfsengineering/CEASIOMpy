@@ -149,5 +149,4 @@ if __name__ == "__main__":
     st.title(PAGE_NAME)
 
     section_select_cpacs()
-    if not os.environ.get('DISPLAY', '') in ['', ':99']:
-        section_3D_view()
+    section_3D_view()

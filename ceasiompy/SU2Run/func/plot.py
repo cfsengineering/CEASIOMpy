@@ -28,7 +28,7 @@ from ceasiompy import log
 #   BACKEND SETTING
 # =================================================================================================
 
-if os.environ.get('DISPLAY', '') in ['', ':99']:
+if os.environ.get('DISPLAY', '') == "":
     matplotlib.use('Agg')
 else:
     matplotlib.use('TkAgg')

@@ -50,7 +50,7 @@ docker run -it --rm \
 -e LIBGL_ALWAYS_SOFTWARE=1 \
 -v /tmp/.X11-unix:/tmp/.X11-unix \
 -v /pathtoYOURlocal/CEASIOMpy:/CEASIOMpy \
-ceasiompy:local
+ceasiompy-image
 ```
 
 You can now click on External URL and use CEASIOMpy's GUI (Graphical User Interface) with all of its required software.

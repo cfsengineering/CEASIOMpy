@@ -45,7 +45,7 @@ docker build -t ceasiompy:local -f CEASIOMpy_docker_Installation .
 If you are using Apple Silicon (ARM), you may need to specify the platform:
 
 ```bash
-docker build --platform=linux/amd64 -t ceasiompy:local -f CEASIOMpy_docker_Installation .
+docker build --platform=linux/amd64 -t ceasiompy-image -f CEASIOMpy_docker_Installation .
 ```
 
 Run the Docker container (you need to modify /pathtoYOURlocal/CEASIOMpy with the absolute path of your CEASIOMpy's folder location):
@@ -55,8 +55,9 @@ docker run -it --rm \
 -e DISPLAY=$DISPLAY \
 -e LIBGL_ALWAYS_SOFTWARE=1 \
 -v /tmp/.X11-unix:/tmp/.X11-unix \
--v /pathtoYOURlocal/CEASIOMpy:/CEASIOMpy \
-ceasiompy:local
+-v /Users/leondeligny/Desktop/CEASIOMpy:/CEASIOMpy \
+-p 8501:8501 \
+ceasiompy-image
 ```
 
 You can now click on External URL and use CEASIOMpy's GUI (Graphical User Interface) with all of its required software.

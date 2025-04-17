@@ -43,6 +43,7 @@ docker run -it --rm \
 -e LIBGL_ALWAYS_SOFTWARE=1 \
 -v /tmp/.X11-unix:/tmp/.X11-unix \
 -v /pathtoYOURlocal/CEASIOMpy:/CEASIOMpy \
+-p 8501:8501 \
 ceasiompy-image
 ```
 

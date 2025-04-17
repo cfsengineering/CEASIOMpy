@@ -3,18 +3,9 @@
 # Use the commands below to build the Docker image,
 # and then to run the Docker container.
 
-"""
-docker build -t ceasiompy:local -f CEASIOMpyInstallation .
-"""
+# docker build -t ceasiompy:local -f CEASIOMpy_docker_Installation .
 
-"""
-docker run -it --rm \
--e DISPLAY=$DISPLAY \
--e LIBGL_ALWAYS_SOFTWARE=1 \
--v /tmp/.X11-unix:/tmp/.X11-unix \
--v /home/cfse2/Leon/GiacomoBranch/CEASIOMpy:/CEASIOMpy \
-ceasiompy:local
-"""
+# docker run -it --rm -e DISPLAY=$DISPLAY -e LIBGL_ALWAYS_SOFTWARE=1 -v /tmp/.X11-unix:/tmp/.X11-unix -v /home/cfse2/Leon/DockerCEASIOMpy/CEASIOMpy:/CEASIOMpy ceasiompy:local
 
 FROM centos:8
 
@@ -26,18 +17,35 @@ RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
 # Use bash as the default shell
 SHELL ["/bin/bash", "--login", "-c"]
 
-RUN git clone https://github.com/cfsengineering/CEASIOMpy.git
-RUN chmod +x CEASIOMpy/installation/CentOS/install_*
 ENV CONDA_DIR=/opt/conda
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
     /bin/bash ~/miniconda.sh -b -p /opt/conda
 ENV PATH=$CONDA_DIR/bin:$PATH
 
+WORKDIR /CEASIOMpy
+RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/setup.py && \
+    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/pyproject.toml && \
+    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/environment.yml
+
+# Create the necessary directory structure
 WORKDIR /CEASIOMpy/installation/CentOS/
+
+# Download only the required installation scripts
+RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/CentOS/install_ceasiompy.sh && \
+    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/CentOS/install_pyavl.sh && \
+    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/CentOS/install_su2.sh
+
+# Make the scripts executable
 RUN chmod +x install_*.sh
+
+# Run the installation scripts
 RUN ./install_ceasiompy.sh
 RUN ./install_pyavl.sh
 RUN ./install_su2.sh
+
+RUN mkdir -p /INSTALLDIR && \
+    mv /CEASIOMpy/INSTALLDIR/* /INSTALLDIR/ && \
+    rm -rf /CEASIOMpy/INSTALLDIR
 
 # Install xvfb for graphical display
 RUN dnf -y install xorg-x11-server-Xvfb
@@ -56,12 +64,18 @@ RUN mkdir -p /tmp/runtime-root && chmod 700 /tmp/runtime-root
 RUN $CONDA_DIR/bin/conda init bash && \
     echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc
 
+# Create an empty folder for mounting
+RUN mkdir -p /CEASIOMpy
+
 # Set the working directory to the mounted CEASIOMpy folder
 WORKDIR /CEASIOMpy
 
 # Automatically activate the Conda environment and run the GUI
 RUN echo "conda activate ceasiompy" >> ~/.bashrc && \
     echo "ceasiompy_run --gui" >> ~/.bashrc
+
+# Move the content of /INSTALLDIR to the mounted /CEASIOMpy/INSTALLDIR folder at runtime
+CMD ["/bin/bash", "-c", "mkdir -p /CEASIOMpy/INSTALLDIR && mv /INSTALLDIR/* /CEASIOMpy/INSTALLDIR/ && exec bash"]
 
 # Now you just need to add External URL
 

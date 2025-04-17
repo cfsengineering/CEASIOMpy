@@ -7,6 +7,8 @@ Main Streamlit page for CEASIOMpy GUI.
 
 | Author : Aidan Jungo
 | Creation: 2022-09-09
+| Author: Leon Deligny
+| Modified: 16th April 2025
 
 """
 

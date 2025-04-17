@@ -74,11 +74,16 @@ RUN mkdir -p /CEASIOMpy
 WORKDIR /CEASIOMpy
 
 # Get the required files for installing the conda environment
-RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/setup.py /CEASIOMpy/setup.py && \
+RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/setup.py -O /CEASIOMpy/setup.py && \
     wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/pyproject.toml -O /CEASIOMpy/pyproject.toml && \
     wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/environment.yml -O /CEASIOMpy/environment.yml && \
     wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/README.md -O /CEASIOMpy/README.md && \
     wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/LICENSE -O /CEASIOMpy/LICENSE
+
+# Ensure the directory structure exists
+RUN mkdir -p /CEASIOMpy/src
+
+COPY src /CEASIOMpy/src
 
 # Create the Conda environment from the environment.yml file
 RUN source $CONDA_DIR/etc/profile.d/conda.sh && \

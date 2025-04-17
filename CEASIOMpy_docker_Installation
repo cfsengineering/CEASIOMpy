@@ -8,7 +8,7 @@
 # On Apple Silicon (ARM), it might be necessary to specify the processor architecture:
 # docker build --platform=linux/amd64 -t ceasiompy:local -f CEASIOMpy_docker_Installation .
 
-# docker run -it --rm -e DISPLAY=$DISPLAY -e LIBGL_ALWAYS_SOFTWARE=1 -v /tmp/.X11-unix:/tmp/.X11-unix -v /home/cfse2/Leon/DockerCEASIOMpy/CEASIOMpy:/CEASIOMpy ceasiompy:local
+# docker run -it --rm -e DISPLAY=$DISPLAY -e LIBGL_ALWAYS_SOFTWARE=1 -v /tmp/.X11-unix:/tmp/.X11-unix -v <your/CEASIOMpy/Path>:/CEASIOMpy ceasiompy:local
 
 FROM centos:8
 
@@ -74,11 +74,15 @@ RUN mkdir -p /CEASIOMpy
 WORKDIR /CEASIOMpy
 
 # Automatically activate the Conda environment and install CEASIOMpy
-RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
-    echo "conda activate ceasiompy" >> ~/.bashrc && \
-    echo "pip install -e ." >> ~/.bashrc && \
-    echo "ceasiompy_run --gui" >> ~/.bashrc
+#RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
+#    echo "conda activate ceasiompy" >> ~/.bashrc && \
+#    echo "pip install -e ." >> ~/.bashrc && \
+#    echo "ceasiompy_run --gui" >> ~/.bashrc
 
+RUN source $CONDA_DIR/etc/profile.d/conda.sh && \
+    conda activate ceasiompy && \
+    pip install -e .
+    
 # Move the content of /INSTALLDIR to the mounted /CEASIOMpy/INSTALLDIR folder at runtime
 CMD ["/bin/bash", "-c", "rm -rf /CEASIOMpy/INSTALLDIR && mkdir -p /CEASIOMpy/INSTALLDIR && mv /INSTALLDIR/* /CEASIOMpy/INSTALLDIR/ && exec bash"]
 

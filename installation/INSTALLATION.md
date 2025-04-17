@@ -39,12 +39,6 @@ cd CEASIOMpy
 Now build the Docker image by using the command:
 
 ```bash
-docker build -t ceasiompy:local -f CEASIOMpy_docker_Installation .
-```
-
-If you are using Apple Silicon (ARM), you may need to specify the platform:
-
-```bash
 docker build --platform=linux/amd64 -t ceasiompy:local -f CEASIOMpy_docker_Installation .
 ```
 

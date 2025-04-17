@@ -1,5 +1,8 @@
 ## MacOS
 
+:warning: **Warning**
+Adviced to follow [Docker instructions](https://github.com/cfsengineering/CEASIOMpy/blob/main/installation/DOCKER_INSTALLARION.md).
+
 :x: No automatic installation script are available yet.
 
 You can install it manually, the basic steps are the following:

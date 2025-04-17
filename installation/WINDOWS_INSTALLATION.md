@@ -1,5 +1,9 @@
 ## Windows
 
+:warning: **Warning**
+
+Adviced to follow [Docker instructions](DOCKER_INSTALLATION.md).
+
 :x: **For now it seems there are some issues with some packages (TiGL, smt) in the Conda environment. If you are familiar with Windows and you want to help us to create an installation script, please contact us.**
 
 An alternative solution is to install Ubuntu with [VirtualBox](https://www.virtualbox.org) and install CEASIOMpy in it.

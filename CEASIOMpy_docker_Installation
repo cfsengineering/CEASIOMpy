@@ -1,39 +1,29 @@
 # With this Dockerfile, you are building a Docker image for
-# your LOCAL CEASIOMpy on CentOS 8, with system dependencies and Miniconda.
+# your LOCAL CEASIOMpy on Ubuntu 22.04, with system dependencies and Miniconda.
 # Use the commands below to build the Docker image,
 # and then to run the Docker container.
 
-# docker build -t ceasiompy:local -f CEASIOMpy_docker_Installation .
+FROM ubuntu:22.04
 
-# On Apple Silicon (ARM), it might be necessary to specify the processor architecture:
-# docker build --platform=linux/amd64 -t ceasiompy:local -f CEASIOMpy_docker_Installation .
+# Update Ubuntu repositories and install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    git curl wget sudo unzip build-essential libtbb2 libtbb-dev libxrender1 libxcursor1 libxinerama1 libxft2 libxt6 \
+    libgl1-mesa-glx libglu1-mesa libegl1-mesa libosmesa6 xvfb ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
 
-# docker run -it --rm -e DISPLAY=$DISPLAY -e LIBGL_ALWAYS_SOFTWARE=1 -v /tmp/.X11-unix:/tmp/.X11-unix -v <your/Path/to/CEASIOMpy>:/CEASIOMpy ceasiompy:local
-
-
-FROM centos:8
-
-# Update CentOS repositories and install system dependencies
-RUN sed -i 's/mirrorlist/#mirrorlist/g' /etc/yum.repos.d/CentOS-* && \
-    sed -i 's|#baseurl=http://mirror.centos.org|baseurl=http://vault.centos.org|g' /etc/yum.repos.d/CentOS-* && \
-    dnf -y install git curl wget sudo unzip gcc-c++ tbb libXrender libXcursor libXinerama libXft
-
-# Use bash as the default shell
-SHELL ["/bin/bash", "--login", "-c"]
-
+# Install Miniconda
 ENV CONDA_DIR=/opt/conda
-RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
-    /bin/bash ~/miniconda.sh -b -p /opt/conda
+RUN curl -fsSL https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o /tmp/miniconda.sh && \
+    /bin/bash /tmp/miniconda.sh -b -p $CONDA_DIR && \
+    rm /tmp/miniconda.sh
 ENV PATH=$CONDA_DIR/bin:$PATH
 
-WORKDIR /CEASIOMpy
-
 # Create the necessary directory structure
-WORKDIR /CEASIOMpy/installation/CentOS/
+WORKDIR /CEASIOMpy/installation/Ubuntu/
 
 # Download only the required installation scripts
-RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/CentOS/install_pyavl.sh && \
-    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/CentOS/install_su2.sh
+RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/Ubuntu/install_pyavl.sh && \
+    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/Ubuntu/install_su2.sh
 
 # Make the scripts executable
 RUN chmod +x install_*.sh
@@ -47,13 +37,16 @@ RUN mkdir -p /INSTALLDIR && \
     mv /CEASIOMpy/INSTALLDIR/* /INSTALLDIR/ && \
     rm -rf /CEASIOMpy/INSTALLDIR
 
-# Install xvfb for graphical display
-RUN dnf -y install xorg-x11-server-Xvfb
-RUN dnf -y install mesa-libGL mesa-libGLU mesa-dri-drivers libXt
-RUN dnf -y install mesa-libEGL mesa-libOSMesa
+# Install xvfb and other graphical display dependencies for Ubuntu
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    xvfb libgl1-mesa-glx libglu1-mesa libegl1-mesa libosmesa6 libxt6 && \
+    rm -rf /var/lib/apt/lists/*
 
 # Install system dependencies
-RUN dnf -y install gcc-c++ tbb libXrender libXcursor libXinerama libXft libXt mesa-libGL mesa-libGLU mesa-libEGL mesa-libOSMesa xorg-x11-server-Xvfb
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    g++ libtbb2 libtbb-dev libxrender1 libxcursor1 libxinerama1 libxft2 libxt6 \
+    libgl1-mesa-glx libglu1-mesa libegl1-mesa libosmesa6 xvfb && \
+    rm -rf /var/lib/apt/lists/*
 
 # Set the DISPLAY environment variable
 ENV DISPLAY=:99
@@ -89,13 +82,10 @@ RUN mkdir -p /CEASIOMpy/src
 COPY src /CEASIOMpy/src
 
 # Create the Conda environment from the environment.yml file
-RUN source $CONDA_DIR/etc/profile.d/conda.sh && \
-    conda env create -f environment.yml
+RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda env create -f environment.yml"
 
 # Activate the Conda environment and install CEASIOMpy
-RUN source $CONDA_DIR/etc/profile.d/conda.sh && \
-    conda activate ceasiompy && \
-    pip install -e .
+RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda activate ceasiompy && pip install -e ."
 
 # Automatically activate the Conda environment in new shells
 RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \

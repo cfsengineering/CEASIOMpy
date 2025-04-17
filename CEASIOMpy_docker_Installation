@@ -8,7 +8,7 @@
 # On Apple Silicon (ARM), it might be necessary to specify the processor architecture:
 # docker build --platform=linux/amd64 -t ceasiompy:local -f CEASIOMpy_docker_Installation .
 
-# docker run -it --rm -e DISPLAY=$DISPLAY -e LIBGL_ALWAYS_SOFTWARE=1 -v /tmp/.X11-unix:/tmp/.X11-unix -v /home/cfse2/Leon/DockerCEASIOMpy/CEASIOMpy:/CEASIOMpy ceasiompy:local
+# docker run -it --rm -e DISPLAY=$DISPLAY -e LIBGL_ALWAYS_SOFTWARE=1 -v /tmp/.X11-unix:/tmp/.X11-unix -v <your/Path/to/CEASIOMpy>:/CEASIOMpy ceasiompy:local
 
 
 FROM centos:8

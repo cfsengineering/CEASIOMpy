@@ -7,7 +7,7 @@
 You can install CEASIOMpy in two different ways: using installation scripts (recommended for Linux systems) or using Docker (recommended for Windows and macOS systems).
 
 Click on a link below to access the CEASIOMpy installation guides:
-    - [Linux](LINUX_INSTALLATION.md)
-    - [Using Docker](DOCKER_INSTALLATION.md)
-    - [MacOS](MAC_OS_INSTALLATION.md)
-    - [Windows](Windows_INSTALLATION.md)
+- [Linux](LINUX_INSTALLATION.md)
+- [Using Docker](DOCKER_INSTALLATION.md)
+- [MacOS](MAC_OS_INSTALLATION.md)
+- [Windows](Windows_INSTALLATION.md)

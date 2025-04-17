@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI Interface of Database.
 
-
 | Author: Leon Deligny
 | Creation: 25 March 2025
 

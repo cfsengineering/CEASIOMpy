@@ -4,7 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 based on a script from Jan-Niclas Walther (DLR)
 
-
 | Author: Aidan Jungo
 | Creation: 2019-09-24
 

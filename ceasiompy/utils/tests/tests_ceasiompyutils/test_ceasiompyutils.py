@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'utils/ceasiompyutils.py'
 
-
 | Author : Aidan Jungo
 | Creation: 2022-02-10
 

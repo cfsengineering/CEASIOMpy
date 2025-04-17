@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Function generate or modify SU2 configuration files
 
-
 | Author: Aidan Jungo
 | Creation: 2020-02-24
 | Modified: Leon Deligny
@@ -622,7 +621,7 @@ def load_su2_mesh_paths(tixi: Tixi3, results_dir: Path) -> Tuple[List[Path], Lis
     """
 
     # Using CPACS2Gmsh
-    if tixi.getTextElement(USED_SU2_MESH_XPATH + "type") == "Other":
+    if tixi.getTextElement(USED_SU2_MESH_XPATH + "type") == "CPACS2GMSH mesh":
         log.info("Using mesh files from CPACS2Gmsh")
         tixi_su2_mesh_paths = tixi.getTextElement(SU2MESH_XPATH)
         su2_mesh_paths = [Path(x) for x in str(tixi_su2_mesh_paths).split(';')]

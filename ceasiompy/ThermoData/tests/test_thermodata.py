@@ -6,7 +6,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Test functions of 'ceasiompy/ThermoData/func/turbojet_func.py'
 
 
-
 | Author : Francesco Marcucci
 | Creation: 2024-02-09
 

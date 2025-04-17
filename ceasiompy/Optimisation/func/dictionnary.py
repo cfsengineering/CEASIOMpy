@@ -6,7 +6,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 Functions to create the dictionnary of geometric variables needed
 for the optimnization routine.
 
-
 | Author : Vivien Riolo
 | Creation: 2020-03-24
 

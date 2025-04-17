@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/CPACS2GMSH/generategmesh.py'
 
-
 | Author : Tony Govoni
 | Creation: 2022-03-22
 

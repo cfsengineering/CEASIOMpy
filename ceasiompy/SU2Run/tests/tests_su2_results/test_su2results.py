@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test for get_su2_results function.
 
-
 | Author : Aidan Jungo
 | Creation: 2022-04-07
 | Modified: Leon Deligny

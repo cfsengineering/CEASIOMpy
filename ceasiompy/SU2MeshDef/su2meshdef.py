@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module to create new deformed mesh with SU2 mesh deformation
 
-
 | Author : Aidan Jungo
 | Creation: 2020-02-27
 

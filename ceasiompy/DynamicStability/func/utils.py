@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Dimensionalization and non-dimensionalization methods of pitch/roll/yaw rates.
 
-
 | Author: Leon Deligny
 | Creation: 2025-Feb-12
 

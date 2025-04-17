@@ -7,7 +7,6 @@ Script to run AVL calculations in CEASIOMpy.
 AVL allows to perform aerodynamic analyses using
 the vortex-lattice method (VLM)
 
-
 | Author: Romain Gauthier
 | Creation: 2024-03-14
 | Modified: Leon Deligny

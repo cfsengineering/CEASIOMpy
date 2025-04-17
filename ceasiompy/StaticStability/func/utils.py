@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Utility functions for Static stability module.
 
-
 | Author: Leon Deligny
 | Creation: 2025-01-27
 

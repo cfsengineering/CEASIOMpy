@@ -6,7 +6,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI Interface of CLCalculator.
 
-
 | Author: Leon Deligny
 | Creation: 18-Mar-2025
 

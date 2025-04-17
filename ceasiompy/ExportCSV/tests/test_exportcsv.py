@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/ExportCSV/exportcsv.py'
 
-
 | Author : Aidan Jungo
 | Creation: 2021-12-09
 

@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'lib/moduleinterfaces.py'
 
-
 | Author : Aaron Dettmann
 | Creation: 2019-09-09
 

@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 This script estimates all the cabin related parameters (Crew, passenger, equipment, etc.)
 
-
 | Author : Aidan Jungo
 | Creation: 2022-06-01
 

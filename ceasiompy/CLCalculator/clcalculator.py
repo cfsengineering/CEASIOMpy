@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Calculate lift coefficient required to fly at specific alt, mach, mass and LF
 
-
 | Author: Aidan Jungo
 | Creation: 2018-11-28
 

@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions for 'ceasiompy/WeightConventional/func/cabin.py'
 
-
 | Author : Aidan Jungo
 | Creation: 2022-06-01
 

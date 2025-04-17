@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Test functions of 'ceasiompy/SU2Run/func/su2config.py'
 
-
 | Author : Aidan Jungo
 | Creation: 2022-04-07
 

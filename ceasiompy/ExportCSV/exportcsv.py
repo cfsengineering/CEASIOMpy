@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Module to export Aeromap (or other data?) to CSV
 
-
 | Author: Aidan Jungo
 | Creation: 2021-04-07
 | Modified: Leon Deligny

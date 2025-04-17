@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Computing derivatives for dynamic stability.
 
-
 | Author: Leon Deligny
 | Creation: 2025-Feb-24
 

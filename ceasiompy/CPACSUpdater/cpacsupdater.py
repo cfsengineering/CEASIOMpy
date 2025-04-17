@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Update geometry of a CPACS file.
 
-
 | Author: Leon Deligny
 | Creation: 25-Feb-2025
 

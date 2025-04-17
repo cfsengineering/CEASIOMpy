@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Initialization for ThermoData module.
 
-
 | Author: Leon Deligny
 | Creation: 18-Mar-2025
 

@@ -6,3 +6,9 @@ textColor="#000000"
 
 [server]
 maxUploadSize=2500
+headless = true
+enableCORS = false
+enableXsrfProtection = false
+
+[browser]
+gatherUsageStats = false

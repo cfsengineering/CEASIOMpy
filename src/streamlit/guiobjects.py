@@ -4,7 +4,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI objects in CEASIOMpy.
-
 | Author : Leon Deligny
 | Creation: 21 March 2025
 

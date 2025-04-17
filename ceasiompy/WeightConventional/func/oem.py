@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Function to evaluate the Oprating Empty Mass (OEM) from the maximum take of mass.
 
-
 | Author : Stefano Piccini
 | Date of creation: 2018-09-27
 

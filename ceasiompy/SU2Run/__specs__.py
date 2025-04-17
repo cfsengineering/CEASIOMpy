@@ -5,7 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 GUI Interface of ModuleTemplate.
 
-
 | Author: Leon Deligny
 | Creation: 18-Mar-2025
 
@@ -86,7 +85,7 @@ cpacs_inout.add_input(
 cpacs_inout.add_input(
     var_name="mesh_choice",
     var_type="DynamicChoice",
-    default_value=["Other", "Path", "db"],
+    default_value=["CPACS2GMSH mesh", "Path", "db"],
     unit=None,
     descr="Choose from where to upload the mesh",
     xpath=USED_SU2_MESH_XPATH,

@@ -5,9 +5,10 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Main Streamlit page for CEASIOMpy GUI.
 
-
 | Author : Aidan Jungo
 | Creation: 2022-09-09
+| Author: Leon Deligny
+| Modified: 16th April 2025
 
 """
 
@@ -19,9 +20,7 @@ import pyvista as pv
 import streamlit as st
 
 from stpyvista import stpyvista
-from src.streamlit.streamlitutils import (
-    create_sidebar,
-)
+from src.streamlit.streamlitutils import create_sidebar
 
 from pathlib import Path
 from cpacspy.cpacspy import CPACS
@@ -55,6 +54,7 @@ def section_select_cpacs():
     if "workflow" not in st.session_state:
         st.session_state.workflow = Workflow()
 
+    WKDIR_PATH.mkdir(parents=True, exist_ok=True)
     st.session_state.workflow.working_dir = WKDIR_PATH
     st.markdown("#### CPACS file")
 

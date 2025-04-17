@@ -5,7 +5,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Functions to simplify some file and data handling in CEASIOMpy
 
-
 | Author : Aidan Jungo
 | Creation: 2021-12-10
 | Modified: Leon Deligny

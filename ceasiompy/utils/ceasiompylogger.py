@@ -6,7 +6,6 @@ Developed for CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Logging method use by other CEASIOMpy modules
 
-
 | Author : Aidan Jungo
 | Creation: 2018-09-26
 | Modified: Leon Deligny

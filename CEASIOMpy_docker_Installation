@@ -8,7 +8,8 @@
 # On Apple Silicon (ARM), it might be necessary to specify the processor architecture:
 # docker build --platform=linux/amd64 -t ceasiompy:local -f CEASIOMpy_docker_Installation .
 
-# docker run -it --rm -e DISPLAY=$DISPLAY -e LIBGL_ALWAYS_SOFTWARE=1 -v /tmp/.X11-unix:/tmp/.X11-unix -v <your/CEASIOMpy/Path>:/CEASIOMpy ceasiompy:local
+# docker run -it --rm -e DISPLAY=$DISPLAY -e LIBGL_ALWAYS_SOFTWARE=1 -v /tmp/.X11-unix:/tmp/.X11-unix -v /home/cfse2/Leon/DockerCEASIOMpy/CEASIOMpy:/CEASIOMpy ceasiompy:local
+
 
 FROM centos:8
 
@@ -26,26 +27,22 @@ RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86
 ENV PATH=$CONDA_DIR/bin:$PATH
 
 WORKDIR /CEASIOMpy
-RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/setup.py && \
-    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/pyproject.toml && \
-    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/environment.yml
 
 # Create the necessary directory structure
 WORKDIR /CEASIOMpy/installation/CentOS/
 
 # Download only the required installation scripts
-RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/CentOS/install_ceasiompy.sh && \
-    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/CentOS/install_pyavl.sh && \
+RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/CentOS/install_pyavl.sh && \
     wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/CentOS/install_su2.sh
 
 # Make the scripts executable
 RUN chmod +x install_*.sh
 
 # Run the installation scripts
-RUN ./install_ceasiompy.sh
 RUN ./install_pyavl.sh
 RUN ./install_su2.sh
 
+# Go from /CEASIOMpy/INSTALLDIR to /INSTALLDIR
 RUN mkdir -p /INSTALLDIR && \
     mv /CEASIOMpy/INSTALLDIR/* /INSTALLDIR/ && \
     rm -rf /CEASIOMpy/INSTALLDIR
@@ -54,6 +51,9 @@ RUN mkdir -p /INSTALLDIR && \
 RUN dnf -y install xorg-x11-server-Xvfb
 RUN dnf -y install mesa-libGL mesa-libGLU mesa-dri-drivers libXt
 RUN dnf -y install mesa-libEGL mesa-libOSMesa
+
+# Install system dependencies
+RUN dnf -y install gcc-c++ tbb libXrender libXcursor libXinerama libXft libXt mesa-libGL mesa-libGLU mesa-libEGL mesa-libOSMesa xorg-x11-server-Xvfb
 
 # Set the DISPLAY environment variable
 ENV DISPLAY=:99
@@ -73,16 +73,27 @@ RUN mkdir -p /CEASIOMpy
 # Set the working directory to the mounted CEASIOMpy folder
 WORKDIR /CEASIOMpy
 
-# Automatically activate the Conda environment and install CEASIOMpy
-#RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
-#    echo "conda activate ceasiompy" >> ~/.bashrc && \
-#    echo "pip install -e ." >> ~/.bashrc && \
-#    echo "ceasiompy_run --gui" >> ~/.bashrc
+# Get the required files for installing the conda environment
+RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/setup.py /CEASIOMpy/setup.py && \
+    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/pyproject.toml -O /CEASIOMpy/pyproject.toml && \
+    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/environment.yml -O /CEASIOMpy/environment.yml && \
+    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/README.md -O /CEASIOMpy/README.md && \
+    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/LICENSE -O /CEASIOMpy/LICENSE
 
+# Create the Conda environment from the environment.yml file
+RUN source $CONDA_DIR/etc/profile.d/conda.sh && \
+    conda env create -f environment.yml
+
+# Activate the Conda environment and install CEASIOMpy
 RUN source $CONDA_DIR/etc/profile.d/conda.sh && \
     conda activate ceasiompy && \
     pip install -e .
-    
+
+# Automatically activate the Conda environment in new shells
+RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate ceasiompy" >> ~/.bashrc && \
+    echo "ceasiompy_run --gui" >> ~/.bashrc
+
 # Move the content of /INSTALLDIR to the mounted /CEASIOMpy/INSTALLDIR folder at runtime
 CMD ["/bin/bash", "-c", "rm -rf /CEASIOMpy/INSTALLDIR && mkdir -p /CEASIOMpy/INSTALLDIR && mv /INSTALLDIR/* /CEASIOMpy/INSTALLDIR/ && exec bash"]
 

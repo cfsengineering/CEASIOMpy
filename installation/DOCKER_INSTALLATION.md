@@ -32,7 +32,7 @@ cd CEASIOMpy
 Now build the Docker image by using the command:
 
 ```bash
-docker build --platform=linux/amd64 -t ceasiompy:local -f CEASIOMpy_docker_Installation .
+docker build --platform=linux/amd64 -t ceasiompy-image -f CEASIOMpy_docker_Installation .
 ```
 
 Run the Docker container (you need to modify /pathtoYOURlocal/CEASIOMpy with the absolute path of your CEASIOMpy's folder location):

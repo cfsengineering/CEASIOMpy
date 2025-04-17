@@ -70,14 +70,16 @@ RUN mkdir -p /CEASIOMpy
 # Set the working directory to the mounted CEASIOMpy folder
 WORKDIR /CEASIOMpy
 
-# Automatically activate the Conda environment and run the GUI
-RUN echo "conda activate ceasiompy" >> ~/.bashrc && \
+# Automatically activate the Conda environment and install CEASIOMpy
+RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate ceasiompy" >> ~/.bashrc && \
+    echo "pip install -e ." >> ~/.bashrc && \
     echo "ceasiompy_run --gui" >> ~/.bashrc
 
 # Move the content of /INSTALLDIR to the mounted /CEASIOMpy/INSTALLDIR folder at runtime
-CMD ["/bin/bash", "-c", "mkdir -p /CEASIOMpy/INSTALLDIR && mv /INSTALLDIR/* /CEASIOMpy/INSTALLDIR/ && exec bash"]
+CMD ["/bin/bash", "-c", "rm -rf /CEASIOMpy/INSTALLDIR && mkdir -p /CEASIOMpy/INSTALLDIR && mv /INSTALLDIR/* /CEASIOMpy/INSTALLDIR/ && exec bash"]
 
-# Now you just need to add External URL
+# Now you just need click on: Networ URL
 
 # If you did not have the necessary permissions:
 # Run the following command to add your user to the docker group:

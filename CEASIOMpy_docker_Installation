@@ -13,9 +13,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 
 # Install Miniconda
 ENV CONDA_DIR=/opt/conda
-RUN curl -fsSL https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o /tmp/miniconda.sh && \
-    /bin/bash /tmp/miniconda.sh -b -p $CONDA_DIR && \
-    rm /tmp/miniconda.sh
+
+RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh -o /tmp/miniforge.sh && \
+    bash /tmp/miniforge.sh -b -p $CONDA_DIR && \
+    rm /tmp/miniforge.sh
 ENV PATH=$CONDA_DIR/bin:$PATH
 
 # Create the necessary directory structure
@@ -47,6 +48,10 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     g++ libtbb2 libtbb-dev libxrender1 libxcursor1 libxinerama1 libxft2 libxt6 \
     libgl1-mesa-glx libglu1-mesa libegl1-mesa libosmesa6 xvfb && \
     rm -rf /var/lib/apt/lists/*
+
+# Disable Streamlit watchdog and use polling
+#ENV STREAMLIT_GLOBAL_DISABLE_WATCHDOG=1
+#ENV WATCHDOG_USE_POLLER=1
 
 # Set the DISPLAY environment variable
 ENV DISPLAY=:99

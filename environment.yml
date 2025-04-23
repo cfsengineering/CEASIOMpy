@@ -16,7 +16,7 @@ channels:
 
 dependencies:
   - python=3.11.11
-  - cpacscreator=0.2
+  #- cpacscreator=0.2
   - clang=20.1.2
   - codecov=2.1.11
   - coverage=7.6.9

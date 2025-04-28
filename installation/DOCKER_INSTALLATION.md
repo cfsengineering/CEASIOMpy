@@ -47,4 +47,4 @@ docker run -it --rm \
 ceasiompy-image
 ```
 
-You can now click on External URL and use CEASIOMpy's GUI (Graphical User Interface) with all of its required software.
+You can now click on local URL and use CEASIOMpy's GUI (Graphical User Interface) with all of its required software.

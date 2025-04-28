@@ -97,10 +97,18 @@ echo "--> Setting up environment"
 pentagrow_run_path="$install_dir/pentagrow/bin"
 mkdir -p "$pentagrow_run_path"
 
-if [ -d "/CEASIOMpy/installation/Pentagrow/bin" ]; then
-    cp "/CEASIOMpy/installation/Pentagrow/bin/"* "$pentagrow_run_path/" 2>/dev/null || echo "No binaries found in Pentagrow/bin"
+# Verifica se ci sono file nella directory Pentagrow/bin
+if [ -n "$(ls -A /CEASIOMpy/installation/Pentagrow/bin/)" ]; then
+    # Copia i file nella destinazione
+    if cp "/CEASIOMpy/installation/Pentagrow/bin/"* "$pentagrow_run_path/" 2>/dev/null; then
+        echo "Pentagrow executable found and copied successfully."
+    else
+        echo "Failed to copy Pentagrow executables."
+        exit 1
+    fi
 else
-    echo "Error: /CEASIOMpy/installation/Pentagrow/bin does not exist!"
+    echo "No binaries found in Pentagrow/bin"
+    exit 1
 fi
 
 echo "Trying to copy from: $(realpath "/CEASIOMpy/installation/Pentagrow/bin/" || echo "Path not found")"

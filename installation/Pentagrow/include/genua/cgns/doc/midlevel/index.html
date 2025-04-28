@@ -1,0 +1,286 @@
+<!-- Home Page for CGNS Mid-Level Library -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="midlevel.css" rel="stylesheet" type="text/css">
+<title> CGNS Mid-Level Library </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<span class=nav><b>Mid-Level&nbsp;Library</b></span>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="general.html"><b>General&nbsp;Remarks</b></a>)
+(<a href="fileops.html"><b>File&nbsp;Operations</b></a>)
+(<a href="navigating.html"><b>Navigating&nbsp;a&nbsp;CGNS&nbsp;File</b></a>)
+(<a href="error.html"><b>Error&nbsp;Handling</b></a>)
+(<a href="structural.html"><b>Structural&nbsp;Nodes</b></a>)
+(<a href="descriptor.html"><b>Descriptors</b></a>)
+(<a href="physical.html"><b>Physical&nbsp;Data</b></a>)
+(<a href="location.html"><b>Location&nbsp;and&nbsp;Position</b></a>)
+(<a href="auxiliary.html"><b>Auxiliary&nbsp;Data</b></a>)
+(<a href="grid.html"><b>Grid&nbsp;Specification</b></a>)
+(<a href="solution.html"><b>Solution&nbsp;Data</b></a>)
+(<a href="connectivity.html"><b>Grid&nbsp;Connectivity</b></a>)
+(<a href="bc.html"><b>Boundary&nbsp;Conditions</b></a>)
+(<a href="equation.html"><b>Equation&nbsp;Specification</b></a>)
+(<a href="families.html"><b>Families</b></a>)
+(<a href="timedep.html"><b>Time-Dependent&nbsp;Data</b></a>)
+(<a href="links.html"><b>Links</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<br><br>
+<table>
+<tr>
+   <td><img src="../logo/cgns_color.gif" width=150 alt="CGNS logo">
+   <td><tt>&nbsp;&nbsp;</tt>
+   <td><h1>CFD&nbsp;General&nbsp;Notation&nbsp;System<br>
+       Mid-Level&nbsp;Library</h1>
+</table>
+<h1><small><small>Document Version 2.5<br>
+CGNS Version 2.5</small></small></h1>
+
+<p>
+This document outlines a CGNS library designed to ease implementation of
+CGNS by providing developers with a collection of handy I/O functions.
+Since knowledge of the <a href="../adf/index.html">ADF</a> (or
+<a href="http://hdf.ncsa.uiuc.edu/HDF5/">HDF</a>
+<img src="../external.png" alt="external link">) core routines is not
+required to use this library, it greatly facilitates the task of
+interfacing with CGNS.
+
+<p>
+The CGNS Mid-Level Library is based on the
+<a href="../filemap/index.html">SIDS-to-ADF</a> and
+<a href="../filemap_hdf/index.html">SIDS-to-HDF</a> file mapping manuals.
+It allows reading and writing all of the information described in
+that manual including grid coordinates, block interfaces, flow
+solutions, and boundary conditions.
+Use of the mid-level library functions insures efficient
+communication between the user application and the internal
+representation of the CGNS data.
+
+<p>
+It is assumed that the reader is familiar with the information in the
+<a href="../sids/index.html">CGNS Standard Interface Data Structures
+(SIDS)</a>, as well as the file mapping manuals.
+The reader is also strongly encouraged to read the
+<a href="../user/index.html">User's Guide to CGNS</a>, which contains
+coding examples using the Mid-Level Library to write and read simple
+files containing CGNS databases.
+
+<p>
+The PDF form of the <a href="midlevel.pdf">CGNS Mid-Level Library</a>
+manual (419K, 75 pages) was created using
+<a href="http://www.tug.org/applications/pdftex/">pdfTeX</a>
+<img src="../external.png" alt="external link"> and the
+<a href="http://www.tug.org/applications/hyperref/manual.html">hyperref</a>
+<img src="../external.png" alt="external link"> package, and is designed
+to be printed.
+The PDF file may be viewed and/or printed using a variety
+of freely available software packages, including
+<a href="http://www.adobe.com/products/acrobat/readstep.html">Acrobat
+Reader</a> <img src="../external.png" alt="external link">,
+<a href="http://www.cs.wisc.edu/~ghost/">GhostScript</a>
+<img src="../external.png" alt="external link">, and
+<a href="http://www.foolabs.com/xpdf/">xpdf</a>
+<img src="../external.png" alt="external link">.
+The HTML form is designed for interactive use, and the contents
+are listed below.
+
+<ul>
+<li> <a href="general.html">General Remarks</a>
+<li> <a href="fileops.html">File Operations</a>
+     <ul>
+     <li> <a href="fileops.html#openclose">Opening and Closing a CGNS File</a>
+     <li> <a href="fileops.html#configure">Configuring CGNS Internals</a>
+     </ul>
+<li> <a href="navigating.html">Navigating a CGNS File</a>
+     <ul>
+     <li> <a href="navigating.html#goto">Accessing a Node</a>
+     <li> <a href="navigating.html#delete">Deleting a Node</a>
+     </ul>
+<li> <a href="error.html">Error Handling</a>
+<li> <a href="structural.html">Structural Nodes</a>
+     <ul>
+     <li> <a href="structural.html#base">CGNS Base Information
+          (<tt>CGNSBase_t</tt>)</a>
+     <li> <a href="structural.html#zone">Zone Information
+          (<tt>Zone_t</tt>)</a>
+     <li> <a href="structural.html#simulationtype">Simulation Type
+          (<tt>SimulationType_t</tt>)</a>
+     </ul>
+<li> <a href="descriptor.html">Descriptors</a>
+     <ul>
+     <li> <a href="descriptor.html#descriptor">Descriptive Text
+          (<tt>Descriptor_t</tt>)</a>
+     <li> <a href="descriptor.html#ordinal">Ordinal Value
+          (<tt>Ordinal_t</tt>)</a>
+     </ul>
+<li> <a href="physical.html">Physical Data</a>
+     <ul>
+     <li> <a href="physical.html#dataarray">Data Arrays
+          (<tt>DataArray_t</tt>)</a>
+     <li> <a href="physical.html#dataclass">Data Class
+          (<tt>DataClass_t</tt>)</a>
+     <li> <a href="physical.html#dataconversion">Data Conversion Factors
+          (<tt>DataConversion_t</tt>)</a>
+     <li> <a href="physical.html#dimensionalunits">Dimensional Units
+          (<tt>DimensionalUnits_t</tt>)</a>
+     <li> <a href="physical.html#dimensionalexponents">Dimensional Exponents
+          (<tt>DimensionalExponents_t</tt>)</a>
+     </ul>
+<li> <a href="location.html">Location and Position</a>
+     <ul>
+     <li> <a href="location.html#gridlocation">Grid Location
+          (<tt>GridLocation_t</tt>)</a>
+     <li> <a href="location.html#ptset">Point Sets
+          (<tt>IndexArray_t, IndexRange_t</tt>)</a>
+     <li> <a href="location.html#rind">Rind Layers
+          (<tt>Rind_t</tt>)</a>
+     </ul>
+<li> <a href="auxiliary.html">Auxiliary Data</a>
+     <ul>
+     <li> <a href="auxiliary.html#refstate">Reference State
+          (<tt>ReferenceState_t</tt>)</a>
+     <li> <a href="auxiliary.html#gravity">Gravity
+          (<tt>Gravity_t</tt>)</a>
+     <li> <a href="auxiliary.html#convergence">Convergence History
+          (<tt>ConvergenceHistory_t</tt>)</a>
+     <li> <a href="auxiliary.html#integral">Integral Data
+          (<tt>IntegralData_t</tt>)</a>
+     <li> <a href="auxiliary.html#userdefined">User-Defined Data
+          (<tt>UserDefinedData_t</tt>)</a>
+     <li> <a href="auxiliary.html#free">Freeing Memory</a>
+     </ul>
+<li> <a href="grid.html">Grid Specification</a>
+     <ul>
+     <li> <a href="grid.html#gridcoordinates">Zone Grid Coordinates
+          (<tt>GridCoordinates_t</tt>)</a>
+     <li> <a href="grid.html#elements">Element Connectivity
+          (<tt>Elements_t</tt>)</a>
+     <li> <a href="grid.html#axisymmetry">Axisymmetry
+          (<tt>Axisymmetry_t</tt>)</a>
+     <li> <a href="grid.html#rotatingcoordinates">Rotating Coordinates
+          (<tt>RotatingCoordinates_t</tt>)</a>
+     </ul>
+<li> <a href="solution.html">Solution Data</a>
+     <ul>
+     <li> <a href="solution.html#flowsolution">Flow Solution
+          (<tt>FlowSolution_t</tt>)</a>
+     <li> <a href="solution.html#discretedata">Discrete Data
+          (<tt>DiscreteData_t</tt>)</a>
+     </ul>
+<li> <a href="connectivity.html">Grid Connectivity</a>
+     <ul>
+     <li> <a href="connectivity.html#1to1">One-to-One Connectivity
+          (<tt>GridConnectivity1to1_t</tt>)</a>
+     <li> <a href="connectivity.html#general">Generalized Connectivity
+          (<tt>GridConnectivity_t</tt>)</a>
+     <li> <a href="connectivity.html#connproperty">Special Grid Connectivity Properties
+          (<tt>GridConnectivityProperty_t</tt>)</a>
+     <li> <a href="connectivity.html#overset">Overset Holes
+          (<tt>OversetHoles_t</tt>)</a>
+     </ul>
+<li> <a href="bc.html">Boundary Conditions</a>
+     <ul>
+     <li> <a href="bc.html#bc">Boundary Condition Type and Location
+          (<tt>BC_t</tt>)</a>
+     <li> <a href="bc.html#bcdataset">Boundary Condition Datasets
+          (<tt>BCDataSet_t</tt>)</a>
+     <li> <a href="bc.html#bcdata">Boundary Condition Data
+          (<tt>BCData_t</tt>)</a>
+     <li> <a href="bc.html#bcproperty">Special Boundary Condition Properties
+          (<tt>BCProperty_t</tt>)</a>
+     </ul>
+<li> <a href="equation.html">Equation Specification</a>
+     <ul>
+     <li> <a href="equation.html#flowequationset">Flow Equation Set
+          (<tt>FlowEquationSet_t</tt>)</a>
+     <li> <a href="equation.html#governingequations">Governing Equations
+          (<tt>GoverningEquations_t</tt>)</a>
+     <li> <a href="equation.html#auxiliary">Auxiliary Models
+          (<tt>GasModel_t, ViscosityModel_t, ThermalConductivityModel_t,
+          TurbulenceClosure_t, TurbulenceModel_t, ThermalRelaxationModel_t,
+          ChemicalKineticsModel_t, EMElectricFieldModel_t,
+          EMMagneticFieldModel_t, EMConductivityModel_t</tt>)</a>
+    </ul>
+<li> <a href="families.html">Families</a>
+     <ul>
+     <li> <a href="families.html#family">Family Definition
+          (<tt>Family_t</tt>)</a>
+     <li> <a href="families.html#geometry">Geometry Reference
+          (<tt>GeometryReference_t</tt>)</a>
+     <li> <a href="families.html#familybc">Family Boundary Condition
+          (<tt>FamilyBC_t</tt>)</a>
+     <li> <a href="families.html#familyname">Family Name
+          (<tt>FamilyName_t</tt>)</a>
+    </ul>
+<li> <a href="timedep.html">Time-Dependent Data</a>
+     <ul>
+     <li> <a href="timedep.html#biter">Base Iterative Data
+          (<tt>BaseIterativeData_t</tt>)</a>
+     <li> <a href="timedep.html#ziter">Zone Iterative Data
+          (<tt>ZoneIterativeData_t</tt>)</a>
+     <li> <a href="timedep.html#rigid">Rigid Grid Motion
+          (<tt>RigidGridMotion_t</tt>)</a>
+     <li> <a href="timedep.html#arbitrary">Arbitrary Grid Motion
+          (<tt>ArbitraryGridMotion_t</tt>)</a>
+    </ul>
+<li> <a href="links.html">Links</a>
+</ul>
+
+<p>
+The complete <a href="midlevel.tar.gz">CGNS Mid-Level Library document
+in HTML form</a> is also available for installation on a local system.
+This is a gzip'ed tar file (43K, 359K gunzip'ed), and may be downloaded
+by clicking on the link while holding down the shift key, assuming your
+browser supports this capability.
+A dialogue box will appear for you to specify the directory and file name.
+To unpack the contents, do
+<pre>
+   gunzip -c midlevel.tar.gz | tar xvf -
+</pre>
+The files will be extracted and stored in the directory <i>midlevel</i>.
+Point your browser to the local file <i>midlevel/index.html</i> to
+display the <i>CGNS Mid-Level Library</i> home page.
+Note that this does not include the PDF form of the manual.
+Note also that some links, to other manuals, etc., may not work.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+This document was originally written by Diane Poirier of ICEM CFD
+Engineering for the CGNS Project Group.
+<p>
+For more information about CGNS, please see the
+<a href="http://cgns.sourceforge.net/">CGNS home page</a>
+<img src="../external.png" alt="external link">.
+Specific questions about the use of CGNS may be addressed to the
+<a href="http://cgns.sourceforge.net/CGNStalk.html">CGNStalk mailing list</a>
+<img src="../external.png" alt="external link">.
+<p>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 28 Nov 2007
+
+</body>
+</html>

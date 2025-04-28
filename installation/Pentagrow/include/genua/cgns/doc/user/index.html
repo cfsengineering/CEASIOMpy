@@ -1,0 +1,152 @@
+<!-- Home Page for User's Guide to CGNS -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<span class=nav><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></span>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../midlevel/index.html"><b>Mid-Level&nbsp;Library</b></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="intro.html"><b>Introduction</b></a>)
+(<a href="started.html"><b>Getting&nbsp;Started</b></a>)
+(<a href="additional.html"><b>Additional&nbsp;Information</b></a>)
+(<a href="trouble.html"><b>Troubleshooting</b></a>)
+(<a href="faq.html"><b>Frequently&nbsp;Asked&nbsp;Questions</b></a>)
+(<a href="examples.html"><b>Example&nbsp;Computer&nbsp;Codes</b></a>)
+(<a href="sids.html"><b>Overview&nbsp;of&nbsp;the&nbsp;SIDS</b></a>)
+(<a href="plot3d.html"><b>Guideline&nbsp;for&nbsp;PLOT3D&nbsp;Variables</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<br><br>
+<table>
+<tr>
+   <td><img src="../logo/cgns_color.gif" width=150 alt="CGNS logo">
+   <td><tt>&nbsp;&nbsp;</tt>
+   <td><h1>CFD&nbsp;General&nbsp;Notation&nbsp;System<br>
+       A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</h1>
+</table>
+<h1><small><small>Document Version 1.1.11<br>
+CGNS Version 2.5</small></small></h1>
+
+<p>
+This User's Guide (originally published as NASA/TM-2001-211236, October
+2001) has been written to aid users in the implementation of
+<a href="http://cgns.sourceforge.net/">CGNS (CFD General Notation System)</a>
+<img src="../external.png" alt="external link">.
+It is intended as a tutorial: light in content, but heavy in examples,
+advice and guidelines.
+
+<p>
+All examples of source code discussed in the User's Guide are available
+in a gzip'ed tar file from the
+<a href="http://sourceforge.net/projects/cgns">CGNS site at SourceForge</a>
+<img src="../external.png" alt="external link">, as a complement to the
+document itself.
+We strongly recommend that you download these examples.
+
+<p>
+The PDF form of the <a href="usersguide.pdf">A User's Guide to CGNS</a>
+(562K, 81 pages) was created using
+<a href="http://www.tug.org/applications/pdftex/">pdfTeX</a>
+<img src="../external.png" alt="external link"> and the
+<a href="http://www.tug.org/applications/hyperref/manual.html">hyperref</a>
+<img src="../external.png" alt="external link"> package, and is designed
+to be printed.
+The PDF file may be viewed and/or printed using a variety
+of freely available software packages, including
+<a href="http://www.adobe.com/products/acrobat/readstep.html">Acrobat
+Reader</a> <img src="../external.png" alt="external link">,
+<a href="http://www.cs.wisc.edu/~ghost/">GhostScript</a>
+<img src="../external.png" alt="external link">, and
+<a href="http://www.foolabs.com/xpdf/">xpdf</a>
+<img src="../external.png" alt="external link">.
+The HTML form is designed for interactive use, and the contents
+are listed below.
+
+<ul>
+<li> <a href="intro.html">Introduction</a>
+<li> <a href="started.html">Getting Started</a>
+<li> <a href="additional.html">Additional Information</a>
+<li> <a href="trouble.html">Troubleshooting</a>
+<li> <a href="faq.html">Frequently Asked Questions</a>
+<li> <a href="examples.html">Example Computer Codes</a>
+<li> <a href="sids.html">Overview of the SIDS</a>
+<li> <a href="plot3d.html">Guideline for PLOT3D Variables</a>
+</ul>
+
+<p>
+The complete <a href="user.tar.gz">User's Guide to CGNS in HTML form</a>
+is also available for installation on a local system.
+This is a gzip'ed tar file (216K, 461K gunzip'ed), and may be downloaded
+by clicking on the link while holding down the shift key, assuming your
+browser supports this capability.
+A dialogue box will appear for you to specify the directory and file name.
+To unpack the contents, do
+<pre>
+   gunzip -c user.tar.gz | tar xvf -
+</pre>
+The files will be extracted and stored in the directory <i>user</i>.
+Point your browser to the local file <i>user/index.html</i> to
+display the <i>User's Guide to CGNS</i> home page.
+Note that this does not include the PDF form of the manual.
+Note also that some links, to other manuals, etc., may not work.
+
+<p>
+Questions and comments on this document are welcome and
+should be directed to:
+<br><br>
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+<td>Chris Rumsey
+<tr valign=baseline><td>
+<td>Mail Stop 128
+<tr valign=baseline><td>
+<td>NASA Langley Research Center
+<tr valign=baseline><td>
+<td>Hampton, VA &nbsp;23681-2199
+<tr valign=baseline><td>
+<td>(757) 864-2165
+<tr valign=baseline><td>
+<td>e-mail: &nbsp;<a href="mailto:c.l.rumsey@larc.nasa.gov">c.l.rumsey@larc.nasa.gov</a>
+</table>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+This document was written by Chris Rumsey, Diane Poirier, Bob Bush, and
+Charlie Towne for the CGNS Project Group.
+<p>
+For more information about CGNS, please see the
+<a href="http://cgns.sourceforge.net/">CGNS home page</a>
+<img src="../external.png" alt="external link">.
+Specific questions about the use of CGNS may be addressed to the
+<a href="http://cgns.sourceforge.net/CGNStalk.html">CGNStalk mailing list</a>
+<img src="../external.png" alt="external link">.
+<p>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 7 Mar 2008
+
+</body>
+</html>

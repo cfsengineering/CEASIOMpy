@@ -1,0 +1,106 @@
+#! /bin/bash
+#
+# build scope and sumo including all dependencies;
+# script deletes qmake cache files so that it can be
+# called even after another spec was used to generate cache
+
+devroot=$HOME/Develop
+gcclist="boost predicates genua genua/tools/zml2xml genua/tools/zmlprint surf surf/tools/pentagrow surf/tools/surfmap QGLViewer/QGLViewer scope sumo"
+
+mode="CONFIG+=release CONFIG-=debug CONFIG*=sse41"
+if (($# > 0)); then
+    if [ "$1" = "debug" ]; then
+        mode="CONFIG+=debug"
+    elif [ "$1" = "profile" ]; then
+        mode="CONFIG+=profile CONFIG-=debug CONFIG*=sse41"
+    fi
+fi
+
+cfg="$mode CONFIG+=no-spooles CONFIG*=builtin_expat CONFIG*=no-mkl CONFIG*=openmp"
+
+if [[ $(uname) == "Darwin" ]]; then
+  echo "Mac OS X"
+  SPEC="macx-clang"
+  if [[ -d "$HOME/Qt/5.12.5" ]]; then
+  	QTROOT=$HOME/Qt/5.12.5/clang_64
+  elif [[ -d "$HOME/Qt/5.9.6" ]]; then
+  	QTROOT=$HOME/Qt/5.9.6/clang_64
+  elif [[ -d "$HOME/Qt/5.6.3" ]]; then
+  	QTROOT=$HOME/Qt/5.6.3/clang_64
+  elif [[ -d "$HOME/Qt/5.5" ]]; then
+  	QTROOT=$HOME/Qt/5.5/clang_64
+  elif [[ -d "$HOME/Qt/5.3" ]]; then
+  	QTROOT=$HOME/Qt/5.3/clang_64
+  else
+    QTROOT=/Users/david/Qt/5.3/clang_64
+  fi
+  QMAKE=$QTROOT/bin/qmake
+  sumotools=$HOME/bin/dwfsumo.app/Contents/Tools
+  scopetools=$HOME/bin/dwfscope.app/Contents/Tools
+  scopedocs=$HOME/bin/dwfscope.app/Contents/Documentation
+  rm -rf $HOME/bin/dwfsumo.app
+  rm -rf $HOME/bin/dwfscope.app
+
+  nproc=$(sysctl -n hw.ncpu)
+else
+  echo "Linux"
+  SPEC=linux-g++-64
+   if [[ -d "/opt/Qt/5.5" ]]; then
+    QTROOT=/opt/Qt/5.5
+    QMAKE=$QTROOT/bin/qmake
+  elif [[ -d "/opt/Qt/4.8" ]]; then
+    QTROOT=/opt/Qt/4.8
+    QMAKE=$QTROOT/bin/qmake
+  elif [[ -x "/usr/bin/qmake-qt5" ]]; then
+    QMAKE=qmake-qt5
+  else
+    QMAKE=qmake
+  fi
+
+  # make icpc use g++ 4.7 environment if present
+  if [[ -x "/usr/bin/g++-4.7" ]]; then
+    $cfg=$cfg" CONFIG*=gcc47"
+  fi
+  nproc=$(grep -c ^processor /proc/cpuinfo)
+
+  sumotools=$HOME/bin
+  scopetools=$HOME/bin
+  scopedocs=$HOME/userdoc/dwfscope
+fi
+echo "Using $nproc make jobs"
+
+#
+# Build loop
+#
+
+for i in $gcclist; do
+  cd $devroot/$i
+  make clean
+  rm -rf .qmake.*
+  projectfile=$(basename $i)".pro"
+  $QMAKE -spec $SPEC $cfg $projectfile
+  make -j$nproc || exit 42
+done
+
+# build tetgen
+cd $devroot/tetgen
+make -j2
+cp tetgen $HOME/bin
+cd
+
+# copy tools
+mkdir -p $sumotools
+cp $HOME/bin/pentagrow $sumotools
+cp $HOME/bin/tetgen $sumotools
+
+mkdir -p $scopetools
+cp $HOME/bin/surfmap $scopetools
+cp $HOME/bin/zml2xml $scopetools
+cp $HOME/bin/zmlprint $scopetools
+
+# build and copy docs
+cd $devroot/scope/userdoc/scope-userdoc
+mkdocs build --clean
+find site -name "*.html" | xargs ./rmgoogleref.py 
+mkdir -p $scopedocs
+cp -a ./site/* $scopedocs

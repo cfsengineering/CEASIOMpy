@@ -1,0 +1,292 @@
+<!-- CGNS Mid-Level Library - Opening and Closing a CGNS File -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="midlevel.css" rel="stylesheet" type="text/css">
+<title> CGNS Mid-Level Library - Opening and Closing a CGNS File </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="index.html"><span class=nav><b>Mid-Level&nbsp;Library</b></span></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="general.html"><b>General&nbsp;Remarks</b></a>)
+(<span class=nav><b>File&nbsp;Operations</b></span>)
+(<a href="navigating.html"><b>Navigating&nbsp;a&nbsp;CGNS&nbsp;File</b></a>)
+(<a href="error.html"><b>Error&nbsp;Handling</b></a>)
+(<a href="structural.html"><b>Structural&nbsp;Nodes</b></a>)
+(<a href="descriptor.html"><b>Descriptors</b></a>)
+(<a href="physical.html"><b>Physical&nbsp;Data</b></a>)
+(<a href="location.html"><b>Location&nbsp;and&nbsp;Position</b></a>)
+(<a href="auxiliary.html"><b>Auxiliary&nbsp;Data</b></a>)
+(<a href="grid.html"><b>Grid&nbsp;Specification</b></a>)
+(<a href="solution.html"><b>Solution&nbsp;Data</b></a>)
+(<a href="connectivity.html"><b>Grid&nbsp;Connectivity</b></a>)
+(<a href="bc.html"><b>Boundary&nbsp;Conditions</b></a>)
+(<a href="equation.html"><b>Equation&nbsp;Specification</b></a>)
+(<a href="families.html"><b>Families</b></a>)
+(<a href="timedep.html"><b>Time-Dependent&nbsp;Data</b></a>)
+(<a href="links.html"><b>Links</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>File Operations</h2>
+
+<ul>
+<li> <a href="#openclose">Opening and Closing a CGNS File</a>
+     <ul>
+     <li> <tt><b>cg_open</b></tt> - Open a CGNS file
+     <li> <tt><b>cg_version</b></tt> - Get CGNS file version
+     <li> <tt><b>cg_close</b></tt> - Close a CGNS file
+     <li> <tt><b>cg_is_cgns</b></tt> - Check for a valid CGNS file
+     </ul>
+<li> <a href="#configure">Configuring CGNS Internals</a>
+     <ul>
+     <li> <tt><b>cg_configure</b></tt> - Configure CGNS internals
+     </ul>
+</ul>
+
+<a name="openclose"></a>
+<h3>Opening and Closing a CGNS File</h3>
+
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_open(<span class=in>char *filename</span>, <span class=in>int mode</span>, <span class=out><i>int *fn</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_version(<span class=in>int fn</span>, <span class=out><i>float *version</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_close(<span class=in>int fn</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_is_cgns(<span class=in>const char *filename</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_open_f(<span class=in>filename</span>, <span class=in>mode</span>, <span class=out><i>fn</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_version_f(<span class=in>fn</span>, <span class=out><i>version</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_close_f(<span class=in>fn</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_is_cgns_f(<span class=in>filename</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>filename</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Name of the CGNS file, including path name if necessary.
+       There is no limit on the length of this character variable.
+<tr valign=baseline><td>
+   <td><tt>mode</tt><td>
+   <td>Mode used for opening the file.
+       The modes currently supported are <tt>CG_MODE_READ</tt>,
+       <tt>CG_MODE_WRITE</tt>, and <tt>CG_MODE_MODIFY</tt>.
+       For backwards compatibility, the equivalent mode names
+       <tt>MODE_READ</tt>, <tt>MODE_WRITE</tt>, and <tt>MODE_MODIFY</tt>
+       are still supported, but it is recommended that the new names be
+       used.
+<tr valign=baseline><td>
+   <td><tt>fn</tt><td>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>version</tt><td>
+   <td>CGNS version number.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The function <tt>cg_open</tt> must always be the first one called.
+It opens a CGNS file for reading and/or writing and returns an index
+number <tt>fn</tt>.
+The index number serves to identify the CGNS file in subsequent
+function calls.
+Several CGNS files can be opened simultaneously.
+The current limit on the number of files opened at once depends on the
+platform.
+On an SGI workstation, this limit is set at 100 (parameter
+<tt>FOPEN_MAX</tt> in <i>stdio.h</i>).
+
+<p>
+The file can be opened in one of the following modes:
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>CG_MODE_READ</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Read only mode.
+<tr valign=baseline><td>
+   <td><tt>CG_MODE_WRITE</tt><td>
+   <td>Write only mode.
+<tr valign=baseline><td>
+   <td><tt>CG_MODE_MODIFY</tt><td>
+   <td>Reading and/or writing is allowed.
+</table>
+
+<p>
+When the file is opened, if no <tt>CGNSLibraryVersion_t</tt> node is
+found, a default value of 1.05 is assumed for the CGNS version number.
+Note that this corresponds to an old version of the CGNS standard, that
+doesn't include many data structures supported by the current standard.
+
+<p>
+The function <tt>cg_close</tt> must always be the last one called.
+It closes the CGNS file designated by the index number <tt>fn</tt> and frees
+the memory where the CGNS data was kept.
+When a file is opened for writing, <tt>cg_close</tt> writes all the CGNS
+data in memory onto disk prior to closing the file.
+Consequently, if is omitted, the CGNS file is not written properly.
+
+<p>
+In order to reduce memory usage and improve execution speed,
+large arrays such as grid coordinates or flow solutions are not actually
+stored in memory.
+Instead, only their ADF (or HDF) ID numbers are kept in memory for future
+reference.
+When a CGNS file is open in writing mode, large arrays passed to the
+library are immediately written into the CGNS file, directly under the
+root node.
+When the file is closed, these arrays are moved to their appropriate
+location in the CGNS tree.
+
+<a name="configure"></a>
+<h3>Configuring CGNS Internals</h3>
+
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_configure(<span class=in>int option</span>, <span class=in>void *value</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>option</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>The option to configure, currently one of
+       <tt>CG_CONFIG_ERROR</tt>, <tt>CG_CONFIG_COMPRESS</tt>,
+       <tt>CG_CONFIG_SET_PATH</tt>, or <tt>CG_CONFIG_ADD_PATH</tt> as
+       defined in <i>cgnslib.h</i>.
+<tr valign=baseline><td>
+   <td><tt>value</tt><td>
+   <td>The value to set, type cast as <tt>void *</tt>.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The function <tt>cg_configure</tt> allows certain CGNS library internal
+options to be configured.
+The currently supported options and expected values are:
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>CG_CONFIG_ERROR</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>This allows an error call-back function to be defined by the
+       user.
+       The value should be a pointer to a function to receive the error.
+       The function is defined as <tt>void err_callback(int is_error,
+       char *errmsg)</tt>, and will be called for errors and warnings.
+       The first argument, <tt>is_error</tt>, will be 0 for warning
+       messages, 1 for error messages, and &minus;1 if the program is
+       going to terminate (i.e., a call to <tt>cg_error_exit()</tt>).
+       The second argument is the error or warning message.
+       If this is defined, warning and error messages will go to the
+       function, rather than the terminal.
+       A <tt>value</tt> of <tt>NULL</tt> will remove the call-back
+       function.
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>CG_CONFIG_COMPRESS</tt><td>
+   <td>When a CGNS file is closed after being opened in modify mode, the
+       normal operation of the CGNS library is to rewrite the file if
+       there is unused space.
+       This happens when nodes have been rewritten or deleted.
+       Setting <tt>value</tt> to 0 will prevent the library from
+       rewriting the file, and setting it to 1 will force the rewrite.
+       The default value is &minus;1.
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>CG_CONFIG_SET_PATH</tt><td>
+   <td>Sets the search path for locating linked-to files.
+       The argument <tt>value</tt> should be a character string
+       containing one or more directories, formatted the same as for the
+       <tt>PATH</tt> environment variable.
+       This will replace any current settings.
+       Setting <tt>value</tt> to <tt>NULL</tt> will remove all paths.
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>CG_CONFIG_ADD_PATH</tt><td>
+   <td>Adds a directory, or list of directories, to the linked-to file
+       search path.
+       This is the same as <tt>CG_CONFIG_SET_PATH</tt>, but adds to the
+       path instead of replacing it.
+</table>
+
+<p>
+There is no Fortran counterpart to function <tt>cg_configure</tt>.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 25 Jan 2007
+
+</body>
+</html>

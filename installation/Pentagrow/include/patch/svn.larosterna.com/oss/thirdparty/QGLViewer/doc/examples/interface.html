@@ -1,0 +1,188 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>libQGLViewer interface example</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link href="../qglviewer.css" rel="stylesheet" type="text/css" />
+  <link rel="shortcut icon" href="../images/qglviewer.ico" type="image/x-icon" />
+  <link rel="icon" href="../images/qglviewer.icon.png" type="image/png" />
+</head>
+<body>
+
+<div class="banner">
+ <a class="qindex" href="../index.html">Home</a>
+ <a class="qindex" href="../refManual/hierarchy.html">Documentation</a>
+ <a class="qindex" href="../download.html">Download</a>
+ <a class="qindex highlight" href="index.html">Examples</a>
+ <a class="qindex" href="../developer.html">Developer</a>
+</div>
+
+<h1>The interface example</h1>
+
+<center>
+  <img src="../images/interface.jpg" width="330" height="228" alt="interface"/>
+</center>
+
+<p>
+ Adding a graphical user interface around a <code>QGLViewer</code>.
+</p>
+<p>
+ Qt's <code>designer</code> has been used to create a very simple interface example, described by a
+ <code>.ui</code> user interface description file.
+</p>
+<p>
+ Install the QGLViewer designer plugin so that the QGLViewer appears in the designer's widgets
+ tabs. You can then connect signals and slots to and from the viewer. The viewer is fully
+ functional and can be manipulated when you test your interface in <code>designer</code>.
+</p>
+<p>
+ The plugin code is in the <code>designerPlugin</code> directory. Start from there to create
+ plugins for the classes you will derive from QGLViewer. Select your architecture in the <a
+ href="../download.html">download page</a> for details on the plugin compilation and installation.
+</p>
+<p>
+ With Qt version 3, an alternative to the plugin technique is to use the
+ <code>qglviewer.cw</code> (custom widget) file located in this directory (also available in the
+ QGLViewer header file directory). It describes all the QGLViewer signals and slots. Add a "Custom
+ Widget" using the <i>Tools/Custom</i> designer menu, and use <i>Load Descriptions...</i> to load
+ the <code>.cw</code> file. This file can be extended with new signals and slots, in case you added
+ some to your QGLViewer sub-class, thus creating a new custom widget description.
+</p>
+<p>
+ Here we use three slots and three signals (axis, grid and fps) to connect to and from the
+ interface and the viewer.
+</p>
+<h2>interface.h</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;QGLViewer/qglviewer.h&gt;</font>
+
+<b><font color="#0000FF">class</font></b> Viewer <font color="#990000">:</font> <b><font color="#0000FF">public</font></b> QGLViewer
+<font color="#FF0000">{</font>
+<b><font color="#0000FF">public</font></b> <font color="#990000">:</font>
+<b><font color="#000080">#if</font></b> QT_VERSION <font color="#990000">&lt;</font> <font color="#993399">0x040000</font>
+  <b><font color="#000000">Viewer</font></b><font color="#990000">(</font>QWidget <font color="#990000">*</font>parent<font color="#990000">,</font> <b><font color="#0000FF">const</font></b> <font color="#009900">char</font> <font color="#990000">*</font>name<font color="#990000">);</font>
+<b><font color="#000080">#else</font></b>
+  <b><font color="#000000">Viewer</font></b><font color="#990000">(</font>QWidget <font color="#990000">*</font>parent<font color="#990000">);</font>
+<b><font color="#000080">#endif</font></b>
+
+<b><font color="#0000FF">protected</font></b> <font color="#990000">:</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">draw</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> QString <b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b><font color="#990000">;</font>
+<font color="#FF0000">}</font><font color="#990000">;</font>
+</tt></pre>
+
+
+<h2>interface.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"interface.h"</font>
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;math.h&gt;</font>
+
+<i><font color="#9A1900">// Constructor must call the base class constructor.</font></i>
+<b><font color="#000080">#if</font></b> QT_VERSION <font color="#990000">&lt;</font> <font color="#993399">0x040000</font>
+Viewer<font color="#990000">::</font><b><font color="#000000">Viewer</font></b><font color="#990000">(</font>QWidget <font color="#990000">*</font>parent<font color="#990000">,</font> <b><font color="#0000FF">const</font></b> <font color="#009900">char</font> <font color="#990000">*</font>name<font color="#990000">)</font>
+  <font color="#990000">:</font> <b><font color="#000000">QGLViewer</font></b><font color="#990000">(</font>parent<font color="#990000">,</font> name<font color="#990000">)</font>
+<b><font color="#000080">#else</font></b>
+Viewer<font color="#990000">::</font><b><font color="#000000">Viewer</font></b><font color="#990000">(</font>QWidget <font color="#990000">*</font>parent<font color="#990000">)</font>
+    <font color="#990000">:</font> <b><font color="#000000">QGLViewer</font></b><font color="#990000">(</font>parent<font color="#990000">)</font>
+<b><font color="#000080">#endif</font></b>
+<font color="#FF0000">{</font>
+  <b><font color="#000000">restoreStateFromFile</font></b><font color="#990000">();</font>
+  <b><font color="#000000">help</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">draw</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <i><font color="#9A1900">// Draws a spiral</font></i>
+  <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> nbSteps <font color="#990000">=</font> <font color="#993399">200.0</font><font color="#990000">;</font>
+  <b><font color="#000000">glBegin</font></b><font color="#990000">(</font>GL_QUAD_STRIP<font color="#990000">);</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">float</font> i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nbSteps<font color="#990000">;</font> <font color="#990000">++</font>i<font color="#990000">)</font>
+    <font color="#FF0000">{</font>
+      <font color="#009900">float</font> ratio <font color="#990000">=</font> i<font color="#990000">/</font>nbSteps<font color="#990000">;</font>
+      <font color="#009900">float</font> angle <font color="#990000">=</font> <font color="#993399">21.0</font><font color="#990000">*</font>ratio<font color="#990000">;</font>
+      <font color="#009900">float</font> c <font color="#990000">=</font> <b><font color="#000000">cos</font></b><font color="#990000">(</font>angle<font color="#990000">);</font>
+      <font color="#009900">float</font> s <font color="#990000">=</font> <b><font color="#000000">sin</font></b><font color="#990000">(</font>angle<font color="#990000">);</font>
+      <font color="#009900">float</font> r1 <font color="#990000">=</font> <font color="#993399">1.0</font> <font color="#990000">-</font> <font color="#993399">0.8</font><font color="#990000">*</font>ratio<font color="#990000">;</font>
+      <font color="#009900">float</font> r2 <font color="#990000">=</font> <font color="#993399">0.8</font> <font color="#990000">-</font> <font color="#993399">0.8</font><font color="#990000">*</font>ratio<font color="#990000">;</font>
+      <font color="#009900">float</font> alt <font color="#990000">=</font> ratio <font color="#990000">-</font> <font color="#993399">0.5</font><font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> nor <font color="#990000">=</font> <font color="#990000">.</font><font color="#993399">5</font><font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> up <font color="#990000">=</font> <b><font color="#000000">sqrt</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">-</font>nor<font color="#990000">*</font>nor<font color="#990000">);</font>
+      <b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">-</font>ratio<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>2f <font color="#990000">,</font> ratio<font color="#990000">);</font>
+      <b><font color="#000000">glNormal3f</font></b><font color="#990000">(</font>nor<font color="#990000">*</font>c<font color="#990000">,</font> up<font color="#990000">,</font> nor<font color="#990000">*</font>s<font color="#990000">);</font>
+      <b><font color="#000000">glVertex3f</font></b><font color="#990000">(</font>r1<font color="#990000">*</font>c<font color="#990000">,</font> alt<font color="#990000">,</font> r1<font color="#990000">*</font>s<font color="#990000">);</font>
+      <b><font color="#000000">glVertex3f</font></b><font color="#990000">(</font>r2<font color="#990000">*</font>c<font color="#990000">,</font> alt<font color="#990000">+</font><font color="#993399">0.05</font><font color="#990000">,</font> r2<font color="#990000">*</font>s<font color="#990000">);</font>
+    <font color="#FF0000">}</font>
+  <b><font color="#000000">glEnd</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+QString Viewer<font color="#990000">::</font><b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b>
+<font color="#FF0000">{</font>
+  QString <b><font color="#000000">text</font></b><font color="#990000">(</font><font color="#FF0000">"&lt;h2&gt;I n t e r f a c e&lt;/h2&gt;"</font><font color="#990000">);</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"A GUI can be added to a QGLViewer widget using Qt's &lt;i&gt;Designer&lt;/i&gt;. Signals and slots "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"can then be connected to and from the viewer.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"You can install the QGLViewer designer plugin to make the QGLViewer appear as a "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"standard Qt widget in the Designer's widget tabs. See installation pages for details.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"An other option (with Qt version 2 or 3) is to add a &lt;i&gt;Custom Widget&lt;/i&gt; in Designer. "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"All the available QGLViewer's signals and slots are listed in a &lt;code&gt;qglviewer.cw&lt;/code&gt; "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"(custom widget) file, located in the QGLViewer &lt;code&gt;include&lt;/code&gt; directory."</font><font color="#990000">;</font>
+  <b><font color="#0000FF">return</font></b> text<font color="#990000">;</font>
+<font color="#FF0000">}</font>
+</tt></pre>
+
+
+<h2>main.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;qapplication.h&gt;</font>
+
+<b><font color="#000080">#if</font></b> QT_VERSION <font color="#990000">&gt;=</font> <font color="#993399">0x040000</font>
+<b><font color="#000080"># include</font></b> <font color="#FF0000">"ui_viewerInterface.Qt4.h"</font>
+  <b><font color="#0000FF">class</font></b> ViewerInterface <font color="#990000">:</font> <b><font color="#0000FF">public</font></b> QDialog<font color="#990000">,</font> <b><font color="#0000FF">public</font></b> Ui<font color="#990000">::</font>Dialog
+  <font color="#FF0000">{</font>
+  <b><font color="#0000FF">public</font></b><font color="#990000">:</font>
+    <b><font color="#000000">ViewerInterface</font></b><font color="#990000">()</font> <font color="#FF0000">{</font> <b><font color="#000000">setupUi</font></b><font color="#990000">(</font><b><font color="#0000FF">this</font></b><font color="#990000">);</font> <font color="#FF0000">}</font>
+  <font color="#FF0000">}</font><font color="#990000">;</font>
+<b><font color="#000080">#else</font></b>
+<b><font color="#000080"># include</font></b> <font color="#FF0000">"interface.h"</font>
+<b><font color="#000080"># include</font></b> <font color="#FF0000">"viewerInterface.Qt3.h"</font>
+<b><font color="#000080">#endif</font></b>
+
+<font color="#009900">int</font> <b><font color="#000000">main</font></b><font color="#990000">(</font><font color="#009900">int</font> argc<font color="#990000">,</font> <font color="#009900">char</font><font color="#990000">**</font> argv<font color="#990000">)</font>
+<font color="#FF0000">{</font>
+  QApplication <b><font color="#000000">application</font></b><font color="#990000">(</font>argc<font color="#990000">,</font>argv<font color="#990000">);</font>
+
+  ViewerInterface vi<font color="#990000">;</font>
+
+<b><font color="#000080">#if</font></b> QT_VERSION <font color="#990000">&lt;</font> <font color="#993399">0x040000</font>
+  application<font color="#990000">.</font><b><font color="#000000">setMainWidget</font></b><font color="#990000">(&amp;</font>vi<font color="#990000">);</font>
+<b><font color="#000080">#else</font></b>
+  vi<font color="#990000">.</font><b><font color="#000000">setWindowTitle</font></b><font color="#990000">(</font><font color="#FF0000">"interface"</font><font color="#990000">);</font>
+<b><font color="#000080">#endif</font></b>
+
+  vi<font color="#990000">.</font><b><font color="#000000">show</font></b><font color="#990000">();</font>
+
+  <b><font color="#0000FF">return</font></b> application<font color="#990000">.</font><b><font color="#000000">exec</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+</tt></pre>
+
+
+
+<p>
+  Back to the <a href="index.html">examples main page</a>.
+</p>
+
+<p>
+  <a href="http://validator.w3.org/check/referer"><img src="../images/xhtml.png" alt="Valid XHTML 1.0!" height="31" width="88"/></a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer"><img src="../images/css.png" width="88" height="31" alt="Valid CSS!"/></a>
+<i>Last modified on Tuesday, September 30, 2008.</i>
+</p>
+
+</body>
+</html>

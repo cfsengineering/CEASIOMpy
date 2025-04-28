@@ -1,0 +1,203 @@
+<!-- CGNS Mid-Level Library - Descriptors -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="midlevel.css" rel="stylesheet" type="text/css">
+<title> CGNS Mid-Level Library - Descriptors </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="index.html"><span class=nav><b>Mid-Level&nbsp;Library</b></span></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="general.html"><b>General&nbsp;Remarks</b></a>)
+(<a href="fileops.html"><b>File&nbsp;Operations</b></a>)
+(<a href="navigating.html"><b>Navigating&nbsp;a&nbsp;CGNS&nbsp;File</b></a>)
+(<a href="error.html"><b>Error&nbsp;Handling</b></a>)
+(<a href="structural.html"><b>Structural&nbsp;Nodes</b></a>)
+(<span class=nav><b>Descriptors</b></span>)
+(<a href="physical.html"><b>Physical&nbsp;Data</b></a>)
+(<a href="location.html"><b>Location&nbsp;and&nbsp;Position</b></a>)
+(<a href="auxiliary.html"><b>Auxiliary&nbsp;Data</b></a>)
+(<a href="grid.html"><b>Grid&nbsp;Specification</b></a>)
+(<a href="solution.html"><b>Solution&nbsp;Data</b></a>)
+(<a href="connectivity.html"><b>Grid&nbsp;Connectivity</b></a>)
+(<a href="bc.html"><b>Boundary&nbsp;Conditions</b></a>)
+(<a href="equation.html"><b>Equation&nbsp;Specification</b></a>)
+(<a href="families.html"><b>Families</b></a>)
+(<a href="timedep.html"><b>Time-Dependent&nbsp;Data</b></a>)
+(<a href="links.html"><b>Links</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Descriptors</h2>
+
+<ul>
+<li> <a href="#descriptor">Descriptive Text</a>
+     <ul>
+     <li> <tt><b>cg_descriptor_write</b></tt> - Write descriptive text
+     <li> <tt><b>cg_ndescriptors</b></tt> - Get number of descriptors in file
+     <li> <tt><b>cg_descriptor_size</b></tt> - Get size of descriptor data
+     <li> <tt><b>cg_descriptor_read</b></tt> - Read descriptive text
+     </ul>
+<li> <a href="#ordinal">Ordinal Value</a>
+     <ul>
+     <li> <tt><b>cg_ordinal_write</b></tt> - Write ordinal value
+     <li> <tt><b>cg_ordinal_read</b></tt> - Read ordinal value
+     </ul>
+</ul>
+
+<a name="descriptor"></a>
+<h3>Descriptive Text</h3>
+
+<i>Node</i>: <tt>Descriptor_t</tt>
+             (<a href="../sids/build.html#Descriptor">SIDS</a>,
+              <a href="../filemap/nodes.html#Descriptor">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_descriptor_write(<span class=in>char *name</span>, <span class=in>char *text</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_ndescriptors(<span class=out><i>int *ndescriptors</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_descriptor_read(<span class=in>int D</span>, <span class=out><i>char *name</i></span>, <span class=out><i>char **text</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_descriptor_write_f(<span class=in>name</span>, <span class=in>text</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_ndescriptors_f(<span class=out><i>ndescriptors</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_descriptor_size_f(<span class=in>D</span>, <span class=out><i>size</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_descriptor_read_f(<span class=in>D</span>, <span class=out><i>name</i></span>, <span class=out><i>text</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>ndescriptors</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Number of <tt>Descriptor_t</tt> nodes under the current node.
+<tr valign=baseline><td>
+   <td><tt>D</tt><td>
+   <td>Descriptor index number, where 1 &le; <tt>D</tt> &le; <tt>ndescriptors</tt>.
+<tr valign=baseline><td>
+   <td><tt>name</tt><td>
+   <td>Name of the <tt>Descriptor_t</tt> node.
+<tr valign=baseline><td>
+   <td><tt>text</tt><td>
+   <td>Description held in the <tt>Descriptor_t</tt> node.
+<tr valign=baseline><td>
+   <td><tt>size</tt><td>
+   <td>Size of the descriptor data (Fortran interface only).
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+Note that with <tt>cg_descriptor_read</tt> the memory for the descriptor
+character string, <tt>text</tt>, will be allocated by the Mid-Level
+Library.
+The application code is responsible for releasing this memory when it is
+no longer needed by calling
+<a href="auxiliary.html#free"><tt>cg_free(text)</tt></a>.
+
+<a name="ordinal"></a>
+<h3>Ordinal Value</h3>
+
+<i>Node</i>: <tt>Ordinal_t</tt>
+             (<a href="../sids/cgnsbase.html#Ordinal">SIDS</a>,
+              <a href="../filemap/nodes.html#Ordinal">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_ordinal_write(<span class=in>int Ordinal</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_ordinal_read(<span class=out><i>int *Ordinal</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_ordinal_write_f(<span class=in>Ordinal</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_ordinal_read_f(<span class=out><i>Ordinal</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>Ordinal</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Any integer value.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 27 July 2006
+
+</body>
+</html>

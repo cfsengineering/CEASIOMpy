@@ -1,0 +1,62 @@
+<!-- A User's Guide to CGNS - longdesc for ZoneGridConnectivity_t
+     hierarchy for a 1-to-1 interface -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="../user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - ZoneGridConnectivity_t hierarchy for a 1-to-1 interface </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<p>
+This diagram illustrates the hierarchical structure in a CGNS file for a
+1-to-1 zone interface, starting with the <tt>ZoneGridConnectivity_t</tt>
+node.
+
+<p>
+The <tt>ZoneGridConnectivity_t</tt> node has the following characteristics.
+<ul>
+<li> Name: <tt>ZoneGridConnectivity</tt><br>
+     Label: <tt>ZoneGridConnectivity_t</tt><br>
+     Data: None
+</ul>
+
+<p>
+The <tt>ZoneGridConnectivity_t</tt> node may have multiple child nodes,
+one of which specifies that the interface has 1-to-1 connectivity, as
+follows.
+<ul>
+<li> Name: User defined<br>
+     Label: <tt>GridConnectivity1to1_t</tt><br>
+     Data: <tt>ZoneDonorName</tt>
+</ul>
+
+<p>
+The <tt>GridConnectivity1to1_t</tt> node in turn has the following
+child nodes.
+<ul>
+<li> Name: <tt>Transform</tt><br>
+     Label: "<tt>int[IndexDimension]</tt>"<br>
+     Data: Transform values
+<li> Name: <tt>PointRange</tt><br>
+     Label: <tt>IndexRange_t</tt><br>
+     Data: <tt>IndexRange</tt>
+<li> Name: <tt>PointRangeDonor</tt><br>
+     Label: <tt>IndexRange_t</tt><br>
+     Data: <tt>IndexRange</tt>
+</ul>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 4 Sept 2002
+
+</body>
+</html>

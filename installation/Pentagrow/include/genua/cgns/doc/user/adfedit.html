@@ -1,0 +1,93 @@
+<!-- A User's Guide to CGNS - The adfedit Utility -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - The adfedit Utility</title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="index.html"><span class=nav><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></span></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../midlevel/index.html"><b>Mid-Level&nbsp;Library</b></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="intro.html"><b>Introduction</b></a>)
+(<a href="started.html"><b>Getting&nbsp;Started</b></a>)
+(<a href="additional.html"><b>Additional&nbsp;Information</b></a>)
+(<a href="trouble.html"><b>Troubleshooting</b></a>)
+(<a href="faq.html"><b>Frequently&nbsp;Asked&nbsp;Questions</b></a>)
+(<span class=nav><b>The&nbsp;adfedit&nbsp;Utility</b></span>)
+(<a href="examples.html"><b>Example&nbsp;Computer&nbsp;Codes</b></a>)
+(<a href="sids.html"><b>Overview&nbsp;of&nbsp;the&nbsp;SIDS</b></a>)
+(<a href="plot3d.html"><b>Guideline&nbsp;for&nbsp;PLOT3D&nbsp;Variables</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>The <i>adfedit</i> Utility</h2>
+
+The utility <i>adfedit</i> can be used to view (and 
+edit) CGNS files.  It is currently included with the CGNS
+software, although it is possible that in the future it may be
+superseded by a more advanced utility.
+
+The following is a brief description of the most basic capabilities
+of the <i>adfedit</i>} utility.
+A typical <i>adfedit</i> session might go like this:
+
+<pre>
+   adfedit
+
+   ADFmain&gt; br                 <i>go to "browse"</i>
+
+   ADFbrowse&gt; o cgns.file      <i>open file cgns.file</i>
+
+   ADFbrowse&gt; t                <i>go to "tools"</i>
+
+   ADFtools&gt; pt                <i>print out entire directory tree structure</i>
+
+   ADFtools&gt; pt -l             <i>same, but include node label info</i>
+
+   ADFtools&gt; br                <i>go to "browse"</i>
+
+   ADFbrowse&gt; ls               <i>list children (sub-nodes) of current node</i>
+
+   ADFbrowse&gt; cd Base          <i>go down one level to the node named "Base"</i>
+
+   ADFbrowse&gt; dd               <i>give description of node data</i>
+
+   ADFbrowse&gt; pd               <i>print node data</i>
+
+   ADFbrowse&gt; cd ..            <i>go up one level in the tree</i>
+
+   ADFbrowse&gt; cd               <i>go to the top of the tree (to root node)</i>
+
+   ADFbrowse&gt; ?                <i>help</i>
+
+   ADFbrowse&gt; quit             <i>exits program</i>
+</pre>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 25 Oct 2001
+
+</body>
+</html>

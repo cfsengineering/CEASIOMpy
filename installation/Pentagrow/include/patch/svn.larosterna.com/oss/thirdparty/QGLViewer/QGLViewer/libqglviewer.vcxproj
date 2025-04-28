@@ -1,0 +1,249 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup Label="ProjectConfigurations">
+    <ProjectConfiguration Include="Release|x64">
+      <Configuration>Release</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+    <ProjectConfiguration Include="Debug|x64">
+      <Configuration>Debug</Configuration>
+      <Platform>x64</Platform>
+    </ProjectConfiguration>
+  </ItemGroup>
+  <PropertyGroup Label="Globals">
+    <ProjectGuid>{00CC9A75-2184-3C96-AD06-24F9CC626A16}</ProjectGuid>
+    <RootNamespace>QGLViewer</RootNamespace>
+    <Keyword>Qt4VSv1.0</Keyword>
+    <WindowsTargetPlatformVersion>8.1</WindowsTargetPlatformVersion>
+    <WindowsTargetPlatformMinVersion>8.1</WindowsTargetPlatformMinVersion>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
+  <PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>..\..\..\lib64\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>obj\</IntermediateDirectory>
+    <PrimaryOutput>QGLViewer</PrimaryOutput>
+  </PropertyGroup>
+  <PropertyGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="Configuration">
+    <PlatformToolset>v141</PlatformToolset>
+    <OutputDirectory>..\..\..\lib64\</OutputDirectory>
+    <ATLMinimizesCRunTimeLibraryUsage>false</ATLMinimizesCRunTimeLibraryUsage>
+    <CharacterSet>NotSet</CharacterSet>
+    <ConfigurationType>StaticLibrary</ConfigurationType>
+    <IntermediateDirectory>obj\</IntermediateDirectory>
+    <PrimaryOutput>QGLViewer_debug</PrimaryOutput>
+  </PropertyGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
+  <ImportGroup Label="ExtensionSettings" />
+  <ImportGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" />
+  </ImportGroup>
+  <ImportGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;" Label="PropertySheets">
+    <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists(&apos;$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props&apos;)" />
+  </ImportGroup>
+  <PropertyGroup Label="UserMacros" />
+  <PropertyGroup>
+    <OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">..\..\..\lib64\</OutDir>
+    <IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">obj\</IntDir>
+    <TargetName Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">QGLViewer</TargetName>
+    <IgnoreImportLibrary Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</IgnoreImportLibrary>
+    <OutDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">..\..\..\lib64\</OutDir>
+    <IntDir Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">obj\</IntDir>
+    <TargetName Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">QGLViewer_debug</TargetName>
+    <IgnoreImportLibrary Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</IgnoreImportLibrary>
+  </PropertyGroup>
+  <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;..\..;..\..\boost;..\..\..\include;..\..\eigen;..\..\..\include;..\..\..\include\hdf5;C:\Qt\5.12.3\msvc2017_64\include;C:\Qt\5.12.3\msvc2017_64\include\QtOpenGL;C:\Qt\5.12.3\msvc2017_64\include\QtWidgets;C:\Qt\5.12.3\msvc2017_64\include\QtGui;C:\Qt\5.12.3\msvc2017_64\include\QtANGLE;C:\Qt\5.12.3\msvc2017_64\include\QtXml;C:\Qt\5.12.3\msvc2017_64\include\QtCore;moc;build-msvc-64-release;C:\VulkanSDK\1.0.51.0\include;C:\Qt\5.12.3\msvc2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>obj\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <BufferSecurityCheck>false</BufferSecurityCheck>
+      <DebugInformationFormat>None</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4244;4068;4267;4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <FloatingPointModel>Fast</FloatingPointModel>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <ObjectFileName>obj\</ObjectFileName>
+      <Optimization>MaxSpeed</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_SECURE_SCL=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;ARCH_SSE2;NO_VECTORIAL_RENDER;QGLVIEWER_STATIC;QT_THREAD_SUPPORT;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_XML_LIB;QT_CORE_LIB;NDEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <ProgramDataBaseFileName></ProgramDataBaseFileName>
+      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\QGLViewer.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_SECURE_SCL=0;_ITERATOR_DEBUG_LEVEL=0;NDEBUG;ARCH_SSE2;NO_VECTORIAL_RENDER;QGLVIEWER_STATIC;QT_THREAD_SUPPORT;QT_NO_DEBUG;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_XML_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemDefinitionGroup Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">
+    <ClCompile>
+      <AdditionalIncludeDirectories>.;..\..;..\..\boost;..\..\..\include;..\..\eigen;..\..\..\include;..\..\..\include\hdf5;C:\Qt\5.12.3\msvc2017_64\include;C:\Qt\5.12.3\msvc2017_64\include\QtOpenGL;C:\Qt\5.12.3\msvc2017_64\include\QtWidgets;C:\Qt\5.12.3\msvc2017_64\include\QtGui;C:\Qt\5.12.3\msvc2017_64\include\QtANGLE;C:\Qt\5.12.3\msvc2017_64\include\QtXml;C:\Qt\5.12.3\msvc2017_64\include\QtCore;moc;build-msvc-64-debug;C:\VulkanSDK\1.0.51.0\include;C:\Qt\5.12.3\msvc2017_64\mkspecs\win32-msvc;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <AdditionalOptions>-Zo -bigobj -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 %(AdditionalOptions)</AdditionalOptions>
+      <AssemblerListingLocation>obj\</AssemblerListingLocation>
+      <BrowseInformation>false</BrowseInformation>
+      <DebugInformationFormat>ProgramDatabase</DebugInformationFormat>
+      <DisableSpecificWarnings>4100;4244;4068;4267;4577;4467;%(DisableSpecificWarnings)</DisableSpecificWarnings>
+      <ExceptionHandling>Sync</ExceptionHandling>
+      <ObjectFileName>obj\</ObjectFileName>
+      <Optimization>Disabled</Optimization>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_ITERATOR_DEBUG_LEVEL=1;ARCH_SSE2;NO_VECTORIAL_RENDER;QGLVIEWER_STATIC;QT_THREAD_SUPPORT;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_XML_LIB;QT_CORE_LIB;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessToFile>false</PreprocessToFile>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
+      <RuntimeTypeInfo>true</RuntimeTypeInfo>
+      <WarningLevel>Level3</WarningLevel>
+    </ClCompile>
+    <Lib>
+      <OutputFile>$(OutDir)\QGLViewer_debug.lib</OutputFile>
+      <SuppressStartupBanner>true</SuppressStartupBanner>
+    </Lib>
+    <Midl>
+      <DefaultCharType>Unsigned</DefaultCharType>
+      <EnableErrorChecks>None</EnableErrorChecks>
+      <WarningLevel>0</WarningLevel>
+    </Midl>
+    <ResourceCompile>
+      <PreprocessorDefinitions>_WINDOWS;UNICODE;_UNICODE;WIN32;_ENABLE_EXTENDED_ALIGNED_STORAGE;WIN64;HAVE_EIGEN;EIGEN_DONT_PARALLELIZE;HAVE_TBB;HAVE_HDF5;WIN32_LEAN_AND_MEAN;NOMINMAX;_CRT_SECURE_NO_WARNINGS;_SCL_SECURE_NO_WARNINGS;_USE_DECLSPECS_FOR_SAL;WINVER=0x0601;_WIN32_WINNT=0x0601;_ITERATOR_DEBUG_LEVEL=1;ARCH_SSE2;NO_VECTORIAL_RENDER;QGLVIEWER_STATIC;QT_THREAD_SUPPORT;QT_OPENGL_LIB;QT_WIDGETS_LIB;QT_GUI_LIB;QT_XML_LIB;QT_CORE_LIB;_DEBUG;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+    </ResourceCompile>
+  </ItemDefinitionGroup>
+  <ItemGroup>
+    <ClCompile Include="camera.cpp" />
+    <ClCompile Include="constraint.cpp" />
+    <ClCompile Include="frame.cpp" />
+    <ClCompile Include="keyFrameInterpolator.cpp" />
+    <ClCompile Include="manipulatedCameraFrame.cpp" />
+    <ClCompile Include="manipulatedFrame.cpp" />
+    <ClCompile Include="mouseGrabber.cpp" />
+    <ClCompile Include="qglviewer.cpp" />
+    <ClCompile Include="quaternion.cpp" />
+    <ClCompile Include="saveSnapshot.cpp" />
+    <ClCompile Include="vec.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="camera.h">
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">camera.h;moc\moc_predefs.h;C:\Qt\5.12.3\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\5.12.3\msvc2017_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DHAVE_EIGEN -DEIGEN_DONT_PARALLELIZE -DHAVE_TBB -DHAVE_HDF5 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_DECLSPECS_FOR_SAL -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 -D_SECURE_SCL=0 -D_ITERATOR_DEBUG_LEVEL=0 -DNDEBUG -DARCH_SSE2 -DNO_VECTORIAL_RENDER -DQGLVIEWER_STATIC -DQT_THREAD_SUPPORT -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer/moc/moc_predefs.h -IC:/Qt/5.12.3/msvc2017_64/mkspecs/win32-msvc -IC:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer -IC:/Users/david/Documents/Develop/src -IC:/Users/david/Documents/Develop/src/boost -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/src/eigen -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/include/hdf5 -IC:/Qt/5.12.3/msvc2017_64/include -IC:/Qt/5.12.3/msvc2017_64/include/QtOpenGL -IC:/Qt/5.12.3/msvc2017_64/include/QtWidgets -IC:/Qt/5.12.3/msvc2017_64/include/QtGui -IC:/Qt/5.12.3/msvc2017_64/include/QtANGLE -IC:/Qt/5.12.3/msvc2017_64/include/QtXml -IC:/Qt/5.12.3/msvc2017_64/include/QtCore -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include&quot; -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\cppwinrt&quot; camera.h -o moc\moc_camera.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">MOC camera.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">moc\moc_camera.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">camera.h;moc\moc_predefs.h;C:\Qt\5.12.3\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\5.12.3\msvc2017_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DHAVE_EIGEN -DEIGEN_DONT_PARALLELIZE -DHAVE_TBB -DHAVE_HDF5 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_DECLSPECS_FOR_SAL -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 -D_ITERATOR_DEBUG_LEVEL=1 -DARCH_SSE2 -DNO_VECTORIAL_RENDER -DQGLVIEWER_STATIC -DQT_THREAD_SUPPORT -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer/moc/moc_predefs.h -IC:/Qt/5.12.3/msvc2017_64/mkspecs/win32-msvc -IC:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer -IC:/Users/david/Documents/Develop/src -IC:/Users/david/Documents/Develop/src/boost -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/src/eigen -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/include/hdf5 -IC:/Qt/5.12.3/msvc2017_64/include -IC:/Qt/5.12.3/msvc2017_64/include/QtOpenGL -IC:/Qt/5.12.3/msvc2017_64/include/QtWidgets -IC:/Qt/5.12.3/msvc2017_64/include/QtGui -IC:/Qt/5.12.3/msvc2017_64/include/QtANGLE -IC:/Qt/5.12.3/msvc2017_64/include/QtXml -IC:/Qt/5.12.3/msvc2017_64/include/QtCore -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include&quot; -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\cppwinrt&quot; camera.h -o moc\moc_camera.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">MOC camera.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">moc\moc_camera.cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+    <ClInclude Include="config.h" />
+    <ClInclude Include="constraint.h" />
+    <ClInclude Include="domUtils.h" />
+    <CustomBuild Include="frame.h">
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">frame.h;moc\moc_predefs.h;C:\Qt\5.12.3\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\5.12.3\msvc2017_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DHAVE_EIGEN -DEIGEN_DONT_PARALLELIZE -DHAVE_TBB -DHAVE_HDF5 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_DECLSPECS_FOR_SAL -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 -D_SECURE_SCL=0 -D_ITERATOR_DEBUG_LEVEL=0 -DNDEBUG -DARCH_SSE2 -DNO_VECTORIAL_RENDER -DQGLVIEWER_STATIC -DQT_THREAD_SUPPORT -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer/moc/moc_predefs.h -IC:/Qt/5.12.3/msvc2017_64/mkspecs/win32-msvc -IC:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer -IC:/Users/david/Documents/Develop/src -IC:/Users/david/Documents/Develop/src/boost -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/src/eigen -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/include/hdf5 -IC:/Qt/5.12.3/msvc2017_64/include -IC:/Qt/5.12.3/msvc2017_64/include/QtOpenGL -IC:/Qt/5.12.3/msvc2017_64/include/QtWidgets -IC:/Qt/5.12.3/msvc2017_64/include/QtGui -IC:/Qt/5.12.3/msvc2017_64/include/QtANGLE -IC:/Qt/5.12.3/msvc2017_64/include/QtXml -IC:/Qt/5.12.3/msvc2017_64/include/QtCore -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include&quot; -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\cppwinrt&quot; frame.h -o moc\moc_frame.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">MOC frame.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">moc\moc_frame.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">frame.h;moc\moc_predefs.h;C:\Qt\5.12.3\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\5.12.3\msvc2017_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DHAVE_EIGEN -DEIGEN_DONT_PARALLELIZE -DHAVE_TBB -DHAVE_HDF5 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_DECLSPECS_FOR_SAL -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 -D_ITERATOR_DEBUG_LEVEL=1 -DARCH_SSE2 -DNO_VECTORIAL_RENDER -DQGLVIEWER_STATIC -DQT_THREAD_SUPPORT -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer/moc/moc_predefs.h -IC:/Qt/5.12.3/msvc2017_64/mkspecs/win32-msvc -IC:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer -IC:/Users/david/Documents/Develop/src -IC:/Users/david/Documents/Develop/src/boost -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/src/eigen -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/include/hdf5 -IC:/Qt/5.12.3/msvc2017_64/include -IC:/Qt/5.12.3/msvc2017_64/include/QtOpenGL -IC:/Qt/5.12.3/msvc2017_64/include/QtWidgets -IC:/Qt/5.12.3/msvc2017_64/include/QtGui -IC:/Qt/5.12.3/msvc2017_64/include/QtANGLE -IC:/Qt/5.12.3/msvc2017_64/include/QtXml -IC:/Qt/5.12.3/msvc2017_64/include/QtCore -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include&quot; -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\cppwinrt&quot; frame.h -o moc\moc_frame.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">MOC frame.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">moc\moc_frame.cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="keyFrameInterpolator.h">
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">keyFrameInterpolator.h;moc\moc_predefs.h;C:\Qt\5.12.3\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\5.12.3\msvc2017_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DHAVE_EIGEN -DEIGEN_DONT_PARALLELIZE -DHAVE_TBB -DHAVE_HDF5 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_DECLSPECS_FOR_SAL -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 -D_SECURE_SCL=0 -D_ITERATOR_DEBUG_LEVEL=0 -DNDEBUG -DARCH_SSE2 -DNO_VECTORIAL_RENDER -DQGLVIEWER_STATIC -DQT_THREAD_SUPPORT -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer/moc/moc_predefs.h -IC:/Qt/5.12.3/msvc2017_64/mkspecs/win32-msvc -IC:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer -IC:/Users/david/Documents/Develop/src -IC:/Users/david/Documents/Develop/src/boost -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/src/eigen -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/include/hdf5 -IC:/Qt/5.12.3/msvc2017_64/include -IC:/Qt/5.12.3/msvc2017_64/include/QtOpenGL -IC:/Qt/5.12.3/msvc2017_64/include/QtWidgets -IC:/Qt/5.12.3/msvc2017_64/include/QtGui -IC:/Qt/5.12.3/msvc2017_64/include/QtANGLE -IC:/Qt/5.12.3/msvc2017_64/include/QtXml -IC:/Qt/5.12.3/msvc2017_64/include/QtCore -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include&quot; -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\cppwinrt&quot; keyFrameInterpolator.h -o moc\moc_keyFrameInterpolator.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">MOC keyFrameInterpolator.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">moc\moc_keyFrameInterpolator.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">keyFrameInterpolator.h;moc\moc_predefs.h;C:\Qt\5.12.3\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\5.12.3\msvc2017_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DHAVE_EIGEN -DEIGEN_DONT_PARALLELIZE -DHAVE_TBB -DHAVE_HDF5 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_DECLSPECS_FOR_SAL -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 -D_ITERATOR_DEBUG_LEVEL=1 -DARCH_SSE2 -DNO_VECTORIAL_RENDER -DQGLVIEWER_STATIC -DQT_THREAD_SUPPORT -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer/moc/moc_predefs.h -IC:/Qt/5.12.3/msvc2017_64/mkspecs/win32-msvc -IC:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer -IC:/Users/david/Documents/Develop/src -IC:/Users/david/Documents/Develop/src/boost -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/src/eigen -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/include/hdf5 -IC:/Qt/5.12.3/msvc2017_64/include -IC:/Qt/5.12.3/msvc2017_64/include/QtOpenGL -IC:/Qt/5.12.3/msvc2017_64/include/QtWidgets -IC:/Qt/5.12.3/msvc2017_64/include/QtGui -IC:/Qt/5.12.3/msvc2017_64/include/QtANGLE -IC:/Qt/5.12.3/msvc2017_64/include/QtXml -IC:/Qt/5.12.3/msvc2017_64/include/QtCore -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include&quot; -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\cppwinrt&quot; keyFrameInterpolator.h -o moc\moc_keyFrameInterpolator.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">MOC keyFrameInterpolator.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">moc\moc_keyFrameInterpolator.cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="manipulatedCameraFrame.h">
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">manipulatedCameraFrame.h;moc\moc_predefs.h;C:\Qt\5.12.3\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\5.12.3\msvc2017_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DHAVE_EIGEN -DEIGEN_DONT_PARALLELIZE -DHAVE_TBB -DHAVE_HDF5 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_DECLSPECS_FOR_SAL -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 -D_SECURE_SCL=0 -D_ITERATOR_DEBUG_LEVEL=0 -DNDEBUG -DARCH_SSE2 -DNO_VECTORIAL_RENDER -DQGLVIEWER_STATIC -DQT_THREAD_SUPPORT -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer/moc/moc_predefs.h -IC:/Qt/5.12.3/msvc2017_64/mkspecs/win32-msvc -IC:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer -IC:/Users/david/Documents/Develop/src -IC:/Users/david/Documents/Develop/src/boost -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/src/eigen -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/include/hdf5 -IC:/Qt/5.12.3/msvc2017_64/include -IC:/Qt/5.12.3/msvc2017_64/include/QtOpenGL -IC:/Qt/5.12.3/msvc2017_64/include/QtWidgets -IC:/Qt/5.12.3/msvc2017_64/include/QtGui -IC:/Qt/5.12.3/msvc2017_64/include/QtANGLE -IC:/Qt/5.12.3/msvc2017_64/include/QtXml -IC:/Qt/5.12.3/msvc2017_64/include/QtCore -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include&quot; -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\cppwinrt&quot; manipulatedCameraFrame.h -o moc\moc_manipulatedCameraFrame.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">MOC manipulatedCameraFrame.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">moc\moc_manipulatedCameraFrame.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">manipulatedCameraFrame.h;moc\moc_predefs.h;C:\Qt\5.12.3\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\5.12.3\msvc2017_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DHAVE_EIGEN -DEIGEN_DONT_PARALLELIZE -DHAVE_TBB -DHAVE_HDF5 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_DECLSPECS_FOR_SAL -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 -D_ITERATOR_DEBUG_LEVEL=1 -DARCH_SSE2 -DNO_VECTORIAL_RENDER -DQGLVIEWER_STATIC -DQT_THREAD_SUPPORT -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer/moc/moc_predefs.h -IC:/Qt/5.12.3/msvc2017_64/mkspecs/win32-msvc -IC:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer -IC:/Users/david/Documents/Develop/src -IC:/Users/david/Documents/Develop/src/boost -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/src/eigen -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/include/hdf5 -IC:/Qt/5.12.3/msvc2017_64/include -IC:/Qt/5.12.3/msvc2017_64/include/QtOpenGL -IC:/Qt/5.12.3/msvc2017_64/include/QtWidgets -IC:/Qt/5.12.3/msvc2017_64/include/QtGui -IC:/Qt/5.12.3/msvc2017_64/include/QtANGLE -IC:/Qt/5.12.3/msvc2017_64/include/QtXml -IC:/Qt/5.12.3/msvc2017_64/include/QtCore -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include&quot; -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\cppwinrt&quot; manipulatedCameraFrame.h -o moc\moc_manipulatedCameraFrame.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">MOC manipulatedCameraFrame.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">moc\moc_manipulatedCameraFrame.cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+    <CustomBuild Include="manipulatedFrame.h">
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">manipulatedFrame.h;moc\moc_predefs.h;C:\Qt\5.12.3\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\5.12.3\msvc2017_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DHAVE_EIGEN -DEIGEN_DONT_PARALLELIZE -DHAVE_TBB -DHAVE_HDF5 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_DECLSPECS_FOR_SAL -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 -D_SECURE_SCL=0 -D_ITERATOR_DEBUG_LEVEL=0 -DNDEBUG -DARCH_SSE2 -DNO_VECTORIAL_RENDER -DQGLVIEWER_STATIC -DQT_THREAD_SUPPORT -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer/moc/moc_predefs.h -IC:/Qt/5.12.3/msvc2017_64/mkspecs/win32-msvc -IC:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer -IC:/Users/david/Documents/Develop/src -IC:/Users/david/Documents/Develop/src/boost -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/src/eigen -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/include/hdf5 -IC:/Qt/5.12.3/msvc2017_64/include -IC:/Qt/5.12.3/msvc2017_64/include/QtOpenGL -IC:/Qt/5.12.3/msvc2017_64/include/QtWidgets -IC:/Qt/5.12.3/msvc2017_64/include/QtGui -IC:/Qt/5.12.3/msvc2017_64/include/QtANGLE -IC:/Qt/5.12.3/msvc2017_64/include/QtXml -IC:/Qt/5.12.3/msvc2017_64/include/QtCore -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include&quot; -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\cppwinrt&quot; manipulatedFrame.h -o moc\moc_manipulatedFrame.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">MOC manipulatedFrame.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">moc\moc_manipulatedFrame.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">manipulatedFrame.h;moc\moc_predefs.h;C:\Qt\5.12.3\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\5.12.3\msvc2017_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DHAVE_EIGEN -DEIGEN_DONT_PARALLELIZE -DHAVE_TBB -DHAVE_HDF5 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_DECLSPECS_FOR_SAL -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 -D_ITERATOR_DEBUG_LEVEL=1 -DARCH_SSE2 -DNO_VECTORIAL_RENDER -DQGLVIEWER_STATIC -DQT_THREAD_SUPPORT -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer/moc/moc_predefs.h -IC:/Qt/5.12.3/msvc2017_64/mkspecs/win32-msvc -IC:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer -IC:/Users/david/Documents/Develop/src -IC:/Users/david/Documents/Develop/src/boost -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/src/eigen -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/include/hdf5 -IC:/Qt/5.12.3/msvc2017_64/include -IC:/Qt/5.12.3/msvc2017_64/include/QtOpenGL -IC:/Qt/5.12.3/msvc2017_64/include/QtWidgets -IC:/Qt/5.12.3/msvc2017_64/include/QtGui -IC:/Qt/5.12.3/msvc2017_64/include/QtANGLE -IC:/Qt/5.12.3/msvc2017_64/include/QtXml -IC:/Qt/5.12.3/msvc2017_64/include/QtCore -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include&quot; -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\cppwinrt&quot; manipulatedFrame.h -o moc\moc_manipulatedFrame.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">MOC manipulatedFrame.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">moc\moc_manipulatedFrame.cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+    <ClInclude Include="mouseGrabber.h" />
+    <CustomBuild Include="qglviewer.h">
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">qglviewer.h;moc\moc_predefs.h;C:\Qt\5.12.3\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\5.12.3\msvc2017_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DHAVE_EIGEN -DEIGEN_DONT_PARALLELIZE -DHAVE_TBB -DHAVE_HDF5 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_DECLSPECS_FOR_SAL -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 -D_SECURE_SCL=0 -D_ITERATOR_DEBUG_LEVEL=0 -DNDEBUG -DARCH_SSE2 -DNO_VECTORIAL_RENDER -DQGLVIEWER_STATIC -DQT_THREAD_SUPPORT -DQT_NO_DEBUG -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer/moc/moc_predefs.h -IC:/Qt/5.12.3/msvc2017_64/mkspecs/win32-msvc -IC:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer -IC:/Users/david/Documents/Develop/src -IC:/Users/david/Documents/Develop/src/boost -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/src/eigen -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/include/hdf5 -IC:/Qt/5.12.3/msvc2017_64/include -IC:/Qt/5.12.3/msvc2017_64/include/QtOpenGL -IC:/Qt/5.12.3/msvc2017_64/include/QtWidgets -IC:/Qt/5.12.3/msvc2017_64/include/QtGui -IC:/Qt/5.12.3/msvc2017_64/include/QtANGLE -IC:/Qt/5.12.3/msvc2017_64/include/QtXml -IC:/Qt/5.12.3/msvc2017_64/include/QtCore -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include&quot; -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\cppwinrt&quot; qglviewer.h -o moc\moc_qglviewer.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">MOC qglviewer.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">moc\moc_qglviewer.cpp;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">qglviewer.h;moc\moc_predefs.h;C:\Qt\5.12.3\msvc2017_64\bin\moc.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\5.12.3\msvc2017_64\bin\moc.exe  -DUNICODE -D_UNICODE -DWIN32 -D_ENABLE_EXTENDED_ALIGNED_STORAGE -DWIN64 -DHAVE_EIGEN -DEIGEN_DONT_PARALLELIZE -DHAVE_TBB -DHAVE_HDF5 -DWIN32_LEAN_AND_MEAN -DNOMINMAX -D_CRT_SECURE_NO_WARNINGS -D_SCL_SECURE_NO_WARNINGS -D_USE_DECLSPECS_FOR_SAL -DWINVER=0x0601 -D_WIN32_WINNT=0x0601 -D_ITERATOR_DEBUG_LEVEL=1 -DARCH_SSE2 -DNO_VECTORIAL_RENDER -DQGLVIEWER_STATIC -DQT_THREAD_SUPPORT -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_XML_LIB -DQT_CORE_LIB --compiler-flavor=msvc --include C:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer/moc/moc_predefs.h -IC:/Qt/5.12.3/msvc2017_64/mkspecs/win32-msvc -IC:/Users/david/Documents/Develop/src/QGLViewer/QGLViewer -IC:/Users/david/Documents/Develop/src -IC:/Users/david/Documents/Develop/src/boost -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/src/eigen -IC:/Users/david/Documents/Develop/include -IC:/Users/david/Documents/Develop/include/hdf5 -IC:/Qt/5.12.3/msvc2017_64/include -IC:/Qt/5.12.3/msvc2017_64/include/QtOpenGL -IC:/Qt/5.12.3/msvc2017_64/include/QtWidgets -IC:/Qt/5.12.3/msvc2017_64/include/QtGui -IC:/Qt/5.12.3/msvc2017_64/include/QtANGLE -IC:/Qt/5.12.3/msvc2017_64/include/QtXml -IC:/Qt/5.12.3/msvc2017_64/include/QtCore -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\ATLMFC\include&quot; -I&quot;C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\VC\Tools\MSVC\14.16.27023\include&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\ucrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\shared&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\um&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\winrt&quot; -I&quot;C:\Program Files (x86)\Windows Kits\10\include\8.1\cppwinrt&quot; qglviewer.h -o moc\moc_qglviewer.cpp</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">MOC qglviewer.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">moc\moc_qglviewer.cpp;%(Outputs)</Outputs>
+    </CustomBuild>
+    <ClInclude Include="quaternion.h" />
+    <ClInclude Include="vec.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="moc\moc_camera.cpp" />
+    <ClCompile Include="moc\moc_frame.cpp" />
+    <ClCompile Include="moc\moc_keyFrameInterpolator.cpp" />
+    <ClCompile Include="moc\moc_manipulatedCameraFrame.cpp" />
+    <ClCompile Include="moc\moc_manipulatedFrame.cpp" />
+    <CustomBuild Include="moc\moc_predefs.h.cbt">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\5.12.3\msvc2017_64\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">cl -BxC:\Qt\5.12.3\msvc2017_64\bin\qmake.exe -wd4100 -wd4244 -wd4068 -wd4267 -MD -O2 -Gy -GS- -fp:fast -EHsc -GR -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E C:\Qt\5.12.3\msvc2017_64\mkspecs\features\data\dummy.cpp 2>NUL >moc\moc_predefs.h</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">Generate moc_predefs.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">moc\moc_predefs.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\5.12.3\msvc2017_64\mkspecs\features\data\dummy.cpp;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">cl -BxC:\Qt\5.12.3\msvc2017_64\bin\qmake.exe -wd4100 -wd4244 -wd4068 -wd4267 -MDd -Zi -FS -Zo -Od -bigobj -FS -EHsc -GR -W3 -w34100 -w34189 -w44996 -w44456 -w44457 -w44458 -wd4577 -wd4467 -E C:\Qt\5.12.3\msvc2017_64\mkspecs\features\data\dummy.cpp 2>NUL >moc\moc_predefs.h</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">Generate moc_predefs.h</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">moc\moc_predefs.h;%(Outputs)</Outputs>
+    </CustomBuild>
+    <ClCompile Include="moc\moc_qglviewer.cpp" />
+    <ClInclude Include="build-msvc-64-debug\ui_ImageInterface.Qt4.h">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">true</ExcludedFromBuild>
+    </ClInclude>
+    <ClInclude Include="build-msvc-64-release\ui_ImageInterface.Qt4.h">
+      <ExcludedFromBuild Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">true</ExcludedFromBuild>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="qglviewer_fr.ts" />
+  </ItemGroup>
+  <ItemGroup>
+    <CustomBuild Include="ImageInterface.Qt4.ui">
+      <FileType>Document</FileType>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">ImageInterface.Qt4.ui;C:\Qt\5.12.3\msvc2017_64\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">C:\Qt\5.12.3\msvc2017_64\bin\uic.exe ImageInterface.Qt4.ui -o build-msvc-64-release\ui_ImageInterface.Qt4.h</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">UIC ImageInterface.Qt4.ui</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Release|x64&apos;">build-msvc-64-release\ui_ImageInterface.Qt4.h;%(Outputs)</Outputs>
+      <AdditionalInputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">ImageInterface.Qt4.ui;C:\Qt\5.12.3\msvc2017_64\bin\uic.exe;%(AdditionalInputs)</AdditionalInputs>
+      <Command Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">C:\Qt\5.12.3\msvc2017_64\bin\uic.exe ImageInterface.Qt4.ui -o build-msvc-64-debug\ui_ImageInterface.Qt4.h</Command>
+      <Message Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">UIC ImageInterface.Qt4.ui</Message>
+      <Outputs Condition="&apos;$(Configuration)|$(Platform)&apos;==&apos;Debug|x64&apos;">build-msvc-64-debug\ui_ImageInterface.Qt4.h;%(Outputs)</Outputs>
+    </CustomBuild>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="qglviewer-icon.xpm" />
+  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
+  <ImportGroup Label="ExtensionTargets" />
+</Project>

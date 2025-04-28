@@ -1,0 +1,83 @@
+<!-- A User's Guide to CGNS - longdesc for CGNS layout for structured
+     grid example, upper levels -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="../user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - CGNS layout for structured grid example, upper levels </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<p>
+This diagram illustrates the layout of the upper-level nodes in the CGNS
+file for the two-zone structured grid example.
+
+<p>
+Just below the root node of the ADF file are two nodes with the
+following characteristics.
+<ul>
+<li> Name: <tt>CGNSLibraryVersion</tt><br>
+     Label: <tt>CGNSLibraryVersion_t</tt><br>
+     Data: (version number)
+<li> Name: <tt>Flat Plate</tt><br>
+     Label: <tt>CGNSBase_t</tt><br>
+     Data: <tt>CellDimension</tt>=3, <tt>PhysicalDimension</tt>=3
+</ul>
+
+<p>
+Just below the <tt>CGNSBase_t</tt> node are the two <tt>Zone_t</tt>
+nodes.
+<ul>
+<li> Name: <tt>Zone1</tt><br>
+     Label: <tt>Zone_t</tt><br>
+     Data: <tt>VertexSize</tt>=(9,17,11),
+           <tt>CellSize</tt>=(8,16,10),
+           <tt>VertexSizeBoundary</tt>=(0,0,0)
+<li> Name: <tt>Zone2</tt><br>
+     Label: <tt>Zone_t</tt><br>
+     Data: <tt>VertexSize</tt>=(9,17,21),
+           <tt>CellSize</tt>=(8,16,20),
+           <tt>VertexSizeBoundary</tt>=(0,0,0)
+</ul>
+
+<p>
+At the next level, each of the <tt>Zone_t</tt> nodes have the following
+four child nodes.
+<ul>
+<li> Name: <tt>ZoneType</tt><br>
+     Label: <tt>ZoneType_t</tt><br>
+     Data: <tt>Structured</tt>
+<li> Name: <tt>GridCoordinates</tt><br>
+     Label: <tt>GridCoordinates_t</tt><br>
+     Data: <tt>MT</tt>
+<li> Name: <tt>My Soln</tt><br>
+     Label: <tt>FlowSolution_t</tt><br>
+     Data: <tt>MT</tt>
+<li> Name: <tt>ZoneGridConnectivity</tt><br>
+     Label: <tt>ZoneGridConnectivity_t</tt><br>
+     Data: <tt>MT</tt>
+</ul>
+
+<p>
+The <tt>GridCoordinates_t</tt>, <tt>FlowSolution_t</tt>, and
+<tt>ZoneGridConnectivity_t</tt> nodes have child nodes of their own,
+described in the next three figures.
+
+<p>
+Note that the names of the <tt>CGNSBase_t</tt>, <tt>Zone_t</tt>, and
+<tt>FlowSolution_t</tt> nodes are user defined.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 4 Sept 2002
+
+</body>
+</html>

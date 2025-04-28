@@ -1,0 +1,730 @@
+<!-- CGNS Mid-Level Library - Grid Connectivity -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="midlevel.css" rel="stylesheet" type="text/css">
+<title> CGNS Mid-Level Library - Grid Connectivity </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="index.html"><span class=nav><b>Mid-Level&nbsp;Library</b></span></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="general.html"><b>General&nbsp;Remarks</b></a>)
+(<a href="fileops.html"><b>File&nbsp;Operations</b></a>)
+(<a href="navigating.html"><b>Navigating&nbsp;a&nbsp;CGNS&nbsp;File</b></a>)
+(<a href="error.html"><b>Error&nbsp;Handling</b></a>)
+(<a href="structural.html"><b>Structural&nbsp;Nodes</b></a>)
+(<a href="descriptor.html"><b>Descriptors</b></a>)
+(<a href="physical.html"><b>Physical&nbsp;Data</b></a>)
+(<a href="location.html"><b>Location&nbsp;and&nbsp;Position</b></a>)
+(<a href="auxiliary.html"><b>Auxiliary&nbsp;Data</b></a>)
+(<a href="grid.html"><b>Grid&nbsp;Specification</b></a>)
+(<a href="solution.html"><b>Solution&nbsp;Data</b></a>)
+(<span class=nav><b>Grid&nbsp;Connectivity</b></span>)
+(<a href="bc.html"><b>Boundary&nbsp;Conditions</b></a>)
+(<a href="equation.html"><b>Equation&nbsp;Specification</b></a>)
+(<a href="families.html"><b>Families</b></a>)
+(<a href="timedep.html"><b>Time-Dependent&nbsp;Data</b></a>)
+(<a href="links.html"><b>Links</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Grid Connectivity</h2>
+
+<ul>
+<li> <a href="#1to1">One-to-One Connectivity</a>
+     <ul>
+     <li> <tt><b>cg_n1to1_global</b></tt> - Get total number of 1-to-1 interfaces in a database
+     <li> <tt><b>cg_1to1_read_global</b></tt> - Read data for all 1-to-1 interfaces in a database
+     <li> <tt><b>cg_1to1_write</b></tt> - Write 1-to-1 connectivity data for a zone
+     <li> <tt><b>cg_n1to1</b></tt> - Get number of 1-to-1 interfaces in a zone
+     <li> <tt><b>cg_1to1_read</b></tt> - Read 1-to-1 connectivity data for a zone
+     </ul>
+<li> <a href="#general">Generalized Connectivity</a>
+     <ul>
+     <li> <tt><b>cg_conn_write</b></tt> - Write generalized connectivity data
+     <li> <tt><b>cg_conn_write_short</b></tt> - Write generalized connectivity data without donor information
+     <li> <tt><b>cg_nconns</b></tt> - Get number of generalized connectivity interfaces in a zone 
+     <li> <tt><b>cg_conn_info</b></tt> -  Get info about a generalized connectivity interface
+     <li> <tt><b>cg_conn_read</b></tt> - Read generalized connectivity data
+     </ul>
+<li> <a href="#connproperty">Special Grid Connectivity Properties</a>
+     <ul>
+     <li> <tt><b>cg_conn_periodic_write</b></tt> - Write data for periodic interface
+     <li> <tt><b>cg_conn_average_write</b></tt> - Write data for averaging interface
+     <li> <tt><b>cg_conn_periodic_read</b></tt> - Read data for periodic interface
+     <li> <tt><b>cg_conn_average_read</b></tt> - Read data for averaging interface
+     </ul>
+<li> <a href="#overset">Overset Holes</a>
+     <ul>
+     <li> <tt><b>cg_hole_write</b></tt> - Write overset hole data
+     <li> <tt><b>cg_nholes</b></tt> - Get number of overset holes in a zone
+     <li> <tt><b>cg_hole_info</b></tt> - Get info about an overset hole
+     <li> <tt><b>cg_hole_read</b></tt> - Read overset hole data
+     </ul>
+</ul>
+
+<a name="1to1"></a>
+<h3>1-to-1 Connectivity</h3>
+
+<i>Node</i>: <tt>GridConnectivity1to1_t</tt>
+             (<a href="../sids/cnct.html#GridConnectivity1to1">SIDS</a>,
+              <a href="../filemap/nodes.html#GridConnectivity1to1">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_n1to1_global(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=out><i>int *n1to1_global</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_1to1_read_global(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=out><i>char **connectname</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>char **zonename</i></span>, <span class=out><i>char **donorname</i></span>, <span class=out><i>int **range</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int **donor_range</i></span>, <span class=out><i>int **transform</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_n1to1_global_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=out><i>n1to1_global</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_1to1_read_global_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=out><i>connectname</i></span>, <span class=out><i>zonename</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>donorname</i></span>, <span class=out><i>range</i></span>, <span class=out><i>donor_range</i></span>, <span class=out><i>transform</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>n1to1_global</tt><td>
+   <td>Total number of one-to-one interfaces in base <tt>B</tt>,
+       stored under <tt>GridConnectivity1to1_t</tt> nodes.
+       (I.e., this does not include one-to-one interfaces that may be
+       stored under <tt>GridConnectivity_t</tt> nodes, used for
+       generalized zone interfaces.)
+       Note that the function <tt>cg_n1to1</tt> (described below) may
+       be used to get the number of one-to-one interfaces in a specific
+       zone.
+<tr valign=baseline><td>
+   <td><tt>connectname</tt><td>
+   <td>Name of the interface.
+<tr valign=baseline><td>
+   <td><tt>zonename</tt><td>
+   <td>Name of the first zone, for all one-to-one interfaces in base
+       <tt>B</tt>.
+<tr valign=baseline><td>
+   <td><tt>donorname</tt><td>
+   <td>Name of the second zone, for all one-to-one interfaces in base
+       <tt>B</tt>.
+<tr valign=baseline><td>
+   <td><tt>range</tt><td>
+   <td>Range of points for the first zone, for all one-to-one interfaces
+       in base <tt>B</tt>.
+<tr valign=baseline><td>
+   <td><tt>donor_range</tt><td>
+   <td>Range of points for the current zone, for all one-to-one interfaces
+       in base <tt>B</tt>.
+<tr valign=baseline><td>
+   <td><tt>transform</tt><td>
+   <td>Short hand notation for the
+       <a href="../sids/cnct.html#Transform">transformation matrix</a>
+       defining the relative orientation of the two zones.
+       This transformation is given for all one-to-one interfaces in
+       base <tt>B</tt>.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The above functions may be used to get information about all the
+one-to-one zone interfaces in a CGNS database.
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_1to1_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>char *connectname</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>char *donorname</span>, <span class=in>int *range</span>, <span class=in>int *donor_range</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>int *transform</span>, <span class=out><i>int *I</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_n1to1(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=out><i>int *n1to1</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_1to1_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int I</span>, <span class=out><i>char *connectname</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>char *donorname</i></span>, <span class=out><i>int *range</i></span>, <span class=out><i>int *donor_range</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *transform</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_1to1_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>connectname</span>, <span class=in>donorname</span>, <span class=in>range</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>donor_range</span>, <span class=in>transform</span>, <span class=out><i>I</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_n1to1_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=out><i>n1to1</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_1to1_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>I</span>, <span class=out><i>connectname</i></span>, <span class=out><i>donorname</i></span>, <span class=out><i>range</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>donor_range</i></span>, <span class=out><i>transform</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>I</tt><td>
+   <td>Interface index number, where
+       1 &le; <tt>I</tt> &le; <tt>n1to1</tt>.
+<tr valign=baseline><td>
+   <td><tt>n1to1</tt><td>
+   <td>Number of one-to-one interfaces in zone <tt>Z</tt>, stored under
+       <tt>GridConnectivity1to1_t</tt> nodes.
+       (I.e., this does not include one-to-one interfaces that may be
+       stored under <tt>GridConnectivity_t</tt> nodes, used for
+       generalized zone interfaces.)
+<tr valign=baseline><td>
+   <td><tt>connectname</tt><td>
+   <td>Name of the interface.
+<tr valign=baseline><td>
+   <td><tt>donorname</tt><td>
+   <td>Name of the zone interfacing with the current zone.
+<tr valign=baseline><td>
+   <td><tt>range</tt><td>
+   <td>Range of points for the current zone.
+<tr valign=baseline><td>
+   <td><tt>donor_range</tt><td>
+   <td>Range of points for the donor zone.
+<tr valign=baseline><td>
+   <td><tt>transform</tt><td>
+   <td>Short hand notation for the
+       <a href="../sids/cnct.html#Transform">transformation matrix</a>
+       defining the relative orientation of the two zones.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The above functions are used to read and write one-to-one connectivity
+data for a specific zone.
+
+<a name="general"></a>
+<h3>Generalized Connectivity</h3>
+
+<i>Node</i>: <tt>GridConnectivity_t</tt>
+             (<a href="../sids/cnct.html#GridConnectivity">SIDS</a>,
+              <a href="../filemap/nodes.html#GridConnectivity">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_conn_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>char *connectname</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>GridLocation_t location</span>, <span class=in>GridConnectivityType_t connect_type</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>PointSetType_t ptset_type</span>, <span class=in>int npnts</span>, <span class=in>int *pnts</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>char *donorname</span>, <span class=in>ZoneType_t donor_zonetype</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>PointSetType_t donor_ptset_type</span>, <span class=in>DataType_t donor_datatype</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>int ndata_donor</span>, <span class=in>void *donor_data</span>, <span class=out><i>int *I</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_conn_write_short(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>char *connectname</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>GridLocation_t location</span>, <span class=in>GridConnectivityType_t connect_type</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>PointSetType_t ptset_type</span>, <span class=in>int npnts</span>, <span class=in>int *pnts</span>, <span class=in>char *donorname</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *I</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_nconns(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=out><i>int *nconns</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_conn_info(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int I</span>, <span class=out><i>char *connectname</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>GridLocation_t *location</i></span>, <span class=out><i>GridConnectivityType_t *connect_type</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>PointSetType_t *ptset_type</i></span>, <span class=out><i>int *npnts</i></span>, <span class=out><i>char *donorname</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>ZoneType_t *donor_zonetype</i></span>, <span class=out><i>PointSetType_t *donor_ptset_type</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>DataType_t *donor_datatype</i></span>, <span class=out><i>int *ndata_donor</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_conn_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int I</span>, <span class=out><i>int *pnts</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>DataType_t donor_datatype</span>, <span class=out><i>void *donor_data</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_conn_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>connectname</span>, <span class=in>location</span>, <span class=in>connect_type</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>ptset_type</span>, <span class=in>npnts</span>, <span class=in>pnts</span>, <span class=in>donorname</span>, <span class=in>donor_zonetype</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>donor_ptset_type</span>, <span class=in>donor_datatype</span>, <span class=in>ndata_donor</span>, <span class=in>donor_data</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>I</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_conn_write_short_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>connectname</span>, <span class=in>location</span>, <span class=in>connect_type</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>ptset_type</span>, <span class=in>npnts</span>, <span class=in>pnts</span>, <span class=in>donorname</span>, <span class=out><i>I</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_nconns_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=out><i>nconns</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_conn_info_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>I</span>, <span class=out><i>connectname</i></span>, <span class=out><i>location</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>connect_type</i></span>, <span class=out><i>ptset_type</i></span>, <span class=out><i>npnts</i></span>, <span class=out><i>donorname</i></span>, <span class=out><i>donor_zonetype</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>donor_ptset_type</i></span>, <span class=out><i>donor_datatype</i></span>, <span class=out><i>ndata_donor</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_conn_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>I</span>, <span class=out><i>pnts</i></span>, <span class=in>donor_datatype</span>, <span class=out><i>donor_data</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>I</tt><td>
+   <td>Interface index number, where
+       1 &le; <tt>I</tt> &le; <tt>nconns</tt>.
+<tr valign=baseline><td>
+   <td><tt>nconns</tt><td>
+   <td>Number of interfaces for zone <tt>Z</tt>.
+<tr valign=baseline><td>
+   <td><tt>connectname</tt><td>
+   <td>Name of the interface.
+<tr valign=baseline><td>
+   <td><tt>location</tt><td>
+   <td>Grid location used in the definition of the point set.
+       The currently admissible locations are <tt>Vertex</tt> and
+       <tt>CellCenter</tt>.
+<tr valign=baseline><td>
+   <td><tt>connect_type</tt><td>
+   <td>Type of interface being defined.
+       The admissible types are <tt>Overset</tt>, <tt>Abutting</tt>,
+       and <tt>Abutting1to1</tt>.
+<tr valign=baseline><td>
+   <td><tt>ptset_type</tt><td>
+   <td>Type of point set defining the interface in the current zone;
+       either <tt>PointRange</tt> or <tt>PointList</tt>.
+<tr valign=baseline><td>
+   <td><tt>donor_ptset_type</tt><td>
+   <td>Type of point set defining the interface in the donor zone;
+       either <tt>PointListDonor</tt> or <tt>CellListDonor</tt>.
+<tr valign=baseline><td>
+   <td><tt>npnts</tt><td>
+   <td>Number of points defining the interface in the current zone.
+       For a <tt>ptset_type</tt> of <tt>PointRange</tt>, <tt>npnts</tt>
+       is always two.
+       For a <tt>ptset_type</tt> of <tt>PointList</tt>, <tt>npnts</tt> is
+       the number of points in the <tt>PointList</tt>.
+<tr valign=baseline><td>
+   <td><tt>ndata_donor</tt><td>
+   <td>Number of points or cells in the current zone.
+       These are paired with points, cells, or fractions thereof in the
+       donor zone.
+<tr valign=baseline><td>
+   <td><tt>donorname</tt><td>
+   <td>Name of the zone interfacing with the current zone.
+<tr valign=baseline><td>
+   <td><tt>donor_datatype</tt><td>
+   <td>Data type in which the donor points are stored in the file.
+       The only admissible type, as of version 2.0 of the Mid-Level
+       Library, is <tt>Integer</tt>.
+       The <tt>donor_datatype</tt> argument was left in these functions
+       only for backward compatibility.
+<tr valign=baseline><td>
+   <td><tt>pnts</tt><td>
+   <td>Array of points defining the interface in the current zone.
+<tr valign=baseline><td>
+   <td><tt>donor_data</tt><td>
+   <td>Array of donor points or cells corresponding to
+       <tt>ndata_donor</tt>.
+       Note that it is possible that the same donor point or cell may
+       be used multiple times.
+<tr valign=baseline><td>
+   <td><tt>donor_zonetype</tt><td>
+   <td>Type of the donor zone.
+       The admissible types are <tt>Structured</tt> and <tt>Unstructured</tt>.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+Note that the interpolation factors stored
+in the <tt>InterpolantsDonor</tt> data array are accessed using the
+<a href="navigating.html"><tt>cg_goto</tt></a> and
+<a href="physical.html#dataarray"><tt>cg_array_<i>xxx</i></tt></a>
+functions.
+
+<a name="connproperty"></a>
+<h3>Special Grid Connectivity Properties</h3>
+
+<i>Node</i>: <tt>GridConnectivityProperty_t</tt>
+             (<a href="../sids/cnct.html#GridConnectivityProperty">SIDS</a>,
+              <a href="../filemap/nodes.html#GridConnectivityProperty">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_conn_periodic_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int I</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>float *RotationCenter</span>, <span class=in>float *RotationAngle</span>, <span class=in>float *Translation</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_conn_average_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int I</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>AverageInterfaceType_t AverageInterfaceType</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_1to1_periodic_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int I</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>float *RotationCenter</span>, <span class=in>float *RotationAngle</span>, <span class=in>float *Translation</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_1to1_average_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int I</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>AverageInterfaceType_t AverageInterfaceType</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_conn_periodic_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int I</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>float *RotationCenter</i></span>, <span class=out><i>float *RotationAngle</i></span>, <span class=out><i>float *Translation</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_conn_average_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int I</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>AverageInterfaceType_t *AverageInterfaceType</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_1to1_periodic_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int I</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>float *RotationCenter</i></span>, <span class=out><i>float *RotationAngle</i></span>, <span class=out><i>float *Translation</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_1to1_average_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int I</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>AverageInterfaceType_t *AverageInterfaceType</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_conn_periodic_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>I</span>, <span class=in>RotationCenter</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>RotationAngle</span>, <span class=in>Translation</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_conn_average_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>I</span>, <span class=in>AverageInterfaceType</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_1to1_periodic_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>I</span>, <span class=in>RotationCenter</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>RotationAngle</span>, <span class=in>Translation</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_1to1_average_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>I</span>, <span class=in>AverageInterfaceType</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_conn_periodic_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>I</span>, <span class=out><i>RotationCenter</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>RotationAngle</i></span>, <span class=out><i>Translation</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_conn_average_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>I</span>, <span class=out><i>AverageInterfaceType</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_1to1_periodic_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>I</span>, <span class=out><i>RotationCenter</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>RotationAngle</i></span>, <span class=out><i>Translation</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_1to1_average_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>I</span>, <span class=out><i>AverageInterfaceType</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where
+       1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where
+       1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>I</tt><td>
+   <td>Grid connectivity index number, where
+       1 &le; <tt>I</tt> &le; <tt>nconns</tt> for the "<tt>cg_conn</tt>"
+       functions, and 1 &le; <tt>I</tt> &le; <tt>n1to1</tt> for the
+       "<tt>cg_1to1</tt>" functions.
+<tr valign=baseline><td>
+   <td><tt>RotationCenter</tt><td>
+   <td>An array of size <tt>phys_dim</tt> defining
+       the coordinates of the origin for defining the rotation angle
+       between the periodic interfaces.
+       (<tt>phys_dim</tt> is the number of coordinates required to
+       define a vector in the field.)
+<tr valign=baseline><td>
+   <td><tt>RotationAngle</tt><td>
+   <td>An array of size <tt>phys_dim</tt> defining
+       the rotation angle from the current interface to the connecting
+       interface.
+<tr valign=baseline><td>
+   <td><tt>Translation</tt><td>
+   <td>An array of size <tt>phys_dim</tt> defining
+       the translation from the current interface to the connecting
+       interface.
+<tr valign=baseline><td>
+   <td><tt>AverageInterfaceType</tt><td>
+   <td>The type of averaging to be done.
+       Valid types are <tt>Null</tt>, <tt>UserDefined</tt>,
+       <tt>AverageAll</tt>, <tt>AverageCircumferential</tt>,
+       <tt>AverageRadial</tt>, <tt>AverageI</tt>, <tt>AverageJ</tt>, and
+       <tt>AverageK</tt>.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+These functions may be used to store special grid connectivity properties.
+The "<tt>cg_conn</tt>" functions apply to generalized grid
+connectivity nodes (i.e., <tt>GridConnectivity_t</tt>), and the
+"<tt>cg_1to1</tt>" functions apply to 1-to-1 grid connectivity nodes
+(i.e., <tt>GridConnectivity1to1_t</tt>).
+
+<p>
+The "<tt>write</tt>" functions will create the
+<tt>GridConnectivityProperty_t</tt> node if it doesn't already exist,
+then add the appropriate connectivity property.
+Multiple grid connectivity properties may be recorded under the same
+<tt>GridConnectivityProperty_t</tt> node.
+
+<p>
+The "<tt>read</tt>" functions will return with <tt>ier</tt> = 2 =
+<tt>CG_NODE_NOT_FOUND</tt> if the requested connectivity property, or the
+<tt>GridConnectivityProperty_t</tt> node itself, doesn't exist.
+
+<a name="overset"></a>
+<h3>Overset Holes</h3>
+
+<i>Node</i>: <tt>OversetHoles_t</tt>
+             (<a href="../sids/cnct.html#OversetHoles">SIDS</a>,
+              <a href="../filemap/nodes.html#OversetHoles">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_hole_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>char *holename</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>GridLocation_t location</span>, <span class=in>PointSetType_t ptset_type</span>, <span class=in>int nptsets</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>int npnts</span>, <span class=in>int *pnts</span>, <span class=out><i>int *I</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_nholes(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=out><i>int *nholes</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_hole_info(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int I</span>, <span class=out><i>char *holename</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>GridLocation_t *location</i></span>, <span class=out><i>PointSetType_t *ptset_type</i></span>, <span class=out><i>int *nptsets</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *npnts</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_hole_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int I</span>, <span class=out><i>int *pnts</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_hole_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>holename</span>, <span class=in>location</span>, <span class=in>ptset_type</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>nptsets</span>, <span class=in>npnts</span>, <span class=in>pnts</span>, <span class=out><i>I</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_nholes_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=out><i>nholes</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_hole_info_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>I</span>, <span class=out><i>holename</i></span>, <span class=out><i>location</i></span>, <span class=out><i>ptset_type</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>nptsets</i></span>, <span class=out><i>npnts</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_hole_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>I</span>, <span class=out><i>pnts</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>I</tt><td>
+   <td>Overset hole index number, where
+       1 &le; <tt>I</tt> &le; <tt>nholes</tt>.
+<tr valign=baseline><td>
+   <td><tt>nholes</tt><td>
+   <td>Number of overset holes in zone <tt>Z</tt>.
+<tr valign=baseline><td>
+   <td><tt>holename</tt><td>
+   <td>Name of the overset hole.
+<tr valign=baseline><td>
+   <td><tt>location</tt><td>
+   <td>Grid location used in the definition of the point set.
+       The currently admissible locations are <tt>Vertex</tt> and
+       <tt>CellCenter</tt>.
+<tr valign=baseline><td>
+   <td><tt>ptset_type</tt><td>
+   <td>The extent of the overset hole may be defined using a range of
+       points or cells, or using a discrete list of all points or cells
+       in the overset hole.
+       If a range of points or cells is used, <tt>ptset_type</tt> is set
+       to <tt>PointRange</tt>.
+       When a discrete list of points or cells is used,
+       <tt>ptset_type</tt> equals <tt>PointList</tt>.
+<tr valign=baseline><td>
+   <td><tt>nptsets</tt><td>
+   <td>Number of point sets used to define the hole.
+       If <tt>ptset_type</tt> is <tt>PointRange</tt>, several point sets
+       may be used.
+       If <tt>ptset_type</tt> is <tt>PointList</tt>, only one point set
+       is allowed.
+<tr valign=baseline><td>
+   <td><tt>npnts</tt><td>
+   <td>Number of points (or cells) in the point set.
+       For a <tt>ptset_type</tt> of <tt>PointRange</tt>, <tt>npnts</tt>
+       is always two.
+       For a <tt>ptset_type</tt> of <tt>PointList</tt>, <tt>npnts</tt> is
+       the number of points or cells in the <tt>PointList</tt>.
+<tr valign=baseline><td>
+   <td><tt>pnts</tt><td>
+   <td>Array of points or cells in the point set.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 29 Jan 2007
+
+</body>
+</html>

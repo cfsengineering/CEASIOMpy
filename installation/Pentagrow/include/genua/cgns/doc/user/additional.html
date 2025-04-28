@@ -1,0 +1,756 @@
+<!-- A User's Guide to CGNS - Additional Information -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - Additional Information</title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="index.html"><span class=nav><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></span></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../midlevel/index.html"><b>Mid-Level&nbsp;Library</b></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="intro.html"><b>Introduction</b></a>)
+(<a href="started.html"><b>Getting&nbsp;Started</b></a>)
+(<span class=nav><b>Additional&nbsp;Information</b></span>)
+(<a href="trouble.html"><b>Troubleshooting</b></a>)
+(<a href="faq.html"><b>Frequently&nbsp;Asked&nbsp;Questions</b></a>)
+(<a href="examples.html"><b>Example&nbsp;Computer&nbsp;Codes</b></a>)
+(<a href="sids.html"><b>Overview&nbsp;of&nbsp;the&nbsp;SIDS</b></a>)
+(<a href="plot3d.html"><b>Guideline&nbsp;for&nbsp;PLOT3D&nbsp;Variables</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Additional Information</h2>
+
+<ul>
+<li> <a href="#sec:converge">Convergence History</a>
+<li> <a href="#sec:descript">Descriptor Nodes</a>
+<li> <a href="#sec:dimens">Dimensional Data</a>
+<li> <a href="#sec:nondimens">Nondimensional Data</a>
+<li> <a href="#sec:floweqns">Flow Equation Sets</a>
+<li> <a href="#sec:timedep">Time-Dependent Data</a>
+<li> <a href="#sec:links">Using Links</a>
+</ul>
+
+<p>
+This section introduces several additional types of data in CGNS.
+These items are by no means necessary to include when getting started,
+but it is likely that most users will eventually want to implement some
+of them into their CGNS files at some point in the future.
+The section ends with a discussion on the usage of links.
+
+<a name="sec:converge"></a>
+<h3>Convergence History</h3>
+
+<p>
+The <tt>ConvergenceHistory_t</tt> node can be used to store
+data associated with the convergence of a CFD solution. 
+For example, one may wish to store the global coefficient of lift
+as a function of iterations.  In this case, 
+this variable should be stored at the <tt>CGNSBase_t</tt> level
+of the CGNS file.
+This is achieved using the API in the following FORTRAN code 
+segment:
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c  WRITE CONVERGENCE HISTORY INFORMATION TO EXISTING CGNS FILE
+      include 'cgnslib_f.h'
+c  open CGNS file for modify
+      call cg_open_f('grid.cgns',MODE_MODIFY,index_file,ier)
+c  we know there is only one base (real working code would check!)
+      index_base=1
+c   go to base node
+      call cg_goto_f(index_file,index_base,ier,'end')
+c   create history node (SIDS names it GlobalConvergenceHistory at base level)
+c   ntt is the number of recorded iterations
+      call cg_convergence_write_f(ntt,'',ier)
+c   go to new history node
+      call cg_goto_f(index_file,index_base,ier,'ConvergenceHistory_t',
+     +  1,'end')
+c   write lift coefficient array (user must use SIDS-standard name here)
+      call cg_array_write_f('CoefLift',RealDouble,1,ntt,cl,ier)
+c  close CGNS file
+      call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+In this example, the array <tt>cl</tt> must be declared as 
+an array of size <tt>ntt</tt> or larger.  Additional arrays <em>of the same
+size</em> may also be written under the <tt>ConvergenceHistory_t</tt>
+node.  Note that the call to <tt>cg_convergence_write_f</tt>
+includes a blank string in this case, because we are not recording
+norm definitions.
+
+<a name="sec:descript"></a>
+<h3>Descriptor Nodes</h3>
+
+<p>
+Descriptor nodes, which record character strings and can be
+inserted nearly everywhere in a CGNS file, have many 
+possible uses.
+Users can insert comments or descriptions
+to help clarify the content of some data in the CGNS file.
+In the <a href="sids.html">SIDS overview section</a>,
+we mention a possible use for descriptor nodes to describe
+data that is <tt>UserDefinedData_t</tt>.
+Another potentially desirable use of the descriptor node is
+to maintain copies of the entire <em>input</em> file(s)
+from the CFD application code.  Because descriptor nodes
+can include carriage returns, entire ASCII files can be 
+"swallowed" into the CGNS file.  In this way, a future user
+can see and retrieve the exact input file(s) used by
+the CFD code to generate
+the data contained in the CGNS file.  The only ambiguity
+possible would be whether the CFD code itself has changed since
+that time; but if the CFD code has strict version control,
+then complete recoverability should be possible.
+
+<p>
+An example that writes a descriptor node at the <tt>CGNSBase_t</tt> level
+is given here:
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c  WRITE DESCRIPTOR NODE AT BASE LEVEL
+      include 'cgnslib_f.h'
+c  open CGNS file for modify
+      call cg_open_f('grid.cgns',MODE_MODIFY,index_file,ier)
+c  we know there is only one base (real working code would check!)
+      index_base=1
+c   go to base node
+      call cg_goto_f(index_file,index_base,ier,'end')
+c   write descriptor node (user can give any name)
+      text1='Supersonic vehicle with landing gear'
+      text2='M=4.6, Re=6 million'
+      textstring=text1//char(10)//text2
+      call cg_descriptor_write_f('Information',textstring,ier)
+c  close CGNS file
+      call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+In this example, the <tt>Descriptor_t</tt> node
+is named <tt>Information</tt> and
+the character string <tt>textstring</tt> (which is made up of <tt>text1</tt>
+and <tt>text2</tt> with a line feed - <tt>char(10)</tt> - in-between)
+is written there.
+All character strings must be declared appropriately.
+
+<a name="sec:dimens"></a>
+<h3>Dimensional Data</h3>
+
+<p>
+The node <tt>DataClass_t</tt> denotes the class of the data.  When
+data is dimensional, then <tt>DataClass_t</tt> = <tt>Dimensional</tt>.
+The <tt>DataClass_t</tt> node can appear at many levels in the CGNS
+hierarchy; precedence rules dictate that a <tt>DataClass_t</tt>
+lower in the hierarchy supersedes any higher up.
+
+<p>
+For dimensional data, one generally is expected to indicate the
+dimensionality of each particular variable through the use of
+<tt>DataClass_t</tt>, <tt>DimensionalUnits_t</tt>, and
+<tt>DimensionalExponents_t</tt>.  An example of this is
+shown in the following code segment in which units are added
+to the <a href="started.html#sec:singlegrid">structured grid</a> and
+<a href="started.html#sec:flowsoln:centers">cell center flow solution</a>
+used previously.
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c   WRITE DIMENSIONAL INFO FOR GRID AND FLOW SOLN
+       include 'cgnslib_f.h'
+c   open CGNS file for modify
+      call cg_open_f('grid.cgns',MODE_MODIFY,index_file,ier)
+c   we know there is only one base (real working code would check!)
+      index_base=1
+c   we know there is only one zone (real working code would check!)
+      index_zone=1
+c   we know there is only one FlowSolution_t (real working code would check!)
+      index_flow=1
+c   we know there is only one GridCoordinates_t (real working code would check!)
+      index_grid=1
+c   put DataClass and DimensionalUnits under Base
+      call cg_goto_f(index_file,index_base,ier,'end')
+      call cg_dataclass_write_f(Dimensional,ier)
+      call cg_units_write_f(Kilogram,Meter,Second,Kelvin,Degree,ier)
+c   read fields
+      call cg_nfields_f(index_file,index_base,index_zone,index_flow,
+     +  nfields,ier) 
+      do if=1,nfields
+        call cg_field_info_f(index_file,index_base,index_zone,
+     +    index_flow,if,idatatype,fieldname,ier)
+        if (fieldname .eq. 'Density') then
+          exponents(1)=1.
+          exponents(2)=-3.
+          exponents(3)=0.
+          exponents(4)=0.
+          exponents(5)=0.
+        else if (fieldname .eq. 'Pressure') then
+          exponents(1)=1.
+          exponents(2)=-1.
+          exponents(3)=-2.
+          exponents(4)=0.
+          exponents(5)=0.
+        else
+          write(6,'('' Error! this fieldname not expected: '',a32)')
+     +      fieldname
+          stop
+        end if
+c   write DimensionalExponents
+        call cg_goto_f(index_file,index_base,ier,'Zone_t',1,
+     +   'FlowSolution_t',1,'DataArray_t',if,'end')
+        call cg_exponents_write_f(RealSingle,exponents,ier)
+      enddo
+c   read grid
+      call cg_ncoords_f(index_file,index_base,index_zone,ncoords,ier)
+      exponents(1)=0.
+      exponents(2)=1.
+      exponents(3)=0.
+      exponents(4)=0.
+      exponents(5)=0.
+      do ic=1,ncoords
+c   write DimensionalExponents
+        call cg_goto_f(index_file,index_base,ier,'Zone_t',1,
+     +   'GridCoordinates_t',1,'DataArray_t',ic,'end')
+        call cg_exponents_write_f(RealSingle,exponents,ier)
+      enddo
+c   close CGNS file
+      call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<p>
+Notice in this example that a <tt>DataClass_t</tt> node and
+a <tt>DimensionalUnits_t</tt> node are placed
+near the top of the hierarchy, under <tt>CGNSBase_t</tt>. 
+<tt>DataClass_t</tt> is specified as <tt>Dimensional</tt>, and
+<tt>DimensionalUnits_t</tt> are specified as (<tt>Kilogram</tt>,
+<tt>Meter</tt>, <tt>Second</tt>, <tt>Kelvin</tt>, <tt>Degree</tt>).
+These specify that, by and large, the entire database is dimensional
+with MKS units (anything that is <em>not</em> dimensional or
+<em>not</em> MKS units could be superseded at lower levels).
+Then, for each variable locally, one need only specify the
+<tt>DimensionalExponents</tt>, where one exponent is defined for each
+unit.
+
+<p>
+The layout of part of the resulting CGNS file
+from the above example is shown below.
+The density has units of kilogram/meter<sup>3</sup>, and the pressure
+has units of kilogram/(meter-second<sup>2</sup>).  The grid coordinates
+(not shown in the figure) have units of meters.
+
+<a name="FIGtree_dimensional"></a>
+<p>
+<center>
+<img src="figures/tree_dimensional.gif"
+     alt="Diagram showing CGNS layout for flow solution at cell centers with dimensional data"
+     longdesc="figures/tree_dimensional.html">
+<br><br>
+Layout of part of a CGNS file for flow solution at cell centers with
+dimensional data.
+</center>
+
+<a name="sec:nondimens"></a>
+<h3>Nondimensional Data</h3>
+
+<p>
+This example is for the relatively common occurrence of CFD
+data that is purely nondimensional, for which the
+reference state is arbitrary (unknown).  This type is referred
+to as <tt>NormalizedByUnknownDimensional</tt>.  Another nondimensional type,
+<tt>NormalizedByDimensional</tt>, for which the data is nondimensional
+but the reference state is <em>specifically known</em>, is not covered
+here.
+
+<p>
+For a <tt>NormalizedByUnknownDimensional</tt> database, the 
+<tt>DataClass</tt> is recorded as such, but also a <tt>ReferenceState</tt>
+is <em>necessary</em> to define the nondimensionalizations used. 
+(A <tt>ReferenceState_t</tt> node can be used for any dataset
+to indicate the global reference state (such as free stream), as
+well as
+quantities such as the reference Mach number and Reynolds number.
+A <tt>ReferenceState_t</tt> node was not included in
+<a href="#sec:dimens">the previous section</a>,
+but it could have been.)
+
+<p>
+For the current example, we do not go into detail regarding the 
+choices of the items which should define the reference state for a
+<tt>NormalizedByUnknownDimensional</tt> database.
+We simply show in the example some typical choices which very often
+would likely be included.
+A detailed discussion of <a href="../sids/data.html#manip">how the
+data in <tt>ReferenceState_t</tt> defines the nondimensionalizations</a>
+is given in the SIDS document.
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c   WRITE NONDIMENSIONAL INFO
+       include 'cgnslib_f.h'
+c   open CGNS file for modify
+      call cg_open_f('grid.cgns',MODE_MODIFY,index_file,ier)
+c   we know there is only one base (real working code would check!)
+      index_base=1
+c   put DataClass under Base
+      call cg_goto_f(index_file,index_base,ier,'end')
+      call cg_dataclass_write_f(NormalizedByUnknownDimensional,ier)
+c   put ReferenceState under Base
+      call cg_state_write_f('ReferenceQuantities',ier)
+c   Go to ReferenceState node, write Mach array and its dataclass
+      call cg_goto_f(index_file,index_base,ier,'ReferenceState_t',1,
+     +  'end')
+      call cg_array_write_f('Mach',RealDouble,1,1,xmach,ier)
+      call cg_goto_f(index_file,index_base,ier,'ReferenceState_t',1,
+     +  'DataArray_t',1,'end')
+      call cg_dataclass_write_f(NondimensionalParameter,ier)
+c   Go to ReferenceState node, write Reynolds array and its dataclass
+      call cg_goto_f(index_file,index_base,ier,'ReferenceState_t',1,
+     +  'end')
+      call cg_array_write_f('Reynolds',RealDouble,1,1,reue,ier)
+      call cg_goto_f(index_file,index_base,ier,'ReferenceState_t',1,
+     +  'DataArray_t',2,'end')
+      call cg_dataclass_write_f(NondimensionalParameter,ier)
+c   Go to ReferenceState node to write reference quantities:
+      call cg_goto_f(index_file,index_base,ier,'ReferenceState_t',1,
+     +  'end')
+c   First, write reference quantities that make up Mach and Reynolds:
+c   Mach_Velocity
+      call cg_array_write_f('Mach_Velocity',RealDouble,1,1,xmv,ier)
+c   Mach_VelocitySound
+      call cg_array_write_f('Mach_VelocitySound',RealDouble,
+     +   1,1,xmc,ier)
+c   Reynolds_Velocity
+      call cg_array_write_f('Reynolds_Velocity',RealDouble,
+     +   1,1,rev,ier)
+c   Reynolds_Length
+      call cg_array_write_f('Reynolds_Length',RealDouble,
+     +   1,1,rel,ier)
+c   Reynolds_ViscosityKinematic
+      call cg_array_write_f('Reynolds_ViscosityKinematic',RealDouble,
+     +   1,1,renu,ier)
+c
+c   Next, write flow field reference quantities:
+c   Density
+      call cg_array_write_f('Density',RealDouble,1,1,rho0,ier)
+c   Pressure
+      call cg_array_write_f('Pressure',RealDouble,1,1,p0,ier)
+c   VelocitySound
+      call cg_array_write_f('VelocitySound',RealDouble,1,1,c0,ier)
+c   ViscosityMolecular
+      call cg_array_write_f('ViscosityMolecular',RealDouble,
+     +   1,1,vm0,ier)
+c   LengthReference
+      call cg_array_write_f('LengthReference',RealDouble,
+     +   1,1,xlength0,ier)
+c   VelocityX
+      call cg_array_write_f('VelocityX',RealDouble,1,1,vx,ier)
+c   VelocityY
+      call cg_array_write_f('VelocityY',RealDouble,1,1,vy,ier)
+c   VelocityZ
+      call cg_array_write_f('VelocityZ',RealDouble,1,1,vz,ier)
+c   close CGNS file
+      call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<p>
+In this case, the only information
+added to the CGNS file is at the <tt>CGNSBase_t</tt> level.
+Note that <tt>Mach</tt> and <tt>Reynolds</tt> (which are stored under
+<tt>ReferenceState</tt>) are variables that are
+known as "<tt>NondimensionalParameter</tt>"s, so they must
+each contain a <tt>DataClass</tt> child node stating this
+(the local <tt>DataClass</tt> nodes supersede the overall
+<tt>NormalizedByUnknownDimensional</tt> data class that holds for everything else).
+
+<p>
+The layout of the relevant portion of the resulting CGNS file
+from the above example is shown below.
+Many of the reference quantities that appear under
+<tt>ReferenceState_t</tt> have been left out of the figure
+to conserve space.
+
+<a name="FIGtree_nondimensional"></a>
+<p>
+<center>
+<img src="figures/tree_nondimensional.gif"
+     alt="Diagram showing CGNS layout for nondimensional data with arbitrary reference state"
+     longdesc="figures/tree_nondimensional.html">
+<br><br>
+Layout of part of a CGNS file with
+purely nondimensional data (reference state unknown).
+</center>
+
+<a name="sec:floweqns"></a>
+<h3>Flow Equation Sets</h3>
+
+<p>
+The <tt>FlowEquationSet_t</tt> node is useful for describing <em>how</em>
+a flow solution was generated.  This is one of the useful
+self-descriptive aspects of CGNS that may improve the usefulness and
+longevity of a CFD dataset.  For example, under this node, information
+such as the following may be recorded:  the flow field was obtained by
+solving the thin-layer Navier-Stokes equations (with diffusion only in the
+<i>j</i>-coordinate direction); the Spalart-Allmaras turbulence
+model was employed, and an ideal gas assumption was made with
+<i>&gamma;</i> = 1.4.
+
+<p>
+The following FORTRAN code segment writes some of 
+the above example flow equation set information
+under the <tt>Zone_t</tt> node from our earlier
+<a href="started.html#sec:str">single-zone structured
+grid example</a>.  (Note that 
+a <tt>FlowEquationSet_t</tt> node can also be placed at a higher level,
+under the <tt>CGNSBase_t</tt> node.  The
+usual precedence rules apply).
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c   WRITE FLOW EQUATION SET INFO
+       include 'cgnslib_f.h'
+c   open CGNS file for modify
+      call cg_open_f('grid.cgns',MODE_MODIFY,index_file,ier)
+c   we know there is only one base (real working code would check!)
+      index_base=1
+c   we know there is only one zone (real working code would check!)
+      index_zone=1
+c   existing file must be 3D structured (real working code would check!)
+c   Create 'FlowEquationSet' node under 'Zone_t'
+      call cg_goto_f(index_file,index_base,ier,'Zone_t',index_zone,
+     +   'end')
+c   equation dimension = 3
+      ieq_dim=3
+      call cg_equationset_write_f(ieq_dim,ier)
+c
+c   Create 'GoverningEquations' node under 'FlowEquationSet'
+      call cg_goto_f(index_file,index_base,ier,'Zone_t',index_zone,
+     + 'FlowEquationSet_t',1,'end')
+      call cg_governing_write_f(NSTurbulent,ier)
+c   Create 'DiffusionModel' node under 'GoverningEquations'
+      call cg_goto_f(index_file,index_base,ier,'Zone_t',index_zone,
+     + 'FlowEquationSet_t',1,'GoverningEquations_t',1,'end')
+      idata(1)=0
+      idata(2)=1
+      idata(3)=0
+      idata(4)=0
+      idata(5)=0
+      idata(6)=0
+      call cg_diffusion_write_f(idata,ier)
+c
+c   Create 'GasModel' under 'FlowEquationSet'
+      call cg_goto_f(index_file,index_base,ier,'Zone_t',index_zone,
+     + 'FlowEquationSet_t',1,'end')
+      call cg_model_write_f('GasModel_t',Ideal,ier)
+c   Create 'SpecificHeatRatio' under GasModel
+      call cg_goto_f(index_file,index_base,ier,'Zone_t',index_zone,
+     + 'FlowEquationSet_t',1,'GasModel_t',1,'end')
+      call cg_array_write_f('SpecificHeatRatio',RealSingle,1,1, 
+     + gamma,ier)
+c   Create 'DataClass' under 'SpecificHeatRatio'
+      call cg_goto_f(index_file,index_base,ier,'Zone_t',index_zone,
+     + 'FlowEquationSet_t',1,'GasModel_t',1,'DataArray_t',
+     + 1,'end')
+      call cg_dataclass_write_f(NondimensionalParameter,ier)
+c   close CGNS file
+      call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<p>
+This particular example is specific to a 3-D structured zone.
+In an unstructured zone, the use of <tt>DiffusionModel</tt> is not valid.
+The layout of the relevant portion of the resulting CGNS file
+from the above example is shown below.
+
+<a name="FIGtree_floweqn"></a>
+<p>
+<center>
+<img src="figures/tree_floweqn.gif"
+     alt="Diagram showing CGNS layout for flow equation set information"
+     longdesc="figures/tree_floweqn.html">
+<br><br>
+Layout of part of a CGNS file with
+flow equation set information.
+</center>
+
+<a name="sec:timedep"></a>
+<h3>Time-Dependent Data</h3>
+
+<p>
+Time-dependent data (data with multiple flow solutions) can also be stored
+in a CGNS file.  Different circumstances may produce
+data with multiple flow solutions; for example:
+
+<ol>
+<li> Non-moving grid
+<li> Rigidly-moving grid
+<li> Deforming or changing grid
+</ol>
+
+Each of these may either be
+the result of a time-accurate run, or else may simply be
+multiple snapshots of a non-time-accurate run as it iterates toward
+convergence.
+
+<p>
+This section gives an example for type 1 only.
+Readers interested in the <a href="../sids/timedep.html">two other
+types</a> should refer to the SIDS document.
+For a non-moving grid, the method for storing the multiple flow
+solutions is relatively simple: multiple <tt>FlowSolution_t</tt> nodes,
+each with a different name, are placed under each <tt>Zone_t</tt> node.
+However, there also needs to be a mechanism for associating each
+<tt>FlowSolution_t</tt> with a particular time and/or iteration.
+This is accomplished through the use of <tt>BaseIterativeData_t</tt>
+(under <tt>CGNSBase_t</tt>) and <tt>ZoneIterativeData_t</tt> (under each
+<tt>Zone_t</tt>).
+<tt>BaseIterativeData_t</tt> contains <tt>NumberOfSteps</tt>, the number
+of times and/or iterations stored, and their values.
+<tt>ZoneIterativeData_t</tt> contains <tt>FlowSolutionPointers</tt> as a
+character data array.
+<tt>FlowSolutionPointers</tt> is dimensioned to be of size
+<tt>NumberOfSteps</tt>, and contains the <em>names</em> of the
+<tt>FlowSolution_t</tt> nodes within the current zone that correspond
+with the respective times and/or iterations.
+Finally, a <tt>SimulationType_t</tt> node is placed under
+<tt>CGNSBase_t</tt> to designate what type of simulation (e.g.,
+<tt>TimeAccurate</tt>, <tt>NonTimeAccurate</tt>) produced the data.
+(Note: the <tt>SimulationType_t</tt> node is not restricted for use with
+time-dependent data; <em>any</em> CGNS dataset can employ it!)
+
+<p>
+The following FORTRAN code segment writes some of the above
+information, using our earlier <a href="started.html#sec:str">single-zone
+structured grid example</a>.
+For the purposes of this example, it is assumed that there are 3 flow
+solutions from a time-accurate simulation, to be output as a function of
+time to the CGNS file.
+The variables <tt>r1</tt> and <tt>p1</tt> represent the density and
+pressure at time 1, <tt>r2</tt> and <tt>p2</tt> are at time 2, and
+<tt>r3</tt> and <tt>p3</tt> are at time 3.
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c   WRITE FLOW SOLUTION TO EXISTING CGNS FILE
+       include 'cgnslib_f.h'
+c   open CGNS file for modify
+       call cg_open_f('grid.cgns',MODE_MODIFY,index_file,ier)
+c   we know there is only one base (real working code would check!)
+       index_base=1
+c   we know there is only one zone (real working code would check!)
+       index_zone=1
+c   set up the times corresponding to the 3 solutions to be
+c   stored:
+       time(1)=10.
+       time(2)=20.
+       time(3)=50.
+c   define 3 different solution names (user can give any names)
+       solname(1) = 'FlowSolution1'
+       solname(2) = 'FlowSolution2'
+       solname(3) = 'FlowSolution3'
+c   do loop for the 3 solutions:
+       do n=1,3
+c   create flow solution node
+         call cg_sol_write_f(index_file,index_base,index_zone,solname(n),
+     +     Vertex,index_flow,ier)
+c   write flow solution (user must use SIDS-standard names here)
+         if (n .eq. 1) then
+           call cg_field_write_f(index_file,index_base,index_zone,index_flow,
+     +       RealDouble,'Density',r1,index_field,ier)
+           call cg_field_write_f(index_file,index_base,index_zone,index_flow,
+     +       RealDouble,'Pressure',p1,index_field,ier)
+         else if (n .eq. 2) then
+           call cg_field_write_f(index_file,index_base,index_zone,index_flow,
+     +       RealDouble,'Density',r2,index_field,ier)
+           call cg_field_write_f(index_file,index_base,index_zone,index_flow,
+     +       RealDouble,'Pressure',p2,index_field,ier)
+         else
+           call cg_field_write_f(index_file,index_base,index_zone,index_flow,
+     +       RealDouble,'Density',r3,index_field,ier)
+           call cg_field_write_f(index_file,index_base,index_zone,index_flow,
+     +       RealDouble,'Pressure',p3,index_field,ier)
+         end if
+       enddo
+c   create BaseIterativeData
+       nsteps=3
+       call cg_biter_write_f(index_file,index_base,'TimeIterValues',
+     +   nsteps,ier)
+c   go to BaseIterativeData level and write time values
+       call cg_goto_f(index_file,index_base,ier,'BaseIterativeData_t',
+     +   1,'end')
+       call cg_array_write_f('TimeValues',RealDouble,1,3,time,ier)
+c   create ZoneIterativeData
+       call cg_ziter_write_f(index_file,index_base,index_zone,
+     +   'ZoneIterativeData',ier)
+c   go to ZoneIterativeData level and give info telling which
+c   flow solution corresponds with which time (solname(1) corresponds
+c   with time(1), solname(2) with time(2), and solname(3) with time(3))
+       call cg_goto_f(index_file,index_base,ier,'Zone_t',
+     +   index_zone,'ZoneIterativeData_t',1,'end')
+       idata(1)=32
+       idata(2)=3
+       call cg_array_write_f('FlowSolutionPointers',Character,2,idata,
+     +   solname,ier)
+c   add SimulationType
+       call cg_simulation_type_write_f(index_file,index_base,
+     +   TimeAccurate,ier)
+c   close CGNS file
+       call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<p>
+As cautioned for earlier coding snippets, dimensions must be set
+appropriately for all variables.
+The variable <tt>time</tt> (which is an array dimensioned
+size 3 in this case) contains the time values stored under
+<tt>BaseIterativeData_t</tt>.
+The layout of the resulting CGNS file from the above example is shown
+below.
+Compare this figure with the <a href="started.html#FIGtree_cartesian_solV">
+layout of a CGNS file for a simple Cartesian structured grid with a
+single flow solution</a>.
+To conserve space, the <tt>GridCoordinates_t</tt>, <tt>ZoneType_t</tt>,
+and all nodes underneath <tt>FlowSolution_t</tt> have been left off.
+
+<a name="FIGtree_cartesian_soltime"></a>
+<p>
+<center>
+<img src="figures/tree_cartesian_soltime.gif"
+     alt="Diagram showing CGNS layout for time-accurate flow solutions"
+     longdesc="figures/tree_cartesian_soltime.html">
+<br><br>
+Layout of CGNS file for simple Cartesian
+structured grid with multiple time-accurate flow solutions
+(non-moving grid coordinates)
+</center>
+
+<a name="sec:links"></a>
+<h3>Using Links</h3>
+
+<p>
+A link associates one node to another within a CGNS tree, or even one node
+to another in a separate CGNS file altogether.  This can be useful when
+there is repeated data; rather than write the same data multiple times,
+links can point to the data written only once.
+
+<p>
+One very important use of links that may be required by many
+users is to point to grid coordinates.
+This usage comes about in the following way.  Suppose
+a user is planning to use a particular grid for multiple cases.  There
+are several options for how to store the data.  Among these are:
+
+<ol>
+<li> Keep a copy of the grid with each flow solution in separate
+     CGNS files.
+<li> Keep just one CGNS file, with the grid and multiple
+     <tt>FlowSolution_t</tt> nodes; each <tt>FlowSolution_t</tt> node
+     corresponds with a different case.
+<li> Keep just one CGNS file, with multiple <tt>CGNSBase_t</tt> nodes.
+     The grid and one flow solution would be stored under one base.
+     Other bases would each contain a separate flow solution, plus a link
+     to the grid coordinates in the first base.
+<li> Keep one CGNS file with the grid coordinates defined, and store
+     the flow solution for each case in its own separate CGNS file, with a 
+     link to the grid coordinates.
+</ol>
+
+<p>
+Item 1 is conceptually the most direct, and is certainly the recommended
+method in general (this is the way all example CGNS files have been
+portrayed so far in this document).
+However, if the grid is very large, then this method causes a lot of
+storage space to be unnecessarily used to store the same grid points
+multiple times.
+Item 2 may or may not be a viable option.
+If the user is striving to have the CGNS file be completely
+self-descriptive, with <tt>ReferenceState</tt> and
+<tt>FlowEquationSet</tt> describing the relevant conditions, then
+this method cannot be used if the <tt>ReferenceState</tt> or
+<tt>FlowEquationSet</tt> is different between the cases (for example,
+different Mach numbers, Reynolds numbers, or angles of attack).
+Item 3 removes this restriction.
+It uses links to the grid coordinates within the same file.
+Item 4 is similar to item 3, except that the grid coordinates and each
+flow solution are stored in separate files altogether.
+
+<p>
+A sample layout showing the relevant portions of two separate CGNS files
+for an example of item 4 is shown below.
+Note that for multiple-zone grids, each zone in FILE 1 in this
+example would have a separate link to the appropriate zone's grid
+coordinates in FILE 2.
+
+<a name="FIGtree_link"></a>
+<p>
+<center>
+<img src="figures/tree_link.gif"
+     alt="Diagram showing two CGNS files with a link from one to the other"
+     longdesc="figures/tree_link.html">
+<br><br>
+Layout of part of two CGNS files with a link
+from one to the grid coordinates of the other.
+</center>
+
+<p>
+The CGNS API now has the capability to specify links and to query link
+information in a CGNS file.
+Previously this was only possible by use of the ADF core library
+software.
+However, when a CGNS file is open for writing and the link creation call
+is issued, the link information is merely recorded and the actual link
+creation is deferred until the file is written out upon closing it.
+Therefore, any attempt to go to a location in a linked file while the
+CGNS file is open for writing will fail.
+This problem does not exist when a CGNS file is open for modification as
+link creation is immediate.
+
+<p>
+Reading a linked CGNS file presents no difficulties for the API, because
+links are "transparent."
+As long as any separate linked files keep their name unchanged, and
+maintain the same position (within the Unix-directory) relative to the
+parent file, opening the parent file will automatically access the
+linked ones.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 7 Mar 2008
+
+</body>
+</html>

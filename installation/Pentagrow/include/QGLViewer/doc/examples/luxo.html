@@ -1,0 +1,385 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>libQGLViewer luxo example</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link href="../qglviewer.css" rel="stylesheet" type="text/css" />
+  <link rel="shortcut icon" href="../images/qglviewer.ico" type="image/x-icon" />
+  <link rel="icon" href="../images/qglviewer.icon.png" type="image/png" />
+</head>
+<body>
+
+<div class="banner">
+ <a class="qindex" href="../index.html">Home</a>
+ <a class="qindex" href="../refManual/hierarchy.html">Documentation</a>
+ <a class="qindex" href="../download.html">Download</a>
+ <a class="qindex highlight" href="index.html">Examples</a>
+ <a class="qindex" href="../developer.html">Developer</a>
+</div>
+
+<h1>The luxo example</h1>
+
+<center>
+  <img src="../images/luxo.jpg" width="330" height="228" alt="luxo"/>
+</center>
+
+<p>
+ A more complex example that combines <code>ManipulatedFrames</code>, selection and constraints.
+</p>
+<p>
+ This example illustrates different functions of the viewer. It displays a famous luxo lamp
+ (Pixar) that can be interactively manipulated with the mouse. It illustrates the use of several
+ <code>ManipulatedFrames</code> in the same scene.
+</p>
+<p>
+ Shift click on any part of the lamp to select it, and then move it with the mouse. To move the
+ camera select the background or press the <code>Control</code> key (default modifier keys are switched).
+</p>
+<p>
+ A simpler object selection example is given in <a href="select.html"><code>select</code></a>.<br/>
+ A simpler frame displacement example is given in <a href="manipulatedFrame.html"><code>manipulatedFrame</code></a>.<br/>
+ A simpler constrained frame example is given in <a href="constrainedFrame.html"><code>constrainedFrame</code></a>.<br/>
+</p>
+<h2>luxo.h</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;QGLViewer/qglviewer.h&gt;</font>
+
+<b><font color="#0000FF">class</font></b> Luxo
+<font color="#FF0000">{</font>
+<b><font color="#0000FF">public</font></b> <font color="#990000">:</font>
+  <b><font color="#000000">Luxo</font></b><font color="#990000">();</font>
+
+  <font color="#009900">void</font> <b><font color="#000000">draw</font></b><font color="#990000">(</font><font color="#009900">bool</font> names<font color="#990000">=</font><b><font color="#0000FF">false</font></b><font color="#990000">);</font>
+
+  qglviewer<font color="#990000">::</font>ManipulatedFrame<font color="#990000">*</font> <b><font color="#000000">frame</font></b><font color="#990000">(</font><font color="#009900">unsigned</font> <font color="#009900">short</font> i<font color="#990000">)</font> <font color="#FF0000">{</font> <b><font color="#0000FF">return</font></b> frame_<font color="#990000">[</font>i<font color="#990000">];</font> <font color="#FF0000">}</font>
+  <font color="#009900">void</font> <b><font color="#000000">setSelectedFrameNumber</font></b><font color="#990000">(</font><font color="#009900">unsigned</font> <font color="#009900">short</font> nb<font color="#990000">)</font> <font color="#FF0000">{</font> selected <font color="#990000">=</font> nb<font color="#990000">;</font> <font color="#FF0000">}</font>
+
+<b><font color="#0000FF">private</font></b> <font color="#990000">:</font>
+  <i><font color="#9A1900">// The four articulations of the lamp</font></i>
+  qglviewer<font color="#990000">::</font>ManipulatedFrame<font color="#990000">*</font> frame_<font color="#990000">[</font><font color="#993399">4</font><font color="#990000">];</font>
+  <i><font color="#9A1900">// Used to draw the selected element in a different color</font></i>
+  <font color="#009900">unsigned</font> <font color="#009900">short</font> selected<font color="#990000">;</font>
+
+  <font color="#009900">void</font> <b><font color="#000000">drawCone</font></b><font color="#990000">(</font><font color="#009900">float</font> zMin<font color="#990000">,</font> <font color="#009900">float</font> zMax<font color="#990000">,</font> <font color="#009900">float</font> r1<font color="#990000">,</font> <font color="#009900">float</font> r2<font color="#990000">,</font> <font color="#009900">int</font> nbSub<font color="#990000">);</font>
+  <font color="#009900">void</font> <b><font color="#000000">drawBase</font></b><font color="#990000">();</font>
+  <font color="#009900">void</font> <b><font color="#000000">drawArm</font></b><font color="#990000">();</font>
+  <font color="#009900">void</font> <b><font color="#000000">drawCylinder</font></b><font color="#990000">();</font>
+  <font color="#009900">void</font> <b><font color="#000000">setColor</font></b><font color="#990000">(</font><font color="#009900">unsigned</font> <font color="#009900">short</font> nb<font color="#990000">);</font>
+  <font color="#009900">void</font> <b><font color="#000000">drawHead</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font><font color="#990000">;</font>
+
+
+<b><font color="#0000FF">class</font></b> Viewer <font color="#990000">:</font> <b><font color="#0000FF">public</font></b> QGLViewer
+<font color="#FF0000">{</font>
+<b><font color="#0000FF">protected</font></b> <font color="#990000">:</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">draw</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">init</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">drawWithNames</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">postSelection</font></b><font color="#990000">(</font><b><font color="#0000FF">const</font></b> QPoint<font color="#990000">&amp;</font> point<font color="#990000">);</font>
+  <b><font color="#0000FF">virtual</font></b> QString <b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b><font color="#990000">;</font>
+
+  <font color="#009900">void</font> <b><font color="#000000">initSpotLight</font></b><font color="#990000">();</font>
+
+<b><font color="#0000FF">private</font></b> <font color="#990000">:</font>
+  Luxo luxo<font color="#990000">;</font>
+<font color="#FF0000">}</font><font color="#990000">;</font>
+
+</tt></pre>
+
+
+<h2>luxo.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"luxo.h"</font>
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;math.h&gt;</font>
+
+<b><font color="#0000FF">using</font></b> <b><font color="#0000FF">namespace</font></b> qglviewer<font color="#990000">;</font>
+<b><font color="#0000FF">using</font></b> <b><font color="#0000FF">namespace</font></b> std<font color="#990000">;</font>
+
+<i><font color="#9A1900">//////////////////////////////////  V i e w e r  ////////////////////////////////////////</font></i>
+
+QString Viewer<font color="#990000">::</font><b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b>
+<font color="#FF0000">{</font>
+  QString <b><font color="#000000">text</font></b><font color="#990000">(</font><font color="#FF0000">"&lt;h2&gt;L u x o  ©&lt;/h2&gt;"</font><font color="#990000">);</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"This example illustrates several functionnalities of QGLViewer, "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"showing how easy it is to create a moderately complex application.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"The famous luxo lamp (©Pixar) can interactively be manipulated "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"with the mouse. &lt;b&gt;Shift&lt;/b&gt; left click on an a part of the lamp to select it, "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"and then move it with the mouse. Press the &lt;b&gt;Control&lt;/b&gt; key or select the background "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"to move the camera instead.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"A simpler object selection example is given in the &lt;i&gt;select&lt;/i&gt; example. "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"A simpler frame displacement example is available in &lt;i&gt;manipulatedFrame&lt;/i&gt; and "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"a simpler constrained frame example is illustrated in &lt;i&gt;constrainedFrame&lt;/i&gt;. "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"See &lt;i&gt;multiSelect&lt;/i&gt; for a multi-object selection example.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"Feel free to use this code as the starting point of a multiple frame manipulation application."</font><font color="#990000">;</font>
+  <b><font color="#0000FF">return</font></b> text<font color="#990000">;</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">initSpotLight</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#000000">glMatrixMode</font></b><font color="#990000">(</font>GL_MODELVIEW<font color="#990000">);</font>
+  <b><font color="#000000">glEnable</font></b><font color="#990000">(</font>GL_LIGHT1<font color="#990000">);</font>
+  <b><font color="#000000">glLoadIdentity</font></b><font color="#990000">();</font>
+
+  <i><font color="#9A1900">// Light default parameters</font></i>
+  GLfloat spot_dir<font color="#990000">[</font><font color="#993399">3</font><font color="#990000">]</font>       <font color="#990000">=</font> <font color="#FF0000">{</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#FF0000">}</font><font color="#990000">;</font>
+  GLfloat light_ambient<font color="#990000">[</font><font color="#993399">4</font><font color="#990000">]</font>  <font color="#990000">=</font> <font color="#FF0000">{</font><font color="#993399">0.5</font><font color="#990000">,</font> <font color="#993399">0.5</font><font color="#990000">,</font> <font color="#993399">0.5</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#FF0000">}</font><font color="#990000">;</font>
+  GLfloat light_specular<font color="#990000">[</font><font color="#993399">4</font><font color="#990000">]</font> <font color="#990000">=</font> <font color="#FF0000">{</font><font color="#993399">1.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#FF0000">}</font><font color="#990000">;</font>
+  GLfloat light_diffuse<font color="#990000">[</font><font color="#993399">4</font><font color="#990000">]</font>  <font color="#990000">=</font> <font color="#FF0000">{</font><font color="#993399">3.0</font><font color="#990000">,</font> <font color="#993399">3.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#FF0000">}</font><font color="#990000">;</font>
+
+  <b><font color="#000000">glLightfv</font></b><font color="#990000">(</font>GL_LIGHT1<font color="#990000">,</font> GL_SPOT_DIRECTION<font color="#990000">,</font> spot_dir<font color="#990000">);</font>
+  <b><font color="#000000">glLightf</font></b><font color="#990000">(</font> GL_LIGHT1<font color="#990000">,</font> GL_SPOT_EXPONENT<font color="#990000">,</font>  <font color="#993399">3.0</font><font color="#990000">);</font>
+  <b><font color="#000000">glLightf</font></b><font color="#990000">(</font> GL_LIGHT1<font color="#990000">,</font> GL_SPOT_CUTOFF<font color="#990000">,</font>    <font color="#993399">50.0</font><font color="#990000">);</font>
+  <b><font color="#000000">glLightf</font></b><font color="#990000">(</font> GL_LIGHT1<font color="#990000">,</font> GL_CONSTANT_ATTENUATION<font color="#990000">,</font> <font color="#993399">0.5</font><font color="#990000">);</font>
+  <b><font color="#000000">glLightf</font></b><font color="#990000">(</font> GL_LIGHT1<font color="#990000">,</font> GL_LINEAR_ATTENUATION<font color="#990000">,</font> <font color="#993399">1.0</font><font color="#990000">);</font>
+  <b><font color="#000000">glLightf</font></b><font color="#990000">(</font> GL_LIGHT1<font color="#990000">,</font> GL_QUADRATIC_ATTENUATION<font color="#990000">,</font> <font color="#993399">1.5</font><font color="#990000">);</font>
+  <b><font color="#000000">glLightfv</font></b><font color="#990000">(</font>GL_LIGHT1<font color="#990000">,</font> GL_AMBIENT<font color="#990000">,</font>  light_ambient<font color="#990000">);</font>
+  <b><font color="#000000">glLightfv</font></b><font color="#990000">(</font>GL_LIGHT1<font color="#990000">,</font> GL_SPECULAR<font color="#990000">,</font> light_specular<font color="#990000">);</font>
+  <b><font color="#000000">glLightfv</font></b><font color="#990000">(</font>GL_LIGHT1<font color="#990000">,</font> GL_DIFFUSE<font color="#990000">,</font>  light_diffuse<font color="#990000">);</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">init</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#000000">restoreStateFromFile</font></b><font color="#990000">();</font>
+
+  <i><font color="#9A1900">// Make camera the default manipulated frame.</font></i>
+  <b><font color="#000000">setManipulatedFrame</font></b><font color="#990000">(</font> <b><font color="#000000">camera</font></b><font color="#990000">()-&gt;</font><b><font color="#000000">frame</font></b><font color="#990000">()</font> <font color="#990000">);</font>
+
+<b><font color="#000080">#if</font></b> QT_VERSION <font color="#990000">&lt;</font> <font color="#993399">0x040000</font>
+  <i><font color="#9A1900">// Preserve CAMERA bindings, see setHandlerKeyboardModifiers documentation.</font></i>
+  <b><font color="#000000">setHandlerKeyboardModifiers</font></b><font color="#990000">(</font>QGLViewer<font color="#990000">::</font>CAMERA<font color="#990000">,</font> Qt<font color="#990000">::</font>AltButton<font color="#990000">);</font>
+  <i><font color="#9A1900">// The frames can be move without any key pressed</font></i>
+  <b><font color="#000000">setHandlerKeyboardModifiers</font></b><font color="#990000">(</font>QGLViewer<font color="#990000">::</font>FRAME<font color="#990000">,</font> Qt<font color="#990000">::</font>NoButton<font color="#990000">);</font>
+  <i><font color="#9A1900">// The camera can always be moved with the Control key.</font></i>
+  <b><font color="#000000">setHandlerKeyboardModifiers</font></b><font color="#990000">(</font>QGLViewer<font color="#990000">::</font>CAMERA<font color="#990000">,</font> Qt<font color="#990000">::</font>ControlButton<font color="#990000">);</font>
+<b><font color="#000080">#else</font></b>
+  <b><font color="#000000">setHandlerKeyboardModifiers</font></b><font color="#990000">(</font>QGLViewer<font color="#990000">::</font>CAMERA<font color="#990000">,</font> Qt<font color="#990000">::</font>AltModifier<font color="#990000">);</font>
+  <b><font color="#000000">setHandlerKeyboardModifiers</font></b><font color="#990000">(</font>QGLViewer<font color="#990000">::</font>FRAME<font color="#990000">,</font> Qt<font color="#990000">::</font>NoModifier<font color="#990000">);</font>
+  <b><font color="#000000">setHandlerKeyboardModifiers</font></b><font color="#990000">(</font>QGLViewer<font color="#990000">::</font>CAMERA<font color="#990000">,</font> Qt<font color="#990000">::</font>ControlModifier<font color="#990000">);</font>
+<b><font color="#000080">#endif</font></b>
+
+  <b><font color="#000000">initSpotLight</font></b><font color="#990000">();</font>
+
+  <b><font color="#000000">help</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">draw</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  luxo<font color="#990000">.</font><b><font color="#000000">draw</font></b><font color="#990000">();</font>
+
+  <i><font color="#9A1900">// Draw the ground</font></i>
+  <b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">.</font>4f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>4f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>4f<font color="#990000">);</font>
+  <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> nbPatches <font color="#990000">=</font> <font color="#993399">100</font><font color="#990000">;</font>
+  <b><font color="#000000">glNormal3f</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font><font color="#993399">0.0</font><font color="#990000">,</font><font color="#993399">1.0</font><font color="#990000">);</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">int</font> j<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> j<font color="#990000">&lt;</font>nbPatches<font color="#990000">;</font> <font color="#990000">++</font>j<font color="#990000">)</font>
+    <font color="#FF0000">{</font>
+      <b><font color="#000000">glBegin</font></b><font color="#990000">(</font>GL_QUAD_STRIP<font color="#990000">);</font>
+      <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">int</font> i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;=</font>nbPatches<font color="#990000">;</font> <font color="#990000">++</font>i<font color="#990000">)</font>
+	<font color="#FF0000">{</font>
+	  <b><font color="#000000">glVertex2f</font></b><font color="#990000">((</font><font color="#993399">2</font><font color="#990000">*</font>i<font color="#990000">/</font>nbPatches<font color="#990000">-</font><font color="#993399">1.0</font><font color="#990000">),</font> <font color="#990000">(</font><font color="#993399">2</font><font color="#990000">*</font>j<font color="#990000">/</font>nbPatches<font color="#990000">-</font><font color="#993399">1.0</font><font color="#990000">));</font>
+	  <b><font color="#000000">glVertex2f</font></b><font color="#990000">((</font><font color="#993399">2</font><font color="#990000">*</font>i<font color="#990000">/</font>nbPatches<font color="#990000">-</font><font color="#993399">1.0</font><font color="#990000">),</font> <font color="#990000">(</font><font color="#993399">2</font><font color="#990000">*(</font>j<font color="#990000">+</font><font color="#993399">1</font><font color="#990000">)/</font>nbPatches<font color="#990000">-</font><font color="#993399">1.0</font><font color="#990000">));</font>
+	<font color="#FF0000">}</font>
+      <b><font color="#000000">glEnd</font></b><font color="#990000">();</font>
+    <font color="#FF0000">}</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">drawWithNames</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <i><font color="#9A1900">// Render scene with objects ids</font></i>
+  luxo<font color="#990000">.</font><b><font color="#000000">draw</font></b><font color="#990000">(</font><b><font color="#0000FF">true</font></b><font color="#990000">);</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">postSelection</font></b><font color="#990000">(</font><b><font color="#0000FF">const</font></b> QPoint<font color="#990000">&amp;)</font>
+<font color="#FF0000">{</font>
+  <b><font color="#0000FF">if</font></b> <font color="#990000">(</font><b><font color="#000000">selectedName</font></b><font color="#990000">()</font> <font color="#990000">==</font> <font color="#990000">-</font><font color="#993399">1</font><font color="#990000">)</font>
+    <font color="#FF0000">{</font>
+      <i><font color="#9A1900">// Camera will be the default frame is no object is selected.</font></i>
+      <b><font color="#000000">setManipulatedFrame</font></b><font color="#990000">(</font> <b><font color="#000000">camera</font></b><font color="#990000">()-&gt;</font><b><font color="#000000">frame</font></b><font color="#990000">()</font> <font color="#990000">);</font>
+      luxo<font color="#990000">.</font><b><font color="#000000">setSelectedFrameNumber</font></b><font color="#990000">(</font><font color="#993399">4</font><font color="#990000">);</font> <i><font color="#9A1900">// dummy value meaning camera</font></i>
+    <font color="#FF0000">}</font>
+  <b><font color="#0000FF">else</font></b>
+    <font color="#FF0000">{</font>
+      <b><font color="#000000">setManipulatedFrame</font></b><font color="#990000">(</font>luxo<font color="#990000">.</font><b><font color="#000000">frame</font></b><font color="#990000">(</font><b><font color="#000000">selectedName</font></b><font color="#990000">()));</font>
+      luxo<font color="#990000">.</font><b><font color="#000000">setSelectedFrameNumber</font></b><font color="#990000">(</font><b><font color="#000000">selectedName</font></b><font color="#990000">());</font>
+    <font color="#FF0000">}</font>
+<font color="#FF0000">}</font>
+
+<i><font color="#9A1900">//////////////////////////////////  L u x o ////////////////////////////////////////</font></i>
+
+Luxo<font color="#990000">::</font><b><font color="#000000">Luxo</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">unsigned</font> <font color="#009900">short</font> i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font><font color="#993399">4</font><font color="#990000">;</font> <font color="#990000">++</font>i<font color="#990000">)</font>
+    <font color="#FF0000">{</font>
+      frame_<font color="#990000">[</font>i<font color="#990000">]</font> <font color="#990000">=</font> <b><font color="#0000FF">new</font></b> <b><font color="#000000">ManipulatedFrame</font></b><font color="#990000">();</font>
+
+      <i><font color="#9A1900">// Creates a hierarchy of frames.</font></i>
+      <b><font color="#0000FF">if</font></b> <font color="#990000">(</font>i<font color="#990000">&gt;</font><font color="#993399">0</font><font color="#990000">)</font>
+	<b><font color="#000000">frame</font></b><font color="#990000">(</font>i<font color="#990000">)-&gt;</font><b><font color="#000000">setReferenceFrame</font></b><font color="#990000">(</font><b><font color="#000000">frame</font></b><font color="#990000">(</font>i<font color="#990000">-</font><font color="#993399">1</font><font color="#990000">));</font>
+    <font color="#FF0000">}</font>
+
+  <i><font color="#9A1900">// Initialize frames</font></i>
+  <b><font color="#000000">frame</font></b><font color="#990000">(</font><font color="#993399">1</font><font color="#990000">)-&gt;</font><b><font color="#000000">setTranslation</font></b><font color="#990000">(</font><b><font color="#000000">Vec</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>08f<font color="#990000">));</font> <i><font color="#9A1900">// Base height</font></i>
+  <b><font color="#000000">frame</font></b><font color="#990000">(</font><font color="#993399">2</font><font color="#990000">)-&gt;</font><b><font color="#000000">setTranslation</font></b><font color="#990000">(</font><b><font color="#000000">Vec</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>5f<font color="#990000">));</font>  <i><font color="#9A1900">// Arm length</font></i>
+  <b><font color="#000000">frame</font></b><font color="#990000">(</font><font color="#993399">3</font><font color="#990000">)-&gt;</font><b><font color="#000000">setTranslation</font></b><font color="#990000">(</font><b><font color="#000000">Vec</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>5f<font color="#990000">));</font>  <i><font color="#9A1900">// Arm length</font></i>
+
+  <b><font color="#000000">frame</font></b><font color="#990000">(</font><font color="#993399">1</font><font color="#990000">)-&gt;</font><b><font color="#000000">setRotation</font></b><font color="#990000">(</font><b><font color="#000000">Quaternion</font></b><font color="#990000">(</font><b><font color="#000000">Vec</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">,</font><font color="#993399">0.0</font><font color="#990000">,</font><font color="#993399">0.0</font><font color="#990000">),</font> <font color="#993399">0.6</font><font color="#990000">));</font>
+  <b><font color="#000000">frame</font></b><font color="#990000">(</font><font color="#993399">2</font><font color="#990000">)-&gt;</font><b><font color="#000000">setRotation</font></b><font color="#990000">(</font><b><font color="#000000">Quaternion</font></b><font color="#990000">(</font><b><font color="#000000">Vec</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">,</font><font color="#993399">0.0</font><font color="#990000">,</font><font color="#993399">0.0</font><font color="#990000">),</font> <font color="#990000">-</font><font color="#993399">2.0</font><font color="#990000">));</font>
+  <b><font color="#000000">frame</font></b><font color="#990000">(</font><font color="#993399">3</font><font color="#990000">)-&gt;</font><b><font color="#000000">setRotation</font></b><font color="#990000">(</font><b><font color="#000000">Quaternion</font></b><font color="#990000">(</font><b><font color="#000000">Vec</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">,-</font><font color="#993399">0</font><font color="#990000">.</font>3f<font color="#990000">,</font><font color="#993399">0.0</font><font color="#990000">),</font> <font color="#990000">-</font><font color="#993399">1.7</font><font color="#990000">));</font>
+
+  <i><font color="#9A1900">// Set frame constraints</font></i>
+  WorldConstraint<font color="#990000">*</font> baseConstraint <font color="#990000">=</font> <b><font color="#0000FF">new</font></b> <b><font color="#000000">WorldConstraint</font></b><font color="#990000">();</font>
+  baseConstraint<font color="#990000">-&gt;</font><b><font color="#000000">setTranslationConstraint</font></b><font color="#990000">(</font>AxisPlaneConstraint<font color="#990000">::</font>PLANE<font color="#990000">,</font> <b><font color="#000000">Vec</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font><font color="#993399">0.0</font><font color="#990000">,</font><font color="#993399">1.0</font><font color="#990000">));</font>
+  baseConstraint<font color="#990000">-&gt;</font><b><font color="#000000">setRotationConstraint</font></b><font color="#990000">(</font>AxisPlaneConstraint<font color="#990000">::</font>AXIS<font color="#990000">,</font> <b><font color="#000000">Vec</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font><font color="#993399">0.0</font><font color="#990000">,</font><font color="#993399">1.0</font><font color="#990000">));</font>
+  <b><font color="#000000">frame</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">)-&gt;</font><b><font color="#000000">setConstraint</font></b><font color="#990000">(</font>baseConstraint<font color="#990000">);</font>
+
+  LocalConstraint<font color="#990000">*</font> XAxis <font color="#990000">=</font> <b><font color="#0000FF">new</font></b> <b><font color="#000000">LocalConstraint</font></b><font color="#990000">();</font>
+  XAxis<font color="#990000">-&gt;</font><b><font color="#000000">setTranslationConstraint</font></b><font color="#990000">(</font>AxisPlaneConstraint<font color="#990000">::</font>FORBIDDEN<font color="#990000">,</font>  <b><font color="#000000">Vec</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font><font color="#993399">0.0</font><font color="#990000">,</font><font color="#993399">0.0</font><font color="#990000">));</font>
+  XAxis<font color="#990000">-&gt;</font><b><font color="#000000">setRotationConstraint   </font></b><font color="#990000">(</font>AxisPlaneConstraint<font color="#990000">::</font>AXIS<font color="#990000">,</font> <b><font color="#000000">Vec</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">,</font><font color="#993399">0.0</font><font color="#990000">,</font><font color="#993399">0.0</font><font color="#990000">));</font>
+  <b><font color="#000000">frame</font></b><font color="#990000">(</font><font color="#993399">1</font><font color="#990000">)-&gt;</font><b><font color="#000000">setConstraint</font></b><font color="#990000">(</font>XAxis<font color="#990000">);</font>
+  <b><font color="#000000">frame</font></b><font color="#990000">(</font><font color="#993399">2</font><font color="#990000">)-&gt;</font><b><font color="#000000">setConstraint</font></b><font color="#990000">(</font>XAxis<font color="#990000">);</font>
+
+  LocalConstraint<font color="#990000">*</font> headConstraint <font color="#990000">=</font> <b><font color="#0000FF">new</font></b> <b><font color="#000000">LocalConstraint</font></b><font color="#990000">();</font>
+  headConstraint<font color="#990000">-&gt;</font><b><font color="#000000">setTranslationConstraint</font></b><font color="#990000">(</font>AxisPlaneConstraint<font color="#990000">::</font>FORBIDDEN<font color="#990000">,</font> <b><font color="#000000">Vec</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font><font color="#993399">0.0</font><font color="#990000">,</font><font color="#993399">0.0</font><font color="#990000">));</font>
+  <b><font color="#000000">frame</font></b><font color="#990000">(</font><font color="#993399">3</font><font color="#990000">)-&gt;</font><b><font color="#000000">setConstraint</font></b><font color="#990000">(</font>headConstraint<font color="#990000">);</font>
+
+  <i><font color="#9A1900">// Means camera is selected.</font></i>
+  selected <font color="#990000">=</font> <font color="#993399">4</font><font color="#990000">;</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Luxo<font color="#990000">::</font><b><font color="#000000">draw</font></b><font color="#990000">(</font><font color="#009900">bool</font> names<font color="#990000">)</font>
+<font color="#FF0000">{</font>
+  <i><font color="#9A1900">// Luxo's local frame</font></i>
+  <b><font color="#000000">glPushMatrix</font></b><font color="#990000">();</font>
+  <b><font color="#000000">glMultMatrixd</font></b><font color="#990000">(</font><b><font color="#000000">frame</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">)-&gt;</font><b><font color="#000000">matrix</font></b><font color="#990000">());</font>
+
+  <b><font color="#0000FF">if</font></b> <font color="#990000">(</font>names<font color="#990000">)</font> <b><font color="#000000">glPushName</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">);</font>
+  <b><font color="#000000">setColor</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">);</font>
+  <b><font color="#000000">drawBase</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">if</font></b> <font color="#990000">(</font>names<font color="#990000">)</font> <b><font color="#000000">glPopName</font></b><font color="#990000">();</font>
+
+  <b><font color="#0000FF">if</font></b> <font color="#990000">(</font>names<font color="#990000">)</font> <b><font color="#000000">glPushName</font></b><font color="#990000">(</font><font color="#993399">1</font><font color="#990000">);</font>
+  <b><font color="#000000">glMultMatrixd</font></b><font color="#990000">(</font><b><font color="#000000">frame</font></b><font color="#990000">(</font><font color="#993399">1</font><font color="#990000">)-&gt;</font><b><font color="#000000">matrix</font></b><font color="#990000">());</font>
+  <b><font color="#000000">setColor</font></b><font color="#990000">(</font><font color="#993399">1</font><font color="#990000">);</font>
+  <b><font color="#000000">drawCylinder</font></b><font color="#990000">();</font>
+  <b><font color="#000000">drawArm</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">if</font></b> <font color="#990000">(</font>names<font color="#990000">)</font> <b><font color="#000000">glPopName</font></b><font color="#990000">();</font>
+
+  <b><font color="#0000FF">if</font></b> <font color="#990000">(</font>names<font color="#990000">)</font> <b><font color="#000000">glPushName</font></b><font color="#990000">(</font><font color="#993399">2</font><font color="#990000">);</font>
+  <b><font color="#000000">glMultMatrixd</font></b><font color="#990000">(</font><b><font color="#000000">frame</font></b><font color="#990000">(</font><font color="#993399">2</font><font color="#990000">)-&gt;</font><b><font color="#000000">matrix</font></b><font color="#990000">());</font>
+  <b><font color="#000000">setColor</font></b><font color="#990000">(</font><font color="#993399">2</font><font color="#990000">);</font>
+  <b><font color="#000000">drawCylinder</font></b><font color="#990000">();</font>
+  <b><font color="#000000">drawArm</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">if</font></b> <font color="#990000">(</font>names<font color="#990000">)</font> <b><font color="#000000">glPopName</font></b><font color="#990000">();</font>
+
+  <b><font color="#0000FF">if</font></b> <font color="#990000">(</font>names<font color="#990000">)</font> <b><font color="#000000">glPushName</font></b><font color="#990000">(</font><font color="#993399">3</font><font color="#990000">);</font>
+  <b><font color="#000000">glMultMatrixd</font></b><font color="#990000">(</font><b><font color="#000000">frame</font></b><font color="#990000">(</font><font color="#993399">3</font><font color="#990000">)-&gt;</font><b><font color="#000000">matrix</font></b><font color="#990000">());</font>
+  <b><font color="#000000">setColor</font></b><font color="#990000">(</font><font color="#993399">3</font><font color="#990000">);</font>
+  <b><font color="#000000">drawHead</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">if</font></b> <font color="#990000">(</font>names<font color="#990000">)</font> <b><font color="#000000">glPopName</font></b><font color="#990000">();</font>
+
+  <i><font color="#9A1900">// Add light</font></i>
+  <b><font color="#0000FF">const</font></b> GLfloat pos<font color="#990000">[</font><font color="#993399">4</font><font color="#990000">]</font> <font color="#990000">=</font> <font color="#FF0000">{</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#FF0000">}</font><font color="#990000">;</font>
+  <b><font color="#000000">glLightfv</font></b><font color="#990000">(</font>GL_LIGHT1<font color="#990000">,</font> GL_POSITION<font color="#990000">,</font> pos<font color="#990000">);</font>
+  <b><font color="#0000FF">const</font></b> GLfloat spot_dir<font color="#990000">[</font><font color="#993399">3</font><font color="#990000">]</font>  <font color="#990000">=</font> <font color="#FF0000">{</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#FF0000">}</font><font color="#990000">;</font>
+  <b><font color="#000000">glLightfv</font></b><font color="#990000">(</font>GL_LIGHT1<font color="#990000">,</font> GL_SPOT_DIRECTION<font color="#990000">,</font> spot_dir<font color="#990000">);</font>
+  <b><font color="#000000">glPopMatrix</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Luxo<font color="#990000">::</font><b><font color="#000000">drawBase</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#000000">drawCone</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>03f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>15f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>15f<font color="#990000">,</font> <font color="#993399">30</font><font color="#990000">);</font>
+  <b><font color="#000000">drawCone</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">.</font>03f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>05f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>15f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>13f<font color="#990000">,</font> <font color="#993399">30</font><font color="#990000">);</font>
+  <b><font color="#000000">drawCone</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">.</font>05f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>07f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>13f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>01f<font color="#990000">,</font> <font color="#993399">30</font><font color="#990000">);</font>
+  <b><font color="#000000">drawCone</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">.</font>07f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>09f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>01f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>01f<font color="#990000">,</font> <font color="#993399">10</font><font color="#990000">);</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Luxo<font color="#990000">::</font><b><font color="#000000">drawArm</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#000000">glTranslatef</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">.</font>02f<font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">);</font>
+  <b><font color="#000000">drawCone</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>5f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>01f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>01f<font color="#990000">,</font> <font color="#993399">10</font><font color="#990000">);</font>
+  <b><font color="#000000">glTranslatef</font></b><font color="#990000">(-</font><font color="#993399">0</font><font color="#990000">.</font>04f<font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">);</font>
+  <b><font color="#000000">drawCone</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>5f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>01f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>01f<font color="#990000">,</font> <font color="#993399">10</font><font color="#990000">);</font>
+  <b><font color="#000000">glTranslatef</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">.</font>02f<font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">);</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Luxo<font color="#990000">::</font><b><font color="#000000">drawHead</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#000000">drawCone</font></b><font color="#990000">(-</font><font color="#993399">0</font><font color="#990000">.</font>02f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>06f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>04f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>04f<font color="#990000">,</font> <font color="#993399">30</font><font color="#990000">);</font>
+  <b><font color="#000000">drawCone</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">.</font>06f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>15f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>04f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>17f<font color="#990000">,</font> <font color="#993399">30</font><font color="#990000">);</font>
+  <b><font color="#000000">drawCone</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">.</font>15f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>17f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>17f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>17f<font color="#990000">,</font> <font color="#993399">30</font><font color="#990000">);</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Luxo<font color="#990000">::</font><b><font color="#000000">drawCylinder</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#000000">glPushMatrix</font></b><font color="#990000">();</font>
+  <b><font color="#000000">glRotatef</font></b><font color="#990000">(</font><font color="#993399">90</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">);</font>
+  <b><font color="#000000">drawCone</font></b><font color="#990000">(-</font><font color="#993399">0</font><font color="#990000">.</font>05f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>05f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>02f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>02f<font color="#990000">,</font> <font color="#993399">20</font><font color="#990000">);</font>
+  <b><font color="#000000">glPopMatrix</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Luxo<font color="#990000">::</font><b><font color="#000000">setColor</font></b><font color="#990000">(</font><font color="#009900">unsigned</font> <font color="#009900">short</font> nb<font color="#990000">)</font>
+<font color="#FF0000">{</font>
+  <b><font color="#0000FF">if</font></b> <font color="#990000">(</font>nb <font color="#990000">==</font> selected<font color="#990000">)</font>
+    <b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">.</font>9f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>9f<font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">);</font>
+  <b><font color="#0000FF">else</font></b>
+    <b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">.</font>9f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>9f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>9f<font color="#990000">);</font>
+<font color="#FF0000">}</font>
+
+<i><font color="#9A1900">// Draws a truncated cone aligned with the Z axis.</font></i>
+<font color="#009900">void</font> Luxo<font color="#990000">::</font><b><font color="#000000">drawCone</font></b><font color="#990000">(</font><font color="#009900">float</font> zMin<font color="#990000">,</font> <font color="#009900">float</font> zMax<font color="#990000">,</font> <font color="#009900">float</font> r1<font color="#990000">,</font> <font color="#009900">float</font> r2<font color="#990000">,</font> <font color="#009900">int</font> nbSub<font color="#990000">)</font>
+<font color="#FF0000">{</font>
+  <b><font color="#0000FF">static</font></b> GLUquadric<font color="#990000">*</font> quadric <font color="#990000">=</font> <b><font color="#000000">gluNewQuadric</font></b><font color="#990000">();</font>
+
+  <b><font color="#000000">glTranslatef</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> zMin<font color="#990000">);</font>
+  <b><font color="#000000">gluCylinder</font></b><font color="#990000">(</font>quadric<font color="#990000">,</font> r1<font color="#990000">,</font> r2<font color="#990000">,</font> zMax<font color="#990000">-</font>zMin<font color="#990000">,</font> nbSub<font color="#990000">,</font> <font color="#993399">1</font><font color="#990000">);</font>
+  <b><font color="#000000">glTranslatef</font></b><font color="#990000">(</font><font color="#993399">0.0</font><font color="#990000">,</font> <font color="#993399">0.0</font><font color="#990000">,</font> <font color="#990000">-</font>zMin<font color="#990000">);</font>
+<font color="#FF0000">}</font>
+
+</tt></pre>
+
+
+<h2>main.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"luxo.h"</font>
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;qapplication.h&gt;</font>
+
+<font color="#009900">int</font> <b><font color="#000000">main</font></b><font color="#990000">(</font><font color="#009900">int</font> argc<font color="#990000">,</font> <font color="#009900">char</font><font color="#990000">**</font> argv<font color="#990000">)</font>
+<font color="#FF0000">{</font>
+  QApplication <b><font color="#000000">application</font></b><font color="#990000">(</font>argc<font color="#990000">,</font>argv<font color="#990000">);</font>
+
+  Viewer viewer<font color="#990000">;</font>
+
+<b><font color="#000080">#if</font></b> QT_VERSION <font color="#990000">&lt;</font> <font color="#993399">0x040000</font>
+  application<font color="#990000">.</font><b><font color="#000000">setMainWidget</font></b><font color="#990000">(&amp;</font>viewer<font color="#990000">);</font>
+<b><font color="#000080">#else</font></b>
+  viewer<font color="#990000">.</font><b><font color="#000000">setWindowTitle</font></b><font color="#990000">(</font><font color="#FF0000">"luxo"</font><font color="#990000">);</font>
+<b><font color="#000080">#endif</font></b>
+
+  viewer<font color="#990000">.</font><b><font color="#000000">show</font></b><font color="#990000">();</font>
+
+  <b><font color="#0000FF">return</font></b> application<font color="#990000">.</font><b><font color="#000000">exec</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+</tt></pre>
+
+
+
+<p>
+  Back to the <a href="index.html">examples main page</a>.
+</p>
+
+<p>
+  <a href="http://validator.w3.org/check/referer"><img src="../images/xhtml.png" alt="Valid XHTML 1.0!" height="31" width="88"/></a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer"><img src="../images/css.png" width="88" height="31" alt="Valid CSS!"/></a>
+<i>Last modified on Tuesday, September 30, 2008.</i>
+</p>
+
+</body>
+</html>

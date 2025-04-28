@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Mesh Editing - scope user manual</title>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  <link href="../larosterna.css" rel="stylesheet">
+  <link href="../offlinefonts.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Mesh Editing";
+    var mkdocs_page_input_path = "edit.md";
+    var mkdocs_page_url = "/edit/index.html";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> scope user manual</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../index.html">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../formats/index.html">File Formats</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../display/index.html">Data Display</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="index.html">Mesh Editing</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#editing-meshes">Editing Meshes</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#coordinate-transformation">Coordinate Transformation</a></li>
+        
+            <li><a class="toctree-l3" href="#mesh-size-reduction">Mesh Size Reduction</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../mapping/index.html">Deformation Mapping</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../loads/index.html">Load Analysis</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">scope user manual</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Mesh Editing</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="editing-meshes">Editing Meshes</h1>
+<h2 id="coordinate-transformation">Coordinate Transformation</h2>
+<p>All mesh data can be freely transformed into different coordinate systems using the <strong>Transform nodes</strong> entry in the <strong>Edit</strong> menu.</p>
+<p><img alt="Transform" src="../img/transform.png" srcset="../img/transform.png 1x, ../img/transform@2x.png 2x" /></p>
+<ul>
+<li><strong>Absolute</strong> indicates that the transformation defined in this dialog is applied to the original, saved geometry, while the <strong>Incremental</strong> settings allows to chain transformations.</li>
+<li>A <strong>Scaling</strong> factor can be defined in order to convert node coordinates between unit systems (scope itself is not aware of units). Note that any secondary data which may be contained in a mesh file, such as material data or boundary condition specification, are not affected by scaling node coordinates.</li>
+<li>A rigid-body <strong>Rotation</strong> around a set <strong>Pivot</strong> combined with a <strong>Translation</strong> can also be defined here. As a convention, the rotation is performed in the order RX-RY-RZ, floolowed by the translation.</li>
+<li>Finally, it is possible to apply the transformation either to mesh nodes, displacement and eigenvector fields, or both. </li>
+</ul>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Use the scaling factor and select displacement/eigenmode fields only in order 
+change the scaling of an eigenvector field.</p>
+</div>
+<h2 id="mesh-size-reduction">Mesh Size Reduction</h2>
+<p>In many cases, result files obtained from computational fluid dynamics are very large. Users concerned with flight mechanics, computation of loads, structural analysis or aeroelasticicty are frequently only interested in a very small subset of this data, namely the values of pressure and friction coefficients or local Mach numbers on the surface. Therefore, volume data can often be erased leading to far smaller files, faster load times and much faster workflow.</p>
+<p>From the <strong>Components</strong> dialog, mesh sections which are not needed (e.g. all sections containig volume elements) can be erased. Note that this eliminates only the corresponding elements, but neither the nodes associated with these elements nor any field values.</p>
+<p>The menu entry <strong>Remove unsused nodes</strong> in the <strong>Edit</strong> menu searches for nodes that are not referenced by any element and eliminates all of these nodes and all field values belonging to them. </p>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../mapping/index.html" class="btn btn-neutral float-right" title="Deformation Mapping">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../display/index.html" class="btn btn-neutral" title="Data Display"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+      <p>2016 <a href=mailto:david@larosterna.com>David Eller</a></p>
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../display/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../mapping/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../js/theme.js"></script>
+
+</body>
+</html>

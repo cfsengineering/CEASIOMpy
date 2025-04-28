@@ -1,0 +1,364 @@
+<ui version="4.0" >
+ <class>DlgExportRow</class>
+ <widget class="QDialog" name="DlgExportRow" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>339</width>
+    <height>363</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Export point grid</string>
+  </property>
+  <layout class="QVBoxLayout" >
+   <property name="spacing" >
+    <number>6</number>
+   </property>
+   <property name="margin" >
+    <number>9</number>
+   </property>
+   <item>
+    <widget class="QGroupBox" name="groupBox" >
+     <property name="title" >
+      <string>Export sections</string>
+     </property>
+     <layout class="QGridLayout" >
+      <property name="margin" >
+       <number>9</number>
+      </property>
+      <property name="spacing" >
+       <number>6</number>
+      </property>
+      <item row="4" column="0" colspan="3" >
+       <widget class="QCheckBox" name="cbIpOnly" >
+        <property name="text" >
+         <string>Export interpolation points only</string>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="0" colspan="2" >
+       <widget class="QLabel" name="label_7" >
+        <property name="text" >
+         <string>Scaling factor</string>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="0" colspan="2" >
+       <widget class="QLabel" name="label_4" >
+        <property name="text" >
+         <string>Max. angle spacing</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="0" colspan="2" >
+       <widget class="QLabel" name="label_3" >
+        <property name="text" >
+         <string>Max. point distance</string>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="2" >
+       <widget class="QSpinBox" name="sbNbs" >
+        <property name="alignment" >
+         <set>Qt::AlignRight</set>
+        </property>
+        <property name="value" >
+         <number>4</number>
+        </property>
+       </widget>
+      </item>
+      <item row="6" column="0" colspan="2" >
+       <widget class="QLabel" name="label" >
+        <property name="text" >
+         <string>Sections between frames</string>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="2" >
+       <widget class="QSpinBox" name="sbNpps" >
+        <property name="alignment" >
+         <set>Qt::AlignRight</set>
+        </property>
+        <property name="minimum" >
+         <number>10</number>
+        </property>
+        <property name="maximum" >
+         <number>999</number>
+        </property>
+        <property name="value" >
+         <number>60</number>
+        </property>
+       </widget>
+      </item>
+      <item row="5" column="0" colspan="2" >
+       <widget class="QLabel" name="label_2" >
+        <property name="text" >
+         <string>Max. points per section</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="1" colspan="2" >
+       <widget class="QComboBox" name="cbSeparator" >
+        <item>
+         <property name="text" >
+          <string>ROW (Unigraphics NX)</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>Single newline</string>
+         </property>
+        </item>
+        <item>
+         <property name="text" >
+          <string>No separator</string>
+         </property>
+        </item>
+       </widget>
+      </item>
+      <item row="0" column="1" colspan="2" >
+       <widget class="QComboBox" name="cbSurface" />
+      </item>
+      <item row="0" column="0" >
+       <widget class="QLabel" name="label_5" >
+        <property name="text" >
+         <string>Select surface</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QLabel" name="label_6" >
+        <property name="text" >
+         <string>Section separator</string>
+        </property>
+       </widget>
+      </item>
+      <item row="7" column="2" >
+       <widget class="QDoubleSpinBox" name="sbLmax" >
+        <property name="alignment" >
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buttonSymbols" >
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="decimals" >
+         <number>4</number>
+        </property>
+        <property name="minimum" >
+         <double>0.000100000000000</double>
+        </property>
+        <property name="maximum" >
+         <double>999999999.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>0.100000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="8" column="2" >
+       <widget class="QDoubleSpinBox" name="sbPhimax" >
+        <property name="alignment" >
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buttonSymbols" >
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="decimals" >
+         <number>1</number>
+        </property>
+        <property name="minimum" >
+         <double>2.000000000000000</double>
+        </property>
+        <property name="maximum" >
+         <double>60.000000000000000</double>
+        </property>
+        <property name="singleStep" >
+         <double>2.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>30.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+      <item row="3" column="2" >
+       <widget class="QDoubleSpinBox" name="sbScaling" >
+        <property name="alignment" >
+         <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+        </property>
+        <property name="buttonSymbols" >
+         <enum>QAbstractSpinBox::NoButtons</enum>
+        </property>
+        <property name="decimals" >
+         <number>3</number>
+        </property>
+        <property name="minimum" >
+         <double>0.001000000000000</double>
+        </property>
+        <property name="maximum" >
+         <double>1000.000000000000000</double>
+        </property>
+        <property name="value" >
+         <double>1.000000000000000</double>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QDialogButtonBox" name="buttonBox" >
+     <property name="orientation" >
+      <enum>Qt::Horizontal</enum>
+     </property>
+     <property name="standardButtons" >
+      <set>QDialogButtonBox::Cancel|QDialogButtonBox::Ok</set>
+     </property>
+    </widget>
+   </item>
+  </layout>
+ </widget>
+ <tabstops>
+  <tabstop>cbSurface</tabstop>
+  <tabstop>cbSeparator</tabstop>
+  <tabstop>sbScaling</tabstop>
+  <tabstop>cbIpOnly</tabstop>
+  <tabstop>sbNpps</tabstop>
+  <tabstop>sbNbs</tabstop>
+  <tabstop>sbLmax</tabstop>
+  <tabstop>sbPhimax</tabstop>
+  <tabstop>buttonBox</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>accepted()</signal>
+   <receiver>DlgExportRow</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>257</x>
+     <y>357</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>157</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>buttonBox</sender>
+   <signal>rejected()</signal>
+   <receiver>DlgExportRow</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>325</x>
+     <y>357</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>286</x>
+     <y>274</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbIpOnly</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>sbNpps</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>252</x>
+     <y>120</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>250</x>
+     <y>148</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbIpOnly</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>sbNbs</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>193</x>
+     <y>117</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>197</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbIpOnly</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_2</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>81</x>
+     <y>122</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>80</x>
+     <y>146</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbIpOnly</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>61</x>
+     <y>118</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>58</x>
+     <y>183</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbIpOnly</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_3</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>41</x>
+     <y>119</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>43</x>
+     <y>217</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbIpOnly</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>label_4</receiver>
+   <slot>setDisabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>271</x>
+     <y>119</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>70</x>
+     <y>252</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

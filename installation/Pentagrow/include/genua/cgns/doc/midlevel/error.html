@@ -1,0 +1,117 @@
+<!-- CGNS Mid-Level Library - Error Handling -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="midlevel.css" rel="stylesheet" type="text/css">
+<title> CGNS Mid-Level Library - Error Handling </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="index.html"><span class=nav><b>Mid-Level&nbsp;Library</b></span></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="general.html"><b>General&nbsp;Remarks</b></a>)
+(<a href="fileops.html"><b>File&nbsp;Operations</b></a>)
+(<a href="navigating.html"><b>Navigating&nbsp;a&nbsp;CGNS&nbsp;File</b></a>)
+(<span class=nav><b>Error&nbsp;Handling</b></span>)
+(<a href="structural.html"><b>Structural&nbsp;Nodes</b></a>)
+(<a href="descriptor.html"><b>Descriptors</b></a>)
+(<a href="physical.html"><b>Physical&nbsp;Data</b></a>)
+(<a href="location.html"><b>Location&nbsp;and&nbsp;Position</b></a>)
+(<a href="auxiliary.html"><b>Auxiliary&nbsp;Data</b></a>)
+(<a href="grid.html"><b>Grid&nbsp;Specification</b></a>)
+(<a href="solution.html"><b>Solution&nbsp;Data</b></a>)
+(<a href="connectivity.html"><b>Grid&nbsp;Connectivity</b></a>)
+(<a href="bc.html"><b>Boundary&nbsp;Conditions</b></a>)
+(<a href="equation.html"><b>Equation&nbsp;Specification</b></a>)
+(<a href="families.html"><b>Families</b></a>)
+(<a href="timedep.html"><b>Time-Dependent&nbsp;Data</b></a>)
+(<a href="links.html"><b>Links</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Error Handling</h2>
+
+<br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>error_message</i></span> = char *cg_get_error();</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>void cg_error_exit();</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>void cg_error_print();</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+       <tt><b>call cg_get_error_f(<span class=out><i>error_message</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_error_exit_f()</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_error_print_f()</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;w&nbsp;m</b></tt>
+</table>
+
+<p>
+If an error occurs during the execution of a CGNS library function,
+signified by a non-zero value of the error status variable
+<tt>ier</tt>, an error message may be retrieved using the function
+<tt>cg_get_error</tt>.
+The function <tt>cg_error_exit</tt> may then be used to print the
+error message and stop the execution of the program.
+Alternatively, <tt>cg_error_print</tt> may be used to print the
+error message and continue execution of the program.
+
+<p>
+In C, you may define a function to be called automatically in the case
+of a warning or error using the
+<a href="fileops.html#configure"><tt>cg_configure</tt></a> routine.
+The function is of the form <tt>void err_func(int is_error, char
+*errmsg)</tt>, and will be called whenever an error or warning occurs.
+The first argument, <tt>is_error</tt>, will be 0 for warning messages,
+1 for error messages, and &minus;1 if the program is going to terminate
+(i.e., a call to <tt>cg_error_exit</tt>).
+The second argument is the error or warning message.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 12 Jan 2007
+
+</body>
+</html>

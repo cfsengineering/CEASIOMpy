@@ -1,0 +1,186 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>libQGLViewer cameraLight example</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link href="../qglviewer.css" rel="stylesheet" type="text/css" />
+  <link rel="shortcut icon" href="../images/qglviewer.ico" type="image/x-icon" />
+  <link rel="icon" href="../images/qglviewer.icon.png" type="image/png" />
+</head>
+<body>
+
+<div class="banner">
+ <a class="qindex" href="../index.html">Home</a>
+ <a class="qindex" href="../refManual/hierarchy.html">Documentation</a>
+ <a class="qindex" href="../download.html">Download</a>
+ <a class="qindex highlight" href="index.html">Examples</a>
+ <a class="qindex" href="../developer.html">Developer</a>
+</div>
+
+<h1>The cameraLight example</h1>
+
+<center>
+  <img src="../images/cameraLight.jpg" width="330" height="228" alt="cameraLight"/>
+</center>
+
+<p>
+ This example shows how to position a GL_LIGHT on the camera.
+</p>
+<p>
+ A spot light position and direction are set so that they always match the
+ camera's current setup. 
+</p>
+<p>
+ This is done using the <code>camera->position()</code> and <code>camera->viewDirection()</code>
+ methods which return values expressed in the world coordinates system.
+</p>
+<h2>cameraLight.h</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;QGLViewer/qglviewer.h&gt;</font>
+
+<b><font color="#0000FF">class</font></b> Viewer <font color="#990000">:</font> <b><font color="#0000FF">public</font></b> QGLViewer
+<font color="#FF0000">{</font>
+<b><font color="#0000FF">protected</font></b> <font color="#990000">:</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">draw</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">init</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> QString <b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b><font color="#990000">;</font>
+
+<b><font color="#0000FF">private</font></b> <font color="#990000">:</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">drawSpiral</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font><font color="#990000">;</font>
+</tt></pre>
+
+
+<h2>cameraLight.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"cameraLight.h"</font>
+
+<b><font color="#0000FF">using</font></b> <b><font color="#0000FF">namespace</font></b> std<font color="#990000">;</font>
+<b><font color="#0000FF">using</font></b> <b><font color="#0000FF">namespace</font></b> qglviewer<font color="#990000">;</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">draw</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+	<i><font color="#9A1900">// Place light at camera position</font></i>
+	<b><font color="#0000FF">const</font></b> Vec cameraPos <font color="#990000">=</font> <b><font color="#000000">camera</font></b><font color="#990000">()-&gt;</font><b><font color="#000000">position</font></b><font color="#990000">();</font>
+	<b><font color="#0000FF">const</font></b> GLfloat pos<font color="#990000">[</font><font color="#993399">4</font><font color="#990000">]</font> <font color="#990000">=</font> <font color="#FF0000">{</font>cameraPos<font color="#990000">[</font><font color="#993399">0</font><font color="#990000">],</font> cameraPos<font color="#990000">[</font><font color="#993399">1</font><font color="#990000">],</font> cameraPos<font color="#990000">[</font><font color="#993399">2</font><font color="#990000">],</font> <font color="#993399">1.0</font><font color="#FF0000">}</font><font color="#990000">;</font>
+	<b><font color="#000000">glLightfv</font></b><font color="#990000">(</font>GL_LIGHT1<font color="#990000">,</font> GL_POSITION<font color="#990000">,</font> pos<font color="#990000">);</font>
+
+	<i><font color="#9A1900">// Orientate light along view direction</font></i>
+	<b><font color="#000000">glLightfv</font></b><font color="#990000">(</font>GL_LIGHT1<font color="#990000">,</font> GL_SPOT_DIRECTION<font color="#990000">,</font> <b><font color="#000000">camera</font></b><font color="#990000">()-&gt;</font><b><font color="#000000">viewDirection</font></b><font color="#990000">());</font>
+
+	<b><font color="#000000">drawSpiral</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+<i><font color="#9A1900">// Draws a spiral</font></i>
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">drawSpiral</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+	<b><font color="#0000FF">const</font></b> <font color="#009900">float</font> nbSteps <font color="#990000">=</font> <font color="#993399">1000.0</font><font color="#990000">;</font>
+
+	<b><font color="#000000">glBegin</font></b><font color="#990000">(</font>GL_QUAD_STRIP<font color="#990000">);</font>
+	<b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">int</font> i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nbSteps<font color="#990000">;</font> <font color="#990000">++</font>i<font color="#990000">)</font>
+	<font color="#FF0000">{</font>
+		<b><font color="#0000FF">const</font></b> <font color="#009900">float</font> ratio <font color="#990000">=</font> i<font color="#990000">/</font>nbSteps<font color="#990000">;</font>
+		<b><font color="#0000FF">const</font></b> <font color="#009900">float</font> angle <font color="#990000">=</font> <font color="#993399">21.0</font><font color="#990000">*</font>ratio<font color="#990000">;</font>
+		<b><font color="#0000FF">const</font></b> <font color="#009900">float</font> c <font color="#990000">=</font> <b><font color="#000000">cos</font></b><font color="#990000">(</font>angle<font color="#990000">);</font>
+		<b><font color="#0000FF">const</font></b> <font color="#009900">float</font> s <font color="#990000">=</font> <b><font color="#000000">sin</font></b><font color="#990000">(</font>angle<font color="#990000">);</font>
+		<b><font color="#0000FF">const</font></b> <font color="#009900">float</font> r1 <font color="#990000">=</font> <font color="#993399">1.0</font> <font color="#990000">-</font> <font color="#993399">0</font><font color="#990000">.</font>8f<font color="#990000">*</font>ratio<font color="#990000">;</font>
+		<b><font color="#0000FF">const</font></b> <font color="#009900">float</font> r2 <font color="#990000">=</font> <font color="#993399">0</font><font color="#990000">.</font>8f <font color="#990000">-</font> <font color="#993399">0</font><font color="#990000">.</font>8f<font color="#990000">*</font>ratio<font color="#990000">;</font>
+		<b><font color="#0000FF">const</font></b> <font color="#009900">float</font> alt <font color="#990000">=</font> ratio <font color="#990000">-</font> <font color="#993399">0</font><font color="#990000">.</font>5f<font color="#990000">;</font>
+		<b><font color="#0000FF">const</font></b> <font color="#009900">float</font> nor <font color="#990000">=</font> <font color="#993399">0</font><font color="#990000">.</font>5f<font color="#990000">;</font>
+		<b><font color="#0000FF">const</font></b> <font color="#009900">float</font> up <font color="#990000">=</font> <b><font color="#000000">sqrt</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">-</font>nor<font color="#990000">*</font>nor<font color="#990000">);</font>
+		<b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">-</font>ratio<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>2f <font color="#990000">,</font> ratio<font color="#990000">);</font>
+		<b><font color="#000000">glNormal3f</font></b><font color="#990000">(</font>nor<font color="#990000">*</font>c<font color="#990000">,</font> up<font color="#990000">,</font> nor<font color="#990000">*</font>s<font color="#990000">);</font>
+		<b><font color="#000000">glVertex3f</font></b><font color="#990000">(</font>r1<font color="#990000">*</font>c<font color="#990000">,</font> alt<font color="#990000">,</font> r1<font color="#990000">*</font>s<font color="#990000">);</font>
+		<b><font color="#000000">glVertex3f</font></b><font color="#990000">(</font>r2<font color="#990000">*</font>c<font color="#990000">,</font> alt<font color="#990000">+</font><font color="#993399">0</font><font color="#990000">.</font>05f<font color="#990000">,</font> r2<font color="#990000">*</font>s<font color="#990000">);</font>
+	<font color="#FF0000">}</font>
+	<b><font color="#000000">glEnd</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">init</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+	<i><font color="#9A1900">// Light setup</font></i>
+	<b><font color="#000000">glDisable</font></b><font color="#990000">(</font>GL_LIGHT0<font color="#990000">);</font>
+	<b><font color="#000000">glEnable</font></b><font color="#990000">(</font>GL_LIGHT1<font color="#990000">);</font>
+
+	<i><font color="#9A1900">// Light default parameters</font></i>
+	<b><font color="#0000FF">const</font></b> GLfloat light_ambient<font color="#990000">[</font><font color="#993399">4</font><font color="#990000">]</font>  <font color="#990000">=</font> <font color="#FF0000">{</font><font color="#993399">1.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#FF0000">}</font><font color="#990000">;</font>
+	<b><font color="#0000FF">const</font></b> GLfloat light_specular<font color="#990000">[</font><font color="#993399">4</font><font color="#990000">]</font> <font color="#990000">=</font> <font color="#FF0000">{</font><font color="#993399">1.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#FF0000">}</font><font color="#990000">;</font>
+	<b><font color="#0000FF">const</font></b> GLfloat light_diffuse<font color="#990000">[</font><font color="#993399">4</font><font color="#990000">]</font>  <font color="#990000">=</font> <font color="#FF0000">{</font><font color="#993399">1.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#990000">,</font> <font color="#993399">1.0</font><font color="#FF0000">}</font><font color="#990000">;</font>
+
+	<b><font color="#000000">glLightf</font></b><font color="#990000">(</font> GL_LIGHT1<font color="#990000">,</font> GL_SPOT_EXPONENT<font color="#990000">,</font> <font color="#993399">3.0</font><font color="#990000">);</font>
+	<b><font color="#000000">glLightf</font></b><font color="#990000">(</font> GL_LIGHT1<font color="#990000">,</font> GL_SPOT_CUTOFF<font color="#990000">,</font>   <font color="#993399">10.0</font><font color="#990000">);</font>
+	<b><font color="#000000">glLightf</font></b><font color="#990000">(</font> GL_LIGHT1<font color="#990000">,</font> GL_CONSTANT_ATTENUATION<font color="#990000">,</font>  <font color="#993399">0</font><font color="#990000">.</font>1f<font color="#990000">);</font>
+	<b><font color="#000000">glLightf</font></b><font color="#990000">(</font> GL_LIGHT1<font color="#990000">,</font> GL_LINEAR_ATTENUATION<font color="#990000">,</font>    <font color="#993399">0</font><font color="#990000">.</font>3f<font color="#990000">);</font>
+	<b><font color="#000000">glLightf</font></b><font color="#990000">(</font> GL_LIGHT1<font color="#990000">,</font> GL_QUADRATIC_ATTENUATION<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>3f<font color="#990000">);</font>
+	<b><font color="#000000">glLightfv</font></b><font color="#990000">(</font>GL_LIGHT1<font color="#990000">,</font> GL_AMBIENT<font color="#990000">,</font>  light_ambient<font color="#990000">);</font>
+	<b><font color="#000000">glLightfv</font></b><font color="#990000">(</font>GL_LIGHT1<font color="#990000">,</font> GL_SPECULAR<font color="#990000">,</font> light_specular<font color="#990000">);</font>
+	<b><font color="#000000">glLightfv</font></b><font color="#990000">(</font>GL_LIGHT1<font color="#990000">,</font> GL_DIFFUSE<font color="#990000">,</font>  light_diffuse<font color="#990000">);</font>
+
+	<i><font color="#9A1900">// Restore previous viewer state.</font></i>
+	<b><font color="#000000">restoreStateFromFile</font></b><font color="#990000">();</font>
+
+	<i><font color="#9A1900">// Opens help window</font></i>
+	<b><font color="#000000">help</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+QString Viewer<font color="#990000">::</font><b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b>
+<font color="#FF0000">{</font>
+	QString <b><font color="#000000">text</font></b><font color="#990000">(</font><font color="#FF0000">"&lt;h2&gt;C a m e r a L i g h t&lt;/h2&gt;"</font><font color="#990000">);</font>
+	text <font color="#990000">+=</font> <font color="#FF0000">"See the &lt;b&gt;Mouse&lt;/b&gt; tab and the documentation web pages for details.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+	text <font color="#990000">+=</font> <font color="#FF0000">"Press &lt;b&gt;Escape&lt;/b&gt; to exit the viewer."</font><font color="#990000">;</font>
+	<b><font color="#0000FF">return</font></b> text<font color="#990000">;</font>
+<font color="#FF0000">}</font>
+</tt></pre>
+
+
+<h2>main.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"cameraLight.h"</font>
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;qapplication.h&gt;</font>
+
+<font color="#009900">int</font> <b><font color="#000000">main</font></b><font color="#990000">(</font><font color="#009900">int</font> argc<font color="#990000">,</font> <font color="#009900">char</font><font color="#990000">**</font> argv<font color="#990000">)</font>
+<font color="#FF0000">{</font>
+  <i><font color="#9A1900">// Read command lines arguments.</font></i>
+  QApplication <b><font color="#000000">application</font></b><font color="#990000">(</font>argc<font color="#990000">,</font>argv<font color="#990000">);</font>
+
+  <i><font color="#9A1900">// Instantiate the viewer.</font></i>
+  Viewer viewer<font color="#990000">;</font>
+
+<b><font color="#000080">#if</font></b> QT_VERSION <font color="#990000">&lt;</font> <font color="#993399">0x040000</font>
+  <i><font color="#9A1900">// Set the viewer as the application main widget.</font></i>
+  application<font color="#990000">.</font><b><font color="#000000">setMainWidget</font></b><font color="#990000">(&amp;</font>viewer<font color="#990000">);</font>
+<b><font color="#000080">#else</font></b>
+  viewer<font color="#990000">.</font><b><font color="#000000">setWindowTitle</font></b><font color="#990000">(</font><font color="#FF0000">"cameraLight"</font><font color="#990000">);</font>
+<b><font color="#000080">#endif</font></b>
+
+  <i><font color="#9A1900">// Make the viewer window visible on screen.</font></i>
+  viewer<font color="#990000">.</font><b><font color="#000000">show</font></b><font color="#990000">();</font>
+
+  <i><font color="#9A1900">// Run main loop.</font></i>
+  <b><font color="#0000FF">return</font></b> application<font color="#990000">.</font><b><font color="#000000">exec</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+</tt></pre>
+
+
+
+<p>
+  Back to the <a href="index.html">examples main page</a>.
+</p>
+
+<p>
+  <a href="http://validator.w3.org/check/referer"><img src="../images/xhtml.png" alt="Valid XHTML 1.0!" height="31" width="88"/></a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer"><img src="../images/css.png" width="88" height="31" alt="Valid CSS!"/></a>
+<i>Last modified on Tuesday, September 30, 2008.</i>
+</p>
+
+</body>
+</html>

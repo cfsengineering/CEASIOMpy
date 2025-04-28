@@ -1,0 +1,19 @@
+/* CGNS Mid-Level Library manual - style sheet */
+
+/* Header colors */
+h1,h2,h3,h4,h5,h6 {color: #2D0091}
+
+/* Current page and parent document in navigation headers */
+span.nav {color: #000066}
+
+/* Colors for input and output variables */
+span.in {color: #3333ff}
+span.out {color: #990000}
+
+/* Fonts, etc., for syntax tables */
+/* Netscape 4 doesn't seem to recognize class attribute with <td>
+td.syntax {font-family: monospace;
+           font-weight: bold;} */
+
+/* Footer */
+div.footer {font-style: italic}

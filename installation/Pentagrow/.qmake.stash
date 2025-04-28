@@ -1,0 +1,28 @@
+QMAKE_CXX.INCDIRS = \
+    /soft/intel/fce/15.0.1/composer_xe_2015.1.133/mkl/include \
+    /opt/rh/gcc-toolset-10/root/usr/include/c++/10 \
+    /opt/rh/gcc-toolset-10/root/usr/include/c++/10/x86_64-redhat-linux \
+    /opt/rh/gcc-toolset-10/root/usr/include/c++/10/backward \
+    /opt/rh/gcc-toolset-10/root/usr/lib/gcc/x86_64-redhat-linux/10/include \
+    /usr/local/include \
+    /opt/rh/gcc-toolset-10/root/usr/include \
+    /usr/include
+QMAKE_CXX.LIBDIRS = \
+    /opt/rh/gcc-toolset-10/root/usr/lib/gcc/x86_64-redhat-linux/10 \
+    /opt/rh/gcc-toolset-10/root/usr/lib64 \
+    /lib64 \
+    /usr/lib64 \
+    /soft/intel/fce/15.0.1/composer_xe_2015.1.133/compiler/lib/intel64 \
+    /soft/intel/fce/15.0.1/composer_xe_2015.1.133/mkl/lib/intel64 \
+    /opt/rh/gcc-toolset-10/root/usr/lib \
+    /lib \
+    /usr/lib
+QMAKE_CXX.QT_COMPILER_STDCXX = 201402L
+QMAKE_CXX.QMAKE_GCC_MAJOR_VERSION = 10
+QMAKE_CXX.QMAKE_GCC_MINOR_VERSION = 3
+QMAKE_CXX.QMAKE_GCC_PATCH_VERSION = 1
+QMAKE_CXX.COMPILER_MACROS = \
+    QT_COMPILER_STDCXX \
+    QMAKE_GCC_MAJOR_VERSION \
+    QMAKE_GCC_MINOR_VERSION \
+    QMAKE_GCC_PATCH_VERSION

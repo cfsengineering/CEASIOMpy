@@ -1,0 +1,24 @@
+
+InputFormat = msh
+InitialHeight = 1e-5
+MaxLayerThickness = 0.5
+RelativeHeight = 3.0
+FeatureAngle = 35
+HeightIterations = 10
+NormalIterations = 50
+MaxCritIterations = 64
+LaplaceIterations = 4
+NLayers = 16
+ExpansionFactor = 1.2
+FarfieldRadius = 70.0
+HolePosition = 1.0 0.0 0.0
+
+NearfieldEdgeLength = 0.5
+NearfieldSize = 3.5
+NearfieldCenter = 10.0 0.0 0.0
+NearfieldSemiAxes = 12.0 8.0 4.0
+
+#TetgenOptions = -pq1.2
+
+
+

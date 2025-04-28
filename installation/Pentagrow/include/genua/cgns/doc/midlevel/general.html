@@ -1,0 +1,352 @@
+<!-- CGNS Mid-Level Library - General Remarks -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="midlevel.css" rel="stylesheet" type="text/css">
+<title> CGNS Mid-Level Library - General Remarks </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="index.html"><span class=nav><b>Mid-Level&nbsp;Library</b></span></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<span class=nav><b>General&nbsp;Remarks</b></span>)
+(<a href="fileops.html"><b>File&nbsp;Operations</b></a>)
+(<a href="navigating.html"><b>Navigating&nbsp;a&nbsp;CGNS&nbsp;File</b></a>)
+(<a href="error.html"><b>Error&nbsp;Handling</b></a>)
+(<a href="structural.html"><b>Structural&nbsp;Nodes</b></a>)
+(<a href="descriptor.html"><b>Descriptors</b></a>)
+(<a href="physical.html"><b>Physical&nbsp;Data</b></a>)
+(<a href="location.html"><b>Location&nbsp;and&nbsp;Position</b></a>)
+(<a href="auxiliary.html"><b>Auxiliary&nbsp;Data</b></a>)
+(<a href="grid.html"><b>Grid&nbsp;Specification</b></a>)
+(<a href="solution.html"><b>Solution&nbsp;Data</b></a>)
+(<a href="connectivity.html"><b>Grid&nbsp;Connectivity</b></a>)
+(<a href="bc.html"><b>Boundary&nbsp;Conditions</b></a>)
+(<a href="equation.html"><b>Equation&nbsp;Specification</b></a>)
+(<a href="families.html"><b>Families</b></a>)
+(<a href="timedep.html"><b>Time-Dependent&nbsp;Data</b></a>)
+(<a href="links.html"><b>Links</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>General Remarks</h2>
+
+<ul>
+<li> <a href="#language">Language</a>
+<li> <a href="#character">Character Strings</a>
+<li> <a href="#error">Error Status</a>
+<li> <a href="#typedefs">Typedefs</a>
+<li> <a href="#typedefs_char">Character Names for Typedefs</a>
+<li> <a href="#acquiring">Acquiring the Software and Documentation</a>
+<li> <a href="#organization">Organization of This Manual</a>
+</ul>
+
+<a name="language"></a>
+<h3>Language</h3>
+
+<p>
+The CGNS Mid-Level Library is written in C, but each function has a
+Fortran counterpart.
+All function names start with "<tt>cg_</tt>".
+The Fortran functions have the same name as their C counterpart with the
+addition of the suffix "<tt>_f</tt>".
+
+<a name="character"></a>
+<h3>Character Strings</h3>
+
+<p>
+All data structure names and labels in CGNS are limited to 32
+characters.
+When reading a file, it is advised to pre-allocate the
+character string variables to 32 characters in Fortran, and 33
+in C (to include the string terminator).
+Other character strings, such as the CGNS file name or
+descriptor text, are unlimited in length.
+The space for unlimited length character strings will be
+created by the Mid-Level Library; it is then the responsibility
+of the application to release this space by a call to
+<a href="auxiliary.html#free"><tt>cg_free</tt></a>.
+
+<a name="error"></a>
+<h3>Error Status</h3>
+
+<p>
+All C functions return an integer value representing the error
+status.
+All Fortran functions have an additional parameter, <tt>ier</tt>,
+which contains the value of the error status.
+An error status different from zero implies that an error occured.
+The error message can be printed using the <a href="error.html">error
+handling functions</a> of the CGNS library.
+The error codes are coded in the C and Fortran include files
+<i>cgnslib.h</i> and <i>cgnslib_f.h</i>.
+
+<a name="typedefs"></a>
+<h3>Typedefs</h3>
+
+<p>
+Several types of variables are defined using typedefs in the
+<i>cgnslib.h</i> file.
+These are intended to facilitate the implementation of
+CGNS in C.
+These variable types are defined as an enumeration of key
+words admissible for any variable of these types.
+The file <i>cgnslib.h</i> must be included in any C application
+programs which use these data types.
+
+<p>
+In Fortran, the same key words are defined as integer parameters in the
+include file <i>cgnslib_f.h</i>.
+Such variables should be declared as <tt>integer</tt> in Fortran
+applications.
+The file <i>cgnslib_f.h</i> must be included in any
+Fortran application using these key words.
+
+<p>
+The list of supported values (key words) for each of these variable
+types (typedefs) are:
+
+<br><br>
+<table cellspacing=0 cellpadding=0 border=0>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>ZoneType_t</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td><tt>Structured, Unstructured</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>ElementType_t</tt><td>
+   <td><tt>NODE, BAR_2, BAR_3, TRI_3, TRI_6, QUAD_4,
+           QUAD_8, QUAD_9, TETRA_4, TETRA_10, PYRA_5,
+           PYRA_14, PENTA_6, PENTA_15, PENTA_18, HEXA_8,
+           HEXA_20, HEXA_27, MIXED, NGON_n</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>DataType_t</tt><td>
+   <td><tt>Integer, RealSingle, RealDouble, Character</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>DataClass_t</tt><td>
+   <td><tt>Dimensional, NormalizedByDimensional,
+           NormalizedByUnknownDimensional, NondimensionalParameter,
+           DimensionlessConstant</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>MassUnits_t</tt><td>
+   <td><tt>Null, UserDefined, Kilogram, Gram, Slug, PoundMass</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>LengthUnits_t</tt><td>
+   <td><tt>Null, UserDefined, Meter, Centimeter, Millimeter, Foot,
+           Inch</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>TimeUnits_t</tt><td>
+   <td><tt>Null, UserDefined, Second</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>TemperatureUnits_t</tt><td>
+   <td><tt>Null, UserDefined, Kelvin, Celsius, Rankine,
+           Fahrenheit</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>AngleUnits_t</tt><td>
+   <td><tt>Null, UserDefined, Degree, Radian</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>ElectricCurrentUnits_t</tt><td>
+   <td><tt>Null, UserDefined, Ampere, Abampere, Statampere, Edison,
+           auCurrent</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>SubstanceAmountUnits_t</tt><td>
+   <td><tt>Null, UserDefined, Mole, Entities, StandardCubicFoot,
+           StandardCubicMeter</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>LuminousIntensityUnits_t</tt><td>
+   <td><tt>Null, UserDefined, Candela, Candle, Carcel, Hefner, Violle</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>GoverningEquationsType_t</tt><td>
+   <td><tt>Null, UserDefined, FullPotential, Euler, NSLaminar,
+           NSTurbulent, NSLaminarIncompressible,
+           NSTurbulentIncompressible</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>ModelType_t</tt><td>
+   <td><tt>Null, UserDefined, Ideal, VanderWaals, Constant,
+           PowerLaw, SutherlandLaw, ConstantPrandtl, EddyViscosity,
+           ReynoldsStress, ReynoldsStressAlgebraic,
+           Algebraic_BaldwinLomax, Algebraic_CebeciSmith,
+           HalfEquation_JohnsonKing, OneEquation_BaldwinBarth,
+           OneEquation_SpalartAllmaras, TwoEquation_JonesLaunder,
+           TwoEquation_MenterSST, TwoEquation_Wilcox,
+	   CaloricallyPerfect, ThermallyPerfect,
+	   ConstantDensity, RedlichKwong,
+	   Frozen, ThermalEquilib, ThermalNonequilib,
+           ChemicalEquilibCurveFit, ChemicalEquilibMinimization,
+           ChemicalNonequilib, EMElectricField, EMMagneticField,
+           EMConductivity, Voltage, Interpolated,
+           Equilibrium_LinRessler, Chemistry_LinRessler</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>GridLocation_t</tt><td>
+   <td><tt>Vertex, CellCenter, FaceCenter, IFaceCenter, JFaceCenter,
+           KFaceCenter, EdgeCenter</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>GridConnectivityType_t</tt><td>
+   <td><tt>Overset, Abutting, Abutting1to1</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>PointSetType_t</tt><td>
+   <td><tt>PointList, PointRange, PointListDonor, PointRangeDonor,
+           ElementList, ElementRange, CellListDonor</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>BCType_t</tt><td>
+   <td><tt>Null, UserDefined, BCAxisymmetricWedge,
+           BCDegenerateLine, BCExtrapolate,
+           BCDegeneratePoint, BCDirichlet, BCFarfield, BCNeumann,
+           BCGeneral, BCInflow, BCOutflow, BCInflowSubsonic,
+           BCOutflowSubsonic, BCInflowSupersonic,
+           BCOutflowSupersonic, BCSymmetryPlane, BCTunnelInflow,
+           BCSymmetryPolar, BCTunnelOutflow, BCWallViscous,
+           BCWall, BCWallViscousHeatFlux, BCWallInviscid,
+           BCWallViscousIsothermal, FamilySpecified</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>BCDataType_t</tt><td>
+   <td><tt>Dirichlet, Neumann</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>RigidGridMotionType_t</tt><td>
+   <td><tt>Null, UserDefined, ConstantRate, VariableRate</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>ArbitraryGridMotionType_t</tt><td>
+   <td><tt>Null, UserDefined, NonDeformingGrid, DeformingGrid</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>SimulationType_t</tt><td>
+   <td><tt>TimeAccurate, NonTimeAccurate</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>WallFunctionType_t</tt><td>
+   <td><tt>Generic</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>AreaType_t</tt><td>
+   <td><tt>BleedArea, CaptureArea</tt>
+<tr valign=baseline><td>&nbsp;
+<tr valign=baseline><td>
+   <td><tt>AverageInterfaceType_t</tt><td>
+   <td><tt>AverageAll, AverageCircumferential, AverageRadial, AverageI,
+	   AverageJ, AverageK</tt>
+</table>
+
+<br>
+Note that these key words need to be written exactly as they
+appear here, including the use of upper and lower case,
+to be recognized by the library.
+
+<a name="typedefs_char"></a>
+<h3>Character Names For Typedefs</h3>
+
+<p>
+The CGNS library defines character arrays which map the typedefs above
+to character strings.
+These are global arrays dimensioned to the size of each list of
+typedefs.
+To retrieve a character string representation of a typedef, use the
+typedef value as an index to the appropiate character array.
+For example, to retrieve the string "<tt>Meter</tt>"
+for the <tt>LengthUnits_t Meter</tt> typedef, use
+<tt>LengthUnitsName[Meter]</tt>.
+Functions are available to retrieve these names without the need for
+direct global data access.
+These functions also do bounds checking on the input, and if out of
+range, will return the string "<tt>&lt;invalid&gt;</tt>".
+An additional benefit is that these will work from within a Windows DLL,
+and are thus the recommended access technique.
+The routines have the same name as the global data arrays, but with a
+"<tt>cg_</tt>" prepended.
+For the example above, use "<tt>cg_LengthUnitsName(Meter)</tt>".
+
+<a name="acquiring"></a>
+<h3>Acquiring the Software and Documentation</h3>
+
+<p>
+The CGNS Mid-Level Library may be downloaded from
+<a href="http://sourceforge.net/projects/cgns">SourceForge</a>
+<img src="../external.png" alt="external link">.
+This manual, as well as the other CGNS documentation, is available in
+both HTML and PDF format from the <a href="../index.html">CGNS
+documentation web site</a>.
+
+<a name="organization"></a>
+<h3>Organization of This Manual</h3>
+
+<p>
+The sections that follow describe the Mid-Level Library functions
+in detail.
+The first three sections cover <a href="fileops.html">some basic
+file operations</a> (i.e., opening and closing a CGNS file, and
+some configuration options), <a href="navigating.html">accessing a
+specific node in a CGNS database</a>, and <a href="error.html">error
+handling</a>.
+The remaining sections describe the functions used to read, write, and
+modify nodes and data in a CGNS database.
+These sections basically follow the organization used in the "Detailed
+CGNS Node Descriptions" section of both the
+<a href="../filemap/index.html"><i>SIDS-to-ADF</i></a> and
+<a href="../filemap_hdf/index.html"><i>SIDS-to-HDF</i></a> file mapping
+manuals.
+
+<p>
+At the start of each sub-section is a <i>Node</i> line, listing the
+the applicable CGNS node label, with links to that node's description
+in the <a href="../sids/index.html">SIDS</a> and
+<a href="../filemap/index.html">SIDS-to-ADF File Mapping</a> manuals.
+
+<p>
+Next is a table illustrating the syntax for the Mid-Level Library
+functions.
+The C functions are shown in the top half of the table, followed by the
+corresponding Fortran routines in the bottom half of the table.
+Input variables are shown in an
+<span class=in><b><tt>upright blue</tt></b></span> font, and
+output variables are shown in a
+<span class=out><b><tt><i>slanted red</i></tt></b></span> font.
+For each function, the right-hand column lists the modes (read, write,
+and/or modify) applicable to that function.
+
+<p>
+The input and output variables are then listed and defined.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 30 Jan 2007
+
+</body>
+</html>

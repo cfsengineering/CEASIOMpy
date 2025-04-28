@@ -1,0 +1,69 @@
+<!-- A User's Guide to CGNS - longdesc for CGNS layout for simple
+     Cartesian structured grid -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="../user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - CGNS layout for simple Cartesian structured grid </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<p>
+This diagram illustrates the hierarchical structure of a typical CGNS
+file for a structured grid.
+
+<p>
+Just below the root node of the ADF file are the following two nodes.
+<ul>
+<li> <tt>CGNSLibraryVersion_t</tt>, with the data "version number".
+<li> <tt>CGNSBase_t</tt>, with the data "<tt>CellDimension</tt> &amp;
+     <tt>PhysicalDimension</tt>".
+</ul>
+
+<p>
+At the next level, below the <tt>CGNSBase_t</tt> node, are the following
+nodes.
+<ul>
+<li> <tt>ConvergenceHistory_t</tt>, with the data "number of iterations".
+     Below the <tt>ConvergenceHistory_t</tt> node are multiple
+     <tt>DataArray_t</tt> child nodes with the data "info".
+<li> Multiple <tt>Zone_t</tt> nodes, with the data "<tt>VertexSize</tt>,
+     <tt>CellSize</tt>, &amp; <tt>VertexSizeBoundary</tt>".
+     Below a <tt>Zone_t</tt> node are several child nodes, described
+     later.
+<li> <tt>DataClass_t</tt>, with the data "type".
+<li> <tt>ReferenceState_t</tt>.
+     Below the <tt>ReferenceState_t</tt> node are multiple
+     <tt>DataArray_t</tt> child nodes with the data "ref info".
+</ul>
+
+<p>
+As noted, below a <tt>Zone_t</tt> node are several child nodes.
+<ul>
+<li> <tt>GridCoordinates_t</tt>.
+     Below the <tt>GridCoordinates_t</tt> node are multiple
+     <tt>DataArray_t</tt> child nodes with the data "coords".
+<li> <tt>ZoneType_t</tt>, with the data "type".
+<li> <tt>FlowSolution_t</tt>.
+     Below the <tt>FlowSolution_t</tt> node are a <tt>GridLocation_t</tt>
+     child node with the data "location", a <tt>Rind_t</tt> child node
+     with the data "rind info", and multiple <tt>DataArray_t</tt> child
+     nodes with the data "solution".
+<li> <tt>ZoneBC_t</tt>.
+<li> <tt>ZoneGridConnectivity_t</tt>.
+</ul>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 3 Sept 2002
+
+</body>
+</html>

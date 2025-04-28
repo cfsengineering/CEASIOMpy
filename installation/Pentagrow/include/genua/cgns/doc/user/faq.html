@@ -1,0 +1,159 @@
+<!-- A User's Guide to CGNS - Frequently Asked Questions -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - Frequently Asked Questions</title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="index.html"><span class=nav><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></span></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../midlevel/index.html"><b>Mid-Level&nbsp;Library</b></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="intro.html"><b>Introduction</b></a>)
+(<a href="started.html"><b>Getting&nbsp;Started</b></a>)
+(<a href="additional.html"><b>Additional&nbsp;Information</b></a>)
+(<a href="trouble.html"><b>Troubleshooting</b></a>)
+(<span class=nav><b>Frequently&nbsp;Asked&nbsp;Questions</b></span>)
+(<a href="examples.html"><b>Example&nbsp;Computer&nbsp;Codes</b></a>)
+(<a href="sids.html"><b>Overview&nbsp;of&nbsp;the&nbsp;SIDS</b></a>)
+(<a href="plot3d.html"><b>Guideline&nbsp;for&nbsp;PLOT3D&nbsp;Variables</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Frequently Asked Questions</h2>
+
+Q:  Does CGNS support solution array names that are not listed in the SIDS?
+<br><br>
+A:  You can use any data-name that you want for solution arrays.  However,
+if you create a new name not listed in the SIDS, it may not be understood
+by other applications reading your file.
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<br>
+
+Q:  What is a <tt>Family</tt> in CGNS?
+<br><br>
+A:  The families are used to link the mesh to the geometry.  The data
+structure <tt>Family_t</tt> is optional and can be used to define the geometry
+of boundary patches by referencing CAD entities.  In turn, mesh
+patches can reference family, so we get:  mesh -&gt; family -&gt; geometry.
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<br>
+
+Q:  What are <tt>DiscreteData_t</tt> and <tt>IntegralData_t</tt> used for?
+<br><br>
+A:  <tt>DiscreteData_t</tt> can be used to store field data that is not
+typically considered part of the flow solution <tt>FlowSolution_t</tt>.
+<tt>IntegralData_t</tt> can be used to store generic global or integral
+data (a single integer or floating point number is allowed in each
+<tt>DataArray_t</tt> node under <tt>IntegralData_t</tt>).
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<br>
+
+Q:  What are some good programming practices that will help me avoid
+problems when implementing CGNS in my code?
+<br><br>
+A:  The usual good programming standards apply:  
+use plenty of comments, use logical indentation to make the code more
+readable, etc.  In addition, the API returns an error code from
+each of its calls; it is a good idea to check this regularly and
+gracefully exit the program with an error message when it is not
+zero.  In FORTRAN, you can use:
+
+<pre>
+   if (ier .ne. 0) call cg_error_exit_f
+</pre>
+
+<hr size=1 noshade width=60% align=left>
+<br>
+
+Q:  How can I look at what is in a CGNS file?
+<br><br>
+A:  The utility <a href="../cgnstools/index.html#ADFviewer">ADFviewer</a>
+is the best way to look at a CGNS file.
+This utility allows you to access any node in the file using a
+Windows-like collapsible node tree.  Nodes and data may be added,
+deleted, and modified.
+It also has translator capabilities and a crude built-in compliance checker.
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<br>
+
+Q:  How can I tell if I have created a truly SIDS-compliant CGNS file?
+<br><br>
+A:  It is currently very difficult to <em>guarantee</em> that a user has
+created a SIDS-compliant CGNS file, that others can read and understand.
+But because the API (mid-level-library) has many checks for
+non-compliance, it is much more difficult for you to make a mistake when
+using it than if you utilize ADF (core-level) calls.
+Also, as mentioned above, the
+<a href="../cgnstools/index.html#ADFviewer">adfviewer utility</a> has a
+crude built-in compliance checker.
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<br>
+
+Q:  How do I write data sets associated with boundary conditions?
+<br><br>
+A:  Writing data sets under boundary conditions is following the
+"fully SIDS-compliant BC implementation" rather than the "lowest
+level BC implementation".
+(See the figure showing the <a href="sids.html#FIGbc">hierarchical
+structure of <tt>ZoneBC_t</tt></a> in the <a href="sids.html">Overview
+of the SIDS</a> section.)
+In order to do this using the <a href="../midlevel/index.html">Mid-Level
+Library</a>, take the following steps:
+<ol>
+<li> Use <tt>cg_boco_write</tt> to create each <tt>BC_t</tt> node and
+     its associated <tt>BCType</tt> and boundary condition region.
+     (This also creates the top level <tt>ZoneBC_t</tt> node if it
+     does not already exist.  Note that only one <tt>ZoneBC_t</tt>
+     node may exist under any given <tt>Zone_t</tt> node.)
+     This is the only step necessary to achieve the "lowest level
+     BC implementation."
+<li> Use <tt>cg_dataset_write</tt> to create each
+     <tt>BCDataSet_t</tt> node and its associated
+     <tt>BCTypeSimple</tt> under the desired <tt>BC_t</tt> node.
+<li> Use <tt>cg_bcdata_write</tt> to create each
+     <tt>BCData_t</tt> node (of either type <tt>Dirichlet</tt>
+     or <tt>Neumann</tt>) under the desired <tt>BCDataSet_t</tt>
+     node.
+<li> Use <tt>cg_goto</tt> to "go to" the appropriate
+     <tt>BCData_t</tt> node.
+<li> Use <tt>cg_array_write</tt> to write the desired data.
+</ol>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 7 Mar 2008
+
+</body>
+</html>

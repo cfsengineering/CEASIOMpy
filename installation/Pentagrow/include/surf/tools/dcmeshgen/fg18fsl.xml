@@ -1,0 +1,346 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SurfaceCollection>
+  <SkinSurf akima="false" interpolation="local" name="Fuselage">
+    <SymFrame name="S0">
+      <InterpolationPoints count="7">
+<![CDATA[ 0 3.43002e-18 -0.1875 
+ 0 0.0140041 -0.183146 
+ 0 0.0242559 -0.17125 
+ 0 0.0280082 -0.155 
+ 0 0.0242559 -0.13875 
+ 0 0.0140041 -0.126854 
+ 0 0 -0.1225 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="S205">
+      <InterpolationPoints count="7">
+<![CDATA[ 0.205 1.1924e-17 -0.2615 
+ 0.205 0.0542083 -0.243882 
+ 0.205 0.0891615 -0.19575 
+ 0.205 0.0966737 -0.13 
+ 0.205 0.0791699 -0.06425 
+ 0.205 0.0440356 -0.0161177 
+ 0.205 0 0.0015 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="S490">
+      <InterpolationPoints count="7">
+<![CDATA[ 0.49 1.89069e-17 -0.3335 
+ 0.49 0.0867541 -0.301413 
+ 0.49 0.141972 -0.21375 
+ 0.49 0.153098 -0.094 
+ 0.49 0.124847 0.02575 
+ 0.49 0.0692639 0.113413 
+ 0.49 0 0.1455 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="S805">
+      <InterpolationPoints count="7">
+<![CDATA[ 0.805 2.55895e-17 -0.3816 
+ 0.805 0.116333 -0.337924 
+ 0.805 0.191345 -0.2186 
+ 0.805 0.207466 -0.0556 
+ 0.805 0.169902 0.1074 
+ 0.805 0.0945022 0.226724 
+ 0.805 0 0.2704 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="S1155">
+      <InterpolationPoints count="7">
+<![CDATA[ 1.16 3.10337e-17 -0.402 
+ 1.16 0.139788 -0.35042 
+ 1.16 0.231061 -0.2095 
+ 1.16 0.25189 -0.017 
+ 1.16 0.207175 0.1755 
+ 1.16 0.115539 0.31642 
+ 1.16 0 0.368 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="S1635">
+      <InterpolationPoints count="7">
+<![CDATA[ 1.63 3.29708e-17 -0.3882 
+ 1.63 0.154139 -0.332935 
+ 1.63 0.249612 -0.18195 
+ 1.63 0.266248 0.0243 
+ 1.63 0.215324 0.23055 
+ 1.63 0.118875 0.381535 
+ 1.63 0 0.4368 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="S1990">
+      <InterpolationPoints count="7">
+<![CDATA[ 1.99 3.68841e-17 -0.3568 
+ 1.99 0.16768 -0.303076 
+ 1.99 0.275799 -0.1563 
+ 1.99 0.299036 0.0442 
+ 1.99 0.244892 0.2447 
+ 1.99 0.136213 0.391476 
+ 1.99 0 0.4452 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="S2390">
+      <InterpolationPoints count="5">
+<![CDATA[ 2.39 6.93238e-17 -0.3091 
+ 2.39 0.18321 -0.244889 
+ 2.39 0.304637 0.0237369 
+ 2.39 0.225169 0.273888 
+ 2.39 -7.5727e-17 0.4189 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="S2920">
+      <InterpolationPoints count="7">
+<![CDATA[ 2.92 2.90034e-17 -0.2403 
+ 2.92 0.119448 -0.201112 
+ 2.92 0.206125 -0.09405 
+ 2.92 0.236819 0.0522 
+ 2.92 0.204074 0.19845 
+ 2.92 0.117397 0.305512 
+ 2.92 0 0.3447 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="S3110">
+      <InterpolationPoints count="7">
+<![CDATA[ 3.11 2.69511e-17 -0.2179 
+ 3.11 0.112958 -0.18233 
+ 3.11 0.193423 -0.08515 
+ 3.11 0.219974 0.0476 
+ 3.11 0.18771 0.18035 
+ 3.11 0.107238 0.27753 
+ 3.11 0 0.3131 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="S3535">
+      <InterpolationPoints count="7">
+<![CDATA[ 3.54 2.35879e-17 -0.176 
+ 3.54 0.0997395 -0.147932 
+ 3.54 0.170103 -0.07125 
+ 3.54 0.192456 0.0335 
+ 3.54 0.16344 0.13825 
+ 3.54 0.0930633 0.214932 
+ 3.54 0 0.243 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="Intercace3786">
+      <InterpolationPoints count="7">
+<![CDATA[ 3.78 1.67693e-17 -0.1589 
+ 3.78 0.0914967 -0.133404 
+ 3.78 0.158026 -0.0658762 
+ 3.78 0.181054 0.0274537 
+ 3.78 0.15566 0.121068 
+ 3.78 0.0891884 0.188972 
+ 3.78 -9.96645e-18 0.2131 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="T4200">
+      <InterpolationPoints count="7">
+<![CDATA[ 4.2 -7.51299e-18 -0.1457 
+ 4.2 0.0797103 -0.12303 
+ 4.2 0.137453 -0.0633973 
+ 4.2 0.160047 0.0170872 
+ 4.2 0.139144 0.0975176 
+ 4.2 0.0795486 0.154248 
+ 4.2 1.60076e-17 0.1743 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="T5500">
+      <InterpolationPoints count="7">
+<![CDATA[ 5.5 -3.75027e-18 -0.09427 
+ 5.5 0.0499067 -0.0811946 
+ 5.5 0.0868684 -0.0449281 
+ 5.5 0.100529 0.00518648 
+ 5.5 0.0872051 0.0556427 
+ 5.5 0.0505023 0.092981 
+ 5.5 3.03736e-18 0.10673 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="T5728_A">
+      <InterpolationPoints count="7">
+<![CDATA[ 5.73 -7.48073e-18 -0.08361 
+ 5.73 0.0462343 -0.0718975 
+ 5.73 0.0807401 -0.0393501 
+ 5.73 0.0935 0.00583116 
+ 5.73 0.0808372 0.0513013 
+ 5.73 0.0465692 0.0844681 
+ 5.73 -3.71524e-18 0.09639 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="T6180">
+      <InterpolationPoints count="7">
+<![CDATA[ 6.18 0 -0.06014 
+ 6.18 0.0395 -0.0510967 
+ 6.18 0.068416 -0.02639 
+ 6.18 0.079 0.00736 
+ 6.18 0.068416 0.04111 
+ 6.18 0.0395 0.0658167 
+ 6.18 9.67474e-18 0.07486 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="T6480">
+      <InterpolationPoints count="7">
+<![CDATA[ 6.48 0 -0.04122 
+ 6.48 0.0295 -0.0347892 
+ 6.48 0.0510955 -0.01722 
+ 6.48 0.059 0.00678 
+ 6.48 0.0510955 0.03078 
+ 6.48 0.0295 0.0483492 
+ 6.48 7.22543e-18 0.05478 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="Frame965">
+      <InterpolationPoints count="7">
+<![CDATA[ 6.58 3.1226e-18 -0.03282 
+ 6.58 0.0191255 -0.0286003 
+ 6.58 0.0355451 -0.0153949 
+ 6.58 0.0425 0.00498008 
+ 6.58 0.035546 0.0253556 
+ 6.58 0.0191259 0.0385611 
+ 6.58 2.78375e-18 0.04278 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="END_2">
+      <InterpolationPoints count="7">
+<![CDATA[ 6.68 0 -0.02027 
+ 6.68 0.01025 -0.0169943 
+ 6.68 0.0177535 -0.008045 
+ 6.68 0.0205 0.00418 
+ 6.68 0.0177535 0.016405 
+ 6.68 0.01025 0.0253543 
+ 6.68 2.51053e-18 0.02863 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="END">
+      <InterpolationPoints count="7">
+<![CDATA[ 6.815 0 0.002 
+ 6.815 0.00075 0.00240193 
+ 6.815 0.00129904 0.0035 
+ 6.815 0.0015 0.005 
+ 6.815 0.00129904 0.0065 
+ 6.815 0.00075 0.00759808 
+ 6.815 1.83698e-19 0.008 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <MeshCriterion defaults="false" maxlen="0.1" maxphi="30" maxstretch="5" minlen="0.002" nvmax="50000" xcoarse="false"/>
+    <Cap height="0" shape="LongCap" side="south"/>
+    <Cap height="0" shape="LongCap" side="north"/>
+  </SkinSurf>
+</SurfaceCollection>

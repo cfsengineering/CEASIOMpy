@@ -1,0 +1,666 @@
+<!-- CGNS Mid-Level Library - Boundary Conditions -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="midlevel.css" rel="stylesheet" type="text/css">
+<title> CGNS Mid-Level Library - Boundary Conditions </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="index.html"><span class=nav><b>Mid-Level&nbsp;Library</b></span></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="general.html"><b>General&nbsp;Remarks</b></a>)
+(<a href="fileops.html"><b>File&nbsp;Operations</b></a>)
+(<a href="navigating.html"><b>Navigating&nbsp;a&nbsp;CGNS&nbsp;File</b></a>)
+(<a href="error.html"><b>Error&nbsp;Handling</b></a>)
+(<a href="structural.html"><b>Structural&nbsp;Nodes</b></a>)
+(<a href="descriptor.html"><b>Descriptors</b></a>)
+(<a href="physical.html"><b>Physical&nbsp;Data</b></a>)
+(<a href="location.html"><b>Location&nbsp;and&nbsp;Position</b></a>)
+(<a href="auxiliary.html"><b>Auxiliary&nbsp;Data</b></a>)
+(<a href="grid.html"><b>Grid&nbsp;Specification</b></a>)
+(<a href="solution.html"><b>Solution&nbsp;Data</b></a>)
+(<a href="connectivity.html"><b>Grid&nbsp;Connectivity</b></a>)
+(<span class=nav><b>Boundary&nbsp;Conditions</b></span>)
+(<a href="equation.html"><b>Equation&nbsp;Specification</b></a>)
+(<a href="families.html"><b>Families</b></a>)
+(<a href="timedep.html"><b>Time-Dependent&nbsp;Data</b></a>)
+(<a href="links.html"><b>Links</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Boundary Conditions</h2>
+
+<ul>
+<li> <a href="#bc">Boundary Condition Type and Location</a>
+     <ul>
+     <li> <tt><b>cg_boco_write</b></tt> - Write boundary condition type and location
+     <li> <tt><b>cg_boco_normal_write</b></tt> - Write boundary condition normals
+     <li> <tt><b>cg_nbocos</b></tt> - Get number of boundary condition in zone
+     <li> <tt><b>cg_boco_info</b></tt> - Get boundary condition info
+     <li> <tt><b>cg_boco_read</b></tt> - Read boundary condition location and normals
+     </ul>
+<li> <a href="#bcdataset">Boundary Condition Datasets</a>
+     <ul>
+     <li> <tt><b>cg_dataset_write</b></tt> - Write boundary condition dataset info
+     <li> <tt><b>cg_dataset_read</b></tt> - Read boundary condition dataset info
+     <li> <tt><b>cg_bcdataset_write</b></tt> - Write family boundary condition dataset info
+     <li> <tt><b>cg_bcdataset_info</b></tt> - Get number of family boundary condition datasets
+     <li> <tt><b>cg_bcdataset_read</b></tt> - Read family boundary condition dataset info
+     </ul>
+<li> <a href="#bcdata">Boundary Condition Data</a>
+     <ul>
+     <li> <tt><b>cg_bcdata_write</b></tt> - Write boundary condition data
+     </ul>
+<li> <a href="#bcproperty">Special Boundary Condition Properties</a>
+     <ul>
+     <li> <tt><b>cg_bc_wallfunction_write</b></tt> - Write wall function data
+     <li> <tt><b>cg_bc_area_write</b></tt> - Write area-related data
+     <li> <tt><b>cg_bc_wallfunction_read</b></tt> - Read wall function data
+     <li> <tt><b>cg_bc_area_read</b></tt> - Read area-related data
+     </ul>
+</ul>
+
+<a name="bc"></a>
+<h3>Boundary Condition Type and Location</h3>
+
+<i>Node</i>: <tt>BC_t</tt>
+             (<a href="../sids/bc.html#BC">SIDS</a>,
+              <a href="../filemap/nodes.html#BC">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_boco_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>char *boconame</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>BCType_t bocotype</span>, <span class=in>PointSetType_t ptset_type</span>, <span class=in>int npnts</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>int *pnts</span>, <span class=out><i>int *BC</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_boco_normal_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int BC</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>int *NormalIndex</span>, <span class=in>int NormalListFlag</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>DataType_t NormalDataType</span>, <span class=in>void *NormalList</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_nbocos(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=out><i>int *nbocos</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_boco_info(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int BC</span>, <span class=out><i>char *boconame</i></span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>BCType_t *bocotype</i></span>, <span class=out><i>PointSetType_t *ptset_type</i></span>, <span class=out><i>int *npnts</i></span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *NormalIndex</i></span>, <span class=out><i>int *NormalListFlag</i></span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>DataType_t *NormalDataType</i></span>, <span class=out><i>int *ndataset</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_boco_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int BC</span>, <span class=out><i>int *pnts</i></span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>void *NormalList</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_boco_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>boconame</span>, <span class=in>bocotype</span>, <span class=in>ptset_type</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>npnts</span>, <span class=in>pnts</span>, <span class=out><i>BC</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_boco_normal_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>BC</span>, <span class=in>NormalIndex</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>NormalListFlag</span>, <span class=in>NormalDataType</span>, <span class=in>NormalList</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_nbocos_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=out><i>nbocos</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_boco_info_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>BC</span>, <span class=out><i>boconame</i></span>, <span class=out><i>bocotype</i></span>, <span class=out><i>ptset_type</i></span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>npnts</i></span>, <span class=out><i>NormalIndex</i></span>, <span class=out><i>NormalListFlag</i></span>, <span class=out><i>NormalDataType</i></span>, <span class=out><i>ndataset</i></span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_boco_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>BC</span>, <span class=out><i>pnts</i></span>, <span class=out><i>NormalList</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>BC</tt><td>
+   <td>Boundary condition index number, where
+       1 &le; <tt>BC</tt> &le; <tt>nbocos</tt>.
+<tr valign=baseline><td>
+   <td><tt>nbocos</tt><td>
+   <td>Number of boundary conditions in zone <tt>Z</tt>.
+<tr valign=baseline><td>
+   <td><tt>boconame</tt><td>
+   <td>Name of the boundary condition.
+<tr valign=baseline><td>
+   <td><tt>bocotype</tt><td>
+   <td>Type of boundary condition defined.
+       See the eligible types for <tt>BCType_t</tt> in the
+       <a href="general.html#typedefs">Typedefs</a> section.
+       Note that if <tt>bocotype</tt> is <tt>FamilySpecified</tt>
+       the boundary condition type is being specified for the family
+       to which the boundary belongs.
+       The boundary condition type for the family may be read and written
+       using <a href="families.html#familybc"><tt>cg_fambc_read</tt> and
+       <tt>cg_fambc_write</tt></a>.
+<tr valign=baseline><td>
+   <td><tt>ptset_type</tt><td>
+   <td>The extent of the boundary condition may be defined using a range
+       of points or elements, or using a discrete list of all points or
+       elements at which the boundary condition is applied.
+       Depending on the method used, the possible values for
+       <tt>ptset_type</tt> are:<br><br>
+       <table cellspacing=0 cellpadding=0 noborder>
+       <tr valign=baseline>
+          <th align=left scope=col><tt>ptset_type</tt></td><td><tt>&nbsp;&nbsp;</tt></td>
+          <th align=left scope=col>Method
+       <tr valign=baseline>
+          <td><tt>PointRange</tt></td><td><tt>&nbsp;&nbsp;</tt></td>
+          <td>Range of points or elements
+       <tr valign=baseline>
+          <td><tt>PointList</tt></td><td></td>
+          <td>List of points or elements
+       <tr valign=baseline>
+          <td><tt>ElementRange</tt></td><td><tt>&nbsp;&nbsp;</tt></td>
+          <td>Range of elements
+       <tr valign=baseline>
+          <td><tt>ElementList</tt></td><td></td>
+          <td>List of elements
+       </table><br>
+       Note that when <tt>ptset_type</tt> is <tt>ElementRange</tt> or
+       <tt>ElementList</tt>, the <tt>pnts</tt> values (see below) are
+       assumed to be element indices.
+       When <tt>ptset_type</tt> is <tt>PointRange</tt> or
+       <tt>PointList</tt>, the choice of point or element indices is
+       determined by <tt>GridLocation_t</tt> under the <tt>BC_t</tt>
+       node.
+       The value of <tt>GridLocation_t</tt> must be read or written by
+       first using <a href="navigating.html#goto"><tt>cg_goto</tt></a>
+       to access the <tt>BC_t</tt> node, then using
+       <a href="location.html#gridlocation"><tt>cg_gridlocation_read</tt>
+       or <tt>cg_gridlocation_write</tt></a>.
+<tr valign=baseline><td>
+   <td><tt>npnts</tt><td>
+   <td>Number of points or elements defining the boundary
+       condition region.
+       For a <tt>ptset_type</tt> of <tt>PointRange</tt> or
+       <tt>ElementRange</tt>, <tt>npnts</tt> is always two.
+       For a <tt>ptset_type</tt> of <tt>PointList</tt> or
+       <tt>ElementList</tt>, <tt>npnts</tt> is
+       the number of points or elements in the list.
+<tr valign=baseline><td>
+   <td><tt>pnts</tt><td>
+   <td>Array of point or element indices defining the boundary condition region.
+       There should be <tt>npnts</tt> values, each of dimension
+       <a href="../sids/cgnsbase.html#IndexDimension"><tt>IndexDimension</tt></a>
+       (i.e., 1 for unstructured grids, and 2 or 3 for structured grids
+       with 2-D or 3-D elements, respectively).
+<tr valign=baseline><td>
+   <td><tt>NormalIndex</tt><td>
+   <td>Index vector indicating the computational coordinate direction
+       of the boundary condition patch normal.
+<tr valign=baseline><td>
+   <td><tt>NormalListFlag</tt><td>
+   <td>For <tt>cg_boco_normal_write</tt>, <tt>NormalListFlag</tt> is a
+       flag indicating if the normals are defined in <tt>NormalList</tt>;
+       1 if they are defined, 0 if they're not.
+       <br><br>
+       For <tt>cg_boco_info</tt>, if the normals are defined in
+       <tt>NormalList</tt>, <tt>NormalListFlag</tt> is the number of points
+       in the patch times <tt>phys_dim</tt>, the number of coordinates
+       required to define a vector in the field.
+       If the normals are not defined in <tt>NormalList</tt>,
+       <tt>NormalListFlag</tt> is 0.
+<tr valign=baseline><td>
+   <td><tt>NormalDataType</tt><td>
+   <td>Data type used in the definition of the normals.
+       Admissible data types for the normals are <tt>RealSingle</tt> and
+       <tt>RealDouble</tt>.
+<tr valign=baseline><td>
+   <td><tt>NormalList</tt><td>
+   <td>List of vectors normal to the boundary condition patch pointing
+       into the interior of the zone.
+<tr valign=baseline><td>
+   <td><tt>ndataset</tt><td>
+   <td>Number of boundary condition datasets for the current boundary
+       condition.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<a name="bcdataset"></a>
+<h3>Boundary Condition Datasets</h3>
+
+<i>Node</i>: <tt>BCDataSet_t</tt>
+             (<a href="../sids/bc.html#BCDataSet">SIDS</a>,
+              <a href="../filemap/nodes.html#BCDataSet">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_dataset_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int BC</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>char *DatasetName</span>, <span class=in>BCType_t BCType</span>, <span class=out><i>int *Dset</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_dataset_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int BC</span>, <span class=in>int Dset</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>char *DatasetName</i></span>, <span class=out><i>BCType_t *BCType</i></span>, <span class=out><i>int *DirichletFlag</i></span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *NeumannFlag</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_dataset_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>BC</span>, <span class=in>DatasetName</span>, <span class=in>BCType</span>, <span class=out><i>Dset</i></span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_dataset_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>BC</span>, <span class=in>Dset</span>, <span class=out><i>DatasetName</i></span>, <span class=out><i>BCType</i></span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>DirichletFlag</i></span>, <span class=out><i>NeumannFlag</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>BC</tt><td>
+   <td>Boundary condition index number, where
+       1 &le; <tt>BC</tt> &le; <tt>nbocos</tt>.
+<tr valign=baseline><td>
+   <td><tt>Dset</tt><td>
+   <td>Dataset index number, where
+       1 &le; <tt>Dset</tt> &le; <tt>ndataset</tt>.
+<tr valign=baseline><td>
+   <td><tt>DatasetName</tt><td>
+   <td>Name of dataset.
+<tr valign=baseline><td>
+   <td><tt>BCType</tt><td>
+   <td>Simple boundary condition type for the dataset.
+       The supported types are listed in the table of
+       <a href="../sids/bc.html#t:BCTypeSimple">Simple Boundary
+       Condition Types</a> in the SIDS manual, but note that
+       <tt>FamilySpecified</tt> does not apply here.
+<tr valign=baseline><td>
+   <td><tt>DirichletFlag</tt><td>
+   <td>Flag indicating if the dataset contains Dirichlet data.
+<tr valign=baseline><td>
+   <td><tt>NeumannFlag</tt><td>
+   <td>Flag indicating if the dataset contains Neumann data.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The above functions are applicable to <tt>BCDataSet_t</tt> nodes
+that are children of <tt>BC_t</tt> nodes.
+
+<p>
+For <tt>BCDataSet_t</tt> nodes that are children of a <tt>BC_t</tt> node,
+after accessing a particular <tt>BCDataSet_t</tt> node using
+<a href="navigating.html#goto"><tt>cg_goto</tt></a>, the
+<a href="location.html#ptset">Point Set functions</a> may be used to
+read or write the locations at which the boundary conditions are to be
+applied.
+This is only applicable when the boundary conditions are to be applied
+at locations different from those used with
+<a href="#bc"><tt>cg_boco_write</tt></a> to define the boundary
+condition region (e.g., when the region is being defined by
+specification of vertices, but the boundary conditions are to be applied
+at face centers).
+
+<p>
+When writing point set data to a <tt>BCDataSet_t</tt> node, in addition
+to the specification of the indices using <tt>cg_ptset_write</tt>, the
+function <a href="location.html#gridlocation"><tt>cg_gridlocation_write</tt></a>
+must also be used to specify the location of the data with respect to
+the grid (e.g., <tt>Vertex</tt> or <tt>FaceCenter</tt>).
+
+<a name="bcdataset_family"></a>
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_bcdataset_write(<span class=in>char *DatasetName</span>, <span class=in>BCType_t BCType</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>BCDataType_t BCDataType</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_bcdataset_info(<span class=out><i>int *ndataset</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_bcdataset_read(<span class=in>int Dset</span>, <span class=out><i>char *DatasetName</i></span>, <span class=out><i>BCType_t *BCType</i></span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *DirichletFlag</i></span>, <span class=out><i>int *NeumannFlag</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_bcdataset_write_f(<span class=in>DatasetName</span>, <span class=in>BCType</span>, <span class=in>BCDataType, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_bcdataset_info_f(<span class=out><i>ndataset</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_bcdataset_read_f(<span class=in>Dset</span>, <span class=out><i>DatasetName</i></span>, <span class=out><i>BCType</i></span>, <span class=out><i>DirichletFlag</i></span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>NeumannFlag</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>Dset</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Dataset index number, where
+       1 &le; <tt>Dset</tt> &le; <tt>ndataset</tt>.
+<tr valign=baseline><td>
+   <td><tt>DatasetName</tt><td>
+   <td>Name of dataset.
+<tr valign=baseline><td>
+   <td><tt>BCType</tt><td>
+   <td>Simple boundary condition type for the dataset.
+       The supported types are listed in the table of
+       <a href="../sids/bc.html#t:BCTypeSimple">Simple Boundary
+       Condition Types</a> in the SIDS manual, but note that
+       <tt>FamilySpecified</tt> does not apply here.
+<tr valign=baseline><td>
+   <td><tt>BCDataType</tt><td>
+   <td>Type of boundary condition in the dataset (i.e., for a
+       <tt>BCData_t</tt> child node).
+       Admissible types are <tt>Dirichlet</tt> and <tt>Neumann</tt>.
+<tr valign=baseline><td>
+   <td><tt>ndataset</tt><td>
+   <td>Number of <tt>BCDataSet</tt> nodes under the current
+       <tt>FamilyBC_t</tt> node.
+<tr valign=baseline><td>
+   <td><tt>DirichletFlag</tt><td>
+   <td>Flag indicating if the dataset contains Dirichlet data.
+<tr valign=baseline><td>
+   <td><tt>NeumannFlag</tt><td>
+   <td>Flag indicating if the dataset contains Neumann data.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The above functions are applicable to <tt>BCDataSet_t</tt> nodes
+that are used to define boundary conditions for a CFD family, and thus
+are children of a <tt>FamilyBC_t</tt> node.
+The <tt>FamilyBC_t</tt> node must first be accessed using
+<a href="navigating.html#goto"><tt>cg_goto</tt></a>.
+
+<p>
+The first time <tt>cg_bcdataset_write</tt> is called with a particular
+<tt>DatasetName</tt>, <tt>BCType</tt>, and <tt>BCDataType</tt>, a new
+<tt>BCDataSet_t</tt> node is created, with a child <tt>BCData_t</tt> node.
+Subsequent calls with the same <tt>DatasetName</tt> and <tt>BCType</tt>
+may be made to add additional <tt>BCData_t</tt> nodes, of type
+<tt>BCDataType</tt>, to the existing <tt>BCDataSet_t</tt> node.
+
+<a name="bcdata"></a>
+<h3>Boundary Condition Data</h3>
+
+<i>Node</i>: <tt>BCData_t</tt>
+             (<a href="../sids/bc.html#BCData">SIDS</a>,
+              <a href="../filemap/nodes.html#BCData">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_bcdata_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int BC</span>, <span class=in>int Dset</span>,<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>BCDataType_t BCDataType</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_bcdata_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>BC</span>, <span class=in>Dset</span>, <span class=in>BCDataType</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>BC</tt><td>
+   <td>Boundary condition index number, where
+       1 &le; <tt>BC</tt> &le; <tt>nbocos</tt>.
+<tr valign=baseline><td>
+   <td><tt>Dset</tt><td>
+   <td>Dataset index number, where
+       1 &le; <tt>Dset</tt> &le; <tt>ndataset</tt>.
+<tr valign=baseline><td>
+   <td><tt>BCDataType</tt><td>
+   <td>Type of boundary condition in the dataset.
+       Admissible boundary condition types are <tt>Dirichlet</tt> and
+       <tt>Neumann</tt>.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+To write the boundary condition data itself, after creating the
+<tt>BCData_t</tt> node using the function <tt>cg_bcdata_write</tt>, use
+<a href="navigating.html#goto"><tt>cg_goto</tt></a> to access the node,
+then <a href="physical.html#dataarray"><tt>cg_array_write</tt></a> to
+write the data.
+Note that when using <tt>cg_goto</tt> to access a <tt>BCData_t</tt>
+node, the node index should be specified as either <tt>Dirichlet</tt> or
+<tt>Neumann</tt>, depending on the type of boundary condition.
+See the description of <a href="navigating.html#goto"><tt>cg_goto</tt></a>
+for details.
+
+<a name="bcproperty"></a>
+<h3>Special Boundary Condition Properties</h3>
+
+<i>Node</i>: <tt>BCProperty_t</tt>
+             (<a href="../sids/bc.html#BCProperty">SIDS</a>,
+              <a href="../filemap/nodes.html#BCProperty">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_bc_wallfunction_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int BC</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>WallFunctionType_t WallFunctionType</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_bc_area_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int BC</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>AreaType_t AreaType</span>, <span class=in>float SurfaceArea</span>, <span class=in>char *RegionName</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_bc_wallfunction_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int BC</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>WallFunctionType_t *WallFunctionType</i>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_bc_area_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int BC</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>AreaType_t *AreaType</i></span>, <span class=out><i>float *SurfaceArea</i></span>, <span class=out><i>char *RegionName</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_bc_wallfunction_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>BC</span>, <span class=in>WallFunctionType</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_bc_area_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>BC</span>, <span class=in>AreaType</span>, <span class=in>SurfaceArea</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>RegionName</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_bc_wallfunction_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>BC</span>, <span class=out><i>WallFunctionType</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_bc_area_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>BC</span>, <span class=out><i>AreaType</i></span>, <span class=out><i>SurfaceArea</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>RegionName</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where
+       1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where
+       1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>BC</tt><td>
+   <td>Boundary condition index number, where
+       1 &le; <tt>BC</tt> &le; <tt>nbocos</tt>.
+<tr valign=baseline><td>
+   <td><tt>WallFunctionType</tt><td>
+   <td>The wall function type.
+       Valid types are <tt>Null</tt>, <tt>UserDefined</tt>, and
+       <tt>Generic</tt>.
+<tr valign=baseline><td>
+   <td><tt>AreaType</tt><td>
+   <td>The type of area.
+       Valid types are <tt>Null</tt>, <tt>UserDefined</tt>, 
+       <tt>BleedArea</tt>, and <tt>CaptureArea</tt>.
+<tr valign=baseline><td>
+   <td><tt>SurfaceArea</tt><td>
+   <td>The size of the area.
+<tr valign=baseline><td>
+   <td><tt>RegionName</tt><td>
+   <td>The name of the region, 32 characters max.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The "<tt>write</tt>" functions will create the <tt>BCProperty_t</tt>
+node if it doesn't already exist, then add the appropriate boundary
+condition property.
+Multiple boundary condition properties may be recorded under the same
+<tt>BCProperty_t</tt> node.
+
+<p>
+The "<tt>read</tt>" functions will return with <tt>ier</tt> = 2 =
+<tt>CG_NODE_NOT_FOUND</tt> if the requested boundary condition property,
+or the <tt>BCProperty_t</tt> node itself, doesn't exist.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 29 Jan 2007
+
+</body>
+</html>

@@ -1,0 +1,76 @@
+<?xml version = '1.0' encoding = 'UTF-8'?>
+<BodySkeleton rotation=" 0 0 0 " akimatg="true" origin=" 26 9 -1.06 " name="RightInboardPylon" >
+  <BodyFrame width="0.0100016" center=" 0 0 -0.240901 " height="0.0093241" name="FrameX0" >
+ 0 -1 
+ 0.5 -0.866025 
+ 0.866025 -0.5 
+ 1 -6.12323e-17 
+ 0.866025 0.5 
+ 0.5 0.866025 
+ 1.22465e-16 1 
+    </BodyFrame>
+  <BodyFrame width="0.267437" center=" 0.260101 0 -0.177604 " height="0.340842" name="FrameX61" >
+ -9.74387e-17 -1 
+ 0.866494 -0.898729 
+ 1 -0.410813 
+ 0.948121 0.0621404 
+ 0.846244 0.499262 
+ 0.538236 0.917523 
+ 1.42728e-16 1 
+    </BodyFrame>
+  <BodyFrame width="0.38784" center=" 0.890291 0 -0.117355 " height="0.517008" name="FrameX184" >
+ 9.29187e-17 -1 
+ 0.73965 -0.939403 
+ 0.978255 -0.510936 
+ 1 -0.00874942 
+ 0.955744 0.5 
+ 0.779809 0.893387 
+ 1.38602e-16 1 
+    </BodyFrame>
+  <BodyFrame width="0.433947" center=" 2.3659 0 -0.0188861 " height="0.744319" name="FrameX383" >
+ 2.56551e-16 -1 
+ 0.75739 -0.929096 
+ 0.974044 -0.518451 
+ 1 0.0882655 
+ 0.986301 0.593056 
+ 0.824883 0.918184 
+ 9.59578e-17 1 
+    </BodyFrame>
+  <BodyFrame width="0.441" center=" 3.03567 0 0.0875564 " height="0.9" name="Frame636" >
+ 0 -1 
+ 0.663072 -0.900089 
+ 0.943697 -0.504758 
+ 0.984585 0.0610817 
+ 1 0.566659 
+ 0.800333 0.940765 
+ 0 1 
+    </BodyFrame>
+  <BodyFrame width="0.400571" center=" 3.73297 0 0.14451 " height="0.825097" name="FrameX815" >
+ -1.23797e-17 -1 
+ 0.636773 -0.915839 
+ 0.922576 -0.54506 
+ 0.995477 -0.00999942 
+ 1 0.490694 
+ 0.736092 0.926984 
+ 1.83345e-16 1 
+    </BodyFrame>
+  <BodyFrame width="0.253183" center=" 4.38645 0 0.324837 " height="0.474749" name="FrameX938" >
+ 0 -1 
+ 0.548985 -0.914978 
+ 0.906977 -0.553119 
+ 1 0.0138572 
+ 0.978228 0.50231 
+ 0.771643 0.873407 
+ 1.25737e-16 1 
+    </BodyFrame>
+  <BodyFrame width="0.0100016" center=" 4.782 0 0.504195 " height="0.0093241" name="FrameX1000" >
+ 0 -1 
+ 0.5 -0.866025 
+ 0.866025 -0.5 
+ 1 -6.12323e-17 
+ 0.866025 0.5 
+ 0.5 0.866025 
+ 1.22465e-16 1 
+    </BodyFrame>
+  <MeshCriterion xcoarse="false" defaults="false" maxlen="0.2" maxstretch="5" minlen="0.00105" nvmax="1073741824" postrefine="true" smoothing="true" maxphi="30" />
+</BodySkeleton>

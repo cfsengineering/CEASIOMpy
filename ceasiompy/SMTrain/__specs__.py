@@ -1,34 +1,40 @@
-from pathlib import Path
+"""
+CEASIOMpy: Conceptual Aircraft Design Software
+
+Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
+
+Initialization for SMTrain module.
+
+"""
+
+# ==============================================================================
+#   IMPORTS
+# ==============================================================================
+
 from ceasiompy.utils.commonxpath import SMTRAIN_XPATH, SMTRAIN_DOE, CEASIOMPY_XPATH, SU2MESH_XPATH
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
 import streamlit as st
+from ceasiompy.SMTrain import include_gui
+from ceasiompy import log
 # from ceasiompy.utils.commonxpath import SMTRAIN_XPATH
 
-# ===== Module Status =====
-# True if the module is active
-# False if the module is disabled (not working or not ready)
-module_status = True
-
-# ===== Results directory path =====
-
-RESULTS_DIR = Path("Results", "SMTrain")
-
-# ===== CPACS inputs and outputs =====
+# ==============================================================================
+#   VARIABLE
+# ==============================================================================
 
 cpacs_inout = CPACSInOut()
 
-include_gui = True
-
-# ----- Input -----
-
+# ==============================================================================
+#   GUI INPUTS
+# ==============================================================================
 
 cpacs_inout.add_input(
     var_name="fidelity_level",
     var_type=list,
     default_value=["One level", "Two levels", "Three levels"],
     unit=None,
-    descr="""Select if you want to train a simple Kriging (1 level of fidelity) or you want to
-    train a Multi-Fidelity Kriging (2 or 3 levels)""",
+    descr="""Select if you want to train a simple kriging (1 level of fidelity) or you want to
+    train a Multi-Fidelity kriging (2 or 3 levels)""",
     xpath=SMTRAIN_XPATH + "/fidelityLevel",
     gui=True,
     gui_name="Choice of fidelity level",
@@ -48,11 +54,10 @@ cpacs_inout.add_input(
 
 cpacs_inout.add_input(
     var_name="objective",
-    var_type=str,
-    default_value="cl",
-    unit="-",
-    descr="""Objective function list for the surrogate model to predict \n Warning !
-    The parameter name must match the ones in the aeromap: cl, cd, cs, cmd, cml, cms """,
+    var_type=list,
+    default_value=["cl", "cd", "cs", "cmd", "cml", "cms"],
+    unit=None,
+    descr="Objective function list for the surrogate model to predict",
     xpath=SMTRAIN_XPATH + "/objective",
     gui=include_gui,
     gui_name="Objective",
@@ -169,7 +174,6 @@ cpacs_inout.add_input(
     gui_group="Design of Experiments",
 )
 
-
 cpacs_inout.add_input(
     var_name="rmse_objective",
     var_type=float,
@@ -182,118 +186,9 @@ cpacs_inout.add_input(
     gui_group="Design of Experiments",
 )
 
-
-# cpacs_inout.add_input(
-#     var_name="altitude_low_limit",
-#     var_type=float,
-#     default_value=0,
-#     unit=None,
-#     descr="Insert the altitude low limit",
-#     xpath=SMTRAIN_DOE + "/altitudeLowLimit",
-#     gui=include_gui,
-#     gui_name="Altitude Low Limit",
-#     gui_group="Design of Experiments",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="altitude_high_limit",
-#     var_type=float,
-#     default_value=0,
-#     unit=None,
-#     descr="Insert the altitude high limit",
-#     xpath=SMTRAIN_DOE + "/altitudeHighLimit",
-#     gui=include_gui,
-#     gui_name="Altitude High Limit",
-#     gui_group="Design of Experiments",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="mach_low_limit",
-#     var_type=float,
-#     default_value=0,
-#     unit=None,
-#     descr="Insert the mach low limit",
-#     xpath=SMTRAIN_DOE + "/machLowLimit",
-#     gui=include_gui,
-#     gui_name="Mach Low Limit",
-#     gui_group="Design of Experiments",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="mach_high_limit",
-#     var_type=float,
-#     default_value=0,
-#     unit=None,
-#     descr="Insert the mach high limit",
-#     xpath=SMTRAIN_DOE + "/machHighLimit",
-#     gui=include_gui,
-#     gui_name="Mach High Limit",
-#     gui_group="Design of Experiments",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="aoa_low_limit",
-#     var_type=float,
-#     default_value=0,
-#     unit=None,
-#     descr="Insert the AOA low limit",
-#     xpath=SMTRAIN_DOE + "/aoaLowLimit",
-#     gui=include_gui,
-#     gui_name="AOA Low Limit",
-#     gui_group="Design of Experiments",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="aoa_high_limit",
-#     var_type=float,
-#     default_value=0,
-#     unit=None,
-#     descr="Insert the AOA high limit",
-#     xpath=SMTRAIN_DOE + "/aoaHighLimit",
-#     gui=include_gui,
-#     gui_name="AOA High Limit",
-#     gui_group="Design of Experiments",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="aos_low_limit",
-#     var_type=float,
-#     default_value=0,
-#     unit=None,
-#     descr="Insert the AOS low limit",
-#     xpath=SMTRAIN_DOE + "/aosLowLimit",
-#     gui=include_gui,
-#     gui_name="AOS Low Limit",
-#     gui_group="Design of Experiments",
-# )
-
-# cpacs_inout.add_input(
-#     var_name="aos_high_limit",
-#     var_type=float,
-#     default_value=0,
-#     unit=None,
-#     descr="Insert the AOS high limit",
-#     xpath=SMTRAIN_DOE + "/aosHighLimit",
-#     gui=include_gui,
-#     gui_name="AOS High Limit",
-#     gui_group="Design of Experiments",
-# )
-
-
-# DOE LIMITS???
-
-
-# print(cpacs_inout.inputs[1])
-
-
-# for entry in cpacs_inout.inputs:
-#     print(f"Variable Name: {entry.var_name}, Default Value: {entry.default_value}")
-
-
-# bayesian or random seach?
-
-
-# ----- Output ----
+# ==============================================================================
+#   GUI OUTPUTS
+# ==============================================================================
 
 cpacs_inout.add_output(
     var_name="output",
@@ -310,3 +205,10 @@ cpacs_inout.add_output(
     descr="path of the trained surrogate model",
     xpath=SMTRAIN_XPATH + "/surrogateModelPath",
 )
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")

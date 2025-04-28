@@ -6,22 +6,18 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Script to train a Surrogate Model in CEASIOMPY.
 The surrogate model can be trained either through a csv file containing the inputs and outputs,
 or by carrying out a Design of Experiments after providing the domain extremes.
-Either Kriging or Multi-Fidelity Kriging algorithm can be used,
+Either kriging or Multi-Fidelity kriging algorithm can be used,
 depending on the level of fidelity chosen.
-
-Python version: >= 3.8
 
 | Author: Giacomo Gronda
 | Creation: 2025-03-20
 
 TODO:
-
-    * Create test function
+    * Create test functions
     * Adapt SaveAeroCoefficient for the adaptive sampling
     * More test on adaptive sampling
     * Never tested with 3 levels of fidelity
     * Define how to change AVL and SU2 settings
-
 
 """
 
@@ -29,12 +25,14 @@ TODO:
 #   IMPORTS
 # ==============================================================================
 
-from ceasiompy.utils.moduleinterfaces import get_toolinput_file_path, get_tooloutput_file_path
-from ceasiompy.utils.ceasiompyutils import get_results_directory
-from ceasiompy.SMTrain.func.smtconfig import (
+import numpy as np
+import pandas as pd
+
+from ceasiompy.utils.ceasiompyutils import call_main
+from ceasiompy.SMTrain.func.results import get_smt_results
+from ceasiompy.SMTrain.func.config import (
     get_settings,
-    get_doe_settings,
-    DoE,
+    design_of_experiment,
     get_datasets_from_aeromaps,
 )
 from ceasiompy.SMTrain.func.smtfunc import (
@@ -48,32 +46,24 @@ from ceasiompy.SMTrain.func.smtfunc import (
     launch_su2,
     new_points,
 )
-from ceasiompy.SMTrain.func.smtresults import get_smt_results
+
 from pathlib import Path
-import pandas as pd
-import numpy as np
+from cpacspy.cpacspy import CPACS
 
 from ceasiompy import log
-
-MODULE_DIR = Path(__file__).parent
-MODULE_NAME = MODULE_DIR.name
-
+from ceasiompy.SMTrain import MODULE_NAME
+from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
 
 # =================================================================================================
-#   FUNCTIONS
+#    MAIN
 # =================================================================================================
 
 
-def run_smTrain(cpacs_path, cpacs_tmp_cfg, wkdir):
+def main(cpacs: CPACS, results_dir: Path):
     """
-    Train a surrogate model using aerodynamic data.
-    Depending on the fidelity level, the function trains a single-level or multi-fidelity model.
-
-    Args:
-        cpacs_path (str): Path to the CPACS input file.
-        cpacs_tmp_cfg (str): Path to the temporary CPACS configuration file.
-        wkdir (str): Working directory where results are stored.
+    Train a surrogate model (single-level or multi-fidelity) using aerodynamic data.
     """
+    cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")
 
     # Retrieve settings from the CPACS file
     (
@@ -83,44 +73,28 @@ def run_smTrain(cpacs_path, cpacs_tmp_cfg, wkdir):
         show_plot,
         new_dataset,
         fraction_of_new_samples,
-    ) = get_settings(cpacs_path)
-
-    # Get DoE settings
-    doe, avl_or_su2, rmse_obj = get_doe_settings(cpacs_path)
+        doe, avl_or_su2, rmse_obj,
+    ) = get_settings(cpacs)
 
     # If DoE is enabled, generate new samples
     if doe is True:
-        n_samples, ranges = DoE(cpacs_path)
-        lh_sampling(n_samples, ranges, wkdir)
+        n_samples, ranges = design_of_experiment(cpacs)
+        lh_sampling_path = lh_sampling(n_samples, ranges, results_dir)
 
         # One level fidelity model training
         if fidelity_level == "One level":
             if avl_or_su2 == "AVL":
-                # Generate dataset using AVL
-                avl_dataset = launch_avl(wkdir, cpacs_path, cpacs_tmp_cfg, objective_coefficient)
-                datasets = {"level_1": avl_dataset}
-                sets = split_data(datasets, data_repartition)
-
-                # Train Kriging model
-                model, _ = train_surrogate_model(fidelity_level, datasets, sets)
+                soft_dataset = launch_avl(cpacs, lh_sampling_path, objective_coefficient)
             elif avl_or_su2 == "SU2":
-                # Generate dataset using SU2
-                wkdir_su2 = get_results_directory("SU2Run")
-                su2_dataset = launch_su2(
-                    wkdir, wkdir_su2, cpacs_path, cpacs_tmp_cfg, objective_coefficient
-                )
-                datasets = {"level_1": su2_dataset}
-                sets = split_data(datasets, data_repartition)
-
-                # Train Kriging model
-                model, _ = train_surrogate_model(fidelity_level, datasets, sets)
-            else:
-                raise ValueError("You must select 'Use AVL' or 'Use SU2' option")
+                soft_dataset = launch_su2(cpacs, results_dir, SU2RUN_NAME, objective_coefficient)
+            datasets = {"level_1": soft_dataset}
+            sets = split_data(datasets, data_repartition)
+            model, _ = train_surrogate_model(fidelity_level, datasets, sets)
 
         # Two-level fidelity model training
         elif fidelity_level == "Two levels":
             # Train the first-level (low-fidelity) model using AVL
-            avl_dataset = launch_avl(wkdir, cpacs_path, cpacs_tmp_cfg, objective_coefficient)
+            avl_dataset = launch_avl(cpacs, lh_sampling_path, objective_coefficient)
             datasets = {"level_1": avl_dataset}
             avl_sets = split_data(datasets, data_repartition)
             model, _ = train_surrogate_model("One level", datasets, avl_sets)
@@ -131,10 +105,9 @@ def run_smTrain(cpacs_path, cpacs_tmp_cfg, wkdir):
             iteration = 0
 
             rmse = float("inf")
-
             while rmse > rmse_obj and iteration < max_iterations:
                 # Select new high-variance points for refinement
-                new_point_df = new_points(datasets, model, wkdir, high_variance_points)
+                new_point_df = new_points(datasets, model, results_dir, high_variance_points)
 
                 # Check if new_point_df is empty (no new high-variance points available)
                 if new_point_df.empty:
@@ -148,13 +121,13 @@ def run_smTrain(cpacs_path, cpacs_tmp_cfg, wkdir):
                 high_variance_points.append(new_point)
 
                 # Generate unique SU2 working directory using iteration
-                wkdir_su2 = Path(get_results_directory("SU2Run")) / f"SU2_{iteration}"
+                wkdir_su2 = Path(SU2RUN_NAME / f"SU2_{iteration}")
                 wkdir_su2.mkdir(parents=True, exist_ok=True)  # Ensure directory exists
 
                 su2_dataset = launch_su2(
                     wkdir,
                     wkdir_su2,
-                    cpacs_path,
+                    cpacs,
                     cpacs_tmp_cfg,
                     objective_coefficient,
                     high_variance_points,
@@ -190,7 +163,7 @@ def run_smTrain(cpacs_path, cpacs_tmp_cfg, wkdir):
                 else:
                     datasets["level_2"] = su2_dataset  # Primo inserimento
 
-                # Train multi-fidelity Kriging model
+                # Train multi-fidelity kriging model
                 sets = split_data(datasets, 0.7, 0.5)
                 model, rmse = train_surrogate_model(fidelity_level, datasets, sets)
                 iteration += 1
@@ -204,7 +177,7 @@ def run_smTrain(cpacs_path, cpacs_tmp_cfg, wkdir):
 
     # If DoE is not used, load existing datasets from CSV
     else:
-        datasets = get_datasets_from_aeromaps(cpacs_path, fidelity_level, objective_coefficient)
+        datasets = get_datasets_from_aeromaps(cpacs, fidelity_level, objective_coefficient)
         sets = split_data(datasets, data_repartition)
 
         # Train the surrogate model
@@ -221,27 +194,9 @@ def run_smTrain(cpacs_path, cpacs_tmp_cfg, wkdir):
 
     # Save the trained surrogate model
     save_model(model, objective_coefficient, datasets, wkdir)
-
-
-# =================================================================================================
-#    MAIN
-# =================================================================================================
-
-
-def main(cpacs_path, cpacs_out_path):
-    log.info("----- Start of " + MODULE_NAME + " -----")
-
-    result_dir = get_results_directory("SMTrain")
-    cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")
-    run_smTrain(cpacs_path, cpacs_tmp_cfg, result_dir)
-
-    get_smt_results(cpacs_path, cpacs_out_path, result_dir)
-
-    log.info("----- End of " + MODULE_NAME + " -----")
+    
+    get_smt_results(cpacs, results_dir)
 
 
 if __name__ == "__main__":
-    cpacs_path = get_toolinput_file_path(MODULE_NAME)
-    cpacs_out_path = get_tooloutput_file_path(MODULE_NAME)
-
-    main(cpacs_path, cpacs_out_path)
+    call_main(main, MODULE_NAME)

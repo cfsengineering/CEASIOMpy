@@ -5,10 +5,6 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
 Initialization for SMTrain module.
 
-
-| Author: Leon Deligny
-| Creation: 18-Mar-2025
-
 """
 
 # ==============================================================================
@@ -17,16 +13,25 @@ Initialization for SMTrain module.
 
 from pathlib import Path
 
+from ceasiompy import log
+
 # ==============================================================================
 #   INITIALIZATION
 # ==============================================================================
 
 # ===== Module Status =====
-module_status = False
+module_status = True
 
 # ===== Include GUI =====
-include_gui = False
+include_gui = True
 
 # ===== Include Module's name =====
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
+
+# =================================================================================================
+#    MAIN
+# =================================================================================================
+
+if __name__ == "__main__":
+    log.info("Nothing to be executed.")

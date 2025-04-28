@@ -22,34 +22,48 @@ TODO:
 # ==============================================================================
 
 import os
-import matplotlib.pyplot as plt
-import pandas as pd
-import numpy as np
 import pickle
-from pathlib import Path
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from ceasiompy.PyAVL.pyavl import main as run_avl
+from ceasiompy.SU2Run.su2run import run_SU2_multi
 from sklearn.model_selection import train_test_split
-from ceasiompy.utils.ceasiomlogger import get_logger
+from ceasiompy.PyAVL.func.results import get_avl_results
+from ceasiompy.SU2Run.func.results import get_su2_results
+from ceasiompy.SMTrain.func.config import retrieve_aeromap_data
+from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.SU2Run.func.config import generate_su2_cfd_config
+from cpacspy.cpacsfunctions import (
+    add_value,
+    get_value,
+    get_value_or_default,
+)
+from ceasiompy.SMTrain.func.surrogate import (
+    kriging,
+    mf_kriging,
+    make_predictions,
+)
+
+from pathlib import Path
+from cpacspy.cpacspy import CPACS
+from smt.sampling_methods import LHS
+from typing import (
+    Dict,
+    Union,
+)
+from skopt.space import (
+    Real,
+    Categorical,
+)
+
+from ceasiompy import log
+from ceasiompy.PyAVL import AVL_AEROMAP_UID_XPATH
 from ceasiompy.utils.commonxpath import (
-    AVL_AEROMAP_UID_XPATH,
     SU2_AEROMAP_UID_XPATH,
     SU2_CONFIG_RANS_XPATH,
 )
-from cpacspy.cpacsfunctions import get_value_or_default, add_value, open_tixi
-from cpacspy.cpacspy import CPACS
-from ceasiompy.SMTrain.func.smtconfig import retrieve_aeromap_data
-from ceasiompy.SMTrain.func.surrogate import Kriging, MF_Kriging, make_predictions
-from ceasiompy.utils.ceasiompyutils import (get_results_directory)
-from smt.sampling_methods import LHS
-from ceasiompy.PyAVL.avlrun import run_avl
-from ceasiompy.PyAVL.func.avlresults import get_avl_results
-from ceasiompy.SU2Run.su2run import run_SU2_multi
-from ceasiompy.SU2Run.func.su2results import get_su2_results
-from ceasiompy.SU2Run.func.su2config import generate_su2_cfd_config
-from ceasiompy.SU2Run.func.su2config_rans import generate_su2_cfd_config_rans
-from skopt.space import Real, Categorical
-
-log = get_logger()
-
 
 # =================================================================================================
 #   FUNCTIONS
@@ -73,7 +87,7 @@ def split_data(datasets, data_repartition, val_test_size=0.3, random_state=42):
 
     Returns:
         dict: Dictionary containing the split datasets with keys:
-            - "X_train", "X_val", "X_test": Feature matrices for training, validation,
+            - "x_train", "x_val", "x_test": Feature matrices for training, validation,
                 and test sets.
             - "y_train", "y_val", "y_test": Target values for training, validation, and test sets.
     """
@@ -113,7 +127,7 @@ def split_data(datasets, data_repartition, val_test_size=0.3, random_state=42):
     log.info(f"Dataset shape - X: {X.shape}, y: {y.shape}")
 
     # Split into train and test/validation
-    X_train, X_t, y_train, y_t = train_test_split(
+    x_train, X_t, y_train, y_t = train_test_split(
         X, y, test_size=test_val_fraction, random_state=random_state
     )
 
@@ -124,19 +138,19 @@ def split_data(datasets, data_repartition, val_test_size=0.3, random_state=42):
             f"Try to add some points or change '% of training data'"
         )
 
-    log.info(f"Train size: {X_train.shape[0]}, Test+Validation size: {X_t.shape[0]}")
+    log.info(f"Train size: {x_train.shape[0]}, Test+Validation size: {X_t.shape[0]}")
 
     # Split into validation and test
-    X_val, X_test, y_val, y_test = train_test_split(
+    x_val, x_test, y_val, y_test = train_test_split(
         X_t, y_t, test_size=val_test_size, random_state=random_state
     )
 
-    log.info(f"Validation size: {X_val.shape[0]}, Test size: {X_test.shape[0]}")
+    log.info(f"Validation size: {x_val.shape[0]}, Test size: {x_test.shape[0]}")
 
     return {
-        "X_train": X_train,
-        "X_val": X_val,
-        "X_test": X_test,
+        "x_train": x_train,
+        "x_val": x_val,
+        "x_test": x_test,
         "y_train": y_train,
         "y_val": y_val,
         "y_test": y_test,
@@ -145,7 +159,7 @@ def split_data(datasets, data_repartition, val_test_size=0.3, random_state=42):
 
 def train_surrogate_model(fidelity_level, datasets, sets):
     """
-    Train a surrogate model using Kriging or Multi-Fidelity Kriging, selecting
+    Train a surrogate model using kriging or Multi-Fidelity kriging, selecting
     appropriate polynomial regression types based on the number of training samples.
 
     The function first determines which polynomial basis functions can be used
@@ -158,10 +172,10 @@ def train_surrogate_model(fidelity_level, datasets, sets):
             or multi-fidelity.
         datasets (dict): Dictionary containing datasets for different fidelity levels.
         sets (dict): Dictionary containing the split datasets. Expected keys:
-            "X_train", "X_val", "X_test", "y_train", "y_val", "y_test".
+            "x_train", "x_val", "x_test", "y_train", "y_val", "y_test".
 
     Returns:
-        model: Trained surrogate model (Kriging or Multi-Fidelity Kriging).
+        model: Trained surrogate model (kriging or Multi-Fidelity kriging).
         rmse (float): Root Mean Square Error of the trained model.
 
     Polynomial Selection Logic:
@@ -171,7 +185,7 @@ def train_surrogate_model(fidelity_level, datasets, sets):
         - Otherwise → Use ["constant"]
     """
 
-    n_samples, n_features = sets["X_train"].shape
+    n_samples, n_features = sets["x_train"].shape
 
     # Determine allowed polynomial regression types based on sample count
     if n_samples > ((n_features + 1) * (n_features + 2) / 2):
@@ -205,9 +219,9 @@ def train_surrogate_model(fidelity_level, datasets, sets):
     ]
 
     if fidelity_level == "One level":
-        model, rmse = Kriging(hyperparam_space, sets)
+        model, rmse = kriging(hyperparam_space, sets)
     else:
-        model, rmse = MF_Kriging(fidelity_level, datasets, hyperparam_space, sets)
+        model, rmse = mf_kriging(fidelity_level, datasets, hyperparam_space, sets)
 
     return model, rmse
 
@@ -273,17 +287,17 @@ def plot_validation(model, sets, label, result_dir):
     Args:
         model: Trained surrogate model.
         sets (dict): Dictionary containing test dataset with keys:
-                     "X_test" (features) and "y_test" (target values).
+                     "x_test" (features) and "y_test" (target values).
         label (str): Label for the aerodynamic coefficient being validated.
 
     Returns:
         None
     """
 
-    X_test = sets["X_test"]
+    x_test = sets["x_test"]
     y_test = sets["y_test"]
 
-    predictions, _ = make_predictions(model, X_test, y_test)
+    predictions, _ = make_predictions(model, x_test, y_test)
 
     fig = plt.figure(figsize=(6, 6))
     plt.scatter(y_test, predictions, color="blue", alpha=0.5)
@@ -377,22 +391,23 @@ def new_doe(datasets, model, fraction_of_new_samples, result_dir):
     log.info(f"New suggested points saved in {output_file_path}")
 
 
-def lh_sampling(n_samples, ranges, result_dir, random_state=None):
+def lh_sampling(
+    n_samples: int,
+    ranges: Dict,
+    results_dir: Path,
+    random_state: Union[int, None] = None,
+) -> Path:
     """
     Generate a Latin Hypercube Sampling (LHS) dataset within specified variable ranges.
-
-    This function performs Latin Hypercube Sampling (LHS) using the Enhanced Stochastic
-    Evolutionary (ESE) criterion to generate a diverse set of samples within given variable limits.
+    Uses the Enhanced Stochastic Evolutionary (ESE) criterion
+    to generate a diverse set of samples within given variable limits.
 
     Args:
         n_samples (int): Number of samples to generate.
         ranges (dict): Dictionary specifying the variable ranges in the format:
                        { "variable_name": (min_value, max_value) }.
-        result_dir (str): Path to the directory where the sampled dataset will be saved.
-        random_state (int, optional): Seed for random number generation to ensure reproducibility.
-
-    Returns:
-        None
+        results_dir (str): Path to the directory where the sampled dataset will be saved.
+        random_state (int = None): Seed for random number generation to ensure reproducibility.
     """
 
     if n_samples <= 0:
@@ -406,7 +421,7 @@ def lh_sampling(n_samples, ranges, result_dir, random_state=None):
     sampling = LHS(xlimits=xlimits, criterion="ese", random_state=random_state)
     samples = sampling(n_samples)
 
-    # mantain constant variables with fixed ranges
+    # maintain constant variables with fixed ranges
     for idx in fixed_cols:
         samples[:, idx] = xlimits[idx, 0]
 
@@ -420,18 +435,16 @@ def lh_sampling(n_samples, ranges, result_dir, random_state=None):
         elif key in ["machNumber", "angleOfAttack", "angleOfSideslip"]:
             sampled_dict[key] = np.round(sampled_dict[key] / 0.01) * 0.01  # Round to nearest 0.01
 
-    # Convert to DataFrame
-    sampled_df = pd.DataFrame(sampled_dict)
-
     # Save sampled dataset
-    filename = "lh_sampling_dataset.csv"
-    output_file_path = os.path.join(result_dir, filename)
+    sampled_df = pd.DataFrame(sampled_dict)
+    output_file_path = os.path.join(results_dir, "lh_sampling_dataset.csv")
     sampled_df.to_csv(output_file_path, index=False)
-
     log.info(f"LHS dataset saved in {output_file_path}")
 
+    return output_file_path
 
-def launch_avl(result_dir, cpacs_path, cpacs_tmp_cfg, objective):
+
+def launch_avl(cpacs: CPACS, lh_sampling_path: Path, objective: str):
     """
     Executes AVL aerodynamic analysis running PyAVL Module
 
@@ -441,18 +454,13 @@ def launch_avl(result_dir, cpacs_path, cpacs_tmp_cfg, objective):
     Args:
         result_dir (str): Directory where AVL results and intermediate files are stored.
         cpacs_path (str): Path to the CPACS XML file.
-        cpacs_tmp_cfg (str): Path to the temporary CPACS file used during processing.
         objective (str): The aerodynamic coefficient to extract from the AVL results.
-                         Expected values: ["cl", "cd", "cs", "cmd", "cml", "cms"].
+            Expected values: ["cl", "cd", "cs", "cmd", "cml", "cms"].
 
     Returns:
         pd.DataFrame: A DataFrame containing the AVL results for the requested objective.
     """
-
-    cpacs = CPACS(cpacs_path)
-    tixi = open_tixi(cpacs_path)
-
-    lh_sampling_path = os.path.join(result_dir, "lh_sampling_dataset.csv")
+    tixi = cpacs.tixi
     if not os.path.exists(lh_sampling_path):
         raise FileNotFoundError(f"LHS dataset not found: {lh_sampling_path}")
 
@@ -465,18 +473,18 @@ def launch_avl(result_dir, cpacs_path, cpacs_tmp_cfg, objective):
     aeromap.save()
 
     # Update CPACS with the new aeromap
-    add_value(cpacs.tixi, AVL_AEROMAP_UID_XPATH, aeromap.uid)
-    cpacs.save_cpacs(cpacs_path, overwrite=True)
+    add_value(tixi, AVL_AEROMAP_UID_XPATH, aeromap.uid)
+    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
 
     # Run AVL analysis
-    result_dir = get_results_directory("PyAVL")
-    run_avl(cpacs_path, result_dir)
-    get_avl_results(cpacs_path, cpacs_path, result_dir)
+    results_dir = get_results_directory("PyAVL")
+    run_avl(cpacs, results_dir)
+    get_avl_results(cpacs, results_dir)
 
     log.info("----- End of " + "PyAVL" + " -----")
 
     # Reload CPACS file with updated AVL results
-    cpacs = CPACS(cpacs_path)
+    cpacs = CPACS(cpacs.cpacs_file)
 
     # Validate objective
     objective_map = {"cl": "cl", "cd": "cd", "cs": "cs", "cmd": "cmd", "cml": "cml", "cms": "cms"}
@@ -484,11 +492,10 @@ def launch_avl(result_dir, cpacs_path, cpacs_tmp_cfg, objective):
         raise ValueError(
             f"Invalid objective '{objective}'. Expected one of {list(objective_map.keys())}."
         )
-    objective_map = {"cl": "cl", "cd": "cd", "cs": "cs", "cmd": "cmd", "cml": "cml", "cms": "cms"}
 
     # Retrieve aerodynamic data
     dataset = retrieve_aeromap_data(cpacs, aeromap.uid, objective, objective_map)
-    cpacs.save_cpacs(cpacs_path, overwrite=True)
+    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
 
     log.info(f"AVL results extracted for {objective}:")
     log.info(dataset)
@@ -497,37 +504,30 @@ def launch_avl(result_dir, cpacs_path, cpacs_tmp_cfg, objective):
 
 
 def launch_su2(
-    result_dir, result_dir_su2, cpacs_path, cpacs_tmp_cfg, objective, high_variance_points=None
+    cpacs: CPACS,
+    results_dir: Path,
+    results_dir_su2: Path,
+    objective: str,
+    high_variance_points=None  # TODO: For sure there is an issue with this argument
 ):
     """
     Executes SU2 CFD analysis using an aeromap or high-variance points.
 
-    This function processes a CPACS file, selects or generates a new aeromap or high-variance
-    points, runs SU2 to compute aerodynamic coefficients, and retrieves the results.
+    1. Processes a CPACS file
+    2. Selects or generates an aeromap or high-variance points
+    3. Runs SU2 to compute aerodynamic coefficients
+    4. Retrieves the results
 
-    Args:
-        result_dir (str): Directory containing the LHS dataset and results.
-        result_dir_su2 (str): Directory where SU2 results will be stored.
-        cpacs_path (str): Path to the CPACS XML file.
-        cpacs_tmp_cfg (str): Path to the temporary CPACS file used during processing.
-        objective (str): The aerodynamic coefficient to extract from the SU2 results.
-                         Expected values: ["cl", "cd", "cs", "cmd", "cml", "cms"].
-        high_variance_points (bool, optional): If True, uses a new set of high-variance points
-                                               instead of the LHS dataset. Defaults to None.
-
-    Returns:
-        pd.DataFrame: A DataFrame containing the SU2 results for the requested objective.
     """
 
-    cpacs = CPACS(cpacs_path)
-    tixi = open_tixi(cpacs_path)
+    tixi = cpacs.tixi
 
     # Select dataset based on high-variance points or LHS sampling
     if high_variance_points is None:
-        dataset_path = os.path.join(result_dir, "lh_sampling_dataset.csv")
+        dataset_path = os.path.join(results_dir, "lh_sampling_dataset.csv")
         aeromap_uid = "lh_sampling_dataset"
     else:
-        dataset_path = os.path.join(result_dir, "new_points.csv")
+        dataset_path = os.path.join(results_dir, "new_points.csv")
         aeromap_uid = "new_points"
 
     if not os.path.exists(dataset_path):
@@ -545,31 +545,34 @@ def launch_su2(
     aeromap.save()
 
     add_value(cpacs.tixi, SU2_AEROMAP_UID_XPATH, aeromap.uid)
-    cpacs.save_cpacs(cpacs_path, overwrite=True)
+    cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
 
     log.info(f"Selected aeromap: {aeromap_uid}")
 
     # Determine SU2 configuration
-    cpacs = CPACS(cpacs_path)
+    cpacs = CPACS(cpacs.cpacs_file)
     # iterations = get_value_or_default(cpacs.tixi, SU2_MAX_ITER_XPATH, 2)
     # nb_proc = get_value_or_default(cpacs.tixi, SU2_NB_CPU_XPATH, get_reasonable_nb_cpu())
     config_file_type = get_value_or_default(cpacs.tixi, SU2_CONFIG_RANS_XPATH, "Euler")
 
-    if config_file_type == "RANS":
-        log.info("Running RANS simulation")
-        generate_su2_cfd_config_rans(cpacs_path, cpacs_tmp_cfg, result_dir_su2)
-    else:
-        log.info("Running Euler simulation")
-        generate_su2_cfd_config(cpacs_path, cpacs_tmp_cfg, result_dir_su2)
+    rans = (config_file_type == "RANS")
+    generate_su2_cfd_config(
+        cpacs=cpacs,
+        wkdir=results_dir_su2,
+        su2_mesh_paths=,
+        mesh_markers=,
+        rans=rans,
+        dyn_stab=False,
+    )
 
     # Execute SU2 simulation
-    run_SU2_multi(result_dir_su2)
-    get_su2_results(cpacs_tmp_cfg, cpacs_tmp_cfg, result_dir_su2)
+    run_SU2_multi(results_dir_su2)
+    get_su2_results(cpacs, results_dir_su2)
 
     log.info("----- End of " + "SU2Run" + " -----")
 
     # Reload CPACS with updated results
-    cpacs = CPACS(cpacs_tmp_cfg)
+    cpacs = CPACS(cpacs.cpacs_file)
 
     # Validate objective
     objective_map = {"cl": "cl", "cd": "cd", "cs": "cs", "cmd": "cmd", "cml": "cml", "cms": "cms"}
@@ -580,7 +583,7 @@ def launch_su2(
 
     # Retrieve aerodynamic data
     dataset = retrieve_aeromap_data(cpacs, aeromap.uid, objective, objective_map)
-    cpacs.save_cpacs(cpacs_tmp_cfg, overwrite=True)
+    cpacs.save_cpacs(cpacs, overwrite=True)
 
     log.info(f"SU2 results extracted for {objective}:")
     log.info(dataset)
@@ -588,7 +591,12 @@ def launch_su2(
     return dataset
 
 
-def new_points(datasets, model, result_dir, high_variance_points):
+def new_points(
+    datasets: Dict,
+    model,
+    results_dir,
+    high_variance_points
+):
     """
     Selects new sampling points based on variance predictions from a surrogate model.
 
@@ -601,7 +609,6 @@ def new_points(datasets, model, result_dir, high_variance_points):
         model (object): Surrogate model used to predict variance.
         result_dir (str): Directory where the selected points CSV file will be saved.
         high_variance_points (list, optional): List of previously selected high-variance points.
-                                               Defaults to None.
 
     Returns:
         pd.DataFrame or None: A DataFrame containing the newly selected points.
@@ -617,7 +624,7 @@ def new_points(datasets, model, result_dir, high_variance_points):
     y_var_flat = np.asarray(y_var).flatten()
     sorted_indices = np.argsort(y_var_flat)[::-1]  # Sort indices by variance (descending)
 
-    output_file_path = os.path.join(result_dir, "new_points.csv")
+    output_file_path = os.path.join(results_dir, "new_points.csv")
     columns = df.columns
 
     # First iteration: generate boundary points

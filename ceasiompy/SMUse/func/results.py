@@ -3,10 +3,6 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Extract results from AVL calculations and save them in a CPACS file.
-Plot the lift distribution from AVL strip forces file 'fs.txt'.
-Convert AVL 'plot.ps' to 'plot.pdf'.
-
 """
 
 # =================================================================================================

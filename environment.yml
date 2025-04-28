@@ -56,4 +56,4 @@ dependencies:
     - streamlit==1.44.1
     - streamlit-autorefresh
     - vtk==9.3.0
-    - scikit-optimize
+    - scikit-optimize==0.10.2

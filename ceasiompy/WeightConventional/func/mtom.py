@@ -66,11 +66,11 @@ def estimate_mtom(fuselage_length, fuselage_width, wing_area, wing_span, results
         ["Wing_Span_m", "Wing_Area_m2", "Fus_Length_m", "Fus_Width_m", "MTOM"]
     ].astype(float)
 
-    X_train = aircraft_df[["Fus_Length_m", "Fus_Width_m", "Wing_Area_m2", "Wing_Span_m"]]
+    x_train = aircraft_df[["Fus_Length_m", "Fus_Width_m", "Wing_Area_m2", "Wing_Span_m"]]
     y_train = aircraft_df["MTOM"]
 
     knn_model = KNeighborsRegressor(n_neighbors=2, weights="distance")
-    knn_model.fit(X_train.values, y_train.values)
+    knn_model.fit(x_train.values, y_train.values)
 
     mtom = knn_model.predict([[fuselage_length, fuselage_width, wing_area, wing_span]])[0]
 

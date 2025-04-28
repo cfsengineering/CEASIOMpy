@@ -1,0 +1,124 @@
+<!-- CGNS Overview - General Description -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="overview.css" rel="stylesheet" type="text/css">
+<title> CGNS Overview - General Description </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="index.html"><span class=nav><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></span></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../midlevel/index.html"><b>Mid-Level&nbsp;Library</b></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="purpose.html"><b>Purpose&nbsp;and&nbsp;Scope</b></a>)
+(<span class=nav><b>General&nbsp;Description</b></span>)
+(<a href="elements.html"><b>Elements&nbsp;and&nbsp;Documentation</b></a>)
+(<a href="applications.html"><b>Applications&nbsp;Software</b></a>)
+(<a href="acquiring.html"><b>Acquiring&nbsp;CGNS</b></a>)
+(<a href="history.html"><b>History&nbsp;and&nbsp;Current&nbsp;Status</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>General Description</h2>
+
+<p>
+A CGNS database describes the current state of one or more entire CFD
+(Computational Fluid Dynamics) problems, including the following:
+
+<ul>
+<li> grid
+<li> flowfield
+<li> boundary conditions
+<li> topological connection information
+<li> auxiliary data (e.g., nondimensionalization parameters,
+     reference states)
+</ul>
+
+<p>
+Not all of these data need to be present at any particular time.
+The overall view is that of a shared database that can be accessed
+by the various software tools common to CFD, such as solvers, grid
+generators, field visualizers, and postprocessors.
+Each of these "applications" serves as an editor of the data, adding to,
+modifying, or interpreting it according to that application's specific
+role.
+
+<p>
+CGNS conventions and software provide for the recording of a complete
+and flexible problem description.
+The exact meaning of a subsonic inflow boundary condition, for example,
+can be described in complete detail if desired.
+User comments can be included nearly anywhere, affording the
+opportunity, for instance, for date stamping or history information to
+be included.
+Dimension and sizing information is carefully defined.
+Any number of flow variables may be recorded, with or without standard
+names, and it is also possible to add user-defined or site-specific
+data.
+These features afford the opportunity for applications to perform
+extensive error checking if desired.
+
+<p>
+Because of this generality, CGNS provides for the recording of much more
+descriptive information than current applications normally use.
+However, the provisions for this data are layered so that much of it is
+optional.
+It should be practical to convert most current applications to CGNS with
+little or no conceptual change, retaining the option to take advantage
+of more detailed descriptions as that becomes desirable.
+
+<p>
+CGNS specifications currently cover the bulk of CFD data that one might
+wish to exchange among sites or applications; for instance, nearly any
+type of field data can be recorded, and, based on its name, found and
+understood by any code that needs it.
+Global data (e.g., freestream Mach number, Reynolds number, angle
+of attack) and physical modeling instructions (e.g., thin layer
+assumptions, turbulence model) may be specified.
+Nevertheless, there are items specific to individual applications for
+which there is currently no specification within CGNS.
+Most commonly, these are operational instructions, such as number of
+sweeps, solution method, multigrid directives, and so on.
+Owing to the miscellaneous nature of this data, there has been no
+attempt to codify it within a global standard.
+It is therefore expected that many applications will continue to require
+small user-generated input files, presumably in ASCII format.
+
+<p>
+CGNS itself does not initiate action or undertake any function normally
+handled by the operating system.
+The user still performs CFD tasks according to existing processes.
+This includes selecting the computing platform, maintaining the files,
+and launching the applications.
+
+<p>
+However, the ease of communication between applications that CGNS
+provides should motivate the development of new batch and interactive
+mechanisms for the convenient application of CFD tools.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 13 Mar 2002
+
+</body>
+</html>

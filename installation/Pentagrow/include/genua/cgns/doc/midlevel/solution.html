@@ -1,0 +1,395 @@
+<!-- CGNS Mid-Level Library - Solution Data -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="midlevel.css" rel="stylesheet" type="text/css">
+<title> CGNS Mid-Level Library - Solution Data </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="index.html"><span class=nav><b>Mid-Level&nbsp;Library</b></span></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="general.html"><b>General&nbsp;Remarks</b></a>)
+(<a href="fileops.html"><b>File&nbsp;Operations</b></a>)
+(<a href="navigating.html"><b>Navigating&nbsp;a&nbsp;CGNS&nbsp;File</b></a>)
+(<a href="error.html"><b>Error&nbsp;Handling</b></a>)
+(<a href="structural.html"><b>Structural&nbsp;Nodes</b></a>)
+(<a href="descriptor.html"><b>Descriptors</b></a>)
+(<a href="physical.html"><b>Physical&nbsp;Data</b></a>)
+(<a href="location.html"><b>Location&nbsp;and&nbsp;Position</b></a>)
+(<a href="auxiliary.html"><b>Auxiliary&nbsp;Data</b></a>)
+(<a href="grid.html"><b>Grid&nbsp;Specification</b></a>)
+(<span class=nav><b>Solution&nbsp;Data</b></span>)
+(<a href="connectivity.html"><b>Grid&nbsp;Connectivity</b></a>)
+(<a href="bc.html"><b>Boundary&nbsp;Conditions</b></a>)
+(<a href="equation.html"><b>Equation&nbsp;Specification</b></a>)
+(<a href="families.html"><b>Families</b></a>)
+(<a href="timedep.html"><b>Time-Dependent&nbsp;Data</b></a>)
+(<a href="links.html"><b>Links</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Solution Data</h2>
+
+<ul>
+<li> <a href="#flowsolution">Flow Solution</a>
+     <ul>
+     <li> <tt><b>cg_sol_write</b></tt> - Create and/or write to a <tt>FlowSolution_t</tt> node
+     <li> <tt><b>cg_nsols</b></tt> - Get number of <tt>FlowSolution_t</tt> nodes
+     <li> <tt><b>cg_sol_info</b></tt> - Get info about a <tt>FlowSolution_t</tt> node
+     <li> <tt><b>cg_field_write</b></tt> - Write flow solution
+     <li> <tt><b>cg_field_partial_write</b></tt> - Write subset of flow solution
+     <li> <tt><b>cg_nfields</b></tt> - Get number of flow solution arrays
+     <li> <tt><b>cg_field_info</b></tt> - Get info about a flow solution array
+     <li> <tt><b>cg_field_read</b></tt> - Read flow solution
+     </ul>
+<li> <a href="#discretedata">Discrete Data</a>
+     <ul>
+     <li> <tt><b>cg_discrete_write</b></tt> - Create a <tt>DiscreteData_t</tt> node
+     <li> <tt><b>cg_ndiscrete</b></tt> - Get number of <tt>DiscreteData_t</tt> nodes
+     <li> <tt><b>cg_discrete_read</b></tt> - Get name of a <tt>DiscreteData_t</tt> node 
+     </ul>
+</ul>
+
+<a name="flowsolution"></a>
+<h3>Flow Solution</h3>
+
+<i>Node</i>: <tt>FlowSolution_t</tt>
+             (<a href="../sids/gridflow.html#FlowSolution">SIDS</a>,
+              <a href="../filemap/nodes.html#FlowSolution">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_sol_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>char *solname</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>GridLocation_t location</span>, <span class=out><i>int *S</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_nsols(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=out><i>int *nsols</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_sol_info(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int S</span>, <span class=out><i>char *solname</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>GridLocation_t *location</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+       <tt><b>call cg_sol_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>solname</span>, <span class=in>location</span>, <span class=out><i>S</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_nsols_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=out><i>nsols</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_sol_info_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>S</span>, <span class=out><i>solname</i></span>, <span class=out><i>location</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>S</tt><td>
+   <td>Flow solution index number, where
+       1 &le; <tt>S</tt> &le; <tt>nsols</tt>.
+<tr valign=baseline><td>
+   <td><tt>nsols</tt><td>
+   <td>Number of flow solutions for zone <tt>Z</tt>.
+<tr valign=baseline><td>
+   <td><tt>solname</tt><td>
+   <td>Name of the flow solution.
+<tr valign=baseline><td>
+   <td><tt>location</tt><td>
+   <td>Grid location where the solution is recorded.
+       The current admissible locations are <tt>Vertex</tt>,
+       <tt>CellCenter</tt>, <tt>IFaceCenter</tt>, <tt>JFaceCenter</tt>,
+       and <tt>KFaceCenter</tt>.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The above functions are used to create, and get information about,
+<tt>FlowSolution_t</tt> nodes.
+
+<a name="flowsolution_array"></a>
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_field_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int S</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>DataType_t datatype</span>, <span class=in>char *fieldname</span>, <span class=in>void *solution_array</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *F</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_field_partial_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int S</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>DataType_t datatype</span>, <span class=in>char *fieldname</span>, <span class=in>int *range_min</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>int *range_max</span>, <span class=in>void *solution_array</span>, <span class=out><i>int *F</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_nfields(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int S</span>, <span class=out><i>int *nfields</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_field_info(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int S</span>, <span class=in>int F</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>DataType_t *datatype</i></span>, <span class=out><i>char *fieldname</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_field_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int S</span>, <span class=in>char *fieldname</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>DataType_t datatype</span>, <span class=in>int *range_min</span>, <span class=in>int *range_max</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>void *solution_array</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+       <tt><b>call cg_field_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>S</span>, <span class=in>datatype</span>, <span class=in>fieldname</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>solution_array</span>, <span class=out><i>F</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+       <tt><b>call cg_field_partial_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>S</span>, <span class=in>datatype</span>, <span class=in>fieldname</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>range_min</span>, <span class=in>range_max</span>, <span class=in>solution_array</span>, <span class=out><i>F</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_nfields_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>S</span>, <span class=out><i>nfields</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_field_info_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>S</span>, <span class=in>F</span>, <span class=out><i>datatype</i></span>, <span class=out><i>fieldname</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_field_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>S</span>, <span class=in>fieldname</span>, <span class=in>datatype</span>, <span class=in>range_min</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>range_max</span>, <span class=out><i>solution_array</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>S</tt><td>
+   <td>Flow solution index number, where
+       1 &le; <tt>S</tt> &le; <tt>nsols</tt>.
+<tr valign=baseline><td>
+   <td><tt>F</tt><td>
+   <td>Solution array index number, where
+       1 &le; <tt>F</tt> &le; <tt>nfields</tt>.
+<tr valign=baseline><td>
+   <td><tt>nfields</tt><td>
+   <td>Number of data arrays in flow solution <tt>S</tt>.
+<tr valign=baseline><td>
+   <td><tt>datatype</tt><td>
+   <td>Data type in which the solution array is written.
+       Admissible data types for a solution array are <tt>Integer</tt>,
+       <tt>RealSingle</tt>, and <tt>RealDouble</tt>.
+<tr valign=baseline><td>
+   <td><tt>fieldname</tt><td>
+   <td>Name of the solution array.
+       It is strongly advised to use the
+       <a href="../sids/dataname.html#dataname_flow">SIDS nomenclature
+       conventions</a> when naming the solution arrays to insure file
+       compatibility.
+<tr valign=baseline><td>
+   <td><tt>range_min</tt><td>
+   <td>Lower range index (eg., <tt>imin, jmin, kmin</tt>).
+<tr valign=baseline><td>
+   <td><tt>range_max</tt><td>
+   <td>Upper range index (eg., <tt>imax, jmax, kmax</tt>).
+<tr valign=baseline><td>
+   <td><tt>solution_array</tt><td>
+   <td>Array of solution values for the range prescribed.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The above functions are used to read and write solution arrays stored
+below a <tt>FlowSolution_t</tt> node.
+
+<p>
+When writing, the function <tt>cg_field_write</tt> will
+automatically write the full range of the solution (i.e., the entire
+<tt>solution_array</tt>).
+The function <tt>cg_field_partial_write</tt> may be used to write
+only a subset of <tt>solution_array</tt>.
+When using the partial write, any existing data from <tt>range_min</tt>
+to <tt>range_max</tt> will be overwritten by the new values.
+All other values will not be affected.
+
+<p>
+The function <tt>cg_field_read</tt> returns the solution array
+<tt>fieldname</tt>, for the range prescribed by <tt>range_min</tt> and
+<tt>range_max</tt>.
+The array is returned to the application in the data type requested in
+<tt>datatype</tt>.
+This data type does not need to be the same as the one in which the data is
+stored in the file.
+A solution array stored as double precision in the CGNS file can be
+returned to the application as single precision, or vice versa.
+
+<p>
+In Fortran, when using <tt>cg_field_read_f</tt> to read a 2D or 3D
+solution, the extent of each dimension of <tt>solution_array</tt> must
+be consistent with the requested range.
+When reading a 1D solution, the declared size can be larger than the
+requested range.
+For example, for a 2D zone with 100 &times; 50 vertices, if
+<tt>range_min</tt> and <tt>range_max</tt> are set to (11,11) and (20,20)
+to read a subset of the solution, then <tt>solution_array</tt> must be
+dimensioned (10,10).
+If <tt>solution_array</tt> is declared larger (e.g., (100,50)) the
+indices for the returned array values will be wrong.
+
+<a name="discretedata"></a>
+<h3>Discrete Data</h3>
+
+<i>Node</i>: <tt>DiscreteData_t</tt>
+             (<a href="../sids/misc.html#DiscreteData">SIDS</a>,
+              <a href="../filemap/nodes.html#DiscreteData">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+       <tt><b><span class=out><i>ier</i></span> = cg_discrete_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>char *DiscreteName</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *D</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_ndiscrete(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=out><i>int *ndiscrete</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_discrete_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Z</span>, <span class=in>int D</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>char *DiscreteName</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+       <tt><b>call cg_discrete_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>DiscreteName</span>, <span class=out><i>D</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_ndiscrete_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=out><i>ndiscrete</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_discrete_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Z</span>, <span class=in>D</span>, <span class=out><i>DiscreteName</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Z</tt><td>
+   <td>Zone index number, where 1 &le; <tt>Z</tt> &le; <tt>nzones</tt>.
+<tr valign=baseline><td>
+   <td><tt>D</tt><td>
+   <td>Discrete data index number, where
+       1 &le; <tt>D</tt> &le; <tt>ndiscrete</tt>.
+<tr valign=baseline><td>
+   <td><tt>ndiscrete</tt><td>
+   <td>Number of <tt>DiscreteData_t</tt> data structures under zone <tt>Z</tt>.
+<tr valign=baseline><td>
+   <td><tt>DiscreteName</tt><td>
+   <td>Name of <tt>DiscreteData_t</tt> data structure.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+<tt>DiscreteData_t</tt> nodes are intended for the storage of fields
+of data not usually identified as part of the flow solution, such as
+fluxes or equation residuals.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 17 Nov 2005
+
+</body>
+</html>

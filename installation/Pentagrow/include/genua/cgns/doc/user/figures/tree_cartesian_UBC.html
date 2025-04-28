@@ -1,0 +1,74 @@
+<!-- A User's Guide to CGNS - longdesc for CGNS layout for unstructured
+     grid with boundary conditions at face centers -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="../user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - CGNS layout for unstructured grid with boundary conditions at face centers </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<p>
+This diagram illustrates the layout of the CGNS file, starting with the
+<tt>ZoneBC_t</tt> node, for an unstructured grid with boundary conditions
+defined at face centers.
+
+<p>
+The <tt>ZoneBC_t</tt> node has the following characteristics.
+<ul>
+<li> Name: <tt>ZoneBC</tt><br>
+     Label: <tt>ZoneBC_t</tt><br>
+     Data: <tt>MT</tt>
+</ul>
+
+<p>
+Below the <tt>ZoneBC_t</tt> node are the following three nodes defining
+the boundary conditions.
+<ul>
+<li> Name: <tt>ilo</tt><br>
+     Label: <tt>BC_t</tt><br>
+     Data: <tt>BCTunnelInflow</tt>
+<li> Name: <tt>ihi</tt><br>
+     Label: <tt>BC_t</tt><br>
+     Data: <tt>BCExtrapolate</tt>
+<li> Name: <tt>Walls</tt><br>
+     Label: <tt>BC_t</tt><br>
+     Data: <tt>BCWallInviscid</tt>
+</ul>
+
+<p>
+Below each of these <tt>BC_t</tt> nodes is a child node defining the
+elements over which the boundary condition acts.
+For the <tt>ilo</tt> boundary, this is:
+<ul>
+<li> Name: <tt>ElementList</tt><br>
+     Label: <tt>IndexArray_t</tt><br>
+     Data: 2561 to 2688
+</ul>
+For the <tt>ihi</tt> boundary, it's:
+<ul>
+<li> Name: <tt>ElementList</tt><br>
+     Label: <tt>IndexArray_t</tt><br>
+     Data: 2689 to 2816
+</ul>
+And for the <tt>Walls</tt> boundaries, it's:
+<ul>
+<li> Name: <tt>ElementList</tt><br>
+     Label: <tt>IndexArray_t</tt><br>
+     Data: 2817 to 3776
+</ul>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 7 Mar 2008
+
+</body>
+</html>

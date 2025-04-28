@@ -1,0 +1,93 @@
+<!-- A User's Guide to CGNS - longdesc for CGNS layout for flow equation
+     set information -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="../user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - CGNS layout for flow equation set information </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<p>
+This diagram illustrates the layout of the relevant parts of the CGNS
+file for recording flow equation set information.
+
+<p>
+The <tt>Zone_t</tt> node is the same as in previous figures, with the
+following characteristics.
+<ul>
+<li> Name: <tt>Zone 1</tt><br>
+     Label: <tt>Zone_t</tt><br>
+     Data: <tt>VertexSize</tt>=(21,17,9),
+           <tt>CellSize</tt>=(20,16,8),
+           <tt>VertexSizeBoundary</tt>=(0,0,0)
+</ul>
+
+<p>
+Below the <tt>Zone_t</tt> node are multiple nodes, with the
+following two nodes shown in detail.
+<ul>
+<li> Name: <tt>ZoneType</tt><br>
+     Label: <tt>ZoneType_t</tt><br>
+     Data: <tt>Structured</tt>
+<li> Name: <tt>FlowEquationSet</tt><br>
+     Label: <tt>FlowEquationSet_t</tt><br>
+     Data: <tt>MT</tt>
+</ul>
+
+<p>
+Below the <tt>FlowEquationSet_t</tt> node are again multiple nodes,
+with the following three shown in detail.
+<ul>
+<li> Name: <tt>EquationDimension</tt><br>
+     Label: <tt>"int"</tt><br>
+     Data: 3
+<li> Name: <tt>GoverningEquations</tt><br>
+     Label: <tt>GoverningEquations_t</tt><br>
+     Data: <tt>NSTurbulent</tt>
+<li> Name: <tt>GasModel</tt><br>
+     Label: <tt>GasModel_t</tt><br>
+     Data: <tt>Ideal</tt>
+</ul>
+
+<p>
+Below the <tt>GoverningEquations_t</tt> nodes is a node defining the
+diffusion model used.
+<ul>
+<li> Name: <tt>DiffusionModel</tt><br>
+     Label: <tt>"int[1+...+IndexDimension]"</tt><br>
+     Data: (0,1,0,0,0,0)
+</ul>
+
+<p>
+Below the <tt>GasModel_t</tt> nodes is a child defining the specific
+heat ratio.
+<ul>
+<li> Name: <tt>SpecificHeatRatio</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: 1.4
+</ul>
+
+<p>
+And finally, below the node defining the specific heat ratio is a child
+node defining the data class.
+<ul>
+<li> Name: <tt>DataClass</tt><br>
+     Label: <tt>DataClass_t</tt><br>
+     Data: <tt>NondimensionalParameter</tt>
+</ul>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 3 Sept 2002
+
+</body>
+</html>

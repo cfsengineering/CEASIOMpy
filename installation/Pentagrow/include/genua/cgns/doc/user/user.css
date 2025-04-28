@@ -1,0 +1,10 @@
+/* A User's Guide to CGNS - style sheet */
+
+/* Header colors */
+h1,h2,h3,h4,h5,h6 {color: #2D0091}
+
+/* Current page and parent document in navigation headers */
+span.nav {color: #000066}
+
+/* Footer */
+div.footer {font-style: italic}

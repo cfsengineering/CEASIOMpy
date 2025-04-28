@@ -1,0 +1,227 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
+<head>
+  <title>libQGLViewer select example</title>
+  <meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1" />
+  <link href="../qglviewer.css" rel="stylesheet" type="text/css" />
+  <link rel="shortcut icon" href="../images/qglviewer.ico" type="image/x-icon" />
+  <link rel="icon" href="../images/qglviewer.icon.png" type="image/png" />
+</head>
+<body>
+
+<div class="banner">
+ <a class="qindex" href="../index.html">Home</a>
+ <a class="qindex" href="../refManual/hierarchy.html">Documentation</a>
+ <a class="qindex" href="../download.html">Download</a>
+ <a class="qindex highlight" href="index.html">Examples</a>
+ <a class="qindex" href="../developer.html">Developer</a>
+</div>
+
+<h1>The select example</h1>
+
+<center>
+  <img src="../images/select.jpg" width="330" height="228" alt="select"/>
+</center>
+
+<p>
+ Selection of scene objects using <code>select()</code> and an GL_SELECT render mode.
+</p>
+<p>
+ Use the <code>select()</code> callback function to implement your object selection function. This
+ examples is based on a generic GL_SELECT implementation that can easily be cut and pasted in your
+ applications.
+</p>
+<p>
+ Analytic intersection computations are also possible once the screen coordinates have be converted
+ to a half line using <code>convertClickToLine()</code>. Make a selection and then move the camera
+ to see a representation of the intersection line.
+</p>
+<h2>select.h</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;QGLViewer/qglviewer.h&gt;</font>
+
+<b><font color="#0000FF">class</font></b> Viewer <font color="#990000">:</font> <b><font color="#0000FF">public</font></b> QGLViewer
+<font color="#FF0000">{</font>
+<b><font color="#0000FF">protected</font></b> <font color="#990000">:</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">draw</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">drawWithNames</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">postSelection</font></b><font color="#990000">(</font><b><font color="#0000FF">const</font></b> QPoint<font color="#990000">&amp;</font> point<font color="#990000">);</font>
+  <b><font color="#0000FF">virtual</font></b> <font color="#009900">void</font> <b><font color="#000000">init</font></b><font color="#990000">();</font>
+  <b><font color="#0000FF">virtual</font></b> QString <b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b><font color="#990000">;</font>
+
+<b><font color="#0000FF">private</font></b> <font color="#990000">:</font>
+  qglviewer<font color="#990000">::</font>Vec orig<font color="#990000">,</font> dir<font color="#990000">,</font> selectedPoint<font color="#990000">;</font>
+<font color="#FF0000">}</font><font color="#990000">;</font>
+</tt></pre>
+
+
+<h2>select.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"select.h"</font>
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;qmessagebox.h&gt;</font>
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;math.h&gt;</font>
+
+<b><font color="#0000FF">using</font></b> <b><font color="#0000FF">namespace</font></b> std<font color="#990000">;</font>
+
+<b><font color="#0000FF">static</font></b> <font color="#009900">void</font> <b><font color="#000000">drawSpiral</font></b><font color="#990000">(</font><b><font color="#0000FF">const</font></b> <font color="#009900">bool</font> specialColor <font color="#990000">=</font> <b><font color="#0000FF">false</font></b><font color="#990000">)</font>
+<font color="#FF0000">{</font>
+  <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> nbSteps <font color="#990000">=</font> <font color="#993399">100.0</font><font color="#990000">;</font>
+  <b><font color="#000000">glBegin</font></b><font color="#990000">(</font>GL_QUAD_STRIP<font color="#990000">);</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">float</font> i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nbSteps<font color="#990000">;</font> <font color="#990000">++</font>i<font color="#990000">)</font>
+    <font color="#FF0000">{</font>
+      <font color="#009900">float</font> ratio <font color="#990000">=</font> i<font color="#990000">/</font>nbSteps<font color="#990000">;</font>
+      <font color="#009900">float</font> angle <font color="#990000">=</font> <font color="#993399">21.0</font><font color="#990000">*</font>ratio<font color="#990000">;</font>
+      <font color="#009900">float</font> c <font color="#990000">=</font> <b><font color="#000000">cos</font></b><font color="#990000">(</font>angle<font color="#990000">);</font>
+      <font color="#009900">float</font> s <font color="#990000">=</font> <b><font color="#000000">sin</font></b><font color="#990000">(</font>angle<font color="#990000">);</font>
+      <font color="#009900">float</font> r1 <font color="#990000">=</font> <font color="#993399">0.5</font> <font color="#990000">-</font> <font color="#993399">0.3</font><font color="#990000">*</font>ratio<font color="#990000">;</font>
+      <font color="#009900">float</font> r2 <font color="#990000">=</font> <font color="#993399">0.3</font> <font color="#990000">-</font> <font color="#993399">0.3</font><font color="#990000">*</font>ratio<font color="#990000">;</font>
+      <font color="#009900">float</font> alt <font color="#990000">=</font> ratio <font color="#990000">-</font> <font color="#993399">0.5</font><font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> nor <font color="#990000">=</font> <font color="#990000">.</font><font color="#993399">5</font><font color="#990000">;</font>
+      <b><font color="#0000FF">const</font></b> <font color="#009900">float</font> up <font color="#990000">=</font> <b><font color="#000000">sqrt</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">-</font>nor<font color="#990000">*</font>nor<font color="#990000">);</font>
+      <b><font color="#0000FF">if</font></b> <font color="#990000">(</font>specialColor<font color="#990000">)</font>
+	<b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">-</font>ratio<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>8f <font color="#990000">,</font> ratio<font color="#990000">/</font><font color="#993399">2.0</font><font color="#990000">);</font>
+      <b><font color="#0000FF">else</font></b>
+	<b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">1.0</font><font color="#990000">-</font>ratio<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>2f<font color="#990000">,</font> ratio<font color="#990000">);</font>
+      <b><font color="#000000">glNormal3f</font></b><font color="#990000">(</font>nor<font color="#990000">*</font>c<font color="#990000">,</font> nor<font color="#990000">*</font>s<font color="#990000">,</font> up<font color="#990000">);</font>
+      <b><font color="#000000">glVertex3f</font></b><font color="#990000">(</font>r2<font color="#990000">*</font>c<font color="#990000">,</font> r2<font color="#990000">*</font>s<font color="#990000">,</font> alt<font color="#990000">+</font><font color="#993399">0</font><font color="#990000">.</font>05f<font color="#990000">);</font>
+      <b><font color="#000000">glVertex3f</font></b><font color="#990000">(</font>r1<font color="#990000">*</font>c<font color="#990000">,</font> r1<font color="#990000">*</font>s<font color="#990000">,</font> alt<font color="#990000">);</font>
+    <font color="#FF0000">}</font>
+  <b><font color="#000000">glEnd</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">drawWithNames</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <i><font color="#9A1900">// Draw spirals, pushing a name (id) for each of them</font></i>
+  <b><font color="#0000FF">const</font></b> <font color="#009900">int</font> nb <font color="#990000">=</font> <font color="#993399">10</font><font color="#990000">;</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">int</font> i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nb<font color="#990000">;</font> <font color="#990000">++</font>i<font color="#990000">)</font>
+    <font color="#FF0000">{</font>
+      <b><font color="#000000">glPushMatrix</font></b><font color="#990000">();</font>
+      <b><font color="#000000">glTranslatef</font></b><font color="#990000">(</font><b><font color="#000000">cos</font></b><font color="#990000">(</font><font color="#993399">2.0</font><font color="#990000">*</font>i<font color="#990000">*</font>M_PI<font color="#990000">/</font>nb<font color="#990000">),</font> <b><font color="#000000">sin</font></b><font color="#990000">(</font><font color="#993399">2.0</font><font color="#990000">*</font>i<font color="#990000">*</font>M_PI<font color="#990000">/</font>nb<font color="#990000">),</font> <font color="#993399">0</font><font color="#990000">.);</font>
+
+      <b><font color="#000000">glPushName</font></b><font color="#990000">(</font>i<font color="#990000">);</font>
+      <b><font color="#000000">drawSpiral</font></b><font color="#990000">();</font>
+      <b><font color="#000000">glPopName</font></b><font color="#990000">();</font>
+
+      <b><font color="#000000">glPopMatrix</font></b><font color="#990000">();</font>
+    <font color="#FF0000">}</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">postSelection</font></b><font color="#990000">(</font><b><font color="#0000FF">const</font></b> QPoint<font color="#990000">&amp;</font> point<font color="#990000">)</font>
+<font color="#FF0000">{</font>
+  <i><font color="#9A1900">// Compute orig and dir, used to draw a representation of the intersecting line</font></i>
+  <b><font color="#000000">camera</font></b><font color="#990000">()-&gt;</font><b><font color="#000000">convertClickToLine</font></b><font color="#990000">(</font>point<font color="#990000">,</font> orig<font color="#990000">,</font> dir<font color="#990000">);</font>
+
+  <i><font color="#9A1900">// Find the selectedPoint coordinates, using camera()-&gt;pointUnderPixel().</font></i>
+  <font color="#009900">bool</font> found<font color="#990000">;</font>
+  selectedPoint <font color="#990000">=</font> <b><font color="#000000">camera</font></b><font color="#990000">()-&gt;</font><b><font color="#000000">pointUnderPixel</font></b><font color="#990000">(</font>point<font color="#990000">,</font> found<font color="#990000">);</font>
+  selectedPoint <font color="#990000">-=</font> <font color="#993399">0</font><font color="#990000">.</font>01f<font color="#990000">*</font>dir<font color="#990000">;</font> <i><font color="#9A1900">// Small offset to make point clearly visible.</font></i>
+  <i><font color="#9A1900">// Note that "found" is different from (selectedObjectId()&gt;=0) because of the size of the select region.</font></i>
+
+  <b><font color="#0000FF">if</font></b> <font color="#990000">(</font><b><font color="#000000">selectedName</font></b><font color="#990000">()</font> <font color="#990000">==</font> <font color="#990000">-</font><font color="#993399">1</font><font color="#990000">)</font>
+    QMessageBox<font color="#990000">::</font><b><font color="#000000">information</font></b><font color="#990000">(</font><b><font color="#0000FF">this</font></b><font color="#990000">,</font> <font color="#FF0000">"No selection"</font><font color="#990000">,</font>
+			     <font color="#FF0000">"No object selected under pixel "</font> <font color="#990000">+</font> QString<font color="#990000">::</font><b><font color="#000000">number</font></b><font color="#990000">(</font>point<font color="#990000">.</font><b><font color="#000000">x</font></b><font color="#990000">())</font> <font color="#990000">+</font> <font color="#FF0000">","</font> <font color="#990000">+</font> QString<font color="#990000">::</font><b><font color="#000000">number</font></b><font color="#990000">(</font>point<font color="#990000">.</font><b><font color="#000000">y</font></b><font color="#990000">()));</font>
+  <b><font color="#0000FF">else</font></b>
+    QMessageBox<font color="#990000">::</font><b><font color="#000000">information</font></b><font color="#990000">(</font><b><font color="#0000FF">this</font></b><font color="#990000">,</font> <font color="#FF0000">"Selection"</font><font color="#990000">,</font>
+			     <font color="#FF0000">"Spiral number "</font> <font color="#990000">+</font> QString<font color="#990000">::</font><b><font color="#000000">number</font></b><font color="#990000">(</font><b><font color="#000000">selectedName</font></b><font color="#990000">())</font> <font color="#990000">+</font> <font color="#FF0000">" selected under pixel "</font> <font color="#990000">+</font>
+			     QString<font color="#990000">::</font><b><font color="#000000">number</font></b><font color="#990000">(</font>point<font color="#990000">.</font><b><font color="#000000">x</font></b><font color="#990000">())</font> <font color="#990000">+</font> <font color="#FF0000">","</font> <font color="#990000">+</font> QString<font color="#990000">::</font><b><font color="#000000">number</font></b><font color="#990000">(</font>point<font color="#990000">.</font><b><font color="#000000">y</font></b><font color="#990000">()));</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">init</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <b><font color="#000000">restoreStateFromFile</font></b><font color="#990000">();</font>
+
+  <b><font color="#000000">glLineWidth</font></b><font color="#990000">(</font><font color="#993399">3.0</font><font color="#990000">);</font>
+  <b><font color="#000000">glPointSize</font></b><font color="#990000">(</font><font color="#993399">10.0</font><font color="#990000">);</font>
+
+  <b><font color="#000000">help</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+
+<font color="#009900">void</font> Viewer<font color="#990000">::</font><b><font color="#000000">draw</font></b><font color="#990000">()</font>
+<font color="#FF0000">{</font>
+  <i><font color="#9A1900">// Draw ten spirals</font></i>
+  <b><font color="#0000FF">const</font></b> <font color="#009900">int</font> nb <font color="#990000">=</font> <font color="#993399">10</font><font color="#990000">;</font>
+  <b><font color="#0000FF">for</font></b> <font color="#990000">(</font><font color="#009900">int</font> i<font color="#990000">=</font><font color="#993399">0</font><font color="#990000">;</font> i<font color="#990000">&lt;</font>nb<font color="#990000">;</font> <font color="#990000">++</font>i<font color="#990000">)</font>
+    <font color="#FF0000">{</font>
+      <b><font color="#000000">glPushMatrix</font></b><font color="#990000">();</font>
+      <b><font color="#000000">glTranslatef</font></b><font color="#990000">(</font><b><font color="#000000">cos</font></b><font color="#990000">(</font><font color="#993399">2.0</font><font color="#990000">*</font>i<font color="#990000">*</font>M_PI<font color="#990000">/</font>nb<font color="#990000">),</font> <b><font color="#000000">sin</font></b><font color="#990000">(</font><font color="#993399">2.0</font><font color="#990000">*</font>i<font color="#990000">*</font>M_PI<font color="#990000">/</font>nb<font color="#990000">),</font> <font color="#993399">0.0</font><font color="#990000">);</font>
+      <b><font color="#000000">drawSpiral</font></b><font color="#990000">(</font>i <font color="#990000">==</font> <b><font color="#000000">selectedName</font></b><font color="#990000">());</font>
+      <b><font color="#000000">glPopMatrix</font></b><font color="#990000">();</font>
+    <font color="#FF0000">}</font>
+
+  <i><font color="#9A1900">// Draw the intersection line</font></i>
+  <b><font color="#000000">glBegin</font></b><font color="#990000">(</font>GL_LINES<font color="#990000">);</font>
+  <b><font color="#000000">glVertex3fv</font></b><font color="#990000">(</font>orig<font color="#990000">);</font>
+  <b><font color="#000000">glVertex3fv</font></b><font color="#990000">(</font>orig <font color="#990000">+</font> <font color="#993399">100.0</font><font color="#990000">*</font>dir<font color="#990000">);</font>
+  <b><font color="#000000">glEnd</font></b><font color="#990000">();</font>
+
+  <i><font color="#9A1900">// Draw (approximated) intersection point on selected object</font></i>
+  <b><font color="#0000FF">if</font></b> <font color="#990000">(</font><b><font color="#000000">selectedName</font></b><font color="#990000">()</font> <font color="#990000">&gt;=</font> <font color="#993399">0</font><font color="#990000">)</font>
+    <font color="#FF0000">{</font>
+      <b><font color="#000000">glColor3f</font></b><font color="#990000">(</font><font color="#993399">0</font><font color="#990000">.</font>9f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>2f<font color="#990000">,</font> <font color="#993399">0</font><font color="#990000">.</font>1f<font color="#990000">);</font>
+      <b><font color="#000000">glBegin</font></b><font color="#990000">(</font>GL_POINTS<font color="#990000">);</font>
+      <b><font color="#000000">glVertex3fv</font></b><font color="#990000">(</font>selectedPoint<font color="#990000">);</font>
+      <b><font color="#000000">glEnd</font></b><font color="#990000">();</font>
+    <font color="#FF0000">}</font>
+<font color="#FF0000">}</font>
+
+QString Viewer<font color="#990000">::</font><b><font color="#000000">helpString</font></b><font color="#990000">()</font> <b><font color="#0000FF">const</font></b>
+<font color="#FF0000">{</font>
+  QString <b><font color="#000000">text</font></b><font color="#990000">(</font><font color="#FF0000">"&lt;h2&gt;S e l e c t&lt;/h2&gt;"</font><font color="#990000">);</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"Left click while pressing the &lt;b&gt;Shift&lt;/b&gt; key to select an object of the scene.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"A line is drawn between the selected point and the camera selection position. "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"using &lt;i&gt;convertClickToLine()&lt;/i&gt;, a useful function for analytical intersections.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"To add object selection in your viewer, all you need to do is to define the &lt;i&gt;drawWithNames&lt;/i&gt; function. "</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"It gives a name to each selectable object and selection is then performed using the OpenGL &lt;i&gt;GL_SELECT&lt;/i&gt; render mode.&lt;br&gt;&lt;br&gt;"</font><font color="#990000">;</font>
+  text <font color="#990000">+=</font> <font color="#FF0000">"Feel free to cut and paste this implementation in your own applications."</font><font color="#990000">;</font>
+  <b><font color="#0000FF">return</font></b> text<font color="#990000">;</font>
+<font color="#FF0000">}</font>
+</tt></pre>
+
+
+<h2>main.cpp</h2>
+<!-- Generator: GNU source-highlight 2.4
+by Lorenzo Bettini
+http://www.lorenzobettini.it
+http://www.gnu.org/software/src-highlite -->
+<pre><tt><b><font color="#000080">#include</font></b> <font color="#FF0000">"select.h"</font>
+<b><font color="#000080">#include</font></b> <font color="#FF0000">&lt;qapplication.h&gt;</font>
+
+<font color="#009900">int</font> <b><font color="#000000">main</font></b><font color="#990000">(</font><font color="#009900">int</font> argc<font color="#990000">,</font> <font color="#009900">char</font><font color="#990000">**</font> argv<font color="#990000">)</font>
+<font color="#FF0000">{</font>
+  QApplication <b><font color="#000000">application</font></b><font color="#990000">(</font>argc<font color="#990000">,</font>argv<font color="#990000">);</font>
+
+  Viewer viewer<font color="#990000">;</font>
+
+<b><font color="#000080">#if</font></b> QT_VERSION <font color="#990000">&lt;</font> <font color="#993399">0x040000</font>
+  <i><font color="#9A1900">// Set the viewer as the application main widget.</font></i>
+  application<font color="#990000">.</font><b><font color="#000000">setMainWidget</font></b><font color="#990000">(&amp;</font>viewer<font color="#990000">);</font>
+<b><font color="#000080">#else</font></b>
+  viewer<font color="#990000">.</font><b><font color="#000000">setWindowTitle</font></b><font color="#990000">(</font><font color="#FF0000">"select"</font><font color="#990000">);</font>
+<b><font color="#000080">#endif</font></b>
+
+  viewer<font color="#990000">.</font><b><font color="#000000">show</font></b><font color="#990000">();</font>
+
+  <b><font color="#0000FF">return</font></b> application<font color="#990000">.</font><b><font color="#000000">exec</font></b><font color="#990000">();</font>
+<font color="#FF0000">}</font>
+</tt></pre>
+
+
+
+<p>
+  Back to the <a href="index.html">examples main page</a>.
+</p>
+
+<p>
+  <a href="http://validator.w3.org/check/referer"><img src="../images/xhtml.png" alt="Valid XHTML 1.0!" height="31" width="88"/></a>
+  <a href="http://jigsaw.w3.org/css-validator/check/referer"><img src="../images/css.png" width="88" height="31" alt="Valid CSS!"/></a>
+<i>Last modified on Tuesday, September 30, 2008.</i>
+</p>
+
+</body>
+</html>

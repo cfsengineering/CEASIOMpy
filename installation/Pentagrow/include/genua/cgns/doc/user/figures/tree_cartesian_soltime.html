@@ -1,0 +1,91 @@
+<!-- A User's Guide to CGNS - longdesc for CGNS layout for time-accurate
+     flow solutions -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="../user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - CGNS layout for time-accurate flow solutions </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<p>
+This diagram illustrates the layout of the CGNS file for the simple
+Cartesian structured grid with multiple time-accurate flow solutions.
+
+<p>
+Just below the root node of the ADF file are two nodes with the
+following characteristics.
+<ul>
+<li> Name: <tt>CGNSLibraryVersion</tt><br>
+     Label: <tt>CGNSLibraryVersion_t</tt><br>
+     Data: (version number)
+<li> Name: <tt>Base</tt><br>
+     Label: <tt>CGNSBase_t</tt><br>
+     Data: <tt>CellDimension</tt>=3, <tt>PhysicalDimension</tt>=3
+</ul>
+
+<p>
+Below the <tt>CGNSBase_t</tt> node are the zone node, and two other
+nodes associated with the time-accurate solution.
+<ul>
+<li> Name: <tt>Zone 1</tt><br>
+     Label: <tt>Zone_t</tt><br>
+     Data: <tt>VertexSize</tt>=(21,17,9), <tt>CellSize</tt>=(20,16,8),
+           <tt>VertexSizeBoundary</tt>=(0,0,0)
+<li> Name: <tt>SimulationType</tt><br>
+     Label: <tt>SimulationType_t</tt><br>
+     Data: <tt>TimeAccurate</tt>
+<li> Name: <tt>TimeIterValues</tt><br>
+     Label: <tt>BaseIterativeData_t</tt><br>
+     Data: <tt>NumberofSteps</tt>=3
+</ul>
+
+<p>
+Below the <tt>BaseIterativeData_t</tt> node is the following child node
+specifying the time values.
+<ul>
+<li> Name: <tt>TimeValues</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: 10,20,50
+</ul>
+
+<p>
+Below the <tt>Zone_t</tt> node are multiple nodes, four of which
+are shown in detail.
+Three of these are <tt>FlowSolution_t</tt> labeled nodes, named
+<tt>FlowSolution1</tt>, <tt>FlowSolution2</tt>, and <tt>FlowSolution3</tt>,
+with data <tt>MT</tt>.
+Each of the <tt>FlowSolution_t</tt> nodes has children containing
+flow solution data, but these are not shown in detail in the figure.
+The fourth node below the <tt>Zone_t</tt> node in the figure is used
+to associate the <tt>FlowSolution_t</tt> nodes with the appropriate
+time level.
+<ul>
+<li> Name: <tt>ZoneIterativeData</tt><br>
+     Label: <tt>ZoneIterativeData_t</tt><br>
+     Data: <tt>MT</tt>
+</ul>
+The <tt>ZoneIterativeData_t</tt> node has the following child node
+containing the names of the nodes with the flow solution for the time
+levels stored in the file.
+<ul>
+<li> Name: <tt>FlowSolutionPointers</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: <tt>FlowSolution1</tt>, <tt>FlowSolution2</tt>,
+           <tt>FlowSolution3</tt>
+</ul>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 3 Sept 2002
+
+</body>
+</html>

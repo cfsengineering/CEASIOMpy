@@ -1,0 +1,235 @@
+<!-- A User's Guide to CGNS - Introduction -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - Introduction</title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="index.html"><span class=nav><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></span></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../midlevel/index.html"><b>Mid-Level&nbsp;Library</b></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<span class=nav><b>Introduction</b></span>)
+(<a href="started.html"><b>Getting&nbsp;Started</b></a>)
+(<a href="additional.html"><b>Additional&nbsp;Information</b></a>)
+(<a href="trouble.html"><b>Troubleshooting</b></a>)
+(<a href="faq.html"><b>Frequently&nbsp;Asked&nbsp;Questions</b></a>)
+(<a href="examples.html"><b>Example&nbsp;Computer&nbsp;Codes</b></a>)
+(<a href="sids.html"><b>Overview&nbsp;of&nbsp;the&nbsp;SIDS</b></a>)
+(<a href="plot3d.html"><b>Guideline&nbsp;for&nbsp;PLOT3D&nbsp;Variables</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Introduction</h2>
+
+<ul>
+<li> <a href="#sec:whatCGNS">What is CGNS?</a>
+<li> <a href="#sec:whyCGNS">Why CGNS?</a>
+<li> <a href="#sec:whatCGNSfile">What is a CGNS File?</a>
+<li> <a href="#sec:organization">How this User's Guide is Organized</a>
+</ul>
+
+<p>
+This User's Guide (originally published as NASA/TM-2001-211236, October
+2001) has been written to aid users in the implementation
+of CGNS (CFD General Notation System).
+It is intended as a tutorial: light in content, but
+heavy in examples, advice, and guidelines.  Readers interested in
+additional details are referred to other documents, listed in the references,
+which are available from the
+<a href="http://cgns.sourceforge.net/index.html">CGNS website</a>
+<img src="../external.png" alt="external link">.
+
+<a name="sec:whatCGNS"></a>
+<h3>What is CGNS?</h3>
+
+<p>
+CGNS (CFD General Notation System) originated in 1994
+as a joint effort between Boeing and NASA, and has since grown
+to include many other contributing organizations worldwide.
+It is an effort to <em>standardize</em>
+CFD input and output, including grid (both structured
+and unstructured), flow solution,
+connectivity, BCs, and auxiliary information.
+CGNS is also easily extensible, and allows
+for file-stamping and user-inserted-commenting.
+It employs <a href="../adf/index.html">ADF (Advanced Data Format)</a>,
+a system which creates binary files that are portable across computer
+platforms.
+CGNS also includes a second layer of software known as the
+<a href="../midlevel/index.html">mid-level library</a>, or API
+(Application Programming Interface), which eases the implementation of
+CGNS into existing CFD codes.
+[With the release of CGNS Version 2.4, the mid-level library may be
+built using either ADF or <a href="http://hdf.ncsa.uiuc.edu/HDF5/">HDF</a>
+<img src="../external.png" alt="external link"> (Hierarchical Data
+Format) as the underlying data format.
+The remainder of this <i>User's Guide</i> only refers to ADF, but at the
+mid-level library level the differences should be transparent to most
+users.]
+
+<p>
+In 1999, control of CGNS was completely transferred to a public
+forum known as the CGNS Steering Committee.  This Steering 
+Committee is made up of international representatives from 
+government and private industry.  All CGNS software
+is completely free and open to anyone (open source).  The
+CGNS standard is also the object of an ISO standardization 
+effort for fluid dynamics data, for 
+release some time in the early to mid-2000's.
+[Poirier, D. M. A., Bush, R. H., Cosner, R. R., Rumsey, C. L., and
+McCarthy, D. R.,
+"Advances in the CGNS Database Standard for Aerodynamics and CFD,"
+AIAA Paper 2000-0681, January 2000.]
+
+<a name="sec:whyCGNS"></a>
+<h3>Why CGNS?</h3>
+
+<p>
+CGNS will eventually eliminate most of the translator
+programs now necessary when working between machines
+and between CFD codes.  Also, it eventually may allow for the
+results from one code to be easily restarted using another
+code.  It will hopefully therefore save a lot of time and
+money.  In particular, it is hoped that future grid-generation
+software will generate grids <em>with all connectivity and BC
+information included</em> as part of a CGNS database, saving 
+time and avoiding potential costly errors in setting
+up this information after-the-fact.
+
+<a name="sec:whatCGNSfile"></a>
+<h3>What is a CGNS File?</h3>
+
+<p>
+A CGNS file is an entity that is
+organized (inside the file itself) into a set of "nodes" in a tree-like
+structure, in much the same way as directories are
+organized in the UNIX environment.
+[Strictly speaking, because links may be used to store information in
+multiple files, there is no notion of a CGNS <i>file</i>, only of a CGNS
+<i>database</i> implemented within one or more files.
+However, throughout this document the two phrases are used
+interchangeably.]
+The top-most node is referred to
+as the "root node."  Each node below the root node
+is defined by both a name and a label, and
+may or may not contain information or data.  
+Each node can also be a "parent" to one or more
+"child" nodes.  A node can also have as a child node a link
+to a node elsewhere in the file or to a node in a separate
+CGNS file altogether.  Links are transparent to the user:
+the user "sees" linked children nodes as
+if they truly exist in the current tree.
+An example of a CGNS tree-like structure is shown below.
+
+<a name="FIGintro"></a>
+<p>
+<center>
+<img src="figures/intro.gif"
+     alt="Figure showing file structure with root node, child nodes, and a link">
+<br><br>
+Example CGNS tree-like structure.
+</center>
+
+<p>
+In order for any user to be able to interpret a CGNS file, its
+nodes must be assembled according to particular rules.
+For example, the figure below shows a simple example
+of a tree-like structure that organizes some animals into
+categories according to rules that most of us are very
+familiar with.  (Note that this figure is different from 
+the previous figure in that no "Labels" or "Data" are
+used, only "Names.")
+
+<a name="FIGintro_2"></a>
+<p>
+<center>
+<img src="figures/intro_2.gif"
+     alt="Figure showing file structure for categorizing animals"
+     longdesc="figures/intro_2.html">
+<br><br>
+Simple tree-like structure that categorizes some animals.
+</center>
+
+<br>
+The categories get narrower and narrower in their scope
+as you traverse lower in the tree.  The broadest category here
+is "Animals," and the tree narrows all the way down to
+particular dogs (two "Fido"s, a "Spot," and a "Ginger").
+Knowing ahead of time how this tree is organized allows you
+to quickly and easily access whatever particular information
+from the tree that you may be interested in.
+If someone else were to organize these same animals in a completely
+different way, according to different rules, then it would be
+difficult for you to access the desired information without
+spending a lot of time searching and studying the tree.
+
+<p>
+The particular rules for organizing CGNS files for aerodynamic
+data, which allow users to easily access desired information, are described
+in the <a href="../sids/index.html">Standard Interface Data Structures (SIDS) 
+document</a>.
+Because CGNS files are binary files, they cannot be viewed by
+the user with standard UNIX ASCII-editing tools.
+The utility <a href="../cgnstools/index.html#ADFviewer">adfviewer</a>
+was created to allow users to easily view CGNS files.
+
+<a name="sec:organization"></a>
+<h3>How this User's Guide is Organized</h3>
+
+<p>
+The main content in this User's Guide is located in the
+<a href="started.html">Getting Started</a> section, where several
+simple examples are
+given for both structured and unstructured grids.  This section
+covers the basics that most users want or need to learn in order
+to get started using CGNS.
+It is recommended that the <a href="started.html#sec:str">section on
+structured grids</a> be read first, in its entirety, even if the user is
+only interested in unstructured grid applications.
+Some <a href="additional.html">additional information</a> is covered
+in the following section; these issues are felt to be important
+(i.e., most users will want to eventually include them), but
+they are not as crucial as the basic items covered under
+<a href="started.html">Getting Started</a>.
+Sections are also included on 
+<a href="trouble.html">troubleshooting</a> and
+<a href="faq.html">frequently asked questions</a>.
+
+<p>
+Note that all of the codes and code segments given in this document are
+available as complete codes from the
+<a href="http://sourceforge.net/projects/cgns">CGNS site at SourceForge</a>
+<img src="../external.png" alt="external link">.
+The <a href="examples.html">names of these codes and their functions</a>
+are also listed in this document.  Also note that not all CGNS capabilities
+are covered in this document.  It is meant to be a fairly simple
+introductory guide only. 
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 7 Mar 2008
+
+</body>
+</html>

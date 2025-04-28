@@ -1,0 +1,386 @@
+<!-- CGNS Mid-Level Library - Families -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="midlevel.css" rel="stylesheet" type="text/css">
+<title> CGNS Mid-Level Library - Families </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="index.html"><span class=nav><b>Mid-Level&nbsp;Library</b></span></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="general.html"><b>General&nbsp;Remarks</b></a>)
+(<a href="fileops.html"><b>File&nbsp;Operations</b></a>)
+(<a href="navigating.html"><b>Navigating&nbsp;a&nbsp;CGNS&nbsp;File</b></a>)
+(<a href="error.html"><b>Error&nbsp;Handling</b></a>)
+(<a href="structural.html"><b>Structural&nbsp;Nodes</b></a>)
+(<a href="descriptor.html"><b>Descriptors</b></a>)
+(<a href="physical.html"><b>Physical&nbsp;Data</b></a>)
+(<a href="location.html"><b>Location&nbsp;and&nbsp;Position</b></a>)
+(<a href="auxiliary.html"><b>Auxiliary&nbsp;Data</b></a>)
+(<a href="grid.html"><b>Grid&nbsp;Specification</b></a>)
+(<a href="solution.html"><b>Solution&nbsp;Data</b></a>)
+(<a href="connectivity.html"><b>Grid&nbsp;Connectivity</b></a>)
+(<a href="bc.html"><b>Boundary&nbsp;Conditions</b></a>)
+(<a href="equation.html"><b>Equation&nbsp;Specification</b></a>)
+(<span class=nav><b>Families</b></span>)
+(<a href="timedep.html"><b>Time-Dependent&nbsp;Data</b></a>)
+(<a href="links.html"><b>Links</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Families</h2>
+
+<ul>
+<li> <a href="#family">Family Definition</a>
+     <ul>
+     <li> <tt><b>cg_family_write</b></tt> - Create a Family_t node
+     <li> <tt><b>cg_nfamilies</b></tt> - Get number of families
+     <li> <tt><b>cg_family_read</b></tt> - Read family info
+     </ul>
+<li> <a href="#geometry">Geometry Reference</a>
+     <ul>
+     <li> <tt><b>cg_geo_write</b></tt> - Create a GeometryReference_t node 
+     <li> <tt><b>cg_geo_read</b></tt> - Read geometry reference info
+     <li> <tt><b>cg_part_write</b></tt> - Write geometry entity name
+     <li> <tt><b>cg_part_read</b></tt> - Get geometry entity name
+     </ul>
+<li> <a href="#familybc">Family Boundary Condition</a>
+     <ul>
+     <li> <tt><b>cg_fambc_write</b></tt> - Write boundary condition type for a family
+     <li> <tt><b>cg_fambc_read</b></tt> - Read boundary condition type for a family
+     </ul>
+<li> <a href="#familyname">Family Name</a>
+     <ul>
+     <li> <tt><b>cg_famname_write</b></tt> - Write family name
+     <li> <tt><b>cg_famname_read</b></tt> - Read family name
+     </ul>
+</ul>
+
+<a name="family"></a>
+<h3>Family Definition</h3>
+
+<i>Node</i>: <tt>Family_t</tt>
+             (<a href="../sids/misc.html#Family">SIDS</a>,
+              <a href="../filemap/nodes.html#Family">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_family_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>char *FamilyName</span>, <span class=out><i>int *Fam</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_nfamilies(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=out><i>int *nfamilies</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_family_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Fam</span>, <span class=out><i>char *FamilyName</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *nFamBC</i></span>, <span class=out><i>int *nGeo</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+       <tt><b>call cg_family_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>FamilyName</span>, <span class=out><i>Fam</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_nfamilies_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=out><i>nfamilies</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_family_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Fam</span>, <span class=out><i>FamilyName</i></span>, <span class=out><i>nFamBC</i></span>, <span class=out><i>nGeo</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>nfamilies</tt><td>
+   <td>Number of families in base <tt>B</tt>.
+<tr valign=baseline><td>
+   <td><tt>Fam</tt><td>
+   <td>Family index number, where
+       1 &le; <tt>Fam</tt> &le; <tt>nfamilies</tt>.
+<tr valign=baseline><td>
+   <td><tt>FamilyName</tt><td>
+   <td>Name of the family.
+<tr valign=baseline><td>
+   <td><tt>nFamBC</tt><td>
+   <td>Number of boundary conditions for this family.
+       This should be either 0 or 1.
+<tr valign=baseline><td>
+   <td><tt>nGeo</tt><td>
+   <td>Number of geometry references for this family.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<a name="geometry"></a>
+<h3>Geometry Reference</h3>
+
+<i>Node</i>: <tt>GeometryReference_t</tt>
+             (<a href="../sids/misc.html#GeometryReference">SIDS</a>,
+              <a href="../filemap/nodes.html#GeometryReference">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_geo_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Fam</span>, <span class=in>char *GeoName</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>char *FileName</span>, <span class=in>char *CADSystem</span>, <span class=out><i>int *G</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_geo_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Fam</span>, <span class=in>int G</span>, <span class=out><i>char *GeoName</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>char **FileName</i></span>, <span class=out><i>char *CADSystem</i></span>, <span class=out><i>int *nparts</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_part_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Fam</span>, <span class=in>int G</span>, <span class=in>char *PartName</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *P</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_part_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Fam</span>, <span class=in>int G</span>, <span class=in>int P</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>char *PartName</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_geo_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Fam</span>, <span class=in>GeoName</span>, <span class=in>FileName</span>, <span class=in>CADSystem</span>, <span class=out><i>G</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_geo_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Fam</span>, <span class=in>G</span>, <span class=out><i>GeoName</i></span>, <span class=out><i>FileName</i></span>, <span class=out><i>CADSystem</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>nparts</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_part_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Fam</span>, <span class=in>G</span>, <span class=in>PartName</span>, <span class=out><i>P</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_part_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Fam</span>, <span class=in>G</span>, <span class=in>P</span>, <span class=out><i>PartName</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Fam</tt><td>
+   <td>Family index number, where 1 &le; <tt>Fam</tt> &le; <tt>nfamilies</tt>.
+<tr valign=baseline><td>
+   <td><tt>G</tt><td>
+   <td>Geometry reference index number, where
+       1 &le; <tt>G</tt> &le; <tt>nGeo</tt>.
+<tr valign=baseline><td>
+   <td><tt>P</tt><td>
+   <td>Geometry entity index number, where
+       1 &le; <tt>P</tt> &le; <tt>nparts</tt>.
+<tr valign=baseline><td>
+   <td><tt>GeoName</tt><td>
+   <td>Name of <tt>GeometryReference_t</tt> node.
+<tr valign=baseline><td>
+   <td><tt>FileName</tt><td>
+   <td>Name of geometry file.
+<tr valign=baseline><td>
+   <td><tt>CADSystem</tt><td>
+   <td>Geometry format.
+<tr valign=baseline><td>
+   <td><tt>nparts</tt><td>
+   <td>Number of geometry entities.
+<tr valign=baseline><td>
+   <td><tt>PartName</tt><td>
+   <td>Name of a geometry entity in the file <tt>FileName</tt>.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+Note that with <tt>cg_geo_read</tt> the memory for the filename
+character string, <tt>FileName</tt>, will be allocated by the Mid-Level
+Library.
+The application code is responsible for releasing this memory
+when it is no longer needed by calling
+<a href="auxiliary.html#free"><tt>cg_free(FileName)</tt></a>.
+
+<a name="familybc"></a>
+<h3>Family Boundary Condition</h3>
+
+<i>Node</i>: <tt>FamilyBC_t</tt>
+             (<a href="../sids/misc.html#FamilyBC">SIDS</a>,
+              <a href="../filemap/nodes.html#FamilyBC">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_fambc_write(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Fam</span>, <span class=in>char *FamBCName</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>BCType_t BCType</span>, <span class=out><i>int *BC</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_fambc_read(<span class=in>int fn</span>, <span class=in>int B</span>, <span class=in>int Fam</span>, <span class=in>int BC</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>char *FamBCName</i></span>, <span class=out><i>BCType_t *BCType</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_fambc_write_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Fam</span>, <span class=in>FamBCName</span>, <span class=in>BCType</span>, <span class=out><i>BC</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_fambc_read_f(<span class=in>fn</span>, <span class=in>B</span>, <span class=in>Fam</span>, <span class=in>BC</span>, <span class=out><i>FamBCName</i></span>, <span class=out><i>BCType</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>fn</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>CGNS file index number.
+<tr valign=baseline><td>
+   <td><tt>B</tt><td>
+   <td>Base index number, where 1 &le; <tt>B</tt> &le; <tt>nbases</tt>.
+<tr valign=baseline><td>
+   <td><tt>Fam</tt><td>
+   <td>Family index number, where 1 &le; <tt>Fam</tt> &le; <tt>nfamilies</tt>.
+<tr valign=baseline><td>
+   <td><tt>BC</tt><td>
+   <td>Family boundary condition index number.
+       This must be equal to 1.
+<tr valign=baseline><td>
+   <td><tt>FamBCName</tt><td>
+   <td>Name of the <tt>FamilyBC_t</tt> node.
+<tr valign=baseline><td>
+   <td><tt>BCType</tt><td>
+   <td>Boundary condition type for the family.
+       See the eligible types for <tt>BCType_t</tt> in the
+       <a href="general.html#typedefs">Typedefs</a> section.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<a name="familyname"></a>
+<h3>Family Name</h3>
+
+<i>Node</i>: <tt>FamilyName_t</tt>
+             (SIDS,
+              <a href="../filemap/nodes.html#FamilyName">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_famname_write(<span class=in>char *FamilyName</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_famname_read(<span class=out><i>char *FamilyName</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_famname_write_f(<span class=in>FamilyName</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_famname_read_f(<span class=out><i>FamilyName</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+     <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>FamilyName</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Family name.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 27 July 2006
+
+</body>
+</html>

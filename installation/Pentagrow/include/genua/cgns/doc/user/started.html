@@ -1,0 +1,1814 @@
+<!-- A User's Guide to CGNS - Getting Started -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - Getting Started</title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="index.html"><span class=nav><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></span></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../midlevel/index.html"><b>Mid-Level&nbsp;Library</b></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="intro.html"><b>Introduction</b></a>)
+(<span class=nav><b>Getting&nbsp;Started</b></span>)
+(<a href="additional.html"><b>Additional&nbsp;Information</b></a>)
+(<a href="trouble.html"><b>Troubleshooting</b></a>)
+(<a href="faq.html"><b>Frequently&nbsp;Asked&nbsp;Questions</b></a>)
+(<a href="examples.html"><b>Example&nbsp;Computer&nbsp;Codes</b></a>)
+(<a href="sids.html"><b>Overview&nbsp;of&nbsp;the&nbsp;SIDS</b></a>)
+(<a href="plot3d.html"><b>Guideline&nbsp;for&nbsp;PLOT3D&nbsp;Variables</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Getting Started</h2>
+
+<ul>
+<li> <a href="#sec:str">Structured Grid</a>
+     <ul>
+     <li> <a href="#sec:singlegrid">Single-Zone Structured Grid</a>
+     <li> <a href="#sec:flowsoln">Single-Zone Structured Grid and Flow Solution</a>
+     <li> <a href="#sec:bcstruct">Single-Zone Structured Grid with Boundary Conditions</a>
+     <li> <a href="#sec:str1to1">Multi-Zone Structured Grid with 1-to-1 Connectivity</a>
+     </ul>
+<li> <a href="#sec:unstr">Unstructured Grid</a>
+     <ul>
+     <li> <a href="#sec:unstrgrid">Single-Zone Unstructured Grid</a>
+     <li> <a href="#sec:unstrflow">Single-Zone Unstructured Grid and Flow Solution</a>
+     <li> <a href="#sec:bcunstr">Single-Zone Unstructured Grid with Boundary Conditions</a>
+     </ul>
+</ul>
+
+<p>
+The rules and conventions governing how the nodes in a CGNS 
+file are organized, including their names and labels, are 
+specified in the <a href="../sids/index.html">SIDS document</a>,
+with additional details in the <a href="../sids/index.html">ADF User's
+Guide</a> and the <a href="../filemap/index.html">SIDS-to-ADF File
+Mapping Manual</a>.
+These documents also specify in detail how CFD information
+is to be stored within the nodes in a standardized fashion so that 
+other users can easily access and read it.
+When a CGNS file strictly adheres to the rules given in
+the SIDS document, it is said to be
+"SIDS-compliant."  A CGNS file must be SIDS-compliant in
+order for other users to be able to properly interpret it.
+A brief <a href="sids.html">overview of the most commonly used aspects
+of the SIDS</a> is included in the current document.
+
+<p>
+However, to get started with CGNS, it is not necessary
+for the user to fully understand the SIDS document.  
+The <a href="../midlevel/index.html">mid-level, or API calls</a> have
+been created to aid users in writing and reading CGNS files that are
+SIDS-compliant.
+[There are currently two levels of programming access to CGNS.
+The lowest level consists of <a href="../adf/index.html">ADF-</a> or
+HDF5-level calls.  These calls perform the most basic functions, such as
+creating a child node, writing data, reading data, etc.
+However, these low-level calls know nothing at all about the SIDS,
+so the user is responsible for putting data in the correct 
+place, to make the CGNS file SIDS-compliant.
+The <a href="../midlevel/index.html">mid-level, or API calls</a>, which
+always begin with the characters "cg_", were written with knowledge of
+the SIDS.
+Therefore, it is easier to adhere to the SIDS standards when
+writing a CGNS file using the API calls, and some checks for
+SIDS-compliance are also made by the API calls when accessing a CGNS file
+(SIDS compliance is not guaranteed, but the API calls
+go a long way toward facilitating it).  The API calls also
+drastically shorten the calling sequences necessary to perform
+many of the functions needed to create and read CGNS files.]
+Using the API, most CFD data of interest to the majority of users can be
+written into or read from a CGNS file very easily with only an
+elementary understanding of the SIDS.
+
+<p>
+In the following sections, we give detailed instructions on
+how to create typical CGNS files or portions of files.  These 
+instructions are
+given in the form of simple examples.
+They make use of the mid-level API calls, although not all API calls
+are covered in this document (a complete list of available API calls
+can be found in the <a href="../midlevel/index.html">Mid-Level Library
+document</a>).
+We recommend that the user read through the examples in this section
+<em>in order</em>, because some information in the later sections
+depends on being familiar with information given in the earlier ones.
+Hopefully, users should be able to easily extend these simple examples
+to their own applications. <a href="additional.html">Additional
+applications</a> are covered in a later section.
+For those users already familiar with the PLOT3D format for CFD data
+[Walatka, P. P., Buning, P. G.,  Pierce, L., Elson, P. A., "PLOT3D
+User's Guide," NASA TM 101067, March 1990], we include a detailed
+description on <a href="plot3d.html">reading and writing PLOT3D-type
+variables in a CGNS file</a>.
+
+<p>
+Also note that we have delayed the discussion
+of <a href="additional.html#sec:dimens">units</a> and
+<a href="additional.html#sec:nondimens">nondimensionalization</a>
+until later.
+For now, all examples simply store and retrieve pure <em>numbers</em>,
+and it is assumed that the user knows what the dimensions or
+nondimensionalizations of each variable are.
+
+<a name="sec:str"></a>
+<h3>Structured Grid</h3>
+
+<p>
+This first section gives several structured grid examples, whereas
+the following section gives <a href="#sec:unstr">unstructured
+grid examples</a>.  However,
+we recommend that the current section be read first, in its entirety,
+even if the user is only interested in unstructured grid
+applications.  This is because much of the organization of the
+CGNS files is identical for both grid types, and later sections
+of this document assume that the user is familiar with information
+given in earlier sections.
+
+<a name="sec:singlegrid"></a>
+<h4>Single-Zone Structured Grid</h4>
+
+<p>
+This first example is for a very simple 3-D Cartesian grid of size
+21 &times; 17 &times; 9.  The grid points themselves are created
+using the following FORTRAN code snippet:
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+   do k=1,nk
+      do j=1,nj
+         do i=1,ni
+            x(i,j,k)=float(i-1)
+            y(i,j,k)=float(j-1)
+            z(i,j,k)=float(k-1)
+         enddo
+      enddo
+   enddo
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+where <tt>ni</tt>=21, <tt>nj</tt>=17, and <tt>nk</tt>=9.
+A picture of the grid is shown below.
+
+<a name="FIGgrid_cartesian"></a>
+<p>
+<center>
+<img src="figures/grid_cartesian.gif"
+     alt="Figure showing a 21 by 17 by 9 Cartesian grid, with the origin in the front lower left corner">
+<br><br>
+Simple Cartesian structured grid.
+</center>
+
+<p>
+A complete FORTRAN code that creates this grid and
+uses API calls to write it
+to a CGNS file called <tt>grid.cgns</tt> is shown here 
+(note that a FORTRAN line continuation
+is denoted by a <tt>+</tt>).  This (and all later) coded examples
+are available from the
+<a href="http://sourceforge.net/projects/cgns">CGNS site at SourceForge</a>
+<img src="../external.png" alt="external link">,
+and summarized in this document in the section
+<a href="examples.html">Example Computer Codes</a>.
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+      program write_grid_str
+c
+c   Creates simple 3-D structured grid and writes it to a 
+c   CGNS file.
+c
+c   This program uses the fortran convention that all
+c   variables beginning with the letters i-n are integers,
+c   by default, and all others are real
+c
+c   cgnslib_f.h file must be located in directory specified by
+c   -I during compile:
+      include 'cgnslib_f.h'
+c   dimension statements (note that tri-dimensional arrays
+c   x,y,z must be dimensioned exactly as (21,17,N) (N>=9) 
+c   for this particular case or else they will be written to 
+c   the CGNS file incorrectly!  Other options are to use 1-D 
+c   arrays, use dynamic memory, or pass index values to a 
+c   subroutine and dimension exactly there):
+      real*8 x(21,17,9),y(21,17,9),z(21,17,9)
+      dimension isize(3,3)
+      character basename*32,zonename*32
+c
+c   create gridpoints for simple example:
+      ni=21
+      nj=17
+      nk=9
+      do k=1,nk
+        do j=1,nj
+          do i=1,ni
+            x(i,j,k)=float(i-1)
+            y(i,j,k)=float(j-1)
+            z(i,j,k)=float(k-1)
+          enddo
+        enddo
+      enddo
+      write(6,'('' created simple 3-D grid points'')')
+c
+c   WRITE X, Y, Z GRID POINTS TO CGNS FILE
+c   open CGNS file for write
+      call cg_open_f('grid.cgns',MODE_WRITE,index_file,ier)
+c   create base (user can give any name)
+      basename='Base'
+      icelldim=3
+      iphysdim=3
+      call cg_base_write_f(index_file,basename,icelldim,iphysdim,
+     + index_base,ier)
+c   define zone name (user can give any name)
+      zonename = 'Zone  1'
+c   vertex size
+      isize(1,1)=21
+      isize(2,1)=17
+      isize(3,1)=9
+c   cell size
+      isize(1,2)=isize(1,1)-1
+      isize(2,2)=isize(2,1)-1
+      isize(3,2)=isize(3,1)-1
+c   boundary vertex size (always zero for structured grids)
+      isize(1,3)=0
+      isize(2,3)=0
+      isize(3,3)=0
+c   create zone
+      call cg_zone_write_f(index_file,index_base,zonename,isize,
+     + Structured,index_zone,ier)
+c   write grid coordinates (user must use SIDS-standard names here)
+      call cg_coord_write_f(index_file,index_base,index_zone,RealDouble,
+     + 'CoordinateX',x,index_coord,ier)
+      call cg_coord_write_f(index_file,index_base,index_zone,RealDouble,
+     + 'CoordinateY',y,index_coord,ier)
+      call cg_coord_write_f(index_file,index_base,index_zone,RealDouble,
+     + 'CoordinateZ',z,index_coord,ier)
+c   close CGNS file
+      call cg_close_f(index_file,ier)
+      write(6,'('' Successfully wrote grid to file grid.cgns'')')
+      stop
+      end
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+There are several items to note regarding this
+code.  Whenever a new entity is created using the API,
+an integer index is returned.  This index is used in subsequent
+API calls to refer to the entity.  For example, the above call to
+<tt>cg_open_f</tt>, which opens the file grid.cgns, assigns to this
+entity the index <tt>index_file</tt>.  This same <tt>index_file</tt>
+is used to identify this entity in subsequent calls.
+Similarly, <tt>cg_base_write_f</tt> assigns an index <tt>index_base</tt> to
+the base, <tt>cg_zone_write_f</tt> 
+assigns an index <tt>index_zone</tt> to the zone, and
+<tt>cg_coord_write_f</tt> assigns an index <tt>index_coord</tt>
+to each coordinate.
+
+<p>
+For FORTRAN code, an include statement
+pointing to <tt>cgnslib_f.h</tt> must be present.  (The <tt>cgnslib_f.h</tt>
+file comes with the CGNS software.)  Also, it is
+imperative that the <tt>x</tt>, <tt>y</tt>, and <tt>z</tt> arrays be
+dimensioned <em>exactly</em> as (21,17,<i>N</i>), where <i>N</i> &ge; 9 (or
+else as a one-dimensional array of at least size <tt>21*17*9</tt>) 
+for this particular example; 
+this is because the <tt>cg_coord_write_f</tt>
+routine writes the first <tt>21*17*9</tt> values contained in the
+array <em>as it is stored
+in memory</em>.  If <tt>x</tt>, <tt>y</tt>, and <tt>z</tt> are
+tri-dimensional arrays and the first two indices 
+are dimensioned larger than 21 and 17, respectively, then incorrect
+values will be placed in the CGNS file.  In a real
+working code, one would probably either (a) use one-dimensional
+arrays, (b) dynamically allocate
+appropriate memory for <tt>x</tt>, <tt>y</tt>, and <tt>z</tt>,
+or else (c) pass the index
+values to a subroutine and write via an appropriately dimensioned
+work array.
+
+<p>
+In this case, the cell dimension (<tt>icelldim</tt>) is 3
+(because the grid is made up of volume cells), and the
+physical dimension (<tt>iphysdim</tt>) is 3 (because 3 coordinates
+define 3-D).
+(See the section <a href="sids.html">Overview of the SIDS</a> for a
+<a href="sids.html#dimensions">more detailed description</a>.)
+The <tt>isize</tt> array
+contains the vertex size, cell size, and
+boundary vertex size for each index direction.
+For a 3-D structured grid, the index dimension is always the same as the
+cell dimension, so this means there are 3 vertex sizes, 3 cell sizes,
+and 3 boundary vertex sizes (one each for the <i>i</i>, <i>j</i>, and
+<i>k</i> directions).  For structured grids,
+the cell size is always one less than the corresponding vertex
+size, and the boundary vertex size has no meaning and is always zero.
+When writing the grid coordinates, the user must use
+<a href="../sids/dataname.html">SIDS-standard names</a>.
+For example, <tt>x</tt>, <tt>y</tt>, and <tt>z</tt> coordinates must be named
+<tt>CoordinateX</tt>, <tt>CoordinateY</tt>, and <tt>CoordinateZ</tt>,
+respectively.
+Other standard names exist for other possible choices.
+Finally, <tt>basename</tt> and <tt>zonename</tt> must be declared as character
+strings, and the integer array <tt>isize</tt> must be dimensioned
+appropriately.
+
+<p>
+The grid coordinate arrays can be written in single or double
+precision.  The desired data type is communicated to the API using the
+keywords <tt>RealSingle</tt> or <tt>RealDouble</tt>.  The user must
+insure that the data type transmitted to the API is consistent with
+the the one used in declaring the coordinates arrays.
+When it is compiled, the code must also link to the 
+compiled CGNS library <tt>libcgns.a</tt>.
+Instructions for compiling the CGNS library
+are given in README files that come with the CGNS software.
+
+<p>
+A complete code written in C that performs the same task of
+creating grid coordinates and writing them to a CGNS file is given here.
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+/*
+Creates simple 3-D structured grid and writes it to a 
+CGNS file.
+
+UNIX compilation (IRIX 5.3 or higher with mips4_64 option)
+for this program is:
+cc -r8 -64 write_grid_str.c CGNSLib/lib/libcgns.mips4_64.a
+(CGNSLib/lib/ is the location where the compiled
+library libcgns.mips4_64.a is located)
+(Note it is compiled double precision because RealDouble
+is used below)
+*/
+
+#include &lt;string.h&gt;
+/* must include path to cgnslib_f.h file: */
+#include "cgnslib.h"
+
+main()
+{
+/*
+   dimension statements (note that tri-dimensional arrays
+   x,y,z must be dimensioned exactly as [N][17][21] (N&gt;=9) 
+   for this particular case or else they will be written to 
+   the CGNS file incorrectly!  Other options are to use 1-D 
+   arrays, use dynamic memory, or pass index values to a 
+   subroutine and dimension exactly there):
+*/
+   double x[9][17][21],y[9][17][21],z[9][17][21];
+   int isize[3][3];
+   int ni,nj,nk,i,j,k;
+   int index_file,icelldim,iphysdim,index_base;
+   int index_zone,index_coord;
+   char basename[33],zonename[33];
+
+/* create gridpoints for simple example: */
+   ni=21;
+   nj=17;
+   nk=9;
+   for (k=0; k &lt; nk; ++k)
+   {
+     for (j=0; j &lt; nj; ++j)
+     {
+       for (i=0; i &lt; ni; ++i)
+       {
+         x[k][j][i]=i;
+         y[k][j][i]=j;
+         z[k][j][i]=k;
+       }
+     }
+   }
+   printf("\ncreated simple 3-D grid points");
+
+/* WRITE X, Y, Z GRID POINTS TO CGNS FILE */
+/* open CGNS file for write */
+   cg_open("grid_c.cgns",MODE_WRITE,&amp;index_file);
+/* create base (user can give any name) */
+   strcpy(basename,"Base");
+   icelldim=3;
+   iphysdim=3;
+   cg_base_write(index_file,basename,icelldim,iphysdim,&amp;index_base);
+/* define zone name (user can give any name) */
+   strcpy(zonename,"Zone  1");
+/* vertex size */
+   isize[0][0]=21;
+   isize[0][1]=17;
+   isize[0][2]=9;
+/* cell size */
+   isize[1][0]=isize[0][0]-1;
+   isize[1][1]=isize[0][1]-1;
+   isize[1][2]=isize[0][2]-1;
+/* boundary vertex size (always zero for structured grids) */
+   isize[2][0]=0;
+   isize[2][1]=0;
+   isize[2][2]=0;
+/* create zone */
+   cg_zone_write(index_file,index_base,zonename,*isize,Structured,&amp;index_zone);
+/* write grid coordinates (user must use SIDS-standard names here) */
+   cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateX",x,
+      &amp;index_coord);
+   cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateY",y,
+      &amp;index_coord);
+   cg_coord_write(index_file,index_base,index_zone,RealDouble,"CoordinateZ",z,
+      &amp;index_coord);
+/* close CGNS file */
+   cg_close(index_file);
+   printf("\nSuccessfully wrote grid to file grid_c.cgns\n");
+}
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+Note that in the C-code, the "<tt>.h</tt>" file that must be included
+is called <tt>cgnslib.h</tt>.  From now on, all codes will be given in
+FORTRAN only.  The C-equivalent calls are similar, as demonstrated
+above.  Also, from now on, complete code will not be shown, but
+rather only code segments, in order to save space.  However, complete
+codes can be accessed from the
+<a href="http://sourceforge.net/projects/cgns">CGNS site at SourceForge</a>
+<img src="../external.png" alt="external link">.
+
+<p>
+The CGNS file <tt>grid.cgns</tt> that is created by the code above
+is a binary
+file that, internally, possesses the tree-like structure
+shown below.  As mentioned in the
+<a href="intro.html">Introduction</a>, each node has a name, a label,
+and may or
+may not contain data.  In the example in the figure, all the
+nodes contain data except for the <tt>GridCoordinates</tt> node,
+for which <tt>MT</tt> indicates no data.
+
+<a name="FIGtree_cartesian"></a>
+<p>
+<center>
+<img src="figures/tree_cartesian.gif"
+     alt="Diagram showing CGNS layout for simple Cartesian structured grid"
+     longdesc="figures/tree_cartesian.html">
+<br><br>
+Layout of CGNS file for simple Cartesian structured grid.
+</center>
+
+<p>
+However, the user really does not need to know the full details of
+the tree-like structure in this case.  The API has automatically
+created a SIDS-compliant CGNS file!  Now, the user can
+just as easily read the CGNS file using the API.
+The FORTRAN code segment used to read the CGNS file
+<tt>grid.cgns</tt> that we just created is given here:
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c   READ X, Y, Z GRID POINTS FROM CGNS FILE
+      include 'cgnslib_f.h'
+c   open CGNS file for read-only
+      call cg_open_f('grid.cgns',MODE_READ,index_file,ier)
+c   we know there is only one base (real working code would check!)
+      index_base=1
+c   we know there is only one zone (real working code would check!)
+      index_zone=1
+c   get zone size (and name - although not needed here)
+      call cg_zone_read_f(index_file,index_base,index_zone,zonename,
+     + isize,ier)
+c   lower range index
+      irmin(1)=1
+      irmin(2)=1
+      irmin(3)=1
+c   upper range index of vertices
+      irmax(1)=isize(1,1)
+      irmax(2)=isize(2,1)
+      irmax(3)=isize(3,1)
+c   read grid coordinates
+      call cg_coord_read_f(index_file,index_base,index_zone,
+     + 'CoordinateX',RealSingle,irmin,irmax,x,ier)
+      call cg_coord_read_f(index_file,index_base,index_zone,
+     + 'CoordinateY',RealSingle,irmin,irmax,y,ier)
+      call cg_coord_read_f(index_file,index_base,index_zone,
+     + 'CoordinateZ',RealSingle,irmin,irmax,z,ier)
+c   close CGNS file
+      call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+Note that this FORTRAN coding is very rudimentary.  It
+assumes that we know that there is only one base and one zone.
+In a real working code, one
+should check the numbers in the file, and either
+allow for the possibility of multiple bases or zones,
+or explicitly disallow it.  Also, this coding implicitly 
+assumes that the <tt>grid.cgns</tt> file is a 3-D structured grid
+(cell dimension = physical dimension = 3).  In a real working
+code, one should check to make sure that this is true, or
+else allow for other possibilities.  One
+should also check to make sure the zone type is <tt>Structured</tt>
+if this is the type expected.
+
+<p>
+As before, the <tt>x</tt>, <tt>y</tt>, and <tt>z</tt> arrays in this
+case <em>must</em>
+be dimensioned correctly: for a tri-dimensional array,
+(21,17,<i>N</i>), where <i>N</i>&nbsp;&ge;&nbsp;9.
+(In a real
+working code, one would probably either (a) use one-dimensional
+arrays, (b) dynamically allocate
+appropriate memory for <tt>x</tt>, <tt>y</tt>, and <tt>z</tt> after
+reading <tt>isize</tt>, 
+or else (c) pass the <tt>isize</tt>
+values to a subroutine and dimension a work array appropriately
+prior to reading.)
+Also note that, regardless of the precision in which the
+grid coordinates were written
+to the CGNS file (single or double), one can read them 
+either way; the API automatically
+performs the translation.  (The arrays <tt>x</tt>, <tt>y</tt>, and
+<tt>z</tt> in the code above must be declared
+as single precision if <tt>RealSingle</tt> is used and as
+double precision if <tt>RealDouble</tt> is used.)
+Finally, <tt>isize</tt> should be dimensioned appropriately,
+<tt>zonename</tt> should be declared as a character variable,
+and <tt>irmin</tt> and <tt>irmax</tt> should be dimensioned appropriately.
+
+<a name="sec:flowsoln"></a>
+<h4>Single-Zone Structured Grid and Flow Solution</h4>
+
+<p>
+In this section, we now write a flow solution associated with
+the grid from <a href="#sec:singlegrid">the previous section</a>.
+We assume that
+we have two flow solution arrays available: static density and 
+static pressure.  To illustrate three important options, we will
+show how to write the flow solution (a) at vertices, (b) at
+cell centers, and (c) at cell centers plus rind cells.  
+
+<br><br>
+<a name="sec:flowsoln:vertices"></a>
+<b>(a) Flow Solution at Vertices</b>
+
+<p>
+The first option is illustrated schematically in 2-D in the figure below.
+Simply stated, a <tt>Vertex</tt> flow solution is located at the
+same location as the grid points.  Assuming that the
+grid points have already been written to a CGNS file, the
+following FORTRAN code segment adds the flow solution at
+vertices:
+
+<a name="FIGvertex"></a>
+<p>
+<center>
+<img src="figures/vertex.gif"
+     alt="4 by 3 grid with circles at vertices">
+<br><br>
+Schematic showing location (circles) of <tt>Vertex</tt> flow solution
+relative to grid.
+</center>
+
+<br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c   WRITE FLOW SOLUTION TO EXISTING CGNS FILE
+      include 'cgnslib_f.h'
+c   open CGNS file for modify
+      call cg_open_f('grid.cgns',MODE_MODIFY,index_file,ier)
+c   we know there is only one base (real working code would check!)
+      index_base=1
+c   we know there is only one zone (real working code would check!)
+      index_zone=1
+c   define flow solution node name (user can give any name)
+      solname = 'FlowSolution'
+c   create flow solution node
+      call cg_sol_write_f(index_file,index_base,index_zone,solname,
+     + Vertex,index_flow,ier)
+c   write flow solution (user must use SIDS-standard names here)
+      call cg_field_write_f(index_file,index_base,index_zone,index_flow,
+     + RealDouble,'Density',r,index_field,ier)
+      call cg_field_write_f(index_file,index_base,index_zone,index_flow,
+     + RealDouble,'Pressure',p,index_field,ier)
+c   close CGNS file
+      call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<p>
+In this code, the density (<tt>r</tt>) and pressure
+(<tt>p</tt>) variables <em>must</em> be dimensioned
+correctly for this particular case: for a tri-dimensional array,
+(21,17,<i>N</i>), where <i>N</i>&nbsp;&ge;&nbsp;9
+(see discussion in <a href="#sec:singlegrid">the previous section</a>).  
+Note that the API, knowing that the flow solution type is 
+<tt>Vertex</tt>, automatically writes out the correct index
+range, corresponding with the zone's grid index range.
+Also note that we opened the existing CGNS file and modified it
+(<tt>MODE_MODIFY</tt>) - we
+knew ahead of time that only one base and only one zone exist;
+a real working code would make appropriate checks.  Finally,
+<tt>solname</tt> should be declared as a character variable and
+<tt>r</tt> and <tt>p</tt> must be declared as double precision variables when
+<tt>RealDouble</tt> type is used.
+
+<p>
+The layout of the CGNS file with the flow 
+solution at vertices included 
+is shown in the figure below.
+The three nodes under <tt>GridCoordinates_t</tt> have been left out
+to conserve space in the figure,
+but they exist as indicated by the three unconnected lines.
+
+<a name="FIGtree_cartesian_solV"></a>
+<p>
+<center>
+<img src="figures/tree_cartesian_solV.gif"
+     alt="Diagram showing CGNS layout with flow solution at vertices"
+     longdesc="figures/tree_cartesian_solV.html">
+<br><br>
+Layout of CGNS file for simple Cartesian structured grid with flow
+solution at vertices.
+(Note: because <tt>GridLocation</tt> = <tt>Vertex</tt> is the default,
+it is not necessary to specify it.
+</center>
+
+<p>
+The vertex flow solution can be read in using the following 
+FORTRAN code segment (can read in as single or double precision - see
+discussion in <a href="#sec:singlegrid">the previous section</a>):
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c   READ FLOW SOLUTION FROM CGNS FILE
+      include 'cgnslib_f.h'
+c   open CGNS file for read-only
+      call cg_open_f('grid.cgns',MODE_READ,index_file,ier)
+c   we know there is only one base (real working code would check!)
+      index_base=1
+c   we know there is only one zone (real working code would check!)
+      index_zone=1
+c   we know there is only one FlowSolution_t (real working code would check!)
+      index_flow=1
+c   get zone size (and name - although not needed here)
+      call cg_zone_read_f(index_file,index_base,index_zone,zonename,
+     + isize,ier)
+c   lower range index
+      irmin(1)=1
+      irmin(2)=1
+      irmin(3)=1
+c   upper range index - use vertex dimensions
+c   checking GridLocation first (real working code would check
+c   to make sure there are no Rind cells also!):
+      call cg_sol_info_f(index_file,index_base,index_zone,index_flow,
+     + solname,loc,ier)
+      if (loc .ne. Vertex) then
+        write(6,'('' Error, GridLocation must be Vertex!'')')
+        stop
+      end if
+      irmax(1)=isize(1,1)
+      irmax(2)=isize(2,1)
+      irmax(3)=isize(3,1)
+c   read flow solution
+      call cg_field_read_f(index_file,index_base,index_zone,index_flow,
+     + 'Density',RealSingle,irmin,irmax,r,ier)
+      call cg_field_read_f(index_file,index_base,index_zone,index_flow,
+     + 'Pressure',RealSingle,irmin,irmax,p,ier)
+c   close CGNS file
+      call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+Note that this code segment assumes that it is known that
+the flow solution contains no rind data (to be covered in detail
+below).  If rind data <em>does</em> exist, but the user does not
+account for it, then the flow solution information will be read
+incorrectly.  Hence, a real working code would check for rind
+cells, and adjust the dimensions and index ranges appropriately.
+Other similar cautions as those mentioned earlier regarding
+dimensioning of variables, real working code checks, etc.,
+apply here as well.  These cautions will not always be repeated from
+this point forward.
+
+<br><br>
+<a name="sec:flowsoln:centers"></a>
+<b>(b) Flow Solution at Cell Centers</b>
+
+<p>
+The option for outputting the flow solution at cell centers
+is illustrated schematically in 2-D in the figure below.
+The flow solutions are defined at
+the <em>centers</em> of the cells defined by the 
+four surrounding grid points.  In 3-D,
+the cell centers are defined by eight surrounding grid points.
+
+<a name="FIGcellcenter"></a>
+<p>
+<center>
+<img src="figures/cellcenter.gif"
+     alt="4 by 3 grid with circles at cell centers">
+<br><br>
+Schematic showing location (circles) of <tt>CellCenter</tt>
+flow solution relative to grid.
+</center>
+
+<br>
+The code segment to write to cell centers is identical to that given
+above for vertices, except that the call to 
+<tt>cg_sol_write_f</tt> is replaced by:
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c   create flow solution node (NOTE USE OF CellCenter HERE)
+      call cg_sol_write_f(index_file,index_base,index_zone,solname,
+     + CellCenter,index_flow,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+Also, now the density (<tt>r</tt>) and pressure
+(<tt>p</tt>) variables must be dimensioned
+correctly for this particular case: for a tri-dimensional array,
+(20,16,<i>N</i>), where <i>N</i> &ge; 8
+(i.e., one less in each index dimension than the grid itself).
+Again, the API, knowing that the flow solution type is
+<tt>CellCenter</tt>, automatically writes out the correct index
+range, corresponding with the zone's grid index range minus 1 in
+each index direction.
+
+<p>
+The layout of the CGNS file with the flow
+solution at cell centers is shown (below the
+<tt>FlowSolution_t</tt> node only) in the next figure.
+Note that the indices over which the flow solutions are written
+are now from (1,1,1) to (20,16,8) (contrast with 
+the <tt>FlowSolution</tt> part of the
+<a href="#FIGtree_cartesian_solV">figure with the flow
+solution at vertices</a>
+
+<a name="FIGtree_cartesian_solC"></a>
+<p>
+<center>
+<img src="figures/tree_cartesian_solC.gif"
+     alt="Diagram showing CGNS layout with flow solution at cell centers"
+     longdesc="figures/tree_cartesian_solC.html">
+<br><br>
+Layout of CGNS file (under <tt>FlowSolution_t</tt> node)
+for simple Cartesian structured grid with flow solution at cell
+centers.
+</center>
+
+<p>
+The FORTRAN code segment to read in the solution at cell centers
+is the same as that given above for vertices, except that the section that
+defines <tt>irmax</tt> is replaced by:
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c   upper range index - use cell dimensions
+c   checking GridLocation first (real working code would check
+c   to make sure there are no Rind cells also!):
+      call cg_sol_info_f(index_file,index_base,index_zone,index_flow,
+     + solname,loc,ier)
+      if (loc .ne. CellCenter) then
+        write(6,'('' Error, GridLocation must be CellCenter!'')')
+        stop
+      end if
+      irmax(1)=isize(1,2)
+      irmax(2)=isize(2,2)
+      irmax(3)=isize(3,2)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+and, as usual, the <tt>r</tt> and <tt>p</tt> arrays must be dimensioned 
+appropriately.
+
+<br><br>
+<a name="sec:flowsoln:rind"></a>
+<b>(c) Flow Solution at Cell Centers With Additional Rind Data</b>
+
+<p>
+Rind data is additional flow solution data <em>exterior</em> to a
+grid, at "ghost" locations.  Rind data
+can be associated with other <tt>GridLocation</tt> values
+beside <tt>CellCenter</tt>, although we only show an example
+using <tt>CellCenter</tt> here.
+Furthermore, this example is for structured grids only, for which Rind
+data can be defined implicitly (via indexing conventions alone).
+The option for outputting the flow solution at cell centers
+with additional rind data is illustrated schematically in 2-D in
+the figure below.
+In this diagram, we show one layer
+of rind cell data in the row below the grid itself.  There could be
+rind data at other sides of the grid, or there could be
+more than one row at a given side.  
+
+<a name="FIGcellcenter_rind"></a>
+<p>
+<center>
+<img src="figures/cellcenter_rind.gif"
+     alt="4 by 3 grid with row of rind cells below, with circles at cell centers">
+<br><br>
+Schematic showing location (circles) of <tt>CellCenter</tt>
+flow solution, including rind cells, relative to grid.
+</center>
+
+<p>
+In CGNS, the flow solution at
+rind cells is not stored as separate entities, but rather the 
+flow solution range is extended to <em>include</em> the rind cells.  For
+example, in the 2-D schematic of the above figure, instead
+of an index range of <tt>p(3,2)</tt> for pressures stored at the cell
+centers, the flow solution would now have an index range of 
+<tt>p(3,0:2)</tt> or <tt>p(3,3)</tt>.  See the
+<a href="../sids/index.html">SIDS document</a> for details.
+
+<p>
+For our 3-D example, we assume that we have one row of rind data
+at 4 faces of the zone (<tt>ilo, ihi, jlo, jhi</tt>, where these
+represent the low and high ends of the <i>i</i> and <i>j</i>
+directions, respectively), and
+no rind cells at <tt>klo</tt> or <tt>khi</tt> (at either end of the <i>k</i>
+direction).
+The code segment to write the flow solution and rind data is as
+follows:
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c   WRITE FLOW SOLUTION TO EXISTING CGNS FILE
+      include 'cgnslib_f.h'
+c   open CGNS file for modify
+      call cg_open_f('grid.cgns',MODE_MODIFY,index_file,ier)
+c   we know there is only one base (real working code would check!)
+      index_base=1
+c   we know there is only one zone (real working code would check!)
+      index_zone=1
+c   define flow solution node name (user can give any name)
+      solname = 'FlowSolution'
+c   create flow solution node (NOTE USE OF CellCenter HERE)
+      call cg_sol_write_f(index_file,index_base,index_zone,solname,
+     + CellCenter,index_flow,ier)
+c  go to position within tree at FlowSolution_t node
+      call cg_goto_f(index_file,index_base,ier,'Zone_t',index_zone,
+     + 'FlowSolution_t',index_flow,'end')
+c   write rind information under FlowSolution_t node (ilo,ihi,jlo,jhi,klo,khi)
+      irinddata(1)=1
+      irinddata(2)=1
+      irinddata(3)=1
+      irinddata(4)=1
+      irinddata(5)=0
+      irinddata(6)=0
+      call cg_rind_write_f(irinddata,ier)
+c   write flow solution (user must use SIDS-standard names here)
+      call cg_field_write_f(index_file,index_base,index_zone,index_flow,
+     + RealDouble,'Density',r,index_field,ier)
+      call cg_field_write_f(index_file,index_base,index_zone,index_flow,
+     + RealDouble,'Pressure',p,index_field,ier)
+c   close CGNS file
+      call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+Note that in the case of rind data, the user must
+position the <tt>Rind_t</tt> node appropriately, using the
+<tt>cg_goto_f</tt> call.  In this case, the <tt>Rind_t</tt> node belongs under
+the <tt>FlowSolution_t</tt> node.
+
+<p>
+For this case of cell center flow solution
+with rind data, the density (<tt>r</tt>) and pressure (<tt>p</tt>)
+are written to the CGNS file with the following index ranges:
+from <i>i</i> = 0 to <i>i </i>= 20 + 1 = 21 (or a total <i>i</i>
+length of 22), from <i>j</i> = 0 to <i>j</i> = 16 + 1 = 17 (or a total <i>j</i>
+length of 18), and from <i>k</i> = 1 to <i>k</i> = 8.  The variables <tt>r</tt> and <tt>p</tt> must
+be dimensioned appropriately to reflect these index ranges
+modified by the rind values.
+
+<p>
+The layout of the CGNS file for this example (below the
+<tt>FlowSolution_t</tt> node only) is shown below.
+Compare this figure with the figures for the
+<a href="#FIGtree_cartesian_solV">flow solution at vertices</a> and for the
+<a href="#FIGtree_cartesian_solC">flow solution at cell
+centers without rind data</a>.
+
+<a name="FIGtree_cartesian_solCR"></a>
+<p>
+<center>
+<img src="figures/tree_cartesian_solCR.gif"
+     alt="Diagram showing CGNS layout for flow solution at cell centers, and rind data"
+     longdesc="figures/tree_cartesian_solCR.html">
+<br><br>
+Layout of CGNS file (under <tt>FlowSolution_t</tt> node)
+for simple Cartesian structured grid with flow solution at cell
+centers plus rind data
+</center>
+
+<p>
+A FORTRAN code segment to read the flow solution for this example is:
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c   READ FLOW SOLUTION FROM CGNS FILE
+      include 'cgnslib_f.h'
+c   open CGNS file for read-only
+      call cg_open_f('grid.cgns',MODE_READ,index_file,ier)
+c   we know there is only one base (real working code would check!)
+      index_base=1
+c   we know there is only one zone (real working code would check!)
+      index_zone=1
+c   we know there is only one FlowSolution_t (real working code would check!)
+      index_flow=1
+c   get zone size (and name - although not needed here)
+      call cg_zone_read_f(index_file,index_base,index_zone,zonename,
+     + isize,ier)
+c  go to position within tree at FlowSolution\_t node
+      call cg_goto_f(index_file,index_base,ier,'Zone_t',index_zone,
+     + 'FlowSolution_t',index_flow,'end')
+c  read rind data
+      call cg_rind_read_f(irinddata,ier)
+c   lower range index
+      irmin(1)=1
+      irmin(2)=1
+      irmin(3)=1
+c   upper range index - use cell dimensions and rind info
+c   checking GridLocation first:
+      call cg_sol_info_f(index_file,index_base,index_zone,index_flow,
+     + solname,loc,ier)
+      if (loc .ne. CellCenter) then
+        write(6,'('' Error, GridLocation must be CellCenter!'')')
+      stop
+      end if
+      irmax(1)=isize(1,2)+irinddata(1)+irinddata(2)
+      irmax(2)=isize(2,2)+irinddata(3)+irinddata(4)
+      irmax(3)=isize(3,2)+irinddata(5)+irinddata(6)
+c   read flow solution
+      call cg_field_read_f(index_file,index_base,index_zone,index_flow,
+     + 'Density',RealSingle,irmin,irmax,r,ier)
+      call cg_field_read_f(index_file,index_base,index_zone,index_flow,
+     + 'Pressure',RealSingle,irmin,irmax,p,ier)
+c   close CGNS file
+      call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+<a name="sec:bcstruct"></a>
+<h4>Single-Zone Structured Grid with Boundary Conditions</h4>
+
+<p>
+To illustrate the use of boundary conditions, we again use the
+same <a href="#sec:singlegrid">single-zone Cartesian grid</a>.
+Referring back to <a href="#FIGgrid_cartesian">the grid figure</a>,
+we wish to apply the following:
+<br><br>
+&nbsp;&nbsp;&nbsp;<tt>ilo</tt> - <tt>BCTunnelInflow</tt><br>
+&nbsp;&nbsp;&nbsp;<tt>ihi</tt> - <tt>BCExtrapolate</tt><br>
+&nbsp;&nbsp;&nbsp;<tt>jlo</tt> - <tt>BCWallInviscid</tt><br>
+&nbsp;&nbsp;&nbsp;<tt>jhi</tt> - etc.<br>
+&nbsp;&nbsp;&nbsp;<tt>klo</tt> - etc.<br>
+&nbsp;&nbsp;&nbsp;<tt>khi</tt> - etc.
+<br><br>
+where <tt>BCTunnelInflow</tt>, <tt>BCExtrapolate</tt>, and
+<tt>BCWallInviscid</tt> are data-name identifiers for boundary 
+conditions.
+The complete list of <a href="../sids/bc.html#BCType">boundary condition
+identifiers</a> is found in the SIDS document.
+In this example, we take the approach of 
+using the lowest-level BC implementation allowed - see the figure
+showing the <a href="sids.html#FIGbc">general hierarchical
+structure of <tt>ZoneBC_t</tt></a> in the <a href="sids.html">SIDS
+overview section</a>.
+
+<p>
+In this section, we show two different approaches for defining the
+region over which each boundary condition acts.
+The first is with type <tt>PointRange</tt>, meaning that we define the
+minimum and maximum points on a face that define a logically
+rectangular region (this method is usable only for faces that are
+capable of being defined in this way).
+The second is with type <tt>PointList</tt>, which gives
+the list of <em>all</em> the points for
+which the boundary condition applies.
+This latter method is generally used for any
+zone whose defined region is not logically rectangular.
+
+<br><br>
+<a name="sec:bcstruct:range"></a>
+<b>(a) Boundary Conditions Specifying Range</b>
+
+<p>
+A FORTRAN code segment to write the boundary condition
+information of type <tt>PointRange</tt>
+to the existing CGNS file from the previous two sections
+is given here:
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c  WRITE BOUNDARY CONDITIONS TO EXISTING CGNS FILE
+      include 'cgnslib_f.h'
+c  open CGNS file for modify
+      call cg_open_f('grid.cgns',MODE_MODIFY,index_file,ier)
+c  we know there is only one base (real working code would check!)
+      index_base=1
+c  we know there is only one zone (real working code would check!)
+      index_zone=1
+c   get zone size (and name - although not needed here)
+      call cg_zone_read_f(index_file,index_base,index_zone,zonename,
+     + isize,ier)
+      ilo=1
+      ihi=isize(1,1)
+      jlo=1
+      jhi=isize(2,1)
+      klo=1
+      khi=isize(3,1)
+c  write boundary conditions for ilo face, defining range first
+c  (user can give any name)
+c  lower point of range
+      ipnts(1,1)=ilo
+      ipnts(2,1)=jlo
+      ipnts(3,1)=klo
+c  upper point of range
+      ipnts(1,2)=ilo
+      ipnts(2,2)=jhi
+      ipnts(3,2)=khi
+      call cg_boco_write_f(index_file,index_base,index_zone,'Ilo',
+     + BCTunnelInflow,PointRange,2,ipnts,index_bc,ier)
+c  write boundary conditions for ihi face, defining range first
+c  (user can give any name)
+c  lower point of range
+      ipnts(1,1)=ihi
+      ipnts(2,1)=jlo
+      ipnts(3,1)=klo
+c  upper point of range
+      ipnts(1,2)=ihi
+      ipnts(2,2)=jhi
+      ipnts(3,2)=khi
+      call cg_boco_write_f(index_file,index_base,index_zone,'Ihi',
+     + BCExtrapolate,PointRange,2,ipnts,index_bc,ier)
+c  write boundary conditions for jlo face, defining range first
+c  (user can give any name)
+c  lower point of range
+      ipnts(1,1)=ilo
+      ipnts(2,1)=jlo
+      ipnts(3,1)=klo
+c  upper point of range
+      ipnts(1,2)=ihi
+      ipnts(2,2)=jlo
+      ipnts(3,2)=khi
+      call cg_boco_write_f(index_file,index_base,index_zone,'Jlo',
+     + BCWallInviscid,PointRange,2,ipnts,index_bc,ier)
+      ... etc...
+c  close CGNS file
+      call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+The zone names (e.g., <tt>Ilo</tt>) are arbitrary.  Note that 
+the variable <tt>zonename</tt> must be declared as a character variable, and
+<tt>isize</tt> and <tt>ipnts</tt> must be dimensioned appropriately.
+
+<p>
+The layout of the CGNS file for this example 
+is shown below.
+Four of the children nodes of <tt>ZoneBC_t</tt> are left off for
+clarity.
+
+<a name="FIGtree_cartesian_BC"></a>
+<p>
+<center>
+<img src="figures/tree_cartesian_BC.gif"
+     alt="Diagram showing CGNS layout with boundary conditions defined using PointRange"
+     longdesc="figures/tree_cartesian_BC.html">
+<br><br>
+Layout of CGNS file 
+for simple Cartesian structured grid with flow
+solution and boundary conditions using <tt>PointRange</tt>.
+</center>
+
+<p>
+Reading the boundary conditions can also be easily accomplished using
+API calls, but we do not show an example of this here.
+Because there are multiple <tt>BC_t</tt> children nodes under the
+<tt>ZoneBC_t</tt> node, the user must first read in the number
+of children nodes 
+that exist, then loop through them and retrieve the information
+from each.
+
+<br><br>
+<a name="sec:bcstruct:points"></a>
+<b>(b) Boundary Conditions Specifying Points</b>
+
+<p>
+The FORTRAN code segment to write the boundary conditions using
+<tt>PointList</tt> is the same as that for <tt>PointRange</tt> except
+that the following segment, for example,
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c  write boundary conditions for ilo face, defining range first
+c  (user can give any name)
+      ipnts(1,1)=ilo
+      ipnts(2,1)=jlo
+      ipnts(3,1)=klo
+      ipnts(1,2)=ilo
+      ipnts(2,2)=jhi
+      ipnts(3,2)=khi
+      call cg_boco_write_f(index_file,index_base,index_zone,'Ilo',
+     + BCTunnelInflow,PointRange,2,ipnts,index_bc,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+is replaced by:
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c  write boundary conditions for ilo face, defining pointlist first
+c  (user can give any name)
+      icount=0
+      do j=jlo,jhi
+        do k=klo,khi
+          icount=icount+1
+          ipnts(1,icount)=ilo
+          ipnts(2,icount)=j
+          ipnts(3,icount)=k
+        enddo
+      enddo
+      call cg_boco_write_f(index_file,index_base,index_zone,'Ilo',
+     + BCTunnelInflow,PointList,icount,ipnts,index_bc,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+The layout of the CGNS file in this case is the same as in
+<a href="#FIGtree_cartesian_BC">the above figure</a>,
+except that <tt>PointRange</tt>
+(<tt>IndexRange_t</tt>) becomes <tt>PointList</tt> (<tt>IndexArray_t</tt>)
+and there is <tt>icount</tt> data in
+the <tt>PointList</tt> nodes.
+
+<a name="sec:str1to1"></a>
+<h4>Multi-Zone Structured Grid with 1-to-1 Connectivity</h4>
+
+<p>
+For the case of a multi-zone structured grid, each zone is
+handled individually in the same way as the examples in the preceding
+sections.  However, multi-zone grids also require additional
+information about how the zones are connected to one another.
+A discussion of different types of zone-to-zone connectivity can be found
+in the <a href="sids.html">SIDS overview section</a>.
+For the example in this section, we show only
+a simple 1-to-1 connectivity example.  We assume that we have a two-zone
+grid, each identical to the <a href="#FIGgrid_cartesian">single zone
+used previously</a> (21 &times; 17 &times; 9), except that zone 2 is
+offset in the <i>x</i>-direction by 20 units.
+Thus, the <tt>ilo</tt> face of zone 2 abuts
+the <tt>ihi</tt> face of zone 1, and each abutting point in the two zones 
+touches a point from the neighboring zone.
+A picture of the grid is shown below.
+
+<a name="FIGgrid_cartesian2"></a>
+<p>
+<center>
+<img src="figures/grid_cartesian2.gif"
+     alt="Figure showing a two-zone Cartesian grid, with 1-to-1 connectivity">
+<br><br>
+2-Zone Cartesian structured grid with 1-to-1 connectivity.
+</center>
+
+<p>
+The overall layout of this two-zone CGNS file is not shown here.
+It is similar to those shown earlier, except now there are two
+zones rather than one.
+See the <a href="sids.html">SIDS overview</a> for an additional example.
+
+<p>
+Now, 1-to-1 connectivity information must be written into
+each of the zones.  There are two ways to record this 1-to-1
+information.
+The first (specific)
+method is valid only for 1-to-1 interfaces, and the regions
+<em>must</em> be logically rectangular (because they are recorded
+via <tt>PointRange</tt> and <tt>PointRangeDonor</tt>
+nodes, for which only two points define
+the entire region). 
+The second way is more general.  It uses 
+<tt>PointList</tt> nodes in combination with <tt>PointListDonor</tt>.
+(A third method, used to describe interfaces that are
+<em>not</em> point-matched - such as mismatched or overset zones -
+employs <tt>CellListDonor</tt> and <tt>InterpolantsDonor</tt>.)
+Refer to the SIDS document for <a href="../sids/cnct.html">details
+on the various methods for describing connectivity</a>.
+
+<br><br>
+<a name="sec:str1to1:specific"></a>
+<b>(a) Connectivity Using Specific 1-to-1 Method</b>
+
+<p>
+The 1-to-1 connectivity information for the current example
+can be written to a CGNS file using the following
+FORTRAN code segment (assuming that all grid information has
+already been written):
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c  WRITE 1-TO-1 CONNECTIVITY INFORMATION TO EXISTING CGNS FILE
+      include 'cgnslib_f.h'
+c  open CGNS file for modify
+      call cg_open_f('grid.cgns',MODE_MODIFY,index_file,ier)
+c  we know there is only one base (real working code would check!)
+      index_base=1
+c   get number of zones (should be 2 for our case)
+      call cg_nzones_f(index_file,index_base,nzone,ier)
+c   loop over zones to get zone sizes and names
+      do index_zone=1,nzone
+        call cg_zone_read_f(index_file,index_base,index_zone,
+     +    zonename(index_zone),isize,ier)
+        ilo(index_zone)=1
+        ihi(index_zone)=isize(1,1)
+        jlo(index_zone)=1
+        jhi(index_zone)=isize(2,1)
+        klo(index_zone)=1
+        khi(index_zone)=isize(3,1)
+      enddo
+c   loop over zones again
+      do index_zone=1,nzone
+c   set up index ranges
+        if (index_zone .eq. 1) then
+          donorname=zonename(2)
+c   lower point of receiver range
+          ipnts(1,1)=ihi(1)
+          ipnts(2,1)=jlo(1)
+          ipnts(3,1)=klo(1)
+c   upper point of receiver range
+          ipnts(1,2)=ihi(1)
+          ipnts(2,2)=jhi(1)
+          ipnts(3,2)=khi(1)
+c   lower point of donor range
+          ipntsdonor(1,1)=ilo(2)
+          ipntsdonor(2,1)=jlo(2)
+          ipntsdonor(3,1)=klo(2)
+c   upper point of donor range
+          ipntsdonor(1,2)=ilo(2)
+          ipntsdonor(2,2)=jhi(2)
+          ipntsdonor(3,2)=khi(2)
+        else
+          donorname=zonename(1)
+c   lower point of receiver range
+          ipnts(1,1)=ilo(2)
+          ipnts(2,1)=jlo(2)
+          ipnts(3,1)=klo(2)
+c   upper point of receiver range
+          ipnts(1,2)=ilo(2)
+          ipnts(2,2)=jhi(2)
+          ipnts(3,2)=khi(2)
+c   lower point of donor range
+          ipntsdonor(1,1)=ihi(1)
+          ipntsdonor(2,1)=jlo(1)
+          ipntsdonor(3,1)=klo(1)
+c   upper point of donor range
+          ipntsdonor(1,2)=ihi(1)
+          ipntsdonor(2,2)=jhi(1)
+          ipntsdonor(3,2)=khi(1)
+        end if
+c   set up Transform
+        itranfrm(1)=1
+        itranfrm(2)=2
+        itranfrm(3)=3
+c   write 1-to-1 info (user can give any name)
+        call cg_1to1_write_f(index_file,index_base,index_zone,
+     +    'Interface',donorname,ipnts,ipntsdonor,itranfrm,
+     +    index_conn,ier)
+      enddo
+c  close CGNS file
+      call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+Note that this code segment is geared very specifically 
+toward our 2-zone example, i.e., it relies on our
+knowledge of this particular case.  <tt>Transform</tt> defines the
+relative orientation of the <i>i</i>, <i>j</i>, and <i>k</i> indices of the
+abutting zones.
+<a href="../sids/cnct.html#GridConnectivity1to1">Details concerning the
+values of <tt>Transform</tt></a> can be found in the SIDS document.
+However, note that <tt>Transform</tt> values of 
+(1,2,3) indicate that the <i>i</i>, <i>j</i>, <i>k</i> axes of both zones
+are oriented in the same directions.  Reading the connectivity information 
+can also be easily accomplished using
+API calls, but we do not show an example of this here.
+And finally, we do not show the layout of the nodes associated with
+the connectivity here.  The interested user is referred to 
+the <a href="sids.html">SIDS overview</a> for an example figure.
+
+<br><br>
+<a name="sec:str1to1:general"></a>
+<b>(b) Connectivity Using General Method</b>
+
+<p>
+Using a more general method, for which each connectivity pair is
+listed (rather than ranges),
+the connectivity information for the current example
+can be written to a CGNS file using the following
+FORTRAN code segment:
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c  WRITE GENERAL CONNECTIVITY INFORMATION TO EXISTING CGNS FILE
+      include 'cgnslib_f.h'
+c  open CGNS file for modify
+      call cg_open_f('grid.cgns',MODE_MODIFY,index_file,ier)
+c  we know there is only one base (real working code would check!)
+      index_base=1
+c   get number of zones (should be 2 for our case)
+      call cg_nzones_f(index_file,index_base,nzone,ier)
+c   loop over zones to get zone sizes and names
+      do index_zone=1,nzone
+        call cg_zone_read_f(index_file,index_base,index_zone,
+     +    zonename(index_zone),isize,ier)
+        ilo(index_zone)=1
+        ihi(index_zone)=isize(1,1)
+        jlo(index_zone)=1
+        jhi(index_zone)=isize(2,1)
+        klo(index_zone)=1
+        khi(index_zone)=isize(3,1)
+      enddo
+c   loop over zones again
+      do index_zone=1,nzone
+c   set up point lists
+        if (index_zone .eq. 1) then
+          icount=0
+          do j=jlo(index_zone),jhi(index_zone)
+            do k=klo(index_zone),khi(index_zone)
+              icount=icount+1
+              ipnts(1,icount)=ihi(1)
+              ipnts(2,icount)=j
+              ipnts(3,icount)=k
+              ipntsdonor(1,icount)=ilo(2)
+              ipntsdonor(2,icount)=j
+              ipntsdonor(3,icount)=k
+            enddo
+          enddo
+          donorname=zonename(2)
+        else
+          icount=0
+          do j=jlo(index_zone),jhi(index_zone)
+            do k=klo(index_zone),khi(index_zone)
+              icount=icount+1
+              ipnts(1,icount)=ilo(2)
+              ipnts(2,icount)=j
+              ipnts(3,icount)=k
+              ipntsdonor(1,icount)=ihi(1)
+              ipntsdonor(2,icount)=j
+              ipntsdonor(3,icount)=k
+            enddo
+          enddo
+          donorname=zonename(1)
+        end if
+c   write integer connectivity info (user can give any name)
+        call cg_conn_write_f(index_file,index_base,index_zone,
+     +    'GenInterface',Vertex,Abutting1to1,PointList,icount,ipnts,
+     +    donorname,Structured,PointListDonor,Integer,icount,
+     +    ipntsdonor,index_conn,ier)
+      enddo
+c  close CGNS file
+      call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<br>
+The method for <a href="../sids/cnct.html#GridConnectivity">recording
+mismatched (patched) or overset connectivity information</a> is
+described in the SIDS document.
+However, note that in such cases the use of <tt>CellListDonor</tt>
+(along with <tt>InterpolantsDonor</tt>)
+implies the specification of <em>cell center indices</em> on the donor
+side (these would correspond to element numbers in
+unstructured zones).  The <tt>InterpolantsDonor</tt> information consists of
+real-valued interpolants.
+
+<a name="sec:unstr"></a>
+<h3>Unstructured Grid</h3>
+
+<p>
+This section gives several unstructured grid examples.
+The user should already be familiar with the information
+covered in <a href="#sec:str">the previous section</a>, which gives
+structured grid examples.
+Because much of the organization of the
+CGNS files is identical for both grid types, many
+of the ideas covered in the structured grid section
+are not repeated again here.
+
+<a name="sec:unstrgrid"></a>
+<h4>Single-Zone Unstructured Grid</h4>
+
+<p>
+This example uses the exact <a href="#FIGgrid_cartesian">single-zone grid</a>
+shown earlier.  However, it is now written
+as an <em>unstructured</em> grid, which is made up of a series
+of 6-sided elements (cubes in this case).
+A FORTRAN code segment that uses API calls to write this grid
+to a CGNS file called <tt>grid.cgns</tt> is shown here (note that it
+<em>does not matter</em>
+how the nodes are ordered in an unstructured zone, but in this 
+example they are ordered sequentially for simplicity of presentation):
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c  WRITE X, Y, Z GRID POINTS TO CGNS FILE
+      include 'cgnslib_f.h'
+c  open CGNS file for write
+      call cg_open_f('grid.cgns',MODE_WRITE,index_file,ier)
+c  create base (user can give any name)
+      basename='Base'
+      icelldim=3
+      iphysdim=3
+      call cg_base_write_f(index_file,basename,icelldim,iphysdim,
+     + index_base,ier)
+c  define zone name (user can give any name)
+      zonename = 'Zone  1'
+c  we use the same grid as for the structured example with ni=21,
+c  nj=17, nk=9.  The variables ni, nj, and nk are still used later,
+c  for convenience when numbering the unstructured grid elements.
+      ni=21
+      nj=17
+      nk=9
+c  vertex size (21*17*9 = 3213)
+      isize(1,1)=3213
+c  cell size (20*16*8 = 2560)
+      isize(1,2)=2560
+c  boundary vertex size (zero if elements not sorted)
+      isize(1,3)=0
+c  create zone
+      call cg_zone_write_f(index_file,index_base,zonename,isize,
+     + Unstructured,index_zone,ier)
+c  write grid coordinates (user must use SIDS-standard names here)
+      call cg_coord_write_f(index_file,index_base,index_zone,RealDouble,
+     + 'CoordinateX',x,index_coord,ier)
+      call cg_coord_write_f(index_file,index_base,index_zone,RealDouble,
+     + 'CoordinateY',y,index_coord,ier)
+      call cg_coord_write_f(index_file,index_base,index_zone,RealDouble,
+     + 'CoordinateZ',z,index_coord,ier)
+c  set element connectivity:
+c  do all the HEX_8 elements (this part is mandatory):
+c  maintain SIDS-standard ordering
+      ielem_no=0
+c  index no of first element
+      nelem_start=1
+      do k=1,nk-1
+        do j=1,nj-1
+          do i=1,ni-1
+            ielem_no=ielem_no+1
+c  in this example, due to the order in the node numbering, the
+c  hexahedral elements can be reconstructed using the following
+c  relationships:
+            ifirstnode=i+(j-1)*ni+(k-1)*ni*nj
+            ielem(1,ielem_no)=ifirstnode
+            ielem(2,ielem_no)=ifirstnode+1
+            ielem(3,ielem_no)=ifirstnode+1+ni
+            ielem(4,ielem_no)=ifirstnode+ni
+            ielem(5,ielem_no)=ifirstnode+ni*nj
+            ielem(6,ielem_no)=ifirstnode+ni*nj+1
+            ielem(7,ielem_no)=ifirstnode+ni*nj+1+ni
+            ielem(8,ielem_no)=ifirstnode+ni*nj+ni
+          enddo
+        enddo
+      enddo
+c  index no of last element (=2560)
+      nelem_end=ielem_no
+c  unsorted boundary elements
+      nbdyelem=0
+c  write HEX_8 element connectivity (user can give any name)
+      call cg_section_write_f(index_file,index_base,index_zone,
+     +  'Elem',HEXA_8,nelem_start,nelem_end,nbdyelem,ielem,
+     +  index_section,ier)
+c  close CGNS file
+      call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<p>
+Note that for unstructured zones, the index dimension is always 1
+(because only one index value is required to identify a position
+in the mesh),
+so the <tt>isize</tt> array contains the total vertex size, cell size,
+and boundary vertex size for the zone.
+In this example, the <tt>ielem</tt> array must be dimensioned exactly
+as (8,<i>N</i>), where <i>N</i> is greater than or equal to the total number
+of elements.
+The node points that lie in the lower left corner of 
+<a href="#FIGgrid_cartesian">the grid</a> are shown schematically
+for two elements in the figure below.
+Here it can be seen, for example, that node numbers
+1, 2, 23, 22, 358, 359, 380, and 379 make up element 1.
+
+<a name="FIGgrid_cartesianU"></a>
+<p>
+<center>
+<img src="figures/grid_cartesianU.gif"
+     alt="Figure showing two elements of the unstructured hexagonal grid"
+     longdesc="figures/grid_cartesianU.html">
+<br><br>
+Schematic representation of nodes and elements of unstructured grid.
+</center>
+
+<p>
+The overall layout of the CGNS file created by the above code segment
+is shown below.  The nodes for <tt>y</tt> and
+<tt>z</tt> are left off due to lack of space.  
+Compare this figure with the <a href="#FIGtree_cartesian">layout for the
+structured version of this grid</a>.
+
+<a name="FIGtree_cartesianU"></a>
+<p>
+<center>
+<img src="figures/tree_cartesianU.gif"
+     alt="Diagram showing CGNS layout for unstructured grid"
+     longdesc="figures/tree_cartesianU.html">
+<br><br>
+Layout of CGNS file for unstructured grid.
+</center>
+
+<a name="sec:unstrgrid:Elements"></a>
+<p>
+For unstructured zones, the user may also wish to separately list the
+boundary elements in the CGNS file.
+This may be useful for <a href="#sec:bcunstr">assigning boundary
+conditions</a>, as we will show later.
+In the current example, assume that the user wishes to assign three
+different types of boundary conditions: inflow at one end,
+outflow at the other end, and side walls on the four
+faces in-between.  To accomplish this, it would be helpful to have three
+additional <tt>Elements_t</tt> nodes in the CGNS file, each of which lists the 
+corresponding faces as elements (<tt>QUAD_4</tt> in this case). 
+
+<p>
+A FORTRAN code segment that accomplishes a part of this is given here.  It may
+be a part of the same code (above) that defined the grid and <tt>HEXA_8</tt>
+connectivity.
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c  do boundary (QUAD) elements (this part is optional,
+c  but you must do it if you eventually want to define BCs
+c  at element faces rather than at nodes):
+c  INFLOW:
+      ielem_no=0
+c  index no of first element
+      nelem_start=nelem_end+1
+      i=1
+      do k=1,nk-1
+        do j=1,nj-1
+          ielem_no=ielem_no+1
+          ifirstnode=i+(j-1)*ni+(k-1)*ni*nj
+          jelem(1,ielem_no)=ifirstnode
+          jelem(2,ielem_no)=ifirstnode+ni*nj
+          jelem(3,ielem_no)=ifirstnode+ni*nj+ni
+          jelem(4,ielem_no)=ifirstnode+ni
+        enddo
+      enddo
+c  index no of last element
+      nelem_end=nelem_start+ielem_no-1
+c  write QUAD element connectivity for inflow face (user can give any name)
+      call cg_section_write_f(index_file,index_base,index_zone,
+     +  'InflowElem',QUAD_4,nelem_start,nelem_end,nbdyelem,
+     +  jelem,index_section,ier)
+c  OUTFLOW:
+      ... etc...
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<p>
+In this example, the <tt>jelem</tt> array must be dimensioned exactly
+as (4,<i>N</i>), where <i>N</i> is greater than or equal to the total number
+of elements.  Note that the <tt>nelem_start</tt> and <tt>nelem_end</tt>
+range is defined <em>subsequent</em> to the range of any other
+elements (i.e., the <tt>HEXA_8</tt> elements) already defined in this zone.
+In other words, all elements in a given zone must have a different
+number.
+
+<p>
+The layout of the CGNS file in this case is exactly the same as that shown
+in <a href="#FIGtree_cartesianU">the previous figure</a>,
+except that there are now three additional
+<tt>Elements_t</tt> nodes under <tt>Zone_t</tt>.  These are shown
+separately below.
+
+<a name="FIGtree_cartesianUelem"></a>
+<p>
+<center>
+<img src="figures/tree_cartesianUelem.gif"
+     alt="Diagram showing CGNS layout of Elements_t boundary face nodes"
+     longdesc="figures/tree_cartesianUelem.html">
+<br><br>
+Layout of additional <tt>Elements_t</tt> boundary face nodes.
+</center>
+
+<a name="sec:unstrflow"></a>
+<h4>Single-Zone Unstructured Grid and Flow Solution</h4>
+
+<p>
+To add a flow solution to an unstructured zone, the procedure is 
+identical to that for a structured zone.
+However, the Rind field for unstructured grids indicates additional
+points rather than planes.
+Example of Rind capability for unstructured grids is not covered here.
+Considering the <a href="#sec:flowsoln:vertices">vertex</a> and
+<a href="#sec:flowsoln:centers">cell-center</a> examples shown
+previously, the only difference for unstructured zones is that
+all arrays are one-dimensional (there is only one index), as opposed to three 
+indices for 3-D structured arrays.
+A vertex solution indicates that the solution is stored at vertices or
+nodes.
+In the above example, there would be lists of 3213 data array items per
+solution variable.
+A cell center solution implies that the solution is stored at the center
+of each element.
+In the above example, there would be lists of 2560 data array items per
+solution variable.
+
+<p>
+The overall layout of the CGNS file is the same as
+<a href="#FIGtree_cartesianU">that shown previously</a>, except
+that there would also be a <tt>FlowSolution_t</tt> node under
+<tt>Zone&nbsp;&nbsp;1</tt>, and this node would have the children nodes
+<tt>GridLocation</tt>, <tt>Density</tt>, and <tt>Pressure</tt>.
+
+<a name="sec:bcunstr"></a>
+<h4>Single-Zone Unstructured Grid with Boundary Conditions</h4>
+
+<p>
+When writing boundary conditions to a CGNS file for an unstructured
+zone, one can follow the same general <a href="#sec:bcstruct">procedure
+outlined previously for a structured zone</a>.
+In other words, the boundary conditions can be defined for point ranges or
+for individual points, where the points refer to nodes (vertices) of the
+grid.
+Coding would be essentially the same as that presented before, except
+that the points and/or ranges are now one-dimensional (there is only one
+index), as opposed to three indices for 3-D structured arrays.
+
+<p>
+However, for unstructured zones this is generally not the recommended
+method.
+Usually, for unstructured zones one has also already defined additional
+<tt>Elements_t</tt> nodes that <em>define</em> the
+<a href="#sec:unstrgrid:Elements">boundary face elements</a>.
+Therefore, it is best for the boundary conditions to be associated with
+these elements rather than with the nodes.
+
+<p>
+Because this concept is quite different from what was done with the
+structured zone
+earlier, we illustrate it with an example.
+We earlier showed
+<a href="#sec:unstrgrid:Elements">how to create the additional
+<tt>Elements_t</tt> nodes</a> defining the boundary faces.  The face-center
+boundary conditions now can be written using the following code segment.
+
+<br><br>
+<hr size=1 noshade width=60% align=left>
+<pre>
+c  WRITE BOUNDARY CONDITIONS TO EXISTING CGNS FILE
+      include 'cgnslib_f.h'
+c  open CGNS file for modify
+      call cg_open_f('grid.cgns',MODE_MODIFY,index_file,ier)
+c  we know there is only one base (real working code would check!)
+      index_base=1
+c  we know there is only one zone (real working code would check!)
+      index_zone=1
+c  we know that for the unstructured zone, the following face elements
+c  have been defined as inflow (real working code would check!):
+      nelem_start=2561
+      nelem_end=2688
+      icount=0
+      do n=nelem_start,nelem_end
+        icount=icount+1
+        ipnts(icount)=n
+      enddo
+c  write boundary conditions for ilo face
+      call cg_boco_write_f(index_file,index_base,index_zone,'Ilo',
+     + BCTunnelInflow,ElementList,icount,ipnts,index_bc,ier)
+c  we know that for the unstructured zone, the following face elements
+c  have been defined as outflow (real working code would check!):
+      nelem_start=2689
+      nelem_end=2816
+      icount=0
+      do n=nelem_start,nelem_end
+        icount=icount+1
+        ipnts(icount)=n
+      enddo
+c  write boundary conditions for ihi face
+      call cg_boco_write_f(index_file,index_base,index_zone,'Ihi',
+     + BCExtrapolate,ElementList,icount,ipnts,index_bc,ier)
+c  we know that for the unstructured zone, the following face elements
+c  have been defined as walls (real working code would check!):
+      nelem_start=2817
+      nelem_end=3776
+      icount=0
+      do n=nelem_start,nelem_end
+        icount=icount+1
+        ipnts(icount)=n
+      enddo
+c  write boundary conditions for wall faces
+      call cg_boco_write_f(index_file,index_base,index_zone,'Walls',
+     + BCWallInviscid,ElementList,icount,ipnts,index_bc,ier)
+c
+c  close CGNS file
+      call cg_close_f(index_file,ier)
+</pre>
+<hr size=1 noshade width=60% align=left>
+
+<p>
+Note that we assume here that we know in advance the element numbers
+associated with each of the boundaries.
+We have written these element numbers as a <tt>ElementList</tt>,
+but, because they are in order, we could just as easily have used
+<tt>ElementRange</tt> instead.
+In that case, only two <tt>ipnts</tt> values would be needed, equal to
+<tt>nelem_start</tt> and <tt>nelem_end</tt>, and <tt>icount</tt> would be 2.
+
+Note that it is also allowable to use <tt>PointList</tt>
+or <tt>PointRange</tt> <em>in addition to</em> setting
+<tt>GridLocation</tt> to <tt>FaceCenter</tt>.
+This combination has the meaning of pointing to elements rather than to
+vertices because, by default, boundary conditions are assumed to apply
+at vertices (nodes); but when <tt>GridLocation</tt> is something other
+than <tt>Vertex</tt>, then the boundary conditions for an unstructured
+zone no longer refer to nodes, but to elements.
+However, this method is rather obtuse (it is a holdover from early CGNS
+implementations), so is not recommended.
+(This method was used in earlier version of this Users Guide.)
+
+<p>
+A portion of the layout of the CGNS file for the <tt>ZoneBC_t</tt>
+node and its children is shown below.  The <tt>ZoneBC_t</tt>
+node lies directly under <tt>Zone_t</tt>.
+
+<a name="FIGtree_cartesian_UBC"></a>
+<p>
+<center>
+<img src="figures/tree_cartesian_UBC.gif"
+     alt="Diagram showing CGNS layout for unstructured grid with boundary conditions at face centers"
+     longdesc="figures/tree_cartesian_UBC.html">
+<br><br>
+Layout of part of CGNS file for an unstructured zone with
+boundary conditions defined at face-center elements.
+</center>
+
+<p>
+The three figures, showing the <a href="#FIGtree_cartesianU">general
+layout of a CGNS file for an unstructured grid</a>, the
+<a href="#FIGtree_cartesianUelem">layout of additional Elements_t
+boundary face nodes</a>, and the <a href="#FIGtree_cartesian_UBC">layout
+at and below the <tt>ZoneBC_t</tt> node</a>, taken together, constitute
+the entire layout of the file.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 7 Mar 2008
+
+</body>
+</html>

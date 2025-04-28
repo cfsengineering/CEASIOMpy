@@ -1,0 +1,588 @@
+<!-- CGNS Mid-Level Library - Physical Data -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="midlevel.css" rel="stylesheet" type="text/css">
+<title> CGNS Mid-Level Library - Physical Data </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<a href="#endnav"><img src="../blank.gif" border=0 alt="Skip navigation links"></a>
+<small>
+<center>
+(<a href="../index.html"><b>CGNS&nbsp;Documentation&nbsp;Home&nbsp;Page</b></a>)
+(<a href="../charter/index.html"><b>Steering&nbsp;Committee&nbsp;Charter</b></a>)
+(<a href="../overview/index.html"><b>Overview&nbsp;and&nbsp;Entry-Level&nbsp;Document</b></a>)
+(<a href="../user/index.html"><b>A&nbsp;User's&nbsp;Guide&nbsp;to&nbsp;CGNS</b></a>)
+(<a href="../sids/index.html"><b>Standard&nbsp;Interface&nbsp;Data&nbsp;Structures</b></a>)
+(<a href="../filemap/index.html"><b>SIDS-to-ADF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="../filemap_hdf/index.html"><b>SIDS-to-HDF&nbsp;File&nbsp;Mapping&nbsp;Manual</b></a>)
+(<a href="index.html"><span class=nav><b>Mid-Level&nbsp;Library</b></span></a>)
+(<a href="../adf/index.html"><b>ADF&nbsp;User's&nbsp;Guide</b></a>)
+(<a href="../cgnstools/index.html"><b>CGNS&nbsp;Tools&nbsp;and&nbsp;Utilities</b></a>)
+<br><br>
+(<a href="general.html"><b>General&nbsp;Remarks</b></a>)
+(<a href="fileops.html"><b>File&nbsp;Operations</b></a>)
+(<a href="navigating.html"><b>Navigating&nbsp;a&nbsp;CGNS&nbsp;File</b></a>)
+(<a href="error.html"><b>Error&nbsp;Handling</b></a>)
+(<a href="structural.html"><b>Structural&nbsp;Nodes</b></a>)
+(<a href="descriptor.html"><b>Descriptors</b></a>)
+(<span class=nav><b>Physical&nbsp;Data</b></span>)
+(<a href="location.html"><b>Location&nbsp;and&nbsp;Position</b></a>)
+(<a href="auxiliary.html"><b>Auxiliary&nbsp;Data</b></a>)
+(<a href="grid.html"><b>Grid&nbsp;Specification</b></a>)
+(<a href="solution.html"><b>Solution&nbsp;Data</b></a>)
+(<a href="connectivity.html"><b>Grid&nbsp;Connectivity</b></a>)
+(<a href="bc.html"><b>Boundary&nbsp;Conditions</b></a>)
+(<a href="equation.html"><b>Equation&nbsp;Specification</b></a>)
+(<a href="families.html"><b>Families</b></a>)
+(<a href="timedep.html"><b>Time-Dependent&nbsp;Data</b></a>)
+(<a href="links.html"><b>Links</b></a>)
+</center>
+</small>
+<a name="endnav"></a>
+
+<h2>Physical Data</h2>
+
+<ul>
+<li> <a href="#dataarray">Data Arrays</a>
+     <ul>
+     <li> <tt><b>cg_array_write</b></tt> - Write data array
+     <li> <tt><b>cg_narrays</b></tt> - Get number of data arrays under current node
+     <li> <tt><b>cg_array_info</b></tt> - Get data array info
+     <li> <tt><b>cg_array_read</b></tt> - Read data array
+     <li> <tt><b>cg_array_read_as</b></tt> - Read data array as a certain type
+     </ul>
+<li> <a href="#dataclass">Data Class</a>
+     <ul>
+     <li> <tt><b>cg_dataclass_write</b></tt> - Write data class
+     <li> <tt><b>cg_dataclass_read</b></tt> - Read data class
+     </ul>
+<li> <a href="#dataconversion">Data Conversion Factors</a>
+     <ul>
+     <li> <tt><b>cg_conversion_write</b></tt> - Write conversion factors
+     <li> <tt><b>cg_conversion_info</b></tt> - Get conversion factors data type
+     <li> <tt><b>cg_conversion_read</b></tt> - Read conversion factors
+     </ul>
+<li> <a href="#dimensionalunits">Dimensional Units</a>
+     <ul>
+     <li> <tt><b>cg_units_write</b></tt> - Write first five dimensional units
+     <li> <tt><b>cg_unitsfull_write</b></tt> - Write all eight dimensional units
+     <li> <tt><b>cg_nunits</b></tt> - Get number of dimensional units
+     <li> <tt><b>cg_units_read</b></tt> - Read first five dimensional units
+     <li> <tt><b>cg_unitsfull_read</b></tt> - Read all eight dimensional units
+     </ul>
+<li> <a href="#dimensionalexponents">Dimensional Exponents</a>
+     <ul>
+     <li> <tt><b>cg_exponents_write</b></tt> - Write first five dimensional exponents
+     <li> <tt><b>cg_expfull_write</b></tt> - Write all eight dimensional exponents
+     <li> <tt><b>cg_nexponents</b></tt> - Get number of dimensional exponents
+     <li> <tt><b>cg_exponents_info</b></tt> - Get exponent data type
+     <li> <tt><b>cg_exponents_read</b></tt> - Read first five dimensional exponents
+     <li> <tt><b>cg_expfull_read</b></tt> - Read all eight dimensional exponents
+     </ul>
+</ul>
+
+<a name="dataarray"></a>
+<h3>Data Arrays</h3>
+
+<i>Node</i>: <tt>DataArray_t</tt>
+             (<a href="../sids/data.html#DataArray">SIDS</a>,
+              <a href="../filemap/nodes.html#DataArray">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_array_write(<span class=in>char *ArrayName</span>, <span class=in>DataType_t DataType</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>int DataDimension</span>, <span class=in>int *DimensionVector</span>, <span class=in>void *Data</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+       <tt><b><span class=out><i>ier</i></span> = cg_narrays(<span class=out><i>int *narrays</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_array_info(<span class=in>int A</span>, <span class=out><i>char *ArrayName</i></span>, <span class=out><i>DataType_t *DataType</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>int *DataDimension</i></span>, <span class=out><i>int *DimensionVector</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_array_read(<span class=in>int A</span>, <span class=out><i>void *Data</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_array_read_as(<span class=in>int A</span>, <span class=in>DataType_t DataType</span>, <span class=out><i>void *Data</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_array_write_f(<span class=in>ArrayName</span>, <span class=in>DataType</span>, <span class=in>DataDimension</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>DimensionVector</span>, <span class=in>Data</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_narrays_f(<span class=out><i>narrays</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_array_info_f(<span class=in>A</span>, <span class=out><i>ArrayName</i></span>, <span class=out><i>DataType</i></span>, <span class=out><i>DataDimension</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>DimensionVector</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_array_read_f(<span class=in>A</span>, <span class=out><i>Data</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_array_read_as_f(<span class=in>A</span>, <span class=in>DataType</span>, <span class=out><i>Data</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>narrays</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Number of <tt>DataArray_t</tt> nodes under the current node.
+<tr valign=baseline><td>
+   <td><tt>A</tt><td>
+   <td>Data array index, where 1 &le; <tt>A</tt> &le; <tt>narrays</tt>.
+<tr valign=baseline><td>
+   <td><tt>ArrayName</tt><td>
+   <td>Name of the <tt>DataArray_t</tt> node.
+<tr valign=baseline><td>
+   <td><tt>DataType</tt><td>
+   <td>Type of data held in the <tt>DataArray_t</tt> node.
+       The admissible types are <tt>Integer</tt>, <tt>RealSingle</tt>,
+       <tt>RealDouble</tt>, and <tt>Character</tt>.
+<tr valign=baseline><td>
+   <td><tt>DataDimension</tt><td>
+   <td>Number of dimensions.
+<tr valign=baseline><td>
+   <td><tt>DimensionVector</tt><td>
+   <td>Number of data elements in each dimension.
+<tr valign=baseline><td>
+   <td><tt>Data</tt><td>
+   <td>The data array.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<a name="dataclass"></a>
+<h3>Data Class</h3>
+
+<i>Node</i>: <tt>DataClass_t</tt>
+             (<a href="../sids/build.html#DataClass">SIDS</a>,
+              <a href="../filemap/nodes.html#DataClass">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_dataclass_write(<span class=in>DataClass_t dataclass</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_dataclass_read(<span class=out><i>DataClass_t *dataclass</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_dataclass_write_f(<span class=in>dataclass</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_dataclass_read_f(<span class=out><i>dataclass</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>dataclass</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Data class for the nodes at this level.
+       See below for the data classes currently supported in CGNS.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The data classes currently supported in CGNS are:
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>Dimensional</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Regular dimensional data.
+<tr valign=baseline><td>
+   <td><tt>NormalizedByDimensional</tt><td>
+   <td>Nondimensional data that is normalized by dimensional reference
+       quantities.
+<tr valign=baseline><td>
+   <td><tt>NormalizedByUnknownDimensional</tt><td>
+   <td>All fields and reference data are nondimensional.
+<tr valign=baseline><td>
+   <td><tt>NondimensionalParameter</tt><td>
+   <td>Nondimensional parameters such as Mach number and lift coefficient.
+<tr valign=baseline><td>
+   <td><tt>DimensionlessConstant</tt><td>
+   <td>Constant such as <i>&pi;</i>.
+</table>
+<br>
+These classes are declared within typedef <tt>DataClass_t</tt> in
+<i>cgnslib.h</i>, and as parameters in <i>cgnslib_f.h</i>.
+
+<a name="dataconversion"></a>
+<h3>Data Conversion Factors</h3>
+
+<i>Node</i>: <tt>DataConversion_t</tt>
+             (<a href="../sids/data.html#DataConversion">SIDS</a>,
+              <a href="../filemap/nodes.html#DataConversion">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_conversion_write(<span class=in>DataType_t DataType</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>void *ConversionFactors</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_conversion_info(<span class=out><i>DataType_t *DataType</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_conversion_read(<span class=out><i>void *ConversionFactors</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_conversion_write_f(<span class=in>DataType</span>, <span class=in>ConversionFactors</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_conversion_info_f(<span class=out><i>DataType</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_conversion_read_f(<span class=out><i>ConversionFactors</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>DataType</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Data type in which the conversion factors are recorded.
+       Admissible data types for conversion factors are <tt>RealSingle</tt>
+       and <tt>RealDouble</tt>.
+<tr valign=baseline><td>
+   <td><tt>ConversionFactors</tt><td>
+   <td>Two-element array containing the scaling and offset factors.
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The <tt>DataConversion_t</tt> data structure contains factors to convert
+the nondimensional data to "raw" dimensional data.
+The scaling and offset factors are contained in the two-element array
+<tt>ConversionFactors</tt>.
+In pseudo-Fortran, the conversion process is as follows:
+
+<pre>
+   ConversionScale  = ConversionFactors(1)
+   ConversionOffset = ConversionFactors(2)
+   Data(<i>raw</i>) = Data(<i>nondimensional</i>)*ConversionScale + ConversionOffset
+</pre>
+
+<a name="dimensionalunits"></a>
+<h3>Dimensional Units</h3>
+
+<i>Nodes</i>: <tt>DimensionalUnits_t</tt>
+              (<a href="../sids/build.html#DimensionalUnits">SIDS</a>,
+               <a href="../filemap/nodes.html#DimensionalUnits">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_units_write(<span class=in>MassUnits_t mass</span>, <span class=in>LengthUnits_t length</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>TimeUnits_t time</span>, <span class=in>TemperatureUnits_t temperature</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>AngleUnits_t angle</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_unitsfull_write(<span class=in>MassUnits_t mass</span>, <span class=in>LengthUnits_t length</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>TimeUnits_t time</span>, <span class=in>TemperatureUnits_t temperature</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>AngleUnits_t angle</span>, <span class=in>ElectricCurrentUnits_t current</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>SubstanceAmountUnits_t amount</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>LuminousIntensityUnits_t intensity</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_nunits(<span class=out><i>int *nunits</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_units_read(<span class=out><i>MassUnits_t *mass</i></span>, <span class=out><i>LengthUnits_t *length</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>TimeUnits_t *time</i></span>, <span class=out><i>TemperatureUnits_t *temperature</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>AngleUnits_t *angle</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_unitsfull_read(<span class=out><i>MassUnits_t *mass</i></span>, <span class=out><i>LengthUnits_t *length</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>TimeUnits_t *time</i></span>, <span class=out><i>TemperatureUnits_t *temperature</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>AngleUnits_t *angle</i></span>, <span class=out><i>ElectricCurrentUnits_t *current</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>SubstanceAmountUnits_t *amount</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>LuminousIntensityUnits_t *intensity</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_units_write_f(<span class=in>mass</span>, <span class=in>length</span>, <span class=in>time</span>, <span class=in>temperature</span>, <span class=in>angle</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_unitsfull_write_f(<span class=in>mass</span>, <span class=in>length</span>, <span class=in>time</span>, <span class=in>temperature</span>, <span class=in>angle</span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=in>current</span>, <span class=in>amount</span>, <span class=in>intensity</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_nunits_f(<span class=out><i>nunits</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_units_read_f(<span class=out><i>mass</i></span>, <span class=out><i>length</i></span>, <span class=out><i>time</i></span>, <span class=out><i>temperature</i></span>, <span class=out><i>angle</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_unitsfull_read_f(<span class=out><i>mass</i></span>, <span class=out><i>length</i></span>, <span class=out><i>time</i></span>, <span class=out><i>temperature</i></span>, <span class=out><i>angle</i></span>,<br>
+               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=out><i>current</i></span>, <span class=out><i>amount</i></span>, <span class=out><i>intensity</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>mass</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Mass units.
+       Admissible values are <tt>Null</tt>, <tt>UserDefined</tt>,
+       <tt>Kilogram</tt>, <tt>Gram</tt>, <tt>Slug</tt>, and
+       <tt>PoundMass</tt>.
+<tr valign=baseline><td>
+   <td><tt>length</tt><td>
+   <td>Length units.
+       Admissible values are <tt>Null</tt>, <tt>UserDefined</tt>,
+       <tt>Meter</tt>, <tt>Centimeter</tt>, <tt>Millimeter</tt>,
+       <tt>Foot</tt>, and <tt>Inch</tt>.
+<tr valign=baseline><td>
+   <td><tt>time</tt><td>
+   <td>Time units.
+       Admissible values are <tt>Null</tt>, <tt>UserDefined</tt>, and
+       <tt>Second</tt>.
+<tr valign=baseline><td>
+   <td><tt>temperature</tt><td>
+   <td>Temperature units.
+       Admissible values are <tt>Null</tt>, <tt>UserDefined</tt>,
+       <tt>Kelvin</tt>, <tt>Celsius</tt>, <tt>Rankine</tt>, and
+       <tt>Fahrenheit</tt>.
+<tr valign=baseline><td>
+   <td><tt>angle</tt><td>
+   <td>Angle units.
+       Admissible values are <tt>Null</tt>, <tt>UserDefined</tt>,
+       <tt>Degree</tt>, and <tt>Radian</tt>.
+<tr valign=baseline><td>
+   <td><tt>current</tt><td>
+   <td>Electric current units.
+       Admissible values are <tt>Null</tt>, <tt>UserDefined</tt>,
+       <tt>Ampere</tt>, <tt>Abampere</tt>, <tt>Statampere</tt>,
+       <tt>Edison</tt>, and <tt>auCurrent</tt>.
+<tr valign=baseline><td>
+   <td><tt>amount</tt><td>
+   <td>Substance amount units.
+       Admissible values are <tt>Null</tt>, <tt>UserDefined</tt>,
+       <tt>Mole</tt>, <tt>Entities</tt>, <tt>StandardCubicFoot</tt>, and
+       <tt>StandardCubicMeter</tt>.
+<tr valign=baseline><td>
+   <td><tt>intensity</tt><td>
+   <td>Luminous intensity units.
+       Admissible values are <tt>Null</tt>, <tt>UserDefined</tt>,
+       <tt>Candela</tt>, <tt>Candle</tt>, <tt>Carcel</tt>,
+       <tt>Hefner</tt>, and <tt>Violle</tt>.
+<tr valign=baseline><td>
+   <td><tt>nunits</tt><td>
+   <td>Number of units used in the file (i.e., either 5 or 8).
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+The supported units are declared within typedefs in <i>cgnslib.h</i>
+and as parameters in <i>cgnslib_f.h</i>.
+
+<p>
+When reading units data, either <tt>cg_units_read</tt> or
+<tt>cg_unitsfull_read</tt> may be used, regardless of the number of
+units used in the file.
+If <tt>cg_unitsfull_read</tt> is used, but only five units are used
+in the file, the returned values of <tt>current</tt>, <tt>amount</tt>,
+and <tt>intensity</tt> will be <tt>Null</tt>.
+
+<a name="dimensionalexponents"></a>
+<h3>Dimensional Exponents</h3>
+
+<i>Node</i>: <tt>DimensionalExponents_t</tt>
+             (<a href="../sids/build.html#DimensionalExponents">SIDS</a>,
+              <a href="../filemap/nodes.html#DimensionalExponents">File Mapping</a>)
+
+<br><br>
+<table width=100% cellspacing=0 cellpadding=5 border rules=groups
+       bgcolor="#ced9ff">
+<colgroup width=90%>
+<colgroup>
+<thead>
+<tr><th align=left scope=col width=90%>Functions
+    <th scope=col>Modes
+<tbody>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_exponents_write(<span class=in>DataType_t DataType</span>, <span class=in>void *exponents</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_expfull_write(<span class=in>DataType_t DataType</span>, <span class=in>void *exponents</span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_nexponents(<span class=out><i>int *nexponents</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_exponents_info(<span class=out><i>DataType_t *DataType</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_exponents_read(<span class=out><i>void *exponents</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b><span class=out><i>ier</i></span> = cg_expfull_read(<span class=out><i>void *exponents</i></span>);</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tbody>
+<tr><td nowrap>
+        <tt><b>call cg_exponents_write_f(<span class=in>DataType</span>, <span class=in>exponents</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_expfull_write_f(<span class=in>DataType</span>, <span class=in>exponents</span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>-&nbsp;w&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_nexponents_f(<span class=out><i>nexponents</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_exponents_info_f(<span class=out><i>DataType</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_exponents_read_f(<span class=out><i>exponents</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+<tr><td nowrap>
+        <tt><b>call cg_expfull_read_f(<span class=out><i>exponents</i></span>, <span class=out><i>ier</i></span>)</b></tt>
+    <td align=center valign=baseline>
+        <tt><b>r&nbsp;-&nbsp;m</b></tt>
+</table>
+
+<br>
+<b><span class=in>Input</span>/<span class=out><i>Output</i></span></b>
+
+<br><br>
+<table cellspacing=0 cellpadding=0 noborder>
+<tr valign=baseline><td><tt>&nbsp;&nbsp;&nbsp;</tt>
+   <td><tt>DataType</tt><td><tt>&nbsp;&nbsp;</tt>
+   <td>Data type in which the exponents are recorded.
+       Admissible data types for the exponents are <tt>RealSingle</tt>
+       and <tt>RealDouble</tt>.
+<tr valign=baseline><td>
+   <td><tt>exponents</tt><td>
+   <td>Exponents for the dimensional units for mass, length, time,
+       temperature, angle, electric current, substance amount, and
+       luminous intensity, in that order.
+<tr valign=baseline><td>
+   <td><tt>nexponents</tt><td>
+   <td>Number of exponents used in the file (i.e., either 5 or 8).
+<tr valign=baseline><td>
+   <td><tt>ier</tt><td>
+   <td>Error status.
+</table>
+
+<p>
+When reading exponent data, either <tt>cg_exponents_read</tt> or
+<tt>cg_expfull_read</tt> may be used, regardless of the number of
+exponents used in the file.
+If <tt>cg_exponents_read</tt> is used, but all eight exponents are used
+in the file, only the first five exponents are returned.
+If <tt>cg_expfull_read</tt> is used, but only five exponents are used
+in the file, the returned values of the exponents for electric current,
+substance amount, and luminous intensity will be zero.
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 3 Feb 2006
+
+</body>
+</html>

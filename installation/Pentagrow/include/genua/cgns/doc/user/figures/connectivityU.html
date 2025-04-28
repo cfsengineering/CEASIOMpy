@@ -1,0 +1,81 @@
+<!-- A User's Guide to CGNS - longdesc for ZoneGridConnectivity_t
+     hierarchy for an overset interface -->
+
+<html>
+<head>
+<meta http-equiv="Content-Style-Type" content="text/css">
+<link href="../user.css" rel="stylesheet" type="text/css">
+<title> A User's Guide to CGNS - ZoneGridConnectivity_t hierarchy for an overset interface </title>
+</head>
+
+<body text="#000000" bgcolor="#FFFFFF" link="#0000EE" vlink="#551A8B" alink="#FF0000">
+
+<p>
+This diagram illustrates the hierarchical structure in a CGNS file for an
+overset zone interface, starting with the <tt>ZoneGridConnectivity_t</tt>
+node.
+
+<p>
+The <tt>ZoneGridConnectivity_t</tt> node has the following characteristics.
+<ul>
+<li> Name: <tt>ZoneGridConnectivity</tt><br>
+     Label: <tt>ZoneGridConnectivity_t</tt><br>
+     Data: None
+</ul>
+
+<p>
+The <tt>ZoneGridConnectivity_t</tt> node may have multiple child nodes,
+two of which are:
+<ul>
+<li> Name: User defined<br>
+     Label: <tt>OversetHoles_t</tt><br>
+     Data: None
+<li> Name: User defined<br>
+     Label: <tt>GridConnectivity_t</tt><br>
+     Data: <tt>ZoneDonorName</tt>
+</ul>
+
+<p>
+The <tt>OversetHoles_t</tt> node in turn has the following child nodes.
+<ul>
+<li> Name: <tt>GridLocation</tt><br>
+     Label: <tt>GridLocation_t</tt><br>
+     Data: Location of hole points relative to grid
+<li> Name: <tt>PointList</tt><br>
+     Label: <tt>IndexArray_t</tt><br>
+     Data: vector of points
+</ul>
+
+<p>
+Finally, the <tt>GridConnectivity_t</tt> node has the following child
+nodes.
+<ul>
+<li> Name: <tt>GridConnectivityType</tt><br>
+     Label: <tt>GridConnectivityType_t</tt><br>
+     Data: <tt>Overset</tt>
+<li> Name: <tt>GridLocation</tt><br>
+     Label: <tt>GridLocation_t</tt><br>
+     Data: Location of receiver points relative to grid
+<li> Name: <tt>PointList</tt><br>
+     Label: <tt>IndexArray_t</tt><br>
+     Data: Receiver points
+<li> Name: <tt>CellListDonor</tt><br>
+     Label: <tt>IndexArray_t</tt><br>
+     Data: Donor cells
+<li> Name: <tt>InterpolantsDonor</tt><br>
+     Label: <tt>DataArray_t</tt><br>
+     Data: Donor interpolants
+</ul>
+
+<p>
+<hr size=4 width=75%>
+
+<p>
+<div class=footer>
+Curator: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+Responsible NASA Official: <a href="mailto:towne@nasa.gov">Charlie Towne</a><br>
+<a href="http://www.grc.nasa.gov/Doc/grcwebpolicies.html">Privacy Policy and Important Notices</a><br>
+Last updated 4 Sept 2002
+
+</body>
+</html>

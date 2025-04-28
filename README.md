@@ -21,14 +21,24 @@ CEASIOMpy is based on the open-standard format [CPACS](https://www.cpacs.de/), a
 
 ## Table of contents
 
-- [Installation](#installation)
-- [Usage](#usage)
-  - [Test cases](#test-cases)
-  - [Run CEASIOMpy](#run-ceasiompy)
-  - [Examples of workflows](#examples-of-workflows)
-  - [Available modules](#available-modules)
-- [Contributing](#contributing)
-- [More Information](#more-information)
+- [CEASIOMpy](#ceasiompy)
+  - [Table of contents](#table-of-contents)
+  - [Installation](#installation)
+  - [Usage](#usage)
+    - [Demo](#demo)
+    - [Test cases](#test-cases)
+    - [Run CEASIOMpy](#run-ceasiompy)
+    - [Examples of workflows](#examples-of-workflows)
+    - [Available modules](#available-modules)
+      - [General modules](#general-modules)
+      - [Geometry and Mesh](#geometry-and-mesh)
+      - [Aerodynamics](#aerodynamics)
+      - [Weight and Balance](#weight-and-balance)
+      - [Mission Analysis](#mission-analysis)
+      - [Structure](#structure)
+      - [Data Analysis and Storage](#data-analysis-and-storage)
+  - [Contributing](#contributing)
+  - [More information](#more-information)
 
 ## Installation
 
@@ -160,7 +170,7 @@ There are many different modules available in CEASIOMpy that can be combined to 
 
 #### Structure
 
-- AeroFrame :heavy_check_mark:
+- [AeroFrame](./ceasiompy/CLCalculator/README.md) :heavy_check_mark:
 
 #### Data Analysis and Storage
 

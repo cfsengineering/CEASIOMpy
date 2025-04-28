@@ -33,7 +33,6 @@ from ceasiompy.utils.moduleinterfaces import MODNAME_INIT
 from ceasiompy.utils.commonpaths import (
     LOGFILE,
     WKDIR_PATH,
-    CEASIOMPY_PATH,
     CPACS_FILES_PATH,
     MODULES_DIR_PATH,
 )

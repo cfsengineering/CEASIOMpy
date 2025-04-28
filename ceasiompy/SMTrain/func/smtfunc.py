@@ -18,7 +18,6 @@ import os
 import pickle
 import numpy as np
 import pandas as pd
-import matplotlib.pyplot as plt
 
 from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.SU2Run.su2run import run_SU2_multi
@@ -31,20 +30,24 @@ from ceasiompy.SU2Run.func.config import generate_su2_cfd_config
 from cpacspy.cpacsfunctions import (
     add_value,
     get_value,
-    get_value_or_default,
 )
 from ceasiompy.SMTrain.func.surrogate import (
     kriging,
     mf_kriging,
     make_predictions,
 )
-
 from pathlib import Path
+from numpy import ndarray
+from smt.applications import MFK
 from cpacspy.cpacspy import CPACS
+from smt.surrogate_models import KRG
 from smt.sampling_methods import LHS
 from typing import (
+    List,
     Dict,
+    Tuple,
     Union,
+    Literal,
 )
 from skopt.space import (
     Real,
@@ -63,121 +66,105 @@ from ceasiompy.utils.commonxpath import (
 # =================================================================================================
 
 
-def split_data(datasets, data_repartition, val_test_size=0.3, random_state=42):
-    """Function to split the highest fidelity dataset into training, validation, and testing sets.
+def get_val_fraction(train_fraction: float) -> float:
+    if not (0 < train_fraction < 1):
+        log.warning(
+            f"Invalid data_repartition value: {train_fraction}."
+            "It should be between 0 and 1."
+        )
+        train_fraction = max(0.1, min(train_fraction, 0.9))
 
-    The function takes a dictionary of datasets with different fidelity levels, identifies the
-    highest fidelity dataset, and splits it into training, validation, and test sets based on the
-    specified proportions.
+    # Convert from "% of train" to "% of test"
+    test_val_fraction = 1 - train_fraction
+    return test_val_fraction
+
+
+def split_data(
+    fidelity_datasets: Dict,
+    train_fraction: float = 0.7,
+    test_fraction_within_split: float = 0.3,
+    random_state: int = 42,
+) -> Dict[str, ndarray]:
+    """
+    Takes a dictionary of datasets with different fidelity levels and:
+    1. identifies the highest fidelity dataset,
+    2. splits it into training, validation, and test sets based on the specified proportions.
 
     Args:
-        datasets (dict): Dictionary where keys represent fidelity levels, and values are (X, y) tup
-        data_repartition (float): Fraction of data reserved for validation and test sets
-            (e.g., 0.3 means 70% train, 15% val, 15% test).
-        val_test_size (float, optional): Proportion of validation+test data allocated to the test
-            set (default is 0.3).
+        datasets (Dict): Keys represent fidelity levels with (x, y) values.
+        data_repartition (float = 0.3):
+            Fraction of data reserved for validation and test sets, for example:
+            data_repartition=0.3 means 70% train, 15% val, 15% test
+        val_test_size (float = 0.3):
+            Proportion of validation+test data allocated to the test set.
         random_state (int, optional): Random seed for reproducibility.
 
     Returns:
-        dict: Dictionary containing the split datasets with keys:
-            - "x_train", "x_val", "x_test": Feature matrices for training, validation,
-                and test sets.
-            - "y_train", "y_val", "y_test": Target values for training, validation, and test sets.
+        Dictionary containing the split datasets.
     """
 
-    if not datasets:
-        log.error("Datasets dictionary is empty. Cannot proceed with splitting.")
+    if not fidelity_datasets:
         raise ValueError("Datasets dictionary is empty.")
 
-    if not (0 < data_repartition < 1):
-        log.warning(
-            f"Invalid data_repartition value: {data_repartition}. It should be between 0 and 1."
-        )
-        data_repartition = max(0.1, min(data_repartition, 0.9))  # Limitiamo a un range ragionevole
-
-    # Convert from "% of train" to "% of test"
-    test_val_fraction = 1 - data_repartition
+    test_val_fraction = get_val_fraction(train_fraction)
 
     try:
-        highest_fidelity_level = max(datasets.keys(), key=lambda k: int(k.split("_")[-1]))
+        highest_fidelity_level = max(fidelity_datasets.keys(), key=lambda k: int(k.split("_")[-1]))
     except (ValueError, IndexError):
-        log.error("Dataset keys are not in expected format (e.g., 'fidelity_1', 'fidelity_2').")
-        raise ValueError("Invalid dataset keys format.")
+        raise ValueError(
+            "Dataset keys are not in expected format (e.g., 'fidelity_1', 'fidelity_2')."
+        )
 
     log.info(f"Using highest fidelity dataset: {highest_fidelity_level}")
 
     try:
         # Extract X and y from the highest fidelity level dataset
-        X = datasets[highest_fidelity_level][0]  # Inputs
-        y = datasets[highest_fidelity_level][1]  # Outputs (e.g., CL)
-        if X.shape[0] != y.shape[0]:
-            log.error("Mismatch between number of samples in X and y.")
-            raise ValueError(f"X has {X.shape[0]} samples, but y has {y.shape[0]}.")
+        x: ndarray = fidelity_datasets[highest_fidelity_level][0]
+        y: ndarray = fidelity_datasets[highest_fidelity_level][1]
+        if x.shape[0] != y.shape[0]:
+            raise ValueError(
+                "Mismatch between number of samples"
+                f"x has {x.shape[0]} samples, but y has {y.shape[0]}."
+            )
     except KeyError:
-        log.error(f"Dataset '{highest_fidelity_level}' does not contain valid (X, y) pairs.")
         raise ValueError(f"Dataset '{highest_fidelity_level}' is incorrectly formatted.")
 
-    log.info(f"Dataset shape - X: {X.shape}, y: {y.shape}")
+    log.info(f"Dataset shape - x: {x.shape}, y: {y.shape}")
 
     # Split into train and test/validation
-    x_train, X_t, y_train, y_t = train_test_split(
-        X, y, test_size=test_val_fraction, random_state=random_state
+    x_train: ndarray
+    x_test: ndarray
+    y_train: ndarray
+    y_test: ndarray
+    x_train, x_test, y_train, y_test = train_test_split(
+        x, y, test_size=test_val_fraction, random_state=random_state
     )
 
-    if X_t.shape[0] < 1:
+    if x_test.shape[0] < 1:
         raise ValueError(
-            f"Not enough samples for validation and test with data_repartition={data_repartition}"
-            f"At least 1 samples is needed for test: avaiable {X_t.shape[0]}"
+            f"Not enough samples for validation and test with {train_fraction=}"
+            f"At least 1 samples is needed for test: avaiable {x_test.shape[0]}"
             f"Try to add some points or change '% of training data'"
         )
 
-    log.info(f"Train size: {x_train.shape[0]}, Test+Validation size: {X_t.shape[0]}")
+    log.info(f"Train size: {x_train.shape[0]}, Test+Validation size: {x_test.shape[0]}")
 
     # Split into validation and test
+    x_val: ndarray
+    y_val: ndarray
     x_val, x_test, y_val, y_test = train_test_split(
-        X_t, y_t, test_size=val_test_size, random_state=random_state
+        x_test, y_test, test_size=test_fraction_within_split, random_state=random_state
     )
 
     log.info(f"Validation size: {x_val.shape[0]}, Test size: {x_test.shape[0]}")
 
     return {
-        "x_train": x_train,
-        "x_val": x_val,
-        "x_test": x_test,
-        "y_train": y_train,
-        "y_val": y_val,
-        "y_test": y_test,
+        "x_train": x_train, "x_val": x_val, "x_test": x_test,
+        "y_train": y_train, "y_val": y_val, "y_test": y_test,
     }
 
 
-def train_surrogate_model(fidelity_level, datasets, sets):
-    """
-    Train a surrogate model using kriging or Multi-Fidelity kriging, selecting
-    appropriate polynomial regression types based on the number of training samples.
-
-    The function first determines which polynomial basis functions can be used
-    by checking if the number of training samples exceeds predefined thresholds
-    based on the number of features. Then, it defines the hyperparameter space
-    and trains the model accordingly.
-
-    Args:
-        fidelity_level (str): Specifies whether the model is single-fidelity ("One level")
-            or multi-fidelity.
-        datasets (dict): Dictionary containing datasets for different fidelity levels.
-        sets (dict): Dictionary containing the split datasets. Expected keys:
-            "x_train", "x_val", "x_test", "y_train", "y_val", "y_test".
-
-    Returns:
-        model: Trained surrogate model (kriging or Multi-Fidelity kriging).
-        rmse (float): Root Mean Square Error of the trained model.
-
-    Polynomial Selection Logic:
-        - If training samples > (n_features + 1) * (n_features + 2) / 2 → Use
-            ["constant", "linear", "quadratic"]
-        - If training samples > (n_features + 1) → Use ["constant", "linear"]
-        - Otherwise → Use ["constant"]
-    """
-
+def get_hyperparam_space(sets: Dict[str, ndarray]) -> List[str]:
     n_samples, n_features = sets["x_train"].shape
 
     # Determine allowed polynomial regression types based on sample count
@@ -211,10 +198,54 @@ def train_surrogate_model(fidelity_level, datasets, sets):
         Real(0.1, 1, name="lambda_penalty"),
     ]
 
+    return hyperparam_space
+
+
+def train_surrogate_model(
+    fidelity_level: Literal["One level", "Multi Fidelity"],
+    datasets: Dict,
+    sets: Dict[str, ndarray],
+) -> Tuple[Union[KRG, MFK], float]:
+    """
+    Train a surrogate model using kriging or Multi-Fidelity kriging:
+    1. selects appropriate polynomial basis functions for regression
+    2. defines the hyperparameter space accordingly
+    3. trains the model
+
+    Polynomial Selection Logic:
+        if training samples > (n_features + 1) * (n_features + 2) / 2
+            Use ["constant", "linear", "quadratic"]
+        elif training samples > (n_features + 1)
+            Use ["constant", "linear"]
+        else
+            Use ["constant"]
+
+    Args:
+        fidelity_level (str): Either "One level" or "Multi Fidelity".
+        datasets (Dict): Contains datasets for different fidelity levels.
+        sets (Dict):
+            Contains the split datasets. Expected keys:
+            "x_train", "x_val", "x_test", "y_train", "y_val", "y_test".
+
+    Returns:
+        model: Trained surrogate model (kriging or Multi-Fidelity kriging).
+        rmse (float): Root Mean Square Error of the trained model.
+    """
+
+    hyperparam_space = get_hyperparam_space(sets)
+
     if fidelity_level == "One level":
-        model, rmse = kriging(hyperparam_space, sets)
-    else:
-        model, rmse = mf_kriging(fidelity_level, datasets, hyperparam_space, sets)
+        model, rmse = kriging(
+            param_space=hyperparam_space,
+            sets=sets
+        )
+    elif fidelity_level == "Multi Fidelity":
+        model, rmse = mf_kriging(
+            fidelity_level=fidelity_level,
+            datasets=datasets,
+            param_space=hyperparam_space,
+            sets=sets,
+        )
 
     return model, rmse
 
@@ -268,47 +299,6 @@ def save_model(model, coefficient_name, datasets, result_dir):
         pickle.dump(model_metadata, file)
 
     log.info(f"Model saved to {model_path}")
-
-
-def plot_validation(model, sets, label, result_dir):
-    """
-    Generate and save a Predicted vs Actual plot for model validation.
-
-    This function takes a trained surrogate model, evaluates it on test data, and
-    generates a scatter plot comparing predicted values to actual values.
-
-    Args:
-        model: Trained surrogate model.
-        sets (dict): Dictionary containing test dataset with keys:
-                     "x_test" (features) and "y_test" (target values).
-        label (str): Label for the aerodynamic coefficient being validated.
-
-    Returns:
-        None
-    """
-
-    x_test = sets["x_test"]
-    y_test = sets["y_test"]
-
-    predictions, _ = make_predictions(model, x_test, y_test)
-
-    fig = plt.figure(figsize=(6, 6))
-    plt.scatter(y_test, predictions, color="blue", alpha=0.5)
-    plt.plot(
-        [y_test.min(), y_test.max()],
-        [y_test.min(), y_test.max()],
-        "r--",
-        lw=2,
-    )
-    plt.title(f"Predicted vs Actual {label}")
-    plt.xlabel(f"Actual {label}")
-    plt.ylabel(f"Predicted {label}")
-    plt.grid()
-
-    fig_name = "validation_plot_" + label + ".png"
-    fig_path = Path(result_dir, fig_name)
-    plt.savefig(fig_path)
-    plt.close(fig)
 
 
 def new_doe(datasets, model, fraction_of_new_samples, result_dir):
@@ -546,7 +536,7 @@ def launch_su2(
     cpacs = CPACS(cpacs.cpacs_file)
     # iterations = get_value_or_default(cpacs.tixi, SU2_MAX_ITER_XPATH, 2)
     # nb_proc = get_value_or_default(cpacs.tixi, SU2_NB_CPU_XPATH, get_reasonable_nb_cpu())
-    config_file_type = get_value_or_default(cpacs.tixi, SU2_CONFIG_RANS_XPATH, "Euler")
+    config_file_type = get_value(tixi, SU2_CONFIG_RANS_XPATH)
 
     rans = (config_file_type == "RANS")
     generate_su2_cfd_config(

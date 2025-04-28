@@ -30,6 +30,10 @@ sudo apt-get update -y || { echo "Failed to update repositories after adding lib
 # Add the key for the repository
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32 || { echo "Failed to add repository key"; exit 1; }
 
+sudo add-apt-repository ppa:linuxuprising/libpng12
+sudo apt update
+sudo apt install libpng12-0
+
 # Install main dependencies
 sudo apt-get install -y \
     libgfortran5 \
@@ -39,8 +43,7 @@ sudo apt-get install -y \
     hdf5-helpers \
     gfortran \
     liblapack-dev \
-    libblas-dev \
-    libpng16-0 || { echo "Failed to install necessary dependencies"; exit 1; }
+    libblas-dev
 
 # Optionally install Qt if needed (uncomment these lines if required)
 # sudo apt-get install -y qt5-qmake qt5-default || { echo "Failed to install Qt"; exit 1; }

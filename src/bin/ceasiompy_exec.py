@@ -27,6 +27,7 @@ from ceasiompy import log
 from unittest.mock import patch
 
 from ceasiompy.utils.commonpaths import (
+    CEASIOMPY_PATH,
     STREAMLIT_PATH,
     TEST_CASES_PATH,
     CPACS_FILES_PATH,
@@ -107,62 +108,53 @@ def run_testcase(testcase_nb):
         print("\nTest case number must be 1,2,3,4 or 5.")
 
 
-def run_modules_list(args_list):
+def run_modules_list(args_list) -> None:
     """Run a workflow from a CPACS file and a list of modules."""
 
     if len(args_list) < 2:
-        print(
+        log.warning(
             "\nAt least 2 arguments are required to run a CEASIOMpy, the first onw must be the"
             "CPACS file and the modules to run. You can add as many modules as you want."
         )
-        return
+        return None
 
     cpacs_path = Path(args_list[0])
-
     if cpacs_path.suffix != ".xml":
-        print(
+        log.warning(
             'The first argument of "-m/--modules" option must be the path to a CPACS file.',
         )
-        return
+        return None
 
     if not cpacs_path.exists():
-        print(f"The CPACS file {cpacs_path} does not exist.")
-        return
+        log.warning(f"The CPACS file {cpacs_path} does not exist.")
+        return None
 
     modules_list = args_list[1:]
 
     log.info("CEASIOMpy has been started from a command line.")
-
     with patch("streamlit.runtime.scriptrunner_utils.script_run_context"):
         with patch("streamlit.runtime.state.session_state_proxy"):
-            run_ceasiompy_workflow(cpacs_path, modules_list, test=True)
-
-
-def run_ceasiompy_workflow(cpacs_path, modules_list, test):
-    workflow = Workflow()
-    workflow.cpacs_in = cpacs_path
-    workflow.modules_list = modules_list
-    workflow.module_optim = ["NO"] * len(modules_list)
-    workflow.write_config_file()
-
-    workflow.set_workflow()
-    workflow.run_workflow(test)
+            workflow = Workflow()
+            workflow.cpacs_in = cpacs_path
+            workflow.modules_list = modules_list
+            workflow.module_optim = ["NO"] * len(modules_list)
+            workflow.write_config_file()
+            workflow.set_workflow()
+            workflow.run_workflow(test=True)
 
 
 def run_config_file(config_file):
     """Run a workflow from a config file"""
 
     log.info("CEASIOMpy has been started from a config file.")
-
     config_file_path = Path(config_file)
 
     if not config_file_path.exists():
-        print(f"The config file {config_file_path} does not exist.")
+        log.warning(f"The config file {config_file_path} does not exist.")
         return
 
     workflow = Workflow()
     workflow.from_config_file(config_file_path)
-
     workflow.set_workflow()
     workflow.run_workflow()
 

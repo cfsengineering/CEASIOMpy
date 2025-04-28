@@ -87,13 +87,20 @@ def section_select_cpacs():
         st.success(f"Uploaded file: {st.session_state.cpacs_file_path}")
         section_3D_view()
 
-def section_3D_view():
+
+def section_3D_view() -> None:
     """
     Shows a 3D view of the aircraft by exporting a STL file.
     """
 
-    stl_file = Path(st.session_state.workflow.working_dir, "aircraft.stl")
-    if hasattr(st.session_state.cpacs, "aircraft") and hasattr(st.session_state.cpacs.aircraft, "tigl"):
+    stl_file = Path(
+        st.session_state.workflow.working_dir,
+        "aircraft.stl"
+    )
+    if (
+        hasattr(st.session_state.cpacs, "aircraft")
+        and hasattr(st.session_state.cpacs.aircraft, "tigl")
+    ):
         st.session_state.cpacs.aircraft.tigl.exportMeshedGeometrySTL(str(stl_file), 0.01)
     your_mesh = mesh.Mesh.from_file(stl_file)
     triangles = your_mesh.vectors.reshape(-1, 3)
@@ -140,4 +147,3 @@ if __name__ == "__main__":
     st.title(PAGE_NAME)
 
     section_select_cpacs()
-

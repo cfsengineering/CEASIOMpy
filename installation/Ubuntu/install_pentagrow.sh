@@ -131,6 +131,10 @@ else
     echo "TETGEN_PATH is already set in .bashrc"
 fi
 
+echo "Test Pentagrow command line"
+which pentagrow
+pentagrow
+
 # Return to the initial directory
 cd "$current_dir"
 echo "Installation and setup complete."

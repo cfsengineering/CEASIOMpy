@@ -24,15 +24,15 @@ sudo apt-get update -y || { echo "Failed to update repositories"; exit 1; }
 sudo apt-get install -y software-properties-common || { echo "Failed to install software-properties-common"; exit 1; }
 
 # Add necessary repositories
-#sudo add-apt-repository -y ppa:linuxuprising/libpng12 || { echo "Failed to add libpng12 repository"; exit 1; }
-#sudo apt-get update -y || { echo "Failed to update repositories after adding libpng12"; exit 1; }
+# sudo add-apt-repository -y ppa:linuxuprising/libpng12 || { echo "Failed to add libpng12 repository"; exit 1; }
+# sudo apt-get update -y || { echo "Failed to update repositories after adding libpng12"; exit 1; }
 
 # Add the key for the repository
 sudo apt-key adv --keyserver keyserver.ubuntu.com --recv-keys 3B4FE6ACC0B21F32 || { echo "Failed to add repository key"; exit 1; }
 
-sudo add-apt-repository ppa:linuxuprising/libpng12
-sudo apt update
-sudo apt install libpng12-0
+# sudo add-apt-repository ppa:linuxuprising/libpng12
+# sudo apt update
+# sudo apt install libpng12-0
 
 # Install main dependencies
 sudo apt-get install -y \

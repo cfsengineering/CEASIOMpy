@@ -40,7 +40,7 @@ sudo apt-get install -y \
     gfortran \
     liblapack-dev \
     libblas-dev \
-    #libpng12-0 || { echo "Failed to install necessary dependencies"; exit 1; }
+    libpng16-0 || { echo "Failed to install necessary dependencies"; exit 1; }
 
 # Optionally install Qt if needed (uncomment these lines if required)
 # sudo apt-get install -y qt5-qmake qt5-default || { echo "Failed to install Qt"; exit 1; }

@@ -29,8 +29,14 @@ git clone https://github.com/cfsengineering/CEASIOMpy
 cd CEASIOMpy
 ```
 
-Now build the Docker image by using the command:
+Build the Docker image for your system's architecture:
 
+# Determine your computer's architecture:
+
+- Linux/macOS: Run uname -m in the terminal. Look for x86_64/amd64 (Intel/AMD) or arm64/aarch64 (ARM).
+- Windows: Run echo %PROCESSOR_ARCHITECTURE% in Command Prompt/PowerShell. Look for AMD64 (Intel/AMD) or ARM64 (ARM).
+
+# Run the appropriate build command:
 ```bash
 docker build --platform=linux/amd64 -t ceasiompy-image -f CEASIOMpy_docker_Installation .
 ```

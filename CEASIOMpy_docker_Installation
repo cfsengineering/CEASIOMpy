@@ -5,16 +5,20 @@
 
 FROM ubuntu:22.04
 
-# Update Ubuntu repositories and install system dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+RUN apt-get update
+
+# Install apt-utils
+RUN apt-get install -y apt-utils
+
+# Install system dependencies
+RUN apt-get install -y --no-install-recommends \
     git curl wget sudo unzip build-essential libtbb2 libtbb-dev libxrender1 libxcursor1 libxinerama1 libxft2 libxt6 \
     libgl1-mesa-glx libglu1-mesa libegl1-mesa libosmesa6 xvfb ca-certificates && \
     rm -rf /var/lib/apt/lists/*
 
 # Install Miniconda
 ENV CONDA_DIR=/opt/conda
-#RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-aarch64.sh -o /tmp/miniforge.sh && \
-RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -o /tmp/miniforge.sh \
+RUN curl -fsSL https://github.com/conda-forge/miniforge/releases/latest/download/Miniforge3-Linux-x86_64.sh -o /tmp/miniforge.sh && \
     bash /tmp/miniforge.sh -b -p $CONDA_DIR && \
     rm /tmp/miniforge.sh
 ENV PATH=$CONDA_DIR/bin:$PATH

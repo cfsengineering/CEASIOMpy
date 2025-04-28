@@ -50,7 +50,7 @@ def run_workflow_test(modules_to_run):
     """Run a workflow test with the given modules."""
     st.session_state = MagicMock()
     with change_working_dir(WORKFLOW_TEST_DIR):
-        run_modules_list([str(CPACS_IN_PATH), *modules_to_run], test=True)
+        run_modules_list([str(CPACS_IN_PATH), *modules_to_run])
 
 # =================================================================================================
 #   TESTS

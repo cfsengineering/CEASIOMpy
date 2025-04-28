@@ -40,7 +40,7 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     # 1.Loads a pre-trained surrogate model
     log.info("Loading pre-trained surrogate model")
-    model, coefficient, removed_columns, datasets = load_surrogate(cpacs, removed_columns)
+    model, coefficient, datasets = load_surrogate(cpacs)
 
     # 2. Makes aerodynamic predictions
     log.info("Making predictions")

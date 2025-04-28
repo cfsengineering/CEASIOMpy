@@ -80,11 +80,8 @@ WEIGHT_XPATH = CEASIOMPY_XPATH + "/weight"
 
 CLCALC_XPATH = CEASIOMPY_XPATH + "/aerodynamics/clCalculation"
 PLOT_XPATH = CEASIOMPY_XPATH + "/aerodynamics/plotAeroCoefficient"
-<<<<<<< HEAD
 RS_XPATH = PLOT_XPATH + "/responseSurface"
-=======
 AEROMAP_TO_PLOT_XPATH = PLOT_XPATH + "/aeroMapToPlot"
->>>>>>> origin/main
 
 SF_XPATH = CEASIOMPY_XPATH + "/aerodynamics/skinFriction"
 
@@ -286,7 +283,6 @@ FRAMAT_RESULTS_XPATH = FRAMAT_XPATH + "/Results"
 AEROFRAME_XPATH = CEASIOMPY_XPATH + "/aeroelasticity/AeroFrame"
 AEROFRAME_SETTINGS = AEROFRAME_XPATH + "/Settings"
 
-<<<<<<< HEAD
 # SMTrain
 SMTRAIN_XPATH = CEASIOMPY_XPATH + "/generalModules/smTrain"
 SMTRAIN_DOE = SMTRAIN_XPATH + "/DoE"
@@ -294,11 +290,10 @@ SMTRAIN_SM_XPATH = SMTRAIN_XPATH + "/surrogateModelPath"
 
 # SMUse
 SMUSE_XPATH = CEASIOMPY_XPATH + "/generalModules/smUse"
-=======
+
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
 if __name__ == "__main__":
     log.info("Nothing to execute!")
->>>>>>> origin/main

@@ -6,7 +6,7 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 This function enables to create the Response Surface of a Surrogate Model created with SMTrain.
 Also the scatter points of the training datasets could be plotted
 
-Python version: >=3.8
+
 
 | Author: Giacomo Gronda
 | Creation: 2025-03-20

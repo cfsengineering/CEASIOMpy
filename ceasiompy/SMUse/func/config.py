@@ -10,9 +10,9 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 # ==============================================================================
 
 import pickle
-import pandas as pd
 
 from pathlib import Path
+from pandas import DataFrame
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -20,13 +20,17 @@ from cpacspy.cpacspy import (
 from typing import (
     List,
     Dict,
+    Tuple,
 )
 
 from cpacspy.cpacsfunctions import get_value
 from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 
 from ceasiompy import log
-from ceasiompy.utils.commonxpath import SMUSE_XPATH, SM_XPATH
+from ceasiompy.utils.commonxpath import (
+    SM_XPATH,
+    SMUSE_XPATH,
+)
 
 
 # =================================================================================================
@@ -66,7 +70,7 @@ def get_predictions_dataset(cpacs: CPACS, removed_columns: List) -> Dict:
             raise ValueError(f"Aeromap {aeromap_uid} does not exist.")
 
         # Create the original DataFrame from the aeromap data
-        df = pd.DataFrame(
+        df = DataFrame(
             {
                 "altitude": activate_aeromap.get("altitude").tolist(),
                 "machNumber": activate_aeromap.get("machNumber").tolist(),
@@ -97,7 +101,7 @@ def get_predictions_dataset(cpacs: CPACS, removed_columns: List) -> Dict:
     return dataset_dict
 
 
-def load_surrogate(cpacs: CPACS, removed_columns: List):
+def load_surrogate(cpacs: CPACS):
     """
     Loads the surrogate model and metadata from the CPACS file.
     """
@@ -119,10 +123,10 @@ def load_surrogate(cpacs: CPACS, removed_columns: List):
     log.debug(f"Model: {model}")
     log.debug(f"Coefficient name: {coefficient_name}")
     log.debug(f"Removed columns: {removed_columns}")
-    
+
     dataset_dict = get_predictions_dataset(cpacs, removed_columns)
 
-    return model, coefficient_name, removed_columns, dataset_dict
+    return model, coefficient_name, dataset_dict
 
 
 # =================================================================================================

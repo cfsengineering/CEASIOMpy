@@ -24,6 +24,7 @@ from ceasiompy.utils.commonxpath import SMUSE_XPATH
 #   FUNCTIONS
 # =================================================================================================
 
+
 def save_new_dataset(datasets, predictions_dict, coefficient, result_dir):
     """
     Saves new datasets with predictions,

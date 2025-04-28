@@ -17,15 +17,12 @@ GUI Interface of SaveAeroCoefficients.
 # ==============================================================================
 
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
-<<<<<<< HEAD
-from ceasiompy.utils.commonxpath import PLOT_XPATH, RS_XPATH
-=======
->>>>>>> origin/main
 
 from ceasiompy import log
 from ceasiompy.SaveAeroCoefficients import include_gui
 
 from ceasiompy.utils.commonxpath import (
+    RS_XPATH,
     PLOT_XPATH,
     AEROMAP_TO_PLOT_XPATH,
 )
@@ -84,7 +81,6 @@ cpacs_inout.add_input(
     gui_group="Plot vs AoA",
 )
 
-<<<<<<< HEAD
 cpacs_inout.add_input(
     var_name="response_surface",
     var_type=bool,
@@ -221,11 +217,9 @@ cpacs_inout.add_input(
     gui_name="__AEROMAP_CHECKBOX",
     gui_group="Aeromap list for scatter points",
 )
-=======
 # =================================================================================================
 #    MAIN
 # =================================================================================================
 
 if __name__ == "__main__":
     log.info("Nothing to be executed.")
->>>>>>> origin/main

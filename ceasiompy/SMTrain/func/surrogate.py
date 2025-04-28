@@ -89,7 +89,6 @@ def optimize_hyper_parameters(
     log.info(f"Penalty weight (λ): {best_params[6]}")
     log.info(f"Lowest RMSE obtained: {result.fun:.6f}")
     log.info(f"Total optimization time: {total_time:.2f} seconds ({total_time / 60:.2f} minutes)")
-    
     return best_params
 
 
@@ -98,14 +97,16 @@ def kriging(
     sets: Dict,
     n_calls: int = 50,
     random_state: int = 42,
-) -> Tuple[KRG, float]:  # changing the number of iteration (n_calls) speeds up the solution (low limit = 10)
+) -> Tuple[KRG, float]:
     """
     Trains a kriging model using Bayesian optimization.
 
     Args:
         param_space (list): List of parameter ranges for Bayesian optimization.
         sets (dict): Dictionary containing training, validation, and test datasets.
-        n_calls (int = 50): Number of iterations for Bayesian optimization.
+        n_calls (int = 50):
+            Number of iterations for Bayesian optimization.
+            The lower the faster.
         random_state (int = 42): Random seed for reproducibility.
 
     Returns:
@@ -205,7 +206,6 @@ def mf_kriging(
         loss = (
             compute_rmse(model, x_val, y_val)
             + lambda_penalty * np.mean(model.predict_variances(x_val))
-        
         )
         return loss
 

@@ -6,13 +6,8 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Script to run aeroelastic computations using AVL to compute
 aerodynamic loads and FramAT for structural calculations.
 
-
 | Author: Romain Gauthier
 | Creation: 2024-06-17
-
-TODO:
-
-    * Things to improve ...
 
 """
 
@@ -29,10 +24,9 @@ from cpacspy.cpacsfunctions import (
     get_value_or_default,
     create_branch,
 )
-from ceasiompy.PyAVL.func.results import convert_ps_to_pdf
-from ceasiompy.AeroFrame.func.config import (
+
 from ceasiompy.PyAVL.func.plot import convert_ps_to_pdf
-from ceasiompy.AeroFrame_new.func.aeroframe_config import (
+from ceasiompy.AeroFrame.func.config import (
     read_AVL_fe_file,
     create_framat_model,
     get_material_properties,
@@ -43,20 +37,12 @@ from ceasiompy.AeroFrame_new.func.aeroframe_config import (
     write_deformed_command
 )
 
-from ceasiompy.AeroFrame.func.aeroframe_results import (
-========
-from ceasiompy.AeroFrame_new.func.results import (
->>>>>>>> origin/main:ceasiompy/AeroFrame/aeroframe_new.py
+from ceasiompy.AeroFrame.func.results import (
     compute_deformations,
     plot_translations_rotations,
     plot_convergence
 )
-
-<<<<<<<< HEAD:ceasiompy/AeroFrame/aeroframe_run.py
-from ceasiompy.AeroFrame.func.aeroframe_debbug import (
-========
-from ceasiompy.AeroFrame_new.func.plot import (
->>>>>>>> origin/main:ceasiompy/AeroFrame/aeroframe_new.py
+from ceasiompy.AeroFrame.func.plot import (
     plot_fem_mesh,
     plot_deformed_wing
 )
@@ -82,11 +68,6 @@ import shutil
 
 MODULE_DIR = Path(__file__).parent
 MODULE_NAME = MODULE_DIR.name
-
-
-# =================================================================================================
-#   CLASSES
-# =================================================================================================
 
 
 # =================================================================================================
@@ -443,18 +424,5 @@ def main(cpacs: CPACS, wkdir: Path) -> None:
 #    MAIN
 # =================================================================================================
 
-<<<<<<<< HEAD:ceasiompy/AeroFrame/aeroframe_run.py
-
-def main(cpacs_path, cpacs_out_path):
-    log.info("----- Start of " + MODULE_NAME + " -----")
-
-    results_dir = get_results_directory("AeroFrame")
-    aeroframe_run(cpacs_path, cpacs_out_path, wkdir=results_dir)
-
-    log.info("----- End of " + MODULE_NAME + " -----")
-
-
-========
->>>>>>>> origin/main:ceasiompy/AeroFrame/aeroframe_new.py
 if __name__ == "__main__":
     call_main(main, MODULE_NAME)

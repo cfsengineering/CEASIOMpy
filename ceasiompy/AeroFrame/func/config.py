@@ -6,13 +6,8 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 Script to extract panel forces of a surface,
 from AVL 'fe.txt' element force file
 
-
 | Author: Romain Gauthier
 | Creation: 2024-06-17
-
-TODO:
-
-    * Things to improve...
 
 """
 
@@ -36,21 +31,16 @@ from cpacspy.cpacsfunctions import open_tixi
 from ceasiompy.utils.commonxpath import (
     FRAMAT_MATERIAL_XPATH,
     FRAMAT_SECTION_XPATH,
-    WINGS_XPATH
+    WINGS_XPATH,
 )
 from ceasiompy import log
 from ceasiompy.utils.generalclasses import SimpleNamespace, Transformation
 from ceasiompy.utils.mathsfunctions import euler2fix, rotate_points
 from ceasiompy.CPACS2SUMO.func.getprofile import get_profile_coord
-<<<<<<< HEAD:ceasiompy/AeroFrame/func/aeroframe_config.py
-from ceasiompy.AeroFrame.func.aeroframe_utils import (
-=======
-from ceasiompy.AeroFrame_new.func.utils import (
->>>>>>> origin/main:ceasiompy/AeroFrame_new/func/aeroframe_config.py
+from ceasiompy.AeroFrame.func.utils import (
     PolyArea,
     second_moments_of_area,
 )
-
 
 # =================================================================================================
 #   FUNCTIONS

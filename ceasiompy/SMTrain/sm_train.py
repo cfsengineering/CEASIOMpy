@@ -63,7 +63,6 @@ def main(cpacs: CPACS, results_dir: Path):
     """
     Train a surrogate model (single-level or multi-fidelity) using aerodynamic data.
     """
-    cpacs_tmp_cfg = Path(cpacs_out_path.parent, "ConfigTMP.xml")
 
     # Retrieve settings from the CPACS file
     (
@@ -125,10 +124,9 @@ def main(cpacs: CPACS, results_dir: Path):
                 wkdir_su2.mkdir(parents=True, exist_ok=True)  # Ensure directory exists
 
                 su2_dataset = launch_su2(
-                    wkdir,
-                    wkdir_su2,
                     cpacs,
-                    cpacs_tmp_cfg,
+                    results_dir,
+                    wkdir_su2,
                     objective_coefficient,
                     high_variance_points,
                 )
@@ -185,16 +183,16 @@ def main(cpacs: CPACS, results_dir: Path):
 
         # Generate new dataset if required
         if new_dataset is True:
-            new_doe(datasets, model, fraction_of_new_samples, wkdir)
+            new_doe(datasets, model, fraction_of_new_samples, results_dir)
 
     # Generate validation plots if required
     if show_plot is True:
         log.info("Validation plots")
-        plot_validation(model, sets, objective_coefficient, wkdir)
+        plot_validation(model, sets, objective_coefficient, results_dir)
 
     # Save the trained surrogate model
-    save_model(model, objective_coefficient, datasets, wkdir)
-    
+    save_model(model, objective_coefficient, datasets, results_dir)
+
     get_smt_results(cpacs, results_dir)
 
 

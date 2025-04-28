@@ -3,18 +3,11 @@ CEASIOMpy: Conceptual Aircraft Design Software
 
 Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 
-Many functions for SMTrain
-
-
-Python version: >=3.8
-
 | Author: Giacomo Gronda
 | Creation: 2025-03-20
 
 TODO:
-
     *Improve loop and AVL and SU2 settings
-
 """
 
 # ==============================================================================
@@ -559,8 +552,8 @@ def launch_su2(
     generate_su2_cfd_config(
         cpacs=cpacs,
         wkdir=results_dir_su2,
-        su2_mesh_paths=,
-        mesh_markers=,
+        su2_mesh_paths=[],
+        mesh_markers=[],
         rans=rans,
         dyn_stab=False,
     )

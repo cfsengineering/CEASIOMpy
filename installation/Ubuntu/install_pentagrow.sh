@@ -105,9 +105,11 @@ fi
 
 echo "Trying to copy from: $(realpath "/CEASIOMpy/installation/Pentagrow/bin/" || echo "Path not found")"
 
-cp "/CEASIOMpy/installation/Pentagrow/bin/"* "$pentagrow_run_path/" 2>/dev/null || echo "No binaries found, skipping copy."
-
-echo "Pentagrow binary succesfully copied"
+if cp "/CEASIOMpy/installation/Pentagrow/bin/"* "$pentagrow_run_path/" 2>/dev/null; then
+    echo "Pentagrow binaries successfully copied."
+else
+    echo "No binaries found, skipping copy."
+fi
 
 # Add the Pentagrow path to .bashrc if not already present
 if ! grep -q "PENTAGROW_RUN" ~/.bashrc; then

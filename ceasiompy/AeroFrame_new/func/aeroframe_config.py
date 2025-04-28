@@ -372,7 +372,7 @@ def get_material_properties(cpacs_path):
     """
     cpacs = CPACS(cpacs_path)
 
-    young_modulus = get_value_or_default(cpacs.tixi,
+    young_modulus = get_value_or_default(tixi,
                                          FRAMAT_MATERIAL_XPATH + "/YoungModulus", 70)
 
     shear_modulus = get_value_or_default(cpacs.tixi,

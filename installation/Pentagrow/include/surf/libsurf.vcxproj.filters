@@ -1,0 +1,979 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <ItemGroup>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Header Files">
+      <UniqueIdentifier>{93995380-89BD-4b04-88EB-625FBE52EBFB}</UniqueIdentifier>
+      <Extensions>h;hpp;hxx;hm;inl;inc;xsd</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+    <Filter Include="Source Files">
+      <UniqueIdentifier>{4FC737F1-C7A5-4376-A066-2A32D752A2FF}</UniqueIdentifier>
+      <Extensions>cpp;c;cxx;def;odl;idl;hpj;bat;asm;asmx</Extensions>
+    </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="abstractcurve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="abstractuvcurve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="airfoil.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="airfoilcollection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="airfoilfitter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="airfoillibrary.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="assembly.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="asycomponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="basicpart.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="beziersegment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="capcomponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cascademesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="circulararc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="compositecurve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="curve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cylinder.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dcgeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dcmeshcrit.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dcmeshgenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dcplanegeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dcspatialgeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="delaunaycore.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dispinterpolator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dnboxadaptor.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dnmesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dnrefine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dnrfregion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="dnwingcriterion.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="edgefaceisec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="efimprove.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="eggframe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="elementproperty.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ellipframe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="endcap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="facetree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="flapspec.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fsielement.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="fsimesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="guige.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="hexboxpart.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges100.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges102.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges108.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges110.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges116.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges118.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges120.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges124.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges126.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges128.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges142.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges144.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges308.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges314.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges402.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges406.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="iges408.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="igesentity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="igesfile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="igessection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="initgrid.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="instance.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="instancesurf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="intersect.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="lazyisectree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="linearsurf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="linecurve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="loadipol.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="longcapsurf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="mappedcurve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="materialproperty.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="meshcomponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="meshgenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="meshpatch.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="meshsections.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="moeller.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="multisurfprojector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="naca6.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="naca6generator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nstcoordsys.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nstelements.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nstelementstress.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nstmesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nstreader.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nstrecord.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="nststressfield.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="openframe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="patchmerger.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="patchmeshgenerator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="paver.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="pentagrow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="planarmesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="planesurface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="polysplinecurve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="polysplinesurf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="product.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="producttree.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rationalsplinecurve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rationalsplinesurface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rbfinterpolator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="revosurf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ringcapsurf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="rotsurf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="roundcapsurf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="skinsurf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="slavedwake.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="smbodymesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="smribmesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="smwingmesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="splinecapsurf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="spotrefine.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="srfprojector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="step.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="step_ap203.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stepentity.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stepentitycreator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stepfile.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stepline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="steplistrep.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="stitchedsurf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="subsurface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="surface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="surfinterpolator.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="symframe.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="symsurf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tetboundarygroup.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tetmesh.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tgrefiner.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="topoedge.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="topoface.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="topoisecsegment.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="topology.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="topopart.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="toposegmchain.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="topovertex.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="transurf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="trimmedsurf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tritetwriter.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="tticonnection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ttinode.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ttintersection.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ttintersector.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ttitopology.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="uvcubiccurve.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="uvmapdelaunay.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="uvmapping.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="uvpolyline.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wakecomponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wakesurf.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wingletblend.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wingpart.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wingtiparc.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="wingtipcap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="abstractcurve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="abstractuvcurve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="airfoil.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="airfoilcollection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="airfoilfitter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="airfoillibrary.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="assembly.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="asycomponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="basicpart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="beziersegment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="capcomponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cascademesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="circulararc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="compositecurve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="curve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="cylinder.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dcedge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dcedgetable.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dcface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dcfaceset.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dcgeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dcmeshcrit.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dcmeshgenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dcplanegeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dcspatialgeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="delaunaycore.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dispinterpolator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dnboxadaptor.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dnedge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dnmesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dnrefine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dnrfregion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dntriangle.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dnvertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="dnwingcriterion.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="edgefaceisec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="efimprove.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="eggframe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="elementproperty.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ellipframe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="endcap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="facetree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="flapspec.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="forward.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsielement.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="fsimesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="guige.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="hexboxpart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges100.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges102.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges108.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges110.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges116.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges118.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges120.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges124.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges126.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges128.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges142.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges144.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges308.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges314.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges402.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges406.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="iges408.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="igesdirentry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="igesentity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="igesfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="igesline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="igessection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="initgrid.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="instance.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="instancesurf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="intersect.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="lazyisectree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="linearsurf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="linecurve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="loadipol.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="longcapsurf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="mappedcurve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="materialproperty.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="meshcomponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="meshgenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="meshpatch.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="meshsections.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="multisurfprojector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="naca6.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="naca6generator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nstcoordsys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nstelements.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nstelementstress.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nstmesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nstreader.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nstrecord.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="nststressfield.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="openframe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="patchmerger.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="patchmeshgenerator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="paver.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="pentagrow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="planarmesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="planesurface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="polysplinecurve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="polysplinesurf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="product.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="producttree.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rationalsplinecurve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rationalsplinesurface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rbfinterpolator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="revosurf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ringcapsurf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="rotsurf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="roundcapsurf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="sides.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="skinsurf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="slavedwake.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="smbodymesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="smribmesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="smwingmesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="splinecapsurf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="spotrefine.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="srfprojector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="step.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="step_ap203.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stepentity.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stepentitycreator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stepfile.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stepline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="steplistrep.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="stitchedsurf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="subsurface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="surface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="surfinterpolator.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="symframe.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="symsurf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tetboundarygroup.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tetmesh.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tgrefiner.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="topoedge.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="topoface.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="topoisecsegment.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="topology.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="topopart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="toposegmchain.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="topovertex.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="transurf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="trimmedsurf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tritetwriter.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="tticonnection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ttinode.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ttintersection.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ttintersector.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ttitopology.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uvcubiccurve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uvmapdelaunay.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uvmapping.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uvpolyline.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="uvsplinecurve.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wakecomponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wakesurf.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wingletblend.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wingpart.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wingtiparc.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="wingtipcap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+  </ItemGroup>
+</Project>

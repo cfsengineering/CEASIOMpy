@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<SurfaceCollection>
+  <SkinSurf akima="true" interpolation="local" name="Fuselage">
+    <SymFrame name="FrameX61">
+      <InterpolationPoints count="7">
+<![CDATA[ 0.619761 0 -0.399168 
+ 0.619761 0.199584 -0.34569 
+ 0.619761 0.34569 -0.199584 
+ 0.619761 0.399168 -2.4442e-17 
+ 0.619761 0.34569 0.199584 
+ 0.619761 0.199584 0.34569 
+ 0.619761 4.8884e-17 0.399168 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="FrameX184">
+      <InterpolationPoints count="7">
+<![CDATA[ 1.84857 0 -0.619773 
+ 1.84857 0.309886 -0.536739 
+ 1.84857 0.536739 -0.309886 
+ 1.84857 0.619773 -3.79501e-17 
+ 1.84857 0.536739 0.309886 
+ 1.84857 0.309886 0.536739 
+ 1.84857 7.59003e-17 0.619773 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="FrameX383">
+      <InterpolationPoints count="7">
+<![CDATA[ 3.83686 0 -0.766924 
+ 3.83686 0.383462 -0.664176 
+ 3.83686 0.664176 -0.383462 
+ 3.83686 0.766924 -4.69606e-17 
+ 3.83686 0.664176 0.383462 
+ 3.83686 0.383462 0.664176 
+ 3.83686 9.39211e-17 0.766924 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="FrameX616">
+      <InterpolationPoints count="7">
+<![CDATA[ 6.16314 0 -0.766924 
+ 6.16314 0.383462 -0.664176 
+ 6.16314 0.664176 -0.383462 
+ 6.16314 0.766924 -4.69606e-17 
+ 6.16314 0.664176 0.383462 
+ 6.16314 0.383462 0.664176 
+ 6.16314 9.39211e-17 0.766924 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <SymFrame name="FrameX815">
+      <InterpolationPoints count="7">
+<![CDATA[ 8.15143 0 -0.619773 
+ 8.15143 0.309886 -0.536739 
+ 8.15143 0.536739 -0.309886 
+ 8.15143 0.619773 -3.79501e-17 
+ 8.15143 0.536739 0.309886 
+ 8.15143 0.309886 0.536739 
+ 8.15143 7.59003e-17 0.619773 
+]]>      </InterpolationPoints>
+      <TrafoSequence>
+<![CDATA[1 0 0 0 
+0 1 0 0 
+0 0 1 0 
+0 0 0 1 
+]]>      </TrafoSequence>
+    </SymFrame>
+    <MeshCriterion defaults="true" maxlen="0.229130826321237" maxphi="30" maxstretch="6" minlen="0.018311758301881" nvmax="1073741824" xcoarse="false"/>
+    <Cap height="0" shape="LongCap" side="south"/>
+    <Cap height="0" shape="LongCap" side="north"/>
+  </SkinSurf>
+</SurfaceCollection>

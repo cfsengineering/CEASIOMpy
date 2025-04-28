@@ -1,0 +1,11 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+ <qresource>
+     <file>smxtemplates/bjet.smx</file>
+     <file>smxtemplates/twinglider.smx</file>
+     <file>smxtemplates/utility.smx</file>
+     <file>smxtemplates/ultralight.smx</file>
+     <file>smxtemplates/widebody.smx</file> 
+     <file>smxtemplates/delta.smx</file>
+</qresource>
+</RCC>

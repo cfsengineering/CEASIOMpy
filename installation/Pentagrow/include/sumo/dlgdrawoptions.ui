@@ -1,0 +1,304 @@
+<ui version="4.0" >
+ <class>DlgDrawOptions</class>
+ <widget class="QDialog" name="DlgDrawOptions" >
+  <property name="geometry" >
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>278</width>
+    <height>428</height>
+   </rect>
+  </property>
+  <property name="windowTitle" >
+   <string>Mesh drawing</string>
+  </property>
+  <property name="sizeGripEnabled" >
+   <bool>true</bool>
+  </property>
+  <layout class="QVBoxLayout" name="verticalLayout_3" >
+   <item>
+    <widget class="QGroupBox" name="groupBox" >
+     <property name="title" >
+      <string>Drawing options</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout" >
+      <item>
+       <widget class="QCheckBox" name="cbDrawPolygons" >
+        <property name="text" >
+         <string>Draw pol&amp;ygonal elements</string>
+        </property>
+        <property name="shortcut" >
+         <string>Alt+Y</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="cbDrawEdges" >
+        <property name="text" >
+         <string>Dr&amp;aw mesh edges</string>
+        </property>
+        <property name="shortcut" >
+         <string>Alt+A</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="cbDrawNormals" >
+        <property name="text" >
+         <string>Draw surface &amp;normals</string>
+        </property>
+        <property name="shortcut" >
+         <string>Alt+N</string>
+        </property>
+       </widget>
+      </item>
+      <item>
+       <widget class="QCheckBox" name="cbDrawCut" >
+        <property name="enabled" >
+         <bool>true</bool>
+        </property>
+        <property name="text" >
+         <string>Draw volume mesh cut</string>
+        </property>
+        <property name="checked" >
+         <bool>false</bool>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBoxPlane" >
+     <property name="enabled" >
+      <bool>false</bool>
+     </property>
+     <property name="title" >
+      <string>Cutting plane</string>
+     </property>
+     <layout class="QVBoxLayout" name="verticalLayout_2" >
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_2" >
+        <item>
+         <widget class="QRadioButton" name="rbXZPlane" >
+          <property name="text" >
+           <string>xz-plane</string>
+          </property>
+          <property name="checked" >
+           <bool>true</bool>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rbYZPlane" >
+          <property name="text" >
+           <string>yz</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QRadioButton" name="rbXYPlane" >
+          <property name="text" >
+           <string>xy</string>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+      <item>
+       <layout class="QHBoxLayout" name="horizontalLayout_3" >
+        <item>
+         <widget class="QLabel" name="label" >
+          <property name="text" >
+           <string>Distance from origin</string>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <widget class="QDoubleSpinBox" name="sbDistance" >
+          <property name="minimumSize" >
+           <size>
+            <width>90</width>
+            <height>0</height>
+           </size>
+          </property>
+          <property name="alignment" >
+           <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+          </property>
+          <property name="buttonSymbols" >
+           <enum>QAbstractSpinBox::NoButtons</enum>
+          </property>
+          <property name="decimals" >
+           <number>3</number>
+          </property>
+          <property name="minimum" >
+           <double>-999999999.000000000000000</double>
+          </property>
+          <property name="maximum" >
+           <double>999999999.000000000000000</double>
+          </property>
+          <property name="singleStep" >
+           <double>2.000000000000000</double>
+          </property>
+         </widget>
+        </item>
+       </layout>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <widget class="QGroupBox" name="groupBox_2" >
+     <property name="title" >
+      <string>Projection</string>
+     </property>
+     <layout class="QFormLayout" name="formLayout_2" >
+      <item row="0" column="0" >
+       <widget class="QRadioButton" name="rbPerspective" >
+        <property name="text" >
+         <string>Perspective pro&amp;jection</string>
+        </property>
+        <property name="shortcut" >
+         <string>Alt+J</string>
+        </property>
+        <property name="checked" >
+         <bool>true</bool>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0" >
+       <widget class="QRadioButton" name="rbOrthographic" >
+        <property name="text" >
+         <string>Orthographic projection</string>
+        </property>
+       </widget>
+      </item>
+     </layout>
+    </widget>
+   </item>
+   <item>
+    <layout class="QHBoxLayout" name="horizontalLayout" >
+     <item>
+      <widget class="QPushButton" name="pbApply" >
+       <property name="text" >
+        <string>&amp;Apply</string>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <spacer>
+       <property name="orientation" >
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeType" >
+        <enum>QSizePolicy::Expanding</enum>
+       </property>
+       <property name="sizeHint" stdset="0" >
+        <size>
+         <width>181</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbCancel" >
+       <property name="text" >
+        <string>&amp;Cancel</string>
+       </property>
+       <property name="shortcut" >
+        <string>Alt+C</string>
+       </property>
+       <property name="autoDefault" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item>
+      <widget class="QPushButton" name="pbOK" >
+       <property name="text" >
+        <string>&amp;OK</string>
+       </property>
+       <property name="shortcut" >
+        <string/>
+       </property>
+       <property name="autoDefault" >
+        <bool>true</bool>
+       </property>
+       <property name="default" >
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
+   </item>
+  </layout>
+ </widget>
+ <layoutdefault spacing="6" margin="11" />
+ <tabstops>
+  <tabstop>cbDrawPolygons</tabstop>
+  <tabstop>cbDrawEdges</tabstop>
+  <tabstop>cbDrawNormals</tabstop>
+  <tabstop>rbPerspective</tabstop>
+  <tabstop>rbOrthographic</tabstop>
+  <tabstop>pbCancel</tabstop>
+  <tabstop>pbOK</tabstop>
+ </tabstops>
+ <resources/>
+ <connections>
+  <connection>
+   <sender>pbOK</sender>
+   <signal>clicked()</signal>
+   <receiver>DlgDrawOptions</receiver>
+   <slot>accept()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>208</x>
+     <y>409</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>pbCancel</sender>
+   <signal>clicked()</signal>
+   <receiver>DlgDrawOptions</receiver>
+   <slot>reject()</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>122</x>
+     <y>409</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>20</x>
+     <y>20</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>cbDrawCut</sender>
+   <signal>toggled(bool)</signal>
+   <receiver>groupBoxPlane</receiver>
+   <slot>setEnabled(bool)</slot>
+   <hints>
+    <hint type="sourcelabel" >
+     <x>173</x>
+     <y>148</y>
+    </hint>
+    <hint type="destinationlabel" >
+     <x>161</x>
+     <y>192</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
+</ui>

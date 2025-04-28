@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  
+  <link rel="shortcut icon" href="../img/favicon.ico">
+  <title>Deformation Mapping - scope user manual</title>
+
+  <link rel="stylesheet" href="../css/theme.css" type="text/css" />
+  <link rel="stylesheet" href="../css/theme_extra.css" type="text/css" />
+  <link rel="stylesheet" href="../css/highlight.css">
+  <link href="../larosterna.css" rel="stylesheet">
+  <link href="../offlinefonts.css" rel="stylesheet">
+  
+  <script>
+    // Current page data
+    var mkdocs_page_name = "Deformation Mapping";
+    var mkdocs_page_input_path = "mapping.md";
+    var mkdocs_page_url = "/mapping/index.html";
+  </script>
+  
+  <script src="../js/jquery-2.1.1.min.js"></script>
+  <script src="../js/modernizr-2.8.3.min.js"></script>
+  <script type="text/javascript" src="../js/highlight.pack.js"></script> 
+  
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side stickynav">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="icon icon-home"> scope user manual</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+	<ul class="current">
+	  
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../index.html">Home</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../formats/index.html">File Formats</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../display/index.html">Data Display</a>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../edit/index.html">Mesh Editing</a>
+	    </li>
+          
+            <li class="toctree-l1 current">
+		
+    <a class="current" href="index.html">Deformation Mapping</a>
+    <ul class="subnav">
+            
+    <li class="toctree-l2"><a href="#mapping-mesh-deformation">Mapping Mesh Deformation</a></li>
+    
+        <ul>
+        
+            <li><a class="toctree-l3" href="#prerequisites">Prerequisites</a></li>
+        
+            <li><a class="toctree-l3" href="#basic-usage">Basic Usage</a></li>
+        
+            <li><a class="toctree-l3" href="#advanced-usage">Advanced Usage</a></li>
+        
+            <li><a class="toctree-l3" href="#command-line-tool">Command-Line Tool</a></li>
+        
+        </ul>
+    
+
+    </ul>
+	    </li>
+          
+            <li class="toctree-l1">
+		
+    <a class="" href="../loads/index.html">Load Analysis</a>
+	    </li>
+          
+        </ul>
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">scope user manual</a>
+      </nav>
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+    
+      
+    
+    <li>Deformation Mapping</li>
+    <li class="wy-breadcrumbs-aside">
+      
+    </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            <div class="section">
+              
+                <h1 id="mapping-mesh-deformation">Mapping Mesh Deformation</h1>
+<p>Scope can be used to map surface deformations from a structural model to boundary surfaces of an aerodynamic mesh. Typically, this operation is a step needed to allow an aerodynamic solver to handle deforming bodies.</p>
+<p>On the aerodynamic side, there are two fundamentally different approaches to handling surface deformation. The simpler method is to approximate the effect of surface displacement by defining a transpiration mass flow through the surface which, in the infinitesimal limit, has the same effect as the boundary displacement itself. This method is often very robust, but can only be used for small deformations. For instance, it is usually accurate for the modelling of elastic deformation, but may not be suitable to account for the effect of a landing flap deflection.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>Transpiration boundary conditions imply a linearization and should <br />
+therefore be insensitive to scaling - solving an aerodynamic problem 
+perturbed by small transpiration term is intrinsically linear and should
+therefore be a numerically <em>easier</em> task with better convergence
+properties. </p>
+</div>
+<p>The second approach is to account for the full body deformation during an aerodynamic analysis, that is, by updating the aerodynamic mesh according to either some prescribed motion or a coupled analysis. This method often relies on surface deformation fields as a stepping stone to compute displacements of nodes in the fluid domain. Scope does not compute volume mesh deformations itself, but only surface mesh deformations.</p>
+<h2 id="prerequisites">Prerequisites</h2>
+<p>In order to map mesh deformations correctly, both the structural and the aerodynamic mesh need to be defined in the same coordinate system. See the topic on <a href="../edit/index.html#coordinate-transformation">Mesh Transformation</a> on how this can be accomplished.</p>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>It is very common that structural (mm) and aerodynamic models (m) are
+defined in different units. It is suggested to load the structural model 
+into scope first and store the unit-converted file in the 
+<a href="../formats/index.html#native-file-format">native file format</a>, which has the added 
+advantage of shorter load times than NASTRAN result files.</p>
+</div>
+<p>When importing modal data from NASTRAN, it is recommended to use output in punch file format (.pch files). Often, .f06 files can also be imported, but the punch file format is more robust and will likely work better. To write out eigenvector shapes into a PUNCH format file, use the following commands in the case control section:</p>
+<pre><code>DISPLACEMENT(PUNCH) = ALL
+ECHO(PUNCH) = SORTED
+</code></pre>
+
+<h2 id="basic-usage">Basic Usage</h2>
+<p>Once the two meshes are available in compatible units and coordinate systems, the deformation mapping process can be performed as follows:</p>
+<p><img alt="Basic Settings" src="../img/meshdeform1.png" srcset="../img/meshdeform1.png 1x, ../img/meshdeform1@2x.png 2x" /></p>
+<ol>
+<li>Load the aerodynamic mesh first. This is the mesh for which the surface motions will be computed.</li>
+<li>Select the menu item <strong>Map structural deformation</strong> in the <strong>Loads</strong> menu.</li>
+<li>In the dialog (shown below), select the structural mesh file. This can be a NASTRAN result file (punch file .pch preferred) or a native format file (.zml).
+The structural mesh will <em>not</em> be shown in the main window.</li>
+<li>Decide how many eigenmodes to map. This can be specified as a number of modes or a frequency range of interest.</li>
+<li>Optionally change the <a href="#deformation-scaling">scaling of the deformation modes</a>. </li>
+<li>For structural models defined by shell and solid elements, use the shell projection method; for beam models, use interpolation by radial basis functions.</li>
+<li>Select which aerodynamic boundaries will be treated as deforming (moving) and which are to be held fixed. Aerodynamic meshes which contain well-defined boundary conditions (CGNS, native format) will try to guess which aerodynamic boundaries are to be deformed. </li>
+<li>Optionally, adjust internal algorithm settings on the <strong>Settings</strong> page.</li>
+<li>Start the interpolation process by clicking <strong>Interpolate</strong>.</li>
+</ol>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>When using very large meshes, try out the process with a few modes first to
+check whether results are acceptable. Processing of hundreds of modes on
+large meshes can take a long time. (Large meshes are thoise with many
+nodes on the aerodynamic surfaces.)</p>
+</div>
+<p>One the interpolation has been completed, the tree view on the left-hand side shows additional entries for the new deformation fields which are now present in the aerodynamic mesh currently in memory. You can now review the quality of the deformed meshes by using the <a href="../display/index.html#mesh-deformation">deformation display</a> option.</p>
+<p>Acceptable mesh deformation fields can be exported to the aerodynamic solver either by saving the current mesh (which now contains new fields) in a format which is understood on its own, or storing the deformation fields as separate files. A common application is the computation of boundary displacement files (.bdis) for the EDGE flow solver - one file per mode. These .bdis files can be created directly from the <strong>Export</strong> button in the deformation mapping dialog </p>
+<div class="admonition tip">
+<p class="admonition-title">Tip</p>
+<p>Save the aerodynamic mesh including boundary deformations in the native file format (.zml) for later reference. It is always possible to extract the .bdis files from this format at a later time.</p>
+</div>
+<h2 id="advanced-usage">Advanced Usage</h2>
+<p>Advanced settings can be acessed on the <strong>Settings</strong> page to he right of the intially opened <strong>Mapping</strong> tab. Because of the different algorithms, these settings differ between the mapping methods (projection or RBF). In any case, scope attempts to select reasonable default values which depend on the dimensions of the aerodynamic mesh.</p>
+<p>In both cases, any settings adapted here can be stored to a file which is compatible with the <a href="#command-line-tool">surfmap</a> command-line utility. Alternatively, advanced settings can also be imported from such a file using the <strong>Load Settings</strong> button on the second page.</p>
+<h3 id="projection">Projection</h3>
+<p>The shell projection method works by iterating over aerodynamic surface nodes and finding the nearest structural element. This method is strongly recommended for
+applications in aeroelasticity because it generates aerodynamic mesh deformations
+which are much closer to the structural model behavior.</p>
+<p><img alt="Advanced Settings - Projection" src="../img/meshdeform2.png" srcset="../img/meshdeform2.png 1x, ../img/meshdeform2@2x.png 2x" /></p>
+<p>The first field permits to define a set of elements property IDs (PIDs) which should be included in or excluded from the set of structural elements used for projection. This option is useful to excluding structural components which are not relevent for aerodynamic modeling. </p>
+<p>The remaining options all concern the detection and handling of discontinuous deformations:</p>
+<dl>
+<dt>Global smoothing iterations</dt>
+<dd>Apply <em>n</em> Laplacian smoothing iterations on the entire aerodynamic surface. 
+   This indiscriminately smoothes all deformation gradients is therefore
+   disabled by default.</dd>
+<dt>Selective smoothing</dt>
+<dd>Enable identification of aerodynamic elements which are located near a 
+   possible discontinuity. Deformation fields will only be smoothed out over 
+   these specific elements, which is much more selective than the global option
+   described above. Leaving this option as <strong>Direct Solution</strong> will not 
+   perform iterative Laplacian smoothing, but rather solve a sparse linear
+   system to obtain the displacement of aerodynamic nodes near structural
+   discontinuities.</dd>
+<dt>Smoothed neighborhood ring</dt>
+<dd>This specifies the size of the topological neighborhood to include in the 
+   smoothing set. Switching this option off will apply the smoothing only to 
+   aerodynamic nodes which are par of elements that stretch a discontinuity.
+   Selecting <strong>1</strong> will include all immediate neighbor nodes, <strong>2</strong> will also 
+   include the neighbors of neighbors, and so on.</dd>
+<dt>Smoothing radius</dt>
+<dd>Since aerodynamic surface elements can be extremely small in some regions
+   such as sharp leading edges, it is also possible to specify the size of the 
+   neighborhood of a discontinuity to be smoothed in terms of a distance. If 
+   both this and the topological ring are active, then the boolean union of both
+   sets is included in the smoothing procedure.</dd>
+<dt>Concavity criterion</dt>
+<dd>Rather often, discontinuities in structural displacements occur along seams
+   where two or more structural components are joined by means of some number of
+   fastening elements. Between fasteners or attachment fittings, the  structural
+   parts are free to move against (or even, in linear analyses, through) each 
+   other. Aerodynamic fairings, flexible tape or putty that covers such seams is
+   usually not included in structural models. The concavity criterion is used to
+   to automatically identify aerodynamic elements which stradle such seams in
+   structural model (regions of concave surface curvature). Selecting a smaller 
+   value will mark more aerodynamic elements. A value near 1.0 will almost 
+   certainly include the entire aerodynamic mesh in this set.</dd>
+</dl>
+<h3 id="radial-basis-functions">Radial Basis Functions</h3>
+<p>The RBF method works in a fundamentally different manner. Instead of using structural element information, a set of globally defined interpolation functions is defined. These value of these functions depends only on the radial distance of a node to all of the RBF center points. RBF have therefore a rather strong smoothing effect and can unfortunately generate grossly unrealistic displacements for aerodynamic nodes which are far from a structural nodes selected as RBF centers. </p>
+<p>RBF centers are always obtained from the structural model. In regions without structural nodes, there will be no RBF centers and accuracy may degrade considerably. </p>
+<p><img alt="Advanced Settings - RBF" src="../img/meshdeform3.png" srcset="../img/meshdeform3.png 1x, ../img/meshdeform3@2x.png 2x" /></p>
+<dl>
+<dt>RBF Type</dt>
+<dd>Here, the <a href="https://en.wikipedia.org/wiki/Radial_basis_function">type of radial basis function</a> 
+  can be selected. The inverse multiquadric RBF has earlier 
+  been found to show satisfactory properties for use with beam models.</dd>
+<dt>RBF shape parameter</dt>
+<dd>Some types of RBF contain a free parameter (called epsilon or beta) which can
+  be set here. Sometimes, the degree of smoothing generated by a certain form of
+  RBF is influenced by this parameter.</dd>
+<dt>Center merge threshold</dt>
+<dd>Most structural models contain duplicate nodes, but duplicate RBF centers serve
+  no purpose. The value selected here is used to fuse near-coincident structural 
+  nodes in order to improve the conditioning of the RBF construction problem.</dd>
+<dt>RBF center selection</dt>
+<dd>The RBF interpolation method is most useful for simple structural models with 
+  some hundreds of beam elements. Such models are topologically dissimilar from 
+  aerodynamic meshes and hence require some sort of extrapolation in any case. 
+  However, this option permits to create RBF interpolations even from models 
+  containing shell elements.</dd>
+<dt>Node subset</dt>
+<dd>By default, each and every structural node which is part of of the selected 
+  element types will be turned into a RBF center. This results in an RBF set which
+  exactly interpolates the strcutural deformation fields in the structural nodes
+  and has good accuracy near those nodes. However, constructing the RBF 
+  representation requires the factorization of a large dense matrix, which becomes
+  rather time- and memory-consuming when exceeding about 4000 RBF centers. For 
+  such cases, it is therefore better to select only a subset of nodes, the 
+  size of which is defined here, and solve a least-squares problem instead. With
+  very large structural models containing millions of nodes, the number of RBF 
+  nodes must be reduced to around 1000 or below.</dd>
+</dl>
+<h3 id="deformation-scaling">Deformation Scaling</h3>
+<p>Depending on the aerodynamic solver or its preprocessing facilities, it may be necessary to select some small scaling factor in order to prevent mesh deformations becoming too large. Sometimes, large surface mesh deformations may in themselves be acceptable, but lead to problems such as ill-defined deformed volume elements at a later stage of the analysis.</p>
+<p>An overall scaling factor for all modeshapes can be chosen in the dialog shown in the section on <a href="#basic-usage">Basic Usage</a> above. Select a scaling factor of 1.0 to obtain aerodynamic deformation fields which have the same amplitude as structural modes - this is usually a good choice for aerodynamic solvers which use the transpiration method.  </p>
+<h2 id="command-line-tool">Command-Line Tool</h2>
+<p>All deformation mapping operations which are available in the graphical user interface from within acope can also be accessed through the command line utility <strong>surfmap</strong>. In this case, the algorithm parameters are set by means of a plain text configuration file. A simple example is shown here:</p>
+<pre><code>#  The case name is optional. If given, output files will be named with the case
+#  name as prefix.  
+Case = config-3c
+
+#  Mandatory file names
+StructuralMesh = plate.zml
+AeroMesh = afine.zml
+
+#  Select interpolation method, options are RBF, a radial basis function 
+#  interpolation or Projection, meaning projection on shell elements 
+Method = Projection
+GalerkinAveraging = true
+OutputFormat = zml
+
+#  A list of names of moving mesh boundaries.
+MovingBoundaries = Fuselage, Canopy, MainWing, Stabilizer, Fin
+
+#  A list of sliding boundaries.
+SlidingBoundaries = XZSymmetryPlane
+
+#  Eigenmode selection.
+MaxFrequency = 85.0
+MaxModeCount = 200
+
+#  Let surfmap determine scaling factors
+AutomaticScaling = true
+
+#  Algorithm options for projection method
+ExcludePID = 37 38 39 42 77 78 79 87 88 89 90 12 4 14 91
+WriteProjectionSurface = false
+PostSmoothing = -1
+SmoothingRadius = 0.01
+SmoothingRing = 1
+</code></pre>
+
+<p>In the following sections, all available configuration parameters for surfmap are listed with a short explanation. </p>
+<h3 id="common-options">Common options</h3>
+<dl>
+<dt>Case</dt>
+<dd>The case name is optional. If given, output files will be named with the case
+   name as prefix. Without a case name, the default output file name is &ldquo;mapped&rdquo;
+   plus a corresponding suffix.</dd>
+<dt>Method</dt>
+<dd>Select interpolation method, options are <strong>RBF</strong>, a radial basis function 
+   interpolation, or <strong>Projection</strong>, meaning projection on shell elements.
+   Setting this entry to <strong>ApplyH</strong> loads a previously generated H-matrix from 
+   a file and re-applies that matrix to the meshes a specified below. Naturally,
+   the file containing the matrix must be specified with <strong>HMapFile</strong> described 
+   below.</dd>
+<dt>OutputFormat</dt>
+<dd>Optionally, select format for the output. zml means that one native format
+   file is written for visualization in scope; bdis means that one surface
+   displacement file is written for each mode, for use with the EDGE 
+   aeroelastic toolchain. Multiple formats can be given.</dd>
+<dt>StructuralMesh</dt>
+<dd>File containing the structural mesh and modal displacement data. This can 
+   be a zml file written by (e.g.) scope or a NASTRAN punch data file for a modal 
+   solution (SOL 103).</dd>
+<dt>AeroMesh :  File containing the aerodynamic mesh.</dt>
+<dd>This can be either a zml file written by scope or sumo, or a bmesh file for 
+   use with EDGE. If a bmesh file is given, then bdis output is 
+   enabled automatically.</dd>
+<dt>MovingBoundaries:  A list of names of moving mesh boundaries.</dt>
+<dd>The boundaries named below are treated as lying on surfaces which should move
+   in accordance to structural displacements. Nodes on these boundaries will 
+   be displaced. If this list is not provided, then all boundaries marked with 
+   wall boundary conditions are selected automatically. Since bmesh files do not
+   contain boundary condition specifications, this entry is required for bmesh
+   files.</dd>
+<dt>SlidingBoundaries: A list of sliding boundaries.</dt>
+<dd>Nodes on these boundaries are restricted to move in the plane defined by the 
+   first element of each boundary. Hence, listing a sliding boundary is only 
+   useful for boundaries which are entirely plane, making it useful only for
+   symmetry planes.</dd>
+<dt>MaxModeCount, MinFrequency, MaxFrequency</dt>
+<dd>If the displacement mapping is to be performed for a subset of modes only,
+   this subset can be defined by specifying a frequency interval and a maximum
+   number of eigenmodes to use. If not given, then all eigenmodes present in 
+   the structural input will be processed.</dd>
+<dt>AutomaticScaling</dt>
+<dd>When switched on, surfmap attempts to determine displacement scaling factors
+   so that the deformed aerodynamic surface mesh does not contain any degenerate
+   (badly rotated, inverted) triangles. Due to the algorithm used in this test,
+   only triangular aerodynamic surface elements are considered. Note that the
+   factors found in this way are not a guarantee that a volume mesh deformation
+   procedure will successfully complete.
+   Default is &lsquo;false&rsquo;.</dd>
+</dl>
+<h3 id="options-for-the-projection-method">Options for the projection method</h3>
+<dl>
+<dt>IncludePID:  List of shell PIDs to include.</dt>
+<dd>Elements with these shell property IDs will be used as the set of elements on
+   which to project aerodynamic nodes for interpolation. Often, it is more useful
+   to specify the opposite, namely PIDs to exclude from the projection set. If 
+   this option is not given, then projection on all shell elements in the 
+   structural model is permitted. </dd>
+<dt>ExcludePID</dt>
+<dd>Elements with any of these property IDs will <em>not</em> be used to define the 
+   projection surface. This list can be employed to address problems occurring
+   when aerodynamic nodes happen to be projected on shell elements which are 
+   part of some internal structure or reinforcement. The use of the
+   options ExcludePID and IncludePID is mutually exclusive.</dd>
+<dt>WriteProjectionSurface : Write the projection surface to file.</dt>
+<dd>Setting this to true will generate a file (for use in scope) which contains
+   only the structural shell elements used to define the projection surface. It 
+   is a good idea to enable this option when the PID-based selection described 
+   above is active, so that the list of active shell elements can be verified.</dd>
+<dt>HMapFile : Store/load mapping from file</dt>
+<dd>When <strong>Method</strong> is set to <strong>ApplyH</strong>, then the H-matrix to be used is loaded
+   from the file named here. If <strong>Method</strong> is <strong>Projection</strong>, then the H-matrix
+   is computed and stored in this file. </dd>
+</dl>
+<h3 id="handling-of-discontinuities">Handling of discontinuities.</h3>
+<dl>
+<dt>PostSmoothing</dt>
+<dd>Setting PostSmoothing to <em>zero</em> disables any postprocessing of interpolated 
+   deformation, which is useful when surface deformations for transpiration 
+   boundary conditions are needed. 
+   A positive number for PostSmoothing enables approximate smoothing by means of
+   a number of discrete Jacobi iterations, where the value of PostSmoothing 
+   (say 4 to 30) indicates the number of iterations to perform. Note that this
+   method is most appropriate if the size of aerodynamic elements in the vicinity
+   of discontinuities is approximately equal.
+   Set PostSmoothing to -1 to replace the iterative smoothing method with the 
+   exact solution of a diffusion problem, where the deformations for all elements
+   recognised as being near a discontinuity are determined from interpolated 
+   deformations in the region around those elements. This approach works well 
+   even with significant size differences between aerodynamic elements in the 
+   discontinuous displacement region.   </dd>
+<dt>SmoothingRadius : Catch radius around discontinuities.</dt>
+<dd>First, all aerodynamic elements which stretch across structural component
+   boundaries (where structural deformations can be non-smooth) are found. It is,
+   however, possible that some of these elements, e.g. at the leading edge, are 
+   very small. Smoothing deformations over just these few small elements may 
+   therefore still generate undesirable mesh irregularities. Setting the 
+   smoothing radius to non-zero values includes all aerodynamic nodes which are
+   within this distance from any of the already identified candidate nodes in the
+   set of nodes to which the smoothing defined by PostSmoothing is applied.</dd>
+<dt>SmoothingRing : Topological ring around discontinuities.</dt>
+<dd>An alternative way of including more aerodynamic elements in the smoothed set
+   is to specify a topological neighbourhood. Setting this option to 0 disables,
+   1 means all neighbour elements, 2 neighbours-of-neighbours and so on.</dd>
+</dl>
+<h3 id="options-used-for-rbf-interpolation-only">Options used for RBF interpolation only</h3>
+<dl>
+<dt>UsePoints, UseBeams, UseShells : Structural node selection options.</dt>
+<dd>These three options allow to specify which structural nodes are to be 
+   used to define center points for the radial basis functions. Structural 
+   displacements will be interpolated exactly at these center points. The 
+   computational work required to define the RBF basis increases very quickly 
+   with the number of centers, so that more than a few thousand centers should
+   usually be avoided. In particular, the RBF method is not suitable for use
+   with detailed shell models with many nodes. The default is to collect only 
+   nodes on beam elements.</dd>
+<dt>MergeThreshold : Center merge tolerance.</dt>
+<dd>The RBF method can fail for models which contain multiple nodes at the same
+   geometric location, which is common in structural models with mechanisms. This
+   option can be used to merge closely spaced RBF centers so as to improve the
+   robustness of the method. The default value is 1e-12.  </dd>
+</dl>
+              
+            </div>
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../loads/index.html" class="btn btn-neutral float-right" title="Load Analysis">Next <span class="icon icon-circle-arrow-right"></span></a>
+      
+      
+        <a href="../edit/index.html" class="btn btn-neutral" title="Mesh Editing"><span class="icon icon-circle-arrow-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <!-- Copyright etc -->
+    
+      <p>2016 <a href=mailto:david@larosterna.com>David Eller</a></p>
+    
+  </div>
+
+  Built with <a href="http://www.mkdocs.org">MkDocs</a> using a <a href="https://github.com/snide/sphinx_rtd_theme">theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>.
+</footer>
+	  
+        </div>
+      </div>
+
+    </section>
+    
+  </div>
+
+  <div class="rst-versions" role="note" style="cursor: pointer">
+    <span class="rst-current-version" data-toggle="rst-current-version">
+      
+      
+        <span><a href="../edit/index.html" style="color: #fcfcfc;">&laquo; Previous</a></span>
+      
+      
+        <span style="margin-left: 15px"><a href="../loads/index.html" style="color: #fcfcfc">Next &raquo;</a></span>
+      
+    </span>
+</div>
+    <script src="../js/theme.js"></script>
+
+</body>
+</html>

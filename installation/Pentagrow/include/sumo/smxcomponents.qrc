@@ -1,0 +1,9 @@
+<RCC>
+    <qresource prefix="/">
+        <file>smxcomponents/ceasiomfairing.smx</file>
+        <file>smxcomponents/ceasiomnacelle.smx</file>
+        <file>smxcomponents/underwingnacelle.smx</file>
+        <file>smxcomponents/underwingpylon.smx</file>
+        <file>smxcomponents/ceasiomboom.smx</file>
+    </qresource>
+</RCC>

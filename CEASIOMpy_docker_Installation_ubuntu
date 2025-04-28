@@ -1,0 +1,112 @@
+# With this Dockerfile, you are building a Docker image for
+# your LOCAL CEASIOMpy on Ubuntu 22.04, with system dependencies and Miniconda.
+# Use the commands below to build the Docker image,
+# and then to run the Docker container.
+
+FROM ubuntu:22.04
+
+RUN apt-get update
+
+# Install apt-utils
+RUN apt-get install -y apt-utils
+
+# Install system dependencies
+RUN apt-get install -y --no-install-recommends \
+    git curl wget sudo unzip build-essential libtbb2 libtbb-dev libxrender1 libxcursor1 libxinerama1 libxft2 libxt6 \
+    libgl1-mesa-glx libglu1-mesa libegl1-mesa libosmesa6 xvfb ca-certificates && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install Miniconda
+ENV CONDA_DIR=/opt/conda
+RUN curl -fsSL https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -o /tmp/miniconda.sh && \
+    /bin/bash /tmp/miniconda.sh -b -p $CONDA_DIR && \
+    rm /tmp/miniconda.sh
+ENV PATH=$CONDA_DIR/bin:$PATH
+
+# Create the necessary directory structure
+WORKDIR /CEASIOMpy/installation/Ubuntu/
+
+# Download only the required installation scripts
+RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/Ubuntu/install_pyavl.sh && \
+    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/installation/Ubuntu/install_su2.sh
+
+# Make the scripts executable
+RUN chmod +x install_*.sh
+
+# Run the installation scripts
+RUN ./install_pyavl.sh
+RUN ./install_su2.sh
+
+# Go from /CEASIOMpy/INSTALLDIR to /INSTALLDIR
+RUN mkdir -p /INSTALLDIR && \
+    mv /CEASIOMpy/INSTALLDIR/* /INSTALLDIR/ && \
+    rm -rf /CEASIOMpy/INSTALLDIR
+
+# Install xvfb and other graphical display dependencies for Ubuntu
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    xvfb libgl1-mesa-glx libglu1-mesa libegl1-mesa libosmesa6 libxt6 && \
+    rm -rf /var/lib/apt/lists/*
+
+# Install system dependencies
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    g++ libtbb2 libtbb-dev libxrender1 libxcursor1 libxinerama1 libxft2 libxt6 \
+    libgl1-mesa-glx libglu1-mesa libegl1-mesa libosmesa6 xvfb && \
+    rm -rf /var/lib/apt/lists/*
+
+# Set the DISPLAY environment variable
+ENV DISPLAY=:99
+ENV LIBGL_ALWAYS_SOFTWARE=1
+
+# Error rendering
+ENV XDG_RUNTIME_DIR=/tmp/runtime-root
+RUN mkdir -p /tmp/runtime-root && chmod 700 /tmp/runtime-root
+
+# Initialize Conda for the shell
+RUN $CONDA_DIR/bin/conda init bash && \
+    echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc
+
+# Create an empty folder for mounting
+RUN mkdir -p /CEASIOMpy
+
+# Set the working directory to the mounted CEASIOMpy folder
+WORKDIR /CEASIOMpy
+
+# Add software paths to the PATH environment variable
+ENV PATH="/CEASIOMpy/INSTALLDIR/SU2-v8.1.0-linux64-mpi/bin:/CEASIOMpy/INSTALLDIR/avl:$PATH"
+
+# Get the required files for installing the conda environment
+RUN wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/setup.py -O /CEASIOMpy/setup.py && \
+    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/pyproject.toml -O /CEASIOMpy/pyproject.toml && \
+    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/environment.yml -O /CEASIOMpy/environment.yml && \
+    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/README.md -O /CEASIOMpy/README.md && \
+    wget https://raw.githubusercontent.com/cfsengineering/CEASIOMpy/main/LICENSE -O /CEASIOMpy/LICENSE
+
+# Ensure the directory structure exists
+RUN mkdir -p /CEASIOMpy/src
+
+COPY src /CEASIOMpy/src
+
+# Create the Conda environment from the environment.yml file
+RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda env create -f environment.yml"
+
+# Activate the Conda environment and install CEASIOMpy
+RUN /bin/bash -c "source $CONDA_DIR/etc/profile.d/conda.sh && conda activate ceasiompy && pip install -e ."
+
+# Automatically activate the Conda environment in new shells
+RUN echo "source $CONDA_DIR/etc/profile.d/conda.sh" >> ~/.bashrc && \
+    echo "conda activate ceasiompy" >> ~/.bashrc && \
+    echo "ceasiompy_run --gui" >> ~/.bashrc
+
+# Move the content of /INSTALLDIR to the mounted /CEASIOMpy/INSTALLDIR folder at runtime
+CMD ["/bin/bash", "-c", "rm -rf /CEASIOMpy/INSTALLDIR && mkdir -p /CEASIOMpy/INSTALLDIR && mv /INSTALLDIR/* /CEASIOMpy/INSTALLDIR/ && exec bash"]
+
+# Now you just need click on: Networ URL
+
+# If you did not have the necessary permissions:
+# Run the following command to add your user to the docker group:
+
+# sudo usermod -aG docker $USER
+
+# Then, use the following command to apply the group change:
+
+# newgrp docker

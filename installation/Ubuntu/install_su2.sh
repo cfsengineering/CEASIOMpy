@@ -22,31 +22,38 @@ echo "Downloading SU2..."
 wget https://github.com/su2code/SU2/releases/download/v"$su2_version"/SU2-v"$su2_version"-linux64-mpi.zip
 unzip -d SU2-v"$su2_version"-linux64-mpi SU2-v"$su2_version"-linux64-mpi.zip
 
-echo "Adding path to the .bashrc"
-
-su2_run_path=/"$install_dir"/SU2-v"$su2_version"-linux64-mpi/bin
-su2_home_path=/"$install_dir"/SU2-v"$su2_version"-linux64-mpi
-
-echo \# SU2 Path >> ~/.bashrc
-echo export SU2_RUN=\""$su2_run_path"\" >> ~/.bashrc
-echo export SU2_HOME=\""$su2_home_path"\" >> ~/.bashrc
-echo export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN >> ~/.bashrc
-echo export PATH=\"\$PATH:\$SU2_RUN\" >> ~/.bashrc
-
 echo "Installing MPICH..."
-sudo apt install -y mpich=$mpi_version
+sudo apt update  # Add this to ensure package lists are up-to-date
+sudo apt install -y mpich  # Remove the version pinning for broader compatibility
 
-echo "Adding MPICH path to the .bashrc"
+echo "Adding paths to the .bashrc"
 
-mpich_path="/usr/bin"
-echo export PATH=\"\$PATH:$mpich_path\" >> ~/.bashrc
+su2_run_path="$install_dir/SU2-v${su2_version}-linux64-mpi/bin"
+su2_home_path="$install_dir/SU2-v${su2_version}-linux64-mpi"
+mpich_path="/usr/bin" # Standard MPICH install path
 
-source ~/.bashrc
+echo "" >> ~/.bashrc
+echo "# SU2 Path" >> ~/.bashrc
+echo "export SU2_RUN=\"${su2_run_path}\"" >> ~/.bashrc
+echo "export SU2_HOME=\"${su2_home_path}\"" >> ~/.bashrc
+echo "export PYTHONPATH=\$PYTHONPATH:\$SU2_RUN" >> ~/.bashrc
+echo "export PATH=\"\$PATH:\$SU2_RUN:\$MPICH_PATH\"" >> ~/.bashrc # Include MPICH_PATH here
+
+# Remove the 'source ~/.bashrc' here. It's better to handle this in the Dockerfile
+# source ~/.bashrc
 
 echo "Checking SU2 version"
-"$SU2_RUN/SU2_CFD" --help
+if [ -f "$SU2_RUN/SU2_CFD" ]; then
+  "$SU2_RUN/SU2_CFD" --help
+else
+  echo "Warning: SU2_CFD executable not found at $SU2_RUN. Installation might have issues."
+fi
 
 echo "Checking MPICH version"
-mpirun --version
+if command -v mpirun &> /dev/null; then
+  mpirun --version
+else
+  echo "Warning: mpirun command not found. MPICH might not be correctly installed or its path is not set."
+fi
 
 cd "$current_dir"

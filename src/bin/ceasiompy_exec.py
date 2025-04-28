@@ -70,7 +70,7 @@ def run_testcase(testcase_nb):
         workflow.cpacs_in = Path(CPACS_FILES_PATH, "D150_simple.xml")
 
         workflow.set_workflow()
-        workflow.run_workflow()
+        workflow.run_workflow(test=True)
 
         print("\nCongratulation, this Test case is now finished!")
         print(f"\nYou can check your results in: {workflow.current_wkflow_dir}/Results")
@@ -107,7 +107,7 @@ def run_testcase(testcase_nb):
         print("\nTest case number must be 1,2,3,4 or 5.")
 
 
-def run_modules_list(args_list, test=False):
+def run_modules_list(args_list):
     """Run a workflow from a CPACS file and a list of modules."""
 
     if len(args_list) < 2:
@@ -133,13 +133,9 @@ def run_modules_list(args_list, test=False):
 
     log.info("CEASIOMpy has been started from a command line.")
 
-    if test:
-        with patch("streamlit.runtime.scriptrunner_utils.script_run_context"):
-            with patch("streamlit.runtime.state.session_state_proxy"):
-                log.info(f"Integration test for {args_list}.")
-                run_ceasiompy_workflow(cpacs_path, modules_list, test)
-    else:
-        run_ceasiompy_workflow(cpacs_path, modules_list, test)
+    with patch("streamlit.runtime.scriptrunner_utils.script_run_context"):
+        with patch("streamlit.runtime.state.session_state_proxy"):
+            run_ceasiompy_workflow(cpacs_path, modules_list, test=True)
 
 
 def run_ceasiompy_workflow(cpacs_path, modules_list, test):
@@ -174,7 +170,7 @@ def run_config_file(config_file):
 def run_gui():
     """Create an run a workflow from a GUI."""
 
-    log.info("CEASIOMpy has been started from the GUI (with Docker now).")
+    log.info("CEASIOMpy has been started from the GUI.")
     os.system(f"cd {STREAMLIT_PATH} && streamlit run CEASIOMpy.py")
 
 # =================================================================================================
@@ -221,19 +217,15 @@ def main():
     args = parser.parse_args()
 
     if args.testcase:
-
         run_testcase(args.testcase)
         return
 
     if args.modules:
-
         run_modules_list(args.modules)
         return
 
     if args.cfg:
-
         run_config_file(args.cfg)
-
         return
 
     if args.gui:
@@ -245,5 +237,4 @@ def main():
 
 
 if __name__ == "__main__":
-
     main()

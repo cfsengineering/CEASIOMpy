@@ -37,15 +37,8 @@ Build the Docker image for your system's architecture:
 - Windows: Run echo %PROCESSOR_ARCHITECTURE% in Command Prompt/PowerShell. Look for AMD64 (Intel/AMD) or ARM64 (ARM).
 
 # Run the appropriate build command:
-
-- Intel/AMD (x86_64/amd64):
 ```bash
 docker build --platform=linux/amd64 -t ceasiompy-image -f CEASIOMpy_docker_Installation .
-```
-
-- ARM (arm64/aarch64):
-```bash
-docker build --platform=linux/arm64 -t ceasiompy-image -f CEASIOMpy_docker_Installation_arm64 .
 ```
 
 Run the Docker container (you need to modify /pathtoYOURlocal/CEASIOMpy with the absolute path of your CEASIOMpy's folder location):
@@ -55,7 +48,7 @@ docker run -it --rm \
 -e DISPLAY=$DISPLAY \
 -e LIBGL_ALWAYS_SOFTWARE=1 \
 -v /tmp/.X11-unix:/tmp/.X11-unix \
--v /Users/leondeligny/Desktop/CEASIOMpy:/CEASIOMpy \
+-v /pathtoYOURlocal/CEASIOMpy:/CEASIOMpy \
 -p 8501:8501 \
 ceasiompy-image
 ```

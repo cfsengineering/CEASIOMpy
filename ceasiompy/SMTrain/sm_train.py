@@ -81,8 +81,8 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
     avl = (avl_or_su2 == "AVL")
 
-    # If DoE is enabled, generate new samples
     if doe:
+        # Generate new samples
         n_samples, ranges = design_of_experiment(cpacs)
         lh_sampling_path = lh_sampling(n_samples, ranges, results_dir)
 
@@ -106,11 +106,15 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
             # Adaptive refinement: iterative improvement using SU2 high-fidelity data
             high_variance_points = []
-            max_iterations = len(avl_dataset[0])  # Ensure the iteration limit is not exceeded X)
+            max_iterations = len(avl_dataset[0])
             iteration = 0
-
             rmse = float("inf")
-            while rmse > rmse_obj and iteration < max_iterations:
+
+            while (
+                iteration < max_iterations
+                and
+                rmse > rmse_obj
+            ):
                 # Select new high-variance points for refinement
                 new_point_df = new_points(datasets, model, results_dir, high_variance_points)
 
@@ -120,13 +124,13 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                         "No new high-variance points found. Ending refinement process and "
                         "returning the current surrogate model."
                     )
-                    break  # Exit loop and return the current model
+                    break
 
                 new_point = new_point_df.values[0]
                 high_variance_points.append(new_point)
 
                 # Generate unique SU2 working directory using iteration
-                wkdir_su2 = Path(SU2RUN_NAME / f"SU2_{iteration}")
+                wkdir_su2 = Path(SU2RUN_NAME) / f"SU2_{iteration}"
                 wkdir_su2.mkdir(parents=True, exist_ok=True)  # Ensure directory exists
 
                 su2_dataset = launch_su2(
@@ -138,24 +142,17 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                 )
 
                 if "level_2" in datasets:
-                    # Estrai i dati dalla tupla salvata
                     X_old, y_old, df_old, removed_old, df_cl_old = datasets["level_2"]
                     X_new, y_new, df_new, _ , df_cl_new = su2_dataset
 
-                    # Concatenazione degli array NumPy
                     X_combined = np.vstack([X_old, X_new])  # Input
                     y_combined = np.vstack([y_old, y_new])  # Output
 
-                    # Concatenazione dei DataFrame
                     df_combined = pd.concat([df_old, df_new], ignore_index=True)
                     df_cl_combined = pd.concat([df_cl_old, df_cl_new], ignore_index=True)
 
-                    # Il dizionario non cambia (assumendo che sia vuoto)
-                    removed_combined = (
-                        removed_old  # Se servisse modificarlo, dipende dal contenuto
-                    )
+                    removed_combined = removed_old
 
-                    # Ricostruzione della tupla aggiornata
                     datasets["level_2"] = (
                         X_combined,
                         y_combined,
@@ -165,19 +162,14 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
                     )
 
                 else:
-                    datasets["level_2"] = su2_dataset  # Primo inserimento
+                    datasets["level_2"] = su2_dataset
 
-                # Train multi-fidelity kriging model
                 sets = split_data(datasets, 0.7, 0.5)
                 model, rmse = train_surrogate_model(fidelity_level, datasets, sets)
                 iteration += 1
 
-            # Warn if max iterations reached without meeting RMSE threshold
-            if iteration == max_iterations:
-                log.warning("Maximum number of iterations reached. RMSE value > Threshold")
-
         else:
-            raise ValueError("You must select 'One' or 'Two' as fidelity level")
+            raise ValueError("Fidelity level must be either 'One' or 'Two'")
 
     # If DoE is not used, load existing datasets from CSV
     else:

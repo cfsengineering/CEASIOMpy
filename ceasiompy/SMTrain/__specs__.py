@@ -55,7 +55,7 @@ cpacs_inout.add_input(
     descr="Defining the percentage of the data to use to train the model in [0;1]",
     xpath=SMTRAIN_XPATH + "/trainingPercentage",  # decidere anche divisione test e validation?
     gui=include_gui,
-    gui_name="% of training data",
+    gui_name=r"% of training data",
     gui_group="Global Settings",
 )
 

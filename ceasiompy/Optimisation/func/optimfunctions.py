@@ -34,7 +34,7 @@ from ceasiompy.Optimisation.func.tools import (
     is_digit,
     launch_external_program,
 )
-from ceasiompy.SMUse.smuse import load_surrogate
+from ceasiompy.SMUse.sm_use import load_surrogate
 from ceasiompy import log
 from ceasiompy.utils.moduleinterfaces import get_all_module_specs
 from ceasiompy.utils.commonxpath import OPTIM_XPATH, SMUSE_XPATH, SU2_FIXED_CL_XPATH

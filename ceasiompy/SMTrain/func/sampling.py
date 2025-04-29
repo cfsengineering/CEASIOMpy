@@ -17,7 +17,7 @@ import pandas as pd
 
 from sklearn.model_selection import train_test_split
 from ceasiompy.SMTrain.func.utils import get_val_fraction
-from ceasiompy.SMTrain.func.surrogate import make_predictions
+from ceasiompy.SMTrain.func.predictions import make_predictions
 
 from pathlib import Path
 from numpy import ndarray

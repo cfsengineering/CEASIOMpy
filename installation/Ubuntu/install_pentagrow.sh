@@ -109,7 +109,10 @@ echo "--> Setting up environment"
 pentagrow_run_path="$install_dir/pentagrow/bin"
 mkdir -p "$pentagrow_run_path"
 
+echo "install_dir: $install_dir"
+echo "Pentagrow run path: $pentagrow_run_path"
 # Verifica se ci sono file nella directory Pentagrow/bin
+
 if [ -n "$(ls -A /CEASIOMpy/installation/Pentagrow/bin/)" ]; then
     # Copia i file nella destinazione
     if cp "/CEASIOMpy/installation/Pentagrow/bin/"* "$pentagrow_run_path/" 2>/dev/null; then

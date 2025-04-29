@@ -92,7 +92,7 @@ def write_inouts(
     """
 
     df.fillna("-", inplace=True)
-    for i, name in enumerate(v.index):
+    for i, name in enumerate(df.index):
         if df.loc[name, "setcmd"] != "-":
             exec("{} = {}".format(name, inout[0][i]))
             eval(df.loc[name, "setcmd"])

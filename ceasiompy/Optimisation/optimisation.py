@@ -34,6 +34,7 @@ from ceasiompy.Optimisation.func.optimfunctions import (
 )
 from cpacspy.cpacsfunctions import (
     get_value,
+    open_tixi,
     add_float_vector,
 )
 from ceasiompy.Optimisation.func.tools import (

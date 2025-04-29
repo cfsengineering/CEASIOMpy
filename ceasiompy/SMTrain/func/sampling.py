@@ -49,7 +49,7 @@ def new_doe(
     the highest fidelity level and suggests them for additional sampling.
 
     Args:
-        datasets (Dict): 
+        datasets (Dict):
             Contains datasets for different fidelity levels.
             Expected format: { "fidelity_X": (X, y, df_filt, rmv_col, df) }.
         model: Trained surrogate model used for making predictions.
@@ -130,7 +130,7 @@ def lh_sampling(
 
     Args:
         n_samples (int): Number of samples to generate.
-        ranges (Dict): 
+        ranges (Dict):
             Dictionary specifying the variable ranges in the format:
             { "variable_name": (min_value, max_value) }.
         results_dir (Path): Where the sampled dataset will be saved.

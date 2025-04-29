@@ -46,7 +46,7 @@ from ceasiompy.SMTrain.func.sampling import (
     split_data,
     lh_sampling,
 )
-from ceasiompy.SMTrain.func.utils import (
+from ceasiompy.SMTrain.func.create_data import (
     launch_avl,
     launch_su2,
 )

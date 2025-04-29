@@ -52,6 +52,7 @@ def plot_response_surface(cpacs: CPACS, results_dir: Path) -> None:
     """
 
     tixi = cpacs.tixi
+
     # Load the trained surrogate modeland metadata
     model, coefficient, removed_columns = load_surrogate(cpacs)
 

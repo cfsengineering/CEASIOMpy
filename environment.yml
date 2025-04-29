@@ -45,6 +45,7 @@ dependencies:
     - Cython==3.0.12
     - framat==0.4.8
     - gmsh==4.13.1
+    - numpy-stl==3.2.0
     - markdownpy==0.1.4
     - matplotlib==3.10.1
     - om-pycycle==4.3.0
@@ -59,4 +60,3 @@ dependencies:
     - streamlit==1.44.1
     - streamlit-autorefresh
     - vtk==9.3.0
-    - numpy-stl==3.2.0

@@ -74,6 +74,30 @@ else
     echo "libhdf5.so.103 is already correctly linked."
 fi
 
+echo "--> Checking if HDF5 high-level libraries are linked correctly"
+
+# Check if the library libhdf5_hl.so.100 is linked
+if ! ldconfig -p | grep -q "libhdf5_hl.so.100"; then
+    echo "libhdf5_hl.so.100 not found. Creating symlink..."
+
+    # Check if a compatible library is present
+    if ldconfig -p | grep -q "libhdf5_serial_hl.so.100"; then
+        # Check if the symlink already exists
+        if [ -e /usr/lib/x86_64-linux-gnu/libhdf5_hl.so.100 ]; then
+            echo "libhdf5_hl.so.100 already exists, removing it..."
+            sudo rm -f /usr/lib/x86_64-linux-gnu/libhdf5_hl.so.100 || { echo "Failed to remove existing libhdf5_hl.so.100"; exit 1; }
+        fi
+        echo "Creating symlink from libhdf5_serial_hl.so.100 to libhdf5_hl.so.100"
+        sudo ln -s /lib/x86_64-linux-gnu/libhdf5_serial_hl.so.100 /usr/lib/x86_64-linux-gnu/libhdf5_hl.so.100 || { echo "Failed to create symlink for libhdf5_hl"; exit 1; }
+    else
+        echo "Compatible libhdf5_hl library not found. Installing libhdf5-dev..."
+        sudo apt-get install libhdf5-dev -y || { echo "Failed to install libhdf5-dev"; exit 1; }
+    fi
+else
+    echo "libhdf5_hl.so.100 is already correctly linked."
+fi
+
+
 ## 3. Install TetGen
 echo "--> Verifying if TetGen is already installed"
 

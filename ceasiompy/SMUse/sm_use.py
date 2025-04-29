@@ -15,14 +15,13 @@ from cpacspy.cpacspy import CPACS
 from ceasiompy.utils.ceasiompyutils import call_main
 from ceasiompy.SMUse.func.config import load_surrogate
 from ceasiompy.SMUse.func.predictions import make_predictions
-
 from ceasiompy.SMUse.func.results import (
     get_smu_results,
     save_new_dataset,
 )
 
 from ceasiompy import log
-from ceasiompy.SMUse import MODULE_DIR
+from ceasiompy.SMUse import MODULE_NAME
 
 # =================================================================================================
 #    MAIN
@@ -56,4 +55,4 @@ def main(cpacs: CPACS, results_dir: Path) -> None:
 
 
 if __name__ == "__main__":
-    call_main(main, MODULE_DIR)
+    call_main(main, MODULE_NAME)

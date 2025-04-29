@@ -13,6 +13,8 @@ import pickle
 
 from pathlib import Path
 from pandas import DataFrame
+from smt.applications import MFK
+from smt.surrogate_models import KRG
 from cpacspy.cpacspy import (
     CPACS,
     AeroMap,
@@ -21,6 +23,7 @@ from typing import (
     List,
     Dict,
     Tuple,
+    Union,
 )
 
 from cpacspy.cpacsfunctions import get_value
@@ -101,7 +104,7 @@ def get_predictions_dataset(cpacs: CPACS, removed_columns: List) -> Dict:
     return dataset_dict
 
 
-def load_surrogate(cpacs: CPACS):
+def load_surrogate(cpacs: CPACS) -> Tuple[Union[MFK, KRG], str, Dict]:
     """
     Loads the surrogate model and metadata from the CPACS file.
     """

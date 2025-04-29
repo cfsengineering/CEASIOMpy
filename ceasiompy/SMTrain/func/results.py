@@ -15,7 +15,6 @@ Save new aeromap suggested points
 #   IMPORTS
 # =================================================================================================
 
-import os
 import glob
 
 from cpacspy.cpacsfunctions import (
@@ -37,6 +36,7 @@ from ceasiompy.utils.commonxpath import (
 # =================================================================================================
 
 
+# TODO: Improve function's logic
 def get_smt_results(cpacs: CPACS, results_dir: Path) -> None:
     """Function to write SMTrain result in the CPACS file
 
@@ -48,16 +48,21 @@ def get_smt_results(cpacs: CPACS, results_dir: Path) -> None:
     tixi = cpacs.tixi
 
     # Path to "suggested_points.csv"
-    suggested_points_path = os.path.join(results_dir, "suggested_points.csv")
-    if os.path.exists(suggested_points_path):
+    suggested_points_path = results_dir / "suggested_points.csv"
+    if suggested_points_path.is_file():
         log.info(f"Suggested points path: {suggested_points_path}")
     else:
         log.info(f"File not found: {suggested_points_path}")
         suggested_points_path = None
 
     # Find the surrogate model file
-    surrogate_model_files = glob.glob(os.path.join(results_dir, "surrogateModel_*.pkl"))
-    surrogate_model_path = surrogate_model_files[0] if surrogate_model_files else None
+    surrofate_files = results_dir / "surrogateModel_*.pkl"
+    surrogate_model_files = glob.glob(surrofate_files)
+    surrogate_model_path = (
+        surrogate_model_files[0]
+        if surrogate_model_files
+        else None
+    )
 
     if not surrogate_model_path:
         log.info("No surrogateModel_*.pkl file found.")
@@ -66,16 +71,13 @@ def get_smt_results(cpacs: CPACS, results_dir: Path) -> None:
     if suggested_points_path:
         create_branch(tixi, SUGGESTED_POINTS_XPATH)
         add_value(tixi, SUGGESTED_POINTS_XPATH, suggested_points_path)
+        aeromap = cpacs.create_aeromap_from_csv(suggested_points_path)
+        aeromap.save()
+        log.info(f"New aeromap with suggested points: {aeromap}")
 
     if surrogate_model_path:
         create_branch(tixi, SM_XPATH)
         add_value(tixi, SM_XPATH, surrogate_model_path)
-
-    # Create the aeromap
-    if suggested_points_path:
-        aeromap = cpacs.create_aeromap_from_csv(suggested_points_path)
-        aeromap.save()
-        log.info(f"New aeromap with suggested points: {aeromap}")
 
 
 # =================================================================================================

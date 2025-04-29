@@ -12,7 +12,6 @@ TODO:
 #   IMPORTS
 # ==============================================================================
 
-import os
 import numpy as np
 import pandas as pd
 
@@ -37,7 +36,12 @@ from ceasiompy import log
 # =================================================================================================
 
 
-def new_doe(datasets, model, fraction_of_new_samples, result_dir):
+def new_doe(
+    datasets: Dict,
+    model: Union[KRG, MFK],
+    fraction_of_new_samples: int,
+    result_dir: Path,
+):
     """
     Generate a new set of suggested sampling points based on model uncertainty.
 
@@ -45,12 +49,14 @@ def new_doe(datasets, model, fraction_of_new_samples, result_dir):
     the highest fidelity level and suggests them for additional sampling.
 
     Args:
-        datasets (dict): A dictionary containing datasets for different fidelity levels.
-                         Expected format: { "fidelity_X": (X, y, df_filt, rmv_col, df) }.
-        model: The trained surrogate model used for making predictions.
-        fraction_of_new_samples (int): Determines the number of new samples by dividing
-                                       the dataset size by this value.
-        result_dir (str): Path to the directory where the new dataset will be saved.
+        datasets (Dict): 
+            Contains datasets for different fidelity levels.
+            Expected format: { "fidelity_X": (X, y, df_filt, rmv_col, df) }.
+        model: Trained surrogate model used for making predictions.
+        fraction_of_new_samples (float):
+            Determines the number of new samples by dividing
+            the dataset size by this value.
+        result_dir (Path): Where new dataset will be saved.
 
     Returns:
         None
@@ -73,7 +79,9 @@ def new_doe(datasets, model, fraction_of_new_samples, result_dir):
     log.info(f"Using highest fidelity dataset: {highest_fidelity_level}")
 
     try:
+        df: DataFrame
         df_filt: DataFrame
+        rmv_col: Dict
         x, _, df_filt, rmv_col, df = datasets[highest_fidelity_level]
     except ValueError:
         raise ValueError(
@@ -104,10 +112,8 @@ def new_doe(datasets, model, fraction_of_new_samples, result_dir):
     new_df = new_df[input_columns]
 
     # Save suggested points
-    filename = "suggested_points.csv"
-    output_file_path = os.path.join(result_dir, filename)
+    output_file_path = result_dir / "suggested_points.csv"
     new_df.to_csv(output_file_path, index=False)
-
     log.info(f"New suggested points saved in {output_file_path}")
 
 
@@ -124,9 +130,10 @@ def lh_sampling(
 
     Args:
         n_samples (int): Number of samples to generate.
-        ranges (dict): Dictionary specifying the variable ranges in the format:
-                       { "variable_name": (min_value, max_value) }.
-        results_dir (str): Path to the directory where the sampled dataset will be saved.
+        ranges (Dict): 
+            Dictionary specifying the variable ranges in the format:
+            { "variable_name": (min_value, max_value) }.
+        results_dir (Path): Where the sampled dataset will be saved.
         random_state (int = None): Seed for random number generation to ensure reproducibility.
     """
 
@@ -156,8 +163,8 @@ def lh_sampling(
             sampled_dict[key] = np.round(sampled_dict[key] / 0.01) * 0.01  # Round to nearest 0.01
 
     # Save sampled dataset
-    sampled_df = pd.DataFrame(sampled_dict)
-    output_file_path = os.path.join(results_dir, "lh_sampling_dataset.csv")
+    sampled_df = DataFrame(sampled_dict)
+    output_file_path = results_dir / "lh_sampling_dataset.csv"
     sampled_df.to_csv(output_file_path, index=False)
     log.info(f"LHS dataset saved in {output_file_path}")
 
@@ -191,20 +198,20 @@ def new_points(
     # Retrieve the first fidelity dataset
     first_dataset = datasets["level_1"]
     df: DataFrame
-    X, _, df, _, _ = first_dataset  # Unpack dataset
+    x, _, df, _, _ = first_dataset  # Unpack dataset
 
     # Compute variance prediction
-    _, y_var = make_predictions(model, X)
+    _, y_var = make_predictions(model, x)
     y_var_flat = np.asarray(y_var).flatten()
     sorted_indices = np.argsort(y_var_flat)[::-1]  # Sort indices by variance (descending)
 
-    output_file_path = os.path.join(results_dir, "new_points.csv")
+    output_file_path = results_dir / "new_points.csv"
     columns = df.columns
 
     # First iteration: generate boundary points
     if not high_variance_points:
         log.info("First iteration: selecting the first 6 highest variance points.")
-        selected_points = [tuple(X[idx]) for idx in sorted_indices[:6]]
+        selected_points = [tuple(x[idx]) for idx in sorted_indices[:6]]
         high_variance_points.extend(selected_points)
         sampled_df = DataFrame(selected_points, columns=columns)
         sampled_df.to_csv(output_file_path, index=False)
@@ -216,7 +223,7 @@ def new_points(
     high_variance_set = set(tuple(p) for p in high_variance_points)
 
     for idx in sorted_indices:
-        new_point = tuple(X[idx])
+        new_point = tuple(x[idx])
         if new_point not in high_variance_set:
             high_variance_points.append(new_point)
             sampled_df = DataFrame([new_point], columns=columns)

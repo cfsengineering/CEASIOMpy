@@ -19,7 +19,6 @@ from ceasiompy.utils.commonxpath import (
     SM_XPATH,
     SMUSE_XPATH,
 )
-# from ceasiompy.utils.commonxpath import SMTRAIN_XPATH
 
 # ==============================================================================
 #   VARIABLE

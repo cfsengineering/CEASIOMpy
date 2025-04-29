@@ -12,8 +12,13 @@ Developed by CFS ENGINEERING, 1015 Lausanne, Switzerland
 import os
 import pandas as pd
 
+from typing import Dict
 from pathlib import Path
-from cpacspy.cpacspy import CPACS
+from pandas import DataFrame
+from cpacspy.cpacspy import (
+    CPACS,
+    AeroMap,
+)
 
 from ceasiompy.utils.ceasiompyutils import get_aeromap_list_from_xpath
 
@@ -25,13 +30,20 @@ from ceasiompy.utils.commonxpath import SMUSE_XPATH
 # =================================================================================================
 
 
-def save_new_dataset(datasets, predictions_dict, coefficient, result_dir):
+def save_new_dataset(
+    datasets: Dict,
+    predictions_dict: Dict,
+    coefficient: str,
+    results_dir: Path,
+) -> None:
     """
     Saves new datasets with predictions,
     ensuring correct column order and updating only necessary fields.
     """
 
     for dataset_name, dataset_content in datasets.items():
+        df_filtered: DataFrame
+        df_original: DataFrame
         df_filtered = dataset_content["df_filtered"]
         removed_columns = dataset_content["removed_columns"]
         df_original = dataset_content["df_original"]
@@ -60,10 +72,8 @@ def save_new_dataset(datasets, predictions_dict, coefficient, result_dir):
         df_filtered[coefficient] = predictions
 
         # Save dataset as CSV
-        filename = f"{dataset_name}_with_{coefficient}.csv"
-        output_file_path = os.path.join(result_dir, filename)
+        output_file_path = results_dir / f"{dataset_name}_with_{coefficient}.csv"
         df_filtered.to_csv(output_file_path, index=False)
-
         log.info(f"New dataset saved: {output_file_path}")
 
 
@@ -98,7 +108,7 @@ def get_smu_results(cpacs: CPACS, results_dir: Path) -> None:
         if coef_column not in valid_coefficients:
             raise ValueError(f"Invalid coefficient: {coef_column} in {file_name}")
 
-        aeromap = cpacs.get_aeromap_by_uid(aeromap_uid)
+        aeromap: AeroMap = cpacs.get_aeromap_by_uid(aeromap_uid)
 
         if aeromap is None:
             log.error(f"Aeromap {aeromap_uid} not found.")
@@ -121,8 +131,7 @@ def get_smu_results(cpacs: CPACS, results_dir: Path) -> None:
             )
 
         log.info(f"Updated aeromap {aeromap_uid} with {coef_column} values.")
-
-        aeromap.save()  # Salva ogni aeromap dopo l'aggiornamento
+        aeromap.save()
 
 
 # =================================================================================================

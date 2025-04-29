@@ -14,6 +14,12 @@ Functions related to plotting in SMTrain.
 import matplotlib.pyplot as plt
 
 from pathlib import Path
+from smt.applications import MFK
+from smt.surrogate_models import KRG
+from typing import (
+    Dict,
+    Union,
+)
 
 from ceasiompy.SMTrain.func.surrogate import make_predictions
 
@@ -22,21 +28,14 @@ from ceasiompy.SMTrain.func.surrogate import make_predictions
 # =================================================================================================
 
 
-def plot_validation(model, sets, label, result_dir):
+def plot_validation(
+    model: Union[KRG, MFK],
+    sets: Dict,
+    label: str,
+    result_dir: Path,
+) -> None:
     """
-    Generate and save a Predicted vs Actual plot for model validation.
-
-    This function takes a trained surrogate model, evaluates it on test data, and
-    generates a scatter plot comparing predicted values to actual values.
-
-    Args:
-        model: Trained surrogate model.
-        sets (dict): Dictionary containing test dataset with keys:
-                     "x_test" (features) and "y_test" (target values).
-        label (str): Label for the aerodynamic coefficient being validated.
-
-    Returns:
-        None
+    Generates a Predicted vs Actual plot for model validation.
     """
 
     x_test = sets["x_test"]

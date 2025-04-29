@@ -38,10 +38,15 @@ from cpacspy.cpacsfunctions import (
 )
 
 from pathlib import Path
-from cpacspy.cpacspy import CPACS, AeroMap
+from numpy import ndarray
+from pandas import DataFrame
 from unittest.mock import MagicMock
 from tixi3.tixi3wrapper import Tixi3
 from ceasiompy.utils.moduleinterfaces import CPACSInOut
+from cpacspy.cpacspy import (
+    CPACS,
+    AeroMap,
+)
 from typing import (
     List,
     Tuple,
@@ -72,6 +77,29 @@ from ceasiompy.utils.commonxpath import (
 # =================================================================================================
 #   FUNCTIONS
 # =================================================================================================
+
+
+def write_inouts(
+    tixi: Tixi3,
+    df: DataFrame,
+    inout: ndarray,
+) -> None:
+    """
+    Write the specified input or the predicted output of the model
+    to the CPACS file.
+
+    Use case of this function is for surrogate modules.
+    """
+
+    df.fillna("-", inplace=True)
+    for i, name in enumerate(v.index):
+        if df.loc[name, "setcmd"] != "-":
+            exec("{} = {}".format(name, inout[0][i]))
+            eval(df.loc[name, "setcmd"])
+        elif df.loc[name, "getcmd"] != "-":
+            xpath = df.loc[name, "getcmd"]
+            create_branch(tixi, xpath)
+            tixi.updateDoubleElement(xpath, inout[0][i], "%g")
 
 
 def update_cpacs_from_specs(cpacs: CPACS, module_name: str) -> None:

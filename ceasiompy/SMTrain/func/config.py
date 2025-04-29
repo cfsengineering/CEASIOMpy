@@ -120,8 +120,8 @@ def retrieve_aeromap_data(
     cpacs: CPACS,
     aeromap_uid: str,
     objective: str,
-    objective_map
-) -> Tuple[ndarray, DataFrame, ]:
+    objective_map: Dict,
+) -> Tuple[ndarray, ndarray, DataFrame, Dict, DataFrame]:
     """
     Retrieves the aerodynamic data from a CPACS aeromap
     and prepares input-output data for training.

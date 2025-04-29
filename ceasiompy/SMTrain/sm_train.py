@@ -63,7 +63,7 @@ from ceasiompy.SU2Run import MODULE_NAME as SU2RUN_NAME
 # =================================================================================================
 
 
-def main(cpacs: CPACS, results_dir: Path):
+def main(cpacs: CPACS, results_dir: Path) -> None:
     """
     Train a surrogate model (single-level or multi-fidelity) using aerodynamic data.
     """
@@ -82,7 +82,7 @@ def main(cpacs: CPACS, results_dir: Path):
     avl = (avl_or_su2 == "AVL")
 
     # If DoE is enabled, generate new samples
-    if doe is True:
+    if doe:
         n_samples, ranges = design_of_experiment(cpacs)
         lh_sampling_path = lh_sampling(n_samples, ranges, results_dir)
 
@@ -191,14 +191,12 @@ def main(cpacs: CPACS, results_dir: Path):
         if new_dataset is True:
             new_doe(datasets, model, fraction_of_new_samples, results_dir)
 
-    # Generate validation plots if required
+    # Plot, save and get results
     if show_plot is True:
-        log.info("Validation plots")
+        log.info("Validation plots.")
         plot_validation(model, sets, objective_coefficient, results_dir)
 
-    # Save the trained surrogate model
     save_model(model, objective_coefficient, datasets, results_dir)
-
     get_smt_results(cpacs, results_dir)
 
 

@@ -15,6 +15,7 @@ TODO:
 # ==============================================================================
 
 import os
+import streamlit as st
 
 from ceasiompy.PyAVL.pyavl import main as run_avl
 from ceasiompy.SU2Run.su2run import run_SU2_multi
@@ -22,7 +23,10 @@ from sklearn.model_selection import train_test_split
 from ceasiompy.PyAVL.func.results import get_avl_results
 from ceasiompy.SU2Run.func.results import get_su2_results
 from ceasiompy.SMTrain.func.config import retrieve_aeromap_data
-from ceasiompy.utils.ceasiompyutils import get_results_directory
+from ceasiompy.utils.ceasiompyutils import (
+    update_cpacs_from_specs,
+    get_results_directory,
+)
 from ceasiompy.SU2Run.func.config import generate_su2_cfd_config
 from cpacspy.cpacsfunctions import (
     add_value,
@@ -32,10 +36,14 @@ from pathlib import Path
 from numpy import ndarray
 from pandas import DataFrame
 from cpacspy.cpacspy import CPACS
+from unittest.mock import MagicMock
 from typing import Dict
 
 from ceasiompy import log
-from ceasiompy.PyAVL import AVL_AEROMAP_UID_XPATH
+from ceasiompy.PyAVL import (
+    AVL_AEROMAP_UID_XPATH,
+    MODULE_NAME as PYAVL_NAME,
+)
 from ceasiompy.utils.commonxpath import (
     SU2_AEROMAP_UID_XPATH,
     SU2_CONFIG_RANS_XPATH,
@@ -165,7 +173,7 @@ def launch_avl(
         DataFrame: Contains AVL results for the requested objective.
     """
     tixi = cpacs.tixi
-    if not os.path.exists(lh_sampling_path):
+    if not lh_sampling_path.is_file():
         raise FileNotFoundError(f"LHS dataset not found: {lh_sampling_path}")
 
     # Remove existing aeromap if present
@@ -181,11 +189,13 @@ def launch_avl(
     cpacs.save_cpacs(cpacs.cpacs_file, overwrite=True)
 
     # Run AVL analysis
-    results_dir = get_results_directory("PyAVL")
+    st.session_state = MagicMock()
+    results_dir = get_results_directory(PYAVL_NAME)
+    update_cpacs_from_specs(cpacs, PYAVL_NAME)
     run_avl(cpacs, results_dir)
     get_avl_results(cpacs, results_dir)
 
-    log.info("----- End of " + "PyAVL" + " -----")
+    log.info(f"----- End of {PYAVL_NAME} -----")
 
     # Reload CPACS file with updated AVL results
     cpacs = CPACS(cpacs.cpacs_file)

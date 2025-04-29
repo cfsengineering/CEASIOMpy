@@ -108,6 +108,20 @@ def section_3D_view() -> None:
     i, j, k = indices[0::3], indices[1::3], indices[2::3]
     x, y, z = vertices.T
 
+    # Compute bounds and cube size
+    min_x, max_x = np.min(x), np.max(x)
+    min_y, max_y = np.min(y), np.max(y)
+    min_z, max_z = np.min(z), np.max(z)
+    center_x = (min_x + max_x) / 2
+    center_y = (min_y + max_y) / 2
+    center_z = (min_z + max_z) / 2
+    max_range = max(max_x - min_x, max_y - min_y, max_z - min_z) / 2
+
+    # Set axis limits so the mesh is centered in a cube
+    x_range = [center_x - max_range, center_x + max_range]
+    y_range = [center_y - max_range, center_y + max_range]
+    z_range = [center_z - max_range, center_z + max_range]
+
     fig = go.Figure(data=[
         go.Mesh3d(
             x=x, y=y, z=z,
@@ -118,7 +132,13 @@ def section_3D_view() -> None:
     fig.update_layout(
         width=900,
         height=700,
-        margin=dict(l=0, r=0, t=0, b=0)
+        margin=dict(l=0, r=0, t=0, b=0),
+        scene=dict(
+            xaxis=dict(range=x_range),
+            yaxis=dict(range=y_range),
+            zaxis=dict(range=z_range),
+            aspectmode="cube"
+        )
     )
     st.plotly_chart(fig, use_container_width=False)
 
